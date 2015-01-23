@@ -236,9 +236,9 @@ public class SocialNetInviteActivity extends HikeAppStateBaseFragmentActivity im
 	private void getFriends()
 	{
 		Session activeSession = Session.getActiveSession();
-		Logger.d("INFO", activeSession.getPermissions().toString());
 		if (activeSession != null && activeSession.getState().isOpened())
 		{
+			Logger.d("INFO", activeSession.getPermissions().toString());
 			Logger.d("SocialNetInviteActivity", "active session is opened quering for friends");
 			Request friendRequest = Request.newMyFriendsRequest(activeSession, new GraphUserListCallback()
 			{
