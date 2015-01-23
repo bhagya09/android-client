@@ -172,11 +172,6 @@ public class FileTransferManager extends BroadcastReceiver
 		public abstract int getMinChunkSize();
 	};
 
-	private FileTransferManager()
-	{
-		taskLimit = context.getResources().getInteger(R.integer.ft_limit);
-	}
-
 	private class MyThreadFactory implements ThreadFactory
 	{
 		private final AtomicInteger threadNumber = new AtomicInteger(1);
