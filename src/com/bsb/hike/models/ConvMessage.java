@@ -149,7 +149,8 @@ public class ConvMessage
 		PARTICIPANT_LEFT, // The participant has left
 		PARTICIPANT_JOINED, // The participant has joined
 		GROUP_END, // Group chat has ended
-		USER_OPT_IN, DND_USER, USER_JOIN, CHANGED_GROUP_NAME, CHANGED_GROUP_IMAGE, BLOCK_INTERNATIONAL_SMS, INTRO_MESSAGE, STATUS_MESSAGE, CHAT_BACKGROUND;
+		USER_OPT_IN, DND_USER, USER_JOIN, CHANGED_GROUP_NAME, CHANGED_GROUP_IMAGE, BLOCK_INTERNATIONAL_SMS, INTRO_MESSAGE, STATUS_MESSAGE, CHAT_BACKGROUND,
+		VOIP_CALL_SUMMARY, VOIP_MISSED_CALL_OUTGOING, VOIP_MISSED_CALL_INCOMING;
 
 		public static ParticipantInfoState fromJSON(JSONObject obj)
 		{
@@ -201,6 +202,18 @@ public class ConvMessage
 			else if (HikeConstants.MqttMessageTypes.CHAT_BACKGROUD.equals(type))
 			{
 				return CHAT_BACKGROUND;
+			}
+			else if (HikeConstants.MqttMessageTypes.VOIP_MSG_TYPE_CALL_SUMMARY.equals(type))
+			{
+				return VOIP_CALL_SUMMARY;
+			}
+			else if (HikeConstants.MqttMessageTypes.VOIP_MSG_TYPE_MISSED_CALL_INCOMING.equals(type))
+			{
+				return VOIP_MISSED_CALL_INCOMING;
+			}
+			else if (HikeConstants.MqttMessageTypes.VOIP_MSG_TYPE_MISSED_CALL_OUTGOING.equals(type))
+			{
+				return VOIP_MISSED_CALL_OUTGOING;
 			}
 			return NO_INFO;
 		}
@@ -387,6 +400,11 @@ public class ConvMessage
 
 		this.mMessage = "";
 		this.mTimestamp = System.currentTimeMillis() / 1000;
+		JSONObject data = obj.optJSONObject(HikeConstants.DATA);
+		if(data!=null)
+		{
+			mTimestamp = data.optLong(HikeConstants.TIMESTAMP, mTimestamp);
+		}
 		switch (this.participantInfoState)
 		{
 		case PARTICIPANT_JOINED:

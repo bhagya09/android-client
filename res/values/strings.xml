@@ -806,16 +806,16 @@
 <![CDATA[ You are now sharing your <font color="#ef554e">Last Seen</font> and <font color="#0f8fe1">Status Updates</font> with %1$s. Would you like to request him to do the same?
 	    ]]>
     </string>
-	<string name="contacts_upper_case">CONTACTS</string>
-	<string name="ftue_favorite_subtext">Add as a favorite</string>
-	<string name="sent_you_favorite_request">Added you as favorite</string>
-	<string name="sent_you_favorite_request_detailed">Is sharing Last Seen and Status Updates with you. Would you like to do the same?\nAdd %1$s to your Favorites List.</string>
-	<string name="you_accepted_favorite_request_details">Great! %1$s will now be able to see your Last Seen and Status Updates.</string>
-	<string name="accepted_your_favorite_request_details">You can now see %1$s\'s Last Seen and Status Updates</string>
-	<string name="add_as_favorites_profile">Add %1$s to Favorites now.\nShare your Last Seen and Status Updates only with Favorite Contacts.</string>
-	<string name="favorite_request_sent">Added as a favorite</string>
-	<string name="favorite_request_sent_multiple">Added as favorites</string>
-	<string name="add_as_favorite_notification">%1$s added you as a favorite</string>
+    <string name="contacts_upper_case">CONTACTS</string>
+    <string name="ftue_favorite_subtext">Add as a favorite</string>
+    <string name="sent_you_favorite_request">Added you as favorite</string>
+    <string name="sent_you_favorite_request_detailed">Is sharing Last Seen and Status Updates with you. Would you like to do the same?\nAdd %1$s to your Favorites List.</string>
+    <string name="you_accepted_favorite_request_details">Great! %1$s will now be able to see your Last Seen and Status Updates.</string>
+    <string name="accepted_your_favorite_request_details">You can now see %1$s\'s Last Seen and Status Updates</string>
+    <string name="add_as_favorites_profile">Add %1$s to Favorites now.\nShare your Last Seen and Status Updates only with Favorite Contacts.</string>
+    <string name="favorite_request_sent">Added as a favorite</string>
+    <string name="favorite_request_sent_multiple">Added as favorites</string>
+    <string name="add_as_favorite_notification">%1$s added you as a favorite</string>
     <string name="add_as_favorite_notification_line">Added you as a favorite</string>
     <string name="favorite_confirmed_notification">You can now see %1$s\'s Last Seen and Status Updates</string>
     <string name="add_favorites_popup_msg">You can message anyone but only your favorites can see your status updates and last seen. Choose them wisely!</string>
@@ -999,65 +999,66 @@
     <string name="ftue_card_body_sticker">When words can’t express, say it with a sticker</string>
     <string name="ftue_card_click_text_sticker">You\'ll love them!</string>
     <string name="ftue_card_sep">Amazing things you can do on hike</string>
-     <string name="change_stealth_password">Change Password</string>
-     <string name="change_stealth_password_body">Change your Hidden Mode password</string>
-     <string name="invited">Invited</string>
-     <string name="invite_more">INVITE MORE</string>
-     <string name="invite_sent">Invite sent</string>
-     <string name="send_invite">Invite (%1$d)</string>
-     <string name="hike_to_offline_tip_msg">Tap here to send free SMS</string>
-     <string name="reciever_is_offline">%1$s is offline</string>
-     <string name="send_uppercase">SEND</string>
-     <string name="hike_offline_mode_msg">will be sent as %1$d SMS</string>
-     <string name="messages_sent">Messages sent!</string>
-     <string name="hike_offline_messages_sent_msg">You have %1$d free SMS left</string>
-     <string name="always">Always</string>
-     <string name="just_once">Just once</string>
-     <string name="undelivered_sms_setting_summary">Always ask for preference</string>
+    <string name="change_stealth_password">Change Password</string>
+    <string name="change_stealth_password_body">Change your Hidden Mode password</string>
+    <string name="invited">Invited</string>
+    <string name="invite_more">INVITE MORE</string>
+    <string name="invite_sent">Invite sent</string>
+    <string name="send_invite">Invite (%1$d)</string>
+    <string name="hike_to_offline_tip_msg">Tap here to send free SMS</string>
+    <string name="reciever_is_offline">%1$s is offline</string>
+    <string name="send_uppercase">SEND</string>
+    <string name="hike_offline_mode_msg">will be sent as %1$d SMS</string>
+    <string name="messages_sent">Messages sent!</string>
+    <string name="hike_offline_messages_sent_msg">You have %1$d free SMS left</string>
+    <string name="always">Always</string>
+    <string name="just_once">Just once</string>
+    <string name="undelivered_sms_setting_summary">Always ask for preference</string>
     <string name="wicked_jellies">Wicked Jellies</string>
-     <string name="hike_to_offline_push_title_single">%1$s is offline</string>
-      <string name="hike_to_offline_push_title_multiple">%1$d people are offline</string>
-     <string name="hike_to_offline_text">Send messages as free SMS</string>
+    <string name="hike_to_offline_push_title_single">%1$s is offline</string>
+    <string name="hike_to_offline_push_title_multiple">%1$d people are offline</string>
+    <string name="hike_to_offline_text">Send messages as free SMS</string>
     <string name="invite_with_watsapp">WhatsApp</string>
     <string name="watsapp_invitation">Hey, join me on hike, the only messaging app made in India! It lets you show your \'Last Seen\' only to select friends, send messages to friends when they\'re offline and send awesome stickers.\n
 Also share all types of files - docs, songs, movies etc, up to 100MB each ;) http://get.hike.in/</string>
     <string name="extra_invite">Extra</string>
-     <string name="profile_pic_header">Profile Picture</string>
-     <string name="profile_pic_display_info">Show only to your Favorites</string>
-     <string name="undelivered_sms_setting_remember">My preference is saved</string>
-     <string name="send_sms_sticker_msg">sent you a sticker</string>
-     <string name="send_sms_img_msg">sent you an image</string>
-     <string name="send_sms_video_msg">sent you a video</string>
-     <string name="send_sms_location_msg">shared his/her location </string>
-     <string name="send_sms_contact_msg">shared a contact</string>
-     <string name="send_sms_audio_msg">sent you an audio</string>
-     <string name="free_hike_sms_subtext">%1$d left</string>
-     <string name="free_hike_sms_subtext_diabled">%1$d left. Hike more to earn free SMS</string>
-     <string name="carrier_charges_apply">Carrier charges apply</string>
-     <string name="send_sms_as">Send %1$d SMS as</string>
-     <string name="choose_setting">Choose Setting</string>
-     <string name="kitkat_not_enough_sms">Only %1$d SMS left. Hike more to earn free SMS</string>
-     <string name="sent_by_hike">sent via hike free sms</string>
-     <string name="tap_plus_add_favorites">Only favorites can see your last seen and status update. Choose them wisely!</string>
-     <string name="add_as_favorite_menu">Add Favorite</string>
-	 <string name="remove_from_favorites">Remove Favorite</string>
-	 <string name="ftue_sms_contact_card_header">You have no contacts on hike</string>
-	 <string name="ftue_sms_contact_card_subtext">Invite them and earn Rs20 talk-time for each friend that joins :)</string>
-     <string name="send_free_sms">Send free SMS</string>
-     <string name="send_paid_sms">Send paid SMS</string>
-     <string name="next_uppercase">NEXT</string>
-     <string name="regular_sms_sent_confirmation">Sent as regular SMS</string>
+    <string name="profile_pic_header">Profile Picture</string>
+    <string name="profile_pic_display_info">Show only to your Favorites</string>
+    <string name="undelivered_sms_setting_remember">My preference is saved</string>
+    <string name="send_sms_sticker_msg">sent you a sticker</string>
+    <string name="send_sms_img_msg">sent you an image</string>
+    <string name="send_sms_video_msg">sent you a video</string>
+    <string name="send_sms_location_msg">shared his/her location </string>
+    <string name="send_sms_contact_msg">shared a contact</string>
+    <string name="send_sms_audio_msg">sent you an audio</string>
+    <string name="free_hike_sms_subtext">%1$d left</string>
+    <string name="free_hike_sms_subtext_diabled">%1$d left. Hike more to earn free SMS</string>
+    <string name="carrier_charges_apply">Carrier charges apply</string>
+    <string name="send_sms_as">Send %1$d SMS as</string>
+    <string name="choose_setting">Choose Setting</string>
+    <string name="kitkat_not_enough_sms">Only %1$d SMS left. Hike more to earn free SMS</string>
+    <string name="sent_by_hike">sent via hike free sms</string>
+    <string name="tap_plus_add_favorites">Only favorites can see your last seen and status update. Choose them wisely!</string>
+    <string name="add_as_favorite_menu">Add Favorite</string>
+    <string name="remove_from_favorites">Remove Favorite</string>
+    <string name="ftue_sms_contact_card_header">You have no contacts on hike</string>
+    <string name="ftue_sms_contact_card_subtext">Invite them and earn Rs20 talk-time for each friend that joins :)</string>
+    <string name="send_free_sms">Send free SMS</string>
+    <string name="send_paid_sms">Send paid SMS</string>
+    <string name="next_uppercase">NEXT</string>
+    <string name="regular_sms_sent_confirmation">Sent as regular SMS</string>
     <string name="ftue_card_body_group">Start bigger than ever group chats</string>
     <string name="ftue_card_click_group">Tap to create a group!</string>
     <string name="ftue_card_body_invite">Earn Rs.20 talk-time for each friend that joins hike</string>
     <string name="ftue_card_click_invite">Start inviting now!</string>
     <string name="free_download">Free Download</string>
-     <string name="send_sms_file_msg">sent you a file</string>
+    <string name="send_sms_file_msg">sent you a file</string>
     <string name="use_this_quality_for_sending_images">Use this quality for sending images</string>
     <string name="select_all_confirmation_header">Invite All</string>
     <string name="select_all_confirmation_msg">Send invite to %1$d contacts to download hike?</string>
     <string name="change_password_from_privacy">Change Password from Settings > Privacy</string>
     <string name="hike_offline_caps">Hike Offline</string>
+
     <string-array name="chat_thread_empty_state_tutorial_text">
         <item>#StartSomething</item>
         <item>It\'s always a good time to say hi :)</item>
@@ -1072,6 +1073,7 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
         <item>If only there was a way to start a chat. Oh wait...</item>
         <item>@string/chatThreadNudgeTutorialText</item>
     </string-array>
+
     <string name="pin_header">Pathik</string>
     <string name="pin_detail">Mass bunk tomorrow! Let\'s all go for a movie at DT Mall</string>
     <string name="postAnonymously">Post Anonymously</string>
@@ -1093,11 +1095,11 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="mute_status_notification_subtext">Show notifications for status &amp; profile picture updates from favourites</string>
     <string name="notifications_contact_join_summary">Notify when a contact joins hike</string>
     <string name="sticker_download_failed_large_file">Download failed due to insufficient space. Please free some space and try again.</string>
-	<string name="set_profile_pic">hike profile picture</string>
+    <string name="set_profile_pic">hike profile picture</string>
     <string name="confirm_delete_pin_header">Delete pin</string>
     <string name="confirm_delete_pin">Are you sure you want to delete this pin?</string>
     <string name="confirm_delete_pins_header">Delete pins</string>
-    <string name="confirm_delete_pins">Are you sure you want to delete these %1$s pins?</string>    
+    <string name="confirm_delete_pins">Are you sure you want to delete these %1$s pins?</string>
     <string name="shared_media">Shared Media</string>
     <string name="add_btn">ADD</string>
     <string name="not_now">NOT NOW</string>
@@ -1139,11 +1141,11 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="image_quality_medium">Better</string>
 	<string name="image_quality_original">Uncompressed</string>    
     <string name="image_quality_send">Send</string>
-	<string name="image_quality_files_as">files as</string>
-	<string name="image_quality_popup_header">Choose image quality</string>
-	<string name="image_quality_prefs">Image Quality</string>
-	<string name="image_quality_file_as">file as</string>
-	<string name="no_media">Photos and videos are shown here</string>
+    <string name="image_quality_files_as">files as</string>
+    <string name="image_quality_popup_header">Choose image quality</string>
+    <string name="image_quality_prefs">Image Quality</string>
+    <string name="image_quality_file_as">file as</string>
+    <string name="no_media">Photos and videos are shown here</string>
     <string name="add_fav">Add to favorites</string>
     <string name="no_file">Files and pins are shown here</string>
     <string name="no_file_profile">Files are shown here</string>
@@ -1151,8 +1153,8 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="notifications_contact_join_title">Contact joining hike</string>
     <string name="share_with_names_numbers">Share with %1$s and %2$d others?</string>
     <string name="forward_to_names_numbers">Send message to %1$s and %2$d others?</string>
-	<string name="select_all_hike">Select all Hike contacts</string>
-	<string name="unselect_all_hike">Unselect all Hike contacts</string>
+    <string name="select_all_hike">Select all Hike contacts</string>
+    <string name="unselect_all_hike">Unselect all Hike contacts</string>
     <string name="recent_chats">RECENT CHATS</string>
     <string name="new_chat_compose_hint">Search by name or number</string>
     <string name="forward_tip_heading">Sharing made easy</string>
@@ -1249,6 +1251,7 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="some_error">Some error occured!</string>
     <string name="nux_fwd_search_hint">Names go here...</string>
     <string name="recently_joined_hike">RECENTLY JOINED HIKE</string>
+    <string name="action_settings">Settings</string>
     <string name="creating_backup_message">Creating a backup of your account. Daily backups occur at 3:00 AM</string>
     <string name="restore">Restore</string>
     <string name="delete_account_description">delete all your messages, backup, free SMS and hike rewards</string>
@@ -1267,7 +1270,27 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
 	<string name="connected_app_to_hike">1 app connected to hike</string>
 	<string name="confirm_disconnect_app">You will miss out on relevant benefits.</string>
     <string name="send_sticker_joy">Wish your friends with this sticker</string>
-    
+    <string name="happy_new_year">Happy New Year</string>
+    <string name="voip_call_summary_incoming">Incoming Call</string>
+    <string name="voip_call_summary_outgoing">Outgoing Call</string>
+    <string name="voip_missed_call_outgoing">Missed your call</string>
+    <string name="voip_missed_call_incoming">You missed a call</string>
+    <string name="voip_call_chat">Hike Call</string>
+    <string name="voip_call">call</string>
+    <string name="voip_call_ended">CALL ENDED</string>
+    <string name="voip_on_hold">ON HOLD</string>
+    <string name="voip_incoming">&#8230;INCOMING</string>
+    <string name="voip_ringing">&#8230;RINGING</string>
+    <string name="voip_connecting">&#8230;CONNECTING</string>
+    <string name="voip_partner_busy">&#8230;BUSY</string>
+    <string name="voip_offline_error">Network unavailable. Please try again when you have network connectivity.</string>
+    <string name="voip_signal_fair">FAIR</string>
+    <string name="voip_signal_good">GOOD</string>
+    <string name="voip_signal_weak">WEAK</string>
+    <string name="voip_signal_excellent">EXCELLENT</string>
+    <string name="hike_calls">Hike Calls</string>
+    <string name="voip_intro_popup_msg">You can now call all your Hike friends for free!</string>
+    <string name="voip_intro_popup_btn">AWESOME</string>
     <string name="led_color_none_key">None</string>
     <string name="led_color_blue_key">Blue</string>
     <string name="led_color_cyan_key">Cyan</string>
@@ -1276,8 +1299,11 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="led_color_white_key">White</string>
     <string name="led_color_yellow_key">Yellow</string>
     <string name="led_color_purple_key">Purple</string>
-
     <string name="ringtone_loader">Loading...</string>
-    
+    <string name="call_rate_heading">Rate your call</string>
+    <string name="call_rate_subheading">We\'d love to know how the quality of your last call was</string>
+    <string name="call_rate_not_now">NOT NOW</string>
+    <string name="call_rate_submit">SUBMIT</string>
     <string name="happy_republic_day">Happy Republic Day</string>
+    <string name="beta">BETA</string>
 </resources>

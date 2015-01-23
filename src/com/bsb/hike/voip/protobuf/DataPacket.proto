@@ -1,0 +1,16 @@
+option java_package = "com.bsb.hike.voip.protobuf";
+option java_outer_classname = "DataPacketProtoBuf";
+option optimize_for = LITE_RUNTIME;
+
+message DataPacket {
+	
+	required bool encrypted = 1;
+	optional bytes data = 2;
+	optional string destinationIP = 3;
+	optional int32 destinationPort = 4;
+	required int32 packetType = 5;
+	optional int32 packetNumber = 6;
+	optional bool requiresAck = 7;
+	optional int32 voicePacketNumber = 8;
+	optional int64 timestamp = 9;	
+}

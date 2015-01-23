@@ -23,6 +23,7 @@ import android.view.animation.TranslateAnimation;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bsb.hike.HikeConstants;
@@ -652,14 +653,13 @@ public class ConversationsAdapter extends BaseAdapter
 			return;
 		}
 
-		updateViewsRelatedToMessageState(parentView, message, conversation);
-
 		TextView messageView = viewHolder.subText;
-
 		CharSequence markedUp = getConversationText(conversation, message);
-
 		messageView.setVisibility(View.VISIBLE);
 		messageView.setText(markedUp);
+
+		updateViewsRelatedToMessageState(parentView, message, conversation);
+
 		TextView tsView = viewHolder.timeStamp;
 		tsView.setText(message.getTimestampFormatted(true, context));
 	}
@@ -691,10 +691,50 @@ public class ConversationsAdapter extends BaseAdapter
 		TextView unreadIndicator = viewHolder.unreadIndicator;
 		unreadIndicator.setVisibility(View.GONE);
 		imgStatus.setVisibility(View.GONE);
+		
+		if (message.getParticipantInfoState() == ParticipantInfoState.VOIP_CALL_SUMMARY ||
+				message.getParticipantInfoState() == ParticipantInfoState.VOIP_MISSED_CALL_INCOMING ||
+						message.getParticipantInfoState() == ParticipantInfoState.VOIP_MISSED_CALL_OUTGOING)
+		{
+			String messageText = null;
+			int imageId = R.drawable.ic_voip_conv_miss;
+			if (message.getParticipantInfoState() == ParticipantInfoState.VOIP_CALL_SUMMARY)
+			{
+				boolean initiator = message.getMetadata().isVoipInitiator();
+				int duration = message.getMetadata().getDuration();
+				if (initiator)
+				{
+					messageText = context.getString(R.string.voip_call_summary_outgoing);
+					imageId = R.drawable.ic_voip_conv_out; 
+				}
+				else
+				{
+					messageText = context.getString(R.string.voip_call_summary_incoming);
+					imageId = R.drawable.ic_voip_conv_in;
+				}
+				messageText += String.format(" (%02d:%02d)", (duration / 60), (duration % 60));
+			}
+			else if (message.getParticipantInfoState() == ParticipantInfoState.VOIP_MISSED_CALL_OUTGOING)
+			{
+				messageText = context.getString(R.string.voip_missed_call_outgoing);
+			}
+			else if (message.getParticipantInfoState() == ParticipantInfoState.VOIP_MISSED_CALL_INCOMING)
+			{
+				messageText = context.getString(R.string.voip_missed_call_incoming);
+			}
+			
+			messageView.setText(messageText);
+			imgStatus.setImageResource(imageId);
+			imgStatus.setVisibility(View.VISIBLE);
+			
+			RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) messageView.getLayoutParams();
+			lp.setMargins((int) (5 * Utils.densityMultiplier), lp.topMargin, lp.rightMargin, lp.bottomMargin);
+			messageView.setLayoutParams(lp);
+		}
 		/*
 		 * If the message is a status message, we only show an indicator if the status of the message is unread.
 		 */
-		if (message.getParticipantInfoState() != ParticipantInfoState.STATUS_MESSAGE || message.getState() == State.RECEIVED_UNREAD)
+		else if (message.getParticipantInfoState() != ParticipantInfoState.STATUS_MESSAGE || message.getState() == State.RECEIVED_UNREAD)
 		{
 			int resId = message.getImageState();
 			if (resId > 0)
@@ -713,6 +753,10 @@ public class ConversationsAdapter extends BaseAdapter
 			else
 			{
 			}
+			
+			RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) messageView.getLayoutParams();
+			lp.setMargins(0, lp.topMargin, lp.rightMargin, lp.bottomMargin);
+			messageView.setLayoutParams(lp);
 		}
 
 		if (message.getState() == ConvMessage.State.RECEIVED_UNREAD)

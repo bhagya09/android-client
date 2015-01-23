@@ -29,6 +29,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.v4.app.FragmentTransaction;
 import android.text.TextUtils;
 import android.util.Pair;
 import android.view.Gravity;
@@ -62,6 +63,7 @@ import android.widget.Toast;
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
+import com.actionbarsherlock.view.SubMenu;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -106,9 +108,12 @@ import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.CustomFontEditText;
+import com.bsb.hike.voip.VoIPUtils;
+import com.bsb.hike.voip.view.CallRatePopup;
+import com.bsb.hike.voip.view.IVoipCallListener;
 
 public class ProfileActivity extends ChangeProfileImageBaseActivity implements FinishableEvent, Listener, OnLongClickListener, OnItemLongClickListener, OnScrollListener,
-		View.OnClickListener
+		View.OnClickListener, IVoipCallListener
 {
 	private TextView mName;
 	
@@ -299,6 +304,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		else if (profileType == ProfileType.CONTACT_INFO || profileType == ProfileType.CONTACT_INFO_TIMELINE)
 		{
 			HikeMessengerApp.getPubSub().removeListeners(this, contactInfoPubSubListeners);
+			VoIPUtils.removeCallListener();
 		}
 		else if (profileType == ProfileType.USER_PROFILE)
 		{
@@ -352,6 +358,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			this.profileType = ProfileType.CONTACT_INFO;
 			setupContactProfileScreen();
 			HikeMessengerApp.getPubSub().addListeners(this, contactInfoPubSubListeners);
+			VoIPUtils.setCallListener(this);
 		}
 		else if(getIntent().hasExtra(HikeConstants.Extras.CONTACT_INFO_TIMELINE))
 		{
@@ -550,11 +557,6 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			{
 				getSupportMenuInflater().inflate(R.menu.contact_profile_menu, menu);
 				mMenu = menu;
-				MenuItem callItem = menu.findItem(R.id.call);
-				if (callItem != null)
-				{
-					callItem.setVisible(getPackageManager().hasSystemFeature(PackageManager.FEATURE_TELEPHONY));
-				}
 				return true;
 			}
 		case GROUP_INFO:
@@ -582,6 +584,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			/*Falling onto contact info intentionally*/
 		case CONTACT_INFO:
 			MenuItem friendItem = menu.findItem(R.id.unfriend);
+			MenuItem overflow = menu.findItem(R.id.overflow_menu);
 
 			if (friendItem != null)
 			{
@@ -594,6 +597,11 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 					{
 						friendItem.setVisible(false);
 					}
+			}
+
+			if(overflow!=null && !overflow.getSubMenu().hasVisibleItems())
+			{
+				overflow.setVisible(false);
 			}
 			return true;
 		case GROUP_INFO:
@@ -612,9 +620,6 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	{
 		switch (item.getItemId())
 		{
-		case R.id.call:
-			Utils.onCallClicked(ProfileActivity.this, mLocalMSISDN);
-			break;
 		case R.id.unfriend:
 			FavoriteType fav = Utils.checkAndUnfriendContact(contactInfo);
 			contactInfo.setFavoriteType(fav);
@@ -3049,7 +3054,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	
 	public void callBtnClicked(View v)
 	{
-		Utils.onCallClicked(ProfileActivity.this, mLocalMSISDN);
+		Utils.onCallClicked(this, mLocalMSISDN, VoIPUtils.CallSource.PROFILE_ACTIVITY);
 	}
 	
 	@Override
@@ -3071,5 +3076,27 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		intent.putExtra(HikeConstants.Extras.CONTACT_INFO_TIMELINE, mLocalMSISDN);
 		intent.putExtra(HikeConstants.Extras.ON_HIKE, contactInfo.isOnhike());
 		startActivity(intent);
+	}
+
+	@Override
+	public void onVoipCallEnd(final Bundle bundle) 
+	{
+		runOnUiThread(new Runnable()
+		{
+
+			@Override
+			public void run()
+			{
+				if(!isFragmentAdded(HikeConstants.VOIP_CALL_RATE_FRAGMENT_TAG))
+				{
+					CallRatePopup callRatePopup = new CallRatePopup();
+					callRatePopup.setArguments(bundle);
+
+					FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+					fragmentTransaction.add(callRatePopup, HikeConstants.VOIP_CALL_RATE_FRAGMENT_TAG);
+					fragmentTransaction.commitAllowingStateLoss();
+				}
+			}
+		});
 	}
 }

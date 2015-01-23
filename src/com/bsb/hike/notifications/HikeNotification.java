@@ -44,6 +44,7 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.SoundUtils;
 import com.bsb.hike.utils.Utils;
+import com.bsb.hike.voip.VoIPConstants;
 
 public class HikeNotification
 {

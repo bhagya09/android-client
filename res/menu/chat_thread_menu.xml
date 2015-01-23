@@ -2,10 +2,10 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <item
-        android:id="@+id/chat_bg"
-        android:icon="@drawable/ic_chat_background"
+        android:id="@+id/voip_call"
+        android:icon="@drawable/icon_call_chatthread"
         android:showAsAction="always"
-        android:title="@string/chat_theme"/>
+        android:title="@string/voip_call_chat"/>
     <item
         android:id="@+id/pin_imp"
         android:icon="@drawable/ic_pin_it"

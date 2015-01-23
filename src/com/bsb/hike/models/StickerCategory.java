@@ -194,12 +194,12 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 		return state;
 	}
 	
-	public List<Sticker> getStickerList(Context context)
+	public List<Sticker> getStickerList()
 	{
 		final List<Sticker> stickersList;
 		if (isCustom())
 		{
-			return ((CustomStickerCategory) this).getStickerList(context);
+			return ((CustomStickerCategory) this).getStickerList();
 		}
 		else
 		{

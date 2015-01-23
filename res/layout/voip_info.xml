@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:descendantFocusability="blocksDescendants"
+    android:gravity="center_vertical"
+    android:minHeight="30dp" >
+
+    <ViewStub
+        android:id="@+id/day_stub"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout="@layout/message_day_container" />
+
+    <RelativeLayout
+        android:id="@+id/voip_details"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/day_container"
+        android:layout_centerVertical="true"
+        android:layout_margin="10dp"
+        android:background="@drawable/participant_info_bg"
+        android:gravity="center_vertical"
+        android:orientation="horizontal" >
+
+        <ImageView
+            android:id="@+id/voip_image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginTop="2dp"
+            android:src="@drawable/ic_call" />
+
+        <com.bsb.hike.view.CustomFontTextView
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/timestamp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:gravity="center"
+            android:paddingBottom="3dp"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:paddingTop="3dp"
+            android:text="10:00"
+            android:textColor="@color/timestampcolor"
+            android:textSize="12sp"
+            android:textStyle="bold|italic" />
+
+        <com.bsb.hike.view.CustomFontTextView
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/voip_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toLeftOf="@id/timestamp"
+            android:layout_toRightOf="@id/voip_image"
+            android:drawablePadding="5dp"
+            android:gravity="center"
+            android:paddingBottom="3dp"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:paddingTop="3dp"
+            android:text="Placeholder text"
+            android:textColor="@color/list_item_subtext"
+            android:textSize="12sp"
+            android:textStyle="bold|italic" />
+    </RelativeLayout>
+
+</RelativeLayout>

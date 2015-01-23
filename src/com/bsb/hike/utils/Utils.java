@@ -191,6 +191,9 @@ import com.bsb.hike.ui.TimelineActivity;
 import com.bsb.hike.ui.WebViewActivity;
 import com.bsb.hike.ui.WelcomeActivity;
 import com.bsb.hike.utils.AccountUtils.AccountInfo;
+import com.bsb.hike.voip.VoIPService;
+import com.bsb.hike.voip.VoIPUtils;
+import com.bsb.hike.voip.view.VoIPActivity;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.maps.GeoPoint;
@@ -2989,22 +2992,35 @@ public class Utils
 
 	public static void sendLogEvent(JSONObject data)
 	{
+		sendLogEvent(data, null, null);
+	}
+	
+	public static void sendLogEvent(JSONObject data, String subType, String toMsisdn){
+
 		JSONObject object = new JSONObject();
 		try
 		{
 			data.put(HikeConstants.LogEvent.TAG, HikeConstants.LOGEVENT_TAG);
 			data.put(HikeConstants.C_TIME_STAMP, System.currentTimeMillis());
 			data.put(HikeConstants.MESSAGE_ID, Long.toString(System.currentTimeMillis() / 1000));
-
+			if(!TextUtils.isEmpty(subType)){
+				JSONObject md = new JSONObject();
+				md.put(HikeConstants.SUB_TYPE, subType);
+				data.put(HikeConstants.METADATA, md);
+			}
+			if(!TextUtils.isEmpty(toMsisdn))
+			{
+				object.put(HikeConstants.TO, toMsisdn);
+			}
 			object.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.ANALYTICS_EVENT);
 			object.put(HikeConstants.DATA, data);
-
 			HikeMessengerApp.getPubSub().publish(HikePubSub.MQTT_PUBLISH, object);
 		}
 		catch (JSONException e)
 		{
 			Logger.w("LogEvent", e);
 		}
+	
 	}
 
 	private static void sendSMSSyncLogEvent(boolean syncing)
@@ -3383,75 +3399,24 @@ public class Utils
 		Toast.makeText(activity, R.string.shortcut_created, Toast.LENGTH_SHORT).show();
 	}
 
-	public static void onCallClicked(Activity activity, final String mContactNumber)
+	public static boolean isVoipActivated(Context context)
 	{
-		final Activity mActivity = activity;
-		final SharedPreferences settings = activity.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
+		int voipActivated = HikeSharedPreferenceUtil.getInstance(context).getData(HikeConstants.VOIP_ACTIVATED, 0);
+		return (voipActivated == 0)? false : true;
+	}
 
-		if (!settings.getBoolean(HikeConstants.NO_CALL_ALERT_CHECKED, false))
+	public static void onCallClicked(Context context, final String mContactNumber, VoIPUtils.CallSource source)
+	{
+		if(!isUserOnline(context))
 		{
-			final Dialog dialog = new Dialog(activity, R.style.Theme_CustomDialog);
-			dialog.setContentView(R.layout.operator_alert_popup);
-			dialog.setCancelable(true);
-
-			TextView header = (TextView) dialog.findViewById(R.id.header);
-			TextView body = (TextView) dialog.findViewById(R.id.body_text);
-			Button btnOk = (Button) dialog.findViewById(R.id.btn_ok);
-			Button btnCancel = (Button) dialog.findViewById(R.id.btn_cancel);
-
-			header.setText(R.string.call_not_free_head);
-			body.setText(R.string.call_not_free_body);
-
-			btnCancel.setText(R.string.cancel);
-			btnOk.setText(R.string.call);
-
-			CheckBox checkBox = (CheckBox) dialog.findViewById(R.id.body_checkbox);
-			checkBox.setOnCheckedChangeListener(new OnCheckedChangeListener()
-			{
-
-				@Override
-				public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
-				{
-					Editor editor = settings.edit();
-					editor.putBoolean(HikeConstants.NO_CALL_ALERT_CHECKED, isChecked);
-					editor.commit();
-				}
-			});
-			checkBox.setText(activity.getResources().getString(R.string.not_show_call_alert_msg));
-
-			btnOk.setOnClickListener(new OnClickListener()
-			{
-
-				@Override
-				public void onClick(View v)
-				{
-					Utils.logEvent(mActivity, HikeConstants.LogEvent.MENU_CALL);
-					Intent callIntent = new Intent(Intent.ACTION_CALL);
-					callIntent.setData(Uri.parse("tel:" + mContactNumber));
-					mActivity.startActivity(callIntent);
-					dialog.dismiss();
-				}
-			});
-
-			btnCancel.setOnClickListener(new OnClickListener()
-			{
-
-				@Override
-				public void onClick(View v)
-				{
-					dialog.dismiss();
-				}
-			});
-
-			dialog.show();
+			Toast.makeText(context, context.getString(R.string.voip_offline_error), Toast.LENGTH_SHORT).show();
+			return;
 		}
-		else
-		{
-			Utils.logEvent(activity, HikeConstants.LogEvent.MENU_CALL);
-			Intent callIntent = new Intent(Intent.ACTION_CALL);
-			callIntent.setData(Uri.parse("tel:" + mContactNumber));
-			activity.startActivity(callIntent);
-		}
+		Intent i = new Intent(context, VoIPService.class);
+		i.putExtra("action", "outgoingcall");
+		i.putExtra("msisdn", mContactNumber);
+		i.putExtra("call_source", source.ordinal());
+		context.startService(i);
 	}
 
 	public static String getFormattedDateTimeFromTimestamp(long milliSeconds, Locale current)

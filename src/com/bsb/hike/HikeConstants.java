@@ -808,6 +808,8 @@ public class HikeConstants
 	
 	public static final String PIN_HISTORY_FRAGMENT_TAG = "pin-history-fragment";
 
+	public static final String VOIP_CALL_RATE_FRAGMENT_TAG = "voipCallRateFragmentTag";
+
 	/*
 	 * Contact Type
 	 */
@@ -994,6 +996,24 @@ public class HikeConstants
 	public static final String NUX_INVITE_FORWARD = "nuxInviteForward";
 	
 	public static final String SELF_HIKE_ID = "-1";
+
+	public static final String VOIP_CALL_DURATION = "vcd";
+
+	public static final String VOIP_CALL_INITIATOR = "vci";
+	
+	public static final String VOIP_BITRATE_2G = "vb2g";
+	
+	public static final String VOIP_BITRATE_3G = "vb3g";
+	
+	public static final String VOIP_BITRATE_WIFI = "vbw";
+
+	public static final String VOIP_ACTIVATED = "voip";
+
+	public static final String VOIP_CALL_RATE_POPUP_SHOW = "vrmcs";
+
+	public static final String VOIP_CALL_RATE_POPUP_FREQ = "vrmcf";
+
+	public static final String VOIP_RELAY_SERVER_PORT = "rsport";
 
 	public static final class ResultCodes
 	{
@@ -1769,6 +1789,33 @@ public class HikeConstants
 		public static final String FESTIVE_POPUP_WISH = "fstvepopwish";
 
 		public static final String FESTIVE_POPUP_DISMISS = "fstvepopdsmss";
+
+		/*
+		 * VOIP events
+		 */
+		public static final String VOIP = "voip";
+
+		public static final String VOIP_CALL_RATE_POPUP_SUBMIT = "vrmcSbmt";
+
+		public static final String VOIP_CALL_CLICK = "cs";
+
+		public static final String VOIP_CALL_ACCEPT = "ca";
+
+		public static final String VOIP_CALL_REJECT = "cr";
+
+		public static final String VOIP_CALL_SPEAKER = "spk";
+
+		public static final String VOIP_CALL_MUTE = "mut";
+
+		public static final String VOIP_CALL_HOLD = "hld";
+
+		public static final String VOIP_CALL_END = "ce";
+
+		public static final String VOIP_CALL_DROP = "cd";
+
+		public static final String VOIP_NATIVE_CALL_INTERRUPT = "tci";
+
+		public static final String VOIP_CALL_RELAY = "cpur";
 	}
 
 	public static final class MqttMessageTypes
@@ -1887,8 +1934,55 @@ public class HikeConstants
 		
 		public static final String TIP = "tip";
 
-	}
+		public static final String VOIP_SOCKET_INFO = "ve";
+		
+		/**
+		 * VoIP data packet with QoS 0. This packet will either be delivered immediately
+		 * or never. 
+		 */
+		public static final String MESSAGE_VOIP_0 = "v0";
 
+		/**
+		 * VoIP data packet with QoS 1. 
+		 */
+		public static final String MESSAGE_VOIP_1 = "v1";
+
+		/**
+		 * The person we are calling is on a compatible platform, but is
+		 * using an old version of the client which does not support VoIP. 
+		 */
+		public static final String VOIP_ERROR_CALLEE_INCOMPATIBLE_UPGRADABLE = "e0";
+
+		public static final String CREATE_BOT = "cb";
+		
+		public static final String DELETE_BOT = "db";
+		
+		public static final String GCM_ECHO = "gcmecho";
+
+		/**
+		 * The person we are calling is on a client that cannot be upgraded
+		 * to support VoIP. For example, might be on iOS and we have no iOS client.
+		 */
+		public static final String VOIP_ERROR_CALLEE_INCOMPATIBLE_NOT_UPGRADABLE = "e1";
+
+		/**
+		 * The person you are calling has blocked you. 
+		 */
+		public static final String VOIP_ERROR_CALLEE_HAS_BLOCKED_YOU = "e2";
+		
+		/**
+		 * If you receive a packet of this subtype, it implies that the person
+		 * you are calling is already on a call.
+		 */
+		public static final String VOIP_ERROR_ALREADY_IN_CALL = "mc";
+
+		public static final String VOIP_MSG_TYPE_CALL_SUMMARY = "vcs";
+
+		public static final String VOIP_MSG_TYPE_MISSED_CALL_INCOMING = "vmci";
+
+		public static final String VOIP_MSG_TYPE_MISSED_CALL_OUTGOING = "vmco";
+	}
+	
 	public static final class SMSNative
 	{
 		/*

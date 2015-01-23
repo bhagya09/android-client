@@ -381,5 +381,17 @@
     <color name="sticker_shop_icon_pressed">#9A33B5E5</color>
     <color name="festive_mode_bg">#D9000D1F</color>
     <color name="festive_popup_divider">#33000000</color>
+    <color name="black_90">#E6000000</color>
+    <color name="voip_signal">#F5AD00</color>
+    <color name="voip_hang_up">#F64444</color>
+    <color name="signal_yellow">#f09b05</color>
+    <color name="signal_red">#f14646</color>
+    <color name="signal_green">#45ad25</color>
+    <color name="signal_good">#8bb605</color>
+    <color name="black_80">#CC000000</color>
+    <color name="call_rate_dismiss">#bec1c1</color>
+    <color name="call_rate_submit">#0f8fe1</color>
+    <color name="call_rate_header">#111111</color>
+    <color name="call_rate_subheader">#26292d</color>
 </resources>
 	

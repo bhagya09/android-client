@@ -354,6 +354,8 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 				viewHolder.text = (TextView) viewHolder.parent.findViewById(R.id.name);
 				viewHolder.extraInfo = (TextView) v.findViewById(R.id.phone_number);
 				viewHolder.subText = (TextView) v.findViewById(R.id.main_info);
+				viewHolder.phoneIcon = (ImageView) v.findViewById(R.id.call);
+				viewHolder.divider = v.findViewById(R.id.divider);
 				break;
 			}
 
@@ -579,7 +581,12 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 			
 			if (!TextUtils.isEmpty(mContactInfo.getMsisdnType()))
 				viewHolder.subText.setText(" (" + mContactInfo.getMsisdnType().toLowerCase() + ")");
-			
+
+			if(!mContactInfo.isOnhike() || !Utils.isVoipActivated(context))
+			{
+				viewHolder.phoneIcon.setVisibility(View.GONE);
+				viewHolder.divider.setVisibility(View.GONE);
+			}
 			break;
 
 		case MEMBERS:
@@ -807,13 +814,9 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 
 		ImageView iconFrame;
 
-		Button btn1;
+		ImageView phoneIcon;
 
-		Button btn2;
-
-		ImageButton imageBtn1;
-
-		ImageButton imageBtn2;
+		View divider;
 
 		TextView timeStamp;
 

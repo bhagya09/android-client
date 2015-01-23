@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/popup"
+    android:layout_width="407dp"
+    android:layout_height="236dp"
+    android:layout_centerInParent="true"
+    android:background="@drawable/bg_voip_ftue_popup"
+    android:gravity="center"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:id="@+id/popup_content"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/seprator"
+        android:layout_alignParentTop="true"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp" >
+
+        <ImageView
+            android:layout_width="162dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:src="@drawable/img_voip_intro" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:background="@color/white"
+            android:gravity="center_vertical"
+            android:orientation="vertical" >
+
+            <com.bsb.hike.view.CustomFontTextView
+                android:id="@+id/header"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:text="@string/hike_calls"
+                android:textColor="#111111"
+                android:textSize="24dp"
+                android:textStyle="italic" />
+
+            <com.bsb.hike.view.CustomFontTextView
+                android:id="@+id/body"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/stealth_ftue_pu_msg_margin_bottom"
+                android:text="@string/voip_intro_popup_msg"
+                android:textColor="#26292d"
+                android:textSize="14dp"
+                android:textStyle="italic" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <View
+        android:id="@+id/seprator"
+        android:layout_width="wrap_content"
+        android:layout_height="1dp"
+        android:layout_above="@id/button_container"
+        android:layout_alignLeft="@id/popup_content"
+        android:layout_alignRight="@id/popup_content"
+        android:background="@color/list_divider" />
+
+    <LinearLayout
+        android:id="@+id/button_container"
+        android:layout_width="wrap_content"
+        android:layout_height="47dp"
+        android:layout_alignLeft="@id/popup_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignRight="@id/popup_content"
+        android:orientation="horizontal" >
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/awesomeButton"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/popup_button_bg_selector"
+            android:clickable="true"
+            android:gravity="center"
+            android:text="@string/voip_intro_popup_btn"
+            android:textColor="@color/blue_hike"
+            android:textSize="13dp"
+            android:textStyle="italic|bold" />
+    </LinearLayout>
+    
+    <com.bsb.hike.view.CustomFontTextView
+        android:id="@+id/beta_tag"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignRight="@id/popup_content"
+        android:layout_alignTop="@id/popup_content"
+        android:layout_marginRight="-28dp"
+        android:layout_marginTop="6dp"
+        android:background="@color/blue_hike"
+        android:gravity="center"
+        android:maxLines="1"
+        android:minWidth="80dp"
+        android:text="@string/beta"
+        android:textColor="@color/white"
+        android:textSize="11dp" />
+
+</RelativeLayout>

@@ -699,4 +699,10 @@
         <item name="android:textSize">18sp</item>
         <item name="android:textColor">@color/diwali_popup_btn_txt</item>
 	</style>
+	
+	<color name="transparent_black_color">#66ffffff</color>
+	<style name="TranslucentBlack" parent="android:Theme.Translucent.NoTitleBar">  
+        <item name="android:windowBackground">@color/transparent_black_color</item>  
+    </style>  
+    	
 </resources>

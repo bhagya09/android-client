@@ -48,7 +48,7 @@ public class CustomStickerCategory extends StickerCategory
 		loadStickers();
 	}
 
-	public List<Sticker> getStickerList(Context context)
+	public List<Sticker> getStickerList()
 	{
 
 		// right now only recent category is custom

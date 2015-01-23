@@ -6026,5 +6026,88 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 		return rowId < 0 ? false : true;
 	}
+	
+	/**
+	 * Used to persist the changes made to the {@link StickerCategory#isUpdateAvailable()} flag
+	 * 
+	 * @param category
+	 */
+	public void saveUpdateFlagOfStickerCategory(StickerCategory category)
+	{
+		ContentValues contentValues = new ContentValues();
+		contentValues.put(DBConstants.UPDATE_AVAILABLE, category.isUpdateAvailable());
+
+		mDb.update(DBConstants.STICKER_CATEGORIES_TABLE, contentValues, DBConstants._ID + "=?", new String[] { category.getCategoryId() });
+
+	}
+	
+	public void saveUpdateFlagOfStickerCategory(List<StickerCategory> stickerCategories)
+	{
+		try
+		{
+			mDb.beginTransaction();
+			for (StickerCategory stickerCategory : stickerCategories)
+			{
+				saveUpdateFlagOfStickerCategory(stickerCategory);
+			}
+			mDb.setTransactionSuccessful();
+		}
+		catch (Exception e)
+		{
+			Logger.e(getClass().getSimpleName(), "Exception : ", e);
+			e.printStackTrace();
+		}
+		finally
+		{
+			mDb.endTransaction();
+		}
+	}
+	
+	public StickerCategory getStickerCategoryforId(String categoryId)
+	{
+		Cursor c = null;
+		StickerCategory stickerCategory = null;
+		
+		try
+		{
+			c = mDb.query(DBConstants.STICKER_CATEGORIES_TABLE, null, DBConstants._ID + "=?", new String[] { categoryId }, null, null, null);
+			stickerCategory = parseStickerCategoryCursor(c);
+		}
+
+		catch (Exception e)
+		{
+			Logger.wtf("StickerManager", "Exception in getStickerCategoryforId  : " + e.toString());
+		}
+		
+		finally
+		{
+			if(c != null)
+			{
+				c.close();
+			}
+		}
+		
+		return stickerCategory;
+	}
+	
+	private StickerCategory parseStickerCategoryCursor(Cursor c)
+	{
+		StickerCategory stickerCategory = null;
+		if(c.moveToFirst())
+		{
+			String categoryId = c.getString(c.getColumnIndex(DBConstants._ID));
+			String categoryName = c.getString(c.getColumnIndex(DBConstants.CATEGORY_NAME));
+			boolean updateAvailable = c.getInt(c.getColumnIndex(DBConstants.UPDATE_AVAILABLE)) == 1;
+			boolean isVisible = c.getInt(c.getColumnIndex(DBConstants.IS_VISIBLE)) == 1;
+			boolean isCustom = c.getInt(c.getColumnIndex(DBConstants.IS_CUSTOM)) == 1;
+			int catIndex = c.getInt(c.getColumnIndex(DBConstants.CATEGORY_INDEX));
+			int categorySize = c.getInt(c.getColumnIndex(DBConstants.CATEGORY_SIZE));
+			int totalStickers = c.getInt(c.getColumnIndex(DBConstants.TOTAL_NUMBER));
+			
+			stickerCategory = new StickerCategory(categoryId, categoryName, updateAvailable, isVisible, isCustom, true, catIndex, totalStickers, categorySize);
+		}
+		
+		return stickerCategory;
+	}
 
 }

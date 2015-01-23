@@ -65,6 +65,18 @@ public class MessageMetadata
 	private boolean oldUser;
 	
 	private boolean isGhostMessage;
+	
+	private int duration;
+	
+	private boolean voipInitiator;
+
+	public boolean isVoipInitiator() {
+		return voipInitiator;
+	}
+
+	public int getDuration() {
+		return duration;
+	}
 
 	public boolean isGhostMessage()
 	{
@@ -127,6 +139,10 @@ public class MessageMetadata
 			break;
 		case CHAT_BACKGROUND:
 			this.msisdn = metadata.optString(HikeConstants.FROM);
+			break;
+		case VOIP_CALL_SUMMARY:
+			this.duration = metadata.getJSONObject(HikeConstants.DATA).getInt(HikeConstants.VOIP_CALL_DURATION);
+			this.voipInitiator = metadata.getJSONObject(HikeConstants.DATA).getBoolean(HikeConstants.VOIP_CALL_INITIATOR);
 			break;
 		}
 		this.newUser = metadata.optString(HikeConstants.NEW_USER).equals("true");
