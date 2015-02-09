@@ -41,6 +41,11 @@ import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.StatusMessage;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
+import com.bsb.hike.modules.httpmgr.RequestToken;
+import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
+import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.platform.HikeSDKRequestHandler;
 import com.bsb.hike.tasks.CheckForUpdateTask;
 import com.bsb.hike.tasks.HikeHTTPTask;
@@ -542,12 +547,13 @@ public class HikeService extends Service
 			JSONObject data=Utils.getPostDeviceDetails(context);
 			Logger.d("TestUpdate", "Sending data: " + data.toString());
 
-			HikeHttpRequest hikeHttpRequest = new HikeHttpRequest("/account/update", RequestType.OTHER, new HikeHttpCallback()
+			IRequestListener requestListener = new IRequestListener()
 			{
-				public void onSuccess(JSONObject response)
+				@Override
+				public void onRequestSuccess(Response result)
 				{
-					Logger.d("TestUpdate", "Device details sent successfully");
-					Logger.d(getClass().getSimpleName(), "Send successful");
+					JSONObject response = (JSONObject) result.getBody().getContent();
+					Logger.d(getClass().getSimpleName(), "Post device details request successful");
 					Editor editor = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE).edit();
 					editor.putBoolean(HikeMessengerApp.DEVICE_DETAILS_SENT, true);
 					if (response != null)
@@ -558,17 +564,21 @@ public class HikeService extends Service
 					editor.commit();
 				}
 
-				public void onFailure()
+				@Override
+				public void onRequestProgressUpdate(float progress)
 				{
-					Logger.d("TestUpdate", "Device details could not be sent");
-					Logger.d(getClass().getSimpleName(), "Send unsuccessful");
-					scheduleNextSendToServerAction(HikeMessengerApp.LAST_BACK_OFF_TIME_DEV_DETAILS, sendDevDetailsToServer);
 				}
-			});
-			hikeHttpRequest.setJSONData(data);
 
-			HikeHTTPTask hikeHTTPTask = new HikeHTTPTask(null, 0);
-			Utils.executeHttpTask(hikeHTTPTask, hikeHttpRequest);
+				@Override
+				public void onRequestFailure(HttpException httpException)
+				{
+					Logger.e(getClass().getSimpleName(), "Post device details request unsuccessful");
+					scheduleNextSendToServerAction(HikeMessengerApp.LAST_BACK_OFF_TIME_DEV_DETAILS, sendDevDetailsToServer);	
+				}
+			};
+			
+			RequestToken token = HttpRequests.postDeviceDetailsRequest(data, requestListener);
+			token.execute();
 		}
 	}
 

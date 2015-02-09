@@ -141,4 +141,9 @@ public class HttpRequestConstants
 	{
 		return BASE_URL + BASE_V1 + BASE_ACCOUNT + "/addressbook-update";
 	}
+
+	public static String postDeviceDetailsBase()
+	{
+		return BASE_URL + BASE_V1 + BASE_ACCOUNT + "/update";
+	}
 }
