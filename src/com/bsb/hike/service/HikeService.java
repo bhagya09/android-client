@@ -728,9 +728,10 @@ public class HikeService extends Service
 			ContactManager.getInstance().setGreenBlueStatus(context, contactinfos);
 			JSONObject data = AccountUtils.getWAJsonContactList(contactinfos);
 
-			HikeHttpRequest hikeHttpRequest = new HikeHttpRequest("/account/info", RequestType.OTHER, new HikeHttpCallback()
+			IRequestListener requestListener = new IRequestListener()
 			{
-				public void onSuccess(JSONObject response)
+				@Override
+				public void onRequestSuccess(Response result)
 				{
 					Logger.d("PostInfo", "info sent successfully");
 					Editor editor = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE).edit();
@@ -738,17 +739,22 @@ public class HikeService extends Service
 					editor.putInt(HikeMessengerApp.LAST_BACK_OFF_TIME_GREENBLUE, 0);
 					editor.commit();
 				}
-
-				public void onFailure()
+				
+				@Override
+				public void onRequestProgressUpdate(float progress)
+				{
+				}
+				
+				@Override
+				public void onRequestFailure(HttpException httpException)
 				{
 					Logger.d("PostInfo", "info could not be sent");
 					scheduleNextSendToServerAction(HikeMessengerApp.LAST_BACK_OFF_TIME_GREENBLUE, sendGreenBlueDetailsToServer);
 				}
-			});
-			hikeHttpRequest.setJSONData(data);
-
-			HikeHTTPTask hikeHTTPTask = new HikeHTTPTask(null, 0);
-			Utils.executeHttpTask(hikeHTTPTask, hikeHttpRequest);
+			};
+			
+			RequestToken token = HttpRequests.postGreenBlueDetailsRequest(data, requestListener);
+			token.execute();
 		}
 	}
 
