@@ -5195,6 +5195,25 @@ public class Utils
 		return networkType;
 	}
 
+	/* Returns the name of the device owner.
+	 * @param context
+	 * @return
+	 */
+	public static String getOwnerName(Context context) {
+		String name = "";
+		
+        if (android.os.Build.VERSION.SDK_INT >= 14 && context != null) {
+			Cursor c = context.getContentResolver().query(ContactsContract.Profile.CONTENT_URI, null, null, null, null);
+			if (c.getCount() > 0) {
+				c.moveToFirst();
+				name = c.getString(c.getColumnIndex("display_name"));
+				c.close();
+			}
+        }
+        
+		return name;
+	}
+
 	public static String conversationType(String msisdn)
 	{
 		if (isBot(msisdn))
