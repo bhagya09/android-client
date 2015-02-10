@@ -2,6 +2,9 @@ package com.bsb.hike.modules.httpmgr.hikehttp;
 
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.bulkLastSeenUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.deleteAccountBaseUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getAvatarBaseUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getGroupBaseUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getStaticAvatarBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getStatusBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.lastSeenUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.multiStickerDownloadUrl;
@@ -259,6 +262,58 @@ public class HttpRequests
 				.setRequestType(Request.REQUEST_TYPE_SHORT)
 				.setRequestListener(requestListener)
 				.post(null)
+				.build();
+		return requestToken;
+	}
+	
+	public static RequestToken downloadStatusImageRequest(String id, String filePath, IRequestListener requestListener)
+	{
+		RequestToken requestToken = new FileRequest.Builder()
+				.setUrl(getStatusBaseUrl() + "/" + id + "?only_image=true")
+				.setFile(filePath)
+				.setRequestListener(requestListener)
+				.setResponseOnUIThread(true)
+				.get()
+				.build();
+		return requestToken;
+	}
+
+	public static RequestToken downloadProfileImageRequest(String id, String filePath, boolean hasCustomIcon, boolean isGroupConvs, IRequestListener requestListener)
+	{
+		String url;
+		if (hasCustomIcon)
+		{
+			if (isGroupConvs)
+			{
+				url = getGroupBaseUrl() + id + "/avatar?fullsize=1";
+			}
+			else
+			{
+				url = getAvatarBaseUrl() + "/" + id + "?fullsize=1";
+			}
+		}
+		else
+		{
+			url = getStaticAvatarBaseUrl() + filePath;
+		}
+		RequestToken requestToken = new FileRequest.Builder()
+				.setUrl(url)
+				.setFile(filePath)
+				.setRequestListener(requestListener)
+				.setResponseOnUIThread(true)
+				.get()
+				.build();
+		return requestToken;
+	}
+	
+	public static RequestToken downloadProtipRequest(String url, String filePath, IRequestListener requestListener)
+	{
+		RequestToken requestToken = new FileRequest.Builder()
+				.setUrl(url)
+				.setFile(filePath)
+				.setRequestListener(requestListener)
+				.setResponseOnUIThread(true)
+				.get()
 				.build();
 		return requestToken;
 	}

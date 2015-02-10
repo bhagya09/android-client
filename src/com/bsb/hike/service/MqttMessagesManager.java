@@ -3089,7 +3089,7 @@ public class MqttMessagesManager
 		String fileName = Utils.getProfileImageFileName(statusMessage.getMappedId());
 		DownloadProfileImageTask downloadProfileImageTask = new DownloadProfileImageTask(context, statusMessage.getMappedId(), fileName, true, statusUpdate,
 				statusMessage.getMsisdn(), statusMessage.getNotNullName(), false);
-		Utils.executeBoolResultAsyncTask(downloadProfileImageTask);
+		downloadProfileImageTask.execute();
 	}
 
 	private void autoDownloadGroupImage(String id)
@@ -3101,7 +3101,7 @@ public class MqttMessagesManager
 		}
 		String fileName = Utils.getProfileImageFileName(id);
 		DownloadProfileImageTask downloadProfileImageTask = new DownloadProfileImageTask(context, id, fileName, true, false, null, null, false);
-		Utils.executeBoolResultAsyncTask(downloadProfileImageTask);
+		downloadProfileImageTask.execute();
 	}
 
 	private void autoDownloadProtipImage(StatusMessage statusMessage, boolean statusUpdate)
@@ -3109,7 +3109,7 @@ public class MqttMessagesManager
 		String fileName = Utils.getProfileImageFileName(statusMessage.getMappedId());
 		DownloadProfileImageTask downloadProfileImageTask = new DownloadProfileImageTask(context, statusMessage.getMappedId(), fileName, true, statusUpdate,
 				statusMessage.getMsisdn(), statusMessage.getNotNullName(), false, statusMessage.getProtip().getImageURL());
-		Utils.executeBoolResultAsyncTask(downloadProfileImageTask);
+		downloadProfileImageTask.execute();
 	}
 
 	private void setDefaultSMSClientTutorialSetting()

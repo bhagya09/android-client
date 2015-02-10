@@ -7,24 +7,30 @@ import com.bsb.hike.utils.Utils;
 public class HttpRequestConstants
 {
 	private static boolean isProduction = true;
-	
+
 	private static boolean isSSL = false;
-	
+
 	private static final String HTTP = "http://";
 
-	//TODO change it to https
+	// TODO change it to https
 	private static final String HTTPS = "https://";
 
 	private static final String PRODUCTION_API = "api.im.hike.in";
-	
+
 	private static final String STAGING_API = "staging.im.hike.in";
 
 	private static final String PLATFORM_PRODUCTION_API = "platform.hike.in";
 
 	private static final String PLATFORM_STAGING_API = "staging.platform.hike.in";
 		
+	public static final int PRODUCTION_PORT = 80;
+
+	public static final int PRODUCTION_PORT_SSL = 443;
+
 	public static final int STAGING_PORT = 80;
-	
+
+	public static final int STAGING_PORT_SSL = 443;
+
 	public static final int PORT = STAGING_PORT;
 
 	private static String BASE_URL = HTTP + PRODUCTION_API;
@@ -54,7 +60,7 @@ public class HttpRequestConstants
 		toggleStaging();
 		toggleSSL();
 	}
-	
+
 	public static synchronized void toggleStaging()
 	{
 		isProduction = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PRODUCTION, true);
@@ -68,7 +74,7 @@ public class HttpRequestConstants
 		changeBaseUrl();
 		changeBasePlatformUrl();
 	}
-	
+
 	private static void changeBaseUrl()
 	{
 		BASE_URL = "";
@@ -83,20 +89,18 @@ public class HttpRequestConstants
 		BASE_PLATFORM_URL += (isProduction) ? PLATFORM_PRODUCTION_API : PLATFORM_STAGING_API;
 	}
 	
-	
-	
 	/*********************************************************************************************************************************************/
-	
+
 	public static String singleStickerDownloadBase()
 	{
 		return BASE_URL + BASE_V1 + BASE_STICKER;
 	}
-	
+
 	public static String multiStickerDownloadUrl()
 	{
 		return BASE_URL + BASE_V1 + BASE_STICKER;
 	}
-	
+
 	public static String lastSeenUrl()
 	{
 		return BASE_URL + BASE_V1 + BASE_USER + "/lastseen";
@@ -106,7 +110,7 @@ public class HttpRequestConstants
 	{
 		return BASE_URL + BASE_V2 + BASE_USER + "/bls";
 	}
-	
+
 	public static String getStatusBaseUrl()
 	{
 		return BASE_URL + BASE_V1 + BASE_USER + "/status";
@@ -156,7 +160,7 @@ public class HttpRequestConstants
 	{
 		return BASE_URL + BASE_V1 + "/";
 	}
-	
+
 	public static String deleteAccountBaseUrl()
 	{
 		return BASE_URL + BASE_V1 + BASE_ACCOUNT;
@@ -165,5 +169,20 @@ public class HttpRequestConstants
 	public static String unlinkAccountBaseUrl()
 	{
 		return BASE_URL + BASE_V1 + BASE_ACCOUNT + "/unlink";
+	}
+
+	public static String getGroupBaseUrl()
+	{
+		return BASE_URL + BASE_V1 + "/group/";
+	}
+
+	public static String getAvatarBaseUrl()
+	{
+		return BASE_URL + BASE_V1 + BASE_ACCOUNT + "/avatar";
+	}
+
+	public static String getStaticAvatarBaseUrl()
+	{
+		return BASE_URL + ":" + PORT + "/static/avatars/";
 	}
 }
