@@ -444,7 +444,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 					DeleteAccountTask task = new DeleteAccountTask(HikePreferences.this, false, getApplicationContext());
 					blockingTaskType = BlockingTaskType.UNLINKING_ACCOUNT;
 					setBlockingTask(task);
-					Utils.executeBoolResultAsyncTask(task);
+					task.execute();
 					hikeDialog.dismiss();
 				}
 				

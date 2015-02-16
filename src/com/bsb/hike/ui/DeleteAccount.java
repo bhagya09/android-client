@@ -183,7 +183,7 @@ public class DeleteAccount extends HikeAppStateBaseFragmentActivity implements D
 					{
 						hikeDialog.dismiss();
 						task = new DeleteAccountTask(DeleteAccount.this, true, getApplicationContext());
-						Utils.executeBoolResultAsyncTask(task);
+						task.execute();
 						showProgressDialog();
 					}
 					

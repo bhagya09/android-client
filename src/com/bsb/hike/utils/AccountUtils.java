@@ -1,6 +1,7 @@
 package com.bsb.hike.utils;
 
 import java.io.BufferedReader;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -810,17 +811,6 @@ public class AccountUtils
 			}
 		}
 		return blockListMsisdns;
-	}
-
-	public static void deleteOrUnlinkAccount(boolean deleteAccount) throws NetworkErrorException, IllegalStateException
-	{
-		HttpRequestBase request = deleteAccount ? new HttpDelete(base + "/account") : new HttpPost(base + "/account/unlink");
-		addToken(request);
-		JSONObject obj = executeRequest(request);
-		if ((obj == null) || "fail".equals(obj.optString("stat")))
-		{
-			throw new NetworkErrorException("Could not delete account");
-		}
 	}
 
 	public static void performRequest(HikeHttpRequest hikeHttpRequest, boolean addToken) throws NetworkErrorException, IllegalStateException

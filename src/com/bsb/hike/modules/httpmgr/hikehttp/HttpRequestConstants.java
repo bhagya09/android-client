@@ -156,4 +156,14 @@ public class HttpRequestConstants
 	{
 		return BASE_URL + BASE_V1 + "/";
 	}
+	
+	public static String deleteAccountBaseUrl()
+	{
+		return BASE_URL + BASE_V1 + BASE_ACCOUNT;
+	}
+
+	public static String unlinkAccountBaseUrl()
+	{
+		return BASE_URL + BASE_V1 + BASE_ACCOUNT + "/unlink";
+	}
 }
