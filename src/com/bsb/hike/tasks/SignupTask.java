@@ -77,9 +77,11 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 		}
 	}
 
-	public interface OnSignupTaskProgressUpdate extends FinishableEvent
+	public interface OnSignupTaskProgressUpdate
 	{
 		public void onProgressUpdate(StateValue value);
+		
+		public void onFinish(boolean success);
 	}
 	
 	public int getDisplayChild()

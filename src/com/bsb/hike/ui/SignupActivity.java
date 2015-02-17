@@ -2,6 +2,7 @@ package com.bsb.hike.ui;
 
 import java.io.File;
 
+
 import java.net.URI;
 import java.util.ArrayList;
 
@@ -83,6 +84,7 @@ import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
+import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.tasks.FinishableEvent;
 import com.bsb.hike.tasks.HikeHTTPTask;
 import com.bsb.hike.tasks.SignupTask;
@@ -93,7 +95,7 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.utils.Utils.ExternalStorageState;
 
-public class SignupActivity extends ChangeProfileImageBaseActivity implements SignupTask.OnSignupTaskProgressUpdate, OnEditorActionListener, OnClickListener, FinishableEvent,
+public class SignupActivity extends ChangeProfileImageBaseActivity implements SignupTask.OnSignupTaskProgressUpdate, OnEditorActionListener, OnClickListener,
 		OnCancelListener, Listener
 {
 
@@ -215,7 +217,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 
 	private class ActivityState
 	{
-		public HikeHTTPTask task; /* the task to update the global profile */
+		public RequestToken pinCallRequestToken; /* the task to update the global profile */
 
 		public Thread downloadImageTask; /*
 										 * the task to download the picasa image
@@ -275,9 +277,9 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		if (o instanceof ActivityState)
 		{
 			mActivityState = (ActivityState) o;
-			if (mActivityState.task != null)
+			if (mActivityState.pinCallRequestToken != null)
 			{
-				mActivityState.task.setActivity(this);
+				mActivityState.pinCallRequestToken.addRequestListener(pincallRequestListener);
 				dialog = ProgressDialog.show(this, null, getString(R.string.calling_you));
 				dialog.setCancelable(true);
 				dialog.setOnCancelListener(this);
@@ -457,7 +459,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 			dialog.dismiss();
 			dialog = null;
 		}
-		if (mActivityState.task == null)
+		if (mActivityState.pinCallRequestToken == null)
 		{
 			if (success)
 			{
@@ -526,20 +528,31 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		}
 	};
 
+	IRequestListener pincallRequestListener = new IRequestListener()
+	{
+		@Override
+		public void onRequestSuccess(Response result)
+		{
+			onFinish(true);
+		}
+
+		@Override
+		public void onRequestProgressUpdate(float progress)
+		{
+		}
+
+		@Override
+		public void onRequestFailure(HttpException httpException)
+		{
+			Toast.makeText(SignupActivity.this, R.string.call_me_fail, Toast.LENGTH_LONG).show();
+			onFinish(false);
+		}
+	};
+	
 	public void onClick(View v)
 	{
 		if (callmeBtn != null && v.getId() == callmeBtn.getId())
 		{
-			HikeHttpRequest hikeHttpRequest = new HikeHttpRequest("/pin-call", RequestType.OTHER, new HikeHttpRequest.HikeHttpCallback()
-			{
-				public void onFailure()
-				{
-				}
-
-				public void onSuccess(JSONObject response)
-				{
-				}
-			});
 			JSONObject request = new JSONObject();
 			try
 			{
@@ -549,11 +562,10 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 			{
 				Logger.e(getClass().getSimpleName(), "Invalid JSON", e);
 			}
-			hikeHttpRequest.setJSONData(request);
 
-			mActivityState.task = new HikeHTTPTask(this, R.string.call_me_fail, false);
-			Utils.executeHttpTask(mActivityState.task, hikeHttpRequest);
-
+			mActivityState.pinCallRequestToken = HttpRequests.signUpPinCallRequest(request, pincallRequestListener);
+			mActivityState.pinCallRequestToken .execute();
+			
 			dialog = ProgressDialog.show(this, null, getResources().getString(R.string.calling_you));
 			dialog.setCancelable(true);
 			dialog.setOnCancelListener(this);
@@ -574,6 +586,10 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		{
 			dialog.dismiss();
 			dialog = null;
+		}
+		if (mActivityState != null && mActivityState.pinCallRequestToken != null)
+		{
+			mActivityState.pinCallRequestToken.removeListener(pincallRequestListener);
 		}
 		if (countDownTimer != null)
 		{
@@ -2151,9 +2167,9 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 	public void onCancel(DialogInterface dialog)
 	{
 		Logger.d(getClass().getSimpleName(), "Dialog cancelled");
-		if (mActivityState.task != null)
+		if (mActivityState.pinCallRequestToken != null)
 		{
-			mActivityState.task.setActivity(null);
+			mActivityState.pinCallRequestToken.cancel();
 			mActivityState = new ActivityState();
 		}
 	}
