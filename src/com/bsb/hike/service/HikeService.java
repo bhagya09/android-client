@@ -783,10 +783,12 @@ public class HikeService extends Service
 
 			Logger.d(getClass().getSimpleName(), "profile pic upload started");
 
-			HikeHttpCallback hikeHttpCallBack = new HikeHttpCallback()
+			IRequestListener requestListener = new IRequestListener()
 			{
-				public void onSuccess(JSONObject response)
+				@Override
+				public void onRequestSuccess(Response result)
 				{
+					JSONObject response = (JSONObject) result.getBody().getContent();
 					String msisdn = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, null);
 					HikeSharedPreferenceUtil.getInstance().removeData(HikeMessengerApp.SIGNUP_PROFILE_PIC_PATH);
 					Utils.renameTempProfileImage(msisdn);
@@ -803,7 +805,13 @@ public class HikeService extends Service
 					}					
 				}
 
-				public void onFailure()
+				@Override
+				public void onRequestProgressUpdate(float progress)
+				{
+				}
+
+				@Override
+				public void onRequestFailure(HttpException httpException)
 				{
 					Logger.d(getClass().getSimpleName(), "profile pic upload failed");
 					if (f.exists() && f.length() > 0)
@@ -817,11 +825,8 @@ public class HikeService extends Service
 					}
 				}
 			};
-
-			HikeHttpRequest profilePicRequest = new HikeHttpRequest("/account/avatar", RequestType.PROFILE_PIC, hikeHttpCallBack);
-			profilePicRequest.setFilePath(profilePicPath);
-			HikeHTTPTask hikeHTTPTask = new HikeHTTPTask(null, 0);
-			Utils.executeHttpTask(hikeHTTPTask, profilePicRequest);
+			RequestToken token = HttpRequests.editProfileAvatarRequest(profilePicPath, requestListener);
+			token.execute();
 		}
 	}
 

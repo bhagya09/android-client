@@ -2,6 +2,7 @@ package com.bsb.hike.modules.httpmgr.hikehttp;
 
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.bulkLastSeenUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.deleteAccountBaseUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.editProfileAvatarBase;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getAvatarBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getGroupBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getStaticAvatarBaseUrl;
@@ -20,6 +21,7 @@ import static com.bsb.hike.modules.httpmgr.request.PriorityConstants.PRIORITY_HI
 import static com.bsb.hike.modules.httpmgr.request.Request.REQUEST_TYPE_LONG;
 import static com.bsb.hike.modules.httpmgr.request.Request.REQUEST_TYPE_SHORT;
 
+import java.io.File;
 import java.util.List;
 
 import org.json.JSONObject;
@@ -35,6 +37,7 @@ import com.bsb.hike.modules.httpmgr.request.JSONArrayRequest;
 import com.bsb.hike.modules.httpmgr.request.JSONObjectRequest;
 import com.bsb.hike.modules.httpmgr.request.Request;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
+import com.bsb.hike.modules.httpmgr.request.requestbody.FileBody;
 import com.bsb.hike.modules.httpmgr.request.requestbody.JsonBody;
 import com.bsb.hike.modules.httpmgr.retry.DefaultRetryPolicy;
 import com.bsb.hike.modules.httpmgr.retry.IRetryPolicy;
@@ -314,6 +317,20 @@ public class HttpRequests
 				.setRequestListener(requestListener)
 				.setResponseOnUIThread(true)
 				.get()
+				.build();
+		return requestToken;
+	}
+	
+	public static RequestToken editProfileAvatarRequest(String filePath, IRequestListener requestListener)
+	{
+		File file = new File(filePath);
+		FileBody body = new FileBody("application/json", file);
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(editProfileAvatarBase())
+				.setRequestType(Request.REQUEST_TYPE_LONG)
+				.setRequestListener(requestListener)
+				.setResponseOnUIThread(true)
+				.post(body)
 				.build();
 		return requestToken;
 	}
