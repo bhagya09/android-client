@@ -48,6 +48,12 @@ public class HttpRequestConstants
 	private static final String BASE_STICKER = "/stickers";
 
 	private static final String BASE_INVITE = "/invite";
+	
+	private static final String BASE_SDK_PROD = "oauth.hike.in/o/oauth2/";
+	
+	public static final String BASE_SDK_STAGING = "stagingoauth.im.hike.in/o/oauth2/";
+	
+	private static String BASE_SDK = HTTP + BASE_SDK_PROD;
 
 	private static final String BASE_CREATE = "/create";
 
@@ -80,6 +86,10 @@ public class HttpRequestConstants
 		BASE_URL = "";
 		BASE_URL += (isSSL) ? HTTPS : HTTP;
 		BASE_URL += (isProduction) ? PRODUCTION_API : STAGING_API;
+		
+		BASE_SDK = "";
+		BASE_SDK += (isSSL) ? HTTPS : HTTP;
+		BASE_SDK += (isProduction) ? BASE_SDK_PROD : BASE_SDK_STAGING;
 	}
 
 	private static void changeBasePlatformUrl()
@@ -189,5 +199,10 @@ public class HttpRequestConstants
 	public static String editProfileAvatarBase()
 	{
 		return BASE_URL + BASE_V1 + BASE_ACCOUNT + "/avatar";
+	}
+	
+	public static String authSDKBaseUrl()
+	{
+		return BASE_SDK;
 	}
 }

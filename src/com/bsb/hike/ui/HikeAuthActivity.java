@@ -1,6 +1,7 @@
 package com.bsb.hike.ui;
 
 import java.io.UnsupportedEncodingException;
+
 import java.net.URLDecoder;
 import java.util.LinkedList;
 import java.util.List;
@@ -38,17 +39,21 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.models.ContactInfo;
+import com.bsb.hike.modules.httpmgr.RequestToken;
+import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
+import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.HikeSDKConstants;
 import com.bsb.hike.platform.HikeSDKResponseCode;
 import com.bsb.hike.service.HikeService;
 import com.bsb.hike.smartImageLoader.IconLoader;
-import com.bsb.hike.tasks.AuthSDKAsyncTask;
-import com.bsb.hike.tasks.AuthSDKAsyncTask.AuthAsyncTaskListener;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.authSDKRequest;
 
 /**
  * This activity is responsible for displaying "connect-with-hike" dialog and providing data as per user action.
@@ -74,7 +79,7 @@ public class HikeAuthActivity extends Activity
 
 	private String userContactId;
 
-	private AuthSDKAsyncTask authTask;
+	private RequestToken requestToken;
 
 	/** The Constant MESSAGE_INDEX. Used for passing messages between activities */
 	public static final String MESSAGE_INDEX = "MESSAGE_INDEX";
@@ -430,9 +435,9 @@ public class HikeAuthActivity extends Activity
 	public void requestAccess()
 	{
 
+		final HikeSharedPreferenceUtil prefs = HikeSharedPreferenceUtil.getInstance(AUTH_SHARED_PREF_NAME);
+		
 		displayIsConnectingState();
-
-		String authUrl = AccountUtils.SDK_AUTH_BASE + AccountUtils.SDK_AUTH_PATH_AUTHORIZE;
 
 		List<BasicNameValuePair> params = new LinkedList<BasicNameValuePair>();
 
@@ -446,7 +451,6 @@ public class HikeAuthActivity extends Activity
 		}
 		else
 		{
-			authUrl = AccountUtils.SDK_AUTH_BASE + AccountUtils.SDK_AUTH_PATH_AUTHORIZE;
 			params.add(new BasicNameValuePair(AccountUtils.SDK_AUTH_PARAM_RESPONSE_TYPE, "token"));
 			params.add(new BasicNameValuePair(AccountUtils.SDK_AUTH_PARAM_CLIENT_ID, mAppId));
 			params.add(new BasicNameValuePair(AccountUtils.SDK_AUTH_PARAM_SCOPE, "publish_actions"));
@@ -466,39 +470,69 @@ public class HikeAuthActivity extends Activity
 			return;
 		}
 
-		authUrl += "?" + paramString;
-
-		HttpGet httpGet = new HttpGet(authUrl);
-
-		httpGet.addHeader(new BasicHeader("Content-type", "text/plain"));
-
-		if (AccountUtils.SDK_AUTH_BASE.equals(AccountUtils.SDK_AUTH_BASE_URL_STAGING))
+		RequestToken requestToken = authSDKRequest(paramString, new IRequestListener()
 		{
-			// use if baseurl is of staging server
-			httpGet.addHeader(new BasicHeader("cookie", "uid=UZtZkaEMFSBRwmys;token=EeEKpHJzesU="));
-		}
-		else
-		{
-			AccountUtils.addTokenForAuthReq(httpGet);
-		}
-
-		authTask = new AuthSDKAsyncTask(HikeAuthActivity.this, null, false, new AuthAsyncTaskListener()
-		{
-
-			private HikeSharedPreferenceUtil prefs;
-
-			@Override
-			public void onFailed()
+			public void onRequestSuccess(Response result)
 			{
+				// response example - {"state":null,"expires_in":5184000,"access_token":"F78SWrzfx-SKNbo2QZZBHA==","token_type":"Bearer"}}
+				try
+				{
+					Logger.d(HikeAuthActivity.class.getCanonicalName(), "on task success");
+					JSONObject responseJSON = (JSONObject) result.getBody().getContent();
+					JSONObject responseData = responseJSON.getJSONObject("response");
+					if (responseData != null)
+					{
+						if (responseData.has("error"))
+						{
+							onRequestFailure(null);
+							return;
+						}
+						String expiresIn = responseData.getString("expires_in");
+						String accessToken = responseData.getString("access_token");
 
+						if (TextUtils.isEmpty(prefs.getData(mAppPackage, "")))
+						{
+							prefs.saveData(AUTH_SHARED_PREF_PKG_KEY,
+									TextUtils.isEmpty(prefs.getData(AUTH_SHARED_PREF_PKG_KEY, "")) ? mAppPackage + ":" + expiresIn : prefs.getData(AUTH_SHARED_PREF_PKG_KEY, "")
+											+ "," + mAppPackage + ":" + expiresIn);
+						}
+
+						prefs.saveData(mAppPackage, Integer.toString(accessToken.hashCode()));
+
+						HikeMessengerApp.getPubSub().publish(HikePubSub.AUTH_TOKEN_RECEIVED, accessToken);
+
+						displayConnectedState();
+					}
+					else
+					{
+						onRequestFailure(null);
+						return;
+					}
+				}
+				catch (JSONException e)
+				{
+					e.printStackTrace();
+					onRequestFailure(null);
+					return;
+				}
+				
+			}
+			
+			@Override
+			public void onRequestProgressUpdate(float progress)
+			{
+				
+			}
+			
+			@Override
+			public void onRequestFailure(HttpException httpException)
+			{
 				Logger.d(HikeAuthActivity.class.getCanonicalName(), "on task failed");
 
 				if (bypassAuthHttp)
 				{
 					String expiresIn = "12341";
 					String accessToken = "ashjfbqiywgr13irb";
-
-					prefs = HikeSharedPreferenceUtil.getInstance(AUTH_SHARED_PREF_NAME);
 
 					if (TextUtils.isEmpty(prefs.getData(mAppPackage, "")))
 					{
@@ -517,58 +551,10 @@ public class HikeAuthActivity extends Activity
 				{
 					displayRetryConnectionState();
 				}
-			}
-
-			@Override
-			public void onComplete(String argResponse)
-			{
-				// response example - {"state":null,"expires_in":5184000,"access_token":"F78SWrzfx-SKNbo2QZZBHA==","token_type":"Bearer"}}
-				try
-				{
-					Logger.d(HikeAuthActivity.class.getCanonicalName(), "on task success");
-					JSONObject responseJSON = new JSONObject(argResponse);
-					JSONObject responseData = responseJSON.getJSONObject("response");
-					if (responseData != null)
-					{
-						if (responseData.has("error"))
-						{
-							onFailed();
-							return;
-						}
-						String expiresIn = responseData.getString("expires_in");
-						String accessToken = responseData.getString("access_token");
-
-						prefs = HikeSharedPreferenceUtil.getInstance(AUTH_SHARED_PREF_NAME);
-
-						if (TextUtils.isEmpty(prefs.getData(mAppPackage, "")))
-						{
-							prefs.saveData(AUTH_SHARED_PREF_PKG_KEY,
-									TextUtils.isEmpty(prefs.getData(AUTH_SHARED_PREF_PKG_KEY, "")) ? mAppPackage + ":" + expiresIn : prefs.getData(AUTH_SHARED_PREF_PKG_KEY, "")
-											+ "," + mAppPackage + ":" + expiresIn);
-						}
-
-						prefs.saveData(mAppPackage, Integer.toString(accessToken.hashCode()));
-
-						HikeMessengerApp.getPubSub().publish(HikePubSub.AUTH_TOKEN_RECEIVED, accessToken);
-
-						displayConnectedState();
-					}
-					else
-					{
-						onFailed();
-						return;
-					}
-				}
-				catch (JSONException e)
-				{
-					e.printStackTrace();
-					onFailed();
-					return;
-				}
+				
 			}
 		});
-
-		Utils.executeAuthSDKTask(authTask, httpGet);
+		requestToken.execute();
 	}
 
 	/*
@@ -579,9 +565,9 @@ public class HikeAuthActivity extends Activity
 	@Override
 	protected void onStop()
 	{
-		if (authTask != null && !authTask.isCancelled())
+		if (requestToken != null && requestToken.isRequestRunning())
 		{
-			authTask.cancel(false);
+			requestToken.cancel();
 		}
 
 		super.onStop();

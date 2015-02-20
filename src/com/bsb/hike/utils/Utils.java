@@ -1,6 +1,7 @@
 package com.bsb.hike.utils;
 
 import java.io.BufferedReader;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -202,7 +203,6 @@ import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.service.ConnectionChangeReceiver;
 import com.bsb.hike.service.HikeMqttManagerNew;
-import com.bsb.hike.tasks.AuthSDKAsyncTask;
 import com.bsb.hike.tasks.CheckForUpdateTask;
 import com.bsb.hike.tasks.SignupTask;
 import com.bsb.hike.ui.HikePreferences;
@@ -3296,18 +3296,6 @@ public class Utils
 		else
 		{
 			asyncTask.execute(hikeHttpRequests);
-		}
-	}
-
-	public static void executeAuthSDKTask(AuthSDKAsyncTask argTask, HttpRequestBase... requests)
-	{
-		if (isHoneycombOrHigher())
-		{
-			argTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, requests);
-		}
-		else
-		{
-			argTask.execute(requests);
 		}
 	}
 
