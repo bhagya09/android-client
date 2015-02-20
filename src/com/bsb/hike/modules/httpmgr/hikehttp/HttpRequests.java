@@ -6,6 +6,7 @@ import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.deleteA
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.editProfileAvatarBase;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getAvatarBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getGroupBaseUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getHikeJoinTimeBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getStaticAvatarBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getStatusBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.groupProfileBaseUrl;
@@ -374,6 +375,17 @@ public class HttpRequests
 				.post(body)
 				.build();
 		requestToken.getRequestInterceptors().addFirst("gzip", new GzipRequestInterceptor());
+		return requestToken;
+	}
+	
+	public static RequestToken getHikeJoinTimeRequest(String msisdn, IRequestListener requestListener)
+	{
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(getHikeJoinTimeBaseUrl() + msisdn)
+				.setRequestType(Request.REQUEST_TYPE_SHORT)
+				.setRequestListener(requestListener)
+				.setResponseOnUIThread(true)
+				.build();
 		return requestToken;
 	}
 }

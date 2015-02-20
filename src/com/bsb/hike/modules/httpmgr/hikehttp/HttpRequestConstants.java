@@ -210,4 +210,9 @@ public class HttpRequestConstants
 	{
 		return BASE_URL + BASE_V1 + "/group/";
 	}
+	
+	public static String getHikeJoinTimeBaseUrl()
+	{
+		return BASE_URL + BASE_V1 + BASE_ACCOUNT + "/profile/";
+	}
 }
