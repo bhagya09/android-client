@@ -8,6 +8,7 @@ import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getAvat
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getGroupBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getStaticAvatarBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getStatusBaseUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.groupProfileBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.lastSeenUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.multiStickerDownloadUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.postDeviceDetailsBaseUrl;
@@ -358,6 +359,21 @@ public class HttpRequests
 				.setResponseOnUIThread(true)
 				.setHeaders(headerList)
 				.build();
+		return requestToken;
+	}
+	
+	public static RequestToken editGroupProfileAvatarRequest(String filePath, IRequestListener requestListener, String groupId)
+	{
+		File file = new File(filePath);
+		FileBody body = new FileBody("application/json", file);
+
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(groupProfileBaseUrl() + groupId + "/avatar")
+				.setRequestType(Request.REQUEST_TYPE_LONG)
+				.setRequestListener(requestListener)
+				.post(body)
+				.build();
+		requestToken.getRequestInterceptors().addFirst("gzip", new GzipRequestInterceptor());
 		return requestToken;
 	}
 }

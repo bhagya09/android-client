@@ -205,4 +205,9 @@ public class HttpRequestConstants
 	{
 		return BASE_SDK;
 	}
+	
+	public static String groupProfileBaseUrl()
+	{
+		return BASE_URL + BASE_V1 + "/group/";
+	}
 }
