@@ -23,6 +23,7 @@ import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerDownloadManager;
 import com.bsb.hike.service.HikeService;
+import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.NUXManager;
 import com.bsb.hike.utils.StickerManager;
@@ -148,6 +149,12 @@ public class DeleteAccountTask implements ActivityCallableTask
 		 * Deleting residual sticker data
 		 */
 		StickerManager.getInstance().deleteStickers();
+		
+		/**
+		 * Setting token and uid in memory to null
+		 */
+		AccountUtils.mToken = null;
+		AccountUtils.mUid = null;
 	}
 
 	@Override
