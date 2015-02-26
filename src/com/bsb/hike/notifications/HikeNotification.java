@@ -1115,16 +1115,29 @@ public class HikeNotification
 		if (!forceNotPlaySound)
 		{
 			final boolean shouldNotPlayNotification = (System.currentTimeMillis() - lastNotificationTime) < MIN_TIME_BETWEEN_NOTIFICATIONS;
+			
+			//Play (SOUND + VIBRATION) ONLY WHEN
+			//1) Previous Notification was > 5sec
+			//2) User is not in audio/vedio/Voip call....
+			// (2nd check is a safe check as this should be handled by NotificationBuilder itself)
 			if (!shouldNotPlayNotification && !Utils.isUserInAnyTypeOfCall(context))
 			{
 				String notifSound = HikeSharedPreferenceUtil.getInstance(context).getData(HikeConstants.NOTIF_SOUND_PREF, NOTIF_SOUND_HIKE);
 				Logger.i("notif", "sound " + notifSound);
+				
+				//Decide if Sound is to be played,  
+				//1) Settings should be On
+				//2) Mode should not be in Silent and Not in Vibrate
 				if (!NOTIF_SOUND_OFF.equals(notifSound) && !SoundUtils.isSilentMode(context))
 				{
+					//Now We have to play sound, 
+					//CASE 1:- If Music Is Playing, then play via Ringtone manager on Music Stream
+					// 		   controlled via Music Volume Stream
 					if (manager.isMusicActive())
 					{
 						playSoundViaPlayer(notifSound);
 					}
+					//CASE OTHERS: Play it via NotificationBuilder
 					else
 					{
 						playSoundViaBuilder(mBuilder, notifSound);
