@@ -816,6 +816,7 @@ public void onTrimMemory(int level)
 		hikeBotNamesMap.put(HikeConstants.FTUE_HIKE_DAILY, "hike daily");
 		hikeBotNamesMap.put(HikeConstants.FTUE_HIKE_SUPPORT, "hike support");
 		hikeBotNamesMap.put(HikeConstants.NUX_BOT, "Natasha");
+		hikeBotNamesMap.put(HikeConstants.CRICKET_BOT, "Cricket");
 
 		HikeConversationsDatabase.getInstance().addBotToHashMap(hikeBotNamesMap);
 		initHikeLruCache(getApplicationContext());

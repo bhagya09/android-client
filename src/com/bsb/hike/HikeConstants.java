@@ -497,6 +497,8 @@ public class HikeConstants
 
     public static final String NUX_BOT = "+hike5+";
     
+    public static final String CRICKET_BOT = "+hikecricket+";
+
     public static final String NUX = "nux";
 
     public static final String STICKER_NUX = "stkNux";
