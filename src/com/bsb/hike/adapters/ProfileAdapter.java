@@ -19,7 +19,6 @@ import android.widget.TextView;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
-import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.GroupConversation;
 import com.bsb.hike.models.GroupParticipant;

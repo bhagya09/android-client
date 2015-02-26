@@ -756,33 +756,4 @@ public class HAManager
 		}
 	}
 	
-	public void recordDPUpdateEvent(String msg)
-	{
-		//Comments need to be removed before deploying on prod
-		/*if(!HikeSharedPreferenceUtil.getInstance(context).getData(HikeMessengerApp.DETAILED_HTTP_LOGGING_ENABLED, false))
-		{	
-			return;
-		}*/
-		
-		JSONObject metadata = null;
-		
-		try
-		{
-			metadata = new JSONObject();
-			
-			if(!TextUtils.isEmpty(msg))
-			{
-				metadata.put("m", msg);
-			}
-			
-			record(AnalyticsConstants.DP_UPDATE_ANALYTICS, AnalyticsConstants.UI_EVENT, EventPriority.HIGH, metadata, AnalyticsConstants.DP_UPDATE_ANALYTICS_TAG);
-				
-			Logger.d(AnalyticsConstants.DP_UPDATE_ANALYTICS, " -- msg :" + msg);
-		}
-		catch(JSONException e)
-		{
-			Logger.d(AnalyticsConstants.DP_UPDATE_ANALYTICS, "invalid json");
-		}
-	}
-	
 }

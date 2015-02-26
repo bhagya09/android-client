@@ -196,9 +196,4 @@ public class AnalyticsConstants
 	public static final String LAST_SEEN_ANALYTICS_TAG = "last_seen_analytics";
 
 	public static final String LAST_SEEN_ANALYTICS = "last_seen_analytics";
-	
-	//Added For DP Update Event
-	public static final String DP_UPDATE_ANALYTICS_TAG = "dp_update_analytics";
-
-	public static final String DP_UPDATE_ANALYTICS = "dp_update_analytics";
 }

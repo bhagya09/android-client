@@ -715,7 +715,6 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	
 	private void updateProfileImageInHeaderView()
 	{
-		HAManager.getInstance().recordDPUpdateEvent("Adding pic via IconLoader ");
 		addProfileHeaderView(true, true);
 	}
 	
@@ -1482,20 +1481,17 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			{
 				profileAdapter.setProfilePreview(smallerBitmap);
 			}
-			
-			HAManager.getInstance().recordDPUpdateEvent("HikeHTTPRequest RequestType.PROFILE_PIC");
+
 			HikeHttpRequest request = new HikeHttpRequest(httpRequestURL + "/avatar", RequestType.PROFILE_PIC, new HikeHttpRequest.HikeHttpCallback()
 			{
 				public void onFailure()
 				{
 					Logger.d("ProfileActivity", "resetting image");
-					HAManager.getInstance().recordDPUpdateEvent("HikeHTTPRequest Failed" );
 					failureWhileSettingProfilePic();
 				}
 
 				public void onSuccess(JSONObject response)
 				{
-					HAManager.getInstance().recordDPUpdateEvent("HikeHTTPRequest Success");
 					mActivityState.destFilePath = null;
 					ContactManager.getInstance().setIcon(mLocalMSISDN, bytes, false);
 
@@ -1558,7 +1554,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 
 					HikeMessengerApp.getLruCache().clearIconForMSISDN(mLocalMSISDN);
 					HikeMessengerApp.getPubSub().publish(HikePubSub.ICON_CHANGED, mLocalMSISDN);
-					HAManager.getInstance().recordDPUpdateEvent("Published HikePubSub.ICON_CHANGED");
+
 					if (isBackPressed)
 					{
 						HikeMessengerApp.getPubSub().publish(HikePubSub.PROFILE_UPDATE_FINISH, null);
@@ -1830,7 +1826,6 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				}
 				if ((this.profileType == ProfileType.USER_PROFILE) || (this.profileType == ProfileType.GROUP_INFO))
 				{
-					HAManager.getInstance().recordDPUpdateEvent("from crop_result");
 					saveChanges();
 				}
 				break;
@@ -2213,7 +2208,6 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 					{
 						if(profileType == ProfileType.CONTACT_INFO || profileType == ProfileType.GROUP_INFO)
 						{
-							HAManager.getInstance().recordDPUpdateEvent("recv HikePubSub.ICON_CHANGED");
 							updateProfileImageInHeaderView();
 						}
 						else
