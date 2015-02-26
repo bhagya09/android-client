@@ -6,24 +6,30 @@ import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.preference.PreferenceManager;
-import android.telephony.TelephonyManager;
 
 import com.bsb.hike.HikeConstants;
 
 public class SoundUtils
 {
+	/**
+	 * Message sending sound is not played under following conditions
+	 * 1) Settings are off
+	 * 2) User is in Audio/Vedio/Voip Call
+	 * 3) Music is playing
+	 * 4) Mode is Silent/Vibrate 
+	 * @param context
+	 * @return
+	 */
 	public static boolean isTickSoundEnabled(Context context)
 	{
-		TelephonyManager tm = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
 		return (PreferenceManager.getDefaultSharedPreferences(context).getBoolean(HikeConstants.TICK_SOUND_PREF, true) 
-				&& tm.getCallState() == TelephonyManager.CALL_STATE_IDLE 
+				&& !Utils.isUserInAnyTypeOfCall(context) 
 				&& !isAnyMusicPlaying(context)
 				&& !isSilentMode(context));
 	}
 
 	/**
-	 * we are using stream_ring so that use can control volume from mobile and
-	 *  this stream is not in use when user is chatting and vice-versa
+	 * Plays non-ducking sound on Music Stream from given file inside raw folder. 
 	 * 
 	 * @param context
 	 * @param soundId
@@ -46,6 +52,10 @@ public class SoundUtils
 		}
 	}
 
+	/**
+	 * Plays non-ducking sound on Music Stream from default tone. 
+	 * @param context
+	 */
 	public static void playDefaultNotificationSound(Context context)
 	{
 		try
@@ -62,7 +72,7 @@ public class SoundUtils
 	}
 
 	/**
-	 * Plays non-ducking sound from given Uri. 
+	 * Plays non-ducking sound on Music Stream from given Uri. 
 	 * 
 	 * @param context
 	 * @param soundUri
