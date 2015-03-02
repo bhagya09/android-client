@@ -14,7 +14,7 @@ public class SoundUtils
 	private static final String TAG = "SoundUtils";
 	
 	/**
-	 * Message sending sound is not played under following conditions
+	 * Message sending sound is NOT played under following conditions
 	 * 1) Settings are off
 	 * 2) User is in Audio/Vedio/Voip Call
 	 * 3) Music is playing
@@ -42,16 +42,15 @@ public class SoundUtils
 
 		// define sound URI, the sound to be played when there's a notification
 		Uri soundUri = Uri.parse("android.resource://" + context.getPackageName() + "/" + soundId);
-		try
+		Ringtone r = RingtoneManager.getRingtone(context, soundUri);
+		if(r != null)
 		{
-			Ringtone r = RingtoneManager.getRingtone(context, soundUri);
-		    r.setStreamType(AudioManager.STREAM_MUSIC);
+			r.setStreamType(AudioManager.STREAM_MUSIC);
 		    r.play();
 		}
-		catch (Exception e)
+		else
 		{
-			e.printStackTrace();
-			Logger.e(TAG, "Failed to open ringtone " + soundUri + ": " + e);
+			Logger.e(TAG, "Failed to open ringtone: " + soundUri);
 		}
 	}
 
@@ -61,16 +60,16 @@ public class SoundUtils
 	 */
 	public static void playDefaultNotificationSound(Context context)
 	{
-		try
+		Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+		Ringtone r = RingtoneManager.getRingtone(context, notification);
+		if(r != null)
 		{
-			Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-			Ringtone r = RingtoneManager.getRingtone(context, notification);
 			r.setStreamType(AudioManager.STREAM_MUSIC);
 			r.play();
 		}
-		catch (Exception e)
+		else
 		{
-			e.printStackTrace();
+			Logger.e(TAG, "Failed to open ringtone: " + notification);
 		}
 	}
 
@@ -82,18 +81,16 @@ public class SoundUtils
 	 */
 	public static void playSound(final Context context, Uri soundUri)
 	{
-		try
+		Ringtone r = RingtoneManager.getRingtone(context, soundUri);
+		if(r != null)
 		{
-			Ringtone r = RingtoneManager.getRingtone(context, soundUri);
 			r.setStreamType(AudioManager.STREAM_MUSIC);
 			r.play();
 		}
-		catch (Exception e)
+		else
 		{
-			e.printStackTrace();
-			Logger.e(TAG, "Failed to open ringtone " + soundUri + ": " + e);
+			Logger.e(TAG, "Failed to open ringtone: " + soundUri);
 		}
-	    
 	}
 
 	public static int getCurrentVolume(Context context, int streamType)
