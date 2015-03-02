@@ -11,6 +11,8 @@ import com.bsb.hike.HikeConstants;
 
 public class SoundUtils
 {
+	private static final String TAG = "SoundUtils";
+	
 	/**
 	 * Message sending sound is not played under following conditions
 	 * 1) Settings are off
@@ -49,6 +51,7 @@ public class SoundUtils
 		catch (Exception e)
 		{
 			e.printStackTrace();
+			Logger.e(TAG, "Failed to open ringtone " + soundUri + ": " + e);
 		}
 	}
 
@@ -88,6 +91,7 @@ public class SoundUtils
 		catch (Exception e)
 		{
 			e.printStackTrace();
+			Logger.e(TAG, "Failed to open ringtone " + soundUri + ": " + e);
 		}
 	    
 	}
