@@ -204,7 +204,7 @@ public class HikeDialog
 		animation.setFillAfter(true);
 		betaTag.startAnimation(animation);
 		dialog.show();
-		HikeSharedPreferenceUtil.getInstance(context).saveData(HikeMessengerApp.SHOWN_VOIP_INTRO_TIP, true);
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.SHOWN_VOIP_INTRO_TIP, true);
 		return dialog;
 	}
 
@@ -327,7 +327,7 @@ public class HikeDialog
 					break;
 				case R.id.btn_just_once:
 					saveImageQualitySettings(editor, small, medium, original);
-					HikeSharedPreferenceUtil.getInstance(context).saveData(HikeConstants.REMEMBER_IMAGE_CHOICE, false);
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.REMEMBER_IMAGE_CHOICE, false);
 					callOnSucess(listener, dialog);
 					break;
 				}

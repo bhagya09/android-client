@@ -615,7 +615,7 @@ public class Utils
 	 */
 	public static boolean isUserSignedUp(Context context, boolean launchSignup)
 	{
-		HikeSharedPreferenceUtil settingPref = HikeSharedPreferenceUtil.getInstance(context);
+		HikeSharedPreferenceUtil settingPref = HikeSharedPreferenceUtil.getInstance();
 		if (!settingPref.getData(HikeMessengerApp.ACCEPT_TERMS, false))
 		{
 			if(launchSignup)
@@ -1496,15 +1496,21 @@ public class Utils
 		}
 	}
 
-	public static boolean copyImage(String srcFilePath, String destFilePath, Context context)
+	public static boolean compressAndCopyImage(String srcFilePath, String destFilePath, Context context)
+	{
+		SharedPreferences appPrefs = PreferenceManager.getDefaultSharedPreferences(context);
+		int quality = appPrefs.getInt(HikeConstants.IMAGE_QUALITY, ImageQuality.QUALITY_DEFAULT);
+		return compressAndCopyImage(srcFilePath, destFilePath, context, quality);
+	}
+	
+	public static boolean compressAndCopyImage(String srcFilePath, String destFilePath, Context context, int quality)
 	{
 		try
 		{
 			InputStream src;
 			String imageOrientation = Utils.getImageOrientation(srcFilePath);
 			Bitmap tempBmp = null;
-			SharedPreferences appPrefs = PreferenceManager.getDefaultSharedPreferences(context);
-			int quality = appPrefs.getInt(HikeConstants.IMAGE_QUALITY, ImageQuality.QUALITY_DEFAULT);
+
 			if (quality == ImageQuality.QUALITY_MEDIUM)
 			{
 				tempBmp = HikeBitmapFactory.scaleDownBitmap(srcFilePath, HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX, HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX,
@@ -3393,15 +3399,15 @@ public class Utils
 
 	public static void resetUnseenStatusCount(Context context)
 	{
-		HikeSharedPreferenceUtil.getInstance(context).saveData(HikeMessengerApp.UNSEEN_STATUS_COUNT, 0);
-		HikeSharedPreferenceUtil.getInstance(context).saveData(HikeMessengerApp.UNSEEN_USER_STATUS_COUNT, 0);
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.UNSEEN_STATUS_COUNT, 0);
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.UNSEEN_USER_STATUS_COUNT, 0);
 	}
 
 	public static void resetUnseenFriendRequestCount(Context context)
 	{
-		if (HikeSharedPreferenceUtil.getInstance(context).getData(HikeMessengerApp.FRIEND_REQ_COUNT, 0) > 0)
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.FRIEND_REQ_COUNT, 0) > 0)
 		{
-			HikeSharedPreferenceUtil.getInstance(context).saveData(HikeMessengerApp.FRIEND_REQ_COUNT, 0);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.FRIEND_REQ_COUNT, 0);
 		}
 		HikeMessengerApp.getPubSub().publish(HikePubSub.FAVORITE_COUNT_CHANGED, null);
 	}
@@ -3446,7 +3452,7 @@ public class Utils
 
 	public static boolean isVoipActivated(Context context)
 	{
-		int voipActivated = HikeSharedPreferenceUtil.getInstance(context).getData(HikeConstants.VOIP_ACTIVATED, 0);
+		int voipActivated = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.VOIP_ACTIVATED, 1);
 		return (voipActivated == 0)? false : true;
 	}
 
@@ -3457,11 +3463,7 @@ public class Utils
 			Toast.makeText(context, context.getString(R.string.voip_offline_error), Toast.LENGTH_SHORT).show();
 			return;
 		}
-		Intent i = new Intent(context, VoIPService.class);
-		i.putExtra("action", "outgoingcall");
-		i.putExtra("msisdn", mContactNumber);
-		i.putExtra("call_source", source.ordinal());
-		context.startService(i);
+		context.startService(IntentManager.getVoipCallIntent(context, mContactNumber, source));
 	}
 
 	public static String getFormattedDateTimeFromTimestamp(long milliSeconds, Locale current)
@@ -3968,7 +3970,7 @@ public class Utils
 	public static void addFavorite(final Context context, final ContactInfo contactInfo, final boolean isFtueContact)
 	{
 		toggleFavorite(context, contactInfo, isFtueContact);
-		if (!contactInfo.isOnhike() || HikeSharedPreferenceUtil.getInstance(context).getData(HikeMessengerApp.SHOWN_ADD_FAVORITE_TIP, false))
+		if (!contactInfo.isOnhike() || HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOWN_ADD_FAVORITE_TIP, false))
 		{
 			return;
 		}
@@ -3980,7 +3982,7 @@ public class Utils
 			public void positiveClicked(Dialog dialog)
 			{
 				dialog.dismiss();
-				HikeSharedPreferenceUtil.getInstance(context).saveData(HikeMessengerApp.SHOWN_ADD_FAVORITE_TIP, true);
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.SHOWN_ADD_FAVORITE_TIP, true);
 			}
 
 			@Override
@@ -3992,7 +3994,7 @@ public class Utils
 			public void negativeClicked(Dialog dialog)
 			{
 				dialog.dismiss();
-				HikeSharedPreferenceUtil.getInstance(context).saveData(HikeMessengerApp.SHOWN_ADD_FAVORITE_TIP, true);
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.SHOWN_ADD_FAVORITE_TIP, true);
 			}
 
 			@Override
@@ -4047,7 +4049,7 @@ public class Utils
 
 	public static final void cancelScheduledStealthReset(Context context)
 	{
-		HikeSharedPreferenceUtil.getInstance(context).removeData(HikeMessengerApp.RESET_COMPLETE_STEALTH_START_TIME);
+		HikeSharedPreferenceUtil.getInstance().removeData(HikeMessengerApp.RESET_COMPLETE_STEALTH_START_TIME);
 	}
 
 	public static long getOldTimestamp(int min)
@@ -5113,7 +5115,7 @@ public class Utils
 	{
 		appContext = appContext.getApplicationContext();
 
-		HikeSharedPreferenceUtil settingPref = HikeSharedPreferenceUtil.getInstance(appContext);
+		HikeSharedPreferenceUtil settingPref = HikeSharedPreferenceUtil.getInstance();
 
 		if (!settingPref.getData(HikeMessengerApp.ACCEPT_TERMS, false))
 		{

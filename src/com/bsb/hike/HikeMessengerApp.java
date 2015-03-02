@@ -454,6 +454,8 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	public static final String VOIP_ACTIVE_CALLS_COUNT = "voipCallsCount";
 
 	public static final String DETAILED_HTTP_LOGGING_ENABLED = "detailedHttpLoggingEnabled";
+	
+	public static final String BULK_LAST_SEEN_PREF = "blsPref";
 
 	public static CurrentState currentState = CurrentState.CLOSED;
 
@@ -674,7 +676,7 @@ public void onTrimMemory(int level)
 		/*
 		 * Resetting the stealth mode when the app starts. 
 		 */
-		HikeSharedPreferenceUtil.getInstance(this).saveData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF);
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF);
 		performPreferenceTransition();
 		String currentAppVersion = settings.getString(CURRENT_APP_VERSION, "");
 		String actualAppVersion = "";
@@ -762,13 +764,13 @@ public void onTrimMemory(int level)
 			editor.commit();
 		}
 		
-		if(Utils.isKitkatOrHigher() && !HikeSharedPreferenceUtil.getInstance(this).getData(HAS_UNSET_SMS_PREFS_ON_KITKAT_UPGRAGE, false))
+		if(Utils.isKitkatOrHigher() && !HikeSharedPreferenceUtil.getInstance().getData(HAS_UNSET_SMS_PREFS_ON_KITKAT_UPGRAGE, false))
 		{
 			/*
 			 * On upgrade in kitkat or higher we need to reset sms setting preferences 
 			 * as we are now removing these settings from UI.
 			 */
-			HikeSharedPreferenceUtil.getInstance(this).saveData(HAS_UNSET_SMS_PREFS_ON_KITKAT_UPGRAGE, true);
+			HikeSharedPreferenceUtil.getInstance().saveData(HAS_UNSET_SMS_PREFS_ON_KITKAT_UPGRAGE, true);
 			Editor editor = preferenceManager.edit();
 			editor.remove(HikeConstants.SEND_SMS_PREF);
 			editor.remove(HikeConstants.RECEIVE_SMS_PREF);
@@ -832,10 +834,10 @@ public void onTrimMemory(int level)
 		
 		registerReceivers();
 
-		if (!HikeSharedPreferenceUtil.getInstance(getApplicationContext()).getData(HikePlatformConstants.CRICKET_PREF_NAME, false))
+		if (!HikeSharedPreferenceUtil.getInstance().getData(HikePlatformConstants.CRICKET_PREF_NAME, false))
 		{
 			cricketBotEntry();
-			HikeSharedPreferenceUtil.getInstance(getApplicationContext()).saveData(HikePlatformConstants.CRICKET_PREF_NAME, true);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikePlatformConstants.CRICKET_PREF_NAME, true);
 		}
 
 	}
@@ -903,7 +905,7 @@ public void onTrimMemory(int level)
 		// turn off future push notifications as soon as the app has
 		// started.
 		// this has to be turned on whenever the upgrade finishes.
-		HikeSharedPreferenceUtil.getInstance(this).saveData(HikeConstants.UPGRADING, true);
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.UPGRADING, true);
 		Editor editor = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).edit();
 		editor.putBoolean(BLOCK_NOTIFICATIONS, true);
 		editor.commit();
@@ -914,7 +916,7 @@ public void onTrimMemory(int level)
 
 	private void replaceGBKeys()
 	{
-		HikeSharedPreferenceUtil preferenceUtil = HikeSharedPreferenceUtil.getInstance(this);
+		HikeSharedPreferenceUtil preferenceUtil = HikeSharedPreferenceUtil.getInstance();
 
 		boolean gbDetailsSent = preferenceUtil.getData("whatsappDetailsSent", false);
 		int lastGBBackoffTime = preferenceUtil.getData("lastBackOffTimeWhatsapp", 0);

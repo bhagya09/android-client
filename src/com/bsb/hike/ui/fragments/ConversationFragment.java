@@ -730,7 +730,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 					}
 					
 					
-					HikeSharedPreferenceUtil mprefs=HikeSharedPreferenceUtil.getInstance(getActivity());
+					HikeSharedPreferenceUtil mprefs=HikeSharedPreferenceUtil.getInstance();
 					String tapToClaim=HikeConstants.ANDROID+"/"+ mprefs.getData(HikeMessengerApp.REWARDS_TOKEN, "");
 					String title= getString(R.string.hike);
 				
@@ -759,7 +759,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 					}
 					
 					
-					HikeSharedPreferenceUtil mprefs = HikeSharedPreferenceUtil.getInstance(getActivity());
+					HikeSharedPreferenceUtil mprefs = HikeSharedPreferenceUtil.getInstance();
 					String tapToClaim = HikeConstants.ANDROID+"/"+ mprefs.getData(HikeMessengerApp.REWARDS_TOKEN, "");
 					String title = getString(R.string.hike);
 					String link = String.format(mmReward.getDetailsLink(), tapToClaim);
@@ -957,7 +957,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 			}
 
 			HikeMessengerApp.clearStealthMsisdn();
-			HikeSharedPreferenceUtil.getInstance(getActivity()).removeData(HikeMessengerApp.SHOWING_STEALTH_FTUE_CONV_TIP);
+			HikeSharedPreferenceUtil.getInstance().removeData(HikeMessengerApp.SHOWING_STEALTH_FTUE_CONV_TIP);
 		}
 
 		super.onDestroy();
@@ -970,14 +970,14 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		super.onStop();
 		if (showingStealthFtueConvTip)
 		{
-			HikeSharedPreferenceUtil.getInstance(getActivity()).saveData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF);
 			Conversation convTip = displayedConversations.get(0);
 			removeStealthConvTip(convTip);
 		}
 		
 		if (showingWelcomeHikeConvTip)
 		{
-			HikeSharedPreferenceUtil.getInstance(getActivity()).saveData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF);
 			removeTipIfExists(ConversationTip.WELCOME_HIKE_TIP);
 		}
 
@@ -1030,7 +1030,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 
 	private void resetStealthTipClicked()
 	{
-		long remainingTime = System.currentTimeMillis() - HikeSharedPreferenceUtil.getInstance(getActivity()).getData(HikeMessengerApp.RESET_COMPLETE_STEALTH_START_TIME, 0l);
+		long remainingTime = System.currentTimeMillis() - HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.RESET_COMPLETE_STEALTH_START_TIME, 0l);
 
 		if (remainingTime > HikeConstants.RESET_COMPLETE_STEALTH_TIME_MS)
 		{
@@ -1092,7 +1092,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 	{
 		removeTipIfExists(ConversationTip.RESET_STEALTH_TIP);
 
-		int prevStealthValue = HikeSharedPreferenceUtil.getInstance(getActivity()).getData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF);
+		int prevStealthValue = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF);
 
 		resetStealthPreferences();
 
@@ -1116,7 +1116,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 
 	private void resetStealthPreferences()
 	{
-		HikeSharedPreferenceUtil prefUtil = HikeSharedPreferenceUtil.getInstance(getActivity());
+		HikeSharedPreferenceUtil prefUtil = HikeSharedPreferenceUtil.getInstance();
 
 		prefUtil.removeData(HikeMessengerApp.STEALTH_ENCRYPTED_PATTERN);
 		prefUtil.removeData(HikeMessengerApp.STEALTH_MODE);
@@ -1153,7 +1153,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 				Conversation convTip = mAdapter.getItem(i);
 				if (convTip instanceof ConversationTip && ((ConversationTip) convTip).isStealthFtueTip())
 				{
-					HikeSharedPreferenceUtil.getInstance(getActivity()).saveData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_ON);
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_ON);
 					break;
 				}
 			}
@@ -1164,7 +1164,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
             conv.analyticsForBots(HikePlatformConstants.BOT_LONG_PRESS, AnalyticsConstants.LONG_PRESS_EVENT);
         }
 
-		final int stealthType = HikeSharedPreferenceUtil.getInstance(getActivity()).getData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF);
+		final int stealthType = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF);
 
 		if (stealthType == HikeConstants.STEALTH_ON || stealthType == HikeConstants.STEALTH_ON_FAKE)
 		{
@@ -1353,10 +1353,10 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 						{
 							Toast.makeText(getActivity(), R.string.chat_marked_stealth, Toast.LENGTH_SHORT).show();
 						}
-						else if(!HikeSharedPreferenceUtil.getInstance(getActivity()).getData(HikeMessengerApp.SHOWN_FIRST_UNMARK_STEALTH_TOAST, false))
+						else if(!HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOWN_FIRST_UNMARK_STEALTH_TOAST, false))
 						{
 							Toast.makeText(getActivity(), R.string.chat_unmarked_stealth_first, Toast.LENGTH_LONG).show();
-							HikeSharedPreferenceUtil.getInstance(getActivity()).saveData(HikeMessengerApp.SHOWN_FIRST_UNMARK_STEALTH_TOAST, true);
+							HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.SHOWN_FIRST_UNMARK_STEALTH_TOAST, true);
 						}
 						else
 						{
@@ -1396,9 +1396,9 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 
 					notifyDataSetChanged();
 
-					if (!HikeSharedPreferenceUtil.getInstance(getActivity()).getData(HikeMessengerApp.STEALTH_MODE_SETUP_DONE, false))
+					if (!HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STEALTH_MODE_SETUP_DONE, false))
 					{
-						HikeSharedPreferenceUtil.getInstance(getActivity()).saveData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF);
+						HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF);
 						HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_MODE_TOGGLED, true);
 						HikeMessengerApp.getPubSub().publish(HikePubSub.SHOW_STEALTH_FTUE_SET_PASS_TIP, null);
 					}
@@ -1483,23 +1483,23 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		if(!hasNoConversation && displayedConversations.get(0) instanceof ConversationTip){
 			displayedConversations.remove(0);
 		}
-		HikeSharedPreferenceUtil pref = HikeSharedPreferenceUtil.getInstance(this.getActivity().getApplicationContext());
+		HikeSharedPreferenceUtil pref = HikeSharedPreferenceUtil.getInstance();
 		String tip = pref.getData(HikeMessengerApp.ATOMIC_POP_UP_TYPE_MAIN, "");
 		Logger.i("tip", "#" + tip + "#-currenttype");
-		if (HikeSharedPreferenceUtil.getInstance(getActivity()).getData(HikeMessengerApp.RESET_COMPLETE_STEALTH_START_TIME, 0l) > 0)
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.RESET_COMPLETE_STEALTH_START_TIME, 0l) > 0)
 		{
 			displayedConversations.add(0, new ConversationTip(ConversationTip.RESET_STEALTH_TIP));
 		}
-		else if (!HikeSharedPreferenceUtil.getInstance(getActivity()).getData(HikeMessengerApp.SHOWN_WELCOME_HIKE_TIP, false))
+		else if (!HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOWN_WELCOME_HIKE_TIP, false))
 		{
 			showingWelcomeHikeConvTip = true;
 			displayedConversations.add(0, new ConversationTip(ConversationTip.WELCOME_HIKE_TIP));
 		}
-		else if (HikeSharedPreferenceUtil.getInstance(getActivity()).getData(HikeMessengerApp.SHOW_STEALTH_INFO_TIP, false) &&  displayedConversations.size() > 2)
+		else if (HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOW_STEALTH_INFO_TIP, false) &&  displayedConversations.size() > 2)
 		{
 			displayedConversations.add(0, new ConversationTip(ConversationTip.STEALTH_INFO_TIP));
 		}
-		else if (HikeSharedPreferenceUtil.getInstance(getActivity()).getData(HikeMessengerApp.SHOW_STEALTH_UNREAD_TIP, false))
+		else if (HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOW_STEALTH_UNREAD_TIP, false))
 		{
 			displayedConversations.add(0, new ConversationTip(ConversationTip.STEALTH_UNREAD_TIP));
 		}
@@ -1532,7 +1532,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 
 	private void setupConversationLists()
 	{
-		int stealthValue = HikeSharedPreferenceUtil.getInstance(getActivity()).getData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF);
+		int stealthValue = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF);
 
 		/*
 		 * Use an iterator so we can remove conversations w/ no messages from our list
@@ -1568,7 +1568,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 
 	private void changeConversationsVisibility()
 	{
-		int stealthValue = HikeSharedPreferenceUtil.getInstance(getActivity()).getData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF);
+		int stealthValue = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF);
 
 		if (stealthValue == HikeConstants.STEALTH_OFF || stealthValue == HikeConstants.STEALTH_ON_FAKE)
 		{
@@ -1857,7 +1857,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 					}
 					else if(displayedConversations.size() == 2)
 					{
-						if(HikeSharedPreferenceUtil.getInstance(getActivity()).getData(HikeMessengerApp.SHOW_STEALTH_INFO_TIP, false))
+						if(HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOW_STEALTH_INFO_TIP, false))
 						{
 							displayedConversations.add(0, new ConversationTip(ConversationTip.STEALTH_INFO_TIP));
 						}
@@ -2266,7 +2266,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 			/*
 			 * If the stealth mode is already setup than we should return;
 			 */
-			if (HikeSharedPreferenceUtil.getInstance(getActivity()).getData(HikeMessengerApp.STEALTH_MODE_SETUP_DONE, false))
+			if (HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STEALTH_MODE_SETUP_DONE, false))
 			{
 				return ;
 			}
@@ -2688,13 +2688,13 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 	{
 		displayedConversations.add(0, new ConversationTip(ConversationTip.STEALTH_FTUE_TIP));
 		notifyDataSetChanged();
-		HikeSharedPreferenceUtil.getInstance(getActivity()).saveData(HikeMessengerApp.SHOWING_STEALTH_FTUE_CONV_TIP, true);
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.SHOWING_STEALTH_FTUE_CONV_TIP, true);
 		showingStealthFtueConvTip = true;
 	}
 
 	protected void removeStealthConvTip(Conversation conversation)
 	{
-		HikeSharedPreferenceUtil.getInstance(getActivity()).removeData(HikeMessengerApp.SHOWING_STEALTH_FTUE_CONV_TIP);
+		HikeSharedPreferenceUtil.getInstance().removeData(HikeMessengerApp.SHOWING_STEALTH_FTUE_CONV_TIP);
 		showingStealthFtueConvTip = false;
 		mAdapter.remove(conversation);
 		notifyDataSetChanged();
@@ -2892,7 +2892,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 			}
 			else if (displayedConversations.size() == 3)
 			{
-				if (HikeSharedPreferenceUtil.getInstance(getActivity()).getData(HikeMessengerApp.SHOW_STEALTH_INFO_TIP, false))
+				if (HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOW_STEALTH_INFO_TIP, false))
 				{
 					displayedConversations.add(0, new ConversationTip(ConversationTip.STEALTH_INFO_TIP));
 				}
@@ -2909,9 +2909,9 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 
 	public void movedFromEmptyToNonEmpty()
 	{
-		if(!HikeSharedPreferenceUtil.getInstance(getActivity()).getData(HikeMessengerApp.SHOWN_WELCOME_TO_HIKE_CARD, false))
+		if(!HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOWN_WELCOME_TO_HIKE_CARD, false))
 		{
-			HikeSharedPreferenceUtil.getInstance(getActivity()).saveData(HikeMessengerApp.SHOWN_WELCOME_TO_HIKE_CARD, true);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.SHOWN_WELCOME_TO_HIKE_CARD, true);
 		}
 	}
 
@@ -3053,8 +3053,8 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		public MenuArrayAdapter(Context context, int resource, int textViewResourceId, String[] options)
 		{
 			super(context, resource, textViewResourceId, options);
-			stealthFtueDone = HikeSharedPreferenceUtil.getInstance(getActivity()).getData(HikeMessengerApp.STEALTH_MODE_SETUP_DONE, false);
-			stealthType = HikeSharedPreferenceUtil.getInstance(getActivity()).getData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF);
+			stealthFtueDone = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STEALTH_MODE_SETUP_DONE, false);
+			stealthType = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF);
 			// TODO Auto-generated constructor stub
 		}
 		
@@ -3168,13 +3168,13 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		switch (tipType)
 		{
 			case ConversationTip.WELCOME_HIKE_TIP:
-				HikeSharedPreferenceUtil.getInstance(getActivity()).saveData(HikeMessengerApp.SHOWN_WELCOME_HIKE_TIP, true);
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.SHOWN_WELCOME_HIKE_TIP, true);
 				break;
 			case ConversationTip.STEALTH_INFO_TIP:
-				HikeSharedPreferenceUtil.getInstance(getActivity()).saveData(HikeMessengerApp.SHOW_STEALTH_INFO_TIP, false);
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.SHOW_STEALTH_INFO_TIP, false);
 				break;
 			case ConversationTip.STEALTH_UNREAD_TIP:
-				HikeSharedPreferenceUtil.getInstance(getActivity()).saveData(HikeMessengerApp.SHOW_STEALTH_UNREAD_TIP, false);
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.SHOW_STEALTH_UNREAD_TIP, false);
 				break;
 			default:
 				break;

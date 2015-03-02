@@ -82,7 +82,7 @@ public class StickerSettingsFragment extends SherlockFragment implements Listene
 	{
 		// TODO Auto-generated method stub
 		super.onActivityCreated(savedInstanceState);
-		prefs = HikeSharedPreferenceUtil.getInstance(getActivity());
+		prefs = HikeSharedPreferenceUtil.getInstance();
 		initAdapterAndList();
 		showTipIfRequired();
 		checkAndInflateUpdateView();

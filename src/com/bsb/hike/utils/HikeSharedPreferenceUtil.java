@@ -34,7 +34,7 @@ public class HikeSharedPreferenceUtil
 		return hikeSharedPreferenceUtil;
 	}
 
-	public static HikeSharedPreferenceUtil getInstance(Context context)
+	public static HikeSharedPreferenceUtil getInstance()
 	{
 		if (hikePrefsMap.containsKey(DEFAULT_PREF_NAME))
 		{
@@ -42,11 +42,11 @@ public class HikeSharedPreferenceUtil
 		}
 		else
 		{
-			return initializeHikeSharedPref(context.getApplicationContext(), DEFAULT_PREF_NAME);
+			return initializeHikeSharedPref(HikeMessengerApp.getInstance().getApplicationContext(), DEFAULT_PREF_NAME);
 		}
 	}
 
-	public static HikeSharedPreferenceUtil getInstance(Context context, String argSharedPrefName)
+	public static HikeSharedPreferenceUtil getInstance(String argSharedPrefName)
 	{
 		if (hikePrefsMap.containsKey(argSharedPrefName))
 		{
@@ -54,7 +54,7 @@ public class HikeSharedPreferenceUtil
 		}
 		else
 		{
-			return initializeHikeSharedPref(context.getApplicationContext(), argSharedPrefName);
+			return initializeHikeSharedPref(HikeMessengerApp.getInstance().getApplicationContext(), argSharedPrefName);
 		}
 	}
 

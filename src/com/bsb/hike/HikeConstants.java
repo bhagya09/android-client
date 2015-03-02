@@ -991,7 +991,7 @@ public class HikeConstants
 	
 	public static final String SHOW_FESTIVE_POPUP = "showFestivePopup";
 
-	public static final String VALENTINE_DAY_POPUP = "valentine";
+	public static final String HOLI_POPUP = "holi";
 
 	public static final String HIKE_OFFLINE_NOTIFICATION_PREF = "hikeOfflineNotificationPref";
 
@@ -1390,6 +1390,10 @@ public class HikeConstants
 		public static final String SELECT_ALL_INITIALLY = "selectAllInitially";
 		
 		public static final String NUX_INCENTIVE_MODE = "showNuxIncentiveMode";
+
+		public static final String GENERAL_SO_TIMEOUT = "sto";
+
+		public static final String FT_UPLOAD_SO_TIMEOUT = "ftsto";
 	}
 
 	public static final class LogEvent
@@ -2256,6 +2260,8 @@ public class HikeConstants
 	public static final String ADD_CATEGORY = "addCat";
 	
 	public static final int LED_DEFAULT_WHITE_COLOR = 0xffffffff;
+	
+	public static final String GET_BULK_LAST_SEEN = "bls"; 
 	
 	public static final int LED_NONE_COLOR = -2; /**
 													Any Change In this Value Should be double checked 

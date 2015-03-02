@@ -68,7 +68,7 @@ public class PlatformAlarmManager implements HikePlatformConstants
 				HikeConversationsDatabase.getInstance().insertMicroAppALarm(messageId, data.getString(HikePlatformConstants.ALARM_DATA));
 				if (!deleteMessage(messageId, data, context))
 				{
-					increaseUnreadCount(data, context);
+//					increaseUnreadCount(data, context);
 					showNotification(data, context);
 					Message m = Message.obtain();
 					m.arg1 = messageId;

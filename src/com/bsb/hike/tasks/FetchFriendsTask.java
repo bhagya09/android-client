@@ -182,7 +182,7 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 		this.fetchRecentlyJoined = fetchRecentlyJoined;
 
 		this.showDefaultEmptyList = showDefaultEmptyList;
-		this.stealthMode = HikeSharedPreferenceUtil.getInstance(context).getData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF);
+		this.stealthMode = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF);
 
 		this.nativeSMSOn = Utils.getSendSmsPref(context);
 	}

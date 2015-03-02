@@ -47,10 +47,6 @@ public class HAManager
 
 	private boolean isAnalyticsEnabled = true;
 	
-	private long fileMaxSize = AnalyticsConstants.MAX_FILE_SIZE;
-	
-	private long analyticsMaxSize = AnalyticsConstants.MAX_ANALYTICS_SIZE;
-
 	private int analyticsSendFreq = AnalyticsConstants.DEFAULT_SEND_FREQUENCY;
 	
 	private int maxInMemorySize = AnalyticsConstants.MAX_EVENTS_IN_MEMORY;
@@ -83,11 +79,11 @@ public class HAManager
 		
 		Logger.d(AnalyticsConstants.ANALYTICS_TAG, "Analytics service status :"+ isAnalyticsEnabled);
 
-		fileMaxSize = getPrefs().getLong(AnalyticsConstants.ANALYTICS_FILESIZE, AnalyticsConstants.MAX_FILE_SIZE);
+		long fileMaxSize = getPrefs().getLong(AnalyticsConstants.ANALYTICS_FILESIZE, AnalyticsConstants.MAX_FILE_SIZE);
 		
 		Logger.d(AnalyticsConstants.ANALYTICS_TAG, "File max size :" + fileMaxSize + " KBs");
 		
-		analyticsMaxSize = getPrefs().getLong(AnalyticsConstants.ANALYTICS_TOTAL_SIZE, AnalyticsConstants.MAX_ANALYTICS_SIZE);
+		long analyticsMaxSize = getPrefs().getLong(AnalyticsConstants.ANALYTICS_TOTAL_SIZE, AnalyticsConstants.MAX_ANALYTICS_SIZE);
 
 		Logger.d(AnalyticsConstants.ANALYTICS_TAG, "Total analytics size :" + analyticsMaxSize + " KBs");
 
@@ -274,7 +270,9 @@ public class HAManager
 	 */
 	public long getMaxFileSize()	
 	{
-		return fileMaxSize;
+		long maxFileSize = getPrefs().getLong(AnalyticsConstants.ANALYTICS_FILESIZE, AnalyticsConstants.MAX_FILE_SIZE);
+		maxFileSize *= 1024;		
+		return maxFileSize;
 	}
 	
 	/**
@@ -349,19 +347,17 @@ public class HAManager
 		Editor edit = getPrefs().edit(); 
 		edit.putLong(AnalyticsConstants.ANALYTICS_FILESIZE, size);
 		edit.commit();
-		fileMaxSize = size;		
 	}
 	
 	/**
 	 * Used to set the maximum analytics size on the client
-	 * @param size
+	 * @param size in kilobytes
 	 */
 	public void setAnalyticsMaxSizeOnClient(long size)
 	{
 		Editor edit = getPrefs().edit(); 
 		edit.putLong(AnalyticsConstants.ANALYTICS_TOTAL_SIZE, size);
 		edit.commit();
-		analyticsMaxSize = size;
 	}
 
 	/**
@@ -385,11 +381,13 @@ public class HAManager
 	}
 	/**
 	 * Used to get the maximum analytics size on the client
-	 * @return size of analytics in Kbs
+	 * @return size of analytics in bytes
 	 */
 	public long getMaxAnalyticsSizeOnClient()	
 	{
-		return analyticsMaxSize;
+		long maxSize = getPrefs().getLong(AnalyticsConstants.ANALYTICS_TOTAL_SIZE, AnalyticsConstants.MAX_ANALYTICS_SIZE);
+		maxSize *= 1024;
+		return maxSize;
 	}
 	
 	/**
@@ -722,7 +720,7 @@ public class HAManager
 
 	public void recordLastSeenEvent(String screen, String api, String msg, String toUser)
 	{
-		if(!HikeSharedPreferenceUtil.getInstance(context).getData(HikeMessengerApp.DETAILED_HTTP_LOGGING_ENABLED, false))
+		if(!HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.DETAILED_HTTP_LOGGING_ENABLED, false))
 		{	
 			return;
 		}

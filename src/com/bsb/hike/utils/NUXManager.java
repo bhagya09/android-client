@@ -74,7 +74,7 @@ public class NUXManager
 	{
 		this.context = HikeMessengerApp.getInstance().getApplicationContext();
 		listNuxContacts = new HashSet<String>();
-		mprefs = HikeSharedPreferenceUtil.getInstance(context, NUX_SHARED_PREF);
+		mprefs = HikeSharedPreferenceUtil.getInstance(NUX_SHARED_PREF);
 		String msisdn = mprefs.getData(CURRENT_NUX_CONTACTS, null);
 		if (!TextUtils.isEmpty(msisdn))
 		{
@@ -757,7 +757,7 @@ public class NUXManager
 
 					if (select_friends.optBoolean(SF_RECO_TOGGLE))
 					{
-						HikeSharedPreferenceUtil settings = HikeSharedPreferenceUtil.getInstance(context);
+						HikeSharedPreferenceUtil settings = HikeSharedPreferenceUtil.getInstance();
 
 						String mymsisdn = settings.getData(HikeMessengerApp.MSISDN_SETTING, "");
 						recoList = Utils.getServerRecommendedContactsSelection(settings.getData(HikeMessengerApp.SERVER_RECOMMENDED_CONTACTS, null), mymsisdn);
@@ -1051,7 +1051,7 @@ public class NUXManager
 	 */
 	public void removeData()
 	{
-		HikeSharedPreferenceUtil.getInstance(context).removeData(CURRENT_NUX_CONTACTS);
+		HikeSharedPreferenceUtil.getInstance().removeData(CURRENT_NUX_CONTACTS);
 	}
 
 	public void putJsonData()

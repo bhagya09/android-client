@@ -63,7 +63,7 @@ public class ConnectedAppsActivity extends HikeAppStateBaseFragmentActivity impl
 	{
 		super.onCreate(savedInstanceState);
 
-		authPrefs = HikeSharedPreferenceUtil.getInstance(getApplicationContext(), HikeAuthActivity.AUTH_SHARED_PREF_NAME);
+		authPrefs = HikeSharedPreferenceUtil.getInstance(HikeAuthActivity.AUTH_SHARED_PREF_NAME);
 
 		setContentView(R.layout.connected_apps_main);
 
@@ -300,7 +300,7 @@ public class ConnectedAppsActivity extends HikeAppStateBaseFragmentActivity impl
 	 */
 	public static void disconnectAllApps(Context argContext)
 	{
-		HikeSharedPreferenceUtil prefs = HikeSharedPreferenceUtil.getInstance(argContext, HikeAuthActivity.AUTH_SHARED_PREF_NAME);
+		HikeSharedPreferenceUtil prefs = HikeSharedPreferenceUtil.getInstance(HikeAuthActivity.AUTH_SHARED_PREF_NAME);
 
 		prefs.deleteAllData();
 	}
@@ -312,7 +312,7 @@ public class ConnectedAppsActivity extends HikeAppStateBaseFragmentActivity impl
 	 */
 	public static void disconnectApp(Context argContext, String appPkg)
 	{
-		HikeSharedPreferenceUtil prefs = HikeSharedPreferenceUtil.getInstance(argContext, HikeAuthActivity.AUTH_SHARED_PREF_NAME);
+		HikeSharedPreferenceUtil prefs = HikeSharedPreferenceUtil.getInstance(HikeAuthActivity.AUTH_SHARED_PREF_NAME);
 
 		prefs.removeData(appPkg);
 

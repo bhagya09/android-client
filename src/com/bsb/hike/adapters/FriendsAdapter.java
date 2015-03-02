@@ -798,7 +798,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 			break;
 		}
 
-		return HikeSharedPreferenceUtil.getInstance(context).getData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF) == HikeConstants.STEALTH_ON;
+		return HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF) == HikeConstants.STEALTH_ON;
 	}
 
 	public void refreshGroupList(List<ContactInfo> newGroupList, int groupIndex)
@@ -831,7 +831,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 
 	private void setupStealthListAndRemoveFromActualList(List<ContactInfo> contactList, List<ContactInfo> stealthList)
 	{
-		int stealthMode = HikeSharedPreferenceUtil.getInstance(context).getData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF);
+		int stealthMode = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF);
 		for(Iterator<ContactInfo> iterator = contactList.iterator(); iterator.hasNext();)
 		{
 			ContactInfo contactInfo = iterator.next();

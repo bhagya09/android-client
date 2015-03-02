@@ -1132,7 +1132,7 @@ public class ChatThread extends HikeAppStateBaseFragmentActivity implements Hike
 		{
 			return;
 		}
-		HikeSharedPreferenceUtil pref = HikeSharedPreferenceUtil.getInstance(this.getApplicationContext());
+		HikeSharedPreferenceUtil pref = HikeSharedPreferenceUtil.getInstance();
 		String key = pref.getData(HikeMessengerApp.ATOMIC_POP_UP_TYPE_CHAT, "");
 		if (key.equals(HikeMessengerApp.ATOMIC_POP_UP_ATTACHMENT))
 		{
@@ -1407,7 +1407,7 @@ public class ChatThread extends HikeAppStateBaseFragmentActivity implements Hike
 
 	private void resetAtomicPopUpKey(String requiredkey)
 	{
-		HikeSharedPreferenceUtil pref = HikeSharedPreferenceUtil.getInstance(getApplicationContext());
+		HikeSharedPreferenceUtil pref = HikeSharedPreferenceUtil.getInstance();
 		String key = pref.getData(HikeMessengerApp.ATOMIC_POP_UP_TYPE_CHAT, "");
 		if (key.equals(requiredkey))
 		{
@@ -1650,7 +1650,7 @@ public class ChatThread extends HikeAppStateBaseFragmentActivity implements Hike
             json.put(AnalyticsConstants.EVENT_KEY, key);
             json.put(AnalyticsConstants.ORIGIN, origin);
             json.put(AnalyticsConstants.CHAT_MSISDN, mContactNumber);
-            HikeAnalyticsEvent.analyticsForPlatformAndBots(AnalyticsConstants.UI_EVENT, subType, json, AnalyticsConstants.EVENT_TAG_BOTS);
+            HikeAnalyticsEvent.analyticsForBots(AnalyticsConstants.UI_EVENT, subType, json);
         }
         catch (JSONException e)
         {
@@ -2288,7 +2288,7 @@ public class ChatThread extends HikeAppStateBaseFragmentActivity implements Hike
 								json.put(HikePlatformConstants.CARD_TYPE, convMessage.platformWebMessageMetadata.getAppName());
 								json.put(AnalyticsConstants.EVENT_KEY, HikePlatformConstants.CARD_FORWARD);
 								json.put(AnalyticsConstants.TO, mContactNumber);
-								HikeAnalyticsEvent.analyticsForPlatformAndBots(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, json, AnalyticsConstants.EVENT_TAG_PLATFORM);
+								HikeAnalyticsEvent.analyticsForCards(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, json);
 							}
 							catch (JSONException e)
 							{
@@ -2442,7 +2442,7 @@ public class ChatThread extends HikeAppStateBaseFragmentActivity implements Hike
 		 */
 		if (HikeMessengerApp.isStealthMsisdn(mContactNumber))
 		{
-			if (HikeSharedPreferenceUtil.getInstance(this).getData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF) != HikeConstants.STEALTH_ON)
+			if (HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF) != HikeConstants.STEALTH_ON)
 			{
 				Intent intent = new Intent(this, HomeActivity.class);
 				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -5131,7 +5131,7 @@ public class ChatThread extends HikeAppStateBaseFragmentActivity implements Hike
 				json.put(AnalyticsConstants.EVENT_KEY, HikePlatformConstants.CARD_DELETE);
 				json.put(AnalyticsConstants.ORIGIN, origin);
 				json.put(AnalyticsConstants.CHAT_MSISDN, mContactNumber);
-				HikeAnalyticsEvent.analyticsForPlatformAndBots(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, json, AnalyticsConstants.EVENT_TAG_PLATFORM);
+				HikeAnalyticsEvent.analyticsForCards(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, json);
 			}
 			catch (JSONException e)
 			{
@@ -6938,9 +6938,9 @@ public class ChatThread extends HikeAppStateBaseFragmentActivity implements Hike
 			editor.putBoolean(HikeMessengerApp.SHOWN_EMOTICON_TIP, true);
 			editor.commit();
 		}
-		if (!HikeSharedPreferenceUtil.getInstance(ChatThread.this).getData(HikeMessengerApp.STICKED_BTN_CLICKED_FIRST_TIME, false))
+		if (!HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKED_BTN_CLICKED_FIRST_TIME, false))
 		{
-			HikeSharedPreferenceUtil.getInstance(ChatThread.this).saveData(HikeMessengerApp.STICKED_BTN_CLICKED_FIRST_TIME, true);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STICKED_BTN_CLICKED_FIRST_TIME, true);
 			
 			try
 			{
@@ -7027,7 +7027,7 @@ public class ChatThread extends HikeAppStateBaseFragmentActivity implements Hike
 					final ImageView shopIcon = (ImageView) emoticonLayout.findViewById(R.id.shop_icon_image);
 					shopIcon.setImageResource(R.drawable.ic_sticker_shop);
 
-					if(HikeSharedPreferenceUtil.getInstance(ChatThread.this).getData(StickerManager.SHOW_STICKER_SHOP_BADGE, false))
+					if(HikeSharedPreferenceUtil.getInstance().getData(StickerManager.SHOW_STICKER_SHOP_BADGE, false))
 					{
 						emoticonLayout.findViewById(R.id.sticker_shop_badge).setVisibility(View.VISIBLE);
 					}
@@ -7037,7 +7037,7 @@ public class ChatThread extends HikeAppStateBaseFragmentActivity implements Hike
 					}
 
 					final View animatedBackground = emoticonLayout.findViewById(R.id.animated_backgroud);
-					if(!HikeSharedPreferenceUtil.getInstance(ChatThread.this).getData(HikeMessengerApp.SHOWN_SHOP_ICON_BLUE, false))  //The shop icon would be blue unless the user clicks on it once
+					if(!HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOWN_SHOP_ICON_BLUE, false))  //The shop icon would be blue unless the user clicks on it once
 					{
 						animatedBackground.setVisibility(View.VISIBLE);
 						Animation anim = AnimationUtils.loadAnimation(this, R.anim.scale_out_from_mid);
@@ -7052,9 +7052,9 @@ public class ChatThread extends HikeAppStateBaseFragmentActivity implements Hike
 						@Override
 						public void onClick(View v)
 						{
-							if(!HikeSharedPreferenceUtil.getInstance(ChatThread.this).getData(HikeMessengerApp.SHOWN_SHOP_ICON_BLUE, false))  //The shop icon would be blue unless the user clicks on it once
+							if(!HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOWN_SHOP_ICON_BLUE, false))  //The shop icon would be blue unless the user clicks on it once
 							{
-								HikeSharedPreferenceUtil.getInstance(ChatThread.this).saveData(HikeMessengerApp.SHOWN_SHOP_ICON_BLUE, true);
+								HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.SHOWN_SHOP_ICON_BLUE, true);
 								animatedBackground.setVisibility(View.GONE);
 								animatedBackground.clearAnimation();
 								shopIcon.clearAnimation();
@@ -7070,9 +7070,9 @@ public class ChatThread extends HikeAppStateBaseFragmentActivity implements Hike
 									Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
 								}
 							}
-							if(HikeSharedPreferenceUtil.getInstance(ChatThread.this).getData(StickerManager.SHOW_STICKER_SHOP_BADGE, false))  //The shop icon would be blue unless the user clicks on it once
+							if(HikeSharedPreferenceUtil.getInstance().getData(StickerManager.SHOW_STICKER_SHOP_BADGE, false))  //The shop icon would be blue unless the user clicks on it once
 							{
-								HikeSharedPreferenceUtil.getInstance(ChatThread.this).saveData(StickerManager.SHOW_STICKER_SHOP_BADGE, false);
+								HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.SHOW_STICKER_SHOP_BADGE, false);
 							}
 							Intent i = new Intent(ChatThread.this, StickerShopActivity.class);
 							startActivity(i);

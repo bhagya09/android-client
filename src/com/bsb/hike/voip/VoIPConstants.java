@@ -1,5 +1,7 @@
 package com.bsb.hike.voip;
 
+import com.bsb.hike.HikeConstants;
+
 public class VoIPConstants {
 	public static final String TAG = "VoIP";
 	
@@ -82,6 +84,39 @@ public class VoIPConstants {
 		public static final int CALLER_BAD_NETWORK = 7;
 
 		public static final int CALLER_IN_NATIVE_CALL = 8;
+	}
+
+	public static final class Extras
+	{
+		public static final String ACTION = "action";
+
+		public static final String MESSAGE = "message";
+
+		public static final String SET_PARTNER_INFO = "setpartnerinfo";
+
+		public static final String OUTGOING_CALL = "outgoingcall";
+
+		public static final String MSISDN = "msisdn";
+
+		public static final String CALL_SOURCE = "call_source";
+
+		public static final String INTERNAL_IP = "internalIP";
+
+		public static final String INTERNAL_PORT = "internalPort";
+
+		public static final String EXTERNAL_IP = "externalIP";
+
+		public static final String EXTERNAL_PORT = "externalPort";
+
+		public static final String RELAY = "relay";
+
+		public static final String RELAY_PORT = "relayport";
+
+		public static final String RECONNECTING = "reconnecting";
+
+		public static final String INITIATOR = "initiator";
+
+		public static final String CALL_ID = "callId";
 	}
 
 	

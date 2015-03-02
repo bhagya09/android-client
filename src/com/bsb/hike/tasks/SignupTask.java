@@ -75,8 +75,21 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 		public void onProgressUpdate(StateValue value);
 	}
 	
-	public int getDisplayChild(){
-		return ((SignupActivity) context).getDisplayItem();
+	public int getDisplayChild()
+	{
+		/**
+		 * This is being added here because SignupTask can be called from WelcomeActivity as well as SignupActivity. We were getting ClassCast Exceptions for Context, hence this
+		 * defensive check
+		 */
+		if (context instanceof SignupActivity)
+		{
+			return ((SignupActivity) context).getDisplayItem();
+		}
+
+		else
+		{
+			return -1;
+		}
 	}
 
 	public void autoFillPin(String pin)

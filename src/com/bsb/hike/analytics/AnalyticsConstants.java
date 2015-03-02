@@ -12,11 +12,11 @@ public class AnalyticsConstants
 	/** one day in seconds */
 	public static final int DAY_IN_SECONDS = 24 * 60 * 60;
 
-	/** Default maximum size per file */ 
-	public static long MAX_FILE_SIZE = 200 * 1024; // 200KB
+	/** Default maximum size per file in kilobytes */ 
+	public static long MAX_FILE_SIZE = 200; // 200KB
 
-	/** Default maximum analytics size on the client */
-	public static long MAX_ANALYTICS_SIZE = 1000 * 1024; // 1MB
+	/** Default maximum analytics size on the client in kilobytes */
+	public static long MAX_ANALYTICS_SIZE = 1000; // 1MB
 			
 	/** Default analytics service status */ 
 	public static boolean IS_ANALYTICS_ENABLED = true;

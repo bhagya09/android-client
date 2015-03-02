@@ -88,7 +88,7 @@ public class SettingsActivity extends HikeAppStateBaseFragmentActivity implement
 		}
 
 		// Check for connect apps in shared pref
-		isConnectedAppsPresent = (!(TextUtils.isEmpty(HikeSharedPreferenceUtil.getInstance(getApplicationContext(), HikeAuthActivity.AUTH_SHARED_PREF_NAME).getData(
+		isConnectedAppsPresent = (!(TextUtils.isEmpty(HikeSharedPreferenceUtil.getInstance(HikeAuthActivity.AUTH_SHARED_PREF_NAME).getData(
 				HikeAuthActivity.AUTH_SHARED_PREF_PKG_KEY, ""))));
 
 		if (isConnectedAppsPresent)

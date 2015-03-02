@@ -205,7 +205,7 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 		@Override
 		public void run()
 		{
-			if (isConnected())
+			if (isConnected() || isConnecting())
 			{
 				try
 				{
@@ -636,7 +636,9 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 		try
 		{
 			// make MQTT thread wait for t ms to attempt reconnect
+			// remove any pending disconnect runnables before making any connection
 			connChkRunnable.setSleepTime(t);
+			mqttThreadHandler.removeCallbacks(disConnectRunnable);
 			mqttThreadHandler.postAtFrontOfQueue(connChkRunnable);
 		}
 		catch (Exception e)
@@ -739,6 +741,7 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 					op.setSocketFactory(null);
 				Logger.d(TAG, "MQTT connecting on : " + mqtt.getServerURI());
 				mqtt.connect(op, null, getConnectListener());
+				scheduleNextActivityCheck();
 			}
 			else
 			{
@@ -869,6 +872,24 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 		{
 			if (mqtt != null)
 			{
+				/*
+				 * If not already connected no need to disconnect
+				 */
+				if(!mqtt.isConnected())
+				{
+					Logger.d(TAG, "not connected but disconnecting");
+					if(mqtt.isConnecting())
+					{
+						Logger.d(TAG, "not connected but disconnecting , current state : connecting");
+					}
+					else if(mqtt.isDisconnecting())
+					{
+						Logger.d(TAG, "not connected but disconnecting , current state : disconnecting");
+					}
+					if (reconnect)
+						connectOnMqttThread(MQTT_WAIT_BEFORE_RECONNECT_TIME); // try reconnection after 10 ms
+					return ;
+				}
 				forceDisconnect = true;
 				/*
 				 * blocking the mqtt thread, so that no other operation takes place till disconnects completes or timeout This will wait for max 1 secs
@@ -951,7 +972,6 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 						connectUsingIp = false;
 						connectToFallbackPort = false;
 						ipConnectCount = 0;
-						scheduleNextActivityCheck(); // after successfull connect, reschedule for next conn check
 					}
 
 					/*

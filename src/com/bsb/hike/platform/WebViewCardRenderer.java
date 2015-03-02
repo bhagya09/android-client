@@ -182,7 +182,7 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 	@Override
 	public int getCount()
 	{
-		return 0;
+		return convMessages.size();
 	}
 
 	@Override
@@ -288,8 +288,14 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 
 				public void onComplete(PlatformContentModel content)
 				{
-					viewHolder.id = getItemId(position);
-					fillContent(web, content, convMessage, viewHolder);
+					if(position < getCount())
+					{
+						viewHolder.id = getItemId(position);
+						fillContent(web, content, convMessage, viewHolder);
+					}else
+					{
+						Logger.e(tag, "Platform Content returned data view no more exist");
+					}
 				}
 			});
 		}
@@ -316,7 +322,7 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 		{
 			json.put(HikePlatformConstants.ERROR_CODE, reason.toString());
 			json.put(AnalyticsConstants.EVENT_KEY, HikePlatformConstants.BOT_ERROR);
-			HikeAnalyticsEvent.analyticsForPlatformAndBots(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.ERROR_EVENT, json, AnalyticsConstants.EVENT_TAG_PLATFORM);
+			HikeAnalyticsEvent.analyticsForCards(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.ERROR_EVENT, json);
 		}
 		catch (JSONException e)
 		{
@@ -342,7 +348,7 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 			platformJSON.put(HikePlatformConstants.CARD_TYPE, message.platformWebMessageMetadata.getAppName());
 			platformJSON.put(AnalyticsConstants.EVENT_KEY, HikePlatformConstants.CARD_LOADED);
 			platformJSON.put(HikePlatformConstants.CARD_STATE, state);
-			HikeAnalyticsEvent.analyticsForPlatformAndBots(AnalyticsConstants.UI_EVENT, AnalyticsConstants.VIEW_EVENT, platformJSON, AnalyticsConstants.EVENT_TAG_PLATFORM);
+			HikeAnalyticsEvent.analyticsForCards(AnalyticsConstants.UI_EVENT, AnalyticsConstants.VIEW_EVENT, platformJSON);
 		}
 		catch (JSONException e)
 		{

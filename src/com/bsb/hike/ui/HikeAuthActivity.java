@@ -498,7 +498,7 @@ public class HikeAuthActivity extends Activity
 					String expiresIn = "12341";
 					String accessToken = "ashjfbqiywgr13irb";
 
-					prefs = HikeSharedPreferenceUtil.getInstance(getApplicationContext(), AUTH_SHARED_PREF_NAME);
+					prefs = HikeSharedPreferenceUtil.getInstance(AUTH_SHARED_PREF_NAME);
 
 					if (TextUtils.isEmpty(prefs.getData(mAppPackage, "")))
 					{
@@ -538,7 +538,7 @@ public class HikeAuthActivity extends Activity
 						String expiresIn = responseData.getString("expires_in");
 						String accessToken = responseData.getString("access_token");
 
-						prefs = HikeSharedPreferenceUtil.getInstance(getApplicationContext(), AUTH_SHARED_PREF_NAME);
+						prefs = HikeSharedPreferenceUtil.getInstance(AUTH_SHARED_PREF_NAME);
 
 						if (TextUtils.isEmpty(prefs.getData(mAppPackage, "")))
 						{
@@ -774,7 +774,7 @@ public class HikeAuthActivity extends Activity
 		{
 			String access = Integer.toString(accessT.hashCode());
 			String pkg = pkgName;
-			HikeSharedPreferenceUtil prefs = HikeSharedPreferenceUtil.getInstance(argContext, AUTH_SHARED_PREF_NAME);
+			HikeSharedPreferenceUtil prefs = HikeSharedPreferenceUtil.getInstance(AUTH_SHARED_PREF_NAME);
 			String savedAccess = prefs.getData(pkg, "");
 			if (access.equals(savedAccess))
 			{

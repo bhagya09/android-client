@@ -18,6 +18,8 @@ import com.bsb.hike.R;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.models.NuxCustomMessage;
+import com.bsb.hike.ui.ChatThread;
 import com.bsb.hike.ui.ComposeChatActivity;
 import com.bsb.hike.ui.ConnectedAppsActivity;
 import com.bsb.hike.ui.CreditsActivity;
@@ -32,6 +34,10 @@ import com.bsb.hike.ui.SignupActivity;
 import com.bsb.hike.ui.TimelineActivity;
 import com.bsb.hike.ui.WebViewActivity;
 import com.bsb.hike.ui.WelcomeActivity;
+import com.bsb.hike.voip.VoIPConstants;
+import com.bsb.hike.voip.VoIPService;
+import com.bsb.hike.voip.VoIPUtils;
+import com.google.android.gms.internal.co;
 
 public class IntentManager
 {
@@ -89,7 +95,7 @@ public class IntentManager
 		Intent whatsappIntent = new Intent(Intent.ACTION_SEND);
 		whatsappIntent.setType("text/plain");
 		whatsappIntent.setPackage(HikeConstants.PACKAGE_WATSAPP);
-		String inviteText = HikeSharedPreferenceUtil.getInstance(context).getData(HikeConstants.WATSAPP_INVITE_MESSAGE_KEY, context.getString(R.string.watsapp_invitation));
+		String inviteText = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.WATSAPP_INVITE_MESSAGE_KEY, context.getString(R.string.watsapp_invitation));
 		String inviteToken = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeConstants.INVITE_TOKEN, "");
 		inviteText = inviteText + inviteToken;
 		whatsappIntent.putExtra(Intent.EXTRA_TEXT, inviteText);
@@ -296,4 +302,20 @@ public class IntentManager
 		return in;
 	}
 
+	public static Intent getChatThreadIntent(Context context, String msisdn)
+	{
+		Intent intent = new Intent(context, ChatThread.class);
+		intent.putExtra(HikeConstants.Extras.MSISDN, msisdn);
+		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		return intent;
+	}
+
+	public static Intent getVoipCallIntent(Context context, String msisdn, VoIPUtils.CallSource source)
+	{
+		Intent intent = new Intent(context, VoIPService.class);
+		intent.putExtra(VoIPConstants.Extras.ACTION, VoIPConstants.Extras.OUTGOING_CALL);
+		intent.putExtra(VoIPConstants.Extras.MSISDN, msisdn);
+		intent.putExtra(VoIPConstants.Extras.CALL_SOURCE, source.ordinal());
+		return intent;
+	}
 }

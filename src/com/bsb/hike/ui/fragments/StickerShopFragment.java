@@ -251,7 +251,7 @@ public class StickerShopFragment extends SherlockFragment implements OnScrollLis
 				JSONArray resultData = (JSONArray) result;
 				if(resultData.length() == 0)
 				{
-					HikeSharedPreferenceUtil.getInstance(getSherlockActivity()).saveData(StickerManager.STICKER_SHOP_DATA_FULLY_FETCHED, true);
+					HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.STICKER_SHOP_DATA_FULLY_FETCHED, true);
 				}
 				else
 				{
@@ -271,7 +271,7 @@ public class StickerShopFragment extends SherlockFragment implements OnScrollLis
 					{
 						if(currentCategoriesCount == 0)
 						{
-							HikeSharedPreferenceUtil.getInstance(getSherlockActivity()).saveData(StickerManager.LAST_STICKER_SHOP_UPDATE_TIME, System.currentTimeMillis());
+							HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.LAST_STICKER_SHOP_UPDATE_TIME, System.currentTimeMillis());
 						}
 						mAdapter.changeCursor(updatedCursor);
 						listview.setVisibility(View.VISIBLE);

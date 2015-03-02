@@ -195,7 +195,7 @@ public class HikeService extends Service
 	{
 		Logger.d("TestUpdate", "Service started");
 
-		HikeSharedPreferenceUtil mprefs = HikeSharedPreferenceUtil.getInstance(getApplicationContext());
+		HikeSharedPreferenceUtil mprefs = HikeSharedPreferenceUtil.getInstance();
 
 		if (!(mprefs.getData(HikeConstants.REGISTER_GCM_SIGNUP, -1) == (HikeConstants.REGISTEM_GCM_AFTER_SIGNUP)))
 		{
@@ -748,7 +748,7 @@ public class HikeService extends Service
 			if (profilePicPath == null)
 			{
 				Logger.d(getClass().getSimpleName(), "Signup profile pic already uploaded");
-				HikeSharedPreferenceUtil.getInstance(context).removeData(HikeMessengerApp.SIGNUP_PROFILE_PIC_PATH);
+				HikeSharedPreferenceUtil.getInstance().removeData(HikeMessengerApp.SIGNUP_PROFILE_PIC_PATH);
 				return;
 			}
 
@@ -756,7 +756,7 @@ public class HikeService extends Service
 			if (!(f.exists() && f.length() > 0))
 			{
 				Logger.d(getClass().getSimpleName(), "Signup profile pic does not exists or it's length is zero");
-				HikeSharedPreferenceUtil.getInstance(context).removeData(HikeMessengerApp.SIGNUP_PROFILE_PIC_PATH);
+				HikeSharedPreferenceUtil.getInstance().removeData(HikeMessengerApp.SIGNUP_PROFILE_PIC_PATH);
 				f.delete();
 				return;
 			}
@@ -767,8 +767,8 @@ public class HikeService extends Service
 			{
 				public void onSuccess(JSONObject response)
 				{
-					String msisdn = HikeSharedPreferenceUtil.getInstance(context).getData(HikeMessengerApp.MSISDN_SETTING, null);
-					HikeSharedPreferenceUtil.getInstance(context).removeData(HikeMessengerApp.SIGNUP_PROFILE_PIC_PATH);
+					String msisdn = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, null);
+					HikeSharedPreferenceUtil.getInstance().removeData(HikeMessengerApp.SIGNUP_PROFILE_PIC_PATH);
 					Utils.renameTempProfileImage(msisdn);
 					// clearing cache for this msisdn because if user go to profile before rename (above line) executes then icon blurred image will be set in cache
 					HikeMessengerApp.getLruCache().clearIconForMSISDN(msisdn);
@@ -784,7 +784,7 @@ public class HikeService extends Service
 					}
 					else
 					{
-						HikeSharedPreferenceUtil.getInstance(context).removeData(HikeMessengerApp.SIGNUP_PROFILE_PIC_PATH);
+						HikeSharedPreferenceUtil.getInstance().removeData(HikeMessengerApp.SIGNUP_PROFILE_PIC_PATH);
 						f.delete();
 					}
 				}

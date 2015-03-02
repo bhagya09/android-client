@@ -282,7 +282,7 @@ public class ConversationsAdapter extends BaseAdapter
 		else if (viewType == ViewType.RESET_STEALTH_TIP)
 		{
 			long remainingTime = HikeConstants.RESET_COMPLETE_STEALTH_TIME_MS
-					- (System.currentTimeMillis() - HikeSharedPreferenceUtil.getInstance(context).getData(HikeMessengerApp.RESET_COMPLETE_STEALTH_START_TIME, 0l));
+					- (System.currentTimeMillis() - HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.RESET_COMPLETE_STEALTH_START_TIME, 0l));
 
 			if (remainingTime <= 0)
 			{
@@ -371,8 +371,8 @@ public class ConversationsAdapter extends BaseAdapter
 		}
 		else if (viewType == ViewType.STEALTH_UNREAD_TIP)
 		{
-			String headerTxt = HikeSharedPreferenceUtil.getInstance(context).getData(HikeMessengerApp.STEALTH_UNREAD_TIP_HEADER, "");
-			String msgTxt = HikeSharedPreferenceUtil.getInstance(context).getData(HikeMessengerApp.STEALTH_UNREAD_TIP_MESSAGE, "");
+			String headerTxt = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STEALTH_UNREAD_TIP_HEADER, "");
+			String msgTxt = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STEALTH_UNREAD_TIP_MESSAGE, "");
 			viewHolder.headerText.setText(headerTxt);
 			viewHolder.subText.setText(msgTxt);
 			viewHolder.parent.setOnClickListener(new OnClickListener()
@@ -399,7 +399,7 @@ public class ConversationsAdapter extends BaseAdapter
 		else if (viewType == ViewType.ATOMIC_PROFILE_PIC_TIP || viewType == ViewType.ATOMIC_FAVOURITE_TIP || viewType == ViewType.ATOMIC_INVITE_TIP
 				|| viewType == ViewType.ATOMIC_STATUS_TIP || viewType == ViewType.ATOMIC_INFO_TIP || viewType == ViewType.ATOMIC_HTTP_TIP || viewType == ViewType.ATOMIC_APP_GENERIC_TIP)
 		{
-			HikeSharedPreferenceUtil pref = HikeSharedPreferenceUtil.getInstance(context);
+			HikeSharedPreferenceUtil pref = HikeSharedPreferenceUtil.getInstance();
 			String headerTxt = pref.getData(HikeMessengerApp.ATOMIC_POP_UP_HEADER_MAIN, "");
 			String message = pref.getData(HikeMessengerApp.ATOMIC_POP_UP_MESSAGE_MAIN, "");
 			viewHolder.headerText.setText(headerTxt);
@@ -439,7 +439,7 @@ public class ConversationsAdapter extends BaseAdapter
 				public void onClick(View v)
 				{
 					Logger.i("tip", "on cross click ");
-					HikeSharedPreferenceUtil.getInstance(context).saveData(HikeMessengerApp.ATOMIC_POP_UP_TYPE_MAIN, "");
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.ATOMIC_POP_UP_TYPE_MAIN, "");
 					// make sure it is on 0 position
 					conversationList.remove((int) ((Integer) v.getTag()));
 					notifyDataSetChanged();
@@ -490,7 +490,7 @@ public class ConversationsAdapter extends BaseAdapter
 
 	private void resetAtomicPopUpKey(int position)
 	{
-		HikeSharedPreferenceUtil pref = HikeSharedPreferenceUtil.getInstance(context);
+		HikeSharedPreferenceUtil pref = HikeSharedPreferenceUtil.getInstance();
 		Conversation con = conversationList.get(position);
 		JSONObject metadata = new JSONObject();		
 		

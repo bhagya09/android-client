@@ -29,7 +29,7 @@ public class RegisterToGCMTrigger extends BroadcastReceiver
 				/*
 				 * Since we are registering again, we should clear this preference
 				 */
-				HikeSharedPreferenceUtil mprefs = HikeSharedPreferenceUtil.getInstance(context);
+				HikeSharedPreferenceUtil mprefs = HikeSharedPreferenceUtil.getInstance();
 				mprefs.removeData(HikeMessengerApp.GCM_ID_SENT);
 
 				GCMRegistrar.register(context, HikeConstants.APP_PUSH_ID);

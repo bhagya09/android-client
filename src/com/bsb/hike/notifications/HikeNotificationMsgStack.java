@@ -26,6 +26,7 @@ import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.ui.ChatThread;
 import com.bsb.hike.ui.HomeActivity;
+import com.bsb.hike.utils.IntentManager;
 
 /**
  * This class is responsible for maintaining states of ConvMessages to be used for showing Android notifications.
@@ -297,9 +298,7 @@ public class HikeNotificationMsgStack implements Listener
 			else
 			{
 
-				mNotificationIntent = new Intent(mContext, ChatThread.class);
-				mNotificationIntent.putExtra(HikeConstants.Extras.MSISDN, lastAddedMsisdn);
-				mNotificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+				mNotificationIntent = IntentManager.getChatThreadIntent(mContext, lastAddedMsisdn);
 
 				/*
 				 * notifications appear to be cached, and their .equals doesn't check 'Extra's. In order to prevent the wrong intent being fired, set a data field that's unique to

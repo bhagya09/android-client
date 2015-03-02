@@ -37,7 +37,7 @@ public class AnalyticsStore
 	private File highPriorityEventFile;
 	
 	private AtomicBoolean uploadUnderProgress = new AtomicBoolean(false);
-		
+			
 	/**
 	 * Constructor
 	 * @param context application context
@@ -45,7 +45,7 @@ public class AnalyticsStore
 	private AnalyticsStore(Context context)
 	{
 		this.context = context.getApplicationContext();
-						
+								
 		try 
 		{
 			normalPriorityEventFile = createNewEventFile(EventPriority.NORMAL);
@@ -172,6 +172,8 @@ public class AnalyticsStore
 				if(uploadUnderProgress.getAndSet(true))
 					return;
 				
+				long fileMaxSize = HAManager.getInstance().getMaxFileSize();
+
 				try
 				{
 					FileWriter normalFileWriter = null;
@@ -208,7 +210,7 @@ public class AnalyticsStore
 								normalPriorityEventFile = createNewEventFile(EventPriority.NORMAL);
 							}
 	
-							if(getFileSize(EventPriority.NORMAL) >= HAManager.getInstance().getMaxFileSize())
+							if(getFileSize(EventPriority.NORMAL) >= fileMaxSize)
 							{
 								Logger.d(AnalyticsConstants.ANALYTICS_TAG, "normal priority file size reached its limit! " + normalPriorityEventFile.getName());
 								compressAndDeleteOriginalFile(normalPriorityEventFile.getAbsolutePath());
@@ -226,7 +228,7 @@ public class AnalyticsStore
 								highPriorityEventFile = createNewEventFile(EventPriority.HIGH);
 							}
 	
-							if(getFileSize(EventPriority.HIGH) >= HAManager.getInstance().getMaxFileSize())
+							if(getFileSize(EventPriority.HIGH) >= fileMaxSize)
 							{
 								Logger.d(AnalyticsConstants.ANALYTICS_TAG, "high priority file size reached its limit! " + highPriorityEventFile.getName());
 								compressAndDeleteOriginalFile(highPriorityEventFile.getAbsolutePath());

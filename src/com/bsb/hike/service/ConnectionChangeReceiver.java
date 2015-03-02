@@ -25,7 +25,7 @@ public class ConnectionChangeReceiver extends BroadcastReceiver
 	{
 		Logger.d(TAG, "+1");
 		// TODO Auto-generated method stub
-		HikeSharedPreferenceUtil mprefs = HikeSharedPreferenceUtil.getInstance(context);
+		HikeSharedPreferenceUtil mprefs = HikeSharedPreferenceUtil.getInstance();
 
 		// Disabling the network listener if the user is already signed up.(if the user updates from the play store.we dont want to listen to network changes)
 

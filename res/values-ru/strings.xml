@@ -1268,5 +1268,5 @@
 
     <string name="ringtone_loader">Загрузка...</string>
     <string name="terms_conditions_hint">сроки и условия</string>
-	<string name="terms_conditions_title">T &amp; C</string>
+	<string name="terms_conditions_title">условия</string>
 </resources>

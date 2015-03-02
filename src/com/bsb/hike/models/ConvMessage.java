@@ -510,6 +510,9 @@ public class ConvMessage
 				;
 			}
 			break;
+		case VOIP_MISSED_CALL_INCOMING:
+			this.mMessage = context.getString(R.string.voip_missed_call_notif);
+			break;
 		}
 		setState(isSelfGenerated ? State.RECEIVED_READ : State.RECEIVED_UNREAD);
 	}
@@ -971,10 +974,13 @@ public class ConvMessage
 	{
 		return !(msgState==State.RECEIVED_READ || msgState == State.RECEIVED_UNREAD);
 	}
-	
+
 	public void setMsisdn(String msisdn){
 		this.mMsisdn = msisdn;
 	}
-	
-	
+
+	public boolean isVoipMissedCallMsg()
+	{
+		return participantInfoState == ParticipantInfoState.VOIP_MISSED_CALL_INCOMING;
+	}
 }
