@@ -79,9 +79,16 @@ public class SoundUtils
 	 */
 	public static void playSound(final Context context, Uri soundUri)
 	{
-		Ringtone r = RingtoneManager.getRingtone(context, soundUri);
-	    r.setStreamType(AudioManager.STREAM_MUSIC);
-	    r.play();
+		try
+		{
+			Ringtone r = RingtoneManager.getRingtone(context, soundUri);
+			r.setStreamType(AudioManager.STREAM_MUSIC);
+			r.play();
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
 	    
 	}
 
