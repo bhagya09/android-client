@@ -939,19 +939,12 @@ public void onTrimMemory(int level)
 		return cache;
 	}
 
-	private static ContactManager conMgr;
-
 	private void initContactManager()
 	{
 		/*
 		 * Contact Manager getInstance will initialize contact manager if already not initialized and returns the ContactManager's instance
 		 */
-		conMgr = ContactManager.getInstance();
-	}
-	
-	public static ContactManager getContactManager()
-	{
-		return conMgr;
+		ContactManager.getInstance();
 	}
 
 	private void makeNoMediaFiles()

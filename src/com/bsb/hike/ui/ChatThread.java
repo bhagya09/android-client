@@ -2494,7 +2494,7 @@ public class ChatThread extends HikeAppStateBaseFragmentActivity implements Hike
 				return false;
 			}
 
-			ContactInfo contactInfo = HikeMessengerApp.getContactManager().getContact(mContactNumber, true, true);
+			ContactInfo contactInfo = ContactManager.getInstance().getContact(mContactNumber, true, true);
 			mConversation = new Conversation(mContactNumber, (contactInfo != null) ? contactInfo.getName() : null, contactInfo.isOnhike());
 			mConversation.setMessages(HikeConversationsDatabase.getInstance().getConversationThread(mContactNumber, toLoad, mConversation, -1));
 		}
@@ -2557,7 +2557,7 @@ public class ChatThread extends HikeAppStateBaseFragmentActivity implements Hike
 		boolean addBlockHeader = false;
 		if (!(mConversation instanceof GroupConversation))
 		{
-			contactInfo = HikeMessengerApp.getContactManager().getContact(mContactNumber, true,true);
+			contactInfo = ContactManager.getInstance().getContact(mContactNumber, true,true);
 
 			favoriteType = contactInfo.getFavoriteType();
 
