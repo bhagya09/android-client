@@ -45,7 +45,7 @@ public class BackupState implements Serializable
 
 	public boolean backupPrefs(Context context)
 	{
-		HikeSharedPreferenceUtil prefUtil = HikeSharedPreferenceUtil.getInstance(context);
+		HikeSharedPreferenceUtil prefUtil = HikeSharedPreferenceUtil.getInstance();
 		stealthPattern = prefUtil.getData(HikeMessengerApp.STEALTH_ENCRYPTED_PATTERN, "");
 		stealthModeSetupDone = prefUtil.getData(HikeMessengerApp.STEALTH_MODE_SETUP_DONE, false);
 		shownFirstUnmarkStealthToast = prefUtil.getData(HikeMessengerApp.SHOWN_FIRST_UNMARK_STEALTH_TOAST, false);
@@ -55,7 +55,7 @@ public class BackupState implements Serializable
 
 	public boolean restorePrefs(Context context)
 	{
-		HikeSharedPreferenceUtil prefUtil = HikeSharedPreferenceUtil.getInstance(context);
+		HikeSharedPreferenceUtil prefUtil = HikeSharedPreferenceUtil.getInstance();
 		prefUtil.saveData(HikeMessengerApp.STEALTH_ENCRYPTED_PATTERN, stealthPattern);
 		prefUtil.saveData(HikeMessengerApp.STEALTH_MODE_SETUP_DONE, stealthModeSetupDone);
 		prefUtil.saveData(HikeMessengerApp.SHOWN_FIRST_UNMARK_STEALTH_TOAST, shownFirstUnmarkStealthToast);

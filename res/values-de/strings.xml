@@ -1228,19 +1228,7 @@
     <string name="shop_loading_failed_switch_on">Schalte den Datennetzmodus oder WLAN ein</string>
     <string name="singular_packs">%1$d Päckchen</string>
     <string name="singular_stickers">%1$d Sticker</string>
-    <string name="ftue_sticker_screen_title">Sticker wählen</string>
-    <string name="ftue_sticker_screen_header">Sticker!</string>
-    <string name="ftue_sticker_screen_text">Hike hat etliche Sticker. Welcher ist dein Lieblingssticker?</string>
-    <string name="ftue_sticker_forward_title">Senden an</string>
-    <string name="ftue_sticker_forward_card_text">Tolle Wahl!</string>
-    <string name="ftue_sticker_forward_card_subtext">Sende es an deine Freunde.</string>
-    <string name="ftue_sticker_forward_confirmation_singular">Diesen Sticker an 1 Kontakt senden?</string>
-    <string name="ftue_sticker_forward_confirmation_plural">Diesen Sticker an %1$s Kontakte senden?</string>
     <string name="conversation_empty">Tippe oben auf das Symbol „<b>neue Nachricht</b>“,\num einen Chat zu starten.</string>
-    <string name="nux_invite_enter_names">Nenne uns deine Lieblingsfreunde</string>
-    <string name="invite_footer_header">Wer ist dein Liebling?</string>
-    <string name="invite_footer_subtext">Verwende hike mit deinen besten Freunden und habe viel Spaß!</string>
-    <string name="invite_now_uppercase">JETZT EINLADEN</string>
     <string name="pack_visible">In der Stickerauswahl sichtbar</string>
     <string name="pack_hidden">Nicht in der Stickerauswahl sichtbar</string>
     <string name="pack_rank">%1$d.</string>
@@ -1279,4 +1267,6 @@
     <string name="led_color_purple_key">Lila</string>
 
     <string name="ringtone_loader">Wird geladen...</string>
+    <string name="terms_conditions_hint">geschäftsbedingungen</string>
+    <string name="terms_conditions_title">Bedingungen</string>  
 </resources>

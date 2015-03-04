@@ -94,7 +94,10 @@ public class CBCEncryption
 		}
 		// Flush and close streams.
 		cos.flush();
+		fos.flush();
+		fos.getFD().sync();
 		cos.close();
+		fos.close();
 		fis.close();
 
 		time = System.currentTimeMillis() - time;
@@ -142,6 +145,7 @@ public class CBCEncryption
 			fos.write(d, 0, b);
 		}
 		fos.flush();
+		fos.getFD().sync();
 		fos.close();
 		cis.close();
 

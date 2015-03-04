@@ -1,11 +1,19 @@
 package com.bsb.hike.BitmapModule;
 
+import java.io.InputStream;
+
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.Resources;
-import android.graphics.*;
+import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Matrix;
+import android.graphics.Paint;
 import android.graphics.PorterDuff.Mode;
+import android.graphics.PorterDuffXfermode;
+import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
@@ -13,12 +21,11 @@ import android.text.TextUtils;
 import android.util.Base64;
 import android.view.View;
 import android.view.View.MeasureSpec;
+
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.smartcache.HikeLruCache;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
-
-import java.io.InputStream;
 
 public class HikeBitmapFactory
 {
@@ -130,7 +137,7 @@ public class HikeBitmapFactory
 		/*
 		 * http://developer.android.com/reference/android/graphics/Bitmap.Config. html
 		 */
-		Bitmap bitmap = createBitmap((int) (48 * Utils.densityMultiplier), (int) (48 * Utils.densityMultiplier), config);
+		Bitmap bitmap = createBitmap((int) (48 * Utils.scaledDensityMultiplier), (int) (48 * Utils.scaledDensityMultiplier), config);
 
 		if (bitmap == null)
 		{

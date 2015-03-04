@@ -1228,19 +1228,7 @@
     <string name="shop_loading_failed_switch_on">Passer aux données mobiles ou au Wi-Fi</string>
     <string name="singular_packs">%1$d collection</string>
     <string name="singular_stickers">%1$d sticker</string>
-    <string name="ftue_sticker_screen_title">Choisir un sticker</string>
-    <string name="ftue_sticker_screen_header">Stickers !</string>
-    <string name="ftue_sticker_screen_text">Hike propose des tonnes de stickers. Lequel préfères-tu ?</string>
-    <string name="ftue_sticker_forward_title">Envoyer à</string>
-    <string name="ftue_sticker_forward_card_text">Très bon choix !</string>
-    <string name="ftue_sticker_forward_card_subtext">Envoies-en à tes amis.</string>
-    <string name="ftue_sticker_forward_confirmation_singular">Envoyer ce sticker à 1 contact ?</string>
-    <string name="ftue_sticker_forward_confirmation_plural">Envoyer ce sticker à %1$s contacts ?</string>
     <string name="conversation_empty">Touche l\'icône \'<b>nouveau message</b>\' en haut\npour lancer un chat</string>
-    <string name="nux_invite_enter_names">Dis-nous qui sont tes meilleurs amis</string>
-    <string name="invite_footer_header">Qui c\'est ton/ta best ?</string>
-    <string name="invite_footer_subtext">Essaie hike avec tes meilleurs amis. C\'est trop l\'éclate !</string>
-    <string name="invite_now_uppercase">INVITER</string>
     <string name="pack_visible">Visible dans la palette des stickers</string>
     <string name="pack_hidden">Masqué dans la palette des stickers</string>
     <string name="pack_rank">%1$d.</string>
@@ -1279,4 +1267,6 @@
     <string name="led_color_purple_key">Violet</string>
 
     <string name="ringtone_loader">Chargement...</string>
+    <string name="terms_conditions_hint">termes et conditions</string>
+	<string name="terms_conditions_title">termes</string>
 </resources>

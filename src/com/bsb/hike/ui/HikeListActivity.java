@@ -44,8 +44,11 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.adapters.HikeInviteAdapter;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.utils.CustomAlertDialog;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.Logger;
@@ -85,8 +88,6 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 
 	private boolean calledFromFTUE = false;
 
-	private boolean nuxInviteMode;
-
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -105,11 +106,6 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 		if (getIntent().getBooleanExtra(HikeConstants.Extras.CALLED_FROM_FTUE_POPUP, false))
 		{
 			calledFromFTUE = true;
-		}
-
-		if(getIntent().getBooleanExtra(HikeConstants.NUX_INVITE_FORWARD, false))
-		{
-			nuxInviteMode = true;
 		}
 
 		selectedContacts = new HashSet<String>();
@@ -211,7 +207,7 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 			public void onClick(View v)
 			{
 				Intent intent = null;
-				if (type != Type.BLOCK && !nuxInviteMode)
+				if (type != Type.BLOCK)
 				{
 					if (getIntent().getBooleanExtra(HikeConstants.Extras.FROM_CREDITS_SCREEN, false))
 					{
@@ -378,14 +374,7 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 				selectAllContainer.setVisibility(View.GONE);
 				break;
 			case INVITE:
-				if(nuxInviteMode)
-				{
-					selectAllContainer.setVisibility(View.GONE);
-				}
-				else
-				{
-					selectAllContainer.setVisibility(View.VISIBLE);
-				}
+				selectAllContainer.setVisibility(View.VISIBLE);
 
 				final TextView selectAllText = (TextView) findViewById(R.id.select_all_text);
 				final CheckBox selectAllCB = (CheckBox) findViewById(R.id.select_all_cb);
@@ -550,18 +539,22 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 
 				mqttPacket.put(HikeConstants.DATA, data);
 
-				HikeMessengerApp.getPubSub().publish(HikePubSub.MQTT_PUBLISH, mqttPacket);
+				HikeMqttManagerNew.getInstance().sendMessage(mqttPacket, HikeMqttManagerNew.MQTT_QOS_ONE);
 
 				CheckBox selectAllCB = (CheckBox) findViewById(R.id.select_all_cb);
 				if (selectAllCB.isChecked())
 				{
-					Utils.sendUILogEvent(HikeConstants.LogEvent.SELECT_ALL_INVITE);
+					try
+					{
+						JSONObject metadata = new JSONObject();
+						metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.SELECT_ALL_INVITE);
+						HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+					}
+					catch(JSONException e)
+					{
+						Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+					}
 				}
-				if(nuxInviteMode)
-				{
-					Utils.sendUILogEvent(HikeConstants.LogEvent.NUX_INVITE_SENT);
-				}
-				HikeMessengerApp.getPubSub().publish(HikePubSub.SWITCH_OFF_NUX_MODE, null);
 
 				Toast.makeText(getApplicationContext(), selectedContacts.size() > 1 ? R.string.invites_sent : R.string.invite_sent, Toast.LENGTH_SHORT).show();
 				finish();
@@ -692,11 +685,6 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 						getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE).getString(HikeMessengerApp.COUNTRY_CODE, HikeConstants.INDIA_COUNTRY_CODE));
 				Logger.d(getClass().getSimpleName(), "Inviting " + msisdn);
 				Utils.sendInvite(msisdn, this);
-				if(nuxInviteMode)
-				{
-					Utils.sendUILogEvent(HikeConstants.LogEvent.NUX_INVITE_SENT);
-				}
-				HikeMessengerApp.getPubSub().publish(HikePubSub.SWITCH_OFF_NUX_MODE, null);
 				Toast.makeText(this, R.string.invite_sent, Toast.LENGTH_SHORT).show();
 			}
 			finish();

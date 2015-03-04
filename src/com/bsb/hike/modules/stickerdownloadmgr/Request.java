@@ -4,7 +4,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 
 import com.bsb.hike.HikeConstants.STResult;
-import com.bsb.hike.modules.stickerdownloadmgr.retry.DefaultRetryPolicy;
 import com.bsb.hike.utils.Logger;
 
 class Request extends FutureTask<STResult> implements Comparable<Request>

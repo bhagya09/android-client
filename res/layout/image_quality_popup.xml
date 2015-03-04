@@ -86,7 +86,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/small_fastest"
-                        android:textColor="@color/standerd_grey"
+                        android:textColor="@color/standard_grey"
                         android:textSize="15sp"
                         android:textStyle="italic" />
                 </LinearLayout>
@@ -141,7 +141,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/medium_faster"
-                        android:textColor="@color/standerd_grey"
+                        android:textColor="@color/standard_grey"
                         android:textSize="15sp"
                         android:textStyle="italic" />
                 </LinearLayout>
@@ -196,7 +196,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/original_slow"
-                        android:textColor="@color/standerd_grey"
+                        android:textColor="@color/standard_grey"
                         android:textSize="15sp"
                         android:textStyle="italic" />
                 </LinearLayout>

@@ -77,6 +77,12 @@ public class EmailConversationsAsyncTask extends AsyncTask<Conversation, Void, C
 			// initialize with a label
 			sBuilder.append(activity.getResources().getString(R.string.chat_with_prefix) + chatLabel + "\n");
 
+			String chatFileName = activity.getResources().getString(R.string.chat_backup_) + System.currentTimeMillis() + ".txt";
+			File chatFile = getChatFile(chatFileName);
+			if(chatFile == null)
+			{
+				return null;
+			}
 			// iterate through the messages and construct a meaningful
 			// payload
 			List<ConvMessage> cList = conv.getMessages();
@@ -133,14 +139,16 @@ public class EmailConversationsAsyncTask extends AsyncTask<Conversation, Void, C
 				sBuilder.append(Utils.getFormattedDateTimeFromTimestamp(cMessage.getTimestamp(), activity.getResources().getConfiguration().locale) + ":" + fromString + "- "
 						+ messageMask + "\n");
 
+				if(sBuilder.length() > 10000)
+				{
+					writeToChatTextFile(sBuilder.toString(), chatFile);
+					sBuilder.delete(0, sBuilder.length());
+				}
 				// TODO: add location and contact handling here.
 			}
 			chatLabel = (Utils.isFilenameValid(chatLabel)) ? chatLabel : "_";
-			File chatFile = createChatTextFile(sBuilder.toString(), activity.getResources().getString(R.string.chat_backup_) + "_" + +System.currentTimeMillis() + ".txt");
-			if (chatFile != null)
-			{
-				uris.add(Uri.fromFile(chatFile));
-			}
+			writeToChatTextFile(sBuilder.toString(), chatFile);
+			uris.add(Uri.fromFile(chatFile));
 		}
 		// append the attachments in hike messages in form of URI's. Dodo
 		// android needs uris duh!
@@ -206,9 +214,28 @@ public class EmailConversationsAsyncTask extends AsyncTask<Conversation, Void, C
 		return dialog != null && dialog.isShowing();
 	}
 
-	public File createChatTextFile(String text, String fileName)
+	public void writeToChatTextFile(String text, File chatFile)
 	{
 
+		if(chatFile == null)
+		{
+			return;
+		}
+		try
+		{
+			BufferedWriter buf = new BufferedWriter(new FileWriter(chatFile, true));
+			buf.append(text);
+			buf.newLine();
+			buf.close();
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+	}
+	
+	private File getChatFile(String fileName)
+	{
 		File chatFile = new File(HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT, fileName);
 
 		if (!chatFile.exists())
@@ -223,19 +250,7 @@ public class EmailConversationsAsyncTask extends AsyncTask<Conversation, Void, C
 				return null;
 			}
 		}
-
-		try
-		{
-			BufferedWriter buf = new BufferedWriter(new FileWriter(chatFile, true));
-			buf.append(text);
-			buf.newLine();
-			buf.close();
-			return chatFile;
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-			return null;
-		}
+		
+		return chatFile;
 	}
 }

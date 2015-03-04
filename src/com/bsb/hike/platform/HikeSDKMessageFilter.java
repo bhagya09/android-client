@@ -1,10 +1,12 @@
 package com.bsb.hike.platform;
 
-import android.content.Context;
-import com.bsb.hike.HikeConstants;
-import com.bsb.hike.models.ConvMessage;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import android.content.Context;
+
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.models.ConvMessage;
 
 public class HikeSDKMessageFilter implements HikePlatformConstants{
 	public static ConvMessage filterMessage(JSONObject json, Context context){

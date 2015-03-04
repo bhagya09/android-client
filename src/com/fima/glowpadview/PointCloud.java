@@ -16,14 +16,14 @@
 
 package com.fima.glowpadview;
 
+import java.util.ArrayList;
+
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.util.FloatMath;
 import android.util.Log;
-
-import java.util.ArrayList;
 
 public class PointCloud {
     private static final float MIN_POINT_SIZE = 2.0f;

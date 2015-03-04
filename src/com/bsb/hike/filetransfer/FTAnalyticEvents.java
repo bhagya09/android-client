@@ -10,8 +10,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.HikePubSub;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.utils.Logger;
 
 public class FTAnalyticEvents
@@ -33,6 +34,22 @@ public class FTAnalyticEvents
 	public static final String FT_ATTACHEMENT_TYPE = "at";
 
 	public static final String FT_STATUS = "s";
+
+	private static final String VIDEO_INPUT_RESOLUTION = "inputRes";
+
+	private static final String VIDEO_OUTPUT_RESOLUTION = "outRes";
+
+	private static final String VIDEO_INPUT_SIZE = "inputSize";
+
+	private static final String VIDEO_OUTPUT_SIZE = "outSize";
+
+	private static final String VIDEO_COMPRESS_STATE = "vidCompSt";
+
+	private static final String VIDEO_COMPRESSION = "videoCompression";
+
+	private static final String QUICK_UPLOAD = "quickUpload";
+
+	private static final String QUICK_UPLOAD_STATUS = "quSt";
 	
 	public static final int FT_SUCCESS = 0;
 
@@ -168,22 +185,49 @@ public class FTAnalyticEvents
 			metadata.put(FT_PAUSE_COUNT, this.mPauseCount);
 			metadata.put(HikeConstants.FILE_SIZE, fileSize);
 			metadata.put(FT_STATUS, status);
-
-			JSONObject data = new JSONObject();
-			data.put(HikeConstants.C_TIME_STAMP, System.currentTimeMillis());
-			data.put(HikeConstants.SUB_TYPE, HikeConstants.UI_EVENT);
-			data.put(HikeConstants.METADATA, metadata);
-			data.put(HikeConstants.LogEvent.TAG, HikeConstants.LogEvent.FILE_TRANSFER_STATUS);
-
-			JSONObject object = new JSONObject();
-			object.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.ANALYTICS_EVENT);
-			object.put(HikeConstants.DATA, data);
-
-			HikeMessengerApp.getPubSub().publish(HikePubSub.MQTT_PUBLISH, object);
+			HAManager.getInstance().record(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.FILE_TRANSFER, EventPriority.HIGH, metadata, HikeConstants.LogEvent.FILE_TRANSFER_STATUS);			
 		}
 		catch (JSONException e)
 		{
-			Logger.e("FTAnalyticsEvent", "Exception is sending analytics event for file transfer", e);
+			Logger.e(AnalyticsConstants.ANALYTICS_TAG, "invalid json while logging FT send status.", e);
+		}
+	}
+	
+	/*
+	 * Send an event for video compression
+	 */
+	public static void sendVideoCompressionEvent(String inputRes, String outRes, int inputSize, int outSize, int compressedState)
+	{
+		try
+		{
+			JSONObject metadata = new JSONObject();
+			metadata.put(VIDEO_INPUT_RESOLUTION, inputRes);
+			metadata.put(VIDEO_OUTPUT_RESOLUTION, outRes);
+			metadata.put(VIDEO_INPUT_SIZE, inputSize);
+			metadata.put(VIDEO_OUTPUT_SIZE, outSize);
+			metadata.put(VIDEO_COMPRESS_STATE, compressedState);
+			HAManager.getInstance().record(AnalyticsConstants.NON_UI_EVENT, VIDEO_COMPRESSION, EventPriority.HIGH, metadata, VIDEO_COMPRESSION);			
+		}
+		catch (JSONException e)
+		{
+			Logger.e(AnalyticsConstants.ANALYTICS_TAG, "invalid json while video compression", e);
+		}
+	}
+
+	/*
+	 * Send an event for video compression
+	 */
+	public static void sendQuickUploadEvent(int quickUploadStatus)
+	{
+		try
+		{
+			JSONObject metadata = new JSONObject();
+			metadata.put(QUICK_UPLOAD_STATUS, quickUploadStatus);			
+			HAManager.getInstance().record(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.FILE_TRANSFER, EventPriority.HIGH, metadata, QUICK_UPLOAD);			
+		}
+		catch (JSONException e)
+		{
+			Logger.e(AnalyticsConstants.ANALYTICS_TAG, "invalid json while video compression", e);
 		}
 	}
 

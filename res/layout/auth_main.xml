@@ -79,7 +79,7 @@
                         android:layout_height="wrap_content"
                         android:gravity="left"
                         android:text="Quiz Adda"
-                        android:textColor="@color/standerd_black"
+                        android:textColor="@color/standard_black"
                         android:textSize="17sp"
                         android:textStyle="italic" >
                     </com.bsb.hike.view.CustomFontTextView>
@@ -126,7 +126,7 @@
                     android:layout_marginBottom="15dp"
                     android:layout_marginTop="13dp"
                     android:gravity="center"
-                    android:textColor="@color/standerd_black"
+                    android:textColor="@color/standard_black"
                     android:textSize="16sp"
                     android:textStyle="normal" >
                 </com.bsb.hike.view.CustomFontTextView>
@@ -194,7 +194,7 @@
                             android:layout_height="wrap_content"
                             android:gravity="left"
                             android:text="@string/auth_your_public_profile"
-                            android:textColor="@color/standerd_black"
+                            android:textColor="@color/standard_black"
                             android:textSize="16sp"
                             android:textStyle="normal" >
                         </com.bsb.hike.view.CustomFontTextView>
@@ -245,7 +245,7 @@
                             android:layout_height="wrap_content"
                             android:gravity="left"
                             android:text="@string/auth_contacts_on_hike"
-                            android:textColor="@color/standerd_black"
+                            android:textColor="@color/standard_black"
                             android:textSize="16sp"
                             android:textStyle="normal" >
                         </com.bsb.hike.view.CustomFontTextView>

@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res/com.bsb.hike"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingBottom="4dp"
+    android:descendantFocusability="blocksDescendants"
+    >
+
+    <ViewStub
+        android:id="@+id/day_stub"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout="@layout/message_day_container" />
+
+    <RelativeLayout
+        android:id="@+id/overlay"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/day_container"
+        android:paddingBottom="4dp"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"
+        android:paddingTop="3dp"
+         >
+
+        <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/card_container"
+                android:layout_centerHorizontal="true"
+                android:background="@drawable/card_container"
+                android:layout_toRightOf="@id/avatar_container"
+                >
+
+
+            <com.bsb.hike.platform.CustomWebView
+                android:id="@+id/webcontent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/transparent"
+                android:minHeight="90dp" />
+
+            <View
+                android:id="@+id/card_fade_screen"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@+id/webcontent"
+                android:layout_alignLeft="@+id/webcontent"
+                android:layout_alignRight="@+id/webcontent"
+                android:layout_alignTop="@+id/webcontent"
+                android:background="@android:color/white"
+                android:visibility="visible" />
+
+
+            <include
+                android:id="@+id/loading_data"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_alignBottom="@+id/webcontent"
+                android:layout_alignLeft="@+id/webcontent"
+                android:layout_alignRight="@+id/webcontent"
+                android:layout_alignTop="@+id/webcontent"
+                layout="@layout/platform_card_loading"
+                android:visibility="visible" />
+
+            <include
+                android:id="@+id/loading_failed"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_alignBottom="@+id/webcontent"
+                android:layout_alignLeft="@+id/webcontent"
+                android:layout_alignRight="@+id/webcontent"
+                android:layout_alignTop="@+id/webcontent"
+                layout="@layout/platform_card_loading_failed"
+                android:visibility="gone" />
+        </RelativeLayout>
+
+        <include
+            android:id="@+id/time_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/card_container"
+            android:layout_alignRight="@id/card_container"
+            android:layout_marginRight="2dp"
+            android:layout_marginTop="3dp"
+            layout="@layout/message_time_status_ext" />
+
+    </RelativeLayout>
+
+    <include
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignBottom="@id/overlay"
+        android:layout_alignTop="@id/overlay"
+        layout="@layout/message_overlay" />
+
+    <ViewStub
+        android:id="@+id/message_info_stub"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/overlay"
+        android:layout="@layout/message_sent_info" />
+
+</RelativeLayout>

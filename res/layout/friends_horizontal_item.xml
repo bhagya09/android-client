@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical" 
+    android:padding="12dp">
+    
+     <FrameLayout
+            android:id="@+id/avatar_container"
+            android:layout_width="wrap_content"
+            android:contentDescription="ProfileImage"
+            android:layout_centerVertical="true"
+            android:layout_height="wrap_content" >
+            
+            <ImageView 
+                android:layout_width="74dp"
+                android:layout_height="74dp" 
+                android:src="@drawable/avatar_stroke"/>
+            
+        <com.bsb.hike.ui.utils.RecyclingImageView
+            android:id="@+id/profile_image"
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:contentDescription="Profile Image"
+            android:layout_gravity="center"/>
+        
+        </FrameLayout>
+ 
+    <TextView 
+        android:id="@+id/msisdn"
+        android:layout_marginTop="5dp"
+        android:singleLine="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"/> 
+
+</LinearLayout>

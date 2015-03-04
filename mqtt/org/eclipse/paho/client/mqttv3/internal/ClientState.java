@@ -673,10 +673,14 @@ public class ClientState
 	{
 		synchronized (pingOutstanding)
 		{	
-			if ((lastOutBoundQOS1 - lastInboundActivity >= INACTIVITY_TIMEOUT))
+			if (lastOutBoundQOS1 > lastInboundActivity)
 			{
-				Logger.e(TAG, "not recieved ack for 1 min so disconnecting");
-				throw ExceptionHelper.createMqttException(MqttException.REASON_CODE_CLIENT_TIMEOUT);
+				if(System.currentTimeMillis() - lastInboundActivity >= INACTIVITY_TIMEOUT)
+				{
+					
+					Logger.e(TAG, "not recieved ack for 1 min so disconnecting");
+					throw ExceptionHelper.createMqttException(MqttException.REASON_CODE_CLIENT_TIMEOUT);
+				}
 			}
 		}
 	}
@@ -851,12 +855,14 @@ public class ClientState
 			// this is QOS 1 or 2
 			{
 				lastOutBoundQOS1 = System.currentTimeMillis();
+				Logger.d(TAG, "Last out bound activity changed : " + lastOutBoundQOS1);
 				notifySentCallback(token);
 			}
 		}
-		else if (message instanceof MqttPingReq)
+		else if (message instanceof MqttPingReq || message instanceof MqttConnect)
 		{
 			lastOutBoundQOS1 = System.currentTimeMillis();
+			Logger.d(TAG, "Last out bound activity changed : " + lastOutBoundQOS1);
 		}
 	}
 	
@@ -915,6 +921,7 @@ public class ClientState
 	{
 		final String methodName = "notifyReceivedAck";
 		this.lastInboundActivity = System.currentTimeMillis();
+		Logger.d(TAG, "Last in bound activity changed : " + lastInboundActivity);
 
 		// @TRACE 627=received key={0} message={1}
 
@@ -1004,6 +1011,7 @@ public class ClientState
 	{
 		final String methodName = "notifyReceivedMsg";
 		this.lastInboundActivity = System.currentTimeMillis();
+		Logger.d(TAG, "Last in bound activity changed : " + lastInboundActivity);
 
 		// @TRACE 651=received key={0} message={1}
 

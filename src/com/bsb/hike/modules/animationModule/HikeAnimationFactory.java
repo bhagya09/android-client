@@ -1,16 +1,15 @@
 package com.bsb.hike.modules.animationModule;
 
-import com.bsb.hike.R;
-import com.bsb.hike.utils.Utils;
-
 import android.content.Context;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationSet;
+import android.view.animation.AnimationUtils;
 import android.view.animation.ScaleAnimation;
+
+import com.bsb.hike.R;
 
 public class HikeAnimationFactory
 {	

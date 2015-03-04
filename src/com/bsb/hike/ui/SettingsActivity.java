@@ -32,7 +32,6 @@ import com.bsb.hike.models.StatusMessage;
 import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.smartImageLoader.IconLoader;
-import com.bsb.hike.smartImageLoader.ImageWorker;
 import com.bsb.hike.utils.EmoticonConstants;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -89,7 +88,7 @@ public class SettingsActivity extends HikeAppStateBaseFragmentActivity implement
 		}
 
 		// Check for connect apps in shared pref
-		isConnectedAppsPresent = (!(TextUtils.isEmpty(HikeSharedPreferenceUtil.getInstance(getApplicationContext(), HikeAuthActivity.AUTH_SHARED_PREF_NAME).getData(
+		isConnectedAppsPresent = (!(TextUtils.isEmpty(HikeSharedPreferenceUtil.getInstance(HikeAuthActivity.AUTH_SHARED_PREF_NAME).getData(
 				HikeAuthActivity.AUTH_SHARED_PREF_PKG_KEY, ""))));
 
 		if (isConnectedAppsPresent)

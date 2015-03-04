@@ -9,7 +9,6 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.os.AsyncTask;
 import android.view.View;
-import android.widget.ProgressBar;
 
 import com.bsb.hike.utils.AccountUtils;
 

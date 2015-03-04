@@ -1,6 +1,5 @@
 package com.bsb.hike.voip;
 
-import com.bsb.hike.voip.VoIPClient.ConnectionMethods;
 
 public class VoIPDataPacket {
 

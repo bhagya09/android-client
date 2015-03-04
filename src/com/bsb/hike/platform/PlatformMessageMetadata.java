@@ -1,22 +1,24 @@
 package com.bsb.hike.platform;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Set;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.content.Context;
 import android.text.TextUtils;
 import android.util.Base64;
+
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.platform.CardComponent.ImageComponent;
 import com.bsb.hike.platform.CardComponent.MediaComponent;
 import com.bsb.hike.platform.CardComponent.TextComponent;
 import com.bsb.hike.platform.CardComponent.VideoComponent;
 import com.bsb.hike.utils.Utils;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
 
 public class PlatformMessageMetadata implements HikePlatformConstants {
     public int layoutId;
@@ -279,6 +281,16 @@ public class PlatformMessageMetadata implements HikePlatformConstants {
             }
         }
         return "";
+    }
+
+    public JSONObject getHelperData(){
+
+        if (json.has(HELPER_DATA)){
+            JSONObject jsonObj = json.optJSONObject(HELPER_DATA);
+            if (null != jsonObj)
+                return jsonObj;
+        }
+        return new JSONObject();
     }
 
     public String JSONtoString() {

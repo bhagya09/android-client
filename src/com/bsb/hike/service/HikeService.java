@@ -9,48 +9,38 @@ import org.json.JSONObject;
 
 import android.app.Service;
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.database.ContentObserver;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Handler;
-import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.Looper;
-import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
-import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
 import android.support.v4.content.LocalBroadcastManager;
-import android.telephony.TelephonyManager;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.db.DBBackupRestore;
 import com.bsb.hike.http.HikeHttpRequest;
 import com.bsb.hike.http.HikeHttpRequest.HikeHttpCallback;
 import com.bsb.hike.http.HikeHttpRequest.RequestType;
 import com.bsb.hike.models.ContactInfo;
-import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.HikeAlarmManager;
+import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.platform.HikeSDKRequestHandler;
-import com.bsb.hike.service.HikeMqttManagerNew.IncomingHandler;
-import com.bsb.hike.modules.stickerdownloadmgr.StickerDownloadManager;
 import com.bsb.hike.tasks.CheckForUpdateTask;
 import com.bsb.hike.tasks.HikeHTTPTask;
 import com.bsb.hike.tasks.SyncContactExtraInfo;
-import com.bsb.hike.ui.HikeAuthActivity;
-import com.bsb.hike.ui.SignupActivity;
-import com.bsb.hike.ui.WelcomeActivity;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
@@ -205,7 +195,7 @@ public class HikeService extends Service
 	{
 		Logger.d("TestUpdate", "Service started");
 
-		HikeSharedPreferenceUtil mprefs = HikeSharedPreferenceUtil.getInstance(getApplicationContext());
+		HikeSharedPreferenceUtil mprefs = HikeSharedPreferenceUtil.getInstance();
 
 		if (!(mprefs.getData(HikeConstants.REGISTER_GCM_SIGNUP, -1) == (HikeConstants.REGISTEM_GCM_AFTER_SIGNUP)))
 		{
@@ -214,13 +204,16 @@ public class HikeService extends Service
 
 		}
 
+		// Repopulating the alarms on close // force close,System GC ,Device Reboot //other reason
+		HikeAlarmManager.repopulateAlarm(getApplicationContext());
+		
 		LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(REGISTER_TO_GCM_ACTION));
 		Logger.d("HikeService", "onCreate called");
 
 		// reset status variable to initial state
 		// mMqttManager = HikeMqttManager.getInstance(getApplicationContext());
-		mMqttManager = new HikeMqttManagerNew(getApplicationContext());
-		mMqttManager.init();		
+		mMqttManager = HikeMqttManagerNew.getInstance();
+		mMqttManager.init();
 
 		/*
 		 * notify android that our service represents a user visible action, so it should not be killable. In order to do so, we need to show a notification so the user understands
@@ -235,6 +228,7 @@ public class HikeService extends Service
 		 * notification.setLatestEventInfo(this, "Hike", "Hike", contentIntent); startForeground(HikeNotification.HIKE_NOTIFICATION, notification);
 		 */
 		assignUtilityThread();
+		scheduleNextAnalyticsSendAlarm();
 		DBBackupRestore.getInstance(getApplicationContext()).scheduleNextAutoBackup();
 
 		/*
@@ -409,7 +403,7 @@ public class HikeService extends Service
 			unregisterReceiver(postSignupProfilePic);
 			postSignupProfilePic = null;
 		}
-
+		
 	}
 
 	/************************************************************************/
@@ -589,11 +583,7 @@ public class HikeService extends Service
 
 			// Send the device details again which includes the new app
 			// version
-			JSONObject obj = Utils.getDeviceDetails(context);
-			if (obj != null)
-			{
-				HikeMessengerApp.getPubSub().publish(HikePubSub.MQTT_PUBLISH, obj);
-			}
+			Utils.recordDeviceDetails(context);
 
 			Utils.requestAccountInfo(true, false);
 
@@ -687,11 +677,7 @@ public class HikeService extends Service
 		@Override
 		public void run()
 		{
-			JSONObject obj = Utils.getDeviceStats(getApplicationContext());
-			if (obj != null)
-			{
-				HikeMessengerApp.getPubSub().publish(HikePubSub.MQTT_PUBLISH, obj);
-			}
+			Utils.getDeviceStats(getApplicationContext());
 			scheduleNextUserStatsSending();
 		}
 	};
@@ -762,7 +748,7 @@ public class HikeService extends Service
 			if (profilePicPath == null)
 			{
 				Logger.d(getClass().getSimpleName(), "Signup profile pic already uploaded");
-				HikeSharedPreferenceUtil.getInstance(context).removeData(HikeMessengerApp.SIGNUP_PROFILE_PIC_PATH);
+				HikeSharedPreferenceUtil.getInstance().removeData(HikeMessengerApp.SIGNUP_PROFILE_PIC_PATH);
 				return;
 			}
 
@@ -770,7 +756,7 @@ public class HikeService extends Service
 			if (!(f.exists() && f.length() > 0))
 			{
 				Logger.d(getClass().getSimpleName(), "Signup profile pic does not exists or it's length is zero");
-				HikeSharedPreferenceUtil.getInstance(context).removeData(HikeMessengerApp.SIGNUP_PROFILE_PIC_PATH);
+				HikeSharedPreferenceUtil.getInstance().removeData(HikeMessengerApp.SIGNUP_PROFILE_PIC_PATH);
 				f.delete();
 				return;
 			}
@@ -781,8 +767,8 @@ public class HikeService extends Service
 			{
 				public void onSuccess(JSONObject response)
 				{
-					String msisdn = HikeSharedPreferenceUtil.getInstance(context).getData(HikeMessengerApp.MSISDN_SETTING, null);
-					HikeSharedPreferenceUtil.getInstance(context).removeData(HikeMessengerApp.SIGNUP_PROFILE_PIC_PATH);
+					String msisdn = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, null);
+					HikeSharedPreferenceUtil.getInstance().removeData(HikeMessengerApp.SIGNUP_PROFILE_PIC_PATH);
 					Utils.renameTempProfileImage(msisdn);
 					// clearing cache for this msisdn because if user go to profile before rename (above line) executes then icon blurred image will be set in cache
 					HikeMessengerApp.getLruCache().clearIconForMSISDN(msisdn);
@@ -798,7 +784,7 @@ public class HikeService extends Service
 					}
 					else
 					{
-						HikeSharedPreferenceUtil.getInstance(context).removeData(HikeMessengerApp.SIGNUP_PROFILE_PIC_PATH);
+						HikeSharedPreferenceUtil.getInstance().removeData(HikeMessengerApp.SIGNUP_PROFILE_PIC_PATH);
 						f.delete();
 					}
 				}
@@ -821,4 +807,19 @@ public class HikeService extends Service
 		this.isInitialized = isInitialized;
 	}
 
+	/**
+	 * Used to schedule the alarm for sending analytics data to the server after the HikeService has been booted
+	 */
+	private void scheduleNextAnalyticsSendAlarm()
+	{
+		long nextAlarm = HAManager.getInstance().getWhenToSend(); 		
+		
+		// please do not remove the following logs, for QA testing
+		Calendar cal = Calendar.getInstance();
+		cal.setTimeInMillis(nextAlarm);
+		Logger.d(AnalyticsConstants.ANALYTICS_TAG, "Next alarm date(service boot up) :" + cal.get(Calendar.DAY_OF_MONTH));
+		Logger.d(AnalyticsConstants.ANALYTICS_TAG, "Next alarm time(service boot up) :" + cal.get(Calendar.HOUR_OF_DAY) + ":" + cal.get(Calendar.MINUTE));
+		
+		HikeAlarmManager.setAlarm(getApplicationContext(), nextAlarm, HikeAlarmManager.REQUESTCODE_HIKE_ANALYTICS, false);
+ 	}
 }

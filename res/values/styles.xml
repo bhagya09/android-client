@@ -442,13 +442,6 @@
 	    <item name="android:background">@drawable/bg_updates_white</item>
 	</style>
 	
-	<style name="NuxScreenCardContainer">
-	    <item name="android:layout_marginLeft">@dimen/updates_margin</item>
-	    <item name="android:layout_marginRight">@dimen/updates_margin</item>
-	    <item name="android:layout_marginTop">@dimen/updates_margin_top</item>
-	    <item name="android:background">@drawable/bg_sticker_card_white</item>
-	</style>
-	
 	<style name="AvatarStyle">
 	    <item name="android:layout_width">match_parent</item>
 	    <item name="android:layout_height">match_parent</item>
@@ -656,7 +649,7 @@
 	<style name="SmallListContactItemHeader">
 	    <item name="android:layout_width">wrap_content</item>
 	    <item name="android:layout_height">wrap_content</item>
-	    <item name="android:textColor">@color/standerd_black</item>
+	    <item name="android:textColor">@color/standard_black</item>
 	    <item name="android:textSize">16sp</item>
 	    <item name="android:textStyle">bold|italic</item>
 	    <item name="android:ellipsize">end</item>

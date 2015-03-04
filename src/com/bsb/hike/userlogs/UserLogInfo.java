@@ -7,6 +7,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -17,10 +21,6 @@ import android.location.LocationManager;
 import android.net.Uri;
 import android.provider.CallLog;
 import android.text.TextUtils;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -51,9 +51,6 @@ public class UserLogInfo {
 	private static final String SENT_CALL_DURATION = "sd";
 	private static final String PHONE_NUMBER = "ph";
 	
-	private static final String SENT_SMS = "ss";
-	private static final String RECEIVED_SMS = "rs";
-
 	private static final String PACKAGE_NAME = "pn";
 	private static final String APPLICATION_NAME = "an";
 	private static final String INSTALL_TIME = "it";
@@ -188,7 +185,7 @@ public class UserLogInfo {
 	private static JSONArray collectLogs(Context ctx, int flag) throws JSONException{	
 		switch(flag){
 			case APP_ANALYTICS_FLAG : return getJSONAppArray(getAppLogs(ctx)); 
-			//case CALL_ANALYTICS_FLAG : jsonLogArray = getJSONCallArray(getCallLogs(ctx)); break;
+			case CALL_ANALYTICS_FLAG : return getJSONCallArray(getCallLogs(ctx));
 			case LOCATION_ANALYTICS_FLAG : return getJSONLocArray(getLocLogs(ctx));
 			default : return null;
 		}

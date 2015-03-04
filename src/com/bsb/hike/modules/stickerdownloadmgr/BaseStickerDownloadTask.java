@@ -19,7 +19,6 @@ import org.apache.http.conn.ConnectTimeoutException;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.protocol.HTTP;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
@@ -30,7 +29,6 @@ import com.bsb.hike.HikeConstants.STResult;
 import com.bsb.hike.http.GzipByteArrayEntity;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.HttpRequestType;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.STState;
-import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.StickerRequestType;
 import com.bsb.hike.modules.stickerdownloadmgr.retry.DefaultRetryPolicy;
 import com.bsb.hike.modules.stickerdownloadmgr.retry.IRetryPolicy;
 import com.bsb.hike.utils.AccountUtils;

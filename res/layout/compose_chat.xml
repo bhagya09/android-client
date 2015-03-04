@@ -3,18 +3,19 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
+    android:id="@+id/ll_compose"
     android:orientation="vertical" >
 
     <include
         android:id="@+id/spinner"
         layout="@layout/spinner_center_screen"
         android:visibility="gone" />
-
-    <ViewStub 
-        android:id="@+id/nuxComposeCardStub"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout="@layout/nux_compose_card_layout"/>
+    
+	<FrameLayout
+       android:id="@+id/horizontal_friends_placeholder"
+       android:layout_height="wrap_content"
+       android:layout_width="match_parent">
+  	</FrameLayout>
     
     <com.bsb.hike.view.TagEditText
         android:id="@+id/composeChatNewGroupTagET"
@@ -43,11 +44,6 @@
     <include
         android:id="@android:id/empty"
         layout="@layout/list_empty_view"
-        android:visibility="gone" >
-    </include>
-    <include
-        android:id="@+id/nux_invite_empty"
-        layout="@layout/nux_invite_empty_view"
         android:visibility="gone" >
     </include>
 	

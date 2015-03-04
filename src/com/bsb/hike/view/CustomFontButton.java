@@ -49,7 +49,7 @@ public class CustomFontButton extends Button
 			/*
 			 * If we are dealing with LDPI phones, we use the default font, They have a rendering issue with the font that we're using
 			 */
-			if (Utils.densityMultiplier <= 0.75f)
+			if (Utils.scaledDensityMultiplier <= 0.75f)
 			{
 				if (style == Typeface.ITALIC || style == Typeface.BOLD_ITALIC)
 				{

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ll_chatReward"
+    android:layout_width="match_parent"
+    android:layout_height="0dp"
+    android:layout_weight=".5"
+    android:clickable="true"
+    android:orientation="horizontal" >
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:layout_marginLeft="20dp"
+        android:layout_weight=".75"
+        android:orientation="vertical" >
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/tv_chatReward"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:background="#00000000"
+            android:text="@string/reward_card_objective"
+            android:textSize="16sp"
+            android:textStyle="italic" />
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/tv_chatStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/status_text"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <RelativeLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:layout_weight=".25" >
+
+        <com.bsb.hike.view.HoloCircularProgress
+            xmlns:app="http://schemas.android.com/apk/res/com.bsb.hike"
+            android:id="@+id/nux_progress"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:layout_centerInParent="true"
+            android:visibility="visible"
+            app:marker_visible="false"
+            app:progress_background_color="#fce4e3"
+            app:progress_color="@color/nux_chat_reward_status"
+            app:stroke_width="2dp"
+            app:thumb_visible="false" />
+
+        <com.bsb.hike.ui.utils.RecyclingImageView
+            android:id="@+id/nux_lock"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:src="@drawable/ic_lock_orange" >
+        </com.bsb.hike.ui.utils.RecyclingImageView>
+    </RelativeLayout>
+
+</LinearLayout>

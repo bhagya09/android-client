@@ -15,7 +15,7 @@ public class VoIPClient  {
 	private String internalIPAddress, externalIPAddress;
 	private String name;
 	private int internalPort, externalPort;
-	private boolean initiator;
+	private boolean initiator, ender;
 	private ConnectionMethods preferredConnectionMethod = ConnectionMethods.UNKNOWN;
 	private InetAddress cachedInetAddress = null;
 	private String relayAddress;
@@ -90,7 +90,15 @@ public class VoIPClient  {
 	public void setInitiator(boolean initiator) {
 		this.initiator = initiator;
 	}
-	
+
+	public boolean isEnder(){
+		return ender;
+	}
+
+	public void setEnder(boolean ender) {
+		this.ender = ender;
+	}
+
 	public ConnectionMethods getPreferredConnectionMethod() {
 		return preferredConnectionMethod;
 	}

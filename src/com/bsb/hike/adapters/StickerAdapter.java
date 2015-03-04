@@ -354,7 +354,6 @@ public class StickerAdapter extends PagerAdapter implements StickerEmoticonIconP
 	{
 		StickerPageAdapter spa = stickerPageObjects.getStickerPageAdapter();
 		List<StickerPageAdapterItem> stickerPageList = spa.getStickerPageAdapterItemList();
-		int state = category.getState();
 		stickerPageList.remove(0);
 		/* We add UI elements based on the current state of the sticker category*/
 		addStickerPageAdapterItem(category, stickerPageList);

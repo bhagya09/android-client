@@ -11,8 +11,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import android.content.Context;
-
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 

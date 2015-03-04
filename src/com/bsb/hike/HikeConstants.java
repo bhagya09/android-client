@@ -1,9 +1,9 @@
 package com.bsb.hike;
 
-import com.bsb.hike.models.StatusMessage.StatusMessageType;
-
 import android.net.Uri;
 import android.os.Environment;
+
+import com.bsb.hike.models.StatusMessage.StatusMessageType;
 
 public class HikeConstants
 {
@@ -79,6 +79,10 @@ public class HikeConstants
 
 	public static final String MSISDN = "msisdn";
 
+	public static final String BOT_THUMBNAIL = "dp";
+
+	public static final String BOT_CHAT_THEME = "bg_id";
+
 	public static final String NEW_USER = "nu";
 
 	public static final String EMAIL = "email";
@@ -86,6 +90,10 @@ public class HikeConstants
 	public static final String GENDER = "gender";
 
 	public static final String VERSION = "v";
+	
+	public static final String EXPIRE_AT = "expires_at";
+	
+	public static final String PUSHACK = "pushack";
 
 	public static final String CRITICAL = "c";
 
@@ -186,6 +194,12 @@ public class HikeConstants
 	public static final String PROFILE = "profile";
 
 	public static final String ICON = "icon";
+
+	public static final String BOT = "bot";
+
+	public static final String GROUP_CONVERSATION = "gc";
+
+	public static final String ONE_TO_ONE_CONVERSATION = "oc";
 
 	public static final String MUTED = "muted";
 
@@ -454,6 +468,10 @@ public class HikeConstants
 	public static final String WF_AUTO_DOWNLOAD_AUDIO_PREF = "wfAutoDownloadAudioPref";
 
 	public static final String WF_AUTO_DOWNLOAD_VIDEO_PREF = "wfAutoDownloadVideoPref";
+
+	public static final String COMPRESS_VIDEO = "videoCompress";
+
+	public static final String COMPRESS_VIDEO_CATEGORY = "videoCompressCategory";
 	
 	public static final String IMAGE_QUALITY = "imageQuality";
 	
@@ -478,6 +496,8 @@ public class HikeConstants
 	public static final String BACKUP_PREF = "backupAccount";
 
     public static final String NUX_BOT = "+hike5+";
+    
+    public static final String CRICKET_BOT = "+hikecricket+";
 
     public static final String NUX = "nux";
 
@@ -498,6 +518,8 @@ public class HikeConstants
 	public static final String HELP_FAQS_PREF = "helpFaqs";
 
 	public static final String HELP_FEEDBACK_PREF = "helpFeedback";
+	
+	public static final String HELP_TNC_PREF = "helpTnc";
 
 	public static final String STATUS_BOOLEAN_PREF = "statusBooleanPref";
 	
@@ -522,12 +544,6 @@ public class HikeConstants
 	public static final String OPERATOR_SMS_ALERT_CHECKED = "opSmsAlertChecked";
 
 	public static final String SINGLE_INVITE_SMS_ALERT_CHECKED = "singleSmsAlertChecked";
-	
-	public static final String HIKE_CONTACTS_COUNT = "hikeContactsCount";
-	
-	public static final String SHOW_NUX_SCREEN = "show_nux_screen";
-		
-	public static final String NUX_STICKER_DETAILS = "nuxStickerDetails";
 	
 	public static final String FTUE_ADD_SMS_ALERT_CHECKED = "ftueSmsAlertChecked";
 
@@ -798,9 +814,17 @@ public class HikeConstants
 
 	public static final String STICKERS_ROOT = "/stickers";
 
-	public static final String LARGE_STICKER_ROOT = "/large";
+	public static final String LARGE_STICKER_FOLDER_NAME = "stickers_l";
 
-	public static final String SMALL_STICKER_ROOT = "/small";
+	public static final String SMALL_STICKER_FOLDER_NAME = "stickers_s";
+	
+	public static final String OLD_LARGE_STICKER_FOLDER_NAME = "large";
+
+	public static final String OLD_SMALL_STICKER_FOLDER_NAME = "small";
+	
+	public static final String LARGE_STICKER_ROOT = "/"+LARGE_STICKER_FOLDER_NAME;
+
+	public static final String SMALL_STICKER_ROOT = "/"+SMALL_STICKER_FOLDER_NAME;
 
 	public static final String HIKE_FILE_LIST_NAME = "hikeFiles";
 
@@ -809,6 +833,8 @@ public class HikeConstants
 	public static final String PIN_HISTORY_FRAGMENT_TAG = "pin-history-fragment";
 
 	public static final String VOIP_CALL_RATE_FRAGMENT_TAG = "voipCallRateFragmentTag";
+
+	public static final String VOIP_CALL_ISSUES_FRAGMENT_TAG = "voipCallIssuesFragmentTag";
 
 	/*
 	 * Contact Type
@@ -965,7 +991,7 @@ public class HikeConstants
 	
 	public static final String SHOW_FESTIVE_POPUP = "showFestivePopup";
 
-	public static final String REPUBLIC_DAY_POPUP = "indiarepublic";
+	public static final String HOLI_POPUP = "holi";
 
 	public static final String HIKE_OFFLINE_NOTIFICATION_PREF = "hikeOfflineNotificationPref";
 
@@ -986,15 +1012,7 @@ public class HikeConstants
 	public static final String SUCCESSFUL_SELECTIONS = "s";
 	
 	public static final String DRAWABLE = "drawable";
-	
-	public static final String NUX_STICKERS = "stickers";
-	
-	public static final String SHOW_NUX_INVITE_MODE = "showNuxInviteMode";
-
-	public static final String NUX_HOME_INVITE_FOOTER = "nuxHomeInviteFooter";
-
-	public static final String NUX_INVITE_FORWARD = "nuxInviteForward";
-	
+		
 	public static final String SELF_HIKE_ID = "-1";
 
 	public static final String VOIP_CALL_DURATION = "vcd";
@@ -1014,6 +1032,10 @@ public class HikeConstants
 	public static final String VOIP_CALL_RATE_POPUP_FREQ = "vrmcf";
 
 	public static final String VOIP_RELAY_SERVER_PORT = "rsport";
+
+	public static final String VOIP_QUALITY_TEST_ACCEPTABLE_PACKET_LOSS = "apl";
+
+	public static final String VOIP_QUALITY_TEST_SIMULATED_CALL_DURATION = "scd";
 
 	public static final class ResultCodes
 	{
@@ -1361,17 +1383,17 @@ public class HikeConstants
 
 		public static final String CURRENT_POSITION = "currentPosition";
 		
-		public static final String FTUE_FORWARD = "ftueForward";
-		
-		public static final String FTUE_STICKER_ID_LIST = "ftueStickerIdsList";
-		
-		public static final String FTUE_STICKER_CATEGORY_LIST = "ftueStickerCategoryList";
-		
 		public static final String SDK_THIRD_PARTY_PKG = "third_party_app_pkg";
 		
 		public static final String SDK_CONNECTION_TYPE = "connection_type";
 
 		public static final String SELECT_ALL_INITIALLY = "selectAllInitially";
+		
+		public static final String NUX_INCENTIVE_MODE = "showNuxIncentiveMode";
+
+		public static final String GENERAL_SO_TIMEOUT = "sto";
+
+		public static final String FT_UPLOAD_SO_TIMEOUT = "ftsto";
 	}
 
 	public static final class LogEvent
@@ -1664,6 +1686,8 @@ public class HikeConstants
 		
 		public static final String STICKER_BTN_CLICKED = "stickerBtnClicked";
 		
+		public static final String STKR_SHOP_BTN_CLICKED = "shopBtnClicked";		
+		
 		public static final String STICKER_SETTING_BTN_CLICKED = "stickerSettingBtnClicked";
 		
 		public static final String SEEN_REORDERING_TIP = "seenReorderingTip";
@@ -1681,7 +1705,11 @@ public class HikeConstants
 		public static final String SETTINGS_NOTIFICATION_H2O_ON = "settingsSNotifH2OEnabled";
 		
 		public static final String SETTINGS_NOTIFICATION_H2O_OFF = "settingsSNotifH2ODisabled";
+
+		public static final String SETTINGS_NOTIFICATION_NUJ_ON = "settingsSNotifNUJEnabled";
 		
+		public static final String SETTINGS_NOTIFICATION_NUJ_OFF = "settingsSNotifNUJDisabled";
+
 		/*
 		 * HikeSharedFiles Activity Screen = sharedMediaS<event>
 		 * */
@@ -1729,30 +1757,17 @@ public class HikeConstants
 		public static final String ATOMIC_APP_TIP_HIKE_EXTRA_CLICKED = "atomicAppHikeExtraClick";
 
 		public static final String ATOMIC_APP_TIP_HIKE_REWARDS_CLICKED = "atomicAppHikeRewardsClick";
-
-		/*
-		 * NUX Events 
-		 */
-		public static final String NUX_STICKER_CLICKED = "nuxStckrClk";
-
-		public static final String NUX_STICKER_FORWARD = "nuxStckrFwd";
-
-		public static final String NUX_INVITE_BUTTON_CLICKED = "nuxInvteBtnClk";
-
-		public static final String NUX_INVITE_SENT = "nuxInvteSent";
-
-		public static final String NUX_BOT_FORWARD = "nuxBotFwd";
 		
 		/*
 		 * Account Backup Events
 		 */
-		public static final String BACKUP = "backupClk";
+		public static final String BACKUP = "bckMnul";
 
-		public static final String BACKUP_RESTORE = "backupRestoreClk";
+		public static final String BACKUP_RESTORE = "bckRstr";
 
-		public static final String BACKUP_RESTORE_RETRY = "backupRestoreRetryClk";
+		public static final String BACKUP_RESTORE_RETRY = "rstrRtry";
 
-		public static final String BACKUP_RESTORE_SKIP = "backupRestoreSkipClk";
+		public static final String BACKUP_RESTORE_SKIP = "rstrSkp";
 
 		/*
 		 * Platform Events
@@ -1816,6 +1831,41 @@ public class HikeConstants
 		public static final String VOIP_NATIVE_CALL_INTERRUPT = "tci";
 
 		public static final String VOIP_CALL_RELAY = "cpur";
+		
+		//GCM Events
+		public static final String GCM_EXPIRED = "gcmexp";
+		
+		public static final String GCM_PUSH_ACK = "gcmpack";
+		
+		public static final String GCM_ANALYTICS_CONTEXT = "gcmst";
+
+		public static final String VOIP_CONNECTION_FAILED = "connf";
+		
+		// nux Analytics Event
+		
+		public static final String NUX_INTRO_BTN="nuxIB";
+		
+		public static final String NUX_INTRO_SKIP="nuxIS";
+		
+		public static final String NUX_FRNSEL_NEXT="nuxFSN";
+		
+		public static final String NUX_CUSMES_SEND="nuxMS";
+		
+		public static final String NUX_INVITE_MORE="nuxSF";
+		
+		public static final String NUX_REMIND="nuxRF";
+		
+		public static final String NUX_VIEW_MORE="nuxMr";
+		
+		public static final String NUX_TAP_CLAIM="nuxClm";
+		
+		public static final String NUX_FOOTER_COM_NOR="nuxC2N";
+		
+		public static final String NUX_FOOTER_NOR_EXP="nuxN2E";
+		
+		public static final String NUX_FOOTER_NOR_COM="nuxN2C";
+		
+		public static final String NUX_EXPANDED_COM="nuxE2C";		
 	}
 
 	public static final class MqttMessageTypes
@@ -1933,6 +1983,14 @@ public class HikeConstants
 		public static final String MULTIPLE_FORWARD = "mm";
 		
 		public static final String TIP = "tip";
+		
+		public static final String NUX = "nux";
+
+		public static final String CREATE_MULTIPLE_BOTS = "cbot";
+
+		public static final String DELETE_MULTIPLE_BOTS = "dbot";
+
+		public static final String PACKET_ECHO = "pecho";
 
 		public static final String VOIP_SOCKET_INFO = "ve";
 		
@@ -1957,7 +2015,6 @@ public class HikeConstants
 		
 		public static final String DELETE_BOT = "db";
 		
-		public static final String GCM_ECHO = "gcmecho";
 
 		/**
 		 * The person we are calling is on a client that cannot be upgraded
@@ -2092,12 +2149,18 @@ public class HikeConstants
 		public static final int TEXT_PIN = 1;
 		
 		public static final int CONTENT = 2;
+
+		public static final int WEB_CONTENT = 3;
+
+		public static final int FORWARD_WEB_CONTENT = 4;
 	}
 	
 	public static interface ConvMessagePacketKeys{
 		public static final String CONTENT_TYPE = "c";
 		public static final String PIN_TYPE = "pin";
 		public static final String LOVE_ID = "loveID";
+		public static final String WEB_CONTENT_TYPE = "wc";
+		public static final String FORWARD_WEB_CONTENT_TYPE = "fwc";
 	}
 	
 	public static class HASH_MESSAGE_TYPE
@@ -2195,8 +2258,10 @@ public class HikeConstants
 	public static final String GCM_ID = "gcm_id";
 	
 	public static final String ADD_CATEGORY = "addCat";
-
+	
 	public static final int LED_DEFAULT_WHITE_COLOR = 0xffffffff;
+	
+	public static final String GET_BULK_LAST_SEEN = "bls"; 
 	
 	public static final int LED_NONE_COLOR = -2; /**
 													Any Change In this Value Should be double checked 
@@ -2204,5 +2269,18 @@ public class HikeConstants
 												   */
 
 	public static long STOP_NOTIF_SOUND_TIME = 3000; // In milliseconds
+	
+	public static final String PLAY_NOTIFICATION = "notif";
+	
+	public static final String SILENT = "silent";
+	
+	public static final String LOUD = "loud";
+	
+	public static final String OFF = "off";
 
+	public static final String ENABLE_DETAILED_HTTP_LOGGING = "edhl";
+	
+	public static final String ERROR_MESSAGE = "em";
+	
+	public static final String EXCEPTION_MESSAGE = "exm";
 }

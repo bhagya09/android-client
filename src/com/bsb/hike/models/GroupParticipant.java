@@ -3,7 +3,6 @@ package com.bsb.hike.models;
 import java.util.Comparator;
 
 import android.text.TextUtils;
-import android.util.Pair;
 
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.utils.PairModified;

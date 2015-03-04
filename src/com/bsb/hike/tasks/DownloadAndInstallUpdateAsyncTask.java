@@ -96,6 +96,8 @@ public class DownloadAndInstallUpdateAsyncTask extends AsyncTask<Void, Integer, 
 					publishProgress(progress);
 				}
 			}
+			fos.flush();
+			fos.getFD().sync();
 			fos.close();
 			is.close();
 

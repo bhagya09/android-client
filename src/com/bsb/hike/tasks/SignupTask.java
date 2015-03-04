@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.accounts.NetworkErrorException;
@@ -28,11 +27,8 @@ import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.HikePubSub;
 import com.bsb.hike.BitmapModule.BitmapUtils;
-import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.db.DBBackupRestore;
-import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.http.HikeHttpRequest;
 import com.bsb.hike.models.Birthday;
 import com.bsb.hike.models.ContactInfo;
@@ -79,8 +75,21 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 		public void onProgressUpdate(StateValue value);
 	}
 	
-	public int getDisplayChild(){
-		return ((SignupActivity) context).getDisplayItem();
+	public int getDisplayChild()
+	{
+		/**
+		 * This is being added here because SignupTask can be called from WelcomeActivity as well as SignupActivity. We were getting ClassCast Exceptions for Context, hence this
+		 * defensive check
+		 */
+		if (context instanceof SignupActivity)
+		{
+			return ((SignupActivity) context).getDisplayItem();
+		}
+
+		else
+		{
+			return -1;
+		}
 	}
 
 	public void autoFillPin(String pin)
@@ -135,9 +144,7 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 	private Boolean isFemale;
 
 	private String userName;
-	
-	private int numOfHikeContactsCount = 0;
-	
+		
 	private static final String INDIA_ISO = "IN";
 
 	public static final String START_UPLOAD_PROFILE = "start";
@@ -479,7 +486,6 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 				}
 				Logger.d("SignupTask", "about to insert addressbook");
 				ContactManager.getInstance().setAddressBookAndBlockList(addressbook, blockList);
-				numOfHikeContactsCount = getHikeContactCount(addressbook);
 			}
 			catch (Exception e)
 			{
@@ -489,7 +495,6 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 			}
 
 			Editor editor = settings.edit();
-			editor.putInt(HikeConstants.HIKE_CONTACTS_COUNT, numOfHikeContactsCount);
 			editor.putBoolean(HikeMessengerApp.ADDRESS_BOOK_SCANNED, true);
 			editor.putBoolean(HikeMessengerApp.GREENBLUE_DETAILS_SENT, true);
 			editor.commit();
@@ -543,23 +548,7 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 					publishProgress(new StateValue(State.SCANNING_CONTACTS, ""));
 				}
 				publishProgress(new StateValue(State.PROFILE_IMAGE, START_UPLOAD_PROFILE));
-				JSONObject nuxDetails = AccountUtils.setProfile(userName, birthdate, isFemale.booleanValue());
-				
-				boolean showNuxScreen = false;
-				String nuxStickers = null;
-				if (null != nuxDetails)
-				{
-					showNuxScreen = nuxDetails.optBoolean(HikeConstants.SHOW_NUX_SCREEN);
-					JSONArray nuxStickerDetailsJson = nuxDetails.optJSONArray(HikeConstants.NUX_STICKERS);
-					if (null != nuxStickerDetailsJson)
-					{
-						nuxStickers = nuxStickerDetailsJson.toString();
-					}
-				}
-				Editor editor = settings.edit();
-				editor.putBoolean(HikeConstants.SHOW_NUX_SCREEN, showNuxScreen);
-				editor.putString(HikeConstants.NUX_STICKER_DETAILS, nuxStickers);
-				editor.commit();
+				AccountUtils.setProfile(userName, birthdate, isFemale.booleanValue());
 			}
 			catch (InterruptedException e)
 			{
@@ -700,9 +689,10 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 		Logger.d("SignupTask", "Publishing Token_Created");
 
 		/* tell the service to start listening for new messages */
-		HikeMessengerApp.getPubSub().publish(HikePubSub.TOKEN_CREATED, null);
 		isAlreadyFetchingNumber = false;
 
+		settings.edit().putBoolean(StickerManager.STICKER_FOLDER_NAMES_UPGRADE_DONE, true).commit();
+		
 		return Boolean.TRUE;
 	}
 	
@@ -726,25 +716,6 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 		editor.commit();
 		
 		return status;
-	}
-
-	/**
-	 * This method traverses the contacts list and returns the count of hike contacts in it.
-	 * 
-	 * @param contacts
-	 * @return
-	 */
-	private int getHikeContactCount(List<ContactInfo> contacts)
-	{
-		int numOfHikeContacts = 0;
-		for (ContactInfo contact : contacts)
-		{
-			if (contact.isOnhike())
-			{
-				numOfHikeContacts++;
-			}
-		}
-		return numOfHikeContacts;
 	}
 	
 	@Override

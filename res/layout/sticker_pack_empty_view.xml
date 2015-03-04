@@ -48,7 +48,7 @@
             android:id="@+id/category_details"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/standerd_light_grey2"
+            android:textColor="@color/standard_light_grey2"
             android:textSize="12sp" />
         
         <com.bsb.hike.view.CustomFontTextView
@@ -65,7 +65,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/sticker_pack_free"
-            android:textColor="@color/standerd_light_grey2"
+            android:textColor="@color/standard_light_grey2"
             android:textSize="12sp" />
         
         <com.bsb.hike.view.CustomFontButton

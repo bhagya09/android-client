@@ -2,29 +2,14 @@ package com.bsb.hike.models;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
-import android.os.Build;
-import android.text.Spannable;
-import android.text.Spanned;
-import android.text.TextUtils;
-import android.text.style.ClickableSpan;
-import android.view.View;
-
 import com.bsb.hike.HikeConstants;
-import com.bsb.hike.R;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
-import com.bsb.hike.ui.CreditsActivity;
-import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
-import com.bsb.hike.utils.Utils;
 
 public class MessageMetadata
 {
@@ -275,5 +260,20 @@ public class MessageMetadata
 	public void setNudgeAnimationType(NudgeAnimationType type)
 	{
 		this.nudgeAnimationType = type;
+	}
+	
+	/**
+	 * Used to update the sticker object as well as the JSON Object in the message metadata
+	 * 
+	 * @param newCategoryId
+	 * @throws JSONException
+	 */
+	public void updateSticker(String newCategoryId) throws JSONException
+	{
+		if (this.json.has(StickerManager.CATEGORY_ID))
+		{
+			this.json.put(StickerManager.CATEGORY_ID, newCategoryId);
+		}
+		this.sticker.setCategoryId(newCategoryId);
 	}
 }

@@ -10,6 +10,7 @@ import android.text.style.ForegroundColorSpan;
 import android.util.Pair;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
@@ -121,15 +122,20 @@ public class HikeNotificationUtils
 	 * @param argMsisdn
 	 * @return
 	 */
-	public static String getNameForMsisdn(Context context, String argMsisdn)
+	public static String getNameForMsisdn(String argMsisdn)
 	{
 		if (HikeNotification.HIKE_STEALTH_MESSAGE_KEY.equals(argMsisdn))
 		{
-			return context.getString(R.string.app_name);
+			return HikeMessengerApp.getInstance().getApplicationContext().getString(R.string.app_name);
 		}
 
-		String name = ContactManager.getInstance().getName(argMsisdn);
+		String name = HikeMessengerApp.hikeBotNamesMap.get(argMsisdn);
 
+		if (TextUtils.isEmpty(name))
+		{
+			name = ContactManager.getInstance().getName(argMsisdn);
+		}
+		
 		if (TextUtils.isEmpty(name))
 		{
 			name = argMsisdn;

@@ -9,7 +9,6 @@ import android.os.Handler;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeConstants.STResult;
-import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.HttpRequestType;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.Logger;

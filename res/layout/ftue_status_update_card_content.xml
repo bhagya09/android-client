@@ -73,7 +73,7 @@
                 android:gravity="center"
                 android:paddingBottom="4.25dp"
                 android:text="@string/ftue_status_update_card_header"
-                android:textColor="@color/standerd_black"
+                android:textColor="@color/standard_black"
                 android:textSize="30sp"
                 android:textStyle="italic" />
 
@@ -84,7 +84,7 @@
                 android:gravity="center"
                 android:paddingBottom="20dp"
                 android:text="@string/ftue_status_update_card_msg"
-                android:textColor="@color/standerd_black"
+                android:textColor="@color/standard_black"
                 android:textSize="15sp"
                 android:textStyle="italic" />
 

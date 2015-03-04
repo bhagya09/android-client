@@ -24,6 +24,7 @@ public class HikeHandlerUtil
 
 	private HikeHandlerUtil()
 	{
+		startHandlerThread();
 	}
 
 	public static HikeHandlerUtil getInstance()

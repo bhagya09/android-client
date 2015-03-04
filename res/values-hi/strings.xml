@@ -1228,19 +1228,7 @@
     <string name="shop_loading_failed_switch_on">मोबाइल डेटा या Wi-Fi चालू करें</string>
     <string name="singular_packs">%1$d पैक</string>
     <string name="singular_stickers">%1$d स्टिकर</string>
-    <string name="ftue_sticker_screen_title">स्टिकर चुनें</string>
-    <string name="ftue_sticker_screen_header">स्टिकर‍!</string>
-    <string name="ftue_sticker_screen_text">hike के पास ढेरों स्टिकर हैं. निम्नलिखित में से कौन-सा आपका पसंदीदा है?</string>
-    <string name="ftue_sticker_forward_title">इन्हें भेजें</string>
-    <string name="ftue_sticker_forward_card_text">शानदार पसंद!</string>
-    <string name="ftue_sticker_forward_card_subtext">इसे अपने दोस्तों को भेजने की कोशिश करें।</string>
-    <string name="ftue_sticker_forward_confirmation_singular">यह स्टिकर 1 संपर्क को भेजें?</string>
-    <string name="ftue_sticker_forward_confirmation_plural">यह स्टिकर %1$s संपर्कों को भेजें?</string>
     <string name="conversation_empty">चैट शुरू करने के लिए\nशीर्ष पर \'<b>new message</b>\' आइकन पर टैप करें</string>
-    <string name="nux_invite_enter_names">हमें बताएँ कि आपके जिगरी दोस्त कौन हैं</string>
-    <string name="invite_footer_header">आपका जिगरी दोस्त कौन है?</string>
-    <string name="invite_footer_subtext">अपने जिगरी दोस्तों के साथ hike आजमाएँ। यह बहुत मनोरंजक है!</string>
-    <string name="invite_now_uppercase">अभी आमंत्रित करें</string>
     <string name="pack_visible">स्टिकर पैलेट में दृश्य</string>
     <string name="pack_hidden">स्टिकर पैलेट से अदृश्य</string>
     <string name="pack_rank">%1$d.</string>
@@ -1279,4 +1267,6 @@
     <string name="led_color_purple_key">जामुनी</string>
 
     <string name="ringtone_loader">लोड हो रहा है...</string>
+    <string name="terms_conditions_hint">नियम और शर्तें</string>
+	<string name="terms_conditions_title">शर्तें</string>
 </resources>

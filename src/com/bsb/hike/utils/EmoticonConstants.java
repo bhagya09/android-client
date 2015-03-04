@@ -3,7 +3,6 @@ package com.bsb.hike.utils;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
 
 public class EmoticonConstants {

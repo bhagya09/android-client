@@ -31,7 +31,6 @@ import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.utils.AccountUtils;
-import com.bsb.hike.utils.HikeSSLUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
@@ -40,8 +39,6 @@ public class DownloadFileTask extends FileTransferBase
 	private File tempDownloadedFile;
 
 	private boolean showToast;
-
-	private int num = 0;
 
 	protected DownloadFileTask(Handler handler, ConcurrentHashMap<Long, FutureTask<FTResult>> fileTaskMap, Context ctx, File destinationFile, String fileKey, long msgId,
 			HikeFileType hikeFileType, Object userContext, boolean showToast, String token, String uId)
@@ -410,30 +407,12 @@ public class DownloadFileTask extends FileTransferBase
 		return FTResult.SUCCESS;
 	}
 
-	private boolean shouldSendProgress()
-	{
-		int x = progressPercentage / 10;
-		if (x < num)
-			return false;
-		// @GM 'num++' will create a problem in future if with decide to increase "BUFFER_SIZE"(which we will)
-		// num++;
-		num = x + 1;
-		return true;
-	}
-
 	private void sendBroadcast()
 	{
 		Logger.d(getClass().getSimpleName(), "sending progress to publish...");
 		Intent intent = new Intent(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED);
 		LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
 	}
-
-	// private void showButton()
-	// {
-	// Intent intent = new Intent(HikePubSub.RESUME_BUTTON_UPDATED);
-	// intent.putExtra("msgId", msgId);
-	// LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
-	// }
 
 	private void error()
 	{

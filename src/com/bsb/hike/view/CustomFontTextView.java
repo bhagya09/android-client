@@ -5,6 +5,7 @@ import android.graphics.Typeface;
 import android.util.AttributeSet;
 import android.view.ViewTreeObserver;
 import android.widget.TextView;
+
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.utils.Utils;
 
@@ -52,7 +53,7 @@ public class CustomFontTextView extends TextView implements ViewTreeObserver.OnG
 			/*
 			 * If we are dealing with LDPI phones, we use the default font, They have a rendering issue with the font that we're using
 			 */
-			if (Utils.densityMultiplier <= 0.75f)
+			if (Utils.scaledDensityMultiplier <= 0.75f)
 			{
 				if (style == Typeface.ITALIC || style == Typeface.BOLD_ITALIC)
 				{

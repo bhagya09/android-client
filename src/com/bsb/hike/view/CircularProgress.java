@@ -23,12 +23,12 @@ public class CircularProgress extends View
 	{
 		super(context, attrs, defStyle);
 
-		progressContainer = new RectF(3 * Utils.densityMultiplier, 3 * Utils.densityMultiplier, 18 * Utils.densityMultiplier, 18 * Utils.densityMultiplier);
+		progressContainer = new RectF(3 * Utils.scaledDensityMultiplier, 3 * Utils.scaledDensityMultiplier, 18 * Utils.scaledDensityMultiplier, 18 * Utils.scaledDensityMultiplier);
 
 		outerBoundary = new Paint();
 		outerBoundary.setColor(0xFFAAAAAA);
 		outerBoundary.setAntiAlias(true);
-		outerBoundary.setStrokeWidth(1.5f * Utils.densityMultiplier);
+		outerBoundary.setStrokeWidth(1.5f * Utils.scaledDensityMultiplier);
 		outerBoundary.setStyle(Paint.Style.STROKE);
 
 		actualProgress = new Paint();

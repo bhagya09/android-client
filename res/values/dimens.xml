@@ -168,8 +168,5 @@
 	<dimen name="sticker_pack_empty_view_margin">18dp</dimen>
 	<dimen name="sticker_grid_horizontal_padding">8dp</dimen>
 	<dimen name="drag_shadow_height">8dp</dimen>
-	<dimen name="invite_footer_top_margin">163dp</dimen>
-	<dimen name="nux_button_text_margin">32dp</dimen>
-	<dimen name="nux_text_text_margin">8dp</dimen>
 	<dimen name="sticker_settings_tip_margin">18dp</dimen>
 </resources>

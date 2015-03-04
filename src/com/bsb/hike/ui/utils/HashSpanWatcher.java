@@ -1,13 +1,12 @@
 package com.bsb.hike.ui.utils;
 
-import com.bsb.hike.R;
-import com.bsb.hike.utils.Logger;
-
 import android.text.Editable;
 import android.text.Spannable;
 import android.text.TextWatcher;
-import android.text.style.BackgroundColorSpan;
 import android.widget.EditText;
+
+import com.bsb.hike.R;
+import com.bsb.hike.utils.Logger;
 
 public class HashSpanWatcher implements TextWatcher
 {

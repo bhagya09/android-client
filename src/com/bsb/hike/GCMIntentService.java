@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
+import android.text.TextUtils;
 
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.HikeHandlerUtil;
@@ -53,7 +54,7 @@ public class GCMIntentService extends GCMBaseIntentService
 		Logger.d(VoIPConstants.TAG, "GCM message received.");
 		Logger.d(getClass().getSimpleName(), "Message received: " + intent.getExtras());
 
-		prefs = HikeSharedPreferenceUtil.getInstance(context);
+		prefs = HikeSharedPreferenceUtil.getInstance();
 
 		if (!Utils.isUserAuthenticated(context))
 		{
@@ -70,10 +71,11 @@ public class GCMIntentService extends GCMBaseIntentService
 			return;
 		}
 
+
 		HikeMessengerApp app = (HikeMessengerApp) context.getApplicationContext();
 		app.connectToService();
 		String message = intent.getStringExtra("msg");
-		if (message != null)
+		if (!TextUtils.isEmpty(message))
 		{
 			HikeHandlerUtil.getInstance().postRunnableWithDelay(new MessageArrivedRunnable(message), 0);
 		}
@@ -97,15 +99,18 @@ public class GCMIntentService extends GCMBaseIntentService
 					bundle.putString(HikeConstants.Extras.OFFLINE_PUSH_KEY, jsonString);
 					HikeMessengerApp.getPubSub().publish(HikePubSub.HIKE_TO_OFFLINE_PUSH, bundle);
 				}
-			}
-			context.sendBroadcast(new Intent(HikeMqttManagerNew.MQTT_CONNECTION_CHECK_ACTION).putExtra("reconnect", reconnect));
+			
 		}
+		context.sendBroadcast(new Intent(HikeMqttManagerNew.MQTT_CONNECTION_CHECK_ACTION).putExtra("reconnect", reconnect));
+		}
+
 	}
+
 
 	@Override
 	protected void onRegistered(final Context context, String regId)
 	{
-		prefs = HikeSharedPreferenceUtil.getInstance(context);
+		prefs = HikeSharedPreferenceUtil.getInstance();
 
 		if (!prefs.getData(HikeConstants.GCM_ID, "").equals(regId))
 		{
@@ -158,11 +163,7 @@ public class GCMIntentService extends GCMBaseIntentService
 				try
 				{
 					json = new JSONObject(msg);
-					String type = json.optString(HikeConstants.TYPE);
-					if (sendToMqttmanqger(json, type))
-					{
-						MqttMessagesManager.getInstance(getApplicationContext()).saveGCMMessage(json);
-					}
+					MqttMessagesManager.getInstance(getApplicationContext()).saveGCMMessage(json);
 					msg = null; // prevents submitting same runnable again and again
 				}
 				catch (JSONException e)
@@ -173,19 +174,5 @@ public class GCMIntentService extends GCMBaseIntentService
 			}
 		}
 
-		private boolean sendToMqttmanqger(JSONObject json, String type)
-		{
-			if (HikeConstants.MqttMessageTypes.GCM_ECHO.equals(type))
-			{
-				// TODO : Code for DR comes here
-				JSONObject data = json.optJSONObject(HikeConstants.DATA);
-				if (data != null)
-				{
-					Utils.sendLogEvent(data, HikeConstants.MqttMessageTypes.GCM_ECHO, null);
-				}
-				return false;
-			}
-			return true;
-		}
 	};
 }

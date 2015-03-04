@@ -8,4 +8,8 @@
 	<integer name="profile_signup_weight3">276</integer>
 	<integer name="ft_limit">10</integer>
 	<integer name="status_text_limit">1000</integer>
+	<integer name="incentive_amount">50</integer>
+	<integer name="nux_min_contacts">3</integer>
+	<integer name="nux_max_contacts">3</integer>
+
 </resources>

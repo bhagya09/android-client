@@ -27,11 +27,9 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
-import android.telephony.TelephonyManager;
 import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants.FTResult;
@@ -53,18 +51,16 @@ import com.bsb.hike.utils.Utils;
  */
 public class FileTransferManager extends BroadcastReceiver
 {
-	private Context context;
+	private final Context context;
 
-	private ConcurrentHashMap<Long, FutureTask<FTResult>> fileTaskMap;
+	private final ConcurrentHashMap<Long, FutureTask<FTResult>> fileTaskMap;
 
 	private String HIKE_TEMP_DIR_NAME = "hikeTmp";
 
-	private File HIKE_TEMP_DIR;
+	private final File HIKE_TEMP_DIR;
 
 	// Constant variables
 	private final int CPU_COUNT = Runtime.getRuntime().availableProcessors();
-
-	private final int CORE_POOL_SIZE = CPU_COUNT + 1;
 
 	private final int MAXIMUM_POOL_SIZE = CPU_COUNT * 2 + 1;
 
@@ -78,13 +74,13 @@ public class FileTransferManager extends BroadcastReceiver
 	
 	private final int TASK_OVERFLOW_LIMIT = 90;
 
-	private ExecutorService pool;
+	private final ExecutorService pool;
 
-	public static FileTransferManager _instance = null;
+	private static volatile FileTransferManager _instance = null;
 
 	private SharedPreferences settings;
 
-	private Handler handler;
+	private final Handler handler;
 
 	public static String FT_CANCEL = "ft_cancel";
 

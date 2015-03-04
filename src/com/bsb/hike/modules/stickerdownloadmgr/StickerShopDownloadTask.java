@@ -12,7 +12,7 @@ import com.bsb.hike.HikeConstants.STResult;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.HttpRequestType;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.StickerManager;
+import com.bsb.hike.utils.Utils;
 
 class StickerShopDownloadTask extends BaseStickerDownloadTask
 {
@@ -44,6 +44,8 @@ class StickerShopDownloadTask extends BaseStickerDownloadTask
 			{
 				urlString = AccountUtils.HTTPS_STRING + AccountUtils.host + "/v1" + "/stickers/shop?offset=" + offset ;
 			}
+			
+			urlString += "&resId=" + Utils.getResolutionId();
 			
 			setDownloadUrl(urlString);
 			

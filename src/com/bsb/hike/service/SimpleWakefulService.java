@@ -14,6 +14,9 @@ import com.bsb.hike.models.HikeAlarmManager;
 public class SimpleWakefulService extends IntentService
 {
 
+	private final static  long ALARM_EXPIRY_THRESHOLD =10 * 60 * 1000;
+	
+	
 	public SimpleWakefulService()
 	{
 		super("SimpleWakeFulService");
@@ -30,7 +33,17 @@ public class SimpleWakefulService extends IntentService
 
 		try
 		{
-			HikeAlarmManager.processTasks(intent, this);
+			long time = intent.getLongExtra(HikeAlarmManager.ALARM_TIME, HikeAlarmManager.REQUESTCODE_DEFAULT);
+			
+			/*
+			 * Here I am taking into account the optimization that the CPU will do to alarms ...So if you schedule an alarm at 3:00 pm and the alarm gets fired at 3:05 
+			 *  we are assuming that it is due to system optimization.
+			 */
+			
+			if(Math.abs(time - System.currentTimeMillis()) < (ALARM_EXPIRY_THRESHOLD))
+				HikeAlarmManager.processTasks(intent, this);
+			else
+				HikeAlarmManager.processExpiredTask(intent, this);
 		}
 		catch (Exception e)
 		{

@@ -7,5 +7,7 @@
 	<classpathentry kind="src" path="gen"/>
 	<classpathentry kind="src" path="mqtt"/>
 	<classpathentry kind="lib" path="libs/httpclient-android-4.3.5.jar"/>
+	<classpathentry kind="lib" path="libs/aspectjrt-1.8.2.jar"/>
+	<classpathentry kind="lib" path="libs/isoparser-1.0.4.2.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

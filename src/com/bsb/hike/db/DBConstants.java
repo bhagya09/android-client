@@ -5,7 +5,7 @@ import com.bsb.hike.models.ContactInfo.FavoriteType;
 public interface DBConstants
 {
 
-	public static final int CONVERSATIONS_DATABASE_VERSION = 32;
+	public static final int CONVERSATIONS_DATABASE_VERSION = 35;
 
 	public static final int USERS_DATABASE_VERSION = 15;
 
@@ -106,6 +106,8 @@ public interface DBConstants
 	public static final String EMOTICON_INDEX = "emoticonIdx";
 
 	public static final String MUTE_GROUP = "muteGroup";
+	
+	public static final String IS_MUTE = "isMute";
 
 	public static final String FAVORITES_TABLE = "favoritesTable";
 
@@ -204,7 +206,8 @@ public interface DBConstants
 	public static final String CREATE_INDEX = "CREATE INDEX IF NOT EXISTS ";
 	
 	public static final String IS_SENT = "isSent";
-	
+	public static final String BOT_TABLE = "botTable";
+
 	public static interface HIKE_CONV_DB{
 		// CHANNEL TABLE -> _id,channel_id,name,visibility,index 
 		public static final String CHANNEL_TABLE = "channel";
@@ -240,8 +243,26 @@ public interface DBConstants
 		public static final String CHANNEL_ID = "channel_id";
 		public static final String TIMESTAMP = "timestamp";
 		public static final String METADATA = "metadata";
-		// CONTENT TABLE ENDS HERE
 		
+		//ALARM TABLE->id,time,willWakeCpu,time,intent
+		
+		public static final String ALARM_MGR_TABLE = "HikeAlaMge";
+
+		public static final String TIME = "time";
+
+		public static final String WILL_WAKE_CPU = "willwakecpu";
+
+		public static final String INTENT = "intent";
+
+		// CONTENT TABLE ENDS HERE
+		// APP DATA TABLE
+		
+		// APP DATA TABLE ENDS HERE
+		// APP ALARM -> id, data 
+		public static final String APP_ALARM_TABLE = "app_alarms";
+		public static final String ID = "id";
+		public static final String ALARM_DATA = "data";
+		// APP ALARM ENDS HERE
 		public static final String CONTENT_ID_INDEX = "contentTableContentIdIndex";
 	}
 
@@ -258,4 +279,5 @@ public interface DBConstants
 	public static final String CATEGORY_SIZE = "categorySize";
 
 	public static final String STICKER_SHOP_TABLE = "stickerShopTable";
+
 }

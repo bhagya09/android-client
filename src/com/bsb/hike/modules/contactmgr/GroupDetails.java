@@ -28,7 +28,7 @@ public class GroupDetails
 		this.groupId = groupId;
 		this.groupName = grpName;
 		this.isGroupAlive = alive;
-		this.lastMsisdns = lastMsisdns;
+		this.lastMsisdns = (null == lastMsisdns) ? new ConcurrentLinkedQueue<PairModified<String, String>>() : lastMsisdns;
 		this.timestamp = timestamp;
 	}
 

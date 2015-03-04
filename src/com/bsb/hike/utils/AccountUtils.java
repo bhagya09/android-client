@@ -7,8 +7,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URLConnection;
 import java.nio.CharBuffer;
 import java.security.KeyStore;
@@ -83,6 +81,14 @@ public class AccountUtils
 	public static final String PRODUCTION_HOST = "api.im.hike.in";
 
 	public static final String STAGING_HOST = "staging.im.hike.in";
+	
+	public static final String DEV_STAGING_HOST = "staging2.im.hike.in";
+	
+	public static final int _PRODUCTION_HOST = 0;
+
+	public static final int _STAGING_HOST = 1;
+
+	public static final int _DEV_STAGING_HOST = 2;
 
 	public static final int PRODUCTION_PORT = 80;
 
@@ -104,13 +110,13 @@ public class AccountUtils
 
 	public static String fileTransferHost = PRODUCTION_FT_HOST;
 
-	public static String fileTransferUploadBase = HTTP_STRING + fileTransferHost + ":" + Integer.toString(port) + "/v1";
+	public static String fileTransferBase = HTTP_STRING + fileTransferHost + ":" + Integer.toString(port) + "/v1";
 
 	public static final String FILE_TRANSFER_DOWNLOAD_BASE = "/user/ft/";
 
-	public static String fileTransferBaseDownloadUrl = base + FILE_TRANSFER_DOWNLOAD_BASE;
+	public static String fileTransferBaseDownloadUrl = fileTransferBase + FILE_TRANSFER_DOWNLOAD_BASE;
 	
-	public static String fastFileUploadUrl = base + FILE_TRANSFER_DOWNLOAD_BASE + "ffu/";
+	public static String fastFileUploadUrl = fileTransferBase + FILE_TRANSFER_DOWNLOAD_BASE + "ffu/";
 
 	public static String partialfileTransferBaseUrl = base + "/user/pft";
 
@@ -174,6 +180,10 @@ public class AccountUtils
 	
 	public static final String SDK_AUTH_PARAM_SHA1 = "sha1";
 
+	public static final String ANALYTICS_UPLOAD_BASE = "/logs/analytics";
+	
+	public static String analyticsUploadUrl = base + ANALYTICS_UPLOAD_BASE;
+	
 	public static void setToken(String token)
 	{
 		mToken = token;
@@ -189,10 +199,16 @@ public class AccountUtils
 		appVersion = version;
 	}
 
+	public static String getAppVersion()
+	{
+		return appVersion;
+	}
+
 	public static synchronized HttpClient createClient()
 	{
 		if (mClient != null)
 		{
+			Logger.d("AccountUtils", "Socket timeout when http client already created = " + mClient.getParams().getIntParameter(CoreConnectionPNames.SO_TIMEOUT, 0));
 			return mClient;
 		}
 		Logger.d("SSL", "Initialising the HTTP CLIENT");
@@ -204,7 +220,9 @@ public class AccountUtils
 		 * set the connection timeout to 6 seconds, and the waiting for data timeout to 30 seconds
 		 */
 		HttpConnectionParams.setConnectionTimeout(params, HikeConstants.CONNECT_TIMEOUT);
-		HttpConnectionParams.setSoTimeout(params, HikeConstants.SOCKET_TIMEOUT);
+		long so_timeout = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.GENERAL_SO_TIMEOUT, 180 * 1000l);
+		Logger.d("AccountUtils", "Socket timeout while creating client = " + so_timeout);
+		HttpConnectionParams.setSoTimeout(params, (int) so_timeout);
 
 		SchemeRegistry schemeRegistry = new SchemeRegistry();
 		if (ssl)
@@ -238,6 +256,12 @@ public class AccountUtils
 
 		mClient = httpClient;
 		return httpClient;
+	}
+
+	public static void setSocketTimeout(int timeout)
+	{
+		if(mClient != null)
+			mClient.getParams().setParameter(CoreConnectionPNames.SO_TIMEOUT, timeout);
 	}
 
 	public static HttpClient getClient(HttpRequestBase request)
@@ -930,7 +954,7 @@ public class AccountUtils
 	public static int getBytesUploaded(String sessionId) throws ClientProtocolException, IOException
 	{
 		int val = 0;
-		HttpRequestBase req = new HttpGet(AccountUtils.fileTransferUploadBase + "/user/pft/");
+		HttpRequestBase req = new HttpGet(AccountUtils.fileTransferBase + "/user/pft/");
 		addToken(req);
 		req.addHeader("X-SESSION-ID", sessionId);
 		HttpClient httpclient = getClient(req);
@@ -954,7 +978,7 @@ public class AccountUtils
 
 	public static String crcValue(String fileKey) throws ClientProtocolException, IOException
 	{
-		HttpRequestBase req = new HttpGet(AccountUtils.fileTransferUploadBase + "/user/ft/" + fileKey);
+		HttpRequestBase req = new HttpGet(AccountUtils.fileTransferBase + "/user/ft/" + fileKey);
 		addToken(req);
 		HttpClient httpclient = getClient(req);
 		HttpResponse response = httpclient.execute(req);

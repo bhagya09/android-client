@@ -14,6 +14,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.text.SpannableString;
 import android.text.TextUtils;
+import android.util.Log;
 import android.util.Pair;
 
 import com.bsb.hike.HikeConstants;
@@ -25,6 +26,7 @@ import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.ui.ChatThread;
 import com.bsb.hike.ui.HomeActivity;
+import com.bsb.hike.utils.IntentManager;
 
 /**
  * This class is responsible for maintaining states of ConvMessages to be used for showing Android notifications.
@@ -137,7 +139,16 @@ public class HikeNotificationMsgStack implements Listener
 		{
 			for (ConvMessage conv : argConvMessageList)
 			{
-				addConvMessage(conv);
+				if (conv.getMessageType() == HikeConstants.MESSAGE_TYPE.WEB_CONTENT || conv.getMessageType() == HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT)
+				{
+					addMessage(conv.getMsisdn(), conv.platformWebMessageMetadata.getNotifText());
+					mLastInsertedConvMessage = conv;
+					forceBlockNotificationSound = conv.isSilent();
+				}
+				else
+				{
+					addConvMessage(conv);					
+				}
 			}
 		}
 	}
@@ -153,7 +164,8 @@ public class HikeNotificationMsgStack implements Listener
 	{
 		if (TextUtils.isEmpty(argMessage))
 		{
-			throw new IllegalArgumentException("argMessage cannot be null or empty");
+			Log.wtf("HikeNotification", "Notification message is empty, check packet, msisdn= "+argMsisdn);
+			return;
 		}
 		addPair(argMsisdn, argMessage);
 	}
@@ -211,12 +223,12 @@ public class HikeNotificationMsgStack implements Listener
 
 		if (mTickerText != null)
 		{
-			mTickerText.append("\n" + HikeNotificationUtils.getNameForMsisdn(mContext, argMsisdn) + " - " + argMessage);
+			mTickerText.append("\n" + HikeNotificationUtils.getNameForMsisdn(argMsisdn) + " - " + argMessage);
 		}
 		else
 		{
 			mTickerText = new StringBuilder();
-			mTickerText.append(HikeNotificationUtils.getNameForMsisdn(mContext, argMsisdn) + " - " + argMessage);
+			mTickerText.append(HikeNotificationUtils.getNameForMsisdn(argMsisdn) + " - " + argMessage);
 		}
 	}
 
@@ -286,9 +298,7 @@ public class HikeNotificationMsgStack implements Listener
 			else
 			{
 
-				mNotificationIntent = new Intent(mContext, ChatThread.class);
-				mNotificationIntent.putExtra(HikeConstants.Extras.MSISDN, lastAddedMsisdn);
-				mNotificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+				mNotificationIntent = IntentManager.getChatThreadIntent(mContext, lastAddedMsisdn);
 
 				/*
 				 * notifications appear to be cached, and their .equals doesn't check 'Extra's. In order to prevent the wrong intent being fired, set a data field that's unique to
@@ -365,7 +375,7 @@ public class HikeNotificationMsgStack implements Listener
 
 				String notificationMsgTitle = mContext.getString(R.string.app_name);
 
-				notificationMsgTitle = HikeNotificationUtils.getNameForMsisdn(mContext, msisdn);
+				notificationMsgTitle = HikeNotificationUtils.getNameForMsisdn(msisdn);
 
 				if (!isFromSingleMsisdn())
 				{
@@ -566,7 +576,7 @@ public class HikeNotificationMsgStack implements Listener
 	{
 		if (isFromSingleMsisdn())
 		{
-			return HikeNotificationUtils.getNameForMsisdn(mContext, lastAddedMsisdn);
+			return HikeNotificationUtils.getNameForMsisdn(lastAddedMsisdn);
 		}
 
 		if (getNewMessages() <= 1)

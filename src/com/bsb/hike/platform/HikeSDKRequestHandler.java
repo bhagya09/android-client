@@ -9,7 +9,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
@@ -23,6 +22,8 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.modules.contactmgr.ContactManager;
@@ -418,23 +419,19 @@ public class HikeSDKRequestHandler extends Handler implements Listener
 				JSONObject requestJSON = new JSONObject(requestData);
 				if (!TextUtils.isEmpty(requestJSON.optString(HikeSDKConstants.PREF_HIKE_SDK_INSTALL_CLICKED_KEY)))
 				{
-					JSONObject analyticsJSON = new JSONObject();
-					JSONObject metaDataJSON = new JSONObject();
-					metaDataJSON.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.SDK_INSTALL_HIKE_ACCEPT);
-					metaDataJSON.put(HikeConstants.Extras.SDK_THIRD_PARTY_PKG, requestJSON.getString(HikeSDKConstants.HIKE_REQ_SDK_CLIENT_PKG_NAME));
-					metaDataJSON.put(HikeConstants.LogEvent.SOURCE_APP, HikePlatformConstants.GAME_SDK_ID);
-					analyticsJSON.put(HikeConstants.METADATA, metaDataJSON);
-					Utils.sendLogEvent(analyticsJSON);
+					JSONObject metadata = new JSONObject();
+					metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.SDK_INSTALL_HIKE_ACCEPT);
+					metadata.put(HikeConstants.Extras.SDK_THIRD_PARTY_PKG, requestJSON.getString(HikeSDKConstants.HIKE_REQ_SDK_CLIENT_PKG_NAME));
+					metadata.put(HikeConstants.LogEvent.SOURCE_APP, HikePlatformConstants.GAME_SDK_ID);
+					HAManager.getInstance().record(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.HIKE_SDK_INSTALL_ACCEPT, metadata);
 				}
 				if (!TextUtils.isEmpty(requestJSON.optString(HikeSDKConstants.PREF_HIKE_SDK_INSTALL_DENIED_KEY)))
 				{
-					JSONObject analyticsJSON = new JSONObject();
-					JSONObject metaDataJSON = new JSONObject();
-					metaDataJSON.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.SDK_INSTALL_HIKE_DECLINE);
-					metaDataJSON.put(HikeConstants.Extras.SDK_THIRD_PARTY_PKG, requestJSON.getString(HikeSDKConstants.HIKE_REQ_SDK_CLIENT_PKG_NAME));
-					metaDataJSON.put(HikeConstants.LogEvent.SOURCE_APP, HikePlatformConstants.GAME_SDK_ID);
-					analyticsJSON.put(HikeConstants.METADATA, metaDataJSON);
-					Utils.sendLogEvent(analyticsJSON);
+					JSONObject metadata = new JSONObject();
+					metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.SDK_INSTALL_HIKE_DECLINE);
+					metadata.put(HikeConstants.Extras.SDK_THIRD_PARTY_PKG, requestJSON.getString(HikeSDKConstants.HIKE_REQ_SDK_CLIENT_PKG_NAME));
+					metadata.put(HikeConstants.LogEvent.SOURCE_APP, HikePlatformConstants.GAME_SDK_ID);
+					HAManager.getInstance().record(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.HIKE_SDK_INSTALL_DECLINE, metadata);
 				}
 			}
 			catch (JSONException e)

@@ -1,8 +1,8 @@
 package com.bsb.hike.utils;
 
-import com.bsb.hike.AppConfig;
-
 import android.util.Log;
+
+import com.bsb.hike.AppConfig;
 
 public class Logger
 {

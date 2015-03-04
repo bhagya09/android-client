@@ -2,7 +2,6 @@ package com.bsb.hike.utils;
 
 import android.app.Activity;
 
-import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikeMessengerApp.CurrentState;
 import com.bsb.hike.ui.HomeActivity;

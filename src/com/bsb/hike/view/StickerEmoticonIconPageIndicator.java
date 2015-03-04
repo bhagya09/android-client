@@ -1,15 +1,12 @@
 package com.bsb.hike.view;
 
 import android.content.Context;
-import android.graphics.drawable.StateListDrawable;
 import android.util.AttributeSet;
-import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
 
 import com.bsb.hike.R;
-import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.adapters.EmoticonAdapter;
 import com.bsb.hike.adapters.StickerAdapter;
 import com.bsb.hike.models.StickerCategory;

@@ -1228,19 +1228,7 @@
     <string name="shop_loading_failed_switch_on">Activa la conexión de datos móviles o Wi-Fi</string>
     <string name="singular_packs">%1$d paquete</string>
     <string name="singular_stickers">%1$d pegatina</string>
-    <string name="ftue_sticker_screen_title">Elige una pegatina</string>
-    <string name="ftue_sticker_screen_header">¡Pegatinas!</string>
-    <string name="ftue_sticker_screen_text">En hike hay muchas pegatinas. ¿Cuál de las siguientes es tu favorita?</string>
-    <string name="ftue_sticker_forward_title">Enviar a</string>
-    <string name="ftue_sticker_forward_card_text">¡Fantástica elección!</string>
-    <string name="ftue_sticker_forward_card_subtext">Intenta enviarla a tus amigos.</string>
-    <string name="ftue_sticker_forward_confirmation_singular">¿Deseas enviar esta pegatina a 1 contacto?</string>
-    <string name="ftue_sticker_forward_confirmation_plural">¿Deseas enviar esta pegatina %1$s contactos?</string>
     <string name="conversation_empty">Toca el icono de \"<b>mensaje nuevo</b>\" en la parte superior\npara iniciar un chat</string>
-    <string name="nux_invite_enter_names">Dinos quiénes son tus mejores amigos</string>
-    <string name="invite_footer_header">¿Quién es tu mejor amigo?</string>
-    <string name="invite_footer_subtext">Usa hike con tus mejores amigos. ¡Te lo pasarás en grande!</string>
-    <string name="invite_now_uppercase">INVITAR AHORA</string>
     <string name="pack_visible">Visible en la paleta de pegatinas</string>
     <string name="pack_hidden">Oculta en la paleta de pegatinas</string>
     <string name="pack_rank">%1$d.</string>
@@ -1279,4 +1267,6 @@
     <string name="led_color_purple_key">Morado</string>
 
     <string name="ringtone_loader">Cargando...</string>
+    <string name="terms_conditions_hint">términos y condiciones</string>
+	<string name="terms_conditions_title">términos</string> 
 </resources>

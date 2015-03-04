@@ -202,7 +202,7 @@ public class ToastListener implements Listener
 				return;
 			}
 
-			if (isGroupConversationAndMuted(message.getMsisdn()))
+			if (Utils.isConversationMuted(message.getMsisdn()))
 			{
 				return;
 			}
@@ -478,29 +478,28 @@ public class ToastListener implements Listener
 						Logger.w(getClass().getSimpleName(), "The client did not get a GCJ message for us to handle this message.");
 						continue;
 					}
-					if (isGroupConversationAndMuted(message.getMsisdn()))
+					if (Utils.isConversationMuted(message.getMsisdn()))
 					{
 						Logger.d(getClass().getSimpleName(), "Group has been muted");
 						continue;
 					}
-
-					if (message.getParticipantInfoState() != null && message.getParticipantInfoState() == ParticipantInfoState.USER_JOIN
-							&& (!mDefaultPreferences.getBoolean(HikeConstants.NUJ_NOTIF_BOOLEAN_PREF, true)))
+					ParticipantInfoState participantInfoState = message.getParticipantInfoState();
+					if (participantInfoState == ParticipantInfoState.USER_JOIN && (!mDefaultPreferences.getBoolean(HikeConstants.NUJ_NOTIF_BOOLEAN_PREF, true)))
 
 					{
 						// User has disabled NUJ/RUJ message notifications
 						continue;
 					}
 
-					if (message.getParticipantInfoState() != null && message.getParticipantInfoState() == ParticipantInfoState.PARTICIPANT_JOINED
-							&& message.getMetadata().isNewGroup())
+					if (participantInfoState == ParticipantInfoState.PARTICIPANT_JOINED && message.getMetadata().isNewGroup())
 					{
 						continue;
 					}
-					if (message.getParticipantInfoState() == ParticipantInfoState.NO_INFO || message.getParticipantInfoState() == ParticipantInfoState.PARTICIPANT_JOINED
-							|| message.getParticipantInfoState() == ParticipantInfoState.USER_JOIN || message.getParticipantInfoState() == ParticipantInfoState.CHAT_BACKGROUND)
+					if (participantInfoState == ParticipantInfoState.NO_INFO || participantInfoState == ParticipantInfoState.PARTICIPANT_JOINED
+						|| participantInfoState == ParticipantInfoState.USER_JOIN || participantInfoState == ParticipantInfoState.CHAT_BACKGROUND 
+						|| message.isVoipMissedCallMsg())
 					{
-						if (message.getParticipantInfoState() == ParticipantInfoState.CHAT_BACKGROUND)
+						if (participantInfoState == ParticipantInfoState.CHAT_BACKGROUND)
 						{
 							boolean showNotification = PreferenceManager.getDefaultSharedPreferences(context).getBoolean(HikeConstants.CHAT_BG_NOTIFICATION_PREF, true);
 							if (!showNotification)
@@ -540,18 +539,7 @@ public class ToastListener implements Listener
 		}
 	}
 
-	private boolean isGroupConversationAndMuted(String msisdn)
-	{
-		if ((Utils.isGroupConversation(msisdn)))
-		{
-			if (HikeConversationsDatabase.getInstance().isGroupMuted(msisdn))
-			{
-				Logger.d(getClass().getSimpleName(), "Group has been muted");
-				return true;
-			}
-		}
-		return false;
-	}
+	
 
 	public static Bitmap returnBigPicture(ConvMessage convMessage, Context context)
 	{

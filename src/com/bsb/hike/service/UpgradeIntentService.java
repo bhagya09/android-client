@@ -90,7 +90,7 @@ public class UpgradeIntentService extends IntentService
 			StickerManager.getInstance().doInitialSetup();
 		}
 		
-		HikeSharedPreferenceUtil.getInstance(context).saveData(HikeConstants.UPGRADING, false);
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.UPGRADING, false);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.FINISHED_UPGRADE_INTENT_SERVICE, null);
 	}
 

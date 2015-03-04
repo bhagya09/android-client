@@ -36,7 +36,7 @@ public class ProxyDrawable extends Drawable
 			size = 60;
 			mProxy = targetLarge;
 		}
-		size = (int) (size * Utils.densityMultiplier) + 1;
+		size = (int) (size * Utils.scaledDensityMultiplier) + 1;
 	}
 
 	public Drawable getProxy()

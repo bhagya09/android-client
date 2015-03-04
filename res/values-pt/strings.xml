@@ -1228,19 +1228,7 @@
     <string name="shop_loading_failed_switch_on">Ativar dados móveis ou Wi-Fi</string>
     <string name="singular_packs">%1$d pacote(s)</string>
     <string name="singular_stickers">%1$d adesivo(s)</string>
-    <string name="ftue_sticker_screen_title">Escolha um adesivo</string>
-    <string name="ftue_sticker_screen_header">Adesivos!</string>
-    <string name="ftue_sticker_screen_text">O hike tem toneladas de adesivos. Qual dos abaixo é o seu favorito?</string>
-    <string name="ftue_sticker_forward_title">Enviar para</string>
-    <string name="ftue_sticker_forward_card_text">Ótima escolha!</string>
-    <string name="ftue_sticker_forward_card_subtext">Tente enviá-lo aos seus amigos.</string>
-    <string name="ftue_sticker_forward_confirmation_singular">Enviar esse adesivo para 1 contato?</string>
-    <string name="ftue_sticker_forward_confirmation_plural">Enviar esse adesivo para %1$s contatos?</string>
     <string name="conversation_empty">Toque no ícone \'<b>nova mensagem</b>\' na parte\nsuperior para iniciar uma conversa</string>
-    <string name="nux_invite_enter_names">Diga-nos quem são seus melhores amigos</string>
-    <string name="invite_footer_header">Quem é o seu melhor amigo?</string>
-    <string name="invite_footer_subtext">Tente enviar mensagens do hike aos seus melhores amigos. É superdivertido!</string>
-    <string name="invite_now_uppercase">CONVIDAR AGORA</string>
     <string name="pack_visible">Visível na paleta de adesivos</string>
     <string name="pack_hidden">Oculto da paleta de adesivos</string>
     <string name="pack_rank">%1$d.</string>
@@ -1279,4 +1267,6 @@
     <string name="led_color_purple_key">Roxo</string>
 
     <string name="ringtone_loader">Carregando...</string>
+    <string name="terms_conditions_hint">termos e condições</string>
+	<string name="terms_conditions_title">termos</string>
 </resources>

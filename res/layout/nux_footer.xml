@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ll_footer"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:id="@+id/ll_shadow"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/backrepeat" >
+    </LinearLayout>
+
+    <com.bsb.hike.ui.utils.RecyclingImageView
+        android:id="@+id/imgv_nux"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:background="@android:color/white"
+        android:paddingBottom="12dp"
+        android:paddingTop="13dp"
+        android:src="@drawable/btn_uparrow" >
+    </com.bsb.hike.ui.utils.RecyclingImageView>
+
+    <LinearLayout
+        android:id="@+id/ll2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="@android:color/white"
+        android:orientation="vertical" >
+
+        <include layout="@layout/nux_footer_reward_status" />
+
+        <include layout="@layout/nux_footer_buttons" />
+    </LinearLayout>
+
+</LinearLayout>

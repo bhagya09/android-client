@@ -23,7 +23,6 @@ import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.models.SocialNetFriendInfo;
 import com.bsb.hike.smartImageLoader.SocialIconLoader;
 import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.Utils;
 
 public class SocialNetInviteAdapter extends ArrayAdapter<Pair<AtomicBoolean, SocialNetFriendInfo>> implements TextWatcher
 {

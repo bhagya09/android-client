@@ -2,17 +2,18 @@ package com.bsb.hike.adapters;
 
 import java.util.List;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences.Editor;
-import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.text.util.Linkify;
-import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -21,12 +22,13 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.ImageViewerInfo;
@@ -72,13 +74,6 @@ public class CentralTimelineAdapter extends BaseAdapter
 	private IconLoader iconImageLoader;
 
 	private LayoutInflater inflater;
-
-	private int[] moodsRow1 = { R.drawable.mood_09_chilling, R.drawable.mood_35_partying_hard, R.drawable.mood_14_boozing, R.drawable.mood_01_happy };
-
-	private int[] moodsRow2 = { R.drawable.mood_15_movie, R.drawable.mood_34_music, R.drawable.mood_37_eating, R.drawable.mood_03_in_love };
-
-	private int[] moodsRowLand = { R.drawable.mood_09_chilling, R.drawable.mood_35_partying_hard, R.drawable.mood_14_boozing, R.drawable.mood_01_happy, R.drawable.mood_15_movie,
-			R.drawable.mood_34_music, R.drawable.mood_37_eating };
 
 	private enum ViewType
 	{
@@ -488,19 +483,6 @@ public class CentralTimelineAdapter extends BaseAdapter
 		iconImageLoader.loadImage(msisdn, true, avatar, true);
 	}
 
-	private void addMoods(ViewGroup container, int[] moods)
-	{
-		container.removeAllViews();
-
-		for (int moodRes : moods)
-		{
-			ImageView imageView = (ImageView) inflater.inflate(R.layout.ftue_mood_item, container, false);
-			imageView.setImageResource(moodRes);
-
-			container.addView(imageView);
-		}
-	}
-
 	private class ViewHolder
 	{
 		ImageView avatar;
@@ -569,7 +551,16 @@ public class CentralTimelineAdapter extends BaseAdapter
 				Intent intent = new Intent(context, StatusUpdate.class);
 				context.startActivity(intent);
 
-				Utils.sendUILogEvent(HikeConstants.LogEvent.POST_UPDATE_FROM_CARD);
+				try 
+				{
+					JSONObject metadata = new JSONObject();
+					metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.POST_UPDATE_FROM_CARD);
+					HAManager.getInstance().record(HikeConstants.UI_EVENT, HikeConstants.LogEvent.CLICK, metadata);
+				}
+				catch (JSONException e) 
+				{
+					Logger.e(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+				}				
 			}
 			else if (statusMessage.getStatusMessageType() == StatusMessageType.PROTIP)
 			{
@@ -664,7 +655,24 @@ public class CentralTimelineAdapter extends BaseAdapter
 
 			ContactInfo contactInfo2 = new ContactInfo(contactInfo);
 
-			Utils.sendUILogEvent(HikeConstants.LogEvent.ADD_UPDATES_CLICK, contactInfo2.getMsisdn());
+			try 
+			{
+				JSONObject metadata = new JSONObject();
+				
+				metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.ADD_UPDATES_CLICK);
+			
+				String msisdn = contactInfo2.getMsisdn();
+			
+				if(TextUtils.isEmpty(msisdn))
+				{
+					metadata.put(HikeConstants.TO, msisdn);
+				}
+				HAManager.getInstance().record(HikeConstants.UI_EVENT, HikeConstants.LogEvent.CLICK, metadata);
+			}
+			catch (JSONException e) 
+			{
+				Logger.e(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+			}
 
 			if (!contactInfo.isOnhike())
 				Utils.sendInviteUtil(contactInfo2, context, HikeConstants.FTUE_ADD_SMS_ALERT_CHECKED, context.getString(R.string.ftue_add_prompt_invite_title),
@@ -680,7 +688,17 @@ public class CentralTimelineAdapter extends BaseAdapter
 		{
 			Intent intent = new Intent(context, PeopleActivity.class);
 			context.startActivity(intent);
-			Utils.sendUILogEvent(HikeConstants.LogEvent.FTUE_FAV_CARD_SEEL_ALL_CLICKED);
+			
+			try 
+			{
+				JSONObject metadata = new JSONObject();
+				metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.FTUE_FAV_CARD_SEEL_ALL_CLICKED);
+				HAManager.getInstance().record(HikeConstants.UI_EVENT, HikeConstants.LogEvent.CLICK, metadata);
+			}
+			catch (JSONException e) 
+			{
+				Logger.e(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+			}
 		}
 	};
 	
@@ -693,8 +711,25 @@ public class CentralTimelineAdapter extends BaseAdapter
 			ContactInfo contactInfo = (ContactInfo) v.getTag();
 
 			Utils.startChatThread(context, contactInfo);
+						
+			try 
+			{
+				JSONObject metadata = new JSONObject();
+
+				metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.FTUE_FAV_CARD_START_CHAT_CLICKED);
 			
-			Utils.sendUILogEvent(HikeConstants.LogEvent.FTUE_FAV_CARD_START_CHAT_CLICKED, contactInfo.getMsisdn());
+				String msisdn = contactInfo.getMsisdn();
+			
+				if(TextUtils.isEmpty(msisdn))
+				{
+					metadata.put(HikeConstants.TO, msisdn);
+				}
+				HAManager.getInstance().record(HikeConstants.UI_EVENT, HikeConstants.LogEvent.CLICK, metadata);
+			}
+			catch (JSONException e) 
+			{
+				Logger.e(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+			}
 
 			context.finish();
 		}

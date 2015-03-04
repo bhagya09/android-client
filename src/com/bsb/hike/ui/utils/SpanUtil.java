@@ -1,17 +1,14 @@
 package com.bsb.hike.ui.utils;
 
-import com.bsb.hike.BitmapModule.HikeBitmapFactory;
-
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
 import android.graphics.drawable.BitmapDrawable;
 import android.text.style.ImageSpan;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.MeasureSpec;
 import android.widget.TextView;
+
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 
 public class SpanUtil
 {

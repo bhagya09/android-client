@@ -1,5 +1,13 @@
 package com.bsb.hike.db;
 
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.app.PendingIntent;
 import android.content.ContentValues;
 import android.content.Context;
@@ -9,29 +17,32 @@ import android.os.Bundle;
 import android.telephony.SmsManager;
 import android.text.TextUtils;
 import android.util.Pair;
+
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
-import com.bsb.hike.models.*;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
+import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.ConvMessage.State;
+import com.bsb.hike.models.Conversation;
+import com.bsb.hike.models.FtueContactInfo;
+import com.bsb.hike.models.MultipleConvMessage;
+import com.bsb.hike.models.Protip;
+import com.bsb.hike.models.StatusMessage;
 import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.HikeSDKMessageFilter;
+import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.service.SmsMessageStatusReceiver;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
 
 public class DbConversationListener implements Listener
 {
@@ -113,7 +124,7 @@ public class DbConversationListener implements Listener
 				Logger.d("DBCONVERSATION LISTENER", "Sending Message : " + convMessage.getMessage() + "	;	to : " + convMessage.getMsisdn());
 				if (!convMessage.isSMS() || !Utils.getSendSmsPref(context) || convMessage.getParticipantInfoState() == ParticipantInfoState.CHAT_BACKGROUND)
 				{
-					mPubSub.publish(HikePubSub.MQTT_PUBLISH, convMessage.serialize());
+					HikeMqttManagerNew.getInstance().sendMessage(convMessage.serialize(), HikeMqttManagerNew.MQTT_QOS_ONE);
 				}
 				else
 				{
@@ -139,7 +150,7 @@ public class DbConversationListener implements Listener
 		else if (HikePubSub.MULTI_FILE_UPLOADED.equals(type))
 		{
 			MultipleConvMessage multiConvMessages = (MultipleConvMessage) object;
-			mPubSub.publish(HikePubSub.MQTT_PUBLISH, multiConvMessages.serialize());
+			HikeMqttManagerNew.getInstance().sendMessage(multiConvMessages.serialize(), HikeMqttManagerNew.MQTT_QOS_ONE);
 		}
 		else if (HikePubSub.DELETE_MESSAGE.equals(type))
 		{
@@ -174,20 +185,25 @@ public class DbConversationListener implements Listener
 			ContactManager.getInstance().toggleContactFavorite(msisdn, FavoriteType.NOT_FRIEND);
 
 			JSONObject blockObj = blockUnblockSerialize("b", msisdn);
-			/*
-			 * We remove the icon for a blocked user as well.
-			 */
-			HikeMessengerApp.getLruCache().deleteIconForMSISDN(msisdn);
-			HikeMessengerApp.getPubSub().publish(HikePubSub.ICON_CHANGED, msisdn);
+
+			if (!Utils.isBot(msisdn))
+			{
+				/*
+				 * We remove the icon for a blocked user as well.
+				 */
+				HikeMessengerApp.getLruCache().deleteIconForMSISDN(msisdn);
+				HikeMessengerApp.getPubSub().publish(HikePubSub.ICON_CHANGED, msisdn);
+			}
+			
 			// IconCacheManager.getInstance().deleteIconForMSISDN(msisdn);
-			mPubSub.publish(HikePubSub.MQTT_PUBLISH, blockObj);
+			HikeMqttManagerNew.getInstance().sendMessage(blockObj, HikeMqttManagerNew.MQTT_QOS_ONE);
 		}
 		else if (HikePubSub.UNBLOCK_USER.equals(type))
 		{
 			String msisdn = (String) object;
 			ContactManager.getInstance().unblock(msisdn);
 			JSONObject unblockObj = blockUnblockSerialize("ub", msisdn);
-			mPubSub.publish(HikePubSub.MQTT_PUBLISH, unblockObj);
+			HikeMqttManagerNew.getInstance().sendMessage(unblockObj, HikeMqttManagerNew.MQTT_QOS_ONE);
 		}
 		else if (HikePubSub.SERVER_RECEIVED_MSG.equals(type)) // server got
 		// msg from
@@ -244,7 +260,7 @@ public class DbConversationListener implements Listener
 				{
 					requestType = HikeConstants.MqttMessageTypes.REMOVE_FAVORITE;
 				}
-				mPubSub.publish(HikePubSub.MQTT_PUBLISH, serializeMsg(requestType, contactInfo.getMsisdn(), contactInfo instanceof FtueContactInfo));
+				HikeMqttManagerNew.getInstance().sendMessage(serializeMsg(requestType, contactInfo.getMsisdn(), contactInfo instanceof FtueContactInfo), HikeMqttManagerNew.MQTT_QOS_ONE);
 			}
 		}
 		else if (HikePubSub.MUTE_CONVERSATION_TOGGLED.equals(type))
@@ -254,9 +270,17 @@ public class DbConversationListener implements Listener
 			String id = groupMute.first;
 			boolean mute = groupMute.second;
 
-			mConversationDb.toggleGroupMute(id, mute);
+			if (Utils.isBot(id))
+			{
+				// TODO Do we have to do MQTT PUBLISH here?
+			}
+			else
+			{
+				mConversationDb.toggleGroupMute(id, mute);
+				HikeMqttManagerNew.getInstance().sendMessage(serializeMsg(mute ? HikeConstants.MqttMessageTypes.MUTE : HikeConstants.MqttMessageTypes.UNMUTE, id),
+						HikeMqttManagerNew.MQTT_QOS_ONE);
+			}
 
-			mPubSub.publish(HikePubSub.MQTT_PUBLISH, serializeMsg(mute ? HikeConstants.MqttMessageTypes.MUTE : HikeConstants.MqttMessageTypes.UNMUTE, id));
 		}
 		else if (HikePubSub.DELETE_STATUS.equals(type))
 		{
@@ -323,8 +347,7 @@ public class DbConversationListener implements Listener
 				jsonObject.put(HikeConstants.DATA, data);
 
 				mPubSub.publish(HikePubSub.CHANGED_MESSAGE_TYPE, null);
-
-				mPubSub.publish(HikePubSub.MQTT_PUBLISH, jsonObject);
+				HikeMqttManagerNew.getInstance().sendMessage(jsonObject, HikeMqttManagerNew.MQTT_QOS_ONE);
 			}
 			catch (JSONException e)
 			{
@@ -396,7 +419,7 @@ public class DbConversationListener implements Listener
         // after DB insertion, we need to update conversation UI , so sending event which contains all contacts and last message for each contact
         multiConvMessages.sendPubSubForConvScreenMultiMessage();
         // publishing mqtt packet
-        mPubSub.publish(HikePubSub.MQTT_PUBLISH, multiConvMessages.serialize());
+        HikeMqttManagerNew.getInstance().sendMessage(multiConvMessages.serialize(), HikeMqttManagerNew.MQTT_QOS_ONE);
     }
 
     private void handleHikeSdkMessage(Object object){
@@ -437,18 +460,13 @@ public class DbConversationListener implements Listener
 
 	private void sendNativeSMSFallbackLogEvent(boolean onHike, boolean userOnline, int numMessages)
 	{
-		JSONObject data = new JSONObject();
 		JSONObject metadata = new JSONObject();
 		try
 		{
 			metadata.put(HikeConstants.IS_H2H, onHike);
 			metadata.put(HikeConstants.OFFLINE, userOnline ? HikeConstants.RECIPIENT : HikeConstants.SENDER);
 			metadata.put(HikeConstants.NUMBER_OF_SMS, numMessages);
-
-			data.put(HikeConstants.METADATA, metadata);
-			data.put(HikeConstants.SUB_TYPE, HikeConstants.SMS);
-
-			Utils.sendLogEvent(data);
+			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
 		}
 		catch (JSONException e)
 		{
@@ -458,17 +476,17 @@ public class DbConversationListener implements Listener
 
 	private void sendDismissTipLogEvent(String tipId, String URL)
 	{
-		JSONObject data = new JSONObject();
 		JSONObject metadata = new JSONObject();
+		
 		try
 		{
 			metadata.put(HikeConstants.TIP_ID, tipId);
+			
 			if (!TextUtils.isEmpty(URL))
+			{
 				metadata.put(HikeConstants.TIP_URL, URL);
-			data.put(HikeConstants.SUB_TYPE, HikeConstants.UI_EVENT);
-			data.put(HikeConstants.METADATA, metadata);
-
-			Utils.sendLogEvent(data);
+			}
+			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
 		}
 		catch (JSONException e)
 		{

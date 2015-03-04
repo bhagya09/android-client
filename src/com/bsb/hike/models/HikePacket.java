@@ -1,8 +1,11 @@
 package com.bsb.hike.models;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.bsb.hike.HikeConstants;
 
-public class HikePacket
+public class HikePacket implements Parcelable
 {
 	private byte[] message;
 
@@ -62,4 +65,42 @@ public class HikePacket
 		this.packetId = packetId;
 		this.packetType = packetType;
 	}
+
+	@Override
+	public int describeContents()
+	{
+		return 0;
+	}
+
+	@Override
+	public void writeToParcel(Parcel dest, int flags)
+	{
+		dest.writeInt(message.length);
+		dest.writeByteArray(message);
+		dest.writeLong(msgId);
+		dest.writeLong(timeStamp);
+		dest.writeLong(packetId);
+		dest.writeInt(packetType);
+	}
+
+	public static final Creator<HikePacket> CREATOR = new Creator<HikePacket>()
+	{
+		@Override
+		public HikePacket[] newArray(int size)
+		{
+			return new HikePacket[size];
+		}
+
+		@Override
+		public HikePacket createFromParcel(Parcel source)
+		{
+			byte[] message = new byte[source.readInt()];
+			source.readByteArray(message);
+			long msgId = source.readLong();
+			long timeStamp = source.readLong();
+			long packetId = source.readLong();
+			int packetType = source.readInt();
+			return new HikePacket(message, msgId, timeStamp, packetId, packetType);
+		}
+	};
 }

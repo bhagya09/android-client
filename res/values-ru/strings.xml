@@ -1228,19 +1228,7 @@
     <string name="shop_loading_failed_switch_on">Переключитесь на передачу мобильных данных или Wi-Fi</string>
     <string name="singular_packs">%1$d набор</string>
     <string name="singular_stickers">%1$d стикер</string>
-    <string name="ftue_sticker_screen_title">Выберите стикер</string>
-    <string name="ftue_sticker_screen_header">Стикеры!</string>
-    <string name="ftue_sticker_screen_text">В hike масса стикеров. Какой ваш любимый?</string>
-    <string name="ftue_sticker_forward_title">Отправить</string>
-    <string name="ftue_sticker_forward_card_text">Прекрасный выбор!</string>
-    <string name="ftue_sticker_forward_card_subtext">Попробуйте отправить его своим друзьям.</string>
-    <string name="ftue_sticker_forward_confirmation_singular">Отправить этот стикер 1 контакту?</string>
-    <string name="ftue_sticker_forward_confirmation_plural">Отправить этот стикер %1$s контактам?</string>
     <string name="conversation_empty">Коснитесь значка \'<b>новое сообщение</b>\' вверху,\nчтобы начать чат</string>
-    <string name="nux_invite_enter_names">Скажите нам, кто ваши лучшие друзья</string>
-    <string name="invite_footer_header">Кто ваш(а) лучший друг/лучшая подруга?</string>
-    <string name="invite_footer_subtext">Попробуйте общаться по hike со своими лучшими друзьями. Это очень клево!</string>
-    <string name="invite_now_uppercase">ПРИГЛАСИТЬ</string>
     <string name="pack_visible">Показан в палитре стикеров</string>
     <string name="pack_hidden">Скрыт из палитры стикеров</string>
     <string name="pack_rank">%1$d.</string>
@@ -1279,4 +1267,6 @@
     <string name="led_color_purple_key">Фиолетовый</string>
 
     <string name="ringtone_loader">Загрузка...</string>
+    <string name="terms_conditions_hint">сроки и условия</string>
+	<string name="terms_conditions_title">условия</string>
 </resources>

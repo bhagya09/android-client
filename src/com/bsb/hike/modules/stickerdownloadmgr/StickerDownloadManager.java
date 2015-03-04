@@ -14,20 +14,24 @@ import com.bsb.hike.utils.Logger;
 
 public class StickerDownloadManager
 {
-	private static Context context;
+	private final Context context;
 
-	private static RequestQueue queue;
+	private final RequestQueue queue;
 
-	public static StickerDownloadManager _instance = null;
+	private static volatile StickerDownloadManager _instance = null;
 
-	private static Handler handler;
+	private final Handler handler;
 	
-	private static NetworkHandler networkHandler;
+	private final NetworkHandler networkHandler;
 	
 	public static final String TAG = "StickerDownloadManager";
 
 	private StickerDownloadManager()
 	{
+		queue = new RequestQueue();
+		context = HikeMessengerApp.getInstance().getApplicationContext();
+		handler = new Handler(context.getMainLooper());
+		networkHandler = new NetworkHandler(context, queue);
 	}
 
 	public static StickerDownloadManager getInstance()
@@ -39,10 +43,6 @@ public class StickerDownloadManager
 				if (_instance == null)
 				{
 					_instance = new StickerDownloadManager();
-					queue = new RequestQueue();
-					context = HikeMessengerApp.getInstance().getApplicationContext();
-					handler = new Handler(context.getMainLooper());
-					networkHandler = new NetworkHandler(context, queue);
 				}
 			}
 		}

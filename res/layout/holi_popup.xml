@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/xmas_popup_view"
+   	android:layout_width="match_parent"
+ 	android:layout_height="match_parent" >
+
+	<RelativeLayout 
+	    android:id="@+id/festive_popup_parent"
+	    android:layout_width="@dimen/festive_popup_width"
+	    android:layout_height="@dimen/festive_popup_height"
+	    android:layout_gravity="center"
+	    android:background="#0f8fe1"
+	    android:visibility="gone" >
+	
+	    <LinearLayout
+	        android:id="@+id/button_container"
+	        android:layout_width="match_parent"
+	        android:layout_height="48dp"
+	        android:layout_alignParentBottom="true"
+	        android:orientation="horizontal" >
+	
+	        <com.bsb.hike.view.CustomFontButton
+	            android:id="@+id/btn_ok"
+	            style="@style/DiwaliPopupButton"
+	            android:background="@drawable/diwali_popup_right_btn"
+	            android:textColor="@color/white"
+	            android:text="@string/wish_now"
+	            android:textSize="16dp"
+	            android:textStyle="bold|italic" />
+	    </LinearLayout>
+	
+	    <View
+	        android:id="@+id/divider"
+	        android:layout_width="match_parent"
+	        android:layout_height="0.5dp"
+	        android:layout_marginLeft="8dp"
+	        android:layout_marginRight="8dp"
+	        android:layout_above="@id/button_container"
+	        android:background="@color/festive_popup_divider" />
+	
+	    <LinearLayout
+	        android:layout_width="match_parent"
+	        android:layout_height="match_parent"
+	        android:layout_above="@id/divider"
+	        android:padding="15dp"
+	        android:gravity="center"
+	        android:orientation="vertical" >
+	
+	        <com.bsb.hike.view.CustomFontTextView
+	            android:id="@+id/festive_header"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:layout_marginLeft="0dp"
+	            android:layout_marginTop="11dp"
+	            android:text="@string/holi"
+	            android:textColor="@color/white"
+	            android:textSize="20dp"
+	            android:textStyle="bold|italic" />
+
+	        <com.bsb.hike.view.CustomFontTextView
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:layout_marginLeft="0dp"
+	            android:layout_marginTop="6dp"
+	            android:text="@string/send_sticker_joy"
+	            android:textColor="@color/white"
+	            android:textSize="14dp" />
+	
+	        <ImageView
+	            android:id="@+id/sticker_popup_image"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:layout_marginTop="24dp"
+	            android:paddingBottom="10dp"
+	            android:paddingTop="10dp"
+	            android:src="@drawable/holi"
+	            android:visibility="invisible" />
+
+	    </LinearLayout>
+
+	    <ImageButton
+	        android:id="@+id/btn_cancel"
+	        android:layout_width="37dp"
+	        android:layout_height="37dp"
+	        android:layout_alignParentRight="true"
+	        android:background="@null"
+	        android:src="@drawable/ic_cross_popup" />
+	
+	</RelativeLayout>
+	 
+</FrameLayout>

@@ -1,17 +1,9 @@
 package com.bsb.hike.providers;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.Arrays;
 import java.util.List;
-
-import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.db.DBConstants;
-import com.bsb.hike.models.ContactInfo;
-import com.bsb.hike.modules.contactmgr.ContactManager;
-import com.bsb.hike.ui.HikeAuthActivity;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.Utils;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
@@ -20,6 +12,18 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.net.Uri;
+import android.os.ParcelFileDescriptor;
+
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.db.DBConstants;
+import com.bsb.hike.models.ContactInfo;
+import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.platform.content.PlatformContentConstants;
+import com.bsb.hike.ui.HikeAuthActivity;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 
 /**
  * Provides hike contact's avatar blob data
@@ -139,7 +143,7 @@ public class HikeProvider extends ContentProvider
 						if (selectionArgs[0].equals(HikeConstants.SELF_HIKE_ID))
 						{
 							// self avatar request
-							ContactInfo contactInfo = Utils.getUserContactInfo(HikeSharedPreferenceUtil.getInstance(getContext(), HikeMessengerApp.ACCOUNT_SETTINGS).getPref());
+							ContactInfo contactInfo = Utils.getUserContactInfo(HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.ACCOUNT_SETTINGS).getPref());
 							c = ContactManager
 									.getInstance()
 									.getReadableDatabase()
@@ -181,7 +185,7 @@ public class HikeProvider extends ContentProvider
 						if (selectionArgs[0].equals(HikeConstants.SELF_HIKE_ID))
 						{
 							// self avatar request
-							ContactInfo contactInfo = Utils.getUserContactInfo(HikeSharedPreferenceUtil.getInstance(getContext(), HikeMessengerApp.ACCOUNT_SETTINGS).getPref());
+							ContactInfo contactInfo = Utils.getUserContactInfo(HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.ACCOUNT_SETTINGS).getPref());
 							c = ContactManager
 									.getInstance()
 									.getReadableDatabase()
@@ -213,7 +217,35 @@ public class HikeProvider extends ContentProvider
 	@Override
 	public String getType(Uri uri)
 	{
-		return null;
+		String fileNameRequested = uri.getLastPathSegment();
+		String[] name = fileNameRequested.split("\\.");
+
+		try
+		{
+			String suffix = name[1];
+
+			if (suffix.equals("css"))
+			{
+				return "text/css";
+			}
+			else if (suffix.equals("png"))
+			{
+				return "image/png";
+			}
+			else if (suffix.equals("js"))
+			{
+				return "application/javascript";
+			}
+			else
+			{
+				return "text/plain";
+			}
+		}
+		catch (ArrayIndexOutOfBoundsException aiobe)
+		{
+			aiobe.printStackTrace();
+			throw new UnsupportedOperationException("Cannot recognize MIME type");
+		}
 	}
 
 	@Override
@@ -235,6 +267,26 @@ public class HikeProvider extends ContentProvider
 	{
 		Logger.d(TAG, "Invalid access");
 		throw new UnsupportedOperationException("Invalid access");
+	}
+
+	@Override
+	public ParcelFileDescriptor openFile(Uri uri, String mode)
+	{
+		Logger.d("FileContentProvider", "fetching: " + uri);
+
+		ParcelFileDescriptor parcel = null;
+
+		String filePath = uri.toString().replace(PlatformContentConstants.CONTENT_AUTHORITY_BASE, PlatformContentConstants.PLATFORM_CONTENT_DIR);
+
+		try
+		{
+			parcel = ParcelFileDescriptor.open(new File(filePath), ParcelFileDescriptor.MODE_READ_ONLY);
+		}
+		catch (FileNotFoundException e)
+		{
+			Logger.e("FileContentProvider", "uri " + uri.toString(), e);
+		}
+		return parcel;
 	}
 
 }

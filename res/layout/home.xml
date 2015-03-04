@@ -42,7 +42,7 @@
         android:inflatedId="@+id/festive_view"
         android:layout_width="match_parent"
 		android:layout_height="match_parent"
-        android:layout="@layout/republicday_popup" />
+        android:layout="@layout/holi_popup" />
 
     <com.bsb.hike.view.CustomFontTextView
     	android:id="@+id/network_error"

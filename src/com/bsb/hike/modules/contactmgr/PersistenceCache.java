@@ -1,8 +1,6 @@
 package com.bsb.hike.modules.contactmgr;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -19,7 +17,6 @@ import android.util.Pair;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.GroupParticipant;
-import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.Utils;
 
@@ -888,6 +885,26 @@ class PersistenceCache extends ContactsCache
 			writeLock.unlock();
 		}
 
+	}
+
+	public void insertGroup(String grpId, GroupDetails grpDetails)
+	{
+		writeLock.lock();
+		try
+		{
+			String groupName = grpDetails.getGroupName();
+			if (TextUtils.isEmpty(groupName) || groupName.equals(grpId))
+			{
+				List<PairModified<GroupParticipant, String>> grpParticipants = ContactManager.getInstance().getGroupParticipants(grpId, false, false);
+				groupName = Utils.defaultGroupName(new ArrayList<PairModified<GroupParticipant, String>>(grpParticipants));
+				grpDetails.setGroupName(groupName);
+			}
+			groupPersistence.put(grpId, grpDetails);
+		}
+		finally
+		{
+			writeLock.unlock();
+		}
 	}
 
 	/**

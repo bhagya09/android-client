@@ -25,6 +25,7 @@ import com.bsb.hike.BitmapModule.RecyclingBitmapDrawable;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.utils.Utils.ExternalStorageState;
+import com.bsb.hike.video.VideoUtilities.VideoEditedInfo;
 
 public class HikeFile
 {
@@ -163,6 +164,8 @@ public class HikeFile
 	private String img_quality;
 	
 	private String downloadURL;
+
+	private VideoEditedInfo vEditInfo;
 
 	public HikeFile(JSONObject fileJSON, boolean isSent)
 	{
@@ -514,6 +517,11 @@ public class HikeFile
 	{
 		fileName = fName;
 	}
+	
+	public void setVideoEditedInfo(VideoEditedInfo vEditInfo)
+	{
+		this.vEditInfo = vEditInfo;
+	}
 	/*
 	 * Get server configured download url 
 	 */
@@ -521,6 +529,11 @@ public class HikeFile
 	{
 		Logger.d("HikeDownloadURL", "DowloadURL = " + downloadURL);
 		return downloadURL;
+	}
+
+	public VideoEditedInfo getVideoEditorInfo()
+	{
+		return this.vEditInfo;
 	}
 
 	public boolean isSent()
@@ -574,7 +587,7 @@ public class HikeFile
 		 */
 		String currentFileSelectionPath = HikeConstants.FILE_SHARE_PREFIX + getExactFilePath();
 		String currentFileSelectionMimeType = getFileTypeString();
-		Utils.startShareImageIntent(context, currentFileSelectionMimeType, currentFileSelectionPath);
+		Utils.startShareImageIntent(currentFileSelectionMimeType, currentFileSelectionPath);
 	}
 
 	public static void openFile(File file, String fileTypeString, Context context)

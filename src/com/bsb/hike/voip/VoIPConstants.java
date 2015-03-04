@@ -1,5 +1,7 @@
 package com.bsb.hike.voip;
 
+import com.bsb.hike.HikeConstants;
+
 public class VoIPConstants {
 	public static final String TAG = "VoIP";
 	
@@ -32,6 +34,9 @@ public class VoIPConstants {
 
 	public static final String CALL_ID = "callId";
 	public static final String IS_CALL_INITIATOR = "isCallInitiator";
+	public static final String CALL_RATING = "rating";
+	public static final String CALL_NETWORK_TYPE = "network";
+	public static final String PARTNER_MSISDN = "pmsisdn";
 
 	public static final class Analytics
 	{
@@ -40,6 +45,8 @@ public class VoIPConstants {
 		public static final String CALL_ID = "callid";
 
 		public static final String IS_CALLER = "caller";
+
+		public static final String IS_ENDER = "ender";
 
 		public static final String NETWORK_TYPE = "net";
 
@@ -52,6 +59,64 @@ public class VoIPConstants {
 		public static final String DATA_RECEIVED = "drec";
 
 		public static final String STATE = "state";
+
+		public static final String DURATION = "dur";
+
+		public static final String CALL_CONNECT_FAIL_REASON = "reason";
+	}
+
+	public static final class ConnectionFailCodes
+	{
+		public static final int PARTNER_UPGRADE = 0;
+
+		public static final int PARTNER_INCOMPAT = 1;
+
+		public static final int PARTNER_BLOCKED_USER = 2;
+
+		public static final int PARTNER_BUSY = 3;
+
+		public static final int UDP_CONNECTION_FAIL = 4;
+
+		public static final int EXTERNAL_SOCKET_RETRIEVAL_FAILURE = 5;
+
+		public static final int PARTNER_SOCKET_INFO_TIMEOUT = 6;
+
+		public static final int CALLER_BAD_NETWORK = 7;
+
+		public static final int CALLER_IN_NATIVE_CALL = 8;
+	}
+
+	public static final class Extras
+	{
+		public static final String ACTION = "action";
+
+		public static final String MESSAGE = "message";
+
+		public static final String SET_PARTNER_INFO = "setpartnerinfo";
+
+		public static final String OUTGOING_CALL = "outgoingcall";
+
+		public static final String MSISDN = "msisdn";
+
+		public static final String CALL_SOURCE = "call_source";
+
+		public static final String INTERNAL_IP = "internalIP";
+
+		public static final String INTERNAL_PORT = "internalPort";
+
+		public static final String EXTERNAL_IP = "externalIP";
+
+		public static final String EXTERNAL_PORT = "externalPort";
+
+		public static final String RELAY = "relay";
+
+		public static final String RELAY_PORT = "relayport";
+
+		public static final String RECONNECTING = "reconnecting";
+
+		public static final String INITIATOR = "initiator";
+
+		public static final String CALL_ID = "callId";
 	}
 
 	

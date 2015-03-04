@@ -14,6 +14,7 @@ import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
 import com.bsb.hike.models.Conversation;
 import com.bsb.hike.models.GroupConversation;
+import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.utils.EmoticonTextWatcher;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -116,7 +117,7 @@ public class ComposeViewWatcher extends EmoticonTextWatcher implements Runnable,
 			mTextLastChanged = lastChanged;
 
 			// fire an event
-			mPubSub.publish(HikePubSub.MQTT_PUBLISH_LOW, mConversation.serialize(HikeConstants.MqttMessageTypes.START_TYPING));
+			HikeMqttManagerNew.getInstance().sendMessage(mConversation.serialize(HikeConstants.MqttMessageTypes.START_TYPING), HikeMqttManagerNew.MQTT_QOS_ZERO);
 
 			// create a timer to clear the event
 			mUIThreadHandler.removeCallbacks(this);

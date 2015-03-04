@@ -90,16 +90,27 @@ public class BitmapUtils
 
 	public static void saveBitmapToFile(File file, Bitmap bitmap, CompressFormat compressFormat, int quality) throws IOException
 	{
-		FileOutputStream fos = new FileOutputStream(file);
-
-		byte[] b = BitmapUtils.bitmapToBytes(bitmap, compressFormat, quality);
-		if (b == null)
+		FileOutputStream fos = null;
+		try
 		{
-			throw new IOException();
+		
+			fos = new FileOutputStream(file);
+
+			byte[] b = BitmapUtils.bitmapToBytes(bitmap, compressFormat, quality);
+			if (b == null)
+			{
+				throw new IOException();
+			}
+			
+			fos.write(b);
+			fos.flush();
+			fos.getFD().sync();
 		}
-		fos.write(b);
-		fos.flush();
-		fos.close();
+		finally
+		{
+			if(fos != null)
+				fos.close();
+		}
 	}
 
 	/**

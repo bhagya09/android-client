@@ -5,23 +5,23 @@ package com.bsb.hike.view;
  */
 
         import android.content.res.ColorStateList;
-        import android.graphics.Bitmap;
-        import android.graphics.Bitmap.Config;
-        import android.graphics.BitmapShader;
-        import android.graphics.Canvas;
-        import android.graphics.Color;
-        import android.graphics.ColorFilter;
-        import android.graphics.Matrix;
-        import android.graphics.Paint;
-        import android.graphics.PixelFormat;
-        import android.graphics.Rect;
-        import android.graphics.RectF;
-        import android.graphics.Shader;
-        import android.graphics.drawable.BitmapDrawable;
-        import android.graphics.drawable.Drawable;
-        import android.graphics.drawable.LayerDrawable;
-        import android.util.Log;
-        import android.widget.ImageView.ScaleType;
+import android.graphics.Bitmap;
+import android.graphics.Bitmap.Config;
+import android.graphics.BitmapShader;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.ColorFilter;
+import android.graphics.Matrix;
+import android.graphics.Paint;
+import android.graphics.PixelFormat;
+import android.graphics.Rect;
+import android.graphics.RectF;
+import android.graphics.Shader;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
+import android.util.Log;
+import android.widget.ImageView.ScaleType;
 
 @SuppressWarnings("UnusedDeclaration")
 public class RoundedDrawable extends Drawable {

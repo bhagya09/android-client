@@ -81,7 +81,7 @@
                 android:id="@+id/category_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/standerd_black"
+                android:textColor="@color/standard_black"
                 android:singleLine="true"
                 android:ellipsize="end"
                 android:textSize="18sp" />

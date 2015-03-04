@@ -1,5 +1,8 @@
 package com.bsb.hike.ui;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.app.Dialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -11,7 +14,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -21,8 +23,11 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.ui.HikeDialog.HikeDialogListener;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
 public class CreditsActivity extends HikeAppStateBaseFragmentActivity implements Listener
@@ -212,7 +217,18 @@ public class CreditsActivity extends HikeAppStateBaseFragmentActivity implements
 	public void onInviteClick(View v)
 	{
 		Utils.logEvent(CreditsActivity.this, HikeConstants.LogEvent.INVITE_BUTTON_CLICKED);
-		Utils.sendUILogEvent(HikeConstants.LogEvent.INVITE_SMS_SCREEN_FROM_CREDIT);
+		
+		try
+		{
+			JSONObject metadata = new JSONObject();
+			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.INVITE_SMS_SCREEN_FROM_CREDIT);
+			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+		}
+		catch(JSONException e)
+		{
+			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+		}
+
 		Intent intent = new Intent(CreditsActivity.this, HikeListActivity.class);
 		intent.putExtra(HikeConstants.Extras.FROM_CREDITS_SCREEN, true);
 		startActivity(intent);
@@ -220,7 +236,17 @@ public class CreditsActivity extends HikeAppStateBaseFragmentActivity implements
 
 	public void onStartHikingClick(View v)
 	{
-		Utils.sendUILogEvent(HikeConstants.LogEvent.START_HIKING);
+		try
+		{
+			JSONObject metadata = new JSONObject();
+			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.START_HIKING);
+			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+		}
+		catch(JSONException e)
+		{
+			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+		}
+
 		Intent intent = new Intent(this, ComposeChatActivity.class);
 		startActivity(intent);
 	}

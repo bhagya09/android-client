@@ -9,7 +9,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
-import java.util.Random;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -74,7 +73,8 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
-import com.bsb.hike.db.DBBackupRestore;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.http.HikeHttpRequest;
 import com.bsb.hike.http.HikeHttpRequest.RequestType;
 import com.bsb.hike.models.Birthday;
@@ -86,7 +86,6 @@ import com.bsb.hike.tasks.SignupTask.State;
 import com.bsb.hike.tasks.SignupTask.StateValue;
 import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
 import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.utils.Utils.ExternalStorageState;
 import com.facebook.Request;
@@ -492,32 +491,9 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 				 */
 				Utils.setupUri(this.getApplicationContext());
 
-				boolean showNuxScreen = accountPrefs.getBoolean(HikeConstants.SHOW_NUX_SCREEN, false);
-				/*
-				 * If backup is available we don't want to show nux screen to user and also we don't need bot msgs to prompt user for forwarding sticker
-				 */
-				if (DBBackupRestore.getInstance(this).isBackupAvailable())
-				{
-					showNuxScreen = false;
-				}
-				
-				if (showNuxScreen && (accountPrefs.getInt(HikeConstants.HIKE_CONTACTS_COUNT, 0) > 0))
-				{
-					mHandler.removeCallbacks(startNuxScreen);
-					mHandler.postDelayed(startNuxScreen, 2500);
-				}
-				else
-				{
-					Editor e = accountPrefs.edit();
-					if (showNuxScreen)
-					{
-						e.putBoolean(HikeConstants.SHOW_NUX_INVITE_MODE, true);
-					}
-					e.putBoolean(HikeConstants.SHOW_NUX_SCREEN, false);
-					e.commit();
-					mHandler.removeCallbacks(startWelcomeScreen);
-					mHandler.postDelayed(startWelcomeScreen, 2500);
-				}
+				mHandler.removeCallbacks(startWelcomeScreen);
+				mHandler.postDelayed(startWelcomeScreen, 2500);
+
 				SharedPreferences settings = getApplication().getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
 				Editor ed = settings.edit();
 				ed.putBoolean(HikeMessengerApp.SIGNUP_COMPLETE, true);
@@ -533,17 +509,6 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 			mActivityState = new ActivityState();
 		}
 	}
-
-	Runnable startNuxScreen = new Runnable()
-	{	
-		@Override
-		public void run()
-		{
-			Intent i = new Intent(SignupActivity.this, FtueActivity.class);
-			startActivity(i);
-			finish();
-		}
-	};
 	
 	Runnable startWelcomeScreen = new Runnable()
 	{
@@ -671,7 +636,16 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 	{
 		if (viewFlipper.getDisplayedChild() == BACKUP_FOUND || viewFlipper.getDisplayedChild() == RESTORING_BACKUP)
 		{
-			Utils.logEvent(SignupActivity.this, HikeConstants.LogEvent.BACKUP_RESTORE_SKIP);
+			try
+			{
+				JSONObject metadata = new JSONObject();
+				metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.BACKUP_RESTORE_SKIP);
+				HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+			}
+			catch(JSONException e)
+			{
+				Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+			}
 			mTask.addUserInput(null);
 			viewFlipper.setDisplayedChild(POST_SIGNUP);
 			prepareLayoutForPostSignup(null);
@@ -774,7 +748,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 
 							startLoading();
 							dialog.cancel();
-							if (Utils.densityMultiplier < 1.5)
+							if (Utils.scaledDensityMultiplier < 1.5)
 							{
 								Utils.hideSoftKeyboard(SignupActivity.this, enterEditText);
 							}
@@ -1166,7 +1140,16 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 				@Override
 				public void onClick(View v)
 				{
-					Utils.logEvent(SignupActivity.this, HikeConstants.LogEvent.BACKUP_RESTORE_RETRY);
+					JSONObject metadata = new JSONObject();
+					try
+					{
+						metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.BACKUP_RESTORE_RETRY);
+						HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+					}
+					catch(JSONException e)
+					{
+						Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+					}
 					nextBtnContainer.setVisibility(View.GONE);
 					restoreProgress.setVisibility(View.VISIBLE);
 					restoreFail.setVisibility(View.INVISIBLE);
@@ -1695,7 +1678,16 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		@Override
 		public void onClick(View v)
 		{
-			Utils.logEvent(SignupActivity.this, HikeConstants.LogEvent.BACKUP_RESTORE);
+			JSONObject metadata = new JSONObject();
+			try
+			{
+				metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.BACKUP_RESTORE);
+				HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+			}
+			catch(JSONException e)
+			{
+				Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+			}
 			mTask.addUserInput("true");
 		}
 	};

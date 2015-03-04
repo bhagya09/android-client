@@ -11,7 +11,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import com.bsb.hike.R;
@@ -22,17 +21,15 @@ public class AddFriendAdapter extends SectionedBaseAdapter {
 	private HashMap<Integer, List<ContactInfo>> sectionsData;
 	private Set<ContactInfo> selectedFriends;
 	private Context context;
-	private ListView listView;
 	private IconLoader iconloader;
 	private int mIconImageSize;
 
 
 	public AddFriendAdapter(Context context, int resource,
-			HashMap<Integer, List<ContactInfo>> sectionsData, ListView listView) {
+			HashMap<Integer, List<ContactInfo>> sectionsData) {
 		this.context = context;
 		this.sectionsData = sectionsData;
 		selectedFriends = new HashSet<ContactInfo>();
-		this.listView = listView;
 		mIconImageSize = context.getResources().getDimensionPixelSize(R.dimen.icon_picture_size);
 		this.iconloader = new IconLoader(context, mIconImageSize);
 		iconloader.setDefaultAvatarIfNoCustomIcon(true);

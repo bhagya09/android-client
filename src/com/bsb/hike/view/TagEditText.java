@@ -84,8 +84,9 @@ public class TagEditText extends EditText
 	{
 
 		String customuniqueness = generateUniqueness(uniqueness);
-		addedTags.put(customuniqueness, data);
-		ImageSpan span = SpanUtil.getImageSpanFromTextView(getContext(), R.layout.tag, R.id.tagTV, text);
+		addedTags.put(customuniqueness, data); 
+		
+		   ImageSpan span = SpanUtil.getImageSpanFromTextView(getContext(), R.layout.tag, R.id.tagTV, text);
 		if (span != null)
 		{
 			addedSpans.put(customuniqueness, span);
@@ -104,6 +105,7 @@ public class TagEditText extends EditText
 			setSelection(ssb.length());
 			if (listener != null)
 			{
+
 				listener.tagAdded(data, uniqueness);
 				listener.charResetAfterSeperator();
 			}

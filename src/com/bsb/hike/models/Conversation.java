@@ -10,7 +10,12 @@ import org.json.JSONObject;
 import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 
 public class Conversation implements Comparable<Conversation>
 {
@@ -69,6 +74,10 @@ public class Conversation implements Comparable<Conversation>
 	private String lastPin;
 
 	private MetaData metaData;
+	
+	private byte isBot = -1;
+	
+	private byte isMuted = -1;
 
 	public String getLastPin()
 	{
@@ -427,4 +436,49 @@ public class Conversation implements Comparable<Conversation>
 			return groupId;
 		}
 	}
+	
+	public boolean isBotConv()
+	{
+		if (isBot == -1)
+		{
+			isBot = (byte) (Utils.isBot(msisdn) ? 1 : 0);
+		}
+		return isBot == 1 ? true : false;
+	}
+
+	public boolean isMutedBotConv(boolean forceRefresh)
+	{
+		if (isBotConv())
+		{
+			if (isMuted == -1 || forceRefresh)
+			{
+				isMuted = (byte) (HikeConversationsDatabase.getInstance().isBotMuted(msisdn) ? 1 : 0);
+			}
+		}
+		return isMuted == 1 ? true : false;
+	}
+
+	public void setBotConvMute(boolean mute)
+	{
+		if (isBotConv())
+		{
+			HikeConversationsDatabase.getInstance().updateBot(msisdn, contactName, null, mute ? 1 : 0);
+			isMuted = (byte) (mute ? 1 : 0);
+		}
+	}
+
+    public void analyticsForBots(String key,  String subType)
+    {
+        JSONObject json = new JSONObject();
+        try {
+            json.put(AnalyticsConstants.EVENT_KEY, key);
+            json.put(AnalyticsConstants.ORIGIN, HikePlatformConstants.CONVERSATION_FRAGMENT);
+            json.put(AnalyticsConstants.UNREAD_COUNT, getUnreadCount());
+            json.put(AnalyticsConstants.CHAT_MSISDN, getMsisdn());
+            HikeAnalyticsEvent.analyticsForBots(AnalyticsConstants.UI_EVENT, subType, json);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+    }
 }

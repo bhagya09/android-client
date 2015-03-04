@@ -2,17 +2,19 @@ package com.bsb.hike.utils;
 
 import java.util.HashMap;
 
-import com.bsb.hike.HikeMessengerApp;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 
+import com.bsb.hike.HikeMessengerApp;
+
 public class HikeSharedPreferenceUtil
 {
 	private static final String DEFAULT_PREF_NAME = HikeMessengerApp.ACCOUNT_SETTINGS;
 
+	public static final String CONV_UNREAD_COUNT = "ConvUnreadCount";
+	
 	private SharedPreferences hikeSharedPreferences;
 
 	private Editor editor;
@@ -32,7 +34,7 @@ public class HikeSharedPreferenceUtil
 		return hikeSharedPreferenceUtil;
 	}
 
-	public static HikeSharedPreferenceUtil getInstance(Context context)
+	public static HikeSharedPreferenceUtil getInstance()
 	{
 		if (hikePrefsMap.containsKey(DEFAULT_PREF_NAME))
 		{
@@ -40,11 +42,11 @@ public class HikeSharedPreferenceUtil
 		}
 		else
 		{
-			return initializeHikeSharedPref(context.getApplicationContext(), DEFAULT_PREF_NAME);
+			return initializeHikeSharedPref(HikeMessengerApp.getInstance().getApplicationContext(), DEFAULT_PREF_NAME);
 		}
 	}
 
-	public static HikeSharedPreferenceUtil getInstance(Context context, String argSharedPrefName)
+	public static HikeSharedPreferenceUtil getInstance(String argSharedPrefName)
 	{
 		if (hikePrefsMap.containsKey(argSharedPrefName))
 		{
@@ -52,7 +54,7 @@ public class HikeSharedPreferenceUtil
 		}
 		else
 		{
-			return initializeHikeSharedPref(context.getApplicationContext(), argSharedPrefName);
+			return initializeHikeSharedPref(HikeMessengerApp.getInstance().getApplicationContext(), argSharedPrefName);
 		}
 	}
 

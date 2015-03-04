@@ -10,6 +10,10 @@ import java.io.ObjectOutputStream;
 import java.nio.channels.FileChannel;
 import java.util.Calendar;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Environment;
@@ -17,6 +21,8 @@ import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.utils.CBCEncryption;
 import com.bsb.hike.utils.Logger;
@@ -29,7 +35,18 @@ public class DBBackupRestore
 	 * 	DBBackupRestore is a singleton class that performs are the backup/restore related
 	 * 	operations
 	 */
-	private static DBBackupRestore _instance = null;
+	
+	public static final String RESTORE_EVENT_KEY = "rstr";
+
+	public static final String BACKUP_EVENT_KEY = "bck";
+
+	public static final String SIZE = "sz";
+
+	public static final String STATUS = "sts";
+
+	public static final String TIME_TAKEN = "tt";
+
+	private static volatile DBBackupRestore _instance = null;
 
 	private static final String HIKE_PACKAGE_NAME = "com.bsb.hike";
 
@@ -41,7 +58,7 @@ public class DBBackupRestore
 
 	private static final String[] resetTableNames = { DBConstants.STICKER_SHOP_TABLE, DBConstants.STICKER_CATEGORIES_TABLE };
 
-	private Context mContext;
+	private final Context mContext;
 
 	private DBBackupRestore(Context context)
 	{
@@ -91,13 +108,17 @@ public class DBBackupRestore
 	public boolean backupDB()
 	{
 		Long time = System.currentTimeMillis();
+		boolean result = true;
 		try
 		{
 			for (String fileName : dbNames)
 			{
 				File dbCopy = exportDatabse(fileName);
 				if (dbCopy == null || !dbCopy.exists())
-					return false;
+				{
+					result = false;
+					break;
+				}
 
 				File backup = getDBBackupFile(dbCopy.getName());
 				String backupToken = getBackupToken();
@@ -114,15 +135,19 @@ public class DBBackupRestore
 		{
 			deleteTempFiles();
 			e.printStackTrace();
-			return false;
+			result = false;
 		}
-		if (!updateBackupState(null))
+		if (result)
 		{
-			return false;
+			if (!updateBackupState(null))
+			{
+				result = false;
+			}
 		}
 		time = System.currentTimeMillis() - time;
-		Logger.d(getClass().getSimpleName(), "Backup complete!! in " + time / 1000 + "." + time % 1000 + "s");
-		return true;
+		Logger.d(getClass().getSimpleName(), "Backup " + result + " in " + time / 1000 + "." + time % 1000 + "s");
+		recordLog(BACKUP_EVENT_KEY,result,time);
+		return result;
 	}
 
 	/**
@@ -175,44 +200,52 @@ public class DBBackupRestore
 	public boolean restoreDB()
 	{
 		Long time = System.currentTimeMillis();
+		boolean result = true;
 		BackupState state = getBackupState();
 		if (state == null)
 		{
-			return false;
+			result = false;
 		}
 		if (state.getDBVersion() > DBConstants.CONVERSATIONS_DATABASE_VERSION)
 		{
-			return false;
+			result = false;
 		}
-		try
+		if (result)
 		{
-			for (String fileName : dbNames)
+			try
 			{
-				File currentDB = getCurrentDBFile(fileName);
-				File dbCopy = getDBCopyFile(currentDB.getName());
-				File backup = getDBBackupFile(dbCopy.getName());
-				String backupToken = getBackupToken();
-				Logger.d(getClass().getSimpleName(), "decrypting with key: " + backupToken);
-				if (TextUtils.isEmpty(backupToken))
+				for (String fileName : dbNames)
 				{
-					throw new Exception("Backup Token is empty");
+					File currentDB = getCurrentDBFile(fileName);
+					File dbCopy = getDBCopyFile(currentDB.getName());
+					File backup = getDBBackupFile(dbCopy.getName());
+					String backupToken = getBackupToken();
+					Logger.d(getClass().getSimpleName(), "decrypting with key: " + backupToken);
+					if (TextUtils.isEmpty(backupToken))
+					{
+						throw new Exception("Backup Token is empty");
+					}
+					CBCEncryption.decryptFile(backup, dbCopy, backupToken);
+					importDatabase(dbCopy);
+					dbCopy.delete();
 				}
-				CBCEncryption.decryptFile(backup, dbCopy, backupToken);
-				importDatabase(dbCopy);
-				dbCopy.delete();
+			}
+			catch (Exception e)
+			{
+				deleteTempFiles();
+				e.printStackTrace();
+				result = false;
 			}
 		}
-		catch (Exception e)
+		if (result)
 		{
-			deleteTempFiles();
-			e.printStackTrace();
-			return false;
+			state.restorePrefs(mContext);
+			postRestoreSetup(state);
 		}
-		state.restorePrefs(mContext);
-		postRestoreSetup(state);
 		time = System.currentTimeMillis() - time;
-		Logger.d(getClass().getSimpleName(), "Restore complete!! in " + time / 1000 + "." + time % 1000 + "s");
-		return true;
+		Logger.d(getClass().getSimpleName(), "Restore " + result + " in " + time / 1000 + "." + time % 1000 + "s");
+		recordLog(RESTORE_EVENT_KEY,result,time);
+		return result;
 	}
 
 	/**
@@ -250,6 +283,32 @@ public class DBBackupRestore
 		}
 		time = System.currentTimeMillis() - time;
 		Logger.d(getClass().getSimpleName(), "DB import complete!! in " + time / 1000 + "." + time % 1000 + "s");
+	}
+	
+	private void recordLog(String eventKey, boolean result, long timeTaken)
+	{
+		JSONObject metadata = new JSONObject();
+		try
+		{
+			JSONArray sizes = new JSONArray();
+			for (String fileName : dbNames)
+			{
+				File currentDB = getCurrentDBFile(fileName);
+				File dbCopy = getDBCopyFile(currentDB.getName());
+				File backup = getDBBackupFile(dbCopy.getName());
+				sizes.put(backup.length());
+			}
+			metadata
+			.put(HikeConstants.EVENT_KEY, eventKey)
+			.put(SIZE, sizes)
+			.put(STATUS, result)
+			.put(TIME_TAKEN, timeTaken);
+			HAManager.getInstance().record(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.ANALYTICS_BACKUP, metadata);
+		}
+		catch(JSONException e)
+		{
+			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+		}
 	}
 	
 	private String getBackupToken()

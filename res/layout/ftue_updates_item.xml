@@ -16,7 +16,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:text="Pankaj Verma"
-            android:textColor="@color/standerd_black"
+            android:textColor="@color/standard_black"
             android:textSize="@dimen/ftue_contact_card_text_size"
             android:textStyle="italic"
             android:paddingRight="17dp"
@@ -38,7 +38,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
                 android:text="Added you as a friend"
-                android:textColor="@color/standerd_black"
+                android:textColor="@color/standard_black"
                 android:textSize="15sp"
                 android:textStyle="italic" />
         </LinearLayout>

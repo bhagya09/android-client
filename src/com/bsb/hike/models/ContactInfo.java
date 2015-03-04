@@ -326,6 +326,11 @@ public class ContactInfo implements JSONSerializable, Comparable<ContactInfo>
 		return FavoriteType.values()[n];
 	}
 
+	private int getFavoriteTypeNumRepresentation()
+	{
+		return getNum(3, 5);
+	}
+	
 	public void setFavoriteType(FavoriteType favoriteType)
 	{
 		int n = favoriteType.ordinal();
@@ -447,8 +452,7 @@ public class ContactInfo implements JSONSerializable, Comparable<ContactInfo>
 	{
 		this(contactInfo.getId(), contactInfo.getMsisdn(), contactInfo.getName(), contactInfo.getPhoneNum(), contactInfo.isOnhike(), "", contactInfo.getLastMessaged(), contactInfo
 				.hasCustomPhoto(), contactInfo.getHikeJoinTime());
-		int n = contactInfo.getFavoriteType().ordinal();
-		setNum(3, 5, n);
+		setNum(3, 5, contactInfo.getFavoriteTypeNumRepresentation());
 		this.inviteTime = contactInfo.getInviteTime();
 		this.lastSeenTime = contactInfo.getLastSeenTime();
 		setNum(6, 7, contactInfo.getOffline() + 1);

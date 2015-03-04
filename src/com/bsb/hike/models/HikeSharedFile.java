@@ -3,10 +3,10 @@ package com.bsb.hike.models;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.bsb.hike.HikeConstants;
-
 import android.os.Parcel;
 import android.os.Parcelable;
+
+import com.bsb.hike.HikeConstants;
 
 public class HikeSharedFile extends HikeFile implements Parcelable
 {

@@ -20,7 +20,6 @@ import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.smartImageLoader.IconLoader;
-import com.bsb.hike.utils.Utils;
 
 public class HikeBlockedUserAdapter extends HikeArrayAdapter implements OnClickListener
 {
@@ -94,7 +93,8 @@ public class HikeBlockedUserAdapter extends HikeArrayAdapter implements OnClickL
 		ContactInfo contactInfo = (ContactInfo) view.getTag();
 		String msisdn = (String) contactInfo.getMsisdn();
 		boolean block = !blockedUsers.contains(msisdn);
-		boolean b = (block) ? blockedUsers.add(msisdn) : blockedUsers.remove(msisdn);
+		boolean b = block ? blockedUsers.add(msisdn):blockedUsers.remove(msisdn);
+		
 		this.notifyDataSetChanged();
 		HikeMessengerApp.getPubSub().publish(block ? HikePubSub.BLOCK_USER : HikePubSub.UNBLOCK_USER, msisdn);
 	}

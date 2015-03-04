@@ -41,17 +41,17 @@ public class GaugeView extends ImageView
 		gaugeBackgroundPaint = new Paint();
 		gaugeBackgroundPaint.setColor(0xffb2d989);
 		gaugeBackgroundPaint.setStyle(Paint.Style.STROKE);
-		gaugeBackgroundPaint.setStrokeWidth(56f * Utils.densityMultiplier);
+		gaugeBackgroundPaint.setStrokeWidth(56f * Utils.scaledDensityMultiplier);
 		gaugeBackgroundPaint.setAntiAlias(true);
 
 		maxCreditsPaint = new Paint();
 		maxCreditsPaint.setColor(0xff90c86b);
 		maxCreditsPaint.setStyle(Paint.Style.STROKE);
-		maxCreditsPaint.setStrokeWidth(56f * Utils.densityMultiplier);
+		maxCreditsPaint.setStrokeWidth(56f * Utils.scaledDensityMultiplier);
 		maxCreditsPaint.setAntiAlias(true);
 
-		gaugeArcArea = new RectF((int) (24 * Utils.densityMultiplier), (int) (29 * Utils.densityMultiplier), (int) (214 * Utils.densityMultiplier),
-				(int) (224 * Utils.densityMultiplier));
+		gaugeArcArea = new RectF((int) (24 * Utils.scaledDensityMultiplier), (int) (29 * Utils.scaledDensityMultiplier), (int) (214 * Utils.scaledDensityMultiplier),
+				(int) (224 * Utils.scaledDensityMultiplier));
 
 	}
 

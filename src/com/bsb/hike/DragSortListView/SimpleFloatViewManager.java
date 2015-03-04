@@ -1,8 +1,5 @@
 package com.bsb.hike.DragSortListView;
 
-import com.bsb.hike.R;
-import com.bsb.hike.utils.Logger;
-
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Point;
@@ -11,6 +8,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.ListView;
+
+import com.bsb.hike.R;
 
 /**
  * Simple implementation of the FloatViewManager class. Uses list items as they appear in the ListView to create the floating View.

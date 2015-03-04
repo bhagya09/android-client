@@ -1,6 +1,5 @@
 package com.bsb.hike.ui;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -21,8 +20,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikeConstants.ImageQuality;
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -205,7 +204,7 @@ public class HikeDialog
 		animation.setFillAfter(true);
 		betaTag.startAnimation(animation);
 		dialog.show();
-		HikeSharedPreferenceUtil.getInstance(context).saveData(HikeMessengerApp.SHOWN_VOIP_INTRO_TIP, true);
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.SHOWN_VOIP_INTRO_TIP, true);
 		return dialog;
 	}
 
@@ -328,7 +327,7 @@ public class HikeDialog
 					break;
 				case R.id.btn_just_once:
 					saveImageQualitySettings(editor, small, medium, original);
-					HikeSharedPreferenceUtil.getInstance(context).saveData(HikeConstants.REMEMBER_IMAGE_CHOICE, false);
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.REMEMBER_IMAGE_CHOICE, false);
 					callOnSucess(listener, dialog);
 					break;
 				}

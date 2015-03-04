@@ -14,8 +14,11 @@ import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.ui.fragments.ImageViewerFragment;
+import com.bsb.hike.voip.view.CallIssuesPopup;
+import com.bsb.hike.voip.view.CallRatePopup;
+import com.bsb.hike.voip.view.IVoipCallListener;
 
-public class HikeAppStateBaseFragmentActivity extends SherlockFragmentActivity implements Listener
+public class HikeAppStateBaseFragmentActivity extends SherlockFragmentActivity implements Listener, IVoipCallListener
 {
 
 	private static final String TAG = "HikeAppState";
@@ -162,5 +165,38 @@ public class HikeAppStateBaseFragmentActivity extends SherlockFragmentActivity i
 	public boolean isFragmentAdded(String tag)
 	{
 		return getSupportFragmentManager().findFragmentByTag(tag) != null;
+	}
+
+	@Override
+	public void onVoipCallEnd(final Bundle bundle, final String tag) 
+	{
+		runOnUiThread(new Runnable()
+		{
+
+			@Override
+			public void run()
+			{
+				boolean isCallRateFragShowing = isFragmentAdded(HikeConstants.VOIP_CALL_RATE_FRAGMENT_TAG);
+				boolean isCallIssuesFragShowing = isFragmentAdded(HikeConstants.VOIP_CALL_ISSUES_FRAGMENT_TAG);
+				if(tag.equals(HikeConstants.VOIP_CALL_RATE_FRAGMENT_TAG) && !isCallRateFragShowing && !isCallIssuesFragShowing)
+				{
+					CallRatePopup callRatePopup = new CallRatePopup();
+					callRatePopup.setArguments(bundle);
+
+					FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+					fragmentTransaction.add(callRatePopup, HikeConstants.VOIP_CALL_RATE_FRAGMENT_TAG);
+					fragmentTransaction.commitAllowingStateLoss();
+				}
+				else if(tag.equals(HikeConstants.VOIP_CALL_ISSUES_FRAGMENT_TAG) && !isCallIssuesFragShowing)
+				{
+					CallIssuesPopup callIssuesPopup = new CallIssuesPopup();
+					callIssuesPopup.setArguments(bundle);
+
+					FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+					fragmentTransaction.add(callIssuesPopup, HikeConstants.VOIP_CALL_ISSUES_FRAGMENT_TAG);
+					fragmentTransaction.commitAllowingStateLoss();
+				}
+			}
+		});
 	}
 }

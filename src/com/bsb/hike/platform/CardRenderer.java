@@ -1,29 +1,32 @@
 package com.bsb.hike.platform;
 
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.content.Context;
 import android.graphics.drawable.BitmapDrawable;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.adapters.MessagesAdapter;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.models.ConvMessage;
-import com.bsb.hike.utils.Utils;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.view.CustomFontTextView;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 
 /**
  * Created by shobhit on 29/10/14.
@@ -110,7 +113,7 @@ public class CardRenderer implements View.OnLongClickListener {
 
     public int getItemViewType(ConvMessage convMessage) {
 
-        Log.d(CardRenderer.class.getSimpleName(), "hash code for convMessage is " + String.valueOf(convMessage.hashCode()));
+        Logger.d(CardRenderer.class.getSimpleName(), "hash code for convMessage is " + String.valueOf(convMessage.hashCode()));
         int cardType = convMessage.platformMessageMetadata.layoutId;
         if (convMessage.isSent()) {
 
@@ -129,6 +132,7 @@ public class CardRenderer implements View.OnLongClickListener {
 
                 case 5:
                     return COLOR_CARD_LAYOUT_SENT;
+
 
             }
 
@@ -149,6 +153,7 @@ public class CardRenderer implements View.OnLongClickListener {
                 case 5:
                     return COLOR_CARD_LAYOUT_RECEIVED;
 
+
             }
 
         }
@@ -156,7 +161,7 @@ public class CardRenderer implements View.OnLongClickListener {
 
     }
 
-    public View getView(View view, ConvMessage convMessage, ViewGroup parent) {
+    public View getView(View view, final ConvMessage convMessage, ViewGroup parent) {
 
         LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
@@ -338,14 +343,12 @@ public class CardRenderer implements View.OnLongClickListener {
     }
 
     private void sendLogEvent(String cardName, String actionText) throws JSONException {
-        JSONObject analytics = new JSONObject();
-        JSONObject metaDataJSON = new JSONObject();
-        metaDataJSON.put(CardConstants.CARD_NAME, cardName);
-        metaDataJSON.put(CardConstants.ACTION_TEXT, actionText);
-        metaDataJSON.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.CONTENT_CARD_TAPPED);
-        metaDataJSON.put(HikeConstants.LogEvent.SOURCE_APP, HikePlatformConstants.GAME_SDK_ID);
-        analytics.put(HikeConstants.METADATA, metaDataJSON);
-        Utils.sendLogEvent(analytics);
+        JSONObject metadata = new JSONObject();
+        metadata.put(CardConstants.CARD_NAME, cardName);
+        metadata.put(CardConstants.ACTION_TEXT, actionText);
+        metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.CONTENT_CARD_TAPPED);
+        metadata.put(HikeConstants.LogEvent.SOURCE_APP, HikePlatformConstants.GAME_SDK_ID);
+        HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
     }
 
 

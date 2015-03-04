@@ -17,7 +17,7 @@ public class BootService extends BroadcastReceiver
 	public void onReceive(Context ctx, Intent intent)
 	{
 		Logger.i("HikeBootService", "Received onBoot intent");
-		HikeSharedPreferenceUtil mprefs = HikeSharedPreferenceUtil.getInstance(ctx);
+		HikeSharedPreferenceUtil mprefs = HikeSharedPreferenceUtil.getInstance();
 
 		// GCM_ID_SENT_PRELOAD=true,User Auth=false-->Best Scenario
 
@@ -29,7 +29,7 @@ public class BootService extends BroadcastReceiver
 		if (TextUtils.isEmpty(mprefs.getData(HikeMessengerApp.TOKEN_SETTING, null)))
 		{
 			return;
-		}
+		}		
 		
 		if(!Utils.isUserSignedUp(ctx.getApplicationContext(), false))
 		{
@@ -37,7 +37,6 @@ public class BootService extends BroadcastReceiver
 		}
 		
 		Intent startServiceIntent = new Intent(ctx, HikeService.class);
-		ctx.startService(startServiceIntent);
+		ctx.startService(startServiceIntent);		
 	}
-
 }

@@ -23,7 +23,7 @@
                 android:paddingLeft="11dp"
                 android:paddingRight="11dp"
                 android:text="@string/terms"
-                android:textColor="@color/standerd_grey"
+                android:textColor="@color/standard_grey"
                 android:textSize="14sp" />
         </LinearLayout>
         

@@ -460,7 +460,6 @@ public class CropImage extends MonitoredActivity
 
 	Runnable mRunFaceDetection = new Runnable()
 	{
-		@SuppressWarnings("hiding")
 		float mScale = 1F;
 
 		Matrix mImageMatrix;
