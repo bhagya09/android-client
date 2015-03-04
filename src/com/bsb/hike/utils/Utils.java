@@ -5204,10 +5204,11 @@ public class Utils
 		
         if (android.os.Build.VERSION.SDK_INT >= 14 && context != null) {
 			Cursor c = context.getContentResolver().query(ContactsContract.Profile.CONTENT_URI, null, null, null, null);
-			if (c.getCount() > 0) {
-				c.moveToFirst();
-				name = c.getString(c.getColumnIndex("display_name"));
-				c.close();
+			if (c != null) {
+				if (c.moveToFirst()) {
+					name = c.getString(c.getColumnIndex("display_name"));
+				}
+				c.close();				
 			}
         }
         
