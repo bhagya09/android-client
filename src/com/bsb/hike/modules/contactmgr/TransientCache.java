@@ -1121,4 +1121,15 @@ public class TransientCache extends ContactsCache
 		blockedUserList.addAll(allUserList);
 		return blockedUserList;
 	}
+
+	/**
+	 * Clears the memory {@see #clearMemory()} and make all references null
+	 */
+	void shutdown()
+	{
+		clearMemory();
+		hDb = null;
+		transientContacts = null;
+		groupParticipants = null;
+	}
 }

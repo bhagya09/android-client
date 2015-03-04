@@ -1082,4 +1082,16 @@ class PersistenceCache extends ContactsCache
 			readLock.unlock();
 		}
 	}
+
+	/**
+	 * Clears the memory {@see #clearMemory()} and make all references null
+	 */
+	void shutdown()
+	{
+		clearMemory();
+		hDb = null;
+		convsContactsPersistence = null;
+		groupContactsPersistence = null;
+		groupPersistence = null;
+	}
 }

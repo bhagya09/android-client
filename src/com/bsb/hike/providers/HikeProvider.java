@@ -61,12 +61,10 @@ public class HikeProvider extends ContentProvider
 	@Override
 	public boolean onCreate()
 	{
-		conManager = ContactManager.getInstance();
-
-		// It is observed that providers get initiated before conManager (conManager == null). Hence need to init
-		conManager.init(getContext());
-
-		hUserDb = conManager.getReadableDatabase();
+		/*
+		 * Contact Manager getInstance will initialize contact manager if already not initialized and returns the ContactManager's instance
+		 */
+		hUserDb = ContactManager.getInstance().getReadableDatabase();
 
 		// Check for initialization of required objects
 		if (hUserDb != null)

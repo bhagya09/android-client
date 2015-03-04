@@ -943,8 +943,10 @@ public void onTrimMemory(int level)
 
 	private void initContactManager()
 	{
+		/*
+		 * Contact Manager getInstance will initialize contact manager if already not initialized and returns the ContactManager's instance
+		 */
 		conMgr = ContactManager.getInstance();
-		conMgr.init(getApplicationContext());
 	}
 	
 	public static ContactManager getContactManager()
