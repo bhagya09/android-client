@@ -104,7 +104,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	public void init(Context ctx)
 	{
 		context = ctx.getApplicationContext();
-		hDb = new HikeUserDatabase(ctx);
+		hDb = HikeUserDatabase.getInstance();
 		persistenceCache = new PersistenceCache(hDb);
 		transientCache = new TransientCache(hDb);
 

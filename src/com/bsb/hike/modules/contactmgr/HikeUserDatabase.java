@@ -51,10 +51,35 @@ class HikeUserDatabase extends SQLiteOpenHelper
 {
 	private SQLiteDatabase mDb;
 
+	private static volatile HikeUserDatabase hikeUserDatabase;
+	
 	private SQLiteDatabase mReadDb;
 
 	private Context mContext;
-
+	
+	private HikeUserDatabase(Context context)
+	{
+		super(context, DBConstants.USERS_DATABASE_NAME, null, DBConstants.USERS_DATABASE_VERSION);
+		this.mContext = context;
+		mDb = getWritableDatabase();
+		mReadDb = getReadableDatabase();
+	}
+	
+	public static HikeUserDatabase getInstance()
+	{
+		if (hikeUserDatabase == null)
+		{
+			synchronized (HikeUserDatabase.class)
+			{
+				if (hikeUserDatabase == null)
+				{
+					hikeUserDatabase = new HikeUserDatabase(HikeMessengerApp.getInstance().getApplicationContext());
+				}
+			}
+		}
+		return hikeUserDatabase;
+	}
+	
 	@Override
 	public void onCreate(SQLiteDatabase db)
 	{
@@ -100,14 +125,6 @@ class HikeUserDatabase extends SQLiteOpenHelper
 
 		create = "CREATE INDEX IF NOT EXISTS " + DBConstants.ROUNDED_THUMBNAIL_INDEX + " ON " + DBConstants.THUMBNAILS_TABLE + " (" + DBConstants.MSISDN + ")";
 		db.execSQL(create);
-	}
-
-	HikeUserDatabase(Context context)
-	{
-		super(context, DBConstants.USERS_DATABASE_NAME, null, DBConstants.USERS_DATABASE_VERSION);
-		this.mContext = context;
-		mDb = getWritableDatabase();
-		mReadDb = getReadableDatabase();
 	}
 
 	@Override
