@@ -6452,7 +6452,7 @@ public class ChatThread extends HikeAppStateBaseFragmentActivity implements Hike
 			{
 				final String fPath = filePath;
 				final int atType = attachementType;
-				
+				getApplicationContext().sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://" + new File(filePath))));
 				HikeDialog.showDialog(ChatThread.this, HikeDialog.SHARE_IMAGE_QUALITY_DIALOG, new HikeDialog.HikeDialogListener()
 				{
 					@Override
@@ -8030,7 +8030,7 @@ public class ChatThread extends HikeAppStateBaseFragmentActivity implements Hike
 
 			if(mAdapter.containsMediaMessage(selectedMsgIdsToDelete))
 			{
-				deleteConfirmDialog.setCheckBox(R.string.delete_media_from_sdcard);
+				deleteConfirmDialog.setCheckBox(R.string.delete_media_from_sdcard, true);
 			}
 			deleteConfirmDialog.setOkButton(R.string.delete, dialogOkClickListener);
 			deleteConfirmDialog.setCancelButton(R.string.cancel);

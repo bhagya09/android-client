@@ -897,7 +897,7 @@ public class AccountUtils
 		}
 	}
 
-	public static void deleteSocialCredentials(boolean facebook) throws NetworkErrorException, IllegalStateException
+	/*public static void deleteSocialCredentials(boolean facebook) throws NetworkErrorException, IllegalStateException
 	{
 		String url = facebook ? "/account/connect/fb" : "/account/connect/twitter";
 		HttpDelete delete = new HttpDelete(base + url);
@@ -907,7 +907,7 @@ public class AccountUtils
 		{
 			throw new NetworkErrorException("Could not delete account");
 		}
-	}
+	}*/
 
 	public static String getServerUrl()
 	{

@@ -137,11 +137,12 @@ public class CustomAlertDialog extends Dialog
 		bodyCheckBox.setOnCheckedChangeListener(l);
 		bodyCheckBox.setText(checkBoxStringResId);
 	}
-	
-	public void setCheckBox(int checkBoxStringResId)
+
+	public void setCheckBox(int checkBoxStringResId, boolean defaultCheckState)
 	{
 		bodyCheckBox.setVisibility(View.VISIBLE);
 		bodyCheckBox.setText(checkBoxStringResId);
+		bodyCheckBox.setChecked(defaultCheckState);
 	}
 	
 	public boolean isChecked()

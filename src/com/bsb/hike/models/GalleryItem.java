@@ -13,12 +13,15 @@ public class GalleryItem implements Parcelable
 
 	private String filePath;
 
-	public GalleryItem(long id, String bucketId, String name, String filePath)
+	private int bucketCount;
+
+	public GalleryItem(long id, String bucketId, String name, String filePath, int bucketCount)
 	{
 		this.id = id;
 		this.bucketId = bucketId;
 		this.name = name;
 		this.filePath = filePath;
+		this.bucketCount = bucketCount;
 	}
 
 	public GalleryItem(Parcel source)
@@ -47,6 +50,11 @@ public class GalleryItem implements Parcelable
 	public String getFilePath()
 	{
 		return filePath;
+	}
+
+	public int getBucketCount()
+	{
+		return bucketCount;
 	}
 
 	@Override

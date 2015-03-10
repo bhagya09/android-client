@@ -1,7 +1,9 @@
 package com.bsb.hike.ui;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -60,6 +62,18 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 
 	private int velocity;
 
+	private final String ALL_IMAGES_BUCKET_NAME = "All images";
+
+	private final String HIKE_IMAGES = "hike";
+
+	private final String CAMERA_IMAGES = "Camera";
+
+	private final String TYPE_JPG = ".jpg";
+
+	private final String TYPE_JPEG = ".jpeg";
+
+	private final String TYPE_PNG = ".png";
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -75,6 +89,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 
 		String selection = null;
 		String[] args = null;
+		Cursor cursor = null;
 
 		Bundle data;
 		if (savedInstanceState != null)
@@ -92,13 +107,19 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 		String sortBy;
 		if (selectedBucket != null)
 		{
-			selection = MediaStore.Images.Media.BUCKET_ID + "=?";
-			args = new String[] { selectedBucket.getBucketId() };
+			if(selectedBucket.getName().equals(ALL_IMAGES_BUCKET_NAME))
+			{
+				selection = null;
+				args = null;
+			}
+			else
+			{
+				selection = MediaStore.Images.Media.BUCKET_ID + "=?";
+				args = new String[] { selectedBucket.getBucketId() };
+			}
 
 			isInsideAlbum = true;
-
 			albumTitle = selectedBucket.getName();
-
 			/*
 			 * Adding the previously selected items.
 			 */
@@ -117,8 +138,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 				}
 				setMultiSelectTitle();
 			}
-
-			sortBy = MediaStore.Images.Media.DATE_MODIFIED + " DESC";
+			sortBy = MediaStore.Images.Media.DATE_TAKEN + " DESC";
 		}
 		else
 		{
@@ -126,10 +146,36 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 
 			isInsideAlbum = false;
 
-			sortBy = MediaStore.Images.Media.DATE_ADDED + " ASC";
+			sortBy = MediaStore.Images.Media.DATE_TAKEN + " DESC";
 		}
 
-		Cursor cursor = getContentResolver().query(uri, projection, selection, args, sortBy);
+		/*
+		 * Creating All images bucket where we will show all images present in the device.
+		 */
+		if(!isInsideAlbum)
+		{
+			String[] proj = { MediaStore.Images.Media._ID, MediaStore.Images.Media.DATA };
+			cursor = getContentResolver().query(uri, proj, null, null, sortBy);
+			if (cursor != null)
+			{
+				try
+				{
+					int idIdx = cursor.getColumnIndex(MediaStore.Images.Media._ID);
+					int dataIdx = cursor.getColumnIndex(MediaStore.Images.Media.DATA);
+					if(cursor.moveToNext())
+					{
+						GalleryItem allImgItem = new GalleryItem(cursor.getLong(idIdx), null, ALL_IMAGES_BUCKET_NAME, cursor.getString(dataIdx), cursor.getCount());
+						galleryItemList.add(allImgItem);
+					}
+				}
+				finally
+				{
+					cursor.close();
+				}
+			}
+		}
+
+		cursor = getContentResolver().query(uri, projection, selection, args, sortBy);
 
 		if (cursor != null)
 		{
@@ -142,9 +188,19 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 
 				while (cursor.moveToNext())
 				{
-					GalleryItem galleryItem = new GalleryItem(cursor.getLong(idIdx), cursor.getString(bucketIdIdx), cursor.getString(nameIdx), cursor.getString(dataIdx));
-
+					int count = 0;
+					if(!isInsideAlbum)
+					{
+						String dirPath = cursor.getString(dataIdx);
+						dirPath = dirPath.substring(0, dirPath.lastIndexOf("/"));
+						count = getGalleryItemCount(dirPath);
+					}
+					GalleryItem galleryItem = new GalleryItem(cursor.getLong(idIdx), cursor.getString(bucketIdIdx), cursor.getString(nameIdx), cursor.getString(dataIdx), count);
 					galleryItemList.add(galleryItem);
+					if(!isInsideAlbum)
+					{
+						galleryItemList = reOrderList(galleryItemList);
+					}
 				}
 			}
 			finally
@@ -152,6 +208,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 				cursor.close();
 			}
 		}
+
 		GridView gridView = (GridView) findViewById(R.id.gallery);
 
 		int sizeOfImage = getResources().getDimensionPixelSize(isInsideAlbum ? R.dimen.gallery_album_item_size : R.dimen.gallery_cover_item_size);
@@ -175,6 +232,70 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 		{
 			setupActionBar(albumTitle);
 		}
+	}
+
+	private ArrayList<GalleryItem>  reOrderList(List<GalleryItem> list)
+	{
+		ArrayList<GalleryItem> resultList = new ArrayList<GalleryItem>();
+		GalleryItem allImgItem = null;
+		GalleryItem hikeImages = null;
+		for (Iterator iterator = list.iterator(); iterator.hasNext();) {
+			GalleryItem galleryItem = (GalleryItem) iterator.next();
+			if(galleryItem.getName().startsWith(HIKE_IMAGES))
+			{
+				hikeImages = galleryItem;
+				iterator.remove();
+			}
+			else if(galleryItem.getName().startsWith(CAMERA_IMAGES))
+			{
+				resultList.add(galleryItem);
+				iterator.remove();
+			}
+			else if(galleryItem.getName().startsWith(ALL_IMAGES_BUCKET_NAME))
+			{
+				allImgItem = galleryItem;
+				iterator.remove();
+			}
+		}
+		if(allImgItem != null)
+			resultList.add(allImgItem);
+		if(hikeImages != null)
+			resultList.add(hikeImages);
+		for (Iterator iterator = list.iterator(); iterator.hasNext();) {
+			GalleryItem galleryItem = (GalleryItem) iterator.next();
+			resultList.add(galleryItem);
+		}
+		return resultList;
+	}
+
+	private int getGalleryItemCount(String dirPath)
+	{
+		File dir = new File(dirPath);
+		int number = 0;
+		if (dir != null && dir.exists()) {
+			File[] files = dir.listFiles();
+			if (files != null) {
+				for (File file : files) {
+					if (file.isFile())// Check file or directory
+					{
+						if (isImage(file.getName().toLowerCase())) {
+							number++;
+						}
+					}
+				}
+			}
+		}
+		return number;
+	}
+
+	private boolean isImage(String fileName)
+	{
+		boolean isImg = false;
+		if (fileName.endsWith(TYPE_JPG) || fileName.endsWith(TYPE_JPEG)
+				|| fileName.endsWith(TYPE_PNG)) {
+			isImg = true;
+		}
+		return isImg;
 	}
 
 	@Override

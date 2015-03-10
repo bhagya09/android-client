@@ -622,6 +622,11 @@ public class MqttAsyncClient implements IMqttAsyncClient
 	{
 		return comms.isDisconnecting();
 	}
+	
+	public boolean isDisconnected()
+	{
+		return comms.isDisconnected();
+	}
 
 	/*
 	 * (non-Javadoc)

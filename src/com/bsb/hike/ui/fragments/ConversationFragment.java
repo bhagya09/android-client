@@ -501,8 +501,8 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 			// Changing the footer state to halfOpen when the reward is unlocked.
 			setFooterHalfOpen();
 			
-
-			llChatReward.setOnClickListener(null);
+			
+			//llChatReward.setOnClickListener(null);
 			
 			progressNux.setVisibility(View.GONE);
 		}
@@ -675,6 +675,16 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 			 * On click of Reward Bar to open the footer to expanded view.
 			 */
 			
+			if (mmNuxManager.getCurrentState() == NUXConstants.NUX_KILLED||mmNuxManager.getCurrentState()==NUXConstants.NUX_NEW)
+			{
+				Toast.makeText(getActivity(), getActivity().getString(R.string.nux_expired), Toast.LENGTH_SHORT).show();
+			}
+			else if(mmNuxManager.getCurrentState()==NUXConstants.COMPLETED)
+			{
+				onClick(chatProgress);
+			}
+			else
+			{
 			chatProgress.setText(NUXManager.getInstance().getNuxChatRewardPojo().getDetailsText());
 
 		
@@ -699,6 +709,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 			catch (JSONException e)
 			{
 				e.printStackTrace();
+			}
 			}
 			break;
 

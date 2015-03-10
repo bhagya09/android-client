@@ -8,10 +8,8 @@ import org.json.JSONObject;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -22,7 +20,6 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.bsb.hike.HikeConstants;
@@ -32,26 +29,20 @@ import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
-import com.bsb.hike.http.HikeHttpRequest;
-import com.bsb.hike.http.HikeHttpRequest.HikeHttpCallback;
-import com.bsb.hike.http.HikeHttpRequest.RequestType;
-import com.bsb.hike.tasks.HikeHTTPTask;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentManager;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
-import com.facebook.Session;
-import com.facebook.SessionState;
 
 public class TellAFriend extends HikeAppStateBaseFragmentActivity implements Listener, OnItemClickListener
 {
 
 	private static final int SMS = 1;
 
-	private static final int FACEBOOK = 2;
+	//private static final int FACEBOOK = 2;
 
-	private static final int TWITTER = 3;
+	//private static final int TWITTER = 3;
 
 	private static final int EMAIL = 4;
 
@@ -89,8 +80,8 @@ public class TellAFriend extends HikeAppStateBaseFragmentActivity implements Lis
 		{
 			items.add(getString(R.string.invite_with_watsapp));
 		}
-		items.add(getString(R.string.facebook));
-		items.add(getString(R.string.twitter));
+		//items.add(getString(R.string.facebook));
+		//items.add(getString(R.string.twitter));
 		items.add(getString(R.string.email));
 		items.add(getString(R.string.share_via_other));
 		items.add(getString(R.string.invite_friends));
@@ -100,8 +91,8 @@ public class TellAFriend extends HikeAppStateBaseFragmentActivity implements Lis
 		{
 			itemIcons.add(R.drawable.ic_whatsapp);
 		}
-		itemIcons.add(R.drawable.ic_invite_fb);
-		itemIcons.add(R.drawable.ic_invite_twitter);
+		//itemIcons.add(R.drawable.ic_invite_fb);
+		//itemIcons.add(R.drawable.ic_invite_twitter);
 		itemIcons.add(R.drawable.ic_invite_email);
 		itemIcons.add(R.drawable.ic_invite_other);
 
@@ -112,8 +103,8 @@ public class TellAFriend extends HikeAppStateBaseFragmentActivity implements Lis
 		{
 			itemTags.add(WATSAPP);
 		}
-		itemTags.add(FACEBOOK);
-		itemTags.add(TWITTER);
+		//itemTags.add(FACEBOOK);
+		//itemTags.add(TWITTER);
 		itemTags.add(EMAIL);
 		itemTags.add(OTHER);
 		itemTags.add(INVITE_EXTRA);
@@ -220,7 +211,7 @@ public class TellAFriend extends HikeAppStateBaseFragmentActivity implements Lis
 	protected void onActivityResult(int requestCode, int resultCode, Intent data)
 	{
 		super.onActivityResult(requestCode, resultCode, data);
-		if (requestCode == HikeConstants.FACEBOOK_REQUEST_CODE)
+		/*if (requestCode == HikeConstants.FACEBOOK_REQUEST_CODE)
 		{
 			Session session = Session.getActiveSession();
 			if (session != null && resultCode == RESULT_OK)
@@ -233,13 +224,13 @@ public class TellAFriend extends HikeAppStateBaseFragmentActivity implements Lis
 				session.closeAndClearTokenInformation();
 				Session.setActiveSession(null);
 			}
-		}
+		}*/
 	}
 
 	@Override
 	public void onEventReceived(String type, Object object)
 	{
-		if (HikePubSub.SOCIAL_AUTH_COMPLETED.equals(type))
+		/*if (HikePubSub.SOCIAL_AUTH_COMPLETED.equals(type))
 		{
 			final boolean facebook = (Boolean) object;
 			runOnUiThread(new Runnable()
@@ -260,7 +251,7 @@ public class TellAFriend extends HikeAppStateBaseFragmentActivity implements Lis
 				}
 			});
 		}
-		else if (HikePubSub.DISMISS_POSTING_DIALOG.equals(type))
+		else*/ if (HikePubSub.DISMISS_POSTING_DIALOG.equals(type))
 		{
 			runOnUiThread(new Runnable()
 			{
@@ -278,7 +269,7 @@ public class TellAFriend extends HikeAppStateBaseFragmentActivity implements Lis
 		}
 	}
 
-	private void onClickPickFriends()
+	/*private void onClickPickFriends()
 	{
 		startPickFriendsActivity();
 	}
@@ -404,7 +395,7 @@ public class TellAFriend extends HikeAppStateBaseFragmentActivity implements Lis
 			editor.commit();
 			onItemClick(null, null, facebook ? 1 : 2, 0);
 		}
-	}
+	}*/
 
 	private void setupActionBar()
 	{
@@ -454,7 +445,7 @@ public class TellAFriend extends HikeAppStateBaseFragmentActivity implements Lis
 				HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);	
 				sendInviteViaWatsApp();
 				break;
-			case FACEBOOK:
+			/*case FACEBOOK:
 				onClickPickFriends();
 				break;
 	
@@ -467,7 +458,7 @@ public class TellAFriend extends HikeAppStateBaseFragmentActivity implements Lis
 				{
 					postToSocialNetwork(false);
 				}
-				break;
+				break;*/
 	
 			case EMAIL:
 				Intent mailIntent = new Intent(Intent.ACTION_SENDTO);

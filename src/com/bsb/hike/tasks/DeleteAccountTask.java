@@ -21,7 +21,6 @@ import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.NUXManager;
 import com.bsb.hike.utils.StickerManager;
-import com.facebook.Session;
 import com.google.android.gcm.GCMRegistrar;
 
 public class DeleteAccountTask extends AsyncTask<Void, Void, Boolean> implements ActivityCallableTask
@@ -134,12 +133,12 @@ public class DeleteAccountTask extends AsyncTask<Void, Void, Boolean> implements
 		/**
 		 * Clearing facebook session tokens
 		 */
-		Session session = Session.getActiveSession();
+		/*Session session = Session.getActiveSession();
 		if (session != null)
 		{
 			session.closeAndClearTokenInformation();
 			Session.setActiveSession(null);
-		}
+		}*/
 
 		/**
 		 * Deleting residual sticker data

@@ -484,7 +484,7 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity im
 							// if delete media from phone is checked
 							if(deleteConfirmDialog.isChecked() && hsf.exactFilePathFileExists())
 							{
-								hsf.getFileFromExactFilePath().delete();
+								hsf.delete(getApplicationContext());
 							}
 							iterator.remove();
 						}
@@ -495,7 +495,7 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity im
 				}
 			};
 
-			deleteConfirmDialog.setCheckBox(R.string.delete_media_from_sdcard);
+			deleteConfirmDialog.setCheckBox(R.string.delete_media_from_sdcard, true);
 			deleteConfirmDialog.setOkButton(R.string.delete, dialogOkClickListener);
 			deleteConfirmDialog.setCancelButton(R.string.cancel);
 			deleteConfirmDialog.show();

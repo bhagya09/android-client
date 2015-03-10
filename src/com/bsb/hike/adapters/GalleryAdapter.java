@@ -87,8 +87,11 @@ public class GalleryAdapter extends BaseAdapter
 			holder = new ViewHolder();
 
 			holder.galleryName = (TextView) convertView.findViewById(R.id.album_title);
+			holder.galleryCount = (TextView) convertView.findViewById(R.id.album_count);
 			holder.galleryThumb = (ImageView) convertView.findViewById(R.id.album_image);
 			holder.selected = convertView.findViewById(R.id.selected);
+			if (!isInsideAlbum)
+				(convertView.findViewById(R.id.album_layout)).setVisibility(View.VISIBLE);
 
 			holder.selected.setBackgroundResource(selectedScreen ? R.drawable.gallery_item_selected_selector : R.drawable.gallery_item_selector);
 
@@ -106,10 +109,19 @@ public class GalleryAdapter extends BaseAdapter
 		{
 			holder.galleryName.setVisibility(View.VISIBLE);
 			holder.galleryName.setText(galleryItem.getName());
+
+			if(galleryItem.getBucketCount() > 0)
+			{
+				holder.galleryCount.setVisibility(View.VISIBLE);
+				holder.galleryCount.setText(Integer.toString(galleryItem.getBucketCount()));
+			}
+			else
+				holder.galleryCount.setVisibility(View.GONE);
 		}
 		else
 		{
 			holder.galleryName.setVisibility(View.GONE);
+			holder.galleryCount.setVisibility(View.GONE);
 		}
 		if (galleryItem != null)
 		{
@@ -142,6 +154,8 @@ public class GalleryAdapter extends BaseAdapter
 		TextView galleryName;
 
 		View selected;
+
+		TextView galleryCount;
 	}
 
 	public void setIsListFlinging(boolean b)

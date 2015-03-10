@@ -812,6 +812,16 @@ public class UploadFileTask extends FileTransferBase
 		{
 			chunkSize = chunkSize / 5;
 		}
+		/*
+		 * Safe check for the case where chunk size equals zero while calculating based on network and device memory.
+		 * https://hike.fogbugz.com/default.asp?42482
+		 */
+		if(chunkSize <= 0)
+		{
+			FTAnalyticEvents.sendFTDevEvent(FTAnalyticEvents.UPLOAD_FILE_TASK, "Chunk size is less than or equal to 0, so setting it to default i.e. 100kb");
+			chunkSize = DEFAULT_CHUNK_SIZE;
+		}
+
 		if (chunkSize > length)
 			chunkSize = (int) length;
 		setBufferSize();

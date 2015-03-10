@@ -1,6 +1,5 @@
 package com.bsb.hike.ui;
 
-import java.util.Arrays;
 import java.util.Calendar;
 
 import org.json.JSONException;
@@ -15,7 +14,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.view.ViewPager;
 import android.text.Editable;
-import android.text.InputFilter;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.KeyEvent;
@@ -48,9 +46,9 @@ import com.bsb.hike.http.HikeHttpRequest.RequestType;
 import com.bsb.hike.models.StatusMessage;
 import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.tasks.HikeHTTPTask;
-import com.bsb.hike.utils.AuthSocialAccountBaseActivity;
 import com.bsb.hike.utils.EmoticonConstants;
 import com.bsb.hike.utils.EmoticonTextWatcher;
+import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeTip;
 import com.bsb.hike.utils.HikeTip.TipType;
 import com.bsb.hike.utils.Logger;
@@ -58,11 +56,8 @@ import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.CustomLinearLayout;
 import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 import com.bsb.hike.view.StickerEmoticonIconPageIndicator;
-import com.facebook.Session;
-import com.facebook.Session.StatusCallback;
-import com.facebook.SessionState;
 
-public class StatusUpdate extends AuthSocialAccountBaseActivity implements Listener, OnSoftKeyboardListener, EmoticonClickListener
+public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Listener, OnSoftKeyboardListener, EmoticonClickListener
 {
 
 	private class ActivityTask
@@ -73,9 +68,9 @@ public class StatusUpdate extends AuthSocialAccountBaseActivity implements Liste
 
 		HikeHTTPTask hikeHTTPTask = null;
 
-		boolean fbSelected = false;
+		/*boolean fbSelected = false;
 
-		boolean twitterSelected = false;
+		boolean twitterSelected = false;*/
 
 		boolean emojiShowing = false;
 
@@ -114,9 +109,9 @@ public class StatusUpdate extends AuthSocialAccountBaseActivity implements Liste
 
 	private TextView title;
 
-	private View fb;
+	//private View fb;
 
-	private View twitter;
+	//private View twitter;
 
 	@Override
 	public Object onRetainCustomNonConfigurationInstance()
@@ -192,11 +187,11 @@ public class StatusUpdate extends AuthSocialAccountBaseActivity implements Liste
 		});
 		statusTxt.addTextChangedListener(new EmoticonTextWatcher());
 
-		fb = findViewById(R.id.post_fb_btn);
+		/*fb = findViewById(R.id.post_fb_btn);
 		twitter = findViewById(R.id.post_twitter_btn);
 
 		fb.setSelected(mActivityTask.fbSelected);
-		twitter.setSelected(mActivityTask.twitterSelected);
+		twitter.setSelected(mActivityTask.twitterSelected);*/
 
 		if (mActivityTask.emojiShowing)
 		{
@@ -308,7 +303,7 @@ public class StatusUpdate extends AuthSocialAccountBaseActivity implements Liste
 		}
 	}
 
-	public void onTwitterClick(View v)
+	/*public void onTwitterClick(View v)
 	{
 		setSelectionSocialButton(false, !v.isSelected());
 		if (!v.isSelected() || preferences.getBoolean(HikeMessengerApp.TWITTER_AUTH_COMPLETE, false))
@@ -417,6 +412,7 @@ public class StatusUpdate extends AuthSocialAccountBaseActivity implements Liste
 			makeMeRequest(session, session.getAccessToken(), session.getExpirationDate().getTime());
 		}
 	}
+	*/
 
 	public void onEmojiClick(View v)
 	{
@@ -433,11 +429,11 @@ public class StatusUpdate extends AuthSocialAccountBaseActivity implements Liste
 
 	public void onMoodClick(View v)
 	{
-		if (findViewById(R.id.post_twitter_btn).isSelected() && statusTxt.length() > HikeConstants.MAX_MOOD_TWITTER_POST_LENGTH)
+		/*if (findViewById(R.id.post_twitter_btn).isSelected() && statusTxt.length() > HikeConstants.MAX_MOOD_TWITTER_POST_LENGTH)
 		{
 			Toast.makeText(getApplicationContext(), R.string.mood_tweet_error, Toast.LENGTH_LONG).show();
 			return;
-		}
+		}*/
 		if (tipView != null)
 		{
 			HikeTip.closeTip(TipType.MOOD, tipView, preferences);
@@ -561,16 +557,16 @@ public class StatusUpdate extends AuthSocialAccountBaseActivity implements Liste
 			status = statusTxt.getText().toString();
 		}
 
-		boolean facebook = findViewById(R.id.post_fb_btn).isSelected();
-		boolean twitter = findViewById(R.id.post_twitter_btn).isSelected();
+		//boolean facebook = findViewById(R.id.post_fb_btn).isSelected();
+		//boolean twitter = findViewById(R.id.post_twitter_btn).isSelected();
 
 		Logger.d(getClass().getSimpleName(), "Status: " + status);
 		JSONObject data = new JSONObject();
 		try
 		{
 			data.put(HikeConstants.STATUS_MESSAGE_2, status);
-			data.put(HikeConstants.FACEBOOK_STATUS, facebook);
-			data.put(HikeConstants.TWITTER_STATUS, twitter);
+			//data.put(HikeConstants.FACEBOOK_STATUS, facebook);
+			//data.put(HikeConstants.TWITTER_STATUS, twitter);
 			if (mActivityTask.moodId != -1)
 			{
 				data.put(HikeConstants.MOOD, mActivityTask.moodId + 1);
@@ -596,7 +592,7 @@ public class StatusUpdate extends AuthSocialAccountBaseActivity implements Liste
 		progressDialog = ProgressDialog.show(this, null, getResources().getString(R.string.updating_status));
 	}
 
-	private void setSelectionSocialButton(boolean facebook, boolean selection)
+	/*private void setSelectionSocialButton(boolean facebook, boolean selection)
 	{
 		View v = findViewById(facebook ? R.id.post_fb_btn : R.id.post_twitter_btn);
 		v.setSelected(selection);
@@ -636,7 +632,7 @@ public class StatusUpdate extends AuthSocialAccountBaseActivity implements Liste
 		{
 			statusTxt.setFilters(new InputFilter[] {});
 		}
-	}
+	}*/
 
 	private void showEmojiSelector()
 	{
@@ -755,7 +751,7 @@ public class StatusUpdate extends AuthSocialAccountBaseActivity implements Liste
 		{
 			onBackPressed();
 		}
-		setCharCountForStatus(findViewById(R.id.post_twitter_btn).isSelected());
+		//setCharCountForStatus(findViewById(R.id.post_twitter_btn).isSelected());
 	}
 
 	private void showCancelButton(boolean moodLayout)
@@ -783,7 +779,7 @@ public class StatusUpdate extends AuthSocialAccountBaseActivity implements Liste
 	protected void onActivityResult(int requestCode, int resultCode, Intent data)
 	{
 		super.onActivityResult(requestCode, resultCode, data);
-		if (requestCode == HikeConstants.FACEBOOK_REQUEST_CODE)
+		/*if (requestCode == HikeConstants.FACEBOOK_REQUEST_CODE)
 		{
 			Session session = Session.getActiveSession();
 			if (session != null && resultCode == RESULT_OK)
@@ -804,7 +800,7 @@ public class StatusUpdate extends AuthSocialAccountBaseActivity implements Liste
 				Session.setActiveSession(null);
 			}
 			fb.setSelected(mActivityTask.fbSelected);
-		}
+		}*/
 	}
 
 	public void toggleEnablePostButton()
@@ -819,7 +815,7 @@ public class StatusUpdate extends AuthSocialAccountBaseActivity implements Liste
 	@Override
 	public void onEventReceived(final String type, Object object)
 	{
-		if (HikePubSub.SOCIAL_AUTH_COMPLETED.equals(type) || HikePubSub.SOCIAL_AUTH_FAILED.equals(type))
+		/*if (HikePubSub.SOCIAL_AUTH_COMPLETED.equals(type) || HikePubSub.SOCIAL_AUTH_FAILED.equals(type))
 		{
 			final boolean facebook = (Boolean) object;
 			runOnUiThread(new Runnable()
@@ -832,7 +828,7 @@ public class StatusUpdate extends AuthSocialAccountBaseActivity implements Liste
 				}
 			});
 		}
-		else if (HikePubSub.STATUS_POST_REQUEST_DONE.equals(type))
+		else*/ if (HikePubSub.STATUS_POST_REQUEST_DONE.equals(type))
 		{
 			final boolean statusPosted = (Boolean) object;
 			runOnUiThread(new Runnable()

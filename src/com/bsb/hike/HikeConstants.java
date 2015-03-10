@@ -9,12 +9,6 @@ public class HikeConstants
 {
 	public static final String APP_PUSH_ID = "297726274089";
 
-	public static final String APP_FACEBOOK_ID = "425850510764995";
-
-	public static final String APP_TWITTER_ID = "7LFaGIe5QXj05WN1YDDVaA";
-
-	public static final String APP_TWITTER_SECRET = "LhgJVQ9eAmbb3EGdXpLD8B4RHf9SGPrzSqaOjuKL5o4";
-
 	public static final String MAP_API_KEY_DEBUG = "0Luu6V6IYSC0UpLSUZe7oO-bvd392OgrXSnY8aA";
 
 	public static final String MAP_API_KEY_PROD = "0Luu6V6IYSC3olBhRm5jHLKDIn5_CA3P17l_3Mw";
@@ -215,7 +209,7 @@ public class HikeConstants
 
 	public static final String FACEBOOK_STATUS = "fb";
 
-	public static final String TWITTER_STATUS = "twitter";
+	//public static final String TWITTER_STATUS = "twitter";
 
 	public static final String TIME_OF_DAY = "timeofday";
 
@@ -507,9 +501,9 @@ public class HikeConstants
 
 	public static final String DELETE_PREF = "deleteAccount";
 
-	public static final String UNLINK_FB = "unlinkFacebook";
+	//public static final String UNLINK_FB = "unlinkFacebook";
 
-	public static final String UNLINK_TWITTER = "unlinkTwitter";
+	//public static final String UNLINK_TWITTER = "unlinkTwitter";
 
 	public static final String BLOKED_LIST_PREF = "blockedList";
 
@@ -726,16 +720,16 @@ public class HikeConstants
 	// Fiksu Usernames
 	public static final String FACEBOOK = "facebook";
 
-	public static final String TWITTER = "twitter";
+	//public static final String TWITTER = "twitter";
 
 	public static final String INVITE = "invite";
 
 	public static final String FIRST_MESSAGE = "first_message";
 
 	// Fiksu Prices
-	public static final int FACEBOOK_CONNECT = 100;
+	//public static final int FACEBOOK_CONNECT = 100;
 
-	public static final int TWITTER_CONNECT = 100;
+	//public static final int TWITTER_CONNECT = 100;
 
 	public static final int INVITE_SENT = 50;
 
@@ -882,9 +876,9 @@ public class HikeConstants
 
 	public static final int MAX_PRECHECKED_CONTACTS = 15;
 
-	public static final int MAX_TWITTER_POST_LENGTH = 140;
+	//public static final int MAX_TWITTER_POST_LENGTH = 140;
 
-	public static final int MAX_MOOD_TWITTER_POST_LENGTH = 130;
+	//public static final int MAX_MOOD_TWITTER_POST_LENGTH = 130;
 
 	public static final int MAX_NUM_STICKER_REQUEST = 10;
 
@@ -1251,7 +1245,7 @@ public class HikeConstants
 
 		public static final String SHOW_FRIENDS_TUTORIAL = "showFriendsTutorial";
 
-		public static final String POST_TO_TWITTER = "postToTwitter";
+		//public static final String POST_TO_TWITTER = "postToTwitter";
 
 		public static final String RECORDING_TIME = "recordingTime";
 
@@ -1394,6 +1388,10 @@ public class HikeConstants
 		public static final String GENERAL_SO_TIMEOUT = "sto";
 
 		public static final String FT_UPLOAD_SO_TIMEOUT = "ftsto";
+		
+		public static final String MAX_MESSAGE_PROCESS_TIME = "mmpt";
+		
+		public static final String CHANGE_MAX_MESSAGE_PROCESS_TIME = "cmpt";
 	}
 
 	public static final class LogEvent
@@ -2283,4 +2281,6 @@ public class HikeConstants
 	public static final String ERROR_MESSAGE = "em";
 	
 	public static final String EXCEPTION_MESSAGE = "exm";
+	
+	public static final String MESSAGE_PROCESS_TIME = "mpt";
 }

@@ -41,6 +41,7 @@ public class AnalyticsConstants
 
 	public static final String ANALYTICS_TAG = "hikeAnalytics";
 	
+	//TODO @Rajesh, I assume you forgot to set these variables as final.
 	public static String TYPE = "t";
 
 	public static String ANALYTICS_EVENT = "le_android";
@@ -54,6 +55,8 @@ public class AnalyticsConstants
 	public static String UI_EVENT = "uiEvent";
 
 	public static String NON_UI_EVENT = "nonUiEvent";
+
+	public static final String DEV_EVENT = "devEvent";
 
 	public static String CLICK_EVENT = "click";
 

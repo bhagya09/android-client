@@ -23,11 +23,6 @@ import org.acra.util.HttpRequest;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import twitter4j.Twitter;
-import twitter4j.TwitterFactory;
-import twitter4j.auth.AccessToken;
-import twitter4j.auth.OAuthAuthorization;
-import twitter4j.conf.ConfigurationContext;
 import android.app.Application;
 import android.content.ComponentName;
 import android.content.Context;
@@ -197,11 +192,11 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 
 	public static final String FACEBOOK_AUTH_COMPLETE = "facebookAuthComplete";
 
-	public static final String TWITTER_TOKEN = "twitterToken";
+	//public static final String TWITTER_TOKEN = "twitterToken";
 
-	public static final String TWITTER_TOKEN_SECRET = "twitterTokenSecret";
+	//public static final String TWITTER_TOKEN_SECRET = "twitterTokenSecret";
 
-	public static final String TWITTER_AUTH_COMPLETE = "twitterAuthComplete";
+	//public static final String TWITTER_AUTH_COMPLETE = "twitterAuthComplete";
 
 	public static final String MSISDN_ENTERED = "msisdnEntered";
 
@@ -459,7 +454,7 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 
 	public static CurrentState currentState = CurrentState.CLOSED;
 
-	private static Twitter twitter;
+	//private static Twitter twitter;
 
 	private static HikePubSub mPubSubInstance;
 
@@ -728,9 +723,9 @@ public void onTrimMemory(int level)
 		HikeMqttPersistence.init(this);
 		SmileyParser.init(this);
 
-		String twitterToken = settings.getString(HikeMessengerApp.TWITTER_TOKEN, "");
-		String twitterTokenSecret = settings.getString(HikeMessengerApp.TWITTER_TOKEN_SECRET, "");
-		makeTwitterInstance(twitterToken, twitterTokenSecret);
+		//String twitterToken = settings.getString(HikeMessengerApp.TWITTER_TOKEN, "");
+		//String twitterTokenSecret = settings.getString(HikeMessengerApp.TWITTER_TOKEN_SECRET, "");
+		//makeTwitterInstance(twitterToken, twitterTokenSecret);
 
 		setIndianUser(settings.getString(COUNTRY_CODE, "").equals(HikeConstants.INDIA_COUNTRY_CODE));
 
@@ -994,42 +989,6 @@ public void onTrimMemory(int level)
 	public static void setIndianUser(boolean val)
 	{
 		isIndianUser = val;
-	}
-
-	public static void makeTwitterInstance(String token, String tokenSecret)
-	{
-		AccessToken accessToken = null;
-		try
-		{
-			accessToken = new AccessToken(token, tokenSecret);
-
-			OAuthAuthorization authorization = new OAuthAuthorization(ConfigurationContext.getInstance());
-			authorization.setOAuthAccessToken(accessToken);
-			authorization.setOAuthConsumer(HikeConstants.APP_TWITTER_ID, HikeConstants.APP_TWITTER_SECRET);
-
-			twitter = new TwitterFactory().getInstance(authorization);
-		}
-		catch (IllegalArgumentException e)
-		{
-			Logger.w("HikeMessengerApp", "Invalid format", e);
-			return;
-		}
-	}
-
-	public static Twitter getTwitterInstance(String token, String tokenSecret)
-	{
-
-		try
-		{
-			makeTwitterInstance(token, tokenSecret);
-
-			return twitter;
-		}
-		catch (IllegalArgumentException e)
-		{
-			Logger.w("HikeMessengerApp", "Invalid format", e);
-			return null;
-		}
 	}
 
 	public static Map<String, TypingNotification> getTypingNotificationSet()

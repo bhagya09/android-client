@@ -618,6 +618,13 @@ public class HikeFile
 	
 	public void delete(Context context)
 	{
+		/*
+		 * Added check for hike media gallery because it is required to delete the media of that directory only.
+		 */
+		if(!this.getFilePath().startsWith(Utils.getFileParent(this.getHikeFileType(), this.isSent())))
+		{
+			return;
+		}
 		String[] retCol = null;
 		Uri uri = null;
 		int id = -1;
