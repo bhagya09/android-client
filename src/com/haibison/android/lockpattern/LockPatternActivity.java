@@ -560,7 +560,7 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
             	//checking whether this was invoked in a normal flow or stealth reset flow.
             	//we use a different string if this was invoked from the reset flow
                 mTextInfo.setText(getIntent().getBooleanExtra(HikeConstants.Extras.STEALTH_PASS_RESET, false)
-                		?R.string.alp_42447968_msg_draw_new_pattern : R.string.alp_42447968_msg_draw_an_unlock_pattern);
+                		?R.string.alp_42447968_msg_draw_new_pattern : R.string.stealth_msg_draw_an_unlock_pattern);
             }
 
             /*
@@ -938,7 +938,7 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
                 if (mBtnOkCmd == ButtonOkCommand.CONTINUE) {
                     getIntent().removeExtra(EXTRA_PATTERN);
                     mTextInfo
-                            .setText(R.string.alp_42447968_msg_draw_an_unlock_pattern);
+                            .setText(R.string.stealth_msg_draw_an_unlock_pattern);
                 } else
                     mTextInfo
                             .setText(R.string.alp_42447968_msg_redraw_pattern_to_confirm);
@@ -1009,7 +1009,7 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
                     mBtnOkCmd = ButtonOkCommand.DONE;
                     mLockPatternView.clearPattern();
                     mTextInfo
-                            .setText(R.string.alp_42447968_msg_redraw_pattern_to_confirm);
+                            .setText(R.string.stealth_msg_redraw_pattern_to_confirm);
                     mBtnConfirm.setText(R.string.alp_42447968_cmd_confirm);
                     mBtnConfirm.setEnabled(false);
                     mIsRetryBtnVisible = null;

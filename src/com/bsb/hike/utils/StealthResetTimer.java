@@ -9,7 +9,8 @@ import com.bsb.hike.HikePubSub;
 
 public class StealthResetTimer
 {
-	private static final int RESET_TOGGLE_TIME_MS = 0 * 1000;
+	// FOUND stealth mode toggled timer can be set here
+	private static final int RESET_TOGGLE_TIME_MS =10 * 1000;
 
 	private static StealthResetTimer stealthResetTimer;
 

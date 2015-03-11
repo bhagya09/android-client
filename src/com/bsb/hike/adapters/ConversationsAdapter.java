@@ -468,6 +468,7 @@ public class ConversationsAdapter extends BaseAdapter
 
 		if (itemToBeAnimated(conversation))
 		{
+			//FOUND this is where animation of sliding in happens
 			final Animation animation = AnimationUtils.loadAnimation(context,
 		            R.anim.slide_in_from_left);
 			v.startAnimation(animation);

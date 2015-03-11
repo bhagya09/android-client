@@ -968,7 +968,8 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 			}
 
 			HikeMessengerApp.clearStealthMsisdn();
-			HikeSharedPreferenceUtil.getInstance().removeData(HikeMessengerApp.SHOWING_STEALTH_FTUE_CONV_TIP);
+			//NEVER we wont remove the FTUE CONV tip
+			//HikeSharedPreferenceUtil.getInstance().removeData(HikeMessengerApp.SHOWING_STEALTH_FTUE_CONV_TIP);
 		}
 
 		super.onDestroy();
@@ -1177,7 +1178,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 
 		final int stealthType = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF);
 
-		if (stealthType == HikeConstants.STEALTH_ON || stealthType == HikeConstants.STEALTH_ON_FAKE)
+		if (stealthType == HikeConstants.STEALTH_ON || stealthType == HikeConstants.STEALTH_ON_FAKE || stealthType == HikeConstants.STEALTH_OFF)
 		{
 			optionsList.add(getString(conv.isStealth() ? R.string.unmark_stealth : R.string.mark_stealth));
 		}
@@ -1345,17 +1346,20 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 					/*
 					 * If stealth ftue conv tap tip is visible than remove it
 					 */
+					//NEVER check only for shared stealth mode off 
+					for (int i = 0; i < mAdapter.getCount(); i++)
+					{
+						Conversation convTip = mAdapter.getItem(i);
+						if (convTip instanceof ConversationTip && ((ConversationTip) convTip).isStealthFtueTip())
+						{
+							removeStealthConvTip(convTip);
+							break;
+						}
+					}
+					
 					if (!getActivity().getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getBoolean(HikeMessengerApp.STEALTH_MODE_SETUP_DONE, false))
 					{
-						for (int i = 0; i < mAdapter.getCount(); i++)
-						{
-							Conversation convTip = mAdapter.getItem(i);
-							if (convTip instanceof ConversationTip && ((ConversationTip) convTip).isStealthFtueTip())
-							{
-								removeStealthConvTip(convTip);
-								break;
-							}
-						}
+						
 					}
 					else
 					{
@@ -1380,7 +1384,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 						/*
 						 * We don't need to do anything here if the device is on fake stealth mode.
 						 */
-						return;
+						//return;
 					}
 					if (getString(R.string.mark_stealth).equals(option))
 					{
@@ -1411,7 +1415,8 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 					{
 						HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF);
 						HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_MODE_TOGGLED, true);
-						HikeMessengerApp.getPubSub().publish(HikePubSub.SHOW_STEALTH_FTUE_SET_PASS_TIP, null);
+						//NEVER showing the black tip
+						//HikeMessengerApp.getPubSub().publish(HikePubSub.SHOW_STEALTH_FTUE_SET_PASS_TIP, null);
 					}
 				}
 				else if (getString(R.string.block_title).equals(option))

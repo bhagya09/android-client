@@ -28,6 +28,10 @@ public class ConversationTip extends Conversation
 	
 	public static final int ATOMIC_APP_GENERIC_TIP = 13;
 
+	public static final int STEALTH_REVEAL_TIP = 14;
+
+	public static final int STEALTH_HIDE_TIP = 15;
+
 	private int tipType;
 
 	public ConversationTip(int tipType)
@@ -74,5 +78,15 @@ public class ConversationTip extends Conversation
 	public boolean isStealthUnreadTip()
 	{
 		return tipType == STEALTH_UNREAD_TIP;
+	}
+	
+	public boolean isStealthRevealTip()
+	{
+		return tipType == STEALTH_REVEAL_TIP;
+	}
+	
+	public boolean isStealthHideTip()
+	{
+		return tipType == STEALTH_HIDE_TIP;
 	}
 }

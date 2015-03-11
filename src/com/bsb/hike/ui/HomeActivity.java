@@ -17,7 +17,11 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.res.Configuration;
+import android.graphics.drawable.AnimationDrawable;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
+import android.graphics.drawable.ScaleDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -60,10 +64,12 @@ import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.cropimage.BitmapManager;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.FtueContactsData;
 import com.bsb.hike.models.OverFlowMenuItem;
+import com.bsb.hike.modules.animationModule.HikeAnimationFactory;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.snowfall.SnowFallView;
 import com.bsb.hike.tasks.DownloadAndInstallUpdateAsyncTask;
@@ -209,9 +215,23 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		ActionBar actionBar = getSupportActionBar();
 		actionBar.setHomeButtonEnabled(true);
 		actionBar.setTitle("");
-		actionBar.setLogo(R.drawable.home_screen_top_bar_logo);
-		actionBar.setDisplayHomeAsUpEnabled(true);
-		actionBar.setDisplayShowTitleEnabled(true);
+		actionBar.setDisplayHomeAsUpEnabled(false);
+		actionBar.setDisplayShowTitleEnabled(false);
+		actionBar.setDisplayShowHomeEnabled(true);
+		actionBar.setDisplayUseLogoEnabled(true);
+		AnimationDrawable ld = (AnimationDrawable) getResources().getDrawable(R.drawable.stealth_notif_hike_logo);
+		BitmapDrawable bd = (BitmapDrawable) getResources().getDrawable(R.drawable.hike_logo_top_bar);
+		actionBar.setLogo(bd);
+		ld.start();
+		
+		findViewById(android.R.id.home).setAnimation(HikeAnimationFactory.getStickerShopIconAnimation(this));
+		findViewById(android.R.id.home).postDelayed(new Runnable() {
+			
+			@Override
+			public void run() {	
+				findViewById(android.R.id.home).clearAnimation();
+			}
+		}, 2500);
 	}
 
 	private void initialiseHomeScreen(Bundle savedInstanceState)
@@ -1819,44 +1839,19 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		}
 		if (!HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STEALTH_MODE_SETUP_DONE, false))
 		{
-			if (tipTypeShowing != null && tipTypeShowing == TipType.STEALTH_FTUE_TIP_2)
-			{
-				findViewById(R.id.stealth_double_tap_tip).setVisibility(View.GONE);
-				tipTypeShowing = null;
-				LockPattern.createNewPattern(HomeActivity.this, false);
-			}
-			else
-			{
-				if (!(dialog != null && dialog.isShowing()) && mainFragment != null)
-				{
-					if (!mainFragment.hasNoConversation())
-					{
-
-						dialogShowing = DialogShowing.STEALTH_FTUE_POPUP;
-						dialog = HikeDialog.showDialog(HomeActivity.this, HikeDialog.STEALTH_FTUE_DIALOG, getHomeActivityDialogListener());
-					}
-					else
-					{
-						dialogShowing = DialogShowing.STEALTH_FTUE_EMPTY_STATE_POPUP;
-						dialog = HikeDialog.showDialog(HomeActivity.this, HikeDialog.STEALTH_FTUE_EMPTY_STATE_DIALOG, getHomeActivityDialogListener());
-					}
-				}
-			}
+			LockPattern.createNewPattern(HomeActivity.this, false);
 		}
 		else
 		{
-			if (tipTypeShowing != null && tipTypeShowing == TipType.STEALTH_FTUE_ENTER_PASS_TIP)
-			{
-				findViewById(R.id.stealth_double_tap_tip).setVisibility(View.GONE);
-				tipTypeShowing = null;
-			}
 			final int stealthType = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF);
 			if (stealthType == HikeConstants.STEALTH_OFF)
 			{
+				//FOUND confirm happens here
 				LockPattern.confirmPattern(HomeActivity.this, false);
 			}
 			else
 			{
+				//FOUND onclick hike button, pubsub STEALH MODE TOGGLED is fired
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF);
 				HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_MODE_TOGGLED, true);
 				

@@ -846,11 +846,8 @@
     <string name="alp_42447968_lockscreen_access_pattern_cleared">Pattern cleared</string>
     <string name="alp_42447968_lockscreen_access_pattern_detected">Pattern completed</string>
     <string name="alp_42447968_lockscreen_access_pattern_start">Pattern started</string>
-    <string name="alp_42447968_msg_connect_4dots">Connect at least 4 dots. Try again.</string>
-    <string name="alp_42447968_msg_draw_an_unlock_pattern">Draw your unique unlock pattern</string>
     <string name="alp_42447968_msg_draw_pattern_to_unlock">Draw pattern to unlock</string>
     <string name="alp_42447968_msg_pattern_recorded">Pattern recorded</string>
-    <string name="alp_42447968_msg_redraw_pattern_to_confirm">Redraw your pattern to confirm</string>
     <string name="alp_42447968_msg_release_finger_when_done">Release finger when done</string>
     <string name="alp_42447968_msg_try_again">Your patterns don’t match. Try again.</string>
     <string name="alp_42447968_msg_your_new_unlock_pattern">Your new unlock pattern</string>
@@ -1357,4 +1354,19 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="holi">Happy Holi</string>
     <string name="terms_conditions_hint">Terms &amp; Conditions</string>
 	<string name="terms_conditions_title">Terms</string>
+    <string name="stealth_mode_title">Hidden Mode</string>
+    <string name="stealth_mode_title_body">Hidden Mode Settings</string>
+    <string name="change_stealth_timeout">Ask for Password</string>
+    <string name="change_stealth_timeout_body">Ask for Password only after a specific time</string>
+    <string name="stealth_password_settings">Password Settings</string>
+    <string name="stealth_notification_settings">Notify Settings</string>
+    <string name="stealth_reset_settings">Reset Settings</string>
+    <string name="enable_stealth_indicator">Indicator</string>
+    <string name="enable_stealth_indicator_body">Display an indicator on the \'hi\' button for unread messages</string>
+    <string name="enable_stealth_notification_body">Notify on receiving a message in a hidden chat</string>
+    <string name="enable_stealth_notification">Notification</string>
+    <string name="stealth_msg_connect_4dots">Connect at least 4 dots</string>
+    <string name="stealth_msg_draw_an_unlock_pattern">Draw your passcode pattern</string>
+    <string name="stealth_msg_redraw_pattern_to_confirm">Confirm your pattern</string>
+    <string name="hide_chat">Hide Chat</string>
 </resources>

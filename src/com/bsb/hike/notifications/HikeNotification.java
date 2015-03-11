@@ -648,8 +648,6 @@ public class HikeNotification
 		String message = context.getString(R.string.stealth_notification_message);
 		String key = HIKE_STEALTH_MESSAGE_KEY;
 
-		String text = message;
-
 		/*
 		 * return straight away if the block notification setting is ON
 		 */
@@ -662,11 +660,11 @@ public class HikeNotification
 		// else add to stack and notify clubbed messages
 		if (hikeNotifMsgStack.isEmpty())
 		{
-			hikeNotifMsgStack.addMessage(key, context.getString(R.string.stealth_notification_message));
+			hikeNotifMsgStack.addMessage(key, message);
 		}
 		else
 		{
-			notifyStringMessage(key, context.getString(R.string.stealth_notification_message), false);
+			notifyStringMessage(key, message, false);
 			return;
 		}
 
@@ -677,7 +675,7 @@ public class HikeNotification
 		final Drawable avatarDrawable = context.getResources().getDrawable(R.drawable.hike_avtar_protip);
 		final int smallIconId = returnSmallIcon();
 
-		NotificationCompat.Builder mBuilder = getNotificationBuilder(context.getString(R.string.app_name), message, text, avatarDrawable, smallIconId, false);
+		NotificationCompat.Builder mBuilder = getNotificationBuilder(context.getString(R.string.app_name), message, message, avatarDrawable, smallIconId, false);
 
 		setNotificationIntentForBuilder(mBuilder, notificationIntent);
 

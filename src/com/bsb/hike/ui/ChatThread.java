@@ -7043,6 +7043,7 @@ public class ChatThread extends HikeAppStateBaseFragmentActivity implements Hike
 						Animation anim = AnimationUtils.loadAnimation(this, R.anim.scale_out_from_mid);
 						animatedBackground.startAnimation(anim);
 
+						// FOUND this is where animation for sticker shop works
 						shopIcon.setAnimation(HikeAnimationFactory.getStickerShopIconAnimation(this));
 					}
 					
