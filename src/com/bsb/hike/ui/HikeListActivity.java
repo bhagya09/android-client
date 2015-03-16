@@ -42,6 +42,7 @@ import com.actionbarsherlock.app.ActionBar;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.MqttConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.adapters.HikeInviteAdapter;
 import com.bsb.hike.analytics.AnalyticsConstants;
@@ -555,7 +556,7 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 
 				mqttPacket.put(HikeConstants.DATA, data);
 
-				HikeMqttManagerNew.getInstance().sendMessage(mqttPacket, HikeMqttManagerNew.MQTT_QOS_ONE);
+				HikeMqttManagerNew.getInstance().sendMessage(mqttPacket, MqttConstants.MQTT_QOS_ONE);
 
 				CheckBox selectAllCB = (CheckBox) findViewById(R.id.select_all_cb);
 				if (selectAllCB.isChecked())

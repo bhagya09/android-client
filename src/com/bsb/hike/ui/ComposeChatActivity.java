@@ -59,6 +59,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeConstants.MESSAGE_TYPE;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.MqttConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.adapters.ComposeChatAdapter;
 import com.bsb.hike.adapters.FriendsAdapter;
@@ -1009,7 +1010,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				e.printStackTrace();
 			}
 		}
-		HikeMqttManagerNew.getInstance().sendMessage(gcjJson, HikeMqttManagerNew.MQTT_QOS_ONE);
+		HikeMqttManagerNew.getInstance().sendMessage(gcjJson, MqttConstants.MQTT_QOS_ONE);
 
 		ContactInfo conversationContactInfo = new ContactInfo(groupId, groupId, groupId, groupId);
 		Intent intent = Utils.createIntentFromContactInfo(conversationContactInfo, true);

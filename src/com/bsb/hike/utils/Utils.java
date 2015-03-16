@@ -150,6 +150,7 @@ import com.bsb.hike.HikeConstants.SMSSyncState;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikeMessengerApp.CurrentState;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.MqttConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
@@ -1117,7 +1118,7 @@ public class Utils
 			data.put(HikeConstants.MESSAGE_ID, Long.toString(System.currentTimeMillis() / 1000));
 			data.put(HikeConstants.RESOLUTION_ID, Utils.getResolutionId());
 			requestAccountInfo.put(HikeConstants.DATA, data);
-			HikeMqttManagerNew.getInstance().sendMessage(requestAccountInfo, HikeMqttManagerNew.MQTT_QOS_ONE);
+			HikeMqttManagerNew.getInstance().sendMessage(requestAccountInfo, MqttConstants.MQTT_QOS_ONE);
 		}
 		catch (JSONException e)
 		{
@@ -1782,7 +1783,7 @@ public class Utils
 		ConvMessage convMessage = Utils.makeHike2SMSInviteMessage(msisdn, context);
 		if (!sentMqttPacket)
 		{
-			HikeMqttManagerNew.getInstance().sendMessage(convMessage.serialize(sendNativeInvite), HikeMqttManagerNew.MQTT_QOS_ONE);
+			HikeMqttManagerNew.getInstance().sendMessage(convMessage.serialize(sendNativeInvite), MqttConstants.MQTT_QOS_ONE);
 		}
 
 		if (sendNativeInvite)
@@ -2569,7 +2570,7 @@ public class Utils
 			object.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.ACCOUNT_CONFIG);
 			object.put(HikeConstants.DATA, data);
 
-			HikeMqttManagerNew.getInstance().sendMessage(object, HikeMqttManagerNew.MQTT_QOS_ONE);
+			HikeMqttManagerNew.getInstance().sendMessage(object, MqttConstants.MQTT_QOS_ONE);
 		}
 		catch (JSONException e)
 		{
@@ -2841,7 +2842,7 @@ public class Utils
 			{
 				return;
 			}
-			HikeMqttManagerNew.getInstance().sendMessage(object, HikeMqttManagerNew.MQTT_QOS_ZERO);
+			HikeMqttManagerNew.getInstance().sendMessage(object, MqttConstants.MQTT_QOS_ZERO);
 		}
 		catch (JSONException e)
 		{
@@ -2869,7 +2870,7 @@ public class Utils
 			data.put(AnalyticsConstants.METADATA, sessionMetaDataObject);
 			
 			sessionObject.put(HikeConstants.DATA, data);
-			HikeMqttManagerNew.getInstance().sendMessage(sessionObject, HikeMqttManagerNew.MQTT_QOS_ONE);
+			HikeMqttManagerNew.getInstance().sendMessage(sessionObject, MqttConstants.MQTT_QOS_ONE);
 			Logger.d("sessionmqtt", "Sesnding Session MQTT Packet with qos 1, and : "+ subType);
 		}
 		catch (JSONException e)
@@ -3146,7 +3147,7 @@ public class Utils
 			object.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.ANALYTICS_EVENT);
 			object.put(HikeConstants.DATA, data);
 
-			HikeMqttManagerNew.getInstance().sendMessage(object, HikeMqttManagerNew.MQTT_QOS_ONE);
+			HikeMqttManagerNew.getInstance().sendMessage(object, MqttConstants.MQTT_QOS_ONE);
 		}
 		catch (JSONException e)
 		{
@@ -5500,7 +5501,7 @@ public class Utils
 		
 		sendPubSubForConvScreenBroadcastMessage(convMessage, contacts);
         // publishing mqtt packet
-        HikeMqttManagerNew.getInstance().sendMessage(convMessage.serializeDeliveryReportRead(), HikeMqttManagerNew.MQTT_QOS_ONE);
+        HikeMqttManagerNew.getInstance().sendMessage(convMessage.serializeDeliveryReportRead(), MqttConstants.MQTT_QOS_ONE);
 	}
 	
 

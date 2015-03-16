@@ -20,6 +20,7 @@ import android.text.TextUtils;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.MqttConstants;
 import com.bsb.hike.NUXConstants;
 import com.bsb.hike.NUXConstants.PushTypeEnum;
 import com.bsb.hike.NUXConstants.RewardTypeEnum;
@@ -899,7 +900,7 @@ public class NUXManager
 			object.put(INVITE_ARRAY, mmArray);
 			root.put(HikeConstants.DATA, object);
 
-			HikeMqttManagerNew.getInstance().sendMessage(root, HikeMqttManagerNew.MQTT_QOS_ONE);
+			HikeMqttManagerNew.getInstance().sendMessage(root, MqttConstants.MQTT_QOS_ONE);
 
 		}
 		catch (JSONException e)

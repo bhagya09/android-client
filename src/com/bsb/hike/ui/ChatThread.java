@@ -156,6 +156,7 @@ import com.bsb.hike.HikeConstants.EmoticonType;
 import com.bsb.hike.HikeConstants.MESSAGE_TYPE;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.MqttConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.adapters.AccountAdapter;
@@ -3621,7 +3622,7 @@ public class ChatThread extends HikeAppStateBaseFragmentActivity implements Hike
 					e.printStackTrace();
 				}
 
-		        HikeMqttManagerNew.getInstance().sendMessage(object, HikeMqttManagerNew.MQTT_QOS_ONE);
+		        HikeMqttManagerNew.getInstance().sendMessage(object, MqttConstants.MQTT_QOS_ONE);
 			}
 		}
 	}
@@ -3732,7 +3733,7 @@ public class ChatThread extends HikeAppStateBaseFragmentActivity implements Hike
 					mConversationDb.updateMsgStatus(message.getMsgID(), ConvMessage.State.RECEIVED_READ.ordinal(), mConversation.getMsisdn());
 					if (message.getParticipantInfoState() == ParticipantInfoState.NO_INFO)
 					{
-						HikeMqttManagerNew.getInstance().sendMessage(message.serializeDeliveryReportRead(), HikeMqttManagerNew.MQTT_QOS_ONE);
+						HikeMqttManagerNew.getInstance().sendMessage(message.serializeDeliveryReportRead(), MqttConstants.MQTT_QOS_ONE);
 					}
 					// return to
 					// sender
@@ -4560,7 +4561,7 @@ public class ChatThread extends HikeAppStateBaseFragmentActivity implements Hike
 						e.printStackTrace();
 					}
 					// TODO make the calls here.
-					HikeMqttManagerNew.getInstance().sendMessage(jsonObject, HikeMqttManagerNew.MQTT_QOS_ONE);
+					HikeMqttManagerNew.getInstance().sendMessage(jsonObject, MqttConstants.MQTT_QOS_ONE);
 					mPubSub.publish(HikePubSub.MSG_READ, mConversation.getMsisdn());
 				}
 			}

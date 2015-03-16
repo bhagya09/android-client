@@ -51,7 +51,7 @@ import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.notifications.ToastListener;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.productpopup.ProductInfoManager;
-import com.bsb.hike.service.HikeMqttManagerNew.MQTTConnectionStatus;
+import com.bsb.hike.MqttConstants.MQTTConnectionStatus;
 import com.bsb.hike.service.HikeService;
 import com.bsb.hike.service.MqttMessagesManager;
 import com.bsb.hike.service.RegisterToGCMTrigger;

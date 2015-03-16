@@ -33,6 +33,7 @@ import com.actionbarsherlock.app.ActionBar;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.MqttConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
@@ -390,7 +391,7 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 				e.printStackTrace();
 			}
 		}
-		HikeMqttManagerNew.getInstance().sendMessage(gcjJson, HikeMqttManagerNew.MQTT_QOS_ONE);
+		HikeMqttManagerNew.getInstance().sendMessage(gcjJson, MqttConstants.MQTT_QOS_ONE);
 
 		ContactInfo conversationContactInfo = new ContactInfo(groupOrBroadcastId, groupOrBroadcastId, groupOrBroadcastId, groupOrBroadcastId);
 		Intent intent = Utils.createIntentFromContactInfo(conversationContactInfo, true);

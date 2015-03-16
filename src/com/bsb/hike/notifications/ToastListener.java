@@ -29,6 +29,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
+import com.bsb.hike.MqttConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.db.HikeConversationsDatabase;
@@ -43,7 +44,7 @@ import com.bsb.hike.models.StatusMessage;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.service.HikeMqttManagerNew;
-import com.bsb.hike.service.HikeMqttManagerNew.MQTTConnectionStatus;
+import com.bsb.hike.MqttConstants.MQTTConnectionStatus;
 import com.bsb.hike.ui.ChatThread;
 import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.ui.PeopleActivity;
@@ -110,7 +111,7 @@ public class ToastListener implements Listener
 		}
 		else if (HikePubSub.CONNECTION_STATUS.equals(type))
 		{
-			HikeMqttManagerNew.MQTTConnectionStatus status = (HikeMqttManagerNew.MQTTConnectionStatus) object;
+			MqttConstants.MQTTConnectionStatus status = (MqttConstants.MQTTConnectionStatus) object;
 			mCurrentUnnotifiedStatus = status;
 			notifyConnStatus(status);
 		}
@@ -586,7 +587,7 @@ public class ToastListener implements Listener
 		/* only show the trying to connect message after we've connected once */
 		SharedPreferences settings = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
 		boolean connectedOnce = settings.getBoolean(HikeMessengerApp.CONNECTED_ONCE, false);
-		if (status == HikeMqttManagerNew.MQTTConnectionStatus.CONNECTED)
+		if (status == MqttConstants.MQTTConnectionStatus.CONNECTED)
 		{
 			NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 			notificationManager.cancel(HikeConstants.HIKE_SYSTEM_NOTIFICATION);

@@ -1,8 +1,8 @@
 package com.bsb.hike.service;
 
+import static com.bsb.hike.MqttConstants.*;
+
 import java.net.SocketException;
-
-
 import java.net.UnknownHostException;
 import java.nio.channels.UnresolvedAddressException;
 import java.util.ArrayList;
@@ -56,9 +56,8 @@ import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.db.HikeMqttPersistence;
 import com.bsb.hike.db.MqttPersistenceException;
 import com.bsb.hike.models.HikePacket;
-import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.models.NetInfo;
-import com.bsb.hike.utils.AccountUtils;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.utils.HikeSSLUtil;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
@@ -73,6 +72,8 @@ import com.bsb.hike.utils.Utils;
  * */
 public class HikeMqttManagerNew extends BroadcastReceiver
 {
+	private static final String TAG = "HikeMqttManagerNew";
+	
 	// this variable when true, does not allow mqtt operation such as publish or connect
 	// this will become true when you force close or force disconnect mqtt (ex : ssl toggle)
 	private boolean forceDisconnect = false;
@@ -131,36 +132,6 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 
 	private Messenger mMessenger; // this is used to interact with the mqtt thread
 
-	private String wakeLockTag = "MQTTWLock"; // Name of the MQTT Wake lock
-
-	// constant used internally to schedule the next ping event
-	public static final String MQTT_CONNECTION_CHECK_ACTION = "com.bsb.hike.PING";
-
-	private static final String PRODUCTION_BROKER_HOST_NAME = "mqtt.im.hike.in";
-
-	private static final String STAGING_BROKER_HOST_NAME = AccountUtils.STAGING_HOST;
-
-	private static final int PRODUCTION_BROKER_PORT_NUMBER = 8080;
-
-	private static final int PRODUCTION_BROKER_PORT_NUMBER_SSL = 443;
-
-	private static final int STAGING_BROKER_PORT_NUMBER = 1883;
-
-	private static final int STAGING_BROKER_PORT_NUMBER_SSL = 8883;
-
-	private static final int DEV_STAGING_BROKER_PORT_NUMBER = 1883;
-
-	private static final int DEV_STAGING_BROKER_PORT_NUMBER_SSL = 8883;
-
-	private static final int FALLBACK_BROKER_PORT_NUMBER = 5222;
-	
-	// this represents number of msgs published whose callback is not yet arrived
-	private short MAX_INFLIGHT_MESSAGES_ALLOWED = 100;
-
-	private short keepAliveSeconds = HikeConstants.KEEP_ALIVE; // this is the time for which conn will remain open w/o messages
-
-	private static short connectionTimeoutSec = 60;
-
 	List<String> serverURIs = null;
 
 	private volatile int ipConnectCount = 0;
@@ -171,45 +142,12 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 
 	private volatile short fastReconnect = 0;
 
-	/* Time after which a reconnect on mqtt thread is reattempted (Time in 'ms') */
-	private short MQTT_WAIT_BEFORE_RECONNECT_TIME = 10;
-
-	/*
-	 * When disconnecting (forcibly) it might happen that some messages are waiting for acks or delivery. So before disconnecting,wait for this time to let mqtt finish the work and
-	 * then disconnect w/o letting more msgs to come in.
-	 */
-	private short quiesceTime = 500;
-
-	private static final String TAG = "HikeMqttManagerNew";
-
-	private static final int MAX_RETRY_COUNT = 20;
-
 	private volatile int retryCount = 0;
-	
-	private static final String UNRESOLVED_EXCEPTION = "unresolved";
-
-	/* publishes a message via mqtt to the server */
-	public static int MQTT_QOS_ONE = 1;
-
-	/* publishes a message via mqtt to the server with QoS 0 */
-	public static int MQTT_QOS_ZERO = 0;
 	
 	private NetInfo previousNetInfo;
 
-	/* represents max amount of time taken by message to process exceeding which we will send analytics to server*/
-	private static final long DEFAULT_MAX_MESSAGE_PROCESS_TIME = 1 * 1000l;
-	
 	private long maxMessageProcessTime = 0;
 	
-	// constants used to define MQTT connection status, this is used by external classes and hardly of any use internally
-	public enum MQTTConnectionStatus
-	{
-		NOT_CONNECTED, // initial status
-		CONNECTING, // attempting to connect
-		CONNECTED, // connected
-		NOT_CONNECTED_UNKNOWN_REASON // failed to connect for some reason
-	}
-
 	private class ActivityCheckRunnable implements Runnable
 	{
 		@Override
@@ -515,7 +453,7 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 		if (wakelock == null)
 		{
 			PowerManager pm = (PowerManager) context.getSystemService(Service.POWER_SERVICE);
-			wakelock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, wakeLockTag);
+			wakelock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, WAKE_LOCK_TAG);
 			wakelock.setReferenceCounted(false);
 		}
 		wakelock.acquire();
@@ -533,7 +471,7 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 			if (wakelock == null)
 			{
 				PowerManager pm = (PowerManager) context.getSystemService(Service.POWER_SERVICE);
-				wakelock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, wakeLockTag);
+				wakelock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, WAKE_LOCK_TAG);
 				wakelock.setReferenceCounted(false);
 			}
 			wakelock.acquire(timeout * 1000);
@@ -698,8 +636,8 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 				op.setUserName(uid);
 				op.setPassword(password.toCharArray());
 				op.setCleanSession(true);
-				op.setKeepAliveInterval((short) keepAliveSeconds);
-				op.setConnectionTimeout(connectionTimeoutSec);
+				op.setKeepAliveInterval((short) KEEP_ALIVE_SECONDS);
+				op.setConnectionTimeout(CONNECTION_TIMEOUT_SECONDS);
 				if (connectUsingSSL)
 					op.setSocketFactory(HikeSSLUtil.getSSLSocketFactory());
 			}
@@ -721,11 +659,10 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 			// if any network is available, then only connect, else connect at next check or when network gets available
 			if (Utils.isUserOnline(context))
 			{
-				acquireWakeLock(connectionTimeoutSec);
-				String protocol = connectUsingSSL ? "ssl://" : "tcp://";
+				acquireWakeLock(CONNECTION_TIMEOUT_SECONDS);
 				Logger.d(TAG, "Connect using pushconnect : " + pushConnect + "  fast reconnect : " + fastReconnect);
 				mqtt.setClientId(clientId + ":" + pushConnect + ":" + fastReconnect);
-				mqtt.setServerURI(protocol + getServerUri(connectUsingSSL));
+				mqtt.setServerURI(getServerUri(connectUsingSSL));
 				if (connectUsingSSL)
 					op.setSocketFactory(HikeSSLUtil.getSSLSocketFactory());
 				else
@@ -818,6 +755,8 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 
 	private String getServerUri(boolean ssl)
 	{
+		String protocol = ssl ? SSL_PROTOCOL : TCP_PROTOCOL;
+		
 		boolean production = settings.getBoolean(HikeMessengerApp.PRODUCTION, true);
 
 		brokerHostName = production ? PRODUCTION_BROKER_HOST_NAME : STAGING_BROKER_HOST_NAME;
@@ -827,20 +766,20 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 
 		if (!production)
 		{
-			return brokerHostName + ":" + brokerPortNumber;
+			return protocol + brokerHostName + ":" + brokerPortNumber;
 		}
 		if (connectUsingIp)
 		{
-			return getIp() + ":" + (ssl ? PRODUCTION_BROKER_PORT_NUMBER_SSL : FALLBACK_BROKER_PORT_NUMBER);
+			return protocol + getIp() + ":" + (ssl ? PRODUCTION_BROKER_PORT_NUMBER_SSL : FALLBACK_BROKER_PORT_NUMBER_NON_SSL);
 		}
 		
 		if (connectToFallbackPort)
 		{
-			return serverURIs.get(0) + ":" + (ssl ? PRODUCTION_BROKER_PORT_NUMBER_SSL : FALLBACK_BROKER_PORT_NUMBER);
+			return protocol + serverURIs.get(0) + ":" + (ssl ? PRODUCTION_BROKER_PORT_NUMBER_SSL : FALLBACK_BROKER_PORT_NUMBER_NON_SSL);
 		}
 		else
 		{
-			return serverURIs.get(0) + ":" + brokerPortNumber;
+			return protocol + serverURIs.get(0) + ":" + brokerPortNumber;
 		}
 
 	}
@@ -889,7 +828,7 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 				/*
 				 * blocking the mqtt thread, so that no other operation takes place till disconnects completes or timeout This will wait for max 1 secs
 				 */
-				mqtt.disconnectForcibly(quiesceTime, 2 * quiesceTime);
+				mqtt.disconnectForcibly(QUIESCE_TIME_MILLS, DISCONNECT_TIMEOUT);
 				handleDisconnect(reconnect);
 			}
 		}
