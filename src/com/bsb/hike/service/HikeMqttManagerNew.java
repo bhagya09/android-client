@@ -820,10 +820,7 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 
 	private void handleDisconnect(boolean reconnect)
 	{
-		forceDisconnect = false;
-		connectUsingIp = false;
-		connectToFallbackPort = false;
-		ipConnectCount = 0;
+		resetConnectionVariables();
 		try
 		{
 			if(null != mqtt)
@@ -876,9 +873,7 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 						cancelNetworkErrorTimer();
 						HikeMessengerApp.getPubSub().publish(HikePubSub.CONNECTED_TO_MQTT, null);
 						mqttThreadHandler.postAtFrontOfQueue(new RetryFailedMessages());
-						connectUsingIp = false;
-						connectToFallbackPort = false;
-						ipConnectCount = 0;
+						resetConnectionVariables();
 					}
 
 					/*
@@ -974,9 +969,7 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 				public void connectionLost(Throwable arg0)
 				{
 					Logger.w(TAG, "Connection Lost : " + arg0.getMessage());
-					connectUsingIp = false;
-					connectToFallbackPort = false;
-					ipConnectCount = 0;
+					resetConnectionVariables();
 					scheduleNetworkErrorTimer();
 					connectOnMqttThread();
 				}
@@ -1340,9 +1333,7 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 				}
 				else
 				{
-					ipConnectCount = 0;
-					connectUsingIp = false;
-					connectToFallbackPort = false;
+					resetConnectionVariables();
 					connectOnMqttThread();
 				}
 			}
@@ -1687,5 +1678,13 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 				Logger.e(TAG, "Unable to persist message", e);
 			}
 		}
+	}
+	
+	private void resetConnectionVariables()
+	{
+		forceDisconnect = false;
+		connectUsingIp = false;
+		connectToFallbackPort = false;
+		ipConnectCount = 0;
 	}
 }
