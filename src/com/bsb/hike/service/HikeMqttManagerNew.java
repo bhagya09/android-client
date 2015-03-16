@@ -370,39 +370,6 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 		LocalBroadcastManager.getInstance(context).registerReceiver(this, filter);
 	}
 
-	private void setBrokerHostPort(boolean ssl)
-	{
-		Logger.d("SSL", "Switching broker port/host. SSL? " + ssl);
-		String brokerHost = settings.getString(HikeMessengerApp.BROKER_HOST, "");
-
-		/*
-		 * If we set a custom broker host we set those values.
-		 */
-		if (!TextUtils.isEmpty(brokerHost))
-		{
-			brokerHostName = brokerHost;
-			brokerPortNumber = settings.getInt(HikeMessengerApp.BROKER_PORT, 8080);
-			return;
-		}
-
-		boolean production = settings.getBoolean(HikeMessengerApp.PRODUCTION,true);
-
-		brokerHostName = production ? PRODUCTION_BROKER_HOST_NAME : STAGING_BROKER_HOST_NAME;
-
-		brokerPortNumber = production ? (ssl ? PRODUCTION_BROKER_PORT_NUMBER_SSL : PRODUCTION_BROKER_PORT_NUMBER) : (ssl ? STAGING_BROKER_PORT_NUMBER_SSL
-						: STAGING_BROKER_PORT_NUMBER);
-
-
-		Logger.d(TAG, "Broker host name: " + brokerHostName);
-		Logger.d(TAG, "Broker port: " + brokerPortNumber);
-	}
-
-	private void finish()
-	{
-		context.unregisterReceiver(this);
-		this.mqttMessageManager.close();
-	}
-
 	private int getConnRetryTime()
 	{
 		return getConnRetryTime(false);
@@ -425,13 +392,6 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 		reconnectTime = reconnectTime > HikeConstants.MAX_RECONNECT_TIME ? HikeConstants.MAX_RECONNECT_TIME
 				: (reconnectTime == 0 ? (new Random()).nextInt(HikeConstants.RECONNECT_TIME) + 1 : reconnectTime);
 		return reconnectTime;
-	}
-
-	private void printThreadInfo(String obj)
-	{
-		Long id = Thread.currentThread().getId();
-		String thName = Thread.currentThread().getName();
-		Logger.d(TAG, obj + " is running on thread : " + thName + " id : " + id);
 	}
 
 	// delete the token and send a message to the app to send the user back to the main screen
@@ -625,10 +585,6 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 			// if force disconnect is in progress don't connect
 			if (forceDisconnect)
 				return;
-
-			boolean connectUsingSSL = Utils.switchSSLOn(context);
-
-			// setBrokerHostPort(connectUsingSSL);
 
 			if (op == null)
 			{
