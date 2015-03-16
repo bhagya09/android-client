@@ -468,6 +468,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 				boolean isIndianUser = countryCode.equals(HikeConstants.INDIA_COUNTRY_CODE);
 				boolean isSAUser = countryCode.equals(HikeConstants.SAUDI_ARABIA_COUNTRY_CODE);
 
+				Utils.setSSLAllowed(countryCode);
 				Editor accountEditor = accountPrefs.edit();
 				accountEditor.putBoolean(HikeMessengerApp.JUST_SIGNED_UP, true);
 				if (mActivityState != null)

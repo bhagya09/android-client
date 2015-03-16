@@ -638,16 +638,12 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 				op.setCleanSession(true);
 				op.setKeepAliveInterval((short) KEEP_ALIVE_SECONDS);
 				op.setConnectionTimeout(CONNECTION_TIMEOUT_SECONDS);
-				if (connectUsingSSL)
-					op.setSocketFactory(HikeSSLUtil.getSSLSocketFactory());
 			}
 
 			if (mqtt == null)
 			{
-				String protocol = connectUsingSSL ? "ssl://" : "tcp://";
-
 				// Here I am using my modified MQTT PAHO library
-				mqtt = new MqttAsyncClient(protocol + brokerHostName + ":" + brokerPortNumber, clientId + ":" + pushConnect + ":" + fastReconnect + ":" + Utils.getNetworkType(context), null,
+				mqtt = new MqttAsyncClient(getServerUri(), clientId + ":" + pushConnect + ":" + fastReconnect + ":" + Utils.getNetworkType(context), null,
 						MAX_INFLIGHT_MESSAGES_ALLOWED);
 				mqtt.setCallback(getMqttCallback());
 				Logger.d(TAG, "Number of max inflight msgs allowed : " + mqtt.getMaxflightMessages());
@@ -662,8 +658,8 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 				acquireWakeLock(CONNECTION_TIMEOUT_SECONDS);
 				Logger.d(TAG, "Connect using pushconnect : " + pushConnect + "  fast reconnect : " + fastReconnect);
 				mqtt.setClientId(clientId + ":" + pushConnect + ":" + fastReconnect);
-				mqtt.setServerURI(getServerUri(connectUsingSSL));
-				if (connectUsingSSL)
+				mqtt.setServerURI(getServerUri());
+				if (isSSL())
 					op.setSocketFactory(HikeSSLUtil.getSSLSocketFactory());
 				else
 					op.setSocketFactory(null);
@@ -753,37 +749,58 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 
 	}
 
-	private String getServerUri(boolean ssl)
-	{
-		String protocol = ssl ? SSL_PROTOCOL : TCP_PROTOCOL;
-		
-		boolean production = settings.getBoolean(HikeMessengerApp.PRODUCTION, true);
-
-		brokerHostName = production ? PRODUCTION_BROKER_HOST_NAME : STAGING_BROKER_HOST_NAME;
-
-		brokerPortNumber = production ? (ssl ? PRODUCTION_BROKER_PORT_NUMBER_SSL : PRODUCTION_BROKER_PORT_NUMBER) : (ssl ? STAGING_BROKER_PORT_NUMBER_SSL
-		                                : STAGING_BROKER_PORT_NUMBER);
-
-		if (!production)
+	private String getServerUri()
+	{	
+		HostState state = getHostState();
+		switch (state)
 		{
-			return protocol + brokerHostName + ":" + brokerPortNumber;
+		case STAGING_SSL:
+			return SSL_PROTOCOL + STAGING_BROKER_HOST_NAME + COLON + STAGING_BROKER_PORT_NUMBER_SSL; // ssl://staging.im.hike.in:8883
+		case STAGING_NON_SSL:
+			return TCP_PROTOCOL + STAGING_BROKER_HOST_NAME + COLON + STAGING_BROKER_PORT_NUMBER;	 // tcp://staging.im.hike.in:1883
+		case IP_SSL:
+			return SSL_PROTOCOL + getIp() + COLON + FALLBACK_BROKER_PORT_NUMBER_SSL;				 // ssl://IP:443
+		case IP_NON_SSL:
+			return TCP_PROTOCOL + getIp() + COLON + FALLBACK_BROKER_PORT_NUMBER_NON_SSL;			 // tcp://IP:5222
+		case FALLBACK_SSL:
+			return SSL_PROTOCOL + serverURIs.get(0) + COLON + FALLBACK_BROKER_PORT_NUMBER_SSL;		 // ssl://mqtt.im.hike.in:443
+		case FALLBACK_NON_SSL:
+			return TCP_PROTOCOL + serverURIs.get(0) + COLON + FALLBACK_BROKER_PORT_NUMBER_NON_SSL;	 // tcp://mqtt.im.hike.in:5222
+		case PRODUCTION_SSL:
+			return SSL_PROTOCOL + serverURIs.get(0) + COLON + PRODUCTION_BROKER_PORT_NUMBER_SSL;	 // ssl://mqtt.im.hike.in:443
+		case PRODUCTION_NON_SSL:
+			return TCP_PROTOCOL + serverURIs.get(0) + COLON + PRODUCTION_BROKER_PORT_NUMBER;	 	 // tcp://mqtt.im.hike.in:8080
+		default:
+			return TCP_PROTOCOL + serverURIs.get(0) + COLON + PRODUCTION_BROKER_PORT_NUMBER;		 // tcp://mqtt.im.hike.in:8080
 		}
-		if (connectUsingIp)
-		{
-			return protocol + getIp() + ":" + (ssl ? PRODUCTION_BROKER_PORT_NUMBER_SSL : FALLBACK_BROKER_PORT_NUMBER_NON_SSL);
-		}
-		
-		if (connectToFallbackPort)
-		{
-			return protocol + serverURIs.get(0) + ":" + (ssl ? PRODUCTION_BROKER_PORT_NUMBER_SSL : FALLBACK_BROKER_PORT_NUMBER_NON_SSL);
-		}
-		else
-		{
-			return protocol + serverURIs.get(0) + ":" + brokerPortNumber;
-		}
-
 	}
-
+	
+	private HostState getHostState()
+	{
+		boolean ssl = Utils.switchSSLOn(context);
+		
+		boolean sslAllowed = Utils.isSSLAllowed();
+		
+		boolean production = Utils.isOnProduction();
+		
+		if(!production) // on statging
+		{
+			return (ssl ? HostState.STAGING_SSL : HostState.STAGING_NON_SSL);
+		}
+		
+		if (connectUsingIp) // connect using ip
+		{
+			return (sslAllowed ? HostState.IP_SSL : HostState.IP_NON_SSL);
+		}
+		
+		if (connectToFallbackPort) // using using fallback
+		{
+			return (sslAllowed ? HostState.FALLBACK_SSL :HostState.FALLBACK_NON_SSL);
+		}
+		
+		return (ssl ? HostState.PRODUCTION_SSL :HostState.PRODUCTION_NON_SSL); // default case
+	}
+	
 	// This function should be called always from external classes inorder to run connect on MQTT thread
 	private void disconnectOnMqttThread(final boolean reconnect)
 	{
@@ -1418,7 +1435,7 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 	private boolean shouldDisconnectAndReconnect()
 	{
 		boolean shouldConnectUsingSSL = Utils.switchSSLOn(context);
-		boolean isSSLConnected = isSSLAlreadyOn();
+		boolean isSSLConnected = isSSL();
 		Logger.d(TAG, "SSL Preference has changed. OnSSL : " + shouldConnectUsingSSL + " ,isSSLAlreadyOn : " + isSSLConnected);
 		// reconnect using SSL as currently not connected using SSL
 		if (shouldConnectUsingSSL && !isSSLConnected)
@@ -1456,7 +1473,7 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 	}
 	
 	
-	private boolean isSSLAlreadyOn()
+	private boolean isSSL()
 	{
 		if (mqtt != null)
 		{

@@ -5550,4 +5550,22 @@ public class Utils
 		
 		return maxVal;
 	}
+	
+	public static boolean isOnProduction()
+	{
+		return HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PRODUCTION, true);
+	}
+	
+	public static void setSSLAllowed(String countryCode)
+	{
+		if(countryCode.equalsIgnoreCase(HikeConstants.SAUDI_ARABIA_COUNTRY_CODE))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.SSL_ALLOWED, false);
+		}
+	}
+	
+	public static boolean isSSLAllowed()
+	{
+		return HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SSL_ALLOWED, true);
+	}
 }
