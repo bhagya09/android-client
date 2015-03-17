@@ -130,8 +130,15 @@ public class GroupConversation extends Conversation
 
 	public PairModified<GroupParticipant, String> getGroupParticipant(String msisdn)
 	{
-		return groupParticipantList.containsKey(msisdn) ? groupParticipantList.get(msisdn) : new PairModified<GroupParticipant, String>(new GroupParticipant(new ContactInfo(
-				msisdn, msisdn, msisdn, msisdn)), msisdn);
+		if (groupParticipantList.containsKey(msisdn))
+		{
+			return groupParticipantList.get(msisdn);
+		}
+		else
+		{
+			ContactInfo contactInfo = ContactManager.getInstance().getContact(msisdn, true, false);
+			return new PairModified<GroupParticipant, String>(new GroupParticipant(contactInfo), contactInfo.getNameOrMsisdn());
+		}
 	}
 
 	public String getGroupParticipantFirstName(String msisdn)
