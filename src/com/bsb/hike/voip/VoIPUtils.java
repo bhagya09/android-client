@@ -50,6 +50,8 @@ public class VoIPUtils {
 
 	private static boolean notificationDisplayed = false; 
 
+	public static String ndkLibPath = "lib/armeabi/";
+
 	public static enum ConnectionClass {
 		TwoG,
 		ThreeG,

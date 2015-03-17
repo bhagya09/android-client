@@ -1075,12 +1075,21 @@ public class VoIPService extends Service {
 	}
 	
 	private void startCodec() {
-		try {
+		try
+		{
 			opusWrapper = new OpusWrapper();
 			opusWrapper.getDecoder(AUDIO_SAMPLE_RATE, 1);
 			opusWrapper.getEncoder(AUDIO_SAMPLE_RATE, 1, localBitrate);
-		} catch (Exception e) {
+		}
+		catch (UnsatisfiedLinkError e)
+		{
 			Logger.e(VoIPConstants.TAG, "Codec exception: " + e.toString());
+			hangUp();
+		}
+		catch (Exception e) 
+		{
+			Logger.e(VoIPConstants.TAG, "Codec exception: " + e.toString());
+			hangUp();
 		}
 		
 		if (resamplerEnabled) {
@@ -1101,9 +1110,25 @@ public class VoIPService extends Service {
 		opusWrapper.setEncoderComplexity(0);
 		
 		// Initialize AEC
-		if (aecEnabled) {
-			solicallAec = new SolicallWrapper();
-			solicallAec.init();
+		if (aecEnabled) 
+		{
+			try 
+			{
+				solicallAec = new SolicallWrapper();
+				solicallAec.init();
+			}
+			catch (UnsatisfiedLinkError e)
+			{
+				Logger.e(VoIPConstants.TAG, "Solicall init error: " + e.toString());
+				solicallAec = null;
+				aecEnabled = false;
+			}
+			catch (IOException e) 
+			{
+				Logger.e(VoIPConstants.TAG, "Solicall init exception: " + e.toString());
+				solicallAec = null;
+				aecEnabled = false;
+			}	
 		}
 	}
 	
