@@ -2242,19 +2242,7 @@ public class MqttMessagesManager
 					if (ContactManager.getInstance().isBlocked(destination))
 					{
 
-						JSONObject metadata = new JSONObject();
-						try
-						{
-							metadata.put(AnalyticsConstants.EVENT_KEY, HikePlatformConstants.BLOCKED_MESSAGE);
-							metadata.put(HikeConstants.TYPE, HikePlatformConstants.NOTIF);
-						}
-						catch (JSONException e)
-						{
-							e.printStackTrace();
-						}
-
-						HAManager.getInstance().record(AnalyticsConstants.NON_UI_EVENT, HikeConstants.LogEvent.GCM_ANALYTICS_CONTEXT, EventPriority.HIGH, metadata,
-								AnalyticsConstants.EVENT_TAG_BOTS);
+						blockedMessageAnalytics(HikePlatformConstants.NOTIF);
 						return;
 
 					}
@@ -2280,6 +2268,22 @@ public class MqttMessagesManager
 				Logger.e("mqttMessageManager", "duplicate Notification packet from server "+data.toString());
 			}
 		}
+	}
+
+	private void blockedMessageAnalytics(String type)
+	{
+		JSONObject metadata = new JSONObject();
+		try
+		{
+			metadata.put(AnalyticsConstants.EVENT_KEY, HikePlatformConstants.BLOCKED_MESSAGE);
+			metadata.put(HikeConstants.TYPE, type);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+
+		HikeAnalyticsEvent.analyticsForCards(AnalyticsConstants.NON_UI_EVENT, HikeConstants.LogEvent.GCM_ANALYTICS_CONTEXT, metadata);
 	}
 
 	private void saveTip(JSONObject jsonObj)
@@ -3237,11 +3241,7 @@ public class MqttMessagesManager
 				String from = json.optString(HikeConstants.FROM);
 				if (ContactManager.getInstance().isBlocked(from))
 				{
-					JSONObject metadata = new JSONObject();
-					metadata.put(AnalyticsConstants.EVENT_KEY, HikePlatformConstants.BLOCKED_MESSAGE);
-					metadata.put(HikeConstants.TYPE, HikePlatformConstants.CARD);
-
-					HAManager.getInstance().record(AnalyticsConstants.NON_UI_EVENT, HikeConstants.LogEvent.GCM_ANALYTICS_CONTEXT, EventPriority.HIGH, metadata, AnalyticsConstants.EVENT_TAG_BOTS);
+					blockedMessageAnalytics(HikePlatformConstants.CARD);
 					//discard message since the conversation is blocked
 					return;
 				}
