@@ -202,6 +202,7 @@ import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.HikeTip;
+import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.HikeTip.TipType;
 import com.bsb.hike.utils.LastSeenScheduler;
 import com.bsb.hike.utils.LastSeenScheduler.LastSeenFetchedCallback;
@@ -2442,7 +2443,7 @@ public class ChatThread extends HikeAppStateBaseFragmentActivity implements Hike
 		 */
 		if (HikeMessengerApp.isStealthMsisdn(mContactNumber))
 		{
-			if (HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF) != HikeConstants.STEALTH_ON)
+			if (!StealthModeManager.getInstance().isActive())
 			{
 				Intent intent = new Intent(this, HomeActivity.class);
 				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);

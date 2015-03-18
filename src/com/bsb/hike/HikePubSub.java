@@ -306,13 +306,21 @@ public class HikePubSub implements Runnable
 
 	public static final String DISMISS_STEALTH_FTUE_CONV_TIP = "dismissStealthFtueConvTip";
 
+	public static final String DISMISS_STEALTH_HIDE_TIP = "dismissStealthHideTip";
+
+	public static final String DISMISS_STEALTH_REVEAL_TIP = "dismissStealthRevealTip";
+
 	public static final String SHOW_STEALTH_FTUE_CONV_TIP = "showStealthFtueConvTip";
+
+	public static final String SHOW_STEALTH_REVEAL_TIP = "showStealthRevealTip";
 
 	public static final String SHOW_STEALTH_FTUE_SET_PASS_TIP = "showStealthFtueSetPassTip";
 
 	public static final String SHOW_STEALTH_FTUE_ENTER_PASS_TIP = "showStealthFtueEnterPassTip";
 
 	public static final String STEALTH_MODE_TOGGLED = "stealthModeToggled";
+
+	public static final String SHOW_STEALTH_HIDE_TIP = "showStealthHideTip";
 
 	public static final String CLEAR_FTUE_STEALTH_CONV = "clearFtueStealthConv";
 

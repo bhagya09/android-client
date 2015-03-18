@@ -2749,11 +2749,11 @@ public class Utils
 		{
 			if (HikeMessengerApp.currentState != CurrentState.OPENED && HikeMessengerApp.currentState != CurrentState.RESUMED)
 			{
-				resetStealthMode(context);
+				StealthModeManager.getInstance().resetStealthToggle();
 			}
 			else
 			{
-				clearStealthResetTimer(context);
+				StealthModeManager.getInstance().clearScheduledStealthToggleTimer();
 			}
 		}
 	}
@@ -2807,16 +2807,6 @@ public class Utils
 		{
 			Logger.w("AppState", "Invalid json", e);
 		}
-	}
-
-	private static void resetStealthMode(Context context)
-	{
-		StealthResetTimer.getInstance(context).resetStealthToggle();
-	}
-
-	private static void clearStealthResetTimer(Context context)
-	{
-		StealthResetTimer.getInstance(context).clearScheduledStealthToggleTimer();
 	}
 
 	public static String getLastSeenTimeAsString(Context context, long lastSeenTime, int offline)

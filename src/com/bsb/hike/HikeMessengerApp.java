@@ -57,6 +57,7 @@ import com.bsb.hike.utils.ActivityTimeLogger;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.SmileyParser;
+import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
@@ -355,6 +356,8 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	public static final String STEALTH_MODE = "stealthMode";
 
 	public static final String STEALTH_MODE_SETUP_DONE = "steatlhModeSetupDone";
+	
+	public static final String STEALTH_MODE_FTUE_DONE = "steatlhModeFtueDone";
 
 	public static final String SHOWING_STEALTH_FTUE_CONV_TIP = "showingStealthFtueConvTip";
 
@@ -671,7 +674,7 @@ public void onTrimMemory(int level)
 		/*
 		 * Resetting the stealth mode when the app starts. 
 		 */
-		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF);
+		StealthModeManager.getInstance().activate(false);
 		performPreferenceTransition();
 		String currentAppVersion = settings.getString(CURRENT_APP_VERSION, "");
 		String actualAppVersion = "";

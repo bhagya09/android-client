@@ -16,6 +16,7 @@ import com.bsb.hike.db.DBBackupRestore;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.StealthModeManager;
 import com.haibison.android.lockpattern.LockPatternActivity;
 import com.haibison.android.lockpattern.util.Settings;
 
@@ -46,14 +47,14 @@ public class LockPattern
 			{
 				String encryptedPattern = String.valueOf(data.getCharArrayExtra(LockPatternActivity.EXTRA_PATTERN));
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STEALTH_ENCRYPTED_PATTERN, encryptedPattern);
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STEALTH_MODE_SETUP_DONE, true);
+				StealthModeManager.getInstance().setUp(true);
 				DBBackupRestore.getInstance(activity).updatePrefs();
 				//only firing this event if this is not the password reset flow
 				if (!isReset)
 				{
 					HikeMessengerApp.getPubSub().publish(HikePubSub.SHOW_STEALTH_FTUE_CONV_TIP, null);
-
-					HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_ON_FAKE);
+// DONT make it fake now
+					//StealthResetTimer.getInstance().activate(false);
 					//NEVER show black tip
 //					HikeMessengerApp.getPubSub().publish(HikePubSub.SHOW_STEALTH_FTUE_ENTER_PASS_TIP, null);
 					
@@ -83,12 +84,12 @@ public class LockPattern
 			switch (resultCode)
 			{
 			case Activity.RESULT_OK:
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_ON);
+				StealthModeManager.getInstance().activate(true);
 				HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_MODE_TOGGLED, true);
 				HikeAnalyticsEvent.sendStealthEnabled(true);
 				break;
 			case Activity.RESULT_CANCELED:
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF);
+				StealthModeManager.getInstance().activate(false);
 				HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_MODE_TOGGLED, false);
 				
 				try

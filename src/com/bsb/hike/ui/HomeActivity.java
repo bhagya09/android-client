@@ -71,6 +71,7 @@ import com.bsb.hike.models.FtueContactsData;
 import com.bsb.hike.models.OverFlowMenuItem;
 import com.bsb.hike.modules.animationModule.HikeAnimationFactory;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.snowfall.SnowFallView;
 import com.bsb.hike.tasks.DownloadAndInstallUpdateAsyncTask;
 import com.bsb.hike.tasks.SendLogsTask;
@@ -82,6 +83,7 @@ import com.bsb.hike.utils.FestivePopup;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.HikeTip;
+import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.HikeTip.TipType;
 import com.bsb.hike.utils.IntentManager;
 import com.bsb.hike.utils.Logger;
@@ -1837,23 +1839,38 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		{
 			return;
 		}
-		if (!HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STEALTH_MODE_SETUP_DONE, false))
+		if (!StealthModeManager.getInstance().isSetUp())
 		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STEALTH_MODE_FTUE_DONE, false);
 			LockPattern.createNewPattern(HomeActivity.this, false);
 		}
 		else
 		{
-			final int stealthType = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF);
-			if (stealthType == HikeConstants.STEALTH_OFF)
+			if (!StealthModeManager.getInstance().isActive())
 			{
+				if(!HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STEALTH_MODE_FTUE_DONE, true))
+				{
+
+					HikeMessengerApp.getPubSub().publish(HikePubSub.SHOW_STEALTH_HIDE_TIP, true);
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STEALTH_MODE_FTUE_DONE, true);
+					StealthModeManager.getInstance().activate(true);
+					HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_MODE_TOGGLED, true);
+					
+				}
+				else
+				{
+					LockPattern.confirmPattern(HomeActivity.this, false);
+				}
 				//FOUND confirm happens here
-				LockPattern.confirmPattern(HomeActivity.this, false);
 			}
 			else
 			{
+				
+				HikeMessengerApp.getPubSub().publish(HikePubSub.DISMISS_STEALTH_HIDE_TIP, 0);
+				StealthModeManager.getInstance().activate(false);
 				//FOUND onclick hike button, pubsub STEALH MODE TOGGLED is fired
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF);
-				HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_MODE_TOGGLED, true);
+			
+					HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_MODE_TOGGLED, true);
 				
 				try
 				{

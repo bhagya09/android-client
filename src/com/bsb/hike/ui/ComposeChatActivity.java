@@ -94,6 +94,7 @@ import com.bsb.hike.utils.LastSeenScheduler;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.NUXManager;
 import com.bsb.hike.utils.PairModified;
+import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.TagEditText;
@@ -619,8 +620,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				 */
 				if (HikeMessengerApp.isStealthMsisdn(contactInfo.getMsisdn()))
 				{
-					int stealthMode = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF);
-					if (stealthMode != HikeConstants.STEALTH_ON)
+					if (!StealthModeManager.getInstance().isActive())
 					{
 						return;
 					}

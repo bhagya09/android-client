@@ -959,7 +959,7 @@ public class HikeConstants
 
 	public static final int STEALTH_ON = 2;
 
-	public static final long RESET_COMPLETE_STEALTH_TIME_MS = 30 * 60 * 1000;
+	public static final long RESET_COMPLETE_STEALTH_TIME_MS = 5 * 1000;
 	
 	public static final String ENABLED = "enabled";
 	

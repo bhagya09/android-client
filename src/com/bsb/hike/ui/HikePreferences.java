@@ -50,6 +50,7 @@ import com.bsb.hike.utils.CustomAlertDialog;
 import com.bsb.hike.utils.HikeAppStateBasePreferenceActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.IconCheckBoxPreference;
 import com.bsb.hike.view.NotificationToneListPreference;
@@ -262,7 +263,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		Preference resetStealthPreference = getPreferenceScreen().findPreference(HikeConstants.RESET_STEALTH_PREF);
 		if (resetStealthPreference != null)
 		{
-			if (HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STEALTH_MODE_SETUP_DONE, false))
+			if (StealthModeManager.getInstance().isSetUp())
 			{
 				if(HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.RESET_COMPLETE_STEALTH_START_TIME, 0l) > 0)
 				{
@@ -280,7 +281,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		Preference resetStealthPassword = getPreferenceScreen().findPreference(HikeConstants.CHANGE_STEALTH_PASSCODE);
 		if (resetStealthPassword != null)
 		{
-			if (HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STEALTH_MODE_SETUP_DONE, false))
+			if (StealthModeManager.getInstance().isSetUp())
 			{
 				if(HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.RESET_COMPLETE_STEALTH_START_TIME, 0l) > 0)
 				{

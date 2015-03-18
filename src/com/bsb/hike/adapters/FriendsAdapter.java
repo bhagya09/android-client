@@ -43,6 +43,7 @@ import com.bsb.hike.utils.EmoticonConstants;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.LastSeenComparator;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.utils.Utils.WhichScreen;
 import com.bsb.hike.view.PinnedSectionListView.PinnedSectionListAdapter;
@@ -798,7 +799,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 			break;
 		}
 
-		return HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF) == HikeConstants.STEALTH_ON;
+		return StealthModeManager.getInstance().isActive();
 	}
 
 	public void refreshGroupList(List<ContactInfo> newGroupList, int groupIndex)
@@ -831,14 +832,13 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 
 	private void setupStealthListAndRemoveFromActualList(List<ContactInfo> contactList, List<ContactInfo> stealthList)
 	{
-		int stealthMode = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF);
 		for(Iterator<ContactInfo> iterator = contactList.iterator(); iterator.hasNext();)
 		{
 			ContactInfo contactInfo = iterator.next();
 			if(HikeMessengerApp.isStealthMsisdn(contactInfo.getMsisdn()))
 			{
 				stealthList.add(contactInfo);
-				if(stealthMode != HikeConstants.STEALTH_ON)
+				if(!StealthModeManager.getInstance().isActive())
 				{
 					iterator.remove();
 				}

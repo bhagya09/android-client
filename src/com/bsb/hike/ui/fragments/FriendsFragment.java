@@ -38,6 +38,7 @@ import com.bsb.hike.ui.CreateNewGroupActivity;
 import com.bsb.hike.ui.TellAFriend;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.LastSeenScheduler;
+import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
 
 public class FriendsFragment extends SherlockListFragment implements Listener, OnItemLongClickListener, OnScrollListener
@@ -482,9 +483,7 @@ public class FriendsFragment extends SherlockListFragment implements Listener, O
 				@Override
 				public void run()
 				{
-					int stealthMode = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF);
-
-					if (stealthMode == HikeConstants.STEALTH_ON)
+					if (StealthModeManager.getInstance().isActive())
 					{
 						friendsAdapter.addStealthContacts();
 					}
