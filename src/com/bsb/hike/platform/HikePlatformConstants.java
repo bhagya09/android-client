@@ -93,4 +93,10 @@ public interface HikePlatformConstants
 	String ALARM_DATA = "alarm_data";
 	
 	String DELETE_CARD = "delete_card";
+
+	public static final String SILENT_PUSH = "silent";
+
+	public static final String LOUD_PUSH = "loud";
+
+	public static final String  NO_PUSH = "none";
 }
