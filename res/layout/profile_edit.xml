@@ -222,7 +222,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:gravity="center_vertical"
-                android:onClick="showProfileImageEditDialog"
+                android:onClick="onClickProfileImage"
                 android:orientation="horizontal" >
 
                 <com.bsb.hike.view.CustomFontTextView
