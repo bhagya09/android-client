@@ -2595,4 +2595,8 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		postText.setEnabled(enabled);
 	}
 
+	public void onClickProfileImage(View v)
+	{
+		showProfileImageEditDialog(SignupActivity.this, SignupActivity.this, false);
+	}
 }

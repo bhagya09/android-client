@@ -226,35 +226,13 @@ public class ImageViewerFragment extends SherlockFragment implements LoaderCallb
 
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater)
-	{				
+	{
+		menu.clear();			
+
 		if(isViewEditable)
 		{
-			// we are using the ProfileActivity's menu for now			
-			MenuItem item = menu.findItem(R.id.new_update);
-			
-			if(item != null)
-			{
-				item.setVisible(false);
-			}
-			
-			item = menu.findItem(R.id.overflow_menu);
-			
-			if(item != null)
-			{
-				item.setVisible(false);
-			}
-			
-			item = menu.findItem(R.id.edit_dp);
-			
-			if(item != null)
-			{
-				item.setVisible(true);
-			}
+			inflater.inflate(R.menu.edit_dp, menu);			
 		}	
-		else
-		{
-			menu.clear();
-		}
 	}
 
 	@Override
