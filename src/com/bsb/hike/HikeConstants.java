@@ -1952,6 +1952,8 @@ public class HikeConstants
 		// Home search events
 
 		public static final String HOME_SEARCH = "hmSrch";
+		
+		public static final String DEVICE_ROOT="root";
 
 	}
 
@@ -2533,4 +2535,9 @@ public class HikeConstants
 	public static final String WHITELISTED_DOMAINS[] = new String[]{"hike.in"};
 	
 	public static final String BLACKLIST_DOMAIN_ANALYTICS = "blacklist";
+
+	public static final String FORCE_USER="fu";
+	
+	public static final String IS_ROOT="is_root";
+
 }
