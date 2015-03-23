@@ -85,7 +85,6 @@ import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.smartImageLoader.IconLoader;
 import com.bsb.hike.tasks.FinishableEvent;
 import com.bsb.hike.tasks.HikeHTTPTask;
-import com.bsb.hike.ui.fragments.ImageViewerFragment.DisplayPictureEditListener;
 import com.bsb.hike.ui.fragments.PhotoViewerFragment;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
@@ -100,7 +99,7 @@ import com.bsb.hike.view.CustomFontEditText;
 import com.bsb.hike.voip.VoIPUtils;
 
 public class ProfileActivity extends ChangeProfileImageBaseActivity implements FinishableEvent, Listener, OnLongClickListener, OnItemLongClickListener, OnScrollListener,
-		View.OnClickListener, DisplayPictureEditListener
+		View.OnClickListener
 {
 	private TextView mName;
 	
@@ -2853,12 +2852,6 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		}
 	}
 
-	@Override
-	public void onDisplayPictureEditClicked() 
-	{
-		showProfileImageEditDialog(ProfileActivity.this, ProfileActivity.this, false);		
-	}
-	
 	@Override
 	public String profileImageCropped()
 	{

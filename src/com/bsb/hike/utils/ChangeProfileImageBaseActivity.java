@@ -43,9 +43,10 @@ import com.bsb.hike.tasks.DownloadImageTask;
 import com.bsb.hike.tasks.DownloadImageTask.ImageDownloadResult;
 import com.bsb.hike.tasks.FinishableEvent;
 import com.bsb.hike.tasks.HikeHTTPTask;
+import com.bsb.hike.ui.fragments.ImageViewerFragment.DisplayPictureEditListener;
 import com.bsb.hike.utils.Utils.ExternalStorageState;
 
-public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActivity implements OnClickListener, FinishableEvent
+public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActivity implements OnClickListener, FinishableEvent, DisplayPictureEditListener
 {
 	private HikeSharedPreferenceUtil prefs;
 
@@ -607,5 +608,11 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 			mDialog = null;
 		}
 		mActivityState.task = null;
+	}
+
+	@Override
+	public void onDisplayPictureEditClicked()
+	{
+		showProfileImageEditDialog(ChangeProfileImageBaseActivity.this, ChangeProfileImageBaseActivity.this, false);		
 	}
 }

@@ -33,7 +33,6 @@ import com.bsb.hike.models.StatusMessage;
 import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.smartImageLoader.IconLoader;
-import com.bsb.hike.ui.fragments.ImageViewerFragment.DisplayPictureEditListener;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
 import com.bsb.hike.utils.EmoticonConstants;
@@ -42,7 +41,7 @@ import com.bsb.hike.utils.IntentManager;
 import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.Utils;
 
-public class SettingsActivity extends ChangeProfileImageBaseActivity implements OnItemClickListener, OnClickListener, android.content.DialogInterface.OnClickListener, DisplayPictureEditListener
+public class SettingsActivity extends ChangeProfileImageBaseActivity implements OnItemClickListener, OnClickListener, android.content.DialogInterface.OnClickListener
 {
 	private ContactInfo contactInfo;
 
@@ -491,12 +490,6 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 		intent.setClass(SettingsActivity.this, ProfileActivity.class);
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		startActivity(intent);
-	}
-
-	@Override
-	public void onDisplayPictureEditClicked() 
-	{
-		showProfileImageEditDialog(SettingsActivity.this, SettingsActivity.this, false);		
 	}
 
 	@Override
