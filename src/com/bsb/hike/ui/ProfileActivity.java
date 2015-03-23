@@ -1577,7 +1577,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		arguments.putBoolean(HikeConstants.Extras.IS_STATUS_IMAGE, imageViewerInfo.isStatusMessage);
 		
 		// we do not show edit dp option in group info 
-		if(groupConversation == null)
+		if(this.profileType == ProfileType.USER_PROFILE)
 		{
 			arguments.putBoolean(HikeConstants.CAN_EDIT_DP, true);
 		}

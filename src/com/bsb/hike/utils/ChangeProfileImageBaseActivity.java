@@ -13,7 +13,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -48,7 +47,7 @@ import com.bsb.hike.utils.Utils.ExternalStorageState;
 
 public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActivity implements OnClickListener, FinishableEvent
 {
-	private SharedPreferences prefs;
+	private HikeSharedPreferenceUtil prefs;
 
 	private String mLocalMSISDN;
 
@@ -82,9 +81,9 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 	{
 		super.onCreate(savedInstanceState);
 
-		prefs = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, Context.MODE_PRIVATE);
+		prefs = HikeSharedPreferenceUtil.getInstance();
 
-		mLocalMSISDN = prefs.getString(HikeMessengerApp.MSISDN_SETTING, null);
+		mLocalMSISDN = prefs.getData(HikeMessengerApp.MSISDN_SETTING, null);
 
 		Object obj = getLastCustomNonConfigurationInstance();
 
@@ -140,7 +139,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 				/*
 				 * Saving the file path. Will use this to get the file once the image has been captured.
 				 */
-				Editor editor = prefs.edit();
+				Editor editor = prefs.getPref().edit();
 				editor.putString(HikeMessengerApp.FILE_PATH, selectedFileIcon.getAbsolutePath());
 				editor.commit();
 
@@ -192,7 +191,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 				// if checkbox is selected, delete the profile status update from own and favorites timeline
 				if (deleteConfirmDialog.isChecked())
 				{
-					ContactInfo contactInfo = Utils.getUserContactInfo(prefs);
+					ContactInfo contactInfo = Utils.getUserContactInfo(prefs.getPref());
 					StatusMessageType[] smType = { StatusMessageType.PROFILE_PIC };
 					StatusMessage lastsm = HikeConversationsDatabase.getInstance().getLastStatusMessage(smType, contactInfo);
 
@@ -228,17 +227,8 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 	 */
 	public void deleteDisplayPicture(final String id)
 	{
-		String statusId;
-
-		if (id == null)
-		{
-			statusId = "";
-		}
-		else
-		{
-			statusId = HikeConstants.HTTP_STATUS_ID + id;
-		}
-
+		String statusId = (id == null) ? "" : (HikeConstants.HTTP_STATUS_ID + id);
+		
 		HikeHttpRequest hikeHttpRequest = new HikeHttpRequest("/account/avatar" + statusId, RequestType.DELETE_DP, new HikeHttpCallback()
 		{
 			@Override
@@ -252,7 +242,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 				if (id != null)
 				{
 					HikeMessengerApp.getPubSub().publish(HikePubSub.DELETE_STATUS, id);
-					ContactInfo contactInfo = Utils.getUserContactInfo(prefs);
+					ContactInfo contactInfo = Utils.getUserContactInfo(prefs.getPref());
 					StatusMessageType[] smType = { StatusMessageType.PROFILE_PIC };
 					StatusMessage lastsm = HikeConversationsDatabase.getInstance().getLastStatusMessage(smType, contactInfo);
 
@@ -290,7 +280,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 		final CharSequence[] items = ctx.getResources().getStringArray(R.array.profile_pic_dialog);
 
 		// Show Remove Photo item only if user has a profile photo other than default
-		ContactInfo contactInfo = Utils.getUserContactInfo(ctx.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, Context.MODE_PRIVATE));
+		ContactInfo contactInfo = Utils.getUserContactInfo(prefs.getPref());
 
 		if (!isGroupConv && ContactManager.getInstance().hasIcon(contactInfo.getMsisdn()))
 		{
@@ -340,13 +330,13 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 		{
 		case HikeConstants.CAMERA_RESULT:
 			Logger.d("ProfileActivity", "The activity is " + this);
-			String filePath = prefs.getString(HikeMessengerApp.FILE_PATH, "");
+			String filePath = prefs.getData(HikeMessengerApp.FILE_PATH, "");
 			selectedFileIcon = new File(filePath);
 
 			/*
 			 * Removing this key. We no longer need this.
 			 */
-			Editor editor = prefs.edit();
+			Editor editor = prefs.getPref().edit();
 			editor.remove(HikeMessengerApp.FILE_PATH);
 			editor.commit();
 
@@ -473,6 +463,28 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 	}
 
 	/**
+	 * Used to scale down the dp bitmap to send to server
+	 * @return bitmap byte array
+	 */
+	private byte[] scaleDownBitmap()
+	{
+		byte[] bytes = null;
+		
+		/* the server only needs a smaller version */
+		final Bitmap smallerBitmap = HikeBitmapFactory.scaleDownBitmap(mActivityState.destFilePath, HikeConstants.PROFILE_IMAGE_DIMENSIONS, HikeConstants.PROFILE_IMAGE_DIMENSIONS,
+				Bitmap.Config.RGB_565, true, false);
+
+		if (smallerBitmap == null)
+		{
+			failureWhileSettingProfilePic();
+			return bytes;
+		}
+		bytes = BitmapUtils.bitmapToBytes(smallerBitmap, Bitmap.CompressFormat.JPEG, 100);
+		
+		return bytes;
+	}
+	
+	/**
 	 * Used to upload profile picture to the server, compose related timeline post
 	 * 
 	 * @param httpApi
@@ -482,17 +494,10 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 	{
 		if (mActivityState.destFilePath != null)
 		{			
-			/* the server only needs a smaller version */
-			final Bitmap smallerBitmap = HikeBitmapFactory.scaleDownBitmap(mActivityState.destFilePath, HikeConstants.PROFILE_IMAGE_DIMENSIONS,
-					HikeConstants.PROFILE_IMAGE_DIMENSIONS, Bitmap.Config.RGB_565, true, false);
-
-			if (smallerBitmap == null)
-			{
-				failureWhileSettingProfilePic();
+			final byte[] bytes = scaleDownBitmap();
+			
+			if(bytes == null)
 				return;
-			}
-
-			final byte[] bytes = BitmapUtils.bitmapToBytes(smallerBitmap, Bitmap.CompressFormat.JPEG, 100);
 
 			HikeHttpRequest request = new HikeHttpRequest(httpApi, RequestType.PROFILE_PIC, new HikeHttpRequest.HikeHttpCallback()
 			{
@@ -520,8 +525,8 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 					}
 
 					String mappedId = data.optString(HikeConstants.STATUS_ID);
-					String msisdn = prefs.getString(HikeMessengerApp.MSISDN_SETTING, "");
-					String name = prefs.getString(HikeMessengerApp.NAME_SETTING, "");
+					String msisdn = prefs.getData(HikeMessengerApp.MSISDN_SETTING, "");
+					String name = prefs.getData(HikeMessengerApp.NAME_SETTING, "");
 					long time = (long) System.currentTimeMillis() / 1000;
 
 					StatusMessage statusMessage = new StatusMessage(0, mappedId, msisdn, name, "", StatusMessageType.PROFILE_PIC, time, -1, 0);
@@ -538,8 +543,8 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 					 */
 					Utils.copyFile(srcFilePath, destFilePath, null);
 
-					int unseenUserStatusCount = prefs.getInt(HikeMessengerApp.UNSEEN_USER_STATUS_COUNT, 0);
-					Editor editor = prefs.edit();
+					int unseenUserStatusCount = prefs.getData(HikeMessengerApp.UNSEEN_USER_STATUS_COUNT, 0);
+					Editor editor = prefs.getPref().edit();
 					editor.putInt(HikeMessengerApp.UNSEEN_USER_STATUS_COUNT, ++unseenUserStatusCount);
 					editor.putBoolean(HikeConstants.IS_HOME_OVERFLOW_CLICKED, false);
 					editor.commit();
