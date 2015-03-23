@@ -134,26 +134,26 @@ public class CallFailedFragment extends SherlockFragment
 
 		switch(callFailedCode)
 		{
-			case VoIPConstants.ConnectionFailCodes.PARTNER_SOCKET_INFO_TIMEOUT:
-			case VoIPConstants.ConnectionFailCodes.PARTNER_BUSY:
-			case VoIPConstants.ConnectionFailCodes.PARTNER_ANSWER_TIMEOUT:
-			case VoIPConstants.ConnectionFailCodes.CALLER_IN_NATIVE_CALL:
+			case VoIPConstants.CallFailedCodes.PARTNER_SOCKET_INFO_TIMEOUT:
+			case VoIPConstants.CallFailedCodes.PARTNER_BUSY:
+			case VoIPConstants.CallFailedCodes.PARTNER_ANSWER_TIMEOUT:
+			case VoIPConstants.CallFailedCodes.CALLER_IN_NATIVE_CALL:
 				view.setText(getString(R.string.voip_not_reachable, partnerName));
 				break;
 
-			case VoIPConstants.ConnectionFailCodes.PARTNER_INCOMPAT:
+			case VoIPConstants.CallFailedCodes.PARTNER_INCOMPAT:
 				view.setText(getString(R.string.voip_incompat_platform));
 				enableRedial = false;
 				break;
 
-			case VoIPConstants.ConnectionFailCodes.PARTNER_UPGRADE:
+			case VoIPConstants.CallFailedCodes.PARTNER_UPGRADE:
 				view.setText(getString(R.string.voip_older_app, partnerName));
 				enableRedial = false;
 				break;
 
-			case VoIPConstants.ConnectionFailCodes.EXTERNAL_SOCKET_RETRIEVAL_FAILURE:
-			case VoIPConstants.ConnectionFailCodes.UDP_CONNECTION_FAIL:
-			case VoIPConstants.ConnectionFailCodes.CALLER_BAD_NETWORK:
+			case VoIPConstants.CallFailedCodes.EXTERNAL_SOCKET_RETRIEVAL_FAILURE:
+			case VoIPConstants.CallFailedCodes.UDP_CONNECTION_FAIL:
+			case VoIPConstants.CallFailedCodes.CALLER_BAD_NETWORK:
 				view.setText(getString(R.string.voip_caller_poor_network, partnerName));
 				break;
 

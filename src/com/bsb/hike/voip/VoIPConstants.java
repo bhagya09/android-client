@@ -94,7 +94,7 @@ public class VoIPConstants {
 		public static final String CALL_CONNECT_FAIL_REASON = "reason";
 	}
 
-	public static final class ConnectionFailCodes
+	public static final class CallFailedCodes
 	{
 		public static final int PARTNER_UPGRADE = 0;
 
