@@ -99,6 +99,8 @@ public class ConversationsAdapter extends BaseAdapter
 
 		ImageView avatar;
 		
+		ImageView hiddenIndicator;
+		
 		View parent;
 		
 		ImageView muteIcon;
@@ -214,6 +216,7 @@ public class ConversationsAdapter extends BaseAdapter
 				viewHolder.subText = (TextView) v.findViewById(R.id.last_message);
 				viewHolder.timeStamp = (TextView) v.findViewById(R.id.last_message_timestamp);
 				viewHolder.avatar = (ImageView) v.findViewById(R.id.avatar);
+				viewHolder.hiddenIndicator = (ImageView) v.findViewById(R.id.hidden_indicator);
 				viewHolder.muteIcon = (ImageView) v.findViewById(R.id.mute_indicator);
 				break;
 			case STEALTH_FTUE_TIP_VIEW:
@@ -377,8 +380,6 @@ public class ConversationsAdapter extends BaseAdapter
 		}
 		else if (viewType == ViewType.STEALTH_REVEAL_TIP)
 		{
-
-			final int pos = position;
 			viewHolder.headerText.setText(R.string.tap_to_reveal_stealth_contacts);
 			viewHolder.subText.setVisibility(View.GONE);
 			viewHolder.closeTip.setOnClickListener(new OnClickListener()
@@ -386,7 +387,7 @@ public class ConversationsAdapter extends BaseAdapter
 				@Override
 				public void onClick(View view)
 				{
-					HikeMessengerApp.getPubSub().publish(HikePubSub.DISMISS_STEALTH_REVEAL_TIP, pos);
+					HikeMessengerApp.getPubSub().publish(HikePubSub.REMOVE_STEALTH_REVEAL_TIP, null);
 					HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STEALTH_MODE_FTUE_DONE, true);
 				}
 			});
@@ -394,7 +395,6 @@ public class ConversationsAdapter extends BaseAdapter
 		}
 		else if (viewType == ViewType.STEALTH_HIDE_TIP)
 		{
-			final int pos = position;
 			viewHolder.headerText.setText(R.string.tap_to_hide_stealth_contacts);
 			viewHolder.subText.setVisibility(View.GONE);
 			viewHolder.closeTip.setOnClickListener(new OnClickListener()
@@ -402,7 +402,7 @@ public class ConversationsAdapter extends BaseAdapter
 				@Override
 				public void onClick(View view)
 				{
-					HikeMessengerApp.getPubSub().publish(HikePubSub.DISMISS_STEALTH_HIDE_TIP, pos);
+					HikeMessengerApp.getPubSub().publish(HikePubSub.REMOVE_STEALTH_HIDE_TIP, null);
 					HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STEALTH_MODE_FTUE_DONE, true);
 				}
 			});
@@ -507,7 +507,6 @@ public class ConversationsAdapter extends BaseAdapter
 
 		if (itemToBeAnimated(conversation))
 		{
-			//FOUND this is where animation of sliding in happens
 			final Animation animation = AnimationUtils.loadAnimation(context,
 		            R.anim.slide_in_from_left);
 			v.startAnimation(animation);
@@ -698,6 +697,14 @@ public class ConversationsAdapter extends BaseAdapter
 
 		ImageView avatarView = viewHolder.avatar;
 		iconLoader.loadImage(conversation.getMsisdn(), true, avatarView, false, isListFlinging, true);
+		if(conversation.isStealth())
+		{
+			viewHolder.hiddenIndicator.setVisibility(View.VISIBLE);
+		}
+		else
+		{
+			viewHolder.hiddenIndicator.setVisibility(View.GONE);
+		}
 	}
 
 	public void updateViewsRelatedToMute(View parentView, Conversation conversation)

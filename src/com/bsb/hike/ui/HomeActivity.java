@@ -1848,9 +1848,9 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		{
 			if (!StealthModeManager.getInstance().isActive())
 			{
+				//if FTUE is not setup, show the HIDE TIP after removing REVEAL TIP
 				if(!HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STEALTH_MODE_FTUE_DONE, true))
 				{
-
 					HikeMessengerApp.getPubSub().publish(HikePubSub.SHOW_STEALTH_HIDE_TIP, true);
 					HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STEALTH_MODE_FTUE_DONE, true);
 					StealthModeManager.getInstance().activate(true);
@@ -1861,14 +1861,12 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 				{
 					LockPattern.confirmPattern(HomeActivity.this, false);
 				}
-				//FOUND confirm happens here
 			}
 			else
 			{
 				
-				HikeMessengerApp.getPubSub().publish(HikePubSub.DISMISS_STEALTH_HIDE_TIP, 0);
+				HikeMessengerApp.getPubSub().publish(HikePubSub.REMOVE_STEALTH_HIDE_TIP, null);
 				StealthModeManager.getInstance().activate(false);
-				//FOUND onclick hike button, pubsub STEALH MODE TOGGLED is fired
 			
 					HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_MODE_TOGGLED, true);
 				

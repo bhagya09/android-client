@@ -20,6 +20,14 @@
             <com.bsb.hike.ui.utils.RecyclingImageView
                 android:id="@+id/avatar"
                 style="@style/AvatarStyle.MorePadding" />
+            <com.bsb.hike.ui.utils.RecyclingImageView
+                android:id="@+id/hidden_indicator"
+                android:src="@drawable/hidden_mode_indicator"
+                android:layout_gravity="bottom|right"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:visibility="gone"/>
+                
         </FrameLayout>
 
         <LinearLayout

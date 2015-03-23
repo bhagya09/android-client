@@ -1,20 +1,21 @@
 package com.bsb.hike.utils;
 
+import android.app.Activity;
 import android.content.Context;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.models.Conversation;
 import com.bsb.hike.models.HikeHandlerUtil;
+import com.bsb.hike.ui.utils.LockPattern;
 
 /*
  * Reset mode is highly dependent on this singleTon, therefore it needs more asynchronous fault proofing.
  */
 public class StealthModeManager
 {
-	// FOUND stealth mode toggled timer can be set here
 	private static final int RESET_TOGGLE_TIME_MS =10 * 1000;
-
 
 	private static final StealthModeManager stealthModeManager = new StealthModeManager();
 
@@ -90,5 +91,21 @@ public class StealthModeManager
 		prefUtil.removeData(HikeMessengerApp.SHOWING_STEALTH_FTUE_CONV_TIP);
 		prefUtil.removeData(HikeMessengerApp.RESET_COMPLETE_STEALTH_START_TIME);
 		prefUtil.removeData(HikeMessengerApp.SHOWN_FIRST_UNMARK_STEALTH_TOAST);
+	}
+
+	public void hideActionTriggered(Conversation conv, Activity activity) 
+	{	
+		if (!StealthModeManager.getInstance().isSetUp())
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STEALTH_MODE_FTUE_DONE, false);
+			LockPattern.createNewPattern(activity, false);
+		} 
+		else if (!StealthModeManager.getInstance().isActive())
+		{
+			LockPattern.confirmPattern(activity, false);
+		}
+		HikeMessengerApp.addStealthMsisdnToMap(conv.getMsisdn());
+		HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_CONVERSATION_MARKED, conv);
+		HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_MODE_TOGGLED, !StealthModeManager.getInstance().isActive());
 	}
 }

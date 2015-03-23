@@ -40,6 +40,7 @@ import android.util.Pair;
 import com.bsb.hike.db.DbConversationListener;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.db.HikeMqttPersistence;
+import com.bsb.hike.models.Conversation;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.modules.contactmgr.ContactManager;
@@ -1004,23 +1005,23 @@ public void onTrimMemory(int level)
 		stealthMsisdn.add(msisdn);
 	}
 
-	public static void addNewStealthMsisdn(String msisdn)
+	public static void addNewStealthMsisdn(Conversation conv)
 	{
-		addStealthMsisdnToMap(msisdn);
-		getPubSub().publish(HikePubSub.STEALTH_CONVERSATION_MARKED, msisdn);
+		addStealthMsisdnToMap(conv.getMsisdn());
+		getPubSub().publish(HikePubSub.STEALTH_CONVERSATION_MARKED, conv);
 	}
 
-	public static void removeStealthMsisdn(String msisdn)
+	public static void removeStealthMsisdn(Conversation conv)
 	{
-		removeStealthMsisdn(msisdn, true);
+		removeStealthMsisdn(conv, true);
 	}
 
-	public static void removeStealthMsisdn(String msisdn, boolean publishEvent)
+	public static void removeStealthMsisdn(Conversation conv, boolean publishEvent)
 	{
-		stealthMsisdn.remove(msisdn);
+		stealthMsisdn.remove(conv.getMsisdn());
 		if(publishEvent)
 		{
-			getPubSub().publish(HikePubSub.STEALTH_CONVERSATION_UNMARKED, msisdn);
+			getPubSub().publish(HikePubSub.STEALTH_CONVERSATION_UNMARKED, conv);
 		}
 	}
 

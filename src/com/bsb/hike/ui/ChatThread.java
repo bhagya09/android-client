@@ -1487,6 +1487,7 @@ public class ChatThread extends HikeAppStateBaseFragmentActivity implements Hike
 		}
 		
 		optionsList.add(new OverFlowMenuItem(getString(R.string.clear_chat), 5));
+		optionsList.add(new OverFlowMenuItem(getString(R.string.hide_chat), 8));
 		if(messages.size() > 0)
 		{
 			optionsList.add(new OverFlowMenuItem(getString(R.string.email_chat), 3));
@@ -1631,6 +1632,9 @@ public class ChatThread extends HikeAppStateBaseFragmentActivity implements Hike
 					break;
 				case 4:
 					setupThemePicker(null);
+					break;
+				case 8:
+					StealthModeManager.getInstance().hideActionTriggered(mConversation, ChatThread.this);
 					break;
 				}
 
@@ -7044,7 +7048,6 @@ public class ChatThread extends HikeAppStateBaseFragmentActivity implements Hike
 						Animation anim = AnimationUtils.loadAnimation(this, R.anim.scale_out_from_mid);
 						animatedBackground.startAnimation(anim);
 
-						// FOUND this is where animation for sticker shop works
 						shopIcon.setAnimation(HikeAnimationFactory.getStickerShopIconAnimation(this));
 					}
 					

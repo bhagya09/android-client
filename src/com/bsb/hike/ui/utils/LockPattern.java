@@ -53,9 +53,7 @@ public class LockPattern
 				if (!isReset)
 				{
 					HikeMessengerApp.getPubSub().publish(HikePubSub.SHOW_STEALTH_FTUE_CONV_TIP, null);
-// DONT make it fake now
 					//StealthResetTimer.getInstance().activate(false);
-					//NEVER show black tip
 //					HikeMessengerApp.getPubSub().publish(HikePubSub.SHOW_STEALTH_FTUE_ENTER_PASS_TIP, null);
 					
 					try
