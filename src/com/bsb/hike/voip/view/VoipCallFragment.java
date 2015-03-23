@@ -232,13 +232,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 	@Override
 	public void onPause() 
 	{
-		if (sensorManager != null && VoIPService.isConnected() != true) 
-		{
-			if (proximityWakeLock != null) 
-				proximityWakeLock.release();
-			sensorManager.unregisterListener(proximitySensorEventListener);
-		}
-		
+		releaseProximitySensor();
 		Logger.d(VoIPConstants.TAG, "VoIPCallFragment onPause()");
 		super.onPause();
 	}
@@ -474,11 +468,11 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 
 	private void initProximitySensor() 
 	{
-
 		sensorManager = (SensorManager) getSherlockActivity().getSystemService(Context.SENSOR_SERVICE);
 		Sensor proximitySensor = sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
 
-		if (proximitySensor == null) {
+		if (proximitySensor == null) 
+		{
 			Logger.d(VoIPConstants.TAG, "No proximity sensor found.");
 			return;
 		}
@@ -488,6 +482,18 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		proximityWakeLock.setReferenceCounted(false);
 		sensorManager.registerListener(proximitySensorEventListener, proximitySensor, SensorManager.SENSOR_DELAY_NORMAL);
 
+	}
+
+	private void releaseProximitySensor()
+	{
+		if (sensorManager != null) 
+		{
+			if (proximityWakeLock != null)
+			{
+				proximityWakeLock.release();
+			}
+			sensorManager.unregisterListener(proximitySensorEventListener);
+		}
 	}
 	
 	SensorEventListener proximitySensorEventListener = new SensorEventListener() 
@@ -861,6 +867,9 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		{
 			return;
 		}
+
+		releaseProximitySensor();
+
 		Bundle bundle = new Bundle();
 		bundle.putString(VoIPConstants.PARTNER_MSISDN, voipService.getPartnerClient().getPhoneNumber());
 		bundle.putInt(VoIPConstants.CALL_FAILED_REASON, callFailCode);
