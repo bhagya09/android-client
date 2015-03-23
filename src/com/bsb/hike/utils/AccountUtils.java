@@ -160,7 +160,7 @@ public class AccountUtils
 
 	public static String mUid = null;
 
-	private static String appVersion = null;
+	public static String appVersion = null;
 	
 	public static final String SDK_AUTH_BASE_URL_STAGING = "http://stagingoauth.im.hike.in/o/oauth2/";
 
@@ -897,7 +897,7 @@ public class AccountUtils
 		}
 	}
 
-	public static void deleteSocialCredentials(boolean facebook) throws NetworkErrorException, IllegalStateException
+	/*public static void deleteSocialCredentials(boolean facebook) throws NetworkErrorException, IllegalStateException
 	{
 		String url = facebook ? "/account/connect/fb" : "/account/connect/twitter";
 		HttpDelete delete = new HttpDelete(base + url);
@@ -907,7 +907,7 @@ public class AccountUtils
 		{
 			throw new NetworkErrorException("Could not delete account");
 		}
-	}
+	}*/
 
 	public static String getServerUrl()
 	{

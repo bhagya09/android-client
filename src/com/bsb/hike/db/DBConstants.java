@@ -5,9 +5,9 @@ import com.bsb.hike.models.ContactInfo.FavoriteType;
 public interface DBConstants
 {
 
-	public static final int CONVERSATIONS_DATABASE_VERSION = 35;
+	public static final int CONVERSATIONS_DATABASE_VERSION = 36;
 
-	public static final int USERS_DATABASE_VERSION = 15;
+	public static final int USERS_DATABASE_VERSION = 16;
 
 	public static final String HAS_CUSTOM_PHOTO = "hascustomphoto";
 
@@ -234,7 +234,7 @@ public interface DBConstants
 	 *
 	 */
 	public static interface HIKE_CONTENT{
-		public static final int DB_VERSION = 1;
+		public static final int DB_VERSION = 3;
 		public static final String DB_NAME = "hike_content_db";
 		// CONTENT TABLE -> _id,content_id,love_id,channel_id,timestamp,metadata
 		public static final String CONTENT_TABLE = "content";
@@ -263,7 +263,30 @@ public interface DBConstants
 		public static final String ID = "id";
 		public static final String ALARM_DATA = "data";
 		// APP ALARM ENDS HERE
+
+		// PopupDB -->json,start time,end time ,trigger point,Status
+
+		public static final String POPUPDATA = "popupdata";
+
+		public static final String START_TIME = "start_time";
+
+		public static final String END_TIME = "end_time";
+
+		public static final String TRIGGER_POINT = "trigger_point";
+
+		public static final String STATUS = "status";
+		
+		// URL WHITELIST TABLE --> domain, in_hike
+		public static final String URL_WHITELIST = "url_whitelist";
+		
+		public static final String DOMAIN = "domain";
+		
+		public static final String IN_HIKE = "in_hike"; 
+		// URL Whitelist ends here
+		
 		public static final String CONTENT_ID_INDEX = "contentTableContentIdIndex";
+		public static final String CONTENT_TABLE_NAMESPACE_INDEX = "contentTableNamespaceIndex";
+		String NAMESPACE = "nameSpace";
 	}
 
 	public static final String CATEGORY_NAME = "categoryName";
@@ -279,5 +302,22 @@ public interface DBConstants
 	public static final String CATEGORY_SIZE = "categorySize";
 
 	public static final String STICKER_SHOP_TABLE = "stickerShopTable";
+	
+	public static final String MESSAGE_TABLE_CONTENT_INDEX = "messageContentIndex";
+	public static final String SERVER_ID = "serverId";
+	
+	public static final String MESSAGE_ORIGIN_TYPE = "messageOriginType";
+	
+	public static final int NORMAL_TYPE = 0;
+	
+	public static final int BROADCAST_TYPE = 1;
 
+	//We are just using a different name for old timestamp field here.
+	public static final String LAST_MESSAGE_TIMESTAMP = "timestamp";
+
+	public static final String SORTING_TIMESTAMP = "sortingTimeStamp";
+
+	public static final String SERVER_ID_INDEX = "serverid_idx";
+
+	public static final String MESSAGE_TABLE_NAMESPACE_INDEX = "messageNamespaceIndex";
 }

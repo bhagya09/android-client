@@ -106,6 +106,8 @@ public abstract class FileTransferBase implements Callable<FTResult>
 
 	protected FTAnalyticEvents analyticEvents;
 
+	protected final int DEFAULT_CHUNK_SIZE = 100 * 1024;
+
 	protected FileTransferBase(Handler handler, ConcurrentHashMap<Long, FutureTask<FTResult>> fileTaskMap, Context ctx, File destinationFile, long msgId, HikeFileType hikeFileType)
 	{
 		this.handler = handler;

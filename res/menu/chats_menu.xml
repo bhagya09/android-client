@@ -2,6 +2,12 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <item
+		android:id="@+id/search"
+		android:icon="@drawable/ic_top_bar_search"
+		android:showAsAction="always"
+		android:title="@string/search_hint" >
+    </item>
+    <item
         android:id="@+id/new_conversation"
         android:actionLayout="@layout/overflow_icon_view"
         android:showAsAction="always"

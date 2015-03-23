@@ -148,8 +148,8 @@ public class MultiStickerDownloadTask extends BaseStickerDownloadTask
 
 					try
 					{
-						File f = StickerManager.getInstance().saveLargeStickers(largeStickerDir, stickerId, stickerData);
-						StickerManager.getInstance().saveSmallStickers(smallStickerDir, stickerId, f);
+						byte[] byteArray = StickerManager.getInstance().saveLargeStickers(largeStickerDir.getAbsolutePath(), stickerId, stickerData);
+						StickerManager.getInstance().saveSmallStickers(smallStickerDir.getAbsolutePath(), stickerId, byteArray);
 					}
 					catch (FileNotFoundException e)
 					{

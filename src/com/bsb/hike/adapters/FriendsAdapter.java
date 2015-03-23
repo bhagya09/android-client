@@ -13,7 +13,10 @@ import org.json.JSONObject;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.text.Spannable;
+import android.text.SpannableString;
 import android.text.TextUtils;
+import android.text.style.ForegroundColorSpan;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -53,6 +56,8 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 	public static interface FriendsListFetchedCallback
 	{
 		public void listFetched();
+		
+		public void completeListFetched();
 	}
 
 	public static final int FRIEND_INDEX = 0;
@@ -144,7 +149,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 
 	private ContactFilter contactFilter;
 
-	private String queryText;
+	protected String queryText;
 
 	private boolean lastSeenPref;
 
@@ -167,6 +172,8 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 	protected FriendsListFetchedCallback friendsListFetchedCallback;
 
 	protected LastSeenComparator lastSeenComparator;
+
+	protected Map<String, Integer> contactSpanStartIndexes;
 
 	public FriendsAdapter(Context context, ListView listView, FriendsListFetchedCallback friendsListFetchedCallback, LastSeenComparator lastSeenComparator)
 	{
@@ -207,6 +214,8 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 		lastStatusMessagesMap = new HashMap<String, StatusMessage>();
 
 		listFetchedOnce = false;
+
+		contactSpanStartIndexes = new HashMap<String, Integer>();
 	}
 
 	public void executeFetchTask()
@@ -239,6 +248,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 		protected FilterResults performFiltering(CharSequence constraint)
 		{
 			FilterResults results = new FilterResults();
+			contactSpanStartIndexes.clear();
 
 			if (!TextUtils.isEmpty(constraint))
 			{
@@ -275,9 +285,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 				if(nuxRecommendedList != null && !nuxRecommendedList.isEmpty())
 				{
 
-					Logger.d("UmngR", "nux list :" +  nuxRecommendedList.toString());
 					filterList(nuxRecommendedList, nuxFilteredRecoList, textToBeFiltered);
-					Logger.d("UmngR", "nux  filter list :" +  nuxFilteredRecoList.toString());
 				}
 				List<List<ContactInfo>> resultList = new ArrayList<List<ContactInfo>>(3);
 				resultList.add(filteredFriendsList);
@@ -286,7 +294,6 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 				resultList.add(filteredGroupList);
 				resultList.add(filteredRecentsList);
 				resultList.add(filteredRecentlyJoinedList);
-				Logger.d("UmngR", nuxFilteredRecoList.toString());
 				resultList.add(nuxFilteredRecoList);
 
 				results.values = resultList;
@@ -306,35 +313,37 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 
 			try
 			{
+
 				for (ContactInfo info : allList)
 				{
 					String name = info.getName();
-					if (name != null)
+					boolean found = false;
+					int startIndex = 0;
+					name = name.toLowerCase();
+					if (name.startsWith(textToBeFiltered))
 					{
-						name = name.toLowerCase();
-						// for word boundary
-						try
+						found = true;
+					}
+					else if (name.contains(" " + textToBeFiltered))
+					{
+						found = true;
+						startIndex = name.indexOf(" " + textToBeFiltered) + 1;
+					}
+					if(found)
+					{
+						contactSpanStartIndexes.put(info.getMsisdn(), startIndex);
+						listToUpdate.add(info);
+					}
+					else
+					{
+						String msisdn = info.getMsisdn();
+						if (msisdn != null && !Utils.isGroupConversation(msisdn))
 						{
-							if (name.contains(textToBeFiltered))
+							if(msisdn.contains(textToBeFiltered))
 							{
 								listToUpdate.add(info);
-								continue;
 							}
 						}
-						catch (Exception e)
-						{
-						}
-					}
-
-					String msisdn = info.getMsisdn();
-					if (msisdn != null && !Utils.isGroupConversation(msisdn))
-					{
-						// word boundary is not working because of +91 , resolve later --gauravKhanna
-						if (msisdn.contains(textToBeFiltered))
-						{
-							listToUpdate.add(info);
-						}
-
 					}
 				}
 			}
@@ -1060,7 +1069,25 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 
 			updateViewsRelatedToAvatar(convertView, contactInfo);
 
-			name.setText(TextUtils.isEmpty(contactInfo.getName()) ? contactInfo.getMsisdn() : contactInfo.getName());
+			String contactName = contactInfo.getName();
+			String msisdn = contactInfo.getMsisdn();
+
+			if(TextUtils.isEmpty(contactName))
+			{
+				name.setText(msisdn);
+			}
+			else
+			{
+				Integer startIndex = contactSpanStartIndexes.get(msisdn);
+				if(startIndex!=null)
+				{
+					name.setText(getSpanText(contactName, startIndex), TextView.BufferType.SPANNABLE);
+				}
+				else
+				{
+					name.setText(contactName);
+				}
+			}
 
 			if (viewType == ViewType.FRIEND || viewType == ViewType.FRIEND_REQUEST || viewType == ViewType.FTUE_CONTACT)
 			{
@@ -1256,6 +1283,13 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 		return convertView;
 	}
 
+	protected SpannableString getSpanText(String text, Integer start)
+	{
+		SpannableString spanName = new SpannableString(text);
+		spanName.setSpan(new ForegroundColorSpan(context.getResources().getColor(R.color.blue_color_span)), start, start+queryText.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+		return spanName;
+	}
+
 	private void updateViewsRelatedToAvatar(View parentView, ContactInfo contactInfo)
 	{
 		ViewHolder holder = (ViewHolder) parentView.getTag();
@@ -1269,7 +1303,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 			return;
 		}
 
-		iconloader.loadImage(contactInfo.getMsisdn(), true, holder.avatar, false, isListFlinging, true);
+		iconloader.loadImage(contactInfo.getMsisdn(), holder.avatar, isListFlinging, false, true);
 	}
 
 	private void setInviteButton(ContactInfo contactInfo, TextView inviteBtn, ImageView inviteIcon)

@@ -48,9 +48,13 @@
     <string name="invalid_email">Invalid email address</string>
     <string name="joined_conversation">%1$s joined the group chat!</string>
     <string name="left_conversation">%1$s left the group chat.</string>
+    <string name="removed_from_broadcast">%1$s removed from broadcast list</string>
     <string name="leave_group">Leave Group</string>
+    <string name="delete_broadcast">Delete Broadcast</string>
     <string name="group_chat_end">This group chat has ended.</string>
+    <string name="broadcast_list_end">This broadcast list has ended.</string>
     <string name="group_info">Group Info</string>
+    <string name="broadcast_info">Broadcast Info</string>
     <string name="tap_group_info">Tap this button for group info.</string>
     <string name="invite_all_to_hike">Invite members on SMS to hike</string>
     <string name="friend_joined_hike_no_creds">%1$s just joined hike because of you. Great job!</string>
@@ -61,6 +65,7 @@
     <string name="group_chat">Group Chat</string>
     <string name="new_message">New Message</string>
     <string name="add_group">Add to Group</string>
+    <string name="add_broadcast">Add to Broadcast List</string>
     <string name="invite_share_message">I\'m using hike, an awesome new free messaging app! Download the app at http://get.hike.in/%1$s to start messaging me for free!</string>
     <string name="max_sms">Max 5 SMS contacts in a group.</string>
     <string name="max_contact">Max 50 contacts in a group.</string>
@@ -137,6 +142,7 @@
     <string name="no_favorite">You have no favorites.\nTap plus below to add.</string>
     <string name="plus">plus</string>
     <string name="change_group_name">%1$s changed the group name.</string>
+    <string name="change_broadcast_name">%1$s changed the broadcast name.</string>
     <string name="block_internation_sms">SMS can only be sent to India</string>
     <string name="block_internation_sms_bold_text">India</string>
     <string name="invite_via_sms">Invite via SMS</string>
@@ -144,7 +150,9 @@
     <string name="call_me_fail">Unable to call you. Please try again.</string>
     <string name="calling_you">Calling you now...</string>
     <string name="new_group_message">Group Chat with %1$s</string>
+    <string name="new_broadcast_message">Broadcast List with %1$s</string>
     <string name="add_to_group_message">Added %1$s to the group</string>
+    <string name="add_to_broadcast_message">Added %1$s to the list</string>
     <string name="connect_and_get">Connect and get 100 free SMS instantly</string>
     <string name="free_sms_100">100 free SMS</string>
     <string name="facebook">Facebook</string>
@@ -229,6 +237,7 @@
     <string name="hike">hike</string>
     <string name="emoji">Emoji</string>
     <string name="group_profile">Group Info</string>
+    <string name="broadcast_profile">Broadcast List Info</string>
     <string name="group_name">Group Name</string>
     <string name="participants">Participants</string>
     <string name="group_owner">Group Owner</string>
@@ -255,6 +264,7 @@
     <string name="downloading_image">Downloading image...</string>
     <string name="invite_1">Invite</string>
     <string name="invalid_group_chat">Group chat no longer exists</string>
+    <string name="invalid_broadcast_list">Broadcast list no longer exists</string>
     <string name="error_capture">Error capturing image</string>
     <string name="error_play_recording">Error while playing the recording</string>
     <string name="select_invite_contacts">Select the contacts you want to invite</string>
@@ -299,8 +309,11 @@
     <string name="with_love">Made with love in India</string>
     <string name="love">love</string>
     <string name="remove_from_group">Remove from group</string>
+    <string name="remove_from_broadcast">Remove from broadcast list</string>
     <string name="leave_group_confirm">Are you sure you want to leave this group?</string>
+    <string name="delete_broadcast_confirm">Are you sure you want to delete this Broadcast List?</string>
     <string name="remove_confirm">Are you sure you want to remove %1$s from the group?</string>
+    <string name="remove_confirm_broadcast">Are you sure you want to remove %1$s from this list?</string>
     <string name="no">No</string>
     <string name="location_disabled">Cannot fetch your location. Please check your settings.</string>
     <string name="added_favorite">I added you as a favorite</string>
@@ -337,6 +350,7 @@
     <string name="add_member">Add a member</string>
     <string name="invite_all_members">Invite SMS members to hike</string>
     <string name="send_message">Send a message</string>
+    <string name="make_call">Make a call</string>
     <string name="post_status">Post a status</string>
     <string name="owner">Owner</string>
     <string name="on_sms">on SMS</string>
@@ -367,11 +381,6 @@
     <string name="contact_not_saved">Contact could not be saved</string>
     <string name="invite_family">Your Family</string>
     <string name="share_fb_twitter">Share on Facebook and Twitter</string>
-    <string name="app_rate_title">Love using hike?</string>
-    <string name="app_rate_content">Please rate us on Google Play.</string>
-    <string name="rate_now">Rate now</string>
-    <string name="ask_me_later">Ask me later</string>
-    <string name="no_thanks_rate">No, thanks</string>
     <string name="system_health">System Health</string>
     <string name="male">Male</string>
     <string name="female">Female</string>
@@ -539,6 +548,8 @@
     <string name="read_by_everyone">Read by everyone</string>
     <string name="attach">Attach</string>
     <string name="new_group">New Group</string>
+    <string name="new_broadcast">New Broadcast</string>
+    <string name="broadcast">Broadcast</string>
     <string name="sent_friend_request">Sent a friend request</string>
     <string name="xyz_posted_update">%1$s posted an update</string>
     <string name="sent_you_friend_request">Sent you a friend request</string>
@@ -570,7 +581,6 @@
     <string name="audio">AUDIO</string>
     <string name="location">Location</string>
     <string name="places_api_key">AIzaSyBMpi-RNcG5enYGvdag0F4UXTmboawXDZM</string>
-    <string name="enter_valid_group_name">Please enter a valid group name</string>
     <string name="add_as_friend_profile">Would you like to add %1$s as a friend to share updates?</string>
     <string name="request_pending">Friend request pending</string>
     <string name="remove_from_friends">Remove from your friend list</string>
@@ -579,6 +589,7 @@
     <string name="verify">Verify</string>
     <string name="accepted_request">Accepted your friend request. You will now be able to see updates from %1$s</string>
     <string name="edit_group_name">Edit Group Name</string>
+    <string name="edit_broadcast_name">Edit Broadcast Name</string>
     <string name="invite_name_to_hike">Invite %1$s to hike</string>
     <string name="you_no_updates">You have no updates! Let your friends know what you are up to</string>
     <string name="tap_hold_participant">Tap and hold on participant\'s name to see more options</string>
@@ -705,6 +716,7 @@
     <string name="selected_count">%1$s selected</string>
     <string name="clear_conversation">Clear Conversation</string>
     <string name="gallery_num_selected">%1$d selected</string>
+    <string name="broadcast_selected">%1$s/500 selected</string>
     <string name="select_file">Select File</string>
     <string name="free_of_total">Free %1$s of %2$s</string>
     <string name="unknown_error">Unknown error</string>
@@ -731,6 +743,7 @@
     <string name="tutorial2_header_title">Tonnes of fun, beautiful\nstickers!</string>
     <string name="tutorial3_header_title">Make conversations\ncolourful.</string>
     <string name="get_started">Get Started</string>
+    <string name="got_it">GOT IT</string>
     <string name="whats_your_number">Hi! What\'s your number?</string>
     <string name="select_country">Select Country</string>
     <string name="wrong_country">Invalid country code</string>
@@ -770,6 +783,7 @@
     <string name="compose_chat_action_bar_group_mode_title">Select members (min 2)</string>
     <string name="compose_chat_action_bar_title">New Chat</string>
     <string name="name_group">Name the group</string>
+    <string name="name_broadcast">Name the broadcast</string>
     <string name="group_chats">Group Chats</string>
     <string name="friend_requests_sent">Friend requests sent</string>
     <string name="blue_status_updates">status updates</string>
@@ -794,12 +808,16 @@
     <string name="delivered_txt">Delivered</string>
     <string name="read_txt">Read</string>
     <string name="no_results">No results</string>
+    <string name="no_hike_contacts">No hike contacts</string>
     <string name="num_unread_messages">%1$s Unread Messages</string>
     <string name="one_unread_message">1 Unread Message</string>
     <string name="file_transfer_pop_up_text">Send all files including pdf, ppt, docs upto <b>100MB</b> each. You can also send multiple files in one go!</string>
     <string name="invite_friends_confirmation_msg">Would you like to invite %1$s of your friends to hike?</string>
     <string name="didnt_get_pin">Didn\'t get the PIN, we will call you</string>
     <string name="maxContactInGroupErr">Max %1$s contacts are allowed in a group</string>
+    <string name="maxContactInBroadcastErr">Max %1$s contacts are allowed in this broadcast list</string>
+    <string name="minContactInGroupErr">Select Min %1$s member(s) to start a group chat</string>
+    <string name="minContactInBroadcastErr">Atleast %1$s contacts must be selected</string>
     <string name="cannot_select_zero_byte_file">Cannot select a 0 byte file</string>
     <string name="chatThreadNudgeTutorialText_group">Double tap anywhere to nudge your friends</string>
     <string name="addedYouAsFavorite">Added %1$s to Favorites</string>
@@ -921,7 +939,9 @@
     <string name="shortcut">Add conversation shortcut</string>
     <string name="add_to_contacts">Add to contacts</string>
     <string name="delete_leave">Delete and exit group</string>
-    <string name="group_participant_info">You can add upto 100 people to a group</string>
+    <string name="group_participant_info">You can add upto 500 people to a group</string>
+    <string name="broadcast_ftue_message">A broadcast lets you send the same message to multiple hike contacts at once</string>
+    <string name="broadcast_participant_info"><![CDATA[<font color=\"#848484\"><b>Note: </b>Only hike contacts with %1$s in their address book will receive this broadcast.</font>]]></string>
     <string name="photo">GALLERY</string>
     <string name="video">VIDEOS</string>
     <string name="location_option">LOCATION</string>
@@ -1109,6 +1129,7 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="pins">Pins</string>
     <string name="groups">Groups</string>
     <string name="members">MEMBERS</string>
+    <string name="recipients">RECIPIENTS</string>
     <string name="phone_pa">PHONE</string>
     <string name="shared_cont_pa">SHARED CONTENT</string>
     <string name="no_internet_try_again">No internet connection. Please try again later.</string>
@@ -1119,6 +1140,7 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="team_hike">hike</string>
     <string name="add_fav_msg">Is now sharing last seen and status updates. Would you like to do the same?</string>
     <string name="add_people">ADD A MEMBER</string>
+    <string name="add_recipients">ADD RECIPIENTS</string>
     <string name="stealth_info_tip_header">Hidden Mode</string>
     <string name="file_missing_caps">FILE MISSING</string>
     <string name="status_profile_pic_notification">changed profile picture</string>
@@ -1140,7 +1162,7 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="media_settings_hinttext">Settings for photos, videos, audio</string>
     <string name="image_quality_small">Normal</string>
     <string name="image_quality_medium">Better</string>
-	<string name="image_quality_original">Uncompressed</string>    
+    <string name="image_quality_original">Uncompressed</string>
     <string name="image_quality_send">Send</string>
     <string name="image_quality_files_as">files as</string>
     <string name="image_quality_popup_header">Choose image quality</string>
@@ -1149,6 +1171,7 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="no_media">Photos and videos are shown here</string>
     <string name="add_fav">Add to favorites</string>
     <string name="no_file">Files and pins are shown here</string>
+    <string name="no_file_broadcast">Files are shown here</string>
     <string name="no_file_profile">Files are shown here</string>
     <string name="num_new_conversations">%1$s conversations</string>
     <string name="notifications_contact_join_title">Contact joining hike</string>
@@ -1176,7 +1199,6 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="content_card_title_tag">T1</string>
     <string name="content_card_subtitle_tag">T2</string>
     <string name="content_card_action_tag">T3</string>
-
     <string name="auth_title">Do you want to authorize %1$s \n to use your hike account?</string>
     <string name="auth_cd_app_logo">Application icon</string>
     <string name="auth_app_access_to">%1$s will receive access to:</string>
@@ -1236,7 +1258,7 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="pack_visible">Visible in sticker palette</string>
     <string name="pack_hidden">Hidden from sticker palette</string>
     <string name="pack_rank">%1$d.</string>
-    <string name="hike_upgrade_string">We need a few moments to set up your brand new sticker shop. It won\'t be long</string>
+    <string name="hike_upgrade_string">Making hike faster and better for you</string>
     <string name="some_error">Some error occured!</string>
     <string name="nux_fwd_search_hint">Names go here...</string>
     <string name="recently_joined_hike">RECENTLY JOINED HIKE</string>
@@ -1255,9 +1277,9 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="play_text">PLAY</string>
     <string name="install_description">Hey, try out this awesome game I have been playing!</string>
     <string name="play_description">Are you playing this? Best game ever! Play and help me out.</string>
-	<string name="connected_apps_to_hike"> %1$s apps connected to hike</string>
-	<string name="connected_app_to_hike">1 app connected to hike</string>
-	<string name="confirm_disconnect_app">You will miss out on relevant benefits.</string>
+    <string name="connected_apps_to_hike"> %1$s apps connected to hike</string>
+    <string name="connected_app_to_hike">1 app connected to hike</string>
+    <string name="confirm_disconnect_app">You will miss out on relevant benefits.</string>
     <string name="send_sticker_joy">Wish your friends with this sticker</string>
     <string name="nux_invitefrnds_skip">SKIP</string>
     <string name="nux_invitefrnds_reward">Say more with stickers!</string>
@@ -1275,7 +1297,7 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="select_friends">SELECT FRIENDS</string>
     <string name="custom_message">I just love these stickers on hike. Check them out!</string>
     <string name="custome_message_send_button">SEND</string>
-    <string name="custom_message_hint"> </string>
+    <string name="custom_message_hint"></string>
     <string name="nux_select_friends_1">Choose your best friends</string>
     <string name="nux_select_friends_2">Pick %d more</string>
     <string name="nux_select_friends_3">You\'re good to go!</string>
@@ -1323,9 +1345,10 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="error_card_sharing">Some error occured, please try again</string>
     <string name="cardShareDescription">
 <![CDATA[ Get hike messenger at <font color="#57dcf9">http://get.hike.in</font>
-	    ]]></string>
-	    <string name="cardShareCaption">Download hike messenger at http://get.hike.in</string>
-        <string name="cardShareHeading">Don\'t miss out on all the fun on hike !</string>
+	    ]]>
+    </string>
+    <string name="cardShareCaption">Download hike messenger at http://get.hike.in</string>
+    <string name="cardShareHeading">Don\'t miss out on all the fun on hike !</string>
     <string name="voip_call_issues_header">Tell us about the issues</string>
     <string name="voip_call_issues_subheader">Select relevant options</string>
     <string name="report_issue">REPORT ISSUE</string>
@@ -1335,8 +1358,6 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="voip_issue_drop">Call Drop</string>
     <string name="voip_issue_network">Network Issue</string>
     <string name="voip_issue_delay">Voice Delay</string>
-    <string name="voip_partner_upgrade">Your friend is on an older version. Ask them to update hike.</string>
-    <string name="voip_partner_incompat">Your friend\'s hike doesn\'t support free hike calls just yet. You\'ll have to message them for now :)</string>
 	<string name="voip_partner_is_busy">Busy</string>
 	<string name="voip_call_on_hold">Call on hold</string>
 	<string name="voip_call_issues_submit_toast">Your feedback has been submitted</string>
@@ -1346,7 +1367,30 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="voip_missed_call_action">Call Back</string>
     <string name="voip_missed_call_message">Message</string>
     <string name="valentine_day">Happy Valentine\'s Day</string>
+    <string name="take_photo">Take a photo</string>
+    <string name="photo_dp_saving">Saving as profile photo..</string>
+    <string name="photo_dp_saved">All set!</string>
+    <string name="photo_dp_finishing">Finishing up..</string>
+    <string name="photo_dp_saved_sub">Lookin\' good</string>
+    <string name="photo_dp_save_error">Couldn\'t set profile photo</string>
+    <string name="photo_dp_save_error_sub">Tap to retry</string>
+    <string name="photo_gallery_choose_pic">Choose a photo</string>
+    <string name="cropping_image">Cropping image..</string>
+    <string name="compose_chat">New chat</string>
+    <string name="terms_conditions_hint">Terms and Conditions</string>
+	<string name="terms_conditions_title">T &amp; C</string>
+	<string name="home_search_empty_text">Your search for \'%1$s\' did not match any contacts.</string>
     <string name="voip_phone_unsupported">Your phone is not supported.</string>
+    <string name="voip_call_failed_frag_subheader">You can still contact %1$s with a</string>
+    <string name="dismiss_upper_case">DISMISS</string>
+    <string name="voip_call_failed_voice_clip">Voice message</string>
+    <string name="voip_call_failed_message">hike message</string>
+    <string name="voip_call_failed_redial">Redial</string>
+    <string name="voip_call_failed_native_call">Operator call</string>
+    <string name="voip_not_reachable">%1$s is Not Reachable</string>
+    <string name="voip_incompat_platform">Free hike calls are currently \navailable only on Android.</string>
+    <string name="voip_older_app">%1$s is on an Older Version of hike</string>
+    <string name="voip_caller_poor_network">You or %1$s is on a poor network</string>
     <string name="voip_unable_to_connect_call">Unable to connect your call</string>
     <string name="voip_unable_to_connect_to_network">Unable to connect to network</string>
     <string name="voip_reconnecting_call">Reconnecting your call...</string>
@@ -1357,4 +1401,16 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="holi">Happy Holi</string>
     <string name="terms_conditions_hint">Terms &amp; Conditions</string>
 	<string name="terms_conditions_title">Terms</string>
+    <string name="retry_platform_failure">RETRY</string>
+    <string name="platform_error_text">SOMETHING WENT WRONG</string>
+    <string name="platform_error_subtext">Please Check your Internet Connection</string>
+	<string name="added_in_group">You have already added this contact in group</string>
+	<string name="added_in_broadcast">You have already added this contact in broadcast list</string>
+	<string name="enter_valid_group_name">Group name cannot be empty</string>
+	<string name="enter_valid_broadcast_name">Broadcast name cannot be empty</string>
+    <string name="doodle_error_message">Unable to save Doodle!\nNot Enough Memory On Device.</string>
+    <string name="photos_oom_save">Unable to save Image!\nNot Enough Memory On Device.</string>
+    <string name="photos_oom_load">Unable to load Image!\nNot Enough Memory On Device.</string>
+    <string name="photos_oom_retry">Try Again!</string>
+    <string name="photos_oom_camera">Unable to capture Image</string>
 </resources>

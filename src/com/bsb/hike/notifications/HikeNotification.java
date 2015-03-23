@@ -324,7 +324,7 @@ public class HikeNotification
 		{
 			if (convMsg.getParticipantInfoState() == ParticipantInfoState.USER_JOIN)
 			{
-				message = String.format(context.getString(R.string.user_back_on_hike), contactInfo.getFirstName());
+				message = String.format(convMsg.getMessage(), contactInfo.getFirstName());
 			}
 			else
 			{
@@ -545,6 +545,7 @@ public class HikeNotification
 			{
 				return;
 			}
+			
 			else if (convMessage.isStickerMessage())
 			{
 				Bitmap bigPictureImage = ToastListener.returnBigPicture(convMessage, context);
@@ -1319,5 +1320,12 @@ public class HikeNotification
 			notifSound = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.NOTIFICATION_TONE_URI, NOTIF_SOUND_HIKE);
 			mBuilder.setSound(Uri.parse(notifSound));
 		}
+	}
+	public  void notifyUserAndOpenHomeActivity(String text, String title, boolean shouldNotPlaySound)
+	{
+		Drawable drawable =context.getResources().getDrawable(R.drawable.hike_avtar_protip);
+		Intent intent=Utils.getHomeActivityIntent(context);
+		HikeNotification.getInstance(context).showBigTextStyleNotification(intent, 0, System.currentTimeMillis(), HikeNotification.HIKE_SUMMARY_NOTIFICATION_ID, title, text,
+				title, "", null, drawable, shouldNotPlaySound, 0);
 	}
 }
