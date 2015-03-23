@@ -2474,11 +2474,13 @@ public class VoIPService extends Service {
 				
 				if (connected == true) {
 					Logger.d(VoIPConstants.TAG, "UDP connection established :) " + clientPartner.getPreferredConnectionMethod());
-					if (clientSelf.isInitiator() && !reconnecting) {
-						setCallStatus(VoIPConstants.CallStatus.OUTGOING_RINGING);
-						sendHandlerMessage(VoIPConstants.CONNECTION_ESTABLISHED_FIRST_TIME);
-						setAudioModeInCall();
-						ringtoneStreamID = playFromSoundPool(SOUND_INCOMING_RINGTONE, true);
+					if (clientSelf.isInitiator() && !reconnecting) 
+					{
+							setCallStatus(VoIPConstants.CallStatus.OUTGOING_RINGING);
+							sendHandlerMessage(VoIPConstants.CONNECTION_ESTABLISHED_FIRST_TIME);
+							sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CONNECTION_ESTABLISHED);
+							setAudioModeInCall();
+							ringtoneStreamID = playFromSoundPool(SOUND_INCOMING_RINGTONE, true);
 					} 
 
 					try {

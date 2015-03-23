@@ -1873,6 +1873,8 @@ public class HikeConstants
 
 		public static final String VOIP_CALL_REJECT = "cr";
 
+		public static final String VOIP_CONNECTION_ESTABLISHED = "coest";
+
 		public static final String VOIP_PARTNER_ANSWER_TIMEOUT = "cpat";
 
 		public static final String VOIP_CALL_SPEAKER = "spk";
