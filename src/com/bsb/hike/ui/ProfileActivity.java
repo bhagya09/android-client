@@ -1,6 +1,5 @@
 package com.bsb.hike.ui;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -45,7 +44,6 @@ import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListAdapter;
@@ -152,16 +150,12 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 
 	private GroupConversation groupConversation;
 
-	private ImageButton topBarBtn;
-
 	private ContactInfo contactInfo;
 
 	private boolean isBlocked;
 
 	private Dialog groupEditDialog;
 
-	private boolean showingRequestItem = false;
-	
 	private Boolean showingGroupEdit = false;
 	
 	public static final String ORIENTATION_FLAG = "of";
@@ -182,8 +176,6 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		CONTACT_INFO, // Contact info screen
 		CONTACT_INFO_TIMELINE //Contact's Timeline screen
 	};
-
-	public File selectedFileIcon;
 
 	private ListView profileContent;
 
@@ -213,7 +205,6 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	
 	public SmileyParser smileyParser;
 	
-	private static final String TAG = "Profile_Activity";
 	/* store the task so we can keep keep the progress dialog going */
 	@Override
 	public Object onRetainCustomNonConfigurationInstance()
@@ -345,7 +336,6 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			if(Intent.ACTION_ATTACH_DATA.equals(getIntent().getAction()))
 			{
 				super.onActivityResult(HikeConstants.GALLERY_RESULT, RESULT_OK, getIntent());
-//				setProfileImage(HikeConstants.GALLERY_RESULT, RESULT_OK, getIntent());				
 			}
 			if (getIntent().getBooleanExtra(HikeConstants.Extras.EDIT_PROFILE, false))
 			{
@@ -1149,8 +1139,16 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		((TextView) picture.findViewById(R.id.photo_edit_field)).setText(R.string.edit_picture);
 
 		picture.setBackgroundResource(R.drawable.profile_bottom_item_selector);
-		picture.setFocusable(true);
-
+		picture.setFocusable(true);						
+		picture.setOnClickListener(new OnClickListener()
+		{			
+			@Override
+			public void onClick(View v)
+			{
+				showProfileImageEditDialog(ProfileActivity.this, ProfileActivity.this, false);
+			}
+		});
+		
 		((EditText) phone.findViewById(R.id.phone_input)).setText(mLocalMSISDN);
 		((EditText) phone.findViewById(R.id.phone_input)).setEnabled(false);
 
@@ -2861,11 +2859,6 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		showProfileImageEditDialog(ProfileActivity.this, ProfileActivity.this, false);		
 	}
 	
-	public void onClickProfileImage(View v)
-	{
-		showProfileImageEditDialog(ProfileActivity.this, ProfileActivity.this, false);
-	}
-
 	@Override
 	public String profileImageCropped()
 	{

@@ -8,8 +8,7 @@
         android:layout_width="@dimen/signup_profile_pic_dimen"
         android:layout_height="@dimen/signup_profile_pic_dimen"
         android:layout_centerInParent="true"
-        android:src="@drawable/ic_signup_nouser" 
-        android:onClick="onClickProfileImage" />
+        android:src="@drawable/ic_signup_nouser"/> 
 
     <ImageView
         android:id="@+id/profile_cam"
@@ -17,7 +16,6 @@
         android:layout_height="@dimen/signup_profile_pic_icon_dimen"
         android:layout_alignTop="@id/profile"
         android:layout_alignRight="@id/profile"
-        android:background="@drawable/ic_signup_camera"
-        android:onClick="onClickProfileImage" />
+        android:background="@drawable/ic_signup_camera"/>
 
 </RelativeLayout>
