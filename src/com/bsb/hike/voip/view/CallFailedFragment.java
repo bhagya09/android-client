@@ -8,6 +8,8 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
+import android.view.animation.OvershootInterpolator;
+import android.view.animation.TranslateAnimation;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -164,7 +166,9 @@ public class CallFailedFragment extends SherlockFragment
 
 	private void slideInContainer(View view)
 	{
-		Animation anim = AnimationUtils.loadAnimation(getSherlockActivity(), R.anim.call_failed_frag_slide_in);
+		TranslateAnimation anim = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, 1f, Animation.RELATIVE_TO_SELF, 0);
+		anim.setDuration(900);
+		anim.setInterpolator(new OvershootInterpolator(0.9f));
 		view.findViewById(R.id.container).startAnimation(anim);
 	}
 
