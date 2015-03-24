@@ -2354,10 +2354,8 @@ public class Utils
 		{
 			return;
 		}
-		AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-		int ringerMode = audioManager.getRingerMode();
 
-		if (ringerMode != AudioManager.RINGER_MODE_SILENT && !Utils.isUserInAnyTypeOfCall(context))
+		if (!SoundUtils.isSilentMode(context) && !Utils.isUserInAnyTypeOfCall(context))
 		{
 			vibrate(100);
 		}
@@ -5259,7 +5257,6 @@ public class Utils
 	}
 
 	 /** Tells if User is on Telephonic/Audio/Vedio/Voip Call
->>>>>>> 6c2da8659503395989b56afad7350292e2f5082f
 	 * @param context
 	 * @return
 	 */

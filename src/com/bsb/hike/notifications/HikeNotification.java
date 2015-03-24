@@ -1155,7 +1155,7 @@ public class HikeNotification
 				//Decide if Sound is to be played,  
 				//1) Settings should be On
 				//2) Mode should not be in Silent and Not in Vibrate
-				if (!NOTIF_SOUND_OFF.equals(notifSound) && !SoundUtils.isSilentMode(context))
+				if (!NOTIF_SOUND_OFF.equals(notifSound) && !SoundUtils.isSilentOrVibrateMode(context))
 				{
 					//Now We have to play sound, 
 					//CASE 1:- If Music Is Playing, then play via Ringtone manager on Music Stream
@@ -1170,7 +1170,13 @@ public class HikeNotification
 						playSoundViaBuilder(mBuilder, notifSound);
 					}
 				}
-				if (!VIB_OFF.equals(vibrate))
+				// Though Notification Builder should not vibrate if phone is in silent mode, 
+				//But in some device (Micromax A110), it is vibrating, so we are adding extra
+				// safe check here to ensure that it does not vibrate in silent mode
+				//Now Vibration is turned off in these 2 scenarios
+				//1) Vibration Settings are off
+				//2) Phone is in silent mode
+				if (!VIB_OFF.equals(vibrate) && !SoundUtils.isSilentMode(context))
 				{
 					if (VIB_DEF.equals(vibrate))
 					{

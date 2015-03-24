@@ -27,7 +27,7 @@ public class SoundUtils
 		return (PreferenceManager.getDefaultSharedPreferences(context).getBoolean(HikeConstants.TICK_SOUND_PREF, true) 
 				&& !Utils.isUserInAnyTypeOfCall(context) 
 				&& !isAnyMusicPlaying(context)
-				&& !isSilentMode(context));
+				&& !isSilentOrVibrateMode(context));
 	}
 
 	/**
@@ -111,11 +111,18 @@ public class SoundUtils
 		return am.isMusicActive();
 	}
 
-	public static boolean isSilentMode(Context context)
+	public static boolean isSilentOrVibrateMode(Context context)
 	{
 		AudioManager am = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
 		int ringerMode = am.getRingerMode();
 		return (ringerMode == AudioManager.RINGER_MODE_SILENT || ringerMode == AudioManager.RINGER_MODE_VIBRATE);
+	}
+	
+	public static boolean isSilentMode(Context context)
+	{
+		AudioManager am = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+		int ringerMode = am.getRingerMode();
+		return (ringerMode == AudioManager.RINGER_MODE_SILENT);
 	}
 	
 }
