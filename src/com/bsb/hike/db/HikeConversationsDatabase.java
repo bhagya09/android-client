@@ -289,13 +289,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	}
 
 	@Override
-	public void close()
-	{
-		super.close();
-		mDb.close();
-	}
-
-	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion)
 	{
 		if (db == null)
@@ -726,11 +719,19 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 	public void reinitializeDB()
 	{
-		if (mDb != null)
-		{
-			mDb.close();
-		}
+		close();
 		hikeConversationsDatabase = new HikeConversationsDatabase(HikeMessengerApp.getInstance());
+		/*
+		 * We can remove this line, if we can guarantee, NoOne keeps a local copy of HikeConversationsDatabase. 
+		 * right now we store convDb reference in some classes and use that refenence to query db. ex. DbConversationListener. 
+		 * i.e. on restore we have two objects of HikeConversationsDatabase in memory.
+		 */
+		mDb = hikeConversationsDatabase.getMdb(); 
+	}
+	
+	private SQLiteDatabase getMdb()
+	{
+		return mDb;
 	}
 
 	public void clearTable(String table)

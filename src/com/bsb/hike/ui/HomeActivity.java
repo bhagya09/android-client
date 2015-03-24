@@ -173,6 +173,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	private static MenuItem searchMenuItem;
 
 	private boolean showingSearchModeActionBar = false;
+	
+	private static final String TAG = "HomeActivity";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -180,12 +182,14 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		super.onCreate(savedInstanceState);
 		if (Utils.requireAuth(this))
 		{
+			Logger.wtf(TAG, "user is not authenticated. Finishing activity");
 			return;
 		}
 				
 		if (NUXManager.getInstance().showNuxScreen())
 		{
 			NUXManager.getInstance().startNUX(this);
+			Logger.wtf(TAG, "Nux is not shown. So finishing activity");
 			return;
 
 		}
@@ -462,6 +466,16 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu)
 	{
+		/**
+		 * This is a strange bug in Android 5.1. If we call finish to an activity from onCreate, ideally onCreateOptions menu should not have been called. But in Droid 5.1 this is
+		 * being called. This check is defensive in nature
+		 */
+		if (isFinishing())
+		{
+			Logger.wtf(TAG, "Activity is finishing yet onCreateOptionsMenu is being called");
+			return false;
+		}
+		
 		if (showingProgress)
 		{
 			return false;
