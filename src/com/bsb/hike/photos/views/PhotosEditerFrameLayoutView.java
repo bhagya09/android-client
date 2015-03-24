@@ -251,6 +251,7 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 			{
 				String timeStamp = Long.toString(System.currentTimeMillis());
 				file = File.createTempFile("IMG_" + timeStamp, ".jpg");
+				file.deleteOnExit();
 			}
 			catch (IOException e)
 			{
