@@ -390,7 +390,6 @@ public class VoIPService extends Service {
 			}
 			
 			// we are making an outgoing call
-			keepRunning = true;
 			clientPartner.setPhoneNumber(intent.getStringExtra(VoIPConstants.Extras.MSISDN));
 			clientSelf.setInitiator(true);
 			clientPartner.setInitiator(false);
@@ -2198,6 +2197,7 @@ public class VoIPService extends Service {
 
 		clientSelf.setExternalIPAddress(null);
 		clientSelf.setExternalPort(0);
+		keepRunning = true;
 		
 		Thread iceThread = new Thread(new Runnable() {
 
