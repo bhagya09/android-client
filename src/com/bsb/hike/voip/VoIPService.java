@@ -98,7 +98,7 @@ public class VoIPService extends Service {
 	private VoIPEncryptor encryptor = new VoIPEncryptor();
 	private VoIPEncryptor.EncryptionStage encryptionStage;
 	private boolean mute, hold, speaker, vibratorEnabled = true, remoteHold = false;
-	private boolean audioStarted = false;
+	private static boolean audioStarted = false;
 	private int droppedDecodedPackets = 0;
 	private int minBufSizePlayback, minBufSizeRecording;
 	private int gain = 0;
@@ -2079,7 +2079,7 @@ public class VoIPService extends Service {
 		return connected;
 	}
 	
-	public boolean isAudioRunning() {
+	public static boolean isAudioRunning() {
 		return audioStarted;
 	}
 	

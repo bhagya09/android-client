@@ -135,6 +135,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 				break;
 			case VoIPConstants.MSG_AUDIO_START:
 				isCallActive = true;
+				initProximitySensor();
 				updateCallStatus();
 				activateActiveCallButtons();
 				break;
@@ -219,13 +220,16 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 	@Override
 	public void onResume() 
 	{
-		initProximitySensor();
-
-		Logger.d(VoIPConstants.TAG, "Binding to service..");
+		Logger.d(VoIPConstants.TAG, "VoipCallFragment onResume, Binding to service..");
 		// Calling start service as well so an activity unbind doesn't cause the service to stop
 		getSherlockActivity().startService(new Intent(getSherlockActivity(), VoIPService.class));
 		Intent intent = new Intent(getSherlockActivity(), VoIPService.class);
 		getSherlockActivity().bindService(intent, myConnection, Context.BIND_AUTO_CREATE);
+
+		if(VoIPService.isAudioRunning())
+		{
+			initProximitySensor();
+		}
 		super.onResume();
 	}
 
@@ -300,7 +304,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		}
 		
 		VoIPClient clientPartner = voipService.getPartnerClient();
-		if(voipService.isAudioRunning())
+		if(VoIPService.isAudioRunning())
 		{
 			// Active Call
 			isCallActive = true;
@@ -373,7 +377,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		{
 			if (VoIPService.isConnected()) 
 			{
-				if(voipService.isAudioRunning())
+				if(VoIPService.isAudioRunning())
 				{
 					showMessage(getString(R.string.voip_call_on_hold));
 					voipService.setHold(true);
@@ -442,7 +446,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 
 	public boolean onKeyDown(int keyCode, KeyEvent event)
 	{
-		if (voipService!=null && !voipService.isAudioRunning() && (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP)
+		if (voipService!=null && !VoIPService.isAudioRunning() && (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP)
 			&& voipService.getPartnerClient().isInitiator())
 		{
 			voipService.stopRingtone();
