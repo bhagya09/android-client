@@ -386,9 +386,11 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	{
 		if (isSharingFile)
 		{
+			// Is On-going FT limit reached
 			if (Intent.ACTION_SEND_MULTIPLE.equals(getIntent().getAction()))
 			{
 				ArrayList<Uri> imageUris = getIntent().getParcelableArrayListExtra(Intent.EXTRA_STREAM);
+				
 				if (imageUris.size() > FileTransferManager.getInstance(this).remainingTransfers())
 				{
 					return false;
@@ -648,14 +650,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 
 			if (isForwardingMessage)
 			{
-				// share
-				if(isSharingFile){
-					ArrayList<ContactInfo> list = new ArrayList<ContactInfo>();list.add(contactInfo);
-					forwardConfirmation(list);
-					return;
-				}
 				// for SMS users, append SMS text with name
-
 				viewtype = adapter.getItemViewType(arg2);
 				if (contactInfo.getName() == null)
 				{
@@ -808,7 +803,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		}
 		else
 		{
-				mode=START_CHAT_MODE;
+				mode=MULTIPLE_FWD;
 				triggerPointForPopup=ProductPopupsConstants.PopupTriggerPoints.COMPOSE_CHAT.ordinal();
 		}
 		setMode(mode);
@@ -1294,7 +1289,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	private void forwardMultipleMessages(ArrayList<ContactInfo> arrayList)
 	{
 		Intent presentIntent = getIntent();
-		if(isSharingFile){
+		if(isSharingFile && arrayList.size() == 1){
 	        Intent intent = Utils.createIntentFromContactInfo(arrayList.get(0), true);
 	        intent.setClass(this, ChatThread.class);
 	        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -1672,13 +1667,34 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					Toast.makeText(ComposeChatActivity.this, R.string.max_file_size, Toast.LENGTH_SHORT).show();
 					return;
 				}
-	
+
 				type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(Utils.getFileExtension(filePath));
 				if (type == null)
+				{
 					type = presentIntent.getType();
-	
+				}
+
+				if (arrayList.size() > 1)
+				{
+
+					ArrayList<FileTransferData> fileTransferList = new ArrayList<ComposeChatActivity.FileTransferData>();
+					
+					HikeFileType hikeFileType = HikeFileType.fromString(type, false);
+
+					FileTransferData fileData = initialiseFileTransfer(filePath, null, hikeFileType, type, false, 0, false, arrayList);
+
+					if (fileData != null)
+					{
+						fileTransferList.add(fileData);
+						prefileTransferTask = new PreFileTransferAsycntask(fileTransferList, intent);
+						Utils.executeAsyncTask(prefileTransferTask);
+						return;
+					}
+				}
+
 				intent.putExtra(HikeConstants.Extras.FILE_PATH, filePath);
 				intent.putExtra(HikeConstants.Extras.FILE_TYPE, type);
+
 			}
 		}
 		else if (presentIntent.hasExtra(Intent.EXTRA_TEXT) || presentIntent.hasExtra(HikeConstants.Extras.MSG))
