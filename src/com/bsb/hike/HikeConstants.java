@@ -2408,7 +2408,9 @@ public class HikeConstants
 	public static final String RETRY_COUNT = "retryCount";
 
 	public static final String REPLY_NOTIFICATION_RETRY_TIMER = "rnrt";
-
+	
+	public static final String REPLY_NOTIFICATION_RETRY_COUNT = "rnrc";
+	
 	// Intent send to register gcm before and after signup
 	public static final String REGISTER_GCM_SIGNUP = "register_gcm_signup";
 
@@ -2533,4 +2535,6 @@ public class HikeConstants
 	public static final String WHITELISTED_DOMAINS[] = new String[]{"hike.in"};
 	
 	public static final String BLACKLIST_DOMAIN_ANALYTICS = "blacklist";
+	
+	public static final int DEFAULT_MAX_REPLY_RETRY_NOTIF_COUNT = 3;
 }

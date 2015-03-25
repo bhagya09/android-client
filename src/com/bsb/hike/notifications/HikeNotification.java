@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Random;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -1250,9 +1251,9 @@ public class HikeNotification
 
 		return mBuilder;
 	}
-	public long getNextRetryNotificationTime()
+	public long getNextRetryNotificationTime(int retryCount)
 	{
-		long nextRetryTime = System.currentTimeMillis() + HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.RETRY_NOTIFICATION_COOL_OFF_TIME, HikeConstants.DEFAULT_RETRY_NOTIF_TIME);
+		long nextRetryTime = System.currentTimeMillis() + calculateNextRetryNotificationTime(retryCount);
 		
 		/*
 		 * We have a sleep state from 12am - 8am. If the timer is finished in this time frame then 
@@ -1260,21 +1261,35 @@ public class HikeNotification
 		 */
 		Calendar calendar = Calendar.getInstance();
 		long toDay12AM = Utils.getTimeInMillis(calendar, 0, 0, 0, 0);
-		long toDay8AM = Utils.getTimeInMillis(calendar, 8, 0, 0, 0);
+		long toDay7AM = Utils.getTimeInMillis(calendar, 7, 0, 0, 0);
 		
 		calendar.add(Calendar.DAY_OF_YEAR, 1);
 		long nextDay12AM = Utils.getTimeInMillis(calendar, 0, 0, 0, 0);
-		long nextDay8AM = Utils.getTimeInMillis(calendar, 8, 0, 0, 0);
-		if(nextRetryTime >= toDay12AM && nextRetryTime < toDay8AM)
+		long nextDay7AM = Utils.getTimeInMillis(calendar, 7, 0, 0, 0);
+		if(nextRetryTime >= toDay12AM && nextRetryTime < toDay7AM)
 		{
-			nextRetryTime = toDay8AM;
+			nextRetryTime = toDay7AM;
 		}
-		else if(nextRetryTime >= nextDay12AM && nextRetryTime < nextDay8AM)
+		else if(nextRetryTime >= nextDay12AM && nextRetryTime < nextDay7AM)
 		{
-			nextRetryTime = nextDay8AM;
+			nextRetryTime = nextDay7AM;
 		}
-		Logger.i("HikeNotification", "currtime = "+ System.currentTimeMillis() + "  nextDay12AM = "+nextDay12AM+ "  nextDay8AM = "+nextDay8AM + "  toDay8AM = "+toDay8AM + " finalRetryTime = "+ nextRetryTime);
+		Logger.i("HikeNotification", "currtime = "+ System.currentTimeMillis() + "  nextDay12AM = "+nextDay12AM+ "  nextDay8AM = "+nextDay7AM + "  toDay8AM = "+toDay7AM + " finalRetryTime = "+ nextRetryTime);
 		return nextRetryTime;
+	}
+	
+	public long calculateNextRetryNotificationTime(int retryCount)
+	{
+		int i = retryCount + 1;
+		long t = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.RETRY_NOTIFICATION_COOL_OFF_TIME, HikeConstants.DEFAULT_RETRY_NOTIF_TIME);
+		
+		//2 power (retryCount - 1)
+		Random rand = new Random();
+		int randomNumber = rand.nextInt(i);
+		int multiplyFactor = (int) Math.pow(2, randomNumber);
+		
+		Logger.d("HikeNotification", " t = "+t + " retryCount = "+i + " randomNumber = "+ randomNumber + " multiplyFactor = " + multiplyFactor);
+		return multiplyFactor*t;
 	}
 	
 	/**

@@ -5,7 +5,9 @@ import android.content.Context;
 import android.content.Intent;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.models.HikeAlarmManager;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 
 /**
@@ -30,9 +32,11 @@ public class NotificationDismissedReceiver extends BroadcastReceiver
 				//Get current count of retry.
 				 int retryCount  = intent.getExtras().getInt(HikeConstants.RETRY_COUNT, 0);
 				 //Right now we retry only once.
-				if (retryCount < 1 && !HikeNotificationMsgStack.getInstance(context).isEmpty())
+				 
+				 int maxRetryCount = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MAX_REPLY_RETRY_NOTIF_COUNT, HikeConstants.DEFAULT_MAX_REPLY_RETRY_NOTIF_COUNT);
+				if (retryCount < maxRetryCount && !HikeNotificationMsgStack.getInstance(context).isEmpty())
 				{
-					long retryTime = HikeNotification.getInstance(context).getNextRetryNotificationTime();
+					long retryTime = HikeNotification.getInstance(context).getNextRetryNotificationTime(retryCount);
 					Logger.i("NotificationDismissedReceiver", "NotificationDismissedReceiver called alarm time = "
 							+retryTime  + "retryCount = "+retryCount);
 					
