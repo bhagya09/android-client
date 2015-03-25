@@ -2461,6 +2461,7 @@ public class HikeConstants
 
 	public static final class HikePhotos
 	{
+		public static final String CAMERA_ALLOW_GALLERY_KEY = "galleryKey";
 		
 		public static final String PHOTOS_FILTER_NAME_KEY = "phFilName";
 		

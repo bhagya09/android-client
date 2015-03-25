@@ -442,6 +442,14 @@ public class IntentManager
 		Intent in = new Intent(argActivity, HikeCameraActivity.class);
 		argActivity.startActivity(in);
 	}
+	
+	public static Intent getHikeCameraIntent(Context context,boolean allowGallery)
+	{
+		Intent intent = new Intent(context, HikeCameraActivity.class);
+		intent.putExtra(HikeConstants.HikePhotos.CAMERA_ALLOW_GALLERY_KEY, allowGallery);
+		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		return intent;
+	}
 
 	public static Intent getChatThreadIntent(Context context, String msisdn)
 	{

@@ -30,6 +30,7 @@ import android.view.animation.Interpolator;
 import android.view.animation.OvershootInterpolator;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.internal.nineoldandroids.animation.Animator;
@@ -48,6 +49,7 @@ import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.IntentManager;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+import com.bsb.hike.utils.Utils.ExternalStorageState;
 
 public class HikeCameraActivity extends HikeAppStateBaseFragmentActivity implements OnClickListener
 {
@@ -63,7 +65,7 @@ public class HikeCameraActivity extends HikeAppStateBaseFragmentActivity impleme
 
 	private CameraFragment cameraFragment;
 
-	private boolean isUsingFFC = true;
+	private boolean isUsingFFC = true, startedForResult;
 
 	private View containerView;
 
@@ -88,7 +90,9 @@ public class HikeCameraActivity extends HikeAppStateBaseFragmentActivity impleme
 
 		setContentView(R.layout.hike_camera_activity);
 
-		cameraFragment = CameraFragment.newInstance(false);
+		startedForResult = (getCallingActivity() != null);
+
+		cameraFragment = CameraFragment.newInstance(false, startedForResult);
 
 		new Handler().postDelayed(new Runnable()
 		{
@@ -188,6 +192,7 @@ public class HikeCameraActivity extends HikeAppStateBaseFragmentActivity impleme
 				}
 			}
 		});
+
 		setupActionBar();
 
 		if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_FRONT))
@@ -198,6 +203,22 @@ public class HikeCameraActivity extends HikeAppStateBaseFragmentActivity impleme
 			if (Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1)
 			{
 				ffcBtn.setAlpha(0.3f);
+			}
+		}
+
+		if (startedForResult)
+		{
+			Bundle data = getIntent().getExtras();
+			boolean allowGalery = data.containsKey(HikeConstants.HikePhotos.CAMERA_ALLOW_GALLERY_KEY) ? data.getBoolean(HikeConstants.HikePhotos.CAMERA_ALLOW_GALLERY_KEY) : true;
+
+			if (!allowGalery)
+			{
+				galleryBtn.setClickable(false);
+				galleryBtn.setEnabled(false);
+				if (Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1)
+				{
+					galleryBtn.setAlpha(0.3f);
+				}
 			}
 		}
 
@@ -263,6 +284,7 @@ public class HikeCameraActivity extends HikeAppStateBaseFragmentActivity impleme
 		switch (viewId)
 		{
 		case R.id.btntakepic:
+
 			HikeCameraActivity.this.findViewById(R.id.btntakepic).setClickable(false);
 			HikeCameraActivity.this.findViewById(R.id.btngallery).setClickable(false);
 			HikeCameraActivity.this.findViewById(R.id.btnflip).setClickable(false);
@@ -312,8 +334,7 @@ public class HikeCameraActivity extends HikeAppStateBaseFragmentActivity impleme
 			break;
 		case R.id.btngallery:
 			// Open gallery
-			Intent galleryPickerIntent = IntentManager.getHikeGalleryPickerIntentForResult(HikeCameraActivity.this, false, false, GalleryActivity.PHOTOS_EDITOR_ACTION_BAR_TYPE,
-					null);
+			Intent galleryPickerIntent = IntentManager.getHikeGalleryPickerIntent(HikeCameraActivity.this, false, false, GalleryActivity.PHOTOS_EDITOR_ACTION_BAR_TYPE, null);
 			startActivityForResult(galleryPickerIntent, GALLERY_PICKER_REQUEST);
 			break;
 
@@ -382,7 +403,7 @@ public class HikeCameraActivity extends HikeAppStateBaseFragmentActivity impleme
 						flashButton.setAlpha(1f);
 					}
 				}
-				cameraFragment = CameraFragment.newInstance(isUsingFFC);
+				cameraFragment = CameraFragment.newInstance(isUsingFFC, startedForResult);
 				replaceFragment(cameraFragment);
 				new Handler().postDelayed(new Runnable()
 				{
@@ -439,9 +460,31 @@ public class HikeCameraActivity extends HikeAppStateBaseFragmentActivity impleme
 				break;
 			case HikeConstants.CROP_RESULT:
 				Intent intent = new Intent(HikeCameraActivity.this, PictureEditer.class);
-				intent.putExtra(HikeConstants.HikePhotos.FILENAME, data.getStringExtra(MediaStore.EXTRA_OUTPUT));
+				String filename = data.getStringExtra(MediaStore.EXTRA_OUTPUT);
+
+				if (filename == null)
+				{
+					Toast.makeText(getApplicationContext(), R.string.error_setting_profile, Toast.LENGTH_SHORT).show();
+					return;
+				}
+
+				intent.putExtra(HikeConstants.HikePhotos.FILENAME, filename);
 				startActivity(intent);
 				sendAnalyticsGalleryPic();
+				break;
+			case HikeConstants.ResultCodes.PHOTOS_REQUEST_CODE:
+				if (startedForResult)
+				{
+					Intent returnIntent = new Intent();
+					returnIntent.putExtra(HikeConstants.Extras.CAMERA_RETURN_FILE, data.getStringExtra(HikeConstants.Extras.PHOTOS_RETURN_FILE));
+					setResult(RESULT_OK, returnIntent);
+					finish();
+				}
+				else
+				{
+					// Not A Possible Scenario
+					// Do Nothing
+				}
 				break;
 			}
 		}
@@ -451,10 +494,21 @@ public class HikeCameraActivity extends HikeAppStateBaseFragmentActivity impleme
 			{
 			case HikeConstants.CROP_RESULT:
 				// Open gallery
-				Intent galleryPickerIntent = IntentManager.getHikeGalleryPickerIntentForResult(HikeCameraActivity.this, false, false,
-						GalleryActivity.PHOTOS_EDITOR_ACTION_BAR_TYPE, null);
+				Intent galleryPickerIntent = IntentManager.getHikeGalleryPickerIntent(HikeCameraActivity.this, false, false, GalleryActivity.PHOTOS_EDITOR_ACTION_BAR_TYPE, null);
 				startActivityForResult(galleryPickerIntent, GALLERY_PICKER_REQUEST);
 				break;
+			case HikeConstants.ResultCodes.PHOTOS_REQUEST_CODE:
+				if (startedForResult)
+				{
+					// User Returned from edit view without saving
+					// Display Camera
+					// Do Nothing
+				}
+				else
+				{
+					// Not A Possible Scenario
+					// Do Nothing
+				}
 
 			default:
 				break;
