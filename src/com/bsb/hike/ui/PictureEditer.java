@@ -131,12 +131,13 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 
 		indicator.setOnPageChangeListener(clickHandler);
 
-		setupActionBar();
-
+		
 		overlayFrame = findViewById(R.id.overlayFrame);
 
 		startedForResult = (getCallingActivity() != null);
 		editView.setCompressionEnabled(intent.getBooleanExtra(HikeConstants.HikePhotos.EDITOR_ALLOW_COMPRESSION_KEY, true));
+
+		setupActionBar();
 
 		try
 		{
@@ -186,7 +187,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 		
 		if(startedForResult)
 		{
-			((TextView)actionBarView.findViewById(R.id.done_text)).setText(getResources().getString(R.string.image_quality_send));
+			((TextView)actionBarView.findViewById(R.id.done_text)).setText(R.string.image_quality_send);
 		}
 
 		actionBar.setCustomView(actionBarView);
