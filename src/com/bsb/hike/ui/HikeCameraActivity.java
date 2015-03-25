@@ -284,50 +284,60 @@ public class HikeCameraActivity extends HikeAppStateBaseFragmentActivity impleme
 		switch (viewId)
 		{
 		case R.id.btntakepic:
-
-			HikeCameraActivity.this.findViewById(R.id.btntakepic).setClickable(false);
-			HikeCameraActivity.this.findViewById(R.id.btngallery).setClickable(false);
-			HikeCameraActivity.this.findViewById(R.id.btnflip).setClickable(false);
-			HikeCameraActivity.this.findViewById(R.id.btntoggleflash).setClickable(false);
-			cameraFragment.cancelAutoFocus();
-			cameraFragment.takePicture();
-
-			View previewStratBmp = cameraFragment.getCameraView().previewStrategy.getWidget();
-
-			if (previewStratBmp instanceof TextureView)
+			if (Utils.getExternalStorageState() != ExternalStorageState.WRITEABLE)
 			{
-				stillPreviewBitmap = ((TextureView) previewStratBmp).getBitmap();
+				Toast.makeText(getApplicationContext(), R.string.no_external_storage, Toast.LENGTH_SHORT).show();
 			}
-			else if (previewStratBmp instanceof SurfaceView)
+			else if (!Utils.hasEnoughFreeSpaceForProfilePic())
 			{
-				// TODO. For now we do not show still preview after camera snap in case if preview is on SurfaceView. This is causing brief black screen on Cyanogenmod phones.
+				Toast.makeText(getApplicationContext(), R.string.not_enough_space_profile_pic, Toast.LENGTH_SHORT).show();
 			}
-
-			final View snapOverlay = findViewById(R.id.snapOverlay);
-			ObjectAnimator invisToVis = ObjectAnimator.ofFloat(snapOverlay, "alpha", 0f, 0.8f);
-			invisToVis.setDuration(200);
-			invisToVis.setInterpolator(deceleratorInterp);
-			invisToVis.addListener(new AnimatorListenerAdapter()
+			else
 			{
-				@Override
-				public void onAnimationEnd(Animator animation)
+				HikeCameraActivity.this.findViewById(R.id.btntakepic).setClickable(false);
+				HikeCameraActivity.this.findViewById(R.id.btngallery).setClickable(false);
+				HikeCameraActivity.this.findViewById(R.id.btnflip).setClickable(false);
+				HikeCameraActivity.this.findViewById(R.id.btntoggleflash).setClickable(false);
+				cameraFragment.cancelAutoFocus();
+				cameraFragment.takePicture();
+
+				View previewStratBmp = cameraFragment.getCameraView().previewStrategy.getWidget();
+
+				if (previewStratBmp instanceof TextureView)
 				{
-					if (stillPreviewBitmap != null)
-					{
-						ImageView iv = (ImageView) HikeCameraActivity.this.findViewById(R.id.tempiv);
-						iv.setImageBitmap(stillPreviewBitmap);
-						iv.setVisibility(View.VISIBLE);
-					}
-					ObjectAnimator visToInvis = ObjectAnimator.ofFloat(snapOverlay, "alpha", 0.8f, 0f);
-					visToInvis.setDuration(150);
-					visToInvis.setInterpolator(deceleratorInterp);
-					visToInvis.start();
+					stillPreviewBitmap = ((TextureView) previewStratBmp).getBitmap();
 				}
-			});
+				else if (previewStratBmp instanceof SurfaceView)
+				{
+					// TODO. For now we do not show still preview after camera snap in case if preview is on SurfaceView. This is causing brief black screen on Cyanogenmod phones.
+				}
 
-			invisToVis.start();
+				final View snapOverlay = findViewById(R.id.snapOverlay);
+				ObjectAnimator invisToVis = ObjectAnimator.ofFloat(snapOverlay, "alpha", 0f, 0.8f);
+				invisToVis.setDuration(200);
+				invisToVis.setInterpolator(deceleratorInterp);
+				invisToVis.addListener(new AnimatorListenerAdapter()
+				{
+					@Override
+					public void onAnimationEnd(Animator animation)
+					{
+						if (stillPreviewBitmap != null)
+						{
+							ImageView iv = (ImageView) HikeCameraActivity.this.findViewById(R.id.tempiv);
+							iv.setImageBitmap(stillPreviewBitmap);
+							iv.setVisibility(View.VISIBLE);
+						}
+						ObjectAnimator visToInvis = ObjectAnimator.ofFloat(snapOverlay, "alpha", 0.8f, 0f);
+						visToInvis.setDuration(150);
+						visToInvis.setInterpolator(deceleratorInterp);
+						visToInvis.start();
+					}
+				});
 
-			snapOverlay.setVisibility(View.VISIBLE);
+				invisToVis.start();
+
+				snapOverlay.setVisibility(View.VISIBLE);
+			}
 
 			sendAnalyticsCameraClicked(isUsingFFC);
 
