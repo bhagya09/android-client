@@ -1074,6 +1074,8 @@ public class HikeConstants
 		public static final int CONFIRM_LOCK_PATTERN = 4003;
 
 		public static final int CONFIRM_AND_ENTER_NEW_PASSWORD = 4004;
+		
+		public static final int PHOTOS_REQUEST_CODE = 739;
 	}
 
 	public static final class Extras
@@ -1447,6 +1449,11 @@ public class HikeConstants
 		public static final String MAX_MESSAGE_PROCESS_TIME = "mmpt";
 		
 		public static final String CHANGE_MAX_MESSAGE_PROCESS_TIME = "cmpt";
+		
+		public static final String PHOTOS_RETURN_FILE = "editedReturnFile";
+		
+		public static final String CAMERA_RETURN_FILE = "capturedReturnFile";
+		
 	}
 
 	public static final class LogEvent
@@ -1938,6 +1945,7 @@ public class HikeConstants
 		public static final String PHOTOS_SET_AS_DP = "phSetDP";
 		
 		public static final String PHOTOS_SEND_TO = "phSend";
+		
 		
 		
 		//Broadcast
@@ -2453,6 +2461,7 @@ public class HikeConstants
 
 	public static final class HikePhotos
 	{
+		public static final String CAMERA_ALLOW_GALLERY_KEY = "galleryKey";
 		
 		public static final String PHOTOS_FILTER_NAME_KEY = "phFilName";
 		

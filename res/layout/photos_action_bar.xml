@@ -77,6 +77,7 @@
             android:src="@drawable/action_bar_arrow" />
 
         <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/done_text"
             style="@style/ActionBarText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

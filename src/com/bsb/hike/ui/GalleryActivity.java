@@ -52,8 +52,6 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 
 	public static final String ACTION_BAR_TYPE_KEY = "action_bar";
 
-	public static final String RETURN_RESULT_KEY = "return_result";
-
 	public static final int PHOTOS_EDITOR_ACTION_BAR_TYPE = 1;
 
 	private int actionBarType;
@@ -150,7 +148,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 			actionBarType = 0;// default hike settings
 		}
 
-		returnResult = data.containsKey(RETURN_RESULT_KEY) ? data.getBoolean(RETURN_RESULT_KEY) : false;
+		returnResult = (getCallingActivity() != null);
 
 		String sortBy;
 		if (selectedBucket != null)
