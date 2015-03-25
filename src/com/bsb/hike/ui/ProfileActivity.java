@@ -63,6 +63,7 @@ import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
 import com.bsb.hike.adapters.ProfileAdapter;
 import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.AnalyticsConstants.ProfileImageActions;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.http.HikeHttpRequest;
@@ -1144,7 +1145,20 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			@Override
 			public void onClick(View v)
 			{
-				showProfileImageEditDialog(ProfileActivity.this, ProfileActivity.this, false);
+				showProfileImageEditDialog(ProfileActivity.this, ProfileActivity.this, false, ProfileImageActions.DP_EDIT_FROM_PROFILE_OVERFLOW_MENU);
+				
+				JSONObject md = new JSONObject();
+
+				try
+				{
+					md.put(HikeConstants.EVENT_KEY, ProfileImageActions.DP_EDIT_EVENT);
+					md.put(ProfileImageActions.DP_EDIT_PATH, ProfileImageActions.DP_EDIT_FROM_PROFILE_OVERFLOW_MENU);
+					HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, md);
+				}
+				catch(JSONException e)
+				{
+					Logger.d(AnalyticsConstants.ANALYTICS_TAG, "json exception");
+				}
 			}
 		});
 		
@@ -1641,11 +1655,24 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	{
 		if(profileType == ProfileType.GROUP_INFO)
 		{
-			showProfileImageEditDialog(ProfileActivity.this, ProfileActivity.this, true);
+			showProfileImageEditDialog(ProfileActivity.this, ProfileActivity.this, true, null);
 		}
 		else if(profileType == ProfileType.USER_PROFILE)
 		{
-			showProfileImageEditDialog(ProfileActivity.this, ProfileActivity.this, false);				
+			showProfileImageEditDialog(ProfileActivity.this, ProfileActivity.this, false, ProfileImageActions.DP_EDIT_FROM_PROFILE_SCREEN);
+			
+			JSONObject md = new JSONObject();
+
+			try
+			{
+				md.put(HikeConstants.EVENT_KEY, ProfileImageActions.DP_EDIT_EVENT);
+				md.put(ProfileImageActions.DP_EDIT_PATH, ProfileImageActions.DP_EDIT_FROM_PROFILE_SCREEN);
+				HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, md);
+			}
+			catch(JSONException e)
+			{
+				Logger.d(AnalyticsConstants.ANALYTICS_TAG, "json exception");
+			}
 		}
 		else if (profileType == ProfileType.CONTACT_INFO_TIMELINE)
 		{

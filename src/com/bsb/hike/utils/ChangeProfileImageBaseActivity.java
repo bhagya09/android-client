@@ -6,6 +6,7 @@ import java.net.URI;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -29,6 +30,7 @@ import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.AnalyticsConstants.ProfileImageActions;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.http.HikeHttpRequest;
@@ -43,6 +45,8 @@ import com.bsb.hike.tasks.DownloadImageTask;
 import com.bsb.hike.tasks.DownloadImageTask.ImageDownloadResult;
 import com.bsb.hike.tasks.FinishableEvent;
 import com.bsb.hike.tasks.HikeHTTPTask;
+import com.bsb.hike.ui.ProfileActivity;
+import com.bsb.hike.ui.SettingsActivity;
 import com.bsb.hike.ui.fragments.ImageViewerFragment.DisplayPictureEditListener;
 import com.bsb.hike.utils.Utils.ExternalStorageState;
 
@@ -76,6 +80,8 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 	}
 
 	private ActivityState mActivityState;
+	
+	private String mRemoveImagePath;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -169,10 +175,11 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 
 		case HikeConstants.REMOVE_PROFILE_PICTURE:
 		{
-			showRemovePhotoConfirmDialog();
+			showRemovePhotoConfirmDialog();						
 		}
 			break;
 		}
+		mRemoveImagePath = null;
 	}
 
 	/**
@@ -180,12 +187,52 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 	 */
 	private void showRemovePhotoConfirmDialog()
 	{
+		JSONObject md = new JSONObject();
+		
+		try
+		{
+			md.put(HikeConstants.EVENT_KEY, ProfileImageActions.DP_REMOVE_EVENT);
+
+			switch(mRemoveImagePath)
+			{
+				case ProfileImageActions.DP_EDIT_FROM_DISPLAY_IMAGE:
+				{
+					md.put(ProfileImageActions.DP_EDIT_PATH, ProfileImageActions.DP_EDIT_FROM_DISPLAY_IMAGE);
+				}
+				break;
+		
+				case ProfileImageActions.DP_EDIT_FROM_PROFILE_OVERFLOW_MENU:
+				{
+					md.put(ProfileImageActions.DP_EDIT_PATH, ProfileImageActions.DP_EDIT_FROM_PROFILE_OVERFLOW_MENU);
+				}
+				break;
+		
+				case ProfileImageActions.DP_EDIT_FROM_SETTINGS_PREVIEW_IMAGE:
+				{
+					md.put(ProfileImageActions.DP_EDIT_PATH, ProfileImageActions.DP_EDIT_FROM_SETTINGS_PREVIEW_IMAGE);
+				}
+				break;
+		
+				case ProfileImageActions.DP_EDIT_FROM_PROFILE_SCREEN:
+				{
+					md.put(ProfileImageActions.DP_EDIT_PATH, ProfileImageActions.DP_EDIT_FROM_PROFILE_SCREEN);
+				}
+				break;
+			}
+			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, md);
+		}
+		catch(JSONException e)
+		{
+			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "json exception");
+		}
 		final CustomAlertDialog deleteConfirmDialog = new CustomAlertDialog(this);
 		deleteConfirmDialog.setHeader(R.string.remove_photo);
 		deleteConfirmDialog.setBody(R.string.confirm_remove_photo);
-
+		
 		View.OnClickListener dialogOkClickListener = new View.OnClickListener()
 		{
+			JSONObject md = new JSONObject();
+			
 			@Override
 			public void onClick(View v)
 			{
@@ -205,10 +252,31 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 					{
 						deleteDisplayPicture(lastsm.getMappedId());
 					}
+					try
+					{
+						md.put(AnalyticsConstants.EVENT_KEY, ProfileImageActions.DP_REMOVE_CONFIRM_YES);
+						md.put(ProfileImageActions.DP_EDIT_PATH, ProfileImageActions.DP_REMOVE_FROM_FAVOURITES_CHECKED);
+						HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.UI_EVENT, md);
+					}
+					catch (JSONException e)
+					{
+						Logger.d(AnalyticsConstants.ANALYTICS_TAG, "json error");
+					}
 				}
 				else
 				{
 					deleteDisplayPicture(null);
+					
+					try
+					{
+						md.put(AnalyticsConstants.EVENT_KEY, ProfileImageActions.DP_REMOVE_CONFIRM_YES);
+						md.put(ProfileImageActions.DP_EDIT_PATH, ProfileImageActions.DP_REMOVE_FROM_FAVOURITES_UNCHECKED);
+						HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.UI_EVENT, md);
+					}
+					catch (JSONException e)
+					{
+						Logger.d(AnalyticsConstants.ANALYTICS_TAG, "json error");
+					}
 				}
 				deleteConfirmDialog.dismiss();
 			}
@@ -268,13 +336,14 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 
 	/**
 	 * Used to show a dialog to the user to modify his/her current display picture
-	 * 
 	 * @param isGroupConv
+	 * @param removeImagePath TODO
 	 * @param msisdn
 	 *            of the user
 	 */
-	public void showProfileImageEditDialog(android.content.DialogInterface.OnClickListener listener, Context ctx, boolean isGroupConv)
+	public void showProfileImageEditDialog(android.content.DialogInterface.OnClickListener listener, Context ctx, boolean isGroupConv, String removeImagePath)
 	{
+		mRemoveImagePath = removeImagePath;
 		AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
 		builder.setTitle(R.string.profile_photo);
 
@@ -611,8 +680,31 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 	}
 
 	@Override
-	public void onDisplayPictureEditClicked()
+	public void onDisplayPictureEditClicked(Activity obj)
 	{
-		showProfileImageEditDialog(ChangeProfileImageBaseActivity.this, ChangeProfileImageBaseActivity.this, false);		
+		String imageRemovePath = null;		
+		JSONObject md = new JSONObject();
+
+		try
+		{
+			md.put(HikeConstants.EVENT_KEY, ProfileImageActions.DP_EDIT_EVENT);
+
+			if(obj instanceof ProfileActivity)
+			{
+				imageRemovePath = ProfileImageActions.DP_EDIT_FROM_DISPLAY_IMAGE;
+				md.put(ProfileImageActions.DP_EDIT_PATH, ProfileImageActions.DP_EDIT_FROM_DISPLAY_IMAGE);
+			}
+			else if(obj instanceof SettingsActivity)
+			{
+				md.put(ProfileImageActions.DP_EDIT_PATH, ProfileImageActions.DP_EDIT_FROM_SETTINGS_PREVIEW_IMAGE);
+				imageRemovePath = ProfileImageActions.DP_EDIT_FROM_SETTINGS_PREVIEW_IMAGE;		
+			}
+			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, md);
+		}
+		catch(JSONException e)
+		{
+			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "json exception");
+		}
+		showProfileImageEditDialog(ChangeProfileImageBaseActivity.this, ChangeProfileImageBaseActivity.this, false, imageRemovePath);		
 	}
 }
