@@ -621,7 +621,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 
 		super.makeFilteredList(constraint, resultList);
 		// to add new section and number for user typed number
-		String text = constraint.toString();
+		String text = constraint.toString().trim().replaceAll("[-.\\s /]", "");
 		if (isIntegers(text))
 		{
 			newContactsList = new ArrayList<ContactInfo>();
@@ -639,11 +639,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 
 	private boolean isIntegers(String input)
 	{
-		if(input.trim().length()==0){
-			return false;
-		}
-		//Regex Explanation - number can start with '+', then any character between [0-9] one or more time and any character among them [-, ., space, slash ]only once
-		return input.matches("^\\+?(([0-9]+)[-.\\s/]?)*");
+		return input.matches("\\+?\\d+");
 	}
 
 	private String getNormalisedMsisdn(String textEntered)
