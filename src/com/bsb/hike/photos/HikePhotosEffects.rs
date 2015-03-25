@@ -234,7 +234,7 @@ uchar4 __attribute__((kernel)) filter_kelvin(uchar4 in,uint32_t x,uint32_t y) {
 	{
 		uchar4 v = rsGetElementAt_uchar4(input1, x, y);
 	
-		in = applyBlendToRGB(in , v ,Multiply,0.72);
+		in = applyBlendToRGB(in , v ,Multiply,0.66);
 	}
 
 	return in;
@@ -259,7 +259,7 @@ uchar4 __attribute__((kernel)) filter_retro(uchar4 in,uint32_t x,uint32_t y) {
 	{
 		uchar4 v = rsGetElementAt_uchar4(input1, x, y);
 	
-		in = applyBlendToRGB(in , v ,Multiply,0.72);
+		in = applyBlendToRGB(in , v ,Multiply,0.62);
 	}
 	
 	return in;

@@ -83,7 +83,7 @@ public class VignetteImageView extends ImageView
 		case X_PRO_2:
 			// Vignette: Stop 1 = #000000 84%, Opacity = 0%; Stop 2 = #232443 120%, Opacity = 100%
 			colors = new int[] { 0xFFFFFFFF,0x00FFFFFF, 0x00000000, 0xFF232443 };
-			stops = new float[] { 0.0f, 1.10f/ 1.5f,1.12f / 1.5f, 1.0f };
+			stops = new float[] { 0.0f, 1.3f/ 1.5f,1.32f / 1.5f, 1.0f };
 			radiusRatio = 1.5f;
 			// makeRadialGradient(1.5f, colors, stops);
 			break;
