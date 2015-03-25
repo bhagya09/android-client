@@ -46,7 +46,7 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 
 	private EffectsImageView effectLayer;
 
-	private boolean enableDoodling, savingFinal;
+	private boolean enableDoodling, savingFinal,compressOutput;
 
 	private Bitmap imageOriginal, imageEdited, imageScaled, scaledImageOriginal;
 
@@ -67,6 +67,7 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 		addView(doodleLayer);
 		enableDoodling = false;
 		savingFinal = false;
+		compressOutput = true;
 	}
 
 	public PhotosEditerFrameLayoutView(Context context, AttributeSet attrs)
@@ -80,6 +81,7 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 		addView(doodleLayer);
 		enableDoodling = false;
 		savingFinal = false;
+		compressOutput = true;
 	}
 
 	public PhotosEditerFrameLayoutView(Context context, AttributeSet attrs, int defStyleAttr)
@@ -93,6 +95,17 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 		addView(doodleLayer);
 		enableDoodling = false;
 		savingFinal = false;
+		compressOutput = true;
+	}
+	
+	public void setCompressionEnabled(boolean state)
+	{
+		this.compressOutput = state;
+	}
+	
+	public boolean isCompressionEnabled()
+	{
+		return this.compressOutput;
 	}
 
 	public int getThumbnailDimen()
@@ -319,7 +332,7 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 		if (imageEdited != null)
 		{
 			
-			if(imageEdited.getHeight() > HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX)
+			if(compressOutput && imageEdited.getHeight() > HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX)
 			{
 				imageEdited = Bitmap.createScaledBitmap(imageEdited, HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX, HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX, false);
 			}

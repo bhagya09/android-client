@@ -496,10 +496,11 @@ public class IntentManager
 		return new Intent(Intent.ACTION_VIEW,Uri.parse(url));
 	}
 	
-	public static Intent getPictureEditorActivityIntent(String imageFileName)
+	public static Intent getPictureEditorActivityIntent(String imageFileName,boolean compressOutput)
 	{
 		Intent i = new Intent(HikeMessengerApp.getInstance().getApplicationContext(), PictureEditer.class);
 		i.putExtra(HikeConstants.HikePhotos.FILENAME, imageFileName);
+		i.putExtra(HikeConstants.HikePhotos.EDITOR_ALLOW_COMPRESSION_KEY, compressOutput);
 		return i;
 	}
 	

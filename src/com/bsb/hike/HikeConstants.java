@@ -2463,6 +2463,8 @@ public class HikeConstants
 	{
 		public static final String CAMERA_ALLOW_GALLERY_KEY = "galleryKey";
 		
+		public static final String EDITOR_ALLOW_COMPRESSION_KEY = "compressKey";
+		
 		public static final String PHOTOS_FILTER_NAME_KEY = "phFilName";
 		
 		public static final String PHOTOS_DOODLE_COLOR_KEY = "phDodCol";

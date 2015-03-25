@@ -136,6 +136,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 		overlayFrame = findViewById(R.id.overlayFrame);
 
 		startedForResult = (getCallingActivity() != null);
+		editView.setCompressionEnabled(intent.getBooleanExtra(HikeConstants.HikePhotos.EDITOR_ALLOW_COMPRESSION_KEY, true));
 
 		try
 		{

@@ -469,7 +469,6 @@ public class HikeCameraActivity extends HikeAppStateBaseFragmentActivity impleme
 				Utils.startCropActivityForResult(this, src, file.getAbsolutePath(), true);
 				break;
 			case HikeConstants.CROP_RESULT:
-				Intent intent = new Intent(HikeCameraActivity.this, PictureEditer.class);
 				String filename = data.getStringExtra(MediaStore.EXTRA_OUTPUT);
 
 				if (filename == null)
@@ -477,9 +476,15 @@ public class HikeCameraActivity extends HikeAppStateBaseFragmentActivity impleme
 					Toast.makeText(getApplicationContext(), R.string.error_setting_profile, Toast.LENGTH_SHORT).show();
 					return;
 				}
-
-				intent.putExtra(HikeConstants.HikePhotos.FILENAME, filename);
-				startActivity(intent);
+				Intent i = IntentManager.getPictureEditorActivityIntent(filename,!startedForResult);
+				if (!startedForResult)
+				{
+					startActivity(i);
+				}
+				else
+				{
+					startActivityForResult(i, HikeConstants.ResultCodes.PHOTOS_REQUEST_CODE);
+				}
 				sendAnalyticsGalleryPic();
 				break;
 			case HikeConstants.ResultCodes.PHOTOS_REQUEST_CODE:
@@ -508,18 +513,14 @@ public class HikeCameraActivity extends HikeAppStateBaseFragmentActivity impleme
 				startActivityForResult(galleryPickerIntent, GALLERY_PICKER_REQUEST);
 				break;
 			case HikeConstants.ResultCodes.PHOTOS_REQUEST_CODE:
-				if (startedForResult)
-				{
+				//if (startedForResult)
 					// User Returned from edit view without saving
 					// Display Camera
 					// Do Nothing
-				}
-				else
-				{
+				//else
 					// Not A Possible Scenario
 					// Do Nothing
-				}
-
+				break;
 			default:
 				break;
 			}
