@@ -14,10 +14,10 @@ import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Set;
 import java.util.regex.Pattern;
+
 import com.bsb.hike.platform.CardComponent;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformMessageMetadata;
-
 import com.bsb.hike.platform.WebMetadata;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.productpopup.DialogPojo;
@@ -221,6 +221,7 @@ import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.HikeTip;
 import com.bsb.hike.utils.HikeTip.TipType;
+import com.bsb.hike.utils.IntentManager;
 import com.bsb.hike.utils.LastSeenScheduler;
 import com.bsb.hike.utils.LastSeenScheduler.LastSeenFetchedCallback;
 import com.bsb.hike.utils.Logger;
@@ -5924,27 +5925,9 @@ public class ChatThread extends HikeAppStateBaseFragmentActivity implements Hike
 				{
 				case 0:
 					requestCode = HikeConstants.IMAGE_CAPTURE_CODE;
-					pickIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-					File selectedDir = new File(Utils.getFileParent(HikeFileType.IMAGE, false));
-					if (!selectedDir.exists())
-					{
-						if (!selectedDir.mkdirs())
-						{
-							Logger.d(getClass().getSimpleName(), "failed to create directory");
-							return;
-						}
-					}
-					String fileName = HikeConstants.CAM_IMG_PREFIX + Utils.getOriginalFile(HikeFileType.IMAGE, null);
-					selectedFile = new File(selectedDir.getPath() + File.separator + fileName); 
-
-					pickIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(selectedFile));
-					/*
-					 * For images, save the file path as a preferences since in some devices the reference to the file becomes null.
-					 */
-					Editor editor = prefs.edit();
-					editor.putString(HikeMessengerApp.FILE_PATH, selectedFile.getAbsolutePath());
-					editor.commit();
-					break;
+					Intent cameraIntent = IntentManager.getHikeCameraIntent(getApplicationContext(), false);
+					startActivityForResult(cameraIntent,  requestCode);
+					return;
 
 				case 2:
 					requestCode = HikeConstants.VIDEO_TRANSFER_CODE;
@@ -6005,15 +5988,7 @@ public class ChatThread extends HikeAppStateBaseFragmentActivity implements Hike
 					 * Cannot send a file for new videos because of an android issue http://stackoverflow.com/questions/10494839 /verifiyandsetparameter
 					 * -error-when-trying-to-record-video
 					 */
-					if (requestCode == HikeConstants.IMAGE_CAPTURE_CODE)
-					{
-						if (selectedFile == null)
-						{
-							Logger.w(getClass().getSimpleName(), "Unable to create file to store media.");
-							Toast.makeText(ChatThread.this, ChatThread.this.getResources().getString(R.string.no_external_storage), Toast.LENGTH_LONG).show();
-							return;
-						}
-					}
+					
 					if (newMediaFileIntent != null)
 					{
 						chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[] { newMediaFileIntent });
@@ -6523,11 +6498,8 @@ public class ChatThread extends HikeAppStateBaseFragmentActivity implements Hike
 		{
 			if (requestCode == HikeConstants.IMAGE_CAPTURE_CODE)
 			{
-				selectedFile = new File(prefs.getString(HikeMessengerApp.FILE_PATH, ""));
+				selectedFile = new File(data.getStringExtra(HikeConstants.Extras.CAMERA_RETURN_FILE));
 
-				Editor editor = prefs.edit();
-				editor.remove(HikeMessengerApp.FILE_PATH);
-				editor.commit();
 			}
 			if (data == null && (selectedFile == null || !selectedFile.exists()))
 			{
