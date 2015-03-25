@@ -240,6 +240,14 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 		this.mListener = listener;
 
 		savingFinal = true;
+		if(compressOutput && imageOriginal.getHeight() > HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX)
+		{
+			Bitmap temp = imageOriginal;
+			imageOriginal = Bitmap.createScaledBitmap(imageOriginal, HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX, HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX, false);
+			temp.recycle();
+			temp=null;
+		}
+
 		effectLayer.getBitmapWithEffectsApplied(imageOriginal, this);
 
 	}
@@ -331,12 +339,6 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 
 		if (imageEdited != null)
 		{
-			
-			if(compressOutput && imageEdited.getHeight() > HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX)
-			{
-				imageEdited = Bitmap.createScaledBitmap(imageEdited, HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX, HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX, false);
-			}
-
 			
 			Canvas canvasResult = new Canvas(imageEdited);
 

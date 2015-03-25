@@ -105,7 +105,7 @@ public final class HikeEffectsFactory
 			}
 			currentOut = finalBitmap;
 		}
-		if (!isThumbnail && currentOut == null)
+		if (!isThumbnail && (currentOut == null || vignetteBitmap == null))
 		{
 			ret = false;
 		}
