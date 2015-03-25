@@ -440,6 +440,7 @@ public class IntentManager
 	public static void openHikeCameraActivity(Activity argActivity)
 	{
 		Intent in = new Intent(argActivity, HikeCameraActivity.class);
+		in.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		argActivity.startActivity(in);
 	}
 	

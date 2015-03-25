@@ -115,6 +115,50 @@ public final class HikeEffectsFactory
 	}
 
 	/**
+	 * Method To Clear HikeEffectFactory's singleton object and attributes associated with it.
+	 * Recycles all bitmaps.
+	 * Should be called only when no further effects are to be applied.
+	 */
+	
+	public static void finish()
+	{
+		Log.e("com.bsb.hike","collecting garbage");
+		if (instance != null)
+		{
+			instance.mBlendAllocation = null;
+			instance.mInAllocation = null;
+			instance.mOutAllocations = null;
+			if(instance.finalBitmap!=null)
+			{
+				instance.finalBitmap.recycle();
+				instance.finalBitmap = null;
+			}
+			if(instance.mBitmapIn!=null)
+			{
+				instance.mBitmapIn.recycle();
+				instance.mBitmapIn = null;
+			}
+			if(instance.mBitmapOut1!=null)
+			{
+				instance.mBitmapOut1.recycle();
+				instance.mBitmapOut1 = null;
+			}
+			if(instance.mBitmapOut2!=null)
+			{
+				instance.mBitmapOut2.recycle();
+				instance.mBitmapOut2 = null;
+			}
+			if(instance.vignetteBitmap!=null)
+			{
+				instance.vignetteBitmap.recycle();
+				instance.vignetteBitmap = null;
+			}
+			
+			instance = null;
+		}
+	}
+
+	/**
 	 * Method initiates an async task to apply filter to the provided thumbnail (obtained by scaling the image to be handled). Run on a background since loading preview can take
 	 * some time in case of complex filters or large filter count. Till then the original image is displayed.
 	 */

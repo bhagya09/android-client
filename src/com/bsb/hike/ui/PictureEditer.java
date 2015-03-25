@@ -33,6 +33,7 @@ import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.photos.HikeEffectsFactory;
 import com.bsb.hike.photos.HikePhotosListener;
 import com.bsb.hike.photos.HikePhotosUtils;
 import com.bsb.hike.photos.HikePhotosUtils.MenuType;
@@ -152,8 +153,8 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 	@Override
 	protected void onResume()
 	{
-		overridePendingTransition(R.anim.fade_in_animation, R.anim.fade_out_animation);
 		super.onResume();
+		overridePendingTransition(R.anim.fade_in_animation, R.anim.fade_out_animation);
 		getSupportActionBar().getCustomView().findViewById(R.id.done_container).setVisibility(View.VISIBLE);
 		editView.enable();
 	}
@@ -163,6 +164,14 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 	{
 		overridePendingTransition(R.anim.fade_in_animation, R.anim.fade_out_animation);
 		super.onPause();
+	}
+
+	@Override
+	public void finish()
+	{
+		// TODO Auto-generated method stub
+		HikeEffectsFactory.finish();
+		super.finish();
 	}
 
 	private void setupActionBar()
