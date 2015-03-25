@@ -315,7 +315,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 					StatusMessageType[] smType = { StatusMessageType.PROFILE_PIC };
 					StatusMessage lastsm = HikeConversationsDatabase.getInstance().getLastStatusMessage(smType, contactInfo);
 
-					if (id.equals(lastsm.getMappedId()))
+					if (lastsm != null && id.equals(lastsm.getMappedId()))
 					{
 						displayPictureRemoved(id);
 					}
