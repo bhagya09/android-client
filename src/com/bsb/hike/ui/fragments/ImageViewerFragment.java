@@ -59,6 +59,8 @@ public class ImageViewerFragment extends SherlockFragment implements LoaderCallb
 	private IconLoader iconLoader;
 
 	private int imageSize;
+	
+	private Activity mActivity;
 
 	private String TAG = "ImageViewerFragment";
 	
@@ -285,7 +287,7 @@ public class ImageViewerFragment extends SherlockFragment implements LoaderCallb
 			case R.id.edit_dp:
 				if(mProfilePhotoEditListener != null)
 				{
-					mProfilePhotoEditListener.onDisplayPictureEditClicked();
+					mProfilePhotoEditListener.onDisplayPictureEditClicked(mActivity);
 				}
 			break;
 		}
@@ -302,6 +304,8 @@ public class ImageViewerFragment extends SherlockFragment implements LoaderCallb
 	public void onAttach(Activity activity) 
 	{
 		super.onAttach(activity);
+		
+		mActivity = activity;
 		
 		if(isViewEditable)
 		{
@@ -341,7 +345,7 @@ public class ImageViewerFragment extends SherlockFragment implements LoaderCallb
 	
 	public interface DisplayPictureEditListener
 	{
-		public void onDisplayPictureEditClicked();
+		public void onDisplayPictureEditClicked(Activity activity);
 	}
 
 	@Override
