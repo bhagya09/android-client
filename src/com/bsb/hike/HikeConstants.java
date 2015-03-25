@@ -849,6 +849,8 @@ public class HikeConstants
 	public static final String VOIP_CALL_RATE_FRAGMENT_TAG = "voipCallRateFragmentTag";
 
 	public static final String VOIP_CALL_ISSUES_FRAGMENT_TAG = "voipCallIssuesFragmentTag";
+	
+	public static final String IMAGE_QUALITY_DIALOG_FRAGMENT_TAG = "image-quality-dialog-fragment";
 
 	public static final String VOIP_CALL_FAILED_FRAGMENT_TAG = "voipCallFailedFragmentTag";
 	/*
@@ -1157,6 +1159,12 @@ public class HikeConstants
 		public static final String RESTORE_STATUS = "restoreStatus";
 
 		public static final String OVERLAY_SHOWING = "overlayShowing";
+		
+        public static final String TEMP_FILE_PATH = "tempFilePath";
+		
+		public static final String TEMP_FILE_TYPE = "tempFileType";
+		
+		public static final String TEMP_ATTACHMENT_TYPE = "tempAttachmentType";
 
 		public static final String GROUP_CHAT = "groupChat";
 

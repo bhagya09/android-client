@@ -214,6 +214,7 @@ import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.tasks.EmailConversationsAsyncTask;
 import com.bsb.hike.tasks.FinishableEvent;
 import com.bsb.hike.tasks.HikeHTTPTask;
+import com.bsb.hike.ui.HikeDialog.HikeDialogListener;
 import com.bsb.hike.ui.utils.HashSpanWatcher;
 import com.bsb.hike.utils.ChatTheme;
 import com.bsb.hike.utils.ContactDialog;
@@ -242,7 +243,7 @@ import com.bsb.hike.view.StickerEmoticonIconPageIndicator;
 import com.bsb.hike.voip.VoIPUtils;
 import com.bsb.hike.utils.IntentManager;
 public class ChatThread extends HikeAppStateBaseFragmentActivity implements HikePubSub.Listener, TextWatcher, OnEditorActionListener, OnSoftKeyboardListener, View.OnKeyListener,
-		FinishableEvent, OnTouchListener, OnScrollListener, OnItemLongClickListener, BackKeyListener, EmoticonClickListener
+		FinishableEvent, OnTouchListener, OnScrollListener, OnItemLongClickListener, BackKeyListener, EmoticonClickListener,HikeDialogListener
 {
 	private static final String HASH_PIN = "#pin";
 
@@ -471,6 +472,12 @@ public class ChatThread extends HikeAppStateBaseFragmentActivity implements Hike
 	private ScreenOffReceiver screenOffBR;
 
 	private HashSpanWatcher hashWatcher;
+	
+	private HikeFileType mTempHikeFileType;
+
+	private int mTempAttachementType;
+
+	private String mTempFilePath;
 
 	private RequestToken lastSeenRequestToken;
 
@@ -741,7 +748,12 @@ public class ChatThread extends HikeAppStateBaseFragmentActivity implements Hike
 		 */
 		requestWindowFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
 		super.onCreate(savedInstanceState);
-
+		if (savedInstanceState!=null) {
+			mTempAttachementType=savedInstanceState.getInt(HikeConstants.Extras.TEMP_ATTACHMENT_TYPE, mTempAttachementType);
+			mTempFilePath=savedInstanceState.getString(HikeConstants.Extras.TEMP_FILE_PATH, mTempFilePath);
+			mTempHikeFileType=(HikeFileType) savedInstanceState.getSerializable(HikeConstants.Extras.TEMP_FILE_TYPE);
+		}
+		
 		/* force the user into the reg-flow process if the token isn't set */
 		if (Utils.requireAuth(this))
 		{
@@ -6712,39 +6724,16 @@ public class ChatThread extends HikeAppStateBaseFragmentActivity implements Hike
 			}
 			if (selectedFile != null && requestCode == HikeConstants.IMAGE_CAPTURE_CODE)
 			{
-				final String fPath = filePath;
-				final int atType = attachementType;
-				getApplicationContext().sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://" + new File(filePath))));
-				HikeDialog.showDialog(ChatThread.this, HikeDialog.SHARE_IMAGE_QUALITY_DIALOG, new HikeDialog.HikeDialogListener()
-				{
-					@Override
-					public void onSucess(Dialog dialog)
-					{
-						initialiseFileTransfer(fPath, null, hikeFileType, null, false, -1, false, atType);
-						dialog.dismiss();
-					}
+				mTempFilePath = filePath;
+				mTempAttachementType = attachementType;
+				mTempHikeFileType = hikeFileType;
 
-					@Override
-					public void negativeClicked(Dialog dialog)
-					{
-
-					}
-
-					@Override
-					public void positiveClicked(Dialog dialog)
-					{
-
-					}
-
-					@Override
-					public void neutralClicked(Dialog dialog)
-					{
-
-					}
-				}, (Object[]) new Long[] { (long) 1, selectedFile.length() });
+				HikeDialog.showDialog(ChatThread.this, HikeDialog.SHARE_IMAGE_QUALITY_DIALOG, ChatThread.this, (Object[]) new Long[] { (long) 1, selectedFile.length() });
 			}
 			else
+			{
 				initialiseFileTransfer(filePath, null, hikeFileType, null, false, -1, false, attachementType);
+			}
 		}
 		else if (requestCode == HikeConstants.SHARE_LOCATION_CODE && resultCode == RESULT_OK)
 		{
@@ -7146,6 +7135,11 @@ public class ChatThread extends HikeAppStateBaseFragmentActivity implements Hike
 	@Override
 	protected void onSaveInstanceState(Bundle outState)
 	{
+		// File Transfer variable
+		outState.putInt(HikeConstants.Extras.TEMP_ATTACHMENT_TYPE, mTempAttachementType);
+		outState.putString(HikeConstants.Extras.TEMP_FILE_PATH, mTempFilePath);
+		outState.putSerializable(HikeConstants.Extras.TEMP_FILE_TYPE, mTempHikeFileType);
+		
 		// For preventing the tool tip from animating again if its already
 		// showing
 		outState.putBoolean(HikeConstants.Extras.OVERLAY_SHOWING, mOverlayLayout.getVisibility() == View.VISIBLE);
@@ -9380,6 +9374,36 @@ public class ChatThread extends HikeAppStateBaseFragmentActivity implements Hike
 		if (isKeyboardOpen)
 		{
 			Utils.hideSoftKeyboard(ChatThread.this, mComposeView);
+		}
+	}
+	@Override
+	public void negativeClicked(Dialog dialog) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void positiveClicked(Dialog dialog) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void neutralClicked(Dialog dialog) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onSucess(Dialog dialog) {
+		// this code is regarding of  HikeDialog.SHARE_IMAGE_QUALITY_DIALOG 
+		// we need switch case here in case of multiple dialog 
+		if (mTempFilePath!=null) {
+			initialiseFileTransfer(mTempFilePath, null, mTempHikeFileType, null, false, -1, false, mTempAttachementType);
+			dialog.dismiss();
+			mTempAttachementType=-1;
+			mTempFilePath=null;
+			mTempHikeFileType=null;
 		}
 	}
 }
