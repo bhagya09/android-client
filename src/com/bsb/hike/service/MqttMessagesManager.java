@@ -166,12 +166,11 @@ public class MqttMessagesManager
 		{
 			return;
 		}
-		String iconBase64 = jsonObj.getString(HikeConstants.DATA);
-		ContactManager.getInstance().setIcon(msisdn, Base64.decode(iconBase64, Base64.DEFAULT), false);
-
-		HikeMessengerApp.getLruCache().clearIconForMSISDN(msisdn);
-		HikeMessengerApp.getPubSub().publish(HikePubSub.ICON_CHANGED, msisdn);
-		// IconCacheManager.getInstance().clearIconForMSISDN(msisdn);
+		if(msisdn == null)
+		{
+			msisdn = userMsisdn;
+		}
+		saveUserIcon(jsonObj, msisdn);
 
 		/*
 		 * Only auto download if the ic packet is not generated due to signup.
@@ -184,6 +183,21 @@ public class MqttMessagesManager
 				autoDownloadGroupImage(msisdn);
 			}
 		}
+	}
+
+	/**
+	 * Used to save user icon to db
+	 * @param iconData 
+	 * @param msisdn of the user
+	 * @throws JSONException
+	 */
+	private void saveUserIcon(JSONObject iconData, String msisdn) throws JSONException
+	{
+		String iconBase64 = iconData.getString(HikeConstants.DATA);
+		ContactManager.getInstance().setIcon(msisdn, Base64.decode(iconBase64, Base64.DEFAULT), false);
+
+		HikeMessengerApp.getLruCache().clearIconForMSISDN(msisdn);
+		HikeMessengerApp.getPubSub().publish(HikePubSub.ICON_CHANGED, msisdn);
 	}
 
 	private void saveDisplayPic(JSONObject jsonObj) throws JSONException
