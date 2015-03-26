@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+	android:id="@+id/parent_layout"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:background="@color/black_60">
+	
+	<RelativeLayout
+	    android:id="@+id/container"
+	    android:layout_gravity="bottom"
+	    android:layout_width="match_parent"
+	    android:layout_height="@dimen/call_failed_fragment_height"
+	    android:orientation="vertical"
+	    android:background="@color/white" >
+
+		<com.bsb.hike.view.CustomFontTextView
+	        android:id="@+id/heading"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_marginTop="38dp"
+	        android:layout_centerHorizontal="true"
+	        android:textSize="16dp"
+	        android:gravity="center"
+	        android:textColor="@color/standard_black"
+	        android:textStyle="bold|italic" />
+
+		<com.bsb.hike.view.CustomFontTextView
+	        android:id="@+id/subheading"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_below="@id/heading"
+	        android:layout_marginTop="6dp"
+	        android:layout_centerHorizontal="true"
+	        android:textSize="15dp"
+	        android:textColor="@color/standard_light_grey2"
+	        android:textStyle="italic" />
+
+		<LinearLayout
+		    android:layout_width="match_parent"
+		    android:layout_height="wrap_content"
+		    android:orientation="horizontal"
+		    android:layout_below="@id/subheading"
+		    android:paddingLeft="24dp"
+		    android:paddingRight="24dp"
+		    android:layout_marginTop="42dp">
+
+		    	<com.bsb.hike.view.CustomFontButton
+		    	    android:id="@+id/voice_clip"
+			        android:layout_width="0dp"
+			        android:layout_height="wrap_content"
+			        android:layout_weight="1"
+			        android:drawablePadding="8dp"
+			        android:text="@string/voip_call_failed_voice_clip"
+			        android:textColor="@color/standard_light_grey2"
+			        android:drawableTop="@drawable/ic_fallback_voice"
+			        android:textSize="12dp"
+			        android:textStyle="italic"
+			        android:background="@null"
+			        android:scaleType="center" />
+
+				<com.bsb.hike.view.CustomFontButton
+				    android:id="@+id/hike_message"
+			        android:layout_width="0dp"
+			        android:layout_height="wrap_content"
+			        android:layout_weight="1"
+			        android:text="@string/voip_call_failed_message"
+			        android:drawableTop="@drawable/ic_fallback_message"
+			        android:drawablePadding="8dp"
+			        android:background="@null"
+			        android:textSize="12dp"
+			        android:textStyle="italic"
+			        android:textColor="@color/standard_light_grey2"
+			        android:layout_marginRight="24dp"
+			        android:layout_marginLeft="24dp"
+			        android:scaleType="center" />
+
+				<com.bsb.hike.view.CustomFontButton
+				    android:id="@+id/call_again"
+			        android:layout_width="0dp"
+			        android:layout_height="wrap_content"
+			        android:layout_weight="1"
+			        android:drawablePadding="8dp"
+			        android:text="@string/voip_call_failed_redial"
+			        android:drawableTop="@drawable/ic_fallback_redial"
+			        android:textSize="12dp"
+			        android:textStyle="italic"
+			        android:textColor="@color/standard_light_grey2"
+			        android:background="@null"
+			        android:scaleType="center" />
+		</LinearLayout>
+
+		<com.bsb.hike.view.CustomFontButton
+		    android:id="@+id/dismiss_button"
+	        android:layout_width="match_parent"
+	        android:layout_height="48dp"
+	        android:layout_alignParentBottom="true"
+	        android:text="@string/dismiss_upper_case"
+	        android:textSize="13dp"
+	        android:background="@null"
+	        android:gravity="center"
+	        android:textStyle="bold"
+	        android:textColor="@color/call_rate_submit" />
+
+		<View
+	        android:layout_width="match_parent"
+	        android:layout_height="1dp"
+	        android:layout_marginLeft="5dp"
+	        android:layout_marginRight="5dp"
+	        android:layout_above="@id/dismiss_button"
+	        android:background="@color/list_divider" />
+	</RelativeLayout>
+</FrameLayout>

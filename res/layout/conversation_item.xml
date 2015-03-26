@@ -17,9 +17,10 @@
             android:layout_width="@dimen/larger_avatar"
             android:layout_height="@dimen/larger_avatar" >
 
-            <com.bsb.hike.ui.utils.RecyclingImageView
+            <com.bsb.hike.view.RoundedImageView
                 android:id="@+id/avatar"
                 style="@style/AvatarStyle.MorePadding" />
+            
         </FrameLayout>
 
         <LinearLayout

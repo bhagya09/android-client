@@ -51,4 +51,38 @@ endif
 
 include $(BUILD_SHARED_LIBRARY)
 
+###########################################################  
+# Declare solicall library
+
+LOCAL_PATH := $(ROOT)/solicall
+
+include $(CLEAR_VARS)
+
+LOCAL_MODULE    := solicallsdk
+LOCAL_SRC_FILES := libSoliCallSDK-armeabi-v7a.a
+LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/include
+
+include $(PREBUILT_STATIC_LIBRARY)
+
+###########################################################  
+# Declare solicall library #2
+
+LOCAL_PATH := $(ROOT)/solicall
+
+include $(CLEAR_VARS)
+
+LOCAL_LDLIBS := -llog -ldl
+LOCAL_MODULE    := solicall
+LOCAL_SRC_FILES := solicalljni.cpp
+LOCAL_STATIC_LIBRARIES := solicallsdk
+
+LOCAL_CFLAGS += -D_LINUX
+
+include $(BUILD_SHARED_LIBRARY)
+
+
+
+
+
+
 

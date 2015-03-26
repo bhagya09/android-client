@@ -41,6 +41,7 @@ public class AnalyticsConstants
 
 	public static final String ANALYTICS_TAG = "hikeAnalytics";
 	
+	//TODO @Rajesh, I assume you forgot to set these variables as final.
 	public static String TYPE = "t";
 
 	public static String ANALYTICS_EVENT = "le_android";
@@ -54,6 +55,8 @@ public class AnalyticsConstants
 	public static String UI_EVENT = "uiEvent";
 
 	public static String NON_UI_EVENT = "nonUiEvent";
+
+	public static final String DEV_EVENT = "devEvent";
 
 	public static String CLICK_EVENT = "click";
 
@@ -77,6 +80,8 @@ public class AnalyticsConstants
 
     public static String ORIGIN = "org";
 
+	public static String CONTENT_ID = "content_id";
+
     public static String UNREAD_COUNT = "uc";
 
 	public static final String ANALYTICS = "analytics";
@@ -95,6 +100,8 @@ public class AnalyticsConstants
 
 	public static final String ANALYTICS_BACKUP = "backup";
 
+	public static final String ANALYTICS_HOME_SEARCH = "search";
+
 	public static final String EVENT_SUB_TYPE = "st";
 
 	public static final String EVENT_TAG = "tag";
@@ -106,6 +113,8 @@ public class AnalyticsConstants
     public static final String EVENT_TAG_PLATFORM = "plf";
 
 	public static final String EVENT_TAG_BOTS = "bot";
+	
+	public static final String EVENT_TAG_PHOTOS = "ph5";
 
 	public static final String CHAT_MSISDN = "chat_msisdn";
 
@@ -151,6 +160,8 @@ public class AnalyticsConstants
 	public static final String FOREGROUND = "fg";
 	
 	public static final String BACKGROUND = "bg";
+	
+	public static final String STICKER_PALLETE = "stkp";
 
 	public static final class MessageType
 	{

@@ -19,6 +19,8 @@ import android.widget.TextView;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
+import com.bsb.hike.BitmapModule.BitmapUtils;
+import com.bsb.hike.models.BroadcastConversation;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.GroupConversation;
 import com.bsb.hike.models.GroupParticipant;
@@ -79,7 +81,19 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 	private SharedFileImageLoader thumbnailLoader;
 
 	private int mIconImageSize;
-		
+	
+	private boolean hasCustomPhoto;
+	
+	private static final int SHOW_CONTACTS_STATUS = 0;
+	
+	private static final int NOT_A_FRIEND = 1;
+
+	private static final int UNKNOWN_ON_HIKE = 2;
+
+	private static final int REQUEST_RECEIVED = 3;
+
+	private static final int UNKNOWN_NOT_ON_HIKE = 4;
+	
 	private int sizeOfThumbnail;
 
 	public ProfileAdapter(ProfileActivity profileActivity, List<ProfileItem> itemList, GroupConversation groupConversation, ContactInfo contactInfo, boolean myProfile)
@@ -114,9 +128,9 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 		profileImageLoader.setHiResDefaultAvatar(true);
 		this.iconLoader = new IconLoader(context, mIconImageSize);
 		iconLoader.setDefaultAvatarIfNoCustomIcon(true);
+		hasCustomPhoto = getHasCustomPhoto(); 
 	}
 	
-
 	@Override
 	public int getItemViewType(int position)
 	{
@@ -359,7 +373,15 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 			viewHolder.image.setTag(imageViewerInf);
 			if (profilePreview == null)
 			{
-				profileImageLoader.loadImage(mapedId, viewHolder.image, isListFlinging);
+				if(hasCustomPhoto)
+				{
+					profileImageLoader.loadImage(mapedId, viewHolder.image, isListFlinging);
+				}
+				else
+				{
+					viewHolder.image.setBackgroundResource(BitmapUtils.getDefaultAvatarResourceId(mContactInfo.getMsisdn(), false));
+					viewHolder.image.setImageResource(R.drawable.ic_default_avatar_hires);
+				}
 			}
 			else
 			{
@@ -504,8 +526,15 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 				if(totalfiles>0)
 				{
 					viewHolder.sharedFiles.setVisibility(View.VISIBLE);
-					((LinearLayout) viewHolder.sharedFiles).getChildAt(1).setVisibility(View.VISIBLE);
-					((LinearLayout) viewHolder.sharedFiles).findViewById(R.id.shared_content_seprator).setVisibility(View.VISIBLE);
+					if (groupConversation instanceof BroadcastConversation)
+					{
+						((LinearLayout) viewHolder.sharedFiles).getChildAt(1).setVisibility(View.GONE);
+					}
+					else
+					{
+						((LinearLayout) viewHolder.sharedFiles).getChildAt(1).setVisibility(View.VISIBLE);
+						((LinearLayout) viewHolder.sharedFiles).findViewById(R.id.shared_content_seprator).setVisibility(View.VISIBLE);
+					}
 				
 					viewHolder.groupOrPins.setText(context.getResources().getString(R.string.pins));
 					viewHolder.icon.setBackgroundDrawable(context.getResources().getDrawable(R.drawable.ic_pin_2));
@@ -520,7 +549,14 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 				{
 					viewHolder.sharedFiles.setVisibility(View.GONE);
 					viewHolder.timeStamp.setVisibility(View.VISIBLE);
-					viewHolder.timeStamp.setText(context.getResources().getString(R.string.no_file));
+					if (groupConversation instanceof BroadcastConversation)
+					{
+						viewHolder.timeStamp.setText(context.getResources().getString(R.string.no_file_broadcast));
+					}
+					else
+					{
+						viewHolder.timeStamp.setText(context.getResources().getString(R.string.no_file));
+					}
 				}
 			}
 			else
@@ -571,8 +607,16 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 			break;
 
 		case MEMBERS:
-			viewHolder.text.setText(context.getResources().getString(R.string.members));
-			viewHolder.subText.setText(Integer.toString(((ProfileGroupItem)profileItem).getTotalMembers()) + "/" + HikeConstants.MAX_CONTACTS_IN_GROUP);
+			if (groupConversation instanceof BroadcastConversation)
+			{
+				viewHolder.text.setText(context.getResources().getString(R.string.recipients));
+				viewHolder.subText.setText(Integer.toString(((ProfileGroupItem)profileItem).getTotalMembers()) + "/" + HikeConstants.MAX_CONTACTS_IN_BROADCAST);
+			}
+			else
+			{
+				viewHolder.text.setText(context.getResources().getString(R.string.members));
+				viewHolder.subText.setText(Integer.toString(((ProfileGroupItem)profileItem).getTotalMembers()) + "/" + HikeConstants.MAX_CONTACTS_IN_GROUP);
+			}
 			break;
 
 		case GROUP_PARTICIPANT:
@@ -627,7 +671,14 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 			TextView nameTextView_mem = (TextView) groupParticipantParentView_mem.findViewById(R.id.name);
 			ImageView avatar_mem = (ImageView) groupParticipantParentView_mem.findViewById(R.id.add_participant);
 			avatar_mem.setVisibility(View.VISIBLE);
-			nameTextView_mem.setText(R.string.add_people);
+			if (groupConversation instanceof BroadcastConversation)
+			{
+				nameTextView_mem.setText(R.string.add_recipients);
+			}
+			else
+			{
+				nameTextView_mem.setText(R.string.add_people);
+			}
 			nameTextView_mem.setTextColor(context.getResources().getColor(R.color.blue_hike));
 			groupParticipantParentView_mem.setTag(null);
 			groupParticipantParentView_mem.setOnClickListener(profileActivity);
@@ -662,6 +713,7 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 			{
 				viewHolder.icon.setImageResource(EmoticonConstants.moodMapping.get(statusMessage.getMoodId()));
 				viewHolder.iconFrame.setVisibility(View.GONE);
+				viewHolder.icon.setBackgroundResource(0);
 			}
 			else
 			{
@@ -760,7 +812,7 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 
 	private void setAvatar(String msisdn, ImageView avatarView)
 	{
-		iconLoader.loadImage(msisdn, true, avatarView, true);
+		iconLoader.loadImage(msisdn, avatarView, false, true);
 	}
 
 	private class ViewHolder
@@ -864,5 +916,24 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 		{
 			notifyDataSetChanged();
 		}
-	}	
+	}
+	
+
+	private boolean getHasCustomPhoto()
+	{
+		// basically for the case of unknown number contactInfo object doesn't have the hasIcon information
+		if(mContactInfo != null)
+		{
+			return this.mContactInfo.hasCustomPhoto() || ContactManager.getInstance().hasIcon(this.mContactInfo.getMsisdn());	
+		}
+		else 
+		{
+			return false;
+		}
+	}
+	
+	public void updateHasCustomPhoto()
+	{
+		this.hasCustomPhoto = getHasCustomPhoto();
+	}
 }

@@ -2,6 +2,7 @@ package com.bsb.hike.filetransfer;
 
 import java.io.InputStream;
 import java.net.URL;
+import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.FutureTask;
@@ -37,9 +38,13 @@ import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.http.CustomByteArrayEntity;
 import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.models.HikeFile;
+import com.bsb.hike.models.ConvMessage.OriginType;
+import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.ProgressListener;
 import com.bsb.hike.utils.Utils;
 import com.google.android.maps.GeoPoint;
@@ -165,16 +170,28 @@ public class UploadContactOrLocationTask extends FileTransferBase
 			Logger.d(getClass().getSimpleName(), "JSON FINAL: " + hikeFile.serialize());
 			metadata.put(HikeConstants.FILES, filesArray);
 
-			((ConvMessage) userContext).setMetadata(metadata);
+			ConvMessage convMessageObject = (ConvMessage) userContext;
+			convMessageObject.setMetadata(metadata);
 
 			// If the file was just uploaded to the servers, we want to publish
 			// this event
 			if (!fileWasAlreadyUploaded)
 			{
-				HikeMessengerApp.getPubSub().publish(HikePubSub.UPLOAD_FINISHED, (ConvMessage) userContext);
+				HikeMessengerApp.getPubSub().publish(HikePubSub.UPLOAD_FINISHED, convMessageObject);
+			}
+			
+			if(convMessageObject.isBroadcastConversation())
+			{
+				List<PairModified<GroupParticipant, String>> participantList= ContactManager.getInstance().getGroupParticipants(convMessageObject.getMsisdn(), false, false);
+				for (PairModified<GroupParticipant, String> grpParticipant : participantList)
+				{
+					String msisdn = grpParticipant.getFirst().getContactInfo().getMsisdn();
+					convMessageObject.addToSentToMsisdnsList(msisdn);
+				}
+				Utils.addBroadcastRecipientConversations(convMessageObject);
 			}
 
-			HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_SENT, (ConvMessage) userContext);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_SENT, convMessageObject);
 		}
 		catch (Exception e)
 		{
@@ -263,6 +280,7 @@ public class UploadContactOrLocationTask extends FileTransferBase
 			}
 
 			userContext = createConvMessage(msisdn, metadata);
+			
 			if (TextUtils.isEmpty(fileKey))
 			{
 				// Called so that the UI in the Conversation lists screen is
@@ -283,6 +301,12 @@ public class UploadContactOrLocationTask extends FileTransferBase
 		ConvMessage convMessage = new ConvMessage(HikeConstants.LOCATION_FILE_NAME, msisdn, time, ConvMessage.State.SENT_UNCONFIRMED);
 		convMessage.setMetadata(metadata);
 		convMessage.setSMS(!isRecipientOnhike);
+		
+		if(convMessage.isBroadcastConversation())
+		{
+			convMessage.setMessageOriginType(OriginType.BROADCAST);
+		}
+
 		HikeConversationsDatabase.getInstance().addConversationMessages(convMessage);
 
 		HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_MESSAGE_CREATED, convMessage);

@@ -2,6 +2,7 @@ package com.bsb.hike.ui.fragments;
 
 import java.io.File;
 
+import android.R;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.graphics.Bitmap;
@@ -24,8 +25,6 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
-import com.bsb.hike.R;
-import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
@@ -211,8 +210,7 @@ public class ImageViewerFragment extends SherlockFragment implements LoaderCallb
 		}
 		else
 		{
-			imageView.setBackgroundResource(BitmapUtils.getDefaultAvatarResourceId(key, false));				
-			imageView.setImageResource(Utils.isGroupConversation(mappedId) ? R.drawable.ic_default_avatar_group_hires : R.drawable.ic_default_avatar_hires);
+			imageView.setImageDrawable(HikeBitmapFactory.getDefaultAvatar(getResources(), key, true));
 		}
 	}
 

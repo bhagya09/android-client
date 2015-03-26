@@ -11,6 +11,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.FutureTask;
@@ -60,14 +61,18 @@ import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.GroupParticipant;
+import com.bsb.hike.models.ConvMessage.OriginType;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.MessageMetadata;
 import com.bsb.hike.models.MultipleConvMessage;
+import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.FileTransferCancelledException;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.video.HikeVideoCompressor;
 import com.bsb.hike.video.VideoUtilities;
@@ -305,8 +310,16 @@ public class UploadFileTask extends FileTransferBase
 			else
 			{
 				userContext = createConvMessage(fileName, metadata, msisdn, isRecipientOnhike);
-				HikeConversationsDatabase.getInstance().addConversationMessages((ConvMessage)userContext);
-				HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_SENT, (ConvMessage) userContext);
+				ConvMessage convMessageObject = (ConvMessage)userContext;
+				if(convMessageObject.isBroadcastConversation())
+				{
+					convMessageObject.setMessageOriginType(OriginType.BROADCAST);
+				}
+
+				HikeConversationsDatabase.getInstance().addConversationMessages(convMessageObject);
+				
+				//Message sent from here will only do an entry in conversation db it is not actually being sent to server.
+				HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_SENT, convMessageObject);
 			}
 		}
 		catch (Exception e)
@@ -666,14 +679,27 @@ public class UploadFileTask extends FileTransferBase
 			}
 			else
 			{
-				((ConvMessage) userContext).setMetadata(metadata);
+				ConvMessage convMessageObject = (ConvMessage)userContext;
+				convMessageObject.setMetadata(metadata);
 	
 				// The file was just uploaded to the servers, we want to publish
 				// this event
-				((ConvMessage) userContext).setTimestamp(System.currentTimeMillis() / 1000);
-				HikeMessengerApp.getPubSub().publish(HikePubSub.UPLOAD_FINISHED, ((ConvMessage) userContext));
+				convMessageObject.setTimestamp(System.currentTimeMillis() / 1000);
+				HikeMessengerApp.getPubSub().publish(HikePubSub.UPLOAD_FINISHED, convMessageObject);
 	
-				HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_SENT, ((ConvMessage) userContext));
+				if(convMessageObject.isBroadcastConversation())
+				{
+					List<PairModified<GroupParticipant, String>> participantList= ContactManager.getInstance().getGroupParticipants(convMessageObject.getMsisdn(), false, false);
+					for (PairModified<GroupParticipant, String> grpParticipant : participantList)
+					{
+						String msisdn = grpParticipant.getFirst().getContactInfo().getMsisdn();
+						convMessageObject.addToSentToMsisdnsList(msisdn);
+					}
+					Utils.addBroadcastRecipientConversations(convMessageObject);
+				}
+				
+				//Message sent from here will contain file key and also message_id ==> this is actually being sent to the server.
+				HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_SENT, convMessageObject);
 			}
 			deleteStateFile();
 			Utils.addFileName(hikeFile.getFileName(), hikeFile.getFileKey());
@@ -812,6 +838,16 @@ public class UploadFileTask extends FileTransferBase
 		{
 			chunkSize = chunkSize / 5;
 		}
+		/*
+		 * Safe check for the case where chunk size equals zero while calculating based on network and device memory.
+		 * https://hike.fogbugz.com/default.asp?42482
+		 */
+		if(chunkSize <= 0)
+		{
+			FTAnalyticEvents.sendFTDevEvent(FTAnalyticEvents.UPLOAD_FILE_TASK, "Chunk size is less than or equal to 0, so setting it to default i.e. 100kb");
+			chunkSize = DEFAULT_CHUNK_SIZE;
+		}
+
 		if (chunkSize > length)
 			chunkSize = (int) length;
 		setBufferSize();

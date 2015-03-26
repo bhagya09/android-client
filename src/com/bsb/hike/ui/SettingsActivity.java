@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import android.content.Intent;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
@@ -32,6 +33,12 @@ import com.bsb.hike.models.ImageViewerInfo;
 import com.bsb.hike.models.StatusMessage;
 import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.productpopup.DialogPojo;
+import com.bsb.hike.productpopup.HikeDialogFragment;
+import com.bsb.hike.productpopup.IActivityPopup;
+import com.bsb.hike.productpopup.ProductContentModel;
+import com.bsb.hike.productpopup.ProductInfoManager;
+import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.smartImageLoader.IconLoader;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
@@ -55,10 +62,6 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 
 	private TextView statusView;
 
-	private String profileName;
-
-	private IconLoader profileImageLoader;
-
 	private String[] profilePubSubListeners = { HikePubSub.STATUS_MESSAGE_RECEIVED, HikePubSub.ICON_CHANGED, HikePubSub.PROFILE_UPDATE_FINISH };
 
 	private boolean isConnectedAppsPresent;
@@ -73,7 +76,6 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.settings);
-		profileImageLoader = new IconLoader(this, getResources().getDimensionPixelSize(R.dimen.avatar_profile_size));
 
 		ArrayList<String> items = new ArrayList<String>();
 
@@ -216,6 +218,9 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 		setupActionBar();
 
 		HikeMessengerApp.getPubSub().addListeners(this, profilePubSubListeners);
+		
+		showProductPopup(ProductPopupsConstants.PopupTriggerPoints.SETTINGS_SCR.ordinal());
+		
 	}
 
 	private void addProfileHeaderView(ListView settingsList)
@@ -357,6 +362,7 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 
 		if (isRemoved)
 		{
+			getSupportActionBar().show();
 			setupActionBar();
 		}
 		return isRemoved;
@@ -364,11 +370,14 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 
 	private void addProfileImgInHeader()
 	{
-		String mappedId = contactInfo.getMsisdn() + ProfileActivity.PROFILE_ROUND_SUFFIX;
-
 		// set profile picture
-		profileImageLoader.loadImage(mappedId, profileImgView, false, false, true);
-
+		Drawable drawable = HikeMessengerApp.getLruCache().getIconFromCache(contactInfo.getMsisdn());
+		if (drawable == null)
+		{
+			drawable = HikeMessengerApp.getLruCache().getDefaultAvatar(contactInfo.getMsisdn(), false);
+		}
+		profileImgView.setImageDrawable(drawable);
+		
 		ImageViewerInfo imageViewerInfo = new ImageViewerInfo(contactInfo.getMsisdn() + ProfileActivity.PROFILE_PIC_SUFFIX, null, false, !ContactManager.getInstance().hasIcon(
 				contactInfo.getMsisdn()));
 		profileImgView.setTag(imageViewerInfo);

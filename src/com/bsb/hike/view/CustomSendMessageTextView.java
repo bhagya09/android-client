@@ -13,9 +13,14 @@ public class CustomSendMessageTextView extends CustomFontTextView
 	
 	private static final int maxWidth = 265;
 	
-	private static final int widthTime12Hour = 75;
+	private static final int widthTime12HourDefault = 75;
+	private static final int widthTime24HourDefault = 57;
+	private static final int widthTime12HourBroadcast = 90;
+	private static final int widthTime24HourBroadcast = 72;
 	
-	private static final int widthTime24Hour = 57;
+	private int widthTime12Hour;
+	
+	private int widthTime24Hour;
 	
 	private static final int widthMargin = 2;
 	
@@ -119,5 +124,17 @@ public class CustomSendMessageTextView extends CustomFontTextView
 				setMeasuredDimension(MeasureSpec.getSize(widthMeasureSpec), MeasureSpec.getSize(heightMeasureSpec));
 			}
 		}
+	}
+	
+	public void setDefaultLength()
+	{
+		widthTime12Hour = widthTime12HourDefault;
+		widthTime24Hour = widthTime24HourDefault;
+	}
+	
+	public void setBroadcastLength()
+	{
+		widthTime12Hour = widthTime12HourBroadcast;
+		widthTime24Hour = widthTime24HourBroadcast;
 	}
 }

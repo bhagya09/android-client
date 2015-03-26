@@ -56,7 +56,7 @@ public class HikeHTTPTask extends AsyncTask<HikeHttpRequest, Integer, Boolean> i
 			}
 
 			int duration = Toast.LENGTH_LONG;
-			if (finishableEvent != null)
+			if (finishableEvent != null && finishableEvent instanceof Activity)
 			{
 				Toast toast = Toast.makeText((Activity) finishableEvent, errorStringId, duration);
 				toast.show();

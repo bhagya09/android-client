@@ -13,7 +13,7 @@
         android:layout_marginBottom="16dp"
         android:layout_marginTop="32dp"
         android:scaleType="centerInside"
-        android:src="@drawable/sticker_001_as_kikorisa" />
+        android:src="@drawable/art_sticker_mac" />
 
     <LinearLayout
         android:id="@+id/text_container"
@@ -30,6 +30,7 @@
             android:textColor="@color/blue_hike"
             android:layout_marginBottom="6dp"
             android:textStyle="italic"
+            android:visibility="gone"
             android:textSize="24sp" />
 
         <com.bsb.hike.view.CustomFontTextView
