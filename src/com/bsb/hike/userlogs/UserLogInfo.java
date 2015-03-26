@@ -7,6 +7,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -17,10 +21,6 @@ import android.location.LocationManager;
 import android.net.Uri;
 import android.provider.CallLog;
 import android.text.TextUtils;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -59,6 +59,9 @@ public class UserLogInfo {
 	private static final String LONGITUDE = "long";
 	private static final String RADIUS = "rd";
 	private static final String TIMESTAMP = "ts";
+	
+	private static final String SENT_SMS = "ss";
+	private static final String RECEIVED_SMS = "rs";
 	
 	public static class LocLogPojo{
 		final double latitude;
@@ -111,15 +114,19 @@ public class UserLogInfo {
 		int sentCallCount;
 		int sentCallDuration;
 		int receivedCallDuration;
+		int sentSmsCount;
+		int receivedSmsCount;
 
-		public CallLogPojo(String phoneNumber, int missedCallCount, int receivedCallCount, 
-				int sentCallCount, int sentCallDuration, int receivedCallDuration) {
+		public CallLogPojo(String phoneNumber, int missedCallCount, int receivedCallCount, int sentCallCount, 
+				int sentCallDuration, int receivedCallDuration, int sentSmsCount, int receivedSmsCount) {
 			this.phoneNumber = phoneNumber;
 			this.missedCallCount = missedCallCount;
 			this.receivedCallCount = receivedCallCount;
 			this.sentCallCount = sentCallCount;
 			this.sentCallDuration = sentCallDuration;
 			this.receivedCallDuration = receivedCallDuration;
+			this.sentSmsCount = sentSmsCount;
+			this.receivedSmsCount = receivedSmsCount;
 		}
 	}
 
@@ -259,6 +266,46 @@ public class UserLogInfo {
 		//Map is being used to store and retrieve values multiple times
 		Map<String, CallLogPojo> callLogMap = new HashMap<String, CallLogPojo>();
 		
+		 Uri smsUri = Uri.parse("content://sms");
+         Cursor smsCur = ctx.getContentResolver().query(smsUri, null, null, null, null);
+         
+         if (smsCur != null && smsCur.moveToFirst()) { 
+        	try { 
+				do {
+					String smsNumber = smsCur.getString(smsCur.getColumnIndexOrThrow("address"));
+					String smsDate = smsCur.getString(smsCur.getColumnIndexOrThrow("date"));
+					int smsType = smsCur.getInt(smsCur.getColumnIndexOrThrow("type"));
+					
+					if (Long.parseLong(smsDate) > (System.currentTimeMillis() - (milliSecInDay * DAYS_TO_LOG)) 
+							&& smsNumber != null && (smsType == 1 || smsType == 2)) 
+					{
+	
+						CallLogPojo callLog = null;
+						
+						if(callLogMap.containsKey(smsNumber)){
+							callLog = callLogMap.get(smsNumber);
+						} else {
+							callLog = new CallLogPojo(smsNumber,0,0,0,0,0,0,0);
+						}
+		
+						switch (smsType) {
+						case 1 : //inbox
+							callLog.receivedSmsCount++;
+							break;
+						case 2 : //sent
+							callLog.sentSmsCount++;
+							break;
+						}
+						callLogMap.put(smsNumber, callLog);
+					}
+				} while (smsCur.moveToNext());
+        	} catch (Exception e) {
+				Logger.d(TAG, e.toString());
+			} finally {
+				smsCur.close();
+			}
+ 		}
+		
 		String strOrder = android.provider.CallLog.Calls.DATE + " DESC";
 		String[] projection = new String[] { CallLog.Calls.NUMBER, CallLog.Calls.DATE, CallLog.Calls.TYPE, CallLog.Calls.DURATION };
 		String selection = CallLog.Calls.DATE + " > ?";
@@ -286,7 +333,7 @@ public class UserLogInfo {
 						if(callLogMap.containsKey(callNumber)){
 							callLog = callLogMap.get(callNumber);
 						} else {
-							callLog = new CallLogPojo(callNumber,0,0,0,0,0);
+							callLog = new CallLogPojo(callNumber,0,0,0,0,0,0,0);
 						}
 	
 						switch (cur.getInt(cur.getColumnIndex(android.provider.CallLog.Calls.TYPE))) {
@@ -332,6 +379,8 @@ public class UserLogInfo {
 			jsonObj.putOpt(RECEIVED_CALL_COUNT, callLog.receivedCallCount);
 			jsonObj.putOpt(SENT_CALL_DURATION, callLog.sentCallDuration);
 			jsonObj.putOpt(RECEIVED_CALL_DURATION, callLog.receivedCallDuration);
+			jsonObj.putOpt(SENT_SMS, callLog.sentSmsCount);
+			jsonObj.putOpt(RECEIVED_SMS, callLog.receivedSmsCount);
 			callJsonArray.put(jsonObj);
 		}
 		Logger.d(TAG, callJsonArray.toString());

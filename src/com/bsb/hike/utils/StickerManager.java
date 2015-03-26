@@ -52,8 +52,8 @@ import com.bsb.hike.models.StickerPageAdapterItem;
 import com.bsb.hike.modules.stickerdownloadmgr.IStickerResultListener;
 import com.bsb.hike.modules.stickerdownloadmgr.SingleStickerDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadSource;
-import com.bsb.hike.modules.stickerdownloadmgr.StickerDownloadManager;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadType;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerDownloadManager;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerException;
 import com.bsb.hike.utils.Utils.ExternalStorageState;
 
@@ -199,6 +199,8 @@ public class StickerManager
 	
 	private static final String REMOVE_LEGACY_GREEN_DOTS = "removeLegacyGreenDots";
 	
+	public static final String STICKER_ERROR_LOG = "stkELog";
+	
 	private final Map<String, StickerCategory> stickerCategoriesMap;
 	
 	public static final int DEFAULT_POSITION = 3;
@@ -252,6 +254,12 @@ public class StickerManager
 		if(!settings.getBoolean(StickerManager.RECENT_STICKER_SERIALIZATION_LOGIC_CORRECTED, false)){
 			updateRecentStickerFile(settings);
 		}
+
+		if(!settings.getBoolean(StickerManager.STICKER_FOLDER_NAMES_UPGRADE_DONE, false))
+		{
+			updateStickerFolderNames();
+			settings.edit().putBoolean(StickerManager.STICKER_FOLDER_NAMES_UPGRADE_DONE, true).commit();
+		}
 		
 		SharedPreferences preferenceManager = PreferenceManager.getDefaultSharedPreferences(context);
 		setupStickerCategoryList(settings);
@@ -284,12 +292,6 @@ public class StickerManager
 		{
 			removeLegacyGreenDots();
 			settings.edit().putBoolean(StickerManager.REMOVE_LEGACY_GREEN_DOTS, true).commit();
-		}
-		
-		if(!settings.getBoolean(StickerManager.STICKER_FOLDER_NAMES_UPGRADE_DONE, false))
-		{
-			updateStickerFolderNames();
-			settings.edit().putBoolean(StickerManager.STICKER_FOLDER_NAMES_UPGRADE_DONE, true).commit();
 		}
 	}
 
@@ -440,6 +442,8 @@ public class StickerManager
 		{
 			if(updateAvailable != null)
 			{
+				// Update Available will be true only if total count received is greater than existing sticker count
+				updateAvailable = (totalStickerCount > category.getTotalStickers());
 				category.setUpdateAvailable(updateAvailable);
 			}
 			if(totalStickerCount != -1)
@@ -451,6 +455,15 @@ public class StickerManager
 				category.setCategorySize(categorySize);
 			}
 		}
+		
+		/**
+		 * Not setting update available flag for invisible category
+		 */
+		if (category == null && updateAvailable != null)  
+		{
+			updateAvailable = false;
+		}
+		
 		HikeConversationsDatabase.getInstance().updateStickerCategoryData(categoryId, updateAvailable, totalStickerCount, categorySize);
 	}
 
@@ -859,40 +872,41 @@ public class StickerManager
 		
 	}
 	
-	public File saveLargeStickers(File stickerDir, String stickerId, String stickerData) throws IOException
+	public byte[] saveLargeStickers(String largeStickerDirPath, String stickerId, String stickerData) throws IOException
 	{
-		File f = new File(stickerDir, stickerId);
-		Utils.saveBase64StringToFile(f, stickerData);
-		return f;
+		File f = new File(largeStickerDirPath, stickerId);
+		return Utils.saveBase64StringToFile(f, stickerData);
 	}
 
 	/*
 	 * TODO this logic is temporary we yet need to change it
 	 */
-	public File saveLargeStickers(File largeStickerDir, String stickerId, Bitmap largeStickerBitmap) throws IOException
+	public void saveLargeStickers(String largeStickerDirPath, String stickerId, Bitmap largeStickerBitmap) throws IOException
 	{
 		if (largeStickerBitmap != null)
 		{
-			File largeImage = new File(largeStickerDir, stickerId);
-			BitmapUtils.saveBitmapToFile(largeImage, largeStickerBitmap);
-			largeStickerBitmap.recycle();
-			return largeImage;
+			BitmapUtils.saveBitmapToFileAndRecycle(largeStickerDirPath, stickerId, largeStickerBitmap);
 		}
-		return null;
 	}
 	
-	public void saveSmallStickers(File smallStickerDir, String stickerId, File f) throws IOException
+	public void saveSmallStickers(String smallStickerDirPath, String stickerId, String largeStickerFilePath) throws IOException
 	{
-		Bitmap small = HikeBitmapFactory.scaleDownBitmap(f.getAbsolutePath(), SIZE_IMAGE, SIZE_IMAGE, true, false);
-
-		if (small != null)
+		Bitmap bitmap = HikeBitmapFactory.decodeSmallStickerFromObject(largeStickerFilePath, SIZE_IMAGE, SIZE_IMAGE, Bitmap.Config.ARGB_8888);
+		if (bitmap != null)
 		{
-			File smallImage = new File(smallStickerDir, stickerId);
-			BitmapUtils.saveBitmapToFile(smallImage, small);
-			small.recycle();
+			BitmapUtils.saveBitmapToFileAndRecycle(smallStickerDirPath, stickerId, bitmap);
 		}
 	}
-
+	
+	public void saveSmallStickers(String smallStickerDirPath, String stickerId, byte[] largeStickerByteArray) throws IOException
+	{
+		Bitmap bitmap = HikeBitmapFactory.decodeSmallStickerFromObject(largeStickerByteArray, SIZE_IMAGE, SIZE_IMAGE, Bitmap.Config.ARGB_8888);
+		if (bitmap != null)
+		{
+			BitmapUtils.saveBitmapToFileAndRecycle(smallStickerDirPath, stickerId, bitmap);
+		}
+	}
+	
 	public static boolean moveHardcodedStickersToSdcard(Context context)
 	{
 		if(Utils.getExternalStorageState() != ExternalStorageState.WRITEABLE)
@@ -942,10 +956,11 @@ public class StickerManager
 					int resourceId = mResources.getIdentifier(resName, "drawable", 
 							   context.getPackageName());
 					Bitmap stickerBitmap = HikeBitmapFactory.decodeBitmapFromResource(mResources, resourceId, Bitmap.Config.ARGB_8888);
-					File f = StickerManager.getInstance().saveLargeStickers(largeStickerDir, stickerId, stickerBitmap);
+					File f = new File(largeStickerDir, stickerId);
+					StickerManager.getInstance().saveLargeStickers(largeStickerDir.getAbsolutePath(), stickerId, stickerBitmap);
 					if(f != null)
 					{
-						StickerManager.getInstance().saveSmallStickers(smallStickerDir, stickerId, f);
+						StickerManager.getInstance().saveSmallStickers(smallStickerDir.getAbsolutePath(), stickerId, f.getAbsolutePath());
 					}
 					else
 					{
@@ -1265,7 +1280,7 @@ public class StickerManager
 
 	public void checkAndDownLoadStickerData()
 	{
-		if (HikeSharedPreferenceUtil.getInstance(context).getData(StickerManager.STICKERS_SIZE_DOWNLOADED, false))
+		if (HikeSharedPreferenceUtil.getInstance().getData(StickerManager.STICKERS_SIZE_DOWNLOADED, false))
 		{
 			return;
 		}
@@ -1279,7 +1294,7 @@ public class StickerManager
 				// TODO Auto-generated method stub
 				JSONArray resultData = (JSONArray) result;
 				updateStickerCategoriesMetadata(resultData);
-				HikeSharedPreferenceUtil.getInstance(context).saveData(StickerManager.STICKERS_SIZE_DOWNLOADED, true);
+				HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.STICKERS_SIZE_DOWNLOADED, true);
 			}
 
 			@Override
@@ -1396,19 +1411,19 @@ public class StickerManager
 
 	public boolean stickerShopUpdateNeeded()
 	{
-		long lastUpdateTime = HikeSharedPreferenceUtil.getInstance(context).getData(LAST_STICKER_SHOP_UPDATE_TIME, 0L);
+		long lastUpdateTime = HikeSharedPreferenceUtil.getInstance().getData(LAST_STICKER_SHOP_UPDATE_TIME, 0L);
 		boolean updateNeeded = 	(lastUpdateTime + STICKER_SHOP_REFRESH_TIME) < System.currentTimeMillis();
 		
-		if(updateNeeded && HikeSharedPreferenceUtil.getInstance(context).getData(STICKER_SHOP_DATA_FULLY_FETCHED, true))
+		if(updateNeeded && HikeSharedPreferenceUtil.getInstance().getData(STICKER_SHOP_DATA_FULLY_FETCHED, true))
 		{
-			HikeSharedPreferenceUtil.getInstance(context).saveData(StickerManager.STICKER_SHOP_DATA_FULLY_FETCHED, false);
+			HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.STICKER_SHOP_DATA_FULLY_FETCHED, false);
 		}
 		return lastUpdateTime + STICKER_SHOP_REFRESH_TIME < System.currentTimeMillis();
 	}
 	
 	public boolean moreDataAvailableForStickerShop()
 	{
-		return !HikeSharedPreferenceUtil.getInstance(context).getData(STICKER_SHOP_DATA_FULLY_FETCHED, true);
+		return !HikeSharedPreferenceUtil.getInstance().getData(STICKER_SHOP_DATA_FULLY_FETCHED, true);
 	}
 	
 	public boolean isMinimumMemoryAvailable()
@@ -1435,9 +1450,9 @@ public class StickerManager
 	{
 		if(visible)
 		{
-			if (!HikeSharedPreferenceUtil.getInstance(context).getData(HikeMessengerApp.STICKER_SETTING_CHECK_BOX_CLICKED, false))
+			if (!HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_SETTING_CHECK_BOX_CLICKED, false))
 			{
-				HikeSharedPreferenceUtil.getInstance(context).saveData(HikeMessengerApp.STICKER_SETTING_CHECK_BOX_CLICKED, true);
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STICKER_SETTING_CHECK_BOX_CLICKED, true);
 				
 				try
 				{
@@ -1453,9 +1468,9 @@ public class StickerManager
 		}
 		else
 		{
-			if (!HikeSharedPreferenceUtil.getInstance(context).getData(HikeMessengerApp.STICKER_SETTING_UNCHECK_BOX_CLICKED, false))
+			if (!HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_SETTING_UNCHECK_BOX_CLICKED, false))
 			{
-				HikeSharedPreferenceUtil.getInstance(context).saveData(HikeMessengerApp.STICKER_SETTING_UNCHECK_BOX_CLICKED, true);
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STICKER_SETTING_UNCHECK_BOX_CLICKED, true);
 				
 				try
 				{
@@ -1647,9 +1662,27 @@ public class StickerManager
 		// renaming large/small folders for all categories
 		for (File categoryRoot : files)
 		{
+			// if categoryRoot(eg. humanoid/love etc.) file is not a directory we should not do anything.
+			if(categoryRoot == null || !categoryRoot.isDirectory())
+			{
+				continue;
+			}
+			
 			File[] categoryAssetFiles = categoryRoot.listFiles();
+			
+			if(categoryAssetFiles == null)
+			{
+				continue;
+			}
+			
 			for (File categoryAssetFile : categoryAssetFiles)
 			{
+				// if categoryAssetFile(eg. large/small/other) is not a directory we should not do anything.
+				if(categoryAssetFile == null || !categoryAssetFile.isDirectory())
+				{
+					continue;
+				}
+				
 				if (categoryAssetFile.getName().equals(HikeConstants.OLD_LARGE_STICKER_FOLDER_NAME))
 				{
 					Logger.d("StickerManager", "changing large file name for : " + categoryRoot.getName() + "category");

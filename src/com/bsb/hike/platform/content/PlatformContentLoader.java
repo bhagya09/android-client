@@ -6,10 +6,10 @@ import android.annotation.SuppressLint;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Handler;
-import android.util.Log;
 
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.platform.content.PlatformContent.EventCode;
+import com.bsb.hike.utils.Logger;
 import com.samskivert.mustache.Template;
 
 /**
@@ -49,19 +49,19 @@ class PlatformContentLoader extends Handler
 	 */
 	public void handleRequest(final PlatformContentRequest argContentRequest)
 	{
-		Log.d(TAG, "handling request");
+		Logger.d(TAG, "handling request");
 
 		PlatformContentModel formedContent = PlatformContentCache.getFormedContent(argContentRequest);
 
 		if (formedContent != null)
 		{
-			Log.d(TAG, "found formed content");
+			Logger.d(TAG, "found formed content");
 			argContentRequest.getListener().onComplete(formedContent);
 			return;
 		}
 		else
 		{
-			Log.d(TAG, "formed content not found");
+			Logger.d(TAG, "formed content not found");
 			PlatformRequestManager.addRequest(argContentRequest);
 		}
 	}
@@ -72,11 +72,11 @@ class PlatformContentLoader extends Handler
 		Template template = PlatformContentCache.getTemplate(argContentRequest);
 		if (template != null)
 		{
-			Log.d(TAG, "found cached template");
+			Logger.d(TAG, "found cached template");
 			// Compile template
 			if (PlatformTemplateEngine.execute(template, argContentRequest))
 			{
-				Log.d(TAG, "data binded");
+				Logger.d(TAG, "data binded");
 				// Add to cache
 				PlatformContentCache.putFormedContent(argContentRequest.getContentData());
 				
@@ -117,17 +117,8 @@ class PlatformContentLoader extends Handler
 			}
 		}
 
-		Log.d(TAG, "fetching template from remote");
+		Logger.d(TAG, "fetching template from remote");
 
-		if (Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1)
-		{
-			new PlatformTemplateDownloadTask(argContentRequest).executeOnExecutor(AsyncTask.SERIAL_EXECUTOR, (Void[]) null);
-		}
-		else
-		{
-			new PlatformTemplateDownloadTask(argContentRequest).execute();
-		}
-		
-		PlatformRequestManager.getCurrentDownloadingTemplates().add(argContentRequest.getContentData().appHashCode());
+		new PlatformZipDownloader(argContentRequest, true).downloadAndUnzip();
 	}
 }

@@ -8,8 +8,6 @@ import java.util.List;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.content.ClipData;
-import android.content.ClipboardManager;
 import android.util.Pair;
 import android.view.Gravity;
 import android.view.LayoutInflater;

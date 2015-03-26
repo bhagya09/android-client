@@ -1,12 +1,8 @@
 package com.bsb.hike.modules.stickerdownloadmgr;
 
-import java.util.Map.Entry;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.PriorityBlockingQueue;
-
-import com.google.android.gms.internal.s;
 
 
 class RequestQueue

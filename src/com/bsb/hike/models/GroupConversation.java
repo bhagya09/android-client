@@ -13,7 +13,6 @@ import org.json.JSONObject;
 
 import android.content.Context;
 import android.text.TextUtils;
-import android.util.Pair;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -33,7 +32,7 @@ public class GroupConversation extends Conversation
 
 	private boolean hasSmsUser;
 
-	private Map<String, PairModified<GroupParticipant, String>> groupParticipantList;
+	protected Map<String, PairModified<GroupParticipant, String>> groupParticipantList;
 	
 	private long lastSentMsgId = -1;
 	
@@ -135,13 +134,19 @@ public class GroupConversation extends Conversation
 				msisdn, msisdn, msisdn, msisdn)), msisdn);
 	}
 
-	public String getGroupParticipantFirstName(String msisdn)
+	/**
+	 * Used to get the name of the contact either from the groupParticipantList or ContactManager
+	 * @param msisdn of the contact
+	 * @return name of the contact
+	 */
+	public String getGroupParticipantName(String msisdn)
 	{
 		String name = null;
 
 		if (null != groupParticipantList)
 		{
 			PairModified<GroupParticipant, String> grpPair = groupParticipantList.get(msisdn);
+			
 			if (null != grpPair)
 			{
 				name = grpPair.getSecond();
@@ -156,14 +161,31 @@ public class GroupConversation extends Conversation
 			HikeMessengerApp.getContactManager().getContact(msisdn, true, false);
 			name = HikeMessengerApp.getContactManager().getName(getMsisdn(), msisdn);
 		}
-		return Utils.getFirstName(name);
+		return name;
 	}
 
+	/**
+	 * Used to get the first full name of the contact whose msisdn is known
+	 * @param msisdn of the contact
+	 * @return first full name of the contact
+	 */
+	public String getGroupParticipantFullFirstName(String msisdn)
+	{
+		String fullName = getGroupParticipantName(msisdn);
+		
+		return Utils.extractFullFirstName(fullName);
+	}
+	
+	/**
+	 * Used to get the first name and the last name of the contact whose msisdn is known
+	 * @param msisdn of the contact
+	 * @return first name + last name of the contact
+	 */
 	public String getGroupParticipantFirstNameAndSurname(String msisdn)
 	{
-		return getGroupParticipant(msisdn).getSecond();
+		return getGroupParticipantName(msisdn);
 	}
-
+	
 	public String getLabel()
 	{
 		if (!TextUtils.isEmpty(getContactName()))

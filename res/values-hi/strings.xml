@@ -1267,4 +1267,6 @@
     <string name="led_color_purple_key">जामुनी</string>
 
     <string name="ringtone_loader">लोड हो रहा है...</string>
+    <string name="terms_conditions_hint">नियम और शर्तें</string>
+	<string name="terms_conditions_title">शर्तें</string>
 </resources>

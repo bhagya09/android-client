@@ -17,10 +17,12 @@ import android.net.Uri;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.widget.ImageView;
+
 import com.bsb.hike.R;
+import com.bsb.hike.ui.utils.RecyclingImageView;
 
 @SuppressWarnings("UnusedDeclaration")
-public class RoundedImageView extends ImageView {
+public class RoundedImageView extends RecyclingImageView {
 
     // Constants for tile mode attributes
     private static final int TILE_MODE_UNDEFINED = -2;

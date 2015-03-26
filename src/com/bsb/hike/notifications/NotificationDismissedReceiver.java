@@ -1,13 +1,12 @@
 package com.bsb.hike.notifications;
 
-import com.bsb.hike.HikeConstants;
-import com.bsb.hike.models.HikeAlarmManager;
-import com.bsb.hike.notifications.HikeNotification;
-import com.bsb.hike.utils.Logger;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.models.HikeAlarmManager;
+import com.bsb.hike.utils.Logger;
 
 /**
  * This receiver is responsible for capturing notification dismissed/deleted events and consequently clear notification message stack. This is done so that messages already shown

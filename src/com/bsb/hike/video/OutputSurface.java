@@ -16,11 +16,6 @@
 
 package com.bsb.hike.video;
 
-import android.annotation.TargetApi;
-import android.graphics.SurfaceTexture;
-import android.opengl.GLES20;
-import android.view.Surface;
-
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
@@ -29,6 +24,11 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.egl.EGLContext;
 import javax.microedition.khronos.egl.EGLDisplay;
 import javax.microedition.khronos.egl.EGLSurface;
+
+import android.annotation.TargetApi;
+import android.graphics.SurfaceTexture;
+import android.opengl.GLES20;
+import android.view.Surface;
 
 @TargetApi(16)
 public class OutputSurface implements SurfaceTexture.OnFrameAvailableListener {

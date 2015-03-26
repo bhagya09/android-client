@@ -14,11 +14,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.Window;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
@@ -46,8 +44,8 @@ import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.models.Conversation;
-import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.GroupConversation;
+import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.HikeSharedFile;
 import com.bsb.hike.ui.fragments.PhotoViewerFragment;
 import com.bsb.hike.utils.CustomAlertDialog;
@@ -486,7 +484,7 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity im
 							// if delete media from phone is checked
 							if(deleteConfirmDialog.isChecked() && hsf.exactFilePathFileExists())
 							{
-								hsf.getFileFromExactFilePath().delete();
+								hsf.delete(getApplicationContext());
 							}
 							iterator.remove();
 						}
@@ -497,7 +495,7 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity im
 				}
 			};
 
-			deleteConfirmDialog.setCheckBox(R.string.delete_media_from_sdcard);
+			deleteConfirmDialog.setCheckBox(R.string.delete_media_from_sdcard, true);
 			deleteConfirmDialog.setOkButton(R.string.delete, dialogOkClickListener);
 			deleteConfirmDialog.setCancelButton(R.string.cancel);
 			deleteConfirmDialog.show();
@@ -665,7 +663,8 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity im
 	{
 		boolean isRemoved = super.removeFragment(tag);
 		if (isRemoved)
-		{	
+		{
+			getSupportActionBar().show();
 			setupActionBar();
 		}
 		return isRemoved;

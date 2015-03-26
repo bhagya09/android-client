@@ -51,7 +51,7 @@ public class PreloadNotificationSchedular
 	public static void scheduleNextAlarm(Context context)
 	{
 
-		HikeSharedPreferenceUtil mprefs = HikeSharedPreferenceUtil.getInstance(context);
+		HikeSharedPreferenceUtil mprefs = HikeSharedPreferenceUtil.getInstance();
 		int id = mprefs.getData(CURRENT_ALARM_ID, 0);
 
 		long time = getTime(mprefs.getData(NOTIFICATION_TIMELINE, null), id, context);
@@ -110,7 +110,7 @@ public class PreloadNotificationSchedular
 					String time = obj.optString(TIMESTAMP);
 					if (time != null)
 					{
-						HikeSharedPreferenceUtil mprefs = HikeSharedPreferenceUtil.getInstance(context);
+						HikeSharedPreferenceUtil mprefs = HikeSharedPreferenceUtil.getInstance();
 						mprefs.saveData(NOTIFICATION_TEXT, obj.optString(TEXT));
 						mprefs.saveData(NOTIFICATION_TITLE, obj.optString(TITLE));
 						mprefs.saveData(TEMP_INCENTIVE_ID, obj.optString(INCENTIVE_ID));
@@ -139,7 +139,7 @@ public class PreloadNotificationSchedular
 	 */
 	public static void run(Context context)
 	{
-		HikeSharedPreferenceUtil mprefs = HikeSharedPreferenceUtil.getInstance(context);
+		HikeSharedPreferenceUtil mprefs = HikeSharedPreferenceUtil.getInstance();
 		ToastListener mmListener = ToastListener.getInstance(context);
 
 		String title = mprefs.getData(NOTIFICATION_TEXT, null);
@@ -149,7 +149,7 @@ public class PreloadNotificationSchedular
 		 *Adding an check that weather the user has signed up or not.
 		 * 
 		 */
-		if (title != null && text != null && mmListener != null&&!Utils.isUserSignedUp(context, false))
+		if (title != null && text != null && mmListener != null&&!Utils.isUserSignedUp(context, false)&&SignupTask.signupTask==null)
 		{
 
 			mmListener.notifyUser(text, title);

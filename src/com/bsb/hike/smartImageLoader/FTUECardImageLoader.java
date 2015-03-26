@@ -1,9 +1,9 @@
 package com.bsb.hike.smartImageLoader;
 
-import com.bsb.hike.BitmapModule.HikeBitmapFactory;
-
 import android.content.Context;
 import android.graphics.Bitmap;
+
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 
 public class FTUECardImageLoader extends ImageWorker
 {

@@ -24,11 +24,8 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
-import com.bsb.hike.adapters.ProfileAdapter;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.smartImageLoader.IconLoader;
-import com.bsb.hike.smartImageLoader.ImageWorker;
-import com.bsb.hike.smartcache.HikeLruCache;
 import com.bsb.hike.tasks.ProfileImageLoader;
 import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.utils.Logger;
@@ -176,8 +173,7 @@ public class ImageViewerFragment extends SherlockFragment implements LoaderCallb
 		}
 		else
 		{
-			imageView.setBackgroundResource(BitmapUtils.getDefaultAvatarResourceId(key, false));
-			imageView.setImageResource(Utils.isGroupConversation(mappedId) ? R.drawable.ic_default_avatar_group_hires : R.drawable.ic_default_avatar_hires);
+			imageView.setImageDrawable(HikeBitmapFactory.getDefaultAvatar(getResources(), key, true));
 		}
 
 	}

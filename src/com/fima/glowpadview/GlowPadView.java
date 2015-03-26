@@ -18,9 +18,6 @@ package com.fima.glowpadview;
 
 import java.util.ArrayList;
 
-import com.bsb.hike.R;
-import com.bsb.hike.utils.Logger;
-
 import android.animation.Animator;
 import android.animation.Animator.AnimatorListener;
 import android.animation.AnimatorListenerAdapter;
@@ -47,6 +44,8 @@ import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.accessibility.AccessibilityManager;
+
+import com.bsb.hike.R;
 
 /**
  * This is a copy of com.android.internal.widget.multiwaveview.GlowPadView with

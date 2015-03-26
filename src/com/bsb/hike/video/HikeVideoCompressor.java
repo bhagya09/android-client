@@ -11,12 +11,8 @@ import android.media.MediaFormat;
 import android.os.Build;
 
 import com.bsb.hike.models.HikeFile;
-import com.bsb.hike.video.InputSurface;
-import com.bsb.hike.video.MP4Builder;
-import com.bsb.hike.video.Mp4Movie;
-import com.bsb.hike.video.OutputSurface;
-import com.bsb.hike.video.VideoUtilities.VideoEditedInfo;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.video.VideoUtilities.VideoEditedInfo;
 
 public class HikeVideoCompressor {
 	
@@ -280,6 +276,10 @@ public class HikeVideoCompressor {
                         } catch (Exception e) {
                             Logger.d(TAG, "Exception2 : " + e);
                             e.printStackTrace();
+                            /*
+                             * If any exception occur while compressing video, need to send the original video. So returning null which means compression failed.
+                             */
+                            return null;
                         }
 
                         extractor.unselectTrack(videoIndex);
@@ -348,7 +348,7 @@ public class HikeVideoCompressor {
         originalHeight = editor.originalHeight;
         bitrate = editor.bitrate;
         rotateRender = 0;
-        cacheFile = editor.destCachFilePath;
+        cacheFile = editor.destFile;
         
         if (Build.VERSION.SDK_INT > 20) {
             if (rotationValue == 90) {

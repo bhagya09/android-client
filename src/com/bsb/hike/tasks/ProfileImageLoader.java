@@ -12,17 +12,12 @@ import java.net.URLConnection;
 import javax.net.ssl.HttpsURLConnection;
 
 import android.content.Context;
-import android.content.Intent;
 import android.support.v4.content.AsyncTaskLoader;
-import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
-import com.bsb.hike.adapters.ProfileAdapter;
-import com.bsb.hike.smartImageLoader.ImageWorker;
 import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.HikeSSLUtil;

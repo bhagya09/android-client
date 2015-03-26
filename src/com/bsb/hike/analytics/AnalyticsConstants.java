@@ -12,21 +12,21 @@ public class AnalyticsConstants
 	/** one day in seconds */
 	public static final int DAY_IN_SECONDS = 24 * 60 * 60;
 
-	/** Default maximum size per file */ 
-	public static long MAX_FILE_SIZE = 200 * 1024; // 200KB
+	/** Default maximum size per file in kilobytes */ 
+	public static long MAX_FILE_SIZE = 200; // 200KB
 
-	/** Default maximum analytics size on the client */
-	public static long MAX_ANALYTICS_SIZE = 1000 * 1024; // 1MB
+	/** Default maximum analytics size on the client in kilobytes */
+	public static long MAX_ANALYTICS_SIZE = 1000; // 1MB
 			
 	/** Default analytics service status */ 
 	public static boolean IS_ANALYTICS_ENABLED = true;
 
 	/** Default maximum events count in memory before they are saved on the disk */
-	public static final int MAX_EVENTS_IN_MEMORY = 20;
+	public static final int MAX_EVENTS_IN_MEMORY = 10;
 	
 	/** Default frequency at which logs should be tried to be sent to server */
 	public static final int DEFAULT_SEND_FREQUENCY = 30; // 30 minutes
-		
+
 	public static final String EVENT_FILE_DIR = "/Analytics";
 	
 	public static final String NEW_LINE = "\n";
@@ -41,6 +41,7 @@ public class AnalyticsConstants
 
 	public static final String ANALYTICS_TAG = "hikeAnalytics";
 	
+	//TODO @Rajesh, I assume you forgot to set these variables as final.
 	public static String TYPE = "t";
 
 	public static String ANALYTICS_EVENT = "le_android";
@@ -54,6 +55,8 @@ public class AnalyticsConstants
 	public static String UI_EVENT = "uiEvent";
 
 	public static String NON_UI_EVENT = "nonUiEvent";
+
+	public static final String DEV_EVENT = "devEvent";
 
 	public static String CLICK_EVENT = "click";
 
@@ -77,6 +80,8 @@ public class AnalyticsConstants
 
     public static String ORIGIN = "org";
 
+	public static String CONTENT_ID = "content_id";
+
     public static String UNREAD_COUNT = "uc";
 
 	public static final String ANALYTICS = "analytics";
@@ -86,12 +91,16 @@ public class AnalyticsConstants
 	public static final String ANALYTICS_TOTAL_SIZE = "totalfs";
 
 	public static final String ANALYTICS_SEND_FREQUENCY = "analyticsfreq";
-	
+
+	public static final String ANALYTICS_IN_MEMORY_SIZE = "mem_size";
+
 	public static final String ANALYTICS_ALARM_TIME = "alarmsetting";
 	
 	public static final String SEND_WHEN_CONNECTED = "issendwhenconnected";
 
 	public static final String ANALYTICS_BACKUP = "backup";
+
+	public static final String ANALYTICS_HOME_SEARCH = "search";
 
 	public static final String EVENT_SUB_TYPE = "st";
 
@@ -104,6 +113,8 @@ public class AnalyticsConstants
     public static final String EVENT_TAG_PLATFORM = "plf";
 
 	public static final String EVENT_TAG_BOTS = "bot";
+	
+	public static final String EVENT_TAG_PHOTOS = "ph5";
 
 	public static final String CHAT_MSISDN = "chat_msisdn";
 
@@ -149,6 +160,8 @@ public class AnalyticsConstants
 	public static final String FOREGROUND = "fg";
 	
 	public static final String BACKGROUND = "bg";
+	
+	public static final String STICKER_PALLETE = "stkp";
 
 	public static final class MessageType
 	{

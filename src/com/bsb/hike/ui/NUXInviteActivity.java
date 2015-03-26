@@ -3,7 +3,6 @@ package com.bsb.hike.ui;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -17,10 +16,6 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.NUXConstants;
 import com.bsb.hike.R;
-import com.bsb.hike.analytics.AnalyticsConstants;
-import com.bsb.hike.analytics.HAManager;
-import com.bsb.hike.analytics.HAManager.EventPriority;
-import com.bsb.hike.db.DBConstants.HIKE_CONTENT;
 import com.bsb.hike.models.NUXTaskDetails;
 import com.bsb.hike.models.NuxInviteFriends;
 import com.bsb.hike.ui.utils.RecyclingImageView;
@@ -44,7 +39,6 @@ public class NUXInviteActivity extends HikeAppStateBaseFragmentActivity implemen
 	{
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
-		Logger.d("UmangX","openenign NIA onCreate");
 
 		if (Utils.requireAuth(this))
 		{
@@ -134,7 +128,6 @@ public class NUXInviteActivity extends HikeAppStateBaseFragmentActivity implemen
 	@Override
 	protected void onResume()
 	{
-		Logger.d("UmangX","NuxInviteOnResume");
 		super.onResume();
 		if (NUXManager.getInstance().getCurrentState() == NUXConstants.NUX_KILLED)
 			finish();
@@ -143,7 +136,6 @@ public class NUXInviteActivity extends HikeAppStateBaseFragmentActivity implemen
 	@Override
 	protected void onStop() {
 
-		Logger.d("UmangX","NuxInviteOnStop");
 		if(NUXManager.getInstance().getCurrentState() == NUXConstants.NUX_KILLED){
 			finish();
 		}

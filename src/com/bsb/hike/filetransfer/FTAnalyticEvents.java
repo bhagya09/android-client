@@ -5,10 +5,11 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import com.bsb.hike.HikeConstants;
-import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
@@ -49,6 +50,14 @@ public class FTAnalyticEvents
 	private static final String QUICK_UPLOAD = "quickUpload";
 
 	private static final String QUICK_UPLOAD_STATUS = "quSt";
+
+	private static final String FT_TASK_NAME = "tn";
+
+	public static final String DOWNLOAD_FILE_TASK = "download";
+
+	public static final String UPLOAD_FILE_TASK = "upload";
+
+	private static final String FT_ERROR_MESSAGE = "ftem";
 	
 	public static final int FT_SUCCESS = 0;
 
@@ -227,6 +236,18 @@ public class FTAnalyticEvents
 		catch (JSONException e)
 		{
 			Logger.e(AnalyticsConstants.ANALYTICS_TAG, "invalid json while video compression", e);
+		}
+	}
+
+	public static void sendFTDevEvent(String taskName, String errorMsg)
+	{
+		JSONObject error = new JSONObject();
+		try {
+			error.put(FT_TASK_NAME, taskName);
+			error.put(FT_ERROR_MESSAGE, errorMsg);
+			HAManager.getInstance().record(AnalyticsConstants.DEV_EVENT, AnalyticsConstants.FILE_TRANSFER, EventPriority.HIGH, error);
+		} catch (JSONException e) {
+			e.printStackTrace();
 		}
 	}
 

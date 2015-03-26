@@ -12,7 +12,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import android.os.AsyncTask;
-import android.util.Log;
+
+import com.bsb.hike.utils.Logger;
 
 /**
  * Unzips ZIP file. Contains both methods unzipAsync() and unzip() which runs in non-blocking and blocking mode respectively.
@@ -45,13 +46,13 @@ public class HikeUnzipTask extends Observable
 
 	public void unzipAsync()
 	{
-		Log.d(TAG, "unzipping " + mFilePath + " to " + mDestinationPath);
+		Logger.d(TAG, "unzipping " + mFilePath + " to " + mDestinationPath);
 		new UnZipTask().execute(mFilePath, mDestinationPath);
 	}
 
 	public void unzip()
 	{
-		Log.d(TAG, "unzipping " + mFilePath + " to " + mDestinationPath);
+		Logger.d(TAG, "unzipping " + mFilePath + " to " + mDestinationPath);
 		UnZipTask unzipTask = new UnZipTask();
 		if (unzipTask.doInBackground(mFilePath, mDestinationPath))
 		{
@@ -81,7 +82,7 @@ public class HikeUnzipTask extends Observable
 			}
 			catch (Exception e)
 			{
-				Log.e(TAG, "Error while extracting file " + archive, e);
+				Logger.e(TAG, "Error while extracting file " + archive, e);
 				return false;
 			}
 
@@ -91,7 +92,7 @@ public class HikeUnzipTask extends Observable
 		@Override
 		protected void onPostExecute(Boolean result)
 		{
-			Log.e(TAG, "Unzip Complete");
+			Logger.e(TAG, "Unzip Complete");
 			setChanged();
 			notifyObservers();
 		}
@@ -116,7 +117,7 @@ public class HikeUnzipTask extends Observable
 
 			try
 			{
-				Log.v(TAG, "Extracting: " + entry);
+				Logger.v(TAG, "Extracting: " + entry);
 				inputStream = new BufferedInputStream(zipfile.getInputStream(entry));
 				outputStream = new BufferedOutputStream(new FileOutputStream(outputFile));
 
@@ -145,7 +146,7 @@ public class HikeUnzipTask extends Observable
 			{
 				return;
 			}
-			Log.v(TAG, "Creating dir " + dir.getName());
+			Logger.v(TAG, "Creating dir " + dir.getName());
 			if (!dir.mkdirs())
 			{
 				throw new RuntimeException("Can not create dir " + dir);

@@ -1,17 +1,11 @@
 package com.bsb.hike.smartImageLoader;
 
-import com.bsb.hike.R;
-import com.bsb.hike.BitmapModule.BitmapUtils;
-import com.bsb.hike.adapters.ProfileAdapter;
-import com.bsb.hike.ui.ProfileActivity;
-import com.bsb.hike.utils.Utils;
-
 import android.content.Context;
-import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.RelativeLayout;
-import android.widget.RelativeLayout.LayoutParams;
+
+import com.bsb.hike.R;
 
 public class VoipProfilePicImageLoader extends ProfilePicImageLoader
 {

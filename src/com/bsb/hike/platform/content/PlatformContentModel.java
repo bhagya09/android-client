@@ -6,8 +6,7 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import android.util.Log;
-
+import com.bsb.hike.utils.Logger;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -65,7 +64,7 @@ public class PlatformContentModel
 	{
 		if (mTemplateHash == -1)
 		{
-			mTemplateHash = new String(cardObj.layoutId + cardObj.appVersion).hashCode();
+			mTemplateHash = new String(cardObj.layoutId + cardObj.appVersion + cardObj.appName).hashCode();
 		}
 		return mTemplateHash;
 	}
@@ -93,7 +92,7 @@ public class PlatformContentModel
 	 */
 	public static PlatformContentModel make(String contentData)
 	{
-		Log.d(TAG, "making PlatformContentModel");
+		Logger.d(TAG, "making PlatformContentModel");
 		JsonParser parser = new JsonParser();
 		JsonObject jsonObj = (JsonObject) parser.parse(contentData);
 		PlatformContentModel object = null;
@@ -279,7 +278,7 @@ public class PlatformContentModel
 		return cardObj.appPackage;
 	}
 
-	class PlatformCardObjectModel
+	public class PlatformCardObjectModel
 	{
 
 		public String getAppName()
@@ -332,14 +331,14 @@ public class PlatformContentModel
 			this.push = push;
 		}
 
-		public String getNotifText()
+		public String getUser()
 		{
-			return notifText;
+			return user;
 		}
 
-		public void setNotifText(String notifText)
+		public void setUser(String user)
 		{
-			this.notifText = notifText;
+			this.user = user;
 		}
 
 		public String getHm()
@@ -382,6 +381,16 @@ public class PlatformContentModel
 			this.h = h;
 		}
 
+		public String getnotifTitle()
+		{
+			return notifTitle;
+		}
+
+		public void setnotifTitle(String notifTitle)
+		{
+			this.notifTitle = notifTitle;
+		}
+		
 		@Expose
 		public String appName;
 
@@ -398,7 +407,7 @@ public class PlatformContentModel
 		public String push;
 
 		@Expose
-		public String notifText;
+		public String user;
 
 		@Expose
 		public String hm;
@@ -411,6 +420,9 @@ public class PlatformContentModel
 
 		@Expose
 		public String h;
+		
+		@Expose
+		public String notifTitle;
 
 	}
 

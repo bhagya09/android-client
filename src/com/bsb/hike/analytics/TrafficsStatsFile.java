@@ -25,6 +25,11 @@ public class TrafficsStatsFile
 		File uidFileDir = new File("/proc/uid_stat/" + String.valueOf(localUid));
 		if(uidFileDir.exists())
 		{
+			BufferedReader brReceivedTcp = null;
+			BufferedReader brSentTcp = null;
+			BufferedReader brReceivedUdp = null;
+			BufferedReader brSentUdp = null;
+			
 			try
 			{
 				File uidActualTCPFileReceived = new File(uidFileDir, "tcp_rcv");
@@ -38,14 +43,11 @@ public class TrafficsStatsFile
 					return FILES_NOT_READABLE;
 				}
 				
-				String textReceived = "0";
-				
-				String textSent = "0";
 
-				BufferedReader brReceivedTcp = new BufferedReader(new FileReader(uidActualTCPFileReceived));
-				BufferedReader brSentTcp = new BufferedReader(new FileReader(uidActualTCPFileSent));
-				BufferedReader brReceivedUdp = new BufferedReader(new FileReader(uidActualUDPFileReceived));
-				BufferedReader brSentUdp = new BufferedReader(new FileReader(uidActualUDPFileSent));
+				brReceivedTcp = new BufferedReader(new FileReader(uidActualTCPFileReceived));
+				brSentTcp = new BufferedReader(new FileReader(uidActualTCPFileSent));
+				brReceivedUdp = new BufferedReader(new FileReader(uidActualUDPFileReceived));
+				brSentUdp = new BufferedReader(new FileReader(uidActualUDPFileSent));
 				String receivedLine;
 				String sentLine;
 				long recvBytes = 0;
@@ -83,6 +85,25 @@ public class TrafficsStatsFile
 			{
 				ioex.printStackTrace();
 				Logger.w(LOGGING_TAG, "IOException: ");
+			}
+			finally
+			{
+				try {
+					if(brReceivedTcp != null)
+						brReceivedTcp.close();
+					
+					if(brSentTcp != null)
+						brSentTcp.close();
+					
+					if(brReceivedUdp != null)
+						brReceivedUdp.close();
+					
+					if(brSentUdp != null)
+						brSentUdp.close();
+					
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 			}
 			return EXCEPTION_READING_FILES;
 

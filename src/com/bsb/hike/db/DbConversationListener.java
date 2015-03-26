@@ -1,5 +1,13 @@
 package com.bsb.hike.db;
 
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.app.PendingIntent;
 import android.content.ContentValues;
 import android.content.Context;
@@ -9,6 +17,7 @@ import android.os.Bundle;
 import android.telephony.SmsManager;
 import android.text.TextUtils;
 import android.util.Pair;
+
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -16,10 +25,17 @@ import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
-import com.bsb.hike.models.*;
+import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
+import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.ConvMessage.OriginType;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.ConvMessage.State;
+import com.bsb.hike.models.Conversation;
+import com.bsb.hike.models.FtueContactInfo;
+import com.bsb.hike.models.MultipleConvMessage;
+import com.bsb.hike.models.Protip;
+import com.bsb.hike.models.StatusMessage;
 import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.platform.HikePlatformConstants;
@@ -28,13 +44,6 @@ import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.service.SmsMessageStatusReceiver;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
 
 public class DbConversationListener implements Listener
 {
@@ -81,6 +90,7 @@ public class DbConversationListener implements Listener
 		mPubSub.addListener(HikePubSub.MULTI_MESSAGE_SENT, this);
 		mPubSub.addListener(HikePubSub.MULTI_FILE_UPLOADED, this);
 		mPubSub.addListener(HikePubSub.HIKE_SDK_MESSAGE, this);
+		mPubSub.addListener(HikePubSub.CONVERSATION_TS_UPDATED, this);		
 	}
 
 	@Override
@@ -102,6 +112,10 @@ public class DbConversationListener implements Listener
 					if (convMessage.isSent())
 					{
 						uploadFiksuPerDayMessageEvent();
+					}
+					if (convMessage.isBroadcastConversation())
+					{
+						Utils.addBroadcastRecipientConversations(convMessage);
 					}
 				}
 				// Recency was already updated when the ft message was added.
@@ -128,7 +142,7 @@ public class DbConversationListener implements Listener
 					convMessage = mConversationDb.showParticipantStatusMessage(convMessage.getMsisdn());
 					if(convMessage != null)
 					{
-						HikeMqttManagerNew.getInstance().sendMessage(convMessage, HikeMqttManagerNew.MQTT_QOS_ONE);
+						mPubSub.publish(HikePubSub.MESSAGE_RECEIVED, convMessage);
 					}
 				}
 			}
@@ -404,6 +418,13 @@ public class DbConversationListener implements Listener
 		}else if(HikePubSub.HIKE_SDK_MESSAGE.equals(type)){
 			handleHikeSdkMessage(object);
 		}
+		else if (HikePubSub.CONVERSATION_TS_UPDATED.equals(type))
+		{
+			Pair<String, Long> p = (Pair<String, Long>) object;
+			String msisdn = p.first;
+			long timestamp = p.second;
+			boolean isUpdated = mConversationDb.updateSortingTimestamp(msisdn, timestamp);
+		}
 	}
 
     private void sendMultiConvMessage(MultipleConvMessage multiConvMessages) {
@@ -602,5 +623,5 @@ public class DbConversationListener implements Listener
 
 		context.getContentResolver().insert(HikeConstants.SMSNative.SENTBOX_CONTENT_URI, values);
 	}
-
+	
 }

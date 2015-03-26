@@ -1267,4 +1267,6 @@
     <string name="led_color_purple_key">Roxo</string>
 
     <string name="ringtone_loader">Carregando...</string>
+    <string name="terms_conditions_hint">termos e condições</string>
+	<string name="terms_conditions_title">termos</string>
 </resources>

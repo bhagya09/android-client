@@ -27,8 +27,6 @@ public class StickerShopAdapter extends CursorAdapter
 {
 	private LayoutInflater layoutInflater;
 
-	private Context context;
-
 	private StickerOtherIconLoader stickerOtherIconLoader;
 	
 	private boolean isListFlinging;
@@ -71,7 +69,6 @@ public class StickerShopAdapter extends CursorAdapter
 	public StickerShopAdapter(Context context, Cursor cursor, Map<String, StickerCategory> stickerCategoriesMap)
 	{
 		super(context, cursor, false);
-		this.context = context;
 		this.layoutInflater = LayoutInflater.from(context);
 		this.stickerOtherIconLoader = new StickerOtherIconLoader(context, true);
 		this.idColoumn = cursor.getColumnIndex(DBConstants._ID);

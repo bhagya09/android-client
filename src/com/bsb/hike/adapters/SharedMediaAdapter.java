@@ -3,25 +3,21 @@ package com.bsb.hike.adapters;
 import java.util.ArrayList;
 
 import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.ImageView.ScaleType;
+import android.widget.ProgressBar;
 
 import com.bsb.hike.R;
-import com.bsb.hike.models.HikeSharedFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.models.HikeSharedFile;
 import com.bsb.hike.smartImageLoader.SharedFileImageLoader;
 import com.bsb.hike.ui.fragments.PhotoViewerFragment;
-import com.bsb.hike.utils.Logger;
 import com.bsb.hike.view.TouchImageView;
 
 public class SharedMediaAdapter extends PagerAdapter implements OnClickListener
@@ -34,10 +30,6 @@ public class SharedMediaAdapter extends PagerAdapter implements OnClickListener
 
 	private Context context;
 
-	private String TAG = "SharedMediaAdapter";
-	
-	private String IMAGE_TAG = "image";
-	
 	private PhotoViewerFragment photoViewerFragment;
 	
 	public SharedMediaAdapter(Context context, int size_image, ArrayList<HikeSharedFile> sharedMediaItems, String msisdn, ViewPager viewPager, PhotoViewerFragment photoViewerFragment)
@@ -101,7 +93,7 @@ public class SharedMediaAdapter extends PagerAdapter implements OnClickListener
 
 		if(sharedMediaItem.exactFilePathFileExists())
 		{
-			sharedMediaLoader.loadImage(sharedMediaItem.getImageLoaderKey(true), galleryImageView, false);
+			sharedMediaLoader.loadImage(sharedMediaItem.getImageLoaderKey(true), galleryImageView);
 		}
 		else
 		{

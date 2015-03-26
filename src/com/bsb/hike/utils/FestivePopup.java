@@ -35,7 +35,7 @@ public class FestivePopup
 
 	public static SnowFallView snowFallView; 
 	
-	public static final int VALENTINE_DAY_POPUP = 3;
+	public static final int HOLI_POPUP = 4;
 
 	public static SnowFallView startAndSetSnowFallView(final HomeActivity activity, final int popupType, 
 			final boolean toShowAnimation)
@@ -45,7 +45,7 @@ public class FestivePopup
 			return null;
 		}
 
-		if(popupType !=  VALENTINE_DAY_POPUP)
+		if(popupType !=  HOLI_POPUP)
 		{
 			return null;
 		}
@@ -152,6 +152,7 @@ public class FestivePopup
 					Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
 				}
 				Intent intent = IntentManager.getForwardStickerIntent(activity, getStickerId(popupType), getCatId(popupType));
+				intent.putExtra(HikeConstants.Extras.SELECT_ALL_INITIALLY, true);
 				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 				activity.startActivity(intent);
 			}
@@ -177,7 +178,7 @@ public class FestivePopup
 
 	private static String getStickerId(int popupType)
 	{
-		return "023_cupidhikin.png";
+		return "027_holi.png";
 	}
 
 	private static String getCatId(int popupType)
@@ -244,12 +245,12 @@ public class FestivePopup
 			activity.showActionBarAfterFestivePopup();
 		}
 
-		HikeSharedPreferenceUtil.getInstance(activity).removeData(HikeConstants.SHOW_FESTIVE_POPUP);
+		HikeSharedPreferenceUtil.getInstance().removeData(HikeConstants.SHOW_FESTIVE_POPUP);
 	}
 
 	public static boolean isPastFestiveDate(int type)
 	{
-		String valentineDayDate = "2015-02-14";
+		String holiDate = "2015-03-06";
 
 		Date currentDate, festiveDate;
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
@@ -257,7 +258,7 @@ public class FestivePopup
 
 		try
 		{
-			festiveDate = sdf.parse(valentineDayDate);
+			festiveDate = sdf.parse(holiDate);
 			currentDate = sdf.parse(current);
 
 			if(currentDate.after(festiveDate))

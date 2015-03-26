@@ -8,7 +8,6 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
-import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
@@ -17,18 +16,23 @@ import android.widget.TextView;
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
-import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
+import com.bsb.hike.productpopup.DialogPojo;
+import com.bsb.hike.productpopup.HikeDialogFragment;
+import com.bsb.hike.productpopup.IActivityPopup;
+import com.bsb.hike.productpopup.ProductContentModel;
+import com.bsb.hike.productpopup.ProductInfoManager;
+import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.ui.fragments.UpdatesFragment;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
@@ -50,7 +54,7 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 		super.onEventReceived(type, object);
 		if (HikePubSub.FAVORITE_COUNT_CHANGED.equals(type))
 		{
-			runOnUiThread( new Runnable()
+			runOnUiThread(new Runnable()
 			{
 				@Override
 				public void run()
@@ -67,6 +71,8 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 		super.onCreate(savedInstanceState);
 		initialiseTimelineScreen(savedInstanceState);
 		accountPrefs = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
+
+		showProductPopup(ProductPopupsConstants.PopupTriggerPoints.TIMELINE.ordinal());
 	}
 
 	private void initialiseTimelineScreen(Bundle savedInstanceState)
@@ -105,29 +111,29 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 		actionBar.setCustomView(actionBarView);
 	}
 
-
 	private void setupMainFragment(Bundle savedInstanceState)
 	{
-		if (savedInstanceState != null) {
-            return;
-        }
-		
-        mainFragment = new UpdatesFragment();
-        
-        getSupportFragmentManager().beginTransaction()
-                .add(R.id.parent_layout, mainFragment).commit();
-		
+		if (savedInstanceState != null)
+		{
+			return;
+		}
+
+		mainFragment = new UpdatesFragment();
+
+		getSupportFragmentManager().beginTransaction().add(R.id.parent_layout, mainFragment).commit();
+
 	}
-	
+
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu)
 	{
 		getSupportMenuInflater().inflate(R.menu.updates_menu, menu);
 
 		View show_people_view = menu.findItem(R.id.show_people).getActionView();
-		show_people_view.findViewById(R.id.overflow_icon_image).setContentDescription("Favorites in timeline");;
+		show_people_view.findViewById(R.id.overflow_icon_image).setContentDescription("Favorites in timeline");
+		;
 		friendsTopBarIndicator = (TextView) show_people_view.findViewById(R.id.top_bar_indicator);
-		((ImageView)show_people_view.findViewById(R.id.overflow_icon_image)).setImageResource(R.drawable.ic_show_people);
+		((ImageView) show_people_view.findViewById(R.id.overflow_icon_image)).setImageResource(R.drawable.ic_show_people);
 		updateFriendsNotification(accountPrefs.getInt(HikeMessengerApp.FRIEND_REQ_COUNT, 0), 0);
 
 		show_people_view.setOnClickListener(new View.OnClickListener()
@@ -155,18 +161,18 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 	{
 		Intent intent = null;
 
-		if(item.getItemId() == R.id.new_update)
+		if (item.getItemId() == R.id.new_update)
 		{
 			intent = new Intent(this, StatusUpdate.class);
 			intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-			
+
 			try
 			{
 				JSONObject metadata = new JSONObject();
 				metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.POST_UPDATE_FROM_TOP_BAR);
 				HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
 			}
-			catch(JSONException e)
+			catch (JSONException e)
 			{
 				Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
 			}
@@ -182,7 +188,7 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 			return super.onOptionsItemSelected(item);
 		}
 	}
-	
+
 	@Override
 	public void onBackPressed()
 	{
@@ -196,8 +202,7 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 
 		super.onBackPressed();
 	}
-	
-	
+
 	@Override
 	protected void onResume()
 	{
@@ -205,7 +210,7 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 		HikeMessengerApp.getPubSub().publish(HikePubSub.NEW_ACTIVITY, this);
 		super.onResume();
 	}
-	
+
 	@Override
 	protected void onPause()
 	{

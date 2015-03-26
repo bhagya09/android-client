@@ -1267,4 +1267,6 @@
     <string name="led_color_purple_key">Violet</string>
 
     <string name="ringtone_loader">Chargement...</string>
+    <string name="terms_conditions_hint">termes et conditions</string>
+	<string name="terms_conditions_title">termes</string>
 </resources>

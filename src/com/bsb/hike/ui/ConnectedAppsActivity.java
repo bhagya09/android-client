@@ -22,15 +22,13 @@ import android.widget.TextView;
 import com.actionbarsherlock.app.ActionBar;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.models.ConnectedApp;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.utils.CustomAlertDialog;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.bsb.hike.utils.Utils;
-import com.bsb.hike.R.string;
-import com.bsb.hike.analytics.AnalyticsConstants;
-import com.bsb.hike.analytics.HAManager;
 
 /**
  * This class is responsible for displaying "Connected apps" screen in Settings. Also takes care of underlying functionality.
@@ -65,7 +63,7 @@ public class ConnectedAppsActivity extends HikeAppStateBaseFragmentActivity impl
 	{
 		super.onCreate(savedInstanceState);
 
-		authPrefs = HikeSharedPreferenceUtil.getInstance(getApplicationContext(), HikeAuthActivity.AUTH_SHARED_PREF_NAME);
+		authPrefs = HikeSharedPreferenceUtil.getInstance(HikeAuthActivity.AUTH_SHARED_PREF_NAME);
 
 		setContentView(R.layout.connected_apps_main);
 
@@ -302,7 +300,7 @@ public class ConnectedAppsActivity extends HikeAppStateBaseFragmentActivity impl
 	 */
 	public static void disconnectAllApps(Context argContext)
 	{
-		HikeSharedPreferenceUtil prefs = HikeSharedPreferenceUtil.getInstance(argContext, HikeAuthActivity.AUTH_SHARED_PREF_NAME);
+		HikeSharedPreferenceUtil prefs = HikeSharedPreferenceUtil.getInstance(HikeAuthActivity.AUTH_SHARED_PREF_NAME);
 
 		prefs.deleteAllData();
 	}
@@ -314,7 +312,7 @@ public class ConnectedAppsActivity extends HikeAppStateBaseFragmentActivity impl
 	 */
 	public static void disconnectApp(Context argContext, String appPkg)
 	{
-		HikeSharedPreferenceUtil prefs = HikeSharedPreferenceUtil.getInstance(argContext, HikeAuthActivity.AUTH_SHARED_PREF_NAME);
+		HikeSharedPreferenceUtil prefs = HikeSharedPreferenceUtil.getInstance(HikeAuthActivity.AUTH_SHARED_PREF_NAME);
 
 		prefs.removeData(appPkg);
 

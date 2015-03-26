@@ -1,19 +1,16 @@
 package com.bsb.hike.platform.content;
 
-import android.util.Log;
 
-import com.bsb.hike.AppConfig;
+import java.io.File;
+
+import android.os.Environment;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.utils.Utils.ExternalStorageState;
 
-import java.io.File;
-
 public class PlatformContent
 {
-
-	private static boolean isInitialized;
 
 	private PlatformContent()
 	{
@@ -87,20 +84,6 @@ public class PlatformContent
 	 */
 	public static PlatformContentRequest getContent(String contentData, PlatformContentListener<PlatformContentModel> listener)
 	{
-		if (!isInitialized)
-		{
-			if (Utils.getExternalStorageState() == ExternalStorageState.WRITEABLE)
-			{
-				PlatformContentConstants.PLATFORM_CONTENT_DIR = HikeMessengerApp.getInstance().getApplicationContext().getExternalFilesDir(null) + File.separator
-						+ PlatformContentConstants.CONTENT_DIR_NAME + File.separator;
-			}
-			else
-			{
-				PlatformContentConstants.PLATFORM_CONTENT_DIR = HikeMessengerApp.getInstance().getApplicationContext().getFilesDir() + File.separator
-						+ PlatformContentConstants.CONTENT_DIR_NAME + File.separator;
-			}
-			isInitialized = true;
-		}
 
 		Logger.d("PlatformContent", "Content Dir : " + PlatformContentConstants.PLATFORM_CONTENT_DIR);
 
@@ -113,11 +96,17 @@ public class PlatformContent
 		}
 		else
 		{
-			Log.e("PlatformContent", "Incorrect content data");
+			Logger.e("PlatformContent", "Incorrect content data");
 			listener.onEventOccured(EventCode.INVALID_DATA);
 			return null;
 		}
 
+	}
+
+	public static void init(boolean isProduction)
+	{
+		PlatformContentConstants.PLATFORM_CONTENT_DIR = isProduction ? HikeMessengerApp.getInstance().getApplicationContext().getFilesDir() + File.separator + PlatformContentConstants.CONTENT_DIR_NAME + File.separator:
+				Environment.getExternalStorageDirectory() + File.separator + PlatformContentConstants.HIKE_DIR_NAME + File.separator + PlatformContentConstants.CONTENT_DIR_NAME + File.separator ;
 	}
 
 	public static String getForwardCardData(String contentData)

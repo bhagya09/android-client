@@ -157,7 +157,7 @@ public class HikeAuthActivity extends Activity
 
 		ContactInfo contactInfo = Utils.getUserContactInfo(getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE));
 
-		userContactId = contactInfo.getMsisdn() + ProfileActivity.PROFILE_ROUND_SUFFIX;
+		userContactId = contactInfo.getMsisdn();
 
 		profileImageLoader = new IconLoader(this, getResources().getDimensionPixelSize(R.dimen.auth_permission_icon));
 
@@ -343,7 +343,7 @@ public class HikeAuthActivity extends Activity
 			auth_app_will_setup_acc.setText(String.format(getApplicationContext().getString(R.string.auth_will_setup_acc), mAppName));
 
 			// Set user avatar
-			profileImageLoader.loadImage(userContactId, ((ImageView) findViewById(R.id.auth_user_avatar)), false, false, true);
+			profileImageLoader.loadImage(userContactId, ((ImageView) findViewById(R.id.auth_user_avatar)), false, true, true);
 
 			// Set default contact avatar
 			profileImageLoader.loadImage("nullround", ((ImageView) findViewById(R.id.auth_contacts_avatar)), false, false, true);
@@ -498,7 +498,7 @@ public class HikeAuthActivity extends Activity
 					String expiresIn = "12341";
 					String accessToken = "ashjfbqiywgr13irb";
 
-					prefs = HikeSharedPreferenceUtil.getInstance(getApplicationContext(), AUTH_SHARED_PREF_NAME);
+					prefs = HikeSharedPreferenceUtil.getInstance(AUTH_SHARED_PREF_NAME);
 
 					if (TextUtils.isEmpty(prefs.getData(mAppPackage, "")))
 					{
@@ -538,7 +538,7 @@ public class HikeAuthActivity extends Activity
 						String expiresIn = responseData.getString("expires_in");
 						String accessToken = responseData.getString("access_token");
 
-						prefs = HikeSharedPreferenceUtil.getInstance(getApplicationContext(), AUTH_SHARED_PREF_NAME);
+						prefs = HikeSharedPreferenceUtil.getInstance(AUTH_SHARED_PREF_NAME);
 
 						if (TextUtils.isEmpty(prefs.getData(mAppPackage, "")))
 						{
@@ -774,7 +774,7 @@ public class HikeAuthActivity extends Activity
 		{
 			String access = Integer.toString(accessT.hashCode());
 			String pkg = pkgName;
-			HikeSharedPreferenceUtil prefs = HikeSharedPreferenceUtil.getInstance(argContext, AUTH_SHARED_PREF_NAME);
+			HikeSharedPreferenceUtil prefs = HikeSharedPreferenceUtil.getInstance(AUTH_SHARED_PREF_NAME);
 			String savedAccess = prefs.getData(pkg, "");
 			if (access.equals(savedAccess))
 			{

@@ -10,8 +10,8 @@ import android.os.Message;
 import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
+
 import com.bsb.hike.models.HikeAlarmManager;
-import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.service.HikeService;
@@ -22,8 +22,6 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.voip.VoIPConstants;
 import com.google.android.gcm.GCMBaseIntentService;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 //import com.bsb.hike.service.HikeMqttManager;
 
@@ -56,7 +54,7 @@ public class GCMIntentService extends GCMBaseIntentService
 		Logger.d(VoIPConstants.TAG, "GCM message received.");
 		Logger.d(getClass().getSimpleName(), "Message received: " + intent.getExtras());
 
-		prefs = HikeSharedPreferenceUtil.getInstance(context);
+		prefs = HikeSharedPreferenceUtil.getInstance();
 
 		if (!Utils.isUserAuthenticated(context))
 		{
@@ -112,7 +110,7 @@ public class GCMIntentService extends GCMBaseIntentService
 	@Override
 	protected void onRegistered(final Context context, String regId)
 	{
-		prefs = HikeSharedPreferenceUtil.getInstance(context);
+		prefs = HikeSharedPreferenceUtil.getInstance();
 
 		if (!prefs.getData(HikeConstants.GCM_ID, "").equals(regId))
 		{

@@ -12,10 +12,8 @@ import org.json.JSONObject;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.os.Environment;
 import android.text.TextUtils;
 
-import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.analytics.AnalyticsConstants.AppOpenSource;
 import com.bsb.hike.models.ConvMessage;
@@ -24,6 +22,7 @@ import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
 /**
@@ -49,11 +48,9 @@ public class HAManager
 
 	private boolean isAnalyticsEnabled = true;
 	
-	private long fileMaxSize = AnalyticsConstants.MAX_FILE_SIZE;
-	
-	private long analyticsMaxSize = AnalyticsConstants.MAX_ANALYTICS_SIZE;
-
 	private int analyticsSendFreq = AnalyticsConstants.DEFAULT_SEND_FREQUENCY;
+	
+	private int maxInMemorySize = AnalyticsConstants.MAX_EVENTS_IN_MEMORY;
 
 	private long hourToSend;
 	
@@ -83,14 +80,18 @@ public class HAManager
 		
 		Logger.d(AnalyticsConstants.ANALYTICS_TAG, "Analytics service status :"+ isAnalyticsEnabled);
 
-		fileMaxSize = getPrefs().getLong(AnalyticsConstants.ANALYTICS_FILESIZE, AnalyticsConstants.MAX_FILE_SIZE);
+		long fileMaxSize = getPrefs().getLong(AnalyticsConstants.ANALYTICS_FILESIZE, AnalyticsConstants.MAX_FILE_SIZE);
 		
 		Logger.d(AnalyticsConstants.ANALYTICS_TAG, "File max size :" + fileMaxSize + " KBs");
 		
-		analyticsMaxSize = getPrefs().getLong(AnalyticsConstants.ANALYTICS_TOTAL_SIZE, AnalyticsConstants.MAX_ANALYTICS_SIZE);
-		
+		long analyticsMaxSize = getPrefs().getLong(AnalyticsConstants.ANALYTICS_TOTAL_SIZE, AnalyticsConstants.MAX_ANALYTICS_SIZE);
+
 		Logger.d(AnalyticsConstants.ANALYTICS_TAG, "Total analytics size :" + analyticsMaxSize + " KBs");
-		
+
+		maxInMemorySize = getPrefs().getInt(AnalyticsConstants.ANALYTICS_IN_MEMORY_SIZE, AnalyticsConstants.MAX_EVENTS_IN_MEMORY);
+
+		Logger.d(AnalyticsConstants.ANALYTICS_TAG, "Max events in memory before they get dumped to file :" + maxInMemorySize);
+
 		shouldSendLogs = getPrefs().getBoolean(AnalyticsConstants.SEND_WHEN_CONNECTED, false);
 		
 		hourToSend = getPrefs().getLong(AnalyticsConstants.ANALYTICS_ALARM_TIME, -1);
@@ -241,7 +242,7 @@ public class HAManager
 		}
 		eventsList.add(generateAnalticsJson(type, eventContext, priority, metadata, tag));
 
-		if (AnalyticsConstants.MAX_EVENTS_IN_MEMORY == eventsList.size()) 
+		if (eventsList.size() >= maxInMemorySize) 
 		{			
 			// clone a local copy and send for writing
 			ArrayList<JSONObject> jsons = (ArrayList<JSONObject>) eventsList.clone();
@@ -254,14 +255,14 @@ public class HAManager
 		}
 	}
 
-	private synchronized void dumpMostRecentEventsAndSendToServer(boolean isOnDemandFromServer)
+	private synchronized void dumpInMemoryEventsAndTryToUpload(boolean sendNow, boolean isOnDemandFromServer)
 	{
 		ArrayList<JSONObject> jsons = (ArrayList<JSONObject>) eventsList.clone();
 		
 		eventsList.clear();
 		
 		Logger.d(AnalyticsConstants.ANALYTICS_TAG, "Dumping in-memory events :" + jsons.size());
-		AnalyticsStore.getInstance(this.context).dumpEvents(jsons, true, isOnDemandFromServer);
+		AnalyticsStore.getInstance(this.context).dumpEvents(jsons, sendNow, isOnDemandFromServer);
 	}
 	
 	/**
@@ -270,7 +271,9 @@ public class HAManager
 	 */
 	public long getMaxFileSize()	
 	{
-		return fileMaxSize;
+		long maxFileSize = getPrefs().getLong(AnalyticsConstants.ANALYTICS_FILESIZE, AnalyticsConstants.MAX_FILE_SIZE);
+		maxFileSize *= 1024;		
+		return maxFileSize;
 	}
 	
 	/**
@@ -345,19 +348,17 @@ public class HAManager
 		Editor edit = getPrefs().edit(); 
 		edit.putLong(AnalyticsConstants.ANALYTICS_FILESIZE, size);
 		edit.commit();
-		fileMaxSize = size;		
 	}
 	
 	/**
 	 * Used to set the maximum analytics size on the client
-	 * @param size
+	 * @param size in kilobytes
 	 */
 	public void setAnalyticsMaxSizeOnClient(long size)
 	{
 		Editor edit = getPrefs().edit(); 
 		edit.putLong(AnalyticsConstants.ANALYTICS_TOTAL_SIZE, size);
 		edit.commit();
-		analyticsMaxSize = size;
 	}
 
 	/**
@@ -381,11 +382,34 @@ public class HAManager
 	}
 	/**
 	 * Used to get the maximum analytics size on the client
-	 * @return size of analytics in Kbs
+	 * @return size of analytics in bytes
 	 */
 	public long getMaxAnalyticsSizeOnClient()	
 	{
-		return analyticsMaxSize;
+		long maxSize = getPrefs().getLong(AnalyticsConstants.ANALYTICS_TOTAL_SIZE, AnalyticsConstants.MAX_ANALYTICS_SIZE);
+		maxSize *= 1024;
+		return maxSize;
+	}
+	
+	/**
+	 * Used to get the maximum value of in memory events before they are written to file
+	 * @return count of in memory events
+	 */
+	public int getMaxInMemoryEventsSize()
+	{
+		return maxInMemorySize;
+	}
+	
+	/**
+	 * Used to set the maximum number of in memory events before we write them to file
+	 * @param size number of in memory events
+	 */
+	public void setMaxInMemoryEventsSize(int size)
+	{
+		Editor edit = getPrefs().edit(); 
+		edit.putInt(AnalyticsConstants.ANALYTICS_IN_MEMORY_SIZE, size);
+		edit.commit();
+		maxInMemorySize = size;		
 	}
 	
 	/**
@@ -466,9 +490,9 @@ public class HAManager
 	/**
 	 * Used to send the analytics data to the server
 	 */
-	public void sendAnalyticsData(boolean isOnDemandFromServer)
+	public void sendAnalyticsData(boolean sendNow, boolean isOnDemandFromServer)
 	{
-		dumpMostRecentEventsAndSendToServer(isOnDemandFromServer);		
+		dumpInMemoryEventsAndTryToUpload(sendNow, isOnDemandFromServer);		
 	}	
 	
 	/**
@@ -504,26 +528,53 @@ public class HAManager
 		return fileNames;
 	}
 	
-	public void recordSessionStart()
+	public JSONObject recordAndReturnSessionStart()
 	{
 		fgSessionInstance.startSession();
-		recordSession(fgSessionInstance, true);
+		
+		JSONObject metadata = getMetaDataForSession(fgSessionInstance, true);
+		
+		/*
+			We are not recording SessionEvent in Analytics File, so commenting it
+			If In future if We uncomment it
+			Check that While Recording Event we add SeesionID, so now it will be added twice
+		*/
+		//HAManager.getInstance().record(AnalyticsConstants.SESSION_EVENT, AnalyticsConstants.FOREGROUND, EventPriority.HIGH, metadata, AnalyticsConstants.EVENT_TAG_SESSION);
+		
+		return metadata;
 	}
-	
-	public void recordSessionEnd()
+
+	public JSONObject recordAndReturnSessionEnd()
 	{
 		fgSessionInstance.endChatSessions();
 		recordChatSessions();
-		recordSession(fgSessionInstance, false);
+		
+		JSONObject metadata = getMetaDataForSession(fgSessionInstance, false);
+		
+		/*
+			We are not recording SessionEvent in Analytics File, so commenting it
+			If In future if We want to log that as well just uncomment it but
+			Check that While Recording Event we also add SeesionID, so now it will be added twice
+			so remove it before recording
+		 */
+		//HAManager.getInstance().record(AnalyticsConstants.SESSION_EVENT, AnalyticsConstants.BACKGROUND, EventPriority.HIGH, metadata, AnalyticsConstants.EVENT_TAG_SESSION);
+
+		dumpInMemoryEventsAndTryToUpload(false, false);
+		
 		fgSessionInstance.reset();
+		
+		return metadata; 
 	}
-	
-	private void recordSession( Session session, boolean sessionStart)
+
+	private JSONObject getMetaDataForSession( Session session, boolean sessionStart)
 	{
 		JSONObject metadata = null;
 		try
 		{
 			metadata = new JSONObject();
+			
+			//1)Adding Session Id
+			metadata.put(AnalyticsConstants.SESSION_ID, fgSessionInstance.getSessionId());
 			
 			//2)con:- 2g/3g/4g/wifi/off
 			metadata.put(AnalyticsConstants.CONNECTION_TYPE, Utils.getNetworkType(context));
@@ -542,10 +593,8 @@ public class HAManager
 				// Not sending it for now. We will fix this code in later release when required
 				//metadata.put(AnalyticsConstants.SOURCE_APP_OPEN, session.getAppOpenSource());
 
-				// 4)srcctx :- uid/gid/null(in case of appOpen via Launcher)
+				// 3)srcctx :- uid/gid/null(in case of appOpen via Launcher)
 				metadata.put(AnalyticsConstants.SOURCE_CONTEXT, session.getSrcContext());
-				
-				HAManager.getInstance().record(AnalyticsConstants.SESSION_EVENT, AnalyticsConstants.FOREGROUND, EventPriority.HIGH, metadata, AnalyticsConstants.EVENT_TAG_SESSION);
 				
 				Logger.d(AnalyticsConstants.ANALYTICS_TAG, "--session-id :" + session.getSessionId() + "--network-type :" + Utils.getNetworkTypeAsString(context) + "--source-context :" + session.getSrcContext() + "--conv-type :" + session.getConvType() + "--msg-type :" + session.getMsgType());
 			}
@@ -555,8 +604,6 @@ public class HAManager
 
 				metadata.put(AnalyticsConstants.DATA_CONSUMED, fgSessionInstance.getDataConsumedInSession());
 				
-				HAManager.getInstance().record(AnalyticsConstants.SESSION_EVENT, AnalyticsConstants.BACKGROUND, EventPriority.HIGH, metadata, AnalyticsConstants.EVENT_TAG_SESSION);
-				
 				Logger.d(AnalyticsConstants.ANALYTICS_TAG, "--session-id :" + session.getSessionId() + "--session-time :" + session.getSessionTime() + "--network-type :" + Utils.getNetworkTypeAsString(context) + "--data-consumed :" + session.getDataConsumedInSession() + "bytes");
 			}
 		}
@@ -564,7 +611,7 @@ public class HAManager
 		{
 			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
 		}
-		
+		return metadata;
 	}
 	
 	public void setMetadatFieldsForSessionEvent(String appOpenSource, String srcContext, ConvMessage convMessage, int convType)
@@ -696,7 +743,7 @@ public class HAManager
 
 	public void recordLastSeenEvent(String screen, String api, String msg, String toUser)
 	{
-		if(!HikeSharedPreferenceUtil.getInstance(context).getData(HikeMessengerApp.DETAILED_HTTP_LOGGING_ENABLED, false))
+		if(!HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.DETAILED_HTTP_LOGGING_ENABLED, false))
 		{	
 			return;
 		}
@@ -730,4 +777,22 @@ public class HAManager
 		}
 	}
 	
+	/**
+	 * Used for logging sticker pallate crash/undesired behaviours
+	 * @param errorMsg
+	 */
+	public static void sendStickerCrashDevEvent(String errorMsg)
+	{
+		JSONObject error = new JSONObject();
+		try
+		{
+			error.put(StickerManager.STICKER_ERROR_LOG, errorMsg);
+			HAManager.getInstance().record(AnalyticsConstants.DEV_EVENT, AnalyticsConstants.STICKER_PALLETE, EventPriority.HIGH, error);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
 }

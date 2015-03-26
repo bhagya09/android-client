@@ -3,7 +3,6 @@ package com.bsb.hike.service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.support.v4.content.LocalBroadcastManager;
 
 import com.bsb.hike.HikeConstants;
@@ -30,7 +29,7 @@ public class RegisterToGCMTrigger extends BroadcastReceiver
 				/*
 				 * Since we are registering again, we should clear this preference
 				 */
-				HikeSharedPreferenceUtil mprefs = HikeSharedPreferenceUtil.getInstance(context);
+				HikeSharedPreferenceUtil mprefs = HikeSharedPreferenceUtil.getInstance();
 				mprefs.removeData(HikeMessengerApp.GCM_ID_SENT);
 
 				GCMRegistrar.register(context, HikeConstants.APP_PUSH_ID);

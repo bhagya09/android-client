@@ -5,7 +5,6 @@ import java.util.List;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-
 import android.content.Context;
 import android.content.Intent;
 import android.text.TextUtils;
@@ -29,7 +28,7 @@ import com.bsb.hike.models.EmptyConversationItem;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.smartImageLoader.IconLoader;
 import com.bsb.hike.ui.ComposeChatActivity;
-import com.bsb.hike.ui.CreateNewGroupActivity;
+import com.bsb.hike.ui.CreateNewGroupOrBroadcastActivity;
 import com.bsb.hike.ui.HikeListActivity;
 import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.ui.PeopleActivity;
@@ -216,7 +215,7 @@ public class EmptyConversationsAdapter extends ArrayAdapter<EmptyConversationIte
 					}
 				}
 
-				iconLoader.loadImage(contactInfo.getMsisdn(), true, avatar, true);
+				iconLoader.loadImage(contactInfo.getMsisdn(), avatar, false, true);
 
 				name.setText(contactInfo.getName());
 				status.setText(contactInfo.getMsisdn());
@@ -353,7 +352,7 @@ public class EmptyConversationsAdapter extends ArrayAdapter<EmptyConversationIte
 			}
 			else if (item.getType() == EmptyConversationItem.GROUP)
 			{
-				openActivityAndSendLogEvent(CreateNewGroupActivity.class, HikeConstants.LogEvent.FTUE_CARD_GROUP_CLICKED);
+				openActivityAndSendLogEvent(CreateNewGroupOrBroadcastActivity.class, HikeConstants.LogEvent.FTUE_CARD_GROUP_CLICKED);
 			}
 			else if (item.getType() == EmptyConversationItem.INVITE)
 			{

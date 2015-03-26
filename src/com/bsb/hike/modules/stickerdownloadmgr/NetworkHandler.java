@@ -1,16 +1,13 @@
 package com.bsb.hike.modules.stickerdownloadmgr;
 
-import com.bsb.hike.filetransfer.FileTransferManager.NetworkType;
-import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.Utils;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.telephony.TelephonyManager;
+
+import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 
 class NetworkHandler extends BroadcastReceiver
 {

@@ -19,7 +19,6 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
 
 import android.annotation.SuppressLint;
-import android.util.Log;
 
 import com.bsb.hike.utils.Logger;
 
@@ -73,9 +72,9 @@ public class VoIPEncryptor {
 			privateKey = kp.getPrivate();
 			
 		} catch (NoSuchAlgorithmException e) {
-			Log.d(VoIPConstants.TAG, "NoSuchAlgorithmException: " + e.toString());
+			Logger.d(VoIPConstants.TAG, "NoSuchAlgorithmException: " + e.toString());
 		} catch (NoSuchProviderException e) {
-			Log.d(VoIPConstants.TAG, "initKeys NoSuchProviderException: " + e.toString());
+			Logger.d(VoIPConstants.TAG, "initKeys NoSuchProviderException: " + e.toString());
 		}
 	}
 	
@@ -86,7 +85,7 @@ public class VoIPEncryptor {
 		
 		// Generate session key
 		sessionKey = new byte[AES_KEY_SIZE / 8];
-		Log.d(VoIPConstants.TAG, "New AES key generated.");
+		Logger.d(VoIPConstants.TAG, "New AES key generated.");
 		sr.nextBytes(sessionKey);
 		aesKeySpec = null;
 		aesDecryptCipher = null;
@@ -116,9 +115,9 @@ public class VoIPEncryptor {
 		try {
 			publicKey = KeyFactory.getInstance("RSA").generatePublic(new X509EncodedKeySpec(pubKey));
 		} catch (InvalidKeySpecException e) {
-			Log.d(VoIPConstants.TAG, "InvalidKeySpecException: " + e.toString());
+			Logger.d(VoIPConstants.TAG, "InvalidKeySpecException: " + e.toString());
 		} catch (NoSuchAlgorithmException e) {
-			Log.d(VoIPConstants.TAG, "NoSuchAlgorithmException: " + e.toString());
+			Logger.d(VoIPConstants.TAG, "NoSuchAlgorithmException: " + e.toString());
 		}
 	}
 
@@ -138,19 +137,19 @@ public class VoIPEncryptor {
 			encryptedData = cipher.doFinal(data);
 			
 		} catch (NoSuchAlgorithmException e) {
-			Log.d(VoIPConstants.TAG, "rsaEncrypt NoSuchAlgorithmException: " + e.toString());
+			Logger.d(VoIPConstants.TAG, "rsaEncrypt NoSuchAlgorithmException: " + e.toString());
 		} catch (NoSuchPaddingException e) {
-			Log.d(VoIPConstants.TAG, "NoSuchPaddingException: " + e.toString());
+			Logger.d(VoIPConstants.TAG, "NoSuchPaddingException: " + e.toString());
 		} catch (InvalidKeyException e) {
-			Log.d(VoIPConstants.TAG, "InvalidKeyException: " + e.toString());
+			Logger.d(VoIPConstants.TAG, "InvalidKeyException: " + e.toString());
 		} catch (IllegalBlockSizeException e) {
-			Log.d(VoIPConstants.TAG, "IllegalBlockSizeException: " + e.toString());
+			Logger.d(VoIPConstants.TAG, "IllegalBlockSizeException: " + e.toString());
 		} catch (BadPaddingException e) {
-			Log.d(VoIPConstants.TAG, "BadPaddingException: " + e.toString());
+			Logger.d(VoIPConstants.TAG, "BadPaddingException: " + e.toString());
 		} catch (InvalidKeySpecException e) {
-			Log.d(VoIPConstants.TAG, "InvalidKeySpecException: " + e.toString());
+			Logger.d(VoIPConstants.TAG, "InvalidKeySpecException: " + e.toString());
 		} catch (NoSuchProviderException e) {
-			Log.d(VoIPConstants.TAG, "rsaEncrypt NoSuchProviderException: " + e.toString());
+			Logger.d(VoIPConstants.TAG, "rsaEncrypt NoSuchProviderException: " + e.toString());
 		}
 
 		return encryptedData;
@@ -164,17 +163,17 @@ public class VoIPEncryptor {
 			cipher.init(Cipher.DECRYPT_MODE, privateKey);
 			decryptedData = cipher.doFinal(data);
 		} catch (NoSuchAlgorithmException e) {
-			Log.d(VoIPConstants.TAG, "NoSuchAlgorithmException: " + e.toString());
+			Logger.d(VoIPConstants.TAG, "NoSuchAlgorithmException: " + e.toString());
 		} catch (NoSuchPaddingException e) {
-			Log.d(VoIPConstants.TAG, "NoSuchPaddingException: " + e.toString());
+			Logger.d(VoIPConstants.TAG, "NoSuchPaddingException: " + e.toString());
 		} catch (InvalidKeyException e) {
-			Log.d(VoIPConstants.TAG, "InvalidKeyException: " + e.toString());
+			Logger.d(VoIPConstants.TAG, "InvalidKeyException: " + e.toString());
 		} catch (IllegalBlockSizeException e) {
-			Log.d(VoIPConstants.TAG, "IllegalBlockSizeException: " + e.toString());
+			Logger.d(VoIPConstants.TAG, "IllegalBlockSizeException: " + e.toString());
 		} catch (BadPaddingException e) {
-			Log.d(VoIPConstants.TAG, "BadPaddingException: " + e.toString());
+			Logger.d(VoIPConstants.TAG, "BadPaddingException: " + e.toString());
 		} catch (NoSuchProviderException e) {
-			Log.d(VoIPConstants.TAG, "rsaDecrypt NoSuchProviderException: " + e.toString());
+			Logger.d(VoIPConstants.TAG, "rsaDecrypt NoSuchProviderException: " + e.toString());
 		}
 		
 		return decryptedData;
@@ -198,17 +197,17 @@ public class VoIPEncryptor {
 			encryptedData = aesEncryptCipher.doFinal(data);
 			
 		} catch (NoSuchAlgorithmException e) {
-			Log.d(VoIPConstants.TAG, "NoSuchAlgorithmException: " + e.toString());
+			Logger.d(VoIPConstants.TAG, "NoSuchAlgorithmException: " + e.toString());
 		} catch (NoSuchPaddingException e) {
-			Log.d(VoIPConstants.TAG, "NoSuchPaddingException: " + e.toString());
+			Logger.d(VoIPConstants.TAG, "NoSuchPaddingException: " + e.toString());
 		} catch (InvalidKeyException e) {
-			Log.d(VoIPConstants.TAG, "InvalidKeyException: " + e.toString());
+			Logger.d(VoIPConstants.TAG, "InvalidKeyException: " + e.toString());
 		} catch (IllegalBlockSizeException e) {
-			Log.d(VoIPConstants.TAG, "IllegalBlockSizeException: " + e.toString());
+			Logger.d(VoIPConstants.TAG, "IllegalBlockSizeException: " + e.toString());
 		} catch (BadPaddingException e) {
-			Log.d(VoIPConstants.TAG, "BadPaddingException: " + e.toString());
+			Logger.d(VoIPConstants.TAG, "BadPaddingException: " + e.toString());
 		} catch (NoSuchProviderException e) {
-			Log.d(VoIPConstants.TAG, "aesEncrypt NoSuchProviderException: " + e.toString());
+			Logger.d(VoIPConstants.TAG, "aesEncrypt NoSuchProviderException: " + e.toString());
 		}
 		
 		return encryptedData;
@@ -232,17 +231,17 @@ public class VoIPEncryptor {
 			decryptedData = aesDecryptCipher.doFinal(data);
 			
 		} catch (NoSuchAlgorithmException e) {
-			Log.d(VoIPConstants.TAG, "NoSuchAlgorithmException: " + e.toString());
+			Logger.d(VoIPConstants.TAG, "NoSuchAlgorithmException: " + e.toString());
 		} catch (NoSuchPaddingException e) {
-			Log.d(VoIPConstants.TAG, "NoSuchPaddingException: " + e.toString());
+			Logger.d(VoIPConstants.TAG, "NoSuchPaddingException: " + e.toString());
 		} catch (InvalidKeyException e) {
-			Log.d(VoIPConstants.TAG, "InvalidKeyException: " + e.toString());
+			Logger.d(VoIPConstants.TAG, "InvalidKeyException: " + e.toString());
 		} catch (IllegalBlockSizeException e) {
-			Log.d(VoIPConstants.TAG, "IllegalBlockSizeException: " + e.toString());
+			Logger.d(VoIPConstants.TAG, "IllegalBlockSizeException: " + e.toString());
 		} catch (BadPaddingException e) {
-			Log.d(VoIPConstants.TAG, "BadPaddingException: " + e.toString());
+			Logger.d(VoIPConstants.TAG, "BadPaddingException: " + e.toString());
 		} catch (NoSuchProviderException e) {
-			Log.d(VoIPConstants.TAG, "aesDecrypt NoSuchProviderException: " + e.toString());
+			Logger.d(VoIPConstants.TAG, "aesDecrypt NoSuchProviderException: " + e.toString());
 		}
 		
 		return decryptedData;

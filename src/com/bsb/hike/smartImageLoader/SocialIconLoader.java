@@ -2,11 +2,10 @@ package com.bsb.hike.smartImageLoader;
 
 import java.net.URL;
 
-import com.bsb.hike.BitmapModule.HikeBitmapFactory;
-
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 
 public class SocialIconLoader extends ImageWorker
 {

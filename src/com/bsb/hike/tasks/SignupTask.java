@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.accounts.NetworkErrorException;
@@ -28,11 +27,8 @@ import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.HikePubSub;
 import com.bsb.hike.BitmapModule.BitmapUtils;
-import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.db.DBBackupRestore;
-import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.http.HikeHttpRequest;
 import com.bsb.hike.models.Birthday;
 import com.bsb.hike.models.ContactInfo;
@@ -79,8 +75,21 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 		public void onProgressUpdate(StateValue value);
 	}
 	
-	public int getDisplayChild(){
-		return ((SignupActivity) context).getDisplayItem();
+	public int getDisplayChild()
+	{
+		/**
+		 * This is being added here because SignupTask can be called from WelcomeActivity as well as SignupActivity. We were getting ClassCast Exceptions for Context, hence this
+		 * defensive check
+		 */
+		if (context instanceof SignupActivity)
+		{
+			return ((SignupActivity) context).getDisplayItem();
+		}
+
+		else
+		{
+			return -1;
+		}
 	}
 
 	public void autoFillPin(String pin)

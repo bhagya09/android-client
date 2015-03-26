@@ -3,11 +3,11 @@ package com.bsb.hike.platform.content;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import com.bsb.hike.platform.content.PlatformContent.EventCode;
-
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
+
+import com.bsb.hike.platform.content.PlatformContent.EventCode;
+import com.bsb.hike.utils.Logger;
 
 public class PlatformRequestManager
 {
@@ -18,7 +18,7 @@ public class PlatformRequestManager
 	{
 		public boolean add(PlatformContentRequest object)
 		{
-			Log.d(TAG, "adding to requestQueue");
+			Logger.d(TAG, "adding to requestQueue");
 			Iterator<PlatformContentRequest> iterator = iterator();
 
 			while (iterator.hasNext())
@@ -26,7 +26,7 @@ public class PlatformRequestManager
 				PlatformContentRequest platformContentRequest = (PlatformContentRequest) iterator.next();
 				if (platformContentRequest.hashCode() == object.hashCode())
 				{
-					Log.d(TAG, "set duplicate as probably dead");
+					Logger.d(TAG, "set duplicate as probably dead");
 					platformContentRequest.setState(PlatformContentRequest.STATE_PROBABLY_DEAD);
 				}
 			}
@@ -69,7 +69,7 @@ public class PlatformRequestManager
 	{
 		if (!requestQueue.isEmpty())
 		{
-			Log.d(TAG, "processNextRequest");
+			Logger.d(TAG, "processNextRequest");
 
 			int requestQueueSize = requestQueue.size() - 1;
 
@@ -157,7 +157,7 @@ public class PlatformRequestManager
 
 				argRequest.setState(PlatformContentRequest.STATE_CANCELLED);
 
-				Log.d(TAG, "remove request - " + argRequest.getContentData().getContentJSON());
+				Logger.d(TAG, "remove request - " + argRequest.getContentData().getContentJSON());
 
 				getCurrentDownloadingTemplates().clear();
 
@@ -167,6 +167,16 @@ public class PlatformRequestManager
 			}
 		});
 
+	}
+
+	public static void failure(PlatformContentRequest mRequest, EventCode event, boolean isTemplatingEnabled)
+	{
+
+		reportFailure(mRequest, event);
+		if (isTemplatingEnabled)
+		{
+			remove(mRequest);
+		}
 	}
 
 	public static void reportFailure(final PlatformContentRequest argRequest, final EventCode error)
@@ -205,7 +215,7 @@ public class PlatformRequestManager
 			return;
 		}
 
-		Log.d(TAG, "complete request - " + argContentRequest.getContentData().getContentJSON());
+		Logger.d(TAG, "complete request - " + argContentRequest.getContentData().getContentJSON());
 
 		requestQueue.remove(argContentRequest);
 

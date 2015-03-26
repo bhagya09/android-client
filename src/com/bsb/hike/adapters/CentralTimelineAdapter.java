@@ -75,13 +75,6 @@ public class CentralTimelineAdapter extends BaseAdapter
 
 	private LayoutInflater inflater;
 
-	private int[] moodsRow1 = { R.drawable.mood_09_chilling, R.drawable.mood_35_partying_hard, R.drawable.mood_14_boozing, R.drawable.mood_01_happy };
-
-	private int[] moodsRow2 = { R.drawable.mood_15_movie, R.drawable.mood_34_music, R.drawable.mood_37_eating, R.drawable.mood_03_in_love };
-
-	private int[] moodsRowLand = { R.drawable.mood_09_chilling, R.drawable.mood_35_partying_hard, R.drawable.mood_14_boozing, R.drawable.mood_01_happy, R.drawable.mood_15_movie,
-			R.drawable.mood_34_music, R.drawable.mood_37_eating };
-
 	private enum ViewType
 	{
 		PROFILE_PIC_CHANGE, OTHER_UPDATE, FTUE_ITEM, FTUE_CARD
@@ -487,20 +480,7 @@ public class CentralTimelineAdapter extends BaseAdapter
 
 	private void setAvatar(String msisdn, ImageView avatar)
 	{
-		iconImageLoader.loadImage(msisdn, true, avatar, true);
-	}
-
-	private void addMoods(ViewGroup container, int[] moods)
-	{
-		container.removeAllViews();
-
-		for (int moodRes : moods)
-		{
-			ImageView imageView = (ImageView) inflater.inflate(R.layout.ftue_mood_item, container, false);
-			imageView.setImageResource(moodRes);
-
-			container.addView(imageView);
-		}
+		iconImageLoader.loadImage(msisdn, avatar, false, true);
 	}
 
 	private class ViewHolder

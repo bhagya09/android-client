@@ -4,9 +4,7 @@ import java.io.File;
 import java.util.List;
 import java.util.Locale;
 
-import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.Utils;
 import com.coremedia.iso.IsoFile;
 import com.coremedia.iso.boxes.Box;
 import com.coremedia.iso.boxes.MediaBox;
@@ -30,7 +28,6 @@ public class VideoUtilities {
 			videoEditedInfo.startTime = -1;
 			videoEditedInfo.endTime = -1;
 			videoEditedInfo.originalPath = videoPath;
-			videoEditedInfo.destCachFilePath = Utils.getOutputMediaFile(HikeFileType.VIDEO, null, true);
 			IsoFile isoFile = new IsoFile(videoPath);
 			List<Box> boxes = Path.getPaths(isoFile, "/moov/trak/");
 			TrackHeaderBox trackHeaderBox = null;
@@ -132,7 +129,7 @@ public class VideoUtilities {
 		public int resultHeight;
 		public int bitrate;
 		public String originalPath;
-		public File destCachFilePath;
+		public File destFile;
 		public boolean isCompRequired;
 
 		public String getString() {

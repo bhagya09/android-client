@@ -32,7 +32,8 @@ public class ConversationTip extends Conversation
 
 	public ConversationTip(int tipType)
 	{
-		super(null);
+//		passing 0 as timestamp because the tip is displayed on top irrespective, so this won't affect
+		super(null, 0);
 		this.tipType = tipType;
 	}
 

@@ -13,7 +13,6 @@ import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.TranslateAnimation;
 
-import com.bsb.hike.R;
 import com.bsb.hike.utils.Utils;
 
 public class SnowFallView extends View

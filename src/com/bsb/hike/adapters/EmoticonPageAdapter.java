@@ -1,19 +1,16 @@
 package com.bsb.hike.adapters;
 
 import android.app.Activity;
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.EditText;
 import android.widget.ImageView;
 
 import com.bsb.hike.R;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.SmileyParser;
 
 public class EmoticonPageAdapter extends BaseAdapter implements OnClickListener
 {

@@ -1,16 +1,18 @@
 package com.bsb.hike.models;
 
-import android.util.Pair;
-import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.HikePubSub;
-import com.bsb.hike.utils.Logger;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
-import java.util.List;
+import android.util.Pair;
+
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
+import com.bsb.hike.utils.Logger;
 
 public class MultipleConvMessage
 {
@@ -121,13 +123,13 @@ public class MultipleConvMessage
 
                 } else if (convMessage.getMessageType() == HikeConstants.MESSAGE_TYPE.WEB_CONTENT)
 				{
-					msg.put(HikeConstants.METADATA, convMessage.platformWebMessageMetadata.getJSON());
+					msg.put(HikeConstants.METADATA, convMessage.webMetadata.getJSON());
 					msg.put(HikeConstants.SUB_TYPE, HikeConstants.ConvMessagePacketKeys.WEB_CONTENT_TYPE);
 
 				}
 				else if (convMessage.getMessageType() == HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT)
 				{
-					msg.put(HikeConstants.METADATA, convMessage.platformWebMessageMetadata.getJSON());
+					msg.put(HikeConstants.METADATA, convMessage.webMetadata.getJSON());
 					msg.put(HikeConstants.SUB_TYPE, HikeConstants.ConvMessagePacketKeys.FORWARD_WEB_CONTENT_TYPE);
 				}
 				

@@ -150,7 +150,7 @@ public class UpdatesFragment extends SherlockListFragment implements OnScrollLis
 
 		if (HikeMessengerApp.isStealthMsisdn(statusMessage.getMsisdn()))
 		{
-			int stealthMode = HikeSharedPreferenceUtil.getInstance(getActivity()).getData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF);
+			int stealthMode = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF);
 			if (stealthMode != HikeConstants.STEALTH_ON)
 			{
 				return;

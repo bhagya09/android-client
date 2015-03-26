@@ -16,10 +16,6 @@
 
 package com.haibison.android.lockpattern.util;
 
-import com.bsb.hike.BuildConfig;
-import com.bsb.hike.utils.Utils;
-
-import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.res.Configuration;
@@ -29,6 +25,9 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.view.ViewGroup.LayoutParams;
 import android.view.Window;
+
+import com.bsb.hike.BuildConfig;
+import com.bsb.hike.utils.Utils;
 
 /**
  * UI utilities.

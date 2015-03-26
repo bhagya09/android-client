@@ -1,24 +1,16 @@
 package com.bsb.hike.modules.stickerdownloadmgr;
 
 import java.io.File;
-import java.io.IOException;
-import java.net.MalformedURLException;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.os.Handler;
 
 import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.BitmapModule.BitmapUtils;
-import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.HikeConstants.STResult;
-import com.bsb.hike.models.StickerCategory;
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.HttpRequestType;
-import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.StickerRequestType;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;

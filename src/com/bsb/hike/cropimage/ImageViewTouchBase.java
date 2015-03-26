@@ -317,7 +317,6 @@ abstract class ImageViewTouchBase extends RecyclingImageView
 
 		float w = bitmap.getWidth();
 		float h = bitmap.getHeight();
-		int rotation = bitmap.getRotation();
 		matrix.reset();
 
 		// We limit up-scaling to 2x otherwise the result may look bad if it's

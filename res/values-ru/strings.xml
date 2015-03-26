@@ -1267,4 +1267,6 @@
     <string name="led_color_purple_key">Фиолетовый</string>
 
     <string name="ringtone_loader">Загрузка...</string>
+    <string name="terms_conditions_hint">сроки и условия</string>
+	<string name="terms_conditions_title">условия</string>
 </resources>

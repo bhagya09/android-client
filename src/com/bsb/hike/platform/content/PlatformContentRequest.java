@@ -1,6 +1,6 @@
 package com.bsb.hike.platform.content;
 
-import android.util.Log;
+import com.bsb.hike.utils.Logger;
 
 public class PlatformContentRequest
 {
@@ -65,7 +65,7 @@ public class PlatformContentRequest
 
 	public void setState(byte mState)
 	{
-		Log.d(TAG, "setting state" + (mState == STATE_READY ? "ready" : "wait") + "on " + mContentData.getContentJSON());
+		Logger.d(TAG, "setting state" + (mState == STATE_READY ? "ready" : "wait") + "on " + mContentData.getContentJSON());
 		this.mState = mState;
 	}
 

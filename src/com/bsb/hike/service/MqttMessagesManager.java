@@ -1,36 +1,57 @@
 package com.bsb.hike.service;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+
+import com.bsb.hike.db.DBConstants;
+import com.bsb.hike.platform.content.PlatformContent;
+import com.bsb.hike.platform.content.PlatformContentListener;
+import com.bsb.hike.platform.content.PlatformContentModel;
+import com.bsb.hike.platform.content.PlatformContentRequest;
+import com.bsb.hike.platform.content.PlatformZipDownloader;
+import com.bsb.hike.utils.HikeAnalyticsEvent;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.database.sqlite.SQLiteDatabase;
-import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
 import android.util.Pair;
+
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
-import com.bsb.hike.NUXConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
-import com.bsb.hike.analytics.AnalyticsSender;
-import com.bsb.hike.analytics.AnalyticsStore;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
+import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.filetransfer.FileTransferManager.NetworkType;
 import com.bsb.hike.http.HikeHttpRequest;
 import com.bsb.hike.http.HikeHttpRequest.HikeHttpCallback;
 import com.bsb.hike.http.HikeHttpRequest.RequestType;
+import com.bsb.hike.models.BroadcastConversation;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.ConvMessage;
@@ -46,9 +67,18 @@ import com.bsb.hike.models.StatusMessage;
 import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.models.TypingNotification;
+import com.bsb.hike.models.WhitelistDomain;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.notifications.HikeNotificationUtils;
+import com.bsb.hike.productpopup.ProductContentModel;
+import com.bsb.hike.productpopup.ProductInfoManager;
+import com.bsb.hike.productpopup.ProductPopupsConstants;
+import com.bsb.hike.platform.content.PlatformContent;
+import com.bsb.hike.platform.content.PlatformContentListener;
+import com.bsb.hike.platform.content.PlatformContentModel;
+import com.bsb.hike.platform.content.PlatformContentRequest;
+import com.bsb.hike.platform.content.PlatformZipDownloader;
 import com.bsb.hike.tasks.DownloadProfileImageTask;
 import com.bsb.hike.tasks.HikeHTTPTask;
 import com.bsb.hike.ui.HomeActivity;
@@ -65,26 +95,12 @@ import com.bsb.hike.utils.NUXManager;
 import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 import com.bsb.hike.voip.VoIPClient;
 import com.bsb.hike.voip.VoIPConstants;
 import com.bsb.hike.voip.VoIPService;
 import com.bsb.hike.voip.VoIPUtils;
 import com.bsb.hike.voip.view.VoIPActivity;
+import com.google.gson.JsonObject;
 
 /**
  * 
@@ -94,7 +110,7 @@ import com.bsb.hike.voip.view.VoIPActivity;
 public class MqttMessagesManager
 {
 
-	private static final String UJFile = "uj_file";
+	public static final String UJFile = "uj_file";
 
 	private final HikeConversationsDatabase convDb;
 
@@ -243,27 +259,61 @@ public class MqttMessagesManager
 		this.pubSub.publish(HikePubSub.SMS_CREDIT_CHANGED, credits);
 	}
 
+	private JSONObject buildUserJoinParams(JSONObject jsonObj, String userType) throws JSONException
+	{
+
+		HikeSharedPreferenceUtil ujPrefs = HikeSharedPreferenceUtil.getInstance(UJFile);
+		JSONObject data = jsonObj.getJSONObject(HikeConstants.DATA);
+		boolean isNewUser = userType.equals(HikeConstants.NEW_USER);
+		
+		if(!data.has(HikeConstants.UserJoinMsg.NOTIF_TEXT))
+		{
+			String notificationText = ujPrefs.getData(userType + HikeConstants.UserJoinMsg.NOTIF_TEXT, context.getString(isNewUser ? R.string.joined_hike : R.string.user_back_on_hike));
+			data.put(HikeConstants.UserJoinMsg.NOTIF_TEXT, notificationText);
+		} 
+		if(!data.has(HikeConstants.UserJoinMsg.NOTIF_TITLE))
+		{
+			String notificationTitle = ujPrefs.getData(userType + HikeConstants.UserJoinMsg.NOTIF_TITLE, context.getString(R.string.last_seen_more_ct));
+			data.put(HikeConstants.UserJoinMsg.NOTIF_TITLE, notificationTitle);
+		} 
+		if(!data.has(HikeConstants.UserJoinMsg.PUSH_SETTING))
+		{
+			int pushType = ujPrefs.getData(userType + HikeConstants.UserJoinMsg.PUSH_SETTING, HikeConstants.PushType.silent);
+			data.put(HikeConstants.UserJoinMsg.PUSH_SETTING, pushType);
+		} 
+		if(!data.has(HikeConstants.UserJoinMsg.PERSIST_CHAT))
+		{
+			boolean persistChat = ujPrefs.getData(userType + HikeConstants.UserJoinMsg.PERSIST_CHAT, HikeConstants.UserJoinMsg.defaultPersistChat);
+			data.put(HikeConstants.UserJoinMsg.PERSIST_CHAT, persistChat);
+		} 
+		
+		return jsonObj;
+	}
+
+	
+	
 	private void saveUserJoinedOrLeft(JSONObject jsonObj) throws JSONException
 	{
 		String type = jsonObj.optString(HikeConstants.TYPE);
 		String msisdn = jsonObj.getJSONObject(HikeConstants.DATA).getString(HikeConstants.MSISDN);
 		boolean joined = HikeConstants.MqttMessageTypes.USER_JOINED.equals(type);
+		String userType = jsonObj.optString(HikeConstants.SUB_TYPE, HikeConstants.NEW_USER);
 		long joinTime = 0;
+	
+		//by default the chat shall not persist
+		
 		SharedPreferences settings = context.getSharedPreferences(UJFile, Context.MODE_PRIVATE);
 		if (joined)
 		{
+			jsonObj = buildUserJoinParams(jsonObj, userType);
+			
 			joinTime = jsonObj.optLong(HikeConstants.TIMESTAMP);
-			long ts = settings.getLong(msisdn, -1);
-			if (ts == -1) // this shows last uj was for some other msisdn or this user has left or pref file do not exist
-			{
-				Editor e = settings.edit();
-				e.clear(); // remove old values if any as we have to keep just one msisdn at a time
-				e.putLong(msisdn, joinTime);
-				e.commit();
-			}
-			else if (ts == joinTime) // this shows UJ is duplicate so ignore
+			long ts = settings.getLong(msisdn, -1); 
+			// -1 shows last uj was for some other msisdn or this user has left or pref file do not exist
+			if (ts != -1 && ts == joinTime) 
+				// this shows UJ is duplicate so ignore 
 				return;
-			else
+			else 
 				// last join time was different from latest time
 				settings.edit().putLong(msisdn, joinTime).commit();
 		}
@@ -282,23 +332,32 @@ public class MqttMessagesManager
 			{
 				joinTime = Utils.applyServerTimeOffset(context, joinTime);
 				ContactManager.getInstance().setHikeJoinTime(msisdn, joinTime);
-				
-				ContactInfo contact = ContactManager.getInstance().getContact(msisdn, true, false);
-				if (contact.getHikeJoinTime() > 0 && !contact.isUnknownContact())
-				{
-					Editor e = this.settings.edit();
-					e.putBoolean(HikeConstants.SHOW_RECENTLY_JOINED_DOT, true);
-					e.commit();
-				}
 			}
 			
-			if (appPrefs.getBoolean(HikeConstants.NUJ_NOTIF_BOOLEAN_PREF, true))
+			ContactInfo contact = ContactManager.getInstance().getContact(msisdn, true, false);
+			boolean showRecentlyJoined = contact.getHikeJoinTime() > 0 && !contact.isUnknownContact();
+			
+			if (appPrefs.getBoolean(HikeConstants.NUJ_NOTIF_BOOLEAN_PREF, true) && !ContactManager.getInstance().isBlocked(msisdn))
 			{
-				ConvMessage convMessage = statusMessagePreProcess(jsonObj, msisdn);
-				
-				if (convMessage != null && !isBulkMessage)
+				if(jsonObj.getJSONObject(HikeConstants.DATA).optBoolean(HikeConstants.UserJoinMsg.PERSIST_CHAT, HikeConstants.UserJoinMsg.defaultPersistChat))
 				{
-					this.pubSub.publish(HikePubSub.USER_JOINED_NOTIFICATION, convMessage);
+					if(showRecentlyJoined)
+					{
+						this.settings.edit().putBoolean(HikeConstants.SHOW_RECENTLY_JOINED, true).commit();
+					}
+					saveStatusMsg(jsonObj, msisdn);
+				}
+				else
+				{
+					if(showRecentlyJoined)
+					{
+						this.settings.edit().putBoolean(HikeConstants.SHOW_RECENTLY_JOINED_DOT, true).commit();
+					}
+					ConvMessage convMessage = statusMessagePreProcess(jsonObj, msisdn);
+					if(convMessage != null)
+					{
+						this.pubSub.publish(HikePubSub.USER_JOINED_NOTIFICATION, convMessage);
+					}
 				}
 			}
 		}
@@ -344,8 +403,16 @@ public class MqttMessagesManager
 		{
 			return;
 		}
-		GroupConversation groupConversation = new GroupConversation(jsonObj, this.context);
-
+		GroupConversation groupConversation;
+		String msisdn = jsonObj.getString(HikeConstants.TO);
+		if (Utils.isBroadcastConversation(msisdn))
+		{
+			groupConversation = new BroadcastConversation(jsonObj, this.context);
+		}
+		else
+		{
+			groupConversation = new GroupConversation(jsonObj, this.context);
+		}
 		boolean groupRevived = false;
 
 		if (!ContactManager.getInstance().isGroupAlive(groupConversation.getMsisdn()))
@@ -358,7 +425,14 @@ public class MqttMessagesManager
 
 			if (groupRevived)
 			{
-				jsonObj.put(HikeConstants.NEW_GROUP, true);
+				if (groupConversation instanceof BroadcastConversation)
+				{
+					jsonObj.put(HikeConstants.NEW_BROADCAST, true);
+				}
+				else if (groupConversation instanceof GroupConversation)
+				{
+					jsonObj.put(HikeConstants.NEW_GROUP, true);
+				}
 				pubSub.publish(HikePubSub.GROUP_REVIVED, groupConversation.getMsisdn());
 			}
 
@@ -480,11 +554,24 @@ public class MqttMessagesManager
 
 	private void saveMessage(JSONObject jsonObj) throws JSONException
 	{
-		ConvMessage convMessage = messagePreProcess(jsonObj);
+		final ConvMessage convMessage = messagePreProcess(jsonObj);
 
-		/*
-		 * adding message in db if not duplicate. In case of duplicate message we don't do further processing and return
-		 */
+		if (convMessage.getMessageType() == HikeConstants.MESSAGE_TYPE.WEB_CONTENT)
+		{
+			downloadZipForPlatformMessage(convMessage);
+		}
+		else
+		{
+			saveMessage(convMessage);
+		}
+
+	}
+
+	private void saveMessage(ConvMessage convMessage)
+	{
+	/*
+	 * adding message in db if not duplicate. In case of duplicate message we don't do further processing and return
+	 */
 		if (!convDb.addConversationMessages(convMessage))
 		{
 			return;
@@ -520,7 +607,46 @@ public class MqttMessagesManager
 		}
 
 		removeTypingNotification(convMessage.getMsisdn(), convMessage.getGroupParticipantMsisdn());
+	}
 
+	private void downloadZipForPlatformMessage(final ConvMessage convMessage)
+	{
+		PlatformContentRequest rqst = PlatformContentRequest.make(
+				PlatformContentModel.make(convMessage.webMetadata.JSONtoString()), new PlatformContentListener<PlatformContentModel>()
+		{
+
+			@Override
+			public void onComplete(PlatformContentModel content)
+			{
+				saveMessage(convMessage);
+			}
+
+			@Override
+			public void onEventOccured(PlatformContent.EventCode event)
+			{
+				if (event == PlatformContent.EventCode.DOWNLOADING || event == PlatformContent.EventCode.LOADED)
+				{
+					//do nothing
+					return;
+				}
+
+				else
+				{
+					saveMessage(convMessage);
+					HikeAnalyticsEvent.cardErrorAnalytics(event, convMessage);
+				}
+			}
+		});
+
+		PlatformZipDownloader downloader = new PlatformZipDownloader(rqst, false);
+		if (!downloader.isMicroAppExist())
+		{
+			downloader.downloadAndUnzip();
+		}
+		else
+		{
+			saveMessage(convMessage);
+		}
 	}
 
 	private void saveMessageBulk(JSONObject jsonObj) throws JSONException
@@ -682,21 +808,37 @@ public class MqttMessagesManager
 
 	private void saveDeliveryReport(JSONObject jsonObj) throws JSONException
 	{
-
 		String id = jsonObj.optString(HikeConstants.DATA);
 		String msisdn = jsonObj.has(HikeConstants.TO) ? jsonObj.getString(HikeConstants.TO) : jsonObj.getString(HikeConstants.FROM);
-		long msgID;
+		long serverID;
 		try
 		{
-			msgID = Long.parseLong(id);
+			serverID = Long.parseLong(id);
 		}
 		catch (NumberFormatException e)
 		{
 			Logger.e(getClass().getSimpleName(), "Exception occured while parsing msgId. Exception : " + e);
-			msgID = -1;
+			serverID = -1;
 		}
-		Logger.d(getClass().getSimpleName(), "Delivery report received for msgid : " + msgID + "	;	REPORT : DELIVERED");
+		Logger.d(getClass().getSimpleName(), "Delivery report received for msgid : " + serverID + "	;	REPORT : DELIVERED");
 
+		Map<String, ArrayList<Long>> map = convDb.getMsisdnMapForServerId(serverID, msisdn);
+		if(map != null && !map.isEmpty())
+		{
+			for (String chatMsisdn : map.keySet())
+			{
+				ArrayList<Long> values = map.get(chatMsisdn);
+				if(values != null && !values.isEmpty())
+				{
+					long msgId = values.get(0); //max size this list will be of 1 only
+					saveDeliveryReport(msgId, chatMsisdn);
+				}
+			}
+		}
+	}
+	
+	private void saveDeliveryReport(long msgID, String msisdn)
+	{
 		int rowsUpdated = updateDB(msgID, ConvMessage.State.SENT_DELIVERED, msisdn);
 
 		if (rowsUpdated == 0)
@@ -757,44 +899,85 @@ public class MqttMessagesManager
 
 	private void saveMessageRead(JSONObject jsonObj) throws JSONException
 	{
-		JSONArray msgIds = jsonObj.optJSONArray(HikeConstants.DATA);
-		String id = jsonObj.has(HikeConstants.TO) ? jsonObj.getString(HikeConstants.TO) : jsonObj.getString(HikeConstants.FROM);
-
-		if (msgIds == null)
+		JSONArray serverIds = jsonObj.optJSONArray(HikeConstants.DATA);
+		
+		if (serverIds == null)
 		{
 			Logger.e(getClass().getSimpleName(), "Update Error : Message id Array is empty or null . Check problem");
 			return;
 		}
-
-		long[] ids;
+		
+		String id = jsonObj.has(HikeConstants.TO) ? jsonObj.getString(HikeConstants.TO) : jsonObj.getString(HikeConstants.FROM);
+		String participantMsisdn = jsonObj.has(HikeConstants.TO) ? jsonObj.getString(HikeConstants.FROM) : id;
+		
+		ArrayList<Long> serverIdsArrayList = new ArrayList<Long>(serverIds.length());
+		
+		for (int i = 0; i < serverIds.length(); i++)
+		{
+			serverIdsArrayList.add(serverIds.optLong(i));
+		}
+		
 		if (!Utils.isGroupConversation(id))
 		{
-			ids = convDb.setAllDeliveredMessagesReadForMsisdn(id, msgIds);
-			if (ids == null)
+			Map<String, ArrayList<Long>> map = convDb.getMsisdnMapForServerIds(serverIdsArrayList, id);
+			if (map != null && !map.isEmpty())
+			{
+				for (String chatMsisdn : map.keySet())
+				{
+					ArrayList<Long> values = map.get(chatMsisdn);
+					saveMessageRead(chatMsisdn, values, participantMsisdn);
+				}
+			}
+		}
+		else
+		{
+			//This will only be called in case of group MR. there is bug in which MR for one person
+			// in group are recieved by all other participants in group. If for those MR we try to find 
+			// a msisdn map we would end up finding a wrong message in db which we will incorrectly mark
+			// is read.
+			saveMessageRead(id, serverIdsArrayList, participantMsisdn);
+		}
+	}
+	
+	private void saveMessageRead(String msisdn, ArrayList<Long> msgIds, String participantMsisdn) 
+	{
+		if (msgIds == null || msgIds.isEmpty())
+		{
+			Logger.e(getClass().getSimpleName(), "Update Error : Message id Array is empty or null . Check problem");
+			return;
+		}
+		
+		if (!Utils.isGroupConversation(msisdn))
+		{
+			
+			ArrayList<Long> updatedMessageIds = convDb.setAllDeliveredMessagesReadForMsisdn(msisdn, msgIds);
+			
+			if(updatedMessageIds == null || updatedMessageIds.isEmpty())
 			{
 				return;
 			}
-			Pair<String, long[]> pair = new Pair<String, long[]>(id, ids);
+			long[] updatedMsgIdsLongArray= new long[updatedMessageIds.size()];
+			for (int i = 0; i < updatedMessageIds.size(); i++ )
+			{
+				updatedMsgIdsLongArray[i] = updatedMessageIds.get(i);
+			}
+			
+			Pair<String, long[]> pair = new Pair<String, long[]>(msisdn, updatedMsgIdsLongArray);
 			this.pubSub.publish(HikePubSub.MESSAGE_DELIVERED_READ, pair);
 		}
 		else
 		{
-			String participantMsisdn = jsonObj.has(HikeConstants.TO) ? jsonObj.getString(HikeConstants.FROM) : "";
 			if(TextUtils.isEmpty(participantMsisdn))
 			{
 				return ;
 			}
-			ids = new long[msgIds.length()];
-			for (int i = 0; i < msgIds.length(); i++)
-			{
-				ids[i] = msgIds.optLong(i);
-			}
-			long maxMsgId = convDb.setReadByForGroup(id, ids, participantMsisdn);
+
+			long maxMsgId = convDb.setReadByForGroup(msisdn, msgIds, participantMsisdn);
 
 			if (maxMsgId > 0)
 			{
 				Pair<Long, String> pair = new Pair<Long, String>(maxMsgId, participantMsisdn);
-				Pair<String, Pair<Long, String>> groupPair = new Pair<String, Pair<Long, String>>(id, pair);
+				Pair<String, Pair<Long, String>> groupPair = new Pair<String, Pair<Long, String>>(msisdn, pair);
 				this.pubSub.publish(HikePubSub.GROUP_MESSAGE_DELIVERED_READ, groupPair);
 			}
 		}
@@ -849,10 +1032,10 @@ public class MqttMessagesManager
 
 		if (Utils.isGroupConversation(id))
 		{
-			long[] ids = new long[msgIds.length()];
+			ArrayList<Long> ids = new ArrayList<Long>(msgIds.length());
 			for (int i = 0; i < msgIds.length(); i++)
 			{
-				ids[i] = msgIds.optLong(i);
+				ids.add(msgIds.optLong(i));
 			}
 
 			msgID = convDb.getMrIdForGroup(id, ids);
@@ -963,7 +1146,7 @@ public class MqttMessagesManager
 			if (account.has(HikeConstants.ACCOUNTS))
 			{
 				JSONObject accounts = account.getJSONObject(HikeConstants.ACCOUNTS);
-				if (accounts.has(HikeConstants.TWITTER))
+				/*if (accounts.has(HikeConstants.TWITTER))
 				{
 					try
 					{
@@ -980,7 +1163,7 @@ public class MqttMessagesManager
 					{
 						Logger.w(getClass().getSimpleName(), "Unknown format for twitter", e);
 					}
-				}
+				}*/
 			}
 			if (account.has(HikeMessengerApp.BACKUP_TOKEN_SETTING))
 			{
@@ -1259,6 +1442,41 @@ public class MqttMessagesManager
 			int scd = data.getInt(HikeConstants.VOIP_QUALITY_TEST_SIMULATED_CALL_DURATION);
 			editor.putInt(HikeConstants.VOIP_QUALITY_TEST_SIMULATED_CALL_DURATION, scd);
 		}
+		if (data.has(HikeConstants.VOIP_AEC_ENABLED))
+		{
+			boolean aecEnabled = data.getBoolean(HikeConstants.VOIP_AEC_ENABLED);
+			editor.putBoolean(HikeConstants.VOIP_AEC_ENABLED, aecEnabled);
+		}
+		if (data.has(HikeConstants.VOIP_AEC_CPU_NR))
+		{
+			int val = data.getInt(HikeConstants.VOIP_AEC_CPU_NR);
+			editor.putInt(HikeConstants.VOIP_AEC_CPU_NR, val);
+		}
+		if (data.has(HikeConstants.VOIP_AEC_CPU))
+		{
+			int val = data.getInt(HikeConstants.VOIP_AEC_CPU);
+			editor.putInt(HikeConstants.VOIP_AEC_CPU, val);
+		}
+		if (data.has(HikeConstants.VOIP_AEC_MO))
+		{
+			int val = data.getInt(HikeConstants.VOIP_AEC_MO);
+			editor.putInt(HikeConstants.VOIP_AEC_MO, val);
+		}
+		if (data.has(HikeConstants.VOIP_AEC_TYPE))
+		{
+			int val = data.getInt(HikeConstants.VOIP_AEC_TYPE);
+			editor.putInt(HikeConstants.VOIP_AEC_TYPE, val);
+		}
+		if (data.has(HikeConstants.VOIP_AEC_CNP))
+		{
+			int val = data.getInt(HikeConstants.VOIP_AEC_CNP);
+			editor.putInt(HikeConstants.VOIP_AEC_CNP, val);
+		}
+		if (data.has(HikeConstants.VOIP_AEC_TAIL_TYPE))
+		{
+			int val = data.getInt(HikeConstants.VOIP_AEC_TAIL_TYPE);
+			editor.putInt(HikeConstants.VOIP_AEC_TAIL_TYPE, val);
+		}
 		if (data.has(HikeConstants.REWARDS_TOKEN))
 		{
 			String rewardToken = data.getString(HikeConstants.REWARDS_TOKEN);
@@ -1280,6 +1498,11 @@ public class MqttMessagesManager
 			boolean showGames = data.getBoolean(HikeConstants.SHOW_GAMES);
 			editor.putBoolean(HikeMessengerApp.SHOW_GAMES, showGames);
 			editor.putBoolean(HikeConstants.IS_GAMES_ITEM_CLICKED, !showGames);
+		}
+		if (data.has(HikeConstants.SHOW_BROADCAST))
+		{
+			boolean showBroadCast = data.getBoolean(HikeConstants.SHOW_BROADCAST);
+			editor.putBoolean(HikeConstants.SHOW_NEW_BROADCAST_RED_DOT, !showBroadCast);
 		}
 		if (data.has(HikeConstants.ENABLE_PUSH_BATCHING_STATUS_NOTIFICATIONS))
 		{
@@ -1332,12 +1555,12 @@ public class MqttMessagesManager
 		// watsapp invite message
 		if (data.has(HikeConstants.WATSAPP_INVITE_ENABLED))
 		{
-			HikeSharedPreferenceUtil.getInstance(context).saveData(HikeConstants.WATSAPP_INVITE_ENABLED, data.getBoolean(HikeConstants.WATSAPP_INVITE_ENABLED));
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.WATSAPP_INVITE_ENABLED, data.getBoolean(HikeConstants.WATSAPP_INVITE_ENABLED));
 		}
 		if (data.has(HikeConstants.WATSAPP_INVITE_MESSAGE_KEY))
 		{
 			String message = data.getString(HikeConstants.WATSAPP_INVITE_MESSAGE_KEY);
-			HikeSharedPreferenceUtil.getInstance(context).saveData(HikeConstants.WATSAPP_INVITE_MESSAGE_KEY, message);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.WATSAPP_INVITE_MESSAGE_KEY, message);
 		}
 
 		/*
@@ -1398,6 +1621,11 @@ public class MqttMessagesManager
 				deleteBot((String) botsTobeAdded.get(i));
 			}
 		}
+		if(data.has(HikeConstants.GET_BULK_LAST_SEEN))
+		{
+			boolean blsPref = data.optBoolean(HikeConstants.GET_BULK_LAST_SEEN);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.BULK_LAST_SEEN_PREF, blsPref);
+		}
 
 		// check for analytics configuration packet
 		if(data.has(AnalyticsConstants.ANALYTICS_FILESIZE))
@@ -1420,10 +1648,86 @@ public class MqttMessagesManager
 			int freq = data.getInt(AnalyticsConstants.ANALYTICS_SEND_FREQUENCY);
 			HAManager.getInstance().setAnalyticsSendFrequency(freq);
 		}
+		if(data.has(AnalyticsConstants.ANALYTICS_IN_MEMORY_SIZE))
+		{
+			int size = data.getInt(AnalyticsConstants.ANALYTICS_IN_MEMORY_SIZE);
+			HAManager.getInstance().setMaxInMemoryEventsSize(size);
+		}
 		if(data.has(HikeConstants.ENABLE_DETAILED_HTTP_LOGGING))
 		{
 			boolean enableDetailedHttpLogging = data.getBoolean(HikeConstants.ENABLE_DETAILED_HTTP_LOGGING);
-			HikeSharedPreferenceUtil.getInstance(context).saveData(HikeMessengerApp.DETAILED_HTTP_LOGGING_ENABLED, enableDetailedHttpLogging);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.DETAILED_HTTP_LOGGING_ENABLED, enableDetailedHttpLogging);
+		}
+		
+		// this is a PnC of ["nu"/"ru"] and ["Txt"/"Ttl"/"Cht"/"Typ"] 
+		// we also assume that if "nuTxt" field or "nuTyp" field is present then others exist too
+		if(data.has(HikeConstants.NEW_USER + HikeConstants.UserJoinMsg.NOTIF_TEXT) || data.has(HikeConstants.NEW_USER + HikeConstants.UserJoinMsg.PUSH_SETTING))
+		{
+			HikeSharedPreferenceUtil ujPrefs = HikeSharedPreferenceUtil.getInstance(UJFile);
+			
+			String notificationText = data.optString(HikeConstants.NEW_USER + HikeConstants.UserJoinMsg.NOTIF_TEXT, context.getString(R.string.joined_hike));
+			ujPrefs.saveData(HikeConstants.NEW_USER + HikeConstants.UserJoinMsg.NOTIF_TEXT, notificationText);
+			
+			String notificationTitle = data.optString(HikeConstants.NEW_USER + HikeConstants.UserJoinMsg.NOTIF_TITLE, context.getString(R.string.last_seen_more_ct));
+			ujPrefs.saveData(HikeConstants.NEW_USER + HikeConstants.UserJoinMsg.NOTIF_TITLE, notificationTitle);
+			
+			int notificationType = data.optInt(HikeConstants.NEW_USER + HikeConstants.UserJoinMsg.PUSH_SETTING, HikeConstants.PushType.silent);
+			ujPrefs.saveData(HikeConstants.NEW_USER + HikeConstants.UserJoinMsg.PUSH_SETTING, notificationType);
+			
+			boolean persistChat = data.optBoolean(HikeConstants.NEW_USER + HikeConstants.UserJoinMsg.PERSIST_CHAT, HikeConstants.UserJoinMsg.defaultPersistChat);
+			ujPrefs.saveData(HikeConstants.NEW_USER + HikeConstants.UserJoinMsg.PERSIST_CHAT, persistChat);	
+		}
+		// we also assume that if "ruTxt" field or "ruTyp" field is present then others exist too
+		if(data.has(HikeConstants.RETURNING_USER + HikeConstants.UserJoinMsg.NOTIF_TEXT) || data.has(HikeConstants.RETURNING_USER + HikeConstants.UserJoinMsg.PUSH_SETTING))
+		{
+			HikeSharedPreferenceUtil ujPrefs = HikeSharedPreferenceUtil.getInstance(UJFile);
+			
+			String notificationText = data.optString(HikeConstants.RETURNING_USER + HikeConstants.UserJoinMsg.NOTIF_TEXT, context.getString(R.string.user_back_on_hike));
+			ujPrefs.saveData(HikeConstants.RETURNING_USER + HikeConstants.UserJoinMsg.NOTIF_TEXT, notificationText);
+			
+			String notificationTitle = data.optString(HikeConstants.RETURNING_USER + HikeConstants.UserJoinMsg.NOTIF_TITLE, context.getString(R.string.last_seen_more_ct));
+			ujPrefs.saveData(HikeConstants.RETURNING_USER + HikeConstants.UserJoinMsg.NOTIF_TITLE, notificationTitle);
+			
+			int notificationType = data.optInt(HikeConstants.RETURNING_USER + HikeConstants.UserJoinMsg.PUSH_SETTING, HikeConstants.PushType.silent);
+			ujPrefs.saveData(HikeConstants.RETURNING_USER + HikeConstants.UserJoinMsg.PUSH_SETTING, notificationType);
+			
+			boolean persistChat = data.optBoolean(HikeConstants.RETURNING_USER + HikeConstants.UserJoinMsg.PERSIST_CHAT, HikeConstants.UserJoinMsg.defaultPersistChat);
+			ujPrefs.saveData(HikeConstants.RETURNING_USER + HikeConstants.UserJoinMsg.PERSIST_CHAT, persistChat);	
+
+		}
+		if(data.has(HikeConstants.Extras.FT_UPLOAD_SO_TIMEOUT))
+		{
+			long timeout = data.getLong(HikeConstants.Extras.FT_UPLOAD_SO_TIMEOUT);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.Extras.FT_UPLOAD_SO_TIMEOUT, timeout);
+		}
+		if(data.has(HikeConstants.Extras.GENERAL_SO_TIMEOUT))
+		{
+			long timeout = data.getLong(HikeConstants.Extras.GENERAL_SO_TIMEOUT);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.Extras.GENERAL_SO_TIMEOUT, timeout);
+			AccountUtils.setSocketTimeout((int) timeout);
+		}	
+		if (data.has(HikeConstants.OK_HTTP))
+		{
+			boolean okhttp = data.getBoolean(HikeConstants.OK_HTTP);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.TOGGLE_OK_HTTP, okhttp);
+		}
+		
+		if(data.has(HikeConstants.Extras.CHANGE_MAX_MESSAGE_PROCESS_TIME))
+		{
+			long maxMessageProcessTime = data.optLong(HikeConstants.Extras.CHANGE_MAX_MESSAGE_PROCESS_TIME);
+			if(maxMessageProcessTime > 0)
+			{
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.Extras.MAX_MESSAGE_PROCESS_TIME, maxMessageProcessTime);
+			}
+		}
+		if(data.has(HikeConstants.Extras.ENABLE_PHOTOS))
+		{
+			boolean enablePhoto = data.getBoolean(HikeConstants.Extras.ENABLE_PHOTOS);
+			HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.ACCOUNT_SETTINGS).saveData(HikeConstants.Extras.ENABLE_PHOTOS, enablePhoto);
+			HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.ACCOUNT_SETTINGS).saveData(HikeConstants.SHOW_PHOTOS_RED_DOT, true);
+		}if(data.has(HikeConstants.URL_WHITELIST))
+		{
+			handleWhitelistDomains(data.getString(HikeConstants.URL_WHITELIST));
 		}
 		
 		editor.commit();
@@ -1470,7 +1774,7 @@ public class MqttMessagesManager
 			Editor editor = settings.edit();
 			editor.putBoolean(HikeMessengerApp.GCM_ID_SENT, false);
 			editor.commit();
-			HikeSharedPreferenceUtil.getInstance(context).saveData(HikeConstants.REGISTER_GCM_SIGNUP, HikeConstants.REGISTEM_GCM_AFTER_SIGNUP);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.REGISTER_GCM_SIGNUP, HikeConstants.REGISTEM_GCM_AFTER_SIGNUP);
 			LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(HikeService.SEND_TO_SERVER_ACTION));
 		}
 		if (data.optBoolean(HikeConstants.DEFAULT_SMS_CLIENT_TUTORIAL))
@@ -1489,7 +1793,7 @@ public class MqttMessagesManager
 		{		
 			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "---UPLOADING FROM DEMAND PACKET ROUTE---");
 
-			HAManager.getInstance().sendAnalyticsData(true);
+			HAManager.getInstance().sendAnalyticsData(true, true);
 		}
 	}
 
@@ -1634,10 +1938,10 @@ public class MqttMessagesManager
 			/*
 			 * reseting sticker shop update time so that next time we fetch a fresh sicker shop
 			 */
-			HikeSharedPreferenceUtil.getInstance(context).saveData(StickerManager.LAST_STICKER_SHOP_UPDATE_TIME, 0l);
+			HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.LAST_STICKER_SHOP_UPDATE_TIME, 0l);
 			if(showBadge)
 			{
-				HikeSharedPreferenceUtil.getInstance(context).saveData(StickerManager.SHOW_STICKER_SHOP_BADGE, true);
+				HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.SHOW_STICKER_SHOP_BADGE, true);
 			}
 		}
 		
@@ -1717,9 +2021,7 @@ public class MqttMessagesManager
 	{
 		long serverTimestamp = jsonObj.getLong(HikeConstants.TIMESTAMP);
 		long diff = (System.currentTimeMillis() / 1000) - serverTimestamp;
-
 		Logger.d(getClass().getSimpleName(), "Diff b/w server and client: " + diff);
-
 		Editor editor = settings.edit();
 		editor.putLong(HikeMessengerApp.SERVER_TIME_OFFSET, diff);
 		editor.commit();
@@ -1964,9 +2266,9 @@ public class MqttMessagesManager
 				}
 			}
 		}
-		else if(subType.equals(HikeConstants.VALENTINE_DAY_POPUP))
+		else if(subType.equals(HikeConstants.HOLI_POPUP))
 		{
-			HikeSharedPreferenceUtil.getInstance(context).saveData(HikeConstants.SHOW_FESTIVE_POPUP, FestivePopup.VALENTINE_DAY_POPUP);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_FESTIVE_POPUP, FestivePopup.HOLI_POPUP);
 		}
 		else if(HikeConstants.PLAY_NOTIFICATION.equals(subType))
 		{
@@ -1992,15 +2294,25 @@ public class MqttMessagesManager
 				lastNotifPacket = hash;
 				String body = data.optString(HikeConstants.BODY);
 				String destination = data.optString("u");
-
+				String contentId = data.optString(HikeConstants.CONTENT_ID);
+				String nameSpace = data.optString(DBConstants.HIKE_CONTENT.NAMESPACE);
 				if (data.optBoolean(HikeConstants.PUSH, true) && !TextUtils.isEmpty(destination) && !TextUtils.isEmpty(body))
 				{
-					Logger.i("mqttMessageManager", "Play Notification packet from Server " + data.toString());
-					// chat thread -- by default silent is true, so no sound
-					boolean silent = data.optBoolean(HikeConstants.SILENT, true);
-					
-					// open respective chat thread
-					HikeNotification.getInstance(context).notifyStringMessage(destination, body, silent);
+					if (!Utils.isConversationMuted(destination) && !ContactManager.getInstance().isBlocked(destination)
+							&& HikeConversationsDatabase.getInstance().isContentMessageExist(destination, contentId, nameSpace))
+					{
+						Logger.i("mqttMessageManager", "Play Notification packet from Server " + data.toString());
+						// chat thread -- by default silent is true, so no sound
+						boolean silent = data.optBoolean(HikeConstants.SILENT, true);
+
+						// open respective chat thread
+						HikeNotification.getInstance(context).notifyStringMessage(destination, body, silent);
+						if(data.optBoolean(HikeConstants.REARRANGE_CHAT,false))
+						{
+							Pair<String, Long> pair = new Pair<String, Long>(destination, System.currentTimeMillis() / 1000);
+							HikeMessengerApp.getPubSub().publish(HikePubSub.CONVERSATION_TS_UPDATED, pair);
+						}
+					}
 				}
 			}
 			else
@@ -2432,6 +2744,19 @@ public class MqttMessagesManager
 		{
 			handlePacketEcho(jsonObj);
 		}
+		else if(HikeConstants.MqttMessageTypes.PRODUCT_POPUP.equals(type))
+		{
+			if(jsonObj.has(HikeConstants.DATA))
+			{
+				JSONObject mmData=jsonObj.getJSONObject(HikeConstants.DATA);
+				
+				if (mmData.has(HikeConstants.METADATA))
+				{
+					JSONObject mmMetaData = mmData.getJSONObject(HikeConstants.METADATA);
+					ProductInfoManager.getInstance().parsePopupPacket(mmMetaData);
+				}
+			}
+		}
 
 	}
 
@@ -2836,7 +3161,7 @@ public class MqttMessagesManager
 		String body = data.optString(HikeConstants.BODY);
 		if (!TextUtils.isEmpty(header) && !TextUtils.isEmpty(body))
 		{
-			HikeSharedPreferenceUtil pref = HikeSharedPreferenceUtil.getInstance(context);
+			HikeSharedPreferenceUtil pref = HikeSharedPreferenceUtil.getInstance();
 			pref.saveData("last" + subType, data.getString(HikeConstants.MESSAGE_ID));
 			String[] keys = getPopUpTypeAndShowNotification(subType, (data.optBoolean(HikeConstants.PUSH, true) ? body : null));
 			if (keys != null)
@@ -2919,7 +3244,7 @@ public class MqttMessagesManager
 	private boolean isDuplicateOrWrongPacket(String key, JSONObject jsonObject)
 	{
 		String id = jsonObject.optString(HikeConstants.MESSAGE_ID);
-		return TextUtils.isEmpty(id) || HikeSharedPreferenceUtil.getInstance(context).getData(key, "").equals(id);
+		return TextUtils.isEmpty(id) || HikeSharedPreferenceUtil.getInstance().getData(key, "").equals(id);
 	}
 	
 	private void saveNuxPacket(JSONObject jsonObject)
@@ -2941,6 +3266,59 @@ public class MqttMessagesManager
 			}catch(JSONException je){
 				je.printStackTrace();
 			}
+		}
+	}
+	
+	private void handleWhitelistDomains(String jsonString)
+	{
+		try
+		{
+			Logger.i("mqttwhitelist", "whitelist packet "+jsonString);
+			JSONObject urls = new JSONObject(jsonString);
+			boolean enabled = urls.optBoolean(HikeConstants.ENABLED);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ENABLED_WHITELISTED_FEATURE, enabled);
+			if (enabled)
+			{
+				HikeContentDatabase.getInstance().deleteAllDomainsFromWhitelist();
+				JSONArray inHike = urls.optJSONArray(HikeConstants.IN_HIKE_URL_WHITELIST);
+				if (inHike != null)
+				{
+					saveWhiteListDomains(inHike, WhitelistDomain.WHITELISTED_IN_HIKE);
+				}
+				JSONArray inBrowser = urls.optJSONArray(HikeConstants.BROWSER_URL_WHITELIST);
+				if (inBrowser != null)
+				{
+					saveWhiteListDomains(inBrowser, WhitelistDomain.WHITELISTED_IN_BROWSER);
+				}
+			}
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+			// DO Nothing
+		}
+	}
+	
+	private void saveWhiteListDomains(JSONArray array, int whitelistState)
+	{
+		WhitelistDomain[] domains = new WhitelistDomain[array.length()];
+		try
+		{
+			for (int i = 0; i < array.length(); i++)
+			{
+				String dom = array.getString(i);
+				if(!TextUtils.isEmpty(dom))
+				{
+					WhitelistDomain domain = new WhitelistDomain(dom, whitelistState,dom);
+					domains[i] = domain;
+				}
+			}
+			HikeContentDatabase.getInstance().addDomainInWhitelist(domains);
+		}
+		catch (JSONException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 	
@@ -3035,15 +3413,13 @@ public class MqttMessagesManager
 	private void handleVOIPPacket(JSONObject jsonObj) throws JSONException
 	{
 
-//		Log.d(VoIPConstants.TAG, "Received VoIP Message");
-
 		// VoIP checks
-		if (jsonObj.has(HikeConstants.SUB_TYPE)) {
+		if (jsonObj.has(HikeConstants.SUB_TYPE)) 
+		{
 			
 			String subType = jsonObj.getString(HikeConstants.SUB_TYPE); 
-//			Log.d(VoIPConstants.TAG, "VoIP Message subtype: " + subType);
-
-			if (subType.equals(HikeConstants.MqttMessageTypes.VOIP_SOCKET_INFO)) {
+			if (subType.equals(HikeConstants.MqttMessageTypes.VOIP_SOCKET_INFO)) 
+			{
 
 				/**
 				 * Socket information is the same as a request for call initiation. 
@@ -3059,79 +3435,79 @@ public class MqttMessagesManager
 				JSONObject metadataJSON = jsonObj.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA);
 				
 				// Check for currently active voip call
-				if (VoIPService.isConnected() && 
-						metadataJSON.getInt("callId") != VoIPService.getCallId() &&
-						metadataJSON.getBoolean("reconnecting") != true) {
+				if (VoIPService.isConnected() && metadataJSON.getInt(VoIPConstants.Extras.CALL_ID) != VoIPService.getCallId() &&
+						metadataJSON.getBoolean(VoIPConstants.Extras.RECONNECTING) != true) {
 					Log.w(VoIPConstants.TAG, "We are already in a Hike call.");
-					VoIPUtils.sendMessage(jsonObj.getString(HikeConstants.FROM), 
-							HikeConstants.MqttMessageTypes.MESSAGE_VOIP_0, 
-							HikeConstants.MqttMessageTypes.VOIP_ERROR_ALREADY_IN_CALL);
+					VoIPUtils.sendMessage(jsonObj.getString(HikeConstants.FROM), HikeConstants.MqttMessageTypes.MESSAGE_VOIP_0, HikeConstants.MqttMessageTypes.VOIP_ERROR_ALREADY_IN_CALL);
 				}
 					
 				// Check if the initiator (us) has already hung up
-				if (metadataJSON.getBoolean("initiator") == false && 
-						VoIPService.isConnected() == false &&
-						metadataJSON.getInt("callId") != VoIPService.getCallId()) {
+				if (metadataJSON.getBoolean(VoIPConstants.Extras.INITIATOR) == false && VoIPService.isConnected() == false &&
+						metadataJSON.getInt(VoIPConstants.Extras.CALL_ID) != VoIPService.getCallId()) {
 					Log.w(VoIPConstants.TAG, "Receiving a reply for a terminated call.");
 					return;		
 				}
 				
 				Intent i = new Intent(context.getApplicationContext(), VoIPService.class);
-				i.putExtra("action", "setpartnerinfo");
-				i.putExtra("msisdn", jsonObj.getString(HikeConstants.FROM));
-				i.putExtra("internalIP", metadataJSON.getString("internalIP"));
-				i.putExtra("internalPort", metadataJSON.getInt("internalPort"));
-				i.putExtra("externalIP", metadataJSON.getString("externalIP"));
-				i.putExtra("externalPort", metadataJSON.getInt("externalPort"));
-				i.putExtra("relay", metadataJSON.getString("relay"));
-				i.putExtra("relayport", metadataJSON.getInt("relayport"));
-				i.putExtra("reconnecting", metadataJSON.getBoolean("reconnecting"));
-				i.putExtra("initiator", metadataJSON.getBoolean("initiator"));
-				i.putExtra("callId", metadataJSON.getInt("callId"));
+				i.putExtra(VoIPConstants.Extras.ACTION, VoIPConstants.Extras.SET_PARTNER_INFO);
+				i.putExtra(VoIPConstants.Extras.MSISDN, jsonObj.getString(HikeConstants.FROM));
+				i.putExtra(VoIPConstants.Extras.INTERNAL_IP, metadataJSON.getString(VoIPConstants.Extras.INTERNAL_IP));
+				i.putExtra(VoIPConstants.Extras.INTERNAL_PORT, metadataJSON.getInt(VoIPConstants.Extras.INTERNAL_PORT));
+				i.putExtra(VoIPConstants.Extras.EXTERNAL_IP, metadataJSON.getString(VoIPConstants.Extras.EXTERNAL_IP));
+				i.putExtra(VoIPConstants.Extras.EXTERNAL_PORT, metadataJSON.getInt(VoIPConstants.Extras.EXTERNAL_PORT));
+				i.putExtra(VoIPConstants.Extras.RELAY, metadataJSON.getString(VoIPConstants.Extras.RELAY));
+				i.putExtra(VoIPConstants.Extras.RELAY_PORT, metadataJSON.getInt(VoIPConstants.Extras.RELAY_PORT));
+				i.putExtra(VoIPConstants.Extras.RECONNECTING, metadataJSON.getBoolean(VoIPConstants.Extras.RECONNECTING));
+				i.putExtra(VoIPConstants.Extras.INITIATOR, metadataJSON.getBoolean(VoIPConstants.Extras.INITIATOR));
+				i.putExtra(VoIPConstants.Extras.CALL_ID, metadataJSON.getInt(VoIPConstants.Extras.CALL_ID));
 				context.startService(i);
-//				Log.w(VoIPConstants.TAG, "Intent passed to service.");
 				return;
 			}
 			
-			if (subType.equals(HikeConstants.MqttMessageTypes.VOIP_MSG_TYPE_MISSED_CALL_INCOMING)) {
+			if (subType.equals(HikeConstants.MqttMessageTypes.VOIP_MSG_TYPE_MISSED_CALL_INCOMING)) 
+			{
 				Logger.d(VoIPConstants.TAG, "Adding a missed call to our chat history.");
 				VoIPClient clientPartner = new VoIPClient();
 				clientPartner.setPhoneNumber(jsonObj.getString(HikeConstants.FROM));
 				clientPartner.setInitiator(true);
 				VoIPUtils.resetNotificationStatus();
-				VoIPUtils.addMessageToChatThread(context, clientPartner, HikeConstants.MqttMessageTypes.VOIP_MSG_TYPE_MISSED_CALL_INCOMING, 0, jsonObj.getJSONObject(HikeConstants.DATA).getLong(HikeConstants.TIMESTAMP));
+				VoIPUtils.addMessageToChatThread(context, clientPartner, HikeConstants.MqttMessageTypes.VOIP_MSG_TYPE_MISSED_CALL_INCOMING, 0, jsonObj.getJSONObject(HikeConstants.DATA).getLong(HikeConstants.TIMESTAMP), true);
 			}
 			
-			if (subType.equals(HikeConstants.MqttMessageTypes.VOIP_ERROR_CALLEE_INCOMPATIBLE_UPGRADABLE)) {
+			if (subType.equals(HikeConstants.MqttMessageTypes.VOIP_ERROR_CALLEE_INCOMPATIBLE_UPGRADABLE)) 
+			{
 				String message = jsonObj.getJSONObject(HikeConstants.DATA).getString(HikeConstants.HIKE_MESSAGE);
 				Intent i = new Intent(context, VoIPActivity.class);
-				i.putExtra("action", VoIPConstants.PARTNER_REQUIRES_UPGRADE);
-				i.putExtra("message", message);
+				i.putExtra(VoIPConstants.Extras.ACTION, VoIPConstants.PARTNER_REQUIRES_UPGRADE);
+				i.putExtra(VoIPConstants.Extras.MESSAGE, message);
 				i.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
 				context.startActivity(i);
 			}
 			
-			if (subType.equals(HikeConstants.MqttMessageTypes.VOIP_ERROR_CALLEE_INCOMPATIBLE_NOT_UPGRADABLE)) {
+			if (subType.equals(HikeConstants.MqttMessageTypes.VOIP_ERROR_CALLEE_INCOMPATIBLE_NOT_UPGRADABLE)) 
+			{
 				String message = jsonObj.getJSONObject(HikeConstants.DATA).getString(HikeConstants.HIKE_MESSAGE);
 				Intent i = new Intent(context, VoIPActivity.class);
-				i.putExtra("action", VoIPConstants.PARTNER_INCOMPATIBLE);
-				i.putExtra("message", message);
+				i.putExtra(VoIPConstants.Extras.ACTION, VoIPConstants.PARTNER_INCOMPATIBLE);
+				i.putExtra(VoIPConstants.Extras.MESSAGE, message);
 				i.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
 				context.startActivity(i);
 			}
 			
-			if (subType.equals(HikeConstants.MqttMessageTypes.VOIP_ERROR_CALLEE_HAS_BLOCKED_YOU)) {
+			if (subType.equals(HikeConstants.MqttMessageTypes.VOIP_ERROR_CALLEE_HAS_BLOCKED_YOU)) 
+			{
 				String message = jsonObj.getJSONObject(HikeConstants.DATA).getString(HikeConstants.HIKE_MESSAGE);
 				Intent i = new Intent(context, VoIPActivity.class);
-				i.putExtra("action", VoIPConstants.PARTNER_HAS_BLOCKED_YOU);
-				i.putExtra("message", message);
+				i.putExtra(VoIPConstants.Extras.ACTION, VoIPConstants.PARTNER_HAS_BLOCKED_YOU);
+				i.putExtra(VoIPConstants.Extras.MESSAGE, message);
 				i.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
 				context.startActivity(i);
 			}
 			
-			if (subType.equals(HikeConstants.MqttMessageTypes.VOIP_ERROR_ALREADY_IN_CALL)) {
+			if (subType.equals(HikeConstants.MqttMessageTypes.VOIP_ERROR_ALREADY_IN_CALL)) 
+			{
 				Intent i = new Intent(context, VoIPActivity.class);
-				i.putExtra("action", VoIPConstants.PARTNER_IN_CALL);
+				i.putExtra(VoIPConstants.Extras.ACTION, VoIPConstants.PARTNER_IN_CALL);
 				i.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
 				context.startActivity(i);
 			}
