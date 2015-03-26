@@ -368,17 +368,14 @@ public class IntentManager
 		appContext.startActivity(i);
 	}
 
-	public static void openHomeActivity(Context context)
+	public static void openHomeActivity(Context context, boolean clearTop)
 	{
 		Intent in = new Intent(context, HomeActivity.class);
+		if (clearTop)
+		{
+			in.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		}
 		context.startActivity(in);
-	}
-	
-	public static void openHomeActivity(Context context,boolean handlingCrash)
-	{
-		Intent in = new Intent(context, HomeActivity.class);
-        in.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        context.startActivity(in);
 	}
 
 	public static Intent openInviteFriends(Activity context)

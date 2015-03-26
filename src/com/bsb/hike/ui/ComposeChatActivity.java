@@ -1489,12 +1489,14 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 
 						if (Utils.isPicasaUri(filePath))
 						{
-							FileTransferManager.getInstance(getApplicationContext()).uploadFile(Uri.parse(filePath), hikeFileType, ((ContactInfo)arrayList.get(0)).getMsisdn(), ((ContactInfo)arrayList.get(0)).isOnhike());
+							FileTransferManager.getInstance(getApplicationContext()).uploadFile(Uri.parse(filePath), hikeFileType, ((ContactInfo) arrayList.get(0)).getMsisdn(),
+									((ContactInfo) arrayList.get(0)).isOnhike());
 						}
 						else
 						{
 							FileTransferData fileData = initialiseFileTransfer(filePath, fileKey, hikeFileType, fileType, isRecording, recordingDuration, true, arrayList);
-							if(fileData!=null){
+							if (fileData != null)
+							{
 								fileTransferList.add(fileData);
 							}
 						}
@@ -1774,29 +1776,47 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 
 		if (HikePubSub.MULTI_FILE_TASK_FINISHED.equals(type))
 		{
-			final String msisdn = fileTransferTask.getMsisdn();
-
-			fileTransferTask = null;
-
-			runOnUiThread(new Runnable()
+			if (fileTransferTask.isForSingleMsisdn())
 			{
-
-				@Override
-				public void run()
+				runOnUiThread(new Runnable()
 				{
-					Intent intent = new Intent(ComposeChatActivity.this, ChatThread.class);
-					intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-					intent.putExtra(HikeConstants.Extras.MSISDN, msisdn);
-					startActivity(intent);
-					finish();
-
-					if (progressDialog != null)
+					@Override
+					public void run()
 					{
-						progressDialog.dismiss();
-						progressDialog = null;
+						Intent intent = new Intent(ComposeChatActivity.this, ChatThread.class);
+						intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+						intent.putExtra(HikeConstants.Extras.MSISDN, fileTransferTask.getContactList().get(0).getMsisdn());
+						startActivity(intent);
+						finish();
+
+						if (progressDialog != null)
+						{
+							progressDialog.dismiss();
+							progressDialog = null;
+						}
 					}
-				}
-			});
+				});
+			}
+			else
+			{
+				runOnUiThread(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						IntentManager.openHomeActivity(ComposeChatActivity.this, true);
+						finish();
+
+						if (progressDialog != null)
+						{
+							progressDialog.dismiss();
+							progressDialog = null;
+						}
+					}
+				});
+			}
+			
+			fileTransferTask = null;
 		}
 		else if (HikePubSub.APP_FOREGROUNDED.equals(type))
 		{
