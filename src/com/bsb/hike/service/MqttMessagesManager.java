@@ -18,6 +18,7 @@ import com.bsb.hike.platform.content.PlatformContentModel;
 import com.bsb.hike.platform.content.PlatformContentRequest;
 import com.bsb.hike.platform.content.PlatformZipDownloader;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -66,6 +67,7 @@ import com.bsb.hike.models.StatusMessage;
 import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.models.TypingNotification;
+import com.bsb.hike.models.WhitelistDomain;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.notifications.HikeNotificationUtils;
@@ -1723,6 +1725,9 @@ public class MqttMessagesManager
 			boolean enablePhoto = data.getBoolean(HikeConstants.Extras.ENABLE_PHOTOS);
 			HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.ACCOUNT_SETTINGS).saveData(HikeConstants.Extras.ENABLE_PHOTOS, enablePhoto);
 			HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.ACCOUNT_SETTINGS).saveData(HikeConstants.SHOW_PHOTOS_RED_DOT, true);
+		}if(data.has(HikeConstants.URL_WHITELIST))
+		{
+			handleWhitelistDomains(data.getString(HikeConstants.URL_WHITELIST));
 		}
 		
 		editor.commit();
@@ -3261,6 +3266,59 @@ public class MqttMessagesManager
 			}catch(JSONException je){
 				je.printStackTrace();
 			}
+		}
+	}
+	
+	private void handleWhitelistDomains(String jsonString)
+	{
+		try
+		{
+			Logger.i("mqttwhitelist", "whitelist packet "+jsonString);
+			JSONObject urls = new JSONObject(jsonString);
+			boolean enabled = urls.optBoolean(HikeConstants.ENABLED);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ENABLED_WHITELISTED_FEATURE, enabled);
+			if (enabled)
+			{
+				HikeContentDatabase.getInstance().deleteAllDomainsFromWhitelist();
+				JSONArray inHike = urls.optJSONArray(HikeConstants.IN_HIKE_URL_WHITELIST);
+				if (inHike != null)
+				{
+					saveWhiteListDomains(inHike, WhitelistDomain.WHITELISTED_IN_HIKE);
+				}
+				JSONArray inBrowser = urls.optJSONArray(HikeConstants.BROWSER_URL_WHITELIST);
+				if (inBrowser != null)
+				{
+					saveWhiteListDomains(inBrowser, WhitelistDomain.WHITELISTED_IN_BROWSER);
+				}
+			}
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+			// DO Nothing
+		}
+	}
+	
+	private void saveWhiteListDomains(JSONArray array, int whitelistState)
+	{
+		WhitelistDomain[] domains = new WhitelistDomain[array.length()];
+		try
+		{
+			for (int i = 0; i < array.length(); i++)
+			{
+				String dom = array.getString(i);
+				if(!TextUtils.isEmpty(dom))
+				{
+					WhitelistDomain domain = new WhitelistDomain(dom, whitelistState,dom);
+					domains[i] = domain;
+				}
+			}
+			HikeContentDatabase.getInstance().addDomainInWhitelist(domains);
+		}
+		catch (JSONException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 	

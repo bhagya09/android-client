@@ -109,14 +109,18 @@ public class HikeDialogFragment extends DialogFragment
 	 *           
 	 * 
 	 * This method is responsible for attaching the fragment with the activity 
-	 *.If another fragment is already show that will be replaced and this one will be shown.#OnlyOneDialogAtOneTime
+	 *	This is done as the fragment can perform commit after the onSaveInstance of the activity is being called. 
 	 */
 	public void showDialog(FragmentManager supportFragmentManager)
 	{
-		FragmentTransaction ft = supportFragmentManager.beginTransaction();
-		
-		show(ft, "dialog");
-
+			FragmentTransaction transaction = supportFragmentManager.beginTransaction();
+			if(supportFragmentManager.findFragmentByTag(ProductPopupsConstants.DIALOG_TAG)!=null)
+			{
+				transaction.remove(supportFragmentManager.findFragmentByTag(ProductPopupsConstants.DIALOG_TAG)).commitAllowingStateLoss();
+				transaction=supportFragmentManager.beginTransaction();
+			}
+			transaction.add(this, ProductPopupsConstants.DIALOG_TAG);
+			transaction.commitAllowingStateLoss();
 	}
 
 	@Override

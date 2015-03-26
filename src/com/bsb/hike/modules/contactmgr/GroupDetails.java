@@ -2,31 +2,36 @@ package com.bsb.hike.modules.contactmgr;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import android.text.TextUtils;
+
 import com.bsb.hike.utils.PairModified;
 
 public class GroupDetails
 {
 	private String groupId;
 
-	private String groupName;
+	private String customGroupName;
+
+	private String defaultGroupName;
 
 	private boolean isGroupAlive;
 
 	private ConcurrentLinkedQueue<PairModified<String, String>> lastMsisdns;
 
 	private long timestamp;
-	
+
 	private boolean isGroupMute;
 
-	GroupDetails(String groupId, String grpName, boolean alive, ConcurrentLinkedQueue<PairModified<String, String>> lastMsisdns)
+	GroupDetails(String groupId, String grpName, String defGroupName, boolean alive, ConcurrentLinkedQueue<PairModified<String, String>> lastMsisdns)
 	{
-		this(groupId, grpName, alive, lastMsisdns, 0);
+		this(groupId, grpName, defGroupName, alive, lastMsisdns, 0);
 	}
 
-	GroupDetails(String groupId, String grpName, boolean alive, ConcurrentLinkedQueue<PairModified<String, String>> lastMsisdns, long timestamp)
+	GroupDetails(String groupId, String grpName, String defGroupName, boolean alive, ConcurrentLinkedQueue<PairModified<String, String>> lastMsisdns, long timestamp)
 	{
 		this.groupId = groupId;
-		this.groupName = grpName;
+		this.customGroupName = grpName;
+		this.defaultGroupName = defGroupName;
 		this.isGroupAlive = alive;
 		this.lastMsisdns = (null == lastMsisdns) ? new ConcurrentLinkedQueue<PairModified<String, String>>() : lastMsisdns;
 		this.timestamp = timestamp;
@@ -34,10 +39,10 @@ public class GroupDetails
 
 	public GroupDetails(String groupId, String grpName, boolean alive, boolean mute)
 	{
-		this(groupId, grpName, alive, null, 0);
+		this(groupId, grpName, null, alive, null, 0);
 		this.isGroupMute = mute;
 	}
-	
+
 	public String getGroupId()
 	{
 		return groupId;
@@ -50,12 +55,34 @@ public class GroupDetails
 
 	public String getGroupName()
 	{
-		return groupName;
+		if (!TextUtils.isEmpty(customGroupName))
+		{
+			return customGroupName;
+		}
+		else
+		{
+			return defaultGroupName;
+		}
 	}
 
-	void setGroupName(String grpName)
+	public String getCustomGroupName()
 	{
-		groupName = grpName;
+		return customGroupName;
+	}
+
+	public String getDefaultGroupName()
+	{
+		return defaultGroupName;
+	}
+
+	void setCustomGroupName(String grpName)
+	{
+		customGroupName = grpName;
+	}
+
+	void setDefaultGroupName(String grpName)
+	{
+		defaultGroupName = grpName;
 	}
 
 	public boolean isGroupAlive()

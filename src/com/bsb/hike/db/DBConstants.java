@@ -234,7 +234,7 @@ public interface DBConstants
 	 *
 	 */
 	public static interface HIKE_CONTENT{
-		public static final int DB_VERSION = 1;
+		public static final int DB_VERSION = 3;
 		public static final String DB_NAME = "hike_content_db";
 		// CONTENT TABLE -> _id,content_id,love_id,channel_id,timestamp,metadata
 		public static final String CONTENT_TABLE = "content";
@@ -275,6 +275,14 @@ public interface DBConstants
 		public static final String TRIGGER_POINT = "trigger_point";
 
 		public static final String STATUS = "status";
+		
+		// URL WHITELIST TABLE --> domain, in_hike
+		public static final String URL_WHITELIST = "url_whitelist";
+		
+		public static final String DOMAIN = "domain";
+		
+		public static final String IN_HIKE = "in_hike"; 
+		// URL Whitelist ends here
 		
 		public static final String CONTENT_ID_INDEX = "contentTableContentIdIndex";
 		public static final String CONTENT_TABLE_NAMESPACE_INDEX = "contentTableNamespaceIndex";

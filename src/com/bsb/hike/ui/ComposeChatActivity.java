@@ -1010,6 +1010,11 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		}
 		HikeMqttManagerNew.getInstance().sendMessage(gcjJson, HikeMqttManagerNew.MQTT_QOS_ONE);
 
+		if(Utils.isBroadcastConversation(groupId))
+		{
+			HikeMessengerApp.getPubSub().publish(HikePubSub.PARTICIPANT_JOINED_GROUP, gcjJson);
+		}
+
 		ContactInfo conversationContactInfo = new ContactInfo(groupId, groupId, groupId, groupId);
 		Intent intent = Utils.createIntentFromContactInfo(conversationContactInfo, true);
 		intent.setClass(this, ChatThread.class);

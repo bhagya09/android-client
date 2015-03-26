@@ -81,7 +81,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 	private SQLiteDatabase mDb;
 
-	private static HikeConversationsDatabase hikeConversationsDatabase;
+	private static volatile HikeConversationsDatabase hikeConversationsDatabase;
 
 	private static Context mContext;
 
@@ -286,13 +286,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		mDb.delete(DBConstants.FILE_THUMBNAIL_TABLE, null, null);
 		mDb.delete(DBConstants.CHAT_BG_TABLE, null, null);
 		mDb.delete(DBConstants.BOT_TABLE, null, null);
-	}
-
-	@Override
-	public void close()
-	{
-		super.close();
-		mDb.close();
 	}
 
 	@Override
@@ -709,19 +702,36 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			String alter4 = "ALTER TABLE " + DBConstants.CONVERSATIONS_TABLE + " ADD COLUMN " + DBConstants.SORTING_TIMESTAMP + " LONG";
 			String alter5 = "ALTER TABLE " + DBConstants.CONVERSATIONS_TABLE + " ADD COLUMN " + DBConstants.MESSAGE_ORIGIN_TYPE + " INTEGER DEFAULT 0";
 			String alter6 = "ALTER TABLE " + DBConstants.SHARED_MEDIA_TABLE + " ADD COLUMN " + DBConstants.SERVER_ID + " INTEGER";
+			String createIndex1 = DBConstants.CREATE_INDEX + DBConstants.MESSAGE_TABLE_CONTENT_INDEX + " ON " + DBConstants.MESSAGES_TABLE + " ( " + DBConstants.HIKE_CONTENT.CONTENT_ID + " ) ";
+			String createIndex2 = DBConstants.CREATE_INDEX + DBConstants.MESSAGE_TABLE_NAMESPACE_INDEX + " ON " + DBConstants.MESSAGES_TABLE + " ( " + DBConstants.HIKE_CONTENT.NAMESPACE + " ) ";
+			
 			db.execSQL(alter1);
 			db.execSQL(alter2);
 			db.execSQL(alter3);
 			db.execSQL(alter4);
 			db.execSQL(alter5);
 			db.execSQL(alter6);
+			db.execSQL(createIndex1);
+			db.execSQL(createIndex2);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.UPGRADE_FOR_SERVER_ID_FIELD, 1);
 		}
 	}
 
-	public void upgrade(int oldVersion, int newVersion)
+	public void reinitializeDB()
 	{
-		onUpgrade(mDb, oldVersion, newVersion);
+		close();
+		hikeConversationsDatabase = new HikeConversationsDatabase(HikeMessengerApp.getInstance());
+		/*
+		 * We can remove this line, if we can guarantee, NoOne keeps a local copy of HikeConversationsDatabase. 
+		 * right now we store convDb reference in some classes and use that refenence to query db. ex. DbConversationListener. 
+		 * i.e. on restore we have two objects of HikeConversationsDatabase in memory.
+		 */
+		mDb = hikeConversationsDatabase.getMdb(); 
+	}
+	
+	private SQLiteDatabase getMdb()
+	{
+		return mDb;
 	}
 
 	public void clearTable(String table)

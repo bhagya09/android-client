@@ -2525,4 +2525,16 @@ public class HikeConstants
 	public static String IS_GROUP = "isGroup";
 
 	public static final String CAM_IMG_PREFIX = "CAM_";
+	
+	public static final String URL_WHITELIST = "uwl";
+	
+	public static final String IN_HIKE_URL_WHITELIST = "iuwl";
+	
+	public static final String BROWSER_URL_WHITELIST = "buwl";
+	
+	public static final String ENABLED_WHITELISTED_FEATURE = "enabledWhitelisted";
+	
+	public static final String WHITELISTED_DOMAINS[] = new String[]{"hike.in"};
+	
+	public static final String BLACKLIST_DOMAIN_ANALYTICS = "blacklist";
 }

@@ -14,7 +14,7 @@
         android:layout_marginBottom="3dp"
         android:layout_marginLeft="3dp"
         android:layout_marginRight="4dp"
-        android:visibility="visible" />
+        android:visibility="gone" />
     
     <com.bsb.hike.view.CustomFontTextView
         android:id="@+id/time"
