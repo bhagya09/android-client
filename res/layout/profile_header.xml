@@ -33,7 +33,7 @@
                 android:onClick="onHeaderButtonClicked"
                 android:padding="10dp"
                 android:scaleType="centerInside"
-                android:src="@drawable/ic_edit_dp"
+                android:src="@drawable/ic_change_profile_pic"
                 android:background="@drawable/bg_overflow_menu_selector" />
         </LinearLayout>
 

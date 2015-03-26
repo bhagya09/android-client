@@ -368,7 +368,7 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 			viewHolder.icon.setVisibility(View.VISIBLE);
 			if (myProfile)
 			{
-				viewHolder.icon.setImageResource(R.drawable.ic_edit_dp);
+				viewHolder.icon.setImageResource(R.drawable.ic_change_profile_pic);
 			}
 			
 			else
