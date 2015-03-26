@@ -322,7 +322,7 @@ public class DBBackupRestore
 	{
 		if (state.getDBVersion() < DBConstants.CONVERSATIONS_DATABASE_VERSION)
 		{
-			HikeConversationsDatabase.getInstance().upgrade(state.getDBVersion() , DBConstants.CONVERSATIONS_DATABASE_VERSION);
+			HikeConversationsDatabase.getInstance().reinitializeDB();
 		}
 		for (String table : resetTableNames)
 		{

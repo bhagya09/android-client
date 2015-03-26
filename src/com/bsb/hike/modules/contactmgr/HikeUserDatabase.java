@@ -94,12 +94,6 @@ class HikeUserDatabase extends SQLiteOpenHelper
 
 		create = "CREATE INDEX IF NOT EXISTS " + DBConstants.FAVORITE_INDEX + " ON " + DBConstants.FAVORITES_TABLE + " (" + DBConstants.MSISDN + ")";
 		db.execSQL(create);
-
-		create = "CREATE TABLE IF NOT EXISTS " + DBConstants.ROUNDED_THUMBNAIL_TABLE + " ( " + DBConstants.MSISDN + " TEXT PRIMARY KEY, " + DBConstants.IMAGE + " BLOB" + " ) ";
-		db.execSQL(create);
-
-		create = "CREATE INDEX IF NOT EXISTS " + DBConstants.ROUNDED_THUMBNAIL_INDEX + " ON " + DBConstants.THUMBNAILS_TABLE + " (" + DBConstants.MSISDN + ")";
-		db.execSQL(create);
 	}
 
 	HikeUserDatabase(Context context)
@@ -219,18 +213,11 @@ class HikeUserDatabase extends SQLiteOpenHelper
 
 		/*
 		 * Version 14 is for the rounded thumbnails
+		 * Now we have removed rounded thumbnails table. So no need to create it anymore
 		 */
-		if (oldVersion < 14)
-		{
-			onCreate(db);
-			// set the preferences to 1 , for UserDBAvtar being called for
-			// upgrade/
-			// this will be used in hike messenger app and home activity while
-			// computing the spinner state.
-			Editor editor = mContext.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).edit();
-			editor.putInt(HikeConstants.UPGRADE_AVATAR_PROGRESS_USER, 1);
-			editor.commit();
-		}
+		//if (oldVersion < 14)
+		//{
+		//}
 		/*
 		 * Version 15 adds the invited timestamp column
 		 */
@@ -239,11 +226,13 @@ class HikeUserDatabase extends SQLiteOpenHelper
 			String alter = "ALTER TABLE " + DBConstants.USERS_TABLE + " ADD COLUMN " + DBConstants.INVITE_TIMESTAMP + " INTEGER DEFAULT 0";
 			db.execSQL(alter);
 		}
-	}
-
-	void makeOlderAvatarsRounded()
-	{
-		makeOlderAvatarsRounded(mDb);
+		
+		// Now we have removing rounded thumbnails table. Using RoundedImageView to create rounded thumbnails instead
+		if (oldVersion < 16)
+		{
+			String drop = "DROP TABLE " + DBConstants.ROUNDED_THUMBNAIL_TABLE;
+			db.execSQL(drop);
+		}
 	}
 
 	void addContacts(List<ContactInfo> contacts, boolean isFirstSync) throws DbException
@@ -1381,7 +1370,6 @@ class HikeUserDatabase extends SQLiteOpenHelper
 		mDb.delete(DBConstants.BLOCK_TABLE, null, null);
 		mDb.delete(DBConstants.THUMBNAILS_TABLE, null, null);
 		mDb.delete(DBConstants.FAVORITES_TABLE, null, null);
-		mDb.delete(DBConstants.ROUNDED_THUMBNAIL_TABLE, null, null);
 	}
 
 	ContactInfo getContactInfoFromPhoneNo(String number)
@@ -1496,9 +1484,6 @@ class HikeUserDatabase extends SQLiteOpenHelper
 			 */
 			Utils.removeLargerProfileImageForMsisdn(msisdn);
 
-			byte[] roundedData = BitmapUtils.getRoundedBitmapBytes(data);
-
-			insertRoundedThumbnailData(mDb, msisdn, roundedData);
 		}
 		// IconCacheManager.getInstance().clearIconForMSISDN(msisdn);
 		HikeMessengerApp.getLruCache().remove(msisdn);
@@ -1513,39 +1498,24 @@ class HikeUserDatabase extends SQLiteOpenHelper
 		mDb.update(DBConstants.USERS_TABLE, customPhotoFlag, whereClause, new String[] { msisdn });
 	}
 
-	Drawable getIcon(String msisdn, boolean rounded)
+	Drawable getIcon(String msisdn)
 	{
-		Cursor c = null;
-		try
+		byte[] icondata = getIconByteArray(msisdn);
+		
+		if(icondata != null)
 		{
-			String table = rounded ? DBConstants.ROUNDED_THUMBNAIL_TABLE : DBConstants.THUMBNAILS_TABLE;
-			c = mDb.query(table, new String[] { DBConstants.IMAGE }, DBConstants.MSISDN + "=?", new String[] { msisdn }, null, null, null);
-
-			if (!c.moveToFirst())
-			{
-				/* lookup based on this msisdn */
-				return null;
-			}
-			byte[] icondata = c.getBlob(c.getColumnIndex(DBConstants.IMAGE));
-
 			return HikeBitmapFactory.getBitmapDrawable(mContext.getResources(), HikeBitmapFactory.decodeByteArray(icondata, 0, icondata.length));
 		}
-		finally
-		{
-			if (c != null)
-			{
-				c.close();
-			}
-		}
+		
+		return null;
 	}
 
-	byte[] getIconByteArray(String msisdn, boolean rounded)
+	byte[] getIconByteArray(String msisdn)
 	{
 		Cursor c = null;
 		try
 		{
-			String table = rounded ? DBConstants.ROUNDED_THUMBNAIL_TABLE : DBConstants.THUMBNAILS_TABLE;
-			c = mDb.query(table, new String[] { DBConstants.IMAGE }, DBConstants.MSISDN + "=?", new String[] { msisdn }, null, null, null);
+			c = mDb.query(DBConstants.THUMBNAILS_TABLE, new String[] { DBConstants.IMAGE }, DBConstants.MSISDN + "=?", new String[] { msisdn }, null, null, null);
 
 			if (!c.moveToFirst())
 			{
@@ -1607,13 +1577,11 @@ class HikeUserDatabase extends SQLiteOpenHelper
 
 		int deletedRows = mDb.delete(DBConstants.THUMBNAILS_TABLE, DBConstants.MSISDN + "=?", new String[] { msisdn });
 
-		int deletedRowsFromRoundedTable = mDb.delete(DBConstants.ROUNDED_THUMBNAIL_TABLE, DBConstants.MSISDN + "=?", new String[] { msisdn });
-
 		String whereClause = DBConstants.MSISDN + "=?"; // msisdn;
 		ContentValues customPhotoFlag = new ContentValues(1);
 		customPhotoFlag.put(DBConstants.HAS_CUSTOM_PHOTO, 0);
 		mDb.update(DBConstants.USERS_TABLE, customPhotoFlag, whereClause, new String[] { msisdn });
-		if (deletedRows + deletedRowsFromRoundedTable > 0)
+		if (deletedRows > 0)
 		{
 			return true;
 		}
@@ -2032,52 +2000,6 @@ class HikeUserDatabase extends SQLiteOpenHelper
 		contentValues.put(DBConstants.IS_OFFLINE, offline);
 
 		mDb.update(DBConstants.USERS_TABLE, contentValues, DBConstants.MSISDN + "=?", new String[] { msisdn });
-	}
-
-	private void makeOlderAvatarsRounded(SQLiteDatabase db)
-	{
-		Cursor c = null;
-		try
-		{
-			c = db.query(DBConstants.THUMBNAILS_TABLE, null, null, null, null, null, null);
-
-			int thumbnailIdx = c.getColumnIndex(DBConstants.IMAGE);
-			int msisdnIdx = c.getColumnIndex(DBConstants.MSISDN);
-
-			while (c.moveToNext())
-			{
-				byte[] data = c.getBlob(thumbnailIdx);
-				String msisdn = c.getString(msisdnIdx);
-
-				/*
-				 * An msisdn starts with a '+' and a group conversation contains a ':'. Rest are profile pic updates.
-				 */
-				if (!msisdn.startsWith("+") && !msisdn.contains(":"))
-				{
-					continue;
-				}
-
-				byte[] roundedData = BitmapUtils.getRoundedBitmapBytes(data);
-
-				insertRoundedThumbnailData(db, msisdn, roundedData);
-			}
-		}
-		finally
-		{
-			if (c != null)
-			{
-				c.close();
-			}
-		}
-	}
-
-	private void insertRoundedThumbnailData(SQLiteDatabase db, String msisdn, byte[] data)
-	{
-		ContentValues contentValues = new ContentValues();
-		contentValues.put(DBConstants.MSISDN, msisdn);
-		contentValues.put(DBConstants.IMAGE, data);
-
-		db.replace(DBConstants.ROUNDED_THUMBNAIL_TABLE, null, contentValues);
 	}
 
 	private Set<String> getQueryableNumbersString(List<ContactInfo> contactInfos)

@@ -31,7 +31,7 @@
                 android:layout_marginLeft="8dp"
                 android:layout_marginRight="10dp" >
 
-                <com.bsb.hike.ui.utils.RecyclingImageView
+                <com.bsb.hike.view.RoundedImageView
                     android:id="@+id/avatar"
                     style="@style/AvatarStyle.Padding" />
 

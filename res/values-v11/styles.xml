@@ -7,4 +7,7 @@
         <item name="vpiTabTextIndicatorStyle">@style/TabText</item>
     </style>
 
+    <style name="AppTheme.Home.Photos">
+        <item name="vpiTabPageIndicatorStyle">@style/PhotosTabPageIndicator</item>
+    </style>
 </resources>

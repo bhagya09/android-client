@@ -100,9 +100,9 @@
     <dimen name="gift_card_height">220dp</dimen>
     <dimen name="timeine_big_picture_size">200dp</dimen>
     <dimen name="icon_picture_size">50dp</dimen>
-    <dimen name="gallery_grid_spacing">1dp</dimen>
+    <dimen name="gallery_grid_spacing">5dp</dimen>
     <dimen name="gallery_cover_item_size">179dp</dimen>
-    <dimen name="gallery_album_item_size">119dp</dimen>
+    <dimen name="gallery_album_item_size">89dp</dimen>
     <dimen name="gallery_selection_item_size">89dp</dimen>
     <dimen name="file_message_item_size">56dp</dimen>
     <dimen name="file_thumbnail_size">150dp</dimen>
@@ -169,4 +169,21 @@
 	<dimen name="sticker_grid_horizontal_padding">8dp</dimen>
 	<dimen name="drag_shadow_height">8dp</dimen>
 	<dimen name="sticker_settings_tip_margin">18dp</dimen>
+	<dimen name="call_failed_fragment_height">274dp</dimen>
+	<dimen name="photos_doodle_plus_minus_height">36dp</dimen>
+	<dimen name="photos_doodle_plus_minus_width">36dp</dimen>
+	<dimen name="photos_filters_preview_padding">9dp</dimen>
+	<dimen name="photos_doodle_undo_padding">5dp</dimen>
+	<dimen name="photos_doodle_maximum_brush_width">60dp</dimen>
+	<dimen name="photos_doodle_size_bar_height">66dp</dimen>
+	<dimen name="photos_doodle_color_bar_height">70dp</dimen>
+	<dimen name="photos_filter_preview_font_size">14sp</dimen>
+	<dimen name="photos_filter_selector_size">2dp</dimen>
+	<dimen name="photos_doodle_preview_width">75dp</dimen>
+	<dimen name="photos_doodle_preview_padding">16dp</dimen>
+	<dimen name="photos_action_bar_left_right_padding">16dp</dimen>
+	<dimen name="photos_action_internal_padding">8dp</dimen>
+	<dimen name="broadcast_ftue_text_bottom_padding">15dp</dimen>
+	<dimen name="broadcast_ftue_text_right_padding">15dp</dimen>
+	
 </resources>

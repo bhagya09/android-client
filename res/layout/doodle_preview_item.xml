@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.bsb.hike.photos.views.DoodleEffectItemLinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="@dimen/photos_doodle_preview_width"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:padding="@dimen/photos_doodle_preview_padding"
+    android:orientation="vertical" >
+
+    <ImageView
+        android:id="@+id/previewIcon"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+         />
+
+</com.bsb.hike.photos.views.DoodleEffectItemLinearLayout>

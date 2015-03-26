@@ -333,6 +333,7 @@
         <item name="android:actionModeBackground">@drawable/bg_header_transparent</item>
         
     </style>
+    
     <style name="ActivityAnimation">
         <item name="android:windowExitAnimation">@anim/fade_out_animation</item>
     	<item name="android:windowEnterAnimation">@anim/fade_in_animation</item>
@@ -342,6 +343,10 @@
         <item name="homeAsUpIndicator">@drawable/home_screen_top_bar_up</item>
         <item name="vpiTabPageIndicatorStyle">@style/CustomTabPageIndicator</item>
         <item name="vpiTabTextIndicatorStyle">@style/TabText</item>
+    </style>
+    
+    <style name="AppTheme.Home.Photos">
+        <item name="vpiTabPageIndicatorStyle">@style/PhotosTabPageIndicator</item>
     </style>
     
     <style name="Widget.Styled.ActionBar" parent="Widget.Sherlock.Light.ActionBar.Solid.Inverse">
@@ -367,11 +372,23 @@
         <item name="android:fadingEdge">horizontal</item>
         <item name="android:fadingEdgeLength">8dp</item>
     </style>
+    
+    <style name="PhotosTabPageIndicator" parent="Widget.TabPageIndicator">
+        <item name="android:background">@drawable/photos_tab_selector</item>
+        <item name="android:dividerPadding">0dp</item>
+        <item name="android:divider">@drawable/home_tab_divider</item>
+        <item name="android:showDividers">none</item>
+        <item name="android:fadingEdge">horizontal</item>
+        <item name="android:fadingEdgeLength">8dp</item>
+        <item name="android:paddingLeft">8dp</item>
+        <item name="android:paddingRight">8dp</item>
+    </style>
 
     <style name="CustomIconPageIndicator" parent="Widget.IconPageIndicator">
         <item name="android:background">@drawable/emoticon_tab_indicator</item>
         <item name="android:divider">@drawable/emoticon_tab_divider</item>
         <item name="android:showDividers">middle</item>
+        <item name="android:tabStripEnabled">false</item>
         <item name="android:layout_marginLeft">0dp</item>
         <item name="android:layout_marginRight">0dp</item>
     </style>
@@ -442,7 +459,19 @@
 	    <item name="android:background">@drawable/bg_updates_white</item>
 	</style>
 	
-	<style name="AvatarStyle">
+	<style name="NuxScreenCardContainer">
+	    <item name="android:layout_marginLeft">@dimen/updates_margin</item>
+	    <item name="android:layout_marginRight">@dimen/updates_margin</item>
+	    <item name="android:layout_marginTop">@dimen/updates_margin_top</item>
+	    <item name="android:background">@drawable/bg_sticker_card_white</item>
+	</style>
+	
+	<style name="RoundedStyle">
+	    <item name="riv_oval">true</item>
+	    <item name="riv_mutate_background">true</item>
+	</style>
+	
+	<style name="AvatarStyle" parent="RoundedStyle">
 	    <item name="android:layout_width">match_parent</item>
 	    <item name="android:layout_height">match_parent</item>
 	    <item name="android:layout_centerInParent">true</item>
@@ -694,8 +723,9 @@
 	</style>
 	
 	<color name="transparent_black_color">#66ffffff</color>
-	<style name="TranslucentBlack" parent="android:Theme.Translucent.NoTitleBar">  
-        <item name="android:windowBackground">@color/transparent_black_color</item>  
+	<style name="TranslucentBlack" parent="@style/Theme.Sherlock.Light.NoActionBar">
+        <item name="android:windowBackground">@color/transparent_black_color</item>
+        <item name="android:windowIsTranslucent">true</item>
     </style>  
     	
 </resources>

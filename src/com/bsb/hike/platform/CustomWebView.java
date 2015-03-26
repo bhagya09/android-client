@@ -1,5 +1,6 @@
 package com.bsb.hike.platform;
 
+import com.bsb.hike.R;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 import android.annotation.SuppressLint;
@@ -20,7 +21,7 @@ public class CustomWebView extends WebView
 	//Custom WebView to stop background calls when moves out of view.
 	public CustomWebView(Context context)
 	{
-		super(context);
+		this(context, null);
 	}
 
 	public CustomWebView(Context context, AttributeSet attrs)
@@ -31,12 +32,15 @@ public class CustomWebView extends WebView
 	public CustomWebView(Context context, AttributeSet attrs, int defStyleAttr)
 	{
 		super(context, attrs, defStyleAttr);
+		allowUniversalAccess();
+		webViewProperties();
 	}
 
 	@TargetApi(Build.VERSION_CODES.LOLLIPOP)
 	public CustomWebView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes)
 	{
 		super(context, attrs, defStyleAttr, defStyleRes);
+		allowUniversalAccess();
 	}
 
 
@@ -89,4 +93,23 @@ public class CustomWebView extends WebView
 			e.printStackTrace();
 		}
 	}
+
+	@SuppressLint("NewApi")
+	public void allowUniversalAccess()
+	{
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
+		{
+			getSettings().setAllowUniversalAccessFromFileURLs(true);
+			getSettings().setAllowFileAccessFromFileURLs(true);
+
+		}
+	}
+
+	public void webViewProperties()
+	{
+		setVerticalScrollBarEnabled(false);
+		setHorizontalScrollBarEnabled(false);
+		getSettings().setJavaScriptEnabled(true);
+	}
+
 }

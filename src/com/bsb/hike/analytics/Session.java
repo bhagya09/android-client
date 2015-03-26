@@ -40,6 +40,8 @@ public class Session
 			
 			appOpenSource = AnalyticsConstants.AppOpenSource.REGULAR_APP_OPEN;
 			
+			srcContext = "-1";
+			
 			msisdnChatSessionMap = new HashMap<String, ChatSession>();
 		}
 

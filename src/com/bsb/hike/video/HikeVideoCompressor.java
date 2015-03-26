@@ -276,6 +276,10 @@ public class HikeVideoCompressor {
                         } catch (Exception e) {
                             Logger.d(TAG, "Exception2 : " + e);
                             e.printStackTrace();
+                            /*
+                             * If any exception occur while compressing video, need to send the original video. So returning null which means compression failed.
+                             */
+                            return null;
                         }
 
                         extractor.unselectTrack(videoIndex);

@@ -278,7 +278,7 @@ public class PlatformContentModel
 		return cardObj.appPackage;
 	}
 
-	class PlatformCardObjectModel
+	public class PlatformCardObjectModel
 	{
 
 		public String getAppName()
@@ -331,14 +331,14 @@ public class PlatformContentModel
 			this.push = push;
 		}
 
-		public String getNotifText()
+		public String getUser()
 		{
-			return notifText;
+			return user;
 		}
 
-		public void setNotifText(String notifText)
+		public void setUser(String user)
 		{
-			this.notifText = notifText;
+			this.user = user;
 		}
 
 		public String getHm()
@@ -381,6 +381,16 @@ public class PlatformContentModel
 			this.h = h;
 		}
 
+		public String getnotifTitle()
+		{
+			return notifTitle;
+		}
+
+		public void setnotifTitle(String notifTitle)
+		{
+			this.notifTitle = notifTitle;
+		}
+		
 		@Expose
 		public String appName;
 
@@ -397,7 +407,7 @@ public class PlatformContentModel
 		public String push;
 
 		@Expose
-		public String notifText;
+		public String user;
 
 		@Expose
 		public String hm;
@@ -410,6 +420,9 @@ public class PlatformContentModel
 
 		@Expose
 		public String h;
+		
+		@Expose
+		public String notifTitle;
 
 	}
 
