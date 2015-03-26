@@ -100,13 +100,13 @@ class VignetteImageView extends ImageView
 		{
 		case X_PRO_2:
 			// Vignette: Stop 1 = #000000 84%, Opacity = 0%; Stop 2 = #232443 120%, Opacity = 100%
-			colors = new int[] { 0x00000000, 0x00000000, 0xFF232443 };
+			colors = new int[] { 0x00000000, 0x00000000, 0xCF232443 };
 			stops = new float[] { 0.0f, 0.92f / 1.5f, 1.0f };
 			radiusRatio = 1.5f;
 			// makeRadialGradient(1.5f, colors, stops);
 			break;
 		case EARLYBIRD:
-			colors = new int[] { 0x00000000, 0x00000000, 0xFF000000 };
+			colors = new int[] { 0x00000000, 0x00000000, 0xEF000000 };
 			stops = new float[] { 0.0f, 0.85f / 1.65f, 1.0f };
 			radiusRatio = 1.65f;
 			// makeRadialGradient(1.5f, colors, stops);
@@ -114,14 +114,14 @@ class VignetteImageView extends ImageView
 		case RETRO:
 		case KELVIN:
 			// Vignette: Stop 1 = #000000 74%, Opacity = 0%; Stop 2 = #000000 120%, Opacity = 100%
-			colors = new int[] { 0x00000000, 0x00000000, 0xFF000000 };
+			colors = new int[] { 0x00000000, 0x00000000, 0xEF000000 };
 			stops = new float[] { 0.0f, 0.98f / 1.8f, 1.0f };
 			radiusRatio = 1.8f;
 			// makeRadialGradient(1.5f, colors, stops);
 			break;
 		case APOLLO:
 			// Vignette Stop 1: #18363f, Position 72%, Opacity 0% Stop 2: #18363f, Position 120%, Opacity 100%
-			colors = new int[] { 0x00000000, 0x0018363F, 0xFF18363F };
+			colors = new int[] { 0x00000000, 0x0018363F, 0xCF18363F };
 			stops = new float[] { 0.0f, 0.78f / 1.6f, 1.0f };
 			radiusRatio = 1.6f;
 			// makeRadialGradient(1.6f, colors, stops);

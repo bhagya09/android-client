@@ -1873,6 +1873,10 @@ public class HikeConstants
 
 		public static final String VOIP_CALL_REJECT = "cr";
 
+		public static final String VOIP_CONNECTION_ESTABLISHED = "coest";
+
+		public static final String VOIP_PARTNER_ANSWER_TIMEOUT = "cpat";
+
 		public static final String VOIP_CALL_SPEAKER = "spk";
 
 		public static final String VOIP_CALL_MUTE = "mut";
@@ -2521,4 +2525,16 @@ public class HikeConstants
 	public static String IS_GROUP = "isGroup";
 
 	public static final String CAM_IMG_PREFIX = "CAM_";
+	
+	public static final String URL_WHITELIST = "uwl";
+	
+	public static final String IN_HIKE_URL_WHITELIST = "iuwl";
+	
+	public static final String BROWSER_URL_WHITELIST = "buwl";
+	
+	public static final String ENABLED_WHITELISTED_FEATURE = "enabledWhitelisted";
+	
+	public static final String WHITELISTED_DOMAINS[] = new String[]{"hike.in"};
+	
+	public static final String BLACKLIST_DOMAIN_ANALYTICS = "blacklist";
 }

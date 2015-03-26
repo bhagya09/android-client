@@ -239,10 +239,6 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 
 	public static final String LAST_MOOD = "lastMood";
 
-	public static final String APP_LAUNCHES = "appLaunches";
-
-	public static final String DONT_SHOW_APP_RATER = "dontShowAppRater";
-
 	public static final String INTRO_DONE = "introDone";
 
 	public static final String JUST_SIGNED_UP = "justSignedUp";

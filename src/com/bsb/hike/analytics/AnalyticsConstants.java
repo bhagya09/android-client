@@ -160,6 +160,8 @@ public class AnalyticsConstants
 	public static final String FOREGROUND = "fg";
 	
 	public static final String BACKGROUND = "bg";
+	
+	public static final String STICKER_PALLETE = "stkp";
 
 	public static final class MessageType
 	{

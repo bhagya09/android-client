@@ -381,11 +381,6 @@
     <string name="contact_not_saved">Contact could not be saved</string>
     <string name="invite_family">Your Family</string>
     <string name="share_fb_twitter">Share on Facebook and Twitter</string>
-    <string name="app_rate_title">Love using hike?</string>
-    <string name="app_rate_content">Please rate us on Google Play.</string>
-    <string name="rate_now">Rate now</string>
-    <string name="ask_me_later">Ask me later</string>
-    <string name="no_thanks_rate">No, thanks</string>
     <string name="system_health">System Health</string>
     <string name="male">Male</string>
     <string name="female">Female</string>
@@ -788,7 +783,7 @@
     <string name="compose_chat_action_bar_group_mode_title">Select members (min 2)</string>
     <string name="compose_chat_action_bar_title">New Chat</string>
     <string name="name_group">Name the group</string>
-    <string name="name_broadcast">Name the broadcast list</string>
+    <string name="name_broadcast">Name the broadcast</string>
     <string name="group_chats">Group Chats</string>
     <string name="friend_requests_sent">Friend requests sent</string>
     <string name="blue_status_updates">status updates</string>
@@ -946,7 +941,7 @@
     <string name="delete_leave">Delete and exit group</string>
     <string name="group_participant_info">You can add upto 500 people to a group</string>
     <string name="broadcast_ftue_message">A broadcast lets you send the same message to multiple hike contacts at once</string>
-    <string name="broadcast_participant_info"><b>Note: </b>Only hike contacts with %1$s in their address book will receive this broadcast.</string>
+    <string name="broadcast_participant_info"><![CDATA[<font color=\"#848484\"><b>Note: </b>Only hike contacts with %1$s in their address book will receive this broadcast.</font>]]></string>
     <string name="photo">GALLERY</string>
     <string name="video">VIDEOS</string>
     <string name="location_option">LOCATION</string>

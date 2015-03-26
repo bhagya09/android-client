@@ -2390,13 +2390,11 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				if (showBlackIcon)
 				{
 					broadcastIndicator.setImageResource(R.drawable.ic_broadcast_system_message);
-					broadcastIndicator.setScaleType(ScaleType.CENTER);
 					broadcastIndicator.setVisibility(View.VISIBLE);
 				}
 				else
 				{
 					broadcastIndicator.setImageResource(R.drawable.ic_broadcast_ft);
-					broadcastIndicator.setScaleType(ScaleType.CENTER);
 					broadcastIndicator.setVisibility(View.VISIBLE);
 				}
 			}

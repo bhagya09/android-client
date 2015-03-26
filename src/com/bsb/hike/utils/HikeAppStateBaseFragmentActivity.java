@@ -72,6 +72,10 @@ public class HikeAppStateBaseFragmentActivity extends SherlockFragmentActivity i
 		{
 			DialogPojo mmDialogPojo = ProductInfoManager.getInstance().getDialogPojo(mmModel);
 			HikeDialogFragment mmFragment = HikeDialogFragment.getInstance(mmDialogPojo);
+			
+		// If activity is finishing don't commit.
+			
+			if(!isFinishing())
 			mmFragment.showDialog(getSupportFragmentManager());
 		}
 	}

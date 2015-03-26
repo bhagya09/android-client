@@ -888,7 +888,6 @@ public class NUXManager
 	public void sendMsisdnListToServer(HashSet<String> msisdn)
 	{
 		
-		Logger.d("UmangX", "sending message : " + msisdn.toString());
 		JSONObject root = new JSONObject();
 		try
 		{

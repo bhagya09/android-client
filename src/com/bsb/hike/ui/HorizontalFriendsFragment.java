@@ -61,7 +61,6 @@ public class HorizontalFriendsFragment extends Fragment implements OnClickListen
 	private void changeLayoutParams(){
 		WindowManager wm = (WindowManager) getActivity().getSystemService(Context.WINDOW_SERVICE);
     	Display display = wm.getDefaultDisplay();
-    	Logger.d("UmangX", "message : " + display.getWidth()+ " "+ viewStack.getWidth());
     	if(viewStack.getWidth() < display.getWidth()){
     		FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.MATCH_PARENT);
@@ -69,7 +68,6 @@ public class HorizontalFriendsFragment extends Fragment implements OnClickListen
     		viewStack.setLayoutParams(params);
     	}
     	else {
-    		Logger.d("UmangX", "" + viewStack.getChildAt(0).getWidth() + "  " + NUXManager.getInstance().getCountLockedContacts());
     		scrollHorizontalView(contactsDisplayed.size() - 1, viewStack.getChildAt(0).getWidth());
     	}
 	}
@@ -255,7 +253,6 @@ public class HorizontalFriendsFragment extends Fragment implements OnClickListen
 	public void onActivityCreated(Bundle savedInstanceState)
 	{
 		super.onActivityCreated(savedInstanceState);
-		Logger.d("UmangX","on Act Create called frag");
 		for (ContactInfo contactInfo : ContactManager.getInstance().getContact(contactsDisplayed, true, true)) {
 			addContactView(contactInfo, viewStack.getChildCount());
 		}
@@ -325,7 +322,6 @@ public class HorizontalFriendsFragment extends Fragment implements OnClickListen
 				{
 					e.printStackTrace();
 				}
-				Logger.d("UmangX","displayed : "+contactsDisplayed.toString());
 				contactsDisplayed.removeAll(nm.getLockedContacts());
 				if(!contactsDisplayed.isEmpty()){
 					HashSet<String> msisdns = new HashSet<String>(contactsDisplayed);
@@ -343,7 +339,6 @@ public class HorizontalFriendsFragment extends Fragment implements OnClickListen
 	@Override
 	public void onStop() {
 		super.onStop();
-		Logger.d("UmangX","on stop of frag");
 		if(NUXManager.getInstance().getCurrentState() == NUXConstants.NUX_KILLED){
 			getActivity().finish();
 		}
@@ -354,7 +349,6 @@ public class HorizontalFriendsFragment extends Fragment implements OnClickListen
 	public void onResume()
 	{
 		super.onResume();
-		Logger.d("UmangX","on resume of frag");
 		if (NUXManager.getInstance().getCurrentState() == NUXConstants.NUX_KILLED)
 			getActivity().finish();
 	}
@@ -362,7 +356,6 @@ public class HorizontalFriendsFragment extends Fragment implements OnClickListen
 	
 	private void KillActivity()
 	{
-		Logger.d("UmangX","kill Acitivty called from frag");
 		Intent in = (Utils.getHomeActivityIntent(getActivity()));
 		in.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		in.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);

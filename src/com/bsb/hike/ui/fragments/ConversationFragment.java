@@ -85,6 +85,7 @@ import com.bsb.hike.models.EmptyConversationContactItem;
 import com.bsb.hike.models.EmptyConversationFtueCardItem;
 import com.bsb.hike.models.EmptyConversationItem;
 import com.bsb.hike.models.GroupConversation;
+import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.models.NUXChatReward;
 import com.bsb.hike.models.NUXTaskDetails;
 import com.bsb.hike.models.NuxSelectFriends;
@@ -228,7 +229,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 			HikePubSub.RESET_STEALTH_INITIATED, HikePubSub.RESET_STEALTH_CANCELLED, HikePubSub.REMOVE_WELCOME_HIKE_TIP, HikePubSub.REMOVE_STEALTH_INFO_TIP,
 			HikePubSub.REMOVE_STEALTH_UNREAD_TIP, HikePubSub.BULK_MESSAGE_RECEIVED, HikePubSub.GROUP_MESSAGE_DELIVERED_READ, HikePubSub.BULK_MESSAGE_DELIVERED_READ, HikePubSub.GROUP_END,
 			HikePubSub.CONTACT_DELETED,HikePubSub.MULTI_MESSAGE_DB_INSERTED, HikePubSub.SERVER_RECEIVED_MULTI_MSG, HikePubSub.MUTE_CONVERSATION_TOGGLED, HikePubSub.CONV_UNREAD_COUNT_MODIFIED,
-			HikePubSub.CONVERSATION_TS_UPDATED};
+			HikePubSub.CONVERSATION_TS_UPDATED, HikePubSub.PARTICIPANT_JOINED_GROUP, HikePubSub.PARTICIPANT_LEFT_GROUP};
 
 	private ConversationsAdapter mAdapter;
 
@@ -1048,12 +1049,15 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 
 	private void resetSearchIcon()
 	{
-		HomeActivity.setSearchOptionAccess(!isConversationsEmpty());
+		if (!searchMode)
+		{
+			HomeActivity.setSearchOptionAccess(!isConversationsEmpty());
+		}
 	}
 
-	public boolean isConversationsEmpty()
+	private boolean isConversationsEmpty()
 	{
-		return (displayedConversations != null && !displayedConversations.isEmpty()) ? false : true;
+		return (displayedConversations != null && displayedConversations.isEmpty()) ? true : false;
 	}
 
 	@Override
@@ -2912,6 +2916,41 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		else if(HikePubSub.CONVERSATION_TS_UPDATED.equals(type))
 		{
 			updateTimestampAndSortConversations(object);
+		}
+		else if (HikePubSub.PARTICIPANT_JOINED_GROUP.equals(type) || HikePubSub.PARTICIPANT_LEFT_GROUP.equals(type))
+		{
+			String groupId = ((JSONObject) object).optString(HikeConstants.TO);
+			if(TextUtils.isEmpty(groupId))
+			{
+				return;
+			}
+			
+			// This Pubsub is currently used here only to update default name
+			// of a broadcast conversation.
+			if(!Utils.isBroadcastConversation(groupId))
+			{
+				return;
+			}
+			final Conversation conv = mConversationsByMSISDN.get(groupId);
+			if (conv == null)
+			{
+				return;
+			}
+
+			if (!isAdded())
+			{
+				return;
+			}
+			getActivity().runOnUiThread(new Runnable()
+			{
+				
+				@Override
+				public void run()
+				{
+					conv.updateName();
+					updateViewForNameChange(conv);
+				}
+			});
 		}
 	}
 	

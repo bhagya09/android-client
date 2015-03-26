@@ -1308,6 +1308,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	public void addGroupParticipants(String groupId, Map<String, PairModified<GroupParticipant, String>> participantList)
 	{
 		transientCache.addGroupParticipants(groupId, participantList);
+		persistenceCache.updateDefaultGroupName(groupId);
 	}
 
 	/**
@@ -1319,6 +1320,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	public void removeGroupParticipant(String groupId, String msisdn)
 	{
 		transientCache.removeGroupParticipants(groupId, msisdn);
+		persistenceCache.updateDefaultGroupName(groupId);
 	}
 
 	/**
@@ -1329,6 +1331,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	public void removeGroupParticipant(String groupId, Collection<String> msisdns)
 	{
 		transientCache.removeGroupParticipants(groupId, msisdns);
+		persistenceCache.updateDefaultGroupName(groupId);
 	}
 
 	public void removeGroup(String groupId)
