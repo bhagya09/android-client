@@ -26,6 +26,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.util.Pair;
 import android.view.KeyEvent;
@@ -155,6 +156,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	private FetchContactsTask fetchContactsTask;
 
 	private ConversationFragment mainFragment;
+
+	private static String MAIN_FRAGMENT_TAG = "mainFragTag";
 
 	private SnowFallView snowFallView;
 	
@@ -365,14 +368,17 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	private void setupMainFragment(Bundle savedInstanceState)
 	{
-		if (savedInstanceState != null) {
-            return;
-        }
-        mainFragment = new ConversationFragment();
-        
-        getSupportFragmentManager().beginTransaction()
-                .add(R.id.home_screen, mainFragment).commit();
-		
+		Fragment frag = getSupportFragmentManager().findFragmentByTag(MAIN_FRAGMENT_TAG);
+		if (frag != null)
+		{
+			mainFragment = (ConversationFragment) frag;
+		}
+
+		if (mainFragment == null)
+		{
+			mainFragment = new ConversationFragment();
+			getSupportFragmentManager().beginTransaction().add(R.id.home_screen, mainFragment, MAIN_FRAGMENT_TAG).commit();
+		}
 	}
 
 	public void onFestiveModeBgClick(View v)

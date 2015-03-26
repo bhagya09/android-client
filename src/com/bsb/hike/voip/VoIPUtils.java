@@ -424,4 +424,31 @@ public class VoIPUtils {
 		
 		return useAEC;
 	}
+	
+	public static void sendVoIPMessageUsingHike(String recipient, String callMessage, int callId, boolean callInitiator) {
+		try {
+			JSONObject socketData = new JSONObject();
+			socketData.put("callId", callId);
+			socketData.put("initiator", callInitiator);
+			socketData.put("reconnecting", false);
+			
+			JSONObject data = new JSONObject();
+			data.put(HikeConstants.MESSAGE_ID, new Random().nextInt(10000));
+			data.put(HikeConstants.TIMESTAMP, System.currentTimeMillis() / 1000); 
+			data.put(HikeConstants.METADATA, socketData);
+
+			JSONObject message = new JSONObject();
+			message.put(HikeConstants.TO, recipient);
+			message.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.MESSAGE_VOIP_0);
+			message.put(HikeConstants.SUB_TYPE, callMessage);
+			message.put(HikeConstants.DATA, data);
+			
+			HikeMqttManagerNew.getInstance().sendMessage(message, HikeMqttManagerNew.MQTT_QOS_ONE);
+			Logger.w(VoIPConstants.TAG, "Sent call request message of type: " + callMessage + " to: " + recipient);
+
+		} catch (JSONException e) {
+			e.printStackTrace();
+			Logger.w(VoIPConstants.TAG, "sendSocketInfoToPartner JSON error: " + e.toString());
+		} 
+	}
 }
