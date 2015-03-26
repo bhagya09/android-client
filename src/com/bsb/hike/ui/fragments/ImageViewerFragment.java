@@ -32,6 +32,7 @@ import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.smartImageLoader.IconLoader;
 import com.bsb.hike.tasks.ProfileImageLoader;
 import com.bsb.hike.ui.ProfileActivity;
+import com.bsb.hike.ui.SettingsActivity;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
@@ -60,7 +61,11 @@ public class ImageViewerFragment extends SherlockFragment implements LoaderCallb
 
 	private int imageSize;
 	
-	private Activity mActivity;
+	public static final int FROM_PROFILE_ACTIVITY = 1;
+
+	public static final int FROM_SETTINGS_ACTIVITY = 2;
+	
+	private int whichActivity;
 
 	private String TAG = "ImageViewerFragment";
 	
@@ -287,7 +292,7 @@ public class ImageViewerFragment extends SherlockFragment implements LoaderCallb
 			case R.id.edit_dp:
 				if(mProfilePhotoEditListener != null)
 				{
-					mProfilePhotoEditListener.onDisplayPictureEditClicked(mActivity);
+					mProfilePhotoEditListener.onDisplayPictureEditClicked(whichActivity);
 				}
 			break;
 		}
@@ -305,7 +310,14 @@ public class ImageViewerFragment extends SherlockFragment implements LoaderCallb
 	{
 		super.onAttach(activity);
 		
-		mActivity = activity;
+		if(activity instanceof SettingsActivity)
+		{
+			whichActivity = FROM_SETTINGS_ACTIVITY;
+		}
+		else if(activity instanceof ProfileActivity)
+		{
+			whichActivity = FROM_PROFILE_ACTIVITY;
+		}
 		
 		if(isViewEditable)
 		{
@@ -345,7 +357,7 @@ public class ImageViewerFragment extends SherlockFragment implements LoaderCallb
 	
 	public interface DisplayPictureEditListener
 	{
-		public void onDisplayPictureEditClicked(Activity activity);
+		public void onDisplayPictureEditClicked(int fromWhichActivity);
 	}
 
 	@Override

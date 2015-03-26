@@ -47,6 +47,7 @@ import com.bsb.hike.tasks.FinishableEvent;
 import com.bsb.hike.tasks.HikeHTTPTask;
 import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.ui.SettingsActivity;
+import com.bsb.hike.ui.fragments.ImageViewerFragment;
 import com.bsb.hike.ui.fragments.ImageViewerFragment.DisplayPictureEditListener;
 import com.bsb.hike.utils.Utils.ExternalStorageState;
 
@@ -680,7 +681,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 	}
 
 	@Override
-	public void onDisplayPictureEditClicked(Activity obj)
+	public void onDisplayPictureEditClicked(int whichActivity)
 	{
 		String imageRemovePath = null;		
 		JSONObject md = new JSONObject();
@@ -689,12 +690,12 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 		{
 			md.put(HikeConstants.EVENT_KEY, ProfileImageActions.DP_EDIT_EVENT);
 
-			if(obj instanceof ProfileActivity)
+			if(whichActivity == ImageViewerFragment.FROM_PROFILE_ACTIVITY)
 			{
 				imageRemovePath = ProfileImageActions.DP_EDIT_FROM_DISPLAY_IMAGE;
 				md.put(ProfileImageActions.DP_EDIT_PATH, ProfileImageActions.DP_EDIT_FROM_DISPLAY_IMAGE);
 			}
-			else if(obj instanceof SettingsActivity)
+			else if(whichActivity == ImageViewerFragment.FROM_SETTINGS_ACTIVITY)
 			{
 				md.put(ProfileImageActions.DP_EDIT_PATH, ProfileImageActions.DP_EDIT_FROM_SETTINGS_PREVIEW_IMAGE);
 				imageRemovePath = ProfileImageActions.DP_EDIT_FROM_SETTINGS_PREVIEW_IMAGE;		
