@@ -145,7 +145,7 @@ public class HikeInviteAdapter extends SectionedBaseAdapter implements TextWatch
 	public void afterTextChanged(Editable s)
 	{
 		filter.filter(s);
-		filterString = s.toString();
+		filterString = s.toString().trim().replaceAll("[-.\\s /]", "");
 	}
 
 	@Override
