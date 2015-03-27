@@ -180,15 +180,22 @@ public class MqttMessagesManager
 
 	private void saveIcon(JSONObject jsonObj) throws JSONException
 	{
-		String msisdn = jsonObj.getString(HikeConstants.FROM);
-		/*
-		 * We don't consider this packet if the msisdn is the user's msisdn or a group conversation.
-		 */
-		if (Utils.isGroupConversation(msisdn) || userMsisdn.equals(msisdn))
+		String msisdn = null;
+		
+		try
 		{
-			return;
+			msisdn = jsonObj.getString(HikeConstants.FROM);
+			
+			/*
+			 * We don't consider this packet if the msisdn is the user's msisdn or a group conversation.
+			 */
+			if (Utils.isGroupConversation(msisdn) || userMsisdn.equals(msisdn))
+			{
+				return;
+			}
 		}
-		if(msisdn == null)
+		// server does not send "from" field for user's icon in "ic" packet
+		catch(JSONException ex)
 		{
 			msisdn = userMsisdn;
 		}
