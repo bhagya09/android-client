@@ -193,6 +193,7 @@ import com.bsb.hike.tasks.EmailConversationsAsyncTask;
 import com.bsb.hike.tasks.FinishableEvent;
 import com.bsb.hike.tasks.HikeHTTPTask;
 import com.bsb.hike.ui.utils.HashSpanWatcher;
+import com.bsb.hike.ui.utils.LockPattern;
 import com.bsb.hike.utils.ChatTheme;
 import com.bsb.hike.utils.ContactDialog;
 import com.bsb.hike.utils.CustomAlertDialog;
@@ -1487,7 +1488,21 @@ public class ChatThread extends HikeAppStateBaseFragmentActivity implements Hike
 		}
 		
 		optionsList.add(new OverFlowMenuItem(getString(R.string.clear_chat), 5));
-		optionsList.add(new OverFlowMenuItem(getString(R.string.hide_chat), 8));
+		if(!StealthModeManager.getInstance().isActive())
+		{
+			optionsList.add(new OverFlowMenuItem(getString(R.string.hide_chat), 8));
+		}
+		else
+		{
+			if(mConversation.isStealth())
+			{
+				optionsList.add(new OverFlowMenuItem(getString(R.string.mark_visible), 8));
+			}
+			else
+			{
+				optionsList.add(new OverFlowMenuItem(getString(R.string.mark_hidden), 8));
+			}
+		}
 		if(messages.size() > 0)
 		{
 			optionsList.add(new OverFlowMenuItem(getString(R.string.email_chat), 3));
@@ -6361,6 +6376,7 @@ public class ChatThread extends HikeAppStateBaseFragmentActivity implements Hike
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data)
 	{
+		LockPattern.onLockActivityResult(this, requestCode, resultCode, data);
 		super.onActivityResult(requestCode, resultCode, data);
 		if ((requestCode == HikeConstants.IMAGE_CAPTURE_CODE || requestCode == HikeConstants.IMAGE_TRANSFER_CODE || requestCode == HikeConstants.VIDEO_TRANSFER_CODE || requestCode == HikeConstants.AUDIO_TRANSFER_CODE)
 				&& resultCode == RESULT_OK)

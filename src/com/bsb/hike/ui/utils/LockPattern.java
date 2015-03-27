@@ -45,7 +45,8 @@ public class LockPattern
 			boolean isReset = data.getBooleanExtra(HikeConstants.Extras.STEALTH_PASS_RESET, false);
 			if (resultCode == activity.RESULT_OK)
 			{
-				String encryptedPattern = String.valueOf(data.getCharArrayExtra(LockPatternActivity.EXTRA_PATTERN));
+				char[] kd = data.getCharArrayExtra(LockPatternActivity.EXTRA_PATTERN); 
+				String encryptedPattern = String.valueOf(kd);
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STEALTH_ENCRYPTED_PATTERN, encryptedPattern);
 				StealthModeManager.getInstance().setUp(true);
 				DBBackupRestore.getInstance(activity).updatePrefs();

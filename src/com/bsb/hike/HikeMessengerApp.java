@@ -359,6 +359,8 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	public static final String STEALTH_MODE_SETUP_DONE = "steatlhModeSetupDone";
 	
 	public static final String STEALTH_MODE_FTUE_DONE = "steatlhModeFtueDone";
+	
+	public static final String STEALTH_PIN_AS_PASSWORD = "steatlhPinAsPassword";
 
 	public static final String SHOWING_STEALTH_FTUE_CONV_TIP = "showingStealthFtueConvTip";
 

@@ -63,29 +63,68 @@
             </RelativeLayout>
         </LinearLayout>
 
-        <RelativeLayout
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_above="@+id/alp_42447968_viewgroup_footer"
+            android:id="@+id/alp_42447968_view_lock_pattern_view_group"
             android:layout_below="@id/alp_42447968_textview_info_group"
             android:gravity="center"
-            android:paddingBottom="12dp"
+            android:orientation="vertical"
             android:paddingLeft="10dp"
             android:paddingRight="10dp" >
-
+            
             <com.haibison.android.lockpattern.widget.LockPatternView
                 android:id="@+id/alp_42447968_view_lock_pattern"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
+                android:layout_gravity="center"
                 android:layout_marginBottom="9dp" />
-        </RelativeLayout>
+            
+            <com.bsb.hike.view.CustomFontEditText
+                android:id="@+id/alp_42447968_lock_pin"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+				android:layout_gravity="center"
+                android:layout_marginBottom="18dp"
+                android:background="@drawable/bg_stealth_pin"
+                android:ellipsize="start"
+                android:focusable="true"
+                android:gravity="center|center_vertical|center_horizontal"
+                android:inputType="numberPassword"
+                android:maxLength="4"
+                android:maxLines="1"
+                android:minEms="8"
+                android:paddingTop="9dp"
+                android:textColor="@android:color/white"
+                android:visibility="gone" />
+            
+            <com.bsb.hike.view.CustomFontButton
+                android:id="@+id/alp_42447968_change_password_setting"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginBottom="18dp"
+                android:background="#de4f48"
+                android:gravity="center"
+                android:paddingBottom="5dp"
+                android:paddingLeft="20dp"
+                android:paddingRight="20dp"
+                android:paddingTop="5dp"
+                android:text="@string/change_password_from_privacy"
+                android:textColor="@drawable/change_password_setting_text_selector"
+                android:textSize="14dp"
+                android:textStyle="bold|italic"
+                android:visibility="visible" />
 
+        </LinearLayout>
+
+          
+        
         <LinearLayout
             android:id="@+id/alp_42447968_viewgroup_footer"
             android:layout_width="match_parent"
             android:layout_height="48dp"
-            android:layout_alignParentBottom="true"
+            android:layout_below="@id/alp_42447968_view_lock_pattern_view_group"
             android:orientation="vertical"
             android:visibility="gone" >
 
@@ -132,17 +171,10 @@
                     android:textSize="16sp" />
             </LinearLayout>
         </LinearLayout>
+        
+     
     </RelativeLayout>
 
-    <com.bsb.hike.view.CustomFontTextView
-        android:id="@+id/change_password_setting"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_horizontal"
-        android:paddingBottom="12dp"
-        android:textColor="@drawable/change_password_setting_text_selector"
-        android:text="@string/change_password_from_privacy"
-        android:visibility = "gone"
-        android:textSize="12dp" />
+    
 
 </LinearLayout>

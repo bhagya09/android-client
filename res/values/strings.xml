@@ -927,7 +927,6 @@
     <string name="confirm_delete_chat_msg">Delete chat with \"%1$s\"? </string>
     <string name="confirm_delete_group_msg">Delete and exit \"%1$s\" group?</string>
     <string name="email_chat">Email Chat</string>
-    <string name="hide_chat">Hide Chat</string>
     <string name="clear_chat">Clear Chat</string>
     <string name="add_shortcut">Add Shortcut</string>
     <string name="timeline">Timeline</string>
@@ -1057,7 +1056,7 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="use_this_quality_for_sending_images">Use this quality for sending images</string>
     <string name="select_all_confirmation_header">Invite All</string>
     <string name="select_all_confirmation_msg">Send invite to %1$d contacts to download hike?</string>
-    <string name="change_password_from_privacy">Change Password from Settings > Privacy</string>
+    <string name="change_password_from_privacy">Settings</string>
     <string name="hike_offline_caps">Hike Offline</string>
 
     <string-array name="chat_thread_empty_state_tutorial_text">
@@ -1369,7 +1368,20 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="enable_stealth_notification_body">Notify on receiving a message in a hidden chat</string>
     <string name="enable_stealth_notification">Notification</string>
     <string name="stealth_msg_connect_4dots">Connect at least 4 dots</string>
-    <string name="stealth_msg_draw_an_unlock_pattern">Draw your passcode pattern</string>
+    <string name="stealth_msg_draw_an_unlock_pattern">Draw new passcode pattern</string>
+    <string name="stealth_msg_enter_an_unlock_pin">Enter your new 4 digit pin</string>
     <string name="stealth_msg_redraw_pattern_to_confirm">Confirm your pattern</string>
+    <string name="stealth_msg_reenter_pin_to_confirm">Confirm your pin</string>
+    <string name="stealth_enter_4_digits">Complete your 4 digit pin</string>
     <string name="hide_chat">Hide Chat</string>
+    <string name="mark_hidden">Mark Hidden</string>
+    <string name="mark_visible">Mark Visible</string>
+    <string name="stealth_set_pin">Or set a number PIN</string>
+    <string name="stealth_set_pattern">Or set a pattern</string>
+    <string name="stealth_msg_pin_recorded">Pin recorded</string>
+    <string name="stealth_msg_your_new_unlock_pin">Your new unlock pin</string>
+    <string name="stealth_msg_try_pin_again">Your pins don’t match. Try again.</string>
+    <string name="stealth_msg_enter_pin_to_unlock">Enter PIN to unlock</string>
+    <string name="stealth_msg_enter_pin_to_unlock_in_reset">Enter existing PIN</string>
+    
 </resources>

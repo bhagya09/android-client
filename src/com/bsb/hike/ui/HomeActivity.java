@@ -228,7 +228,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		
 		findViewById(android.R.id.home).setAnimation(HikeAnimationFactory.getStickerShopIconAnimation(this));
 		findViewById(android.R.id.home).postDelayed(new Runnable() {
-			
 			@Override
 			public void run() {	
 				findViewById(android.R.id.home).clearAnimation();

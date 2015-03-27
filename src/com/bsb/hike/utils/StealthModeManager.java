@@ -108,4 +108,14 @@ public class StealthModeManager
 		HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_CONVERSATION_MARKED, conv);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_MODE_TOGGLED, !StealthModeManager.getInstance().isActive());
 	}
+	
+	public void usePinAsPassword(boolean usePin) 
+	{
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STEALTH_PIN_AS_PASSWORD, usePin);
+	}
+	
+	public boolean isPinAsPassword() 
+	{
+		return HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STEALTH_PIN_AS_PASSWORD, false);
+	}
 }

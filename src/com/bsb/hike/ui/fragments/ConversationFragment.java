@@ -1170,9 +1170,13 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
             conv.analyticsForBots(HikePlatformConstants.BOT_LONG_PRESS, AnalyticsConstants.LONG_PRESS_EVENT);
         }
 
-		if (StealthModeManager.getInstance().isActive() || !StealthModeManager.getInstance().isActive())
+		if (StealthModeManager.getInstance().isActive())
 		{
 			optionsList.add(getString(conv.isStealth() ? R.string.unmark_stealth : R.string.mark_stealth));
+		} 
+		else
+		{
+			optionsList.add(getString(R.string.hide_chat));
 		}
 		if (!(conv instanceof GroupConversation) && conv.getContactName() == null)
 		{
@@ -1332,7 +1336,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 					}
 					viewGroupInfo(conv);
 				}
-				else if (getString(R.string.mark_stealth).equals(option) || getString(R.string.unmark_stealth).equals(option))
+				else if (getString(R.string.mark_stealth).equals(option) || getString(R.string.unmark_stealth).equals(option) || getString(R.string.hide_chat).equals(option))
 				{
 					boolean newStealthValue = !conv.isStealth();
 					/*
