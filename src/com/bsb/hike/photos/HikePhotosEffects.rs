@@ -33,10 +33,10 @@
 #define ChannelBlend_AlphaF(A,B,F,O) (ChannelBlend_Alpha(F(A,B),A,O))
 #define ChannelBlend_SoftLight(A,B)  (((B < 128)?(2*((A>>1)+64))*((float)B/255):(255-(2*(255-((A>>1)+64))*(float)(255-B)/255))))
 
-enum blendMode { Multiply , Overlay , SoftLight , Exclusion };
-
-typedef enum blendMode BlendMode;
-
+const int Multiply = 0;
+const int Overlay = 1;
+const int SoftLight = 2;
+const int Exclusion = 3;
 float static d(float x) 
 {
 	if (x <= 0.25) {
@@ -117,7 +117,7 @@ uchar4 static getPixelForColor(int a, int r, int g, int b)
 	return ret;
 }
 
-uchar4 static applyBlendToRGB(uchar4 source ,uchar4 target, BlendMode type, float opacity)
+uchar4 static applyBlendToRGB(uchar4 source ,uchar4 target, int type, float opacity)
 {
 	switch(type)
 	{
