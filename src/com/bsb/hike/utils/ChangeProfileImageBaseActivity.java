@@ -282,7 +282,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 				deleteConfirmDialog.dismiss();
 			}
 		};
-		deleteConfirmDialog.setCheckBox(R.string.check_delete_from_timeline);
+		deleteConfirmDialog.setCheckBox(R.string.check_delete_from_timeline, false);
 		deleteConfirmDialog.setOkButton(R.string.yes, dialogOkClickListener);
 		deleteConfirmDialog.setCancelButton(R.string.no);
 		deleteConfirmDialog.show();
