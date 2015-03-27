@@ -3165,7 +3165,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		String path = super.profileImageCropped();
 		String httpApi = null;
 		
-		if ((this.profileType == ProfileType.USER_PROFILE))
+		if ((this.profileType == ProfileType.USER_PROFILE || this.profileType == ProfileType.USER_PROFILE_EDIT))
 		{
 			httpApi = AccountUtils.USER_DP_UPDATE_URL;
 		}
