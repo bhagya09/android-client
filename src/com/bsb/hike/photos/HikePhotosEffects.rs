@@ -106,16 +106,6 @@ uchar4 static applyColorMatrix(uchar4 in,float matrix[])
 
 }
 
-uchar4 static getPixelForColor(int a, int r, int g, int b)
-{
-	uchar4 ret ={ 0 , 0 , 0 , 0 };
-	ret.a = a;
-	ret.r = r;
-	ret.g = g;
-	ret.b = b;
-	
-	return ret;
-}
 
 uchar4 static applyBlendToRGB(uchar4 source ,uchar4 target, int type, float opacity)
 {
@@ -147,6 +137,37 @@ uchar4 static applyBlendToRGB(uchar4 source ,uchar4 target, int type, float opac
 	return source;
 }
 
+uchar4 static applyBlendToRGBpixel(uchar4 source ,int r,int g,int b, int type, float opacity)
+{
+	switch(type)
+	{
+		case Multiply :
+			source.r =  ChannelBlend_Alpha(ChannelBlend_Multiply(r,source.r),source.r,opacity);
+			source.g =  ChannelBlend_Alpha(ChannelBlend_Multiply(g,source.g),source.g,opacity);
+			source.b =  ChannelBlend_Alpha(ChannelBlend_Multiply(b,source.b),source.b,opacity);
+			break;
+		case Overlay :
+			source.r =  ChannelBlend_Alpha(ChannelBlend_Overlay(r,source.r),source.r,opacity);
+			source.g =  ChannelBlend_Alpha(ChannelBlend_Overlay(g,source.g),source.g,opacity);
+			source.b =  ChannelBlend_Alpha(ChannelBlend_Overlay(b,source.b),source.b,opacity);
+			break;
+		case SoftLight :
+			source.r =  ChannelBlend_Alpha(blendSoftLight(r,source.r),source.r,opacity);
+			source.g =  ChannelBlend_Alpha(blendSoftLight(g,source.g),source.g,opacity);
+			source.b =  ChannelBlend_Alpha(blendSoftLight(b,source.b),source.b,opacity);
+			break;
+		case Exclusion :
+			source.r =  ChannelBlend_Alpha(ChannelBlend_Exclusion(r,source.r),source.r,opacity);
+			source.g =  ChannelBlend_Alpha(ChannelBlend_Exclusion(g,source.g),source.g,opacity);
+			source.b =  ChannelBlend_Alpha(ChannelBlend_Exclusion(b,source.b),source.b,opacity);
+			break;
+		default :
+			break;
+	}
+	return source;
+}
+
+
 uchar4 __attribute__((kernel)) filter_colorMatrix(uchar4 in,uint32_t x,uint32_t y)
 {
 	in=applyColorMatrix(in,preMatrix);
@@ -157,9 +178,9 @@ uchar4 __attribute__((kernel)) filter_solomon(uchar4 in,uint32_t x,uint32_t y) {
 
     
 
-	in = applyBlendToRGB(in , getPixelForColor(255,r[0],g[0],b[0]),Exclusion,0.30);
+	in = applyBlendToRGBpixel(in , r[0],g[0],b[0],Exclusion,0.30);
 
-	in = applyBlendToRGB(in , getPixelForColor(255,r[1],g[1],b[1]),SoftLight,0.75);
+	in = applyBlendToRGBpixel(in , r[1],g[1],b[1],SoftLight,0.75);
 
 	return in;
 }
@@ -212,9 +233,9 @@ uchar4 __attribute__((kernel)) filter_classic(uchar4 in,uint32_t x,uint32_t y) {
 	in.b=bSpline[in.b];
 
 
-	in = applyBlendToRGB(in , getPixelForColor(255,r[0],g[0],b[0]),Multiply,0.50);
+	in = applyBlendToRGBpixel(in , r[0],g[0],b[0],Multiply,0.50);
 
-	in = applyBlendToRGB(in , getPixelForColor(255,r[1],g[1],b[1]),Exclusion,1);
+	in = applyBlendToRGBpixel(in , r[1],g[1],b[1],Exclusion,1);
 	
 	return in;
 }
@@ -228,7 +249,7 @@ uchar4 __attribute__((kernel)) filter_kelvin(uchar4 in,uint32_t x,uint32_t y) {
 	in.b=bSpline[in.b];
 
 
-	in = applyBlendToRGB(in , getPixelForColor(255,r[0],g[0],b[0]),Overlay,0.30);
+	in = applyBlendToRGBpixel(in , r[0],g[0],b[0],Overlay,0.30);
 
 	if(!isThumbnail)
 	{
@@ -251,7 +272,7 @@ uchar4 __attribute__((kernel)) filter_retro(uchar4 in,uint32_t x,uint32_t y) {
 	in.b=bSpline[in.b];
 
 
-	in = applyBlendToRGB(in , getPixelForColor(255,r[0],g[0],b[0]),Multiply,0.60);
+	in = applyBlendToRGBpixel(in , r[0],g[0],b[0],Multiply,0.60);
 	 
 	in = applyColorMatrix(in,preMatrix);
 	
@@ -270,7 +291,7 @@ uchar4 __attribute__((kernel)) filter_brannan(uchar4 in,uint32_t x,uint32_t y)
 	
 	in = applyColorMatrix(in,preMatrix);
 	
-	in = applyBlendToRGB(in , getPixelForColor(255,r[0],g[0],b[0]),Overlay,0.70);
+	in = applyBlendToRGBpixel(in , r[0],g[0],b[0],Overlay,0.70);
 	
 	in.b = bSpline[in.b];
 	
@@ -283,7 +304,7 @@ uchar4 __attribute__((kernel)) filter_earlyBird(uchar4 in,uint32_t x,uint32_t y)
 {
 	in = applyColorMatrix(in,preMatrix);
 	
-	in = applyBlendToRGB(in , getPixelForColor(255,r[0],g[0],b[0]),Multiply,1);
+	in = applyBlendToRGBpixel(in , r[0],g[0],b[0],Multiply,1);
 	
 	if(!isThumbnail)
 	{
@@ -329,11 +350,11 @@ uchar4 __attribute__((kernel)) filter_nashville(uchar4 in,uint32_t x,uint32_t y)
 	
 	in.b = bSpline[in.b];
 	
-	in = applyBlendToRGB(in , getPixelForColor(255,r[0],g[0],b[0]),Overlay,0.50);
+	in = applyBlendToRGBpixel(in , r[0],g[0],b[0],Overlay,0.50);
 	
 	in = applyColorMatrix(in,postMatrix);
 	
-	in = applyBlendToRGB(in , getPixelForColor(255,r[1],g[1],b[1]),Multiply,0.70);
+	in = applyBlendToRGBpixel(in , r[1],g[1],b[1],Multiply,0.70);
 	
 	return in;
 }
@@ -357,7 +378,7 @@ uchar4 __attribute__((kernel)) filter_jalebi(uchar4 in,uint32_t x,uint32_t y) {
 	else
 	{
 		
-		in = applyBlendToRGB(in , getPixelForColor(255,r[0],g[0],b[0]),Multiply,0.70);
+		in = applyBlendToRGBpixel(in , r[0],g[0],b[0],Multiply,0.70);
 	
 	}
 
