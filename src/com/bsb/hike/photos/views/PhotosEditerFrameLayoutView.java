@@ -246,6 +246,7 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 			imageOriginal = Bitmap.createScaledBitmap(imageOriginal, HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX, HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX, false);
 			temp.recycle();
 			temp=null;
+			compressOutput = false;
 		}
 
 		effectLayer.getBitmapWithEffectsApplied(imageOriginal, this);

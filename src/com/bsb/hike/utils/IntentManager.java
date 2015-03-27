@@ -440,7 +440,6 @@ public class IntentManager
 	public static void openHikeCameraActivity(Activity argActivity)
 	{
 		Intent in = new Intent(argActivity, HikeCameraActivity.class);
-		in.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		argActivity.startActivity(in);
 	}
 	
@@ -448,7 +447,6 @@ public class IntentManager
 	{
 		Intent intent = new Intent(context, HikeCameraActivity.class);
 		intent.putExtra(HikeConstants.HikePhotos.CAMERA_ALLOW_GALLERY_KEY, allowGallery);
-		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		return intent;
 	}
 
