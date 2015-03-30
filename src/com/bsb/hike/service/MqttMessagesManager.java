@@ -3412,6 +3412,23 @@ public class MqttMessagesManager
 			
 			String subType = jsonObj.getString(HikeConstants.SUB_TYPE); 
 
+			if (subType.equals(HikeConstants.MqttMessageTypes.VOIP_CALL_CANCELLED)) {
+				// Check for call cancelled message
+				JSONObject metadataJSON = jsonObj.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA);
+
+				if (metadataJSON.getInt(VoIPConstants.Extras.CALL_ID) != VoIPService.getCallId()) {
+					Logger.w(VoIPConstants.TAG, "Ignoring call cancelled message. Callid: " + 
+							metadataJSON.getInt(VoIPConstants.Extras.CALL_ID));
+					return;
+				}
+				
+				Intent i = new Intent(context.getApplicationContext(), VoIPService.class);
+				i.putExtra(VoIPConstants.Extras.ACTION, subType);
+				i.putExtra(VoIPConstants.Extras.CALL_ID, metadataJSON.getInt(VoIPConstants.Extras.CALL_ID));
+				context.startService(i);
+				return;
+			}
+			
 			if (subType.equals(HikeConstants.MqttMessageTypes.VOIP_SOCKET_INFO) ||
 					subType.equals(HikeConstants.MqttMessageTypes.VOIP_CALL_REQUEST) ||
 					subType.equals(HikeConstants.MqttMessageTypes.VOIP_CALL_REQUEST_RESPONSE) ||
@@ -3419,23 +3436,16 @@ public class MqttMessagesManager
 				
 				JSONObject metadataJSON = jsonObj.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA);
 				
-				// Check for call cancelled message
-				if (subType.equals(HikeConstants.MqttMessageTypes.VOIP_CALL_CANCELLED)) {
-					if (metadataJSON.getInt(VoIPConstants.Extras.CALL_ID) == VoIPService.getCallId()) {
-						Logger.w(VoIPConstants.TAG, "Stopping call because of Hike layer message");
-						Intent i = new Intent(context.getApplicationContext(), VoIPService.class);
-						i.putExtra(VoIPConstants.Extras.ACTION, subType);
-						i.putExtra(VoIPConstants.Extras.CALL_ID, metadataJSON.getInt(VoIPConstants.Extras.CALL_ID));
-						context.startService(i);
-						return;
-					}
-				}
-
 				// Check for currently active call
 				if ((metadataJSON.getInt(VoIPConstants.Extras.CALL_ID) != VoIPService.getCallId() && VoIPService.getCallId() > 0) ||
 						VoIPUtils.isUserInCall(context)) {
-					Logger.w(VoIPConstants.TAG, "We are already in a call.");
-					VoIPUtils.sendMessage(jsonObj.getString(HikeConstants.FROM), HikeConstants.MqttMessageTypes.MESSAGE_VOIP_0, HikeConstants.MqttMessageTypes.VOIP_ERROR_ALREADY_IN_CALL);
+					Logger.w(VoIPConstants.TAG, "We are already in a call. id: " + VoIPService.getCallId());
+
+					VoIPUtils.sendVoIPMessageUsingHike(jsonObj.getString(HikeConstants.FROM), 
+							HikeConstants.MqttMessageTypes.VOIP_ERROR_ALREADY_IN_CALL, 
+							metadataJSON.getInt(VoIPConstants.Extras.CALL_ID), 
+							false);
+					return;
 				}
 					
 				// Check if the initiator (us) has already hung up
@@ -3455,6 +3465,8 @@ public class MqttMessagesManager
 				if (subType.equals(HikeConstants.MqttMessageTypes.VOIP_CALL_REQUEST) ||
 						subType.equals(HikeConstants.MqttMessageTypes.VOIP_CALL_REQUEST_RESPONSE) ||
 						subType.equals(HikeConstants.MqttMessageTypes.VOIP_CALL_RESPONSE_RESPONSE)) {
+
+//					Logger.w(VoIPConstants.TAG, "Received: " + subType);
 
 					Intent i = new Intent(context.getApplicationContext(), VoIPService.class);
 					i.putExtra(VoIPConstants.Extras.ACTION, subType);
