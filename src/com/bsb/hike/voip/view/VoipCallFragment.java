@@ -281,7 +281,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 			sensorManager.unregisterListener(proximitySensorEventListener);
 		}
 		
-		Logger.w(VoIPConstants.TAG, "VoipCallFragment onDestroy()");
+		Logger.d(VoIPConstants.TAG, "VoipCallFragment onDestroy()");
 		super.onDestroy();
 	}
 

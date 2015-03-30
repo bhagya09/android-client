@@ -1052,6 +1052,8 @@ public class HikeConstants
 
 	public static final String VOIP_AEC_ENABLED = "aec";
 
+	public static final String VOIP_NETWORK_TEST_ENABLED = "vnt";
+
 	public static final String VOIP_AEC_CPU_NR = "cpunr";
 
 	public static final String VOIP_AEC_CPU = "cpuaec";
@@ -2085,6 +2087,14 @@ public class HikeConstants
 		public static final String PACKET_ECHO = "pecho";
 
 		public static final String VOIP_SOCKET_INFO = "ve";
+
+		public static final String VOIP_CALL_REQUEST = "vcr1";
+
+		public static final String VOIP_CALL_REQUEST_RESPONSE = "vcr2";
+
+		public static final String VOIP_CALL_RESPONSE_RESPONSE = "vcr3";
+
+		public static final String VOIP_CALL_CANCELLED = "vcrj";
 
 		/**
 		 * VoIP data packet with QoS 0. This packet will either be delivered immediately or never.

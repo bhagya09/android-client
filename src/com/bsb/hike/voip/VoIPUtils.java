@@ -31,6 +31,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.telephony.TelephonyManager;
+import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -118,29 +119,6 @@ public class VoIPUtils {
     }	
 
     /**
-     * Used to communicate between two VoIP clients, via the server
-     * @param msisdn The client to which the message is being sent.
-     * @param type Message type (v0, v1 etc). 
-     * @param subtype Message sub-type. This usually decides what the recipient does with 
-     * the message.
-     * @throws JSONException
-     */
-    public static void sendMessage(String msisdn, String type, String subtype) throws JSONException {
-    	
-		JSONObject data = new JSONObject();
-		data.put(HikeConstants.MESSAGE_ID, new Random().nextInt(10000));
-		data.put(HikeConstants.TIMESTAMP, System.currentTimeMillis() / 1000); 
-
-		JSONObject message = new JSONObject();
-		message.put(HikeConstants.TO, msisdn);
-		message.put(HikeConstants.TYPE, type);
-		message.put(HikeConstants.SUB_TYPE, subtype);
-		message.put(HikeConstants.DATA, data);
-		
-		HikeMqttManagerNew.getInstance().sendMessage(message, HikeMqttManagerNew.MQTT_QOS_ONE);
-    }
-
-    /**
      * Add a VoIP related message to the chat thread.
      * @param context
      * @param clientPartner
@@ -155,8 +133,13 @@ public class VoIPUtils {
     		return;
     	} else
     		notificationDisplayed = true;
+    	
+    	if (TextUtils.isEmpty(clientPartner.getPhoneNumber())) {
+    		Logger.w(VoIPConstants.TAG, "Null phone number while adding message to chat thread. Message: " + messageType + ", Duration: " + duration + ", Phone: " + clientPartner.getPhoneNumber());
+    		return;
+    	}
     		
-    	Logger.d(VoIPConstants.TAG, "Adding message to chat thread. Message: " + messageType + ", Duration: " + duration);
+    	Logger.d(VoIPConstants.TAG, "Adding message to chat thread. Message: " + messageType + ", Duration: " + duration + ", Phone: " + clientPartner.getPhoneNumber());
     	HikeConversationsDatabase mConversationDb = HikeConversationsDatabase.getInstance();
     	Conversation mConversation = mConversationDb.getConversation(clientPartner.getPhoneNumber(), HikeConstants.MAX_MESSAGES_TO_LOAD_INITIALLY, Utils.isGroupConversation(clientPartner.getPhoneNumber()));	
     	long timestamp = System.currentTimeMillis() / 1000;
@@ -423,5 +406,39 @@ public class VoIPUtils {
 			useAEC = false;
 		
 		return useAEC;
+	}
+	
+	/**
+	 * Used to communicate between two clients using the server
+	 * @param recipient		Recipient's MSISDN
+	 * @param callMessage	One of the MQTT Message types ({@linkplain com.bsb.hike.HikeConstants.MqttMessageTypes})
+	 * @param callId		If there is an associated call ID, put it here
+	 * @param callInitiator Optional parameter.
+	 */
+	public static void sendVoIPMessageUsingHike(String recipient, String callMessage, int callId, boolean callInitiator) {
+		try {
+			JSONObject socketData = new JSONObject();
+			socketData.put("callId", callId);
+			socketData.put("initiator", callInitiator);
+			socketData.put("reconnecting", false);
+			
+			JSONObject data = new JSONObject();
+			data.put(HikeConstants.MESSAGE_ID, new Random().nextInt(10000));
+			data.put(HikeConstants.TIMESTAMP, System.currentTimeMillis() / 1000); 
+			data.put(HikeConstants.METADATA, socketData);
+
+			JSONObject message = new JSONObject();
+			message.put(HikeConstants.TO, recipient);
+			message.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.MESSAGE_VOIP_1);
+			message.put(HikeConstants.SUB_TYPE, callMessage);
+			message.put(HikeConstants.DATA, data);
+			
+			HikeMqttManagerNew.getInstance().sendMessage(message, HikeMqttManagerNew.MQTT_QOS_ONE);
+			Logger.d(VoIPConstants.TAG, "Sent call request message of type: " + callMessage + " to: " + recipient);
+
+		} catch (JSONException e) {
+			e.printStackTrace();
+			Logger.w(VoIPConstants.TAG, "sendSocketInfoToPartner JSON error: " + e.toString());
+		} 
 	}
 }
