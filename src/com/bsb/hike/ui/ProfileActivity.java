@@ -1301,7 +1301,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			@Override
 			public void onClick(View v)
 			{
-				showProfileImageEditDialog(ProfileActivity.this, ProfileActivity.this, false, ProfileImageActions.DP_EDIT_FROM_PROFILE_OVERFLOW_MENU);
+				showProfileImageEditDialog(ProfileActivity.this, ProfileActivity.this, false, null, ProfileImageActions.DP_EDIT_FROM_PROFILE_OVERFLOW_MENU);
 				
 				JSONObject md = new JSONObject();
 
@@ -1811,11 +1811,11 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	{
 		if(profileType == ProfileType.GROUP_INFO)
 		{
-			showProfileImageEditDialog(ProfileActivity.this, ProfileActivity.this, true, null);
+			showProfileImageEditDialog(ProfileActivity.this, ProfileActivity.this, true, mLocalMSISDN, null);
 		}
 		else if(profileType == ProfileType.USER_PROFILE)
 		{
-			showProfileImageEditDialog(ProfileActivity.this, ProfileActivity.this, false, ProfileImageActions.DP_EDIT_FROM_PROFILE_SCREEN);
+			showProfileImageEditDialog(ProfileActivity.this, ProfileActivity.this, false, null, ProfileImageActions.DP_EDIT_FROM_PROFILE_SCREEN);
 			
 			JSONObject md = new JSONObject();
 

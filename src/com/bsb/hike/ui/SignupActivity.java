@@ -825,7 +825,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 					@Override
 					public void onClick(View v)
 					{
-						showProfileImageEditDialog(SignupActivity.this, SignupActivity.this, false, null);
+						showProfileImageEditDialog(SignupActivity.this, SignupActivity.this, false, null, null);
 					}
 				});
 			}
@@ -864,7 +864,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 				@Override
 				public void onClick(View v)
 				{
-					showProfileImageEditDialog(SignupActivity.this, SignupActivity.this, false, null);
+					showProfileImageEditDialog(SignupActivity.this, SignupActivity.this, false, null, null);
 				}
 			});
 		}

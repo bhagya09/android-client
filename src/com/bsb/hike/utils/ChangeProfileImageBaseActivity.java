@@ -88,8 +88,6 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 
 		prefs = HikeSharedPreferenceUtil.getInstance();
 
-		mLocalMSISDN = prefs.getData(HikeMessengerApp.MSISDN_SETTING, null);
-
 		Object obj = getLastCustomNonConfigurationInstance();
 
 		if (obj instanceof ActivityState)
@@ -334,14 +332,15 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 
 	/**
 	 * Used to show a dialog to the user to modify his/her current display picture
-	 * @param isGroupConv
-	 * @param removeImagePath TODO
-	 * @param msisdn
-	 *            of the user
+	 * @param isGroupConv true if conversation is a group conversation, false otherwise
+	 * @param groupId if its a group conversation, groupId is non-null
+	 * @param removeImagePath describes which activity wants to remove profile picture
 	 */
-	public void showProfileImageEditDialog(android.content.DialogInterface.OnClickListener listener, Context ctx, boolean isGroupConv, String removeImagePath)
+	public void showProfileImageEditDialog(android.content.DialogInterface.OnClickListener listener, Context ctx, boolean isGroupConv, String msisdn, String removeImagePath)
 	{
-		mRemoveImagePath = removeImagePath;
+		mRemoveImagePath = removeImagePath;		
+ 		mLocalMSISDN = isGroupConv ? msisdn : prefs.getData(HikeMessengerApp.MSISDN_SETTING, null);
+		 		
 		AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
 		builder.setTitle(R.string.profile_photo);
 
@@ -703,6 +702,6 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 		{
 			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "json exception");
 		}
-		showProfileImageEditDialog(ChangeProfileImageBaseActivity.this, ChangeProfileImageBaseActivity.this, false, imageRemovePath);		
+		showProfileImageEditDialog(ChangeProfileImageBaseActivity.this, ChangeProfileImageBaseActivity.this, false, null, imageRemovePath);		
 	}
 }
