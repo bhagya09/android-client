@@ -57,7 +57,20 @@ public class HikeDialogFragment extends DialogFragment
 	{
 		Logger.d("ProductPopup", "Dialog Orientation changed");
 		
-		mmWebView.loadDataWithBaseURL("", mmModel.getFormedData(), "text/html", "UTF-8", "");
+		if (loadingCard != null)
+		{
+			loadingCard.setVisibility(View.VISIBLE);
+		}
+		mmWebView.post((new Runnable()
+		{
+			
+			@Override
+			public void run()
+			{
+				mmWebView.loadDataWithBaseURL("", mmModel.getFormedData(), "text/html", "UTF-8", "");
+				
+			}
+		}));
 		super.onConfigurationChanged(newConfig);
 	}
 	@Override
@@ -127,7 +140,7 @@ public class HikeDialogFragment extends DialogFragment
 	public void onActivityCreated(Bundle arg0)
 	{
 		super.onActivityCreated(arg0);
-
+		getDialog().setCanceledOnTouchOutside(false);
 		mmBridge = new ProductJavaScriptBridge(mmWebView, new WeakReference<HikeDialogFragment>(this), mmModel.getData());
 
 		mmWebView.addJavascriptInterface(mmBridge, ProductPopupsConstants.POPUP_BRIDGE_NAME);
