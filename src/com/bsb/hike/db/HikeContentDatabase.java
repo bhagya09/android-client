@@ -21,6 +21,7 @@ import com.bsb.hike.db.DBConstants.HIKE_CONTENT;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.WhitelistDomain;
 import com.bsb.hike.productpopup.ProductContentModel;
+import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.utils.Logger;
 
 public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants, HIKE_CONTENT
@@ -416,5 +417,11 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 	public void deleteAllDomainsFromWhitelist()
 	{
 		mDB.delete(URL_WHITELIST, null, null);
+	}
+
+	public void deleteAllPopupsFromDatabase()
+	{
+		mDB.delete(POPUPDATA, null, null);
+		
 	}
 }

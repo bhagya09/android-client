@@ -396,4 +396,16 @@ public class ProductInfoManager
 		});
 	}
 
+	public void deleteAllPopups()
+	{
+		HikeContentDatabase.getInstance().deleteAllPopupsFromDatabase();
+		clearPopupStack();
+		
+	}
+	
+	private void clearPopupStack()
+	{
+		mmSparseArray.clear();
+	}
+
 }
