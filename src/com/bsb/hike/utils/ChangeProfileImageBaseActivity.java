@@ -332,15 +332,14 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 
 	/**
 	 * Used to show a dialog to the user to modify his/her current display picture
-	 * @param isGroupConv true if conversation is a group conversation, false otherwise
-	 * @param groupId if its a group conversation, groupId is non-null
 	 * @param removeImagePath describes which activity wants to remove profile picture
+	 * @param groupId if its a group conversation, groupId is non-null
 	 */
-	public void showProfileImageEditDialog(android.content.DialogInterface.OnClickListener listener, Context ctx, boolean isGroupConv, String msisdn, String removeImagePath)
+	public void showProfileImageEditDialog(android.content.DialogInterface.OnClickListener listener, Context ctx, String msisdn, String removeImagePath)
 	{
 		mRemoveImagePath = removeImagePath;		
- 		mLocalMSISDN = isGroupConv ? msisdn : prefs.getData(HikeMessengerApp.MSISDN_SETTING, null);
-		 		
+ 		mLocalMSISDN = msisdn;
+ 		
 		AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
 		builder.setTitle(R.string.profile_photo);
 
@@ -349,7 +348,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 		// Show Remove Photo item only if user has a profile photo other than default
 		ContactInfo contactInfo = Utils.getUserContactInfo(prefs.getPref());
 
-		if (!isGroupConv && ContactManager.getInstance().hasIcon(contactInfo.getMsisdn()))
+		if (!Utils.isGroupConversation(mLocalMSISDN) && ContactManager.getInstance().hasIcon(contactInfo.getMsisdn()))
 		{
 			CharSequence[] moreItems = new CharSequence[items.length + 1]; // adding one item to the existing list
 
@@ -702,6 +701,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 		{
 			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "json exception");
 		}
-		showProfileImageEditDialog(ChangeProfileImageBaseActivity.this, ChangeProfileImageBaseActivity.this, false, null, imageRemovePath);		
+		String msisdn = prefs.getPref().getString(HikeMessengerApp.MSISDN_SETTING, null);
+		showProfileImageEditDialog(ChangeProfileImageBaseActivity.this, ChangeProfileImageBaseActivity.this, msisdn, imageRemovePath);		
 	}
 }

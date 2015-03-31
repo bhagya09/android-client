@@ -825,7 +825,8 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 					@Override
 					public void onClick(View v)
 					{
-						showProfileImageEditDialog(SignupActivity.this, SignupActivity.this, false, null, null);
+						String msisdn = accountPrefs.getString(HikeMessengerApp.MSISDN_SETTING, null);
+						showProfileImageEditDialog(SignupActivity.this, SignupActivity.this, msisdn, null);
 					}
 				});
 			}
@@ -864,7 +865,8 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 				@Override
 				public void onClick(View v)
 				{
-					showProfileImageEditDialog(SignupActivity.this, SignupActivity.this, false, null, null);
+					String msisdn = accountPrefs.getString(HikeMessengerApp.MSISDN_SETTING, null);
+					showProfileImageEditDialog(SignupActivity.this, SignupActivity.this, msisdn, null);
 				}
 			});
 		}
