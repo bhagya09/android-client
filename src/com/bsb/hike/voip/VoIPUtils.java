@@ -158,7 +158,7 @@ public class VoIPUtils {
     		
     	Logger.d(VoIPConstants.TAG, "Adding message to chat thread. Message: " + messageType + ", Duration: " + duration);
     	HikeConversationsDatabase mConversationDb = HikeConversationsDatabase.getInstance();
-    	Conversation mConversation = mConversationDb.getConversation(clientPartner.getPhoneNumber(), HikeConstants.MAX_MESSAGES_TO_LOAD_INITIALLY, Utils.isGroupConversation(clientPartner.getPhoneNumber()));	
+    	Conversation mConversation = mConversationDb.getConversation(clientPartner.getPhoneNumber(), HikeConstants.MAX_MESSAGES_TO_LOAD_INITIALLY, false);
     	long timestamp = System.currentTimeMillis() / 1000;
     	if (timeStamp > 0)
     	{
@@ -413,15 +413,14 @@ public class VoIPUtils {
 	    return sb.toString();
 	}	
 	
-	public static boolean useAEC(Context context) {
-		boolean useAEC = true;
-		
-		useAEC = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.VOIP_AEC_ENABLED, true);
-		
+	public static boolean useAEC(Context context) 
+	{
+		boolean useAec = false;
 		// Disable AEC on <= 2.3 devices
-		if (!Utils.isHoneycombOrHigher())
-			useAEC = false;
-		
-		return useAEC;
+		if (Utils.isHoneycombOrHigher())
+		{
+			useAec = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.VOIP_AEC_ENABLED, true);
+		}
+		return useAec;
 	}
 }
