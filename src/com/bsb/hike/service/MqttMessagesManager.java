@@ -180,26 +180,20 @@ public class MqttMessagesManager
 
 	private void saveIcon(JSONObject jsonObj) throws JSONException
 	{
-		String msisdn = null;
-		
-		try
+		String msisdn = jsonObj.getString(HikeConstants.FROM);
+		/*
+		 * We don't consider this packet if the msisdn is the user's msisdn or a group conversation.
+		 */
+		if (Utils.isGroupConversation(msisdn) || userMsisdn.equals(msisdn))
 		{
-			msisdn = jsonObj.getString(HikeConstants.FROM);
-			
-			/*
-			 * We don't consider this packet if the msisdn is the user's msisdn or a group conversation.
-			 */
-			if (Utils.isGroupConversation(msisdn) || userMsisdn.equals(msisdn))
-			{
-				return;
-			}
+			return;
 		}
-		// server does not send "from" field for user's icon in "ic" packet
-		catch(JSONException ex)
-		{
-			msisdn = userMsisdn;
-		}
-		saveUserIcon(jsonObj, msisdn);
+		String iconBase64 = jsonObj.getString(HikeConstants.DATA);
+		ContactManager.getInstance().setIcon(msisdn, Base64.decode(iconBase64, Base64.DEFAULT), false);
+
+		HikeMessengerApp.getLruCache().clearIconForMSISDN(msisdn);
+		HikeMessengerApp.getPubSub().publish(HikePubSub.ICON_CHANGED, msisdn);
+		// IconCacheManager.getInstance().clearIconForMSISDN(msisdn);
 
 		/*
 		 * Only auto download if the ic packet is not generated due to signup.
