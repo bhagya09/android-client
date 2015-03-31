@@ -206,6 +206,7 @@
         </activity>
         <activity
             android:name=".ui.ProfileActivity"
+            android:configChanges="orientation|screenSize|keyboard|keyboardHidden"            
             android:windowSoftInputMode="stateHidden" >
             <intent-filter android:label="@string/set_profile_pic" >
                 <action android:name="android.intent.action.ATTACH_DATA" />
