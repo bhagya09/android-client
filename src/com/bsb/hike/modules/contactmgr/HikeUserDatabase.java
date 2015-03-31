@@ -14,6 +14,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -72,7 +74,8 @@ class HikeUserDatabase extends SQLiteOpenHelper
 				+ DBConstants.HIKE_JOIN_TIME + " INTEGER DEFAULT 0, " // When this user joined hike
 				+ DBConstants.LAST_SEEN + " INTEGER DEFAULT -1, " // When this user was last seen on hike
 				+ DBConstants.IS_OFFLINE + " INTEGER DEFAULT 1, " // Whether this user is online or not
-				+ DBConstants.INVITE_TIMESTAMP + " INTEGER DEFAULT 0" // When this user was last invited.
+				+ DBConstants.INVITE_TIMESTAMP + " INTEGER DEFAULT 0, " // When this user was last invited.
+				+ DBConstants.PLATFORM_USER_ID + "TEXT DEFAULT ''"    // Platform user id
 				+ " )";
 
 		db.execSQL(create);
@@ -232,6 +235,14 @@ class HikeUserDatabase extends SQLiteOpenHelper
 		{
 			String drop = "DROP TABLE " + DBConstants.ROUNDED_THUMBNAIL_TABLE;
 			db.execSQL(drop);
+		}
+
+		if (oldVersion < 17)
+		{
+			String alter = "ALTER TABLE " + DBConstants.USERS_TABLE + " ADD COLUMN " + DBConstants.PLATFORM_USER_ID + " TEXT DEFAULT ''";
+			db.execSQL(alter);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikePlatformConstants.PLATFORM_UID_FETCH_AT_UPGRADE,1);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikePlatformConstants.PLATFORM_UID_FOR_ADDRESS_BOOK_FETCH,1);
 		}
 	}
 
