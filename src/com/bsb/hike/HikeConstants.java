@@ -1042,6 +1042,8 @@ public class HikeConstants
 
 	public static final String VOIP_CALL_RATE_POPUP_SHOW = "vrmcs";
 
+	public static final String VOIP_FTUE_POPUP = "voip_popup";
+
 	public static final String VOIP_CALL_RATE_POPUP_FREQ = "vrmcf";
 
 	public static final String VOIP_RELAY_SERVER_PORT = "rsport";

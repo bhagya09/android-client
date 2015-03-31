@@ -1408,6 +1408,11 @@ public class MqttMessagesManager
 			int activateVoip = data.getInt(HikeConstants.VOIP_ACTIVATED);
 			editor.putInt(HikeConstants.VOIP_ACTIVATED, activateVoip);
 		}
+		if(data.has(HikeConstants.VOIP_FTUE_POPUP))
+		{
+			boolean showFtuePopup = data.getBoolean(HikeConstants.VOIP_FTUE_POPUP);
+			editor.putBoolean(HikeMessengerApp.SHOW_VOIP_FTUE_POPUP, showFtuePopup);
+		}
 		if(data.has(HikeConstants.VOIP_CALL_RATE_POPUP_SHOW))
 		{
 			int showPopup = data.getInt(HikeConstants.VOIP_CALL_RATE_POPUP_SHOW);
