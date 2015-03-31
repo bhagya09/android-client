@@ -2355,4 +2355,36 @@ class HikeUserDatabase extends SQLiteOpenHelper
 			}
 		}
 	}
+
+	void platformUserIdDbEntry(JSONArray data)
+	{
+		try
+		{
+			mDb.beginTransaction();
+			for (int i=0; i<data.length(); i++)
+			{
+				JSONObject obj = data.getJSONObject(i);
+				String msisdn = obj.optString(HikeConstants.MSISDN);
+				String platformUID = obj.optString(HikePlatformConstants.PLATFORM_USER_ID);
+				if (TextUtils.isEmpty(msisdn) || TextUtils.isEmpty(platformUID))
+				{
+					continue;
+				}
+				ContentValues contentValues = new ContentValues(1);
+				contentValues.put(DBConstants.PLATFORM_USER_ID, platformUID);
+				mDb.update(DBConstants.USERS_TABLE, contentValues, "msisdn=?", new String[] { msisdn });
+			}
+			mDb.setTransactionSuccessful();
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+		finally
+		{
+			mDb.endTransaction();
+		}
+
+
+	}
 }
