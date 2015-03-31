@@ -18,10 +18,4 @@
                 android:title="@string/edit_profile"/>
         </menu>
     </item>
-    <item
-        android:id="@+id/edit_dp"
-        android:icon="@drawable/ic_edit_dp"
-        android:showAsAction="always"
-        android:title="@string/edit_photo"
-        android:visible="false"/>
 </menu>
