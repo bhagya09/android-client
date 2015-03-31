@@ -271,7 +271,7 @@ public class HikeSDKRequestHandler extends Handler implements Listener
 				{
 					JSONObject friendJSON = new JSONObject();
 
-					String contactId = contact.getId();
+					String contactId = contact.getPlatformId();
 
 					String contactName = contact.getNameOrMsisdn();
 
