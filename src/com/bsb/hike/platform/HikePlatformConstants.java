@@ -44,6 +44,22 @@ public interface HikePlatformConstants
 	String APP_NAME = "appName";
 	String LAYOUT = "layoutId";
 	String LONG_PRESS_DISABLED = "lpd";
+	String HIKE_UID = "hikeuid";
+	String HIKE_TOKEN = "hiketoken";
+	String HIKE_UIDS = "hikeuids";
+	String PLATFORM_USER_ID = "platformUid";
+	String PLATFORM_UID_FETCH_AT_UPGRADE = "platformUidUpgradeAtFetch";
+	String PLATFORM_UID_FOR_ADDRESS_BOOK_FETCH = "platformUidForAddressBookFetch";
+
+	public static final class PlatformUIDFetchType
+	{
+		public static final int SELF = 1;
+
+		public static final int FULL_ADDRESS_BOOK = 2;
+
+		public static final int PARTIAL_ADDRESS_BOOK = 3;
+
+	}
 
     /**
      * Analytics for Platform

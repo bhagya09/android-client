@@ -90,4 +90,14 @@ public class HttpRequestConstants
 	{
 		return BASE_URL + BASE_V1 + BASE_USER + "/status";
 	}
+
+	public static String selfPlatformUidFetchUrl()
+	{
+		return BASE_URL + BASE_V1 + BASE_USER + "/create";
+	}
+
+	public static String platformUidForAddressBookFetchUrl()
+	{
+		return BASE_URL + BASE_V1 + BASE_USER + "/read";
+	}
 }
