@@ -413,7 +413,8 @@
             android:theme="@style/TranslucentBlack"
             android:launchMode="singleTask"
             android:configChanges="orientation|keyboardHidden|screenSize"
-            android:label="@string/app_name" >
+            android:label="@string/app_name"
+            android:showOnLockScreen="true" >
         </activity>
         
         <receiver android:name=".voip.IncomingCallListener">
