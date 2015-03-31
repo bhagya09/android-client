@@ -9,6 +9,7 @@ import static com.bsb.hike.modules.httpmgr.request.PriorityConstants.PRIORITY_HI
 import static com.bsb.hike.modules.httpmgr.request.Request.REQUEST_TYPE_LONG;
 import static com.bsb.hike.modules.httpmgr.request.Request.REQUEST_TYPE_SHORT;
 
+import com.bsb.hike.platform.PlatformUIDFetch;
 import org.json.JSONObject;
 
 import com.bsb.hike.modules.httpmgr.RequestToken;
@@ -95,6 +96,32 @@ public class HttpRequests
 				.setRequestListener(requestListener)
 				.setRetryPolicy(new DefaultRetryPolicy(3, 1000, 2.0f))
 				.build();
+		return requestToken;
+	}
+
+	public static RequestToken getPlatformUserIdFetchRequest(String url, IRequestListener requestListener)
+	{
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(url)
+				.setRetryPolicy(new DefaultRetryPolicy(3, 1000, 2.0f))
+				.setRequestListener(requestListener)
+				.setRequestType(REQUEST_TYPE_SHORT)
+				.build();
+
+		return requestToken;
+	}
+
+	public static RequestToken postPlatformUserIdFetchRequest(String url,JSONObject json, IRequestListener requestListener)
+	{
+		JsonBody body = new JsonBody(json);
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(url)
+				.post(body)
+				.setRetryPolicy(new DefaultRetryPolicy(3, 1000, 2.0f))
+				.setRequestListener(requestListener)
+				.setRequestType(REQUEST_TYPE_SHORT)
+				.build();
+
 		return requestToken;
 	}
 }
