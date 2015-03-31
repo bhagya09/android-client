@@ -11,6 +11,8 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.PlatformUIDFetch;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.StickerManager;
 
@@ -97,7 +99,27 @@ public class UpgradeIntentService extends IntentService
 				editor.commit();
 			}
 		}
-		
+
+		if (prefs.getInt(HikePlatformConstants.PLATFORM_UID_FETCH_AT_UPGRADE, 1) == 1 || prefs.getString(HikeMessengerApp.PLATFORM_UID_SETTING, null) == null)
+		{
+			String hikeuid = prefs.getString(HikeMessengerApp.UID_SETTING, null);
+			String hikeToken = prefs.getString(HikeMessengerApp.TOKEN_SETTING, null);
+			PlatformUIDFetch.fetchPlatformUid(HikePlatformConstants.PlatformUIDFetchType.SELF, hikeuid, hikeToken);
+			Editor editor = prefs.edit();
+			editor.putInt(HikePlatformConstants.PLATFORM_UID_FETCH_AT_UPGRADE, 2);
+			editor.putBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false);
+			editor.commit();
+		}
+
+		if (prefs.getInt(HikePlatformConstants.PLATFORM_UID_FOR_ADDRESS_BOOK_FETCH, 1) == 1 )
+		{
+			String hikeuid = prefs.getString(HikeMessengerApp.UID_SETTING, null);
+			PlatformUIDFetch.fetchPlatformUid(HikePlatformConstants.PlatformUIDFetchType.FULL_ADDRESS_BOOK, hikeuid);
+			Editor editor = prefs.edit();
+			editor.putInt(HikePlatformConstants.PLATFORM_UID_FOR_ADDRESS_BOOK_FETCH, 2);
+			editor.putBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false);
+			editor.commit();
+		}
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.UPGRADING, false);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.FINISHED_UPGRADE_INTENT_SERVICE, null);
 	}
