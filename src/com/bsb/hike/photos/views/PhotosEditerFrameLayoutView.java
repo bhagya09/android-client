@@ -11,23 +11,24 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.media.MediaScannerConnection;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
+import android.view.KeyCharacterMap;
+import android.view.KeyEvent;
 import android.widget.FrameLayout;
+import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
-import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.photos.HikeEffectsFactory.OnFilterAppliedListener;
 import com.bsb.hike.photos.HikePhotosListener;
 import com.bsb.hike.photos.HikePhotosUtils;
 import com.bsb.hike.photos.HikePhotosUtils.FilterTools.FilterType;
 import com.bsb.hike.photos.views.CanvasImageView.OnDoodleStateChangeListener;
-import com.bsb.hike.platform.content.PlatformContentUtils;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
+import com.bsb.hike.utils.IntentManager;
 import com.bsb.hike.utils.Utils;
 
 /**
@@ -96,7 +97,7 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 
 	public int getThumbnailDimen()
 	{
-		int density =getResources().getDisplayMetrics().densityDpi;
+		int density = getResources().getDisplayMetrics().densityDpi;
 		int dimen = 0;
 		switch (density)
 		{
@@ -105,18 +106,35 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 		case DisplayMetrics.DENSITY_HIGH:
 			return HikeConstants.HikePhotos.PREVIEW_THUMBNAIL_WIDTH_MDPI;
 		default:
-			return HikeConstants.HikePhotos.PREVIEW_THUMBNAIL_WIDTH_HDPI;
+			boolean hasBackKey = KeyCharacterMap.deviceHasKey(KeyEvent.KEYCODE_BACK);
+			
+			if( !hasBackKey) {
+			    // Do whatever you need to do, this device has a navigation bar
+				return HikeConstants.HikePhotos.PREVIEW_THUMBNAIL_WIDTH_MDPI;
+			}
+
+			else{
+				return HikeConstants.HikePhotos.PREVIEW_THUMBNAIL_WIDTH_HDPI;
+			}
 
 		}
 
 	}
-	
+
 	public Bitmap getScaledImageOriginal()
 	{
 		if (scaledImageOriginal == null)
 		{
-			scaledImageOriginal = Bitmap.createScaledBitmap(imageOriginal, HikePhotosUtils.dpToPx(getContext(),getThumbnailDimen()),
-					HikePhotosUtils.dpToPx(getContext(),getThumbnailDimen()), false);
+			scaledImageOriginal = HikePhotosUtils.createBitmap(imageOriginal, 0, 0, HikePhotosUtils.dpToPx(getContext(), getThumbnailDimen()),
+					HikePhotosUtils.dpToPx(getContext(), getThumbnailDimen()), true, true, false, true);
+
+			if(scaledImageOriginal == null)
+			{
+				//To Do Out Of Memory Handling
+			}
+			
+			// scaledImageOriginal = Bitmap.createScaledBitmap(imageOriginal, HikePhotosUtils.dpToPx(getContext(),getThumbnailDimen()),
+			// HikePhotosUtils.dpToPx(getContext(),getThumbnailDimen()), false);
 		}
 		return scaledImageOriginal;
 	}
@@ -141,12 +159,26 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 	 */
 	public void loadImageFromFile(String FilePath)
 	{
-		imageOriginal = BitmapFactory.decodeFile(FilePath);
+		try
+		{
+			imageOriginal = BitmapFactory.decodeFile(FilePath);
+		}
+		catch (OutOfMemoryError e)
+		{
+			Toast.makeText(getContext(), getResources().getString(R.string.photos_oom_load), Toast.LENGTH_SHORT).show();
+			IntentManager.openHomeActivity(getContext(),true);
+		}
 		DisplayMetrics metrics = getContext().getResources().getDisplayMetrics();
 		int width = metrics.widthPixels;
-		if (width < imageOriginal.getWidth())
+		if (width != imageOriginal.getWidth())
 		{
-			imageScaled = Bitmap.createScaledBitmap(imageOriginal, width, width, false);
+			imageScaled = HikePhotosUtils.createBitmap(imageOriginal, 0, 0, width, width, true, true, false, true);
+			if(imageScaled == null)
+			{
+				Toast.makeText(getContext(), getResources().getString(R.string.photos_oom_load), Toast.LENGTH_SHORT).show();
+				IntentManager.openHomeActivity(getContext(),true);
+			}
+			// imageScaled = Bitmap.createScaledBitmap(imageOriginal, width, width, false);
 			effectLayer.handleImage(imageScaled, true);
 		}
 		else
@@ -159,7 +191,7 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 
 	public void loadImageFromBitmap(Bitmap bmp)
 	{
-		effectLayer.handleImage(bmp,false);
+		effectLayer.handleImage(bmp, false);
 	}
 
 	public void enableDoodling()
@@ -192,7 +224,7 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 	public void saveImage(HikeFileType fileType, String originalName, HikePhotosListener listener)
 	{
 		doodleLayer.getMeasure();
-		
+
 		this.mFileType = fileType;
 		this.mOriginalName = originalName;
 		this.mListener = listener;
@@ -296,10 +328,21 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 
 			if (doodleLayer.getBitmap() != null)
 			{
-				Bitmap temp = Bitmap.createScaledBitmap(doodleLayer.getBitmap(), imageOriginal.getWidth(), imageOriginal.getHeight(), false);
-				canvasResult.drawBitmap(temp, 0, 0, doodleLayer.getPaint());
-				sendAnalyticsDoodleApplied(doodleLayer.getColor());
-				temp.recycle();
+				Bitmap temp = HikePhotosUtils.createBitmap(doodleLayer.getBitmap(), 0, 0, imageOriginal.getWidth(), imageOriginal.getHeight(), true, true, false, true);
+				// Bitmap temp = Bitmap.createScaledBitmap(doodleLayer.getBitmap(), imageOriginal.getWidth(), imageOriginal.getHeight(), false);
+
+				if (temp != null)
+				{
+					canvasResult.drawBitmap(temp, 0, 0, doodleLayer.getPaint());
+					sendAnalyticsDoodleApplied(doodleLayer.getColor());
+					temp.recycle();
+				}
+				else
+				{
+					Toast.makeText(getContext(), getResources().getString(R.string.photos_oom_save), Toast.LENGTH_SHORT).show();
+					IntentManager.openHomeActivity(getContext(),true);
+					
+				}
 			}
 		}
 
@@ -309,18 +352,35 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 	@Override
 	public void onFilterApplied(Bitmap preview)
 	{
-		if (!savingFinal)
+
+		if (preview == null)
 		{
-			vignetteLayer.setVignetteforFilter();
-			effectLayer.changeDisplayImage(preview);
+			// To Do Out Of Memory handling
+			if (savingFinal)
+			{
+				// Move Back to Home
+				Toast.makeText(getContext(),  getResources().getString(R.string.photos_oom_save), Toast.LENGTH_SHORT).show();
+				IntentManager.openHomeActivity(getContext(),true);
+			}
+			else
+			{
+				Toast.makeText(getContext(),getResources().getString(R.string.photos_oom_retry), Toast.LENGTH_SHORT).show();
+			}
 		}
 		else
 		{
-			savingFinal = false;
-			imageEdited = preview;
-			flattenLayers();
+			if (!savingFinal)
+			{
+				vignetteLayer.setVignetteforFilter();
+				effectLayer.changeDisplayImage(preview);
+			}
+			else
+			{
+				savingFinal = false;
+				imageEdited = preview;
+				flattenLayers();
+			}
 		}
-
 	}
 
 	private void sendAnalyticsDoodleApplied(int colorHex)

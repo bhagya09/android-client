@@ -14,20 +14,19 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.photos.HikePhotosUtils;
 import com.bsb.hike.photos.HikePhotosUtils.FilterTools.FilterList;
 import com.bsb.hike.photos.HikePhotosUtils.MenuType;
 import com.bsb.hike.photos.views.DoodleEffectItemLinearLayout;
 import com.bsb.hike.photos.views.FilterEffectItemLinearLayout;
+import com.bsb.hike.ui.PictureEditer;
 import com.bsb.hike.ui.PictureEditer.EditorClickListener;
-import com.jess.ui.TwoWayAbsListView;
 import com.jess.ui.TwoWayGridView;
 
 public final class PreviewFragment extends Fragment
 {
-
-	private MenuType myType;
 
 	private EditorClickListener handler;
 
@@ -35,12 +34,20 @@ public final class PreviewFragment extends Fragment
 
 	private ImageAdapter mAdapter;
 
-	public PreviewFragment(MenuType type, EditorClickListener adapter, Bitmap bitmap)
-	{
+	private int menuType;
 
-		myType = type;
-		handler = adapter;
-		mOriginalBitmap = bitmap;
+	private static final String MENU_TYPE_KEY = "MENU_TYPE_KEY";
+
+	private static final String BITMAP_KEY = "BITMAP_KEY";
+
+	public static PreviewFragment newInstance(int type, Bitmap bitmap)
+	{
+		PreviewFragment newFrag = new PreviewFragment();
+		Bundle newFragBundle = new Bundle();
+		newFragBundle.putInt(MENU_TYPE_KEY, type);
+		newFragBundle.putParcelable(BITMAP_KEY, bitmap);
+		newFrag.setArguments(newFragBundle);
+		return newFrag;
 	}
 
 	@Override
@@ -48,6 +55,16 @@ public final class PreviewFragment extends Fragment
 	{
 		super.onCreate(savedInstanceState);
 
+		if (getActivity() instanceof PictureEditer)
+		{
+			handler = ((PictureEditer) getActivity()).getClickHandler();
+		}
+
+		Bundle newFragBundle = getArguments();
+
+		menuType = newFragBundle.getInt(MENU_TYPE_KEY);
+
+		mOriginalBitmap = newFragBundle.getParcelable(BITMAP_KEY);
 	}
 
 	@Override
@@ -56,19 +73,19 @@ public final class PreviewFragment extends Fragment
 
 		LinearLayout layout = (LinearLayout) LayoutInflater.from(getActivity()).inflate(R.layout.photos_pager_layout, container, false);
 
-		
 		int height = container.getMeasuredHeight();
-		
+
 		TwoWayGridView gridView = (TwoWayGridView) layout.findViewById(R.id.HorizontalGridView);
-		//gridView.setLayoutParams(new TwoWayAbsListView.LayoutParams(TwoWayAbsListView.LayoutParams.MATCH_PARENT, HikePhotosUtils.dpToPx(getActivity().getApplicationContext(), height)));
+		// gridView.setLayoutParams(new TwoWayAbsListView.LayoutParams(TwoWayAbsListView.LayoutParams.MATCH_PARENT, HikePhotosUtils.dpToPx(getActivity().getApplicationContext(),
+		// height)));
 		gridView.setColumnWidth(GridView.AUTO_FIT);
 		gridView.setRowHeight(height);
-		mAdapter = new ImageAdapter(getActivity(), myType, handler);
+		mAdapter = new ImageAdapter(handler);
 		gridView.setAdapter(mAdapter);
 		ViewStub adjuster = (ViewStub) layout.findViewById(R.id.sizeBarStub);
-		switch (myType)
+		switch (menuType)
 		{
-		case Doodle:
+		case MenuType.DOODLE_TYPE:
 			layout.setWeightSum(HikeConstants.HikePhotos.PHOTOS_PAGER_DOODLE_WEIGHT_SUM);
 			RelativeLayout sizeBar = (RelativeLayout) adjuster.inflate();
 			sizeBar.findViewById(R.id.plusWidth).setOnClickListener(handler);
@@ -77,22 +94,22 @@ public final class PreviewFragment extends Fragment
 			DoodleEffectItemLinearLayout inflated = (DoodleEffectItemLinearLayout) stub.inflate();
 			inflated.setBrushColor(HikePhotosUtils.DoodleColors[0]);
 			inflated.setBrushWidth(HikePhotosUtils.dpToPx(getActivity().getApplicationContext(), HikeConstants.HikePhotos.DEFAULT_BRUSH_WIDTH));
-			
+
 			inflated.setPadding(0, 0, 0, 0);
 			inflated.setRingColor(HikeConstants.HikePhotos.DEFAULT_RING_COLOR);
 			inflated.refresh();
 			inflated.invalidate();
 			handler.setDoodlePreview(inflated);
 			break;
-		case Effects:
+		case MenuType.EFFECTS_TYPE:
 			layout.setWeightSum(HikeConstants.HikePhotos.PHOTOS_PAGER_FILTER_WEIGHT_SUM);
 			adjuster.setVisibility(View.GONE);
 			break;
-		case Border:
+		case MenuType.BORDER_TYPE:
 			break;
-		case Quality:
+		case MenuType.QUALITY_TYPE:
 			break;
-		case Text:
+		case MenuType.TEXT_TYPE:
 			break;
 		default:
 			break;
@@ -116,22 +133,22 @@ public final class PreviewFragment extends Fragment
 
 		private EditorClickListener clickListener;
 
-		public ImageAdapter(Context context, MenuType type, EditorClickListener Adapter)
+		public ImageAdapter(EditorClickListener adapter)
 		{
-			mContext = context;
-			clickListener = Adapter;
+			mContext = HikeMessengerApp.getInstance().getApplicationContext();
+			clickListener = adapter;
 		}
 
 		@Override
 		public int getCount()
 		{
 			int count = 0;
-			switch (myType)
+			switch (menuType)
 			{
-			case Effects:
+			case MenuType.EFFECTS_TYPE:
 				count = FilterList.getHikeEffects().filters.size();
 				break;
-			case Doodle:
+			case MenuType.DOODLE_TYPE:
 				count = HikePhotosUtils.DoodleColors.length;
 				break;
 			}
@@ -149,14 +166,15 @@ public final class PreviewFragment extends Fragment
 		{
 			return 0;
 		}
+
 		@Override
 		public int getItemViewType(int position)
 		{
-			switch (myType)
+			switch (menuType)
 			{
-			case Effects:
+			case MenuType.EFFECTS_TYPE:
 				return 0;
-			case Doodle:
+			case MenuType.DOODLE_TYPE:
 				return 1;
 			}
 			return 0;
@@ -168,9 +186,9 @@ public final class PreviewFragment extends Fragment
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent)
 		{
-			switch (myType)
+			switch (menuType)
 			{
-			case Effects:
+			case MenuType.EFFECTS_TYPE:
 				if (convertView == null)
 				{
 					convertView = LayoutInflater.from(mContext).inflate(R.layout.filter_preview_item, parent, false);
@@ -206,11 +224,11 @@ public final class PreviewFragment extends Fragment
 				}
 
 				return convertView;
-			case Border:
+			case MenuType.BORDER_TYPE:
 				break;
-			case Text:
+			case MenuType.TEXT_TYPE:
 				break;
-			case Doodle:
+			case MenuType.DOODLE_TYPE:
 				if (convertView == null)
 				{
 					convertView = LayoutInflater.from(mContext).inflate(R.layout.doodle_preview_item, parent, false);
@@ -230,7 +248,7 @@ public final class PreviewFragment extends Fragment
 						if (existingColor != null && existingColor == currentPosColor)
 						{
 							DoodleEffectItemLinearLayout doodleItem = (DoodleEffectItemLinearLayout) convertView;
-							doodleItem.setBrushColor(currentPosColor,false);
+							doodleItem.setBrushColor(currentPosColor, false);
 							doodleItem.refresh();
 							doodleItem.setOnClickListener(clickListener);
 							convertView.setTag(currentPosColor);
@@ -239,13 +257,13 @@ public final class PreviewFragment extends Fragment
 					}
 
 					DoodleEffectItemLinearLayout doodleItem = (DoodleEffectItemLinearLayout) convertView;
-					doodleItem.setBrushColor(currentPosColor,true);
+					doodleItem.setBrushColor(currentPosColor, true);
 					doodleItem.refresh();
 					doodleItem.setOnClickListener(clickListener);
 					convertView.setTag(currentPosColor);
 				}
 				break;
-			case Quality:
+			case MenuType.QUALITY_TYPE:
 				break;
 			}
 

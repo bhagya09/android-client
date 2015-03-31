@@ -246,7 +246,6 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			
 			if(newFragment == null) 
 			{
-				Logger.d("UmangX","creating Frag");
 				newFragment = new HorizontalFriendsFragment();
 				ft.add(R.id.horizontal_friends_placeholder, newFragment, HORIZONTAL_FRIEND_FRAGMENT).commit();
 			} 
@@ -291,7 +290,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			if (!(initiallySelectedMsisidns == null || initiallySelectedMsisidns.isEmpty()))
 			{
 				tagEditText.clear(false);
-				int selected = adapter.getSelectedContactCount();
+				int selected = adapter.getCurrentSelection();
 				for (String msisdn : initiallySelectedMsisidns)
 				{
 					ContactInfo contactInfo = ContactManager.getInstance().getContact(msisdn, true, false);
@@ -319,14 +318,12 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	            if (heightDiff > 100 ) { // 99% of the time the height diff will be due to a keyboard.
 
 	                if(isOpened == false){
-						Logger.d("UmangX", "Keyboard up");
 						FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
 						ft.hide(newFragment);
 						ft.commit();
 	                }
 	                isOpened = true;
 	            }else if(isOpened == true){
-	            	 Logger.d("UmangX","Keyboard Down");
 	                isOpened = false;
 					FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
 					if (tagEditText.getText().toString().length() == 0)
@@ -629,7 +626,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					adapter.addContact(contactInfo);
 
 				}
-				int selected = adapter.getSelectedContactCount();
+				int selected = adapter.getCurrentSelection();
 				if(selected>0){
 				tagEditText.toggleTag(getString(selected==1 ? R.string.selected_contacts_count_singular : R.string.selected_contacts_count_plural,selected), SELECT_ALL_MSISDN, SELECT_ALL_MSISDN);
 				}else{
@@ -748,7 +745,8 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		}
 		else
 		{
-			multiSelectTitle.setText(getString(R.string.gallery_num_selected, adapter.getCurrentSelection()));
+			multiSelectTitle.setText(createBroadcast ? getString(R.string.broadcast_selected, adapter.getCurrentSelection()) : 
+				getString(R.string.gallery_num_selected, adapter.getCurrentSelection()));	
 		}
 	}
 
@@ -766,9 +764,8 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		setupMultiSelectActionBar();
 		invalidateOptionsMenu();
 		
-		int selectedCount = adapter.getCurrentSelection();
-		multiSelectTitle.setText(getString(R.string.gallery_num_selected, selectedCount));
-		
+		multiSelectTitle.setText(createBroadcast ? getString(R.string.broadcast_selected, adapter.getCurrentSelection()) : 
+			getString(R.string.gallery_num_selected, adapter.getCurrentSelection()));
 	}
 
 	@Override
@@ -794,6 +791,8 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		if(getIntent().hasExtra(HikeConstants.Extras.COMPOSE_MODE))
 		{
 			mode = getIntent().getIntExtra(HikeConstants.Extras.COMPOSE_MODE, START_CHAT_MODE);
+			triggerPointForPopup=ProductPopupsConstants.PopupTriggerPoints.BROADCAST.ordinal();
+			
 		}
 		else if(nuxIncentiveMode)
 		{
@@ -884,7 +883,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					// call adapter select all
 					selectAllMode = true;
 					tv.setText(getString(R.string.unselect_all_hike));
-					adapter.clearAllSelection(true);
+//					adapter.clearAllSelection(true);
 					adapter.selectAllContacts(true);
 					tagEditText.clear(false);
 					int selected = adapter.getCurrentSelection();
@@ -1011,6 +1010,11 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		}
 		HikeMqttManagerNew.getInstance().sendMessage(gcjJson, HikeMqttManagerNew.MQTT_QOS_ONE);
 
+		if(Utils.isBroadcastConversation(groupId))
+		{
+			HikeMessengerApp.getPubSub().publish(HikePubSub.PARTICIPANT_JOINED_GROUP, gcjJson);
+		}
+
 		ContactInfo conversationContactInfo = new ContactInfo(groupId, groupId, groupId, groupId);
 		Intent intent = Utils.createIntentFromContactInfo(conversationContactInfo, true);
 		intent.setClass(this, ChatThread.class);
@@ -1114,7 +1118,9 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		ViewGroup closeContainer = (ViewGroup) multiSelectActionBar.findViewById(R.id.close_container);
 
 		multiSelectTitle = (TextView) multiSelectActionBar.findViewById(R.id.title);
-		multiSelectTitle.setText(getString(R.string.gallery_num_selected, adapter.getCurrentSelection()));
+		
+		multiSelectTitle.setText(createBroadcast ? getString(R.string.broadcast_selected, adapter.getCurrentSelection()) : 
+			getString(R.string.gallery_num_selected, adapter.getCurrentSelection()));
 		
 		if (isForwardingMessage)
 		{
@@ -1904,8 +1910,8 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			if (existingBroadcastId != null || createBroadcast)
 			{
 				ComposeChatActivity.this.finish();
-				final InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-				inputMethodManager.hideSoftInputFromWindow(tagEditText.getWindowToken(), 0);
+//				Hiding keyboard on pressing back on "Add members to broadcast list" compose chat
+				Utils.hideSoftKeyboard(ComposeChatActivity.this, tagEditText);
 				return;
 			}
 			setModeAndUpdateAdapter(START_CHAT_MODE);
@@ -1942,6 +1948,19 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				lastSeenScheduler = LastSeenScheduler.getInstance(ComposeChatActivity.this);
 				lastSeenScheduler.start(true);
 			}
+		}
+
+		@Override
+		public void completeListFetched() {
+			if (adapter != null)
+			{
+				if (adapter.getCompleteList().size() <= 0)
+				{
+					View selectAllCont = findViewById(R.id.select_all_container);
+					selectAllCont.setVisibility(View.GONE);
+				}
+			}
+			
 		}
 	};
 

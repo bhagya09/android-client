@@ -23,20 +23,29 @@ import com.bsb.hike.utils.Logger;
 public class FilterEffectItemLinearLayout extends EffectItemLinearLayout implements OnFilterAppliedListener
 {
 	private FilterType filter;
+
 	private int tried;
+
+	private boolean error;
 
 	public FilterEffectItemLinearLayout(Context context, AttributeSet attrs)
 	{
 		super(context, attrs);
-		
+
 	}
 
 	public void init(Bitmap preview, String Title)
 	{
-
-		this.setImage(preview);
+		if (preview != null)
+		{
+			this.setImage(preview);
+		}
+		else
+		{
+			error = true;
+		}
 		this.setText(Title);
-		
+
 	}
 
 	public void select()
@@ -54,13 +63,16 @@ public class FilterEffectItemLinearLayout extends EffectItemLinearLayout impleme
 	public void setFilter(Context context, FilterType type, boolean setFilterItem)
 	{
 		this.filter = type;
-		initiateThumbnailCreation();
+		if (!error)
+		{
+			initiateThumbnailCreation();
+		}
 		tried = 0;
 		if (type == HikePhotosUtils.FilterTools.getSelectedFilter())
 		{
 			findViewById(R.id.selectionBar).setBackgroundColor(getResources().getColor(R.color.photos_filters_font_color));
-			if(setFilterItem)
-			HikePhotosUtils.FilterTools.setCurrentFilterItem(this);
+			if (setFilterItem)
+				HikePhotosUtils.FilterTools.setCurrentFilterItem(this);
 		}
 		else
 		{
@@ -81,20 +93,20 @@ public class FilterEffectItemLinearLayout extends EffectItemLinearLayout impleme
 	@Override
 	public void onFilterApplied(Bitmap preview)
 	{
-		if(preview==null && tried == 0)
+		if (preview == null && tried == 0)
 		{
 			tried = 1;
 			initiateThumbnailCreation();
 			return;
 		}
-		else if(preview!=null)
+		else if (preview != null)
 		{
 			setImage(preview);
 			return;
 		}
 		else
 		{
-			//Do Nothing
+			// Do Nothing
 		}
 	}
 

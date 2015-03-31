@@ -39,11 +39,14 @@ public class SingleStickerDownloadTaskOkHttp implements IHikeHTTPTask
 	private String smallStickerPath;
 
 	private RequestToken token;
+	
+	private IStickerResultListener callback;
 
-	public SingleStickerDownloadTaskOkHttp(String stickerId, String categoryId)
+	public SingleStickerDownloadTaskOkHttp(String stickerId, String categoryId, IStickerResultListener callback)
 	{
 		this.stickerId = stickerId;
 		this.categoryId = categoryId;
+		this.callback = callback;
 	}
 
 	public void execute()
@@ -190,12 +193,11 @@ public class SingleStickerDownloadTaskOkHttp implements IHikeHTTPTask
 
 	private void onSuccess(Object result)
 	{
-		HikeMessengerApp.getPubSub().publish(HikePubSub.STICKER_DOWNLOADED, null);
+		callback.onSuccess(categoryId);
 	}
 
 	private void onFailure(Exception e)
 	{
-		Logger.e(TAG, "on failure, exception ", e);
-		(new File(largeStickerPath)).delete();
+		callback.onFailure(largeStickerPath, null);
 	}
 }

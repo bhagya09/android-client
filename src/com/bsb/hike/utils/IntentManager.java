@@ -42,6 +42,7 @@ import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.ui.NUXInviteActivity;
 import com.bsb.hike.ui.NuxSendCustomMessageActivity;
 import com.bsb.hike.ui.PeopleActivity;
+import com.bsb.hike.ui.PictureEditer;
 import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.ui.SettingsActivity;
 import com.bsb.hike.ui.SignupActivity;
@@ -372,6 +373,13 @@ public class IntentManager
 		Intent in = new Intent(context, HomeActivity.class);
 		context.startActivity(in);
 	}
+	
+	public static void openHomeActivity(Context context,boolean handlingCrash)
+	{
+		Intent in = new Intent(context, HomeActivity.class);
+        in.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        context.startActivity(in);
+	}
 
 	public static Intent openInviteFriends(Activity context)
 	{
@@ -474,5 +482,17 @@ public class IntentManager
 			intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		}
 		return intent;
+	}
+	
+	public static Intent getBrowserIntent(String url)
+	{
+		return new Intent(Intent.ACTION_VIEW,Uri.parse(url));
+	}
+	
+	public static Intent getPictureEditorActivityIntent(String imageFileName)
+	{
+		Intent i = new Intent(HikeMessengerApp.getInstance().getApplicationContext(), PictureEditer.class);
+		i.putExtra(HikeConstants.HikePhotos.FILENAME, imageFileName);
+		return i;
 	}
 }

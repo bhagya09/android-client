@@ -131,8 +131,14 @@ public class SingleStickerDownloadTask extends BaseStickerDownloadTask
 	@Override
 	protected void postExecute(STResult result)
 	{
-		// TODO Auto-generated method stub
-		setResult(catId);
+		if(result == STResult.SUCCESS)
+		{
+			setResult(catId);
+		}
+		else
+		{
+			setResult(largeStickerFilePath);
+		}
 		super.postExecute(result);
 		
 	}

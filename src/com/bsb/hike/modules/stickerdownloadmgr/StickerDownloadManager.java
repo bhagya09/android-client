@@ -71,7 +71,7 @@ public class StickerDownloadManager
 		
 		if(Utils.isOkHttp())
 		{
-			SingleStickerDownloadTaskOkHttp singleTask = new SingleStickerDownloadTaskOkHttp(stkId, catId);
+			SingleStickerDownloadTaskOkHttp singleTask = new SingleStickerDownloadTaskOkHttp(stkId, catId, callback);
 			singleTask.execute();
 		}
 		else

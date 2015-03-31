@@ -20,6 +20,7 @@ import com.bsb.hike.platform.ContentLove;
 import com.bsb.hike.platform.PlatformMessageMetadata;
 import com.bsb.hike.platform.WebMetadata;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.GroupUtils;
 import com.bsb.hike.utils.Utils;
 
 public class ConvMessage
@@ -478,20 +479,13 @@ public class ConvMessage
 		case PARTICIPANT_JOINED:
 			JSONArray arr = metadata.getGcjParticipantInfo();
 			String highlight = Utils.getGroupJoinHighlightText(arr, (GroupConversation) conversation);
-			this.mMessage = Utils.getParticipantAddedMessage(this, context, highlight);
+			this.mMessage = GroupUtils.getParticipantAddedMessage(this, context, highlight);
 			break;
 		case PARTICIPANT_LEFT:
-			this.mMessage = String.format(context.getString(R.string.left_conversation), ((GroupConversation) conversation).getGroupParticipantFirstNameAndSurname(metadata.getMsisdn()));
+			this.mMessage = GroupUtils.getParticipantRemovedMessage(conversation, context, ((GroupConversation) conversation).getGroupParticipantFirstNameAndSurname(metadata.getMsisdn()));
 			break;
 		case GROUP_END:
-			if (conversation instanceof BroadcastConversation)
-			{
-				this.mMessage = context.getString(R.string.broadcast_list_end);
-			}
-			else
-			{
-				this.mMessage = context.getString(R.string.group_chat_end);
-			}
+			this.mMessage = GroupUtils.getConversationEndedMessage(conversation, context);
 			break;
 		case USER_JOIN:
 			//This is to specifically handle the cases for which pushes are not required for UJ, UL, etc.\
@@ -536,8 +530,15 @@ public class ConvMessage
 			String userMsisdn = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeMessengerApp.MSISDN_SETTING, "");
 
 			String participantName = userMsisdn.equals(msisdn) ? context.getString(R.string.you) : ((GroupConversation) conversation).getGroupParticipantFirstNameAndSurname(msisdn);
-			this.mMessage = String.format(
-					context.getString(participantInfoState == ParticipantInfoState.CHANGED_GROUP_NAME ? R.string.change_group_name : R.string.change_group_image), participantName);
+			
+			if (participantInfoState == ParticipantInfoState.CHANGED_GROUP_NAME)
+			{
+				this.mMessage = GroupUtils.getConversationNameChangedMessage(conversation, context, participantName);
+			}
+			else
+			{
+				this.mMessage = String.format(context.getString(R.string.change_group_image), participantName);
+			}
 			break;
 		case BLOCK_INTERNATIONAL_SMS:
 			this.mMessage = context.getString(R.string.block_internation_sms);

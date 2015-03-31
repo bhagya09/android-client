@@ -559,7 +559,7 @@ public class HikeConstants
 
 	public static final String SHOW_RECENTLY_JOINED_DOT = "showRecentlyJoinedDot";
 	
-	public static final String SHOW_PHOTOS_ENABLED_DOT = "showphotosenabled";
+	public static final String SHOW_PHOTOS_RED_DOT = "showphotosenabled";
 	
 	public static final String SHOW_RECENTLY_JOINED = "showRecentlyJoined";
 
@@ -2502,7 +2502,6 @@ public class HikeConstants
 		
 		public static final int PHOTOS_PAGER_DOODLE_WEIGHT_SUM = 10000;
 		
-		
 	}
 
 	
@@ -2522,4 +2521,16 @@ public class HikeConstants
 	public static String IS_GROUP = "isGroup";
 
 	public static final String CAM_IMG_PREFIX = "CAM_";
+	
+	public static final String URL_WHITELIST = "uwl";
+	
+	public static final String IN_HIKE_URL_WHITELIST = "iuwl";
+	
+	public static final String BROWSER_URL_WHITELIST = "buwl";
+	
+	public static final String ENABLED_WHITELISTED_FEATURE = "enabledWhitelisted";
+	
+	public static final String WHITELISTED_DOMAINS[] = new String[]{"hike.in"};
+	
+	public static final String BLACKLIST_DOMAIN_ANALYTICS = "blacklist";
 }

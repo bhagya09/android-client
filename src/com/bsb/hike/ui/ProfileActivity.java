@@ -531,18 +531,8 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				String groupName = mNameEdit.getText().toString();
 				if (TextUtils.isEmpty(groupName.trim()))
 				{
-					if (profileType == ProfileType.BROADCAST_INFO)
-					{
-						groupName = broadcastConversation.getDefaultBroadcastName();
-						mNameEdit.setText(broadcastConversation.getDefaultBroadcastName());
-					}
-					else
-					{
-						Toast toast = Toast.makeText(ProfileActivity.this, R.string.enter_valid_group_name, Toast.LENGTH_SHORT);
-						toast.setGravity(Gravity.CENTER, 0, 0);
-						toast.show();
-						return;
-					}
+					showNameCanNotBeEmptyToast();
+					return;
 				}
 				saveChanges();
 				Utils.hideSoftKeyboard(ProfileActivity.this, mNameEdit);
@@ -2298,18 +2288,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				String groupName = mNameEdit.getText().toString();
 				if (TextUtils.isEmpty(groupName.trim()))
 				{
-					if (conversation instanceof GroupConversation)
-					{
-						Toast toast = Toast.makeText(ProfileActivity.this, R.string.enter_valid_group_name, Toast.LENGTH_SHORT);
-						toast.setGravity(Gravity.CENTER, 0, 0);
-						toast.show();
-						return;
-					}
-					else
-					{
-						groupName = broadcastConversation.getDefaultBroadcastName();
-						mNameEdit.setText(broadcastConversation.getDefaultBroadcastName());
-					}
+					showNameCanNotBeEmptyToast();
 				}
 				Utils.hideSoftKeyboard(ProfileActivity.this, mNameEdit);
 				saveChanges();
@@ -2320,6 +2299,19 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		});
 
 		groupEditDialog.show();
+	}
+	
+	private void showNameCanNotBeEmptyToast()
+	{
+		int toastStringResId = R.string.enter_valid_group_name; 
+		if(profileType == ProfileType.BROADCAST_INFO)
+		{
+			toastStringResId = R.string.enter_valid_broadcast_name;	
+		}
+		Toast toast = Toast.makeText(ProfileActivity.this, toastStringResId, Toast.LENGTH_SHORT);
+		toast.setGravity(Gravity.CENTER, 0, 0);
+		toast.show();
+		return;
 	}
 
 	public void onGroupNameEditClick(View v)

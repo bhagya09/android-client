@@ -86,7 +86,6 @@ import com.bsb.hike.tasks.SendLogsTask;
 import com.bsb.hike.ui.HikeDialog.HikeDialogListener;
 import com.bsb.hike.ui.fragments.ConversationFragment;
 import com.bsb.hike.ui.utils.LockPattern;
-import com.bsb.hike.utils.AppRater;
 import com.bsb.hike.utils.FestivePopup;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
@@ -169,26 +168,28 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	private String[] progressPubSubListeners = { HikePubSub.FINISHED_UPGRADE_INTENT_SERVICE };
 
-	private boolean photosEnabled = true;
+	private boolean photosEnabled;
 
-	private static MenuItem searchItem;
+	private static MenuItem searchMenuItem;
 
 	private boolean showingSearchModeActionBar = false;
+	
+	private static final String TAG = "HomeActivity";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
-		Logger.d("UmangX","openenign Home onCreate");
 		if (Utils.requireAuth(this))
 		{
+			Logger.wtf(TAG, "user is not authenticated. Finishing activity");
 			return;
 		}
 				
 		if (NUXManager.getInstance().showNuxScreen())
 		{
-			Logger.d("UmangX","openenign NUX");
 			NUXManager.getInstance().startNUX(this);
+			Logger.wtf(TAG, "Nux is not shown. So finishing activity");
 			return;
 
 		}
@@ -222,7 +223,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			initialiseHomeScreen(savedInstanceState);
 		}
 		
-//		photosEnabled = accountPrefs.getBoolean(HikeConstants.Extras.ENABLE_PHOTOS, false);
+		photosEnabled = accountPrefs.getBoolean(HikeConstants.Extras.ENABLE_PHOTOS, false);
 		
 		showProductPopup(ProductPopupsConstants.PopupTriggerPoints.HOME_SCREEN.ordinal());
 	}
@@ -290,14 +291,13 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 				/*
 				 * Only show app rater if the tutorial is not being shown an the app was just launched i.e not an orientation change
 				 */
-				AppRater.appLaunched(this);
 		}
 		else if (dialogShowing != null)
 		{
 			showAppropriateDialog();
 		}
 
-		if (!AppRater.showingDialog() && dialogShowing == null)
+		if (dialogShowing == null)
 		{
 			if (!accountPrefs.getBoolean(HikeMessengerApp.SHOWN_SMS_CLIENT_POPUP, true))
 			{
@@ -417,7 +417,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	@Override
 	protected void onDestroy()
 	{
-		Logger.d("UmangX","inside Home onDestory");
 		if (progDialog != null)
 		{
 			progDialog.dismiss();
@@ -427,6 +426,11 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			overFlowWindow.dismiss();
 		HikeMessengerApp.getPubSub().removeListeners(this, homePubSubListeners);
 		HikeMessengerApp.getPubSub().removeListeners(this, progressPubSubListeners);
+		if (searchMenuItem != null && searchMenuItem.getActionView() != null)
+		{
+			SearchView searchView = (SearchView) searchMenuItem.getActionView();
+			searchView.setOnQueryTextListener(null);
+		}
 		super.onDestroy();
 	}
 
@@ -453,8 +457,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		}
 		if(showingSearchModeActionBar)
 		{
-			searchItem.getActionView().clearFocus();
-			searchItem.collapseActionView();
+			searchMenuItem.getActionView().clearFocus();
+			searchMenuItem.collapseActionView();
 		}
 		showProductPopup(ProductPopupsConstants.PopupTriggerPoints.HOME_SCREEN.ordinal());
 	}
@@ -462,6 +466,16 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu)
 	{
+		/**
+		 * This is a strange bug in Android 5.1. If we call finish to an activity from onCreate, ideally onCreateOptions menu should not have been called. But in Droid 5.1 this is
+		 * being called. This check is defensive in nature
+		 */
+		if (isFinishing())
+		{
+			Logger.wtf(TAG, "Activity is finishing yet onCreateOptionsMenu is being called");
+			return false;
+		}
+		
 		if (showingProgress)
 		{
 			return false;
@@ -498,18 +512,17 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		});
 
 		final SearchView searchView = new SearchView(getSupportActionBar().getThemedContext());
-		searchView.setQueryHint(getString(R.string.search_hint));
 		searchView.setIconifiedByDefault(false);
 		searchView.setIconified(false);
 		searchView.setOnQueryTextListener(onQueryTextListener);
 		searchView.clearFocus();
 		searchView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
 
-		searchItem = menu.findItem(R.id.search);
-		searchOptionID = searchItem.getItemId();
-		searchItem.setActionView(searchView).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
+		searchMenuItem = menu.findItem(R.id.search);
+		searchOptionID = searchMenuItem.getItemId();
+		searchMenuItem.setActionView(searchView).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
 
-		searchItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener()
+		searchMenuItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener()
 		{
 			@Override
 			public boolean onMenuItemActionExpand(MenuItem item)
@@ -519,6 +532,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 					mainFragment.setupSearch();
 		        }
 				toggleMenuItems(menu, false);
+				showProductPopup(ProductPopupsConstants.PopupTriggerPoints.SEARCH.ordinal());
 				setupSearchActionBar();
 				return true;
 			}
@@ -549,7 +563,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 				if (photosEnabled)
 				{
 					showComposeOverflowMenu();
-					accountPrefs.edit().putBoolean(HikeConstants.SHOW_PHOTOS_ENABLED_DOT, false).commit();
 					newConversationIndicator.setVisibility(View.GONE);
 				}
 				else
@@ -593,10 +606,10 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	public static void setSearchOptionAccess(boolean setVisible)
 	{
-		if (searchItem != null)
+		if (searchMenuItem != null)
 		{
-			searchItem.setEnabled(setVisible);
-			searchItem.setVisible(setVisible);
+			searchMenuItem.setEnabled(setVisible);
+			searchMenuItem.setVisible(setVisible);
 		}
 	}
 
@@ -608,11 +621,11 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	private OnQueryTextListener onQueryTextListener = new OnQueryTextListener()
 	{
-
 		@Override
 		public boolean onQueryTextSubmit(String query)
 		{
-			return false;
+			Utils.hideSoftKeyboard(getApplicationContext(), searchMenuItem.getActionView());
+			return true;
 		}
 
 		@Override
@@ -1531,7 +1544,9 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			boolean isRewardsClicked = accountPrefs.getBoolean(HikeConstants.IS_REWARDS_ITEM_CLICKED, false);
 			boolean showTimelineRedDot = accountPrefs.getBoolean(HikeConstants.SHOW_TIMELINE_RED_DOT, true);
 			boolean showBroadcastRedDot = accountPrefs.getBoolean(HikeConstants.SHOW_NEW_BROADCAST_RED_DOT, true);
-			
+			boolean showPhotosRedDot = accountPrefs.getBoolean(HikeConstants.SHOW_PHOTOS_RED_DOT, false);
+			boolean showNUJRedDot = accountPrefs.getBoolean(HikeConstants.SHOW_RECENTLY_JOINED_DOT, false);
+
 			int count = 0;
 			if (item.getKey() == 7)
 			{
@@ -1541,7 +1556,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 				else if (count > 0)
 					newGamesIndicator.setText(String.valueOf(count));
 			}
-			if ((item.getKey() == 3 && !isGamesClicked) || (item.getKey() == 4 && !isRewardsClicked) || (item.getKey() == 7 && (count > 0 || showTimelineRedDot)) || (item.getKey() == 10 && showBroadcastRedDot))
+			if ((item.getKey() == 3 && !isGamesClicked) || (item.getKey() == 4 && !isRewardsClicked) || (item.getKey() == 7 && (count > 0 || showTimelineRedDot))
+					|| (item.getKey() == 10 && showBroadcastRedDot)|| (item.getKey() == 11 && showNUJRedDot)|| (item.getKey() == 12 && showPhotosRedDot))
 			{
 				newGamesIndicator.setVisibility(View.VISIBLE);
 			}
@@ -1563,9 +1579,9 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		/*
 		 * removing out new chat option for now
 		 */
-		optionsList.add(new OverFlowMenuItem(getString(R.string.new_group), 6));
-
 		optionsList.add(new OverFlowMenuItem(getString(R.string.new_broadcast), 10));
+
+		optionsList.add(new OverFlowMenuItem(getString(R.string.new_group), 6));
 
 		optionsList.add(new OverFlowMenuItem(getString(R.string.timeline), 7));
 
@@ -1596,9 +1612,9 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		optionsList.add(new OverFlowMenuItem(getString(R.string.status), 8));
 
 		addEmailLogItem(optionsList);
-		
-		//Take a photo
-//		optionsList.add(new OverFlowMenuItem(getString(R.string.take_photo), 10));
+
+		// Take a photo
+		// optionsList.add(new OverFlowMenuItem(getString(R.string.take_photo), 10));
 
 		overFlowWindow = new PopupWindow(this);
 
@@ -1735,16 +1751,17 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			}
 		});
 	}
-	
-	private void showComposeOverflowMenu(){
+
+	private void showComposeOverflowMenu()
+	{
 
 		ArrayList<OverFlowMenuItem> optionsList = new ArrayList<OverFlowMenuItem>();
 
 		final String msisdn = accountPrefs.getString(HikeMessengerApp.MSISDN_SETTING, null);
-		
+
 		optionsList.add(new OverFlowMenuItem(getString(R.string.compose_chat), 11));
 
-		optionsList.add(new OverFlowMenuItem(getString(R.string.take_photo), 10));
+		optionsList.add(new OverFlowMenuItem(getString(R.string.take_photo), 12));
 
 		overFlowWindow = new PopupWindow(this);
 
@@ -1778,16 +1795,17 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 						metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.NEW_CHAT_FROM_TOP_BAR);
 						HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
 					}
-					catch(JSONException e)
+					catch (JSONException e)
 					{
 						Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
 					}
 
 					intent = new Intent(HomeActivity.this, ComposeChatActivity.class);
-					intent.putExtra(HikeConstants.Extras.EDIT , true);
+					intent.putExtra(HikeConstants.Extras.EDIT, true);
 					break;
-				case 10:
-					//Take a photo
+				case 12:
+					// Take a photo
+					accountPrefs.edit().putBoolean(HikeConstants.SHOW_PHOTOS_RED_DOT, false).commit();
 					IntentManager.openHikeCameraActivity(HomeActivity.this);
 					sendAnalyticsTakePicture();
 					break;
@@ -1960,25 +1978,28 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			@Override
 			public void neutralClicked(Dialog dialog)
 			{
-				switch (dialogShowing)
+				if(dialogShowing != null)
 				{
-				case STEALTH_FTUE_POPUP:
-					HikeMessengerApp.getPubSub().publish(HikePubSub.SHOW_STEALTH_FTUE_CONV_TIP, null);
-					
-					try
+					switch (dialogShowing)
 					{
-						JSONObject metadata = new JSONObject();
-						metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.QUICK_SETUP_CLICK);
-						HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+					case STEALTH_FTUE_POPUP:
+						HikeMessengerApp.getPubSub().publish(HikePubSub.SHOW_STEALTH_FTUE_CONV_TIP, null);
+						
+						try
+						{
+							JSONObject metadata = new JSONObject();
+							metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.QUICK_SETUP_CLICK);
+							HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+						}
+						catch(JSONException e)
+						{
+							Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+						}
+						break;
+	
+					default:
+						break;
 					}
-					catch(JSONException e)
-					{
-						Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
-					}
-					break;
-
-				default:
-					break;
 				}
 
 				dialogShowing = null;
@@ -2020,7 +2041,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 					newConversationIndicator.setVisibility(View.VISIBLE);
 					newConversationIndicator.startAnimation(Utils.getNotificationIndicatorAnim());
 				}
-				else if(photosEnabled && accountPrefs.getBoolean(HikeConstants.SHOW_PHOTOS_ENABLED_DOT, true))
+				else if (photosEnabled && accountPrefs.getBoolean(HikeConstants.SHOW_PHOTOS_RED_DOT, false))
 				{
 					newConversationIndicator.setText("1");
 					newConversationIndicator.setVisibility(View.VISIBLE);

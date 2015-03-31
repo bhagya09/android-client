@@ -19,14 +19,14 @@
 
         <com.bsb.hike.photos.views.SquareRelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:animateLayoutChanges="true" >
 
             <com.bsb.hike.photos.views.PhotosEditerFrameLayoutView
                 android:id="@+id/editer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:scaleType="centerCrop" />
+                 />
 
             <ImageView
                 android:id="@+id/undo"
@@ -40,6 +40,7 @@
         </com.bsb.hike.photos.views.SquareRelativeLayout>
 
         <RelativeLayout
+            android:id="@+id/indicatorView"
             android:layout_width="match_parent"
             android:layout_height="48dp" >
 

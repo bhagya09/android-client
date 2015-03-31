@@ -537,6 +537,14 @@ public abstract class JavascriptBridge
 			{
 				context.startActivity(IntentManager.openNuxCustomMessage(context));
 			}
+			if(activityName.equals(HIKESCREEN.BROADCAST.toString()))
+			{
+				IntentManager.createBroadcastDefault(context);
+			}
+			if(activityName.equals(HIKESCREEN.PHOTOS.toString()))
+			{
+				IntentManager.openHikeCameraActivity(context);
+			}
 		}
 		catch (JSONException e)
 		{

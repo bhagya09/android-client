@@ -92,10 +92,14 @@ public abstract class EffectItemLinearLayout extends LinearLayout
 
 	public void setImage(Bitmap bitmap)
 	{
-		if (this.icon != null)
+		if (this.icon != null && bitmap !=null)
 		{
 			this.icon.setImageBitmap(bitmap);
 			this.icon.invalidate();
+		}
+		else if(this.icon !=null)
+		{
+			//To Do Out Of Memory Handling
 		}
 		else
 			postInflate = bitmap;

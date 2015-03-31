@@ -40,24 +40,20 @@ public class BroadcastConversation extends GroupConversation {
 		}
 		Collections.sort(broadcastParticipants);
 
+		String name = Utils.extractFullFirstName(broadcastParticipants.get(0).getFirstNameAndSurname());
 		switch (broadcastParticipants.size())
 		{
 		case 0:
 			return "";
 		case 1:
-			return broadcastParticipants.get(0).getFirstName();
-		case 2:
-			return broadcastParticipants.get(0).getFirstName() + " and " + broadcastParticipants.get(1).getFirstName();
+			return name;
 		default:
-			return broadcastParticipants.get(0).getFirstName() + ", " + broadcastParticipants.get(1).getFirstName() + " and " + (broadcastParticipants.size() - 2) + " others";
+			for (int i=1; i<broadcastParticipants.size(); i++)
+			{
+				name += ", " + Utils.extractFullFirstName(broadcastParticipants.get(i).getFirstNameAndSurname());
+			}
+			return name;
 		}
 	}
 	
-	public String getDefaultBroadcastName()
-	{
-		{
-			setGroupParticipantList(ContactManager.getInstance().getGroupParticipants(getMsisdn(), false, false));
-			return Utils.defaultGroupName(new ArrayList<PairModified<GroupParticipant, String>>(groupParticipantList.values()));
-		}
-	}
 }

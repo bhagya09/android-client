@@ -6,10 +6,15 @@ import android.graphics.Canvas;
 import android.graphics.ColorMatrixColorFilter;
 import android.util.AttributeSet;
 import android.widget.ImageView;
+import android.widget.Toast;
 
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.R;
 import com.bsb.hike.photos.HikeEffectsFactory;
 import com.bsb.hike.photos.HikeEffectsFactory.OnFilterAppliedListener;
+import com.bsb.hike.photos.HikePhotosUtils;
 import com.bsb.hike.photos.HikePhotosUtils.FilterTools.FilterType;
+import com.bsb.hike.utils.IntentManager;
 
 /**
  * Custom View Class extends ImageView in android
@@ -27,7 +32,7 @@ public class EffectsImageView extends ImageView
 	private FilterType currentFilter;
 
 	private boolean isScaled;
-	
+
 	public EffectsImageView(Context context)
 	{
 		super(context);
@@ -50,11 +55,23 @@ public class EffectsImageView extends ImageView
 	public void getBitmapWithEffectsApplied(Bitmap bitmap, OnFilterAppliedListener listener)
 	{
 		if (!isScaled && currentFilter == FilterType.ORIGINAL)
-			listener.onFilterApplied(bitmap.copy(bitmap.getConfig(), true));
+		{
+			listener.onFilterApplied(HikePhotosUtils.createBitmap(bitmap, 0, 0, 0, 0, true, false, false, true));
+			// listener.onFilterApplied(bitmap.copy(bitmap.getConfig(), true));
+		}
 		else if (!isScaled)
+		{
 			listener.onFilterApplied(currentImage);
+		}
 		else
-			HikeEffectsFactory.applyFilterToBitmap(bitmap, listener, currentFilter,true);
+		{
+			if (!HikeEffectsFactory.applyFilterToBitmap(bitmap, listener, currentFilter, true))
+			{
+				Toast.makeText(getContext(), getResources().getString(R.string.photos_oom_save), Toast.LENGTH_SHORT).show();
+				IntentManager.openHomeActivity(getContext(), true);
+
+			}
+		}
 
 	}
 
@@ -66,7 +83,6 @@ public class EffectsImageView extends ImageView
 
 	}
 
-
 	public void changeDisplayImage(Bitmap image)
 	{
 		this.setImageBitmap(image);
@@ -74,11 +90,15 @@ public class EffectsImageView extends ImageView
 		currentImage = image;
 	}
 
-
 	public void applyEffect(FilterType filter, float value, OnFilterAppliedListener listener)
 	{
 		currentFilter = filter;
-		HikeEffectsFactory.applyFilterToBitmap(originalImage, listener, filter,false);
+		if (!HikeEffectsFactory.applyFilterToBitmap(originalImage, listener, filter, false))
+		{
+			Toast.makeText(getContext(),getResources().getString(R.string.photos_oom_load), Toast.LENGTH_SHORT).show();
+			IntentManager.openHomeActivity(getContext(), true);
+
+		}
 	}
 
 	public FilterType getCurrentFilter()

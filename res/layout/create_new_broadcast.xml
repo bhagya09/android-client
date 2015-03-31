@@ -6,16 +6,18 @@
     android:orientation="vertical" >
 
     <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:id="@+id/broadcast_bg"
+        android:layout_width="96dp"
+        android:layout_height="96dp"
         android:layout_marginTop="28dp" >
 
         <ImageView
             android:id="@+id/broadcast_profile_image"
-            android:layout_width="96dp"
-            android:layout_height="96dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
             android:layout_centerHorizontal="true"
-            android:src="@drawable/ic_default_avatar_broadcast" />
+            android:src="@drawable/ic_broadcast_medium" />
 
     </RelativeLayout>
 
@@ -27,9 +29,9 @@
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
         android:layout_marginTop="15dp"
+        android:hint="@string/name_broadcast"
         android:background="@drawable/bg_country_search_bar"
         android:drawablePadding="9dp"
-        android:textColorHint="@color/gray"
         android:gravity="center_vertical"
         android:maxLength="@integer/max_length_group_name"
         android:paddingLeft="10dp"
@@ -37,7 +39,7 @@
         android:paddingTop="8dp"
         android:singleLine="true" />
      <TextView
-        android:id="@+id/group_info"
+        android:id="@+id/broadcast_info"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"

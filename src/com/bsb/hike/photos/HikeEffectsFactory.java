@@ -37,9 +37,9 @@ public final class HikeEffectsFactory
 
 	private static HikeEffectsFactory instance;// singleton instance
 
-	private Bitmap mBitmapIn,currentOut,mBitmapOut2,mBitmapOut1,finalBitmap;
+	private Bitmap mBitmapIn, currentOut, mBitmapOut2, mBitmapOut1, finalBitmap;
 
-	public  Bitmap toBeRecycled1,toBeRecycled2;
+	public Bitmap toBeRecycled1, toBeRecycled2;
 
 	private RenderScript mRS;
 
@@ -52,21 +52,18 @@ public final class HikeEffectsFactory
 	private ScriptIntrinsicBlur mScriptBlur;
 
 	private int mBlurRadius;
-	
+
 	@SuppressWarnings("static-access")
-	private void LoadRenderScript(Bitmap image, boolean isThumbnail,boolean isFinal)
+	private boolean loadRenderScript(Bitmap image, boolean isThumbnail, boolean isFinal)
 	{
 		// Initialize RS // Load script
+
+		boolean ret = true;
+
 		if (mRS == null)
 		{
 			mRS = RenderScript.create(HikeMessengerApp.getInstance().getApplicationContext());
 			mScript = new ScriptC_HikePhotosEffects(mRS);
-			mScriptBlur = ScriptIntrinsicBlur.create(mRS, Element.U8_4(mRS));
-			mBlurRadius = HikePhotosUtils.dpToPx(HikeMessengerApp.getInstance().getApplicationContext(), 10);
-			if (mBlurRadius > 25)
-			{
-				mBlurRadius = 25;
-			}
 
 		}
 
@@ -77,35 +74,42 @@ public final class HikeEffectsFactory
 		{
 			toBeRecycled1 = mBitmapOut1;
 			toBeRecycled2 = mBitmapOut2;
-			mBitmapOut1 = mBitmapOut1.createBitmap(mBitmapIn.getWidth(), mBitmapIn.getHeight(), mBitmapIn.getConfig());
-			mBitmapOut2 = mBitmapOut2.createBitmap(mBitmapIn.getWidth(), mBitmapIn.getHeight(), mBitmapIn.getConfig());
+			mBitmapOut1 = HikePhotosUtils.createBitmap(mBitmapIn, 0, 0, 0, 0, false, false, false, true);
+			// mBitmapOut1 = mBitmapOut1.createBitmap(mBitmapIn.getWidth(), mBitmapIn.getHeight(), mBitmapIn.getConfig());
+			mBitmapOut2 = HikePhotosUtils.createBitmap(mBitmapIn, 0, 0, 0, 0, false, false, false, true);
+			// mBitmapOut2 = mBitmapOut2.createBitmap(mBitmapIn.getWidth(), mBitmapIn.getHeight(), mBitmapIn.getConfig());
 			currentOut = mBitmapOut1;
-			//Log.e("com.bsb.hike","2 new bitmap created");
+			// Log.e("com.bsb.hike","2 new bitmap created");
 		}
-		else if(!isFinal && (currentOut != null && (currentOut.getHeight() == mBitmapIn.getHeight() || finalBitmap != null)) && !isThumbnail)
+		else if (!isFinal && (currentOut != null && (currentOut.getHeight() == mBitmapIn.getHeight() || finalBitmap != null)) && !isThumbnail)
 		{
-			if(currentOut == mBitmapOut1)
+			if (currentOut == mBitmapOut1)
 			{
 				currentOut = mBitmapOut2;
-				//Log.e("com.bsb.hike","using out 2");
+				// Log.e("com.bsb.hike","using out 2");
 			}
 			else
 			{
 				currentOut = mBitmapOut1;
-				//Log.e("com.bsb.hike","using out 1");
+				// Log.e("com.bsb.hike","using out 1");
 			}
 		}
-		else if(isFinal)
+		else if (isFinal)
 		{
-			if(finalBitmap == null)
+			if (finalBitmap == null)
 			{
-				finalBitmap = finalBitmap.createBitmap(mBitmapIn.getWidth(), mBitmapIn.getHeight(), mBitmapIn.getConfig());
-				//Log.e("com.bsb.hike","new final bitmap created");
+				finalBitmap = HikePhotosUtils.createBitmap(mBitmapIn, 0, 0, 0, 0, false, false, false, true);
+				// finalBitmap = finalBitmap.createBitmap(mBitmapIn.getWidth(), mBitmapIn.getHeight(), mBitmapIn.getConfig());
+				// Log.e("com.bsb.hike","new final bitmap created");
 			}
 			currentOut = finalBitmap;
 		}
-		
-		
+		if (!isThumbnail && currentOut == null)
+		{
+			ret = false;
+		}
+
+		return ret;
 
 	}
 
@@ -113,7 +117,6 @@ public final class HikeEffectsFactory
 	{
 		if (instance == null)
 			instance = new HikeEffectsFactory();
-
 
 		if (instance.toBeRecycled1 != null)
 		{
@@ -134,7 +137,7 @@ public final class HikeEffectsFactory
 		if (instance == null)
 			instance = new HikeEffectsFactory();
 
-		instance.LoadRenderScript(scaledOriginal, true,false);
+		instance.loadRenderScript(scaledOriginal, true, false);
 		instance.beginEffectAsyncTask(listener, type, true);
 
 	}
@@ -298,13 +301,18 @@ public final class HikeEffectsFactory
 	 * 
 	 */
 
-	public static void applyFilterToBitmap(Bitmap bitmap, OnFilterAppliedListener listener, FilterType type,boolean isFinal)
+	public static boolean applyFilterToBitmap(Bitmap bitmap, OnFilterAppliedListener listener, FilterType type, boolean isFinal)
 	{
 		if (instance == null)
 			instance = new HikeEffectsFactory();
 
-		instance.LoadRenderScript(bitmap, false,isFinal);
+		if (!instance.loadRenderScript(bitmap, false, isFinal))
+		{
+			return false;
+		}
 		instance.beginEffectAsyncTask(listener, type, false);
+
+		return true;
 
 	}
 
@@ -491,7 +499,7 @@ public final class HikeEffectsFactory
 
 		private Bitmap inBitmapOut;
 
-		private boolean blurImage;
+		private boolean blurImage, error;
 
 		public ApplyFilterTask(FilterType effectType, OnFilterAppliedListener listener, boolean isThumbnail)
 		{
@@ -501,8 +509,16 @@ public final class HikeEffectsFactory
 			blurImage = isThumbnail;
 			if (blurImage)
 			{
-				inBitmapOut = Bitmap.createBitmap(mBitmapIn.getWidth(), mBitmapIn.getHeight(), Bitmap.Config.ARGB_8888);
-				mOutAllocations = Allocation.createFromBitmap(mRS, inBitmapOut);
+				inBitmapOut = HikePhotosUtils.createBitmap(mBitmapIn, 0, 0, 0, 0, false, false, false, true);
+				// inBitmapOut = Bitmap.createBitmap(mBitmapIn.getWidth(), mBitmapIn.getHeight(), Bitmap.Config.ARGB_8888);
+				if (inBitmapOut != null)
+				{
+					mOutAllocations = Allocation.createFromBitmap(mRS, inBitmapOut);
+				}
+				else
+				{
+					error = true;
+				}
 			}
 			else
 			{
@@ -514,6 +530,10 @@ public final class HikeEffectsFactory
 		@Override
 		public void run()
 		{
+			if (error)
+			{
+				return;
+			}
 			float[] preMatrix = getPreScriptEffects();
 			if (preMatrix != null)
 			{
@@ -701,11 +721,11 @@ public final class HikeEffectsFactory
 			case ORIGINAL:
 				if (blurImage)
 				{
-					inBitmapOut = mBitmapIn.copy(mBitmapIn.getConfig(), true);
+					inBitmapOut = HikePhotosUtils.createBitmap(mBitmapIn, 0, 0, 0, 0, true, false, false, true);
 				}
 				else
 				{
-					currentOut = mBitmapIn.copy(mBitmapIn.getConfig(), true);
+					currentOut = HikePhotosUtils.createBitmap(mBitmapIn, 0, 0, 0, 0, true, false, false, true);
 				}
 				break;
 			default:

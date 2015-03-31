@@ -14,13 +14,17 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockFragment;
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.R;
 import com.bsb.hike.photos.HikeCameraHost;
 import com.bsb.hike.photos.HikePhotosListener;
 import com.bsb.hike.ui.HikeCameraActivity;
 import com.bsb.hike.ui.PictureEditer;
+import com.bsb.hike.utils.IntentManager;
 import com.commonsware.cwac.camera.CameraView;
 import com.commonsware.cwac.camera.PictureTransaction;
 import com.commonsware.cwac.camera.ZoomTransaction;
@@ -144,6 +148,11 @@ public class CameraFragment extends SherlockFragment
 		@Override
 		public void onComplete(final Bitmap bmp)
 		{
+			if (!isAdded())
+			{
+				return;
+			}
+
 			getActivity().runOnUiThread(new Runnable()
 			{
 				@Override
@@ -153,37 +162,49 @@ public class CameraFragment extends SherlockFragment
 					{
 						Bitmap bimp = ((HikeCameraActivity) getActivity()).processSquareBitmap(bmp);
 
-						OutputStream outStream = null;
-
-						File file = getHost().getPhotoPath();
-						try
+						if (bimp != null)
 						{
-							// make a new bitmap from your file
-							outStream = new FileOutputStream(file);
-							bimp.compress(Bitmap.CompressFormat.JPEG, 100, outStream);
-							outStream.flush();
-							outStream.close();
-						}
-						catch (Exception e)
-						{
-							e.printStackTrace();
-						}
-						Log.e("file", "" + file);
+							OutputStream outStream = null;
 
-						final String filePath = file.getAbsolutePath();
-
-						new Handler().postDelayed(new Runnable()
-						{
-
-							@Override
-							public void run()
+							File file = getHost().getPhotoPath();
+							try
 							{
-								Intent i = new Intent(getActivity(), PictureEditer.class);
-								i.putExtra(HikeConstants.HikePhotos.FILENAME, filePath);
-								getActivity().startActivity(i);
+								// make a new bitmap from your file
+								outStream = new FileOutputStream(file);
+								bimp.compress(Bitmap.CompressFormat.JPEG, 100, outStream);
+								outStream.flush();
+								outStream.close();
 							}
-						}, 100);
+							catch (Exception e)
+							{
+								e.printStackTrace();
+								return;
+							}
+							Log.e("file", "" + file);
 
+							final String filePath = file.getAbsolutePath();
+
+							new Handler().postDelayed(new Runnable()
+							{
+								@Override
+								public void run()
+								{
+									if (isAdded()) // This happens when current HikeCameraActivity is stopped
+									{
+										Intent i = IntentManager.getPictureEditorActivityIntent(filePath);
+										getActivity().startActivity(i);
+									}
+								}
+							}, 100);
+						}
+						else
+						{
+							if (isAdded())
+							{
+								// To Do Out Of Memory Handling
+								Toast.makeText(getActivity(), getResources().getString(R.string.photos_oom_camera), Toast.LENGTH_SHORT).show();
+							}
+						}
 					}
 				}
 			});
@@ -337,9 +358,10 @@ public class CameraFragment extends SherlockFragment
 	 */
 	public boolean isAutoFocusAvailable()
 	{
-		if(cameraView!=null)
-		return (cameraView.isAutoFocusAvailable());
-		else return false;
+		if (cameraView != null)
+			return (cameraView.isAutoFocusAvailable());
+		else
+			return false;
 	}
 
 	/**

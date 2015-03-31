@@ -5,15 +5,22 @@ import android.graphics.Typeface;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.widget.EditText;
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.utils.Utils;
 
 public class CustomFontEditText extends EditText
 {
+	private String fontName;
+	
+	private CustomTypeFace customTypeFace;
+	
 	private int style;
 
 	private BackKeyListener listener;
 
 	private void setFont(AttributeSet attrs)
 	{
+		fontName = attrs.getAttributeValue(HikeConstants.NAMESPACE, HikeConstants.FONT);
 		setTypeface(getTypeface(), style);
 	}
 
@@ -39,11 +46,47 @@ public class CustomFontEditText extends EditText
 	{
 		if (!isInEditMode())
 		{
-			if (style == Typeface.ITALIC || style == Typeface.BOLD_ITALIC)
+			this.style = style;
+			/*
+			 * If we are dealing with LDPI phones, we use the default font, They have a rendering issue with the font that we're using
+			 */
+			if (Utils.scaledDensityMultiplier <= 0.75f)
 			{
-				style = Typeface.NORMAL;
+				if (style == Typeface.ITALIC || style == Typeface.BOLD_ITALIC)
+				{
+					style = Typeface.NORMAL;
+				}
+				super.setTypeface(tf, style);
+				return;
 			}
-			super.setTypeface(tf, style);
+
+			if (fontName == null)
+			{
+				fontName = "roboto";
+			}
+			customTypeFace = CustomTypeFace.getTypeFace(fontName);
+			if (customTypeFace == null)
+			{
+				customTypeFace = new CustomTypeFace(getContext(), fontName);
+				CustomTypeFace.customTypeFaceList.add(customTypeFace);
+			}
+
+			if (style == Typeface.BOLD)
+			{
+				super.setTypeface(customTypeFace.bold);
+			}
+			else if (style == Typeface.ITALIC)
+			{
+				super.setTypeface(customTypeFace.thin);
+			}
+			else if (style == Typeface.BOLD_ITALIC)
+			{
+				super.setTypeface(customTypeFace.medium);
+			}
+			else
+			{
+				super.setTypeface(customTypeFace.normal);
+			}
 		}
 	}
 

@@ -46,10 +46,22 @@ import com.bsb.hike.photos.views.FilterEffectItemLinearLayout;
 
 public class HikePhotosUtils
 {
+	
+	
+	
+	
 	// enum for features provided in the photo editer view
-	public enum MenuType
+	public class MenuType
 	{
-		Effects, Doodle, Border, Text, Quality
+		public static final int EFFECTS_TYPE = 0;
+		
+		public static final int DOODLE_TYPE = 1;
+		
+		public static final int BORDER_TYPE = 2;
+		
+		public static final int TEXT_TYPE = 3;
+		
+		public static final int QUALITY_TYPE = 4;
 	}
 
 	// array cpntaining colors hex codes for colors provided in doodling
@@ -75,8 +87,61 @@ public class HikePhotosUtils
 
 		return pixels;
 	}
-
 	
+	
+	/**
+	 * Funtcion to create Bitmap. Handles out of Memory Exception
+	 * 
+	 * @author akhiltripathi
+	 */
+
+	public static Bitmap createBitmap(Bitmap source, int x, int y, int targetWidth, int targetHeight, boolean createMutableCopy, boolean scaledCopy, boolean crop, boolean retry)
+	{
+		Bitmap ret = null;
+
+		try
+		{
+			if (source != null)
+			{
+				if (scaledCopy && createMutableCopy)
+				{
+					ret = Bitmap.createScaledBitmap(source, targetWidth, targetHeight, false);
+				}
+				else if (crop )
+				{
+					ret = Bitmap.createBitmap(source, x, y, targetWidth, targetHeight);
+				}
+				else if (createMutableCopy)
+				{
+					ret = source.copy(source.getConfig(), true);
+				}
+				else
+				{
+					ret = Bitmap.createBitmap(source.getWidth(), source.getHeight(), source.getConfig());
+				}
+
+			}
+			else
+			{
+				ret = Bitmap.createBitmap(targetWidth, targetHeight, Config.ARGB_8888);
+			}
+
+		}
+		catch (OutOfMemoryError e)
+		{
+			if (retry)
+			{
+				System.gc();
+				createBitmap(source, x, y, targetWidth, targetHeight, createMutableCopy, scaledCopy, crop, false);
+			}
+			else
+			{
+				ret = null;
+			}
+		}
+
+		return ret;
+	}
 
 	/**
 	 * Utility class for Filters
@@ -171,7 +236,7 @@ public class HikePhotosUtils
 					effectfilters.addFilter("EARLYBIRD", FilterType.EARLYBIRD);
 					effectfilters.addFilter("SHOLAY", FilterType.E1977);
 					effectfilters.addFilter("BRANNAN", FilterType.BRANNAN);
-					effectfilters.addFilter("Lo-Fi", FilterType.LO_FI);
+					effectfilters.addFilter("LO-FI", FilterType.LO_FI);
 					effectfilters.addFilter("INKWELL", FilterType.INKWELL);
 					effectfilters.addFilter("SEPIA", FilterType.SEPIA);
 					effectfilters.addFilter("GRAYSCALE", FilterType.GRAYSCALE);

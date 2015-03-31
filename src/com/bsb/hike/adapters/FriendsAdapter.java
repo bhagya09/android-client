@@ -56,6 +56,8 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 	public static interface FriendsListFetchedCallback
 	{
 		public void listFetched();
+		
+		public void completeListFetched();
 	}
 
 	public static final int FRIEND_INDEX = 0;
@@ -283,9 +285,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 				if(nuxRecommendedList != null && !nuxRecommendedList.isEmpty())
 				{
 
-					Logger.d("UmngR", "nux list :" +  nuxRecommendedList.toString());
 					filterList(nuxRecommendedList, nuxFilteredRecoList, textToBeFiltered);
-					Logger.d("UmngR", "nux  filter list :" +  nuxFilteredRecoList.toString());
 				}
 				List<List<ContactInfo>> resultList = new ArrayList<List<ContactInfo>>(3);
 				resultList.add(filteredFriendsList);
@@ -294,7 +294,6 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 				resultList.add(filteredGroupList);
 				resultList.add(filteredRecentsList);
 				resultList.add(filteredRecentlyJoinedList);
-				Logger.d("UmngR", nuxFilteredRecoList.toString());
 				resultList.add(nuxFilteredRecoList);
 
 				results.values = resultList;
