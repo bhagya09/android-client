@@ -2145,4 +2145,9 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 		}
 
 	}
+
+	public void platformUserIdEntry(JSONArray data)
+	{
+		hDb.platformUserIdDbEntry(data);
+	}
 }

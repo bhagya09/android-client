@@ -76,6 +76,8 @@ public class ContactInfo implements JSONSerializable, Comparable<ContactInfo>
 
 	private long inviteTime;
 
+	private String platformId;
+
 	/**
 	 * Returns true if bit at index is 1 otherwise false
 	 * 
@@ -214,6 +216,11 @@ public class ContactInfo implements JSONSerializable, Comparable<ContactInfo>
 		}
 	}
 
+	public String getPlatformId()
+	{
+		return platformId;
+	}
+
 	public String getName()
 	{
 		return name;
@@ -243,6 +250,12 @@ public class ContactInfo implements JSONSerializable, Comparable<ContactInfo>
 		
 		return Utils.getFirstNameAndSurname(this.name);
 	}
+
+	public void setPlatformId(String platformId)
+	{
+		this.platformId = platformId;
+	}
+
 	public void setName(String name)
 	{
 		this.name = name;
@@ -446,6 +459,12 @@ public class ContactInfo implements JSONSerializable, Comparable<ContactInfo>
 		this.hikeJoinTime = hikeJoinTime;
 		setNum(6, 7, 2);
 		setNum(3, 5, 7);
+	}
+
+	public ContactInfo(String id, String msisdn, String name, String phoneNum, boolean onhike, String msisdnType, long lastMessaged, boolean hasCustomPhoto, long hikeJoinTime, String platformId)
+	{
+		this(id, msisdn, phoneNum,name, onhike, msisdnType, lastMessaged, hasCustomPhoto, hikeJoinTime);
+		this.platformId = platformId;
 	}
 
 	public ContactInfo(ContactInfo contactInfo)
