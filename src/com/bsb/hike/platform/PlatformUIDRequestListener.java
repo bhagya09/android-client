@@ -1,5 +1,7 @@
 package com.bsb.hike.platform;
 
+import android.content.SharedPreferences;
+import android.text.TextUtils;
 import android.util.Pair;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -34,6 +36,11 @@ public class PlatformUIDRequestListener implements IRequestListener
 		//TODO handle failure
 	}
 
+	/**
+	 * The logic is such that the call for full address book loading is pretty heavy and will be called only once irrespective of its success or failure. So, in the
+	 * app upgrade, it will check whether the pref is set for an http call or not. If yes, then the http call will take place.
+	 * @param result
+	 */
 	@Override
 	public void onRequestSuccess(Response result)
 	{
@@ -43,11 +50,24 @@ public class PlatformUIDRequestListener implements IRequestListener
 		case HikePlatformConstants.PlatformUIDFetchType.SELF:
 			try
 			{
+				HikeSharedPreferenceUtil mPrefs = HikeSharedPreferenceUtil.getInstance();
 				JSONObject obj = response.getJSONObject(0);
-				if (obj.has(HikePlatformConstants.PLATFORM_USER_ID))
+				if (obj.has(HikePlatformConstants.PLATFORM_USER_ID) && obj.has(HikePlatformConstants.PLATFORM_TOKEN))
 				{
-					HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.PLATFORM_UID_SETTING, obj.optString(HikePlatformConstants.PLATFORM_USER_ID));
-					HikeSharedPreferenceUtil.getInstance().saveData(HikePlatformConstants.PLATFORM_UID_FETCH_AT_UPGRADE, 2);
+					String platformToken = obj.optString(HikePlatformConstants.PLATFORM_USER_ID);
+					String platformUID = obj.optString(HikePlatformConstants.PLATFORM_TOKEN);
+
+					if (!TextUtils.isEmpty(platformToken) && !TextUtils.isEmpty(platformUID))
+					{
+						mPrefs.saveData(HikeMessengerApp.PLATFORM_UID_SETTING, platformUID);
+						mPrefs.saveData(HikeMessengerApp.PLATFORM_TOKEN_SETTING, platformToken);
+
+						if (mPrefs.getData(HikePlatformConstants.PLATFORM_UID_FOR_ADDRESS_BOOK_FETCH, -1) == HikePlatformConstants.MAKE_HTTP_CALL )
+						{
+							PlatformUIDFetch.fetchPlatformUid(HikePlatformConstants.PlatformUIDFetchType.FULL_ADDRESS_BOOK);
+							mPrefs.saveData(HikePlatformConstants.PLATFORM_UID_FOR_ADDRESS_BOOK_FETCH, HikePlatformConstants.HTTP_CALL_MADE);
+						}
+					}
 				}
 			}
 			catch (JSONException e)
