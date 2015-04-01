@@ -39,6 +39,8 @@ public abstract class Request<T> implements IRequestFacade
 
 	private String id;
 
+	private String analyticsKey;
+	
 	private String method;
 
 	private String url;
@@ -74,6 +76,7 @@ public abstract class Request<T> implements IRequestFacade
 	protected Request(Init<?> builder)
 	{
 		this.id = builder.id;
+		this.analyticsKey = builder.analyticsKey;
 		this.method = builder.method;
 		this.url = builder.url;
 		this.headers = builder.headers;
@@ -151,6 +154,16 @@ public abstract class Request<T> implements IRequestFacade
 		return id;
 	}
 
+	/**
+	 * Returns the analytics key for this request
+	 * 
+	 * @return
+	 */
+	public String getAnalyticsKey()
+	{
+		return analyticsKey;
+	}
+	
 	/**
 	 * Returns the method (GET / POST etc) of the request
 	 * 
@@ -312,6 +325,16 @@ public abstract class Request<T> implements IRequestFacade
 		this.headers = headers;
 	}
 
+	public void addHeader(String name,String value)
+	{
+		if (TextUtils.isEmpty(name) || TextUtils.isEmpty(value))
+		{
+			return;
+		}
+		Header header = new Header(name, value);
+		this.headers.add(header);
+	}
+	
 	@Override
 	/**
 	 * Adds more headers to the list of headers of the request
@@ -496,6 +519,8 @@ public abstract class Request<T> implements IRequestFacade
 	{
 		private String id;
 
+		private String analyticsKey;
+		
 		private String method;
 
 		private String url;
@@ -529,6 +554,18 @@ public abstract class Request<T> implements IRequestFacade
 			return self();
 		}
 
+		/**
+		 * Sets the analytics key for this request
+		 * 
+		 * @param key
+		 * @return
+		 */
+		public S setAnalyticsKey(String key)
+		{
+			this.analyticsKey = key;
+			return self();
+		}
+		
 		/**
 		 * Sets the method type to {@see RequestConstants#GET} and body null
 		 * 

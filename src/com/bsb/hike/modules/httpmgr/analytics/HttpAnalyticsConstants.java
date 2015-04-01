@@ -8,9 +8,9 @@ public class HttpAnalyticsConstants
 
 	public static final String HTTP_ANALYTICS_TYPE = "rel_http";
 
-	public static final int REQUEST_LOG_EVENT = 2;
+	public static final int REQUEST_LOG_EVENT = 1;
 
-	public static final int RESPONSE_LOG_EVENT = 3;
+	public static final int RESPONSE_LOG_EVENT = 4;
 
 	/** Used for creating random integer within this range which is used for determining whether we want to log http analytics event or not */
 	public static final int MAX_RANGE_HTTP_ANALYTICS = 10000;
