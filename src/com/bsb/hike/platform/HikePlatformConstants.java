@@ -70,6 +70,9 @@ public interface HikePlatformConstants
 	public static final String BOT_ERROR = "bot_err";
 	public static final String CARD_TYPE = "card_type";
 	public static final String CARD_FORWARD = "card_fwd";
+	public static final String BLOCKED_MESSAGE = "blocked_msg";
+	public static final String CARD = "card";
+	public static final String NOTIF = "notif";
 
 	public static final String PLATFORM_BRIDGE_NAME = "PlatformBridge";
 
@@ -90,4 +93,10 @@ public interface HikePlatformConstants
 	String ALARM_DATA = "alarm_data";
 	
 	String DELETE_CARD = "delete_card";
+
+	public static final String SILENT_PUSH = "silent";
+
+	public static final String LOUD_PUSH = "loud";
+
+	public static final String  NO_PUSH = "none";
 }

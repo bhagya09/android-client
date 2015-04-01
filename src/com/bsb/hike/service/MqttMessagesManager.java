@@ -12,6 +12,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import com.bsb.hike.db.DBConstants;
+import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformContentListener;
 import com.bsb.hike.platform.content.PlatformContentModel;
@@ -2298,7 +2299,15 @@ public class MqttMessagesManager
 				String nameSpace = data.optString(DBConstants.HIKE_CONTENT.NAMESPACE);
 				if (data.optBoolean(HikeConstants.PUSH, true) && !TextUtils.isEmpty(destination) && !TextUtils.isEmpty(body))
 				{
-					if (!Utils.isConversationMuted(destination) && !ContactManager.getInstance().isBlocked(destination)
+
+					if (ContactManager.getInstance().isBlocked(destination))
+					{
+
+						blockedMessageAnalytics(HikePlatformConstants.NOTIF);
+						return;
+
+					}
+					else if (!Utils.isConversationMuted(destination)
 							&& HikeConversationsDatabase.getInstance().isContentMessageExist(destination, contentId, nameSpace))
 					{
 						Logger.i("mqttMessageManager", "Play Notification packet from Server " + data.toString());
@@ -2320,6 +2329,22 @@ public class MqttMessagesManager
 				Logger.e("mqttMessageManager", "duplicate Notification packet from server "+data.toString());
 			}
 		}
+	}
+
+	private void blockedMessageAnalytics(String type)
+	{
+		JSONObject metadata = new JSONObject();
+		try
+		{
+			metadata.put(AnalyticsConstants.EVENT_KEY, HikePlatformConstants.BLOCKED_MESSAGE);
+			metadata.put(HikeConstants.TYPE, type);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+
+		HikeAnalyticsEvent.analyticsForCards(AnalyticsConstants.NON_UI_EVENT, HikeConstants.LogEvent.GCM_ANALYTICS_CONTEXT, metadata);
 	}
 
 	private void saveTip(JSONObject jsonObj)
@@ -3339,6 +3364,14 @@ public class MqttMessagesManager
 				String expiryTime = json.optString(HikeConstants.EXPIRE_AT);
 
 				JSONObject pushAckJson = json.optJSONObject(HikeConstants.PUSHACK);
+
+				String from = json.optString(HikeConstants.FROM);
+				if (ContactManager.getInstance().isBlocked(from))
+				{
+					blockedMessageAnalytics(HikePlatformConstants.CARD);
+					//discard message since the conversation is blocked
+					return;
+				}
 
 				if (!TextUtils.isEmpty(expiryTime))
 				{

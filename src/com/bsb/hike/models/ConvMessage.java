@@ -1,6 +1,7 @@
 package com.bsb.hike.models;
 
 import com.bsb.hike.db.DBConstants;
+import com.bsb.hike.platform.HikePlatformConstants;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -1039,7 +1040,7 @@ public class ConvMessage
 	{
 		if (getMessageType() == HikeConstants.MESSAGE_TYPE.WEB_CONTENT && webMetadata != null)
 		{
-			return webMetadata.isSilent();
+			return webMetadata.getPushType().equals(HikePlatformConstants.SILENT_PUSH);
 		}
 		// Do not play sound in case of bg change, status updates
 		if ((getParticipantInfoState() == ParticipantInfoState.CHAT_BACKGROUND) || (getParticipantInfoState() == ParticipantInfoState.PARTICIPANT_JOINED)
