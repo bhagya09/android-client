@@ -472,15 +472,7 @@ public class IntentManager
 	{
 		Intent intent = new Intent(context, VoIPActivity.class);
 		intent.putExtra(VoIPConstants.Extras.INCOMING_CALL, true);
-		intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-		if(HikeMessengerApp.currentState != HikeMessengerApp.CurrentState.RESUMED && HikeMessengerApp.currentState != HikeMessengerApp.CurrentState.OPENED)
-		{
-			intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-		}
-		else
-		{
-			intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-		}
+		intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
 		return intent;
 	}
 	
