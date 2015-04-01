@@ -2365,8 +2365,9 @@ class HikeUserDatabase extends SQLiteOpenHelper
 	{
 		try
 		{
+			int length = data.length();
 			mDb.beginTransaction();
-			for (int i=0; i<data.length(); i++)
+			for (int i=0; i<length; i++)
 			{
 				JSONObject obj = data.getJSONObject(i);
 				String msisdn = obj.optString(HikeConstants.MSISDN);
