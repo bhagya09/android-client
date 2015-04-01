@@ -58,6 +58,7 @@ import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
+import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.utils.IntentManager;
 import com.bsb.hike.utils.Logger;
@@ -510,7 +511,7 @@ public class VoIPService extends Service {
 		Notification myNotification = builder
 		.setContentTitle(title)
 		.setContentText(text)
-		.setSmallIcon(R.drawable.ic_launcher)
+		.setSmallIcon(HikeNotification.getInstance(this).returnSmallIcon())
 		.setContentIntent(pendingIntent)
 		.setOngoing(true)
 		.setAutoCancel(true)
