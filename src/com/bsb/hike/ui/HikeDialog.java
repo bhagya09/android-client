@@ -1,5 +1,7 @@
 package com.bsb.hike.ui;
 
+import java.lang.ref.WeakReference;
+
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -28,6 +30,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.CustomFontTextView;
 
@@ -262,7 +265,7 @@ public class HikeDialog
 	
 	private static Dialog showImageQualityDialog(Context context,HikeDialogListener listener, Object... data)
 	{
-		 ImageQualityDialogFragment imageQualityDialog =ImageQualityDialogFragment.getNewInstance(context, data);
+		 ImageQualityDialogFragment imageQualityDialog =ImageQualityDialogFragment.getNewInstance(data);
 		 imageQualityDialog.show(((FragmentActivity)context).getSupportFragmentManager(), HikeConstants.IMAGE_QUALITY_DIALOG_FRAGMENT_TAG);
 		 return imageQualityDialog.getDialog();
 	}
@@ -309,7 +312,6 @@ public class HikeDialog
 
 	private static void callOnSucess(HikeDialogListener listener, Dialog dialog)
 	{
-		// TODO Auto-generated method stub
 		if (listener != null)
 		{
 			listener.onSucess(dialog);
@@ -428,11 +430,11 @@ public class HikeDialog
 		private static final String KEY_DATA="key_data";
 
 		private Context context;
-		private HikeDialogListener listener;
+		private WeakReference<HikeDialogListener> listener;
 		private long[] data;
 		
 		
-		public static ImageQualityDialogFragment getNewInstance(Context context, Object... data){
+		public static ImageQualityDialogFragment getNewInstance(Object... data){
 			Bundle bundle=new Bundle();
 			if (data!=null) {
 				long dataLong[]=new long[data.length];
@@ -451,14 +453,15 @@ public class HikeDialog
 		public void onCreate(Bundle savedInstanceState) {
 			super.onCreate(savedInstanceState);
 			context=getActivity();
-			listener=((HikeDialogListener)getActivity());
+			listener=new WeakReference<HikeDialog.HikeDialogListener>((HikeDialogListener)getActivity());
 			Bundle arguments = getArguments();
 			data=arguments.getLongArray(KEY_DATA);
-			
+			Logger.d("dialogfragment", "onCreate");
 		}
 		
 		@Override
 		public Dialog onCreateDialog(Bundle savedInstanceState) {
+			Logger.d("dialogfragment", "onCreateDialog");
 			final Dialog dialog = new Dialog(context, R.style.Theme_CustomDialog);
 			dialog.setContentView(R.layout.image_quality_popup);
 			dialog.setCancelable(true);
@@ -529,7 +532,7 @@ public class HikeDialog
 					case R.id.btn_just_once:
 						saveImageQualitySettings(editor, small, medium, original);
 						HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.REMEMBER_IMAGE_CHOICE, false);
-						callOnSucess(listener, dialog);
+						callOnSucess(listener.get(), dialog);
 						break;
 					}
 				}

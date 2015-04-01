@@ -21,14 +21,7 @@ import com.bsb.hike.platform.PlatformMessageMetadata;
 
 import com.bsb.hike.platform.WebMetadata;
 import com.bsb.hike.platform.content.PlatformContent;
-import com.bsb.hike.productpopup.DialogPojo;
-import com.bsb.hike.productpopup.HikeDialogFragment;
-import com.bsb.hike.productpopup.IActivityPopup;
-import com.bsb.hike.productpopup.ProductContentModel;
-import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
-import com.bsb.hike.productpopup.ProductPopupsConstants.PopupTriggerPoints;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -204,12 +197,6 @@ import com.bsb.hike.modules.animationModule.HikeAnimationFactory;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.lastseenmgr.FetchLastSeenTask;
-import com.bsb.hike.platform.CardComponent;
-import com.bsb.hike.platform.HikePlatformConstants;
-import com.bsb.hike.platform.PlatformMessageMetadata;
-import com.bsb.hike.platform.WebMetadata;
-import com.bsb.hike.platform.content.PlatformContent;
-import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.tasks.EmailConversationsAsyncTask;
 import com.bsb.hike.tasks.FinishableEvent;
