@@ -421,7 +421,12 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 			msisdn = accountInfo.msisdn;
 			/* save the new msisdn */
 			Utils.savedAccountCredentials(accountInfo, settings.edit());
-			PlatformUIDFetch.fetchPlatformUid(HikePlatformConstants.PlatformUIDFetchType.SELF,accountInfo.uid, accountInfo.token);
+			String hikeUID = accountInfo.uid;
+			String hikeToken = accountInfo.token;
+			if (!TextUtils.isEmpty(hikeUID) && !TextUtils.isEmpty(hikeToken))
+			{
+				PlatformUIDFetch.fetchPlatformUid(HikePlatformConstants.PlatformUIDFetchType.SELF);
+			}
 			/* msisdn set, yay */
 			publishProgress(new StateValue(State.MSISDN, msisdn));
 		}
