@@ -1,6 +1,5 @@
 package com.bsb.hike.voip;
 
-import com.bsb.hike.HikeConstants;
 
 public class VoIPConstants {
 	public static final String TAG = "VoIP";
@@ -94,7 +93,7 @@ public class VoIPConstants {
 		public static final String CALL_CONNECT_FAIL_REASON = "reason";
 	}
 
-	public static final class ConnectionFailCodes
+	public static final class CallFailedCodes
 	{
 		public static final int PARTNER_UPGRADE = 0;
 
