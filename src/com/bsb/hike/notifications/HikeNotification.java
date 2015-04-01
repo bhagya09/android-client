@@ -1150,7 +1150,7 @@ public class HikeNotification
 			// (2nd check is a safe check as this should be handled by NotificationBuilder itself)
 			//3) There should not be any voip action running(Calling/Connected) 
 			if (!shouldNotPlayNotification && !Utils.isUserInAnyTypeOfCall(context)
-					&& VoIPService.getCallId() > 0)
+					&& VoIPService.getCallId() <= 0)
 			{
 				String notifSound = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.NOTIF_SOUND_PREF, NOTIF_SOUND_HIKE);
 				Logger.i("notif", "sound " + notifSound);
