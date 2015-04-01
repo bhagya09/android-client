@@ -2266,6 +2266,7 @@ public class VoIPService extends Service {
 		}
 	}
 	
+	@SuppressWarnings("deprecation")
 	private void playIncomingCallRingtone() {
 
 		// Edge case: caller hung up before we started playing ringtone. 

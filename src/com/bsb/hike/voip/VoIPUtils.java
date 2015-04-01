@@ -17,7 +17,6 @@ import java.util.Random;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -28,7 +27,6 @@ import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Build;
-import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
@@ -40,7 +38,6 @@ import com.bsb.hike.R;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.Conversation;
-import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentManager;
@@ -376,6 +373,7 @@ public class VoIPUtils {
 		return scd;
 	}
 	
+	@SuppressWarnings("deprecation")
 	public static String getCPUInfo() {
 	    StringBuffer sb = new StringBuffer();
 	    sb.append("abi: ").append(Build.CPU_ABI).append("\n");
