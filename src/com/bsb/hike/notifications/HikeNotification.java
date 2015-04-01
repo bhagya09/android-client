@@ -48,6 +48,7 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.SoundUtils;
 import com.bsb.hike.utils.Utils;
+import com.bsb.hike.voip.VoIPService;
 import com.bsb.hike.voip.VoIPUtils;
 
 public class HikeNotification
@@ -1147,7 +1148,9 @@ public class HikeNotification
 			//1) Previous Notification was > 5sec
 			//2) User is not in audio/vedio/Voip call....
 			// (2nd check is a safe check as this should be handled by NotificationBuilder itself)
-			if (!shouldNotPlayNotification && !Utils.isUserInAnyTypeOfCall(context))
+			//3) There should not be any voip action running(Calling/Connected) 
+			if (!shouldNotPlayNotification && !Utils.isUserInAnyTypeOfCall(context)
+					&& VoIPService.getCallId() > 0)
 			{
 				String notifSound = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.NOTIF_SOUND_PREF, NOTIF_SOUND_HIKE);
 				Logger.i("notif", "sound " + notifSound);
@@ -1155,7 +1158,9 @@ public class HikeNotification
 				//Decide if Sound is to be played,  
 				//1) Settings should be On
 				//2) Mode should not be in Silent and Not in Vibrate
-				if (!NOTIF_SOUND_OFF.equals(notifSound) && !SoundUtils.isSilentOrVibrateMode(context))
+				//3) Notification volume is > 0
+				if (!NOTIF_SOUND_OFF.equals(notifSound) && !SoundUtils.isSilentOrVibrateMode(context)
+						&& !SoundUtils.isNotificationStreamVolZero(context))
 				{
 					//Now We have to play sound, 
 					//CASE 1:- If Music Is Playing, then play via Ringtone manager on Music Stream

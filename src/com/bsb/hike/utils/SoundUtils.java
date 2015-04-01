@@ -124,5 +124,11 @@ public class SoundUtils
 		int ringerMode = am.getRingerMode();
 		return (ringerMode == AudioManager.RINGER_MODE_SILENT);
 	}
+
+	public static boolean isNotificationStreamVolZero(Context context)
+	{
+		AudioManager am = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+		return getCurrentVolume(context, AudioManager.STREAM_NOTIFICATION) > 0 ? false : true;
+	}
 	
 }
