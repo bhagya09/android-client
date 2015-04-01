@@ -145,7 +145,13 @@ public class HikeInviteAdapter extends SectionedBaseAdapter implements TextWatch
 	public void afterTextChanged(Editable s)
 	{
 		filter.filter(s);
-		filterString = s.toString().trim().replaceAll("[-.\\s /]", "");
+		//Regex Explanation - number can start with '+', then any character between [0-9] one or more time and any character among them [-, ., space, slash ]only once
+		//if this pattern match then ignore all the hyphen, dot, space, slash 
+		if(s.toString().trim().matches("^\\+?(([0-9]+)[-.\\s/]?)*")){
+		    filterString =s.toString().trim().replaceAll("[-.\\s /]", "");
+		}else{
+			filterString =s.toString().trim();
+		}
 	}
 
 	@Override

@@ -621,7 +621,8 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 
 		super.makeFilteredList(constraint, resultList);
 		// to add new section and number for user typed number
-		String text = constraint.toString().trim().replaceAll("[-.\\s /]", "");
+		String text = constraint.toString().trim();
+	
 		if (isIntegers(text))
 		{
 			newContactsList = new ArrayList<ContactInfo>();
