@@ -1,6 +1,5 @@
 package com.bsb.hike.voip;
 
-import com.bsb.hike.HikeConstants;
 
 public class VoIPConstants {
 	public static final String TAG = "VoIP";
