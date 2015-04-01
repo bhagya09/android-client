@@ -314,7 +314,7 @@ public class VoIPService extends Service {
 
 			clientPartner.setPhoneNumber(intent.getStringExtra(VoIPConstants.Extras.MSISDN));
 			playIncomingCallRingtone();
-			
+			sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_HANDSHAKE_COMPLETE);
 		}
 
 		// Socket information
@@ -513,12 +513,14 @@ public class VoIPService extends Service {
 			Logger.d(VoIPConstants.TAG, "Wakelock acquired.");
 		}
 	}
-
+	
 	private void releaseWakeLock() 
 	{
 		if (wakeLock != null && wakeLock.isHeld()) {
 			wakeLock.release();
 			Logger.d(VoIPConstants.TAG, "Wakelock released.");
+		} else {
+			Logger.d(VoIPConstants.TAG, "Wakelock not detected.");
 		}
 	}
 	
@@ -891,16 +893,20 @@ public class VoIPService extends Service {
 			solicallAec = null;
 		}
 		
-		setCallid(0);
-		
 		if(chronometer != null)
 		{
 			chronometer.stop();
 			chronometer = null;
 		}
+		
+		// Reset variables
+		setCallid(0);
 		connected = false;
 		socketInfoReceived = false;
 		audioStarted = false;
+		establishingConnection = false;
+		isRingingOutgoing = false;
+		isRingingIncoming = false;
 
 		releaseAudioManager();
 		
@@ -911,6 +917,7 @@ public class VoIPService extends Service {
 		decodedBuffersQueue.clear();
 		ackWaitQueue.clear();
 		
+		releaseWakeLock();
 		stopSelf();
 	}
 	
@@ -1776,7 +1783,7 @@ public class VoIPService extends Service {
 						Logger.d(VoIPConstants.TAG, "Received " + dataPacket.getType());
 						if (clientPartner.getPreferredConnectionMethod() == ConnectionMethods.PRIVATE || 
 								clientPartner.getPreferredConnectionMethod() == ConnectionMethods.PUBLIC) {
-							Logger.d(VoIPConstants.TAG, "Ignoring RELAY SYN since we are expecting a " +
+							Logger.d(VoIPConstants.TAG, "Ignoring " + dataPacket.getType() + " since we are expecting a " +
 									clientPartner.getPreferredConnectionMethod() + " connection.");
 							break;
 						}
@@ -1819,6 +1826,12 @@ public class VoIPService extends Service {
 					case COMM_UDP_SYNACK_RELAY:
 					case COMM_UDP_ACK_RELAY:
 						Logger.d(VoIPConstants.TAG, "Received " + dataPacket.getType());
+						if (clientPartner.getPreferredConnectionMethod() == ConnectionMethods.PRIVATE || 
+								clientPartner.getPreferredConnectionMethod() == ConnectionMethods.PUBLIC) {
+							Logger.d(VoIPConstants.TAG, "Ignoring " + dataPacket.getType() + " since we are expecting a " +
+									clientPartner.getPreferredConnectionMethod() + " connection.");
+							break;
+						}
 						if (senderThread != null)
 							senderThread.interrupt();
 						clientPartner.setPreferredConnectionMethod(ConnectionMethods.RELAY);
@@ -2237,10 +2250,14 @@ public class VoIPService extends Service {
 	 */
 	private void playOutgoingCallRingtone() {
 		synchronized (this) {
-			if (isRingingOutgoing == true)
+			if (isRingingOutgoing == true) {
+				Logger.w(VoIPConstants.TAG, "Outgoing ringer is already ringing.");
 				return;
+			}
+			
 			else isRingingOutgoing = true;
 
+			Logger.d(VoIPConstants.TAG, "Playing outgoing call ringer.");
 			setCallStatus(VoIPConstants.CallStatus.OUTGOING_RINGING);
 			sendHandlerMessage(VoIPConstants.CONNECTION_ESTABLISHED_FIRST_TIME);
 			sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CONNECTION_ESTABLISHED);
@@ -2670,8 +2687,10 @@ public class VoIPService extends Service {
 	private boolean isNetworkGoodEnough() {
 		boolean good = false;
 
-		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.VOIP_NETWORK_TEST_ENABLED, false) == false)
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.VOIP_NETWORK_TEST_ENABLED, false) == false) {
+			Logger.d(VoIPConstants.TAG, "Network test disabled.");
 			return true;
+		}
 		
 		SharedPreferences prefs = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
 		int simulateBitrate = prefs.getInt(HikeMessengerApp.VOIP_BITRATE_2G, VoIPConstants.BITRATE_2G);

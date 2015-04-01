@@ -1893,6 +1893,8 @@ public class HikeConstants
 
 		public static final String VOIP_CALL_RELAY = "cpur";
 
+		public static final String VOIP_HANDSHAKE_COMPLETE = "vh";
+
 		// GCM Events
 		public static final String GCM_EXPIRED = "gcmexp";
 
