@@ -1042,6 +1042,8 @@ public class HikeConstants
 
 	public static final String VOIP_CALL_RATE_POPUP_SHOW = "vrmcs";
 
+	public static final String VOIP_FTUE_POPUP = "voip_popup";
+
 	public static final String VOIP_CALL_RATE_POPUP_FREQ = "vrmcf";
 
 	public static final String VOIP_RELAY_SERVER_PORT = "rsport";
@@ -1051,6 +1053,8 @@ public class HikeConstants
 	public static final String VOIP_QUALITY_TEST_SIMULATED_CALL_DURATION = "scd";
 
 	public static final String VOIP_AEC_ENABLED = "aec";
+
+	public static final String VOIP_NETWORK_TEST_ENABLED = "vnt";
 
 	public static final String VOIP_AEC_CPU_NR = "cpunr";
 
@@ -1873,6 +1877,10 @@ public class HikeConstants
 
 		public static final String VOIP_CALL_REJECT = "cr";
 
+		public static final String VOIP_CONNECTION_ESTABLISHED = "coest";
+
+		public static final String VOIP_PARTNER_ANSWER_TIMEOUT = "cpat";
+
 		public static final String VOIP_CALL_SPEAKER = "spk";
 
 		public static final String VOIP_CALL_MUTE = "mut";
@@ -1886,6 +1894,8 @@ public class HikeConstants
 		public static final String VOIP_NATIVE_CALL_INTERRUPT = "tci";
 
 		public static final String VOIP_CALL_RELAY = "cpur";
+
+		public static final String VOIP_HANDSHAKE_COMPLETE = "vh";
 
 		// GCM Events
 		public static final String GCM_EXPIRED = "gcmexp";
@@ -2081,6 +2091,14 @@ public class HikeConstants
 		public static final String PACKET_ECHO = "pecho";
 
 		public static final String VOIP_SOCKET_INFO = "ve";
+
+		public static final String VOIP_CALL_REQUEST = "vcr1";
+
+		public static final String VOIP_CALL_REQUEST_RESPONSE = "vcr2";
+
+		public static final String VOIP_CALL_RESPONSE_RESPONSE = "vcr3";
+
+		public static final String VOIP_CALL_CANCELLED = "vcrj";
 
 		/**
 		 * VoIP data packet with QoS 0. This packet will either be delivered immediately or never.
