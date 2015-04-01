@@ -715,7 +715,7 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
         else if (ACTION_COMPARE_PATTERN.equals(getIntent().getAction())) {
             if (TextUtils.isEmpty(infoText))
             {
-            	if(StealthModeManager.getInstance().isPinAsPassword())
+            	if(!StealthModeManager.getInstance().isPinAsPassword())
             		mTextInfo.setText(getIntent().getBooleanExtra(HikeConstants.Extras.STEALTH_PASS_RESET, false)
                 		?R.string.alp_42447968_msg_draw_pattern_to_unlock_in_reset : R.string.alp_42447968_msg_draw_pattern_to_unlock);
             	else

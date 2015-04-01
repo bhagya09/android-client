@@ -17,11 +17,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.res.Configuration;
-import android.graphics.drawable.AnimationDrawable;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.LayerDrawable;
-import android.graphics.drawable.ScaleDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -64,14 +60,14 @@ import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
-import com.bsb.hike.cropimage.BitmapManager;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
+import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.FtueContactsData;
 import com.bsb.hike.models.OverFlowMenuItem;
 import com.bsb.hike.modules.animationModule.HikeAnimationFactory;
 import com.bsb.hike.modules.contactmgr.ContactManager;
-import com.bsb.hike.service.HikeMqttManagerNew;
+import com.bsb.hike.notifications.HikeNotificationMsgStack;
 import com.bsb.hike.snowfall.SnowFallView;
 import com.bsb.hike.tasks.DownloadAndInstallUpdateAsyncTask;
 import com.bsb.hike.tasks.SendLogsTask;
@@ -159,7 +155,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			HikePubSub.USER_JOINED, HikePubSub.USER_LEFT, HikePubSub.FRIEND_REQUEST_ACCEPTED, HikePubSub.REJECT_FRIEND_REQUEST, HikePubSub.UPDATE_OF_MENU_NOTIFICATION,
 			HikePubSub.SERVICE_STARTED, HikePubSub.UPDATE_PUSH, HikePubSub.REFRESH_FAVORITES, HikePubSub.UPDATE_NETWORK_STATE, HikePubSub.CONTACT_SYNCED,
 			HikePubSub.SHOW_STEALTH_FTUE_SET_PASS_TIP, HikePubSub.SHOW_STEALTH_FTUE_ENTER_PASS_TIP, HikePubSub.SHOW_STEALTH_FTUE_CONV_TIP, HikePubSub.FAVORITE_COUNT_CHANGED,
-			HikePubSub.STEALTH_UNREAD_TIP_CLICKED,HikePubSub. FTUE_LIST_FETCHED_OR_UPDATED };
+			HikePubSub.STEALTH_UNREAD_TIP_CLICKED,HikePubSub.FTUE_LIST_FETCHED_OR_UPDATED, HikePubSub.MESSAGE_RECEIVED };
 
 	private String[] progressPubSubListeners = { HikePubSub.FINISHED_UPGRADE_INTENT_SERVICE };
 
@@ -217,24 +213,15 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		ActionBar actionBar = getSupportActionBar();
 		actionBar.setHomeButtonEnabled(true);
 		actionBar.setTitle("");
-		actionBar.setDisplayHomeAsUpEnabled(false);
-		actionBar.setDisplayShowTitleEnabled(false);
-		actionBar.setDisplayShowHomeEnabled(true);
-		actionBar.setDisplayUseLogoEnabled(true);
-		AnimationDrawable ld = (AnimationDrawable) getResources().getDrawable(R.drawable.stealth_notif_hike_logo);
-		BitmapDrawable bd = (BitmapDrawable) getResources().getDrawable(R.drawable.hike_logo_top_bar);
-		actionBar.setLogo(bd);
-		ld.start();
-		
-		findViewById(android.R.id.home).setAnimation(HikeAnimationFactory.getStickerShopIconAnimation(this));
-		findViewById(android.R.id.home).postDelayed(new Runnable() {
-			@Override
-			public void run() {	
-				findViewById(android.R.id.home).clearAnimation();
-			}
-		}, 2500);
+		actionBar.setLogo(R.drawable.home_screen_top_bar_logo);
+		actionBar.setDisplayHomeAsUpEnabled(true);
+		actionBar.setDisplayShowTitleEnabled(true);
+		if(HikeNotificationMsgStack.getInstance(HikeMessengerApp.getInstance().getApplicationContext()).containsStealthMessage())
+		{
+			findViewById(android.R.id.home).setAnimation(HikeAnimationFactory.getHikeActionBarLogoAnimation(HomeActivity.this));
+		}
 	}
-
+	
 	private void initialiseHomeScreen(Bundle savedInstanceState)
 	{
 
@@ -1219,6 +1206,22 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 				}
 			});
 		}
+		else if(HikePubSub.MESSAGE_RECEIVED.equals(type))
+		{
+
+			if(object instanceof ConvMessage && HikeMessengerApp.isStealthMsisdn( ((ConvMessage)object).getMsisdn() ))
+			{
+				runOnUiThread( new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						findViewById(android.R.id.home).startAnimation(HikeAnimationFactory.getHikeActionBarLogoAnimation(HomeActivity.this));
+					}
+				});
+			}
+
+		}
 	}
 
 	private void updateHomeOverflowToggleCount(final int count, int delayTime)
@@ -1863,7 +1866,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			}
 			else
 			{
-				
 				HikeMessengerApp.getPubSub().publish(HikePubSub.REMOVE_STEALTH_HIDE_TIP, null);
 				StealthModeManager.getInstance().activate(false);
 			

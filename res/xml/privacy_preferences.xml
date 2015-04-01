@@ -90,7 +90,7 @@
         
 	    <PreferenceCategory
             android:selectable="false"
-            android:title="Reset Settings" >
+            android:title="@string/stealth_reset_settings" >
 		    
 		    <com.bsb.hike.view.IconPreference
 				icon="@drawable/ic_reset_stealth"

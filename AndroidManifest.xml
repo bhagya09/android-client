@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1148"
-    android:versionName="3.8.5.01.stealth" >
+    android:versionCode="1157"
+    android:versionName="3.8.6.57.stealth" >
     <uses-sdk
         android:minSdkVersion="9"
         android:targetSdkVersion="17" />

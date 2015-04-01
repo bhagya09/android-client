@@ -15,6 +15,10 @@ import com.bsb.hike.ui.utils.LockPattern;
  */
 public class StealthModeManager
 {
+	
+	enum States{
+		SETUP_PENDING, ACTIVE, INACTIVE, FAKE_ACTIVE; 
+	}
 	private static final int RESET_TOGGLE_TIME_MS =10 * 1000;
 
 	private static final StealthModeManager stealthModeManager = new StealthModeManager();
@@ -93,6 +97,11 @@ public class StealthModeManager
 		prefUtil.removeData(HikeMessengerApp.SHOWN_FIRST_UNMARK_STEALTH_TOAST);
 	}
 
+	public void toggleActionTriggered(Activity activity)
+	{
+		if(false);
+	}
+	
 	public void hideActionTriggered(Conversation conv, Activity activity) 
 	{	
 		if (!StealthModeManager.getInstance().isSetUp())

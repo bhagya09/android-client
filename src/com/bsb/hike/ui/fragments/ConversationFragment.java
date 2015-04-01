@@ -1383,7 +1383,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 						if(!HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STEALTH_MODE_FTUE_DONE, true) && StealthModeManager.getInstance().isSetUp())
 							HikeMessengerApp.getPubSub().publish(HikePubSub.SHOW_STEALTH_REVEAL_TIP, null);
 					}
-					if (getString(R.string.mark_stealth).equals(option))
+					if (getString(R.string.mark_stealth).equals(option) || getString(R.string.hide_chat).equals(option))
 					{
 						List<String> enabledConvs = new ArrayList<String>(1);
 						enabledConvs.add(conv.getMsisdn());
