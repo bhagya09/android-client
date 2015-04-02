@@ -44,6 +44,25 @@ public interface HikePlatformConstants
 	String APP_NAME = "appName";
 	String LAYOUT = "layoutId";
 	String LONG_PRESS_DISABLED = "lpd";
+	String HIKE_MSISDN = "hikemsisdn";
+	String PLATFORM_USER_ID = "platformUid";
+	String PLATFORM_TOKEN = "platformToken";
+	String PLATFORM_UID_FOR_ADDRESS_BOOK_FETCH = "platformUidForAddressBookFetch";
+	public int numberOfRetries = 3;  // number of retries
+	public int retryDelay = 1000; // 1 sec
+	public float backOffMultiplier = 2.0f; // exponential time delay multiplier
+	public int HTTP_CALL_MADE = 2;
+	public int MAKE_HTTP_CALL = 1;
+
+	public static final class PlatformUIDFetchType
+	{
+		public static final int SELF = 1;
+
+		public static final int FULL_ADDRESS_BOOK = 2;
+
+		public static final int PARTIAL_ADDRESS_BOOK = 3;
+
+	}
 
     /**
      * Analytics for Platform
