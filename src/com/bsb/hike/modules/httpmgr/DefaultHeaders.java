@@ -14,9 +14,14 @@ import com.bsb.hike.utils.AccountUtils;
  */
 public final class DefaultHeaders
 {
+	// TODO move these constants to HttpHeaderConstants created by shobhit when that is merged in internal release
+	public static final String CACHE_CONTROL = "Cache-Control";
+	
+	public static final String NO_TRANSFORM = "no-transform";
+	
 	private static <T> List<Header> getDefaultHeaders(Request<T> request)
 	{
-		List<Header> headers = new ArrayList<Header>(2);
+		List<Header> headers = new ArrayList<Header>(3);
 
 		if (AccountUtils.appVersion != null && !Utils.containsHeader(request.getHeaders(), "User-Agent"))
 		{
@@ -25,6 +30,10 @@ public final class DefaultHeaders
 		if (AccountUtils.mToken != null && AccountUtils.mUid != null && !Utils.containsHeader(request.getHeaders(), "Cookie"))
 		{
 			headers.add(new Header("Cookie", "user=" + AccountUtils.mToken + "; UID=" + AccountUtils.mUid));
+		}
+		if (!Utils.containsHeader(request.getHeaders(), CACHE_CONTROL))
+		{
+			headers.add(new Header(CACHE_CONTROL, NO_TRANSFORM));
 		}
 		return headers;
 	}
