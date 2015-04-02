@@ -4,6 +4,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.utils.Utils;
 
 import android.net.NetworkInfo;
+import android.text.TextUtils;
 
 public class NetInfo
 {
@@ -88,11 +89,25 @@ public class NetInfo
 		NetInfo info = (NetInfo) other;
 		
 		// if network type is different returns false
-		// if network type is same and both are wifi with different ssids return false
-		if (this.getNetworkType() != info.getNetworkType() || ((this.isWifi() && info.isWifi()) && !this.getSsid().equals(info.getSsid())))
+		if (this.getNetworkType() != info.getNetworkType())
 		{
 			return false;
 		}
+		
+		if((this.isWifi() && info.isWifi())) // both are on wifi
+		{
+			if(TextUtils.isEmpty(this.getSsid()) && TextUtils.isEmpty(info.getSsid())) // both the ssids values are empty
+			{
+				return true;
+			}
+			else if(TextUtils.isEmpty(this.getSsid()) || TextUtils.isEmpty(info.getSsid())) // one of ssids is null
+			{
+				return false;
+			}
+			
+			return this.getSsid().equals(info.getSsid()); // return true if ssids are equal false otherwise
+		}
+		
 		return true;
 	}
 	

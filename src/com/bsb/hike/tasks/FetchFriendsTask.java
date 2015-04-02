@@ -196,17 +196,14 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 		{
 			groupTaskList = HikeMessengerApp.getContactManager().getConversationGroupsAsContacts(true);
 			removeSendingMsisdnAndStealthContacts(groupTaskList, groupsStealthList, true);
-			Logger.d("Umng", "grpups ocontacts :" +  groupTaskList.toString());
 		}
 
 		long queryTime = System.currentTimeMillis();
 		List<ContactInfo> allContacts = HikeMessengerApp.getContactManager().getAllContacts();
 		Set<String> blockSet = ContactManager.getInstance().getBlockedMsisdnSet();
-		Logger.d("Umng", "blocked contacts :" +  blockSet.toString());
 		
 		NUXManager nm = NUXManager.getInstance();
 
-		Logger.d("Umng", "all contacts :" +  allContacts.toString());
 		
 		if(fetchRecents)
 		{
@@ -227,7 +224,6 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 			    recentTaskList.add(recentContact);
 			}
 
-			Logger.d("Umng", "recent updated  contacts :" +  recentTaskList.toString());
 		}
 		
 
@@ -245,16 +241,13 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 
 		if (separateOrHideNuxContacts)
 		{
-			Logger.d("UmangX","hide or recm : SMS : " + fetchSmsContacts + " Hike : " + fetchHikeContacts);
 			ContactManager cm = ContactManager.getInstance();
 			
 			Set<String> mmSet = nm.getNuxSelectFriendsPojo().getRecoList();
 			
 			if (mmSet != null && fetchRecommendedContacts)
 			{
-				Logger.d("UmngR","recommended set not null : " + mmSet.toString());
 				mmSet.removeAll(blockSet);
-				Logger.d("UmngR","reco list with blocked contacts : " + mmSet.toString());
 				for (String msisdn : mmSet)
 				{
 					ContactInfo nuxCI = cm.getContact(msisdn);
@@ -262,32 +255,25 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
                         nuxRecommendedTaskList.add(cm.getContact(msisdn));
 				}
 				allContacts.removeAll(nuxRecommendedTaskList);
-				Logger.d("UmngR","all with recoList Removed : " + allContacts.toString());
 				
 			}	
 			
 			ArrayList<String> mmList  = nm.getNuxSelectFriendsPojo().getHideList();
 			if(mmList != null && filterHideList)
 			{
-				Logger.d("UmngR","hide list not null : " + mmList.toString());
 				for (String msisdn : mmList)
 				{
 					if(!TextUtils.isEmpty(msisdn) && !(cm.getContact(msisdn) == null))
 						nuxHideTaskList.add(cm.getContact(msisdn));
 				}
 				nuxRecommendedTaskList.removeAll(nuxHideTaskList);
-				Logger.d("UmngR","reco list with hide contacts : " + nuxRecommendedTaskList.toString());
 				allContacts.removeAll(nuxHideTaskList);
-				Logger.d("UmngR","all with hide Contacts Removed : " + allContacts.toString());
 			}			
 
 		}
 
-		Logger.d("Umng", " new hide contacts :" +  nuxHideTaskList.toString());
 
-		Logger.d("Umng", "new recommended contacts :" +  nuxRecommendedTaskList.toString());
 
-		Logger.d("Umng", "new all contacts :" +  allContacts.toString());
 		long iterationTime = System.currentTimeMillis();
 		for (ContactInfo contactInfo : allContacts)
 		{
@@ -329,7 +315,6 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 		
 		
 
-		Logger.d("Umng", "total contacts :" +  hikeTaskList.toString());
 		Logger.d("TestQuery", "Iteration time: " + (System.currentTimeMillis() - iterationTime));
 
 		long sortTime = System.currentTimeMillis();
@@ -395,12 +380,8 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 
 		Logger.d("TestQuery", "total time: " + (System.currentTimeMillis() - startTime));
 
-		Logger.d("Umng", "Recet joinees :" +  recentlyJoinedTaskList.toString());
 
-		Logger.d("Umng", "total contacts :" +  hikeTaskList.toString());
 
-		Logger.d("Umng", "sms con:" +  smsTaskList.toString());
-		Logger.d("Umng", "fav con:" +  friendTaskList.toString());
 		
 		
 
@@ -567,7 +548,6 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 		if(fetchRecommendedContacts)
 		{if(recommendedContactsList!=null){
 
-			Logger.d("UmangX","seding recommended on Post");
 			recommendedContactsList.addAll(nuxRecommendedTaskList);
 			filteredRecommendedContactsList.addAll(nuxRecommendedTaskList);
 		}

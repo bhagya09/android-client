@@ -4,8 +4,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.telephony.TelephonyManager;
-import android.util.Log;
 
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.voip.view.VoIPActivity;
 
 public class IncomingCallListener extends BroadcastReceiver {
@@ -21,7 +21,7 @@ public class IncomingCallListener extends BroadcastReceiver {
 			if (VoIPService.isConnected()) {
 				// We are in a call
 				// Put it on hold
-				Log.d(VoIPConstants.TAG, "Detected incoming call. Putting VoIP on hold.");
+				Logger.d(VoIPConstants.TAG, "Detected incoming call. Putting VoIP on hold.");
 				Intent i = new Intent(context, VoIPActivity.class);
 				i.putExtra("action", VoIPConstants.INCOMING_NATIVE_CALL_HOLD);
 				i.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);

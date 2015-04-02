@@ -663,7 +663,8 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity im
 	{
 		boolean isRemoved = super.removeFragment(tag);
 		if (isRemoved)
-		{	
+		{
+			getSupportActionBar().show();
 			setupActionBar();
 		}
 		return isRemoved;

@@ -15,7 +15,6 @@ import android.net.Uri;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.util.Log;
-import android.util.Pair;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -24,6 +23,7 @@ import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.NotificationPreview;
 import com.bsb.hike.ui.ChatThread;
 import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.utils.IntentManager;
@@ -42,7 +42,7 @@ public class HikeNotificationMsgStack implements Listener
 	private static Context mContext;
 
 	// Construct to store msisdn - message1,message2,message3
-	private LinkedHashMap<String, LinkedList<String>> mMessagesMap;
+	private LinkedHashMap<String, LinkedList<NotificationPreview>> mMessagesMap;
 
 	private Intent mNotificationIntent;
 
@@ -93,12 +93,12 @@ public class HikeNotificationMsgStack implements Listener
 
 	private HikeNotificationMsgStack()
 	{
-		mMessagesMap = new LinkedHashMap<String, LinkedList<String>>()
+		mMessagesMap = new LinkedHashMap<String, LinkedList<NotificationPreview>>()
 		{
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			protected boolean removeEldestEntry(java.util.Map.Entry<String, LinkedList<String>> eldest)
+			protected boolean removeEldestEntry(java.util.Map.Entry<String, LinkedList<NotificationPreview>> eldest)
 			{
 				return size() > MAX_LINES;
 			}
@@ -116,10 +116,9 @@ public class HikeNotificationMsgStack implements Listener
 		if (argConvMessage != null)
 		{
 
-			// Add to ticker text string
-			Pair<String, String> convMessagePair = HikeNotificationUtils.getNotificationPreview(mContext, argConvMessage);
+			NotificationPreview convNotifPrvw = HikeNotificationUtils.getNotificationPreview(mContext, argConvMessage);
 
-			addPair(argConvMessage.getMsisdn(), convMessagePair.first);
+			addPair(argConvMessage.getMsisdn(), convNotifPrvw);
 
 			mLastInsertedConvMessage = argConvMessage;
 		}
@@ -141,7 +140,7 @@ public class HikeNotificationMsgStack implements Listener
 			{
 				if (conv.getMessageType() == HikeConstants.MESSAGE_TYPE.WEB_CONTENT || conv.getMessageType() == HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT)
 				{
-					addMessage(conv.getMsisdn(), conv.platformWebMessageMetadata.getNotifText());
+					addMessage(conv.getMsisdn(), conv.webMetadata.getNotifText());
 					mLastInsertedConvMessage = conv;
 					forceBlockNotificationSound = conv.isSilent();
 				}
@@ -167,7 +166,7 @@ public class HikeNotificationMsgStack implements Listener
 			Log.wtf("HikeNotification", "Notification message is empty, check packet, msisdn= "+argMsisdn);
 			return;
 		}
-		addPair(argMsisdn, argMessage);
+		addPair(argMsisdn, new NotificationPreview(argMessage, HikeNotificationUtils.getNameForMsisdn(argMsisdn)));
 	}
 
 	/**
@@ -176,7 +175,7 @@ public class HikeNotificationMsgStack implements Listener
 	 * @param argMsisdn
 	 * @param argMessage
 	 */
-	private void addPair(String argMsisdn, String argMessage)
+	private void addPair(String argMsisdn, NotificationPreview notifPrvw)
 	{
 		lastAddedMsisdn = argMsisdn;
 
@@ -185,33 +184,33 @@ public class HikeNotificationMsgStack implements Listener
 		if (argMsisdn.equals(HikeNotification.HIKE_STEALTH_MESSAGE_KEY) && mMessagesMap.containsKey(HikeNotification.HIKE_STEALTH_MESSAGE_KEY))
 		{
 
-			LinkedList<String> stealthMessageList = mMessagesMap.get(argMsisdn);
+			LinkedList<NotificationPreview> stealthMessageList = mMessagesMap.get(argMsisdn);
 
 			// There should only be 1 item dedicated to stealth message
 			// hike - You have new notification(s)
-			stealthMessageList.set(0, mContext.getString(R.string.stealth_notification_messages));
+			stealthMessageList.set(0, new NotificationPreview(mContext.getString(R.string.stealth_notification_messages), null));
 		}
 		else
 		{
 			// Add message to corresponding msisdn key in messages map
 			if (mMessagesMap.containsKey(argMsisdn))
 			{
-				LinkedList<String> messagesList = mMessagesMap.get(argMsisdn);
+				LinkedList<NotificationPreview> messagesList = mMessagesMap.get(argMsisdn);
 
 				// Add message to the end of message list for a particular msisdn
-				messagesList.add(argMessage);
+				messagesList.add(notifPrvw);
 				totalNewMessages++;
 				if (!isFromSingleMsisdn())
 				{
 					// Move the conversation map to first index
-					LinkedList<String> lastModifiedMapList = mMessagesMap.remove(argMsisdn);
+					LinkedList<NotificationPreview> lastModifiedMapList = mMessagesMap.remove(argMsisdn);
 					mMessagesMap.put(argMsisdn, lastModifiedMapList);
 				}
 			}
 			else
 			{
-				LinkedList<String> newMessagesList = new LinkedList<String>();
-				newMessagesList.add(argMessage);
+				LinkedList<NotificationPreview> newMessagesList = new LinkedList<NotificationPreview>();
+				newMessagesList.add(notifPrvw);
 				totalNewMessages++;
 				mMessagesMap.put(argMsisdn, newMessagesList);
 			}
@@ -223,25 +222,25 @@ public class HikeNotificationMsgStack implements Listener
 
 		if (mTickerText != null)
 		{
-			mTickerText.append("\n" + HikeNotificationUtils.getNameForMsisdn(argMsisdn) + " - " + argMessage);
+			mTickerText.append("\n" + HikeNotificationUtils.getNameForMsisdn(argMsisdn) + " - " + notifPrvw.getMessage());
 		}
 		else
 		{
 			mTickerText = new StringBuilder();
-			mTickerText.append(HikeNotificationUtils.getNameForMsisdn(argMsisdn) + " - " + argMessage);
+			mTickerText.append(HikeNotificationUtils.getNameForMsisdn(argMsisdn) + " - " + notifPrvw.getMessage());
 		}
 	}
 
 	private void trimMessageMap()
 	{
 		boolean trimmedAll = false;
-		ListIterator<Entry<String, LinkedList<String>>> mapIterator = new ArrayList<Map.Entry<String, LinkedList<String>>>(mMessagesMap.entrySet()).listIterator();
+		ListIterator<Entry<String, LinkedList<NotificationPreview>>> mapIterator = new ArrayList<Map.Entry<String, LinkedList<NotificationPreview>>>(mMessagesMap.entrySet()).listIterator();
 
 		while (totalNewMessages > MAX_LINES  && !trimmedAll)
 		{
 			while (mapIterator.hasNext())
 			{
-				Entry<String, LinkedList<String>> entry = mapIterator.next();
+				Entry<String, LinkedList<NotificationPreview>> entry = mapIterator.next();
 				if (entry.getValue().size() > 1)
 				{
 					// Remove first message
@@ -361,16 +360,16 @@ public class HikeNotificationMsgStack implements Listener
 		setBigTextList(new ArrayList<SpannableString>());
 		StringBuilder bigText = new StringBuilder();
 
-		ListIterator<Entry<String, LinkedList<String>>> mapIterator = new ArrayList<Map.Entry<String, LinkedList<String>>>(mMessagesMap.entrySet()).listIterator(mMessagesMap
+		ListIterator<Entry<String, LinkedList<NotificationPreview>>> mapIterator = new ArrayList<Map.Entry<String, LinkedList<NotificationPreview>>>(mMessagesMap.entrySet()).listIterator(mMessagesMap
 				.size());
 
 		while (mapIterator.hasPrevious())
 		{
-			Entry<String, LinkedList<String>> conv = mapIterator.previous();
+			Entry<String, LinkedList<NotificationPreview>> conv = mapIterator.previous();
 
 			String msisdn = conv.getKey();
 
-			for (String message : conv.getValue())
+			for (NotificationPreview notifPrvw : conv.getValue())
 			{
 
 				String notificationMsgTitle = mContext.getString(R.string.app_name);
@@ -379,11 +378,11 @@ public class HikeNotificationMsgStack implements Listener
 
 				if (!isFromSingleMsisdn())
 				{
-					getBigTextList().add(HikeNotificationUtils.makeNotificationLine(notificationMsgTitle, message));
+					getBigTextList().add(HikeNotificationUtils.makeNotificationLine(notificationMsgTitle, notifPrvw.getMessage()));
 				}
 				else
 				{
-					getBigTextList().add(HikeNotificationUtils.makeNotificationLine(null, message));
+					getBigTextList().add(HikeNotificationUtils.makeNotificationLine(null, notifPrvw.getMessage()));
 				}
 			}
 		}
@@ -576,17 +575,17 @@ public class HikeNotificationMsgStack implements Listener
 	{
 		if (isFromSingleMsisdn())
 		{
+			String title = mMessagesMap.get(lastAddedMsisdn).getLast().getTitle();
+			
+			if(getNewMessages() <=1 && !TextUtils.isEmpty(title))
+			{
+				return title;
+			}
+			
 			return HikeNotificationUtils.getNameForMsisdn(lastAddedMsisdn);
 		}
 
-		if (getNewMessages() <= 1)
-		{
-			return mContext.getString(R.string.one_new_message);
-		}
-		else
-		{
-			return String.format(mContext.getString(R.string.num_new_messages), getNewMessages());
-		}
+		return String.format(mContext.getString(R.string.num_new_messages), getNewMessages());
 	}
 
 	public boolean forceBlockNotificationSound()

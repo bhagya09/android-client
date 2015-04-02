@@ -18,6 +18,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ActivityNotFoundException;
@@ -76,6 +77,7 @@ import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.filetransfer.FileSavedState;
 import com.bsb.hike.filetransfer.FileTransferBase.FTState;
 import com.bsb.hike.filetransfer.FileTransferManager;
+import com.bsb.hike.models.BroadcastConversation;
 import com.bsb.hike.models.ContactInfoData;
 import com.bsb.hike.models.ContactInfoData.DataType;
 import com.bsb.hike.models.ConvMessage;
@@ -110,8 +112,10 @@ import com.bsb.hike.utils.EmoticonConstants;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.StickerManager;
+import com.bsb.hike.utils.GroupUtils;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.utils.Utils.ExternalStorageState;
+import com.bsb.hike.view.CustomSendMessageTextView;
 import com.bsb.hike.view.HoloCircularProgress;
 
 
@@ -138,6 +142,8 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 		public ImageView status;
 
+		public ImageView broadcastIndicator;
+		
 		public TextView time;
 
 		public View timeStatus;
@@ -332,7 +338,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 	 */
 	private ConvMessage firstPendingConvMessage = null;
 
-	public MessagesAdapter(Context context, ArrayList<ConvMessage> objects, Conversation conversation, ChatThread chatThread)
+	public MessagesAdapter(Activity context, ArrayList<ConvMessage> objects, Conversation conversation, ChatThread chatThread)
 	{
 		mIconImageSize = context.getResources().getDimensionPixelSize(R.dimen.icon_picture_size);
 		// this.largeStickerLoader = new StickerLoader(context);
@@ -773,6 +779,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					stickerHolder.image = (ImageView) v.findViewById(R.id.image);
 					stickerHolder.time = (TextView) v.findViewById(R.id.time);
 					stickerHolder.status = (ImageView) v.findViewById(R.id.status);
+					stickerHolder.broadcastIndicator = (ImageView) v.findViewById(R.id.broadcastIndicator);
 					stickerHolder.timeStatus = (View) v.findViewById(R.id.time_status);
 					stickerHolder.selectedStateOverlay = v.findViewById(R.id.selected_state_overlay);
 					stickerHolder.dayStub = (ViewStub) v.findViewById(R.id.day_stub);
@@ -794,6 +801,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					stickerHolder.placeHolder = v.findViewById(R.id.placeholder);
 					stickerHolder.loader = (ProgressBar) v.findViewById(R.id.loading_progress);
 					stickerHolder.image = (ImageView) v.findViewById(R.id.image);
+					stickerHolder.broadcastIndicator = (ImageView) v.findViewById(R.id.broadcastIndicator);
 					stickerHolder.time = (TextView) v.findViewById(R.id.time);
 					stickerHolder.status = (ImageView) v.findViewById(R.id.status);
 					stickerHolder.timeStatus = (View) v.findViewById(R.id.time_status);
@@ -902,6 +910,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				});
 
 			}
+			displayBroadcastIndicator(convMessage, stickerHolder.broadcastIndicator, false);
 			setTimeNStatus(position, stickerHolder, true, stickerHolder.placeHolder);
 			setSelection(convMessage, stickerHolder.selectedStateOverlay);
 		}
@@ -1004,6 +1013,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 						wtHolder.progress = (HoloCircularProgress) v.findViewById(R.id.play_progress);
 						wtHolder.action = (ImageView) v.findViewById(R.id.action);
 						wtHolder.duration = (TextView) v.findViewById(R.id.duration);
+						wtHolder.broadcastIndicator = (ImageView) v.findViewById(R.id.broadcastIndicator);
 						wtHolder.time = (TextView) v.findViewById(R.id.time);
 						wtHolder.status = (ImageView) v.findViewById(R.id.status);
 						wtHolder.timeStatus = (View) v.findViewById(R.id.time_status);
@@ -1029,6 +1039,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 						wtHolder.progress = (HoloCircularProgress) v.findViewById(R.id.play_progress);
 						wtHolder.action = (ImageView) v.findViewById(R.id.action);
 						wtHolder.duration = (TextView) v.findViewById(R.id.duration);
+						wtHolder.broadcastIndicator = (ImageView) v.findViewById(R.id.broadcastIndicator);
 						wtHolder.time = (TextView) v.findViewById(R.id.time);
 						wtHolder.status = (ImageView) v.findViewById(R.id.status);
 						wtHolder.timeStatus = (View) v.findViewById(R.id.time_status);
@@ -1120,6 +1131,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					wtHolder.initialization.setVisibility(View.GONE);
 				}
 
+				displayBroadcastIndicator(convMessage, wtHolder.broadcastIndicator, true);
 				setTimeNStatus(position, wtHolder, true, wtHolder.placeHolder);
 				setSelection(convMessage, wtHolder.selectedStateOverlay);
 
@@ -1150,6 +1162,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 						videoHolder.fileName = (TextView) v.findViewById(R.id.file_name);
 						videoHolder.filmstripLeft = (ImageView) v.findViewById(R.id.filmstrip_left);
 						videoHolder.filmstripRight = (ImageView) v.findViewById(R.id.filmstrip_right);
+						videoHolder.broadcastIndicator = (ImageView) v.findViewById(R.id.broadcastIndicator);
 						videoHolder.time = (TextView) v.findViewById(R.id.time);
 						videoHolder.status = (ImageView) v.findViewById(R.id.status);
 						videoHolder.timeStatus = (View) v.findViewById(R.id.time_status);
@@ -1182,6 +1195,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 						videoHolder.filmstripLeft = (ImageView) v.findViewById(R.id.filmstrip_left);
 						videoHolder.filmstripRight = (ImageView) v.findViewById(R.id.filmstrip_right);
 						videoHolder.time = (TextView) v.findViewById(R.id.time);
+						videoHolder.broadcastIndicator = (ImageView) v.findViewById(R.id.broadcastIndicator);
 						videoHolder.status = (ImageView) v.findViewById(R.id.status);
 						videoHolder.timeStatus = (View) v.findViewById(R.id.time_status);
 						videoHolder.selectedStateOverlay = v.findViewById(R.id.selected_state_overlay);
@@ -1278,6 +1292,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				videoHolder.filmstripLeft.setVisibility(View.VISIBLE);
 				videoHolder.filmstripRight.setVisibility(View.VISIBLE);
 
+				displayBroadcastIndicator(convMessage, videoHolder.broadcastIndicator, false);
 				setBubbleColor(convMessage, videoHolder.messageContainer);
 				setupFileState(videoHolder, fss, convMessage.getMsgID(), hikeFile, convMessage.isSent(), false);
 				setTimeNStatus(position, videoHolder, true, videoHolder.fileThumb);
@@ -1308,6 +1323,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 						imageHolder.fileDetails = v.findViewById(R.id.file_details);
 						imageHolder.fileSize = (TextView) v.findViewById(R.id.file_size);
 						imageHolder.fileName = (TextView) v.findViewById(R.id.file_name);
+						imageHolder.broadcastIndicator = (ImageView) v.findViewById(R.id.broadcastIndicator);
 						imageHolder.time = (TextView) v.findViewById(R.id.time);
 						imageHolder.status = (ImageView) v.findViewById(R.id.status);
 						imageHolder.timeStatus = (View) v.findViewById(R.id.time_status);
@@ -1337,6 +1353,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 						imageHolder.fileDetails = v.findViewById(R.id.file_details);
 						imageHolder.fileSize = (TextView) v.findViewById(R.id.file_size);
 						imageHolder.fileName = (TextView) v.findViewById(R.id.file_name);
+						imageHolder.broadcastIndicator = (ImageView) v.findViewById(R.id.broadcastIndicator);
 						imageHolder.time = (TextView) v.findViewById(R.id.time);
 						imageHolder.status = (ImageView) v.findViewById(R.id.status);
 						imageHolder.timeStatus = (View) v.findViewById(R.id.time_status);
@@ -1420,6 +1437,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 				imageHolder.fileThumb.setVisibility(View.VISIBLE);
 
+				displayBroadcastIndicator(convMessage, imageHolder.broadcastIndicator, false);
 				setBubbleColor(convMessage, imageHolder.messageContainer);
 				setupFileState(imageHolder, fss, convMessage.getMsgID(), hikeFile, convMessage.isSent(), false);
 				setTimeNStatus(position, imageHolder, true, imageHolder.fileThumb);
@@ -1446,6 +1464,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 						imageHolder.fileDetails = v.findViewById(R.id.file_details);
 						imageHolder.fileSize = (TextView) v.findViewById(R.id.file_size);
 						imageHolder.fileName = (TextView) v.findViewById(R.id.file_name);
+						imageHolder.broadcastIndicator = (ImageView) v.findViewById(R.id.broadcastIndicator);
 						imageHolder.time = (TextView) v.findViewById(R.id.time);
 						imageHolder.status = (ImageView) v.findViewById(R.id.status);
 						imageHolder.timeStatus = (View) v.findViewById(R.id.time_status);
@@ -1475,6 +1494,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 						imageHolder.fileDetails = v.findViewById(R.id.file_details);
 						imageHolder.fileSize = (TextView) v.findViewById(R.id.file_size);
 						imageHolder.fileName = (TextView) v.findViewById(R.id.file_name);
+						imageHolder.broadcastIndicator = (ImageView) v.findViewById(R.id.broadcastIndicator);
 						imageHolder.time = (TextView) v.findViewById(R.id.time);
 						imageHolder.status = (ImageView) v.findViewById(R.id.status);
 						imageHolder.timeStatus = (View) v.findViewById(R.id.time_status);
@@ -1535,6 +1555,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					imageHolder.circularProgressBg.setVisibility(View.VISIBLE);
 				}
 
+				displayBroadcastIndicator(convMessage, imageHolder.broadcastIndicator, false);
 				setBubbleColor(convMessage, imageHolder.messageContainer);
 				setTimeNStatus(position, imageHolder, true, imageHolder.fileThumb);
 				setSelection(convMessage, imageHolder.selectedStateOverlay);
@@ -1560,6 +1581,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 						fileHolder.fileDetails = v.findViewById(R.id.file_details);
 						fileHolder.fileSize = (TextView) v.findViewById(R.id.file_size);
 						fileHolder.fileName = (TextView) v.findViewById(R.id.file_name);
+						fileHolder.broadcastIndicator = (ImageView) v.findViewById(R.id.broadcastIndicator);
 						fileHolder.time = (TextView) v.findViewById(R.id.time);
 						fileHolder.status = (ImageView) v.findViewById(R.id.status);
 						fileHolder.timeStatus = (View) v.findViewById(R.id.time_status);
@@ -1589,6 +1611,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 						fileHolder.fileDetails = v.findViewById(R.id.file_details);
 						fileHolder.fileSize = (TextView) v.findViewById(R.id.file_size);
 						fileHolder.fileName = (TextView) v.findViewById(R.id.file_name);
+						fileHolder.broadcastIndicator = (ImageView) v.findViewById(R.id.broadcastIndicator);
 						fileHolder.time = (TextView) v.findViewById(R.id.time);
 						fileHolder.status = (ImageView) v.findViewById(R.id.status);
 						fileHolder.timeStatus = (View) v.findViewById(R.id.time_status);
@@ -1655,6 +1678,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					fileHolder.circularProgressBg.setVisibility(View.VISIBLE);
 				}
 
+				displayBroadcastIndicator(convMessage, fileHolder.broadcastIndicator, true);
 				setBubbleColor(convMessage, fileHolder.messageContainer);
 				setTimeNStatus(position, fileHolder, false, fileHolder.messageContainer);
 				setSelection(convMessage, fileHolder.selectedStateOverlay);
@@ -1691,6 +1715,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 						fileHolder.fileDetails = v.findViewById(R.id.file_details);
 						fileHolder.fileSize = (TextView) v.findViewById(R.id.file_size);
 						fileHolder.fileName = (TextView) v.findViewById(R.id.file_name);
+						fileHolder.broadcastIndicator = (ImageView) v.findViewById(R.id.broadcastIndicator);
 						fileHolder.time = (TextView) v.findViewById(R.id.time);
 						fileHolder.status = (ImageView) v.findViewById(R.id.status);
 						fileHolder.timeStatus = (View) v.findViewById(R.id.time_status);
@@ -1721,6 +1746,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 						fileHolder.fileDetails = v.findViewById(R.id.file_details);
 						fileHolder.fileSize = (TextView) v.findViewById(R.id.file_size);
 						fileHolder.fileName = (TextView) v.findViewById(R.id.file_name);
+						fileHolder.broadcastIndicator = (ImageView) v.findViewById(R.id.broadcastIndicator);
 						fileHolder.time = (TextView) v.findViewById(R.id.time);
 						fileHolder.status = (ImageView) v.findViewById(R.id.status);
 						fileHolder.timeStatus = (View) v.findViewById(R.id.time_status);
@@ -1766,6 +1792,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				fileHolder.fileExtension.setVisibility(View.VISIBLE);
 				fileHolder.fileDetails.setVisibility(View.VISIBLE);
 
+				displayBroadcastIndicator(convMessage, fileHolder.broadcastIndicator, true);
 				setBubbleColor(convMessage, fileHolder.messageContainer);
 				setupFileState(fileHolder, fss, convMessage.getMsgID(), hikeFile, convMessage.isSent(), true);
 				setTimeNStatus(position, fileHolder, false, fileHolder.messageContainer);
@@ -1792,6 +1819,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					textHolder = new TextViewHolder();
 					v = inflateView(R.layout.message_sent_text, parent, false);
 					textHolder.text = (TextView) v.findViewById(R.id.text);
+					textHolder.broadcastIndicator = (ImageView) v.findViewById(R.id.broadcastIndicator);
 					textHolder.time = (TextView) v.findViewById(R.id.time);
 					textHolder.status = (ImageView) v.findViewById(R.id.status);
 					textHolder.timeStatus = (View) v.findViewById(R.id.time_status);
@@ -1817,6 +1845,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					Logger.d("MSG_GET_VIEW", "" + (System.currentTimeMillis() - time));
 
 					textHolder.text = (TextView) v.findViewById(R.id.text);
+					textHolder.broadcastIndicator = (ImageView) v.findViewById(R.id.broadcastIndicator);
 					textHolder.time = (TextView) v.findViewById(R.id.time);
 					textHolder.status = (ImageView) v.findViewById(R.id.status);
 					textHolder.timeStatus = (View) v.findViewById(R.id.time_status);
@@ -1841,7 +1870,21 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 			dayHolder = textHolder;
 			setSenderDetails(convMessage, position, textHolder, false);
-
+			
+			if (viewType == ViewType.SEND_HIKE || viewType == ViewType.SEND_SMS)
+			{
+				if (convMessage.isBroadcastMessage() && !convMessage.isBroadcastConversation())
+				{
+					CustomSendMessageTextView tv = (CustomSendMessageTextView) textHolder.text;
+					tv.setBroadcastLength();
+				}
+				else
+				{
+					CustomSendMessageTextView tv = (CustomSendMessageTextView) textHolder.text;
+					tv.setDefaultLength();
+				}
+			}
+			
 			CharSequence markedUp = convMessage.getMessage();
 			SmileyParser smileyParser = SmileyParser.getInstance();
 			markedUp = smileyParser.addSmileySpans(markedUp, false);
@@ -1849,6 +1892,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			Linkify.addLinks(textHolder.text, Linkify.ALL);
 			Linkify.addLinks(textHolder.text, Utils.shortCodeRegex, "tel:");
 
+			displayBroadcastIndicator(convMessage, textHolder.broadcastIndicator, true);
 			setTimeNStatus(position, textHolder, false, textHolder.messageContainer);
 			setSelection(convMessage, textHolder.selectedStateOverlay);
 
@@ -2025,16 +2069,9 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			{
 				JSONArray participantInfoArray = metadata.getGcjParticipantInfo();
 				TextView participantInfo = (TextView) inflater.inflate(layoutRes, null);
-				String message;
 				String highlight = Utils.getGroupJoinHighlightText(participantInfoArray, (GroupConversation) conversation);
-				if (metadata.isNewGroup())
-				{
-					message = String.format(context.getString(R.string.new_group_message), highlight);
-				}
-				else
-				{
-					message = String.format(context.getString(R.string.add_to_group_message), highlight);
-				}
+				String message = GroupUtils.getParticipantAddedMessage(convMessage, context, highlight);
+				
 				setTextAndIconForSystemMessages(participantInfo, Utils.getFormattedParticipantInfo(message, highlight), isDefaultTheme ? R.drawable.ic_joined_chat
 						: R.drawable.ic_joined_chat_custom);
 				((ViewGroup) participantInfoHolder.container).addView(participantInfo);
@@ -2063,12 +2100,13 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 						((ViewGroup) participantInfoHolder.container).addView(mainMessage);
 					}
 					String participantMsisdn = metadata.getMsisdn();
-					String name = ((GroupConversation) conversation).getGroupParticipantFirstName(participantMsisdn);
-					message = Utils.getFormattedParticipantInfo(String.format(context.getString(R.string.left_conversation), name), name);
+					String name = ((GroupConversation) conversation).getGroupParticipantFirstNameAndSurname(participantMsisdn);
+					message = Utils.getFormattedParticipantInfo(GroupUtils.getParticipantRemovedMessage(conversation, context, name), name);
 				}
 				else
 				{
-					message = context.getString(R.string.group_chat_end);
+					message = GroupUtils.getConversationEndedMessage(conversation, context);
+					
 				}
 				setTextAndIconForSystemMessages(participantInfo, message, isDefaultTheme ? R.drawable.ic_left_chat : R.drawable.ic_left_chat_custom);
 
@@ -2080,19 +2118,21 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			else if (infoState == ParticipantInfoState.USER_JOIN || infoState == ParticipantInfoState.USER_OPT_IN)
 			{
 				String name;
-				String message;
+				String message = "";
 				if (conversation instanceof GroupConversation)
 				{
 					String participantMsisdn = metadata.getMsisdn();
-					name = ((GroupConversation) conversation).getGroupParticipantFirstName(participantMsisdn);
+					name = ((GroupConversation) conversation).getGroupParticipantFirstNameAndSurname(participantMsisdn);
 					message = context.getString(infoState == ParticipantInfoState.USER_JOIN ? (metadata.isOldUser() ? R.string.user_back_on_hike : R.string.joined_hike_new)
 							: R.string.joined_conversation, name);
 				}
 				else
 				{
 					name = Utils.getFirstName(conversation.getLabel());
-					message = context.getString(infoState == ParticipantInfoState.USER_JOIN ? (metadata.isOldUser() ? R.string.user_back_on_hike : R.string.joined_hike_new)
-							: R.string.optin_one_to_one, name);
+					if(infoState == ParticipantInfoState.USER_JOIN)
+						message = String.format(convMessage.getMessage(),name);
+					else
+						message = context.getString(R.string.optin_one_to_one, name);
 				}
 
 				int icRes;
@@ -2137,15 +2177,29 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				String msisdn = metadata.getMsisdn();
 				String userMsisdn = preferences.getString(HikeMessengerApp.MSISDN_SETTING, "");
 
-				String participantName = userMsisdn.equals(msisdn) ? context.getString(R.string.you) : ((GroupConversation) conversation).getGroupParticipantFirstName(msisdn);
-				String message = String.format(context.getString(convMessage.getParticipantInfoState() == ParticipantInfoState.CHANGED_GROUP_NAME ? R.string.change_group_name
-						: R.string.change_group_image), participantName);
+				String participantName = userMsisdn.equals(msisdn) ? context.getString(R.string.you) : ((GroupConversation) conversation).getGroupParticipantFirstNameAndSurname(msisdn);
+				String message;
+				if (convMessage.getParticipantInfoState() == ParticipantInfoState.CHANGED_GROUP_NAME)
+				{
+					message = GroupUtils.getConversationNameChangedMessage(conversation, context, participantName);
+				}
+				else
+				{
+					message = String.format(context.getString(R.string.change_group_image), participantName);
+				}
 
 				TextView mainMessage = (TextView) inflater.inflate(layoutRes, null);
 				int icRes;
 				if (infoState == ParticipantInfoState.CHANGED_GROUP_NAME)
 				{
-					icRes = isDefaultTheme ? R.drawable.ic_group_info : R.drawable.ic_group_info_custom;
+					if (convMessage.isBroadcastConversation())
+					{
+						icRes = R.drawable.ic_broadcast_2;
+					}
+					else
+					{
+						icRes = isDefaultTheme ? R.drawable.ic_group_info : R.drawable.ic_group_info_custom;
+					}
 				}
 				else
 				{
@@ -2206,7 +2260,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					StringBuilder dndNamesSB = new StringBuilder();
 					for (int i = 0; i < dndNumbers.length(); i++)
 					{
-						String name = conversation instanceof GroupConversation ? ((GroupConversation) conversation).getGroupParticipantFirstName(dndNumbers.optString(i)) : Utils
+						String name = conversation instanceof GroupConversation ? ((GroupConversation) conversation).getGroupParticipantFirstNameAndSurname(dndNumbers.optString(i)) : Utils
 								.getFirstName(conversation.getLabel());
 						if (i < dndNumbers.length() - 2)
 						{
@@ -2260,7 +2314,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				String name;
 				if (isGroupChat)
 				{
-					name = userMsisdn.equals(msisdn) ? context.getString(R.string.you) : ((GroupConversation) conversation).getGroupParticipantFirstName(msisdn);
+					name = userMsisdn.equals(msisdn) ? context.getString(R.string.you) : ((GroupConversation) conversation).getGroupParticipantFirstNameAndSurname(msisdn);
 				}
 				else
 				{
@@ -2325,6 +2379,30 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		}
 		Logger.i("chatthread", "position " + position + " time taken : " + (System.currentTimeMillis() - startTime));
 		return v;
+	}
+
+	private void displayBroadcastIndicator(ConvMessage convMessage, ImageView broadcastIndicator, boolean showBlackIcon)
+	{
+		if (broadcastIndicator != null)
+		{
+			if (convMessage.isBroadcastMessage() && !convMessage.isBroadcastConversation())
+			{
+				if (showBlackIcon)
+				{
+					broadcastIndicator.setImageResource(R.drawable.ic_broadcast_system_message);
+					broadcastIndicator.setVisibility(View.VISIBLE);
+				}
+				else
+				{
+					broadcastIndicator.setImageResource(R.drawable.ic_broadcast_ft);
+					broadcastIndicator.setVisibility(View.VISIBLE);
+				}
+			}
+			else
+			{
+				broadcastIndicator.setVisibility(View.GONE);
+			}
+		}
 	}
 
 	private void setBubbleColor(ConvMessage convMessage, ViewGroup messageContainer)
@@ -2425,7 +2503,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 	private void setAvatar(String msisdn, ImageView imageView)
 	{
-		iconLoader.loadImage(msisdn, true, imageView, true);
+		iconLoader.loadImage(msisdn, imageView, false, true, false);
 	}
 
 	private void setNudgeImageResource(ChatTheme chatTheme, ImageView iv, boolean isMessageSent)
@@ -2532,7 +2610,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			if (firstMessageFromParticipant)
 			{
 				String number = null;
-				String name = ((GroupConversation) conversation).getGroupParticipantFirstName(convMessage.getGroupParticipantMsisdn());
+				String name = ((GroupConversation) conversation).getGroupParticipantFirstNameAndSurname(convMessage.getGroupParticipantMsisdn());
 				if (((GroupConversation) conversation).getGroupParticipant(convMessage.getGroupParticipantMsisdn()).getFirst().getContactInfo().isUnknownContact())
 				{
 					number = convMessage.getGroupParticipantMsisdn();
@@ -2991,7 +3069,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 	private void setIconForSentMessage(ConvMessage message, ImageView status, int tickResId, int smsDrawableResId, int boltDrawableResId)
 	{
-		if (conversation.isOnhike() && !(conversation instanceof GroupConversation))
+		if (conversation.isOnhike() && !(conversation instanceof GroupConversation) && !message.isBroadcastMessage())
 		{
 			if (message.isSMS())
 			{
@@ -3093,7 +3171,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 			for (int i = readByList.size() - 1; i >= lastIndex; i--)
 			{
-				sb.append(groupConversation.getGroupParticipantFirstName(readByList.get(i)));
+				sb.append(groupConversation.getGroupParticipantFullFirstName(readByList.get(i)));
 				if (i > lastIndex + 1)
 				{
 					sb.append(", ");
@@ -4182,7 +4260,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			@Override
 			public void run()
 			{
-				if (convMessage.isSMS())
+				if (convMessage.isSMS() || convMessage.isBroadcastMessage())
 				{
 					return;
 				}
@@ -4267,7 +4345,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 	{
 		for (ConvMessage convMessage : messages)
 		{
-			if (convMessage.getState() == State.SENT_CONFIRMED && !convMessage.isSMS())
+			if (convMessage.getState() == State.SENT_CONFIRMED && !convMessage.isSMS() && !convMessage.isBroadcastMessage())
 			{
 				undeliveredMessages.put(convMessage.getMsgID(), convMessage);
 			}
@@ -4351,7 +4429,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 	{
 		String name = convMessage.isSent() ?
 				"You" :
-				(conversation instanceof GroupConversation) ? ((GroupConversation) conversation).getGroupParticipantFirstName(convMessage.getGroupParticipantMsisdn()) : "";
+				(conversation instanceof GroupConversation) ? ((GroupConversation) conversation).getGroupParticipantFirstNameAndSurname(convMessage.getGroupParticipantMsisdn()) : "";
 		statusHolder.dayTextView.setText(context.getString(R.string.xyz_posted_pin, name));
 
 		statusHolder.messageInfo.setText(convMessage.getTimestampFormatted(true, context));

@@ -1,5 +1,9 @@
 package com.bsb.hike.voip;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.math.BigInteger;
 import java.net.Inet4Address;
 import java.net.InetAddress;
@@ -13,7 +17,6 @@ import java.util.Random;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.annotation.SuppressLint;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -24,6 +27,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.telephony.TelephonyManager;
@@ -41,13 +45,10 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentManager;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
-import com.bsb.hike.voip.view.IVoipCallListener;
 
 public class VoIPUtils {
 
 	private static boolean notificationDisplayed = false; 
-
-	private static IVoipCallListener callListener;
 
 	public static enum ConnectionClass {
 		TwoG,
@@ -59,17 +60,7 @@ public class VoIPUtils {
 
 	public static enum CallSource
 	{
-		CHAT_THREAD, PROFILE_ACTIVITY, MISSED_CALL_NOTIF
-	}
-
-	public static void setCallListener(IVoipCallListener listener)
-	{
-		callListener = listener;
-	}
-
-	public static void removeCallListener()
-	{
-		callListener = null;
+		CHAT_THREAD, PROFILE_ACTIVITY, MISSED_CALL_NOTIF, CALL_FAILED_FRAG
 	}
 	
     public static boolean isWifiConnected(Context context) {
@@ -184,6 +175,12 @@ public class VoIPUtils {
 				messageType = HikeConstants.MqttMessageTypes.VOIP_MSG_TYPE_MISSED_CALL_OUTGOING;
 		}
 
+		boolean selfGenerated = true;
+		if(messageType.equals(HikeConstants.MqttMessageTypes.VOIP_MSG_TYPE_MISSED_CALL_INCOMING))
+		{
+			selfGenerated = false;
+		}
+
 		try
 		{
 			Logger.d(VoIPConstants.TAG, "Adding message of type: " + messageType + " to chat thread.");
@@ -196,7 +193,7 @@ public class VoIPUtils {
 			jsonObject.put(HikeConstants.TYPE, messageType);
 			jsonObject.put(HikeConstants.TO, clientPartner.getPhoneNumber());
 			
-			ConvMessage convMessage = new ConvMessage(jsonObject, mConversation, context, true);
+			ConvMessage convMessage = new ConvMessage(jsonObject, mConversation, context, selfGenerated);
 			convMessage.setShouldShowPush(shouldShowPush);
 			mConversationDb.addConversationMessages(convMessage);
 			HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_RECEIVED, convMessage);
@@ -296,18 +293,18 @@ public class VoIPUtils {
 		return callActive;
 	}
 	
-	@SuppressLint("InlinedApi") public static int getAudioSource() {
-		int source = MediaRecorder.AudioSource.VOICE_RECOGNITION;
+	public static int getAudioSource() {
+		int source = MediaRecorder.AudioSource.MIC;
 		String model = android.os.Build.MODEL;
 		
 		if (android.os.Build.VERSION.SDK_INT >= 11)
-			source = MediaRecorder.AudioSource.VOICE_COMMUNICATION;
+			source = MediaRecorder.AudioSource.MIC;
 		
 		Logger.d(VoIPConstants.TAG, "Phone model: " + model);
 		
-		if (model.contains("Nexus 5") || 
-				model.contains("Nexus 4"))
-			source = MediaRecorder.AudioSource.VOICE_RECOGNITION;
+//		if (model.contains("Nexus 5") || 
+//				model.contains("Nexus 4"))
+//			source = MediaRecorder.AudioSource.VOICE_RECOGNITION;
 		
 		return source;
 	}
@@ -320,32 +317,18 @@ public class VoIPUtils {
 		notificationDisplayed = false;
 	}
 
-	public static void setupCallRatePopup(Context context, Bundle bundle)
-	{
-		incrementActiveCallCount(context);
-		if(shouldShowCallRatePopupNow(context) && callListener!=null)
-		{
-			callListener.onVoipCallEnd(bundle, HikeConstants.VOIP_CALL_RATE_FRAGMENT_TAG);
-		}
-		setupCallRatePopupNextTime(context);
-	}
-
-	private static boolean shouldShowCallRatePopupNow(Context context)
+	public static boolean shouldShowCallRatePopupNow()
 	{
 		return HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOW_VOIP_CALL_RATE_POPUP, false);
 	}
 	
-	private static void incrementActiveCallCount(Context context)
-	{
-		int callsCount = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.VOIP_ACTIVE_CALLS_COUNT, 0);
-		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.VOIP_ACTIVE_CALLS_COUNT, ++callsCount);
-	}
-
-	private static void setupCallRatePopupNextTime(Context context)
+	public static void setupCallRatePopupNextTime()
 	{
 		HikeSharedPreferenceUtil sharedPref = HikeSharedPreferenceUtil.getInstance();
-		int frequency = sharedPref.getData(HikeMessengerApp.VOIP_CALL_RATE_POPUP_FREQUENCY, -1);
 		int callsCount = sharedPref.getData(HikeMessengerApp.VOIP_ACTIVE_CALLS_COUNT, 0);
+		sharedPref.saveData(HikeMessengerApp.VOIP_ACTIVE_CALLS_COUNT, ++callsCount);
+
+		int frequency = sharedPref.getData(HikeMessengerApp.VOIP_CALL_RATE_POPUP_FREQUENCY, -1);
 		boolean shownAlready = sharedPref.getData(HikeMessengerApp.SHOW_VOIP_CALL_RATE_POPUP, false);
 
 		if(callsCount == frequency)
@@ -410,4 +393,35 @@ public class VoIPUtils {
 		return scd;
 	}
 	
+	public static String getCPUInfo() {
+	    StringBuffer sb = new StringBuffer();
+	    sb.append("abi: ").append(Build.CPU_ABI).append("\n");
+	    if (new File("/proc/cpuinfo").exists()) {
+	        try {
+	            BufferedReader br = new BufferedReader(new FileReader(new File("/proc/cpuinfo")));
+	            String aLine;
+	            while ((aLine = br.readLine()) != null) {
+	                sb.append(aLine + "\n");
+	            }
+	            if (br != null) {
+	                br.close();
+	            }
+	        } catch (IOException e) {
+	            e.printStackTrace();
+	        } 
+	    }
+	    return sb.toString();
+	}	
+	
+	public static boolean useAEC(Context context) {
+		boolean useAEC = true;
+		
+		useAEC = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.VOIP_AEC_ENABLED, true);
+		
+		// Disable AEC on <= 2.3 devices
+		if (!Utils.isHoneycombOrHigher())
+			useAEC = false;
+		
+		return useAEC;
+	}
 }

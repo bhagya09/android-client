@@ -22,11 +22,12 @@
         android:layout="@layout/icon_preference"
         android:summary="@string/feedback_hinttext"
         android:title="@string/feedback" />
-    
-    <com.bsb.hike.view.IconPreference
+     
+     <com.bsb.hike.view.IconPreference
 		icon="@drawable/ic_tnc"
 		android:key="helpTnc"
 		android:layout="@layout/icon_preference"
 		android:summary="@string/terms_conditions_hint"
 		android:title="@string/terms_conditions_title" />
+     
 </PreferenceScreen>

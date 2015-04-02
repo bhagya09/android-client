@@ -9,7 +9,9 @@ import org.json.JSONObject;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
+import com.bsb.hike.utils.Utils;
 
 public class MessageMetadata
 {
@@ -62,7 +64,19 @@ public class MessageMetadata
 	public int getDuration() {
 		return duration;
 	}
-
+	
+	// This is used to put Title on the Nuj RUj notification
+	public String getKey()
+	{
+		try 
+		{
+			return 	json.getJSONObject(HikeConstants.DATA).optString(HikeConstants.UserJoinMsg.NOTIF_TITLE,"");
+		}
+		catch (JSONException e) {
+			Logger.d("JSON Exception", "Returning null Title");
+			return null;
+		} 
+	}
 	public boolean isGhostMessage()
 	{
 		return isGhostMessage;
@@ -72,9 +86,49 @@ public class MessageMetadata
 
 	private int pinMessage =0 ;
 
+	private boolean newBroadcast;
+
 	public int getPinMessage()
 	{
 		return pinMessage;
+	}
+	
+	public boolean isSilent()
+	{
+		switch (getPushSetting()) 
+		{
+			case HikeConstants.PushType.loud:
+				return false;
+			case HikeConstants.PushType.silent:
+			case HikeConstants.PushType.none:
+			default:
+				return true;
+		}
+	}
+	
+	private int getPushSetting()
+	{
+		try 
+		{
+			return json.getJSONObject(HikeConstants.DATA).optInt(HikeConstants.UserJoinMsg.PUSH_SETTING, HikeConstants.PushType.silent);
+		}
+		catch (JSONException e) {
+			Logger.d("JSON Exception", "Returning loud notification");
+			return HikeConstants.PushType.loud;
+		} 
+	}
+	
+	public boolean shouldShowPush()
+	{
+		switch(getPushSetting())
+		{
+			case HikeConstants.PushType.none:
+				return false;
+			case HikeConstants.PushType.silent:
+			case HikeConstants.PushType.loud:
+			default:
+				return true;
+		}
 	}
 
 	public void setPinMessage(int pinMessage)
@@ -102,6 +156,7 @@ public class MessageMetadata
 		case PARTICIPANT_JOINED:
 			this.gcjParticipantInfo = metadata.getJSONArray(HikeConstants.DATA);
 			this.newGroup = metadata.optBoolean(HikeConstants.NEW_GROUP);
+			this.newBroadcast = metadata.optBoolean(HikeConstants.NEW_BROADCAST);
 			break;
 
 		case PARTICIPANT_LEFT:
@@ -180,6 +235,11 @@ public class MessageMetadata
 	public boolean isNewGroup()
 	{
 		return newGroup;
+	}
+	
+	public boolean isNewBroadcast()
+	{
+		return newBroadcast;
 	}
 
 	public String getMsisdn()
