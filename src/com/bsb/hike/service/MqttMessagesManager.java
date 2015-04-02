@@ -557,6 +557,12 @@ public class MqttMessagesManager
 	{
 		final ConvMessage convMessage = messagePreProcess(jsonObj);
 
+		if (ContactManager.getInstance().isBlocked(convMessage.getMsisdn()))
+		{
+			//discard message since the conversation is blocked
+			return;
+		}
+
 		if (convMessage.getMessageType() == HikeConstants.MESSAGE_TYPE.WEB_CONTENT)
 		{
 			downloadZipForPlatformMessage(convMessage);
