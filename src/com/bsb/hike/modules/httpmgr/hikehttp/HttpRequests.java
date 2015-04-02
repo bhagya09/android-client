@@ -125,7 +125,7 @@ public class HttpRequests
 				.post(body)
 				.setRetryPolicy(new DefaultRetryPolicy(HikePlatformConstants.numberOfRetries, HikePlatformConstants.retryDelay, HikePlatformConstants.backOffMultiplier))
 				.setRequestListener(requestListener)
-				.setRequestType(REQUEST_TYPE_SHORT)
+				.setRequestType(REQUEST_TYPE_LONG)
 				.setHeaders(headers)
 				.build();
 
