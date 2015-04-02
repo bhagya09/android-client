@@ -2151,4 +2151,9 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	{
 		hDb.platformUserIdDbEntry(data);
 	}
+
+	public ArrayList<String> getMsisdnForMissingPlatformUID()
+	{
+		return hDb.getMsisdnsForMissingPlatformUID();
+	}
 }

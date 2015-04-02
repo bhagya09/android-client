@@ -75,7 +75,7 @@ class HikeUserDatabase extends SQLiteOpenHelper
 				+ DBConstants.LAST_SEEN + " INTEGER DEFAULT -1, " // When this user was last seen on hike
 				+ DBConstants.IS_OFFLINE + " INTEGER DEFAULT 1, " // Whether this user is online or not
 				+ DBConstants.INVITE_TIMESTAMP + " INTEGER DEFAULT 0, " // When this user was last invited.
-				+ DBConstants.PLATFORM_USER_ID + "TEXT DEFAULT ''"    // Platform user id
+				+ DBConstants.PLATFORM_USER_ID + " TEXT "    // Platform user id
 				+ " )";
 
 		db.execSQL(create);
@@ -239,7 +239,7 @@ class HikeUserDatabase extends SQLiteOpenHelper
 
 		if (oldVersion < 17)
 		{
-			String alter = "ALTER TABLE " + DBConstants.USERS_TABLE + " ADD COLUMN " + DBConstants.PLATFORM_USER_ID + " TEXT DEFAULT ''";
+			String alter = "ALTER TABLE " + DBConstants.USERS_TABLE + " ADD COLUMN " + DBConstants.PLATFORM_USER_ID + " TEXT";
 			db.execSQL(alter);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikePlatformConstants.PLATFORM_UID_FOR_ADDRESS_BOOK_FETCH,HikePlatformConstants.MAKE_HTTP_CALL);
 		}
@@ -2394,5 +2394,31 @@ class HikeUserDatabase extends SQLiteOpenHelper
 		}
 
 
+	}
+
+	ArrayList<String> getMsisdnsForMissingPlatformUID()
+	{
+		Cursor c = null;
+		ArrayList<String> msisdns = new ArrayList<String>();
+		try
+		{
+
+			c = mReadDb.query(DBConstants.USERS_TABLE, new String[] { DBConstants.MSISDN }, DBConstants.PLATFORM_USER_ID + " =? ", new String[] { null },
+					null, null, null);
+
+			while (c.moveToNext())
+			{
+				msisdns.add(c.getString(c.getColumnIndex(DBConstants.MSISDN)));
+			}
+		}
+		finally
+		{
+			if (c != null)
+			{
+				c.close();
+			}
+		}
+
+		return msisdns;
 	}
 }

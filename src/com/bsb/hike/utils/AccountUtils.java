@@ -17,7 +17,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.PlatformUIDFetch;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -681,6 +683,10 @@ public class AccountUtils
 			Logger.e("AccountUtils", "Invalid JSON put", e);
 			return null;
 		}
+
+		ArrayList<String> msisdnForMissingPlatformUID = ContactManager.getInstance().getMsisdnForMissingPlatformUID();
+
+		PlatformUIDFetch.fetchPlatformUid(HikePlatformConstants.PlatformUIDFetchType.PARTIAL_ADDRESS_BOOK, msisdnForMissingPlatformUID.toArray(new String[]{}));
 
 		String encoded = data.toString();
 		// try
