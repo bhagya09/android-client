@@ -10,6 +10,7 @@ import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -51,6 +52,7 @@ public class PlatformUIDRequestListener implements IRequestListener
 
 			HikeSharedPreferenceUtil mPrefs = HikeSharedPreferenceUtil.getInstance();
 			JSONObject obj = (JSONObject) result.getBody().getContent();
+			Logger.d(HikePlatformConstants.PLATFORM_UID_FETCH_TAG, "response for the platform uid request for " + fetchType + " is " + obj.toString());
 			if (obj.has(HikePlatformConstants.PLATFORM_USER_ID) && obj.has(HikePlatformConstants.PLATFORM_TOKEN))
 			{
 				String platformToken = obj.optString(HikePlatformConstants.PLATFORM_USER_ID);
@@ -75,6 +77,7 @@ public class PlatformUIDRequestListener implements IRequestListener
 		case HikePlatformConstants.PlatformUIDFetchType.FULL_ADDRESS_BOOK:
 
 			JSONArray response = (JSONArray) result.getBody().getContent();
+			Logger.d(HikePlatformConstants.PLATFORM_UID_FETCH_TAG, "response for the platform uid request for " + fetchType + " is " + response.toString());
 			ContactManager.getInstance().platformUserIdEntry(response);
 
 			break;
