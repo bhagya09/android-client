@@ -44,35 +44,29 @@ public class PlatformUIDRequestListener implements IRequestListener
 	@Override
 	public void onRequestSuccess(Response result)
 	{
-		JSONArray response = (JSONArray) result.getBody().getContent();
+
 		switch (fetchType)
 		{
 		case HikePlatformConstants.PlatformUIDFetchType.SELF:
-			try
+
+			HikeSharedPreferenceUtil mPrefs = HikeSharedPreferenceUtil.getInstance();
+			JSONObject obj = (JSONObject) result.getBody().getContent();
+			if (obj.has(HikePlatformConstants.PLATFORM_USER_ID) && obj.has(HikePlatformConstants.PLATFORM_TOKEN))
 			{
-				HikeSharedPreferenceUtil mPrefs = HikeSharedPreferenceUtil.getInstance();
-				JSONObject obj = response.getJSONObject(0);
-				if (obj.has(HikePlatformConstants.PLATFORM_USER_ID) && obj.has(HikePlatformConstants.PLATFORM_TOKEN))
+				String platformToken = obj.optString(HikePlatformConstants.PLATFORM_USER_ID);
+				String platformUID = obj.optString(HikePlatformConstants.PLATFORM_TOKEN);
+
+				if (!TextUtils.isEmpty(platformToken) && !TextUtils.isEmpty(platformUID))
 				{
-					String platformToken = obj.optString(HikePlatformConstants.PLATFORM_USER_ID);
-					String platformUID = obj.optString(HikePlatformConstants.PLATFORM_TOKEN);
+					mPrefs.saveData(HikeMessengerApp.PLATFORM_UID_SETTING, platformUID);
+					mPrefs.saveData(HikeMessengerApp.PLATFORM_TOKEN_SETTING, platformToken);
 
-					if (!TextUtils.isEmpty(platformToken) && !TextUtils.isEmpty(platformUID))
+					if (mPrefs.getData(HikePlatformConstants.PLATFORM_UID_FOR_ADDRESS_BOOK_FETCH, -1) == HikePlatformConstants.MAKE_HTTP_CALL)
 					{
-						mPrefs.saveData(HikeMessengerApp.PLATFORM_UID_SETTING, platformUID);
-						mPrefs.saveData(HikeMessengerApp.PLATFORM_TOKEN_SETTING, platformToken);
-
-						if (mPrefs.getData(HikePlatformConstants.PLATFORM_UID_FOR_ADDRESS_BOOK_FETCH, -1) == HikePlatformConstants.MAKE_HTTP_CALL )
-						{
-							PlatformUIDFetch.fetchPlatformUid(HikePlatformConstants.PlatformUIDFetchType.FULL_ADDRESS_BOOK);
-							mPrefs.saveData(HikePlatformConstants.PLATFORM_UID_FOR_ADDRESS_BOOK_FETCH, HikePlatformConstants.HTTP_CALL_MADE);
-						}
+						PlatformUIDFetch.fetchPlatformUid(HikePlatformConstants.PlatformUIDFetchType.FULL_ADDRESS_BOOK);
+						mPrefs.saveData(HikePlatformConstants.PLATFORM_UID_FOR_ADDRESS_BOOK_FETCH, HikePlatformConstants.HTTP_CALL_MADE);
 					}
 				}
-			}
-			catch (JSONException e)
-			{
-				e.printStackTrace();
 			}
 
 			break;
@@ -80,6 +74,7 @@ public class PlatformUIDRequestListener implements IRequestListener
 		case HikePlatformConstants.PlatformUIDFetchType.PARTIAL_ADDRESS_BOOK:
 		case HikePlatformConstants.PlatformUIDFetchType.FULL_ADDRESS_BOOK:
 
+			JSONArray response = (JSONArray) result.getBody().getContent();
 			ContactManager.getInstance().platformUserIdEntry(response);
 
 			break;
