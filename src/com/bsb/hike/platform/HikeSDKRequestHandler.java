@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -155,7 +156,7 @@ public class HikeSDKRequestHandler extends Handler implements Listener
 					{
 						try
 						{
-							friendJSON.put(HikeUser.HIKE_USER_ID_KEY, "-1");
+							friendJSON.put(HikeUser.HIKE_USER_ID_KEY, HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_UID_SETTING, null));
 
 							friendJSON.put(HikeUser.HIKE_USER_NAME_KEY, contactName);
 						}

@@ -1026,8 +1026,6 @@ public class HikeConstants
 
 	public static final String DRAWABLE = "drawable";
 
-	public static final String SELF_HIKE_ID = "-1";
-
 	public static final String VOIP_CALL_DURATION = "vcd";
 
 	public static final String VOIP_CALL_INITIATOR = "vci";

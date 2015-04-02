@@ -140,7 +140,7 @@ public class HikeProvider extends ContentProvider
 					if (selectionArgs != null && selectionArgs.length > 0)
 					{
 						// TODO:Improve this. Make it more generic
-						if (selectionArgs[0].equals(HikeConstants.SELF_HIKE_ID))
+						if (selectionArgs[0].equals(HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_UID_SETTING, null)))
 						{
 							// self avatar request
 							ContactInfo contactInfo = Utils.getUserContactInfo(HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.ACCOUNT_SETTINGS).getPref());
