@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import com.bsb.hike.platform.HikePlatformConstants;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -774,7 +775,8 @@ public class AccountUtils
 				JSONObject entry = entries.optJSONObject(i);
 				String msisdn = entry.optString("msisdn");
 				boolean onhike = entry.optBoolean("onhike");
-				ContactInfo info = new ContactInfo(id, msisdn, cList.get(i).getName(), cList.get(i).getPhoneNum(), onhike);
+				String platformId = entry.optString(HikePlatformConstants.PLATFORM_USER_ID);
+				ContactInfo info = new ContactInfo(id, msisdn, cList.get(i).getName(), cList.get(i).getPhoneNum(), onhike, platformId);
 				server_contacts.add(info);
 			}
 		}

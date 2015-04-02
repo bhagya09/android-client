@@ -282,6 +282,7 @@ class HikeUserDatabase extends SQLiteOpenHelper
 			final int onHikeColumn = ih.getColumnIndex(DBConstants.ONHIKE);
 			final int phoneColumn = ih.getColumnIndex(DBConstants.PHONE);
 			final int msisdnTypeColumn = ih.getColumnIndex(DBConstants.MSISDN_TYPE);
+			final int platformIdColumn = ih.getColumnIndex(DBConstants.PLATFORM_USER_ID);
 			for (ContactInfo contact : contacts)
 			{
 				ih.prepareForReplace();
@@ -290,6 +291,7 @@ class HikeUserDatabase extends SQLiteOpenHelper
 				ih.bind(idColumn, contact.getId());
 				ih.bind(onHikeColumn, contact.isOnhike());
 				ih.bind(phoneColumn, contact.getPhoneNum());
+				ih.bind(platformIdColumn, contact.getPlatformId());
 				if (!isFirstSync)
 				{
 					String selection = Phone.CONTACT_ID + " =? " + " AND " + Phone.NUMBER + " =? ";
