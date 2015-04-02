@@ -6,6 +6,7 @@ import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHTTPTask;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUIDRequestListener;
+import com.bsb.hike.utils.Logger;
 import org.json.JSONObject;
 
 import java.util.List;
@@ -61,14 +62,17 @@ public class PlatformUidFetchTask implements IHikeHTTPTask
 		switch (fetchType)
 		{
 		case HikePlatformConstants.PlatformUIDFetchType.SELF:
+			Logger.d(HikePlatformConstants.PLATFORM_UID_FETCH_TAG, "request to fetch platform uid for " + fetchType + " with url " + url);
 			token = HttpRequests.postPlatformUserIdFetchRequest(url, new PlatformUIDRequestListener(fetchType));
 			break;
 
 		case HikePlatformConstants.PlatformUIDFetchType.PARTIAL_ADDRESS_BOOK:
+			Logger.d(HikePlatformConstants.PLATFORM_UID_FETCH_TAG, "request to fetch platform uid for " + fetchType + " with url " + url + " for the msisdns " + postParams);
 			token = HttpRequests.postPlatformUserIdForPartialAddressBookFetchRequest(url, postParams, new PlatformUIDRequestListener(fetchType), headerList);
 			break;
 
 		case HikePlatformConstants.PlatformUIDFetchType.FULL_ADDRESS_BOOK:
+			Logger.d(HikePlatformConstants.PLATFORM_UID_FETCH_TAG, "request to fetch platform uid for " + fetchType + " with url " + url);
 			token = HttpRequests.getPlatformUserIdForFullAddressBookFetchRequest(url, new PlatformUIDRequestListener(fetchType), headerList);
 			break;
 		}

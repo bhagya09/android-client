@@ -53,6 +53,7 @@ public interface HikePlatformConstants
 	public float backOffMultiplier = 2.0f; // exponential time delay multiplier
 	public int HTTP_CALL_MADE = 2;
 	public int MAKE_HTTP_CALL = 1;
+	public static final String PLATFORM_UID_FETCH_TAG = "platformUID";
 
 	public static final class PlatformUIDFetchType
 	{
