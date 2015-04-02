@@ -40,7 +40,7 @@ public class PlatformUIDFetch
 				break;
 
 			case HikePlatformConstants.PlatformUIDFetchType.PARTIAL_ADDRESS_BOOK:
-				url = HttpRequestConstants.platformUidForAddressBookFetchUrl();
+				url = HttpRequestConstants.platformUidForPartialAddressBookFetchUrl();
 				JSONObject jsonObject = new JSONObject();
 				try
 				{
@@ -58,7 +58,7 @@ public class PlatformUIDFetch
 				break;
 
 			case HikePlatformConstants.PlatformUIDFetchType.FULL_ADDRESS_BOOK:
-				url = HttpRequestConstants.platformUidForAddressBookFetchUrl();
+				url = HttpRequestConstants.platformUIDForFullAddressBookFetchUrl();
 				headers = getHeaders();
 				if (headers != null)
 				{
