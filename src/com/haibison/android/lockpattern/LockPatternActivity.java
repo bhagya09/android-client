@@ -498,7 +498,6 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
                     	if(s.length()>0)
                     	{
                     		if (s.length() == 4){
-                                doCheckAndCreatePin(mLockPinView.getText().toString());
                         		mTextInfo.setText(R.string.stealth_msg_pin_recorded);
                         		mBtnConfirm.setEnabled(true);
                         	} 
@@ -1126,6 +1125,7 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
 
         @Override
         public void onClick(View v) {
+        	getIntent().removeExtra(EXTRA_PATTERN);
             finishWithNegativeResult(RESULT_CANCELED);
         }// onClick()
     };// mBtnCancelOnClickListener
@@ -1170,6 +1170,7 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
         public void onClick(View v) {
             if (ACTION_CREATE_PATTERN.equals(getIntent().getAction())) {
                 if (mBtnOkCmd == ButtonOkCommand.CONTINUE) {
+                    doCheckAndCreatePin(mLockPinView.getText().toString());
                 	changeRetryToCancel();
                 	changePasswordSetting.setEnabled(false);
                 	changePasswordSetting.setAlpha(0.1f);

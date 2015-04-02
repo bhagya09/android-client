@@ -30,6 +30,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
+import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
 import android.view.animation.TranslateAnimation;
 import android.widget.BaseAdapter;
@@ -62,12 +63,14 @@ import com.bsb.hike.ui.PeopleActivity;
 import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.ui.StatusUpdate;
 import com.bsb.hike.ui.TellAFriend;
+import com.bsb.hike.ui.fragments.ConversationFragment;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentManager;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.NUXManager;
 import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.GroupUtils;
+import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
 
 public class ConversationsAdapter extends BaseAdapter
@@ -544,9 +547,26 @@ public class ConversationsAdapter extends BaseAdapter
 
 		if (itemToBeAnimated(conversation))
 		{
-			final Animation animation = AnimationUtils.loadAnimation(context,
-		            R.anim.slide_in_from_left);
+			Animation animation = AnimationUtils.loadAnimation(context,
+		            StealthModeManager.getInstance().isActive() ? R.anim.slide_in_from_left : R.anim.slide_out_to_left);
 			v.startAnimation(animation);
+			animation.setAnimationListener(new AnimationListener() {
+				
+				@Override
+				public void onAnimationStart(Animation animation) {}
+				
+				@Override
+				public void onAnimationRepeat(Animation animation) {}
+				
+				@Override
+				public void onAnimationEnd(Animation animation) {
+					if(!StealthModeManager.getInstance().isActive())
+					{
+						remove(conversation);
+						notifyDataSetChanged();
+					}	
+				}
+			});
 			setItemAnimated(conversation);
 		}
 
@@ -1472,28 +1492,6 @@ public class ConversationsAdapter extends BaseAdapter
 		for (Conversation conv : list)
 		{
 			addToLists(conv);
-		}
-	}
-
-	public void removeStealthConversationsFromLists()
-	{
-		for (Iterator<Conversation> iter = completeList.iterator(); iter.hasNext();)
-		{
-			Object object = iter.next();
-			if (object == null)
-			{
-				continue;
-			}
-			Conversation conv = (Conversation) object;
-			if (conv.isStealth())
-			{
-				iter.remove();
-				conversationList.remove(conv);
-				if(conversationsMsisdns!=null)
-				{
-					conversationsMsisdns.remove(conv.getMsisdn());
-				}
-			}
 		}
 	}
 

@@ -27,6 +27,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Message;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.Intents.Insert;
@@ -1798,8 +1799,8 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 
 		if (!StealthModeManager.getInstance().isActive())
 		{
-			mAdapter.removeStealthConversationsFromLists();
-
+			mAdapter.addItemsToAnimat(stealthConversations);
+			
 			if (mAdapter.getCount() == 0)
 			{
 				setEmptyState();
@@ -1814,6 +1815,8 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		resetSearchIcon();
 		mAdapter.sortLists(mConversationsComparator);
 		notifyDataSetChanged();
+		Collections.sort(displayedConversations, mConversationsComparator);
+		
 	}
 
 	private void deleteConversation(Conversation conv)
@@ -2938,14 +2941,29 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		else if(HikePubSub.STEALTH_CONVERSATION_MARKED.equals(type) || HikePubSub.STEALTH_CONVERSATION_UNMARKED.equals(type))
 		{
 			Conversation conv = (Conversation) object;
+			boolean newStealthValue;
 			if (HikePubSub.STEALTH_CONVERSATION_MARKED.equals(type))
 			{
 				stealthConversations.add(conv);
+				newStealthValue = true;
 			}
 			else
 			{
 				stealthConversations.remove(conv);
+				newStealthValue=false;
 			}
+			
+			conv.setIsStealth(newStealthValue);
+
+			HikeConversationsDatabase.getInstance().toggleStealth(conv.getMsisdn(), newStealthValue);
+
+			getActivity().runOnUiThread(new Runnable() {
+				
+				@Override
+				public void run() {
+					notifyDataSetChanged();
+				}
+			});
 		}
 		else if (HikePubSub.MUTE_CONVERSATION_TOGGLED.equals(type))
 		{

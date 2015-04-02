@@ -19,7 +19,7 @@ public class StealthModeManager
 	enum States{
 		SETUP_PENDING, ACTIVE, INACTIVE, FAKE_ACTIVE; 
 	}
-	private static final int RESET_TOGGLE_TIME_MS =10 * 1000;
+	private static int RESET_TOGGLE_TIME_MS =10 * 1000;
 
 	private static final StealthModeManager stealthModeManager = new StealthModeManager();
 
@@ -104,6 +104,9 @@ public class StealthModeManager
 	
 	public void hideActionTriggered(Conversation conv, Activity activity) 
 	{	
+		HikeMessengerApp.addStealthMsisdnToMap(conv.getMsisdn());
+
+		HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_CONVERSATION_MARKED, conv);
 		if (!StealthModeManager.getInstance().isSetUp())
 		{
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STEALTH_MODE_FTUE_DONE, false);
@@ -113,10 +116,7 @@ public class StealthModeManager
 		{
 			LockPattern.confirmPattern(activity, false);
 		}
-		HikeMessengerApp.addStealthMsisdnToMap(conv.getMsisdn());
-		HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_CONVERSATION_MARKED, conv);
-		HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_MODE_TOGGLED, !StealthModeManager.getInstance().isActive());
-	}
+		}
 	
 	public void usePinAsPassword(boolean usePin) 
 	{

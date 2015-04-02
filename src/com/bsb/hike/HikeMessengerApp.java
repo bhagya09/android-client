@@ -1041,6 +1041,10 @@ public void onTrimMemory(int level)
 	{
 		removeStealthMsisdn(conv, true);
 	}
+	
+	public static int getStealthMsisdnMapSize() {
+		return stealthMsisdn.size();
+	}
 
 	public static void removeStealthMsisdn(Conversation conv, boolean publishEvent)
 	{
