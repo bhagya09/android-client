@@ -1162,10 +1162,14 @@ public class HikeNotification
 				if (!NOTIF_SOUND_OFF.equals(notifSound) && !SoundUtils.isSilentOrVibrateMode(context)
 						&& !SoundUtils.isNotificationStreamVolZero(context))
 				{
-					//Now We have to play sound, 
+					//Now We have to play sound ourself via RingtoneManager in following cases, 
 					//CASE 1:- If Music Is Playing, then play via Ringtone manager on Music Stream
 					// 		   controlled via Music Volume Stream
-					if (manager.isMusicActive())
+					//CASE 2:- If wireless/wired handsfree is connected
+					if (manager.isMusicActive() 
+							|| manager.isWiredHeadsetOn() 
+							|| manager.isBluetoothA2dpOn()
+							|| (manager.isBluetoothScoAvailableOffCall() && manager.isBluetoothScoOn()))
 					{
 						playSoundViaPlayer(notifSound);
 					}
