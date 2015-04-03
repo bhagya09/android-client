@@ -1,9 +1,6 @@
 package com.bsb.hike.platform;
 
-import android.content.SharedPreferences;
 import android.text.TextUtils;
-import android.util.Pair;
-import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
@@ -12,10 +9,7 @@ import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.util.ArrayList;
 
 /**
  * Created by shobhit on 30/03/15.
