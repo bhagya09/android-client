@@ -2537,4 +2537,32 @@ public class HikeConstants
 	public static final String BLACKLIST_DOMAIN_ANALYTICS = "blacklist";
 	
 	public static final int DEFAULT_MAX_REPLY_RETRY_NOTIF_COUNT = 3;
+
+	public static final String NOTIFICATION_RETRY = "notif";
+
+	public static class NotificationType
+	{
+		public static final int NORMALMSG1TO1 = 0;
+
+		public static final int NORMALGC = 1;
+
+		public static final int HIDDEN= 2;
+
+		public static final int BOTMSG = 4;
+
+		public static final int CHATTHEMECHNG = 5;
+
+		public static final int STATUSUPDATE = 6;
+
+		public static final int DPUPDATE = 7;
+
+		public static final int NUJORRUJ = 8;
+
+		public static final int FAVADD = 9;
+
+		public static final int H2O = 10;
+
+		public static final int OTHER = 11;
+
+	}
 }
