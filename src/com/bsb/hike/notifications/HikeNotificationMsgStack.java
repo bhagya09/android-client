@@ -17,6 +17,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeConstants.NotificationType;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
@@ -26,7 +27,10 @@ import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.NotificationPreview;
 import com.bsb.hike.ui.ChatThread;
 import com.bsb.hike.ui.HomeActivity;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentManager;
+import com.bsb.hike.utils.Logger;
+import com.google.gson.Gson;
 
 /**
  * This class is responsible for maintaining states of ConvMessages to be used for showing Android notifications.
@@ -622,5 +626,122 @@ public class HikeNotificationMsgStack implements Listener
 		{
 			return false;
 		}
+	}
+	
+/**
+ * 	
+ * @param notificationType
+ * @return int
+ * 
+ * This function returns the notification count wrt notifivation type
+ */
+	private int getNotificationCount(int notificationType)
+	{
+		int retryCount = 0;
+
+		String str = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.NOTIFICATION_RETRY_JSON, "");
+
+		if (TextUtils.isEmpty(str))
+		{
+			return retryCount;
+		}
+		mmCountModel = new Gson().fromJson(str, NotificationRetryCountModel.class);
+		switch (notificationType)
+		{
+		case NotificationType.STATUSUPDATE:
+			retryCount = mmCountModel.getStatusUpdate();
+			break;
+			case NotificationType.BOTMSG:
+				retryCount = mmCountModel.getHikeBot();
+				break;
+			case NotificationType.CHATTHEMECHNG:
+				retryCount = mmCountModel.getChatThemeChange();
+				break;
+			case NotificationType.DPUPDATE:
+				retryCount = mmCountModel.getDpUpdate();
+				break;
+
+			case NotificationType.FAVADD:
+				retryCount = mmCountModel.getFav();
+				break;
+
+			case NotificationType.H2O:
+				retryCount = mmCountModel.getH2o();
+				break;
+
+			case NotificationType.NORMALGC:
+				retryCount = mmCountModel.getGc();
+				break;
+
+			case NotificationType.NORMALMSG1TO1:
+				retryCount = mmCountModel.getH2h();
+				break;
+
+			case NotificationType.NUJORRUJ:
+				retryCount = mmCountModel.getNuj();
+				break;
+
+			case NotificationType.OTHER:
+				retryCount = mmCountModel.getOther();
+				break;
+
+			case NotificationType.HIDDEN:
+				retryCount = mmCountModel.getHidden();
+				break;
+			}
+		
+		return retryCount;
+		
+		
+	}
+
+/**
+ * This function is called before retrying to remove all the unwanted message that we dont want to retry to avoid spamming.
+ * 
+ * If the notification count is -1 ,it should not  be included in retry. 
+ */
+	public  void processPreNotificationWork()
+	{
+		ListIterator<Entry<String, LinkedList<NotificationPreview>>> mapIterator = new ArrayList<Map.Entry<String, LinkedList<NotificationPreview>>>(mMessagesMap.entrySet())
+				.listIterator(mMessagesMap.size());
+
+		LinkedList<NotificationPreview> keySet = null;
+
+		while (mapIterator.hasPrevious())
+		{
+			Entry<String, LinkedList<NotificationPreview>> conv = mapIterator.previous();
+			String msisdn = conv.getKey();
+
+			if (keySet == null)
+			{
+				keySet = new LinkedList<NotificationPreview>();
+			}
+			for (NotificationPreview notifPrvw : conv.getValue())
+			{
+
+				if (getNotificationCount(notifPrvw.getNotificationType()) == -1)
+				{
+					totalNewMessages -= 1;
+					keySet.add(notifPrvw);
+					// remove from the stack;
+				}
+
+			}
+			for (NotificationPreview notificationPreview : keySet)
+			{
+				mMessagesMap.get(msisdn).remove(notificationPreview);
+			}
+
+			if (mMessagesMap.get(msisdn).size() == 0)
+			{
+				mMessagesMap.remove(msisdn);
+			}
+
+			if (keySet.size() > 0)
+			{
+				keySet.clear();
+			}
+		}
+
 	}
 }
