@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_alignParentBottom="true"
+    android:orientation="vertical" >
+
+    <RelativeLayout
+        android:id="@+id/icon_container"
+        android:layout_width="match_parent"
+        android:layout_height="48.5dp"
+        android:layout_alignParentBottom="true" >
+
+        <View
+            android:id="@+id/divider"
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:layout_alignParentTop="true"
+            android:background="@color/sticker_emoticon_divider" />
+
+        <FrameLayout
+            android:id="@+id/shop_icon"
+            android:layout_width="48dp"
+            android:layout_height="match_parent"
+            android:layout_alignParentRight="true"
+            android:layout_below="@id/divider"
+            android:background="@drawable/sticker_shop_selector" >
+            
+            <View
+                android:id="@+id/animated_backgroud"
+                android:layout_width="1dp"
+                android:layout_height="1dp"
+                android:layout_gravity="center"
+                android:background="@drawable/sticker_shop_icon_bg"
+                android:visibility="gone" />
+
+            <ImageView
+                android:id="@+id/shop_icon_image"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerInside"
+                android:src="@drawable/ic_sticker_shop" />
+
+            <ImageView
+                android:id="@+id/shop_icon_badge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:layout_marginRight="4dp"
+                android:layout_marginTop="4dp"
+                android:scaleType="centerInside"
+                android:src="@drawable/ic_red_sticker_shop_badge"
+                android:visibility="gone" />
+            
+        </FrameLayout>
+
+        <com.bsb.hike.view.StickerEmoticonIconPageIndicator
+            android:id="@+id/sticker_icon_indicator"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignWithParentIfMissing="true"
+            android:layout_below="@id/divider"
+            android:layout_toLeftOf="@id/shop_icon"
+            android:background="#2d2f31" />
+    </RelativeLayout>
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/sticker_pager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/icon_container"
+        android:background="#1f2122" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:layout_alignParentTop="true"
+        android:background="@color/sticker_emoticon_divider" />
+
+</RelativeLayout>

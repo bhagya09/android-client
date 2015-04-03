@@ -14,6 +14,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.text.TextUtils;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.analytics.AnalyticsConstants.AppOpenSource;
 import com.bsb.hike.models.ConvMessage;
@@ -775,6 +776,55 @@ public class HAManager
 		catch(JSONException e)
 		{
 			Logger.d(AnalyticsConstants.LAST_SEEN_ANALYTICS_TAG, "invalid json");
+		}
+	}
+	
+	/**
+	 * records the analytics event to the file
+	 * 
+	 * @param whichEvent
+	 *            Event String which is to be recorded
+	 * @param type
+	 *            event type
+	 * @param eventContext
+	 *            context of the event
+	 */
+	public void record(String whichEvent, String eventType, String eventContext)
+	{
+		try
+		{
+
+			JSONObject metadata = new JSONObject();
+			metadata.put(HikeConstants.EVENT_KEY, whichEvent);
+			record(eventType, eventContext, metadata);
+		}
+
+		catch (JSONException e)
+		{
+			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+		}
+	}
+	
+	/**
+	 * records the analytics event to the file
+	 * 
+	 * @param whichEvent
+	 * @param eventType
+	 * @param eventContext
+	 * @param eventPriority
+	 */
+	public void record(String whichEvent, String eventType, String eventContext, EventPriority eventPriority)
+	{
+		try
+		{
+			JSONObject metadata = new JSONObject();
+			metadata.put(HikeConstants.EVENT_KEY, whichEvent);
+			record(eventType, eventContext, eventPriority, metadata);
+		}
+
+		catch (JSONException e)
+		{
+			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
 		}
 	}
 	

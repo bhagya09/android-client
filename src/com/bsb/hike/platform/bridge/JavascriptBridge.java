@@ -1,10 +1,16 @@
 package com.bsb.hike.platform.bridge;
 
-import android.app.Activity;
-import android.content.ActivityNotFoundException;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.lang.ref.WeakReference;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.Context;
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -27,29 +33,14 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.productpopup.ProductPopupsConstants.HIKESCREEN;
-import com.bsb.hike.ui.ComposeChatActivity;
 import com.bsb.hike.ui.CreateNewGroupOrBroadcastActivity;
-import com.bsb.hike.ui.CreditsActivity;
 import com.bsb.hike.ui.HikeListActivity;
 import com.bsb.hike.ui.HomeActivity;
-import com.bsb.hike.ui.PeopleActivity;
-import com.bsb.hike.ui.ProfileActivity;
-import com.bsb.hike.ui.SettingsActivity;
 import com.bsb.hike.ui.StatusUpdate;
-import com.bsb.hike.ui.StickerSettingsActivity;
-import com.bsb.hike.ui.StickerShopActivity;
 import com.bsb.hike.ui.TellAFriend;
-import com.bsb.hike.utils.IntentManager;
+import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.lang.ref.WeakReference;
-import org.ocpsoft.prettytime.units.Week;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 /**
  * Created by shobhit on 13/02/15.
@@ -187,7 +178,7 @@ public abstract class JavascriptBridge
 				{
 					if(weakActivity.get()!=null)
 					{
-						Intent intent = IntentManager.getWebViewActivityIntent(weakActivity.get(), url, title);
+						Intent intent = IntentFactory.getWebViewActivityIntent(weakActivity.get(), url, title);
 						weakActivity.get().startActivity(intent);
 					}
 				}
@@ -407,32 +398,32 @@ public abstract class JavascriptBridge
 
 			if (activityName.equals(HIKESCREEN.SETTING.toString()))
 			{
-				IntentManager.openSetting(context);
+				IntentFactory.openSetting(context);
 			}
 
 			if (activityName.equals(HIKESCREEN.ACCOUNT.toString()))
 			{
-				IntentManager.openSettingAccount(context);
+				IntentFactory.openSettingAccount(context);
 			}
 			if (activityName.equals(HIKESCREEN.FREE_SMS.toString()))
 			{
-				IntentManager.openSettingSMS(context);
+				IntentFactory.openSettingSMS(context);
 			}
 			if (activityName.equals(HIKESCREEN.MEDIA.toString()))
 			{
-				IntentManager.openSettingMedia(context);
+				IntentFactory.openSettingMedia(context);
 			}
 			if (activityName.equals(HIKESCREEN.NOTIFICATION.toString()))
 			{
-				IntentManager.openSettingNotification(context);
+				IntentFactory.openSettingNotification(context);
 			}
 			if (activityName.equals(HIKESCREEN.PRIVACY.toString()))
 			{
-				IntentManager.openSettingPrivacy(context);
+				IntentFactory.openSettingPrivacy(context);
 			}
 			if (activityName.equals(HIKESCREEN.TIMELINE.toString()))
 			{
-				IntentManager.openTimeLine(context);
+				IntentFactory.openTimeLine(context);
 			}
 			if (activityName.equals(HIKESCREEN.NEWGRP.toString()))
 			{
@@ -444,15 +435,15 @@ public abstract class JavascriptBridge
 			}
 			if (activityName.equals(HIKESCREEN.REWARDS_EXTRAS.toString()))
 			{
-				context.startActivity(IntentManager.getRewardsIntent(context));
+				context.startActivity(IntentFactory.getRewardsIntent(context));
 			}
 			if (activityName.equals(HIKESCREEN.STICKER_SHOP.toString()))
 			{
-				context.startActivity(IntentManager.getStickerShopIntent(context));
+				context.startActivity(IntentFactory.getStickerShopIntent(context));
 			}
 			if (activityName.equals(HIKESCREEN.STICKER_SHOP_SETTINGS.toString()))
 			{
-				context.startActivity(IntentManager.getStickerSettingIntent(context));
+				context.startActivity(IntentFactory.getStickerSettingIntent(context));
 			}
 			if (activityName.equals(HIKESCREEN.STATUS.toString()))
 			{
@@ -467,7 +458,7 @@ public abstract class JavascriptBridge
 			}
 			if (activityName.equals(HIKESCREEN.COMPOSE_CHAT.toString()))
 			{
-				context.startActivity(IntentManager.getComposeChatIntent(context));
+				context.startActivity(IntentFactory.getComposeChatIntent(context));
 			}
 			if (activityName.equals(HIKESCREEN.INVITE_SMS.toString()))
 			{
@@ -478,7 +469,7 @@ public abstract class JavascriptBridge
 			}
 			if (activityName.equals(HIKESCREEN.FAVOURITES.toString()))
 			{
-				context.startActivity(IntentManager.getFavouritesIntent(context));
+				context.startActivity(IntentFactory.getFavouritesIntent(context));
 			}
 			if (activityName.equals(HIKESCREEN.HOME_SCREEN.toString()))
 			{
@@ -487,7 +478,7 @@ public abstract class JavascriptBridge
 			if (activityName.equals(HIKESCREEN.PROFILE_PHOTO.toString()))
 			{
 
-				Intent intent =IntentManager.getProfileIntent(context);
+				Intent intent =IntentFactory.getProfileIntent(context);
 				if (mmObject.optBoolean(ProductPopupsConstants.SHOW_CAMERA, false))
 				{
 					intent.putExtra(ProductPopupsConstants.SHOW_CAMERA, true);
@@ -497,14 +488,14 @@ public abstract class JavascriptBridge
 			}
 			if (activityName.equals(HIKESCREEN.EDIT_PROFILE.toString()))
 			{
-				Intent intent =IntentManager.getProfileIntent(context);
+				Intent intent =IntentFactory.getProfileIntent(context);
 				intent.putExtra(HikeConstants.Extras.EDIT_PROFILE, true);
 				context.startActivity(intent);
 
 			}
 			if (activityName.equals(HIKESCREEN.INVITE_WHATSAPP.toString()))
 			{
-				IntentManager.openInviteWatsApp(context);
+				IntentFactory.openInviteWatsApp(context);
 			}
 			if (activityName.equals(HIKESCREEN.OPENINBROWSER.toString()))
 			{
@@ -527,23 +518,23 @@ public abstract class JavascriptBridge
 			}
 			if (activityName.equals(HIKESCREEN.HELP.toString()))
 			{
-				IntentManager.openSettingHelp(context);
+				IntentFactory.openSettingHelp(context);
 			}
 			if (activityName.equals(HIKESCREEN.NUXINVITE.toString()))
 			{
-				context.startActivity(IntentManager.openNuxFriendSelector(context));
+				context.startActivity(IntentFactory.openNuxFriendSelector(context));
 			}
 			if (activityName.equals(HIKESCREEN.NUXREMIND.toString()))
 			{
-				context.startActivity(IntentManager.openNuxCustomMessage(context));
+				context.startActivity(IntentFactory.openNuxCustomMessage(context));
 			}
 			if(activityName.equals(HIKESCREEN.BROADCAST.toString()))
 			{
-				IntentManager.createBroadcastDefault(context);
+				IntentFactory.createBroadcastDefault(context);
 			}
 			if(activityName.equals(HIKESCREEN.PHOTOS.toString()))
 			{
-				IntentManager.openHikeCameraActivity(context);
+				IntentFactory.openHikeCameraActivity(context);
 			}
 		}
 		catch (JSONException e)

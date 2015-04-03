@@ -21,8 +21,7 @@ import android.widget.TextView;
 
 import com.bsb.hike.R;
 import com.bsb.hike.models.ConvMessage;
-import com.bsb.hike.models.Conversation;
-import com.bsb.hike.models.GroupConversation;
+import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.ui.PinHistoryActivity;
 import com.bsb.hike.utils.ChatTheme;
 import com.bsb.hike.utils.SmileyParser;
@@ -38,7 +37,7 @@ public class PinHistoryAdapter extends BaseAdapter implements OnLongClickListene
 
 	private LayoutInflater inflater;
 
-	private Conversation mConversation;
+	private OneToNConversation mConversation;
 
 	private boolean addDateInBetween;
 
@@ -52,7 +51,7 @@ public class PinHistoryAdapter extends BaseAdapter implements OnLongClickListene
 	
 	private ChatTheme chatTheme;
 
-	public PinHistoryAdapter(Activity context, List<ConvMessage> textPins, String userMsisdn, long convId, Conversation conversation, boolean addDateInbetween, ChatTheme theme, PinHistoryActivity pinHistory)
+	public PinHistoryAdapter(Activity context, List<ConvMessage> textPins, String userMsisdn, long convId, OneToNConversation conversation, boolean addDateInbetween, ChatTheme theme, PinHistoryActivity pinHistory)
 	{
 		this.context = context;
 		this.isDefaultTheme = theme == ChatTheme.DEFAULT;
@@ -192,11 +191,10 @@ public class PinHistoryAdapter extends BaseAdapter implements OnLongClickListene
 			{
 				if (Utils.isGroupConversation(textPin.getMsisdn()))
 				{
-					GroupConversation gConv = (GroupConversation) mConversation;
 					String number = null;
-					String name = gConv.getGroupParticipantFirstNameAndSurname(textPin.getGroupParticipantMsisdn());
+					String name = mConversation.getConvParticipantFirstNameAndSurname(textPin.getGroupParticipantMsisdn());
 
-					if (((GroupConversation) mConversation).getGroupParticipant(textPin.getGroupParticipantMsisdn()).getFirst().getContactInfo().isUnknownContact())
+					if (mConversation.getConversationParticipant(textPin.getGroupParticipantMsisdn()).getFirst().getContactInfo().isUnknownContact())
 					{
 						number = textPin.getGroupParticipantMsisdn();
 					}

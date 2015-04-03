@@ -41,8 +41,8 @@ import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.smartImageLoader.IconLoader;
 import com.bsb.hike.utils.EmoticonConstants;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
+import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.bsb.hike.utils.IntentManager;
 import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.Utils;
 
@@ -79,6 +79,7 @@ public class SettingsActivity extends HikeAppStateBaseFragmentActivity implement
 
 		items.add(getString(R.string.notifications));
 		items.add(getString(R.string.settings_media));
+		items.add(getString(R.string.settings_chat));
 		if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean(HikeConstants.FREE_SMS_PREF, true))
 		{
 			int credits = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE).getInt(HikeMessengerApp.SMS_SETTING, 0);
@@ -119,6 +120,7 @@ public class SettingsActivity extends HikeAppStateBaseFragmentActivity implement
 
 		itemIcons.add(R.drawable.ic_notifications_settings);
 		itemIcons.add(R.drawable.ic_auto_download_media_settings);
+		itemIcons.add(R.drawable.ic_settings_chat);
 		itemIcons.add(R.drawable.ic_sms_settings);
 		if (isConnectedAppsPresent)
 		{
@@ -295,25 +297,28 @@ public class SettingsActivity extends HikeAppStateBaseFragmentActivity implement
 			switch (position)
 			{
 			case 1:
-				IntentManager.openSettingNotification(this);
+				IntentFactory.openSettingNotification(this);
 				break;
 			case 2:
-				IntentManager.openSettingMedia(this);
+				IntentFactory.openSettingMedia(this);
 				break;
 			case 3:
-				IntentManager.openSettingSMS(this);
+				IntentFactory.openSettingChat(this);
 				break;
 			case 4:
-				IntentManager.openConnectedApps(this);
+				IntentFactory.openSettingSMS(this);
 				break;
 			case 5:
-				IntentManager.openSettingAccount(this);
+				IntentFactory.openConnectedApps(this);
 				break;
 			case 6:
-				IntentManager.openSettingPrivacy(this);
+				IntentFactory.openSettingAccount(this);
 				break;
 			case 7:
-				IntentManager.openSettingHelp(this);
+				IntentFactory.openSettingPrivacy(this);
+				break;
+			case 8:
+				IntentFactory.openSettingHelp(this);
 				break;
 			}
 		}
@@ -322,22 +327,25 @@ public class SettingsActivity extends HikeAppStateBaseFragmentActivity implement
 			switch (position)
 			{
 			case 1:
-				IntentManager.openSettingNotification(this);
+				IntentFactory.openSettingNotification(this);
 				break;
 			case 2:
-				IntentManager.openSettingMedia(this);
+				IntentFactory.openSettingMedia(this);
 				break;
 			case 3:
-				IntentManager.openSettingSMS(this);
+				IntentFactory.openSettingChat(this);
 				break;
 			case 4:
-				IntentManager.openSettingAccount(this);
+				IntentFactory.openSettingSMS(this);
 				break;
 			case 5:
-				IntentManager.openSettingPrivacy(this);
+				IntentFactory.openSettingAccount(this);
 				break;
 			case 6:
-				IntentManager.openSettingHelp(this);
+				IntentFactory.openSettingPrivacy(this);
+				break;
+			case 7:
+				IntentFactory.openSettingHelp(this);
 				break;
 			}
 		}

@@ -43,7 +43,7 @@ import android.util.Pair;
 import com.bsb.hike.db.DbConversationListener;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.db.HikeMqttPersistence;
-import com.bsb.hike.models.Conversation;
+import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.modules.contactmgr.ContactManager;
@@ -464,6 +464,10 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	public static final String VOIP_ACTIVE_CALLS_COUNT = "voipCallsCount";
 
 	public static final String DETAILED_HTTP_LOGGING_ENABLED = "detailedHttpLoggingEnabled";
+
+	public static final String CT_SEARCH_INDICATOR_SHOWN = "ctSearchIndiShown";
+
+	public static final String CT_SEARCH_CLICKED = "ctSearchClicked";
 
 	public static final String BULK_LAST_SEEN_PREF = "blsPref";
 	
@@ -1031,13 +1035,13 @@ public void onTrimMemory(int level)
 		stealthMsisdn.add(msisdn);
 	}
 
-	public static void addNewStealthMsisdn(Conversation conv)
+	public static void addNewStealthMsisdn(ConvInfo conv)
 	{
 		addStealthMsisdnToMap(conv.getMsisdn());
 		getPubSub().publish(HikePubSub.STEALTH_CONVERSATION_MARKED, conv);
 	}
 
-	public static void removeStealthMsisdn(Conversation conv)
+	public static void removeStealthMsisdn(ConvInfo conv)
 	{
 		removeStealthMsisdn(conv, true);
 	}
@@ -1046,7 +1050,7 @@ public void onTrimMemory(int level)
 		return stealthMsisdn.size();
 	}
 
-	public static void removeStealthMsisdn(Conversation conv, boolean publishEvent)
+	public static void removeStealthMsisdn(ConvInfo conv, boolean publishEvent)
 	{
 		stealthMsisdn.remove(conv.getMsisdn());
 		if(publishEvent)

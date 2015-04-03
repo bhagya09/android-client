@@ -19,13 +19,17 @@ import android.text.TextUtils;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
-import com.bsb.hike.models.Conversation;
-import com.bsb.hike.models.GroupConversation;
 import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.MessageMetadata;
+import com.bsb.hike.models.Conversation.BroadcastConversation;
+import com.bsb.hike.models.Conversation.Conversation;
+import com.bsb.hike.models.Conversation.GroupConversation;
+import com.bsb.hike.models.Conversation.OneToNConversation;
+import com.bsb.hike.models.Conversation.OneToOneConversation;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.Utils;
@@ -62,17 +66,36 @@ public class EmailConversationsAsyncTask extends AsyncTask<Conversation, Void, C
 			db = HikeConversationsDatabase.getInstance();
 			Conversation conv = db.getConversation(msisdn, -1);
 			boolean isGroup = Utils.isGroupConversation(msisdn);
+			if (conv == null)
+			{
+				ContactInfo contactInfo = ContactManager.getInstance().getContact(msisdn, true, true);
+				if (isGroup)
+				{
+					conv = new GroupConversation.ConversationBuilder(msisdn).setConvName((contactInfo != null) ? contactInfo.getName() : null).build();
+				}
+				
+				else if (Utils.isBroadcastConversation(msisdn))
+				{
+					conv = new BroadcastConversation.ConversationBuilder(msisdn).setConvName((contactInfo != null) ? contactInfo.getName() : null).build();
+				}
+				
+				else
+					conv = new OneToOneConversation.ConversationBuilder(msisdn).setConvName((contactInfo != null) ? contactInfo.getName() : null).build();
+				
+				conv.setMessages(HikeConversationsDatabase.getInstance().getConversationThread(msisdn, -1, conv, -1));
+			}
+			
 			chatLabel = conv.getLabel();
 
-			if (isGroup)
+			if (conv instanceof OneToNConversation)
 			{
 				sBuilder.append(R.string.group_name_email);
-				GroupConversation gConv = ((GroupConversation) convs[k]);
-				if (null == gConv.getGroupParticipantList())
+				OneToNConversation gConv = ((OneToNConversation) convs[k]);
+				if (null == gConv.getConversationParticipantList())
 				{
-					gConv.setGroupParticipantList(ContactManager.getInstance().getGroupParticipants(gConv.getMsisdn(), false, false));
+					gConv.setConversationParticipantList(ContactManager.getInstance().getGroupParticipants(gConv.getMsisdn(), false, false));
 				}
-				participantMap = gConv.getGroupParticipantList();
+				participantMap = gConv.getConversationParticipantList();
 			}
 			// initialize with a label
 			sBuilder.append(activity.getResources().getString(R.string.chat_with_prefix) + chatLabel + "\n");
@@ -85,7 +108,7 @@ public class EmailConversationsAsyncTask extends AsyncTask<Conversation, Void, C
 			}
 			// iterate through the messages and construct a meaningful
 			// payload
-			List<ConvMessage> cList = conv.getMessages();
+			List<ConvMessage> cList = conv.getMessagesList();
 			for (int i = 0; i < cList.size(); i++)
 			{
 				ConvMessage cMessage = cList.get(i);
@@ -97,7 +120,7 @@ public class EmailConversationsAsyncTask extends AsyncTask<Conversation, Void, C
 				// file backup
 				MessageMetadata cMetadata = cMessage.getMetadata();
 				boolean isSent = cMessage.isSent();
-				if (cMessage.isGroupChat()) // gc naming logic
+				if (cMessage.isOneToNChat()) // gc naming logic
 				{
 					GroupParticipant gPart = null;
 					PairModified<GroupParticipant, String> groupParticipantPair = participantMap.get(cMessage.getGroupParticipantMsisdn());

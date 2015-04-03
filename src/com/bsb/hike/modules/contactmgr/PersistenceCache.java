@@ -17,6 +17,7 @@ import android.util.Pair;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.GroupParticipant;
+import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.Utils;
 
@@ -320,7 +321,7 @@ class PersistenceCache extends ContactsCache
 		/**
 		 * Always try to take locks when and where required. Here we are separating out locking into different zones so that lock acquired should be for minimum time possible.
 		 */
-		if (Utils.isGroupConversation(msisdn))
+		if (OneToNConversationUtils.isOneToNConversation(msisdn))
 		{
 			GroupDetails grpDetails = null;
 			readLock.lock();
@@ -809,7 +810,7 @@ class PersistenceCache extends ContactsCache
 		readLock.lock();
 		try
 		{
-			if (Utils.isGroupConversation(id))
+			if (OneToNConversationUtils.isOneToNConversation(id))
 				return groupPersistence.containsKey(id);
 			else
 				return convsContactsPersistence.containsKey(id);

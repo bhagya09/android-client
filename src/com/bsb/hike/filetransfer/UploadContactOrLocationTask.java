@@ -315,7 +315,7 @@ public class UploadContactOrLocationTask extends FileTransferBase
 			convMessage.setMessageOriginType(OriginType.BROADCAST);
 		}
 
-		HikeConversationsDatabase.getInstance().addConversationMessages(convMessage);
+		HikeConversationsDatabase.getInstance().addConversationMessages(convMessage,false);
 
 		HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_MESSAGE_CREATED, convMessage);
 		return convMessage;
@@ -336,9 +336,7 @@ public class UploadContactOrLocationTask extends FileTransferBase
 
 		convMessage.setMetadata(metadata);
 		HikeConversationsDatabase.getInstance().updateMessageMetadata(convMessage.getMsgID(), convMessage.getMetadata());
-		// HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
-		Intent intent = new Intent(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED);
-		LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+		HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
 	}
 
 	protected void postExecute(FTResult result)

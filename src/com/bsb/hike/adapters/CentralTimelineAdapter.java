@@ -37,12 +37,12 @@ import com.bsb.hike.models.StatusMessage;
 import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.smartImageLoader.IconLoader;
 import com.bsb.hike.smartImageLoader.TimelineImageLoader;
-import com.bsb.hike.ui.ChatThread;
 import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.ui.PeopleActivity;
 import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.ui.StatusUpdate;
 import com.bsb.hike.utils.EmoticonConstants;
+import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.Utils;
@@ -634,9 +634,9 @@ public class CentralTimelineAdapter extends BaseAdapter
 				return;
 			}
 
-			Intent intent = Utils.createIntentFromContactInfo(new ContactInfo(null, statusMessage.getMsisdn(), statusMessage.getNotNullName(), statusMessage.getMsisdn()), true);
+			Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(context, new ContactInfo(null, statusMessage.getMsisdn(), statusMessage.getNotNullName(), statusMessage.getMsisdn()), true);
+			//Add anything else to the intent
 			intent.putExtra(HikeConstants.Extras.FROM_CENTRAL_TIMELINE, true);
-			intent.setClass(context, ChatThread.class);
 			intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 			context.startActivity(intent);
 			context.finish();

@@ -7,7 +7,7 @@
     android:layout_marginBottom="10dp"
     android:gravity="center" >
 
-    <com.bsb.hike.ui.utils.RecyclingImageView
+    <ImageView
         android:id="@+id/preview_image"
         android:layout_width="125dp"
         android:layout_height="178dp"

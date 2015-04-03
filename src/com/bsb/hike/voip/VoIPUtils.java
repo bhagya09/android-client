@@ -17,7 +17,6 @@ import java.util.Random;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -28,7 +27,6 @@ import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Build;
-import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.telephony.TelephonyManager;
 
@@ -38,11 +36,10 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
-import com.bsb.hike.models.Conversation;
-import com.bsb.hike.notifications.HikeNotification;
+import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.bsb.hike.utils.IntentManager;
+import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
@@ -195,7 +192,7 @@ public class VoIPUtils {
 			
 			ConvMessage convMessage = new ConvMessage(jsonObject, mConversation, context, selfGenerated);
 			convMessage.setShouldShowPush(shouldShowPush);
-			mConversationDb.addConversationMessages(convMessage);
+			mConversationDb.addConversationMessages(convMessage,true);
 			HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_RECEIVED, convMessage);
 		}
 		catch (JSONException e)
@@ -365,10 +362,10 @@ public class VoIPUtils {
 
 	public static NotificationCompat.Action[] getMissedCallNotifActions(Context context, String msisdn)
 	{
-		Intent callIntent = IntentManager.getVoipCallIntent(context, msisdn, CallSource.MISSED_CALL_NOTIF);
+		Intent callIntent = IntentFactory.getVoipCallIntent(context, msisdn, CallSource.MISSED_CALL_NOTIF);
 		PendingIntent callPendingIntent = PendingIntent.getService(context, 0, callIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-		Intent messageIntent = IntentManager.getChatThreadIntent(context, msisdn);
+		Intent messageIntent = IntentFactory.getChatThreadIntent(context, msisdn);
 		messageIntent.putExtra(HikeConstants.Extras.SHOW_KEYBOARD, true);
 		PendingIntent messagePendingIntent = PendingIntent.getActivity(context, 0, messageIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 

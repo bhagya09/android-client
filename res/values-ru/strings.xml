@@ -558,7 +558,7 @@
     <string name="new_update">Новое обновление</string>
     <string name="invite_via_facebook">Пригласить через Facebook</string>
     <string name="invite_via_twitter">Пригласить через Twitter</string>
-    <string name="search_hint">Поиск</string>
+    <string name="search">Поиск</string>
     <string name="fb_invite_success">Приглашение отправлено</string>
     <string name="fb_invite_failed">Приглашение отменено</string>
     <string name="social_invite_network_error">Невозможно отправить приглашение. Проверьте сетевые настройки.</string>

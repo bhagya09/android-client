@@ -506,21 +506,19 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 			}
 		}
 
-		if (fetchGroups && !groupsList.isEmpty())
-		{
-			ContactInfo groupSection = new ContactInfo(SECTION_ID, Integer.toString(filteredGroupsList.size()), context.getString(R.string.group_chats_upper_case), GROUP_MSISDN);
-			if (filteredGroupsList.size() > 0)
-			{
-				completeList.add(groupSection);
-				completeList.addAll(filteredGroupsList);
-			}
+		boolean addFirstGroups = true;
+	       
+		if (groupsList.size() < filteredFriendsList.size()) {
+			addFirstGroups = false;
 		}
-		ContactInfo friendsSection = null;
-		if (!filteredFriendsList.isEmpty())
-		{
-			friendsSection = new ContactInfo(SECTION_ID, Integer.toString(filteredFriendsList.size()), context.getString(R.string.favorites_upper_case), FRIEND_PHONE_NUM);
+       
+		if(addFirstGroups){
+			addGroupList();
+			addFriendList();
+		}else{
+			addFriendList();
+			addGroupList();
 		}
-		updateFriendsList(friendsSection, false, false);
 		if (isHikeContactsPresent())
 		{
 			ContactInfo hikeContactsSection = new ContactInfo(SECTION_ID, Integer.toString(filteredHikeContactsList.size()), context.getString(R.string.hike_contacts),
@@ -551,7 +549,26 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 		
 		
 	}
+	private void addFriendList() {
+		ContactInfo friendsSection = null;
+		if (!filteredFriendsList.isEmpty())
+		{
+			friendsSection = new ContactInfo(SECTION_ID, Integer.toString(filteredFriendsList.size()), context.getString(R.string.favorites_upper_case), FRIEND_PHONE_NUM);
+		}
+		updateFriendsList(friendsSection, false, false);
+	}
 
+	private void addGroupList() {
+		if (fetchGroups && !groupsList.isEmpty())
+		{
+			ContactInfo groupSection = new ContactInfo(SECTION_ID, Integer.toString(filteredGroupsList.size()), context.getString(R.string.group_chats_upper_case), GROUP_MSISDN);
+			if (filteredGroupsList.size() > 0)
+			{
+				completeList.add(groupSection);
+				completeList.addAll(filteredGroupsList);
+			}
+		}
+	}
 	public void addContact(ContactInfo contactInfo)
 	{
 		selectedPeople.put(contactInfo.getMsisdn(), contactInfo);
@@ -608,6 +625,11 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 		return existingParticipants.size();
 	}
 
+	public int getOnHikeContactsCount()
+	{
+		return hikeContactsList.size();
+	}
+	
 	public void setShowExtraAtFirst(boolean showExtraAtFirst)
 	{
 		this.showExtraAtFirst = showExtraAtFirst;

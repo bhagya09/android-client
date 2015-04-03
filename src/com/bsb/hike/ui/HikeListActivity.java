@@ -46,16 +46,13 @@ import com.bsb.hike.R;
 import com.bsb.hike.adapters.HikeInviteAdapter;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.dialog.HikeDialog;
+import com.bsb.hike.dialog.HikeDialogFactory;
+import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
-import com.bsb.hike.productpopup.DialogPojo;
-import com.bsb.hike.productpopup.HikeDialogFragment;
-import com.bsb.hike.productpopup.IActivityPopup;
-import com.bsb.hike.productpopup.ProductContentModel;
-import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.service.HikeMqttManagerNew;
-import com.bsb.hike.utils.CustomAlertDialog;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -243,33 +240,26 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 
 	private void showInviteConfirmationPopup(boolean selectAllChecked)
 	{
-		final CustomAlertDialog confirmDialog = new CustomAlertDialog(this);
-		
-		View.OnClickListener dialogOkClickListener = new View.OnClickListener()
+		HikeDialogFactory.showDialog(this, HikeDialogFactory.SHOW_INVITE_CONFIRMATION_DIALOG, new HikeDialogListener()
 		{
-
+			
 			@Override
-			public void onClick(View v)
+			public void positiveClicked(HikeDialog hikeDialog)
 			{
-				confirmDialog.dismiss();
+				hikeDialog.dismiss();
 				showNativeSMSPopup();
 			}
-		};
-
-		if(!selectAllChecked)
-		{
-			confirmDialog.setHeader(R.string.invite_friends);
-			confirmDialog.setBody(getResources().getString(R.string.invite_friends_confirmation_msg, selectedContacts.size()));
-		}
-		else
-		{
-			confirmDialog.setHeader(R.string.select_all_confirmation_header);
-			confirmDialog.setBody(getResources().getString(R.string.select_all_confirmation_msg, selectedContacts.size()));
-		}
-		confirmDialog.setOkButton(R.string.yes, dialogOkClickListener);
-		confirmDialog.setCancelButton(R.string.no);
-		confirmDialog.show();
-		
+			
+			@Override
+			public void neutralClicked(HikeDialog hikeDialog)
+			{
+			}
+			
+			@Override
+			public void negativeClicked(HikeDialog hikeDialog)
+			{
+			}
+		}, selectAllChecked, selectedContacts.size());
 	}
 
 	private void setLabel()

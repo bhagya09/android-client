@@ -20,9 +20,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.BitmapUtils;
-import com.bsb.hike.models.BroadcastConversation;
 import com.bsb.hike.models.ContactInfo;
-import com.bsb.hike.models.GroupConversation;
 import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.HikeSharedFile;
@@ -34,6 +32,9 @@ import com.bsb.hike.models.ProfileItem.ProfileSharedMedia;
 import com.bsb.hike.models.ProfileItem.ProfileStatusItem;
 import com.bsb.hike.models.StatusMessage;
 import com.bsb.hike.models.StatusMessage.StatusMessageType;
+import com.bsb.hike.models.Conversation.BroadcastConversation;
+import com.bsb.hike.models.Conversation.GroupConversation;
+import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.smartImageLoader.IconLoader;
 import com.bsb.hike.smartImageLoader.ProfilePicImageLoader;
@@ -60,7 +61,7 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 
 	private ProfileActivity profileActivity;
 
-	private GroupConversation groupConversation;
+	private OneToNConversation groupConversation;
 
 	private ContactInfo mContactInfo;
 
@@ -96,12 +97,12 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 	
 	private int sizeOfThumbnail;
 
-	public ProfileAdapter(ProfileActivity profileActivity, List<ProfileItem> itemList, GroupConversation groupConversation, ContactInfo contactInfo, boolean myProfile)
+	public ProfileAdapter(ProfileActivity profileActivity, List<ProfileItem> itemList, OneToNConversation groupConversation, ContactInfo contactInfo, boolean myProfile)
 	{
 		this(profileActivity, itemList, groupConversation, contactInfo, myProfile, false);
 	}
 	
-	public ProfileAdapter(ProfileActivity profileActivity, List<ProfileItem> itemList, GroupConversation groupConversation, ContactInfo contactInfo, boolean myProfile, boolean isContactBlocked, int sizeOfThumbNail)
+	public ProfileAdapter(ProfileActivity profileActivity, List<ProfileItem> itemList, OneToNConversation groupConversation, ContactInfo contactInfo, boolean myProfile, boolean isContactBlocked, int sizeOfThumbNail)
 	{
 		this(profileActivity, itemList, groupConversation, contactInfo, myProfile, false);
 		this.sizeOfThumbnail = sizeOfThumbNail;
@@ -109,7 +110,7 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 		thumbnailLoader.setDefaultDrawable(context.getResources().getDrawable(R.drawable.ic_file_thumbnail_missing));
 	}
 	
-	public ProfileAdapter(ProfileActivity profileActivity, List<ProfileItem> itemList, GroupConversation groupConversation, ContactInfo contactInfo, boolean myProfile,
+	public ProfileAdapter(ProfileActivity profileActivity, List<ProfileItem> itemList, OneToNConversation groupConversation, ContactInfo contactInfo, boolean myProfile,
 			boolean isContactBlocked)
 	{
 		super(profileActivity, -1, itemList);
@@ -627,7 +628,7 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 			GroupParticipant groupParticipant = groupParticipants.getFirst();
 			
 			ContactInfo contactInfo = groupParticipant.getContactInfo();
-			if (contactInfo.getMsisdn().equals(groupConversation.getGroupOwner()))
+			if (contactInfo.getMsisdn().equals(groupConversation.getConversationOwner()))
 			{
 				viewHolder.infoContainer.setVisibility(View.VISIBLE);
 			}
@@ -862,7 +863,7 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 		notifyDataSetChanged();
 	}
 
-	public void updateGroupConversation(GroupConversation groupConversation)
+	public void updateGroupConversation(OneToNConversation groupConversation)
 	{
 		this.groupConversation = groupConversation;
 		notifyDataSetChanged();

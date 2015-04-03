@@ -2,7 +2,6 @@ package com.bsb.hike.ui;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -18,13 +17,10 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.res.Configuration;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
@@ -45,7 +41,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.ImageView.ScaleType;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.ListView;
 import android.widget.PopupWindow;
@@ -55,7 +50,6 @@ import android.widget.Toast;
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
-import com.actionbarsherlock.view.Window;
 import com.actionbarsherlock.widget.SearchView;
 import com.actionbarsherlock.widget.SearchView.OnQueryTextListener;
 import com.bsb.hike.AppConfig;
@@ -64,10 +58,12 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
-import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
+import com.bsb.hike.dialog.HikeDialog;
+import com.bsb.hike.dialog.HikeDialogFactory;
+import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.ConvMessage;
@@ -76,18 +72,10 @@ import com.bsb.hike.models.OverFlowMenuItem;
 import com.bsb.hike.modules.animationModule.HikeAnimationFactory;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.notifications.HikeNotificationMsgStack;
-import com.bsb.hike.productpopup.DialogPojo;
-import com.bsb.hike.productpopup.HikeDialogFragment;
-import com.bsb.hike.productpopup.IActivityPopup;
-import com.bsb.hike.productpopup.ProductContentModel;
-import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
-import com.bsb.hike.service.HikeMqttManagerNew;
-import com.bsb.hike.providers.HikeProvider;
 import com.bsb.hike.snowfall.SnowFallView;
 import com.bsb.hike.tasks.DownloadAndInstallUpdateAsyncTask;
 import com.bsb.hike.tasks.SendLogsTask;
-import com.bsb.hike.ui.HikeDialog.HikeDialogListener;
 import com.bsb.hike.ui.fragments.ConversationFragment;
 import com.bsb.hike.ui.utils.LockPattern;
 import com.bsb.hike.utils.FestivePopup;
@@ -97,7 +85,7 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.HikeTip;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.HikeTip.TipType;
-import com.bsb.hike.utils.IntentManager;
+import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.NUXManager;
 import com.bsb.hike.utils.Utils;
@@ -216,7 +204,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		
 		if ((HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPGRADING, false)))
 		{
-			progDialog = HikeDialog.showDialog(HomeActivity.this, HikeDialog.HIKE_UPGRADE_DIALOG, null);
+			progDialog = HikeDialogFactory.showDialog(HomeActivity.this, HikeDialogFactory.HIKE_UPGRADE_DIALOG, null);
 			showingProgress = true;
 			
 		}
@@ -510,7 +498,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	{
 		getSupportMenuInflater().inflate(R.menu.chats_menu, menu);
 
-		topBarIndicator = (TextView) menu.findItem(R.id.overflow_menu).getActionView().findViewById(R.id.top_bar_indicator);
+		topBarIndicator = (TextView) menu.findItem(R.id.overflow_menu).getActionView().findViewById(R.id.top_bar_indicator_text);
 		updateOverFlowMenuNotification();
 		menu.findItem(R.id.overflow_menu).getActionView().setOnClickListener(new View.OnClickListener()
 		{
@@ -564,7 +552,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			}
 		});
 		
-		newConversationIndicator = (TextView) menu.findItem(R.id.new_conversation).getActionView().findViewById(R.id.top_bar_indicator);
+		newConversationIndicator = (TextView) menu.findItem(R.id.new_conversation).getActionView().findViewById(R.id.top_bar_indicator_text);
 		menu.findItem(R.id.new_conversation).getActionView().findViewById(R.id.overflow_icon_image).setContentDescription("Start a new chat");
 		((ImageView) menu.findItem(R.id.new_conversation).getActionView().findViewById(R.id.overflow_icon_image)).setImageResource(R.drawable.ic_new_conversation);
 		showRecentlyJoinedDot(1000);
@@ -749,7 +737,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			dialogShowing = DialogShowing.SMS_SYNC_CONFIRMATION;
 		}
 
-		dialog = Utils.showSMSSyncDialog(this, dialogShowing == DialogShowing.SMS_SYNC_CONFIRMATION);
+		dialog = HikeDialogFactory.showDialog(this, HikeDialogFactory.SMS_SYNC_DIALOG, dialogShowing == DialogShowing.SMS_SYNC_CONFIRMATION);
 	}
 
 	private void showFreeInviteDialog()
@@ -1683,14 +1671,13 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 					editor.putBoolean(HikeConstants.IS_GAMES_ITEM_CLICKED, true);
 					editor.commit();
 					updateOverFlowMenuNotification();
-					intent = IntentManager.getGamingIntent(HomeActivity.this);
-					
+					intent = IntentFactory.getGamingIntent(HomeActivity.this);
 					break;
 				case HikeConstants.HOME_ACTIVITY_OVERFLOW.REWARDS:
 					editor.putBoolean(HikeConstants.IS_REWARDS_ITEM_CLICKED, true);
 					editor.commit();
 					updateOverFlowMenuNotification();
-					intent = IntentManager.getRewardsIntent(HomeActivity.this);
+					intent = IntentFactory.getRewardsIntent(HomeActivity.this);
 					break;
 				case HikeConstants.HOME_ACTIVITY_OVERFLOW.SETTINGS:
 					intent = new Intent(HomeActivity.this, SettingsActivity.class);
@@ -1738,11 +1725,11 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_NEW_BROADCAST_RED_DOT, false);
 					if (HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOW_BROADCAST_FTUE_SCREEN, true))
 					{
-						IntentManager.createBroadcastFtue(HomeActivity.this);
+						IntentFactory.createBroadcastFtue(HomeActivity.this);
 					}
 					else
 					{
-						IntentManager.createBroadcastDefault(HomeActivity.this);
+						IntentFactory.createBroadcastDefault(HomeActivity.this);
 					}
 					break;
 				}
@@ -1836,7 +1823,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 				case 12:
 					// Take a photo
 					accountPrefs.edit().putBoolean(HikeConstants.SHOW_PHOTOS_RED_DOT, false).commit();
-					IntentManager.openHikeCameraActivity(HomeActivity.this);
+					IntentFactory.openHikeCameraActivity(HomeActivity.this);
 					sendAnalyticsTakePicture();
 					break;
 				}
@@ -1936,7 +1923,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		if(progDialog != null && progDialog.isShowing())
 		{
 			progDialog.dismiss();
-			progDialog = HikeDialog.showDialog(HomeActivity.this, HikeDialog.HIKE_UPGRADE_DIALOG, null);
+			progDialog = HikeDialogFactory.showDialog(HomeActivity.this, HikeDialogFactory.HIKE_UPGRADE_DIALOG, null);
 			showingProgress = true;
 			
 		}
@@ -1982,31 +1969,31 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			break;
 		case STEALTH_FTUE_POPUP:
 			dialogShowing = DialogShowing.STEALTH_FTUE_POPUP;
-			dialog = HikeDialog.showDialog(this, HikeDialog.STEALTH_FTUE_DIALOG, getHomeActivityDialogListener());
+			dialog = HikeDialogFactory.showDialog(this, HikeDialogFactory.STEALTH_FTUE_DIALOG, getHomeActivityDialogListener(), null);
 			break;
 		case STEALTH_FTUE_EMPTY_STATE_POPUP:
 			dialogShowing = DialogShowing.STEALTH_FTUE_EMPTY_STATE_POPUP;
-			dialog = HikeDialog.showDialog(this, HikeDialog.STEALTH_FTUE_EMPTY_STATE_DIALOG, getHomeActivityDialogListener());
+			dialog = HikeDialogFactory.showDialog(this, HikeDialogFactory.STEALTH_FTUE_EMPTY_STATE_DIALOG, getHomeActivityDialogListener(), null);
 			break;
 		case VOIP_FTUE_POPUP:
 			dialogShowing = DialogShowing.VOIP_FTUE_POPUP;
-			dialog = HikeDialog.showDialog(this, HikeDialog.VOIP_INTRO_DIALOG, getHomeActivityDialogListener());
+			dialog = HikeDialogFactory.showDialog(this, HikeDialogFactory.VOIP_INTRO_DIALOG, getHomeActivityDialogListener(), null);
 		}
 	}
 
 	private HikeDialogListener getHomeActivityDialogListener()
 	{
-		return new HikeDialog.HikeDialogListener()
+		return new HikeDialogListener()
 		{
 
 			@Override
-			public void positiveClicked(Dialog dialog)
+			public void positiveClicked(HikeDialog hikeDialog)
 			{
 
 			}
 
 			@Override
-			public void neutralClicked(Dialog dialog)
+			public void neutralClicked(HikeDialog hikeDialog)
 			{
 				if(dialogShowing != null)
 				{
@@ -2038,16 +2025,10 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			}
 
 			@Override
-			public void negativeClicked(Dialog dialog)
+			public void negativeClicked(HikeDialog hikeDialog)
 			{
 			}
 
-			@Override
-			public void onSucess(Dialog dialog)
-			{
-				// TODO Auto-generated method stub
-				
-			}
 		};
 	}
 

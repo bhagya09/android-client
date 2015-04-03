@@ -68,7 +68,7 @@ public class HikePubSub implements Runnable
 																				// the
 																				// same.
 	
-	public static final String GROUP_MESSAGE_DELIVERED_READ = "groupMessageDeliveredRead";
+	public static final String ONETON_MESSAGE_DELIVERED_READ = "groupMessageDeliveredRead";
 
 	public static final String WS_CLOSE = "ws_close";
 
@@ -132,9 +132,9 @@ public class HikePubSub implements Runnable
 
 	public static final String GROUP_NAME_CHANGED = "groupNameChanged";
 
-	public static final String PARTICIPANT_JOINED_GROUP = "participantJoinedGroup";
+	public static final String PARTICIPANT_JOINED_ONETONCONV = "participantJoinedGroup";
 
-	public static final String PARTICIPANT_LEFT_GROUP = "participantLeftGroup";
+	public static final String PARTICIPANT_LEFT_ONETONCONV = "participantLeftGroup";
 
 	public static final String INVITEE_NUM_CHANGED = "inviteeNoChanged";
 
@@ -178,7 +178,7 @@ public class HikePubSub implements Runnable
 
 	public static final String SSL_PREFERENCE_CHANGED = "sslPrefChanged";
 
-	public static final String GROUP_REVIVED = "groupRevived";
+	public static final String CONVERSATION_REVIVED = "groupRevived";
 
 	public static final String PROFILE_IMAGE_DOWNLOADED = "profileImageDownloaded";
 

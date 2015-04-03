@@ -73,15 +73,15 @@ import com.bsb.hike.adapters.ProfileAdapter;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.dialog.HikeDialog;
+import com.bsb.hike.dialog.HikeDialogFactory;
+import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.http.HikeHttpRequest;
 import com.bsb.hike.http.HikeHttpRequest.HikeHttpCallback;
 import com.bsb.hike.http.HikeHttpRequest.RequestType;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.ConvMessage;
-import com.bsb.hike.models.Conversation;
-import com.bsb.hike.models.GroupConversation;
-import com.bsb.hike.models.BroadcastConversation;
 import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.HikeSharedFile;
@@ -90,12 +90,10 @@ import com.bsb.hike.models.ProfileItem;
 import com.bsb.hike.models.ProfileItem.ProfileStatusItem;
 import com.bsb.hike.models.StatusMessage;
 import com.bsb.hike.models.StatusMessage.StatusMessageType;
+import com.bsb.hike.models.Conversation.BroadcastConversation;
+import com.bsb.hike.models.Conversation.Conversation;
+import com.bsb.hike.models.Conversation.GroupConversation;
 import com.bsb.hike.modules.contactmgr.ContactManager;
-import com.bsb.hike.productpopup.DialogPojo;
-import com.bsb.hike.productpopup.HikeDialogFragment;
-import com.bsb.hike.productpopup.IActivityPopup;
-import com.bsb.hike.productpopup.ProductContentModel;
-import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.smartImageLoader.IconLoader;
@@ -105,9 +103,9 @@ import com.bsb.hike.tasks.FinishableEvent;
 import com.bsb.hike.tasks.HikeHTTPTask;
 import com.bsb.hike.ui.fragments.PhotoViewerFragment;
 import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
-import com.bsb.hike.utils.CustomAlertDialog;
 import com.bsb.hike.utils.EmoticonConstants;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.SmileyParser;
@@ -151,8 +149,8 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 
 	private SharedPreferences preferences;
 
-	private String[] groupInfoPubSubListeners = { HikePubSub.ICON_CHANGED, HikePubSub.GROUP_NAME_CHANGED, HikePubSub.GROUP_END, HikePubSub.PARTICIPANT_JOINED_GROUP,
-			HikePubSub.PARTICIPANT_LEFT_GROUP, HikePubSub.USER_JOINED, HikePubSub.USER_LEFT, HikePubSub.LARGER_IMAGE_DOWNLOADED, HikePubSub.PROFILE_IMAGE_DOWNLOADED,
+	private String[] groupInfoPubSubListeners = { HikePubSub.ICON_CHANGED, HikePubSub.GROUP_NAME_CHANGED, HikePubSub.GROUP_END, HikePubSub.PARTICIPANT_JOINED_ONETONCONV,
+			HikePubSub.PARTICIPANT_LEFT_ONETONCONV, HikePubSub.USER_JOINED, HikePubSub.USER_LEFT, HikePubSub.LARGER_IMAGE_DOWNLOADED, HikePubSub.PROFILE_IMAGE_DOWNLOADED,
 			HikePubSub.ClOSE_PHOTO_VIEWER_FRAGMENT, HikePubSub.DELETE_MESSAGE, HikePubSub.CONTACT_ADDED, HikePubSub.UNREAD_PIN_COUNT_RESET, HikePubSub.MESSAGE_RECEIVED, HikePubSub.BULK_MESSAGE_RECEIVED };
 
 	private String[] contactInfoPubSubListeners = { HikePubSub.ICON_CHANGED, HikePubSub.CONTACT_ADDED, HikePubSub.USER_JOINED, HikePubSub.USER_LEFT,
@@ -1115,30 +1113,30 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 
 		try 
 		{
-			unreadPinCount = groupConversation.getMetaData().getUnreadCount(HikeConstants.MESSAGE_TYPE.TEXT_PIN);			
+			unreadPinCount = groupConversation.getMetadata().getUnreadPinCount(HikeConstants.MESSAGE_TYPE.TEXT_PIN);			
 		}
 		catch (JSONException e) 
 		{
 			e.printStackTrace();
 		}
 		sharedFileCount = hCDB.getSharedMediaCount(mLocalMSISDN, false);
-		participantMap = groupConversation.getGroupParticipantList();
-		List<String> inactiveMsisdns = new ArrayList<String>();
-		/*
-		 * Removing inactive participants
-		 */
-		for (Entry<String, PairModified<GroupParticipant, String>> participantEntry : participantMap.entrySet())
-		{
-			GroupParticipant groupParticipant = participantEntry.getValue().getFirst();
-			if (groupParticipant.hasLeft())
-			{
-				inactiveMsisdns.add(participantEntry.getKey());
-			}
-		}
-		for (String msisdn : inactiveMsisdns)
-		{
-			participantMap.remove(msisdn);
-		}
+		participantMap = groupConversation.getConversationParticipantList();
+//		List<String> inactiveMsisdns = new ArrayList<String>();
+//		/*
+//		 * Removing inactive participants
+//		 */
+//		for (Entry<String, PairModified<GroupParticipant, String>> participantEntry : participantMap.entrySet())
+//		{
+//			GroupParticipant groupParticipant = participantEntry.getValue().getFirst();
+//			if (groupParticipant.hasLeft())
+//			{
+//				inactiveMsisdns.add(participantEntry.getKey());
+//			}
+//		}
+//		for (String msisdn : inactiveMsisdns)
+//		{
+//			participantMap.remove(msisdn);
+//		}
 
 		httpRequestURL = "/group/" + groupConversation.getMsisdn();
 
@@ -1167,30 +1165,30 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 
 		try 
 		{
-			unreadPinCount = broadcastConversation.getMetaData().getUnreadCount(HikeConstants.MESSAGE_TYPE.TEXT_PIN);			
+			unreadPinCount = broadcastConversation.getMetadata().getUnreadPinCount(HikeConstants.MESSAGE_TYPE.TEXT_PIN);			
 		}
 		catch (JSONException e) 
 		{
 			e.printStackTrace();
 		}
 		sharedFileCount = hCDB.getSharedMediaCount(mLocalMSISDN, false);
-		participantMap = broadcastConversation.getGroupParticipantList();
-		List<String> inactiveMsisdns = new ArrayList<String>();
-		/*
-		 * Removing inactive participants
-		 */
-		for (Entry<String, PairModified<GroupParticipant, String>> participantEntry : participantMap.entrySet())
-		{
-			GroupParticipant groupParticipant = participantEntry.getValue().getFirst();
-			if (groupParticipant.hasLeft())
-			{
-				inactiveMsisdns.add(participantEntry.getKey());
-			}
-		}
-		for (String msisdn : inactiveMsisdns)
-		{
-			participantMap.remove(msisdn);
-		}
+		participantMap = broadcastConversation.getConversationParticipantList();
+//		List<String> inactiveMsisdns = new ArrayList<String>();
+//		/*
+//		 * Removing inactive participants
+//		 */
+//		for (Entry<String, PairModified<GroupParticipant, String>> participantEntry : participantMap.entrySet())
+//		{
+//			GroupParticipant groupParticipant = participantEntry.getValue().getFirst();
+//			if (groupParticipant.hasLeft())
+//			{
+//				inactiveMsisdns.add(participantEntry.getKey());
+//			}
+//		}
+//		for (String msisdn : inactiveMsisdns)
+//		{
+//			participantMap.remove(msisdn);
+//		}
 
 		httpRequestURL = "/group/" + broadcastConversation.getMsisdn();
 
@@ -1295,11 +1293,11 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		}
 		if (this.profileType == ProfileType.GROUP_INFO)
 		{
-			isGroupOwner = userInfo.getContactInfo().getMsisdn().equals(groupConversation.getGroupOwner());
+			isGroupOwner = userInfo.getContactInfo().getMsisdn().equals(groupConversation.getConversationOwner());
 		}
 		else
 		{
-			isGroupOwner = userInfo.getContactInfo().getMsisdn().equals(broadcastConversation.getGroupOwner());
+			isGroupOwner = userInfo.getContactInfo().getMsisdn().equals(broadcastConversation.getConversationOwner());
 		}
 		//Add -> Add member tab
 		profileItems.add(new ProfileItem.ProfileGroupItem(ProfileItem.ADD_MEMBERS, null));
@@ -2166,8 +2164,8 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 
 	private void openChatThread(ContactInfo contactInfo)
 	{
-		Intent intent = Utils.createIntentFromContactInfo(contactInfo, true);
-		intent.setClass(this, ChatThread.class);
+		Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(this, contactInfo, true);
+		//Add anything else which is need to the intent
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		if (getIntent().getBooleanExtra(HikeConstants.Extras.FROM_CENTRAL_TIMELINE, false))
 		{
@@ -2179,10 +2177,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	public void onProfileSmallLeftBtnClick(View v)
 	{
 		Utils.logEvent(ProfileActivity.this, HikeConstants.LogEvent.ADD_PARTICIPANT);
-
-		Intent intent = new Intent(ProfileActivity.this, ChatThread.class);
-		intent.putExtra(HikeConstants.Extras.GROUP_CHAT, true);
-		intent.putExtra(HikeConstants.Extras.EXISTING_GROUP_CHAT, mLocalMSISDN);
+		Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(ProfileActivity.this, mLocalMSISDN, false);
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		startActivity(intent);
 
@@ -2190,7 +2185,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 
 	public void onProfileSmallRightBtnClick(View v)
 	{
-		groupConversation.setIsMuted(!groupConversation.isMuted());
+		groupConversation.setIsMute(!groupConversation.isMuted());
 
 		HikeMessengerApp.getPubSub().publish(HikePubSub.MUTE_CONVERSATION_TOGGLED, new Pair<String, Boolean>(groupConversation.getMsisdn(), groupConversation.isMuted()));
 		invalidateOptionsMenu();
@@ -2380,11 +2375,11 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				nameTxt = ContactManager.getInstance().getName(mLocalMSISDN);
 				if (this.profileType == ProfileType.GROUP_INFO)
 				{
-					groupConversation.setContactName(nameTxt);
+					groupConversation.setConversationName(nameTxt);
 				}
 				else
 				{
-					broadcastConversation.setContactName(nameTxt);
+					broadcastConversation.setConversationName(nameTxt);
 				}
 
 				runOnUiThread(new Runnable()
@@ -2421,22 +2416,13 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			}
 		}
 
-		if (HikePubSub.PARTICIPANT_LEFT_GROUP.equals(type))
+		if (HikePubSub.PARTICIPANT_LEFT_ONETONCONV.equals(type))
 		{
 			if (mLocalMSISDN.equals(((JSONObject) object).optString(HikeConstants.TO)))
 			{
 				String msisdn = ((JSONObject) object).optString(HikeConstants.DATA);
 				this.participantMap.remove(msisdn);
 
-				if (this.profileType == ProfileType.GROUP_INFO)
-				{
-					groupConversation.setGroupMemberAliveCount(participantMap.size());
-				}
-				else
-				{
-					broadcastConversation.setGroupMemberAliveCount(participantMap.size());
-				}
-				
 				runOnUiThread(new Runnable()
 				{
 					@Override
@@ -2449,7 +2435,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				});
 			}
 		}
-		else if (HikePubSub.PARTICIPANT_JOINED_GROUP.equals(type))
+		else if (HikePubSub.PARTICIPANT_JOINED_ONETONCONV.equals(type))
 		{
 			if (mLocalMSISDN.equals(((JSONObject) object).optString(HikeConstants.TO)))
 			{
@@ -2480,14 +2466,6 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 					}
 				}
 				
-				if(this.profileType == ProfileType.GROUP_INFO)
-				{
-					groupConversation.setGroupMemberAliveCount(participantMap.size());
-				}
-				else
-				{
-					broadcastConversation.setGroupMemberAliveCount(participantMap.size());
-				}
 				runOnUiThread(new Runnable()
 				{
 					@Override
@@ -2577,7 +2555,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			}
 			else if (profileType == ProfileType.GROUP_INFO)
 			{
-				PairModified<GroupParticipant, String> groupParticipantPair = groupConversation.getGroupParticipant(msisdn);
+				PairModified<GroupParticipant, String> groupParticipantPair = groupConversation.getConversationParticipant(msisdn);
 				GroupParticipant groupParticipant = null;
 				if (groupParticipant == null)
 				{
@@ -2587,7 +2565,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			}
 			else if (profileType == ProfileType.BROADCAST_INFO)
 			{
-				PairModified<GroupParticipant, String> groupParticipantPair = broadcastConversation.getGroupParticipant(msisdn);
+				PairModified<GroupParticipant, String> groupParticipantPair = broadcastConversation.getConversationParticipant(msisdn);
 				GroupParticipant groupParticipant = null;
 				if (groupParticipant == null)
 				{
@@ -2807,7 +2785,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		}
 		else if(HikePubSub.UNREAD_PIN_COUNT_RESET.equals(type))
 		{
-			if(groupConversation.getMsisdn().equals(((Conversation)object).getMetaData().getGroupId()))
+			if(groupConversation.getMsisdn().equals(((Conversation)object).getMsisdn()))
 			{
 				sharedContentItem.setUnreadPinCount(0);	
 				
@@ -2967,7 +2945,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			{
 				if (isBroadcast)
 				{
-					if(broadcastConversation.getGroupMemberAliveCount() > 1)
+					if(broadcastConversation.getParticipantListSize() > 1)
 					{
 						optionsList.add(getString(R.string.remove_from_broadcast));
 					}
@@ -3027,24 +3005,10 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 
 	private void removeFromGroup(final ContactInfo contactInfo)
 	{
-		String message;
-		final CustomAlertDialog confirmDialog = new CustomAlertDialog(ProfileActivity.this);
-		if (this.profileType == ProfileType.BROADCAST_INFO)
-		{
-			confirmDialog.setHeader(R.string.remove_from_broadcast);
-			message = getString(R.string.remove_confirm_broadcast, contactInfo.getFirstName());
-		}
-		else
-		{
-			confirmDialog.setHeader(R.string.remove_from_group);
-			message = getString(R.string.remove_confirm, contactInfo.getFirstName());
-		}
-		confirmDialog.setBody(message);
-		View.OnClickListener dialogOkClickListener = new View.OnClickListener()
-		{
-
+		HikeDialogFactory.showDialog(this, HikeDialogFactory.DELETE_FROM_GROUP, new HikeDialogListener()
+		{	
 			@Override
-			public void onClick(View v)
+			public void positiveClicked(HikeDialog hikeDialog)
 			{
 				JSONObject object = new JSONObject();
 				try
@@ -3073,15 +3037,22 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				{
 					Logger.e(getClass().getSimpleName(), "Invalid JSON", e);
 				}
+				
 				HikeMqttManagerNew.getInstance().sendMessage(object, HikeMqttManagerNew.MQTT_QOS_ONE);
-				confirmDialog.dismiss();
+				hikeDialog.dismiss();
 			}
-		};
-
-		confirmDialog.setOkButton(R.string.yes, dialogOkClickListener);
-		confirmDialog.setCancelButton(R.string.no);
-		confirmDialog.show();
-
+			
+			@Override
+			public void neutralClicked(HikeDialog hikeDialog)
+			{
+			}
+			
+			@Override
+			public void negativeClicked(HikeDialog hikeDialog)
+			{
+			}
+		}, contactInfo.getFirstName());	
+		
 	}
 
 	@Override
@@ -3130,23 +3101,27 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 
 	private void showDeleteStatusConfirmationDialog(final String statusId)
 	{
-		final CustomAlertDialog confirmDialog = new CustomAlertDialog(this);
-		confirmDialog.setHeader(R.string.delete_status);
-		confirmDialog.setBody(R.string.delete_status_confirmation);
-		View.OnClickListener dialogOkClickListener = new View.OnClickListener()
+		HikeDialogFactory.showDialog(this, HikeDialogFactory.DELETE_STATUS_DIALOG, new HikeDialogListener()
 		{
-
+			
 			@Override
-			public void onClick(View v)
+			public void positiveClicked(HikeDialog hikeDialog)
 			{
 				deleteStatus(statusId);
-				confirmDialog.dismiss();
+				hikeDialog.dismiss();
 			}
-		};
-
-		confirmDialog.setOkButton(R.string.yes, dialogOkClickListener);
-		confirmDialog.setCancelButton(R.string.no);
-		confirmDialog.show();
+			
+			@Override
+			public void neutralClicked(HikeDialog hikeDialog)
+			{
+			}
+			
+			@Override
+			public void negativeClicked(HikeDialog hikeDialog)
+			{
+				
+			}
+		}, null);
 	}
 
 	private void deleteStatus(final String statusId)

@@ -328,16 +328,14 @@ public class HikeLruCache extends LruCache<String, BitmapDrawable>
 	
 	private String getDefaultAvatarKey(String msisdn)
 	{
-		boolean isGroupConversation = Utils.isGroupConversation(msisdn);
-		boolean isBroadcastConversation = Utils.isBroadcastConversation(msisdn);
 		int index = BitmapUtils.iconHash(msisdn) % (HikeConstants.DEFAULT_AVATAR_KEYS.length);
 		
 		String key = HikeConstants.DEFAULT_AVATAR_KEYS[index];
-		if(isBroadcastConversation)
+		if(Utils.isBroadcastConversation(msisdn))
 		{
 			key += HikeConstants.IS_BROADCAST;
 		}
-		else if(isGroupConversation)
+		else if(Utils.isGroupConversation(msisdn))
 		{
 			key += HikeConstants.IS_GROUP;
 		}

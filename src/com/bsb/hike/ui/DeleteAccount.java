@@ -17,9 +17,12 @@ import com.actionbarsherlock.app.ActionBar;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
+import com.bsb.hike.dialog.CustomAlertDialog;
+import com.bsb.hike.dialog.HikeDialog;
+import com.bsb.hike.dialog.HikeDialogFactory;
+import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.tasks.DeleteAccountTask;
 import com.bsb.hike.tasks.DeleteAccountTask.DeleteAccountListener;
-import com.bsb.hike.utils.CustomAlertDialog;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.Utils;
 
@@ -147,52 +150,55 @@ public class DeleteAccount extends HikeAppStateBaseFragmentActivity implements D
 			
 			if(!fullMSISDN.equalsIgnoreCase(msisdn))
 			{				
-				final CustomAlertDialog correctMSISDNConfirmDialog = new CustomAlertDialog(this);
-				correctMSISDNConfirmDialog.setHeader(R.string.incorrect_msisdn_warning);
-				correctMSISDNConfirmDialog.setBody(R.string.incorrect_msisdn_msg);
-				
-				View.OnClickListener correctMSISDNConfirmListener = new View.OnClickListener() 
-				{					
+				HikeDialogFactory.showDialog(this, HikeDialogFactory.DELETE_ACCOUNT_DIALOG, new HikeDialogListener()
+				{
+					
 					@Override
-					public void onClick(View v) 
+					public void positiveClicked(HikeDialog hikeDialog)
 					{
-						correctMSISDNConfirmDialog.dismiss();
+						hikeDialog.dismiss();
 					}
-				};
-				correctMSISDNConfirmDialog.setOkButton(R.string.ok, correctMSISDNConfirmListener);
-				correctMSISDNConfirmDialog.setCancelButtonVisibility(View.GONE);
-				correctMSISDNConfirmDialog.show();
+					
+					@Override
+					public void neutralClicked(HikeDialog hikeDialog)
+					{
+						
+					}
+					
+					@Override
+					public void negativeClicked(HikeDialog hikeDialog)
+					{
+						
+					}
+				}, null);
 			}
 			else
 			{
 				phoneNum.setBackgroundResource(R.drawable.bg_country_picker_selector);
-				final CustomAlertDialog firstConfirmDialog = new CustomAlertDialog(this);
-				firstConfirmDialog.setHeader(R.string.are_you_sure);
-				firstConfirmDialog.setBody(R.string.delete_confirm_msg_1);				
-				View.OnClickListener firstDialogContinueClickListener = new View.OnClickListener()
+				
+				HikeDialogFactory.showDialog(this, HikeDialogFactory.DELETE_ACCOUNT_CONFIRM_DIALOG, new HikeDialogListener()
 				{
+					
 					@Override
-					public void onClick(View v)
+					public void positiveClicked(HikeDialog hikeDialog)
 					{
-						firstConfirmDialog.dismiss();
+						hikeDialog.dismiss();
 						task = new DeleteAccountTask(DeleteAccount.this, true, getApplicationContext());
-
 						Utils.executeBoolResultAsyncTask(task);
 						showProgressDialog();
 					}
-				};
-
-				View.OnClickListener firstDialogOnCancelListener = new View.OnClickListener()
-				{
+					
 					@Override
-					public void onClick(View v)
+					public void neutralClicked(HikeDialog hikeDialog)
 					{
-						firstConfirmDialog.dismiss();
 					}
-				};
-				firstConfirmDialog.setOkButton(R.string.confirm, firstDialogContinueClickListener);
-				firstConfirmDialog.setCancelButton(R.string.cancel, firstDialogOnCancelListener);
-				firstConfirmDialog.show();
+					
+					@Override
+					public void negativeClicked(HikeDialog hikeDialog)
+					{
+						hikeDialog.dismiss();
+					}
+				}, null);
 			}
 		}
 	}

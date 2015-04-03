@@ -325,15 +325,21 @@
     <style name="AppTheme" parent="Theme.Sherlock.Light.DarkActionBar">
         <item name="actionBarStyle">@style/Widget.Styled.ActionBar</item>
         <item name="android:actionBarStyle">@style/Widget.Styled.ActionBar</item>
-        <item name="vpiIconPageIndicatorStyle">@style/CustomIconPageIndicator</item>
         <item name="actionOverflowButtonStyle">@style/OverflowMenu</item>
         <item name="android:actionOverflowButtonStyle">@style/OverflowMenu</item>
         <item name="actionBarSize">@dimen/st__action_bar_default_height</item>
         <item name="android:actionBarSize">@dimen/st__action_bar_default_height</item>
-        <item name="android:actionModeBackground">@drawable/bg_header_transparent</item>
-        
+        <item name="actionModeBackground">@color/transparent</item>
+        <item name="android:actionModeBackground">@color/transparent</item>
+        <item name="actionModeCloseButtonStyle">@style/NoCloseButton</item>
+        <item name="actionModeCloseDrawable">@drawable/ic_close_chat_bg_palette</item>
+        <item name="android:actionModeCloseButtonStyle">@style/NoCloseButton</item>
+        <item name="android:actionModeCloseDrawable">@drawable/ic_close_chat_bg_palette</item>
     </style>
-    
+    <style name="NoCloseButton" parent="@style/Widget.Sherlock.ActionButton.CloseMode">
+    <item name="android:visibility">visible</item>
+	</style>
+	
     <style name="ActivityAnimation">
         <item name="android:windowExitAnimation">@anim/fade_out_animation</item>
     	<item name="android:windowEnterAnimation">@anim/fade_in_animation</item>
@@ -384,15 +390,6 @@
         <item name="android:paddingRight">8dp</item>
     </style>
 
-    <style name="CustomIconPageIndicator" parent="Widget.IconPageIndicator">
-        <item name="android:background">@drawable/emoticon_tab_indicator</item>
-        <item name="android:divider">@drawable/emoticon_tab_divider</item>
-        <item name="android:showDividers">middle</item>
-        <item name="android:tabStripEnabled">false</item>
-        <item name="android:layout_marginLeft">0dp</item>
-        <item name="android:layout_marginRight">0dp</item>
-    </style>
-    
     <style name="TabText">
         <item name="android:textColor">@drawable/tab_text_selector</item>
         <item name="android:textSize">12sp</item>

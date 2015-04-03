@@ -558,7 +558,7 @@
     <string name="new_update">Nueva actualización</string>
     <string name="invite_via_facebook">Invitar a través de Facebook</string>
     <string name="invite_via_twitter">Invitar a través de Twitter</string>
-    <string name="search_hint">Buscar</string>
+    <string name="search">Buscar</string>
     <string name="fb_invite_success">Invitación correcta</string>
     <string name="fb_invite_failed">Invitación cancelada</string>
     <string name="social_invite_network_error">Error al enviar invitación. Comprueba los ajustes de red.</string>

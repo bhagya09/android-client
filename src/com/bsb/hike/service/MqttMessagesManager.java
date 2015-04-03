@@ -12,14 +12,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import com.bsb.hike.db.DBConstants;
-import com.bsb.hike.platform.content.PlatformContent;
-import com.bsb.hike.platform.content.PlatformContentListener;
-import com.bsb.hike.platform.content.PlatformContentModel;
-import com.bsb.hike.platform.content.PlatformContentRequest;
-import com.bsb.hike.platform.content.PlatformZipDownloader;
-import com.bsb.hike.utils.HikeAnalyticsEvent;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -47,6 +39,7 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.MsgRelEventType;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
+import com.bsb.hike.db.DBConstants;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.analytics.MsgRelLogManager;
 import com.bsb.hike.db.HikeConversationsDatabase;
@@ -55,13 +48,10 @@ import com.bsb.hike.filetransfer.FileTransferManager.NetworkType;
 import com.bsb.hike.http.HikeHttpRequest;
 import com.bsb.hike.http.HikeHttpRequest.HikeHttpCallback;
 import com.bsb.hike.http.HikeHttpRequest.RequestType;
-import com.bsb.hike.models.BroadcastConversation;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
-import com.bsb.hike.models.Conversation;
-import com.bsb.hike.models.GroupConversation;
 import com.bsb.hike.models.GroupTypingNotification;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.MessagePrivateData;
@@ -73,17 +63,18 @@ import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.models.WhitelistDomain;
+import com.bsb.hike.models.Conversation.BroadcastConversation;
+import com.bsb.hike.models.Conversation.Conversation;
+import com.bsb.hike.models.Conversation.GroupConversation;
+import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.notifications.HikeNotification;
-import com.bsb.hike.notifications.HikeNotificationUtils;
-import com.bsb.hike.productpopup.ProductContentModel;
-import com.bsb.hike.productpopup.ProductInfoManager;
-import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformContentListener;
 import com.bsb.hike.platform.content.PlatformContentModel;
 import com.bsb.hike.platform.content.PlatformContentRequest;
 import com.bsb.hike.platform.content.PlatformZipDownloader;
+import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.tasks.DownloadProfileImageTask;
 import com.bsb.hike.tasks.HikeHTTPTask;
 import com.bsb.hike.ui.HomeActivity;
@@ -97,6 +88,7 @@ import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.NUXManager;
+import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
@@ -105,7 +97,6 @@ import com.bsb.hike.voip.VoIPConstants;
 import com.bsb.hike.voip.VoIPService;
 import com.bsb.hike.voip.VoIPUtils;
 import com.bsb.hike.voip.view.VoIPActivity;
-import com.google.gson.JsonObject;
 
 /**
  * 
@@ -408,16 +399,10 @@ public class MqttMessagesManager
 		{
 			return;
 		}
-		GroupConversation groupConversation;
-		String msisdn = jsonObj.getString(HikeConstants.TO);
-		if (Utils.isBroadcastConversation(msisdn))
-		{
-			groupConversation = new BroadcastConversation(jsonObj, this.context);
-		}
-		else
-		{
-			groupConversation = new GroupConversation(jsonObj, this.context);
-		}
+		OneToNConversation groupConversation;
+		
+		groupConversation = OneToNConversation.createOneToNConversationFromJSON(jsonObj);
+		
 		boolean groupRevived = false;
 
 		if (!ContactManager.getInstance().isGroupAlive(groupConversation.getMsisdn()))
@@ -438,11 +423,11 @@ public class MqttMessagesManager
 				{
 					jsonObj.put(HikeConstants.NEW_GROUP, true);
 				}
-				pubSub.publish(HikePubSub.GROUP_REVIVED, groupConversation.getMsisdn());
+				pubSub.publish(HikePubSub.CONVERSATION_REVIVED, groupConversation.getMsisdn());
 			}
 
 		}
-		int gcjAdd = this.convDb.addRemoveGroupParticipants(groupConversation.getMsisdn(), groupConversation.getGroupParticipantList(), groupRevived);
+		int gcjAdd = this.convDb.addRemoveGroupParticipants(groupConversation.getMsisdn(), groupConversation.getConversationParticipantList(), groupRevived);
 		if (!groupRevived && gcjAdd != HikeConstants.NEW_PARTICIPANT)
 		{
 			Logger.d(getClass().getSimpleName(), "GCJ Message was already received");
@@ -474,7 +459,8 @@ public class MqttMessagesManager
 				// Earlier there were 2 queries, one to make the group conv and second to set the name. I have combined the both
 				groupName = metadata.optString(HikeConstants.NAME);
 			}
-			groupConversation = (GroupConversation) this.convDb.addConversation(groupConversation.getMsisdn(), false, groupName, groupConversation.getGroupOwner());
+			
+			groupConversation = (GroupConversation) this.convDb.addConversation(groupConversation.getMsisdn(), false, groupName, groupConversation.getConversationOwner());
 			ContactManager.getInstance().insertGroup(groupConversation.getMsisdn(), groupName);
 
 			// Adding a key to the json signify that this was the GCJ
@@ -582,7 +568,7 @@ public class MqttMessagesManager
 	/*
 	 * adding message in db if not duplicate. In case of duplicate message we don't do further processing and return
 	 */
-		if (!convDb.addConversationMessages(convMessage))
+		if (!convDb.addConversationMessages(convMessage,true))
 		{
 			return;
 		}
@@ -608,12 +594,12 @@ public class MqttMessagesManager
 		messageProcessVibrate(convMessage);
 		messageProcessFT(convMessage);
 
-		if (convMessage.isGroupChat() && convMessage.getParticipantInfoState() == ParticipantInfoState.NO_INFO)
+		if (convMessage.isOneToNChat() && convMessage.getParticipantInfoState() == ParticipantInfoState.NO_INFO)
 		{
 			ConvMessage convMessageNew = convDb.showParticipantStatusMessage(convMessage.getMsisdn());
 			if (convMessageNew != null)
 			{
-				if (convDb.addConversationMessages(convMessageNew))
+				if (convDb.addConversationMessages(convMessageNew,true))
 				{
 					this.pubSub.publish(HikePubSub.MESSAGE_RECEIVED, convMessageNew);
 				}
@@ -671,7 +657,7 @@ public class MqttMessagesManager
 		
 		MsgRelLogManager.logMsgRelEvent(convMessage, MsgRelEventType.RECEIVER_MQTT_RECVS_SENT_MSG);
 		
-		if (convMessage.isGroupChat() && convMessage.getParticipantInfoState() == ParticipantInfoState.NO_INFO)
+		if (convMessage.isOneToNChat() && convMessage.getParticipantInfoState() == ParticipantInfoState.NO_INFO)
 		{
 			ConvMessage convMessageNew = convDb.showParticipantStatusMessage(convMessage.getMsisdn());
 			if (convMessageNew != null)
@@ -950,7 +936,8 @@ public class MqttMessagesManager
 		{
 			serverIdsArrayList.add(serverIds.optLong(i));
 		}
-		if (!Utils.isGroupConversation(id))
+		
+		if (!OneToNConversationUtils.isOneToNConversation(id))
 		{
 			Map<String, ArrayList<Long>> map = convDb.getMsisdnMapForServerIds(serverIdsArrayList, id);
 			Logger.d(AnalyticsConstants.MSG_REL_TAG, "NOT GC so --> For mr/nmr, calling : ids, map" + serverIdsArrayList + " , .. "+ map);
@@ -982,7 +969,7 @@ public class MqttMessagesManager
 			return;
 		}
 		
-		if (!Utils.isGroupConversation(msisdn))
+		if (!OneToNConversationUtils.isOneToNConversation(msisdn))
 		{
 			
 			ArrayList<Long> updatedMessageIds = convDb.setAllDeliveredMessagesReadForMsisdn(msisdn, msgIds);
@@ -1014,7 +1001,7 @@ public class MqttMessagesManager
 			{
 				Pair<Long, String> pair = new Pair<Long, String>(maxMsgId, participantMsisdn);
 				Pair<String, Pair<Long, String>> groupPair = new Pair<String, Pair<Long, String>>(msisdn, pair);
-				this.pubSub.publish(HikePubSub.GROUP_MESSAGE_DELIVERED_READ, groupPair);
+				this.pubSub.publish(HikePubSub.ONETON_MESSAGE_DELIVERED_READ, groupPair);
 			}
 		}
 	}
@@ -1094,7 +1081,7 @@ public class MqttMessagesManager
 		PairModified<Long, Set<String>> pair = messageStatusMap.get(id).getFirst();
 		long msgID = -1;
 
-		if (Utils.isGroupConversation(id))
+		if (OneToNConversationUtils.isOneToNConversation(id))
 		{
 			ArrayList<Long> ids = new ArrayList<Long>(msgIds.length());
 			for (int i = 0; i < msgIds.length(); i++)
@@ -3080,7 +3067,7 @@ public class MqttMessagesManager
 			return null;
 		}
 		
-		convDb.addConversationMessages(convMessage);
+		convDb.addConversationMessages(convMessage,true);
 		
 		this.pubSub.publish(HikePubSub.MESSAGE_RECEIVED, convMessage);
 		
@@ -3123,13 +3110,13 @@ public class MqttMessagesManager
 		if (!isChatBgMsg)
 		{
 			if ((conversation == null && (!isUJMsg || !ContactManager.getInstance().doesContactExist(msisdn)))
-					|| (conversation != null && TextUtils.isEmpty(conversation.getContactName()) && isUJMsg && !isGettingCredits && !(conversation instanceof GroupConversation)))
+					|| (conversation != null && TextUtils.isEmpty(conversation.getConversationName()) && isUJMsg && !isGettingCredits && !(conversation instanceof GroupConversation)))
 			{
 				return null;
 			}
 		}
 		ConvMessage convMessage = new ConvMessage(jsonObj, conversation, context, false);
-		if(Utils.isGroupConversation(convMessage.getMsisdn()))
+		if(OneToNConversationUtils.isOneToNConversation(convMessage.getMsisdn()))
 		{
 			ContactManager.getInstance().updateGroupRecency(convMessage.getMsisdn(), convMessage.getTimestamp());
 		}
@@ -3142,8 +3129,8 @@ public class MqttMessagesManager
 				|| convMessage.getParticipantInfoState() == ParticipantInfoState.GROUP_END)
 		{
 			this.pubSub.publish(
-					convMessage.getParticipantInfoState() == ParticipantInfoState.PARTICIPANT_JOINED ? HikePubSub.PARTICIPANT_JOINED_GROUP
-							: convMessage.getParticipantInfoState() == ParticipantInfoState.PARTICIPANT_LEFT ? HikePubSub.PARTICIPANT_LEFT_GROUP : HikePubSub.GROUP_END, jsonObj);
+					convMessage.getParticipantInfoState() == ParticipantInfoState.PARTICIPANT_JOINED ? HikePubSub.PARTICIPANT_JOINED_ONETONCONV
+							: convMessage.getParticipantInfoState() == ParticipantInfoState.PARTICIPANT_LEFT ? HikePubSub.PARTICIPANT_LEFT_ONETONCONV : HikePubSub.GROUP_END, jsonObj);
 		}
 	}
 

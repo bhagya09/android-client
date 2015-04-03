@@ -1124,15 +1124,11 @@ public class HikeBitmapFactory
 	
 	private static int getDefaultAvatarIconResId( String msisdn, boolean hiRes)
 	{
-		boolean isGroupConversation = Utils.isGroupConversation(msisdn);
-		
-		boolean isBroadcastConversation = Utils.isBroadcastConversation(msisdn);
-
-		if (isBroadcastConversation)
+		if (Utils.isBroadcastConversation(msisdn))
 		{
 			return hiRes ? R.drawable.ic_default_avatar_broadcast_hires : R.drawable.ic_default_avatar_broadcast;
 		}
-		else if (isGroupConversation)
+		else if (Utils.isGroupConversation(msisdn))
 		{
 			return hiRes ? R.drawable.ic_default_avatar_group_hires : R.drawable.ic_default_avatar_group;
 		}

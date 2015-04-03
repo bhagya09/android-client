@@ -318,7 +318,7 @@ public class UploadFileTask extends FileTransferBase
 					convMessageObject.setMessageOriginType(OriginType.BROADCAST);
 				}
 
-				HikeConversationsDatabase.getInstance().addConversationMessages(convMessageObject);
+				HikeConversationsDatabase.getInstance().addConversationMessages(convMessageObject,true);
 				
 				// 1) user clicked Media file and sending it
 				MsgRelLogManager.startMessageRelLogging((ConvMessage) userContext, MessageType.MULTIMEDIA);
@@ -963,7 +963,10 @@ public class UploadFileTask extends FileTransferBase
 				temp /= _totalSize;
 				progressPercentage = (int) temp;
 				if(_state != FTState.PAUSED)
-					LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED));
+				{
+					HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
+
+				}
 			}
 		}
 
@@ -1269,7 +1272,9 @@ public class UploadFileTask extends FileTransferBase
 			removeTask();
 			this.pausedProgress = -1;
 			if(result != FTResult.PAUSED)
-				LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED));
+			{
+					HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
+			}
 		}
 
 		if (result != FTResult.PAUSED && result != FTResult.SUCCESS)
