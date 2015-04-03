@@ -127,7 +127,6 @@ public class SoundUtils
 
 	public static boolean isNotificationStreamVolZero(Context context)
 	{
-		AudioManager am = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
 		return getCurrentVolume(context, AudioManager.STREAM_NOTIFICATION) > 0 ? false : true;
 	}
 	
