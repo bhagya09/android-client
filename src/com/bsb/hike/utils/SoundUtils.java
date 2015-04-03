@@ -42,16 +42,7 @@ public class SoundUtils
 
 		// define sound URI, the sound to be played when there's a notification
 		Uri soundUri = Uri.parse("android.resource://" + context.getPackageName() + "/" + soundId);
-		Ringtone r = RingtoneManager.getRingtone(context, soundUri);
-		if(r != null)
-		{
-			r.setStreamType(AudioManager.STREAM_MUSIC);
-		    r.play();
-		}
-		else
-		{
-			Logger.e(TAG, "Failed to open ringtone: " + soundUri);
-		}
+		playSound(context, soundUri);
 	}
 
 	/**
@@ -61,16 +52,7 @@ public class SoundUtils
 	public static void playDefaultNotificationSound(Context context)
 	{
 		Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-		Ringtone r = RingtoneManager.getRingtone(context, notification);
-		if(r != null)
-		{
-			r.setStreamType(AudioManager.STREAM_MUSIC);
-			r.play();
-		}
-		else
-		{
-			Logger.e(TAG, "Failed to open ringtone: " + notification);
-		}
+		playSound(context, notification);
 	}
 
 	/**
