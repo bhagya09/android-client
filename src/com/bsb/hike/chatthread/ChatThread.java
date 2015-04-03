@@ -398,6 +398,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			break;
 		case SHARING_FUNCTIONALITY:
 			 destroyActionMode();
+			 break;
 		default:
 			Logger.d(TAG, "Did not find any matching event for msg.what : " + msg.what);
 			break;
@@ -2632,12 +2633,9 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
         case HikePubSub.MULTI_MESSAGE_DB_INSERTED:
             onMultiMessageDbInserted(object);
             break;
-        case HikePubSub.SHARED_WHATSAPP:
-        	Message message = Message.obtain();
-    		message.what = SHARING_FUNCTIONALITY;
-        	 uiHandler.handleMessage(message);			
-        			
-        	 	   
+        case HikePubSub.SHARED_WHATSAPP:		
+          	 uiHandler.sendEmptyMessage(SHARING_FUNCTIONALITY);		
+        	 break;	   
 		default:
 			Logger.e(TAG, "PubSub Registered But Not used : " + type);
 			break;

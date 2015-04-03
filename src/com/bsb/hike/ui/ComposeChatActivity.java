@@ -398,42 +398,42 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		}
 		
 		if (item.getItemId() == R.id.whatsapp_share)
-					{
-						if (Utils.isPackageInstalled(getApplicationContext(), HikeConstants.Extras.WHATSAPP_PACKAGE))
-						{
-							String str = getIntent().getStringExtra(HikeConstants.Extras.SHARE_CONTENT);
-			
-							switch (type)
-							{
-							case HikeConstants.Extras.ShareTypes.STICKER_SHARE:
-								HAManager.getInstance().shareWhatsappAnalytics(HikeConstants.Extras.STICKER_SHARE, getIntent().getStringExtra(StickerManager.CATEGORY_ID),
-										getIntent().getStringExtra(StickerManager.STICKER_ID), str);
-								break;
-			
-							case HikeConstants.Extras.ShareTypes.IMAGE_SHARE:
-								HAManager.getInstance().shareWhatsappAnalytics(HikeConstants.Extras.IMAGE_SHARE);
-								break;
-			
-							case HikeConstants.Extras.ShareTypes.TEXT_SHARE:
-								HAManager.getInstance().shareWhatsappAnalytics(HikeConstants.Extras.TEXT_SHARE);
-								break;
-			
-							}
-							Intent intent = ShareUtils.shareContent(type, str);
-							if (intent != null)
-							{
-								startActivity(intent);
-							}
-							HikeMessengerApp.getPubSub().publish(HikePubSub.SHARED_WHATSAPP, true);
-							this.finish();
-						}
-			
-						else
-						{
-							Toast.makeText(getApplicationContext(),getString(R.string.whatsapp_uninstalled), Toast.LENGTH_SHORT).show();
-						}
-					}
-		
+		{
+			if (Utils.isPackageInstalled(getApplicationContext(), HikeConstants.Extras.WHATSAPP_PACKAGE))
+			{
+				String str = getIntent().getStringExtra(HikeConstants.Extras.SHARE_CONTENT);
+
+				switch (type)
+				{
+				case HikeConstants.Extras.ShareTypes.STICKER_SHARE:
+					HAManager.getInstance().shareWhatsappAnalytics(HikeConstants.Extras.STICKER_SHARE, getIntent().getStringExtra(StickerManager.CATEGORY_ID),
+							getIntent().getStringExtra(StickerManager.STICKER_ID), str);
+					break;
+
+				case HikeConstants.Extras.ShareTypes.IMAGE_SHARE:
+					HAManager.getInstance().shareWhatsappAnalytics(HikeConstants.Extras.IMAGE_SHARE);
+					break;
+
+				case HikeConstants.Extras.ShareTypes.TEXT_SHARE:
+					HAManager.getInstance().shareWhatsappAnalytics(HikeConstants.Extras.TEXT_SHARE);
+					break;
+
+				}
+				Intent intent = ShareUtils.shareContent(type, str);
+				if (intent != null)
+				{
+					startActivity(intent);
+				}
+				HikeMessengerApp.getPubSub().publish(HikePubSub.SHARED_WHATSAPP, true);
+				this.finish();
+			}
+
+			else
+			{
+				Toast.makeText(getApplicationContext(), getString(R.string.whatsapp_uninstalled), Toast.LENGTH_SHORT).show();
+			}
+		}
+
 		return super.onOptionsItemSelected(item);
 	}
 	
