@@ -69,19 +69,10 @@ public class HikeNotificationMsgStack implements Listener
 	private int totalNewMessages;
 
 	private boolean forceBlockNotificationSound;
+	
+	private int maxRetryCount=0;
 
-	private static void init(Context context)
-	{
-		if (mHikeNotifMsgStack == null)
-		{
-			mContext = context.getApplicationContext();
-			mHikeNotifMsgStack = new HikeNotificationMsgStack();
-
-			// We register for NEW_ACTIVITY so that when a chat thread is opened,
-			// all unread notifications against the msisdn can be cleared
-			HikeMessengerApp.getPubSub().addListener(HikePubSub.NEW_ACTIVITY, mHikeNotifMsgStack);
-		}
-	}
+	private NotificationRetryCountModel mmCountModel;
 
 	/**
 	 * This class is responsible for maintaining states of ConvMessages to be used for showing Android notifications.
@@ -117,6 +108,7 @@ public class HikeNotificationMsgStack implements Listener
 				return size() > MAX_LINES;
 			}
 		};
+		Logger.d("notification","HikeNotificationMsgStack....size is "+mMessagesMap.size());
 		this.mConvDb = HikeConversationsDatabase.getInstance();
 		mContext = HikeMessengerApp.getInstance().getApplicationContext();
 		// We register for NEW_ACTIVITY so that when a chat thread is opened,
@@ -139,9 +131,13 @@ public class HikeNotificationMsgStack implements Listener
 			addPair(argConvMessage.getMsisdn(), convNotifPrvw);
 
 			mLastInsertedConvMessage = argConvMessage;
+			
+			forceBlockNotificationSound = argConvMessage.isSilent();
+			
+			Logger.d("NotificationRetry", "addConvMessage called");
 		}
 
-		forceBlockNotificationSound = argConvMessage.isSilent();
+		
 
 	}
 
@@ -158,7 +154,7 @@ public class HikeNotificationMsgStack implements Listener
 			{
 				if (conv.getMessageType() == HikeConstants.MESSAGE_TYPE.WEB_CONTENT || conv.getMessageType() == HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT)
 				{
-					addMessage(conv.getMsisdn(), conv.webMetadata.getNotifText());
+					addMessage(conv.getMsisdn(), conv.webMetadata.getNotifText(),conv.getNotificationType());
 					mLastInsertedConvMessage = conv;
 					forceBlockNotificationSound = conv.isSilent();
 				}
@@ -175,16 +171,18 @@ public class HikeNotificationMsgStack implements Listener
 	 * 
 	 * @param argMsisdn
 	 * @param argMessage
+	 * @param notificationType 
 	 * @throws IllegalArgumentException
 	 */
-	public void addMessage(String argMsisdn, String argMessage) throws IllegalArgumentException
+	public void addMessage(String argMsisdn, String argMessage, int notificationType) throws IllegalArgumentException
 	{
 		if (TextUtils.isEmpty(argMessage))
 		{
 			Log.wtf("HikeNotification", "Notification message is empty, check packet, msisdn= "+argMsisdn);
 			return;
 		}
-		addPair(argMsisdn, new NotificationPreview(argMessage, HikeNotificationUtils.getNameForMsisdn(argMsisdn)));
+		Logger.d("NotificationRetry", "addMessage called");
+		addPair(argMsisdn, new NotificationPreview(argMessage, HikeNotificationUtils.getNameForMsisdn(argMsisdn),notificationType));
 	}
 
 	/**
@@ -195,18 +193,22 @@ public class HikeNotificationMsgStack implements Listener
 	 */
 	private void addPair(String argMsisdn, NotificationPreview notifPrvw)
 	{
+		Logger.d("ToastListener","The Type is "+notifPrvw.getNotificationType()+"and the retry count is "+getNotificationCount(notifPrvw.getNotificationType()));
 		lastAddedMsisdn = argMsisdn;
 
+		maxRetryCount=Math.max(maxRetryCount, getNotificationCount(notifPrvw.getNotificationType()));
+		Logger.d("NotificationRetry","Adding NOtification to stack and max retry value is "+maxRetryCount);
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.MAX_REPLY_RETRY_NOTIF_COUNT, maxRetryCount);
 		// If message stack consists of any stealth messages, do not add new message, change
 		// stealth message string to notify multiple messages (add s to message"S")
 		if (argMsisdn.equals(HikeNotification.HIKE_STEALTH_MESSAGE_KEY) && mMessagesMap.containsKey(HikeNotification.HIKE_STEALTH_MESSAGE_KEY))
 		{
-
+			int notificationType=NotificationType.HIDDEN;
 			LinkedList<NotificationPreview> stealthMessageList = mMessagesMap.get(argMsisdn);
 
 			// There should only be 1 item dedicated to stealth message
 			// hike - You have new notification(s)
-			stealthMessageList.set(0, new NotificationPreview(mContext.getString(R.string.stealth_notification_messages), null));
+				stealthMessageList.set(0, new NotificationPreview(mContext.getString(R.string.stealth_notification_messages),null, notificationType));
 		}
 		else
 		{
@@ -373,18 +375,22 @@ public class HikeNotificationMsgStack implements Listener
 	 * 
 	 * @return
 	 */
-	public String getNotificationBigText()
+	public String getNotificationBigText(int retryCount)
 	{
 		setBigTextList(new ArrayList<SpannableString>());
 		StringBuilder bigText = new StringBuilder();
 
 		ListIterator<Entry<String, LinkedList<NotificationPreview>>> mapIterator = new ArrayList<Map.Entry<String, LinkedList<NotificationPreview>>>(mMessagesMap.entrySet()).listIterator(mMessagesMap
 				.size());
-
+		
+		if (retryCount > 0)
+		{
+			maxRetryCount--;
+		}
+	
 		while (mapIterator.hasPrevious())
 		{
 			Entry<String, LinkedList<NotificationPreview>> conv = mapIterator.previous();
-
 			String msisdn = conv.getKey();
 
 			for (NotificationPreview notifPrvw : conv.getValue())
@@ -403,6 +409,7 @@ public class HikeNotificationMsgStack implements Listener
 					getBigTextList().add(HikeNotificationUtils.makeNotificationLine(null, notifPrvw.getMessage()));
 				}
 			}
+
 		}
 
 		bigText = new StringBuilder();
