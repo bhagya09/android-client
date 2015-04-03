@@ -1,10 +1,17 @@
 package com.bsb.hike.notifications;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -24,13 +31,16 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.Action;
 import android.text.SpannableString;
 import android.text.TextUtils;
+import android.util.SparseArray;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeConstants.NotificationType;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.AppOpenSource;
+import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
@@ -43,6 +53,7 @@ import com.bsb.hike.models.Protip;
 import com.bsb.hike.models.StatusMessage;
 import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.ui.ChatThread;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
@@ -100,14 +111,16 @@ public class HikeNotification
 
 	private HikeNotificationMsgStack hikeNotifMsgStack;
 	
-	private static HikeNotification hikeNotificationInstance;
+	private static HikeNotification hikeNotificationInstance=new HikeNotification();
+	
 
-	private HikeNotification(final Context context)
+	private HikeNotification()
 	{
-		this.context = context;
+		this.context = HikeMessengerApp.getInstance().getApplicationContext();
 		this.notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 		this.sharedPreferences = context.getSharedPreferences(HikeMessengerApp.STATUS_NOTIFICATION_SETTING, 0);
-		this.hikeNotifMsgStack = HikeNotificationMsgStack.getInstance(context);
+		this.hikeNotifMsgStack = HikeNotificationMsgStack.getInstance();
+		
 
 		if (VIB_DEF == null)
 		{
@@ -122,12 +135,9 @@ public class HikeNotification
 		}
 	}
 	
-	public static synchronized HikeNotification getInstance(Context context)
+
+	public static synchronized HikeNotification getInstance()
 	{
-		if(hikeNotificationInstance == null)
-		{
-			hikeNotificationInstance = new HikeNotification(context.getApplicationContext());
-		}
 		return hikeNotificationInstance;
 	}
 

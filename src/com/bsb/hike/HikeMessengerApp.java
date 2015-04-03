@@ -1057,7 +1057,7 @@ public void onTrimMemory(int level)
 		}
 		if (toastListener == null)
 		{
-			toastListener = ToastListener.getInstance(getApplicationContext());
+			toastListener = ToastListener.getInstance();
 		}
 		if (activityTimeLogger == null)
 		{

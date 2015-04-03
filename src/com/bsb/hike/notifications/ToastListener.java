@@ -62,7 +62,7 @@ public class ToastListener implements Listener
 
 	private MQTTConnectionStatus mCurrentUnnotifiedStatus;
 
-	private static ToastListener mToastListener;
+	private static ToastListener mToastListener=new ToastListener();
 
 	String[] hikePubSubListeners = { HikePubSub.PUSH_AVATAR_DOWNLOADED, HikePubSub.PUSH_FILE_DOWNLOADED, HikePubSub.PUSH_STICKER_DOWNLOADED, HikePubSub.MESSAGE_RECEIVED,
 			HikePubSub.NEW_ACTIVITY, HikePubSub.CONNECTION_STATUS, HikePubSub.FAVORITE_TOGGLED, HikePubSub.TIMELINE_UPDATE_RECIEVED, HikePubSub.BATCH_STATUS_UPDATE_PUSH_RECEIVED,
@@ -75,21 +75,16 @@ public class ToastListener implements Listener
 	 */
 	private SharedPreferences mDefaultPreferences;
 
-	public static ToastListener getInstance(Context argContext)
+	public static ToastListener getInstance()
 	{
-		if (mToastListener == null)
-		{
-			mToastListener = new ToastListener(argContext);
-		}
-
 		return mToastListener;
 	}
 
-	private ToastListener(Context context)
+	private ToastListener()
 	{
 		HikeMessengerApp.getPubSub().addListeners(this, hikePubSubListeners);
-		this.toaster = HikeNotification.getInstance(context);
-		this.context = context;
+		this.toaster = HikeNotification.getInstance();
+		this.context = HikeMessengerApp.getInstance().getApplicationContext();
 		mCurrentUnnotifiedStatus = MQTTConnectionStatus.NOT_CONNECTED;
 		mDefaultPreferences = PreferenceManager.getDefaultSharedPreferences(context);
 	}

@@ -37,7 +37,7 @@ import com.bsb.hike.utils.IntentManager;
 public class HikeNotificationMsgStack implements Listener
 {
 
-	private static HikeNotificationMsgStack mHikeNotifMsgStack;
+	private static volatile HikeNotificationMsgStack mHikeNotifMsgStack;
 
 	private static Context mContext;
 
@@ -85,14 +85,24 @@ public class HikeNotificationMsgStack implements Listener
 	 * @param argContext
 	 * @return
 	 */
-	public static HikeNotificationMsgStack getInstance(Context argContext)
+	public static HikeNotificationMsgStack getInstance()
 	{
-		init(argContext);
+		if(mHikeNotifMsgStack==null)
+		synchronized (HikeNotificationMsgStack.class)
+		{
+			if(mHikeNotifMsgStack==null)
+			{
+				Logger.d("notification","HikeNotificationMsgStack");
+				mHikeNotifMsgStack=new HikeNotificationMsgStack();
+				HikeMessengerApp.getPubSub().addListener(HikePubSub.NEW_ACTIVITY, mHikeNotifMsgStack);
+			}
+		}
 		return mHikeNotifMsgStack;
 	}
 
 	private HikeNotificationMsgStack()
 	{
+		
 		mMessagesMap = new LinkedHashMap<String, LinkedList<NotificationPreview>>()
 		{
 			private static final long serialVersionUID = 1L;
@@ -104,6 +114,10 @@ public class HikeNotificationMsgStack implements Listener
 			}
 		};
 		this.mConvDb = HikeConversationsDatabase.getInstance();
+		mContext = HikeMessengerApp.getInstance().getApplicationContext();
+		// We register for NEW_ACTIVITY so that when a chat thread is opened,
+		// all unread notifications against the msisdn can be cleared
+		
 	}
 
 	/**
