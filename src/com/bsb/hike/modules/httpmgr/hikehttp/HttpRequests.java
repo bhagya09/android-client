@@ -11,7 +11,6 @@ import static com.bsb.hike.modules.httpmgr.request.Request.REQUEST_TYPE_SHORT;
 
 import com.bsb.hike.modules.httpmgr.Header;
 import com.bsb.hike.platform.HikePlatformConstants;
-import com.bsb.hike.platform.PlatformUIDFetch;
 import org.json.JSONObject;
 
 import com.bsb.hike.modules.httpmgr.RequestToken;
@@ -136,6 +135,7 @@ public class HttpRequests
 	{
 		RequestToken requestToken = new JSONObjectRequest.Builder()
 				.setUrl(url)
+				.post(null)
 				.setRetryPolicy(new DefaultRetryPolicy(HikePlatformConstants.numberOfRetries, HikePlatformConstants.retryDelay, HikePlatformConstants.backOffMultiplier))
 				.setRequestListener(requestListener)
 				.setRequestType(REQUEST_TYPE_SHORT)

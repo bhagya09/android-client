@@ -857,7 +857,10 @@ public void onTrimMemory(int level)
 		ProductInfoManager.getInstance().init();
 		PlatformContent.init(settings.getBoolean(HikeMessengerApp.PRODUCTION, true));
 
-		fetchPlatformIDIfNotPresent();
+		if (Utils.isUserAuthenticated(this))
+		{
+			fetchPlatformIDIfNotPresent();
+		}
 	}
 
 	/**
