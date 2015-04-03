@@ -58,6 +58,12 @@ public class HikeProvider extends ContentProvider
 		sURIMatcher.addURI(AUTHORITY, BASE_PATH_NORMAL, NORMAL_INDEX);
 	}
 
+	/**
+	 * go to https://code.google.com/p/android/issues/detail?id=8727
+	 *
+	 * and search for @leach.it... if u are getting a npe while writing HikeMessengerApp.getInstance().getApplicationContext();
+	 * @return
+	 */
 	@Override
 	public boolean onCreate()
 	{

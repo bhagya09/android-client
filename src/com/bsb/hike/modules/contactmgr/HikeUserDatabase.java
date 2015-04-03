@@ -241,7 +241,10 @@ class HikeUserDatabase extends SQLiteOpenHelper
 		{
 			String alter = "ALTER TABLE " + DBConstants.USERS_TABLE + " ADD COLUMN " + DBConstants.PLATFORM_USER_ID + " TEXT";
 			db.execSQL(alter);
-			HikeSharedPreferenceUtil.getInstance().saveData(HikePlatformConstants.PLATFORM_UID_FOR_ADDRESS_BOOK_FETCH,HikePlatformConstants.MAKE_HTTP_CALL);
+
+			Editor editor = mContext.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).edit();
+			editor.putInt(HikePlatformConstants.PLATFORM_UID_FOR_ADDRESS_BOOK_FETCH, HikePlatformConstants.MAKE_HTTP_CALL);
+			editor.commit();
 		}
 	}
 
