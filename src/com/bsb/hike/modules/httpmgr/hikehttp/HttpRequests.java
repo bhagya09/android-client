@@ -136,6 +136,7 @@ public class HttpRequests
 	{
 		RequestToken requestToken = new JSONObjectRequest.Builder()
 				.setUrl(url)
+				.post(null)
 				.setRetryPolicy(new DefaultRetryPolicy(HikePlatformConstants.numberOfRetries, HikePlatformConstants.retryDelay, HikePlatformConstants.backOffMultiplier))
 				.setRequestListener(requestListener)
 				.setRequestType(REQUEST_TYPE_SHORT)
