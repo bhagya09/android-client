@@ -107,7 +107,7 @@ public class DbConversationListener implements Listener
 			{
 				if (!convMessage.isFileTransferMessage())
 				{
-					mConversationDb.addConversationMessages(convMessage);
+					mConversationDb.addConversationMessages(convMessage,true);
 					if (convMessage.isSent())
 					{
 						uploadFiksuPerDayMessageEvent();

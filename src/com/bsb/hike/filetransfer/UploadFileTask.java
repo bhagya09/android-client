@@ -316,7 +316,7 @@ public class UploadFileTask extends FileTransferBase
 					convMessageObject.setMessageOriginType(OriginType.BROADCAST);
 				}
 
-				HikeConversationsDatabase.getInstance().addConversationMessages(convMessageObject);
+				HikeConversationsDatabase.getInstance().addConversationMessages(convMessageObject,true);
 				
 				//Message sent from here will only do an entry in conversation db it is not actually being sent to server.
 				HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_SENT, convMessageObject);

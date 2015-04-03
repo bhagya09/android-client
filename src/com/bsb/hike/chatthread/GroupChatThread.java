@@ -1,6 +1,7 @@
 package com.bsb.hike.chatthread;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.json.JSONException;
@@ -58,7 +59,9 @@ public class GroupChatThread extends OneToNChatThread
 	private static final int MUTE_CONVERSATION_TOGGLED = 301;
 
 	private static final int PIN_CREATE_ACTION_MODE = 302;
-
+	
+	private static final int LATEST_PIN_DELETED = 303;
+	
 	private static final String HASH_PIN = "#pin";
 
 	private static final String PIN_MESSAGE_SEPARATOR = ": ";
@@ -83,7 +86,8 @@ public class GroupChatThread extends OneToNChatThread
 			updateUnreadPinCount();
 			return super.onCreateOptionsMenu(menu);
 		}
-		return super.onCreateOptionsMenu(menu);
+		
+		return false;
 	}
 
 	@Override
@@ -101,8 +105,8 @@ public class GroupChatThread extends OneToNChatThread
 	@Override
 	protected String[] getPubSubListeners()
 	{
-		return new String[] { HikePubSub.GROUP_MESSAGE_DELIVERED_READ, HikePubSub.MUTE_CONVERSATION_TOGGLED, HikePubSub.LATEST_PIN_DELETED, HikePubSub.CONV_META_DATA_UPDATED,
-				HikePubSub.BULK_MESSAGE_RECEIVED, HikePubSub.GROUP_REVIVED, HikePubSub.PARTICIPANT_JOINED_GROUP, HikePubSub.PARTICIPANT_LEFT_GROUP };
+		return new String[] { HikePubSub.ONETON_MESSAGE_DELIVERED_READ, HikePubSub.MUTE_CONVERSATION_TOGGLED, HikePubSub.LATEST_PIN_DELETED, HikePubSub.CONV_META_DATA_UPDATED,
+				HikePubSub.BULK_MESSAGE_RECEIVED, HikePubSub.CONVERSATION_REVIVED, HikePubSub.PARTICIPANT_JOINED_ONETONCONV, HikePubSub.PARTICIPANT_LEFT_ONETONCONV };
 	}
 
 	private List<OverFlowMenuItem> getOverFlowItems()
@@ -138,6 +142,34 @@ public class GroupChatThread extends OneToNChatThread
 		else
 		{
 			return super.onDoubleTap(e);
+		}
+	}
+	
+	@Override
+	protected void setupActionBar()
+	{
+		super.setupActionBar();
+		
+		setAvatar(R.drawable.ic_default_avatar_group);
+	}
+	
+	/**
+	 * Done to typecast conversation as GroupConversation here
+	 */
+	@Override
+	protected Conversation fetchConversation()
+	{
+		mConversation = oneToNConversation = (GroupConversation) mConversationDb.getConversation(msisdn, HikeConstants.MAX_MESSAGES_TO_LOAD_INITIALLY, true);
+		// imp message from DB like pin
+		fetchImpMessage();
+		return super.fetchConversation();
+	}
+	
+	private void fetchImpMessage()
+	{
+		if (oneToNConversation.getMetadata() != null && oneToNConversation.getMetadata().isShowLastPin(HikeConstants.MESSAGE_TYPE.TEXT_PIN))
+		{
+			oneToNConversation.setPinnedConvMessage(mConversationDb.getLastPinForConversation(oneToNConversation));
 		}
 	}
 
@@ -183,9 +215,6 @@ public class GroupChatThread extends OneToNChatThread
 		case MUTE_CONVERSATION_TOGGLED:
 			muteConvToggledUIChange((boolean) msg.obj);
 			break;
-		case GROUP_REVIVED:
-			handleGroupRevived();
-			break;
 		case LATEST_PIN_DELETED:
 			hidePinFromUI((boolean) msg.obj);
 			break;
@@ -209,6 +238,9 @@ public class GroupChatThread extends OneToNChatThread
 		case HikePubSub.MUTE_CONVERSATION_TOGGLED:
 			onMuteConversationToggled(object);
 			break;
+		case HikePubSub.LATEST_PIN_DELETED:
+			onLatestPinDeleted(object);
+			break;
 		default:
 			Logger.d(TAG, "Did not find any matching PubSub event in OneToNChatThread. Calling super class' onEventReceived");
 			super.onEventReceived(type, object);
@@ -224,9 +256,31 @@ public class GroupChatThread extends OneToNChatThread
 		case R.string.mute_group:
 			toggleMuteGroup();
 			break;
+		case R.string.group_profile:
+			openProfileScreen();
+			break;
 		default:
 			Logger.d(TAG, "Calling super Class' itemClicked");
 			super.itemClicked(item);
+		}
+	}
+	
+	/**
+	 * Used to launch Profile Activity from GroupChatThread
+	 */
+	@Override
+	protected void openProfileScreen()
+	{
+		/**
+		 * Proceeding only if the group is alive
+		 */
+		if (oneToNConversation.isConversationAlive())
+		{
+			Utils.logEvent(activity.getApplicationContext(), HikeConstants.LogEvent.GROUP_INFO_TOP_BUTTON);
+
+			Intent intent = IntentFactory.getGroupProfileIntent(activity.getApplicationContext(), msisdn);
+
+			activity.startActivity(intent);
 		}
 	}
 
@@ -334,16 +388,6 @@ public class GroupChatThread extends OneToNChatThread
 		mTips.showTip();
 	}
 
-	private void toggleGroupLife(boolean alive)
-	{
-		oneToNConversation.setConversationAlive(alive);
-		activity.findViewById(R.id.send_message).setEnabled(alive);
-		activity.findViewById(R.id.msg_compose).setVisibility(alive ? View.VISIBLE : View.INVISIBLE);
-		activity.findViewById(R.id.emo_btn).setEnabled(alive);
-		activity.findViewById(R.id.sticker_btn).setEnabled(alive);
-		// TODO : Hide popup OR dialog if visible
-	}
-	
 	private void addUnreadCountMessage()
 	{
 		if (oneToNConversation.getUnreadCount() > 0 && oneToNConversation.getMessagesList().size() > 0)
@@ -382,15 +426,6 @@ public class GroupChatThread extends OneToNChatThread
 		{
 			toggleConversationMuteViewVisibility(oneToNConversation.isMuted());
 		}
-	}
-	
-	/**
-	 * This method is called on the UI thread
-	 * 
-	 */
-	private void handleGroupRevived()
-	{
-		toggleGroupLife(true);
 	}
 	
 	@Override
@@ -822,5 +857,44 @@ public class GroupChatThread extends OneToNChatThread
 
 		HikeMessengerApp.getPubSub().publish(HikePubSub.MUTE_CONVERSATION_TOGGLED, new Pair<String, Boolean>(oneToNConversation.getMsisdn(), oneToNConversation.isMuted()));
 	}
+	
+	/**
+	 * Used to set unread pin count
+	 */
+	protected void updateUnreadPinCount()
+	{
+		if (oneToNConversation != null)
+		{
+			int unreadPinCount = oneToNConversation.getUnreadPinnedMessageCount();
+			mActionBar.updateOverflowMenuIndicatorCount(unreadPinCount);
+			mActionBar.updateOverflowMenuItemCount(R.string.group_profile, unreadPinCount);
+		}
+	}
+	
+	/**
+	 * Called from the pubSub thread
+	 * 
+	 * @param object
+	 */
+	private void onLatestPinDeleted(Object object)
+	{
+		long msgId = (Long) object;
 
+		try
+		{
+			long pinIdFromMetadata = oneToNConversation.getMetadata().getLastPinId(HikeConstants.MESSAGE_TYPE.TEXT_PIN);
+
+			if (msgId == pinIdFromMetadata)
+			{
+				sendUIMessage(LATEST_PIN_DELETED, true);
+			}
+		}
+
+		catch (JSONException e)
+		{
+			Logger.wtf(TAG, "Got an exception during the pubSub : onLatestPinDeleted " + e.toString());
+		}
+
+	}
+	
 }

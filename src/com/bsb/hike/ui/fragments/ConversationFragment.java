@@ -69,7 +69,6 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.db.DBBackupRestore;
 import com.bsb.hike.db.HikeConversationsDatabase;
-import com.bsb.hike.dialog.CustomAlertDialog;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
@@ -86,7 +85,6 @@ import com.bsb.hike.models.NuxSelectFriends;
 import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.models.Conversation.BotConversation;
 import com.bsb.hike.models.Conversation.ConvInfo;
-import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.ConversationTip;
 import com.bsb.hike.models.Conversation.ConversationTip.ConversationTipClickedListener;
 import com.bsb.hike.models.Conversation.OneToNConvInfo;
@@ -193,9 +191,9 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 			HikePubSub.FTUE_LIST_FETCHED_OR_UPDATED, HikePubSub.CLEAR_CONVERSATION, HikePubSub.CONVERSATION_CLEARED_BY_DELETING_LAST_MESSAGE, 
 			HikePubSub.DISMISS_STEALTH_FTUE_CONV_TIP, HikePubSub.SHOW_STEALTH_FTUE_CONV_TIP, HikePubSub.STEALTH_MODE_TOGGLED, HikePubSub.CLEAR_FTUE_STEALTH_CONV,
 			HikePubSub.RESET_STEALTH_INITIATED, HikePubSub.RESET_STEALTH_CANCELLED, HikePubSub.REMOVE_WELCOME_HIKE_TIP, HikePubSub.REMOVE_STEALTH_INFO_TIP,
-			HikePubSub.REMOVE_STEALTH_UNREAD_TIP, HikePubSub.BULK_MESSAGE_RECEIVED, HikePubSub.GROUP_MESSAGE_DELIVERED_READ, HikePubSub.BULK_MESSAGE_DELIVERED_READ, HikePubSub.GROUP_END,
+			HikePubSub.REMOVE_STEALTH_UNREAD_TIP, HikePubSub.BULK_MESSAGE_RECEIVED, HikePubSub.ONETON_MESSAGE_DELIVERED_READ, HikePubSub.BULK_MESSAGE_DELIVERED_READ, HikePubSub.GROUP_END,
 			HikePubSub.CONTACT_DELETED,HikePubSub.MULTI_MESSAGE_DB_INSERTED, HikePubSub.SERVER_RECEIVED_MULTI_MSG, HikePubSub.MUTE_CONVERSATION_TOGGLED, HikePubSub.CONV_UNREAD_COUNT_MODIFIED,
-			HikePubSub.CONVERSATION_TS_UPDATED, HikePubSub.PARTICIPANT_JOINED_GROUP, HikePubSub.PARTICIPANT_LEFT_GROUP};
+			HikePubSub.CONVERSATION_TS_UPDATED, HikePubSub.PARTICIPANT_JOINED_ONETONCONV, HikePubSub.PARTICIPANT_LEFT_ONETONCONV};
 
 	private ConversationsAdapter mAdapter;
 
@@ -1086,15 +1084,15 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 	@Override
 	public void onListItemClick(ListView l, View v, int position, long id)
 	{
-		if (isTipShowing() && position == 0)
+		/**
+		 * Ignoring the clicks on header if any.
+		 */
+		if (position < getListView().getHeaderViewsCount())
 		{
 			return;
 		}
 
-		if(isTipShowing())
-		{
-			position--;
-		}
+		position -= getListView().getHeaderViewsCount();
 		
 		ConvInfo convInfo = (ConvInfo) mAdapter.getItem(position);
 		
@@ -1115,11 +1113,6 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		}
 	}
 	
-	private boolean isTipShowing()
-	{
-		return tipView != null;
-	}
-
 	private void recordSearchItemClicked(ConvInfo convInfo, int position, String text)
 	{
 		String SEARCH_RESULT = "srchRslt";
@@ -1292,10 +1285,19 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 	@Override
 	public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long id)
 	{
+		
+		if (position < getListView().getHeaderViewsCount())
+		{
+			return false;
+		}
+		
+		position -= getListView().getHeaderViewsCount();
+		
 		if (position >= mAdapter.getCount())
 		{
 			return false;
 		}
+		
 		ArrayList<String> optionsList = new ArrayList<String>();
 
 		final ConvInfo conv = (ConvInfo) mAdapter.getItem(position);
@@ -2107,11 +2109,11 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		/*
 		 * Receives conversation group-id, the message id for the message read packet, and the participant msisdn.
 		 */
-		else if (HikePubSub.MESSAGE_DELIVERED_READ.equals(type) || HikePubSub.GROUP_MESSAGE_DELIVERED_READ.equals(type))
+		else if (HikePubSub.MESSAGE_DELIVERED_READ.equals(type) || HikePubSub.ONETON_MESSAGE_DELIVERED_READ.equals(type))
 		{
 			String sender = null;
 			long[] ids;
-			if (HikePubSub.GROUP_MESSAGE_DELIVERED_READ.equals(type))
+			if (HikePubSub.ONETON_MESSAGE_DELIVERED_READ.equals(type))
 			{
 				Pair<String, Pair<Long,String>> pair = (Pair<String, Pair<Long, String>>) object;
 				sender = pair.first;
@@ -2813,7 +2815,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		{
 			updateTimestampAndSortConversations(object);
 		}
-		else if (HikePubSub.PARTICIPANT_JOINED_GROUP.equals(type) || HikePubSub.PARTICIPANT_LEFT_GROUP.equals(type))
+		else if (HikePubSub.PARTICIPANT_JOINED_ONETONCONV.equals(type) || HikePubSub.PARTICIPANT_LEFT_ONETONCONV.equals(type))
 		{
 			String groupId = ((JSONObject) object).optString(HikeConstants.TO);
 			if(TextUtils.isEmpty(groupId))
@@ -3054,7 +3056,16 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 			return null;
 		}
 
-		return getListView().getChildAt(index- getListView().getFirstVisiblePosition());
+		return getListView().getChildAt(index- getListView().getFirstVisiblePosition() + getOffsetForListHeader());
+	}
+	
+	/**
+	 * Provides an offset for the correct location as we might have header views for the list view
+	 * @return
+	 */
+	private int getOffsetForListHeader()
+	{
+		return getListView().getHeaderViewsCount();
 	}
 
 	private void updateViewForNameChange(ConvInfo convInfo)
@@ -3176,7 +3187,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 				return;
 			}
 
-			View parentView = getListView().getChildAt(newIndex - getListView().getFirstVisiblePosition());
+			View parentView = getListView().getChildAt(newIndex - getListView().getFirstVisiblePosition() + getOffsetForListHeader());
 
 			if (parentView == null)
 			{

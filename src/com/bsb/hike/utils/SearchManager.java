@@ -6,8 +6,28 @@ import java.util.Collections;
 
 import android.text.TextUtils;
 
+/**
+ * SearchManager performs a search on a set of data according to the search logic
+ * provided by the user.
+ * @author gauravmittal
+ */
 public class SearchManager
 {
+
+	/**
+	 * Contains the search logic to apply when searching in the data set
+	 * To be used by the caller to provide the search logic.
+	 * @author gauravmittal
+	 */
+	public interface Searchable
+	{
+		/**
+		 * Checks if the item contains the search text.
+		 * 
+		 * @return If the item has the search text.
+		 */
+		boolean doesItemContain(String s);
+	}
 
 	private ArrayList<Integer> indexList;
 
@@ -51,6 +71,7 @@ public class SearchManager
 
 	public int getNextItem(int cursorPosition)
 	{
+		// if the search text is empty, no need to perform any search.
 		if (TextUtils.isEmpty(searchText))
 		{
 			return -1;
@@ -64,6 +85,8 @@ public class SearchManager
 
 		int start, end, threshold = -1;
 		int lastMessageIndex = itemList.size() - 1;
+		// If the index list is empty, this is first request.
+		// Make a fresh search.
 		if (indexList.isEmpty())
 		{
 			start = searchCusrsor;
@@ -74,17 +97,21 @@ public class SearchManager
 		{
 			int lastIndex = indexList.get(indexList.size() - 1);
 			int firstIndex = indexList.get(0);
+			// If current position is after our selection range
 			if (searchCusrsor >= lastIndex)
 			{
 				start = lastIndex + 1;
 				end = lastMessageIndex;
 				threshold = searchCusrsor;
 			}
+			// If current position is before our selection range
 			else if (searchCusrsor < firstIndex)
 			{
 				start = searchCusrsor;
 				end = firstIndex - 1;
 			}
+			// If current position is within our selection range
+			// No need to perform search again
 			else
 			{
 				if (position >= 0)
@@ -142,6 +169,8 @@ public class SearchManager
 		Logger.d("search", "position: " + position);
 
 		int start, end, threshold = -1;
+		// If the index list is empty, this is first request.
+		// Make a fresh search.
 		if (indexList.isEmpty())
 		{
 			start = searchCusrsor;
@@ -152,18 +181,22 @@ public class SearchManager
 		{
 			int lastIndex = indexList.get(indexList.size() - 1);
 			int firstIndex = indexList.get(0);
+			// If current position is after our selection range
 			if (searchCusrsor > lastIndex)
 			{
 				start = searchCusrsor;
 				end = lastIndex + 1;
 				threshold = searchCusrsor;
 			}
+			// If current position is before our selection range
 			else if (searchCusrsor <= firstIndex)
 			{
 				start = firstIndex - 1;
 				end = 0;
 				threshold = searchCusrsor;
 			}
+			// If current position is within our selection range
+			// No need to perform search again
 			else
 			{
 				if (position >= 0)
@@ -207,11 +240,33 @@ public class SearchManager
 		}
 	}
 
+	/**
+	 * Gets the cursor position about which the search is to be performed.
+	 * Adds a backlash if required.
+	 * @param cursorPosition
+	 * 		as provided by the caller.
+	 * @return
+	 */
 	private int getCurrentCursor(int cursorPosition)
 	{
-		return (cursorPosition + itemViewBacklash);
+		if ((cursorPosition + itemViewBacklash) < itemList.size())
+		{
+			return (cursorPosition + itemViewBacklash);
+		}
+		else
+		{
+			return cursorPosition;
+		}
 	}
 
+	/**
+	 * Search all items in the range provided.
+	 * Updates the index list accordingly.
+	 * @param from
+	 * @param to
+	 * @return
+	 * 		false if not item is found, true otherwise.
+	 */
 	private boolean searchAllMessages(int from, int to)
 	{
 		boolean found = false;
@@ -221,6 +276,11 @@ public class SearchManager
 		}
 		for (; from <= to; from++)
 		{
+			// Just a precaution.
+			// This is possible if the caller sends a junk call due to some reason.
+			if (from >= itemList.size())
+				continue;
+
 			if (itemList.get(from).doesItemContain(searchText))
 			{
 				Logger.d("search", "adding: " + from);
@@ -232,6 +292,15 @@ public class SearchManager
 		return found;
 	}
 
+	/**
+	 * Searches for first item after the threshold in the range provided.
+	 * Updates indexList on its way.
+	 * @param from
+	 * @param to
+	 * @param threshold
+	 * @return
+	 * 		false if not item is found, true otherwise.
+	 */
 	private boolean searchFirstMessage(int from, int to, int threshold)
 	{
 		Logger.d("search", "searching first in range: " + from + "-" + to + " with threshold of " + threshold);
@@ -239,6 +308,11 @@ public class SearchManager
 		{
 			for (; from >= to; from--)
 			{
+				// Just a precaution.
+				// This is possible if the caller sends a junk call due to some reason.
+				if (from >= itemList.size())
+					continue;
+
 				if (itemList.get(from).doesItemContain(searchText))
 				{
 					Logger.d("search", "adding: " + from);
@@ -263,6 +337,11 @@ public class SearchManager
 		{
 			for (; from <= to; from++)
 			{
+				// Just a precaution.
+				// This is possible if the caller sends a junk call due to some reason.
+				if (from >= itemList.size())
+					continue;
+
 				if (itemList.get(from).doesItemContain(searchText))
 				{
 					Logger.d("search", "adding: " + from);
@@ -292,28 +371,27 @@ public class SearchManager
 
 		return position;
 	}
-	
+
+	/**
+	 * Update the itemList with the new set of data.
+	 * @param collection
+	 */
 	public void updateDataSet(Collection<? extends Searchable> collection)
 	{
 		itemList = new ArrayList<>(collection);
 	}
 
+	/**
+	 * Updates the existing index list.
+	 * This is called when new element are added to the item collection set.
+	 * @param count
+	 */
 	public void updateIndex(int count)
 	{
 		for (int i=0; i < indexList.size(); i++)
 		{
 			indexList.set(i, indexList.get(i) + count );
 		}
-	}
-
-	public interface Searchable
-	{
-		/**
-		 * Checks if the item contains the search text.
-		 * 
-		 * @return If the item has the search text.
-		 */
-		boolean doesItemContain(String s);
 	}
 
 }

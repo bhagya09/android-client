@@ -860,11 +860,11 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	 *            - message to be added to database
 	 * @return result of {@link #addConversations(List)} function
 	 */
-	public boolean addConversationMessages(ConvMessage message)
+	public boolean addConversationMessages(ConvMessage message, boolean createConvIfNotExist)
 	{
 		List<ConvMessage> l = new ArrayList<ConvMessage>(1);
 		l.add(message);
-		return addConversations(l);
+		return addConversations(l, createConvIfNotExist);
 	}
 
 	public int updateMsgStatus(long msgID, int val, String msisdn)
@@ -1513,7 +1513,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		return msgHash;
 	}
 
-	public boolean addConversations(List<ConvMessage> convMessages)
+	public boolean addConversations(List<ConvMessage> convMessages, boolean createConvIfNotExist)
 	{
 		if(convMessages.isEmpty())
 		{
@@ -1523,7 +1523,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		String msisdn = convMessages.get(0).getMsisdn();
 		contacts.add(new ContactInfo(msisdn, msisdn, null, null,!convMessages.get(0).isSMS()));
 
-		return addConversations(convMessages, contacts,true);
+		return addConversations(convMessages, contacts,createConvIfNotExist);
 	}
 
 	/**
@@ -2213,7 +2213,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 					conv.updateLastConvMessage(initialConvMessage);
 				}
 
-				HikeMessengerApp.getPubSub().publish(HikePubSub.NEW_CONVERSATION, conv);
+				HikeMessengerApp.getPubSub().publish(HikePubSub.NEW_CONVERSATION, conv.getConvInfo());
 				return conv;
 
 			}

@@ -402,7 +402,6 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 
 		ContactInfo conversationContactInfo = new ContactInfo(groupOrBroadcastId, groupOrBroadcastId, groupOrBroadcastId, groupOrBroadcastId);
 		Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(this, conversationContactInfo, true);
-		intent.setClass(this, ChatThread.class);
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		startActivity(intent);
 		finish();

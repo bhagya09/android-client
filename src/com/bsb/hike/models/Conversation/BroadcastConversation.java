@@ -12,8 +12,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.text.TextUtils;
-
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.GroupParticipant;
@@ -35,7 +33,6 @@ public class BroadcastConversation extends OneToNConversation
 	public BroadcastConversation(InitBuilder<?> builder)
 	{
 		super(builder);
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override

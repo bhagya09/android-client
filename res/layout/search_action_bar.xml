@@ -56,7 +56,8 @@
             android:focusable="true"
             android:padding="4dp"
             android:scaleType="centerInside"
-            android:src="@drawable/ic_top_bar_search_close" />
+            android:src="@drawable/ic_top_bar_search_close"
+            android:visibility="gone" />
     </LinearLayout>
 
 </RelativeLayout>

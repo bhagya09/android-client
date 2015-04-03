@@ -1,13 +1,9 @@
 package com.bsb.hike.models.Conversation;
 
-import java.util.ArrayList;
-
 import android.text.TextUtils;
 
 import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.modules.contactmgr.ContactManager;
-import com.bsb.hike.utils.PairModified;
 
 /**
  * This class contains the core fields which are required for a 1-n conversation entity to be displayed on the ConversationFragment screen. This is the atomic unit for 1-n
@@ -77,7 +73,7 @@ public class OneToNConvInfo extends ConvInfo
 		}
 		
 		@Override
-		public ConvInfo build()
+		public OneToNConvInfo build()
 		{
 			if (this.validateConvInfo())
 			{

@@ -148,8 +148,8 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 
 	private SharedPreferences preferences;
 
-	private String[] groupInfoPubSubListeners = { HikePubSub.ICON_CHANGED, HikePubSub.GROUP_NAME_CHANGED, HikePubSub.GROUP_END, HikePubSub.PARTICIPANT_JOINED_GROUP,
-			HikePubSub.PARTICIPANT_LEFT_GROUP, HikePubSub.USER_JOINED, HikePubSub.USER_LEFT, HikePubSub.LARGER_IMAGE_DOWNLOADED, HikePubSub.PROFILE_IMAGE_DOWNLOADED,
+	private String[] groupInfoPubSubListeners = { HikePubSub.ICON_CHANGED, HikePubSub.GROUP_NAME_CHANGED, HikePubSub.GROUP_END, HikePubSub.PARTICIPANT_JOINED_ONETONCONV,
+			HikePubSub.PARTICIPANT_LEFT_ONETONCONV, HikePubSub.USER_JOINED, HikePubSub.USER_LEFT, HikePubSub.LARGER_IMAGE_DOWNLOADED, HikePubSub.PROFILE_IMAGE_DOWNLOADED,
 			HikePubSub.ClOSE_PHOTO_VIEWER_FRAGMENT, HikePubSub.DELETE_MESSAGE, HikePubSub.CONTACT_ADDED, HikePubSub.UNREAD_PIN_COUNT_RESET, HikePubSub.MESSAGE_RECEIVED, HikePubSub.BULK_MESSAGE_RECEIVED };
 
 	private String[] contactInfoPubSubListeners = { HikePubSub.ICON_CHANGED, HikePubSub.CONTACT_ADDED, HikePubSub.USER_JOINED, HikePubSub.USER_LEFT,
@@ -2415,7 +2415,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			}
 		}
 
-		if (HikePubSub.PARTICIPANT_LEFT_GROUP.equals(type))
+		if (HikePubSub.PARTICIPANT_LEFT_ONETONCONV.equals(type))
 		{
 			if (mLocalMSISDN.equals(((JSONObject) object).optString(HikeConstants.TO)))
 			{
@@ -2434,7 +2434,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				});
 			}
 		}
-		else if (HikePubSub.PARTICIPANT_JOINED_GROUP.equals(type))
+		else if (HikePubSub.PARTICIPANT_JOINED_ONETONCONV.equals(type))
 		{
 			if (mLocalMSISDN.equals(((JSONObject) object).optString(HikeConstants.TO)))
 			{

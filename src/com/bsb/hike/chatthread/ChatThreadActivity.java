@@ -9,6 +9,7 @@ import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.Window;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
@@ -32,6 +33,7 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 		{
 			init(getIntent());
 			chatThread.onCreate();
+			showProductPopup(ProductPopupsConstants.PopupTriggerPoints.CHAT_SCR.ordinal());
 		}
 		else
 		{
@@ -67,6 +69,10 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 		else if (HikeConstants.Extras.GROUP_CHAT_THREAD.equals(whichChatThread))
 		{
 			chatThread = new GroupChatThread(this, intent.getStringExtra(HikeConstants.Extras.MSISDN));
+		}
+		else if (HikeConstants.Extras.BROADCAST_CHAT_THREAD.equals(whichChatThread))
+		{
+			chatThread = new BroadcastChatThread(this, intent.getStringExtra(HikeConstants.Extras.MSISDN));
 		}
 		else
 		{
@@ -221,6 +227,12 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 	public String getContactNumber()
 	{
 		return chatThread.getContactNumber();
+	}
+	
+	@Override
+	public void showProductPopup(int which)
+	{
+		super.showProductPopup(which);
 	}
 	
 }

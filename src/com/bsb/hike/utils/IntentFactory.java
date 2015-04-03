@@ -27,11 +27,11 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.chatthread.ChatThread;
 import com.bsb.hike.chatthread.ChatThreadActivity;
+import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.Conversation.ConvInfo;
-import com.bsb.hike.models.Conversation.OneToNConvInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.ui.ComposeChatActivity;
 import com.bsb.hike.ui.ConnectedAppsActivity;
@@ -136,6 +136,13 @@ public class IntentFactory
 		context.startActivity(intent);
 	}
 
+	public static void openSettingChat(Context context) {
+		Intent intent = new Intent(context, HikePreferences.class);
+		intent.putExtra(HikeConstants.Extras.PREF,
+				R.xml.chat_settings_preferences);
+		intent.putExtra(HikeConstants.Extras.TITLE, R.string.settings_chat);
+		context.startActivity(intent);
+	}
 	public static void openInviteSMS(Context context)
 	{
 		context.startActivity(new Intent(context, HikeListActivity.class));
@@ -407,6 +414,27 @@ public class IntentFactory
 	}
 
 	/**
+	 * Returns intent for viewing broadcast profile screen
+	 * 
+	 * @param context
+	 * @param mMsisdn
+	 * @return
+	 */
+
+	public static Intent getBroadcastProfileIntent(Context context, String mMsisdn)
+	{
+		Intent intent = new Intent();
+
+		intent.setClass(context, ProfileActivity.class);
+		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
+		intent.putExtra(HikeConstants.Extras.BROADCAST_LIST, true);
+		intent.putExtra(HikeConstants.Extras.EXISTING_BROADCAST_LIST, mMsisdn);
+
+		return intent;
+	}
+	
+	/**
 	 * Used for retrieving the intent to place a call
 	 * 
 	 * @param mMsisdn
@@ -426,8 +454,7 @@ public class IntentFactory
 
 		intent.setClass(context, ChatThreadActivity.class);
 		intent.putExtra(HikeConstants.Extras.MSISDN, msisdnOrGroupId);
-		intent.putExtra(HikeConstants.Extras.WHICH_CHAT_THREAD, Utils.isGroupConversation(msisdnOrGroupId) ? HikeConstants.Extras.GROUP_CHAT_THREAD
-				: HikeConstants.Extras.ONE_TO_ONE_CHAT_THREAD);
+		intent.putExtra(HikeConstants.Extras.WHICH_CHAT_THREAD, ChatThreadUtils.getChatThreadType(msisdnOrGroupId));
 		intent.putExtra(HikeConstants.Extras.SHOW_KEYBOARD, openKeyBoard);
 		
 		return intent;
@@ -449,7 +476,7 @@ public class IntentFactory
 			intent.putExtra(HikeConstants.Extras.NAME, conversation.getConversationName());
 		}
 		intent.putExtra(HikeConstants.Extras.MSISDN, conversation.getMsisdn());
-		String whichChatThread = (conversation instanceof OneToNConvInfo) ? HikeConstants.Extras.GROUP_CHAT_THREAD : HikeConstants.Extras.ONE_TO_ONE_CHAT_THREAD;
+		String whichChatThread = ChatThreadUtils.getChatThreadType(conversation.getMsisdn());
 		intent.putExtra(HikeConstants.Extras.WHICH_CHAT_THREAD, whichChatThread);
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		return intent;

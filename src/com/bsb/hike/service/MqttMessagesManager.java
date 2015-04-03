@@ -418,7 +418,7 @@ public class MqttMessagesManager
 				{
 					jsonObj.put(HikeConstants.NEW_GROUP, true);
 				}
-				pubSub.publish(HikePubSub.GROUP_REVIVED, groupConversation.getMsisdn());
+				pubSub.publish(HikePubSub.CONVERSATION_REVIVED, groupConversation.getMsisdn());
 			}
 
 		}
@@ -558,7 +558,7 @@ public class MqttMessagesManager
 	/*
 	 * adding message in db if not duplicate. In case of duplicate message we don't do further processing and return
 	 */
-		if (!convDb.addConversationMessages(convMessage))
+		if (!convDb.addConversationMessages(convMessage,true))
 		{
 			return;
 		}
@@ -584,7 +584,7 @@ public class MqttMessagesManager
 			ConvMessage convMessageNew = convDb.showParticipantStatusMessage(convMessage.getMsisdn());
 			if (convMessageNew != null)
 			{
-				if (convDb.addConversationMessages(convMessageNew))
+				if (convDb.addConversationMessages(convMessageNew,true))
 				{
 					this.pubSub.publish(HikePubSub.MESSAGE_RECEIVED, convMessageNew);
 				}
@@ -964,7 +964,7 @@ public class MqttMessagesManager
 			{
 				Pair<Long, String> pair = new Pair<Long, String>(maxMsgId, participantMsisdn);
 				Pair<String, Pair<Long, String>> groupPair = new Pair<String, Pair<Long, String>>(msisdn, pair);
-				this.pubSub.publish(HikePubSub.GROUP_MESSAGE_DELIVERED_READ, groupPair);
+				this.pubSub.publish(HikePubSub.ONETON_MESSAGE_DELIVERED_READ, groupPair);
 			}
 		}
 	}
@@ -3013,7 +3013,7 @@ public class MqttMessagesManager
 			return null;
 		}
 		
-		convDb.addConversationMessages(convMessage);
+		convDb.addConversationMessages(convMessage,true);
 		
 		this.pubSub.publish(HikePubSub.MESSAGE_RECEIVED, convMessage);
 		
@@ -3075,8 +3075,8 @@ public class MqttMessagesManager
 				|| convMessage.getParticipantInfoState() == ParticipantInfoState.GROUP_END)
 		{
 			this.pubSub.publish(
-					convMessage.getParticipantInfoState() == ParticipantInfoState.PARTICIPANT_JOINED ? HikePubSub.PARTICIPANT_JOINED_GROUP
-							: convMessage.getParticipantInfoState() == ParticipantInfoState.PARTICIPANT_LEFT ? HikePubSub.PARTICIPANT_LEFT_GROUP : HikePubSub.GROUP_END, jsonObj);
+					convMessage.getParticipantInfoState() == ParticipantInfoState.PARTICIPANT_JOINED ? HikePubSub.PARTICIPANT_JOINED_ONETONCONV
+							: convMessage.getParticipantInfoState() == ParticipantInfoState.PARTICIPANT_LEFT ? HikePubSub.PARTICIPANT_LEFT_ONETONCONV : HikePubSub.GROUP_END, jsonObj);
 		}
 	}
 

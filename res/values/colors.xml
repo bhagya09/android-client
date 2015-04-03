@@ -378,7 +378,7 @@
     <color name="sticker_pallete_bg_color">#555555</color>
     <color name="sticker_drag_tip_bg_color">#34d5b1</color>
     <color name="black_10">#1A000000</color>
-    <color name="text_bg">#3ddcee</color>
+    <color name="text_bg">#FFF300</color>
     <color name="sticker_shop_icon_pressed">#9A33B5E5</color>
     <color name="festive_mode_bg">#D9000D1F</color>
     <color name="festive_popup_divider">#33000000</color>
@@ -402,6 +402,8 @@
     <color name="call_rate_header">#111111</color>
     <color name="call_rate_subheader">#26292d</color>
     <color name="call_issues">#494949</color>
+    <color name="overflow_item_text_enabled">#F3F3F3</color>
+    <color name="overflow_item_text_disabled">#5CF3F3F3</color>
     <color name="call_rate_bg">#33000000</color>
     <color name="photos_tabs_background">#1f1f1f</color>
     <color name="photos_pager_background">#141414</color>
@@ -414,6 +416,5 @@
     <color name="photos_circular_progress_red_alpha">#99dd2b28</color>
     <color name="photos_actions_selected">#f4f4f4</color>
     <color name="photos_camera_selector">#05e7e8e9</color>
-    
 </resources>
 	

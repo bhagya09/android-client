@@ -54,8 +54,6 @@ public abstract class OneToNConversation extends Conversation
 	{
 		super(builder);
 		
-		setConvInfo(builder.convInfoBuilder.build());
-		
 		this.conversationOwner = builder.conversationOwner;
 
 		this.conversationParticipantList = builder.conversationParticipantList;
@@ -369,12 +367,9 @@ public abstract class OneToNConversation extends Conversation
 		
 		private boolean isAlive;
 		
-		private OneToNConvInfo.ConvInfoBuilder convInfoBuilder;
-
 		public InitBuilder(String msisdn)
 		{
-			super(msisdn);
-			this.convInfoBuilder = new OneToNConvInfo.ConvInfoBuilder(msisdn);
+			super(msisdn, new OneToNConvInfo.ConvInfoBuilder(msisdn));
 		}
 
 		public P setConversationOwner(String conversationOwner)

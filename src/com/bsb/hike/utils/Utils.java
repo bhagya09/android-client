@@ -168,8 +168,8 @@ import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.TrafficsStatsFile;
-import com.bsb.hike.chatthread.ChatThread;
 import com.bsb.hike.chatthread.ChatThreadActivity;
+import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.cropimage.CropImage;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.HikeDialog;
@@ -821,15 +821,15 @@ public class Utils
 		return highlight;
 	}
 	
-	public static String getGroupJoinHighlightText(JSONArray participantInfoArray, OneToNConversation conversation)
+	public static String getOneToNConversationJoinHighlightText(JSONArray participantInfoArray, OneToNConversation conversation)
 	{
 		JSONObject participant = (JSONObject) participantInfoArray.opt(0);
-		String highlight = ((GroupConversation) conversation).getConvParticipantFirstNameAndSurname(participant.optString(HikeConstants.MSISDN));
+		String highlight = conversation.getConvParticipantFirstNameAndSurname(participant.optString(HikeConstants.MSISDN));
 
 		if (participantInfoArray.length() == 2)
 		{
 			JSONObject participant2 = (JSONObject) participantInfoArray.opt(1);
-			String name2 = ((GroupConversation) conversation).getConvParticipantFirstNameAndSurname(participant2.optString(HikeConstants.MSISDN));
+			String name2 = conversation.getConvParticipantFirstNameAndSurname(participant2.optString(HikeConstants.MSISDN));
 
 			highlight += " and " + name2;
 		}
@@ -3979,7 +3979,7 @@ public class Utils
 		intent.putExtra(HikeConstants.Extras.MSISDN, contactInfo.getMsisdn());
 		intent.putExtra(HikeConstants.Extras.SHOW_KEYBOARD, true);
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-		String whichChatThread = isGroupConversation(contactInfo.getMsisdn()) ? HikeConstants.Extras.GROUP_CHAT_THREAD : HikeConstants.Extras.ONE_TO_ONE_CHAT_THREAD;
+		String whichChatThread = ChatThreadUtils.getChatThreadType(contactInfo.getMsisdn());
 		intent.putExtra(HikeConstants.Extras.WHICH_CHAT_THREAD, whichChatThread);
 		context.startActivity(intent);
 	}

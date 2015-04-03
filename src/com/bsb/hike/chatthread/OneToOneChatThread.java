@@ -57,6 +57,8 @@ import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.OneToOneConversation;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.modules.httpmgr.RequestToken;
+import com.bsb.hike.modules.lastseenmgr.FetchLastSeenTask;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.utils.ChatTheme;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -82,6 +84,8 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 
 	private LastSeenScheduler lastSeenScheduler;
 
+	private RequestToken lastSeenRequestToken;
+	
 	private Dialog smsDialog;
 
 	private int mCredits;
@@ -250,16 +254,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 
 		if (ChatThreadUtils.shouldShowLastSeen(activity.getApplicationContext(), mContactInfo.getFavoriteType(), mConversation.isOnHike()))
 		{
-
-			/*
-			 * Making sure nothing is already scheduled wrt last seen.
-			 */
-			resetLastSeenScheduler();
-
-			LastSeenScheduler lastSeenScheduler = LastSeenScheduler.getInstance(activity.getApplicationContext());
-			lastSeenScheduler.start(mContactInfo.getMsisdn(), this);
-			
-			HAManager.getInstance().recordLastSeenEvent(OneToOneChatThread.class.getName(), "createConversation", null, msisdn);
+			checkAndStartLastSeenTask();
 		}
 
 		/**
@@ -293,6 +288,14 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		{
 			lastSeenScheduler.stop(false);
 			lastSeenScheduler = null;
+		}
+	}
+
+	private void cancelFetchLastseenTask()
+	{
+		if (lastSeenRequestToken != null)
+		{
+			lastSeenRequestToken.cancel();
 		}
 	}
 
@@ -531,7 +534,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			if (mConversation.isOnHike())
 			{
 				ConvMessage msg = findMessageById(msgId);
-				if (!msg.isSMS()) // Since ConvMessage is not sent as SMS, hence add it to undeliveredMap
+				if (!msg.isSMS() && (!msg.isBroadcastMessage())) // Since ConvMessage is not sent as SMS, hence add it to undeliveredMap
 				{
 					sendUIMessage(ADD_UNDELIVERED_MESSAGE, msg);
 				}
@@ -1268,7 +1271,14 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			prefsUtil.saveData(HikeMessengerApp.SHOWN_SDR_INTRO_TIP, true);
 		}
 
-		resetLastSeenScheduler();
+		if (Utils.isOkHttp())
+		{
+			cancelFetchLastseenTask();
+		}
+		else
+		{
+			resetLastSeenScheduler();
+		}
 	}
 
 	private void onBulkMessageReceived(Object object)
@@ -1417,24 +1427,55 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 
 	}
 
+	private void startFetchLastSeenTask()
+	{
+		cancelFetchLastseenTask();
+		FetchLastSeenTask fetchLastseenTask = new FetchLastSeenTask(mContactInfo.getMsisdn());
+		lastSeenRequestToken = fetchLastseenTask.start();
+	}
+	
 	/**
 	 * UI Thread
 	 */
 	private void scheduleLastSeen()
 	{
-		if (lastSeenScheduler == null)
+		if (Utils.isOkHttp())
 		{
-			lastSeenScheduler = LastSeenScheduler.getInstance(activity.getApplicationContext());
+			startFetchLastSeenTask();
 		}
-
 		else
 		{
-			lastSeenScheduler.stop(false);
-		}
+			if (lastSeenScheduler == null)
+			{
+				lastSeenScheduler = LastSeenScheduler.getInstance(activity.getApplicationContext());
+			}
+			else
+			{
+				lastSeenScheduler.stop(false);
+			}
 
-		lastSeenScheduler.start(mContactInfo.getMsisdn(), this);
+			lastSeenScheduler.start(mContactInfo.getMsisdn(), this);
+		}
 	}
 
+	private void checkAndStartLastSeenTask()
+	{
+		/*
+		 * Making sure nothing is already scheduled wrt last seen.
+		 */
+		if (Utils.isOkHttp())
+		{
+			startFetchLastSeenTask();
+		}
+		else
+		{
+			resetLastSeenScheduler();
+			lastSeenScheduler = LastSeenScheduler.getInstance(activity.getApplicationContext());
+			lastSeenScheduler.start(mContactInfo.getMsisdn(), this);
+		}
+		HAManager.getInstance().recordLastSeenEvent(OneToOneChatThread.class.getName(), "createConversation", null, msisdn);
+	}
+	
 	@Override
 	protected void takeActionBasedOnIntent()
 	{

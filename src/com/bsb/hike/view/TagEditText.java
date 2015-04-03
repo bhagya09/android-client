@@ -100,6 +100,10 @@ public class TagEditText extends EditText
 				// -1 for space
 				ssb.setSpan(ispan, length - SPAN_REPLACEMENT.length() - 1, length - 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 			}
+			String charAfterSep = getCharAfterSeparator();
+			if (charAfterSep != null) {
+				ssb.append(getCharAfterSeparator());
+			}
 			needCallback = false;
 			setText(ssb);
 			setSelection(ssb.length());
@@ -107,7 +111,6 @@ public class TagEditText extends EditText
 			{
 
 				listener.tagAdded(data, uniqueness);
-				listener.charResetAfterSeperator();
 			}
 		}
 	}

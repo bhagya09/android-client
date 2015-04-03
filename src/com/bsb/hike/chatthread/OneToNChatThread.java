@@ -2,14 +2,11 @@ package com.bsb.hike.chatthread;
 
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.content.Intent;
 import android.os.Message;
 import android.text.Editable;
 import android.util.Pair;
@@ -22,19 +19,16 @@ import com.bsb.hike.R;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.media.OverFlowMenuItem;
 import com.bsb.hike.models.ConvMessage;
-import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
-import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.models.GroupTypingNotification;
 import com.bsb.hike.models.TypingNotification;
+import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.models.Conversation.OneToNConversationMetadata;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.ui.utils.HashSpanWatcher;
 import com.bsb.hike.utils.ChatTheme;
-import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.SoundUtils;
 import com.bsb.hike.utils.Utils;
 
@@ -46,17 +40,15 @@ import com.bsb.hike.utils.Utils;
 
 public abstract class OneToNChatThread extends ChatThread implements HashTagModeListener
 {
-	protected static final int LATEST_PIN_DELETED = 203;
-
-	private static final int BULK_MESSAGE_RECEIVED = 204;
-
 	protected static final int SHOW_IMP_MESSAGE = 205;
 
 	protected static final int GROUP_REVIVED = 206;
 
-	private static final int PARTICIPANT_JOINED_OR_LEFT_GROUP = 207;
+	private static final int PARTICIPANT_JOINED_OR_LEFT_CONVERSATION = 207;
+	
+	protected static final int BULK_MESSAGE_RECEIVED = 208;
 
-	private static final String TAG = "groupchatthread";
+	private static final String TAG = "onetonchatthread";
 
 	protected HashSpanWatcher mHashSpanWatcher;
 
@@ -122,9 +114,6 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 		case R.string.chat_theme:
 			showThemePicker();
 			break;
-		case R.string.group_profile:
-			openProfileScreen();
-			break;
 		default:
 			Logger.d(TAG, "Calling super Class' itemClicked");
 			super.itemClicked(item);
@@ -138,7 +127,7 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 	protected Conversation fetchConversation()
 	{
 		Logger.i(TAG, "fetch group conversation " + Thread.currentThread().getName());
-		mConversation = oneToNConversation = (OneToNConversation) mConversationDb.getConversation(msisdn, HikeConstants.MAX_MESSAGES_TO_LOAD_INITIALLY, true);
+		
 		if (mConversation == null)
 		{
 			/* the user must have deleted the chat. */
@@ -149,19 +138,6 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 			return null;
 		}
 
-		// Setting a flag which tells us whether the group contains sms users or not.
-		boolean hasSmsUser = false;
-		for (Entry<String, PairModified<GroupParticipant, String>> entry : oneToNConversation.getConversationParticipantList().entrySet())
-		{
-			GroupParticipant groupParticipant = entry.getValue().getFirst();
-			if (!groupParticipant.getContactInfo().isOnhike())
-			{
-				hasSmsUser = true;
-				break;
-			}
-		}
-		// imp message from DB like pin
-		fetchImpMessage();
 		// Set participant read by list
 		Pair<String, Long> pair = HikeConversationsDatabase.getInstance().getReadByValueForGroup(oneToNConversation.getMsisdn());
 		if (pair != null)
@@ -179,14 +155,6 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 		oneToNConversation.setBlocked(ContactManager.getInstance().isBlocked(oneToNConversation.getConversationOwner()));
 
 		return oneToNConversation;
-	}
-
-	private void fetchImpMessage()
-	{
-		if (mConversation.getMetadata() != null && oneToNConversation.getMetadata().isShowLastPin(HikeConstants.MESSAGE_TYPE.TEXT_PIN))
-		{
-			oneToNConversation.setPinnedConvMessage(mConversationDb.getLastPinForConversation(oneToNConversation));
-		}
 	}
 
 	@Override
@@ -282,26 +250,23 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 	{
 		switch (type)
 		{
-		case HikePubSub.GROUP_MESSAGE_DELIVERED_READ:
+		case HikePubSub.ONETON_MESSAGE_DELIVERED_READ:
 			onMessageRead(object);
-			break;
-		case HikePubSub.LATEST_PIN_DELETED:
-			onLatestPinDeleted(object);
 			break;
 		case HikePubSub.CONV_META_DATA_UPDATED:
 			onConvMetadataUpdated(object);
 			break;
-		case HikePubSub.BULK_MESSAGE_RECEIVED:
-			onBulkMessageReceived(object);
-			break;
-		case HikePubSub.GROUP_REVIVED:
+		case HikePubSub.CONVERSATION_REVIVED:
 			onGroupRevived(object);
 			break;
-		case HikePubSub.PARTICIPANT_JOINED_GROUP:
+		case HikePubSub.PARTICIPANT_JOINED_ONETONCONV:
 			onParticipantJoinedOrLeftGroup(object, true);
 			break;
-		case HikePubSub.PARTICIPANT_LEFT_GROUP:
+		case HikePubSub.PARTICIPANT_LEFT_ONETONCONV:
 			onParticipantJoinedOrLeftGroup(object, false);
+			break;
+		case HikePubSub.BULK_MESSAGE_RECEIVED:
+			onBulkMessageReceived(object);
 			break;
 		default:
 			Logger.d(TAG, "Did not find any matching PubSub event in Group ChatThread. Calling super class' onEventReceived");
@@ -321,17 +286,39 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 		case UPDATE_AVATAR:
 			setAvatar(R.drawable.ic_default_avatar_group);
 			break;
+		case PARTICIPANT_JOINED_OR_LEFT_CONVERSATION:
+			incrementGroupParticipants((int) msg.obj);
+			break;
+		case GROUP_REVIVED:
+			handleGroupRevived();
+			break;
 		case BULK_MESSAGE_RECEIVED:
 			addBulkMessages((LinkedList<ConvMessage>) msg.obj);
-			break;
-		case PARTICIPANT_JOINED_OR_LEFT_GROUP:
-			incrementGroupParticipants((int) msg.obj);
 			break;
 		default:
 			Logger.d(TAG, "Did not find any matching event in Group ChatThread. Calling super class' handleUIMessage");
 			super.handleUIMessage(msg);
 			break;
 		}
+	}
+	
+	/**
+	 * This method is called on the UI thread
+	 * 
+	 */
+	private void handleGroupRevived()
+	{
+		toggleGroupLife(true);
+	}
+	
+	protected void toggleGroupLife(boolean alive)
+	{
+		oneToNConversation.setConversationAlive(alive);
+		activity.findViewById(R.id.send_message).setEnabled(alive);
+		activity.findViewById(R.id.msg_compose).setVisibility(alive ? View.VISIBLE : View.INVISIBLE);
+		activity.findViewById(R.id.emo_btn).setEnabled(alive);
+		activity.findViewById(R.id.sticker_btn).setEnabled(alive);
+		// TODO : Hide popup OR dialog if visible
 	}
 
 	/**
@@ -352,8 +339,6 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 	{
 		super.setupActionBar();
 
-		setAvatar(R.drawable.ic_default_avatar_group);
-
 		setLabel(mConversation.getLabel());
 
 		incrementGroupParticipants(0);
@@ -364,7 +349,7 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 	 * 
 	 * @param morePeopleCount
 	 */
-	private void incrementGroupParticipants(int morePeopleCount)
+	protected void incrementGroupParticipants(int morePeopleCount)
 	{
 		int numActivePeople = oneToNConversation.getParticipantListSize() + morePeopleCount;
 
@@ -379,15 +364,6 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 		}
 	}
 
-	/**
-	 * Overriding it here because the message oculd be of type Pin, which needs to animated if the pin view is not yet shown.
-	 */
-	@Override
-	protected void sendMessage(ConvMessage convMessage)
-	{
-		
-	}
-
 	@Override
 	protected String getMsisdnMainUser()
 	{
@@ -398,25 +374,6 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 	protected String getBlockedUserLabel()
 	{
 		return oneToNConversation.getConversationParticipantName(oneToNConversation.getConversationOwner());
-	}
-
-	/**
-	 * Used to launch Profile Activity from GroupChatThread
-	 */
-	@Override
-	protected void openProfileScreen()
-	{
-		/**
-		 * Proceeding only if the group is alive
-		 */
-		if (oneToNConversation.isConversationAlive())
-		{
-			Utils.logEvent(activity.getApplicationContext(), HikeConstants.LogEvent.GROUP_INFO_TOP_BUTTON);
-
-			Intent intent = IntentFactory.getGroupProfileIntent(activity.getApplicationContext(), msisdn);
-
-			activity.startActivity(intent);
-		}
 	}
 
 	/**
@@ -449,45 +406,6 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 	}
 
 	/**
-	 * Used to set unread pin count
-	 */
-	protected void updateUnreadPinCount()
-	{
-		if (oneToNConversation != null)
-		{
-			int unreadPinCount = oneToNConversation.getUnreadPinnedMessageCount();
-			mActionBar.updateOverflowMenuIndicatorCount(unreadPinCount);
-			mActionBar.updateOverflowMenuItemCount(R.string.group_profile, unreadPinCount);
-		}
-	}
-
-	/**
-	 * Called from the pubSub thread
-	 * 
-	 * @param object
-	 */
-	private void onLatestPinDeleted(Object object)
-	{
-		long msgId = (Long) object;
-
-		try
-		{
-			long pinIdFromMetadata = oneToNConversation.getMetadata().getLastPinId(HikeConstants.MESSAGE_TYPE.TEXT_PIN);
-
-			if (msgId == pinIdFromMetadata)
-			{
-				sendUIMessage(LATEST_PIN_DELETED, true);
-			}
-		}
-
-		catch (JSONException e)
-		{
-			Logger.wtf(TAG, "Got an exception during the pubSub : onLatestPinDeleted " + e.toString());
-		}
-
-	}
-
-	/**
 	 * Called from the pubSub thread
 	 * 
 	 * @param object
@@ -508,7 +426,116 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 
 	}
 
-	private void onBulkMessageReceived(Object object)
+	/**
+	 * This method is used to update readByList
+	 * 
+	 */
+
+	@Override
+	protected void updateReadByInLoop(long mrMsgId, Set<String> second)
+	{
+		for (String msgMsisdn : second)
+		{
+			oneToNConversation.updateReadByList(msgMsisdn, mrMsgId);
+		}
+	}
+
+	private void onGroupRevived(Object object)
+	{
+		String groupId = (String) object;
+
+		if (msisdn.equals(groupId))
+		{
+			uiHandler.sendEmptyMessage(GROUP_REVIVED);
+		}
+	}
+
+	/**
+	 * Called from PubSub Thread
+	 * 
+	 * @param object
+	 */
+	private void onParticipantJoinedOrLeftGroup(Object object, boolean joined)
+	{
+		/**
+		 * Received message for current open chatThread
+		 */
+		if (shouldProcessGCJOrGCK(object)) // Defensive check
+		{
+			int addPeopleCount = 0;
+			if (joined) // Participants added
+			{
+				JSONObject jObj = (JSONObject) object;
+
+				JSONArray participants = jObj.optJSONArray(HikeConstants.DATA);
+
+				if (participants == null) // If we don't get participants, we simply return here.
+				{
+					Logger.wtf(TAG, "onParticipantJoinedOrLeftGroup : Getting null participants array in : " + object.toString());
+					return;
+				}
+
+				addPeopleCount = participants.length();
+			}
+
+			else
+			// A participant has been kicked out
+			{
+				addPeopleCount = -1;
+			}
+
+			sendUIMessage(PARTICIPANT_JOINED_OR_LEFT_CONVERSATION, addPeopleCount);
+		}
+	}
+
+	/**
+	 * Indicates whether we should process a GCJ/GCK or not.
+	 * 
+	 * @param object
+	 * @return
+	 */
+	private boolean shouldProcessGCJOrGCK(Object object)
+	{
+		if (object instanceof JSONObject)
+		{
+			String msgMsisdn = ((JSONObject) object).optString(HikeConstants.TO);
+			if (msgMsisdn != null && oneToNConversation.getMsisdn().equals(msgMsisdn))
+			{
+				return true;
+			}
+		}
+
+		// Default case :
+
+		return false;
+	}
+
+	@Override
+	public void beforeTextChanged(CharSequence s, int start, int count, int after)
+	{
+		if (mHashSpanWatcher != null)
+		{
+			mHashSpanWatcher.onTextChanged(s, start, count, after);
+		}
+	}
+
+	@Override
+	public void afterTextChanged(Editable s)
+	{
+		if (mHashSpanWatcher != null)
+		{
+			mHashSpanWatcher.afterTextChanged(s);
+		}
+	}
+
+	@Override
+	protected void showThemePicker()
+	{
+		super.showThemePicker();
+		themePicker.showThemePicker(activity.findViewById(R.id.cb_anchor), currentTheme, R.string.chat_theme_tip_group);
+	}
+	
+	protected void onBulkMessageReceived(Object object)
 	{
 		HashMap<String, LinkedList<ConvMessage>> messageListMap = (HashMap<String, LinkedList<ConvMessage>>) object;
 
@@ -621,113 +648,4 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 		}
 	}
 
-	/**
-	 * This method is used to update readByList
-	 * 
-	 */
-
-	@Override
-	protected void updateReadByInLoop(long mrMsgId, Set<String> second)
-	{
-		for (String msgMsisdn : second)
-		{
-			oneToNConversation.updateReadByList(msgMsisdn, mrMsgId);
-		}
-	}
-
-	private void onGroupRevived(Object object)
-	{
-		String groupId = (String) object;
-
-		if (msisdn.equals(groupId))
-		{
-			uiHandler.sendEmptyMessage(GROUP_REVIVED);
-		}
-	}
-
-	/**
-	 * Called from PubSub Thread
-	 * 
-	 * @param object
-	 */
-	private void onParticipantJoinedOrLeftGroup(Object object, boolean joined)
-	{
-		/**
-		 * Received message for current open chatThread
-		 */
-		if (shouldProcessGCJOrGCK(object)) // Defensive check
-		{
-			int addPeopleCount = 0;
-			if (joined) // Participants added
-			{
-				JSONObject jObj = (JSONObject) object;
-
-				JSONArray participants = jObj.optJSONArray(HikeConstants.DATA);
-
-				if (participants == null) // If we don't get participants, we simply return here.
-				{
-					Logger.wtf(TAG, "onParticipantJoinedOrLeftGroup : Getting null participants array in : " + object.toString());
-					return;
-				}
-
-				addPeopleCount = participants.length();
-			}
-
-			else
-			// A participant has been kicked out
-			{
-				addPeopleCount = -1;
-			}
-
-			sendUIMessage(PARTICIPANT_JOINED_OR_LEFT_GROUP, addPeopleCount);
-		}
-	}
-
-	/**
-	 * Indicates whether we should process a GCJ/GCK or not.
-	 * 
-	 * @param object
-	 * @return
-	 */
-	private boolean shouldProcessGCJOrGCK(Object object)
-	{
-		if (object instanceof JSONObject)
-		{
-			String msgMsisdn = ((JSONObject) object).optString(HikeConstants.TO);
-			if (msgMsisdn != null && oneToNConversation.getMsisdn().equals(msgMsisdn))
-			{
-				return true;
-			}
-		}
-
-		// Default case :
-
-		return false;
-	}
-
-	@Override
-	public void beforeTextChanged(CharSequence s, int start, int count, int after)
-	{
-		if (mHashSpanWatcher != null)
-		{
-			mHashSpanWatcher.onTextChanged(s, start, count, after);
-		}
-	}
-
-	@Override
-	public void afterTextChanged(Editable s)
-	{
-		if (mHashSpanWatcher != null)
-		{
-			mHashSpanWatcher.afterTextChanged(s);
-		}
-	}
-
-	@Override
-	protected void showThemePicker()
-	{
-		super.showThemePicker();
-		themePicker.showThemePicker(activity.findViewById(R.id.cb_anchor), currentTheme, R.string.chat_theme_tip_group);
-	}
-	
 }

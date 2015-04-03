@@ -131,8 +131,7 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 
 		View show_people_view = menu.findItem(R.id.show_people).getActionView();
 		show_people_view.findViewById(R.id.overflow_icon_image).setContentDescription("Favorites in timeline");
-		;
-		friendsTopBarIndicator = (TextView) show_people_view.findViewById(R.id.top_bar_indicator);
+		friendsTopBarIndicator = (TextView) show_people_view.findViewById(R.id.top_bar_indicator_text);
 		((ImageView) show_people_view.findViewById(R.id.overflow_icon_image)).setImageResource(R.drawable.ic_show_people);
 		updateFriendsNotification(accountPrefs.getInt(HikeMessengerApp.FRIEND_REQ_COUNT, 0), 0);
 

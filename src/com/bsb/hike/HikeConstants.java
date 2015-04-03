@@ -433,6 +433,10 @@ public class HikeConstants
 	public static final String LAST_SEEN_PREF = "lastSeenPref";
 
 	public static final String PROFILE_PIC_PREF = "profilePicPref";
+	
+	public static final String SEND_ENTER_PREF = "enterSendPref";
+		
+	public static final String DOUBLE_TAP_PREF = "doubleTapPref";
 
 	public static final String CHAT_BG_NOTIFICATION_PREF = "chatBgNotificationPref";
 
@@ -1244,9 +1248,13 @@ public class HikeConstants
 		
 		public static final String WHICH_CHAT_THREAD = "whichChatThread";
 		
-		public static final String ONE_TO_ONE_CHAT_THREAD = "oneToOne";
+		public static final String ONE_TO_ONE_CHAT_THREAD = "oneToOneChat";
 		
 		public static final String GROUP_CHAT_THREAD = "groupChat";
+		
+		public static final String BROADCAST_CHAT_THREAD = "broadcastChat";
+		
+		public static final String BOT_CHAT_THREAD = "botChat";
 		
 		public static final String CONTACT_INFO_TIMELINE = "contactInfoTimeline";
 
@@ -1978,6 +1986,16 @@ public class HikeConstants
 		public static final String NUX_FOOTER_NOR_COM = "nuxN2C";
 
 		public static final String NUX_EXPANDED_COM = "nuxE2C";
+		
+		public static final String SETTINGS_ENTER_ON = "entersend";
+				
+		public static final String SETTINGS_ENTER_OFF = "enterline";
+				
+		public static final String SETTINGS_NUDGE_ON = "nudgeon";
+						
+		public static final String SETTINGS_NUDGE_OFF = "nudgeoff";
+				
+		public static final String UNCHECKED_NUDGE = "doubtap";
 		
 		//Photos 5.0 Events
 		public static final String PHOTOS_FLOW_OPTION_CLICK = "phTake";

@@ -485,7 +485,7 @@ public class ConvMessage implements Searchable
 		{
 		case PARTICIPANT_JOINED:
 			JSONArray arr = metadata.getGcjParticipantInfo();
-			String highlight = Utils.getGroupJoinHighlightText(arr, (OneToNConversation) conversation);
+			String highlight = Utils.getOneToNConversationJoinHighlightText(arr, (OneToNConversation) conversation);
 			this.mMessage = OneToNConversationUtils.getParticipantAddedMessage(this, context, highlight);
 			break;
 		case PARTICIPANT_LEFT:

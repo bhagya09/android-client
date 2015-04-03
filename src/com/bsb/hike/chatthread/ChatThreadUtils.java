@@ -44,7 +44,6 @@ import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.Conversation.Conversation;
-import com.bsb.hike.models.Conversation.ConversationMetadata;
 import com.bsb.hike.models.Conversation.OneToNConversationMetadata;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -530,5 +529,26 @@ public class ChatThreadUtils
 		matrix.setRectToRect(new RectF(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight()), dst, Matrix.ScaleToFit.CENTER);
 		Logger.d(TAG, "Matrix:"+ matrix.toString());
 		imageView.setImageMatrix(matrix);
+	}
+	
+	/**
+	 * Returns the kind of chat thread to open based on the msisdn
+	 * 
+	 * @param msisdn
+	 * @return
+	 */
+	public static String getChatThreadType(String msisdn)
+	{
+		if (Utils.isBroadcastConversation(msisdn))
+		{
+			return HikeConstants.Extras.BROADCAST_CHAT_THREAD;
+		}
+
+		else if (Utils.isGroupConversation(msisdn))
+		{
+			return HikeConstants.Extras.GROUP_CHAT_THREAD;
+		}
+
+		return HikeConstants.Extras.ONE_TO_ONE_CHAT_THREAD;
 	}
 }

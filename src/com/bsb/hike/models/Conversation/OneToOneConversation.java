@@ -1,7 +1,5 @@
 package com.bsb.hike.models.Conversation;
 
-import android.text.TextUtils;
-
 import com.bsb.hike.models.ConvMessage;
 
 /**
@@ -65,7 +63,7 @@ public class OneToOneConversation extends Conversation
 
 		public InitBuilder(String msisdn)
 		{
-			super(msisdn);
+			super(msisdn, new ConvInfo.ConvInfoBuilder(msisdn));
 		}
 
 		public P setIsOnHike(boolean isOnHike)

@@ -202,12 +202,9 @@ public class ConversationsAdapter extends BaseAdapter
 				viewHolder.timeStamp = (TextView) v.findViewById(R.id.last_message_timestamp);
 				viewHolder.avatar = (ImageView) v.findViewById(R.id.avatar);
 				viewHolder.muteIcon = (ImageView) v.findViewById(R.id.mute_indicator);
-				break;
-			default:
+				v.setTag(viewHolder);
 				break;
 			}
-
-			v.setTag(viewHolder);
 		}
 		else
 		{

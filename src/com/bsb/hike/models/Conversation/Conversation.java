@@ -6,9 +6,7 @@ import java.util.List;
 import org.json.JSONObject;
 
 import com.bsb.hike.models.ConvMessage;
-import com.bsb.hike.models.Conversation.ConvInfo.ConvInfoBuilder;
 import com.bsb.hike.utils.ChatTheme;
-import com.bsb.hike.models.Conversation.ConversationMetadata;
 
 /**
  * Conversation objects will be made from this abstract class
@@ -31,8 +29,7 @@ public abstract class Conversation implements Comparable<Conversation>
 
 	protected Conversation(InitBuilder<?> builder)
 	{
-		ConvInfoBuilder convInfoBuilder = builder.convInfoBuilder;
-		this.convInfo = convInfoBuilder.build();
+		this.convInfo = builder.convInfoBuilder.build();
 		this.messagesList = builder.messagesList;
 		this.metadata = builder.metadata;
 		this.chatTheme = builder.chatTheme;
@@ -290,7 +287,7 @@ public abstract class Conversation implements Comparable<Conversation>
 	 */
 	protected static abstract class InitBuilder<P extends InitBuilder<P>>
 	{
-		private ConvInfoBuilder convInfoBuilder;
+		private ConvInfo.InitBuilder<?> convInfoBuilder;
 
 		private ChatTheme chatTheme;
 
@@ -298,9 +295,9 @@ public abstract class Conversation implements Comparable<Conversation>
 
 		protected ConversationMetadata metadata;
 
-		public InitBuilder(String msisdn)
+		public InitBuilder(String msisdn, ConvInfo.InitBuilder<?> convInfo)
 		{
-			convInfoBuilder = new ConvInfoBuilder(msisdn);
+			convInfoBuilder = convInfo;
 		}
 
 		public P setConvName(String convName)

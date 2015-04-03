@@ -6,8 +6,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -95,7 +93,6 @@ import com.bsb.hike.models.StatusMessage;
 import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.Conversation.Conversation;
-import com.bsb.hike.models.Conversation.GroupConversation;
 import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.modules.stickerdownloadmgr.IStickerResultListener;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerDownloadManager;
@@ -1218,7 +1215,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				videoHolder.fileThumb.setBackgroundResource(0);
 				videoHolder.fileThumb.setImageResource(0);
 
-				showThumbnail = ((convMessage.isSent()) || (conversation instanceof GroupConversation) || (!TextUtils.isEmpty(conversation.getConversationName())) || (hikeFile
+				showThumbnail = ((convMessage.isSent()) || (conversation instanceof OneToNConversation) || (!TextUtils.isEmpty(conversation.getConversationName())) || (hikeFile
 						.wasFileDownloaded()));
 				if (hikeFile.getThumbnail() == null && !TextUtils.isEmpty(hikeFile.getFileKey()))
 				{
@@ -1377,7 +1374,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				imageHolder.fileThumb.setBackgroundResource(0);
 				imageHolder.fileThumb.setImageResource(0);
 
-				showThumbnail = ((convMessage.isSent()) || (conversation instanceof GroupConversation) || (!TextUtils.isEmpty(conversation.getConversationName())) || (hikeFile
+				showThumbnail = ((convMessage.isSent()) || (conversation instanceof OneToNConversation) || (!TextUtils.isEmpty(conversation.getConversationName())) || (hikeFile
 						.wasFileDownloaded()));
 
 				if (hikeFile.getThumbnail() == null && !TextUtils.isEmpty(hikeFile.getFileKey()))
@@ -2077,7 +2074,9 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			{
 				JSONArray participantInfoArray = metadata.getGcjParticipantInfo();
 				TextView participantInfo = (TextView) inflater.inflate(layoutRes, null);
-				String highlight = Utils.getGroupJoinHighlightText(participantInfoArray, (GroupConversation) conversation);
+				
+				String highlight = Utils.getOneToNConversationJoinHighlightText(participantInfoArray, (OneToNConversation) conversation);
+				
 				String message = OneToNConversationUtils.getParticipantAddedMessage(convMessage, context, highlight);
 				
 				setTextAndIconForSystemMessages(participantInfo, Utils.getFormattedParticipantInfo(message, highlight), isDefaultTheme ? R.drawable.ic_joined_chat
@@ -2108,7 +2107,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 						((ViewGroup) participantInfoHolder.container).addView(mainMessage);
 					}
 					String participantMsisdn = metadata.getMsisdn();
-					String name = ((GroupConversation) conversation).getConvParticipantFirstNameAndSurname(participantMsisdn);
+					String name = ((OneToNConversation) conversation).getConvParticipantFirstNameAndSurname(participantMsisdn);
 					message = Utils.getFormattedParticipantInfo(OneToNConversationUtils.getParticipantRemovedMessage(conversation.getMsisdn(), context, name), name);
 				}
 				else
@@ -2127,10 +2126,10 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			{
 				String name;
 				String message = "";
-				if (conversation instanceof GroupConversation)
+				if (conversation instanceof OneToNConversation)
 				{
 					String participantMsisdn = metadata.getMsisdn();
-					name = ((GroupConversation) conversation).getConvParticipantFirstNameAndSurname(participantMsisdn);
+					name = ((OneToNConversation) conversation).getConvParticipantFirstNameAndSurname(participantMsisdn);
 					message = context.getString(infoState == ParticipantInfoState.USER_JOIN ? (metadata.isOldUser() ? R.string.user_back_on_hike : R.string.joined_hike_new)
 							: R.string.joined_conversation, name);
 				}
@@ -2185,7 +2184,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				String msisdn = metadata.getMsisdn();
 				String userMsisdn = preferences.getString(HikeMessengerApp.MSISDN_SETTING, "");
 
-				String participantName = userMsisdn.equals(msisdn) ? context.getString(R.string.you) : ((GroupConversation) conversation).getConvParticipantFirstNameAndSurname(msisdn);
+				String participantName = userMsisdn.equals(msisdn) ? context.getString(R.string.you) : ((OneToNConversation) conversation).getConvParticipantFirstNameAndSurname(msisdn);
 				String message;
 				if (convMessage.getParticipantInfoState() == ParticipantInfoState.CHANGED_GROUP_NAME)
 				{
@@ -2268,7 +2267,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					StringBuilder dndNamesSB = new StringBuilder();
 					for (int i = 0; i < dndNumbers.length(); i++)
 					{
-						String name = conversation instanceof GroupConversation ? ((GroupConversation) conversation).getConvParticipantFirstNameAndSurname(dndNumbers.optString(i)) : Utils
+						String name = conversation instanceof OneToNConversation ? ((OneToNConversation) conversation).getConvParticipantFirstNameAndSurname(dndNumbers.optString(i)) : Utils
 								.getFirstName(conversation.getLabel());
 						if (i < dndNumbers.length() - 2)
 						{
@@ -2284,10 +2283,10 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 						}
 					}
 					String dndNames = dndNamesSB.toString();
-					convMessage.setMessage(String.format(context.getString(conversation instanceof GroupConversation ? R.string.dnd_msg_gc : R.string.dnd_one_to_one), dndNames));
+					convMessage.setMessage(String.format(context.getString(conversation instanceof OneToNConversation ? R.string.dnd_msg_gc : R.string.dnd_one_to_one), dndNames));
 
 					SpannableStringBuilder ssb;
-					if (conversation instanceof GroupConversation)
+					if (conversation instanceof OneToNConversation)
 					{
 						ssb = new SpannableStringBuilder(convMessage.getMessage());
 						ssb.setSpan(new StyleSpan(Typeface.BOLD), convMessage.getMessage().indexOf(dndNames), convMessage.getMessage().indexOf(dndNames) + dndNames.length(),
@@ -2322,7 +2321,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				String name;
 				if (isOneToNChat)
 				{
-					name = userMsisdn.equals(msisdn) ? context.getString(R.string.you) : ((GroupConversation) conversation).getConvParticipantFirstNameAndSurname(msisdn);
+					name = userMsisdn.equals(msisdn) ? context.getString(R.string.you) : ((OneToNConversation) conversation).getConvParticipantFirstNameAndSurname(msisdn);
 				}
 				else
 				{
@@ -2637,8 +2636,8 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			if (firstMessageFromParticipant)
 			{
 				String number = null;
-				String name = ((GroupConversation) conversation).getConvParticipantFirstNameAndSurname(convMessage.getGroupParticipantMsisdn());
-				if (((GroupConversation) conversation).getConversationParticipant(convMessage.getGroupParticipantMsisdn()).getFirst().getContactInfo().isUnknownContact())
+				String name = ((OneToNConversation) conversation).getConvParticipantFirstNameAndSurname(convMessage.getGroupParticipantMsisdn());
+				if (((OneToNConversation) conversation).getConversationParticipant(convMessage.getGroupParticipantMsisdn()).getFirst().getContactInfo().isUnknownContact())
 				{
 					number = convMessage.getGroupParticipantMsisdn();
 				}
@@ -2653,7 +2652,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				{
 					participantName.setSingleLine(true);
 					participantName.setEllipsize(android.text.TextUtils.TruncateAt.END);
-					name = ((GroupConversation) conversation).getConvParticipantFirstNameAndSurname(convMessage.getGroupParticipantMsisdn());
+					name = ((OneToNConversation) conversation).getConvParticipantFirstNameAndSurname(convMessage.getGroupParticipantMsisdn());
 					participantName.setText(name);
 					participantNameUnsaved.setVisibility(View.GONE);
 				}
@@ -2878,8 +2877,8 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			final ConvMessage message = (ConvMessage) v.getTag();
 			ArrayList<String> optionsList = new ArrayList<String>();
 			String number = null;
-			final String name = ((GroupConversation) conversation).getConversationParticipant(message.getGroupParticipantMsisdn()).getSecond();
-			if (((GroupConversation) conversation).getConversationParticipant(message.getGroupParticipantMsisdn()).getFirst().getContactInfo().isUnknownContact())
+			final String name = ((OneToNConversation) conversation).getConversationParticipant(message.getGroupParticipantMsisdn()).getSecond();
+			if (((OneToNConversation) conversation).getConversationParticipant(message.getGroupParticipantMsisdn()).getFirst().getContactInfo().isUnknownContact())
 			{
 				number = message.getGroupParticipantMsisdn();
 				optionsList.add(context.getString(R.string.add_to_contacts));
@@ -3053,7 +3052,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 	private void setIconForSentMessage(ConvMessage message, ImageView status, int tickResId, int smsDrawableResId, int boltDrawableResId)
 	{
-		if (conversation.isOnHike() && !(conversation instanceof GroupConversation) && !message.isBroadcastMessage())
+		if (conversation.isOnHike() && !(conversation instanceof OneToNConversation) && !message.isBroadcastMessage())
 		{
 			if (message.isSMS())
 			{
@@ -3117,7 +3116,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 	private void setReadByForGroup(ConvMessage convMessage, TextView tv)
 	{
-		GroupConversation groupConversation = (GroupConversation) conversation;
+		OneToNConversation groupConversation = (OneToNConversation) conversation;
 
 		ArrayList<String> readByList = groupConversation.getReadByParticipantsList();
 
@@ -3938,7 +3937,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 	{
 		String name = convMessage.isSent() ?
 				"You" :
-				(conversation instanceof GroupConversation) ? ((GroupConversation) conversation).getConvParticipantFirstNameAndSurname(convMessage.getGroupParticipantMsisdn()) : "";
+				(conversation instanceof OneToNConversation) ? ((OneToNConversation) conversation).getConvParticipantFirstNameAndSurname(convMessage.getGroupParticipantMsisdn()) : "";
 		statusHolder.dayTextView.setText(context.getString(R.string.xyz_posted_pin, name));
 
 		statusHolder.messageInfo.setText(convMessage.getTimestampFormatted(true, context));

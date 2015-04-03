@@ -1,17 +1,13 @@
 package com.bsb.hike.models.Conversation;
 
-import java.util.ArrayList;
 import java.util.Map.Entry;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.text.TextUtils;
-
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.models.GroupParticipant;
-import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.PairModified;
 

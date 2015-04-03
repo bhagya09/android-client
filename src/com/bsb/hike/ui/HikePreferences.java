@@ -161,6 +161,16 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		{
 			profilePicPreference.setOnPreferenceChangeListener(this);
 		}
+		final IconCheckBoxPreference sendEnterPreference = (IconCheckBoxPreference) getPreferenceScreen()
+				.findPreference(HikeConstants.SEND_ENTER_PREF);
+		if (sendEnterPreference != null) {
+			sendEnterPreference.setOnPreferenceChangeListener(this);
+		}
+		final IconCheckBoxPreference doubleTapPreference = (IconCheckBoxPreference) getPreferenceScreen()
+				.findPreference(HikeConstants.DOUBLE_TAP_PREF);
+		if (doubleTapPreference != null) {
+			doubleTapPreference.setOnPreferenceChangeListener(this);
+		}
 		final IconCheckBoxPreference freeSmsPreference = (IconCheckBoxPreference) getPreferenceScreen().findPreference(HikeConstants.FREE_SMS_PREF);
 		if (freeSmsPreference != null)
 		{
@@ -851,6 +861,57 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			catch(JSONException e)
 			{
 				Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+			}
+		} else if (HikeConstants.SEND_ENTER_PREF.equals(preference.getKey())) {
+
+			Editor editor = PreferenceManager.getDefaultSharedPreferences(
+					HikePreferences.this).edit();
+			editor.putBoolean(HikeConstants.SEND_ENTER_PREF, isChecked);
+			editor.commit();
+			JSONObject metadata = new JSONObject();
+			if (isChecked) {
+				preference.setSummary(getResources().getString(
+						R.string.enter_setting_info));
+				try {
+					metadata.put(HikeConstants.EVENT_KEY,
+							HikeConstants.LogEvent.SETTINGS_ENTER_ON);
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			} else {
+				preference.setSummary(getResources().getString(
+						R.string.new_line_setting_info));
+				try {
+					metadata.put(HikeConstants.EVENT_KEY,
+							HikeConstants.LogEvent.SETTINGS_ENTER_OFF);
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT,
+					AnalyticsConstants.CLICK_EVENT, metadata);
+		} else if (HikeConstants.DOUBLE_TAP_PREF.equals(preference.getKey())) {
+
+			Editor editor = PreferenceManager.getDefaultSharedPreferences(
+					HikePreferences.this).edit();
+			editor.putBoolean(HikeConstants.DOUBLE_TAP_PREF, isChecked);
+			editor.commit();
+			try {
+				JSONObject metadata = new JSONObject();
+				if (isChecked) {
+					metadata.put(HikeConstants.EVENT_KEY,
+							HikeConstants.LogEvent.SETTINGS_NUDGE_ON);
+				} else {
+					metadata.put(HikeConstants.EVENT_KEY,
+							HikeConstants.LogEvent.SETTINGS_NUDGE_OFF);
+				}
+				HAManager.getInstance().record(AnalyticsConstants.UI_EVENT,
+						AnalyticsConstants.CLICK_EVENT, metadata);
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}
 		else if (HikeConstants.SSL_PREF.equals(preference.getKey()))

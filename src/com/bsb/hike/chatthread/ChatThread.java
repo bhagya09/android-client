@@ -95,6 +95,7 @@ import com.bsb.hike.media.CaptureImageParser;
 import com.bsb.hike.media.CaptureImageParser.CaptureImageListener;
 import com.bsb.hike.media.EmoticonPicker;
 import com.bsb.hike.media.OverFlowMenuItem;
+import com.bsb.hike.media.OverFlowMenuLayout.OverflowViewListener;
 import com.bsb.hike.media.OverflowItemClickListener;
 import com.bsb.hike.media.PickContactParser;
 import com.bsb.hike.media.PickFileParser;
@@ -137,6 +138,8 @@ import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.CustomFontEditText;
 import com.bsb.hike.view.CustomFontEditText.BackKeyListener;
+import android.text.InputType;
+import com.bsb.hike.productpopup.ProductPopupsConstants;
 
 /**
  * 
@@ -145,7 +148,8 @@ import com.bsb.hike.view.CustomFontEditText.BackKeyListener;
 
 public abstract class ChatThread extends SimpleOnGestureListener implements OverflowItemClickListener, View.OnClickListener, ThemePickerListener, CaptureImageListener,
 		PickFileListener, StickerPickerListener, AudioRecordListener, LoaderCallbacks<Object>, OnItemLongClickListener, OnTouchListener, OnScrollListener,
-		Listener, ActionModeListener, HikeDialogListener, TextWatcher, OnDismissListener, OnEditorActionListener, OnKeyListener, PopupListener, BackKeyListener
+		Listener, ActionModeListener, HikeDialogListener, TextWatcher, OnDismissListener, OnEditorActionListener, OnKeyListener, PopupListener, BackKeyListener,
+		OverflowViewListener
 {
 	private static final String TAG = "chatthread";
 
@@ -208,10 +212,14 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
     protected static final int SET_WINDOW_BG = 27;
 
-	private static final int SHARING_FUNCTIONALITY = 28;
+    private static final int SHARING_FUNCTIONALITY = 28;
 
     protected ChatThreadActivity activity;
-
+   
+    private int NUDGE_TOAST_OCCURENCE = 2;
+    	
+    private int currentNudgeCount = 0;
+    
 	protected ThemePicker themePicker;
 
 	protected AttachmentPicker attachmentPicker;
@@ -243,6 +251,9 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	protected boolean isActivityVisible = true;
 
 	protected boolean reachedEnd = false;
+	
+	private boolean _doubleTapPref = false;
+
 
 	private int currentFirstVisibleItem = Integer.MAX_VALUE;
 
@@ -279,6 +290,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	private Dialog searchDialog;
 
 	private static final String NEW_LINE_DELIMETER = "\n";
+	
+	private boolean ctSearchIndicatorShown;
 
 	private class ChatThreadBroadcasts extends BroadcastReceiver
 	{
@@ -469,6 +482,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		mActionBar = new HikeActionBar(activity);
 		mConversationDb = HikeConversationsDatabase.getInstance();
 		sharedPreference = HikeSharedPreferenceUtil.getInstance();
+		ctSearchIndicatorShown = sharedPreference.getData(HikeMessengerApp.CT_SEARCH_INDICATOR_SHOWN, false);
 	}
 
 	/**
@@ -486,6 +500,23 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		addOnClickListeners();
 
 		showNetworkError(ChatThreadUtils.checkNetworkError());
+		defineEnterAction();
+	}
+
+	private void defineEnterAction() {
+		if (mComposeView != null) {
+			//Its a workaround to set the multiline editfield when android:imeOptions="actionSend".
+    		mComposeView.setHorizontallyScrolling(false);
+			mComposeView.setMaxLines(4);
+			//if send on enter setting is unchecked then send button will send the cursor to the next line.
+			if (!PreferenceManager.getDefaultSharedPreferences(
+					activity.getApplicationContext()).getBoolean(
+					HikeConstants.SEND_ENTER_PREF, false)) {
+				mComposeView.setInputType(mComposeView.getInputType()
+						| InputType.TYPE_TEXT_FLAG_MULTI_LINE);
+			}
+
+		}
 	}
 
 	/**
@@ -560,6 +591,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	{
 		// overflow is common between all, one to one and group
 		menu.findItem(R.id.overflow_menu).getActionView().setOnClickListener(this);
+		mActionBar.setOverflowViewListener(this);
 		return true;
 	}
 
@@ -574,9 +606,25 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		{
 		case R.id.attachment:
 			showAttchmentPicker();
+			activity.showProductPopup(ProductPopupsConstants.PopupTriggerPoints.ATCH_SCR.ordinal());
 			return true;
 		}
 		return false;
+	}
+
+	
+	@Override
+	public void preShowOverflowMenu(List<OverFlowMenuItem> overflowItems)
+	{
+		mActionBar.updateOverflowMenuItemActiveState(R.string.search, !messages.isEmpty());
+		if (!sharedPreference.getData(HikeMessengerApp.CT_SEARCH_CLICKED, false) && !messages.isEmpty())
+		{
+			mActionBar.updateOverflowMenuItemIcon(R.string.search, R.drawable.ic_top_bar_indicator_search);
+		}
+		else
+		{
+			mActionBar.updateOverflowMenuItemIcon(R.string.search, 0);
+		}
 	}
 
 	public void onActivityResult(int requestCode, int resultCode, Intent data)
@@ -661,6 +709,9 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		 * Hiding any open tip
 		 */
 		mTips.hideTip();
+
+		// Remove the indicator if any on the overflow menu.
+		mActionBar.updateOverflowMenuIndicatorImage(0);
 
 		int width = getResources().getDimensionPixelSize(R.dimen.overflow_menu_width);
 		int rightMargin = width + getResources().getDimensionPixelSize(R.dimen.overflow_menu_right_margin);
@@ -801,6 +852,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		}
 		
 		mShareablePopupLayout.togglePopup(mStickerPicker, activity.getResources().getConfiguration().orientation);
+		activity.showProductPopup(ProductPopupsConstants.PopupTriggerPoints.STKBUT_BUT.ordinal());
 	}
 	
 	private void recordFirstTimeStickerClick()
@@ -1019,13 +1071,19 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	private void setupSearchMode()
 	{
+		if (!sharedPreference.getData(HikeMessengerApp.CT_SEARCH_CLICKED, false))
+		{
+			sharedPreference.saveData(HikeMessengerApp.CT_SEARCH_CLICKED, true);
+		}
+
 		mActionMode.showActionMode(SEARCH_ACTION_MODE, R.layout.search_action_bar);
 		setUpSearchViews();
-		
+
 		if (messageSearchManager == null)
 		{
 			messageSearchManager = new SearchManager();
 		}
+		Logger.d("search","call to initialize:" + messages.size());
 		messageSearchManager.init(messages);
 	}
 	
@@ -1059,20 +1117,24 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		@Override
 		public void onTextChanged(CharSequence s, int start, int before, int count)
 		{
-			// TODO Auto-generated method stub
-			
 		}
 		
 		@Override
 		public void beforeTextChanged(CharSequence s, int start, int count, int after)
 		{
-			// TODO Auto-generated method stub
-			
 		}
 		
 		@Override
 		public void afterTextChanged(Editable s)
 		{
+			if (TextUtils.isEmpty(s.toString()))
+			{
+				activity.findViewById(R.id.search_clear_btn).setVisibility(View.GONE);
+			}
+			else
+			{
+				activity.findViewById(R.id.search_clear_btn).setVisibility(View.VISIBLE);
+			}
 			String searchText = s.toString().toLowerCase();
 			messageSearchManager.makeNewSearch(searchText);
 			mAdapter.setSearchText(searchText);
@@ -1496,6 +1558,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	 */
 	private void initGestureDetector()
 	{
+		_doubleTapPref = PreferenceManager.getDefaultSharedPreferences(activity.getApplicationContext()).getBoolean(HikeConstants.DOUBLE_TAP_PREF, true);
 		mGestureDetector = new GestureDetector(activity.getApplicationContext(), this);
 	}
 
@@ -1505,6 +1568,26 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		Logger.d(TAG, "Double Tap motion");
 		if(mActionMode.isActionModeOn())
 		{
+			return false;
+		}
+		if (!_doubleTapPref)
+		{
+			try
+			{
+				JSONObject metadata = new JSONObject();
+				metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.UNCHECKED_NUDGE);
+                HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+			}
+			catch(JSONException ex)
+			{
+				Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+			}
+			currentNudgeCount++;
+			if(currentNudgeCount>NUDGE_TOAST_OCCURENCE)
+			{
+				Toast.makeText(activity.getApplicationContext(), R.string.nudge_toast, Toast.LENGTH_SHORT).show();
+				currentNudgeCount=0;
+			}
 			return false;
 		}
 			sendPoke();
@@ -2241,6 +2324,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			loadMessage(true);
 		}
 
+		showOverflowIndicatorIfRequired(firstVisibleItem, visibleItemCount, totalItemCount);
+
 		View unreadMessageIndicator = activity.findViewById(R.id.new_message_indicator);
 
 		if (unreadMessageIndicator.getVisibility() == View.VISIBLE && mConversationsView.getLastVisiblePosition() > messages.size() - unreadMessageCount - 2)
@@ -2282,6 +2367,41 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			hideView(R.id.scroll_top_indicator);
 		}
 		currentFirstVisibleItem = firstVisibleItem;
+	}
+	
+	private void showOverflowIndicatorIfRequired(int firstVisibleItem, int visibleItemCount, int totalItemCount)
+	{
+		showOverflowSearchIndicatorIfRequired(firstVisibleItem, visibleItemCount, totalItemCount);
+	}
+
+	private void showOverflowSearchIndicatorIfRequired(int firstVisibleItem, int visibleItemCount, int totalItemCount)
+	{
+		/* 
+		 * SEARCH INDICATOR
+		 * The search indicator over overflow menu item is shown if:
+		 *  - It hasn't been shown before
+		 *  - Theres nothing being displayed in its position right now, like gc pin unread count.
+		 *  - User has scrolled up by atleast 1 message.
+		 *  - Messages not are being loaded.
+		 *  Note: This is to be shown only once
+		 */
+		if (!ctSearchIndicatorShown && !mActionBar.isOverflowMenuIndicatorInUse()
+				&& (firstVisibleItem + visibleItemCount + 1) < totalItemCount && !loadingMoreMessages)
+		{
+			// If user has already discovered search option, theres on need to show the search icon on overflow menu icon.
+			// Just mark it already shown and move on.
+			if (sharedPreference.getData(HikeMessengerApp.CT_SEARCH_CLICKED, false))
+			{
+				ctSearchIndicatorShown = true;
+				sharedPreference.saveData(HikeMessengerApp.CT_SEARCH_INDICATOR_SHOWN, true);
+			}
+			// If the indicator is successfully displayed the setting is saved, so that its not shown again.
+			else if (mActionBar.updateOverflowMenuIndicatorImage(R.drawable.ic_top_bar_indicator_search))
+			{
+				ctSearchIndicatorShown = true;
+				sharedPreference.saveData(HikeMessengerApp.CT_SEARCH_INDICATOR_SHOWN, true);
+			}
+		}
 	}
 
 	@Override
@@ -4158,8 +4278,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 					|| ((keyEvent != null) && (keyEvent.getKeyCode() == KeyEvent.KEYCODE_ENTER) && (keyEvent.getAction() != KeyEvent.ACTION_UP) && (getResources()
 							.getConfiguration().keyboard != Configuration.KEYBOARD_NOKEYS)))
 			{
-				sendButtonClicked();
-				Utils.hideSoftKeyboard(activity.getApplicationContext(), mComposeView);
+				
+				if (!TextUtils.isEmpty(mComposeView.getText())) {
+					sendButtonClicked();
+				}
 				return true;
 			}
 			else if (actionId == EditorInfo.IME_ACTION_SEARCH)

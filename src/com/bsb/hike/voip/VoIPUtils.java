@@ -192,7 +192,7 @@ public class VoIPUtils {
 			
 			ConvMessage convMessage = new ConvMessage(jsonObject, mConversation, context, selfGenerated);
 			convMessage.setShouldShowPush(shouldShowPush);
-			mConversationDb.addConversationMessages(convMessage);
+			mConversationDb.addConversationMessages(convMessage,true);
 			HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_RECEIVED, convMessage);
 		}
 		catch (JSONException e)

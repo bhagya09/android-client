@@ -79,6 +79,7 @@ public class SettingsActivity extends HikeAppStateBaseFragmentActivity implement
 
 		items.add(getString(R.string.notifications));
 		items.add(getString(R.string.settings_media));
+		items.add(getString(R.string.settings_chat));
 		if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean(HikeConstants.FREE_SMS_PREF, true))
 		{
 			int credits = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE).getInt(HikeMessengerApp.SMS_SETTING, 0);
@@ -119,6 +120,7 @@ public class SettingsActivity extends HikeAppStateBaseFragmentActivity implement
 
 		itemIcons.add(R.drawable.ic_notifications_settings);
 		itemIcons.add(R.drawable.ic_auto_download_media_settings);
+		itemIcons.add(R.drawable.ic_settings_chat);
 		itemIcons.add(R.drawable.ic_sms_settings);
 		if (isConnectedAppsPresent)
 		{
@@ -301,18 +303,21 @@ public class SettingsActivity extends HikeAppStateBaseFragmentActivity implement
 				IntentFactory.openSettingMedia(this);
 				break;
 			case 3:
-				IntentFactory.openSettingSMS(this);
+				IntentFactory.openSettingChat(this);
 				break;
 			case 4:
-				IntentFactory.openConnectedApps(this);
+				IntentFactory.openSettingSMS(this);
 				break;
 			case 5:
-				IntentFactory.openSettingAccount(this);
+				IntentFactory.openConnectedApps(this);
 				break;
 			case 6:
-				IntentFactory.openSettingPrivacy(this);
+				IntentFactory.openSettingAccount(this);
 				break;
 			case 7:
+				IntentFactory.openSettingPrivacy(this);
+				break;
+			case 8:
 				IntentFactory.openSettingHelp(this);
 				break;
 			}
@@ -328,15 +333,18 @@ public class SettingsActivity extends HikeAppStateBaseFragmentActivity implement
 				IntentFactory.openSettingMedia(this);
 				break;
 			case 3:
-				IntentFactory.openSettingSMS(this);
+				IntentFactory.openSettingChat(this);
 				break;
 			case 4:
-				IntentFactory.openSettingAccount(this);
+				IntentFactory.openSettingSMS(this);
 				break;
 			case 5:
-				IntentFactory.openSettingPrivacy(this);
+				IntentFactory.openSettingAccount(this);
 				break;
 			case 6:
+				IntentFactory.openSettingPrivacy(this);
+				break;
+			case 7:
 				IntentFactory.openSettingHelp(this);
 				break;
 			}

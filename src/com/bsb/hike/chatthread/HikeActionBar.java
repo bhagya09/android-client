@@ -5,6 +5,7 @@ import java.util.Set;
 
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.PopupWindow.OnDismissListener;
@@ -18,6 +19,7 @@ import com.bsb.hike.R;
 import com.bsb.hike.media.OverFlowMenuItem;
 import com.bsb.hike.media.OverFlowMenuLayout;
 import com.bsb.hike.media.OverflowItemClickListener;
+import com.bsb.hike.media.OverFlowMenuLayout.OverflowViewListener;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.Utils;
 
@@ -35,6 +37,8 @@ public class HikeActionBar
 	public OverFlowMenuLayout overFlowMenuLayout;
 	
 	private Menu mMenu;
+	
+	private boolean overflowMenIndicatorInUse = false;
 
 	/**
 	 * @generated
@@ -73,6 +77,11 @@ public class HikeActionBar
 	public void onPreareOptionsMenu(Menu menu)
 	{
 
+	}
+
+	public void setOverflowViewListener(OverflowViewListener viewListener)
+	{
+		overFlowMenuLayout.setOverflowViewListener(viewListener);
 	}
 
 	/**
@@ -248,9 +257,83 @@ public class HikeActionBar
 	}
 	
 	/**
+	 * Can be used to update the active state of an overflow menu item on the fly
+	 * 
+	 * @param itemId
+	 * @param enabled
+	 */
+	protected void updateOverflowMenuItemActiveState(int itemId, boolean enabled)
+	{
+		if(overFlowMenuLayout!=null)
+		{
+			overFlowMenuLayout.updateOverflowMenuItemActiveState(itemId, enabled);
+		}
+	}
+
+	/**
+	 * Can be used to update the title of an overflow menu item on the fly
+	 * 
+	 * @param itemId
+	 * @param newTitle
+	 */
+	protected void updateOverflowMenuItemIcon(int itemId, int drawableId)
+	{
+		if(overFlowMenuLayout!=null)
+		{
+			overFlowMenuLayout.updateOverflowMenuItemIcon(itemId, drawableId);
+		}
+	}
+
+	/**
+	 * This is used to update/show indicator image on the overflow menu icon. This will be called from the UI Thread
+	 * 
+	 * Can also be used by any other futuristic feature
+	 * 
+	 * Count indicator takes priority over image indicator.
+	 * 
+	 * @return
+	 * 	true - if the indicator image is successfully displayed.
+	 * 	false - if the image can not be displayed. This will also happen if the counter is currently visible.
+	 */
+	protected boolean updateOverflowMenuIndicatorImage(int imadeResId)
+	{
+		MenuItem menuItem = getMenuItem(R.id.overflow_menu);
+		
+		if (menuItem != null && menuItem.getActionView() != null)
+		{
+			ImageView topBarIndiImage = (ImageView) menuItem.getActionView().findViewById(R.id.top_bar_indicator_img);
+			TextView topBarCounter = (TextView) menuItem.getActionView().findViewById(R.id.top_bar_indicator_text);
+
+			if (imadeResId != 0 && topBarCounter.getVisibility() != View.VISIBLE)
+			{
+				topBarIndiImage.setImageResource(imadeResId);
+				topBarIndiImage.setVisibility(View.VISIBLE);
+				topBarIndiImage.startAnimation(Utils.getNotificationIndicatorAnim());
+				overflowMenIndicatorInUse = true;
+				return true;
+			}
+			else
+			{
+				topBarIndiImage.setVisibility(View.GONE);
+				if (topBarCounter.getVisibility() != View.VISIBLE)
+				{
+					overflowMenIndicatorInUse = false;
+				}
+				if (imadeResId == 0)
+				{
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	/**
 	 * This is used to update/show counter on the overflow menu icon. This will be called from the UI Thread
 	 * 
 	 * Can be used for pin count or in future say missed calls count for VoIP or any other futuristic feature
+	 * 
+	 * Count indicator takes priority over image indicator.
 	 */
 	protected void updateOverflowMenuIndicatorCount(int newCount)
 	{
@@ -258,20 +341,21 @@ public class HikeActionBar
 		
 		if (menuItem != null && menuItem.getActionView() != null)
 		{
-			TextView topBarCounter = (TextView) menuItem.getActionView().findViewById(R.id.top_bar_indicator);
+			TextView topBarCounter = (TextView) menuItem.getActionView().findViewById(R.id.top_bar_indicator_text);
 
 			if (newCount < 1)
 			{
 				topBarCounter.setVisibility(View.GONE);
-
+				overflowMenIndicatorInUse = false;
 			}
 			else
 			{
 				topBarCounter.setVisibility(View.VISIBLE);
 				topBarCounter.setText(getUnreadCounterText(newCount));
 				topBarCounter.startAnimation(Utils.getNotificationIndicatorAnim());
+				overflowMenIndicatorInUse = true;
+				updateOverflowMenuIndicatorImage(0);
 			}
-
 		}
 	}
 	
@@ -285,5 +369,10 @@ public class HikeActionBar
 		{
 			return Integer.toString(counter);
 		}
+	}
+	
+	public boolean isOverflowMenuIndicatorInUse()
+	{
+		return overflowMenIndicatorInUse;
 	}
 }
