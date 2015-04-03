@@ -2565,4 +2565,6 @@ public class HikeConstants
 		public static final int OTHER = 11;
 
 	}
+	
+	public static final  String NOTIFICATION_RETRY_JSON="notifretry";
 }

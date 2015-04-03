@@ -38,6 +38,7 @@ import android.util.Log;
 import android.util.Pair;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeConstants.NotificationType;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
@@ -71,6 +72,7 @@ import com.bsb.hike.models.WhitelistDomain;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.notifications.HikeNotificationUtils;
+import com.bsb.hike.notifications.NotificationRetryCountModel;
 import com.bsb.hike.productpopup.ProductContentModel;
 import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
@@ -100,6 +102,7 @@ import com.bsb.hike.voip.VoIPConstants;
 import com.bsb.hike.voip.VoIPService;
 import com.bsb.hike.voip.VoIPUtils;
 import com.bsb.hike.voip.view.VoIPActivity;
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
 /**
@@ -1734,6 +1737,11 @@ public class MqttMessagesManager
 			int replyNotificationRetryCount = data.getInt(HikeConstants.REPLY_NOTIFICATION_RETRY_COUNT);
 			editor.putInt(HikeMessengerApp.MAX_REPLY_RETRY_NOTIF_COUNT, replyNotificationRetryCount);
 		}
+		if(data.has(HikeConstants.NOTIFICATION_RETRY))
+		{
+			String notification=data.getString(HikeConstants.NOTIFICATION_RETRY);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.NOTIFICATION_RETRY_JSON, notification);
+		}
 		
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
@@ -2311,7 +2319,7 @@ public class MqttMessagesManager
 						boolean silent = data.optBoolean(HikeConstants.SILENT, true);
 
 						// open respective chat thread
-						HikeNotification.getInstance(context).notifyStringMessage(destination, body, silent);
+						HikeNotification.getInstance().notifyStringMessage(destination, body, silent,NotificationType.OTHER);
 						if(data.optBoolean(HikeConstants.REARRANGE_CHAT,false))
 						{
 							Pair<String, Long> pair = new Pair<String, Long>(destination, System.currentTimeMillis() / 1000);
