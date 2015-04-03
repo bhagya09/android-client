@@ -5256,7 +5256,9 @@ public class Utils
 		return true;
 	}
 
-	 /** Tells if User is on Telephonic/Audio/Vedio/Voip Call
+	 /** Tells if User is on 
+	  * 1) Between any Telephonic/Audio/Vedio/Voip Call
+	  * 2) Any Telephonic call is ringing
 	 * @param context
 	 * @return
 	 */
@@ -5265,7 +5267,9 @@ public class Utils
 
 		AudioManager manager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
 
-		boolean callMode = manager.getMode() == AudioManager.MODE_IN_COMMUNICATION || manager.getMode() == AudioManager.MODE_IN_CALL;
+		boolean callMode = manager.getMode() == AudioManager.MODE_IN_COMMUNICATION 
+				|| manager.getMode() == AudioManager.MODE_IN_CALL
+				|| manager.getMode() == AudioManager.MODE_RINGTONE;
 
 		return callMode;
 	}
