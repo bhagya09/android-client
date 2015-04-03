@@ -34,7 +34,7 @@ public class PlatformUIDRequestListener implements IRequestListener
 	@Override
 	public void onRequestFailure(HttpException httpException)
 	{
-		//TODO handle failure
+		Logger.e(HikePlatformConstants.PLATFORM_UID_FETCH_TAG, httpException.toString());
 	}
 
 	/**
