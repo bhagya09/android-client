@@ -1420,4 +1420,15 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="photos_oom_retry">Try Again!</string>
     <string name="photos_oom_camera">Unable to capture Image</string>
     <string name="search_hint">Search</string>
+    <string name="sticker_share_heading">Indian Stickers only on hike!</string>
+    <string name="sticker_share_description"><![CDATA[Visit <font color="#57dcf9">http://get.hike.in</font>  to get hike messenger]]></string>
+    <string name="sticker_share_caption">Download: http://hike.in</string>
+    <string name="text_share_heading">- Sent via hike</string>
+    <string name="text_share_caption">Download: http://hike.in</string> 
+    <string name="image_share_heading">Shared via hike!</string>
+    <string name="image_share_description"><![CDATA[Visit <font color="#57dcf9">http://get.hike.in</font>  to get hike messenger]]></string>
+    <string name="image_share_caption">Download: http://hike.in</string>
+    <string name="error_sharing">Some error occured, please try again</string>
+    <string name="whatsapp_uninstalled">Application not found!</string>
+    
 </resources>

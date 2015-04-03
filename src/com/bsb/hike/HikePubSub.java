@@ -392,6 +392,8 @@ public class HikePubSub implements Runnable
 
 	public static String MUTE_BOT = "muteBot";
 	
+	public static final String SHARED_WHATSAPP = "sharedWhatsApp";
+	
 	private final Thread mThread;
 
 	private final BlockingQueue<Operation> mQueue;

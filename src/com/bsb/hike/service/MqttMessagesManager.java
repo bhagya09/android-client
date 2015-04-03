@@ -1715,7 +1715,51 @@ public class MqttMessagesManager
 		{
 			handleWhitelistDomains(data.getString(HikeConstants.URL_WHITELIST));
 		}
-		
+		if (data.has(HikeConstants.Extras.STICKER_HEADING))
+		{
+			String shareStrings = data.getString(HikeConstants.Extras.STICKER_HEADING);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.Extras.STICKER_HEADING, shareStrings);
+		}
+		if (data.has(HikeConstants.Extras.STICKER_DESCRIPTION))
+		{
+			String shareStrings = data.getString(HikeConstants.Extras.STICKER_DESCRIPTION);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.Extras.STICKER_DESCRIPTION, shareStrings);
+		}
+		if (data.has(HikeConstants.Extras.STICKER_CAPTION))
+		{
+			String shareStrings = data.getString(HikeConstants.Extras.STICKER_CAPTION);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.Extras.STICKER_CAPTION, shareStrings);
+		}
+		if (data.has(HikeConstants.Extras.TEXT_HEADING))
+		{
+			String shareStrings = data.getString(HikeConstants.Extras.TEXT_HEADING);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.Extras.TEXT_HEADING, shareStrings);
+		}
+		if (data.has(HikeConstants.Extras.TEXT_CAPTION))
+		{
+			String shareStrings = data.getString(HikeConstants.Extras.TEXT_CAPTION);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.Extras.TEXT_CAPTION, shareStrings);
+		}
+		if (data.has(HikeConstants.Extras.IMAGE_HEADING))
+		{
+			String shareStrings = data.getString(HikeConstants.Extras.IMAGE_HEADING);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.Extras.IMAGE_HEADING, shareStrings);
+		}
+		if (data.has(HikeConstants.Extras.IMAGE_DESCRIPTION))
+		{
+			String shareStrings = data.getString(HikeConstants.Extras.IMAGE_DESCRIPTION);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.Extras.IMAGE_DESCRIPTION, shareStrings);
+		}
+		if (data.has(HikeConstants.Extras.IMAGE_CAPTION))
+		{
+			String shareStrings = data.getString(HikeConstants.Extras.IMAGE_CAPTION);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.Extras.IMAGE_CAPTION, shareStrings);
+		}
+		if (data.has(HikeConstants.Extras.SHOW_SHARE_FUNCTIONALITY))
+		{
+			boolean shareStrings = data.getBoolean(HikeConstants.Extras.SHOW_SHARE_FUNCTIONALITY);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.Extras.SHOW_SHARE_FUNCTIONALITY, shareStrings);
+		}
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
 		

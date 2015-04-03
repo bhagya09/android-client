@@ -93,6 +93,28 @@ public class IntentFactory
 		context.startActivity(intent);
 	}
 
+	public static Intent shareIntent(String mimeType, String imagePath, String text, int type, boolean whatsapp)
+	{
+		Intent intent = new Intent(Intent.ACTION_SEND);
+		intent.setType(mimeType);
+		if (!TextUtils.isEmpty(text))
+		{
+			intent.putExtra(Intent.EXTRA_TEXT, text);
+		}
+		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+		if (whatsapp)
+		{
+			intent.setPackage(HikeConstants.Extras.WHATSAPP_PACKAGE);
+		}
+		if (type != HikeConstants.Extras.ShareTypes.TEXT_SHARE)
+		{
+
+			intent.putExtra(Intent.EXTRA_STREAM, Uri.parse(imagePath));
+
+		}
+		return intent;
+	}
+
 	public static void openSettingSMS(Context context)
 	{
 		context.startActivity(new Intent(context, CreditsActivity.class));

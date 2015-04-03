@@ -207,8 +207,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	protected static final int SEARCH_PREVIOUS = 26;
 
     protected static final int SET_WINDOW_BG = 27;
-    
-	protected ChatThreadActivity activity;
+
+	private static final int SHARING_FUNCTIONALITY = 28;
+
+    protected ChatThreadActivity activity;
 
 	protected ThemePicker themePicker;
 
@@ -295,6 +297,9 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	private ChatThreadBroadcasts mBroadCastReceiver;
 
+	private int share_type = HikeConstants.Extras.NOT_SHAREABLE ;
+
+
 	protected Handler uiHandler = new Handler()
 	{
 		public void handleMessage(android.os.Message msg)
@@ -378,6 +383,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		case DISABLE_TRANSCRIPT_MODE:
 			mConversationsView.setTranscriptMode(ListView.TRANSCRIPT_MODE_DISABLED);		
 			break;
+		case SHARING_FUNCTIONALITY:
+			 destroyActionMode();
 		default:
 			Logger.d(TAG, "Did not find any matching event for msg.what : " + msg.what);
 			break;
@@ -2191,7 +2198,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		mAdapter.removeSelection();
 		mAdapter.setActionMode(false);
 		mAdapter.notifyDataSetChanged();
-
+		share_type = HikeConstants.Extras.NOT_SHAREABLE;
 		/**
 		 * if we have hidden tips while initializing action mode we should unhide them
 		 */ 
@@ -2505,6 +2512,12 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
         case HikePubSub.MULTI_MESSAGE_DB_INSERTED:
             onMultiMessageDbInserted(object);
             break;
+        case HikePubSub.SHARED_WHATSAPP:
+        	Message message = Message.obtain();
+    		message.what = SHARING_FUNCTIONALITY;
+        	 uiHandler.handleMessage(message);			
+        			
+        	 	   
 		default:
 			Logger.e(TAG, "PubSub Registered But Not used : " + type);
 			break;
@@ -2652,7 +2665,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 				HikePubSub.MESSAGE_DELIVERED_READ, HikePubSub.SERVER_RECEIVED_MSG, HikePubSub.SERVER_RECEIVED_MULTI_MSG, HikePubSub.ICON_CHANGED, HikePubSub.UPLOAD_FINISHED,
 				HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, HikePubSub.FILE_MESSAGE_CREATED, HikePubSub.DELETE_MESSAGE, HikePubSub.STICKER_DOWNLOADED, HikePubSub.MESSAGE_FAILED,
 				HikePubSub.CHAT_BACKGROUND_CHANGED, HikePubSub.CLOSE_CURRENT_STEALTH_CHAT, HikePubSub.ClOSE_PHOTO_VIEWER_FRAGMENT, HikePubSub.STICKER_CATEGORY_MAP_UPDATED,
-				HikePubSub.BLOCK_USER, HikePubSub.UNBLOCK_USER, HikePubSub.UPDATE_NETWORK_STATE, HikePubSub.BULK_MESSAGE_RECEIVED, HikePubSub.MULTI_MESSAGE_DB_INSERTED};
+				HikePubSub.BLOCK_USER, HikePubSub.UNBLOCK_USER, HikePubSub.UPDATE_NETWORK_STATE, HikePubSub.BULK_MESSAGE_RECEIVED, HikePubSub.MULTI_MESSAGE_DB_INSERTED, HikePubSub.SHARED_WHATSAPP };
 
 		/**
 		 * Array of pubSub listeners we get from {@link OneToOneChatThread} or {@link GroupChatThread}
@@ -3471,6 +3484,59 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		ConvMessage convMessage = ChatThreadUtils.getChatThemeConvMessage(activity.getApplicationContext(), timestamp, currentTheme.bgId(), mConversation);
 		sendMessage(convMessage);
 	}
+	
+	private Intent shareFunctionality(Intent intent, ConvMessage message)
+	{
+		boolean showShareFunctionality = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.SHOW_SHARE_FUNCTIONALITY, false);
+		if (mAdapter.getSelectedCount() == 1 && Utils.isPackageInstalled(activity.getApplicationContext(), HikeConstants.Extras.WHATSAPP_PACKAGE) && showShareFunctionality)
+		{
+			if (message.isStickerMessage())
+			{
+				share_type = HikeConstants.Extras.ShareTypes.STICKER_SHARE;
+			}
+
+			if (message.isImageMsg())
+			{
+				share_type = HikeConstants.Extras.ShareTypes.IMAGE_SHARE;
+			}
+
+			if (message.isTextMsg())
+			{
+				share_type = HikeConstants.Extras.ShareTypes.TEXT_SHARE;
+			}
+
+			switch (share_type)
+			{
+			case HikeConstants.Extras.ShareTypes.STICKER_SHARE:
+				Sticker sticker = message.getMetadata().getSticker();
+				String filePath = StickerManager.getInstance().getStickerDirectoryForCategoryId(sticker.getCategoryId()) + HikeConstants.LARGE_STICKER_ROOT;
+				File stickerFile = new File(filePath, sticker.getStickerId());
+				String filePathBmp = stickerFile.getAbsolutePath();
+				intent.putExtra(HikeConstants.Extras.SHARE_TYPE, HikeConstants.Extras.ShareTypes.STICKER_SHARE);
+				intent.putExtra(HikeConstants.Extras.SHARE_CONTENT, filePathBmp);
+				intent.putExtra(StickerManager.STICKER_ID, sticker.getStickerId());
+				intent.putExtra(StickerManager.CATEGORY_ID, sticker.getCategoryId());
+				break;
+
+			case HikeConstants.Extras.ShareTypes.TEXT_SHARE:
+				String text = message.getMessage();
+				intent.putExtra(HikeConstants.Extras.SHARE_TYPE, HikeConstants.Extras.ShareTypes.TEXT_SHARE);
+				intent.putExtra(HikeConstants.Extras.SHARE_CONTENT, text);
+				break;
+
+			case HikeConstants.Extras.ShareTypes.IMAGE_SHARE:
+				if (shareableMessagesCount == 1)
+				{
+					HikeFile hikeFile = message.getMetadata().getHikeFiles().get(0);
+					intent.putExtra(HikeConstants.Extras.SHARE_TYPE, HikeConstants.Extras.ShareTypes.IMAGE_SHARE);
+					intent.putExtra(HikeConstants.Extras.SHARE_CONTENT, hikeFile.getExactFilePath());
+				}
+				break;
+			}
+
+		}
+		return intent;
+	}
 
 	/**
 	 * Called from the UI Handler to change the chat theme
@@ -3939,6 +4005,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			}
 			intent.putExtra(HikeConstants.Extras.MULTIPLE_MSG_OBJECT, multipleMsgArray.toString());
 			intent.putExtra(HikeConstants.Extras.PREV_MSISDN, msisdn);
+			intent = shareFunctionality(intent, selectedMessagesMap.get(selectedMsgIds.get(0)));
 			activity.startActivity(intent);
 			mActionMode.finish();
 			return true;

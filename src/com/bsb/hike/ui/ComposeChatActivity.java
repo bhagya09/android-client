@@ -99,6 +99,7 @@ import com.bsb.hike.utils.LastSeenScheduler;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.NUXManager;
 import com.bsb.hike.utils.PairModified;
+import com.bsb.hike.utils.ShareUtils;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.TagEditText;
@@ -187,6 +188,9 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	private int triggerPointForPopup=ProductPopupsConstants.PopupTriggerPoints.UNKNOWN.ordinal();
 
 	 private HorizontalFriendsFragment newFragment;
+	 
+	 int type = HikeConstants.Extras.NOT_SHAREABLE;
+	 
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
@@ -344,8 +348,21 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu)
 	{
+		type = getIntent().getIntExtra(HikeConstants.Extras.SHARE_TYPE, HikeConstants.Extras.NOT_SHAREABLE);
+
 		if (!showingMultiSelectActionBar)
 			getSupportMenuInflater().inflate(R.menu.compose_chat_menu, menu);
+		
+		if (type != HikeConstants.Extras.NOT_SHAREABLE && Utils.isPackageInstalled(getApplicationContext(), HikeConstants.Extras.WHATSAPP_PACKAGE))
+		{
+			if (menu.hasVisibleItems())
+			{
+
+				menu.getItem(0).setVisible(true);
+			}
+
+		}
+
 		return super.onCreateOptionsMenu(menu);
 	}
 
@@ -376,6 +393,44 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
 			}
 		}
+		
+		if (item.getItemId() == R.id.whatsapp_share)
+					{
+						if (Utils.isPackageInstalled(getApplicationContext(), HikeConstants.Extras.WHATSAPP_PACKAGE))
+						{
+							String str = getIntent().getStringExtra(HikeConstants.Extras.SHARE_CONTENT);
+			
+							switch (type)
+							{
+							case HikeConstants.Extras.ShareTypes.STICKER_SHARE:
+								HAManager.getInstance().shareWhatsappAnalytics(HikeConstants.Extras.STICKER_SHARE, getIntent().getStringExtra(StickerManager.CATEGORY_ID),
+										getIntent().getStringExtra(StickerManager.STICKER_ID), str);
+								break;
+			
+							case HikeConstants.Extras.ShareTypes.IMAGE_SHARE:
+								HAManager.getInstance().shareWhatsappAnalytics(HikeConstants.Extras.IMAGE_SHARE);
+								break;
+			
+							case HikeConstants.Extras.ShareTypes.TEXT_SHARE:
+								HAManager.getInstance().shareWhatsappAnalytics(HikeConstants.Extras.TEXT_SHARE);
+								break;
+			
+							}
+							Intent intent = ShareUtils.shareContent(type, str);
+							if (intent != null)
+							{
+								startActivity(intent);
+							}
+							HikeMessengerApp.getPubSub().publish(HikePubSub.SHARED_WHATSAPP, true);
+							this.finish();
+						}
+			
+						else
+						{
+							Toast.makeText(getApplicationContext(),getString(R.string.whatsapp_uninstalled), Toast.LENGTH_SHORT).show();
+						}
+					}
+		
 		return super.onOptionsItemSelected(item);
 	}
 	
