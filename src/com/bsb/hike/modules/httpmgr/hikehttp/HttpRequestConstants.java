@@ -79,7 +79,7 @@ public class HttpRequestConstants
 	private static void changeBasePlatformUrl()
 	{
 		BASE_PLATFORM_URL = "";
-		BASE_PLATFORM_URL += (isSSL) ? HTTPS : HTTP;
+		BASE_PLATFORM_URL += HTTP;
 		BASE_PLATFORM_URL += (isProduction) ? PLATFORM_PRODUCTION_API : PLATFORM_STAGING_API;
 	}
 	
