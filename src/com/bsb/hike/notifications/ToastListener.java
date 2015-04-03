@@ -21,11 +21,13 @@ import android.content.SharedPreferences.Editor;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.Message;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Pair;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeConstants.NotificationType;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
@@ -38,6 +40,7 @@ import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.models.Protip;
 import com.bsb.hike.models.StatusMessage;
 import com.bsb.hike.models.Sticker;
@@ -131,15 +134,16 @@ public class ToastListener implements Listener
 			}
 			if (HikeMessengerApp.isStealthMsisdn(contactInfo.getMsisdn()))
 			{
-				this.toaster.notifyStealthMessage();
+				this.toaster.notifyStealthMessage(NotificationType.HIDDEN);
 			}
 			else
 			{
-				toaster.notifyFavorite(contactInfo);
+				toaster.notifyFavorite(contactInfo, NotificationType.FAVADD);
 			}
 		}
 		else if (HikePubSub.TIMELINE_UPDATE_RECIEVED.equals(type))
 		{
+			int notificationType=NotificationType.STATUSUPDATE;
 			Activity activity = (currentActivity != null) ? currentActivity.get() : null;
 			if (activity instanceof TimelineActivity)
 			{
@@ -153,7 +157,11 @@ public class ToastListener implements Listener
 			{
 				return;
 			}
-			toaster.notifyStatusMessage(statusMessage);
+			if (statusMessage.getStatusMessageType() == StatusMessageType.PROFILE_PIC)
+			{
+				notificationType = NotificationType.DPUPDATE;
+			}
+			toaster.notifyStatusMessage(statusMessage, notificationType);
 		}
 		else if (HikePubSub.BATCH_STATUS_UPDATE_PUSH_RECEIVED.equals(type))
 		{
@@ -162,7 +170,7 @@ public class ToastListener implements Listener
 				return;
 			}
 			Pair<String, String> batchSU = (Pair<String, String>) object;
-			toaster.notifyBatchUpdate(batchSU.first, batchSU.second);
+			toaster.notifyBatchUpdate(batchSU.first, batchSU.second, NotificationType.OTHER);
 		}
 		else if (HikePubSub.CANCEL_ALL_STATUS_NOTIFICATIONS.equals(type))
 		{
@@ -180,7 +188,7 @@ public class ToastListener implements Listener
 			 */
 			Bundle notifyBundle = (Bundle) object;
 			toaster.notifyBigPictureStatusNotification(notifyBundle.getString(HikeConstants.Extras.IMAGE_PATH), notifyBundle.getString(HikeConstants.Extras.MSISDN),
-					notifyBundle.getString(HikeConstants.Extras.NAME));
+					notifyBundle.getString(HikeConstants.Extras.NAME), NotificationType.DPUPDATE);
 		}
 		else if (HikePubSub.PUSH_FILE_DOWNLOADED.equals(type) || HikePubSub.PUSH_STICKER_DOWNLOADED.equals(type))
 		{
@@ -220,7 +228,7 @@ public class ToastListener implements Listener
 					contactInfo = HikeMessengerApp.getContactManager().getContact(message.getMsisdn(), true, true);
 				}
 
-			toaster.notifyMessage(contactInfo, message, true, bigPicture);
+				toaster.notifyMessage(contactInfo, message, true, bigPicture, NotificationType.OTHER);
 			}
 		}
 		else if (HikePubSub.CANCEL_ALL_NOTIFICATIONS.equals(type))
@@ -237,7 +245,7 @@ public class ToastListener implements Listener
 			// the only check we now need is to check whether the pro tip has to
 			// push flag true or not
 			if (proTip.isShowPush())
-				toaster.notifyMessage(proTip);
+				toaster.notifyMessage(proTip, NotificationType.OTHER);
 		}
 		else if (HikePubSub.UPDATE_PUSH.equals(type))
 		{
@@ -271,7 +279,7 @@ public class ToastListener implements Listener
 				// too from the bundle
 				if (!TextUtils.isEmpty(bodyString))
 				{
-					toaster.notifySMSPopup(bodyString);
+					toaster.notifySMSPopup(bodyString, NotificationType.OTHER);
 				}
 			}
 		}
@@ -283,8 +291,8 @@ public class ToastListener implements Listener
 				String header = bundle.getString(HikeConstants.Extras.STEALTH_PUSH_BODY);
 				if (!TextUtils.isEmpty(header))
 				{
-					toaster.notifyStealthPopup(header); // TODO: toasting header
-														// for now
+					toaster.notifyStealthPopup(header, NotificationType.OTHER); // TODO: toasting header
+					// for now
 				}
 			}
 		}
@@ -303,7 +311,7 @@ public class ToastListener implements Listener
 						notificationIntent = new Intent(context, Class.forName(className));
 						notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 						notificationIntent.putExtra(HikeConstants.Extras.HAS_TIP, true);
-						toaster.notifyAtomicPopup(header, notificationIntent);
+						toaster.notifyAtomicPopup(header, notificationIntent, NotificationType.OTHER);
 					}
 					catch (ClassNotFoundException e)
 					{
@@ -316,6 +324,7 @@ public class ToastListener implements Listener
 		}
 		else if (HikePubSub.HIKE_TO_OFFLINE_PUSH.equals(type))
 		{
+			int notificationType=NotificationType.H2O;
 			if (object != null && object instanceof Bundle)
 			{
 				Bundle bundle = (Bundle) object;
@@ -388,7 +397,7 @@ public class ToastListener implements Listener
 								return;
 							}
 						}
-						toaster.notifyHikeToOfflinePush(msisdnList, nameMap);
+						toaster.notifyHikeToOfflinePush(msisdnList, nameMap, NotificationType.H2O);
 
 					}
 				}
@@ -403,6 +412,7 @@ public class ToastListener implements Listener
 		}
 		else if (HikePubSub.BULK_MESSAGE_NOTIFICATION.equals(type) || HikePubSub.MESSAGE_RECEIVED.equals(type) || HikePubSub.USER_JOINED_NOTIFICATION.equals(type))
 		{
+			int notificationType;
 			// Received bulk message map (msisdn - ConvMessage(s) pairs)
 			LinkedList<ConvMessage> messageList = null;
 			Map<String, LinkedList<ConvMessage>> messageListMap = null;
@@ -518,10 +528,15 @@ public class ToastListener implements Listener
 
 						if (HikeMessengerApp.isStealthMsisdn(msisdn))
 						{
-							this.toaster.notifyStealthMessage();
+							notificationType = NotificationType.HIDDEN;
+							this.toaster.notifyStealthMessage(notificationType);
 						}
 						else
 						{
+							
+							notificationType = getNotificationType(message);
+							message.setNotificaionType(notificationType);
+							Logger.d("NotificationRetry", "Toast Listener msg received call with type" + notificationType);
 							filteredMessageList.add(message);
 						}
 					}
@@ -538,6 +553,24 @@ public class ToastListener implements Listener
 	}
 
 	
+
+	private int getNotificationType(ConvMessage convMessage)
+	{
+		int notificationType = NotificationType.NORMALMSG1TO1;
+		if (Utils.isBot(convMessage.getMsisdn()))
+			notificationType = NotificationType.BOTMSG;
+
+		if (Utils.isGroupConversation(convMessage.getMsisdn()))
+			notificationType = NotificationType.NORMALGC;
+
+		if (convMessage.getParticipantInfoState() == ParticipantInfoState.CHAT_BACKGROUND)
+			notificationType = NotificationType.CHATTHEMECHNG;
+
+		if (convMessage.getParticipantInfoState() == ParticipantInfoState.USER_JOIN)
+			notificationType = NotificationType.NUJORRUJ;
+
+		return notificationType;
+	}
 
 	public static Bitmap returnBigPicture(ConvMessage convMessage, Context context)
 	{

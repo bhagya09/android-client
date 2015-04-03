@@ -118,7 +118,7 @@ public class HikeNotificationUtils
 			key = String.format(convMsg.getMetadata().getKey(), key);
 		}
 
-		return new NotificationPreview(message, key);
+		return new NotificationPreview(message, key,convMsg.getNotificationType());
 	}
 
 	/**

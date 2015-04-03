@@ -1317,4 +1317,48 @@ public class HikeNotification
 		HikeNotification.getInstance(context).showBigTextStyleNotification(intent, 0, System.currentTimeMillis(), HikeNotification.HIKE_SUMMARY_NOTIFICATION_ID, title, text,
 				title, "", null, drawable, shouldNotPlaySound, 0);
 	}
+
+
+	public void handleRetryNotification(int retryCount)
+	{
+		sendAnalytics();
+		HikeNotificationMsgStack.getInstance().processPreNotificationWork();
+		HikeNotification.getInstance().showNotificationForCurrentMsgStack(true, retryCount);
+	}
+
+	private void sendAnalytics()
+	{
+		try
+		{
+			JSONObject metadata = new JSONObject();
+			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.RETRY_NOTIFICATION_SENT);
+			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
+		}
+		catch (JSONException e)
+		{
+			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+		}
+	}
+	
+	public void sendNotificationToChatThread(String msisdn, String message, boolean forceNotPlaySound)
+	{
+		int notifType = NotificationType.NORMALMSG1TO1;
+		if (Utils.isBot(msisdn))
+			notifType = NotificationType.BOTMSG;
+
+		if (Utils.isGroupConversation(msisdn))
+			notifType = NotificationType.NORMALGC;
+
+		if (HikeMessengerApp.isStealthMsisdn(msisdn))
+		{
+			notifType = NotificationType.HIDDEN;
+
+			notifyStealthMessage(notifType);
+		}
+		else
+		{
+			notifyStringMessage(msisdn, message, forceNotPlaySound, notifType);
+		}
+	}
+
 }
