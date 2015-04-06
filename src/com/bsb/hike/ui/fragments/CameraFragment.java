@@ -33,19 +33,23 @@ public class CameraFragment extends SherlockFragment
 {
 	private static final String KEY_USE_FFC = "av1ku";
 
+	private static final String KEY_STARTED_FOR_RESULT = "stfu";
+
 	private CameraView cameraView = null;
 
 	private HikeCameraHost host = null;
 
-	private boolean useFFC;
+	private boolean useFFC, startedForResult;
 
-	public static CameraFragment newInstance(boolean useFFC)
+	public static CameraFragment newInstance(boolean useFFC, boolean startedForResult)
 	{
 		CameraFragment f = new CameraFragment();
 
 		Bundle args = new Bundle();
 
 		args.putBoolean(KEY_USE_FFC, useFFC);
+
+		args.putBoolean(KEY_STARTED_FOR_RESULT, startedForResult);
 
 		f.setArguments(args);
 
@@ -62,6 +66,7 @@ public class CameraFragment extends SherlockFragment
 	{
 		cameraView = new CameraView(getActivity());
 		useFFC = getArguments().getBoolean(KEY_USE_FFC);
+		startedForResult = getArguments().getBoolean(KEY_STARTED_FOR_RESULT);
 		cameraView.setHost(getHost());
 		return (cameraView);
 	}
@@ -192,7 +197,15 @@ public class CameraFragment extends SherlockFragment
 									if (isAdded()) // This happens when current HikeCameraActivity is stopped
 									{
 										Intent i = IntentManager.getPictureEditorActivityIntent(filePath);
-										getActivity().startActivity(i);
+										if (!startedForResult)
+										{
+											getActivity().startActivity(i);
+										}
+										else
+										{
+											getActivity().startActivityForResult(i, HikeConstants.ResultCodes.PHOTOS_REQUEST_CODE);
+										}
+
 									}
 								}
 							}, 100);

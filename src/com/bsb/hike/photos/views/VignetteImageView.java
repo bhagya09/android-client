@@ -81,11 +81,16 @@ public class VignetteImageView extends ImageView
 		switch (filter)
 		{
 		case X_PRO_2:
-		case E1977:
 			// Vignette: Stop 1 = #000000 84%, Opacity = 0%; Stop 2 = #232443 120%, Opacity = 100%
 			colors = new int[] { 0xFFFFFFFF,0x00FFFFFF, 0x00000000, 0xFF232443 };
 			stops = new float[] { 0.0f, 1.10f/ 1.5f,1.12f / 1.5f, 1.0f };
 			radiusRatio = 1.5f;
+			// makeRadialGradient(1.5f, colors, stops);
+			break;
+		case E1977:
+			colors = new int[] { 0xFFFFFFFF,0x00FFFFFF, 0x00000000, 0xFF232443 };
+			stops = new float[] { 0.0f, 1.60f/ 1.85f,1.62f / 1.85f, 1.0f };
+			radiusRatio = 1.85f;
 			// makeRadialGradient(1.5f, colors, stops);
 			break;
 		case EARLYBIRD:

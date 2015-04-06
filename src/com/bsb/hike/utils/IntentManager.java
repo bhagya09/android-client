@@ -324,13 +324,12 @@ public class IntentManager
 		intent.putExtras(b);
 		return intent;
 	}
-
-	public static Intent getHikeGalleryPickerIntentForResult(Context context, boolean allowMultiSelect, boolean categorizeByFolders, int actionBarType, PendingIntent argIntent)
+	
+	public static Intent getHikeGalleryPickerIntent(Context context, boolean allowMultiSelect,boolean categorizeByFolders,int actionBarType,PendingIntent argIntent)
 	{
 		Intent intent = new Intent(context, GalleryActivity.class);
 		Bundle b = new Bundle();
 		b.putParcelable(GalleryActivity.PENDING_INTENT_KEY, argIntent);
-		b.putBoolean(GalleryActivity.RETURN_RESULT_KEY, true);
 		b.putBoolean(GalleryActivity.DISABLE_MULTI_SELECT_KEY, !allowMultiSelect);
 		b.putBoolean(GalleryActivity.FOLDERS_REQUIRED_KEY, categorizeByFolders);
 		b.putInt(GalleryActivity.ACTION_BAR_TYPE_KEY, actionBarType);
@@ -440,6 +439,14 @@ public class IntentManager
 		Intent in = new Intent(argActivity, HikeCameraActivity.class);
 		argActivity.startActivity(in);
 	}
+	
+	public static Intent getHikeCameraIntent(Context context,boolean allowGallery)
+	{
+		Intent intent = new Intent(context, HikeCameraActivity.class);
+		intent.putExtra(HikeConstants.HikePhotos.CAMERA_ALLOW_GALLERY_KEY, allowGallery);
+		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		return intent;
+	}
 
 	public static Intent getChatThreadIntent(Context context, String msisdn)
 	{
@@ -492,4 +499,6 @@ public class IntentManager
 		i.putExtra(HikeConstants.HikePhotos.FILENAME, imageFileName);
 		return i;
 	}
+	
+	
 }

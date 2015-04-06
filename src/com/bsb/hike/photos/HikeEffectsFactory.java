@@ -570,7 +570,7 @@ public final class HikeEffectsFactory
 				mScript.set_r(new int[] { 0x33, 0xCD, 0 });
 				mScript.set_g(new int[] { 0x27, 0x98, 0 });
 				mScript.set_b(new int[] { 0xCD, 0x83, 0 });
-				mScript.forEach_filter1(mInAllocation, mOutAllocations);
+				mScript.forEach_filter_solomon(mInAllocation, mOutAllocations);
 				break;
 			case E1977:
 
