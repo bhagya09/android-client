@@ -3,8 +3,13 @@ package com.bsb.hike.photos.views;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.LinearGradient;
 import android.graphics.Paint;
+import android.graphics.Path;
 import android.graphics.RadialGradient;
+import android.graphics.RectF;
+import android.graphics.Shader.TileMode;
 import android.util.AttributeSet;
 import android.widget.ImageView;
 
@@ -18,45 +23,40 @@ import com.bsb.hike.photos.HikePhotosUtils.FilterTools.FilterType;
  * @author akhiltripathi
  */
 
-//NOt being used in Photos V2 due to change in implementation technique of vignette
+// NOt being used in Photos V2 due to change in implementation technique of vignette
 public class VignetteImageView extends ImageView
 {
-	
 
-	//private Bitmap vignetteBitmap;
+	// private Bitmap vignetteBitmap;
 
 	public void setFilter(FilterType Type)
 	{
-		//this.filter = Type;
+		// this.filter = Type;
 	}
 
 	public VignetteImageView(Context context)
 	{
 		super(context);
-		//this.filter = FilterType.ORIGINAL;
-		//radiusRatio = 1f;
-	//	isFinal = false;
+		// this.filter = FilterType.ORIGINAL;
+		// radiusRatio = 1f;
+		// isFinal = false;
 	}
 
 	public VignetteImageView(Context context, AttributeSet attrs)
 	{
 		super(context, attrs);
-		//this.filter = FilterType.ORIGINAL;
-		//radiusRatio = 1f;
-		//isFinal = false;
+		// this.filter = FilterType.ORIGINAL;
+		// radiusRatio = 1f;
+		// isFinal = false;
 	}
 
 	public VignetteImageView(Context context, AttributeSet attrs, int defStyleAttr)
 	{
 		super(context, attrs, defStyleAttr);
-		//this.filter = FilterType.ORIGINAL;
-		//radiusRatio = 1f;
-	//	isFinal = false;
+		// this.filter = FilterType.ORIGINAL;
+		// radiusRatio = 1f;
+		// isFinal = false;
 	}
-
-	
-
-	
 
 	/**
 	 * 
@@ -66,7 +66,7 @@ public class VignetteImageView extends ImageView
 	 * 
 	 * @param original
 	 */
-	public static Bitmap getVignetteforFilter(Bitmap bitmap,FilterType filter,boolean isFinal,boolean draw)
+	public static Bitmap getVignetteforFilter(Bitmap bitmap, FilterType filter, boolean isFinal, boolean draw)
 	{
 
 		if (filter == null)
@@ -74,55 +74,86 @@ public class VignetteImageView extends ImageView
 			return null;
 		}
 
-		int colors[];
+		int colors[], cX = bitmap.getWidth() / 2, cY = bitmap.getHeight() / 2, sX = 0, sY = 0, eX = bitmap.getWidth(), eY = bitmap.getHeight();
 
-		float stops[], radiusRatio = 1f;
-		
+		boolean radialGradient = true, isLinearDiagonal = false;
+
+		float stops[], radius = 1f;
+
 		switch (filter)
 		{
 		case X_PRO_2:
 			// Vignette: Stop 1 = #000000 84%, Opacity = 0%; Stop 2 = #232443 120%, Opacity = 100%
-			colors = new int[] { 0xFFFFFFFF,0x00FFFFFF, 0x00000000, 0xFF232443 };
-			stops = new float[] { 0.0f, 1.3f/ 1.5f,1.32f / 1.5f, 1.0f };
-			radiusRatio = 1.5f;
+			colors = new int[] { 0xFFFFFFFF, 0x00FFFFFF, 0x00000000, 0xFF232443 };
+			stops = new float[] { 0.0f, 1.45f / 1.8f, 1.47f / 1.8f, 1.0f };
+			radius = 1.8f * bitmap.getWidth() / 2;
 			// makeRadialGradient(1.5f, colors, stops);
 			break;
 		case E1977:
-			colors = new int[] { 0xFFFFFFFF,0x00FFFFFF, 0x00000000, 0xFF232443 };
-			stops = new float[] { 0.0f, 1.60f/ 1.85f,1.62f / 1.85f, 1.0f };
-			radiusRatio = 1.85f;
+			colors = new int[] { 0xFFFFFFFF, 0x00FFFFFF, 0x00000000, 0xFF232443 };
+			stops = new float[] { 0.0f, 1.60f / 1.85f, 1.62f / 1.85f, 1.0f };
+			radius = 1.85f * bitmap.getWidth() / 2;
 			// makeRadialGradient(1.5f, colors, stops);
 			break;
 		case EARLYBIRD:
-			colors = new int[] { 0xFFFFFFFF,0x00FFFFFF, 0x00000000, 0xFF000000 };
-			stops = new float[] { 0.0f,1.5f/ 2.65f, 1.55f / 2.65f, 1.0f };
-			radiusRatio = 2.65f;
+		case GHOSTLY:
+		case BGR:
+			colors = new int[] { 0xFFFFFFFF, 0x00FFFFFF, 0x00000000, 0xFF000000 };
+			stops = new float[] { 0.0f, 1.67f / 2.65f, 1.7f / 2.65f, 1.0f };
+			radius = 2.65f * bitmap.getWidth() / 2;
 			// makeRadialGradient(1.5f, colors, stops);
 			break;
 		case RETRO:
 		case KELVIN:
 			// Vignette: Stop 1 = #000000 74%, Opacity = 0%; Stop 2 = #000000 120%, Opacity = 100%
-			colors = new int[] { 0xFFFFFFFF,0x00FFFFFF, 0x00000000, 0xFF000000 };
-			stops = new float[] { 0.0f,1.15f/ 1.8f, 1.18f / 1.8f, 1.0f };
-			radiusRatio = 1.8f;
+			colors = new int[] { 0xFFFFFFFF, 0x00FFFFFF, 0x00000000, 0xFF000000 };
+			stops = new float[] { 0.0f, 1.45f / 1.8f, 1.48f / 1.8f, 1.0f };
+			radius = 1.8f * bitmap.getWidth() / 2;
 			// makeRadialGradient(1.5f, colors, stops);
 			break;
 		case APOLLO:
 			// Vignette Stop 1: #18363f, Position 72%, Opacity 0% Stop 2: #18363f, Position 120%, Opacity 100%
-			colors = new int[] { 0xFFFFFFFF,0x00FFFFFF, 0x0018363F, 0xFF18363F };
-			stops = new float[] { 0.0f,1.65f/ 2.6f, 1.68f / 2.6f, 1.0f };
-			radiusRatio = 2.6f;
+			colors = new int[] { 0xFFFFFFFF, 0x00FFFFFF, 0x0018363F, 0xFF18363F };
+			stops = new float[] { 0.0f, 1.65f / 2.6f, 1.68f / 2.6f, 1.0f };
+			radius = 2.6f * bitmap.getWidth() / 2;
 			// makeRadialGradient(1.6f, colors, stops);
 			break;
-		
+		case CHILLUM:
+			colors = new int[] { 0xFFFFFFFF, 0x00FFFFFF, 0x00000000, 0xFF000000 };
+			stops = new float[] { 0.0f, 1.85f / 2.65f, 1.90f / 2.65f, 1.0f };
+			radius = 2.65f * bitmap.getWidth() / 2;
+			// makeRadialGradient(1.5f, colors, stops);
+			break;
 		case JALEBI:
 			// Vignette: Stop 1 = #000000 74%, Opacity = 0%; Stop 2 = #000000 120%, Opacity = 100%
 			colors = new int[] { 0x00000000, 0x00000000, 0xFF000000 };
 			stops = new float[] { 0.0f, 0.98f / 1.8f, 1.0f };
-			radiusRatio = 1.8f;
+			radius = 1.8f * bitmap.getWidth() / 2;
 			// makeRadialGradient(1.5f, colors, stops);
 			break;
-			
+
+		case GULAAL:
+			// Gradient: Linear - Start From Right Side #ff0000 (opacity: 86% to 0%) (Scale: 150%)
+			colors = new int[] { 0x00FF0000, 0x88FF0000 };
+			stops = new float[] { 0.0f, 1.0f };
+			radius = 1f * bitmap.getWidth();
+			radialGradient = false;
+			break;
+
+		case SUNLITT:
+			isLinearDiagonal = false;
+			colors = new int[] { 0xFF290A59, 0xFFFF7C00 };
+			stops = new float[] { 0.0f, 1.0f };
+			radius = 1.76f * bitmap.getWidth();
+			makeLinearGradient(radius, bitmap.getWidth(), bitmap.getHeight(), bitmap, colors, stops, sX, sY, eX, eY, isLinearDiagonal);
+			radialGradient = false;
+			isLinearDiagonal = true;
+			colors = new int[] { 0x00FF0000,0x55FF0000,0x55FF0000, 0x00FF0000 };
+			stops = new float[] { 0.0f,0.15f, 0.42f, 1.0f };
+			radius = 1f * bitmap.getWidth();
+			sX =eX;
+			eX=0;
+			break;
 		default:
 			colors = null;
 			stops = null;
@@ -131,13 +162,21 @@ public class VignetteImageView extends ImageView
 
 		if (!isFinal && draw)
 		{
-			//this.invalidate();
+			// this.invalidate();
 		}
 		else
 		{
-			if(colors!=null && stops!=null)
+			if (colors != null && stops != null)
 			{
-				makeRadialGradient(radiusRatio, bitmap.getWidth(), bitmap.getHeight(), bitmap, colors, stops);
+				if (radialGradient)
+				{
+					makeRadialGradient(radius, bitmap.getWidth(), bitmap.getHeight(), bitmap, colors, stops, cX, cY);
+				}
+				else
+				{
+					makeLinearGradient(radius, bitmap.getWidth(), bitmap.getHeight(), bitmap, colors, stops, sX, sY, eX, eY, isLinearDiagonal);
+				}
+
 			}
 			isFinal = false;
 		}
@@ -145,33 +184,10 @@ public class VignetteImageView extends ImageView
 		return bitmap;
 	}
 
-//	@Override
-//	protected void onDraw(Canvas canvas)
-//	{
-//		if (colors != null && stops != null)
-//		{
-//			width = canvas.getWidth() / 2;
-//			height = canvas.getHeight() / 2;
-//			
-//			float radius = radiusRatio * width ;
-//
-//			RadialGradient gradient = new RadialGradient(width, height, radius, colors, stops, android.graphics.Shader.TileMode.CLAMP);
-//
-//			Paint p = new Paint();
-//			p.setDither(true);
-//			p.setShader(gradient);
-//
-//			canvas.drawCircle(width, height, (radius), p);
-//
-//		}
-//	}
-
-	private static void makeRadialGradient(float radiusRatio,int width,int height,Bitmap bitmap,int colors[],float stops[])
+	private static void makeRadialGradient(float radius, int width, int height, Bitmap bitmap, int colors[], float stops[], float centerX, float centerY)
 	{
 
-		float radius = radiusRatio * width / 2;
-
-		RadialGradient gradient = new RadialGradient(width / 2, height / 2, radius, colors, stops, android.graphics.Shader.TileMode.CLAMP);
+		RadialGradient gradient = new RadialGradient(centerX, centerY, radius, colors, stops, TileMode.CLAMP);
 
 		Paint p = new Paint();
 		p.setDither(true);
@@ -179,7 +195,20 @@ public class VignetteImageView extends ImageView
 
 		Canvas c = new Canvas(bitmap);
 
-		c.drawCircle(width / 2, height / 2, (radius), p);
+		c.drawCircle(centerX, centerY, (radius), p);
+	}
+
+	private static void makeLinearGradient(float radius, int width, int height, Bitmap bitmap, int colors[], float stops[], float startX, float startY, float endX, float endY,
+			boolean isDiagonal)
+	{
+		float gradientEnd = isDiagonal ? endY : startY;
+		LinearGradient shader = new LinearGradient(startX, startY, endX, gradientEnd, colors, stops, TileMode.CLAMP);
+		Paint paint = new Paint();
+		paint.setDither(true);
+		paint.setShader(shader);
+		Canvas c = new Canvas(bitmap);
+		c.drawRect(new RectF(0, 0, bitmap.getWidth(), bitmap.getHeight()), paint);
+
 	}
 
 }

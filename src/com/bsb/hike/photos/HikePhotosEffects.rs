@@ -33,10 +33,12 @@
 #define ChannelBlend_AlphaF(A,B,F,O) (ChannelBlend_Alpha(F(A,B),A,O))
 #define ChannelBlend_SoftLight(A,B)  (((B < 128)?(2*((A>>1)+64))*((float)B/255):(255-(2*(255-((A>>1)+64))*(float)(255-B)/255))))
 
-enum blendMode { Multiply , Overlay , SoftLight , Exclusion };
+enum blendMode { Multiply , Overlay , SoftLight , Exclusion, Screen, Normal, Lighten };
 
 typedef enum blendMode BlendMode;
 
+const static float3 gMonoMult = {0.299f, 0.587f, 0.114f};
+ 
 float static d(float x) 
 {
 	if (x <= 0.25) {
@@ -62,11 +64,20 @@ int static blendSoftLight(float fg, float bg)
 
 }
 
+uchar4 static setSaturation(uchar4 in,float saturationValue)
+{
+    float4 f4 = rsUnpackColor8888(in);
+    float3 result = dot(f4.rgb, gMonoMult);
+    result = mix( result, f4.rgb, saturationValue );
+ 
+    return rsPackColorTo8888(result);
+}
+
 int rSpline[256];
 int gSpline[256];
 int bSpline[256];
 int compositeSpline[256];
-int isThumbnail;
+int isThumbnail,imageWidth;
 int r[3],g[3],b[3];
 
 float preMatrix[20],postMatrix[20];
@@ -75,7 +86,7 @@ rs_allocation input1;
 rs_allocation input2;
 
 
-uchar4 static applyColorMatrix(uchar4 in,float matrix[])
+uchar4 static applyColorMatrix(uchar4 in, float matrix[])
 {
 
 	float red = in.r/255.0;
@@ -140,6 +151,21 @@ uchar4 static applyBlendToRGB(uchar4 source ,uchar4 target, BlendMode type, floa
 			source.r =  ChannelBlend_Alpha(ChannelBlend_Exclusion(target.r,source.r),source.r,opacity);
 			source.g =  ChannelBlend_Alpha(ChannelBlend_Exclusion(target.g,source.g),source.g,opacity);
 			source.b =  ChannelBlend_Alpha(ChannelBlend_Exclusion(target.b,source.b),source.b,opacity);
+			break;
+		case Screen : 
+			source.r =  ChannelBlend_Alpha(ChannelBlend_Screen(target.r,source.r),source.r,opacity);
+			source.g =  ChannelBlend_Alpha(ChannelBlend_Screen(target.g,source.g),source.g,opacity);
+			source.b =  ChannelBlend_Alpha(ChannelBlend_Screen(target.b,source.b),source.b,opacity);
+			break;
+		case Normal : 
+			source.r =  ChannelBlend_Alpha(ChannelBlend_Normal(target.r,source.r),source.r,opacity);
+			source.g =  ChannelBlend_Alpha(ChannelBlend_Normal(target.g,source.g),source.g,opacity);
+			source.b =  ChannelBlend_Alpha(ChannelBlend_Normal(target.b,source.b),source.b,opacity);
+			break;
+		case Lighten : 
+			source.r =  ChannelBlend_Alpha(ChannelBlend_Lighten(target.r,source.r),source.r,opacity);
+			source.g =  ChannelBlend_Alpha(ChannelBlend_Lighten(target.g,source.g),source.g,opacity);
+			source.b =  ChannelBlend_Alpha(ChannelBlend_Lighten(target.b,source.b),source.b,opacity);
 			break;
 		default :
 			break;
@@ -338,13 +364,101 @@ uchar4 __attribute__((kernel)) filter_nashville(uchar4 in,uint32_t x,uint32_t y)
 	return in;
 }
 
-uchar4 __attribute__((kernel)) filter_jalebi(uchar4 in,uint32_t x,uint32_t y) {
+uchar4 __attribute__((kernel)) filter_junglee(uchar4 in,uint32_t x,uint32_t y) 
+{
+	in.r = rSpline[in.r];
+	
+	in.g = gSpline[in.g];
 
-	in.r=rSpline[in.r];
+	in.b = bSpline[in.b];
+	
+	return in;
+	
+}
 
-	in.g=gSpline[in.g];
+uchar4 __attribute__((kernel)) filter_gulaal(uchar4 in,uint32_t x,uint32_t y)
+{
+	in = applyColorMatrix(in,preMatrix);
+	
+	in = applyBlendToRGB(in , getPixelForColor(255,r[0],g[0],b[0]),Exclusion,1);
+	
+	if(!isThumbnail)
+	{
+		uchar4 v = rsGetElementAt_uchar4(input1, x, y);
+	
+		in = applyBlendToRGB(in , v ,Screen,1);
+	}
+	
+	in.r = compositeSpline[in.r];
 
-	in.b=bSpline[in.b];
+	in.g = compositeSpline[in.g];
+
+	in.b = compositeSpline[in.b]; 
+	
+	return in;
+	
+}
+
+uchar4 __attribute__((kernel)) filter_chillum(uchar4 in,uint32_t x,uint32_t y)
+{
+	in.r = rSpline[in.r];
+	
+	in.g = gSpline[in.g];
+
+	in.b = bSpline[in.b];
+	
+	if(!isThumbnail)
+	{
+		uchar4 v = rsGetElementAt_uchar4(input1, x, y);
+	
+		in = applyBlendToRGB(in , v ,Multiply,0.72);
+	}
+	
+	return in;
+}
+
+uchar4 __attribute__((kernel)) filter_ghostly(uchar4 in,uint32_t x,uint32_t y)
+{
+	in = applyColorMatrix(in,preMatrix);
+	
+	in.b = bSpline[in.b];
+	
+	if(!isThumbnail)
+	{
+		uchar4 v = rsGetElementAt_uchar4(input1, x, y);
+	
+		in = applyBlendToRGB(in , v ,Multiply,0.72);
+	}
+	
+	return in;
+	
+}
+
+uchar4 __attribute__((kernel)) filter_bgr(uchar4 in,uint32_t x,uint32_t y)
+{
+	in = applyColorMatrix(in,preMatrix);
+	
+	in.b = bSpline[in.b];
+	
+	if(!isThumbnail)
+	{
+		uchar4 v = rsGetElementAt_uchar4(input1, x, y);
+	
+		in = applyBlendToRGB(in , v ,Multiply,0.72);
+	}
+	
+	return in;
+	
+}
+
+uchar4 __attribute__((kernel)) filter_jalebi(uchar4 in,uint32_t x,uint32_t y)
+{
+
+	in.r = rSpline[in.r];
+
+	in.g = gSpline[in.g];
+
+	in.b = bSpline[in.b];
 
 
 	if(!isThumbnail)
@@ -363,6 +477,62 @@ uchar4 __attribute__((kernel)) filter_jalebi(uchar4 in,uint32_t x,uint32_t y) {
 
 	return in;
 }
+
+uchar4 __attribute__((kernel)) filter_auto(uchar4 in,uint32_t x,uint32_t y)
+{
+
+	in = applyBlendToRGB(in , in ,Overlay,1);
+	
+	return in;
+	
+}
+
+uchar4 __attribute__((kernel)) filter_HDR_init(uchar4 in,uint32_t x,uint32_t y)
+{
+	uchar4 out = rsGetElementAt_uchar4(input2, x, y);
+	out = applyColorMatrix(out,preMatrix);
+	return out;
+}
+
+uchar4 __attribute__((kernel)) filter_HDR_post(uchar4 in,uint32_t x,uint32_t y)
+{
+	uchar4 out = rsGetElementAt_uchar4(input1, x, y);
+	out = applyColorMatrix(out,postMatrix);
+	out = applyBlendToRGB(in , out ,Normal,0.45);
+	uchar4 out2 = rsGetElementAt_uchar4(input2, x, y);
+	in = applyBlendToRGB(in , out2 ,Overlay,1);
+	in = applyBlendToRGB(in , out ,Overlay,1);
+	return in;
+} 
+
+
+
+uchar4 __attribute__((kernel)) filter_sunlitt(uchar4 in,uint32_t x,uint32_t y)
+{
+ 
+ 	in.r = compositeSpline[in.r];
+
+	in.g = compositeSpline[in.g];
+
+	in.b = compositeSpline[in.b]; 
+	
+	in.r = rSpline[in.r];
+
+	in.g = gSpline[in.g];
+
+	in.b = bSpline[in.b];
+	
+	if(!isThumbnail)
+	{
+		uchar4 v = rsGetElementAt_uchar4(input1, x, y);
+	
+		in = applyBlendToRGB(in , v ,Screen,1);
+	}
+ 	
+	return in;
+
+}
+
 
 uchar4 __attribute__((kernel)) filter_original(uchar4 in,uint32_t x,uint32_t y) {
 
