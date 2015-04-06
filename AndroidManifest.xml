@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1147"
-    android:versionName="3.8.0.73.photos" >
+    android:versionCode="1160"
+    android:versionName="3.8.10.photos" >
     <uses-sdk
         android:minSdkVersion="9"
         android:targetSdkVersion="17" />
