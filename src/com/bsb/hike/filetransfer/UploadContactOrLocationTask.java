@@ -42,12 +42,13 @@ import com.bsb.hike.analytics.MsgRelLogManager;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.http.CustomByteArrayEntity;
 import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.ConvMessage.OriginType;
 import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.models.HikeFile;
-import com.bsb.hike.models.ConvMessage.OriginType;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.ProgressListener;
 import com.bsb.hike.utils.Utils;
@@ -192,7 +193,7 @@ public class UploadContactOrLocationTask extends FileTransferBase
 					String msisdn = grpParticipant.getFirst().getContactInfo().getMsisdn();
 					convMessageObject.addToSentToMsisdnsList(msisdn);
 				}
-				Utils.addBroadcastRecipientConversations(convMessageObject);
+				OneToNConversationUtils.addBroadcastRecipientConversations(convMessageObject);
 			}
 
 			HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_SENT, convMessageObject);

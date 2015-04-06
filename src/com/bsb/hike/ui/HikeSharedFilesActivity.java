@@ -496,7 +496,7 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity im
 				@Override
 				public void negativeClicked(HikeDialog hikeDialog)
 				{
-					
+					hikeDialog.dismiss();
 				}
 			}, selectedSharedFileItems.size());
 			

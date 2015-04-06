@@ -182,7 +182,6 @@ import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.ContactInfoData;
 import com.bsb.hike.models.ContactInfoData.DataType;
 import com.bsb.hike.models.ConvMessage;
-import com.bsb.hike.models.ConvMessage.OriginType;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.ConvMessage.State;
 import com.bsb.hike.models.FtueContactsData;
@@ -747,20 +746,6 @@ public class Utils
 			contactNames.add(selectedContacts[i].substring(0, selectedContacts[i].indexOf("[")));
 		}
 		return contactNames;
-	}
-	/**
-	 * To ensure that group Conversation and Broadcast conversation are mutually exclusive, we add the !isBroadCast check
-	 * @param msisdn
-	 * @return
-	 */
-	public static boolean isGroupConversation(String msisdn)
-	{
-		return msisdn != null && !msisdn.startsWith("+") && !isBroadcastConversation(msisdn);
-	}
-	
-	public static boolean isBroadcastConversation(String msisdn)
-	{
-		return msisdn!=null && msisdn.startsWith("b:");
 	}
 
 	public static String validateBotMsisdn(String msisdn)
@@ -4030,8 +4015,8 @@ public class Utils
 			}
 			else
 			{
-				iconDrawable = context.getResources().getDrawable(Utils.isBroadcastConversation(msisdn)? R.drawable.ic_default_avatar_broadcast : 
-					(Utils.isGroupConversation(msisdn) ? R.drawable.ic_default_avatar_group : R.drawable.ic_default_avatar));
+				iconDrawable = context.getResources().getDrawable(OneToNConversationUtils.isBroadcastConversation(msisdn)? R.drawable.ic_default_avatar_broadcast : 
+					(OneToNConversationUtils.isGroupConversation(msisdn) ? R.drawable.ic_default_avatar_group : R.drawable.ic_default_avatar));
 			}
 			drawable = new LayerDrawable(new Drawable[] { background, iconDrawable });
 		}
@@ -5388,7 +5373,7 @@ public class Utils
 		{
 			return HikeConstants.BOT;
 		}
-		else if (isGroupConversation(msisdn))
+		else if (OneToNConversationUtils.isGroupConversation(msisdn))
 		{
 			return HikeConstants.GROUP_CONVERSATION;
 		}
@@ -5462,7 +5447,7 @@ public class Utils
 	
 	public static boolean isConversationMuted(String msisdn)
 	{
-		if ((Utils.isGroupConversation(msisdn)))
+		if ((OneToNConversationUtils.isGroupConversation(msisdn)))
 		{
 			if (HikeConversationsDatabase.getInstance().isGroupMuted(msisdn))
 			{
@@ -5547,43 +5532,6 @@ public class Utils
 		return result.toString();
 	}
 	
-	public static void addBroadcastRecipientConversations(ConvMessage convMessage)
-	{
-		
-		ArrayList<ContactInfo> contacts = HikeConversationsDatabase.getInstance().addBroadcastRecipientConversations(convMessage);
-		
-		sendPubSubForConvScreenBroadcastMessage(convMessage, contacts);
-        // publishing mqtt packet
-        HikeMqttManagerNew.getInstance().sendMessage(convMessage.serializeDeliveryReportRead(), HikeMqttManagerNew.MQTT_QOS_ONE);
-	}
-	
-
-	public static void sendPubSubForConvScreenBroadcastMessage(ConvMessage convMessage, ArrayList<ContactInfo> recipient)
-	{
-		long firstMsgId = convMessage.getMsgID() + 1;
-		int totalRecipient = recipient.size();
-		List<Pair<ContactInfo, ConvMessage>> allPairs = new ArrayList<Pair<ContactInfo,ConvMessage>>(totalRecipient);
-		long timestamp = System.currentTimeMillis()/1000;
-		for(int i=0;i<totalRecipient;i++)
-		{
-			ConvMessage message = new ConvMessage(convMessage);
-			if(convMessage.isBroadcastConversation())
-			{
-				message.setMessageOriginType(OriginType.BROADCAST);
-			}
-			else
-			{
-				//multi-forward case... in braodcast case we donot need to update timestamp
-				message.setTimestamp(timestamp++);
-			}
-			message.setMsgID(firstMsgId+i);
-			ContactInfo contactInfo = recipient.get(i);
-			message.setMsisdn(contactInfo.getMsisdn());
-			Pair<ContactInfo, ConvMessage> pair = new Pair<ContactInfo, ConvMessage>(contactInfo, message);
-			allPairs.add(pair);
-		}
-		HikeMessengerApp.getPubSub().publish(HikePubSub.MULTI_MESSAGE_DB_INSERTED, allPairs);
-	}
 	
 	public static Long getMaxLongValue(ArrayList<Long> values)
 	{

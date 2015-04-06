@@ -928,7 +928,7 @@ public class ConvMessage implements Searchable
 		{
 			object.put(HikeConstants.MESSAGE_ID, Long.toString(System.currentTimeMillis()/1000));
 			object.put(HikeConstants.TO, mMsisdn);
-			if(privateData != null && privateData.getTrackID() != null && !Utils.isGroupConversation(mMsisdn))
+			if(privateData != null && privateData.getTrackID() != null && !OneToNConversationUtils.isGroupConversation(mMsisdn))
 			{
 				// "d":{"msgid1":{track_id:"value"}}
 				JSONObject obj = new JSONObject();
@@ -1158,7 +1158,7 @@ public class ConvMessage implements Searchable
 	}
 	
 	public boolean isBroadcastConversation() {
-		return Utils.isBroadcastConversation(this.mMsisdn);
+		return OneToNConversationUtils.isBroadcastConversation(this.mMsisdn);
 	}
 	
 	public boolean isBroadcastMessage() {

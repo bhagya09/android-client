@@ -32,6 +32,7 @@ import com.bsb.hike.models.Conversation.GroupConversation;
 import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.models.Conversation.OneToOneConversation;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.Utils;
 
@@ -66,7 +67,7 @@ public class EmailConversationsAsyncTask extends AsyncTask<ConvInfo, Void, Conve
 
 			db = HikeConversationsDatabase.getInstance();
 			Conversation conv = db.getConversation(msisdn, -1);
-			boolean isGroup = Utils.isGroupConversation(msisdn);
+			boolean isGroup = OneToNConversationUtils.isGroupConversation(msisdn);
 			if (conv == null)
 			{
 				ContactInfo contactInfo = ContactManager.getInstance().getContact(msisdn, true, true);
@@ -75,7 +76,7 @@ public class EmailConversationsAsyncTask extends AsyncTask<ConvInfo, Void, Conve
 					conv = new GroupConversation.ConversationBuilder(msisdn).setConvName((contactInfo != null) ? contactInfo.getName() : null).build();
 				}
 				
-				else if (Utils.isBroadcastConversation(msisdn))
+				else if (OneToNConversationUtils.isBroadcastConversation(msisdn))
 				{
 					conv = new BroadcastConversation.ConversationBuilder(msisdn).setConvName((contactInfo != null) ? contactInfo.getName() : null).build();
 				}

@@ -479,7 +479,7 @@
     <string name="tutorial_friends_header">Welcome to hike</string>
     <string name="tutorial_friends_info">Now share status updates\nwith your circle of friends.</string>
     <string name="chat">Chat</string>
-    <string name="group">Group</string>
+    <string name="group">group</string>
     <string name="posting_update">Posting...</string>
     <string name="posting_update_facebook">Posting to Facebook...</string>
     <string name="posting_update_twitter">Posting to Twitter...</string>
@@ -549,7 +549,7 @@
     <string name="attach">Attach</string>
     <string name="new_group">New Group</string>
     <string name="new_broadcast">New Broadcast</string>
-    <string name="broadcast">Broadcast</string>
+    <string name="broadcast">broadcast</string>
     <string name="sent_friend_request">Sent a friend request</string>
     <string name="xyz_posted_update">%1$s posted an update</string>
     <string name="sent_you_friend_request">Sent you a friend request</string>

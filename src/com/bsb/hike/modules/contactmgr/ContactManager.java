@@ -1948,7 +1948,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 		{
 			if(group.isGroupAlive())
 			{
-				if (!Utils.isBroadcastConversation(group.getGroupId()))
+				if (!OneToNConversationUtils.isBroadcastConversation(group.getGroupId()))
 				{
 					int numMembers = 0;
 					if(groupCountMap.containsKey(group.getGroupId()))

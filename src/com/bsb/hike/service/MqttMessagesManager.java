@@ -179,7 +179,7 @@ public class MqttMessagesManager
 		/*
 		 * We don't consider this packet if the msisdn is the user's msisdn or a group conversation.
 		 */
-		if (Utils.isGroupConversation(msisdn) || userMsisdn.equals(msisdn))
+		if (OneToNConversationUtils.isGroupConversation(msisdn) || userMsisdn.equals(msisdn))
 		{
 			return;
 		}
@@ -736,7 +736,7 @@ public class MqttMessagesManager
 				String msisdn = convMessage.getMsisdn();
 				if (ContactManager.getInstance().isConvExists(msisdn))
 				{
-					if (Utils.isGroupConversation(msisdn))
+					if (OneToNConversationUtils.isGroupConversation(msisdn))
 					{
 						if (!HikeConversationsDatabase.getInstance().isGroupMuted(msisdn))
 						{
@@ -783,7 +783,7 @@ public class MqttMessagesManager
 		/*
 		 * Start auto download for media files
 		 */
-		String name = Utils.isGroupConversation(msisdn) ? manager.getName(msisdn) : manager.getContact(msisdn, false, true).getName();
+		String name = OneToNConversationUtils.isGroupConversation(msisdn) ? manager.getName(msisdn) : manager.getContact(msisdn, false, true).getName();
 		if (convMessage.isFileTransferMessage() && (!TextUtils.isEmpty(name)) && (manager.isConvExists(msisdn)))
 		{
 			HikeFile hikeFile = convMessage.getMetadata().getHikeFiles().get(0);
@@ -2265,7 +2265,7 @@ public class MqttMessagesManager
 		boolean isGroupConversation = false;
 		if (!TextUtils.isEmpty(to))
 		{
-			isGroupConversation = Utils.isGroupConversation(to);
+			isGroupConversation = OneToNConversationUtils.isGroupConversation(to);
 		}
 		String id = isGroupConversation ? to : from;
 
@@ -2585,7 +2585,7 @@ public class MqttMessagesManager
 			
 			// Adding Logs for Message Reliability
 			MessagePrivateData pd = convMessage.getPrivateData();
-			if (pd != null && pd.getTrackID() != null && !Utils.isGroupConversation(convMessage.getMsisdn()))
+			if (pd != null && pd.getTrackID() != null && !OneToNConversationUtils.isGroupConversation(convMessage.getMsisdn()))
 			{
 				MsgRelLogManager.recordMsgRel(pd.getTrackID(), MsgRelEventType.RECIEVR_RECV_MSG);
 			}

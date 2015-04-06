@@ -2004,6 +2004,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			@Override
 			public void negativeClicked(HikeDialog hikeDialog)
 			{
+				hikeDialog.dismiss();
 			}
 
 		};

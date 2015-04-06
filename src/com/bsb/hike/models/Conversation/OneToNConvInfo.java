@@ -3,6 +3,7 @@ package com.bsb.hike.models.Conversation;
 import android.text.TextUtils;
 
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 
 /**
@@ -38,6 +39,19 @@ public class OneToNConvInfo extends ConvInfo
 		this.isConversationAlive = isConversationAlive;
 	}
 
+	/**
+	 * We need to set the sorting timestamp whenever we set the last message.
+	 * 
+	 * @param lastConversationMsg
+	 *            the lastConversationMsg to set
+	 */
+	@Override
+	public void setLastConversationMsg(ConvMessage lastConversationMsg)
+	{
+		this.lastConversationMsg = lastConversationMsg;
+		setSortingTimeStamp(lastConversationMsg.getTimestamp());
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * 

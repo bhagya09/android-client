@@ -73,6 +73,7 @@ import com.bsb.hike.utils.LastSeenScheduler;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.LastSeenScheduler.LastSeenFetchedCallback;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.SoundUtils;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.voip.VoIPUtils;
@@ -220,7 +221,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	@Override
 	protected Conversation fetchConversation()
 	{
-		mConversation = mConversationDb.getConversation(msisdn, HikeConstants.MAX_MESSAGES_TO_LOAD_INITIALLY, Utils.isGroupConversation(msisdn));
+		mConversation = mConversationDb.getConversation(msisdn, HikeConstants.MAX_MESSAGES_TO_LOAD_INITIALLY, OneToNConversationUtils.isGroupConversation(msisdn));
 
 		mContactInfo = HikeMessengerApp.getContactManager().getContact(msisdn, true, true);
 

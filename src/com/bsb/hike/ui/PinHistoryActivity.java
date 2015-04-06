@@ -484,7 +484,7 @@ public class PinHistoryActivity extends HikeAppStateBaseFragmentActivity impleme
 				@Override
 				public void negativeClicked(HikeDialog hikeDialog)
 				{
-					
+					hikeDialog.dismiss();
 				}
 				
 			}, pinAdapter.getSelectedPinsCount());

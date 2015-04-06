@@ -5,7 +5,6 @@ package com.bsb.hike.models.Conversation;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map.Entry;
 
 import org.json.JSONArray;
@@ -15,7 +14,6 @@ import org.json.JSONObject;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.GroupParticipant;
-import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.Utils;
@@ -64,14 +62,8 @@ public class BroadcastConversation extends OneToNConversation
 		return object;
 	}
 
-	public static String defaultBroadcastName(ArrayList<String> participantList)
+	public static String defaultBroadcastName(ArrayList<ContactInfo> broadcastParticipants)
 	{
-		List<ContactInfo> broadcastParticipants = new ArrayList<ContactInfo>(participantList.size());
-		for (String msisdn : participantList)
-		{
-			ContactInfo contactInfo = ContactManager.getInstance().getContact(msisdn, true, false);
-			broadcastParticipants.add(contactInfo);
-		}
 		Collections.sort(broadcastParticipants);
 
 		String name = Utils.extractFullFirstName(broadcastParticipants.get(0).getFirstNameAndSurname());

@@ -50,6 +50,7 @@ import com.bsb.hike.models.Conversation.OneToNConversationMetadata;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
@@ -541,12 +542,12 @@ public class ChatThreadUtils
 	 */
 	public static String getChatThreadType(String msisdn)
 	{
-		if (Utils.isBroadcastConversation(msisdn))
+		if (OneToNConversationUtils.isBroadcastConversation(msisdn))
 		{
 			return HikeConstants.Extras.BROADCAST_CHAT_THREAD;
 		}
 
-		else if (Utils.isGroupConversation(msisdn))
+		else if (OneToNConversationUtils.isGroupConversation(msisdn))
 		{
 			return HikeConstants.Extras.GROUP_CHAT_THREAD;
 		}

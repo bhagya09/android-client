@@ -3,8 +3,6 @@ package com.bsb.hike.ui;
 import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -33,28 +31,21 @@ import android.widget.Toast;
 import com.actionbarsherlock.app.ActionBar;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
-import com.bsb.hike.chatthread.ChatThread;
-import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
-import com.bsb.hike.models.ConvMessage;
-import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.models.HikeFile.HikeFileType;
-import com.bsb.hike.models.Conversation.BroadcastConversation;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
-import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.PairModified;
+import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.Utils;
 
 public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseActivity
@@ -325,10 +316,6 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 	
 	private void createBroadcast(ArrayList<String> selectedContactsMsisdns)
 	{
-		String broadcastName = groupOrBroadcastName.getText().toString().trim();
-		
-		boolean newBroadcast = true;
-
 //		Construct ContactInfo for all msisdns in 'selectedContactsMsisdns'
 		ArrayList<ContactInfo> selectedContactList = new ArrayList<ContactInfo>(selectedContactsMsisdns.size());
 		for (String msisdn : selectedContactsMsisdns)
@@ -336,76 +323,9 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 			ContactInfo contactInfo = ContactManager.getInstance().getContact(msisdn, true, false);
 			selectedContactList.add(contactInfo);
 		}
-		
-		Map<String, PairModified<GroupParticipant, String>> participantList = new HashMap<String, PairModified<GroupParticipant, String>>();
-		
-		for (ContactInfo particpant : selectedContactList)
-		{
-			GroupParticipant broadcastParticipant = new GroupParticipant(particpant);
-			participantList.put(particpant.getMsisdn(), new PairModified<GroupParticipant, String>(broadcastParticipant, broadcastParticipant.getContactInfo().getNameOrMsisdn()));
-		}
-		ContactInfo userContactInfo = Utils.getUserContactInfo(getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE));
-
-		BroadcastConversation broadcastConversation = new BroadcastConversation.ConversationBuilder(groupOrBroadcastId).setConversationOwner(userContactInfo.getMsisdn()).setIsAlive(true).setConversationParticipantsList(participantList).build();
-		
-		Logger.d(getClass().getSimpleName(), "Creating group: " + groupOrBroadcastId);
-		HikeConversationsDatabase mConversationDb = HikeConversationsDatabase.getInstance();
-		mConversationDb.addRemoveGroupParticipants(groupOrBroadcastId, broadcastConversation.getConversationParticipantList(), false);
-		if (newBroadcast)
-		{
-			mConversationDb.addConversation(broadcastConversation.getMsisdn(), false, broadcastName, broadcastConversation.getConversationOwner());
-			ContactManager.getInstance().insertGroup(broadcastConversation.getMsisdn(),broadcastName);
-		}
-
-		try
-		{
-			// Adding this boolean value to show a different system message
-			// if its a new group
-			JSONObject gcjPacket = broadcastConversation.serialize(HikeConstants.MqttMessageTypes.GROUP_CHAT_JOIN);
-			gcjPacket.put(HikeConstants.NEW_BROADCAST, newBroadcast);
-			ConvMessage msg = new ConvMessage(gcjPacket, broadcastConversation, this, true);
-			ContactManager.getInstance().updateGroupRecency(groupOrBroadcastId, msg.getTimestamp());
-			HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_SENT, msg);
-		}
-		catch (JSONException e)
-		{
-			e.printStackTrace();
-		}
-		JSONObject gcjJson = broadcastConversation.serialize(HikeConstants.MqttMessageTypes.GROUP_CHAT_JOIN);
-		/*
-		 * Adding the group name to the packet
-		 */
-		if (newBroadcast)
-		{
-			JSONObject metadata = new JSONObject();
-			try
-			{
-				metadata.put(HikeConstants.NAME, broadcastName);
-
-				String directory = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
-				String fileName = Utils.getTempProfileImageFileName(groupOrBroadcastId);
-				File groupImageFile = new File(directory, fileName);
-
-				if (groupImageFile.exists())
-				{
-					metadata.put(HikeConstants.REQUEST_DP, true);
-				}
-
-				gcjJson.put(HikeConstants.METADATA, metadata);
-			}
-			catch (JSONException e)
-			{
-				e.printStackTrace();
-			}
-		}
-		HikeMqttManagerNew.getInstance().sendMessage(gcjJson, HikeMqttManagerNew.MQTT_QOS_ONE);
-
-		ContactInfo conversationContactInfo = new ContactInfo(groupOrBroadcastId, groupOrBroadcastId, groupOrBroadcastId, groupOrBroadcastId);
-		Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(this, conversationContactInfo, true);
-		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-		startActivity(intent);
-		finish();
-
+		String broadcastName = groupOrBroadcastName.getText().toString().trim();
+		getIntent().putExtra(HikeConstants.Extras.GROUP_BROADCAST_ID, groupOrBroadcastId);
+		OneToNConversationUtils.createGroupOrBroadcast(this, selectedContactList, broadcastName);
 	}
 	
 	@Override

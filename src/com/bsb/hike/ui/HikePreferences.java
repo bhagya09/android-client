@@ -454,8 +454,9 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 				@Override
 				public void negativeClicked(HikeDialog hikeDialog)
 				{
+					hikeDialog.dismiss();
 				}
-			}, null);
+			});
 		}
 		/*else if (preference.getKey().equals(HikeConstants.UNLINK_FB))
 		{

@@ -15,7 +15,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Message;
 import android.provider.ContactsContract.Contacts;
 import android.provider.MediaStore;
@@ -522,7 +521,7 @@ public class IntentFactory
 	{
 		// If the contact info was made using a group conversation, then the
 		// Group ID is in the contact ID
-		boolean isGroupConv = Utils.isGroupConversation(contactInfo.getMsisdn());
+		boolean isGroupConv = OneToNConversationUtils.isOneToNConversation(contactInfo.getMsisdn());
 		return createChatThreadIntentFromMsisdn(context, isGroupConv ? contactInfo.getId() : contactInfo.getMsisdn(), openKeyBoard);
 	}
 	

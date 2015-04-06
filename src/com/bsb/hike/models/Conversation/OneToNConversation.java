@@ -19,6 +19,7 @@ import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.Utils;
 
@@ -539,7 +540,7 @@ public abstract class OneToNConversation extends Conversation
 
 		String convName = ContactManager.getInstance().getName(msisdn);
 
-		if (Utils.isBroadcastConversation(msisdn))
+		if (OneToNConversationUtils.isBroadcastConversation(msisdn))
 		{
 			conversation = new BroadcastConversation.ConversationBuilder(msisdn).setConversationOwner(jsonObj.getString(HikeConstants.FROM))
 					.setConversationParticipantsList(participants).setConversationOwner(convName).build();
