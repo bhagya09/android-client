@@ -310,8 +310,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	private ChatThreadBroadcasts mBroadCastReceiver;
 
-	private int share_type = HikeConstants.Extras.NOT_SHAREABLE ;
-
 
 	protected Handler uiHandler = new Handler()
 	{
@@ -2282,7 +2280,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		mAdapter.removeSelection();
 		mAdapter.setActionMode(false);
 		mAdapter.notifyDataSetChanged();
-		share_type = HikeConstants.Extras.NOT_SHAREABLE;
 		/**
 		 * if we have hidden tips while initializing action mode we should unhide them
 		 */ 
@@ -3603,59 +3600,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		sendMessage(convMessage);
 	}
 	
-	private Intent shareFunctionality(Intent intent, ConvMessage message)
-	{
-		boolean showShareFunctionality = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.SHOW_SHARE_FUNCTIONALITY, false);
-		if (mAdapter.getSelectedCount() == 1 && Utils.isPackageInstalled(activity.getApplicationContext(), HikeConstants.Extras.WHATSAPP_PACKAGE) && showShareFunctionality)
-		{
-			if (message.isStickerMessage())
-			{
-				share_type = HikeConstants.Extras.ShareTypes.STICKER_SHARE;
-			}
-
-			if (message.isImageMsg())
-			{
-				share_type = HikeConstants.Extras.ShareTypes.IMAGE_SHARE;
-			}
-
-			if (message.isTextMsg())
-			{
-				share_type = HikeConstants.Extras.ShareTypes.TEXT_SHARE;
-			}
-
-			switch (share_type)
-			{
-			case HikeConstants.Extras.ShareTypes.STICKER_SHARE:
-				Sticker sticker = message.getMetadata().getSticker();
-				String filePath = StickerManager.getInstance().getStickerDirectoryForCategoryId(sticker.getCategoryId()) + HikeConstants.LARGE_STICKER_ROOT;
-				File stickerFile = new File(filePath, sticker.getStickerId());
-				String filePathBmp = stickerFile.getAbsolutePath();
-				intent.putExtra(HikeConstants.Extras.SHARE_TYPE, HikeConstants.Extras.ShareTypes.STICKER_SHARE);
-				intent.putExtra(HikeConstants.Extras.SHARE_CONTENT, filePathBmp);
-				intent.putExtra(StickerManager.STICKER_ID, sticker.getStickerId());
-				intent.putExtra(StickerManager.CATEGORY_ID, sticker.getCategoryId());
-				break;
-
-			case HikeConstants.Extras.ShareTypes.TEXT_SHARE:
-				String text = message.getMessage();
-				intent.putExtra(HikeConstants.Extras.SHARE_TYPE, HikeConstants.Extras.ShareTypes.TEXT_SHARE);
-				intent.putExtra(HikeConstants.Extras.SHARE_CONTENT, text);
-				break;
-
-			case HikeConstants.Extras.ShareTypes.IMAGE_SHARE:
-				if (shareableMessagesCount == 1)
-				{
-					HikeFile hikeFile = message.getMetadata().getHikeFiles().get(0);
-					intent.putExtra(HikeConstants.Extras.SHARE_TYPE, HikeConstants.Extras.ShareTypes.IMAGE_SHARE);
-					intent.putExtra(HikeConstants.Extras.SHARE_CONTENT, hikeFile.getExactFilePath());
-				}
-				break;
-			}
-
-		}
-		return intent;
-	}
-
+	
 	/**
 	 * Called from the UI Handler to change the chat theme
 	 * 
@@ -4123,7 +4068,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			}
 			intent.putExtra(HikeConstants.Extras.MULTIPLE_MSG_OBJECT, multipleMsgArray.toString());
 			intent.putExtra(HikeConstants.Extras.PREV_MSISDN, msisdn);
-			intent = shareFunctionality(intent, selectedMessagesMap.get(selectedMsgIds.get(0)));
+			intent = IntentFactory.shareFunctionality(intent, selectedMessagesMap.get(selectedMsgIds.get(0)), mAdapter, shareableMessagesCount, activity.getApplicationContext());
 			activity.startActivity(intent);
 			mActionMode.finish();
 			return true;
