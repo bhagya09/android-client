@@ -9,6 +9,7 @@ import android.widget.ImageView;
 import com.bsb.hike.R;
 import com.bsb.hike.adapters.EmoticonAdapter;
 import com.bsb.hike.adapters.StickerAdapter;
+import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.smartImageLoader.StickerOtherIconLoader;
 import com.bsb.hike.utils.StickerManager;
@@ -79,6 +80,11 @@ public class StickerEmoticonIconPageIndicator extends IconPageIndicator
 		{
 			mSelectedIndex = count - 1;
 		}
+		
+		if (mSelectedIndex < 0)
+		{
+			HAManager.sendStickerCrashDevEvent("Current Selected index inside : notifyDataSetChanged is : " + mSelectedIndex);
+		}
 		setCurrentItem(mSelectedIndex);
 		requestLayout();
 	}
@@ -122,6 +128,11 @@ public class StickerEmoticonIconPageIndicator extends IconPageIndicator
         	//deSelecting old child
 			selectChild(iconAdapter, previousSelectedIndex, false);
 		}
+        
+        if (count <= 0)
+        {
+        	HAManager.sendStickerCrashDevEvent("Inside method : setCurrentItem. Getting count as 0 from IconAdapter. Expect a crash soon!");
+        }
         //selecting new child
         selectChild(iconAdapter, item, true);
     }
@@ -129,6 +140,11 @@ public class StickerEmoticonIconPageIndicator extends IconPageIndicator
 	private void selectChild(StickerEmoticonIconPagerAdapter iconAdapter, int index, boolean isSelected)
 	{
 		View child = mIconsLayout.getChildAt(index);
+		if (child == null)
+		{
+			String errorMsg = "Inside method : Select Child.  View is null. Index value specified : " + index ;
+			HAManager.sendStickerCrashDevEvent(errorMsg);
+		}
 		ImageView icon = (ImageView) child.findViewById(R.id.category_btn);
 		child.setSelected(isSelected);
 		//We run this on UI thread otherwise there is a visible lag

@@ -29,4 +29,6 @@
 	<dimen name="welcome_artwork_padding">0dp</dimen>
 	<dimen name="welcome_with_love_top">30dp</dimen>
 	<dimen name="sticker_settings_tip_margin">60dp</dimen>
+	<dimen name="broadcast_ftue_text_bottom_padding">15dp</dimen>
+	<dimen name="broadcast_ftue_text_right_padding">100dp</dimen>
 </resources>

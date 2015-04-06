@@ -169,6 +169,16 @@ public class PlatformRequestManager
 
 	}
 
+	public static void failure(PlatformContentRequest mRequest, EventCode event, boolean isTemplatingEnabled)
+	{
+
+		reportFailure(mRequest, event);
+		if (isTemplatingEnabled)
+		{
+			remove(mRequest);
+		}
+	}
+
 	public static void reportFailure(final PlatformContentRequest argRequest, final EventCode error)
 	{
 		PlatformContentLoader.getLoader().post(new Runnable()

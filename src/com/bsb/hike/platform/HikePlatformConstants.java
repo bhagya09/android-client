@@ -43,6 +43,7 @@ public interface HikePlatformConstants
 	String CRICKET_PREF_NAME = "cricket_pref_name";
 	String APP_NAME = "appName";
 	String LAYOUT = "layoutId";
+	String LONG_PRESS_DISABLED = "lpd";
 
     /**
      * Analytics for Platform

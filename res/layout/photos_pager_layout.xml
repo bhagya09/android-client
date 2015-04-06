@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res/com.bsb.hike"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical"
+     >
+
+    <ViewStub
+        android:id="@+id/sizeBarStub"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="@integer/photos_pager_size_weight"
+        android:layout_gravity="center"
+        android:layout="@layout/doodle_size_bar" />
+
+    <com.jess.ui.TwoWayGridView
+        android:id="@+id/HorizontalGridView"
+        android:layout_width="match_parent"
+        android:scrollbars="none"
+        android:layout_height="0dp"
+        android:layout_weight="@integer/photos_pager_preview_weight"
+        android:layout_gravity="center"
+        app:scrollDirectionLandscape="horizontal"
+        app:scrollDirectionPortrait="horizontal"
+        app:stretchMode="none" >
+    </com.jess.ui.TwoWayGridView>
+    
+    
+
+</LinearLayout>

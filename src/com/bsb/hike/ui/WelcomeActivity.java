@@ -20,6 +20,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeConstants.WelcomeTutorial;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.tasks.SignupTask;
 import com.bsb.hike.tasks.SignupTask.StateValue;
 import com.bsb.hike.utils.AccountUtils;
@@ -51,7 +52,9 @@ public class WelcomeActivity extends HikeAppStateBaseFragmentActivity implements
 		super.onCreate(savedState);
 		setContentView(R.layout.welcomescreen);
 
-		Utils.setupServerURL(getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE).getBoolean(HikeMessengerApp.PRODUCTION, true), Utils.switchSSLOn(getApplicationContext()));
+		Utils.setupServerURL(getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE).getBoolean(HikeMessengerApp.PRODUCTION, true),
+				Utils.switchSSLOn(getApplicationContext()));
+		HttpRequestConstants.setUpBase();
 
 		mAcceptButton = (Button) findViewById(R.id.btn_continue);
 		loadingLayout = (ViewGroup) findViewById(R.id.loading_layout);
@@ -119,11 +122,12 @@ public class WelcomeActivity extends HikeAppStateBaseFragmentActivity implements
 		boolean production = sharedPreferences.getBoolean(HikeMessengerApp.PRODUCTION, true);
 
 		Utils.setupServerURL(!production, Utils.switchSSLOn(this));
-
-		Editor editor = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS,MODE_PRIVATE).edit();
-		editor.putBoolean(HikeMessengerApp.PRODUCTION, !production);
-		editor.commit();	
 		
+		Editor editor = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE).edit();
+		editor.putBoolean(HikeMessengerApp.PRODUCTION, !production);
+		editor.commit();
+		HttpRequestConstants.toggleStaging();
+
 		Toast.makeText(WelcomeActivity.this, AccountUtils.base, Toast.LENGTH_SHORT).show();
 	}
 
