@@ -969,6 +969,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		Cursor conversationCursor = null;
 		try
 		{
+			mDb.beginTransaction();
 			conversationCursor = mDb.query(DBConstants.CONVERSATIONS_TABLE, new String[] { DBConstants.MESSAGE_ID }, DBConstants.MSISDN + "=?", new String[] { groupId }, null,
 					null, null);
 
@@ -983,7 +984,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 			if (c.moveToFirst())
 			{
-				mDb.beginTransaction();
 				String readByString = null;
 				long msgId = c.getInt(c.getColumnIndex(DBConstants.MESSAGE_ID));
 

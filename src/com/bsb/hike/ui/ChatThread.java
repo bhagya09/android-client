@@ -3603,6 +3603,8 @@ public class ChatThread extends HikeAppStateBaseFragmentActivity implements Hike
 				
 				List<Pair<Long, JSONObject>> pairList = mConversationDb.updateStatusAndSendDeliveryReport(mConversation.getMsisdn());
 				
+				mPubSub.publish(HikePubSub.MSG_READ, mConversation.getMsisdn());
+				
 				if(pairList == null)
 				{
 					return;
@@ -3629,21 +3631,19 @@ public class ChatThread extends HikeAppStateBaseFragmentActivity implements Hike
 								// Logs for Msg Reliability
 								Logger.d(AnalyticsConstants.MSG_REL_TAG, "===========================================");
 								Logger.d(AnalyticsConstants.MSG_REL_TAG, "Receiver reads msg on after opening screen,track_id:- " + trackId);
-								MsgRelLogManager.recordMsgRel(trackId, pair.first, MsgRelEventType.RECEIVER_OPENS_CONV_SCREEN);
+								MsgRelLogManager.recordMsgRel(trackId, MsgRelEventType.RECEIVER_OPENS_CONV_SCREEN);
 							}
 							else
 							{
-								ids.put(pair.first);
+								ids.put(String.valueOf(pair.first));
 							}
 						}
 					}
 					else
 					{
-						ids.put(pair.first);
+						ids.put(String.valueOf(pair.first));
 					}
 				}
-				
-				mPubSub.publish(HikePubSub.MSG_READ, mConversation.getMsisdn());
 
 				Logger.d("UnreadBug", "Unread count event triggered");
 				Logger.d(AnalyticsConstants.MSG_REL_TAG, "inside API setMessageRead in CT ===========================================");
