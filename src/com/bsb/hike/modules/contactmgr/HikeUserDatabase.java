@@ -135,7 +135,7 @@ class HikeUserDatabase extends SQLiteOpenHelper
 
 			String insert = "INSERT INTO " + DBConstants.USERS_TABLE + " SELECT * FROM temp_table";
 
-			String drop = "DROP TABLE temp_table";
+			String drop = "DROP TABLE IF EXISTS temp_table";
 
 			db.execSQL(alter);
 			db.execSQL(create);
@@ -168,7 +168,7 @@ class HikeUserDatabase extends SQLiteOpenHelper
 					+ DBConstants.ONHIKE + ", " + DBConstants.PHONE + ", " + DBConstants.HAS_CUSTOM_PHOTO + ", " + DBConstants.OVERLAY_DISMISSED + ", " + DBConstants.MSISDN_TYPE
 					+ ", " + DBConstants.LAST_MESSAGED + " FROM " + tempTable;
 
-			String drop = "DROP TABLE " + tempTable;
+			String drop = "DROP TABLE IF EXISTS " + tempTable;
 
 			db.execSQL(alter);
 			db.execSQL(create);
@@ -230,7 +230,7 @@ class HikeUserDatabase extends SQLiteOpenHelper
 		// Now we have removing rounded thumbnails table. Using RoundedImageView to create rounded thumbnails instead
 		if (oldVersion < 16)
 		{
-			String drop = "DROP TABLE " + DBConstants.ROUNDED_THUMBNAIL_TABLE;
+			String drop = "DROP TABLE IF EXISTS " + DBConstants.ROUNDED_THUMBNAIL_TABLE;
 			db.execSQL(drop);
 		}
 	}

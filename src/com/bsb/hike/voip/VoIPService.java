@@ -1018,7 +1018,6 @@ public class VoIPService extends Service {
 			@Override
 			public void run() {
 				int streamId = playFromSoundPool(SOUND_RECONNECTING, true);
-				sendHandlerMessage(VoIPConstants.MSG_RECONNECTING);
 				while (keepRunning) {
 					try {
 						Thread.sleep(200);
