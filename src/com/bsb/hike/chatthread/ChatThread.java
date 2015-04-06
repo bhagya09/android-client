@@ -35,6 +35,7 @@ import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.Editable;
+import android.text.InputType;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextUtils;
@@ -75,11 +76,13 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
-import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.adapters.MessagesAdapter;
 import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.AnalyticsConstants.MessageType;
+import com.bsb.hike.analytics.AnalyticsConstants.MsgRelEventType;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
+import com.bsb.hike.analytics.MsgRelLogManager;
 import com.bsb.hike.chatthread.HikeActionMode.ActionModeListener;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.CustomAlertDialog;
@@ -122,6 +125,7 @@ import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformMessageMetadata;
 import com.bsb.hike.platform.WebMetadata;
 import com.bsb.hike.platform.content.PlatformContent;
+import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.tasks.EmailConversationsAsyncTask;
 import com.bsb.hike.ui.ComposeViewWatcher;
 import com.bsb.hike.ui.GalleryActivity;
@@ -138,8 +142,6 @@ import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.CustomFontEditText;
 import com.bsb.hike.view.CustomFontEditText.BackKeyListener;
-import android.text.InputType;
-import com.bsb.hike.productpopup.ProductPopupsConstants;
 
 /**
  * 
@@ -331,6 +333,9 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	{
 		switch (msg.what)
 		{
+		case UPDATE_AVATAR:
+			setAvatar();
+			break;
 		case SET_WINDOW_BG:
 			setWindowBackGround();
 			break;
@@ -838,6 +843,11 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	}
 
 	protected void audioRecordClicked()
+	{
+		showAudioRecordView();
+	}
+
+	protected void showAudioRecordView()
 	{
 		audioRecordView.show();
 	}
@@ -1597,6 +1607,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	{
 		ConvMessage convMessage = Utils.makeConvMessage(msisdn, getString(R.string.poke_msg), mConversation.isOnHike());
 		ChatThreadUtils.setPokeMetadata(convMessage);
+
+		// 1) user double clicked on Chat Screen i.e Sending nudge
+		MsgRelLogManager.startMessageRelLogging(convMessage, MessageType.TEXT);
+				
 		sendMessage(convMessage);
 	}
 
@@ -1855,7 +1869,15 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		}
 
 		/**
-		 * 6. Since the message was not forwarded, we check if we have any drafts saved for this conversation, if we do we enter it in the compose box.
+		 * 6. Show audio recording dialog
+		 */
+		else if(intent.hasExtra(HikeConstants.Extras.SHOW_RECORDING_DIALOG))
+		{
+			showAudioRecordView();
+		}
+
+		/**
+		 * 7. Since the message was not forwarded, we check if we have any drafts saved for this conversation, if we do we enter it in the compose box.
 		 */
 		else
 		{
@@ -2680,6 +2702,14 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			if (activity.hasWindowFocus())
 			{
 				ChatThreadUtils.publishReadByForMessage(message, mConversationDb, msisdn);
+				
+				if(message.getPrivateData() != null && message.getPrivateData().getTrackID() != null)
+				{
+					//Logs for Msg Reliability
+					Logger.d(AnalyticsConstants.MSG_REL_TAG, "===========================================");
+					Logger.d(AnalyticsConstants.MSG_REL_TAG, "Receiver reads msg on already opened screen,track_id:- " + message.getPrivateData().getTrackID());
+					MsgRelLogManager.logMsgRelEvent(message, MsgRelEventType.RECEIVER_OPENS_CONV_SCREEN);
+				}
 			}
 
 			if (message.getParticipantInfoState() != ParticipantInfoState.NO_INFO)
@@ -3138,25 +3168,21 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	/**
 	 * This method is used to setAvatar for a contact.
 	 */
-	protected void setAvatar(int defaultResId)
+	protected void setAvatar()
 	{
 		ImageView avatar = (ImageView) mActionBarView.findViewById(R.id.avatar);
-		Drawable avatarDrawable = HikeMessengerApp.getLruCache().getIconFromCache(msisdn);
-
-		if (avatarDrawable != null)
+		if (avatar == null)
 		{
-			avatar.setScaleType(ScaleType.FIT_CENTER);
-			avatar.setImageDrawable(avatarDrawable);
-			avatar.setBackgroundDrawable(null);
+			return;
 		}
 
-		else
+		Drawable drawable = HikeMessengerApp.getLruCache().getIconFromCache(msisdn);
+		if (drawable == null)
 		{
-			avatar.setScaleType(ScaleType.CENTER_INSIDE);
-			avatar.setImageDrawable(activity.getResources().getDrawable(defaultResId));
-			avatar.setBackgroundResource(BitmapUtils.getDefaultAvatarResourceId(msisdn, true));
+			drawable = HikeMessengerApp.getLruCache().getDefaultAvatar(msisdn, false);
 		}
-
+		avatar.setScaleType(ScaleType.FIT_CENTER);
+		avatar.setImageDrawable(drawable);
 	}
 
 	/**
@@ -3384,6 +3410,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 		contactInfoContainer.setOnClickListener(this);
 		backContainer.setOnClickListener(this);
+		
+		setAvatar();
 	}
 
 	/**
@@ -3585,11 +3613,12 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	 * @param categoryIdIfUnkown
 	 * @param source
 	 */
-	private void sendSticker(Sticker sticker, String source)
+	protected void sendSticker(Sticker sticker, String source)
 	{
 		ConvMessage convMessage = Utils.makeConvMessage(msisdn, StickerManager.STICKER_MESSAGE_TAG, mConversation.isOnHike());
 		ChatThreadUtils.setStickerMetadata(convMessage, sticker.getCategoryId(), sticker.getStickerId(), source);
 		sendMessage(convMessage);
+		
 	}
 
 	private void sendChatThemeMessage()
@@ -3659,7 +3688,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		if (messages != null && messages.size() > 0)
 		{
 			EmailConversationsAsyncTask emailTask = new EmailConversationsAsyncTask(activity, null);
-			Utils.executeConvAsyncTask(emailTask, mConversation);
+			Utils.executeConvAsyncTask(emailTask, mConversation.getConvInfo());
 		}
 		
 		else
@@ -3698,21 +3727,11 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		{
 			if (PreferenceManager.getDefaultSharedPreferences(activity.getApplicationContext()).getBoolean(HikeConstants.RECEIVE_SMS_PREF, false))
 			{
-				setSMSReadInNative();
+					setSMSReadInNative();
 			}
 
-			JSONArray ids = mConversationDb.updateStatusAndSendDeliveryReport(mConversation.getMsisdn());
-
-			HikeMessengerApp.getPubSub().publish(HikePubSub.MSG_READ, mConversation.getMsisdn());
-
-			Logger.d(TAG, "Unread Count event triggered");
-
-			/**
-			 * If there are msgs which are RECEIVED UNREAD then only broadcast a msg that these are read avoid sending read notifications for group chats
-			 * 
-			 */
-			ChatThreadUtils.publishMessagesRead(ids, msisdn);
-
+			HikeMessengerApp.getPubSub().publish(HikePubSub.MSG_READ, msisdn);
+			ChatThreadUtils.sendMR(msisdn);
 		}
 
 	}
@@ -4311,4 +4330,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 		}
 	}
+	
+	
 }

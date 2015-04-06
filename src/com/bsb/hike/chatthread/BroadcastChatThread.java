@@ -87,14 +87,6 @@ public class BroadcastChatThread extends OneToNChatThread
 	}
 	
 	@Override
-	protected void setupActionBar()
-	{
-		super.setupActionBar();
-		
-		setAvatar(R.drawable.ic_default_avatar_broadcast);
-	}
-	
-	@Override
 	protected Conversation fetchConversation()
 	{
 		mConversation = oneToNConversation = (BroadcastConversation) mConversationDb.getConversation(msisdn, HikeConstants.MAX_MESSAGES_TO_LOAD_INITIALLY, true);

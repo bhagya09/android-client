@@ -35,6 +35,8 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.analytics.MsgRelLogManager;
+import com.bsb.hike.analytics.AnalyticsConstants.MsgRelEventType;
 import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.filetransfer.FTAnalyticEvents;
@@ -280,7 +282,7 @@ public class ChatThreadUtils
 
 	protected static boolean shouldShowLastSeen(Context context, FavoriteType mFavoriteType, boolean convOnHike)
 	{
-		if ((mFavoriteType == FavoriteType.FRIEND || mFavoriteType == FavoriteType.REQUEST_RECEIVED || mFavoriteType == FavoriteType.REQUEST_RECEIVED_REJECTED) && convOnHike)
+		if (convOnHike)
 		{
 			return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(HikeConstants.LAST_SEEN_PREF, true);
 		}
@@ -550,5 +552,100 @@ public class ChatThreadUtils
 		}
 
 		return HikeConstants.Extras.ONE_TO_ONE_CHAT_THREAD;
+	}
+
+	/**
+	 * Sends nmr/mr as per pd is present in convmessage or not
+	 * @param msisdn
+	 */
+	public static void sendMR(String msisdn)
+	{
+
+		List<Pair<Long, JSONObject>> pairList = HikeConversationsDatabase.getInstance().updateStatusAndSendDeliveryReport(msisdn);
+
+		if (pairList == null)
+		{
+			return;
+		}
+
+		try
+		{
+
+			JSONObject dataMR = new JSONObject();
+
+			JSONArray ids = new JSONArray();
+
+			for (int i = 0; i < pairList.size(); i++)
+			{
+				Pair<Long, JSONObject> pair = pairList.get(i);
+				JSONObject object = pair.second;
+				if (object.has(HikeConstants.PRIVATE_DATA))
+				{
+					String pdString = object.optString(HikeConstants.PRIVATE_DATA);
+					JSONObject pd = new JSONObject(pdString);
+					if (pd != null)
+					{
+						String trackId = pd.optString(HikeConstants.MSG_REL_UID);
+						if (trackId != null)
+						{
+							dataMR.putOpt(String.valueOf(pair.first), pd);
+							// Logs for Msg Reliability
+							Logger.d(AnalyticsConstants.MSG_REL_TAG, "===========================================");
+							Logger.d(AnalyticsConstants.MSG_REL_TAG, "Receiver reads msg on after opening screen,track_id:- " + trackId);
+							MsgRelLogManager.recordMsgRel(trackId, MsgRelEventType.RECEIVER_OPENS_CONV_SCREEN);
+						}
+						else
+						{
+							ids.put(String.valueOf(pair.first));
+						}
+					}
+				}
+				else
+				{
+					ids.put(String.valueOf(pair.first));
+				}
+			}
+
+			Logger.d("UnreadBug", "Unread count event triggered");
+			Logger.d(AnalyticsConstants.MSG_REL_TAG, "inside API setMessageRead in CT ===========================================");
+			Logger.d(AnalyticsConstants.MSG_REL_TAG, "Going to set MR/NMR as user is on chat screen ");
+
+			/*
+			 * If there are msgs which are RECEIVED UNREAD then only broadcast a msg that these are read avoid sending read notifications for group chats
+			 */
+			if (ids != null && ids.length() > 0)
+			{
+				JSONObject object = new JSONObject();
+				object.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.MESSAGE_READ);
+				object.put(HikeConstants.TO, msisdn);
+				object.put(HikeConstants.DATA, ids);
+
+				HikeMqttManagerNew.getInstance().sendMessage(object, HikeMqttManagerNew.MQTT_QOS_ONE);
+			}
+
+			if (dataMR != null && dataMR.length() > 0)
+			{
+				JSONObject object = new JSONObject();
+				object.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.NEW_MESSAGE_READ);
+				object.put(HikeConstants.TO, msisdn);
+				object.put(HikeConstants.DATA, dataMR);
+
+				HikeMqttManagerNew.getInstance().sendMessage(object, HikeMqttManagerNew.MQTT_QOS_ONE);
+			}
+			Logger.d(TAG, "Unread Count event triggered");
+
+			/**
+			 * If there are msgs which are RECEIVED UNREAD then only broadcast a msg that these are read avoid sending read notifications for group chats
+			 * 
+			 */
+			ChatThreadUtils.publishMessagesRead(ids, msisdn);
+
+		}
+		catch (JSONException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 	}
 }

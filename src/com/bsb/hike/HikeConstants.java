@@ -296,6 +296,8 @@ public class HikeConstants
 
 	public static final String LAST_SEEN_SETTING = "lastseen";
 
+	public static final String NEW_LAST_SEEN_SETTING = "nls";
+
 	public static final String UJ_NOTIF_SETTING = "ujn";
 
 	public static final String BULK_LAST_SEEN_KEY = "lastseens";
@@ -432,6 +434,8 @@ public class HikeConstants
 
 	public static final String LAST_SEEN_PREF = "lastSeenPref";
 
+	public static final String LAST_SEEN_PREF_LIST = "lastSeenPrefList";
+	
 	public static final String PROFILE_PIC_PREF = "profilePicPref";
 	
 	public static final String SEND_ENTER_PREF = "enterSendPref";
@@ -443,6 +447,8 @@ public class HikeConstants
 	public static final String RESET_STEALTH_PREF = "resetStealthPref";
 
 	public static final String CHANGE_STEALTH_PASSCODE = "changeStealthPasscode";
+
+	public static final String STEALTH_PERF_SETTING = "steathPerfCategory";
 
 	public static final String SEND_UNDELIVERED_AS_NATIVE_PREF = "sendUndeliveredAsNativePref";
 
@@ -520,6 +526,8 @@ public class HikeConstants
 	//public static final String UNLINK_TWITTER = "unlinkTwitter";
 
 	public static final String BLOKED_LIST_PREF = "blockedList";
+
+	public static final String FAV_LIST_PREF = "favoriteList";
 
 	public static final String SYSTEM_HEALTH_PREF = "systemHealth";
 
@@ -1818,6 +1826,22 @@ public class HikeConstants
 
 		public static final String STICKER_UNCHECK_BOX_CLICKED = "stickerUnchkBoxClicked";
 
+		public static final String SETTING_CLICKED = "stgMS";
+
+		public static final String PRIVACY_SETTING_CLICKED = "psMS";
+
+		public static final String LS_SETTING_CLICKED = "psLS";
+
+		public static final String LS_EVERYONE_CLICKED = "psLS_E";
+
+		public static final String LS_MY_CONTACTS_CLICKED = "psLS_M";
+
+		public static final String LS_FAVOURITES_CLICKED = "psLS_F";
+
+		public static final String LS_NOBODY_CLICKED = "psLS_N";
+
+		public static final String MANAGE_FAV_LIST_SETTING = "psMFav";
+
 		/*
 		 * Settings screen <screen> = settingsS <event> = notifNUJEnabled, notifH2OEnabled, notifNUJDisabled, notifH2ODisabled
 		 */
@@ -2028,18 +2052,22 @@ public class HikeConstants
 
 		public static final String HOME_SEARCH = "hmSrch";
 
+		public static final String ADDRESSBOOK_UPLOAD = "addressbookUpload";
+
 	}
 
 	public static final class MqttMessageTypes
 	{
 		public static final String MESSAGE_READ = "mr";
+		
+		public static final String NEW_MESSAGE_READ = "nmr";
 
 		public static final String MESSAGE = "m";
 
 		public static final String SMS_CREDITS = "sc";
 
 		public static final String DELIVERY_REPORT = "dr";
-
+		
 		public static final String USER_JOINED = "uj";
 
 		public static final String USER_LEFT = "ul";
@@ -2534,6 +2562,10 @@ public class HikeConstants
 
 	public static final String EXCEPTION_MESSAGE = "exm";
 
+	public static enum PrivacyOptions
+	{
+		NOBODY, EVERYONE, FAVORITES, MY_CONTACTS
+	}
 	public static final class HikePhotos
 	{
 		
@@ -2616,4 +2648,26 @@ public class HikeConstants
 	public static final String WHITELISTED_DOMAINS[] = new String[]{"hike.in"};
 	
 	public static final String BLACKLIST_DOMAIN_ANALYTICS = "blacklist";
+
+	public static final String HIGHLIGHT_NLS_PERF = "nlsHighlightPerf";
+
+	public static final String PROB_NUM_TEXT_MSG = "p_txt";
+
+	public static final String PROB_NUM_STICKER_MSG = "p_stk";
+
+	public static final String PROB_NUM_MULTIMEDIA_MSG = "p_mul";
+
+	public static final String MSG_REL = "rel_m";
+	
+	public static final String MSG_REL_UID = "track_id";
+	
+	public static final String MSG_REL_MSG_TYPE = "rel_m_type";
+
+	public static final String PRIVATE_DATA = "pd";
+
+	public static final String EXCEPTION = "exception";
+
+	public static final String ENABLE_EXCEPTION_ANALYTIS = "enableExceptionAnalytics";
+
+	public static final String PAYLOAD = "payload";
 }

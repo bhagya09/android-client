@@ -159,6 +159,13 @@ public class AudioRecordView
 						recordingError(true);
 						Logger.e(getClass().getSimpleName(), "Failed to start recording", e);
 					}
+					catch (IllegalStateException e)
+					{
+						stopRecorder();
+						recordingError(true);
+						dialog.dismiss();
+						Logger.e(getClass().getSimpleName(), "Failed to start recording", e);
+					}
 
 					Utils.blockOrientationChange(activity);
 					activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);

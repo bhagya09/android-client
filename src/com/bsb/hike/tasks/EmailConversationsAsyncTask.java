@@ -26,6 +26,7 @@ import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.MessageMetadata;
 import com.bsb.hike.models.Conversation.BroadcastConversation;
+import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.GroupConversation;
 import com.bsb.hike.models.Conversation.OneToNConversation;
@@ -34,7 +35,7 @@ import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.Utils;
 
-public class EmailConversationsAsyncTask extends AsyncTask<Conversation, Void, Conversation[]>
+public class EmailConversationsAsyncTask extends AsyncTask<ConvInfo, Void, Conversation[]>
 {
 
 	Activity activity;
@@ -52,14 +53,14 @@ public class EmailConversationsAsyncTask extends AsyncTask<Conversation, Void, C
 	}
 
 	@Override
-	protected Conversation[] doInBackground(Conversation... convs)
+	protected Conversation[] doInBackground(ConvInfo... convInfos)
 	{
 		ArrayList<Uri> uris = new ArrayList<Uri>();
 		String chatLabel = "";
-		for (int k = 0; k < convs.length; k++)
+		for (int k = 0; k < convInfos.length; k++)
 		{
 			HikeConversationsDatabase db = null;
-			String msisdn = convs[k].getMsisdn();
+			String msisdn = convInfos[k].getMsisdn();
 			StringBuilder sBuilder = new StringBuilder();
 			Map<String, PairModified<GroupParticipant, String>> participantMap = null;
 
@@ -90,7 +91,7 @@ public class EmailConversationsAsyncTask extends AsyncTask<Conversation, Void, C
 			if (conv instanceof OneToNConversation)
 			{
 				sBuilder.append(R.string.group_name_email);
-				OneToNConversation gConv = ((OneToNConversation) convs[k]);
+				OneToNConversation gConv = ((OneToNConversation) conv);
 				if (null == gConv.getConversationParticipantList())
 				{
 					gConv.setConversationParticipantList(ContactManager.getInstance().getGroupParticipants(gConv.getMsisdn(), false, false));

@@ -283,9 +283,6 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 	{
 		switch (msg.what)
 		{
-		case UPDATE_AVATAR:
-			setAvatar(R.drawable.ic_default_avatar_group);
-			break;
 		case PARTICIPANT_JOINED_OR_LEFT_CONVERSATION:
 			incrementGroupParticipants((int) msg.obj);
 			break;

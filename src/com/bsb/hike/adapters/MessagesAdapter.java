@@ -2614,16 +2614,26 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			detailHolder.avatarContainer.setVisibility(isOneToNChat ? View.INVISIBLE : View.GONE);
 		}
 	}
-	
+
 	private void checkIfContainsSearchText(TextView tv)
 	{
 		String text = tv.getText().toString();
 		if (!TextUtils.isEmpty(searchText) && text.toLowerCase().contains(searchText))
 		{
-			int startSpanIndex = text.toLowerCase().indexOf(searchText);
 			SpannableString spanText = new SpannableString(text);
-			spanText.setSpan(new BackgroundColorSpan(context.getResources().getColor(R.color.text_bg)), startSpanIndex, startSpanIndex + searchText.length(),
-					Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+			int startSpanIndex = 0;
+
+			while (startSpanIndex != -1)
+			{
+				startSpanIndex = text.toLowerCase().indexOf(searchText, startSpanIndex);
+				if (startSpanIndex != -1)
+				{
+					spanText.setSpan(new BackgroundColorSpan(context.getResources().getColor(R.color.text_bg)), startSpanIndex, startSpanIndex + searchText.length(),
+							Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+					startSpanIndex += searchText.length();
+				}
+			}
 			tv.setText(spanText, TextView.BufferType.SPANNABLE);
 		}
 	}

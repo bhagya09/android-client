@@ -26,6 +26,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
+import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ImageViewerInfo;
@@ -234,6 +235,8 @@ public class SettingsActivity extends HikeAppStateBaseFragmentActivity implement
 		contactInfo = Utils.getUserContactInfo(getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE));
 		msisdn = contactInfo.getMsisdn();
 
+		String infoSubText = getString(Utils.isLastSeenSetToFavorite() ? R.string.both_ls_status_update : R.string.status_updates_proper_casing);
+		((TextView) header.findViewById(R.id.update_text)).setText(getString(R.string.add_fav_msg, infoSubText));
 		// set name and status
 		setNameInHeader(nameView);
 
@@ -312,7 +315,8 @@ public class SettingsActivity extends HikeAppStateBaseFragmentActivity implement
 				IntentFactory.openConnectedApps(this);
 				break;
 			case 6:
-				IntentFactory.openSettingAccount(this);
+				HAManager.logClickEvent(HikeConstants.LogEvent.PRIVACY_SETTING_CLICKED);
+				IntentFactory.openSettingPrivacy(this);
 				break;
 			case 7:
 				IntentFactory.openSettingPrivacy(this);
@@ -339,7 +343,8 @@ public class SettingsActivity extends HikeAppStateBaseFragmentActivity implement
 				IntentFactory.openSettingSMS(this);
 				break;
 			case 5:
-				IntentFactory.openSettingAccount(this);
+				HAManager.logClickEvent(HikeConstants.LogEvent.PRIVACY_SETTING_CLICKED);
+				IntentFactory.openSettingPrivacy(this);
 				break;
 			case 6:
 				IntentFactory.openSettingPrivacy(this);

@@ -24,7 +24,9 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.AnalyticsConstants.MsgRelEventType;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.analytics.MsgRelLogManager;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.ConvMessage;
@@ -102,12 +104,23 @@ public class DbConversationListener implements Listener
 			if (shouldSendMessage)
 			{
 				mConversationDb.updateMessageMetadata(convMessage.getMsgID(), convMessage.getMetadata());
+				
+				// Adding Logs for Message Reliability
+				Logger.d(AnalyticsConstants.MSG_REL_TAG, "===========================================");
+				Logger.d(AnalyticsConstants.MSG_REL_TAG, "DB Transaction completed");
+				MsgRelLogManager.logMsgRelEvent(convMessage, MsgRelEventType.DB_UPDATE_TRANSACTION_COMPLETED);
 			}
 			else
 			{
 				if (!convMessage.isFileTransferMessage())
 				{
 					mConversationDb.addConversationMessages(convMessage,true);
+				
+					// Adding Logs for Message Reliability
+					Logger.d(AnalyticsConstants.MSG_REL_TAG, "===========================================");
+					Logger.d(AnalyticsConstants.MSG_REL_TAG, "DB Transaction completed");
+					MsgRelLogManager.logMsgRelEvent(convMessage, MsgRelEventType.DB_ADD_TRANSACTION_COMPLETED);
+					
 					if (convMessage.isSent())
 					{
 						uploadFiksuPerDayMessageEvent();

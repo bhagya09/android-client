@@ -696,8 +696,9 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 			{
 				boolean friendRequestAccepted = statusMessage.getStatusMessageType() == StatusMessageType.FRIEND_REQUEST_ACCEPTED;
 
-				viewHolder.subText.setText(context.getString(friendRequestAccepted ? R.string.accepted_your_favorite_request_details
-						: R.string.you_accepted_favorite_request_details, Utils.getFirstName(statusMessage.getNotNullName())));
+				int infoMainResId = friendRequestAccepted ? R.string.accepted_your_favorite_request_details:R.string.you_accepted_favorite_request_details;
+				String infoSubText = context.getString(Utils.isLastSeenSetToFavorite() ? R.string.both_ls_status_update : R.string.status_updates_proper_casing);
+				viewHolder.subText.setText(context.getString(infoMainResId, Utils.getFirstName(statusMessage.getNotNullName()), infoSubText));
 			}
 			else
 			{

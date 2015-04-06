@@ -771,7 +771,8 @@ public class HikeNotification
 		}
 		else if (statusMessage.getStatusMessageType() == StatusMessageType.FRIEND_REQUEST_ACCEPTED)
 		{
-			message = context.getString(R.string.favorite_confirmed_notification, key);
+			String infoSubText = context.getString(Utils.isLastSeenSetToFavorite() ? R.string.both_ls_status_update : R.string.status_updates_proper_casing);
+			message = context.getString(R.string.favorite_confirmed_notification, key, infoSubText);
 			text = message;
 		}
 		else if (statusMessage.getStatusMessageType() == StatusMessageType.PROFILE_PIC)

@@ -145,14 +145,6 @@ public class GroupChatThread extends OneToNChatThread
 		}
 	}
 	
-	@Override
-	protected void setupActionBar()
-	{
-		super.setupActionBar();
-		
-		setAvatar(R.drawable.ic_default_avatar_group);
-	}
-	
 	/**
 	 * Done to typecast conversation as GroupConversation here
 	 */
@@ -764,7 +756,7 @@ public class GroupChatThread extends OneToNChatThread
 		}
 		else
 		{
-			name = oneToNConversation.getConversationParticipantName(impMessage.getGroupParticipantMsisdn()) + PIN_MESSAGE_SEPARATOR;
+			name = oneToNConversation.getConvParticipantFirstNameAndSurname(impMessage.getGroupParticipantMsisdn()) + PIN_MESSAGE_SEPARATOR;
 		}
 
 		ForegroundColorSpan fSpan = new ForegroundColorSpan(getResources().getColor(R.color.pin_name_color));

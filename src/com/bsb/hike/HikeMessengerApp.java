@@ -467,9 +467,17 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	
 	public static final String TOGGLE_OK_HTTP = "toggleOkHttp";
 
+	public static final String PROB_NUM_TEXT_MSG = "num_txt";
+
+	public static final String PROB_NUM_STICKER_MSG = "num_stk";
+
+	public static final String PROB_NUM_MULTIMEDIA_MSG = "num_multi";
+
 	public static final String UPGRADE_FOR_SERVER_ID_FIELD = "upgradeForServerIdField";
 
 	public static final String SHOW_BROADCAST_FTUE_SCREEN = "showBroadcastFtueScreen";
+
+	public static final String EXCEPTION_ANALYTIS_ENABLED = "exceptionAnalaticsEnabled";
 	
 	public static CurrentState currentState = CurrentState.CLOSED;
 

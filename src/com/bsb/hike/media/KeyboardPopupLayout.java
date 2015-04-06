@@ -80,8 +80,8 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 		if (popup == null)
 		{
 			initPopUpWindow(LayoutParams.MATCH_PARENT, height, view, context, PopupWindow.INPUT_METHOD_NOT_NEEDED);
-			
-			fixLollipopHeadsUpNotifPopup(popup);
+			// TODO
+			// fixLollipopHeadsUpNotifPopup(popup);
 			
 			// this is a strange bug in Android, if we set focusable true, GRAVITY BOTTOM IS NOT working
 			popup.setFocusable(false);
@@ -202,8 +202,11 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 		/**
 		 * Removing the global layout listener
 		 */
-		this.mainView.getViewTreeObserver().removeGlobalOnLayoutListener(mGlobalLayoutListener);
-		this.mainView = null;
+		if (mainView != null)
+		{
+			this.mainView.getViewTreeObserver().removeGlobalOnLayoutListener(mGlobalLayoutListener);
+			this.mainView = null;
+		}
 	}
 	
 	private ViewTreeObserver.OnGlobalLayoutListener mGlobalLayoutListener = new ViewTreeObserver.OnGlobalLayoutListener()

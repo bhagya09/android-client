@@ -346,22 +346,10 @@ public class ConversationTip implements OnClickListener
 
 				break;
 
-			case WELCOME_HIKE_TIP:
-				HikeMessengerApp.getPubSub().publish(HikePubSub.REMOVE_WELCOME_HIKE_TIP, null);
-				break;
-
 			case STEALTH_FTUE_TIP:
 				HikeMessengerApp.getPubSub().publish(HikePubSub.DISMISS_STEALTH_FTUE_CONV_TIP, null);
 				break;
 				
-			case STEALTH_INFO_TIP:
-				HikeMessengerApp.getPubSub().publish(HikePubSub.REMOVE_STEALTH_INFO_TIP, null);
-				break;
-
-			case STEALTH_UNREAD_TIP:
-				HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_UNREAD_TIP_CLICKED, null);
-				break;
-
 			case ATOMIC_PROFILE_PIC_TIP:
 			case ATOMIC_FAVOURTITES_TIP:
 			case ATOMIC_INVITE_TIP:

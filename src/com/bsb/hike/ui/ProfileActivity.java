@@ -829,6 +829,9 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			statusMood = (ImageView) headerView.findViewById(R.id.status_mood);
 			smallIconFrame = (ImageView) headerView.findViewById(R.id.add_fav_star_2);
 			dualText = (TextView) headerView.findViewById(R.id.add_fav_tv_2);
+
+			String infoSubText = getString(Utils.isLastSeenSetToFavorite() ? R.string.both_ls_status_update : R.string.status_updates_proper_casing);
+			((TextView) headerView.findViewById(R.id.update_text)).setText(getString(R.string.add_fav_msg, infoSubText));
 			msisdn = contactInfo.getMsisdn();
 			name = TextUtils.isEmpty(contactInfo.getName()) ? contactInfo.getMsisdn() : contactInfo.getName();
 			text.setText(name);

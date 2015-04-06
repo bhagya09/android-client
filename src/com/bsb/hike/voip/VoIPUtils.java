@@ -365,8 +365,7 @@ public class VoIPUtils {
 		Intent callIntent = IntentFactory.getVoipCallIntent(context, msisdn, CallSource.MISSED_CALL_NOTIF);
 		PendingIntent callPendingIntent = PendingIntent.getService(context, 0, callIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-		Intent messageIntent = IntentFactory.getChatThreadIntent(context, msisdn);
-		messageIntent.putExtra(HikeConstants.Extras.SHOW_KEYBOARD, true);
+		Intent messageIntent = IntentFactory.createChatThreadIntentFromMsisdn(context, msisdn, true);
 		PendingIntent messagePendingIntent = PendingIntent.getActivity(context, 0, messageIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
 		NotificationCompat.Action actions[] = new NotificationCompat.Action[2];

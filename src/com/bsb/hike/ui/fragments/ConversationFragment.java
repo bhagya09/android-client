@@ -1401,7 +1401,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 						{
 							Utils.logEvent(getActivity(), HikeConstants.LogEvent.DELETE_CONVERSATION);
 							DeleteConversationsAsyncTask task = new DeleteConversationsAsyncTask(getActivity());
-							Utils.executeConvAsyncTask(task, conv);
+							Utils.executeConvInfoAsyncTask(task, conv);
 							hikeDialog.dismiss();
                             if (Utils.isBot(conv.getMsisdn()))
                             {
@@ -1473,8 +1473,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 				else if (getString(R.string.email_conversations).equals(option))
 				{
 					EmailConversationsAsyncTask task = new EmailConversationsAsyncTask(getSherlockActivity(), ConversationFragment.this);
-//					TODO 
-//					Utils.executeConvAsyncTask(task, conv);
+					Utils.executeConvAsyncTask(task, conv);
                     if (Utils.isBot(conv.getMsisdn()))
                     {
                         BotConversation.analyticsForBots(conv, HikePlatformConstants.BOT_EMAIL_CONVERSATION, AnalyticsConstants.CLICK_EVENT);
@@ -1794,7 +1793,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 	private void deleteConversation(ConvInfo conv)
 	{
 		DeleteConversationsAsyncTask task = new DeleteConversationsAsyncTask(getActivity());
-		Utils.executeConvAsyncTask(task, conv);
+		Utils.executeConvInfoAsyncTask(task, conv);
 	}
 
 	private void toggleTypingNotification(boolean isTyping, TypingNotification typingNotification)
@@ -3265,7 +3264,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 				editor.commit();
 				Utils.logEvent(getActivity(), HikeConstants.LogEvent.DELETE_CONVERSATION);
 				DeleteConversationsAsyncTask task = new DeleteConversationsAsyncTask(getActivity());
-				Utils.executeConvAsyncTask(task, convInfo);
+				Utils.executeConvInfoAsyncTask(task, convInfo);
 			}
 		}
 		if(mAdapter != null)
@@ -3381,6 +3380,9 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 	private void removeTipIfExists(int whichTip)
 	{
 		if (tipType != whichTip)
+		{
+			return;
+		}
 		/*
 		 * Remove tip always: for cases when we want to remove the tip before it is actually shown on the UI
 		 */
@@ -3477,6 +3479,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		{
 			getListView().removeHeaderView(tipView);
 			tipView = null;
+			removeTipIfExists(whichTip);
 			tipType = ConversationTip.NO_TIP;
 		}
 	}
