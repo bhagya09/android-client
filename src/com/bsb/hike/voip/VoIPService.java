@@ -91,7 +91,7 @@ public class VoIPService extends Service {
 	private boolean reconnecting = false;
 	private int currentPacketNumber = 0;
 	private int previousHighestRemotePacketNumber = 0;
-	private boolean keepRunning = true;
+	private volatile boolean keepRunning = true;
 	private DatagramSocket socket = null;
 	private VoIPClient clientPartner = null, clientSelf = null;
 	private BitSet packetTrackingBits = new BitSet(PACKET_TRACKING_SIZE);
@@ -240,8 +240,6 @@ public class VoIPService extends Service {
 			Logger.d(VoIPConstants.TAG, "New minBufSizeRecording: " + minBufSizeRecording);
 		}
 		
-		startConnectionTimeoutThread();
-		
 		// CPU Info
 		// Logger.d(VoIPConstants.TAG, "CPU: " + VoIPUtils.getCPUInfo());
 	}
@@ -252,6 +250,7 @@ public class VoIPService extends Service {
 		int returnInt = super.onStartCommand(intent, flags, startId);
 		
 		Logger.d(VoIPConstants.TAG, "VoIPService onStartCommand()");
+		startConnectionTimeoutThread();
 
 		if (intent == null)
 			return returnInt;
@@ -485,6 +484,12 @@ public class VoIPService extends Service {
 	}
 	
 	private void startConnectionTimeoutThread() {
+		
+		if (connectionTimeoutThread != null) {
+			Logger.d(VoIPConstants.TAG, "Restarting connection timeout thread.");
+			connectionTimeoutThread.interrupt();
+			connectionTimeoutThread = null;
+		}
 		
 		connectionTimeoutThread = new Thread(new Runnable() {
 			
@@ -753,10 +758,11 @@ public class VoIPService extends Service {
 		return clientPartner;
 	}
 	
-	public void startStreaming() throws Exception {
+	public void startStreaming() {
 		
 		if (clientPartner == null || clientSelf == null) {
-			throw new Exception("Clients (partner and/or self) not set.");
+			Logger.e(VoIPConstants.TAG, "Clients (partner and/or self) not set.");
+			return;
 		}
 		
 		startCodec(); 
@@ -1388,6 +1394,11 @@ public class VoIPService extends Service {
 			sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CALL_RELAY);
 		}
 
+		if (!isConnected()) {
+			Logger.d(VoIPConstants.TAG, "Call has been answered before connection was established.");
+			startReconnectBeeps();
+		}
+		
 		Logger.d(VoIPConstants.TAG, "Starting audio record / playback.");
 		if (partnerTimeoutThread != null)
 			partnerTimeoutThread.interrupt();
@@ -1869,8 +1880,10 @@ public class VoIPService extends Service {
 						
 						// Mostly redundant check to ensure that neither of the phones
 						// is playing the reconnecting tone
-						if (reconnectingBeepsThread != null)
+						if (reconnectingBeepsThread != null) {
 							reconnectingBeepsThread.interrupt();
+							reconnectingBeepsThread = null;
+						}
 						
 						break;
 						
@@ -2256,12 +2269,14 @@ public class VoIPService extends Service {
 	 */
 	private void playOutgoingCallRingtone() {
 		synchronized (this) {
+			
+			if (reconnecting || audioStarted)
+				return;
+			
 			if (isRingingOutgoing == true) {
 				Logger.w(VoIPConstants.TAG, "Outgoing ringer is already ringing.");
 				return;
-			}
-			
-			else isRingingOutgoing = true;
+			} else isRingingOutgoing = true;
 
 			Logger.d(VoIPConstants.TAG, "Playing outgoing call ringer.");
 			setCallStatus(VoIPConstants.CallStatus.OUTGOING_RINGING);
@@ -2275,8 +2290,7 @@ public class VoIPService extends Service {
 	@SuppressWarnings("deprecation")
 	private void playIncomingCallRingtone() {
 
-		// Edge case: caller hung up before we started playing ringtone. 
-		if (keepRunning == false)
+		if (reconnecting || audioStarted || keepRunning == false)
 			return;
 
 		synchronized (this) {
@@ -2615,30 +2629,20 @@ public class VoIPService extends Service {
 				if (connected == true) {
 					Logger.d(VoIPConstants.TAG, "UDP connection established :) " + clientPartner.getPreferredConnectionMethod());
 					
-					if (clientSelf.isInitiator() && !reconnecting && !audioStarted) {
+					if (clientSelf.isInitiator()) 
 						playOutgoingCallRingtone();
-					} 
-
-					try {
-						if (!reconnecting) {
-							startStreaming();
-							startResponseTimeout();
-						}
-					} catch (Exception e) {
-						Logger.e(VoIPConstants.TAG, "establishConnection() Exception: " + e.toString());
-					}
-					
-					if (!clientSelf.isInitiator() && !reconnecting && !audioStarted) {
-						// We are receiving a call. 
+					else
 						playIncomingCallRingtone();
-					}
-					
+
 					if (reconnecting) {
 						sendHandlerMessage(VoIPConstants.MSG_RECONNECTED);
 						// Give the heartbeat a chance to recover
 						lastHeartbeat = System.currentTimeMillis() + 5000;
 						startSendingAndReceiving();
 						reconnecting = false;
+					} else {
+						startStreaming();
+						startResponseTimeout();
 					}
 				} else {
 					Logger.d(VoIPConstants.TAG, "UDP connection failure! :(");

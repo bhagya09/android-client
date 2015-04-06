@@ -128,7 +128,6 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 				break;
 			case VoIPConstants.MSG_AUDIO_START:
 				isCallActive = true;
-				initProximitySensor();
 				updateCallStatus();
 				activateActiveCallButtons();
 				break;
@@ -218,11 +217,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		getSherlockActivity().startService(new Intent(getSherlockActivity(), VoIPService.class));
 		Intent intent = new Intent(getSherlockActivity(), VoIPService.class);
 		getSherlockActivity().bindService(intent, myConnection, Context.BIND_AUTO_CREATE);
-
-		if(VoIPService.isAudioRunning())
-		{
-			initProximitySensor();
-		}
+		initProximitySensor();
 		super.onResume();
 	}
 
