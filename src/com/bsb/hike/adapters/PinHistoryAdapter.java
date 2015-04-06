@@ -194,7 +194,7 @@ public class PinHistoryAdapter extends BaseAdapter implements OnLongClickListene
 				{
 					GroupConversation gConv = (GroupConversation) mConversation;
 					String number = null;
-					String name = gConv.getGroupParticipantFirstName(textPin.getGroupParticipantMsisdn());
+					String name = gConv.getGroupParticipantFirstNameAndSurname(textPin.getGroupParticipantMsisdn());
 
 					if (((GroupConversation) mConversation).getGroupParticipant(textPin.getGroupParticipantMsisdn()).getFirst().getContactInfo().isUnknownContact())
 					{

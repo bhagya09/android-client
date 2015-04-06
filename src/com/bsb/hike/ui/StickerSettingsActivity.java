@@ -7,6 +7,12 @@ import android.widget.TextView;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.bsb.hike.R;
+import com.bsb.hike.productpopup.DialogPojo;
+import com.bsb.hike.productpopup.HikeDialogFragment;
+import com.bsb.hike.productpopup.IActivityPopup;
+import com.bsb.hike.productpopup.ProductContentModel;
+import com.bsb.hike.productpopup.ProductInfoManager;
+import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.ui.fragments.StickerSettingsFragment;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 
@@ -21,6 +27,8 @@ public class StickerSettingsActivity extends HikeAppStateBaseFragmentActivity
 		setContentView(R.layout.sticker_settings_page);
 		setupSettingsFragment(savedInstanceState);
 		setupActionBar();
+		showProductPopup(ProductPopupsConstants.PopupTriggerPoints.STICKER_SHOP_SETTINGS.ordinal());
+		
 	}
 
 	private void setupActionBar()

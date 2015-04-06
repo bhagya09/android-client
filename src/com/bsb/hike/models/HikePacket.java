@@ -17,6 +17,12 @@ public class HikePacket implements Parcelable
 	
 	private int packetType = HikeConstants.NORMAL_MESSAGE_TYPE;
 
+	//This is unique id, for msg tracking
+	private String trackId;
+	
+	// This stores 'm'/'nmr'
+	private String msgType;
+	
 	public int getPacketType()
 	{
 		return packetType;
@@ -59,13 +65,25 @@ public class HikePacket implements Parcelable
 
 	public HikePacket(byte[] message, long msgId, long timeStamp, long packetId, int packetType)
 	{
+		this(message, msgId, timeStamp, packetId, packetType, null);
+	}
+
+	public HikePacket(byte[] message, long msgId, long timeStamp, long packetId, int packetType, String trackId)
+	{
+		this(message, msgId, timeStamp, packetId, packetType, null, null);
+	}
+
+	public HikePacket(byte[] message, long msgId, long timeStamp, long packetId, int packetType, String trackId, String msgType)
+	{
 		this.message = message;
 		this.msgId = msgId;
 		this.timeStamp = timeStamp;
 		this.packetId = packetId;
 		this.packetType = packetType;
+		this.trackId = trackId;
+		this.msgType = msgType;
 	}
-
+	
 	@Override
 	public int describeContents()
 	{
@@ -81,6 +99,8 @@ public class HikePacket implements Parcelable
 		dest.writeLong(timeStamp);
 		dest.writeLong(packetId);
 		dest.writeInt(packetType);
+		dest.writeString(trackId);
+		dest.writeString(msgType);
 	}
 
 	public static final Creator<HikePacket> CREATOR = new Creator<HikePacket>()
@@ -100,7 +120,30 @@ public class HikePacket implements Parcelable
 			long timeStamp = source.readLong();
 			long packetId = source.readLong();
 			int packetType = source.readInt();
-			return new HikePacket(message, msgId, timeStamp, packetId, packetType);
+			String trackId = source.readString();
+			String msgType = source.readString();
+			HikePacket hikePacket = new HikePacket(message, msgId, timeStamp, packetId, packetType, trackId, msgType);
+			return hikePacket;
 		}
 	};
+
+	public String getTrackId()
+	{
+		return trackId;
+	}
+	
+	public void setTrackId(String trackId)
+	{
+		this.trackId = trackId;
+	}
+
+	public String getMsgType()
+	{
+		return msgType;
+	}
+	
+	public void setMsgType(String msgType)
+	{
+		this.msgType = msgType;
+	}
 }

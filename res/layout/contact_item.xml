@@ -17,10 +17,11 @@
         android:src="@drawable/block_button"
         android:textColor="@color/white" />
 
-    <ImageView
+    <com.bsb.hike.view.RoundedImageView
         android:id="@+id/contact_image"
         android:layout_width="60dp"
         android:layout_height="60dp"
+        style="@style/RoundedStyle"
         android:layout_alignParentLeft="true"
         android:layout_marginLeft="18dp"
         android:layout_centerVertical="true"

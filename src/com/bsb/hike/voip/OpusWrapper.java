@@ -1,6 +1,6 @@
 package com.bsb.hike.voip;
 
-import android.util.Log;
+import com.bsb.hike.utils.Logger;
 
 
 public class OpusWrapper {
@@ -8,7 +8,8 @@ public class OpusWrapper {
 	private static long encoder = 0;
 	private static long decoder = 0;
 	public static final int OPUS_FRAME_SIZE = 2880; // permitted values are 120, 240, 480, 960, 1920, and 2880
-
+	public static final int OPUS_LOWEST_SUPPORTED_BITRATE = 3000; 
+	
 	private native long opus_encoder_create(int samplingRate, int channels, int errors);
 	private native void opus_encoder_destroy(long encoder);
 	private native int opus_queue(byte[] stream);	
@@ -39,7 +40,6 @@ public class OpusWrapper {
 		if (encoder == 0)
 			return;
 		opus_set_bitrate(encoder, bitrate);
-		Log.d(VoIPConstants.TAG, "Changed bitrate to: " + bitrate);
 	}
 	
 	public void setDecoderGain(int gain) {
@@ -47,7 +47,7 @@ public class OpusWrapper {
 			return;
 		
 		opus_set_gain(decoder, gain);
-		Log.d(VoIPConstants.TAG, "Setting gain to: " + gain);
+		Logger.d(VoIPConstants.TAG, "Setting gain to: " + gain);
 	}
 	
 	public void setEncoderComplexity(int complexity) {

@@ -5,7 +5,7 @@
     android:layout_height="@dimen/chatthread_avatar"
     android:layout_marginLeft="@dimen/chat_bubble_edge_spacing" >
 
-    <com.bsb.hike.ui.utils.RecyclingImageView
+    <com.bsb.hike.view.RoundedImageView
         android:id="@+id/avatar"
         style="@style/AvatarStyle.Padding" />
 

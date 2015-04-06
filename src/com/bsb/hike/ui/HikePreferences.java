@@ -2,6 +2,7 @@ package com.bsb.hike.ui;
 
 import java.util.Map;
 
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -38,6 +39,7 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.db.DBBackupRestore;
 import com.bsb.hike.service.HikeMqttManagerNew;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.tasks.ActivityCallableTask;
 import com.bsb.hike.tasks.BackupAccountTask;
 import com.bsb.hike.tasks.BackupAccountTask.BackupAccountListener;
@@ -838,6 +840,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		else if (HikeConstants.SSL_PREF.equals(preference.getKey()))
 		{
 			Utils.setupUri(this.getApplicationContext());
+			HttpRequestConstants.toggleSSL();
 			LocalBroadcastManager.getInstance(this.getApplicationContext()).sendBroadcast(new Intent(HikePubSub.SSL_PREFERENCE_CHANGED));
 		}
 		else if (HikeConstants.STATUS_BOOLEAN_PREF.equals(preference.getKey()))

@@ -23,7 +23,7 @@
         android:layout_marginRight="11dp"
         android:layout_toRightOf="@id/checkbox" >
 
-        <com.bsb.hike.ui.utils.RecyclingImageView
+        <com.bsb.hike.view.RoundedImageView
             android:id="@+id/contact_image"
             style="@style/AvatarStyle.Padding" />
 

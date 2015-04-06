@@ -45,7 +45,14 @@ import com.bsb.hike.http.HikeHttpRequest.HikeHttpCallback;
 import com.bsb.hike.http.HikeHttpRequest.RequestType;
 import com.bsb.hike.models.StatusMessage;
 import com.bsb.hike.models.StatusMessage.StatusMessageType;
+import com.bsb.hike.productpopup.DialogPojo;
+import com.bsb.hike.productpopup.HikeDialogFragment;
+import com.bsb.hike.productpopup.IActivityPopup;
+import com.bsb.hike.productpopup.ProductContentModel;
+import com.bsb.hike.productpopup.ProductInfoManager;
+import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.tasks.HikeHTTPTask;
+import com.bsb.hike.tasks.StatusUpdateTask;
 import com.bsb.hike.utils.EmoticonConstants;
 import com.bsb.hike.utils.EmoticonTextWatcher;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
@@ -67,6 +74,8 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		int moodIndex = -1;
 
 		HikeHTTPTask hikeHTTPTask = null;
+		
+		StatusUpdateTask task;
 
 		/*boolean fbSelected = false;
 
@@ -130,6 +139,11 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		{
 			mActivityTask = (ActivityTask) o;
 			if (mActivityTask.hikeHTTPTask != null)
+			{
+				progressDialog = ProgressDialog.show(this, null, getResources().getString(R.string.updating_status));
+			}
+			
+			if (Utils.isOkHttp() && mActivityTask.task != null)
 			{
 				progressDialog = ProgressDialog.show(this, null, getResources().getString(R.string.updating_status));
 			}
@@ -227,6 +241,9 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 			tipView.setLayoutParams(layoutParams);
 			HikeTip.showTip(this, TipType.MOOD, tipView);
 		}
+		
+		
+		showProductPopup(ProductPopupsConstants.PopupTriggerPoints.STATUS.ordinal());
 	}
 
 	private void setupActionBar()
@@ -493,6 +510,18 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 
 	private void postStatus()
 	{
+		if (Utils.isOkHttp())
+		{
+			postStatusOkHttp();
+		}
+		else
+		{
+			postStatusApacheClient();
+		}
+	}
+
+	private void postStatusApacheClient()
+	{
 		HikeHttpRequest hikeHttpRequest = new HikeHttpRequest("/user/status", RequestType.STATUS_UPDATE, new HikeHttpCallback()
 		{
 
@@ -591,7 +620,28 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 
 		progressDialog = ProgressDialog.show(this, null, getResources().getString(R.string.updating_status));
 	}
-
+	
+	private void postStatusOkHttp()
+	{
+		String status = null;
+		/*
+		 * If the text box is empty, the we take the hint text which is a prefill for moods.
+		 */
+		if (TextUtils.isEmpty(statusTxt.getText()))
+		{
+			status = statusTxt.getHint().toString();
+		}
+		else
+		{
+			status = statusTxt.getText().toString();
+		}
+		
+		mActivityTask.task = new StatusUpdateTask(status, mActivityTask.moodId);
+		mActivityTask.task.execute();
+		
+		progressDialog = ProgressDialog.show(this, null, getResources().getString(R.string.updating_status));
+	}
+	
 	/*private void setSelectionSocialButton(boolean facebook, boolean selection)
 	{
 		View v = findViewById(facebook ? R.id.post_fb_btn : R.id.post_twitter_btn);
@@ -837,6 +887,10 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 				@Override
 				public void run()
 				{
+					if (Utils.isOkHttp())
+					{
+						mActivityTask.task = null;
+					}
 					if (progressDialog != null)
 					{
 						progressDialog.dismiss();
@@ -846,6 +900,13 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 					{
 						Utils.hideSoftKeyboard(StatusUpdate.this, statusTxt);
 						finish();
+					}
+					else
+					{
+						if (Utils.isOkHttp())
+						{
+							Toast.makeText(getApplicationContext(), R.string.update_status_fail, Toast.LENGTH_SHORT).show();
+						}
 					}
 					handler.removeCallbacks(cancelStatusPost);
 				}
