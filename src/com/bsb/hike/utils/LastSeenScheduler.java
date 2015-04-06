@@ -6,6 +6,7 @@ import android.os.Looper;
 import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.tasks.FetchBulkLastSeenTask;
 import com.bsb.hike.tasks.FetchBulkLastSeenTask.FetchBulkLastSeenCallback;
 import com.bsb.hike.tasks.FetchLastSeenTask;
@@ -66,6 +67,11 @@ public class LastSeenScheduler
 
 	public void start(boolean fetchBulkLastSeen)
 	{
+		if (!HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.BULK_LAST_SEEN_PREF, false))
+		{
+			return;
+		}
+
 		resetLastSeenRetryParams(retryBulk);
 		/*
 		 * We reset this flag so that the retry logic works now.

@@ -251,6 +251,7 @@
     <color name="pink_avatar">#ff92a5</color>
     <color name="violet_avatar">#c1a0e1</color>
     <color name="gray_avatar">#404b4e55</color>
+    <color name="broadcast_ftue_bg">#acdd77</color>
     <color name="rec_progress">#ef554e</color>
     <color name="bubble_blue">#d4feff</color>
     <color name="bubble_celebration_space">#e4cdfe</color>
@@ -307,9 +308,7 @@
     <color name="standard_light_grey2">#777777</color>
     <color name="standerd_background">#ececec</color>
     <color name="white_50">#7fffffff</color>
-    <color name="stealth_tip_bg">#ef554e</color>
-    <color name="stealth_tip_divider">#f2706a</color>
-	<color name="sticker_ftue">#db3653</color>
+    <color name="sticker_ftue">#db3653</color>
 	<color name="hike_offline_ftue">#0e7bbd</color>
 	<color name="hidden_mode_ftue">#dc354b</color>
 	<color name="themes_ftue">#29264d</color>
@@ -402,5 +401,18 @@
     <color name="call_rate_header">#111111</color>
     <color name="call_rate_subheader">#26292d</color>
     <color name="call_issues">#494949</color>
+    <color name="call_rate_bg">#33000000</color>
+    <color name="photos_tabs_background">#1f1f1f</color>
+    <color name="photos_pager_background">#141414</color>
+    <color name="photos_action_bar_background">#141414</color>
+    <color name="photos_filters_font_color">#FFFFFF</color>
+    <color name="photos_doodle_seperator">#2b2b2c</color>
+    <color name="photos_action_bar_font">#FFFFFF</color>
+    <color name="photos_circular_progress_blue">#178ee1</color>
+    <color name="photos_circular_progress_red">#dd2b28</color>
+    <color name="photos_circular_progress_red_alpha">#99dd2b28</color>
+    <color name="photos_actions_selected">#f4f4f4</color>
+    <color name="photos_camera_selector">#05e7e8e9</color>
+    
 </resources>
 	

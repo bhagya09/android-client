@@ -11,6 +11,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.FutureTask;
@@ -57,16 +58,23 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
+import com.bsb.hike.analytics.MsgRelLogManager;
+import com.bsb.hike.analytics.AnalyticsConstants.MessageType;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.GroupParticipant;
+import com.bsb.hike.models.ConvMessage.OriginType;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.MessageMetadata;
 import com.bsb.hike.models.MultipleConvMessage;
+import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.FileTransferCancelledException;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.video.HikeVideoCompressor;
 import com.bsb.hike.video.VideoUtilities;
@@ -304,8 +312,19 @@ public class UploadFileTask extends FileTransferBase
 			else
 			{
 				userContext = createConvMessage(fileName, metadata, msisdn, isRecipientOnhike);
-				HikeConversationsDatabase.getInstance().addConversationMessages((ConvMessage)userContext);
-				HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_SENT, (ConvMessage) userContext);
+				ConvMessage convMessageObject = (ConvMessage)userContext;
+				if(convMessageObject.isBroadcastConversation())
+				{
+					convMessageObject.setMessageOriginType(OriginType.BROADCAST);
+				}
+
+				HikeConversationsDatabase.getInstance().addConversationMessages(convMessageObject);
+				
+				// 1) user clicked Media file and sending it
+				MsgRelLogManager.startMessageRelLogging((ConvMessage) userContext, MessageType.MULTIMEDIA);
+				
+				//Message sent from here will only do an entry in conversation db it is not actually being sent to server.
+				HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_SENT, convMessageObject);
 			}
 		}
 		catch (Exception e)
@@ -394,7 +413,7 @@ public class UploadFileTask extends FileTransferBase
 					{
 						selectedFile = Utils.getOutputMediaFile(hikeFileType, null, true);
 					}
-					if (!Utils.copyImage(mFile.getPath(), selectedFile.getPath(), context))
+					if (!Utils.compressAndCopyImage(mFile.getPath(), selectedFile.getPath(), context))
 					{
 						Logger.d(getClass().getSimpleName(), "throwing copy file exception");
 						throw new Exception(FileTransferManager.READ_FAIL);
@@ -665,14 +684,27 @@ public class UploadFileTask extends FileTransferBase
 			}
 			else
 			{
-				((ConvMessage) userContext).setMetadata(metadata);
+				ConvMessage convMessageObject = (ConvMessage)userContext;
+				convMessageObject.setMetadata(metadata);
 	
 				// The file was just uploaded to the servers, we want to publish
 				// this event
-				((ConvMessage) userContext).setTimestamp(System.currentTimeMillis() / 1000);
-				HikeMessengerApp.getPubSub().publish(HikePubSub.UPLOAD_FINISHED, ((ConvMessage) userContext));
+				convMessageObject.setTimestamp(System.currentTimeMillis() / 1000);
+				HikeMessengerApp.getPubSub().publish(HikePubSub.UPLOAD_FINISHED, convMessageObject);
 	
-				HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_SENT, ((ConvMessage) userContext));
+				if(convMessageObject.isBroadcastConversation())
+				{
+					List<PairModified<GroupParticipant, String>> participantList= ContactManager.getInstance().getGroupParticipants(convMessageObject.getMsisdn(), false, false);
+					for (PairModified<GroupParticipant, String> grpParticipant : participantList)
+					{
+						String msisdn = grpParticipant.getFirst().getContactInfo().getMsisdn();
+						convMessageObject.addToSentToMsisdnsList(msisdn);
+					}
+					Utils.addBroadcastRecipientConversations(convMessageObject);
+				}
+				
+				//Message sent from here will contain file key and also message_id ==> this is actually being sent to the server.
+				HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_SENT, convMessageObject);
 			}
 			deleteStateFile();
 			Utils.addFileName(hikeFile.getFileName(), hikeFile.getFileKey());
@@ -811,6 +843,16 @@ public class UploadFileTask extends FileTransferBase
 		{
 			chunkSize = chunkSize / 5;
 		}
+		/*
+		 * Safe check for the case where chunk size equals zero while calculating based on network and device memory.
+		 * https://hike.fogbugz.com/default.asp?42482
+		 */
+		if(chunkSize <= 0)
+		{
+			FTAnalyticEvents.sendFTDevEvent(FTAnalyticEvents.UPLOAD_FILE_TASK, "Chunk size is less than or equal to 0, so setting it to default i.e. 100kb");
+			chunkSize = DEFAULT_CHUNK_SIZE;
+		}
+
 		if (chunkSize > length)
 			chunkSize = (int) length;
 		setBufferSize();
@@ -1083,6 +1125,7 @@ public class UploadFileTask extends FileTransferBase
 				client.getParams().setParameter(CoreProtocolPNames.USER_AGENT, "android-" + AccountUtils.getAppVersion());
 				HttpHead head = new HttpHead(mUrl.toString());
 				head.addHeader("Cookie", "user=" + token + ";uid=" + uId);
+				AccountUtils.setNoTransform(head);
 	
 				HttpResponse resp = client.execute(head);
 				int resCode = resp.getStatusLine().getStatusCode();
@@ -1142,7 +1185,9 @@ public class UploadFileTask extends FileTransferBase
 			client = new DefaultHttpClient();
 			client.getParams().setParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, bufferSize);
 			client.getParams().setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 10 * 1000);
-			client.getParams().setParameter(CoreConnectionPNames.SO_TIMEOUT, 60 * 1000);
+			long so_timeout = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.FT_UPLOAD_SO_TIMEOUT, 180 * 1000l);
+			Logger.d("UploadFileTask", "Socket timeout = " + so_timeout);
+			client.getParams().setParameter(CoreConnectionPNames.SO_TIMEOUT, (int) so_timeout);
 			client.getParams().setParameter(CoreConnectionPNames.TCP_NODELAY, true);
 			client.getParams().setParameter(CoreProtocolPNames.USER_AGENT, "android-" + AccountUtils.getAppVersion());
 		}
@@ -1158,6 +1203,7 @@ public class UploadFileTask extends FileTransferBase
 			post.addHeader("X-SESSION-ID", X_SESSION_ID);
 			post.addHeader("X-CONTENT-RANGE", contentRange);
 			post.addHeader("Cookie", "user=" + token + ";UID=" + uId);
+			AccountUtils.setNoTransform(post);
 			Logger.d(getClass().getSimpleName(), "user=" + token + ";UID=" + uId);
 			post.setHeader("Content-Type", "multipart/form-data; boundary=" + BOUNDARY);
 
@@ -1295,6 +1341,7 @@ public class UploadFileTask extends FileTransferBase
 				client.getParams().setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 10 * 1000);
 				client.getParams().setParameter(CoreProtocolPNames.USER_AGENT, "android-" + AccountUtils.getAppVersion());
 				HttpHead head = new HttpHead(mUrl.toString());
+				AccountUtils.setNoTransform(head);
 
 				HttpResponse resp = client.execute(head);
 				int resCode = resp.getStatusLine().getStatusCode();

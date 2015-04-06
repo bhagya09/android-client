@@ -21,8 +21,9 @@ import java.util.ArrayList;
 import android.os.Bundle;
 
 import com.bsb.hike.utils.HikeAppStateBaseActivity;
+import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 
-public class MonitoredActivity extends HikeAppStateBaseActivity
+public class MonitoredActivity extends HikeAppStateBaseFragmentActivity
 {
 
 	private final ArrayList<LifeCycleListener> mListeners = new ArrayList<LifeCycleListener>();
@@ -89,6 +90,7 @@ public class MonitoredActivity extends HikeAppStateBaseActivity
 		{
 			listener.onActivityCreated(this);
 		}
+		
 	}
 
 	@Override

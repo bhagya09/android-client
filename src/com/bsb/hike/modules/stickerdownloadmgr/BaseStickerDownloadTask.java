@@ -137,6 +137,7 @@ abstract class BaseStickerDownloadTask implements Callable<STResult>
 					GzipByteArrayEntity entity;
 					entity = new GzipByteArrayEntity(requestEntity.toString().getBytes(), HTTP.DEFAULT_CONTENT_CHARSET);
 					HttpPost httpPost = new HttpPost(downloadUrl);
+					AccountUtils.setNoTransform(httpPost);
 					AccountUtils.addToken(httpPost);
 					httpPost.setEntity(entity);
 					HttpClient client = AccountUtils.getClient(httpPost);
@@ -158,6 +159,7 @@ abstract class BaseStickerDownloadTask implements Callable<STResult>
 					DefaultHttpClient client = (DefaultHttpClient) initConnHead();
 					HttpHead head = new HttpHead(mUrl.toString());
 					head.addHeader("Cookie", "user=" + AccountUtils.mToken + "; UID=" + AccountUtils.mUid);
+					AccountUtils.setNoTransform(head);
 					HttpResponse resp = client.execute(head);
 					return resp;
 				}

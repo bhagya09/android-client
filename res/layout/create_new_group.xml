@@ -11,10 +11,11 @@
         android:onClick="onChangeImageClicked"
         android:layout_marginTop="28dp" >
 
-        <ImageView
+        <com.bsb.hike.view.RoundedImageView
             android:id="@+id/group_profile_image"
             android:layout_width="96dp"
             android:layout_height="96dp"
+            style="@style/RoundedStyle"
             android:layout_centerHorizontal="true"
             android:src="@drawable/ic_default_avatar_group" />
 

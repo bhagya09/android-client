@@ -17,7 +17,7 @@ public class BootService extends BroadcastReceiver
 	public void onReceive(Context ctx, Intent intent)
 	{
 		Logger.i("HikeBootService", "Received onBoot intent");
-		HikeSharedPreferenceUtil mprefs = HikeSharedPreferenceUtil.getInstance(ctx);
+		HikeSharedPreferenceUtil mprefs = HikeSharedPreferenceUtil.getInstance();
 
 		// GCM_ID_SENT_PRELOAD=true,User Auth=false-->Best Scenario
 

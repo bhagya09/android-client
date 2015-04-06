@@ -3,6 +3,7 @@ package com.bsb.hike.analytics;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
 import java.util.Calendar;
 
@@ -15,7 +16,6 @@ import org.apache.http.entity.FileEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.CoreProtocolPNames;
 
-import twitter4j.internal.http.HttpResponseCode;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -255,6 +255,7 @@ public class AnalyticsSender
 				postCall.addHeader("Content-Name", fileName);
 				postCall.addHeader("Content-Encoding", "gzip");
 				postCall.addHeader("Cookie", "user=" + token + ";UID=" + uId);
+				AccountUtils.setNoTransform(postCall);
 				postCall.setEntity(new FileEntity(new File(absolutePath), "text/plain"));
 
 				response = httpClient.execute(postCall);			
@@ -300,7 +301,7 @@ public class AnalyticsSender
 				Logger.d(AnalyticsConstants.ANALYTICS_TAG, "http response :" + response.getStatusLine());
 				switch (response.getStatusLine().getStatusCode())
 				{
-					case HttpResponseCode.OK:
+					case HttpURLConnection.HTTP_OK:
 					{
 						resetRetryParams();
 	
@@ -310,12 +311,12 @@ public class AnalyticsSender
 					}				
 					return wasUploadSuccessful;
 
-					case HttpResponseCode.GATEWAY_TIMEOUT:
-					case HttpResponseCode.SERVICE_UNAVAILABLE:
-					case HttpResponseCode.INTERNAL_SERVER_ERROR:
-					case HttpResponseCode.NOT_FOUND:
-					case HttpResponseCode.BAD_GATEWAY:
-					case HttpResponseCode.TOO_MANY_REQUESTS:
+					case HttpURLConnection.HTTP_GATEWAY_TIMEOUT:
+					case HttpURLConnection.HTTP_UNAVAILABLE:
+					case HttpURLConnection.HTTP_INTERNAL_ERROR:
+					case HttpURLConnection.HTTP_NOT_FOUND:
+					case HttpURLConnection.HTTP_BAD_GATEWAY:
+					//case HttpResponseCode.TOO_MANY_REQUESTS:
 
 					if (!retryUpload())
 					{
@@ -324,8 +325,8 @@ public class AnalyticsSender
 					}
 					return wasUploadSuccessful;
 					
-					case HttpResponseCode.FORBIDDEN:
-					case HttpResponseCode.UNAUTHORIZED:
+					case HttpURLConnection.HTTP_FORBIDDEN:
+					case HttpURLConnection.HTTP_UNAUTHORIZED:
 					{
 						wasUploadSuccessful = true;
 					}

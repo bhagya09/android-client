@@ -4,6 +4,8 @@
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.DEPENDENCIES"/>
 	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="okhttp-urlconnection"/>
+	<classpathentry kind="src" path="okhttp"/>
 	<classpathentry kind="src" path="gen"/>
 	<classpathentry kind="src" path="mqtt"/>
 	<classpathentry kind="lib" path="libs/httpclient-android-4.3.5.jar"/>

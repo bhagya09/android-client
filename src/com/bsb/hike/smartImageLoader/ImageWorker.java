@@ -86,18 +86,6 @@ public abstract class ImageWorker
 		mResources = ctx.getResources();
 	}
 
-	public void loadImage(String data, boolean rounded, ImageView imageView, boolean runOnUiThread)
-	{
-		String key = data + (rounded ? ProfileActivity.PROFILE_ROUND_SUFFIX : "");
-		loadImage(key, imageView, false, runOnUiThread);
-	}
-
-	public void loadImage(String data, boolean rounded, ImageView imageView, boolean runOnUiThread, boolean isFlinging, boolean setDefaultAvatarInitially)
-	{
-		String key = data + (rounded ? ProfileActivity.PROFILE_ROUND_SUFFIX : "");
-		loadImage(key, imageView, isFlinging, runOnUiThread, setDefaultAvatarInitially);
-	}
-
 	/**
 	 * Load an image specified by the data parameter into an ImageView (override {@link ImageWorker#processBitmap(Object)} to define the processing logic). A memory and disk cache
 	 * will be used if an {@link ImageCache} has been added using {@link ImageWorker#addImageCache(FragmentManager, ImageCache.ImageCacheParams)}. If the image is found in the
@@ -209,30 +197,8 @@ public abstract class ImageWorker
 
 	protected void setDefaultAvatar(ImageView imageView, String data)
 	{
-		int idx = data.lastIndexOf(ProfileActivity.PROFILE_ROUND_SUFFIX);
-		boolean rounded = false;
-		if (idx > 0)
-		{
-			data = new String(data.substring(0, idx));
-			rounded = true;
-		}
-		else
-		{
-			int idx1 = data.lastIndexOf(ProfileActivity.PROFILE_PIC_SUFFIX);
-			if (idx1 > 0)
-				data = new String(data.substring(0, idx1));
-		}
-		boolean isGroupConversation = Utils.isGroupConversation(data);
-
-		imageView.setBackgroundResource(BitmapUtils.getDefaultAvatarResourceId(data, rounded));
-		if (setHiResDefaultAvatar)
-		{
-			imageView.setImageResource(isGroupConversation ? R.drawable.ic_default_avatar_group_hires : R.drawable.ic_default_avatar_hires);
-		}
-		else
-		{
-			imageView.setImageResource(isGroupConversation ? R.drawable.ic_default_avatar_group : R.drawable.ic_default_avatar);
-		}
+		imageView.setBackgroundDrawable(HikeMessengerApp.getLruCache().getDefaultAvatar(data, setHiResDefaultAvatar));
+		imageView.setImageDrawable(null);
 	}
 
 	/**
@@ -484,7 +450,12 @@ public abstract class ImageWorker
 				}
 				else if (setDefaultAvatarIfNoCustomIcon)
 				{
-					setDefaultAvatar(imageView, data);
+					String key = data;
+					int idx = data.lastIndexOf(ProfileActivity.PROFILE_PIC_SUFFIX);
+					if (idx > 0)
+						key = new String(data.substring(0, idx));
+					
+					setDefaultAvatar(imageView, key);
 				}
 				else if (defaultDrawable != null)
 				{

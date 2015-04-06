@@ -56,7 +56,7 @@ public class SendGCMIdToServerTrigger extends BroadcastReceiver
 		if (mGcmIdToServer == null)
 			mGcmIdToServer = new RunnableGCMIdToServer(context);
 
-		mprefs = HikeSharedPreferenceUtil.getInstance(context);
+		mprefs = HikeSharedPreferenceUtil.getInstance();
 		mprefs.saveData(HikeMessengerApp.LAST_BACK_OFF_TIME, 0);
 
 		mHikeHandler = HikeHandlerUtil.getInstance();

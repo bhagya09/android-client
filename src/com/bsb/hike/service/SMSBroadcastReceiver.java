@@ -34,7 +34,7 @@ public class SMSBroadcastReceiver extends BroadcastReceiver
 
 		// If the User is not authenticated and the GCMID is not sent to the server and the user is connected.
 
-		HikeSharedPreferenceUtil mprefs = HikeSharedPreferenceUtil.getInstance(context);
+		HikeSharedPreferenceUtil mprefs = HikeSharedPreferenceUtil.getInstance();
 		
 		if (Utils.isUserOnline(context) && (!Utils.isUserAuthenticated(context)) && !mprefs.getData(HikeMessengerApp.GCM_ID_SENT_PRELOAD, false) )
 		{

@@ -43,6 +43,7 @@ import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
@@ -62,11 +63,12 @@ import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.http.CustomSSLSocketFactory;
 import com.bsb.hike.http.GzipByteArrayEntity;
 import com.bsb.hike.http.HikeHttpRequest;
 import com.bsb.hike.http.HikeHttpRequest.RequestType;
-import com.bsb.hike.http.HttpPatch;
 import com.bsb.hike.models.Birthday;
 import com.bsb.hike.models.ContactInfo;
 
@@ -159,7 +161,7 @@ public class AccountUtils
 
 	public static String mUid = null;
 
-	private static String appVersion = null;
+	public static String appVersion = null;
 	
 	public static final String SDK_AUTH_BASE_URL_STAGING = "http://stagingoauth.im.hike.in/o/oauth2/";
 
@@ -207,6 +209,7 @@ public class AccountUtils
 	{
 		if (mClient != null)
 		{
+			Logger.d("AccountUtils", "Socket timeout when http client already created = " + mClient.getParams().getIntParameter(CoreConnectionPNames.SO_TIMEOUT, 0));
 			return mClient;
 		}
 		Logger.d("SSL", "Initialising the HTTP CLIENT");
@@ -218,7 +221,9 @@ public class AccountUtils
 		 * set the connection timeout to 6 seconds, and the waiting for data timeout to 30 seconds
 		 */
 		HttpConnectionParams.setConnectionTimeout(params, HikeConstants.CONNECT_TIMEOUT);
-		HttpConnectionParams.setSoTimeout(params, HikeConstants.SOCKET_TIMEOUT);
+		long so_timeout = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.GENERAL_SO_TIMEOUT, 180 * 1000l);
+		Logger.d("AccountUtils", "Socket timeout while creating client = " + so_timeout);
+		HttpConnectionParams.setSoTimeout(params, (int) so_timeout);
 
 		SchemeRegistry schemeRegistry = new SchemeRegistry();
 		if (ssl)
@@ -254,6 +259,12 @@ public class AccountUtils
 		return httpClient;
 	}
 
+	public static void setSocketTimeout(int timeout)
+	{
+		if(mClient != null)
+			mClient.getParams().setParameter(CoreConnectionPNames.SO_TIMEOUT, timeout);
+	}
+
 	public static HttpClient getClient(HttpRequestBase request)
 	{
 		HttpClient client = createClient();
@@ -272,6 +283,7 @@ public class AccountUtils
 
 	public static JSONObject executeRequest(HttpRequestBase request)
 	{
+		setNoTransform(request);
 		HttpClient client = getClient(request);
 		HttpResponse response;
 		try
@@ -656,7 +668,7 @@ public class AccountUtils
 	 */
 	public static List<ContactInfo> updateAddressBook(Map<String, List<ContactInfo>> new_contacts_by_id, JSONArray ids_json) throws IllegalStateException
 	{
-		HttpPatch request = new HttpPatch(base + "/account/addressbook");
+		HttpPost request = new HttpPost(base + "/account/addressbook-update");
 		addToken(request);
 		JSONObject data = new JSONObject();
 
@@ -678,7 +690,32 @@ public class AccountUtils
 		request.setEntity(entity);
 		entity.setContentType("application/json");
 		JSONObject obj = executeRequest(request);
+		if(obj == null)
+		{
+			recordAddressBookUploadFailException(data.toString());
+		}
 		return getContactList(obj, new_contacts_by_id);
+	}
+	
+	private static void recordAddressBookUploadFailException(String jsonString)
+	{
+		if(!HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.EXCEPTION_ANALYTIS_ENABLED, false))
+		{
+			return;
+		}
+		try
+		{
+			JSONObject metadata = new JSONObject();
+
+			metadata.put(HikeConstants.PAYLOAD, jsonString);
+
+			Logger.d("AccountUtils", "recording addressbook upload fail event. json = " + jsonString);
+			HAManager.getInstance().record(HikeConstants.EXCEPTION, HikeConstants.LogEvent.ADDRESSBOOK_UPLOAD, metadata);
+		}
+		catch (JSONException e)
+		{
+			Logger.e(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+		}
 	}
 
 	private static JSONObject getJsonContactList(Map<String, List<ContactInfo>> contactsMap, boolean sendWAValue)
@@ -887,7 +924,7 @@ public class AccountUtils
 		}
 	}
 
-	public static void deleteSocialCredentials(boolean facebook) throws NetworkErrorException, IllegalStateException
+	/*public static void deleteSocialCredentials(boolean facebook) throws NetworkErrorException, IllegalStateException
 	{
 		String url = facebook ? "/account/connect/fb" : "/account/connect/twitter";
 		HttpDelete delete = new HttpDelete(base + url);
@@ -897,7 +934,7 @@ public class AccountUtils
 		{
 			throw new NetworkErrorException("Could not delete account");
 		}
-	}
+	}*/
 
 	public static String getServerUrl()
 	{
@@ -947,6 +984,7 @@ public class AccountUtils
 		HttpRequestBase req = new HttpGet(AccountUtils.fileTransferBase + "/user/pft/");
 		addToken(req);
 		req.addHeader("X-SESSION-ID", sessionId);
+		AccountUtils.setNoTransform(req);
 		HttpClient httpclient = getClient(req);
 		HttpResponse response = httpclient.execute(req);
 		StatusLine statusLine = response.getStatusLine();
@@ -969,6 +1007,7 @@ public class AccountUtils
 	public static String crcValue(String fileKey) throws ClientProtocolException, IOException
 	{
 		HttpRequestBase req = new HttpGet(AccountUtils.fileTransferBase + "/user/ft/" + fileKey);
+		AccountUtils.setNoTransform(req);
 		addToken(req);
 		HttpClient httpclient = getClient(req);
 		HttpResponse response = httpclient.execute(req);
@@ -1020,5 +1059,10 @@ public class AccountUtils
 	public static void setNoTransform(URLConnection urlConnection)
 	{
 		urlConnection.setRequestProperty("Cache-Control", "no-transform");
+	}
+
+	public static void setNoTransform(HttpRequestBase request)
+	{
+		request.addHeader("Cache-Control", "no-transform");
 	}
 }

@@ -3,8 +3,6 @@ package com.bsb.hike.voip;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
-import android.util.Log;
-
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.utils.Logger;
@@ -138,7 +136,7 @@ public class VoIPClient  {
 //				Log.d(VoIPActivity.logTag, "preferred address: " + getPreferredIPAddress());
 				cachedInetAddress = InetAddress.getByName(getPreferredIPAddress());
 			} catch (UnknownHostException e) {
-				Log.e(VoIPConstants.TAG, "VoIPClient UnknownHostException: " + e.toString());
+				Logger.e(VoIPConstants.TAG, "VoIPClient UnknownHostException: " + e.toString());
 			}
 		}
 		// Log.d(VoIPActivity.logTag, "cached address: " + cachedInetAddress.toString());
