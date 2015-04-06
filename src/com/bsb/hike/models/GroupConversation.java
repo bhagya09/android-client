@@ -171,22 +171,9 @@ public class GroupConversation extends Conversation
 	 */
 	public String getGroupParticipantFullFirstName(String msisdn)
 	{
-		String fullFirstName = null;
-		
 		String fullName = getGroupParticipantName(msisdn);
 		
-		String[] args = fullName.trim().split(" ", 3);
-
-		if(args.length > 1)
-		{
-			// if contact has some prefix, name would be prefix + first-name else first-name + first word of last name		
-			fullFirstName = args[0] + " " + args[1];
-		}
-		else
-		{
-			fullFirstName = fullName;
-		}
-		return fullFirstName;
+		return Utils.extractFullFirstName(fullName);
 	}
 	
 	/**

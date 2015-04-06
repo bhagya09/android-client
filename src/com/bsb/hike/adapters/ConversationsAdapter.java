@@ -67,6 +67,7 @@ import com.bsb.hike.utils.IntentManager;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.NUXManager;
 import com.bsb.hike.utils.SmileyParser;
+import com.bsb.hike.utils.GroupUtils;
 import com.bsb.hike.utils.Utils;
 
 public class ConversationsAdapter extends BaseAdapter
@@ -104,7 +105,7 @@ public class ConversationsAdapter extends BaseAdapter
 
 	private ContactFilter contactFilter;
 
-	public Set<String> conversationsMsisdns;
+	private Set<String> conversationsMsisdns;
 
 	private boolean isSearchModeOn = false;
 
@@ -554,7 +555,6 @@ public class ConversationsAdapter extends BaseAdapter
 	public void removeSearch()
 	{
 		isSearchModeOn = false;
-		conversationsMsisdns.clear();
 		convSpanStartIndexes.clear();
 		refinedSearchText = null;
 		/*
@@ -590,7 +590,7 @@ public class ConversationsAdapter extends BaseAdapter
 					msg = context.getString(R.string.on_sms);
 				}
 				List<ConvMessage> messagesList = new ArrayList<ConvMessage>();
-				ConvMessage message = new ConvMessage(msg, contact.getMsisdn(), 0, State.RECEIVED_READ);
+				ConvMessage message = new ConvMessage(msg, contact.getMsisdn(), -1, State.RECEIVED_READ);
 				messagesList.add(message);
 				conv.setMessages(messagesList);
 				if (contact.isOnhike())
@@ -1001,14 +1001,7 @@ public class ConversationsAdapter extends BaseAdapter
 		updateViewsRelatedToMessageState(parentView, message, conversation);
 		
 		TextView tsView = viewHolder.timeStamp;
-		if(conversationsMsisdns!=null && !conversationsMsisdns.contains(conversation.getMsisdn()))
-		{
-			tsView.setText("");
-		}
-		else
-		{
-			tsView.setText(message.getTimestampFormatted(true, context));
-		}
+		tsView.setText(message.getTimestampFormatted(true, context));
 	}
 
 	public void updateViewsRelatedToMessageState(View parentView, ConvMessage message, Conversation conversation)
@@ -1146,7 +1139,7 @@ public class ConversationsAdapter extends BaseAdapter
 		{
 			JSONArray participantInfoArray = metadata.getGcjParticipantInfo();
 			String highlight = Utils.getGroupJoinHighlightText(participantInfoArray, (GroupConversation) conversation);
-			markedUp = Utils.getParticipantAddedMessage(message, context, highlight);
+			markedUp = GroupUtils.getParticipantAddedMessage(message, context, highlight);
 		}
 		else if (message.getParticipantInfoState() == ParticipantInfoState.DND_USER)
 		{
@@ -1212,18 +1205,11 @@ public class ConversationsAdapter extends BaseAdapter
 				// booted because of that reason
 				String participantMsisdn = metadata.getMsisdn();
 				String participantName = ((GroupConversation) conversation).getGroupParticipantFirstNameAndSurname(participantMsisdn);
-				markedUp = String.format(context.getString(conversation instanceof BroadcastConversation ? R.string.removed_from_broadcast : R.string.left_conversation), participantName);
+				markedUp = GroupUtils.getParticipantRemovedMessage(conversation, context, participantName);
 			}
 			else
 			{
-				if (conversation instanceof BroadcastConversation)
-				{
-					markedUp = context.getString(R.string.broadcast_list_end);
-				}
-				else
-				{
-					markedUp = context.getString(R.string.group_chat_end);
-				}
+				markedUp = GroupUtils.getConversationEndedMessage(conversation, context);
 			}
 		}
 		else if (message.getParticipantInfoState() == ParticipantInfoState.CHANGED_GROUP_NAME)
@@ -1239,8 +1225,8 @@ public class ConversationsAdapter extends BaseAdapter
 				String userMsisdn = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeMessengerApp.MSISDN_SETTING, "");
 
 				String participantName = userMsisdn.equals(msisdn) ? context.getString(R.string.you) : ((GroupConversation) conversation).getGroupParticipantFirstNameAndSurname(msisdn);
-
-				markedUp = String.format(context.getString(conversation instanceof BroadcastConversation ? R.string.change_broadcast_name : R.string.change_group_name), participantName);
+				
+				markedUp = GroupUtils.getConversationNameChangedMessage(conversation, context, participantName);
 			}
 		}
 		else if (message.getParticipantInfoState() == ParticipantInfoState.BLOCK_INTERNATIONAL_SMS)
@@ -1472,15 +1458,18 @@ public class ConversationsAdapter extends BaseAdapter
 
 	public void remove(Conversation conv)
 	{
-		completeList.remove(conv);
-		conversationList.remove(conv);
-		if(conversationsMsisdns!=null)
+		if (conv != null)
 		{
-			conversationsMsisdns.remove(conv.getMsisdn());
-		}
-		if (phoneBookContacts != null)
-		{
-			phoneBookContacts.add(conv);
+			completeList.remove(conv);
+			conversationList.remove(conv);
+			if(conversationsMsisdns!=null)
+			{
+				conversationsMsisdns.remove(conv.getMsisdn());
+			}
+			if (phoneBookContacts != null)
+			{
+				phoneBookContacts.add(conv);
+			}
 		}
 	}
 

@@ -722,17 +722,10 @@ public final class HikeEffectsFactory
 				if (blurImage)
 				{
 					inBitmapOut = HikePhotosUtils.createBitmap(mBitmapIn, 0, 0, 0, 0, true, false, false, true);
-					if (inBitmapOut == null)
-					{
-						// To Do Out Of Memory Handling
-					}
-					// inBitmapOut = mBitmapIn.copy(mBitmapIn.getConfig(), true);
 				}
 				else
 				{
 					currentOut = HikePhotosUtils.createBitmap(mBitmapIn, 0, 0, 0, 0, true, false, false, true);
-					// currentOut = mBitmapIn.copy(mBitmapIn.getConfig(), true);
-
 				}
 				break;
 			default:

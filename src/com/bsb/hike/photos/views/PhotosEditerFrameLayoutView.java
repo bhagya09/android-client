@@ -11,23 +11,22 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.media.MediaScannerConnection;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
+import android.view.KeyCharacterMap;
+import android.view.KeyEvent;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
-import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.photos.HikeEffectsFactory.OnFilterAppliedListener;
 import com.bsb.hike.photos.HikePhotosListener;
 import com.bsb.hike.photos.HikePhotosUtils;
 import com.bsb.hike.photos.HikePhotosUtils.FilterTools.FilterType;
 import com.bsb.hike.photos.views.CanvasImageView.OnDoodleStateChangeListener;
-import com.bsb.hike.platform.content.PlatformContentUtils;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.IntentManager;
 import com.bsb.hike.utils.Utils;
@@ -107,7 +106,16 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 		case DisplayMetrics.DENSITY_HIGH:
 			return HikeConstants.HikePhotos.PREVIEW_THUMBNAIL_WIDTH_MDPI;
 		default:
-			return HikeConstants.HikePhotos.PREVIEW_THUMBNAIL_WIDTH_HDPI;
+			boolean hasBackKey = KeyCharacterMap.deviceHasKey(KeyEvent.KEYCODE_BACK);
+			
+			if( !hasBackKey) {
+			    // Do whatever you need to do, this device has a navigation bar
+				return HikeConstants.HikePhotos.PREVIEW_THUMBNAIL_WIDTH_MDPI;
+			}
+
+			else{
+				return HikeConstants.HikePhotos.PREVIEW_THUMBNAIL_WIDTH_HDPI;
+			}
 
 		}
 
@@ -157,8 +165,7 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 		}
 		catch (OutOfMemoryError e)
 		{
-			//To Do Out Of Memory Handling
-			Toast.makeText(getContext(), "Unable to Load Image!\nNot Enough Memory On Device.", Toast.LENGTH_SHORT);
+			Toast.makeText(getContext(), getResources().getString(R.string.photos_oom_load), Toast.LENGTH_SHORT).show();
 			IntentManager.openHomeActivity(getContext(),true);
 		}
 		DisplayMetrics metrics = getContext().getResources().getDisplayMetrics();
@@ -168,8 +175,7 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 			imageScaled = HikePhotosUtils.createBitmap(imageOriginal, 0, 0, width, width, true, true, false, true);
 			if(imageScaled == null)
 			{
-				//To Do Out Of Memory Handling
-				Toast.makeText(getContext(), "Unable to load Image!\nNot Enough Memory On Device.", Toast.LENGTH_SHORT);
+				Toast.makeText(getContext(), getResources().getString(R.string.photos_oom_load), Toast.LENGTH_SHORT).show();
 				IntentManager.openHomeActivity(getContext(),true);
 			}
 			// imageScaled = Bitmap.createScaledBitmap(imageOriginal, width, width, false);
@@ -333,8 +339,7 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 				}
 				else
 				{
-					//To Do Out Of Memory Handling
-					Toast.makeText(getContext(), "Unable to save Image!\nNot Enough Memory On Device.", Toast.LENGTH_SHORT);
+					Toast.makeText(getContext(), getResources().getString(R.string.photos_oom_save), Toast.LENGTH_SHORT).show();
 					IntentManager.openHomeActivity(getContext(),true);
 					
 				}
@@ -354,12 +359,12 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 			if (savingFinal)
 			{
 				// Move Back to Home
-				Toast.makeText(getContext(), "Unable to save Image!\nNot Enough Memory On Device.", Toast.LENGTH_SHORT);
+				Toast.makeText(getContext(),  getResources().getString(R.string.photos_oom_save), Toast.LENGTH_SHORT).show();
 				IntentManager.openHomeActivity(getContext(),true);
 			}
 			else
 			{
-				Toast.makeText(getContext(), "Try Again", Toast.LENGTH_SHORT);
+				Toast.makeText(getContext(),getResources().getString(R.string.photos_oom_retry), Toast.LENGTH_SHORT).show();
 			}
 		}
 		else

@@ -40,7 +40,7 @@ public class BroadcastConversation extends GroupConversation {
 		}
 		Collections.sort(broadcastParticipants);
 
-		String name = broadcastParticipants.get(0).getFirstName();
+		String name = Utils.extractFullFirstName(broadcastParticipants.get(0).getFirstNameAndSurname());
 		switch (broadcastParticipants.size())
 		{
 		case 0:
@@ -50,17 +50,10 @@ public class BroadcastConversation extends GroupConversation {
 		default:
 			for (int i=1; i<broadcastParticipants.size(); i++)
 			{
-				name += ", " + broadcastParticipants.get(i).getFirstName();
+				name += ", " + Utils.extractFullFirstName(broadcastParticipants.get(i).getFirstNameAndSurname());
 			}
 			return name;
 		}
 	}
 	
-	public String getDefaultBroadcastName()
-	{
-		{
-			setGroupParticipantList(ContactManager.getInstance().getGroupParticipants(getMsisdn(), false, false));
-			return Utils.defaultGroupName(new ArrayList<PairModified<GroupParticipant, String>>(groupParticipantList.values()));
-		}
-	}
 }

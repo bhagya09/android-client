@@ -19,6 +19,7 @@ import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.util.DisplayMetrics;
 import android.view.OrientationEventListener;
+import android.view.SurfaceView;
 import android.view.TextureView;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -39,6 +40,7 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.models.GalleryItem;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.photos.HikePhotosUtils;
+import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.ui.fragments.CameraFragment;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
@@ -70,7 +72,7 @@ public class HikeCameraActivity extends HikeAppStateBaseFragmentActivity impleme
 
 	private OrientationEventListener orientationListener;
 
-	private Bitmap tempBitmap;
+	private Bitmap stillPreviewBitmap;
 
 	private View flashButton;
 
@@ -200,6 +202,7 @@ public class HikeCameraActivity extends HikeAppStateBaseFragmentActivity impleme
 			}
 		}
 
+		showProductPopup(ProductPopupsConstants.PopupTriggerPoints.PHOTOS.ordinal());
 	}
 
 	private void setupActionBar()
@@ -233,16 +236,16 @@ public class HikeCameraActivity extends HikeAppStateBaseFragmentActivity impleme
 
 		iv.setVisibility(View.GONE);
 
-		if (tempBitmap != null)
+		if (stillPreviewBitmap != null)
 		{
-			tempBitmap.recycle();
-			tempBitmap = null;
+			stillPreviewBitmap.recycle();
+			stillPreviewBitmap = null;
 		}
 
-		HikeCameraActivity.this.findViewById(R.id.btntakepic).setEnabled(true);
-		HikeCameraActivity.this.findViewById(R.id.btngallery).setEnabled(true);
-		HikeCameraActivity.this.findViewById(R.id.btnflip).setEnabled(true);
-		HikeCameraActivity.this.findViewById(R.id.btntoggleflash).setEnabled(true);
+		HikeCameraActivity.this.findViewById(R.id.btntakepic).setClickable(true);
+		HikeCameraActivity.this.findViewById(R.id.btngallery).setClickable(true);
+		HikeCameraActivity.this.findViewById(R.id.btnflip).setClickable(true);
+		HikeCameraActivity.this.findViewById(R.id.btntoggleflash).setClickable(true);
 	}
 
 	@Override
@@ -253,13 +256,24 @@ public class HikeCameraActivity extends HikeAppStateBaseFragmentActivity impleme
 		switch (viewId)
 		{
 		case R.id.btntakepic:
-			HikeCameraActivity.this.findViewById(R.id.btntakepic).setEnabled(false);
-			HikeCameraActivity.this.findViewById(R.id.btngallery).setEnabled(false);
-			HikeCameraActivity.this.findViewById(R.id.btnflip).setEnabled(false);
-			HikeCameraActivity.this.findViewById(R.id.btntoggleflash).setEnabled(false);
+			HikeCameraActivity.this.findViewById(R.id.btntakepic).setClickable(false);
+			HikeCameraActivity.this.findViewById(R.id.btngallery).setClickable(false);
+			HikeCameraActivity.this.findViewById(R.id.btnflip).setClickable(false);
+			HikeCameraActivity.this.findViewById(R.id.btntoggleflash).setClickable(false);
 			cameraFragment.cancelAutoFocus();
 			cameraFragment.takePicture();
-			tempBitmap = ((TextureView) cameraFragment.getCameraView().previewStrategy.getWidget()).getBitmap();
+
+			View previewStratBmp = cameraFragment.getCameraView().previewStrategy.getWidget();
+
+			if (previewStratBmp instanceof TextureView)
+			{
+				stillPreviewBitmap = ((TextureView) previewStratBmp).getBitmap();
+			}
+			else if (previewStratBmp instanceof SurfaceView)
+			{
+				// TODO. For now we do not show still preview after camera snap in case if preview is on SurfaceView. This is causing brief black screen on Cyanogenmod phones.
+			}
+
 			final View snapOverlay = findViewById(R.id.snapOverlay);
 			ObjectAnimator invisToVis = ObjectAnimator.ofFloat(snapOverlay, "alpha", 0f, 0.8f);
 			invisToVis.setDuration(200);
@@ -269,9 +283,12 @@ public class HikeCameraActivity extends HikeAppStateBaseFragmentActivity impleme
 				@Override
 				public void onAnimationEnd(Animator animation)
 				{
-					ImageView iv = (ImageView) HikeCameraActivity.this.findViewById(R.id.tempiv);
-					iv.setImageBitmap(tempBitmap);
-					iv.setVisibility(View.VISIBLE);
+					if (stillPreviewBitmap != null)
+					{
+						ImageView iv = (ImageView) HikeCameraActivity.this.findViewById(R.id.tempiv);
+						iv.setImageBitmap(stillPreviewBitmap);
+						iv.setVisibility(View.VISIBLE);
+					}
 					ObjectAnimator visToInvis = ObjectAnimator.ofFloat(snapOverlay, "alpha", 0.8f, 0f);
 					visToInvis.setDuration(150);
 					visToInvis.setInterpolator(deceleratorInterp);
@@ -455,10 +472,9 @@ public class HikeCameraActivity extends HikeAppStateBaseFragmentActivity impleme
 
 			widthBmp = widthBmp > srcBmp.getWidth() ? srcBmp.getWidth() : widthBmp;
 
-			Bitmap dstBmp = HikePhotosUtils.createBitmap(srcBmp, srcBmp.getWidth() / 2 - (widthBmp / 2), bmpY, widthBmp, widthBmp,false,false,true,true);
-			
-			
-			//Bitmap dstBmp = Bitmap.createBitmap(srcBmp, srcBmp.getWidth() / 2 - (widthBmp / 2), bmpY, widthBmp, widthBmp);
+			Bitmap dstBmp = HikePhotosUtils.createBitmap(srcBmp, srcBmp.getWidth() / 2 - (widthBmp / 2), bmpY, widthBmp, widthBmp, false, false, true, true);
+
+			// Bitmap dstBmp = Bitmap.createBitmap(srcBmp, srcBmp.getWidth() / 2 - (widthBmp / 2), bmpY, widthBmp, widthBmp);
 
 			// ImageView iv = (ImageView) HikeCameraActivity.this.findViewById(R.id.containerImageView);
 			//

@@ -39,6 +39,7 @@ import com.bsb.hike.photos.views.CanvasImageView.OnDoodleStateChangeListener;
 import com.bsb.hike.photos.views.DoodleEffectItemLinearLayout;
 import com.bsb.hike.photos.views.FilterEffectItemLinearLayout;
 import com.bsb.hike.photos.views.PhotosEditerFrameLayoutView;
+import com.bsb.hike.ui.PictureEditer.EditorClickListener;
 import com.bsb.hike.ui.fragments.PhotoActionsFragment;
 import com.bsb.hike.ui.fragments.PhotoActionsFragment.ActionListener;
 import com.bsb.hike.ui.fragments.PreviewFragment;
@@ -105,7 +106,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 		editView.loadImageFromFile(filename);
 		editView.setOnDoodlingStartListener(clickHandler);
 
-		FragmentPagerAdapter adapter = new PhotoEditViewPagerAdapter(getSupportFragmentManager(), clickHandler);
+		FragmentPagerAdapter adapter = new PhotoEditViewPagerAdapter(getSupportFragmentManager());
 
 		pager = (ViewPager) findViewById(R.id.pager);
 		pager.setAdapter(adapter);
@@ -185,26 +186,25 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 	public class PhotoEditViewPagerAdapter extends FragmentPagerAdapter implements IconPagerAdapter
 	{
 
-		private EditorClickListener mItemClickListener;
-
-		public PhotoEditViewPagerAdapter(FragmentManager fm, EditorClickListener argItemClickListener)
+		public PhotoEditViewPagerAdapter(FragmentManager fm)
 		{
 			super(fm);
-			mItemClickListener = argItemClickListener;
 		}
 
 		@Override
 		public Fragment getItem(int position)
 		{
-
+			PreviewFragment prevFragment = null;
 			switch (position)
 			{
 			case HikeConstants.HikePhotos.FILTER_FRAGMENT_ID:
-				return new PreviewFragment(MenuType.Effects, mItemClickListener, editView.getScaledImageOriginal());
+				prevFragment = PreviewFragment.newInstance(MenuType.EFFECTS_TYPE, editView.getScaledImageOriginal());
+				break;
 			case HikeConstants.HikePhotos.DOODLE_FRAGMENT_ID:
-				return new PreviewFragment(MenuType.Doodle, mItemClickListener, editView.getScaledImageOriginal());
+				prevFragment = PreviewFragment.newInstance(MenuType.DOODLE_TYPE, editView.getScaledImageOriginal());
+				break;
 			}
-			return null;
+			return prevFragment;
 		}
 
 		@Override
@@ -502,6 +502,11 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 		{
 			e.printStackTrace();
 		}
+	}
+
+	public EditorClickListener getClickHandler()
+	{
+		return clickHandler;
 	}
 
 }

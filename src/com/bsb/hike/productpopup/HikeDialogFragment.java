@@ -14,8 +14,10 @@ import android.support.v4.app.FragmentTransaction;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnAttachStateChangeListener;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
+import android.view.ViewTreeObserver.OnWindowAttachListener;
 import android.view.Window;
 import android.view.WindowManager;
 import android.webkit.WebView;
@@ -99,6 +101,7 @@ public class HikeDialogFragment extends DialogFragment
 		loadingCard.setVisibility(View.VISIBLE);
 		return view;
 	}
+	
 	/**
 	 * 
 	 * @param supportFragmentManager
@@ -106,14 +109,18 @@ public class HikeDialogFragment extends DialogFragment
 	 *           
 	 * 
 	 * This method is responsible for attaching the fragment with the activity 
-	 *.If another fragment is already show that will be replaced and this one will be shown.#OnlyOneDialogAtOneTime
+	 *	This is done as the fragment can perform commit after the onSaveInstance of the activity is being called. 
 	 */
 	public void showDialog(FragmentManager supportFragmentManager)
 	{
-		FragmentTransaction ft = supportFragmentManager.beginTransaction();
-		
-		show(ft, "dialog");
-
+			FragmentTransaction transaction = supportFragmentManager.beginTransaction();
+			if(supportFragmentManager.findFragmentByTag(ProductPopupsConstants.DIALOG_TAG)!=null)
+			{
+				transaction.remove(supportFragmentManager.findFragmentByTag(ProductPopupsConstants.DIALOG_TAG)).commitAllowingStateLoss();
+				transaction=supportFragmentManager.beginTransaction();
+			}
+			transaction.add(this, ProductPopupsConstants.DIALOG_TAG);
+			transaction.commitAllowingStateLoss();
 	}
 
 	@Override
@@ -123,20 +130,29 @@ public class HikeDialogFragment extends DialogFragment
 
 		mmBridge = new ProductJavaScriptBridge(mmWebView, new WeakReference<HikeDialogFragment>(this), mmModel.getData());
 
-		mmWebView.addJavascriptInterface(mmBridge, HikePlatformConstants.PLATFORM_BRIDGE_NAME);
+		mmWebView.addJavascriptInterface(mmBridge, ProductPopupsConstants.POPUP_BRIDGE_NAME);
 		mmWebView.setWebViewClient(new CustomWebClient());
-		mmBridge.setDebuggableEnabled("true");
-		Logger.d("ProductPopup", "Widht before load url " + mmWebView.getWidth());
-		mmWebView.loadDataWithBaseURL("", mmModel.getFormedData(), "text/html", "UTF-8", "");
+		mmWebView.post(new Runnable()
+		{
+			
+			@Override
+			public void run()
+			{
+				Logger.d("ProductPopup","in post runnable+ width is "+mmWebView.getWidth());
+				mmWebView.loadDataWithBaseURL("", mmModel.getFormedData(), "text/html", "UTF-8", "");
+			}
+		});
+		
 	}
 
+	
 	class CustomWebClient extends HikeWebClient
 	{
 		@Override
 		public void onPageStarted(WebView view, String url, Bitmap favicon)
 		{
 			super.onPageStarted(view, url, favicon);
-			Logger.d("ProductPopup", "Web View HEight on Page Started>>>>" + mmWebView.getHeight());
+			Logger.d("ProductPopup", "Web View HEight and Width  on Page Started>>>>" + mmWebView.getHeight()+">>>>>"+mmWebView.getWidth());
 		}
 
 		@Override

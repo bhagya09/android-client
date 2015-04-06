@@ -113,6 +113,7 @@ import com.bsb.hike.utils.EmoticonConstants;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.StickerManager;
+import com.bsb.hike.utils.GroupUtils;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.utils.Utils.ExternalStorageState;
 import com.bsb.hike.view.CustomSendMessageTextView;
@@ -2070,7 +2071,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				JSONArray participantInfoArray = metadata.getGcjParticipantInfo();
 				TextView participantInfo = (TextView) inflater.inflate(layoutRes, null);
 				String highlight = Utils.getGroupJoinHighlightText(participantInfoArray, (GroupConversation) conversation);
-				String message = Utils.getParticipantAddedMessage(convMessage, context, highlight);
+				String message = GroupUtils.getParticipantAddedMessage(convMessage, context, highlight);
 				
 				setTextAndIconForSystemMessages(participantInfo, Utils.getFormattedParticipantInfo(message, highlight), isDefaultTheme ? R.drawable.ic_joined_chat
 						: R.drawable.ic_joined_chat_custom);
@@ -2101,18 +2102,12 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					}
 					String participantMsisdn = metadata.getMsisdn();
 					String name = ((GroupConversation) conversation).getGroupParticipantFirstNameAndSurname(participantMsisdn);
-					message = Utils.getFormattedParticipantInfo(String.format(context.getString(conversation instanceof BroadcastConversation ? R.string.removed_from_broadcast : R.string.left_conversation), name), name);
+					message = Utils.getFormattedParticipantInfo(GroupUtils.getParticipantRemovedMessage(conversation, context, name), name);
 				}
 				else
 				{
-					if (conversation instanceof BroadcastConversation)
-					{
-						message = context.getString(R.string.broadcast_list_end);
-					}
-					else
-					{
-						message = context.getString(R.string.group_chat_end);
-					}
+					message = GroupUtils.getConversationEndedMessage(conversation, context);
+					
 				}
 				setTextAndIconForSystemMessages(participantInfo, message, isDefaultTheme ? R.drawable.ic_left_chat : R.drawable.ic_left_chat_custom);
 
@@ -2187,7 +2182,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				String message;
 				if (convMessage.getParticipantInfoState() == ParticipantInfoState.CHANGED_GROUP_NAME)
 				{
-					message = String.format(context.getString(convMessage.isBroadcastConversation() ? R.string.change_broadcast_name : R.string.change_group_name), participantName);
+					message = GroupUtils.getConversationNameChangedMessage(conversation, context, participantName);
 				}
 				else
 				{
@@ -2396,13 +2391,11 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				if (showBlackIcon)
 				{
 					broadcastIndicator.setImageResource(R.drawable.ic_broadcast_system_message);
-					broadcastIndicator.setScaleType(ScaleType.CENTER);
 					broadcastIndicator.setVisibility(View.VISIBLE);
 				}
 				else
 				{
 					broadcastIndicator.setImageResource(R.drawable.ic_broadcast_ft);
-					broadcastIndicator.setScaleType(ScaleType.CENTER);
 					broadcastIndicator.setVisibility(View.VISIBLE);
 				}
 			}

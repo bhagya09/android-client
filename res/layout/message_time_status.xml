@@ -8,12 +8,12 @@
 
     <ImageView
         android:id="@+id/broadcastIndicator"
-        android:layout_width="21dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_broadcast_system_message"
         android:layout_marginBottom="3dp"
         android:layout_marginLeft="3dp"
-        android:layout_marginRight="3dp"
+        android:layout_marginRight="4dp"
         android:visibility="gone" />
     
     <com.bsb.hike.view.CustomFontTextView

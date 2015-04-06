@@ -247,7 +247,6 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			
 			if(newFragment == null) 
 			{
-				Logger.d("UmangX","creating Frag");
 				newFragment = new HorizontalFriendsFragment();
 				ft.add(R.id.horizontal_friends_placeholder, newFragment, HORIZONTAL_FRIEND_FRAGMENT).commit();
 			} 
@@ -320,14 +319,12 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	            if (heightDiff > 100 ) { // 99% of the time the height diff will be due to a keyboard.
 
 	                if(isOpened == false){
-						Logger.d("UmangX", "Keyboard up");
 						FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
 						ft.hide(newFragment);
 						ft.commit();
 	                }
 	                isOpened = true;
 	            }else if(isOpened == true){
-	            	 Logger.d("UmangX","Keyboard Down");
 	                isOpened = false;
 					FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
 					if (tagEditText.getText().toString().length() == 0)
@@ -795,6 +792,8 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		if(getIntent().hasExtra(HikeConstants.Extras.COMPOSE_MODE))
 		{
 			mode = getIntent().getIntExtra(HikeConstants.Extras.COMPOSE_MODE, START_CHAT_MODE);
+			triggerPointForPopup=ProductPopupsConstants.PopupTriggerPoints.BROADCAST.ordinal();
+			
 		}
 		else if(nuxIncentiveMode)
 		{
@@ -1011,6 +1010,11 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			}
 		}
 		HikeMqttManagerNew.getInstance().sendMessage(gcjJson, MqttConstants.MQTT_QOS_ONE);
+
+		if(Utils.isBroadcastConversation(groupId))
+		{
+			HikeMessengerApp.getPubSub().publish(HikePubSub.PARTICIPANT_JOINED_GROUP, gcjJson);
+		}
 
 		ContactInfo conversationContactInfo = new ContactInfo(groupId, groupId, groupId, groupId);
 		Intent intent = Utils.createIntentFromContactInfo(conversationContactInfo, true);
@@ -1945,6 +1949,19 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				lastSeenScheduler = LastSeenScheduler.getInstance(ComposeChatActivity.this);
 				lastSeenScheduler.start(true);
 			}
+		}
+
+		@Override
+		public void completeListFetched() {
+			if (adapter != null)
+			{
+				if (adapter.getCompleteList().size() <= 0)
+				{
+					View selectAllCont = findViewById(R.id.select_all_container);
+					selectAllCont.setVisibility(View.GONE);
+				}
+			}
+			
 		}
 	};
 

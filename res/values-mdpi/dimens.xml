@@ -32,5 +32,6 @@
 	<dimen name="photos_doodle_previewIcon_width">80dp</dimen>
 	<dimen name="photos_doodle_preview_padding">3dp</dimen>
 	<dimen name="photos_filters_preview_padding">7dp</dimen>
-	
+	<dimen name="broadcast_ftue_text_bottom_padding">15dp</dimen>
+	<dimen name="broadcast_ftue_text_right_padding">15dp</dimen>
 </resources>

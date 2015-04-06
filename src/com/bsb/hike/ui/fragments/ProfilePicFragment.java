@@ -62,8 +62,6 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 
 	private Interpolator animInterpolator = new LinearInterpolator();
 
-	private boolean isPaused;
-
 	private String imagePath;
 
 	private boolean failed;
@@ -112,6 +110,11 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 			@Override
 			public void run()
 			{
+				if (!isAdded())
+				{
+					return;
+				}
+
 				ObjectAnimator objectAnimatorButton = ObjectAnimator.ofFloat(mCircularImageView, "translationY", 100f, 0f);
 				objectAnimatorButton.setDuration(500);
 				objectAnimatorButton.start();
@@ -121,6 +124,7 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 				mCircularImageView.setVisibility(View.VISIBLE);
 				mCircularProgress.setVisibility(View.VISIBLE);
 				mProfilePicBg.setVisibility(View.VISIBLE);
+
 				((HikeAppStateBaseFragmentActivity) getActivity()).getSupportActionBar().hide();
 				startUpload();
 			}
@@ -141,7 +145,7 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 		mCircularProgress.resetProgress();
 
 		mFragmentView.findViewById(R.id.retryButton).setVisibility(View.GONE);
-		
+
 		mFragmentView.findViewById(R.id.rounded_mask).setVisibility(View.GONE);
 
 		if (imagePath != null)
@@ -270,7 +274,7 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 	private void updateProgress(float i)
 	{
 
-		if (isPaused)
+		if (!isAdded())
 		{
 			return;
 		}
@@ -310,6 +314,10 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 				@Override
 				public void run()
 				{
+					if (!isAdded())
+					{
+						return;
+					}
 					updateProgress(10f);
 					changeTextWithAnimation(text1, getString(R.string.photo_dp_saved));
 				}
@@ -322,14 +330,16 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 				@Override
 				public void run()
 				{
-					if (isPaused)
+					if (!isAdded())
+					{
 						return;
+					}
 					ProfilePicFragment.this.getActivity().runOnUiThread(new Runnable()
 					{
 						@Override
 						public void run()
 						{
-							if (!isPaused && !failed)
+							if (isAdded() && !failed)
 							{
 								Intent in = new Intent(getActivity(), HomeActivity.class);
 								in.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -348,7 +358,7 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 
 		failed = true;
 
-		if (isPaused)
+		if (!isAdded())
 		{
 			return;
 		}
@@ -362,7 +372,7 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 		mCircularProgress.setProgressColor(getResources().getColor(R.color.photos_circular_progress_red));
 
 		mFragmentView.findViewById(R.id.retryButton).setVisibility(View.VISIBLE);
-		
+
 		mFragmentView.findViewById(R.id.rounded_mask).setVisibility(View.VISIBLE);
 
 		mFragmentView.findViewById(R.id.retryButton).setOnClickListener(new View.OnClickListener()
@@ -402,8 +412,6 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 	public void onPause()
 	{
 		super.onPause();
-		isPaused = true;
-
 		try
 		{
 			getActivity().getSupportFragmentManager().popBackStack();
@@ -411,7 +419,7 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 		}
 		catch (NullPointerException npe)
 		{
-			//Do nothing
+			// Do nothing
 		}
 	}
 
@@ -419,7 +427,6 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 	public void onResume()
 	{
 		super.onResume();
-		isPaused = false;
 	}
 
 	@Override

@@ -46,10 +46,22 @@ import com.bsb.hike.photos.views.FilterEffectItemLinearLayout;
 
 public class HikePhotosUtils
 {
+	
+	
+	
+	
 	// enum for features provided in the photo editer view
-	public enum MenuType
+	public class MenuType
 	{
-		Effects, Doodle, Border, Text, Quality
+		public static final int EFFECTS_TYPE = 0;
+		
+		public static final int DOODLE_TYPE = 1;
+		
+		public static final int BORDER_TYPE = 2;
+		
+		public static final int TEXT_TYPE = 3;
+		
+		public static final int QUALITY_TYPE = 4;
 	}
 
 	// array cpntaining colors hex codes for colors provided in doodling
@@ -224,7 +236,7 @@ public class HikePhotosUtils
 					effectfilters.addFilter("EARLYBIRD", FilterType.EARLYBIRD);
 					effectfilters.addFilter("SHOLAY", FilterType.E1977);
 					effectfilters.addFilter("BRANNAN", FilterType.BRANNAN);
-					effectfilters.addFilter("Lo-Fi", FilterType.LO_FI);
+					effectfilters.addFilter("LO-FI", FilterType.LO_FI);
 					effectfilters.addFilter("INKWELL", FilterType.INKWELL);
 					effectfilters.addFilter("SEPIA", FilterType.SEPIA);
 					effectfilters.addFilter("GRAYSCALE", FilterType.GRAYSCALE);
