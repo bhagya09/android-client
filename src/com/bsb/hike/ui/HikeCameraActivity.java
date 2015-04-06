@@ -61,8 +61,6 @@ public class HikeCameraActivity extends HikeAppStateBaseFragmentActivity impleme
 
 	private static final String TAG = "HikeCameraActivity";
 
-	private static final int GALLERY_PICKER_REQUEST = 2;
-
 	private CameraFragment cameraFragment;
 
 	private boolean isUsingFFC = true, startedForResult;
@@ -345,7 +343,7 @@ public class HikeCameraActivity extends HikeAppStateBaseFragmentActivity impleme
 		case R.id.btngallery:
 			// Open gallery
 			Intent galleryPickerIntent = IntentManager.getHikeGalleryPickerIntent(HikeCameraActivity.this, false, false, GalleryActivity.PHOTOS_EDITOR_ACTION_BAR_TYPE, null);
-			startActivityForResult(galleryPickerIntent, GALLERY_PICKER_REQUEST);
+			startActivityForResult(galleryPickerIntent, HikeConstants.HikePhotos.GALLERY_PICKER_REQUEST);
 			break;
 
 		case R.id.btnflip:
@@ -451,7 +449,7 @@ public class HikeCameraActivity extends HikeAppStateBaseFragmentActivity impleme
 		{
 			switch (requestCode)
 			{
-			case GALLERY_PICKER_REQUEST:
+			case HikeConstants.HikePhotos.GALLERY_PICKER_REQUEST:
 				File myDir = new File(Utils.getFileParent(HikeFileType.IMAGE, false));
 				myDir.mkdir();
 				String fname = Utils.getOriginalFile(HikeFileType.IMAGE, null);
@@ -510,7 +508,7 @@ public class HikeCameraActivity extends HikeAppStateBaseFragmentActivity impleme
 			case HikeConstants.CROP_RESULT:
 				// Open gallery
 				Intent galleryPickerIntent = IntentManager.getHikeGalleryPickerIntent(HikeCameraActivity.this, false, false, GalleryActivity.PHOTOS_EDITOR_ACTION_BAR_TYPE, null);
-				startActivityForResult(galleryPickerIntent, GALLERY_PICKER_REQUEST);
+				startActivityForResult(galleryPickerIntent, HikeConstants.HikePhotos.GALLERY_PICKER_REQUEST);
 				break;
 			case HikeConstants.ResultCodes.PHOTOS_REQUEST_CODE:
 				//if (startedForResult)
