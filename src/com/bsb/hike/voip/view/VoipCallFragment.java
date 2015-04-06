@@ -20,7 +20,6 @@ import android.os.Messenger;
 import android.os.PowerManager;
 import android.os.SystemClock;
 import android.os.PowerManager.WakeLock;
-import android.support.v4.app.FragmentTransaction;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ImageSpan;
@@ -29,7 +28,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
-import android.view.ViewGroup.LayoutParams;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.DecelerateInterpolator;
@@ -42,25 +40,20 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ImageView.ScaleType;
 
-import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.app.SherlockFragment;
 import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
-import com.bsb.hike.smartImageLoader.VoipProfilePicImageLoader;
-import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.utils.IntentManager;
 import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.Utils;
+import com.bsb.hike.utils.ProfileImageLoader;
 import com.bsb.hike.voip.VoIPClient;
 import com.bsb.hike.voip.VoIPConstants;
 import com.bsb.hike.voip.VoIPUtils;
 import com.bsb.hike.voip.VoIPConstants.CallQuality;
 import com.bsb.hike.voip.VoIPService;
 import com.bsb.hike.voip.VoIPService.LocalBinder;
-import com.bsb.hike.voip.view.CallFailedFragment.CallFailedFragListener;
 
 public class VoipCallFragment extends SherlockFragment implements CallActions
 {
@@ -753,19 +746,6 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		callDuration.start();
 	}
 
-	public void setAvatar()
-	{
-		VoIPClient clientPartner = voipService.getPartnerClient();
-		String mappedId = clientPartner.getPhoneNumber() + ProfileActivity.PROFILE_PIC_SUFFIX;
-		int mBigImageSize = getResources().getDimensionPixelSize(R.dimen.timeine_big_picture_size);
-
-		VoipProfilePicImageLoader profileImageLoader = new VoipProfilePicImageLoader(getSherlockActivity(), mBigImageSize);
-	    profileImageLoader.setDefaultAvatarIfNoCustomIcon(true);
-	    profileImageLoader.setDefaultAvatarScaleType(ScaleType.CENTER);
-	    profileImageLoader.setDefaultAvatarBounds(LayoutParams.MATCH_PARENT, (int)(250*Utils.densityMultiplier));
-		profileImageLoader.loadImage(mappedId, (ImageView) getView().findViewById(R.id.profile_image));
-	}
-
 	public void setContactDetails()
 	{
 		TextView contactNameView = (TextView) getView().findViewById(R.id.contact_name);
@@ -880,5 +860,22 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		bundle.putString(VoIPConstants.PARTNER_NAME, partnerName);
 
 		activity.showCallFailedFragment(bundle);
+	}
+
+	public void setAvatar()
+	{
+		VoIPClient clientPartner = voipService.getPartnerClient();
+		String msisdn = clientPartner.getPhoneNumber();
+
+		ImageView imageView = (ImageView) getView().findViewById(R.id.profile_image);
+		int size = getResources().getDimensionPixelSize(R.dimen.timeine_big_picture_size);
+
+		ProfileImageLoader profileImageLoader = new ProfileImageLoader(getActivity(), msisdn, imageView, size);
+		profileImageLoader.setDefaultDrawable(getResources().getDrawable(R.drawable.ic_avatar_voip_hires));
+		boolean hasCustomImage = profileImageLoader.loadProfileImage(getLoaderManager());
+		if(!hasCustomImage)
+		{
+			imageView.setScaleType(ScaleType.FIT_START);
+		}
 	}
 }
