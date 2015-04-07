@@ -13,6 +13,7 @@ import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.HttpRequestType;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
+import com.bsb.hike.utils.Utils;
 
 class StickerSignupUpgradeDownloadTask extends BaseStickerDownloadTask
 {
@@ -56,6 +57,7 @@ class StickerSignupUpgradeDownloadTask extends BaseStickerDownloadTask
 			
 			JSONObject request = new JSONObject();
 			request.put(StickerManager.CATEGORY_IDS, categoryList);
+			request.put("resId", Utils.getResolutionId());
 			Logger.d(StickerDownloadManager.TAG,  "Starting download task : " + taskId + " url : " + urlString );
 			JSONObject response = (JSONObject) download(request, HttpRequestType.POST);
 			
