@@ -988,8 +988,14 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 				// If the string cannot be parsed
 				try
 				{
-					preference.setTitle(getString(R.string.led_notification) + " - " + (newValue.toString()));
-					if("None".equals(newValue.toString()))
+					ListPreference preferenceLed = (ListPreference) preference;
+					int index = preferenceLed.findIndexOfValue(newValue.toString());
+
+					if (index >= 0) {
+						preference.setTitle(getString(R.string.led_notification) + " - " + preferenceLed.getEntries()[index]);
+					}
+
+					if(getString(R.string.led_color_none_key).equals(newValue.toString()))
 					{
 						HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.LED_NOTIFICATION_COLOR_CODE, HikeConstants.LED_NONE_COLOR);
 					}
@@ -1020,7 +1026,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			//removing previous Key
 			preferenceManager.edit().remove(HikeConstants.LED_PREF).commit();
 		}
-		ledPref.setTitle(ledPref.getTitle() + " - " + ledPref.getValue());
+		ledPref.setTitle(ledPref.getTitle() + " - " + ledPref.getEntry());
 	}
 
 	@Override
