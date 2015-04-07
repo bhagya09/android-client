@@ -245,7 +245,7 @@ public class VoIPService extends Service {
 	}
 
 	@Override
-	public int onStartCommand(Intent intent, int flags, int startId) {
+	synchronized public int onStartCommand(Intent intent, int flags, int startId) {
 		
 		int returnInt = super.onStartCommand(intent, flags, startId);
 		
@@ -255,11 +255,6 @@ public class VoIPService extends Service {
 		if (intent == null)
 			return returnInt;
 
-		if (!keepRunning) {
-			Logger.w(VoIPConstants.TAG, "Are we stop()ing?");
-			return returnInt;
-		}
-		
 		String action = intent.getStringExtra(VoIPConstants.Extras.ACTION);
 
 		if (action == null || action.isEmpty()) {
@@ -663,12 +658,6 @@ public class VoIPService extends Service {
 		}
 		
 		if (soundpool != null) {
-			// Sleep for a little bit so the hangup sound can finish playing. 
-			try {
-				Thread.sleep(1500);
-			} catch (InterruptedException e) {
-				Logger.d(VoIPConstants.TAG, "releaseAudioManager() InterruptedException: " + e.toString());
-			}
 			Logger.d(VoIPConstants.TAG, "Releasing soundpool.");
 			soundpool.release();
 			soundpool = null;
@@ -810,7 +799,7 @@ public class VoIPService extends Service {
 	/**
 	 * Terminate the service. 
 	 */
-	public void stop() {
+	synchronized public void stop() {
 
 		synchronized (this) {
 			if (keepRunning == false) {
