@@ -1,6 +1,7 @@
 package com.bsb.hike.userlogs;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -13,7 +14,6 @@ import org.json.JSONObject;
 
 import android.content.ContentResolver;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.database.Cursor;
 import android.location.Location;
@@ -31,6 +31,10 @@ import com.bsb.hike.tasks.HikeHTTPTask;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+import com.google.android.gms.ads.identifier.AdvertisingIdClient;
+import com.google.android.gms.ads.identifier.AdvertisingIdClient.Info;
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
 
 
 public class UserLogInfo {
@@ -41,6 +45,8 @@ public class UserLogInfo {
 	public static final int CALL_ANALYTICS_FLAG = 1;
 	public static final int APP_ANALYTICS_FLAG = 2;	
 	public static final int LOCATION_ANALYTICS_FLAG = 4;
+	public static final int ADVERTISIND_ID_FLAG = 8;
+	
 	
 	private static final long milliSecInDay = 1000 * 60 * 60 * 24;
 	private static final int DAYS_TO_LOG = 30;
@@ -169,6 +175,7 @@ public class UserLogInfo {
 		String jsonKey = null;
 		switch (flag) {
 			case (APP_ANALYTICS_FLAG): jsonKey = HikeConstants.APP_LOG_ANALYTICS; break;
+			case (ADVERTISIND_ID_FLAG): jsonKey = HikeConstants.ADVERTSING_ID_ANALYTICS; break;
 			case (CALL_ANALYTICS_FLAG): jsonKey = HikeConstants.CALL_LOG_ANALYTICS; break;
 			case (LOCATION_ANALYTICS_FLAG): jsonKey = HikeConstants.LOCATION_LOG_ANALYTICS; break;
 		}
@@ -193,12 +200,28 @@ public class UserLogInfo {
 		return jsonLogObj;
 
 	}
+
+	private static JSONArray getAdvertisingId() throws JSONException{
+
+		try {
+			Info adInfo = AdvertisingIdClient.getAdvertisingIdInfo(HikeMessengerApp.getInstance().getApplicationContext());
+			return new JSONArray().put(new JSONObject().putOpt(HikeConstants.ADVERTSING_ID_ANALYTICS, adInfo.getId()));
+		} catch (IOException e) {
+			Logger.d(TAG, "IOException" + e.toString());
+		} catch (GooglePlayServicesRepairableException e) {
+			Logger.d(TAG, "play service repairable exception" + e.toString());
+		} catch (GooglePlayServicesNotAvailableException e) {
+			Logger.d(TAG, "play services not found Exception" + e.toString());
+		}
+		return null;
+	}
 	
 	private static JSONArray collectLogs(int flag) throws JSONException{	
 		switch(flag){
 			case APP_ANALYTICS_FLAG : return getJSONAppArray(getAppLogs()); 
 			case CALL_ANALYTICS_FLAG : return getJSONCallArray(getCallLogs());
 			case LOCATION_ANALYTICS_FLAG : return getJSONLocArray(getLocLogs());
+			case ADVERTISIND_ID_FLAG : return getAdvertisingId();
 			default : return null;
 		}
 	}
@@ -282,6 +305,10 @@ public class UserLogInfo {
 		if(data.optBoolean(HikeConstants.APP_LOG_ANALYTICS))
 		{
 			flags |= UserLogInfo.APP_ANALYTICS_FLAG;
+		}
+		if(data.optBoolean(HikeConstants.ADVERTSING_ID_ANALYTICS))
+		{
+			flags |= UserLogInfo.ADVERTISIND_ID_FLAG;
 		}
 		
 		Runnable rn  = new Runnable() 
