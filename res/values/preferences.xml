@@ -42,12 +42,12 @@
     <string name="notificationSoundTitle">Notification tones</string>
     
     <string name="led_color_none">None</string>
-    <string name="led_color_blue">Blue</string>
-    <string name="led_color_cyan">Cyan</string>
-    <string name="led_color_green">Green</string>
-    <string name="led_color_red">Red</string>
-    <string name="led_color_white">White</string>
-    <string name="led_color_yellow">Yellow</string>
-    <string name="led_color_purple">Purple</string>
+    <string name="led_color_blue">#FF0000FF</string>
+    <string name="led_color_cyan">#FF00FFFF</string>
+    <string name="led_color_green">#FF00FF00</string>
+    <string name="led_color_red">#FFFF0000</string>
+    <string name="led_color_white">#FFFFFFFF</string>
+    <string name="led_color_yellow">#FFFFFF00</string>
+    <string name="led_color_purple">#FF800080</string>
 
 </resources>
