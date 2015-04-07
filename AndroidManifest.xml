@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1160"
-    android:versionName="3.8.9" >
+    android:versionCode="1161"
+    android:versionName="3.8.9.50" >
     <uses-sdk
         android:minSdkVersion="9"
         android:targetSdkVersion="17" />
