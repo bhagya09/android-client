@@ -1,5 +1,6 @@
 package com.bsb.hike.voip;
 
+import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.KeyFactory;
@@ -21,6 +22,7 @@ import javax.crypto.spec.SecretKeySpec;
 import android.annotation.SuppressLint;
 
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 
 
 public class VoIPEncryptor {
@@ -94,6 +96,18 @@ public class VoIPEncryptor {
 	
 	public byte[] getSessionKey() {
 		return sessionKey;
+	}
+	
+	public String getSessionMD5() {
+		String md5 = null;
+		
+		try {
+			md5 = Utils.StringToMD5(new String(sessionKey, "UTF-8"));
+		} catch (UnsupportedEncodingException e) {
+			Logger.w(VoIPConstants.TAG, "Error in AES Session Key");
+		}
+
+		return md5;
 	}
 	
 	public void setSessionKey(byte[] sessionKey) {

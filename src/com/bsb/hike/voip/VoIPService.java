@@ -494,6 +494,7 @@ public class VoIPService extends Service {
 					Thread.sleep(30000);
 					if (!connected) {
 						Logger.w(VoIPConstants.TAG, "Why aren't we connected yet? Terminating service.");
+						keepRunning = true;	// So that stop() is executed entirely. 
 						stop();
 					}
 				} catch (InterruptedException e) {
@@ -1902,7 +1903,7 @@ public class VoIPService extends Service {
 						break;
 						
 					case ENCRYPTION_RECEIVED_SESSION_KEY:
-						Logger.d(VoIPConstants.TAG, "Encryption ready.");
+						Logger.d(VoIPConstants.TAG, "Encryption ready. MD5: " + encryptor.getSessionMD5());
 						encryptionStage = EncryptionStage.STAGE_READY;
 						break;
 						
@@ -2145,7 +2146,7 @@ public class VoIPService extends Service {
 					VoIPDataPacket dp = new VoIPDataPacket(PacketType.ENCRYPTION_RECEIVED_SESSION_KEY);
 					sendPacket(dp, true);
 					encryptionStage = EncryptionStage.STAGE_READY;
-					Logger.d(VoIPConstants.TAG, "Encryption ready.");
+					Logger.d(VoIPConstants.TAG, "Encryption ready. MD5: " + encryptor.getSessionMD5());
 				}
 			}
 		}, "EXCHANGE_CRYPTO_THREAD").start();
