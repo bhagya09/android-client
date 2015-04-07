@@ -48,6 +48,7 @@ import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.HttpManager;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
+import com.bsb.hike.notifications.HikeNotificationMsgStack;
 import com.bsb.hike.notifications.ToastListener;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.productpopup.ProductInfoManager;
@@ -638,7 +639,6 @@ public void onTrimMemory(int level)
 }
 	public void onCreate()
 	{
-
 		SharedPreferences settings = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
 		token = settings.getString(HikeMessengerApp.TOKEN_SETTING, null);
 		msisdn = settings.getString(HikeMessengerApp.MSISDN_SETTING, null);
@@ -691,6 +691,7 @@ public void onTrimMemory(int level)
 		 * Resetting the stealth mode when the app starts. 
 		 */
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF);
+		HikeNotificationMsgStack.getInstance(getApplicationContext()).deserializeObject(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.NOTIFICATION_OBJ, ""));
 		performPreferenceTransition();
 		String currentAppVersion = settings.getString(CURRENT_APP_VERSION, "");
 		String actualAppVersion = "";
