@@ -245,7 +245,7 @@ public class VoIPService extends Service {
 	}
 
 	@Override
-	public int onStartCommand(Intent intent, int flags, int startId) {
+	synchronized public int onStartCommand(Intent intent, int flags, int startId) {
 		
 		int returnInt = super.onStartCommand(intent, flags, startId);
 		
@@ -255,11 +255,6 @@ public class VoIPService extends Service {
 		if (intent == null)
 			return returnInt;
 
-		if (!keepRunning) {
-			Logger.w(VoIPConstants.TAG, "Are we stop()ing?");
-			return returnInt;
-		}
-		
 		String action = intent.getStringExtra(VoIPConstants.Extras.ACTION);
 
 		if (action == null || action.isEmpty()) {
@@ -499,6 +494,7 @@ public class VoIPService extends Service {
 					Thread.sleep(30000);
 					if (!connected) {
 						Logger.w(VoIPConstants.TAG, "Why aren't we connected yet? Terminating service.");
+						keepRunning = true;	// So that stop() is executed entirely. 
 						stop();
 					}
 				} catch (InterruptedException e) {
@@ -663,12 +659,6 @@ public class VoIPService extends Service {
 		}
 		
 		if (soundpool != null) {
-			// Sleep for a little bit so the hangup sound can finish playing. 
-			try {
-				Thread.sleep(1500);
-			} catch (InterruptedException e) {
-				Logger.d(VoIPConstants.TAG, "releaseAudioManager() InterruptedException: " + e.toString());
-			}
 			Logger.d(VoIPConstants.TAG, "Releasing soundpool.");
 			soundpool.release();
 			soundpool = null;
@@ -810,7 +800,7 @@ public class VoIPService extends Service {
 	/**
 	 * Terminate the service. 
 	 */
-	public void stop() {
+	synchronized public void stop() {
 
 		synchronized (this) {
 			if (keepRunning == false) {
@@ -1913,7 +1903,7 @@ public class VoIPService extends Service {
 						break;
 						
 					case ENCRYPTION_RECEIVED_SESSION_KEY:
-						Logger.d(VoIPConstants.TAG, "Encryption ready.");
+						Logger.d(VoIPConstants.TAG, "Encryption ready. MD5: " + encryptor.getSessionMD5());
 						encryptionStage = EncryptionStage.STAGE_READY;
 						break;
 						
@@ -2156,7 +2146,7 @@ public class VoIPService extends Service {
 					VoIPDataPacket dp = new VoIPDataPacket(PacketType.ENCRYPTION_RECEIVED_SESSION_KEY);
 					sendPacket(dp, true);
 					encryptionStage = EncryptionStage.STAGE_READY;
-					Logger.d(VoIPConstants.TAG, "Encryption ready.");
+					Logger.d(VoIPConstants.TAG, "Encryption ready. MD5: " + encryptor.getSessionMD5());
 				}
 			}
 		}, "EXCHANGE_CRYPTO_THREAD").start();
