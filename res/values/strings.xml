@@ -1376,8 +1376,6 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="photo_gallery_choose_pic">Choose a photo</string>
     <string name="cropping_image">Cropping image..</string>
     <string name="compose_chat">New chat</string>
-    <string name="terms_conditions_hint">Terms and Conditions</string>
-	<string name="terms_conditions_title">T &amp; C</string>
 	<string name="home_search_empty_text">Your search for \'%1$s\' did not match any contacts.</string>
     <string name="voip_phone_unsupported">Your phone is not supported.</string>
     <string name="voip_call_failed_frag_subheader">You can still contact %1$s with a</string>
