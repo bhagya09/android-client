@@ -254,6 +254,11 @@ public class VoIPService extends Service {
 
 		if (intent == null)
 			return returnInt;
+
+		if (!keepRunning) {
+			Logger.w(VoIPConstants.TAG, "Are we stop()ing?");
+			return returnInt;
+		}
 		
 		String action = intent.getStringExtra(VoIPConstants.Extras.ACTION);
 
