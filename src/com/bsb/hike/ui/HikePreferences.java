@@ -34,6 +34,7 @@ import com.actionbarsherlock.app.ActionBar;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.MqttConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
@@ -170,14 +171,13 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		final IconCheckBoxPreference sslPreference = (IconCheckBoxPreference) getPreferenceScreen().findPreference(HikeConstants.SSL_PREF);
 		if (sslPreference != null)
 		{
-			String countryCode = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE).getString(HikeMessengerApp.COUNTRY_CODE, "");
-			if(countryCode.equals(HikeConstants.SAUDI_ARABIA_COUNTRY_CODE))
+			if(Utils.isSSLAllowed())
 			{
-				getPreferenceScreen().removePreference(sslPreference);
+				sslPreference.setOnPreferenceChangeListener(this);
 			}
 			else
 			{
-				sslPreference.setOnPreferenceChangeListener(this);
+				getPreferenceScreen().removePreference(sslPreference);
 			}
 		}
 
@@ -601,7 +601,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 				data.put(HikeConstants.MESSAGE_ID, Long.toString(System.currentTimeMillis()));
 				jsonObject.put(HikeConstants.DATA, data);
 				jsonObject.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.ACCOUNT_CONFIG);
-				HikeMqttManagerNew.getInstance().sendMessage(jsonObject, HikeMqttManagerNew.MQTT_QOS_ONE);
+				HikeMqttManagerNew.getInstance().sendMessage(jsonObject, MqttConstants.MQTT_QOS_ONE);
 			}
 			catch (JSONException e)
 			{
@@ -622,7 +622,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 				data.put(HikeConstants.MESSAGE_ID, Long.toString(System.currentTimeMillis()));
 				jsonObject.put(HikeConstants.DATA, data);
 				jsonObject.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.ACCOUNT_CONFIG);
-				HikeMqttManagerNew.getInstance().sendMessage(jsonObject, HikeMqttManagerNew.MQTT_QOS_ONE);
+				HikeMqttManagerNew.getInstance().sendMessage(jsonObject, MqttConstants.MQTT_QOS_ONE);
 			}
 			catch (JSONException e)
 			{
@@ -792,7 +792,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 				data.put(HikeConstants.MESSAGE_ID, Long.toString(System.currentTimeMillis()));
 				object.put(HikeConstants.DATA, data);
 
-				HikeMqttManagerNew.getInstance().sendMessage(object, HikeMqttManagerNew.MQTT_QOS_ONE);
+				HikeMqttManagerNew.getInstance().sendMessage(object, MqttConstants.MQTT_QOS_ONE);
 			}
 			catch (JSONException e)
 			{
@@ -814,7 +814,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 				data.put(HikeConstants.AVATAR, avatarSetting);
 				object.put(HikeConstants.DATA, data);
 
-				HikeMqttManagerNew.getInstance().sendMessage(object, HikeMqttManagerNew.MQTT_QOS_ONE);
+				HikeMqttManagerNew.getInstance().sendMessage(object, MqttConstants.MQTT_QOS_ONE);
 	     	}
 			catch (JSONException e)
 			{
@@ -877,7 +877,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 				data.put(HikeConstants.MESSAGE_ID, Long.toString(System.currentTimeMillis()));
 				object.put(HikeConstants.DATA, data);
 
-				HikeMqttManagerNew.getInstance().sendMessage(object, HikeMqttManagerNew.MQTT_QOS_ONE);
+				HikeMqttManagerNew.getInstance().sendMessage(object, MqttConstants.MQTT_QOS_ONE);
 			}
 			catch (JSONException e)
 			{

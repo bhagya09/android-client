@@ -22,6 +22,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
+import com.bsb.hike.MqttConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
@@ -147,7 +148,7 @@ public class DbConversationListener implements Listener
 				Logger.d("DBCONVERSATION LISTENER", "Sending Message : " + convMessage.getMessage() + "	;	to : " + convMessage.getMsisdn());
 				if (!convMessage.isSMS() || !Utils.getSendSmsPref(context) || convMessage.getParticipantInfoState() == ParticipantInfoState.CHAT_BACKGROUND)
 				{
-					HikeMqttManagerNew.getInstance().sendMessage(convMessage.serialize(), HikeMqttManagerNew.MQTT_QOS_ONE);
+					HikeMqttManagerNew.getInstance().sendMessage(convMessage.serialize(), MqttConstants.MQTT_QOS_ONE);
 				}
 				else
 				{
@@ -173,7 +174,7 @@ public class DbConversationListener implements Listener
 		else if (HikePubSub.MULTI_FILE_UPLOADED.equals(type))
 		{
 			MultipleConvMessage multiConvMessages = (MultipleConvMessage) object;
-			HikeMqttManagerNew.getInstance().sendMessage(multiConvMessages.serialize(), HikeMqttManagerNew.MQTT_QOS_ONE);
+			HikeMqttManagerNew.getInstance().sendMessage(multiConvMessages.serialize(), MqttConstants.MQTT_QOS_ONE);
 		}
 		else if (HikePubSub.DELETE_MESSAGE.equals(type))
 		{
@@ -219,14 +220,14 @@ public class DbConversationListener implements Listener
 			}
 			
 			// IconCacheManager.getInstance().deleteIconForMSISDN(msisdn);
-			HikeMqttManagerNew.getInstance().sendMessage(blockObj, HikeMqttManagerNew.MQTT_QOS_ONE);
+			HikeMqttManagerNew.getInstance().sendMessage(blockObj, MqttConstants.MQTT_QOS_ONE);
 		}
 		else if (HikePubSub.UNBLOCK_USER.equals(type))
 		{
 			String msisdn = (String) object;
 			ContactManager.getInstance().unblock(msisdn);
 			JSONObject unblockObj = blockUnblockSerialize("ub", msisdn);
-			HikeMqttManagerNew.getInstance().sendMessage(unblockObj, HikeMqttManagerNew.MQTT_QOS_ONE);
+			HikeMqttManagerNew.getInstance().sendMessage(unblockObj, MqttConstants.MQTT_QOS_ONE);
 		}
 		else if (HikePubSub.SERVER_RECEIVED_MSG.equals(type)) // server got
 		// msg from
@@ -283,7 +284,7 @@ public class DbConversationListener implements Listener
 				{
 					requestType = HikeConstants.MqttMessageTypes.REMOVE_FAVORITE;
 				}
-				HikeMqttManagerNew.getInstance().sendMessage(serializeMsg(requestType, contactInfo.getMsisdn(), contactInfo instanceof FtueContactInfo), HikeMqttManagerNew.MQTT_QOS_ONE);
+				HikeMqttManagerNew.getInstance().sendMessage(serializeMsg(requestType, contactInfo.getMsisdn(), contactInfo instanceof FtueContactInfo), MqttConstants.MQTT_QOS_ONE);
 			}
 		}
 		else if (HikePubSub.MUTE_CONVERSATION_TOGGLED.equals(type))
@@ -301,7 +302,7 @@ public class DbConversationListener implements Listener
 			{
 				mConversationDb.toggleGroupMute(id, mute);
 				HikeMqttManagerNew.getInstance().sendMessage(serializeMsg(mute ? HikeConstants.MqttMessageTypes.MUTE : HikeConstants.MqttMessageTypes.UNMUTE, id),
-						HikeMqttManagerNew.MQTT_QOS_ONE);
+						MqttConstants.MQTT_QOS_ONE);
 			}
 
 		}
@@ -370,7 +371,7 @@ public class DbConversationListener implements Listener
 				jsonObject.put(HikeConstants.DATA, data);
 
 				mPubSub.publish(HikePubSub.CHANGED_MESSAGE_TYPE, null);
-				HikeMqttManagerNew.getInstance().sendMessage(jsonObject, HikeMqttManagerNew.MQTT_QOS_ONE);
+				HikeMqttManagerNew.getInstance().sendMessage(jsonObject, MqttConstants.MQTT_QOS_ONE);
 			}
 			catch (JSONException e)
 			{
@@ -449,7 +450,7 @@ public class DbConversationListener implements Listener
         // after DB insertion, we need to update conversation UI , so sending event which contains all contacts and last message for each contact
         multiConvMessages.sendPubSubForConvScreenMultiMessage();
         // publishing mqtt packet
-        HikeMqttManagerNew.getInstance().sendMessage(multiConvMessages.serialize(), HikeMqttManagerNew.MQTT_QOS_ONE);
+        HikeMqttManagerNew.getInstance().sendMessage(multiConvMessages.serialize(), MqttConstants.MQTT_QOS_ONE);
     }
 
     private void handleHikeSdkMessage(Object object){
