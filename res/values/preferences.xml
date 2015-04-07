@@ -39,6 +39,7 @@
     <string name="notif_sound_off">Off</string>
     <string name="notif_sound_default">Default</string>
     <string name="notif_sound_Hike">HikeJingle</string>
+    <string name="notificationSoundTitle">Notification tones</string>
     
     <string name="led_color_none">None</string>
     <string name="led_color_blue">Blue</string>
