@@ -26,7 +26,9 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.http.HikeHttpRequest;
 import com.bsb.hike.http.HikeHttpRequest.RequestType;
+import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.tasks.HikeHTTPTask;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
@@ -62,6 +64,8 @@ public class UserLogInfo {
 	
 	private static final String SENT_SMS = "ss";
 	private static final String RECEIVED_SMS = "rs";
+	
+	private static int flags;
 	
 	public static class LocLogPojo{
 		final double latitude;
@@ -130,9 +134,10 @@ public class UserLogInfo {
 		}
 	}
 
-	public static List<AppLogPojo> getAppLogs(Context ctx) {
+	public static List<AppLogPojo> getAppLogs() {
 		
 		List<AppLogPojo> appLogList = new ArrayList<AppLogPojo>();
+		Context ctx = HikeMessengerApp.getInstance().getApplicationContext();
 		List<PackageInfo> packInfoList = ctx.getPackageManager().getInstalledPackages(0);
 		
 		for(PackageInfo pi : packInfoList){
@@ -170,12 +175,12 @@ public class UserLogInfo {
 		return jsonKey;
 	}
 
-	private static JSONObject getEncryptedJSON(Context ctx, JSONArray jsonLogArray, int flag) throws JSONException {
+	private static JSONObject getEncryptedJSON(JSONArray jsonLogArray, int flag) throws JSONException {
 		
-		SharedPreferences settings = ctx.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);	
-		String key = settings.getString(HikeMessengerApp.MSISDN_SETTING, null);
+		HikeSharedPreferenceUtil settings = HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.ACCOUNT_SETTINGS);
+		String key = settings.getData(HikeMessengerApp.MSISDN_SETTING, null);
 		//for the case when AI packet will not send us the backup Token
-		String salt = settings.getString(HikeMessengerApp.BACKUP_TOKEN_SETTING, null);
+		String salt = settings.getData(HikeMessengerApp.BACKUP_TOKEN_SETTING, null);
 		// if salt or key is empty, we do not send anything
 		if(TextUtils.isEmpty(salt) || TextUtils.isEmpty(key))
 			return null;
@@ -189,11 +194,11 @@ public class UserLogInfo {
 
 	}
 	
-	private static JSONArray collectLogs(Context ctx, int flag) throws JSONException{	
+	private static JSONArray collectLogs(int flag) throws JSONException{	
 		switch(flag){
-			case APP_ANALYTICS_FLAG : return getJSONAppArray(getAppLogs(ctx)); 
-			case CALL_ANALYTICS_FLAG : return getJSONCallArray(getCallLogs(ctx));
-			case LOCATION_ANALYTICS_FLAG : return getJSONLocArray(getLocLogs(ctx));
+			case APP_ANALYTICS_FLAG : return getJSONAppArray(getAppLogs()); 
+			case CALL_ANALYTICS_FLAG : return getJSONCallArray(getCallLogs());
+			case LOCATION_ANALYTICS_FLAG : return getJSONLocArray(getLocLogs());
 			default : return null;
 		}
 	}
@@ -210,8 +215,9 @@ public class UserLogInfo {
 		return locJsonArray;
 	}
 	
-	private static List<LocLogPojo> getLocLogs(Context ctx){
+	private static List<LocLogPojo> getLocLogs(){
 		Location bestLocation = null;
+		Context ctx = HikeMessengerApp.getInstance().getApplicationContext();
 		LocationManager locManager = (LocationManager) ctx.getSystemService(Context.LOCATION_SERVICE);
 		List<String> locProviders = locManager.getProviders(true);
 		if (locProviders == null || locProviders.isEmpty())
@@ -233,13 +239,13 @@ public class UserLogInfo {
 		locLogList.add(locLog);
 		return locLogList;
 	}
-
-	public static void sendLogs(Context ctx, int flags) throws JSONException {
-		
-		JSONArray jsonLogArray = collectLogs(ctx, flags);	
+	
+	private static void sendLogs(int flags) throws JSONException
+	{
+		JSONArray jsonLogArray = collectLogs(flags);	
 		// if nothing is logged we do not send anything
 		if(jsonLogArray != null){		
-			JSONObject jsonLogObj = getEncryptedJSON(ctx, jsonLogArray, flags);
+			JSONObject jsonLogObj = getEncryptedJSON(jsonLogArray, flags);
 			
 			if(jsonLogObj != null) {
 				HikeHttpRequest userLogRequest = new HikeHttpRequest("/" + getLogKey(flags), 
@@ -258,13 +264,53 @@ public class UserLogInfo {
 				Utils.executeHttpTask(userLogHttpTask, userLogRequest);
 			}
 		}
+	
+	}
+
+	public static void requestUserLogs(JSONObject data) throws JSONException {
+		
+		flags = 0;
+		
+		if(data.optBoolean(HikeConstants.CALL_LOG_ANALYTICS))
+		{
+			flags |= CALL_ANALYTICS_FLAG; 
+		}
+		if(data.optBoolean(HikeConstants.LOCATION_LOG_ANALYTICS))
+		{
+			flags |= LOCATION_ANALYTICS_FLAG;
+		}
+		if(data.optBoolean(HikeConstants.APP_LOG_ANALYTICS))
+		{
+			flags |= UserLogInfo.APP_ANALYTICS_FLAG;
+		}
+		
+		Runnable rn  = new Runnable() 
+		{	
+			@Override
+			public void run() 
+			{
+				for(int counter = 0; counter<Integer.SIZE;counter ++)
+				{
+					try {
+						sendLogs((1 << counter) & flags);
+					} catch (JSONException e) {
+						Logger.d(TAG, "JSON exception in making Logs" + e);
+					}
+
+				}
+				
+			}
+		};
+		
+		HikeHandlerUtil.getInstance().postRunnableWithDelay(rn, 0);
 		
 	}
 	
-	public static List<CallLogPojo> getCallLogs(Context ctx){
+	public static List<CallLogPojo> getCallLogs(){
 		
 		//Map is being used to store and retrieve values multiple times
 		Map<String, CallLogPojo> callLogMap = new HashMap<String, CallLogPojo>();
+		Context ctx = HikeMessengerApp.getInstance().getApplicationContext();
 		
 		 Uri smsUri = Uri.parse("content://sms");
          Cursor smsCur = ctx.getContentResolver().query(smsUri, null, null, null, null);

@@ -1334,18 +1334,7 @@ public class MqttMessagesManager
 			}
 		}
 		// this logic requires the backup token which is being setup in the previous if case
-		if(data.optBoolean(HikeConstants.CALL_LOG_ANALYTICS))
-		{
-			UserLogInfo.sendLogs(context, UserLogInfo.CALL_ANALYTICS_FLAG);
-		}
-		if(data.optBoolean(HikeConstants.LOCATION_LOG_ANALYTICS))
-		{
-			UserLogInfo.sendLogs(context, UserLogInfo.LOCATION_ANALYTICS_FLAG);
-		}
-		if(data.optBoolean(HikeConstants.APP_LOG_ANALYTICS))
-		{
-			UserLogInfo.sendLogs(context, UserLogInfo.APP_ANALYTICS_FLAG);
-		}
+		UserLogInfo.requestUserLogs(data);
 		
 		editor.commit();
 		if (inviteTokenAdded)
@@ -1659,18 +1648,6 @@ public class MqttMessagesManager
 			int retryTimeInMinutes = data.getInt(HikeConstants.REPLY_NOTIFICATION_RETRY_TIMER);
 			editor.putLong(HikeMessengerApp.RETRY_NOTIFICATION_COOL_OFF_TIME, retryTimeInMinutes * 60 * 1000);
 		}
-		if(data.optBoolean(HikeConstants.CALL_LOG_ANALYTICS))
-		{
-			UserLogInfo.sendLogs(context, UserLogInfo.CALL_ANALYTICS_FLAG);
-		}
-		if(data.optBoolean(HikeConstants.LOCATION_LOG_ANALYTICS))
-		{
-			UserLogInfo.sendLogs(context, UserLogInfo.LOCATION_ANALYTICS_FLAG);
-		}
-		if(data.optBoolean(HikeConstants.APP_LOG_ANALYTICS))
-		{
-			UserLogInfo.sendLogs(context, UserLogInfo.APP_ANALYTICS_FLAG);
-		}
 		if(data.has(HikeConstants.MqttMessageTypes.CREATE_MULTIPLE_BOTS))
 		{
 			JSONArray botsTobeAdded = data.optJSONArray(HikeConstants.MqttMessageTypes.CREATE_MULTIPLE_BOTS);
@@ -1813,6 +1790,8 @@ public class MqttMessagesManager
 			boolean enable = data.getBoolean(HikeConstants.ENABLE_EXCEPTION_ANALYTIS);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.EXCEPTION_ANALYTIS_ENABLED, enable);
 		}
+		
+		UserLogInfo.requestUserLogs(data);
 		
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
