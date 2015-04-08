@@ -4,6 +4,7 @@
     android:installLocation="auto"
     android:versionCode="1163"
     android:versionName="3.8.9.52" >
+
     <uses-sdk
         android:minSdkVersion="9"
         android:targetSdkVersion="17" />
