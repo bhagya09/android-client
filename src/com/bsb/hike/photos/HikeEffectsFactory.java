@@ -114,7 +114,7 @@ public final class HikeEffectsFactory
 
 	}
 
-	private void manageBitmaps(Bitmap bitmap)
+	private static void manageBitmaps(Bitmap bitmap)
 	{
 		
 		if (bitmap != null)
@@ -142,27 +142,27 @@ public final class HikeEffectsFactory
 			instance.mOutAllocations = null;
 			if (instance.finalBitmap != null)
 			{
-				instance.manageBitmaps(instance.finalBitmap);
+				manageBitmaps(instance.finalBitmap);
 				instance.finalBitmap = null;
 			}
 			if (instance.mBitmapIn != null)
 			{
-				instance.manageBitmaps(instance.mBitmapIn);
+				manageBitmaps(instance.mBitmapIn);
 				instance.mBitmapIn = null;
 			}
 			if (instance.mBitmapOut1 != null)
 			{
-				instance.manageBitmaps(instance.mBitmapOut1);
+				manageBitmaps(instance.mBitmapOut1);
 				instance.mBitmapOut1 = null;
 			}
 			if (instance.mBitmapOut2 != null)
 			{
-				instance.manageBitmaps(instance.mBitmapOut2);
+				manageBitmaps(instance.mBitmapOut2);
 				instance.mBitmapOut2 = null;
 			}
 			if (instance.vignetteBitmap != null)
 			{
-				instance.manageBitmaps(instance.vignetteBitmap);
+				manageBitmaps(instance.vignetteBitmap);
 				instance.vignetteBitmap = null;
 			}
 
