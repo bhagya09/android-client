@@ -174,6 +174,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 			case VoIPConstants.MSG_UPDATE_HOLD_BUTTON:
 				boolean hold = voipService.getHold();
 				holdButton.setSelected(hold);
+			case VoIPConstants.MSG_UPDATE_REMOTE_HOLD:
 				updateCallStatus();
 				break;
 			case VoIPConstants.MSG_ALREADY_IN_CALL:
