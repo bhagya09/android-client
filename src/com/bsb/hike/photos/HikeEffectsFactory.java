@@ -15,7 +15,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.photos.HikePhotosUtils.FilterTools.FilterType;
-import com.bsb.hike.photos.views.VignetteImageView;
+import com.bsb.hike.photos.views.VignetteUtils;
 
 /**
  * 
@@ -114,6 +114,19 @@ public final class HikeEffectsFactory
 
 	}
 
+	private void manageBitmaps(Bitmap bitmap)
+	{
+		
+		if (bitmap != null)
+		{
+			if(android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB && !bitmap.isRecycled())
+			{
+				bitmap.recycle();
+			}
+			bitmap = null;
+		}
+	}
+	
 	/**
 	 * Method To Clear HikeEffectFactory's singleton object and attributes associated with it. Recycles all bitmaps. Should be called only when no further effects are to be
 	 * applied.
@@ -129,27 +142,27 @@ public final class HikeEffectsFactory
 			instance.mOutAllocations = null;
 			if (instance.finalBitmap != null)
 			{
-				instance.finalBitmap.recycle();
+				instance.manageBitmaps(instance.finalBitmap);
 				instance.finalBitmap = null;
 			}
 			if (instance.mBitmapIn != null)
 			{
-				instance.mBitmapIn.recycle();
+				instance.manageBitmaps(instance.mBitmapIn);
 				instance.mBitmapIn = null;
 			}
 			if (instance.mBitmapOut1 != null)
 			{
-				instance.mBitmapOut1.recycle();
+				instance.manageBitmaps(instance.mBitmapOut1);
 				instance.mBitmapOut1 = null;
 			}
 			if (instance.mBitmapOut2 != null)
 			{
-				instance.mBitmapOut2.recycle();
+				instance.manageBitmaps(instance.mBitmapOut2);
 				instance.mBitmapOut2 = null;
 			}
 			if (instance.vignetteBitmap != null)
 			{
-				instance.vignetteBitmap.recycle();
+				instance.manageBitmaps(instance.vignetteBitmap);
 				instance.vignetteBitmap = null;
 			}
 
@@ -366,7 +379,7 @@ public final class HikeEffectsFactory
 			return false;
 		}
 
-		instance.vignetteBitmap = VignetteImageView.getVignetteforFilter(instance.vignetteBitmap, type, true, false);
+		instance.vignetteBitmap = VignetteUtils.getVignetteforFilter(instance.vignetteBitmap, type, true, false);
 
 		instance.beginEffectAsyncTask(listener, type, false);
 
