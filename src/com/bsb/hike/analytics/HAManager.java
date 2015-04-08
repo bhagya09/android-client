@@ -466,7 +466,9 @@ public class HAManager
 			data.put(AnalyticsConstants.EVENT_TYPE, type);				
 			data.put(AnalyticsConstants.EVENT_SUB_TYPE, eventContext);
 			data.put(AnalyticsConstants.EVENT_PRIORITY, priority);
-			data.put(AnalyticsConstants.CURRENT_TIME_STAMP, System.currentTimeMillis());
+			long ts = Utils.applyOffsetToMakeTimeServerSync(context, System.currentTimeMillis()/1000);
+			ts = ts * 1000;
+			data.put(AnalyticsConstants.CURRENT_TIME_STAMP, ts);
 			data.put(AnalyticsConstants.EVENT_TAG, tagValue);
 
 			if(metadata == null)
