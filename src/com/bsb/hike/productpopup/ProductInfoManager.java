@@ -383,6 +383,7 @@ public class ProductInfoManager
 					{
 						URL url = new URL(host);
 						HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+						AccountUtils.setNoTransform(connection);
 						connection.connect();
 						Logger.d("ProductPopup",connection.getResponseCode()+"");
 					}
