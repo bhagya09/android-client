@@ -491,9 +491,12 @@ public class ToastListener implements Listener
 						continue;
 					}
 
-					if (participantInfoState == ParticipantInfoState.PARTICIPANT_JOINED && message.getMetadata().isNewGroup())
+					if (participantInfoState == ParticipantInfoState.PARTICIPANT_JOINED )
 					{
-						continue;
+						if(message.getMetadata().isNewGroup() || message.getMetadata().isNewBroadcast())
+						{
+							continue;
+						}
 					}
 					if (participantInfoState == ParticipantInfoState.NO_INFO || participantInfoState == ParticipantInfoState.PARTICIPANT_JOINED
 						|| participantInfoState == ParticipantInfoState.USER_JOIN || participantInfoState == ParticipantInfoState.CHAT_BACKGROUND 

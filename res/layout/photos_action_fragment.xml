@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <View
+        android:id="@+id/overlay"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="@integer/photos_editor_canvas_weight"
+        android:background="#00000000" >
+    </View>
+
+    <LinearLayout
+        android:id="@+id/itemsLayout"
+        android:layout_width="match_parent"
+        android:background="#000000" 
+        android:layout_height="0dp"
+        android:layout_weight="2557"
+        android:orientation="vertical" >
+    </LinearLayout>
+
+</LinearLayout>

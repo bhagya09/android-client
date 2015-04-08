@@ -29,11 +29,11 @@ public class HikeSSLUtil
 		public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException
 		{
 
-			String cn_recieved = getCN(chain[0].getSubjectDN().getName());
-			if (cn_recieved == null || (!cn_recieved.endsWith(validServerName) && !cn_recieved.endsWith(validCloudFrontServerName)))
-			{
-				throw new CertificateException("Not a valid certificate.");
-			}
+//			String cn_recieved = getCN(chain[0].getSubjectDN().getName());
+//			if (cn_recieved == null || (!cn_recieved.endsWith(validServerName) && !cn_recieved.endsWith(validCloudFrontServerName)))
+//			{
+//				throw new CertificateException("Not a valid certificate.");
+//			}
 
 		}
 

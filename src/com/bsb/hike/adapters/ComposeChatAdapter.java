@@ -3,9 +3,12 @@ package com.bsb.hike.adapters;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import android.text.TextUtils;
+import android.view.View.OnClickListener;
 import android.content.Context;
 import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
@@ -22,6 +25,8 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.NUXConstants;
 import com.bsb.hike.R;
+import com.bsb.hike.BitmapModule.BitmapUtils;
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.NuxSelectFriends;
@@ -71,10 +76,10 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 	
 	private boolean nuxStateActive = false;
 
-	public ComposeChatAdapter(Context context, ListView listView, boolean fetchGroups, boolean fetchRecents, boolean fetchRecentlyJoined, String existingGroupId, String sendingMsisdn, FriendsListFetchedCallback friendsListFetchedCallback)
+	public ComposeChatAdapter(Context context, ListView listView, boolean fetchGroups, boolean fetchRecents, boolean fetchRecentlyJoined, String existingGroupId, String sendingMsisdn, FriendsListFetchedCallback friendsListFetchedCallback, boolean showSMSContacts)
 	{
 		super(context, listView, friendsListFetchedCallback, ContactInfo.lastSeenTimeComparatorWithoutFav);
-		selectedPeople = new HashMap<String, ContactInfo>();
+		selectedPeople = new LinkedHashMap<String, ContactInfo>();
 		existingParticipants = new HashMap<String, ContactInfo>();
 		mIconImageSize = context.getResources().getDimensionPixelSize(R.dimen.icon_picture_size);
 		iconloader = new IconLoader(context, mIconImageSize);
@@ -100,7 +105,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 		/*
 		 * We should show sms contacts section in new compose
 		 */
-		showSMSContacts = true;
+		this.showSMSContacts = showSMSContacts;
 	}
 
 	public void setIsCreatingOrEditingGroup(boolean b)
@@ -128,7 +133,6 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 			fetchHideListContacts = (nuxPojo.getHideList() != null && !nuxPojo.getHideList().isEmpty());
 			fetchRecommendedContacts = (nuxPojo.getRecoList() != null && !nuxPojo.getRecoList().isEmpty());
 			
-			Logger.d("UmangX", "fetch hide : " + fetchHideListContacts + " fetch reco : "+ fetchRecommendedContacts);
 			int contactsShown = nuxPojo.getContactSectionType();
 			switch(NUXConstants.ContactSectionTypeEnum.getEnum(contactsShown)){
 				case none : 
@@ -154,7 +158,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 		} else {
 			fetchFriendsTask = new FetchFriendsTask(this, context, friendsList, hikeContactsList, smsContactsList, recentContactsList,recentlyJoinedHikeContactsList, friendsStealthList, hikeStealthContactsList,
 					smsStealthContactsList, recentStealthContactsList, filteredFriendsList, filteredHikeContactsList, filteredSmsContactsList, groupsList, groupsStealthList, null, null, filteredGroupsList, filteredRecentsList,filteredRecentlyJoinedHikeContactsList,
-					existingParticipants, sendingMsisdn, fetchGroups, existingGroupId, isCreatingOrEditingGroup, true, false, fetchRecents , fetchRecentlyJoined, showDefaultEmptyList, true, true, false , false );
+					existingParticipants, sendingMsisdn, fetchGroups, existingGroupId, isCreatingOrEditingGroup, showSMSContacts, false, fetchRecents , fetchRecentlyJoined, showDefaultEmptyList, true, true, false , false );
 		}
 		Utils.executeAsyncTask(fetchFriendsTask);
 	}
@@ -203,12 +207,28 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 		else
 		{
 			holder = (ViewHolder) convertView.getTag();
-			holder.msisdn = contactInfo.getMsisdn();
+			String msisdn = contactInfo.getMsisdn();
+			holder.msisdn = msisdn;
 
 			holder.status.setText(contactInfo.getMsisdn());
 
 			String name = contactInfo.getName();
-			holder.name.setText("".equals(name) || null == name ? contactInfo.getMsisdn() : name);
+			if(TextUtils.isEmpty(name))
+			{
+				holder.name.setText(msisdn);
+			}
+			else
+			{
+				Integer startIndex = contactSpanStartIndexes.get(msisdn);
+				if(startIndex!=null)
+				{
+					holder.name.setText(getSpanText(name, startIndex), TextView.BufferType.SPANNABLE);
+				}
+				else
+				{
+					holder.name.setText(name);
+				}
+			}
 
 			if (viewType == ViewType.NEW_CONTACT)
 			{
@@ -309,9 +329,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 			 */
 			if (viewType == ViewType.NEW_CONTACT)
 			{
-				holder.userImage.setScaleType(ScaleType.CENTER_INSIDE);
-				holder.userImage.setBackgroundResource(R.drawable.avatar_01_rounded);
-				holder.userImage.setImageResource(R.drawable.ic_default_avatar);
+				holder.userImage.setImageDrawable(HikeMessengerApp.getLruCache().getDefaultAvatar(1));
 			}
 			else
 			{
@@ -354,7 +372,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 
 		holder.userImage.setScaleType(ScaleType.FIT_CENTER);
 		String id = contactInfo.isGroupConversationContact() ? contactInfo.getId() : contactInfo.getMsisdn();
-		iconloader.loadImage(id, true, holder.userImage, false, isListFlinging, true);
+		iconloader.loadImage(id, holder.userImage, isListFlinging, false, true);
 	}
 
 	private View inflateView(ViewType viewType, ViewGroup parent)
@@ -461,12 +479,10 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 		{
 			String recoSectionHeader = NUXManager.getInstance().getNuxSelectFriendsPojo().getRecoSectionTitle();
 			ContactInfo recommendedSection = new ContactInfo(SECTION_ID, Integer.toString(nuxFilteredRecoList.size()), recoSectionHeader, RECOMMENDED);
-			Logger.d("UmngR", "nux CCA list :" +  nuxRecommendedList.toString());
 			if(nuxFilteredRecoList.size() > 0){
 				completeList.add(recommendedSection);
 				completeList.addAll(nuxFilteredRecoList);
 			}
-			Logger.d("UmngR", "nux CCA filter list :" +  nuxFilteredRecoList.toString());
 		}
 
 		if(fetchRecentlyJoined && !recentlyJoinedHikeContactsList.isEmpty())
@@ -530,7 +546,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 
 		notifyDataSetChanged();
 		setEmptyView();
-		
+		friendsListFetchedCallback.completeListFetched();
 		
 		
 		
@@ -566,6 +582,12 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 		return new ArrayList<ContactInfo>(selectedPeople.values());
 	}
 
+	public List<String> getAllSelectedContactsMsisdns()
+	{
+		List<String> people = new ArrayList<String>(selectedPeople.keySet());
+		return people;
+	}
+	
 	/**
 	 * It includes contact which are currently selected and existing to group (if applicable)
 	 * 
@@ -736,6 +758,19 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 			}
 		}
 	}
-
+	
+	public void selectAllFromList(ArrayList<String> msisdns)
+	{
+		if (msisdns == null || msisdns.isEmpty())
+		{
+			return;
+		}
+		
+		for (String msisdn : msisdns)
+		{
+			ContactInfo contactInfo = ContactManager.getInstance().getContact(msisdn, true, false);
+			selectedPeople.put(msisdn, contactInfo);
+		}
+	}
 	
 }

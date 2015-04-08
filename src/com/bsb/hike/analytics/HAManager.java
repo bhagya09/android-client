@@ -22,6 +22,7 @@ import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
 /**
@@ -62,7 +63,7 @@ public class HAManager
 	private NetworkListener listner;
 	
 	private Session fgSessionInstance;
-		
+	
 	/**
 	 * Constructor
 	 */
@@ -119,6 +120,7 @@ public class HAManager
 		
 		// set network listener
 		listner = new NetworkListener(this.context);
+		
 	}
 	
 	/**
@@ -241,7 +243,7 @@ public class HAManager
 		}
 		eventsList.add(generateAnalticsJson(type, eventContext, priority, metadata, tag));
 
-		if (maxInMemorySize == eventsList.size()) 
+		if (eventsList.size() >= maxInMemorySize) 
 		{			
 			// clone a local copy and send for writing
 			ArrayList<JSONObject> jsons = (ArrayList<JSONObject>) eventsList.clone();
@@ -527,27 +529,53 @@ public class HAManager
 		return fileNames;
 	}
 	
-	public void recordSessionStart()
+	public JSONObject recordAndReturnSessionStart()
 	{
 		fgSessionInstance.startSession();
-		recordSession(fgSessionInstance, true);
+		
+		JSONObject metadata = getMetaDataForSession(fgSessionInstance, true);
+		
+		/*
+			We are not recording SessionEvent in Analytics File, so commenting it
+			If In future if We uncomment it
+			Check that While Recording Event we add SeesionID, so now it will be added twice
+		*/
+		//HAManager.getInstance().record(AnalyticsConstants.SESSION_EVENT, AnalyticsConstants.FOREGROUND, EventPriority.HIGH, metadata, AnalyticsConstants.EVENT_TAG_SESSION);
+		
+		return metadata;
 	}
-	
-	public void recordSessionEnd()
+
+	public JSONObject recordAndReturnSessionEnd()
 	{
 		fgSessionInstance.endChatSessions();
 		recordChatSessions();
-		recordSession(fgSessionInstance, false);
-		fgSessionInstance.reset();
+		
+		JSONObject metadata = getMetaDataForSession(fgSessionInstance, false);
+		
+		/*
+			We are not recording SessionEvent in Analytics File, so commenting it
+			If In future if We want to log that as well just uncomment it but
+			Check that While Recording Event we also add SeesionID, so now it will be added twice
+			so remove it before recording
+		 */
+		//HAManager.getInstance().record(AnalyticsConstants.SESSION_EVENT, AnalyticsConstants.BACKGROUND, EventPriority.HIGH, metadata, AnalyticsConstants.EVENT_TAG_SESSION);
+
 		dumpInMemoryEventsAndTryToUpload(false, false);
+		
+		fgSessionInstance.reset();
+		
+		return metadata; 
 	}
-	
-	private void recordSession( Session session, boolean sessionStart)
+
+	private JSONObject getMetaDataForSession( Session session, boolean sessionStart)
 	{
 		JSONObject metadata = null;
 		try
 		{
 			metadata = new JSONObject();
+			
+			//1)Adding Session Id
+			metadata.put(AnalyticsConstants.SESSION_ID, fgSessionInstance.getSessionId());
 			
 			//2)con:- 2g/3g/4g/wifi/off
 			metadata.put(AnalyticsConstants.CONNECTION_TYPE, Utils.getNetworkType(context));
@@ -566,10 +594,8 @@ public class HAManager
 				// Not sending it for now. We will fix this code in later release when required
 				//metadata.put(AnalyticsConstants.SOURCE_APP_OPEN, session.getAppOpenSource());
 
-				// 4)srcctx :- uid/gid/null(in case of appOpen via Launcher)
+				// 3)srcctx :- uid/gid/null(in case of appOpen via Launcher)
 				metadata.put(AnalyticsConstants.SOURCE_CONTEXT, session.getSrcContext());
-				
-				HAManager.getInstance().record(AnalyticsConstants.SESSION_EVENT, AnalyticsConstants.FOREGROUND, EventPriority.HIGH, metadata, AnalyticsConstants.EVENT_TAG_SESSION);
 				
 				Logger.d(AnalyticsConstants.ANALYTICS_TAG, "--session-id :" + session.getSessionId() + "--network-type :" + Utils.getNetworkTypeAsString(context) + "--source-context :" + session.getSrcContext() + "--conv-type :" + session.getConvType() + "--msg-type :" + session.getMsgType());
 			}
@@ -579,8 +605,6 @@ public class HAManager
 
 				metadata.put(AnalyticsConstants.DATA_CONSUMED, fgSessionInstance.getDataConsumedInSession());
 				
-				HAManager.getInstance().record(AnalyticsConstants.SESSION_EVENT, AnalyticsConstants.BACKGROUND, EventPriority.HIGH, metadata, AnalyticsConstants.EVENT_TAG_SESSION);
-				
 				Logger.d(AnalyticsConstants.ANALYTICS_TAG, "--session-id :" + session.getSessionId() + "--session-time :" + session.getSessionTime() + "--network-type :" + Utils.getNetworkTypeAsString(context) + "--data-consumed :" + session.getDataConsumedInSession() + "bytes");
 			}
 		}
@@ -588,7 +612,7 @@ public class HAManager
 		{
 			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
 		}
-		
+		return metadata;
 	}
 	
 	public void setMetadatFieldsForSessionEvent(String appOpenSource, String srcContext, ConvMessage convMessage, int convType)
@@ -730,7 +754,7 @@ public class HAManager
 		{
 			metadata = new JSONObject();
 			
-			metadata.put("screen", screen);
+			metadata.put("scr", screen);
 			
 			metadata.put("api", api);
 			
@@ -741,7 +765,7 @@ public class HAManager
 			
 			if(!TextUtils.isEmpty(toUser))
 			{
-				metadata.put("to_user", toUser);
+				metadata.put("to", toUser);
 			}
 			
 			HAManager.getInstance().record(AnalyticsConstants.LAST_SEEN_ANALYTICS, AnalyticsConstants.NON_UI_EVENT, EventPriority.HIGH, metadata, AnalyticsConstants.LAST_SEEN_ANALYTICS);
@@ -754,4 +778,22 @@ public class HAManager
 		}
 	}
 	
+	/**
+	 * Used for logging sticker pallate crash/undesired behaviours
+	 * @param errorMsg
+	 */
+	public static void sendStickerCrashDevEvent(String errorMsg)
+	{
+		JSONObject error = new JSONObject();
+		try
+		{
+			error.put(StickerManager.STICKER_ERROR_LOG, errorMsg);
+			HAManager.getInstance().record(AnalyticsConstants.DEV_EVENT, AnalyticsConstants.STICKER_PALLETE, EventPriority.HIGH, error);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
 }
