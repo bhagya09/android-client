@@ -24,40 +24,12 @@ import com.bsb.hike.photos.HikePhotosUtils.FilterTools.FilterType;
  */
 
 // NOt being used in Photos V2 due to change in implementation technique of vignette
-public class VignetteImageView extends ImageView
+public class VignetteUtils 
 {
 
 	// private Bitmap vignetteBitmap;
 
-	public void setFilter(FilterType Type)
-	{
-		// this.filter = Type;
-	}
-
-	public VignetteImageView(Context context)
-	{
-		super(context);
-		// this.filter = FilterType.ORIGINAL;
-		// radiusRatio = 1f;
-		// isFinal = false;
-	}
-
-	public VignetteImageView(Context context, AttributeSet attrs)
-	{
-		super(context, attrs);
-		// this.filter = FilterType.ORIGINAL;
-		// radiusRatio = 1f;
-		// isFinal = false;
-	}
-
-	public VignetteImageView(Context context, AttributeSet attrs, int defStyleAttr)
-	{
-		super(context, attrs, defStyleAttr);
-		// this.filter = FilterType.ORIGINAL;
-		// radiusRatio = 1f;
-		// isFinal = false;
-	}
-
+	
 	/**
 	 * 
 	 * Draws a vignette on the layer of provided image size respective to the current set filter.
@@ -87,13 +59,11 @@ public class VignetteImageView extends ImageView
 			colors = new int[] { 0xFFFFFFFF, 0x00FFFFFF, 0x00000000, 0xFF232443 };
 			stops = new float[] { 0.0f, 1.45f / 1.8f, 1.47f / 1.8f, 1.0f };
 			radius = 1.8f * bitmap.getWidth() / 2;
-			// makeRadialGradient(1.5f, colors, stops);
 			break;
 		case E1977:
 			colors = new int[] { 0xFFFFFFFF, 0x00FFFFFF, 0x00000000, 0xFF232443 };
 			stops = new float[] { 0.0f, 1.60f / 1.85f, 1.62f / 1.85f, 1.0f };
 			radius = 1.85f * bitmap.getWidth() / 2;
-			// makeRadialGradient(1.5f, colors, stops);
 			break;
 		case EARLYBIRD:
 		case GHOSTLY:
@@ -101,7 +71,6 @@ public class VignetteImageView extends ImageView
 			colors = new int[] { 0xFFFFFFFF, 0x00FFFFFF, 0x00000000, 0xFF000000 };
 			stops = new float[] { 0.0f, 1.67f / 2.65f, 1.7f / 2.65f, 1.0f };
 			radius = 2.65f * bitmap.getWidth() / 2;
-			// makeRadialGradient(1.5f, colors, stops);
 			break;
 		case RETRO:
 		case KELVIN:
@@ -109,27 +78,23 @@ public class VignetteImageView extends ImageView
 			colors = new int[] { 0xFFFFFFFF, 0x00FFFFFF, 0x00000000, 0xFF000000 };
 			stops = new float[] { 0.0f, 1.45f / 1.8f, 1.48f / 1.8f, 1.0f };
 			radius = 1.8f * bitmap.getWidth() / 2;
-			// makeRadialGradient(1.5f, colors, stops);
 			break;
 		case APOLLO:
 			// Vignette Stop 1: #18363f, Position 72%, Opacity 0% Stop 2: #18363f, Position 120%, Opacity 100%
 			colors = new int[] { 0xFFFFFFFF, 0x00FFFFFF, 0x0018363F, 0xFF18363F };
 			stops = new float[] { 0.0f, 1.65f / 2.6f, 1.68f / 2.6f, 1.0f };
 			radius = 2.6f * bitmap.getWidth() / 2;
-			// makeRadialGradient(1.6f, colors, stops);
 			break;
 		case CHILLUM:
 			colors = new int[] { 0xFFFFFFFF, 0x00FFFFFF, 0x00000000, 0xFF000000 };
 			stops = new float[] { 0.0f, 1.85f / 2.65f, 1.90f / 2.65f, 1.0f };
 			radius = 2.65f * bitmap.getWidth() / 2;
-			// makeRadialGradient(1.5f, colors, stops);
 			break;
 		case JALEBI:
 			// Vignette: Stop 1 = #000000 74%, Opacity = 0%; Stop 2 = #000000 120%, Opacity = 100%
 			colors = new int[] { 0x00000000, 0x00000000, 0xFF000000 };
 			stops = new float[] { 0.0f, 0.98f / 1.8f, 1.0f };
 			radius = 1.8f * bitmap.getWidth() / 2;
-			// makeRadialGradient(1.5f, colors, stops);
 			break;
 
 		case GULAAL:
