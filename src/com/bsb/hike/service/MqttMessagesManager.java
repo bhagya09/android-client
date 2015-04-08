@@ -2617,7 +2617,7 @@ public class MqttMessagesManager
 
 	private void removeOrPostponeFriendType(String msisdn)
 	{
-		ContactInfo contactInfo = HikeMessengerApp.getContactManager().getContact(msisdn, true, true);
+		ContactInfo contactInfo = ContactManager.getInstance().getContact(msisdn, true, true);
 		if (contactInfo.getFavoriteType() == FavoriteType.NOT_FRIEND)
 		{
 			return;

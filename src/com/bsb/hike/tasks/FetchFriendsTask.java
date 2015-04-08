@@ -196,13 +196,13 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 		boolean removeExistingParticipants = !TextUtils.isEmpty(existingGroupId);
 		if (fetchGroups)
 		{
-			groupTaskList = HikeMessengerApp.getContactManager().getConversationGroupsAsContacts(true);
+			groupTaskList = ContactManager.getInstance().getConversationGroupsAsContacts(true);
 			removeSendingMsisdnAndStealthContacts(groupTaskList, groupsStealthList, true);
 			Logger.d("Umng", "grpups ocontacts :" +  groupTaskList.toString());
 		}
 
 		long queryTime = System.currentTimeMillis();
-		List<ContactInfo> allContacts = HikeMessengerApp.getContactManager().getAllContacts();
+		List<ContactInfo> allContacts = ContactManager.getInstance().getAllContacts();
 		Set<String> blockSet = ContactManager.getInstance().getBlockedMsisdnSet();
 		Logger.d("Umng", "blocked contacts :" +  blockSet.toString());
 		
@@ -212,7 +212,7 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 		
 		if(fetchRecents)
 		{
-			List<ContactInfo> convContacts = HikeMessengerApp.getContactManager().getAllConversationContactsSorted(true, false);
+			List<ContactInfo> convContacts = ContactManager.getInstance().getAllConversationContactsSorted(true, false);
 			recentTaskList = new ArrayList<ContactInfo>();
 
 			for(ContactInfo recentContact : convContacts)

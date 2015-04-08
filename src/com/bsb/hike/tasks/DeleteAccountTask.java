@@ -128,7 +128,7 @@ public class DeleteAccountTask extends AsyncTask<Void, Void, Boolean> implements
 		 * Clearing cache
 		 */
 		HikeMessengerApp.getLruCache().clearIconCache();
-		HikeMessengerApp.getContactManager().clearCache();
+		ContactManager.getInstance().clearCache();
 		// IconCacheManager.getInstance().clearIconCache();
 
 		/**
