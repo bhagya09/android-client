@@ -3654,6 +3654,22 @@ public class Utils
 			}
 		}
 	}
+	
+	public static String StringToMD5(String input)
+	{
+		try
+		{
+			MessageDigest digest = MessageDigest.getInstance("MD5");
+			if (input.length() > 0)
+				digest.update(input.getBytes(), 0, input.length());
+			byte[] md5Bytes = digest.digest();
+			return convertHashToString(md5Bytes);
+		}
+		catch (Exception e)
+		{
+			return null;
+		}
+	}
 
 	private static String convertHashToString(byte[] md5Bytes)
 	{
