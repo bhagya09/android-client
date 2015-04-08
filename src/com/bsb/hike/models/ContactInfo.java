@@ -76,6 +76,8 @@ public class ContactInfo implements JSONSerializable, Comparable<ContactInfo>
 
 	private long inviteTime;
 
+	private String platformId;
+
 	/**
 	 * Returns true if bit at index is 1 otherwise false
 	 * 
@@ -214,6 +216,11 @@ public class ContactInfo implements JSONSerializable, Comparable<ContactInfo>
 		}
 	}
 
+	public String getPlatformId()
+	{
+		return platformId;
+	}
+
 	public String getName()
 	{
 		return name;
@@ -243,6 +250,12 @@ public class ContactInfo implements JSONSerializable, Comparable<ContactInfo>
 		
 		return Utils.getFirstNameAndSurname(this.name);
 	}
+
+	public void setPlatformId(String platformId)
+	{
+		this.platformId = platformId;
+	}
+
 	public void setName(String name)
 	{
 		this.name = name;
@@ -435,6 +448,28 @@ public class ContactInfo implements JSONSerializable, Comparable<ContactInfo>
 
 	public ContactInfo(String id, String msisdn, String name, String phoneNum, boolean onhike, String msisdnType, long lastMessaged, boolean hasCustomPhoto, long hikeJoinTime)
 	{
+
+		this(id, msisdn, name,phoneNum, onhike, msisdnType, lastMessaged, hasCustomPhoto, hikeJoinTime, "");
+	}
+
+
+	public ContactInfo(String id, String msisdn, String name, String phoneNum, boolean onhike, String platformId)
+	{
+		this(id, msisdn, name, phoneNum, onhike, "", 0, false, 0, platformId);
+	}
+
+	public ContactInfo(ContactInfo contactInfo)
+	{
+		this(contactInfo.getId(), contactInfo.getMsisdn(), contactInfo.getName(), contactInfo.getPhoneNum(), contactInfo.isOnhike(), "", contactInfo.getLastMessaged(), contactInfo
+				.hasCustomPhoto(), contactInfo.getHikeJoinTime(), contactInfo.getPlatformId());
+		setNum(3, 5, contactInfo.getFavoriteTypeNumRepresentation());
+		this.inviteTime = contactInfo.getInviteTime();
+		this.lastSeenTime = contactInfo.getLastSeenTime();
+		setNum(6, 7, contactInfo.getOffline() + 1);
+	}
+
+	public ContactInfo(String id, String msisdn, String name, String phoneNum, boolean onhike, String msisdnType, long lastMessaged, boolean hasCustomPhoto, long hikeJoinTime, String platformId)
+	{
 		this.id = id;
 		this.msisdn = msisdn;
 		this.name = name;
@@ -446,16 +481,7 @@ public class ContactInfo implements JSONSerializable, Comparable<ContactInfo>
 		this.hikeJoinTime = hikeJoinTime;
 		setNum(6, 7, 2);
 		setNum(3, 5, 7);
-	}
-
-	public ContactInfo(ContactInfo contactInfo)
-	{
-		this(contactInfo.getId(), contactInfo.getMsisdn(), contactInfo.getName(), contactInfo.getPhoneNum(), contactInfo.isOnhike(), "", contactInfo.getLastMessaged(), contactInfo
-				.hasCustomPhoto(), contactInfo.getHikeJoinTime());
-		setNum(3, 5, contactInfo.getFavoriteTypeNumRepresentation());
-		this.inviteTime = contactInfo.getInviteTime();
-		this.lastSeenTime = contactInfo.getLastSeenTime();
-		setNum(6, 7, contactInfo.getOffline() + 1);
+		this.platformId = platformId;
 	}
 
 	@Override

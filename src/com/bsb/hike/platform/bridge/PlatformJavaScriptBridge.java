@@ -6,6 +6,8 @@ import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformAlarmManager;
 import com.bsb.hike.platform.WebMetadata;
 
+import com.bsb.hike.utils.AccountUtils;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -377,7 +379,8 @@ public class PlatformJavaScriptBridge extends JavascriptBridge
 
 	public void setData()
 	{
-		mWebView.loadUrl("javascript:setData('" + message.getMsisdn() + "','" + message.webMetadata.getHelperData().toString() + "','" + message.isSent() + "')");
+		mWebView.loadUrl("javascript:setData('" + message.getMsisdn() + "','" + message.webMetadata.getHelperData().toString() + "','" + message.isSent() + "','" +
+				HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_UID_SETTING,null) + "','" + AccountUtils.getAppVersion() + "')");
 	}
 
 	public void alarmPlayed(String alarmData)
