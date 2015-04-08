@@ -131,27 +131,22 @@ public final class HikeEffectsFactory
 			if (instance.finalBitmap != null)
 			{
 				HikePhotosUtils.manageBitmaps(instance.finalBitmap);
-				instance.finalBitmap = null;
 			}
 			if (instance.mBitmapIn != null)
 			{
 				HikePhotosUtils.manageBitmaps(instance.mBitmapIn);
-				instance.mBitmapIn = null;
 			}
 			if (instance.mBitmapOut1 != null)
 			{
 				HikePhotosUtils.manageBitmaps(instance.mBitmapOut1);
-				instance.mBitmapOut1 = null;
 			}
 			if (instance.mBitmapOut2 != null)
 			{
 				HikePhotosUtils.manageBitmaps(instance.mBitmapOut2);
-				instance.mBitmapOut2 = null;
 			}
 			if (instance.vignetteBitmap != null)
 			{
 				HikePhotosUtils.manageBitmaps(instance.vignetteBitmap);
-				instance.vignetteBitmap = null;
 			}
 
 			instance = null;

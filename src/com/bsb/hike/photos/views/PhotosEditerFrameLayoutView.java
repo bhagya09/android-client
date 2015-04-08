@@ -246,7 +246,6 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 			Bitmap temp = imageOriginal;
 			imageOriginal = Bitmap.createScaledBitmap(imageOriginal, HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX, HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX, false);
 			HikePhotosUtils.manageBitmaps(temp);
-			temp=null;
 			compressOutput = false;
 		}
 
