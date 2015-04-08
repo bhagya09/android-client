@@ -38,7 +38,7 @@ public interface HikePlatformConstants
 	String NOTIF_TEXT_WC = "notifText";
 	String WC_PUSH_KEY = "push";
 	String CRICKET_BOT_MSISDN = "+hikecricket+";
-	String CRICKET_BOT_NAME = "World Cup 2015";
+	String CRICKET_BOT_NAME = "Cricket 2015";
 	String CRICKET_CHAT_THEME_ID = "39";
 	String CRICKET_PREF_NAME = "cricket_pref_name";
 	String APP_NAME = "appName";
