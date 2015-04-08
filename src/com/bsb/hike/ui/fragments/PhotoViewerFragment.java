@@ -568,7 +568,7 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 				}
 			};
 
-			deleteConfirmDialog.setCheckBox(R.string.delete_media_from_sdcard);
+			deleteConfirmDialog.setCheckBox(R.string.delete_media_from_sdcard, true);
 			deleteConfirmDialog.setOkButton(R.string.delete, dialogOkClickListener);
 			deleteConfirmDialog.setCancelButton(R.string.cancel);
 			deleteConfirmDialog.show();

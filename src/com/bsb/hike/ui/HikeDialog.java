@@ -479,11 +479,9 @@ public class HikeDialog
 		dialog.setCancelable(false);
 
 		ImageView icon = (ImageView) dialog.findViewById(R.id.dialog_icon);
-		TextView titleTextView = (TextView) dialog.findViewById(R.id.dialog_header_tv);
 		TextView messageTextView = (TextView) dialog.findViewById(R.id.dialog_message_tv);
 
 		icon.setImageBitmap(HikeBitmapFactory.decodeResource(context.getResources(), R.drawable.art_sticker_mac));
-		titleTextView.setText(context.getResources().getString(R.string.sticker_shop));
 		messageTextView.setText(context.getResources().getString(R.string.hike_upgrade_string));
 
 		dialog.show();

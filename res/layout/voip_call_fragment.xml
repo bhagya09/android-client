@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black">
+
+			<RelativeLayout
+				android:id="@+id/voip_header"
+				android:layout_width="match_parent"
+				android:layout_height="120dp"
+				android:background="@color/blue_hike"
+				android:gravity="center"
+				android:paddingLeft="24dp"
+	        	android:paddingRight="24dp" >
+
+				<com.bsb.hike.view.CustomFontTextView
+				     android:id="@+id/hike_call"
+				     android:layout_width="wrap_content"
+				     android:layout_height="wrap_content"
+				     android:textColor="@color/white"
+				     android:textSize="16dp"/>
+
+			  	<com.bsb.hike.view.CustomFontTextView
+					android:id="@+id/contact_name"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_marginTop="4dp"
+					android:layout_below="@id/hike_call"
+					android:maxLines="1"
+					android:singleLine="true"
+					android:ellipsize="end"
+					android:textColor="@color/white"
+					android:textStyle="italic"
+					android:includeFontPadding="false"
+					android:textSize="32dp" />
+
+				<com.bsb.hike.view.CustomFontTextView
+				     android:id="@+id/contact_msisdn"
+				     android:layout_width="wrap_content"
+				     android:layout_height="wrap_content"
+				     android:layout_below="@id/contact_name"
+				     android:layout_marginTop="6dp"
+				     android:includeFontPadding="false"
+				     android:textColor="@color/white"
+				     android:visibility="invisible"
+				     android:textSize="14dp" />
+				
+				<Chronometer
+					android:id="@+id/call_duration"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:textSize="14dp"
+					android:layout_marginLeft="10dp"
+					android:layout_alignParentRight="true"
+					android:layout_alignBottom="@id/contact_msisdn"
+					android:textColor="@color/white"
+					android:visibility="invisible" />
+	      </RelativeLayout>
+
+		<com.bsb.hike.ui.utils.RecyclingImageView
+			android:id="@+id/beta_tag"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_alignParentRight="true"
+			android:layout_alignParentTop="true"
+			android:src="@drawable/img_beta_tag"
+			android:scaleType="fitXY" />
+
+	    <com.bsb.hike.ui.utils.RecyclingImageView
+	        android:id="@+id/profile_image"
+	        android:layout_width="match_parent"
+	        android:layout_height="match_parent"
+	        android:layout_below="@id/voip_header"
+	        android:layout_centerHorizontal="true"
+	        android:scaleType="centerCrop" />
+
+		<FrameLayout
+    	    android:id="@+id/profile_image_overlay"
+	        android:layout_width="match_parent"
+	        android:layout_height="match_parent"
+	        android:background="@color/black_60"
+	        android:layout_below="@id/voip_header"
+	        android:scaleType="centerCrop" />
+
+		<LinearLayout
+		    android:id="@+id/signal_container"
+		    android:layout_below="@id/voip_header"
+		    android:layout_marginLeft="12dp"
+		    android:layout_marginTop="16dp"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:paddingLeft="6dp"
+		    android:paddingRight="6dp"
+		    android:paddingTop="2dp"
+		    android:paddingBottom="2dp"
+		    android:gravity="center"
+		    android:orientation="horizontal"
+		    android:background="@drawable/rounded_signal_voip"
+		    android:visibility="gone" >
+
+		    <com.bsb.hike.ui.utils.RecyclingImageView
+		        android:id="@+id/signal_icon"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:src="@drawable/icon_signal" />
+
+		    <com.bsb.hike.view.CustomFontTextView
+					android:id="@+id/signal_strength"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:textSize="12dp"
+					android:layout_marginLeft="6dp"
+					android:textColor="@color/white" />
+		</LinearLayout>
+
+
+		<RelativeLayout
+		    android:id="@+id/active_call_group"
+		    android:orientation="horizontal"
+		    android:layout_width="match_parent"
+		    android:layout_height="72dp"
+		    android:gravity="center"
+		    android:background="@color/black"
+		    android:layout_alignParentBottom="true"
+		    android:visibility="gone">
+    		
+    		<ImageButton
+		        android:id="@+id/mute_btn"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:scaleType="centerInside"
+		        android:padding="7dp"
+		        android:background="@null"
+		        android:layout_alignParentLeft="true"
+		        android:layout_marginLeft="33dp"
+		        android:src="@drawable/ic_mute_disabled">
+		    </ImageButton>
+		    
+		     <ImageButton
+		        android:id="@+id/hold_btn"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:scaleType="centerInside"
+		        android:padding="7dp"
+		        android:background="@null"
+		        android:layout_centerHorizontal="true"
+		        android:src="@drawable/ic_hold_disabled">
+		    </ImageButton>
+		    
+		    <ImageButton
+		        android:id="@+id/speaker_btn"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:background="@null"
+		        android:padding="7dp"
+		        android:scaleType="centerInside"
+		        android:layout_alignParentRight="true"
+		        android:layout_marginRight="33dp"
+		        android:src="@drawable/voip_speaker_selector">
+		    </ImageButton>
+		</RelativeLayout>
+
+		<ImageButton
+			android:id="@+id/hang_up_btn"
+			android:layout_width="match_parent"
+			android:layout_height="72dp"
+			android:background="@color/voip_hang_up"
+			android:src="@drawable/ic_active_hangup"
+			android:layout_above="@id/active_call_group"
+			android:visibility="gone">
+		</ImageButton>
+
+		<com.bsb.hike.voip.view.CallActionsView
+		    android:id="@+id/call_actions_view"
+		    android:layout_marginBottom="35dp"
+		    android:layout_alignParentBottom="true"
+		    android:layout_width="match_parent"
+		    android:layout_height="wrap_content"
+		    android:visibility="gone" />
+
+</RelativeLayout>

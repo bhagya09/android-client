@@ -1,5 +1,7 @@
 package com.bsb.hike.notifications;
 
+import org.json.JSONException;
+
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Build;
@@ -18,7 +20,9 @@ import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.models.NotificationPreview;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.SmileyParser;
 
 public class HikeNotificationUtils
@@ -32,7 +36,7 @@ public class HikeNotificationUtils
 	 * @param convMsg
 	 * @return
 	 */
-	public static Pair<String, String> getNotificationPreview(Context context, ConvMessage convMsg)
+	public static NotificationPreview getNotificationPreview(Context context, ConvMessage convMsg)
 	{
 
 		final String msisdn = convMsg.getMsisdn();
@@ -58,7 +62,7 @@ public class HikeNotificationUtils
 		{
 			if (convMsg.getParticipantInfoState() == ParticipantInfoState.USER_JOIN)
 			{
-				message = String.format(context.getString(convMsg.getMetadata().isOldUser() ? R.string.user_back_on_hike : R.string.joined_hike_new), contactInfo.getFirstName());
+				message = String.format(convMsg.getMessage(), contactInfo.getFirstName());
 			}
 			else
 			{
@@ -109,8 +113,12 @@ public class HikeNotificationUtils
 			}
 			key = ContactManager.getInstance().getName(convMsg.getMsisdn());
 		}
+		else if(convMsg.getParticipantInfoState() == ParticipantInfoState.USER_JOIN)
+		{
+			key = String.format(convMsg.getMetadata().getKey(), key);
+		}
 
-		return new Pair<String, String>(message, key);
+		return new NotificationPreview(message, key);
 	}
 
 	/**

@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#272829"
+    android:orientation="vertical" >
+
+    <FrameLayout
+        android:id="@+id/container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" >
+    </FrameLayout>
+
+    <ImageView
+        android:id="@+id/tempiv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:scaleType="fitXY"
+        android:visibility="gone" >
+    </ImageView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/transparent"
+        android:orientation="vertical" >
+
+        <include
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            layout="@layout/photos_action_bar" />
+
+        <com.bsb.hike.photos.views.SquareRelativeLayout
+            android:id="@+id/previewWindow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+             >
+
+            <ImageView
+                android:id="@+id/containerImageView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:visibility="gone" />
+
+            <View
+                android:id="@+id/snapOverlay"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/white"
+                android:visibility="gone" />
+        </com.bsb.hike.photos.views.SquareRelativeLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:id="@+id/flashContainer"
+            android:layout_alignParentBottom="true"
+            android:animateLayoutChanges="true"
+            android:background="@color/photos_tabs_background"
+            android:gravity="center" >
+
+            <ImageButton
+                android:id="@+id/btntoggleflash"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:background="@drawable/camera_button_selector"
+                android:paddingLeft="20dp"
+                android:paddingRight="20dp"
+                android:src="@drawable/flashauto"
+                android:tag="fauto" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="@integer/photos_editor_pager_weight"
+            android:background="@color/photos_pager_background"
+            android:orientation="horizontal"
+            android:layout_gravity="center_vertical"
+            android:gravity="center" >
+
+            <ImageButton
+                android:id="@+id/btngallery"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/camera_button_selector"
+                android:src="@drawable/gallerypick" />
+
+            <ImageButton
+                android:id="@+id/btntakepic"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/camera_button_selector"
+                android:src="@drawable/camerasnap" />
+
+            <ImageButton
+                android:id="@+id/btnflip"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/camera_button_selector"
+                android:src="@drawable/frontback" />
+        </LinearLayout>
+    </LinearLayout>
+
+</RelativeLayout>

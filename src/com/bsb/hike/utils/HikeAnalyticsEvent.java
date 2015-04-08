@@ -2,6 +2,9 @@ package com.bsb.hike.utils;
 
 import java.util.List;
 
+import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.content.PlatformContent;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -106,6 +109,26 @@ public class HikeAnalyticsEvent
 		}
 	}
 
+	public static void cardErrorAnalytics(PlatformContent.EventCode reason, ConvMessage convMessage)
+	{
+		JSONObject json = new JSONObject();
+		try
+		{
+			json.put(HikePlatformConstants.ERROR_CODE, reason.toString());
+			json.put(AnalyticsConstants.EVENT_KEY, HikePlatformConstants.BOT_ERROR);
+			json.put(AnalyticsConstants.CONTENT_ID, convMessage.getContentId());
+			HikeAnalyticsEvent.analyticsForCards(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.ERROR_EVENT, json);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+		catch (NullPointerException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
 	public static void analyticsForBots(String type, String subType, JSONObject json)
 	{
 		try
@@ -125,6 +148,19 @@ public class HikeAnalyticsEvent
         {
             Logger.d("HikeAnalyticsEvent", json.toString());
             HAManager.getInstance().record(type, subType, HAManager.EventPriority.HIGH, json, AnalyticsConstants.EVENT_TAG_PLATFORM);
+        }
+        catch (NullPointerException npe)
+        {
+            npe.printStackTrace();
+        }
+    }
+    
+    public static void analyticsForPhotos(String type, String subType, JSONObject json)
+    {
+        try
+        {
+            Logger.d("HikeAnalyticsEvent", json.toString());
+            HAManager.getInstance().record(type, subType, HAManager.EventPriority.HIGH, json, AnalyticsConstants.EVENT_TAG_PHOTOS);
         }
         catch (NullPointerException npe)
         {

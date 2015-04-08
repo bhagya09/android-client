@@ -2,6 +2,7 @@ package com.bsb.hike.ui;
 
 import java.util.Map;
 
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -38,6 +39,7 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.db.DBBackupRestore;
 import com.bsb.hike.service.HikeMqttManagerNew;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.tasks.ActivityCallableTask;
 import com.bsb.hike.tasks.BackupAccountTask;
 import com.bsb.hike.tasks.BackupAccountTask.BackupAccountListener;
@@ -45,7 +47,6 @@ import com.bsb.hike.tasks.DeleteAccountTask;
 import com.bsb.hike.tasks.DeleteAccountTask.DeleteAccountListener;
 import com.bsb.hike.tasks.RingtoneFetcherTask;
 import com.bsb.hike.tasks.RingtoneFetcherTask.RingtoneFetchListener;
-import com.bsb.hike.tasks.UnlinkTwitterTask;
 import com.bsb.hike.ui.utils.LockPattern;
 import com.bsb.hike.utils.CustomAlertDialog;
 import com.bsb.hike.utils.HikeAppStateBasePreferenceActivity;
@@ -54,7 +55,6 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.IconCheckBoxPreference;
 import com.bsb.hike.view.NotificationToneListPreference;
-import com.facebook.Session;
 
 public class HikePreferences extends HikeAppStateBasePreferenceActivity implements OnPreferenceClickListener, 
 							OnPreferenceChangeListener, DeleteAccountListener, BackupAccountListener, RingtoneFetchListener
@@ -62,7 +62,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 
 	private enum BlockingTaskType
 	{
-		NONE, DELETING_ACCOUNT, UNLINKING_ACCOUNT, UNLINKING_TWITTER, BACKUP_ACCOUNT, FETCH_RINGTONE
+		NONE, DELETING_ACCOUNT, UNLINKING_ACCOUNT, /*UNLINKING_TWITTER,*/ BACKUP_ACCOUNT, FETCH_RINGTONE
 	}
 
 	private ActivityCallableTask mTask;
@@ -124,7 +124,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			unlinkPreference.setOnPreferenceClickListener(this);
 		}
 		
-		Preference unlinkFacebookPreference = getPreferenceScreen().findPreference(HikeConstants.UNLINK_FB);
+		/*Preference unlinkFacebookPreference = getPreferenceScreen().findPreference(HikeConstants.UNLINK_FB);
 		if (unlinkFacebookPreference != null)
 		{
 			Session session = Session.getActiveSession();
@@ -149,7 +149,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			{
 				getPreferenceScreen().removePreference(unlinkTwitterPreference);
 			}
-		}
+		}*/
 
 		final IconCheckBoxPreference lastSeenPreference = (IconCheckBoxPreference) getPreferenceScreen().findPreference(HikeConstants.LAST_SEEN_PREF);
 		if (lastSeenPreference != null)
@@ -370,9 +370,9 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			case UNLINKING_ACCOUNT:
 				message = getString(R.string.unlinking_account);
 				break;
-			case UNLINKING_TWITTER:
+			/*case UNLINKING_TWITTER:
 				message = getString(R.string.social_unlinking);
-				break;
+				break;*/
 			case BACKUP_ACCOUNT:
 				title = getString(R.string.account_backup);
 				message = getString(R.string.creating_backup_message);
@@ -449,7 +449,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			confirmDialog.show();
 
 		}
-		else if (preference.getKey().equals(HikeConstants.UNLINK_FB))
+		/*else if (preference.getKey().equals(HikeConstants.UNLINK_FB))
 		{
 			final CustomAlertDialog confirmDialog = new CustomAlertDialog(HikePreferences.this);
 			confirmDialog.setHeader(R.string.unlink_facebook);
@@ -503,7 +503,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			confirmDialog.setCancelButton(R.string.cancel);
 			confirmDialog.show();
 
-		}
+		}*/
 		else if (HikeConstants.BLOKED_LIST_PREF.equals(preference.getKey()))
 		{
 			Intent intent = new Intent(HikePreferences.this, HikeListActivity.class);
@@ -840,6 +840,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		else if (HikeConstants.SSL_PREF.equals(preference.getKey()))
 		{
 			Utils.setupUri(this.getApplicationContext());
+			HttpRequestConstants.toggleSSL();
 			LocalBroadcastManager.getInstance(this.getApplicationContext()).sendBroadcast(new Intent(HikePubSub.SSL_PREFERENCE_CHANGED));
 		}
 		else if (HikeConstants.STATUS_BOOLEAN_PREF.equals(preference.getKey()))

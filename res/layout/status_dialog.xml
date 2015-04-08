@@ -10,46 +10,11 @@
         android:layout_height="match_parent"
         android:background="@color/white" >
 
-        <LinearLayout
-            android:id="@+id/bottom_bar"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:layout_above="@+id/emoji_container"
-            android:layout_alignWithParentIfMissing="true"
-            android:background="#323638"
-            android:orientation="horizontal" >
-
-            <com.bsb.hike.view.CustomFontButton
-                android:id="@+id/post_fb_btn"
-                style="@style/StatusSocialButtons"
-                android:background="@drawable/fb_status_btn"
-                android:onClick="onFacebookClick"
-                android:layout_marginRight="5dp"
-                android:text="@string/facebook"
-                android:drawableLeft="@drawable/post_fb" />
-
-            <com.bsb.hike.view.CustomFontButton
-                android:id="@+id/post_twitter_btn"
-                style="@style/StatusSocialButtons"
-                android:background="@drawable/twitter_status_btn"
-                android:onClick="onTwitterClick"
-                android:layout_marginLeft="5dp"
-                android:text="@string/twitter"
-                android:drawableLeft="@drawable/post_twitter" />
-        </LinearLayout>
-
-        <View
-            android:id="@+id/div"
-            android:layout_width="match_parent"
-            android:layout_height="2dp"
-            android:layout_above="@id/bottom_bar"
-            android:background="#232627" />
 
         <RelativeLayout
             android:id="@+id/content_container"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_above="@id/div"
             android:layout_margin="16dp" >
 
             <ImageView
