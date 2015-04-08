@@ -230,7 +230,7 @@ public class AnalyticsConstants
 	
 	//----------------------***----------------------------------//
 	
-	public static final String MSISDN = "msdn";
+	public static final String MSISDN = "t_user";
 	
 	public static final String TRACK_ID = "track_id";
 	

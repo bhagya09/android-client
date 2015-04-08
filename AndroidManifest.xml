@@ -4,7 +4,7 @@
     package="com.bsb.hike"
     android:installLocation="auto"
     android:versionCode="1161"
-    android:versionName="3.8.9.50" >
+    android:versionName="3.8.9.001.timesync" >
     <uses-sdk
         android:minSdkVersion="9"
         android:targetSdkVersion="17"
