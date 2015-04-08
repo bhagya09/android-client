@@ -245,10 +245,7 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 		{
 			Bitmap temp = imageOriginal;
 			imageOriginal = Bitmap.createScaledBitmap(imageOriginal, HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX, HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX, false);
-			if(android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB )
-			{
-				temp.recycle();
-			}
+			HikePhotosUtils.manageBitmaps(temp);
 			temp=null;
 			compressOutput = false;
 		}
@@ -402,10 +399,7 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 				{
 					canvasResult.drawBitmap(temp, 0, 0, doodleLayer.getPaint());
 					sendAnalyticsDoodleApplied(doodleLayer.getColor());
-					if(android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB )
-					{
-						temp.recycle();
-					}
+					HikePhotosUtils.manageBitmaps(temp);
 				}
 				else
 				{

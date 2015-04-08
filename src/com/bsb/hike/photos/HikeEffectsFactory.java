@@ -114,18 +114,6 @@ public final class HikeEffectsFactory
 
 	}
 
-	private static void manageBitmaps(Bitmap bitmap)
-	{
-		
-		if (bitmap != null)
-		{
-			if(android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB && !bitmap.isRecycled())
-			{
-				bitmap.recycle();
-			}
-			bitmap = null;
-		}
-	}
 	
 	/**
 	 * Method To Clear HikeEffectFactory's singleton object and attributes associated with it. Recycles all bitmaps. Should be called only when no further effects are to be
@@ -142,27 +130,27 @@ public final class HikeEffectsFactory
 			instance.mOutAllocations = null;
 			if (instance.finalBitmap != null)
 			{
-				manageBitmaps(instance.finalBitmap);
+				HikePhotosUtils.manageBitmaps(instance.finalBitmap);
 				instance.finalBitmap = null;
 			}
 			if (instance.mBitmapIn != null)
 			{
-				manageBitmaps(instance.mBitmapIn);
+				HikePhotosUtils.manageBitmaps(instance.mBitmapIn);
 				instance.mBitmapIn = null;
 			}
 			if (instance.mBitmapOut1 != null)
 			{
-				manageBitmaps(instance.mBitmapOut1);
+				HikePhotosUtils.manageBitmaps(instance.mBitmapOut1);
 				instance.mBitmapOut1 = null;
 			}
 			if (instance.mBitmapOut2 != null)
 			{
-				manageBitmaps(instance.mBitmapOut2);
+				HikePhotosUtils.manageBitmaps(instance.mBitmapOut2);
 				instance.mBitmapOut2 = null;
 			}
 			if (instance.vignetteBitmap != null)
 			{
-				manageBitmaps(instance.vignetteBitmap);
+				HikePhotosUtils.manageBitmaps(instance.vignetteBitmap);
 				instance.vignetteBitmap = null;
 			}
 

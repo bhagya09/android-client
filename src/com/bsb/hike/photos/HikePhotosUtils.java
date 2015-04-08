@@ -88,6 +88,19 @@ public class HikePhotosUtils
 		return pixels;
 	}
 	
+	public static void manageBitmaps(Bitmap bitmap)
+	{
+		
+		if (bitmap != null)
+		{
+			if(android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB && !bitmap.isRecycled())
+			{
+				bitmap.recycle();
+			}
+			bitmap = null;
+		}
+	}
+	
 	
 	/**
 	 * Funtcion to create Bitmap. Handles out of Memory Exception
