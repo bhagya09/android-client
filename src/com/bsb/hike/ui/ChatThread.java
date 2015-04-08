@@ -3628,9 +3628,8 @@ public class ChatThread extends HikeAppStateBaseFragmentActivity implements Hike
 							if (trackId != null)
 							{
 								dataMR.putOpt(String.valueOf(pair.first), pd);
+
 								// Logs for Msg Reliability
-								Logger.d(AnalyticsConstants.MSG_REL_TAG, "===========================================");
-								Logger.d(AnalyticsConstants.MSG_REL_TAG, "Receiver reads msg on after opening screen,track_id:- " + trackId);
 								MsgRelLogManager.recordMsgRel(trackId, MsgRelEventType.RECEIVER_OPENS_CONV_SCREEN, mConversation.getMsisdn());
 							}
 							else
@@ -3646,8 +3645,6 @@ public class ChatThread extends HikeAppStateBaseFragmentActivity implements Hike
 				}
 
 				Logger.d("UnreadBug", "Unread count event triggered");
-				Logger.d(AnalyticsConstants.MSG_REL_TAG, "inside API setMessageRead in CT ===========================================");
-				Logger.d(AnalyticsConstants.MSG_REL_TAG, "Going to set MR/NMR as user is on chat screen ");
 
 				/*
 				 * If there are msgs which are RECEIVED UNREAD then only broadcast a msg that these are read avoid sending read notifications for group chats
@@ -3793,8 +3790,6 @@ public class ChatThread extends HikeAppStateBaseFragmentActivity implements Hike
 					if(message.getPrivateData() != null && message.getPrivateData().getTrackID() != null)
 					{
 						//Logs for Msg Reliability
-						Logger.d(AnalyticsConstants.MSG_REL_TAG, "===========================================");
-						Logger.d(AnalyticsConstants.MSG_REL_TAG, "Receiver reads msg on already opened screen,track_id:- " + message.getPrivateData().getTrackID());
 						MsgRelLogManager.logMsgRelEvent(message, MsgRelEventType.RECEIVER_OPENS_CONV_SCREEN);
 					}
 
@@ -3950,8 +3945,6 @@ public class ChatThread extends HikeAppStateBaseFragmentActivity implements Hike
 					MessagePrivateData pd = msg.getPrivateData();
 					if(pd != null && pd.getTrackID() != null)
 					{
-						Logger.d(AnalyticsConstants.MSG_REL_TAG, "===========================================");
-						Logger.d(AnalyticsConstants.MSG_REL_TAG, "Read Shown to Sender:track_id "+ msg.getPrivateData().getTrackID());
 						MsgRelLogManager.logMsgRelEvent(msg, MsgRelEventType.MR_SHOWN_AT_SENEDER_SCREEN);
 					}
 				}

@@ -110,8 +110,6 @@ public class DbConversationListener implements Listener
 				mConversationDb.updateMessageMetadata(convMessage.getMsgID(), convMessage.getMetadata());
 				
 				// Adding Logs for Message Reliability
-				Logger.d(AnalyticsConstants.MSG_REL_TAG, "===========================================");
-				Logger.d(AnalyticsConstants.MSG_REL_TAG, "DB Transaction completed");
 				MsgRelLogManager.logMsgRelEvent(convMessage, MsgRelEventType.DB_UPDATE_TRANSACTION_COMPLETED);
 			}
 			else
@@ -122,8 +120,6 @@ public class DbConversationListener implements Listener
 					mConversationDb.addConversationMessages(convMessage);
 				
 					// Adding Logs for Message Reliability
-					Logger.d(AnalyticsConstants.MSG_REL_TAG, "===========================================");
-					Logger.d(AnalyticsConstants.MSG_REL_TAG, "DB Transaction completed");
 					MsgRelLogManager.logMsgRelEvent(convMessage, MsgRelEventType.DB_ADD_TRANSACTION_COMPLETED);
 					
 					if (convMessage.isSent())

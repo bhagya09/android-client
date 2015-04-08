@@ -37,8 +37,6 @@ public class MsgRelLogManager
 		{
 			if (isMessageToBeTracked(msgType))
 			{
-				Logger.d(AnalyticsConstants.MSG_REL_TAG, "===========================================");
-				Logger.d(AnalyticsConstants.MSG_REL_TAG, "Starting message sending");
 				if (convMessage.getPrivateData() == null)
 				{
 					convMessage.setPrivateData(new MessagePrivateData(UUID.randomUUID().toString(), msgType));
@@ -238,8 +236,6 @@ public class MsgRelLogManager
 	
 	public static void recordAckMsgRelEvent(HikePacket packet)
 	{
-		Logger.d(AnalyticsConstants.MSG_REL_TAG, "===========================================");
-		Logger.d(AnalyticsConstants.MSG_REL_TAG, "Ack Arrives, track_id:- " + packet.getTrackId());
 		if (HikeConstants.MqttMessageTypes.NEW_MESSAGE_READ.equals(packet.getMsgType()))
 		{
 			MsgRelLogManager.logPacketForMsgReliability(packet, MsgRelEventType.RECEIVER_MQTT_RECV_MSG_ACK);
@@ -252,8 +248,6 @@ public class MsgRelLogManager
 	
 	public static void recordPacketArrivedAtMqtt(HikePacket packet)
 	{
-		Logger.d(AnalyticsConstants.MSG_REL_TAG, "===========================================");
-		Logger.d(AnalyticsConstants.MSG_REL_TAG, "Packet Arrives at MQTT , track_id:- " + packet.getTrackId());
 		if (HikeConstants.MqttMessageTypes.NEW_MESSAGE_READ.equals(packet.getMsgType()))
 		{
 			MsgRelLogManager.logPacketForMsgReliability(packet, MsgRelEventType.RECEIVER_MQTT_RECV_MR_FROM_RECEIVER);

@@ -562,8 +562,6 @@ public class MqttMessagesManager
 		final ConvMessage convMessage = messagePreProcess(jsonObj);
 		
 		//Logs for Msg Reliability
-		Logger.d(AnalyticsConstants.MSG_REL_TAG, "===========================================");
-		Logger.d(AnalyticsConstants.MSG_REL_TAG, "Packet Arrived at RECV MQTT,track_id:- " + convMessage);
 		MsgRelLogManager.logMsgRelEvent(convMessage, MsgRelEventType.RECEIVER_MQTT_RECVS_SENT_MSG);
 
 		if (convMessage.getMessageType() == HikeConstants.MESSAGE_TYPE.WEB_CONTENT)
@@ -588,8 +586,6 @@ public class MqttMessagesManager
 		}
 
 		//Logs for Msg Reliability
-		Logger.d(AnalyticsConstants.MSG_REL_TAG, "===========================================");
-		Logger.d(AnalyticsConstants.MSG_REL_TAG, "Receiver recvs Msg,track_id:- " + convMessage);
 		MsgRelLogManager.logMsgRelEvent(convMessage, MsgRelEventType.RECIEVR_RECV_MSG);
 		
 		/*
@@ -669,7 +665,7 @@ public class MqttMessagesManager
 		ConvMessage convMessage = messagePreProcess(jsonObj);
 		addToLists(convMessage.getMsisdn(), convMessage);
 		
-		MsgRelLogManager.logMsgRelEvent(convMessage, MsgRelEventType.RECEIVER_MQTT_RECVS_SENT_MSG);
+		MsgRelLogManager.logMsgRelEvent(convMessage, MsgRelEventType.RECIEVR_RECV_MSG);
 		
 		if (convMessage.isGroupChat() && convMessage.getParticipantInfoState() == ParticipantInfoState.NO_INFO)
 		{
@@ -861,7 +857,6 @@ public class MqttMessagesManager
 					long msgId = values.get(0); //max size this list will be of 1 only
 					saveDeliveryReport(msgId, chatMsisdn);
 					
-					Logger.d(AnalyticsConstants.MSG_REL_TAG, "===========================================");
 					Logger.d(AnalyticsConstants.MSG_REL_TAG, "Handling ndr for json: "+ jsonObj);
 					MsgRelLogManager.logMsgRelDR(jsonObj, MsgRelEventType.DR_SHOWN_AT_SENEDER_SCREEN);
 				}
@@ -908,6 +903,8 @@ public class MqttMessagesManager
 		}
 		Logger.d(getClass().getSimpleName(), "Delivery report received for msgid : " + msgID + "	;	REPORT : DELIVERED");
 
+		MsgRelLogManager.logMsgRelDR(jsonObj, MsgRelEventType.DR_SHOWN_AT_SENEDER_SCREEN);
+		
 		/*
 		 * update message status map with max dr msgId corresponding to its msisdn
 		 */
@@ -927,8 +924,6 @@ public class MqttMessagesManager
 			messageStatusMap.get(msisdn).setSecond(msgID);
 		}
 		
-
-		MsgRelLogManager.logMsgRelDR(jsonObj, MsgRelEventType.DR_SHOWN_AT_SENEDER_SCREEN);
 	}
 
 	private void saveMessageRead(JSONObject jsonObj) throws JSONException
@@ -1023,7 +1018,6 @@ public class MqttMessagesManager
 	{
 		try
 		{
-			Logger.d(AnalyticsConstants.MSG_REL_TAG, "inside API saveNewMessageRead ===========================================");
 			Logger.d(AnalyticsConstants.MSG_REL_TAG, "For nmr,jsonObject: " + jsonObj);
 			JSONObject msgMetadata = jsonObj.optJSONObject(HikeConstants.DATA);
 			if (msgMetadata != null)
@@ -1037,7 +1031,6 @@ public class MqttMessagesManager
 				}
 				jsonObj.put(HikeConstants.DATA, serverIds);
 				Logger.d(AnalyticsConstants.MSG_REL_TAG, "For nmr,jsonObject sent to call 'mr' API: " + jsonObj);
-				MsgRelLogManager.logMsgRelEvent(jsonObj, MsgRelEventType.GOING_TO_CALL_MR_SAVE_API);
 				saveMessageRead(jsonObj);
 			}
 		}
@@ -2548,12 +2541,12 @@ public class MqttMessagesManager
 				lastPinMap.get(msisdn).setSecond(lastPinMap.get(msisdn).getSecond() + 1); // increment pin unread count for a msisdn
 			}
 			
-			// Adding Logs for Message Reliability
+			/*// Adding Logs for Message Reliability
 			MessagePrivateData pd = convMessage.getPrivateData();
 			if (pd != null && pd.getTrackID() != null && !Utils.isGroupConversation(convMessage.getMsisdn()))
 			{
 				MsgRelLogManager.recordMsgRel(pd.getTrackID(), MsgRelEventType.RECIEVR_RECV_MSG, convMessage.getMsisdn());
-			}
+			}*/
 		}
 
 		/*
@@ -2693,14 +2686,13 @@ public class MqttMessagesManager
 		// to
 		// receiver
 		{
+			MsgRelLogManager.logMsgRelDR(jsonObj, MsgRelEventType.DR_RECEIVED_AT_SENEDER_MQTT);
 			if (isBulkMessage)
 			{
 				saveDeliveryReportBulk(jsonObj);
 			}
 			else
 			{
-				MsgRelLogManager.logMsgRelDR(jsonObj, MsgRelEventType.DR_RECEIVED_AT_SENEDER_MQTT);
-				
 				saveDeliveryReport(jsonObj);
 			}
 		}
