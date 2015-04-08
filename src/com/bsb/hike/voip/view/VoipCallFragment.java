@@ -65,6 +65,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 	private WakeLock proximityWakeLock;
 	private SensorManager sensorManager;
 	private float proximitySensorMaximumRange;
+	private int easter = 0;
 
 	private CallActionsView callActionsView;
 	private Chronometer callDuration;
@@ -173,6 +174,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 			case VoIPConstants.MSG_UPDATE_HOLD_BUTTON:
 				boolean hold = voipService.getHold();
 				holdButton.setSelected(hold);
+			case VoIPConstants.MSG_UPDATE_REMOTE_HOLD:
 				updateCallStatus();
 				break;
 			case VoIPConstants.MSG_ALREADY_IN_CALL:
@@ -631,6 +633,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 			@Override
 			public void onClick(View v) 
 			{
+				easterEgg(0, 1);
 				if(isCallActive)
 				{
 					boolean newMute = !voipService.getMute();
@@ -646,6 +649,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 			@Override
 			public void onClick(View v) 
 			{				
+				easterEgg(2, 3);
 				boolean newSpeaker = !voipService.getSpeaker();
 				speakerButton.setSelected(newSpeaker);
 				voipService.setSpeaker(newSpeaker);
@@ -658,6 +662,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 			@Override
 			public void onClick(View v) 
 			{
+				easterEgg(4);
 				if(isCallActive)
 				{
 					boolean newHold = !voipService.getHold();
@@ -872,5 +877,18 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		{
 			imageView.setScaleType(ScaleType.FIT_START);
 		}
+	}
+	
+	private void easterEgg(int... allowedValues) {
+		for (int i = 0; i < allowedValues.length; i++)
+			if (easter == allowedValues[i]) {
+				easter++;
+				if (easter == 5) {
+					// Easter success
+					showMessage("Encryption key: " + voipService.getSessionKeyHash());
+				}
+				return;
+			}
+		easter = 0;
 	}
 }

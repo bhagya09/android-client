@@ -881,8 +881,11 @@ public class VoIPService extends Service {
 		
 		stopRingtone();
 		stopFromSoundPool(ringtoneStreamID);
-		setSpeaker(true);
-		playFromSoundPool(SOUND_DECLINE, false);
+		
+		if (connected == true) {
+			setSpeaker(true);
+			playFromSoundPool(SOUND_DECLINE, false);
+		}
 		
 		if (opusWrapper != null) {
 			opusWrapper.destroy();
@@ -1937,11 +1940,11 @@ public class VoIPService extends Service {
 						break;
 						
 					case HOLD_ON:
-						remoteHold = true;
+						setRemoteHold(true);
 						break;
 						
 					case HOLD_OFF:
-						remoteHold = false;
+						setRemoteHold(false);
 						break;
 						
 					}
@@ -2213,11 +2216,29 @@ public class VoIPService extends Service {
 			startPlayBack();
 		}
 
-		setCallStatus(hold ? VoIPConstants.CallStatus.ON_HOLD : VoIPConstants.CallStatus.ACTIVE);
-		
+		setCallStatus(!hold && !remoteHold ? VoIPConstants.CallStatus.ACTIVE : VoIPConstants.CallStatus.ON_HOLD);
 		sendHandlerMessage(VoIPConstants.MSG_UPDATE_HOLD_BUTTON);
 		
 		// Send hold status to partner
+		sendHoldStatus();
+	}	
+
+	public boolean getHold()
+	{
+		return hold;
+	}
+	
+	private void setRemoteHold(boolean newHold) {
+		
+		if (remoteHold == newHold)
+			return;
+
+		remoteHold = newHold;
+		setCallStatus(!hold && !remoteHold ? VoIPConstants.CallStatus.ACTIVE : VoIPConstants.CallStatus.ON_HOLD);
+		sendHandlerMessage(VoIPConstants.MSG_UPDATE_REMOTE_HOLD);
+	}
+
+	private void sendHoldStatus() {
 		new Thread(new Runnable() {
 			
 			@Override
@@ -2230,11 +2251,13 @@ public class VoIPService extends Service {
 				sendPacket(dp, true);
 			}
 		}).start();
-	}	
-
-	public boolean getHold()
-	{
-		return hold;
+	}
+	
+	public String getSessionKeyHash() {
+		String hash = null;
+		if (encryptor != null)
+			hash = encryptor.getSessionMD5();
+		return hash;
 	}
 
 	public void setSpeaker(boolean speaker)

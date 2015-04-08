@@ -61,6 +61,7 @@ public class VoIPConstants {
 	public static final int MSG_UPDATE_HOLD_BUTTON = 19;
 	public static final int MSG_ALREADY_IN_CALL = 20;
 	public static final int MSG_PHONE_NOT_SUPPORTED = 21;
+	public static final int MSG_UPDATE_REMOTE_HOLD = 22;
 
 	public static final class Analytics
 	{

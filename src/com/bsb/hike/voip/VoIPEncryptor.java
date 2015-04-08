@@ -12,6 +12,7 @@ import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.Arrays;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -101,10 +102,9 @@ public class VoIPEncryptor {
 	public String getSessionMD5() {
 		String md5 = null;
 		
-		try {
-			md5 = Utils.StringToMD5(new String(sessionKey, "UTF-8"));
-		} catch (UnsupportedEncodingException e) {
-			Logger.w(VoIPConstants.TAG, "Error in AES Session Key");
+		if (sessionKey != null) {
+			String key = Arrays.toString(sessionKey);
+			md5 = Utils.StringToMD5(key);
 		}
 
 		return md5;
