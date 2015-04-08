@@ -39,7 +39,7 @@ public abstract class Request<T> implements IRequestFacade
 
 	private String id;
 
-	private String analyticsKey;
+	private String analyticsParam;
 	
 	private String method;
 
@@ -76,7 +76,7 @@ public abstract class Request<T> implements IRequestFacade
 	protected Request(Init<?> builder)
 	{
 		this.id = builder.id;
-		this.analyticsKey = builder.analyticsKey;
+		this.analyticsParam = builder.analyticsParam;
 		this.method = builder.method;
 		this.url = builder.url;
 		this.headers = builder.headers;
@@ -159,9 +159,9 @@ public abstract class Request<T> implements IRequestFacade
 	 * 
 	 * @return
 	 */
-	public String getAnalyticsKey()
+	public String getAnalyticsParam()
 	{
-		return analyticsKey;
+		return analyticsParam;
 	}
 	
 	/**
@@ -519,7 +519,7 @@ public abstract class Request<T> implements IRequestFacade
 	{
 		private String id;
 
-		private String analyticsKey;
+		private String analyticsParam;
 		
 		private String method;
 
@@ -560,9 +560,9 @@ public abstract class Request<T> implements IRequestFacade
 		 * @param key
 		 * @return
 		 */
-		public S setAnalyticsKey(String key)
+		public S setAnalyticsParam(String analyticsParam)
 		{
-			this.analyticsKey = key;
+			this.analyticsParam = analyticsParam;
 			return self();
 		}
 		

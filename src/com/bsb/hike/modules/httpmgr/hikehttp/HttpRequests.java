@@ -1,11 +1,5 @@
 package com.bsb.hike.modules.httpmgr.hikehttp;
 
-import static com.bsb.hike.modules.httpmgr.analytics.HttpAnalyticsConstants.BULK_LAST_SEEN_REQUEST_ANALYTICS_KEY;
-import static com.bsb.hike.modules.httpmgr.analytics.HttpAnalyticsConstants.LAST_SEEN_REQUEST_ANALYTICS_KEY;
-import static com.bsb.hike.modules.httpmgr.analytics.HttpAnalyticsConstants.MULTI_STICKER_DOWNLOAD_REQUEST_ANALYTICS_KEY;
-import static com.bsb.hike.modules.httpmgr.analytics.HttpAnalyticsConstants.PLATFORM_ZIP_DOWNLOAD_REQUEST_ANALYTICS_KEY;
-import static com.bsb.hike.modules.httpmgr.analytics.HttpAnalyticsConstants.SINGLE_STICKER_DOWNLOAD_REQUEST_ANALYTICS_KEY;
-import static com.bsb.hike.modules.httpmgr.analytics.HttpAnalyticsConstants.STATUS_UPDATE_REQUEST_ANALYTICS_KEY;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.bulkLastSeenUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getStatusBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.lastSeenUrl;
@@ -36,7 +30,6 @@ public class HttpRequests
 				.setUrl(singleStickerDownloadBase() + "?catId=" + categoryId + "&stId=" + stickerId + "&resId=" + Utils.getResolutionId())
 				.setId(requestId)
 				.setRequestListener(requestListener)
-				.setAnalyticsKey(SINGLE_STICKER_DOWNLOAD_REQUEST_ANALYTICS_KEY)
 				.build();
 		return requestToken;
 	}
@@ -50,7 +43,6 @@ public class HttpRequests
 				.setRequestListener(requestListener)
 				.setRequestType(REQUEST_TYPE_LONG)
 				.setPriority(PRIORITY_HIGH)
-				.setAnalyticsKey(MULTI_STICKER_DOWNLOAD_REQUEST_ANALYTICS_KEY)
 				.build();
 		requestToken.getRequestInterceptors().addFirst("sticker", interceptor);
 		requestToken.getRequestInterceptors().addAfter("sticker", "gzip", new GzipRequestInterceptor());
@@ -65,7 +57,6 @@ public class HttpRequests
 				.setRequestListener(requestListener)
 				.setRequestType(REQUEST_TYPE_SHORT)
 				.setPriority(PRIORITY_HIGH)
-				.setAnalyticsKey(LAST_SEEN_REQUEST_ANALYTICS_KEY)
 				.build();
 		return requestToken;
 	}
@@ -77,7 +68,6 @@ public class HttpRequests
 				.setRetryPolicy(retryPolicy)
 				.setRequestListener(requestListener)
 				.setRequestType(REQUEST_TYPE_SHORT)
-				.setAnalyticsKey(BULK_LAST_SEEN_REQUEST_ANALYTICS_KEY)
 				.build();
 		return requestToken;
 	}
@@ -91,7 +81,6 @@ public class HttpRequests
 				.setRequestListener(requestListener)
 				.setResponseOnUIThread(true)
 				.post(body)
-				.setAnalyticsKey(STATUS_UPDATE_REQUEST_ANALYTICS_KEY)
 				.build();
 		requestToken.getRequestInterceptors().addFirst("gzip", new GzipRequestInterceptor());
 		return requestToken;
@@ -104,7 +93,6 @@ public class HttpRequests
 				.setFile(filePath)
 				.setRequestListener(requestListener)
 				.setRetryPolicy(new DefaultRetryPolicy(3, 1000, 2.0f))
-				.setAnalyticsKey(PLATFORM_ZIP_DOWNLOAD_REQUEST_ANALYTICS_KEY)
 				.build();
 		return requestToken;
 	}
