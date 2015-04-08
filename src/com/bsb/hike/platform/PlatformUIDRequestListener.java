@@ -49,8 +49,8 @@ public class PlatformUIDRequestListener implements IRequestListener
 			Logger.d(HikePlatformConstants.PLATFORM_UID_FETCH_TAG, "response for the platform uid request for " + fetchType + " is " + obj.toString());
 			if (obj.has(HikePlatformConstants.PLATFORM_USER_ID) && obj.has(HikePlatformConstants.PLATFORM_TOKEN))
 			{
-				String platformToken = obj.optString(HikePlatformConstants.PLATFORM_USER_ID);
-				String platformUID = obj.optString(HikePlatformConstants.PLATFORM_TOKEN);
+				String platformUID = obj.optString(HikePlatformConstants.PLATFORM_USER_ID);
+				String platformToken = obj.optString(HikePlatformConstants.PLATFORM_TOKEN);
 
 				if (!TextUtils.isEmpty(platformToken) && !TextUtils.isEmpty(platformUID))
 				{
