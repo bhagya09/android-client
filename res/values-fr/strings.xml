@@ -543,7 +543,6 @@
     <string name="sent_you_friend_request">T\'a envoyé une demande d\'ami</string>
     <string name="num_people">%1$d people</string>
     <string name="add">Ajouter</string>
-    <string name="no_updates">No updates from %1$s yet.</string>
     <string name="email_conversation">Envoyer la conversation par e-mail</string>
     <string name="me_key">moi</string>
     <string name="group_name_email">"Groupe "</string>
