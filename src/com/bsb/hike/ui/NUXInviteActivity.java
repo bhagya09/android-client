@@ -39,7 +39,6 @@ public class NUXInviteActivity extends HikeAppStateBaseFragmentActivity implemen
 	{
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
-		Logger.d("UmangX","openenign NIA onCreate");
 
 		if (Utils.requireAuth(this))
 		{
@@ -129,7 +128,6 @@ public class NUXInviteActivity extends HikeAppStateBaseFragmentActivity implemen
 	@Override
 	protected void onResume()
 	{
-		Logger.d("UmangX","NuxInviteOnResume");
 		super.onResume();
 		if (NUXManager.getInstance().getCurrentState() == NUXConstants.NUX_KILLED)
 			finish();
@@ -138,7 +136,6 @@ public class NUXInviteActivity extends HikeAppStateBaseFragmentActivity implemen
 	@Override
 	protected void onStop() {
 
-		Logger.d("UmangX","NuxInviteOnStop");
 		if(NUXManager.getInstance().getCurrentState() == NUXConstants.NUX_KILLED){
 			finish();
 		}

@@ -7,13 +7,17 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import android.app.PendingIntent;
+import android.app.PendingIntent.CanceledException;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
@@ -40,13 +44,29 @@ import com.bsb.hike.utils.Utils;
 public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements OnScrollListener, OnItemClickListener, OnItemLongClickListener
 {
 
+	public static final String DISABLE_MULTI_SELECT_KEY = "en_mul_sel";
+
+	public static final String FOLDERS_REQUIRED_KEY = "fold_req";
+
+	public static final String PENDING_INTENT_KEY = "pen_intent";
+
+	public static final String ACTION_BAR_TYPE_KEY = "action_bar";
+
+	public static final String RETURN_RESULT_KEY = "return_result";
+
+	public static final int PHOTOS_EDITOR_ACTION_BAR_TYPE = 1;
+
+	private int actionBarType;
+
 	private List<GalleryItem> galleryItemList;
 
 	private GalleryAdapter adapter;
 
-	private boolean isInsideAlbum;
+	private boolean isInsideAlbum, returnResult;
 
 	private String msisdn;
+
+	private boolean foldersRequired;
 
 	private boolean multiSelectMode;
 
@@ -62,6 +82,10 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 
 	private int velocity;
 
+	private boolean disableMultiSelect;
+
+	private PendingIntent pendingIntent;
+	
 	private final String ALL_IMAGES_BUCKET_NAME = "All images";
 
 	private final String HIKE_IMAGES = "hike";
@@ -103,6 +127,30 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 
 		GalleryItem selectedBucket = data.getParcelable(HikeConstants.Extras.SELECTED_BUCKET);
 		msisdn = data.getString(HikeConstants.Extras.MSISDN);
+		disableMultiSelect = data.getBoolean(DISABLE_MULTI_SELECT_KEY);
+		pendingIntent = data.getParcelable(PENDING_INTENT_KEY);
+
+		if (data.containsKey(FOLDERS_REQUIRED_KEY))
+		{
+			foldersRequired = data.getBoolean(FOLDERS_REQUIRED_KEY);
+		}
+		else
+		{
+			foldersRequired = true;// default hike settings
+		}
+
+		if (data.containsKey(ACTION_BAR_TYPE_KEY))
+		{
+			actionBarType = data.getInt(ACTION_BAR_TYPE_KEY);
+			getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
+		}
+		else
+		{
+			actionBarType = 0;// default hike settings
+		}
+
+		returnResult = data.containsKey(RETURN_RESULT_KEY) ? data.getBoolean(RETURN_RESULT_KEY) : false;
 
 		String sortBy;
 		if (selectedBucket != null)
@@ -131,7 +179,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 					selectedGalleryItems.put(galleryItem.getId(), galleryItem);
 				}
 
-				if (!multiSelectMode)
+				if (!multiSelectMode && !disableMultiSelect)
 				{
 					multiSelectMode = true;
 					setupMultiSelectActionBar();
@@ -140,13 +188,24 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 			}
 			sortBy = MediaStore.Images.Media.DATE_TAKEN + " DESC";
 		}
+
 		else
 		{
-			selection = "1) GROUP BY (" + MediaStore.Images.Media.BUCKET_ID;
+			if (foldersRequired)
+			{
+				selection = "1) GROUP BY (" + MediaStore.Images.Media.BUCKET_ID;
 
-			isInsideAlbum = false;
+				sortBy = MediaStore.Images.Media.DATE_ADDED + " DESC";
 
-			sortBy = MediaStore.Images.Media.DATE_TAKEN + " DESC";
+				isInsideAlbum = false;
+			}
+			else
+			{
+				isInsideAlbum = true;
+
+				sortBy = MediaStore.Images.Media.DATE_MODIFIED + " DESC";
+			}
+
 		}
 
 		/*
@@ -223,7 +282,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 		gridView.setOnScrollListener(this);
 		gridView.setOnItemClickListener(this);
 
-		if (isInsideAlbum)
+		if (isInsideAlbum && !disableMultiSelect)
 		{
 			gridView.setOnItemLongClickListener(this);
 		}
@@ -303,18 +362,18 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 	{
 		// TODO Auto-generated method stub
 		super.onPause();
-		if(adapter != null)
+		if (adapter != null)
 		{
 			adapter.getGalleryImageLoader().setExitTasksEarly(true);
 		}
 	}
-	
+
 	@Override
 	protected void onResume()
 	{
 		// TODO Auto-generated method stub
 		super.onResume();
-		if(adapter != null)
+		if (adapter != null)
 		{
 			adapter.getGalleryImageLoader().setExitTasksEarly(false);
 			adapter.notifyDataSetChanged();
@@ -350,32 +409,55 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 	private void setupActionBar(String titleString)
 	{
 		ActionBar actionBar = getSupportActionBar();
+		View actionBarView;
 		actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
 
-		View actionBarView = LayoutInflater.from(this).inflate(R.layout.compose_action_bar, null);
-
-		View backContainer = actionBarView.findViewById(R.id.back);
-
-		TextView title = (TextView) actionBarView.findViewById(R.id.title);
-		title.setText(titleString == null ? getString(R.string.gallery) : titleString);
-
-		if (isInsideAlbum)
+		switch (actionBarType)
 		{
-			TextView subText = (TextView) actionBarView.findViewById(R.id.subtext);
-			subText.setVisibility(View.VISIBLE);
-			subText.setText(R.string.tap_hold_multi_select);
-		}
-
-		backContainer.setOnClickListener(new OnClickListener()
-		{
-
-			@Override
-			public void onClick(View v)
+		case PHOTOS_EDITOR_ACTION_BAR_TYPE:
+			actionBarView = LayoutInflater.from(this).inflate(R.layout.photos_action_bar, null);
+			actionBarView.findViewById(R.id.back).setOnClickListener(new OnClickListener()
 			{
-				finish();
-			}
-		});
+				@Override
+				public void onClick(View v)
+				{
+					onBackPressed();
+				}
+			});
 
+			TextView titleView = (TextView)actionBarView.findViewById(R.id.title);
+			
+			titleView.setText(getString(R.string.photo_gallery_choose_pic));
+			
+			titleView.setVisibility(View.VISIBLE);
+			
+			actionBarView.findViewById(R.id.done_container).setVisibility(View.INVISIBLE);
+			break;
+		default:
+			actionBarView = LayoutInflater.from(this).inflate(R.layout.compose_action_bar, null);
+
+			View backContainer = actionBarView.findViewById(R.id.back);
+
+			TextView title = (TextView) actionBarView.findViewById(R.id.title);
+			title.setText(titleString == null ? getString(R.string.gallery) : titleString);
+
+			if (isInsideAlbum)
+			{
+				TextView subText = (TextView) actionBarView.findViewById(R.id.subtext);
+				subText.setVisibility(View.VISIBLE);
+				subText.setText(R.string.tap_hold_multi_select);
+			}
+
+			backContainer.setOnClickListener(new OnClickListener()
+			{
+
+				@Override
+				public void onClick(View v)
+				{
+					finish();
+				}
+			});
+		}
 		actionBar.setCustomView(actionBarView);
 	}
 
@@ -468,6 +550,8 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 			intent.putExtra(HikeConstants.Extras.SELECTED_BUCKET, galleryItem);
 			intent.putExtra(HikeConstants.Extras.MSISDN, msisdn);
 			intent.putExtra(HikeConstants.Extras.ON_HIKE, getIntent().getBooleanExtra(HikeConstants.Extras.ON_HIKE, true));
+			intent.putExtra(PENDING_INTENT_KEY, pendingIntent);
+			intent.putExtra(DISABLE_MULTI_SELECT_KEY, disableMultiSelect);
 			startActivity(intent);
 		}
 		else
@@ -506,7 +590,27 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 				ArrayList<GalleryItem> item = new ArrayList<GalleryItem>(1);
 				item.add(galleryItem);
 				intent.putParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS, item);
-				sendGalleryIntent(intent);
+
+				if (pendingIntent != null)
+				{
+					try
+					{
+						pendingIntent.send(GalleryActivity.this, RESULT_OK, intent);
+					}
+					catch (CanceledException e)
+					{
+						e.printStackTrace();
+					}
+				}
+				else if (returnResult)
+				{
+					setResult(RESULT_OK, intent);
+					finish();
+				}
+				else
+				{
+					sendGalleryIntent(intent);
+				}
 			}
 		}
 	}
