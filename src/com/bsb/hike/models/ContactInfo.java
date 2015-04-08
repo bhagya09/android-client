@@ -10,6 +10,7 @@ import org.json.JSONObject;
 import android.text.TextUtils;
 
 import com.bsb.hike.models.utils.JSONSerializable;
+import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.utils.LastSeenComparator;
 import com.bsb.hike.utils.Utils;
 
@@ -531,11 +532,19 @@ public class ContactInfo implements JSONSerializable, Comparable<ContactInfo>
 
 	public JSONObject toJSON() throws JSONException
 	{
+		return toJSON(true);
+	}
+	
+	public JSONObject toJSON(boolean msisdn) throws JSONException
+	{
 		JSONObject json = new JSONObject();
-		json.put("phone_no", this.phoneNum);
+		if(msisdn)
+		{
+			json.put("phone_no", this.phoneNum);
+		}
 		json.put("name", this.name);
 		json.put("id", this.id);
-
+		json.put(HikePlatformConstants.PLATFORM_USER_ID,this.platformId);
 		return json;
 	}
 

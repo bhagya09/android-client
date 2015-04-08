@@ -691,6 +691,8 @@ public class HikeConstants
 	public static final int SHARE_CONTACT_CODE = 1193;
 
 	public static final int SHARE_FILE_CODE = 1194;
+	
+	public static final int PLATFORM_REQUEST = 1195; 
 
 	public static final int FACEBOOK_REQUEST_CODE = 64206;
 
@@ -2555,4 +2557,6 @@ public class HikeConstants
 	public static final String ENABLE_EXCEPTION_ANALYTIS = "enableExceptionAnalytics";
 
 	public static final String PAYLOAD = "payload";
+	
+	public static final String HIKE_CONTACT_PICKER_RESULT = "contact_pick_result";
 }
