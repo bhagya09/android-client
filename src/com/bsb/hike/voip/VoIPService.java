@@ -2239,6 +2239,13 @@ public class VoIPService extends Service {
 	{
 		return hold;
 	}
+	
+	public String getSessionKeyHash() {
+		String hash = null;
+		if (encryptor != null)
+			hash = encryptor.getSessionMD5();
+		return hash;
+	}
 
 	public void setSpeaker(boolean speaker)
 	{
