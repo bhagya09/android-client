@@ -5,9 +5,10 @@ import java.util.ArrayList;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformAlarmManager;
 import com.bsb.hike.platform.WebMetadata;
-
+import com.bsb.hike.ui.ComposeChatActivity;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -41,7 +42,11 @@ import com.bsb.hike.utils.Utils;
 public class PlatformJavaScriptBridge extends JavascriptBridge
 {
 
-	private static final String tag = "platformbridge";
+	public static final String tag = "platformbridge";
+	
+	private static final String REQUEST_CODE = "request_code";
+	
+	private static final int PICK_CONTACT_REQUEST = 1;
 
 	ConvMessage message;
 

@@ -6738,6 +6738,9 @@ public class ChatThread extends HikeAppStateBaseFragmentActivity implements Hike
 		{
 			String contactId = data.getData().getLastPathSegment();
 			getContactData(contactId);
+		}else if(requestCode == HikeConstants.PLATFORM_REQUEST)
+		{
+			mAdapter.onActivityResult(requestCode, resultCode, data);
 		}
 		else if (resultCode == RESULT_CANCELED)
 		{
