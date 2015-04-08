@@ -222,11 +222,11 @@ public class IntentManager
 		return intent;
 
 	}
-	
+
 	public static void createNewBroadcastActivityIntent(Context appContext, List<String> selectedContactList)
 	{
 		Intent intent = new Intent(appContext.getApplicationContext(), CreateNewGroupOrBroadcastActivity.class);
-		intent.putStringArrayListExtra(HikeConstants.Extras.BROADCAST_RECIPIENTS, (ArrayList<String>)selectedContactList);
+		intent.putStringArrayListExtra(HikeConstants.Extras.BROADCAST_RECIPIENTS, (ArrayList<String>) selectedContactList);
 		intent.putExtra(HikeConstants.IS_BROADCAST, true);
 		appContext.startActivity(intent);
 	}
@@ -239,7 +239,7 @@ public class IntentManager
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		appContext.startActivity(intent);
 	}
-	
+
 	public static void createBroadcastDefault(Context appContext)
 	{
 		Intent intent = new Intent(appContext.getApplicationContext(), ComposeChatActivity.class);
@@ -248,7 +248,7 @@ public class IntentManager
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		appContext.startActivity(intent);
 	}
-	
+
 	public static void onBackPressedCreateNewBroadcast(Context appContext, ArrayList<String> broadcastRecipients)
 	{
 		Intent intent = new Intent(appContext.getApplicationContext(), ComposeChatActivity.class);
@@ -258,7 +258,7 @@ public class IntentManager
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		appContext.startActivity(intent);
 	}
-	
+
 	public static Intent getForwardIntentForConvMessage(Context context, ConvMessage convMessage, String metadata)
 	{
 		Intent intent = new Intent(context, ComposeChatActivity.class);
@@ -324,8 +324,8 @@ public class IntentManager
 		intent.putExtras(b);
 		return intent;
 	}
-	
-	public static Intent getHikeGalleryPickerIntent(Context context, boolean allowMultiSelect,boolean categorizeByFolders,int actionBarType,PendingIntent argIntent)
+
+	public static Intent getHikeGalleryPickerIntent(Context context, boolean allowMultiSelect, boolean categorizeByFolders, int actionBarType, PendingIntent argIntent)
 	{
 		Intent intent = new Intent(context, GalleryActivity.class);
 		Bundle b = new Bundle();
@@ -367,17 +367,14 @@ public class IntentManager
 		appContext.startActivity(i);
 	}
 
-	public static void openHomeActivity(Context context)
+	public static void openHomeActivity(Context context, boolean clearTop)
 	{
 		Intent in = new Intent(context, HomeActivity.class);
+		if (clearTop)
+		{
+			in.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		}
 		context.startActivity(in);
-	}
-	
-	public static void openHomeActivity(Context context,boolean handlingCrash)
-	{
-		Intent in = new Intent(context, HomeActivity.class);
-        in.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        context.startActivity(in);
 	}
 
 	public static Intent openInviteFriends(Activity context)
@@ -401,14 +398,14 @@ public class IntentManager
 		Intent in = new Intent(context, NuxSendCustomMessageActivity.class);
 		return in;
 	}
-	
+
 	public static Intent getComposeChatIntent(Activity context)
 	{
 		Intent intent = new Intent(context, ComposeChatActivity.class);
 		intent.putExtra(HikeConstants.Extras.EDIT, true);
 		return intent;
 	}
-	
+
 	public static Intent getFavouritesIntent(Activity context)
 	{
 		Intent intent = new Intent(context, PeopleActivity.class);
@@ -427,7 +424,7 @@ public class IntentManager
 		Intent intent = new Intent(context, StickerSettingsActivity.class);
 		return intent;
 	}
-	
+
 	public static Intent getProfileIntent(Activity context)
 	{
 
@@ -442,8 +439,8 @@ public class IntentManager
 		Intent in = new Intent(argActivity, HikeCameraActivity.class);
 		argActivity.startActivity(in);
 	}
-	
-	public static Intent getHikeCameraIntent(Context context,boolean allowGallery)
+
+	public static Intent getHikeCameraIntent(Context context, boolean allowGallery)
 	{
 		Intent intent = new Intent(context, HikeCameraActivity.class);
 		intent.putExtra(HikeConstants.HikePhotos.CAMERA_ALLOW_GALLERY_KEY, allowGallery);
@@ -479,7 +476,7 @@ public class IntentManager
 		Intent intent = new Intent(context, VoIPActivity.class);
 		intent.putExtra(VoIPConstants.Extras.INCOMING_CALL, true);
 		intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-		if(HikeMessengerApp.currentState != HikeMessengerApp.CurrentState.RESUMED && HikeMessengerApp.currentState != HikeMessengerApp.CurrentState.OPENED)
+		if (HikeMessengerApp.currentState != HikeMessengerApp.CurrentState.RESUMED && HikeMessengerApp.currentState != HikeMessengerApp.CurrentState.OPENED)
 		{
 			intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
 		}
@@ -489,19 +486,18 @@ public class IntentManager
 		}
 		return intent;
 	}
-	
+
 	public static Intent getBrowserIntent(String url)
 	{
-		return new Intent(Intent.ACTION_VIEW,Uri.parse(url));
+		return new Intent(Intent.ACTION_VIEW, Uri.parse(url));
 	}
-	
-	public static Intent getPictureEditorActivityIntent(String imageFileName,boolean compressOutput)
+
+	public static Intent getPictureEditorActivityIntent(String imageFileName, boolean compressOutput)
 	{
 		Intent i = new Intent(HikeMessengerApp.getInstance().getApplicationContext(), PictureEditer.class);
 		i.putExtra(HikeConstants.HikePhotos.FILENAME, imageFileName);
 		i.putExtra(HikeConstants.HikePhotos.EDITOR_ALLOW_COMPRESSION_KEY, compressOutput);
 		return i;
 	}
-	
-	
+
 }

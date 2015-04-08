@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.lang.Thread.State;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -390,6 +391,32 @@ public class FileTransferManager extends BroadcastReceiver
 		String token = settings.getString(HikeMessengerApp.TOKEN_SETTING, null);
 		String uId = settings.getString(HikeMessengerApp.UID_SETTING, null);
 		UploadFileTask task = new UploadFileTask(handler, fileTaskMap, context, token, uId, picasaUri, hikeFileType, msisdn, isRecipientOnHike, FTAnalyticEvents.OTHER_ATTACHEMENT);
+		MyFutureTask ft = new MyFutureTask(task);
+		task.setFutureTask(ft);
+		pool.execute(ft);
+	}
+	
+	public void uploadFile(Uri picasaUri, HikeFileType hikeFileType, List<ContactInfo> msisdnList, boolean isRecipientOnHike)
+	{
+		if(taskOverflowLimitAchieved())
+			return;
+		if(hikeFileType != HikeFileType.IMAGE)
+		{
+			handler.post(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					Toast.makeText(context, R.string.unknown_msg, Toast.LENGTH_SHORT).show();
+				}
+			});
+			return;
+		}
+		
+		settings = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
+		String token = settings.getString(HikeMessengerApp.TOKEN_SETTING, null);
+		String uId = settings.getString(HikeMessengerApp.UID_SETTING, null);
+		UploadFileTask task = new UploadFileTask(handler, fileTaskMap, context, token, uId, picasaUri, hikeFileType, msisdnList, isRecipientOnHike, FTAnalyticEvents.OTHER_ATTACHEMENT);
 		MyFutureTask ft = new MyFutureTask(task);
 		task.setFutureTask(ft);
 		pool.execute(ft);

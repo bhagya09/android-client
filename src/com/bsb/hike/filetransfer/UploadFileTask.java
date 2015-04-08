@@ -58,6 +58,8 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
+import com.bsb.hike.analytics.MsgRelLogManager;
+import com.bsb.hike.analytics.AnalyticsConstants.MessageType;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
@@ -183,6 +185,21 @@ public class UploadFileTask extends FileTransferBase
 		this.mAttachementType = attachement;
 		createConvMessage();
 	}
+	
+	protected UploadFileTask(Handler handler, ConcurrentHashMap<Long, FutureTask<FTResult>> fileTaskMap, Context ctx, String token, String uId, Uri picasaUri,
+			HikeFileType hikeFileType, List<ContactInfo> contactList, boolean isRecipientOnHike, int attachement)
+	{
+		super(handler, fileTaskMap, ctx, null, -1, null, token, uId);
+		this.picasaUri = picasaUri;
+		this.hikeFileType = hikeFileType;
+		this.contactList = new ArrayList<>(contactList);
+		this.isMultiMsg = true;
+		this.isRecipientOnhike = isRecipientOnHike;
+		_state = FTState.INITIALIZED;
+		this.mAttachementType = attachement;
+		createConvMessage();
+	}
+	
 
 	protected void setFutureTask(FutureTask<FTResult> fuTask)
 	{
@@ -317,6 +334,9 @@ public class UploadFileTask extends FileTransferBase
 				}
 
 				HikeConversationsDatabase.getInstance().addConversationMessages(convMessageObject);
+				
+				// 1) user clicked Media file and sending it
+				MsgRelLogManager.startMessageRelLogging((ConvMessage) userContext, MessageType.MULTIMEDIA);
 				
 				//Message sent from here will only do an entry in conversation db it is not actually being sent to server.
 				HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_SENT, convMessageObject);
@@ -1120,6 +1140,7 @@ public class UploadFileTask extends FileTransferBase
 				client.getParams().setParameter(CoreProtocolPNames.USER_AGENT, "android-" + AccountUtils.getAppVersion());
 				HttpHead head = new HttpHead(mUrl.toString());
 				head.addHeader("Cookie", "user=" + token + ";uid=" + uId);
+				AccountUtils.setNoTransform(head);
 	
 				HttpResponse resp = client.execute(head);
 				int resCode = resp.getStatusLine().getStatusCode();
@@ -1197,6 +1218,7 @@ public class UploadFileTask extends FileTransferBase
 			post.addHeader("X-SESSION-ID", X_SESSION_ID);
 			post.addHeader("X-CONTENT-RANGE", contentRange);
 			post.addHeader("Cookie", "user=" + token + ";UID=" + uId);
+			AccountUtils.setNoTransform(post);
 			Logger.d(getClass().getSimpleName(), "user=" + token + ";UID=" + uId);
 			post.setHeader("Content-Type", "multipart/form-data; boundary=" + BOUNDARY);
 
@@ -1334,6 +1356,7 @@ public class UploadFileTask extends FileTransferBase
 				client.getParams().setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 10 * 1000);
 				client.getParams().setParameter(CoreProtocolPNames.USER_AGENT, "android-" + AccountUtils.getAppVersion());
 				HttpHead head = new HttpHead(mUrl.toString());
+				AccountUtils.setNoTransform(head);
 
 				HttpResponse resp = client.execute(head);
 				int resCode = resp.getStatusLine().getStatusCode();

@@ -21,6 +21,7 @@ import android.widget.Toast;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.photos.HikeEffectsFactory.OnFilterAppliedListener;
 import com.bsb.hike.photos.HikePhotosListener;
@@ -316,6 +317,13 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 				{
 					out.flush();
 					out.close();
+
+					if (mFileType == HikeFileType.PROFILE)
+					{
+						HikeHandlerUtil.getInstance().postRunnableWithDelay(
+								new CopyFileRunnable(file.getAbsolutePath(), HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.IMAGE_ROOT + File.separator
+										+ Utils.getOriginalFile(HikeFileType.IMAGE, null), HikeFileType.IMAGE), 0);
+					}
 				}
 				catch (IOException e)
 				{
@@ -335,18 +343,52 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 
 	}
 
+	public class CopyFileRunnable implements Runnable
+	{
+
+		private String srcPath, destPath;
+
+		private HikeFileType fileType;
+
+		public CopyFileRunnable(File srcPath, File destPath, HikeFileType fileType)
+		{
+			this.srcPath = srcPath.getAbsolutePath();
+			this.destPath = destPath.getAbsolutePath();
+			this.fileType = fileType;
+		}
+
+		public CopyFileRunnable(String srcPath, String destPath, HikeFileType fileType)
+		{
+			this.srcPath = srcPath;
+			this.destPath = destPath;
+			this.fileType = fileType;
+		}
+
+		@Override
+		public void run()
+		{
+			Utils.copyFile(srcPath, destPath, fileType);
+		}
+
+	}
+
 	private void flattenLayers()
 	{
 
 		if (imageEdited != null)
 		{
-			
+
+			if (imageEdited.getHeight() > HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX)
+			{
+				imageEdited = Bitmap.createScaledBitmap(imageEdited, HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX, HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX, false);
+			}
+
 			Canvas canvasResult = new Canvas(imageEdited);
 
 			sendAnalyticsFilterApplied(effectLayer.getCurrentFilter().name());
-			
-			//removed vignette layer since vignette new implemntation requires blending of bitmap
-			//imageEdited = vignetteLayer.applyVignetteToBitmap(imageEdited);
+
+			// removed vignette layer since vignette new implemntation requires blending of bitmap
+			// imageEdited = vignetteLayer.applyVignetteToBitmap(imageEdited);
 
 			if (doodleLayer.getBitmap() != null)
 			{
