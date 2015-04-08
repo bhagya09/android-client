@@ -881,8 +881,11 @@ public class VoIPService extends Service {
 		
 		stopRingtone();
 		stopFromSoundPool(ringtoneStreamID);
-		setSpeaker(true);
-		playFromSoundPool(SOUND_DECLINE, false);
+		
+		if (connected == true) {
+			setSpeaker(true);
+			playFromSoundPool(SOUND_DECLINE, false);
+		}
 		
 		if (opusWrapper != null) {
 			opusWrapper.destroy();
