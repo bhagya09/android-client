@@ -17,6 +17,7 @@ import android.content.UriMatcher;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Message;
+import android.support.v4.content.IntentCompat;
 import android.text.TextUtils;
 import android.widget.Toast;
 
@@ -472,10 +473,10 @@ public class IntentManager
 	{
 		Intent intent = new Intent(context, VoIPActivity.class);
 		intent.putExtra(VoIPConstants.Extras.INCOMING_CALL, true);
-		intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+		intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | IntentCompat.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
 		return intent;
 	}
-	
+
 	public static Intent getBrowserIntent(String url)
 	{
 		return new Intent(Intent.ACTION_VIEW,Uri.parse(url));
