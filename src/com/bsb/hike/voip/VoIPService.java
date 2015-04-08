@@ -298,6 +298,11 @@ public class VoIPService extends Service {
 		// Incoming call ack message
 		if (action.equals(HikeConstants.MqttMessageTypes.VOIP_CALL_REQUEST_RESPONSE)) {
 
+			if (getCallId() == 0) {
+				Logger.w(VoIPConstants.TAG, "Was not expecting message: " + action);
+				return returnInt;
+			}
+			
 			// Send call initiation ack ack message
 			VoIPUtils.sendVoIPMessageUsingHike(intent.getStringExtra(VoIPConstants.Extras.MSISDN), 
 					HikeConstants.MqttMessageTypes.VOIP_CALL_RESPONSE_RESPONSE, 
@@ -311,6 +316,11 @@ public class VoIPService extends Service {
 		
 		// Incoming call ack ack message
 		if (action.equals(HikeConstants.MqttMessageTypes.VOIP_CALL_RESPONSE_RESPONSE)) {
+
+			if (getCallId() == 0) {
+				Logger.w(VoIPConstants.TAG, "Was not expecting message: " + action);
+				return returnInt;
+			}
 
 			clientPartner.setPhoneNumber(intent.getStringExtra(VoIPConstants.Extras.MSISDN));
 			playIncomingCallRingtone();
