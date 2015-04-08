@@ -2406,8 +2406,8 @@ class HikeUserDatabase extends SQLiteOpenHelper
 		try
 		{
 
-			c = mReadDb.query(DBConstants.USERS_TABLE, new String[] { DBConstants.MSISDN }, DBConstants.PLATFORM_USER_ID + " =? ", new String[] { null },
-					null, null, null);
+			c = mReadDb.rawQuery("select " + DBConstants.MSISDN + " from "+DBConstants.USERS_TABLE +" where "+DBConstants.PLATFORM_USER_ID +" IS NULL",null);
+
 
 			while (c.moveToNext())
 			{
