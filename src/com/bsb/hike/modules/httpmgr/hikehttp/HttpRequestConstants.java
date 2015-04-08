@@ -114,16 +114,16 @@ public class HttpRequestConstants
 
 	public static String selfPlatformUidFetchUrl()
 	{
-		return BASE_PLATFORM_URL + BASE_USER + BASE_CREATE;
+		return BASE_PLATFORM_URL + BASE_USER + BASE_V1 + BASE_CREATE;
 	}
 
 	public static String platformUidForPartialAddressBookFetchUrl()
 	{
-		return BASE_PLATFORM_URL  + BASE_USER + BASE_READ;
+		return BASE_PLATFORM_URL  + BASE_USER + BASE_V1 + BASE_READ;
 	}
 
 	public static String platformUIDForFullAddressBookFetchUrl()
 	{
-		return BASE_PLATFORM_URL  + BASE_USER + BASE_ADDRESS_BOOK_READ;
+		return BASE_PLATFORM_URL  + BASE_USER +  BASE_V1 + BASE_ADDRESS_BOOK_READ;
 	}
 }
