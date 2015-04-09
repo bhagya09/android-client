@@ -402,9 +402,9 @@
     <color name="call_rate_subheader">#26292d</color>
     <color name="call_issues">#494949</color>
     <color name="call_rate_bg">#33000000</color>
-    <color name="photos_tabs_background">#1f1f1f</color>
+    <color name="photos_tabs_background">#881f1f1f</color>
     <color name="photos_pager_background">#141414</color>
-    <color name="photos_action_bar_background">#141414</color>
+    <color name="photos_action_bar_background">#881f1f1f</color>
     <color name="photos_filters_font_color">#FFFFFF</color>
     <color name="photos_doodle_seperator">#2b2b2c</color>
     <color name="photos_action_bar_font">#FFFFFF</color>

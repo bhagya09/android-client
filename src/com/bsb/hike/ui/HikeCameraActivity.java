@@ -464,17 +464,7 @@ public class HikeCameraActivity extends HikeAppStateBaseFragmentActivity impleme
 				{
 					src = itemList.get(0).getFilePath();
 				}
-				Utils.startCropActivityForResult(this, src, file.getAbsolutePath(), true);
-				break;
-			case HikeConstants.CROP_RESULT:
-				String filename = data.getStringExtra(MediaStore.EXTRA_OUTPUT);
-
-				if (filename == null)
-				{
-					Toast.makeText(getApplicationContext(), R.string.error_setting_profile, Toast.LENGTH_SHORT).show();
-					return;
-				}
-				Intent i = IntentManager.getPictureEditorActivityIntent(filename,!startedForResult);
+				Intent i = IntentManager.getPictureEditorActivityIntent(src,!startedForResult);
 				if (!startedForResult)
 				{
 					startActivity(i);
