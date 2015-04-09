@@ -89,6 +89,8 @@ public class CropImage extends MonitoredActivity
 	// scale the output to fit it (or just crop it).
 	private int mOutputX, mOutputY;
 
+	private int mQuality;
+	
 	private boolean mScale;
 
 	private boolean mScaleUp = true;
@@ -188,6 +190,7 @@ public class CropImage extends MonitoredActivity
 			mOutputY = extras.getInt(HikeConstants.Extras.OUTPUT_Y);
 			mScale = extras.getBoolean(HikeConstants.Extras.SCALE, true);
 			mScaleUp = extras.getBoolean(HikeConstants.Extras.SCALE_UP, true);
+			mQuality = extras.getInt(HikeConstants.Extras.JPEG_COMPRESSION_QUALITY, 75);
 		}
 
 		if (mBitmap == null)
@@ -462,7 +465,8 @@ public class CropImage extends MonitoredActivity
 					outputStream = mContentResolver.openOutputStream(mSaveUri);
 					if (outputStream != null)
 					{
-						croppedImage.compress(mOutputFormat, 100, outputStream);
+						Logger.d(TAG, "quality factor : " + mQuality);
+						croppedImage.compress(mOutputFormat, mQuality, outputStream);
 					}
 				}
 				catch (IOException ex)
