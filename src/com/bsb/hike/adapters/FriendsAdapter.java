@@ -829,8 +829,14 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 			stealthList = smsStealthContactsList;
 			break;
 		}
-		groupList.clear();
-		stealthList.clear();
+		if (null != groupList)
+		{
+			groupList.clear();
+		}
+		if (null != stealthList)
+		{
+			stealthList.clear();
+		}
 
 		groupList.addAll(newGroupList);
 		setupStealthListAndRemoveFromActualList(groupList, stealthList);

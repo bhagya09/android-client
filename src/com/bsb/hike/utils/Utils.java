@@ -55,6 +55,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.ocpsoft.prettytime.PrettyTime;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningAppProcessInfo;
@@ -3235,6 +3236,7 @@ public class Utils
 		{
 			HttpClient httpclient = new DefaultHttpClient();
 			HttpPost httppost = new HttpPost(url);
+			AccountUtils.setNoTransform(httppost);
 			HttpResponse response = httpclient.execute(httppost);
 			HttpEntity entity = response.getEntity();
 			is = entity.getContent();
@@ -3281,7 +3283,12 @@ public class Utils
 	{
 		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
 	}
-
+	
+	public static boolean isIceCreamOrHigher()
+	{
+		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH;
+	}
+	
 	public static boolean isJELLY_BEAN_MR2OrHigher()
 	{
 		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2;
@@ -5330,6 +5337,27 @@ public class Utils
 			break;
 		}
 		return networkType;
+	}
+
+	/* Returns the name of the device owner.
+	 * @param context
+	 * @return The device owner's name, or an empty string
+	 */
+	@SuppressLint("InlinedApi") 
+	public static String getOwnerName(Context context) {
+		String name = "";
+		
+        if (isIceCreamOrHigher() && context != null) {
+			Cursor c = context.getContentResolver().query(ContactsContract.Profile.CONTENT_URI, null, null, null, null);
+			if (c != null) {
+				if (c.moveToFirst()) {
+					name = c.getString(c.getColumnIndex(ContactsContract.Profile.DISPLAY_NAME));
+				}
+				c.close();				
+			}
+        }
+        
+		return name;
 	}
 
 	public static String conversationType(String msisdn)

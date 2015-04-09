@@ -978,6 +978,20 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		}
 
 		initializeViews(nameLayout);
+		
+		// Auto fill the name, if possible
+		String ownerName = Utils.getOwnerName(SignupActivity.this);
+		if (!TextUtils.isEmpty(ownerName) && enterEditText != null) {
+			enterEditText.setText(ownerName);
+			try
+			{
+				enterEditText.setSelection(ownerName.length());
+			}
+			catch (IndexOutOfBoundsException e)
+			{
+				Logger.w(getClass().getSimpleName(), "IOOB thrown while setting the name's textbox selection");
+			}
+		}
 
 		/*Session session = Session.getActiveSession();
 		if (session == null)

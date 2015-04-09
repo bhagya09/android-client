@@ -726,7 +726,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 					RingtoneFetcherTask task = new RingtoneFetcherTask(HikePreferences.this, false, getApplicationContext());
 					blockingTaskType = BlockingTaskType.FETCH_RINGTONE;
 					setBlockingTask(task);
-					Utils.executeBoolResultAsyncTask(task);
+					Utils.executeAsyncTask(task);
 				}
 			}
 		}

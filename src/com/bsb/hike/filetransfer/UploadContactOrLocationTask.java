@@ -220,6 +220,7 @@ public class UploadContactOrLocationTask extends FileTransferBase
 		Logger.d("Upload", "Content type: " + fileType);
 		httpPut.addHeader("Content-Type", TextUtils.isEmpty(fileType) ? "" : fileType);
 		httpPut.addHeader("X-Thumbnail-Required", "0");
+		AccountUtils.setNoTransform(httpPut);
 		final AbstractHttpEntity entity;
 		entity = new CustomByteArrayEntity(request.toString().getBytes(), new ProgressListener()
 		{
