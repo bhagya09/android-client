@@ -79,9 +79,10 @@ public class HikeBitmapFactory
 		textView.draw(canvas);
 		textView.setDrawingCacheEnabled(true);
 		Bitmap cacheBmp = textView.getDrawingCache();
-		Bitmap viewBmp = cacheBmp.copy(Bitmap.Config.ARGB_8888, true);
+		Bitmap viewBmp = null;
 		if (cacheBmp != null)
 		{
+			viewBmp = cacheBmp.copy(Bitmap.Config.ARGB_8888, true);
 			cacheBmp.recycle();
 		}
 		textView.destroyDrawingCache(); // destory drawable
