@@ -126,8 +126,16 @@ public class GalleryAdapter extends BaseAdapter
 		if (galleryItem != null)
 		{
 			holder.galleryThumb.setImageDrawable(null);
-			galleryImageLoader.loadImage(GalleryImageLoader.GALLERY_KEY_PREFIX + galleryItem.getFilePath(), holder.galleryThumb, isListFlinging);
-			holder.galleryThumb.setScaleType(ScaleType.CENTER_CROP);
+			if (galleryItem.getFilePath() != null)
+			{
+				galleryImageLoader.loadImage(GalleryImageLoader.GALLERY_KEY_PREFIX + galleryItem.getFilePath(), holder.galleryThumb, isListFlinging);
+				holder.galleryThumb.setScaleType(ScaleType.CENTER_CROP);
+			}
+			else
+			{
+				holder.galleryThumb.setImageResource(galleryItem.getDrawableId());
+				holder.galleryThumb.setScaleType(ScaleType.CENTER_INSIDE);
+			}
 		}
 		else
 		{
