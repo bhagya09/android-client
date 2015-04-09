@@ -3940,13 +3940,6 @@ public class ChatThread extends HikeAppStateBaseFragmentActivity implements Hike
 				{
 					msg.setState(ConvMessage.State.SENT_DELIVERED_READ);
 					removeFromMessageMap(msg);
-					
-					//Log Events For Message Reliability
-					MessagePrivateData pd = msg.getPrivateData();
-					if(pd != null && pd.getTrackID() != null)
-					{
-						MsgRelLogManager.logMsgRelEvent(msg, MsgRelEventType.MR_SHOWN_AT_SENEDER_SCREEN);
-					}
 				}
 			}
 			/*
