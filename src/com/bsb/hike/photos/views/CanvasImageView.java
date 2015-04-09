@@ -222,14 +222,18 @@ public class CanvasImageView extends ImageView implements OnTouchListener
 
 	public void setDrawEnabled(boolean drawEnabled)
 	{
-		this.drawEnabled = drawEnabled;
-		if (drawEnabled && paths.size() > 0)
+		if (mDoodleStateChangeListener != null)
 		{
-			mDoodleStateChangeListener.onDoodleStateChanged(false);
-		}
-		else
-		{
-			mDoodleStateChangeListener.onDoodleStateChanged(true);
+			this.drawEnabled = drawEnabled;
+			
+			if (drawEnabled && paths.size() > 0)
+			{
+				mDoodleStateChangeListener.onDoodleStateChanged(false);
+			}
+			else
+			{
+				mDoodleStateChangeListener.onDoodleStateChanged(true);
+			}
 		}
 	}
 

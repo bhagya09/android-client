@@ -14,13 +14,23 @@ public class GalleryItem implements Parcelable
 	private String filePath;
 
 	private int bucketCount;
-
+	
+	private int drawableId;
+	
 	public GalleryItem(long id, String bucketId, String name, String filePath, int bucketCount)
 	{
 		this.id = id;
 		this.bucketId = bucketId;
 		this.name = name;
 		this.filePath = filePath;
+		this.bucketCount = bucketCount;
+	}
+	
+	public GalleryItem(long id, String name, int drawableId, int bucketCount)
+	{
+		this.id = id;
+		this.name = name;
+		this.drawableId = drawableId;
 		this.bucketCount = bucketCount;
 	}
 
@@ -30,6 +40,7 @@ public class GalleryItem implements Parcelable
 		this.bucketId = source.readString();
 		this.name = source.readString();
 		this.filePath = source.readString();
+		this.drawableId = source.readInt();
 	}
 
 	public long getId()
@@ -62,7 +73,17 @@ public class GalleryItem implements Parcelable
 	{
 		return 0;
 	}
-
+	
+	public int getDrawableId()
+	{
+		return drawableId;
+	}
+	
+	public void setFilePath(String filePath)
+	{
+		this.filePath = filePath;
+	}
+	
 	@Override
 	public void writeToParcel(Parcel dest, int flags)
 	{
@@ -70,6 +91,7 @@ public class GalleryItem implements Parcelable
 		dest.writeString(bucketId);
 		dest.writeString(name);
 		dest.writeString(filePath);
+		dest.writeInt(drawableId);
 	}
 
 	public static final Creator<GalleryItem> CREATOR = new Creator<GalleryItem>()

@@ -310,12 +310,6 @@
               android:launchMode="singleTop"
               android:screenOrientation="portrait">
         </activity>   
-         <activity
-           	  android:name="com.bsb.hike.ui.HikeCameraActivity"
-              android:launchMode="singleTop"
-              android:hardwareAccelerated="true"
-              android:screenOrientation="portrait">
-        </activity>
         <activity
            	  android:name="com.bsb.hike.ui.PictureEditer"
               android:launchMode="singleTop"

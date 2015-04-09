@@ -44,6 +44,7 @@
                 <com.viewpagerindicator.PhotosTabPageIndicator
                     android:id="@+id/indicator"
                     style="@style/AppTheme.Home.Photos"
+                    android:visibility="gone"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="@color/photos_tabs_background"
@@ -62,6 +63,7 @@
         <android.support.v4.view.ViewPager
             android:id="@+id/pager"
             android:layout_width="match_parent"
+            android:visibility="gone"
             android:layout_height="0dp"
             android:layout_weight="@integer/photos_editor_pager_weight"
             android:background="@color/photos_pager_background" />

@@ -6082,7 +6082,7 @@ public class ChatThread extends HikeAppStateBaseFragmentActivity implements Hike
 				case 1:
 				default:
 					requestCode = HikeConstants.IMAGE_TRANSFER_CODE;
-					Intent galleryPickerIntent = IntentManager.getHikeGalleryPickerIntent(ChatThread.this, true, true, GalleryActivity.PHOTOS_EDITOR_ACTION_BAR_TYPE, null);
+					Intent galleryPickerIntent = IntentManager.getHikeGalleryPickerIntent(ChatThread.this, true, true,false, GalleryActivity.PHOTOS_EDITOR_ACTION_BAR_TYPE, null);
 					startActivityForResult(galleryPickerIntent, HikeConstants.HikePhotos.GALLERY_PICKER_REQUEST);
 					return;
 				}

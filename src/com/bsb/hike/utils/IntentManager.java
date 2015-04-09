@@ -14,9 +14,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.UriMatcher;
+import android.content.SharedPreferences.Editor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Message;
+import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.widget.Toast;
 
@@ -27,6 +29,7 @@ import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.models.NuxCustomMessage;
+import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.ui.ChatThread;
 import com.bsb.hike.ui.ComposeChatActivity;
 import com.bsb.hike.ui.ConnectedAppsActivity;
@@ -35,7 +38,6 @@ import com.bsb.hike.ui.CreditsActivity;
 import com.bsb.hike.ui.GalleryActivity;
 import com.bsb.hike.ui.FtueBroadcast;
 import com.bsb.hike.ui.HikeAuthActivity;
-import com.bsb.hike.ui.HikeCameraActivity;
 import com.bsb.hike.ui.HikeListActivity;
 import com.bsb.hike.ui.HikePreferences;
 import com.bsb.hike.ui.HomeActivity;
@@ -324,14 +326,15 @@ public class IntentManager
 		intent.putExtras(b);
 		return intent;
 	}
-
-	public static Intent getHikeGalleryPickerIntent(Context context, boolean allowMultiSelect, boolean categorizeByFolders, int actionBarType, PendingIntent argIntent)
+	
+	public static Intent getHikeGalleryPickerIntent(Context context, boolean allowMultiSelect,boolean categorizeByFolders,boolean enableCameraPick,int actionBarType,PendingIntent argIntent)
 	{
 		Intent intent = new Intent(context, GalleryActivity.class);
 		Bundle b = new Bundle();
 		b.putParcelable(GalleryActivity.PENDING_INTENT_KEY, argIntent);
 		b.putBoolean(GalleryActivity.DISABLE_MULTI_SELECT_KEY, !allowMultiSelect);
 		b.putBoolean(GalleryActivity.FOLDERS_REQUIRED_KEY, categorizeByFolders);
+		b.putBoolean(GalleryActivity.ENABLE_CAMERA_PICK, enableCameraPick);
 		b.putInt(GalleryActivity.ACTION_BAR_TYPE_KEY, actionBarType);
 		intent.putExtras(b);
 		return intent;
@@ -434,19 +437,6 @@ public class IntentManager
 		return intent;
 	}
 
-	public static void openHikeCameraActivity(Activity argActivity)
-	{
-		Intent in = new Intent(argActivity, HikeCameraActivity.class);
-		argActivity.startActivity(in);
-	}
-
-	public static Intent getHikeCameraIntent(Context context, boolean allowGallery)
-	{
-		Intent intent = new Intent(context, HikeCameraActivity.class);
-		intent.putExtra(HikeConstants.HikePhotos.CAMERA_ALLOW_GALLERY_KEY, allowGallery);
-		return intent;
-	}
-
 	public static Intent getChatThreadIntent(Context context, String msisdn)
 	{
 		Intent intent = new Intent(context, ChatThread.class);
@@ -495,9 +485,34 @@ public class IntentManager
 	public static Intent getPictureEditorActivityIntent(String imageFileName, boolean compressOutput)
 	{
 		Intent i = new Intent(HikeMessengerApp.getInstance().getApplicationContext(), PictureEditer.class);
+
 		i.putExtra(HikeConstants.HikePhotos.FILENAME, imageFileName);
 		i.putExtra(HikeConstants.HikePhotos.EDITOR_ALLOW_COMPRESSION_KEY, compressOutput);
 		return i;
+	}
+
+	public static void openNativeCameraApp(Activity argActivity)
+	{
+		int requestCode = HikeConstants.IMAGE_CAPTURE_CODE;
+		Intent pickIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+		File selectedDir = new File(Utils.getFileParent(HikeFileType.IMAGE, false));
+		if (!selectedDir.exists())
+		{
+			if (!selectedDir.mkdirs())
+			{
+				return;
+			}
+		}
+		String fileName = HikeConstants.CAM_IMG_PREFIX + Utils.getOriginalFile(HikeFileType.IMAGE, null);
+		File selectedFile = new File(selectedDir.getPath() + File.separator + fileName);
+
+		pickIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(selectedFile));
+		/*
+		 * For images, save the file path as a preferences since in some devices the reference to the file becomes null.
+		 */
+		HikeSharedPreferenceUtil pref = HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.ACCOUNT_SERVICE);
+		pref.saveData(HikeMessengerApp.FILE_PATH, selectedFile.getAbsolutePath());
+		argActivity.startActivityForResult(pickIntent, requestCode);
 	}
 
 }

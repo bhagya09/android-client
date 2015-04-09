@@ -1,6 +1,7 @@
 package com.bsb.hike.ui;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -11,6 +12,8 @@ import android.app.PendingIntent;
 import android.app.PendingIntent.CanceledException;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -34,11 +37,17 @@ import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
+import com.bsb.hike.BitmapModule.BitmapUtils;
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.adapters.GalleryAdapter;
 import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.models.GalleryItem;
+import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.IntentManager;
 import com.bsb.hike.utils.Utils;
 
 public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements OnScrollListener, OnItemClickListener, OnItemLongClickListener
@@ -51,6 +60,8 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 	public static final String PENDING_INTENT_KEY = "pen_intent";
 
 	public static final String ACTION_BAR_TYPE_KEY = "action_bar";
+
+	public static final String ENABLE_CAMERA_PICK = "cam_pk";
 
 	public static final int PHOTOS_EDITOR_ACTION_BAR_TYPE = 1;
 
@@ -83,18 +94,22 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 	private boolean disableMultiSelect;
 
 	private PendingIntent pendingIntent;
-	
+
 	private final String ALL_IMAGES_BUCKET_NAME = "All images";
 
 	private final String HIKE_IMAGES = "hike";
 
 	private final String CAMERA_IMAGES = "Camera";
 
+	private final String NEW_PHOTO = "New photo";
+
 	private final String TYPE_JPG = ".jpg";
 
 	private final String TYPE_JPEG = ".jpeg";
 
 	private final String TYPE_PNG = ".png";
+
+	private boolean enableCameraPick;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -148,12 +163,17 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 			actionBarType = 0;// default hike settings
 		}
 
+		if (data.containsKey(ENABLE_CAMERA_PICK))
+		{
+			enableCameraPick = true;
+		}
+
 		returnResult = (getCallingActivity() != null);
 
 		String sortBy;
 		if (selectedBucket != null)
 		{
-			if(selectedBucket.getName().equals(ALL_IMAGES_BUCKET_NAME))
+			if (selectedBucket.getName().equals(ALL_IMAGES_BUCKET_NAME))
 			{
 				selection = null;
 				args = null;
@@ -206,10 +226,17 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 
 		}
 
+		// Add "pick from camera" button/bucket
+		if (enableCameraPick)
+		{
+			GalleryItem allImgItem = new GalleryItem(-1, NEW_PHOTO, R.drawable.camerasnap, 0);
+			galleryItemList.add(allImgItem);
+		}
+
 		/*
 		 * Creating All images bucket where we will show all images present in the device.
 		 */
-		if(!isInsideAlbum)
+		if (!isInsideAlbum)
 		{
 			String[] proj = { MediaStore.Images.Media._ID, MediaStore.Images.Media.DATA };
 			cursor = getContentResolver().query(uri, proj, null, null, sortBy);
@@ -554,6 +581,14 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 		}
 		else
 		{
+
+			if (enableCameraPick && position == 0)
+			{
+				// Open camera app
+				IntentManager.openNativeCameraApp(GalleryActivity.this);
+				return;
+			}
+
 			if (multiSelectMode)
 			{
 				if (selectedGalleryItems.containsKey(galleryItem.getId()))
@@ -646,5 +681,72 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 			return;
 		}
 		multiSelectTitle.setText(getString(R.string.gallery_num_selected, selectedGalleryItems.size()));
+	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data)
+	{
+		super.onActivityResult(requestCode, resultCode, data);
+		if (requestCode == HikeConstants.IMAGE_CAPTURE_CODE)
+		{
+			if (resultCode == RESULT_OK)
+			{
+				// Image capture successful
+				HikeSharedPreferenceUtil pref = HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.ACCOUNT_SERVICE);
+
+				// Retrieve saved file path
+				String newFilePath = pref.getData(HikeMessengerApp.FILE_PATH, "");
+
+				HikeHandlerUtil.getInstance().postRunnableWithDelay(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						// Remove saved file path from shared pref
+						HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.ACCOUNT_SERVICE).removeData(HikeMessengerApp.FILE_PATH);
+					}
+				}, 0);
+
+				File newFile = new File(newFilePath);
+
+				if (newFile.exists())
+				{
+					// Execute pending intent
+					Intent intent = new Intent();
+
+					galleryItemList.get(0).setFilePath(newFilePath);
+
+					ArrayList<GalleryItem> item = new ArrayList<GalleryItem>(1);
+					item.add(galleryItemList.get(0));
+					intent.putParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS, item);
+
+					if (pendingIntent != null)
+					{
+						try
+						{
+							pendingIntent.send(GalleryActivity.this, RESULT_OK, intent);
+						}
+						catch (CanceledException e)
+						{
+							e.printStackTrace();
+						}
+					}
+					else if (returnResult)
+					{
+						setResult(RESULT_OK, intent);
+						finish();
+					}
+				}
+				else
+				{
+					// Do nothing
+				}
+			}
+			else
+			{
+				// Image capture failed/aborted
+				// Do nothing
+			}
+		}
 	}
 }
