@@ -347,6 +347,9 @@
     
     <style name="AppTheme.Home.Photos">
         <item name="vpiTabPageIndicatorStyle">@style/PhotosTabPageIndicator</item>
+         <item name="actionBarStyle">@style/Widget.Styled.PhotosActionBar</item>
+        <item name="android:actionBarStyle">@style/Widget.Styled.PhotosActionBar</item>
+       
     </style>
     
     <style name="Widget.Styled.ActionBar" parent="Widget.Sherlock.Light.ActionBar.Solid.Inverse">
@@ -358,6 +361,15 @@
         <item name="android:titleTextStyle">@style/NoTitleText</item>
     </style>
 
+    <style name="Widget.Styled.PhotosActionBar" parent="Widget.Sherlock.Light.ActionBar.Solid.Inverse">
+        <item name="background">@color/photos_action_bar_background</item>
+        <item name="android:background">@color/photos_action_bar_background</item>
+        <item name="backgroundSplit">@color/credits_blue</item>
+        <item name="android:backgroundSplit">@color/credits_blue</item>
+        <item name="titleTextStyle">@style/NoTitleText</item>
+        <item name="android:titleTextStyle">@style/NoTitleText</item>
+    </style>
+    
 	<style name="NoTitleText">
         <item name="android:textColor">#00000000</item>
 	</style>

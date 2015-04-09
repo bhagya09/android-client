@@ -3,7 +3,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:animateLayoutChanges="true"
-    android:background="@color/photos_action_bar_background"
     android:gravity="center_vertical"
     android:paddingLeft="@dimen/photos_action_bar_left_right_padding"
     android:paddingRight="@dimen/photos_action_bar_left_right_padding" >
