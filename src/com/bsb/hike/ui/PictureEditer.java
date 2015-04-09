@@ -1,6 +1,7 @@
 package com.bsb.hike.ui;
 
 import java.io.File;
+import java.util.ArrayList;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -12,6 +13,7 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -30,8 +32,10 @@ import com.actionbarsherlock.view.Window;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.models.ContactInfo;
+import com.bsb.hike.models.GalleryItem;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.photos.HikePhotosListener;
 import com.bsb.hike.photos.HikePhotosUtils;
@@ -46,6 +50,7 @@ import com.bsb.hike.ui.fragments.PreviewFragment;
 import com.bsb.hike.ui.fragments.ProfilePicFragment;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
+import com.bsb.hike.utils.HikeUiHandler;
 import com.bsb.hike.utils.IntentManager;
 import com.bsb.hike.utils.Utils;
 import com.viewpagerindicator.IconPagerAdapter;
@@ -95,25 +100,63 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 
 		clickHandler = new EditorClickListener(this);
 
+		// Get filename from normal intent data
 		Intent intent = getIntent();
-		filename = intent.getStringExtra(HikeConstants.HikePhotos.FILENAME);
+		filename = intent.getStringExtra(HikeConstants.HikePhotos.FILEPATH);
+
+		if (filename == null)
+		{
+			// Check if intent is from GalleryActivity
+			ArrayList<GalleryItem> galleryList = intent.getParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS);
+			if (galleryList != null && !galleryList.isEmpty())
+			{
+				filename = galleryList.get(0).getFilePath();
+			}
+		}
+
 		if (filename == null)
 		{
 			PictureEditer.this.finish();
 			return;
 		}
 
-		editView = (PhotosEditerFrameLayoutView) findViewById(R.id.editer);
-		editView.loadImageFromFile(filename);
-		editView.setOnDoodlingStartListener(clickHandler);
+		HikeBitmapFactory.correctBitmapRotation(filename, new HikePhotosListener()
+		{
+			@Override
+			public void onFailure()
+			{
+				PictureEditer.this.finish();
+				return;
+			}
 
-		FragmentPagerAdapter adapter = new PhotoEditViewPagerAdapter(getSupportFragmentManager());
+			@Override
+			public void onComplete(final Bitmap bmp)
+			{
+				HikeUiHandler.getHandler().post(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						// Init
+						init(bmp);						
+					}
+				});
+			}
+
+			@Override
+			public void onComplete(File f)
+			{
+				// Not used
+			}
+		});
+
+		setupActionBar();
+
+		editView = (PhotosEditerFrameLayoutView) findViewById(R.id.editer);
 
 		pager = (ViewPager) findViewById(R.id.pager);
-		pager.setAdapter(adapter);
 
 		indicator = (PhotosTabPageIndicator) findViewById(R.id.indicator);
-		indicator.setViewPager(pager);
 
 		int density = getResources().getDisplayMetrics().densityDpi;
 
@@ -127,24 +170,11 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 		}
 
 		undoButton = (ImageView) findViewById(R.id.undo);
-		undoButton.setOnClickListener(clickHandler);
-
-		indicator.setOnPageChangeListener(clickHandler);
-
-		setupActionBar();
 
 		overlayFrame = findViewById(R.id.overlayFrame);
 
 		startedForResult = (getCallingActivity() != null);
 
-		try
-		{
-			new File(filename).delete();
-		}
-		catch (NullPointerException npe)
-		{
-			npe.printStackTrace();
-		}
 	}
 
 	@Override
@@ -154,6 +184,23 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 		super.onResume();
 		getSupportActionBar().getCustomView().findViewById(R.id.done_container).setVisibility(View.VISIBLE);
 		editView.enable();
+	}
+
+	private void init(Bitmap srcBitmap)
+	{
+		FragmentPagerAdapter adapter = new PhotoEditViewPagerAdapter(getSupportFragmentManager());
+		pager.setAdapter(adapter);	
+		pager.setVisibility(View.VISIBLE);
+
+		indicator.setViewPager(pager);
+		indicator.setVisibility(View.VISIBLE);
+		
+		editView.loadImageFromBitmap(srcBitmap);
+		editView.setOnDoodlingStartListener(clickHandler);
+
+		undoButton.setOnClickListener(clickHandler);
+
+		indicator.setOnPageChangeListener(clickHandler);
 	}
 
 	@Override

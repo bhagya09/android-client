@@ -48,6 +48,7 @@
                 android:id="@+id/indicator"
                 style="@style/AppTheme.Home.Photos"
                 android:layout_width="match_parent"
+                android:visibility="gone"
                 android:layout_height="match_parent"
                 android:background="@color/photos_tabs_background"
                 android:theme="@style/AppTheme.Home.Photos" />
@@ -64,6 +65,7 @@
         <android.support.v4.view.ViewPager
             android:id="@+id/pager"
             android:layout_width="match_parent"
+            android:visibility="gone"
             android:layout_height="wrap_content"
             android:background="@color/photos_pager_background" />
     </LinearLayout>
