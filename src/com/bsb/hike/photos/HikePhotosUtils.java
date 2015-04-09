@@ -88,6 +88,19 @@ public class HikePhotosUtils
 		return pixels;
 	}
 	
+	public static void manageBitmaps(Bitmap bitmap)
+	{
+		
+		if (bitmap != null)
+		{
+			if(android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB && !bitmap.isRecycled())
+			{
+				bitmap.recycle();
+			}
+			bitmap = null;
+		}
+	}
+	
 	
 	/**
 	 * Funtcion to create Bitmap. Handles out of Memory Exception
@@ -200,7 +213,7 @@ public class HikePhotosUtils
 
 		public enum FilterType
 		{
-			BRIGHTNESS, CONTRAST, SATURATION, HUE, SEPIA, GRAYSCALE, POLAROID, FADED, BGR, INVERSION, X_PRO_2, WILLOW, WALDEN, VALENCIA, TOASTER, SUTRO, SIERRA, RISE, NASHVILLE, MAYFAIR, LO_FI, KELVIN, INKWELL, HUDSON, HEFE, EARLYBIRD, BRANNAN, AMARO, E1977, SOLOMON, CLASSIC, RETRO, APOLLO, ORIGINAL, JALEBI
+			BRIGHTNESS, CONTRAST, SATURATION, HUE, SEPIA, GRAYSCALE, POLAROID, FADED, BGR, INVERSION, X_PRO_2,RANGEELA, WILLOW, WALDEN, VALENCIA, TOASTER, SUTRO, SIERRA, RISE, NASHVILLE, MAYFAIR, LO_FI, KELVIN, INKWELL, HUDSON, HEFE, EARLYBIRD, BRANNAN, AMARO, E1977, SOLOMON, CLASSIC, RETRO, APOLLO, ORIGINAL, JALEBI, GHOSTLY, GULAAL, AUTO, JUNGLEE, CHILLUM, HDR, SOFTINK, SUNLITT
 		}
 
 		public static class FilterList
@@ -226,6 +239,7 @@ public class HikePhotosUtils
 				{
 					effectfilters = new FilterList();
 					effectfilters.addFilter("ORIGINAL", FilterType.ORIGINAL);
+					effectfilters.addFilter("AUTO", FilterType.AUTO);
 					effectfilters.addFilter("KALA PILA", FilterType.SOLOMON);
 					effectfilters.addFilter("CHUSKI", FilterType.CLASSIC);
 					effectfilters.addFilter("JUGAAD", FilterType.NASHVILLE);
@@ -241,7 +255,15 @@ public class HikePhotosUtils
 					effectfilters.addFilter("INKWELL", FilterType.INKWELL);
 					effectfilters.addFilter("SEPIA", FilterType.SEPIA);
 					effectfilters.addFilter("GRAYSCALE", FilterType.GRAYSCALE);
-
+					effectfilters.addFilter("GULAAL", FilterType.GULAAL);
+					//effectfilters.addFilter("RANGEELA", FilterType.RANGEELA);
+					effectfilters.addFilter("JUNGLEE", FilterType.JUNGLEE);
+					effectfilters.addFilter("GHOSTLY", FilterType.GHOSTLY);
+					effectfilters.addFilter("CHILLUM", FilterType.CHILLUM);
+					effectfilters.addFilter("HDR", FilterType.HDR);
+					effectfilters.addFilter("POLAROID", FilterType.POLAROID);
+					effectfilters.addFilter("BGR", FilterType.BGR);
+					effectfilters.addFilter("SUNLITT", FilterType.SUNLITT);
 				}
 				return effectfilters;
 

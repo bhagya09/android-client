@@ -47,7 +47,7 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 
 	private EffectsImageView effectLayer;
 
-	private boolean enableDoodling, savingFinal;
+	private boolean enableDoodling, savingFinal,compressOutput;
 
 	private Bitmap imageOriginal, imageEdited, imageScaled, scaledImageOriginal;
 
@@ -68,6 +68,7 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 		addView(doodleLayer);
 		enableDoodling = false;
 		savingFinal = false;
+		compressOutput = true;
 	}
 
 	public PhotosEditerFrameLayoutView(Context context, AttributeSet attrs)
@@ -81,6 +82,7 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 		addView(doodleLayer);
 		enableDoodling = false;
 		savingFinal = false;
+		compressOutput = true;
 	}
 
 	public PhotosEditerFrameLayoutView(Context context, AttributeSet attrs, int defStyleAttr)
@@ -94,6 +96,17 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 		addView(doodleLayer);
 		enableDoodling = false;
 		savingFinal = false;
+		compressOutput = true;
+	}
+	
+	public void setCompressionEnabled(boolean state)
+	{
+		this.compressOutput = state;
+	}
+	
+	public boolean isCompressionEnabled()
+	{
+		return this.compressOutput;
 	}
 
 	public int getThumbnailDimen()
@@ -228,6 +241,14 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 		this.mListener = listener;
 
 		savingFinal = true;
+		if(compressOutput && imageOriginal.getHeight() > HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX)
+		{
+			Bitmap temp = imageOriginal;
+			imageOriginal = Bitmap.createScaledBitmap(imageOriginal, HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX, HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX, false);
+			HikePhotosUtils.manageBitmaps(temp);
+			compressOutput = false;
+		}
+
 		effectLayer.getBitmapWithEffectsApplied(imageOriginal, this);
 
 	}
@@ -377,7 +398,7 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 				{
 					canvasResult.drawBitmap(temp, 0, 0, doodleLayer.getPaint());
 					sendAnalyticsDoodleApplied(doodleLayer.getColor());
-					temp.recycle();
+					HikePhotosUtils.manageBitmaps(temp);
 				}
 				else
 				{

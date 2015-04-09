@@ -2467,11 +2467,15 @@ public class HikeConstants
 	{
 		public static final String CAMERA_ALLOW_GALLERY_KEY = "galleryKey";
 		
+		public static final String EDITOR_ALLOW_COMPRESSION_KEY = "compressKey";
+		
 		public static final String PHOTOS_FILTER_NAME_KEY = "phFilName";
 		
 		public static final String PHOTOS_DOODLE_COLOR_KEY = "phDodCol";
 		
 		public static final String PHOTOS_IS_FFC_MODE = "isFFC";
+		
+		public static final int GALLERY_PICKER_REQUEST = 2;
 
 		public static final String FILENAME = "FilePath";
 

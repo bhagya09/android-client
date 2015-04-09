@@ -1,6 +1,7 @@
 package com.bsb.hike.photos;
 
 import android.graphics.Bitmap;
+import android.graphics.Bitmap.Config;
 import android.graphics.ColorMatrix;
 import android.os.Handler;
 import android.os.Looper;
@@ -14,7 +15,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.photos.HikePhotosUtils.FilterTools.FilterType;
-import com.bsb.hike.photos.views.VignetteImageView;
+import com.bsb.hike.photos.views.VignetteUtils;
 
 /**
  * 
@@ -48,8 +49,6 @@ public final class HikeEffectsFactory
 
 	private ScriptIntrinsicBlur mScriptBlur;
 
-	private int mBlurRadius;
-
 	@SuppressWarnings("static-access")
 	private boolean loadRenderScript(Bitmap image, boolean isThumbnail, boolean isFinal)
 	{
@@ -61,6 +60,7 @@ public final class HikeEffectsFactory
 		{
 			mRS = RenderScript.create(HikeMessengerApp.getInstance().getApplicationContext());
 			mScript = new ScriptC_HikePhotosEffects(mRS);
+			mScriptBlur = ScriptIntrinsicBlur.create(mRS, Element.U8_4(mRS));
 
 		}
 
@@ -105,13 +105,52 @@ public final class HikeEffectsFactory
 			}
 			currentOut = finalBitmap;
 		}
-		if (!isThumbnail && currentOut == null)
+		if (!isThumbnail && (currentOut == null || vignetteBitmap == null))
 		{
 			ret = false;
 		}
 
 		return ret;
 
+	}
+
+	
+	/**
+	 * Method To Clear HikeEffectFactory's singleton object and attributes associated with it. Recycles all bitmaps. Should be called only when no further effects are to be
+	 * applied.
+	 */
+
+	public static void finish()
+	{
+		Log.e("com.bsb.hike", "collecting garbage");
+		if (instance != null)
+		{
+			instance.mBlendAllocation = null;
+			instance.mInAllocation = null;
+			instance.mOutAllocations = null;
+			if (instance.finalBitmap != null)
+			{
+				HikePhotosUtils.manageBitmaps(instance.finalBitmap);
+			}
+			if (instance.mBitmapIn != null)
+			{
+				HikePhotosUtils.manageBitmaps(instance.mBitmapIn);
+			}
+			if (instance.mBitmapOut1 != null)
+			{
+				HikePhotosUtils.manageBitmaps(instance.mBitmapOut1);
+			}
+			if (instance.mBitmapOut2 != null)
+			{
+				HikePhotosUtils.manageBitmaps(instance.mBitmapOut2);
+			}
+			if (instance.vignetteBitmap != null)
+			{
+				HikePhotosUtils.manageBitmaps(instance.vignetteBitmap);
+			}
+
+			instance = null;
+		}
 	}
 
 	/**
@@ -221,7 +260,7 @@ public final class HikeEffectsFactory
 			{
 				filterColorMatrix = getSaturationColorMatrix(0.68f);
 				filterColorMatrix.setConcat(getBrightnessColorMatrix(1.15f), filterColorMatrix);
-
+				filterColorMatrix.setConcat(getSaturationColorMatrix(1.2f), filterColorMatrix);
 			}
 			break;
 		case INKWELL:
@@ -232,13 +271,13 @@ public final class HikeEffectsFactory
 			else
 			{
 				filterColorMatrix = getBrightnessColorMatrix(0.9f);
-				filterColorMatrix.setConcat(getContrastColorMatrix(50f), filterColorMatrix);
+				filterColorMatrix.setConcat(getContrastColorMatrix(358f), filterColorMatrix);
 			}
 			break;
 		case LO_FI:
 			if (isPreMatrix)
 			{
-				filterColorMatrix = getBrightnessColorMatrix(1.5f);
+				filterColorMatrix = getBrightnessColorMatrix(1.35f);
 				filterColorMatrix.setConcat(getContrastColorMatrix(30f), filterColorMatrix);
 			}
 			break;
@@ -248,6 +287,32 @@ public final class HikeEffectsFactory
 				filterColorMatrix = getSepiaColorMatrix(50f);
 			}
 			break;
+		case GHOSTLY:
+			if (isPreMatrix)
+			{
+				filterColorMatrix = getSaturationColorMatrix(0f);
+			}
+			break;
+		case GULAAL:
+			if (isPreMatrix)
+			{
+				filterColorMatrix = getBrightnessColorMatrix(1.3f);
+				filterColorMatrix.setConcat(getContrastColorMatrix(100f), filterColorMatrix);
+			}
+			break;
+		
+		case HDR:
+			if (isPreMatrix)
+			{
+				filterColorMatrix = getSaturationColorMatrix(0f);
+				filterColorMatrix.setConcat(getInvertColorsColorMatrix(), filterColorMatrix);
+			}
+			else
+			{
+				filterColorMatrix = getInvertColorsColorMatrix();
+			}
+			break;
+		
 		default:
 			filterColorMatrix = null;
 
@@ -297,7 +362,7 @@ public final class HikeEffectsFactory
 			return false;
 		}
 
-		instance.vignetteBitmap = VignetteImageView.getVignetteforFilter(instance.vignetteBitmap, type, true, false);
+		instance.vignetteBitmap = VignetteUtils.getVignetteforFilter(instance.vignetteBitmap, type, true, false);
 
 		instance.beginEffectAsyncTask(listener, type, false);
 
@@ -351,9 +416,9 @@ public final class HikeEffectsFactory
 		return null;
 	}
 
-	private ColorMatrix getInvertColorsColorMatrix(float value)
+	private ColorMatrix getInvertColorsColorMatrix()
 	{
-		float[] array = new float[] { -1, 0, 0, 0, 255 - value, 0, -1, 0, 0, 255 - value, 0, 0, -1, 0, 255 - value, 0, 0, 0, 1, 0 };
+		float[] array = new float[] { -1, 0, 0, 0, 255, 0, -1, 0, 0, 255, 0, 0, -1, 0, 255, 0, 0, 0, 1, 0 };
 		ColorMatrix matrix = new ColorMatrix(array);
 
 		return matrix;
@@ -399,7 +464,6 @@ public final class HikeEffectsFactory
 	{
 		float[] array = new float[] { 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, value, 0 };
 		ColorMatrix matrix = new ColorMatrix(array);
-
 		return matrix;
 	}
 
@@ -417,6 +481,7 @@ public final class HikeEffectsFactory
 				lumR + cosVal * (-lumR) + sinVal * (-(1 - lumR)), lumG + cosVal * (-lumG) + sinVal * (lumG), lumB + cosVal * (1 - lumB) + sinVal * (lumB), 0, 0, 0f, 0f, 0f, 1f,
 				0f, 0f, 0f, 0f, 0f, 1f };
 		ColorMatrix colorMatrix = new ColorMatrix(mat);
+
 		return colorMatrix;
 
 	}
@@ -449,8 +514,8 @@ public final class HikeEffectsFactory
 	private ColorMatrix getPolaroidColorMatrix()
 	{
 
-		final ColorMatrix matrixA = new ColorMatrix(new float[] { 0.953125f, 0.0f, 0.0f, 0.0f, 0.121f, 0.0f, 0.957031f, 0.0f, 0.0f, 0.0625f, 0.0f, 0.0f, 0.761718f, 0.0f, 0.2461f,
-				0.0f, 0.0f, 0.0f, 1.0f, 0.0f });
+		final ColorMatrix matrixA = new ColorMatrix(new float[] { 1.438f, -0.062f, -0.062f, 0f, 0, -0.122f, 1.378f, -0.122f, 0f, 0, -0.016f, -0.016f, 1.483f, 0f, 0, -0.03f, 0.05f,
+				-0.02f, 0f, 1 });
 
 		return matrixA;
 	}
@@ -558,10 +623,12 @@ public final class HikeEffectsFactory
 			{
 				mScript.set_input1(mBlendAllocation);
 				mScript.set_isThumbnail(0);
+				mScript.set_imageWidth(currentOut.getWidth());
 			}
 			else
 			{
 				mScript.set_isThumbnail(1);
+				mScript.set_imageWidth(inBitmapOut.getWidth());
 			}
 
 			switch (effect)
@@ -740,6 +807,96 @@ public final class HikeEffectsFactory
 			case ORIGINAL:
 				mScript.forEach_filter_original(mInAllocation, mOutAllocations);
 				break;
+			case AUTO:
+				mScript.forEach_filter_auto(mInAllocation, mOutAllocations);
+				break;
+			case GULAAL:
+				ci = new int[] { 0, 102, 255 };
+				co = new int[] { 0, 138, 255 };
+				composite = new Splines(ci, co);
+				mScript.set_compositeSpline(composite.getInterpolationMatrix());
+				mScript.set_r(new int[] { 0x02, 0, 0 });
+				mScript.set_g(new int[] { 0x04, 0, 0 });
+				mScript.set_b(new int[] { 0x6B, 0, 0 });
+				mScript.forEach_filter_gulaal(mInAllocation, mOutAllocations);
+				break;
+			case JUNGLEE:
+				ri = new int[] { 0, 66, 178, 255 };
+				ro = new int[] { 0, 0, 210, 255 };
+				gi = new int[] { 0, 46, 255 };
+				go = new int[] { 0, 0, 255 };
+				bi = new int[] { 0, 50, 223, 255 };
+				bo = new int[] { 0, 78, 182, 255 };
+				red = new Splines(ri, ro);
+				green = new Splines(gi, go);
+				blue = new Splines(bi, bo);
+				mScript.set_rSpline(red.getInterpolationMatrix());
+				mScript.set_gSpline(green.getInterpolationMatrix());
+				mScript.set_bSpline(blue.getInterpolationMatrix());
+				mScript.forEach_filter_junglee(mInAllocation, mOutAllocations);
+				break;
+			case GHOSTLY:
+				bi = new int[] { 0, 74, 128, 182, 255 };
+				bo = new int[] { 0, 89, 128, 165, 255 };
+				blue = new Splines(bi, bo);
+				mScript.set_bSpline(blue.getInterpolationMatrix());
+				mScript.forEach_filter_ghostly(mInAllocation, mOutAllocations);
+				break;
+			case BGR:
+				bi = new int[] { 0, 74, 128, 182, 255 };
+				bo = new int[] { 0, 89, 128, 165, 255 };
+				blue = new Splines(bi, bo);
+				mScript.set_bSpline(blue.getInterpolationMatrix());
+				mScript.forEach_filter_bgr(mInAllocation, mOutAllocations);
+				break;
+			case CHILLUM:
+				ri = new int[] { 0, 15, 32, 65, 83, 109, 127, 147, 170, 195, 215, 234, 255 };
+				ro = new int[] { 26, 43, 64, 114, 148, 177, 193, 202, 208, 218, 229, 241, 251 };
+				gi = new int[] { 0, 26, 49, 72, 89, 115, 147, 160, 177, 189, 215, 234, 255 };
+				go = new int[] { 26, 26, 72, 123, 147, 188, 205, 210, 222, 224, 235, 246, 255 };
+				bi = new int[] { 0, 1, 30, 57, 74, 87, 108, 130, 152, 172, 187, 215, 239, 255 };
+				bo = new int[] { 29, 29, 72, 124, 147, 162, 175, 184, 189, 195, 203, 216, 237, 247 };
+				red = new Splines(ri, ro);
+				green = new Splines(gi, go);
+				blue = new Splines(bi, bo);
+				mScript.set_rSpline(red.getInterpolationMatrix());
+				mScript.set_gSpline(green.getInterpolationMatrix());
+				mScript.set_bSpline(blue.getInterpolationMatrix());
+				mScript.forEach_filter_chillum(mInAllocation, mOutAllocations);
+				break;
+			case HDR:
+				mBlendAllocation = Allocation.createFromBitmap(mRS, mBitmapIn.copy(Config.ARGB_8888, true));
+				mScript.set_input2(mBlendAllocation);
+				mScript.forEach_filter_HDR_init(mInAllocation, mBlendAllocation);
+				mScriptBlur.setRadius(25f);
+				mScriptBlur.setInput(mBlendAllocation);
+				mScriptBlur.forEach(mOutAllocations);
+				mScriptBlur.setInput(mInAllocation);
+				mScriptBlur.forEach(mBlendAllocation);
+				mScript.set_input1(mBlendAllocation);
+				mScript.set_input2(mOutAllocations);
+				mScript.forEach_filter_HDR_post(mInAllocation, mOutAllocations);
+				break;
+			case SUNLITT:
+				ri = new int[] { 0, 114, 255 };
+				ro = new int[] { 0, 147, 255 };
+				gi = new int[] { 0, 78, 178, 255 };
+				go = new int[] { 0, 48, 207, 255 };
+				bi = new int[] { 0, 145, 255 };
+				bo = new int[] { 0, 110, 255 };
+				red = new Splines(ri, ro);
+				green = new Splines(gi, go);
+				blue = new Splines(bi, bo);
+				ci = new int[] { 0, 53, 180, 255 };
+				co = new int[] { 0, 55, 197, 255 };
+				composite = new Splines(ci, co);
+				mScript.set_compositeSpline(composite.getInterpolationMatrix());
+				mScript.set_rSpline(red.getInterpolationMatrix());
+				mScript.set_gSpline(green.getInterpolationMatrix());
+				mScript.set_bSpline(blue.getInterpolationMatrix());
+				mScript.forEach_filter_sunlitt(mInAllocation, mOutAllocations);
+				break;
+				
 			default:
 				mScript.forEach_filter_colorMatrix(mInAllocation, mOutAllocations);
 				break;

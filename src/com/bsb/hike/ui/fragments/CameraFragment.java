@@ -196,7 +196,7 @@ public class CameraFragment extends SherlockFragment
 								{
 									if (isAdded()) // This happens when current HikeCameraActivity is stopped
 									{
-										Intent i = IntentManager.getPictureEditorActivityIntent(filePath);
+										Intent i = IntentManager.getPictureEditorActivityIntent(filePath,!startedForResult);
 										if (!startedForResult)
 										{
 											getActivity().startActivity(i);
