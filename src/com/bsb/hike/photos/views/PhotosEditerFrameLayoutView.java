@@ -166,6 +166,13 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 			Toast.makeText(getContext(), getResources().getString(R.string.photos_oom_load), Toast.LENGTH_SHORT).show();
 			IntentManager.openHomeActivity(getContext(),true);
 		}
+		
+		handleImage();
+
+	}
+
+	private void handleImage()
+	{
 		DisplayMetrics metrics = getContext().getResources().getDisplayMetrics();
 		int width = metrics.widthPixels;
 		if (width != imageOriginal.getWidth())
@@ -184,12 +191,12 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 			effectLayer.handleImage(imageOriginal, false);
 			imageScaled = imageOriginal;
 		}
-
 	}
 
 	public void loadImageFromBitmap(Bitmap bmp)
 	{
-		effectLayer.handleImage(bmp, false);
+		imageOriginal = bmp;
+		handleImage();
 	}
 
 	public void enableDoodling()
