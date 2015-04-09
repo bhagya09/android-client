@@ -20,17 +20,5 @@
             android:layout="@layout/icon_preference"
             android:summary="@string/delete_account_msg"
             android:title="@string/delete_account" />
-        <com.bsb.hike.view.IconPreference
-            icon="@drawable/ic_fb_priv"
-            android:key="unlinkFacebook"
-            android:layout="@layout/icon_preference"
-            android:summary="@string/unlink_facebook_account_msg"
-            android:title="@string/unlink_facebook_account" />
-        <com.bsb.hike.view.IconPreference
-            icon="@drawable/ic_twitter_priv"
-            android:key="unlinkTwitter"
-            android:layout="@layout/icon_preference"
-            android:summary="@string/unlink_twitter_account_msg"
-            android:title="@string/unlink_twitter_account" />
 
 </PreferenceScreen>

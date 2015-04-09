@@ -1,5 +1,8 @@
 package com.bsb.hike.ui;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
@@ -12,15 +15,23 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.webkit.GeolocationPermissions;
 import android.webkit.WebChromeClient;
+import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.db.HikeContentDatabase;
+import com.bsb.hike.models.WhitelistDomain;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.IntentManager;
 import com.bsb.hike.utils.Logger;
 
 public class WebViewActivity extends HikeAppStateBaseFragmentActivity
@@ -59,6 +70,12 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity
 			}
 
 			@Override
+			public WebResourceResponse shouldInterceptRequest(WebView view, String url)
+			{
+				// TODO Auto-generated method stub
+				return super.shouldInterceptRequest(view, url);
+			}
+			@Override
 			public boolean shouldOverrideUrlLoading(WebView view, String url)
 			{
 				if (url == null)
@@ -91,15 +108,14 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity
 				}
 				else
 				{
-					view.loadUrl(url);
+					handleURLLoadInWebView(view, url);
 				}
 				return true;
 			}
 		};
-
+		
 		webView.getSettings().setGeolocationEnabled(allowLoc);
 		webView.getSettings().setJavaScriptEnabled(true);
-		webView.loadUrl(urlToLoad);
 		webView.setWebViewClient(client);
 		webView.setWebChromeClient(new WebChromeClient()
 		{
@@ -119,9 +135,62 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity
 					super.onGeolocationPermissionsShowPrompt(origin, callback);
 	        }
 		});
+		handleURLLoadInWebView(webView, urlToLoad);
 		setupActionBar(title);
 	}
 
+	
+	/**
+	 * 
+	 * @param view
+	 * @param url
+	 * @return true if it has been loaded in webveiw OR false if you need to return in browser
+	 */
+	private boolean handleURLLoadInWebView(WebView view,String url){
+		// check if feature is enabled
+		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ENABLED_WHITELISTED_FEATURE, true))
+		{
+			WhitelistDomain domain = HikeContentDatabase.getInstance().getWhitelistedDomain(url);
+			if (domain == null)
+			{
+				// this is case when URL is not whitelisted
+				Logger.wtf("whitelist", "BLACKListed URL found " + url);
+				JSONObject json  = new JSONObject();
+				try
+				{
+					json.put(AnalyticsConstants.EVENT_KEY, HikeConstants.BLACKLIST_DOMAIN_ANALYTICS);
+					json.put(HikeConstants.URL, url);
+					HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.VIEW_EVENT, json);
+					startActivity(IntentManager.getBrowserIntent(url));
+					return false;
+				}
+				catch (JSONException e)
+				{
+					e.printStackTrace();
+				}
+				Toast.makeText(getApplicationContext(), R.string.some_error, Toast.LENGTH_SHORT).show();
+			}
+			else
+			{
+				if (domain.isOpenInHikeAllowed())
+				{
+					view.loadUrl(url); // open in webview
+				}
+				else
+				{
+					// open in browser
+					startActivity(IntentManager.getBrowserIntent(url));
+					this.finish();
+					return false;
+				}
+			}
+		}
+		else
+		{
+			view.loadUrl(url); // feature is disabled, load URL without any check
+		}
+		return true;
+	}
 	public Intent newEmailIntent(Context context, String address, String subject, String body, String cc)
 	{
 		Intent intent = new Intent(Intent.ACTION_SEND);

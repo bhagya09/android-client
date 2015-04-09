@@ -23,12 +23,13 @@
                 android:layout_height="68dp"
                 android:src="@drawable/avatar_stroke"/>
             
-            <com.bsb.hike.ui.utils.RecyclingImageView
+            <com.bsb.hike.view.RoundedImageView
                 android:id="@+id/group_profile_image"
                 android:layout_width="@dimen/avatar_profile_size"
                 android:layout_height="@dimen/avatar_profile_size"
                 android:contentDescription="Profile Image"
                 android:layout_gravity="center"
+                style="@style/RoundedStyle"
                 android:onClick="onViewImageClicked"
                 android:src="@drawable/ic_default_avatar_group" />
 

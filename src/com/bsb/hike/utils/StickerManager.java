@@ -199,6 +199,8 @@ public class StickerManager
 	
 	private static final String REMOVE_LEGACY_GREEN_DOTS = "removeLegacyGreenDots";
 	
+	public static final String STICKER_ERROR_LOG = "stkELog";
+	
 	private final Map<String, StickerCategory> stickerCategoriesMap;
 	
 	public static final int DEFAULT_POSITION = 3;
@@ -870,40 +872,41 @@ public class StickerManager
 		
 	}
 	
-	public File saveLargeStickers(File stickerDir, String stickerId, String stickerData) throws IOException
+	public byte[] saveLargeStickers(String largeStickerDirPath, String stickerId, String stickerData) throws IOException
 	{
-		File f = new File(stickerDir, stickerId);
-		Utils.saveBase64StringToFile(f, stickerData);
-		return f;
+		File f = new File(largeStickerDirPath, stickerId);
+		return Utils.saveBase64StringToFile(f, stickerData);
 	}
 
 	/*
 	 * TODO this logic is temporary we yet need to change it
 	 */
-	public File saveLargeStickers(File largeStickerDir, String stickerId, Bitmap largeStickerBitmap) throws IOException
+	public void saveLargeStickers(String largeStickerDirPath, String stickerId, Bitmap largeStickerBitmap) throws IOException
 	{
 		if (largeStickerBitmap != null)
 		{
-			File largeImage = new File(largeStickerDir, stickerId);
-			BitmapUtils.saveBitmapToFile(largeImage, largeStickerBitmap);
-			largeStickerBitmap.recycle();
-			return largeImage;
+			BitmapUtils.saveBitmapToFileAndRecycle(largeStickerDirPath, stickerId, largeStickerBitmap);
 		}
-		return null;
 	}
 	
-	public void saveSmallStickers(File smallStickerDir, String stickerId, File f) throws IOException
+	public void saveSmallStickers(String smallStickerDirPath, String stickerId, String largeStickerFilePath) throws IOException
 	{
-		Bitmap small = HikeBitmapFactory.scaleDownBitmap(f.getAbsolutePath(), SIZE_IMAGE, SIZE_IMAGE, true, false);
-
-		if (small != null)
+		Bitmap bitmap = HikeBitmapFactory.decodeSmallStickerFromObject(largeStickerFilePath, SIZE_IMAGE, SIZE_IMAGE, Bitmap.Config.ARGB_8888);
+		if (bitmap != null)
 		{
-			File smallImage = new File(smallStickerDir, stickerId);
-			BitmapUtils.saveBitmapToFile(smallImage, small);
-			small.recycle();
+			BitmapUtils.saveBitmapToFileAndRecycle(smallStickerDirPath, stickerId, bitmap);
 		}
 	}
-
+	
+	public void saveSmallStickers(String smallStickerDirPath, String stickerId, byte[] largeStickerByteArray) throws IOException
+	{
+		Bitmap bitmap = HikeBitmapFactory.decodeSmallStickerFromObject(largeStickerByteArray, SIZE_IMAGE, SIZE_IMAGE, Bitmap.Config.ARGB_8888);
+		if (bitmap != null)
+		{
+			BitmapUtils.saveBitmapToFileAndRecycle(smallStickerDirPath, stickerId, bitmap);
+		}
+	}
+	
 	public static boolean moveHardcodedStickersToSdcard(Context context)
 	{
 		if(Utils.getExternalStorageState() != ExternalStorageState.WRITEABLE)
@@ -953,10 +956,11 @@ public class StickerManager
 					int resourceId = mResources.getIdentifier(resName, "drawable", 
 							   context.getPackageName());
 					Bitmap stickerBitmap = HikeBitmapFactory.decodeBitmapFromResource(mResources, resourceId, Bitmap.Config.ARGB_8888);
-					File f = StickerManager.getInstance().saveLargeStickers(largeStickerDir, stickerId, stickerBitmap);
+					File f = new File(largeStickerDir, stickerId);
+					StickerManager.getInstance().saveLargeStickers(largeStickerDir.getAbsolutePath(), stickerId, stickerBitmap);
 					if(f != null)
 					{
-						StickerManager.getInstance().saveSmallStickers(smallStickerDir, stickerId, f);
+						StickerManager.getInstance().saveSmallStickers(smallStickerDir.getAbsolutePath(), stickerId, f.getAbsolutePath());
 					}
 					else
 					{

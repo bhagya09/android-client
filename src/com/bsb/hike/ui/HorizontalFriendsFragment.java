@@ -11,6 +11,7 @@ import org.json.JSONObject;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
@@ -29,6 +30,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.NUXConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.BitmapUtils;
@@ -59,7 +61,6 @@ public class HorizontalFriendsFragment extends Fragment implements OnClickListen
 	private void changeLayoutParams(){
 		WindowManager wm = (WindowManager) getActivity().getSystemService(Context.WINDOW_SERVICE);
     	Display display = wm.getDefaultDisplay();
-    	Logger.d("UmangX", "message : " + display.getWidth()+ " "+ viewStack.getWidth());
     	if(viewStack.getWidth() < display.getWidth()){
     		FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.MATCH_PARENT);
@@ -67,7 +68,6 @@ public class HorizontalFriendsFragment extends Fragment implements OnClickListen
     		viewStack.setLayoutParams(params);
     	}
     	else {
-    		Logger.d("UmangX", "" + viewStack.getChildAt(0).getWidth() + "  " + NUXManager.getInstance().getCountLockedContacts());
     		scrollHorizontalView(contactsDisplayed.size() - 1, viewStack.getChildAt(0).getWidth());
     	}
 	}
@@ -141,8 +141,6 @@ public class HorizontalFriendsFragment extends Fragment implements OnClickListen
     private void addEmptyView(){
     	View emptyView = getLayoutInflater(null).inflate(R.layout.friends_horizontal_item,null);
     	ImageView iv = (ImageView ) emptyView.findViewById(R.id.profile_image);
-		iv.setScaleType(ScaleType.CENTER_INSIDE);
-		iv.setBackgroundResource(R.drawable.avatar_empty);
 		iv.setImageResource(R.drawable.ic_question_mark);
     	emptyView.setTag(emptyTag);
     	viewStack.addView(emptyView);
@@ -155,15 +153,12 @@ public class HorizontalFriendsFragment extends Fragment implements OnClickListen
         	TextView tv = (TextView)contactView.findViewById(R.id.msisdn);
         	ImageView iv = (ImageView ) contactView.findViewById(R.id.profile_image);
         	
-			if(ContactManager.getInstance().getIcon(contactInfo.getMsisdn(), true) ==null){
-				iv.setScaleType(ScaleType.CENTER_INSIDE);
-				iv.setBackgroundResource(BitmapUtils.getDefaultAvatarResourceId(contactInfo.getMsisdn(), true));
-				iv.setImageResource(R.drawable.ic_profile);
-			}
-			else
+			Drawable drawable = HikeMessengerApp.getLruCache().getIconFromCache(contactInfo.getMsisdn());
+			if (drawable == null)
 			{
-				iv.setImageDrawable(ContactManager.getInstance().getIcon(contactInfo.getMsisdn(), true));
+				drawable = HikeMessengerApp.getLruCache().getDefaultAvatar(contactInfo.getMsisdn(), false);
 			}
+			iv.setImageDrawable(drawable);
         	
         	tv.setText(contactInfo.getFirstNameAndSurname());
         	viewStack.addView(contactView, index);
@@ -258,7 +253,6 @@ public class HorizontalFriendsFragment extends Fragment implements OnClickListen
 	public void onActivityCreated(Bundle savedInstanceState)
 	{
 		super.onActivityCreated(savedInstanceState);
-		Logger.d("UmangX","on Act Create called frag");
 		for (ContactInfo contactInfo : ContactManager.getInstance().getContact(contactsDisplayed, true, true)) {
 			addContactView(contactInfo, viewStack.getChildCount());
 		}
@@ -328,7 +322,6 @@ public class HorizontalFriendsFragment extends Fragment implements OnClickListen
 				{
 					e.printStackTrace();
 				}
-				Logger.d("UmangX","displayed : "+contactsDisplayed.toString());
 				contactsDisplayed.removeAll(nm.getLockedContacts());
 				if(!contactsDisplayed.isEmpty()){
 					HashSet<String> msisdns = new HashSet<String>(contactsDisplayed);
@@ -346,7 +339,6 @@ public class HorizontalFriendsFragment extends Fragment implements OnClickListen
 	@Override
 	public void onStop() {
 		super.onStop();
-		Logger.d("UmangX","on stop of frag");
 		if(NUXManager.getInstance().getCurrentState() == NUXConstants.NUX_KILLED){
 			getActivity().finish();
 		}
@@ -357,7 +349,6 @@ public class HorizontalFriendsFragment extends Fragment implements OnClickListen
 	public void onResume()
 	{
 		super.onResume();
-		Logger.d("UmangX","on resume of frag");
 		if (NUXManager.getInstance().getCurrentState() == NUXConstants.NUX_KILLED)
 			getActivity().finish();
 	}
@@ -365,7 +356,6 @@ public class HorizontalFriendsFragment extends Fragment implements OnClickListen
 	
 	private void KillActivity()
 	{
-		Logger.d("UmangX","kill Acitivty called from frag");
 		Intent in = (Utils.getHomeActivityIntent(getActivity()));
 		in.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		in.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);

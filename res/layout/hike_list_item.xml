@@ -63,7 +63,7 @@
         android:layout_marginLeft="@dimen/contact_list_item_padding"
         android:layout_marginRight="13dp" >
 
-        <com.bsb.hike.ui.utils.RecyclingImageView
+        <com.bsb.hike.view.RoundedImageView
             android:id="@+id/contact_image"
             style="@style/AvatarStyle" />
         

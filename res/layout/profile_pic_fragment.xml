@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res/com.bsb.hike"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:animateLayoutChanges="true" >
+
+    <ImageView
+        android:id="@+id/profile_pic_bg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_centerInParent="true"
+        android:scaleType="centerCrop"
+        android:visibility="gone" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:animateLayoutChanges="true"
+        android:background="#CC000000" >
+
+        <com.bsb.hike.view.HoloCircularProgress
+            android:id="@+id/circular_progress"
+            android:layout_width="136dp"
+            android:layout_height="136dp"
+            android:layout_centerInParent="true"
+            android:gravity="center"
+            android:visibility="gone"
+            app:marker_visible="false"
+            app:progress="0.0"
+            app:progress_background_color="#33FFFFFF"
+            app:progress_color="#178ee1"
+            app:stroke_width="10dp"
+            app:thumb_visible="false" />
+
+        <com.bsb.hike.view.RoundedImageView
+            android:id="@+id/circular_image_view"
+            android:layout_width="96dp"
+            android:layout_height="96dp"
+            android:layout_centerInParent="true"
+            android:scaleType="fitXY"
+            android:src="@drawable/bg_ct_creepy_tile"
+            android:visibility="gone"
+            app:riv_corner_radius="100dp" />
+
+        <com.bsb.hike.view.RoundedImageView
+            android:id="@+id/rounded_mask"
+            android:layout_width="96dp"
+            android:layout_height="96dp"
+            android:visibility="gone"
+            android:layout_centerInParent="true"
+            android:scaleType="fitXY"
+            android:src="@drawable/photos_error_mask"
+            app:riv_corner_radius="100dp" />
+
+        <ImageButton
+            android:id="@+id/retryButton"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_centerInParent="true"
+            android:background="@android:color/transparent"
+            android:src="@drawable/ic_retry_image_video"
+            android:visibility="gone" />
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/text1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/circular_progress"
+            android:layout_centerHorizontal="true"
+            android:gravity="bottom"
+            android:maxLines="1"
+            android:textColor="@color/white"
+            android:textSize="19sp"
+            android:textStyle="italic" >
+        </com.bsb.hike.view.CustomFontTextView>
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/text2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/circular_progress"
+            android:layout_centerHorizontal="true"
+            android:gravity="bottom"
+            android:maxLines="1"
+            android:textColor="@color/white"
+            android:textSize="15sp"
+            android:textStyle="italic" >
+        </com.bsb.hike.view.CustomFontTextView>
+    </RelativeLayout>
+
+</RelativeLayout>

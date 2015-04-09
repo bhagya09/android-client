@@ -40,8 +40,7 @@
                 android:layout_width="40dp"
                 android:layout_height="match_parent"
                 android:scaleType="centerInside"
-                android:layout_alignParentLeft="true"
-                android:layout_centerVertical="true"
+                android:layout_centerInParent="true"
                 android:background="@null"
                 android:gravity="center"
                 android:src="@drawable/ic_rotate" />
@@ -55,6 +54,7 @@
                 android:background="@drawable/bg_blue_btn_selector"
                 android:gravity="center"
                 android:paddingLeft="15dp"
+                android:visibility="gone"
                 android:paddingRight="15dp"
                 android:shadowColor="@color/black"
                 android:shadowDy="0.7"

@@ -5,23 +5,22 @@ import android.graphics.Typeface;
 import android.util.AttributeSet;
 import android.view.ViewTreeObserver;
 import android.widget.TextView;
-
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.utils.Utils;
 
 public class CustomFontTextView extends TextView implements ViewTreeObserver.OnGlobalLayoutListener
 {
-
 	private String fontName;
-
+	
 	private CustomTypeFace customTypeFace;
-
+	
 	private int style;
 
     private int maxLines;
+    
     private void setFont(AttributeSet attrs)
     {
-        fontName = attrs.getAttributeValue(HikeConstants.NAMESPACE, HikeConstants.FONT);
+    	fontName = attrs.getAttributeValue(HikeConstants.NAMESPACE, HikeConstants.FONT);
         setTypeface(getTypeface(), style);
     }
 

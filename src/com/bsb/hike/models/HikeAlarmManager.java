@@ -8,6 +8,7 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Handler;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.analytics.AnalyticsConstants;
@@ -18,6 +19,9 @@ import com.bsb.hike.db.DBBackupRestore;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.platform.PlatformAlarmManager;
+import com.bsb.hike.productpopup.NotificationContentModel;
+import com.bsb.hike.productpopup.ProductInfoManager;
+import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.service.PreloadNotificationSchedular;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -63,7 +67,11 @@ public class HikeAlarmManager
 
 	public static final int REQUESTCODE_DEFAULT = 0;
 	
-	public static final int REQUESTCODE_REPOPULATE_ALARM_DATABASE=4570;
+	public static final int REQUESTCODE_REPOPULATE_ALARM_DATABASE=4572;
+	
+	//Notification to be shown in future popups
+	
+	public static final int REQUESTCODE_PRODUCT_POPUP=4571;
 	
 	// ******************************************************//
 	
@@ -199,7 +207,7 @@ public class HikeAlarmManager
 		intent.putExtra(ALARM_TIME, time);
 
 		if (persistance)
-			HikeContentDatabase.getInstance(context).insertIntoAlarmManagerDB(time, requestCode, WillWakeCPU, intent);
+			HikeContentDatabase.getInstance().insertIntoAlarmManagerDB(time, requestCode, WillWakeCPU, intent);
 		
 		PendingIntent mPendingIntent = PendingIntent.getBroadcast(context, requestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
@@ -235,7 +243,7 @@ public class HikeAlarmManager
 
 		if (mPendingIntent != null)
 		{
-			HikeContentDatabase.getInstance(context).deleteFromAlarmManagerDB(requestCode);
+			HikeContentDatabase.getInstance().deleteFromAlarmManagerDB(requestCode);
 			mAlarmManager.cancel(mPendingIntent);
 		}
 	}
@@ -250,9 +258,9 @@ public class HikeAlarmManager
 	 */
 	public static void processTasks(Intent intent, Context context)
 	{
-
+		
 		int requestCode = intent.getIntExtra(HikeAlarmManager.INTENT_EXTRA, HikeAlarmManager.REQUESTCODE_DEFAULT);
-		HikeContentDatabase.getInstance(context).deleteFromAlarmManagerDB(requestCode);
+		HikeContentDatabase.getInstance().deleteFromAlarmManagerDB(requestCode);
 		switch (requestCode)
 		{
 		case HikeAlarmManager.REQUESTCODE_NOTIFICATION_PRELOAD:
@@ -286,6 +294,17 @@ public class HikeAlarmManager
 			DBBackupRestore.getInstance(context).backupDB();
 			DBBackupRestore.getInstance(context).scheduleNextAutoBackup();
 			break;
+		case HikeAlarmManager.REQUESTCODE_PRODUCT_POPUP:
+			
+			Logger.d("ProductPopup","Alarm recieved in process Tasks");
+			String title = intent.getStringExtra(ProductPopupsConstants.NOTIFICATION_TITLE);
+			String text = intent.getStringExtra(ProductPopupsConstants.USER);
+			boolean shouldPlaySound = intent.getBooleanExtra(ProductPopupsConstants.PUSH_SOUND, false);
+			int triggerpoint = intent.getIntExtra(ProductPopupsConstants.TRIGGER_POINT, ProductPopupsConstants.PopupTriggerPoints.HOME_SCREEN.ordinal());
+			NotificationContentModel notificationContentModel = new NotificationContentModel(title, text, shouldPlaySound, triggerpoint);
+			ProductInfoManager.getInstance().notifyUser(notificationContentModel);
+			break;
+			
 		default:
 			PlatformAlarmManager.processTasks(intent, context);
 			break;
@@ -300,9 +319,19 @@ public class HikeAlarmManager
 	// TODO:calling this function form a background thread
 	*/
 	
-	public static void repopulateAlarm(Context context)
+	public static void repopulateAlarm(final Context context)
 	{
-		HikeContentDatabase.getInstance(context).rePopulateAlarmWhenClosed();
+	HikeHandlerUtil.getInstance().postRunnableWithDelay((new Runnable()
+		{
+			
+			@Override
+			public void run()
+			{
+				HikeContentDatabase.getInstance().rePopulateAlarmWhenClosed();
+				
+			}
+		}),0);
+		
 	}
 
 	/*
@@ -316,7 +345,7 @@ public class HikeAlarmManager
 	{
 		int requestCode = intent.getIntExtra(HikeAlarmManager.INTENT_EXTRA, HikeAlarmManager.REQUESTCODE_DEFAULT);
 
-		HikeContentDatabase.getInstance(context).deleteFromAlarmManagerDB(requestCode);
+		HikeContentDatabase.getInstance().deleteFromAlarmManagerDB(requestCode);
 
 		switch (requestCode)
 		{
@@ -330,6 +359,10 @@ public class HikeAlarmManager
 			processTasks(intent, context);
 			break;
 		case HikeAlarmManager.REQUESTCODE_PERIODIC_BACKUP:
+			processTasks(intent, context);
+			break;
+		case HikeAlarmManager.REQUESTCODE_PRODUCT_POPUP:
+			Logger.d("ProductPopup","Alarm recieved in Exired Tasks");
 			processTasks(intent, context);
 			break;
 		default:
