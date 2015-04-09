@@ -543,7 +543,6 @@
     <string name="sent_you_friend_request">Te ha enviado una solicitud de amistad</string>
     <string name="num_people">%1$d people</string>
     <string name="add">Añadir</string>
-    <string name="no_updates">No updates from %1$s yet.</string>
     <string name="email_conversation">Enviar conversación por correo electrónico</string>
     <string name="me_key">yo</string>
     <string name="group_name_email">"Grupo "</string>

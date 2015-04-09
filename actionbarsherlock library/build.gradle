@@ -15,9 +15,6 @@ dependencies {
 }
 android {
     compileSdkVersion 19
-    lintOptions {
-        abortOnError false
-    }
     buildToolsVersion '21.0.2'
     sourceSets {
         main {
