@@ -1969,7 +1969,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			return;
 		}else if(composeMode == PICK_CONTACT_MODE)
 		{
-			setResult(RESULT_CANCELED);
+			setResult(RESULT_CANCELED,getIntent());
 			this.finish();
 		}
 		super.onBackPressed();
