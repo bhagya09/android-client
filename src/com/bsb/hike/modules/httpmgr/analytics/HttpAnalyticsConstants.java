@@ -20,7 +20,7 @@ public class HttpAnalyticsConstants
 	public static final int MAX_RANGE_HTTP_ANALYTICS = 10000;
 
 	/** Default value which is used for determining whether we want to log http analytics event or not */
-	public static final int DEFAULT_HTTP_ANALYTICS = 500;
+	public static final int DEFAULT_HTTP_ANALYTICS = 200;
 	
 	public static final String HTTP_REQUEST_URL_FILTER = ".hike.in";
 	
