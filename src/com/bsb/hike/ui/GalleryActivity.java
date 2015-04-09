@@ -586,6 +586,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 			{
 				// Open camera app
 				IntentManager.openNativeCameraApp(GalleryActivity.this);
+				return;
 			}
 
 			if (multiSelectMode)

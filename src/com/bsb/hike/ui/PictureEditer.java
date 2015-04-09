@@ -573,11 +573,6 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 			super.onBackPressed();
 			HikePhotosUtils.FilterTools.setCurrentDoodleItem(null);
 			HikePhotosUtils.FilterTools.setCurrentFilterItem(null);
-			if (filename != null)
-			{
-				File editFile = new File(filename);
-				editFile.delete();
-			}
 		}
 	}
 
