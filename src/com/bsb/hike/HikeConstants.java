@@ -2543,6 +2543,8 @@ public class HikeConstants
 	public static final String PROB_NUM_STICKER_MSG = "p_stk";
 
 	public static final String PROB_NUM_MULTIMEDIA_MSG = "p_mul";
+	
+	public static final String PROB_NUM_HTTP_ANALYTICS = "p_http";
 
 	public static final String MSG_REL = "rel_m";
 	
