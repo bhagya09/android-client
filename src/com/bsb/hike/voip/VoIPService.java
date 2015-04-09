@@ -858,9 +858,18 @@ public class VoIPService extends Service {
 				HikeConstants.MqttMessageTypes.VOIP_CALL_CANCELLED, 
 				getCallId(), false);
 
+		// Reset variables
+		setCallid(0);
+		connected = false;
+		socketInfoReceived = false;
+		audioStarted = false;
+		establishingConnection = false;
+		isRingingOutgoing = false;
+		isRingingIncoming = false;
+
 		if(socket != null)
 			socket.close();
-		
+
 		// Terminate threads
 		if (connectionTimeoutThread != null)
 			connectionTimeoutThread.interrupt();
@@ -913,15 +922,6 @@ public class VoIPService extends Service {
 			chronometer.stop();
 			chronometer = null;
 		}
-		
-		// Reset variables
-		setCallid(0);
-		connected = false;
-		socketInfoReceived = false;
-		audioStarted = false;
-		establishingConnection = false;
-		isRingingOutgoing = false;
-		isRingingIncoming = false;
 
 		releaseAudioManager();
 		
