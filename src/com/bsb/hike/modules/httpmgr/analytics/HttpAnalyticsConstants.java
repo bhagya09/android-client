@@ -23,4 +23,10 @@ public class HttpAnalyticsConstants
 	public static final int DEFAULT_HTTP_ANALYTICS = 500;
 	
 	public static final String HTTP_REQUEST_URL_FILTER = ".hike.in";
+	
+	public static final String HTTP_SINGLE_STICKER_DOWNLOAD_ANALYTICS_PARAM = "singleSticker";
+
+	public static final String HTTP_TOTAL_STICKER_COUNT_ANALYTICS_PARAM = "totalStickers";
+
+	public static final String HTTP_MULTI_STICKER_DOWNLOAD_ANALYTICS_PARAM = "multiStickers";
 }
