@@ -37,6 +37,7 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.GalleryItem;
 import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.photos.HikeEffectsFactory;
 import com.bsb.hike.photos.HikePhotosListener;
 import com.bsb.hike.photos.HikePhotosUtils;
 import com.bsb.hike.photos.HikePhotosUtils.MenuType;
@@ -102,7 +103,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 
 		// Get filename from normal intent data
 		Intent intent = getIntent();
-		filename = intent.getStringExtra(HikeConstants.HikePhotos.FILEPATH);
+		filename = intent.getStringExtra(HikeConstants.HikePhotos.FILENAME);
 
 		if (filename == null)
 		{
@@ -138,7 +139,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 					public void run()
 					{
 						// Init
-						init(bmp);						
+						init(bmp);
 					}
 				});
 			}
@@ -175,13 +176,15 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 
 		startedForResult = (getCallingActivity() != null);
 
+		editView.setCompressionEnabled(intent.getBooleanExtra(HikeConstants.HikePhotos.EDITOR_ALLOW_COMPRESSION_KEY, true));
+
 	}
 
 	@Override
 	protected void onResume()
 	{
-		overridePendingTransition(R.anim.fade_in_animation, R.anim.fade_out_animation);
 		super.onResume();
+		overridePendingTransition(R.anim.fade_in_animation, R.anim.fade_out_animation);
 		getSupportActionBar().getCustomView().findViewById(R.id.done_container).setVisibility(View.VISIBLE);
 		editView.enable();
 	}
@@ -189,18 +192,19 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 	private void init(Bitmap srcBitmap)
 	{
 		FragmentPagerAdapter adapter = new PhotoEditViewPagerAdapter(getSupportFragmentManager());
-		pager.setAdapter(adapter);	
+		pager.setAdapter(adapter);
 		pager.setVisibility(View.VISIBLE);
 
 		indicator.setViewPager(pager);
 		indicator.setVisibility(View.VISIBLE);
-		
+
 		editView.loadImageFromBitmap(srcBitmap);
 		editView.setOnDoodlingStartListener(clickHandler);
 
 		undoButton.setOnClickListener(clickHandler);
 
 		indicator.setOnPageChangeListener(clickHandler);
+
 	}
 
 	@Override
@@ -208,6 +212,13 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 	{
 		overridePendingTransition(R.anim.fade_in_animation, R.anim.fade_out_animation);
 		super.onPause();
+	}
+
+	@Override
+	public void finish()
+	{
+		HikeEffectsFactory.finish();
+		super.finish();
 	}
 
 	private void setupActionBar()
@@ -229,10 +240,10 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 		mActionBarDoneContainer = actionBarView.findViewById(R.id.done_container);
 
 		mActionBarDoneContainer.setOnClickListener(clickHandler);
-		
-		if(startedForResult)
+
+		if (startedForResult)
 		{
-			((TextView)actionBarView.findViewById(R.id.done_text)).setText(getResources().getString(R.string.image_quality_send));
+			((TextView) actionBarView.findViewById(R.id.done_text)).setText(R.string.image_quality_send);
 		}
 
 		actionBar.setCustomView(actionBarView);
@@ -364,7 +375,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 					{
 						editView.saveImage(HikeFileType.IMAGE, null, new HikePhotosListener()
 						{
-							
+
 							@Override
 							public void onFailure()
 							{
@@ -372,16 +383,16 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 								Intent intent = new Intent();
 								setResult(RESULT_CANCELED, intent);
 								finish();
-								
+
 							}
-							
+
 							@Override
 							public void onComplete(Bitmap bmp)
 							{
 								// TODO Auto-generated method stub
-								
+
 							}
-							
+
 							@Override
 							public void onComplete(File f)
 							{
