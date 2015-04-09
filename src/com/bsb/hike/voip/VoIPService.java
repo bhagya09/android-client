@@ -361,7 +361,7 @@ public class VoIPService extends Service {
 			}
 				
 			// Error case: we are receiving a repeat v0 during call setup
-			if (socketInfoReceived) {
+			if (socketInfoReceived && !partnerReconnecting) {
 				Logger.d(VoIPConstants.TAG, "Repeat call initiation message.");
 				// Try sending our socket info again. Caller could've missed our original message.
 				if (!connected)
@@ -1012,6 +1012,7 @@ public class VoIPService extends Service {
 		reconnecting = true;
 		socketInfoReceived = false;
 		socketInfoSent = false;
+		connected = false;
 		removeExternalSocketInfo();
 		retrieveExternalSocket();
 	}
@@ -1100,7 +1101,7 @@ public class VoIPService extends Service {
 				lastHeartbeat = System.currentTimeMillis();
 				while (keepRunning == true) {
 					if (System.currentTimeMillis() - lastHeartbeat > HEARTBEAT_TIMEOUT && !reconnecting) {
-						// Logger.w(VoIPConstants.TAG, "Heartbeat failure. Reconnecting.. ");
+//						Logger.w(VoIPConstants.TAG, "Heartbeat failure. Reconnecting.. ");
 						startReconnectBeeps();
 						if (clientSelf.isInitiator() && isConnected() && isAudioRunning())
 							reconnect();
@@ -2104,7 +2105,7 @@ public class VoIPService extends Service {
 	}
 	
 	private void sendPacketsWaitingForAck() {
-		if (ackWaitQueue.isEmpty())
+		if (ackWaitQueue.isEmpty() || !connected)
 			return;
 		
 		synchronized (ackWaitQueue) {
@@ -2426,7 +2427,7 @@ public class VoIPService extends Service {
 						} catch (SocketTimeoutException e) {
 							Logger.d(VoIPConstants.TAG, "UDP timeout on ICE. #" + counter);
 						} catch (IOException e) {
-							Logger.d(VoIPConstants.TAG, "retrieveExternalSocket() IOException");
+							Logger.d(VoIPConstants.TAG, "retrieveExternalSocket() IOException" + e.toString());
 							try {
 								Thread.sleep(500);
 							} catch (InterruptedException e1) {
@@ -2491,6 +2492,10 @@ public class VoIPService extends Service {
 	private void removeExternalSocketInfo() {
 		clientSelf.setExternalIPAddress(null);
 		clientSelf.setExternalPort(0);
+		if (socket != null) {
+			socket.close();
+			socket = null;
+		}
 	}
 	
 	private void sendSocketInfoToPartner() {
