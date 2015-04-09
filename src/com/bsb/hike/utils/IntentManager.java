@@ -38,7 +38,6 @@ import com.bsb.hike.ui.CreditsActivity;
 import com.bsb.hike.ui.GalleryActivity;
 import com.bsb.hike.ui.FtueBroadcast;
 import com.bsb.hike.ui.HikeAuthActivity;
-import com.bsb.hike.ui.HikeCameraActivity;
 import com.bsb.hike.ui.HikeListActivity;
 import com.bsb.hike.ui.HikePreferences;
 import com.bsb.hike.ui.HomeActivity;
@@ -435,19 +434,6 @@ public class IntentManager
 		Intent intent = new Intent();
 		intent.setClass(context, ProfileActivity.class);
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-		return intent;
-	}
-
-	public static void openHikeCameraActivity(Activity argActivity)
-	{
-		Intent in = new Intent(argActivity, HikeCameraActivity.class);
-		argActivity.startActivity(in);
-	}
-
-	public static Intent getHikeCameraIntent(Context context, boolean allowGallery)
-	{
-		Intent intent = new Intent(context, HikeCameraActivity.class);
-		intent.putExtra(HikeConstants.HikePhotos.CAMERA_ALLOW_GALLERY_KEY, allowGallery);
 		return intent;
 	}
 

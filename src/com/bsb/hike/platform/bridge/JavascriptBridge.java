@@ -541,10 +541,6 @@ public abstract class JavascriptBridge
 			{
 				IntentManager.createBroadcastDefault(context);
 			}
-			if(activityName.equals(HIKESCREEN.PHOTOS.toString()))
-			{
-				IntentManager.openHikeCameraActivity(context);
-			}
 		}
 		catch (JSONException e)
 		{
