@@ -12,14 +12,15 @@ import static com.bsb.hike.modules.httpmgr.request.Request.REQUEST_TYPE_SHORT;
 import org.json.JSONObject;
 
 import com.bsb.hike.modules.httpmgr.RequestToken;
-import com.bsb.hike.modules.httpmgr.request.FileRequest;
+import com.bsb.hike.modules.httpmgr.analytics.HttpAnalyticsConstants;
 import com.bsb.hike.modules.httpmgr.interceptor.GzipRequestInterceptor;
 import com.bsb.hike.modules.httpmgr.interceptor.IRequestInterceptor;
+import com.bsb.hike.modules.httpmgr.request.FileRequest;
 import com.bsb.hike.modules.httpmgr.request.JSONObjectRequest;
 import com.bsb.hike.modules.httpmgr.request.Request;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
-import com.bsb.hike.modules.httpmgr.retry.DefaultRetryPolicy;
 import com.bsb.hike.modules.httpmgr.request.requestbody.JsonBody;
+import com.bsb.hike.modules.httpmgr.retry.DefaultRetryPolicy;
 import com.bsb.hike.modules.httpmgr.retry.IRetryPolicy;
 import com.bsb.hike.utils.Utils;
 public class HttpRequests
@@ -30,6 +31,7 @@ public class HttpRequests
 				.setUrl(singleStickerDownloadBase() + "?catId=" + categoryId + "&stId=" + stickerId + "&resId=" + Utils.getResolutionId())
 				.setId(requestId)
 				.setRequestListener(requestListener)
+				.setAnalyticsParam(HttpAnalyticsConstants.HTTP_SINGLE_STICKER_DOWNLOAD_ANALYTICS_PARAM)
 				.build();
 		return requestToken;
 	}
@@ -43,6 +45,7 @@ public class HttpRequests
 				.setRequestListener(requestListener)
 				.setRequestType(REQUEST_TYPE_LONG)
 				.setPriority(PRIORITY_HIGH)
+				.setAnalyticsParam(HttpAnalyticsConstants.HTTP_MULTI_STICKER_DOWNLOAD_ANALYTICS_PARAM)
 				.build();
 		requestToken.getRequestInterceptors().addFirst("sticker", interceptor);
 		requestToken.getRequestInterceptors().addAfter("sticker", "gzip", new GzipRequestInterceptor());
@@ -88,7 +91,6 @@ public class HttpRequests
 
 	public static RequestToken platformZipDownloadRequest(String filePath, String url, IRequestListener requestListener)
 	{
-
 		RequestToken requestToken = new FileRequest.Builder()
 				.setUrl(url)
 				.setFile(filePath)
