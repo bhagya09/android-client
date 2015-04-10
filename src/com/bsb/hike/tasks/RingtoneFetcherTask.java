@@ -12,7 +12,7 @@ import android.os.AsyncTask;
 
 import com.bsb.hike.R;
 
-public class RingtoneFetcherTask extends AsyncTask<Void, Void, Boolean> implements ActivityCallableTask
+public class RingtoneFetcherTask extends AsyncTask<Void, Void, Void> implements ActivityCallableTask
 {
 
 	public static interface RingtoneFetchListener
@@ -46,7 +46,7 @@ public class RingtoneFetcherTask extends AsyncTask<Void, Void, Boolean> implemen
 	};
 
 	@Override
-	protected Boolean doInBackground(Void... params)
+	protected Void doInBackground(Void... params)
 	{
 			try
 			{
@@ -83,7 +83,7 @@ public class RingtoneFetcherTask extends AsyncTask<Void, Void, Boolean> implemen
 		return null;
 	}
 
-	protected void onPostExecute(Boolean result)
+	protected void onPostExecute(Void result)
 	{
 		finished = true;
 		if (listener != null)
