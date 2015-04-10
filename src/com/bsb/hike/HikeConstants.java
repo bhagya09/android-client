@@ -3,7 +3,6 @@ package com.bsb.hike;
 import android.net.Uri;
 import android.os.Environment;
 
-import com.bsb.hike.NUXConstants.PushTypeEnum;
 import com.bsb.hike.models.StatusMessage.StatusMessageType;
 
 public class HikeConstants
@@ -1952,6 +1951,8 @@ public class HikeConstants
 		// Home search events
 
 		public static final String HOME_SEARCH = "hmSrch";
+		
+		public static final String DEVICE_ROOT="root";
 
 		public static final String ADDRESSBOOK_UPLOAD = "addressbookUpload";
 
@@ -2540,11 +2541,17 @@ public class HikeConstants
 
 	public static final String FLUSH = "flush";
 
+	public static final String FORCE_USER="fu";
+	
+	public static final String IS_ROOT="is_root";
+
 	public static final String PROB_NUM_TEXT_MSG = "p_txt";
 
 	public static final String PROB_NUM_STICKER_MSG = "p_stk";
 
 	public static final String PROB_NUM_MULTIMEDIA_MSG = "p_mul";
+	
+	public static final String PROB_NUM_HTTP_ANALYTICS = "p_http";
 
 	public static final String MSG_REL = "rel_m";
 	
@@ -2559,4 +2566,5 @@ public class HikeConstants
 	public static final String ENABLE_EXCEPTION_ANALYTIS = "enableExceptionAnalytics";
 
 	public static final String PAYLOAD = "payload";
+
 }

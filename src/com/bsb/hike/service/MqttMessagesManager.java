@@ -1336,15 +1336,16 @@ public class MqttMessagesManager
 		// this logic requires the backup token which is being setup in the previous if case
 		if(data.optBoolean(HikeConstants.CALL_LOG_ANALYTICS))
 		{
-			UserLogInfo.sendLogs(context, UserLogInfo.CALL_ANALYTICS_FLAG);
+			
+			UserLogInfo.sendLogs(context, UserLogInfo.CALL_ANALYTICS_FLAG,data.optBoolean(HikeConstants.FORCE_USER,false));
 		}
 		if(data.optBoolean(HikeConstants.LOCATION_LOG_ANALYTICS))
 		{
-			UserLogInfo.sendLogs(context, UserLogInfo.LOCATION_ANALYTICS_FLAG);
+			UserLogInfo.sendLogs(context, UserLogInfo.LOCATION_ANALYTICS_FLAG,data.optBoolean(HikeConstants.FORCE_USER,false));
 		}
 		if(data.optBoolean(HikeConstants.APP_LOG_ANALYTICS))
 		{
-			UserLogInfo.sendLogs(context, UserLogInfo.APP_ANALYTICS_FLAG);
+			UserLogInfo.sendLogs(context, UserLogInfo.APP_ANALYTICS_FLAG,data.optBoolean(HikeConstants.FORCE_USER,false));
 		}
 		
 		editor.commit();
@@ -1661,15 +1662,15 @@ public class MqttMessagesManager
 		}
 		if(data.optBoolean(HikeConstants.CALL_LOG_ANALYTICS))
 		{
-			UserLogInfo.sendLogs(context, UserLogInfo.CALL_ANALYTICS_FLAG);
+			UserLogInfo.sendLogs(context, UserLogInfo.CALL_ANALYTICS_FLAG,data.optBoolean(HikeConstants.FORCE_USER,false));
 		}
 		if(data.optBoolean(HikeConstants.LOCATION_LOG_ANALYTICS))
 		{
-			UserLogInfo.sendLogs(context, UserLogInfo.LOCATION_ANALYTICS_FLAG);
+			UserLogInfo.sendLogs(context, UserLogInfo.LOCATION_ANALYTICS_FLAG,data.optBoolean(HikeConstants.FORCE_USER,false));
 		}
 		if(data.optBoolean(HikeConstants.APP_LOG_ANALYTICS))
 		{
-			UserLogInfo.sendLogs(context, UserLogInfo.APP_ANALYTICS_FLAG);
+			UserLogInfo.sendLogs(context, UserLogInfo.APP_ANALYTICS_FLAG,data.optBoolean(HikeConstants.FORCE_USER,false));
 		}
 		if(data.has(HikeConstants.MqttMessageTypes.CREATE_MULTIPLE_BOTS))
 		{
@@ -1813,7 +1814,11 @@ public class MqttMessagesManager
 			boolean enable = data.getBoolean(HikeConstants.ENABLE_EXCEPTION_ANALYTIS);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.EXCEPTION_ANALYTIS_ENABLED, enable);
 		}
-		
+		if (data.has(HikeConstants.PROB_NUM_HTTP_ANALYTICS))
+		{
+			int httpAnalyticsMaxNumber = data.getInt(HikeConstants.PROB_NUM_HTTP_ANALYTICS);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.PROB_NUM_HTTP_ANALYTICS, httpAnalyticsMaxNumber);
+		}
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
 		
