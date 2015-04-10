@@ -110,6 +110,7 @@ public class ProfileImageLoader extends AsyncTaskLoader<Boolean>
 
 			URLConnection connection = url.openConnection();
 			AccountUtils.addUserAgent(connection);
+			AccountUtils.setNoTransform(connection);
 			connection.addRequestProperty("Cookie", "user=" + AccountUtils.mToken + "; UID=" + AccountUtils.mUid);
 
 			if (isSslON)

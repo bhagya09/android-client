@@ -69,6 +69,7 @@ public class CheckForUpdateTask extends AsyncTask<Void, Void, Boolean>
 				uRLConnection = (HttpURLConnection) url.openConnection();
 			}
 			AccountUtils.addUserAgent(uRLConnection);
+			AccountUtils.setNoTransform(uRLConnection);
 
 			uRLConnection.setConnectTimeout(0);
 			BufferedReader br = new BufferedReader(new InputStreamReader(uRLConnection.getInputStream()));

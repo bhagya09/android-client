@@ -25,6 +25,9 @@ import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.analytics.AnalyticsConstants.MessageType;
+import com.bsb.hike.analytics.AnalyticsConstants.MsgRelEventType;
+import com.bsb.hike.analytics.MsgRelLogManager;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.ConvMessage;
@@ -33,6 +36,8 @@ import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.ConvMessage.State;
 import com.bsb.hike.models.Conversation;
 import com.bsb.hike.models.FtueContactInfo;
+import com.bsb.hike.models.MessageMetadata;
+import com.bsb.hike.models.MessagePrivateData;
 import com.bsb.hike.models.MultipleConvMessage;
 import com.bsb.hike.models.Protip;
 import com.bsb.hike.models.StatusMessage;
@@ -103,12 +108,24 @@ public class DbConversationListener implements Listener
 			if (shouldSendMessage)
 			{
 				mConversationDb.updateMessageMetadata(convMessage.getMsgID(), convMessage.getMetadata());
+				
+				// Adding Logs for Message Reliability
+				Logger.d(AnalyticsConstants.MSG_REL_TAG, "===========================================");
+				Logger.d(AnalyticsConstants.MSG_REL_TAG, "DB Transaction completed");
+				MsgRelLogManager.logMsgRelEvent(convMessage, MsgRelEventType.DB_UPDATE_TRANSACTION_COMPLETED);
 			}
 			else
 			{
 				if (!convMessage.isFileTransferMessage())
 				{
+					//This inserts Msg into MessageTable and assigns msgID to convMessage
 					mConversationDb.addConversationMessages(convMessage);
+				
+					// Adding Logs for Message Reliability
+					Logger.d(AnalyticsConstants.MSG_REL_TAG, "===========================================");
+					Logger.d(AnalyticsConstants.MSG_REL_TAG, "DB Transaction completed");
+					MsgRelLogManager.logMsgRelEvent(convMessage, MsgRelEventType.DB_ADD_TRANSACTION_COMPLETED);
+					
 					if (convMessage.isSent())
 					{
 						uploadFiksuPerDayMessageEvent();
