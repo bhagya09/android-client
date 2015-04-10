@@ -105,7 +105,7 @@ public class StickerShopAdapter extends CursorAdapter
 		int totalStickerCount = cursor.getInt(totalStickersCountColoumn);
 		int categorySizeInBytes = cursor.getInt(categorySizeColoumn);
 		viewholder.categoryName.setText(displayCategoryName);
-		stickerOtherIconLoader.loadImage(StickerManager.getInstance().getCategoryOtherAssetLoaderKey(categoryId, StickerManager.PREVIEW_IMAGE_TYPE), viewholder.categoryPreviewIcon, isListFlinging);
+		stickerOtherIconLoader.loadImage(StickerManager.getInstance().getCategoryOtherAssetLoaderKey(categoryId, StickerManager.PREVIEW_IMAGE_TYPE), viewholder.categoryPreviewIcon);
 		viewholder.downloadProgress.setVisibility(View.GONE);
 		if (totalStickerCount > 0)
 		{
