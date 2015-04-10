@@ -26,6 +26,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.util.Pair;
 import android.view.KeyEvent;
@@ -156,6 +157,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	private ConversationFragment mainFragment;
 
+	private static String MAIN_FRAGMENT_TAG = "mainFragTag";
+
 	private SnowFallView snowFallView;
 	
 	private int searchOptionID;
@@ -173,6 +176,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	private static MenuItem searchMenuItem;
 
 	private boolean showingSearchModeActionBar = false;
+	
+	private static final String TAG = "HomeActivity";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -180,12 +185,14 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		super.onCreate(savedInstanceState);
 		if (Utils.requireAuth(this))
 		{
+			Logger.wtf(TAG, "user is not authenticated. Finishing activity");
 			return;
 		}
 				
 		if (NUXManager.getInstance().showNuxScreen())
 		{
 			NUXManager.getInstance().startNUX(this);
+			Logger.wtf(TAG, "Nux is not shown. So finishing activity");
 			return;
 
 		}
@@ -361,14 +368,17 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	private void setupMainFragment(Bundle savedInstanceState)
 	{
-		if (savedInstanceState != null) {
-            return;
-        }
-        mainFragment = new ConversationFragment();
-        
-        getSupportFragmentManager().beginTransaction()
-                .add(R.id.home_screen, mainFragment).commit();
-		
+		Fragment frag = getSupportFragmentManager().findFragmentByTag(MAIN_FRAGMENT_TAG);
+		if (frag != null)
+		{
+			mainFragment = (ConversationFragment) frag;
+		}
+
+		if (mainFragment == null)
+		{
+			mainFragment = new ConversationFragment();
+			getSupportFragmentManager().beginTransaction().add(R.id.home_screen, mainFragment, MAIN_FRAGMENT_TAG).commit();
+		}
 	}
 
 	public void onFestiveModeBgClick(View v)
@@ -422,6 +432,11 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			overFlowWindow.dismiss();
 		HikeMessengerApp.getPubSub().removeListeners(this, homePubSubListeners);
 		HikeMessengerApp.getPubSub().removeListeners(this, progressPubSubListeners);
+		if (searchMenuItem != null && searchMenuItem.getActionView() != null)
+		{
+			SearchView searchView = (SearchView) searchMenuItem.getActionView();
+			searchView.setOnQueryTextListener(null);
+		}
 		super.onDestroy();
 	}
 
@@ -457,6 +472,16 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu)
 	{
+		/**
+		 * This is a strange bug in Android 5.1. If we call finish to an activity from onCreate, ideally onCreateOptions menu should not have been called. But in Droid 5.1 this is
+		 * being called. This check is defensive in nature
+		 */
+		if (isFinishing())
+		{
+			Logger.wtf(TAG, "Activity is finishing yet onCreateOptionsMenu is being called");
+			return false;
+		}
+		
 		if (showingProgress)
 		{
 			return false;

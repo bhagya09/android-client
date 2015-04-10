@@ -2947,6 +2947,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 				@Override
 				public void run()
 				{
+					conv.updateName();
 					updateViewForNameChange(conv);
 				}
 			});
