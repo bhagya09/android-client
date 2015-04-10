@@ -3,7 +3,7 @@
     package="com.bsb.hike"
     android:installLocation="auto"
     android:versionCode="1123"
-    android:versionName="3.8.9.006.sound_notification" >
+    android:versionName="3.8.9.007.sound_notification" >
     <uses-sdk
         android:minSdkVersion="9"
         android:targetSdkVersion="17" />
