@@ -42,9 +42,6 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 {
 	private CanvasImageView doodleLayer;
 
-	//removed vignette layer since vignette new implemntation requires blending of bitmap
-	//private VignetteImageView vignetteLayer;
-
 	private EffectsImageView effectLayer;
 
 	private boolean enableDoodling, savingFinal,compressOutput;
@@ -61,10 +58,8 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 	{
 		super(context);
 		doodleLayer = new CanvasImageView(context);
-		//vignetteLayer = new VignetteImageView(context);
 		effectLayer = new EffectsImageView(context);
 		addView(effectLayer);
-		//addView(vignetteLayer);
 		addView(doodleLayer);
 		enableDoodling = false;
 		savingFinal = false;
@@ -75,10 +70,8 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 	{
 		super(context, attrs);
 		doodleLayer = new CanvasImageView(context, attrs);
-		//vignetteLayer = new VignetteImageView(context, attrs);
 		effectLayer = new EffectsImageView(context, attrs);
 		addView(effectLayer);
-		//addView(vignetteLayer);
 		addView(doodleLayer);
 		enableDoodling = false;
 		savingFinal = false;
@@ -89,10 +82,8 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 	{
 		super(context, attrs, defStyleAttr);
 		doodleLayer = new CanvasImageView(context, attrs, defStyleAttr);
-		//vignetteLayer = new VignetteImageView(context, attrs, defStyleAttr);
 		effectLayer = new EffectsImageView(context, attrs, defStyleAttr);
 		addView(effectLayer);
-		//addView(vignetteLayer);
 		addView(doodleLayer);
 		enableDoodling = false;
 		savingFinal = false;
@@ -157,7 +148,6 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 
 	public void applyFilter(FilterType filter)
 	{
-		//vignetteLayer.setFilter(filter);
 		effectLayer.applyEffect(filter, HikeConstants.HikePhotos.DEFAULT_FILTER_APPLY_PERCENTAGE, this);
 		effectLayer.invalidate();
 
@@ -392,13 +382,9 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 
 			sendAnalyticsFilterApplied(effectLayer.getCurrentFilter().name());
 
-			// removed vignette layer since vignette new implemntation requires blending of bitmap
-			// imageEdited = vignetteLayer.applyVignetteToBitmap(imageEdited);
-
 			if (doodleLayer.getBitmap() != null)
 			{
 				Bitmap temp = HikePhotosUtils.createBitmap(doodleLayer.getBitmap(), 0, 0, imageEdited.getWidth(), imageEdited.getHeight(), true, true, false, true);
-				// Bitmap temp = Bitmap.createScaledBitmap(doodleLayer.getBitmap(), imageOriginal.getWidth(), imageOriginal.getHeight(), false);
 
 				if (temp != null)
 				{
@@ -440,7 +426,6 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 		{
 			if (!savingFinal)
 			{
-				//vignetteLayer.setVignetteforFilter();
 				effectLayer.changeDisplayImage(preview);
 			}
 			else
