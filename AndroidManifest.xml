@@ -3,7 +3,7 @@
     package="com.bsb.hike"
     android:installLocation="auto"
     android:versionCode="1148"
-    android:versionName="3.8.6" >
+    android:versionName="3.8.5.0.4.backlog" >
     <uses-sdk
         android:minSdkVersion="9"
         android:targetSdkVersion="17" />
