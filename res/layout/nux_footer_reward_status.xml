@@ -23,7 +23,7 @@
             android:background="#00000000"
             android:text="@string/reward_card_objective"
             android:textSize="16sp"
-            android:textStyle="italic" />
+            android:textStyle="bold|italic"/>
 
         <com.bsb.hike.view.CustomFontTextView
             android:id="@+id/tv_chatStatus"

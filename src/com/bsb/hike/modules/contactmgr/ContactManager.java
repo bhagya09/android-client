@@ -20,6 +20,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -2107,7 +2108,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	public ArrayList<String> getMsisdnFromId(String[] selectionArgs)
 	{
 		Cursor c = getReadableDatabase().query(DBConstants.USERS_TABLE, new String[] { DBConstants.MSISDN },
-				DBConstants.ID + " IN " + Utils.getMsisdnStatement(Arrays.asList(selectionArgs)), null, null, null, null);
+				DBConstants.PLATFORM_USER_ID + " IN " + Utils.getMsisdnStatement(Arrays.asList(selectionArgs)), null, null, null, null);
 
 		ArrayList<String> msisdnList = new ArrayList<String>();
 
@@ -2120,10 +2121,10 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 			while (c.moveToNext());
 		}
 
-		// Incase of hike id == -1, add self msisdn
+		// Incase of hike id == platform uid for user, add self msisdn
 		for (int i = 0; i < selectionArgs.length; i++)
 		{
-			if (selectionArgs[i].equals(HikeConstants.SELF_HIKE_ID))
+			if (selectionArgs[i].equals(HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_UID_SETTING, null)))
 			{
 				ContactInfo userContact = Utils.getUserContactInfo(context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, Context.MODE_PRIVATE));
 				msisdnList.add(userContact.getMsisdn());
@@ -2144,5 +2145,15 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 			unload();
 		}
 
+	}
+
+	public void platformUserIdEntry(JSONArray data)
+	{
+		hDb.platformUserIdDbEntry(data);
+	}
+
+	public ArrayList<String> getMsisdnForMissingPlatformUID()
+	{
+		return hDb.getMsisdnsForMissingPlatformUID();
 	}
 }

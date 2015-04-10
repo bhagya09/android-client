@@ -3631,7 +3631,7 @@ public class ChatThread extends HikeAppStateBaseFragmentActivity implements Hike
 								// Logs for Msg Reliability
 								Logger.d(AnalyticsConstants.MSG_REL_TAG, "===========================================");
 								Logger.d(AnalyticsConstants.MSG_REL_TAG, "Receiver reads msg on after opening screen,track_id:- " + trackId);
-								MsgRelLogManager.recordMsgRel(trackId, MsgRelEventType.RECEIVER_OPENS_CONV_SCREEN);
+								MsgRelLogManager.recordMsgRel(trackId, MsgRelEventType.RECEIVER_OPENS_CONV_SCREEN, mConversation.getMsisdn());
 							}
 							else
 							{
@@ -6738,6 +6738,9 @@ public class ChatThread extends HikeAppStateBaseFragmentActivity implements Hike
 		{
 			String contactId = data.getData().getLastPathSegment();
 			getContactData(contactId);
+		}else if(requestCode == HikeConstants.PLATFORM_REQUEST)
+		{
+			mAdapter.onActivityResult(requestCode, resultCode, data);
 		}
 		else if (resultCode == RESULT_CANCELED)
 		{

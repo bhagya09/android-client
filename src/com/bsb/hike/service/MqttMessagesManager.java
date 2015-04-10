@@ -13,6 +13,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import com.bsb.hike.db.DBConstants;
+import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformContentListener;
 import com.bsb.hike.platform.content.PlatformContentModel;
@@ -565,6 +566,12 @@ public class MqttMessagesManager
 		Logger.d(AnalyticsConstants.MSG_REL_TAG, "===========================================");
 		Logger.d(AnalyticsConstants.MSG_REL_TAG, "Packet Arrived at RECV MQTT,track_id:- " + convMessage);
 		MsgRelLogManager.logMsgRelEvent(convMessage, MsgRelEventType.RECEIVER_MQTT_RECVS_SENT_MSG);
+
+		if (ContactManager.getInstance().isBlocked(convMessage.getMsisdn()))
+		{
+			//discard message since the conversation is blocked
+			return;
+		}
 
 		if (convMessage.getMessageType() == HikeConstants.MESSAGE_TYPE.WEB_CONTENT)
 		{
@@ -1793,6 +1800,11 @@ public class MqttMessagesManager
 		
 		UserLogInfo.requestUserLogs(data);
 		
+		if (data.has(HikeConstants.PROB_NUM_HTTP_ANALYTICS))
+		{
+			int httpAnalyticsMaxNumber = data.getInt(HikeConstants.PROB_NUM_HTTP_ANALYTICS);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.PROB_NUM_HTTP_ANALYTICS, httpAnalyticsMaxNumber);
+		}
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
 		
@@ -2361,7 +2373,15 @@ public class MqttMessagesManager
 				String nameSpace = data.optString(DBConstants.HIKE_CONTENT.NAMESPACE);
 				if (data.optBoolean(HikeConstants.PUSH, true) && !TextUtils.isEmpty(destination) && !TextUtils.isEmpty(body))
 				{
-					if (!Utils.isConversationMuted(destination) && !ContactManager.getInstance().isBlocked(destination)
+
+					if (ContactManager.getInstance().isBlocked(destination))
+					{
+
+						blockedMessageAnalytics(HikePlatformConstants.NOTIF);
+						return;
+
+					}
+					else if (!Utils.isConversationMuted(destination)
 							&& HikeConversationsDatabase.getInstance().isContentMessageExist(destination, contentId, nameSpace))
 					{
 						Logger.i("mqttMessageManager", "Play Notification packet from Server " + data.toString());
@@ -2383,6 +2403,22 @@ public class MqttMessagesManager
 				Logger.e("mqttMessageManager", "duplicate Notification packet from server "+data.toString());
 			}
 		}
+	}
+
+	private void blockedMessageAnalytics(String type)
+	{
+		JSONObject metadata = new JSONObject();
+		try
+		{
+			metadata.put(AnalyticsConstants.EVENT_KEY, HikePlatformConstants.BLOCKED_MESSAGE);
+			metadata.put(HikeConstants.TYPE, type);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+
+		HikeAnalyticsEvent.analyticsForCards(AnalyticsConstants.NON_UI_EVENT, HikeConstants.LogEvent.GCM_ANALYTICS_CONTEXT, metadata);
 	}
 
 	private void saveTip(JSONObject jsonObj)
@@ -2531,7 +2567,7 @@ public class MqttMessagesManager
 			MessagePrivateData pd = convMessage.getPrivateData();
 			if (pd != null && pd.getTrackID() != null && !Utils.isGroupConversation(convMessage.getMsisdn()))
 			{
-				MsgRelLogManager.recordMsgRel(pd.getTrackID(), MsgRelEventType.RECIEVR_RECV_MSG);
+				MsgRelLogManager.recordMsgRel(pd.getTrackID(), MsgRelEventType.RECIEVR_RECV_MSG, msisdn);
 			}
 		}
 
@@ -2825,8 +2861,17 @@ public class MqttMessagesManager
 				if (mmData.has(HikeConstants.METADATA))
 				{
 					JSONObject mmMetaData = mmData.getJSONObject(HikeConstants.METADATA);
-					ProductInfoManager.getInstance().parsePopupPacket(mmMetaData);
+					
+					if (mmMetaData.optBoolean(HikeConstants.FLUSH))
+					{
+						ProductInfoManager.getInstance().deleteAllPopups();
+					}
+					else
+					{
+						ProductInfoManager.getInstance().parsePopupPacket(mmMetaData);
+					}
 				}
+				
 			}
 		}
 		else if (HikeConstants.MqttMessageTypes.NEW_MESSAGE_READ.equals(type))//Message came with
@@ -3415,6 +3460,14 @@ public class MqttMessagesManager
 				String expiryTime = json.optString(HikeConstants.EXPIRE_AT);
 
 				JSONObject pushAckJson = json.optJSONObject(HikeConstants.PUSHACK);
+
+				String from = json.optString(HikeConstants.FROM);
+				if (ContactManager.getInstance().isBlocked(from))
+				{
+					blockedMessageAnalytics(HikePlatformConstants.CARD);
+					//discard message since the conversation is blocked
+					return;
+				}
 
 				if (!TextUtils.isEmpty(expiryTime))
 				{

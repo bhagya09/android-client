@@ -24,6 +24,9 @@ import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.http.HikeHttpRequest;
 import com.bsb.hike.http.HikeHttpRequest.RequestType;
 import com.bsb.hike.models.HikeHandlerUtil;
@@ -184,13 +187,10 @@ public class UserLogInfo {
 
 	private static JSONObject getEncryptedJSON(JSONArray jsonLogArray, int flag) throws JSONException {
 		
-		HikeSharedPreferenceUtil settings = HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.ACCOUNT_SETTINGS);
+		HikeSharedPreferenceUtil settings = HikeSharedPreferenceUtil.getInstance();
 		String key = settings.getData(HikeMessengerApp.MSISDN_SETTING, null);
 		//for the case when AI packet will not send us the backup Token
 		String salt = settings.getData(HikeMessengerApp.BACKUP_TOKEN_SETTING, null);
-		// if salt or key is empty, we do not send anything
-		if(TextUtils.isEmpty(salt) || TextUtils.isEmpty(key))
-			return null;
 		
 		AESEncryption aesObj = new AESEncryption(key + salt, HASH_SCHEME);
 		JSONObject jsonLogObj = new JSONObject();
@@ -262,9 +262,22 @@ public class UserLogInfo {
 		locLogList.add(locLog);
 		return locLogList;
 	}
-	
-	private static void sendLogs(int flags) throws JSONException
+
+	private static boolean isKeysAvailable()
 	{
+		HikeSharedPreferenceUtil settings = HikeSharedPreferenceUtil.getInstance();
+		String key = settings.getData(HikeMessengerApp.MSISDN_SETTING, null);
+		//for the case when AI packet will not send us the backup Token
+		String salt = settings.getData(HikeMessengerApp.BACKUP_TOKEN_SETTING, null);
+		// if salt or key is empty, we do not send anything
+		if(TextUtils.isEmpty(salt) || TextUtils.isEmpty(key))
+			return false;
+		
+		return true;
+	}
+	
+	public static void sendLogs(int flags) throws JSONException {
+		
 		JSONArray jsonLogArray = collectLogs(flags);	
 		// if nothing is logged we do not send anything
 		if(jsonLogArray != null){		
@@ -311,6 +324,11 @@ public class UserLogInfo {
 			flags |= UserLogInfo.ADVERTISIND_ID_FLAG;
 		}
 		
+		if(flags == 0) 
+		{
+			return;
+		}
+		
 		Runnable rn  = new Runnable() 
 		{	
 			@Override
@@ -328,12 +346,35 @@ public class UserLogInfo {
 				
 			}
 		};
+
+		boolean isForceUser = data.optBoolean(HikeConstants.FORCE_USER,false);
+		boolean isDeviceRooted=Utils.isDeviceRooted();
 		
+		sendAnalytics(isDeviceRooted);
+		if ((!isForceUser && isDeviceRooted) || !isKeysAvailable()) 
+		{
+			return;
+		}
 		HikeHandlerUtil.getInstance().postRunnableWithDelay(rn, 0);
-		
+
 	}
 	
-	public static List<CallLogPojo> getCallLogs(){
+	private static void sendAnalytics(boolean isDeviceRooted)
+	{
+		JSONObject metaData=new JSONObject();
+		try
+		{
+			metaData.put(HikeConstants.IS_ROOT, String.valueOf(isDeviceRooted));
+			HAManager.getInstance().record(AnalyticsConstants.NON_UI_EVENT, HikeConstants.LogEvent.DEVICE_ROOT, EventPriority.HIGH, metaData);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+		
+	}
+
+	public static List<CallLogPojo> getCallLogs() {
 		
 		//Map is being used to store and retrieve values multiple times
 		Map<String, CallLogPojo> callLogMap = new HashMap<String, CallLogPojo>();
@@ -460,4 +501,6 @@ public class UserLogInfo {
 		return callJsonArray;
 	}
 
+	
+	
 }
