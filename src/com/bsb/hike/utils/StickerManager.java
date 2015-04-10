@@ -122,6 +122,8 @@ public class StickerManager
 	public static int MAX_CUSTOM_STICKERS_COUNT = 30;
 	
 	public static final int SIZE_IMAGE = (int) (80 * Utils.scaledDensityMultiplier);
+	
+	public static final int PREVIEW_IMAGE_SIZE = (int) (58 * Utils.scaledDensityMultiplier);
 
 	public static final String UPGRADE_FOR_STICKER_SHOP_VERSION_1 = "upgradeForStickerShopVersion1";
 	
@@ -1185,7 +1187,7 @@ public class StickerManager
 	 * @param downloadIfNotFound -- true if it should be downloaded if not found.
 	 * @return {@link Bitmap}
 	 */
-	public Bitmap getCategoryOtherAsset(Context ctx, String categoryId, int type, boolean downloadIfNotFound)
+	public Bitmap getCategoryOtherAsset(Context ctx, String categoryId, int type, int width, int height, boolean downloadIfNotFound)
 	{
 		String baseFilePath = getStickerDirectoryForCategoryId(categoryId) + OTHER_STICKER_ASSET_ROOT + "/";
 		Bitmap bitmap = null;
@@ -1204,7 +1206,14 @@ public class StickerManager
 			break;
 		case PREVIEW_IMAGE_TYPE:
 			baseFilePath += PREVIEW_IMAGE + OTHER_ICON_TYPE;
-			bitmap = HikeBitmapFactory.decodeFile(baseFilePath);
+			if(width <= 0 || height <= 0)
+			{
+				bitmap = HikeBitmapFactory.decodeFile(baseFilePath);
+			}
+			else
+			{
+				bitmap = HikeBitmapFactory.scaleDownBitmap(baseFilePath, width, height, true, false);
+			}
 			defaultIconResId = R.drawable.shop_placeholder;
 			break;
 		default:
