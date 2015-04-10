@@ -3,6 +3,7 @@ package com.bsb.hike.modules.httpmgr;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpHeaderConstants;
 import com.bsb.hike.modules.httpmgr.request.Request;
 import com.bsb.hike.utils.AccountUtils;
 
@@ -23,13 +24,13 @@ public final class DefaultHeaders
 	{
 		List<Header> headers = new ArrayList<Header>(3);
 
-		if (AccountUtils.appVersion != null && !Utils.containsHeader(request.getHeaders(), "User-Agent"))
+		if (AccountUtils.appVersion != null && !Utils.containsHeader(request.getHeaders(), HttpHeaderConstants.USER_AGENT_HEADER_NAME))
 		{
-			headers.add(new Header("User-Agent", "android-" + AccountUtils.appVersion));
+			headers.add(new Header(HttpHeaderConstants.USER_AGENT_HEADER_NAME, HttpHeaderConstants.ANDROID + "-" + AccountUtils.appVersion));
 		}
-		if (AccountUtils.mToken != null && AccountUtils.mUid != null && !Utils.containsHeader(request.getHeaders(), "Cookie"))
+		if (AccountUtils.mToken != null && AccountUtils.mUid != null && !Utils.containsHeader(request.getHeaders(), HttpHeaderConstants.COOKIE_HEADER_NAME))
 		{
-			headers.add(new Header("Cookie", "user=" + AccountUtils.mToken + "; UID=" + AccountUtils.mUid));
+			headers.add(new Header(HttpHeaderConstants.COOKIE_HEADER_NAME, HttpHeaderConstants.USER + "=" + AccountUtils.mToken + "; " + HttpHeaderConstants.UID + "=" + AccountUtils.mUid));
 		}
 		if (!Utils.containsHeader(request.getHeaders(), CACHE_CONTROL))
 		{

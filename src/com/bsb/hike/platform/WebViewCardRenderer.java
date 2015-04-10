@@ -11,6 +11,7 @@ import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.os.Build;
@@ -606,6 +607,29 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 		@Override
 		public void onAnimationRepeat(Animator animation)
 		{
+		}
+	}
+	
+	/**
+	 * This function is called when activity onActivityResult is called from system, it checks which platformbridge started some activity for result and
+	 * then calls its onActivityResult
+	 * @param requestCode
+	 * @param resultCode
+	 * @param data
+	 */
+	public void onActivityResult(int resultCode, Intent data)
+	{
+		int platformBridgeHashcode = data.getIntExtra(PlatformJavaScriptBridge.tag, -1);
+		if(platformBridgeHashcode != -1)
+		{
+			for(WebViewHolder holder : holderList)
+			{
+				if(holder.platformJavaScriptBridge.hashCode() == platformBridgeHashcode)
+				{
+					holder.platformJavaScriptBridge.onActivityResult(resultCode, data);
+					break;
+				}
+			}
 		}
 	}
 }

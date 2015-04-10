@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import com.bsb.hike.platform.PlatformUIDFetch;
 import com.bsb.hike.platform.content.PlatformContent;
 import org.acra.ACRA;
 import org.acra.ErrorReporter;
@@ -108,6 +109,10 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	public static final String UID_SETTING = "uid";
 
 	public static final String BACKUP_TOKEN_SETTING = "backup_token";
+
+	public static final String PLATFORM_UID_SETTING = "platformUID";
+
+	public static final String PLATFORM_TOKEN_SETTING = "platformToken";
 
 	public static final String RESTORE_ACCOUNT_SETTING = "restore";
 	
@@ -727,10 +732,10 @@ public void onTrimMemory(int level)
 		
 		// if the setting value is 1 , this means the DB onUpgrade was called
 		// successfully.
-		if ((settings.getInt(HikeConstants.UPGRADE_AVATAR_CONV_DB, -1) == 1 ) || 
-				settings.getInt(HikeConstants.UPGRADE_MSG_HASH_GROUP_READBY, -1) == 1 || settings.getInt(HikeConstants.UPGRADE_FOR_DATABASE_VERSION_28, -1) == 1 || 
+		if ((settings.getInt(HikeConstants.UPGRADE_AVATAR_CONV_DB, -1) == 1) ||
+				settings.getInt(HikeConstants.UPGRADE_MSG_HASH_GROUP_READBY, -1) == 1 || settings.getInt(HikeConstants.UPGRADE_FOR_DATABASE_VERSION_28, -1) == 1 ||
 				settings.getInt(StickerManager.MOVED_HARDCODED_STICKERS_TO_SDCARD, 1) == 1 || settings.getInt(StickerManager.UPGRADE_FOR_STICKER_SHOP_VERSION_1, 1) == 1 ||
-				settings.getInt(UPGRADE_FOR_SERVER_ID_FIELD, 0) == 1|| TEST)
+				settings.getInt(UPGRADE_FOR_SERVER_ID_FIELD, 0) == 1 || TEST)
 		{
 			startUpdgradeIntent();
 		}
@@ -834,7 +839,7 @@ public void onTrimMemory(int level)
 		hikeBotNamesMap.put(HikeConstants.FTUE_HIKE_DAILY, "hike daily");
 		hikeBotNamesMap.put(HikeConstants.FTUE_HIKE_SUPPORT, "hike support");
 		hikeBotNamesMap.put(HikeConstants.NUX_BOT, "Natasha");
-		hikeBotNamesMap.put(HikeConstants.CRICKET_BOT, "Cricket");
+		hikeBotNamesMap.put(HikeConstants.CRICKET_BOT, HikePlatformConstants.CRICKET_BOT_NAME);
 
 		HikeConversationsDatabase.getInstance().addBotToHashMap(hikeBotNamesMap);
 		initHikeLruCache(getApplicationContext());
@@ -859,6 +864,24 @@ public void onTrimMemory(int level)
 		}
 		ProductInfoManager.getInstance().init();
 		PlatformContent.init(settings.getBoolean(HikeMessengerApp.PRODUCTION, true));
+
+		if (Utils.isUserAuthenticated(this))
+		{
+			fetchPlatformIDIfNotPresent();
+		}
+	}
+
+	/**
+	 * fetching the platform user id from the server. Will not fetch if the platform user id is already present. Will fetch the address book's platform uid on
+	 * success of this call.
+	 */
+	private void fetchPlatformIDIfNotPresent()
+	{
+		HikeSharedPreferenceUtil prefs = HikeSharedPreferenceUtil.getInstance();
+		if (prefs.getData(HikeMessengerApp.PLATFORM_UID_SETTING, null) == null && prefs.getData(HikeMessengerApp.PLATFORM_TOKEN_SETTING, null) == null )
+		{
+			PlatformUIDFetch.fetchPlatformUid(HikePlatformConstants.PlatformUIDFetchType.SELF);
+		}
 	}
 
 	// Hard coding the cricket bot on the App's onCreate so that there is a cricket bot entry
