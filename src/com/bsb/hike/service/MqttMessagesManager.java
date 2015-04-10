@@ -1019,6 +1019,8 @@ public class MqttMessagesManager
 		try
 		{
 			Logger.d(AnalyticsConstants.MSG_REL_TAG, "For nmr,jsonObject: " + jsonObj);
+			
+			// "d":{"msgid1":{track_id:"value"}}
 			JSONObject msgMetadata = jsonObj.optJSONObject(HikeConstants.DATA);
 			if (msgMetadata != null)
 			{
@@ -1033,7 +1035,7 @@ public class MqttMessagesManager
 					JSONObject pd = (JSONObject)msgMetadata.getJSONObject(String.valueOf(key));
 					if(pd != null && pd.has(HikeConstants.MSG_REL_UID))
 					{
-						MsgRelLogManager.recordMsgRel(pd.getString(HikeConstants.MSG_REL_UID), MsgRelEventType.MR_SHOWN_AT_SENEDER_SCREEN, "-1");
+						MsgRelLogManager.recordMsgRel(pd.optString(HikeConstants.MSG_REL_UID), MsgRelEventType.MR_SHOWN_AT_SENEDER_SCREEN, "-1");
 					}
 				}
 				jsonObj.put(HikeConstants.DATA, serverIds);
