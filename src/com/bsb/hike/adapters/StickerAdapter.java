@@ -276,8 +276,10 @@ public class StickerAdapter extends PagerAdapter implements StickerEmoticonIconP
 
 		ViewGroup emptyView = (ViewGroup) parent.findViewById(R.id.emptyViewHolder);
 
-		checkAndSetEmptyView(parent, emptyView, category, stickerGridView);
-
+		if(category.getStickerList().size() == 0)
+		{
+			checkAndSetEmptyView(parent, emptyView, category, stickerGridView);
+		}
 		StickerPageObjects spo = new StickerPageObjects(stickerGridView);
 		stickerGridView.setNumColumns(StickerManager.getInstance().getNumColumnsForStickerGrid(activity));
 		stickerObjMap.put(category.getCategoryId(), spo);

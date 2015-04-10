@@ -14,10 +14,10 @@ dependencies {
     compile 'com.android.support:support-v4:18.0.+'
 }
 android {
-    compileSdkVersion 19
     lintOptions {
         abortOnError false
     }
+    compileSdkVersion 19
     buildToolsVersion '21.0.2'
     sourceSets {
         main {
@@ -25,5 +25,8 @@ android {
             java.srcDirs = ['src']
             res.srcDirs = ['res']
         }
+    }
+    dependencies {
+        compile files('libs/google-play-services.jar')
     }
 }

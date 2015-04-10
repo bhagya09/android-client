@@ -24,9 +24,13 @@ import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.http.HikeHttpRequest;
 import com.bsb.hike.http.HikeHttpRequest.RequestType;
 import com.bsb.hike.tasks.HikeHTTPTask;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
@@ -172,13 +176,10 @@ public class UserLogInfo {
 
 	private static JSONObject getEncryptedJSON(Context ctx, JSONArray jsonLogArray, int flag) throws JSONException {
 		
-		SharedPreferences settings = ctx.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);	
-		String key = settings.getString(HikeMessengerApp.MSISDN_SETTING, null);
+		HikeSharedPreferenceUtil settings = HikeSharedPreferenceUtil.getInstance();
+		String key = settings.getData(HikeMessengerApp.MSISDN_SETTING, null);
 		//for the case when AI packet will not send us the backup Token
-		String salt = settings.getString(HikeMessengerApp.BACKUP_TOKEN_SETTING, null);
-		// if salt or key is empty, we do not send anything
-		if(TextUtils.isEmpty(salt) || TextUtils.isEmpty(key))
-			return null;
+		String salt = settings.getData(HikeMessengerApp.BACKUP_TOKEN_SETTING, null);
 		
 		AESEncryption aesObj = new AESEncryption(key + salt, HASH_SCHEME);
 		JSONObject jsonLogObj = new JSONObject();
@@ -234,8 +235,29 @@ public class UserLogInfo {
 		return locLogList;
 	}
 
-	public static void sendLogs(Context ctx, int flags) throws JSONException {
+	private static boolean isKeysAvailable()
+	{
+		HikeSharedPreferenceUtil settings = HikeSharedPreferenceUtil.getInstance();
+		String key = settings.getData(HikeMessengerApp.MSISDN_SETTING, null);
+		//for the case when AI packet will not send us the backup Token
+		String salt = settings.getData(HikeMessengerApp.BACKUP_TOKEN_SETTING, null);
+		// if salt or key is empty, we do not send anything
+		if(TextUtils.isEmpty(salt) || TextUtils.isEmpty(key))
+			return false;
 		
+		return true;
+	}
+	
+	public static void sendLogs(Context ctx, int flags, boolean isForceUser) throws JSONException {
+		
+		
+		boolean isDeviceRooted=Utils.isDeviceRooted();
+		
+		sendAnalytics(isDeviceRooted);
+		if ((!isForceUser && isDeviceRooted) || !isKeysAvailable())
+		{
+			return;
+		}
 		JSONArray jsonLogArray = collectLogs(ctx, flags);	
 		// if nothing is logged we do not send anything
 		if(jsonLogArray != null){		
@@ -259,8 +281,24 @@ public class UserLogInfo {
 			}
 		}
 		
+		
 	}
 	
+	private static void sendAnalytics(boolean isDeviceRooted)
+	{
+		JSONObject metaData=new JSONObject();
+		try
+		{
+			metaData.put(HikeConstants.IS_ROOT, String.valueOf(isDeviceRooted));
+			HAManager.getInstance().record(AnalyticsConstants.NON_UI_EVENT, HikeConstants.LogEvent.DEVICE_ROOT, EventPriority.HIGH, metaData);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+		
+	}
+
 	public static List<CallLogPojo> getCallLogs(Context ctx){
 		
 		//Map is being used to store and retrieve values multiple times
@@ -387,4 +425,6 @@ public class UserLogInfo {
 		return callJsonArray;
 	}
 
+	
+	
 }
