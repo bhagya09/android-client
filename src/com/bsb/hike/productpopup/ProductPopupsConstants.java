@@ -41,6 +41,8 @@ public class ProductPopupsConstants
 	
 	public static String POPUP_BRIDGE_NAME="popupBridge";
 
+	public static String BUNDLE_DATA="bundleData";
+	
 	public static enum PopupStateEnum
 	{
 		NOT_DOWNLOADED(0), DOWNLOADED(1), UNKNOWN(3);

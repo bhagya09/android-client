@@ -3,7 +3,6 @@ package com.bsb.hike;
 import android.net.Uri;
 import android.os.Environment;
 
-import com.bsb.hike.NUXConstants.PushTypeEnum;
 import com.bsb.hike.models.StatusMessage.StatusMessageType;
 
 public class HikeConstants
@@ -2539,6 +2538,8 @@ public class HikeConstants
 	public static final String WHITELISTED_DOMAINS[] = new String[]{"hike.in"};
 	
 	public static final String BLACKLIST_DOMAIN_ANALYTICS = "blacklist";
+
+	public static final String FLUSH = "flush";
 
 	public static final String FORCE_USER="fu";
 	
