@@ -47,7 +47,7 @@ public class MsgRelLogManager
 				{
 					Logger.e(MsgRelLogManager.class.getSimpleName(), "Found Conv Message With NUll PD, should not be case ");
 				}
-				recordMsgRel(convMessage.getPrivateData().getTrackID(), MsgRelEventType.SEND_BUTTON_CLICKED, msgType);
+				recordMsgRel(convMessage.getPrivateData().getTrackID(), MsgRelEventType.SEND_BUTTON_CLICKED, msgType, convMessage.getMsisdn());
 			}
 		}
 	}
@@ -78,7 +78,7 @@ public class MsgRelLogManager
 				String msgType = pdObject.optString(HikeConstants.MSG_REL_MSG_TYPE);
 				if (trackId != null && msgID != -1)
 				{
-					recordMsgRel(trackId, eventType, msgType);
+					recordMsgRel(trackId, eventType, msgType, "-1");
 				}
 			}
 		}
@@ -105,7 +105,7 @@ public class MsgRelLogManager
 				if (trackId != null)
 				{
 					long msgId = jsonObj.getLong(HikeConstants.MESSAGE_ID);
-					recordMsgRel(trackId, eventType);
+					recordMsgRel(trackId, eventType, "-1");
 				}
 			}
 		}
@@ -126,7 +126,7 @@ public class MsgRelLogManager
 		MessagePrivateData messagePrivateData = convMessage.getPrivateData();
 		if (messagePrivateData != null && messagePrivateData.getTrackID() != null && !Utils.isGroupConversation(convMessage.getMsisdn()))
 		{
-			recordMsgRel(messagePrivateData.getTrackID(), eventType, messagePrivateData.getMsgType());
+			recordMsgRel(messagePrivateData.getTrackID(), eventType, messagePrivateData.getMsgType(), convMessage.getMsisdn());
 		}
 	}
 
@@ -139,24 +139,25 @@ public class MsgRelLogManager
 	{
 		if (packet.getTrackId() != null)
 		{
-			recordMsgRel(packet.getTrackId(), eventType);
+			recordMsgRel(packet.getTrackId(), eventType, "-1");
 		}
 	}
 
 	/**
 	 * Records Event for Msg Reliability With High Priority and NON_UI_Event
 	 * @param eventType
+	 * @param msisdn TODO
 	 * @param uid
 	 * @param uId
 	 * @param msgType
 	 */
 	
-	public static void recordMsgRel(String trackID, String eventType)
+	public static void recordMsgRel(String trackID, String eventType, String msisdn)
 	{
-		recordMsgRel(trackID, eventType, "-1");
+		recordMsgRel(trackID, eventType, "-1", msisdn);
 	}
 	
-	public static void recordMsgRel(String trackID, String eventType, String msgType)
+	public static void recordMsgRel(String trackID, String eventType, String msgType, String msisdn)
 	{
 		JSONObject metadata = null;
 		try
@@ -166,8 +167,8 @@ public class MsgRelLogManager
 			// track_id:-
 			metadata.put(AnalyticsConstants.TRACK_ID, trackID);
 			
-			// msg_id:-
-			//metadata.put(AnalyticsConstants.MSG_ID, msgId);
+			// msisdn:-
+			metadata.put(AnalyticsConstants.T_USER, msisdn);
 			
 			//Constant Field need to be added for all the messages as required by Analytics Team
 			metadata.put(AnalyticsConstants.MSG_REL_CONST_STR, "msg");
