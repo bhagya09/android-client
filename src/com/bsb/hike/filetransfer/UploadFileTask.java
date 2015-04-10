@@ -58,6 +58,8 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
+import com.bsb.hike.analytics.MsgRelLogManager;
+import com.bsb.hike.analytics.AnalyticsConstants.MessageType;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
@@ -317,6 +319,9 @@ public class UploadFileTask extends FileTransferBase
 				}
 
 				HikeConversationsDatabase.getInstance().addConversationMessages(convMessageObject);
+				
+				// 1) user clicked Media file and sending it
+				MsgRelLogManager.startMessageRelLogging((ConvMessage) userContext, MessageType.MULTIMEDIA);
 				
 				//Message sent from here will only do an entry in conversation db it is not actually being sent to server.
 				HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_SENT, convMessageObject);
