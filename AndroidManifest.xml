@@ -318,6 +318,12 @@
               android:screenOrientation="portrait">
         </activity> 
         <activity
+           	  android:name="com.bsb.hike.ui.DelegateActivity"
+              android:launchMode="standard"
+              android:theme="@android:style/Theme.NoDisplay"
+              android:screenOrientation="portrait">
+        </activity> 
+        <activity
             android:name=".ui.PinHistoryActivity"
             android:configChanges="orientation|screenSize|keyboard|keyboardHidden" >
         </activity>

@@ -486,33 +486,19 @@ public class IntentManager
 	{
 		Intent i = new Intent(HikeMessengerApp.getInstance().getApplicationContext(), PictureEditer.class);
 
-		i.putExtra(HikeConstants.HikePhotos.FILENAME, imageFileName);
+		if (imageFileName != null)
+		{
+			i.putExtra(HikeConstants.HikePhotos.FILENAME, imageFileName);
+		}
+
 		i.putExtra(HikeConstants.HikePhotos.EDITOR_ALLOW_COMPRESSION_KEY, compressOutput);
 		return i;
 	}
 
-	public static void openNativeCameraApp(Activity argActivity)
+	public static Intent getNativeCameraAppIntent()
 	{
-		int requestCode = HikeConstants.IMAGE_CAPTURE_CODE;
 		Intent pickIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-		File selectedDir = new File(Utils.getFileParent(HikeFileType.IMAGE, false));
-		if (!selectedDir.exists())
-		{
-			if (!selectedDir.mkdirs())
-			{
-				return;
-			}
-		}
-		String fileName = HikeConstants.CAM_IMG_PREFIX + Utils.getOriginalFile(HikeFileType.IMAGE, null);
-		File selectedFile = new File(selectedDir.getPath() + File.separator + fileName);
-
-		pickIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(selectedFile));
-		/*
-		 * For images, save the file path as a preferences since in some devices the reference to the file becomes null.
-		 */
-		HikeSharedPreferenceUtil pref = HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.ACCOUNT_SERVICE);
-		pref.saveData(HikeMessengerApp.FILE_PATH, selectedFile.getAbsolutePath());
-		argActivity.startActivityForResult(pickIntent, requestCode);
+		return pickIntent;
 	}
 
 }
