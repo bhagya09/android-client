@@ -3060,12 +3060,12 @@ public class Utils
 	 * Applies the server time offset and ensures that the time becomes sync with server
 	 * @param context
 	 * @param time in seconds
-	 * @return time in seconds
+	 * @return time in milliseconds
 	 */
-	public static long applyOffsetToMakeTimeServerSync(Context context, long timeInSec)
+	public static long applyOffsetToMakeTimeServerSync(Context context, long timeInMSec)
 	{
-		timeInSec -= getServerTimeOffset(context);
-		return timeInSec;
+		timeInMSec = timeInMSec - (getServerTimeOffset(context) * 1000);
+		return timeInMSec;
 	}
 
 	public static void blockOrientationChange(Activity activity)

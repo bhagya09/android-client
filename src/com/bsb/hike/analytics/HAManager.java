@@ -460,14 +460,12 @@ public class HAManager
 	{		
 		JSONObject json = new JSONObject();
 		JSONObject data = new JSONObject();
-		
 		try 
 		{
 			data.put(AnalyticsConstants.EVENT_TYPE, type);				
 			data.put(AnalyticsConstants.EVENT_SUB_TYPE, eventContext);
 			data.put(AnalyticsConstants.EVENT_PRIORITY, priority);
-			long ts = Utils.applyOffsetToMakeTimeServerSync(context, System.currentTimeMillis()/1000);
-			ts = ts * 1000;
+			long ts = Utils.applyOffsetToMakeTimeServerSync(context, System.currentTimeMillis());
 			data.put(AnalyticsConstants.CURRENT_TIME_STAMP, ts);
 			data.put(AnalyticsConstants.EVENT_TAG, tagValue);
 
