@@ -286,14 +286,14 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 	{
 		voipService.setMessenger(mMessenger);
 		
-		if (VoIPService.getCallId() == 0) 
+		VoIPClient clientPartner = voipService.getPartnerClient();
+		if (VoIPService.getCallId() == 0 || clientPartner.getPhoneNumber() == null) 
 		{
 			Logger.w(VoIPConstants.TAG, "There is no active call.");
 			getSherlockActivity().finish();
 			return;
 		}
-		
-		VoIPClient clientPartner = voipService.getPartnerClient();
+
 		if(VoIPService.isAudioRunning())
 		{
 			// Active Call
