@@ -67,31 +67,7 @@ public final class HikeEffectsFactory
 		// Allocate buffer
 		mBitmapIn = image;
 		mInAllocation = Allocation.createFromBitmap(mRS, mBitmapIn);
-		if (!isFinal && (currentOut == null || (finalBitmap == null && currentOut.getHeight() != mBitmapIn.getHeight())) && !isThumbnail)
-		{
-			mBitmapOut1 = HikePhotosUtils.createBitmap(mBitmapIn, 0, 0, 0, 0, false, false, false, true);
-			// mBitmapOut1 = mBitmapOut1.createBitmap(mBitmapIn.getWidth(), mBitmapIn.getHeight(), mBitmapIn.getConfig());
-			mBitmapOut2 = HikePhotosUtils.createBitmap(mBitmapIn, 0, 0, 0, 0, false, false, false, true);
-			// mBitmapOut2 = mBitmapOut2.createBitmap(mBitmapIn.getWidth(), mBitmapIn.getHeight(), mBitmapIn.getConfig());
-			vignetteBitmap = HikePhotosUtils.createBitmap(mBitmapIn, 0, 0, 0, 0, false, false, false, true);
-			currentOut = mBitmapOut1;
-			// Log.e("com.bsb.hike","2 new bitmap created");
-		}
-		else if (!isFinal && (currentOut != null && (currentOut.getHeight() == mBitmapIn.getHeight() || finalBitmap != null)) && !isThumbnail)
-		{
-			if (currentOut == mBitmapOut1)
-			{
-				currentOut = mBitmapOut2;
-				// Log.e("com.bsb.hike","using out 2");
-			}
-			else
-			{
-				currentOut = mBitmapOut1;
-				// Log.e("com.bsb.hike","using out 1");
-			}
-			vignetteBitmap.eraseColor(0x00000000);
-		}
-		else if (isFinal)
+		if (isFinal)
 		{
 			if (finalBitmap == null)
 			{
@@ -105,6 +81,28 @@ public final class HikeEffectsFactory
 			}
 			currentOut = finalBitmap;
 		}
+		else if(!isThumbnail)
+		{
+			if  (currentOut == null || (finalBitmap == null && (currentOut.getHeight() != mBitmapIn.getHeight() || currentOut.getWidth() != mBitmapIn.getWidth())))
+			{
+				mBitmapOut1 = HikePhotosUtils.createBitmap(mBitmapIn, 0, 0, 0, 0, false, false, false, true);
+				mBitmapOut2 = HikePhotosUtils.createBitmap(mBitmapIn, 0, 0, 0, 0, false, false, false, true);
+				vignetteBitmap = HikePhotosUtils.createBitmap(mBitmapIn, 0, 0, 0, 0, false, false, false, true);
+				currentOut = mBitmapOut1;
+			}
+			else if  (currentOut != null && ((currentOut.getHeight() == mBitmapIn.getHeight() && currentOut.getWidth() == mBitmapIn.getWidth()) || finalBitmap != null))
+			{
+				if (currentOut == mBitmapOut1)
+				{
+					currentOut = mBitmapOut2;
+				}
+				else
+				{
+					currentOut = mBitmapOut1;
+				}
+			}
+		}
+
 		if (!isThumbnail && (currentOut == null || vignetteBitmap == null))
 		{
 			ret = false;
@@ -114,7 +112,6 @@ public final class HikeEffectsFactory
 
 	}
 
-	
 	/**
 	 * Method To Clear HikeEffectFactory's singleton object and attributes associated with it. Recycles all bitmaps. Should be called only when no further effects are to be
 	 * applied.
@@ -300,7 +297,7 @@ public final class HikeEffectsFactory
 				filterColorMatrix.setConcat(getContrastColorMatrix(100f), filterColorMatrix);
 			}
 			break;
-		
+
 		case HDR:
 			if (isPreMatrix)
 			{
@@ -312,7 +309,7 @@ public final class HikeEffectsFactory
 				filterColorMatrix = getInvertColorsColorMatrix();
 			}
 			break;
-		
+
 		default:
 			filterColorMatrix = null;
 
@@ -896,7 +893,7 @@ public final class HikeEffectsFactory
 				mScript.set_bSpline(blue.getInterpolationMatrix());
 				mScript.forEach_filter_sunlitt(mInAllocation, mOutAllocations);
 				break;
-				
+
 			default:
 				mScript.forEach_filter_colorMatrix(mInAllocation, mOutAllocations);
 				break;
