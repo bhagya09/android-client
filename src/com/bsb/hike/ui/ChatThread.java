@@ -10,6 +10,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Set;
@@ -165,8 +166,11 @@ import com.bsb.hike.adapters.MessagesAdapter;
 import com.bsb.hike.adapters.StickerAdapter;
 import com.bsb.hike.adapters.UpdateAdapter;
 import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.AnalyticsConstants.MessageType;
+import com.bsb.hike.analytics.AnalyticsConstants.MsgRelEventType;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
+import com.bsb.hike.analytics.MsgRelLogManager;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.db.HikeMqttPersistence;
 import com.bsb.hike.filetransfer.FTAnalyticEvents;
@@ -193,6 +197,7 @@ import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.models.GroupTypingNotification;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.models.MessagePrivateData;
 import com.bsb.hike.models.OverFlowMenuItem;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.StickerCategory;
@@ -206,6 +211,7 @@ import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformMessageMetadata;
 import com.bsb.hike.platform.WebMetadata;
 import com.bsb.hike.platform.content.PlatformContent;
+import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.tasks.EmailConversationsAsyncTask;
 import com.bsb.hike.tasks.FinishableEvent;
@@ -2003,6 +2009,10 @@ public class ChatThread extends HikeAppStateBaseFragmentActivity implements Hike
 
 
 		ConvMessage convMessage = Utils.makeConvMessage(mContactNumber, message, isConversationOnHike());
+		
+		// 1) user clicked send button in chat thread i.e Sending Text Message
+		MsgRelLogManager.startMessageRelLogging(convMessage, MessageType.TEXT);
+		
 		if (showingImpMessagePinCreate)
 		{
 			convMessage.setMessageType((Integer) v.getTag());
@@ -3584,44 +3594,93 @@ public class ChatThread extends HikeAppStateBaseFragmentActivity implements Hike
 
 		if (isLastMsgReceivedAndUnread())
 		{
-			if (PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean(HikeConstants.RECEIVE_SMS_PREF, false))
+			try
 			{
-				setSMSReadInNative();
-			}
-
-			JSONArray ids = mConversationDb.updateStatusAndSendDeliveryReport(mConversation.getMsisdn());
-			mPubSub.publish(HikePubSub.MSG_READ, mConversation.getMsisdn());
-
-			Logger.d("UnreadBug", "Unread count event triggered");
-			/*
-			 * If there are msgs which are RECEIVED UNREAD then only broadcast a msg that these are read avoid sending read notifications for group chats
-			 */
-			if (ids != null)
-			{
-				// int lastReadIndex = messages.size() - ids.length();
-				// // Scroll to the last unread message
-				// if (lastReadIndex == 0)
-				// {
-				// mConversationsView.setSelection(lastReadIndex);
-				// }
-				// else
-				// {
-				// mConversationsView.setSelection(lastReadIndex - 1);
-				// }
-
-				JSONObject object = new JSONObject();
-				try
+				if (PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean(HikeConstants.RECEIVE_SMS_PREF, false))
 				{
+					setSMSReadInNative();
+				}
+				
+				List<Pair<Long, JSONObject>> pairList = mConversationDb.updateStatusAndSendDeliveryReport(mConversation.getMsisdn());
+				
+				mPubSub.publish(HikePubSub.MSG_READ, mConversation.getMsisdn());
+				
+				if(pairList == null)
+				{
+					return;
+				}
+				
+				JSONObject dataMR = new JSONObject();
+
+				JSONArray ids = new JSONArray();
+				
+				for (int i = 0; i < pairList.size(); i++)
+				{
+					Pair<Long, JSONObject> pair = pairList.get(i);
+					JSONObject object = pair.second;
+					if(object.has(HikeConstants.PRIVATE_DATA))
+					{
+						String pdString = object.optString(HikeConstants.PRIVATE_DATA);
+						JSONObject pd = new JSONObject(pdString);
+						if (pd != null)
+						{
+							String trackId = pd.optString(HikeConstants.MSG_REL_UID);
+							if (trackId != null)
+							{
+								dataMR.putOpt(String.valueOf(pair.first), pd);
+								// Logs for Msg Reliability
+								Logger.d(AnalyticsConstants.MSG_REL_TAG, "===========================================");
+								Logger.d(AnalyticsConstants.MSG_REL_TAG, "Receiver reads msg on after opening screen,track_id:- " + trackId);
+								MsgRelLogManager.recordMsgRel(trackId, MsgRelEventType.RECEIVER_OPENS_CONV_SCREEN);
+							}
+							else
+							{
+								ids.put(String.valueOf(pair.first));
+							}
+						}
+					}
+					else
+					{
+						ids.put(String.valueOf(pair.first));
+					}
+				}
+
+				Logger.d("UnreadBug", "Unread count event triggered");
+				Logger.d(AnalyticsConstants.MSG_REL_TAG, "inside API setMessageRead in CT ===========================================");
+				Logger.d(AnalyticsConstants.MSG_REL_TAG, "Going to set MR/NMR as user is on chat screen ");
+
+				/*
+				 * If there are msgs which are RECEIVED UNREAD then only broadcast a msg that these are read avoid sending read notifications for group chats
+				 */
+				if(ids != null && ids.length() > 0)
+				{
+					JSONObject object = new JSONObject();
 					object.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.MESSAGE_READ);
 					object.put(HikeConstants.TO, mConversation.getMsisdn());
 					object.put(HikeConstants.DATA, ids);
+					
+					//Logs for Msg Reliability
+					Logger.d(AnalyticsConstants.MSG_REL_TAG, "MR Packet gen API setMessageRead:- " + object);
+					HikeMqttManagerNew.getInstance().sendMessage(object, HikeMqttManagerNew.MQTT_QOS_ONE);
 				}
-				catch (JSONException e)
+				
+				if(dataMR != null && dataMR.length() > 0)
 				{
-					e.printStackTrace();
+					JSONObject object = new JSONObject();
+					object.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.NEW_MESSAGE_READ);
+					object.put(HikeConstants.TO, mConversation.getMsisdn());
+					object.put(HikeConstants.DATA, dataMR);
+					
+					//Logs for Msg Reliability
+					Logger.d(AnalyticsConstants.MSG_REL_TAG, "NMR Packet gen API setMessageRead:- " + object);
+					HikeMqttManagerNew.getInstance().sendMessage(object, HikeMqttManagerNew.MQTT_QOS_ONE);
 				}
-
-		        HikeMqttManagerNew.getInstance().sendMessage(object, HikeMqttManagerNew.MQTT_QOS_ONE);
+				    
+			}
+			catch (JSONException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}
 	}
@@ -3729,6 +3788,16 @@ public class ChatThread extends HikeAppStateBaseFragmentActivity implements Hike
 				if (hasWindowFocus())
 				{
 					message.setState(ConvMessage.State.RECEIVED_READ);
+					
+
+					if(message.getPrivateData() != null && message.getPrivateData().getTrackID() != null)
+					{
+						//Logs for Msg Reliability
+						Logger.d(AnalyticsConstants.MSG_REL_TAG, "===========================================");
+						Logger.d(AnalyticsConstants.MSG_REL_TAG, "Receiver reads msg on already opened screen,track_id:- " + message.getPrivateData().getTrackID());
+						MsgRelLogManager.logMsgRelEvent(message, MsgRelEventType.RECEIVER_OPENS_CONV_SCREEN);
+					}
+
 					mConversationDb.updateMsgStatus(message.getMsgID(), ConvMessage.State.RECEIVED_READ.ordinal(), mConversation.getMsisdn());
 					if (message.getParticipantInfoState() == ParticipantInfoState.NO_INFO)
 					{
@@ -3855,6 +3924,7 @@ public class ChatThread extends HikeAppStateBaseFragmentActivity implements Hike
 					}
 				}
 				runOnUiThread(mUpdateAdapter);
+
 			}
 		}
 		else if (HikePubSub.MESSAGE_DELIVERED_READ.equals(type))
@@ -3875,6 +3945,15 @@ public class ChatThread extends HikeAppStateBaseFragmentActivity implements Hike
 				{
 					msg.setState(ConvMessage.State.SENT_DELIVERED_READ);
 					removeFromMessageMap(msg);
+					
+					//Log Events For Message Reliability
+					MessagePrivateData pd = msg.getPrivateData();
+					if(pd != null && pd.getTrackID() != null)
+					{
+						Logger.d(AnalyticsConstants.MSG_REL_TAG, "===========================================");
+						Logger.d(AnalyticsConstants.MSG_REL_TAG, "Read Shown to Sender:track_id "+ msg.getPrivateData().getTrackID());
+						MsgRelLogManager.logMsgRelEvent(msg, MsgRelEventType.MR_SHOWN_AT_SENEDER_SCREEN);
+					}
 				}
 			}
 			/*
@@ -4739,6 +4818,8 @@ public class ChatThread extends HikeAppStateBaseFragmentActivity implements Hike
 			}
 			if(updateView)
 			{
+				MsgRelLogManager.logMsgRelEvent(msg, MsgRelEventType.SINGLE_TICK_ON_SENDER);
+				
 				runOnUiThread(mUpdateAdapter);
 			}
 		}
@@ -7513,6 +7594,9 @@ public class ChatThread extends HikeAppStateBaseFragmentActivity implements Hike
 		{
 			metadata.put(HikeConstants.POKE, true);
 			convMessage.setMetadata(metadata);
+			
+			// 1) user double clicked on Chat Screen i.e Sending nudge
+			MsgRelLogManager.startMessageRelLogging(convMessage, MessageType.TEXT);
 		}
 		catch (JSONException e)
 		{
@@ -7567,6 +7651,10 @@ public class ChatThread extends HikeAppStateBaseFragmentActivity implements Hike
 			}
 
 			convMessage.setMetadata(metadata);
+			
+			// 1) user clicked sticker in Sticker Pallete i.e Sending Sticker
+			MsgRelLogManager.startMessageRelLogging(convMessage, MessageType.STICKER);
+			
 			Logger.d(getClass().getSimpleName(), "metadata: " + metadata.toString());
 		}
 		catch (JSONException e)
