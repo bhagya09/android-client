@@ -485,12 +485,14 @@ public class CropImage extends MonitoredActivity
 			}
 			Bundle extras = new Bundle();
 			extras.putString(MediaStore.EXTRA_OUTPUT, croppedImage == null ? null : mSaveUri.getPath());
+			extras.putString(HikeConstants.HikePhotos.ORIG_FILE, mImagePath);
 			setResult(RESULT_OK, new Intent(mSaveUri.toString()).putExtras(extras));
 		}
 		else
 		{
 			Bundle extras = new Bundle();
 			extras.putParcelable(HikeConstants.Extras.BITMAP, croppedImage);
+			extras.putString(HikeConstants.HikePhotos.ORIG_FILE, mImagePath);
 			setResult(RESULT_OK, new Intent().putExtras(extras));
 		}
 		finish();

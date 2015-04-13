@@ -2480,6 +2480,8 @@ public class HikeConstants
 		public static final int GALLERY_PICKER_REQUEST = 2;
 
 		public static final String FILENAME = "FilePath";
+		
+		public static final String ORIG_FILE = "OrigFile";
 
 		public static final int MAX_BRUSH_WIDTH = 48;
 

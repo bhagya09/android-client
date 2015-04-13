@@ -493,6 +493,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 
 							editView.saveImage(HikeFileType.PROFILE, mLocalMSISDN, new HikePhotosListener()
 							{
+
 								@Override
 								public void onFailure()
 								{
@@ -511,13 +512,13 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 									File myDir = new File(Utils.getFileParent(HikeFileType.IMAGE, false));
 					 				myDir.mkdir();
 					 				String fname = Utils.getOriginalFile(HikeFileType.IMAGE, null);
-					 				File file = new File(myDir, fname);
-					 				if (file.exists())
+					 				File destFilePath = new File(myDir, fname);
+					 				if (destFilePath.exists())
 					 				{
-					 					file.delete();
+					 					destFilePath.delete();
 					 				}
-
-									Utils.startCropActivityForResult(PictureEditer.this, f.getAbsolutePath(), file.getAbsolutePath(), true);
+					 				
+									Utils.startCropActivityForResult(PictureEditer.this, f.getAbsolutePath(), destFilePath.getAbsolutePath(), true);
 
 								}
 							});
