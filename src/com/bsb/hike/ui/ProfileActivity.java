@@ -2850,7 +2850,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			@Override
 			public void onClick(DialogInterface dialog, int which)
 			{
-				showDeleteStatusConfirmationDialog(statusMessage.getMappedId());
+				showDeleteStatusConfirmationDialog(statusMessage.getMappedId(), statusMessage.getStatusMessageType());
 			}
 		});
 
@@ -2859,7 +2859,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		return true;
 	}
 
-	private void showDeleteStatusConfirmationDialog(final String statusId)
+	private void showDeleteStatusConfirmationDialog(final String statusId, final StatusMessageType updateType)
 	{
 		final CustomAlertDialog confirmDialog = new CustomAlertDialog(this);
 		confirmDialog.setHeader(R.string.delete_status);
@@ -2870,7 +2870,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			@Override
 			public void onClick(View v)
 			{
-				deleteStatus(statusId);
+				deleteStatus(statusId, updateType);
 				confirmDialog.dismiss();
 			}
 		};
@@ -2880,7 +2880,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		confirmDialog.show();
 	}
 
-	private void deleteStatus(final String statusId)
+	private void deleteStatus(final String statusId, final StatusMessageType updateType)
 	{
 		HikeHttpRequest hikeHttpRequest = new HikeHttpRequest("/user/status/" + statusId, RequestType.DELETE_STATUS, new HikeHttpCallback()
 		{
@@ -2891,6 +2891,12 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				HikeMessengerApp.getPubSub().publish(HikePubSub.DELETE_STATUS, statusId);
 				
 				iterateAndDeleteDPStatusFromOwnTimeline(statusId);
+
+				// update the preference value used to store latest dp change status update id
+				if(preferences.getString(HikeMessengerApp.DP_CHANGE_STATUS_ID, "").equals(statusId) && updateType.equals(StatusMessageType.PROFILE_PIC))
+				{
+					clearDpUpdatePref();
+				}
 				
 				profileAdapter.notifyDataSetChanged();
 			}

@@ -224,6 +224,15 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 		final CustomAlertDialog deleteConfirmDialog = new CustomAlertDialog(this);
 		deleteConfirmDialog.setHeader(R.string.remove_photo);
 		deleteConfirmDialog.setBody(R.string.confirm_remove_photo);
+		deleteConfirmDialog.setCheckBox(R.string.check_delete_from_timeline, false);
+
+		// if checkbox is selected, delete the profile status update from own and favorites timeline
+		String dpStatusId = prefs.getPref().getString(HikeMessengerApp.DP_CHANGE_STATUS_ID, "");
+		
+		if(dpStatusId.isEmpty())
+		{
+			deleteConfirmDialog.setCheckboxVisibility(View.GONE);
+		}
 		
 		View.OnClickListener dialogOkClickListener = new View.OnClickListener()
 		{
@@ -232,7 +241,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 			@Override
 			public void onClick(View v)
 			{
-				// if checkbox is selected, delete the profile status update from own and favorites timeline
+				// if checkbox is selected, delete the profile status update from own and favorites timelines
 				if (deleteConfirmDialog.isChecked())
 				{
 					ContactInfo contactInfo = Utils.getUserContactInfo(prefs.getPref());
@@ -277,7 +286,6 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 				deleteConfirmDialog.dismiss();
 			}
 		};
-		deleteConfirmDialog.setCheckBox(R.string.check_delete_from_timeline, false);
 		deleteConfirmDialog.setOkButton(R.string.yes, dialogOkClickListener);
 		deleteConfirmDialog.setCancelButton(R.string.no);
 		deleteConfirmDialog.show();
@@ -316,6 +324,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 						displayPictureRemoved(id);
 					}
 				}
+				clearDpUpdatePref();
 				HikeMessengerApp.getPubSub().publish(HikePubSub.ICON_CHANGED, mLocalMSISDN);
 			}
 
@@ -709,5 +718,16 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 		}
 		String msisdn = prefs.getPref().getString(HikeMessengerApp.MSISDN_SETTING, null);
 		showProfileImageEditDialog(ChangeProfileImageBaseActivity.this, ChangeProfileImageBaseActivity.this, msisdn, imageRemovePath);		
+	}
+	
+	/**
+	 * Used to clear the pref used to save status id of the dp change status update
+	 * @param statusId of the status update
+	 */
+	public void clearDpUpdatePref()
+	{
+		Editor ed = prefs.getPref().edit();
+		ed.putString(HikeMessengerApp.DP_CHANGE_STATUS_ID, "");
+		ed.commit();
 	}
 }
