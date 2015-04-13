@@ -42,12 +42,9 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 {
 	private CanvasImageView doodleLayer;
 
-	//removed vignette layer since vignette new implemntation requires blending of bitmap
-	//private VignetteImageView vignetteLayer;
-
 	private EffectsImageView effectLayer;
 
-	private boolean enableDoodling, savingFinal,compressOutput;
+	private boolean enableDoodling, savingFinal, compressOutput;
 
 	private Bitmap imageOriginal, imageEdited, imageScaled, scaledImageOriginal;
 
@@ -61,10 +58,8 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 	{
 		super(context);
 		doodleLayer = new CanvasImageView(context);
-		//vignetteLayer = new VignetteImageView(context);
 		effectLayer = new EffectsImageView(context);
 		addView(effectLayer);
-		//addView(vignetteLayer);
 		addView(doodleLayer);
 		enableDoodling = false;
 		savingFinal = false;
@@ -75,10 +70,8 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 	{
 		super(context, attrs);
 		doodleLayer = new CanvasImageView(context, attrs);
-		//vignetteLayer = new VignetteImageView(context, attrs);
 		effectLayer = new EffectsImageView(context, attrs);
 		addView(effectLayer);
-		//addView(vignetteLayer);
 		addView(doodleLayer);
 		enableDoodling = false;
 		savingFinal = false;
@@ -89,21 +82,19 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 	{
 		super(context, attrs, defStyleAttr);
 		doodleLayer = new CanvasImageView(context, attrs, defStyleAttr);
-		//vignetteLayer = new VignetteImageView(context, attrs, defStyleAttr);
 		effectLayer = new EffectsImageView(context, attrs, defStyleAttr);
 		addView(effectLayer);
-		//addView(vignetteLayer);
 		addView(doodleLayer);
 		enableDoodling = false;
 		savingFinal = false;
 		compressOutput = true;
 	}
-	
+
 	public void setCompressionEnabled(boolean state)
 	{
 		this.compressOutput = state;
 	}
-	
+
 	public boolean isCompressionEnabled()
 	{
 		return this.compressOutput;
@@ -120,13 +111,14 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 			return HikeConstants.HikePhotos.PREVIEW_THUMBNAIL_WIDTH_MDPI;
 		default:
 			boolean hasBackKey = KeyCharacterMap.deviceHasKey(KeyEvent.KEYCODE_BACK);
-			
-			if( !hasBackKey) {
-			    // Do whatever you need to do, this device has a navigation bar
+
+			if (!hasBackKey)
+			{
+				// Do whatever you need to do, this device has a navigation bar
 				return HikeConstants.HikePhotos.PREVIEW_THUMBNAIL_WIDTH_MDPI;
 			}
-
-			else{
+			else
+			{
 				return HikeConstants.HikePhotos.PREVIEW_THUMBNAIL_WIDTH_HDPI;
 			}
 
@@ -141,11 +133,11 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 			scaledImageOriginal = HikePhotosUtils.createBitmap(imageOriginal, 0, 0, HikePhotosUtils.dpToPx(getContext(), getThumbnailDimen()),
 					HikePhotosUtils.dpToPx(getContext(), getThumbnailDimen()), true, true, false, true);
 
-			if(scaledImageOriginal == null)
+			if (scaledImageOriginal == null)
 			{
-				//To Do Out Of Memory Handling
+				// To Do Out Of Memory Handling
 			}
-			
+
 		}
 		return scaledImageOriginal;
 	}
@@ -157,7 +149,6 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 
 	public void applyFilter(FilterType filter)
 	{
-		//vignetteLayer.setFilter(filter);
 		effectLayer.applyEffect(filter, HikeConstants.HikePhotos.DEFAULT_FILTER_APPLY_PERCENTAGE, this);
 		effectLayer.invalidate();
 
@@ -177,9 +168,9 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 		catch (OutOfMemoryError e)
 		{
 			Toast.makeText(getContext(), getResources().getString(R.string.photos_oom_load), Toast.LENGTH_SHORT).show();
-			IntentManager.openHomeActivity(getContext(),true);
+			IntentManager.openHomeActivity(getContext(), true);
 		}
-		
+
 		handleImage();
 
 	}
@@ -194,7 +185,7 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 			if(imageScaled == null)
 			{
 				Toast.makeText(getContext(), getResources().getString(R.string.photos_oom_load), Toast.LENGTH_SHORT).show();
-				IntentManager.openHomeActivity(getContext(),true);
+				IntentManager.openHomeActivity(getContext(), true);
 			}
 			effectLayer.handleImage(imageScaled, true);
 		}
@@ -390,13 +381,9 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 
 			sendAnalyticsFilterApplied(effectLayer.getCurrentFilter().name());
 
-			// removed vignette layer since vignette new implemntation requires blending of bitmap
-			// imageEdited = vignetteLayer.applyVignetteToBitmap(imageEdited);
-
 			if (doodleLayer.getBitmap() != null)
 			{
 				Bitmap temp = HikePhotosUtils.createBitmap(doodleLayer.getBitmap(), 0, 0, imageEdited.getWidth(), imageEdited.getHeight(), true, true, false, true);
-				// Bitmap temp = Bitmap.createScaledBitmap(doodleLayer.getBitmap(), imageOriginal.getWidth(), imageOriginal.getHeight(), false);
 
 				if (temp != null)
 				{
@@ -407,8 +394,8 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 				else
 				{
 					Toast.makeText(getContext(), getResources().getString(R.string.photos_oom_save), Toast.LENGTH_SHORT).show();
-					IntentManager.openHomeActivity(getContext(),true);
-					
+					IntentManager.openHomeActivity(getContext(), true);
+
 				}
 			}
 		}
@@ -426,19 +413,18 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 			if (savingFinal)
 			{
 				// Move Back to Home
-				Toast.makeText(getContext(),  getResources().getString(R.string.photos_oom_save), Toast.LENGTH_SHORT).show();
-				IntentManager.openHomeActivity(getContext(),true);
+				Toast.makeText(getContext(), getResources().getString(R.string.photos_oom_save), Toast.LENGTH_SHORT).show();
+				IntentManager.openHomeActivity(getContext(), true);
 			}
 			else
 			{
-				Toast.makeText(getContext(),getResources().getString(R.string.photos_oom_retry), Toast.LENGTH_SHORT).show();
+				Toast.makeText(getContext(), getResources().getString(R.string.photos_oom_retry), Toast.LENGTH_SHORT).show();
 			}
 		}
 		else
 		{
 			if (!savingFinal)
 			{
-				//vignetteLayer.setVignetteforFilter();
 				effectLayer.changeDisplayImage(preview);
 			}
 			else

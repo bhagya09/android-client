@@ -27,10 +27,7 @@ import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.AbsListView;
-import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.GridView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -49,6 +46,12 @@ import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentManager;
 import com.bsb.hike.utils.Utils;
+import com.jess.ui.TwoWayAbsListView;
+import com.jess.ui.TwoWayAbsListView.OnScrollListener;
+import com.jess.ui.TwoWayAdapterView;
+import com.jess.ui.TwoWayAdapterView.OnItemClickListener;
+import com.jess.ui.TwoWayAdapterView.OnItemLongClickListener;
+import com.jess.ui.TwoWayGridView;
 
 public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements OnScrollListener, OnItemClickListener, OnItemLongClickListener
 {
@@ -229,7 +232,16 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 		// Add "pick from camera" button/bucket
 		if (enableCameraPick)
 		{
-			GalleryItem allImgItem = new GalleryItem(-1, NEW_PHOTO, R.drawable.camerasnap, 0);
+			Intent sourceIntent = IntentManager.getNativeCameraAppIntent();
+			Intent desIntent = IntentManager.getPictureEditorActivityIntent(null, false);
+			
+			Intent proxyIntent = new Intent(GalleryActivity.this,DelegateActivity.class);
+			proxyIntent.putExtra(DelegateActivity.SOURCE_INTENT, sourceIntent);
+			proxyIntent.putExtra(DelegateActivity.DESTINATION_INTENT, desIntent);
+			
+			PendingIntent pIntent = PendingIntent.getActivity(getApplicationContext(), 0, proxyIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+			
+			GalleryItem allImgItem = new GalleryItem(NEW_PHOTO, "gallery_tile_camera", 0,pIntent);
 			galleryItemList.add(allImgItem);
 		}
 
@@ -293,7 +305,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 			}
 		}
 
-		GridView gridView = (GridView) findViewById(R.id.gallery);
+		TwoWayGridView gridView = (TwoWayGridView) findViewById(R.id.gallery);
 
 		int sizeOfImage = getResources().getDimensionPixelSize(isInsideAlbum ? R.dimen.gallery_album_item_size : R.dimen.gallery_cover_item_size);
 
@@ -302,7 +314,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 
 		adapter = new GalleryAdapter(this, galleryItemList, isInsideAlbum, actualSize, selectedGalleryItems, false);
 
-		gridView.setNumColumns(numColumns);
+		gridView.setNumColumns(3);
 		gridView.setAdapter(adapter);
 		gridView.setOnScrollListener(this);
 		gridView.setOnItemClickListener(this);
@@ -318,34 +330,36 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 		}
 	}
 
-	private ArrayList<GalleryItem>  reOrderList(List<GalleryItem> list)
+	private ArrayList<GalleryItem> reOrderList(List<GalleryItem> list)
 	{
 		ArrayList<GalleryItem> resultList = new ArrayList<GalleryItem>();
 		GalleryItem allImgItem = null;
 		GalleryItem hikeImages = null;
-		for (Iterator iterator = list.iterator(); iterator.hasNext();) {
+		for (Iterator iterator = list.iterator(); iterator.hasNext();)
+		{
 			GalleryItem galleryItem = (GalleryItem) iterator.next();
-			if(galleryItem.getName().startsWith(HIKE_IMAGES))
+			if (galleryItem.getName().startsWith(HIKE_IMAGES))
 			{
 				hikeImages = galleryItem;
 				iterator.remove();
 			}
-			else if(galleryItem.getName().startsWith(CAMERA_IMAGES))
+			else if (galleryItem.getName().startsWith(CAMERA_IMAGES))
 			{
 				resultList.add(galleryItem);
 				iterator.remove();
 			}
-			else if(galleryItem.getName().startsWith(ALL_IMAGES_BUCKET_NAME))
+			else if (galleryItem.getName().startsWith(ALL_IMAGES_BUCKET_NAME))
 			{
 				allImgItem = galleryItem;
 				iterator.remove();
 			}
 		}
-		if(allImgItem != null)
+		if (allImgItem != null)
 			resultList.add(allImgItem);
-		if(hikeImages != null)
+		if (hikeImages != null)
 			resultList.add(hikeImages);
-		for (Iterator iterator = list.iterator(); iterator.hasNext();) {
+		for (Iterator iterator = list.iterator(); iterator.hasNext();)
+		{
 			GalleryItem galleryItem = (GalleryItem) iterator.next();
 			resultList.add(galleryItem);
 		}
@@ -356,13 +370,17 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 	{
 		File dir = new File(dirPath);
 		int number = 0;
-		if (dir != null && dir.exists()) {
+		if (dir != null && dir.exists())
+		{
 			File[] files = dir.listFiles();
-			if (files != null) {
-				for (File file : files) {
+			if (files != null)
+			{
+				for (File file : files)
+				{
 					if (file.isFile())// Check file or directory
 					{
-						if (isImage(file.getName().toLowerCase())) {
+						if (isImage(file.getName().toLowerCase()))
+						{
 							number++;
 						}
 					}
@@ -543,7 +561,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 	}
 
 	@Override
-	public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount)
+	public void onScroll(TwoWayAbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount)
 	{
 		if (previousFirstVisibleItem != firstVisibleItem)
 		{
@@ -557,13 +575,13 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 	}
 
 	@Override
-	public void onScrollStateChanged(AbsListView view, int scrollState)
+	public void onScrollStateChanged(TwoWayAbsListView view, int scrollState)
 	{
 		adapter.setIsListFlinging(velocity > HikeConstants.MAX_VELOCITY_FOR_LOADING_IMAGES && scrollState == OnScrollListener.SCROLL_STATE_FLING);
 	}
 
 	@Override
-	public void onItemClick(AdapterView<?> adapterView, View view, int position, long id)
+	public void onItemClick(TwoWayAdapterView<?> adapterView, View view, int position, long id)
 	{
 		GalleryItem galleryItem = galleryItemList.get(position);
 
@@ -582,10 +600,15 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 		else
 		{
 
-			if (enableCameraPick && position == 0)
-			{
-				// Open camera app
-				IntentManager.openNativeCameraApp(GalleryActivity.this);
+			if(galleryItem.getType() == GalleryItem.CUSTOM){
+				try
+				{
+					galleryItem.getPendingIntent().send();
+				}
+				catch (CanceledException e)
+				{
+					e.printStackTrace();
+				}
 				return;
 			}
 
@@ -649,7 +672,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 	}
 
 	@Override
-	public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long id)
+	public boolean onItemLongClick(TwoWayAdapterView<?> adapterView, View view, int position, long id)
 	{
 		if (!multiSelectMode)
 		{

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/parent_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -9,18 +10,24 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingTop="@dimen/st__action_bar_default_height"
         android:background="@color/black"
-        android:orientation="vertical" >
+        android:orientation="vertical"
+        android:paddingTop="@dimen/st__action_bar_default_height" >
 
-        <GridView
+        <com.jess.ui.TwoWayGridView
             android:id="@+id/gallery"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:horizontalSpacing="@dimen/gallery_grid_spacing"
-            android:listSelector="@android:color/transparent"
-            android:numColumns="2"
-            android:verticalSpacing="@dimen/gallery_grid_spacing" />
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:scrollbars="none"
+            app:horizontalSpacing="@dimen/gallery_grid_spacing"
+            app:verticalSpacing="@dimen/gallery_grid_spacing" 
+            app:numColumns="3"
+            app:numRows="2"
+            app:scrollDirectionLandscape="horizontal"
+            app:scrollDirectionPortrait="vertical"
+            app:stretchMode="columnWidth" >
+        </com.jess.ui.TwoWayGridView>
     </LinearLayout>
 
 </FrameLayout>

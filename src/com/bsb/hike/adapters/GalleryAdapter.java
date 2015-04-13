@@ -10,12 +10,15 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
+import android.widget.RelativeLayout;
 import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TextView;
 
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.models.GalleryItem;
 import com.bsb.hike.smartImageLoader.GalleryImageLoader;
+import com.bsb.hike.utils.Utils;
 
 public class GalleryAdapter extends BaseAdapter
 {
@@ -89,9 +92,13 @@ public class GalleryAdapter extends BaseAdapter
 			holder.galleryName = (TextView) convertView.findViewById(R.id.album_title);
 			holder.galleryCount = (TextView) convertView.findViewById(R.id.album_count);
 			holder.galleryThumb = (ImageView) convertView.findViewById(R.id.album_image);
+			holder.contentLayout = (ViewGroup) convertView.findViewById(R.id.contentLayout);
 			holder.selected = convertView.findViewById(R.id.selected);
+
 			if (!isInsideAlbum)
+			{
 				(convertView.findViewById(R.id.album_layout)).setVisibility(View.VISIBLE);
+			}
 
 			holder.selected.setBackgroundResource(selectedScreen ? R.drawable.gallery_item_selected_selector : R.drawable.gallery_item_selector);
 
@@ -126,15 +133,18 @@ public class GalleryAdapter extends BaseAdapter
 		if (galleryItem != null)
 		{
 			holder.galleryThumb.setImageDrawable(null);
-			if (galleryItem.getDrawableId() != 0)
+			if (galleryItem.getType() == GalleryItem.CUSTOM)
 			{
-				holder.galleryThumb.setImageResource(galleryItem.getDrawableId());
 				holder.galleryThumb.setScaleType(ScaleType.CENTER_INSIDE);
+				holder.contentLayout.addView(LayoutInflater.from(HikeMessengerApp.getInstance().getApplicationContext()).inflate(
+						Utils.getLayoutIdFromName(galleryItem.getLayoutIDName()), null));
+				holder.contentLayout.setVisibility(View.VISIBLE);
 			}
 			else
 			{
 				galleryImageLoader.loadImage(GalleryImageLoader.GALLERY_KEY_PREFIX + galleryItem.getFilePath(), holder.galleryThumb, isListFlinging);
 				holder.galleryThumb.setScaleType(ScaleType.CENTER_CROP);
+				holder.contentLayout.setVisibility(View.GONE);
 			}
 		}
 		else
@@ -164,6 +174,8 @@ public class GalleryAdapter extends BaseAdapter
 		View selected;
 
 		TextView galleryCount;
+
+		ViewGroup contentLayout;
 	}
 
 	public void setIsListFlinging(boolean b)

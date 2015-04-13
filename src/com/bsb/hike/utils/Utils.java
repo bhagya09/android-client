@@ -5598,4 +5598,18 @@ public class Utils
 		}
 		return fullFirstName;
 	}
+
+	public static int getLayoutIdFromName(String layoutName)
+	{
+		if (!TextUtils.isEmpty(layoutName))
+		{
+			Context context = HikeMessengerApp.getInstance().getApplicationContext();
+			int resID = context.getResources().getIdentifier(layoutName, "layout", context.getPackageName());
+			return resID;
+		}
+		else
+		{
+			return -1;
+		}
+	}
 }
