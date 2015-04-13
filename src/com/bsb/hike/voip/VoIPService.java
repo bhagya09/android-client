@@ -198,7 +198,6 @@ public class VoIPService extends Service {
 		clientSelf = new VoIPClient();
 		String myMsisdn = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE).getString(HikeMessengerApp.MSISDN_SETTING, null);
 		clientSelf.setPhoneNumber(myMsisdn);
-		clientPartner.setPreferredConnectionMethod(ConnectionMethods.UNKNOWN);
 
 		setCallid(0);
 		encryptionStage = EncryptionStage.STAGE_INITIAL;
@@ -240,6 +239,7 @@ public class VoIPService extends Service {
 			Logger.d(VoIPConstants.TAG, "New minBufSizeRecording: " + minBufSizeRecording);
 		}
 		
+		startConnectionTimeoutThread();
 		// CPU Info
 		// Logger.d(VoIPConstants.TAG, "CPU: " + VoIPUtils.getCPUInfo());
 	}
@@ -250,7 +250,6 @@ public class VoIPService extends Service {
 		int returnInt = super.onStartCommand(intent, flags, startId);
 		
 		Logger.d(VoIPConstants.TAG, "VoIPService onStartCommand()");
-		startConnectionTimeoutThread();
 
 		if (intent == null)
 			return returnInt;
@@ -309,8 +308,8 @@ public class VoIPService extends Service {
 					getCallId(), 
 					true);
 			
-			// Start ringing
-			playOutgoingCallRingtone();
+			// TODO: Start ringing
+			// playOutgoingCallRingtone();
 			
 		}
 		
@@ -323,8 +322,10 @@ public class VoIPService extends Service {
 			}
 
 			clientPartner.setPhoneNumber(intent.getStringExtra(VoIPConstants.Extras.MSISDN));
-			playIncomingCallRingtone();
 			sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_HANDSHAKE_COMPLETE);
+
+			// TODO: Start playing outgoing ring
+			// playIncomingCallRingtone();
 		}
 
 		// Socket information
@@ -1005,16 +1006,18 @@ public class VoIPService extends Service {
 
 		if (reconnecting)
 			return;
+		else
+			reconnecting = true;
 
 		reconnectAttempts++;
 		Logger.w(VoIPConstants.TAG, "VoIPService reconnect()");
 		sendHandlerMessage(VoIPConstants.MSG_RECONNECTING);
-		reconnecting = true;
 		socketInfoReceived = false;
 		socketInfoSent = false;
 		connected = false;
 		removeExternalSocketInfo();
 		retrieveExternalSocket();
+		startReconnectBeeps();
 	}
 	
 	private void startReconnectBeeps() {
@@ -1801,14 +1804,14 @@ public class VoIPService extends Service {
 						
 					case COMM_UDP_SYN_RELAY:
 						Logger.d(VoIPConstants.TAG, "Received " + dataPacket.getType());
-						if (clientPartner.getPreferredConnectionMethod() == ConnectionMethods.PRIVATE || 
-								clientPartner.getPreferredConnectionMethod() == ConnectionMethods.PUBLIC) {
-							Logger.d(VoIPConstants.TAG, "Ignoring " + dataPacket.getType() + " since we are expecting a " +
-									clientPartner.getPreferredConnectionMethod() + " connection.");
-							break;
-						}
 						
 						synchronized (clientPartner) {
+							if (clientPartner.getPreferredConnectionMethod() == ConnectionMethods.PRIVATE || 
+									clientPartner.getPreferredConnectionMethod() == ConnectionMethods.PUBLIC) {
+								Logger.d(VoIPConstants.TAG, "Ignoring " + dataPacket.getType() + " since we are expecting a " +
+										clientPartner.getPreferredConnectionMethod() + " connection.");
+								break;
+							}
 							clientPartner.setPreferredConnectionMethod(ConnectionMethods.RELAY);
 							VoIPDataPacket dp = new VoIPDataPacket(PacketType.COMM_UDP_SYNACK_RELAY);
 							sendPacket(dp, false);
@@ -1818,11 +1821,12 @@ public class VoIPService extends Service {
 					case COMM_UDP_SYNACK_PRIVATE:
 					case COMM_UDP_ACK_PRIVATE:
 						Logger.d(VoIPConstants.TAG, "Received " + dataPacket.getType());
-						if (senderThread != null)
-							senderThread.interrupt();
-						clientPartner.setPreferredConnectionMethod(ConnectionMethods.PRIVATE);
-						if (connected) break;
 						synchronized (clientPartner) {
+							if (senderThread != null)
+								senderThread.interrupt();
+							clientPartner.setPreferredConnectionMethod(ConnectionMethods.PRIVATE);
+							if (connected) break;
+
 							VoIPDataPacket dp = new VoIPDataPacket(PacketType.COMM_UDP_ACK_PRIVATE);
 							sendPacket(dp, true);
 						}
@@ -1832,11 +1836,11 @@ public class VoIPService extends Service {
 					case COMM_UDP_SYNACK_PUBLIC:
 					case COMM_UDP_ACK_PUBLIC:
 						Logger.d(VoIPConstants.TAG, "Received " + dataPacket.getType());
-						if (senderThread != null)
-							senderThread.interrupt();
-						clientPartner.setPreferredConnectionMethod(ConnectionMethods.PUBLIC);
-						if (connected) break;
 						synchronized (clientPartner) {
+							if (senderThread != null)
+								senderThread.interrupt();
+							clientPartner.setPreferredConnectionMethod(ConnectionMethods.PUBLIC);
+							if (connected) break;
 							VoIPDataPacket dp = new VoIPDataPacket(PacketType.COMM_UDP_ACK_PUBLIC);
 							sendPacket(dp, true);
 						}
@@ -1846,17 +1850,18 @@ public class VoIPService extends Service {
 					case COMM_UDP_SYNACK_RELAY:
 					case COMM_UDP_ACK_RELAY:
 						Logger.d(VoIPConstants.TAG, "Received " + dataPacket.getType());
-						if (clientPartner.getPreferredConnectionMethod() == ConnectionMethods.PRIVATE || 
-								clientPartner.getPreferredConnectionMethod() == ConnectionMethods.PUBLIC) {
-							Logger.d(VoIPConstants.TAG, "Ignoring " + dataPacket.getType() + " since we are expecting a " +
-									clientPartner.getPreferredConnectionMethod() + " connection.");
-							break;
-						}
-						if (senderThread != null)
-							senderThread.interrupt();
-						clientPartner.setPreferredConnectionMethod(ConnectionMethods.RELAY);
-						if (connected) break;
 						synchronized (clientPartner) {
+							if (clientPartner.getPreferredConnectionMethod() == ConnectionMethods.PRIVATE || 
+									clientPartner.getPreferredConnectionMethod() == ConnectionMethods.PUBLIC) {
+								Logger.d(VoIPConstants.TAG, "Ignoring " + dataPacket.getType() + " since we are expecting a " +
+										clientPartner.getPreferredConnectionMethod() + " connection.");
+								break;
+							}
+							if (senderThread != null)
+								senderThread.interrupt();
+							clientPartner.setPreferredConnectionMethod(ConnectionMethods.RELAY);
+							if (connected) break;
+
 							VoIPDataPacket dp = new VoIPDataPacket(PacketType.COMM_UDP_ACK_RELAY);
 							sendPacket(dp, true);
 						}
@@ -2618,6 +2623,7 @@ public class VoIPService extends Service {
 							clientPartner.setPreferredConnectionMethod(ConnectionMethods.RELAY);
 							dp = new VoIPDataPacket(PacketType.COMM_UDP_SYN_RELAY);
 							sendPacket(dp, false);
+							clientPartner.setPreferredConnectionMethod(ConnectionMethods.UNKNOWN);
 						}
 						Thread.sleep(250);
 					} catch (InterruptedException e) {
