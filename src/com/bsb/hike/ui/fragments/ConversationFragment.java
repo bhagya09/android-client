@@ -40,6 +40,7 @@ import android.view.ViewStub;
 import android.view.ViewStub.OnInflateListener;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.view.animation.TranslateAnimation;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
@@ -186,7 +187,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 	}
 
 	private String[] pubSubListeners = { HikePubSub.MESSAGE_RECEIVED, HikePubSub.SERVER_RECEIVED_MSG, HikePubSub.MESSAGE_DELIVERED_READ, HikePubSub.MESSAGE_DELIVERED,
-			HikePubSub.NEW_CONVERSATION, HikePubSub.MESSAGE_SENT, HikePubSub.MSG_READ, HikePubSub.ICON_CHANGED, HikePubSub.GROUP_NAME_CHANGED, HikePubSub.CONTACT_ADDED,
+			HikePubSub.NEW_CONVERSATION, HikePubSub.MESSAGE_SENT, HikePubSub.MSG_READ, HikePubSub.ICON_CHANGED, HikePubSub.ONETONCONV_NAME_CHANGED, HikePubSub.CONTACT_ADDED,
 			HikePubSub.LAST_MESSAGE_DELETED, HikePubSub.TYPING_CONVERSATION, HikePubSub.END_TYPING_CONVERSATION, HikePubSub.GROUP_LEFT,
 			HikePubSub.FTUE_LIST_FETCHED_OR_UPDATED, HikePubSub.CLEAR_CONVERSATION, HikePubSub.CONVERSATION_CLEARED_BY_DELETING_LAST_MESSAGE, 
 			HikePubSub.DISMISS_STEALTH_FTUE_CONV_TIP, HikePubSub.SHOW_STEALTH_FTUE_CONV_TIP, HikePubSub.STEALTH_MODE_TOGGLED, HikePubSub.CLEAR_FTUE_STEALTH_CONV,
@@ -1056,18 +1057,6 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 	{
 		// TODO Auto-generated method stub
 		super.onStop();
-		if (showingStealthFtueConvTip)
-		{
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF);
-			removeStealthConvTip();
-		}
-		
-		if (showingWelcomeHikeConvTip)
-		{
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF);
-			removeTipIfExists(ConversationTip.WELCOME_HIKE_TIP);
-		}
-
 	}
 	
 	@Override
@@ -1734,7 +1723,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		
 		if (tipView != null)
 		{
-			getListView().addHeaderView(tipView);
+			checkAndAddListViewHeader(tipView);
 		}
 	}
 
@@ -1834,6 +1823,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 				if (parentView == null)
 				{
 					notifyDataSetChanged();
+					return;
 				}
 				
 				mAdapter.updateViewsRelatedToTypingNotif(parentView, convInfo);
@@ -1848,6 +1838,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 				if (parentView == null)
 				{
 					notifyDataSetChanged();
+					return;
 				}
 				
 				mAdapter.updateViewsRelatedToLastMessage(parentView, convInfo.getLastConversationMsg(), convInfo);
@@ -2242,7 +2233,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 				}
 			});
 		}
-		else if (HikePubSub.GROUP_NAME_CHANGED.equals(type))
+		else if (HikePubSub.ONETONCONV_NAME_CHANGED.equals(type))
 		{
 			String groupId = (String) object;
 			final String groupName = ContactManager.getInstance().getName(groupId);
@@ -2383,6 +2374,11 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 			{
 				return;
 			}
+			/**
+			 * Setting stealth mode off as we are hiding the StealthFTUE convTip
+			 */
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF);
+			
 			getActivity().runOnUiThread(new Runnable()
 			{
 
@@ -2399,6 +2395,11 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 			{
 				return;
 			}
+			/**
+			 * Setting stealth mode on as we need to show the StealthFTUE convTip
+			 */
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_ON);
+			
 			getActivity().runOnUiThread(new Runnable()
 			{
 
@@ -2900,12 +2901,41 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		tipView = convTip.getView(tipType);
 		if (tipView != null)
 		{
-			getListView().addHeaderView(tipView);
+			checkAndAddListViewHeader(tipView);
+			animateListView();
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.SHOWING_STEALTH_FTUE_CONV_TIP, true);
 			showingStealthFtueConvTip = true;
 		}
 	}
 	
+	private void animateListView()
+	{
+		TranslateAnimation animation = new TranslateAnimation(0, 0, -70*Utils.scaledDensityMultiplier, 0);
+		animation.setDuration(300);
+		parent.startAnimation(animation);
+	}
+
+	/**
+	 * Workaround for bug where the header needs to be added after adapter has been set in the list view
+	 * @param headerView
+	 */
+	private void checkAndAddListViewHeader(View headerView)
+	{
+		ListAdapter adapter = getListAdapter();
+
+		if (adapter != null)
+		{
+			setListAdapter(null);
+			getListView().addHeaderView(headerView);
+			setListAdapter(adapter);
+		}
+
+		else
+		{
+			getListView().addHeaderView(headerView);
+		}
+	}
+
 	protected void showStealthInfoTip()
 	{
 		if (convTip == null)
@@ -2918,7 +2948,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		tipView = convTip.getView(tipType);
 		if (tipView != null)
 		{
-			getListView().addHeaderView(tipView);
+			checkAndAddListViewHeader(tipView);
 		}
 	}
 	
@@ -2935,7 +2965,8 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		tipView = convTip.getView(tipType);
 		if (tipView != null)
 		{
-			getListView().addHeaderView(tipView);
+			checkAndAddListViewHeader(tipView);
+			animateListView();
 		}
 	}
 

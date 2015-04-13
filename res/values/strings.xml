@@ -549,7 +549,7 @@
     <string name="attach">Attach</string>
     <string name="new_group">New Group</string>
     <string name="new_broadcast">New Broadcast</string>
-    <string name="broadcast">broadcast</string>
+    <string name="broadcast">Broadcast</string>
     <string name="sent_friend_request">Sent a friend request</string>
     <string name="xyz_posted_update">%1$s posted an update</string>
     <string name="sent_you_friend_request">Sent you a friend request</string>
@@ -1450,4 +1450,5 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="nudge_toast"> Sending nudges has been turned off.\nYou can turn it on in Settings > Chat Settings.</string>
     <string name="select_all_hike">Select all</string>
     <string name="unselect_all_hike">Unselect all</string>
+    <string name="searching">Searching...</string>
 </resources>

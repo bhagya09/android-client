@@ -75,7 +75,7 @@ public class ConversationsAdapter extends BaseAdapter
 
 	private Map<String, Integer> convSpanStartIndexes;
 
-	private String refinedSearchText;
+	private String refinedSearchText = "";
 
 	private Context context;
 
@@ -259,7 +259,7 @@ public class ConversationsAdapter extends BaseAdapter
 	{
 		isSearchModeOn = false;
 		convSpanStartIndexes.clear();
-		refinedSearchText = null;
+		refinedSearchText = "";
 		/*
 		 * Purposely returning conversation list on the UI thread on collapse to avoid showing ftue empty state. 
 		 */
@@ -276,33 +276,15 @@ public class ConversationsAdapter extends BaseAdapter
 		protected Void doInBackground(Void... arg0)
 		{
 			List<ContactInfo> allContacts = ContactManager.getInstance().getAllContacts();
-			for(ContactInfo contact : allContacts)
+			for (ContactInfo contact : allContacts)
 			{
-				ConvInfo convInfo = new ConvInfo.ConvInfoBuilder(contact.getMsisdn()).setConvName(contact.getName()).build();
+				ConvInfo convInfo = new ConvInfo.ConvInfoBuilder(contact.getMsisdn()).setConvName(contact.getName()).setOnHike(contact.isOnhike()).build();
 				
-				if(stealthConversations.contains(convInfo) || conversationsMsisdns.contains(contact.getMsisdn()))
+				if(stealthConversations.contains(convInfo) || conversationsMsisdns.contains(contact.getMsisdn()) || !convInfo.isOnHike())
 				{
 					continue;
 				}
-				// TODO : Check with GM on this.
-				
-//				String msg= null;
-//				if (contact.isOnhike())
-//				{
-//					msg = context.getString(R.string.start_new_chat);
-//				}
-//				else
-//				{
-//					msg = context.getString(R.string.on_sms);
-//				}
-//				List<ConvMessage> messagesList = new ArrayList<ConvMessage>();
-//				ConvMessage message = new ConvMessage(msg, contact.getMsisdn(), -1, State.RECEIVED_READ);
-//				messagesList.add(message);
-//				convInfo.setMessages(messagesList);
-				if (contact.isOnhike())
-				{
-					hikeContacts.add(convInfo);
-				}
+				hikeContacts.add(getPhoneContactFakeConv(convInfo));
 			}
 			return null;
 		}
@@ -316,8 +298,31 @@ public class ConversationsAdapter extends BaseAdapter
 		}
 	}
 
+	private ConvInfo getPhoneContactFakeConv(ConvInfo convInfo)
+	{
+		if (convInfo != null)
+		{
+			String msg= null;
+			if (convInfo.isOnHike())
+			{
+				msg = context.getString(R.string.start_new_chat);
+			}
+			else
+			{
+				msg = context.getString(R.string.on_sms);
+			}
+			ConvMessage message = new ConvMessage(msg, convInfo.getMsisdn(), -1, State.RECEIVED_READ);
+			convInfo.setLastConversationMsg(message);
+		}
+		return convInfo;
+	}
+
 	public void onQueryChanged(String s)
 	{
+		if (s == null)
+		{
+			s = "";
+		}
 		refinedSearchText = s.toLowerCase();
 		contactFilter.filter(refinedSearchText);
 	}
@@ -365,38 +370,11 @@ public class ConversationsAdapter extends BaseAdapter
 
 		private void filterList(List<ConvInfo> allList, List<ConvInfo> listToUpdate, String textToBeFiltered)
 		{
-
 			for (ConvInfo info : allList)
 			{
 				try
 				{
-					boolean found = false;
-					if (textToBeFiltered.equals(R.string.broadcast) && OneToNConversationUtils.isBroadcastConversation(info.getMsisdn()))
-					{
-						found = true;
-					}
-					else if (textToBeFiltered.equals(R.string.group) && OneToNConversationUtils.isGroupConversation(info.getMsisdn()) && !OneToNConversationUtils.isBroadcastConversation(info.getMsisdn()))
-					{
-						found = true;
-					}
-					else
-					{
-						String name = info.getLabel().toLowerCase();
-						int startIndex = 0;
-						if (name.startsWith(textToBeFiltered))
-						{
-							found = true;
-							convSpanStartIndexes.put(info.getMsisdn(), startIndex);
-						}
-						else if (name.contains(" " + textToBeFiltered))
-						{
-							found = true;
-							startIndex = name.indexOf(" " + textToBeFiltered) + 1;
-							convSpanStartIndexes.put(info.getMsisdn(), startIndex);
-						}
-					}
-
-					if(found)
+					if(filterConvForSearch(info, textToBeFiltered))
 					{
 						listToUpdate.add(info);
 					}
@@ -407,6 +385,55 @@ public class ConversationsAdapter extends BaseAdapter
 				}
 			}
 			
+		}
+		
+		public boolean filterConvForSearch(ConvInfo convInfo, String textToBeFiltered)
+		{
+			boolean found = false;
+			String msisdn = convInfo.getMsisdn();
+			String name = convInfo.getConversationName();
+			// For Groups/Broadcasts, the contact name can be empty, so the search is to be performed on the diaplayed name.
+			if (OneToNConversationUtils.isOneToNConversation(msisdn))
+			{
+				// getLabel() fetches the appropriate display name.
+				name = convInfo.getLabel();
+			}
+			if (textToBeFiltered.equals(context.getString(R.string.broadcast).toLowerCase()) && OneToNConversationUtils.isBroadcastConversation(msisdn))
+			{
+				found = true;
+			}
+			else if (textToBeFiltered.equals(context.getString(R.string.group).toLowerCase()) && OneToNConversationUtils.isGroupConversation(msisdn))
+			{
+				found = true;
+			}
+			// The name field can be empty for unsaved 1 to 1 conversation
+			// In this case search is to be performed on the contact number.
+			else if (TextUtils.isEmpty(name))
+			{
+				if (msisdn.contains(textToBeFiltered))
+				{
+					found = true;
+					int startIndex = msisdn.indexOf(textToBeFiltered);
+					convSpanStartIndexes.put(msisdn, startIndex);
+				}
+			}
+			else
+			{
+				name = name.toLowerCase();
+				int startIndex = 0;
+				if (name.startsWith(textToBeFiltered))
+				{
+					found = true;
+					convSpanStartIndexes.put(msisdn, startIndex);
+				}
+				else if (name.contains(" " + textToBeFiltered))
+				{
+					found = true;
+					startIndex = name.indexOf(" " + textToBeFiltered) + 1;
+					convSpanStartIndexes.put(msisdn, startIndex);
+				}
+			}
+			return found;
 		}
 
 		@Override
@@ -924,34 +951,6 @@ public class ConversationsAdapter extends BaseAdapter
 		return iconLoader;
 	}
 
-	public void addToLists(ConvInfo conv)
-	{
-		if (!isSearchModeOn)
-		{
-			completeList.add(conv);
-		}
-		else
-		{
-			conversationList.add(conv);
-		}
-		if(conversationsMsisdns!=null)
-		{
-			conversationsMsisdns.add(conv.getMsisdn());
-		}
-		if(phoneBookContacts!=null)
-		{
-			phoneBookContacts.remove(conv);
-		}
-	}
-
-	public void addToLists(Set<ConvInfo> list)
-	{
-		for (ConvInfo conv : list)
-		{
-			addToLists(conv);
-		}
-	}
-
 	public void removeStealthConversationsFromLists()
 	{
 		for (Iterator<ConvInfo> iter = completeList.iterator(); iter.hasNext();)
@@ -979,6 +978,35 @@ public class ConversationsAdapter extends BaseAdapter
 		Collections.sort(completeList, mConversationsComparator);
 		Collections.sort(conversationList, mConversationsComparator);
 	}
+	
+	public void addToLists(ConvInfo convInfo)
+	{
+		conversationList.add(convInfo);
+		if(conversationsMsisdns!=null)
+		{
+			conversationsMsisdns.add(convInfo.getMsisdn());
+		}
+		if(phoneBookContacts!=null)
+		{
+			phoneBookContacts.remove(convInfo);
+		}
+		if (!isSearchModeOn)
+		{
+			completeList.add(convInfo);
+		}
+		else
+		{
+			onQueryChanged(refinedSearchText);
+		}
+	}
+
+	public void addToLists(Set<ConvInfo> list)
+	{
+		for (ConvInfo convInfo : list)
+		{
+			addToLists(convInfo);
+		}
+	}
 
 	public void remove(ConvInfo conv)
 	{
@@ -990,11 +1018,14 @@ public class ConversationsAdapter extends BaseAdapter
 			{
 				conversationsMsisdns.remove(conv.getMsisdn());
 			}
-			if (phoneBookContacts != null)
+			if (phoneBookContacts != null && conv.isOnHike())
 			{
-				phoneBookContacts.add(conv);
+				phoneBookContacts.add(getPhoneContactFakeConv(conv));
+			}
+			if (isSearchModeOn)
+			{
+				onQueryChanged(refinedSearchText);
 			}
 		}
 	}
-
 }

@@ -26,5 +26,5 @@ public class HikeDialog extends Dialog
 	{
 		return id;
 	}
-
+	
 }

@@ -1,8 +1,5 @@
 package com.bsb.hike.chatthread;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.content.Context;
 import android.os.Handler;
 import android.view.LayoutInflater;
@@ -15,16 +12,11 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
-import com.bsb.hike.analytics.AnalyticsConstants;
-import com.bsb.hike.analytics.HAManager;
-import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.modules.animationModule.HikeAnimationFactory;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.HikeTip.TipType;
-import com.bsb.hike.utils.Logger;
 
 /**
  * This class is a helper class which contains exhaustive set of tips which can be shown in the chat thread. The tips include Atomic tips which are server triggered as well FTUE
@@ -242,7 +234,7 @@ public class ChatThreadTips implements OnClickListener, OnTouchListener
 	 * @param whichTip
 	 * @return
 	 */
-	private boolean seenTip(int whichTip)
+	public boolean seenTip(int whichTip)
 	{
 		switch (whichTip)
 		{
@@ -371,38 +363,35 @@ public class ChatThreadTips implements OnClickListener, OnTouchListener
 	 */
 	public void setTipSeen(int whichTip)
 	{
-		/**
-		 * Proceeding only if we are showing the current tip indicated by whichTip
-		 */
-		if (tipId == whichTip)
+		switch (whichTip)
 		{
-			switch (whichTip)
+		case PIN_TIP:
+			mPrefs.saveData(HikeMessengerApp.SHOWN_PIN_TIP, true);
+			closeTip();
+			break;
+
+		case STICKER_TIP:
+			mPrefs.saveData(HikeMessengerApp.SHOWN_EMOTICON_TIP, true);
+			closeTip();
+			if (mainView.findViewById(R.id.pulsatingDot) != null)  // Safety null check.
 			{
-			case PIN_TIP:
-				mPrefs.saveData(HikeMessengerApp.SHOWN_PIN_TIP, true);
-				closeTip();
-				break;
-				
-			case STICKER_TIP:
-				mPrefs.saveData(HikeMessengerApp.SHOWN_EMOTICON_TIP, true);
-				closeTip();
-				break;
-
-			case ATOMIC_ATTACHMENT_TIP:
-			case ATOMIC_CHAT_THEME_TIP:
-			case ATOMIC_STICKER_TIP:
-				mPrefs.saveData(HikeMessengerApp.ATOMIC_POP_UP_TYPE_CHAT, "");
-				/**
-				 * Recording click on sticker tip
-				 */
-				if (whichTip == ATOMIC_STICKER_TIP)   
-				{
-					ChatThreadUtils.recordStickerFTUEClick();
-				}
-				closeTip();
-				break;
-
+				mainView.findViewById(R.id.pulsatingDot).setVisibility(View.GONE);
 			}
+			break;
+
+		case ATOMIC_ATTACHMENT_TIP:
+		case ATOMIC_CHAT_THEME_TIP:
+		case ATOMIC_STICKER_TIP:
+			mPrefs.saveData(HikeMessengerApp.ATOMIC_POP_UP_TYPE_CHAT, "");
+			/**
+			 * Recording click on sticker tip
+			 */
+			if (whichTip == ATOMIC_STICKER_TIP)
+			{
+				ChatThreadUtils.recordStickerFTUEClick();
+			}
+			closeTip();
+			break;
 		}
 	}
 }

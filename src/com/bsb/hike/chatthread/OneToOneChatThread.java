@@ -41,10 +41,10 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
-import com.bsb.hike.analytics.HAManager;
-import com.bsb.hike.analytics.MsgRelLogManager;
 import com.bsb.hike.analytics.AnalyticsConstants.MessageType;
 import com.bsb.hike.analytics.AnalyticsConstants.MsgRelEventType;
+import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.analytics.MsgRelLogManager;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.db.HikeMqttPersistence;
 import com.bsb.hike.dialog.H20Dialog;
@@ -70,11 +70,11 @@ import com.bsb.hike.utils.ChatTheme;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.LastSeenScheduler;
-import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.LastSeenScheduler.LastSeenFetchedCallback;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.SoundUtils;
+import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.voip.VoIPUtils;
 
@@ -128,6 +128,8 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 
 	private static final int ADD_UNDELIVERED_MESSAGE = 114;
 
+	private static final int SHOW_CALL_ICON = 115;
+	
 	private static short H2S_MODE = 0; // Hike to SMS Mode
 
 	private static short H2H_MODE = 1; // Hike to Hike Mode
@@ -186,6 +188,14 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	public boolean onOptionsItemSelected(MenuItem item)
 	{
 		Logger.i(TAG, "menu item click" + item.getItemId());
+		
+//		Not allowing user to access actionbar items on a blocked user's chatThread
+		if (mConversation.isBlocked())
+		{
+			Toast.makeText(activity.getApplicationContext(), activity.getString(R.string.block_overlay_message, mConversation.getMsisdn()), Toast.LENGTH_SHORT).show();
+			return false;
+		}
+		
 		switch (item.getItemId())
 		{
 			case R.id.voip_call:
@@ -211,7 +221,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		}
 
 		list.add(new OverFlowMenuItem(mConversation.isBlocked() ? getString(R.string.unblock_title) : getString(R.string.block_title), 0, 0, R.string.block_title));
-		if (mConversation.isBlocked() && mContactInfo.isNotOrRejectedFavourite())
+		if (mContactInfo.isNotOrRejectedFavourite())
 		{
 			list.add(new OverFlowMenuItem(getString(R.string.add_as_favorite_menu), 0, 0, R.string.add_as_favorite_menu));
 		}
@@ -532,6 +542,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			break;
 		case HikePubSub.USER_JOINED:
 			onUserJoinedOrLeft(object, true);
+			uiHandler.sendEmptyMessage(SHOW_CALL_ICON);
 			break;
 		case HikePubSub.USER_LEFT:
 			onUserJoinedOrLeft(object, false);
@@ -658,6 +669,12 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			break;
 		case ADD_UNDELIVERED_MESSAGE:
 			addToUndeliveredMessages((ConvMessage) msg.obj);
+			break;
+		case SHOW_CALL_ICON:
+			if(shouldShowCallIcon())
+			{
+				mActionBar.getMenuItem(R.id.voip_call).setVisible(true);
+			}
 			break;
 		default:
 			Logger.d(TAG, "Did not find any matching event in OneToOne ChatThread. Calling super class' handleUIMessage");
@@ -1237,14 +1254,6 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	@Override
 	protected void openProfileScreen()
 	{
-		/**
-		 * Do nothing if the user is blocked
-		 */
-		if (mConversation.isBlocked())
-		{
-			return;
-		}
-
 		Intent profileIntent = IntentFactory.getSingleProfileIntent(activity.getApplicationContext(), mConversation.isOnHike(), msisdn);
 
 		activity.startActivity(profileIntent);
@@ -2222,7 +2231,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		 */
 		else
 		{
-			HikeDialogFactory.showDialog(activity, HikeDialogFactory.SHOW_H20_SMS_DIALOG, this, nativeOnly, getSelectedFreeSmsCount(), mCredits);
+			this.dialog = HikeDialogFactory.showDialog(activity, HikeDialogFactory.SHOW_H20_SMS_DIALOG, this, nativeOnly, getSelectedFreeSmsCount(), mCredits);
 		}
 	}
 
@@ -2253,6 +2262,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		case HikeDialogFactory.SMS_CLIENT_DIALOG:
 			dialog.dismiss();
 			Utils.setReceiveSmsSetting(activity.getApplicationContext(), false);
+			this.dialog = null;
 			break;
 
 		default:
@@ -2296,7 +2306,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 
 	private void showSMSClientDialog(boolean showingNativeInfoDialog)
 	{
-		HikeDialogFactory.showDialog(activity, HikeDialogFactory.SMS_CLIENT_DIALOG, this, false, null, showingNativeInfoDialog);
+		this.dialog = HikeDialogFactory.showDialog(activity, HikeDialogFactory.SMS_CLIENT_DIALOG, this, false, null, showingNativeInfoDialog);
 	}
 
 	private void onSMSClientDialogPositiveClick()
@@ -2509,11 +2519,10 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		return Utils.isVoipActivated(activity.getApplicationContext()) && mConversation.isOnHike() && !HikeMessengerApp.hikeBotNamesMap.containsKey(msisdn);
 	}
 	
-	@Override
 	protected void showThemePicker()
 	{
-		super.showThemePicker();
-		themePicker.showThemePicker(activity.findViewById(R.id.cb_anchor), currentTheme, R.string.chat_theme_tip);
+		setUpThemePicker();
+		themePicker.showThemePicker(activity.findViewById(R.id.cb_anchor), currentTheme, R.string.chat_theme_tip, activity.getResources().getConfiguration().orientation);
 	}
 
 	/*
@@ -2525,5 +2534,14 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		mContactInfo.setFavoriteType(favoriteType);
 		Pair<ContactInfo, FavoriteType> favoriteToggle = new Pair<ContactInfo, FavoriteType>(mContactInfo, favoriteType);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.FAVORITE_TOGGLED, favoriteToggle);
+	}
+	
+	@Override
+	protected ArrayList<Pair<Integer, Boolean>> getMenuItemsToBeModified()
+	{
+		ArrayList<Pair<Integer, Boolean>> itemsPair = new ArrayList<Pair<Integer,Boolean>>();
+		itemsPair.add(new Pair<Integer, Boolean>(R.string.add_as_favorite_menu, !mConversation.isBlocked()));
+		itemsPair.addAll(super.getMenuItemsToBeModified());
+		return itemsPair;
 	}
 }

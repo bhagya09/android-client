@@ -398,35 +398,35 @@ public class MqttMessagesManager
 		{
 			return;
 		}
-		OneToNConversation groupConversation;
+		OneToNConversation oneToNConversation;
 		
-		groupConversation = OneToNConversation.createOneToNConversationFromJSON(jsonObj);
+		oneToNConversation = OneToNConversation.createOneToNConversationFromJSON(jsonObj);
 		
 		boolean groupRevived = false;
 
-		if (!ContactManager.getInstance().isGroupAlive(groupConversation.getMsisdn()))
+		if (!ContactManager.getInstance().isGroupAlive(oneToNConversation.getMsisdn()))
 		{
 
 			Logger.d(getClass().getSimpleName(), "Group is not alive");
-			int updated = this.convDb.toggleGroupDeadOrAlive(groupConversation.getMsisdn(), true);
+			int updated = this.convDb.toggleGroupDeadOrAlive(oneToNConversation.getMsisdn(), true);
 			Logger.d(getClass().getSimpleName(), "Group revived? " + updated);
 			groupRevived = updated > 0;
 
 			if (groupRevived)
 			{
-				if (groupConversation instanceof BroadcastConversation)
+				if (oneToNConversation instanceof BroadcastConversation)
 				{
 					jsonObj.put(HikeConstants.NEW_BROADCAST, true);
 				}
-				else if (groupConversation instanceof GroupConversation)
+				else if (oneToNConversation instanceof GroupConversation)
 				{
 					jsonObj.put(HikeConstants.NEW_GROUP, true);
 				}
-				pubSub.publish(HikePubSub.CONVERSATION_REVIVED, groupConversation.getMsisdn());
+				pubSub.publish(HikePubSub.CONVERSATION_REVIVED, oneToNConversation.getMsisdn());
 			}
 
 		}
-		int gcjAdd = this.convDb.addRemoveGroupParticipants(groupConversation.getMsisdn(), groupConversation.getConversationParticipantList(), groupRevived);
+		int gcjAdd = this.convDb.addRemoveGroupParticipants(oneToNConversation.getMsisdn(), oneToNConversation.getConversationParticipantList(), groupRevived);
 		if (!groupRevived && gcjAdd != HikeConstants.NEW_PARTICIPANT)
 		{
 			Logger.d(getClass().getSimpleName(), "GCJ Message was already received");
@@ -448,7 +448,7 @@ public class MqttMessagesManager
 		// Adding a key to the json signify that this was the GCJ
 		// received for group creation
 		// jsonObj.put(HikeConstants.NEW_GROUP, true);
-		if (!groupRevived && !ContactManager.getInstance().isGroupExist(groupConversation.getMsisdn()))
+		if (!groupRevived && !ContactManager.getInstance().isGroupExist(oneToNConversation.getMsisdn()))
 		{
 			Logger.d(getClass().getSimpleName(), "The group conversation does not exists");
 
@@ -459,12 +459,19 @@ public class MqttMessagesManager
 				groupName = metadata.optString(HikeConstants.NAME);
 			}
 			
-			groupConversation = (GroupConversation) this.convDb.addConversation(groupConversation.getMsisdn(), false, groupName, groupConversation.getConversationOwner());
-			ContactManager.getInstance().insertGroup(groupConversation.getMsisdn(), groupName);
+			oneToNConversation = (OneToNConversation) this.convDb.addConversation(oneToNConversation.getMsisdn(), false, groupName, oneToNConversation.getConversationOwner());
+			ContactManager.getInstance().insertGroup(oneToNConversation.getMsisdn(), groupName);
 
 			// Adding a key to the json signify that this was the GCJ
 			// received for group creation
-			jsonObj.put(HikeConstants.NEW_GROUP, true);
+			if (oneToNConversation instanceof BroadcastConversation)
+			{
+				jsonObj.put(HikeConstants.NEW_BROADCAST, true);
+			}
+			else if (oneToNConversation instanceof GroupConversation)
+			{
+				jsonObj.put(HikeConstants.NEW_GROUP, true);
+			}
 		}
 
 		if (metadata != null)
@@ -473,7 +480,7 @@ public class MqttMessagesManager
 			if (chatBgJson != null)
 			{
 				String bgId = chatBgJson.optString(HikeConstants.BG_ID);
-				String groupId = groupConversation.getMsisdn();
+				String groupId = oneToNConversation.getMsisdn();
 				try
 				{
 					/*
@@ -518,7 +525,7 @@ public class MqttMessagesManager
 		if (this.convDb.setGroupName(groupId, groupname) > 0)
 		{
 			ContactManager.getInstance().setGroupName(groupId, groupname);
-			this.pubSub.publish(HikePubSub.GROUP_NAME_CHANGED, groupId);
+			this.pubSub.publish(HikePubSub.ONETONCONV_NAME_CHANGED, groupId);
 
 			boolean showPush = true;
 			JSONObject metadata = jsonObj.optJSONObject(HikeConstants.METADATA);

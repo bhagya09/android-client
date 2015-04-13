@@ -19,7 +19,6 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
-import com.bsb.hike.chatthread.ChatThread;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
@@ -31,10 +30,11 @@ import com.bsb.hike.models.Conversation.GroupConversation;
 import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.service.HikeMqttManagerNew;
-import com.bsb.hike.ui.CreateNewGroupOrBroadcastActivity;
 
-public class OneToNConversationUtils {
-
+public class OneToNConversationUtils
+{
+	private static final String TAG = "OneToNConversationUtils";
+	
 	public static String getParticipantAddedMessage(ConvMessage convMessage, Context context, String highlight)
 	{
 		String participantAddedMessage;
@@ -63,25 +63,27 @@ public class OneToNConversationUtils {
 		}
 		return participantAddedMessage;
 	}
-	
+
 	public static String getParticipantRemovedMessage(String msisdn, Context context, String participantName)
 	{
-		String participantRemovedMessage = String.format(context.getString(isBroadcastConversation(msisdn) ? R.string.removed_from_broadcast : R.string.left_conversation), participantName);
+		String participantRemovedMessage = String.format(context.getString(isBroadcastConversation(msisdn) ? R.string.removed_from_broadcast : R.string.left_conversation),
+				participantName);
 		return participantRemovedMessage;
 	}
-	
+
 	public static String getConversationNameChangedMessage(String msisdn, Context context, String participantName)
 	{
-		String nameChangedMessage = String.format(context.getString(isBroadcastConversation(msisdn) ? R.string.change_broadcast_name : R.string.change_group_name), participantName);
+		String nameChangedMessage = String
+				.format(context.getString(isBroadcastConversation(msisdn) ? R.string.change_broadcast_name : R.string.change_group_name), participantName);
 		return nameChangedMessage;
 	}
-	
+
 	public static String getConversationEndedMessage(String msisdn, Context context)
 	{
 		String message = context.getString(isBroadcastConversation(msisdn) ? R.string.broadcast_list_end : R.string.group_chat_end);
 		return message;
 	}
-	
+
 	public static boolean isOneToNConversation(String msisdn)
 	{
 		return isGroupConversation(msisdn) || isBroadcastConversation(msisdn);
@@ -103,10 +105,10 @@ public class OneToNConversationUtils {
 		if (TextUtils.isEmpty(oneToNConvId))
 		{
 			oneToNConvId = activity.getIntent().getStringExtra(HikeConstants.Extras.GROUP_BROADCAST_ID);
-				if (TextUtils.isEmpty(oneToNConvId))
-				{
-					throw new IllegalArgumentException("No convId set.! Conversation cannot be created.");
-				}
+			if (TextUtils.isEmpty(oneToNConvId))
+			{
+				throw new IllegalArgumentException("No convId set.! Conversation cannot be created.");
+			}
 			newOneToNConv = true;
 		}
 		else
@@ -132,6 +134,7 @@ public class OneToNConversationUtils {
 		{
 			oneToNConversation = new GroupConversation.ConversationBuilder(oneToNConvId).setConversationOwner(userContactInfo.getMsisdn()).setIsAlive(true).build();
 		}
+
 		oneToNConversation.setConversationParticipantList(participantList);
 
 		Logger.d(activity.getClass().getSimpleName(), "Creating group: " + oneToNConvId);
@@ -140,7 +143,7 @@ public class OneToNConversationUtils {
 		if (newOneToNConv)
 		{
 			mConversationDb.addConversation(oneToNConversation.getMsisdn(), false, convName, oneToNConversation.getConversationOwner());
-			ContactManager.getInstance().insertGroup(oneToNConversation.getMsisdn(),convName);
+			ContactManager.getInstance().insertGroup(oneToNConversation.getMsisdn(), convName);
 		}
 
 		try
@@ -159,20 +162,12 @@ public class OneToNConversationUtils {
 			ConvMessage msg = new ConvMessage(gcjPacket, oneToNConversation, activity, true);
 			ContactManager.getInstance().updateGroupRecency(oneToNConvId, msg.getTimestamp());
 			HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_SENT, msg);
-		}
-		catch (JSONException e)
-		{
-			e.printStackTrace();
-		}
-		JSONObject gcjJson = oneToNConversation.serialize(HikeConstants.MqttMessageTypes.GROUP_CHAT_JOIN);
-		/*
-		 * Adding the group name to the packet
-		 */
-		if (newOneToNConv)
-		{
-			JSONObject metadata = new JSONObject();
-			try
+			/*
+			 * Adding request dp to the packet
+			 */
+			if (newOneToNConv)
 			{
+				JSONObject metadata = new JSONObject();
 				metadata.put(HikeConstants.NAME, convName);
 
 				String directory = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
@@ -184,29 +179,36 @@ public class OneToNConversationUtils {
 					metadata.put(HikeConstants.REQUEST_DP, true);
 				}
 
-				gcjJson.put(HikeConstants.METADATA, metadata);
+				gcjPacket.put(HikeConstants.METADATA, metadata);
 			}
-			catch (JSONException e)
+
+			HikeMqttManagerNew.getInstance().sendMessage(gcjPacket, HikeMqttManagerNew.MQTT_QOS_ONE);
+
+			/**
+			 * This is for updating the UI in ChatThread if it is not a new conversation. Also used for updating the default broadcast name on homescreen
+			 */
+			if (!newOneToNConv)
 			{
-				e.printStackTrace();
+				HikeMessengerApp.getPubSub().publish(HikePubSub.PARTICIPANT_JOINED_ONETONCONV, gcjPacket);
+				HikeMessengerApp.getPubSub().publish(HikePubSub.PARTICIPANT_JOINED_SYSTEM_MESSAGE, msg);
 			}
-		}
-		HikeMqttManagerNew.getInstance().sendMessage(gcjJson, HikeMqttManagerNew.MQTT_QOS_ONE);
 
-		if (oneToNConversation instanceof BroadcastConversation && !newOneToNConv)
+			ContactInfo conversationContactInfo = new ContactInfo(oneToNConvId, oneToNConvId, oneToNConvId, oneToNConvId);
+			Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(activity, conversationContactInfo, true);
+			activity.startActivity(intent);
+			activity.finish();
+
+		}
+		catch (JSONException e)
 		{
-			HikeMessengerApp.getPubSub().publish(HikePubSub.PARTICIPANT_JOINED_ONETONCONV, gcjJson);
+			Logger.e(TAG, "Getting a JSON Exception while creating a newgroup/broadcast : " + e.toString());
 		}
 
-		ContactInfo conversationContactInfo = new ContactInfo(oneToNConvId, oneToNConvId, oneToNConvId, oneToNConvId);
-		Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(activity, conversationContactInfo, true);
-		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-		activity.startActivity(intent);
-		activity.finish();
 	}
 
 	/**
 	 * To ensure that group Conversation and Broadcast conversation are mutually exclusive, we add the !isBroadCast check
+	 * 
 	 * @param msisdn
 	 * @return
 	 */
@@ -214,44 +216,43 @@ public class OneToNConversationUtils {
 	{
 		return msisdn != null && !msisdn.startsWith("+") && !isBroadcastConversation(msisdn);
 	}
-	
+
 	/**
 	 * @param msisdn
 	 * @return
 	 */
 	public static boolean isBroadcastConversation(String msisdn)
 	{
-		return msisdn!=null && msisdn.startsWith("b:");
+		return msisdn != null && msisdn.startsWith("b:");
 	}
 
 	public static void addBroadcastRecipientConversations(ConvMessage convMessage)
 	{
-		
+
 		ArrayList<ContactInfo> contacts = HikeConversationsDatabase.getInstance().addBroadcastRecipientConversations(convMessage);
-		
+
 		sendPubSubForConvScreenBroadcastMessage(convMessage, contacts);
 	}
-	
 
 	public static void sendPubSubForConvScreenBroadcastMessage(ConvMessage convMessage, ArrayList<ContactInfo> recipient)
 	{
 		long firstMsgId = convMessage.getMsgID() + 1;
 		int totalRecipient = recipient.size();
-		List<Pair<ContactInfo, ConvMessage>> allPairs = new ArrayList<Pair<ContactInfo,ConvMessage>>(totalRecipient);
-		long timestamp = System.currentTimeMillis()/1000;
-		for(int i=0;i<totalRecipient;i++)
+		List<Pair<ContactInfo, ConvMessage>> allPairs = new ArrayList<Pair<ContactInfo, ConvMessage>>(totalRecipient);
+		long timestamp = System.currentTimeMillis() / 1000;
+		for (int i = 0; i < totalRecipient; i++)
 		{
 			ConvMessage message = new ConvMessage(convMessage);
-			if(convMessage.isBroadcastConversation())
+			if (convMessage.isBroadcastConversation())
 			{
 				message.setMessageOriginType(OriginType.BROADCAST);
 			}
 			else
 			{
-				//multi-forward case... in braodcast case we donot need to update timestamp
+				// multi-forward case... in braodcast case we donot need to update timestamp
 				message.setTimestamp(timestamp++);
 			}
-			message.setMsgID(firstMsgId+i);
+			message.setMsgID(firstMsgId + i);
 			ContactInfo contactInfo = recipient.get(i);
 			message.setMsisdn(contactInfo.getMsisdn());
 			Pair<ContactInfo, ConvMessage> pair = new Pair<ContactInfo, ConvMessage>(contactInfo, message);

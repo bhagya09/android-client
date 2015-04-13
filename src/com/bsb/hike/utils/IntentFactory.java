@@ -416,9 +416,11 @@ public class IntentFactory
 		return intent;
 	}
 
-	public static Intent getFileSelectActivityIntent(Context context)
+	public static Intent getFileSelectActivityIntent(Context context, String msisdn)
 	{
-		return new Intent(context, FileSelectActivity.class);
+		Intent intent = new Intent(context, FileSelectActivity.class);
+		intent.putExtra(HikeConstants.Extras.MSISDN, msisdn);
+		return intent;
 	}
 
 	/**

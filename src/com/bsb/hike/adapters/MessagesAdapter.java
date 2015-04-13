@@ -1635,6 +1635,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				fileHolder.fileThumb.setImageResource(R.drawable.ic_default_contact);
 				fileHolder.fileThumb.setScaleType(ScaleType.CENTER);
 				fileHolder.fileName.setText(hikeFile.getDisplayName());
+				checkIfContainsSearchText(fileHolder.fileName);
 				List<ContactInfoData> items = Utils.getContactDataFromHikeFile(hikeFile);
 				String phone = null, email = null;
 				for (ContactInfoData contactInfoData : items)
@@ -1650,11 +1651,13 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				{
 					fileHolder.fileSize.setText(phone);
 					fileHolder.fileSize.setVisibility(View.VISIBLE);
+					checkIfContainsSearchText(fileHolder.fileSize);
 				}
 				else if (!TextUtils.isEmpty(email))
 				{
 					fileHolder.fileSize.setText(email);
 					fileHolder.fileSize.setVisibility(View.VISIBLE);
+					checkIfContainsSearchText(fileHolder.fileSize);
 				}
 
 				fileHolder.fileThumb.setVisibility(View.VISIBLE);

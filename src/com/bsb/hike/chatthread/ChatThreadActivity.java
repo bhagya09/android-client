@@ -2,7 +2,10 @@ package com.bsb.hike.chatthread;
 
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.os.Build;
 import android.os.Bundle;
+import android.view.KeyEvent;
+import android.view.ViewConfiguration;
 
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
@@ -238,6 +241,29 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 	public void showProductPopup(int which)
 	{
 		super.showProductPopup(which);
+	}
+	
+	@Override
+	public boolean onKeyUp(int keyCode, KeyEvent event)
+	{
+		if (Build.VERSION.SDK_INT <= 10 || (Build.VERSION.SDK_INT >= 14 && ViewConfiguration.get(this).hasPermanentMenuKey()))
+		{
+			if (event.getAction() == KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_MENU)
+			{
+				/*
+				 * For some reason the activity randomly catches this event in the background and we get an NPE when that happens with mMenu. Adding an NPE guard for that.
+				 * if media viewer is open don't do anything
+				 */
+				if (isFragmentAdded(HikeConstants.IMAGE_FRAGMENT_TAG))
+				{
+					return super.onKeyUp(keyCode, event);
+				}
+				
+				chatThread.onMenuKeyPressed();
+				return true;
+			}
+		}
+		return super.onKeyUp(keyCode, event);
 	}
 	
 }

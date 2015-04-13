@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
@@ -31,6 +32,7 @@ import com.bsb.hike.productpopup.IActivityPopup;
 import com.bsb.hike.productpopup.ProductContentModel;
 import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
+import com.bsb.hike.ui.fragments.ImageViewerFragment;
 import com.bsb.hike.ui.fragments.UpdatesFragment;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.Logger;
@@ -257,6 +259,27 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 				}
 			}, delayTime);
 		}
+	}
+
+	@Override
+	protected void openImageViewerFragment(Object object)
+	{
+		/*
+		 * Making sure we don't add the fragment if the activity is finishing.
+		 */
+		if (isFinishing())
+		{
+			return;
+		}
+
+		Bundle arguments = (Bundle) object;
+
+		ImageViewerFragment imageViewerFragment = new ImageViewerFragment();
+		imageViewerFragment.setArguments(arguments);
+
+		FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+		fragmentTransaction.add(R.id.parent_layout, imageViewerFragment, HikeConstants.IMAGE_FRAGMENT_TAG);
+		fragmentTransaction.commitAllowingStateLoss();
 	}
 
 }

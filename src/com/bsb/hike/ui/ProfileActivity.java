@@ -28,6 +28,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.v4.app.FragmentTransaction;
 import android.text.TextUtils;
 import android.util.Pair;
 import android.view.Gravity;
@@ -102,6 +103,7 @@ import com.bsb.hike.tasks.DownloadImageTask;
 import com.bsb.hike.tasks.DownloadImageTask.ImageDownloadResult;
 import com.bsb.hike.tasks.FinishableEvent;
 import com.bsb.hike.tasks.HikeHTTPTask;
+import com.bsb.hike.ui.fragments.ImageViewerFragment;
 import com.bsb.hike.ui.fragments.PhotoViewerFragment;
 import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
 import com.bsb.hike.utils.EmoticonConstants;
@@ -149,7 +151,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 
 	private SharedPreferences preferences;
 
-	private String[] groupInfoPubSubListeners = { HikePubSub.ICON_CHANGED, HikePubSub.GROUP_NAME_CHANGED, HikePubSub.GROUP_END, HikePubSub.PARTICIPANT_JOINED_ONETONCONV,
+	private String[] groupInfoPubSubListeners = { HikePubSub.ICON_CHANGED, HikePubSub.ONETONCONV_NAME_CHANGED, HikePubSub.GROUP_END, HikePubSub.PARTICIPANT_JOINED_ONETONCONV,
 			HikePubSub.PARTICIPANT_LEFT_ONETONCONV, HikePubSub.USER_JOINED, HikePubSub.USER_LEFT, HikePubSub.LARGER_IMAGE_DOWNLOADED, HikePubSub.PROFILE_IMAGE_DOWNLOADED,
 			HikePubSub.ClOSE_PHOTO_VIEWER_FRAGMENT, HikePubSub.DELETE_MESSAGE, HikePubSub.CONTACT_ADDED, HikePubSub.UNREAD_PIN_COUNT_RESET, HikePubSub.MESSAGE_RECEIVED, HikePubSub.BULK_MESSAGE_RECEIVED };
 
@@ -2235,7 +2237,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			Logger.w(getClass().getSimpleName(), "The msisdn is null, we are doing something wrong.." + object);
 			return;
 		}
-		if (HikePubSub.GROUP_NAME_CHANGED.equals(type))
+		if (HikePubSub.ONETONCONV_NAME_CHANGED.equals(type))
 		{
 			if (mLocalMSISDN.equals((String) object))
 			{
@@ -3223,5 +3225,26 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		intent.putExtra(HikeConstants.Extras.CONTACT_INFO_TIMELINE, mLocalMSISDN);
 		intent.putExtra(HikeConstants.Extras.ON_HIKE, contactInfo.isOnhike());
 		startActivity(intent);
+	}
+	
+	@Override
+	protected void openImageViewerFragment(Object object)
+	{
+		/*
+		 * Making sure we don't add the fragment if the activity is finishing.
+		 */
+		if (isFinishing())
+		{
+			return;
+		}
+
+		Bundle arguments = (Bundle) object;
+
+		ImageViewerFragment imageViewerFragment = new ImageViewerFragment();
+		imageViewerFragment.setArguments(arguments);
+
+		FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+		fragmentTransaction.add(R.id.parent_layout, imageViewerFragment, HikeConstants.IMAGE_FRAGMENT_TAG);
+		fragmentTransaction.commitAllowingStateLoss();
 	}
 }

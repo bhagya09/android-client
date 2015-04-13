@@ -294,13 +294,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			{
 				tagEditText.clear(false);
 				int selected = adapter.getCurrentSelection();
-				for (String msisdn : initiallySelectedMsisidns)
-				{
-					ContactInfo contactInfo = ContactManager.getInstance().getContact(msisdn, true, false);
-					tagEditText.addTag(contactInfo.getNameOrMsisdn(), msisdn, contactInfo);
-				}
-
-
+				tagEditText.toggleTag(getString(selected==1 ? R.string.selected_contacts_count_singular : R.string.selected_contacts_count_plural,selected), SELECT_ALL_MSISDN, SELECT_ALL_MSISDN);
 				setupMultiSelectActionBar();
 				invalidateOptionsMenu();
 			}
@@ -504,11 +498,11 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		{
 		case CREATE_BROADCAST_MODE:
 			//We do not show sms contacts in broadcast mode
-			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage && !isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, null, friendsListFetchedCallback, false);
+			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage || isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, null, friendsListFetchedCallback, false);
 			break;
 
 		default:
-			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage && !isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, null, friendsListFetchedCallback, !(isForwardingMessage||isSharingFile));
+			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage || isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, null, friendsListFetchedCallback, !(isForwardingMessage||isSharingFile));
 			break;
 		}
 
@@ -806,7 +800,12 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	public void charResetAfterSeperator()
 	{
 		adapter.removeFilter();
-		setupForSelectAll();
+		
+//		We do not add 'Select all' button at the bottom for Group Chats
+		if (!(this.composeMode == CREATE_GROUP_MODE))
+		{
+			setupForSelectAll();
+		}
 	}
 
 	private void setMode(int mode)

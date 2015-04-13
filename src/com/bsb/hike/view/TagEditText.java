@@ -101,16 +101,23 @@ public class TagEditText extends EditText
 				ssb.setSpan(ispan, length - SPAN_REPLACEMENT.length() - 1, length - 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 			}
 			String charAfterSep = getCharAfterSeparator();
+			boolean filterReset = true;
 			if (charAfterSep != null) {
-				ssb.append(getCharAfterSeparator());
+				if(charAfterSep.matches("[A-Za-z]+")){
+					ssb.append(charAfterSep);
+					filterReset = false;
+				}
 			}
 			needCallback = false;
 			setText(ssb);
 			setSelection(ssb.length());
 			if (listener != null)
 			{
-
-				listener.tagAdded(data, uniqueness);
+     			listener.tagAdded(data, uniqueness);
+     			if(filterReset)
+     			{
+     				listener.charResetAfterSeperator();
+     			}
 			}
 		}
 	}
@@ -162,17 +169,6 @@ public class TagEditText extends EditText
 		Logger.i("tagedit", "after toggle #" + getText().toString() + "#");
 	}
 	
-	public void addTag(String text, String uniqueness, Object data)
-	{
-		Logger.i("tagedit", "before toggle #" + getText().toString() + "#");
-		String newUniqueness = generateUniqueness(uniqueness);
-		if (!addedTags.containsKey(newUniqueness))
-		{
-			appendTag(text, uniqueness, data);
-		}
-		Logger.i("tagedit", "after adding #" + getText().toString() + "#");
-	}
-
 	/**
 	 * clears all text of edit text and add new tags
 	 * 

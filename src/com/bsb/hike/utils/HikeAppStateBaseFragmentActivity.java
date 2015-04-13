@@ -189,25 +189,15 @@ public class HikeAppStateBaseFragmentActivity extends SherlockFragmentActivity i
 				@Override
 				public void run()
 				{
-					/*
-					 * Making sure we don't add the fragment if the activity is finishing.
-					 */
-					if (isFinishing())
-					{
-						return;
-					}
-
-					Bundle arguments = (Bundle) object;
-
-					ImageViewerFragment imageViewerFragment = new ImageViewerFragment();
-					imageViewerFragment.setArguments(arguments);
-
-					FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-					fragmentTransaction.add(R.id.parent_layout, imageViewerFragment, HikeConstants.IMAGE_FRAGMENT_TAG);
-					fragmentTransaction.commitAllowingStateLoss();
+					openImageViewerFragment(object);
 				}
 			});
 		}
+	}
+	
+	protected void openImageViewerFragment(Object object)
+	{
+		return;
 	}
 
 	public void addFragment(Fragment fragment, String tag)

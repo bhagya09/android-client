@@ -256,7 +256,6 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 					possibleKeyboardHeightLand = 0;
 				isKeyboardOpen = false;
 			}
-		
 		}
 	};
 

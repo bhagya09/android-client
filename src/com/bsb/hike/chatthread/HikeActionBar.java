@@ -1,14 +1,16 @@
 package com.bsb.hike.chatthread;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
-import android.widget.TextView;
 import android.widget.PopupWindow.OnDismissListener;
+import android.widget.TextView;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.view.Menu;
@@ -18,8 +20,8 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.media.OverFlowMenuItem;
 import com.bsb.hike.media.OverFlowMenuLayout;
-import com.bsb.hike.media.OverflowItemClickListener;
 import com.bsb.hike.media.OverFlowMenuLayout.OverflowViewListener;
+import com.bsb.hike.media.OverflowItemClickListener;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.Utils;
 
@@ -266,7 +268,29 @@ public class HikeActionBar
 	{
 		if(overFlowMenuLayout!=null)
 		{
-			overFlowMenuLayout.updateOverflowMenuItemActiveState(itemId, enabled);
+			overFlowMenuLayout.updateOverflowMenuItemActiveState(itemId, enabled, true);
+		}
+	}
+	
+	/**
+	 * Can be used to update the active state of multiple overflow menu item on the fly
+	 * 
+	 * @param itemId
+	 * @param enabled
+	 */
+	protected void updateOverflowMenuItemActiveState(ArrayList<Pair<Integer, Boolean>> itemList)
+	{
+		if (overFlowMenuLayout != null)
+		{
+			int count = 0;
+			for (Pair<Integer, Boolean> pair : itemList)
+			{
+				count =  overFlowMenuLayout.updateOverflowMenuItemActiveState(pair.first, pair.second, false) ? count + 1 : count;
+			}
+			if (count > 0)
+			{
+				overFlowMenuLayout.notifyDateSetChanged();
+			}
 		}
 	}
 
