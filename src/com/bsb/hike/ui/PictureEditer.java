@@ -292,22 +292,22 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 			return menuIcons.length;
 		}
 	}
-	
+
 	@Override
- 	protected void onActivityResult(int requestCode, int resultCode, Intent data)
- 	{
- 		super.onActivityResult(requestCode, resultCode, data);
- 		if (resultCode == RESULT_OK)
- 		{
- 			switch (requestCode)
- 			{
- 			case HikeConstants.CROP_RESULT:
- 				uploadProfilePic(data.getStringExtra(MediaStore.EXTRA_OUTPUT));
- 				break;
- 			}
- 		}
- 	}
-	
+	protected void onActivityResult(int requestCode, int resultCode, Intent data)
+	{
+		super.onActivityResult(requestCode, resultCode, data);
+		if (resultCode == RESULT_OK)
+		{
+			switch (requestCode)
+			{
+			case HikeConstants.CROP_RESULT:
+				uploadProfilePic(data.getStringExtra(MediaStore.EXTRA_OUTPUT));
+				break;
+			}
+		}
+	}
+
 	private void uploadProfilePic(final String f)
 	{
 		new Handler(Looper.getMainLooper()).postDelayed(new Runnable()
@@ -327,8 +327,6 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 			}
 		}, 600);
 	}
-
-
 
 	public class EditorClickListener implements OnClickListener, OnPageChangeListener, OnDoodleStateChangeListener
 	{
@@ -492,9 +490,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 									.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, Context.MODE_PRIVATE);
 							ContactInfo userInfo = Utils.getUserContactInfo(preferences);
 							String mLocalMSISDN = userInfo.getMsisdn();
-							
-							
-							
+
 							editView.saveImage(HikeFileType.PROFILE, mLocalMSISDN, new HikePhotosListener()
 							{
 								@Override
@@ -513,7 +509,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 								public void onComplete(File f)
 								{
 									Utils.startCropActivityForResult(PictureEditer.this, f.getAbsolutePath(), f.getAbsolutePath(), true);
-									
+
 								}
 							});
 
@@ -533,7 +529,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 			overlayFrame.setVisibility(View.VISIBLE);
 
 		}
-		
+
 		@Override
 		public void onPageScrollStateChanged(int arg0)
 		{
