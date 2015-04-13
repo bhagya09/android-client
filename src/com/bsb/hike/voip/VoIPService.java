@@ -2596,6 +2596,7 @@ public class VoIPService extends Service {
 			return;
 		}
 		
+		clientPartner.setPreferredConnectionMethod(ConnectionMethods.UNKNOWN);
 		establishingConnection = true;
 		connected = false;
 		if (partnerTimeoutThread != null)
