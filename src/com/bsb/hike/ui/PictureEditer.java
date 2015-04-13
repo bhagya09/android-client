@@ -101,14 +101,18 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 
 		clickHandler = new EditorClickListener(this);
 
-		// Get filename from normal intent data
+		// Get filename from intent data
 		Intent intent = getIntent();
-		filename = intent.getStringExtra(HikeConstants.HikePhotos.FILENAME);
+		filename = intent.getStringExtra(HikeMessengerApp.FILE_PATH);
 
 		if (filename == null)
 		{
-			// Check if intent is from Native camera
-			filename = intent.getStringExtra(HikeMessengerApp.FILE_PATH);
+			// Check if intent is from GalleryActivity
+			ArrayList<GalleryItem> galleryList = intent.getParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS);
+			if (galleryList != null && !galleryList.isEmpty())
+			{
+				filename = galleryList.get(0).getFilePath();
+			}
 		}
 
 		if (filename == null)
