@@ -238,7 +238,7 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 		this.mListener = listener;
 
 		savingFinal = true;
-		if(compressOutput && HikePhotosUtils.bitmapArea(imageOriginal)>HikeConstants.HikePhotos.MAXIMUM_ALLOWED_IMAGE_AREA)
+		if(compressOutput && HikePhotosUtils.getBitmapArea(imageOriginal)>HikeConstants.HikePhotos.MAXIMUM_ALLOWED_IMAGE_AREA)
 		{
 			compressOutput = false;
 			imageOriginal = HikePhotosUtils.compressBitamp(imageOriginal, HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX, HikeConstants.MAX_DIMENSION_LOW_FULL_SIZE_PX);

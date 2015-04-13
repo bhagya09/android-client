@@ -46,21 +46,18 @@ import com.bsb.hike.photos.views.FilterEffectItemLinearLayout;
 
 public class HikePhotosUtils
 {
-	
-	
-	
-	
+
 	// enum for features provided in the photo editer view
 	public class MenuType
 	{
 		public static final int EFFECTS_TYPE = 0;
-		
+
 		public static final int DOODLE_TYPE = 1;
-		
+
 		public static final int BORDER_TYPE = 2;
-		
+
 		public static final int TEXT_TYPE = 3;
-		
+
 		public static final int QUALITY_TYPE = 4;
 	}
 
@@ -87,59 +84,61 @@ public class HikePhotosUtils
 
 		return pixels;
 	}
-	
+
 	public static void manageBitmaps(Bitmap bitmap)
 	{
-		
+
 		if (bitmap != null)
 		{
-			if(android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB && !bitmap.isRecycled())
+			if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB && !bitmap.isRecycled())
 			{
 				bitmap.recycle();
 			}
 			bitmap = null;
 		}
 	}
-	
-	public static int bitmapArea(Bitmap bitmap)
+
+	public static int getBitmapArea(Bitmap bitmap)
 	{
-		if(bitmap==null)
+		if (bitmap == null)
+		{
 			return 0;
-		
-		if(bitmap.getWidth()<0 || bitmap.getHeight()<0)
+		}
+
+		if (bitmap.getWidth() < 0 || bitmap.getHeight() < 0)
+		{
 			return 0;
-		
-		return bitmap.getWidth()*bitmap.getHeight();
+		}
+
+		return bitmap.getWidth() * bitmap.getHeight();
 	}
-	
-	public static Bitmap compressBitamp(Bitmap bitmap,int maxWidth,int maxHeight)
+
+	public static Bitmap compressBitamp(Bitmap bitmap, int maxWidth, int maxHeight)
 	{
 		Bitmap temp = bitmap;
-		int width = 0,height = 0;
-		float aspectRatio = bitmap.getWidth()*1.0f/bitmap.getHeight();
-		
-		if(bitmap!=null)
+		int width = 0, height = 0;
+		float aspectRatio = bitmap.getWidth() * 1.0f / bitmap.getHeight();
+
+		if (bitmap != null)
 		{
-			if(bitmap.getWidth()>bitmap.getHeight())
+			if (bitmap.getWidth() > bitmap.getHeight())
 			{
-				
-				width =  maxWidth;
-				height = (int)(maxWidth*aspectRatio);
+
+				width = maxWidth;
+				height = (int) (maxWidth * aspectRatio);
 			}
 			else
 			{
 				height = maxHeight;
-				width = (int)(maxHeight*aspectRatio);
+				width = (int) (maxHeight * aspectRatio);
 			}
 		}
-		
-		//bitmap = Bitmap.createScaledBitmap(bitmap, width, height, false);
+
 		bitmap = createBitmap(bitmap, 0, 0, width, height, true, true, false, true);
 		HikePhotosUtils.manageBitmaps(temp);
 		return bitmap;
 	}
-	
-	
+
 	/**
 	 * Funtcion to create Bitmap. Handles out of Memory Exception
 	 * 
@@ -158,7 +157,7 @@ public class HikePhotosUtils
 				{
 					ret = Bitmap.createScaledBitmap(source, targetWidth, targetHeight, false);
 				}
-				else if (crop )
+				else if (crop)
 				{
 					ret = Bitmap.createBitmap(source, x, y, targetWidth, targetHeight);
 				}
@@ -251,7 +250,7 @@ public class HikePhotosUtils
 
 		public enum FilterType
 		{
-			BRIGHTNESS, CONTRAST, SATURATION, HUE, SEPIA, GRAYSCALE, POLAROID, FADED, BGR, INVERSION, X_PRO_2,RANGEELA, WILLOW, WALDEN, VALENCIA, TOASTER, SUTRO, SIERRA, RISE, NASHVILLE, MAYFAIR, LO_FI, KELVIN, INKWELL, HUDSON, HEFE, EARLYBIRD, BRANNAN, AMARO, E1977, SOLOMON, CLASSIC, RETRO, APOLLO, ORIGINAL, JALEBI, GHOSTLY, GULAAL, AUTO, JUNGLEE, CHILLUM, HDR, SOFTINK, SUNLITT
+			BRIGHTNESS, CONTRAST, SATURATION, HUE, SEPIA, GRAYSCALE, POLAROID, FADED, BGR, INVERSION, X_PRO_2, RANGEELA, WILLOW, WALDEN, VALENCIA, TOASTER, SUTRO, SIERRA, RISE, NASHVILLE, MAYFAIR, LO_FI, KELVIN, INKWELL, HUDSON, HEFE, EARLYBIRD, BRANNAN, AMARO, E1977, SOLOMON, CLASSIC, RETRO, APOLLO, ORIGINAL, JALEBI, GHOSTLY, GULAAL, AUTO, JUNGLEE, CHILLUM, HDR, SOFTINK, SUNLITT
 		}
 
 		public static class FilterList
@@ -294,7 +293,7 @@ public class HikePhotosUtils
 					effectfilters.addFilter("SEPIA", FilterType.SEPIA);
 					effectfilters.addFilter("GRAYSCALE", FilterType.GRAYSCALE);
 					effectfilters.addFilter("GULAAL", FilterType.GULAAL);
-					//effectfilters.addFilter("RANGEELA", FilterType.RANGEELA);
+					// effectfilters.addFilter("RANGEELA", FilterType.RANGEELA);
 					effectfilters.addFilter("JUNGLEE", FilterType.JUNGLEE);
 					effectfilters.addFilter("GHOSTLY", FilterType.GHOSTLY);
 					effectfilters.addFilter("CHILLUM", FilterType.CHILLUM);
