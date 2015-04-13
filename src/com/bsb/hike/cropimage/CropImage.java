@@ -113,6 +113,8 @@ public class CropImage extends MonitoredActivity
 
 	private String mImagePath;
 
+	private boolean mCircleHighlight;
+
 	@Override
 	public void onCreate(Bundle icicle)
 	{
@@ -160,11 +162,17 @@ public class CropImage extends MonitoredActivity
 
 		Intent intent = getIntent();
 		Bundle extras = intent.getExtras();
+		
 		if (extras != null)
 		{
-			if (extras.getString(HikeConstants.Extras.CIRCLE_CROP) != null)
+			boolean circleHighlight = extras.getBoolean(HikeConstants.Extras.CIRCLE_HIGHLIGHT);
+			mCircleHighlight = true;
+			if (extras.getString(HikeConstants.Extras.CIRCLE_CROP) != null || circleHighlight)
 			{
-				mCircleCrop = true;
+				if (circleHighlight)
+				{
+					mCircleHighlight = true;
+				}
 				mAspectX = 1;
 				mAspectY = 1;
 			}
@@ -364,7 +372,7 @@ public class CropImage extends MonitoredActivity
 			canvas.drawBitmap(mBitmap, r, dstRect, null);
 		}
 
-		if (mCircleCrop)
+		if (mCircleCrop && !mCircleHighlight)
 		{
 			// OK, so what's all this about?
 			// Bitmaps are inherently rectangular but we want to return

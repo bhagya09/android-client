@@ -1119,6 +1119,8 @@ public class HikeConstants
 		public static final String BITMAP = "bitmap";
 
 		public static final String CIRCLE_CROP = "circleCrop";
+		
+		public static final String CIRCLE_HIGHLIGHT = "circleHighlight";
 
 		public static final String SCALE_UP = "scaleUpIfNeeded";
 
