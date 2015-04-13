@@ -488,7 +488,7 @@ public class IntentManager
 
 		if (imageFileName != null)
 		{
-			i.putExtra(HikeConstants.HikePhotos.FILENAME, imageFileName);
+			i.putExtra(HikeMessengerApp.FILE_PATH, imageFileName);
 		}
 
 		i.putExtra(HikeConstants.HikePhotos.EDITOR_ALLOW_COMPRESSION_KEY, compressOutput);
