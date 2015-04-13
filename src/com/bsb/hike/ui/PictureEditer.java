@@ -302,13 +302,13 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 			switch (requestCode)
 			{
 			case HikeConstants.CROP_RESULT:
-				uploadProfilePic(data.getStringExtra(MediaStore.EXTRA_OUTPUT));
+				uploadProfilePic(data.getStringExtra(MediaStore.EXTRA_OUTPUT), data.getStringExtra(HikeConstants.HikePhotos.ORIG_FILE));
 				break;
 			}
 		}
 	}
 
-	private void uploadProfilePic(final String f)
+	private void uploadProfilePic(final String croppedImageFile, final String originalImageFile)
 	{
 		new Handler(Looper.getMainLooper()).postDelayed(new Runnable()
 		{
@@ -319,7 +319,8 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 				mActionBarBackButton.setVisibility(View.GONE);
 				ProfilePicFragment profilePicFragment = new ProfilePicFragment();
 				Bundle b = new Bundle();
-				b.putString(HikeConstants.HikePhotos.FILENAME, f);
+				b.putString(HikeConstants.HikePhotos.FILENAME, croppedImageFile);
+				b.putString(HikeConstants.HikePhotos.ORIG_FILE, originalImageFile);
 				profilePicFragment.setArguments(b);
 				getSupportFragmentManager().beginTransaction()
 						.setCustomAnimations(R.anim.fade_in_animation, R.anim.fade_out_animation, R.anim.fade_in_animation, R.anim.fade_out_animation)
@@ -518,7 +519,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 					 					destFilePath.delete();
 					 				}
 					 				
-									Utils.startCropActivityForResult(PictureEditer.this, f.getAbsolutePath(), destFilePath.getAbsolutePath(), true);
+									Utils.startCropActivityForResult(PictureEditer.this, f.getAbsolutePath(), destFilePath.getAbsolutePath(), true,true);
 
 								}
 							});
