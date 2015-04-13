@@ -84,7 +84,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 	private View overlayFrame;
 
 	private boolean startedForResult;
-
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
@@ -508,7 +508,16 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 								@Override
 								public void onComplete(File f)
 								{
-									Utils.startCropActivityForResult(PictureEditer.this, f.getAbsolutePath(), f.getAbsolutePath(), true);
+									File myDir = new File(Utils.getFileParent(HikeFileType.IMAGE, false));
+					 				myDir.mkdir();
+					 				String fname = Utils.getOriginalFile(HikeFileType.IMAGE, null);
+					 				File file = new File(myDir, fname);
+					 				if (file.exists())
+					 				{
+					 					file.delete();
+					 				}
+
+									Utils.startCropActivityForResult(PictureEditer.this, f.getAbsolutePath(), file.getAbsolutePath(), true);
 
 								}
 							});
