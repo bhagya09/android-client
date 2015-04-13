@@ -218,6 +218,7 @@
         </activity>
         <activity
             android:name=".cropimage.CropImage"
+            android:theme="@style/AppTheme.Home.Photos"
              />
         <activity android:name=".ui.CreditsActivity" >
         </activity>
