@@ -3692,7 +3692,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 				setSMSReadInNative();
 			}
 
-			JSONArray ids = mConversationDb.updateStatusAndSendDeliveryReport(mConversation.getMsisdn());
+			JSONArray ids = (JSONArray) mConversationDb.updateStatusAndSendDeliveryReport(mConversation.getMsisdn());
 
 			HikeMessengerApp.getPubSub().publish(HikePubSub.MSG_READ, mConversation.getMsisdn());
 

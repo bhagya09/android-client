@@ -6,7 +6,7 @@ import android.content.Context;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
-import com.bsb.hike.models.Conversation;
+import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.ui.utils.LockPattern;
 
@@ -102,7 +102,7 @@ public class StealthModeManager
 		if(false);
 	}
 	
-	public void hideActionTriggered(Conversation conv, Activity activity) 
+	public void hideActionTriggered(ConvInfo conv, Activity activity) 
 	{	
 		HikeMessengerApp.addStealthMsisdnToMap(conv.getMsisdn());
 
