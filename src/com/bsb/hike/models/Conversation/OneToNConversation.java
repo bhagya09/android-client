@@ -19,6 +19,7 @@ import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.Utils;
 
@@ -125,8 +126,15 @@ public abstract class OneToNConversation extends Conversation
 
 	public PairModified<GroupParticipant, String> getConversationParticipant(String msisdn)
 	{
-		return conversationParticipantList.containsKey(msisdn) ? conversationParticipantList.get(msisdn) : new PairModified<GroupParticipant, String>(new GroupParticipant(
-				new ContactInfo(msisdn, msisdn, msisdn, msisdn)), msisdn);
+		if (conversationParticipantList.containsKey(msisdn))
+		{
+			return conversationParticipantList.get(msisdn);
+		}
+		else
+		{
+			ContactInfo contactInfo = ContactManager.getInstance().getContact(msisdn, true, false);
+			return new PairModified<GroupParticipant, String>(new GroupParticipant(contactInfo), contactInfo.getNameOrMsisdn());
+		}
 	}
 
 	/**
@@ -539,16 +547,16 @@ public abstract class OneToNConversation extends Conversation
 
 		String convName = ContactManager.getInstance().getName(msisdn);
 
-		if (Utils.isBroadcastConversation(msisdn))
+		if (OneToNConversationUtils.isBroadcastConversation(msisdn))
 		{
 			conversation = new BroadcastConversation.ConversationBuilder(msisdn).setConversationOwner(jsonObj.getString(HikeConstants.FROM))
-					.setConversationParticipantsList(participants).setConversationOwner(convName).build();
+					.setConversationParticipantsList(participants).setConvName(convName).build();
 
 		}
 		else
 		{
 			conversation = new GroupConversation.ConversationBuilder(msisdn).setConversationOwner(jsonObj.getString(HikeConstants.FROM))
-					.setConversationParticipantsList(participants).setConversationOwner(convName).build();
+					.setConversationParticipantsList(participants).setConvName(convName).build();
 		}
 
 		return conversation;

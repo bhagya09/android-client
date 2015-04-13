@@ -40,7 +40,7 @@ public class ConvInfo implements Comparable<ConvInfo>
 	/**
 	 * Keeps track of the last message for a given conversation
 	 */
-	private ConvMessage lastConversationMsg;
+	protected ConvMessage lastConversationMsg;
 
 	protected ConvInfo(InitBuilder<?> builder)
 	{
@@ -179,13 +179,19 @@ public class ConvInfo implements Comparable<ConvInfo>
 	}
 
 	/**
+	 * We need to set the sorting timestamp whenever we set the last message, except when it is a broadcastMessage because we 
+	 * do not want it to update on the HomeScreen.
+	 * 
 	 * @param lastConversationMsg
 	 *            the lastConversationMsg to set
 	 */
 	public void setLastConversationMsg(ConvMessage lastConversationMsg)
 	{
 		this.lastConversationMsg = lastConversationMsg;
-		setSortingTimeStamp(lastConversationMsg.getTimestamp());
+		if (!lastConversationMsg.isBroadcastMessage())
+		{
+			setSortingTimeStamp(lastConversationMsg.getTimestamp());
+		}
 	}
 
 	/**

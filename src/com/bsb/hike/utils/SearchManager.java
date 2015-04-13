@@ -33,7 +33,10 @@ public class SearchManager
 
 	private String searchText;
 
-	private int itemViewBacklash = 1;
+	private int defaultItemViewBacklash = 1;
+
+	// itemViewBacklash can not be negative.
+	private int itemViewBacklash;
 
 	private ArrayList<Searchable> itemList;
 
@@ -69,19 +72,24 @@ public class SearchManager
 		itemViewBacklash = backlash;
 	}
 
-	public int getNextItem(int cursorPosition)
+	public int getNextItem(int cursorPosition, int lastPosition)
 	{
 		// if the search text is empty, no need to perform any search.
-		if (TextUtils.isEmpty(searchText))
+		if (TextUtils.isEmpty(searchText) || lastPosition < cursorPosition)
 		{
 			return -1;
 		}
+		itemViewBacklash = defaultItemViewBacklash;
+		// View backlash cannot be greater than the number of visible items.
+		if (itemViewBacklash >= lastPosition-cursorPosition)
+		{
+			itemViewBacklash = lastPosition-cursorPosition;
+		}
+		Logger.d("search","first last:" + cursorPosition + lastPosition);
 		Logger.d("search", "nextMessage()");
 		Logger.d("search", "list: " + indexList.toString());
 		int searchCusrsor = getCurrentCursor(cursorPosition);
 		Logger.d("search", "currentCusrsor: " + searchCusrsor);
-		int position = Collections.binarySearch(indexList, searchCusrsor);
-		Logger.d("search", "position: " + position);
 
 		int start, end, threshold = -1;
 		int lastMessageIndex = itemList.size() - 1;
@@ -114,16 +122,7 @@ public class SearchManager
 			// No need to perform search again
 			else
 			{
-				if (position >= 0)
-				{
-					position++;
-				}
-				else
-				{
-					position *= (-1);
-					position -= 1;
-				}
-				return applyBackLash(indexList.get(position));
+				return getNextIndexItem(searchCusrsor);
 			}
 		}
 		boolean found = false;
@@ -135,7 +134,13 @@ public class SearchManager
 		{
 			found = searchAllMessages(start, end);
 		}
-		position = Collections.binarySearch(indexList, searchCusrsor);
+		return getNextIndexItem(searchCusrsor);
+	}
+	
+	private int getNextIndexItem(int searchCusrsor)
+	{
+		int position = Collections.binarySearch(indexList, searchCusrsor);
+		Logger.d("search", "position: " + position);
 		if (position >= 0)
 		{
 			position++;
@@ -161,6 +166,7 @@ public class SearchManager
 		{
 			return -1;
 		}
+		itemViewBacklash = defaultItemViewBacklash;
 		Logger.d("search", "prevMessage()");
 		Logger.d("search", "list: " + indexList.toString());
 		int searchCusrsor = getCurrentCursor(cursorPosition);
@@ -199,16 +205,7 @@ public class SearchManager
 			// No need to perform search again
 			else
 			{
-				if (position >= 0)
-				{
-					position--;
-				}
-				else
-				{
-					position *= (-1);
-					position -= 2;
-				}
-				return applyBackLash(indexList.get(position));
+				return getPrevIndexItem(searchCusrsor);
 			}
 		}
 		boolean found = false;
@@ -220,7 +217,12 @@ public class SearchManager
 		{
 			found = searchAllMessages(start, end);
 		}
-		position = Collections.binarySearch(indexList, searchCusrsor);
+		return getPrevIndexItem(searchCusrsor);
+	}
+	
+	private int getPrevIndexItem(int searchCusrsor)
+	{
+		int position = Collections.binarySearch(indexList, searchCusrsor);
 		if (position >= 0)
 		{
 			position--;
@@ -284,8 +286,11 @@ public class SearchManager
 			if (itemList.get(from).doesItemContain(searchText))
 			{
 				Logger.d("search", "adding: " + from);
-				indexList.add(from);
-				Collections.sort(indexList);
+				if (!indexList.contains(from))
+				{
+					indexList.add(from);
+					Collections.sort(indexList);
+				}
 				found = true;
 			}
 		}
@@ -316,8 +321,11 @@ public class SearchManager
 				if (itemList.get(from).doesItemContain(searchText))
 				{
 					Logger.d("search", "adding: " + from);
-					indexList.add(from);
-					Collections.sort(indexList);
+					if (!indexList.contains(from))
+					{
+						indexList.add(from);
+						Collections.sort(indexList);
+					}
 					if (threshold >= 0)
 					{
 						if (from < threshold)
@@ -345,8 +353,11 @@ public class SearchManager
 				if (itemList.get(from).doesItemContain(searchText))
 				{
 					Logger.d("search", "adding: " + from);
-					indexList.add(from);
-					Collections.sort(indexList);
+					if (!indexList.contains(from))
+					{
+						indexList.add(from);
+						Collections.sort(indexList);
+					}
 					if (threshold >= 0)
 					{
 						if (from > threshold)
@@ -366,7 +377,10 @@ public class SearchManager
 
 	private int applyBackLash(int position)
 	{
-		if (position >= itemViewBacklash)
+		Logger.d("search","itemViewBacklash: " + itemViewBacklash);
+		if (position <= itemViewBacklash)
+			position = 0;
+		else
 			position -= itemViewBacklash;
 
 		return position;

@@ -546,4 +546,11 @@ public class ContactInfo implements JSONSerializable, Comparable<ContactInfo>
 		}
 		return (this.name.toLowerCase().compareTo(((ContactInfo) rhs).name.toLowerCase()));
 	}
+
+	public boolean isNotOrRejectedFavourite()
+	{
+		return (this.getFavoriteType() == FavoriteType.NOT_FRIEND
+				|| this.getFavoriteType() == FavoriteType.REQUEST_SENT_REJECTED 
+				|| this.getFavoriteType() == FavoriteType.REQUEST_RECEIVED_REJECTED);
+	}
 }

@@ -24,6 +24,7 @@ import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.ui.PinHistoryActivity;
 import com.bsb.hike.utils.ChatTheme;
+import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.Utils;
 
@@ -189,7 +190,7 @@ public class PinHistoryAdapter extends BaseAdapter implements OnLongClickListene
 			}
 			else
 			{
-				if (Utils.isGroupConversation(textPin.getMsisdn()))
+				if (OneToNConversationUtils.isGroupConversation(textPin.getMsisdn()))
 				{
 					String number = null;
 					String name = mConversation.getConvParticipantFirstNameAndSurname(textPin.getGroupParticipantMsisdn());

@@ -20,7 +20,6 @@ import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.OriginType;
 import com.bsb.hike.models.Conversation.BroadcastConversation;
 import com.bsb.hike.models.Conversation.Conversation;
-import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -51,7 +50,8 @@ public class BroadcastChatThread extends OneToNChatThread
 	@Override
     protected String[] getPubSubListeners()
     {
-        return new String[] { HikePubSub.ONETON_MESSAGE_DELIVERED_READ, HikePubSub.CONVERSATION_REVIVED, HikePubSub.PARTICIPANT_JOINED_ONETONCONV, HikePubSub.PARTICIPANT_LEFT_ONETONCONV };
+        return new String[] { HikePubSub.ONETON_MESSAGE_DELIVERED_READ, HikePubSub.CONVERSATION_REVIVED, HikePubSub.PARTICIPANT_JOINED_ONETONCONV, HikePubSub.PARTICIPANT_LEFT_ONETONCONV, 
+        		HikePubSub.PARTICIPANT_JOINED_SYSTEM_MESSAGE, HikePubSub.ONETONCONV_NAME_CHANGED };
     }
 	
 	@Override
@@ -84,14 +84,6 @@ public class BroadcastChatThread extends OneToNChatThread
 		list.add(new OverFlowMenuItem(getString(R.string.add_shortcut), 0, 0, R.string.add_shortcut));
 		
 		return list;
-	}
-	
-	@Override
-	protected void setupActionBar()
-	{
-		super.setupActionBar();
-		
-		setAvatar(R.drawable.ic_default_avatar_broadcast);
 	}
 	
 	@Override
@@ -153,6 +145,7 @@ public class BroadcastChatThread extends OneToNChatThread
 	{
 		if (convMessage != null)
 		{
+			setSentTo(convMessage);
 			addMessage(convMessage);
 			convMessage.setMessageOriginType(OriginType.BROADCAST);
 			HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_SENT, convMessage);
@@ -160,15 +153,15 @@ public class BroadcastChatThread extends OneToNChatThread
 	}
 	
 	@Override
-	protected void incrementGroupParticipants(int morePeopleCount)
+	protected void showActiveConversationMemberCount()
 	{
-		int numActivePeople = oneToNConversation.getParticipantListSize() + morePeopleCount;
-
-		TextView groupCountTextView = (TextView) mActionBarView.findViewById(R.id.contact_status);
+		int numActivePeople = oneToNConversation.getParticipantListSize();
+		
+		TextView memberCountTextView = (TextView) mActionBarView.findViewById(R.id.contact_status);
 
 		if (numActivePeople > 0)
 		{
-			groupCountTextView.setText(activity.getResources().getString(R.string.num_people, (numActivePeople)));
+			memberCountTextView.setText(activity.getResources().getString(R.string.num_people, (numActivePeople)));
 		}
 	}
 	
@@ -183,5 +176,30 @@ public class BroadcastChatThread extends OneToNChatThread
 		mTips = new ChatThreadTips(activity.getBaseContext(), activity.findViewById(R.id.chatThreadParentLayout), new int[] {}, sharedPreference);
 
 		mTips.showTip();
+	}
+	
+	/**
+	 * This method adds the recipientsList in the ConvMessage object
+	 */
+	public void setSentTo(ConvMessage convMessage)
+	{
+		ArrayList<String> sentToList = new ArrayList<String>();
+		sentToList.addAll(oneToNConversation.getConversationParticipantList().keySet());
+		convMessage.setSentToMsisdnsList(sentToList);	
+	}
+	
+	@Override
+	protected boolean wasTipSetSeen(int whichTip)
+	{
+		return false;
+	}
+	
+	/**
+	 * No need to hide sticker tip as it won't be shown in BroadcastChatThread
+	 */
+	@Override
+	protected void closeStickerTip()
+	{
+		return;
 	}
 }

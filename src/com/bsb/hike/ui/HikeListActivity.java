@@ -258,6 +258,7 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 			@Override
 			public void negativeClicked(HikeDialog hikeDialog)
 			{
+				hikeDialog.dismiss();
 			}
 		}, selectAllChecked, selectedContacts.size());
 	}

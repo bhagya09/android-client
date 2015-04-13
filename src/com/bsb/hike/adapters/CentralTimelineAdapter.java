@@ -315,8 +315,9 @@ public class CentralTimelineAdapter extends BaseAdapter
 
 				boolean friendRequestAccepted = statusMessage.getStatusMessageType() == StatusMessageType.FRIEND_REQUEST_ACCEPTED;
 
-				viewHolder.mainInfo.setText(context.getString(friendRequestAccepted ? R.string.accepted_your_favorite_request_details
-						: R.string.you_accepted_favorite_request_details, Utils.getFirstName(statusMessage.getNotNullName())));
+				int infoMainResId = friendRequestAccepted ? R.string.accepted_your_favorite_request_details : R.string.you_accepted_favorite_request_details;
+				String infoSubText = context.getString(Utils.isLastSeenSetToFavorite() ? R.string.both_ls_status_update : R.string.status_updates_proper_casing);
+				viewHolder.mainInfo.setText(context.getString(infoMainResId, Utils.getFirstName(statusMessage.getNotNullName()), infoSubText));
 				break;
 			case PROTIP:
 				Protip protip = statusMessage.getProtip();
@@ -404,7 +405,8 @@ public class CentralTimelineAdapter extends BaseAdapter
 
 		case FTUE_ITEM:
 			viewHolder.name.setText(R.string.favorites_ftue_item_label);
-			viewHolder.mainInfo.setText(R.string.ftue_updates_are_fun_with_favorites);
+			String infoSubText = context.getString(Utils.isLastSeenSetToFavorite() ? R.string.both_ls_status_update : R.string.status_updates_proper_casing);
+			viewHolder.mainInfo.setText(context.getString(R.string.ftue_updates_are_fun_with_favorites, infoSubText));
 
 			viewHolder.contactsContainer.removeAllViews();
 

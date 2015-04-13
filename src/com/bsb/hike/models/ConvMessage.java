@@ -1,6 +1,7 @@
 package com.bsb.hike.models;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -16,7 +17,10 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.db.DBConstants;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.StatusMessage.StatusMessageType;
+import com.bsb.hike.models.ContactInfoData.DataType;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.GroupConversation;
 import com.bsb.hike.models.Conversation.OneToNConversation;
@@ -462,6 +466,7 @@ public class ConvMessage implements Searchable
 		{
 			this.shouldShowPush = data.optBoolean(HikeConstants.PUSH, true);
 		}
+		
 	}
 
 	public ConvMessage(JSONObject obj, Conversation conversation, Context context, boolean isSelfGenerated) throws JSONException
@@ -926,7 +931,7 @@ public class ConvMessage implements Searchable
 		{
 			object.put(HikeConstants.MESSAGE_ID, Long.toString(System.currentTimeMillis()/1000));
 			object.put(HikeConstants.TO, mMsisdn);
-			if(privateData != null && privateData.getTrackID() != null)
+			if(privateData != null && privateData.getTrackID() != null && !OneToNConversationUtils.isGroupConversation(mMsisdn))
 			{
 				// "d":{"msgid1":{track_id:"value"}}
 				JSONObject obj = new JSONObject();
@@ -1105,11 +1110,51 @@ public class ConvMessage implements Searchable
 	{
 		if (isFileTransferMessage())
 		{
-			if (getMetadata().getHikeFiles().get(0).getFileName().toLowerCase().contains(s))
+			HikeFile hikeFile = getMetadata().getHikeFiles().get(0);
+			// Name of walkie talkie file is not user specified.
+			// No need to perform any search on this.
+			if (hikeFile.getHikeFileType() == HikeFileType.AUDIO_RECORDING)
+			{
+				return false;
+			}
+			// For contacts, search is to be performed on multiple values.
+			else if (hikeFile.getHikeFileType() == HikeFileType.CONTACT)
+			{
+				String dispName = hikeFile.getDisplayName();
+				if (!TextUtils.isEmpty(dispName) && dispName.toLowerCase().contains(s))
+				{
+					return true;
+				}
+				List<ContactInfoData> items = Utils.getContactDataFromHikeFile(hikeFile);
+				String phone = null, email = null;
+				for (ContactInfoData contactInfoData : items)
+				{
+					if (contactInfoData.getDataType() == DataType.PHONE_NUMBER)
+					{
+						phone = contactInfoData.getData();
+						if (!TextUtils.isEmpty(phone) && phone.toLowerCase().contains(s))
+						{
+							return true;
+						}
+					}
+					else if (contactInfoData.getDataType() == DataType.EMAIL)
+					{
+						email = contactInfoData.getData().toLowerCase();
+						if (!TextUtils.isEmpty(email) && email.toLowerCase().contains(s))
+						{
+							return true;
+						}
+					}
+				}
+			}
+			// Search on file name for all others
+			else if (hikeFile.getFileName().toLowerCase().contains(s))
 			{
 				return true;
 			}
+			
 		}
+		// Search on status messages.
 		else if (getParticipantInfoState() == ParticipantInfoState.STATUS_MESSAGE)
 		{
 			if (getMetadata().getStatusMessage().getText().toLowerCase().contains(s))
@@ -1117,7 +1162,14 @@ public class ConvMessage implements Searchable
 				return true;
 			}
 		}
-		if (!TextUtils.isEmpty(getMessage()))
+		// No search on sticker messages.
+		// Atleast till theres no tagging.
+		else if (isStickerMessage())
+		{
+			return false;
+		}
+		// Text search for all others
+		else if (!TextUtils.isEmpty(getMessage()))
 		{
 			if (getMessage().toLowerCase().contains(s))
 			{
@@ -1133,7 +1185,7 @@ public class ConvMessage implements Searchable
 	}
 	
 	public boolean isBroadcastConversation() {
-		return Utils.isBroadcastConversation(this.mMsisdn);
+		return OneToNConversationUtils.isBroadcastConversation(this.mMsisdn);
 	}
 	
 	public boolean isBroadcastMessage() {

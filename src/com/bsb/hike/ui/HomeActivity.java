@@ -875,7 +875,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	{
 		Logger.d(getClass().getSimpleName(), "onStart");
 		super.onStart();
-		HikeMessengerApp.getPubSub().addListener(HikePubSub.SHOW_IMAGE, this);
 		long t1, t2;
 		t1 = System.currentTimeMillis();
 		Utils.clearJar(this);
@@ -888,7 +887,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	protected void onStop()
 	{
 		super.onStop();
-		HikeMessengerApp.getPubSub().removeListener(HikePubSub.SHOW_IMAGE, this);
 	}
 
 	@Override
@@ -1680,6 +1678,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 					intent = IntentFactory.getRewardsIntent(HomeActivity.this);
 					break;
 				case HikeConstants.HOME_ACTIVITY_OVERFLOW.SETTINGS:
+					HAManager.logClickEvent(HikeConstants.LogEvent.SETTING_CLICKED);
 					intent = new Intent(HomeActivity.this, SettingsActivity.class);
 					break;
 				case HikeConstants.HOME_ACTIVITY_OVERFLOW.NEW_GROUP:
@@ -2020,13 +2019,14 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 				}
 
 				dialogShowing = null;
-				dialog.dismiss();
+				hikeDialog.dismiss();
 				HomeActivity.this.dialog = null;
 			}
 
 			@Override
 			public void negativeClicked(HikeDialog hikeDialog)
 			{
+				hikeDialog.dismiss();
 			}
 
 		};

@@ -286,8 +286,9 @@ public class OverFlowMenuLayout implements OnItemClickListener {
 	 * 
 	 * @param itemId
 	 * @param enabled
+	 * @return whether an item was updated or not
 	 */
-	public void updateOverflowMenuItemActiveState(int itemId, boolean enabled)
+	public boolean updateOverflowMenuItemActiveState(int itemId, boolean enabled, boolean refreshUI)
 	{
 		List<OverFlowMenuItem> mItems = getOverFlowMenuItems();
 
@@ -301,12 +302,18 @@ public class OverFlowMenuLayout implements OnItemClickListener {
 				if (overFlowMenuItem.id == itemId)
 				{
 					overFlowMenuItem.enabled = enabled;
-					notifyDateSetChanged();
-					break;
+					if (refreshUI)
+					{
+						notifyDateSetChanged();
+					}
+					return true;
 				}
 			}
 		}
+		
+		return false;
 	}
+	
 
 	/**
 	 * Can be used to update the icon of an overflow menu item on the fly

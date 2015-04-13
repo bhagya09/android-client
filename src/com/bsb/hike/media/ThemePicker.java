@@ -1,5 +1,6 @@
 package com.bsb.hike.media;
 
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -50,6 +51,8 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 	private boolean listenerInvoked = false, reInflation;
 	
 	private PopUpLayout popUpLayout;
+	
+	private int currentConfig = Configuration.ORIENTATION_PORTRAIT;
 
 	public ThemePicker(SherlockFragmentActivity sherlockFragmentActivity, ThemePickerListener listener, ChatTheme currentTheme)
 	{
@@ -62,9 +65,9 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 	/**
 	 * This method calls {@link #showThemePicker(int, int, View, ChatTheme)} with offset as 0
 	 */
-	public void showThemePicker(View anchor, ChatTheme currentTheme, int footerTextResId)
+	public void showThemePicker(View anchor, ChatTheme currentTheme, int footerTextResId, int orientation)
 	{
-		showThemePicker(0, 0, anchor, currentTheme, footerTextResId);
+		showThemePicker(0, 0, anchor, currentTheme, footerTextResId, orientation);
 	}
 
 	/**
@@ -75,12 +78,12 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 	 * @param anchor
 	 * @param currentTheme
 	 */
-	public void showThemePicker(int xoffset, int yoffset, View anchor, ChatTheme currentTheme, int footerTextResId)
+	public void showThemePicker(int xoffset, int yoffset, View anchor, ChatTheme currentTheme, int footerTextResId, int orientation)
 	{
 		Logger.i(TAG, "show theme picker");
 		this.userSelection = currentTheme;
 		sherlockFragmentActivity.startActionMode(actionmodeCallback);
-		initView(footerTextResId);
+		initView(footerTextResId, orientation);
 		popUpLayout.showPopUpWindowNoDismiss(xoffset, yoffset, anchor, getView());
 		popUpLayout.setOnDismissListener(this);
 	}
@@ -93,12 +96,22 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 	/**
 	 * This method inflates view needed to show theme picker, if view is inflated already (not null) We simply return
 	 */
-	public void initView(int footerTextResId)
+	public void initView(int footerTextResId, int orientation)
 	{
 		if (viewToDisplay != null)
 		{
+			/**
+			 * If orientation was changed, we need to refresh views
+			 */
+			if (orientationChanged(orientation))
+			{
+				refreshViews(false);
+				currentConfig = orientation;
+			}
+			
 			return;
 		}
+		
 		View parentView = viewToDisplay = sherlockFragmentActivity.getLayoutInflater().inflate(R.layout.chat_backgrounds, null);
 
 		GridView attachmentsGridView = (GridView) parentView.findViewById(R.id.attachment_grid);
@@ -156,27 +169,18 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 
 	}
 
+	private boolean orientationChanged(int orientation)
+	{
+		return currentConfig != orientation;
+	}
+
 	private ActionMode.Callback actionmodeCallback = new ActionMode.Callback()
 	{
-
 		@Override
 		public boolean onPrepareActionMode(ActionMode mode, Menu menu)
 		{
 			Logger.i(TAG, "on prepare actionmode");
-
-			View actionModeView = mode.getCustomView();
-			if (actionModeView == null)
-			{
-				return false;
-
-			}
-
-			View saveThemeBtn = actionModeView.findViewById(R.id.done_container);
-
-			saveThemeBtn.startAnimation(AnimationUtils.loadAnimation(sherlockFragmentActivity, R.anim.scale_in));
-
-			saveThemeBtn.setOnClickListener(ThemePicker.this);
-
+			
 			return true;
 		}
 
@@ -211,6 +215,13 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 			Logger.i(TAG, "on create action mode");
 			actionMode = mode;
 			mode.setCustomView(LayoutInflater.from(sherlockFragmentActivity).inflate(R.layout.hike_action_mode, null));
+			
+			View saveThemeBtn = mode.getCustomView().findViewById(R.id.done_container);
+
+			saveThemeBtn.startAnimation(AnimationUtils.loadAnimation(sherlockFragmentActivity, R.anim.scale_in));
+
+			saveThemeBtn.setOnClickListener(ThemePicker.this);
+			
 			return true;
 		}
 
@@ -275,13 +286,16 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 	/**
 	 * This method changes the number of columns field of the grid view and then calls notifyDataSetChanged
 	 */
-	public void refreshViews()
+	public void refreshViews(boolean reInflateActionBar)
 	{
 		GridView grid = (GridView) viewToDisplay.findViewById(R.id.attachment_grid);
 		grid.setNumColumns(getNumColumnsChatThemes());
 		((ArrayAdapter<ChatTheme>) grid.getAdapter()).notifyDataSetChanged();
 		
-		reInflation = true;
-		sherlockFragmentActivity.startActionMode(actionmodeCallback);
+		if (reInflateActionBar)
+		{
+			reInflation = true;
+			sherlockFragmentActivity.startActionMode(actionmodeCallback);
+		}
 	}
 }

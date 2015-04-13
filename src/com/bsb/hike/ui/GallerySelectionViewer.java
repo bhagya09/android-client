@@ -255,8 +255,7 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 						@Override
 						public void negativeClicked(HikeDialog hikeDialog)
 						{
-							// TODO Auto-generated method stub
-							
+							hikeDialog.dismiss();
 						}
 
 						@Override
@@ -308,7 +307,7 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 						@Override
 						public void negativeClicked(HikeDialog hikeDialog)
 						{
-							
+							hikeDialog.dismiss();
 						}
 
 						@Override

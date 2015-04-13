@@ -19,9 +19,9 @@ import com.bsb.hike.R;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.media.OverFlowMenuItem;
 import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.GroupTypingNotification;
 import com.bsb.hike.models.TypingNotification;
-import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.models.Conversation.OneToNConversationMetadata;
@@ -47,6 +47,8 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 	private static final int PARTICIPANT_JOINED_OR_LEFT_CONVERSATION = 207;
 	
 	protected static final int BULK_MESSAGE_RECEIVED = 208;
+	
+	protected static final int CONVERSATION_NAME_CHANGED = 209;
 
 	private static final String TAG = "onetonchatthread";
 
@@ -111,9 +113,6 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 	{
 		switch (item.id)
 		{
-		case R.string.chat_theme:
-			showThemePicker();
-			break;
 		default:
 			Logger.d(TAG, "Calling super Class' itemClicked");
 			super.itemClicked(item);
@@ -172,7 +171,7 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 	protected void handleSystemMessages()
 	{
 		ContactManager conMgr = ContactManager.getInstance();
-		oneToNConversation.setConversationParticipantList(conMgr.getGroupParticipants(mConversation.getMsisdn(), false, false));
+		oneToNConversation.setConversationParticipantList(conMgr.getGroupParticipants(mConversation.getMsisdn(), true, false));
 	}
 	
 	@Override
@@ -260,13 +259,17 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 			onGroupRevived(object);
 			break;
 		case HikePubSub.PARTICIPANT_JOINED_ONETONCONV:
-			onParticipantJoinedOrLeftGroup(object, true);
-			break;
 		case HikePubSub.PARTICIPANT_LEFT_ONETONCONV:
-			onParticipantJoinedOrLeftGroup(object, false);
+			onParticipantJoinedOrLeftGroup(object);
 			break;
 		case HikePubSub.BULK_MESSAGE_RECEIVED:
 			onBulkMessageReceived(object);
+			break;
+		case HikePubSub.PARTICIPANT_JOINED_SYSTEM_MESSAGE:
+			onMessageReceived(object);
+			break;
+		case HikePubSub.ONETONCONV_NAME_CHANGED:
+			onConversationNameChanged((String) object);
 			break;
 		default:
 			Logger.d(TAG, "Did not find any matching PubSub event in Group ChatThread. Calling super class' onEventReceived");
@@ -283,17 +286,17 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 	{
 		switch (msg.what)
 		{
-		case UPDATE_AVATAR:
-			setAvatar(R.drawable.ic_default_avatar_group);
-			break;
 		case PARTICIPANT_JOINED_OR_LEFT_CONVERSATION:
-			incrementGroupParticipants((int) msg.obj);
+			showActiveConversationMemberCount();
 			break;
 		case GROUP_REVIVED:
 			handleGroupRevived();
 			break;
 		case BULK_MESSAGE_RECEIVED:
 			addBulkMessages((LinkedList<ConvMessage>) msg.obj);
+			break;
+		case CONVERSATION_NAME_CHANGED:
+			setLabel(oneToNConversation.getConversationName());
 			break;
 		default:
 			Logger.d(TAG, "Did not find any matching event in Group ChatThread. Calling super class' handleUIMessage");
@@ -341,7 +344,7 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 
 		setLabel(mConversation.getLabel());
 
-		incrementGroupParticipants(0);
+		showActiveConversationMemberCount();
 	}
 
 	/**
@@ -349,18 +352,18 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 	 * 
 	 * @param morePeopleCount
 	 */
-	protected void incrementGroupParticipants(int morePeopleCount)
+	protected void showActiveConversationMemberCount()
 	{
-		int numActivePeople = oneToNConversation.getParticipantListSize() + morePeopleCount;
-
-		TextView groupCountTextView = (TextView) mActionBarView.findViewById(R.id.contact_status);
+		int numActivePeople = oneToNConversation.getParticipantListSize();
+		
+		TextView memberCountTextView = (TextView) mActionBarView.findViewById(R.id.contact_status);
 
 		if (numActivePeople > 0)
 		{
 			/**
 			 * Incrementing numActivePeople by + 1 to add self
 			 */
-			groupCountTextView.setText(activity.getResources().getString(R.string.num_people, (numActivePeople + 1)));
+			memberCountTextView.setText(activity.getResources().getString(R.string.num_people, (numActivePeople + 1)));
 		}
 	}
 
@@ -451,50 +454,49 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 	}
 
 	/**
-	 * Called from PubSub Thread
+	 * Called from PubSub Thread when conversation name is changed
 	 * 
 	 * @param object
 	 */
-	private void onParticipantJoinedOrLeftGroup(Object object, boolean joined)
+	protected void onConversationNameChanged(String msisdn)
 	{
 		/**
 		 * Received message for current open chatThread
 		 */
-		if (shouldProcessGCJOrGCK(object)) // Defensive check
+		if (shouldProcessPubSubEvent(msisdn)) // Defensive check
 		{
-			int addPeopleCount = 0;
-			if (joined) // Participants added
-			{
-				JSONObject jObj = (JSONObject) object;
-
-				JSONArray participants = jObj.optJSONArray(HikeConstants.DATA);
-
-				if (participants == null) // If we don't get participants, we simply return here.
-				{
-					Logger.wtf(TAG, "onParticipantJoinedOrLeftGroup : Getting null participants array in : " + object.toString());
-					return;
-				}
-
-				addPeopleCount = participants.length();
-			}
-
-			else
-			// A participant has been kicked out
-			{
-				addPeopleCount = -1;
-			}
-
-			sendUIMessage(PARTICIPANT_JOINED_OR_LEFT_CONVERSATION, addPeopleCount);
+			ContactManager conMgr = ContactManager.getInstance();
+			String convName = conMgr.getName(oneToNConversation.getMsisdn());
+			oneToNConversation.setConversationName(convName);
+			uiHandler.sendEmptyMessage(CONVERSATION_NAME_CHANGED);
+		}
+	}
+	
+	/**
+	 * Called from PubSub Thread
+	 * 
+	 * @param object
+	 */
+	private void onParticipantJoinedOrLeftGroup(Object object)
+	{
+		/**
+		 * Received message for current open chatThread
+		 */
+		if (shouldProcessPubSubEvent(object)) // Defensive check
+		{
+			ContactManager conMgr = ContactManager.getInstance();
+			oneToNConversation.setConversationParticipantList(conMgr.getGroupParticipants(mConversation.getMsisdn(), true, false));
+			uiHandler.sendEmptyMessage(PARTICIPANT_JOINED_OR_LEFT_CONVERSATION);
 		}
 	}
 
 	/**
-	 * Indicates whether we should process a GCJ/GCK or not.
+	 * Indicates whether we should process a PubSub or not.
 	 * 
 	 * @param object
 	 * @return
 	 */
-	private boolean shouldProcessGCJOrGCK(Object object)
+	private boolean shouldProcessPubSubEvent(Object object)
 	{
 		if (object instanceof JSONObject)
 		{
@@ -505,8 +507,22 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 			}
 		}
 
-		// Default case :
-
+		return false;
+	}
+	
+	/**
+	 * Indicates whether we should process a PubSub or not.
+	 * 
+	 * @param object
+	 * @return
+	 */
+	private boolean shouldProcessPubSubEvent(String msisdn)
+	{
+		if (msisdn != null)
+		{
+			return msisdn.equals(this.msisdn);
+		}
+		
 		return false;
 	}
 
@@ -528,13 +544,6 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 		}
 	}
 
-	@Override
-	protected void showThemePicker()
-	{
-		super.showThemePicker();
-		themePicker.showThemePicker(activity.findViewById(R.id.cb_anchor), currentTheme, R.string.chat_theme_tip_group);
-	}
-	
 	protected void onBulkMessageReceived(Object object)
 	{
 		HashMap<String, LinkedList<ConvMessage>> messageListMap = (HashMap<String, LinkedList<ConvMessage>>) object;
@@ -574,7 +583,7 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 				if (convMessage.getParticipantInfoState() != ParticipantInfoState.NO_INFO)
 				{
 					ContactManager contactManager = ContactManager.getInstance();
-					oneToNConversation.setConversationParticipantList(contactManager.getGroupParticipants(oneToNConversation.getMsisdn(), false, false));
+					oneToNConversation.setConversationParticipantList(contactManager.getGroupParticipants(oneToNConversation.getMsisdn(), true, false));
 				}
 
 				bulkLabel = convMessage.getParticipantInfoState() != ParticipantInfoState.NO_INFO ? oneToNConversation.getLabel() : null;
@@ -647,5 +656,4 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 
 		}
 	}
-
 }

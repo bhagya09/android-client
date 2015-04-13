@@ -24,9 +24,8 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
-import com.bsb.hike.analytics.HAManager;
-import com.bsb.hike.analytics.AnalyticsConstants.MessageType;
 import com.bsb.hike.analytics.AnalyticsConstants.MsgRelEventType;
+import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.MsgRelLogManager;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
@@ -34,8 +33,6 @@ import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.ConvMessage.State;
 import com.bsb.hike.models.FtueContactInfo;
-import com.bsb.hike.models.MessageMetadata;
-import com.bsb.hike.models.MessagePrivateData;
 import com.bsb.hike.models.MultipleConvMessage;
 import com.bsb.hike.models.Protip;
 import com.bsb.hike.models.StatusMessage;
@@ -47,6 +44,7 @@ import com.bsb.hike.platform.HikeSDKMessageFilter;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.service.SmsMessageStatusReceiver;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.Utils;
 
 public class DbConversationListener implements Listener
@@ -117,7 +115,6 @@ public class DbConversationListener implements Listener
 			{
 				if (!convMessage.isFileTransferMessage())
 				{
-					//This inserts Msg into MessageTable and assigns msgID to convMessage
 					mConversationDb.addConversationMessages(convMessage,true);
 				
 					// Adding Logs for Message Reliability
@@ -131,7 +128,7 @@ public class DbConversationListener implements Listener
 					}
 					if (convMessage.isBroadcastConversation())
 					{
-						Utils.addBroadcastRecipientConversations(convMessage);
+						OneToNConversationUtils.addBroadcastRecipientConversations(convMessage);
 					}
 				}
 				// Recency was already updated when the ft message was added.

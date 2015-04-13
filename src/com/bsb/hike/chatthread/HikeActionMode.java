@@ -26,7 +26,7 @@ public class HikeActionMode implements ActionMode.Callback, OnClickListener
 		public boolean onActionItemClicked(int actionModeId, MenuItem menuItem);
 	}
 
-	private static final int DEFAULT_LAYOUT_RESID = R.layout.hike_action_mode;
+	public static final int DEFAULT_LAYOUT_RESID = R.layout.hike_action_mode;
 
 	protected ActionMode mActionMode;
 
@@ -81,10 +81,7 @@ public class HikeActionMode implements ActionMode.Callback, OnClickListener
 			inflateMenu(menu);
 		}
 		
-		if (mListener != null)
-		{
-			mListener.initActionbarActionModeView(actionModeId, view);
-		}
+		initView();
 
 		return true;
 	}
@@ -92,7 +89,6 @@ public class HikeActionMode implements ActionMode.Callback, OnClickListener
 	@Override
 	public boolean onPrepareActionMode(ActionMode mode, Menu menu)
 	{
-		initView();
 		return true;
 	}
 
@@ -129,15 +125,15 @@ public class HikeActionMode implements ActionMode.Callback, OnClickListener
 
 	public void showActionMode(int id, int layoutId)
 	{
-		this.defaultLayoutId = layoutId;
-		showActionMode(id, actionModeTitle, doneButtonText);
+		showActionMode(id, actionModeTitle, doneButtonText, layoutId);
 	}
 
-	public void showActionMode(int id, String title, String doneButtonText)
+	public void showActionMode(int id, String title, String doneButtonText, int layoutId)
 	{
 		this.actionModeId = id;
 		this.actionModeTitle = title;
 		this.doneButtonText = doneButtonText;
+		this.defaultLayoutId = layoutId;
 		mActivity.startActionMode(this);
 	}
 	
@@ -149,12 +145,13 @@ public class HikeActionMode implements ActionMode.Callback, OnClickListener
 	 * @param showMenu
 	 * @param menuResId
 	 */
-	public void showActionMode(int id, String title, boolean showMenu, int menuResId)
+	public void showActionMode(int id, String title, boolean showMenu, int menuResId, int layoutResId)
 	{
 		this.actionModeId = id;
 		this.actionModeTitle = title;
 		this.shouldInflateMenu = showMenu;
 		this.menuResId = showMenu ? menuResId : -1;
+		this.defaultLayoutId = layoutResId;
 		mActivity.startActionMode(this);
 	}
 
@@ -295,7 +292,13 @@ public class HikeActionMode implements ActionMode.Callback, OnClickListener
 	
 	private void hideView(int resId)
 	{
-		mActionMode.getCustomView().findViewById(resId).setVisibility(View.GONE);
+		/**
+		*	It could be possible the view is not present in the CustomView set on the acitonMode
+		*/
+		if (mActionMode.getCustomView().findViewById(resId) != null)
+		{
+			mActionMode.getCustomView().findViewById(resId).setVisibility(View.GONE);
+		}
 	}
 	
 	/**

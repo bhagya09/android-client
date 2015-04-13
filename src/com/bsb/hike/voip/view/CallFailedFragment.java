@@ -80,8 +80,7 @@ public class CallFailedFragment extends SherlockFragment
 		{
 			@Override
 			public void onClick(View v) {
-				Intent intent = IntentFactory.getChatThreadIntent(getSherlockActivity(), msisdn);
-				intent.putExtra(HikeConstants.Extras.SHOW_KEYBOARD, true);
+				Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(getSherlockActivity(), msisdn, true);
 				startActivity(intent);
 				getSherlockActivity().finish();
 			}
@@ -91,7 +90,7 @@ public class CallFailedFragment extends SherlockFragment
 		{
 			@Override
 			public void onClick(View v) {
-				Intent intent = IntentFactory.getChatThreadIntent(getSherlockActivity(), msisdn);
+				Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(getSherlockActivity(), msisdn, false);
 				intent.putExtra(HikeConstants.Extras.SHOW_RECORDING_DIALOG, true);
 				startActivity(intent);
 				getSherlockActivity().finish();

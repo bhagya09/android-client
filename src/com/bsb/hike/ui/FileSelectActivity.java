@@ -420,6 +420,10 @@ public class FileSelectActivity extends HikeAppStateBaseFragmentActivity impleme
 					fileDetails.add(new Pair<String, String>(filePath, fileType));
 				}
 				String msisdn = getIntent().getStringExtra(HikeConstants.Extras.MSISDN);
+				if (msisdn == null)
+				{
+					throw new IllegalArgumentException("You are not sending msisdn, and yet you expect to send files ?");
+				}
 				boolean onHike = getIntent().getBooleanExtra(HikeConstants.Extras.ON_HIKE, true);
 
 				fileTransferTask = new InitiateMultiFileTransferTask(getApplicationContext(), fileDetails, msisdn, onHike, FTAnalyticEvents.FILE_ATTACHEMENT);

@@ -15,7 +15,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Message;
 import android.provider.ContactsContract.Contacts;
 import android.provider.MediaStore;
@@ -338,9 +337,11 @@ public class IntentFactory
 		return intent;
 	}
 
-	public static Intent getFileSelectActivityIntent(Context context)
+	public static Intent getFileSelectActivityIntent(Context context, String msisdn)
 	{
-		return new Intent(context, FileSelectActivity.class);
+		Intent intent = new Intent(context, FileSelectActivity.class);
+		intent.putExtra(HikeConstants.Extras.MSISDN, msisdn);
+		return intent;
 	}
 
 	/**
@@ -434,7 +435,8 @@ public class IntentFactory
 		intent.putExtra(HikeConstants.Extras.MSISDN, msisdnOrGroupId);
 		intent.putExtra(HikeConstants.Extras.WHICH_CHAT_THREAD, ChatThreadUtils.getChatThreadType(msisdnOrGroupId));
 		intent.putExtra(HikeConstants.Extras.SHOW_KEYBOARD, openKeyBoard);
-		
+		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
 		return intent;
 	}
 
@@ -442,7 +444,7 @@ public class IntentFactory
 	{
 		// If the contact info was made using a group conversation, then the
 		// Group ID is in the contact ID
-		boolean isGroupConv = Utils.isGroupConversation(contactInfo.getMsisdn());
+		boolean isGroupConv = OneToNConversationUtils.isOneToNConversation(contactInfo.getMsisdn());
 		return createChatThreadIntentFromMsisdn(context, isGroupConv ? contactInfo.getId() : contactInfo.getMsisdn(), openKeyBoard);
 	}
 	
@@ -662,14 +664,6 @@ public class IntentFactory
 	{
 		Intent in = new Intent(argActivity, HikeCameraActivity.class);
 		argActivity.startActivity(in);
-	}
-
-	public static Intent getChatThreadIntent(Context context, String msisdn)
-	{
-		Intent intent = new Intent(context, ChatThread.class);
-		intent.putExtra(HikeConstants.Extras.MSISDN, msisdn);
-		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-		return intent;
 	}
 
 	public static Intent getVoipCallIntent(Context context, String msisdn, VoIPUtils.CallSource source)

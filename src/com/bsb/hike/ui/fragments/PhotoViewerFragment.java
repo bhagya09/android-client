@@ -576,6 +576,7 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 				@Override
 				public void negativeClicked(HikeDialog hikeDialog)
 				{
+					hikeDialog.dismiss();
 				}
 			}, 1);  // 1 since we are deleting a single file
 			

@@ -28,6 +28,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.smartcache.HikeLruCache;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.Utils;
 
 public class HikeBitmapFactory
@@ -1124,11 +1125,11 @@ public class HikeBitmapFactory
 	
 	private static int getDefaultAvatarIconResId( String msisdn, boolean hiRes)
 	{
-		if (Utils.isBroadcastConversation(msisdn))
+		if (OneToNConversationUtils.isBroadcastConversation(msisdn))
 		{
 			return hiRes ? R.drawable.ic_default_avatar_broadcast_hires : R.drawable.ic_default_avatar_broadcast;
 		}
-		else if (Utils.isGroupConversation(msisdn))
+		else if (OneToNConversationUtils.isGroupConversation(msisdn))
 		{
 			return hiRes ? R.drawable.ic_default_avatar_group_hires : R.drawable.ic_default_avatar_group;
 		}

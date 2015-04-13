@@ -1635,6 +1635,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				fileHolder.fileThumb.setImageResource(R.drawable.ic_default_contact);
 				fileHolder.fileThumb.setScaleType(ScaleType.CENTER);
 				fileHolder.fileName.setText(hikeFile.getDisplayName());
+				checkIfContainsSearchText(fileHolder.fileName);
 				List<ContactInfoData> items = Utils.getContactDataFromHikeFile(hikeFile);
 				String phone = null, email = null;
 				for (ContactInfoData contactInfoData : items)
@@ -1650,11 +1651,13 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				{
 					fileHolder.fileSize.setText(phone);
 					fileHolder.fileSize.setVisibility(View.VISIBLE);
+					checkIfContainsSearchText(fileHolder.fileSize);
 				}
 				else if (!TextUtils.isEmpty(email))
 				{
 					fileHolder.fileSize.setText(email);
 					fileHolder.fileSize.setVisibility(View.VISIBLE);
+					checkIfContainsSearchText(fileHolder.fileSize);
 				}
 
 				fileHolder.fileThumb.setVisibility(View.VISIBLE);
@@ -2614,16 +2617,26 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			detailHolder.avatarContainer.setVisibility(isOneToNChat ? View.INVISIBLE : View.GONE);
 		}
 	}
-	
+
 	private void checkIfContainsSearchText(TextView tv)
 	{
 		String text = tv.getText().toString();
 		if (!TextUtils.isEmpty(searchText) && text.toLowerCase().contains(searchText))
 		{
-			int startSpanIndex = text.toLowerCase().indexOf(searchText);
 			SpannableString spanText = new SpannableString(text);
-			spanText.setSpan(new BackgroundColorSpan(context.getResources().getColor(R.color.text_bg)), startSpanIndex, startSpanIndex + searchText.length(),
-					Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+			int startSpanIndex = 0;
+
+			while (startSpanIndex != -1)
+			{
+				startSpanIndex = text.toLowerCase().indexOf(searchText, startSpanIndex);
+				if (startSpanIndex != -1)
+				{
+					spanText.setSpan(new BackgroundColorSpan(context.getResources().getColor(R.color.text_bg)), startSpanIndex, startSpanIndex + searchText.length(),
+							Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+					startSpanIndex += searchText.length();
+				}
+			}
 			tv.setText(spanText, TextView.BufferType.SPANNABLE);
 		}
 	}

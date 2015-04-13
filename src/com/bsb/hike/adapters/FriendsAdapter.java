@@ -1045,6 +1045,8 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 				break;
 			case EMPTY:
 				viewHolder.name = (TextView) convertView.findViewById(R.id.empty_text);
+				String infoSubText = context.getString(Utils.isLastSeenSetToFavorite() ? R.string.both_ls_status_update : R.string.status_updates_proper_casing);
+				viewHolder.name.setText(context.getString(R.string.tap_plus_add_favorites, infoSubText));
 				break;
 			}
 
@@ -1181,7 +1183,8 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 					else if (viewType == ViewType.FRIEND_REQUEST)
 					{
 						lastSeen.setVisibility(View.VISIBLE);
-						lastSeen.setText(R.string.sent_favorite_request_tab);
+						String infoSubText = context.getString(Utils.isLastSeenSetToFavorite() ? R.string.both_ls_status_update : R.string.status_updates_proper_casing);
+						lastSeen.setText(context.getString(R.string.sent_favorite_request_tab, infoSubText));
 
 						ImageView acceptBtn = viewHolder.acceptBtn;
 						ImageView rejectBtn = viewHolder.rejectBtn;
@@ -1275,9 +1278,8 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 
 		case EMPTY:
 			TextView emptyText = viewHolder.name;
-
-			String text = context.getString(R.string.tap_plus_add_favorites);
-			emptyText.setText(text);
+			String infoSubText = context.getString(Utils.isLastSeenSetToFavorite() ? R.string.both_ls_status_update : R.string.status_updates_proper_casing);
+			emptyText.setText(context.getString(R.string.tap_plus_add_favorites, infoSubText));
 			break;
 		}
 

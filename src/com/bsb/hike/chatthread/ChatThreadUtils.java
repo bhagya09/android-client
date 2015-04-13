@@ -35,6 +35,8 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.analytics.MsgRelLogManager;
+import com.bsb.hike.analytics.AnalyticsConstants.MsgRelEventType;
 import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.filetransfer.FTAnalyticEvents;
@@ -48,6 +50,7 @@ import com.bsb.hike.models.Conversation.OneToNConversationMetadata;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
@@ -280,7 +283,7 @@ public class ChatThreadUtils
 
 	protected static boolean shouldShowLastSeen(Context context, FavoriteType mFavoriteType, boolean convOnHike)
 	{
-		if ((mFavoriteType == FavoriteType.FRIEND || mFavoriteType == FavoriteType.REQUEST_RECEIVED || mFavoriteType == FavoriteType.REQUEST_RECEIVED_REJECTED) && convOnHike)
+		if (convOnHike)
 		{
 			return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(HikeConstants.LAST_SEEN_PREF, true);
 		}
@@ -486,28 +489,42 @@ public class ChatThreadUtils
 	}
 	
 	/**
+	 * Utility method to get Status bar height in Android phones using reflection
+	 * 
+	 * @param context
+	 * @return
+	 */
+	public static int getStatusBarHeight(Context context)
+	{
+		int result = 0;
+		int resourceId = context.getResources().getIdentifier("status_bar_height", "dimen", "android");
+		if (resourceId > 0)
+		{
+			result = context.getResources().getDimensionPixelSize(resourceId);
+		}
+		return result;
+	}
+	
+	/**
 	 * This method scales the image proportional to the given view height and width. By using {@code Matrix.ScaleToFit} instead of {@link ScaleType} we avoid the image view from moving
 	 * up/down when keyboard opens. This method also preserves the aspect ratio of the original bitmap by calculating its new height/width opportunistically
 	 * 
 	 * @param drawable
 	 * @param imageView
 	 */
-	
 	protected static void applyMatrixTransformationToImageView(Drawable drawable, ImageView imageView)
 	{
-		Rect r = new Rect();
-		imageView.getWindowVisibleDisplayFrame(r);
-		
 		/**
 		 * Drawable width and height
 		 */
 		float imageWidth = drawable.getIntrinsicWidth();
 		float imageHeight =drawable.getIntrinsicHeight();
+		
 		/**
 		 * View height and width
 		 */
-		float viewHeight = r.bottom - r.top;
-		float viewWidth = r.right - r.left;
+		float viewWidth = imageView.getContext().getResources().getDisplayMetrics().widthPixels;
+		float viewHeight = imageView.getContext().getResources().getDisplayMetrics().heightPixels - getStatusBarHeight(imageView.getContext());
 		
 		RectF dst; //Destination rectangle frame in which we have to place the drawable
 		/**
@@ -516,7 +533,7 @@ public class ChatThreadUtils
 		 */
 		if (imageWidth > imageHeight)
 		{
-			dst = new RectF(0, 0, (viewHeight * imageWidth/imageHeight), viewHeight);
+			dst = new RectF(0, 0, viewWidth, viewHeight);
 		}
 		
 		else
@@ -526,7 +543,7 @@ public class ChatThreadUtils
 		
 		Matrix matrix = new Matrix();
 		
-		matrix.setRectToRect(new RectF(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight()), dst, Matrix.ScaleToFit.CENTER);
+		matrix.setRectToRect(new RectF(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight()), dst, Matrix.ScaleToFit.FILL);
 		Logger.d(TAG, "Matrix:"+ matrix.toString());
 		imageView.setImageMatrix(matrix);
 	}
@@ -539,16 +556,111 @@ public class ChatThreadUtils
 	 */
 	public static String getChatThreadType(String msisdn)
 	{
-		if (Utils.isBroadcastConversation(msisdn))
+		if (OneToNConversationUtils.isBroadcastConversation(msisdn))
 		{
 			return HikeConstants.Extras.BROADCAST_CHAT_THREAD;
 		}
 
-		else if (Utils.isGroupConversation(msisdn))
+		else if (OneToNConversationUtils.isGroupConversation(msisdn))
 		{
 			return HikeConstants.Extras.GROUP_CHAT_THREAD;
 		}
 
 		return HikeConstants.Extras.ONE_TO_ONE_CHAT_THREAD;
+	}
+
+	/**
+	 * Sends nmr/mr as per pd is present in convmessage or not
+	 * @param msisdn
+	 */
+	public static void sendMR(String msisdn)
+	{
+
+		List<Pair<Long, JSONObject>> pairList = HikeConversationsDatabase.getInstance().updateStatusAndSendDeliveryReport(msisdn);
+
+		if (pairList == null)
+		{
+			return;
+		}
+
+		try
+		{
+
+			JSONObject dataMR = new JSONObject();
+
+			JSONArray ids = new JSONArray();
+
+			for (int i = 0; i < pairList.size(); i++)
+			{
+				Pair<Long, JSONObject> pair = pairList.get(i);
+				JSONObject object = pair.second;
+				if (object.has(HikeConstants.PRIVATE_DATA))
+				{
+					String pdString = object.optString(HikeConstants.PRIVATE_DATA);
+					JSONObject pd = new JSONObject(pdString);
+					if (pd != null)
+					{
+						String trackId = pd.optString(HikeConstants.MSG_REL_UID);
+						if (trackId != null)
+						{
+							dataMR.putOpt(String.valueOf(pair.first), pd);
+							// Logs for Msg Reliability
+							Logger.d(AnalyticsConstants.MSG_REL_TAG, "===========================================");
+							Logger.d(AnalyticsConstants.MSG_REL_TAG, "Receiver reads msg on after opening screen,track_id:- " + trackId);
+							MsgRelLogManager.recordMsgRel(trackId, MsgRelEventType.RECEIVER_OPENS_CONV_SCREEN);
+						}
+						else
+						{
+							ids.put(String.valueOf(pair.first));
+						}
+					}
+				}
+				else
+				{
+					ids.put(String.valueOf(pair.first));
+				}
+			}
+
+			Logger.d("UnreadBug", "Unread count event triggered");
+			Logger.d(AnalyticsConstants.MSG_REL_TAG, "inside API setMessageRead in CT ===========================================");
+			Logger.d(AnalyticsConstants.MSG_REL_TAG, "Going to set MR/NMR as user is on chat screen ");
+
+			/*
+			 * If there are msgs which are RECEIVED UNREAD then only broadcast a msg that these are read avoid sending read notifications for group chats
+			 */
+			if (ids != null && ids.length() > 0)
+			{
+				JSONObject object = new JSONObject();
+				object.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.MESSAGE_READ);
+				object.put(HikeConstants.TO, msisdn);
+				object.put(HikeConstants.DATA, ids);
+
+				HikeMqttManagerNew.getInstance().sendMessage(object, HikeMqttManagerNew.MQTT_QOS_ONE);
+			}
+
+			if (dataMR != null && dataMR.length() > 0)
+			{
+				JSONObject object = new JSONObject();
+				object.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.NEW_MESSAGE_READ);
+				object.put(HikeConstants.TO, msisdn);
+				object.put(HikeConstants.DATA, dataMR);
+
+				HikeMqttManagerNew.getInstance().sendMessage(object, HikeMqttManagerNew.MQTT_QOS_ONE);
+			}
+			Logger.d(TAG, "Unread Count event triggered");
+
+			/**
+			 * If there are msgs which are RECEIVED UNREAD then only broadcast a msg that these are read avoid sending read notifications for group chats
+			 * 
+			 */
+			ChatThreadUtils.publishMessagesRead(ids, msisdn);
+
+		}
+		catch (JSONException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 	}
 }

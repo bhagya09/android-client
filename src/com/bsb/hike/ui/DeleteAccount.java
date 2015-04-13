@@ -17,7 +17,6 @@ import com.actionbarsherlock.app.ActionBar;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
-import com.bsb.hike.dialog.CustomAlertDialog;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
@@ -168,9 +167,9 @@ public class DeleteAccount extends HikeAppStateBaseFragmentActivity implements D
 					@Override
 					public void negativeClicked(HikeDialog hikeDialog)
 					{
-						
+						hikeDialog.dismiss();
 					}
-				}, null);
+				});
 			}
 			else
 			{
@@ -198,7 +197,7 @@ public class DeleteAccount extends HikeAppStateBaseFragmentActivity implements D
 					{
 						hikeDialog.dismiss();
 					}
-				}, null);
+				});
 			}
 		}
 	}
