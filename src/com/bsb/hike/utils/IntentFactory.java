@@ -24,11 +24,14 @@ import android.widget.Toast;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
+import com.bsb.hike.adapters.MessagesAdapter;
 import com.bsb.hike.chatthread.ChatThread;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.HikeFile;
+import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
@@ -78,6 +81,60 @@ public class IntentFactory
 		intent.putExtra(HikeConstants.Extras.TITLE, R.string.notifications);
 		context.startActivity(intent);
 	}
+	public static Intent shareFunctionality(Intent intent, ConvMessage message, MessagesAdapter mAdapter, int shareableMessagesCount,Context context)
+	{   
+		int share_type = HikeConstants.Extras.NOT_SHAREABLE ;
+	
+		boolean showShareFunctionality = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.SHOW_SHARE_FUNCTIONALITY, false);
+		if (mAdapter.getSelectedCount() == 1 && Utils.isPackageInstalled(context, HikeConstants.Extras.WHATSAPP_PACKAGE) && showShareFunctionality)
+		{
+			if (message.isStickerMessage())
+			{
+				share_type = HikeConstants.Extras.ShareTypes.STICKER_SHARE;
+			}
+
+			if (message.isImageMsg())
+			{
+				share_type = HikeConstants.Extras.ShareTypes.IMAGE_SHARE;
+			}
+
+			if (message.isTextMsg())
+			{
+				share_type = HikeConstants.Extras.ShareTypes.TEXT_SHARE;
+			}
+
+			switch (share_type)
+			{
+			case HikeConstants.Extras.ShareTypes.STICKER_SHARE:
+				Sticker sticker = message.getMetadata().getSticker();
+				String filePath = StickerManager.getInstance().getStickerDirectoryForCategoryId(sticker.getCategoryId()) + HikeConstants.LARGE_STICKER_ROOT;
+				File stickerFile = new File(filePath, sticker.getStickerId());
+				String filePathBmp = stickerFile.getAbsolutePath();
+				intent.putExtra(HikeConstants.Extras.SHARE_TYPE, HikeConstants.Extras.ShareTypes.STICKER_SHARE);
+				intent.putExtra(HikeConstants.Extras.SHARE_CONTENT, filePathBmp);
+				intent.putExtra(StickerManager.STICKER_ID, sticker.getStickerId());
+				intent.putExtra(StickerManager.CATEGORY_ID, sticker.getCategoryId());
+				break;
+
+			case HikeConstants.Extras.ShareTypes.TEXT_SHARE:
+				String text = message.getMessage();
+				intent.putExtra(HikeConstants.Extras.SHARE_TYPE, HikeConstants.Extras.ShareTypes.TEXT_SHARE);
+				intent.putExtra(HikeConstants.Extras.SHARE_CONTENT, text);
+				break;
+
+			case HikeConstants.Extras.ShareTypes.IMAGE_SHARE:
+				if (shareableMessagesCount == 1)
+				{
+					HikeFile hikeFile = message.getMetadata().getHikeFiles().get(0);
+					intent.putExtra(HikeConstants.Extras.SHARE_TYPE, HikeConstants.Extras.ShareTypes.IMAGE_SHARE);
+					intent.putExtra(HikeConstants.Extras.SHARE_CONTENT, hikeFile.getExactFilePath());
+				}
+				break;
+			}
+
+		}
+		return intent;
+	}
 
 	public static void openSettingPrivacy(Context context)
 	{
@@ -90,6 +147,28 @@ public class IntentFactory
 		intent.putExtra(HikeConstants.Extras.PREF, R.xml.media_download_preferences);
 		intent.putExtra(HikeConstants.Extras.TITLE, R.string.settings_media);
 		context.startActivity(intent);
+	}
+
+	public static Intent shareIntent(String mimeType, String imagePath, String text, int type, boolean whatsapp)
+	{
+		Intent intent = new Intent(Intent.ACTION_SEND);
+		intent.setType(mimeType);
+		if (!TextUtils.isEmpty(text))
+		{
+			intent.putExtra(Intent.EXTRA_TEXT, text);
+		}
+		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+		if (whatsapp)
+		{
+			intent.setPackage(HikeConstants.Extras.WHATSAPP_PACKAGE);
+		}
+		if (type != HikeConstants.Extras.ShareTypes.TEXT_SHARE)
+		{
+
+			intent.putExtra(Intent.EXTRA_STREAM, Uri.parse(imagePath));
+
+		}
+		return intent;
 	}
 
 	public static void openSettingSMS(Context context)
