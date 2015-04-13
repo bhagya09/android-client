@@ -625,7 +625,7 @@ public class HAManager
 		fgSessionInstance.setConvType(convType);
 	}
 	
-	public void shareWhatsappAnalytics(String shrType, String catId, String stkrId, String str)
+	public void shareWhatsappAnalytics(String shrType, String catId, String stkrId, String path)
 	{
 		JSONObject metadata = new JSONObject();
 		try
@@ -633,7 +633,7 @@ public class HAManager
 			metadata.put(HikeConstants.Extras.SHARE_TYPE, shrType);
 			metadata.put(HikeConstants.Extras.CATEGORYID, catId);
 			metadata.put(HikeConstants.Extras.STICKERID, stkrId);
-			metadata.put(HikeConstants.Extras.PATH, str);
+			metadata.put(HikeConstants.Extras.PATH, path);
 			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.Extras.WHATSAPP_SHARE);
 			record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
 		}
