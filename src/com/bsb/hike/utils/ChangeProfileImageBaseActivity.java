@@ -595,6 +595,12 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 					String name = prefs.getData(HikeMessengerApp.NAME_SETTING, "");
 					long time = (long) System.currentTimeMillis() / 1000;
 
+					// saving mapped status id for this dp change. delete update will clear this pref later
+					// this pref's current value will decide whether to give option to user to delete dp post from favourites timelines or not
+					Editor ed = prefs.getPref().edit();
+					ed.putString(HikeMessengerApp.DP_CHANGE_STATUS_ID, mappedId);
+					ed.commit();
+					
 					StatusMessage statusMessage = new StatusMessage(0, mappedId, msisdn, name, "", StatusMessageType.PROFILE_PIC, time, -1, 0);
 					HikeConversationsDatabase.getInstance().addStatusMessage(statusMessage, true);
 
