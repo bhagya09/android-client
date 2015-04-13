@@ -190,7 +190,7 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 		int width = metrics.widthPixels;
 		if (width != imageOriginal.getWidth())
 		{
-			imageScaled = HikePhotosUtils.createBitmap(imageOriginal, 0, 0, width, width, true, true, false, true);
+			imageScaled = HikePhotosUtils.compressBitamp(imageOriginal, width, width);
 			if(imageScaled == null)
 			{
 				Toast.makeText(getContext(), getResources().getString(R.string.photos_oom_load), Toast.LENGTH_SHORT).show();
@@ -247,18 +247,16 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 		this.mListener = listener;
 
 		savingFinal = true;
-		if(compressOutput && imageOriginal.getHeight() > HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX)
+		if(compressOutput && HikePhotosUtils.bitmapArea(imageOriginal)>HikeConstants.HikePhotos.MAXIMUM_ALLOWED_IMAGE_AREA)
 		{
-			Bitmap temp = imageOriginal;
-			imageOriginal = Bitmap.createScaledBitmap(imageOriginal, HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX, HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX, false);
-			HikePhotosUtils.manageBitmaps(temp);
 			compressOutput = false;
+			imageOriginal = HikePhotosUtils.compressBitamp(imageOriginal, HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX, HikeConstants.MAX_DIMENSION_LOW_FULL_SIZE_PX);
 		}
 
 		effectLayer.getBitmapWithEffectsApplied(imageOriginal, this);
 
 	}
-
+	
 	public void undoLastDoodleDraw()
 	{
 		doodleLayer.onClickUndo();

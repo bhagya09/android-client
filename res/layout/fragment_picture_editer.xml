@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:animateLayoutChanges="true"
-    android:background="@color/photos_tabs_background"
+    android:background="@color/black"
     android:orientation="vertical"
     tools:context=".PictureEditer$PictureEditerFragment" >
 
@@ -22,8 +22,7 @@
             <com.bsb.hike.photos.views.PhotosEditerFrameLayoutView
                 android:id="@+id/editer"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scaleType = "centerCrop" />
+                android:layout_height="match_parent" />
 
             <ImageView
                 android:id="@+id/undo"
@@ -44,11 +43,11 @@
                 <com.viewpagerindicator.PhotosTabPageIndicator
                     android:id="@+id/indicator"
                     style="@style/AppTheme.Home.Photos"
-                    android:visibility="gone"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="@color/photos_tabs_background"
-                    android:theme="@style/AppTheme.Home.Photos" />
+                    android:theme="@style/AppTheme.Home.Photos"
+                    android:visibility="gone" />
 
                 <View
                     android:layout_width="0.5dp"
@@ -63,10 +62,10 @@
         <android.support.v4.view.ViewPager
             android:id="@+id/pager"
             android:layout_width="match_parent"
-            android:visibility="gone"
             android:layout_height="0dp"
             android:layout_weight="@integer/photos_editor_pager_weight"
-            android:background="@color/photos_pager_background" />
+            android:background="@color/photos_pager_background"
+            android:visibility="gone" />
     </LinearLayout>
 
     <FrameLayout

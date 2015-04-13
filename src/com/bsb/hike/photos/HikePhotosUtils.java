@@ -101,6 +101,44 @@ public class HikePhotosUtils
 		}
 	}
 	
+	public static int bitmapArea(Bitmap bitmap)
+	{
+		if(bitmap==null)
+			return 0;
+		
+		if(bitmap.getWidth()<0 || bitmap.getHeight()<0)
+			return 0;
+		
+		return bitmap.getWidth()*bitmap.getHeight();
+	}
+	
+	public static Bitmap compressBitamp(Bitmap bitmap,int maxWidth,int maxHeight)
+	{
+		Bitmap temp = bitmap;
+		int width = 0,height = 0;
+		float aspectRatio = bitmap.getWidth()*1.0f/bitmap.getHeight();
+		
+		if(bitmap!=null)
+		{
+			if(bitmap.getWidth()>bitmap.getHeight())
+			{
+				
+				width =  maxWidth;
+				height = (int)(maxWidth*aspectRatio);
+			}
+			else
+			{
+				height = maxHeight;
+				width = (int)(maxHeight*aspectRatio);
+			}
+		}
+		
+		//bitmap = Bitmap.createScaledBitmap(bitmap, width, height, false);
+		bitmap = createBitmap(bitmap, 0, 0, width, height, true, true, false, true);
+		HikePhotosUtils.manageBitmaps(temp);
+		return bitmap;
+	}
+	
 	
 	/**
 	 * Funtcion to create Bitmap. Handles out of Memory Exception

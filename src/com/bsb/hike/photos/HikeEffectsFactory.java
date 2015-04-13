@@ -67,7 +67,7 @@ public final class HikeEffectsFactory
 		// Allocate buffer
 		mBitmapIn = image;
 		mInAllocation = Allocation.createFromBitmap(mRS, mBitmapIn);
-		if (!isFinal && (currentOut == null || (finalBitmap == null && currentOut.getHeight() != mBitmapIn.getHeight())) && !isThumbnail)
+		if (!isFinal && (currentOut == null || (finalBitmap == null && (currentOut.getHeight() != mBitmapIn.getHeight() || currentOut.getWidth() != mBitmapIn.getWidth()))) && !isThumbnail)
 		{
 			mBitmapOut1 = HikePhotosUtils.createBitmap(mBitmapIn, 0, 0, 0, 0, false, false, false, true);
 			// mBitmapOut1 = mBitmapOut1.createBitmap(mBitmapIn.getWidth(), mBitmapIn.getHeight(), mBitmapIn.getConfig());
@@ -77,7 +77,7 @@ public final class HikeEffectsFactory
 			currentOut = mBitmapOut1;
 			// Log.e("com.bsb.hike","2 new bitmap created");
 		}
-		else if (!isFinal && (currentOut != null && (currentOut.getHeight() == mBitmapIn.getHeight() || finalBitmap != null)) && !isThumbnail)
+		else if (!isFinal && (currentOut != null && ((currentOut.getHeight() != mBitmapIn.getHeight() || currentOut.getWidth() != mBitmapIn.getWidth()) || finalBitmap != null)) && !isThumbnail)
 		{
 			if (currentOut == mBitmapOut1)
 			{
