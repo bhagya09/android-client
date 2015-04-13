@@ -9289,6 +9289,12 @@ public class ChatThread extends HikeAppStateBaseFragmentActivity implements Hike
 				@Override
 				public void run()
 				{
+					//TODO Check because of a PS crash. Need to verify whether the crash is occurring due to conversation being null.
+					if (mConversation == null)
+					{
+						return;
+					}
+
 					int newCount = -1;
 					
 					try 
