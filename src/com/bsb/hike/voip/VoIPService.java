@@ -2614,6 +2614,7 @@ public class VoIPService extends Service {
 					try {
 						VoIPDataPacket dp = null;
 						synchronized (clientPartner) {
+							ConnectionMethods currentMethod = clientPartner.getPreferredConnectionMethod();
 							clientPartner.setPreferredConnectionMethod(ConnectionMethods.PRIVATE);
 							dp = new VoIPDataPacket(PacketType.COMM_UDP_SYN_PRIVATE);
 							sendPacket(dp, false);
@@ -2623,7 +2624,7 @@ public class VoIPService extends Service {
 							clientPartner.setPreferredConnectionMethod(ConnectionMethods.RELAY);
 							dp = new VoIPDataPacket(PacketType.COMM_UDP_SYN_RELAY);
 							sendPacket(dp, false);
-							clientPartner.setPreferredConnectionMethod(ConnectionMethods.UNKNOWN);
+							clientPartner.setPreferredConnectionMethod(currentMethod);
 						}
 						Thread.sleep(250);
 					} catch (InterruptedException e) {
