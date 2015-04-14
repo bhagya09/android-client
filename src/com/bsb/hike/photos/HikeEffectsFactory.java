@@ -80,16 +80,16 @@ public final class HikeEffectsFactory
 			}
 			currentOut = finalBitmap;
 		}
-		else if(!isThumbnail)
+		else if (!isThumbnail)
 		{
-			if  (currentOut == null || (finalBitmap == null && (currentOut.getHeight() != mBitmapIn.getHeight() || currentOut.getWidth() != mBitmapIn.getWidth())))
+			if (currentOut == null || (finalBitmap == null && (currentOut.getHeight() != mBitmapIn.getHeight() || currentOut.getWidth() != mBitmapIn.getWidth())))
 			{
 				mBitmapOut1 = HikePhotosUtils.createBitmap(mBitmapIn, 0, 0, 0, 0, false, false, false, true);
 				mBitmapOut2 = HikePhotosUtils.createBitmap(mBitmapIn, 0, 0, 0, 0, false, false, false, true);
 				vignetteBitmap = HikePhotosUtils.createBitmap(mBitmapIn, 0, 0, 0, 0, false, false, false, true);
 				currentOut = mBitmapOut1;
 			}
-			else if  (currentOut != null && ((currentOut.getHeight() == mBitmapIn.getHeight() && currentOut.getWidth() == mBitmapIn.getWidth()) || finalBitmap != null))
+			else if (currentOut != null && ((currentOut.getHeight() == mBitmapIn.getHeight() && currentOut.getWidth() == mBitmapIn.getWidth()) || finalBitmap != null))
 			{
 				if (currentOut == mBitmapOut1)
 				{
@@ -202,16 +202,6 @@ public final class HikeEffectsFactory
 		case BGR:
 			filterColorMatrix = getBGRColorMatrix();
 			break;
-		case E1977:
-			if (isPreMatrix)
-			{
-				filterColorMatrix = null;
-			}
-			else
-			{
-				filterColorMatrix = getContrastColorMatrix(-20f);
-			}
-			break;
 		case X_PRO_2:
 			if (isPreMatrix)
 			{
@@ -236,12 +226,7 @@ public final class HikeEffectsFactory
 		case BRANNAN:
 			if (isPreMatrix)
 			{
-				filterColorMatrix = getBrightnessColorMatrix(1.1f);
-				filterColorMatrix.setConcat(getContrastColorMatrix(50f), filterColorMatrix);
-			}
-			else
-			{
-				filterColorMatrix = getSaturationColorMatrix(0.7f);
+				filterColorMatrix = getSaturationColorMatrix(0.6f);
 			}
 			break;
 		case NASHVILLE:
@@ -267,7 +252,7 @@ public final class HikeEffectsFactory
 			else
 			{
 				filterColorMatrix = getBrightnessColorMatrix(0.9f);
-				filterColorMatrix.setConcat(getContrastColorMatrix(358f), filterColorMatrix);
+				filterColorMatrix.setConcat(getContrastColorMatrix(50f), filterColorMatrix);
 			}
 			break;
 		case LO_FI:
@@ -287,6 +272,11 @@ public final class HikeEffectsFactory
 			if (isPreMatrix)
 			{
 				filterColorMatrix = getSaturationColorMatrix(0f);
+			}
+			else
+			{
+				filterColorMatrix = getBrightnessColorMatrix(1.6f);
+				filterColorMatrix.setConcat(getContrastColorMatrix(40f), filterColorMatrix);
 			}
 			break;
 		case GULAAL:
@@ -552,10 +542,23 @@ public final class HikeEffectsFactory
 			switch (effect)
 			{
 			case SOLOMON:
-				mScript.set_r(new int[] { 0x33, 0xCD, 0 });
-				mScript.set_g(new int[] { 0x27, 0x98, 0 });
-				mScript.set_b(new int[] { 0xCD, 0x83, 0 });
-				mScript.forEach_filter_solomon(mInAllocation, mOutAllocations);
+				ri = new int[] { 0, 48, 129, 233, 255 };
+				ro = new int[] { 0, 48, 106, 213, 238 };
+				gi = new int[] { 0, 40, 135, 218, 228, 242, 255 };
+				go = new int[] { 0, 58, 159, 215, 220, 233, 255 };
+				bi = new int[] { 0, 18, 134, 217, 247, 255 };
+				bo = new int[] { 0, 18, 104, 195, 236, 247 };
+				red = new Splines(ri, ro);
+				green = new Splines(gi, go);
+				blue = new Splines(bi, bo);
+				ci = new int[] { 0, 32, 255 };
+				co = new int[] { 0, 0, 255 };
+				composite = new Splines(ci, co);
+				mScript.set_compositeSpline(composite.getInterpolationMatrix());
+				mScript.set_rSpline(red.getInterpolationMatrix());
+				mScript.set_gSpline(green.getInterpolationMatrix());
+				mScript.set_bSpline(blue.getInterpolationMatrix());
+				mScript.forEach_filter_sunlitt(mInAllocation, mOutAllocations);
 				break;
 			case E1977:
 
@@ -572,7 +575,7 @@ public final class HikeEffectsFactory
 				mScript.set_rSpline(red.getInterpolationMatrix());
 				mScript.set_gSpline(green.getInterpolationMatrix());
 				mScript.set_bSpline(blue.getInterpolationMatrix());
-				mScript.forEach_filter_1977_or_xpro(mInAllocation, mOutAllocations);
+				mScript.forEach_filter_1977(mInAllocation, mOutAllocations);
 
 				break;
 			case CLASSIC:
@@ -595,26 +598,20 @@ public final class HikeEffectsFactory
 				mScript.forEach_filter_classic(mInAllocation, mOutAllocations);
 				break;
 			case KELVIN:
-
-				ri = new int[] { 0, 149, 255 };
-				ro = new int[] { 64, 229, 255 };
-				gi = new int[] { 0, 159, 255 };
-				go = new int[] { 38, 181, 255 };
-				bi = new int[] { 0, 255 };
-				bo = new int[] { 62, 189 };
+				ri = new int[] { 0, 27, 39, 69, 86, 109, 133, 151, 171, 193, 210, 235, 255 };
+				ro = new int[] { 0, 37, 54, 111, 147, 185, 207, 220, 230, 234, 242, 247, 247 };
+				gi = new int[] { 0, 22, 48, 68, 85, 107, 132, 151, 163, 192, 211, 235, 255 };
+				go = new int[] { 0, 23, 51, 70, 92, 121, 154, 178, 192, 225, 245, 253, 255 };
+				bi = new int[] { 0, 21, 42, 64, 88, 109, 127, 146, 166, 185, 218, 230, 255 };
+				bo = new int[] { 0, 0, 0, 0, 7, 46, 94, 141, 186, 213, 242, 250, 255 };
 				red = new Splines(ri, ro);
 				green = new Splines(gi, go);
 				blue = new Splines(bi, bo);
 				mScript.set_rSpline(red.getInterpolationMatrix());
 				mScript.set_gSpline(green.getInterpolationMatrix());
 				mScript.set_bSpline(blue.getInterpolationMatrix());
-				mScript.set_r(new int[] { 0xFF, 0, 0 });
-				mScript.set_g(new int[] { 0xB0, 0, 0 });
-				mScript.set_b(new int[] { 0x7C, 0, 0 });
-				mScript.forEach_filter_kelvin(mInAllocation, mOutAllocations);
 				break;
 			case JALEBI:
-
 				ri = new int[] { 0, 149, 255 };
 				ro = new int[] { 64, 229, 255 };
 				gi = new int[] { 0, 159, 255 };
@@ -661,7 +658,7 @@ public final class HikeEffectsFactory
 				mScript.set_rSpline(red.getInterpolationMatrix());
 				mScript.set_gSpline(green.getInterpolationMatrix());
 				mScript.set_bSpline(blue.getInterpolationMatrix());
-				mScript.forEach_filter_1977_or_xpro(mInAllocation, mOutAllocations);
+				mScript.forEach_filter_xpro(mInAllocation, mOutAllocations);
 				break;
 			case APOLLO:
 				ri = new int[] { 30, 120, 222, 255 };
@@ -679,19 +676,33 @@ public final class HikeEffectsFactory
 				mScript.forEach_filter_apollo(mInAllocation, mOutAllocations);
 				break;
 			case BRANNAN:
-				bi = new int[] { 0, 183, 255 };
-				bo = new int[] { 0, 148, 255 };
+				ri = new int[] { 0, 16, 40, 64, 82, 102, 127, 146, 159, 174, 202, 234, 255 };
+				ro = new int[] { 37, 39, 54, 71, 92, 120, 167, 198, 220, 235, 246, 252, 255 };
+				gi = new int[] { 0, 28, 43, 65, 92, 114, 130, 153, 175, 197, 208, 232, 255 };
+				go = new int[] { 0, 15, 27, 50, 99, 147, 175, 202, 223, 237, 239, 250, 255 };
+				bi = new int[] { 0, 20, 41, 64, 88, 117, 134, 155, 170, 188, 206, 227, 255 };
+				bo = new int[] { 35, 41, 52, 64, 96, 138, 159, 178, 186, 203, 216, 232, 240 };
+				red = new Splines(ri, ro);
+				green = new Splines(gi, go);
 				blue = new Splines(bi, bo);
-				mScript.set_r(new int[] { 0x8C, 0, 0 });
-				mScript.set_g(new int[] { 0x8C, 0, 0 });
-				mScript.set_b(new int[] { 0x63, 0, 0 });
+				mScript.set_rSpline(red.getInterpolationMatrix());
+				mScript.set_gSpline(green.getInterpolationMatrix());
 				mScript.set_bSpline(blue.getInterpolationMatrix());
 				mScript.forEach_filter_brannan(mInAllocation, mOutAllocations);
 				break;
 			case EARLYBIRD:
-				mScript.set_r(new int[] { 0xFC, 0, 0 });
-				mScript.set_g(new int[] { 0xF3, 0, 0 });
-				mScript.set_b(new int[] { 0xD6, 0, 0 });
+				ri = new int[] { 0,25,44,67,85,104,125,148,174,190,213,234,255 };
+				ro = new int[] { 26,60,83,113,135,157,183,198,212,223,232,244,255 };
+				gi = new int[] { 0,25,41,60,88,104,134,153,169,196,216,235,255 };
+				go = new int[] { 0,30,53,75,113,134,173,187,196,211,219,235,240 };
+				bi = new int[] { 0,23,44,65,93,111,121,150,165,195,212,232,255 };
+				bo = new int[] { 17,38,58,76,104,121,131,153,171,186,196,203,211 };
+				red = new Splines(ri, ro);
+				green = new Splines(gi, go);
+				blue = new Splines(bi, bo);
+				mScript.set_rSpline(red.getInterpolationMatrix());
+				mScript.set_gSpline(green.getInterpolationMatrix());
+				mScript.set_bSpline(blue.getInterpolationMatrix());
 				mScript.forEach_filter_earlyBird(mInAllocation, mOutAllocations);
 				break;
 			case INKWELL:
@@ -709,17 +720,18 @@ public final class HikeEffectsFactory
 				mScript.forEach_filter_lomofi(mInAllocation, mOutAllocations);
 				break;
 			case NASHVILLE:
-				gi = new int[] { 0, 255 };
-				go = new int[] { 38, 255 };
-				bi = new int[] { 0, 255 };
-				bo = new int[] { 127, 255 };
+				ri = new int[] { 0,20,34,45,54,65,84,98,115,132,147,172,190,214,231,255 };
+				ro = new int[] { 0,8,14,19,20,24,86,115,141,162,183,206,223,240,246,255 };
+				gi = new int[] { 0,22,50,63,87,100,133,150,170,192,210,234,255 };
+				go = new int[] { 0,7,64,81,105,120,152,169,183,207,212,224,226 };
+				bi = new int[] { 0,22,42,64,84,106,131,151,168,190,212,234,250 };
+				bo = new int[] { 67,74,90,102,117,126,142,154,165,181,188,201,204 };
+				red = new Splines(ri, ro);
 				green = new Splines(gi, go);
 				blue = new Splines(bi, bo);
+				mScript.set_rSpline(red.getInterpolationMatrix());
 				mScript.set_gSpline(green.getInterpolationMatrix());
 				mScript.set_bSpline(blue.getInterpolationMatrix());
-				mScript.set_r(new int[] { 0xA6, 0xF6, 0 });
-				mScript.set_g(new int[] { 0x65, 0xD8, 0 });
-				mScript.set_b(new int[] { 0x30, 0xAC, 0 });
 				mScript.forEach_filter_nashville(mInAllocation, mOutAllocations);
 				break;
 			case ORIGINAL:
@@ -761,8 +773,8 @@ public final class HikeEffectsFactory
 				mScript.forEach_filter_ghostly(mInAllocation, mOutAllocations);
 				break;
 			case BGR:
-				bi = new int[] { 0, 74, 128, 182, 255 };
-				bo = new int[] { 0, 89, 128, 165, 255 };
+				bi = new int[] { 0, 70, 128, 182, 255 };
+				bo = new int[] { 0, 91, 128, 165, 255 };
 				blue = new Splines(bi, bo);
 				mScript.set_bSpline(blue.getInterpolationMatrix());
 				mScript.forEach_filter_bgr(mInAllocation, mOutAllocations);
