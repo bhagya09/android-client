@@ -2417,12 +2417,13 @@ public class Utils
 		activity.startActivityForResult(intent, HikeConstants.CROP_RESULT);
 	}
 
-	public static void startCropActivityForResult(Activity activity, String path, String destPath, boolean preventScaling)
+	public static void startCropActivityForResult(Activity activity, String path, String destPath, boolean preventScaling, boolean circleHighlight)
 	{
 		/* Crop the image */
 		Intent intent = new Intent(activity, CropImage.class);
 		intent.putExtra(MediaStore.EXTRA_OUTPUT, destPath);
 		intent.putExtra(HikeConstants.Extras.IMAGE_PATH, path);
+		intent.putExtra(HikeConstants.Extras.CIRCLE_HIGHLIGHT, circleHighlight);
 		intent.putExtra(HikeConstants.Extras.SCALE, false);
 		intent.putExtra(HikeConstants.Extras.RETURN_CROP_RESULT_TO_FILE, preventScaling);
 		intent.putExtra(HikeConstants.Extras.ASPECT_X, 1);
