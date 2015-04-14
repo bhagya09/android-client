@@ -233,6 +233,7 @@ public class CropImage extends MonitoredActivity
 		actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
 
 		View actionBarView = LayoutInflater.from(this).inflate(R.layout.photos_action_bar, null);
+		actionBarView.setBackgroundResource(R.color.photos_action_bar_background);
 		actionBarView.findViewById(R.id.back).setOnClickListener(new OnClickListener()
 		{
 			@Override
