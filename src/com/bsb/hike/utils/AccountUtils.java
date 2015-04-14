@@ -17,6 +17,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.PlatformUIDFetch;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -283,6 +286,7 @@ public class AccountUtils
 
 	public static JSONObject executeRequest(HttpRequestBase request)
 	{
+		setNoTransform(request);
 		HttpClient client = getClient(request);
 		HttpResponse response;
 		try
@@ -682,6 +686,10 @@ public class AccountUtils
 			return null;
 		}
 
+		ArrayList<String> msisdnForMissingPlatformUID = ContactManager.getInstance().getMsisdnForMissingPlatformUID();
+
+		PlatformUIDFetch.fetchPlatformUid(HikePlatformConstants.PlatformUIDFetchType.PARTIAL_ADDRESS_BOOK, msisdnForMissingPlatformUID.toArray(new String[]{}));
+
 		String encoded = data.toString();
 		// try
 		// {
@@ -800,7 +808,8 @@ public class AccountUtils
 				JSONObject entry = entries.optJSONObject(i);
 				String msisdn = entry.optString("msisdn");
 				boolean onhike = entry.optBoolean("onhike");
-				ContactInfo info = new ContactInfo(id, msisdn, cList.get(i).getName(), cList.get(i).getPhoneNum(), onhike);
+				String platformId = entry.optString(HikePlatformConstants.PLATFORM_USER_ID);
+				ContactInfo info = new ContactInfo(id, msisdn, cList.get(i).getName(), cList.get(i).getPhoneNum(), onhike, platformId);
 				server_contacts.add(info);
 			}
 		}
@@ -983,6 +992,7 @@ public class AccountUtils
 		HttpRequestBase req = new HttpGet(AccountUtils.fileTransferBase + "/user/pft/");
 		addToken(req);
 		req.addHeader("X-SESSION-ID", sessionId);
+		AccountUtils.setNoTransform(req);
 		HttpClient httpclient = getClient(req);
 		HttpResponse response = httpclient.execute(req);
 		StatusLine statusLine = response.getStatusLine();
@@ -1005,6 +1015,7 @@ public class AccountUtils
 	public static String crcValue(String fileKey) throws ClientProtocolException, IOException
 	{
 		HttpRequestBase req = new HttpGet(AccountUtils.fileTransferBase + "/user/ft/" + fileKey);
+		AccountUtils.setNoTransform(req);
 		addToken(req);
 		HttpClient httpclient = getClient(req);
 		HttpResponse response = httpclient.execute(req);
@@ -1056,5 +1067,10 @@ public class AccountUtils
 	public static void setNoTransform(URLConnection urlConnection)
 	{
 		urlConnection.setRequestProperty("Cache-Control", "no-transform");
+	}
+
+	public static void setNoTransform(HttpRequestBase request)
+	{
+		request.addHeader("Cache-Control", "no-transform");
 	}
 }
