@@ -376,11 +376,7 @@ uchar4 __attribute__((kernel)) filter_nashville(uchar4 in,uint32_t x,uint32_t y)
 
 uchar4 __attribute__((kernel)) filter_junglee(uchar4 in,uint32_t x,uint32_t y) 
 {
-	in.r = rSpline[in.r];
-	
-	in.g = gSpline[in.g];
-
-	in.b = bSpline[in.b];
+	in = applyCurves(in,0,1,1,1);
 	
 	return in;
 	
@@ -538,7 +534,7 @@ uchar4 __attribute__((kernel)) filter_sunlitt(uchar4 in,uint32_t x,uint32_t y)
 	{
 		uchar4 v = rsGetElementAt_uchar4(input1, x, y);
 	
-		in = applyBlendToRGB(in , v ,Screen,1);
+		in = applyBlendToRGB(in , v ,Screen,0.7);
 	}
  	
 	return in;
