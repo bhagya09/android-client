@@ -5,6 +5,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -506,9 +507,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	private void defineEnterAction() {
 		if (mComposeView != null) {
-			//Its a workaround to set the multiline editfield when android:imeOptions="actionSend".
-    		mComposeView.setHorizontallyScrolling(false);
-			mComposeView.setMaxLines(4);
 			//if send on enter setting is unchecked then send button will send the cursor to the next line.
 			if (!PreferenceManager.getDefaultSharedPreferences(
 					activity.getApplicationContext()).getBoolean(
@@ -516,6 +514,9 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 				mComposeView.setInputType(mComposeView.getInputType()
 						| InputType.TYPE_TEXT_FLAG_MULTI_LINE);
 			}
+			//Its a workaround to set the multiline editfield when android:imeOptions="actionSend".
+    		mComposeView.setHorizontallyScrolling(false);
+			mComposeView.setMaxLines(4);
 
 		}
 	}
@@ -3286,18 +3287,30 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	 */
 	private void deleteMessages(Pair<Boolean, ArrayList<Long>> pair)
 	{
+		/*
+		 * This is done to avoid the case where unable to delete a message when unread count is displayed along with the message. 
+		 * Because the same msgId is used for both unread count and the message.
+		 * So deleting both.
+		 */
+		ArrayList<ConvMessage> deleteMsgs = new ArrayList<>();
 		for (long msgId : pair.second)
 		{
 			for (ConvMessage convMessage : messages)
 			{
 				if (convMessage.getMsgID() == msgId)
 				{
-					deleteMessage(convMessage, pair.first);
+					deleteMsgs.add(convMessage);
+				}
+				else if (convMessage.getMsgID() > msgId)
+				{
 					break;
 				}
 			}
 		}
-
+		for (Iterator<ConvMessage> iterator = deleteMsgs.iterator(); iterator.hasNext();) {
+			ConvMessage convMessage = (ConvMessage) iterator.next();
+			deleteMessage(convMessage, pair.first);
+		}
 		mAdapter.notifyDataSetChanged();
 	}
 
