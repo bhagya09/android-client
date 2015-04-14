@@ -14,6 +14,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.IntentManager;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
@@ -64,6 +65,11 @@ public class DelegateActivity extends Activity
 
 		if (sourceIntent.getAction() == MediaStore.ACTION_IMAGE_CAPTURE)
 		{
+			if(!IntentManager.isIntentAvailable(getApplicationContext(), sourceIntent.getAction()))
+			{
+				onError();
+				return;
+			}
 			/*
 			 * For images, save the file path as a preferences since in some devices the reference to the file becomes null.
 			 */
