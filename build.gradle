@@ -39,9 +39,6 @@ android {
         compile(project(':actionbar-sherlock')) {
             exclude module: 'support-v4'
         }
-        compile(project(':cwac-camera') ) {
-            exclude module: 'support-v4'
-        }
         compile(project(':google-play')) {
             exclude module: 'support-v4'
         }
