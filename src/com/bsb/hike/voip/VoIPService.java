@@ -63,6 +63,7 @@ import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentManager;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 import com.bsb.hike.voip.VoIPClient.ConnectionMethods;
 import com.bsb.hike.voip.VoIPConstants.CallQuality;
 import com.bsb.hike.voip.VoIPDataPacket.PacketType;
@@ -564,9 +565,6 @@ public class VoIPService extends Service {
 	}
 
 	private void showNotification() {
-		
-		if (!connected)
-			return;
 		
 //		Logger.d(VoIPConstants.TAG, "Showing notification..");
 		Intent myIntent = new Intent(getApplicationContext(), VoIPActivity.class);
