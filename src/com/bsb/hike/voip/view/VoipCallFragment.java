@@ -366,7 +366,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		
 		if (action.equals(VoIPConstants.INCOMING_NATIVE_CALL_HOLD) && voipService != null) 
 		{
-			if (VoIPService.isConnected()) 
+			if (VoIPService.getCallId() > 0) 
 			{
 				if(VoIPService.isAudioRunning())
 				{

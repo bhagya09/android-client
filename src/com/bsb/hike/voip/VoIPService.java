@@ -1106,8 +1106,6 @@ public class VoIPService extends Service {
 						startReconnectBeeps();
 						if (clientSelf.isInitiator() && isConnected() && isAudioRunning())
 							reconnect();
-						else if (!isConnected())	// Give the call receiver time so the initiator can reestablish connection.
-							hangUp();
 					}
 					
 					if (System.currentTimeMillis() - lastHeartbeat > HEARTBEAT_HARD_TIMEOUT) {
@@ -2228,6 +2226,14 @@ public class VoIPService extends Service {
 		edit.commit();
 	}
 	
+	/**
+	 * Is the VoIP service currently connected to another phone?
+	 * This can return <b>false</b> even for an ongoing call, in case
+	 * a reconnection is being attempted. To check if we are current in call, 
+	 * use getCallId() instead.  
+	 * 
+	 * @return
+	 */
 	public static boolean isConnected() {
 		return connected;
 	}
@@ -2238,11 +2244,12 @@ public class VoIPService extends Service {
 	
 	public void setHold(boolean newHold) {
 		
+		Logger.d(VoIPConstants.TAG, "Changing hold to: " + newHold + " from: " + this.hold);
+
 		if (this.hold == newHold)
 			return;
 		
 		this.hold = newHold;
-		Logger.d(VoIPConstants.TAG, "Changing hold to: " + newHold);
 		
 		if (newHold == true) {
 			if (recordingThread != null)
