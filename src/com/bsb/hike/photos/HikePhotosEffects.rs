@@ -85,43 +85,6 @@ float preMatrix[20],postMatrix[20];
 rs_allocation input1;
 rs_allocation input2;
 
-uchar4 static applyCurves(uchar4 in,int applyComposite,int applyRed,int applyGreen,int applyBlue)
-{
-	if(applyComposite<0)
-	{
-		in.r=compositeSpline[in.r];
-
-		in.g=compositeSpline[in.g];
-
-		in.b=compositeSpline[in.b];
-	}
-	
-	if(applyRed)
-	{
-		in.r=rSpline[in.r];
-	}
-	
-	if(applyGreen)
-	{
-		in.g=gSpline[in.g];
-	}
-
-	if(applyBlue)
-	{	
-		in.b=bSpline[in.b];
-	}
-	
-	if(applyComposite>0)
-	{
-		in.r=compositeSpline[in.r];
-
-		in.g=compositeSpline[in.g];
-
-		in.b=compositeSpline[in.b];
-	}
-	
-	return in;
-}
 
 uchar4 static applyColorMatrix(uchar4 in, float matrix[])
 {
@@ -218,30 +181,24 @@ uchar4 __attribute__((kernel)) filter_colorMatrix(uchar4 in,uint32_t x,uint32_t 
 
 uchar4 __attribute__((kernel)) filter_solomon(uchar4 in,uint32_t x,uint32_t y) {
 
-	in = applyCurves(in,-1,1,1,1);
+    
+
+	in = applyBlendToRGB(in , getPixelForColor(255,r[0],g[0],b[0]),Exclusion,0.30);
+
+	in = applyBlendToRGB(in , getPixelForColor(255,r[1],g[1],b[1]),SoftLight,0.75);
 
 	return in;
 }
 
-uchar4 __attribute__((kernel)) filter_xpro(uchar4 in,uint32_t x,uint32_t y) {
+uchar4 __attribute__((kernel)) filter_1977_or_xpro(uchar4 in,uint32_t x,uint32_t y) {
 
-	in = applyCurves(in,0,1,1,1);
+	in.r=rSpline[in.r];
+
+	in.g=gSpline[in.g];
+
+	in.b=bSpline[in.b];
 	
 	in = applyColorMatrix(in,postMatrix);
-	
-	if(!isThumbnail)
-	{
-		uchar4 v = rsGetElementAt_uchar4(input1, x, y);
-	
-		in = applyBlendToRGB(in , v ,Multiply,0.72);
-		
-	}
-	return in;
-}
-
-uchar4 __attribute__((kernel)) filter_1977(uchar4 in,uint32_t x,uint32_t y) {
-
-	in = applyCurves(in,0,1,1,1);
 	
 	if(!isThumbnail)
 	{
@@ -255,8 +212,12 @@ uchar4 __attribute__((kernel)) filter_1977(uchar4 in,uint32_t x,uint32_t y) {
 
 uchar4 __attribute__((kernel)) filter_apollo(uchar4 in,uint32_t x,uint32_t y) {
 
-	in = applyCurves(in,0,1,1,1);
-		
+	in.r=rSpline[in.r];
+
+	in.g=gSpline[in.g];
+
+	in.b=bSpline[in.b];
+	
 	in = applyColorMatrix(in,postMatrix);
 	
 	if(!isThumbnail)
@@ -270,7 +231,11 @@ uchar4 __attribute__((kernel)) filter_apollo(uchar4 in,uint32_t x,uint32_t y) {
 
 uchar4 __attribute__((kernel)) filter_classic(uchar4 in,uint32_t x,uint32_t y) {
 
-	in = applyCurves(in,0,1,1,1);
+	in.r=rSpline[in.r];
+
+	in.g=gSpline[in.g];
+
+	in.b=bSpline[in.b];
 
 
 	in = applyBlendToRGB(in , getPixelForColor(255,r[0],g[0],b[0]),Multiply,0.50);
@@ -282,7 +247,14 @@ uchar4 __attribute__((kernel)) filter_classic(uchar4 in,uint32_t x,uint32_t y) {
 
 uchar4 __attribute__((kernel)) filter_kelvin(uchar4 in,uint32_t x,uint32_t y) {
 
-	in = applyCurves(in,0,1,1,1);
+	in.r=rSpline[in.r];
+
+	in.g=gSpline[in.g];
+
+	in.b=bSpline[in.b];
+
+
+	in = applyBlendToRGB(in , getPixelForColor(255,r[0],g[0],b[0]),Overlay,0.30);
 
 	if(!isThumbnail)
 	{
@@ -296,7 +268,14 @@ uchar4 __attribute__((kernel)) filter_kelvin(uchar4 in,uint32_t x,uint32_t y) {
 
 uchar4 __attribute__((kernel)) filter_retro(uchar4 in,uint32_t x,uint32_t y) {
 
-	in = applyCurves(in,-1,0,0,1);
+	in.r=compositeSpline[in.r];
+
+	in.g=compositeSpline[in.g];
+
+	in.b=compositeSpline[in.b];
+
+	in.b=bSpline[in.b];
+
 
 	in = applyBlendToRGB(in , getPixelForColor(255,r[0],g[0],b[0]),Multiply,0.60);
 	 
@@ -315,29 +294,28 @@ uchar4 __attribute__((kernel)) filter_retro(uchar4 in,uint32_t x,uint32_t y) {
 uchar4 __attribute__((kernel)) filter_brannan(uchar4 in,uint32_t x,uint32_t y) 
 {
 	
-	in = applyCurves(in,0,1,1,1);
-	
-	if(!isThumbnail)
-	{
-		uchar4 v = rsGetElementAt_uchar4(input1, x, y);
-	
-		in = applyBlendToRGB(in , v ,Overlay,1);
-	}
-	
 	in = applyColorMatrix(in,preMatrix);
 	
+	in = applyBlendToRGB(in , getPixelForColor(255,r[0],g[0],b[0]),Overlay,0.70);
+	
+	in.b = bSpline[in.b];
+	
+	in = applyColorMatrix(in,postMatrix);
+
 	return in;
 }
 
 uchar4 __attribute__((kernel)) filter_earlyBird(uchar4 in,uint32_t x,uint32_t y) 
 {
-	in = applyCurves(in,0,1,1,1);
+	in = applyColorMatrix(in,preMatrix);
+	
+	in = applyBlendToRGB(in , getPixelForColor(255,r[0],g[0],b[0]),Multiply,1);
 	
 	if(!isThumbnail)
 	{
 		uchar4 v = rsGetElementAt_uchar4(input1, x, y);
 	
-		in = applyBlendToRGB(in , v ,Overlay,1);
+		in = applyBlendToRGB(in , v ,Multiply,0.88);
 	}
 	
 	return in;
@@ -347,7 +325,11 @@ uchar4 __attribute__((kernel)) filter_inkwell(uchar4 in,uint32_t x,uint32_t y) {
 
 	in = applyColorMatrix(in,preMatrix);
 
-	in = applyCurves(in,-1,0,0,0);
+	in.r=compositeSpline[in.r];
+
+	in.g=compositeSpline[in.g];
+
+	in.b=compositeSpline[in.b];
 	
 	in = applyColorMatrix(in,postMatrix);
 
@@ -358,21 +340,26 @@ uchar4 __attribute__((kernel)) filter_lomofi(uchar4 in,uint32_t x,uint32_t y) {
 
 	in = applyColorMatrix(in,preMatrix);
 
-	in = applyCurves(in,-1,0,0,0);
-	
-	if(!isThumbnail)
-	{
-		uchar4 v = rsGetElementAt_uchar4(input1, x, y);
-	
-		in = applyBlendToRGB(in , v ,Multiply,0.72);
-	}
+	in.r=compositeSpline[in.r];
+
+	in.g=compositeSpline[in.g];
+
+	in.b=compositeSpline[in.b];
 	
 	return in;
 }
 
 uchar4 __attribute__((kernel)) filter_nashville(uchar4 in,uint32_t x,uint32_t y) 
 {
-	in = applyCurves(in,0,1,1,1);
+	in.g = gSpline[in.g];
+	
+	in.b = bSpline[in.b];
+	
+	in = applyBlendToRGB(in , getPixelForColor(255,r[0],g[0],b[0]),Overlay,0.50);
+	
+	in = applyColorMatrix(in,postMatrix);
+	
+	in = applyBlendToRGB(in , getPixelForColor(255,r[1],g[1],b[1]),Multiply,0.70);
 	
 	return in;
 }
@@ -434,9 +421,7 @@ uchar4 __attribute__((kernel)) filter_ghostly(uchar4 in,uint32_t x,uint32_t y)
 {
 	in = applyColorMatrix(in,preMatrix);
 	
-	in = applyCurves(in,0,0,0,1);
-	
-	in = applyColorMatrix(in,postMatrix);
+	in.b = bSpline[in.b];
 	
 	if(!isThumbnail)
 	{
