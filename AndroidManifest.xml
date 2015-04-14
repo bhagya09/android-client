@@ -3,7 +3,7 @@
     package="com.bsb.hike"
     android:installLocation="auto"
     android:versionCode="1160"
-    android:versionName="3.8.9.0.2.notif_led_fix" >
+    android:versionName="3.8.9.0.3.notif_led_fix" >
     <uses-sdk
         android:minSdkVersion="9"
         android:targetSdkVersion="17" />
