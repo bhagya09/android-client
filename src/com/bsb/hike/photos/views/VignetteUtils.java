@@ -1,18 +1,12 @@
 package com.bsb.hike.photos.views;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.LinearGradient;
 import android.graphics.Paint;
-import android.graphics.Path;
 import android.graphics.RadialGradient;
 import android.graphics.RectF;
 import android.graphics.Shader.TileMode;
-import android.util.AttributeSet;
-import android.widget.ImageView;
-
 import com.bsb.hike.photos.HikePhotosUtils.FilterTools.FilterType;
 
 /**
