@@ -218,9 +218,11 @@ uchar4 __attribute__((kernel)) filter_colorMatrix(uchar4 in,uint32_t x,uint32_t 
 
 uchar4 __attribute__((kernel)) filter_solomon(uchar4 in,uint32_t x,uint32_t y) {
 
-	in = applyCurves(in,-1,1,1,1);
-
-	return in;
+	in = applyBlendToRGB(in , getPixelForColor(255,r[0],g[0],b[0]),Exclusion,0.30);		
+		
+	in = applyBlendToRGB(in , getPixelForColor(255,r[1],g[1],b[1]),SoftLight,0.75);		
+ 		 
+ 	return in;
 }
 
 uchar4 __attribute__((kernel)) filter_xpro(uchar4 in,uint32_t x,uint32_t y) {
@@ -270,13 +272,8 @@ uchar4 __attribute__((kernel)) filter_apollo(uchar4 in,uint32_t x,uint32_t y) {
 
 uchar4 __attribute__((kernel)) filter_classic(uchar4 in,uint32_t x,uint32_t y) {
 
-	in = applyCurves(in,0,1,1,1);
+	in = applyCurves(in,-1,1,1,1);
 
-
-	in = applyBlendToRGB(in , getPixelForColor(255,r[0],g[0],b[0]),Multiply,0.50);
-
-	in = applyBlendToRGB(in , getPixelForColor(255,r[1],g[1],b[1]),Exclusion,1);
-	
 	return in;
 }
 

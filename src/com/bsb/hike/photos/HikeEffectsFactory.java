@@ -541,7 +541,7 @@ public final class HikeEffectsFactory
 
 			switch (effect)
 			{
-			case SOLOMON:
+			case CLASSIC:
 				ri = new int[] { 0, 48, 129, 233, 255 };
 				ro = new int[] { 0, 48, 106, 213, 238 };
 				gi = new int[] { 0, 40, 135, 218, 228, 242, 255 };
@@ -558,7 +558,7 @@ public final class HikeEffectsFactory
 				mScript.set_rSpline(red.getInterpolationMatrix());
 				mScript.set_gSpline(green.getInterpolationMatrix());
 				mScript.set_bSpline(blue.getInterpolationMatrix());
-				mScript.forEach_filter_sunlitt(mInAllocation, mOutAllocations);
+				mScript.forEach_filter_classic(mInAllocation, mOutAllocations);
 				break;
 			case E1977:
 
@@ -578,24 +578,12 @@ public final class HikeEffectsFactory
 				mScript.forEach_filter_1977(mInAllocation, mOutAllocations);
 
 				break;
-			case CLASSIC:
+			case SOLOMON:
 
-				ri = new int[] { 0, 147, 255 };
-				ro = new int[] { 0, 111, 255 };
-				gi = new int[] { 0, 192, 255 };
-				go = new int[] { 17, 193, 235 };
-				bi = new int[] { 0, 255 };
-				bo = new int[] { 35, 226 };
-				red = new Splines(ri, ro);
-				green = new Splines(gi, go);
-				blue = new Splines(bi, bo);
-				mScript.set_rSpline(red.getInterpolationMatrix());
-				mScript.set_gSpline(green.getInterpolationMatrix());
-				mScript.set_bSpline(blue.getInterpolationMatrix());
-				mScript.set_r(new int[] { 0xF7, 0x04, 0 });
-				mScript.set_g(new int[] { 0xDA, 0x08, 0 });
-				mScript.set_b(new int[] { 0xAE, 0x2E, 0 });
-				mScript.forEach_filter_classic(mInAllocation, mOutAllocations);
+				mScript.set_r(new int[] { 0x33, 0xCD, 0 });
+				mScript.set_g(new int[] { 0x27, 0x98, 0 });		
+				mScript.set_b(new int[] { 0xCD, 0x83, 0 });	
+				mScript.forEach_filter_solomon(mInAllocation, mOutAllocations);		
 				break;
 			case KELVIN:
 				ri = new int[] { 0, 27, 39, 69, 86, 109, 133, 151, 171, 193, 210, 235, 255 };
@@ -610,6 +598,7 @@ public final class HikeEffectsFactory
 				mScript.set_rSpline(red.getInterpolationMatrix());
 				mScript.set_gSpline(green.getInterpolationMatrix());
 				mScript.set_bSpline(blue.getInterpolationMatrix());
+				mScript.forEach_filter_kelvin(mInAllocation, mOutAllocations);
 				break;
 			case JALEBI:
 				ri = new int[] { 0, 149, 255 };

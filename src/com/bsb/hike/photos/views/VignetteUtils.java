@@ -74,6 +74,11 @@ public class VignetteUtils
 			stops = new float[] { 0.0f, 1.67f / 2.65f, 1.7f / 2.65f, 1.0f };
 			radius = 2.65f * radius / 2;
 			break;
+		case BRANNAN:
+			colors = new int[] { 0xFFFFFFFF, 0x00FFFFFF, 0x00A9AA98, 0xFFA9AA98 };
+			stops = new float[] { 0.0f, 1.67f / 2.65f, 1.7f / 2.65f, 1.0f };
+			radius = 2.65f * radius / 2;
+			break;
 		case RETRO:
 		case KELVIN:
 			// Vignette: Stop 1 = #000000 74%, Opacity = 0%; Stop 2 = #000000 120%, Opacity = 100%
