@@ -71,6 +71,8 @@ public class AudioRecordView
 
 	private AudioRecordListener listener;
 
+	private static final long MIN_DURATION = 1000;
+
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * 
@@ -144,6 +146,11 @@ public class AudioRecordView
 					if (recorder == null)
 					{
 						initialiseRecorder(recordBtn, recordInfo, recordImage, cancelBtn, sendBtn);
+						if(selectedFile == null)
+						{
+							selectedFile = Utils.getOutputMediaFile(HikeFileType.AUDIO_RECORDING, null, true);
+							recorder.setOutputFile(selectedFile.getPath());
+						}
 					}
 					try
 					{
@@ -178,8 +185,17 @@ public class AudioRecordView
 					recordBtn.setPressed(false);
 					recorderState = IDLE;
 					stopRecorder();
-					recordedTime = (System.currentTimeMillis() - recordStartTime) / 1000;
-					setUpPreviewRecordingLayout(recordBtn, recordInfo, recordImage, sendBtn, recordedTime);
+					long mDuration = (System.currentTimeMillis() - recordStartTime);
+					if(mDuration < MIN_DURATION)
+					{
+						recordingError(true);
+						recordInfo.setText(R.string.hold_talk);
+					}
+					else
+					{
+						recordedTime = mDuration / 1000;
+						setUpPreviewRecordingLayout(recordBtn, recordInfo, recordImage, sendBtn, recordedTime);
+					}
 					activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 					Utils.unblockOrientationChange(activity);
 					return true;
@@ -275,6 +291,7 @@ public class AudioRecordView
 	{
 		if (updateRecordingDuration != null)
 		{
+			recordingHandler.removeCallbacks(updateRecordingDuration);
 			updateRecordingDuration.stopUpdating();
 			updateRecordingDuration = null;
 		}
