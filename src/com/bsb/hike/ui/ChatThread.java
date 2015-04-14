@@ -6619,7 +6619,7 @@ public class ChatThread extends HikeAppStateBaseFragmentActivity implements Hike
 	protected void onActivityResult(int requestCode, int resultCode, Intent data)
 	{
 		super.onActivityResult(requestCode, resultCode, data);
-		if ((requestCode == HikeConstants.IMAGE_CAPTURE_CODE || requestCode == HikeConstants.ResultCodes.PHOTOS_REQUEST_CODE || requestCode == HikeConstants.VIDEO_TRANSFER_CODE || requestCode == HikeConstants.AUDIO_TRANSFER_CODE)
+		if ((requestCode == HikeConstants.IMAGE_CAPTURE_CODE || requestCode == HikeConstants.IMAGE_TRANSFER_CODE || requestCode == HikeConstants.VIDEO_TRANSFER_CODE || requestCode == HikeConstants.AUDIO_TRANSFER_CODE)
 				&& resultCode == RESULT_OK)
 		{
 			if (requestCode == HikeConstants.IMAGE_CAPTURE_CODE)
@@ -6630,10 +6630,6 @@ public class ChatThread extends HikeAppStateBaseFragmentActivity implements Hike
 				editor.remove(HikeMessengerApp.FILE_PATH);
 				editor.commit();
 			}
-			if (requestCode == HikeConstants.ResultCodes.PHOTOS_REQUEST_CODE)
-			{
-				selectedFile = new File(data.getStringExtra(HikeConstants.Extras.PHOTOS_RETURN_FILE));
-			}
 			if (data == null && (selectedFile == null || !selectedFile.exists()))
 			{
 				Toast.makeText(getApplicationContext(), R.string.error_capture, Toast.LENGTH_SHORT).show();
@@ -6641,7 +6637,7 @@ public class ChatThread extends HikeAppStateBaseFragmentActivity implements Hike
 				return;
 			}
 
-			final HikeFileType hikeFileType = (requestCode == HikeConstants.ResultCodes.PHOTOS_REQUEST_CODE || requestCode == HikeConstants.IMAGE_CAPTURE_CODE) ? HikeFileType.IMAGE
+			final HikeFileType hikeFileType = (requestCode == HikeConstants.IMAGE_TRANSFER_CODE || requestCode == HikeConstants.IMAGE_CAPTURE_CODE) ? HikeFileType.IMAGE
 					: requestCode == HikeConstants.VIDEO_TRANSFER_CODE ? HikeFileType.VIDEO : HikeFileType.AUDIO;
 
 			String filePath = null;
@@ -6702,7 +6698,7 @@ public class ChatThread extends HikeAppStateBaseFragmentActivity implements Hike
 			case HikeConstants.IMAGE_CAPTURE_CODE:
 				attachementType = FTAnalyticEvents.CAMERA_ATTACHEMENT;
 				break;
-			case HikeConstants.ResultCodes.PHOTOS_REQUEST_CODE:
+			case HikeConstants.IMAGE_TRANSFER_CODE:
 				attachementType = FTAnalyticEvents.GALLERY_ATTACHEMENT;
 				break;
 			case HikeConstants.VIDEO_TRANSFER_CODE:
@@ -6749,27 +6745,6 @@ public class ChatThread extends HikeAppStateBaseFragmentActivity implements Hike
 			}
 			else
 				initialiseFileTransfer(filePath, null, hikeFileType, null, false, -1, false, attachementType);
-		}
-		else if (resultCode == RESULT_OK && requestCode == HikeConstants.HikePhotos.GALLERY_PICKER_REQUEST)
-		{
-			ArrayList<GalleryItem> itemList = data.getExtras().getParcelableArrayList(HikeConstants.Extras.GALLERY_SELECTIONS);
-			String src = null;
-			if (itemList != null && !itemList.isEmpty() && itemList.size() == 1)
-			{
-				src = itemList.get(0).getFilePath();
-
-				if (src == null)
-				{
-					Toast.makeText(getApplicationContext(), R.string.error_setting_profile, Toast.LENGTH_SHORT).show();
-					return;
-				}
-				Intent i = IntentManager.getPictureEditorActivityIntent(src, false);
-				startActivityForResult(i, HikeConstants.ResultCodes.PHOTOS_REQUEST_CODE);
-			}
-			else if (itemList != null && !itemList.isEmpty() && itemList.size() > 1)
-			{
-				
-			}
 		}
 		else if (requestCode == HikeConstants.SHARE_LOCATION_CODE && resultCode == RESULT_OK)
 		{
