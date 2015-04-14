@@ -1,12 +1,17 @@
 package com.bsb.hike.ui;
 
+import java.lang.ref.WeakReference;
+
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentActivity;
 import android.text.Html;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -25,6 +30,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.CustomFontTextView;
 
@@ -257,90 +263,11 @@ public class HikeDialog
 		return dialog;
 	}
 	
-	private static Dialog showImageQualityDialog(final Context context, final HikeDialogListener listener, Object... data)
+	private static Dialog showImageQualityDialog(Context context,HikeDialogListener listener, Object... data)
 	{
-		final Dialog dialog = new Dialog(context, R.style.Theme_CustomDialog);
-		dialog.setContentView(R.layout.image_quality_popup);
-		dialog.setCancelable(true);
-		dialog.setCanceledOnTouchOutside(true);
-		SharedPreferences appPrefs = PreferenceManager.getDefaultSharedPreferences(context);
-		final Editor editor = appPrefs.edit();
-		int quality = ImageQuality.QUALITY_DEFAULT;
-		final LinearLayout small_ll = (LinearLayout) dialog.findViewById(R.id.hike_small_container);
-		final LinearLayout medium_ll = (LinearLayout) dialog.findViewById(R.id.hike_medium_container);
-		final LinearLayout original_ll = (LinearLayout) dialog.findViewById(R.id.hike_original_container);
-		final CheckBox small = (CheckBox) dialog.findViewById(R.id.hike_small_checkbox);
-		final CheckBox medium = (CheckBox) dialog.findViewById(R.id.hike_medium_checkbox);
-		final CheckBox original = (CheckBox) dialog.findViewById(R.id.hike_original_checkbox);
-		CustomFontTextView header = (CustomFontTextView) dialog.findViewById(R.id.image_quality_popup_header);
-		CustomFontTextView smallSize = (CustomFontTextView) dialog.findViewById(R.id.image_quality_small_cftv);
-		CustomFontTextView mediumSize = (CustomFontTextView) dialog.findViewById(R.id.image_quality_medium_cftv);
-		CustomFontTextView originalSize = (CustomFontTextView) dialog.findViewById(R.id.image_quality_original_cftv);
-		Button once = (Button) dialog.findViewById(R.id.btn_just_once);
-		
-		if(data!=null)
-			{
-			Long[] dataBundle = (Long[])data;
-			int smallsz,mediumsz,originalsz;
-			if(dataBundle.length>0)
-				{
-				
-				originalsz = dataBundle[1].intValue();
-				smallsz = (int) (dataBundle[0] * HikeConstants.IMAGE_SIZE_SMALL);
-				mediumsz = (int) (dataBundle[0] * HikeConstants.IMAGE_SIZE_MEDIUM);
-				if (smallsz >= originalsz)
-				{
-					smallsz = originalsz;
-					smallSize.setVisibility(View.GONE);
-				}
-				if(mediumsz >= originalsz)
-				{
-					mediumsz = originalsz;
-					mediumSize.setVisibility(View.GONE);
-					// if medium option text size is gone, so is small's
-					smallSize.setVisibility(View.GONE);
-				}
-				smallSize.setText(" (" + Utils.getSizeForDisplay(smallsz)+ ")");
-				mediumSize.setText(" (" + Utils.getSizeForDisplay(mediumsz) + ")");
-				originalSize.setText(" (" + Utils.getSizeForDisplay(originalsz) + ")");
-			}
-		}
-		
-		showImageQualityOption(quality, small, medium, original);
-		
-		OnClickListener imageQualityDialogOnClickListener = new OnClickListener()
-		{
-			@Override
-			public void onClick(View v)
-			{
-				// TODO Auto-generated method stub
-				switch (v.getId())
-				{
-				case R.id.hike_small_container:
-					showImageQualityOption(ImageQuality.QUALITY_SMALL, small, medium, original);
-					break;
-				case R.id.hike_medium_container:
-					showImageQualityOption(ImageQuality.QUALITY_MEDIUM, small, medium, original);
-					break;
-				case R.id.hike_original_container:
-					showImageQualityOption(ImageQuality.QUALITY_ORIGINAL, small, medium, original);
-					break;
-				case R.id.btn_just_once:
-					saveImageQualitySettings(editor, small, medium, original);
-					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.REMEMBER_IMAGE_CHOICE, false);
-					callOnSucess(listener, dialog);
-					break;
-				}
-			}
-		};
-
-		small_ll.setOnClickListener(imageQualityDialogOnClickListener);
-		medium_ll.setOnClickListener(imageQualityDialogOnClickListener);
-		original_ll.setOnClickListener(imageQualityDialogOnClickListener);
-		once.setOnClickListener(imageQualityDialogOnClickListener);
-
-		dialog.show();
-		return dialog;
+		 ImageQualityDialogFragment imageQualityDialog =ImageQualityDialogFragment.getNewInstance(data);
+		 imageQualityDialog.show(((FragmentActivity)context).getSupportFragmentManager(), HikeConstants.IMAGE_QUALITY_DIALOG_FRAGMENT_TAG);
+		 return imageQualityDialog.getDialog();
 	}
 	
 	private static void showImageQualityOption(int quality, CheckBox small, CheckBox medium, CheckBox original)
@@ -385,7 +312,6 @@ public class HikeDialog
 
 	private static void callOnSucess(HikeDialogListener listener, Dialog dialog)
 	{
-		// TODO Auto-generated method stub
 		if (listener != null)
 		{
 			listener.onSucess(dialog);
@@ -499,4 +425,126 @@ public class HikeDialog
 		
 		public void onSucess(Dialog dialog);
 	}
+	
+	public static class ImageQualityDialogFragment extends DialogFragment{
+		private static final String KEY_DATA="key_data";
+
+		private Context context;
+		private WeakReference<HikeDialogListener> listener;
+		private long[] data;
+		
+		
+		public static ImageQualityDialogFragment getNewInstance(Object... data){
+			Bundle bundle=new Bundle();
+			if (data!=null) {
+				long dataLong[]=new long[data.length];
+				for (int i = 0; i < data.length; i++) {
+					dataLong[i]=(Long) data[i];
+				}
+				bundle.putLongArray(KEY_DATA, dataLong);
+			}
+			
+			
+			ImageQualityDialogFragment dialog=new ImageQualityDialogFragment();
+			dialog.setArguments(bundle);
+			return dialog;
+		}
+		@Override
+		public void onCreate(Bundle savedInstanceState) {
+			super.onCreate(savedInstanceState);
+			context=getActivity();
+			listener=new WeakReference<HikeDialog.HikeDialogListener>((HikeDialogListener)getActivity());
+			Bundle arguments = getArguments();
+			data=arguments.getLongArray(KEY_DATA);
+			Logger.d("dialogfragment", "onCreate");
+		}
+		
+		@Override
+		public Dialog onCreateDialog(Bundle savedInstanceState) {
+			Logger.d("dialogfragment", "onCreateDialog");
+			final Dialog dialog = new Dialog(context, R.style.Theme_CustomDialog);
+			dialog.setContentView(R.layout.image_quality_popup);
+			dialog.setCancelable(true);
+			dialog.setCanceledOnTouchOutside(true);
+			SharedPreferences appPrefs = PreferenceManager.getDefaultSharedPreferences(context);
+			final Editor editor = appPrefs.edit();
+			int quality = ImageQuality.QUALITY_DEFAULT;
+			final LinearLayout small_ll = (LinearLayout) dialog.findViewById(R.id.hike_small_container);
+			final LinearLayout medium_ll = (LinearLayout) dialog.findViewById(R.id.hike_medium_container);
+			final LinearLayout original_ll = (LinearLayout) dialog.findViewById(R.id.hike_original_container);
+			final CheckBox small = (CheckBox) dialog.findViewById(R.id.hike_small_checkbox);
+			final CheckBox medium = (CheckBox) dialog.findViewById(R.id.hike_medium_checkbox);
+			final CheckBox original = (CheckBox) dialog.findViewById(R.id.hike_original_checkbox);
+			CustomFontTextView header = (CustomFontTextView) dialog.findViewById(R.id.image_quality_popup_header);
+			CustomFontTextView smallSize = (CustomFontTextView) dialog.findViewById(R.id.image_quality_small_cftv);
+			CustomFontTextView mediumSize = (CustomFontTextView) dialog.findViewById(R.id.image_quality_medium_cftv);
+			CustomFontTextView originalSize = (CustomFontTextView) dialog.findViewById(R.id.image_quality_original_cftv);
+			Button once = (Button) dialog.findViewById(R.id.btn_just_once);
+			
+			if(data!=null)
+				{
+				long[] dataBundle = data;
+				int smallsz,mediumsz,originalsz;
+				if(dataBundle.length>0)
+					{
+					
+				
+					originalsz = (int) dataBundle[1];
+					smallsz = (int) (dataBundle[0] * HikeConstants.IMAGE_SIZE_SMALL);
+					mediumsz = (int) (dataBundle[0] * HikeConstants.IMAGE_SIZE_MEDIUM);
+					if (smallsz >= originalsz)
+					{
+						smallsz = originalsz;
+						smallSize.setVisibility(View.GONE);
+					}
+					if(mediumsz >= originalsz)
+					{
+						mediumsz = originalsz;
+						mediumSize.setVisibility(View.GONE);
+						// if medium option text size is gone, so is small's
+						smallSize.setVisibility(View.GONE);
+					}
+					smallSize.setText(" (" + Utils.getSizeForDisplay(smallsz)+ ")");
+					mediumSize.setText(" (" + Utils.getSizeForDisplay(mediumsz) + ")");
+					originalSize.setText(" (" + Utils.getSizeForDisplay(originalsz) + ")");
+				}
+			}
+			
+			showImageQualityOption(quality, small, medium, original);
+			
+			OnClickListener imageQualityDialogOnClickListener = new OnClickListener()
+			{
+				@Override
+				public void onClick(View v)
+				{
+					// TODO Auto-generated method stub
+					switch (v.getId())
+					{
+					case R.id.hike_small_container:
+						showImageQualityOption(ImageQuality.QUALITY_SMALL, small, medium, original);
+						break;
+					case R.id.hike_medium_container:
+						showImageQualityOption(ImageQuality.QUALITY_MEDIUM, small, medium, original);
+						break;
+					case R.id.hike_original_container:
+						showImageQualityOption(ImageQuality.QUALITY_ORIGINAL, small, medium, original);
+						break;
+					case R.id.btn_just_once:
+						saveImageQualitySettings(editor, small, medium, original);
+						HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.REMEMBER_IMAGE_CHOICE, false);
+						callOnSucess(listener.get(), dialog);
+						break;
+					}
+				}
+			};
+
+			small_ll.setOnClickListener(imageQualityDialogOnClickListener);
+			medium_ll.setOnClickListener(imageQualityDialogOnClickListener);
+			original_ll.setOnClickListener(imageQualityDialogOnClickListener);
+			once.setOnClickListener(imageQualityDialogOnClickListener);
+			return dialog;
+		}
+		
+	}
+
 }
