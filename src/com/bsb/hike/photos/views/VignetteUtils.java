@@ -70,6 +70,10 @@ public class VignetteUtils
 			radius = 1.85f * radius / 2;
 			break;
 		case EARLYBIRD:
+			colors = new int[] { 0xFFFFFFFF, 0x00FFFFFF, 0x004B2B1E, 0xFF4B2B1E };
+			stops = new float[] { 0.0f, 1.67f / 2.65f, 1.7f / 2.65f, 1.0f };
+			radius = 2.65f * radius / 2;
+			break;
 		case GHOSTLY:
 		case BGR:
 			colors = new int[] { 0xFFFFFFFF, 0x00FFFFFF, 0x00000000, 0xFF000000 };
@@ -100,7 +104,12 @@ public class VignetteUtils
 			stops = new float[] { 0.0f, 0.98f / 1.8f, 1.0f };
 			radius = 1.8f * radius / 2;
 			break;
-
+		case LO_FI:
+			// Vignette Stop 1: #18363f, Position 72%, Opacity 0% Stop 2: #18363f, Position 120%, Opacity 100%
+			colors = new int[] { 0xFFFFFFFF, 0x00FFFFFF, 0x00525252, 0xFF525252 };
+			stops = new float[] { 0.0f, 1.65f / 2.6f, 1.68f / 2.6f, 1.0f };
+			radius = 2.6f * radius / 2;
+			break;
 		case GULAAL:
 			// Gradient: Linear - Start From Right Side #ff0000 (opacity: 86% to 0%) (Scale: 150%)
 			colors = new int[] { 0x00FF0000, 0x88FF0000 };
