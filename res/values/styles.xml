@@ -362,8 +362,8 @@
     </style>
 
     <style name="Widget.Styled.PhotosActionBar" parent="Widget.Sherlock.Light.ActionBar.Solid.Inverse">
-        <item name="background">@color/photos_action_bar_background</item>
-        <item name="android:background">@color/photos_action_bar_background</item>
+        <item name="background">@color/photos_action_bar_transcluscent_background</item>
+        <item name="android:background">@color/photos_action_bar_transcluscent_background</item>
         <item name="backgroundSplit">@color/credits_blue</item>
         <item name="android:backgroundSplit">@color/credits_blue</item>
         <item name="titleTextStyle">@style/NoTitleText</item>
