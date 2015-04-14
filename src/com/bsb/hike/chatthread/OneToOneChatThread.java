@@ -550,7 +550,6 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			break;
 		case HikePubSub.USER_JOINED:
 			onUserJoinedOrLeft(object, true);
-			uiHandler.sendEmptyMessage(SHOW_CALL_ICON);
 			break;
 		case HikePubSub.USER_LEFT:
 			onUserJoinedOrLeft(object, false);
@@ -685,9 +684,12 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			addToUndeliveredMessages((ConvMessage) msg.obj);
 			break;
 		case SHOW_CALL_ICON:
-			if(shouldShowCallIcon())
+			if (shouldShowCallIcon())
 			{
-				mActionBar.getMenuItem(R.id.voip_call).setVisible(true);
+				if (mActionBar != null)
+				{
+					mActionBar.getMenuItem(R.id.voip_call).setVisible(true);
+				}
 			}
 			break;
 		case BLOCK_UNBLOCK_USER:
@@ -1499,6 +1501,11 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			mConversation.setOnHike(isJoined);
 
 			uiHandler.sendEmptyMessage(USER_JOINED_OR_LEFT);
+			
+			if (isJoined)
+			{
+				uiHandler.sendEmptyMessage(SHOW_CALL_ICON);
+			}
 		}
 	}
 
