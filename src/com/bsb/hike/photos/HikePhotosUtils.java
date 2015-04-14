@@ -1,37 +1,17 @@
 package com.bsb.hike.photos;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Random;
 
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.ColorMatrixColorFilter;
-import android.graphics.Paint;
-import android.graphics.Path;
-import android.graphics.RadialGradient;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.os.Environment;
-import android.util.AttributeSet;
-import android.util.DisplayMetrics;
-import android.util.Log;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.View.OnTouchListener;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
 
-import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
-import com.bsb.hike.photos.HikePhotosUtils.FilterTools.FilterType;
 import com.bsb.hike.photos.views.DoodleEffectItemLinearLayout;
 import com.bsb.hike.photos.views.FilterEffectItemLinearLayout;
 
@@ -113,13 +93,13 @@ public class HikePhotosUtils
 		return bitmap.getWidth() * bitmap.getHeight();
 	}
 
-	public static Bitmap compressBitamp(Bitmap bitmap, int maxWidth, int maxHeight)
+	public static Bitmap compressBitamp(Bitmap bitmap, int maxWidth, int maxHeight, boolean centerIN)
 	{
 		Bitmap temp = bitmap;
 		int width = 0, height = 0;
 		float aspectRatio = bitmap.getWidth() * 1.0f / bitmap.getHeight();
 
-		if (bitmap != null)
+		if (bitmap != null && centerIN)
 		{
 			if (bitmap.getWidth() > bitmap.getHeight())
 			{
@@ -134,8 +114,27 @@ public class HikePhotosUtils
 			}
 		}
 
+		if (bitmap != null && !centerIN)
+		{
+			if (bitmap.getWidth() < bitmap.getHeight())
+			{
+
+				width = maxWidth;
+				height = (int) (maxWidth * aspectRatio);
+			}
+			else
+			{
+				height = maxHeight;
+				width = (int) (maxHeight * aspectRatio);
+			}
+		}
+
 		bitmap = createBitmap(bitmap, 0, 0, width, height, true, true, false, true);
 		HikePhotosUtils.manageBitmaps(temp);
+		if (!centerIN)
+		{
+			bitmap = createBitmap(bitmap, (width - maxWidth) / 2, (height - maxHeight) / 2, maxWidth, maxHeight, true, false, true, true);
+		}
 		return bitmap;
 	}
 
@@ -287,7 +286,7 @@ public class HikePhotosUtils
 					effectfilters.addFilter("EARLYBIRD", FilterType.EARLYBIRD);
 					effectfilters.addFilter("KELVIN", FilterType.KELVIN);
 					effectfilters.addFilter("SHOLAY", FilterType.E1977);
-					effectfilters.addFilter("BRANNAN", FilterType.BRANNAN);
+					effectfilters.addFilter("HAZEL", FilterType.BRANNAN);
 					effectfilters.addFilter("LO-FI", FilterType.LO_FI);
 					effectfilters.addFilter("INKWELL", FilterType.INKWELL);
 					effectfilters.addFilter("SEPIA", FilterType.SEPIA);
