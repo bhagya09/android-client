@@ -38,6 +38,8 @@ public class ProductPopupsConstants
 	public static String SHOW_CAMERA="show_camera";
 	
 	public static String URL="url";
+	
+	public static String POPUP_BRIDGE_NAME="popupBridge";
 
 	public static enum PopupStateEnum
 	{

@@ -2,8 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1138"
-    android:versionName="3.8.0.64.1.voip" >
+    android:versionCode="1161"
+    android:versionName="3.8.9.5.voip" >
+
     <uses-sdk
         android:minSdkVersion="9"
         android:targetSdkVersion="17" />
@@ -413,7 +414,9 @@
             android:theme="@style/TranslucentBlack"
             android:launchMode="singleTask"
             android:configChanges="orientation|keyboardHidden|screenSize"
-            android:label="@string/app_name" >
+            android:label="@string/app_name"
+            android:taskAffinity=":voip"
+            android:showOnLockScreen="true" >
         </activity>
         
         <receiver android:name=".voip.IncomingCallListener">

@@ -18,11 +18,13 @@ import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockFragment;
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.photos.HikeCameraHost;
 import com.bsb.hike.photos.HikePhotosListener;
 import com.bsb.hike.ui.HikeCameraActivity;
 import com.bsb.hike.ui.PictureEditer;
+import com.bsb.hike.utils.IntentManager;
 import com.commonsware.cwac.camera.CameraView;
 import com.commonsware.cwac.camera.PictureTransaction;
 import com.commonsware.cwac.camera.ZoomTransaction;
@@ -146,6 +148,11 @@ public class CameraFragment extends SherlockFragment
 		@Override
 		public void onComplete(final Bitmap bmp)
 		{
+			if (!isAdded())
+			{
+				return;
+			}
+
 			getActivity().runOnUiThread(new Runnable()
 			{
 				@Override
@@ -171,7 +178,7 @@ public class CameraFragment extends SherlockFragment
 							catch (Exception e)
 							{
 								e.printStackTrace();
-                                return;
+								return;
 							}
 							Log.e("file", "" + file);
 
@@ -179,20 +186,24 @@ public class CameraFragment extends SherlockFragment
 
 							new Handler().postDelayed(new Runnable()
 							{
-
 								@Override
 								public void run()
 								{
-									Intent i = new Intent(getActivity(), PictureEditer.class);
-									i.putExtra(HikeConstants.HikePhotos.FILENAME, filePath);
-									getActivity().startActivity(i);
+									if (isAdded()) // This happens when current HikeCameraActivity is stopped
+									{
+										Intent i = IntentManager.getPictureEditorActivityIntent(filePath);
+										getActivity().startActivity(i);
+									}
 								}
 							}, 100);
 						}
 						else
 						{
-							//To Do Out Of Memory Handling
-							Toast.makeText(getActivity(),getResources().getString(R.string.photos_oom_camera), Toast.LENGTH_SHORT).show();
+							if (isAdded())
+							{
+								// To Do Out Of Memory Handling
+								Toast.makeText(getActivity(), getResources().getString(R.string.photos_oom_camera), Toast.LENGTH_SHORT).show();
+							}
 						}
 					}
 				}

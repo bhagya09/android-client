@@ -133,7 +133,6 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 			fetchHideListContacts = (nuxPojo.getHideList() != null && !nuxPojo.getHideList().isEmpty());
 			fetchRecommendedContacts = (nuxPojo.getRecoList() != null && !nuxPojo.getRecoList().isEmpty());
 			
-			Logger.d("UmangX", "fetch hide : " + fetchHideListContacts + " fetch reco : "+ fetchRecommendedContacts);
 			int contactsShown = nuxPojo.getContactSectionType();
 			switch(NUXConstants.ContactSectionTypeEnum.getEnum(contactsShown)){
 				case none : 
@@ -480,12 +479,10 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 		{
 			String recoSectionHeader = NUXManager.getInstance().getNuxSelectFriendsPojo().getRecoSectionTitle();
 			ContactInfo recommendedSection = new ContactInfo(SECTION_ID, Integer.toString(nuxFilteredRecoList.size()), recoSectionHeader, RECOMMENDED);
-			Logger.d("UmngR", "nux CCA list :" +  nuxRecommendedList.toString());
 			if(nuxFilteredRecoList.size() > 0){
 				completeList.add(recommendedSection);
 				completeList.addAll(nuxFilteredRecoList);
 			}
-			Logger.d("UmngR", "nux CCA filter list :" +  nuxFilteredRecoList.toString());
 		}
 
 		if(fetchRecentlyJoined && !recentlyJoinedHikeContactsList.isEmpty())

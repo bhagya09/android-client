@@ -12,6 +12,7 @@ import android.text.TextUtils;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.Logger;
@@ -505,4 +506,10 @@ public class Conversation implements Comparable<Conversation>
         }
 
     }
+    
+	public void updateName()
+	{
+		setContactName(ContactManager.getInstance().getName(getMsisdn()));
+	}
+	
 }

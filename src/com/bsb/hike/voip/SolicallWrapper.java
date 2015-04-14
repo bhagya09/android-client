@@ -56,31 +56,35 @@ public class SolicallWrapper
 	}
 	
 	public void init() {
-		int init = packageInit();
-		
-		// Get AEC parameters
-		HikeSharedPreferenceUtil sharedPref = HikeSharedPreferenceUtil.getInstance();
-		int CpuNoiseReduction = sharedPref.getData(HikeConstants.VOIP_AEC_CPU_NR, 0);
-		int CpuAEC = sharedPref.getData(HikeConstants.VOIP_AEC_CPU, 2);
-		short AecMinOutput = (short) sharedPref.getData(HikeConstants.VOIP_AEC_MO, 0);
-		short AecTypeParam = (short) sharedPref.getData(HikeConstants.VOIP_AEC_TYPE, 4);
-		short comfortNoise = (short) sharedPref.getData(HikeConstants.VOIP_AEC_CNP, 100);
-		int AecTailType = sharedPref.getData(HikeConstants.VOIP_AEC_TAIL_TYPE, -18);
-		
-		Logger.d(VoIPConstants.TAG, "AEC parameters: " + CpuNoiseReduction + ", " 
-				+ CpuAEC + ", " 
-				+ AecMinOutput + ", " 
-				+ AecTypeParam + ", " 
-				+ comfortNoise + ", " 
-				+ AecTailType);
-		
-		// Initialize AEC
-		init = AECInit(CpuNoiseReduction, CpuAEC, AecMinOutput, AecTypeParam, comfortNoise, AecTailType);
-		Logger.d(VoIPConstants.TAG, "AEC init: " + init);
+		synchronized (this) {
+			int init = packageInit();
+			
+			// Get AEC parameters
+			HikeSharedPreferenceUtil sharedPref = HikeSharedPreferenceUtil.getInstance();
+			int CpuNoiseReduction = sharedPref.getData(HikeConstants.VOIP_AEC_CPU_NR, 0);
+			int CpuAEC = sharedPref.getData(HikeConstants.VOIP_AEC_CPU, 2);
+			short AecMinOutput = (short) sharedPref.getData(HikeConstants.VOIP_AEC_MO, 0);
+			short AecTypeParam = (short) sharedPref.getData(HikeConstants.VOIP_AEC_TYPE, 4);
+			short comfortNoise = (short) sharedPref.getData(HikeConstants.VOIP_AEC_CNP, 100);
+			int AecTailType = sharedPref.getData(HikeConstants.VOIP_AEC_TAIL_TYPE, -18);
+			
+			Logger.d(VoIPConstants.TAG, "AEC parameters: " + CpuNoiseReduction + ", " 
+					+ CpuAEC + ", " 
+					+ AecMinOutput + ", " 
+					+ AecTypeParam + ", " 
+					+ comfortNoise + ", " 
+					+ AecTailType);
+			
+			// Initialize AEC
+			init = AECInit(CpuNoiseReduction, CpuAEC, AecMinOutput, AecTypeParam, comfortNoise, AecTailType);
+			Logger.d(VoIPConstants.TAG, "AEC init: " + init);
+		}
 	}
 	
 	public void destroy() {
-		terminate();
+		synchronized (this) {
+			terminate();
+		}
 	}
 	
 	public void processSpeaker(byte[] frame) {

@@ -22,6 +22,7 @@ import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
 /**
@@ -62,7 +63,7 @@ public class HAManager
 	private NetworkListener listner;
 	
 	private Session fgSessionInstance;
-		
+	
 	/**
 	 * Constructor
 	 */
@@ -119,6 +120,7 @@ public class HAManager
 		
 		// set network listener
 		listner = new NetworkListener(this.context);
+		
 	}
 	
 	/**
@@ -752,7 +754,7 @@ public class HAManager
 		{
 			metadata = new JSONObject();
 			
-			metadata.put("screen", screen);
+			metadata.put("scr", screen);
 			
 			metadata.put("api", api);
 			
@@ -763,7 +765,7 @@ public class HAManager
 			
 			if(!TextUtils.isEmpty(toUser))
 			{
-				metadata.put("to_user", toUser);
+				metadata.put("to", toUser);
 			}
 			
 			HAManager.getInstance().record(AnalyticsConstants.LAST_SEEN_ANALYTICS, AnalyticsConstants.NON_UI_EVENT, EventPriority.HIGH, metadata, AnalyticsConstants.LAST_SEEN_ANALYTICS);
@@ -776,4 +778,22 @@ public class HAManager
 		}
 	}
 	
+	/**
+	 * Used for logging sticker pallate crash/undesired behaviours
+	 * @param errorMsg
+	 */
+	public static void sendStickerCrashDevEvent(String errorMsg)
+	{
+		JSONObject error = new JSONObject();
+		try
+		{
+			error.put(StickerManager.STICKER_ERROR_LOG, errorMsg);
+			HAManager.getInstance().record(AnalyticsConstants.DEV_EVENT, AnalyticsConstants.STICKER_PALLETE, EventPriority.HIGH, error);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
 }

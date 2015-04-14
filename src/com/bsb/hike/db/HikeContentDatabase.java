@@ -4,6 +4,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 
 import org.json.JSONObject;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -14,9 +15,11 @@ import android.net.Uri;
 import android.text.TextUtils;
 import android.util.SparseArray;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.db.DBConstants.HIKE_CONTENT;
 import com.bsb.hike.models.HikeAlarmManager;
+import com.bsb.hike.models.WhitelistDomain;
 import com.bsb.hike.productpopup.ProductContentModel;
 import com.bsb.hike.utils.Logger;
 
@@ -55,7 +58,6 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 	{
 		mDB = db;
 		// CREATE all tables, it is possible that few tables are created in this version
-		onCreate(mDB);
 		String[] updateQueries = getUpdateQueries(oldVersion, newVersion);
 		for (String update : updateQueries)
 		{
@@ -67,7 +69,7 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 
 	private String[] getCreateQueries()
 	{
-		String[] createAndIndexes = new String[5];
+		String[] createAndIndexes = new String[6];
 		int i = 0;
 		// CREATE TABLE
 		// CONTENT TABLE -> _id,content_id,love_id,channel_id,timestamp,metadata
@@ -103,9 +105,16 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 				  + START_TIME + " INTEGER," 
 				  + END_TIME + " INTEGER," 
 				  + TRIGGER_POINT + " INTEGER " + ")";
-		// APP_ALARM TABLE - > id, data
+		// URL_WHITELIST_TABLE
+		String urlWhitelistTable = CREATE_TABLE + URL_WHITELIST + "(" 
+				+ _ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " 
+				+ DOMAIN + " TEXT UNIQUE, "
+				+ IN_HIKE + " INTEGER" + ")";
+		createAndIndexes[i++]= urlWhitelistTable;
+		// URL WHITELIST ENDS
+		
 		String contentIndex = CREATE_INDEX + CONTENT_ID_INDEX + " ON " + CONTENT_TABLE + " (" + CONTENT_ID + ")";
-
+		
 		createAndIndexes[i++] = popupDB;
 
 		String nameSpaceIndex = CREATE_INDEX + CONTENT_TABLE_NAMESPACE_INDEX + " ON " + CONTENT_TABLE + " (" + NAMESPACE + ")";
@@ -120,11 +129,39 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 
 	private String[] getUpdateQueries(int oldVersion, int newVersion)
 	{
-		String[] updateAndIndexes = new String[0];
+		ArrayList<String> queries = new ArrayList<String>();
 		// UPDATE TABLE
+		if (oldVersion< 2)
+		{
+			String popupDB = CREATE_TABLE + POPUPDATA + "("
+					+_ID +" INTEGER PRIMARY KEY ,"
+					+ POPUPDATA + " TEXT ,"
+					+ STATUS + " INTEGER ,"
+					+ START_TIME + " INTEGER,"
+					+ END_TIME + " INTEGER,"
+					+ TRIGGER_POINT + " INTEGER " + ")";
 
-		// UPDATE INDEXES
-		return updateAndIndexes;
+			queries.add(popupDB);
+
+
+			String alterNamespace = "ALTER TABLE " + CONTENT_TABLE + " ADD COLUMN " + NAMESPACE + " TEXT";
+			queries.add(alterNamespace);
+
+			String nameSpaceIndex = CREATE_INDEX + CONTENT_TABLE_NAMESPACE_INDEX + " ON " + CONTENT_TABLE + " (" + NAMESPACE + ")";
+			queries.add(nameSpaceIndex);
+
+		}
+		if(oldVersion < 3)
+		{
+			// URL_WHITELIST_TABLE
+			String urlWhitelistTable = CREATE_TABLE + URL_WHITELIST + "(" 
+					+ _ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " 
+					+ DOMAIN + " TEXT UNIQUE, "
+					+ IN_HIKE + " INTEGER" + ")";
+			queries.add(urlWhitelistTable);
+		}
+		
+		return queries.toArray(new String[]{});
 	}
 
 	public void insertIntoAlarmManagerDB(long time, int requestCode, boolean WillWakeCPU, Intent intent)
@@ -290,6 +327,94 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 		mDB.update(POPUPDATA, cv, _ID + "= " + hashcode, null);
 	}
 	
-	
-	
+	/**
+	 * This method returns whether this domain is whitelisted OR not to open in hike. If this domain is whitelisted, this method returns {@link WhitelistDomain} with domain name and
+	 * {@link WhitelistDomain#WHITELISTED_IN_BROWSER} is to open in browser and {@link WhitelistDomain#WHITELISTED_IN_HIKE} is to open in hike. if it is not whitelisted it returns
+	 * null
+	 * 
+	 * @param url
+	 *            - url to check in whitelist domain, note : it should be full URL e.g http://www.hike.in
+	 * @return
+	 */
+	public WhitelistDomain getWhitelistedDomain(String url)
+	{
+		WhitelistDomain whitelistDomain = new WhitelistDomain(url, WhitelistDomain.WHITELISTED_IN_HIKE);
+		String domain = whitelistDomain.getDomain();
+		Logger.d("whitelist", "url to check is " + url + " and domain is " + whitelistDomain.getDomain());
+		for(String validDomains : HikeConstants.WHITELISTED_DOMAINS)
+		{
+			if (domain.matches(".*" + validDomains))
+			{
+				return whitelistDomain;
+			}
+		}
+			whitelistDomain = null;
+			// querying all domains and matching one by one with regex
+			Cursor c = mDB.query(URL_WHITELIST, new String[] { DOMAIN,IN_HIKE }, null, null, null, null, null);
+				while(c.moveToNext())
+				{
+					String dom = c.getString(c.getColumnIndex(DOMAIN));
+					if(domain.matches(".*"+dom))
+					{
+						whitelistDomain = new WhitelistDomain(url, c.getInt(c.getColumnIndex(IN_HIKE)));
+						break;
+					}
+				}
+		return whitelistDomain;
+	}
+
+	public void addDomainInWhitelist(WhitelistDomain domain)
+	{
+		addDomainInWhitelist(new WhitelistDomain[] { domain });
+	}
+
+	/**
+	 * This method insets all domains in table in a loop.
+	 * DO NOT CALL IN UI THREAD
+	 * 
+	 * @param domains
+	 */
+	public void addDomainInWhitelist(WhitelistDomain[] domains)
+	{
+		try
+		{
+			mDB.beginTransaction();
+			for (WhitelistDomain domain : domains)
+			{
+				ContentValues cv = new ContentValues();
+				cv.put(DOMAIN, domain.getDomain());
+				cv.put(IN_HIKE, domain.getWhitelistState());
+				mDB.insert(URL_WHITELIST, null, cv);
+			}
+			mDB.setTransactionSuccessful();
+		}
+		finally
+		{
+			mDB.endTransaction();
+		}
+
+	}
+
+	public void deleteDomainFromWhitelist(String domain)
+	{
+		deleteDomainFromWhitelist(new String[] { domain });
+	}
+
+	/**
+	 * This method will be called rarely, it deletes all rows in loop.
+	 * DO NOT CALL IN UI THREAD
+	 * 
+	 * @param domains
+	 */
+	public void deleteDomainFromWhitelist(String[] domains)
+	{
+		
+		String whereClause = DOMAIN + "=?";
+		mDB.delete(URL_WHITELIST, whereClause, domains);
+	}
+
+	public void deleteAllDomainsFromWhitelist()
+	{
+		mDB.delete(URL_WHITELIST, null, null);
+	}
 }
