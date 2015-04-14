@@ -31,6 +31,7 @@ import com.bsb.hike.photos.views.CanvasImageView.OnDoodleStateChangeListener;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.IntentManager;
 import com.bsb.hike.utils.Utils;
+import com.google.android.gms.internal.dp;
 
 /**
  * Custom View extends FrameLayout Packs all the editing layers <filter layer,vignette layer ,doodle layer> into a single view ,in same z-order
@@ -130,8 +131,7 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 	{
 		if (scaledImageOriginal == null)
 		{
-			scaledImageOriginal = HikePhotosUtils.createBitmap(imageOriginal, 0, 0, HikePhotosUtils.dpToPx(getContext(), getThumbnailDimen()),
-					HikePhotosUtils.dpToPx(getContext(), getThumbnailDimen()), true, true, false, true);
+			scaledImageOriginal = HikePhotosUtils.compressBitamp(imageOriginal, HikePhotosUtils.dpToPx(getContext(), getThumbnailDimen()), HikePhotosUtils.dpToPx(getContext(), getThumbnailDimen()),false);
 
 			if (scaledImageOriginal == null)
 			{
@@ -181,7 +181,7 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 		int width = metrics.widthPixels;
 		if (width != imageOriginal.getWidth())
 		{
-			imageScaled = HikePhotosUtils.compressBitamp(imageOriginal, width, width);
+			imageScaled = HikePhotosUtils.compressBitamp(imageOriginal, width, width,true);
 			if(imageScaled == null)
 			{
 				Toast.makeText(getContext(), getResources().getString(R.string.photos_oom_load), Toast.LENGTH_SHORT).show();
@@ -241,7 +241,7 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 		if(compressOutput && HikePhotosUtils.getBitmapArea(imageOriginal)>HikeConstants.HikePhotos.MAXIMUM_ALLOWED_IMAGE_AREA)
 		{
 			compressOutput = false;
-			imageOriginal = HikePhotosUtils.compressBitamp(imageOriginal, HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX, HikeConstants.MAX_DIMENSION_LOW_FULL_SIZE_PX);
+			imageOriginal = HikePhotosUtils.compressBitamp(imageOriginal, HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX, HikeConstants.MAX_DIMENSION_LOW_FULL_SIZE_PX,true);
 		}
 
 		effectLayer.getBitmapWithEffectsApplied(imageOriginal, this);
