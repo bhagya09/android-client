@@ -37,9 +37,8 @@ public class CustomStickerCategory extends StickerCategory
 	@Override
 	public void setState(int state)
 	{
-		//Overiding custom sticker category state to be always NONE
-		state = NONE;
 	}
+	
 	public CustomStickerCategory(String categoryId, String categoryName, boolean updateAvailable, boolean isVisible, boolean isCustom, boolean isAdded, int catIndex,
 			int totalStickers, int categorySize)
 	{
