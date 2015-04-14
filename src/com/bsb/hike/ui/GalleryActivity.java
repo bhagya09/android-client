@@ -469,7 +469,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 		{
 		case PHOTOS_EDITOR_ACTION_BAR_TYPE:
 			actionBarView = LayoutInflater.from(this).inflate(R.layout.photos_action_bar, null);
-			actionBarView.setBackgroundResource(R.color.black);
+			actionBarView.setBackgroundResource(android.R.color.transparent);
 			actionBarView.findViewById(R.id.back).setOnClickListener(new OnClickListener()
 			{
 				@Override
