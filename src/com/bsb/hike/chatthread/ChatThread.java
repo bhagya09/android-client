@@ -403,7 +403,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			mConversationsView.setTranscriptMode(ListView.TRANSCRIPT_MODE_DISABLED);		
 			break;
 		case SHARING_FUNCTIONALITY:
-			 destroyActionMode();
+			if (mActionMode!= null && mActionMode.whichActionModeIsOn() == MULTI_SELECT_ACTION_MODE)
+			{
+				mActionMode.finish();
+			}
 			 break;
 		default:
 			Logger.d(TAG, "Did not find any matching event for msg.what : " + msg.what);
