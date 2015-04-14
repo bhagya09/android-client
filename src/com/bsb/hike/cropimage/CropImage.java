@@ -166,9 +166,10 @@ public class CropImage extends MonitoredActivity
 		if (extras != null)
 		{
 			boolean circleHighlight = extras.getBoolean(HikeConstants.Extras.CIRCLE_HIGHLIGHT);
-			mCircleHighlight = true;
+			
 			if (extras.getString(HikeConstants.Extras.CIRCLE_CROP) != null || circleHighlight)
 			{
+				mCircleCrop = true;
 				if (circleHighlight)
 				{
 					mCircleHighlight = true;
