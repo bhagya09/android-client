@@ -14,8 +14,11 @@
         android:id="@+id/contentLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_centerInParent="true"
-        android:background="@color/red_color_span"
+        android:layout_alignBottom="@id/album_image"
+        android:background="#009bff"
+        android:layout_alignLeft="@id/album_image"
+        android:layout_alignRight="@id/album_image"
+        android:layout_alignTop="@id/album_image"
         android:gravity="center"
         android:visibility="gone" >
     </RelativeLayout>
