@@ -3332,6 +3332,11 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			saveContact(hikeFile);
 			return;
 		case AUDIO_RECORDING:
+			if (hikeFile.getFilePath() == null)
+			{
+				Toast.makeText(context, R.string.unable_to_open, Toast.LENGTH_SHORT).show();
+				return;
+			}
 			String fileKey = hikeFile.getFileKey();
 
 			ImageView recAction = (ImageView) parent.findViewById(R.id.action);
