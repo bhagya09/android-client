@@ -133,7 +133,7 @@ public class HttpRequests
 				.setUrl(url)
 				.setFile(filePath)
 				.setRequestListener(requestListener)
-				.setRetryPolicy(new DefaultRetryPolicy(HikePlatformConstants.numberOfRetries, HikePlatformConstants.retryDelay, HikePlatformConstants.backOffMultiplier))
+				.setRetryPolicy(new DefaultRetryPolicy(HikePlatformConstants.NUMBER_OF_RETRIES, HikePlatformConstants.RETRY_DELAY, HikePlatformConstants.BACK_OFF_MULTIPLIER))
 				.build();
 		return requestToken;
 	}
@@ -142,7 +142,7 @@ public class HttpRequests
 	{
 		RequestToken requestToken = new JSONArrayRequest.Builder()
 				.setUrl(url)
-				.setRetryPolicy(new DefaultRetryPolicy(HikePlatformConstants.numberOfRetries, HikePlatformConstants.retryDelay, HikePlatformConstants.backOffMultiplier))
+				.setRetryPolicy(new DefaultRetryPolicy(HikePlatformConstants.NUMBER_OF_RETRIES, HikePlatformConstants.RETRY_DELAY, HikePlatformConstants.BACK_OFF_MULTIPLIER))
 				.setRequestListener(requestListener)
 				.setHeaders(headers)
 				.setRequestType(REQUEST_TYPE_LONG)
@@ -157,7 +157,7 @@ public class HttpRequests
 		RequestToken requestToken = new JSONArrayRequest.Builder()
 				.setUrl(url)
 				.post(body)
-				.setRetryPolicy(new DefaultRetryPolicy(HikePlatformConstants.numberOfRetries, HikePlatformConstants.retryDelay, HikePlatformConstants.backOffMultiplier))
+				.setRetryPolicy(new DefaultRetryPolicy(HikePlatformConstants.NUMBER_OF_RETRIES, HikePlatformConstants.RETRY_DELAY, HikePlatformConstants.BACK_OFF_MULTIPLIER))
 				.setRequestListener(requestListener)
 				.setRequestType(REQUEST_TYPE_LONG)
 				.setHeaders(headers)
@@ -171,7 +171,7 @@ public class HttpRequests
 		RequestToken requestToken = new JSONObjectRequest.Builder()
 				.setUrl(url)
 				.post(null)
-				.setRetryPolicy(new DefaultRetryPolicy(HikePlatformConstants.numberOfRetries, HikePlatformConstants.retryDelay, HikePlatformConstants.backOffMultiplier))
+				.setRetryPolicy(new DefaultRetryPolicy(HikePlatformConstants.NUMBER_OF_RETRIES, HikePlatformConstants.RETRY_DELAY, HikePlatformConstants.BACK_OFF_MULTIPLIER))
 				.setRequestListener(requestListener)
 				.setRequestType(REQUEST_TYPE_SHORT)
 				.build();
