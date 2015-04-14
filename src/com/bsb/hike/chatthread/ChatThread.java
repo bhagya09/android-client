@@ -206,8 +206,12 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	protected static final int SEARCH_NEXT = 25;
 
 	protected static final int SEARCH_PREVIOUS = 26;
+	
+	protected static final int SEARCH_LOOP = 27;
 
-    protected static final int SET_WINDOW_BG = 27;
+    protected static final int SET_WINDOW_BG = 28;
+
+    protected static final int SCROLL_TO_POSITION = 29;
    
     private int NUDGE_TOAST_OCCURENCE = 2;
     	
@@ -384,6 +388,9 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			break;
 		case SCROLL_TO_END:
 			mConversationsView.setSelection(messages.size() - 1);
+			break;
+		case SCROLL_TO_POSITION:
+			mConversationsView.setSelection((int)msg.obj);
 			break;
 		case STICKER_FTUE_TIP:
 			mTips.showStickerFtueTip();
@@ -616,12 +623,12 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 		for (OverFlowMenuItem overFlowMenuItem : overflowItems)
 		{
-
+			boolean isMessageListEmpty = isMessageListEmpty();
 			switch (overFlowMenuItem.id)
 			{
 			case R.string.search:
-				overFlowMenuItem.enabled = !messages.isEmpty();
-				if (!sharedPreference.getData(HikeMessengerApp.CT_SEARCH_CLICKED, false) && !messages.isEmpty())
+				overFlowMenuItem.enabled = !isMessageListEmpty;
+				if (!sharedPreference.getData(HikeMessengerApp.CT_SEARCH_CLICKED, false) && !isMessageListEmpty)
 				{
 					overFlowMenuItem.drawableId = R.drawable.ic_top_bar_indicator_search;
 				}
@@ -633,12 +640,26 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 			case R.string.clear_chat:
 			case R.string.email_chat:
-				overFlowMenuItem.enabled = !messages.isEmpty();
+				overFlowMenuItem.enabled = !isMessageListEmpty;
 				break;
 			}
 		}
 	}
 	
+	protected boolean isMessageListEmpty()
+	{
+		boolean isMessageListEmpty = messages.isEmpty();
+		if (!messages.isEmpty())
+		{
+			ConvMessage firstMessage = messages.get(0);
+			if (firstMessage.getTypingNotification() != null || firstMessage.isBlockAddHeader())
+			{
+				isMessageListEmpty = true;
+			}
+		}
+		return isMessageListEmpty;
+	}
+
 	public void onActivityResult(int requestCode, int resultCode, Intent data)
 	{
 		Logger.i(TAG, "on activity result " + requestCode + " result " + resultCode);
@@ -781,11 +802,11 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			break;
 		case R.id.next:
 			Utils.hideSoftKeyboard(activity.getApplicationContext(), mComposeView);
-			searchMessage(true);
+			searchMessage(true,false);
 			break;
 		case R.id.previous:
 			Utils.hideSoftKeyboard(activity.getApplicationContext(), mComposeView);
-			searchMessage(false);
+			searchMessage(false,false);
 			break;
 		case R.id.search_clear_btn:
 			mComposeView.setText("");
@@ -1168,11 +1189,18 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		}
 	};
 
-	private void searchMessage(boolean searchNext)
+	private void searchMessage(boolean searchNext, boolean loop)
 	{
-		if (!TextUtils.isEmpty(searchText))
+		if (!TextUtils.isEmpty(searchText) &&
+				// For some devices like micromax A120, one can get multiple calls from one user-input.
+				// Check on the dialog is optimal here as it directly reflects the user intentions.
+				(searchDialog == null || !searchDialog.isShowing()))
 		{
-			if (searchNext)
+			if (loop)
+			{
+				activity.getSupportLoaderManager().restartLoader(SEARCH_LOOP, null, this);
+			}
+			else if (searchNext)
 			{
 				activity.getSupportLoaderManager().restartLoader(SEARCH_NEXT, null, this);
 			}
@@ -1184,12 +1212,12 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		}
 	}
 
-	private void updateUIforSearchResult(int position)
+	private void updateUIforSearchResult(final int position)
 	{
 		searchDialog.dismiss();
 		if (position >= 0)
 		{
-			mConversationsView.setSelection(position);
+			sendUIMessage(SCROLL_TO_POSITION, position);
 		}
 		else
 		{
@@ -1986,7 +2014,11 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	
 	private int getMessagesStartIndex()
 	{
-		return messages.get(0).isBlockAddHeader() ? 1 : 0;
+		if (!messages.isEmpty() && messages.get(0).isBlockAddHeader())
+		{
+			return 1;
+		}
+		return 0;
 	}
 
 	@Override
@@ -2001,7 +2033,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		{
 			return new ConversationLoader(activity.getApplicationContext(), LOAD_MORE_MESSAGES, this);
 		}
-		else if (arg0 == SEARCH_NEXT || arg0 == SEARCH_PREVIOUS)
+		else if (arg0 == SEARCH_NEXT || arg0 == SEARCH_PREVIOUS || arg0 == SEARCH_LOOP)
 		{
 			return new MessageFinder(activity.getApplicationContext(), arg0, this);
 		}
@@ -2030,11 +2062,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		else if (arg0 instanceof MessageFinder)
 		{
 			MessageFinder loader = (MessageFinder) arg0;
-			if (loader.loaderId == SEARCH_NEXT)
-			{
-				updateUIforSearchResult((int) arg1);
-			}
-			else if (loader.loaderId == SEARCH_PREVIOUS)
+			int id = loader.loaderId;
+			if (id == SEARCH_LOOP || id == SEARCH_NEXT || id == SEARCH_PREVIOUS)
 			{
 				updateUIforSearchResult((int) arg1);
 			}
@@ -2149,7 +2178,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 				{
 					position = messageSearchManager.getNextItem(chatThread.get().mConversationsView.getFirstVisiblePosition(), chatThread.get().mConversationsView.getLastVisiblePosition());
 				}
-				else if (loaderId == SEARCH_PREVIOUS)
+				else if (loaderId == SEARCH_PREVIOUS || loaderId == SEARCH_LOOP)
 				{
 					position = messageSearchManager.getPrevItem(chatThread.get().mConversationsView.getFirstVisiblePosition());
 					while (position < 0)
@@ -2164,6 +2193,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 						chatThread.get().addMoreMessages(msgList);
 						loadMessageCount *= 2;
 						position = messageSearchManager.getPrevItem(chatThread.get().mConversationsView.getFirstVisiblePosition());
+					}
+					if (loaderId == SEARCH_LOOP && position < 0)
+					{
+						position = messageSearchManager.getNextItem(chatThread.get().mConversationsView.getFirstVisiblePosition(), chatThread.get().mConversationsView.getLastVisiblePosition());
 					}
 				}
 				return position;
@@ -3299,18 +3332,30 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	 */
 	private void deleteMessages(Pair<Boolean, ArrayList<Long>> pair)
 	{
+		/*
+		 * This is done to avoid the case where unable to delete a message when unread count is displayed along with the message. 
+		 * Because the same msgId is used for both unread count and the message.
+		 * So deleting both.
+		 */
+		ArrayList<ConvMessage> deleteMsgs = new ArrayList<>();
 		for (long msgId : pair.second)
 		{
 			for (ConvMessage convMessage : messages)
 			{
 				if (convMessage.getMsgID() == msgId)
 				{
-					deleteMessage(convMessage, pair.first);
+					deleteMsgs.add(convMessage);
+				}
+				else if (convMessage.getMsgID() > msgId)
+				{
 					break;
 				}
 			}
 		}
-
+		for (Iterator<ConvMessage> iterator = deleteMsgs.iterator(); iterator.hasNext();) {
+			ConvMessage convMessage = (ConvMessage) iterator.next();
+			deleteMessage(convMessage, pair.first);
+		}
 		mAdapter.notifyDataSetChanged();
 	}
 
@@ -4145,7 +4190,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			else if (actionId == EditorInfo.IME_ACTION_SEARCH||(view.getId() ==R.id.search_text))
 			{
 				Utils.hideSoftKeyboard(activity.getApplicationContext(), mComposeView);
-				searchMessage(false);
+				searchMessage(false,true);
 				return true;
 			}
 			return false;

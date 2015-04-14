@@ -1,9 +1,7 @@
 package com.bsb.hike.chatthread;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
@@ -213,7 +211,6 @@ public class HikeActionBar
 			overFlowMenuLayout.updateOverflowMenuItemActiveState(itemId, enabled, true);
 		}
 	}
-	
 
 	/**
 	 * Can be used to update the title of an overflow menu item on the fly

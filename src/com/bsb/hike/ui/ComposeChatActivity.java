@@ -1781,19 +1781,9 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	@Override
 	public void onBackPressed()
 	{
-		if (composeMode == CREATE_GROUP_MODE)
+		if (composeMode == CREATE_GROUP_MODE || composeMode == CREATE_BROADCAST_MODE)
 		{
-			if (existingGroupOrBroadcastId != null || createGroup)
-			{
-				ComposeChatActivity.this.finish();
-				return;
-			}
-			setModeAndUpdateAdapter(START_CHAT_MODE);
-			return;
-		}
-		if (composeMode == CREATE_BROADCAST_MODE)
-		{
-			if (existingGroupOrBroadcastId != null || createBroadcast)
+			if (existingGroupOrBroadcastId != null || createGroup || createBroadcast)
 			{
 				ComposeChatActivity.this.finish();
 //				Hiding keyboard on pressing back on "Add members to broadcast list" compose chat
