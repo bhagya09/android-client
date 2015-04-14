@@ -168,7 +168,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 
 		if (data.containsKey(ENABLE_CAMERA_PICK))
 		{
-			enableCameraPick = true;
+			enableCameraPick = data.getBoolean(ENABLE_CAMERA_PICK);
 		}
 
 		returnResult = (getCallingActivity() != null);
@@ -314,7 +314,14 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 
 		adapter = new GalleryAdapter(this, galleryItemList, isInsideAlbum, actualSize, selectedGalleryItems, false);
 
-		gridView.setNumColumns(3);
+		if (isInsideAlbum)
+		{
+			gridView.setNumColumns(3);
+		}
+		else
+		{
+			gridView.setNumColumns(numColumns);
+		}
 		gridView.setAdapter(adapter);
 		gridView.setOnScrollListener(this);
 		gridView.setOnItemClickListener(this);

@@ -68,6 +68,8 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 	private int totalSelections;
 
 	private boolean smlDialogShown = false;
+	
+	private String sendToMsisdn;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
