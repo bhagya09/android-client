@@ -454,7 +454,7 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 
 	public static final String NOTIFICATION_TONE_NAME = "notificaationToneName";
 
-	public static final String SHOWN_VOIP_INTRO_TIP = "shownVoipIntroTip";
+	public static final String SHOW_VOIP_FTUE_POPUP = "showVoipFtuePopup";
 
 	public static final String SHOW_VOIP_CALL_RATE_POPUP = "showVoipCallRatePopup";
 

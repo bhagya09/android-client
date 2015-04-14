@@ -24,7 +24,7 @@ import com.bsb.hike.utils.HikeSSLUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
-public class ProfileImageLoader extends AsyncTaskLoader<Boolean>
+public class ProfileImageDownloader extends AsyncTaskLoader<Boolean>
 {
 
 	private String urlString;
@@ -39,12 +39,12 @@ public class ProfileImageLoader extends AsyncTaskLoader<Boolean>
 
 	private boolean isStatusImage;
 
-	public ProfileImageLoader(Context context, String id, String fileName, boolean hasCustomIcon, boolean statusImage)
+	public ProfileImageDownloader(Context context, String id, String fileName, boolean hasCustomIcon, boolean statusImage)
 	{
 		this(context, id, fileName, hasCustomIcon, statusImage, null);
 	}
 
-	public ProfileImageLoader(Context context, String id, String fileName, boolean hasCustomIcon, boolean statusImage, String url)
+	public ProfileImageDownloader(Context context, String id, String fileName, boolean hasCustomIcon, boolean statusImage, String url)
 	{
 		super(context);
 
@@ -182,6 +182,7 @@ public class ProfileImageLoader extends AsyncTaskLoader<Boolean>
 	public void onCanceled(Boolean data)
 	{
 		super.onCanceled(data);
+		Logger.e(getClass().getSimpleName(), "onCanceled...");
 		Utils.removeTempProfileImage(key);
 	}
 
@@ -189,6 +190,7 @@ public class ProfileImageLoader extends AsyncTaskLoader<Boolean>
 	protected void onStopLoading()
 	{
 		cancelLoad();
+		Logger.e(getClass().getSimpleName(), "onCanceled...");
 		Utils.removeTempProfileImage(key);
 	}
 
