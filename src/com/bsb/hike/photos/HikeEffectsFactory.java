@@ -49,7 +49,6 @@ public final class HikeEffectsFactory
 
 	private ScriptIntrinsicBlur mScriptBlur;
 
-	@SuppressWarnings("static-access")
 	private boolean loadRenderScript(Bitmap image, boolean isThumbnail, boolean isFinal)
 	{
 		// Initialize RS // Load script
@@ -308,29 +307,6 @@ public final class HikeEffectsFactory
 	}
 
 	/**
-	 * @param filter
-	 *            : ColorMatrix of the filter whose partial matrix is required value: %of filter to be applied.0 return Identity and 100 return the input filter
-	 * 
-	 * @return partial filter of specified percentage
-	 */
-
-	private ColorMatrix partialFilterColorMatrix(ColorMatrix filter, float value)
-	{
-		value = value / 100;
-		float[] partialArray = filter.getArray();
-		for (int i = 0; i < partialArray.length; i++)
-		{
-			if (i % 6 == 0)
-				partialArray[i] = 1 - (1 - partialArray[i]) * value;
-			else
-				partialArray[i] *= value;
-		}
-		ColorMatrix ret = new ColorMatrix(partialArray);
-
-		return ret;
-	}
-
-	/**
 	 * Method used in saving the final filter onto a bitmap.
 	 * 
 	 * @param bitmap
@@ -380,27 +356,11 @@ public final class HikeEffectsFactory
 
 	}
 
-	private ColorMatrix getCustomEffectColorMatrix(ColorMatrix[] effects)
-	{
-		ColorMatrix ret = new ColorMatrix();
-		for (ColorMatrix effect : effects)
-		{
-			ret.setConcat(effect, ret);
-		}
-		return ret;
-	}
-
 	private ColorMatrix getSaturationColorMatrix(float value)
 	{
 		ColorMatrix ret = new ColorMatrix();
 		ret.setSaturation(value);
 		return ret;
-	}
-
-	private ColorMatrix getOriginalColorMatrix()
-	{
-
-		return null;
 	}
 
 	private ColorMatrix getInvertColorsColorMatrix()
@@ -445,45 +405,6 @@ public final class HikeEffectsFactory
 		ColorMatrix matrix = new ColorMatrix(array);
 
 		return matrix;
-	}
-
-	private ColorMatrix getOpacityColorMatrix(float value)
-	{
-		float[] array = new float[] { 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, value, 0 };
-		ColorMatrix matrix = new ColorMatrix(array);
-		return matrix;
-	}
-
-	private ColorMatrix getHueColorMatrix(float value)
-	{
-		value = value / 180f * (float) Math.PI;
-
-		float cosVal = (float) Math.cos(value);
-		float sinVal = (float) Math.sin(value);
-		float lumR = 0.213f;
-		float lumG = 0.715f;
-		float lumB = 0.072f;
-		float[] mat = new float[] { lumR + cosVal * (1 - lumR) + sinVal * (-lumR), lumG + cosVal * (-lumG) + sinVal * (-lumG), lumB + cosVal * (-lumB) + sinVal * (1 - lumB), 0, 0,
-				lumR + cosVal * (-lumR) + sinVal * (0.143f), lumG + cosVal * (1 - lumG) + sinVal * (0.140f), lumB + cosVal * (-lumB) + sinVal * (-0.283f), 0, 0,
-				lumR + cosVal * (-lumR) + sinVal * (-(1 - lumR)), lumG + cosVal * (-lumG) + sinVal * (lumG), lumB + cosVal * (1 - lumB) + sinVal * (lumB), 0, 0, 0f, 0f, 0f, 1f,
-				0f, 0f, 0f, 0f, 0f, 1f };
-		ColorMatrix colorMatrix = new ColorMatrix(mat);
-
-		return colorMatrix;
-
-	}
-
-	private ColorMatrix getBinaryColorMatrix()
-	{
-		ColorMatrix colorMatrix = new ColorMatrix();
-		colorMatrix.setSaturation(0);
-
-		float m = 255f;
-		float t = -255 * 128f;
-		ColorMatrix threshold = new ColorMatrix(new float[] { m, 0, 0, 1, t, 0, m, 0, 1, t, 0, 0, m, 1, t, 0, 0, 0, 1, 0 });
-
-		colorMatrix.postConcat(threshold);
-		return colorMatrix;
 	}
 
 	private ColorMatrix getFadedColorMatrix()
@@ -992,7 +913,7 @@ class Splines
 
 	public static void computeSplineSlopes(int n, double x[], double y[], double s[])
 	{
-		int i, j;
+		
 		double h[] = new double[n];
 		double hinv[] = new double[n];
 		double g[] = new double[n];
@@ -1000,7 +921,7 @@ class Splines
 		double b[] = new double[n + 1];
 		double fac;
 
-		for (i = 0; i < n; i++)
+		for (int i = 0; i < n; i++)
 		{
 			h[i] = x[i + 1] - x[i];
 			hinv[i] = 1.0 / h[i];
@@ -1008,7 +929,7 @@ class Splines
 		}
 		a[0] = 2 * hinv[0];
 		b[0] = g[0];
-		for (i = 1; i <= n; i++)
+		for (int i = 1; i <= n; i++)
 		{
 			fac = hinv[i - 1] / a[i - 1];
 			a[i] = (2 - fac) * hinv[i - 1];
@@ -1020,7 +941,7 @@ class Splines
 			}
 		}
 		s[n] = b[n] / a[n];
-		for (i = n - 1; i >= 0; i--)
+		for (int i = n - 1; i >= 0; i--)
 			s[i] = (b[i] - hinv[i] * s[i + 1]) / a[i];
 	}
 

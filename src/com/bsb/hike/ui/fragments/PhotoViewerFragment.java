@@ -47,6 +47,7 @@ import com.bsb.hike.ui.ComposeChatActivity;
 import com.bsb.hike.ui.HikeSharedFilesActivity;
 import com.bsb.hike.ui.utils.DepthPageTransformer;
 import com.bsb.hike.utils.CustomAlertDialog;
+import com.bsb.hike.utils.IntentManager;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
@@ -593,6 +594,10 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 			return true;
 		case R.id.share_msgs:
 			getCurrentSelectedItem().shareFile(getSherlockActivity());
+			return true;
+		case R.id.edit_pic:
+			Intent editIntent = IntentManager.getPictureEditorActivityIntent(getCurrentSelectedItem().getExactFilePath(), false);
+			getActivity().startActivity(editIntent);
 			return true;
 		}
 		return false;
