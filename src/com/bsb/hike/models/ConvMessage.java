@@ -498,7 +498,7 @@ public class ConvMessage implements Searchable
 			this.mMessage = OneToNConversationUtils.getParticipantAddedMessage(this, context, highlight);
 			break;
 		case PARTICIPANT_LEFT:
-			this.mMessage = OneToNConversationUtils.getParticipantRemovedMessage(conversation.getMsisdn(), context, ((GroupConversation) conversation).getConvParticipantFirstNameAndSurname(metadata.getMsisdn()));
+			this.mMessage = OneToNConversationUtils.getParticipantRemovedMessage(conversation.getMsisdn(), context, ((OneToNConversation) conversation).getConvParticipantFirstNameAndSurname(metadata.getMsisdn()));
 			break;
 		case GROUP_END:
 			this.mMessage = OneToNConversationUtils.getConversationEndedMessage(conversation.getMsisdn(), context);
@@ -510,9 +510,9 @@ public class ConvMessage implements Searchable
 			String fName = null;
 			if (conversation != null)
 			{
-				if (conversation instanceof GroupConversation)
+				if (conversation instanceof OneToNConversation)
 				{
-					fName = ((GroupConversation) conversation).getConvParticipantFirstNameAndSurname(metadata.getMsisdn());
+					fName = ((OneToNConversation) conversation).getConvParticipantFirstNameAndSurname(metadata.getMsisdn());
 				}
 				else
 				{
@@ -545,7 +545,7 @@ public class ConvMessage implements Searchable
 			String msisdn = metadata.getMsisdn();
 			String userMsisdn = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeMessengerApp.MSISDN_SETTING, "");
 
-			String participantName = userMsisdn.equals(msisdn) ? context.getString(R.string.you) : ((GroupConversation) conversation).getConvParticipantFirstNameAndSurname(msisdn);
+			String participantName = userMsisdn.equals(msisdn) ? context.getString(R.string.you) : ((OneToNConversation) conversation).getConvParticipantFirstNameAndSurname(msisdn);
 			
 			if (participantInfoState == ParticipantInfoState.CHANGED_GROUP_NAME)
 			{
