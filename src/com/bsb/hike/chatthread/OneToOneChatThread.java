@@ -2615,7 +2615,6 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		}
 		
 		super.onPrepareOverflowOptionsMenu(overflowItems);
-		
 		for (OverFlowMenuItem overFlowMenuItem : overflowItems)
 		{
 
@@ -2633,15 +2632,6 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 				{
 					overFlowMenuItem.enabled = !mConversation.isBlocked();
 				}
-				break;
-				
-			case R.string.search:
-			case R.string.clear_chat:
-				overFlowMenuItem.enabled = !messages.isEmpty() && !mConversation.isBlocked();
-				break;
-				
-			case R.string.email_chat:
-				overFlowMenuItem.enabled = !messages.isEmpty();
 				break;
 				
 			case R.string.chat_theme:
