@@ -485,6 +485,7 @@ public class VoIPService extends Service {
 	public void onDestroy() {
 		super.onDestroy();
 		stop();
+		setCallid(0);	// Redundant, for bug #44018
 		dismissNotification();
 		releaseWakeLock();
 		Logger.d(VoIPConstants.TAG, "VoIP Service destroyed.");
