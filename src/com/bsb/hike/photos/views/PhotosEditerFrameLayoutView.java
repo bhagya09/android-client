@@ -179,7 +179,7 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 	{
 		DisplayMetrics metrics = getContext().getResources().getDisplayMetrics();
 		int width = metrics.widthPixels;
-		int height = (int)(metrics.heightPixels *HikeConstants.HikePhotos.CANVAS_WEIGHT);
+		int height = (int)(metrics.heightPixels * getContext().getResources().getInteger(R.integer.photos_editor_canvas_weight)*1.0f/getContext().getResources().getInteger(R.integer.photos_editor_weightSum));
 		if (width != imageOriginal.getWidth())
 		{
 			imageScaled = HikePhotosUtils.compressBitamp(imageOriginal, width, height,true);
