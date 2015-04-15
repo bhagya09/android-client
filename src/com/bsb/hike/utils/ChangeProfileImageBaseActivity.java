@@ -586,43 +586,14 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 				{
 					mActivityState.destFilePath = null;
 					ContactManager.getInstance().setIcon(mLocalMSISDN, bytes, false);
-
 					Utils.renameTempProfileImage(mLocalMSISDN);
+					StatusMessage statusMessage = Utils.createTimelinePostForDPChange(response);
 
-					/*
-					 * Making the profile pic change a status message.
-					 */
-					JSONObject data = response.optJSONObject("status");
-
-					if (data == null)
+					if(statusMessage == null)
 					{
 						return;
 					}
-
-					String mappedId = data.optString(HikeConstants.STATUS_ID);
-					String msisdn = prefs.getData(HikeMessengerApp.MSISDN_SETTING, "");
-					String name = prefs.getData(HikeMessengerApp.NAME_SETTING, "");
-					long time = (long) System.currentTimeMillis() / 1000;
-
-					// saving mapped status id for this dp change. delete update will clear this pref later
-					// this pref's current value will decide whether to give option to user to delete dp post from favourites timelines or not
-					Editor ed = prefs.getPref().edit();
-					ed.putString(HikeMessengerApp.DP_CHANGE_STATUS_ID, mappedId);
-					ed.commit();
-					
-					StatusMessage statusMessage = new StatusMessage(0, mappedId, msisdn, name, "", StatusMessageType.PROFILE_PIC, time, -1, 0);
-					HikeConversationsDatabase.getInstance().addStatusMessage(statusMessage, true);
-
 					ContactManager.getInstance().setIcon(statusMessage.getMappedId(), bytes, false);
-
-					String srcFilePath = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT + "/" + msisdn + ".jpg";
-
-					String destFilePath = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT + "/" + mappedId + ".jpg";
-
-					/*
-					 * Making a status update file so we don't need to download this file again.
-					 */
-					Utils.copyFile(srcFilePath, destFilePath, null);
 
 					int unseenUserStatusCount = prefs.getData(HikeMessengerApp.UNSEEN_USER_STATUS_COUNT, 0);
 					Editor editor = prefs.getPref().edit();

@@ -167,14 +167,14 @@ import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.OriginType;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.ConvMessage.State;
-import com.bsb.hike.models.Conversation.MetaData;
 import com.bsb.hike.models.Conversation;
 import com.bsb.hike.models.FtueContactsData;
 import com.bsb.hike.models.GroupConversation;
 import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
-import com.bsb.hike.models.MessageMetadata;
+import com.bsb.hike.models.StatusMessage;
+import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.models.utils.JSONSerializable;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.notifications.HikeNotification;
@@ -194,7 +194,6 @@ import com.bsb.hike.ui.TimelineActivity;
 import com.bsb.hike.ui.WebViewActivity;
 import com.bsb.hike.ui.WelcomeActivity;
 import com.bsb.hike.utils.AccountUtils.AccountInfo;
-import com.bsb.hike.voip.VoIPService;
 import com.bsb.hike.voip.VoIPUtils;
 import com.google.android.maps.GeoPoint;
 
@@ -5553,5 +5552,46 @@ public class Utils
 			fullFirstName = fullName;
 		}
 		return fullFirstName;
+	}
+
+	/**
+	 * Making the profile pic change a status message 
+	 * @param response json packet received from server
+	 * @return StatusMessage created
+	 */
+	public static StatusMessage createTimelinePostForDPChange(JSONObject response)
+	{
+		StatusMessage statusMessage = null;
+		JSONObject data = response.optJSONObject("status");
+
+		if (data == null)
+		{
+			return null;
+		}
+
+		// parse status params
+		String mappedId = data.optString(HikeConstants.STATUS_ID);
+		String msisdn = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, "");
+		String name = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.NAME_SETTING, "");
+		long time = (long) System.currentTimeMillis() / 1000;
+
+		// saving mapped status id for this dp change. delete update will clear this pref later
+		// this pref's current value will decide whether to give option to user to delete dp post from favourites timelines or not
+		Editor ed = HikeSharedPreferenceUtil.getInstance().getPref().edit();
+		ed.putString(HikeMessengerApp.DP_CHANGE_STATUS_ID, mappedId);
+		ed.commit();
+		
+		// save to db
+		statusMessage = new StatusMessage(0, mappedId, msisdn, name, "", StatusMessageType.PROFILE_PIC, time, -1, 0);
+		HikeConversationsDatabase.getInstance().addStatusMessage(statusMessage, true);
+
+		/*
+		 * Making a status update file so we don't need to download this file again.
+		 */
+		String srcFilePath = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT + "/" + msisdn + ".jpg";
+		String destFilePath = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT + "/" + mappedId + ".jpg";
+		Utils.copyFile(srcFilePath, destFilePath, null);
+		
+		return statusMessage;
 	}
 }
