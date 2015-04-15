@@ -1008,7 +1008,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	protected boolean updateUIAsPerTheme(ChatTheme theme)
 	{
-		if (theme != null && currentTheme != theme)
+		if (theme != null && mAdapter.getChatTheme() != theme)
 		{
 			Logger.i(TAG, "update ui for theme " + theme);
 
