@@ -737,7 +737,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	protected OverFlowMenuItem[] getOverFlowMenuItems()
 	{
 		return new OverFlowMenuItem[] {
-				new OverFlowMenuItem(getString(R.string.search), 0, 0, R.string.search),
 				new OverFlowMenuItem(getString(R.string.clear_chat), 0, 0, R.string.clear_chat),
 				new OverFlowMenuItem(getString(R.string.email_chat), 0, 0, R.string.email_chat)};
 	}
@@ -754,6 +753,14 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 		// Remove the indicator if any on the overflow menu.
 		mActionBar.updateOverflowMenuIndicatorImage(0);
+
+		/**
+		 * Hiding the softkeyboard if we are in landscape mode
+		 */
+		if (activity.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE)
+		{
+			Utils.hideSoftKeyboard(activity.getApplicationContext(), mComposeView);
+		}
 
 		int width = getResources().getDimensionPixelSize(R.dimen.overflow_menu_width);
 		int rightMargin = width + getResources().getDimensionPixelSize(R.dimen.overflow_menu_right_margin);
