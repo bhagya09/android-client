@@ -344,14 +344,6 @@ public class ConversationTip implements OnClickListener
 			case ATOMIC_HTTP_TIP:
 			case ATOMIC_APP_GENERIC_TIP:
 				resetAtomicPopUpKey();
-				
-			case STEALTH_HIDE_TIP:
-				HikeMessengerApp.getPubSub().publish(HikePubSub.REMOVE_STEALTH_HIDE_TIP, null);
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STEALTH_MODE_FTUE_DONE, true);
-			
-			case STEALTH_REVEAL_TIP:
-				HikeMessengerApp.getPubSub().publish(HikePubSub.REMOVE_STEALTH_REVEAL_TIP, null);
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STEALTH_MODE_FTUE_DONE, true);			
 
 			default:
 				break;
@@ -393,6 +385,14 @@ public class ConversationTip implements OnClickListener
 			case ATOMIC_HTTP_TIP:
 			case ATOMIC_APP_GENERIC_TIP:
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.ATOMIC_POP_UP_TYPE_MAIN, "");
+				break;
+			case STEALTH_HIDE_TIP:
+				HikeMessengerApp.getPubSub().publish(HikePubSub.REMOVE_STEALTH_HIDE_TIP, null);
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STEALTH_MODE_FTUE_DONE, true);
+				break;
+			case STEALTH_REVEAL_TIP:
+				HikeMessengerApp.getPubSub().publish(HikePubSub.REMOVE_STEALTH_REVEAL_TIP, null);
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STEALTH_MODE_FTUE_DONE, true);			
 				break;
 			default:
 				break;
