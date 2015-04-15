@@ -222,6 +222,11 @@ public class ContactInfo implements JSONSerializable, Comparable<ContactInfo>
 		return platformId;
 	}
 
+	public boolean isPlatformUIDExist()
+	{
+		return !TextUtils.isEmpty(platformId);
+	}
+
 	public String getName()
 	{
 		return name;
