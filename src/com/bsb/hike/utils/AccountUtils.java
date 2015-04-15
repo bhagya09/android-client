@@ -688,7 +688,10 @@ public class AccountUtils
 
 		ArrayList<String> msisdnForMissingPlatformUID = ContactManager.getInstance().getMsisdnForMissingPlatformUID();
 
-		PlatformUIDFetch.fetchPlatformUid(HikePlatformConstants.PlatformUIDFetchType.PARTIAL_ADDRESS_BOOK, msisdnForMissingPlatformUID.toArray(new String[]{}));
+		if (msisdnForMissingPlatformUID != null && msisdnForMissingPlatformUID.size()>0)
+		{
+			PlatformUIDFetch.fetchPlatformUid(HikePlatformConstants.PlatformUIDFetchType.PARTIAL_ADDRESS_BOOK, msisdnForMissingPlatformUID.toArray(new String[] { }));
+		}
 
 		String encoded = data.toString();
 		// try
