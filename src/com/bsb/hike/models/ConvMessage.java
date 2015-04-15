@@ -1,6 +1,7 @@
 package com.bsb.hike.models;
 
 import com.bsb.hike.db.DBConstants;
+import com.bsb.hike.platform.HikePlatformConstants;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -14,6 +15,7 @@ import com.bsb.hike.HikeConstants.ConvMessagePacketKeys;
 import com.bsb.hike.HikeConstants.MESSAGE_TYPE;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
+import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.platform.ContentLove;
@@ -97,6 +99,8 @@ public class ConvMessage
 	
 	private long serverId = -1;
 
+	private MessagePrivateData privateData;
+	
 	public int getHashMessage()
 	{
 		return hashMessage;
@@ -363,6 +367,7 @@ public class ConvMessage
 		{
 			this.messageBroadcastId = other.getMsisdn();
 		}
+		this.privateData = other.privateData;
 		try {
 			this.readByArray = other.readByArray !=null? new JSONArray(other.readByArray.toString()) : null;
 		} catch (JSONException e) {
@@ -371,6 +376,7 @@ public class ConvMessage
 				
 	}
 
+	// TODO Here set "pd" as well
 	public ConvMessage(JSONObject obj, Context context) throws JSONException
 	{
 		this.mMsisdn = obj.getString(obj.has(HikeConstants.TO) ? HikeConstants.TO : HikeConstants.FROM); /*
@@ -682,8 +688,8 @@ public class ConvMessage
 	@Override
 	public String toString()
 	{
-		return "ConvMessage [mMessage=" + mMessage + ", mMsisdn=" + mMsisdn + ", mTimestamp=" + mTimestamp + ", mIsSent=" + mIsSent + ", mState="
-				+ mState +", messageId="+msgID+"]";
+		return "ConvMessage [msgID=" + msgID + ", mappedMsgId=" + mappedMsgId + ", mMessage=" + mMessage + ", mMsisdn=" + mMsisdn + ", mTimestamp=" + mTimestamp + ", mIsSent="
+				+ mIsSent + ", mState=" + mState + ", metadata=" + metadata + ", privateData=" + privateData + "]";
 	}
 
 	@Override
@@ -758,13 +764,14 @@ public class ConvMessage
 			{
 				if (metadata != null)
 				{
+					md = metadata.getJSON();
+	
 					if (isFileTransferMessage || isStickerMessage)
 					{
-						md = metadata.getJSON();
 						data.put(HikeConstants.METADATA, md);
+						
 					}else if(messageType!=HikeConstants.MESSAGE_TYPE.PLAIN_TEXT)
 					{
-						md = metadata.getJSON();
 						data.put(HikeConstants.METADATA, md);
 				    }
 					else if (metadata.isPokeMessage())
@@ -772,6 +779,13 @@ public class ConvMessage
 						data.put(HikeConstants.POKE, true);
 					}
 				}
+				
+				// Adding "pd" into packet for new type of packet
+				if(privateData != null && privateData.getTrackID() != null)
+				{
+					object.put(HikeConstants.PRIVATE_DATA, privateData.serialize());
+				}
+				
 				data.put(!mIsSMS ? HikeConstants.HIKE_MESSAGE : HikeConstants.SMS_MESSAGE, mMessage);
 				
 				data.put(HikeConstants.TIMESTAMP, mTimestamp);
@@ -907,16 +921,31 @@ public class ConvMessage
 		JSONArray ids = new JSONArray();
 		try
 		{
-			ids.put(String.valueOf(mappedMsgId));
-			object.put(HikeConstants.DATA, ids);
 			object.put(HikeConstants.MESSAGE_ID, Long.toString(System.currentTimeMillis()/1000));
-			object.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.MESSAGE_READ);
 			object.put(HikeConstants.TO, mMsisdn);
+			if(privateData != null && privateData.getTrackID() != null && !Utils.isGroupConversation(mMsisdn))
+			{
+				// "d":{"msgid1":{track_id:"value"}}
+				JSONObject obj = new JSONObject();
+				Logger.d(AnalyticsConstants.MSG_REL_TAG, "pd serializing for dr, "+ privateData.serialize().toString());
+				obj.put(String.valueOf(mappedMsgId), privateData.serialize());
+				object.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.NEW_MESSAGE_READ);
+				object.put(HikeConstants.DATA, obj);
+			}
+			else
+			{
+				ids.put(String.valueOf(mappedMsgId));
+				object.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.MESSAGE_READ);
+				object.put(HikeConstants.DATA, ids);
+			}
 		}
 		catch (JSONException e)
 		{
 			Logger.e("ConvMessage", "invalid json message", e);
 		}
+
+		Logger.d(AnalyticsConstants.MSG_REL_TAG, "===========================================");
+		Logger.d(AnalyticsConstants.MSG_REL_TAG, "MR gen after Serializing DR :- " + object);
 		return object;
 	}
 
@@ -1041,7 +1070,7 @@ public class ConvMessage
 	{
 		if (getMessageType() == HikeConstants.MESSAGE_TYPE.WEB_CONTENT && webMetadata != null)
 		{
-			return webMetadata.isSilent();
+			return webMetadata.getPushType().equals(HikePlatformConstants.SILENT_PUSH);
 		}
 		// Do not play sound in case of bg change, status updates
 		if ((getParticipantInfoState() == ParticipantInfoState.CHAT_BACKGROUND) || (getParticipantInfoState() == ParticipantInfoState.PARTICIPANT_JOINED)
@@ -1145,4 +1174,16 @@ public class ConvMessage
 		this.notificationType = notificationType;
 	}
 
+	public MessagePrivateData getPrivateData()
+	{
+		return privateData;
+	}
+	
+	public void setPrivateData(MessagePrivateData messagePrivateData)
+	{	
+		if(messagePrivateData != null)
+		{
+			this.privateData = messagePrivateData;
+		}
+	}
 }

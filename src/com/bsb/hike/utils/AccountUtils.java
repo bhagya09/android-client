@@ -17,6 +17,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.PlatformUIDFetch;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -63,11 +66,12 @@ import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.http.CustomSSLSocketFactory;
 import com.bsb.hike.http.GzipByteArrayEntity;
 import com.bsb.hike.http.HikeHttpRequest;
 import com.bsb.hike.http.HikeHttpRequest.RequestType;
-import com.bsb.hike.http.HttpPatch;
 import com.bsb.hike.models.Birthday;
 import com.bsb.hike.models.ContactInfo;
 
@@ -282,6 +286,7 @@ public class AccountUtils
 
 	public static JSONObject executeRequest(HttpRequestBase request)
 	{
+		setNoTransform(request);
 		HttpClient client = getClient(request);
 		HttpResponse response;
 		try
@@ -666,7 +671,7 @@ public class AccountUtils
 	 */
 	public static List<ContactInfo> updateAddressBook(Map<String, List<ContactInfo>> new_contacts_by_id, JSONArray ids_json) throws IllegalStateException
 	{
-		HttpPatch request = new HttpPatch(base + "/account/addressbook");
+		HttpPost request = new HttpPost(base + "/account/addressbook-update");
 		addToken(request);
 		JSONObject data = new JSONObject();
 
@@ -681,6 +686,10 @@ public class AccountUtils
 			return null;
 		}
 
+		ArrayList<String> msisdnForMissingPlatformUID = ContactManager.getInstance().getMsisdnForMissingPlatformUID();
+
+		PlatformUIDFetch.fetchPlatformUid(HikePlatformConstants.PlatformUIDFetchType.PARTIAL_ADDRESS_BOOK, msisdnForMissingPlatformUID.toArray(new String[]{}));
+
 		String encoded = data.toString();
 		// try
 		// {
@@ -688,7 +697,32 @@ public class AccountUtils
 		request.setEntity(entity);
 		entity.setContentType("application/json");
 		JSONObject obj = executeRequest(request);
+		if(obj == null)
+		{
+			recordAddressBookUploadFailException(data.toString());
+		}
 		return getContactList(obj, new_contacts_by_id);
+	}
+	
+	private static void recordAddressBookUploadFailException(String jsonString)
+	{
+		if(!HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.EXCEPTION_ANALYTIS_ENABLED, false))
+		{
+			return;
+		}
+		try
+		{
+			JSONObject metadata = new JSONObject();
+
+			metadata.put(HikeConstants.PAYLOAD, jsonString);
+
+			Logger.d("AccountUtils", "recording addressbook upload fail event. json = " + jsonString);
+			HAManager.getInstance().record(HikeConstants.EXCEPTION, HikeConstants.LogEvent.ADDRESSBOOK_UPLOAD, metadata);
+		}
+		catch (JSONException e)
+		{
+			Logger.e(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+		}
 	}
 
 	private static JSONObject getJsonContactList(Map<String, List<ContactInfo>> contactsMap, boolean sendWAValue)
@@ -774,7 +808,8 @@ public class AccountUtils
 				JSONObject entry = entries.optJSONObject(i);
 				String msisdn = entry.optString("msisdn");
 				boolean onhike = entry.optBoolean("onhike");
-				ContactInfo info = new ContactInfo(id, msisdn, cList.get(i).getName(), cList.get(i).getPhoneNum(), onhike);
+				String platformId = entry.optString(HikePlatformConstants.PLATFORM_USER_ID);
+				ContactInfo info = new ContactInfo(id, msisdn, cList.get(i).getName(), cList.get(i).getPhoneNum(), onhike, platformId);
 				server_contacts.add(info);
 			}
 		}
@@ -957,6 +992,7 @@ public class AccountUtils
 		HttpRequestBase req = new HttpGet(AccountUtils.fileTransferBase + "/user/pft/");
 		addToken(req);
 		req.addHeader("X-SESSION-ID", sessionId);
+		AccountUtils.setNoTransform(req);
 		HttpClient httpclient = getClient(req);
 		HttpResponse response = httpclient.execute(req);
 		StatusLine statusLine = response.getStatusLine();
@@ -979,6 +1015,7 @@ public class AccountUtils
 	public static String crcValue(String fileKey) throws ClientProtocolException, IOException
 	{
 		HttpRequestBase req = new HttpGet(AccountUtils.fileTransferBase + "/user/ft/" + fileKey);
+		AccountUtils.setNoTransform(req);
 		addToken(req);
 		HttpClient httpclient = getClient(req);
 		HttpResponse response = httpclient.execute(req);
@@ -1030,5 +1067,10 @@ public class AccountUtils
 	public static void setNoTransform(URLConnection urlConnection)
 	{
 		urlConnection.setRequestProperty("Cache-Control", "no-transform");
+	}
+
+	public static void setNoTransform(HttpRequestBase request)
+	{
+		request.addHeader("Cache-Control", "no-transform");
 	}
 }
