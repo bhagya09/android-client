@@ -30,12 +30,15 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.db.DBBackupRestore;
+import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.http.HikeHttpRequest;
 import com.bsb.hike.http.HikeHttpRequest.HikeHttpCallback;
 import com.bsb.hike.http.HikeHttpRequest.RequestType;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.HikeHandlerUtil;
+import com.bsb.hike.models.StatusMessage;
+import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.platform.HikeSDKRequestHandler;
 import com.bsb.hike.tasks.CheckForUpdateTask;
@@ -770,9 +773,30 @@ public class HikeService extends Service
 					String msisdn = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, null);
 					HikeSharedPreferenceUtil.getInstance().removeData(HikeMessengerApp.SIGNUP_PROFILE_PIC_PATH);
 					Utils.renameTempProfileImage(msisdn);
+					
 					// clearing cache for this msisdn because if user go to profile before rename (above line) executes then icon blurred image will be set in cache
 					HikeMessengerApp.getLruCache().clearIconForMSISDN(msisdn);
 					Logger.d(getClass().getSimpleName(), "profile pic upload done");
+
+					// making dp change as timeline post as well
+					JSONObject data = response.optJSONObject("status");
+
+					if (data == null)
+					{
+						return;
+					}
+
+					String mappedId = data.optString(HikeConstants.STATUS_ID);
+					String name = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, Context.MODE_PRIVATE).getString(HikeMessengerApp.NAME_SETTING, "");
+					long time = (long) System.currentTimeMillis() / 1000;
+
+					// save status id of this post
+					Editor ed = HikeSharedPreferenceUtil.getInstance().getPref().edit();
+					ed.putString(HikeMessengerApp.DP_CHANGE_STATUS_ID, mappedId);
+					ed.commit();
+					
+					StatusMessage statusMessage = new StatusMessage(0, mappedId, msisdn, name, "", StatusMessageType.PROFILE_PIC, time, -1, 0);
+					HikeConversationsDatabase.getInstance().addStatusMessage(statusMessage, true);
 				}
 
 				public void onFailure()
