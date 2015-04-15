@@ -2111,6 +2111,12 @@ public class MqttMessagesManager
 		Logger.d(getClass().getSimpleName(), "Diff b/w server and client: " + diff);
 		Editor editor = settings.edit();
 		editor.putLong(HikeMessengerApp.SERVER_TIME_OFFSET, diff);
+		
+		JSONObject data = jsonObj.getJSONObject(HikeConstants.DATA);
+		long serverTimestampInMsec = serverTimestamp * 1000 + data.getLong(HikeConstants.TIMESTAMP_MILLIS);
+		long diffInMsec = System.currentTimeMillis() - serverTimestampInMsec;
+		Logger.d(getClass().getSimpleName(), "Diff b/w server and client in msec : " + diffInMsec);
+		editor.putLong(HikeMessengerApp.SERVER_TIME_OFFSET_MSEC, diffInMsec);
 		editor.commit();
 	}
 

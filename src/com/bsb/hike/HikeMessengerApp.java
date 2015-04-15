@@ -270,6 +270,8 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	public static final String SHOWN_SMS_SYNC_POPUP = "shownSMSSyncPopup";
 
 	public static final String SERVER_TIME_OFFSET = "serverTimeOffset";
+	
+	public static final String SERVER_TIME_OFFSET_MSEC = "serverTimeOffsetInMsec";
 
 	public static final String SHOWN_EMOTICON_TIP = "shownEmoticonTip1";
 	

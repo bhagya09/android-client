@@ -122,6 +122,7 @@ import android.text.TextWatcher;
 import android.text.style.StyleSpan;
 import android.util.Base64;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.util.Pair;
 import android.view.MotionEvent;
 import android.view.Surface;
@@ -168,14 +169,12 @@ import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.OriginType;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.ConvMessage.State;
-import com.bsb.hike.models.Conversation.MetaData;
 import com.bsb.hike.models.Conversation;
 import com.bsb.hike.models.FtueContactsData;
 import com.bsb.hike.models.GroupConversation;
 import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
-import com.bsb.hike.models.MessageMetadata;
 import com.bsb.hike.models.utils.JSONSerializable;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.notifications.HikeNotification;
@@ -195,7 +194,6 @@ import com.bsb.hike.ui.TimelineActivity;
 import com.bsb.hike.ui.WebViewActivity;
 import com.bsb.hike.ui.WelcomeActivity;
 import com.bsb.hike.utils.AccountUtils.AccountInfo;
-import com.bsb.hike.voip.VoIPService;
 import com.bsb.hike.voip.VoIPUtils;
 import com.google.android.maps.GeoPoint;
 
@@ -3030,6 +3028,12 @@ public class Utils
 		}
 	}
 
+	public static long getServerTimeOffsetInMsec(Context context)
+	{
+		long timeDiff = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getLong(HikeMessengerApp.SERVER_TIME_OFFSET_MSEC, 0);  
+		return timeDiff;
+	}
+	
 	public static long getServerTimeOffset(Context context)
 	{
 		return context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getLong(HikeMessengerApp.SERVER_TIME_OFFSET, 0);
@@ -3064,7 +3068,7 @@ public class Utils
 	 */
 	public static long applyOffsetToMakeTimeServerSync(Context context, long timeInMSec)
 	{
-		timeInMSec = timeInMSec - (getServerTimeOffset(context) * 1000);
+		timeInMSec = timeInMSec - getServerTimeOffsetInMsec(context);
 		return timeInMSec;
 	}
 
