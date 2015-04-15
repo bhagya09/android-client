@@ -74,23 +74,7 @@ public class DownloadProfileImageTask
 			}
 		}
 
-		RequestToken token;
-		if (TextUtils.isEmpty(urlString))
-		{
-			if (statusImage)
-			{
-				token = HttpRequests.downloadStatusImageRequest(id, fileName, requestListener);
-			}
-			else
-			{
-				boolean isGroupConversation = OneToNConversationUtils.isGroupConversation(msisdn);
-				token = HttpRequests.downloadProfileImageRequest(id, fileName, hasCustomIcon, isGroupConversation, requestListener);
-			}
-		}
-		else
-		{
-			token = HttpRequests.downloadProtipRequest(urlString, filePath, requestListener);
-		}
+		RequestToken token = HttpRequests.downloadImageTaskRequest(id, fileName, filePath, hasCustomIcon, statusImage, urlString, requestListener);
 		token.execute();
 	}
 

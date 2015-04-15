@@ -30,6 +30,8 @@ import java.util.List;
 
 import org.json.JSONObject;
 
+import android.text.TextUtils;
+
 import com.bsb.hike.modules.httpmgr.Header;
 import com.bsb.hike.modules.httpmgr.HttpUtils;
 import com.bsb.hike.modules.httpmgr.RequestToken;
@@ -47,6 +49,7 @@ import com.bsb.hike.modules.httpmgr.retry.DefaultRetryPolicy;
 import com.bsb.hike.modules.httpmgr.retry.IRetryPolicy;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.utils.AccountUtils;
+import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.Utils;
 
 public class HttpRequests
@@ -274,56 +277,42 @@ public class HttpRequests
 		return requestToken;
 	}
 	
-	public static RequestToken downloadStatusImageRequest(String id, String filePath, IRequestListener requestListener)
+	public static RequestToken downloadImageTaskRequest(String id, String fileName, String filePath, boolean hasCustomIcon, boolean statusImage, String url, IRequestListener requestListener)
 	{
-		RequestToken requestToken = new FileRequest.Builder()
-				.setUrl(getStatusBaseUrl() + "/" + id + "?only_image=true")
-				.setFile(filePath)
-				.setRequestListener(requestListener)
-				.setResponseOnUIThread(true)
-				.get()
-				.build();
-		return requestToken;
-	}
-
-	public static RequestToken downloadProfileImageRequest(String id, String filePath, boolean hasCustomIcon, boolean isGroupConvs, IRequestListener requestListener)
-	{
-		String url;
-		if (hasCustomIcon)
+		String urlString;
+		
+		if (TextUtils.isEmpty(url))
 		{
-			if (isGroupConvs)
+			if (statusImage)
 			{
-				url = getGroupBaseUrl() + id + "/avatar?fullsize=1";
+				urlString = getStatusBaseUrl() + "/" + id + "?only_image=true";
 			}
 			else
 			{
-				url = getAvatarBaseUrl() + "/" + id + "?fullsize=1";
+				boolean isGroupConversation = OneToNConversationUtils.isGroupConversation(id);
+
+				if (hasCustomIcon)
+				{
+					urlString = (isGroupConversation ? getGroupBaseUrl() + "/" + id + "/avatar" : getAvatarBaseUrl() + "/" + id)  + "?fullsize=1";
+				}
+				else
+				{
+					urlString = getStaticAvatarBaseUrl() + "/" + fileName;
+				}
 			}
 		}
 		else
 		{
-			url = getStaticAvatarBaseUrl() + filePath;
+			urlString = url;
 		}
 		RequestToken requestToken = new FileRequest.Builder()
-				.setUrl(url)
+				.setUrl(urlString)
 				.setFile(filePath)
 				.setRequestListener(requestListener)
 				.setResponseOnUIThread(true)
 				.get()
 				.build();
-		return requestToken;
-	}
-	
-	public static RequestToken downloadProtipRequest(String url, String filePath, IRequestListener requestListener)
-	{
-		RequestToken requestToken = new FileRequest.Builder()
-				.setUrl(url)
-				.setFile(filePath)
-				.setRequestListener(requestListener)
-				.setResponseOnUIThread(true)
-				.get()
-				.build();
-		return requestToken;
+		return requestToken;		
 	}
 	
 	public static RequestToken editProfileAvatarRequest(String filePath, IRequestListener requestListener)
