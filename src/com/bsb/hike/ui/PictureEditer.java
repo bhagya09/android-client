@@ -127,14 +127,20 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 			@Override
 			public void onFailure()
 			{
-				PictureEditer.this.finish();
-				return;
+				PictureEditer.this.runOnUiThread(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						PictureEditer.this.finish();		
+					}
+				});
 			}
 
 			@Override
 			public void onComplete(final Bitmap bmp)
 			{
-				HikeUiHandler.getHandler().post(new Runnable()
+				PictureEditer.this.runOnUiThread(new Runnable()
 				{
 					@Override
 					public void run()
