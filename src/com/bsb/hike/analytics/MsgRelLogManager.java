@@ -17,6 +17,7 @@ import com.bsb.hike.models.HikePacket;
 import com.bsb.hike.models.MessagePrivateData;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.Utils;
 
 public class MsgRelLogManager
@@ -33,7 +34,7 @@ public class MsgRelLogManager
 	 */
 	public static void startMessageRelLogging(ConvMessage convMessage, String msgType)
 	{
-		if (convMessage != null && !Utils.isGroupConversation(convMessage.getMsisdn()))
+		if (convMessage != null)
 		{
 			if (isMessageToBeTracked(msgType))
 			{
@@ -124,7 +125,7 @@ public class MsgRelLogManager
 	public static void logMsgRelEvent(ConvMessage convMessage, String eventType)
 	{
 		MessagePrivateData messagePrivateData = convMessage.getPrivateData();
-		if (messagePrivateData != null && messagePrivateData.getTrackID() != null && !Utils.isGroupConversation(convMessage.getMsisdn()))
+		if (messagePrivateData != null && messagePrivateData.getTrackID() != null && !OneToNConversationUtils.isOneToNConversation(convMessage.getMsisdn()))
 		{
 			recordMsgRel(messagePrivateData.getTrackID(), eventType, messagePrivateData.getMsgType());
 		}

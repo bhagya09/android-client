@@ -558,7 +558,7 @@
     <string name="new_update">Nouvelle mise à jour</string>
     <string name="invite_via_facebook">Inviter via Facebook</string>
     <string name="invite_via_twitter">Inviter via Twitter</string>
-    <string name="search_hint">Rechercher</string>
+    <string name="search">Rechercher</string>
     <string name="fb_invite_success">Invitation non remise</string>
     <string name="fb_invite_failed">Invitation annulée</string>
     <string name="social_invite_network_error">L\'invitation n\'a pas été envoyée. Vérifie tes paramètres réseau.</string>

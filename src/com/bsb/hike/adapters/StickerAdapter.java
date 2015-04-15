@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -23,8 +22,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bsb.hike.HikeConstants.EmoticonType;
 import com.bsb.hike.R;
+import com.bsb.hike.media.StickerPickerListener;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.models.StickerPageAdapterItem;
@@ -32,7 +31,6 @@ import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadSource;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadType;
 import com.bsb.hike.smartImageLoader.StickerLoader;
 import com.bsb.hike.smartImageLoader.StickerOtherIconLoader;
-import com.bsb.hike.ui.ChatThread;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
@@ -45,7 +43,7 @@ public class StickerAdapter extends PagerAdapter implements StickerEmoticonIconP
 
 	private LayoutInflater inflater;
 
-	private Activity activity;
+	private Context mContext;
 
 	private Map<String, StickerPageObjects> stickerObjMap;
 	
@@ -53,6 +51,8 @@ public class StickerAdapter extends PagerAdapter implements StickerEmoticonIconP
 	
 	private StickerOtherIconLoader stickerOtherIconLoader;
 	
+	private StickerPickerListener mStickerPickerListener;
+
 	private class StickerPageObjects
 	{
 		private GridView stickerGridView;
@@ -80,14 +80,15 @@ public class StickerAdapter extends PagerAdapter implements StickerEmoticonIconP
 		}
 	}
 
-	public StickerAdapter(Activity activity)
+	public StickerAdapter(Context context, StickerPickerListener listener)
 	{
-		this.inflater = LayoutInflater.from(activity);
-		this.activity = activity;
+		this.inflater = LayoutInflater.from(context);
+		this.mContext = context;
+		this.mStickerPickerListener = listener;
 		instantiateStickerList();
 		stickerObjMap = Collections.synchronizedMap(new HashMap<String, StickerAdapter.StickerPageObjects>());
-		worker = new StickerLoader(activity.getApplicationContext());
-		stickerOtherIconLoader = new StickerOtherIconLoader(activity, true);
+		worker = new StickerLoader(mContext);
+		stickerOtherIconLoader = new StickerOtherIconLoader(mContext, true);
 		registerListener();
 		Logger.d(getClass().getSimpleName(), "Sticker Adapter instantiated ....");
 	}
@@ -149,7 +150,7 @@ public class StickerAdapter extends PagerAdapter implements StickerEmoticonIconP
 		filter.addAction(StickerManager.RECENTS_UPDATED);
 		filter.addAction(StickerManager.STICKERS_PROGRESS);
 		filter.addAction(StickerManager.MORE_STICKERS_DOWNLOADED);
-		LocalBroadcastManager.getInstance(activity).registerReceiver(mMessageReceiver, filter);
+		LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiver, filter);
 	}
 
 	private BroadcastReceiver mMessageReceiver = new BroadcastReceiver()
@@ -169,19 +170,7 @@ public class StickerAdapter extends PagerAdapter implements StickerEmoticonIconP
 						if (st != null)
 						{
 							stickerPageAdapter.updateRecentsList(st);
-							activity.runOnUiThread(new Runnable()
-							{
-								@Override
-								public void run()
-								{
-									if (!isCurrentEmoticonTypeStickers())
-									{
-										return;
-									}
-
-									stickerPageAdapter.notifyDataSetChanged();
-								}
-							});
+							stickerPageAdapter.notifyDataSetChanged();
 						}
 					}
 				}
@@ -197,14 +186,8 @@ public class StickerAdapter extends PagerAdapter implements StickerEmoticonIconP
 				{
 					return;
 				}
-				activity.runOnUiThread(new Runnable()
-				{
-					@Override
-					public void run()
-					{
-						initStickers(category);
-					}
-				});
+				
+				initStickers(category);
 			}
 			else if(intent.getAction().equals(StickerManager.STICKERS_PROGRESS))
 			{
@@ -235,35 +218,18 @@ public class StickerAdapter extends PagerAdapter implements StickerEmoticonIconP
 				{
 					if (intent.getAction().equals(StickerManager.STICKERS_FAILED) && (DownloadType.NEW_CATEGORY.equals(type) || DownloadType.MORE_STICKERS.equals(type)))
 					{
-						activity.runOnUiThread(new Runnable()
-						{
-							@Override
-							public void run()
-							{
-								if (!isCurrentEmoticonTypeStickers())
-								{
-									return;
-								}
 								if(failedDueToLargeFile)
 								{
-									Toast.makeText(activity, R.string.out_of_space, Toast.LENGTH_SHORT).show();
+									Toast.makeText(mContext, R.string.out_of_space, Toast.LENGTH_SHORT).show();
 								}
 								Logger.d(getClass().getSimpleName(), "Download failed for new category " + cat.getCategoryId());
 								cat.setState(StickerCategory.RETRY);
 								addViewBasedOnState(stickerObjMap.get(cat.getCategoryId()), cat);
-							}
-						});
+							
 					}
 					else if (intent.getAction().equals(StickerManager.STICKERS_DOWNLOADED) && DownloadType.NEW_CATEGORY.equals(type))
 					{
-						activity.runOnUiThread(new Runnable()
-						{
-							@Override
-							public void run()
-							{
 								initStickers(spo, cat);
-							}
-						});
 					}
 				}
 			}
@@ -279,7 +245,7 @@ public class StickerAdapter extends PagerAdapter implements StickerEmoticonIconP
 		checkAndSetEmptyView(parent, emptyView, category, stickerGridView);
 
 		StickerPageObjects spo = new StickerPageObjects(stickerGridView);
-		stickerGridView.setNumColumns(StickerManager.getInstance().getNumColumnsForStickerGrid(activity));
+		stickerGridView.setNumColumns(StickerManager.getInstance().getNumColumnsForStickerGrid(mContext));
 		stickerObjMap.put(category.getCategoryId(), spo);
 		initStickers(spo, category);
 		
@@ -291,13 +257,13 @@ public class StickerAdapter extends PagerAdapter implements StickerEmoticonIconP
 		if (category.isCustom())
 		{
 			// Set Recents EmptyView
-			empty = LayoutInflater.from(activity).inflate(R.layout.recent_empty_view, emptyView);
+			empty = LayoutInflater.from(mContext).inflate(R.layout.recent_empty_view, emptyView);
 		}
 
 		else
 		{
 			// Set Download EmptyView
-			empty = LayoutInflater.from(activity).inflate(R.layout.sticker_pack_empty_view, emptyView);
+			empty = LayoutInflater.from(mContext).inflate(R.layout.sticker_pack_empty_view, emptyView);
 			CustomFontButton downloadBtn = (CustomFontButton) empty.findViewById(R.id.download_btn);
 			TextView categoryName = (TextView) empty.findViewById(R.id.category_name);
 			TextView category_details = (TextView) empty.findViewById(R.id.category_details);
@@ -307,13 +273,13 @@ public class StickerAdapter extends PagerAdapter implements StickerEmoticonIconP
 			if(category.getTotalStickers() > 0)
 			{
 				category_details.setVisibility(View.VISIBLE);
-				String detailsString = activity.getString(R.string.n_stickers, category.getTotalStickers());
+				String detailsString = mContext.getString(R.string.n_stickers, category.getTotalStickers());
 				if(category.getCategorySize() > 0)
 				{
 					detailsString += ", " + Utils.getSizeForDisplay(category.getCategorySize());
 				}
 				category_details.setText(detailsString);
-				if(Utils.getDeviceOrientation(activity.getApplicationContext()) == Configuration.ORIENTATION_LANDSCAPE)
+				if(Utils.getDeviceOrientation(mContext) == Configuration.ORIENTATION_LANDSCAPE)
 				{
 					separator.setVisibility(View.VISIBLE);
 				}
@@ -321,7 +287,7 @@ public class StickerAdapter extends PagerAdapter implements StickerEmoticonIconP
 			else
 			{
 				category_details.setVisibility(View.GONE);
-				if(Utils.getDeviceOrientation(activity.getApplicationContext()) == Configuration.ORIENTATION_LANDSCAPE)
+				if(Utils.getDeviceOrientation(mContext) == Configuration.ORIENTATION_LANDSCAPE)
 				{
 					separator.setVisibility(View.GONE);
 				}
@@ -340,7 +306,7 @@ public class StickerAdapter extends PagerAdapter implements StickerEmoticonIconP
 					{
 						category.setUpdateAvailable(false);
 					}
-					StickerManager.getInstance().initialiseDownloadStickerTask(category, DownloadSource.FIRST_TIME, DownloadType.NEW_CATEGORY, activity);
+					StickerManager.getInstance().initialiseDownloadStickerTask(category, DownloadSource.FIRST_TIME, DownloadType.NEW_CATEGORY, mContext);
 					setupStickerPage(parent, category);
 				}
 			});
@@ -387,22 +353,6 @@ public class StickerAdapter extends PagerAdapter implements StickerEmoticonIconP
 		}
 	}
 
-	/**
-	 * This method was added to ensure that the current emoticon type in the chat thread is of sticker type. This was added since there was a case in low end devices where the
-	 * palette was dismissed but the sticker's scroll listener still tried to get categories
-	 * 
-	 * @return
-	 */
-	private boolean isCurrentEmoticonTypeStickers()
-	{
-		EmoticonType emoticonType = ((ChatThread) activity).getCurrentEmoticonType();
-		if (emoticonType != EmoticonType.STICKERS)
-		{
-			return false;
-		}
-		return true;
-	}
-
 	public void initStickers(StickerCategory category)
 	{
 		StickerPageObjects spo = stickerObjMap.get(category.getCategoryId());
@@ -416,13 +366,10 @@ public class StickerAdapter extends PagerAdapter implements StickerEmoticonIconP
 	
 	private void initStickers(StickerPageObjects spo, final StickerCategory category)
 	{
-		if (!isCurrentEmoticonTypeStickers())
-		{
-			return;
-		}
 
 		spo.getStickerGridView().setVisibility(View.VISIBLE);
 		final List<Sticker> stickersList = category.getStickerList();
+		
 		final List<StickerPageAdapterItem> stickerPageList = StickerManager.getInstance().generateStickerPageAdapterItemList(stickersList);
 		
 		/**
@@ -442,7 +389,7 @@ public class StickerAdapter extends PagerAdapter implements StickerEmoticonIconP
 		 */
 		if(stickersList.size() == 0 && (state == StickerCategory.DOWNLOADING || state == StickerCategory.RETRY))
 		{
-			int totalPlaceHolders = 2 * StickerManager.getInstance().getNumColumnsForStickerGrid(activity) - 1;
+			int totalPlaceHolders = 2 * StickerManager.getInstance().getNumColumnsForStickerGrid(mContext) - 1;
 			while(totalPlaceHolders > 0)
 			{
 				stickerPageList.add(new StickerPageAdapterItem(StickerPageAdapterItem.PLACE_HOLDER));
@@ -461,7 +408,7 @@ public class StickerAdapter extends PagerAdapter implements StickerEmoticonIconP
 		}
 		else
 		{
-			final StickerPageAdapter stickerPageAdapter = new StickerPageAdapter(activity, stickerPageList, category, worker, spo.getStickerGridView());
+			final StickerPageAdapter stickerPageAdapter = new StickerPageAdapter(mContext, stickerPageList, category, worker, spo.getStickerGridView(), mStickerPickerListener);
 			spo.setStickerPageAdapter(stickerPageAdapter);
 			spo.getStickerGridView().setAdapter(stickerPageAdapter);
 		}
@@ -483,7 +430,7 @@ public class StickerAdapter extends PagerAdapter implements StickerEmoticonIconP
 
 	public void unregisterListeners()
 	{
-		LocalBroadcastManager.getInstance(activity).unregisterReceiver(mMessageReceiver);
+		LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiver);
 	}
 	
 	public StickerLoader getStickerLoader()

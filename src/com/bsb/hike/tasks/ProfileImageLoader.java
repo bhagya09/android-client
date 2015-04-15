@@ -22,6 +22,7 @@ import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.HikeSSLUtil;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.Utils;
 
 public class ProfileImageLoader extends AsyncTaskLoader<Boolean>
@@ -59,7 +60,7 @@ public class ProfileImageLoader extends AsyncTaskLoader<Boolean>
 			}
 			else
 			{
-				boolean isGroupConversation = Utils.isGroupConversation(id);
+				boolean isGroupConversation = OneToNConversationUtils.isGroupConversation(id);
 
 				if (hasCustomIcon)
 				{

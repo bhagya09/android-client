@@ -2,15 +2,10 @@ package com.bsb.hike.platform.bridge;
 
 import java.util.ArrayList;
 
-import com.bsb.hike.platform.HikePlatformConstants;
-import com.bsb.hike.platform.PlatformAlarmManager;
-import com.bsb.hike.platform.WebMetadata;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -25,10 +20,13 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.PlatformAlarmManager;
+import com.bsb.hike.platform.WebMetadata;
 import com.bsb.hike.platform.WebViewCardRenderer.WebViewHolder;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
-import com.bsb.hike.utils.IntentManager;
+import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
@@ -298,7 +296,7 @@ public class PlatformJavaScriptBridge extends JavascriptBridge
 					Activity mContext = weakActivity.get();
 					if(mContext!=null)
 					{
-						final Intent intent = IntentManager.getForwardIntentForConvMessage(mContext, message,
+						final Intent intent = IntentFactory.getForwardIntentForConvMessage(mContext, message,
 							PlatformContent.getForwardCardData(message.webMetadata.JSONtoString()));
 						mContext.startActivity(intent);
 					}

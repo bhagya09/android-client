@@ -17,14 +17,15 @@ import android.graphics.drawable.Drawable;
 import android.os.Build.VERSION_CODES;
 import android.support.v4.util.LruCache;
 
-
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.BitmapModule.RecyclingBitmapDrawable;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.smartcache.HikeLruCache.ImageCacheParams;
 import com.bsb.hike.ui.ProfileActivity;
+import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.utils.customClasses.MySoftReference;
 
@@ -328,16 +329,14 @@ public class HikeLruCache extends LruCache<String, BitmapDrawable>
 	
 	private String getDefaultAvatarKey(String msisdn)
 	{
-		boolean isGroupConversation = Utils.isGroupConversation(msisdn);
-		boolean isBroadcastConversation = Utils.isBroadcastConversation(msisdn);
 		int index = BitmapUtils.iconHash(msisdn) % (HikeConstants.DEFAULT_AVATAR_KEYS.length);
 		
 		String key = HikeConstants.DEFAULT_AVATAR_KEYS[index];
-		if(isBroadcastConversation)
+		if(OneToNConversationUtils.isBroadcastConversation(msisdn))
 		{
 			key += HikeConstants.IS_BROADCAST;
 		}
-		else if(isGroupConversation)
+		else if(OneToNConversationUtils.isGroupConversation(msisdn))
 		{
 			key += HikeConstants.IS_GROUP;
 		}

@@ -29,7 +29,7 @@ import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.service.HikeService;
 import com.bsb.hike.ui.HikeAuthActivity;
-import com.bsb.hike.utils.IntentManager;
+import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
@@ -68,7 +68,7 @@ public class HikeSDKRequestHandler extends Handler implements Listener
 				{
 					return;
 				}
-				IntentManager.openHikeSDKAuth(mContext, Message.obtain(msg));
+				IntentFactory.openHikeSDKAuth(mContext, Message.obtain(msg));
 			};
 		};
 

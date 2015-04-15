@@ -23,6 +23,7 @@ import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.GroupParticipant;
+import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.Utils;
 
@@ -189,7 +190,7 @@ public class TransientCache extends ContactsCache
 		writeLock.lock();
 		try
 		{
-			if (Utils.isGroupConversation(msisdn))
+			if (OneToNConversationUtils.isOneToNConversation(msisdn))
 			{
 				removeGroup(msisdn);
 			}
