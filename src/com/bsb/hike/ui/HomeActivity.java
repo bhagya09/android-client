@@ -1813,16 +1813,18 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 				case 12:
 					// Take a photo
 					accountPrefs.edit().putBoolean(HikeConstants.SHOW_PHOTOS_RED_DOT, false).commit();
-					Intent intent1 = new Intent(HomeActivity.this, PictureEditer.class);
-					startActivity(intent1);
 					
-					PendingIntent editorPendingIntent = PendingIntent.getActivity(HikeMessengerApp.getInstance().getApplicationContext(), RESULT_OK, intent1, PendingIntent.FLAG_UPDATE_CURRENT);
+					Intent picEditerIntent = new Intent(HomeActivity.this, PictureEditer.class);
+					
+					PendingIntent editorPendingIntent = PendingIntent.getActivity(HikeMessengerApp.getInstance().getApplicationContext(), RESULT_OK, picEditerIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 					
 					// Open gallery
 					Intent galleryPickerIntent = IntentManager.getHikeGalleryPickerIntent(HomeActivity.this, false, false,true, GalleryActivity.PHOTOS_EDITOR_ACTION_BAR_TYPE, editorPendingIntent);
+					
 					startActivity(galleryPickerIntent);
 					
 					sendAnalyticsTakePicture();
+					
 					break;
 				}
 
