@@ -3591,7 +3591,7 @@ public class MqttMessagesManager
 				}
 					
 				// Check if the initiator (us) has already hung up
-				if (metadataJSON.getBoolean(VoIPConstants.Extras.INITIATOR) == false && VoIPService.isConnected() == false &&
+				if (metadataJSON.getBoolean(VoIPConstants.Extras.INITIATOR) == false &&
 						metadataJSON.getInt(VoIPConstants.Extras.CALL_ID) != VoIPService.getCallId()) {
 					Logger.w(VoIPConstants.TAG, "Receiving a reply for a terminated call. local: " + VoIPService.getCallId() +
 							", remote: " + metadataJSON.getInt(VoIPConstants.Extras.CALL_ID));

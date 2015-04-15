@@ -63,6 +63,7 @@ import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentManager;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 import com.bsb.hike.voip.VoIPClient.ConnectionMethods;
 import com.bsb.hike.voip.VoIPConstants.CallQuality;
 import com.bsb.hike.voip.VoIPDataPacket.PacketType;
@@ -484,6 +485,7 @@ public class VoIPService extends Service {
 	public void onDestroy() {
 		super.onDestroy();
 		stop();
+		setCallid(0);	// Redundant, for bug #44018
 		dismissNotification();
 		releaseWakeLock();
 		Logger.d(VoIPConstants.TAG, "VoIP Service destroyed.");
@@ -564,9 +566,6 @@ public class VoIPService extends Service {
 	}
 
 	private void showNotification() {
-		
-		if (!connected)
-			return;
 		
 //		Logger.d(VoIPConstants.TAG, "Showing notification..");
 		Intent myIntent = new Intent(getApplicationContext(), VoIPActivity.class);
@@ -1108,8 +1107,6 @@ public class VoIPService extends Service {
 						startReconnectBeeps();
 						if (clientSelf.isInitiator() && isConnected() && isAudioRunning())
 							reconnect();
-						else if (!isConnected())	// Give the call receiver time so the initiator can reestablish connection.
-							hangUp();
 					}
 					
 					if (System.currentTimeMillis() - lastHeartbeat > HEARTBEAT_HARD_TIMEOUT) {
@@ -2230,6 +2227,14 @@ public class VoIPService extends Service {
 		edit.commit();
 	}
 	
+	/**
+	 * Is the VoIP service currently connected to another phone?
+	 * This can return <b>false</b> even for an ongoing call, in case
+	 * a reconnection is being attempted. To check if we are current in call, 
+	 * use getCallId() instead.  
+	 * 
+	 * @return
+	 */
 	public static boolean isConnected() {
 		return connected;
 	}
@@ -2240,11 +2245,12 @@ public class VoIPService extends Service {
 	
 	public void setHold(boolean newHold) {
 		
+		Logger.d(VoIPConstants.TAG, "Changing hold to: " + newHold + " from: " + this.hold);
+
 		if (this.hold == newHold)
 			return;
 		
 		this.hold = newHold;
-		Logger.d(VoIPConstants.TAG, "Changing hold to: " + newHold);
 		
 		if (newHold == true) {
 			if (recordingThread != null)
