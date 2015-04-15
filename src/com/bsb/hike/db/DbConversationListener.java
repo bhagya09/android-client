@@ -468,10 +468,14 @@ public class DbConversationListener implements Listener
 			ArrayList<String> platformIds = new ArrayList();
 			for (String id : toArray)
 			{
-				if (TextUtils.isEmpty(id))
+				if (!TextUtils.isEmpty(id))
 				{
 					platformIds.add(id);
 				}
+			}
+			if ( platformIds.size() == 0)
+			{
+				return;
 			}
             ArrayList<String> msisdns = ContactManager.getInstance().getMsisdnFromId(platformIds);
             ArrayList<ContactInfo> listOfContacts = new ArrayList<ContactInfo>();

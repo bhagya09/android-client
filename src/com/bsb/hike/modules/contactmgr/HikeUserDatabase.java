@@ -75,7 +75,7 @@ class HikeUserDatabase extends SQLiteOpenHelper
 				+ DBConstants.LAST_SEEN + " INTEGER DEFAULT -1, " // When this user was last seen on hike
 				+ DBConstants.IS_OFFLINE + " INTEGER DEFAULT 1, " // Whether this user is online or not
 				+ DBConstants.INVITE_TIMESTAMP + " INTEGER DEFAULT 0, " // When this user was last invited.
-				+ DBConstants.PLATFORM_USER_ID + " TEXT "    // Platform user id
+				+ DBConstants.PLATFORM_USER_ID + " TEXT DEFAULT ''"    // Platform user id
 				+ " )";
 
 		db.execSQL(create);
