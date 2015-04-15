@@ -2106,8 +2106,13 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 
 	public ArrayList<String> getMsisdnFromId(ArrayList<String> selectionArgs)
 	{
+		String msisdnStatement = Utils.getMsisdnStatement(selectionArgs);
+		if (TextUtils.isEmpty(msisdnStatement))
+		{
+			return new ArrayList<>();
+		}
 		Cursor c = getReadableDatabase().query(DBConstants.USERS_TABLE, new String[] { DBConstants.MSISDN },
-				DBConstants.PLATFORM_USER_ID + " IN " + Utils.getMsisdnStatement(selectionArgs), null, null, null, null);
+				DBConstants.PLATFORM_USER_ID + " IN " + msisdnStatement, null, null, null, null);
 
 		ArrayList<String> msisdnList = new ArrayList<String>();
 
