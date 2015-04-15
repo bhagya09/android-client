@@ -584,27 +584,27 @@ public class VoIPService extends Service {
 
 		String title = null;
 		if (clientPartner.getName() == null)
-			title = "Hike Call";
+			title = getString(R.string.voip_call_chat);
 		else
-			title = "Hike Call with " + clientPartner.getName();
+			title = getString(R.string.voip_call_notification_title, clientPartner.getName()); 
 		
 		String text = null;
 		switch (getCallStatus()) {
 		case ON_HOLD:
-			text = "Call on hold";
+			text = getString(R.string.voip_on_hold);
 			break;
 			
 		case OUTGOING_CONNECTING:
 		case OUTGOING_RINGING:
-			text = "Connecting..";
+			text = getString(R.string.voip_call_summary_outgoing);
 			break;
 			
 		case INCOMING_CALL:
-			text = "Incoming Call";
+			text = getString(R.string.voip_call_summary_incoming);
 			break;
 			
 		default:
-			text = "Call in progress " + durationString;
+			text = getString(R.string.voip_call_notification_text, durationString); 
 			break;
 		}
 
