@@ -1,9 +1,5 @@
 package com.bsb.hike.notifications;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -31,7 +27,6 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.Action;
 import android.text.SpannableString;
 import android.text.TextUtils;
-import android.util.SparseArray;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeConstants.NotificationType;
@@ -40,8 +35,10 @@ import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.AppOpenSource;
-import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.analytics.HAManager.EventPriority;
+import com.bsb.hike.chatthread.ChatThreadActivity;
+import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
@@ -53,10 +50,9 @@ import com.bsb.hike.models.Protip;
 import com.bsb.hike.models.StatusMessage;
 import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.modules.contactmgr.ContactManager;
-import com.bsb.hike.platform.content.PlatformContentConstants;
-import com.bsb.hike.ui.ChatThread;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.voip.VoIPUtils;
@@ -354,12 +350,13 @@ public class HikeNotification
 
 		// we've got to invoke the chat thread from here with the respective
 		// users
-		final Intent notificationIntent = new Intent(context, ChatThread.class);
+		final Intent notificationIntent = new Intent(context, ChatThreadActivity.class);
 		if (contactInfo.getName() != null)
 		{
 			notificationIntent.putExtra(HikeConstants.Extras.NAME, contactInfo.getName());
 		}
 		notificationIntent.putExtra(HikeConstants.Extras.MSISDN, contactInfo.getMsisdn());
+		notificationIntent.putExtra(HikeConstants.Extras.WHICH_CHAT_THREAD, ChatThreadUtils.getChatThreadType(contactInfo.getMsisdn()));
 		notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
 		/*
@@ -391,7 +388,7 @@ public class HikeNotification
 		String partName = "";
 		// For showing the name of the contact that sent the message in a group
 		// chat
-		if (convMsg.isGroupChat() && !TextUtils.isEmpty(convMsg.getGroupParticipantMsisdn()) && convMsg.getParticipantInfoState() == ParticipantInfoState.NO_INFO)
+		if (convMsg.isOneToNChat() && !TextUtils.isEmpty(convMsg.getGroupParticipantMsisdn()) && convMsg.getParticipantInfoState() == ParticipantInfoState.NO_INFO)
 		{
 			GroupParticipant groupParticipant = HikeConversationsDatabase.getInstance().getGroupParticipant(convMsg.getMsisdn(), convMsg.getGroupParticipantMsisdn());
 
@@ -428,7 +425,7 @@ public class HikeNotification
 			final String messageString = (!convMsg.isFileTransferMessage()) ? convMsg.getMessage() : HikeFileType.getFileTypeMessage(context, convMsg.getMetadata().getHikeFiles()
 					.get(0).getHikeFileType(), convMsg.isSent());
 
-			if (convMsg.isGroupChat())
+			if (convMsg.isOneToNChat())
 			{
 				message = partName + HikeConstants.SEPARATOR + messageString;
 			}
@@ -632,12 +629,12 @@ public class HikeNotification
 		}
 
 		final int notificationId = HIKE_TO_OFFLINE_PUSH_NOTIFICATION_ID;
-		final Intent notificationIntent = new Intent(context, ChatThread.class);
+		final Intent notificationIntent = new Intent(context, ChatThreadActivity.class);
 
 		String firstMsisdn = msisdnList.get(0);
 		notificationIntent.putExtra(HikeConstants.Extras.MSISDN, (firstMsisdn));
 		notificationIntent.putExtra(HikeConstants.Extras.NAME, (nameMap.get(firstMsisdn)));
-
+		notificationIntent.putExtra(HikeConstants.Extras.WHICH_CHAT_THREAD, ChatThreadUtils.getChatThreadType(firstMsisdn));
 		notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
 		notificationIntent.setData((Uri.parse("custom://" + notificationId)));
@@ -798,7 +795,8 @@ public class HikeNotification
 		}
 		else if (statusMessage.getStatusMessageType() == StatusMessageType.FRIEND_REQUEST_ACCEPTED)
 		{
-			message = context.getString(R.string.favorite_confirmed_notification, key);
+			String infoSubText = context.getString(Utils.isLastSeenSetToFavorite() ? R.string.both_ls_status_update : R.string.status_updates_proper_casing);
+			message = context.getString(R.string.favorite_confirmed_notification, key, infoSubText);
 			text = message;
 		}
 		else if (statusMessage.getStatusMessageType() == StatusMessageType.PROFILE_PIC)
@@ -1368,8 +1366,8 @@ public class HikeNotification
 		int notifType = NotificationType.NORMALMSG1TO1;
 		if (Utils.isBot(msisdn))
 			notifType = NotificationType.BOTMSG;
-
-		if (Utils.isGroupConversation(msisdn))
+		
+		if (OneToNConversationUtils.isOneToNConversation(msisdn))
 			notifType = NotificationType.NORMALGC;
 
 		if (HikeMessengerApp.isStealthMsisdn(msisdn))

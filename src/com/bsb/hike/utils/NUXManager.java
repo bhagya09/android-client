@@ -98,13 +98,13 @@ public class NUXManager
 
 	public void startNUX(Activity activity)
 	{
-		activity.startActivity(IntentManager.openInviteFriends(activity));
+		activity.startActivity(IntentFactory.openInviteFriends(activity));
 		activity.finish();
 	}
 
 	public void startNuxCustomMessage(String selectedFriends, Activity activity)
 	{
-		Intent in = IntentManager.openNuxCustomMessage(activity);
+		Intent in = IntentFactory.openNuxCustomMessage(activity);
 		in.putExtra(SELECTED_FRIENDS, selectedFriends);
 		activity.startActivity(in);
 	}
@@ -122,7 +122,7 @@ public class NUXManager
 		}
 		else
 		{
-			activity.startActivity(IntentManager.openNuxFriendSelector(activity));
+			activity.startActivity(IntentFactory.openNuxFriendSelector(activity));
 		}
 	}
 

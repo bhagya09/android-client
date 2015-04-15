@@ -55,6 +55,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.ocpsoft.prettytime.PrettyTime;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
+import android.accounts.AuthenticatorDescription;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityManager;
@@ -66,10 +69,11 @@ import android.content.ActivityNotFoundException;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.ComponentName;
+import android.content.ContentProviderOperation;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.DialogInterface.OnDismissListener;
 import android.content.Intent;
+import android.content.OperationApplicationException;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.ActivityInfo;
@@ -101,11 +105,19 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Environment;
 import android.os.PowerManager;
+import android.os.RemoteException;
 import android.os.StatFs;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
+import android.provider.ContactsContract.CommonDataKinds.Email;
+import android.provider.ContactsContract.CommonDataKinds.Event;
+import android.provider.ContactsContract.CommonDataKinds.Phone;
+import android.provider.ContactsContract.CommonDataKinds.StructuredName;
+import android.provider.ContactsContract.CommonDataKinds.StructuredPostal;
+import android.provider.ContactsContract.Data;
 import android.provider.ContactsContract.Intents.Insert;
+import android.provider.ContactsContract.RawContacts;
 import android.provider.MediaStore;
 import android.provider.Settings.Secure;
 import android.renderscript.Allocation;
@@ -140,7 +152,7 @@ import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -157,25 +169,31 @@ import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.TrafficsStatsFile;
+import com.bsb.hike.chatthread.ChatThreadActivity;
+import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.cropimage.CropImage;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.dialog.HikeDialog;
+import com.bsb.hike.dialog.HikeDialogFactory;
+import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.http.HikeHttpRequest;
+import com.bsb.hike.models.AccountData;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.ContactInfoData;
 import com.bsb.hike.models.ContactInfoData.DataType;
 import com.bsb.hike.models.ConvMessage;
-import com.bsb.hike.models.ConvMessage.OriginType;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.ConvMessage.State;
-import com.bsb.hike.models.Conversation.MetaData;
-import com.bsb.hike.models.Conversation;
 import com.bsb.hike.models.FtueContactsData;
-import com.bsb.hike.models.GroupConversation;
 import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
-import com.bsb.hike.models.MessageMetadata;
+import com.bsb.hike.models.Conversation.ConvInfo;
+import com.bsb.hike.models.Conversation.Conversation;
+import com.bsb.hike.models.Conversation.GroupConversation;
+import com.bsb.hike.models.Conversation.OneToNConvInfo;
+import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.models.utils.JSONSerializable;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.notifications.HikeNotification;
@@ -184,9 +202,6 @@ import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.tasks.AuthSDKAsyncTask;
 import com.bsb.hike.tasks.CheckForUpdateTask;
 import com.bsb.hike.tasks.SignupTask;
-import com.bsb.hike.tasks.SyncOldSMSTask;
-import com.bsb.hike.ui.ChatThread;
-import com.bsb.hike.ui.HikeDialog;
 import com.bsb.hike.ui.HikePreferences;
 import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.ui.PeopleActivity;
@@ -195,7 +210,6 @@ import com.bsb.hike.ui.TimelineActivity;
 import com.bsb.hike.ui.WebViewActivity;
 import com.bsb.hike.ui.WelcomeActivity;
 import com.bsb.hike.utils.AccountUtils.AccountInfo;
-import com.bsb.hike.voip.VoIPService;
 import com.bsb.hike.voip.VoIPUtils;
 import com.google.android.maps.GeoPoint;
 
@@ -356,28 +370,6 @@ public class Utils
 			}
 		}
 		return mInFromLeft;
-	}
-
-	public static Intent createIntentFromContactInfo(final ContactInfo contactInfo, boolean openKeyBoard)
-	{
-		Intent intent = new Intent();
-
-		// If the contact info was made using a group conversation, then the
-		// Group ID is in the contact ID
-		intent.putExtra(HikeConstants.Extras.MSISDN, Utils.isGroupConversation(contactInfo.getMsisdn()) ? contactInfo.getId() : contactInfo.getMsisdn());
-		intent.putExtra(HikeConstants.Extras.SHOW_KEYBOARD, openKeyBoard);
-		return intent;
-	}
-
-	public static Intent createIntentFromMsisdn(String msisdnOrGroupId, boolean openKeyBoard)
-	{
-		Intent intent = new Intent();
-
-		// If the contact info was made using a group conversation, then the
-		// Group ID is in the contact ID
-		intent.putExtra(HikeConstants.Extras.MSISDN, msisdnOrGroupId);
-		intent.putExtra(HikeConstants.Extras.SHOW_KEYBOARD, openKeyBoard);
-		return intent;
 	}
 
 	/** Create a File for saving an image or video */
@@ -757,16 +749,6 @@ public class Utils
 		return contactNames;
 	}
 
-	public static boolean isGroupConversation(String msisdn)
-	{
-		return msisdn != null && !msisdn.startsWith("+");
-	}
-	
-	public static boolean isBroadcastConversation(String msisdn)
-	{
-		return msisdn!=null && msisdn.startsWith("b:");
-	}
-
 	public static String validateBotMsisdn(String msisdn)
 	{
 		if (!msisdn.startsWith("+"))
@@ -807,15 +789,33 @@ public class Utils
 		}
 	}
 
-	public static String getGroupJoinHighlightText(JSONArray participantInfoArray, GroupConversation conversation)
+	public static String getConversationJoinHighlightText(JSONArray participantInfoArray, OneToNConvInfo convInfo)
 	{
 		JSONObject participant = (JSONObject) participantInfoArray.opt(0);
-		String highlight = ((GroupConversation) conversation).getGroupParticipantFirstNameAndSurname(participant.optString(HikeConstants.MSISDN));
+		String highlight = convInfo.getConvParticipantName(participant.optString(HikeConstants.MSISDN));
+		if (participantInfoArray.length() == 2)
+		{
+			JSONObject participant2 = (JSONObject) participantInfoArray.opt(1);
+			String name2 = convInfo.getConvParticipantName(participant2.optString(HikeConstants.MSISDN));
+
+			highlight += " and " + name2;
+		}
+		else if (participantInfoArray.length() > 2)
+		{
+			highlight += " and " + (participantInfoArray.length() - 1) + " others";
+		}
+		return highlight;
+	}
+	
+	public static String getOneToNConversationJoinHighlightText(JSONArray participantInfoArray, OneToNConversation conversation)
+	{
+		JSONObject participant = (JSONObject) participantInfoArray.opt(0);
+		String highlight = conversation.getConvParticipantFirstNameAndSurname(participant.optString(HikeConstants.MSISDN));
 
 		if (participantInfoArray.length() == 2)
 		{
 			JSONObject participant2 = (JSONObject) participantInfoArray.opt(1);
-			String name2 = ((GroupConversation) conversation).getGroupParticipantFirstNameAndSurname(participant2.optString(HikeConstants.MSISDN));
+			String name2 = conversation.getConvParticipantFirstNameAndSurname(participant2.optString(HikeConstants.MSISDN));
 
 			highlight += " and " + name2;
 		}
@@ -1120,6 +1120,7 @@ public class Utils
 			data.put(HikeConstants.SENDBOT, sendbot);
 			data.put(HikeConstants.MESSAGE_ID, Long.toString(System.currentTimeMillis() / 1000));
 			data.put(HikeConstants.RESOLUTION_ID, Utils.getResolutionId());
+			data.put(HikeConstants.NEW_LAST_SEEN_SETTING, true);
 			requestAccountInfo.put(HikeConstants.DATA, data);
 			HikeMqttManagerNew.getInstance().sendMessage(requestAccountInfo, HikeMqttManagerNew.MQTT_QOS_ONE);
 		}
@@ -2559,6 +2560,12 @@ public class Utils
 		InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
 		imm.showSoftInput(v, InputMethodManager.RESULT_UNCHANGED_SHOWN);
 	}
+	
+	public static void showSoftKeyboard(Context context)
+	{
+		InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+		imm.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT, InputMethodManager.HIDE_IMPLICIT_ONLY);
+	}
 
 	public static void sendLocaleToServer(Context context)
 	{
@@ -2608,79 +2615,6 @@ public class Utils
 	public static boolean isContactInternational(String msisdn)
 	{
 		return !msisdn.startsWith("+91");
-	}
-
-	public static Dialog showSMSSyncDialog(final Context context, boolean syncConfirmation)
-	{
-		final Dialog dialog = new Dialog(context, R.style.Theme_CustomDialog);
-		dialog.setContentView(R.layout.enable_sms_client_popup);
-
-		final View btnContainer = dialog.findViewById(R.id.button_container);
-
-		final ProgressBar syncProgress = (ProgressBar) dialog.findViewById(R.id.loading_progress);
-		TextView header = (TextView) dialog.findViewById(R.id.header);
-		final TextView info = (TextView) dialog.findViewById(R.id.body);
-		Button okBtn = (Button) dialog.findViewById(R.id.btn_ok);
-		Button cancelBtn = (Button) dialog.findViewById(R.id.btn_cancel);
-		final View btnDivider = dialog.findViewById(R.id.sms_divider);
-
-		header.setText(R.string.import_sms);
-		info.setText(R.string.import_sms_info);
-		okBtn.setText(R.string.yes);
-		cancelBtn.setText(R.string.no);
-
-		setupSyncDialogLayout(syncConfirmation, btnContainer, syncProgress, info, btnDivider);
-
-		okBtn.setOnClickListener(new OnClickListener()
-		{
-
-			@Override
-			public void onClick(View v)
-			{
-				HikeMessengerApp.getPubSub().publish(HikePubSub.SMS_SYNC_START, null);
-
-				executeSMSSyncStateResultTask(new SyncOldSMSTask(context));
-
-				setupSyncDialogLayout(false, btnContainer, syncProgress, info, btnDivider);
-
-				sendSMSSyncLogEvent(true);
-			}
-		});
-
-		cancelBtn.setOnClickListener(new OnClickListener()
-		{
-
-			@Override
-			public void onClick(View v)
-			{
-				dialog.dismiss();
-
-				sendSMSSyncLogEvent(false);
-			}
-		});
-
-		dialog.setOnDismissListener(new OnDismissListener()
-		{
-
-			@Override
-			public void onDismiss(DialogInterface dialog)
-			{
-				Editor editor = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).edit();
-				editor.putBoolean(HikeMessengerApp.SHOWN_SMS_SYNC_POPUP, true);
-				editor.commit();
-			}
-		});
-
-		dialog.show();
-		return dialog;
-	}
-
-	private static void setupSyncDialogLayout(boolean syncConfirmation, View btnContainer, ProgressBar syncProgress, TextView info, View btnDivider)
-	{
-		btnContainer.setVisibility(syncConfirmation ? View.VISIBLE : View.GONE);
-		syncProgress.setVisibility(syncConfirmation ? View.GONE : View.VISIBLE);
-		btnDivider.setVisibility(syncConfirmation ? View.VISIBLE : View.GONE);
-		info.setText(syncConfirmation ? R.string.import_sms_info : R.string.importing_sms_info);
 	}
 
 	public static int getResolutionId()
@@ -3438,7 +3372,20 @@ public class Utils
 		}
 	}
 
-	public static void executeConvAsyncTask(AsyncTask<Conversation, Void, Conversation[]> asyncTask, Conversation... conversations)
+	public static void executeConvInfoAsyncTask(AsyncTask<ConvInfo, Void, ConvInfo[]> asyncTask, ConvInfo... conversations)
+	{
+		if (Utils.isHoneycombOrHigher())
+		{
+			asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, conversations);
+		}
+		else
+		{
+			asyncTask.execute(conversations);
+		}
+	}
+	
+	
+	public static void executeConvAsyncTask(AsyncTask<ConvInfo, Void, Conversation[]> asyncTask, ConvInfo... conversations)
 	{
 		if (Utils.isHoneycombOrHigher())
 		{
@@ -3489,24 +3436,12 @@ public class Utils
 		return !convMessage.isSent() && convMessage.getState() == State.RECEIVED_UNREAD && convMessage.getParticipantInfoState() != ParticipantInfoState.STATUS_MESSAGE;
 	}
 
-	public static Intent createIntentForConversation(Context context, Conversation conversation)
+	public static void createShortcut(Activity activity, ConvInfo conv)
 	{
-		Intent intent = new Intent(context, ChatThread.class);
-		if (conversation.getContactName() != null)
-		{
-			intent.putExtra(HikeConstants.Extras.NAME, conversation.getContactName());
-		}
-		intent.putExtra(HikeConstants.Extras.MSISDN, conversation.getMsisdn());
-		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-		return intent;
-	}
-
-	public static void createShortcut(Activity activity, Conversation conv)
-	{
-		Intent shortcutIntent = Utils.createIntentForConversation(activity, conv);
+		Intent shortcutIntent = IntentFactory.createChatThreadIntentFromConversation(activity, conv);
 		Intent intent = new Intent();
 		intent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, shortcutIntent);
-		intent.putExtra(Intent.EXTRA_SHORTCUT_NAME, conv.getLabel());
+		intent.putExtra(Intent.EXTRA_SHORTCUT_NAME, conv.getConversationName());
 
 		Drawable avatarDrawable = Utils.getAvatarDrawableForNotificationOrShortcut(activity, conv.getMsisdn(), false);
 
@@ -3535,7 +3470,7 @@ public class Utils
 			Toast.makeText(context, context.getString(R.string.voip_offline_error), Toast.LENGTH_SHORT).show();
 			return;
 		}
-		context.startService(IntentManager.getVoipCallIntent(context, mContactNumber, source));
+		context.startService(IntentFactory.getVoipCallIntent(context, mContactNumber, source));
 	}
 
 	public static void startNativeCall(Context context, String msisdn)
@@ -3854,6 +3789,66 @@ public class Utils
 		}
 		context.startActivity(i);
 	}
+	
+	
+	public static void addToContacts(List<ContactInfoData> items, String name, Context context, Spinner accountSpinner)
+	{
+
+		AccountData accountData = (AccountData) accountSpinner.getSelectedItem();
+
+		ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
+		int rawContactInsertIndex = ops.size();
+
+		ops.add(ContentProviderOperation.newInsert(RawContacts.CONTENT_URI).withValue(RawContacts.ACCOUNT_TYPE, accountData.getType())
+				.withValue(RawContacts.ACCOUNT_NAME, accountData.getName()).build());
+
+		for (ContactInfoData contactInfoData : items)
+		{
+			switch (contactInfoData.getDataType())
+			{
+			case ADDRESS:
+				ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI).withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, rawContactInsertIndex)
+						.withValue(Data.MIMETYPE, StructuredPostal.CONTENT_ITEM_TYPE).withValue(StructuredPostal.DATA, contactInfoData.getData())
+						.withValue(StructuredPostal.TYPE, StructuredPostal.TYPE_CUSTOM).withValue(StructuredPostal.LABEL, contactInfoData.getDataSubType()).build());
+				break;
+			case EMAIL:
+				ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI).withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, rawContactInsertIndex)
+						.withValue(Data.MIMETYPE, Email.CONTENT_ITEM_TYPE).withValue(Email.DATA, contactInfoData.getData()).withValue(Email.TYPE, Email.TYPE_CUSTOM)
+						.withValue(Email.LABEL, contactInfoData.getDataSubType()).build());
+				break;
+			case EVENT:
+				ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI).withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, rawContactInsertIndex)
+						.withValue(Data.MIMETYPE, Event.CONTENT_ITEM_TYPE).withValue(Event.DATA, contactInfoData.getData()).withValue(Event.TYPE, Event.TYPE_CUSTOM)
+						.withValue(Event.LABEL, contactInfoData.getDataSubType()).build());
+				break;
+			case PHONE_NUMBER:
+				ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI).withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, rawContactInsertIndex)
+						.withValue(Data.MIMETYPE, Phone.CONTENT_ITEM_TYPE).withValue(Phone.NUMBER, contactInfoData.getData()).withValue(Phone.TYPE, Phone.TYPE_CUSTOM)
+						.withValue(Phone.LABEL, contactInfoData.getDataSubType()).build());
+				break;
+			}
+		}
+		ops.add(ContentProviderOperation.newInsert(Data.CONTENT_URI).withValueBackReference(Data.RAW_CONTACT_ID, rawContactInsertIndex)
+				.withValue(Data.MIMETYPE, StructuredName.CONTENT_ITEM_TYPE).withValue(StructuredName.DISPLAY_NAME, name).build());
+		boolean contactSaveSuccessful;
+		try
+		{
+			context.getContentResolver().applyBatch(ContactsContract.AUTHORITY, ops);
+			contactSaveSuccessful = true;
+		}
+		catch (RemoteException e)
+		{
+			e.printStackTrace();
+			contactSaveSuccessful = false;
+		}
+		catch (OperationApplicationException e)
+		{
+			e.printStackTrace();
+			contactSaveSuccessful = false;
+		}
+		Toast.makeText(context.getApplicationContext(), contactSaveSuccessful ? R.string.contact_saved : R.string.contact_not_saved, Toast.LENGTH_SHORT).show();
+	}
+
 
 	public static int getNumColumnsForGallery(Resources resources, int sizeOfImage)
 	{
@@ -3992,7 +3987,7 @@ public class Utils
 
 	public static void startChatThread(Context context, ContactInfo contactInfo)
 	{
-		Intent intent = new Intent(context, ChatThread.class);
+		Intent intent = new Intent(context, ChatThreadActivity.class);
 		if (contactInfo.getName() != null)
 		{
 			intent.putExtra(HikeConstants.Extras.NAME, contactInfo.getName());
@@ -4000,6 +3995,8 @@ public class Utils
 		intent.putExtra(HikeConstants.Extras.MSISDN, contactInfo.getMsisdn());
 		intent.putExtra(HikeConstants.Extras.SHOW_KEYBOARD, true);
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		String whichChatThread = ChatThreadUtils.getChatThreadType(contactInfo.getMsisdn());
+		intent.putExtra(HikeConstants.Extras.WHICH_CHAT_THREAD, whichChatThread);
 		context.startActivity(intent);
 	}
 
@@ -4031,8 +4028,8 @@ public class Utils
 			}
 			else
 			{
-				iconDrawable = context.getResources().getDrawable(Utils.isBroadcastConversation(msisdn)? R.drawable.ic_default_avatar_broadcast : 
-					(Utils.isGroupConversation(msisdn) ? R.drawable.ic_default_avatar_group : R.drawable.ic_default_avatar));
+				iconDrawable = context.getResources().getDrawable(OneToNConversationUtils.isBroadcastConversation(msisdn)? R.drawable.ic_default_avatar_broadcast : 
+					(OneToNConversationUtils.isGroupConversation(msisdn) ? R.drawable.ic_default_avatar_group : R.drawable.ic_default_avatar));
 			}
 			drawable = new LayerDrawable(new Drawable[] { background, iconDrawable });
 		}
@@ -4071,34 +4068,28 @@ public class Utils
 			return;
 		}
 
-		HikeDialog.showDialog(context, HikeDialog.FAVORITE_ADDED_DIALOG, new HikeDialog.HikeDialogListener()
+		HikeDialogFactory.showDialog(context, HikeDialogFactory.FAVORITE_ADDED_DIALOG, new HikeDialogListener()
 		{
 
 			@Override
-			public void positiveClicked(Dialog dialog)
+			public void positiveClicked(HikeDialog hikeDialog)
 			{
-				dialog.dismiss();
+				hikeDialog.dismiss();
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.SHOWN_ADD_FAVORITE_TIP, true);
 			}
 
 			@Override
-			public void neutralClicked(Dialog dialog)
+			public void neutralClicked(HikeDialog hikeDialog)
 			{
 			}
 
 			@Override
-			public void negativeClicked(Dialog dialog)
+			public void negativeClicked(HikeDialog hikeDialog)
 			{
-				dialog.dismiss();
+				hikeDialog.dismiss();
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.SHOWN_ADD_FAVORITE_TIP, true);
 			}
 
-			@Override
-			public void onSucess(Dialog dialog)
-			{
-				// TODO Auto-generated method stub
-
-			}
 		}, contactInfo.getFirstName());
 	}
 
@@ -4133,7 +4124,7 @@ public class Utils
 		HikeMessengerApp.getPubSub().publish(HikePubSub.FAVORITE_TOGGLED, favoriteAdded);
 	}
 
-	public static void addToContacts(Activity context, String msisdn)
+	public static void addToContacts(Context context, String msisdn)
 	{
 		Intent i = new Intent(Intent.ACTION_INSERT_OR_EDIT);
 		i.setType(ContactsContract.Contacts.CONTENT_ITEM_TYPE);
@@ -4141,7 +4132,7 @@ public class Utils
 		context.startActivity(i);
 	}
 
-	public static final void cancelScheduledStealthReset(Context context)
+	public static final void cancelScheduledStealthReset()
 	{
 		HikeSharedPreferenceUtil.getInstance().removeData(HikeMessengerApp.RESET_COMPLETE_STEALTH_START_TIME);
 	}
@@ -4778,13 +4769,13 @@ public class Utils
 		return bd;
 	}
 
-	public static void resetPinUnreadCount(Conversation conv)
+	public static void resetPinUnreadCount(OneToNConversation conv)
 	{
-		if (conv.getMetaData() != null)
+		if (conv.getMetadata() != null)
 		{
 			try
 			{
-				conv.getMetaData().setUnreadCount(HikeConstants.MESSAGE_TYPE.TEXT_PIN, 0);
+				conv.getMetadata().setUnreadPinCount(HikeConstants.MESSAGE_TYPE.TEXT_PIN, 0);
 			}
 			catch (JSONException e)
 			{
@@ -4874,7 +4865,7 @@ public class Utils
 	{
 		if (conversation instanceof GroupConversation)
 		{
-			Map<String, PairModified<GroupParticipant, String>> groupParticipants = ((GroupConversation) conversation).getGroupParticipantList();
+			Map<String, PairModified<GroupParticipant, String>> groupParticipants = ((GroupConversation) conversation).getConversationParticipantList();
 			String[] msisdnArray = new String[groupParticipants.size()];
 			String[] nameArray = new String[groupParticipants.size()];
 
@@ -5045,7 +5036,61 @@ public class Utils
 	{
 		return ctx.getResources().getConfiguration().orientation;
 	}
+	
+	public static List<AccountData> getAccountList(Context context)
+	{
+		Account[] a = AccountManager.get(context).getAccounts();
+		// Clear out any old data to prevent duplicates
+		List<AccountData> accounts = new ArrayList<AccountData>();
 
+		// Get account data from system
+		AuthenticatorDescription[] accountTypes = AccountManager.get(context).getAuthenticatorTypes();
+
+		// Populate tables
+		for (int i = 0; i < a.length; i++)
+		{
+			// The user may have multiple accounts with the same name, so we
+			// need to construct a
+			// meaningful display name for each.
+			String type = a[i].type;
+			/*
+			 * Only showing the user's google accounts
+			 */
+			if (!"com.google".equals(type))
+			{
+				continue;
+			}
+			String systemAccountType = type;
+			AuthenticatorDescription ad = getAuthenticatorDescription(systemAccountType, accountTypes);
+			AccountData data = new AccountData(a[i].name, ad, context);
+			accounts.add(data);
+		}
+
+		return accounts;
+	}
+	
+	/**
+	 * Obtain the AuthenticatorDescription for a given account type.
+	 * 
+	 * @param type
+	 *            The account type to locate.
+	 * @param dictionary
+	 *            An array of AuthenticatorDescriptions, as returned by AccountManager.
+	 * @return The description for the specified account type.
+	 */
+	private static AuthenticatorDescription getAuthenticatorDescription(String type, AuthenticatorDescription[] dictionary)
+	{
+		for (int i = 0; i < dictionary.length; i++)
+		{
+			if (dictionary[i].type.equals(type))
+			{
+				return dictionary[i];
+			}
+		}
+		// No match found
+		throw new RuntimeException("Unable to find matching authenticator");
+	}
+	
 	/**
 	 * Fetches the network connection using connectivity manager
 	 * 
@@ -5246,7 +5291,7 @@ public class Utils
 		{
 			if (allowOpeningActivity)
 			{
-				IntentManager.openWelcomeActivity(appContext);
+				IntentFactory.openWelcomeActivity(appContext);
 			}
 			return false;
 		}
@@ -5255,7 +5300,7 @@ public class Utils
 		{
 			if (allowOpeningActivity)
 			{
-				IntentManager.openSignupActivity(appContext);
+				IntentFactory.openSignupActivity(appContext);
 			}
 			return false;
 		}
@@ -5263,10 +5308,7 @@ public class Utils
 	}
 
 	/**
-<<<<<<< HEAD
 	 * Tells if User is on Telephonic/Audio/Vedio/Voip Call
-	 * 
-=======
 	 * Return whether response received is valid or not.
 	 * @param response
 	 * @return <li>false if either response is null if we get "stat":"fail" in response or "stat" key is missing</li>
@@ -5282,7 +5324,6 @@ public class Utils
 	}
 
 	 /** Tells if User is on Telephonic/Audio/Vedio/Voip Call
->>>>>>> 6c2da8659503395989b56afad7350292e2f5082f
 	 * @param context
 	 * @return
 	 */
@@ -5366,7 +5407,7 @@ public class Utils
 		{
 			return HikeConstants.BOT;
 		}
-		else if (isGroupConversation(msisdn))
+		else if (OneToNConversationUtils.isGroupConversation(msisdn))
 		{
 			return HikeConstants.GROUP_CONVERSATION;
 		}
@@ -5440,7 +5481,7 @@ public class Utils
 	
 	public static boolean isConversationMuted(String msisdn)
 	{
-		if ((Utils.isGroupConversation(msisdn)))
+		if ((OneToNConversationUtils.isGroupConversation(msisdn)))
 		{
 			if (HikeConversationsDatabase.getInstance().isGroupMuted(msisdn))
 			{
@@ -5456,8 +5497,14 @@ public class Utils
 		}
 		return false;
 	}
-	
-	
+
+	public static boolean isLastSeenSetToFavorite()
+	{
+		Context appContext = HikeMessengerApp.getInstance().getApplicationContext();
+		String defValue = appContext.getString(R.string.privacy_my_contacts);
+		return PreferenceManager.getDefaultSharedPreferences(appContext).getString(HikeConstants.LAST_SEEN_PREF_LIST, defValue)
+				.equals(appContext.getString(R.string.privacy_favorites));
+	}
 	
 	public static void launchPlayStore(String packageName,Context context)
 	{
@@ -5519,43 +5566,6 @@ public class Utils
 		return result.toString();
 	}
 	
-	public static void addBroadcastRecipientConversations(ConvMessage convMessage)
-	{
-		
-		ArrayList<ContactInfo> contacts = HikeConversationsDatabase.getInstance().addBroadcastRecipientConversations(convMessage);
-		
-		sendPubSubForConvScreenBroadcastMessage(convMessage, contacts);
-        // publishing mqtt packet
-        HikeMqttManagerNew.getInstance().sendMessage(convMessage.serializeDeliveryReportRead(), HikeMqttManagerNew.MQTT_QOS_ONE);
-	}
-	
-
-	public static void sendPubSubForConvScreenBroadcastMessage(ConvMessage convMessage, ArrayList<ContactInfo> recipient)
-	{
-		long firstMsgId = convMessage.getMsgID() + 1;
-		int totalRecipient = recipient.size();
-		List<Pair<ContactInfo, ConvMessage>> allPairs = new ArrayList<Pair<ContactInfo,ConvMessage>>(totalRecipient);
-		long timestamp = System.currentTimeMillis()/1000;
-		for(int i=0;i<totalRecipient;i++)
-		{
-			ConvMessage message = new ConvMessage(convMessage);
-			if(convMessage.isBroadcastConversation())
-			{
-				message.setMessageOriginType(OriginType.BROADCAST);
-			}
-			else
-			{
-				//multi-forward case... in braodcast case we donot need to update timestamp
-				message.setTimestamp(timestamp++);
-			}
-			message.setMsgID(firstMsgId+i);
-			ContactInfo contactInfo = recipient.get(i);
-			message.setMsisdn(contactInfo.getMsisdn());
-			Pair<ContactInfo, ConvMessage> pair = new Pair<ContactInfo, ConvMessage>(contactInfo, message);
-			allPairs.add(pair);
-		}
-		HikeMessengerApp.getPubSub().publish(HikePubSub.MULTI_MESSAGE_DB_INSERTED, allPairs);
-	}
 	
 	public static Long getMaxLongValue(ArrayList<Long> values)
 	{
