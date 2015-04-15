@@ -1,8 +1,8 @@
 package com.bsb.hike.ui;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -18,14 +18,13 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.res.Configuration;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.sax.StartElementListener;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.util.Pair;
@@ -45,7 +44,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.ImageView.ScaleType;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.ListView;
 import android.widget.PopupWindow;
@@ -55,7 +53,6 @@ import android.widget.Toast;
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
-import com.actionbarsherlock.view.Window;
 import com.actionbarsherlock.widget.SearchView;
 import com.actionbarsherlock.widget.SearchView.OnQueryTextListener;
 import com.bsb.hike.AppConfig;
@@ -64,7 +61,6 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
-import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
@@ -73,14 +69,7 @@ import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.FtueContactsData;
 import com.bsb.hike.models.OverFlowMenuItem;
 import com.bsb.hike.modules.contactmgr.ContactManager;
-import com.bsb.hike.productpopup.DialogPojo;
-import com.bsb.hike.productpopup.HikeDialogFragment;
-import com.bsb.hike.productpopup.IActivityPopup;
-import com.bsb.hike.productpopup.ProductContentModel;
-import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
-import com.bsb.hike.service.HikeMqttManagerNew;
-import com.bsb.hike.providers.HikeProvider;
 import com.bsb.hike.snowfall.SnowFallView;
 import com.bsb.hike.tasks.DownloadAndInstallUpdateAsyncTask;
 import com.bsb.hike.tasks.SendLogsTask;
@@ -178,6 +167,14 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	private boolean showingSearchModeActionBar = false;
 	
 	private static final String TAG = "HomeActivity";
+	
+	// Declare all Handler Msg Id here
+	
+	protected static final int FESTIVE_POPUP = -101;
+
+	protected static final int SHOW_OVERFLOW_INDICATOR = -102;
+
+	protected static final int SHOW_RECENTLY_JOINED_INDICATOR = -103;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -229,6 +226,81 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		photosEnabled = accountPrefs.getBoolean(HikeConstants.Extras.ENABLE_PHOTOS, false);
 		
 		showProductPopup(ProductPopupsConstants.PopupTriggerPoints.HOME_SCREEN.ordinal());
+	
+	}
+	
+	@Override
+	public void handleUIMessage(Message msg)
+	{
+		switch (msg.what)
+		{
+		case FESTIVE_POPUP:
+			startFestivePopup(msg.arg1);
+			break;
+		case SHOW_OVERFLOW_INDICATOR:
+			showOverFlowIndicator(msg.arg1);
+			break;
+		case SHOW_RECENTLY_JOINED_INDICATOR:
+			showRecentlyJoinedDot();
+			break;
+		default:
+			super.handleUIMessage(msg);
+			break;
+		}
+
+	}
+
+	private void startFestivePopup(int type)
+	{
+		snowFallView = FestivePopup.startAndSetSnowFallView(HomeActivity.this, type, false);
+	}
+	
+	private void showRecentlyJoinedDot()
+	{
+		boolean showNujNotif = PreferenceManager.getDefaultSharedPreferences(HomeActivity.this).getBoolean(HikeConstants.NUJ_NOTIF_BOOLEAN_PREF, true);
+		if (showNujNotif && accountPrefs.getBoolean(HikeConstants.SHOW_RECENTLY_JOINED_DOT, false))
+		{
+			newConversationIndicator.setText("1");
+			newConversationIndicator.setVisibility(View.VISIBLE);
+			newConversationIndicator.startAnimation(Utils.getNotificationIndicatorAnim());
+		}
+		else if (photosEnabled && accountPrefs.getBoolean(HikeConstants.SHOW_PHOTOS_RED_DOT, false))
+		{
+			newConversationIndicator.setText("1");
+			newConversationIndicator.setVisibility(View.VISIBLE);
+			newConversationIndicator.startAnimation(Utils.getNotificationIndicatorAnim());
+		}
+		else
+		{
+			newConversationIndicator.setVisibility(View.GONE);
+		}
+	}
+	
+	private void showOverFlowIndicator(int count)
+	{
+		if (topBarIndicator != null)
+		{
+			/*
+			 * Fetching the count again since it could have changed after the delay. 
+			 */
+			int newCount = getHomeOverflowCount(accountPrefs, false, false);
+			if (newCount < 1)
+			{
+				topBarIndicator.setVisibility(View.GONE);
+			}
+			else if (newCount > 9)
+			{
+				topBarIndicator.setVisibility(View.VISIBLE);
+				topBarIndicator.setText("9+");
+				topBarIndicator.startAnimation(Utils.getNotificationIndicatorAnim());
+			}
+			else if (newCount > 0)
+			{
+				topBarIndicator.setVisibility(View.VISIBLE);
+				topBarIndicator.setText(String.valueOf(count));
+				topBarIndicator.startAnimation(Utils.getNotificationIndicatorAnim());
+			}
+		}
 	}
 
 	private void setupActionBar()
@@ -354,15 +426,11 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 		if(snowFallView == null)
 		{
-			mHandler.postDelayed(new Runnable()
-			{
-
-				@Override
-				public void run()
-				{
-					snowFallView = FestivePopup.startAndSetSnowFallView(HomeActivity.this, type, false);
-				}
-			}, 300);
+			Message msg = Message.obtain();
+			msg.arg1 = type;
+			msg.what = FESTIVE_POPUP;
+			uiHandler.sendMessageDelayed(msg, 300);
+			
 		}
 	}
 
@@ -1368,37 +1436,10 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		}
 		else
 		{
-			mHandler.postDelayed(new Runnable()
-			{
-
-				@Override
-				public void run()
-				{
-					if (topBarIndicator != null)
-					{
-						/*
-						 * Fetching the count again since it could have changed after the delay. 
-						 */
-						int newCount = getHomeOverflowCount(accountPrefs, false, false);
-						if (newCount < 1)
-						{
-							topBarIndicator.setVisibility(View.GONE);
-						}
-						else if (newCount > 9)
-						{
-							topBarIndicator.setVisibility(View.VISIBLE);
-							topBarIndicator.setText("9+");
-							topBarIndicator.startAnimation(Utils.getNotificationIndicatorAnim());
-						}
-						else if (newCount > 0)
-						{
-							topBarIndicator.setVisibility(View.VISIBLE);
-							topBarIndicator.setText(String.valueOf(count));
-							topBarIndicator.startAnimation(Utils.getNotificationIndicatorAnim());
-						}
-					}
-				}
-			}, delayTime);
+			Message msg = Message.obtain();
+			msg.what = SHOW_OVERFLOW_INDICATOR;
+			msg.arg1 = count;
+			uiHandler.sendMessageDelayed(msg, delayTime);
 		}
 
 	}
@@ -2035,30 +2076,9 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	
 	public void showRecentlyJoinedDot(int delayTime)
 	{
-		mHandler.postDelayed(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				boolean showNujNotif = PreferenceManager.getDefaultSharedPreferences(HomeActivity.this).getBoolean(HikeConstants.NUJ_NOTIF_BOOLEAN_PREF, true);
-				if (showNujNotif && accountPrefs.getBoolean(HikeConstants.SHOW_RECENTLY_JOINED_DOT, false))
-				{
-					newConversationIndicator.setText("1");
-					newConversationIndicator.setVisibility(View.VISIBLE);
-					newConversationIndicator.startAnimation(Utils.getNotificationIndicatorAnim());
-				}
-				else if (photosEnabled && accountPrefs.getBoolean(HikeConstants.SHOW_PHOTOS_RED_DOT, false))
-				{
-					newConversationIndicator.setText("1");
-					newConversationIndicator.setVisibility(View.VISIBLE);
-					newConversationIndicator.startAnimation(Utils.getNotificationIndicatorAnim());
-				}
-				else
-				{
-					newConversationIndicator.setVisibility(View.GONE);
-				}
-			}
-		}, delayTime);
+		Message msg = Message.obtain();
+		msg.what = SHOW_RECENTLY_JOINED_INDICATOR;
+		uiHandler.sendMessageDelayed(msg, delayTime);
 	}
 
 	public void hikeLogoClicked()
