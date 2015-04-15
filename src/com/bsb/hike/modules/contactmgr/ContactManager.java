@@ -4,7 +4,6 @@
 package com.bsb.hike.modules.contactmgr;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -2105,10 +2104,10 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 		}
 	}
 
-	public ArrayList<String> getMsisdnFromId(String[] selectionArgs)
+	public ArrayList<String> getMsisdnFromId(ArrayList<String> selectionArgs)
 	{
 		Cursor c = getReadableDatabase().query(DBConstants.USERS_TABLE, new String[] { DBConstants.MSISDN },
-				DBConstants.PLATFORM_USER_ID + " IN " + Utils.getMsisdnStatement(Arrays.asList(selectionArgs)), null, null, null, null);
+				DBConstants.PLATFORM_USER_ID + " IN " + Utils.getMsisdnStatement(selectionArgs), null, null, null, null);
 
 		ArrayList<String> msisdnList = new ArrayList<String>();
 
@@ -2122,9 +2121,9 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 		}
 
 		// Incase of hike id == platform uid for user, add self msisdn
-		for (int i = 0; i < selectionArgs.length; i++)
+		for (String id : selectionArgs)
 		{
-			if (selectionArgs[i].equals(HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_UID_SETTING, null)))
+			if (id.equals(HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_UID_SETTING, null)))
 			{
 				ContactInfo userContact = Utils.getUserContactInfo(context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, Context.MODE_PRIVATE));
 				msisdnList.add(userContact.getMsisdn());
