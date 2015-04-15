@@ -1467,6 +1467,10 @@ public class HikeConstants
 		public static final String MAX_MESSAGE_PROCESS_TIME = "mmpt";
 		
 		public static final String CHANGE_MAX_MESSAGE_PROCESS_TIME = "cmpt";
+
+		public static final String BROADCAST_CREATE_BUNDLE = "broadcastCreationBundle";
+		
+		public static final String GROUP_CREATE_BUNDLE = "groupCreationBundle";
 	}
 
 	public static final class LogEvent

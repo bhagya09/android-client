@@ -220,9 +220,11 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			existingGroupOrBroadcastId = getIntent().getStringExtra(HikeConstants.Extras.EXISTING_BROADCAST_LIST);
 		}
 
-		if (getIntent().hasExtra(HikeConstants.Extras.ONETON_CONVERSATION_NAME))
+		if (getIntent().hasExtra(HikeConstants.Extras.GROUP_CREATE_BUNDLE))
 		{
-			oneToNConvName = getIntent().getStringExtra(HikeConstants.Extras.ONETON_CONVERSATION_NAME);
+			Bundle bundle = getIntent().getBundleExtra(HikeConstants.Extras.GROUP_CREATE_BUNDLE);
+			oneToNConvName = bundle.getString(HikeConstants.Extras.ONETON_CONVERSATION_NAME);
+			oneToNConvId = bundle.getString(HikeConstants.Extras.CONVERSATION_ID);
 		}
 		
 		if (savedInstanceState != null)
@@ -764,7 +766,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		{
 			mode = MULTIPLE_FWD;
 		}
-		else if(getIntent().hasExtra(HikeConstants.Extras.CONVERSATION_ID) || getIntent().hasExtra(HikeConstants.Extras.EXISTING_GROUP_CHAT))
+		else if(getIntent().hasExtra(HikeConstants.Extras.GROUP_CREATE_BUNDLE) || getIntent().hasExtra(HikeConstants.Extras.EXISTING_GROUP_CHAT))
 		{
 				mode=CREATE_GROUP_MODE;
 		}
@@ -893,13 +895,20 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	protected void onActivityResult(int requestCode, int resultCode, Intent data)
 	{
 		super.onActivityResult(requestCode, resultCode, data);
-
-		if (resultCode == RESULT_OK && requestCode == OPEN_CREATE_BROADCAST_ACTIVITY)
+		
+		if (resultCode == RESULT_OK)
 		{
-			createBroadcast = data.getBooleanExtra(HikeConstants.Extras.CREATE_BROADCAST, true);
-			oneToNConvName = data.getStringExtra(HikeConstants.Extras.ONETON_CONVERSATION_NAME);
-			oneToNConvId = data.getStringExtra(HikeConstants.Extras.CONVERSATION_ID);
-			OneToNConversationUtils.createGroupOrBroadcast(this, adapter.getAllSelectedContacts(), oneToNConvName, oneToNConvId);
+			switch (requestCode)
+			{
+				case OPEN_CREATE_BROADCAST_ACTIVITY:
+					Bundle broadcastBundle = data.getBundleExtra(HikeConstants.Extras.BROADCAST_CREATE_BUNDLE);
+					createBroadcast = broadcastBundle.getBoolean(HikeConstants.Extras.CREATE_BROADCAST, true);
+					oneToNConvName = broadcastBundle.getString(HikeConstants.Extras.ONETON_CONVERSATION_NAME);
+					oneToNConvId = broadcastBundle.getString(HikeConstants.Extras.CONVERSATION_ID);
+					OneToNConversationUtils.createGroupOrBroadcast(this, adapter.getAllSelectedContacts(), oneToNConvName, oneToNConvId);
+					break;
+			}
+			
 		}
 	}
 	

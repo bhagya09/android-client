@@ -224,22 +224,26 @@ public class IntentFactory
 		return intent;
 	}
 
-	public static Intent openComposeChatIntentForBroadcast(Context appContext, String groupOrBroadcastId, String groupOrBroadcastName)
+	public static Intent openComposeChatIntentForBroadcast(Context appContext, String convId, String convName)
 	{
 		Intent intent = new Intent(appContext.getApplicationContext(), ComposeChatActivity.class);
-		intent.putExtra(HikeConstants.Extras.ONETON_CONVERSATION_NAME, groupOrBroadcastName);
-		intent.putExtra(HikeConstants.Extras.CONVERSATION_ID, groupOrBroadcastId);
-		intent.putExtra(HikeConstants.Extras.CREATE_BROADCAST, true);
+		Bundle bundle = new Bundle();
+		bundle.putString(HikeConstants.Extras.ONETON_CONVERSATION_NAME, convName);
+		bundle.putString(HikeConstants.Extras.CONVERSATION_ID, convId);
+		bundle.putBoolean(HikeConstants.Extras.CREATE_BROADCAST, true);
+		intent.putExtra(HikeConstants.Extras.BROADCAST_CREATE_BUNDLE, bundle);
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		return intent;
 	}
 	
-	public static Intent openComposeChatIntentForGroup(Context appContext, String groupOrBroadcastId, String groupOrBroadcastName)
+	public static Intent openComposeChatIntentForGroup(Context appContext, String convId, String convName)
 	{
 		Intent intent = new Intent(appContext.getApplicationContext(), ComposeChatActivity.class);
-		intent.putExtra(HikeConstants.Extras.ONETON_CONVERSATION_NAME, groupOrBroadcastName);
-		intent.putExtra(HikeConstants.Extras.CONVERSATION_ID, groupOrBroadcastId);
-		intent.putExtra(HikeConstants.Extras.CREATE_GROUP, true);
+		Bundle bundle = new Bundle();
+		bundle.putString(HikeConstants.Extras.ONETON_CONVERSATION_NAME, convName);
+		bundle.putString(HikeConstants.Extras.CONVERSATION_ID, convId);
+		bundle.putBoolean(HikeConstants.Extras.CREATE_GROUP, true);
+		intent.putExtra(HikeConstants.Extras.GROUP_CREATE_BUNDLE, bundle);
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		return intent;
 	}
