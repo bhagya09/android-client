@@ -709,4 +709,24 @@ public class IntentFactory
 		i.putExtra(HikeConstants.HikePhotos.FILENAME, imageFileName);
 		return i;
 	}
+	
+	public static void startShareImageIntent(String mimeType, String imagePath)
+	{
+		startShareImageIntent(mimeType, imagePath, null);
+	}
+	
+	public static void startShareImageIntent(String mimeType, String imagePath, String text)
+	{
+		Intent s = new Intent(android.content.Intent.ACTION_SEND);
+		s.setType(mimeType);
+		s.putExtra(Intent.EXTRA_STREAM, Uri.parse(imagePath));
+		if (!TextUtils.isEmpty(text))
+		{
+			s.putExtra(Intent.EXTRA_TEXT, text);
+		}
+		s.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		Logger.i("imageShare", "shared image with " + s.getExtras());
+		HikeMessengerApp.getInstance().getApplicationContext().startActivity(s);
+
+	}
 }
