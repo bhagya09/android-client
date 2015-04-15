@@ -885,7 +885,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		
 	}
 
-	private void initCreateBroadcast()
+	private void startCreateBroadcastActivity()
 	{
 		Intent broadcastIntent = IntentFactory.createNewBroadcastActivityIntent(ComposeChatActivity.this);
 		startActivityForResult(broadcastIntent, OPEN_CREATE_BROADCAST_ACTIVITY);
@@ -1034,7 +1034,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 						return;
 					}
 					sendBroadCastAnalytics();
-					initCreateBroadcast();
+					startCreateBroadcastActivity();
 				}
 				else if (getIntent().hasExtra(HikeConstants.Extras.EXISTING_BROADCAST_LIST))
 				{

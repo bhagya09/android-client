@@ -605,6 +605,8 @@ public class HikeConstants
 	
 	public static final String NEW_BROADCAST = "new_broadcast";
 
+	public static final String BROADCAST_ID_PREFIX = "b:";
+	
 	public static final String AVATAR = "avatar";
 
 	/* Constant used to name the preference file which saves the drafts */

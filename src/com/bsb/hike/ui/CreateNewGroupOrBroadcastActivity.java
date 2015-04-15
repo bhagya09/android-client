@@ -102,7 +102,7 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 			switch (convType)
 			{
 				case BROADCAST:
-					convId = "b:" + uid + ":" + System.currentTimeMillis();
+					convId = HikeConstants.BROADCAST_ID_PREFIX + uid + ":" + System.currentTimeMillis();
 					break;
 					
 				case GROUP:
@@ -281,7 +281,7 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 				{
 					sendBroadCastAnalytics();
 				}
-				onDone();
+				onNextPressed();
 			}
 		});
 		
@@ -297,7 +297,7 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 		actionBar.setCustomView(actionBarView);
 	}
 
-	private void onDone()
+	private void onNextPressed()
 	{
 		switch (convType)
 		{
