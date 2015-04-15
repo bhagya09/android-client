@@ -621,7 +621,7 @@ public class HikeFile
 		/*
 		 * Added check for hike media gallery because it is required to delete the media of that directory only.
 		 */
-		if(!this.getFilePath().startsWith(Utils.getFileParent(this.getHikeFileType(), this.isSent())))
+		if(this.getFilePath() == null || !this.getFilePath().startsWith(Utils.getFileParent(this.getHikeFileType(), this.isSent())))
 		{
 			return;
 		}

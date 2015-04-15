@@ -18,17 +18,16 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.PowerManager;
-import android.os.SystemClock;
 import android.os.PowerManager.WakeLock;
-import android.support.v4.app.FragmentTransaction;
+import android.os.SystemClock;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ImageSpan;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
@@ -37,30 +36,27 @@ import android.view.animation.TranslateAnimation;
 import android.widget.Chronometer;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ImageView.ScaleType;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.ImageView.ScaleType;
 
-import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.app.SherlockFragment;
 import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.smartImageLoader.VoipProfilePicImageLoader;
 import com.bsb.hike.ui.ProfileActivity;
-import com.bsb.hike.utils.IntentManager;
+import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.voip.VoIPClient;
 import com.bsb.hike.voip.VoIPConstants;
-import com.bsb.hike.voip.VoIPUtils;
 import com.bsb.hike.voip.VoIPConstants.CallQuality;
 import com.bsb.hike.voip.VoIPService;
 import com.bsb.hike.voip.VoIPService.LocalBinder;
-import com.bsb.hike.voip.view.CallFailedFragment.CallFailedFragListener;
+import com.bsb.hike.voip.VoIPUtils;
 
 public class VoipCallFragment extends SherlockFragment implements CallActions
 {
@@ -845,7 +841,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		{
 			if(bundle!=null && VoIPUtils.shouldShowCallRatePopupNow())
 			{
-				Intent intent = IntentManager.getVoipCallRateActivityIntent(getSherlockActivity());
+				Intent intent = IntentFactory.getVoipCallRateActivityIntent(getSherlockActivity());
 				intent.putExtra(VoIPConstants.CALL_RATE_BUNDLE, bundle);
 				startActivity(intent);
 			}

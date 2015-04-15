@@ -21,17 +21,16 @@ import android.widget.Toast;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
-import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.photos.HikeEffectsFactory.OnFilterAppliedListener;
 import com.bsb.hike.photos.HikePhotosListener;
 import com.bsb.hike.photos.HikePhotosUtils;
 import com.bsb.hike.photos.HikePhotosUtils.FilterTools.FilterType;
 import com.bsb.hike.photos.views.CanvasImageView.OnDoodleStateChangeListener;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
-import com.bsb.hike.utils.IntentManager;
+import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Utils;
-import com.google.android.gms.internal.dp;
 
 /**
  * Custom View extends FrameLayout Packs all the editing layers <filter layer,vignette layer ,doodle layer> into a single view ,in same z-order
@@ -168,7 +167,7 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 		catch (OutOfMemoryError e)
 		{
 			Toast.makeText(getContext(), getResources().getString(R.string.photos_oom_load), Toast.LENGTH_SHORT).show();
-			IntentManager.openHomeActivity(getContext(), true);
+			IntentFactory.openHomeActivity(getContext(),true);
 		}
 
 		handleImage();
@@ -186,7 +185,7 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 			if(imageScaled == null)
 			{
 				Toast.makeText(getContext(), getResources().getString(R.string.photos_oom_load), Toast.LENGTH_SHORT).show();
-				IntentManager.openHomeActivity(getContext(), true);
+				IntentFactory.openHomeActivity(getContext(),true);
 			}
 			effectLayer.handleImage(imageScaled, true);
 		}
@@ -395,8 +394,8 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 				else
 				{
 					Toast.makeText(getContext(), getResources().getString(R.string.photos_oom_save), Toast.LENGTH_SHORT).show();
-					IntentManager.openHomeActivity(getContext(), true);
-
+					IntentFactory.openHomeActivity(getContext(),true);
+					
 				}
 			}
 		}
@@ -414,8 +413,8 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 			if (savingFinal)
 			{
 				// Move Back to Home
-				Toast.makeText(getContext(), getResources().getString(R.string.photos_oom_save), Toast.LENGTH_SHORT).show();
-				IntentManager.openHomeActivity(getContext(), true);
+				Toast.makeText(getContext(),  getResources().getString(R.string.photos_oom_save), Toast.LENGTH_SHORT).show();
+				IntentFactory.openHomeActivity(getContext(),true);
 			}
 			else
 			{

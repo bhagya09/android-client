@@ -11,6 +11,21 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" >
 
+        <RelativeLayout
+            android:id="@+id/item_image_view"
+            android:layout_width="@dimen/small_avatar"
+            android:layout_height="@dimen/small_avatar"
+            android:layout_alignParentRight="true" >
+
+           <com.bsb.hike.ui.utils.RecyclingImageView
+               android:id="@+id/item_icon"
+               style="@style/AvatarStyle.Padding" />
+
+           <ImageView
+               android:id="@+id/avatar_frame"
+               style="@style/AvatarStyle" />
+       </RelativeLayout>
+       
         <com.bsb.hike.view.CustomFontTextView
             android:id="@+id/item_title"
             android:layout_width="fill_parent"

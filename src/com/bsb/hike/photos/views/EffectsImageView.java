@@ -11,7 +11,7 @@ import com.bsb.hike.photos.HikeEffectsFactory;
 import com.bsb.hike.photos.HikeEffectsFactory.OnFilterAppliedListener;
 import com.bsb.hike.photos.HikePhotosUtils;
 import com.bsb.hike.photos.HikePhotosUtils.FilterTools.FilterType;
-import com.bsb.hike.utils.IntentManager;
+import com.bsb.hike.utils.IntentFactory;
 
 /**
  * Custom View Class extends ImageView in android
@@ -65,7 +65,7 @@ public class EffectsImageView extends ImageView
 			if (!HikeEffectsFactory.applyFilterToBitmap(bitmap, listener, currentFilter, true))
 			{
 				Toast.makeText(getContext(), getResources().getString(R.string.photos_oom_save), Toast.LENGTH_SHORT).show();
-				IntentManager.openHomeActivity(getContext(), true);
+				IntentFactory.openHomeActivity(getContext(), true);
 
 			}
 		}
@@ -92,7 +92,7 @@ public class EffectsImageView extends ImageView
 		if (!HikeEffectsFactory.applyFilterToBitmap(originalImage, listener, filter, false))
 		{
 			Toast.makeText(getContext(),getResources().getString(R.string.photos_oom_load), Toast.LENGTH_SHORT).show();
-			IntentManager.openHomeActivity(getContext(), true);
+			IntentFactory.openHomeActivity(getContext(), true);
 
 		}
 	}
