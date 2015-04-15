@@ -66,6 +66,7 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.voip.VoIPClient.ConnectionMethods;
 import com.bsb.hike.voip.VoIPConstants.CallQuality;
+import com.bsb.hike.voip.VoIPConstants.CallStatus;
 import com.bsb.hike.voip.VoIPDataPacket.PacketType;
 import com.bsb.hike.voip.VoIPEncryptor.EncryptionStage;
 import com.bsb.hike.voip.VoIPUtils.CallSource;
@@ -580,15 +581,33 @@ public class VoIPService extends Service {
 
 		int callDuration = getCallDuration();
 		String durationString = (callDuration == 0)? "" : String.format(Locale.getDefault(), " (%02d:%02d)", (callDuration / 60), (callDuration % 60));
-		String title = "Hike Call with " + clientPartner.getName();
-		String text = "Call in progress " + durationString;
 
-		if (hold)
-			text = " Call on hold";
-		
+		String title = null;
 		if (clientPartner.getName() == null)
-			title = "Hike Call";
+			title = getString(R.string.voip_call_chat);
+		else
+			title = getString(R.string.voip_call_notification_title, clientPartner.getName()); 
 		
+		String text = null;
+		switch (getCallStatus()) {
+		case ON_HOLD:
+			text = getString(R.string.voip_on_hold);
+			break;
+			
+		case OUTGOING_CONNECTING:
+		case OUTGOING_RINGING:
+			text = getString(R.string.voip_call_summary_outgoing);
+			break;
+			
+		case INCOMING_CALL:
+			text = getString(R.string.voip_call_summary_incoming);
+			break;
+			
+		default:
+			text = getString(R.string.voip_call_notification_text, durationString); 
+			break;
+		}
+
 		Notification myNotification = builder
 		.setContentTitle(title)
 		.setContentText(text)
