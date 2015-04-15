@@ -299,7 +299,8 @@ public class VoIPService extends Service {
 		// Incoming call ack message
 		if (action.equals(HikeConstants.MqttMessageTypes.VOIP_CALL_REQUEST_RESPONSE)) {
 
-			if (getCallId() == 0) {
+			int partnerCallId = intent.getIntExtra(VoIPConstants.Extras.CALL_ID, 0);
+			if (getCallId() == 0 || getCallId() != partnerCallId) {
 				Logger.w(VoIPConstants.TAG, "Was not expecting message: " + action);
 				return returnInt;
 			}
@@ -318,7 +319,8 @@ public class VoIPService extends Service {
 		// Incoming call ack ack message
 		if (action.equals(HikeConstants.MqttMessageTypes.VOIP_CALL_RESPONSE_RESPONSE)) {
 
-			if (getCallId() == 0) {
+			int partnerCallId = intent.getIntExtra(VoIPConstants.Extras.CALL_ID, 0);
+			if (getCallId() == 0 || getCallId() != partnerCallId) {
 				Logger.w(VoIPConstants.TAG, "Was not expecting message: " + action);
 				return returnInt;
 			}
