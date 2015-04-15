@@ -7,10 +7,12 @@ import com.bsb.hike.modules.httpmgr.hikehttp.HttpHeaderConstants;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.tasks.PlatformUidFetchTask;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -42,7 +44,7 @@ public class PlatformUIDFetch
 				JSONObject jsonObject = new JSONObject();
 				try
 				{
-					jsonObject.put(HikePlatformConstants.HIKE_MSISDN, varargs);
+					jsonObject.put(HikePlatformConstants.HIKE_MSISDN,  new JSONArray(Arrays.asList(varargs)));
 				}
 				catch (JSONException e)
 				{

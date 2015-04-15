@@ -204,7 +204,7 @@ public class HikeDialog
 		animation.setFillAfter(true);
 		betaTag.startAnimation(animation);
 		dialog.show();
-		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.SHOWN_VOIP_INTRO_TIP, true);
+		HikeSharedPreferenceUtil.getInstance().removeData(HikeMessengerApp.SHOW_VOIP_FTUE_POPUP);
 		return dialog;
 	}
 
