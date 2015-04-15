@@ -508,8 +508,8 @@ uchar4 __attribute__((kernel)) filter_HDR_post(uchar4 in,uint32_t x,uint32_t y)
 	out = applyColorMatrix(out,postMatrix);
 	out = applyBlendToRGB(in , out ,Normal,0.45);
 	uchar4 out2 = rsGetElementAt_uchar4(input2, x, y);
-	in = applyBlendToRGB(in , out2 ,Overlay,1);
-	in = applyBlendToRGB(in , out ,Overlay,1);
+	in = applyBlendToRGB(in , out2 ,Overlay,0.75);
+	in = applyBlendToRGB(in , out ,Overlay,0.75);
 	return in;
 } 
 
