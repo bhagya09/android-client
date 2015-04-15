@@ -94,13 +94,6 @@ public class RequestExecuter
 		{
 			Utils.finish(request, response);
 		}
-		else
-		{
-			if (RequestProcessor.isRequestDuplicateAfterInterceptorsProcessing(request))
-			{
-				return;
-			}
-		}
 	}
 
 	/**
@@ -371,6 +364,10 @@ public class RequestExecuter
 			else
 			{
 				LogFull.d("Pre-processing completed for " + request.toString());
+				if (RequestProcessor.isRequestDuplicateAfterInterceptorsProcessing(request))
+				{
+					return;
+				}
 				allInterceptorsExecuted = true;
 				processRequest();
 			}
