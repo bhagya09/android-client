@@ -621,9 +621,9 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			return;
 		}
 
+		boolean isMessageListEmpty = isMessageListEmpty();
 		for (OverFlowMenuItem overFlowMenuItem : overflowItems)
 		{
-			boolean isMessageListEmpty = isMessageListEmpty();
 			switch (overFlowMenuItem.id)
 			{
 			case R.string.search:
