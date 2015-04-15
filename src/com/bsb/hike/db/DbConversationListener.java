@@ -465,7 +465,15 @@ public class DbConversationListener implements Listener
             listOfMessages.add(convMessage);
 
             String[] toArray = parseJSON.has(HikePlatformConstants.RECEPIENT) ? parseJSON.getString(HikePlatformConstants.RECEPIENT).split(",") : new String[]{};
-            ArrayList<String> msisdns = ContactManager.getInstance().getMsisdnFromId(toArray);
+			ArrayList<String> platformIds = new ArrayList();
+			for (String id : toArray)
+			{
+				if (TextUtils.isEmpty(id))
+				{
+					platformIds.add(id);
+				}
+			}
+            ArrayList<String> msisdns = ContactManager.getInstance().getMsisdnFromId(platformIds);
             ArrayList<ContactInfo> listOfContacts = new ArrayList<ContactInfo>();
             for (String msisdn:msisdns){
                 convMessage.platformMessageMetadata.addToThumbnailTable();
