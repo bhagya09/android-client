@@ -89,7 +89,7 @@ public class HttpRequestConstants
 	
 	public static String singleStickerDownloadBase()
 	{
-		return BASE_URL + BASE_V1 + "/stickers";
+		return BASE_URL + BASE_V1 + BASE_STICKER;
 	}
 	
 	public static String multiStickerDownloadUrl()
@@ -142,13 +142,13 @@ public class HttpRequestConstants
 		return BASE_URL + BASE_V1 + BASE_ACCOUNT + "/addressbook-update";
 	}
 
-	public static String postDeviceDetailsBase()
+	public static String postDeviceDetailsBaseUrl()
 	{
 		return BASE_URL + BASE_V1 + BASE_ACCOUNT + "/update";
 	}
-	
-	public static String postGreenBlueDetailsBase()
+
+	public static String postGreenBlueDetailsBaseUrl()
 	{
-		return BASE_URL + BASE_V1 + "/account/info";
+		return BASE_URL + BASE_V1 + BASE_ACCOUNT + "/info";
 	}
 }
