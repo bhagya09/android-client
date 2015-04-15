@@ -178,7 +178,11 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 
 	private boolean nuxIncentiveMode;
 	
-	private String groupName = null;
+	private String oneToNConvName = null;
+	
+	private String oneToNConvId = null;
+	
+	private static final int OPEN_CREATE_BROADCAST_ACTIVITY = 412;
 
 	private int triggerPointForPopup=ProductPopupsConstants.PopupTriggerPoints.UNKNOWN.ordinal();
 
@@ -216,9 +220,9 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			existingGroupOrBroadcastId = getIntent().getStringExtra(HikeConstants.Extras.EXISTING_BROADCAST_LIST);
 		}
 
-		if (getIntent().hasExtra(HikeConstants.Extras.GROUP_NAME))
+		if (getIntent().hasExtra(HikeConstants.Extras.ONETON_CONVERSATION_NAME))
 		{
-			groupName = getIntent().getStringExtra(HikeConstants.Extras.GROUP_NAME);
+			oneToNConvName = getIntent().getStringExtra(HikeConstants.Extras.ONETON_CONVERSATION_NAME);
 		}
 		
 		if (savedInstanceState != null)
@@ -280,20 +284,6 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		}
 
 		init();
-		if (getIntent().hasExtra(HikeConstants.Extras.BROADCAST_RECIPIENTS))
-		{
-			ArrayList<String> initiallySelectedMsisidns = getIntent().getStringArrayListExtra(HikeConstants.Extras.BROADCAST_RECIPIENTS);
-			adapter.selectAllFromList(initiallySelectedMsisidns);
-			adapter.notifyDataSetChanged();
-			if (!(initiallySelectedMsisidns == null || initiallySelectedMsisidns.isEmpty()))
-			{
-				tagEditText.clear(false);
-				int selected = adapter.getCurrentSelection();
-				tagEditText.toggleTag(getString(selected==1 ? R.string.selected_contacts_count_singular : R.string.selected_contacts_count_plural,selected), SELECT_ALL_MSISDN, SELECT_ALL_MSISDN);
-				setupMultiSelectActionBar();
-				invalidateOptionsMenu();
-			}
-		}
 		mPubSub = HikeMessengerApp.getPubSub();
 		mPubSub.addListeners(this, hikePubSubListeners);
 	}
@@ -698,7 +688,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	public void tagRemoved(Object data, String uniqueNess)
 	{
 		if(selectAllMode){
-		((CheckBox) findViewById(R.id.select_all_cb)).setChecked(false);;
+		((CheckBox) findViewById(R.id.select_all_cb)).setChecked(false);
 		}else{
 			if(data instanceof ContactInfo){
 				adapter.removeContact((ContactInfo) data);
@@ -774,7 +764,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		{
 			mode = MULTIPLE_FWD;
 		}
-		else if(getIntent().hasExtra(HikeConstants.Extras.GROUP_BROADCAST_ID) || getIntent().hasExtra(HikeConstants.Extras.EXISTING_GROUP_CHAT))
+		else if(getIntent().hasExtra(HikeConstants.Extras.CONVERSATION_ID) || getIntent().hasExtra(HikeConstants.Extras.EXISTING_GROUP_CHAT))
 		{
 				mode=CREATE_GROUP_MODE;
 		}
@@ -893,10 +883,24 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		
 	}
 
-	private void createBroadcast(List<String> selectedContactList)
+	private void initCreateBroadcast()
 	{
-		IntentFactory.createNewBroadcastActivityIntent(ComposeChatActivity.this, selectedContactList);
-		finish();
+		Intent broadcastIntent = IntentFactory.createNewBroadcastActivityIntent(ComposeChatActivity.this);
+		startActivityForResult(broadcastIntent, OPEN_CREATE_BROADCAST_ACTIVITY);
+	}
+	
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data)
+	{
+		super.onActivityResult(requestCode, resultCode, data);
+
+		if (resultCode == RESULT_OK && requestCode == OPEN_CREATE_BROADCAST_ACTIVITY)
+		{
+			createBroadcast = data.getBooleanExtra(HikeConstants.Extras.CREATE_BROADCAST, true);
+			oneToNConvName = data.getStringExtra(HikeConstants.Extras.ONETON_CONVERSATION_NAME);
+			oneToNConvId = data.getStringExtra(HikeConstants.Extras.CONVERSATION_ID);
+			OneToNConversationUtils.createGroupOrBroadcast(this, adapter.getAllSelectedContacts(), oneToNConvName, oneToNConvId);
+		}
 	}
 	
 	private void setActionBar()
@@ -1021,11 +1025,11 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 						return;
 					}
 					sendBroadCastAnalytics();
-					createBroadcast(adapter.getAllSelectedContactsMsisdns());
+					initCreateBroadcast();
 				}
 				else if (getIntent().hasExtra(HikeConstants.Extras.EXISTING_BROADCAST_LIST))
 				{
-					OneToNConversationUtils.createGroupOrBroadcast(ComposeChatActivity.this, adapter.getAllSelectedContacts(), groupName);
+					OneToNConversationUtils.createGroupOrBroadcast(ComposeChatActivity.this, adapter.getAllSelectedContacts(), oneToNConvName, oneToNConvId);
 				}
 				else if (composeMode == CREATE_GROUP_MODE)
 				{
@@ -1035,7 +1039,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 						Toast.makeText(getApplicationContext(), getString(R.string.minContactInGroupErr, MIN_MEMBERS_GROUP_CHAT), Toast.LENGTH_SHORT).show();
 						return;
 					}
-					OneToNConversationUtils.createGroupOrBroadcast(ComposeChatActivity.this, adapter.getAllSelectedContacts(), groupName);
+					OneToNConversationUtils.createGroupOrBroadcast(ComposeChatActivity.this, adapter.getAllSelectedContacts(), oneToNConvName, oneToNConvId);
 				}
 			}
 		});

@@ -1390,9 +1390,9 @@ public class HikeConstants
 
 		public static final String IS_FTUT_ADD_FRIEND_POPUP_SHOWING = "isFtueAddFriendPopup";
 
-		public static final String GROUP_NAME = "groupName";
+		public static final String ONETON_CONVERSATION_NAME = "groupName";
 
-		public static final String GROUP_BROADCAST_ID = "groupOrBroadcastId";
+		public static final String CONVERSATION_ID = "groupOrBroadcastId";
 
 		public static final String SHOWING_INVALID_PIN_ERROR = "showingInvalidPinError";
 
