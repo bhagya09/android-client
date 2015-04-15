@@ -100,7 +100,7 @@ public class HikePhotosUtils
 
 		if (bitmap != null && centerIN)
 		{
-			if (bitmap.getWidth() > bitmap.getHeight())
+			if (bitmap.getWidth() >= bitmap.getHeight())
 			{
 
 				width = maxWidth;

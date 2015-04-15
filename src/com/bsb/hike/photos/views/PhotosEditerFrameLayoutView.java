@@ -179,9 +179,10 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 	{
 		DisplayMetrics metrics = getContext().getResources().getDisplayMetrics();
 		int width = metrics.widthPixels;
+		int height = (int)(metrics.heightPixels *HikeConstants.HikePhotos.CANVAS_WEIGHT);
 		if (width != imageOriginal.getWidth())
 		{
-			imageScaled = HikePhotosUtils.compressBitamp(imageOriginal, width, width,true);
+			imageScaled = HikePhotosUtils.compressBitamp(imageOriginal, width, height,true);
 			if(imageScaled == null)
 			{
 				Toast.makeText(getContext(), getResources().getString(R.string.photos_oom_load), Toast.LENGTH_SHORT).show();
