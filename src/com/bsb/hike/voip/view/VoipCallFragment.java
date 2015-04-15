@@ -220,6 +220,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		getSherlockActivity().startService(new Intent(getSherlockActivity(), VoIPService.class));
 		Intent intent = new Intent(getSherlockActivity(), VoIPService.class);
 		getSherlockActivity().bindService(intent, myConnection, Context.BIND_AUTO_CREATE);
+		updateCallStatus();
 		initProximitySensor();
 		super.onResume();
 	}
