@@ -1162,6 +1162,11 @@ public class ConvMessage implements Searchable
 				return true;
 			}
 		}
+		// No search on system updates/messages.
+		else if (getParticipantInfoState() != ParticipantInfoState.NO_INFO)
+		{
+			return false;
+		}
 		// No search on sticker messages.
 		// Atleast till theres no tagging.
 		else if (isStickerMessage())
