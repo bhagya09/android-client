@@ -104,7 +104,7 @@ public class HikePhotosUtils
 			{
 
 				width = maxWidth;
-				height = (int) (maxWidth * aspectRatio);
+				height = (int) (maxWidth / aspectRatio);
 			}
 			else
 			{
@@ -119,7 +119,7 @@ public class HikePhotosUtils
 			{
 
 				width = maxWidth;
-				height = (int) (maxWidth * aspectRatio);
+				height = (int) (maxWidth / aspectRatio);
 			}
 			else
 			{
@@ -274,7 +274,7 @@ public class HikePhotosUtils
 				{
 					effectfilters = new FilterList();
 					effectfilters.addFilter("ORIGINAL", FilterType.ORIGINAL);
-					effectfilters.addFilter("AUTO", FilterType.AUTO);
+					//effectfilters.addFilter("AUTO", FilterType.AUTO);
 					effectfilters.addFilter("KALA PILA", FilterType.SOLOMON);
 					effectfilters.addFilter("CHUSKI", FilterType.CLASSIC);
 					effectfilters.addFilter("JUGAAD", FilterType.NASHVILLE);
@@ -293,11 +293,11 @@ public class HikePhotosUtils
 					effectfilters.addFilter("GULAAL", FilterType.GULAAL);
 					// effectfilters.addFilter("RANGEELA", FilterType.RANGEELA);
 					effectfilters.addFilter("JUNGLEE", FilterType.JUNGLEE);
-					effectfilters.addFilter("GHOSTLY", FilterType.GHOSTLY);
-					effectfilters.addFilter("CHILLUM", FilterType.CHILLUM);
+					//effectfilters.addFilter("GHOSTLY", FilterType.GHOSTLY);
+					//effectfilters.addFilter("CHILLUM", FilterType.CHILLUM);
 					effectfilters.addFilter("HDR", FilterType.HDR);
 					effectfilters.addFilter("POLAROID", FilterType.POLAROID);
-					effectfilters.addFilter("BGR", FilterType.BGR);
+					//effectfilters.addFilter("AVATAR", FilterType.BGR);
 					effectfilters.addFilter("SUNLITT", FilterType.SUNLITT);
 				}
 				return effectfilters;
