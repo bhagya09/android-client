@@ -1015,16 +1015,14 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		}
 	}
 
-	protected boolean updateUIAsPerTheme(ChatTheme theme)
+	protected void updateUIAsPerTheme(ChatTheme theme)
 	{
 		if (theme != null && mAdapter.getChatTheme() != theme)
 		{
 			Logger.i(TAG, "update ui for theme " + theme);
 
 			setConversationTheme(theme);
-			return true;
 		}
-		return false;
 	}
 
 	protected void setBackground(ChatTheme theme)

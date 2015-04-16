@@ -26,7 +26,6 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewStub;
-import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
@@ -1161,16 +1160,13 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	}
 
 	@Override
-	protected boolean updateUIAsPerTheme(ChatTheme theme)
+	protected void updateUIAsPerTheme(ChatTheme theme)
 	{
-		if (super.updateUIAsPerTheme(theme))
+		super.updateUIAsPerTheme(theme);
+		if (!mContactInfo.isUnknownContact())
 		{
-			if (!mContactInfo.isUnknownContact())
-			{
-				setupSMSToggleLayout();
-			}
+			setupSMSToggleLayout();
 		}
-		return false;
 	}
 
 	/**
@@ -1207,8 +1203,8 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 
 	private void setUpSMSViews()
 	{
-		animateSMSToggleLayout();
-		
+		View SMSToggleButton = (View) activity.findViewById(R.id.sms_toggle_button);
+
 		TextView smsToggleSubtext = (TextView) activity.findViewById(R.id.sms_toggle_subtext);
 		CheckBox smsToggle = (CheckBox) activity.findViewById(R.id.checkbox);
 		TextView hikeSmsText = (TextView) activity.findViewById(R.id.hike_text);
@@ -1238,22 +1234,12 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		mAdapter.initializeSmsToggleTexts(hikeSmsText, regularSmsText, smsToggleSubtext);
 		mAdapter.setSmsToggleSubtext(smsToggleOn);
 
+		SMSToggleButton.setVisibility(View.VISIBLE);
 		smsToggleSubtext.setVisibility(View.VISIBLE);
 		smsToggle.setVisibility(View.VISIBLE);
 		hikeSmsText.setVisibility(View.VISIBLE);
 		regularSmsText.setVisibility(View.VISIBLE);
 		smsToggle.setOnCheckedChangeListener(mAdapter);
-	}
-
-	/**
-	 * This method sets alpha animation on the SMS toggle layout
-	 */
-	private void animateSMSToggleLayout()
-	{
-		View SMSToggleButton = (View) activity.findViewById(R.id.sms_toggle_button);
-		AlphaAnimation showSMSToggleButton = new AlphaAnimation(0.0f, 1.0f);
-		showSMSToggleButton.setDuration(1000);
-		SMSToggleButton.startAnimation(showSMSToggleButton);		
 	}
 
 	/**
