@@ -1305,9 +1305,16 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	@Override
 	protected void openProfileScreen()
 	{
-		Intent profileIntent = IntentFactory.getSingleProfileIntent(activity.getApplicationContext(), mConversation.isOnHike(), msisdn);
+		if (!mConversation.isBlocked())
+		{
+			Intent profileIntent = IntentFactory.getSingleProfileIntent(activity.getApplicationContext(), mConversation.isOnHike(), msisdn);
 
-		activity.startActivity(profileIntent);
+			activity.startActivity(profileIntent);
+		}
+		else
+		{
+			Toast.makeText(activity.getApplicationContext(), activity.getString(R.string.user_blocked, mConversation.getConversationName()), Toast.LENGTH_SHORT).show();
+		}
 	}
 
 	/**
@@ -2627,14 +2634,15 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 				break;
 				
 			case R.string.search:
-			case R.string.clear_chat:
 				overFlowMenuItem.enabled = !messages.isEmpty() && !mConversation.isBlocked();
 				break;
 				
+			case R.string.clear_chat:
 			case R.string.email_chat:
 				overFlowMenuItem.enabled = !messages.isEmpty();
 				break;
 				
+			case R.string.view_profile:
 			case R.string.chat_theme:
 				overFlowMenuItem.enabled = !mConversation.isBlocked();
 				break;
