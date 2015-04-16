@@ -469,14 +469,7 @@ public class VoIPService extends Service {
 
 		if(getCallStatus() == null)
 		{
-			if(isAudioRunning())
-			{
-				setCallStatus(VoIPConstants.CallStatus.ACTIVE);
-			}
-			else
-			{
-				setCallStatus(clientPartner.isInitiator() ? VoIPConstants.CallStatus.INCOMING_CALL : VoIPConstants.CallStatus.OUTGOING_CONNECTING);
-			}
+			setInitialCallStatus();
 		}
 
 		return returnInt;
@@ -1029,6 +1022,7 @@ public class VoIPService extends Service {
 
 		reconnectAttempts++;
 		Logger.w(VoIPConstants.TAG, "VoIPService reconnect()");
+		setCallStatus(VoIPConstants.CallStatus.RECONNECTING);
 		sendHandlerMessage(VoIPConstants.MSG_RECONNECTING);
 		socketInfoReceived = false;
 		socketInfoSent = false;
@@ -2720,6 +2714,7 @@ public class VoIPService extends Service {
 						playIncomingCallRingtone();
 
 					if (reconnecting) {
+						setInitialCallStatus();
 						sendHandlerMessage(VoIPConstants.MSG_RECONNECTED);
 						// Give the heartbeat a chance to recover
 						lastHeartbeat = System.currentTimeMillis() + 5000;
@@ -2842,6 +2837,18 @@ public class VoIPService extends Service {
 	public VoIPConstants.CallStatus getCallStatus()
 	{
 		return currentCallStatus;
+	}
+
+	private void setInitialCallStatus()
+	{
+		if(isAudioRunning())
+		{
+			setCallStatus(VoIPConstants.CallStatus.ACTIVE);
+		}
+		else
+		{
+			setCallStatus(clientPartner.isInitiator() ? VoIPConstants.CallStatus.INCOMING_CALL : VoIPConstants.CallStatus.OUTGOING_CONNECTING);
+		}
 	}
 
 	public void sendAnalyticsEvent(String ek)

@@ -159,10 +159,10 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 				showCallFailedFragment(VoIPConstants.CallFailedCodes.PARTNER_ANSWER_TIMEOUT);
 				break;
 			case VoIPConstants.MSG_RECONNECTING:
-				showMessage("Reconnecting your call...");
+				updateCallStatus();
 				break;
 			case VoIPConstants.MSG_RECONNECTED:
-//				showMessage("Reconnected!");
+				updateCallStatus();
 				break;
 			case VoIPConstants.MSG_UPDATE_QUALITY:
 				CallQuality quality = voipService.getQuality();
@@ -727,6 +727,12 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 				callDuration.stop();
 				callDuration.startAnimation(anim);
 				callDuration.setText(getString(R.string.voip_on_hold));
+				break;
+
+			case RECONNECTING:
+				callDuration.stop();
+				callDuration.startAnimation(anim);
+				callDuration.setText(getString(R.string.voip_reconnecting));
 				break;
 
 			case ENDED:
