@@ -1482,7 +1482,7 @@ public class VoIPService extends Service {
 			public void run() {
 				android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
 
-				AudioRecord recorder;
+				AudioRecord recorder = null;
 				Logger.d(VoIPConstants.TAG, "minBufSizeRecording: " + minBufSizeRecording);
 				
 				int audioSource = VoIPUtils.getAudioSource();
@@ -1496,17 +1496,16 @@ public class VoIPService extends Service {
 				catch(IllegalArgumentException e)
 				{
 					Logger.e(VoIPConstants.TAG, "AudioRecord init failed." + e.toString());
-					sendHandlerMessage(VoIPConstants.MSG_PHONE_NOT_SUPPORTED);
-					hangUp();
-					return;
+					sendHandlerMessage(VoIPConstants.MSG_AUDIORECORD_FAILURE);
 				}
 				catch (IllegalStateException e)
 				{
 					Logger.e(VoIPConstants.TAG, "Recorder exception: " + e.toString());
-					sendHandlerMessage(VoIPConstants.MSG_PHONE_NOT_SUPPORTED);
-					hangUp();
-					return;
+					sendHandlerMessage(VoIPConstants.MSG_AUDIORECORD_FAILURE);
 				}
+				
+				if (recorder == null)
+					return;
 				
 				// Start processing recorded data
 				byte[] recordedData = new byte[minBufSizeRecording];

@@ -181,9 +181,8 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 			case VoIPConstants.MSG_ALREADY_IN_CALL:
 				showCallFailedFragment(VoIPConstants.CallFailedCodes.CALLER_IN_NATIVE_CALL);
 				break;
-			case VoIPConstants.MSG_PHONE_NOT_SUPPORTED:
-				showMessage(getString(R.string.voip_phone_unsupported));
-				isCallActive = false;
+			case VoIPConstants.MSG_AUDIORECORD_FAILURE:
+				showMessage(getString(R.string.voip_mic_error));
 				break;
 			default:
 				super.handleMessage(msg);
