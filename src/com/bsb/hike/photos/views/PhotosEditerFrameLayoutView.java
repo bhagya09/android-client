@@ -15,14 +15,17 @@ import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.View.OnTouchListener;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
-import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.photos.HikeEffectsFactory.OnFilterAppliedListener;
 import com.bsb.hike.photos.HikePhotosListener;
 import com.bsb.hike.photos.HikePhotosUtils;
@@ -31,7 +34,6 @@ import com.bsb.hike.photos.views.CanvasImageView.OnDoodleStateChangeListener;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.IntentManager;
 import com.bsb.hike.utils.Utils;
-import com.google.android.gms.internal.dp;
 
 /**
  * Custom View extends FrameLayout Packs all the editing layers <filter layer,vignette layer ,doodle layer> into a single view ,in same z-order
@@ -39,13 +41,13 @@ import com.google.android.gms.internal.dp;
  * @author akhiltripathi
  * 
  */
-public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilterAppliedListener
+public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilterAppliedListener,OnTouchListener
 {
 	private CanvasImageView doodleLayer;
 
 	private EffectsImageView effectLayer;
 
-	private boolean enableDoodling, savingFinal, compressOutput;
+	private boolean enableDoodling, savingFinal, compressOutput,enableEffects;
 
 	private Bitmap imageOriginal, imageEdited, imageScaled, scaledImageOriginal;
 
@@ -60,11 +62,7 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 		super(context);
 		doodleLayer = new CanvasImageView(context);
 		effectLayer = new EffectsImageView(context);
-		addView(effectLayer);
-		addView(doodleLayer);
-		enableDoodling = false;
-		savingFinal = false;
-		compressOutput = true;
+		init();
 	}
 
 	public PhotosEditerFrameLayoutView(Context context, AttributeSet attrs)
@@ -72,11 +70,7 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 		super(context, attrs);
 		doodleLayer = new CanvasImageView(context, attrs);
 		effectLayer = new EffectsImageView(context, attrs);
-		addView(effectLayer);
-		addView(doodleLayer);
-		enableDoodling = false;
-		savingFinal = false;
-		compressOutput = true;
+		init();
 	}
 
 	public PhotosEditerFrameLayoutView(Context context, AttributeSet attrs, int defStyleAttr)
@@ -84,11 +78,18 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 		super(context, attrs, defStyleAttr);
 		doodleLayer = new CanvasImageView(context, attrs, defStyleAttr);
 		effectLayer = new EffectsImageView(context, attrs, defStyleAttr);
+		init();
+	}
+	
+	private void init()
+	{
 		addView(effectLayer);
 		addView(doodleLayer);
 		enableDoodling = false;
+		enableEffects = true;
 		savingFinal = false;
 		compressOutput = true;
+		this.setOnTouchListener(this);
 	}
 
 	public void setCompressionEnabled(boolean state)
@@ -213,6 +214,18 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 	{
 		enableDoodling = false;
 		doodleLayer.setDrawEnabled(false);
+	}
+	
+	public void enableFilters()
+	{
+		enableEffects = true;
+		effectLayer.setAllowTouchMode(true);
+	}
+
+	public void disableFilters()
+	{
+		enableEffects = true;
+		effectLayer.setAllowTouchMode(true);
 	}
 
 	public void setBrushColor(int Color)
@@ -465,6 +478,21 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 		{
 			e.printStackTrace();
 		}
+	}
+
+	@Override
+	public boolean onTouch(View v, MotionEvent event)
+	{
+		if(enableDoodling)
+		{
+			doodleLayer.onTouch(v, event);
+		}
+		else if(enableEffects)
+		{
+			effectLayer.onTouch(v, event);
+		}
+			
+		return true;
 	}
 
 }

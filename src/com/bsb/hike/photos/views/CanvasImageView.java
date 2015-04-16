@@ -92,7 +92,6 @@ public class CanvasImageView extends ImageView implements OnTouchListener
 	private void init()
 	{
 
-		setOnTouchListener(this);
 		setDrawingCacheEnabled(true);
 		buildDrawingCache(true);
 		this.mPaint = new Paint();
