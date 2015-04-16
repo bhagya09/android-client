@@ -1829,18 +1829,22 @@ public class VoIPService extends Service {
 					case COMM_UDP_SYN_PRIVATE:
 						Logger.d(VoIPConstants.TAG, "Received " + dataPacket.getType());
 						synchronized (clientPartner) {
+							ConnectionMethods currentMethod = clientPartner.getPreferredConnectionMethod();
 							clientPartner.setPreferredConnectionMethod(ConnectionMethods.PRIVATE);
 							VoIPDataPacket dp = new VoIPDataPacket(PacketType.COMM_UDP_SYNACK_PRIVATE);
 							sendPacket(dp, false);
+							clientPartner.setPreferredConnectionMethod(currentMethod);
 						}
 						break;
 						
 					case COMM_UDP_SYN_PUBLIC:
 						Logger.d(VoIPConstants.TAG, "Received " + dataPacket.getType());
 						synchronized (clientPartner) {
+							ConnectionMethods currentMethod = clientPartner.getPreferredConnectionMethod();
 							clientPartner.setPreferredConnectionMethod(ConnectionMethods.PUBLIC);
 							VoIPDataPacket dp = new VoIPDataPacket(PacketType.COMM_UDP_SYNACK_PUBLIC);
 							sendPacket(dp, false);
+							clientPartner.setPreferredConnectionMethod(currentMethod);
 						}
 						break;
 						
@@ -1848,15 +1852,11 @@ public class VoIPService extends Service {
 						Logger.d(VoIPConstants.TAG, "Received " + dataPacket.getType());
 						
 						synchronized (clientPartner) {
-							if (clientPartner.getPreferredConnectionMethod() == ConnectionMethods.PRIVATE || 
-									clientPartner.getPreferredConnectionMethod() == ConnectionMethods.PUBLIC) {
-								Logger.d(VoIPConstants.TAG, "Ignoring " + dataPacket.getType() + " since we are expecting a " +
-										clientPartner.getPreferredConnectionMethod() + " connection.");
-								break;
-							}
+							ConnectionMethods currentMethod = clientPartner.getPreferredConnectionMethod();
 							clientPartner.setPreferredConnectionMethod(ConnectionMethods.RELAY);
 							VoIPDataPacket dp = new VoIPDataPacket(PacketType.COMM_UDP_SYNACK_RELAY);
 							sendPacket(dp, false);
+							clientPartner.setPreferredConnectionMethod(currentMethod);
 						}
 						break;
 						
@@ -1883,6 +1883,7 @@ public class VoIPService extends Service {
 								senderThread.interrupt();
 							clientPartner.setPreferredConnectionMethod(ConnectionMethods.PUBLIC);
 							if (connected) break;
+							
 							VoIPDataPacket dp = new VoIPDataPacket(PacketType.COMM_UDP_ACK_PUBLIC);
 							sendPacket(dp, true);
 						}
