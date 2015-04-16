@@ -48,6 +48,6 @@
     <string name="led_color_red">#FFFF0000</string>
     <string name="led_color_white">#FFFFFFFF</string>
     <string name="led_color_yellow">#FFFFFF00</string>
-    <string name="led_color_purple">#FF800080</string>
+    <string name="led_color_purple">#FFFF00FF</string>
 
 </resources>
