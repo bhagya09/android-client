@@ -123,7 +123,10 @@ public class EffectsImageView extends ImageView implements OnTouchListener
 			case MotionEvent.ACTION_MOVE:
 				break;
 			case MotionEvent.ACTION_UP:
-				this.setImageBitmap(currentImage);
+				if(currentImage!=null)
+				{
+					this.setImageBitmap(currentImage);
+				}
 				invalidate();
 				break;
 			}
