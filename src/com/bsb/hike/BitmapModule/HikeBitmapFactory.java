@@ -34,6 +34,8 @@ public class HikeBitmapFactory
 {
 	private static final String TAG = "HikeBitmapFactory";
 
+	public static final int DEFAULT_BITMAP_COMPRESSION = 75;
+	
 	public static Bitmap getCircularBitmap(Bitmap bitmap)
 	{
 		if (bitmap == null)
