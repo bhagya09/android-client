@@ -20,8 +20,14 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
 
 public class OverFlowMenuLayout implements OnItemClickListener {
-	public static interface OverflowViewListener{
-		public void preShowOverflowMenu(List<OverFlowMenuItem> overflowItems);
+	public static interface OverflowViewListener
+	{
+		/**
+		 * This method will be called with a list of all overflow menu items. You can edit your menu items in this callback
+		 * 
+		 * @param overflowItems
+		 */
+		public void onPrepareOverflowOptionsMenu(List<OverFlowMenuItem> overflowItems);
 	}
 	protected Context context;
 	protected List<OverFlowMenuItem> overflowItems;
@@ -160,7 +166,7 @@ public class OverFlowMenuLayout implements OnItemClickListener {
 		initView();
 		if(viewListener!=null)
 		{
-			viewListener.preShowOverflowMenu(overflowItems);
+			viewListener.onPrepareOverflowOptionsMenu(overflowItems);
 		}
 		popUpLayout.showPopUpWindow(width, height, xOffset, yOffset, anchor,
 				getView(), inputMethodMode);
@@ -314,37 +320,61 @@ public class OverFlowMenuLayout implements OnItemClickListener {
 		return false;
 	}
 	
+	/** Can be used to update the icon of an overflow menu item on the fly
+    * 
+    * @param itemId
+    * @param enabled
+    */
+   public void updateOverflowMenuItemIcon(int itemId, int drawableId)
+   {
+       List<OverFlowMenuItem> mItems = getOverFlowMenuItems();
 
-	/**
-	 * Can be used to update the icon of an overflow menu item on the fly
-	 * 
-	 * @param itemId
-	 * @param enabled
-	 */
-	public void updateOverflowMenuItemIcon(int itemId, int drawableId)
-	{
-		List<OverFlowMenuItem> mItems = getOverFlowMenuItems();
-
-		/**
-		 * Defensive check
-		 */
-		if (mItems != null)
-		{
-			for (OverFlowMenuItem overFlowMenuItem : mItems)
-			{
-				if (overFlowMenuItem.id == itemId)
-				{
-					overFlowMenuItem.drawableId = drawableId;
-					notifyDateSetChanged();
-					break;
-				}
-			}
-		}
-	}
+       /**
+        * Defensive check
+        */
+       if (mItems != null)
+       {
+           for (OverFlowMenuItem overFlowMenuItem : mItems)
+           {
+               if (overFlowMenuItem.id == itemId)
+               {
+                   overFlowMenuItem.drawableId = drawableId;
+                   notifyDateSetChanged();
+                   break;
+               }
+           }
+       }
+   }
 	
 	public void setOverflowViewListener(OverflowViewListener viewListener)
 	{
 		this.viewListener = viewListener;
 	}
 
+	public void releaseResources()
+	{
+		this.viewListener = null;
+		this.listener = null;
+		this.mOnDismisslistener = null;
+		this.viewListener = null;
+		this.popUpLayout = null;
+	}
+
+	public boolean isShowing()
+	{
+		if (popUpLayout != null)
+		{
+			return popUpLayout.isShowing();
+		}
+		
+		return false;
+	}
+
+	public void dismiss()
+	{
+		if (popUpLayout != null)
+		{
+			popUpLayout.dismiss();
+		}
+	}
 }

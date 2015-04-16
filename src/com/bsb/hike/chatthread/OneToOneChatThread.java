@@ -20,16 +20,20 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
+import android.text.style.StyleSpan;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewStub;
+import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -130,6 +134,8 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 
 	private static final int SHOW_CALL_ICON = 115;
 	
+	protected static final int BLOCK_UNBLOCK_USER = 116;
+	
 	private static short H2S_MODE = 0; // Hike to SMS Mode
 
 	private static short H2H_MODE = 1; // Hike to Hike Mode
@@ -138,6 +144,8 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	private static final int DEFAULT_UNDELIVERED_WAIT_TIME = 30;
 
 	private static final int DEFAULT_SMS_LENGTH = 140;
+	
+	String prevLastSeen = null;
 
 	private View hikeToOfflineTipView;
 
@@ -361,7 +369,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		String[] oneToOneListeners = new String[] { HikePubSub.SMS_CREDIT_CHANGED, HikePubSub.MESSAGE_DELIVERED_READ, HikePubSub.CONTACT_ADDED, HikePubSub.CONTACT_DELETED,
 				HikePubSub.CHANGED_MESSAGE_TYPE, HikePubSub.SHOW_SMS_SYNC_DIALOG, HikePubSub.SMS_SYNC_COMPLETE, HikePubSub.SMS_SYNC_FAIL, HikePubSub.SMS_SYNC_START,
 				HikePubSub.LAST_SEEN_TIME_UPDATED, HikePubSub.SEND_SMS_PREF_TOGGLED, HikePubSub.BULK_MESSAGE_RECEIVED, HikePubSub.USER_JOINED, HikePubSub.USER_LEFT,
-				HikePubSub.APP_FOREGROUNDED };
+				HikePubSub.APP_FOREGROUNDED, HikePubSub.BLOCK_USER, HikePubSub.UNBLOCK_USER };
 		return oneToOneListeners;
 	}
 
@@ -550,6 +558,12 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		case HikePubSub.APP_FOREGROUNDED:
 			onAppForegrounded();
 			break;
+		case HikePubSub.BLOCK_USER:
+			blockUser(object, true);
+			break;
+		case HikePubSub.UNBLOCK_USER:
+			blockUser(object, false);
+			break;
 		default:
 			Logger.d(TAG, "Did not find any matching PubSub event in OneToOne ChatThread. Calling super class' onEventReceived");
 			super.onEventReceived(type, object);
@@ -676,6 +690,9 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 				mActionBar.getMenuItem(R.id.voip_call).setVisible(true);
 			}
 			break;
+		case BLOCK_UNBLOCK_USER:
+			blockUnBlockUser((boolean) msg.obj);
+			break;
 		default:
 			Logger.d(TAG, "Did not find any matching event in OneToOne ChatThread. Calling super class' handleUIMessage");
 			super.handleUIMessage(msg);
@@ -739,7 +756,6 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			mContactInfo.setLastSeenTime(lastSeenTime);
 
 			String lastSeenString = Utils.getLastSeenTimeAsString(activity.getApplicationContext(), lastSeenTime, offline, false, true);
-
 			/**
 			 * mContactInfo.getOffline == 0 indicates user is online
 			 */
@@ -807,6 +823,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 
 		else
 		{
+			setupSMSToggleLayout();
 			updateChatMetadata();
 		}
 
@@ -1019,14 +1036,38 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	 * Overrides {@link ChatThread}'s {@link #setupActionBar()}, to set the last seen time
 	 */
 	@Override
-	protected void setupActionBar()
+	protected void setupActionBar(boolean firstInflation)
 	{
-		super.setupActionBar();
+		super.setupActionBar(firstInflation);
 
 		setLabel(getConvLabel());
 
-		setLastSeenTextBasedOnHikeValue(mConversation.isOnHike());
+		/**
+		 * If unsaved contact : do not show last seen first. Wait for the query to return the result
+		 */
+		
+		if (firstInflation)
+		{
+			if (mContactInfo.isUnknownContact())
+			{
+				hideLastSeenText();
+			}
+			else
+			{
+				setLastSeenTextBasedOnHikeValue(mConversation.isOnHike());
+			}
+		}
+		
+		else
+		{
+			setPrevLastSeenTextFromActionBar();
+		}
+	}
 
+	private void setPrevLastSeenTextFromActionBar()
+	{
+		Logger.d(TAG, " Previous lastSeen value : " + prevLastSeen);
+		setLastSeen(prevLastSeen);
 	}
 
 	/**
@@ -1069,13 +1110,14 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		 * Setting text on lastSeenView
 		 */
 		mLastSeenView.setText(text);
-
+		
+		prevLastSeen = text;
+		
 		if (mLastSeenView.getVisibility() == View.GONE)
 		{
 			/**
-			 * If the view was initially gone and conversation is on hike, we animate the label view in order to make lastSeenView visible
+			 * If the view was initially gone, we animate the label view in order to make lastSeenView visible
 			 */
-			if (mConversation.isOnHike())
 			{
 				mLastSeenView.setVisibility(View.INVISIBLE);
 
@@ -1101,11 +1143,6 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 					}
 				});
 			}
-
-			else
-			{
-				mLabelView.setVisibility(View.VISIBLE);
-			}
 		}
 		
 		HAManager.getInstance().recordLastSeenEvent(OneToOneChatThread.class.getName(), "setLastSeenText", "Updated UI for LastSeen", msisdn);
@@ -1124,7 +1161,10 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	{
 		if (super.updateUIAsPerTheme(theme))
 		{
-			setupSMSToggleLayout();
+			if (!mContactInfo.isUnknownContact())
+			{
+				setupSMSToggleLayout();
+			}
 		}
 		return false;
 	}
@@ -1163,7 +1203,8 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 
 	private void setUpSMSViews()
 	{
-		showView(R.id.sms_toggle_button);
+		animateSMSToggleLayout();
+		
 		TextView smsToggleSubtext = (TextView) activity.findViewById(R.id.sms_toggle_subtext);
 		CheckBox smsToggle = (CheckBox) activity.findViewById(R.id.checkbox);
 		TextView hikeSmsText = (TextView) activity.findViewById(R.id.hike_text);
@@ -1198,6 +1239,17 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		hikeSmsText.setVisibility(View.VISIBLE);
 		regularSmsText.setVisibility(View.VISIBLE);
 		smsToggle.setOnCheckedChangeListener(mAdapter);
+	}
+
+	/**
+	 * This method sets alpha animation on the SMS toggle layout
+	 */
+	private void animateSMSToggleLayout()
+	{
+		View SMSToggleButton = (View) activity.findViewById(R.id.sms_toggle_button);
+		AlphaAnimation showSMSToggleButton = new AlphaAnimation(0.0f, 1.0f);
+		showSMSToggleButton.setDuration(1000);
+		SMSToggleButton.startAnimation(showSMSToggleButton);		
 	}
 
 	/**
@@ -1242,8 +1294,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		return msisdn;
 	}
 
-	@Override
-	protected String getBlockedUserLabel()
+	private String getBlockedUserLabel()
 	{
 		return getConvLabel();
 	}
@@ -2041,6 +2092,16 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		case R.id.add_unknown_contact:
 			Utils.addToContacts(activity, msisdn);
 			break;
+			
+		case R.id.overlay_layout:
+			/**
+			 * Do nothing. We simply eat this event to avoid chat thread window from catching this
+			 */
+			break;
+			
+		case R.id.overlay_button:
+			onOverlayLayoutClicked((int) v.getTag());
+			break;
 
 		default:
 			super.onClick(v);
@@ -2537,11 +2598,217 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	}
 	
 	@Override
-	protected ArrayList<Pair<Integer, Boolean>> getMenuItemsToBeModified()
+	public void onPrepareOverflowOptionsMenu(List<OverFlowMenuItem> overflowItems)
 	{
-		ArrayList<Pair<Integer, Boolean>> itemsPair = new ArrayList<Pair<Integer,Boolean>>();
-		itemsPair.add(new Pair<Integer, Boolean>(R.string.add_as_favorite_menu, !mConversation.isBlocked()));
-		itemsPair.addAll(super.getMenuItemsToBeModified());
-		return itemsPair;
+		if (overflowItems == null)
+		{
+			return;
+		}
+		
+		super.onPrepareOverflowOptionsMenu(overflowItems);
+		
+		for (OverFlowMenuItem overFlowMenuItem : overflowItems)
+		{
+
+			switch (overFlowMenuItem.id)
+			{
+			case R.string.add_as_favorite_menu:
+				/**
+				 * Removing favorites option if the user might have pressed on favorites or if we are accidentally showing it
+				 */
+				if(!mContactInfo.isNotOrRejectedFavourite())
+				{
+					overflowItems.remove(overFlowMenuItem);
+				}
+				else
+				{
+					overFlowMenuItem.enabled = !mConversation.isBlocked();
+				}
+				break;
+				
+			case R.string.search:
+			case R.string.clear_chat:
+				overFlowMenuItem.enabled = !messages.isEmpty() && !mConversation.isBlocked();
+				break;
+				
+			case R.string.email_chat:
+				overFlowMenuItem.enabled = !messages.isEmpty();
+				break;
+				
+			case R.string.chat_theme:
+				overFlowMenuItem.enabled = !mConversation.isBlocked();
+				break;
+			}
+		}
 	}
+	
+	/**
+	 * This runs only on the UI Thread
+	 * 
+	 * @param isBlocked
+	 */
+	protected void blockUnBlockUser(boolean isBlocked)
+	{
+		mConversation.setBlocked(isBlocked);
+
+		if (isBlocked)
+		{
+			Utils.logEvent(activity.getApplicationContext(), HikeConstants.LogEvent.MENU_BLOCK);
+			showBlockOverlay(getBlockedUserLabel());
+			mActionBar.updateOverflowMenuItemString(R.string.block_title, activity.getString(R.string.unblock_title));
+		}
+
+		else
+		{
+			mComposeView.setEnabled(true);
+			hideOverlay();
+			mActionBar.updateOverflowMenuItemString(R.string.block_title, activity.getString(R.string.block_title));
+		}
+	}
+	
+	private void blockUser(Object object, boolean isBlocked)
+	{
+		String mMsisdn = (String) object;
+
+		/**
+		 * Proceeding only if the blocked user's msisdn is that of the current chat thread
+		 */
+		if (mMsisdn.equals(getMsisdnMainUser()))
+		{
+			sendUIMessage(BLOCK_UNBLOCK_USER, isBlocked);
+		}
+	}
+
+	private void hideOverlay()
+	{
+		View mOverlayLayout = activity.findViewById(R.id.overlay_layout);
+
+		if (mOverlayLayout.getVisibility() == View.VISIBLE && activity.hasWindowFocus())
+		{
+			Animation fadeOut = AnimationUtils.loadAnimation(activity.getApplicationContext(), android.R.anim.fade_out);
+			mOverlayLayout.setAnimation(fadeOut);
+		}
+
+		mOverlayLayout.setVisibility(View.INVISIBLE);
+	}
+	
+	private void onOverlayLayoutClicked(int tag)
+	{
+		switch (tag)
+		{
+
+		/**
+		 * Block Case :
+		 */
+		case R.string.unblock_title:
+			HikeMessengerApp.getPubSub().publish(HikePubSub.UNBLOCK_USER, getMsisdnMainUser());
+			break;
+
+		/**
+		 * Zero SMS Credits :
+		 */
+		case R.string.invite_now:
+			Utils.logEvent(activity.getApplicationContext(), HikeConstants.LogEvent.INVITE_OVERLAY_BUTTON);
+			inviteUser();
+			hideOverlay();
+			break;
+		}
+	}
+
+	/**
+	 * Invite user
+	 */
+	private void inviteUser()
+	{
+		if (mConversation.isOnHike())
+		{
+			Toast.makeText(activity, R.string.already_hike_user, Toast.LENGTH_LONG).show();
+		}
+
+		else
+		{
+			Utils.sendInviteUtil(new ContactInfo(msisdn, msisdn, mConversation.getConversationName(), msisdn), activity.getApplicationContext(),
+					HikeConstants.SINGLE_INVITE_SMS_ALERT_CHECKED, getString(R.string.native_header), getString(R.string.native_info));
+
+		}
+	}
+
+	/**
+	 * blockOverLay flag indicates whether this is used to block a user or not. This function can also be called from in zero SMS Credits case.
+	 * 
+	 * @param label
+	 * @param formatString
+	 * @param overlayBtnText
+	 * @param str
+	 * @param drawableResId
+	 */
+
+	private void showOverlay(String label, String formatString, String overlayBtnText, SpannableString str, int drawableResId, int viewTag)
+	{
+		Utils.hideSoftKeyboard(activity.getApplicationContext(), mComposeView);
+
+		View mOverlayLayout = activity.findViewById(R.id.overlay_layout);
+
+		if (mOverlayLayout.getVisibility() != View.VISIBLE && activity.hasWindowFocus())
+		{
+			Animation fadeIn = AnimationUtils.loadAnimation(activity, android.R.anim.fade_in);
+			mOverlayLayout.setAnimation(fadeIn);
+		}
+
+		mComposeView.setEnabled(false);
+
+		mOverlayLayout.setVisibility(View.VISIBLE);
+		mOverlayLayout.setOnClickListener(this);
+
+		TextView message = (TextView) mOverlayLayout.findViewById(R.id.overlay_message);
+		Button overlayBtn = (Button) mOverlayLayout.findViewById(R.id.overlay_button);
+		ImageView overlayImg = (ImageView) mOverlayLayout.findViewById(R.id.overlay_image);
+
+		overlayBtn.setOnClickListener(this);
+		overlayBtn.setTag(viewTag);
+
+		mComposeView.setEnabled(false);
+
+		overlayImg.setImageResource(R.drawable.ic_no);
+		overlayBtn.setText(overlayBtnText);
+
+		message.setText(str);
+	}
+
+
+	/**
+	 * Used to call {@link #showOverlay(boolean, String, String, String)} from {@link OneToOneChatThread} 
+	 * 
+	 * @param label
+	 */
+	private void showBlockOverlay(String label)
+	{
+		/**
+		 * Making the blocked user's name as bold
+		 */
+		String formatString = activity.getString(R.string.block_overlay_message);
+		String formatted = String.format(formatString, label);
+		SpannableString str = new SpannableString(formatted);
+		int start = formatString.indexOf("%1$s");
+		str.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), start, start + label.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+		showOverlay(label, formatString, activity.getString(R.string.unblock_title), str, R.drawable.ic_no, R.string.unblock_title);
+	}
+
+	/**
+	 * Used for giving block and unblock user pubSubs
+	 */
+	private void onBlockUserclicked()
+	{
+		if (mConversation.isBlocked())
+		{
+			HikeMessengerApp.getPubSub().publish(HikePubSub.UNBLOCK_USER, msisdn);
+		}
+
+		else
+		{
+			HikeMessengerApp.getPubSub().publish(HikePubSub.BLOCK_USER, msisdn);
+		}
+	}
+
 }

@@ -1,8 +1,6 @@
 package com.bsb.hike.utils;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -299,14 +297,37 @@ public class IntentFactory
 		return intent;
 	}
 
-	public static void createNewBroadcastActivityIntent(Context appContext, List<String> selectedContactList)
+	public static Intent createNewBroadcastActivityIntent(Context appContext)
 	{
 		Intent intent = new Intent(appContext.getApplicationContext(), CreateNewGroupOrBroadcastActivity.class);
-		intent.putStringArrayListExtra(HikeConstants.Extras.BROADCAST_RECIPIENTS, (ArrayList<String>)selectedContactList);
 		intent.putExtra(HikeConstants.IS_BROADCAST, true);
-		appContext.startActivity(intent);
+		return intent;
 	}
 
+	public static Intent openComposeChatIntentForBroadcast(Context appContext, String convId, String convName)
+	{
+		Intent intent = new Intent(appContext.getApplicationContext(), ComposeChatActivity.class);
+		Bundle bundle = new Bundle();
+		bundle.putString(HikeConstants.Extras.ONETON_CONVERSATION_NAME, convName);
+		bundle.putString(HikeConstants.Extras.CONVERSATION_ID, convId);
+		bundle.putBoolean(HikeConstants.Extras.CREATE_BROADCAST, true);
+		intent.putExtra(HikeConstants.Extras.BROADCAST_CREATE_BUNDLE, bundle);
+		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		return intent;
+	}
+	
+	public static Intent openComposeChatIntentForGroup(Context appContext, String convId, String convName)
+	{
+		Intent intent = new Intent(appContext.getApplicationContext(), ComposeChatActivity.class);
+		Bundle bundle = new Bundle();
+		bundle.putString(HikeConstants.Extras.ONETON_CONVERSATION_NAME, convName);
+		bundle.putString(HikeConstants.Extras.CONVERSATION_ID, convId);
+		bundle.putBoolean(HikeConstants.Extras.CREATE_GROUP, true);
+		intent.putExtra(HikeConstants.Extras.GROUP_CREATE_BUNDLE, bundle);
+		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		return intent;
+	}
+	
 	public static Intent getForwardStickerIntent(Context context, String stickerId, String categoryId)
 	{
 		Utils.sendUILogEvent(HikeConstants.LogEvent.FORWARD_MSG);
@@ -341,16 +362,6 @@ public class IntentFactory
 	public static void createBroadcastDefault(Context appContext)
 	{
 		Intent intent = new Intent(appContext.getApplicationContext(), ComposeChatActivity.class);
-		intent.putExtra(HikeConstants.Extras.COMPOSE_MODE, HikeConstants.Extras.CREATE_BROADCAST_MODE);
-		intent.putExtra(HikeConstants.Extras.CREATE_BROADCAST, true);
-		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-		appContext.startActivity(intent);
-	}
-	
-	public static void onBackPressedCreateNewBroadcast(Context appContext, ArrayList<String> broadcastRecipients)
-	{
-		Intent intent = new Intent(appContext.getApplicationContext(), ComposeChatActivity.class);
-		intent.putStringArrayListExtra(HikeConstants.Extras.BROADCAST_RECIPIENTS, broadcastRecipients);
 		intent.putExtra(HikeConstants.Extras.COMPOSE_MODE, HikeConstants.Extras.CREATE_BROADCAST_MODE);
 		intent.putExtra(HikeConstants.Extras.CREATE_BROADCAST, true);
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);

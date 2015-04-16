@@ -21,9 +21,13 @@ import com.bsb.hike.utils.Utils;
 public class FetchHikeUser
 {
 	private static final String TAG = "FetchHikeUser";
-	
+
 	/**
-	 * This function is used in the chatThread to fetch details about a user. i.e., whether an unknown user is on hike or not.
+	 * This function is used in the chatThread to fetch details about a user. i.e., whether an unknown user is on hike or not. <br>
+	 * Sample responses : <br>
+	 * {"profile":{"jointime":1385821790,"name":"Test"},"stat":"ok","onhike":"true”} <br>
+	 * {"stat":"ok","onhike":"false”}
+	 * 
 	 * @param ctx
 	 * @param msisdn
 	 */
@@ -34,36 +38,45 @@ public class FetchHikeUser
 			@Override
 			public void onSuccess(JSONObject response)
 			{
-				Logger.d(TAG,  "Response for account/profile request: " + response.toString());
+				Logger.d(TAG, "Response for account/profile request: " + response.toString());
 				try
 				{
-					
-					JSONObject profile = response.getJSONObject(HikeConstants.PROFILE);
-					long hikeJoinTime = profile.optLong(HikeConstants.JOIN_TIME, 0);
-					if (hikeJoinTime > 0)
+					boolean onHike = response.getBoolean(HikeConstants.ON_HIKE);
+					if (onHike)
 					{
-						hikeJoinTime = Utils.applyServerTimeOffset(ctx, hikeJoinTime);
-						HikeMessengerApp.getPubSub().publish(HikePubSub.HIKE_JOIN_TIME_OBTAINED, new Pair<String, Long>(msisdn, hikeJoinTime));
-						ContactManager.getInstance().updateHikeStatus(ctx, msisdn, true);
-						HikeConversationsDatabase.getInstance().updateOnHikeStatus(msisdn, true);
-						HikeMessengerApp.getPubSub().publish(HikePubSub.USER_JOINED, msisdn);
+						JSONObject profile = response.getJSONObject(HikeConstants.PROFILE);
+						long hikeJoinTime = profile.optLong(HikeConstants.JOIN_TIME, 0);
+						if (hikeJoinTime > 0)
+						{
+							hikeJoinTime = Utils.applyServerTimeOffset(ctx, hikeJoinTime);
+							HikeMessengerApp.getPubSub().publish(HikePubSub.HIKE_JOIN_TIME_OBTAINED, new Pair<String, Long>(msisdn, hikeJoinTime));
+							ContactManager.getInstance().updateHikeStatus(ctx, msisdn, true);
+							HikeConversationsDatabase.getInstance().updateOnHikeStatus(msisdn, true);
+							HikeMessengerApp.getPubSub().publish(HikePubSub.USER_JOINED, msisdn);
+						}
+					}
+
+					else
+					{
+						HikeMessengerApp.getPubSub().publish(HikePubSub.USER_LEFT, msisdn);
 					}
 				}
-				
+
 				catch (JSONException e)
 				{
 					e.printStackTrace();
+					Logger.e(TAG, " JSON Error in fetchHike User : " + e.toString());
 				}
 			}
-			
+
 			@Override
 			public void onFailure()
 			{
-			 	// TODO Handle failure of the call.
+				// TODO Handle failure of the call.
 				super.onFailure();
 			}
 		});
-		
+
 		HikeHTTPTask getHikeJoinTimeTask = new HikeHTTPTask(null, -1);
 		Utils.executeHttpTask(getHikeJoinTimeTask, hikeHttpRequest);
 	}

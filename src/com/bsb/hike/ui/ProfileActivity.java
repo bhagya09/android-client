@@ -2579,6 +2579,13 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			Pair<ArrayList<Long>, Bundle> deleteMessage = (Pair<ArrayList<Long>, Bundle>) object;
 			Bundle bundle = deleteMessage.second;
 			String msisdn = bundle.getString(HikeConstants.Extras.MSISDN);
+			
+			if (!this.mLocalMSISDN.equals(msisdn))
+			{
+				Logger.d(TAG, "Received this pubSub for a different profile screen. Hence returning!");
+				return;
+			}
+			
 			/*
 			 * if message type is not set return;
 			 */
