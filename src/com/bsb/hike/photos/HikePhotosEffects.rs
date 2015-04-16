@@ -344,7 +344,7 @@ uchar4 __attribute__((kernel)) filter_inkwell(uchar4 in,uint32_t x,uint32_t y) {
 
 	in = applyColorMatrix(in,preMatrix);
 
-	in = applyCurves(in,-1,0,0,0);
+	in = applyCurves(in,-1,1,1,1);
 	
 	in = applyColorMatrix(in,postMatrix);
 

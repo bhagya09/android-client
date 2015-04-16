@@ -252,7 +252,7 @@ public final class HikeEffectsFactory
 			else
 			{
 				filterColorMatrix = getBrightnessColorMatrix(0.9f);
-				filterColorMatrix.setConcat(getContrastColorMatrix(50f), filterColorMatrix);
+				filterColorMatrix.setConcat(getContrastColorMatrix(35f), filterColorMatrix);
 			}
 			break;
 		case LO_FI:
@@ -697,6 +697,18 @@ public final class HikeEffectsFactory
 			case INKWELL:
 				ci = new int[] { 0, 16, 82, 151, 255 };
 				co = new int[] { 0, 0, 88, 184, 224 };
+				ri = new int[] { 0,101,129,255 };
+				ro = new int[] { 15,92,129,255 };
+				gi = new int[] { 0,85,128,255 };
+				go = new int[] { 15,65,128,255 };
+				bi = new int[] { 0,59,158,255 };
+				bo = new int[] { 10, 70,170,245 };
+				red = new Splines(ri, ro);
+				green = new Splines(gi, go);
+				blue = new Splines(bi, bo);
+				mScript.set_rSpline(red.getInterpolationMatrix());
+				mScript.set_gSpline(green.getInterpolationMatrix());
+				mScript.set_bSpline(blue.getInterpolationMatrix());
 				composite = new Splines(ci, co);
 				mScript.set_compositeSpline(composite.getInterpolationMatrix());
 				mScript.forEach_filter_inkwell(mInAllocation, mOutAllocations);
