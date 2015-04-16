@@ -160,9 +160,7 @@ public class OneToNConversationUtils
 			{
 				gcjPacket.put(HikeConstants.NEW_GROUP, newOneToNConv);
 			}
-			ConvMessage msg = new ConvMessage(gcjPacket, oneToNConversation, activity, true);
-			ContactManager.getInstance().updateGroupRecency(oneToNConvId, msg.getTimestamp());
-			HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_SENT, msg);
+			
 			/*
 			 * Adding request dp to the packet
 			 */
@@ -179,10 +177,14 @@ public class OneToNConversationUtils
 				{
 					metadata.put(HikeConstants.REQUEST_DP, true);
 				}
-
+				
 				gcjPacket.put(HikeConstants.METADATA, metadata);
 			}
 
+			ConvMessage msg = new ConvMessage(gcjPacket, oneToNConversation, activity, true);
+			ContactManager.getInstance().updateGroupRecency(oneToNConvId, msg.getTimestamp());
+			HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_SENT, msg);
+			
 			HikeMqttManagerNew.getInstance().sendMessage(gcjPacket, HikeMqttManagerNew.MQTT_QOS_ONE);
 
 			/**
