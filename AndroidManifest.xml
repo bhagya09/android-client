@@ -2,8 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1161"
-    android:versionName="3.8.9.009.final_sound_fix" >
+    android:versionCode="1162"
+    android:versionName="3.8.9.010.final_sound_fix" >
+
     <uses-sdk
         android:minSdkVersion="9"
         android:targetSdkVersion="17" />

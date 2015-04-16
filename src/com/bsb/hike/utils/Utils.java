@@ -82,6 +82,7 @@ import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Shader.TileMode;
 import android.graphics.Typeface;
@@ -102,6 +103,7 @@ import android.os.Environment;
 import android.os.PowerManager;
 import android.os.StatFs;
 import android.os.Vibrator;
+import android.preference.ListPreference;
 import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.Intents.Insert;
@@ -5571,4 +5573,6 @@ public class Utils
 		}
 		return fullFirstName;
 	}
+	
+	
 }
