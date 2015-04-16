@@ -1,5 +1,6 @@
 package com.bsb.hike.photos;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -10,6 +11,7 @@ import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+
 import com.bsb.hike.R;
 import com.bsb.hike.photos.views.DoodleEffectItemLinearLayout;
 import com.bsb.hike.photos.views.FilterEffectItemLinearLayout;
@@ -39,6 +41,16 @@ public class HikePhotosUtils
 
 		public static final int QUALITY_TYPE = 4;
 	}
+	
+	public static interface HikePhotosListener
+	{
+		void onComplete(File f);
+
+		void onComplete(Bitmap bmp);
+
+		void onFailure();
+	}
+
 
 	// array cpntaining colors hex codes for colors provided in doodling
 	public static int[] DoodleColors = { 0xffff6d00, 0xff1014e2, 0xff86d71d,
