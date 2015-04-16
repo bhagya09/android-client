@@ -1410,4 +1410,5 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="photos_oom_camera">Unable to capture Image</string>
     <string name="pick_contact_zero">Please select minimum one contact</string>
     <string name="choose_contact">Choose Contact(s)</string>
+    <string name="voip_reconnecting">&#8230;RECONNECTING</string>
 </resources>
