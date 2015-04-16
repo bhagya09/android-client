@@ -26,7 +26,6 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.media.AudioAttributes;
 import android.media.AudioFormat;
 import android.media.AudioManager;
@@ -43,10 +42,10 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.PowerManager;
+import android.os.PowerManager.WakeLock;
 import android.os.RemoteException;
 import android.os.SystemClock;
 import android.os.Vibrator;
-import android.os.PowerManager.WakeLock;
 import android.support.v4.app.NotificationCompat;
 import android.text.TextUtils;
 import android.util.SparseIntArray;
@@ -63,10 +62,8 @@ import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentManager;
 import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.Utils;
 import com.bsb.hike.voip.VoIPClient.ConnectionMethods;
 import com.bsb.hike.voip.VoIPConstants.CallQuality;
-import com.bsb.hike.voip.VoIPConstants.CallStatus;
 import com.bsb.hike.voip.VoIPDataPacket.PacketType;
 import com.bsb.hike.voip.VoIPEncryptor.EncryptionStage;
 import com.bsb.hike.voip.VoIPUtils.CallSource;
@@ -105,7 +102,6 @@ public class VoIPService extends Service {
 	private static boolean audioStarted = false;
 	private int droppedDecodedPackets = 0;
 	private int minBufSizePlayback, minBufSizeRecording;
-	private int gain = 0;
 	private OpusWrapper opusWrapper;
 	private Resampler resampler;
 	private Thread partnerTimeoutThread = null, connectionTimeoutThread = null;
@@ -299,7 +295,8 @@ public class VoIPService extends Service {
 		// Incoming call ack message
 		if (action.equals(HikeConstants.MqttMessageTypes.VOIP_CALL_REQUEST_RESPONSE)) {
 
-			if (getCallId() == 0) {
+			int partnerCallId = intent.getIntExtra(VoIPConstants.Extras.CALL_ID, 0);
+			if (getCallId() == 0 || getCallId() != partnerCallId) {
 				Logger.w(VoIPConstants.TAG, "Was not expecting message: " + action);
 				return returnInt;
 			}
@@ -318,7 +315,8 @@ public class VoIPService extends Service {
 		// Incoming call ack ack message
 		if (action.equals(HikeConstants.MqttMessageTypes.VOIP_CALL_RESPONSE_RESPONSE)) {
 
-			if (getCallId() == 0) {
+			int partnerCallId = intent.getIntExtra(VoIPConstants.Extras.CALL_ID, 0);
+			if (getCallId() == 0 || getCallId() != partnerCallId) {
 				Logger.w(VoIPConstants.TAG, "Was not expecting message: " + action);
 				return returnInt;
 			}
@@ -1474,7 +1472,7 @@ public class VoIPService extends Service {
 			public void run() {
 				android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
 
-				AudioRecord recorder;
+				AudioRecord recorder = null;
 				Logger.d(VoIPConstants.TAG, "minBufSizeRecording: " + minBufSizeRecording);
 				
 				int audioSource = VoIPUtils.getAudioSource();
@@ -1488,17 +1486,16 @@ public class VoIPService extends Service {
 				catch(IllegalArgumentException e)
 				{
 					Logger.e(VoIPConstants.TAG, "AudioRecord init failed." + e.toString());
-					sendHandlerMessage(VoIPConstants.MSG_PHONE_NOT_SUPPORTED);
-					hangUp();
-					return;
+					sendHandlerMessage(VoIPConstants.MSG_AUDIORECORD_FAILURE);
 				}
 				catch (IllegalStateException e)
 				{
 					Logger.e(VoIPConstants.TAG, "Recorder exception: " + e.toString());
-					sendHandlerMessage(VoIPConstants.MSG_PHONE_NOT_SUPPORTED);
-					hangUp();
-					return;
+					sendHandlerMessage(VoIPConstants.MSG_AUDIORECORD_FAILURE);
 				}
+				
+				if (recorder == null)
+					return;
 				
 				// Start processing recorded data
 				byte[] recordedData = new byte[minBufSizeRecording];
@@ -1822,18 +1819,22 @@ public class VoIPService extends Service {
 					case COMM_UDP_SYN_PRIVATE:
 						Logger.d(VoIPConstants.TAG, "Received " + dataPacket.getType());
 						synchronized (clientPartner) {
+							ConnectionMethods currentMethod = clientPartner.getPreferredConnectionMethod();
 							clientPartner.setPreferredConnectionMethod(ConnectionMethods.PRIVATE);
 							VoIPDataPacket dp = new VoIPDataPacket(PacketType.COMM_UDP_SYNACK_PRIVATE);
 							sendPacket(dp, false);
+							clientPartner.setPreferredConnectionMethod(currentMethod);
 						}
 						break;
 						
 					case COMM_UDP_SYN_PUBLIC:
 						Logger.d(VoIPConstants.TAG, "Received " + dataPacket.getType());
 						synchronized (clientPartner) {
+							ConnectionMethods currentMethod = clientPartner.getPreferredConnectionMethod();
 							clientPartner.setPreferredConnectionMethod(ConnectionMethods.PUBLIC);
 							VoIPDataPacket dp = new VoIPDataPacket(PacketType.COMM_UDP_SYNACK_PUBLIC);
 							sendPacket(dp, false);
+							clientPartner.setPreferredConnectionMethod(currentMethod);
 						}
 						break;
 						
@@ -1841,15 +1842,11 @@ public class VoIPService extends Service {
 						Logger.d(VoIPConstants.TAG, "Received " + dataPacket.getType());
 						
 						synchronized (clientPartner) {
-							if (clientPartner.getPreferredConnectionMethod() == ConnectionMethods.PRIVATE || 
-									clientPartner.getPreferredConnectionMethod() == ConnectionMethods.PUBLIC) {
-								Logger.d(VoIPConstants.TAG, "Ignoring " + dataPacket.getType() + " since we are expecting a " +
-										clientPartner.getPreferredConnectionMethod() + " connection.");
-								break;
-							}
+							ConnectionMethods currentMethod = clientPartner.getPreferredConnectionMethod();
 							clientPartner.setPreferredConnectionMethod(ConnectionMethods.RELAY);
 							VoIPDataPacket dp = new VoIPDataPacket(PacketType.COMM_UDP_SYNACK_RELAY);
 							sendPacket(dp, false);
+							clientPartner.setPreferredConnectionMethod(currentMethod);
 						}
 						break;
 						
@@ -1876,6 +1873,7 @@ public class VoIPService extends Service {
 								senderThread.interrupt();
 							clientPartner.setPreferredConnectionMethod(ConnectionMethods.PUBLIC);
 							if (connected) break;
+							
 							VoIPDataPacket dp = new VoIPDataPacket(PacketType.COMM_UDP_ACK_PUBLIC);
 							sendPacket(dp, true);
 						}
@@ -2223,21 +2221,6 @@ public class VoIPService extends Service {
 	
 	public int getBitrate() {
 		return localBitrate;
-	}
-	
-	public void adjustGain(int gainDelta) {
-		if (gainDelta > 0 && gain > 5000)
-			return;
-		if (gainDelta < 0 && gain < -5000)
-			return;
-		gain += gainDelta;
-		opusWrapper.setDecoderGain(gain);
-		
-		// Save the gain preference
-		SharedPreferences preferences = getSharedPreferences(HikeMessengerApp.VOIP_SETTINGS, Context.MODE_PRIVATE);
-		Editor edit = preferences.edit();
-		edit.putInt(HikeMessengerApp.VOIP_AUDIO_GAIN, gain);
-		edit.commit();
 	}
 	
 	/**

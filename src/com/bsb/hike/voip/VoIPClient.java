@@ -105,7 +105,7 @@ public class VoIPClient  {
 			ConnectionMethods preferredConnectionMethod) {
 		this.preferredConnectionMethod = preferredConnectionMethod;
 		cachedInetAddress = null;
-		// Log.d(VoIPConstants.TAG, "Setting preferred connection method to: " + preferredConnectionMethod.toString());
+		// Logger.d(VoIPConstants.TAG, "Setting preferred connection method to: " + preferredConnectionMethod.toString());
 	}
 	
 	public String getPreferredIPAddress() {
