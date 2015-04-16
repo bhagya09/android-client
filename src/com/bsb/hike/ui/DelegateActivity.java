@@ -63,34 +63,15 @@ public class DelegateActivity extends Activity
 			onError();
 		}
 
-		if (sourceIntent.getAction() == MediaStore.ACTION_IMAGE_CAPTURE)
+		
+
+		if (destinationIntent != null)
 		{
-			if(!IntentManager.isIntentAvailable(getApplicationContext(), sourceIntent.getAction()))
+			if (!IntentManager.isIntentAvailable(getApplicationContext(), sourceIntent))
 			{
 				onError();
 				return;
 			}
-			/*
-			 * For images, save the file path as a preferences since in some devices the reference to the file becomes null.
-			 */
-			File selectedDir = new File(Utils.getFileParent(HikeFileType.IMAGE, false));
-			if (!selectedDir.exists())
-			{
-				if (!selectedDir.mkdirs())
-				{
-					onError();
-					return;
-				}
-			}
-			String fileName = HikeConstants.CAM_IMG_PREFIX + Utils.getOriginalFile(HikeFileType.IMAGE, null);
-			File selectedFile = new File(selectedDir.getPath() + File.separator + fileName);
-			sourceIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(selectedFile));
-			HikeSharedPreferenceUtil pref = HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.ACCOUNT_SERVICE);
-			pref.saveData(HikeMessengerApp.FILE_PATH, selectedFile.getAbsolutePath());
-		}
-
-		if (destinationIntent != null)
-		{
 			Logger.d(TAG, "Starting activity for result");
 			DelegateActivity.this.startActivityForResult(sourceIntent, requestCode);
 		}

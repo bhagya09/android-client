@@ -226,8 +226,8 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 		// Add "pick from camera" button/bucket
 		if (enableCameraPick)
 		{
-			Intent sourceIntent = IntentManager.getNativeCameraAppIntent();
-			Intent desIntent = IntentManager.getPictureEditorActivityIntent(null, false);
+			Intent sourceIntent = IntentManager.getNativeCameraAppIntent(true);
+			Intent desIntent = IntentManager.getPictureEditorActivityIntent(GalleryActivity.this,null, false);
 
 			Intent proxyIntent = new Intent(GalleryActivity.this, DelegateActivity.class);
 			proxyIntent.putExtra(DelegateActivity.SOURCE_INTENT, sourceIntent);
@@ -709,73 +709,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 		multiSelectTitle.setText(getString(R.string.gallery_num_selected, selectedGalleryItems.size()));
 	}
 
-	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data)
-	{
-		super.onActivityResult(requestCode, resultCode, data);
-		if (requestCode == HikeConstants.IMAGE_CAPTURE_CODE)
-		{
-			if (resultCode == RESULT_OK)
-			{
-				// Image capture successful
-				HikeSharedPreferenceUtil pref = HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.ACCOUNT_SERVICE);
-
-				// Retrieve saved file path
-				String newFilePath = pref.getData(HikeMessengerApp.FILE_PATH, "");
-
-				HikeHandlerUtil.getInstance().postRunnableWithDelay(new Runnable()
-				{
-					@Override
-					public void run()
-					{
-						// Remove saved file path from shared pref
-						HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.ACCOUNT_SERVICE).removeData(HikeMessengerApp.FILE_PATH);
-					}
-				}, 0);
-
-				File newFile = new File(newFilePath);
-
-				if (newFile.exists())
-				{
-					// Execute pending intent
-					Intent intent = new Intent();
-
-					galleryItemList.get(0).setFilePath(newFilePath);
-
-					ArrayList<GalleryItem> item = new ArrayList<GalleryItem>(1);
-					item.add(galleryItemList.get(0));
-					intent.putParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS, item);
-
-					if (pendingIntent != null)
-					{
-						try
-						{
-							pendingIntent.send(GalleryActivity.this, RESULT_OK, intent);
-						}
-						catch (CanceledException e)
-						{
-							e.printStackTrace();
-						}
-					}
-					else if (returnResult)
-					{
-						setResult(RESULT_OK, intent);
-						finish();
-					}
-				}
-				else
-				{
-					// Do nothing
-				}
-			}
-			else
-			{
-				// Image capture failed/aborted
-				// Do nothing
-			}
-		}
-	}
-
+	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu)
 	{
@@ -798,8 +732,8 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 		switch (item.getItemId())
 		{
 		case R.id.take_pic:
-			Intent sourceIntent = IntentManager.getNativeCameraAppIntent();
-			Intent desIntent = IntentManager.getPictureEditorActivityIntent(null, false);
+			Intent sourceIntent = IntentManager.getNativeCameraAppIntent(true);
+			Intent desIntent = IntentManager.getPictureEditorActivityIntent(GalleryActivity.this,null, false);
 
 			Intent proxyIntent = new Intent(GalleryActivity.this, DelegateActivity.class);
 			proxyIntent.putExtra(DelegateActivity.SOURCE_INTENT, sourceIntent);
