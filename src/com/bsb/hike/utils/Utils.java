@@ -5573,31 +5573,5 @@ public class Utils
 		return fullFirstName;
 	}
 	
-	public static void restoreNotificationParams(Context context)
-	{
-
-		// To get old NotificaticationSoundPref preference before NotificaticationSoundPref list preference
-		SharedPreferences defaultPref = PreferenceManager.getDefaultSharedPreferences(context);
-		HikeSharedPreferenceUtil hikeSharedPreferenceUtil = HikeSharedPreferenceUtil.getInstance();
-		if (!hikeSharedPreferenceUtil.contains(HikeConstants.NOTIF_SOUND_PREF) && defaultPref.contains(HikeConstants.NOTIF_SOUND_PREF))
-		{
-			hikeSharedPreferenceUtil.saveData(HikeConstants.NOTIF_SOUND_PREF, defaultPref.getString(HikeConstants.NOTIF_SOUND_PREF, context.getString(R.string.notif_sound_default)));
-		}
-
-		// To get old NotificaticationLED preference before NotificaticationLED list preference
-		if (!hikeSharedPreferenceUtil.contains(HikeMessengerApp.LED_NOTIFICATION_COLOR_CODE) && defaultPref.contains(HikeConstants.LED_PREF))
-		{
-				hikeSharedPreferenceUtil.saveData(HikeMessengerApp.LED_NOTIFICATION_COLOR_CODE,
-						defaultPref.getBoolean(HikeConstants.LED_PREF, true) ? HikeConstants.LED_DEFAULT_WHITE_COLOR : HikeConstants.LED_NONE_COLOR);
-				defaultPref.edit().remove(HikeConstants.LED_PREF).commit();
-		}
-		
-		// To get old NotificaticationSoundPref preference before NotificaticationSoundPref list preference
-		if (!defaultPref.contains(HikeConstants.VIBRATE_PREF_LIST))
-		{
-			Editor edit = defaultPref.edit();
-			edit.putString(HikeConstants.VIBRATE_PREF_LIST, Utils.getOldVibratePref(context));
-			edit.commit();
-		}
-	}
+	
 }
