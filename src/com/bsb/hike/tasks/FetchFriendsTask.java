@@ -215,7 +215,7 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 				if(recentTaskList.size() >= HikeConstants.MAX_RECENTS_TO_SHOW)
 					break;
 			    String msisdn = recentContact.getMsisdn();
-			    boolean hideStealthMsisdn = HikeMessengerApp.isStealthMsisdn(msisdn) && !StealthModeManager.getInstance().isActive();
+			    boolean hideStealthMsisdn = StealthModeManager.getInstance().isStealthMsisdn(msisdn) && !StealthModeManager.getInstance().isActive();
 			    boolean removeSendingMsisdn = (sendingMsisdn!=null && sendingMsisdn.equals(msisdn));
 			    if (blockSet.contains(msisdn) || HikeMessengerApp.hikeBotNamesMap.containsKey(msisdn) || myMsisdn.equals(msisdn) || hideStealthMsisdn || removeSendingMsisdn)
 			    {
@@ -393,7 +393,7 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 	{
 		if(fetchRecentlyJoined && contactInfo.isOnhike() && !contactInfo.isUnknownContact())
 		{
-			if(!StealthModeManager.getInstance().isActive() && HikeMessengerApp.isStealthMsisdn(contactInfo.getMsisdn()))
+			if(!StealthModeManager.getInstance().isActive() && StealthModeManager.getInstance().isStealthMsisdn(contactInfo.getMsisdn()))
 			{
 				return;
 			}
@@ -440,7 +440,7 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 			 * if case of group contactInfo.getId() will retrun groupId, which is treated as msisdn for groups.
 			 */
 			String msisdn = isGroupTask ? contactInfo.getId() : contactInfo.getMsisdn();
-			if (HikeMessengerApp.isStealthMsisdn(msisdn))
+			if (StealthModeManager.getInstance().isStealthMsisdn(msisdn))
 			{
 				stealthList.add(contactInfo);
 
@@ -476,7 +476,7 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 			 * if case of group contactInfo.getId() will retrun groupId, which is treated as msisdn for groups.
 			 */
 			String msisdn = isGroupTask ? contactInfo.getId() : contactInfo.getMsisdn();
-			if (HikeMessengerApp.isStealthMsisdn(msisdn) && !creatingOrEditingGroup)
+			if (StealthModeManager.getInstance().isStealthMsisdn(msisdn) && !creatingOrEditingGroup)
 			{
 				stealthList.add(contactInfo);
 

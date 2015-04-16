@@ -495,8 +495,6 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 
 	private static Map<String, TypingNotification> typingNotificationMap;
 
-	private static Set<String> stealthMsisdn;
-
 	private AtomicBoolean mInitialized = new AtomicBoolean(false);
 
 	private String token;
@@ -806,8 +804,6 @@ public void onTrimMemory(int level)
 		
 		typingNotificationMap = new HashMap<String, TypingNotification>();
 
-		stealthMsisdn = new HashSet<String>();
-
 		initialiseListeners();
 
 		if (token != null)
@@ -852,7 +848,7 @@ public void onTrimMemory(int level)
 		/*
 		 * Fetching all stealth contacts on app creation so that the conversation cannot be opened through the shortcut or share screen.
 		 */
-		HikeConversationsDatabase.getInstance().addStealthMsisdnToMap();
+		StealthModeManager.getInstance().initiate();
 
 		appStateHandler = new Handler();
 
@@ -1028,45 +1024,6 @@ public void onTrimMemory(int level)
 	public static Map<String, TypingNotification> getTypingNotificationSet()
 	{
 		return typingNotificationMap;
-	}
-
-	public static void addStealthMsisdnToMap(String msisdn)
-	{
-		stealthMsisdn.add(msisdn);
-	}
-
-	public static void addNewStealthMsisdn(ConvInfo conv)
-	{
-		addStealthMsisdnToMap(conv.getMsisdn());
-		getPubSub().publish(HikePubSub.STEALTH_CONVERSATION_MARKED, conv);
-	}
-
-	public static void removeStealthMsisdn(ConvInfo conv)
-	{
-		removeStealthMsisdn(conv, true);
-	}
-	
-	public static int getStealthMsisdnMapSize() {
-		return stealthMsisdn.size();
-	}
-
-	public static void removeStealthMsisdn(ConvInfo conv, boolean publishEvent)
-	{
-		stealthMsisdn.remove(conv.getMsisdn());
-		if(publishEvent)
-		{
-			getPubSub().publish(HikePubSub.STEALTH_CONVERSATION_UNMARKED, conv);
-		}
-	}
-
-	public static void clearStealthMsisdn()
-	{
-		stealthMsisdn.clear();
-	}
-
-	public static boolean isStealthMsisdn(String msisdn)
-	{
-		return stealthMsisdn.contains(msisdn);
 	}
 
 	public void initialiseListeners()

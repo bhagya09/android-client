@@ -78,6 +78,7 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.PairModified;
+import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
@@ -5058,7 +5059,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 			while (c.moveToNext())
 			{
-				HikeMessengerApp.addStealthMsisdnToMap(c.getString(msisdnIdx));
+				StealthModeManager.getInstance().addStealthMsisdnToMap(c.getString(msisdnIdx));
 			}
 		}
 		finally

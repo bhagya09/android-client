@@ -671,7 +671,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				/*
 				 * This would be true if the user entered a stealth msisdn and tried starting a chat with him/her in non stealth mode.
 				 */
-				if (HikeMessengerApp.isStealthMsisdn(contactInfo.getMsisdn()))
+				if (StealthModeManager.getInstance().isStealthMsisdn(contactInfo.getMsisdn()))
 				{
 					if (!StealthModeManager.getInstance().isActive())
 					{

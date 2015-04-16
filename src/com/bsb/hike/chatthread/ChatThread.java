@@ -124,6 +124,7 @@ import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.tasks.EmailConversationsAsyncTask;
 import com.bsb.hike.ui.ComposeViewWatcher;
 import com.bsb.hike.ui.GalleryActivity;
+import com.bsb.hike.ui.utils.LockPattern;
 import com.bsb.hike.utils.ChatTheme;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -133,6 +134,7 @@ import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.SearchManager;
 import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.SoundUtils;
+import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.CustomFontEditText;
@@ -642,6 +644,11 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			case R.string.email_chat:
 				overFlowMenuItem.enabled = !isMessageListEmpty;
 				break;
+			case R.string.hide_chat:
+				overFlowMenuItem.text = getString(StealthModeManager.getInstance().isActive() ? 
+						(mConversation.isStealth() ? R.string.mark_visible : R.string.mark_hidden)
+						: R.string.hide_chat);
+				break;
 			}
 		}
 	}
@@ -662,6 +669,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	public void onActivityResult(int requestCode, int resultCode, Intent data)
 	{
+		LockPattern.onLockActivityResult(activity, requestCode, resultCode, data);
 		Logger.i(TAG, "on activity result " + requestCode + " result " + resultCode);
 		switch (requestCode)
 		{
@@ -713,6 +721,29 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		case R.string.search:
 			setupSearchMode();
 			break;
+		case R.string.hide_chat:
+			StealthModeManager.getInstance().toggleConversation(mConversation.getConvInfo(), activity);
+			//HACK though above statement will do the same, but the convInfo objects are different, hence redoing
+			mConversation.getConvInfo().setStealth(!mConversation.isStealth());
+			if(!StealthModeManager.getInstance().isActive())
+			{
+				activity.setResult(activity.RESULT_OK);
+				activity.finish();
+			}
+			else 
+			{	
+				if(mConversation.isStealth())
+				{
+					StealthModeManager.getInstance().addStealthMsisdnToMap(mConversation.getMsisdn());
+					HikeConversationsDatabase.getInstance().toggleStealth(mConversation.getMsisdn(), true);
+				}
+				else
+				{
+					StealthModeManager.getInstance().removeStealthMsisdn(mConversation.getConvInfo(), false);
+					HikeConversationsDatabase.getInstance().toggleStealth(mConversation.getMsisdn(), false);
+				}	
+			}
+			break;
 		default:
 			break;
 		}
@@ -737,6 +768,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	protected OverFlowMenuItem[] getOverFlowMenuItems()
 	{
 		return new OverFlowMenuItem[] {
+				new OverFlowMenuItem(getString(R.string.hide_chat), 0, 0, R.string.hide_chat),
 				new OverFlowMenuItem(getString(R.string.search), 0, 0, R.string.search),
 				new OverFlowMenuItem(getString(R.string.clear_chat), 0, 0, R.string.clear_chat),
 				new OverFlowMenuItem(getString(R.string.email_chat), 0, 0, R.string.email_chat)};

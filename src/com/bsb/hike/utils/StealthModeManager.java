@@ -1,11 +1,15 @@
 package com.bsb.hike.utils;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import android.app.Activity;
 import android.content.Context;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.ui.utils.LockPattern;
@@ -26,6 +30,10 @@ public class StealthModeManager
 	private HikeHandlerUtil handler;
 
 	private Context context;
+
+	private static Set<String> stealthMsisdn;
+	
+	private final String TAG =  "StealthModeManager";
 	
 	private int currentState;
 
@@ -39,6 +47,58 @@ public class StealthModeManager
 	public static StealthModeManager getInstance()
 	{
 		return stealthModeManager;
+	}
+	
+	public void initiate()
+	{
+		stealthMsisdn = new HashSet<String>();
+		HikeConversationsDatabase.getInstance().addStealthMsisdnToMap();
+	}
+	
+	public void addStealthMsisdnToMap(String msisdn)
+	{
+		stealthMsisdn.add(msisdn);
+	}
+	
+	public void addNewStealthMsisdn(ConvInfo conv)
+	{
+		addStealthMsisdnToMap(conv.getMsisdn());
+		HikeConversationsDatabase.getInstance().toggleStealth(conv.getMsisdn(), true);
+		HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_CONVERSATION_MARKED, conv);
+	}
+
+	public void removeStealthMsisdn(ConvInfo conv)
+	{
+		removeStealthMsisdn(conv, true);
+	}
+	
+	public boolean containsStealthMsisdn(String msisdn)
+	{
+		return stealthMsisdn.contains(msisdn);
+	}
+	
+	public int getStealthMsisdnMapSize() {
+		return stealthMsisdn.size();
+	}
+
+	public void removeStealthMsisdn(ConvInfo conv, boolean publishEvent)
+	{
+		stealthMsisdn.remove(conv.getMsisdn());
+		if(publishEvent)
+		{
+			HikeConversationsDatabase.getInstance().toggleStealth(conv.getMsisdn(), false);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_CONVERSATION_UNMARKED, conv);
+		}
+	}
+
+	public void clearStealthMsisdn()
+	{
+		stealthMsisdn.clear();
+	}
+
+	public boolean isStealthMsisdn(String msisdn)
+	{
+		return stealthMsisdn.contains(msisdn);
 	}
 
 	public void resetStealthToggle()
@@ -102,21 +162,10 @@ public class StealthModeManager
 		if(false);
 	}
 	
-	public void hideActionTriggered(ConvInfo conv, Activity activity) 
-	{	
-		HikeMessengerApp.addStealthMsisdnToMap(conv.getMsisdn());
-
-		HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_CONVERSATION_MARKED, conv);
-		if (!StealthModeManager.getInstance().isSetUp())
-		{
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STEALTH_MODE_FTUE_DONE, false);
-			LockPattern.createNewPattern(activity, false);
-		} 
-		else if (!StealthModeManager.getInstance().isActive())
-		{
-			LockPattern.confirmPattern(activity, false);
-		}
-		}
+	public void toggleConversation(ConvInfo conv, Activity activity) 
+ 	{	
+		HikeMessengerApp.getPubSub().publish(conv.isStealth()? HikePubSub.STEALTH_CONVERSATION_UNMARKED : HikePubSub.STEALTH_CONVERSATION_MARKED, conv);
+	}
 	
 	public void usePinAsPassword(boolean usePin) 
 	{

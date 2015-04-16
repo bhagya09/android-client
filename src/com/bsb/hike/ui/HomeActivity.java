@@ -89,6 +89,7 @@ import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.NUXManager;
 import com.bsb.hike.utils.Utils;
+import com.haibison.android.lockpattern.LockPatternActivity;
 
 public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Listener
 {
@@ -1355,7 +1356,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		else if(HikePubSub.MESSAGE_RECEIVED.equals(type))
 		{
 
-			if(object instanceof ConvMessage && HikeMessengerApp.isStealthMsisdn( ((ConvMessage)object).getMsisdn() ))
+			if(object instanceof ConvMessage && StealthModeManager.getInstance().isStealthMsisdn( ((ConvMessage)object).getMsisdn() ))
 			{
 				runOnUiThread( new Runnable()
 				{
@@ -2087,7 +2088,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		if (!StealthModeManager.getInstance().isSetUp())
 		{
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STEALTH_MODE_FTUE_DONE, false);
-			LockPattern.createNewPattern(HomeActivity.this, false);
+			LockPattern.createNewPattern(HomeActivity.this, false, HikeConstants.ResultCodes.CREATE_LOCK_PATTERN);
 		}
 		else
 		{
@@ -2104,7 +2105,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 				}
 				else
 				{
-					LockPattern.confirmPattern(HomeActivity.this, false);
+					LockPattern.confirmPattern(HomeActivity.this, false, HikeConstants.ResultCodes.CONFIRM_LOCK_PATTERN);
 				}
 			}
 			else

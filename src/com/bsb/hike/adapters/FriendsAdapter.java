@@ -632,7 +632,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 
 		removeContactByMatchingMsisdn(smsContactsList, contactInfo);
 
-		if (HikeMessengerApp.isStealthMsisdn(contactInfo.getMsisdn()))
+		if (StealthModeManager.getInstance().isStealthMsisdn(contactInfo.getMsisdn()))
 		{
 			removeContactByMatchingMsisdn(friendsStealthList, contactInfo);
 
@@ -662,7 +662,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 		for (Iterator<ContactInfo> iter = contactList.iterator(); iter.hasNext();)
 		{
 			ContactInfo contactInfo = iter.next();
-			if (HikeMessengerApp.isStealthMsisdn(contactInfo.getMsisdn()))
+			if (StealthModeManager.getInstance().isStealthMsisdn(contactInfo.getMsisdn()))
 			{
 				iter.remove();
 			}
@@ -766,7 +766,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 		 * We check if the contact to be added is a stealth contact. If it is, we check if the current stealth mode allows us to display stealth contacts. If not we skip the rest
 		 * of the process.
 		 */
-		if (HikeMessengerApp.isStealthMsisdn(contactInfo.getMsisdn()))
+		if (StealthModeManager.getInstance().isStealthMsisdn(contactInfo.getMsisdn()))
 		{
 			boolean addToDisplayList = addToStealthList(contactInfo, groupIndex);
 			if (!addToDisplayList)
@@ -845,7 +845,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 		for(Iterator<ContactInfo> iterator = contactList.iterator(); iterator.hasNext();)
 		{
 			ContactInfo contactInfo = iterator.next();
-			if(HikeMessengerApp.isStealthMsisdn(contactInfo.getMsisdn()))
+			if(StealthModeManager.getInstance().isStealthMsisdn(contactInfo.getMsisdn()))
 			{
 				stealthList.add(contactInfo);
 				if(!StealthModeManager.getInstance().isActive())

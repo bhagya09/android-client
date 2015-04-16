@@ -150,7 +150,7 @@ public class UpdatesFragment extends SherlockListFragment implements OnScrollLis
 			return;
 		}
 
-		if (HikeMessengerApp.isStealthMsisdn(statusMessage.getMsisdn()))
+		if (StealthModeManager.getInstance().isStealthMsisdn(statusMessage.getMsisdn()))
 		{
 			if (!StealthModeManager.getInstance().isActive())
 			{

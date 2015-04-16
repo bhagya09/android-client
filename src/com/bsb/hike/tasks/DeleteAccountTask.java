@@ -20,6 +20,7 @@ import com.bsb.hike.service.HikeService;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.NUXManager;
+import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.google.android.gcm.GCMRegistrar;
 
@@ -106,7 +107,7 @@ public class DeleteAccountTask extends AsyncTask<Void, Void, Boolean> implements
 		 */
 		GCMRegistrar.unregister(ctx.getApplicationContext());
 
-		HikeMessengerApp.clearStealthMsisdn();
+		StealthModeManager.getInstance().clearStealthMsisdn();
 
 		FileTransferManager.getInstance(ctx).shutDownAll();
 

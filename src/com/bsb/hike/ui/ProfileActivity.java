@@ -3082,7 +3082,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		{	
 			ContactInfo contactInfo = groupParticipant.getContactInfo();
 
-			if (HikeMessengerApp.isStealthMsisdn(contactInfo.getMsisdn()))
+			if (StealthModeManager.getInstance().isStealthMsisdn(contactInfo.getMsisdn()))
 			{
 				if (!StealthModeManager.getInstance().isActive())
 				{

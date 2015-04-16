@@ -312,7 +312,6 @@ public class ConvInfo implements Comparable<ConvInfo>
 		int result = 1;
 		result = prime * result + ((mConversationName == null) ? 0 : mConversationName.hashCode());
 		result = prime * result + ((msisdn == null) ? 0 : msisdn.hashCode());
-		result = prime * result + (isStealth ? 1231 : 1237);
 
 		return result;
 	}

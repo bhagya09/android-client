@@ -50,6 +50,7 @@ import com.bsb.hike.ui.PeopleActivity;
 import com.bsb.hike.ui.TimelineActivity;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
+import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
 
 public class ToastListener implements Listener
@@ -135,7 +136,7 @@ public class ToastListener implements Listener
 				Utils.resetUnseenFriendRequestCount(activity);
 				return;
 			}
-			if (HikeMessengerApp.isStealthMsisdn(contactInfo.getMsisdn()))
+			if (StealthModeManager.getInstance().isStealthMsisdn(contactInfo.getMsisdn()))
 			{
 				this.toaster.notifyStealthMessage();
 			}
@@ -207,7 +208,7 @@ public class ToastListener implements Listener
 			{
 				return;
 			}
-			if(HikeMessengerApp.isStealthMsisdn(message.getMsisdn()))
+			if(StealthModeManager.getInstance().isStealthMsisdn(message.getMsisdn()))
 			{
 				Logger.d(getClass().getSimpleName(), "this conversation is stealth");
 				return;
@@ -522,7 +523,7 @@ public class ToastListener implements Listener
 							}
 						}
 
-						if (HikeMessengerApp.isStealthMsisdn(msisdn))
+						if (StealthModeManager.getInstance().isStealthMsisdn(msisdn))
 						{
 							this.toaster.notifyStealthMessage();
 						}

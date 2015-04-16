@@ -17,6 +17,7 @@ import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.StealthModeManager;
 
 public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 {
@@ -47,7 +48,7 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 	private boolean filter(Intent intent)
 	{
 		String msisdn = getIntent().getStringExtra(HikeConstants.Extras.MSISDN);
-		if (HikeMessengerApp.isStealthMsisdn(msisdn)
+		if (StealthModeManager.getInstance().isStealthMsisdn(msisdn)
 				&& HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF) != HikeConstants.STEALTH_ON)
 		{
 			return false;

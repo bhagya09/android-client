@@ -1092,6 +1092,10 @@ public class HikeConstants
 		public static final int CONFIRM_LOCK_PATTERN = 4003;
 
 		public static final int CONFIRM_AND_ENTER_NEW_PASSWORD = 4004;
+
+		public static final int CREATE_LOCK_PATTERN_HIDE_CHAT = 4005;
+
+		public static final int CONFIRM_LOCK_PATTERN_HIDE_CHAT = 4006;
 	}
 
 	public static final class Extras

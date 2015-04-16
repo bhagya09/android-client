@@ -773,7 +773,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		}
 		else if(HikeConstants.CHANGE_STEALTH_PASSCODE.equals(preference.getKey()))
 		{
-			LockPattern.confirmPattern(HikePreferences.this, true);
+			LockPattern.confirmPattern(HikePreferences.this, true, HikeConstants.ResultCodes.CONFIRM_LOCK_PATTERN);
 		}
 		else if(HikeConstants.NOTIF_SOUND_PREF.equals(preference.getKey()))
 		{

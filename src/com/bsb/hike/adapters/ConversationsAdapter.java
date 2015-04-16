@@ -40,6 +40,7 @@ import com.bsb.hike.NUXConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
@@ -983,6 +984,8 @@ public class ConversationsAdapter extends BaseAdapter
 		return iconLoader;
 	}
 
+	
+	//TODO deleting this func, as no one uses it anymore
 	public void removeStealthConversationsFromLists()
 	{
 		for (Iterator<ConvInfo> iter = completeList.iterator(); iter.hasNext();)
