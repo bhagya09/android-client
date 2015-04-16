@@ -621,9 +621,9 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			return;
 		}
 
+		boolean isMessageListEmpty = isMessageListEmpty();
 		for (OverFlowMenuItem overFlowMenuItem : overflowItems)
 		{
-			boolean isMessageListEmpty = isMessageListEmpty();
 			switch (overFlowMenuItem.id)
 			{
 			case R.string.search:
@@ -649,7 +649,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	protected boolean isMessageListEmpty()
 	{
 		boolean isMessageListEmpty = messages.isEmpty();
-		if (!messages.isEmpty())
+		if (messages.size() == 1)
 		{
 			ConvMessage firstMessage = messages.get(0);
 			if (firstMessage.getTypingNotification() != null || firstMessage.isBlockAddHeader())
