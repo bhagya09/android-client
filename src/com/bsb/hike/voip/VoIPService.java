@@ -26,7 +26,6 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.media.AudioAttributes;
 import android.media.AudioFormat;
 import android.media.AudioManager;
@@ -43,10 +42,10 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.PowerManager;
+import android.os.PowerManager.WakeLock;
 import android.os.RemoteException;
 import android.os.SystemClock;
 import android.os.Vibrator;
-import android.os.PowerManager.WakeLock;
 import android.support.v4.app.NotificationCompat;
 import android.text.TextUtils;
 import android.util.SparseIntArray;
@@ -63,10 +62,8 @@ import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentManager;
 import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.Utils;
 import com.bsb.hike.voip.VoIPClient.ConnectionMethods;
 import com.bsb.hike.voip.VoIPConstants.CallQuality;
-import com.bsb.hike.voip.VoIPConstants.CallStatus;
 import com.bsb.hike.voip.VoIPDataPacket.PacketType;
 import com.bsb.hike.voip.VoIPEncryptor.EncryptionStage;
 import com.bsb.hike.voip.VoIPUtils.CallSource;
@@ -105,7 +102,6 @@ public class VoIPService extends Service {
 	private static boolean audioStarted = false;
 	private int droppedDecodedPackets = 0;
 	private int minBufSizePlayback, minBufSizeRecording;
-	private int gain = 0;
 	private OpusWrapper opusWrapper;
 	private Resampler resampler;
 	private Thread partnerTimeoutThread = null, connectionTimeoutThread = null;
@@ -2231,21 +2227,6 @@ public class VoIPService extends Service {
 	
 	public int getBitrate() {
 		return localBitrate;
-	}
-	
-	public void adjustGain(int gainDelta) {
-		if (gainDelta > 0 && gain > 5000)
-			return;
-		if (gainDelta < 0 && gain < -5000)
-			return;
-		gain += gainDelta;
-		opusWrapper.setDecoderGain(gain);
-		
-		// Save the gain preference
-		SharedPreferences preferences = getSharedPreferences(HikeMessengerApp.VOIP_SETTINGS, Context.MODE_PRIVATE);
-		Editor edit = preferences.edit();
-		edit.putInt(HikeMessengerApp.VOIP_AUDIO_GAIN, gain);
-		edit.commit();
 	}
 	
 	/**
