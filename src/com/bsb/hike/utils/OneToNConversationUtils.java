@@ -89,7 +89,7 @@ public class OneToNConversationUtils
 		return isGroupConversation(msisdn) || isBroadcastConversation(msisdn);
 	}
 
-	public static void createGroupOrBroadcast(Activity activity, ArrayList<ContactInfo> selectedContactList, String convName)
+	public static void createGroupOrBroadcast(Activity activity, ArrayList<ContactInfo> selectedContactList, String convName, String convId)
 	{
 		String oneToNConvId;
 		if (activity.getIntent().hasExtra(HikeConstants.Extras.BROADCAST_LIST))
@@ -100,11 +100,12 @@ public class OneToNConversationUtils
 		{
 			oneToNConvId = activity.getIntent().getStringExtra(HikeConstants.Extras.EXISTING_GROUP_CHAT);
 		}
+		
 		boolean newOneToNConv = false;
 
 		if (TextUtils.isEmpty(oneToNConvId))
 		{
-			oneToNConvId = activity.getIntent().getStringExtra(HikeConstants.Extras.GROUP_BROADCAST_ID);
+			oneToNConvId = convId;
 			if (TextUtils.isEmpty(oneToNConvId))
 			{
 				throw new IllegalArgumentException("No convId set.! Conversation cannot be created.");
