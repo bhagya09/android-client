@@ -4323,4 +4323,12 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	public void onHidden()
 	{
 	}
+
+	public void dismissResidualAcitonMode()
+	{
+		if (mActionMode != null && mActionMode.isActionModeOn())
+		{
+			mActionMode.finish();
+		}
+	}
 }
