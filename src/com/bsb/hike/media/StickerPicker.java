@@ -315,7 +315,7 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 		this.mContext = context;
 	}
 	
-	public void updateStickerAdapter()
+	private void updateStickerAdapter()
 	{
 		if (stickerAdapter != null)
 		{
@@ -337,12 +337,18 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 		}
 	}
 
-	public void updateIconPageIndicator()
+	private void updateIconPageIndicator()
 	{
 		if (mIconPageIndicator != null)
 		{
 			mIconPageIndicator.notifyDataSetChanged();
 		}
+	}
+	
+	public void notifyDataSetChanged()
+	{
+		updateIconPageIndicator();
+		updateStickerAdapter();
 	}
 
 	@Override
@@ -420,5 +426,13 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 	private boolean orientationChanged(int deviceOrientation)
 	{
 		return currentConfig != deviceOrientation;
+	}
+
+	public void resetToFirstPosition()
+	{
+		if (mIconPageIndicator != null)
+		{
+			mIconPageIndicator.setCurrentItem(0);
+		}
 	}
 }

@@ -40,6 +40,8 @@ public class EmoticonPicker implements ShareablePopup, EmoticonPickerListener, O
 	private static final String TAG = "EmoticonPicker";
 	
 	private EditText mEditText;
+	
+	private StickerEmoticonIconPageIndicator mIconPageIndicator;
 
 	/**
 	 * Constructor
@@ -178,7 +180,7 @@ public class EmoticonPicker implements ShareablePopup, EmoticonPickerListener, O
 			throw new IllegalArgumentException("View Pager was not found in the view passed.");
 		}
 
-		StickerEmoticonIconPageIndicator mIconPageIndicator = (StickerEmoticonIconPageIndicator) view.findViewById(R.id.emoticon_icon_indicator);
+		mIconPageIndicator = (StickerEmoticonIconPageIndicator) view.findViewById(R.id.emoticon_icon_indicator);
 		
 		View eraseKey = view.findViewById(R.id.erase_key_image);
 		eraseKey.setOnClickListener(this);
@@ -312,6 +314,14 @@ public class EmoticonPicker implements ShareablePopup, EmoticonPickerListener, O
 	private boolean orientationChanged(int deviceOrientation)
 	{
 		return currentConfig != deviceOrientation;
+	}
+	
+	public void resetToFirstPosition()
+	{
+		if (mIconPageIndicator != null)
+		{
+			mIconPageIndicator.setCurrentItem(0);
+		}
 	}
 
 }

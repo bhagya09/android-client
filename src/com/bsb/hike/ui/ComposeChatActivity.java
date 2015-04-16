@@ -180,7 +180,11 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 
 	private boolean nuxIncentiveMode;
 	
-	private String groupName = null;
+	private String oneToNConvName = null;
+	
+	private String oneToNConvId = null;
+	
+	private static final int OPEN_CREATE_BROADCAST_ACTIVITY = 412;
 
 	private int triggerPointForPopup=ProductPopupsConstants.PopupTriggerPoints.UNKNOWN.ordinal();
 
@@ -221,9 +225,11 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			existingGroupOrBroadcastId = getIntent().getStringExtra(HikeConstants.Extras.EXISTING_BROADCAST_LIST);
 		}
 
-		if (getIntent().hasExtra(HikeConstants.Extras.GROUP_NAME))
+		if (getIntent().hasExtra(HikeConstants.Extras.GROUP_CREATE_BUNDLE))
 		{
-			groupName = getIntent().getStringExtra(HikeConstants.Extras.GROUP_NAME);
+			Bundle bundle = getIntent().getBundleExtra(HikeConstants.Extras.GROUP_CREATE_BUNDLE);
+			oneToNConvName = bundle.getString(HikeConstants.Extras.ONETON_CONVERSATION_NAME);
+			oneToNConvId = bundle.getString(HikeConstants.Extras.CONVERSATION_ID);
 		}
 		
 		if (savedInstanceState != null)
@@ -285,20 +291,6 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		}
 
 		init();
-		if (getIntent().hasExtra(HikeConstants.Extras.BROADCAST_RECIPIENTS))
-		{
-			ArrayList<String> initiallySelectedMsisidns = getIntent().getStringArrayListExtra(HikeConstants.Extras.BROADCAST_RECIPIENTS);
-			adapter.selectAllFromList(initiallySelectedMsisidns);
-			adapter.notifyDataSetChanged();
-			if (!(initiallySelectedMsisidns == null || initiallySelectedMsisidns.isEmpty()))
-			{
-				tagEditText.clear(false);
-				int selected = adapter.getCurrentSelection();
-				tagEditText.toggleTag(getString(selected==1 ? R.string.selected_contacts_count_singular : R.string.selected_contacts_count_plural,selected), SELECT_ALL_MSISDN, SELECT_ALL_MSISDN);
-				setupMultiSelectActionBar();
-				invalidateOptionsMenu();
-			}
-		}
 		mPubSub = HikeMessengerApp.getPubSub();
 		mPubSub.addListeners(this, hikePubSubListeners);
 	}
@@ -754,7 +746,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	public void tagRemoved(Object data, String uniqueNess)
 	{
 		if(selectAllMode){
-		((CheckBox) findViewById(R.id.select_all_cb)).setChecked(false);;
+		((CheckBox) findViewById(R.id.select_all_cb)).setChecked(false);
 		}else{
 			if(data instanceof ContactInfo){
 				adapter.removeContact((ContactInfo) data);
@@ -830,7 +822,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		{
 			mode = MULTIPLE_FWD;
 		}
-		else if(getIntent().hasExtra(HikeConstants.Extras.GROUP_BROADCAST_ID) || getIntent().hasExtra(HikeConstants.Extras.EXISTING_GROUP_CHAT))
+		else if(getIntent().hasExtra(HikeConstants.Extras.GROUP_CREATE_BUNDLE) || getIntent().hasExtra(HikeConstants.Extras.EXISTING_GROUP_CHAT))
 		{
 				mode=CREATE_GROUP_MODE;
 		}
@@ -949,10 +941,31 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		
 	}
 
-	private void createBroadcast(List<String> selectedContactList)
+	private void startCreateBroadcastActivity()
 	{
-		IntentFactory.createNewBroadcastActivityIntent(ComposeChatActivity.this, selectedContactList);
-		finish();
+		Intent broadcastIntent = IntentFactory.createNewBroadcastActivityIntent(ComposeChatActivity.this);
+		startActivityForResult(broadcastIntent, OPEN_CREATE_BROADCAST_ACTIVITY);
+	}
+	
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data)
+	{
+		super.onActivityResult(requestCode, resultCode, data);
+		
+		if (resultCode == RESULT_OK)
+		{
+			switch (requestCode)
+			{
+				case OPEN_CREATE_BROADCAST_ACTIVITY:
+					Bundle broadcastBundle = data.getBundleExtra(HikeConstants.Extras.BROADCAST_CREATE_BUNDLE);
+					createBroadcast = broadcastBundle.getBoolean(HikeConstants.Extras.CREATE_BROADCAST, true);
+					oneToNConvName = broadcastBundle.getString(HikeConstants.Extras.ONETON_CONVERSATION_NAME);
+					oneToNConvId = broadcastBundle.getString(HikeConstants.Extras.CONVERSATION_ID);
+					OneToNConversationUtils.createGroupOrBroadcast(this, adapter.getAllSelectedContacts(), oneToNConvName, oneToNConvId);
+					break;
+			}
+			
+		}
 	}
 	
 	private void setActionBar()
@@ -1077,11 +1090,11 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 						return;
 					}
 					sendBroadCastAnalytics();
-					createBroadcast(adapter.getAllSelectedContactsMsisdns());
+					startCreateBroadcastActivity();
 				}
 				else if (getIntent().hasExtra(HikeConstants.Extras.EXISTING_BROADCAST_LIST))
 				{
-					OneToNConversationUtils.createGroupOrBroadcast(ComposeChatActivity.this, adapter.getAllSelectedContacts(), groupName);
+					OneToNConversationUtils.createGroupOrBroadcast(ComposeChatActivity.this, adapter.getAllSelectedContacts(), oneToNConvName, oneToNConvId);
 				}
 				else if (composeMode == CREATE_GROUP_MODE)
 				{
@@ -1091,7 +1104,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 						Toast.makeText(getApplicationContext(), getString(R.string.minContactInGroupErr, MIN_MEMBERS_GROUP_CHAT), Toast.LENGTH_SHORT).show();
 						return;
 					}
-					OneToNConversationUtils.createGroupOrBroadcast(ComposeChatActivity.this, adapter.getAllSelectedContacts(), groupName);
+					OneToNConversationUtils.createGroupOrBroadcast(ComposeChatActivity.this, adapter.getAllSelectedContacts(), oneToNConvName, oneToNConvId);
 				}
 			}
 		});
@@ -1837,19 +1850,9 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	@Override
 	public void onBackPressed()
 	{
-		if (composeMode == CREATE_GROUP_MODE)
+		if (composeMode == CREATE_GROUP_MODE || composeMode == CREATE_BROADCAST_MODE)
 		{
-			if (existingGroupOrBroadcastId != null || createGroup)
-			{
-				ComposeChatActivity.this.finish();
-				return;
-			}
-			setModeAndUpdateAdapter(START_CHAT_MODE);
-			return;
-		}
-		if (composeMode == CREATE_BROADCAST_MODE)
-		{
-			if (existingGroupOrBroadcastId != null || createBroadcast)
+			if (existingGroupOrBroadcastId != null || createGroup || createBroadcast)
 			{
 				ComposeChatActivity.this.finish();
 //				Hiding keyboard on pressing back on "Add members to broadcast list" compose chat

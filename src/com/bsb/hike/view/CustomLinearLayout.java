@@ -39,7 +39,7 @@ public class CustomLinearLayout extends LinearLayout
 		setMeasuredDimension(MeasureSpec.getSize(widthMeasureSpec), MeasureSpec.getSize(heightMeasureSpec));
 	}
 
-	public final void setOnSoftKeyboardListener(final OnSoftKeyboardListener listener)
+	public final void setOnSoftKeyboardListener(OnSoftKeyboardListener listener)
 	{
 		this.onSoftKeyboardListener = listener;
 	}

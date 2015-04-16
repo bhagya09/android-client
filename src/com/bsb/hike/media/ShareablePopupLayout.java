@@ -70,7 +70,7 @@ public class ShareablePopupLayout
 	 * @param popup
 	 */
 
-	public void togglePopup(ShareablePopup popup, int screenOrientation)
+	public boolean togglePopup(ShareablePopup popup, int screenOrientation)
 	{
 		View popupView = popup.getView(screenOrientation);
 		
@@ -79,7 +79,7 @@ public class ShareablePopupLayout
 		 */
 		if (popupView == null) 
 		{
-			return;
+			return false;
 		}
 		
 		/**
@@ -87,7 +87,7 @@ public class ShareablePopupLayout
 		 */
 		if (prevVisibleView != popupView || !mKeyboardPopupLayout.isShowing())
 		{
-			showPopup(popup, screenOrientation);
+			return showPopup(popup, screenOrientation);
 		}
 		
 		else
@@ -95,8 +95,11 @@ public class ShareablePopupLayout
 			if (mKeyboardPopupLayout.isShowing())
 			{
 				dismiss();
+				return true;
 			}
 		}
+		
+		return false;
 	}
 	
 	/**
@@ -105,7 +108,7 @@ public class ShareablePopupLayout
 	 * @param popup
 	 */
 	
-	public void showPopup(ShareablePopup popup, int screenOrientation)
+	public boolean showPopup(ShareablePopup popup, int screenOrientation)
 	{
 		View popupView = popup.getView(screenOrientation);
 		
@@ -115,14 +118,14 @@ public class ShareablePopupLayout
 		 */
 		if (popupView == null)
 		{
-			return;
+			return false;
 		}
 		
 		addPopupView(popupView);
 
 		swapViews(popupView);
 
-		showKeyboardPopup();
+		return showKeyboardPopup();
 	}
 
 	/**
@@ -149,12 +152,14 @@ public class ShareablePopupLayout
 		frameLayout.addView(popupView);
 	}
 
-	private void showKeyboardPopup()
+	private boolean showKeyboardPopup()
 	{
 		if (!mKeyboardPopupLayout.isShowing())
 		{
-			mKeyboardPopupLayout.showKeyboardPopup(mViewToDisplay);
+			return mKeyboardPopupLayout.showKeyboardPopup(mViewToDisplay);
 		}
+		
+		return true;
 	}
 
 	/**

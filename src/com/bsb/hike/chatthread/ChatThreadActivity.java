@@ -172,7 +172,13 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 	protected void onDestroy()
 	{
 		Logger.i(TAG, "OnDestroy");
-		chatThread.onDestroy();
+		/**
+		 * It could be possible that we enter a stealth chat and we intend to close it from the filter() method. Hence the null check
+		 */
+		if (chatThread != null)
+		{
+			chatThread.onDestroy();
+		}
 		super.onDestroy();
 	}
 	
