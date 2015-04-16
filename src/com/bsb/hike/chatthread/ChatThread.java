@@ -4123,6 +4123,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		
 		if (themePicker != null && themePicker.isShowing())
 		{
+			themePicker.setOrientation(newConfig.orientation);
 			themePicker.refreshViews(true);
 		}
 		
