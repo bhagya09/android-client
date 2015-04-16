@@ -902,5 +902,26 @@ public class GroupChatThread extends OneToNChatThread
 		themePicker.showThemePicker(activity.findViewById(R.id.cb_anchor), currentTheme, R.string.chat_theme_tip_group, activity.getResources().getConfiguration().orientation);
 	}
 
-	
+	@Override
+	public void onPrepareOverflowOptionsMenu(List<OverFlowMenuItem> overflowItems)
+	{
+		if (overflowItems == null)
+		{
+			return;
+		}
+		
+		super.onPrepareOverflowOptionsMenu(overflowItems);
+		
+		for (OverFlowMenuItem overFlowMenuItem : overflowItems)
+		{
+
+			switch (overFlowMenuItem.id)
+			{
+			case R.string.mute_group:
+			case R.string.chat_theme:
+				overFlowMenuItem.enabled = oneToNConversation.isConversationAlive();
+				break;
+			}
+		}
+	}
 }
