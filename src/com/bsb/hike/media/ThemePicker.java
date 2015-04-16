@@ -202,8 +202,9 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 				if (!listenerInvoked)
 				{
 					listener.themeCancelled();
-					listenerInvoked = false;
 				}
+				
+				listenerInvoked = false;
 			}
 			
 			reInflation = false;

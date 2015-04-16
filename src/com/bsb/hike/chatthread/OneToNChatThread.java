@@ -151,8 +151,6 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 		Logger.d("ChatThread", "Calling setchattheme from createConversation");
 		oneToNConversation.setChatTheme(currentTheme);
 
-		oneToNConversation.setBlocked(ContactManager.getInstance().isBlocked(oneToNConversation.getConversationOwner()));
-
 		return oneToNConversation;
 	}
 
@@ -319,7 +317,7 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 		oneToNConversation.setConversationAlive(alive);
 		activity.findViewById(R.id.send_message).setEnabled(alive);
 		activity.findViewById(R.id.msg_compose).setVisibility(alive ? View.VISIBLE : View.INVISIBLE);
-		activity.findViewById(R.id.emo_btn).setEnabled(alive);
+		activity.findViewById(R.id.emoticon_btn).setEnabled(alive);
 		activity.findViewById(R.id.sticker_btn).setEnabled(alive);
 		// TODO : Hide popup OR dialog if visible
 	}
@@ -338,9 +336,9 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 	}
 
 	@Override
-	protected void setupActionBar()
+	protected void setupActionBar(boolean firstInflation)
 	{
-		super.setupActionBar();
+		super.setupActionBar(firstInflation);
 
 		setLabel(mConversation.getLabel());
 
@@ -371,12 +369,6 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 	protected String getMsisdnMainUser()
 	{
 		return oneToNConversation.getConversationOwner();
-	}
-
-	@Override
-	protected String getBlockedUserLabel()
-	{
-		return oneToNConversation.getConversationParticipantName(oneToNConversation.getConversationOwner());
 	}
 
 	/**

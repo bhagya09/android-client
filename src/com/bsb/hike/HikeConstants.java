@@ -609,6 +609,8 @@ public class HikeConstants
 	
 	public static final String NEW_BROADCAST = "new_broadcast";
 
+	public static final String BROADCAST_ID_PREFIX = "b:";
+	
 	public static final String AVATAR = "avatar";
 
 	/* Constant used to name the preference file which saves the drafts */
@@ -1394,9 +1396,9 @@ public class HikeConstants
 
 		public static final String IS_FTUT_ADD_FRIEND_POPUP_SHOWING = "isFtueAddFriendPopup";
 
-		public static final String GROUP_NAME = "groupName";
+		public static final String ONETON_CONVERSATION_NAME = "groupName";
 
-		public static final String GROUP_BROADCAST_ID = "groupOrBroadcastId";
+		public static final String CONVERSATION_ID = "groupOrBroadcastId";
 
 		public static final String SHOWING_INVALID_PIN_ERROR = "showingInvalidPinError";
 
@@ -1471,6 +1473,10 @@ public class HikeConstants
 		public static final String MAX_MESSAGE_PROCESS_TIME = "mmpt";
 		
 		public static final String CHANGE_MAX_MESSAGE_PROCESS_TIME = "cmpt";
+
+		public static final String BROADCAST_CREATE_BUNDLE = "broadcastCreationBundle";
+		
+		public static final String GROUP_CREATE_BUNDLE = "groupCreationBundle";
 	}
 
 	public static final class LogEvent
