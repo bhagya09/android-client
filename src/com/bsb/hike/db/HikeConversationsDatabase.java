@@ -1607,7 +1607,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 					if (msgId <= 0 && !OneToNConversationUtils.isOneToNConversation(conv.getMsisdn()))
 					{
 
-						addConversation(conv.getMsisdn(), !conv.isSMS(), null, null, conv);
+						addConversation(conv.getMsisdn(), false, null, null, conv);
 						bindConversationInsert(insertStatement, conv,createConvIfNotExist);
 						try
 						{
@@ -1733,7 +1733,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				 */
 				if (msgId <= 0 && !OneToNConversationUtils.isOneToNConversation(conv.getMsisdn()))
 				{
-					addConversation(conv.getMsisdn(), !conv.isSMS(), null, null, conv);
+					addConversation(conv.getMsisdn(), false, null, null, conv);
 
 					bindConversationInsert(insertStatement, conv,true);
 					try

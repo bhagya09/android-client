@@ -143,7 +143,7 @@ public class OneToNConversationUtils
 		mConversationDb.addRemoveGroupParticipants(oneToNConvId, oneToNConversation.getConversationParticipantList(), false);
 		if (newOneToNConv)
 		{
-			mConversationDb.addConversation(oneToNConversation.getMsisdn(), false, convName, oneToNConversation.getConversationOwner());
+			mConversationDb.addConversation(oneToNConversation.getMsisdn(), true, convName, oneToNConversation.getConversationOwner());
 			ContactManager.getInstance().insertGroup(oneToNConversation.getMsisdn(), convName);
 		}
 
