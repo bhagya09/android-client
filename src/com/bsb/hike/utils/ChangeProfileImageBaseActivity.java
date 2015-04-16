@@ -495,7 +495,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 						}
 						else
 						{
-							Utils.startCropActivity(getParent(), destFile.getAbsolutePath(), destFilePath);
+							Utils.startCropActivity(ChangeProfileImageBaseActivity.this, destFile.getAbsolutePath(), destFilePath);
 						}
 					}
 				});
