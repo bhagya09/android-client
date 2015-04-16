@@ -585,7 +585,7 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
 				@Override
 				public void onClick(View arg0)
 				{
-					Intent intent = Utils.getIntentForPrivacyScreen(LockPatternActivity.this);
+					Intent intent = Utils.getIntentForHiddenSettings(LockPatternActivity.this);
 					startActivity(intent);
 					finishWithNegativeResult(RESULT_CANCELED);
 				}

@@ -31,6 +31,28 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true" />
+        
+         <com.bsb.hike.view.CustomFontEditText
+                android:id="@+id/alp_42447968_lock_pin"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+				android:layout_gravity="center"
+				android:layout_centerInParent="true"
+                android:background="@drawable/bg_stealth_pin"
+                android:ellipsize="start"
+                android:focusable="true"
+                android:layout_marginLeft="50dp"
+                android:layout_marginRight="50dp"
+                android:layout_marginTop="100dp"
+                android:gravity="center|center_vertical|center_horizontal"
+                android:inputType="numberPassword"
+                android:maxLength="4"
+                android:maxLines="1"
+                android:minEms="8"
+                android:paddingTop="9dp"
+                android:textColor="@android:color/white"
+                android:visibility="gone" />
+         
     </RelativeLayout>
 
     <RelativeLayout
@@ -46,19 +68,36 @@
         android:layout_alignParentLeft="true">
         
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="144dp"
             android:layout_height="wrap_content"
             android:orientation="vertical" >
-            
-            <ImageView 
-                android:layout_width="wrap_content"
+
+            <com.bsb.hike.view.CustomFontButton
+                android:id="@+id/alp_42447968_change_password_setting"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:background="#de4f48"
+                android:gravity="center"
+                android:paddingBottom="5dp"
+                android:paddingTop="5dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:text="@string/change_password_from_privacy"
+                android:textColor="@drawable/change_password_setting_text_selector"
+                android:textSize="14sp"
+                android:textStyle="bold|italic"
+                android:visibility="visible" />
+
+            <ImageView
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:src="@drawable/ic_stealth_passcode_50"
-                android:layout_gravity="center"/>
+                android:layout_gravity="center_horizontal"/>
             
 			<com.bsb.hike.view.CustomFontTextView
 		        android:id="@+id/alp_42447968_textview_info"
-		        android:layout_width="wrap_content"
+		        android:layout_width="match_parent"
 		        android:layout_height="wrap_content"
 		        android:paddingTop="5dp"
 		        android:gravity="center"
@@ -74,7 +113,7 @@
     <LinearLayout
         android:id="@+id/alp_42447968_viewgroup_footer"
         android:layout_width="144dp"
-        android:layout_height="111dp"
+        android:layout_height="wrap_content"
         android:paddingLeft="19dp"
         android:layout_alignParentBottom="true"
         android:orientation="vertical"

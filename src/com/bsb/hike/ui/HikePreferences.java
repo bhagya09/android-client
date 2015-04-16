@@ -267,8 +267,8 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		{
 			muteChatBgPreference.setOnPreferenceClickListener(this);
 		}
-
-		Preference stealthPreference = getPreferenceScreen().findPreference(HikeConstants.STEALTH_PERF_SETTING);
+		
+		Preference stealthPreference = getPreferenceScreen().findPreference(HikeConstants.STEALTH_PREF_SCREEN);
 		if(stealthPreference != null)
 		{
 			if (StealthModeManager.getInstance().isSetUp())
@@ -293,9 +293,45 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 					}
 					resetStealthPassword.setOnPreferenceClickListener(this);
 				}
-			}else
+				
+				
+			}
+			else
 			{
 				getPreferenceScreen().removePreference(stealthPreference);
+			}
+		}
+
+		Preference stealthCategory = getPreferenceScreen().findPreference(HikeConstants.STEALTH_PERF_SETTING);
+		if(stealthCategory != null)
+		{
+			if (StealthModeManager.getInstance().isSetUp())
+			{
+				Preference resetStealthPassword = getPreferenceScreen().findPreference(HikeConstants.CHANGE_STEALTH_PASSCODE);
+				if (resetStealthPassword != null)
+				{
+					if(HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.RESET_COMPLETE_STEALTH_START_TIME, 0l) > 0)
+					{
+						resetStealthPassword.setTitle(R.string.change_stealth_password);
+						resetStealthPassword.setSummary(R.string.change_stealth_password_body);
+					}
+					resetStealthPassword.setOnPreferenceClickListener(this);
+				}
+				
+				Preference stealthModeSettings = getPreferenceScreen().findPreference(HikeConstants.STEALTH_MODE_PREF);
+				if (stealthModeSettings != null)
+				{
+					if(HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.RESET_COMPLETE_STEALTH_START_TIME, 0l) > 0)
+					{
+						stealthModeSettings.setTitle(R.string.stealth_mode_title);
+						stealthModeSettings.setSummary(R.string.stealth_mode_title_body);
+					}
+					stealthModeSettings.setOnPreferenceClickListener(this);
+				}
+				
+			}else
+			{
+				getPreferenceScreen().removePreference(stealthCategory);
 			}
 		}
 		Preference notificationRingtonePreference = getPreferenceScreen().findPreference(HikeConstants.NOTIF_SOUND_PREF);
@@ -760,6 +796,10 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			Intent intent = new Intent(HikePreferences.this, PeopleActivity.class);
 			intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 			startActivity(intent);
+		}
+		else if(HikeConstants.STEALTH_MODE_PREF.equals(preference.getKey()))
+		{
+			startActivity(Utils.getIntentForHiddenSettings(HikePreferences.this));
 		}
 		return true;
 	}

@@ -4459,6 +4459,14 @@ public class Utils
 		intent.putExtra(HikeConstants.Extras.TITLE, R.string.privacy);
 		return intent;
 	}
+	
+	public static Intent getIntentForHiddenSettings(Context context)
+	{
+		Intent intent = new Intent(context, HikePreferences.class);
+		intent.putExtra(HikeConstants.Extras.PREF, R.xml.stealth_preferences);
+		intent.putExtra(HikeConstants.Extras.TITLE, R.string.stealth_mode_title);
+		return intent;
+	}
 
 	public static boolean isCompressed(byte[] bytes)
 	{
