@@ -126,6 +126,8 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
     private static final int NUX_INCENTIVE_MODE = 6;
     
     private static final int CREATE_BROADCAST_MODE = 7;
+    
+    public static final int PICK_CONTACT_MODE = 8;
 
 	private View multiSelectActionBar, groupChatActionBar;
 
@@ -151,9 +153,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 
 	private boolean isSharingFile;
 
-	private String existingGroupId;
-
-	private String existingBroadcastId;
+	private String existingGroupOrBroadcastId;
 
 	private volatile InitiateMultiFileTransferTask fileTransferTask;
 	private PreFileTransferAsycntask prefileTransferTask;
@@ -216,11 +216,11 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		// was passed to add group participants.
 		if (getIntent().hasExtra(HikeConstants.Extras.EXISTING_GROUP_CHAT))
 		{
-			existingGroupId = getIntent().getStringExtra(HikeConstants.Extras.EXISTING_GROUP_CHAT);
+			existingGroupOrBroadcastId = getIntent().getStringExtra(HikeConstants.Extras.EXISTING_GROUP_CHAT);
 		}
 		else if (getIntent().hasExtra(HikeConstants.Extras.EXISTING_BROADCAST_LIST))
 		{
-			existingBroadcastId = getIntent().getStringExtra(HikeConstants.Extras.EXISTING_BROADCAST_LIST);
+			existingGroupOrBroadcastId = getIntent().getStringExtra(HikeConstants.Extras.EXISTING_BROADCAST_LIST);
 		}
 
 		if (savedInstanceState != null)
@@ -449,13 +449,14 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		
 		switch (composeMode)
 		{
+		case CREATE_GROUP_MODE:
 		case CREATE_BROADCAST_MODE:
+		case PICK_CONTACT_MODE:
 			//We do not show sms contacts in broadcast mode
-			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage && !isSharingFile), fetchRecentlyJoined, existingBroadcastId, sendingMsisdn, friendsListFetchedCallback, false);
+			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage && !isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, false);
 			break;
-
 		default:
-			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage && !isSharingFile), fetchRecentlyJoined, existingGroupId, sendingMsisdn, friendsListFetchedCallback, true);
+			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage && !isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, true);
 			break;
 		}
 
@@ -471,7 +472,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 
 		initTagEditText();
 
-		if (existingGroupId != null)
+		if (existingGroupOrBroadcastId != null)
 		{
 			MIN_MEMBERS_GROUP_CHAT = 1;
 		}
@@ -618,27 +619,23 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			}
 			name = viewtype == ViewType.NOT_FRIEND_SMS.ordinal() ? contactInfo.getName() + " (SMS) " : contactInfo.getName();
 			if(selectAllMode){
-				tagEditText.clear(false);
-				if(adapter.isContactAdded(contactInfo)){
-					adapter.removeContact(contactInfo);
-
-				}else{
-					adapter.addContact(contactInfo);
-
-				}
-				int selected = adapter.getCurrentSelection();
-				if(selected>0){
-				tagEditText.toggleTag(getString(selected==1 ? R.string.selected_contacts_count_singular : R.string.selected_contacts_count_plural,selected), SELECT_ALL_MSISDN, SELECT_ALL_MSISDN);
-				}else{
-					((CheckBox)findViewById(R.id.select_all_cb)).setChecked(false); // very rare case
-				}
+				onItemClickDuringSelectAllMode(contactInfo);
 			}
 			else
 			{
 				tagEditText.toggleTag(name, contactInfo.getMsisdn(), contactInfo);
 			}
 			break;
-			
+		case PICK_CONTACT_MODE:
+			if(selectAllMode)
+			{
+				onItemClickDuringSelectAllMode(contactInfo);
+			}
+			else
+			{
+				tagEditText.toggleTag(contactInfo.getName(), contactInfo.getMsisdn(), contactInfo);
+			}
+			break;
 		default:
 			Logger.i("composeactivity", contactInfo.getId() + " - id of clicked");
 			if (FriendsAdapter.SECTION_ID.equals(contactInfo.getId()) || FriendsAdapter.EMPTY_ID.equals(contactInfo.getId()))
@@ -663,20 +660,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				}
 				
 				if(selectAllMode){
-					tagEditText.clear(false);
-					if(adapter.isContactAdded(contactInfo)){
-						adapter.removeContact(contactInfo);
-
-					}else{
-						adapter.addContact(contactInfo);
-
-					}
-					int selected = adapter.getSelectedContactCount();
-					if(selected>0){
-					tagEditText.toggleTag(getString(selected==1 ? R.string.selected_contacts_count_singular : R.string.selected_contacts_count_plural,selected), SELECT_ALL_MSISDN, SELECT_ALL_MSISDN);
-					}else{
-						((CheckBox)findViewById(R.id.select_all_cb)).setChecked(false); // very rare case
-					}
+					onItemClickDuringSelectAllMode(contactInfo);
 				}
 				else{
 					name = viewtype == ViewType.NOT_FRIEND_SMS.ordinal() ? contactInfo.getName() + " (SMS) " : contactInfo.getName();
@@ -726,6 +710,25 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			}
 			break;
 		}
+	}
+	
+	private void onItemClickDuringSelectAllMode(ContactInfo contactInfo){
+
+		tagEditText.clear(false);
+		if(adapter.isContactAdded(contactInfo)){
+			adapter.removeContact(contactInfo);
+
+		}else{
+			adapter.addContact(contactInfo);
+
+		}
+		int selected = adapter.getSelectedContactCount();
+		if(selected>0){
+		tagEditText.toggleTag(getString(selected==1 ? R.string.selected_contacts_count_singular : R.string.selected_contacts_count_plural,selected), SELECT_ALL_MSISDN, SELECT_ALL_MSISDN);
+		}else{
+			((CheckBox)findViewById(R.id.select_all_cb)).setChecked(false); // very rare case
+		}
+	
 	}
 
 	@Override
@@ -802,7 +805,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		{
 			mode = MULTIPLE_FWD;
 		}
-		else if(getIntent().hasExtra(HikeConstants.Extras.GROUP_BROADCAST_ID) || existingGroupId != null)
+		else if(getIntent().hasExtra(HikeConstants.Extras.GROUP_BROADCAST_ID) || getIntent().hasExtra(HikeConstants.Extras.EXISTING_GROUP_CHAT))
 		{
 				mode=CREATE_GROUP_MODE;
 		}
@@ -820,6 +823,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		switch (composeMode)
 		{
 		case CREATE_GROUP_MODE:
+		case PICK_CONTACT_MODE:
 			// createGroupHeader.setVisibility(View.GONE);
 			adapter.showCheckBoxAgainstItems(true);
 			tagEditText.clear(false);
@@ -1070,7 +1074,11 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 
 	private void setTitle()
 	{
-		if (createGroup)
+		if(composeMode==PICK_CONTACT_MODE)
+		{
+			title.setText(R.string.choose_contact);
+		}
+		else if (createGroup)
 		{
 			title.setText(R.string.new_group);
 		}
@@ -1086,11 +1094,11 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		{
 			title.setText(R.string.forward);
 		}
-		else if (!TextUtils.isEmpty(existingGroupId))
+		else if (!TextUtils.isEmpty(existingGroupOrBroadcastId) && this.composeMode == CREATE_GROUP_MODE)
 		{
 			title.setText(R.string.add_group);
 		}
-		else if (!TextUtils.isEmpty(existingBroadcastId))
+		else if (!TextUtils.isEmpty(existingGroupOrBroadcastId) && this.composeMode == CREATE_BROADCAST_MODE)
 		{
 			title.setText(R.string.add_broadcast);
 		}
@@ -1161,6 +1169,9 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 						return;
 					}
 					createGroup(adapter.getAllSelectedContacts());
+				}else if(composeMode == PICK_CONTACT_MODE)
+				{
+					onDoneClickPickContact();
 				}
 			}
 		});
@@ -1198,6 +1209,40 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		showingMultiSelectActionBar = true;
 	}
 
+	private void onDoneClickPickContact()
+	{
+		int selected = adapter.getCurrentSelection();
+		if (selected < 1)
+		{
+			Toast.makeText(this,R.string.pick_contact_zero,Toast.LENGTH_SHORT).show();
+			return;
+		}
+		JSONArray array = convertToJSONArray(adapter.getAllSelectedContacts());
+		Intent intent = getIntent();
+		intent.putExtra(HikeConstants.HIKE_CONTACT_PICKER_RESULT, array.toString());
+		setResult(RESULT_OK,intent);
+		Logger.i("composechat", "returning pick contact result "+intent.getExtras().toString());
+		this.finish();
+	}
+	
+	private JSONArray convertToJSONArray(List<ContactInfo> list)
+	{
+		JSONArray array = new JSONArray();
+		for(ContactInfo contactInfo : list)
+		{
+			try
+			{
+				array.put(contactInfo.toJSON(false));
+			}
+			catch (JSONException e)
+			{
+				e.printStackTrace();
+			}
+		}
+		return array;
+	}
+	
+	
 	private void forwardConfirmation(final ArrayList<ContactInfo> arrayList)
 	{
 		final CustomAlertDialog forwardConfirmDialog = new CustomAlertDialog(this);
@@ -1897,7 +1942,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	{
 		if (composeMode == CREATE_GROUP_MODE)
 		{
-			if (existingGroupId != null || createGroup)
+			if (existingGroupOrBroadcastId != null || createGroup)
 			{
 				ComposeChatActivity.this.finish();
 				return;
@@ -1907,7 +1952,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		}
 		if (composeMode == CREATE_BROADCAST_MODE)
 		{
-			if (existingBroadcastId != null || createBroadcast)
+			if (existingGroupOrBroadcastId != null || createBroadcast)
 			{
 				ComposeChatActivity.this.finish();
 //				Hiding keyboard on pressing back on "Add members to broadcast list" compose chat
@@ -1921,6 +1966,10 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		{
 			ComposeChatActivity.this.finish();
 			return;
+		}else if(composeMode == PICK_CONTACT_MODE)
+		{
+			setResult(RESULT_CANCELED,getIntent());
+			this.finish();
 		}
 		super.onBackPressed();
 	}
@@ -1981,14 +2030,14 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		{
 			return;
 		}
-
-		adapter.setIsListFlinging(velocity > HikeConstants.MAX_VELOCITY_FOR_LOADING_IMAGES_SMALL);
 	}
 
 	@Override
 	public void onScrollStateChanged(AbsListView view, int scrollState)
 	{
+		adapter.setIsListFlinging(velocity > HikeConstants.MAX_VELOCITY_FOR_LOADING_IMAGES_SMALL && scrollState == OnScrollListener.SCROLL_STATE_FLING);
 	}
+	
 	public ConvMessage sendSticker(Sticker sticker, String categoryIdIfUnknown, ArrayList<ContactInfo> arrayList, String source)
 	{
 		ConvMessage convMessage = Utils.makeConvMessage(((ContactInfo) arrayList.get(0)).getMsisdn(), "Sticker", ((ContactInfo) arrayList.get(0)).isOnhike());

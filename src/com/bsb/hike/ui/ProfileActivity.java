@@ -1986,7 +1986,6 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				}
 				if ((this.profileType == ProfileType.USER_PROFILE) || (this.profileType == ProfileType.GROUP_INFO))
 				{
-					Utils.compressAndCopyImage(mActivityState.destFilePath, mActivityState.destFilePath, ProfileActivity.this, ImageQuality.QUALITY_MEDIUM);
 					saveChanges();
 				}
 				break;

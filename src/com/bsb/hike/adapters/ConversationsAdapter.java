@@ -1393,6 +1393,12 @@ public class ConversationsAdapter extends BaseAdapter
 				updateViewsRelatedToAvatar(view, getItem(indexOfData));
 			}
 		}
+		
+		//TODO remove this log as this is just for testing
+		if(notify)
+		{
+			Logger.i("ConversationFling ", " isListFlinging : "+isListFlinging);
+		}
 	}
 	
 	public IconLoader getIconLoader()

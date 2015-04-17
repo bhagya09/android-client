@@ -14,11 +14,16 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
 import java.util.Iterator;
+import java.util.UUID;
 
 import org.apache.http.conn.ConnectTimeoutException;
 
+import android.text.TextUtils;
+
 import com.bsb.hike.modules.httpmgr.DefaultHeaders;
 import com.bsb.hike.modules.httpmgr.Utils;
+import com.bsb.hike.modules.httpmgr.analytics.HttpAnalyticsConstants;
+import com.bsb.hike.modules.httpmgr.analytics.HttpAnalyticsLogger;
 import com.bsb.hike.modules.httpmgr.client.IClient;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.interceptor.IRequestInterceptor;
@@ -51,12 +56,24 @@ public class RequestExecuter
 	
 	private boolean allInterceptorsExecuted;
 
+	private String trackId;
+	
 	public RequestExecuter(IClient client, HttpEngine engine, Request<?> request, IResponseListener listener)
 	{
 		this.client = client;
 		this.engine = engine;
 		this.request = request;
 		this.listener = listener;
+		checkAndInitializeAnalyticsFields();
+	}
+
+	private void checkAndInitializeAnalyticsFields()
+	{
+		if (HttpAnalyticsLogger.shouldSendLog(request.getUrl()))
+		{
+			this.trackId = UUID.randomUUID().toString();
+			this.request.addHeader(HttpAnalyticsConstants.TRACK_ID_HEADER_KEY, trackId);
+		}
 	}
 
 	/**
@@ -216,12 +233,17 @@ public class RequestExecuter
 			 */
 			DefaultHeaders.applyDefaultHeaders(request);
 
-			response = client.execute(request);
+			/** Logging request for analytics */
+			HttpAnalyticsLogger.logHttpRequest(trackId, request.getUrl(), request.getMethod(), request.getAnalyticsParam());
 
+			response = client.execute(request);
 			if (response.getStatusCode() < 200 || response.getStatusCode() > 299)
 			{
 				throw new IOException();
 			}
+
+			/** Logging request with response code for analytics */
+			HttpAnalyticsLogger.logResponseReceived(trackId, request.getUrl(), response.getStatusCode(), request.getMethod(), request.getAnalyticsParam());
 
 			LogFull.d(request.toString() + " completed");
 			// positive response
@@ -229,14 +251,17 @@ public class RequestExecuter
 		}
 		catch (SocketTimeoutException ex)
 		{
+			HttpAnalyticsLogger.logResponseReceived(trackId, request.getUrl(), REASON_CODE_SOCKET_TIMEOUT, request.getMethod(), request.getAnalyticsParam());
 			handleRetry(ex, REASON_CODE_SOCKET_TIMEOUT);
 		}
 		catch (ConnectTimeoutException ex)
 		{
+			HttpAnalyticsLogger.logResponseReceived(trackId, request.getUrl(), REASON_CODE_CONNECTION_TIMEOUT, request.getMethod(), request.getAnalyticsParam());
 			handleRetry(ex, REASON_CODE_CONNECTION_TIMEOUT);
 		}
 		catch (MalformedURLException ex)
 		{
+			HttpAnalyticsLogger.logResponseReceived(trackId, request.getUrl(), REASON_CODE_MALFORMED_URL, request.getMethod(), request.getAnalyticsParam());
 			handleException(ex, REASON_CODE_MALFORMED_URL);
 		}
 		catch (IOException ex)
@@ -244,10 +269,12 @@ public class RequestExecuter
 			int statusCode = 0;
 			if (response != null)
 			{
+				HttpAnalyticsLogger.logResponseReceived(trackId, request.getUrl(), response.getStatusCode(), request.getMethod(), request.getAnalyticsParam());
 				statusCode = response.getStatusCode();
 			}
 			else
 			{
+				HttpAnalyticsLogger.logResponseReceived(trackId, request.getUrl(), REASON_CODE_NO_NETWORK, request.getMethod(), request.getAnalyticsParam());
 				handleRetry(ex, REASON_CODE_NO_NETWORK);
 				return;
 			}
@@ -264,6 +291,7 @@ public class RequestExecuter
 		}
 		catch (Throwable ex)
 		{
+			HttpAnalyticsLogger.logResponseReceived(trackId, request.getUrl(), REASON_CODE_UNEXPECTED_ERROR, request.getMethod(), request.getAnalyticsParam());
 			handleException(ex, REASON_CODE_UNEXPECTED_ERROR);
 		}
 	}

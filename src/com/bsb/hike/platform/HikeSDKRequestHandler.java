@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -155,7 +156,7 @@ public class HikeSDKRequestHandler extends Handler implements Listener
 					{
 						try
 						{
-							friendJSON.put(HikeUser.HIKE_USER_ID_KEY, "-1");
+							friendJSON.put(HikeUser.HIKE_USER_ID_KEY, HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_UID_SETTING, null));
 
 							friendJSON.put(HikeUser.HIKE_USER_NAME_KEY, contactName);
 						}
@@ -235,32 +236,17 @@ public class HikeSDKRequestHandler extends Handler implements Listener
 				{
 				case -1:
 					// Favourites
-					contacts = ContactManager.getInstance().getContactsOfFavoriteType(FavoriteType.FRIEND, 1, "");
+					List<ContactInfo> favouriteContacts = ContactManager.getInstance().getContactsOfFavoriteType(FavoriteType.FRIEND, 1, "");
+					contacts = getContactsForHikeSDK(favouriteContacts);
 					break;
+
 				case -2:
-					// On hike
-					contacts = new ArrayList<ContactInfo>();
-					List<ContactInfo> allContacts = ContactManager.getInstance().getAllContacts();
-					for (ContactInfo contact : allContacts)
-					{
-						if (contact.isOnhike())
-						{
-							contacts.add(contact);
-						}
-					}
-					break;
-				case -3:
-					// Not on hike
-					contacts = new ArrayList<ContactInfo>();
-					List<Pair<AtomicBoolean, ContactInfo>> nonHikePair = ContactManager.getInstance().getNonHikeContacts();
-					for (Pair<AtomicBoolean, ContactInfo> pair : nonHikePair)
-					{
-						contacts.add(pair.second);
-					}
-					break;
 				default:
-					// All contacts
-					contacts = ContactManager.getInstance().getAllContacts();
+					// On hike
+					List<ContactInfo> allContacts = ContactManager.getInstance().getAllContacts();
+					contacts = getContactsForHikeSDK(allContacts);
+					break;
+
 				}
 
 				JSONObject responseJSON = new JSONObject();
@@ -271,7 +257,7 @@ public class HikeSDKRequestHandler extends Handler implements Listener
 				{
 					JSONObject friendJSON = new JSONObject();
 
-					String contactId = contact.getId();
+					String contactId = contact.getPlatformId();
 
 					String contactName = contact.getNameOrMsisdn();
 
@@ -365,6 +351,20 @@ public class HikeSDKRequestHandler extends Handler implements Listener
 		{
 			handleException(msg, e);
 		}
+	}
+
+	private List<ContactInfo> getContactsForHikeSDK(List<ContactInfo> allContacts)
+	{
+		List<ContactInfo> contacts;
+		contacts = new ArrayList<ContactInfo>();
+		for (ContactInfo contact : allContacts)
+		{
+			if (contact.isOnhike() && contact.isPlatformUIDExist() )
+			{
+				contacts.add(contact);
+			}
+		}
+		return contacts;
 	}
 
 	/**
