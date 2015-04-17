@@ -236,32 +236,17 @@ public class HikeSDKRequestHandler extends Handler implements Listener
 				{
 				case -1:
 					// Favourites
-					contacts = ContactManager.getInstance().getContactsOfFavoriteType(FavoriteType.FRIEND, 1, "");
+					List<ContactInfo> favouriteContacts = ContactManager.getInstance().getContactsOfFavoriteType(FavoriteType.FRIEND, 1, "");
+					contacts = getContactsForHikeSDK(favouriteContacts);
 					break;
+
 				case -2:
-					// On hike
-					contacts = new ArrayList<ContactInfo>();
-					List<ContactInfo> allContacts = ContactManager.getInstance().getAllContacts();
-					for (ContactInfo contact : allContacts)
-					{
-						if (contact.isOnhike())
-						{
-							contacts.add(contact);
-						}
-					}
-					break;
-				case -3:
-					// Not on hike
-					contacts = new ArrayList<ContactInfo>();
-					List<Pair<AtomicBoolean, ContactInfo>> nonHikePair = ContactManager.getInstance().getNonHikeContacts();
-					for (Pair<AtomicBoolean, ContactInfo> pair : nonHikePair)
-					{
-						contacts.add(pair.second);
-					}
-					break;
 				default:
-					// All contacts
-					contacts = ContactManager.getInstance().getAllContacts();
+					// On hike
+					List<ContactInfo> allContacts = ContactManager.getInstance().getAllContacts();
+					contacts = getContactsForHikeSDK(allContacts);
+					break;
+
 				}
 
 				JSONObject responseJSON = new JSONObject();
@@ -366,6 +351,20 @@ public class HikeSDKRequestHandler extends Handler implements Listener
 		{
 			handleException(msg, e);
 		}
+	}
+
+	private List<ContactInfo> getContactsForHikeSDK(List<ContactInfo> allContacts)
+	{
+		List<ContactInfo> contacts;
+		contacts = new ArrayList<ContactInfo>();
+		for (ContactInfo contact : allContacts)
+		{
+			if (contact.isOnhike() && contact.isPlatformUIDExist() )
+			{
+				contacts.add(contact);
+			}
+		}
+		return contacts;
 	}
 
 	/**
