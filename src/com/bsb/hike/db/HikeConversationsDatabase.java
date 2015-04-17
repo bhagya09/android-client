@@ -2160,7 +2160,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	 */
 	public Conversation addConversation(String msisdn, boolean onhike, String groupName, String groupOwner, ConvMessage initialConvMessage)
 	{
-		ContactInfo contactInfo = Utils.isGroupConversation(msisdn) ? new ContactInfo(msisdn, msisdn, groupName, msisdn) : HikeMessengerApp.getContactManager().getContact(msisdn,
+		ContactInfo contactInfo = Utils.isGroupConversation(msisdn) ? new ContactInfo(msisdn, msisdn, groupName, msisdn) : ContactManager.getInstance().getContact(msisdn,
 				false, true);
 		InsertHelper ih = null;
 		try
@@ -2474,7 +2474,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				}
 				else
 				{
-					ContactInfo contactInfo = HikeMessengerApp.getContactManager().getContact(msisdn, false, true);
+					ContactInfo contactInfo = ContactManager.getInstance().getContact(msisdn, false, true);
 					name = contactInfo.getName();
 					onhike |= contactInfo.isOnhike();
 				}
@@ -2542,7 +2542,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			}
 			else
 			{
-				ContactInfo contactInfo = HikeMessengerApp.getContactManager().getContact(msisdn, false, true);
+				ContactInfo contactInfo = ContactManager.getInstance().getContact(msisdn, false, true);
 
 				onhike |= contactInfo.isOnhike();
 				conv = new Conversation(msisdn, contactInfo.getName(), onhike);
@@ -3324,7 +3324,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				if (Utils.isGroupConversation(msisdn))
 				{
 					updateGroupRecency(message);
-					HikeMessengerApp.getContactManager().removeContact(c.getString(groupParticipantColumn), false);
+					ContactManager.getInstance().removeContact(c.getString(groupParticipantColumn), false);
 				}
 				mDb.update(DBConstants.CONVERSATIONS_TABLE, contentValues, DBConstants.MSISDN + "=?", new String[] { msisdn });
 			}
@@ -4084,7 +4084,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			}
 			if (msisdns.size() > 0)
 			{
-				List<ContactInfo> contactList = HikeMessengerApp.getContactManager().getContact(msisdns, true, true);
+				List<ContactInfo> contactList = ContactManager.getInstance().getContact(msisdns, true, true);
 
 				for (ContactInfo contactInfo : contactList)
 				{

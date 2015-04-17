@@ -223,7 +223,7 @@ public class ToastListener implements Listener
 				}
 				else
 				{
-					contactInfo = HikeMessengerApp.getContactManager().getContact(message.getMsisdn(), true, true);
+					contactInfo = ContactManager.getInstance().getContact(message.getMsisdn(), true, true);
 				}
 
 			toaster.notifyMessage(contactInfo, message, true, bigPicture);

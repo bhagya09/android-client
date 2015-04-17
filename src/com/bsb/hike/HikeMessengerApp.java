@@ -981,17 +981,12 @@ public void onTrimMemory(int level)
 		return cache;
 	}
 
-	private static ContactManager conMgr;
-
 	private void initContactManager()
 	{
-		conMgr = ContactManager.getInstance();
-		conMgr.init(getApplicationContext());
-	}
-	
-	public static ContactManager getContactManager()
-	{
-		return conMgr;
+		/*
+		 * Contact Manager getInstance will initialize contact manager if already not initialized and returns the ContactManager's instance
+		 */
+		ContactManager.getInstance();
 	}
 
 	private void makeNoMediaFiles()

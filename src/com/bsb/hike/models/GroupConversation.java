@@ -165,8 +165,8 @@ public class GroupConversation extends Conversation
 		 */
 		if (null == name)
 		{
-			HikeMessengerApp.getContactManager().getContact(msisdn, true, false);
-			name = HikeMessengerApp.getContactManager().getName(getMsisdn(), msisdn);
+			ContactManager.getInstance().getContact(msisdn, true, false);
+			name = ContactManager.getInstance().getName(getMsisdn(), msisdn);
 		}
 		return name;
 	}
