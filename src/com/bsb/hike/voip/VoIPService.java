@@ -946,6 +946,10 @@ public class VoIPService extends Service {
 		stopSelf();
 	}
 	
+	/**
+	 * Same as {@link #stop()}, except that a call termination packet
+	 * is sent to the call partner as well. 
+	 */
 	public void hangUp() {
 		new Thread(new Runnable() {
 			
