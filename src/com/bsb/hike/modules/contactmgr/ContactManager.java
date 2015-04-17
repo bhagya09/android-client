@@ -148,19 +148,16 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	 * 
 	 * @param msisdns
 	 */
-	public void removeContacts(List<String> msisdns)
+	public void removeContacts(String msisdn)
 	{
-		for (String ms : msisdns)
+		if (Utils.isGroupConversation(msisdn))
 		{
-			if (Utils.isGroupConversation(ms))
-			{
-				persistenceCache.removeGroup(ms);
-				transientCache.removeGroup(ms);
-			}
-			else
-			{
-				persistenceCache.removeContact(ms);
-			}
+			persistenceCache.removeGroup(msisdn);
+			transientCache.removeGroup(msisdn);
+		}
+		else
+		{
+			persistenceCache.removeContact(msisdn);
 		}
 	}
 

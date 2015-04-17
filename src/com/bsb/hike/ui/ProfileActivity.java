@@ -2134,7 +2134,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 					Conversation conversation = (isBroadcast ? broadcastConversation : groupConversation);
 					HikePubSub hikePubSub = HikeMessengerApp.getPubSub();
 					HikeMqttManagerNew.getInstance().sendMessage(conversation.serialize(HikeConstants.MqttMessageTypes.GROUP_CHAT_LEAVE), HikeMqttManagerNew.MQTT_QOS_ONE);
-					hikePubSub.publish(HikePubSub.GROUP_LEFT, conversation.getMsisdn());
+					hikePubSub.publish(HikePubSub.GROUP_LEFT, conversation);
 					Intent intent = new Intent(ProfileActivity.this, HomeActivity.class);
 					intent.putExtra(HikeConstants.Extras.GROUP_LEFT, mLocalMSISDN);
 					intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
