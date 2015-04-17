@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import android.text.TextUtils;
 import android.view.View.OnClickListener;
@@ -620,7 +621,8 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 
 		super.makeFilteredList(constraint, resultList);
 		// to add new section and number for user typed number
-		String text = constraint.toString();
+		String text = constraint.toString().trim();
+	
 		if (isIntegers(text))
 		{
 			newContactsList = new ArrayList<ContactInfo>();

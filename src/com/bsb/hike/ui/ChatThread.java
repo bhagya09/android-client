@@ -2773,16 +2773,12 @@ public class ChatThread extends HikeAppStateBaseFragmentActivity implements Hike
 			ConvMessage message = messages.get(messages.size() - 1);
 			if (message.getState() == ConvMessage.State.RECEIVED_UNREAD && (message.getTypingNotification() == null))
 			{
-				long timeStamp = messages.get(messages.size() - mConversation.getUnreadCount()).getTimestamp();
-				long msgId = messages.get(messages.size() - mConversation.getUnreadCount()).getMsgID();
-				if ((messages.size() - mConversation.getUnreadCount()) > 0)
-				{
-					messages.add((messages.size() - mConversation.getUnreadCount()), new ConvMessage(mConversation.getUnreadCount(), timeStamp, msgId));
-				}
-				else
-				{
-					messages.add(0, new ConvMessage(mConversation.getUnreadCount(), timeStamp, msgId));
-				}
+				int index = (messages.size() - mConversation.getUnreadCount()) ;
+				index = index >= 0 ? index : 0;
+				long timeStamp = messages.get(index).getTimestamp();
+				long msgId = messages.get(index).getMsgID();
+				messages.add(index, new ConvMessage(mConversation.getUnreadCount(), timeStamp, msgId));
+
 			}
 		}
 
@@ -2839,7 +2835,9 @@ public class ChatThread extends HikeAppStateBaseFragmentActivity implements Hike
 			}
 			if (message.getState() == ConvMessage.State.RECEIVED_UNREAD)
 			{
-				mConversationsView.setSelection(messages.size() - mConversation.getUnreadCount() - 1);
+				int index = (messages.size() - mConversation.getUnreadCount() - 1) ;
+				index = index >= 0 ? index : 0;
+				mConversationsView.setSelection(index);
 			}
 			else if (!wasOrientationChanged)
 			{
@@ -3631,7 +3629,7 @@ public class ChatThread extends HikeAppStateBaseFragmentActivity implements Hike
 								// Logs for Msg Reliability
 								Logger.d(AnalyticsConstants.MSG_REL_TAG, "===========================================");
 								Logger.d(AnalyticsConstants.MSG_REL_TAG, "Receiver reads msg on after opening screen,track_id:- " + trackId);
-								MsgRelLogManager.recordMsgRel(trackId, MsgRelEventType.RECEIVER_OPENS_CONV_SCREEN);
+								MsgRelLogManager.recordMsgRel(trackId, MsgRelEventType.RECEIVER_OPENS_CONV_SCREEN, mConversation.getMsisdn());
 							}
 							else
 							{
@@ -6738,6 +6736,9 @@ public class ChatThread extends HikeAppStateBaseFragmentActivity implements Hike
 		{
 			String contactId = data.getData().getLastPathSegment();
 			getContactData(contactId);
+		}else if(requestCode == HikeConstants.PLATFORM_REQUEST)
+		{
+			mAdapter.onActivityResult(requestCode, resultCode, data);
 		}
 		else if (resultCode == RESULT_CANCELED)
 		{
@@ -9288,6 +9289,12 @@ public class ChatThread extends HikeAppStateBaseFragmentActivity implements Hike
 				@Override
 				public void run()
 				{
+					//TODO Check because of a PS crash. Need to verify whether the crash is occurring due to conversation being null.
+					if (mConversation == null)
+					{
+						return;
+					}
+
 					int newCount = -1;
 					
 					try 

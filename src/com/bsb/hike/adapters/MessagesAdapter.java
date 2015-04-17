@@ -4500,4 +4500,12 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			mWebViewCardRenderer.onDestroy();
 		}
 	}
+	
+	public void onActivityResult(int requestCode, int resultCode, Intent data)
+	{
+		if(requestCode == HikeConstants.PLATFORM_REQUEST)
+		{
+			mWebViewCardRenderer.onActivityResult(resultCode, data);
+		}
+	}
 }

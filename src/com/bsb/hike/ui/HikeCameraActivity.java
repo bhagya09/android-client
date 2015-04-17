@@ -428,7 +428,7 @@ public class HikeCameraActivity extends HikeAppStateBaseFragmentActivity impleme
 				{
 					src = itemList.get(0).getFilePath();
 				}
-				Utils.startCropActivityForResult(this, src, file.getAbsolutePath(), true);
+				Utils.startCropActivityForResult(this, src, file.getAbsolutePath(), true, 100);
 				break;
 			case HikeConstants.CROP_RESULT:
 				Intent intent = new Intent(HikeCameraActivity.this, PictureEditer.class);

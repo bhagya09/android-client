@@ -55,6 +55,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.ocpsoft.prettytime.PrettyTime;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningAppProcessInfo;
@@ -2409,14 +2410,14 @@ public class Utils
 		intent.putExtra(MediaStore.EXTRA_OUTPUT, destPath);
 		intent.putExtra(HikeConstants.Extras.IMAGE_PATH, path);
 		intent.putExtra(HikeConstants.Extras.SCALE, true);
-		intent.putExtra(HikeConstants.Extras.OUTPUT_X, HikeConstants.MAX_DIMENSION_FULL_SIZE_PROFILE_PX);
-		intent.putExtra(HikeConstants.Extras.OUTPUT_Y, HikeConstants.MAX_DIMENSION_FULL_SIZE_PROFILE_PX);
+		intent.putExtra(HikeConstants.Extras.OUTPUT_X, HikeConstants.MAX_DIMENSION_LOW_FULL_SIZE_PX);
+		intent.putExtra(HikeConstants.Extras.OUTPUT_Y, HikeConstants.MAX_DIMENSION_LOW_FULL_SIZE_PX);
 		intent.putExtra(HikeConstants.Extras.ASPECT_X, 1);
 		intent.putExtra(HikeConstants.Extras.ASPECT_Y, 1);
 		activity.startActivityForResult(intent, HikeConstants.CROP_RESULT);
 	}
 
-	public static void startCropActivityForResult(Activity activity, String path, String destPath, boolean preventScaling)
+	public static void startCropActivityForResult(Activity activity, String path, String destPath, boolean preventScaling, int quality)
 	{
 		/* Crop the image */
 		Intent intent = new Intent(activity, CropImage.class);
@@ -2426,6 +2427,7 @@ public class Utils
 		intent.putExtra(HikeConstants.Extras.RETURN_CROP_RESULT_TO_FILE, preventScaling);
 		intent.putExtra(HikeConstants.Extras.ASPECT_X, 1);
 		intent.putExtra(HikeConstants.Extras.ASPECT_Y, 1);
+		intent.putExtra(HikeConstants.Extras.JPEG_COMPRESSION_QUALITY, quality);
 		activity.startActivityForResult(intent, HikeConstants.CROP_RESULT);
 	}
 
@@ -3235,6 +3237,7 @@ public class Utils
 		{
 			HttpClient httpclient = new DefaultHttpClient();
 			HttpPost httppost = new HttpPost(url);
+			AccountUtils.setNoTransform(httppost);
 			HttpResponse response = httpclient.execute(httppost);
 			HttpEntity entity = response.getEntity();
 			is = entity.getContent();
@@ -3281,7 +3284,12 @@ public class Utils
 	{
 		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
 	}
-
+	
+	public static boolean isIceCreamOrHigher()
+	{
+		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH;
+	}
+	
 	public static boolean isJELLY_BEAN_MR2OrHigher()
 	{
 		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2;
@@ -5332,6 +5340,27 @@ public class Utils
 		return networkType;
 	}
 
+	/* Returns the name of the device owner.
+	 * @param context
+	 * @return The device owner's name, or an empty string
+	 */
+	@SuppressLint("InlinedApi") 
+	public static String getOwnerName(Context context) {
+		String name = "";
+		
+        if (isIceCreamOrHigher() && context != null) {
+			Cursor c = context.getContentResolver().query(ContactsContract.Profile.CONTENT_URI, null, null, null, null);
+			if (c != null) {
+				if (c.moveToFirst()) {
+					name = c.getString(c.getColumnIndex(ContactsContract.Profile.DISPLAY_NAME));
+				}
+				c.close();				
+			}
+        }
+        
+		return name;
+	}
+
 	public static String conversationType(String msisdn)
 	{
 		if (isBot(msisdn))
@@ -5463,7 +5492,7 @@ public class Utils
 		{
 			ConnectivityManager cm = (ConnectivityManager) HikeMessengerApp.getInstance().getSystemService(Context.CONNECTIVITY_SERVICE);
 			
-			if(cm != null && cm.getActiveNetworkInfo() != null && (cm.getActiveNetworkInfo().isAvailable() || cm.getActiveNetworkInfo().isConnectedOrConnecting()))
+			if (cm != null && cm.getActiveNetworkInfo() != null && cm.getActiveNetworkInfo().isAvailable() && cm.getActiveNetworkInfo().isConnected())
 			{
 				info = cm.getActiveNetworkInfo();
 			}
@@ -5569,5 +5598,63 @@ public class Utils
 			fullFirstName = fullName;
 		}
 		return fullFirstName;
+	}
+	
+	public static boolean isDeviceRooted()
+	{
+		return RootUtil.isDeviceRooted();
+	}
+
+	private static class RootUtil
+	{
+		public static boolean isDeviceRooted()
+		{
+			return checkRootMethod1() || checkRootMethod2() || checkRootMethod3() || checkRootMethod4();
+		}
+
+		private static boolean checkRootMethod1()
+		{
+			String buildTags = android.os.Build.TAGS;
+			return buildTags != null && buildTags.contains("test-keys");
+		}
+
+		private static boolean checkRootMethod2()
+		{
+			return new File("/system/app/Superuser.apk").exists();
+		}
+
+		private static boolean checkRootMethod3()
+		{
+			String[] paths = { "/sbin/su", "/system/bin/su", "/system/xbin/su", "/data/local/xbin/su", "/data/local/bin/su", "/system/sd/xbin/su", "/system/bin/failsafe/su",
+					"/data/local/su" };
+			for (String path : paths)
+			{
+				if (new File(path).exists())
+					return true;
+			}
+			return false;
+		}
+
+		private static boolean checkRootMethod4()
+		{
+			Process process = null;
+			try
+			{
+				process = Runtime.getRuntime().exec(new String[] { "/system/xbin/which", "su" });
+				BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
+				if (in.readLine() != null)
+					return true;
+				return false;
+			}
+			catch (Throwable t)
+			{
+				return false;
+			}
+			finally
+			{
+				if (process != null)
+					process.destroy();
+			}
+		}
 	}
 }
