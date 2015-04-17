@@ -29,7 +29,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.models.HikeHandlerUtil;
-import com.bsb.hike.photos.HikePhotosUtils.HikePhotosListener;
+import com.bsb.hike.photos.HikePhotosListener;
 import com.bsb.hike.smartcache.HikeLruCache;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;

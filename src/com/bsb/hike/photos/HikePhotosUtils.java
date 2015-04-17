@@ -42,16 +42,6 @@ public class HikePhotosUtils
 		public static final int QUALITY_TYPE = 4;
 	}
 	
-	public static interface HikePhotosListener
-	{
-		void onComplete(File f);
-
-		void onComplete(Bitmap bmp);
-
-		void onFailure();
-	}
-
-
 	// array cpntaining colors hex codes for colors provided in doodling
 	public static int[] DoodleColors = { 0xffff6d00, 0xff1014e2, 0xff86d71d,
 
