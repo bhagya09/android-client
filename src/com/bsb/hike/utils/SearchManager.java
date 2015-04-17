@@ -85,11 +85,7 @@ public class SearchManager
 		{
 			itemViewBacklash = lastPosition-cursorPosition;
 		}
-		Logger.d("search","first last:" + cursorPosition + lastPosition);
-		Logger.d("search", "nextMessage()");
-		Logger.d("search", "list: " + indexList.toString());
 		int searchCusrsor = getCurrentCursor(cursorPosition);
-		Logger.d("search", "currentCusrsor: " + searchCusrsor);
 
 		int start, end, threshold = -1;
 		int lastMessageIndex = itemList.size() - 1;
@@ -140,7 +136,6 @@ public class SearchManager
 	private int getNextIndexItem(int searchCusrsor)
 	{
 		int position = Collections.binarySearch(indexList, searchCusrsor);
-		Logger.d("search", "position: " + position);
 		if (position >= 0)
 		{
 			position++;
@@ -167,12 +162,8 @@ public class SearchManager
 			return -1;
 		}
 		itemViewBacklash = defaultItemViewBacklash;
-		Logger.d("search", "prevMessage()");
-		Logger.d("search", "list: " + indexList.toString());
 		int searchCusrsor = getCurrentCursor(cursorPosition);
-		Logger.d("search", "currentCusrsor: " + searchCusrsor);
 		int position = Collections.binarySearch(indexList, searchCusrsor);
-		Logger.d("search", "position: " + position);
 
 		int start, end, threshold = -1;
 		// If the index list is empty, this is first request.
@@ -285,7 +276,6 @@ public class SearchManager
 
 			if (itemList.get(from).doesItemContain(searchText))
 			{
-				Logger.d("search", "adding: " + from);
 				if (!indexList.contains(from))
 				{
 					indexList.add(from);
@@ -308,7 +298,6 @@ public class SearchManager
 	 */
 	private boolean searchFirstMessage(int from, int to, int threshold)
 	{
-		Logger.d("search", "searching first in range: " + from + "-" + to + " with threshold of " + threshold);
 		if (from > to)
 		{
 			for (; from >= to; from--)
@@ -320,7 +309,6 @@ public class SearchManager
 
 				if (itemList.get(from).doesItemContain(searchText))
 				{
-					Logger.d("search", "adding: " + from);
 					if (!indexList.contains(from))
 					{
 						indexList.add(from);
@@ -352,7 +340,6 @@ public class SearchManager
 
 				if (itemList.get(from).doesItemContain(searchText))
 				{
-					Logger.d("search", "adding: " + from);
 					if (!indexList.contains(from))
 					{
 						indexList.add(from);
@@ -377,7 +364,6 @@ public class SearchManager
 
 	private int applyBackLash(int position)
 	{
-		Logger.d("search","itemViewBacklash: " + itemViewBacklash);
 		if (position <= itemViewBacklash)
 			position = 0;
 		else
