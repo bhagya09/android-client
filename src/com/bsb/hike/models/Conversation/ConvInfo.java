@@ -41,6 +41,8 @@ public class ConvInfo implements Comparable<ConvInfo>
 	 * Keeps track of the last message for a given conversation
 	 */
 	protected ConvMessage lastConversationMsg;
+	
+	private boolean lastMsgTyping = false;
 
 	protected ConvInfo(InitBuilder<?> builder)
 	{
@@ -312,7 +314,7 @@ public class ConvInfo implements Comparable<ConvInfo>
 		int result = 1;
 		result = prime * result + ((mConversationName == null) ? 0 : mConversationName.hashCode());
 		result = prime * result + ((msisdn == null) ? 0 : msisdn.hashCode());
-		result = prime * result + (isStealth ? 1231 : 1237);
+		result = prime * result + (isOnHike ? 1231 : 1237);
 
 		return result;
 	}
@@ -331,6 +333,22 @@ public class ConvInfo implements Comparable<ConvInfo>
 			Logger.e("Conversation", "invalid json message", e);
 		}
 		return object;
+	}
+
+	/**
+	 * @return the lastMsgTyping
+	 */
+	public boolean isLastMsgTyping()
+	{
+		return lastMsgTyping;
+	}
+
+	/**
+	 * @param lastMsgTyping the lastMsgTyping to set
+	 */
+	public void setLastMsgTyping(boolean lastMsgTyping)
+	{
+		this.lastMsgTyping = lastMsgTyping;
 	}
 
 	protected static abstract class InitBuilder<P extends InitBuilder<P>>
