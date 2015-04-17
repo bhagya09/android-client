@@ -4154,6 +4154,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		case MULTI_SELECT_ACTION_MODE:
 			mActionMode.reInflateActionMode();
 			hideShowActionModeMenus();
+			mActionMode.updateTitle(activity.getString(R.string.selected_count, mAdapter.getSelectedCount()));
 			break;
 			
 		case SEARCH_ACTION_MODE:
