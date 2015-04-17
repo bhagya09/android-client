@@ -445,6 +445,21 @@ public class Utils
 		return orgFileName;
 	}
 
+	public static File createNewFile(HikeFileType type,String prefix)
+	{
+		File selectedDir = new File(Utils.getFileParent(type, false));
+		if (!selectedDir.exists())
+		{
+			if (!selectedDir.mkdirs())
+			{
+				return null;
+			}
+		}
+		String fileName = prefix + Utils.getOriginalFile(type, null);
+		File selectedFile = new File(selectedDir.getPath() + File.separator + fileName);
+		return selectedFile;
+	}
+	
 	public static String getFinalFileName(HikeFileType type)
 	{
 		return getFinalFileName(type, null);

@@ -226,16 +226,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 		// Add "pick from camera" button/bucket
 		if (enableCameraPick)
 		{
-			File selectedDir = new File(Utils.getFileParent(HikeFileType.IMAGE, false));
-			if (!selectedDir.exists())
-			{
-				if (!selectedDir.mkdirs())
-				{
-					return;
-				}
-			}
-			String fileName = HikeConstants.CAM_IMG_PREFIX + Utils.getOriginalFile(HikeFileType.IMAGE, null);
-			File selectedFile = new File(selectedDir.getPath() + File.separator + fileName);
+			File selectedFile = Utils.createNewFile(HikeFileType.IMAGE, HikeConstants.CAM_IMG_PREFIX);
 			Intent sourceIntent = IntentManager.getNativeCameraAppIntent(true,selectedFile);
 			Intent desIntent = IntentManager.getPictureEditorActivityIntent(GalleryActivity.this, null, false);
 
@@ -742,17 +733,9 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 		switch (item.getItemId())
 		{
 		case R.id.take_pic:
-			File selectedDir = new File(Utils.getFileParent(HikeFileType.IMAGE, false));
-			if (!selectedDir.exists())
-			{
-				if (!selectedDir.mkdirs())
-				{
-					return false;
-				}
-			}
-			String fileName = HikeConstants.CAM_IMG_PREFIX + Utils.getOriginalFile(HikeFileType.IMAGE, null);
-			File selectedFile = new File(selectedDir.getPath() + File.separator + fileName);
-			
+
+			File selectedFile = Utils.createNewFile(HikeFileType.IMAGE, HikeConstants.CAM_IMG_PREFIX);
+				
 			Intent sourceIntent = IntentManager.getNativeCameraAppIntent(true,selectedFile);
 			Intent desIntent = IntentManager.getPictureEditorActivityIntent(GalleryActivity.this, null, false);
 
