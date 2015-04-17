@@ -35,7 +35,7 @@ import com.bsb.hike.R;
 import com.bsb.hike.adapters.GalleryAdapter;
 import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.models.GalleryItem;
-import com.bsb.hike.models.HikeHandlerUtil;
+import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentManager;
@@ -226,12 +226,23 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 		// Add "pick from camera" button/bucket
 		if (enableCameraPick)
 		{
-			Intent sourceIntent = IntentManager.getNativeCameraAppIntent(true);
-			Intent desIntent = IntentManager.getPictureEditorActivityIntent(GalleryActivity.this,null, false);
+			File selectedDir = new File(Utils.getFileParent(HikeFileType.IMAGE, false));
+			if (!selectedDir.exists())
+			{
+				if (!selectedDir.mkdirs())
+				{
+					return;
+				}
+			}
+			String fileName = HikeConstants.CAM_IMG_PREFIX + Utils.getOriginalFile(HikeFileType.IMAGE, null);
+			File selectedFile = new File(selectedDir.getPath() + File.separator + fileName);
+			Intent sourceIntent = IntentManager.getNativeCameraAppIntent(true,selectedFile);
+			Intent desIntent = IntentManager.getPictureEditorActivityIntent(GalleryActivity.this, null, false);
 
 			Intent proxyIntent = new Intent(GalleryActivity.this, DelegateActivity.class);
 			proxyIntent.putExtra(DelegateActivity.SOURCE_INTENT, sourceIntent);
 			proxyIntent.putExtra(DelegateActivity.DESTINATION_INTENT, desIntent);
+			proxyIntent.putExtra(HikeMessengerApp.FILE_PATHS, new String[]{selectedFile.getAbsolutePath()});
 
 			PendingIntent pIntent = PendingIntent.getActivity(getApplicationContext(), 0, proxyIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
@@ -709,7 +720,6 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 		multiSelectTitle.setText(getString(R.string.gallery_num_selected, selectedGalleryItems.size()));
 	}
 
-	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu)
 	{
@@ -732,13 +742,25 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 		switch (item.getItemId())
 		{
 		case R.id.take_pic:
-			Intent sourceIntent = IntentManager.getNativeCameraAppIntent(true);
-			Intent desIntent = IntentManager.getPictureEditorActivityIntent(GalleryActivity.this,null, false);
+			File selectedDir = new File(Utils.getFileParent(HikeFileType.IMAGE, false));
+			if (!selectedDir.exists())
+			{
+				if (!selectedDir.mkdirs())
+				{
+					return false;
+				}
+			}
+			String fileName = HikeConstants.CAM_IMG_PREFIX + Utils.getOriginalFile(HikeFileType.IMAGE, null);
+			File selectedFile = new File(selectedDir.getPath() + File.separator + fileName);
+			
+			Intent sourceIntent = IntentManager.getNativeCameraAppIntent(true,selectedFile);
+			Intent desIntent = IntentManager.getPictureEditorActivityIntent(GalleryActivity.this, null, false);
 
 			Intent proxyIntent = new Intent(GalleryActivity.this, DelegateActivity.class);
 			proxyIntent.putExtra(DelegateActivity.SOURCE_INTENT, sourceIntent);
 			proxyIntent.putExtra(DelegateActivity.DESTINATION_INTENT, desIntent);
-
+			proxyIntent.putExtra(HikeMessengerApp.FILE_PATHS, new String[]{selectedFile.getAbsolutePath()});
+			
 			PendingIntent pIntent = PendingIntent.getActivity(getApplicationContext(), 0, proxyIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 			try
 			{

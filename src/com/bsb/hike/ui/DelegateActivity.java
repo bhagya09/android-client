@@ -23,6 +23,8 @@ public class DelegateActivity extends Activity
 	public static final String SOURCE_INTENT = "si";
 
 	public static final String DESTINATION_INTENT = "di";
+	
+	private String fileDestinations[];
 
 	private Intent sourceIntent;
 
@@ -55,6 +57,11 @@ public class DelegateActivity extends Activity
 			if (parcel != null && parcel instanceof Intent)
 			{
 				destinationIntent = (Intent) parcel;
+			}
+			
+			if(intent.hasExtra(HikeMessengerApp.FILE_PATHS))
+			{
+				fileDestinations = intent.getStringArrayExtra(HikeMessengerApp.FILE_PATHS);
 			}
 		}
 		else
@@ -98,25 +105,12 @@ public class DelegateActivity extends Activity
 			{
 				if (sourceIntent.getAction() == MediaStore.ACTION_IMAGE_CAPTURE)
 				{
-					/*
-					 * For images, save the file path as a preferences since in some devices the reference to the file becomes null.
-					 */
-					HikeSharedPreferenceUtil pref = HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.ACCOUNT_SERVICE);
 
 					// Retrieve saved file path
-					String newFilePath = pref.getData(HikeMessengerApp.FILE_PATH, "");
+					// Currently on accessing the first file since recursive call not yet involved.
+					String newFilePath = fileDestinations[0];
 
 					destinationIntent.putExtra(HikeMessengerApp.FILE_PATH, newFilePath);
-
-					HikeHandlerUtil.getInstance().postRunnableWithDelay(new Runnable()
-					{
-						@Override
-						public void run()
-						{
-							// Remove saved file path from shared pref
-							HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.ACCOUNT_SERVICE).removeData(HikeMessengerApp.FILE_PATH);
-						}
-					}, 0);
 				}
 
 				if (data != null)

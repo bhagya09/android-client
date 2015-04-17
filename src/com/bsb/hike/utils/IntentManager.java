@@ -495,32 +495,21 @@ public class IntentManager
 
 	/**
 	 * If the EXTRA_OUTPUT is not present, then a small sized image is returned as a Bitmap object in the extra field
+	 *
+	 * For images, save the file path as a preferences since in some devices the reference to the file becomes null.
+	 * @param
+	 * boolean : whether the image should be saved to a specified path to ensure full quality.
+	 * File : the specified file where the full quality image should be saved.
 	 * 
 	 * @return Camera Intent
 	 */
-	public static Intent getNativeCameraAppIntent(boolean getFullSizedCaptureResult)
+	public static Intent getNativeCameraAppIntent(boolean getFullSizedCaptureResult,File destination)
 	{
 		Intent pickIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 		if (getFullSizedCaptureResult)
 		{
-			File selectedDir = new File(Utils.getFileParent(HikeFileType.IMAGE, false));
-			if (!selectedDir.exists())
-			{
-				if (!selectedDir.mkdirs())
-				{
-					// failed to create directory
-					return null;
-				}
-			}
-			String fileName = Utils.getOriginalFile(HikeFileType.IMAGE, null);
-			File selectedFile = new File(selectedDir.getPath() + File.separator + fileName);
-
-			pickIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(selectedFile));
-			/*
-			 * For images, save the file path as a preferences since in some devices the reference to the file becomes null.
-			 */
-			HikeSharedPreferenceUtil pref = HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.ACCOUNT_SERVICE);
-			pref.saveData(HikeMessengerApp.FILE_PATH, selectedFile.getAbsolutePath());
+			
+			pickIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(destination));
 		}
 		return pickIntent;
 	}
