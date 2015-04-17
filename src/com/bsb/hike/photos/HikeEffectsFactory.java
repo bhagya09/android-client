@@ -102,7 +102,7 @@ public final class HikeEffectsFactory
 			}
 		}
 
-		if (!isThumbnail && (currentOut == null || vignetteBitmap == null))
+		if (!isThumbnail && (currentOut == null || vignetteBitmap == null || mBitmapIn == null))
 		{
 			ret = false;
 		}
@@ -158,7 +158,10 @@ public final class HikeEffectsFactory
 		if (instance == null)
 			instance = new HikeEffectsFactory();
 
-		instance.loadRenderScript(scaledOriginal, true, false);
+		if (!instance.loadRenderScript(scaledOriginal, true, false))
+		{
+			return ;
+		}
 		instance.beginEffectAsyncTask(listener, type, true);
 
 	}
@@ -511,7 +514,8 @@ public final class HikeEffectsFactory
 
 			applyEffect(effect);
 
-			uiHandler.post(new Runnable()
+			if(!error)
+				{uiHandler.post(new Runnable()
 			{
 				@Override
 				public void run()
@@ -520,13 +524,14 @@ public final class HikeEffectsFactory
 
 				}
 			});
+				}
 		}
 
 		private void applyEffect(FilterType effect)
 		{
 			int[] ro, ri, go, gi, bo, bi, ci, co;
 			Splines red, green, blue, composite;
-
+			Bitmap temp = null;
 			if (!blurImage)
 			{
 				mScript.set_input1(mBlendAllocation);
@@ -807,8 +812,11 @@ public final class HikeEffectsFactory
 				mScript.forEach_filter_chillum(mInAllocation, mOutAllocations);
 				break;
 			case HDR:
-				mBlendAllocation = Allocation.createFromBitmap(mRS, mBitmapIn.copy(Config.ARGB_8888, true));
-				mScript.set_input2(mBlendAllocation);
+				temp = HikePhotosUtils.createBitmap(mBitmapIn, 0, 0, 0, 0, true, false, false, true);
+				if(temp!=null)
+					{
+					mBlendAllocation = Allocation.createFromBitmap(mRS, temp);
+					mScript.set_input2(mBlendAllocation);
 				mScript.forEach_filter_HDR_init(mInAllocation, mBlendAllocation);
 				mScriptBlur.setRadius(25f);
 				mScriptBlur.setInput(mBlendAllocation);
@@ -818,6 +826,11 @@ public final class HikeEffectsFactory
 				mScript.set_input1(mBlendAllocation);
 				mScript.set_input2(mOutAllocations);
 				mScript.forEach_filter_HDR_post(mInAllocation, mOutAllocations);
+				}
+				else
+				{
+					error = true;
+				}
 				break;
 			case SUNLITT:
 				ri = new int[] { 0, 114, 255 };
@@ -845,7 +858,11 @@ public final class HikeEffectsFactory
 
 			}
 
-			mOutAllocations.copyTo(blurImage ? inBitmapOut : currentOut);
+			if(!error)
+				{
+				mOutAllocations.copyTo(blurImage ? inBitmapOut : currentOut);
+					HikePhotosUtils.manageBitmaps(temp);
+				}
 
 		}
 

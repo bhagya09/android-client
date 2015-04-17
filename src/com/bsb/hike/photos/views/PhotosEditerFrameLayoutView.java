@@ -137,6 +137,7 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 			if (scaledImageOriginal == null)
 			{
 				// To Do Out Of Memory Handling
+				//Need to take a call on whether to OPEN home activity
 			}
 
 		}
@@ -188,6 +189,7 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 			{
 				Toast.makeText(getContext(), getResources().getString(R.string.photos_oom_load), Toast.LENGTH_SHORT).show();
 				IntentManager.openHomeActivity(getContext(), true);
+				return;
 			}
 			effectLayer.handleImage(imageScaled, true);
 		}
