@@ -14,6 +14,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.app.NotificationManager;
 import android.app.ProgressDialog;
@@ -665,6 +666,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	public void onActivityResult(int requestCode, int resultCode, Intent data)
 	{
 		Logger.i(TAG, "on activity result " + requestCode + " result " + resultCode);
+		if (resultCode == Activity.RESULT_CANCELED)
+		{
+			return;
+		}
 		switch (requestCode)
 		{
 		case AttachmentPicker.CAMERA:
