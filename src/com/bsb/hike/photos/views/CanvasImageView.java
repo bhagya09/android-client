@@ -289,22 +289,18 @@ public class CanvasImageView extends ImageView implements OnTouchListener
 			case MotionEvent.ACTION_DOWN:
 				touchStart(x, y);
 				invalidate();
-
-				break;
+				return true;
 			case MotionEvent.ACTION_MOVE:
 				touchMove(x, y);
 				invalidate();
-
-				break;
+				return true;
 			case MotionEvent.ACTION_UP:
-
 				touchUp();
 				invalidate();
-
-				break;
+				return true;
 			}
 		}
-		return true;
+		return false;
 	}
 
 	public void onClickUndo()

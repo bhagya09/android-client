@@ -27,9 +27,9 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.photos.HikeEffectsFactory.OnFilterAppliedListener;
+import com.bsb.hike.photos.HikePhotosListener;
 import com.bsb.hike.photos.HikePhotosUtils;
 import com.bsb.hike.photos.HikePhotosUtils.FilterTools.FilterType;
-import com.bsb.hike.photos.HikePhotosUtils.HikePhotosListener;
 import com.bsb.hike.photos.views.CanvasImageView.OnDoodleStateChangeListener;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.IntentManager;
@@ -224,8 +224,8 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 
 	public void disableFilters()
 	{
-		enableEffects = true;
-		effectLayer.setAllowTouchMode(true);
+		enableEffects = false;
+		effectLayer.setAllowTouchMode(false);
 	}
 
 	public void setBrushColor(int Color)
@@ -485,14 +485,14 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 	{
 		if(enableDoodling)
 		{
-			doodleLayer.onTouch(v, event);
+			return doodleLayer.onTouch(v, event);
 		}
-		else if(enableEffects)
+		if(enableEffects)
 		{
-			effectLayer.onTouch(v, event);
+			return effectLayer.onTouch(v, event);
 		}
 			
-		return true;
+		return false;
 	}
 
 }
