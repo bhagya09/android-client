@@ -75,7 +75,7 @@ class HikeUserDatabase extends SQLiteOpenHelper
 				+ DBConstants.LAST_SEEN + " INTEGER DEFAULT -1, " // When this user was last seen on hike
 				+ DBConstants.IS_OFFLINE + " INTEGER DEFAULT 1, " // Whether this user is online or not
 				+ DBConstants.INVITE_TIMESTAMP + " INTEGER DEFAULT 0, " // When this user was last invited.
-				+ DBConstants.PLATFORM_USER_ID + " TEXT "    // Platform user id
+				+ DBConstants.PLATFORM_USER_ID + " TEXT DEFAULT ''"    // Platform user id
 				+ " )";
 
 		db.execSQL(create);
@@ -2376,7 +2376,12 @@ class HikeUserDatabase extends SQLiteOpenHelper
 			{
 				JSONObject obj = data.getJSONObject(i);
 				String msisdn = obj.optString(HikeConstants.MSISDN);
-				String platformUID = obj.optString(HikePlatformConstants.PLATFORM_USER_ID);
+
+				String platformUID = "";
+				if(!obj.isNull(HikePlatformConstants.PLATFORM_USER_ID))
+				{
+					platformUID = obj.optString(HikePlatformConstants.PLATFORM_USER_ID);
+				}
 				if (TextUtils.isEmpty(msisdn) || TextUtils.isEmpty(platformUID))
 				{
 					continue;
@@ -2406,7 +2411,7 @@ class HikeUserDatabase extends SQLiteOpenHelper
 		try
 		{
 
-			c = mReadDb.rawQuery("select " + DBConstants.MSISDN + " from "+DBConstants.USERS_TABLE +" where "+DBConstants.PLATFORM_USER_ID +" = 'null' OR '' ",null);
+			c = mReadDb.rawQuery("select " + DBConstants.MSISDN + " from "+DBConstants.USERS_TABLE +" where "+ DBConstants.ONHIKE + "=1 AND "  + DBConstants.PLATFORM_USER_ID + "=''" ,null);
 
 
 			while (c.moveToNext())
