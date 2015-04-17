@@ -116,6 +116,12 @@ public class VignetteUtils
 			radius = 1f * radius;
 			radialGradient = false;
 			break;
+			
+		case POLAROID:
+			colors = new int[] { 0xFFAAB1CB,  0xFF382529 };
+			stops = new float[] { 0.0f,  1.0f };
+			radius = 2.6f * radius / 2;
+			break;
 
 		case SUNLITT:
 			isLinearDiagonal = false;

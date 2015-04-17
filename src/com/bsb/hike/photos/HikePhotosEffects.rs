@@ -272,7 +272,7 @@ uchar4 __attribute__((kernel)) filter_apollo(uchar4 in,uint32_t x,uint32_t y) {
 
 uchar4 __attribute__((kernel)) filter_classic(uchar4 in,uint32_t x,uint32_t y) {
 
-	in = applyCurves(in,-1,1,1,1);
+	in = applyCurves(in,0,1,1,1);
 
 	return in;
 }
@@ -395,11 +395,7 @@ uchar4 __attribute__((kernel)) filter_gulaal(uchar4 in,uint32_t x,uint32_t y)
 		in = applyBlendToRGB(in , v ,Screen,1);
 	}
 	
-	in.r = compositeSpline[in.r];
-
-	in.g = compositeSpline[in.g];
-
-	in.b = compositeSpline[in.b]; 
+	in = applyCurves(in,-1,0,0,0);
 	
 	return in;
 	
@@ -407,11 +403,7 @@ uchar4 __attribute__((kernel)) filter_gulaal(uchar4 in,uint32_t x,uint32_t y)
 
 uchar4 __attribute__((kernel)) filter_chillum(uchar4 in,uint32_t x,uint32_t y)
 {
-	in.r = rSpline[in.r];
-	
-	in.g = gSpline[in.g];
-
-	in.b = bSpline[in.b];
+	in = applyCurves(in,0,1,1,1);
 	
 	if(!isThumbnail)
 	{
@@ -446,7 +438,7 @@ uchar4 __attribute__((kernel)) filter_bgr(uchar4 in,uint32_t x,uint32_t y)
 {
 	in = applyColorMatrix(in,preMatrix);
 	
-	in.b = bSpline[in.b];
+	in = applyCurves(in,0,0,0,1);
 	
 	if(!isThumbnail)
 	{
@@ -462,11 +454,7 @@ uchar4 __attribute__((kernel)) filter_bgr(uchar4 in,uint32_t x,uint32_t y)
 uchar4 __attribute__((kernel)) filter_jalebi(uchar4 in,uint32_t x,uint32_t y)
 {
 
-	in.r = rSpline[in.r];
-
-	in.g = gSpline[in.g];
-
-	in.b = bSpline[in.b];
+	in = applyCurves(in,0,1,1,1);
 
 
 	if(!isThumbnail)
@@ -481,6 +469,23 @@ uchar4 __attribute__((kernel)) filter_jalebi(uchar4 in,uint32_t x,uint32_t y)
 		
 		in = applyBlendToRGB(in , getPixelForColor(255,r[0],g[0],b[0]),Multiply,0.70);
 	
+	}
+
+	return in;
+}
+
+uchar4 __attribute__((kernel)) filter_polaroid(uchar4 in,uint32_t x,uint32_t y)
+{
+
+	in = applyColorMatrix(in,preMatrix);
+	
+	in = applyCurves(in,0,1,1,1);
+	
+	if(!isThumbnail)
+	{
+		uchar4 v = rsGetElementAt_uchar4(input1, x, y);
+	
+		in = applyBlendToRGB(in , v ,Overlay,1);
 	}
 
 	return in;
@@ -518,17 +523,7 @@ uchar4 __attribute__((kernel)) filter_HDR_post(uchar4 in,uint32_t x,uint32_t y)
 uchar4 __attribute__((kernel)) filter_sunlitt(uchar4 in,uint32_t x,uint32_t y)
 {
  
- 	in.r = compositeSpline[in.r];
-
-	in.g = compositeSpline[in.g];
-
-	in.b = compositeSpline[in.b]; 
-	
-	in.r = rSpline[in.r];
-
-	in.g = gSpline[in.g];
-
-	in.b = bSpline[in.b];
+ 	in = applyCurves(in,-1,1,1,1);
 	
 	if(!isThumbnail)
 	{

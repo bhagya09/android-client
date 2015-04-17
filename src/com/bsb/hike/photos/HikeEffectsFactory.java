@@ -542,19 +542,15 @@ public final class HikeEffectsFactory
 			switch (effect)
 			{
 			case CLASSIC:
-				ri = new int[] { 0, 48, 129, 233, 255 };
-				ro = new int[] { 0, 48, 106, 213, 238 };
-				gi = new int[] { 0, 40, 135, 218, 228, 242, 255 };
-				go = new int[] { 0, 58, 159, 215, 220, 233, 255 };
-				bi = new int[] { 0, 18, 134, 217, 247, 255 };
-				bo = new int[] { 0, 18, 104, 195, 236, 247 };
+				ri = new int[] { 0,26,51,77,102,128,154,179,204,230,255 };
+				ro = new int[] { 37,38,45,81,148,181,196,203,207,210,214 };
+				gi = new int[] { 0,26,51,77,102,128,153,179,204,230,255 };
+				go = new int[] { 48,50,60,95,144,174,188,201,207,213,215 };
+				bi = new int[] { 0,26,51,77,102,128,153,179,204,230,255 };
+				bo = new int[] { 58,61,65,72,88,108,124,135,142,153,165 };
 				red = new Splines(ri, ro);
 				green = new Splines(gi, go);
 				blue = new Splines(bi, bo);
-				ci = new int[] { 0, 32, 255 };
-				co = new int[] { 0, 0, 255 };
-				composite = new Splines(ci, co);
-				mScript.set_compositeSpline(composite.getInterpolationMatrix());
 				mScript.set_rSpline(red.getInterpolationMatrix());
 				mScript.set_gSpline(green.getInterpolationMatrix());
 				mScript.set_bSpline(blue.getInterpolationMatrix());
@@ -727,6 +723,21 @@ public final class HikeEffectsFactory
 				go = new int[] { 0,7,64,81,105,120,152,169,183,207,212,224,226 };
 				bi = new int[] { 0,22,42,64,84,106,131,151,168,190,212,234,250,255 };
 				bo = new int[] { 67,74,90,102,117,126,142,154,165,181,188,201,204,204 };
+				red = new Splines(ri, ro);
+				green = new Splines(gi, go);
+				blue = new Splines(bi, bo);
+				mScript.set_rSpline(red.getInterpolationMatrix());
+				mScript.set_gSpline(green.getInterpolationMatrix());
+				mScript.set_bSpline(blue.getInterpolationMatrix());
+				mScript.forEach_filter_nashville(mInAllocation, mOutAllocations);
+				break;
+			case POLAROID:
+				ri = new int[] { 0,23,44,64,86,106,125,149,171,192,209,237,255 };
+				ro = new int[] { 36,51,68,90,116,143,166,187,202,215,223,244,255 };
+				gi = new int[] { 0,24,45,68,87,103,114,141,165,192,206,232,255 };
+				go = new int[] { 0,29,59,90,117,138,153,183,200,215,225,239,255 };
+				bi = new int[] { 0,25,36,60,90,106,126,145,171,191,211,237,255 };
+				bo = new int[] { 0,43,59,101,149,168,195,208,219,226,237,247,247 };
 				red = new Splines(ri, ro);
 				green = new Splines(gi, go);
 				blue = new Splines(bi, bo);
