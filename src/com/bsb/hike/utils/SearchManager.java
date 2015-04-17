@@ -265,15 +265,16 @@ public class SearchManager
 		boolean found = false;
 		if (from > to)
 		{
+			// Swapping 'to' and 'from'
 			from ^= to ^= from ^= to;
 		}
+		// Just a precaution.
+		// This is possible if the caller sends a junk call due to some reason.
+		if (to >= itemList.size())
+			to = itemList.size() - 1;
+
 		for (; from <= to; from++)
 		{
-			// Just a precaution.
-			// This is possible if the caller sends a junk call due to some reason.
-			if (from >= itemList.size())
-				continue;
-
 			if (itemList.get(from).doesItemContain(searchText))
 			{
 				if (!indexList.contains(from))
@@ -300,12 +301,13 @@ public class SearchManager
 	{
 		if (from > to)
 		{
+			// Just a precaution.
+			// This is possible if the caller sends a junk call due to some reason.
+			if (from >= itemList.size())
+				from = itemList.size() - 1;
+
 			for (; from >= to; from--)
 			{
-				// Just a precaution.
-				// This is possible if the caller sends a junk call due to some reason.
-				if (from >= itemList.size())
-					continue;
 
 				if (itemList.get(from).doesItemContain(searchText))
 				{
@@ -331,12 +333,13 @@ public class SearchManager
 		}
 		else
 		{
+			// Just a precaution.
+			// This is possible if the caller sends a junk call due to some reason.
+			if (to >= itemList.size())
+				to = itemList.size() - 1;
+
 			for (; from <= to; from++)
 			{
-				// Just a precaution.
-				// This is possible if the caller sends a junk call due to some reason.
-				if (from >= itemList.size())
-					continue;
 
 				if (itemList.get(from).doesItemContain(searchText))
 				{
