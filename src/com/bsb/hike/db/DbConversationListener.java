@@ -24,20 +24,18 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
-import com.bsb.hike.analytics.HAManager;
-import com.bsb.hike.analytics.AnalyticsConstants.MessageType;
 import com.bsb.hike.analytics.AnalyticsConstants.MsgRelEventType;
+import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.MsgRelLogManager;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.ConvMessage;
-import com.bsb.hike.models.ConvMessage.OriginType;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.ConvMessage.State;
 import com.bsb.hike.models.Conversation;
+import com.bsb.hike.models.ConversationTip;
 import com.bsb.hike.models.FtueContactInfo;
-import com.bsb.hike.models.MessageMetadata;
-import com.bsb.hike.models.MessagePrivateData;
+import com.bsb.hike.models.GroupConversation;
 import com.bsb.hike.models.MultipleConvMessage;
 import com.bsb.hike.models.Protip;
 import com.bsb.hike.models.StatusMessage;
@@ -95,7 +93,9 @@ public class DbConversationListener implements Listener
 		mPubSub.addListener(HikePubSub.MULTI_MESSAGE_SENT, this);
 		mPubSub.addListener(HikePubSub.MULTI_FILE_UPLOADED, this);
 		mPubSub.addListener(HikePubSub.HIKE_SDK_MESSAGE, this);
-		mPubSub.addListener(HikePubSub.CONVERSATION_TS_UPDATED, this);		
+		mPubSub.addListener(HikePubSub.CONVERSATION_TS_UPDATED, this);	
+		mPubSub.addListener(HikePubSub.GROUP_LEFT, this);
+		mPubSub.addListener(HikePubSub.DELETE_THIS_CONVERSATION, this);
 	}
 
 	@Override
@@ -441,6 +441,30 @@ public class DbConversationListener implements Listener
 			String msisdn = p.first;
 			long timestamp = p.second;
 			boolean isUpdated = mConversationDb.updateSortingTimestamp(msisdn, timestamp);
+		}
+		else if(HikePubSub.GROUP_LEFT.equals(type) || HikePubSub.DELETE_THIS_CONVERSATION.equals(type))
+		{
+			Conversation conversation = (Conversation) object;
+			String msisdn = conversation.getMsisdn();
+			Editor editor = context.getSharedPreferences(HikeConstants.DRAFT_SETTING, Context.MODE_PRIVATE).edit();
+
+			//TODO:: This check need to be removed when IR is merged into ctr
+			/*
+			 * Added to check for the Conversation tip item we add for the group chat tip and other.
+			 */
+			if (conversation instanceof ConversationTip)
+			{
+				return;
+			}
+			else if (conversation instanceof GroupConversation || conversation instanceof Conversation)
+			{
+				editor.remove(msisdn);
+				editor.commit();
+
+				HikeConversationsDatabase.getInstance().deleteConversation(msisdn);;				
+				ContactManager.getInstance().removeContacts(msisdn);
+				HikeMessengerApp.getPubSub().publish(HikePubSub.CONVERSATION_DELETED, conversation);
+			}
 		}
 	}
 
