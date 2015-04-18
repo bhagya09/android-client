@@ -76,7 +76,23 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_7
         targetCompatibility JavaVersion.VERSION_1_7
     }
-    
+
+    signingConfigs {
+        release {
+            storeFile file("hike-android-release-key.keystore")
+            storePassword "Tequ1laFr1day5"
+            keyAlias "hhikedroid"
+            keyPassword "Tequ1laFr1day5"
+        }
+    }
+
+    buildTypes {
+        release {
+            proguardFile 'proguard.cfg'
+            signingConfig signingConfigs.release
+        }
+    }
+
     flavorDimensions "abi"
     
     productFlavors{
