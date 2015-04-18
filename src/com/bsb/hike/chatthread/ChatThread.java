@@ -1715,7 +1715,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		mConversationsView.setOnScrollListener(this);
 		loadingMoreMessages = false;
 
-		updateUIAsPerTheme(mConversation.getChatTheme());// it has to be done after setting adapter
 	}
 
 	protected void takeActionBasedOnIntent()
