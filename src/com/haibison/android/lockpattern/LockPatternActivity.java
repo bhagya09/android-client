@@ -954,6 +954,11 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
             /*
              * If the user was "logging in", minimum try count can not be zero.
              */
+        	Bundle stealthBundle = getIntent().getBundleExtra(HikeConstants.STEALTH);
+        	if(stealthBundle!=null)
+        	{
+        		mIntentResult.putExtras(stealthBundle);
+        	}
             mIntentResult.putExtra(EXTRA_RETRY_COUNT, mRetryCount + 1);
         }
 

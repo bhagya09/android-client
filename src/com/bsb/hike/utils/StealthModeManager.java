@@ -3,15 +3,21 @@ package com.bsb.hike.utils;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.app.Activity;
 import android.content.Context;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.models.HikeHandlerUtil;
+import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.ui.utils.LockPattern;
 
 /*
@@ -29,8 +35,6 @@ public class StealthModeManager
 
 	private HikeHandlerUtil handler;
 
-	private Context context;
-
 	private static Set<String> stealthMsisdn;
 	
 	private final String TAG =  "StealthModeManager";
@@ -41,7 +45,6 @@ public class StealthModeManager
 	{
 		this.currentState = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF);
 		this.handler = HikeHandlerUtil.getInstance();
-		this.context = HikeMessengerApp.getInstance().getApplicationContext();
 	}
 
 	public static StealthModeManager getInstance()
@@ -156,10 +159,78 @@ public class StealthModeManager
 		prefUtil.removeData(HikeMessengerApp.RESET_COMPLETE_STEALTH_START_TIME);
 		prefUtil.removeData(HikeMessengerApp.SHOWN_FIRST_UNMARK_STEALTH_TOAST);
 	}
+	
+	public void settingupTriggered(Activity activity)
+	{
+		HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_MODE_TOGGLED, !isActive());
+		
+		if (!StealthModeManager.getInstance().isSetUp())
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STEALTH_MODE_FTUE_DONE, false);
+			LockPattern.createNewPattern(activity, false, HikeConstants.ResultCodes.CREATE_LOCK_PATTERN_HIDE_CHAT);
+		} 
+		else if (!StealthModeManager.getInstance().isActive())
+		{
+			if(HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STEALTH_MODE_FTUE_DONE, true))
+			{
+				LockPattern.confirmPattern(activity, false, HikeConstants.ResultCodes.CONFIRM_LOCK_PATTERN_HIDE_CHAT);
+			}
+			else
+			{
+				HikeMessengerApp.getPubSub().publish(HikePubSub.SHOW_STEALTH_REVEAL_TIP, null);
+			}
+		}
+			
+	
+	}
 
 	public void toggleActionTriggered(Activity activity)
 	{
-		if(false);
+		if (!StealthModeManager.getInstance().isSetUp())
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STEALTH_MODE_FTUE_DONE, false);
+			LockPattern.createNewPattern(activity, false, HikeConstants.ResultCodes.CREATE_LOCK_PATTERN);
+		}
+		else
+		{
+			if (!StealthModeManager.getInstance().isActive())
+			{
+				//if FTUE is not setup, show the HIDE TIP after removing REVEAL TIP
+				if(!HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STEALTH_MODE_FTUE_DONE, true))
+				{
+					//TODO need to find a way to know if stealth mSisdn hidden is just on
+					if(true)
+					{
+						HikeMessengerApp.getPubSub().publish(HikePubSub.SHOW_STEALTH_HIDE_TIP, true);
+						StealthModeManager.getInstance().activate(true);
+						HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_MODE_TOGGLED, true);
+					}
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STEALTH_MODE_FTUE_DONE, true);
+				}
+				else
+				{
+					LockPattern.confirmPattern(activity, false, HikeConstants.ResultCodes.CONFIRM_LOCK_PATTERN);
+				}
+			}
+			else
+			{
+				HikeMessengerApp.getPubSub().publish(HikePubSub.REMOVE_STEALTH_HIDE_TIP, null);
+				StealthModeManager.getInstance().activate(false);
+			
+					HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_MODE_TOGGLED, true);
+				
+				try
+				{
+					JSONObject metadata = new JSONObject();
+					metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.EXIT_STEALTH_MODE);
+					HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+				}
+				catch(JSONException e)
+				{
+					Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+				}
+			}
+		}
 	}
 	
 	public void toggleConversation(ConvInfo conv, Activity activity) 

@@ -450,6 +450,12 @@ public class HikeConstants
 
 	public static final String CHANGE_STEALTH_PASSCODE = "changeStealthPasscode";
 
+	public static final String CHANGE_STEALTH_TIMEOUT = "changeStealthTimeout";
+
+	public static final String STEALTH_INDICATOR_ENABLED = "stealthIndicatorEnabled";
+
+	public static final String STEALTH_NOTIFICATION_ENABLED = "stealthNotificationEnabled";
+
 	public static final String STEALTH_PERF_SETTING = "steathPerfCategory";
 
 	public static final String SEND_UNDELIVERED_AS_NATIVE_PREF = "sendUndeliveredAsNativePref";

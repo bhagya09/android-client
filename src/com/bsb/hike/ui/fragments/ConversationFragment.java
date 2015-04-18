@@ -988,16 +988,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		{
 			if(resultCode == getActivity().RESULT_OK)
 			{
-				HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_MODE_TOGGLED, !StealthModeManager.getInstance().isActive());
-				if (!StealthModeManager.getInstance().isSetUp())
-				{
-					HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STEALTH_MODE_FTUE_DONE, false);
-					LockPattern.createNewPattern(getActivity(), false, HikeConstants.ResultCodes.CREATE_LOCK_PATTERN_HIDE_CHAT);
-				} 
-				else if (!StealthModeManager.getInstance().isActive() && HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STEALTH_MODE_FTUE_DONE, false))
-				{
-					LockPattern.confirmPattern(getActivity(), false, HikeConstants.ResultCodes.CONFIRM_LOCK_PATTERN_HIDE_CHAT);
-				}
+				StealthModeManager.getInstance().settingupTriggered(getActivity());
 			}
 		}
 		super.onActivityResult(requestCode, resultCode, data);
@@ -1561,41 +1552,24 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 						removeStealthConvTip();
 					}
 					
-					if (!StealthModeManager.getInstance().isSetUp())
-					{
-						HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STEALTH_MODE_FTUE_DONE, false);
-						LockPattern.createNewPattern(getActivity(), false, HikeConstants.ResultCodes.CREATE_LOCK_PATTERN_HIDE_CHAT);
-					}
-					else if (!StealthModeManager.getInstance().isActive() && HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STEALTH_MODE_FTUE_DONE, true))
-					{
-						LockPattern.confirmPattern(getActivity(), false, HikeConstants.ResultCodes.CONFIRM_LOCK_PATTERN_HIDE_CHAT);
-					}
-					else
-					{
-						// We don't show this toast during stealth ftue setup.
-						if(newStealthValue)
-						{
-							Toast.makeText(getActivity(), R.string.chat_marked_stealth, Toast.LENGTH_SHORT).show();
-						}
-						else if(!HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOWN_FIRST_UNMARK_STEALTH_TOAST, false))
-						{
-							Toast.makeText(getActivity(), R.string.chat_unmarked_stealth_first, Toast.LENGTH_LONG).show();
-							HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.SHOWN_FIRST_UNMARK_STEALTH_TOAST, true);
-						}
-						else
-						{
-							Toast.makeText(getActivity(), R.string.chat_unmarked_stealth, Toast.LENGTH_SHORT).show();
-						}
-					}
+//					else
+//					{
+//						// We don't show this toast during stealth ftue setup.
+//						if(newStealthValue)
+//						{
+//							Toast.makeText(getActivity(), R.string.chat_marked_stealth, Toast.LENGTH_SHORT).show();
+//						}
+//						else if(!HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOWN_FIRST_UNMARK_STEALTH_TOAST, false))
+//						{
+//							Toast.makeText(getActivity(), R.string.chat_unmarked_stealth_first, Toast.LENGTH_LONG).show();
+//							HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.SHOWN_FIRST_UNMARK_STEALTH_TOAST, true);
+//						}
+//						else
+//						{
+//							Toast.makeText(getActivity(), R.string.chat_unmarked_stealth, Toast.LENGTH_SHORT).show();
+//						}
+//					}
 
-					if (!StealthModeManager.getInstance().isActive())
-					{
-						/*
-						 * We don't need to do anything here if the device is on fake stealth mode.
-						 */
-						if(!HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STEALTH_MODE_FTUE_DONE, true) && StealthModeManager.getInstance().isSetUp())
-							HikeMessengerApp.getPubSub().publish(HikePubSub.SHOW_STEALTH_REVEAL_TIP, null);
-					}
 					if (getString(R.string.mark_stealth).equals(option) || getString(R.string.hide_chat).equals(option))
 					{
 						List<String> enabledConvs = new ArrayList<String>(1);
@@ -1603,8 +1577,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 						HikeAnalyticsEvent.sendStealthMsisdns(enabledConvs, null);
 						
 						stealthConversations.add(conv);
-						HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_MODE_TOGGLED, !StealthModeManager.getInstance().isActive());
-
+						
 						if(getString(R.string.mark_stealth).equals(option))
 						{
 							HikeConversationsDatabase.getInstance().toggleStealth(conv.getMsisdn(), newStealthValue);
@@ -1623,8 +1596,8 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 					}
 
 					conv.setStealth(newStealthValue);
-
-					notifyDataSetChanged();
+					
+					StealthModeManager.getInstance().settingupTriggered(getActivity());
 
 					if (!StealthModeManager.getInstance().isSetUp())
 					{

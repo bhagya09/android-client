@@ -5,6 +5,7 @@ import org.json.JSONObject;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.os.Bundle;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -174,8 +175,9 @@ public class LockPattern
 	 * @param activity
 	 * @param isResetPassword  
 	 */
-	public static void confirmPattern(Activity activity, boolean isResetPassword, int requestCode)
+	private static Intent confirmPatternIntent(Activity activity, boolean isResetPassword, int requestCode)
 	{
+		requestCode = isResetPassword?HikeConstants.ResultCodes.CONFIRM_AND_ENTER_NEW_PASSWORD:requestCode;
 		Intent i = new Intent(LockPatternActivity.ACTION_COMPARE_PATTERN, null, activity, LockPatternActivity.class);
 		String encryptedPattern = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STEALTH_ENCRYPTED_PATTERN, "");
 		i.putExtra(LockPatternActivity.EXTRA_PATTERN, encryptedPattern.toCharArray());
@@ -184,7 +186,21 @@ public class LockPattern
 		i.putExtra(HikeConstants.Extras.STEALTH_PASS_RESET, isResetPassword);
 		i.putExtra(Settings.Display.METADATA_MIN_WIRED_DOTS, mBarMaxTries);
 		i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-		activity.startActivityForResult(i, isResetPassword?HikeConstants.ResultCodes.CONFIRM_AND_ENTER_NEW_PASSWORD:requestCode);
-	}// onClick()
+		return i;
+		}// onClick()
+	
+	public static void confirmPattern(Activity activity, boolean isResetPassword, int requestCode, Bundle bundle)
+	{
+		Intent i = confirmPatternIntent(activity, isResetPassword, requestCode);
+		i.putExtra(HikeConstants.STEALTH, bundle);
+		activity.startActivityForResult(i, requestCode);
+	}
+	
+	public static void confirmPattern(Activity activity, boolean isResetPassword, int requestCode)
+	{
+		Intent i = confirmPatternIntent(activity, isResetPassword, requestCode);
+		activity.startActivityForResult(i, requestCode);
+	}
+	
 
 }

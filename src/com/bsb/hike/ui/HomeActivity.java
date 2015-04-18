@@ -2085,48 +2085,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		{
 			return;
 		}
-		if (!StealthModeManager.getInstance().isSetUp())
-		{
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STEALTH_MODE_FTUE_DONE, false);
-			LockPattern.createNewPattern(HomeActivity.this, false, HikeConstants.ResultCodes.CREATE_LOCK_PATTERN);
-		}
-		else
-		{
-			if (!StealthModeManager.getInstance().isActive())
-			{
-				//if FTUE is not setup, show the HIDE TIP after removing REVEAL TIP
-				if(!HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STEALTH_MODE_FTUE_DONE, true))
-				{
-					HikeMessengerApp.getPubSub().publish(HikePubSub.SHOW_STEALTH_HIDE_TIP, true);
-					HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STEALTH_MODE_FTUE_DONE, true);
-					StealthModeManager.getInstance().activate(true);
-					HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_MODE_TOGGLED, true);
-					
-				}
-				else
-				{
-					LockPattern.confirmPattern(HomeActivity.this, false, HikeConstants.ResultCodes.CONFIRM_LOCK_PATTERN);
-				}
-			}
-			else
-			{
-				HikeMessengerApp.getPubSub().publish(HikePubSub.REMOVE_STEALTH_HIDE_TIP, null);
-				StealthModeManager.getInstance().activate(false);
-			
-					HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_MODE_TOGGLED, true);
-				
-				try
-				{
-					JSONObject metadata = new JSONObject();
-					metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.EXIT_STEALTH_MODE);
-					HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
-				}
-				catch(JSONException e)
-				{
-					Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
-				}
-			}
-		}
+		StealthModeManager.getInstance().toggleActionTriggered(this);
 	}
 	
 	private void sendAnalyticsTakePicture()

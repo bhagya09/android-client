@@ -15,10 +15,10 @@
 
         <com.bsb.hike.view.IconListPreference
             icon="@drawable/ic_bolt_white"
-            android:defaultValue="@string/vib_default"
-            android:entries="@array/vibratePrefKeys"
-            android:entryValues="@array/vibratePrefValues"
-            android:key="changeStealthTimeOut"
+            android:defaultValue="@string/stealth_timeout_always"
+            android:entries="@array/stealthTimeoutPrefKeys"
+            android:entryValues="@array/stealthTimeoutPrefValues"
+            android:key="changeStealthTimeout"
             android:layout="@layout/list_preference"
             android:summary="@string/change_stealth_timeout_body"
             android:title="@string/change_stealth_timeout" />
