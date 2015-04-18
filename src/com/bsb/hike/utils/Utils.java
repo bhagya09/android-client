@@ -1152,26 +1152,6 @@ public class Utils
 		context.startActivity(s);
 	}
 
-	public static void startShareImageIntent(String mimeType, String imagePath, String text)
-	{
-		Intent s = new Intent(android.content.Intent.ACTION_SEND);
-		s.setType(mimeType);
-		s.putExtra(Intent.EXTRA_STREAM, Uri.parse(imagePath));
-		if (!TextUtils.isEmpty(text))
-		{
-			s.putExtra(Intent.EXTRA_TEXT, text);
-		}
-		s.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-		Logger.i("imageShare", "shared image with " + s.getExtras());
-		HikeMessengerApp.getInstance().getApplicationContext().startActivity(s);
-
-	}
-
-	public static void startShareImageIntent(String mimeType, String imagePath)
-	{
-		startShareImageIntent(mimeType, imagePath, null);
-	}
-
 	public static void bytesToFile(byte[] bytes, File dst)
 	{
 		FileOutputStream out = null;
@@ -2933,6 +2913,7 @@ public class Utils
 		return lastSeen;
 
 	}
+	
 
 	private static String getDayOfMonthSuffix(int dayOfMonth)
 	{

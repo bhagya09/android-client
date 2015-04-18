@@ -309,6 +309,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			case StickerManager.MORE_STICKERS_DOWNLOADED:
 			case StickerManager.STICKERS_DOWNLOADED:
 				mStickerPicker.notifyDataSetChanged();
+				StickerPicker.setRefreshStickers(true);
 			}
 		}
 	}
@@ -387,6 +388,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			break;
 		case STICKER_CATEGORY_MAP_UPDATED:
 			mStickerPicker.notifyDataSetChanged();
+			StickerPicker.setRefreshStickers(true);
 			break;
 		case SCROLL_TO_END:
 			mConversationsView.setSelection(messages.size() - 1);
@@ -629,7 +631,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			switch (overFlowMenuItem.id)
 			{
 			case R.string.search:
-				overFlowMenuItem.enabled = !isMessageListEmpty;
+				overFlowMenuItem.enabled = !isMessageListEmpty && !mConversation.isBlocked();
 				if (!sharedPreference.getData(HikeMessengerApp.CT_SEARCH_CLICKED, false) && !isMessageListEmpty)
 				{
 					overFlowMenuItem.drawableId = R.drawable.ic_top_bar_indicator_search;
@@ -656,7 +658,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	protected boolean isMessageListEmpty()
 	{
 		boolean isMessageListEmpty = messages.isEmpty();
-		if (!messages.isEmpty())
+		if (messages.size() == 1)
 		{
 			ConvMessage firstMessage = messages.get(0);
 			if (firstMessage.getTypingNotification() != null || firstMessage.isBlockAddHeader())
@@ -769,7 +771,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	{
 		return new OverFlowMenuItem[] {
 				new OverFlowMenuItem(getString(R.string.hide_chat), 0, 0, R.string.hide_chat),
-				new OverFlowMenuItem(getString(R.string.search), 0, 0, R.string.search),
 				new OverFlowMenuItem(getString(R.string.clear_chat), 0, 0, R.string.clear_chat),
 				new OverFlowMenuItem(getString(R.string.email_chat), 0, 0, R.string.email_chat)};
 	}
@@ -786,6 +787,14 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 		// Remove the indicator if any on the overflow menu.
 		mActionBar.updateOverflowMenuIndicatorImage(0);
+
+		/**
+		 * Hiding the softkeyboard if we are in landscape mode
+		 */
+		if (activity.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE)
+		{
+			Utils.hideSoftKeyboard(activity.getApplicationContext(), mComposeView);
+		}
 
 		int width = getResources().getDimensionPixelSize(R.dimen.overflow_menu_width);
 		int rightMargin = width + getResources().getDimensionPixelSize(R.dimen.overflow_menu_right_margin);
@@ -1038,16 +1047,14 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		}
 	}
 
-	protected boolean updateUIAsPerTheme(ChatTheme theme)
+	protected void updateUIAsPerTheme(ChatTheme theme)
 	{
-		if (theme != null && currentTheme != theme)
+		if (theme != null && mAdapter.getChatTheme() != theme)
 		{
 			Logger.i(TAG, "update ui for theme " + theme);
 
 			setConversationTheme(theme);
-			return true;
 		}
-		return false;
 	}
 
 	protected void setBackground(ChatTheme theme)
@@ -4345,5 +4352,13 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	@Override
 	public void onHidden()
 	{
+	}
+
+	public void dismissResidualAcitonMode()
+	{
+		if (mActionMode != null && mActionMode.isActionModeOn())
+		{
+			mActionMode.finish();
+		}
 	}
 }

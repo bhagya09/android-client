@@ -121,6 +121,7 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 		else
 		{
 			setIntent(intent);
+			chatThread.dismissResidualAcitonMode();
 			chatThread.takeActionBasedOnIntent();
 		}
 	}

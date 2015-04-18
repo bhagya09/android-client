@@ -607,7 +607,6 @@ public class ConversationsAdapter extends BaseAdapter
 		if (typingNotifMessage != null)
 		{
 			updateViewsRelatedToLastMessage(parentView, typingNotifMessage, convInfo);
-
 		}
 	}
 
@@ -632,7 +631,20 @@ public class ConversationsAdapter extends BaseAdapter
 		{
 			return;
 		}
-
+		
+		/**
+		 * This indicates that this is a typing notif message
+		 */
+		if (message.getTypingNotification() != null)
+		{
+			convInfo.setLastMsgTyping(true);
+		}
+		
+		else
+		{
+			convInfo.setLastMsgTyping(false);
+		}
+		
 		TextView messageView = viewHolder.subText;
 		messageView.setVisibility(View.VISIBLE);
 		CharSequence markedUp = getConversationText(convInfo, message);
