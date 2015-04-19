@@ -45,7 +45,7 @@ public class HikeLruCache extends LruCache<String, BitmapDrawable>
 
 	private final static int MAX_CACHE_SIZE = 1024 * 15;
 
-	private static HikeLruCache instance;
+	private static volatile HikeLruCache instance;
 
 	protected Resources mResources;
 

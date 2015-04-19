@@ -1108,7 +1108,7 @@ public class HikeNotification
 				hikeNotifMsgStack.getNotificationSubText(), null, forceNotPlaySound, retryCount);
 	}
 
-	private int returnSmallIcon()
+	public int returnSmallIcon()
 	{
 		if (Build.VERSION.SDK_INT < 16)
 		{

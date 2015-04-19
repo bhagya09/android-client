@@ -3,8 +3,11 @@ package com.bsb.hike.productpopup;
 import java.util.Comparator;
 import java.util.Locale;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.text.TextUtils;
 
 import com.bsb.hike.platform.content.PlatformContentModel;
@@ -14,7 +17,7 @@ import com.google.gson.JsonParser;
 
 import static com.bsb.hike.productpopup.ProductPopupsConstants.*;
 
-public class ProductContentModel
+public class ProductContentModel implements Parcelable
 {
 	public PlatformContentModel mmContentModel;
 
@@ -219,4 +222,42 @@ public class ProductContentModel
 		else
 			return false;
 	}
+
+	@Override
+	public int describeContents()
+	{
+		return 0;
+	}
+
+	@Override
+	public void writeToParcel(Parcel dest, int flags)
+	{
+		dest.writeString(toJSONString());
+	}
+	
+	public static final Parcelable.Creator<ProductContentModel> CREATOR = new Parcelable.Creator<ProductContentModel>()
+	{
+		public ProductContentModel createFromParcel(Parcel in)
+		{
+			String data = in.readString();
+
+			JSONObject mmObject = null;
+			try
+			{
+				mmObject = new JSONObject(data);
+			}
+			catch (JSONException e)
+			{
+				e.printStackTrace();
+			}
+
+			return ProductContentModel.makeProductContentModel(mmObject);
+		}
+
+		public ProductContentModel[] newArray(int size)
+		{
+			return new ProductContentModel[size];
+		}
+	};
+
 }

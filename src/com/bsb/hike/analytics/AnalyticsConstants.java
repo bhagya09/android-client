@@ -230,7 +230,7 @@ public class AnalyticsConstants
 	
 	//----------------------***----------------------------------//
 	
-	public static final String MSG_ID = "msg_id";
+	public static final String T_USER = "t_user";
 	
 	public static final String TRACK_ID = "track_id";
 	
@@ -238,7 +238,7 @@ public class AnalyticsConstants
 	
 	public static final String MSG_REL_TAG = "rel_m";
 	
-	public static final String MSG_REL_EVENT_TYPE = "stg";
+	public static final String REL_EVENT_STAGE = "stg";
 	
 	public static final String MSG_REL_CONST_STR = "ek";
 	
