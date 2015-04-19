@@ -403,6 +403,7 @@ public class MqttMessagesManager
 		oneToNConversation = OneToNConversation.createOneToNConversationFromJSON(jsonObj);
 		
 		boolean groupRevived = false;
+		
 
 		if (!ContactManager.getInstance().isGroupAlive(oneToNConversation.getMsisdn()))
 		{
@@ -429,6 +430,7 @@ public class MqttMessagesManager
 		int gcjAdd = this.convDb.addRemoveGroupParticipants(oneToNConversation.getMsisdn(), oneToNConversation.getConversationParticipantList(), groupRevived);
 		if (!groupRevived && gcjAdd != HikeConstants.NEW_PARTICIPANT)
 		{
+			this.convDb.setGroupCreationTime(oneToNConversation.getMsisdn(),  oneToNConversation.getCreationDate());
 			Logger.d(getClass().getSimpleName(), "GCJ Message was already received");
 			return;
 		}
@@ -459,7 +461,7 @@ public class MqttMessagesManager
 				groupName = metadata.optString(HikeConstants.NAME);
 			}
 			
-			oneToNConversation = (OneToNConversation) this.convDb.addConversation(oneToNConversation.getMsisdn(), true, groupName, oneToNConversation.getConversationOwner());
+			oneToNConversation = (OneToNConversation) this.convDb.addConversation(oneToNConversation.getMsisdn(), false, groupName, oneToNConversation.getConversationOwner(), null, oneToNConversation.getCreationDate());
 			ContactManager.getInstance().insertGroup(oneToNConversation.getMsisdn(), groupName);
 
 			// Adding a key to the json signify that this was the GCJ
