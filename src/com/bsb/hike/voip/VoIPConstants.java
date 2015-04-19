@@ -1,6 +1,5 @@
 package com.bsb.hike.voip;
 
-import com.bsb.hike.HikeConstants;
 
 public class VoIPConstants {
 	public static final String TAG = "VoIP";
@@ -62,6 +61,7 @@ public class VoIPConstants {
 	public static final int MSG_UPDATE_HOLD_BUTTON = 19;
 	public static final int MSG_ALREADY_IN_CALL = 20;
 	public static final int MSG_PHONE_NOT_SUPPORTED = 21;
+	public static final int MSG_UPDATE_REMOTE_HOLD = 22;
 
 	public static final class Analytics
 	{
@@ -94,7 +94,7 @@ public class VoIPConstants {
 		public static final String CALL_CONNECT_FAIL_REASON = "reason";
 	}
 
-	public static final class ConnectionFailCodes
+	public static final class CallFailedCodes
 	{
 		public static final int PARTNER_UPGRADE = 0;
 

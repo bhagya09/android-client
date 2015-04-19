@@ -1,17 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1165"
-    android:versionName="3.8.9.0.5.ctr" >
+    android:versionCode="1173"
+    android:versionName="3.9.0.1.ctr" >
+
     <uses-sdk
         android:minSdkVersion="9"
-        android:targetSdkVersion="17" />
+        android:targetSdkVersion="17"
+        tools:overrideLibrary="com.commonsware.cwac.camera "/>
 
     <permission
         android:name="com.bsb.hike.ui.permission.MAPS_RECEIVE"
         android:protectionLevel="signature" />
-
 
     <uses-permission android:name="com.bsb.hike.ui.permission.MAPS_RECEIVE" />
     <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
@@ -415,7 +417,9 @@
             android:theme="@style/TranslucentBlack"
             android:launchMode="singleTask"
             android:configChanges="orientation|keyboardHidden|screenSize"
-            android:label="@string/app_name" >
+            android:label="@string/app_name"
+            android:taskAffinity=":voip"
+            android:showOnLockScreen="true" >
         </activity>
         
         <receiver android:name=".voip.IncomingCallListener">

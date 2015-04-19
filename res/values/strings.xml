@@ -555,7 +555,6 @@
     <string name="sent_you_friend_request">Sent you a friend request</string>
     <string name="num_people">%1$d people</string>
     <string name="add">Add</string>
-    <string name="no_updates">No updates from %1$s yet.</string>
     <string name="email_conversation">Email Conversation</string>
     <string name="me_key">me</string>
     <string name="group_name_email">"Group "</string>
@@ -1374,9 +1373,7 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="photo_gallery_choose_pic">Choose a photo</string>
     <string name="cropping_image">Cropping image..</string>
     <string name="compose_chat">New chat</string>
-    <string name="terms_conditions_hint">Terms and Conditions</string>
-    <string name="terms_conditions_title">T &amp; C</string>
-    <string name="home_search_empty_text">Your search for \'%1$s\' did not match any contacts.</string>
+	<string name="home_search_empty_text">Your search for \'%1$s\' did not match any contacts.</string>
     <string name="voip_phone_unsupported">Your phone is not supported.</string>
     <string name="voip_call_failed_frag_subheader">You can still contact %1$s with a</string>
     <string name="dismiss_upper_case">DISMISS</string>
@@ -1396,8 +1393,6 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="nux_expired">This activity has expired</string>
     <string name="nux_completed">You\'ve already completed this activity.</string>
     <string name="holi">Happy Holi</string>
-    <string name="terms_conditions_hint">Terms &amp; Conditions</string>
-	<string name="terms_conditions_title">Terms</string>
 	<string name="privacy_settings">PRIVACY SETTINGS</string>
     <string name="manage_list">MANAGE LISTS</string>
     <string name="hidden_mode">HIDDEN MODE</string>
@@ -1440,4 +1435,8 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="select_all_hike">Select all</string>
     <string name="unselect_all_hike">Unselect all</string>
     <string name="searching">Searching...</string>
+    <string name="pick_contact_zero">Please select minimum one contact</string>
+    <string name="choose_contact">Choose Contact(s)</string>
+    <string name="terms_conditions_hint">Terms and Conditions</string>
+    <string name="terms_conditions_title">T &amp; C</string>
 </resources>
