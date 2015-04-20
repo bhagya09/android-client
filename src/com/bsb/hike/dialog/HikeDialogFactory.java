@@ -1209,7 +1209,7 @@ public class HikeDialogFactory
 		animation.setFillAfter(true);
 		betaTag.startAnimation(animation);
 		dialog.show();
-		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.SHOWN_VOIP_INTRO_TIP, true);
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.SHOW_VOIP_FTUE_POPUP, true);
 		return dialog;
 	}
 }

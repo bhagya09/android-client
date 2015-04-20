@@ -58,6 +58,7 @@ import org.ocpsoft.prettytime.PrettyTime;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.accounts.AuthenticatorDescription;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningAppProcessInfo;
@@ -1150,26 +1151,6 @@ public class Utils
 		s.setType("text/plain");
 		s.putExtra(Intent.EXTRA_TEXT, message);
 		context.startActivity(s);
-	}
-
-	public static void startShareImageIntent(String mimeType, String imagePath, String text)
-	{
-		Intent s = new Intent(android.content.Intent.ACTION_SEND);
-		s.setType(mimeType);
-		s.putExtra(Intent.EXTRA_STREAM, Uri.parse(imagePath));
-		if (!TextUtils.isEmpty(text))
-		{
-			s.putExtra(Intent.EXTRA_TEXT, text);
-		}
-		s.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-		Logger.i("imageShare", "shared image with " + s.getExtras());
-		HikeMessengerApp.getInstance().getApplicationContext().startActivity(s);
-
-	}
-
-	public static void startShareImageIntent(String mimeType, String imagePath)
-	{
-		startShareImageIntent(mimeType, imagePath, null);
 	}
 
 	public static void bytesToFile(byte[] bytes, File dst)
@@ -2943,6 +2924,7 @@ public class Utils
 		return lastSeen;
 
 	}
+	
 
 	private static String getDayOfMonthSuffix(int dayOfMonth)
 	{
@@ -3169,6 +3151,7 @@ public class Utils
 		{
 			HttpClient httpclient = new DefaultHttpClient();
 			HttpPost httppost = new HttpPost(url);
+			AccountUtils.setNoTransform(httppost);
 			HttpResponse response = httpclient.execute(httppost);
 			HttpEntity entity = response.getEntity();
 			is = entity.getContent();
@@ -3215,7 +3198,12 @@ public class Utils
 	{
 		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
 	}
-
+	
+	public static boolean isIceCreamOrHigher()
+	{
+		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH;
+	}
+	
 	public static boolean isJELLY_BEAN_MR2OrHigher()
 	{
 		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2;
@@ -5373,6 +5361,27 @@ public class Utils
 		return networkType;
 	}
 
+	/* Returns the name of the device owner.
+	 * @param context
+	 * @return The device owner's name, or an empty string
+	 */
+	@SuppressLint("InlinedApi") 
+	public static String getOwnerName(Context context) {
+		String name = "";
+		
+        if (isIceCreamOrHigher() && context != null) {
+			Cursor c = context.getContentResolver().query(ContactsContract.Profile.CONTENT_URI, null, null, null, null);
+			if (c != null) {
+				if (c.moveToFirst()) {
+					name = c.getString(c.getColumnIndex(ContactsContract.Profile.DISPLAY_NAME));
+				}
+				c.close();				
+			}
+        }
+        
+		return name;
+	}
+
 	public static String conversationType(String msisdn)
 	{
 		if (isBot(msisdn))
@@ -5510,7 +5519,7 @@ public class Utils
 		{
 			ConnectivityManager cm = (ConnectivityManager) HikeMessengerApp.getInstance().getSystemService(Context.CONNECTIVITY_SERVICE);
 			
-			if(cm != null && cm.getActiveNetworkInfo() != null && (cm.getActiveNetworkInfo().isAvailable() || cm.getActiveNetworkInfo().isConnectedOrConnecting()))
+			if (cm != null && cm.getActiveNetworkInfo() != null && cm.getActiveNetworkInfo().isAvailable() && cm.getActiveNetworkInfo().isConnected())
 			{
 				info = cm.getActiveNetworkInfo();
 			}
@@ -5579,5 +5588,63 @@ public class Utils
 			fullFirstName = fullName;
 		}
 		return fullFirstName;
+	}
+	
+	public static boolean isDeviceRooted()
+	{
+		return RootUtil.isDeviceRooted();
+	}
+
+	private static class RootUtil
+	{
+		public static boolean isDeviceRooted()
+		{
+			return checkRootMethod1() || checkRootMethod2() || checkRootMethod3() || checkRootMethod4();
+		}
+
+		private static boolean checkRootMethod1()
+		{
+			String buildTags = android.os.Build.TAGS;
+			return buildTags != null && buildTags.contains("test-keys");
+		}
+
+		private static boolean checkRootMethod2()
+		{
+			return new File("/system/app/Superuser.apk").exists();
+		}
+
+		private static boolean checkRootMethod3()
+		{
+			String[] paths = { "/sbin/su", "/system/bin/su", "/system/xbin/su", "/data/local/xbin/su", "/data/local/bin/su", "/system/sd/xbin/su", "/system/bin/failsafe/su",
+					"/data/local/su" };
+			for (String path : paths)
+			{
+				if (new File(path).exists())
+					return true;
+			}
+			return false;
+		}
+
+		private static boolean checkRootMethod4()
+		{
+			Process process = null;
+			try
+			{
+				process = Runtime.getRuntime().exec(new String[] { "/system/xbin/which", "su" });
+				BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
+				if (in.readLine() != null)
+					return true;
+				return false;
+			}
+			catch (Throwable t)
+			{
+				return false;
+			}
+			finally
+			{
+				if (process != null)
+					process.destroy();
+			}
+		}
 	}
 }

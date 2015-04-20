@@ -776,18 +776,10 @@ public class IntentFactory
 	{
 		Intent intent = new Intent(context, VoIPActivity.class);
 		intent.putExtra(VoIPConstants.Extras.INCOMING_CALL, true);
-		intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-		if(HikeMessengerApp.currentState != HikeMessengerApp.CurrentState.RESUMED && HikeMessengerApp.currentState != HikeMessengerApp.CurrentState.OPENED)
-		{
-			intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-		}
-		else
-		{
-			intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-		}
+		intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
 		return intent;
 	}
-	
+
 	public static Intent getBrowserIntent(String url)
 	{
 		return new Intent(Intent.ACTION_VIEW,Uri.parse(url));
@@ -798,5 +790,25 @@ public class IntentFactory
 		Intent i = new Intent(HikeMessengerApp.getInstance().getApplicationContext(), PictureEditer.class);
 		i.putExtra(HikeConstants.HikePhotos.FILENAME, imageFileName);
 		return i;
+	}
+	
+	public static void startShareImageIntent(String mimeType, String imagePath)
+	{
+		startShareImageIntent(mimeType, imagePath, null);
+	}
+	
+	public static void startShareImageIntent(String mimeType, String imagePath, String text)
+	{
+		Intent s = new Intent(android.content.Intent.ACTION_SEND);
+		s.setType(mimeType);
+		s.putExtra(Intent.EXTRA_STREAM, Uri.parse(imagePath));
+		if (!TextUtils.isEmpty(text))
+		{
+			s.putExtra(Intent.EXTRA_TEXT, text);
+		}
+		s.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		Logger.i("imageShare", "shared image with " + s.getExtras());
+		HikeMessengerApp.getInstance().getApplicationContext().startActivity(s);
+
 	}
 }

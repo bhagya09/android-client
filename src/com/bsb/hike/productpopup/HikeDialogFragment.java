@@ -3,30 +3,21 @@ package com.bsb.hike.productpopup;
 import java.lang.ref.WeakReference;
 
 import android.app.Dialog;
-import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnAttachStateChangeListener;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
-import android.view.ViewTreeObserver.OnWindowAttachListener;
 import android.view.Window;
-import android.view.WindowManager;
 import android.webkit.WebView;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 
 import com.bsb.hike.R;
-import com.bsb.hike.platform.CustomWebView;
-import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.content.HikeWebClient;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -43,27 +34,40 @@ public class HikeDialogFragment extends DialogFragment
 
 	public static HikeDialogFragment getInstance(DialogPojo productContentModel)
 	{
-		HikeDialogFragment mmDiallog = new HikeDialogFragment(productContentModel);
+		HikeDialogFragment mmDiallog = new HikeDialogFragment();
+		Bundle args=new Bundle();
+		args.putParcelable(ProductPopupsConstants.BUNDLE_DATA, productContentModel);
+		mmDiallog.setArguments(args);
 		return mmDiallog;
 	}
-
-	private HikeDialogFragment(DialogPojo productContentModel)
-	{
-		mmModel = productContentModel;
-	}
+	
 
 	@Override
 	public void onConfigurationChanged(Configuration newConfig)
 	{
 		Logger.d("ProductPopup", "Dialog Orientation changed");
 		
-		mmWebView.loadDataWithBaseURL("", mmModel.getFormedData(), "text/html", "UTF-8", "");
+		if (loadingCard != null)
+		{
+			loadingCard.setVisibility(View.VISIBLE);
+		}
+		mmWebView.post((new Runnable()
+		{
+			
+			@Override
+			public void run()
+			{
+				mmWebView.loadDataWithBaseURL("", mmModel.getFormedData(), "text/html", "UTF-8", "");
+				
+			}
+		}));
 		super.onConfigurationChanged(newConfig);
 	}
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
+		mmModel=getArguments().getParcelable(ProductPopupsConstants.BUNDLE_DATA);
 		if (mmModel.isFullScreen())
 		{
 		setStyle(STYLE_NO_TITLE, android.R.style.Theme_Holo_Light);
@@ -127,7 +131,7 @@ public class HikeDialogFragment extends DialogFragment
 	public void onActivityCreated(Bundle arg0)
 	{
 		super.onActivityCreated(arg0);
-
+		getDialog().setCanceledOnTouchOutside(false);
 		mmBridge = new ProductJavaScriptBridge(mmWebView, new WeakReference<HikeDialogFragment>(this), mmModel.getData());
 
 		mmWebView.addJavascriptInterface(mmBridge, ProductPopupsConstants.POPUP_BRIDGE_NAME);

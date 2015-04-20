@@ -76,7 +76,7 @@ public class BroadcastChatThread extends OneToNChatThread
 
 		List<OverFlowMenuItem> list = new ArrayList<OverFlowMenuItem>();
 		list.add(new OverFlowMenuItem(getString(R.string.broadcast_profile), 0, 0, R.string.broadcast_profile));
-
+		list.add(new OverFlowMenuItem(getString(R.string.search), 0, 0, R.string.search));
 		for (OverFlowMenuItem item : super.getOverFlowMenuItems())
 		{
 			list.add(item);

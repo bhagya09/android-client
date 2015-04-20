@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.bsb.hike.platform.HikePlatformConstants;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -482,6 +483,11 @@ public class ToastListener implements Listener
 					if (Utils.isConversationMuted(message.getMsisdn()))
 					{
 						Logger.d(getClass().getSimpleName(), "Group has been muted");
+						continue;
+					}
+
+					if (message.getMessageType() == HikeConstants.MESSAGE_TYPE.WEB_CONTENT && message.webMetadata.getPushType().equals(HikePlatformConstants.NO_PUSH))
+					{
 						continue;
 					}
 					ParticipantInfoState participantInfoState = message.getParticipantInfoState();

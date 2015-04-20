@@ -749,7 +749,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 					RingtoneFetcherTask task = new RingtoneFetcherTask(HikePreferences.this, false, getApplicationContext());
 					blockingTaskType = BlockingTaskType.FETCH_RINGTONE;
 					setBlockingTask(task);
-					Utils.executeBoolResultAsyncTask(task);
+					Utils.executeAsyncTask(task);
 				}
 			}
 		}
@@ -1001,6 +1001,11 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 				try
 				{
 					int slectedPrivacyId = Integer.parseInt(newValue.toString());
+					if(slectedPrivacyId == -1)
+					{
+						Toast.makeText(getBaseContext(), R.string.ls_change_failed, Toast.LENGTH_SHORT).show();
+						return false;
+					}
 					String selectedPrivacyValue = "";
 					boolean isLSEnabled = true;
 					String ls_summary = null;
@@ -1068,7 +1073,10 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		String defValue = getApplicationContext().getString(R.string.privacy_my_contacts);
 		String selectedValue = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString(HikeConstants.LAST_SEEN_PREF_LIST, defValue);
 		String summaryTxt = null;
-		switch (HikeConstants.PrivacyOptions.values()[Integer.parseInt(selectedValue)]) {
+		int selIndex = Integer.parseInt(selectedValue);
+		if(selIndex == -1)
+			return null;
+		switch (HikeConstants.PrivacyOptions.values()[selIndex]) {
 			case NOBODY:
 				summaryTxt = getApplicationContext().getString(R.string.ls_nobody_summary);
 				break;
