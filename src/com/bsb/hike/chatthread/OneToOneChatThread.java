@@ -2517,6 +2517,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		switch (id)
 		{
 		case MULTI_SELECT_ACTION_MODE:
+		case SEARCH_ACTION_MODE:
 			setEnabledH20NextButton(false);
 			break;
 		}
@@ -2545,6 +2546,17 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	protected void destroyActionMode()
 	{
 		super.destroyActionMode();
+		
+		if (isH20TipShowing())
+		{
+			setEnabledH20NextButton(true);
+		}
+	}
+	
+	@Override
+	protected void destroySearchMode()
+	{
+		super.destroySearchMode();
 		
 		if (isH20TipShowing())
 		{
