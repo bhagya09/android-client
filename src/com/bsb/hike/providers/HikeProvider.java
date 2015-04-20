@@ -58,6 +58,12 @@ public class HikeProvider extends ContentProvider
 		sURIMatcher.addURI(AUTHORITY, BASE_PATH_NORMAL, NORMAL_INDEX);
 	}
 
+	/**
+	 * go to https://code.google.com/p/android/issues/detail?id=8727
+	 *
+	 * and search for @leach.it... if u are getting a npe while writing HikeMessengerApp.getInstance().getApplicationContext();
+	 * @return
+	 */
 	@Override
 	public boolean onCreate()
 	{
@@ -140,7 +146,7 @@ public class HikeProvider extends ContentProvider
 					if (selectionArgs != null && selectionArgs.length > 0)
 					{
 						// TODO:Improve this. Make it more generic
-						if (selectionArgs[0].equals(HikeConstants.SELF_HIKE_ID))
+						if (selectionArgs[0].equals(HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_UID_SETTING, null)))
 						{
 							// self avatar request
 							ContactInfo contactInfo = Utils.getUserContactInfo(HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.ACCOUNT_SETTINGS).getPref());

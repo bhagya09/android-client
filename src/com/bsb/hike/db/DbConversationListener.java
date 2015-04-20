@@ -24,30 +24,27 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
-import com.bsb.hike.analytics.HAManager;
-import com.bsb.hike.analytics.AnalyticsConstants.MessageType;
 import com.bsb.hike.analytics.AnalyticsConstants.MsgRelEventType;
+import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.MsgRelLogManager;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.ConvMessage;
-import com.bsb.hike.models.ConvMessage.OriginType;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.ConvMessage.State;
-import com.bsb.hike.models.Conversation;
 import com.bsb.hike.models.FtueContactInfo;
-import com.bsb.hike.models.MessageMetadata;
-import com.bsb.hike.models.MessagePrivateData;
 import com.bsb.hike.models.MultipleConvMessage;
 import com.bsb.hike.models.Protip;
 import com.bsb.hike.models.StatusMessage;
 import com.bsb.hike.models.StatusMessage.StatusMessageType;
+import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.HikeSDKMessageFilter;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.service.SmsMessageStatusReceiver;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.Utils;
 
 public class DbConversationListener implements Listener
@@ -118,8 +115,7 @@ public class DbConversationListener implements Listener
 			{
 				if (!convMessage.isFileTransferMessage())
 				{
-					//This inserts Msg into MessageTable and assigns msgID to convMessage
-					mConversationDb.addConversationMessages(convMessage);
+					mConversationDb.addConversationMessages(convMessage,true);
 				
 					// Adding Logs for Message Reliability
 					Logger.d(AnalyticsConstants.MSG_REL_TAG, "===========================================");
@@ -132,7 +128,7 @@ public class DbConversationListener implements Listener
 					}
 					if (convMessage.isBroadcastConversation())
 					{
-						Utils.addBroadcastRecipientConversations(convMessage);
+						OneToNConversationUtils.addBroadcastRecipientConversations(convMessage);
 					}
 				}
 				// Recency was already updated when the ft message was added.
@@ -154,7 +150,7 @@ public class DbConversationListener implements Listener
 					Logger.d(getClass().getSimpleName(), "Messages Id: " + convMessage.getMsgID());
 					sendNativeSMS(convMessage);
 				}
-				if (convMessage.isGroupChat())
+				if (convMessage.isOneToNChat())
 				{
 					convMessage = mConversationDb.showParticipantStatusMessage(convMessage.getMsisdn());
 					if(convMessage != null)
@@ -430,7 +426,7 @@ public class DbConversationListener implements Listener
 		{
 			
 				Conversation conv = (Conversation)object;
-				HikeConversationsDatabase.getInstance().updateConversationMetadata(conv.getMsisdn(), conv.getMetaData());
+				HikeConversationsDatabase.getInstance().updateConversationMetadata(conv.getMsisdn(), conv.getMetadata());
 			
 		}else if(HikePubSub.HIKE_SDK_MESSAGE.equals(type)){
 			handleHikeSdkMessage(object);
@@ -465,7 +461,19 @@ public class DbConversationListener implements Listener
             listOfMessages.add(convMessage);
 
             String[] toArray = parseJSON.has(HikePlatformConstants.RECEPIENT) ? parseJSON.getString(HikePlatformConstants.RECEPIENT).split(",") : new String[]{};
-            ArrayList<String> msisdns = ContactManager.getInstance().getMsisdnFromId(toArray);
+			ArrayList<String> platformIds = new ArrayList();
+			for (String id : toArray)
+			{
+				if (!TextUtils.isEmpty(id))
+				{
+					platformIds.add(id);
+				}
+			}
+			if ( platformIds.size() == 0)
+			{
+				return;
+			}
+            ArrayList<String> msisdns = ContactManager.getInstance().getMsisdnFromId(platformIds);
             ArrayList<ContactInfo> listOfContacts = new ArrayList<ContactInfo>();
             for (String msisdn:msisdns){
                 convMessage.platformMessageMetadata.addToThumbnailTable();

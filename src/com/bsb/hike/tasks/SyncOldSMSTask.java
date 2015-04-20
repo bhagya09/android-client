@@ -89,7 +89,7 @@ public class SyncOldSMSTask extends AsyncTask<Void, Void, SMSSyncState>
 					}
 				});
 
-				hCDb.addConversations(messages);
+				hCDb.addConversations(messages,true);
 				conversationsAdded = true;
 			}
 
