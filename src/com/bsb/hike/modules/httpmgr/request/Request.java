@@ -37,7 +37,9 @@ public abstract class Request<T> implements IRequestFacade
 
 	public static final short REQUEST_TYPE_SHORT = 0x1;
 
-	private String id;
+	private String defaultId = "";
+	
+	private String md5Id;
 
 	private String analyticsParam;
 	
@@ -75,7 +77,7 @@ public abstract class Request<T> implements IRequestFacade
 
 	protected Request(Init<?> builder)
 	{
-		this.id = builder.id;
+		this.defaultId = builder.id;
 		this.analyticsParam = builder.analyticsParam;
 		this.method = builder.method;
 		this.url = builder.url;
@@ -112,10 +114,8 @@ public abstract class Request<T> implements IRequestFacade
 			headers = new ArrayList<Header>();
 		}
 
-		if (TextUtils.isEmpty(id))
-		{
-			id = generateId();
-		}
+		md5Id = generateId();
+		
 		if (requestInteceptors == null)
 		{
 			requestInteceptors = new Pipeline<IRequestInterceptor>();
@@ -130,6 +130,8 @@ public abstract class Request<T> implements IRequestFacade
 	public void finish()
 	{
 		this.method = null;
+		this.defaultId = null;
+		this.md5Id = null;
 		this.url = null;
 		this.headers = null;
 		this.body = null;
@@ -151,7 +153,7 @@ public abstract class Request<T> implements IRequestFacade
 	 */
 	public String getId()
 	{
-		return id;
+		return md5Id;
 	}
 
 	/**
@@ -311,6 +313,11 @@ public abstract class Request<T> implements IRequestFacade
 		return future;
 	}
 
+	public void setId(String id)
+	{
+		this.md5Id = id;
+	}
+	
 	/**
 	 * Sets the headers of the request
 	 * 
@@ -732,7 +739,7 @@ public abstract class Request<T> implements IRequestFacade
 
 	public String generateId()
 	{
-		String input = url;
+		String input = url + defaultId;
 		Collections.sort(headers);
 		for (Header header : headers)
 		{

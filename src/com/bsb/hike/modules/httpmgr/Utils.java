@@ -137,13 +137,13 @@ public class Utils
 	{
 		if (null != request)
 		{
+			RequestProcessor.removeRequest(request);
 			request.finish();
 		}
 		if (null != response)
 		{
 			response.finish();
 		}
-		RequestProcessor.removeRequest(request);
 	}
 	
 	public static String calculateMD5hash(String input)
