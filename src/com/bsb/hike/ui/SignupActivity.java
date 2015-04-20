@@ -501,6 +501,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 				
 				JSONObject sessionDataObject = HAManager.getInstance().recordAndReturnSessionStart();
 				Utils.sendSessionMQTTPacket(SignupActivity.this, HikeConstants.FOREGROUND, sessionDataObject);
+				Utils.appStateChanged(getApplicationContext(), false, false, false, true, false);
 			}
 			else if (mCurrentState != null && mCurrentState.value != null && mCurrentState.value.equals(HikeConstants.CHANGE_NUMBER))
 			{
@@ -979,6 +980,20 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		}
 
 		initializeViews(nameLayout);
+		
+		// Auto fill the name, if possible
+		String ownerName = Utils.getOwnerName(SignupActivity.this);
+		if (!TextUtils.isEmpty(ownerName) && enterEditText != null) {
+			enterEditText.setText(ownerName);
+			try
+			{
+				enterEditText.setSelection(ownerName.length());
+			}
+			catch (IndexOutOfBoundsException e)
+			{
+				Logger.w(getClass().getSimpleName(), "IOOB thrown while setting the name's textbox selection");
+			}
+		}
 
 		/*Session session = Session.getActiveSession();
 		if (session == null)

@@ -5,18 +5,32 @@
     android:background="#ffffffff"
     android:orientation="vertical" >
 
-    <com.bsb.hike.view.CustomFontButton
-        android:id="@+id/but_skip"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="0dp"
+        android:id="@+id/ll_skip"
         android:layout_gravity="right"
         android:layout_weight=".12"
-        android:background="#00000000"
         android:minHeight="20dp"
-        android:padding="16dp"
-        android:text="@string/nux_invitefrnds_skip"
-        android:textColor="@color/skip_button_button"
-        android:textSize="14sp" />
+        android:orientation="horizontal" >
+
+        <View 
+           	android:layout_width="1dp"
+           	android:layout_height="match_parent"
+			android:layout_marginTop="5dp"
+			android:layout_marginBottom="15dp"
+           	android:background="#e6e6e6"/>
+        
+        <com.bsb.hike.view.CustomFontButton
+            android:id="@+id/but_skip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="#00000000"
+            android:padding="16dp"
+            android:text="@string/nux_invitefrnds_skip"
+            android:textColor="@color/skip_button_button"
+            android:textSize="14sp" />
+    </LinearLayout>
 
     <com.bsb.hike.view.CustomFontTextView
         android:id="@+id/tv_reward_main"

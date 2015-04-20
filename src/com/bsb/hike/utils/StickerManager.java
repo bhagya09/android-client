@@ -207,6 +207,8 @@ public class StickerManager
 
 	public static final String STICKER_FOLDER_NAMES_UPGRADE_DONE = "upgradeForStickerFolderNames";
 	
+	public static final String STICKER_MESSAGE_TAG = "Sticker";
+	
 	public FilenameFilter stickerFileFilter = new FilenameFilter()
 	{
 		@Override

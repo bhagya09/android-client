@@ -255,6 +255,7 @@ public class AnalyticsSender
 				postCall.addHeader("Content-Name", fileName);
 				postCall.addHeader("Content-Encoding", "gzip");
 				postCall.addHeader("Cookie", "user=" + token + ";UID=" + uId);
+				AccountUtils.setNoTransform(postCall);
 				postCall.setEntity(new FileEntity(new File(absolutePath), "text/plain"));
 
 				response = httpClient.execute(postCall);			
