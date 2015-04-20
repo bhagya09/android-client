@@ -1147,8 +1147,11 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		{
 			messageSearchManager = new SearchManager();
 		}
-		Logger.d("search","call to initialize:" + messages.size());
 		messageSearchManager.init(messages);
+		/**
+		 * Hiding any open tip
+		 */
+		mTips.hideTip();
 	}
 	
 	private void setUpSearchViews()
