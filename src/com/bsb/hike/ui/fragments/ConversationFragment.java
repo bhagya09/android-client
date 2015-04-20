@@ -2897,6 +2897,10 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		{
 			//HACK, this is done because, convInfo object can have a different reference (if coming from chat thread)
 			ConvInfo conv = mConversationsByMSISDN.get(((ConvInfo)object).getMsisdn()); 
+			if(conv == null)
+			{
+				return;
+			}
 			if (HikePubSub.STEALTH_CONVERSATION_MARKED.equals(type))
 			{
 				stealthConversations.add(conv);
