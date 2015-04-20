@@ -14,6 +14,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.app.NotificationManager;
 import android.app.ProgressDialog;
@@ -673,6 +674,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	{
 		LockPattern.onLockActivityResult(activity, requestCode, resultCode, data);
 		Logger.i(TAG, "on activity result " + requestCode + " result " + resultCode);
+		if (resultCode == Activity.RESULT_CANCELED)
+		{
+			return;
+		}
 		switch (requestCode)
 		{
 		case AttachmentPicker.CAMERA:
@@ -4159,6 +4164,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		
 		if (themePicker != null && themePicker.isShowing())
 		{
+			themePicker.setOrientation(newConfig.orientation);
 			themePicker.refreshViews(true);
 		}
 		
@@ -4189,6 +4195,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		case MULTI_SELECT_ACTION_MODE:
 			mActionMode.reInflateActionMode();
 			hideShowActionModeMenus();
+			mActionMode.updateTitle(activity.getString(R.string.selected_count, mAdapter.getSelectedCount()));
 			break;
 			
 		case SEARCH_ACTION_MODE:

@@ -757,7 +757,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		adapter.removeFilter();
 		
 //		We do not add 'Select all' button at the bottom for Group Chats
-		if (!(this.composeMode == CREATE_GROUP_MODE))
+		if (this.composeMode == CREATE_BROADCAST_MODE || this.composeMode == MULTIPLE_FWD)
 		{
 			setupForSelectAll();
 		}
