@@ -87,7 +87,7 @@ public class ShareablePopupLayout
 		 */
 		if (prevVisibleView != popupView || !mKeyboardPopupLayout.isShowing())
 		{
-			return showPopup(popup, screenOrientation);
+			return showPopup(popupView);
 		}
 		
 		else
@@ -121,6 +121,15 @@ public class ShareablePopupLayout
 			return false;
 		}
 		
+		addPopupView(popupView);
+
+		swapViews(popupView);
+
+		return showKeyboardPopup();
+	}
+	
+	private boolean showPopup(View popupView)
+	{
 		addPopupView(popupView);
 
 		swapViews(popupView);

@@ -1,8 +1,6 @@
 package com.bsb.hike.utils;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -219,14 +217,37 @@ public class IntentFactory
 		return intent;
 	}
 
-	public static void createNewBroadcastActivityIntent(Context appContext, List<String> selectedContactList)
+	public static Intent createNewBroadcastActivityIntent(Context appContext)
 	{
 		Intent intent = new Intent(appContext.getApplicationContext(), CreateNewGroupOrBroadcastActivity.class);
-		intent.putStringArrayListExtra(HikeConstants.Extras.BROADCAST_RECIPIENTS, (ArrayList<String>) selectedContactList);
 		intent.putExtra(HikeConstants.IS_BROADCAST, true);
-		appContext.startActivity(intent);
+		return intent;
 	}
 
+	public static Intent openComposeChatIntentForBroadcast(Context appContext, String convId, String convName)
+	{
+		Intent intent = new Intent(appContext.getApplicationContext(), ComposeChatActivity.class);
+		Bundle bundle = new Bundle();
+		bundle.putString(HikeConstants.Extras.ONETON_CONVERSATION_NAME, convName);
+		bundle.putString(HikeConstants.Extras.CONVERSATION_ID, convId);
+		bundle.putBoolean(HikeConstants.Extras.CREATE_BROADCAST, true);
+		intent.putExtra(HikeConstants.Extras.BROADCAST_CREATE_BUNDLE, bundle);
+		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		return intent;
+	}
+	
+	public static Intent openComposeChatIntentForGroup(Context appContext, String convId, String convName)
+	{
+		Intent intent = new Intent(appContext.getApplicationContext(), ComposeChatActivity.class);
+		Bundle bundle = new Bundle();
+		bundle.putString(HikeConstants.Extras.ONETON_CONVERSATION_NAME, convName);
+		bundle.putString(HikeConstants.Extras.CONVERSATION_ID, convId);
+		bundle.putBoolean(HikeConstants.Extras.CREATE_GROUP, true);
+		intent.putExtra(HikeConstants.Extras.GROUP_CREATE_BUNDLE, bundle);
+		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		return intent;
+	}
+	
 	public static Intent getForwardStickerIntent(Context context, String stickerId, String categoryId)
 	{
 		Utils.sendUILogEvent(HikeConstants.LogEvent.FORWARD_MSG);
@@ -265,42 +286,6 @@ public class IntentFactory
 		intent.putExtra(HikeConstants.Extras.CREATE_BROADCAST, true);
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		appContext.startActivity(intent);
-	}
-
-	public static void onBackPressedCreateNewBroadcast(Context appContext, ArrayList<String> broadcastRecipients)
-	{
-		Intent intent = new Intent(appContext.getApplicationContext(), ComposeChatActivity.class);
-		intent.putStringArrayListExtra(HikeConstants.Extras.BROADCAST_RECIPIENTS, broadcastRecipients);
-		intent.putExtra(HikeConstants.Extras.COMPOSE_MODE, HikeConstants.Extras.CREATE_BROADCAST_MODE);
-		intent.putExtra(HikeConstants.Extras.CREATE_BROADCAST, true);
-		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-		appContext.startActivity(intent);
-	}
-	
-	public static Intent getImageCaptureIntent(Context context)
-	{
-		/*
-		 * Storing images in hike media folder of the camera
-		 */
-		File selectedDir = new File(Utils.getFileParent(HikeFileType.IMAGE, false));
-		if (!selectedDir.exists())
-		{
-			if (!selectedDir.mkdirs())
-			{
-				Logger.d("ImageCapture", "failed to create directory");
-				return null;
-			}
-		}
-		String fileName = HikeConstants.CAM_IMG_PREFIX + Utils.getOriginalFile(HikeFileType.IMAGE, null);
-		File selectedFile = new File(selectedDir.getPath() + File.separator + fileName);
-		
-		Intent pickIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-		pickIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(selectedFile));
-		/*
-		 * For images, save the file path as a preferences since in some devices the reference to the file becomes null.
-		 */
-		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.FILE_PATH, selectedFile.getAbsolutePath());
-		return pickIntent;
 	}
 
 	public static Intent getVideoRecordingIntent()
@@ -677,15 +662,7 @@ public class IntentFactory
 	{
 		Intent intent = new Intent(context, VoIPActivity.class);
 		intent.putExtra(VoIPConstants.Extras.INCOMING_CALL, true);
-		intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-		if (HikeMessengerApp.currentState != HikeMessengerApp.CurrentState.RESUMED && HikeMessengerApp.currentState != HikeMessengerApp.CurrentState.OPENED)
-		{
-			intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-		}
-		else
-		{
-			intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-		}
+		intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
 		return intent;
 	}
 
@@ -741,4 +718,24 @@ public class IntentFactory
 		return intent.resolveActivity(packageManager)!=null;
 	}
 
+	
+	public static void startShareImageIntent(String mimeType, String imagePath)
+	{
+		startShareImageIntent(mimeType, imagePath, null);
+	}
+	
+	public static void startShareImageIntent(String mimeType, String imagePath, String text)
+	{
+		Intent s = new Intent(android.content.Intent.ACTION_SEND);
+		s.setType(mimeType);
+		s.putExtra(Intent.EXTRA_STREAM, Uri.parse(imagePath));
+		if (!TextUtils.isEmpty(text))
+		{
+			s.putExtra(Intent.EXTRA_TEXT, text);
+		}
+		s.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		Logger.i("imageShare", "shared image with " + s.getExtras());
+		HikeMessengerApp.getInstance().getApplicationContext().startActivity(s);
+
+	}
 }

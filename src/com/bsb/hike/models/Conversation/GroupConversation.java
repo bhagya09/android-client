@@ -33,6 +33,7 @@ public class GroupConversation extends OneToNConversation
 		{
 			object.put(HikeConstants.TYPE, type);
 			object.put(HikeConstants.TO, getMsisdn());
+			object.put(HikeConstants.GROUP_CHAT_TIMESTAMP, creationTime);
 			if (type.equals(HikeConstants.MqttMessageTypes.GROUP_CHAT_JOIN))
 			{
 				JSONArray array = new JSONArray();

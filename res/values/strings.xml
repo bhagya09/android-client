@@ -806,7 +806,6 @@
     <string name="sent_txt">Sent</string>
     <string name="delivered_txt">Delivered</string>
     <string name="read_txt">Read</string>
-    <string name="no_results">No results</string>
     <string name="no_hike_contacts">No hike contacts</string>
     <string name="num_unread_messages">%1$s Unread Messages</string>
     <string name="one_unread_message">1 Unread Message</string>
@@ -1250,7 +1249,6 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="pack_rank">%1$d.</string>
     <string name="error_pick_location">Error while picking location</string>
     <string name="zero_sms_hint">0 Free SMS left...</string>
-    <string name="some_error">Some error occured!</string>
     <string name="pin_self">You</string>
     <string name="hike_upgrade_string">Making hike faster and better for you</string>
     <string name="some_error">Some error occured!</string>
@@ -1395,11 +1393,8 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="nux_expired">This activity has expired</string>
     <string name="nux_completed">You\'ve already completed this activity.</string>
     <string name="holi">Happy Holi</string>
-    <string name="terms_conditions_hint">Terms &amp; Conditions</string>
-	<string name="terms_conditions_title">Terms</string>
 	<string name="privacy_settings">PRIVACY SETTINGS</string>
     <string name="manage_list">MANAGE LISTS</string>
-    <string name="hidden_mode">HIDDEN MODE</string>
     <string name="privacy_everyone_key">Everyone</string>
     <string name="privacy_my_contacts_key">My Contacts</string>
     <string name="privacy_favorites_key">Favorites</string>
@@ -1439,4 +1434,10 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="select_all_hike">Select all</string>
     <string name="unselect_all_hike">Unselect all</string>
     <string name="searching">Searching...</string>
+    <string name="pick_contact_zero">Please select minimum one contact</string>
+    <string name="choose_contact">Choose Contact(s)</string>
+    <string name="terms_conditions_hint">Terms and Conditions</string>
+    <string name="terms_conditions_title">T &amp; C</string>
+    <string name="group_creation">Created on </string>
+    <string name="ls_change_failed">Last Seen update failed!</string>
 </resources>

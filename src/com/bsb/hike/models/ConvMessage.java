@@ -17,15 +17,15 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.db.DBConstants;
-import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.models.ContactInfoData.DataType;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.StatusMessage.StatusMessageType;
-import com.bsb.hike.models.ContactInfoData.DataType;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.GroupConversation;
 import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.platform.ContentLove;
+import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformMessageMetadata;
 import com.bsb.hike.platform.WebMetadata;
 import com.bsb.hike.utils.Logger;
@@ -498,7 +498,7 @@ public class ConvMessage implements Searchable
 			this.mMessage = OneToNConversationUtils.getParticipantAddedMessage(this, context, highlight);
 			break;
 		case PARTICIPANT_LEFT:
-			this.mMessage = OneToNConversationUtils.getParticipantRemovedMessage(conversation.getMsisdn(), context, ((GroupConversation) conversation).getConvParticipantFirstNameAndSurname(metadata.getMsisdn()));
+			this.mMessage = OneToNConversationUtils.getParticipantRemovedMessage(conversation.getMsisdn(), context, ((OneToNConversation) conversation).getConvParticipantFirstNameAndSurname(metadata.getMsisdn()));
 			break;
 		case GROUP_END:
 			this.mMessage = OneToNConversationUtils.getConversationEndedMessage(conversation.getMsisdn(), context);
@@ -510,9 +510,9 @@ public class ConvMessage implements Searchable
 			String fName = null;
 			if (conversation != null)
 			{
-				if (conversation instanceof GroupConversation)
+				if (conversation instanceof OneToNConversation)
 				{
-					fName = ((GroupConversation) conversation).getConvParticipantFirstNameAndSurname(metadata.getMsisdn());
+					fName = ((OneToNConversation) conversation).getConvParticipantFirstNameAndSurname(metadata.getMsisdn());
 				}
 				else
 				{
@@ -545,7 +545,7 @@ public class ConvMessage implements Searchable
 			String msisdn = metadata.getMsisdn();
 			String userMsisdn = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeMessengerApp.MSISDN_SETTING, "");
 
-			String participantName = userMsisdn.equals(msisdn) ? context.getString(R.string.you) : ((GroupConversation) conversation).getConvParticipantFirstNameAndSurname(msisdn);
+			String participantName = userMsisdn.equals(msisdn) ? context.getString(R.string.you) : ((OneToNConversation) conversation).getConvParticipantFirstNameAndSurname(msisdn);
 			
 			if (participantInfoState == ParticipantInfoState.CHANGED_GROUP_NAME)
 			{
@@ -1078,7 +1078,7 @@ public class ConvMessage implements Searchable
 	{
 		if (getMessageType() == HikeConstants.MESSAGE_TYPE.WEB_CONTENT && webMetadata != null)
 		{
-			return webMetadata.isSilent();
+			return webMetadata.getPushType().equals(HikePlatformConstants.SILENT_PUSH);
 		}
 		// Do not play sound in case of bg change, status updates
 		if ((getParticipantInfoState() == ParticipantInfoState.CHAT_BACKGROUND) || (getParticipantInfoState() == ParticipantInfoState.PARTICIPANT_JOINED)
@@ -1161,6 +1161,11 @@ public class ConvMessage implements Searchable
 			{
 				return true;
 			}
+		}
+		// No search on system updates/messages.
+		else if (getParticipantInfoState() != ParticipantInfoState.NO_INFO)
+		{
+			return false;
 		}
 		// No search on sticker messages.
 		// Atleast till theres no tagging.

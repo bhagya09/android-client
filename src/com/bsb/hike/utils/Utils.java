@@ -1168,26 +1168,6 @@ public class Utils
 		context.startActivity(s);
 	}
 
-	public static void startShareImageIntent(String mimeType, String imagePath, String text)
-	{
-		Intent s = new Intent(android.content.Intent.ACTION_SEND);
-		s.setType(mimeType);
-		s.putExtra(Intent.EXTRA_STREAM, Uri.parse(imagePath));
-		if (!TextUtils.isEmpty(text))
-		{
-			s.putExtra(Intent.EXTRA_TEXT, text);
-		}
-		s.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-		Logger.i("imageShare", "shared image with " + s.getExtras());
-		HikeMessengerApp.getInstance().getApplicationContext().startActivity(s);
-
-	}
-
-	public static void startShareImageIntent(String mimeType, String imagePath)
-	{
-		startShareImageIntent(mimeType, imagePath, null);
-	}
-
 	public static void bytesToFile(byte[] bytes, File dst)
 	{
 		FileOutputStream out = null;
@@ -2960,6 +2940,7 @@ public class Utils
 		return lastSeen;
 
 	}
+	
 
 	private static String getDayOfMonthSuffix(int dayOfMonth)
 	{
@@ -5554,7 +5535,7 @@ public class Utils
 		{
 			ConnectivityManager cm = (ConnectivityManager) HikeMessengerApp.getInstance().getSystemService(Context.CONNECTIVITY_SERVICE);
 			
-			if(cm != null && cm.getActiveNetworkInfo() != null && (cm.getActiveNetworkInfo().isAvailable() || cm.getActiveNetworkInfo().isConnectedOrConnecting()))
+			if (cm != null && cm.getActiveNetworkInfo() != null && cm.getActiveNetworkInfo().isAvailable() && cm.getActiveNetworkInfo().isConnected())
 			{
 				info = cm.getActiveNetworkInfo();
 			}
@@ -5624,7 +5605,7 @@ public class Utils
 		}
 		return fullFirstName;
 	}
-
+	
 	public static int getLayoutIdFromName(String layoutName)
 	{
 		if (!TextUtils.isEmpty(layoutName))
@@ -5636,6 +5617,64 @@ public class Utils
 		else
 		{
 			return -1;
+		}
+	}
+
+	public static boolean isDeviceRooted()
+	{
+		return RootUtil.isDeviceRooted();
+	}
+
+	private static class RootUtil
+	{
+		public static boolean isDeviceRooted()
+		{
+			return checkRootMethod1() || checkRootMethod2() || checkRootMethod3() || checkRootMethod4();
+		}
+
+		private static boolean checkRootMethod1()
+		{
+			String buildTags = android.os.Build.TAGS;
+			return buildTags != null && buildTags.contains("test-keys");
+		}
+
+		private static boolean checkRootMethod2()
+		{
+			return new File("/system/app/Superuser.apk").exists();
+		}
+
+		private static boolean checkRootMethod3()
+		{
+			String[] paths = { "/sbin/su", "/system/bin/su", "/system/xbin/su", "/data/local/xbin/su", "/data/local/bin/su", "/system/sd/xbin/su", "/system/bin/failsafe/su",
+					"/data/local/su" };
+			for (String path : paths)
+			{
+				if (new File(path).exists())
+					return true;
+			}
+			return false;
+		}
+
+		private static boolean checkRootMethod4()
+		{
+			Process process = null;
+			try
+			{
+				process = Runtime.getRuntime().exec(new String[] { "/system/xbin/which", "su" });
+				BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
+				if (in.readLine() != null)
+					return true;
+				return false;
+			}
+			catch (Throwable t)
+			{
+				return false;
+			}
+			finally
+			{
+				if (process != null)
+					process.destroy();
+			}
 		}
 	}
 }

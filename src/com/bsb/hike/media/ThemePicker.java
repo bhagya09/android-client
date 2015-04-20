@@ -299,4 +299,9 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 			sherlockFragmentActivity.startActionMode(actionmodeCallback);
 		}
 	}
+	
+	public void setOrientation(int orientation)
+	{
+		this.currentConfig = orientation;
+	}
 }

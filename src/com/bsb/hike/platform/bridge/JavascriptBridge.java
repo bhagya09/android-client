@@ -228,7 +228,7 @@ public abstract class JavascriptBridge
 				shB.compress(Bitmap.CompressFormat.JPEG, 100, fos);
 				fos.flush();
 				Logger.i(tag, "share webview card " + cardShareImageFile.getAbsolutePath());
-				Utils.startShareImageIntent("image/jpeg", "file://" + cardShareImageFile.getAbsolutePath(),
+				IntentFactory.startShareImageIntent("image/jpeg", "file://" + cardShareImageFile.getAbsolutePath(),
 						TextUtils.isEmpty(caption) ? mContext.getString(com.bsb.hike.R.string.cardShareCaption) : caption);
 			}
 

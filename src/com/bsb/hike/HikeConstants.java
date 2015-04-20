@@ -44,6 +44,8 @@ public class HikeConstants
 	public static final String FROM = "f";
 
 	public static final String SUB_TYPE = "st";
+	
+	public static final String GROUP_CHAT_TIMESTAMP = "gts";	
 
 	public static final String HIKE_MESSAGE = "hm";
 
@@ -604,6 +606,8 @@ public class HikeConstants
 	
 	public static final String NEW_BROADCAST = "new_broadcast";
 
+	public static final String BROADCAST_ID_PREFIX = "b:";
+	
 	public static final String AVATAR = "avatar";
 
 	/* Constant used to name the preference file which saves the drafts */
@@ -702,6 +706,8 @@ public class HikeConstants
 	public static final int SHARE_CONTACT_CODE = 1193;
 
 	public static final int SHARE_FILE_CODE = 1194;
+	
+	public static final int PLATFORM_REQUEST = 1195; 
 
 	public static final int FACEBOOK_REQUEST_CODE = 64206;
 
@@ -1039,8 +1045,6 @@ public class HikeConstants
 
 	public static final String DRAWABLE = "drawable";
 
-	public static final String SELF_HIKE_ID = "-1";
-
 	public static final String VOIP_CALL_DURATION = "vcd";
 
 	public static final String VOIP_CALL_INITIATOR = "vci";
@@ -1055,6 +1059,8 @@ public class HikeConstants
 
 	public static final String VOIP_CALL_RATE_POPUP_SHOW = "vrmcs";
 
+	public static final String VOIP_FTUE_POPUP = "voip_popup";
+
 	public static final String VOIP_CALL_RATE_POPUP_FREQ = "vrmcf";
 
 	public static final String VOIP_RELAY_SERVER_PORT = "rsport";
@@ -1064,6 +1070,8 @@ public class HikeConstants
 	public static final String VOIP_QUALITY_TEST_SIMULATED_CALL_DURATION = "scd";
 
 	public static final String VOIP_AEC_ENABLED = "aec";
+
+	public static final String VOIP_NETWORK_TEST_ENABLED = "vnt";
 
 	public static final String VOIP_AEC_CPU_NR = "cpunr";
 
@@ -1401,9 +1409,9 @@ public class HikeConstants
 
 		public static final String IS_FTUT_ADD_FRIEND_POPUP_SHOWING = "isFtueAddFriendPopup";
 
-		public static final String GROUP_NAME = "groupName";
+		public static final String ONETON_CONVERSATION_NAME = "groupName";
 
-		public static final String GROUP_BROADCAST_ID = "groupOrBroadcastId";
+		public static final String CONVERSATION_ID = "groupOrBroadcastId";
 
 		public static final String SHOWING_INVALID_PIN_ERROR = "showingInvalidPinError";
 
@@ -1483,6 +1491,9 @@ public class HikeConstants
 		
 		public static final String CAMERA_RETURN_FILE = "capturedReturnFile";
 		
+		public static final String BROADCAST_CREATE_BUNDLE = "broadcastCreationBundle";
+		
+		public static final String GROUP_CREATE_BUNDLE = "groupCreationBundle";
 	}
 
 	public static final class LogEvent
@@ -1925,6 +1936,10 @@ public class HikeConstants
 
 		public static final String VOIP_CALL_REJECT = "cr";
 
+		public static final String VOIP_CONNECTION_ESTABLISHED = "coest";
+
+		public static final String VOIP_PARTNER_ANSWER_TIMEOUT = "cpat";
+
 		public static final String VOIP_CALL_SPEAKER = "spk";
 
 		public static final String VOIP_CALL_MUTE = "mut";
@@ -1938,6 +1953,8 @@ public class HikeConstants
 		public static final String VOIP_NATIVE_CALL_INTERRUPT = "tci";
 
 		public static final String VOIP_CALL_RELAY = "cpur";
+
+		public static final String VOIP_HANDSHAKE_COMPLETE = "vh";
 
 		// GCM Events
 		public static final String GCM_EXPIRED = "gcmexp";
@@ -2015,6 +2032,8 @@ public class HikeConstants
 		// Home search events
 
 		public static final String HOME_SEARCH = "hmSrch";
+		
+		public static final String DEVICE_ROOT="root";
 
 		public static final String ADDRESSBOOK_UPLOAD = "addressbookUpload";
 
@@ -2045,7 +2064,7 @@ public class HikeConstants
 		public static final String ICON = "ic";
 
 		public static final String INVITE_INFO = "ii";
-
+		
 		public static final String GROUP_CHAT_JOIN = "gcj";
 
 		public static final String GROUP_CHAT_LEAVE = "gcl";
@@ -2156,6 +2175,14 @@ public class HikeConstants
 		public static final String PACKET_ECHO = "pecho";
 
 		public static final String VOIP_SOCKET_INFO = "ve";
+
+		public static final String VOIP_CALL_REQUEST = "vcr1";
+
+		public static final String VOIP_CALL_REQUEST_RESPONSE = "vcr2";
+
+		public static final String VOIP_CALL_RESPONSE_RESPONSE = "vcr3";
+
+		public static final String VOIP_CALL_CANCELLED = "vcrj";
 
 		/**
 		 * VoIP data packet with QoS 0. This packet will either be delivered immediately or never.
@@ -2468,6 +2495,8 @@ public class HikeConstants
 	public static final String REWARDS_URL = "rewards_url";
 
 	public static final String CALL_LOG_ANALYTICS = "cl";
+	
+	public static final String ADVERTSING_ID_ANALYTICS = "adv";
 
 	public static final String APP_LOG_ANALYTICS = "al";
 
@@ -2623,12 +2652,20 @@ public class HikeConstants
 	public static final String BLACKLIST_DOMAIN_ANALYTICS = "blacklist";
 
 	public static final String HIGHLIGHT_NLS_PERF = "nlsHighlightPerf";
+	
+	public static final String FLUSH = "flush";
+
+	public static final String FORCE_USER="fu";
+	
+	public static final String IS_ROOT="is_root";
 
 	public static final String PROB_NUM_TEXT_MSG = "p_txt";
 
 	public static final String PROB_NUM_STICKER_MSG = "p_stk";
 
 	public static final String PROB_NUM_MULTIMEDIA_MSG = "p_mul";
+	
+	public static final String PROB_NUM_HTTP_ANALYTICS = "p_http";
 
 	public static final String MSG_REL = "rel_m";
 	
@@ -2643,4 +2680,6 @@ public class HikeConstants
 	public static final String ENABLE_EXCEPTION_ANALYTIS = "enableExceptionAnalytics";
 
 	public static final String PAYLOAD = "payload";
+	
+	public static final String HIKE_CONTACT_PICKER_RESULT = "contact_pick_result";
 }
