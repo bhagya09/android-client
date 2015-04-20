@@ -6,15 +6,18 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.v8.renderscript.Allocation;
 import android.support.v8.renderscript.Element;
+import android.support.v8.renderscript.RSRuntimeException;
 import android.support.v8.renderscript.RenderScript;
 import android.support.v8.renderscript.ScriptIntrinsicBlur;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.photos.HikePhotosUtils.FilterTools.FilterType;
 import com.bsb.hike.photos.views.VignetteUtils;
+import com.bsb.hike.utils.Logger;
 
 /**
  * 
@@ -511,7 +514,15 @@ public final class HikeEffectsFactory
 				mScript.set_postMatrix(postMatrix);
 			}
 
-			applyEffect(effect);
+			try
+			{
+				applyEffect(effect);
+			}
+			catch (RSRuntimeException e)
+			{
+				Logger.e("Dimension Mismatch", "occured while applying : " + effect.toString());
+				Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), "Dimension Mismatch", Toast.LENGTH_LONG).show();
+			}
 
 			if (!error)
 			{
