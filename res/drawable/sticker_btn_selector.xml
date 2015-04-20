@@ -3,7 +3,6 @@
 
     <item android:drawable="@drawable/ic_sticker_pressed" android:state_pressed="true"/>
     <item android:drawable="@drawable/ic_sticker_pressed" android:state_selected="true"/>
-    <item android:drawable="@drawable/ic_sticker" android:state_focused="false"></item>
     <item android:drawable="@drawable/ic_sticker"/>
 
 </selector>

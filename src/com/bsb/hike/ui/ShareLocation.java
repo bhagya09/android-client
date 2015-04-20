@@ -43,7 +43,10 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
-import com.bsb.hike.utils.CustomAlertDialog;
+import com.bsb.hike.dialog.CustomAlertDialog;
+import com.bsb.hike.dialog.HikeDialog;
+import com.bsb.hike.dialog.HikeDialogFactory;
+import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -710,35 +713,30 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 		}
 
 		int messageId = currentLocationDevice == GPS_DISABLED ? R.string.gps_disabled : R.string.location_disabled;
-
-		final CustomAlertDialog alert = new CustomAlertDialog(this);
-		alert.setHeader(R.string.location);
-		alert.setBody(messageId);
-		View.OnClickListener dialogOkClickListener = new View.OnClickListener()
+		
+		alert = HikeDialogFactory.showDialog(this, HikeDialogFactory.GPS_DIALOG, new HikeDialogListener()
 		{
 
 			@Override
-			public void onClick(View v)
+			public void positiveClicked(HikeDialog hikeDialog)
 			{
 				Intent callGPSSettingIntent = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
 				startActivity(callGPSSettingIntent);
-				alert.dismiss();
+				hikeDialog.dismiss();
 			}
-		};
-		View.OnClickListener dialogCancelClickListener = new View.OnClickListener()
-		{
 
 			@Override
-			public void onClick(View v)
+			public void neutralClicked(HikeDialog hikeDialog)
+			{
+			}
+
+			@Override
+			public void negativeClicked(HikeDialog hikeDialog)
 			{
 				gpsDialogShown = currentLocationDevice == GPS_DISABLED;
-				alert.dismiss();
+				hikeDialog.dismiss();
 			}
-		};
-
-		alert.setOkButton(android.R.string.ok, dialogOkClickListener);
-		alert.setCancelButton(R.string.cancel, dialogCancelClickListener);
-		alert.show();
+		}, messageId);
 
 		if (!ShareLocation.this.isFinishing())
 			alert.show();

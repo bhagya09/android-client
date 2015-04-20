@@ -44,6 +44,8 @@ public class HikeConstants
 	public static final String FROM = "f";
 
 	public static final String SUB_TYPE = "st";
+	
+	public static final String GROUP_CHAT_TIMESTAMP = "gts";	
 
 	public static final String HIKE_MESSAGE = "hm";
 
@@ -295,6 +297,8 @@ public class HikeConstants
 
 	public static final String LAST_SEEN_SETTING = "lastseen";
 
+	public static final String NEW_LAST_SEEN_SETTING = "nls";
+
 	public static final String UJ_NOTIF_SETTING = "ujn";
 
 	public static final String BULK_LAST_SEEN_KEY = "lastseens";
@@ -431,13 +435,21 @@ public class HikeConstants
 
 	public static final String LAST_SEEN_PREF = "lastSeenPref";
 
+	public static final String LAST_SEEN_PREF_LIST = "lastSeenPrefList";
+	
 	public static final String PROFILE_PIC_PREF = "profilePicPref";
+	
+	public static final String SEND_ENTER_PREF = "enterSendPref";
+		
+	public static final String DOUBLE_TAP_PREF = "doubleTapPref";
 
 	public static final String CHAT_BG_NOTIFICATION_PREF = "chatBgNotificationPref";
 
 	public static final String RESET_STEALTH_PREF = "resetStealthPref";
 
 	public static final String CHANGE_STEALTH_PASSCODE = "changeStealthPasscode";
+
+	public static final String STEALTH_PERF_SETTING = "steathPerfCategory";
 
 	public static final String SEND_UNDELIVERED_AS_NATIVE_PREF = "sendUndeliveredAsNativePref";
 
@@ -516,6 +528,8 @@ public class HikeConstants
 
 	public static final String BLOKED_LIST_PREF = "blockedList";
 
+	public static final String FAV_LIST_PREF = "favoriteList";
+
 	public static final String SYSTEM_HEALTH_PREF = "systemHealth";
 
 	public static final String HELP_FAQS_PREF = "helpFaqs";
@@ -592,6 +606,8 @@ public class HikeConstants
 	
 	public static final String NEW_BROADCAST = "new_broadcast";
 
+	public static final String BROADCAST_ID_PREFIX = "b:";
+	
 	public static final String AVATAR = "avatar";
 
 	/* Constant used to name the preference file which saves the drafts */
@@ -1147,8 +1163,6 @@ public class HikeConstants
 
 		public static final String FADE_IN = "fadeIn";
 
-		public static final String ANIMATED_ONCE = "animatedOnce";
-
 		public static final String EDIT_PROFILE = "editProfile";
 
 		public static final String EMAIL = "email";
@@ -1248,7 +1262,17 @@ public class HikeConstants
 		public static final String ZOOM_LEVEL = "zoomLevel";
 
 		public static final String CONTACT_INFO = "contactInfo";
-
+		
+		public static final String WHICH_CHAT_THREAD = "whichChatThread";
+		
+		public static final String ONE_TO_ONE_CHAT_THREAD = "oneToOneChat";
+		
+		public static final String GROUP_CHAT_THREAD = "groupChat";
+		
+		public static final String BROADCAST_CHAT_THREAD = "broadcastChat";
+		
+		public static final String BOT_CHAT_THREAD = "botChat";
+		
 		public static final String CONTACT_INFO_TIMELINE = "contactInfoTimeline";
 
 		public static final String CONTACT_ID = "contactId";
@@ -1375,9 +1399,9 @@ public class HikeConstants
 
 		public static final String IS_FTUT_ADD_FRIEND_POPUP_SHOWING = "isFtueAddFriendPopup";
 
-		public static final String GROUP_NAME = "groupName";
+		public static final String ONETON_CONVERSATION_NAME = "groupName";
 
-		public static final String GROUP_BROADCAST_ID = "groupOrBroadcastId";
+		public static final String CONVERSATION_ID = "groupOrBroadcastId";
 
 		public static final String SHOWING_INVALID_PIN_ERROR = "showingInvalidPinError";
 
@@ -1452,6 +1476,10 @@ public class HikeConstants
 		public static final String MAX_MESSAGE_PROCESS_TIME = "mmpt";
 		
 		public static final String CHANGE_MAX_MESSAGE_PROCESS_TIME = "cmpt";
+
+		public static final String BROADCAST_CREATE_BUNDLE = "broadcastCreationBundle";
+		
+		public static final String GROUP_CREATE_BUNDLE = "groupCreationBundle";
 	}
 
 	public static final class LogEvent
@@ -1758,6 +1786,22 @@ public class HikeConstants
 
 		public static final String STICKER_UNCHECK_BOX_CLICKED = "stickerUnchkBoxClicked";
 
+		public static final String SETTING_CLICKED = "stgMS";
+
+		public static final String PRIVACY_SETTING_CLICKED = "psMS";
+
+		public static final String LS_SETTING_CLICKED = "psLS";
+
+		public static final String LS_EVERYONE_CLICKED = "psLS_E";
+
+		public static final String LS_MY_CONTACTS_CLICKED = "psLS_M";
+
+		public static final String LS_FAVOURITES_CLICKED = "psLS_F";
+
+		public static final String LS_NOBODY_CLICKED = "psLS_N";
+
+		public static final String MANAGE_FAV_LIST_SETTING = "psMFav";
+
 		/*
 		 * Settings screen <screen> = settingsS <event> = notifNUJEnabled, notifH2OEnabled, notifNUJDisabled, notifH2ODisabled
 		 */
@@ -1933,6 +1977,16 @@ public class HikeConstants
 
 		public static final String NUX_EXPANDED_COM = "nuxE2C";
 		
+		public static final String SETTINGS_ENTER_ON = "entersend";
+				
+		public static final String SETTINGS_ENTER_OFF = "enterline";
+				
+		public static final String SETTINGS_NUDGE_ON = "nudgeon";
+						
+		public static final String SETTINGS_NUDGE_OFF = "nudgeoff";
+				
+		public static final String UNCHECKED_NUDGE = "doubtap";
+		
 		//Photos 5.0 Events
 		public static final String PHOTOS_FLOW_OPTION_CLICK = "phTake";
 		
@@ -1995,7 +2049,7 @@ public class HikeConstants
 		public static final String ICON = "ic";
 
 		public static final String INVITE_INFO = "ii";
-
+		
 		public static final String GROUP_CHAT_JOIN = "gcj";
 
 		public static final String GROUP_CHAT_LEAVE = "gcl";
@@ -2004,6 +2058,14 @@ public class HikeConstants
 
 		public static final String GROUP_CHAT_NAME = "gcn";
 
+		public static final String BROADCAST_LIST_JOIN = "gcj";
+
+		public static final String BROADCAST_LIST_LEAVE = "gcl";
+
+		public static final String BROADCAST_LIST_END = "gce";
+
+		public static final String BROADCAST_LIST_NAME = "gcn";
+		
 		public static final String ANALYTICS_EVENT = "le";
 
 		public static final String UPDATE_AVAILABLE = "ua";
@@ -2478,6 +2540,10 @@ public class HikeConstants
 
 	public static final String EXCEPTION_MESSAGE = "exm";
 
+	public static enum PrivacyOptions
+	{
+		NOBODY, EVERYONE, FAVORITES, MY_CONTACTS
+	}
 	public static final class HikePhotos
 	{
 		
@@ -2561,6 +2627,8 @@ public class HikeConstants
 	
 	public static final String BLACKLIST_DOMAIN_ANALYTICS = "blacklist";
 
+	public static final String HIGHLIGHT_NLS_PERF = "nlsHighlightPerf";
+	
 	public static final String FLUSH = "flush";
 
 	public static final String FORCE_USER="fu";

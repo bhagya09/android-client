@@ -12,9 +12,9 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
-import com.bsb.hike.models.BroadcastConversation;
-import com.bsb.hike.models.Conversation;
-import com.bsb.hike.models.GroupConversation;
+import com.bsb.hike.models.Conversation.BroadcastConversation;
+import com.bsb.hike.models.Conversation.Conversation;
+import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.utils.EmoticonTextWatcher;
 import com.bsb.hike.utils.Logger;
@@ -64,7 +64,7 @@ public class ComposeViewWatcher extends EmoticonTextWatcher implements Runnable,
 		mComposeView.addTextChangedListener(this);
 	}
 
-	public void uninit()
+	public void releaseResources()
 	{
 		mPubSub.removeListener(HikePubSub.SMS_CREDIT_CHANGED, this);
 		mUIThreadHandler.removeCallbacks(this);
@@ -78,8 +78,8 @@ public class ComposeViewWatcher extends EmoticonTextWatcher implements Runnable,
 		/*
 		 * the button is enabled iff there is text AND (this is an IP conversation or we have credits available)
 		 */
-		boolean canSend = (!TextUtils.isEmpty(seq) && ((mConversation.isOnhike() || mCredits > 0)));
-		if (!mConversation.isOnhike() && mCredits <= 0)
+		boolean canSend = (!TextUtils.isEmpty(seq) && ((mConversation.isOnHike() || mCredits > 0)));
+		if (!mConversation.isOnHike() && mCredits <= 0)
 		{
 			boolean nativeSmsPref = Utils.getSendSmsPref(context);
 			canSend = nativeSmsPref;
@@ -92,9 +92,9 @@ public class ComposeViewWatcher extends EmoticonTextWatcher implements Runnable,
 		{
 			mButton.setImageResource(R.drawable.send_btn_selector);
 		}
-		if (mConversation instanceof GroupConversation)
+		if (mConversation instanceof OneToNConversation)
 		{
-			mButton.setEnabled(((GroupConversation) mConversation).getIsGroupAlive());
+			mButton.setEnabled(((OneToNConversation) mConversation).isConversationAlive());
 		}
 		else
 		{
