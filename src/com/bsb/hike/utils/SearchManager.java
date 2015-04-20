@@ -262,16 +262,14 @@ public class SearchManager
 	 */
 	private boolean searchAllMessages(int from, int to)
 	{
+		from = checkNApplyBound(from);
+		to = checkNApplyBound(to);
 		boolean found = false;
 		if (from > to)
 		{
 			// Swapping 'to' and 'from'
 			from ^= to ^= from ^= to;
 		}
-		// Just a precaution.
-		// This is possible if the caller sends a junk call due to some reason.
-		if (to >= itemList.size())
-			to = itemList.size() - 1;
 
 		for (; from <= to; from++)
 		{
@@ -299,13 +297,10 @@ public class SearchManager
 	 */
 	private boolean searchFirstMessage(int from, int to, int threshold)
 	{
+		from = checkNApplyBound(from);
+		to = checkNApplyBound(to);
 		if (from > to)
 		{
-			// Just a precaution.
-			// This is possible if the caller sends a junk call due to some reason.
-			if (from >= itemList.size())
-				from = itemList.size() - 1;
-
 			for (; from >= to; from--)
 			{
 
@@ -333,11 +328,6 @@ public class SearchManager
 		}
 		else
 		{
-			// Just a precaution.
-			// This is possible if the caller sends a junk call due to some reason.
-			if (to >= itemList.size())
-				to = itemList.size() - 1;
-
 			for (; from <= to; from++)
 			{
 
@@ -363,6 +353,20 @@ public class SearchManager
 			}
 			return false;
 		}
+	}
+
+	/*
+	 * Just a precaution.
+	 * This is possible if the caller sends a junk call due to some reason.
+	 */
+	private int checkNApplyBound(int position)
+	{
+		if (position >= itemList.size())
+			return (itemList.size() - 1);
+		else if (position < 0)
+			return 0;
+		else
+			return position;
 	}
 
 	private int applyBackLash(int position)
