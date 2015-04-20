@@ -51,7 +51,7 @@ import com.bsb.hike.ui.fragments.PreviewFragment;
 import com.bsb.hike.ui.fragments.ProfilePicFragment;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
-import com.bsb.hike.utils.IntentManager;
+import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Utils;
 import com.viewpagerindicator.IconPagerAdapter;
 import com.viewpagerindicator.PhotosTabPageIndicator;
@@ -468,7 +468,29 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 								@Override
 								public void onFailure()
 								{
-									// Do nothing
+									sendAnalyticsSendTo();
+									editView.saveImage(HikeFileType.IMAGE, null, new HikePhotosListener()
+									{
+										@Override
+										public void onFailure()
+										{
+											// Do nothing
+										}
+
+										@Override
+										public void onComplete(Bitmap bmp)
+										{
+											// Do nothing
+										}
+
+										@Override
+										public void onComplete(File f)
+										{
+											Intent forwardIntent = IntentFactory.getForwardImageIntent(mContext, f);
+											forwardIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+											startActivity(forwardIntent);
+										}
+									});
 								}
 
 								@Override
@@ -480,7 +502,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 								@Override
 								public void onComplete(File f)
 								{
-									Intent forwardIntent = IntentManager.getForwardImageIntent(mContext, f);
+									Intent forwardIntent = IntentFactory.getForwardImageIntent(mContext, f);
 									forwardIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 									startActivity(forwardIntent);
 								}

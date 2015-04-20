@@ -32,6 +32,7 @@ import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.photos.HikePhotosListener;
 import com.bsb.hike.smartcache.HikeLruCache;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.Utils;
 
 public class HikeBitmapFactory
@@ -83,9 +84,10 @@ public class HikeBitmapFactory
 		textView.draw(canvas);
 		textView.setDrawingCacheEnabled(true);
 		Bitmap cacheBmp = textView.getDrawingCache();
-		Bitmap viewBmp = cacheBmp.copy(Bitmap.Config.ARGB_8888, true);
+		Bitmap viewBmp = null;
 		if (cacheBmp != null)
 		{
+			viewBmp = cacheBmp.copy(Bitmap.Config.ARGB_8888, true);
 			cacheBmp.recycle();
 		}
 		textView.destroyDrawingCache(); // destory drawable
@@ -1169,15 +1171,11 @@ public class HikeBitmapFactory
 	
 	private static int getDefaultAvatarIconResId( String msisdn, boolean hiRes)
 	{
-		boolean isGroupConversation = Utils.isGroupConversation(msisdn);
-		
-		boolean isBroadcastConversation = Utils.isBroadcastConversation(msisdn);
-
-		if (isBroadcastConversation)
+		if (OneToNConversationUtils.isBroadcastConversation(msisdn))
 		{
 			return hiRes ? R.drawable.ic_default_avatar_broadcast_hires : R.drawable.ic_default_avatar_broadcast;
 		}
-		else if (isGroupConversation)
+		else if (OneToNConversationUtils.isGroupConversation(msisdn))
 		{
 			return hiRes ? R.drawable.ic_default_avatar_group_hires : R.drawable.ic_default_avatar_group;
 		}

@@ -22,6 +22,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.BitmapModule.RecyclingBitmapDrawable;
+import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.utils.Utils.ExternalStorageState;
@@ -587,7 +588,7 @@ public class HikeFile
 		 */
 		String currentFileSelectionPath = HikeConstants.FILE_SHARE_PREFIX + getExactFilePath();
 		String currentFileSelectionMimeType = getFileTypeString();
-		Utils.startShareImageIntent(currentFileSelectionMimeType, currentFileSelectionPath);
+		IntentFactory.startShareImageIntent(currentFileSelectionMimeType, currentFileSelectionPath);
 	}
 
 	public static void openFile(File file, String fileTypeString, Context context)
@@ -621,7 +622,7 @@ public class HikeFile
 		/*
 		 * Added check for hike media gallery because it is required to delete the media of that directory only.
 		 */
-		if(!this.getFilePath().startsWith(Utils.getFileParent(this.getHikeFileType(), this.isSent())))
+		if(this.getFilePath() == null || !this.getFilePath().startsWith(Utils.getFileParent(this.getHikeFileType(), this.isSent())))
 		{
 			return;
 		}

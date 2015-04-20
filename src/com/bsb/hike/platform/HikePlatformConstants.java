@@ -38,12 +38,32 @@ public interface HikePlatformConstants
 	String NOTIF_TEXT_WC = "notifText";
 	String WC_PUSH_KEY = "push";
 	String CRICKET_BOT_MSISDN = "+hikecricket+";
-	String CRICKET_BOT_NAME = "World Cup 2015";
+	String CRICKET_BOT_NAME = "Cricket 2015";
 	String CRICKET_CHAT_THEME_ID = "39";
 	String CRICKET_PREF_NAME = "cricket_pref_name";
 	String APP_NAME = "appName";
 	String LAYOUT = "layoutId";
 	String LONG_PRESS_DISABLED = "lpd";
+	String HIKE_MSISDN = "hikemsisdn";
+	String PLATFORM_USER_ID = "platformUid";
+	String PLATFORM_TOKEN = "platformToken";
+	String PLATFORM_UID_FOR_ADDRESS_BOOK_FETCH = "platformUidForAddressBookFetch";
+	public int numberOfRetries = 3;  // number of retries
+	public int retryDelay = 1000; // 1 sec
+	public float backOffMultiplier = 2.0f; // exponential time delay multiplier
+	public int HTTP_CALL_MADE = 2;
+	public int MAKE_HTTP_CALL = 1;
+	public static final String PLATFORM_UID_FETCH_TAG = "platformUID";
+
+	public static final class PlatformUIDFetchType
+	{
+		public static final int SELF = 1;
+
+		public static final int FULL_ADDRESS_BOOK = 2;
+
+		public static final int PARTIAL_ADDRESS_BOOK = 3;
+
+	}
 
     /**
      * Analytics for Platform
@@ -70,6 +90,9 @@ public interface HikePlatformConstants
 	public static final String BOT_ERROR = "bot_err";
 	public static final String CARD_TYPE = "card_type";
 	public static final String CARD_FORWARD = "card_fwd";
+	public static final String BLOCKED_MESSAGE = "blocked_msg";
+	public static final String CARD = "card";
+	public static final String NOTIF = "notif";
 
 	public static final String PLATFORM_BRIDGE_NAME = "PlatformBridge";
 
@@ -90,4 +113,10 @@ public interface HikePlatformConstants
 	String ALARM_DATA = "alarm_data";
 	
 	String DELETE_CARD = "delete_card";
+
+	public static final String SILENT_PUSH = "silent";
+
+	public static final String LOUD_PUSH = "loud";
+
+	public static final String  NO_PUSH = "none";
 }

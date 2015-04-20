@@ -1,8 +1,6 @@
 package com.bsb.hike.service;
 
 import java.net.SocketException;
-
-
 import java.net.UnknownHostException;
 import java.nio.channels.UnresolvedAddressException;
 import java.util.ArrayList;
@@ -59,12 +57,13 @@ import com.bsb.hike.analytics.MsgRelLogManager;
 import com.bsb.hike.db.HikeMqttPersistence;
 import com.bsb.hike.db.MqttPersistenceException;
 import com.bsb.hike.models.HikePacket;
-import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.models.NetInfo;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.HikeSSLUtil;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.Utils;
 
 /**
@@ -1746,7 +1745,7 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 		{
 			type = HikeConstants.MULTI_FORWARD_MESSAGE_TYPE;
 		}
-		else if(Utils.isBroadcastConversation((o.optString(HikeConstants.TO))))
+		else if(OneToNConversationUtils.isBroadcastConversation((o.optString(HikeConstants.TO))))
 		{
 			type = HikeConstants.BROADCAST_MESSAGE_TYPE;
 		}
