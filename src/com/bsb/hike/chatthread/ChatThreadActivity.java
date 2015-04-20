@@ -47,7 +47,7 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 
 	private boolean filter(Intent intent)
 	{
-		String msisdn = getIntent().getStringExtra(HikeConstants.Extras.MSISDN);
+		String msisdn = intent.getStringExtra(HikeConstants.Extras.MSISDN);
 		if (StealthModeManager.getInstance().isStealthMsisdn(msisdn)
 				&& HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF) != HikeConstants.STEALTH_ON)
 		{
