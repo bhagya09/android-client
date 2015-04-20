@@ -213,7 +213,9 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
     protected static final int SET_WINDOW_BG = 28;
 
     protected static final int SCROLL_TO_POSITION = 29;
-   
+
+    protected static final int ADD_MORE_MSG = 30;
+
     private int NUDGE_TOAST_OCCURENCE = 2;
     	
     private int currentNudgeCount = 0;
@@ -400,6 +402,9 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			break;
 		case DISABLE_TRANSCRIPT_MODE:
 			mConversationsView.setTranscriptMode(ListView.TRANSCRIPT_MODE_DISABLED);		
+			break;
+		case ADD_MORE_MSG:
+			addMoreMessages((List<ConvMessage>) msg.obj);
 			break;
 		default:
 			Logger.d(TAG, "Did not find any matching event for msg.what : " + msg.what);
@@ -2002,7 +2007,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 				addMoreMessages(list);
 
-				mAdapter.notifyDataSetChanged();
 				mConversationsView.setSelectionFromTop(firstVisibleItem + list.size(), scrollOffset);
 				
 			}
@@ -2024,10 +2028,20 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		int startIndex = getMessagesStartIndex();
 		mAdapter.addMessages(list, startIndex);
 		addtoMessageMap(startIndex, startIndex + list.size());
+		updateNNotifySearchParams(list);
+		mAdapter.notifyDataSetChanged();
+	}
+	
+	private void updateNNotifySearchParams(List<ConvMessage> list)
+	{
 		if (messageSearchManager != null)
 		{
 			messageSearchManager.updateIndex(list.size());
 			messageSearchManager.updateDataSet(messages);
+			synchronized (MessageFinder.class)
+			{
+				MessageFinder.class.notify();
+			}
 		}
 	}
 	
@@ -2170,6 +2184,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	
 	private static class MessageFinder extends AsyncTaskLoader<Object>
 	{
+		long ADD_MSG_TIME = 2000;
+
 		int loaderId;
 	
 		int position = -1;
@@ -2209,7 +2225,20 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 							break;
 						}
 						
-						chatThread.get().addMoreMessages(msgList);
+						// Messages are to be added on UI thread.
+						chatThread.get().sendUIMessage(ADD_MORE_MSG, msgList);
+						try
+						{
+							// Waiting till the time messages are added. Maximum wait time is 2 seconds.
+							synchronized (MessageFinder.class)
+							{
+								MessageFinder.class.wait(ADD_MSG_TIME);
+							}
+						}
+						catch (InterruptedException e)
+						{
+							e.printStackTrace();
+						}
 						loadMessageCount *= 2;
 						position = messageSearchManager.getPrevItem(chatThread.get().mConversationsView.getFirstVisiblePosition());
 					}
@@ -2222,7 +2251,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			}
 			return position;
 		}
-		
+
 		/**
 		 * This has to be done due to some bug in compat library -- http://stackoverflow.com/questions/10524667/android-asynctaskloader-doesnt-start-loadinbackground
 		 */
