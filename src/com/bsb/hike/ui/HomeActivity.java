@@ -207,7 +207,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 		if (!showingProgress)
 		{
-			if (Utils.isVoipActivated(HomeActivity.this) && !HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOWN_VOIP_INTRO_TIP, false))
+			if (Utils.isVoipActivated(HomeActivity.this) && HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOW_VOIP_FTUE_POPUP, false))
 			{
 				dialogShowing = DialogShowing.VOIP_FTUE_POPUP;
 			}

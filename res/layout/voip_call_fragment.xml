@@ -74,14 +74,6 @@
 	        android:layout_centerHorizontal="true"
 	        android:scaleType="centerCrop" />
 
-		<FrameLayout
-    	    android:id="@+id/profile_image_overlay"
-	        android:layout_width="match_parent"
-	        android:layout_height="match_parent"
-	        android:background="@color/black_60"
-	        android:layout_below="@id/voip_header"
-	        android:scaleType="centerCrop" />
-
 		<LinearLayout
 		    android:id="@+id/signal_container"
 		    android:layout_below="@id/voip_header"
