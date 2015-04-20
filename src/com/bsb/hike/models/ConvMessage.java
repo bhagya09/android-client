@@ -1167,9 +1167,9 @@ public class ConvMessage implements Searchable
 		{
 			return false;
 		}
-		// No search on sticker messages.
+		// No search on sticker/nudge messages.
 		// Atleast till theres no tagging.
-		else if (isStickerMessage())
+		else if (isStickerMessage() || (metadata != null && metadata.isPokeMessage()))
 		{
 			return false;
 		}
