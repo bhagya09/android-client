@@ -2807,7 +2807,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		Cursor groupInfoCursor = null;
 		try
 		{
-			groupInfoCursor = mDb.query(DBConstants.GROUP_INFO_TABLE, new String[] { DBConstants.GROUP_ID, DBConstants.GROUP_NAME, DBConstants.GROUP_ALIVE, DBConstants.MUTE_GROUP }, null, null, null,
+			groupInfoCursor = mDb.query(DBConstants.GROUP_INFO_TABLE, new String[] { DBConstants.GROUP_ID, DBConstants.GROUP_NAME, DBConstants.GROUP_ALIVE, DBConstants.MUTE_GROUP, DBConstants.GROUP_CREATION_TIME }, null, null, null,
 					null, null);
 
 			Map<String, GroupDetails> map = new HashMap<String, GroupDetails>();
