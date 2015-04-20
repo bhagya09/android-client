@@ -46,6 +46,7 @@ import com.bsb.hike.utils.EmoticonConstants;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.LastSeenComparator;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.utils.Utils.WhichScreen;
 import com.bsb.hike.view.PinnedSectionListView.PinnedSectionListAdapter;
@@ -234,6 +235,11 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 	public void onQueryChanged(String s)
 	{
 		queryText = s;
+		//Regex Explanation - number can start with '+', then any character between [0-9] one or more time and any character among them [-, ., space, slash ]only once
+		//if this pattern match then ignore all the hyphen, dot, space, slash 
+		if(queryText.matches("^\\+?(([0-9]+[-.\\s/]?))*")){
+			queryText = queryText.replaceAll("[-.\\s /]", "");
+		}
 		contactFilter.filter(queryText);
 	}
 
@@ -252,9 +258,8 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 
 			if (!TextUtils.isEmpty(constraint))
 			{
-
-				String textToBeFiltered = constraint.toString().toLowerCase().trim();
-
+            	String textToBeFiltered = constraint.toString().toLowerCase().trim();
+            	
 				List<ContactInfo> filteredFriendsList = new ArrayList<ContactInfo>();
 				List<ContactInfo> filteredHikeContactsList = new ArrayList<ContactInfo>();
 				List<ContactInfo> filteredSmsContactsList = new ArrayList<ContactInfo>();
@@ -337,7 +342,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 					else
 					{
 						String msisdn = info.getMsisdn();
-						if (msisdn != null && !Utils.isGroupConversation(msisdn))
+						if (msisdn != null && !OneToNConversationUtils.isOneToNConversation(msisdn))
 						{
 							if(msisdn.contains(textToBeFiltered))
 							{
@@ -829,8 +834,14 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 			stealthList = smsStealthContactsList;
 			break;
 		}
-		groupList.clear();
-		stealthList.clear();
+		if (null != groupList)
+		{
+			groupList.clear();
+		}
+		if (null != stealthList)
+		{
+			stealthList.clear();
+		}
 
 		groupList.addAll(newGroupList);
 		setupStealthListAndRemoveFromActualList(groupList, stealthList);
@@ -1044,6 +1055,8 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 				break;
 			case EMPTY:
 				viewHolder.name = (TextView) convertView.findViewById(R.id.empty_text);
+				String infoSubText = context.getString(Utils.isLastSeenSetToFavorite() ? R.string.both_ls_status_update : R.string.status_updates_proper_casing);
+				viewHolder.name.setText(context.getString(R.string.tap_plus_add_favorites, infoSubText));
 				break;
 			}
 
@@ -1180,7 +1193,8 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 					else if (viewType == ViewType.FRIEND_REQUEST)
 					{
 						lastSeen.setVisibility(View.VISIBLE);
-						lastSeen.setText(R.string.sent_favorite_request_tab);
+						String infoSubText = context.getString(Utils.isLastSeenSetToFavorite() ? R.string.both_ls_status_update : R.string.status_updates_proper_casing);
+						lastSeen.setText(context.getString(R.string.sent_favorite_request_tab, infoSubText));
 
 						ImageView acceptBtn = viewHolder.acceptBtn;
 						ImageView rejectBtn = viewHolder.rejectBtn;
@@ -1274,9 +1288,8 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 
 		case EMPTY:
 			TextView emptyText = viewHolder.name;
-
-			String text = context.getString(R.string.tap_plus_add_favorites);
-			emptyText.setText(text);
+			String infoSubText = context.getString(Utils.isLastSeenSetToFavorite() ? R.string.both_ls_status_update : R.string.status_updates_proper_casing);
+			emptyText.setText(context.getString(R.string.tap_plus_add_favorites, infoSubText));
 			break;
 		}
 

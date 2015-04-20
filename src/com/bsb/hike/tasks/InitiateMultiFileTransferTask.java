@@ -15,6 +15,7 @@ import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.Utils;
 
 public class InitiateMultiFileTransferTask extends AsyncTask<Void, Void, Void>
@@ -33,7 +34,7 @@ public class InitiateMultiFileTransferTask extends AsyncTask<Void, Void, Void>
 	{
 		this.context = context.getApplicationContext();
 		this.fileDetails = fileDetails;
-		this.contactList.add(ContactManager.getInstance().getContact(msisdn, false, !Utils.isGroupConversation(msisdn)));
+		this.contactList.add(ContactManager.getInstance().getContact(msisdn, false, !OneToNConversationUtils.isGroupConversation(msisdn)));
 		this.onHike = onHike;
 		this.attachementType = attachementType;
 	}

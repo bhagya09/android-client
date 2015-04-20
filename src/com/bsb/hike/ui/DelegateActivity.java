@@ -1,22 +1,14 @@
 package com.bsb.hike.ui;
 
-import java.io.File;
-
 import android.app.Activity;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.provider.MediaStore;
 
-import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.models.HikeHandlerUtil;
-import com.bsb.hike.models.HikeFile.HikeFileType;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.bsb.hike.utils.IntentManager;
+import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.Utils;
 
 public class DelegateActivity extends Activity
 {
@@ -74,7 +66,7 @@ public class DelegateActivity extends Activity
 
 		if (destinationIntent != null)
 		{
-			if (!IntentManager.isIntentAvailable(getApplicationContext(), sourceIntent))
+			if(!IntentFactory.isIntentAvailable(getApplicationContext(), sourceIntent))
 			{
 				onError();
 				return;
