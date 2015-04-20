@@ -1350,7 +1350,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		{
 		case HikeDialogFactory.DELETE_MESSAGES_DIALOG:
 		case HikeDialogFactory.CONTACT_SEND_DIALOG:
-		case HikeDialogFactory.CONTACT_SAVE_DIALOG:
 		case HikeDialogFactory.CLEAR_CONVERSATION_DIALOG:
 			dialog.dismiss();
 			this.dialog = null;
@@ -1368,9 +1367,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			ChatThreadUtils.initialiseContactTransfer(activity.getApplicationContext(), msisdn, ((PhonebookContact) dialog.data).jsonData, mConversation.isOnHike());
 			dialog.dismiss();
 
-			break;
-		case HikeDialogFactory.CONTACT_SAVE_DIALOG:
-			// TODO
 			break;
 
 		case HikeDialogFactory.CLEAR_CONVERSATION_DIALOG:
