@@ -8,7 +8,6 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.util.AttributeSet;
-import android.util.DisplayMetrics;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
@@ -106,13 +105,10 @@ public class CanvasImageView extends ImageView implements OnTouchListener
 
 	}
 
-	public void getMeasure()
+	public void getMeasure(int width,int height)
 	{
 		if (paths.size() > 0)
 		{
-			DisplayMetrics metrics = getContext().getResources().getDisplayMetrics();
-			int width = metrics.widthPixels;
-			int height = (int)(metrics.heightPixels * getContext().getResources().getInteger(R.integer.photos_editor_canvas_weight)*1.0f/getContext().getResources().getInteger(R.integer.photos_editor_weightSum));
 			if(mBitmap == null)
 			{
 				mBitmap = HikePhotosUtils.createBitmap(null, 0, 0, width, height, false, false, false, true);

@@ -521,7 +521,14 @@ public final class HikeEffectsFactory
 			catch (RSRuntimeException e)
 			{
 				Logger.e("Dimension Mismatch", "occured while applying : " + effect.toString());
-				Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), "Dimension Mismatch", Toast.LENGTH_LONG).show();
+				uiHandler.post(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), "Dimension Mismatch", Toast.LENGTH_LONG).show();
+					}
+				});
 			}
 
 			if (!error)
