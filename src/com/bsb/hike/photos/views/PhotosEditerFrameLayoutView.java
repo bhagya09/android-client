@@ -191,6 +191,11 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 				IntentFactory.openHomeActivity(getContext(),true);
 				return;
 			}
+			if(compressOutput && HikePhotosUtils.getBitmapArea(imageOriginal)>HikeConstants.HikePhotos.MAXIMUM_ALLOWED_IMAGE_AREA)
+			{
+				compressOutput = false;
+				imageOriginal = HikePhotosUtils.compressBitamp(imageOriginal, HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX, HikeConstants.MAX_DIMENSION_LOW_FULL_SIZE_PX,true);
+			}
 			effectLayer.handleImage(imageScaled, true);
 		}
 		else
@@ -254,12 +259,6 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 		this.mListener = listener;
 
 		savingFinal = true;
-		if(compressOutput && HikePhotosUtils.getBitmapArea(imageOriginal)>HikeConstants.HikePhotos.MAXIMUM_ALLOWED_IMAGE_AREA)
-		{
-			compressOutput = false;
-			imageOriginal = HikePhotosUtils.compressBitamp(imageOriginal, HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX, HikeConstants.MAX_DIMENSION_LOW_FULL_SIZE_PX,true);
-		}
-
 		effectLayer.getBitmapWithEffectsApplied(imageOriginal, this);
 
 	}
@@ -284,7 +283,6 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 			{
 				String timeStamp = Long.toString(System.currentTimeMillis());
 				file = File.createTempFile("IMG_" + timeStamp, ".jpg");
-				file.deleteOnExit();
 			}
 			catch (IOException e)
 			{
@@ -387,11 +385,6 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 
 		if (imageEdited != null)
 		{
-
-			if (imageEdited.getHeight() > HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX)
-			{
-				imageEdited = Bitmap.createScaledBitmap(imageEdited, HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX, HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX, false);
-			}
 
 			Canvas canvasResult = new Canvas(imageEdited);
 

@@ -112,10 +112,10 @@ public class CanvasImageView extends ImageView implements OnTouchListener
 		{
 			DisplayMetrics metrics = getContext().getResources().getDisplayMetrics();
 			int width = metrics.widthPixels;
-
+			int height = (int)(metrics.heightPixels * getContext().getResources().getInteger(R.integer.photos_editor_canvas_weight)*1.0f/getContext().getResources().getInteger(R.integer.photos_editor_weightSum));
 			if(mBitmap == null)
 			{
-				mBitmap = HikePhotosUtils.createBitmap(null, 0, 0, width, width, false, false, false, true);
+				mBitmap = HikePhotosUtils.createBitmap(null, 0, 0, width, height, false, false, false, true);
 			}
 			else
 			{
