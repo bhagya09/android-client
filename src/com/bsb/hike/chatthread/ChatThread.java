@@ -1022,7 +1022,12 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	protected void updateUIAsPerTheme(ChatTheme theme)
 	{
-		if (theme != null && mAdapter.getChatTheme() != theme)
+		if (mAdapter.getChatTheme() == theme && theme == ChatTheme.DEFAULT)
+		{
+			activity.updateActionBarColor(theme.headerBgResId());
+		}
+		
+		else if (mAdapter.getChatTheme() != theme)
 		{
 			Logger.i(TAG, "update ui for theme " + theme);
 
@@ -1539,9 +1544,9 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		addtoMessageMap(0, messages.size());
 
 		initListViewAndAdapter(); // init adapter, listView and add clicks etc
-		setupActionBar(true); // Setup the action bar
 		currentTheme = mConversation.getChatTheme();
 		updateUIAsPerTheme(currentTheme);// it has to be done after setting adapter
+		setupActionBar(true); // Setup the action bar
 		initMessageSenderLayout();
 
 		setMessagesRead(); // Setting messages as read if there are any unread ones
@@ -1720,7 +1725,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		mConversationsView.setOnScrollListener(this);
 		loadingMoreMessages = false;
 
-		updateUIAsPerTheme(mConversation.getChatTheme());// it has to be done after setting adapter
 	}
 
 	protected void takeActionBasedOnIntent()

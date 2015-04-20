@@ -32,6 +32,7 @@ public abstract class FetchLastSeenBase extends MyAsyncTask<Void, Void, Boolean>
 
 		Logger.d(getClass().getSimpleName(), "opened connection " + url);
 		AccountUtils.addUserAgent(connection);
+		AccountUtils.setNoTransform(connection);
 		connection.addRequestProperty("Cookie", "user=" + AccountUtils.mToken + "; UID=" + AccountUtils.mUid);
 
 		if (AccountUtils.ssl)
