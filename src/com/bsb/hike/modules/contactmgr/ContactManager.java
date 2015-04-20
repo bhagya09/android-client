@@ -70,7 +70,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 
 	private Context context;
 
-	private String[] pubSubListeners = { HikePubSub.APP_BACKGROUNDED };
+	private static String[] pubSubListeners = { HikePubSub.APP_BACKGROUNDED };
 
 	private ContactManager()
 	{
@@ -78,11 +78,6 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 		hDb = HikeUserDatabase.getInstance();
 		persistenceCache = new PersistenceCache(hDb);
 		transientCache = new TransientCache(hDb);
-
-		// Called to set name for group whose group name is empty (group created by ios) , we cannot do this inside persistence cache load memory because at taht point transient
-		// and persistence cache have not been initialized completely
-		persistenceCache.updateGroupNames();
-		HikeMessengerApp.getPubSub().addListeners(this, pubSubListeners);
 	}
 
 	public static ContactManager getInstance()
@@ -94,12 +89,27 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 				if (_instance == null)
 				{
 					_instance = new ContactManager();
+					init();
 				}
 			}
 		}
 		return _instance;
 	}
 
+	private static void init()
+	{
+		if (_instance == null)
+		{
+			throw new IllegalStateException("Contact Manager getInstance() should be called that will create a new instance and initialize");
+		}
+
+		HikeMessengerApp.getPubSub().addListeners(_instance, pubSubListeners);
+
+		// Called to set name for group whose group name is empty (group created by ios) , we cannot do this inside persistence cache load memory because at taht point transient
+		// and persistence cache have not been initialized completely
+		_instance.persistenceCache.updateGroupNames();
+	}
+	
 	public SQLiteDatabase getWritableDatabase()
 	{
 		return hDb.getWritableDatabase();
@@ -2164,7 +2174,9 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	 */
 	public void refreshContactManager()
 	{
+		// clear persistence, transient cache and assign null to all other class members
 		shutdown();
+		// create a new instance and initialize it
 		getInstance();
 	}
 
