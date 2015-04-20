@@ -177,7 +177,6 @@ public class LockPattern
 	 */
 	private static Intent confirmPatternIntent(Activity activity, boolean isResetPassword, int requestCode)
 	{
-		requestCode = isResetPassword?HikeConstants.ResultCodes.CONFIRM_AND_ENTER_NEW_PASSWORD:requestCode;
 		Intent i = new Intent(LockPatternActivity.ACTION_COMPARE_PATTERN, null, activity, LockPatternActivity.class);
 		String encryptedPattern = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STEALTH_ENCRYPTED_PATTERN, "");
 		i.putExtra(LockPatternActivity.EXTRA_PATTERN, encryptedPattern.toCharArray());
