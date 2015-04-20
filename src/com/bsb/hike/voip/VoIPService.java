@@ -92,7 +92,7 @@ public class VoIPService extends Service {
 	private int previousHighestRemotePacketNumber = 0;
 	private volatile boolean keepRunning = true;
 	private DatagramSocket socket = null;
-	private VoIPClient clientPartner = null, clientSelf = null;
+	private VoIPClient clientPartner = null;
 	private BitSet packetTrackingBits = new BitSet(PACKET_TRACKING_SIZE);
 	private long lastHeartbeat;
 	private int totalBytesSent = 0, totalBytesReceived = 0, rawVoiceSent = 0;
@@ -193,9 +193,7 @@ public class VoIPService extends Service {
 		acquireWakeLock();
 		
 		clientPartner = new VoIPClient();
-		clientSelf = new VoIPClient();
-		String myMsisdn = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE).getString(HikeMessengerApp.MSISDN_SETTING, null);
-		clientSelf.setPhoneNumber(myMsisdn);
+//		String myMsisdn = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE).getString(HikeMessengerApp.MSISDN_SETTING, null);
 
 		setCallid(0);
 		encryptionStage = EncryptionStage.STAGE_INITIAL;
@@ -307,7 +305,7 @@ public class VoIPService extends Service {
 					getCallId(), 
 					true);
 			
-			// TODO: Start ringing
+			// Start ringing
 			// playOutgoingCallRingtone();
 			
 		}
@@ -324,7 +322,7 @@ public class VoIPService extends Service {
 			clientPartner.setPhoneNumber(intent.getStringExtra(VoIPConstants.Extras.MSISDN));
 			sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_HANDSHAKE_COMPLETE);
 
-			// TODO: Start playing outgoing ring
+			// Start playing outgoing ring
 			// playIncomingCallRingtone();
 		}
 
@@ -348,10 +346,7 @@ public class VoIPService extends Service {
 			clientPartner.setExternalPort(intent.getIntExtra(VoIPConstants.Extras.EXTERNAL_PORT, 0));
 			clientPartner.setPhoneNumber(intent.getStringExtra(VoIPConstants.Extras.MSISDN));
 			clientPartner.setInitiator(intent.getBooleanExtra(VoIPConstants.Extras.INITIATOR, true));
-			clientSelf.setInitiator(!clientPartner.isInitiator());
-			clientSelf.setRelayAddress(intent.getStringExtra(VoIPConstants.Extras.RELAY));
 			clientPartner.setRelayAddress(intent.getStringExtra(VoIPConstants.Extras.RELAY));
-			clientSelf.setRelayPort(intent.getIntExtra(VoIPConstants.Extras.RELAY_PORT, VoIPConstants.ICEServerPort));
 			clientPartner.setRelayPort(intent.getIntExtra(VoIPConstants.Extras.RELAY_PORT, VoIPConstants.ICEServerPort));
 
 			// Error case: we are receiving a delayed v0 message for a call we 
@@ -439,7 +434,6 @@ public class VoIPService extends Service {
 			
 			// we are making an outgoing call
 			clientPartner.setPhoneNumber(intent.getStringExtra(VoIPConstants.Extras.MSISDN));
-			clientSelf.setInitiator(true);
 			clientPartner.setInitiator(false);
 
 			callSource = intent.getIntExtra(VoIPConstants.Extras.CALL_SOURCE, -1);
@@ -770,7 +764,7 @@ public class VoIPService extends Service {
 	
 	public void startStreaming() {
 		
-		if (clientPartner == null || clientSelf == null) {
+		if (clientPartner == null) {
 			Logger.e(VoIPConstants.TAG, "Clients (partner and/or self) not set.");
 			return;
 		}
@@ -946,6 +940,10 @@ public class VoIPService extends Service {
 		stopSelf();
 	}
 	
+	/**
+	 * Same as {@link #stop()}, except that a call termination packet
+	 * is sent to the call partner as well. 
+	 */
 	public void hangUp() {
 		new Thread(new Runnable() {
 			
@@ -1116,7 +1114,7 @@ public class VoIPService extends Service {
 					if (System.currentTimeMillis() - lastHeartbeat > HEARTBEAT_TIMEOUT && !reconnecting) {
 //						Logger.w(VoIPConstants.TAG, "Heartbeat failure. Reconnecting.. ");
 						startReconnectBeeps();
-						if (clientSelf.isInitiator() && isConnected() && isAudioRunning())
+						if (!clientPartner.isInitiator() && isConnected() && isAudioRunning())
 							reconnect();
 					}
 					
@@ -1933,7 +1931,7 @@ public class VoIPService extends Service {
 						break;
 						
 					case ENCRYPTION_PUBLIC_KEY:
-						if (clientSelf.isInitiator() == true) {
+						if (clientPartner.isInitiator() != true) {
 							Logger.e(VoIPConstants.TAG, "Was not expecting a public key.");
 							continue;
 						}
@@ -1944,7 +1942,7 @@ public class VoIPService extends Service {
 						break;
 						
 					case ENCRYPTION_SESSION_KEY:
-						if (clientSelf.isInitiator() != true) {
+						if (clientPartner.isInitiator() == true) {
 							Logger.e(VoIPConstants.TAG, "Was not expecting a session key.");
 							continue;
 						}
@@ -2048,7 +2046,7 @@ public class VoIPService extends Service {
 		try {
 			DatagramPacket packet = null;
 			if (dp.getType() == PacketType.RELAY_INIT)
-				packet = new DatagramPacket(packetData, packetData.length, InetAddress.getByName(clientSelf.getRelayAddress()), clientSelf.getRelayPort());
+				packet = new DatagramPacket(packetData, packetData.length, InetAddress.getByName(clientPartner.getRelayAddress()), clientPartner.getRelayPort());
 			else
 				packet = new DatagramPacket(packetData, packetData.length, clientPartner.getCachedInetAddress(), clientPartner.getPreferredPort());
 				
@@ -2175,7 +2173,7 @@ public class VoIPService extends Service {
 			
 			@Override
 			public void run() {
-				if (encryptionStage == EncryptionStage.STAGE_INITIAL && clientSelf.isInitiator() == true) {
+				if (encryptionStage == EncryptionStage.STAGE_INITIAL && clientPartner.isInitiator() != true) {
 					// The initiator (caller) generates and sends a public key
 					encryptor.initKeys();
 					VoIPDataPacket dp = new VoIPDataPacket(PacketType.ENCRYPTION_PUBLIC_KEY);
@@ -2184,7 +2182,7 @@ public class VoIPService extends Service {
 					Logger.d(VoIPConstants.TAG, "Sending public key.");
 				}
 
-				if (encryptionStage == EncryptionStage.STAGE_GOT_PUBLIC_KEY && clientSelf.isInitiator() == false) {
+				if (encryptionStage == EncryptionStage.STAGE_GOT_PUBLIC_KEY && clientPartner.isInitiator() == true) {
 					// Generate and send the AES session key
 					encryptor.initSessionKey();
 					byte[] encryptedSessionKey = encryptor.rsaEncrypt(encryptor.getSessionKey(), encryptor.getPublicKey());
@@ -2439,13 +2437,13 @@ public class VoIPService extends Service {
 							 * If we are initiating the connection, then we set the relay server
 							 * to be used by both clients. 
 							 */
-							if (clientSelf.isInitiator()) {
-								clientSelf.setRelayAddress(host.getHostAddress());
-								clientSelf.setRelayPort(VoIPUtils.getRelayPort(getApplicationContext()));
+							if (!clientPartner.isInitiator()) {
+								clientPartner.setRelayAddress(host.getHostAddress());
+								clientPartner.setRelayPort(VoIPUtils.getRelayPort(getApplicationContext()));
 							}
 
-							clientSelf.setInternalIPAddress(VoIPUtils.getLocalIpAddress(getApplicationContext())); 
-							clientSelf.setInternalPort(socket.getLocalPort());
+							clientPartner.setOurInternalIPAddress(VoIPUtils.getLocalIpAddress(getApplicationContext())); 
+							clientPartner.setOurInternalPort(socket.getLocalPort());
 
 							Logger.d(VoIPConstants.TAG, "ICE Sending.");
 							sendPacket(dp, false);
@@ -2476,7 +2474,7 @@ public class VoIPService extends Service {
 				}
 				
 				if (haveExternalSocketInfo()) {
-					if (!clientSelf.isInitiator() || reconnecting || isNetworkGoodEnough()) {
+					if (clientPartner.isInitiator() || reconnecting || isNetworkGoodEnough()) {
 						sendSocketInfoToPartner();
 						if (socketInfoReceived)
 							establishConnection();
@@ -2506,24 +2504,24 @@ public class VoIPService extends Service {
 
 	private void setExternalSocketInfo(String ICEResponse) throws JSONException {
 		JSONObject jsonObject = new JSONObject(ICEResponse);
-		clientSelf.setExternalIPAddress(jsonObject.getString("IP"));
-		clientSelf.setExternalPort(Integer.parseInt(jsonObject.getString("Port")));
-		Logger.d(VoIPConstants.TAG, "External socket - " + clientSelf.getExternalIPAddress() + ":" + clientSelf.getExternalPort());
-		Logger.d(VoIPConstants.TAG, "Internal socket - " + clientSelf.getInternalIPAddress() + ":" + clientSelf.getInternalPort());
+		clientPartner.setOurExternalIPAddress(jsonObject.getString("IP"));
+		clientPartner.setOurExternalPort(Integer.parseInt(jsonObject.getString("Port")));
+		Logger.d(VoIPConstants.TAG, "External socket - " + clientPartner.getOurExternalIPAddress() + ":" + clientPartner.getOurExternalPort());
+		Logger.d(VoIPConstants.TAG, "Internal socket - " + clientPartner.getOurInternalIPAddress() + ":" + clientPartner.getOurInternalPort());
 	}
 	
 	private boolean haveExternalSocketInfo() {
-		if (clientSelf.getExternalIPAddress() != null && 
-				!clientSelf.getExternalIPAddress().isEmpty() && 
-				clientSelf.getExternalPort() > 0)
+		if (clientPartner.getOurExternalIPAddress() != null && 
+				!clientPartner.getOurExternalIPAddress().isEmpty() && 
+				clientPartner.getOurExternalPort() > 0)
 			return true;
 		else
 			return false;
 	}
 	
 	private void removeExternalSocketInfo() {
-		clientSelf.setExternalIPAddress(null);
-		clientSelf.setExternalPort(0);
+		clientPartner.setOurExternalIPAddress(null);
+		clientPartner.setOurExternalPort(0);
 		if (socket != null) {
 			socket.close();
 			socket = null;
@@ -2543,14 +2541,14 @@ public class VoIPService extends Service {
 		
 		try {
 			JSONObject socketData = new JSONObject();
-			socketData.put("internalIP", clientSelf.getInternalIPAddress());
-			socketData.put("internalPort", clientSelf.getInternalPort());
-			socketData.put("externalIP", clientSelf.getExternalIPAddress());
-			socketData.put("externalPort", clientSelf.getExternalPort());
-			socketData.put("relay", clientSelf.getRelayAddress());
-			socketData.put("relayport", clientSelf.getRelayPort());
+			socketData.put("internalIP", clientPartner.getOurInternalIPAddress());
+			socketData.put("internalPort", clientPartner.getOurInternalPort());
+			socketData.put("externalIP", clientPartner.getOurExternalIPAddress());
+			socketData.put("externalPort", clientPartner.getOurExternalPort());
+			socketData.put("relay", clientPartner.getRelayAddress());
+			socketData.put("relayport", clientPartner.getRelayPort());
 			socketData.put("callId", getCallId());
-			socketData.put("initiator", clientSelf.isInitiator());
+			socketData.put("initiator", !clientPartner.isInitiator());
 			socketData.put("reconnecting", reconnecting);
 			
 			JSONObject data = new JSONObject();
@@ -2595,7 +2593,7 @@ public class VoIPService extends Service {
 				}
 
 				sendHandlerMessage(VoIPConstants.MSG_PARTNER_SOCKET_INFO_TIMEOUT);
-				if (clientSelf.isInitiator() && !reconnecting) {
+				if (!clientPartner.isInitiator() && !reconnecting) {
 					VoIPUtils.addMessageToChatThread(VoIPService.this, clientPartner, HikeConstants.MqttMessageTypes.VOIP_MSG_TYPE_MISSED_CALL_OUTGOING, 0, -1, false);
 					VoIPUtils.sendMissedCallNotificationToPartner(clientPartner);
 				}
@@ -2691,7 +2689,7 @@ public class VoIPService extends Service {
 				if (connected == true) {
 					Logger.d(VoIPConstants.TAG, "UDP connection established :) " + clientPartner.getPreferredConnectionMethod());
 					
-					if (clientSelf.isInitiator()) 
+					if (!clientPartner.isInitiator()) 
 						playOutgoingCallRingtone();
 					else
 						playIncomingCallRingtone();
@@ -2711,7 +2709,7 @@ public class VoIPService extends Service {
 					Logger.d(VoIPConstants.TAG, "UDP connection failure! :(");
 					sendHandlerMessage(VoIPConstants.MSG_CONNECTION_FAILURE);
 					if (!reconnecting) {
-						if (clientSelf.isInitiator())
+						if (!clientPartner.isInitiator())
 							VoIPUtils.addMessageToChatThread(VoIPService.this, clientPartner, HikeConstants.MqttMessageTypes.VOIP_MSG_TYPE_MISSED_CALL_OUTGOING, 0, -1, false);
 						else
 							VoIPUtils.addMessageToChatThread(VoIPService.this, clientPartner, HikeConstants.MqttMessageTypes.VOIP_MSG_TYPE_MISSED_CALL_INCOMING, 0, -1, true);
@@ -2735,7 +2733,7 @@ public class VoIPService extends Service {
 						// Call not answered yet?
 						if (connected) 
 						{
-							if (clientSelf.isInitiator())
+							if (!clientPartner.isInitiator())
 							{
 								sendHandlerMessage(VoIPConstants.MSG_PARTNER_ANSWER_TIMEOUT);
 								sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_PARTNER_ANSWER_TIMEOUT);
@@ -2780,8 +2778,8 @@ public class VoIPService extends Service {
 		dp.setData(packetData);
 		startReceiving();
 		
-		clientPartner.setRelayAddress(clientSelf.getRelayAddress());
-		clientPartner.setRelayPort(clientSelf.getRelayPort());
+//		clientPartner.setRelayAddress(clientSelf.getRelayAddress());
+//		clientPartner.setRelayPort(clientSelf.getRelayPort());
 		clientPartner.setPreferredConnectionMethod(ConnectionMethods.RELAY);
 
 		networkQualityPacketsReceived = 0;

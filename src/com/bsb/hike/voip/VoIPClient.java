@@ -11,8 +11,10 @@ public class VoIPClient  {
 	
 	private String phoneNumber;
 	private String internalIPAddress, externalIPAddress;
-	private String name;
 	private int internalPort, externalPort;
+	private String ourInternalIPAddress, ourExternalIPAddress;
+	private int ourInternalPort, ourExternalPort;
+	private String name;
 	private boolean initiator, ender;
 	private ConnectionMethods preferredConnectionMethod = ConnectionMethods.UNKNOWN;
 	private InetAddress cachedInetAddress = null;
@@ -157,6 +159,38 @@ public class VoIPClient  {
 
 	public void setRelayPort(int relayPort) {
 		this.relayPort = relayPort;
+	}
+
+	public String getOurInternalIPAddress() {
+		return ourInternalIPAddress;
+	}
+
+	public void setOurInternalIPAddress(String ourInternalIPAddress) {
+		this.ourInternalIPAddress = ourInternalIPAddress;
+	}
+
+	public String getOurExternalIPAddress() {
+		return ourExternalIPAddress;
+	}
+
+	public void setOurExternalIPAddress(String ourExternalIPAddress) {
+		this.ourExternalIPAddress = ourExternalIPAddress;
+	}
+
+	public int getOurInternalPort() {
+		return ourInternalPort;
+	}
+
+	public void setOurInternalPort(int ourInternalPort) {
+		this.ourInternalPort = ourInternalPort;
+	}
+
+	public int getOurExternalPort() {
+		return ourExternalPort;
+	}
+
+	public void setOurExternalPort(int ourExternalPort) {
+		this.ourExternalPort = ourExternalPort;
 	}
 
 }
