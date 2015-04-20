@@ -243,6 +243,12 @@ public class CropImage extends MonitoredActivity
 			}
 		});
 
+		TextView titleView = (TextView) actionBarView.findViewById(R.id.title);
+
+		titleView.setText(getString(R.string.selectPreview));
+
+		titleView.setVisibility(View.VISIBLE);				
+		
 		actionBarView.findViewById(R.id.done_container).setOnClickListener(new View.OnClickListener()
 		{
 			
