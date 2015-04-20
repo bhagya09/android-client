@@ -102,9 +102,60 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 
 		// Get filename from intent data
 		Intent intent = getIntent();
-		
 		filename = intent.getStringExtra(HikeMessengerApp.FILE_PATH);
 
+		if (filename == null)
+		{
+			// Check if intent is from GalleryActivity
+			ArrayList<GalleryItem> galleryList = intent.getParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS);
+			if (galleryList != null && !galleryList.isEmpty())
+			{
+				filename = galleryList.get(0).getFilePath();
+			}
+		}
+
+		if (filename == null)
+		{
+			PictureEditer.this.finish();
+			return;
+		}
+
+		HikeBitmapFactory.correctBitmapRotation(filename, new HikePhotosListener()
+		{
+			@Override
+			public void onFailure()
+			{
+				PictureEditer.this.runOnUiThread(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						PictureEditer.this.finish();		
+					}
+				});
+			}
+
+			@Override
+			public void onComplete(final Bitmap bmp)
+			{
+				PictureEditer.this.runOnUiThread(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						// Init
+						init(bmp);
+					}
+				});
+			}
+
+			@Override
+			public void onComplete(File f)
+			{
+				// Not used
+			}
+		});
+		
 		startedForResult = (getCallingActivity() != null);
 
 		setupActionBar();
@@ -131,63 +182,6 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 		overlayFrame = findViewById(R.id.overlayFrame);
 
 		editView.setCompressionEnabled(intent.getBooleanExtra(HikeConstants.HikePhotos.EDITOR_ALLOW_COMPRESSION_KEY, true));
-		
-		if (filename == null)
-		{
-			// Check if intent is from GalleryActivity
-			ArrayList<GalleryItem> galleryList = intent.getParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS);
-			if (galleryList != null && !galleryList.isEmpty())
-			{
-				filename = galleryList.get(0).getFilePath();
-			}
-			
-			if (filename == null)
-			{
-				PictureEditer.this.finish();
-				return;
-			}
-			
-			init();
-		}
-		
-		else
-		{
-			HikeBitmapFactory.correctBitmapRotation(filename, new HikePhotosListener()
-			{
-				@Override
-				public void onFailure()
-				{
-					PictureEditer.this.runOnUiThread(new Runnable()
-					{
-						@Override
-						public void run()
-						{
-							PictureEditer.this.finish();		
-						}
-					});
-				}
-
-				@Override
-				public void onComplete(final Bitmap bmp)
-				{
-					PictureEditer.this.runOnUiThread(new Runnable()
-					{
-						@Override
-						public void run()
-						{
-							// Init
-							init(bmp);
-						}
-					});
-				}
-
-				@Override
-				public void onComplete(File f)
-				{
-					// Not used
-				}
-			});
-		}
 
 	}
 
@@ -210,24 +204,6 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 		indicator.setVisibility(View.VISIBLE);
 
 		editView.loadImageFromBitmap(srcBitmap);
-		editView.setOnDoodlingStartListener(clickHandler);
-		editView.enableFilters();
-		undoButton.setOnClickListener(clickHandler);
-
-		indicator.setOnPageChangeListener(clickHandler);
-
-	}
-	
-	private void init()
-	{
-		FragmentPagerAdapter adapter = new PhotoEditViewPagerAdapter(getSupportFragmentManager());
-		pager.setAdapter(adapter);
-		pager.setVisibility(View.VISIBLE);
-
-		indicator.setViewPager(pager);
-		indicator.setVisibility(View.VISIBLE);
-
-		editView.loadImageFromFile(filename);
 		editView.setOnDoodlingStartListener(clickHandler);
 		editView.enableFilters();
 		undoButton.setOnClickListener(clickHandler);
