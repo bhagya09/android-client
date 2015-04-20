@@ -520,6 +520,7 @@ public final class HikeEffectsFactory
 			}
 			catch (RSRuntimeException e)
 			{
+				//TO add analytics event
 				Logger.e("Dimension Mismatch", "occured while applying : " + effect.toString());
 				uiHandler.post(new Runnable()
 				{
