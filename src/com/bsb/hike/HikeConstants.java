@@ -2532,7 +2532,7 @@ public class HikeConstants
 		public static final int PHOTOS_PAGER_DOODLE_WEIGHT_SUM = 10000;
 		
 		public static final int MAXIMUM_ALLOWED_IMAGE_AREA = 800 * 600;
-		
+
 	}
 
 	

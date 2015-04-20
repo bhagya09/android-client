@@ -1,6 +1,5 @@
 package com.bsb.hike.BitmapModule;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -25,7 +24,6 @@ import android.text.TextUtils;
 import android.util.Base64;
 import android.view.View;
 import android.view.View.MeasureSpec;
-import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;

@@ -10,6 +10,7 @@ import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+
 import com.bsb.hike.R;
 import com.bsb.hike.photos.views.DoodleEffectItemLinearLayout;
 import com.bsb.hike.photos.views.FilterEffectItemLinearLayout;
@@ -39,7 +40,7 @@ public class HikePhotosUtils
 
 		public static final int QUALITY_TYPE = 4;
 	}
-
+	
 	// array cpntaining colors hex codes for colors provided in doodling
 	public static int[] DoodleColors = { 0xffff6d00, 0xff1014e2, 0xff86d71d,
 
@@ -100,7 +101,7 @@ public class HikePhotosUtils
 
 		if (bitmap != null && centerIN)
 		{
-			if (bitmap.getWidth() > bitmap.getHeight())
+			if (bitmap.getWidth() >= bitmap.getHeight())
 			{
 
 				width = maxWidth;
@@ -274,7 +275,6 @@ public class HikePhotosUtils
 				{
 					effectfilters = new FilterList();
 					effectfilters.addFilter("ORIGINAL", FilterType.ORIGINAL);
-					//effectfilters.addFilter("AUTO", FilterType.AUTO);
 					effectfilters.addFilter("KALA PILA", FilterType.SOLOMON);
 					effectfilters.addFilter("CHUSKI", FilterType.CLASSIC);
 					effectfilters.addFilter("JUGAAD", FilterType.NASHVILLE);
@@ -291,13 +291,9 @@ public class HikePhotosUtils
 					effectfilters.addFilter("SEPIA", FilterType.SEPIA);
 					effectfilters.addFilter("GRAYSCALE", FilterType.GRAYSCALE);
 					effectfilters.addFilter("GULAAL", FilterType.GULAAL);
-					// effectfilters.addFilter("RANGEELA", FilterType.RANGEELA);
 					effectfilters.addFilter("JUNGLEE", FilterType.JUNGLEE);
-					//effectfilters.addFilter("GHOSTLY", FilterType.GHOSTLY);
-					//effectfilters.addFilter("CHILLUM", FilterType.CHILLUM);
 					effectfilters.addFilter("HDR", FilterType.HDR);
 					effectfilters.addFilter("POLAROID", FilterType.POLAROID);
-					//effectfilters.addFilter("AVATAR", FilterType.BGR);
 					effectfilters.addFilter("SUNLITT", FilterType.SUNLITT);
 				}
 				return effectfilters;
