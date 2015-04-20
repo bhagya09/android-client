@@ -73,7 +73,8 @@ import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 import com.squareup.okhttp.ResponseBody;
 
-@ReportsCrashes(formKey = "", customReportContent = { ReportField.APP_VERSION_CODE, ReportField.APP_VERSION_NAME, ReportField.PHONE_MODEL, ReportField.BRAND, ReportField.PRODUCT,
+//https://github.com/ACRA/acra/wiki/Backends
+@ReportsCrashes( customReportContent = { ReportField.APP_VERSION_CODE, ReportField.APP_VERSION_NAME, ReportField.PHONE_MODEL, ReportField.BRAND, ReportField.PRODUCT,
 		ReportField.ANDROID_VERSION, ReportField.STACK_TRACE, ReportField.USER_APP_START_DATE, ReportField.USER_CRASH_DATE })
 public class HikeMessengerApp extends Application implements HikePubSub.Listener
 {
@@ -574,7 +575,7 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	private class CustomReportSender implements ReportSender
 	{
 		@Override
-		public void send(CrashReportData crashReportData) throws ReportSenderException
+		public void send(Context arg0, CrashReportData crashReportData) throws ReportSenderException
 		{
 			try
 			{
@@ -591,7 +592,7 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 					request.setPassword(password);
 					String paramsAsString = getParamsAsString(crashReportData);
 					Logger.e(HikeMessengerApp.this.getClass().getSimpleName(), "Params: " + paramsAsString);
-					request.send(new URL(reportUrl), HttpSender.Method.POST, paramsAsString, HttpSender.Type.FORM);
+					request.send(arg0, new URL(reportUrl), HttpSender.Method.POST, paramsAsString, HttpSender.Type.FORM);
 				}
 			}
 			catch (IOException e)
