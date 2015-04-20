@@ -874,6 +874,11 @@ public class AccountUtils
 			{
 			case PROFILE_PIC:
 				requestBase = new HttpPost(base + hikeHttpRequest.getPath());
+				/*
+				 * Adding MD5 header to validate the file at server side.
+				 */
+				String fileMd5 = Utils.fileToMD5(hikeHttpRequest.getFilePath());
+				requestBase.addHeader("Content-MD5", fileMd5);
 				entity = new FileEntity(new File(hikeHttpRequest.getFilePath()), "");
 				break;
 
