@@ -2161,8 +2161,13 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 				public void run()
 				{
 					ConvInfo convInfo = mConversationsByMSISDN.get(msisdn);
-					
-					updateViewForMessageStateChange(convInfo, message);
+					/**
+					 * If we are displaying isTyping on the UI, then do not update the UI.
+					 */
+					if (!convInfo.isLastMsgTyping())
+					{
+						updateViewForMessageStateChange(convInfo, message);
+					}
 				}
 			});
 		}
@@ -2194,7 +2199,13 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 					{
 						ConvInfo convInfo = mConversationsByMSISDN.get(msisdn);
 						
-						updateViewForMessageStateChange(convInfo, msg);
+						/**
+						 * If we are displaying isTyping on the UI, then do not update the UI.
+						 */
+						if (!convInfo.isLastMsgTyping())
+						{
+							updateViewForMessageStateChange(convInfo, msg);
+						}
 					}
 				});
 			}
@@ -3075,8 +3086,13 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 				public void run()
 				{
 					ConvInfo conversation = mConversationsByMSISDN.get(msg.getMsisdn());
-
-					updateViewForMessageStateChange(conversation, msg);
+					/**
+					 * If we are displaying isTyping on the UI, then do not update the UI.
+					 */
+					if (!conversation.isLastMsgTyping())
+					{
+						updateViewForMessageStateChange(conversation, msg);
+					}
 				}
 			});
 		}

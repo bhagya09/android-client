@@ -1,6 +1,16 @@
 package com.bsb.hike.voip;
 
+import java.io.File;
+import java.io.IOException;
+
+import android.content.Context;
+import android.content.pm.ApplicationInfo;
+import android.os.Build;
+import android.util.Log;
+
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.UnzipUtil;
 
 
 public class OpusWrapper {
@@ -24,9 +34,36 @@ public class OpusWrapper {
 	
 	private static Object encoderLock = new Object();
 	private static Object decoderLock = new Object();
+
+	private static String TAG = "OpusWrapper";
 	
-	static {
-		System.loadLibrary("opuscodec");
+	public OpusWrapper() throws IOException
+	{
+		try
+		{
+			System.loadLibrary("opuscodec");
+		}
+		catch(UnsatisfiedLinkError ex)
+		{
+			/*
+			 * HACK - to avoid library duplication!
+			 * System can't load the library from the libs/armeabi dir because: https://code.google.com/p/android/issues/detail?id=9089
+			 * Hence, we are extracting the library from the apk source to internal storage and loading it from there.
+			 */
+			Logger.d(TAG, "Unsatisfied link error, loading library from internal storage");
+			Context mContext = HikeMessengerApp.getInstance();
+			String destPath = mContext.getFilesDir().toString();
+			String libName = "libopuscodec.so";
+			String lib = destPath + File.separator + libName;
+			File extractedFile = new File(lib);
+			if(!extractedFile.isFile())
+			{
+				Logger.d(TAG, "File does not exists, extracting");
+				UnzipUtil.extractFile(mContext.getApplicationInfo().sourceDir, VoIPUtils.ndkLibPath + libName, destPath);
+			}
+			Logger.d(TAG,"Loading library from internal storage.");
+			System.load(lib);
+		}
 	}
 	
 	public int getEncoder(int samplingRate, int channels, int bitrate) {

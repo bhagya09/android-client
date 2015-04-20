@@ -1,6 +1,8 @@
 package com.bsb.hike.utils;
 
 import java.io.File;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -129,11 +131,11 @@ public class OneToNConversationUtils
 		OneToNConversation oneToNConversation;
 		if (activity.getIntent().hasExtra(HikeConstants.IS_BROADCAST))
 		{
-			oneToNConversation = new BroadcastConversation.ConversationBuilder(oneToNConvId).setConversationOwner(userContactInfo.getMsisdn()).setIsAlive(true).build();
+			oneToNConversation = new BroadcastConversation.ConversationBuilder(oneToNConvId).setConversationOwner(userContactInfo.getMsisdn()).setIsAlive(true).setCreationTime(System.currentTimeMillis()).build();
 		}
 		else
 		{
-			oneToNConversation = new GroupConversation.ConversationBuilder(oneToNConvId).setConversationOwner(userContactInfo.getMsisdn()).setIsAlive(true).build();
+			oneToNConversation = new GroupConversation.ConversationBuilder(oneToNConvId).setConversationOwner(userContactInfo.getMsisdn()).setIsAlive(true).setCreationTime(System.currentTimeMillis()).build();
 		}
 
 		oneToNConversation.setConversationParticipantList(participantList);
@@ -143,7 +145,7 @@ public class OneToNConversationUtils
 		mConversationDb.addRemoveGroupParticipants(oneToNConvId, oneToNConversation.getConversationParticipantList(), false);
 		if (newOneToNConv)
 		{
-			mConversationDb.addConversation(oneToNConversation.getMsisdn(), false, convName, oneToNConversation.getConversationOwner());
+			mConversationDb.addConversation(oneToNConversation.getMsisdn(), false, convName, oneToNConversation.getConversationOwner(), null, oneToNConversation.getCreationDate());
 			ContactManager.getInstance().insertGroup(oneToNConversation.getMsisdn(), convName);
 		}
 
@@ -160,9 +162,7 @@ public class OneToNConversationUtils
 			{
 				gcjPacket.put(HikeConstants.NEW_GROUP, newOneToNConv);
 			}
-			ConvMessage msg = new ConvMessage(gcjPacket, oneToNConversation, activity, true);
-			ContactManager.getInstance().updateGroupRecency(oneToNConvId, msg.getTimestamp());
-			HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_SENT, msg);
+			
 			/*
 			 * Adding request dp to the packet
 			 */
@@ -179,10 +179,14 @@ public class OneToNConversationUtils
 				{
 					metadata.put(HikeConstants.REQUEST_DP, true);
 				}
-
+				
 				gcjPacket.put(HikeConstants.METADATA, metadata);
 			}
 
+			ConvMessage msg = new ConvMessage(gcjPacket, oneToNConversation, activity, true);
+			ContactManager.getInstance().updateGroupRecency(oneToNConvId, msg.getTimestamp());
+			HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_SENT, msg);
+			
 			HikeMqttManagerNew.getInstance().sendMessage(gcjPacket, HikeMqttManagerNew.MQTT_QOS_ONE);
 
 			/**
@@ -260,5 +264,15 @@ public class OneToNConversationUtils
 			allPairs.add(pair);
 		}
 		HikeMessengerApp.getPubSub().publish(HikePubSub.MULTI_MESSAGE_DB_INSERTED, allPairs);
+	}
+
+	public static String getGroupCreationTimeAsString(Context context,
+			long creationTime) {
+		String format;
+		format = "dd/MM/yyyy 'at' hh:mm a";
+
+		DateFormat df = new SimpleDateFormat(format);
+		return df.format(creationTime);
+
 	}
 }

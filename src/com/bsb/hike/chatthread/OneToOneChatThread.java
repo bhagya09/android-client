@@ -26,7 +26,6 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewStub;
-import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
@@ -223,13 +222,15 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		List<OverFlowMenuItem> list = new ArrayList<OverFlowMenuItem>();
 		list.add(new OverFlowMenuItem(getString(R.string.view_profile), 0, 0, R.string.view_profile));
 		list.add(new OverFlowMenuItem(getString(R.string.chat_theme), 0, 0, R.string.chat_theme));
+		list.add(new OverFlowMenuItem(getString(R.string.search), 0, 0, R.string.search));
+		list.add(new OverFlowMenuItem(mConversation.isBlocked() ? getString(R.string.unblock_title) : getString(R.string.block_title), 0, 0, R.string.block_title));
+		
 		for (OverFlowMenuItem item : super.getOverFlowMenuItems())
 		{
 			list.add(item);
 		}
 
-		list.add(new OverFlowMenuItem(mConversation.isBlocked() ? getString(R.string.unblock_title) : getString(R.string.block_title), 0, 0, R.string.block_title));
-		if (mContactInfo.isNotOrRejectedFavourite())
+		if (mContactInfo.isNotOrRejectedFavourite() && mConversation.isOnHike())
 		{
 			list.add(new OverFlowMenuItem(getString(R.string.add_as_favorite_menu), 0, 0, R.string.add_as_favorite_menu));
 		}
@@ -550,7 +551,6 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			break;
 		case HikePubSub.USER_JOINED:
 			onUserJoinedOrLeft(object, true);
-			uiHandler.sendEmptyMessage(SHOW_CALL_ICON);
 			break;
 		case HikePubSub.USER_LEFT:
 			onUserJoinedOrLeft(object, false);
@@ -685,9 +685,12 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			addToUndeliveredMessages((ConvMessage) msg.obj);
 			break;
 		case SHOW_CALL_ICON:
-			if(shouldShowCallIcon())
+			if (shouldShowCallIcon())
 			{
-				mActionBar.getMenuItem(R.id.voip_call).setVisible(true);
+				if (mActionBar != null)
+				{
+					mActionBar.getMenuItem(R.id.voip_call).setVisible(true);
+				}
 			}
 			break;
 		case BLOCK_UNBLOCK_USER:
@@ -1157,16 +1160,13 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	}
 
 	@Override
-	protected boolean updateUIAsPerTheme(ChatTheme theme)
+	protected void updateUIAsPerTheme(ChatTheme theme)
 	{
-		if (super.updateUIAsPerTheme(theme))
+		super.updateUIAsPerTheme(theme);
+		if (!mContactInfo.isUnknownContact())
 		{
-			if (!mContactInfo.isUnknownContact())
-			{
-				setupSMSToggleLayout();
-			}
+			setupSMSToggleLayout();
 		}
-		return false;
 	}
 
 	/**
@@ -1203,8 +1203,8 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 
 	private void setUpSMSViews()
 	{
-		animateSMSToggleLayout();
-		
+		View SMSToggleButton = (View) activity.findViewById(R.id.sms_toggle_button);
+
 		TextView smsToggleSubtext = (TextView) activity.findViewById(R.id.sms_toggle_subtext);
 		CheckBox smsToggle = (CheckBox) activity.findViewById(R.id.checkbox);
 		TextView hikeSmsText = (TextView) activity.findViewById(R.id.hike_text);
@@ -1234,22 +1234,12 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		mAdapter.initializeSmsToggleTexts(hikeSmsText, regularSmsText, smsToggleSubtext);
 		mAdapter.setSmsToggleSubtext(smsToggleOn);
 
+		SMSToggleButton.setVisibility(View.VISIBLE);
 		smsToggleSubtext.setVisibility(View.VISIBLE);
 		smsToggle.setVisibility(View.VISIBLE);
 		hikeSmsText.setVisibility(View.VISIBLE);
 		regularSmsText.setVisibility(View.VISIBLE);
 		smsToggle.setOnCheckedChangeListener(mAdapter);
-	}
-
-	/**
-	 * This method sets alpha animation on the SMS toggle layout
-	 */
-	private void animateSMSToggleLayout()
-	{
-		View SMSToggleButton = (View) activity.findViewById(R.id.sms_toggle_button);
-		AlphaAnimation showSMSToggleButton = new AlphaAnimation(0.0f, 1.0f);
-		showSMSToggleButton.setDuration(1000);
-		SMSToggleButton.startAnimation(showSMSToggleButton);		
 	}
 
 	/**
@@ -1305,9 +1295,16 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	@Override
 	protected void openProfileScreen()
 	{
-		Intent profileIntent = IntentFactory.getSingleProfileIntent(activity.getApplicationContext(), mConversation.isOnHike(), msisdn);
+		if (!mConversation.isBlocked())
+		{
+			Intent profileIntent = IntentFactory.getSingleProfileIntent(activity.getApplicationContext(), mConversation.isOnHike(), msisdn);
 
-		activity.startActivity(profileIntent);
+			activity.startActivity(profileIntent);
+		}
+		else
+		{
+			Toast.makeText(activity.getApplicationContext(), activity.getString(R.string.user_blocked, mConversation.getConversationName()), Toast.LENGTH_SHORT).show();
+		}
 	}
 
 	/**
@@ -1499,6 +1496,11 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			mConversation.setOnHike(isJoined);
 
 			uiHandler.sendEmptyMessage(USER_JOINED_OR_LEFT);
+			
+			if (isJoined)
+			{
+				uiHandler.sendEmptyMessage(SHOW_CALL_ICON);
+			}
 		}
 	}
 
@@ -2606,7 +2608,6 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		}
 		
 		super.onPrepareOverflowOptionsMenu(overflowItems);
-		
 		for (OverFlowMenuItem overFlowMenuItem : overflowItems)
 		{
 
@@ -2626,15 +2627,8 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 				}
 				break;
 				
-			case R.string.search:
-			case R.string.clear_chat:
-				overFlowMenuItem.enabled = !messages.isEmpty() && !mConversation.isBlocked();
-				break;
 				
-			case R.string.email_chat:
-				overFlowMenuItem.enabled = !messages.isEmpty();
-				break;
-				
+			case R.string.view_profile:
 			case R.string.chat_theme:
 				overFlowMenuItem.enabled = !mConversation.isBlocked();
 				break;
