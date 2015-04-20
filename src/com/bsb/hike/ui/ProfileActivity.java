@@ -2881,7 +2881,8 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 
 	private void removeFromGroup(final ContactInfo contactInfo)
 	{
-		HikeDialogFactory.showDialog(this, HikeDialogFactory.DELETE_FROM_GROUP, new HikeDialogListener()
+		int dialogId = oneToNConversation instanceof BroadcastConversation? HikeDialogFactory.DELETE_FROM_BROADCAST : HikeDialogFactory.DELETE_FROM_GROUP;
+		HikeDialogFactory.showDialog(this, dialogId, new HikeDialogListener()
 		{	
 			@Override
 			public void positiveClicked(HikeDialog hikeDialog)
