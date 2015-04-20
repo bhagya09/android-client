@@ -56,7 +56,7 @@ public class DownloadProfileImageTask
 		this.statusImage = statusImage;
 		this.name = name;
 		this.filePath = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
-		this.fileName = filePath + "/" + Utils.getTempProfileImageFileName(id);
+		this.fileName = fileName; 
 		this.showToast = showToast;
 		this.hasCustomIcon = hasCustomIcon;
 		this.urlString = url;
@@ -74,6 +74,7 @@ public class DownloadProfileImageTask
 			}
 		}
 
+		filePath = filePath + "/" + Utils.getTempProfileImageFileName(id);
 		RequestToken token = HttpRequests.downloadImageTaskRequest(id, fileName, filePath, hasCustomIcon, statusImage, urlString, requestListener);
 		token.execute();
 	}
