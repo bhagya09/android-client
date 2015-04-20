@@ -1349,12 +1349,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		switch (dialog.getId())
 		{
 		case HikeDialogFactory.DELETE_MESSAGES_DIALOG:
-			dialog.dismiss();
-			mActionMode.finish();
-			
-			this.dialog = null;
-			break;
-			
 		case HikeDialogFactory.CONTACT_SEND_DIALOG:
 		case HikeDialogFactory.CONTACT_SAVE_DIALOG:
 		case HikeDialogFactory.CLEAR_CONVERSATION_DIALOG:
