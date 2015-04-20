@@ -4,7 +4,6 @@
 package com.bsb.hike.modules.contactmgr;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -20,6 +19,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -2104,10 +2104,15 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 		}
 	}
 
-	public ArrayList<String> getMsisdnFromId(String[] selectionArgs)
+	public ArrayList<String> getMsisdnFromId(ArrayList<String> selectionArgs)
 	{
+		String msisdnStatement = Utils.getMsisdnStatement(selectionArgs);
+		if (TextUtils.isEmpty(msisdnStatement))
+		{
+			return new ArrayList<String>();
+		}
 		Cursor c = getReadableDatabase().query(DBConstants.USERS_TABLE, new String[] { DBConstants.MSISDN },
-				DBConstants.ID + " IN " + Utils.getMsisdnStatement(Arrays.asList(selectionArgs)), null, null, null, null);
+				DBConstants.PLATFORM_USER_ID + " IN " + msisdnStatement, null, null, null, null);
 
 		ArrayList<String> msisdnList = new ArrayList<String>();
 
@@ -2120,10 +2125,10 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 			while (c.moveToNext());
 		}
 
-		// Incase of hike id == -1, add self msisdn
-		for (int i = 0; i < selectionArgs.length; i++)
+		// Incase of hike id == platform uid for user, add self msisdn
+		for (String id : selectionArgs)
 		{
-			if (selectionArgs[i].equals(HikeConstants.SELF_HIKE_ID))
+			if (id.equals(HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_UID_SETTING, null)))
 			{
 				ContactInfo userContact = Utils.getUserContactInfo(context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, Context.MODE_PRIVATE));
 				msisdnList.add(userContact.getMsisdn());
@@ -2144,5 +2149,15 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 			unload();
 		}
 
+	}
+
+	public void platformUserIdEntry(JSONArray data)
+	{
+		hDb.platformUserIdDbEntry(data);
+	}
+
+	public ArrayList<String> getMsisdnForMissingPlatformUID()
+	{
+		return hDb.getMsisdnsForMissingPlatformUID();
 	}
 }
