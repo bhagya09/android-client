@@ -39,18 +39,16 @@ import com.bsb.hike.photos.views.CanvasImageView.OnDoodleStateChangeListener;
 import com.bsb.hike.photos.views.DoodleEffectItemLinearLayout;
 import com.bsb.hike.photos.views.FilterEffectItemLinearLayout;
 import com.bsb.hike.photos.views.PhotosEditerFrameLayoutView;
-import com.bsb.hike.ui.PictureEditer.EditorClickListener;
 import com.bsb.hike.ui.fragments.PhotoActionsFragment;
 import com.bsb.hike.ui.fragments.PhotoActionsFragment.ActionListener;
 import com.bsb.hike.ui.fragments.PreviewFragment;
 import com.bsb.hike.ui.fragments.ProfilePicFragment;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
-import com.bsb.hike.utils.IntentManager;
+import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Utils;
 import com.viewpagerindicator.IconPagerAdapter;
 import com.viewpagerindicator.PhotosTabPageIndicator;
-import com.viewpagerindicator.TabPageIndicator;
 
 public class PictureEditer extends HikeAppStateBaseFragmentActivity
 {
@@ -329,7 +327,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 										@Override
 										public void onComplete(File f)
 										{
-											Intent forwardIntent = IntentManager.getForwardImageIntent(mContext, f);
+											Intent forwardIntent = IntentFactory.getForwardImageIntent(mContext, f);
 											forwardIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 											startActivity(forwardIntent);
 										}

@@ -16,11 +16,9 @@ import android.widget.TextView;
 import com.actionbarsherlock.app.SherlockFragment;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
-import com.bsb.hike.utils.IntentManager;
-import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.voip.VoIPConstants;
-import com.bsb.hike.voip.VoIPService;
 import com.bsb.hike.voip.VoIPUtils;
 
 public class CallFailedFragment extends SherlockFragment
@@ -68,7 +66,7 @@ public class CallFailedFragment extends SherlockFragment
 			public void onClick(View v) {
 				if(enableRedial)
 				{
-					Intent intent = IntentManager.getVoipCallIntent(getSherlockActivity(), msisdn, VoIPUtils.CallSource.CALL_FAILED_FRAG);
+					Intent intent = IntentFactory.getVoipCallIntent(getSherlockActivity(), msisdn, VoIPUtils.CallSource.CALL_FAILED_FRAG);
 					getSherlockActivity().startService(intent);
 				}
 				else
@@ -84,8 +82,7 @@ public class CallFailedFragment extends SherlockFragment
 		{
 			@Override
 			public void onClick(View v) {
-				Intent intent = IntentManager.getChatThreadIntent(getSherlockActivity(), msisdn);
-				intent.putExtra(HikeConstants.Extras.SHOW_KEYBOARD, true);
+				Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(getSherlockActivity(), msisdn, true);
 				startActivity(intent);
 				getSherlockActivity().finish();
 			}
@@ -95,7 +92,7 @@ public class CallFailedFragment extends SherlockFragment
 		{
 			@Override
 			public void onClick(View v) {
-				Intent intent = IntentManager.getChatThreadIntent(getSherlockActivity(), msisdn);
+				Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(getSherlockActivity(), msisdn, false);
 				intent.putExtra(HikeConstants.Extras.SHOW_RECORDING_DIALOG, true);
 				startActivity(intent);
 				getSherlockActivity().finish();

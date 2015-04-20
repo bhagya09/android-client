@@ -43,10 +43,10 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.PowerManager;
+import android.os.PowerManager.WakeLock;
 import android.os.RemoteException;
 import android.os.SystemClock;
 import android.os.Vibrator;
-import android.os.PowerManager.WakeLock;
 import android.support.v4.app.NotificationCompat;
 import android.text.TextUtils;
 import android.util.SparseIntArray;
@@ -61,7 +61,7 @@ import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.bsb.hike.utils.IntentManager;
+import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.voip.VoIPClient.ConnectionMethods;
 import com.bsb.hike.voip.VoIPConstants.CallQuality;
@@ -2353,7 +2353,7 @@ public class VoIPService extends Service {
 			else isRingingIncoming = true;
 			
 			// Show activity
-			Intent intent = IntentManager.getVoipIncomingCallIntent(VoIPService.this);
+			Intent intent = IntentFactory.getVoipIncomingCallIntent(VoIPService.this);
 			startActivity(intent);
 
 			// Ringer
