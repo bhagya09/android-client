@@ -230,7 +230,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			list.add(item);
 		}
 
-		if (mContactInfo.isNotOrRejectedFavourite())
+		if (mContactInfo.isNotOrRejectedFavourite() && mConversation.isOnHike())
 		{
 			list.add(new OverFlowMenuItem(getString(R.string.add_as_favorite_menu), 0, 0, R.string.add_as_favorite_menu));
 		}
