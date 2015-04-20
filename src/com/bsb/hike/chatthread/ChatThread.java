@@ -723,6 +723,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			startHikeGallery(mConversation.isOnHike());
 			break;
 		case R.string.search:
+			recordSearchOptionClick();
 			setupSearchMode();
 			break;
 		default:
@@ -1136,6 +1137,61 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		imageIntent.putExtra(GalleryActivity.START_FOR_RESULT, true);
 		activity.startActivityForResult(imageIntent, AttachmentPicker.GALLERY);
 	}
+	
+	private void recordSearchOptionClick()
+	{
+		String CHAT = "chat";
+		int chat = 0;
+		if (this instanceof OneToOneChatThread)
+			chat = 1;
+		else if (this instanceof GroupChatThread)
+			chat = 2;
+		else if (this instanceof BroadcastChatThread)
+			chat = 3;
+		try
+		{
+			JSONObject metadata = new JSONObject();
+			metadata
+			.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.CHAT_SEARCH)
+			.put(CHAT,chat);
+			
+			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+		}
+		catch (JSONException e)
+		{
+			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+		}
+	}
+	
+	private void recordSearchInputWithResult(int id, String searchText, int result)
+	{
+		String PREV = "Prev";
+		String NEXT = "Next";
+		String LOOP = "Loop";
+		String TEXT = "txt";
+		String RESULT = "rslt";
+
+		String eventKey;
+		if (id == SEARCH_PREVIOUS)
+			eventKey = HikeConstants.LogEvent.CHAT_SEARCH + PREV;
+		else if (id == SEARCH_NEXT)
+			eventKey = HikeConstants.LogEvent.CHAT_SEARCH + NEXT;
+		else
+			eventKey = HikeConstants.LogEvent.CHAT_SEARCH + LOOP;
+		try
+		{
+			JSONObject metadata = new JSONObject();
+			metadata
+			.put(HikeConstants.EVENT_KEY, eventKey)
+			.put(TEXT, searchText)
+			.put(RESULT, result);
+			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+		}
+		catch (JSONException e)
+		{
+			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+		}
+	}
 
 	private void setupSearchMode()
 	{
@@ -1182,7 +1238,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		mComposeView.requestFocus();
 		Utils.showSoftKeyboard(activity.getApplicationContext());
 	}
-	
+
 	TextWatcher searchTextWatcher = new TextWatcher()
 	{
 		
@@ -2098,6 +2154,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			int id = loader.loaderId;
 			if (id == SEARCH_LOOP || id == SEARCH_NEXT || id == SEARCH_PREVIOUS)
 			{
+				recordSearchInputWithResult(id, searchText, (int) arg1);
 				updateUIforSearchResult((int) arg1);
 			}
 		}
