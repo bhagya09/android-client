@@ -190,7 +190,6 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 	{
 		super.onResume();
 		overridePendingTransition(R.anim.fade_in_animation, R.anim.fade_out_animation);
-		getSupportActionBar().getCustomView().findViewById(R.id.done_container).setVisibility(View.VISIBLE);
 		editView.enable();
 	}
 
