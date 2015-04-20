@@ -454,7 +454,7 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 
 	public static final String NOTIFICATION_TONE_NAME = "notificaationToneName";
 
-	public static final String SHOWN_VOIP_INTRO_TIP = "shownVoipIntroTip";
+	public static final String SHOW_VOIP_FTUE_POPUP = "showVoipFtuePopup";
 
 	public static final String SHOW_VOIP_CALL_RATE_POPUP = "showVoipCallRatePopup";
 
@@ -463,6 +463,10 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	public static final String VOIP_ACTIVE_CALLS_COUNT = "voipCallsCount";
 
 	public static final String DETAILED_HTTP_LOGGING_ENABLED = "detailedHttpLoggingEnabled";
+
+	public static final String CT_SEARCH_INDICATOR_SHOWN = "ctSearchIndiShown";
+
+	public static final String CT_SEARCH_CLICKED = "ctSearchClicked";
 
 	public static final String BULK_LAST_SEEN_PREF = "blsPref";
 	

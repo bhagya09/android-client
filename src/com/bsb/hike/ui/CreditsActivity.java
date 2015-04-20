@@ -25,13 +25,10 @@ import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
-import com.bsb.hike.productpopup.DialogPojo;
-import com.bsb.hike.productpopup.HikeDialogFragment;
-import com.bsb.hike.productpopup.IActivityPopup;
-import com.bsb.hike.productpopup.ProductContentModel;
-import com.bsb.hike.productpopup.ProductInfoManager;
+import com.bsb.hike.dialog.HikeDialog;
+import com.bsb.hike.dialog.HikeDialogFactory;
+import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
-import com.bsb.hike.ui.HikeDialog.HikeDialogListener;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -73,7 +70,7 @@ public class CreditsActivity extends HikeAppStateBaseFragmentActivity implements
 			if (dialogShowingOrdinal != -1)
 			{
 				dialogShowing = DialogShowing.values()[dialogShowingOrdinal];
-				smsDialog = Utils.showSMSSyncDialog(this, dialogShowing == DialogShowing.SMS_SYNC_CONFIRMATION_DIALOG);
+				smsDialog = HikeDialogFactory.showDialog(this, HikeDialogFactory.SMS_SYNC_DIALOG, dialogShowing == DialogShowing.SMS_SYNC_CONFIRMATION_DIALOG);
 			}
 		}
 		
@@ -300,7 +297,7 @@ public class CreditsActivity extends HikeAppStateBaseFragmentActivity implements
 				@Override
 				public void run()
 				{
-					smsDialog = Utils.showSMSSyncDialog(CreditsActivity.this, true);
+					smsDialog = HikeDialogFactory.showDialog(CreditsActivity.this, HikeDialogFactory.SMS_SYNC_DIALOG, true);
 					dialogShowing = DialogShowing.SMS_SYNC_CONFIRMATION_DIALOG;
 				}
 			});
@@ -467,11 +464,11 @@ public class CreditsActivity extends HikeAppStateBaseFragmentActivity implements
 	private void showSMSClientDialog(final boolean isSendHikeChecked)
 	{
 
-		HikeDialogListener smsClientDialogListener = new HikeDialog.HikeDialogListener()
+		HikeDialogListener smsClientDialogListener = new HikeDialogListener()
 		{
 
 			@Override
-			public void positiveClicked(Dialog dialog)
+			public void positiveClicked(HikeDialog hikeDialog)
 			{
 				
 				Utils.setReceiveSmsSetting(CreditsActivity.this, true);
@@ -481,31 +478,24 @@ public class CreditsActivity extends HikeAppStateBaseFragmentActivity implements
 				}
 				smsDialogActionClicked(true, isSendHikeChecked);
 				setupPreferenceLayout(findViewById(R.id.receive_sms_item), true);
-				dialog.dismiss();
+				hikeDialog.dismiss();
 			}
 
 			@Override
-			public void neutralClicked(Dialog dialog)
+			public void neutralClicked(HikeDialog hikeDialog)
 			{
 				
 			}
 
 			@Override
-			public void negativeClicked(Dialog dialog)
+			public void negativeClicked(HikeDialog hikeDialog)
 			{
 				smsDialogActionClicked(false, isSendHikeChecked);
-				dialog.dismiss();
+				hikeDialog.dismiss();
 			}
 
-			@Override
-			public void onSucess(Dialog dialog)
-			{
-				// TODO Auto-generated method stub
-				
-			}
 		};
 		
-		Dialog dialog = HikeDialog.showDialog(CreditsActivity.this, HikeDialog.SMS_CLIENT_DIALOG, smsClientDialogListener, false, null, false);  
-		dialog.show();
+		HikeDialogFactory.showDialog(CreditsActivity.this, HikeDialogFactory.SMS_CLIENT_DIALOG, smsClientDialogListener, false, null, false);  
 	}
 }
