@@ -3,7 +3,6 @@ package com.bsb.hike;
 import android.net.Uri;
 import android.os.Environment;
 
-import com.bsb.hike.NUXConstants.PushTypeEnum;
 import com.bsb.hike.models.StatusMessage.StatusMessageType;
 
 public class HikeConstants
@@ -2591,8 +2590,6 @@ public class HikeConstants
 		
 		public static final int MAXIMUM_ALLOWED_IMAGE_AREA = 800 * 600;
 
-		public static final float CANVAS_WEIGHT = 0.811f;
-		
 	}
 
 	

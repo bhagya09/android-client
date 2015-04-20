@@ -51,7 +51,6 @@ import com.bsb.hike.ui.fragments.PreviewFragment;
 import com.bsb.hike.ui.fragments.ProfilePicFragment;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
-import com.bsb.hike.utils.HikeUiHandler;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Utils;
 import com.viewpagerindicator.IconPagerAdapter;
@@ -126,14 +125,20 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 			@Override
 			public void onFailure()
 			{
-				PictureEditer.this.finish();
-				return;
+				PictureEditer.this.runOnUiThread(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						PictureEditer.this.finish();		
+					}
+				});
 			}
 
 			@Override
 			public void onComplete(final Bitmap bmp)
 			{
-				HikeUiHandler.getHandler().post(new Runnable()
+				PictureEditer.this.runOnUiThread(new Runnable()
 				{
 					@Override
 					public void run()
@@ -150,6 +155,8 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 				// Not used
 			}
 		});
+		
+		startedForResult = (getCallingActivity() != null);
 
 		setupActionBar();
 
@@ -173,8 +180,6 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 		undoButton = (ImageView) findViewById(R.id.undo);
 
 		overlayFrame = findViewById(R.id.overlayFrame);
-
-		startedForResult = (getCallingActivity() != null);
 
 		editView.setCompressionEnabled(intent.getBooleanExtra(HikeConstants.HikePhotos.EDITOR_ALLOW_COMPRESSION_KEY, true));
 
@@ -200,7 +205,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 
 		editView.loadImageFromBitmap(srcBitmap);
 		editView.setOnDoodlingStartListener(clickHandler);
-
+		editView.enableFilters();
 		undoButton.setOnClickListener(clickHandler);
 
 		indicator.setOnPageChangeListener(clickHandler);
@@ -583,10 +588,12 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 			{
 			case HikeConstants.HikePhotos.FILTER_FRAGMENT_ID:
 				editView.disableDoodling();
+				editView.enableFilters();
 				undoButton.setVisibility(View.GONE);
 				break;
 			case HikeConstants.HikePhotos.DOODLE_FRAGMENT_ID:
 				editView.enableDoodling();
+				editView.disableFilters();
 				if (doodleState)
 				{
 					undoButton.setVisibility(View.VISIBLE);

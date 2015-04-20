@@ -14,7 +14,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Message;
@@ -501,8 +500,9 @@ public class IntentFactory
 		intent.putExtras(b);
 		return intent;
 	}
-	
-	public static Intent getHikeGalleryPickerIntent(Context context, boolean allowMultiSelect,boolean categorizeByFolders,boolean enableCameraPick,int actionBarType,PendingIntent argIntent)
+
+	public static Intent getHikeGalleryPickerIntent(Context context, boolean allowMultiSelect, boolean categorizeByFolders, boolean enableCameraPick, int actionBarType,
+			PendingIntent argIntent)
 	{
 		Intent intent = new Intent(context, GalleryActivity.class);
 		Bundle b = new Bundle();
@@ -694,9 +694,9 @@ public class IntentFactory
 		return new Intent(Intent.ACTION_VIEW, Uri.parse(url));
 	}
 
-	public static Intent getPictureEditorActivityIntent(String imageFileName, boolean compressOutput)
+	public static Intent getPictureEditorActivityIntent(Context context, String imageFileName, boolean compressOutput)
 	{
-		Intent i = new Intent(HikeMessengerApp.getInstance().getApplicationContext(), PictureEditer.class);
+		Intent i = new Intent(context, PictureEditer.class);
 
 		if (imageFileName != null)
 		{
@@ -707,22 +707,38 @@ public class IntentFactory
 		return i;
 	}
 
-	public static Intent getNativeCameraAppIntent()
+	/**
+	 * If the EXTRA_OUTPUT is not present, then a small sized image is returned as a Bitmap object in the extra field
+	 *
+	 * For images, save the file path as a preferences since in some devices the reference to the file becomes null.
+	 * @param
+	 * boolean : whether the image should be saved to a specified path to ensure full quality.
+	 * File : the specified file where the full quality image should be saved.
+	 * 
+	 * @return Camera Intent
+	 */
+	public static Intent getNativeCameraAppIntent(boolean getFullSizedCaptureResult,File destination)
 	{
 		Intent pickIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+		if (getFullSizedCaptureResult)
+		{
+			
+			pickIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(destination));
+		}
 		return pickIntent;
 	}
 
-	public static boolean isIntentAvailable(Context context, String action)
+	/**
+	 * @see http://developer.android.com/training/camera/photobasics.html : Save the Full-size Photo
+	 * @param context
+	 * @param intent
+	 * @return boolean representing whether there is an activity that can handle the given intent
+	 */
+	
+	public static boolean isIntentAvailable(Context context, Intent intent)
 	{
 		final PackageManager packageManager = context.getPackageManager();
-		final Intent intent = new Intent(action);
-		List<ResolveInfo> resolveInfo = packageManager.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
-		if (resolveInfo.size() > 0)
-		{
-			return true;
-		}
-		return false;
+		return intent.resolveActivity(packageManager)!=null;
 	}
-	
+
 }

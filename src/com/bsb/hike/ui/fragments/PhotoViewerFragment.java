@@ -604,7 +604,7 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 			getCurrentSelectedItem().shareFile(getSherlockActivity());
 			return true;
 		case R.id.edit_pic:
-			Intent editIntent = IntentFactory.getPictureEditorActivityIntent(getCurrentSelectedItem().getExactFilePath(), false);
+			Intent editIntent = IntentFactory.getPictureEditorActivityIntent(getActivity(),getCurrentSelectedItem().getExactFilePath(), true);
 			getActivity().startActivity(editIntent);
 			return true;
 		}

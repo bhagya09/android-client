@@ -1,7 +1,6 @@
 package com.bsb.hike.photos;
 
 import android.graphics.Bitmap;
-import android.graphics.Bitmap.Config;
 import android.graphics.ColorMatrix;
 import android.os.Handler;
 import android.os.Looper;
@@ -102,7 +101,7 @@ public final class HikeEffectsFactory
 			}
 		}
 
-		if (!isThumbnail && (currentOut == null || vignetteBitmap == null))
+		if (!isThumbnail && (currentOut == null || vignetteBitmap == null || mBitmapIn == null))
 		{
 			ret = false;
 		}
@@ -158,7 +157,10 @@ public final class HikeEffectsFactory
 		if (instance == null)
 			instance = new HikeEffectsFactory();
 
-		instance.loadRenderScript(scaledOriginal, true, false);
+		if (!instance.loadRenderScript(scaledOriginal, true, false))
+		{
+			return;
+		}
 		instance.beginEffectAsyncTask(listener, type, true);
 
 	}
@@ -252,7 +254,7 @@ public final class HikeEffectsFactory
 			else
 			{
 				filterColorMatrix = getBrightnessColorMatrix(0.9f);
-				filterColorMatrix.setConcat(getContrastColorMatrix(50f), filterColorMatrix);
+				filterColorMatrix.setConcat(getContrastColorMatrix(35f), filterColorMatrix);
 			}
 			break;
 		case LO_FI:
@@ -511,22 +513,25 @@ public final class HikeEffectsFactory
 
 			applyEffect(effect);
 
-			uiHandler.post(new Runnable()
+			if (!error)
 			{
-				@Override
-				public void run()
+				uiHandler.post(new Runnable()
 				{
-					readyListener.onFilterApplied(blurImage ? inBitmapOut : currentOut);
+					@Override
+					public void run()
+					{
+						readyListener.onFilterApplied(blurImage ? inBitmapOut : currentOut);
 
-				}
-			});
+					}
+				});
+			}
 		}
 
 		private void applyEffect(FilterType effect)
 		{
 			int[] ro, ri, go, gi, bo, bi, ci, co;
 			Splines red, green, blue, composite;
-
+			Bitmap temp = null;
 			if (!blurImage)
 			{
 				mScript.set_input1(mBlendAllocation);
@@ -542,19 +547,15 @@ public final class HikeEffectsFactory
 			switch (effect)
 			{
 			case CLASSIC:
-				ri = new int[] { 0, 48, 129, 233, 255 };
-				ro = new int[] { 0, 48, 106, 213, 238 };
-				gi = new int[] { 0, 40, 135, 218, 228, 242, 255 };
-				go = new int[] { 0, 58, 159, 215, 220, 233, 255 };
-				bi = new int[] { 0, 18, 134, 217, 247, 255 };
-				bo = new int[] { 0, 18, 104, 195, 236, 247 };
+				ri = new int[] { 0, 26, 51, 77, 102, 128, 154, 179, 204, 230, 255 };
+				ro = new int[] { 37, 38, 45, 81, 148, 181, 196, 203, 207, 210, 214 };
+				gi = new int[] { 0, 26, 51, 77, 102, 128, 153, 179, 204, 230, 255 };
+				go = new int[] { 48, 50, 60, 95, 144, 174, 188, 201, 207, 213, 215 };
+				bi = new int[] { 0, 26, 51, 77, 102, 128, 153, 179, 204, 230, 255 };
+				bo = new int[] { 58, 61, 65, 72, 88, 108, 124, 135, 142, 153, 165 };
 				red = new Splines(ri, ro);
 				green = new Splines(gi, go);
 				blue = new Splines(bi, bo);
-				ci = new int[] { 0, 32, 255 };
-				co = new int[] { 0, 0, 255 };
-				composite = new Splines(ci, co);
-				mScript.set_compositeSpline(composite.getInterpolationMatrix());
 				mScript.set_rSpline(red.getInterpolationMatrix());
 				mScript.set_gSpline(green.getInterpolationMatrix());
 				mScript.set_bSpline(blue.getInterpolationMatrix());
@@ -581,9 +582,9 @@ public final class HikeEffectsFactory
 			case SOLOMON:
 
 				mScript.set_r(new int[] { 0x33, 0xCD, 0 });
-				mScript.set_g(new int[] { 0x27, 0x98, 0 });		
-				mScript.set_b(new int[] { 0xCD, 0x83, 0 });	
-				mScript.forEach_filter_solomon(mInAllocation, mOutAllocations);		
+				mScript.set_g(new int[] { 0x27, 0x98, 0 });
+				mScript.set_b(new int[] { 0xCD, 0x83, 0 });
+				mScript.forEach_filter_solomon(mInAllocation, mOutAllocations);
 				break;
 			case KELVIN:
 				ri = new int[] { 0, 27, 39, 69, 86, 109, 133, 151, 171, 193, 210, 235, 255 };
@@ -680,12 +681,12 @@ public final class HikeEffectsFactory
 				mScript.forEach_filter_brannan(mInAllocation, mOutAllocations);
 				break;
 			case EARLYBIRD:
-				ri = new int[] { 0,25,44,67,85,104,125,148,174,190,213,234,255 };
-				ro = new int[] { 26,60,83,113,135,157,183,198,212,223,232,244,255 };
-				gi = new int[] { 0,25,41,60,88,104,134,153,169,196,216,235,255 };
-				go = new int[] { 0,30,53,75,113,134,173,187,196,211,219,235,240 };
-				bi = new int[] { 0,23,44,65,93,111,121,150,165,195,212,232,255 };
-				bo = new int[] { 17,38,58,76,104,121,131,153,171,186,196,203,211 };
+				ri = new int[] { 0, 25, 44, 67, 85, 104, 125, 148, 174, 190, 213, 234, 255 };
+				ro = new int[] { 26, 60, 83, 113, 135, 157, 183, 198, 212, 223, 232, 244, 255 };
+				gi = new int[] { 0, 25, 41, 60, 88, 104, 134, 153, 169, 196, 216, 235, 255 };
+				go = new int[] { 0, 30, 53, 75, 113, 134, 173, 187, 196, 211, 219, 235, 240 };
+				bi = new int[] { 0, 23, 44, 65, 93, 111, 121, 150, 165, 195, 212, 232, 255 };
+				bo = new int[] { 17, 38, 58, 76, 104, 121, 131, 153, 171, 186, 196, 203, 211 };
 				red = new Splines(ri, ro);
 				green = new Splines(gi, go);
 				blue = new Splines(bi, bo);
@@ -697,6 +698,18 @@ public final class HikeEffectsFactory
 			case INKWELL:
 				ci = new int[] { 0, 16, 82, 151, 255 };
 				co = new int[] { 0, 0, 88, 184, 224 };
+				ri = new int[] { 0, 101, 129, 255 };
+				ro = new int[] { 15, 92, 129, 255 };
+				gi = new int[] { 0, 85, 128, 255 };
+				go = new int[] { 15, 65, 128, 255 };
+				bi = new int[] { 0, 59, 158, 255 };
+				bo = new int[] { 10, 70, 170, 245 };
+				red = new Splines(ri, ro);
+				green = new Splines(gi, go);
+				blue = new Splines(bi, bo);
+				mScript.set_rSpline(red.getInterpolationMatrix());
+				mScript.set_gSpline(green.getInterpolationMatrix());
+				mScript.set_bSpline(blue.getInterpolationMatrix());
 				composite = new Splines(ci, co);
 				mScript.set_compositeSpline(composite.getInterpolationMatrix());
 				mScript.forEach_filter_inkwell(mInAllocation, mOutAllocations);
@@ -709,12 +722,27 @@ public final class HikeEffectsFactory
 				mScript.forEach_filter_lomofi(mInAllocation, mOutAllocations);
 				break;
 			case NASHVILLE:
-				ri = new int[] { 0,20,34,45,54,65,84,98,115,132,147,172,190,214,231,255 };
-				ro = new int[] { 0,8,14,19,20,24,86,115,141,162,183,206,223,240,246,255 };
-				gi = new int[] { 0,22,50,63,87,100,133,150,170,192,210,234,255 };
-				go = new int[] { 0,7,64,81,105,120,152,169,183,207,212,224,226 };
-				bi = new int[] { 0,22,42,64,84,106,131,151,168,190,212,234,250,255 };
-				bo = new int[] { 67,74,90,102,117,126,142,154,165,181,188,201,204,204 };
+				ri = new int[] { 0, 20, 34, 45, 54, 65, 84, 98, 115, 132, 147, 172, 190, 214, 231, 255 };
+				ro = new int[] { 0, 8, 14, 19, 20, 24, 86, 115, 141, 162, 183, 206, 223, 240, 246, 255 };
+				gi = new int[] { 0, 22, 50, 63, 87, 100, 133, 150, 170, 192, 210, 234, 255 };
+				go = new int[] { 0, 7, 64, 81, 105, 120, 152, 169, 183, 207, 212, 224, 226 };
+				bi = new int[] { 0, 22, 42, 64, 84, 106, 131, 151, 168, 190, 212, 234, 250, 255 };
+				bo = new int[] { 67, 74, 90, 102, 117, 126, 142, 154, 165, 181, 188, 201, 204, 204 };
+				red = new Splines(ri, ro);
+				green = new Splines(gi, go);
+				blue = new Splines(bi, bo);
+				mScript.set_rSpline(red.getInterpolationMatrix());
+				mScript.set_gSpline(green.getInterpolationMatrix());
+				mScript.set_bSpline(blue.getInterpolationMatrix());
+				mScript.forEach_filter_nashville(mInAllocation, mOutAllocations);
+				break;
+			case POLAROID:
+				ri = new int[] { 0, 23, 44, 64, 86, 106, 125, 149, 171, 192, 209, 237, 255 };
+				ro = new int[] { 36, 51, 68, 90, 116, 143, 166, 187, 202, 215, 223, 244, 255 };
+				gi = new int[] { 0, 24, 45, 68, 87, 103, 114, 141, 165, 192, 206, 232, 255 };
+				go = new int[] { 0, 29, 59, 90, 117, 138, 153, 183, 200, 215, 225, 239, 255 };
+				bi = new int[] { 0, 25, 36, 60, 90, 106, 126, 145, 171, 191, 211, 237, 255 };
+				bo = new int[] { 0, 43, 59, 101, 149, 168, 195, 208, 219, 226, 237, 247, 247 };
 				red = new Splines(ri, ro);
 				green = new Splines(gi, go);
 				blue = new Splines(bi, bo);
@@ -784,17 +812,25 @@ public final class HikeEffectsFactory
 				mScript.forEach_filter_chillum(mInAllocation, mOutAllocations);
 				break;
 			case HDR:
-				mBlendAllocation = Allocation.createFromBitmap(mRS, mBitmapIn.copy(Config.ARGB_8888, true));
-				mScript.set_input2(mBlendAllocation);
-				mScript.forEach_filter_HDR_init(mInAllocation, mBlendAllocation);
-				mScriptBlur.setRadius(25f);
-				mScriptBlur.setInput(mBlendAllocation);
-				mScriptBlur.forEach(mOutAllocations);
-				mScriptBlur.setInput(mInAllocation);
-				mScriptBlur.forEach(mBlendAllocation);
-				mScript.set_input1(mBlendAllocation);
-				mScript.set_input2(mOutAllocations);
-				mScript.forEach_filter_HDR_post(mInAllocation, mOutAllocations);
+				temp = HikePhotosUtils.createBitmap(mBitmapIn, 0, 0, 0, 0, true, false, false, true);
+				if (temp != null)
+				{
+					mBlendAllocation = Allocation.createFromBitmap(mRS, temp);
+					mScript.set_input2(mBlendAllocation);
+					mScript.forEach_filter_HDR_init(mInAllocation, mBlendAllocation);
+					mScriptBlur.setRadius(25f);
+					mScriptBlur.setInput(mBlendAllocation);
+					mScriptBlur.forEach(mOutAllocations);
+					mScriptBlur.setInput(mInAllocation);
+					mScriptBlur.forEach(mBlendAllocation);
+					mScript.set_input1(mBlendAllocation);
+					mScript.set_input2(mOutAllocations);
+					mScript.forEach_filter_HDR_post(mInAllocation, mOutAllocations);
+				}
+				else
+				{
+					error = true;
+				}
 				break;
 			case SUNLITT:
 				ri = new int[] { 0, 114, 255 };
@@ -822,7 +858,11 @@ public final class HikeEffectsFactory
 
 			}
 
-			mOutAllocations.copyTo(blurImage ? inBitmapOut : currentOut);
+			if (!error)
+			{
+				mOutAllocations.copyTo(blurImage ? inBitmapOut : currentOut);
+				HikePhotosUtils.manageBitmaps(temp);
+			}
 
 		}
 
@@ -902,7 +942,7 @@ class Splines
 
 	public static void computeSplineSlopes(int n, double x[], double y[], double s[])
 	{
-		
+
 		double h[] = new double[n];
 		double hinv[] = new double[n];
 		double g[] = new double[n];

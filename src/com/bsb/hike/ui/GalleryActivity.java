@@ -36,9 +36,8 @@ import com.bsb.hike.adapters.GalleryAdapter;
 import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.media.AttachmentPicker;
 import com.bsb.hike.models.GalleryItem;
-import com.bsb.hike.models.HikeHandlerUtil;
+import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Utils;
 import com.jess.ui.TwoWayAbsListView;
@@ -240,12 +239,14 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 		// Add "pick from camera" button/bucket
 		if (enableCameraPick)
 		{
-			Intent sourceIntent = IntentFactory.getNativeCameraAppIntent();
-			Intent desIntent = IntentFactory.getPictureEditorActivityIntent(null, false);
+			File selectedFile = Utils.createNewFile(HikeFileType.IMAGE, HikeConstants.CAM_IMG_PREFIX);
+			Intent sourceIntent = IntentFactory.getNativeCameraAppIntent(true,selectedFile);
+			Intent desIntent = IntentFactory.getPictureEditorActivityIntent(GalleryActivity.this, null, false);
 
 			Intent proxyIntent = new Intent(GalleryActivity.this, DelegateActivity.class);
 			proxyIntent.putExtra(DelegateActivity.SOURCE_INTENT, sourceIntent);
 			proxyIntent.putExtra(DelegateActivity.DESTINATION_INTENT, desIntent);
+			proxyIntent.putExtra(HikeMessengerApp.FILE_PATHS, new String[]{selectedFile.getAbsolutePath()});
 
 			PendingIntent pIntent = PendingIntent.getActivity(getApplicationContext(), 0, proxyIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
@@ -736,73 +737,6 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 	}
 
 	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data)
-	{
-		super.onActivityResult(requestCode, resultCode, data);
-		if (requestCode == HikeConstants.IMAGE_CAPTURE_CODE)
-		{
-			if (resultCode == RESULT_OK)
-			{
-				// Image capture successful
-				HikeSharedPreferenceUtil pref = HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.ACCOUNT_SERVICE);
-
-				// Retrieve saved file path
-				String newFilePath = pref.getData(HikeMessengerApp.FILE_PATH, "");
-
-				HikeHandlerUtil.getInstance().postRunnableWithDelay(new Runnable()
-				{
-					@Override
-					public void run()
-					{
-						// Remove saved file path from shared pref
-						HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.ACCOUNT_SERVICE).removeData(HikeMessengerApp.FILE_PATH);
-					}
-				}, 0);
-
-				File newFile = new File(newFilePath);
-
-				if (newFile.exists())
-				{
-					// Execute pending intent
-					Intent intent = new Intent();
-
-					galleryItemList.get(0).setFilePath(newFilePath);
-
-					ArrayList<GalleryItem> item = new ArrayList<GalleryItem>(1);
-					item.add(galleryItemList.get(0));
-					intent.putParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS, item);
-
-					if (pendingIntent != null)
-					{
-						try
-						{
-							pendingIntent.send(GalleryActivity.this, RESULT_OK, intent);
-						}
-						catch (CanceledException e)
-						{
-							e.printStackTrace();
-						}
-					}
-					else if (returnResult)
-					{
-						setResult(RESULT_OK, intent);
-						finish();
-					}
-				}
-				else
-				{
-					// Do nothing
-				}
-			}
-			else
-			{
-				// Image capture failed/aborted
-				// Do nothing
-			}
-		}
-	}
-
-	@Override
 	public boolean onCreateOptionsMenu(Menu menu)
 	{
 		super.onCreateOptionsMenu(menu);
@@ -824,13 +758,17 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 		switch (item.getItemId())
 		{
 		case R.id.take_pic:
-			Intent sourceIntent = IntentFactory.getNativeCameraAppIntent();
-			Intent desIntent = IntentFactory.getPictureEditorActivityIntent(null, false);
+
+			File selectedFile = Utils.createNewFile(HikeFileType.IMAGE, HikeConstants.CAM_IMG_PREFIX);
+				
+			Intent sourceIntent = IntentFactory.getNativeCameraAppIntent(true,selectedFile);
+			Intent desIntent = IntentFactory.getPictureEditorActivityIntent(GalleryActivity.this, null, false);
 
 			Intent proxyIntent = new Intent(GalleryActivity.this, DelegateActivity.class);
 			proxyIntent.putExtra(DelegateActivity.SOURCE_INTENT, sourceIntent);
 			proxyIntent.putExtra(DelegateActivity.DESTINATION_INTENT, desIntent);
-
+			proxyIntent.putExtra(HikeMessengerApp.FILE_PATHS, new String[]{selectedFile.getAbsolutePath()});
+			
 			PendingIntent pIntent = PendingIntent.getActivity(getApplicationContext(), 0, proxyIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 			try
 			{
