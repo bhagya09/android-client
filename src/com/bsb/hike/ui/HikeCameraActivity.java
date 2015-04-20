@@ -44,7 +44,7 @@ import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.ui.fragments.CameraFragment;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
-import com.bsb.hike.utils.IntentManager;
+import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
@@ -305,7 +305,7 @@ public class HikeCameraActivity extends HikeAppStateBaseFragmentActivity impleme
 			break;
 		case R.id.btngallery:
 			// Open gallery
-			Intent galleryPickerIntent = IntentManager.getHikeGalleryPickerIntentForResult(HikeCameraActivity.this, false, false, GalleryActivity.PHOTOS_EDITOR_ACTION_BAR_TYPE,
+			Intent galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntentForResult(HikeCameraActivity.this, false, false, GalleryActivity.PHOTOS_EDITOR_ACTION_BAR_TYPE,
 					null);
 			startActivityForResult(galleryPickerIntent, GALLERY_PICKER_REQUEST);
 			break;
@@ -444,7 +444,7 @@ public class HikeCameraActivity extends HikeAppStateBaseFragmentActivity impleme
 			{
 			case HikeConstants.CROP_RESULT:
 				// Open gallery
-				Intent galleryPickerIntent = IntentManager.getHikeGalleryPickerIntentForResult(HikeCameraActivity.this, false, false,
+				Intent galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntentForResult(HikeCameraActivity.this, false, false,
 						GalleryActivity.PHOTOS_EDITOR_ACTION_BAR_TYPE, null);
 				startActivityForResult(galleryPickerIntent, GALLERY_PICKER_REQUEST);
 				break;

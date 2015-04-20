@@ -43,6 +43,7 @@ import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+import com.bsb.hike.utils.Utils.ExternalStorageState;
 
 /* 
  * This manager will manage the upload and download (File Transfers).
@@ -497,8 +498,8 @@ public class FileTransferManager extends BroadcastReceiver
 			FileTransferBase task = ((MyFutureTask) obj).getTask();
 			task.setPausedProgress(task._bytesTransferred);
 			task.setState(FTState.PAUSED);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
 			task.analyticEvents.mPauseCount += 1;
-			LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED));
 			Logger.d(getClass().getSimpleName(), "pausing the task....");
 		}
 	}
@@ -832,11 +833,11 @@ public class FileTransferManager extends BroadcastReceiver
 			FileTransferBase task = ((MyFutureTask) obj).getTask();
 			if(task.getPausedProgress() == task._bytesTransferred && task._state == FTState.PAUSED){
 				task.setState(FTState.IN_PROGRESS);
-				LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED));
+				HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
 			}
 		}
 	}
-
+	
 	public File getAnalyticFile(File file, long  msgId)
 	{
 		return new File(FileTransferManager.getInstance(context).getHikeTempDir(), file.getName() + ".log." + msgId);

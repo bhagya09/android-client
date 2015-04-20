@@ -32,6 +32,7 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
+import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
@@ -45,11 +46,11 @@ import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.service.HikeMqttManagerNew.MQTTConnectionStatus;
-import com.bsb.hike.ui.ChatThread;
 import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.ui.PeopleActivity;
 import com.bsb.hike.ui.TimelineActivity;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.Utils;
 
 public class ToastListener implements Listener
@@ -216,7 +217,7 @@ public class ToastListener implements Listener
 			if (bigPicture != null)
 			{
 				ContactInfo contactInfo;
-				if (message.isGroupChat())
+				if (message.isOneToNChat())
 				{
 					Logger.d("ToastListener", "GroupName is " + ContactManager.getInstance().getName(message.getMsisdn()));
 					contactInfo = new ContactInfo(message.getMsisdn(), message.getMsisdn(), ContactManager.getInstance().getName(message.getMsisdn()), message.getMsisdn());
@@ -385,9 +386,9 @@ public class ToastListener implements Listener
 
 						Activity activity = (currentActivity != null) ? currentActivity.get() : null;
 
-						if ((activity instanceof ChatThread))
+						if ((activity instanceof ChatThreadActivity))
 						{
-							String contactNumber = ((ChatThread) activity).getContactNumber();
+							String contactNumber = ((ChatThreadActivity) activity).getContactNumber();
 							if (filteredMsisdnList.get(0).equals(contactNumber))
 							{
 								Logger.e("HikeToOffline", "same chat thread open");
@@ -474,7 +475,7 @@ public class ToastListener implements Listener
 				{
 					String msisdn = message.getMsisdn();
 
-					if (Utils.isGroupConversation(msisdn) && !ContactManager.getInstance().isConvExists(msisdn))
+					if (OneToNConversationUtils.isGroupConversation(msisdn) && !ContactManager.getInstance().isConvExists(msisdn))
 					{
 						Logger.w(getClass().getSimpleName(), "The client did not get a GCJ message for us to handle this message.");
 						continue;
@@ -518,9 +519,9 @@ public class ToastListener implements Listener
 						}
 
 						Activity activity = (currentActivity != null) ? currentActivity.get() : null;
-						if ((activity instanceof ChatThread))
+						if ((activity instanceof ChatThreadActivity))
 						{
-							String contactNumber = ((ChatThread) activity).getContactNumber();
+							String contactNumber = ((ChatThreadActivity) activity).getContactNumber();
 							if (message.getMsisdn().equals(contactNumber))
 							{
 								continue;

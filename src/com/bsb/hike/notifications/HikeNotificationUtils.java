@@ -48,7 +48,7 @@ public class HikeNotificationUtils
 		ContactManager contactManager = ContactManager.getInstance();
 
 		ContactInfo contactInfo;
-		if (convMsg.isGroupChat())
+		if (convMsg.isOneToNChat())
 		{
 			contactInfo = new ContactInfo(convMsg.getMsisdn(), convMsg.getMsisdn(), contactManager.getName(msisdn), convMsg.getMsisdn());
 		}
@@ -82,7 +82,7 @@ public class HikeNotificationUtils
 		String key = (contactInfo != null && !TextUtils.isEmpty(contactInfo.getName())) ? contactInfo.getName() : msisdn;
 		// For showing the name of the contact that sent the message in a group
 		// chat
-		if (convMsg.isGroupChat() && !TextUtils.isEmpty(convMsg.getGroupParticipantMsisdn()) && convMsg.getParticipantInfoState() == ParticipantInfoState.NO_INFO)
+		if (convMsg.isOneToNChat() && !TextUtils.isEmpty(convMsg.getGroupParticipantMsisdn()) && convMsg.getParticipantInfoState() == ParticipantInfoState.NO_INFO)
 		{
 
 			GroupParticipant groupParticipant = HikeConversationsDatabase.getInstance().getGroupParticipant(convMsg.getMsisdn(), convMsg.getGroupParticipantMsisdn());
