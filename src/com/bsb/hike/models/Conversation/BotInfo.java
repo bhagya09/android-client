@@ -69,13 +69,40 @@ public class BotInfo extends ConvInfo
 		return type == NON_MESSAGING_BOT;
 	}
 	
-	public static class MessagingBotConfig
+
+	
+	private static abstract class BotConfig
 	{
+		
+		
+		private int config;
+		
+		public BotConfig(int config)
+		{
+			this.config = config;
+		}
+		protected boolean isBitSet(int bitPosition)
+		{
+			return ((config>>bitPosition) & 1) ==1;
+		}
+	}
+	public static class MessagingBotConfig extends BotConfig
+	{
+		public MessagingBotConfig(int config)
+		{
+			super(config);
+		}
 		
 	}
 	
-	public static class NonMessagingBotConfig
+	public static class NonMessagingBotConfig extends BotConfig
 	{
+		
+		
+		public NonMessagingBotConfig(int config)
+		{
+			super(config);
+		}
 		
 	}
 }
