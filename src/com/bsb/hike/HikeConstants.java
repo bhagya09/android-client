@@ -44,6 +44,8 @@ public class HikeConstants
 	public static final String FROM = "f";
 
 	public static final String SUB_TYPE = "st";
+	
+	public static final String GROUP_CHAT_TIMESTAMP = "gts";	
 
 	public static final String HIKE_MESSAGE = "hm";
 
@@ -464,7 +466,11 @@ public class HikeConstants
 	public static final String MESSAGES = "msgs";
 
 	public static final String FILE_IMAGE_QUALITY = "img_quality";
-
+	
+	public static final String CAN_EDIT_DP = "canEditDP";
+	
+	public static final String HTTP_STATUS_ID = "?status_id=";
+	
 	// @GM
 	// public static final String AUTO_DOWNLOAD_IMAGE_PREF =
 	// "autoDownloadImagePref"
@@ -604,6 +610,8 @@ public class HikeConstants
 	
 	public static final String NEW_BROADCAST = "new_broadcast";
 
+	public static final String BROADCAST_ID_PREFIX = "b:";
+	
 	public static final String AVATAR = "avatar";
 
 	/* Constant used to name the preference file which saves the drafts */
@@ -896,12 +904,14 @@ public class HikeConstants
 	public static final int PROFILE_PICTURE_FROM_CAMERA = 0;
 
 	public static final int PROFILE_PICTURE_FROM_GALLERY = 1;
+	
+	public static final int REMOVE_PROFILE_PICTURE = 2;
 
 	/* activityForResult IDs */
 	public static final int CAMERA_RESULT = 0;
 
 	public static final int GALLERY_RESULT = 1;
-
+	
 	public static final int CROP_RESULT = 2991;
 
 	public static final int MIN_STATUS_COUNT = 5;
@@ -1393,9 +1403,9 @@ public class HikeConstants
 
 		public static final String IS_FTUT_ADD_FRIEND_POPUP_SHOWING = "isFtueAddFriendPopup";
 
-		public static final String GROUP_NAME = "groupName";
+		public static final String ONETON_CONVERSATION_NAME = "groupName";
 
-		public static final String GROUP_BROADCAST_ID = "groupOrBroadcastId";
+		public static final String CONVERSATION_ID = "groupOrBroadcastId";
 
 		public static final String SHOWING_INVALID_PIN_ERROR = "showingInvalidPinError";
 
@@ -1470,6 +1480,10 @@ public class HikeConstants
 		public static final String MAX_MESSAGE_PROCESS_TIME = "mmpt";
 		
 		public static final String CHANGE_MAX_MESSAGE_PROCESS_TIME = "cmpt";
+
+		public static final String BROADCAST_CREATE_BUNDLE = "broadcastCreationBundle";
+		
+		public static final String GROUP_CREATE_BUNDLE = "groupCreationBundle";
 	}
 
 	public static final class LogEvent
@@ -2039,7 +2053,7 @@ public class HikeConstants
 		public static final String ICON = "ic";
 
 		public static final String INVITE_INFO = "ii";
-
+		
 		public static final String GROUP_CHAT_JOIN = "gcj";
 
 		public static final String GROUP_CHAT_LEAVE = "gcl";
@@ -2651,13 +2665,13 @@ public class HikeConstants
 	
 	public static final  String NOTIFICATION_RETRY_JSON="notifretry";
 
+	public static final String HIGHLIGHT_NLS_PERF = "nlsHighlightPerf";
+	
 	public static final String FLUSH = "flush";
 
 	public static final String FORCE_USER="fu";
 	
 	public static final String IS_ROOT="is_root";
-
-	public static final String HIGHLIGHT_NLS_PERF = "nlsHighlightPerf";
 
 	public static final String PROB_NUM_TEXT_MSG = "p_txt";
 

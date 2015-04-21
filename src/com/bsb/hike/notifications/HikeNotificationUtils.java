@@ -3,8 +3,11 @@ package com.bsb.hike.notifications;
 import org.json.JSONException;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.graphics.Color;
 import android.os.Build;
+import android.preference.PreferenceManager;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextUtils;
@@ -22,8 +25,10 @@ import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.NotificationPreview;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.SmileyParser;
+import com.bsb.hike.utils.Utils;
 
 public class HikeNotificationUtils
 {
@@ -177,5 +182,37 @@ public class HikeNotificationUtils
 			spannableString = new SpannableString(text);
 		}
 		return spannableString;
+	}
+	
+	/**
+	 * Restore Notification Params like sound, vibration and led
+	 * 
+	 * @param Context context
+	 */
+	public static void restoreNotificationParams(Context context)
+	{
+		// To get old NotificaticationSoundPref preference before NotificaticationSoundPref list preference
+		SharedPreferences defaultPref = PreferenceManager.getDefaultSharedPreferences(context);
+		HikeSharedPreferenceUtil hikeSharedPreferenceUtil = HikeSharedPreferenceUtil.getInstance();
+		if (!hikeSharedPreferenceUtil.contains(HikeConstants.NOTIF_SOUND_PREF) && defaultPref.contains(HikeConstants.NOTIF_SOUND_PREF))
+		{
+			hikeSharedPreferenceUtil.saveData(HikeConstants.NOTIF_SOUND_PREF, defaultPref.getString(HikeConstants.NOTIF_SOUND_PREF, context.getString(R.string.notif_sound_default)));
+		}
+
+		// To get old NotificaticationLED preference before NotificaticationLED list preference
+		if (!hikeSharedPreferenceUtil.contains(HikeMessengerApp.LED_NOTIFICATION_COLOR_CODE) && defaultPref.contains(HikeConstants.LED_PREF))
+		{
+				hikeSharedPreferenceUtil.saveData(HikeMessengerApp.LED_NOTIFICATION_COLOR_CODE,
+						defaultPref.getBoolean(HikeConstants.LED_PREF, true) ? HikeConstants.LED_DEFAULT_WHITE_COLOR : HikeConstants.LED_NONE_COLOR);
+				defaultPref.edit().remove(HikeConstants.LED_PREF).commit();
+		}
+		
+		// To get old NotificaticationSoundPref preference before NotificaticationSoundPref list preference
+		if (!defaultPref.contains(HikeConstants.VIBRATE_PREF_LIST))
+		{
+			Editor edit = defaultPref.edit();
+			edit.putString(HikeConstants.VIBRATE_PREF_LIST, Utils.getOldVibratePref(context));
+			edit.commit();
+		}
 	}
 }

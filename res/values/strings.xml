@@ -806,7 +806,6 @@
     <string name="sent_txt">Sent</string>
     <string name="delivered_txt">Delivered</string>
     <string name="read_txt">Read</string>
-    <string name="no_results">No results</string>
     <string name="no_hike_contacts">No hike contacts</string>
     <string name="num_unread_messages">%1$s Unread Messages</string>
     <string name="one_unread_message">1 Unread Message</string>
@@ -1250,7 +1249,6 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="pack_rank">%1$d.</string>
     <string name="error_pick_location">Error while picking location</string>
     <string name="zero_sms_hint">0 Free SMS left...</string>
-    <string name="some_error">Some error occured!</string>
     <string name="pin_self">You</string>
     <string name="hike_upgrade_string">Making hike faster and better for you</string>
     <string name="some_error">Some error occured!</string>
@@ -1357,6 +1355,14 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="voip_call_issues_submit_toast">Your feedback has been submitted</string>
     <string name="video_compress">VIDEO COMPRESSION</string>
     <string name="send_compress_video">Send Compressed Video</string>
+    <string name="valentine_day">Happy Valentine\'s Day</string>        
+    <string name="remove_photo">Remove photo</string>
+    <string name="profile_photo">Profile photo</string>
+    <string name="confirm_remove_photo">Are you sure you want to remove the photo?</string>
+    <string name="check_delete_from_timeline">Delete from favorites\' timeline</string>
+    <string name="edit_photo">Edit photo</string>
+    <string name="removing_dp">Removing picture...</string>
+    <string name="remove_dp_error">Could not remove your profile picture. Please check your network connection and try again later.</string>
     <string name="voip_missed_call_notif">Missed Call</string>
     <string name="voip_missed_call_action">Call Back</string>
     <string name="voip_missed_call_message">Message</string>
@@ -1373,7 +1379,7 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="photo_gallery_choose_pic">Choose a photo</string>
     <string name="cropping_image">Cropping image..</string>
     <string name="compose_chat">New chat</string>
-    <string name="home_search_empty_text">Your search for \'%1$s\' did not match any contacts.</string>
+	<string name="home_search_empty_text">Your search for \'%1$s\' did not match any contacts.</string>
     <string name="voip_phone_unsupported">Your phone is not supported.</string>
     <string name="voip_call_failed_frag_subheader">You can still contact %1$s with a</string>
     <string name="dismiss_upper_case">DISMISS</string>
@@ -1395,7 +1401,6 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="holi">Happy Holi</string>
 	<string name="privacy_settings">PRIVACY SETTINGS</string>
     <string name="manage_list">MANAGE LISTS</string>
-    <string name="hidden_mode">HIDDEN MODE</string>
     <string name="privacy_everyone_key">Everyone</string>
     <string name="privacy_my_contacts_key">My Contacts</string>
     <string name="privacy_favorites_key">Favorites</string>
@@ -1425,10 +1430,6 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="photos_oom_load">Unable to load Image!\nNot Enough Memory On Device.</string>
     <string name="photos_oom_retry">Try Again!</string>
     <string name="photos_oom_camera">Unable to capture Image</string>
-    <string name="pick_contact_zero">Please select minimum one contact</string>
-    <string name="choose_contact">Choose Contact(s)</string>
-    <string name="terms_conditions_hint">Terms and Conditions</string>
-    <string name="terms_conditions_title">T &amp; C</string>
     <string name="nudge_setting_header">Double tap to Nudge</string>
     <string name="nudge_setting_info">Send a Nudge by double tapping while chatting</string>
     <string name="enter_setting_header">Enter key is send</string>
@@ -1439,6 +1440,10 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="select_all_hike">Select all</string>
     <string name="unselect_all_hike">Unselect all</string>
     <string name="searching">Searching...</string>
-    
-    
+    <string name="pick_contact_zero">Please select minimum one contact</string>
+    <string name="choose_contact">Choose Contact(s)</string>
+    <string name="terms_conditions_hint">Terms and Conditions</string>
+    <string name="terms_conditions_title">T &amp; C</string>
+    <string name="group_creation">Created on </string>
+    <string name="ls_change_failed">Last Seen update failed!</string>
 </resources>

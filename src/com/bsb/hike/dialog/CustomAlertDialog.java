@@ -154,4 +154,9 @@ public class CustomAlertDialog extends HikeDialog
 	{
 		return bodyCheckBox.getVisibility() == View.VISIBLE && bodyCheckBox.isChecked();
 	}
+	
+	public void setCheckboxVisibility(int visibility)
+	{
+		bodyCheckBox.setVisibility(visibility);		
+	}
 }

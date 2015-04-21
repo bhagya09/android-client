@@ -1,20 +1,15 @@
 package com.bsb.hike.ui;
 
 import java.io.File;
-import java.net.URI;
-import java.util.ArrayList;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
-import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.Html;
 import android.text.TextUtils;
@@ -26,7 +21,6 @@ import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.bsb.hike.HikeConstants;
@@ -37,15 +31,12 @@ import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
-import com.bsb.hike.models.ContactInfo;
-import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.Utils;
 
 public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseActivity
@@ -53,11 +44,11 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 
 	private SharedPreferences preferences;
 
-	private String groupOrBroadcastId;
+	private String convId;
 
-	private ImageView groupOrBroadcastImage;
+	private ImageView convImage;
 
-	private EditText groupOrBroadcastName;
+	private EditText convName;
 
 	private TextView broadcastNote;
 	
@@ -69,18 +60,26 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 
 	private Bitmap groupBitmap;
 	
-	private boolean isBroadcast;
-
-	private ArrayList<String> broadcastRecipients;
+	/**
+	 * @author anubansal
+	 *
+	 * Declaring the oneToNConversationType
+	 */
+	private static enum ConvType
+	{
+		GROUP,
+		BROADCAST
+	};
+	
+	private ConvType convType;
 	
 	private String myMsisdn;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
-		isBroadcast = getIntent().getBooleanExtra(HikeConstants.IS_BROADCAST, false);
-		broadcastRecipients = getIntent().getStringArrayListExtra(HikeConstants.Extras.BROADCAST_RECIPIENTS);
 		super.onCreate(savedInstanceState);
+		setConvType();
 		createView();
 		setupActionBar();
 
@@ -88,61 +87,68 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 
 		if (savedInstanceState != null)
 		{
-			groupOrBroadcastId = savedInstanceState.getString(HikeConstants.Extras.GROUP_BROADCAST_ID);
+			convId = savedInstanceState.getString(HikeConstants.Extras.CONVERSATION_ID);
 		}
 
-		if (TextUtils.isEmpty(groupOrBroadcastId))
+		if (TextUtils.isEmpty(convId))
 		{
 			String uid = preferences.getString(HikeMessengerApp.UID_SETTING, "");
-			if (isBroadcast)
+			switch (convType)
 			{
-				groupOrBroadcastId = "b:" + uid + ":" + System.currentTimeMillis();
+				case BROADCAST:
+					convId = HikeConstants.BROADCAST_ID_PREFIX + uid + ":" + System.currentTimeMillis();
+					break;
+					
+				case GROUP:
+					convId = uid + ":" + System.currentTimeMillis();
+					break;
 			}
-			else
-			{
-				groupOrBroadcastId = uid + ":" + System.currentTimeMillis();
-			}
-			Logger.d("BroadcastActivity1111", "broadcastId is :" + groupOrBroadcastId);
 		}
 
 		Object object = getLastCustomNonConfigurationInstance();
 		if (object != null && (object instanceof Bitmap))
 		{
 			groupBitmap = (Bitmap) object;
-			groupOrBroadcastImage.setImageBitmap(groupBitmap);
+			convImage.setImageBitmap(groupBitmap);
 		}
 		else
 		{
-			if (isBroadcast)
+			if (convType == ConvType.BROADCAST)
 			{
-				findViewById(R.id.broadcast_bg).setBackgroundResource(BitmapUtils.getDefaultAvatarResourceId(groupOrBroadcastId, true));
+				findViewById(R.id.broadcast_bg).setBackgroundResource(BitmapUtils.getDefaultAvatarResourceId(convId, true));
 			}
-			else
+			else if (convType == ConvType.GROUP)
 			{
-				groupOrBroadcastImage.setBackgroundResource(BitmapUtils.getDefaultAvatarResourceId(groupOrBroadcastId, true));
+				convImage.setBackgroundResource(BitmapUtils.getDefaultAvatarResourceId(convId, true));
 			}
 		}
 		
-		if(!isBroadcast)
+		if(convType == ConvType.GROUP)
 		{
 			showProductPopup(ProductPopupsConstants.PopupTriggerPoints.NEWGRP.ordinal());
 		}
 	}
 
+	/**
+	 * This method sets the OneToNConversation type to be handled
+	 */
+	private void setConvType()
+	{
+		convType = getIntent().hasExtra(HikeConstants.IS_BROADCAST) ? ConvType.BROADCAST : ConvType.GROUP;
+	}
+
 	private void createView() {
 		
-		if (isBroadcast)
+		if (convType == ConvType.BROADCAST)
 		{
 			setContentView(R.layout.create_new_broadcast);
 
-			groupOrBroadcastImage = (ImageView) findViewById(R.id.broadcast_profile_image);
-			groupOrBroadcastName = (EditText) findViewById(R.id.broadcast_name);
-//			groupOrBroadcastName.setHint(BroadcastConversation.defaultBroadcastName(broadcastRecipients));
+			convImage = (ImageView) findViewById(R.id.broadcast_profile_image);
+			convName = (EditText) findViewById(R.id.broadcast_name);
 			myMsisdn = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, "");
 			broadcastNote = (TextView) findViewById(R.id.broadcast_info);
 			broadcastNote.setText(Html.fromHtml(getString(R.string.broadcast_participant_info, myMsisdn)));
-//			broadcastNote.setText(getString(R.string.broadcast_participant_info, myMsisdn));
-			groupOrBroadcastName.addTextChangedListener(new TextWatcher()
+			convName.addTextChangedListener(new TextWatcher()
 			{
 
 				@Override
@@ -165,14 +171,14 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 			});
 		}
 		
-		else
+		else if (convType == ConvType.GROUP)
 		{
 			setContentView(R.layout.create_new_group);
 
-			groupOrBroadcastImage = (ImageView) findViewById(R.id.group_profile_image);
-			groupOrBroadcastName = (EditText) findViewById(R.id.group_name);
+			convImage = (ImageView) findViewById(R.id.group_profile_image);
+			convName = (EditText) findViewById(R.id.group_name);
 			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
-			groupOrBroadcastName.addTextChangedListener(new TextWatcher()
+			convName.addTextChangedListener(new TextWatcher()
 			{
 
 				@Override
@@ -193,6 +199,19 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 					Utils.toggleActionBarElementsEnable(doneBtn, arrow, postText, !TextUtils.isEmpty(editable.toString().trim()));
 				}
 			});
+			
+			if(convImage != null)
+			{
+				convImage.setOnClickListener(new OnClickListener()
+				{
+					
+					@Override
+					public void onClick(View v)
+					{
+						showProfileImageEditDialog(CreateNewGroupOrBroadcastActivity.this, CreateNewGroupOrBroadcastActivity.this, convId, null);
+					}
+				});
+			}
 		}
 	}
 
@@ -202,10 +221,9 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 		/**
 		 * Deleting the temporary file, if it exists.
 		 */
-		File file = new File(Utils.getTempProfileImageFileName(groupOrBroadcastId));
+		File file = new File(Utils.getTempProfileImageFileName(convId));
 		file.delete();
 
-		onBack();
 		super.onBackPressed();
 	}
 
@@ -222,9 +240,9 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 	@Override
 	protected void onSaveInstanceState(Bundle outState)
 	{
-		if (!TextUtils.isEmpty(groupOrBroadcastId))
+		if (!TextUtils.isEmpty(convId))
 		{
-			outState.putString(HikeConstants.Extras.GROUP_BROADCAST_ID, groupOrBroadcastId);
+			outState.putString(HikeConstants.Extras.CONVERSATION_ID, convId);
 		}
 		super.onSaveInstanceState(outState);
 	}
@@ -245,219 +263,95 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 
 		doneBtn.setVisibility(View.VISIBLE);
 
-		if (isBroadcast)
+		switch(convType)
 		{
-			Utils.toggleActionBarElementsEnable(doneBtn, arrow, postText, true);
-			title.setText(R.string.new_broadcast);
-			postText.setText(R.string.done);
+			case BROADCAST:
+				Utils.toggleActionBarElementsEnable(doneBtn, arrow, postText, true);
+				title.setText(R.string.new_broadcast);
+				postText.setText(R.string.done);
+				break;
+				
+			case GROUP:
+				Utils.toggleActionBarElementsEnable(doneBtn, arrow, postText, false);
+				title.setText(R.string.new_group);
+				postText.setText(R.string.next_signup);
+				break;
+		}
 
-			doneBtn.setOnClickListener(new OnClickListener()
+		doneBtn.setOnClickListener(new OnClickListener()
+		{
+
+			@Override
+			public void onClick(View v)
 			{
-
-				@Override
-				public void onClick(View v)
+				if (convType == ConvType.BROADCAST)
 				{
 					sendBroadCastAnalytics();
-					createBroadcast(broadcastRecipients);
 				}
-			});
-			
-			backContainer.setOnClickListener(new OnClickListener()
-			{
-				@Override
-				public void onClick(View v)
-				{
-					onBack();
-				}
-			});
-		}
-		else
+				onNextPressed();
+			}
+		});
+		
+		backContainer.setOnClickListener(new OnClickListener()
 		{
-			Utils.toggleActionBarElementsEnable(doneBtn, arrow, postText, false);
-			title.setText(R.string.new_group);
-			postText.setText(R.string.next_signup);
-
-			doneBtn.setOnClickListener(new OnClickListener()
+			@Override
+			public void onClick(View v)
 			{
-
-				@Override
-				public void onClick(View v)
-				{
-					Intent intent = new Intent(CreateNewGroupOrBroadcastActivity.this, ComposeChatActivity.class);
-					intent.putExtra(HikeConstants.Extras.GROUP_NAME, groupOrBroadcastName.getText().toString().trim());
-					intent.putExtra(HikeConstants.Extras.GROUP_BROADCAST_ID, groupOrBroadcastId);
-					intent.putExtra(HikeConstants.Extras.CREATE_GROUP, true);
-					intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-					startActivity(intent);
-				}
-			});
-			
-			backContainer.setOnClickListener(new OnClickListener()
-			{
-				@Override
-				public void onClick(View v)
-				{
-					onBackPressed();
-				}
-			});
-		}
+				onBackPressed();
+			}
+		});
 
 		actionBar.setCustomView(actionBarView);
 	}
 
-	private void onBack()
+	private void onNextPressed()
 	{
-		if (isBroadcast)
+		switch (convType)
 		{
-			IntentFactory.onBackPressedCreateNewBroadcast(CreateNewGroupOrBroadcastActivity.this, broadcastRecipients);
-			finish();
+			case BROADCAST:
+				Intent intentBroadcast = IntentFactory.openComposeChatIntentForBroadcast(this, convId, convName.getText().toString().trim());
+				setResult(RESULT_OK, intentBroadcast);
+				finish();
+				break;
+				
+			case GROUP:
+				Intent intentGroup = IntentFactory.openComposeChatIntentForGroup(this, convId, convName.getText().toString().trim());
+				startActivity(intentGroup);
+				break;
 		}
-	}
-	
-	private void createBroadcast(ArrayList<String> selectedContactsMsisdns)
-	{
-//		Construct ContactInfo for all msisdns in 'selectedContactsMsisdns'
-		ArrayList<ContactInfo> selectedContactList = new ArrayList<ContactInfo>(selectedContactsMsisdns.size());
-		for (String msisdn : selectedContactsMsisdns)
-		{
-			ContactInfo contactInfo = ContactManager.getInstance().getContact(msisdn, true, false);
-			selectedContactList.add(contactInfo);
-		}
-		String broadcastName = groupOrBroadcastName.getText().toString().trim();
-		getIntent().putExtra(HikeConstants.Extras.GROUP_BROADCAST_ID, groupOrBroadcastId);
-		OneToNConversationUtils.createGroupOrBroadcast(this, selectedContactList, broadcastName);
 	}
 	
 	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data)
+	public String profileImageCropped()
 	{
-		super.onActivityResult(requestCode, resultCode, data);
-		String path = null;
-		if (resultCode != RESULT_OK)
-		{
-			return;
-		}
-
-		String directory = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
-		/*
-		 * Making sure the directory exists before setting a profile image
-		 */
-		File dir = new File(directory);
-		if (!dir.exists())
-		{
-			dir.mkdirs();
-		}
-
-		String fileName = Utils.getTempProfileImageFileName(groupOrBroadcastId);
-		final String destFilePath = directory + "/" + fileName;
-
-		File selectedFileIcon = null;
-
-		switch (requestCode)
-		{
-		case HikeConstants.CAMERA_RESULT:
-			/* fall-through on purpose */
-		case HikeConstants.GALLERY_RESULT:
-			Logger.d("ProfileActivity", "The activity is " + this);
-			if (requestCode == HikeConstants.CAMERA_RESULT)
-			{
-				String filePath = preferences.getString(HikeMessengerApp.FILE_PATH, "");
-				selectedFileIcon = new File(filePath);
-
-				/*
-				 * Removing this key. We no longer need this.
-				 */
-				Editor editor = preferences.edit();
-				editor.remove(HikeMessengerApp.FILE_PATH);
-				editor.commit();
-			}
-			if (requestCode == HikeConstants.CAMERA_RESULT && !selectedFileIcon.exists())
-			{
-				Toast.makeText(getApplicationContext(), R.string.error_capture, Toast.LENGTH_SHORT).show();
-				return;
-			}
-			boolean isPicasaImage = false;
-			Uri selectedFileUri = null;
-			if (requestCode == HikeConstants.CAMERA_RESULT)
-			{
-				path = selectedFileIcon.getAbsolutePath();
-			}
-			else
-			{
-				if (data == null)
-				{
-					Toast.makeText(getApplicationContext(), R.string.error_capture, Toast.LENGTH_SHORT).show();
-					return;
-				}
-				selectedFileUri = data.getData();
-				if (Utils.isPicasaUri(selectedFileUri.toString()))
-				{
-					isPicasaImage = true;
-					path = Utils.getOutputMediaFile(HikeFileType.PROFILE, null, false).getAbsolutePath();
-				}
-				else
-				{
-					String fileUriStart = "file://";
-					String fileUriString = selectedFileUri.toString();
-					if (fileUriString.startsWith(fileUriStart))
-					{
-						selectedFileIcon = new File(URI.create(Utils.replaceUrlSpaces(fileUriString)));
-						/*
-						 * Done to fix the issue in a few Sony devices.
-						 */
-						path = selectedFileIcon.getAbsolutePath();
-					}
-					else
-					{
-						path = Utils.getRealPathFromUri(selectedFileUri, this);
-					}
-				}
-			}
-			if (TextUtils.isEmpty(path))
-			{
-				Toast.makeText(getApplicationContext(), R.string.error_capture, Toast.LENGTH_SHORT).show();
-				return;
-			}
-			if (!isPicasaImage)
-			{
-				Utils.startCropActivity(this, path, destFilePath);
-			}
-			else
-			{
-				/*
-				 * TODO handle picasa case.
-				 */
-				Toast.makeText(getApplicationContext(), R.string.error_capture, Toast.LENGTH_SHORT).show();
-				return;
-			}
-			break;
-		case HikeConstants.CROP_RESULT:
-			String finalDestFilePath = data.getStringExtra(MediaStore.EXTRA_OUTPUT);
-			if (finalDestFilePath == null)
-			{
-				Toast.makeText(getApplicationContext(), R.string.error_setting_profile, Toast.LENGTH_SHORT).show();
-				return;
-			}
-
-			Bitmap tempBitmap = HikeBitmapFactory.scaleDownBitmap(finalDestFilePath, HikeConstants.SIGNUP_PROFILE_IMAGE_DIMENSIONS, HikeConstants.SIGNUP_PROFILE_IMAGE_DIMENSIONS,
-					Bitmap.Config.RGB_565, true, false);
-
-			groupBitmap = HikeBitmapFactory.getCircularBitmap(tempBitmap);
-			groupOrBroadcastImage.setImageBitmap(HikeBitmapFactory.getCircularBitmap(tempBitmap));
-
-			/*
-			 * Saving the icon in the DB.
-			 */
-			byte[] bytes = BitmapUtils.bitmapToBytes(tempBitmap, CompressFormat.JPEG, 100);
-
-			tempBitmap.recycle();
-
-			ContactManager.getInstance().setIcon(groupOrBroadcastId, bytes, false);
-
-			break;
-		}
+		String imgPath = super.profileImageCropped();
+		
+		setGroupPreivewBitmap(imgPath);
+		
+		return imgPath;
 	}
-	
+
+	/**
+	 * Used to set preview bitmap for the new group
+	 * @param path of the bitmap
+	 */
+	private void setGroupPreivewBitmap(String path)
+	{
+		Bitmap tempBitmap = HikeBitmapFactory.scaleDownBitmap(path, HikeConstants.SIGNUP_PROFILE_IMAGE_DIMENSIONS, HikeConstants.SIGNUP_PROFILE_IMAGE_DIMENSIONS,
+				Bitmap.Config.RGB_565, true, false);
+
+		groupBitmap = HikeBitmapFactory.getCircularBitmap(tempBitmap);
+		convImage.setImageBitmap(HikeBitmapFactory.getCircularBitmap(tempBitmap));
+
+		/*
+		 * Saving the icon in the DB.
+		 */
+		byte[] bytes = BitmapUtils.bitmapToBytes(tempBitmap, CompressFormat.JPEG, 100);
+
+		tempBitmap.recycle();
+		ContactManager.getInstance().setIcon(convId, bytes, false);
+	}
+
 	private void sendBroadCastAnalytics()
 	{
 		try

@@ -50,6 +50,8 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 	private StickerEmoticonIconPageIndicator mIconPageIndicator;
 	
 	private static final String TAG = "StickerPicker";
+	
+	private static boolean refreshStickers = false;
 
 	/**
 	 * Constructor
@@ -226,6 +228,19 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 		{
 			initView();
 		}
+		
+		/**
+		 * If this variable is set to true, then we refresh the dataset for stickers. This would happen when we download new packs from shop or we update stickers from sticker
+		 * settings page
+		 */
+		if (refreshStickers)
+		{
+			mIconPageIndicator.notifyDataSetChanged();
+			stickerAdapter.notifyDataSetChanged();
+		}
+
+		refreshStickers = false;
+		
 		return viewToDisplay;
 	}
 
@@ -434,5 +449,16 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 		{
 			mIconPageIndicator.setCurrentItem(0);
 		}
+	}
+
+	/**
+	 * Used for indicating to the sticker picker to refresh its underlying dataset
+	 * 
+	 * @param refreshStickers
+	 *            the refreshStickers to set
+	 */
+	public static void setRefreshStickers(boolean refreshStickers)
+	{
+		StickerPicker.refreshStickers = refreshStickers;
 	}
 }

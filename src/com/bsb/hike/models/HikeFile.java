@@ -22,6 +22,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.BitmapModule.RecyclingBitmapDrawable;
+import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.utils.Utils.ExternalStorageState;
@@ -587,7 +588,7 @@ public class HikeFile
 		 */
 		String currentFileSelectionPath = HikeConstants.FILE_SHARE_PREFIX + getExactFilePath();
 		String currentFileSelectionMimeType = getFileTypeString();
-		Utils.startShareImageIntent(currentFileSelectionMimeType, currentFileSelectionPath);
+		IntentFactory.startShareImageIntent(currentFileSelectionMimeType, currentFileSelectionPath);
 	}
 
 	public static void openFile(File file, String fileTypeString, Context context)
