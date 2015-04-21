@@ -923,23 +923,11 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			groupNameEditText = (EditText) headerView.findViewById(R.id.name_edit);
 			text = (TextView) headerView.findViewById(R.id.name);
 			creation = (TextView) headerView.findViewById(R.id.creation);
-			owner = (TextView) headerView.findViewById(R.id.owner);
 			profileImage = (ImageView) headerView.findViewById(R.id.group_profile_image);
 			smallIconFrame = (ImageView) headerView.findViewById(R.id.change_profile);
 			groupNameEditText.setText(oneToNConversation.getLabel());
 			msisdn = oneToNConversation.getMsisdn();
 			name = oneToNConversation.getLabel();
-			if(oneToNConversation.getConversationOwner()!=null)
-			{
-				String myMsisdn = preferences.getString(HikeMessengerApp.MSISDN_SETTING, null);
-				String ownerName = oneToNConversation.getConversationOwner();
-				if ((oneToNConversation.getConversationOwner()).equals(myMsisdn))
-				{
-					ownerName = getResources().getString(R.string.you);
-				}
-				
-				owner.setText(getResources().getString(R.string.group_owner)+": "+ownerName);
-			}
 			text.setText(name);
  			long groupCreation=oneToNConversation.getCreationDateInLong();
 			if(groupCreation!=-1l)
