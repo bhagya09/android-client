@@ -449,6 +449,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 					public void onAction(int actionCode)
 					{
 						getSupportFragmentManager().popBackStackImmediate();
+						mActionBarDoneContainer.setVisibility(View.VISIBLE);
 						if (actionCode == PhotoActionsFragment.ACTION_SEND)
 						{
 							sendAnalyticsSendTo();
