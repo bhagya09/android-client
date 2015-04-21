@@ -26,6 +26,7 @@ import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.HikeHandlerUtil;
+import com.bsb.hike.photos.HikeEffectsFactory;
 import com.bsb.hike.photos.HikeEffectsFactory.OnFilterAppliedListener;
 import com.bsb.hike.photos.HikePhotosListener;
 import com.bsb.hike.photos.HikePhotosUtils;
@@ -345,6 +346,7 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 		if (file.exists())
 		{
 			mListener.onComplete(file);
+			HikeEffectsFactory.finish();
 		}
 		else
 		{
