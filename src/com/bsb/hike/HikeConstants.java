@@ -2575,6 +2575,8 @@ public class HikeConstants
 
 		public static final String FILENAME = "FilePath";
 		
+		public static final String DESTINATION_FILENAME = "Destination_FilePath";
+		
 		public static final String ORIG_FILE = "OrigFile";
 
 		public static final int MAX_BRUSH_WIDTH = 48;
