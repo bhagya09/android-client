@@ -1436,12 +1436,10 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="choose_contact">Choose Contact(s)</string>
     <string name="terms_conditions_hint">Terms and Conditions</string>
     <string name="terms_conditions_title">T &amp; C</string>
-<<<<<<< HEAD
 
     <string name="content_des_message_send_rec_read_status">Message send or pending status</string>
     <string name="content_des_restore_if_backup_found">Restore (Backup found)</string>
-=======
+
     <string name="group_creation">Created on </string>
     <string name="ls_change_failed">Last Seen update failed!</string>
->>>>>>> 49e98f346cf2543cb6a267abce41ff709ded0fc1
 </resources>
