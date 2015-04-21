@@ -347,7 +347,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			showToast(msg.arg1);
 			break;
 		case MESSAGE_RECEIVED:
-			addMessage((ConvMessage) msg.obj);
+			messageAdded((ConvMessage) msg.obj);
 			break;
 		case NOTIFY_DATASET_CHANGED:
 			Logger.i(TAG, "notifying data set changed on UI Handler");
@@ -361,7 +361,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			break;
 		case FILE_MESSAGE_CREATED:
         case MULTI_MSG_DB_INSERTED:
-			addMessage((ConvMessage) msg.obj);
+			messageAdded((ConvMessage) msg.obj);
 			break;
 		case DELETE_MESSAGE:
 			deleteMessages((Pair<Boolean, ArrayList<Long>>) msg.obj);
@@ -412,7 +412,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		}
 	}
 
-	protected void addMessage(ConvMessage convMessage)
+	protected void messageAdded(ConvMessage convMessage)
 	{
 
 		addtoMessageMap(messages.size() - 1, messages.size());
@@ -887,7 +887,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	{
 		if (convMessage != null)
 		{
-			addMessage(convMessage);
+			messageAdded(convMessage);
 			HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_SENT, convMessage);
 		}
 	}
@@ -2079,11 +2079,21 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			loadingMoreMessages = false;
 		}
 	}
+
+	protected void addMessage(ConvMessage message)
+	{
+		mAdapter.addMessage(message);
+	}
+
+	protected void addMessages(List<ConvMessage> list, int startIndex)
+	{
+		mAdapter.addMessages(list, startIndex);
+	}
 	
 	private void addMoreMessages(List<ConvMessage> list)
 	{
 		int startIndex = getMessagesStartIndex();
-		mAdapter.addMessages(list, startIndex);
+		addMessages(list, startIndex);
 		addtoMessageMap(startIndex, startIndex + list.size());
 		updateNNotifySearchParams(list);
 		mAdapter.notifyDataSetChanged();
@@ -3272,7 +3282,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	{
 		if (messages.isEmpty() || messages.get(messages.size() - 1).getTypingNotification() == null)
 		{
-			addMessage(new ConvMessage(typingNotification));
+			messageAdded(new ConvMessage(typingNotification));
 		}
 		else if (messages.get(messages.size() - 1).getTypingNotification() != null)
 		{
