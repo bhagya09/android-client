@@ -32,6 +32,8 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.ProfileImageActions;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.dialog.CustomAlertDialog;
+import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.http.HikeHttpRequest;
 import com.bsb.hike.http.HikeHttpRequest.HikeHttpCallback;
 import com.bsb.hike.http.HikeHttpRequest.RequestType;
@@ -221,7 +223,8 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 		{
 			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "json exception");
 		}
-		final CustomAlertDialog deleteConfirmDialog = new CustomAlertDialog(this);
+		
+		final CustomAlertDialog deleteConfirmDialog = new CustomAlertDialog(this, HikeDialogFactory.REMOVE_DP_CONFIRM_DIALOG);
 		deleteConfirmDialog.setHeader(R.string.remove_photo);
 		deleteConfirmDialog.setBody(R.string.confirm_remove_photo);
 		deleteConfirmDialog.setCheckBox(R.string.check_delete_from_timeline, false);
@@ -357,7 +360,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 		// Show Remove Photo item only if user has a profile photo other than default
 		ContactInfo contactInfo = Utils.getUserContactInfo(prefs.getPref());
 
-		if (!Utils.isGroupConversation(mLocalMSISDN) && ContactManager.getInstance().hasIcon(contactInfo.getMsisdn()))
+		if (!OneToNConversationUtils.isOneToNConversation(mLocalMSISDN) && ContactManager.getInstance().hasIcon(contactInfo.getMsisdn()))
 		{
 			CharSequence[] moreItems = new CharSequence[items.length + 1]; // adding one item to the existing list
 

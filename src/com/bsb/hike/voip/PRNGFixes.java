@@ -27,7 +27,7 @@ import java.security.Security;
 
 import android.os.Build;
 import android.os.Process;
-import com.bsb.hike.utils.Logger;
+
 import com.bsb.hike.utils.Logger;
 
 /**

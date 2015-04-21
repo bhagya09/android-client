@@ -14,7 +14,7 @@
         android:layout_marginRight="8dp"
         android:background="@drawable/bg_country_search_bar"
         android:gravity="center_vertical"
-        android:hint="@string/search_hint"
+        android:hint="@string/search"
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
         android:paddingTop="8dp"

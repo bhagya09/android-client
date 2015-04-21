@@ -1,9 +1,6 @@
 package com.bsb.hike.productpopup;
 
 import java.lang.ref.WeakReference;
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 
 import org.json.JSONException;
@@ -12,8 +9,6 @@ import org.json.JSONObject;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.support.v4.app.DialogFragment;
-import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
@@ -23,12 +18,9 @@ import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.platform.bridge.JavascriptBridge;
-import com.bsb.hike.productpopup.ProductPopupsConstants.PopUpAction;
-import com.bsb.hike.service.HikeService;
-import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.productpopup.ProductPopupsConstants.HIKESCREEN;
 import com.bsb.hike.productpopup.ProductPopupsConstants.PopUpAction;
-import com.bsb.hike.utils.IntentManager;
+import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
@@ -188,7 +180,7 @@ public class ProductJavaScriptBridge extends JavascriptBridge
 
 	private void multiFwdStickers(Context context, String stickerId, String categoryId, boolean selectAll)
 	{
-		Intent intent = IntentManager.getForwardStickerIntent(context, stickerId, categoryId);
+		Intent intent = IntentFactory.getForwardStickerIntent(context, stickerId, categoryId);
 		intent.putExtra(HikeConstants.Extras.SELECT_ALL_INITIALLY, selectAll);
 		context.startActivity(intent);
 	}

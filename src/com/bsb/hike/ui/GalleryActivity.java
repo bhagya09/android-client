@@ -13,13 +13,12 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -37,8 +36,10 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.adapters.GalleryAdapter;
 import com.bsb.hike.filetransfer.FileTransferManager;
+import com.bsb.hike.media.AttachmentPicker;
 import com.bsb.hike.models.GalleryItem;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
 public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements OnScrollListener, OnItemClickListener, OnItemLongClickListener
@@ -53,6 +54,10 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 	public static final String ACTION_BAR_TYPE_KEY = "action_bar";
 
 	public static final String RETURN_RESULT_KEY = "return_result";
+	
+	private static final int GALLERY_ACTIVITY = 31;
+	
+	public static final int GALLERY_ACTIVITY_RESULT_CODE = 97;
 
 	public static final int PHOTOS_EDITOR_ACTION_BAR_TYPE = 1;
 
@@ -81,6 +86,13 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 	private long previousEventTime;
 
 	private int velocity;
+	
+	public static final String START_FOR_RESULT = "startForResult";
+	
+	/**
+	 * This flag indicates whether this was opened for result or not, i.e. was it startActivityForResult
+	 */
+	private boolean sendResult;
 
 	private boolean disableMultiSelect;
 
@@ -127,6 +139,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 
 		GalleryItem selectedBucket = data.getParcelable(HikeConstants.Extras.SELECTED_BUCKET);
 		msisdn = data.getString(HikeConstants.Extras.MSISDN);
+		sendResult = data.getBoolean(START_FOR_RESULT);
 		disableMultiSelect = data.getBoolean(DISABLE_MULTI_SELECT_KEY);
 		pendingIntent = data.getParcelable(PENDING_INTENT_KEY);
 
@@ -513,10 +526,40 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 		intent.putExtra(HikeConstants.Extras.MSISDN, msisdn);
 		intent.putExtra(HikeConstants.Extras.ON_HIKE, getIntent().getBooleanExtra(HikeConstants.Extras.ON_HIKE, true));
 		intent.putExtra(HikeConstants.Extras.SELECTED_BUCKET, getIntent().getParcelableExtra(HikeConstants.Extras.SELECTED_BUCKET));
-
-		startActivity(intent);
+		
+		if (!sendResult)
+		{
+			startActivity(intent);
+		}
+		else
+		{
+			intent.putExtra(START_FOR_RESULT, sendResult);
+			startActivityForResult(intent, AttachmentPicker.GALLERY);
+		}
 	}
 
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data)
+	{
+		switch (requestCode)
+		{
+		case AttachmentPicker.GALLERY:
+			Logger.d("GalleryActivity", "Inside onActivityResult : " + requestCode); 
+			setResult(GALLERY_ACTIVITY_RESULT_CODE);
+			finish();
+			break;
+		case GALLERY_ACTIVITY:
+			Logger.d("GalleryActivity", "Inside onActivity Result. Perhaps this activity was started by itself only : " + requestCode);
+			if (resultCode == GALLERY_ACTIVITY_RESULT_CODE) //We need to send the same result back to the originator class
+			{
+				setResult(GALLERY_ACTIVITY_RESULT_CODE);
+				finish();
+			}
+			break;
+		default:
+			super.onActivityResult(requestCode, resultCode, data);
+		}
+	}
 	@Override
 	public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount)
 	{
@@ -552,7 +595,11 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 			intent.putExtra(HikeConstants.Extras.ON_HIKE, getIntent().getBooleanExtra(HikeConstants.Extras.ON_HIKE, true));
 			intent.putExtra(PENDING_INTENT_KEY, pendingIntent);
 			intent.putExtra(DISABLE_MULTI_SELECT_KEY, disableMultiSelect);
-			startActivity(intent);
+			if (sendResult)
+			{
+				intent.putExtra(START_FOR_RESULT, sendResult);
+			}
+			startActivityForResult(intent, GALLERY_ACTIVITY);
 		}
 		else
 		{

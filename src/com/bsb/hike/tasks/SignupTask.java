@@ -4,6 +4,8 @@ import java.io.File;
 import java.util.List;
 import java.util.Map;
 
+import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.PlatformUIDFetch;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -419,6 +421,12 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 			msisdn = accountInfo.msisdn;
 			/* save the new msisdn */
 			Utils.savedAccountCredentials(accountInfo, settings.edit());
+			String hikeUID = accountInfo.uid;
+			String hikeToken = accountInfo.token;
+			if (!TextUtils.isEmpty(hikeUID) && !TextUtils.isEmpty(hikeToken))
+			{
+				PlatformUIDFetch.fetchPlatformUid(HikePlatformConstants.PlatformUIDFetchType.SELF);
+			}
 			/* msisdn set, yay */
 			publishProgress(new StateValue(State.MSISDN, msisdn));
 		}

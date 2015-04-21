@@ -35,15 +35,20 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
+import com.bsb.hike.analytics.AnalyticsConstants.MsgRelEventType;
+import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.analytics.AnalyticsConstants.MessageType;
+import com.bsb.hike.analytics.MsgRelLogManager;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.http.CustomByteArrayEntity;
 import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.ConvMessage.OriginType;
 import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.models.HikeFile;
-import com.bsb.hike.models.ConvMessage.OriginType;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.ProgressListener;
 import com.bsb.hike.utils.Utils;
@@ -188,10 +193,11 @@ public class UploadContactOrLocationTask extends FileTransferBase
 					String msisdn = grpParticipant.getFirst().getContactInfo().getMsisdn();
 					convMessageObject.addToSentToMsisdnsList(msisdn);
 				}
-				Utils.addBroadcastRecipientConversations(convMessageObject);
+				OneToNConversationUtils.addBroadcastRecipientConversations(convMessageObject);
 			}
 
 			HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_SENT, convMessageObject);
+			
 		}
 		catch (Exception e)
 		{
@@ -215,6 +221,7 @@ public class UploadContactOrLocationTask extends FileTransferBase
 		Logger.d("Upload", "Content type: " + fileType);
 		httpPut.addHeader("Content-Type", TextUtils.isEmpty(fileType) ? "" : fileType);
 		httpPut.addHeader("X-Thumbnail-Required", "0");
+		AccountUtils.setNoTransform(httpPut);
 		final AbstractHttpEntity entity;
 		entity = new CustomByteArrayEntity(request.toString().getBytes(), new ProgressListener()
 		{
@@ -283,6 +290,9 @@ public class UploadContactOrLocationTask extends FileTransferBase
 			
 			if (TextUtils.isEmpty(fileKey))
 			{
+				// 1) user clicked send button in chat thread i.e Sending Text Message
+				MsgRelLogManager.startMessageRelLogging((ConvMessage) userContext, MessageType.MULTIMEDIA);
+				
 				// Called so that the UI in the Conversation lists screen is
 				// updated
 				HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_SENT, (ConvMessage) userContext);
@@ -307,7 +317,7 @@ public class UploadContactOrLocationTask extends FileTransferBase
 			convMessage.setMessageOriginType(OriginType.BROADCAST);
 		}
 
-		HikeConversationsDatabase.getInstance().addConversationMessages(convMessage);
+		HikeConversationsDatabase.getInstance().addConversationMessages(convMessage,false);
 
 		HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_MESSAGE_CREATED, convMessage);
 		return convMessage;
@@ -328,9 +338,7 @@ public class UploadContactOrLocationTask extends FileTransferBase
 
 		convMessage.setMetadata(metadata);
 		HikeConversationsDatabase.getInstance().updateMessageMetadata(convMessage.getMsgID(), convMessage.getMetadata());
-		// HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
-		Intent intent = new Intent(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED);
-		LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+		HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
 	}
 
 	protected void postExecute(FTResult result)
