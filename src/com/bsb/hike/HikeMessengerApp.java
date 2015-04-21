@@ -1,6 +1,7 @@
 package com.bsb.hike;
 
 import java.io.File;
+
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
@@ -186,6 +187,8 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	public static final String GCM_ID_SENT = "gcmIdSent";
 
 	public static final String BLOCK_NOTIFICATIONS = "blockNotification";
+	
+	public static final String DP_CHANGE_STATUS_ID = "dpstatusid";
 
 	private static final boolean TEST = false; // TODO:: test flag only : turn
 												// OFF for Production
@@ -478,6 +481,8 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	public static final String SHOW_BROADCAST_FTUE_SCREEN = "showBroadcastFtueScreen";
 
 	public static final String EXCEPTION_ANALYTIS_ENABLED = "exceptionAnalaticsEnabled";
+	
+	public static final String SSL_ALLOWED = "sslAllowed";
 	
 	public static CurrentState currentState = CurrentState.CLOSED;
 
