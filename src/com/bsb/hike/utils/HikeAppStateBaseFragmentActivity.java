@@ -1,11 +1,13 @@
 package com.bsb.hike.utils;
 
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.bsb.hike.HikeConstants;
@@ -20,10 +22,7 @@ import com.bsb.hike.productpopup.HikeDialogFragment;
 import com.bsb.hike.productpopup.IActivityPopup;
 import com.bsb.hike.productpopup.ProductContentModel;
 import com.bsb.hike.productpopup.ProductInfoManager;
-import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.ui.fragments.ImageViewerFragment;
-import com.bsb.hike.voip.view.CallIssuesDialogFragment;
-import com.bsb.hike.voip.view.CallRateDialogFragment;
 
 public class HikeAppStateBaseFragmentActivity extends SherlockFragmentActivity implements Listener
 {
@@ -160,16 +159,46 @@ public class HikeAppStateBaseFragmentActivity extends SherlockFragmentActivity i
 	public void startActivityFromFragment(Fragment fragment, Intent intent, int requestCode)
 	{
 		HikeMessengerApp.currentState = CurrentState.NEW_ACTIVITY;
-		super.startActivityFromFragment(fragment, intent, requestCode);
+		try
+		{
+			super.startActivityFromFragment(fragment, intent, requestCode);
+		}
+		catch (ActivityNotFoundException e)
+		{
+			Logger.w(getClass().getSimpleName(), "Unable to find activity", e);
+			Toast.makeText(this, R.string.activity_not_found, Toast.LENGTH_SHORT).show();
+		}
 	}
 
 	@Override
 	public void startActivityForResult(Intent intent, int requestCode)
 	{
 		HikeAppStateUtils.startActivityForResult(this);
-		super.startActivityForResult(intent, requestCode);
+		try
+		{
+			super.startActivityForResult(intent, requestCode);
+		}
+		catch (ActivityNotFoundException e)
+		{
+			Logger.w(getClass().getSimpleName(), "Unable to find activity", e);
+			Toast.makeText(this, R.string.activity_not_found, Toast.LENGTH_SHORT).show();
+		}
 	}
 
+	@Override
+	public void startActivity(Intent intent)
+	{
+		try
+		{
+			super.startActivity(intent);	
+		}
+		catch (ActivityNotFoundException e)
+		{
+			Logger.w(getClass().getSimpleName(), "Unable to find activity", e);
+			Toast.makeText(this, R.string.activity_not_found, Toast.LENGTH_SHORT).show();
+		}		
+	}
+	
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data)
 	{
