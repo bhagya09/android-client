@@ -87,6 +87,7 @@ import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Shader.TileMode;
 import android.graphics.Typeface;
@@ -108,6 +109,7 @@ import android.os.PowerManager;
 import android.os.RemoteException;
 import android.os.StatFs;
 import android.os.Vibrator;
+import android.preference.ListPreference;
 import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.CommonDataKinds.Email;
@@ -2338,10 +2340,8 @@ public class Utils
 		{
 			return;
 		}
-		AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-		int ringerMode = audioManager.getRingerMode();
 
-		if (ringerMode != AudioManager.RINGER_MODE_SILENT && !Utils.isUserInAnyTypeOfCall(context))
+		if (!SoundUtils.isSilentMode(context) && !Utils.isUserInAnyTypeOfCall(context))
 		{
 			vibrate(100);
 		}
@@ -5294,7 +5294,11 @@ public class Utils
 		return true;
 	}
 
-	 /** Tells if User is on Telephonic/Audio/Vedio/Voip Call
+
+	 /** Tells if User is on 
+	  * 1) Between any Telephonic/Audio/Vedio/Voip Call
+	  * 2) Any Telephonic call is ringing
+
 	 * @param context
 	 * @return
 	 */
@@ -5303,7 +5307,9 @@ public class Utils
 
 		AudioManager manager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
 
-		boolean callMode = manager.getMode() == AudioManager.MODE_IN_COMMUNICATION || manager.getMode() == AudioManager.MODE_IN_CALL;
+		boolean callMode = manager.getMode() == AudioManager.MODE_IN_COMMUNICATION 
+				|| manager.getMode() == AudioManager.MODE_IN_CALL
+				|| manager.getMode() == AudioManager.MODE_RINGTONE;
 
 		return callMode;
 	}
@@ -5690,4 +5696,5 @@ public class Utils
 			}
 		}
 	}
+
 }
