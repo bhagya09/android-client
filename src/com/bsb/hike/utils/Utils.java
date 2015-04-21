@@ -1096,12 +1096,7 @@ public class Utils
 
 	public static boolean isUserOnline(Context context)
 	{
-		if(getActiveNetInfo() != null)
-		{
-			return true;
-		}
-		
-		return false;
+		return getNetInfoFromConnectivityManager().second;
 	}
 
 	/**
@@ -5512,26 +5507,54 @@ public class Utils
 	 */
 	public static NetworkInfo getActiveNetInfo()
 	{
-		/*
-		 * We've seen NPEs in this method on the dev console but have not been able to figure out the reason so putting this in a try catch block.
-		 */
-		NetworkInfo info = null;
+		NetworkInfo netInfo = getNetInfoFromConnectivityManager().first;
+		return netInfo;
+	}
+	
+	/**
+	 * Now we might say network is there even if we don't have a NetworkInfo object that is why we returning NetworkInfo and NeworkAvailable states seprately. this is basically
+	 * done to tackle some exception scenarios where getActiveNetworkInfo unexpectedly throws an error.
+	 * 
+	 * @return Pair<NetworkInfo, Boolean>.first ==> NeworkInfo object of current available network ;
+	 * 		   Pair<NetworkInfo, Boolean>.second ==> boolean indicating wheather network is available or not
+	 */
+	public static Pair<NetworkInfo, Boolean> getNetInfoFromConnectivityManager()
+	{
 		try
 		{
 			ConnectivityManager cm = (ConnectivityManager) HikeMessengerApp.getInstance().getSystemService(Context.CONNECTIVITY_SERVICE);
-			
-			if (cm != null && cm.getActiveNetworkInfo() != null && cm.getActiveNetworkInfo().isAvailable() && cm.getActiveNetworkInfo().isConnected())
+			NetworkInfo netInfo = cm.getActiveNetworkInfo();
+
+			if (netInfo != null && (netInfo.isConnectedOrConnecting() || netInfo.isAvailable()))
 			{
-				info = cm.getActiveNetworkInfo();
+				Logger.d("getNetInfoFromConnectivityManager", "Trying to connect using getActiveNetworkInfo");
+				return new Pair<NetworkInfo, Boolean>(netInfo, true);
 			}
-			return info;
+
+			netInfo = cm.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+
+			if (netInfo != null && netInfo.isConnectedOrConnecting())
+			{
+				Logger.d("getNetInfoFromConnectivityManager", "Trying to connect using TYPE_MOBILE NetworkInfo");
+				return new Pair<NetworkInfo, Boolean>(netInfo, true);
+			}
+			else
+			{
+				netInfo = cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+				if (netInfo != null && netInfo.isConnectedOrConnecting())
+				{
+					Logger.d("getNetInfoFromConnectivityManager", "Trying to connect using TYPE_WIFI NetworkInfo");
+					return new Pair<NetworkInfo, Boolean>(netInfo, true);
+				}
+			}
 		}
-		catch (NullPointerException e)
+		catch (Exception e)
 		{
-			Logger.e("Utils", "Exception :", e);
+			return new Pair<NetworkInfo, Boolean>(null, true);
 		}
-		return null;
+		return new Pair<NetworkInfo, Boolean>(null, false);
 	}
+	
 	
 	public static String valuesToCommaSepratedString(ArrayList<Long> entries)
 	{
