@@ -414,4 +414,13 @@ public class SearchManager
 		}
 	}
 
+	/**
+	 * Adds an item to the end of current item list.
+	 * @param item
+	 */
+	public void addItem(Searchable item)
+	{
+		itemList.add(item);
+	}
+
 }

@@ -2083,6 +2083,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	protected void addMessage(ConvMessage message)
 	{
 		mAdapter.addMessage(message);
+		if (messageSearchManager != null && messageSearchManager.isActive())
+		{
+			messageSearchManager.addItem(message);
+		}	
 	}
 
 	protected void addMessages(List<ConvMessage> list, int startIndex)
