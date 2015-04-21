@@ -242,6 +242,8 @@ public class AnalyticsConstants
 	
 	public static final String MSG_REL_CONST_STR = "ek";
 	
+	public static final String NEW_LOG = "nl";
+	
 	public static final class MsgRelEventType
 	{
 		public static final String SEND_BUTTON_CLICKED = "1";
