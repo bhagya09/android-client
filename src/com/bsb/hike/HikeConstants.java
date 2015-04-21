@@ -466,7 +466,11 @@ public class HikeConstants
 	public static final String MESSAGES = "msgs";
 
 	public static final String FILE_IMAGE_QUALITY = "img_quality";
-
+	
+	public static final String CAN_EDIT_DP = "canEditDP";
+	
+	public static final String HTTP_STATUS_ID = "?status_id=";
+	
 	// @GM
 	// public static final String AUTO_DOWNLOAD_IMAGE_PREF =
 	// "autoDownloadImagePref"
@@ -900,12 +904,14 @@ public class HikeConstants
 	public static final int PROFILE_PICTURE_FROM_CAMERA = 0;
 
 	public static final int PROFILE_PICTURE_FROM_GALLERY = 1;
+	
+	public static final int REMOVE_PROFILE_PICTURE = 2;
 
 	/* activityForResult IDs */
 	public static final int CAMERA_RESULT = 0;
 
 	public static final int GALLERY_RESULT = 1;
-
+	
 	public static final int CROP_RESULT = 2991;
 
 	public static final int MIN_STATUS_COUNT = 5;

@@ -61,6 +61,8 @@ public class StickerEDImageDownloadTask extends BaseStickerDownloadTask
 				}
 			}
 			
+			Utils.makeNoMediaFile(otherDir);
+			
 			String urlString = AccountUtils.base + "/stickers/enable_disable?catId=" + catId + "&resId=" + Utils.getResolutionId();
 			if(AccountUtils.ssl)
 			{
