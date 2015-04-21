@@ -1242,7 +1242,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		}
 	}
 
-	private void destroySearchMode()
+	protected void destroySearchMode()
 	{
 		mComposeView = (CustomFontEditText) activity.findViewById(R.id.msg_compose);
 		mComposeView.requestFocus();
@@ -1349,14 +1349,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		switch (dialog.getId())
 		{
 		case HikeDialogFactory.DELETE_MESSAGES_DIALOG:
-			dialog.dismiss();
-			mActionMode.finish();
-			
-			this.dialog = null;
-			break;
-			
 		case HikeDialogFactory.CONTACT_SEND_DIALOG:
-		case HikeDialogFactory.CONTACT_SAVE_DIALOG:
 		case HikeDialogFactory.CLEAR_CONVERSATION_DIALOG:
 			dialog.dismiss();
 			this.dialog = null;
@@ -1374,9 +1367,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			ChatThreadUtils.initialiseContactTransfer(activity.getApplicationContext(), msisdn, ((PhonebookContact) dialog.data).jsonData, mConversation.isOnHike());
 			dialog.dismiss();
 
-			break;
-		case HikeDialogFactory.CONTACT_SAVE_DIALOG:
-			// TODO
 			break;
 
 		case HikeDialogFactory.CLEAR_CONVERSATION_DIALOG:

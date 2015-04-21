@@ -943,7 +943,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			text.setText(name);
  			long groupCreation=oneToNConversation.getCreationDateInLong();
 			if(groupCreation!=-1l)
-				creation.setText(getResources().getString(R.string.group_creation)+" "+OneToNConversationUtils.getGroupCreationTimeAsString(getApplicationContext(), groupCreation));
+				creation.setText(getResources().getString(R.string.group_creation)+" "+OneToNConversationUtils.getGroupCreationTimeAsString(groupCreation));
 			break;
 			
 		default:

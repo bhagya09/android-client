@@ -199,7 +199,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 //		Not allowing user to access actionbar items on a blocked user's chatThread
 		if (mConversation.isBlocked())
 		{
-			Toast.makeText(activity.getApplicationContext(), activity.getString(R.string.block_overlay_message, mConversation.getMsisdn()), Toast.LENGTH_SHORT).show();
+			Toast.makeText(activity.getApplicationContext(), activity.getString(R.string.block_overlay_message, mConversation.getLabel()), Toast.LENGTH_SHORT).show();
 			return false;
 		}
 		
@@ -1303,7 +1303,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		}
 		else
 		{
-			Toast.makeText(activity.getApplicationContext(), activity.getString(R.string.user_blocked, mConversation.getConversationName()), Toast.LENGTH_SHORT).show();
+			Toast.makeText(activity.getApplicationContext(), activity.getString(R.string.block_overlay_message, mConversation.getLabel()), Toast.LENGTH_SHORT).show();
 		}
 	}
 
@@ -2517,6 +2517,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		switch (id)
 		{
 		case MULTI_SELECT_ACTION_MODE:
+		case SEARCH_ACTION_MODE:
 			setEnabledH20NextButton(false);
 			break;
 		}
@@ -2545,6 +2546,17 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	protected void destroyActionMode()
 	{
 		super.destroyActionMode();
+		
+		if (isH20TipShowing())
+		{
+			setEnabledH20NextButton(true);
+		}
+	}
+	
+	@Override
+	protected void destroySearchMode()
+	{
+		super.destroySearchMode();
 		
 		if (isH20TipShowing())
 		{
