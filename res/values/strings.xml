@@ -1367,7 +1367,6 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="voip_missed_call_notif">Missed Call</string>
     <string name="voip_missed_call_action">Call Back</string>
     <string name="voip_missed_call_message">Message</string>
-    <string name="valentine_day">Happy Valentine\'s Day</string>
     <string name="empty_email">You have no messages in this conversation to e-mail.</string>
     <string name="no_results">No results</string>
     <string name="take_photo">Take a photo</string>
