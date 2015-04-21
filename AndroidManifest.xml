@@ -3,11 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-
-
     android:versionCode="1176"
     android:versionName="3.9.0.51" >
-
 
     <uses-sdk
         android:minSdkVersion="9"
@@ -213,6 +210,7 @@
         </activity>
         <activity
             android:name=".ui.ProfileActivity"
+            android:configChanges="orientation|screenSize"            
             android:windowSoftInputMode="stateHidden" >
             <intent-filter android:label="@string/set_profile_pic" >
                 <action android:name="android.intent.action.ATTACH_DATA" />
@@ -241,7 +239,8 @@
             android:name=".ui.TellAFriend"
             android:launchMode="singleTop" >
         </activity>
-        <activity android:name=".ui.SettingsActivity" >
+        <activity android:name=".ui.SettingsActivity" 
+                  android:configChanges="orientation|screenSize">            
         </activity>
         <activity android:name="com.bsb.hike.ui.ConnectedAppsActivity"
             android:configChanges="orientation" >

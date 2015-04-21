@@ -2,19 +2,14 @@ package com.bsb.hike.ui;
 
 import java.io.File;
 
-import java.net.URI;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
-import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.Html;
 import android.text.TextUtils;
@@ -26,7 +21,6 @@ import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.bsb.hike.HikeConstants;
@@ -37,7 +31,6 @@ import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
-import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
@@ -206,6 +199,19 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 					Utils.toggleActionBarElementsEnable(doneBtn, arrow, postText, !TextUtils.isEmpty(editable.toString().trim()));
 				}
 			});
+			
+			if(convImage != null)
+			{
+				convImage.setOnClickListener(new OnClickListener()
+				{
+					
+					@Override
+					public void onClick(View v)
+					{
+						showProfileImageEditDialog(CreateNewGroupOrBroadcastActivity.this, CreateNewGroupOrBroadcastActivity.this, convId, null);
+					}
+				});
+			}
 		}
 	}
 
@@ -316,135 +322,36 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 	}
 	
 	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data)
+	public String profileImageCropped()
 	{
-		super.onActivityResult(requestCode, resultCode, data);
-		String path = null;
-		if (resultCode != RESULT_OK)
-		{
-			return;
-		}
-
-		String directory = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
-		/*
-		 * Making sure the directory exists before setting a profile image
-		 */
-		File dir = new File(directory);
-		if (!dir.exists())
-		{
-			dir.mkdirs();
-		}
-
-		String fileName = Utils.getTempProfileImageFileName(convId);
-		final String destFilePath = directory + "/" + fileName;
-
-		File selectedFileIcon = null;
-
-		switch (requestCode)
-		{
-		case HikeConstants.CAMERA_RESULT:
-			/* fall-through on purpose */
-		case HikeConstants.GALLERY_RESULT:
-			Logger.d("ProfileActivity", "The activity is " + this);
-			if (requestCode == HikeConstants.CAMERA_RESULT)
-			{
-				String filePath = preferences.getString(HikeMessengerApp.FILE_PATH, "");
-				selectedFileIcon = new File(filePath);
-
-				/*
-				 * Removing this key. We no longer need this.
-				 */
-				Editor editor = preferences.edit();
-				editor.remove(HikeMessengerApp.FILE_PATH);
-				editor.commit();
-			}
-			if (requestCode == HikeConstants.CAMERA_RESULT && !selectedFileIcon.exists())
-			{
-				Toast.makeText(getApplicationContext(), R.string.error_capture, Toast.LENGTH_SHORT).show();
-				return;
-			}
-			boolean isPicasaImage = false;
-			Uri selectedFileUri = null;
-			if (requestCode == HikeConstants.CAMERA_RESULT)
-			{
-				path = selectedFileIcon.getAbsolutePath();
-			}
-			else
-			{
-				if (data == null)
-				{
-					Toast.makeText(getApplicationContext(), R.string.error_capture, Toast.LENGTH_SHORT).show();
-					return;
-				}
-				selectedFileUri = data.getData();
-				if (Utils.isPicasaUri(selectedFileUri.toString()))
-				{
-					isPicasaImage = true;
-					path = Utils.getOutputMediaFile(HikeFileType.PROFILE, null, false).getAbsolutePath();
-				}
-				else
-				{
-					String fileUriStart = "file://";
-					String fileUriString = selectedFileUri.toString();
-					if (fileUriString.startsWith(fileUriStart))
-					{
-						selectedFileIcon = new File(URI.create(Utils.replaceUrlSpaces(fileUriString)));
-						/*
-						 * Done to fix the issue in a few Sony devices.
-						 */
-						path = selectedFileIcon.getAbsolutePath();
-					}
-					else
-					{
-						path = Utils.getRealPathFromUri(selectedFileUri, this);
-					}
-				}
-			}
-			if (TextUtils.isEmpty(path))
-			{
-				Toast.makeText(getApplicationContext(), R.string.error_capture, Toast.LENGTH_SHORT).show();
-				return;
-			}
-			if (!isPicasaImage)
-			{
-				Utils.startCropActivity(this, path, destFilePath);
-			}
-			else
-			{
-				/*
-				 * TODO handle picasa case.
-				 */
-				Toast.makeText(getApplicationContext(), R.string.error_capture, Toast.LENGTH_SHORT).show();
-				return;
-			}
-			break;
-		case HikeConstants.CROP_RESULT:
-			String finalDestFilePath = data.getStringExtra(MediaStore.EXTRA_OUTPUT);
-			if (finalDestFilePath == null)
-			{
-				Toast.makeText(getApplicationContext(), R.string.error_setting_profile, Toast.LENGTH_SHORT).show();
-				return;
-			}
-
-			Bitmap tempBitmap = HikeBitmapFactory.scaleDownBitmap(finalDestFilePath, HikeConstants.SIGNUP_PROFILE_IMAGE_DIMENSIONS, HikeConstants.SIGNUP_PROFILE_IMAGE_DIMENSIONS,
-					Bitmap.Config.RGB_565, true, false);
-
-			groupBitmap = HikeBitmapFactory.getCircularBitmap(tempBitmap);
-			convImage.setImageBitmap(HikeBitmapFactory.getCircularBitmap(tempBitmap));
-
-			/*
-			 * Saving the icon in the DB.
-			 */
-			byte[] bytes = BitmapUtils.bitmapToBytes(tempBitmap, CompressFormat.JPEG, 100);
-
-			tempBitmap.recycle();
-
-			ContactManager.getInstance().setIcon(convId, bytes, false);
-
-			break;
-		}
+		String imgPath = super.profileImageCropped();
+		
+		setGroupPreivewBitmap(imgPath);
+		
+		return imgPath;
 	}
-	
+
+	/**
+	 * Used to set preview bitmap for the new group
+	 * @param path of the bitmap
+	 */
+	private void setGroupPreivewBitmap(String path)
+	{
+		Bitmap tempBitmap = HikeBitmapFactory.scaleDownBitmap(path, HikeConstants.SIGNUP_PROFILE_IMAGE_DIMENSIONS, HikeConstants.SIGNUP_PROFILE_IMAGE_DIMENSIONS,
+				Bitmap.Config.RGB_565, true, false);
+
+		groupBitmap = HikeBitmapFactory.getCircularBitmap(tempBitmap);
+		convImage.setImageBitmap(HikeBitmapFactory.getCircularBitmap(tempBitmap));
+
+		/*
+		 * Saving the icon in the DB.
+		 */
+		byte[] bytes = BitmapUtils.bitmapToBytes(tempBitmap, CompressFormat.JPEG, 100);
+
+		tempBitmap.recycle();
+		ContactManager.getInstance().setIcon(convId, bytes, false);
+	}
+
 	private void sendBroadCastAnalytics()
 	{
 		try

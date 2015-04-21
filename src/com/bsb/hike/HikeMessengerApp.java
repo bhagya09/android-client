@@ -187,6 +187,8 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	public static final String GCM_ID_SENT = "gcmIdSent";
 
 	public static final String BLOCK_NOTIFICATIONS = "blockNotification";
+	
+	public static final String DP_CHANGE_STATUS_ID = "dpstatusid";
 
 	private static final boolean TEST = false; // TODO:: test flag only : turn
 												// OFF for Production
