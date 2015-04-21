@@ -581,13 +581,13 @@ public abstract class OneToNConversation extends Conversation
 		if (OneToNConversationUtils.isBroadcastConversation(msisdn))
 		{
 			conversation = new BroadcastConversation.ConversationBuilder(msisdn).setConversationOwner(jsonObj.getString(HikeConstants.FROM))
-					.setConversationParticipantsList(participants).setConvName(convName).setCreationTime(jsonObj.optLong(HikeConstants.GROUP_CHAT_TIMESTAMP)).build();
+					.setConversationParticipantsList(participants).setConvName(convName).setCreationTime(jsonObj.optLong(HikeConstants.GROUP_CHAT_TIMESTAMP,-1)).build();
 
 		}
 		else
 		{
 			conversation = new GroupConversation.ConversationBuilder(msisdn).setConversationOwner(jsonObj.getString(HikeConstants.FROM))
-					.setConversationParticipantsList(participants).setConvName(convName).setCreationTime(jsonObj.optLong(HikeConstants.GROUP_CHAT_TIMESTAMP)).build();
+					.setConversationParticipantsList(participants).setConvName(convName).setCreationTime(jsonObj.optLong(HikeConstants.GROUP_CHAT_TIMESTAMP,-1)).build();
 		}
 
 		return conversation;
