@@ -51,6 +51,7 @@ import com.bsb.hike.ui.fragments.PreviewFragment;
 import com.bsb.hike.ui.fragments.ProfilePicFragment;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
+import com.bsb.hike.utils.HikeUiHandler;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Utils;
 import com.viewpagerindicator.IconPagerAdapter;
@@ -314,7 +315,8 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 
 	private void uploadProfilePic(final String croppedImageFile, final String originalImageFile)
 	{
-		new Handler(Looper.getMainLooper()).postDelayed(new Runnable()
+
+		HikeUiHandler.getHandler().post(new Runnable()
 		{
 			@Override
 			public void run()
@@ -330,7 +332,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 						.setCustomAnimations(R.anim.fade_in_animation, R.anim.fade_out_animation, R.anim.fade_in_animation, R.anim.fade_out_animation)
 						.replace(R.id.overlayFrame, profilePicFragment).addToBackStack(null).commit();
 			}
-		}, 600);
+		});
 	}
 
 	public class EditorClickListener implements OnClickListener, OnPageChangeListener, OnDoodleStateChangeListener
