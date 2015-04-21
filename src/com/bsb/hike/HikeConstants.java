@@ -2020,6 +2020,8 @@ public class HikeConstants
 
 		public static final String ADDRESSBOOK_UPLOAD = "addressbookUpload";
 
+		public static final String GET_ACTIVE_NETWORK_INFO = "getActiveNetworkInfo";
+
 	}
 
 	public static final class MqttMessageTypes
