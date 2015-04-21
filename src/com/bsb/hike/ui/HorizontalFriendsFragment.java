@@ -31,6 +31,7 @@ import android.widget.TextView;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.MqttConstants;
 import com.bsb.hike.NUXConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.BitmapUtils;
@@ -314,7 +315,7 @@ public class HorizontalFriendsFragment extends Fragment implements OnClickListen
 					JSONObject data = new JSONObject();
 					data.put(HikeConstants.Extras.MSG, ((NuxSendCustomMessageActivity) getActivity()).getCustomMessage());
 					remind.put(HikeConstants.DATA, data);
-					HikeMqttManagerNew.getInstance().sendMessage(remind, HikeMqttManagerNew.MQTT_QOS_ONE);
+					HikeMqttManagerNew.getInstance().sendMessage(remind, MqttConstants.MQTT_QOS_ONE);
 					Logger.d("RemindPkt",remind.toString());
 					
 				}
