@@ -1,7 +1,5 @@
 package com.bsb.hike.ui;
 
-import java.io.File;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -22,12 +20,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.graphics.Bitmap;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.support.v4.app.FragmentTransaction;
 import android.text.TextUtils;
 import android.util.Pair;
@@ -68,10 +63,9 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
-import com.bsb.hike.BitmapModule.BitmapUtils;
-import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.adapters.ProfileAdapter;
 import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.AnalyticsConstants.ProfileImageActions;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.HikeDialog;
@@ -84,7 +78,6 @@ import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.GroupParticipant;
-import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.HikeSharedFile;
 import com.bsb.hike.models.ImageViewerInfo;
 import com.bsb.hike.models.ProfileItem;
@@ -99,12 +92,11 @@ import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.smartImageLoader.IconLoader;
-import com.bsb.hike.tasks.DownloadImageTask;
-import com.bsb.hike.tasks.DownloadImageTask.ImageDownloadResult;
 import com.bsb.hike.tasks.FinishableEvent;
 import com.bsb.hike.tasks.HikeHTTPTask;
 import com.bsb.hike.ui.fragments.ImageViewerFragment;
 import com.bsb.hike.ui.fragments.PhotoViewerFragment;
+import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
 import com.bsb.hike.utils.EmoticonConstants;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -168,16 +160,12 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 
 	private OneToNConversation oneToNConversation;
 	
-	private ImageButton topBarBtn;
-
 	private ContactInfo contactInfo;
 
 	private boolean isBlocked;
 
 	private Dialog groupEditDialog;
 
-	private boolean showingRequestItem = false;
-	
 	private Boolean showingGroupEdit = false;
 	
 	public static final String ORIENTATION_FLAG = "of";
@@ -197,29 +185,6 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		CONTACT_INFO, // Contact info screen
 		CONTACT_INFO_TIMELINE //Contact's Timeline screen
 	};
-
-	private class ActivityState
-	{
-		public HikeHTTPTask task; /* the task to update the global profile */
-
-		public DownloadImageTask downloadPicasaImageTask; /*
-														 * the task to download the picasa image
-														 */
-
-		public HikeHTTPTask getHikeJoinTimeTask;
-
-		public String destFilePath = null; /*
-											 * the bitmap before the user saves it
-											 */
-
-		public int genderType;
-
-		public boolean groupEditDialogShowing = false;
-
-		public String edittedGroupName = null;
-	}
-
-	public File selectedFileIcon;
 
 	private ListView profileContent;
 
@@ -256,6 +221,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	private TextView owner;
 	
 	private static final String TAG = "Profile_Activity";
+	
 	/* store the task so we can keep keep the progress dialog going */
 	@Override
 	public Object onRetainCustomNonConfigurationInstance()
@@ -384,7 +350,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 
 			if(Intent.ACTION_ATTACH_DATA.equals(getIntent().getAction()))
 			{
-				setProfileImage(HikeConstants.GALLERY_RESULT, RESULT_OK, getIntent());				
+				super.onActivityResult(HikeConstants.GALLERY_RESULT, RESULT_OK, getIntent());
 			}
 			if (getIntent().getBooleanExtra(HikeConstants.Extras.EDIT_PROFILE, false))
 			{
@@ -1238,8 +1204,29 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		((TextView) picture.findViewById(R.id.photo_edit_field)).setText(R.string.edit_picture);
 
 		picture.setBackgroundResource(R.drawable.profile_bottom_item_selector);
-		picture.setFocusable(true);
+		picture.setFocusable(true);						
+		picture.setOnClickListener(new OnClickListener()
+		{			
+			@Override
+			public void onClick(View v)
+			{
+				showProfileImageEditDialog(ProfileActivity.this, ProfileActivity.this, mLocalMSISDN, ProfileImageActions.DP_EDIT_FROM_PROFILE_OVERFLOW_MENU);
+				
+				JSONObject md = new JSONObject();
 
+				try
+				{
+					md.put(HikeConstants.EVENT_KEY, ProfileImageActions.DP_EDIT_EVENT);
+					md.put(ProfileImageActions.DP_EDIT_PATH, ProfileImageActions.DP_EDIT_FROM_PROFILE_OVERFLOW_MENU);
+					HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, md);
+				}
+				catch(JSONException e)
+				{
+					Logger.d(AnalyticsConstants.ANALYTICS_TAG, "json exception");
+				}
+			}
+		});
+		
 		((EditText) phone.findViewById(R.id.phone_input)).setText(mLocalMSISDN);
 		((EditText) phone.findViewById(R.id.phone_input)).setEnabled(false);
 
@@ -1525,109 +1512,6 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				requests.add(request);
 			}
 		}
-		
-		if (mActivityState.destFilePath != null)
-		{
-			/* the server only needs a smaller version */
-			final Bitmap smallerBitmap = HikeBitmapFactory.scaleDownBitmap(mActivityState.destFilePath, HikeConstants.PROFILE_IMAGE_DIMENSIONS,
-					HikeConstants.PROFILE_IMAGE_DIMENSIONS, Bitmap.Config.RGB_565, true, false);
-
-			if (smallerBitmap == null)
-			{
-				failureWhileSettingProfilePic();
-				return;
-			}
-
-			final byte[] bytes = BitmapUtils.bitmapToBytes(smallerBitmap, Bitmap.CompressFormat.JPEG, 100);
-
-			if (profileAdapter != null)
-			{
-				profileAdapter.setProfilePreview(smallerBitmap);
-			}
-
-			HikeHttpRequest request = new HikeHttpRequest(httpRequestURL + "/avatar", RequestType.PROFILE_PIC, new HikeHttpRequest.HikeHttpCallback()
-			{
-				public void onFailure()
-				{
-					Logger.d("ProfileActivity", "resetting image");
-					failureWhileSettingProfilePic();
-				}
-
-				public void onSuccess(JSONObject response)
-				{
-					mActivityState.destFilePath = null;
-					ContactManager.getInstance().setIcon(mLocalMSISDN, bytes, false);
-
-					Utils.renameTempProfileImage(mLocalMSISDN);
-
-					if (profileAdapter != null)
-					{
-						profileAdapter.setProfilePreview(null);
-					}
-
-					if (profileType == ProfileType.USER_PROFILE || profileType == ProfileType.USER_PROFILE_EDIT)
-					{
-
-						// HikeMessengerApp.getLruCache().clearIconForMSISDN(mLocalMSISDN);
-
-						/*
-						 * Making the profile pic change a status message.
-						 */
-						JSONObject data = response.optJSONObject("status");
-
-						if (data == null)
-						{
-							return;
-						}
-
-						String mappedId = data.optString(HikeConstants.STATUS_ID);
-						String msisdn = preferences.getString(HikeMessengerApp.MSISDN_SETTING, "");
-						String name = preferences.getString(HikeMessengerApp.NAME_SETTING, "");
-						long time = (long) System.currentTimeMillis() / 1000;
-
-						StatusMessage statusMessage = new StatusMessage(0, mappedId, msisdn, name, "", StatusMessageType.PROFILE_PIC, time, -1, 0);
-						HikeConversationsDatabase.getInstance().addStatusMessage(statusMessage, true);
-
-						ContactManager.getInstance().setIcon(statusMessage.getMappedId(), bytes, false);
-
-						String srcFilePath = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT + "/" + msisdn + ".jpg";
-
-						String destFilePath = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT + "/" + mappedId + ".jpg";
-
-						/*
-						 * Making a status update file so we don't need to download this file again.
-						 */
-						Utils.copyFile(srcFilePath, destFilePath, null);
-
-						int unseenUserStatusCount = preferences.getInt(HikeMessengerApp.UNSEEN_USER_STATUS_COUNT, 0);
-						Editor editor = preferences.edit();
-						editor.putInt(HikeMessengerApp.UNSEEN_USER_STATUS_COUNT, ++unseenUserStatusCount);
-						editor.putBoolean(HikeConstants.IS_HOME_OVERFLOW_CLICKED, false);
-						editor.commit();
-						/*
-						 * This would happen in the case where the user has added a self contact and received an mqtt message before saving this to the db.
-						 */
-
-						if (statusMessage.getId() != -1)
-						{
-							HikeMessengerApp.getPubSub().publish(HikePubSub.STATUS_MESSAGE_RECEIVED, statusMessage);
-							HikeMessengerApp.getPubSub().publish(HikePubSub.TIMELINE_UPDATE_RECIEVED, statusMessage);
-						}
-					}
-
-					HikeMessengerApp.getLruCache().clearIconForMSISDN(mLocalMSISDN);
-					HikeMessengerApp.getPubSub().publish(HikePubSub.ICON_CHANGED, mLocalMSISDN);
-
-					if (isBackPressed)
-					{
-						HikeMessengerApp.getPubSub().publish(HikePubSub.PROFILE_UPDATE_FINISH, null);
-					}
-				}
-			});
-
-			request.setFilePath(mActivityState.destFilePath);
-			requests.add(request);
-		}
 
 		if ((this.profileType == ProfileType.USER_PROFILE_EDIT) && ((!emailTxt.equals(mEmailEdit.getText().toString())) || ((mActivityState.genderType != lastSavedGender))))
 		{
@@ -1679,7 +1563,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			requests.add(request);
 		}
 
-		if (!requests.isEmpty())
+		if (!requests.isEmpty() && this.profileType != ProfileType.USER_PROFILE)
 		{
 			mDialog = ProgressDialog.show(this, null, getResources().getString(R.string.updating_profile));
 			mActivityState.task = new HikeHTTPTask(this, R.string.update_profile_failed);
@@ -1690,24 +1574,6 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		else if (isBackPressed)
 		{
 			finishEditing();
-		}
-	}
-
-	private void failureWhileSettingProfilePic()
-	{
-		Utils.removeTempProfileImage(mLocalMSISDN);
-		mActivityState.destFilePath = null;
-		if (profileAdapter != null)
-		{
-			/*
-			 * Reload the older image
-			 */
-			profileAdapter.setProfilePreview(null);
-			profileAdapter.notifyDataSetChanged();
-		}
-		if (isBackPressed)
-		{
-			HikeMessengerApp.getPubSub().publish(HikePubSub.PROFILE_UPDATE_FINISH, null);
 		}
 	}
 
@@ -1735,6 +1601,8 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	@Override
 	public void onFinish(boolean success)
 	{
+		super.onFinish(success);
+		
 		if (mDialog != null)
 		{
 			mDialog.dismiss();
@@ -1748,152 +1616,6 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	protected void onActivityResult(int requestCode, int resultCode, Intent data)
 	{
 		super.onActivityResult(requestCode, resultCode, data);
-		setProfileImage(requestCode, resultCode, data);
-	}
-
-	protected void setProfileImage(int requestCode, int resultCode, Intent data)
-	{
-		String path = null;
-		if (resultCode != RESULT_OK)
-		{
-			return;
-		}
-
-		String directory = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
-		/*
-		 * Making sure the directory exists before setting a profile image
-		 */
-		File dir = new File(directory);
-		if (!dir.exists())
-		{
-			dir.mkdirs();
-		}
-
-		String fileName = Utils.getTempProfileImageFileName(mLocalMSISDN);
-		final String destFilePath = directory + "/" + fileName;
-
-		switch (requestCode)
-		{
-			case HikeConstants.CAMERA_RESULT:
-				Logger.d("ProfileActivity", "The activity is " + this);
-				String filePath = preferences.getString(HikeMessengerApp.FILE_PATH, "");
-				selectedFileIcon = new File(filePath);
-
-				/*
-				 * Removing this key. We no longer need this.
-				 */
-				Editor editor = preferences.edit();
-				editor.remove(HikeMessengerApp.FILE_PATH);
-				editor.commit();
-				if (!selectedFileIcon.exists())
-				{
-					Toast.makeText(getApplicationContext(), R.string.error_capture, Toast.LENGTH_SHORT).show();
-					return;
-				}
-				path = selectedFileIcon.getAbsolutePath();
-				if (TextUtils.isEmpty(path))
-				{
-					Toast.makeText(getApplicationContext(), R.string.error_capture, Toast.LENGTH_SHORT).show();
-					return;
-				}
-				Utils.startCropActivity(this, path, destFilePath);
-				break;
-
-			case HikeConstants.GALLERY_RESULT:
-				Logger.d("ProfileActivity", "The activity is " + this);
-				boolean isPicasaImage = false;
-				Uri selectedFileUri = null;
-				if (data == null || data.getData() == null)
-				{
-					Toast.makeText(getApplicationContext(), R.string.error_capture, Toast.LENGTH_SHORT).show();
-					return;
-				}
-				selectedFileUri = data.getData();
-				if (Utils.isPicasaUri(selectedFileUri.toString()))
-				{
-					isPicasaImage = true;
-					path = Utils.getOutputMediaFile(HikeFileType.PROFILE, null, false).getAbsolutePath();
-				}
-				else
-				{
-					String fileUriStart = "file://";
-					String fileUriString = selectedFileUri.toString();
-					if (fileUriString.startsWith(fileUriStart))
-					{
-						selectedFileIcon = new File(URI.create(Utils.replaceUrlSpaces(fileUriString)));
-						/*
-						 * Done to fix the issue in a few Sony devices.
-						 */
-						path = selectedFileIcon.getAbsolutePath();
-					}
-					else
-					{
-						path = Utils.getRealPathFromUri(selectedFileUri, this);
-					}
-				}
-				if (TextUtils.isEmpty(path))
-				{
-					Toast.makeText(getApplicationContext(), R.string.error_capture, Toast.LENGTH_SHORT).show();
-					return;
-				}
-				if (!isPicasaImage)
-				{
-					Utils.startCropActivity(this, path, destFilePath);
-				}
-				else
-				{
-					final File destFile = new File(path);
-					mActivityState.downloadPicasaImageTask = new DownloadImageTask(getApplicationContext(), destFile, selectedFileUri, new ImageDownloadResult()
-					{
-
-						@Override
-						public void downloadFinished(boolean result)
-						{
-							if (mDialog != null)
-							{
-								mDialog.dismiss();
-								mDialog = null;
-							}
-							mActivityState.downloadPicasaImageTask = null;
-							if (!result)
-							{
-								Toast.makeText(getApplicationContext(), R.string.error_download, Toast.LENGTH_SHORT).show();
-							}
-							else
-							{
-								Utils.startCropActivity(ProfileActivity.this, destFile.getAbsolutePath(), destFilePath);
-							}
-						}
-					});
-					Utils.executeBoolResultAsyncTask(mActivityState.downloadPicasaImageTask);
-					mDialog = ProgressDialog.show(this, null, getResources().getString(R.string.downloading_image));
-				}
-				try
-				{
-					JSONObject metadata = new JSONObject();
-					metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.SET_PROFILE_PIC_GALLERY);
-					HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
-				}
-				catch(JSONException e)
-				{
-					Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
-				}
-				break;
-
-			case HikeConstants.CROP_RESULT:
-				mActivityState.destFilePath = data.getStringExtra(MediaStore.EXTRA_OUTPUT);
-				if (mActivityState.destFilePath == null)
-				{
-					Toast.makeText(getApplicationContext(), R.string.error_setting_profile, Toast.LENGTH_SHORT).show();
-					return;
-				}
-				if ((this.profileType == ProfileType.USER_PROFILE) || (this.profileType == ProfileType.GROUP_INFO))
-				{
-					Utils.compressAndCopyImage(mActivityState.destFilePath, mActivityState.destFilePath, ProfileActivity.this, ImageQuality.QUALITY_MEDIUM);
-					saveChanges();
-				}
-				break;
-		}
 	}
 
 	public void onEmoticonClick(View v)
@@ -1931,6 +1653,12 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		arguments.putString(HikeConstants.Extras.MAPPED_ID, mappedId);
 		arguments.putString(HikeConstants.Extras.URL, url);
 		arguments.putBoolean(HikeConstants.Extras.IS_STATUS_IMAGE, imageViewerInfo.isStatusMessage);
+		
+		// we do not show edit dp option in group info 
+		if(this.profileType == ProfileType.USER_PROFILE)
+		{
+			arguments.putBoolean(HikeConstants.CAN_EDIT_DP, true);
+		}
 
 		HikeMessengerApp.getPubSub().publish(HikePubSub.SHOW_IMAGE, arguments);
 	}
@@ -1990,16 +1718,26 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 
 	public void onHeaderButtonClicked(View v)
 	{
-		if (profileType == ProfileType.USER_PROFILE || profileType == ProfileType.GROUP_INFO)
+		if(profileType == ProfileType.GROUP_INFO)
 		{
-			/*
-			 * The wants to change their profile picture. Open a dialog to allow them pick Camera or Gallery
-			 */
-			final CharSequence[] items = getResources().getStringArray(R.array.profile_pic_dialog);
-			AlertDialog.Builder builder = new AlertDialog.Builder(this);
-			builder.setTitle(R.string.choose_picture);
-			builder.setItems(items, this);
-			mDialog = builder.show();
+			showProfileImageEditDialog(ProfileActivity.this, ProfileActivity.this, mLocalMSISDN, null);
+		}
+		else if(profileType == ProfileType.USER_PROFILE)
+		{
+			showProfileImageEditDialog(ProfileActivity.this, ProfileActivity.this, mLocalMSISDN, ProfileImageActions.DP_EDIT_FROM_PROFILE_SCREEN);
+			
+			JSONObject md = new JSONObject();
+
+			try
+			{
+				md.put(HikeConstants.EVENT_KEY, ProfileImageActions.DP_EDIT_EVENT);
+				md.put(ProfileImageActions.DP_EDIT_PATH, ProfileImageActions.DP_EDIT_FROM_PROFILE_SCREEN);
+				HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, md);
+			}
+			catch(JSONException e)
+			{
+				Logger.d(AnalyticsConstants.ANALYTICS_TAG, "json exception");
+			}
 		}
 		else if (profileType == ProfileType.CONTACT_INFO_TIMELINE)
 		{
@@ -2960,7 +2698,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			@Override
 			public void onClick(DialogInterface dialog, int which)
 			{
-				showDeleteStatusConfirmationDialog(statusMessage.getMappedId());
+				showDeleteStatusConfirmationDialog(statusMessage.getMappedId(), statusMessage.getStatusMessageType());
 			}
 		});
 
@@ -2969,7 +2707,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		return true;
 	}
 
-	private void showDeleteStatusConfirmationDialog(final String statusId)
+	private void showDeleteStatusConfirmationDialog(final String statusId, final StatusMessageType updateType)
 	{
 		HikeDialogFactory.showDialog(this, HikeDialogFactory.DELETE_STATUS_DIALOG, new HikeDialogListener()
 		{
@@ -2977,7 +2715,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			@Override
 			public void positiveClicked(HikeDialog hikeDialog)
 			{
-				deleteStatus(statusId);
+				deleteStatus(statusId, updateType);
 				hikeDialog.dismiss();
 			}
 			
@@ -2994,7 +2732,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		});
 	}
 
-	private void deleteStatus(final String statusId)
+	private void deleteStatus(final String statusId, final StatusMessageType updateType)
 	{
 		HikeHttpRequest hikeHttpRequest = new HikeHttpRequest("/user/status/" + statusId, RequestType.DELETE_STATUS, new HikeHttpCallback()
 		{
@@ -3003,22 +2741,15 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			public void onSuccess(JSONObject response)
 			{
 				HikeMessengerApp.getPubSub().publish(HikePubSub.DELETE_STATUS, statusId);
-				for (int i = 0; i < profileItems.size(); i++)
+				
+				iterateAndDeleteDPStatusFromOwnTimeline(statusId);
+
+				// update the preference value used to store latest dp change status update id
+				if(preferences.getString(HikeMessengerApp.DP_CHANGE_STATUS_ID, "").equals(statusId) && updateType.equals(StatusMessageType.PROFILE_PIC))
 				{
-					ProfileItem profileItem = profileAdapter.getItem(i);
-					StatusMessage message = ((ProfileStatusItem) profileItem).getStatusMessage();
-
-					if (message == null)
-					{
-						continue;
-					}
-
-					if (statusId.equals(message.getMappedId()))
-					{
-						profileItems.remove(i);
-						break;
-					}
+					clearDpUpdatePref();
 				}
+				
 				profileAdapter.notifyDataSetChanged();
 			}
 
@@ -3255,6 +2986,73 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		startActivity(intent);
 	}
 	
+	/**
+	 * Used to delete the status update from the user's timeline locally
+	 * @param statusId mappedId of the status to be deleted
+	 */
+	public void iterateAndDeleteDPStatusFromOwnTimeline(final String statusId)
+	{
+		if(profileItems == null || profileAdapter == null)
+			return;
+		
+		for (int i=0; i<profileItems.size(); i++)
+		{
+			ProfileItem profileItem = profileAdapter.getItem(i);
+			StatusMessage message = ((ProfileStatusItem) profileItem).getStatusMessage();
+
+			if (message == null)
+			{
+				continue;
+			}
+
+			if (statusId.equals(message.getMappedId()))
+			{
+				profileItems.remove(i);
+				break;
+			}
+		}
+	}
+
+	@Override
+	public String profileImageCropped()
+	{
+		String path = super.profileImageCropped();
+		String httpApi = null;
+		
+		if ((this.profileType == ProfileType.USER_PROFILE || this.profileType == ProfileType.USER_PROFILE_EDIT))
+		{
+			httpApi = AccountUtils.USER_DP_UPDATE_URL;
+		}
+		else if(this.profileType == ProfileType.GROUP_INFO)
+		{			
+			httpApi = AccountUtils.GROUP_DP_UPDATE_URL_PREFIX + oneToNConversation.getMsisdn() + AccountUtils.GROUP_DP_UPDATE_URL_SUFFIX;
+		}
+		Utils.compressAndCopyImage(path, path, ProfileActivity.this, ImageQuality.QUALITY_MEDIUM);
+		uploadProfilePicture(httpApi);			
+		return path;
+	}
+		
+	@Override
+	public void profilePictureUploaded()
+	{
+		super.profilePictureUploaded();
+	}
+
+	@Override
+	public void displayPictureRemoved(final String id)
+	{
+		super.displayPictureRemoved(id);
+		
+		if(id != null)
+		{
+			iterateAndDeleteDPStatusFromOwnTimeline(id);
+		}
+		if(profileAdapter != null)
+		{
+			profileAdapter.notifyDataSetChanged();
+		}
+	}
+	
 	@Override
 	protected void openImageViewerFragment(Object object)
 	{
@@ -3267,8 +3065,17 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		}
 
 		Bundle arguments = (Bundle) object;
-
-		ImageViewerFragment imageViewerFragment = new ImageViewerFragment();
+		ImageViewerFragment imageViewerFragment = null;
+		boolean isEdit = arguments.getBoolean(HikeConstants.CAN_EDIT_DP);
+		
+		if(isEdit)
+		{
+			imageViewerFragment = new ImageViewerFragment(isEdit);
+		}
+		else
+		{
+			imageViewerFragment = new ImageViewerFragment();			
+		}
 		imageViewerFragment.setArguments(arguments);
 
 		FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
