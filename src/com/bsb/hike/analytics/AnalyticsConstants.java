@@ -242,7 +242,7 @@ public class AnalyticsConstants
 	
 	public static final String MSG_REL_CONST_STR = "ek";
 	
-	public static final String NEW_LOG = "nl";
+	public static final String APP_VERSION_NAME = "app_ver";
 	
 	public static final class MsgRelEventType
 	{

@@ -178,8 +178,8 @@ public class MsgRelLogManager
 			// event type:- 0 to 19
 			metadata.put(AnalyticsConstants.MSG_REL_EVENT_TYPE, eventType);
 			
-			// adding "nl" to -1
-			metadata.put(AnalyticsConstants.NEW_LOG, -1);
+			// adding app version
+			metadata.put(AnalyticsConstants.APP_VERSION_NAME, Utils.getAppVersionName(HikeMessengerApp.getInstance().getApplicationContext()));
 			
 			// con:- 2g/3g/4g/wifi/off
 			metadata.put(AnalyticsConstants.CONNECTION_TYPE, Utils.getNetworkType(HikeMessengerApp.getInstance().getApplicationContext()));
