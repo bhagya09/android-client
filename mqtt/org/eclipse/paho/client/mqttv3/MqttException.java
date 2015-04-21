@@ -206,7 +206,7 @@ public class MqttException extends Exception
 	 */
 	public String getMessage()
 	{
-		return MessageCatalog.getMessage(reasonCode);
+		return "";
 	}
 
 	/**
