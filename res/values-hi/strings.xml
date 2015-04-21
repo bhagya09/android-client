@@ -543,7 +543,6 @@
     <string name="sent_you_friend_request">ने आपको मित्र अनुरोध भेजा है</string>
     <string name="num_people">%1$d people</string>
     <string name="add">जोड़ें</string>
-    <string name="no_updates">No updates from %1$s yet.</string>
     <string name="email_conversation">वार्तालाप ईमेल करें</string>
     <string name="me_key">मुझे</string>
     <string name="group_name_email">"समूह "</string>
@@ -558,7 +557,7 @@
     <string name="new_update">नया अपडेट</string>
     <string name="invite_via_facebook">फेसबुक के जरिए आमंत्रित करें</string>
     <string name="invite_via_twitter">ट्विटर के जरिए आमंत्रित करें</string>
-    <string name="search_hint">खोज करें</string>
+    <string name="search">खोज करें</string>
     <string name="fb_invite_success">आमंत्रण सफल हुआ</string>
     <string name="fb_invite_failed">आमंत्रण रद्द किया गया</string>
     <string name="social_invite_network_error">आमंत्रण नहीं भेजा जा सका। नेटवर्क सेटिंग्स की जाँच करें।</string>

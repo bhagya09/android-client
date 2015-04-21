@@ -63,8 +63,8 @@ import com.bsb.hike.analytics.AnalyticsConstants.MessageType;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
-import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.models.ConvMessage.OriginType;
+import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.MessageMetadata;
@@ -74,6 +74,7 @@ import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.FileTransferCancelledException;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.video.HikeVideoCompressor;
@@ -318,7 +319,7 @@ public class UploadFileTask extends FileTransferBase
 					convMessageObject.setMessageOriginType(OriginType.BROADCAST);
 				}
 
-				HikeConversationsDatabase.getInstance().addConversationMessages(convMessageObject);
+				HikeConversationsDatabase.getInstance().addConversationMessages(convMessageObject,true);
 				
 				// 1) user clicked Media file and sending it
 				MsgRelLogManager.startMessageRelLogging((ConvMessage) userContext, MessageType.MULTIMEDIA);
@@ -700,7 +701,7 @@ public class UploadFileTask extends FileTransferBase
 						String msisdn = grpParticipant.getFirst().getContactInfo().getMsisdn();
 						convMessageObject.addToSentToMsisdnsList(msisdn);
 					}
-					Utils.addBroadcastRecipientConversations(convMessageObject);
+					OneToNConversationUtils.addBroadcastRecipientConversations(convMessageObject);
 				}
 				
 				//Message sent from here will contain file key and also message_id ==> this is actually being sent to the server.
@@ -963,7 +964,10 @@ public class UploadFileTask extends FileTransferBase
 				temp /= _totalSize;
 				progressPercentage = (int) temp;
 				if(_state != FTState.PAUSED)
-					LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED));
+				{
+					HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
+
+				}
 			}
 		}
 
@@ -1125,6 +1129,7 @@ public class UploadFileTask extends FileTransferBase
 				client.getParams().setParameter(CoreProtocolPNames.USER_AGENT, "android-" + AccountUtils.getAppVersion());
 				HttpHead head = new HttpHead(mUrl.toString());
 				head.addHeader("Cookie", "user=" + token + ";uid=" + uId);
+				AccountUtils.setNoTransform(head);
 	
 				HttpResponse resp = client.execute(head);
 				int resCode = resp.getStatusLine().getStatusCode();
@@ -1202,6 +1207,7 @@ public class UploadFileTask extends FileTransferBase
 			post.addHeader("X-SESSION-ID", X_SESSION_ID);
 			post.addHeader("X-CONTENT-RANGE", contentRange);
 			post.addHeader("Cookie", "user=" + token + ";UID=" + uId);
+			AccountUtils.setNoTransform(post);
 			Logger.d(getClass().getSimpleName(), "user=" + token + ";UID=" + uId);
 			post.setHeader("Content-Type", "multipart/form-data; boundary=" + BOUNDARY);
 
@@ -1269,7 +1275,9 @@ public class UploadFileTask extends FileTransferBase
 			removeTask();
 			this.pausedProgress = -1;
 			if(result != FTResult.PAUSED)
-				LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED));
+			{
+					HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
+			}
 		}
 
 		if (result != FTResult.PAUSED && result != FTResult.SUCCESS)
@@ -1339,6 +1347,7 @@ public class UploadFileTask extends FileTransferBase
 				client.getParams().setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 10 * 1000);
 				client.getParams().setParameter(CoreProtocolPNames.USER_AGENT, "android-" + AccountUtils.getAppVersion());
 				HttpHead head = new HttpHead(mUrl.toString());
+				AccountUtils.setNoTransform(head);
 
 				HttpResponse resp = client.execute(head);
 				int resCode = resp.getStatusLine().getStatusCode();

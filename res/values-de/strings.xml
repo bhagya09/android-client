@@ -543,7 +543,6 @@
     <string name="sent_you_friend_request">Hat dir eine Freundschaftsanfrage gesendet</string>
     <string name="num_people">%1$d Personen</string>
     <string name="add">Hinzufügen</string>
-    <string name="no_updates">Noch keine Updates von %1$s.</string>
     <string name="email_conversation">E-Mail-Unterhaltung</string>
     <string name="me_key">ich</string>
     <string name="group_name_email">"Gruppe "</string>
@@ -558,7 +557,7 @@
     <string name="new_update">Neues Update</string>
     <string name="invite_via_facebook">Über Facebook einladen</string>
     <string name="invite_via_twitter">Über Twitter einladen</string>
-    <string name="search_hint">Suchen</string>
+    <string name="search">Suchen</string>
     <string name="fb_invite_success">Einladung erfolgreich</string>
     <string name="fb_invite_failed">Einladung abgebrochen</string>
     <string name="social_invite_network_error">Einladung senden nicht möglich. Überprüfe die Netzwerkeinstellungen.</string>

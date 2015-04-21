@@ -1,54 +1,78 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:title="@string/privacy">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:title="@string/privacy" >
 
-<!--     icon="@drawable/ic_blocked_list" -->
-    <com.bsb.hike.view.IconPreference
-		icon="@drawable/ic_blocked_list_settings"
-		android:layout="@layout/icon_preference"
-        android:key="blockedList"
-        android:summary="@string/blocked_list_hinttext"
-        android:title="@string/blocked_list" />
-    
-    <com.bsb.hike.view.IconCheckBoxPreference
-        icon="@drawable/ic_profile_picture"
-        android:defaultValue="false"
-        android:key="profilePicPref"
-        android:layout="@layout/icon_preference"
-        android:summary="@string/profile_pic_display_info"
-        android:title="@string/profile_pic_header"
-        android:widgetLayout="@layout/checkbox_widget" />
-    
-    <com.bsb.hike.view.IconCheckBoxPreference
-        icon="@drawable/preference_last_seen"
-        android:defaultValue="true"
-        android:key="lastSeenPref"
-        android:layout="@layout/icon_preference"
-        android:summary="@string/last_seen_favorite_info"
-        android:title="@string/last_seen_header"
-        android:widgetLayout="@layout/checkbox_widget" />
-    
-    <com.bsb.hike.view.IconCheckBoxPreference
-        icon="@drawable/ic_ssl"
-        android:key="sslPref"
-        android:layout="@layout/icon_preference"
-        android:summary="@string/ssl_info"
-        android:title="@string/ssl"
-        android:widgetLayout="@layout/checkbox_widget" />
+    <PreferenceCategory
+        android:orderingFromXml="true"
+        android:selectable="false"
+        android:textColor="@color/auto_download"
+        android:title="@string/privacy_settings" >
+        <com.bsb.hike.view.IconCheckBoxPreference
+            icon="@drawable/ic_profile_picture"
+            android:defaultValue="false"
+            android:key="profilePicPref"
+            android:layout="@layout/icon_preference"
+            android:summary="@string/profile_pic_display_info"
+            android:title="@string/profile_pic_header"
+            android:widgetLayout="@layout/checkbox_widget" />
 
-    <com.bsb.hike.view.IconPreference
-        icon="@drawable/ic_reset_stealth"
-        android:key="resetStealthPref"
-        android:layout="@layout/icon_preference"
-        android:summary="@string/reset_complete_stealth_info"
-        android:title="@string/reset_complete_stealth_header" />
-     
-     <com.bsb.hike.view.IconPreference
-        icon="@drawable/ic_stealth_icon_reset_password"
-        android:key="changeStealthPasscode"
-        android:layout="@layout/icon_preference"
-        android:summary="@string/change_stealth_password_body"
-        android:title="@string/change_stealth_password" />
-    
+        <com.bsb.hike.view.IconListPreference
+            icon="@drawable/preference_last_seen"
+            android:defaultValue="@string/privacy_my_contacts"
+            android:entries="@array/privacyPrefKeys"
+            android:entryValues="@array/privacyPrefValues"
+            android:key="lastSeenPrefList"
+            android:layout="@layout/list_preference"
+            android:summary="@string/ls_my_contacts_summary"
+            android:title="@string/last_seen_header" />
+
+        <com.bsb.hike.view.IconCheckBoxPreference
+            icon="@drawable/ic_ssl"
+            android:key="sslPref"
+            android:layout="@layout/icon_preference"
+            android:summary="@string/ssl_info"
+            android:title="@string/ssl"
+            android:widgetLayout="@layout/checkbox_widget" />
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:orderingFromXml="true"
+        android:selectable="false"
+        android:textColor="@color/auto_download"
+        android:title="@string/manage_list" >
+
+        <!-- icon="@drawable/ic_blocked_list" -->
+        <com.bsb.hike.view.IconPreference
+            icon="@drawable/ic_blocked_list_settings"
+            android:key="blockedList"
+            android:layout="@layout/icon_preference"
+            android:summary="@string/blocked_list_hinttext"
+            android:title="@string/blocked_list" />
+        <!-- icon="@drawable/ic_blocked_list" -->
+        <com.bsb.hike.view.IconPreference
+            icon="@drawable/ic_privacysettings_favorites"
+            android:key="favoriteList"
+            android:layout="@layout/icon_preference"
+            android:summary="@string/fav_list_summary"
+            android:title="@string/privacy_favorites_key" />
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:orderingFromXml="true"
+        android:selectable="false"
+        android:textColor="@color/auto_download"
+        android:title="@string/hidden_mode"
+        android:key="steathPerfCategory">
+        <com.bsb.hike.view.IconPreference
+            icon="@drawable/ic_reset_stealth"
+            android:key="resetStealthPref"
+            android:layout="@layout/icon_preference"
+            android:summary="@string/reset_complete_stealth_info"
+            android:title="@string/reset_complete_stealth_header" />
+        <com.bsb.hike.view.IconPreference
+            icon="@drawable/ic_stealth_icon_reset_password"
+            android:key="changeStealthPasscode"
+            android:layout="@layout/icon_preference"
+            android:summary="@string/change_stealth_password_body"
+            android:title="@string/change_stealth_password" />
+    </PreferenceCategory>
+
 </PreferenceScreen>
