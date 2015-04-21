@@ -19,7 +19,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
-import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -167,17 +166,6 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 
 		indicator = (PhotosTabPageIndicator) findViewById(R.id.indicator);
 
-		int density = getResources().getDisplayMetrics().densityDpi;
-
-		switch (density)
-		{
-		case DisplayMetrics.DENSITY_LOW:
-		case DisplayMetrics.DENSITY_MEDIUM:
-			findViewById(R.id.indicatorView).setVisibility(View.GONE);
-			break;
-
-		}
-
 		undoButton = (ImageView) findViewById(R.id.undo);
 
 		overlayFrame = findViewById(R.id.overlayFrame);
@@ -191,7 +179,6 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 	{
 		super.onResume();
 		overridePendingTransition(R.anim.fade_in_animation, R.anim.fade_out_animation);
-		getSupportActionBar().getCustomView().findViewById(R.id.done_container).setVisibility(View.VISIBLE);
 		editView.enable();
 	}
 
