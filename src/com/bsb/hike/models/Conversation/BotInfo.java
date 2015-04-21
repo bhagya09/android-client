@@ -8,11 +8,12 @@ public class BotInfo extends ConvInfo
 	
 	private final int type;
 	public final int configurtion;
+	public final String metadata;
 	
 	protected static abstract class InitBuilder<P extends InitBuilder<P>> extends ConvInfo.InitBuilder<P>
 	{
 		private int type,config;
-		
+		private String metadata;
 		protected InitBuilder(String msisdn)
 		{
 			super(msisdn);
@@ -24,9 +25,16 @@ public class BotInfo extends ConvInfo
 			return getSelfObject();
 		}
 		
-		public void configuration(int configuration)
+		public P configuration(int configuration)
 		{
 			this.config = configuration;
+			return getSelfObject();
+		}
+		
+		public P metaData(String metaData)
+		{
+			this.metadata = metaData;
+			return getSelfObject();
 		}
 		
 		@Override
@@ -57,6 +65,7 @@ public class BotInfo extends ConvInfo
 		super(builder);
 		this.type = builder.type;
 		this.configurtion = builder.config;
+		this.metadata = builder.metadata;
 	}
 	
 	public boolean isMessagingBot()
