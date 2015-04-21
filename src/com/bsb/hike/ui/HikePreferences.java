@@ -1,5 +1,6 @@
 package com.bsb.hike.ui;
 
+import java.util.Locale;
 import java.util.Map;
 
 import org.json.JSONException;
@@ -57,6 +58,7 @@ import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.IconCheckBoxPreference;
 import com.bsb.hike.view.IconListPreference;
 import com.bsb.hike.view.NotificationToneListPreference;
+import com.google.android.gms.internal.en;
 
 public class HikePreferences extends HikeAppStateBasePreferenceActivity implements OnPreferenceClickListener, 
 							OnPreferenceChangeListener, DeleteAccountListener, BackupAccountListener, RingtoneFetchListener
@@ -1157,8 +1159,14 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 				// If the string cannot be parsed
 				try
 				{
-					preference.setTitle(getString(R.string.led_notification) + " - " + (newValue.toString()));
-					if("None".equals(newValue.toString()))
+					ListPreference preferenceLed = (ListPreference) preference;
+					int index = preferenceLed.findIndexOfValue(newValue.toString());
+
+					if (index >= 0) {
+						preference.setTitle(getString(R.string.led_notification) + " - " + preferenceLed.getEntries()[index]);
+					}
+
+					if(getString(R.string.led_color_none_key).equals(newValue.toString()))
 					{
 						HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.LED_NOTIFICATION_COLOR_CODE, HikeConstants.LED_NONE_COLOR);
 					}
@@ -1176,20 +1184,69 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 				}
 			}
 		});
-		SharedPreferences preferenceManager = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-		if(preferenceManager.contains(HikeConstants.LED_PREF))
+		
+
+		String entry = (String) ledPref.getEntry();
+		if (entry == null)
 		{
-			boolean led = preferenceManager.getBoolean(HikeConstants.LED_PREF, true);
-			if (!led)
+			/*
+			 * Notification Led Color There are three case following :-
+			 * 
+			 * 1>> 3.6.0 where we provide checkbox and key to store value is HikeConstants.LED_PREF(value boolean type) in DefaultSharedPreferences.
+			 * 
+			 * 2>> and upto 3.8.9 we provide list of color and value and entry contains the same string and now values are stored with key
+			 * HikeMessengerApp.LED_NOTIFICATION_COLOR_CODE in HikeSharedPreferenceUtil.
+			 * 
+			 * 3>> Now we changing values in this version with hexvalues of color because some phone are unable to parse purple color and also remove default value from
+			 * notification_preferences.xml now we set default value at run time.
+			 */
+			
+			HikeSharedPreferenceUtil hikeSharedPreferenceUtil = HikeSharedPreferenceUtil.getInstance();
+			int previousVersionColor = HikeConstants.LED_DEFAULT_WHITE_COLOR;
+			if (hikeSharedPreferenceUtil.contains(HikeMessengerApp.LED_NOTIFICATION_COLOR_CODE))
 			{
-				ledPref.setDefaultValue(HikeConstants.LED_NONE_COLOR);
+				previousVersionColor = hikeSharedPreferenceUtil.getData(HikeMessengerApp.LED_NOTIFICATION_COLOR_CODE, HikeConstants.LED_NONE_COLOR);
+			}
+			else
+			{
+				try
+				{	//this case will occur when user never changed his notification color in previous build but open notification setting screen at least once.
+					previousVersionColor = Color.parseColor(ledPref.getValue());
+				}
+				catch (Exception e)
+				{
+					Logger.e(getClass().getSimpleName(), "Color Parsing Error from key HikeMessengerApp.LED_NOTIFICATION_COLOR_CODE whose value is " + ledPref.getValue(), e);
+				}
+
+			}
+
+			if (previousVersionColor == HikeConstants.LED_NONE_COLOR)
+			{
 				ledPref.setValueIndex(0);
 			}
-			
-			//removing previous Key
-			preferenceManager.edit().remove(HikeConstants.LED_PREF).commit();
+			else
+			{
+
+				String[] ledPrefValues = getResources().getStringArray(R.array.ledPrefValues);
+				for (int i = 1; i < ledPrefValues.length; i++)
+				{
+					try
+					{
+						if (Color.parseColor(ledPrefValues[i].toLowerCase(Locale.getDefault())) == previousVersionColor)
+						{
+							ledPref.setValueIndex(i);
+						}
+					}
+					catch (Exception e)
+					{
+						Logger.e(getClass().getSimpleName(), "Color Parsing Error = " + ledPrefValues[i], e);
+					}
+				}
+			}
+
 		}
-		ledPref.setTitle(ledPref.getTitle() + " - " + ledPref.getValue());
+
+		ledPref.setTitle(ledPref.getTitle() + " - " + ledPref.getEntry());
 	}
 
 	@Override

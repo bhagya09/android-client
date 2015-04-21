@@ -1722,7 +1722,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 
 		if (HikePubSub.MULTI_FILE_TASK_FINISHED.equals(type))
 		{
-			final String msisdn = fileTransferTask.getMsisdn();
+			final String msisdn = (String) object;
 
 			fileTransferTask = null;
 
