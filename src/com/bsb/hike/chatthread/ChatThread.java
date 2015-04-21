@@ -3051,6 +3051,11 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		{
 			activity.removeFragment(HikeConstants.IMAGE_FRAGMENT_TAG);
 		}
+		
+		if (themePicker != null && themePicker.isShowing())
+		{
+			themePicker.dismiss();
+		}
 	}
 	
 	protected void onStart()
