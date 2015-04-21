@@ -70,16 +70,8 @@ public final class HikeEffectsFactory
 		mInAllocation = Allocation.createFromBitmap(mRS, mBitmapIn);
 		if (isFinal)
 		{
-			if (finalBitmap == null)
-			{
 				finalBitmap = HikePhotosUtils.createBitmap(mBitmapIn, 0, 0, 0, 0, false, false, false, true);
 				vignetteBitmap = HikePhotosUtils.createBitmap(mBitmapIn, 0, 0, 0, 0, false, false, false, true);
-				// Log.e("com.bsb.hike","new final bitmap created");
-			}
-			else
-			{
-				vignetteBitmap.eraseColor(0x00000000);
-			}
 			currentOut = finalBitmap;
 		}
 		else if (!isThumbnail)
