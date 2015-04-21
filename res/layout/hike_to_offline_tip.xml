@@ -54,15 +54,6 @@
             android:layout_gravity="center_vertical"
             android:background="@color/black_16" />
 
-        <ImageView
-            android:id="@+id/close_tip"
-            android:layout_width="56dp"
-            android:layout_height="match_parent"
-            android:background="@drawable/popup_button_bg_selector"
-            android:scaleType="centerInside"
-            android:src="@drawable/ic_tip_cross"
-            android:visibility="visible" />
-
         <LinearLayout
             android:id="@+id/send_button"
             android:layout_width="wrap_content"

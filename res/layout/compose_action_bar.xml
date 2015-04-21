@@ -41,6 +41,7 @@
         android:layout_marginTop="8dp"
         android:background="@color/transparent_white_ab"
         android:layout_alignWithParentIfMissing="true"
+        android:visibility="gone"
         android:layout_toLeftOf="@id/done_container" />
     
     <ProgressBar

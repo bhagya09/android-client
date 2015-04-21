@@ -4,7 +4,6 @@
 package com.bsb.hike.modules.contactmgr;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -20,6 +19,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -49,6 +49,7 @@ import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.modules.iface.ITransientCache;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.Utils;
 
@@ -144,7 +145,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	}
 
 	/**
-	 * This is used to remove the list of msisdns from either group or 1-1 conversation and should be called when multiple group or one to one conversations are deleted.
+	 * This is used to remove the list of msisdns from either 1-n or 1-1 conversation and should be called when multiple group or one to one conversations are deleted.
 	 * 
 	 * @param msisdns
 	 */
@@ -152,7 +153,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	{
 		for (String ms : msisdns)
 		{
-			if (Utils.isGroupConversation(ms))
+			if (OneToNConversationUtils.isOneToNConversation(ms))
 			{
 				persistenceCache.removeGroup(ms);
 				transientCache.removeGroup(ms);
@@ -1212,6 +1213,18 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	}
 
 	/**
+	 * Returns a list of participants in a 1-n conversation with their names in case of unsaved contact. This method also increases reference count if the contact is already loaded
+	 * in memory
+	 * 
+	 * @param convId
+	 * @return
+	 */
+	public List<PairModified<GroupParticipant, String>> getActiveConversationParticipants(String convId)
+	{
+		return getGroupParticipants(convId, true, false);
+	}
+
+	/**
 	 * Returns a list of participants of a group with their names in case of unsaved contact. This method also increases the reference count if contact is already loaded in memory
 	 * 
 	 * @param groupId
@@ -1935,7 +1948,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 		{
 			if(group.isGroupAlive())
 			{
-				if (!Utils.isBroadcastConversation(group.getGroupId()))
+				if (!OneToNConversationUtils.isBroadcastConversation(group.getGroupId()))
 				{
 					int numMembers = 0;
 					if(groupCountMap.containsKey(group.getGroupId()))
@@ -2104,10 +2117,15 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 		}
 	}
 
-	public ArrayList<String> getMsisdnFromId(String[] selectionArgs)
+	public ArrayList<String> getMsisdnFromId(ArrayList<String> selectionArgs)
 	{
+		String msisdnStatement = Utils.getMsisdnStatement(selectionArgs);
+		if (TextUtils.isEmpty(msisdnStatement))
+		{
+			return new ArrayList<String>();
+		}
 		Cursor c = getReadableDatabase().query(DBConstants.USERS_TABLE, new String[] { DBConstants.MSISDN },
-				DBConstants.ID + " IN " + Utils.getMsisdnStatement(Arrays.asList(selectionArgs)), null, null, null, null);
+				DBConstants.PLATFORM_USER_ID + " IN " + msisdnStatement, null, null, null, null);
 
 		ArrayList<String> msisdnList = new ArrayList<String>();
 
@@ -2120,10 +2138,10 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 			while (c.moveToNext());
 		}
 
-		// Incase of hike id == -1, add self msisdn
-		for (int i = 0; i < selectionArgs.length; i++)
+		// Incase of hike id == platform uid for user, add self msisdn
+		for (String id : selectionArgs)
 		{
-			if (selectionArgs[i].equals(HikeConstants.SELF_HIKE_ID))
+			if (id.equals(HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_UID_SETTING, null)))
 			{
 				ContactInfo userContact = Utils.getUserContactInfo(context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, Context.MODE_PRIVATE));
 				msisdnList.add(userContact.getMsisdn());
@@ -2144,5 +2162,15 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 			unload();
 		}
 
+	}
+
+	public void platformUserIdEntry(JSONArray data)
+	{
+		hDb.platformUserIdDbEntry(data);
+	}
+
+	public ArrayList<String> getMsisdnForMissingPlatformUID()
+	{
+		return hDb.getMsisdnsForMissingPlatformUID();
 	}
 }

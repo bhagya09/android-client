@@ -22,8 +22,6 @@ public class WebMetadata
 
 	private boolean longPressDisabled;
 
-	private static final String PUSH_SILENT= "silent";
-	
 
 	public String getLayoutId()
 	{
@@ -168,9 +166,9 @@ public class WebMetadata
 		this.mPush = optString;
 	}
 
-	public boolean isSilent()
+	public String getPushType()
 	{
-		return PUSH_SILENT.equals(mPush);
+		return mPush;
 	}
 
 	public JSONObject getJSON()
