@@ -18,5 +18,4 @@
                 android:title="@string/edit_profile"/>
         </menu>
     </item>
-
 </menu>

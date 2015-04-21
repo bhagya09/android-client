@@ -48,7 +48,7 @@ android {
         compile(project(':viewpager-indicator-library')) {
             exclude module: 'support-v4'
         }
-        compile files('libs/acra-4.5.0.jar')
+        compile files('libs/acra-4.6.1.jar')
         compile files('libs/gson-2.3.jar')
         compile files('libs/gcm.jar')
         compile files('libs/aspectjrt-1.8.2.jar')
@@ -76,7 +76,23 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_7
         targetCompatibility JavaVersion.VERSION_1_7
     }
-    
+
+    signingConfigs {
+        release {
+            storeFile file("hike-android-release-key.keystore")
+            storePassword "Tequ1laFr1day5"
+            keyAlias "hhikedroid"
+            keyPassword "Tequ1laFr1day5"
+        }
+    }
+
+    buildTypes {
+        release {
+            proguardFile 'proguard.cfg'
+            signingConfig signingConfigs.release
+        }
+    }
+
     flavorDimensions "abi"
     
     productFlavors{

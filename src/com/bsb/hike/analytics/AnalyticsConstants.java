@@ -160,6 +160,30 @@ public class AnalyticsConstants
 	public static final String FOREGROUND = "fg";
 	
 	public static final String BACKGROUND = "bg";
+		
+	// Edit picture flags and events
+	public static final class ProfileImageActions
+	{	
+		public static final String DP_EDIT_FROM_SETTINGS_PREVIEW_IMAGE = "stngpic";
+		
+		public static final String DP_EDIT_FROM_PROFILE_SCREEN = "proicon";
+		
+		public static final String DP_EDIT_FROM_DISPLAY_IMAGE = "propic";
+		
+		public static final String DP_EDIT_FROM_PROFILE_OVERFLOW_MENU = "editpropic";
+		
+		public static final String DP_EDIT_EVENT = "editpic";
+		
+		public static final String DP_REMOVE_EVENT = "rempic";
+		
+		public static final String DP_REMOVE_CONFIRM_YES = "delpic";
+		
+		public static final String DP_REMOVE_FROM_FAVOURITES_CHECKED = "check";
+	
+		public static final String DP_REMOVE_FROM_FAVOURITES_UNCHECKED = "uncheck";
+		
+		public static final String DP_EDIT_PATH = "flag";
+	}
 	
 	public static final String STICKER_PALLETE = "stkp";
 
@@ -230,7 +254,7 @@ public class AnalyticsConstants
 	
 	//----------------------***----------------------------------//
 	
-	public static final String MSG_ID = "msg_id";
+	public static final String T_USER = "t_user";
 	
 	public static final String TRACK_ID = "track_id";
 	
@@ -238,7 +262,7 @@ public class AnalyticsConstants
 	
 	public static final String MSG_REL_TAG = "rel_m";
 	
-	public static final String MSG_REL_EVENT_TYPE = "stg";
+	public static final String REL_EVENT_STAGE = "stg";
 	
 	public static final String MSG_REL_CONST_STR = "ek";
 	

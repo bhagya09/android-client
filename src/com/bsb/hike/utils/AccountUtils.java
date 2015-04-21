@@ -17,6 +17,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.PlatformUIDFetch;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -184,6 +187,12 @@ public class AccountUtils
 	public static final String ANALYTICS_UPLOAD_BASE = "/logs/analytics";
 	
 	public static String analyticsUploadUrl = base + ANALYTICS_UPLOAD_BASE;
+	
+	public static String USER_DP_UPDATE_URL = "/account/avatar";
+	
+	public static String GROUP_DP_UPDATE_URL_PREFIX = "/group/";
+	
+	public static String GROUP_DP_UPDATE_URL_SUFFIX = "/avatar";
 	
 	public static void setToken(String token)
 	{
@@ -683,6 +692,13 @@ public class AccountUtils
 			return null;
 		}
 
+		ArrayList<String> msisdnForMissingPlatformUID = ContactManager.getInstance().getMsisdnForMissingPlatformUID();
+
+		if (msisdnForMissingPlatformUID != null && msisdnForMissingPlatformUID.size()>0)
+		{
+			PlatformUIDFetch.fetchPlatformUid(HikePlatformConstants.PlatformUIDFetchType.PARTIAL_ADDRESS_BOOK, msisdnForMissingPlatformUID.toArray(new String[] { }));
+		}
+
 		String encoded = data.toString();
 		// try
 		// {
@@ -801,7 +817,8 @@ public class AccountUtils
 				JSONObject entry = entries.optJSONObject(i);
 				String msisdn = entry.optString("msisdn");
 				boolean onhike = entry.optBoolean("onhike");
-				ContactInfo info = new ContactInfo(id, msisdn, cList.get(i).getName(), cList.get(i).getPhoneNum(), onhike);
+				String platformId = entry.optString(HikePlatformConstants.PLATFORM_USER_ID);
+				ContactInfo info = new ContactInfo(id, msisdn, cList.get(i).getName(), cList.get(i).getPhoneNum(), onhike, platformId);
 				server_contacts.add(info);
 			}
 		}
@@ -875,6 +892,7 @@ public class AccountUtils
 				
 
 			case DELETE_STATUS:
+			case DELETE_DP:
 				requestBase = new HttpDelete(base + hikeHttpRequest.getPath());
 				break;
 

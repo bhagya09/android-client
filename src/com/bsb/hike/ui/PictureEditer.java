@@ -19,7 +19,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
-import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -51,7 +50,8 @@ import com.bsb.hike.ui.fragments.PreviewFragment;
 import com.bsb.hike.ui.fragments.ProfilePicFragment;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
-import com.bsb.hike.utils.IntentManager;
+import com.bsb.hike.utils.HikeUiHandler;
+import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Utils;
 import com.viewpagerindicator.IconPagerAdapter;
 import com.viewpagerindicator.PhotosTabPageIndicator;
@@ -166,17 +166,6 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 
 		indicator = (PhotosTabPageIndicator) findViewById(R.id.indicator);
 
-		int density = getResources().getDisplayMetrics().densityDpi;
-
-		switch (density)
-		{
-		case DisplayMetrics.DENSITY_LOW:
-		case DisplayMetrics.DENSITY_MEDIUM:
-			findViewById(R.id.indicatorView).setVisibility(View.GONE);
-			break;
-
-		}
-
 		undoButton = (ImageView) findViewById(R.id.undo);
 
 		overlayFrame = findViewById(R.id.overlayFrame);
@@ -190,7 +179,6 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 	{
 		super.onResume();
 		overridePendingTransition(R.anim.fade_in_animation, R.anim.fade_out_animation);
-		getSupportActionBar().getCustomView().findViewById(R.id.done_container).setVisibility(View.VISIBLE);
 		editView.enable();
 	}
 
@@ -314,7 +302,8 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 
 	private void uploadProfilePic(final String croppedImageFile, final String originalImageFile)
 	{
-		new Handler(Looper.getMainLooper()).postDelayed(new Runnable()
+
+		HikeUiHandler.getHandler().post(new Runnable()
 		{
 			@Override
 			public void run()
@@ -330,7 +319,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 						.setCustomAnimations(R.anim.fade_in_animation, R.anim.fade_out_animation, R.anim.fade_in_animation, R.anim.fade_out_animation)
 						.replace(R.id.overlayFrame, profilePicFragment).addToBackStack(null).commit();
 			}
-		}, 600);
+		});
 	}
 
 	public class EditorClickListener implements OnClickListener, OnPageChangeListener, OnDoodleStateChangeListener
@@ -468,7 +457,29 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 								@Override
 								public void onFailure()
 								{
-									// Do nothing
+									sendAnalyticsSendTo();
+									editView.saveImage(HikeFileType.IMAGE, null, new HikePhotosListener()
+									{
+										@Override
+										public void onFailure()
+										{
+											// Do nothing
+										}
+
+										@Override
+										public void onComplete(Bitmap bmp)
+										{
+											// Do nothing
+										}
+
+										@Override
+										public void onComplete(File f)
+										{
+											Intent forwardIntent = IntentFactory.getForwardImageIntent(mContext, f);
+											forwardIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+											startActivity(forwardIntent);
+										}
+									});
 								}
 
 								@Override
@@ -480,7 +491,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 								@Override
 								public void onComplete(File f)
 								{
-									Intent forwardIntent = IntentManager.getForwardImageIntent(mContext, f);
+									Intent forwardIntent = IntentFactory.getForwardImageIntent(mContext, f);
 									forwardIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 									startActivity(forwardIntent);
 								}

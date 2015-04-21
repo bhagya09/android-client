@@ -32,7 +32,7 @@ import com.bsb.hike.photos.HikePhotosUtils;
 import com.bsb.hike.photos.HikePhotosUtils.FilterTools.FilterType;
 import com.bsb.hike.photos.views.CanvasImageView.OnDoodleStateChangeListener;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
-import com.bsb.hike.utils.IntentManager;
+import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Utils;
 
 /**
@@ -170,7 +170,7 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 		catch (OutOfMemoryError e)
 		{
 			Toast.makeText(getContext(), getResources().getString(R.string.photos_oom_load), Toast.LENGTH_SHORT).show();
-			IntentManager.openHomeActivity(getContext(), true);
+			IntentFactory.openHomeActivity(getContext(),true);
 		}
 
 		handleImage();
@@ -188,15 +188,22 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 			if(imageScaled == null)
 			{
 				Toast.makeText(getContext(), getResources().getString(R.string.photos_oom_load), Toast.LENGTH_SHORT).show();
-				IntentManager.openHomeActivity(getContext(), true);
+				IntentFactory.openHomeActivity(getContext(),true);
 				return;
 			}
+			
 			effectLayer.handleImage(imageScaled, true);
 		}
 		else
 		{
 			effectLayer.handleImage(imageOriginal, false);
 			imageScaled = imageOriginal;
+		}
+		
+		if(compressOutput && HikePhotosUtils.getBitmapArea(imageOriginal)>HikeConstants.HikePhotos.MAXIMUM_ALLOWED_IMAGE_AREA)
+		{
+			compressOutput = false;
+			imageOriginal = HikePhotosUtils.compressBitamp(imageOriginal, HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX, HikeConstants.MAX_DIMENSION_LOW_FULL_SIZE_PX,true);
 		}
 	}
 
@@ -247,19 +254,13 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 
 	public void saveImage(HikeFileType fileType, String originalName, HikePhotosListener listener)
 	{
-		doodleLayer.getMeasure();
+		doodleLayer.getMeasure(imageScaled.getWidth(),imageScaled.getHeight());
 
 		this.mFileType = fileType;
 		this.mOriginalName = originalName;
 		this.mListener = listener;
 
 		savingFinal = true;
-		if(compressOutput && HikePhotosUtils.getBitmapArea(imageOriginal)>HikeConstants.HikePhotos.MAXIMUM_ALLOWED_IMAGE_AREA)
-		{
-			compressOutput = false;
-			imageOriginal = HikePhotosUtils.compressBitamp(imageOriginal, HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX, HikeConstants.MAX_DIMENSION_LOW_FULL_SIZE_PX,true);
-		}
-
 		effectLayer.getBitmapWithEffectsApplied(imageOriginal, this);
 
 	}
@@ -284,7 +285,6 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 			{
 				String timeStamp = Long.toString(System.currentTimeMillis());
 				file = File.createTempFile("IMG_" + timeStamp, ".jpg");
-				file.deleteOnExit();
 			}
 			catch (IOException e)
 			{
@@ -388,11 +388,6 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 		if (imageEdited != null)
 		{
 
-			if (imageEdited.getHeight() > HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX)
-			{
-				imageEdited = Bitmap.createScaledBitmap(imageEdited, HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX, HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX, false);
-			}
-
 			Canvas canvasResult = new Canvas(imageEdited);
 
 			sendAnalyticsFilterApplied(effectLayer.getCurrentFilter().name());
@@ -410,8 +405,8 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 				else
 				{
 					Toast.makeText(getContext(), getResources().getString(R.string.photos_oom_save), Toast.LENGTH_SHORT).show();
-					IntentManager.openHomeActivity(getContext(), true);
-
+					IntentFactory.openHomeActivity(getContext(),true);
+					
 				}
 			}
 		}
@@ -429,8 +424,8 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 			if (savingFinal)
 			{
 				// Move Back to Home
-				Toast.makeText(getContext(), getResources().getString(R.string.photos_oom_save), Toast.LENGTH_SHORT).show();
-				IntentManager.openHomeActivity(getContext(), true);
+				Toast.makeText(getContext(),  getResources().getString(R.string.photos_oom_save), Toast.LENGTH_SHORT).show();
+				IntentFactory.openHomeActivity(getContext(),true);
 			}
 			else
 			{
