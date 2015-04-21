@@ -74,7 +74,7 @@ public class ImageViewerFragment extends SherlockFragment implements OnClickList
 			if (idx > 0)
 				key = new String(key.substring(0, idx));
 		}
-		ProfileImageLoader profileImageLoader = new ProfileImageLoader(getActivity(), key, imageView, imageSize);
+		ProfileImageLoader profileImageLoader = new ProfileImageLoader(getActivity(), key, imageView, imageSize, isStatusImage);
 		profileImageLoader.setLoaderListener(new ProfileImageLoader.LoaderListener() {
 
 			@Override
