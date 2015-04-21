@@ -17,14 +17,11 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockFragment;
-import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.photos.HikeCameraHost;
 import com.bsb.hike.photos.HikePhotosListener;
 import com.bsb.hike.ui.HikeCameraActivity;
-import com.bsb.hike.ui.PictureEditer;
-import com.bsb.hike.utils.IntentManager;
+import com.bsb.hike.utils.IntentFactory;
 import com.commonsware.cwac.camera.CameraView;
 import com.commonsware.cwac.camera.PictureTransaction;
 import com.commonsware.cwac.camera.ZoomTransaction;
@@ -191,7 +188,7 @@ public class CameraFragment extends SherlockFragment
 								{
 									if (isAdded()) // This happens when current HikeCameraActivity is stopped
 									{
-										Intent i = IntentManager.getPictureEditorActivityIntent(filePath);
+										Intent i = IntentFactory.getPictureEditorActivityIntent(filePath);
 										getActivity().startActivity(i);
 									}
 								}
