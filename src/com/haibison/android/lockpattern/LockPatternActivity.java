@@ -46,6 +46,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup.LayoutParams;
+import android.view.animation.AlphaAnimation;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -1169,6 +1170,13 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
     	}
     }
     
+    private void setAlphaForView(View v, float alpha) {
+		AlphaAnimation animation = new AlphaAnimation(alpha, alpha);
+		animation.setDuration(0); 
+		animation.setFillAfter(true); 
+		v.startAnimation(animation);
+	}
+    
     private final View.OnClickListener mBtnConfirmOnClickListener = new View.OnClickListener() {
 
         @Override
@@ -1178,7 +1186,7 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
                     doCheckAndCreatePin(mLockPinView.getText().toString());
                 	changeRetryToCancel();
                 	changePasswordSetting.setEnabled(false);
-                	changePasswordSetting.setAlpha(0.1f);
+                	setAlphaForView(changePasswordSetting, 0.1f);
                     mBtnOkCmd = ButtonOkCommand.DONE;
                     mLockPatternView.clearPattern();
                     mLockPinView.setText("");
