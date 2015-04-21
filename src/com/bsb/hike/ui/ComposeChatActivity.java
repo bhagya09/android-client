@@ -57,6 +57,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeConstants.MESSAGE_TYPE;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.MqttConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.adapters.ComposeChatAdapter;
 import com.bsb.hike.adapters.FriendsAdapter;
@@ -1752,14 +1753,16 @@ private void forwardMessageAsPerType(Intent presentIntent, Intent intent, ArrayL
 
 		if (HikePubSub.MULTI_FILE_TASK_FINISHED.equals(type))
 		{
-			if (fileTransferTask.isForSingleMsisdn())
-			{
+			final String msisdn = (String) object;
+
+			fileTransferTask = null;
+
 				runOnUiThread(new Runnable()
 				{
 					@Override
 					public void run()
 					{
-					Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(ComposeChatActivity.this, fileTransferTask.getContactList().get(0).getMsisdn(), false); 
+					Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(ComposeChatActivity.this, msisdn, false); 
 					intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 					startActivity(intent);
 					finish();
@@ -1772,27 +1775,6 @@ private void forwardMessageAsPerType(Intent presentIntent, Intent intent, ArrayL
 					}
 				});
 			}
-			else
-			{
-				runOnUiThread(new Runnable()
-				{
-					@Override
-					public void run()
-					{
-						IntentFactory.openHomeActivity(ComposeChatActivity.this, true);
-						finish();
-
-						if (progressDialog != null)
-						{
-							progressDialog.dismiss();
-							progressDialog = null;
-						}
-					}
-				});
-			}
-			
-			fileTransferTask = null;
-		}
 		else if (HikePubSub.APP_FOREGROUNDED.equals(type))
 		{
 

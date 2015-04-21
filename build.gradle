@@ -48,7 +48,7 @@ android {
         compile(project(':viewpager-indicator-library')) {
             exclude module: 'support-v4'
         }
-        compile files('libs/acra-4.5.0.jar')
+        compile files('libs/acra-4.6.1.jar')
         compile files('libs/gson-2.3.jar')
         compile files('libs/gcm.jar')
         compile files('libs/aspectjrt-1.8.2.jar')
@@ -75,7 +75,6 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_7
         targetCompatibility JavaVersion.VERSION_1_7
-<<<<<<< HEAD
     }
 
     signingConfigs {
@@ -103,8 +102,6 @@ android {
                 abiFilters "armeabi-v7a", "armeabi"
             	}
             }
-=======
->>>>>>> 450a06370b8d812c0c01ddfaaab60f57dd38f1ae
     }
 }
 

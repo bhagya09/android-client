@@ -286,6 +286,7 @@ public class IntentFactory
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		appContext.startActivity(intent);
 	}
+	
 
 	public static Intent getVideoRecordingIntent()
 	{
