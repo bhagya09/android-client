@@ -119,32 +119,6 @@ public class VoIPUtils {
     }	
 
     /**
-<<<<<<< HEAD
-     * Used to communicate between two VoIP clients, via the server
-     * @param msisdn The client to which the message is being sent.
-     * @param type Message type (v0, v1 etc). 
-     * @param subtype Message sub-type. This usually decides what the recipient does with 
-     * the message.
-     * @throws JSONException
-     */
-    public static void sendMessage(String msisdn, String type, String subtype) throws JSONException {
-    	
-		JSONObject data = new JSONObject();
-		data.put(HikeConstants.MESSAGE_ID, new Random().nextInt(10000));
-		data.put(HikeConstants.TIMESTAMP, System.currentTimeMillis() / 1000); 
-
-		JSONObject message = new JSONObject();
-		message.put(HikeConstants.TO, msisdn);
-		message.put(HikeConstants.TYPE, type);
-		message.put(HikeConstants.SUB_TYPE, subtype);
-		message.put(HikeConstants.DATA, data);
-		
-		HikeMqttManagerNew.getInstance().sendMessage(message, MqttConstants.MQTT_QOS_ONE);
-    }
-
-    /**
-=======
->>>>>>> in_rel
      * Add a VoIP related message to the chat thread.
      * @param context
      * @param clientPartner
