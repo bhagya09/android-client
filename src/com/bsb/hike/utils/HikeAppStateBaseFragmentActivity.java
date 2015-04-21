@@ -21,10 +21,7 @@ import com.bsb.hike.productpopup.HikeDialogFragment;
 import com.bsb.hike.productpopup.IActivityPopup;
 import com.bsb.hike.productpopup.ProductContentModel;
 import com.bsb.hike.productpopup.ProductInfoManager;
-import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.ui.fragments.ImageViewerFragment;
-import com.bsb.hike.voip.view.CallIssuesDialogFragment;
-import com.bsb.hike.voip.view.CallRateDialogFragment;
 
 public class HikeAppStateBaseFragmentActivity extends SherlockFragmentActivity implements Listener
 {
