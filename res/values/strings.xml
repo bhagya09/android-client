@@ -1355,6 +1355,14 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="voip_call_issues_submit_toast">Your feedback has been submitted</string>
     <string name="video_compress">VIDEO COMPRESSION</string>
     <string name="send_compress_video">Send Compressed Video</string>
+    <string name="valentine_day">Happy Valentine\'s Day</string>        
+    <string name="remove_photo">Remove photo</string>
+    <string name="profile_photo">Profile photo</string>
+    <string name="confirm_remove_photo">Are you sure you want to remove the photo?</string>
+    <string name="check_delete_from_timeline">Delete from favorites\' timeline</string>
+    <string name="edit_photo">Edit photo</string>
+    <string name="removing_dp">Removing picture...</string>
+    <string name="remove_dp_error">Could not remove your profile picture. Please check your network connection and try again later.</string>
     <string name="voip_missed_call_notif">Missed Call</string>
     <string name="voip_missed_call_action">Call Back</string>
     <string name="voip_missed_call_message">Message</string>
@@ -1436,6 +1444,12 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="choose_contact">Choose Contact(s)</string>
     <string name="terms_conditions_hint">Terms and Conditions</string>
     <string name="terms_conditions_title">T &amp; C</string>
+
+    <string name="content_des_message_send_rec_read_status">Message send or pending status</string>
+    <string name="content_des_restore_if_backup_found">Restore (Backup found)</string>
+
     <string name="group_creation">Created on </string>
     <string name="ls_change_failed">Last Seen update failed!</string>
+	<string name="activity_not_found">No app found that can handle this action</string>
+		
 </resources>
