@@ -100,24 +100,13 @@ public class TagEditText extends EditText
 				// -1 for space
 				ssb.setSpan(ispan, length - SPAN_REPLACEMENT.length() - 1, length - 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 			}
-			String charAfterSep = getCharAfterSeparator();
-			boolean filterReset = true;
-			if (charAfterSep != null) {
-				if(charAfterSep.matches("[A-Za-z]+")){
-					ssb.append(charAfterSep);
-					filterReset = false;
-				}
-			}
 			needCallback = false;
 			setText(ssb);
 			setSelection(ssb.length());
 			if (listener != null)
 			{
      			listener.tagAdded(data, uniqueness);
-     			if(filterReset)
-     			{
-     				listener.charResetAfterSeperator();
-     			}
+     			listener.charResetAfterSeperator();
 			}
 		}
 	}
