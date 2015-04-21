@@ -744,12 +744,6 @@ public class IntentFactory
 		return intent.resolveActivity(packageManager)!=null;
 	}
 
-	
-	public static void startShareImageIntent(String mimeType, String imagePath)
-	{
-		startShareImageIntent(mimeType, imagePath, null);
-	}
-	
 	public static void startShareImageIntent(String mimeType, String imagePath, String text)
 	{
 		Intent s = new Intent(android.content.Intent.ACTION_SEND);
@@ -763,5 +757,10 @@ public class IntentFactory
 		Logger.i("imageShare", "shared image with " + s.getExtras());
 		HikeMessengerApp.getInstance().getApplicationContext().startActivity(s);
 
+	}
+	
+	public static void startShareImageIntent(String mimeType, String imagePath)
+	{
+		startShareImageIntent(mimeType, imagePath, null);
 	}
 }

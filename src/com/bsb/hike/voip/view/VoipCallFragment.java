@@ -872,7 +872,6 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		int size = getResources().getDimensionPixelSize(R.dimen.timeine_big_picture_size);
 
 		ProfileImageLoader profileImageLoader = new ProfileImageLoader(getActivity(), msisdn, imageView, size, false);
-		
 		profileImageLoader.setDefaultDrawable(getResources().getDrawable(R.drawable.ic_avatar_voip_hires));
 		boolean hasCustomImage = profileImageLoader.loadProfileImage(getLoaderManager());
 		if(!hasCustomImage)
