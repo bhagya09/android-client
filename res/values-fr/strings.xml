@@ -543,7 +543,6 @@
     <string name="sent_you_friend_request">T\'a envoyé une demande d\'ami</string>
     <string name="num_people">%1$d people</string>
     <string name="add">Ajouter</string>
-    <string name="no_updates">No updates from %1$s yet.</string>
     <string name="email_conversation">Envoyer la conversation par e-mail</string>
     <string name="me_key">moi</string>
     <string name="group_name_email">"Groupe "</string>
@@ -558,7 +557,7 @@
     <string name="new_update">Nouvelle mise à jour</string>
     <string name="invite_via_facebook">Inviter via Facebook</string>
     <string name="invite_via_twitter">Inviter via Twitter</string>
-    <string name="search_hint">Rechercher</string>
+    <string name="search">Rechercher</string>
     <string name="fb_invite_success">Invitation non remise</string>
     <string name="fb_invite_failed">Invitation annulée</string>
     <string name="social_invite_network_error">L\'invitation n\'a pas été envoyée. Vérifie tes paramètres réseau.</string>

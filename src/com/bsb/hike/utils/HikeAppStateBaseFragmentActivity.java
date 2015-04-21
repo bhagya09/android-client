@@ -9,6 +9,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.widget.Toast;
 
+import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -217,25 +218,15 @@ public class HikeAppStateBaseFragmentActivity extends SherlockFragmentActivity i
 				@Override
 				public void run()
 				{
-					/*
-					 * Making sure we don't add the fragment if the activity is finishing.
-					 */
-					if (isFinishing())
-					{
-						return;
-					}
-
-					Bundle arguments = (Bundle) object;
-
-					ImageViewerFragment imageViewerFragment = new ImageViewerFragment();
-					imageViewerFragment.setArguments(arguments);
-
-					FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-					fragmentTransaction.add(R.id.parent_layout, imageViewerFragment, HikeConstants.IMAGE_FRAGMENT_TAG);
-					fragmentTransaction.commitAllowingStateLoss();
+					openImageViewerFragment(object);
 				}
 			});
 		}
+	}
+	
+	protected void openImageViewerFragment(Object object)
+	{
+		return;
 	}
 
 	public void addFragment(Fragment fragment, String tag)
@@ -269,6 +260,16 @@ public class HikeAppStateBaseFragmentActivity extends SherlockFragmentActivity i
 	public boolean isFragmentAdded(String tag)
 	{
 		return getSupportFragmentManager().findFragmentByTag(tag) != null;
+	}
+	
+	public void updateActionBarColor(int backgroundDrawable)
+	{
+		ActionBar actionBar = getSupportActionBar();
+		actionBar.setBackgroundDrawable(getResources().getDrawable(backgroundDrawable));
+		// * Workaround to set actionbar background drawable multiple times. Refer SO.
+		// http://stackoverflow.com/questions/17076958/change-actionbar-color-programmatically-more-then-once/17198657#17198657
+		actionBar.setDisplayShowTitleEnabled(true);
+		actionBar.setDisplayShowTitleEnabled(false);
 	}
 
 	private void isThereAnyPopUpForMe(int popUpTriggerPoint)

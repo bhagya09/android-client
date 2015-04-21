@@ -5,9 +5,9 @@ import com.bsb.hike.models.ContactInfo.FavoriteType;
 public interface DBConstants
 {
 
-	public static final int CONVERSATIONS_DATABASE_VERSION = 36;
+	public static final int CONVERSATIONS_DATABASE_VERSION = 38;
 
-	public static final int USERS_DATABASE_VERSION = 16;
+	public static final int USERS_DATABASE_VERSION = 17;
 
 	public static final String HAS_CUSTOM_PHOTO = "hascustomphoto";
 
@@ -72,6 +72,8 @@ public interface DBConstants
 	public static final String GROUP_ID = "groupId";
 
 	public static final String GROUP_NAME = "groupName";
+	
+	public static final String GROUP_CREATION_TIME = "groupCreationTime";
 
 	public static final String GROUP_INDEX = "group_idx";
 
@@ -187,6 +189,8 @@ public interface DBConstants
 	public static final String FILE_THUMBNAIL_INDEX = "fileThumbnailIndex";
 
 	public static final String INVITE_TIMESTAMP = "inviteTimestamp";
+
+	public static final String PLATFORM_USER_ID = "platformUserId";
 
 	public static final String CHAT_BG_TABLE = "chatBgTable";
 
@@ -318,6 +322,8 @@ public interface DBConstants
 	public static final String SORTING_TIMESTAMP = "sortingTimeStamp";
 
 	public static final String SERVER_ID_INDEX = "serverid_idx";
+
+	public static final String PRIVATE_DATA = "pd";
 
 	public static final String MESSAGE_TABLE_NAMESPACE_INDEX = "messageNamespaceIndex";
 }
