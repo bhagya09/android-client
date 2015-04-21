@@ -39,6 +39,8 @@ public class SearchManager
 	private int itemViewBacklash;
 
 	private ArrayList<Searchable> itemList;
+	
+	private boolean active;
 
 	public SearchManager()
 	{
@@ -49,6 +51,17 @@ public class SearchManager
 	{
 		this.itemList = new ArrayList<Searchable>(collection);
 		clearSearch();
+		active = true;
+	}
+
+	public void deactivate()
+	{
+		active = false;
+	}
+
+	public boolean isActive()
+	{
+		return active;
 	}
 
 	public void makeNewSearch(String s)

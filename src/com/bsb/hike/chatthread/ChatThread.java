@@ -1317,6 +1317,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		mBottomView.startAnimation(AnimationUtils.loadAnimation(activity.getApplicationContext(), R.anim.down_up_lower_part));
 		mBottomView.setVisibility(View.VISIBLE);
 		messageSearchManager.clearSearch();
+		messageSearchManager.deactivate();
 		mAdapter.setSearchText(null);
 	}
 
@@ -2090,7 +2091,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	
 	private void updateNNotifySearchParams(List<ConvMessage> list)
 	{
-		if (messageSearchManager != null)
+		if (messageSearchManager != null && messageSearchManager.isActive())
 		{
 			messageSearchManager.updateIndex(list.size());
 			messageSearchManager.updateDataSet(messages);
