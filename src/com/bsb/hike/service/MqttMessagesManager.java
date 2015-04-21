@@ -203,6 +203,21 @@ public class MqttMessagesManager
 		}
 	}
 
+	/**
+	 * Used to save user icon to db
+	 * @param iconData 
+	 * @param msisdn of the user
+	 * @throws JSONException
+	 */
+	private void saveUserIcon(JSONObject iconData, String msisdn) throws JSONException
+	{
+		String iconBase64 = iconData.getString(HikeConstants.DATA);
+		ContactManager.getInstance().setIcon(msisdn, Base64.decode(iconBase64, Base64.DEFAULT), false);
+
+		HikeMessengerApp.getLruCache().clearIconForMSISDN(msisdn);
+		HikeMessengerApp.getPubSub().publish(HikePubSub.ICON_CHANGED, msisdn);
+	}
+
 	private void saveDisplayPic(JSONObject jsonObj) throws JSONException
 	{
 		String groupId = jsonObj.getString(HikeConstants.TO);
