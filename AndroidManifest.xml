@@ -5,8 +5,8 @@
     android:installLocation="auto"
 
 
-    android:versionCode="1174"
-    android:versionName="3.9.0.1.ctr" >
+    android:versionCode="1175"
+    android:versionName="3.9.0.50" >
 
 
     <uses-sdk
