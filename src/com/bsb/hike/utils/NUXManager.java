@@ -20,6 +20,7 @@ import android.text.TextUtils;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.MqttConstants;
 import com.bsb.hike.NUXConstants;
 import com.bsb.hike.NUXConstants.PushTypeEnum;
 import com.bsb.hike.NUXConstants.RewardTypeEnum;
@@ -98,13 +99,13 @@ public class NUXManager
 
 	public void startNUX(Activity activity)
 	{
-		activity.startActivity(IntentManager.openInviteFriends(activity));
+		activity.startActivity(IntentFactory.openInviteFriends(activity));
 		activity.finish();
 	}
 
 	public void startNuxCustomMessage(String selectedFriends, Activity activity)
 	{
-		Intent in = IntentManager.openNuxCustomMessage(activity);
+		Intent in = IntentFactory.openNuxCustomMessage(activity);
 		in.putExtra(SELECTED_FRIENDS, selectedFriends);
 		activity.startActivity(in);
 	}
@@ -122,7 +123,7 @@ public class NUXManager
 		}
 		else
 		{
-			activity.startActivity(IntentManager.openNuxFriendSelector(activity));
+			activity.startActivity(IntentFactory.openNuxFriendSelector(activity));
 		}
 	}
 
@@ -898,7 +899,7 @@ public class NUXManager
 			object.put(INVITE_ARRAY, mmArray);
 			root.put(HikeConstants.DATA, object);
 
-			HikeMqttManagerNew.getInstance().sendMessage(root, HikeMqttManagerNew.MQTT_QOS_ONE);
+			HikeMqttManagerNew.getInstance().sendMessage(root, MqttConstants.MQTT_QOS_ONE);
 
 		}
 		catch (JSONException e)

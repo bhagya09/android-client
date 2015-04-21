@@ -31,7 +31,7 @@ import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.models.WhitelistDomain;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.bsb.hike.utils.IntentManager;
+import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 
 public class WebViewActivity extends HikeAppStateBaseFragmentActivity
@@ -161,7 +161,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity
 					json.put(AnalyticsConstants.EVENT_KEY, HikeConstants.BLACKLIST_DOMAIN_ANALYTICS);
 					json.put(HikeConstants.URL, url);
 					HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.VIEW_EVENT, json);
-					startActivity(IntentManager.getBrowserIntent(url));
+					startActivity(IntentFactory.getBrowserIntent(url));
 					return false;
 				}
 				catch (JSONException e)
@@ -179,7 +179,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity
 				else
 				{
 					// open in browser
-					startActivity(IntentManager.getBrowserIntent(url));
+					startActivity(IntentFactory.getBrowserIntent(url));
 					this.finish();
 					return false;
 				}

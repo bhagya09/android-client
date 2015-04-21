@@ -7,6 +7,7 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.app.FragmentTransaction;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,30 +24,28 @@ import android.widget.TextView;
 import com.actionbarsherlock.app.ActionBar;
 import com.bsb.hike.AppConfig;
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeConstants.ImageQuality;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
+import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ImageViewerInfo;
 import com.bsb.hike.models.StatusMessage;
 import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.modules.contactmgr.ContactManager;
-import com.bsb.hike.productpopup.DialogPojo;
-import com.bsb.hike.productpopup.HikeDialogFragment;
-import com.bsb.hike.productpopup.IActivityPopup;
-import com.bsb.hike.productpopup.ProductContentModel;
-import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
-import com.bsb.hike.smartImageLoader.IconLoader;
+import com.bsb.hike.ui.fragments.ImageViewerFragment;
+import com.bsb.hike.utils.AccountUtils;
+import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
 import com.bsb.hike.utils.EmoticonConstants;
-import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.bsb.hike.utils.IntentManager;
+import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.Utils;
 
-public class SettingsActivity extends HikeAppStateBaseFragmentActivity implements OnItemClickListener, OnClickListener
+public class SettingsActivity extends ChangeProfileImageBaseActivity implements OnItemClickListener, OnClickListener, android.content.DialogInterface.OnClickListener
 {
 	private ContactInfo contactInfo;
 
@@ -79,6 +78,7 @@ public class SettingsActivity extends HikeAppStateBaseFragmentActivity implement
 
 		items.add(getString(R.string.notifications));
 		items.add(getString(R.string.settings_media));
+		items.add(getString(R.string.settings_chat));
 		if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean(HikeConstants.FREE_SMS_PREF, true))
 		{
 			int credits = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE).getInt(HikeMessengerApp.SMS_SETTING, 0);
@@ -119,6 +119,7 @@ public class SettingsActivity extends HikeAppStateBaseFragmentActivity implement
 
 		itemIcons.add(R.drawable.ic_notifications_settings);
 		itemIcons.add(R.drawable.ic_auto_download_media_settings);
+		itemIcons.add(R.drawable.ic_settings_chat);
 		itemIcons.add(R.drawable.ic_sms_settings);
 		if (isConnectedAppsPresent)
 		{
@@ -232,6 +233,8 @@ public class SettingsActivity extends HikeAppStateBaseFragmentActivity implement
 		contactInfo = Utils.getUserContactInfo(getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE));
 		msisdn = contactInfo.getMsisdn();
 
+		String infoSubText = getString(Utils.isLastSeenSetToFavorite() ? R.string.both_ls_status_update : R.string.status_updates_proper_casing);
+		((TextView) header.findViewById(R.id.update_text)).setText(getString(R.string.add_fav_msg, infoSubText));
 		// set name and status
 		setNameInHeader(nameView);
 
@@ -259,8 +262,9 @@ public class SettingsActivity extends HikeAppStateBaseFragmentActivity implement
 		arguments.putString(HikeConstants.Extras.MAPPED_ID, mappedId);
 		arguments.putString(HikeConstants.Extras.URL, url);
 		arguments.putBoolean(HikeConstants.Extras.IS_STATUS_IMAGE, imageViewerInfo.isStatusMessage);
+		arguments.putBoolean(HikeConstants.CAN_EDIT_DP, true);
 
-		HikeMessengerApp.getPubSub().publish(HikePubSub.SHOW_IMAGE, arguments);
+		HikeMessengerApp.getPubSub().publish(HikePubSub.SHOW_IMAGE, arguments);		
 	}
 
 	private void setupActionBar()
@@ -271,7 +275,7 @@ public class SettingsActivity extends HikeAppStateBaseFragmentActivity implement
 		View actionBarView = LayoutInflater.from(this).inflate(R.layout.compose_action_bar, null);
 
 		View backContainer = actionBarView.findViewById(R.id.back);
-
+		
 		TextView title = (TextView) actionBarView.findViewById(R.id.title);
 		title.setText(R.string.settings);
 		backContainer.setOnClickListener(new OnClickListener()
@@ -295,25 +299,29 @@ public class SettingsActivity extends HikeAppStateBaseFragmentActivity implement
 			switch (position)
 			{
 			case 1:
-				IntentManager.openSettingNotification(this);
+				IntentFactory.openSettingNotification(this);
 				break;
 			case 2:
-				IntentManager.openSettingMedia(this);
+				IntentFactory.openSettingMedia(this);
 				break;
 			case 3:
-				IntentManager.openSettingSMS(this);
+				IntentFactory.openSettingChat(this);
 				break;
 			case 4:
-				IntentManager.openConnectedApps(this);
+				IntentFactory.openSettingSMS(this);
 				break;
 			case 5:
-				IntentManager.openSettingAccount(this);
+				IntentFactory.openConnectedApps(this);
 				break;
 			case 6:
-				IntentManager.openSettingPrivacy(this);
+				IntentFactory.openSettingAccount(this);
 				break;
 			case 7:
-				IntentManager.openSettingHelp(this);
+				HAManager.logClickEvent(HikeConstants.LogEvent.PRIVACY_SETTING_CLICKED);
+				IntentFactory.openSettingPrivacy(this);
+				break;
+			case 8:
+				IntentFactory.openSettingHelp(this);
 				break;
 			}
 		}
@@ -322,22 +330,26 @@ public class SettingsActivity extends HikeAppStateBaseFragmentActivity implement
 			switch (position)
 			{
 			case 1:
-				IntentManager.openSettingNotification(this);
+				IntentFactory.openSettingNotification(this);
 				break;
 			case 2:
-				IntentManager.openSettingMedia(this);
+				IntentFactory.openSettingMedia(this);
 				break;
 			case 3:
-				IntentManager.openSettingSMS(this);
+				IntentFactory.openSettingChat(this);
 				break;
 			case 4:
-				IntentManager.openSettingAccount(this);
+				IntentFactory.openSettingSMS(this);
 				break;
 			case 5:
-				IntentManager.openSettingPrivacy(this);
+				IntentFactory.openSettingAccount(this);
 				break;
 			case 6:
-				IntentManager.openSettingHelp(this);
+				HAManager.logClickEvent(HikeConstants.LogEvent.PRIVACY_SETTING_CLICKED);
+				IntentFactory.openSettingPrivacy(this);
+				break;
+			case 7:
+				IntentFactory.openSettingHelp(this);
 				break;
 			}
 		}
@@ -496,5 +508,50 @@ public class SettingsActivity extends HikeAppStateBaseFragmentActivity implement
 		intent.setClass(SettingsActivity.this, ProfileActivity.class);
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		startActivity(intent);
+	}
+
+	@Override
+	public String profileImageCropped()
+	{
+		String path = super.profileImageCropped();
+		Utils.compressAndCopyImage(path, path, SettingsActivity.this, ImageQuality.QUALITY_MEDIUM);
+		uploadProfilePicture(AccountUtils.USER_DP_UPDATE_URL);
+		return path;
+	}
+
+	@Override
+	public void profilePictureUploaded()
+	{
+		super.profilePictureUploaded();
+	}	
+	
+	@Override
+	protected void openImageViewerFragment(Object object)
+	{
+		/*
+		 * Making sure we don't add the fragment if the activity is finishing.
+		 */
+		if (isFinishing())
+		{
+			return;
+		}
+
+		Bundle arguments = (Bundle) object;
+		ImageViewerFragment imageViewerFragment = null;
+		boolean isEdit = arguments.getBoolean(HikeConstants.CAN_EDIT_DP);
+		
+		if(isEdit)
+		{
+			imageViewerFragment = new ImageViewerFragment(isEdit);
+		}
+		else
+		{
+			imageViewerFragment = new ImageViewerFragment();			
+		}
+		imageViewerFragment.setArguments(arguments);
+
+		FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+		fragmentTransaction.add(R.id.parent_layout, imageViewerFragment, HikeConstants.IMAGE_FRAGMENT_TAG);
+		fragmentTransaction.commitAllowingStateLoss();
 	}
 }

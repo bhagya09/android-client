@@ -222,6 +222,11 @@ public class ContactInfo implements JSONSerializable, Comparable<ContactInfo>
 		return platformId;
 	}
 
+	public boolean isPlatformUIDExist()
+	{
+		return !TextUtils.isEmpty(platformId);
+	}
+
 	public String getName()
 	{
 		return name;
@@ -254,7 +259,12 @@ public class ContactInfo implements JSONSerializable, Comparable<ContactInfo>
 
 	public void setPlatformId(String platformId)
 	{
-		this.platformId = platformId;
+		this.platformId = "";
+		if (!TextUtils.isEmpty(platformId) && !platformId.equals("null"))
+		{
+			this.platformId = platformId;
+		}
+
 	}
 
 	public void setName(String name)
@@ -482,7 +492,7 @@ public class ContactInfo implements JSONSerializable, Comparable<ContactInfo>
 		this.hikeJoinTime = hikeJoinTime;
 		setNum(6, 7, 2);
 		setNum(3, 5, 7);
-		this.platformId = platformId;
+		setPlatformId(platformId);
 	}
 
 	@Override
@@ -580,5 +590,12 @@ public class ContactInfo implements JSONSerializable, Comparable<ContactInfo>
 			return -1;
 		}
 		return (this.name.toLowerCase().compareTo(((ContactInfo) rhs).name.toLowerCase()));
+	}
+
+	public boolean isNotOrRejectedFavourite()
+	{
+		return (this.getFavoriteType() == FavoriteType.NOT_FRIEND
+				|| this.getFavoriteType() == FavoriteType.REQUEST_SENT_REJECTED 
+				|| this.getFavoriteType() == FavoriteType.REQUEST_RECEIVED_REJECTED);
 	}
 }

@@ -53,6 +53,7 @@ import android.widget.Chronometer;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.MqttConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
@@ -60,7 +61,7 @@ import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.bsb.hike.utils.IntentManager;
+import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.voip.VoIPClient.ConnectionMethods;
 import com.bsb.hike.voip.VoIPConstants.CallQuality;
@@ -2353,7 +2354,7 @@ public class VoIPService extends Service {
 			else isRingingIncoming = true;
 			
 			// Show activity
-			Intent intent = IntentManager.getVoipIncomingCallIntent(VoIPService.this);
+			Intent intent = IntentFactory.getVoipIncomingCallIntent(VoIPService.this);
 			startActivity(intent);
 
 			// Ringer
@@ -2562,7 +2563,7 @@ public class VoIPService extends Service {
 			message.put(HikeConstants.SUB_TYPE, HikeConstants.MqttMessageTypes.VOIP_SOCKET_INFO);
 			message.put(HikeConstants.DATA, data);
 			
-			HikeMqttManagerNew.getInstance().sendMessage(message, HikeMqttManagerNew.MQTT_QOS_ONE);
+			HikeMqttManagerNew.getInstance().sendMessage(message, MqttConstants.MQTT_QOS_ONE);
 			Logger.d(VoIPConstants.TAG, "Sent socket information to partner. Reconnecting: " + reconnecting);
 			socketInfoSent = true;
 

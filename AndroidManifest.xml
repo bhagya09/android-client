@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1169"
-    android:versionName="3.8.9.57.3.voip" >
+    android:versionCode="1176"
+    android:versionName="3.9.0.51.1.voip" >
 
     <uses-sdk
         android:minSdkVersion="9"
@@ -136,8 +136,8 @@
             android:label="@string/app_name"
             android:launchMode="singleTop"
             android:theme="@style/AppTheme.Home"
-            android:windowSoftInputMode="adjustPan" >
-            <intent-filter>
+            android:windowSoftInputMode="adjustResize" >
+           <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -182,11 +182,13 @@
             android:windowSoftInputMode="adjustPan|stateAlwaysVisible" >
         </activity>
         <activity
-            android:name="com.bsb.hike.ui.ChatThread"
+            android:name=".chatthread.ChatThreadActivity"
             android:hardwareAccelerated="true"
             android:label="@string/app_label"
-            android:launchMode="singleTop"
-            android:windowSoftInputMode="adjustResize" >
+            android:theme="@style/AppTheme"
+            android:windowSoftInputMode="adjustResize|stateHidden"
+            android:configChanges="orientation|screenSize"
+            android:launchMode="singleTop" >
             <intent-filter>
                 <action android:name="android.intent.action.SENDTO" />
 
@@ -208,6 +210,7 @@
         </activity>
         <activity
             android:name=".ui.ProfileActivity"
+            android:configChanges="orientation|screenSize"            
             android:windowSoftInputMode="stateHidden" >
             <intent-filter android:label="@string/set_profile_pic" >
                 <action android:name="android.intent.action.ATTACH_DATA" />
@@ -236,7 +239,8 @@
             android:name=".ui.TellAFriend"
             android:launchMode="singleTop" >
         </activity>
-        <activity android:name=".ui.SettingsActivity" >
+        <activity android:name=".ui.SettingsActivity" 
+                  android:configChanges="orientation|screenSize">            
         </activity>
         <activity android:name="com.bsb.hike.ui.ConnectedAppsActivity"
             android:configChanges="orientation" >
