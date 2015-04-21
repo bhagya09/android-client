@@ -74,6 +74,7 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 
 	private Bitmap smallerBitmap;
 
+	//TBD when other platforms support rectangular images in timeline page
 	private String origImagePath;
 
 	@Override
@@ -249,7 +250,7 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 				}
 			});
 
-			request.setFilePath(origImagePath);
+			request.setFilePath(imagePath);
 
 			Utils.executeHttpTask(new HikeHTTPTask(ProfilePicFragment.this, R.string.delete_status_error), request);
 
