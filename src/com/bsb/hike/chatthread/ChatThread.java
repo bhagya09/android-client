@@ -2242,7 +2242,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	
 	private static class MessageFinder extends AsyncTaskLoader<Object>
 	{
-		long ADD_MSG_TIME = 2000;
+		static long ADD_MSG_TIME = 2000;
 
 		int loaderId;
 	
