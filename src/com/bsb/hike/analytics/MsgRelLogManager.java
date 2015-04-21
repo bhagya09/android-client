@@ -17,6 +17,7 @@ import com.bsb.hike.models.HikePacket;
 import com.bsb.hike.models.MessagePrivateData;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.Utils;
 
 public class MsgRelLogManager
@@ -33,7 +34,7 @@ public class MsgRelLogManager
 	 */
 	public static void startMessageRelLogging(ConvMessage convMessage, String msgType)
 	{
-		if (convMessage != null && !Utils.isGroupConversation(convMessage.getMsisdn()))
+		if (convMessage != null)
 		{
 			if (isMessageToBeTracked(msgType))
 			{
@@ -123,7 +124,7 @@ public class MsgRelLogManager
 	public static void logMsgRelEvent(ConvMessage convMessage, String eventType)
 	{
 		MessagePrivateData messagePrivateData = convMessage.getPrivateData();
-		if (messagePrivateData != null && messagePrivateData.getTrackID() != null && !Utils.isGroupConversation(convMessage.getMsisdn()))
+		if (messagePrivateData != null && messagePrivateData.getTrackID() != null && !OneToNConversationUtils.isOneToNConversation(convMessage.getMsisdn()))
 		{
 			recordMsgRel(messagePrivateData.getTrackID(), eventType, messagePrivateData.getMsgType(), convMessage.getMsisdn());
 		}
@@ -167,7 +168,7 @@ public class MsgRelLogManager
 			metadata.put(AnalyticsConstants.TRACK_ID, trackID);
 			
 			// msisdn:-
-			metadata.put(AnalyticsConstants.MSISDN, msisdn);
+			metadata.put(AnalyticsConstants.T_USER, msisdn);
 			
 			//Constant Field need to be added for all the messages as required by Analytics Team
 			metadata.put(AnalyticsConstants.MSG_REL_CONST_STR, "msg");
@@ -176,7 +177,7 @@ public class MsgRelLogManager
 			metadata.put(AnalyticsConstants.MESSAGE_TYPE, msgType);
 			
 			// event type:- 0 to 19
-			metadata.put(AnalyticsConstants.MSG_REL_EVENT_TYPE, eventType);
+			metadata.put(AnalyticsConstants.REL_EVENT_STAGE, eventType);
 			
 			// adding app version
 			metadata.put(AnalyticsConstants.APP_VERSION_NAME, Utils.getAppVersionName(HikeMessengerApp.getInstance().getApplicationContext()));

@@ -420,8 +420,7 @@ public class DownloadFileTask extends FileTransferBase
 	private void sendBroadcast()
 	{
 		Logger.d(getClass().getSimpleName(), "sending progress to publish...");
-		Intent intent = new Intent(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED);
-		LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+		HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
 	}
 
 	private void error()
