@@ -48,7 +48,7 @@ android {
         compile(project(':viewpager-indicator-library')) {
             exclude module: 'support-v4'
         }
-        compile files('libs/acra-4.5.0.jar')
+        compile files('libs/acra-4.6.1.jar')
         compile files('libs/gson-2.3.jar')
         compile files('libs/gcm.jar')
         compile files('libs/aspectjrt-1.8.2.jar')
