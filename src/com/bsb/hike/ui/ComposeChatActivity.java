@@ -205,7 +205,11 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		HikeMessengerApp app = (HikeMessengerApp) getApplicationContext();
 		app.connectToService();
 
-		createGroup = getIntent().getBooleanExtra(HikeConstants.Extras.CREATE_GROUP, false);
+		if (getIntent().hasExtra(HikeConstants.Extras.GROUP_CREATE_BUNDLE))
+		{
+			Bundle bundle = getIntent().getBundleExtra(HikeConstants.Extras.GROUP_CREATE_BUNDLE);
+			createGroup = bundle.getBoolean(HikeConstants.Extras.CREATE_GROUP);
+		}
 		isForwardingMessage = getIntent().getBooleanExtra(HikeConstants.Extras.FORWARD_MESSAGE, false);
 		isSharingFile = getIntent().getType() != null;
 		nuxIncentiveMode = getIntent().getBooleanExtra(HikeConstants.Extras.NUX_INCENTIVE_MODE, false);
