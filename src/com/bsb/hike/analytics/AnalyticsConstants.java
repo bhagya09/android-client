@@ -83,6 +83,10 @@ public class AnalyticsConstants
 	public static String CONTENT_ID = "content_id";
 
     public static String UNREAD_COUNT = "uc";
+    
+    public static String SELECTED_USER_COUNT_FWD = "FwdCount";
+    
+    public static String SELECTED_USER_COUNT_SHARE = "ShareCount";
 
 	public static final String ANALYTICS = "analytics";
 
