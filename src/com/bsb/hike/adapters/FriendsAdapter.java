@@ -46,6 +46,7 @@ import com.bsb.hike.utils.EmoticonConstants;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.LastSeenComparator;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.utils.Utils.WhichScreen;
 import com.bsb.hike.view.PinnedSectionListView.PinnedSectionListAdapter;
@@ -341,7 +342,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 					else
 					{
 						String msisdn = info.getMsisdn();
-						if (msisdn != null && !Utils.isGroupConversation(msisdn))
+						if (msisdn != null && !OneToNConversationUtils.isOneToNConversation(msisdn))
 						{
 							if(msisdn.contains(textToBeFiltered))
 							{
@@ -1054,6 +1055,8 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 				break;
 			case EMPTY:
 				viewHolder.name = (TextView) convertView.findViewById(R.id.empty_text);
+				String infoSubText = context.getString(Utils.isLastSeenSetToFavorite() ? R.string.both_ls_status_update : R.string.status_updates_proper_casing);
+				viewHolder.name.setText(context.getString(R.string.tap_plus_add_favorites, infoSubText));
 				break;
 			}
 
@@ -1190,7 +1193,8 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 					else if (viewType == ViewType.FRIEND_REQUEST)
 					{
 						lastSeen.setVisibility(View.VISIBLE);
-						lastSeen.setText(R.string.sent_favorite_request_tab);
+						String infoSubText = context.getString(Utils.isLastSeenSetToFavorite() ? R.string.both_ls_status_update : R.string.status_updates_proper_casing);
+						lastSeen.setText(context.getString(R.string.sent_favorite_request_tab, infoSubText));
 
 						ImageView acceptBtn = viewHolder.acceptBtn;
 						ImageView rejectBtn = viewHolder.rejectBtn;
@@ -1284,9 +1288,8 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 
 		case EMPTY:
 			TextView emptyText = viewHolder.name;
-
-			String text = context.getString(R.string.tap_plus_add_favorites);
-			emptyText.setText(text);
+			String infoSubText = context.getString(Utils.isLastSeenSetToFavorite() ? R.string.both_ls_status_update : R.string.status_updates_proper_casing);
+			emptyText.setText(context.getString(R.string.tap_plus_add_favorites, infoSubText));
 			break;
 		}
 
