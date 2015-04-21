@@ -41,24 +41,27 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 		}
 		else
 		{
-			closeChatThread();
+			closeChatThread(null);
 		}
 	}
 
 	private boolean filter(Intent intent)
 	{
 		String msisdn = intent.getStringExtra(HikeConstants.Extras.MSISDN);
-		if (StealthModeManager.getInstance().isStealthMsisdn(msisdn)
-				&& HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF) != HikeConstants.STEALTH_ON)
+		if (StealthModeManager.getInstance().isStealthMsisdn(msisdn) && !StealthModeManager.getInstance().isActive())
 		{
 			return false;
 		}
 		return true;
 	}
 	
-	private void closeChatThread()
+	public void closeChatThread(Bundle bundle)
 	{
 		Intent homeintent = IntentFactory.getHomeActivityIntent(this);
+		if(bundle != null)
+		{
+			homeintent.putExtra(HikeConstants.STEALTH, bundle);
+		}
 		this.startActivity(homeintent);
 		this.finish();
 	}

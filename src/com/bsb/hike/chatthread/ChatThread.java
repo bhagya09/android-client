@@ -729,13 +729,16 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			setupSearchMode();
 			break;
 		case R.string.hide_chat:
+
 			StealthModeManager.getInstance().toggleConversation(mConversation.getConvInfo(), activity);
 			//HACK though above statement will do the same, but the convInfo objects are different, hence redoing
-			mConversation.getConvInfo().setStealth(!mConversation.isStealth());
+			mConversation.setIsStealth(!mConversation.isStealth());
+		
 			if(!StealthModeManager.getInstance().isActive())
 			{
-				activity.setResult(activity.RESULT_OK);
-				activity.finish();
+				Bundle stealthMsisdns = new Bundle();
+				stealthMsisdns.putString(HikeConstants.MSISDN, mConversation.getMsisdn());
+				activity.closeChatThread(stealthMsisdns);
 			}
 			else 
 			{	

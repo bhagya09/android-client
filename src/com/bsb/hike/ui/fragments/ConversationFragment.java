@@ -69,6 +69,9 @@ import com.bsb.hike.adapters.ConversationsAdapter;
 import com.bsb.hike.adapters.EmptyConversationsAdapter;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.analytics.MsgRelLogManager;
+import com.bsb.hike.analytics.AnalyticsConstants.MessageType;
+import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.db.DBBackupRestore;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.HikeDialog;
@@ -979,19 +982,6 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		View paddingView = LayoutInflater.from(getActivity()).inflate(
 				R.layout.ftue_list_padding_footer_view, null);
 		ftueListView.addFooterView(paddingView);
-	}
-	
-	@Override
-	public void onActivityResult(int requestCode, int resultCode, Intent data) 
-	{
-		if (requestCode == CHAT_THREAD_ACTIVITY) 
-		{
-			if(resultCode == getActivity().RESULT_OK)
-			{
-				StealthModeManager.getInstance().settingupTriggered(getActivity());
-			}
-		}
-		super.onActivityResult(requestCode, resultCode, data);
 	}
 
 	@Override
@@ -3588,6 +3578,11 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		if (intent.getBooleanExtra(HikeConstants.Extras.HAS_TIP, false))
 		{
 			ShowTipIfNeeded(displayedConversations.isEmpty());
+		}
+		
+		if(intent.hasExtra(HikeConstants.STEALTH)  || intent.hasExtra(HikeConstants.MSISDN))
+		{
+			StealthModeManager.getInstance().settingupTriggered(getActivity());
 		}
 		final NUXManager nm=NUXManager.getInstance();
 
