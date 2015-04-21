@@ -523,7 +523,12 @@ public abstract class OneToNConversation extends Conversation
 			return creationTime;
 		} else if (((OneToNConvInfo) convInfo).getMsisdn() != null) {
 			String id = ((OneToNConvInfo) convInfo).getMsisdn();
-			int index = id.indexOf(":");
+			int index = -1;
+			if (OneToNConversationUtils.isBroadcastConversation(id)) {
+				index = id.lastIndexOf(":");
+			} else {
+				index = id.indexOf(":");
+			}
 			if (index != -1) {
 				return Long.parseLong(id.substring(index + 1, id.length()));
 			}
