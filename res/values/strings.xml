@@ -1455,6 +1455,12 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="choose_contact">Choose Contact(s)</string>
     <string name="terms_conditions_hint">Terms and Conditions</string>
     <string name="terms_conditions_title">T &amp; C</string>
+
+    <string name="content_des_message_send_rec_read_status">Message send or pending status</string>
+    <string name="content_des_restore_if_backup_found">Restore (Backup found)</string>
+
     <string name="group_creation">Created on </string>
     <string name="ls_change_failed">Last Seen update failed!</string>
+	<string name="activity_not_found">No app found that can handle this action</string>
+		
 </resources>
