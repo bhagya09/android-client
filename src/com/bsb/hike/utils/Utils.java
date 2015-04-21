@@ -87,6 +87,7 @@ import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Shader.TileMode;
 import android.graphics.Typeface;
@@ -108,6 +109,7 @@ import android.os.PowerManager;
 import android.os.RemoteException;
 import android.os.StatFs;
 import android.os.Vibrator;
+import android.preference.ListPreference;
 import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.CommonDataKinds.Email;
@@ -163,6 +165,7 @@ import com.bsb.hike.HikeConstants.SMSSyncState;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikeMessengerApp.CurrentState;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.MqttConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
@@ -189,6 +192,8 @@ import com.bsb.hike.models.FtueContactsData;
 import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.models.StatusMessage;
+import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.GroupConversation;
@@ -1137,7 +1142,7 @@ public class Utils
 			data.put(HikeConstants.RESOLUTION_ID, Utils.getResolutionId());
 			data.put(HikeConstants.NEW_LAST_SEEN_SETTING, true);
 			requestAccountInfo.put(HikeConstants.DATA, data);
-			HikeMqttManagerNew.getInstance().sendMessage(requestAccountInfo, HikeMqttManagerNew.MQTT_QOS_ONE);
+			HikeMqttManagerNew.getInstance().sendMessage(requestAccountInfo, MqttConstants.MQTT_QOS_ONE);
 		}
 		catch (JSONException e)
 		{
@@ -1782,7 +1787,7 @@ public class Utils
 		ConvMessage convMessage = Utils.makeHike2SMSInviteMessage(msisdn, context);
 		if (!sentMqttPacket)
 		{
-			HikeMqttManagerNew.getInstance().sendMessage(convMessage.serialize(sendNativeInvite), HikeMqttManagerNew.MQTT_QOS_ONE);
+			HikeMqttManagerNew.getInstance().sendMessage(convMessage.serialize(sendNativeInvite), MqttConstants.MQTT_QOS_ONE);
 		}
 
 		if (sendNativeInvite)
@@ -2351,10 +2356,8 @@ public class Utils
 		{
 			return;
 		}
-		AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-		int ringerMode = audioManager.getRingerMode();
 
-		if (ringerMode != AudioManager.RINGER_MODE_SILENT && !Utils.isUserInAnyTypeOfCall(context))
+		if (!SoundUtils.isSilentMode(context) && !Utils.isUserInAnyTypeOfCall(context))
 		{
 			vibrate(100);
 		}
@@ -2576,7 +2579,7 @@ public class Utils
 			object.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.ACCOUNT_CONFIG);
 			object.put(HikeConstants.DATA, data);
 
-			HikeMqttManagerNew.getInstance().sendMessage(object, HikeMqttManagerNew.MQTT_QOS_ONE);
+			HikeMqttManagerNew.getInstance().sendMessage(object, MqttConstants.MQTT_QOS_ONE);
 		}
 		catch (JSONException e)
 		{
@@ -2775,7 +2778,7 @@ public class Utils
 			{
 				return;
 			}
-			HikeMqttManagerNew.getInstance().sendMessage(object, HikeMqttManagerNew.MQTT_QOS_ZERO);
+			HikeMqttManagerNew.getInstance().sendMessage(object, MqttConstants.MQTT_QOS_ZERO);
 		}
 		catch (JSONException e)
 		{
@@ -2803,7 +2806,7 @@ public class Utils
 			data.put(AnalyticsConstants.METADATA, sessionMetaDataObject);
 			
 			sessionObject.put(HikeConstants.DATA, data);
-			HikeMqttManagerNew.getInstance().sendMessage(sessionObject, HikeMqttManagerNew.MQTT_QOS_ONE);
+			HikeMqttManagerNew.getInstance().sendMessage(sessionObject, MqttConstants.MQTT_QOS_ONE);
 			Logger.d("sessionmqtt", "Sesnding Session MQTT Packet with qos 1, and : "+ subType);
 		}
 		catch (JSONException e)
@@ -3081,7 +3084,7 @@ public class Utils
 			object.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.ANALYTICS_EVENT);
 			object.put(HikeConstants.DATA, data);
 
-			HikeMqttManagerNew.getInstance().sendMessage(object, HikeMqttManagerNew.MQTT_QOS_ONE);
+			HikeMqttManagerNew.getInstance().sendMessage(object, MqttConstants.MQTT_QOS_ONE);
 		}
 		catch (JSONException e)
 		{
@@ -5092,21 +5095,9 @@ public class Utils
 	 * Fetches the network connection using connectivity manager
 	 * 
 	 * @param context
-<<<<<<< HEAD
 	 * @return <li>-1 in case of no network</li> <li>0 in case of unknown network</li> <li>1 in case of wifi</li> <li>2 in case of 2g</li> <li>3 in case of 3g</li> <li>4 in case of
 	 *         4g</li>
 	 * 
-=======
-	 * @param info -- the network info for which you want to get network type. if null is passed it will give info about active network info
-	 * @return
-	 * <li>-1 in case of no network</li>
-	 * <li> 0 in case of unknown network</li>
-	 * <li> 1 in case of wifi</li>
-	 * <li> 2 in case of 2g</li>
-	 * <li> 3 in case of 3g</li>
-	 * <li> 4 in case of 4g</li>
-	 *     
->>>>>>> 6c2da8659503395989b56afad7350292e2f5082f
 	 */
 	public static short getNetworkType(Context context)
 	{
@@ -5320,7 +5311,11 @@ public class Utils
 		return true;
 	}
 
-	 /** Tells if User is on Telephonic/Audio/Vedio/Voip Call
+
+	 /** Tells if User is on 
+	  * 1) Between any Telephonic/Audio/Vedio/Voip Call
+	  * 2) Any Telephonic call is ringing
+
 	 * @param context
 	 * @return
 	 */
@@ -5329,7 +5324,9 @@ public class Utils
 
 		AudioManager manager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
 
-		boolean callMode = manager.getMode() == AudioManager.MODE_IN_COMMUNICATION || manager.getMode() == AudioManager.MODE_IN_CALL;
+		boolean callMode = manager.getMode() == AudioManager.MODE_IN_COMMUNICATION 
+				|| manager.getMode() == AudioManager.MODE_IN_CALL
+				|| manager.getMode() == AudioManager.MODE_RINGTONE;
 
 		return callMode;
 	}
@@ -5563,7 +5560,6 @@ public class Utils
 		return result.toString();
 	}
 	
-	
 	public static Long getMaxLongValue(ArrayList<Long> values)
 	{
 		if(values == null || values.isEmpty())
@@ -5581,6 +5577,24 @@ public class Utils
 		}
 		
 		return maxVal;
+	}
+	
+	public static boolean isOnProduction()
+	{
+		return HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PRODUCTION, true);
+	}
+	
+	public static void setSSLAllowed(String countryCode)
+	{
+		if(countryCode.equalsIgnoreCase(HikeConstants.SAUDI_ARABIA_COUNTRY_CODE))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.SSL_ALLOWED, false);
+		}
+	}
+	
+	public static boolean isSSLAllowed()
+	{
+		return HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SSL_ALLOWED, true);
 	}
 	
 	public static String extractFullFirstName(String fullName)
@@ -5618,6 +5632,59 @@ public class Utils
 		{
 			return -1;
 		}
+	}
+
+	/**
+	 * Making the profile pic change a status message 
+	 * @param response json packet received from server
+	 * @return StatusMessage created
+	 */
+	public static StatusMessage createTimelinePostForDPChange(JSONObject response)
+	{
+		StatusMessage statusMessage = null;
+		JSONObject data = response.optJSONObject("status");
+
+		if (data == null)
+		{
+			return null;
+		}
+
+		// parse status params
+		String mappedId = data.optString(HikeConstants.STATUS_ID);
+		String msisdn = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, "");
+		String name = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.NAME_SETTING, "");
+		long time = (long) System.currentTimeMillis() / 1000;
+
+		// saving mapped status id for this dp change. delete update will clear this pref later
+		// this pref's current value will decide whether to give option to user to delete dp post from favourites timelines or not
+		Editor ed = HikeSharedPreferenceUtil.getInstance().getPref().edit();
+		ed.putString(HikeMessengerApp.DP_CHANGE_STATUS_ID, mappedId);
+		ed.commit();
+		
+		// save to db
+		statusMessage = new StatusMessage(0, mappedId, msisdn, name, "", StatusMessageType.PROFILE_PIC, time, -1, 0);
+		HikeConversationsDatabase.getInstance().addStatusMessage(statusMessage, true);
+
+		/*
+		 * Making a status update file so we don't need to download this file again.
+		 */
+		String srcFilePath = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT + "/" + msisdn + ".jpg";
+		String destFilePath = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT + "/" + mappedId + ".jpg";
+		Utils.copyFile(srcFilePath, destFilePath, null);
+		
+		/* the server only needs a smaller version */
+		final Bitmap smallerBitmap = HikeBitmapFactory.scaleDownBitmap(destFilePath, HikeConstants.PROFILE_IMAGE_DIMENSIONS, HikeConstants.PROFILE_IMAGE_DIMENSIONS,
+				Bitmap.Config.RGB_565, true, false);
+
+		byte[] bytes = null;
+		
+		if(smallerBitmap != null)
+		{
+			bytes = BitmapUtils.bitmapToBytes(smallerBitmap, Bitmap.CompressFormat.JPEG, 100);
+		}
+		ContactManager.getInstance().setIcon(mappedId, bytes, false);
+
+		return statusMessage;
 	}
 
 	public static boolean isDeviceRooted()

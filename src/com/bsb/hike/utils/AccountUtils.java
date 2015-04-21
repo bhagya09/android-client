@@ -188,6 +188,12 @@ public class AccountUtils
 	
 	public static String analyticsUploadUrl = base + ANALYTICS_UPLOAD_BASE;
 	
+	public static String USER_DP_UPDATE_URL = "/account/avatar";
+	
+	public static String GROUP_DP_UPDATE_URL_PREFIX = "/group/";
+	
+	public static String GROUP_DP_UPDATE_URL_SUFFIX = "/avatar";
+	
 	public static void setToken(String token)
 	{
 		mToken = token;
@@ -886,6 +892,7 @@ public class AccountUtils
 				
 
 			case DELETE_STATUS:
+			case DELETE_DP:
 				requestBase = new HttpDelete(base + hikeHttpRequest.getPath());
 				break;
 

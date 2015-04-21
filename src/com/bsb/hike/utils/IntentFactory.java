@@ -287,6 +287,32 @@ public class IntentFactory
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		appContext.startActivity(intent);
 	}
+	
+	public static Intent getImageCaptureIntent(Context context)
+	{
+		/*
+		 * Storing images in hike media folder of the camera
+		 */
+		File selectedDir = new File(Utils.getFileParent(HikeFileType.IMAGE, false));
+		if (!selectedDir.exists())
+		{
+			if (!selectedDir.mkdirs())
+			{
+				Logger.d("ImageCapture", "failed to create directory");
+				return null;
+			}
+		}
+		String fileName = HikeConstants.CAM_IMG_PREFIX + Utils.getOriginalFile(HikeFileType.IMAGE, null);
+		File selectedFile = new File(selectedDir.getPath() + File.separator + fileName);
+		
+		Intent pickIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+		pickIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(selectedFile));
+		/*
+		 * For images, save the file path as a preferences since in some devices the reference to the file becomes null.
+		 */
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.FILE_PATH, selectedFile.getAbsolutePath());
+		return pickIntent;
+	}
 
 	public static Intent getVideoRecordingIntent()
 	{
