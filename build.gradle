@@ -75,7 +75,6 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_7
         targetCompatibility JavaVersion.VERSION_1_7
-<<<<<<< HEAD
     }
 
     signingConfigs {
@@ -103,8 +102,6 @@ android {
                 abiFilters "armeabi-v7a", "armeabi"
             	}
             }
-=======
->>>>>>> 450a06370b8d812c0c01ddfaaab60f57dd38f1ae
     }
 }
 
