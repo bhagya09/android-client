@@ -34,6 +34,7 @@ import android.text.TextUtils;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.MqttConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
@@ -118,6 +119,32 @@ public class VoIPUtils {
     }	
 
     /**
+<<<<<<< HEAD
+     * Used to communicate between two VoIP clients, via the server
+     * @param msisdn The client to which the message is being sent.
+     * @param type Message type (v0, v1 etc). 
+     * @param subtype Message sub-type. This usually decides what the recipient does with 
+     * the message.
+     * @throws JSONException
+     */
+    public static void sendMessage(String msisdn, String type, String subtype) throws JSONException {
+    	
+		JSONObject data = new JSONObject();
+		data.put(HikeConstants.MESSAGE_ID, new Random().nextInt(10000));
+		data.put(HikeConstants.TIMESTAMP, System.currentTimeMillis() / 1000); 
+
+		JSONObject message = new JSONObject();
+		message.put(HikeConstants.TO, msisdn);
+		message.put(HikeConstants.TYPE, type);
+		message.put(HikeConstants.SUB_TYPE, subtype);
+		message.put(HikeConstants.DATA, data);
+		
+		HikeMqttManagerNew.getInstance().sendMessage(message, MqttConstants.MQTT_QOS_ONE);
+    }
+
+    /**
+=======
+>>>>>>> in_rel
      * Add a VoIP related message to the chat thread.
      * @param context
      * @param clientPartner
@@ -203,7 +230,7 @@ public class VoIPUtils {
 			message.put(HikeConstants.SUB_TYPE, HikeConstants.MqttMessageTypes.VOIP_MSG_TYPE_MISSED_CALL_INCOMING);
 			message.put(HikeConstants.DATA, data);
 			
-			HikeMqttManagerNew.getInstance().sendMessage(message, HikeMqttManagerNew.MQTT_QOS_ONE);
+			HikeMqttManagerNew.getInstance().sendMessage(message, MqttConstants.MQTT_QOS_ONE);
 			Logger.d(VoIPConstants.TAG, "Sent missed call notifier to partner.");
 			
 		} catch (JSONException e) {
@@ -431,7 +458,7 @@ public class VoIPUtils {
 			message.put(HikeConstants.SUB_TYPE, callMessage);
 			message.put(HikeConstants.DATA, data);
 			
-			HikeMqttManagerNew.getInstance().sendMessage(message, HikeMqttManagerNew.MQTT_QOS_ONE);
+			HikeMqttManagerNew.getInstance().sendMessage(message, MqttConstants.MQTT_QOS_ONE);
 			Logger.d(VoIPConstants.TAG, "Sent call request message of type: " + callMessage + " to: " + recipient);
 
 		} catch (JSONException e) {
