@@ -5550,11 +5550,33 @@ public class Utils
 		}
 		catch (Exception e)
 		{
+			Logger.e("getNetInfoFromConnectivityManager", "Got expection while trying to get NetworkInfo from ConnectivityManager", e);
+			recordGetActiveNetworkInfoException(e.getMessage());
 			return new Pair<NetworkInfo, Boolean>(null, true);
 		}
 		return new Pair<NetworkInfo, Boolean>(null, false);
 	}
 	
+	private static void recordGetActiveNetworkInfoException(String exceptionMessage)
+	{
+		if (!HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.EXCEPTION_ANALYTIS_ENABLED, true))
+		{
+			return;
+		}
+		try
+		{
+			JSONObject metadata = new JSONObject();
+
+			metadata.put(HikeConstants.PAYLOAD, exceptionMessage);
+
+			Logger.w("Utils", "recording getActiveNetworkInfo exception message = " + exceptionMessage);
+			HAManager.getInstance().record(HikeConstants.EXCEPTION, HikeConstants.LogEvent.GET_ACTIVE_NETWORK_INFO, metadata);
+		}
+		catch (JSONException e)
+		{
+			Logger.e(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+		}
+	}
 	
 	public static String valuesToCommaSepratedString(ArrayList<Long> entries)
 	{
