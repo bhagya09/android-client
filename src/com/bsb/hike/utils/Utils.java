@@ -5092,11 +5092,6 @@ public class Utils
 	 * Fetches the network connection using connectivity manager
 	 * 
 	 * @param context
-<<<<<<< HEAD
-	 * @return <li>-1 in case of no network</li> <li>0 in case of unknown network</li> <li>1 in case of wifi</li> <li>2 in case of 2g</li> <li>3 in case of 3g</li> <li>4 in case of
-	 *         4g</li>
-	 * 
-=======
 	 * @param info -- the network info for which you want to get network type. if null is passed it will give info about active network info
 	 * @return
 	 * <li>-1 in case of no network</li>
@@ -5106,7 +5101,6 @@ public class Utils
 	 * <li> 3 in case of 3g</li>
 	 * <li> 4 in case of 4g</li>
 	 *     
->>>>>>> 6c2da8659503395989b56afad7350292e2f5082f
 	 */
 	public static short getNetworkType(Context context)
 	{
