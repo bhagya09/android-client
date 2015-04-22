@@ -1478,6 +1478,11 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 				}
 				else if (getString(R.string.viewcontact).equals(option))
 				{
+					if (conv.isBlocked())
+					{
+						Toast.makeText(getActivity(), getString(R.string.block_overlay_message, conv.getLabel()), Toast.LENGTH_SHORT).show();
+						return;
+					}
 					viewContacts(conv);
                     if (Utils.isBot(conv.getMsisdn()))
                     {
@@ -1627,6 +1632,12 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		displayedConversations = new ArrayList<ConvInfo>();
 		List<ConvInfo> conversationList = db.getConvInfoObjects();
 
+		for (ConvInfo convInfo : conversationList)
+		{
+			convInfo.setBlocked(ContactManager.getInstance().isBlocked(convInfo.getMsisdn()));
+
+		}
+		
 		stealthConversations = new HashSet<ConvInfo>();
 
 		displayedConversations.addAll(conversationList);

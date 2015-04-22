@@ -266,8 +266,8 @@ public class OneToNConversationUtils
 		HikeMessengerApp.getPubSub().publish(HikePubSub.MULTI_MESSAGE_DB_INSERTED, allPairs);
 	}
 
-	public static String getGroupCreationTimeAsString(Context context,
-			long creationTime) {
+	public static String getGroupCreationTimeAsString(long creationTime)
+	{
 		String format;
 		format = "dd/MM/yyyy 'at' hh:mm a";
 
