@@ -1013,7 +1013,7 @@
     <string name="ftue_card_click_text_sticker">You\'ll love them!</string>
     <string name="ftue_card_sep">Amazing things you can do on hike</string>
     <string name="change_stealth_password">Change Password</string>
-    <string name="change_stealth_password_body">Change your Hidden Mode password</string>
+    <string name="change_stealth_password_body">Change your Hidden Mode password. Also change between pattern and PIN.</string>
     <string name="invited">Invited</string>
     <string name="invite_more">INVITE MORE</string>
     <string name="invite_sent">Invite sent</string>
@@ -1423,12 +1423,12 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="stealth_mode_title">Hidden Mode</string>
     <string name="stealth_mode_title_body">Hidden Mode Settings</string>
     <string name="change_stealth_timeout">Ask for Password</string>
-    <string name="change_stealth_timeout_body">Ask for Password only after a specific time</string>
+    <string name="change_stealth_timeout_body">Ask for password again only after a specific time</string>
     <string name="stealth_password_settings">Password Settings</string>
-    <string name="stealth_notification_settings">Notify Settings</string>
+    <string name="stealth_notification_settings">Notification Settings</string>
     <string name="stealth_reset_settings">Extra Settings</string>
     <string name="enable_stealth_indicator">Indicator</string>
-    <string name="enable_stealth_indicator_body">Display an indicator on the \'hi\' button for unread messages</string>
+    <string name="enable_stealth_indicator_body">Bounce \'hi\' logo on home screen for unread messages</string>
     <string name="enable_stealth_notification_body">Notify on receiving a message in a hidden chat</string>
     <string name="enable_stealth_notification">Notification</string>
     <string name="stealth_msg_connect_4dots">Connect at least 4 dots</string>
