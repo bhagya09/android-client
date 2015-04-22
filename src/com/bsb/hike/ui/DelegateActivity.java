@@ -2,6 +2,7 @@ package com.bsb.hike.ui;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.media.MediaScannerConnection;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.provider.MediaStore;
@@ -96,7 +97,7 @@ public class DelegateActivity extends HikeAppStateBaseFragmentActivity
 					// Retrieve saved file path
 					// Currently on accessing the first file since recursive call not yet involved.
 					String newFilePath = fileDestinations[0];
-
+					MediaScannerConnection.scanFile(this, new String[] { newFilePath }, null, null);
 					destinationIntent.putExtra(HikeMessengerApp.FILE_PATH, newFilePath);
 				}
 
