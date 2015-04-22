@@ -2381,9 +2381,8 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 						}
 
 						if (sharedMediaItem.getSharedFilesList() != null && sharedMediaItem.getSharedFilesList().size() < maxMediaToShow
-								&& sharedMediaCount != sharedMediaItem.getSharedFilesList().size()) // If somehow all the elements which were laoded initially are deleted, we need
-																									// to
-																									// fetch more stuff from db.
+								&& sharedMediaCount != sharedMediaItem.getSharedFilesList().size()// If somehow all the elements which were laoded initially are deleted, we need to fetch more stuff from db.
+								&& sharedMediaCount > 0) //Add shared media only when the count is greater than 0.
 						{
 							addSharedMedia();
 						}

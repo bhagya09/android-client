@@ -275,26 +275,26 @@ public class HikePhotosUtils
 				{
 					effectfilters = new FilterList();
 					effectfilters.addFilter("ORIGINAL", FilterType.ORIGINAL);
-					effectfilters.addFilter("KALA PILA", FilterType.SOLOMON);
+					effectfilters.addFilter("MELLOW", FilterType.SOLOMON);
 					effectfilters.addFilter("CHUSKI", FilterType.CLASSIC);
-					effectfilters.addFilter("JUGAAD", FilterType.NASHVILLE);
+					effectfilters.addFilter("AZURE", FilterType.NASHVILLE);
 					effectfilters.addFilter("JALEBI", FilterType.JALEBI);
+					effectfilters.addFilter("GULAAL", FilterType.GULAAL);
 					effectfilters.addFilter("X-PRO", FilterType.X_PRO_2);
-					effectfilters.addFilter("RETRO", FilterType.RETRO);
+					effectfilters.addFilter("HDR", FilterType.HDR);
 					effectfilters.addFilter("APOLLO", FilterType.APOLLO);
-					effectfilters.addFilter("EARLYBIRD", FilterType.EARLYBIRD);
-					effectfilters.addFilter("KELVIN", FilterType.KELVIN);
-					effectfilters.addFilter("SHOLAY", FilterType.E1977);
+					effectfilters.addFilter("RETRO", FilterType.RETRO);
+					effectfilters.addFilter("PULSAR", FilterType.EARLYBIRD);
+					effectfilters.addFilter("SUNLITT", FilterType.SUNLITT);
 					effectfilters.addFilter("HAZEL", FilterType.BRANNAN);
 					effectfilters.addFilter("LO-FI", FilterType.LO_FI);
-					effectfilters.addFilter("INKWELL", FilterType.INKWELL);
+					effectfilters.addFilter("INKED", FilterType.INKWELL);
+					effectfilters.addFilter("MASHAAL", FilterType.KELVIN);
+					effectfilters.addFilter("SHOLAY", FilterType.E1977);
+					effectfilters.addFilter("JUNGLEE", FilterType.JUNGLEE);
+					effectfilters.addFilter("POLAROID", FilterType.POLAROID);
 					effectfilters.addFilter("SEPIA", FilterType.SEPIA);
 					effectfilters.addFilter("GRAYSCALE", FilterType.GRAYSCALE);
-					effectfilters.addFilter("GULAAL", FilterType.GULAAL);
-					effectfilters.addFilter("JUNGLEE", FilterType.JUNGLEE);
-					effectfilters.addFilter("HDR", FilterType.HDR);
-					effectfilters.addFilter("POLAROID", FilterType.POLAROID);
-					effectfilters.addFilter("SUNLITT", FilterType.SUNLITT);
 				}
 				return effectfilters;
 

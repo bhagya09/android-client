@@ -581,7 +581,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 		else
 		{
 			intent.putExtra(START_FOR_RESULT, sendResult);
-			startActivityForResult(intent, AttachmentPicker.GALLERY);
+			startActivity(intent);
 		}
 	}
 
@@ -624,7 +624,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 			{
 				intent.putExtra(START_FOR_RESULT, sendResult);
 			}
-			startActivityForResult(intent, GALLERY_ACTIVITY);
+			startActivity(intent);
 		}
 		else
 		{
@@ -736,51 +736,4 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 		multiSelectTitle.setText(getString(R.string.gallery_num_selected, selectedGalleryItems.size()));
 	}
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu)
-	{
-		super.onCreateOptionsMenu(menu);
-		if (enableCameraPick)
-		{
-			menu.clear();
-			MenuInflater inflater = getSupportMenuInflater();
-			inflater.inflate(R.menu.gallery_activity_option_menu, menu);
-			return true;
-		}
-		else
-		{
-			return false;
-		}
-	}
-
-	public boolean onOptionsItemSelected(MenuItem item)
-	{
-		switch (item.getItemId())
-		{
-		case R.id.take_pic:
-
-			File selectedFile = Utils.createNewFile(HikeFileType.IMAGE, HikeConstants.CAM_IMG_PREFIX);
-				
-			Intent sourceIntent = IntentFactory.getNativeCameraAppIntent(true,selectedFile);
-			Intent desIntent = IntentFactory.getPictureEditorActivityIntent(GalleryActivity.this, null, !returnResult,selectedFile.getAbsolutePath());
-
-			Intent proxyIntent = new Intent(GalleryActivity.this, DelegateActivity.class);
-			proxyIntent.putExtra(DelegateActivity.SOURCE_INTENT, sourceIntent);
-			proxyIntent.putExtra(DelegateActivity.DESTINATION_INTENT, desIntent);
-			proxyIntent.putExtra(HikeMessengerApp.FILE_PATHS, new String[]{selectedFile.getAbsolutePath()});
-			
-			PendingIntent pIntent = PendingIntent.getActivity(getApplicationContext(), 0, proxyIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-			try
-			{
-				pIntent.send();
-			}
-			catch (CanceledException e)
-			{
-				e.printStackTrace();
-			}
-			return true;
-		default:
-			return false;
-		}
-	};
 }

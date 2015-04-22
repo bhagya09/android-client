@@ -5619,7 +5619,6 @@ public class Utils
 		}
 		return fullFirstName;
 	}
-	
 	public static int getLayoutIdFromName(String layoutName)
 	{
 		if (!TextUtils.isEmpty(layoutName))

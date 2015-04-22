@@ -30,6 +30,11 @@ import com.bsb.hike.utils.ProfileImageLoader;
 import com.bsb.hike.utils.Utils;
 
 
+import com.bsb.hike.ui.ProfileActivity;
+import com.bsb.hike.ui.SettingsActivity;
+import com.bsb.hike.utils.ProfileImageLoader;
+import com.bsb.hike.utils.Utils;
+
 public class ImageViewerFragment extends SherlockFragment implements OnClickListener, Listener
 {
 	ImageView imageView;
@@ -99,7 +104,7 @@ public class ImageViewerFragment extends SherlockFragment implements OnClickList
 		isStatusImage = getArguments().getBoolean(HikeConstants.Extras.IS_STATUS_IMAGE);
 
 		imageSize = this.getActivity().getResources().getDimensionPixelSize(R.dimen.timeine_big_picture_size);
-
+		
 		showImage();
 	}
 

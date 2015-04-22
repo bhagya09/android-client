@@ -108,7 +108,6 @@
     <string name="start">Start</string>
     <string name="stop">Stop</string>
     <string name="preview">Preview</string>
-    <string name="selectPreview">Select A Preview</string>
     <string name="error_recording">Audio could not be recorded.</string>
     <string name="done_rec">Done recording</string>
     <string name="tap_to_record">TAP TO RECORD</string>
@@ -1379,9 +1378,7 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="photo_gallery_choose_pic">Choose a photo</string>
     <string name="cropping_image">Cropping image..</string>
     <string name="compose_chat">New chat</string>
-    <string name="terms_conditions_hint">Terms and Conditions</string>
-    <string name="terms_conditions_title">T &amp; C</string>
-    <string name="home_search_empty_text">Your search for \'%1$s\' did not match any contacts.</string>
+	<string name="home_search_empty_text">Your search for \'%1$s\' did not match any contacts.</string>
     <string name="voip_phone_unsupported">Your phone is not supported.</string>
     <string name="voip_call_failed_frag_subheader">You can still contact %1$s with a</string>
     <string name="dismiss_upper_case">DISMISS</string>
@@ -1446,4 +1443,10 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="choose_contact">Choose Contact(s)</string>
     <string name="group_creation">Created on </string>
     <string name="ls_change_failed">Last Seen update failed!</string>
+    <string name="terms_conditions_hint">Terms and Conditions</string>
+    <string name="terms_conditions_title">T &amp; C</string>
+    <string name="content_des_message_send_rec_read_status">Message send or pending status</string>
+    <string name="content_des_restore_if_backup_found">Restore (Backup found)</string>
+	<string name="activity_not_found">No app found that can handle this action</string>
+	<string name="selectPreview">Select a preview</string>
 </resources>
