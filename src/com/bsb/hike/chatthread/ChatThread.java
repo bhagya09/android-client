@@ -489,7 +489,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	{
 		init();
 		setContentView();
-		fetchConversationOnNewIntent(true);
+		fetchConversationOnNewIntent(false);
 	}
 
 	protected void init()
