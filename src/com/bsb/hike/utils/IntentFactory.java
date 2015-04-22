@@ -700,7 +700,6 @@ public class IntentFactory
 		Intent pickIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 		if (getFullSizedCaptureResult)
 		{
-
 			pickIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(destination));
 		}
 		return pickIntent;

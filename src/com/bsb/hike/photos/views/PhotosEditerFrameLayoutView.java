@@ -53,7 +53,7 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 
 	private HikeFileType mFileType;
 
-	private String mOriginalName, destinationFilename;
+	private String mOriginalName, mDestinationFilename;
 
 	private HikePhotosListener mListener;
 
@@ -235,7 +235,7 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 
 	public void setDestinationPath(String filename)
 	{
-		destinationFilename = filename;
+		mDestinationFilename = filename;
 	}
 
 	public void saveImage(HikeFileType fileType, String originalName, HikePhotosListener listener)
@@ -276,7 +276,7 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 		{
 			try
 			{
-				if (destinationFilename == null || !isImageEdited())
+				if (!isImageEdited())
 				{
 					String timeStamp = Long.toString(System.currentTimeMillis());
 					file = File.createTempFile("IMG_" + timeStamp, ".jpg");
@@ -284,7 +284,7 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 				}
 				else
 				{
-					file = new File(destinationFilename);
+					file = new File(mDestinationFilename);
 					if (!file.exists())
 					{
 						file.createNewFile();
@@ -332,23 +332,28 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 				{
 					out.flush();
 					out.close();
-		        
+					
+					//Copy edited image
 					if (mFileType == HikeFileType.PROFILE && isImageEdited())
 					{
 						HikeHandlerUtil.getInstance().postRunnableWithDelay(
-								new CopyFileRunnable(file.getAbsolutePath(), destinationFilename == null ? HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.IMAGE_ROOT
-										+ File.separator + Utils.getOriginalFile(HikeFileType.IMAGE, null) : destinationFilename, HikeFileType.IMAGE), 0);
+								new CopyFileRunnable(file.getAbsolutePath(), mDestinationFilename, HikeFileType.IMAGE), 0);
 					}
-					
-					if(destinationFilename!=null)
+
+					// Media scan newly created file
+					HikeHandlerUtil.getInstance().postRunnableWithDelay(new Runnable()
 					{
-						MediaScannerConnection.scanFile(getContext(), new String[] { destinationFilename }, null, null);
-					}
-					
+						@Override
+						public void run()
+						{
+							MediaScannerConnection.scanFile(getContext(), new String[] { mDestinationFilename }, null, null);
+						}
+					}, 0);
 				}
 				catch (IOException e)
 				{
 					// Do nothing
+					e.printStackTrace();
 				}
 			}
 		}
