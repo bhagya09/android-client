@@ -743,7 +743,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 	public void reinitializeDB()
 	{
+		Logger.d(getClass().getSimpleName(), "Reinitialising conversation DB");
 		close();
+		Logger.d(getClass().getSimpleName(), "conversation DB is closed now");
 		hikeConversationsDatabase = new HikeConversationsDatabase(HikeMessengerApp.getInstance());
 		/*
 		 * We can remove this line, if we can guarantee, NoOne keeps a local copy of HikeConversationsDatabase. 
@@ -751,6 +753,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		 * i.e. on restore we have two objects of HikeConversationsDatabase in memory.
 		 */
 		mDb = hikeConversationsDatabase.getWriteDatabase(); 
+		Logger.d(getClass().getSimpleName(), "Conversation DB initialization is complete");
 	}
 	
 	public SQLiteDatabase getWriteDatabase()

@@ -137,6 +137,7 @@ public class MqttMessagesManager
 	
 	private MqttMessagesManager(Context context)
 	{
+		Logger.d(getClass().getSimpleName(), "initialising MqttMessagesManager");
 		this.convDb = HikeConversationsDatabase.getInstance();
 		this.settings = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
 		this.context = context;
