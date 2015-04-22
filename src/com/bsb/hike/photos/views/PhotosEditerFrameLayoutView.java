@@ -13,8 +13,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
-import android.view.KeyCharacterMap;
-import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
@@ -105,28 +103,7 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 
 	public int getThumbnailDimen()
 	{
-		int density = getResources().getDisplayMetrics().densityDpi;
-		switch (density)
-		{
-		case DisplayMetrics.DENSITY_LOW:
-		case DisplayMetrics.DENSITY_MEDIUM:
-		case DisplayMetrics.DENSITY_HIGH:
-			return HikeConstants.HikePhotos.PREVIEW_THUMBNAIL_WIDTH_MDPI;
-		default:
-			boolean hasBackKey = KeyCharacterMap.deviceHasKey(KeyEvent.KEYCODE_BACK);
-
-			if (!hasBackKey)
-			{
-				// Do whatever you need to do, this device has a navigation bar
-				return HikeConstants.HikePhotos.PREVIEW_THUMBNAIL_WIDTH_MDPI;
-			}
-			else
-			{
-				return HikeConstants.HikePhotos.PREVIEW_THUMBNAIL_WIDTH_HDPI;
-			}
-
-		}
-
+		return HikeConstants.HikePhotos.PREVIEW_THUMBNAIL_WIDTH_MDPI;
 	}
 
 	public Bitmap getScaledImageOriginal()
