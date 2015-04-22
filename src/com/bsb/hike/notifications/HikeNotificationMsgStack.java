@@ -646,12 +646,8 @@ public class HikeNotificationMsgStack implements Listener
 	{
 		int retryCount = 0;
 
-		String str = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.NOTIFICATION_RETRY_JSON, "");
+		String str = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.NOTIFICATION_RETRY_JSON, "{}");
 
-		if (TextUtils.isEmpty(str))
-		{
-			return retryCount;
-		}
 		mmCountModel = new Gson().fromJson(str, NotificationRetryCountModel.class);
 		switch (notificationType)
 		{

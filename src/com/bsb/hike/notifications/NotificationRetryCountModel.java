@@ -6,13 +6,13 @@ public class NotificationRetryCountModel
 {
 
 	@Expose
-	int h2h;
+	int h2h=2;
 	
 	@Expose
-	int gc;
+	int gc=1;
 	
 	@Expose
-	int hidden;
+	int hidden=2;
 	
 	@Expose
 	int hikebot;
