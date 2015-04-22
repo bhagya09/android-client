@@ -929,9 +929,22 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			msisdn = oneToNConversation.getMsisdn();
 			name = oneToNConversation.getLabel();
 			text.setText(name);
- 			long groupCreation=oneToNConversation.getCreationDateInLong();
-			if(groupCreation!=-1l)
-				creation.setText(getResources().getString(R.string.group_creation)+" "+OneToNConversationUtils.getGroupCreationTimeAsString(getApplicationContext(), groupCreation));
+			if (profileType == ProfileType.BROADCAST_INFO) {
+				creation.setVisibility(View.GONE);
+
+			} else {
+				long groupCreation = oneToNConversation.getCreationDateInLong();
+				if (groupCreation != -1l)
+					creation.setText(getResources().getString(
+							R.string.group_creation)
+							+ " "
+							+ OneToNConversationUtils
+									.getGroupCreationTimeAsString(
+											getApplicationContext(),
+											groupCreation));
+
+			}
+ 			
 			break;
 			
 		default:
