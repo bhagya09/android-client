@@ -162,8 +162,6 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 
 		setupActionBar();
 
-		editView = (PhotosEditerFrameLayoutView) findViewById(R.id.editer);
-		
 		if(intent.hasExtra(HikeConstants.HikePhotos.DESTINATION_FILENAME))
 		{
 			editView.setDestinationPath(intent.getStringExtra(HikeConstants.HikePhotos.DESTINATION_FILENAME));

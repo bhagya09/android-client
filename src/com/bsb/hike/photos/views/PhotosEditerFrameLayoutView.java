@@ -104,7 +104,17 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 
 	public int getThumbnailDimen()
 	{
-		return HikeConstants.HikePhotos.PREVIEW_THUMBNAIL_WIDTH_MDPI;
+		int density = getResources().getDisplayMetrics().densityDpi;
+		switch (density)
+		{
+		case DisplayMetrics.DENSITY_LOW:
+		case DisplayMetrics.DENSITY_MEDIUM:
+			return HikeConstants.HikePhotos.PREVIEW_THUMBNAIL_WIDTH_MDPI;
+		case DisplayMetrics.DENSITY_HIGH:
+		default:
+				return HikeConstants.HikePhotos.PREVIEW_THUMBNAIL_WIDTH_HDPI;
+
+		}
 	}
 
 	public Bitmap getScaledImageOriginal()
