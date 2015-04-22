@@ -269,7 +269,7 @@ public class OneToNConversationUtils
 	public static String getGroupCreationTimeAsString(Context context,
 			long creationTime) {
 		String format;
-		format = "dd MMM ''yy',' hh:mm a";
+		format = "dd MMM ''yy";
 
 		DateFormat df = new SimpleDateFormat(format);
 		return df.format(creationTime);
