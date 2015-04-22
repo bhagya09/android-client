@@ -160,9 +160,9 @@ public class StealthModeManager
 		prefUtil.removeData(HikeMessengerApp.SHOWN_FIRST_UNMARK_STEALTH_TOAST);
 	}
 	
-	public void settingupTriggered(Activity activity)
+	public void settingupTriggered(Activity activity, boolean toggleVisibility)
 	{
-		HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_MODE_TOGGLED, !isActive());
+		HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_MODE_TOGGLED, !isActive() && toggleVisibility);
 		
 		if (!StealthModeManager.getInstance().isSetUp())
 		{

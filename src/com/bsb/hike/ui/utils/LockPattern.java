@@ -58,7 +58,11 @@ public class LockPattern
 					if(requestCode == HikeConstants.ResultCodes.CREATE_LOCK_PATTERN)
 						HikeMessengerApp.getPubSub().publish(HikePubSub.SHOW_STEALTH_FTUE_CONV_TIP, null);
 					else if (requestCode == HikeConstants.ResultCodes.CREATE_LOCK_PATTERN_HIDE_CHAT)
+					{
 						HikeMessengerApp.getPubSub().publish(HikePubSub.SHOW_STEALTH_REVEAL_TIP, null);
+						HikeMessengerApp.getPubSub().publish(HikePubSub.CLEAR_FTUE_STEALTH_CONV, false);
+					
+					}
 					//StealthResetTimer.getInstance().activate(false);
 //					HikeMessengerApp.getPubSub().publish(HikePubSub.SHOW_STEALTH_FTUE_ENTER_PASS_TIP, null);
 					
@@ -104,9 +108,11 @@ public class LockPattern
 			case Activity.RESULT_CANCELED:
 				if(!(requestCode == HikeConstants.ResultCodes.CONFIRM_LOCK_PATTERN_CHANGE_PREF))
 				{
-					StealthModeManager.getInstance().activate(false);
-					HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_MODE_TOGGLED, false);
-					if(requestCode ==  HikeConstants.ResultCodes.CONFIRM_LOCK_PATTERN_HIDE_CHAT)
+					if(requestCode == HikeConstants.ResultCodes.CONFIRM_LOCK_PATTERN)
+					{
+						StealthModeManager.getInstance().activate(false);
+					}
+					else if(requestCode ==  HikeConstants.ResultCodes.CONFIRM_LOCK_PATTERN_HIDE_CHAT)
 					{
 						HikeMessengerApp.getPubSub().publish(HikePubSub.CLEAR_FTUE_STEALTH_CONV, true);
 					}	
@@ -123,6 +129,10 @@ public class LockPattern
 				}
 				break;
 			case LockPatternActivity.RESULT_FAILED:
+				if(requestCode ==  HikeConstants.ResultCodes.CONFIRM_LOCK_PATTERN_HIDE_CHAT)
+				{
+					HikeMessengerApp.getPubSub().publish(HikePubSub.CLEAR_FTUE_STEALTH_CONV, true);
+				}	
 				break;
 			default:
 				return;
