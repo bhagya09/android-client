@@ -706,19 +706,6 @@ public class IntentFactory
 		return pickIntent;
 	}
 
-	/**
-	 * @see http://developer.android.com/training/camera/photobasics.html : Save the Full-size Photo
-	 * @param context
-	 * @param intent
-	 * @return boolean representing whether there is an activity that can handle the given intent
-	 */
-
-	public static boolean isIntentAvailable(Context context, Intent intent)
-	{
-		final PackageManager packageManager = context.getPackageManager();
-		return intent.resolveActivity(packageManager) != null;
-	}
-
 	public static void startShareImageIntent(String mimeType, String imagePath, String text)
 	{
 		Intent s = new Intent(android.content.Intent.ACTION_SEND);

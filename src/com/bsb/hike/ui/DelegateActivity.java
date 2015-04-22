@@ -5,14 +5,12 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.provider.MediaStore;
-import android.widget.Toast;
 
 import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.R;
-import com.bsb.hike.utils.IntentFactory;
+import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.Logger;
 
-public class DelegateActivity extends Activity
+public class DelegateActivity extends HikeAppStateBaseFragmentActivity
 {
 	public static final String SOURCE_INTENT = "si";
 
@@ -68,12 +66,6 @@ public class DelegateActivity extends Activity
 
 		if (destinationIntent != null)
 		{
-			if(!IntentFactory.isIntentAvailable(getApplicationContext(), sourceIntent))
-			{
-				Toast.makeText(this, R.string.activity_not_found, Toast.LENGTH_SHORT).show();
-				onError();
-				return;
-			}
 			Logger.d(TAG, "Starting activity for result");
 			DelegateActivity.this.startActivityForResult(sourceIntent, requestCode);
 		}
