@@ -3,13 +3,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1176"
-    android:versionName="3.9.0.51.photos" >
+    android:versionCode="1178"
+    android:versionName="3.9.0.53.photos" >
 
     <uses-sdk
         android:minSdkVersion="9"
-        android:targetSdkVersion="17"
-        tools:overrideLibrary="com.commonsware.cwac.camera " />
+        android:targetSdkVersion="17"/>
 
     <permission
         android:name="com.bsb.hike.ui.permission.MAPS_RECEIVE"

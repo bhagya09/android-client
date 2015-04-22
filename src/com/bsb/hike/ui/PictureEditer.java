@@ -294,7 +294,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 			switch (requestCode)
 			{
 			case HikeConstants.CROP_RESULT:
-				uploadProfilePic(data.getStringExtra(MediaStore.EXTRA_OUTPUT), data.getStringExtra(HikeConstants.HikePhotos.ORIG_FILE));
+				uploadProfilePic(data.getStringExtra(MediaStore.EXTRA_OUTPUT), data.getStringExtra(MediaStore.EXTRA_OUTPUT));
 				break;
 			}
 		}
@@ -449,6 +449,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 					public void onAction(int actionCode)
 					{
 						getSupportFragmentManager().popBackStackImmediate();
+						mActionBarDoneContainer.setVisibility(View.VISIBLE);
 						if (actionCode == PhotoActionsFragment.ACTION_SEND)
 						{
 							sendAnalyticsSendTo();
@@ -526,15 +527,15 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 								public void onComplete(File f)
 								{
 									File myDir = new File(Utils.getFileParent(HikeFileType.IMAGE, false));
-					 				myDir.mkdir();
-					 				String fname = Utils.getOriginalFile(HikeFileType.IMAGE, null);
-					 				File destFilePath = new File(myDir, fname);
-					 				if (destFilePath.exists())
-					 				{
-					 					destFilePath.delete();
-					 				}
-					 				
-									Utils.startCropActivityForResult(PictureEditer.this, f.getAbsolutePath(), destFilePath.getAbsolutePath(), true,true);
+									myDir.mkdir();
+									String fname = Utils.getOriginalFile(HikeFileType.IMAGE, null);
+									File destFilePath = new File(myDir, fname);
+									if (destFilePath.exists())
+									{
+										destFilePath.delete();
+									}
+
+									Utils.startCropActivityForResult(PictureEditer.this, f.getAbsolutePath(), destFilePath.getAbsolutePath(), true, true);
 
 								}
 							});
