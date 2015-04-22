@@ -532,6 +532,8 @@ public class HikeNotificationMsgStack implements Listener
 		mMessagesMap.clear();
 		lastAddedMsisdn = null;
 		totalNewMessages = 0;
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.MAX_REPLY_RETRY_NOTIF_COUNT, 0);
+		maxRetryCount=0;
 	}
 
 	/**
