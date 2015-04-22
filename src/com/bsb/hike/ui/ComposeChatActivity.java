@@ -98,6 +98,7 @@ import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.TagEditText;
+import com.bsb.hike.view.TagEditText.Tag;
 import com.bsb.hike.view.TagEditText.TagEditorListener;
 
 public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implements TagEditorListener, OnItemClickListener, HikePubSub.Listener, OnScrollListener
@@ -595,14 +596,14 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				}
 				int selected = adapter.getCurrentSelection();
 				if(selected>0){
-				tagEditText.toggleTag(getString(selected==1 ? R.string.selected_contacts_count_singular : R.string.selected_contacts_count_plural,selected), SELECT_ALL_MSISDN, SELECT_ALL_MSISDN);
+				toggleTag(getString(selected==1 ? R.string.selected_contacts_count_singular : R.string.selected_contacts_count_plural,selected), SELECT_ALL_MSISDN, SELECT_ALL_MSISDN);
 				}else{
 					((CheckBox)findViewById(R.id.select_all_cb)).setChecked(false); // very rare case
 				}
 			}
 			else
 			{
-				tagEditText.toggleTag(name, contactInfo.getMsisdn(), contactInfo);
+				toggleTag(name, contactInfo.getMsisdn(), contactInfo);
 			}
 			break;
 		case PICK_CONTACT_MODE:
@@ -612,7 +613,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			}
 			else
 			{
-				tagEditText.toggleTag(contactInfo.getName(), contactInfo.getMsisdn(), contactInfo);
+				toggleTag(contactInfo.getName(), contactInfo.getMsisdn(), contactInfo);
 			}
 			break;
 		default:
@@ -640,7 +641,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					name = viewtype == ViewType.NOT_FRIEND_SMS.ordinal() ? contactInfo.getName() + " (SMS) " : contactInfo.getName();
 					if (!nuxIncentiveMode)
 						// change is to prevent the Tags from appearing in the search bar.
-						tagEditText.toggleTag(name, contactInfo.getMsisdn(),contactInfo);
+						toggleTag(name, contactInfo.getMsisdn(),contactInfo);
 					else {
 						// newFragment.toggleViews(contactInfo);
 						FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
@@ -698,7 +699,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		}
 		int selected = adapter.getSelectedContactCount();
 		if(selected>0){
-		tagEditText.toggleTag(getString(selected==1 ? R.string.selected_contacts_count_singular : R.string.selected_contacts_count_plural,selected), SELECT_ALL_MSISDN, SELECT_ALL_MSISDN);
+		toggleTag(getString(selected==1 ? R.string.selected_contacts_count_singular : R.string.selected_contacts_count_plural,selected), SELECT_ALL_MSISDN, SELECT_ALL_MSISDN);
 		}else{
 			((CheckBox)findViewById(R.id.select_all_cb)).setChecked(false); // very rare case
 		}
@@ -706,13 +707,13 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	}
 
 	@Override
-	public void tagRemoved(Object data, String uniqueNess)
+	public void tagRemoved(Tag tag)
 	{
 		if(selectAllMode){
 		((CheckBox) findViewById(R.id.select_all_cb)).setChecked(false);
 		}else{
-			if(data instanceof ContactInfo){
-				adapter.removeContact((ContactInfo) data);
+			if(tag.data instanceof ContactInfo){
+				adapter.removeContact((ContactInfo) tag.data);
 			}
 		}
 		if (adapter.getCurrentSelection() == 0)
@@ -728,14 +729,14 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	}
 
 	@Override
-	public void tagAdded(Object data, String uniqueNess)
+	public void tagAdded(Tag tag)
 	{
 		String dataString = null;
-		if(data instanceof ContactInfo){
-		adapter.addContact((ContactInfo) data);
-		}else if(data instanceof String)
+		if(tag.data instanceof ContactInfo){
+		adapter.addContact((ContactInfo) tag.data);
+		}else if(tag.data instanceof String)
 		{
-			dataString = (String) data;
+			dataString = (String) tag.data;
 		}
 
 		setupMultiSelectActionBar();
@@ -761,6 +762,12 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		{
 			setupForSelectAll();
 		}
+	}
+	
+	@Override
+	public void tagClicked(Tag tag)
+	{
+		// TODO Auto-generated method stub
 	}
 
 	private void setMode(int mode)
@@ -877,7 +884,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					adapter.selectAllContacts(true);
 					tagEditText.clear(false);
 					int selected = adapter.getCurrentSelection();
-					tagEditText.toggleTag( getString(selected <=1 ? R.string.selected_contacts_count_singular : R.string.selected_contacts_count_plural,selected), SELECT_ALL_MSISDN, SELECT_ALL_MSISDN);
+					toggleTag( getString(selected <=1 ? R.string.selected_contacts_count_singular : R.string.selected_contacts_count_plural,selected), SELECT_ALL_MSISDN, SELECT_ALL_MSISDN);
 					
 					try
 					{
@@ -2129,5 +2136,11 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
 			}
 		}
+	}
+	
+	private void toggleTag(String text, String uniqueness,Object data)
+	{
+		Tag tag = new Tag(text,uniqueness,data);
+		tagEditText.toggleTag(tag);
 	}
 }
