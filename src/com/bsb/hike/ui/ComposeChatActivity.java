@@ -349,7 +349,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			if (menu.hasVisibleItems())
 			{
 
-				menu.getItem(0).setVisible(true);
+				menu.findItem(R.id.whatsapp_share).setVisible(true);
 			}
 
 		}
