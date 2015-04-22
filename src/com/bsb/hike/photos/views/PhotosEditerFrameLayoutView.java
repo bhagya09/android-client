@@ -11,6 +11,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.media.MediaScannerConnection;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.view.MotionEvent;
@@ -331,13 +332,19 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 				{
 					out.flush();
 					out.close();
-
+		        
 					if (mFileType == HikeFileType.PROFILE && isImageEdited())
 					{
 						HikeHandlerUtil.getInstance().postRunnableWithDelay(
 								new CopyFileRunnable(file.getAbsolutePath(), destinationFilename == null ? HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.IMAGE_ROOT
 										+ File.separator + Utils.getOriginalFile(HikeFileType.IMAGE, null) : destinationFilename, HikeFileType.IMAGE), 0);
 					}
+					
+					if(destinationFilename!=null)
+					{
+						MediaScannerConnection.scanFile(getContext(), new String[] { destinationFilename }, null, null);
+					}
+					
 				}
 				catch (IOException e)
 				{
