@@ -94,13 +94,17 @@ public class ShareUtils
 		int screenHeight = HikeMessengerApp.getInstance().getApplicationContext().getResources().getDisplayMetrics().heightPixels;
 		if (screenHeight < screenWidth)
 		{
-			sRatio = (float) screenHeight / imgHeight;
-
+			if (imgHeight != 0)
+				sRatio = (float) screenHeight / imgHeight;
+			else
+				sRatio = 1;
 		}
 		else
 		{
-			sRatio = (float) screenWidth / imgWidth;
-
+			if (imgWidth != 0)
+				sRatio = (float) screenWidth / imgWidth;
+			else
+				sRatio = 1;
 		}
 		if (sRatio > 1)
 		{
