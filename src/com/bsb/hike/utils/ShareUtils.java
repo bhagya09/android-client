@@ -104,7 +104,6 @@ public class ShareUtils
 	{
 		String imgHead = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.IMAGE_HEADING, mContext.getString(R.string.image_share_heading));
 		String imgDesc = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.IMAGE_DESCRIPTION, mContext.getString(R.string.image_share_description));
-		long time = System.currentTimeMillis();
 		View share = LayoutInflater.from(mContext).inflate(R.layout.image_share_layout, null);
 		ImageView image = (ImageView) share.findViewById(R.id.user_image);
 	    Bitmap bmp = HikeBitmapFactory.decodeFile(filePath);
