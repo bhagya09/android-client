@@ -92,17 +92,6 @@ android {
             signingConfig signingConfigs.release
         }
     }
-
-    flavorDimensions "abi"
-    
-    productFlavors{
-    	fat {
-            flavorDimension "abi"
-            ndk {
-                abiFilters "armeabi-v7a", "armeabi"
-            	}
-            }
-    }
 }
 
 dependencies {
