@@ -111,6 +111,8 @@ public class HikeDialogFactory
 	public static final int DELETE_BROADCAST_DIALOG = 32;
 	
 	public static final int DELETE_FROM_BROADCAST = 33;
+	
+	public static final int REMOVE_DP_CONFIRM_DIALOG = 34;
 
 	public static HikeDialog showDialog(Context context, int whichDialog, Object... data)
 	{
@@ -189,7 +191,7 @@ public class HikeDialogFactory
 			return showHikeUpgradeDialog(dialogId, context, data);
 			
 		case VOIP_INTRO_DIALOG:
-			return showVoipFtuePopUp(dialogId, context, listener, data);
+			return showVoipFtuePopUp(dialogId, context, listener, data);			
 		}
 		return null;
 	}
@@ -1221,5 +1223,5 @@ public class HikeDialogFactory
 		dialog.show();
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.SHOW_VOIP_FTUE_POPUP, true);
 		return dialog;
-	}
+	}	
 }
