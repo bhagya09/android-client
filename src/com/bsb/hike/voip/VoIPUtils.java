@@ -159,7 +159,7 @@ public class VoIPUtils {
 		}
 
 		boolean selfGenerated = true;
-		if(messageType.equals(HikeConstants.MqttMessageTypes.VOIP_MSG_TYPE_MISSED_CALL_INCOMING))
+		if(messageType.equals(HikeConstants.MqttMessageTypes.VOIP_MSG_TYPE_MISSED_CALL_INCOMING) || messageType.equals(HikeConstants.MqttMessageTypes.VOIP_MSG_TYPE_MISSED_CALL_OUTGOING))
 		{
 			selfGenerated = false;
 		}
