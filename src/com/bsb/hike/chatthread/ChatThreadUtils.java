@@ -663,4 +663,28 @@ public class ChatThreadUtils
 		}
 
 	}
+	
+	/**
+	 * Utility method for returning msisdn from action:SendTo intent which is invoked from outside the application
+	 * 
+	 * @param intent
+	 * @return
+	 */
+	public static String getMsisdnFromSendToIntent(Intent intent)
+	{
+		String smsToString = intent.getDataString();
+		smsToString = Uri.decode(smsToString);
+		int index = smsToString.indexOf(intent.getData().getScheme() + ":");
+		if (index != -1)
+		{
+			index += (intent.getData().getScheme() + ":").length();
+			String msisdn = smsToString.substring(index, smsToString.length());
+			if (msisdn != null)
+			{
+				return msisdn.trim();
+			}
+		}
+
+		return null;
+	}
 }

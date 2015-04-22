@@ -46,7 +46,24 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 
 	private boolean filter(Intent intent)
 	{
-		String msisdn = getIntent().getStringExtra(HikeConstants.Extras.MSISDN);
+		String msisdn = intent.getStringExtra(HikeConstants.Extras.MSISDN);
+		
+		/**
+		 * Possibly Chat Thread is being invoked from outside the application
+		 */
+		
+		if (msisdn == null)
+		{
+			msisdn = ChatThreadUtils.getMsisdnFromSendToIntent(intent);
+			if (msisdn == null)
+			{
+				return false;
+			}
+			Logger.d(TAG, "Got msisdn from outside chat thread. msisdn is : " + msisdn);
+			intent.putExtra(HikeConstants.Extras.WHICH_CHAT_THREAD, HikeConstants.Extras.ONE_TO_ONE_CHAT_THREAD);
+			intent.putExtra(HikeConstants.Extras.MSISDN, msisdn);
+		}
+		
 		if (HikeMessengerApp.isStealthMsisdn(msisdn)
 				&& HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF) != HikeConstants.STEALTH_ON)
 		{
