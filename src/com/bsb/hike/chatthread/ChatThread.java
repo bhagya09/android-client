@@ -1142,19 +1142,24 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	{
 		String CHAT = "chat";
 		int chat = 0;
-		if (this instanceof OneToOneChatThread)
+		switch (ChatThreadUtils.getChatThreadType(msisdn))
+		{
+		case HikeConstants.Extras.ONE_TO_ONE_CHAT_THREAD:
 			chat = 1;
-		else if (this instanceof GroupChatThread)
+			break;
+		case HikeConstants.Extras.GROUP_CHAT:
 			chat = 2;
-		else if (this instanceof BroadcastChatThread)
+			break;
+		case HikeConstants.Extras.BROADCAST_CHAT_THREAD:
 			chat = 3;
+			break;
+		}
 		try
 		{
 			JSONObject metadata = new JSONObject();
 			metadata
 			.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.CHAT_SEARCH)
 			.put(CHAT,chat);
-			
 			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
 		}
 		catch (JSONException e)
