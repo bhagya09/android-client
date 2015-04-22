@@ -241,7 +241,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 		{
 			File selectedFile = Utils.createNewFile(HikeFileType.IMAGE, HikeConstants.CAM_IMG_PREFIX);
 			Intent sourceIntent = IntentFactory.getNativeCameraAppIntent(true,selectedFile);
-			Intent desIntent = IntentFactory.getPictureEditorActivityIntent(GalleryActivity.this, null, !returnResult);
+			Intent desIntent = IntentFactory.getPictureEditorActivityIntent(GalleryActivity.this, null, !returnResult,selectedFile.getAbsolutePath());
 
 			Intent proxyIntent = new Intent(GalleryActivity.this, DelegateActivity.class);
 			proxyIntent.putExtra(DelegateActivity.SOURCE_INTENT, sourceIntent);
@@ -676,7 +676,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 				ArrayList<GalleryItem> item = new ArrayList<GalleryItem>(1);
 				item.add(galleryItem);
 				intent.putParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS, item);
-
+				intent.setData(Uri.parse(item.get(0).getFilePath()));
 				if (pendingIntent != null)
 				{
 					try

@@ -7,10 +7,10 @@ import android.os.Parcelable;
 import android.provider.MediaStore;
 
 import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.utils.IntentFactory;
+import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.Logger;
 
-public class DelegateActivity extends Activity
+public class DelegateActivity extends HikeAppStateBaseFragmentActivity
 {
 	public static final String SOURCE_INTENT = "si";
 
@@ -66,11 +66,6 @@ public class DelegateActivity extends Activity
 
 		if (destinationIntent != null)
 		{
-			if(!IntentFactory.isIntentAvailable(getApplicationContext(), sourceIntent))
-			{
-				onError();
-				return;
-			}
 			Logger.d(TAG, "Starting activity for result");
 			DelegateActivity.this.startActivityForResult(sourceIntent, requestCode);
 		}

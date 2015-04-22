@@ -112,6 +112,10 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 			{
 				filename = galleryList.get(0).getFilePath();
 			}
+			if(filename == null)
+			{
+				filename = intent.getData().toString();
+			}
 		}
 
 		if (filename == null)
@@ -161,6 +165,11 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 		setupActionBar();
 
 		editView = (PhotosEditerFrameLayoutView) findViewById(R.id.editer);
+		
+		if(intent.hasExtra(HikeConstants.HikePhotos.DESTINATION_FILENAME))
+		{
+			editView.setDestinationPath(intent.getStringExtra(HikeConstants.HikePhotos.DESTINATION_FILENAME));
+		}
 
 		pager = (ViewPager) findViewById(R.id.pager);
 
@@ -173,6 +182,8 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 		editView.setCompressionEnabled(intent.getBooleanExtra(HikeConstants.HikePhotos.EDITOR_ALLOW_COMPRESSION_KEY, true));
 
 	}
+	
+	
 
 	@Override
 	protected void onResume()

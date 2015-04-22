@@ -42,19 +42,19 @@ import com.bsb.hike.utils.Utils;
  * @author akhiltripathi
  * 
  */
-public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilterAppliedListener,OnTouchListener
+public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilterAppliedListener, OnTouchListener
 {
 	private CanvasImageView doodleLayer;
 
 	private EffectsImageView effectLayer;
 
-	private boolean enableDoodling, savingFinal, compressOutput,enableEffects;
+	private boolean enableDoodling, savingFinal, compressOutput, enableEffects;
 
 	private Bitmap imageOriginal, imageEdited, imageScaled, scaledImageOriginal;
 
 	private HikeFileType mFileType;
 
-	private String mOriginalName;
+	private String mOriginalName, destinationFilename;
 
 	private HikePhotosListener mListener;
 
@@ -81,7 +81,7 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 		effectLayer = new EffectsImageView(context, attrs, defStyleAttr);
 		init();
 	}
-	
+
 	private void init()
 	{
 		addView(effectLayer);
@@ -133,12 +133,13 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 	{
 		if (scaledImageOriginal == null)
 		{
-			scaledImageOriginal = HikePhotosUtils.compressBitamp(imageOriginal, HikePhotosUtils.dpToPx(getContext(), getThumbnailDimen()), HikePhotosUtils.dpToPx(getContext(), getThumbnailDimen()),false);
+			scaledImageOriginal = HikePhotosUtils.compressBitamp(imageOriginal, HikePhotosUtils.dpToPx(getContext(), getThumbnailDimen()),
+					HikePhotosUtils.dpToPx(getContext(), getThumbnailDimen()), false);
 
 			if (scaledImageOriginal == null)
 			{
 				// To Do Out Of Memory Handling
-				//Need to take a call on whether to OPEN home activity
+				// Need to take a call on whether to OPEN home activity
 			}
 
 		}
@@ -171,7 +172,7 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 		catch (OutOfMemoryError e)
 		{
 			Toast.makeText(getContext(), getResources().getString(R.string.photos_oom_load), Toast.LENGTH_SHORT).show();
-			IntentFactory.openHomeActivity(getContext(),true);
+			IntentFactory.openHomeActivity(getContext(), true);
 		}
 
 		handleImage();
@@ -182,17 +183,18 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 	{
 		DisplayMetrics metrics = getContext().getResources().getDisplayMetrics();
 		int width = metrics.widthPixels;
-		int height = (int)(metrics.heightPixels * getContext().getResources().getInteger(R.integer.photos_editor_canvas_weight)*1.0f/getContext().getResources().getInteger(R.integer.photos_editor_weightSum));
+		int height = (int) (metrics.heightPixels * getContext().getResources().getInteger(R.integer.photos_editor_canvas_weight) * 1.0f / getContext().getResources().getInteger(
+				R.integer.photos_editor_weightSum));
 		if (width != imageOriginal.getWidth())
 		{
-			imageScaled = HikePhotosUtils.compressBitamp(imageOriginal, width, height,true);
-			if(imageScaled == null)
+			imageScaled = HikePhotosUtils.compressBitamp(imageOriginal, width, height, true);
+			if (imageScaled == null)
 			{
 				Toast.makeText(getContext(), getResources().getString(R.string.photos_oom_load), Toast.LENGTH_SHORT).show();
-				IntentFactory.openHomeActivity(getContext(),true);
+				IntentFactory.openHomeActivity(getContext(), true);
 				return;
 			}
-			
+
 			effectLayer.handleImage(imageScaled, true);
 		}
 		else
@@ -200,11 +202,11 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 			effectLayer.handleImage(imageOriginal, false);
 			imageScaled = imageOriginal;
 		}
-		
-		if(compressOutput && HikePhotosUtils.getBitmapArea(imageOriginal)>HikeConstants.HikePhotos.MAXIMUM_ALLOWED_IMAGE_AREA)
+
+		if (compressOutput && HikePhotosUtils.getBitmapArea(imageOriginal) > HikeConstants.HikePhotos.MAXIMUM_ALLOWED_IMAGE_AREA)
 		{
 			compressOutput = false;
-			imageOriginal = HikePhotosUtils.compressBitamp(imageOriginal, HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX, HikeConstants.MAX_DIMENSION_LOW_FULL_SIZE_PX,true);
+			imageOriginal = HikePhotosUtils.compressBitamp(imageOriginal, HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX, HikeConstants.MAX_DIMENSION_LOW_FULL_SIZE_PX, true);
 		}
 	}
 
@@ -225,7 +227,7 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 		enableDoodling = false;
 		doodleLayer.setDrawEnabled(false);
 	}
-	
+
 	public void enableFilters()
 	{
 		enableEffects = true;
@@ -253,9 +255,14 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 		doodleLayer.setDrawEnabled(enableDoodling);
 	}
 
+	public void setDestinationPath(String filename)
+	{
+		destinationFilename = filename;
+	}
+
 	public void saveImage(HikeFileType fileType, String originalName, HikePhotosListener listener)
 	{
-		doodleLayer.getMeasure(imageScaled.getWidth(),imageScaled.getHeight());
+		doodleLayer.getMeasure(imageScaled.getWidth(), imageScaled.getHeight());
 
 		this.mFileType = fileType;
 		this.mOriginalName = originalName;
@@ -265,7 +272,14 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 		effectLayer.getBitmapWithEffectsApplied(imageOriginal, this);
 
 	}
-	
+
+	public boolean isImageEdited()
+	{
+		boolean ret = effectLayer.getCurrentFilter() != FilterType.ORIGINAL;
+		ret = ret || doodleLayer.getBitmap() != null;
+		return ret;
+	}
+
 	public void undoLastDoodleDraw()
 	{
 		doodleLayer.onClickUndo();
@@ -284,8 +298,20 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 		{
 			try
 			{
-				String timeStamp = Long.toString(System.currentTimeMillis());
-				file = File.createTempFile("IMG_" + timeStamp, ".jpg");
+				if (destinationFilename == null || !isImageEdited())
+				{
+					String timeStamp = Long.toString(System.currentTimeMillis());
+					file = File.createTempFile("IMG_" + timeStamp, ".jpg");
+					file.deleteOnExit();
+				}
+				else
+				{
+					file = new File(destinationFilename);
+					if (!file.exists())
+					{
+						file.createNewFile();
+					}
+				}
 			}
 			catch (IOException e)
 			{
@@ -329,11 +355,11 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 					out.flush();
 					out.close();
 
-					if (mFileType == HikeFileType.PROFILE)
+					if (mFileType == HikeFileType.PROFILE && isImageEdited())
 					{
 						HikeHandlerUtil.getInstance().postRunnableWithDelay(
-								new CopyFileRunnable(file.getAbsolutePath(), HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.IMAGE_ROOT + File.separator
-										+ Utils.getOriginalFile(HikeFileType.IMAGE, null), HikeFileType.IMAGE), 0);
+								new CopyFileRunnable(file.getAbsolutePath(), destinationFilename == null ? HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.IMAGE_ROOT
+										+ File.separator + Utils.getOriginalFile(HikeFileType.IMAGE, null) : destinationFilename, HikeFileType.IMAGE), 0);
 					}
 				}
 				catch (IOException e)
@@ -407,8 +433,8 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 				else
 				{
 					Toast.makeText(getContext(), getResources().getString(R.string.photos_oom_save), Toast.LENGTH_SHORT).show();
-					IntentFactory.openHomeActivity(getContext(),true);
-					
+					IntentFactory.openHomeActivity(getContext(), true);
+
 				}
 			}
 		}
@@ -426,8 +452,8 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 			if (savingFinal)
 			{
 				// Move Back to Home
-				Toast.makeText(getContext(),  getResources().getString(R.string.photos_oom_save), Toast.LENGTH_SHORT).show();
-				IntentFactory.openHomeActivity(getContext(),true);
+				Toast.makeText(getContext(), getResources().getString(R.string.photos_oom_save), Toast.LENGTH_SHORT).show();
+				IntentFactory.openHomeActivity(getContext(), true);
 			}
 			else
 			{
@@ -482,15 +508,15 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 	@Override
 	public boolean onTouch(View v, MotionEvent event)
 	{
-		if(enableDoodling)
+		if (enableDoodling)
 		{
 			return doodleLayer.onTouch(v, event);
 		}
-		if(enableEffects)
+		if (enableEffects)
 		{
 			return effectLayer.onTouch(v, event);
 		}
-			
+
 		return false;
 	}
 
