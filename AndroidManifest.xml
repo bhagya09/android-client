@@ -8,8 +8,7 @@
 
     <uses-sdk
         android:minSdkVersion="9"
-        android:targetSdkVersion="17"
-        tools:overrideLibrary="com.commonsware.cwac.camera " />
+        android:targetSdkVersion="17"/>
 
     <permission
         android:name="com.bsb.hike.ui.permission.MAPS_RECEIVE"
