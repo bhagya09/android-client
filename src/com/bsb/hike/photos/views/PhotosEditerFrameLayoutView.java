@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import org.eclipse.paho.client.mqttv3.internal.DestinationProvider;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -277,16 +276,16 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 	public boolean isImageEdited()
 	{
 		boolean ret = effectLayer.getCurrentFilter() != FilterType.ORIGINAL;
-		ret =  ret || doodleLayer.getBitmap()!=null;
+		ret = ret || doodleLayer.getBitmap() != null;
 		return ret;
 	}
-	
+
 	public void undoLastDoodleDraw()
 	{
 		doodleLayer.onClickUndo();
 
 	}
-	
+
 	public void setOnDoodlingStartListener(OnDoodleStateChangeListener listener)
 	{
 		doodleLayer.setOnDoodlingStartListener(listener);
@@ -308,7 +307,8 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 				else
 				{
 					file = new File(destinationFilename);
-					if(!file.exists()){
+					if (!file.exists())
+					{
 						file.createNewFile();
 					}
 				}
@@ -358,8 +358,8 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 					if (mFileType == HikeFileType.PROFILE && isImageEdited())
 					{
 						HikeHandlerUtil.getInstance().postRunnableWithDelay(
-								new CopyFileRunnable(file.getAbsolutePath(),destinationFilename == null? HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.IMAGE_ROOT + File.separator
-										+ Utils.getOriginalFile(HikeFileType.IMAGE, null):destinationFilename, HikeFileType.IMAGE), 0);
+								new CopyFileRunnable(file.getAbsolutePath(), destinationFilename == null ? HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.IMAGE_ROOT
+										+ File.separator + Utils.getOriginalFile(HikeFileType.IMAGE, null) : destinationFilename, HikeFileType.IMAGE), 0);
 					}
 				}
 				catch (IOException e)
