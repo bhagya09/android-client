@@ -274,6 +274,13 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 
 	}
 
+	public boolean isImageEdited()
+	{
+		boolean ret = effectLayer.getCurrentFilter() != FilterType.ORIGINAL;
+		ret =  ret || doodleLayer.getBitmap()!=null;
+		return ret;
+	}
+	
 	public void undoLastDoodleDraw()
 	{
 		doodleLayer.onClickUndo();
@@ -292,10 +299,11 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 		{
 			try
 			{
-				if (destinationFilename == null)
+				if (destinationFilename == null || !isImageEdited())
 				{
 					String timeStamp = Long.toString(System.currentTimeMillis());
 					file = File.createTempFile("IMG_" + timeStamp, ".jpg");
+					file.deleteOnExit();
 				}
 				else
 				{
@@ -347,7 +355,7 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 					out.flush();
 					out.close();
 
-					if (mFileType == HikeFileType.PROFILE)
+					if (mFileType == HikeFileType.PROFILE && isImageEdited())
 					{
 						HikeHandlerUtil.getInstance().postRunnableWithDelay(
 								new CopyFileRunnable(file.getAbsolutePath(),destinationFilename == null? HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.IMAGE_ROOT + File.separator
