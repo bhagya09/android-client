@@ -750,10 +750,10 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		 * right now we store convDb reference in some classes and use that refenence to query db. ex. DbConversationListener. 
 		 * i.e. on restore we have two objects of HikeConversationsDatabase in memory.
 		 */
-		mDb = hikeConversationsDatabase.getMdb(); 
+		mDb = hikeConversationsDatabase.getWriteDatabase(); 
 	}
 	
-	private SQLiteDatabase getMdb()
+	public SQLiteDatabase getWriteDatabase()
 	{
 		return mDb;
 	}
