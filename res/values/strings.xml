@@ -1467,7 +1467,7 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="ls_change_failed">Last Seen update failed!</string>
     <string name="stealth_timeout_always_key">Always</string>
     <string name="stealth_timeout_never_key">Never</string>
-    <string name="stealth_timeout_immediate_key">10 seconds</string>
-    <string name="stealth_timeout_short_key">1 minute</string>
-    <string name="stealth_timeout_long_key">5 minutes</string>
+    <string name="stealth_timeout_immediate_key">1 minute</string>
+    <string name="stealth_timeout_short_key">5 minutes</string>
+    <string name="stealth_timeout_long_key">10 minutes</string>
 </resources>

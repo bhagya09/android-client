@@ -564,9 +564,10 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
         }); 
 
         changePasswordSetting = (Button) findViewById(R.id.alp_42447968_change_password_setting);
-        if(!ACTION_CREATE_PATTERN.equals(getIntent().getAction()) 
-        		&& !getIntent().getBooleanExtra(HikeConstants.Extras.STEALTH_PASS_RESET, false) 
-        		&& changePasswordSetting != null)
+        
+        boolean isReset = getIntent().getBooleanExtra(HikeConstants.Extras.STEALTH_PASS_RESET, false);
+        
+        if(ACTION_COMPARE_PATTERN.equals(getIntent().getAction())) 
         {
         	if(StealthModeManager.getInstance().isPinAsPassword())
         	{
@@ -578,7 +579,8 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
         		mLockPinView.setVisibility(View.GONE);
         		mLockPatternView.setVisibility(View.VISIBLE);
         	}
-        	changePasswordSetting.setVisibility(View.VISIBLE);
+        	
+            changePasswordSetting.setVisibility(isReset ? View.GONE:View.VISIBLE);	
         	changePasswordSetting.setText(getString(R.string.change_password_from_privacy));
         	changePasswordSetting.setOnClickListener(new View.OnClickListener()
 			{
@@ -591,7 +593,7 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
 					finishWithNegativeResult(RESULT_CANCELED);
 				}
 			});
-        } else {
+        } else if(ACTION_CREATE_PATTERN.equals(getIntent().getAction())){
         	changePasswordSetting.setText(getString(R.string.stealth_set_pin));
         	StealthModeManager.getInstance().usePinAsPassword(false);
         	mTextInfo.setText(R.string.stealth_msg_draw_an_unlock_pattern);
@@ -620,8 +622,6 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
 					}
 				}
 			});
-
-            changePasswordSetting.setVisibility(View.VISIBLE);	
         }
         /*
          * LOCK PATTERN VIEW
@@ -948,18 +948,24 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
      *            cases, it can be set to {@code null}.
      */
     private void finishWithResultOk(char[] pattern) {
-    	mIntentResult.putExtra(HikeConstants.Extras.STEALTH_PASS_RESET,getIntent().getBooleanExtra(HikeConstants.Extras.STEALTH_PASS_RESET, false));
-        if (ACTION_CREATE_PATTERN.equals(getIntent().getAction()))
-            mIntentResult.putExtra(EXTRA_PATTERN, pattern);
-        else {
+    	if (ACTION_CREATE_PATTERN.equals(getIntent().getAction()))
+    	{
+    		mIntentResult.putExtra(HikeConstants.Extras.STEALTH_PASS_RESET,getIntent().getBooleanExtra(HikeConstants.Extras.STEALTH_PASS_RESET, false));
+    		mIntentResult.putExtra(EXTRA_PATTERN, pattern);
+    	}
+    	else if(ACTION_COMPARE_PATTERN.equals(getIntent().getAction()))
+        {
+    		if(getIntent().getBooleanExtra(HikeConstants.Extras.STEALTH_PASS_RESET, false))
+    		{
+    			Bundle stealthBundle = getIntent().getBundleExtra(HikeConstants.STEALTH);
+            	if(stealthBundle!=null)
+            	{
+            		mIntentResult.putExtras(stealthBundle);
+            	}
+    		}
             /*
              * If the user was "logging in", minimum try count can not be zero.
              */
-        	Bundle stealthBundle = getIntent().getBundleExtra(HikeConstants.STEALTH);
-        	if(stealthBundle!=null)
-        	{
-        		mIntentResult.putExtras(stealthBundle);
-        	}
             mIntentResult.putExtra(EXTRA_RETRY_COUNT, mRetryCount + 1);
         }
 

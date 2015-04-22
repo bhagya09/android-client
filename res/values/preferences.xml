@@ -56,8 +56,8 @@
     
     <string name="stealth_timeout_always">0</string>
     <string name="stealth_timeout_never">-1</string>
-    <string name="stealth_timeout_immediate">10</string>
-    <string name="stealth_timeout_short">60</string>
-    <string name="stealth_timeout_long">300</string>
+    <string name="stealth_timeout_immediate">60</string>
+    <string name="stealth_timeout_short">300</string>
+    <string name="stealth_timeout_long">600</string>
 
 </resources>

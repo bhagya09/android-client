@@ -86,6 +86,7 @@ public class LockPattern
 
 		case HikeConstants.ResultCodes.CONFIRM_LOCK_PATTERN_HIDE_CHAT:
 		case HikeConstants.ResultCodes.CONFIRM_LOCK_PATTERN:
+		case HikeConstants.ResultCodes.CONFIRM_LOCK_PATTERN_CHANGE_PREF:
 			switch (resultCode)
 			{
 			case Activity.RESULT_OK:
@@ -101,12 +102,15 @@ public class LockPattern
 				}
 				break;
 			case Activity.RESULT_CANCELED:
-				StealthModeManager.getInstance().activate(false);
-				HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_MODE_TOGGLED, false);
-				if(requestCode ==  HikeConstants.ResultCodes.CONFIRM_LOCK_PATTERN_HIDE_CHAT)
+				if(!(requestCode == HikeConstants.ResultCodes.CONFIRM_LOCK_PATTERN_CHANGE_PREF))
 				{
-					HikeMessengerApp.getPubSub().publish(HikePubSub.CLEAR_FTUE_STEALTH_CONV, true);
-				}	
+					StealthModeManager.getInstance().activate(false);
+					HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_MODE_TOGGLED, false);
+					if(requestCode ==  HikeConstants.ResultCodes.CONFIRM_LOCK_PATTERN_HIDE_CHAT)
+					{
+						HikeMessengerApp.getPubSub().publish(HikePubSub.CLEAR_FTUE_STEALTH_CONV, true);
+					}	
+				}
 				try
 				{
 					JSONObject metadata = new JSONObject();

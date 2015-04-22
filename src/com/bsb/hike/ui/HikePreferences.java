@@ -301,11 +301,8 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 				IconListPreference changeStealthTimeout = (IconListPreference) getPreferenceScreen().findPreference(HikeConstants.CHANGE_STEALTH_TIMEOUT);
 				if (changeStealthTimeout != null)
 				{
-					if(HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.RESET_COMPLETE_STEALTH_START_TIME, 0l) > 0)
-					{
-						changeStealthTimeout.setTitle(R.string.change_stealth_timeout);
-						changeStealthTimeout.setSummary(R.string.change_stealth_timeout_body);
-					}
+					changeStealthTimeout.setTitle(getString(R.string.change_stealth_timeout) + " : " + changeStealthTimeout.getEntry());
+					changeStealthTimeout.setSummary(R.string.change_stealth_timeout_body);
 					changeStealthTimeout.setOnPreferenceChangeListener(this);
 				}
 				IconCheckBoxPreference stealthIndicatorEnabled = (IconCheckBoxPreference) getPreferenceScreen().findPreference(HikeConstants.STEALTH_INDICATOR_ENABLED);
@@ -853,7 +850,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		{
 			stealthBundle.putBoolean(preference.getKey(), (boolean) value);	
 		}
-		LockPattern.confirmPattern(HikePreferences.this, false, HikeConstants.ResultCodes.CONFIRM_LOCK_PATTERN, stealthBundle);
+		LockPattern.confirmPattern(HikePreferences.this, true, HikeConstants.ResultCodes.CONFIRM_LOCK_PATTERN_CHANGE_PREF, stealthBundle);
 	}
 
 	@Override
@@ -1312,14 +1309,20 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 	 */
 	protected void onActivityResult(int requestCode, int resultCode, Intent data)
 	{
-		if(resultCode == this.RESULT_OK && requestCode == HikeConstants.ResultCodes.CONFIRM_LOCK_PATTERN)
+		if(requestCode == HikeConstants.ResultCodes.CONFIRM_LOCK_PATTERN_CHANGE_PREF)
 		{
+			if(resultCode != this.RESULT_OK)
+			{
+				return;
+			}
 			Bundle stealthBundle = data.getExtras();
 			if(stealthBundle != null)
 			{
 				if(stealthBundle.containsKey(HikeConstants.CHANGE_STEALTH_TIMEOUT))
 				{
 					IconListPreference changeStealthTimeout = (IconListPreference)getPreferenceScreen().findPreference(HikeConstants.CHANGE_STEALTH_TIMEOUT);
+					CharSequence newTimeoutKey = changeStealthTimeout.getEntries()[changeStealthTimeout.findIndexOfValue(stealthBundle.getString(HikeConstants.CHANGE_STEALTH_TIMEOUT))];
+					changeStealthTimeout.setTitle(getString(R.string.change_stealth_timeout) + " : " + newTimeoutKey);
 					changeStealthTimeout.setValue(stealthBundle.getString(HikeConstants.CHANGE_STEALTH_TIMEOUT));
 				}
 				else if(stealthBundle.containsKey(HikeConstants.STEALTH_INDICATOR_ENABLED))
@@ -1334,8 +1337,11 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 				}		
 			}
 		}
-		//passing true here to denote that this is coming from the password reset operation
-		data.putExtra(HikeConstants.Extras.STEALTH_PASS_RESET, true);
+		else
+		{
+			//passing true here to denote that this is coming from the password reset operation
+			data.putExtra(HikeConstants.Extras.STEALTH_PASS_RESET, true);	
+		}
 		LockPattern.onLockActivityResult(this, requestCode, resultCode, data);
 		super.onActivityResult(requestCode, resultCode, data);
 	}

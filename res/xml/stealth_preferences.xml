@@ -7,14 +7,12 @@
         android:selectable="false"
         android:title="@string/stealth_password_settings" >
         <com.bsb.hike.view.IconPreference
-            icon="@drawable/ic_bolt_white"
             android:key="changeStealthPasscode"
             android:layout="@layout/icon_preference"
             android:summary="@string/change_stealth_password_body"
             android:title="@string/change_stealth_password" />
 
         <com.bsb.hike.view.IconListPreference
-            icon="@drawable/ic_bolt_white"
             android:defaultValue="@string/stealth_timeout_always"
             android:entries="@array/stealthTimeoutPrefKeys"
             android:entryValues="@array/stealthTimeoutPrefValues"
@@ -27,7 +25,6 @@
         android:selectable="false"
         android:title="@string/stealth_notification_settings" >
         <com.bsb.hike.view.IconCheckBoxPreference
-            icon="@drawable/ic_bolt_white"
             android:defaultValue="true"
             android:key="stealthIndicatorEnabled"
             android:layout="@layout/icon_preference"
@@ -35,7 +32,6 @@
             android:title="@string/enable_stealth_indicator"
             android:widgetLayout="@layout/checkbox_widget" />
         <com.bsb.hike.view.IconCheckBoxPreference
-            icon="@drawable/ic_bolt_white"
             android:defaultValue="true"
             android:key="stealthNotificationEnabled"
             android:layout="@layout/icon_preference"
@@ -47,7 +43,6 @@
         android:selectable="false"
         android:title="@string/stealth_reset_settings" >
         <com.bsb.hike.view.IconPreference
-            icon="@drawable/ic_bolt_white"
             android:key="resetStealthPref"
             android:layout="@layout/icon_preference"
             android:summary="@string/reset_complete_stealth_info"
