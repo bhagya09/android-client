@@ -220,6 +220,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
     protected static final int SCROLL_TO_POSITION = 29;
     
 	protected static final int BLOCK_UNBLOCK_USER = 30;
+
+	public static final String SCROLL_END = "scroll";
    
     private int NUDGE_TOAST_OCCURENCE = 2;
     	
@@ -1957,6 +1959,11 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		else if(intent.hasExtra(HikeConstants.Extras.SHOW_RECORDING_DIALOG))
 		{
 			showAudioRecordView();
+		}
+		
+		else if(intent.hasExtra(SCROLL_END))
+		{
+			uiHandler.sendEmptyMessage(SCROLL_TO_END);
 		}
 
 		/**
