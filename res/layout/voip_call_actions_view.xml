@@ -7,7 +7,7 @@
 		<com.bsb.hike.voip.view.GlowPadViewWrapper
 			android:id="@+id/glow_pad_view"
 			android:layout_width="wrap_content"
-			android:layout_height="220dp"
+			android:layout_height="292dp"
 			android:focusable="true"
 			android:gravity="center"
 			android:layout_centerHorizontal="true"

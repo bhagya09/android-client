@@ -86,7 +86,7 @@ public class CallActionsView extends RelativeLayout
 			@Override
 			public void onClick(View v) 
 			{
-				listener.declineCall();
+				listener.onDeclineCall();
 			}
 		});
 		
@@ -95,7 +95,7 @@ public class CallActionsView extends RelativeLayout
 			@Override
 			public void onClick(View v) 
 			{
-				listener.acceptCall();
+				listener.onAcceptCall();
 			}
 		});
     }

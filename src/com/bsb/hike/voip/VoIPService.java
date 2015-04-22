@@ -54,6 +54,8 @@ import android.widget.Chronometer;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.MqttConstants;
+import com.bsb.hike.HikePubSub;
+import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
@@ -73,7 +75,8 @@ import com.bsb.hike.voip.protobuf.VoIPSerializer;
 import com.bsb.hike.voip.view.VoIPActivity;
 import com.musicg.dsp.Resampler;
 
-public class VoIPService extends Service {
+public class VoIPService extends Service implements Listener
+{
 	
 	private final IBinder myBinder = new LocalBinder();
 	private final int AUDIO_SAMPLE_RATE = 48000; 
@@ -172,6 +175,8 @@ public class VoIPService extends Service {
 
 	private VoIPConstants.CallStatus currentCallStatus;
 
+	String pubSubListeners[] = {HikePubSub.STOP_VOIP_SERVICE};
+
 	@Override
 	public IBinder onBind(Intent intent) {
 		return myBinder;
@@ -192,7 +197,9 @@ public class VoIPService extends Service {
 		super.onCreate();
 		Logger.d(VoIPConstants.TAG, "VoIPService onCreate()");
 		acquireWakeLock();
-		
+
+		HikeMessengerApp.getPubSub().addListeners(this, pubSubListeners);
+
 		clientPartner = new VoIPClient();
 //		String myMsisdn = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE).getString(HikeMessengerApp.MSISDN_SETTING, null);
 
@@ -471,6 +478,7 @@ public class VoIPService extends Service {
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
+		HikeMessengerApp.getPubSub().removeListeners(this, pubSubListeners);
 		stop();
 		setCallid(0);	// Redundant, for bug #44018
 		dismissNotification();
@@ -2885,6 +2893,15 @@ public class VoIPService extends Service {
 		catch (JSONException e)
 		{
 			Logger.w(AnalyticsConstants.ANALYTICS_TAG, "Invalid json");
+		}
+	}
+
+	@Override
+	public void onEventReceived(String type, Object object) 
+	{
+		if(HikePubSub.STOP_VOIP_SERVICE.equals(type))
+		{
+			stop();
 		}
 	}
 }

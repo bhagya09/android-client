@@ -71,12 +71,17 @@ public class GlowPadViewWrapper extends GlowPadView implements GlowPadView.OnTri
 		int resId = getResourceIdForTarget(target);
 		if(resId == R.drawable.ic_item_call_hang)
 		{
-			mCallActions.declineCall();
+			mCallActions.onDeclineCall();
 			targetTriggered = true;
 		}
 		else if(resId == R.drawable.ic_item_call_pick)
 		{
-			mCallActions.acceptCall();
+			mCallActions.onAcceptCall();
+			targetTriggered = true;
+		}
+		else if(resId == R.drawable.ic_item_decline_message)
+		{
+			mCallActions.onMessage();
 			targetTriggered = true;
 		}
 	}
