@@ -581,7 +581,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 		else
 		{
 			intent.putExtra(START_FOR_RESULT, sendResult);
-			startActivityForResult(intent, AttachmentPicker.GALLERY);
+			startActivity(intent);
 		}
 	}
 
@@ -624,7 +624,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 			{
 				intent.putExtra(START_FOR_RESULT, sendResult);
 			}
-			startActivityForResult(intent, GALLERY_ACTIVITY);
+			startActivity(intent);
 		}
 		else
 		{
