@@ -53,7 +53,7 @@ public class InitiateMultiFileTransferTask extends AsyncTask<Void, Void, Void>
 	@Override
 	protected void onPostExecute(Void result)
 	{
-		HikeMessengerApp.getPubSub().publish(HikePubSub.MULTI_FILE_TASK_FINISHED, null);
+		HikeMessengerApp.getPubSub().publish(HikePubSub.MULTI_FILE_TASK_FINISHED, this.getMsisdn());
 	}
 
 	private void initiateFileTransferFromIntentData(String filePath, String fileType)

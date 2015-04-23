@@ -1,6 +1,7 @@
 package com.bsb.hike;
 
 import java.io.File;
+
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
@@ -9,11 +10,11 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.bsb.hike.platform.PlatformUIDFetch;
 import com.bsb.hike.platform.content.PlatformContent;
+
 import org.acra.ACRA;
 import org.acra.ErrorReporter;
 import org.acra.ReportField;
@@ -35,7 +36,6 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
@@ -49,10 +49,12 @@ import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.HttpManager;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
+import com.bsb.hike.notifications.HikeNotificationMsgStack;
+import com.bsb.hike.notifications.HikeNotificationUtils;
 import com.bsb.hike.notifications.ToastListener;
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.productpopup.ProductInfoManager;
-import com.bsb.hike.service.HikeMqttManagerNew.MQTTConnectionStatus;
 import com.bsb.hike.service.HikeService;
 import com.bsb.hike.service.MqttMessagesManager;
 import com.bsb.hike.service.RegisterToGCMTrigger;
@@ -62,17 +64,11 @@ import com.bsb.hike.smartcache.HikeLruCache;
 import com.bsb.hike.smartcache.HikeLruCache.ImageCacheParams;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.ActivityTimeLogger;
-import com.bsb.hike.utils.HikeSSLUtil;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
-import com.squareup.okhttp.Call;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
-import com.squareup.okhttp.ResponseBody;
 
 //https://github.com/ACRA/acra/wiki/Backends
 @ReportsCrashes( customReportContent = { ReportField.APP_VERSION_CODE, ReportField.APP_VERSION_NAME, ReportField.PHONE_MODEL, ReportField.BRAND, ReportField.PRODUCT,
@@ -192,6 +188,8 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	public static final String GCM_ID_SENT = "gcmIdSent";
 
 	public static final String BLOCK_NOTIFICATIONS = "blockNotification";
+	
+	public static final String DP_CHANGE_STATUS_ID = "dpstatusid";
 
 	private static final boolean TEST = false; // TODO:: test flag only : turn
 												// OFF for Production
@@ -276,6 +274,8 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	public static final String SHOWN_SMS_SYNC_POPUP = "shownSMSSyncPopup";
 
 	public static final String SERVER_TIME_OFFSET = "serverTimeOffset";
+	
+	public static final String SERVER_TIME_OFFSET_MSEC = "serverTimeOffsetInMsec";
 
 	public static final String SHOWN_EMOTICON_TIP = "shownEmoticonTip1";
 	
@@ -485,6 +485,8 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 
 	public static final String EXCEPTION_ANALYTIS_ENABLED = "exceptionAnalaticsEnabled";
 	
+	public static final String SSL_ALLOWED = "sslAllowed";
+	
 	public static CurrentState currentState = CurrentState.CLOSED;
 
 	//private static Twitter twitter;
@@ -648,7 +650,6 @@ public void onTrimMemory(int level)
 }
 	public void onCreate()
 	{
-
 		SharedPreferences settings = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
 		token = settings.getString(HikeMessengerApp.TOKEN_SETTING, null);
 		msisdn = settings.getString(HikeMessengerApp.MSISDN_SETTING, null);
@@ -701,7 +702,7 @@ public void onTrimMemory(int level)
 		 * Resetting the stealth mode when the app starts. 
 		 */
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF);
-		performPreferenceTransition();
+		HikeNotificationMsgStack.getInstance(getApplicationContext()).deserializeObject(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.NOTIFICATION_OBJ, ""));
 		String currentAppVersion = settings.getString(CURRENT_APP_VERSION, "");
 		String actualAppVersion = "";
 		try
@@ -718,6 +719,8 @@ public void onTrimMemory(int level)
 			if (!currentAppVersion.equals(""))
 			{
 				Utils.resetUpdateParams(settings);
+				//for restore notification default setting
+				HikeNotificationUtils.restoreNotificationParams(getApplicationContext());
 			}
 
 			/*
@@ -1115,19 +1118,7 @@ public void onTrimMemory(int level)
 			Utils.appStateChanged(HikeMessengerApp.this.getApplicationContext(), false, false, false, true, false);
 		}
 	};
-
-	private void performPreferenceTransition()
-	{
-		SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
-		if (!pref.getBoolean(HikeConstants.PREFERENCE_TRANSITION_SOUND_VIB_TO_LIST, false))
-		{
-			Editor edit = pref.edit();
-			edit.putString(HikeConstants.NOTIF_SOUND_PREF, Utils.getOldSoundPref(this));
-			edit.putString(HikeConstants.VIBRATE_PREF_LIST, Utils.getOldVibratePref(this));
-			edit.putBoolean(HikeConstants.PREFERENCE_TRANSITION_SOUND_VIB_TO_LIST, true);
-			edit.commit();
-		}
-	}
+	
 	
 	public boolean isHikeBotNumber(String msisdn)
 	{
