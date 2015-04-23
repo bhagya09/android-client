@@ -1,5 +1,6 @@
 package com.bsb.hike.ui;
 
+import java.util.Locale;
 import java.util.Map;
 
 import org.json.JSONException;
@@ -34,6 +35,7 @@ import com.actionbarsherlock.app.ActionBar;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.MqttConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
@@ -59,8 +61,7 @@ import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.IconCheckBoxPreference;
 import com.bsb.hike.view.IconListPreference;
 import com.bsb.hike.view.NotificationToneListPreference;
-import com.google.android.gms.internal.co;
-import com.haibison.android.lockpattern.util.Settings;
+import com.google.android.gms.internal.en;
 
 public class HikePreferences extends HikeAppStateBasePreferenceActivity implements OnPreferenceClickListener, 
 							OnPreferenceChangeListener, DeleteAccountListener, BackupAccountListener, RingtoneFetchListener
@@ -181,14 +182,13 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		final IconCheckBoxPreference sslPreference = (IconCheckBoxPreference) getPreferenceScreen().findPreference(HikeConstants.SSL_PREF);
 		if (sslPreference != null)
 		{
-			String countryCode = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE).getString(HikeMessengerApp.COUNTRY_CODE, "");
-			if(countryCode.equals(HikeConstants.SAUDI_ARABIA_COUNTRY_CODE))
+			if(Utils.isSSLAllowed())
 			{
-				getPreferenceScreen().removePreference(sslPreference);
+				sslPreference.setOnPreferenceChangeListener(this);
 			}
 			else
 			{
-				sslPreference.setOnPreferenceChangeListener(this);
+				getPreferenceScreen().removePreference(sslPreference);
 			}
 		}
 
@@ -687,7 +687,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 				data.put(HikeConstants.MESSAGE_ID, Long.toString(System.currentTimeMillis()));
 				jsonObject.put(HikeConstants.DATA, data);
 				jsonObject.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.ACCOUNT_CONFIG);
-				HikeMqttManagerNew.getInstance().sendMessage(jsonObject, HikeMqttManagerNew.MQTT_QOS_ONE);
+				HikeMqttManagerNew.getInstance().sendMessage(jsonObject, MqttConstants.MQTT_QOS_ONE);
 			}
 			catch (JSONException e)
 			{
@@ -708,7 +708,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 				data.put(HikeConstants.MESSAGE_ID, Long.toString(System.currentTimeMillis()));
 				jsonObject.put(HikeConstants.DATA, data);
 				jsonObject.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.ACCOUNT_CONFIG);
-				HikeMqttManagerNew.getInstance().sendMessage(jsonObject, HikeMqttManagerNew.MQTT_QOS_ONE);
+				HikeMqttManagerNew.getInstance().sendMessage(jsonObject, MqttConstants.MQTT_QOS_ONE);
 			}
 			catch (JSONException e)
 			{
@@ -914,7 +914,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 				data.put(HikeConstants.AVATAR, avatarSetting);
 				object.put(HikeConstants.DATA, data);
 
-				HikeMqttManagerNew.getInstance().sendMessage(object, HikeMqttManagerNew.MQTT_QOS_ONE);
+				HikeMqttManagerNew.getInstance().sendMessage(object, MqttConstants.MQTT_QOS_ONE);
 	     	}
 			catch (JSONException e)
 			{
@@ -1028,7 +1028,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 				data.put(HikeConstants.MESSAGE_ID, Long.toString(System.currentTimeMillis()));
 				object.put(HikeConstants.DATA, data);
 
-				HikeMqttManagerNew.getInstance().sendMessage(object, HikeMqttManagerNew.MQTT_QOS_ONE);
+				HikeMqttManagerNew.getInstance().sendMessage(object, MqttConstants.MQTT_QOS_ONE);
 			}
 			catch (JSONException e)
 			{
@@ -1256,8 +1256,14 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 				// If the string cannot be parsed
 				try
 				{
-					preference.setTitle(getString(R.string.led_notification) + " - " + (newValue.toString()));
-					if("None".equals(newValue.toString()))
+					ListPreference preferenceLed = (ListPreference) preference;
+					int index = preferenceLed.findIndexOfValue(newValue.toString());
+
+					if (index >= 0) {
+						preference.setTitle(getString(R.string.led_notification) + " - " + preferenceLed.getEntries()[index]);
+					}
+
+					if(getString(R.string.led_color_none_key).equals(newValue.toString()))
 					{
 						HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.LED_NOTIFICATION_COLOR_CODE, HikeConstants.LED_NONE_COLOR);
 					}
@@ -1275,20 +1281,69 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 				}
 			}
 		});
-		SharedPreferences preferenceManager = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-		if(preferenceManager.contains(HikeConstants.LED_PREF))
+		
+
+		String entry = (String) ledPref.getEntry();
+		if (entry == null)
 		{
-			boolean led = preferenceManager.getBoolean(HikeConstants.LED_PREF, true);
-			if (!led)
+			/*
+			 * Notification Led Color There are three case following :-
+			 * 
+			 * 1>> 3.6.0 where we provide checkbox and key to store value is HikeConstants.LED_PREF(value boolean type) in DefaultSharedPreferences.
+			 * 
+			 * 2>> and upto 3.8.9 we provide list of color and value and entry contains the same string and now values are stored with key
+			 * HikeMessengerApp.LED_NOTIFICATION_COLOR_CODE in HikeSharedPreferenceUtil.
+			 * 
+			 * 3>> Now we changing values in this version with hexvalues of color because some phone are unable to parse purple color and also remove default value from
+			 * notification_preferences.xml now we set default value at run time.
+			 */
+			
+			HikeSharedPreferenceUtil hikeSharedPreferenceUtil = HikeSharedPreferenceUtil.getInstance();
+			int previousVersionColor = HikeConstants.LED_DEFAULT_WHITE_COLOR;
+			if (hikeSharedPreferenceUtil.contains(HikeMessengerApp.LED_NOTIFICATION_COLOR_CODE))
 			{
-				ledPref.setDefaultValue(HikeConstants.LED_NONE_COLOR);
+				previousVersionColor = hikeSharedPreferenceUtil.getData(HikeMessengerApp.LED_NOTIFICATION_COLOR_CODE, HikeConstants.LED_NONE_COLOR);
+			}
+			else
+			{
+				try
+				{	//this case will occur when user never changed his notification color in previous build but open notification setting screen at least once.
+					previousVersionColor = Color.parseColor(ledPref.getValue());
+				}
+				catch (Exception e)
+				{
+					Logger.e(getClass().getSimpleName(), "Color Parsing Error from key HikeMessengerApp.LED_NOTIFICATION_COLOR_CODE whose value is " + ledPref.getValue(), e);
+				}
+
+			}
+
+			if (previousVersionColor == HikeConstants.LED_NONE_COLOR)
+			{
 				ledPref.setValueIndex(0);
 			}
-			
-			//removing previous Key
-			preferenceManager.edit().remove(HikeConstants.LED_PREF).commit();
+			else
+			{
+
+				String[] ledPrefValues = getResources().getStringArray(R.array.ledPrefValues);
+				for (int i = 1; i < ledPrefValues.length; i++)
+				{
+					try
+					{
+						if (Color.parseColor(ledPrefValues[i].toLowerCase(Locale.getDefault())) == previousVersionColor)
+						{
+							ledPref.setValueIndex(i);
+						}
+					}
+					catch (Exception e)
+					{
+						Logger.e(getClass().getSimpleName(), "Color Parsing Error = " + ledPrefValues[i], e);
+					}
+				}
+			}
+
 		}
-		ledPref.setTitle(ledPref.getTitle() + " - " + ledPref.getValue());
+
+		ledPref.setTitle(ledPref.getTitle() + " - " + ledPref.getEntry());
 	}
 
 	@Override
@@ -1379,6 +1434,6 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		data.put(HikeConstants.MESSAGE_ID, Long.toString(System.currentTimeMillis()));
 		object.put(HikeConstants.DATA, data);
 
-		HikeMqttManagerNew.getInstance().sendMessage(object, HikeMqttManagerNew.MQTT_QOS_ONE);
+		HikeMqttManagerNew.getInstance().sendMessage(object, MqttConstants.MQTT_QOS_ONE);
 	}
 }

@@ -405,16 +405,11 @@ public class GroupChatThread extends OneToNChatThread
 			ConvMessage message = messages.get(messages.size() - 1);
 			if (message.getState() == ConvMessage.State.RECEIVED_UNREAD && (message.getTypingNotification() == null))
 			{
-				long timeStamp = messages.get(messages.size() - mConversation.getUnreadCount()).getTimestamp();
-				long msgId = messages.get(messages.size() - mConversation.getUnreadCount()).getMsgID();
-				if ((messages.size() - mConversation.getUnreadCount()) > 0)
-				{
-					messages.add((messages.size() - mConversation.getUnreadCount()), new ConvMessage(mConversation.getUnreadCount(), timeStamp, msgId));
-				}
-				else
-				{
-					messages.add(0, new ConvMessage(mConversation.getUnreadCount(), timeStamp, msgId));
-				}
+				int index = (messages.size() - mConversation.getUnreadCount()) ;
+				index = index >= 0 ? index : 0;
+				long timeStamp = messages.get(index).getTimestamp();
+				long msgId = messages.get(index).getMsgID();
+				messages.add(index, new ConvMessage(mConversation.getUnreadCount(), timeStamp, msgId));
 			}
 		}
 	}
