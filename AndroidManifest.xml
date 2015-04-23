@@ -330,8 +330,8 @@
         <activity
             android:name="com.bsb.hike.ui.DelegateActivity"
             android:launchMode="standard"
-            android:screenOrientation="portrait"
-            android:theme="@android:style/Theme.NoDisplay" >
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:screenOrientation="portrait" >
         </activity>
         <activity
             android:name=".ui.PinHistoryActivity"
