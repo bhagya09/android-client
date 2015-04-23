@@ -240,6 +240,7 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 		// somewhere to make this faster
 		oneToNConversation.updateReadByList(participant, mrMsgId);
 		uiHandler.sendEmptyMessage(NOTIFY_DATASET_CHANGED);
+		uiHandler.sendEmptyMessage(SCROLL_TO_END);
 	}
 
 	@Override
