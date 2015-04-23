@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1179"
-    android:versionName="3.9.0.55.photos" >
+    android:versionCode="1180"
+    android:versionName="3.9.0.56.photos" >
 
     <uses-sdk
         android:minSdkVersion="9"
