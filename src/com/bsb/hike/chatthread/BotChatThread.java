@@ -201,4 +201,12 @@ public class BotChatThread extends OneToOneChatThread
 		hideLastSeenText();
 	}
 	
+	@Override
+	protected void updateNetworkState()
+	{
+		super.updateNetworkState();
+		boolean networkError = ChatThreadUtils.checkNetworkError();
+		toggleConversationMuteViewVisibility(networkError ? false : mConversation.isMuted());
+	}
+	
 }
