@@ -25,6 +25,8 @@ public class MsgRelLogManager
 {
 	private static final String TAG = "MsgRelLogManager";
 	
+	private static final String DEFAULT_MSISDN_VALUE = "-1";
+	
 	public static Random randomGenerator = new Random();
 	
 	/**
@@ -106,7 +108,7 @@ public class MsgRelLogManager
 				if (trackId != null)
 				{
 					long msgId = jsonObj.getLong(HikeConstants.MESSAGE_ID);
-					recordMsgRel(trackId, eventType, "-1");
+					recordMsgRel(trackId, eventType, DEFAULT_MSISDN_VALUE);
 				}
 			}
 		}
@@ -140,7 +142,7 @@ public class MsgRelLogManager
 	{
 		if (packet.getTrackId() != null)
 		{
-			recordMsgRel(packet.getTrackId(), eventType, "-1");
+			recordMsgRel(packet.getTrackId(), eventType, DEFAULT_MSISDN_VALUE);
 		}
 	}
 
