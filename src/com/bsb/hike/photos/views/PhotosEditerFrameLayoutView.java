@@ -21,6 +21,7 @@ import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.models.HikeFile.HikeFileType;
@@ -356,7 +357,7 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 						@Override
 						public void run()
 						{
-							MediaScannerConnection.scanFile(getContext(), new String[] { mDestinationFilename }, null, null);
+							MediaScannerConnection.scanFile(HikeMessengerApp.getInstance(), new String[] { mDestinationFilename }, null, null);
 						}
 					}, 0);
 				}
