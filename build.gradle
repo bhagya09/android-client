@@ -97,12 +97,7 @@ android {
     arm {
         ndk {
             abiFilters "armeabi", "armeabi-v7a"
-        }
-    }
-    x86 {
-        ndk {
-            abiFilter "x86"
-        }
-    }
-}
+        	}
+    	}
+	}
 }
