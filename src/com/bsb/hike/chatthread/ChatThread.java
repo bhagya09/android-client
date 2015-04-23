@@ -2784,8 +2784,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 				if(message.getPrivateData() != null && message.getPrivateData().getTrackID() != null)
 				{
 					//Logs for Msg Reliability
-					Logger.d(AnalyticsConstants.MSG_REL_TAG, "===========================================");
-					Logger.d(AnalyticsConstants.MSG_REL_TAG, "Receiver reads msg on already opened screen,track_id:- " + message.getPrivateData().getTrackID());
 					MsgRelLogManager.logMsgRelEvent(message, MsgRelEventType.RECEIVER_OPENS_CONV_SCREEN);
 				}
 			}
