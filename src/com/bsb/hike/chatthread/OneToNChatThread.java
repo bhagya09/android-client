@@ -112,12 +112,8 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 	@Override
 	public void itemClicked(OverFlowMenuItem item)
 	{
-		switch (item.id)
-		{
-		default:
-			Logger.d(TAG, "Calling super Class' itemClicked");
-			super.itemClicked(item);
-		}
+		Logger.d(TAG, "Calling super Class' itemClicked");
+		super.itemClicked(item);
 	}
 
 	/**

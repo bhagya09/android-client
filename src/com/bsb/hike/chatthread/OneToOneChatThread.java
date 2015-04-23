@@ -1259,6 +1259,8 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	@Override
 	public void itemClicked(OverFlowMenuItem item)
 	{
+		Logger.d(TAG, "Calling super Class' itemClicked");
+		super.itemClicked(item);
 		switch (item.id)
 		{
 		case R.string.block_title:
@@ -1274,8 +1276,6 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			addFavorite();
 			break;
 		default:
-			Logger.d(TAG, "Calling super Class' itemClicked");
-			super.itemClicked(item);
 		}
 	}
 
