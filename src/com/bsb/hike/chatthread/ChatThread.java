@@ -2353,7 +2353,17 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		protected void onStartLoading()
 		{
 			Logger.i(TAG, "message finder onStartLoading");
-			forceLoad();
+			// The search manager returns the values greater than equal to -1
+			// So if the loader has executed, the result is always greater than -2.
+			// Else we need to start the loader.
+			if (position > -2)
+			{
+				deliverResult(position);
+			}
+			else
+			{
+				forceLoad();
+			}
 		}
 	}
 
