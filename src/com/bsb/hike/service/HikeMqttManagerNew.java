@@ -1126,8 +1126,6 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 							HikeMessengerApp.getPubSub().publish(HikePubSub.SERVER_RECEIVED_MSG, msgId);
 							
 							 // Adding Logs for Message Reliability.
-							Logger.d(AnalyticsConstants.MSG_REL_TAG, "===========================================");
-							Logger.d(AnalyticsConstants.MSG_REL_TAG, "Written complete so showing SINGLE TICK,track_id:- " + packet.getTrackId());
 							MsgRelLogManager.logPacketForMsgReliability(packet, MsgRelEventType.RECV_NOTIF_SOCKET_WRITING);
 						}
 					}
@@ -1631,8 +1629,6 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 		}
 		else if((HikeConstants.MqttMessageTypes.NEW_MESSAGE_READ.equals(o.optString(HikeConstants.TYPE))))
 		{
-			Logger.d(AnalyticsConstants.MSG_REL_TAG, "===========================================");
-			Logger.d(AnalyticsConstants.MSG_REL_TAG, "Sending NMR to Sender back so fetching msgId from object");
 			JSONObject json = o.optJSONObject(HikeConstants.DATA);
 			Logger.d(AnalyticsConstants.MSG_REL_TAG, "Sending fetching msgId from DATA:- "+ json);
 			Iterator<String> json_keys = json.keys();

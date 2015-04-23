@@ -596,12 +596,8 @@ public class IntentFactory
 		{
 			Logger.e(context.getClass().getSimpleName(), "Invalid JSON", e);
 		}
-		String phoneNumber = convMessage.getMsisdn();
-		ContactInfo contactInfo = ContactManager.getInstance().getContactInfoFromPhoneNoOrMsisdn(phoneNumber);
-		String mContactName = contactInfo.getName();
 		intent.putExtra(HikeConstants.Extras.MULTIPLE_MSG_OBJECT, multipleMsgArray.toString());
 		intent.putExtra(HikeConstants.Extras.PREV_MSISDN, convMessage.getMsisdn());
-		intent.putExtra(HikeConstants.Extras.PREV_NAME, mContactName);
 
 		return intent;
 	}

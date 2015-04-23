@@ -5,7 +5,7 @@ import com.bsb.hike.models.ContactInfo.FavoriteType;
 public interface DBConstants
 {
 
-	public static final int CONVERSATIONS_DATABASE_VERSION = 38;
+	public static final int CONVERSATIONS_DATABASE_VERSION = 37;
 
 	public static final int USERS_DATABASE_VERSION = 17;
 
@@ -72,8 +72,6 @@ public interface DBConstants
 	public static final String GROUP_ID = "groupId";
 
 	public static final String GROUP_NAME = "groupName";
-	
-	public static final String GROUP_CREATION_TIME = "groupCreationTime";
 
 	public static final String GROUP_INDEX = "group_idx";
 
