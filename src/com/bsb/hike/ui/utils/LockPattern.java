@@ -103,6 +103,7 @@ public class LockPattern
 				else if(requestCode ==  HikeConstants.ResultCodes.CONFIRM_LOCK_PATTERN_HIDE_CHAT)
 				{
 					HikeMessengerApp.getPubSub().publish(HikePubSub.CLEAR_FTUE_STEALTH_CONV, false);
+					
 				}
 				break;
 			case Activity.RESULT_CANCELED:

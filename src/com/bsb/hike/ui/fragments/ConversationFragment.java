@@ -1273,6 +1273,8 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		task.execute(stealthConversations.toArray(new ConvInfo[0]));
 
 		StealthModeManager.getInstance().clearStealthMsisdn();
+		
+		StealthModeManager.getInstance().setUp(false);
 	}
 
 	private void resetStealthPreferences()
@@ -1586,6 +1588,8 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 					}
 
 					conv.setStealth(newStealthValue);
+					
+					notifyDataSetChanged();
 					
 					StealthModeManager.getInstance().settingupTriggered(getActivity(), false);
 

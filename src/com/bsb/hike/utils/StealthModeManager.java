@@ -135,6 +135,10 @@ public class StealthModeManager
 	public void setUp(boolean isSetUp)
 	{
 		 HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STEALTH_MODE_SETUP_DONE, isSetUp);
+		 if(!isSetUp)
+		 {
+			 activate(false);
+		 }
 	}
 
 	public boolean isActive()
@@ -178,6 +182,8 @@ public class StealthModeManager
 			else
 			{
 				HikeMessengerApp.getPubSub().publish(HikePubSub.SHOW_STEALTH_REVEAL_TIP, null);
+
+				HikeMessengerApp.getPubSub().publish(HikePubSub.CLEAR_FTUE_STEALTH_CONV, false);
 			}
 		}
 			
