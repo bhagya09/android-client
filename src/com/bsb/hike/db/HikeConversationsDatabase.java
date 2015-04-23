@@ -277,7 +277,15 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		sql = getStickerShopTableCreateQuery();
 		db.execSQL(sql);
 
-		sql = CREATE_TABLE + DBConstants.BOT_TABLE + " (" + DBConstants.MSISDN + " TEXT UNIQUE, " + DBConstants.NAME + " TEXT, " + DBConstants.CONVERSATION_METADATA + " TEXT, "+ DBConstants.IS_MUTE + " INTEGER DEFAULT 0)";
+		sql = CREATE_TABLE + DBConstants.BOT_TABLE
+				+ " ("
+				+ DBConstants.MSISDN + " TEXT UNIQUE, "        //msisdn of bot
+				+ DBConstants.NAME + " TEXT, "				//bot name
+				+ DBConstants.CONVERSATION_METADATA + " TEXT, "  //bot metadata
+				+ DBConstants.IS_MUTE + " INTEGER DEFAULT 0, "  // bot conv mute or not
+				+ DBConstants.BOT_TYPE + " INTEGER, "				//bot type m/nm
+				+ DBConstants.BOT_CONFIGURATION + " INTEGER"	//bot configurations.. different server controlled properties of bot.
+				+ ")";
 		db.execSQL(sql);
 
 	}
@@ -747,6 +755,15 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 					+ " ADD COLUMN " + DBConstants.GROUP_CREATION_TIME
 					+" LONG DEFAULT -1";
 			db.execSQL(alter);
+		}
+
+		if (oldVersion < 39)
+		{
+			String alter1 = "ALTER TABLE " + DBConstants.BOT_TABLE + " ADD COLUMN " + DBConstants.BOT_TYPE + " INTEGER";
+			String alter2 = "ALTER TABLE " + DBConstants.BOT_TABLE + " ADD COLUMN " + DBConstants.BOT_CONFIGURATION + " INTEGER";
+
+			db.execSQL(alter1);
+			db.execSQL(alter2);
 		}
 	}
 
