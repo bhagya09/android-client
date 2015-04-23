@@ -2,6 +2,7 @@ package com.bsb.hike.chatthread;
 
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 import org.json.JSONArray;
@@ -111,12 +112,8 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 	@Override
 	public void itemClicked(OverFlowMenuItem item)
 	{
-		switch (item.id)
-		{
-		default:
-			Logger.d(TAG, "Calling super Class' itemClicked");
-			super.itemClicked(item);
-		}
+		Logger.d(TAG, "Calling super Class' itemClicked");
+		super.itemClicked(item);
 	}
 
 	/**
@@ -173,9 +170,9 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 	}
 	
 	@Override
-	protected void addMessage(ConvMessage convMessage)
+	protected void messageAdded(ConvMessage convMessage)
 	{
-		super.addMessage(convMessage);
+		super.messageAdded(convMessage);
 	}
 	
 	/**
@@ -623,7 +620,7 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 
 			TypingNotification typingNotification = removeTypingNotification();
 
-			mAdapter.addMessages(messagesList, messages.size());
+			addMessages(messagesList, messages.size());
 
 			reachedEnd = false;
 
@@ -636,7 +633,7 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 			if (typingNotification != null && (!((GroupTypingNotification) typingNotification).getGroupParticipantList().isEmpty()))
 			{
 				Logger.d(TAG, "Size in chat thread: " + ((GroupTypingNotification) typingNotification).getGroupParticipantList().size());
-				mAdapter.addMessage(new ConvMessage(typingNotification));
+				addMessage(new ConvMessage(typingNotification));
 			}
 
 			mAdapter.notifyDataSetChanged();
@@ -647,5 +644,17 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 			tryScrollingToBottom(convMessage, messagesList.size());
 
 		}
+	}
+
+	@Override
+	protected void addMessage(ConvMessage message)
+	{
+		super.addMessage(message);
+	}
+
+	@Override
+	protected void addMessages(List<ConvMessage> list, int startIndex)
+	{
+		super.addMessages(list, startIndex);
 	}
 }

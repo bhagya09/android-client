@@ -2027,6 +2027,10 @@ public class HikeConstants
 		// Home search events
 
 		public static final String HOME_SEARCH = "hmSrch";
+
+		public static final String CHAT_SEARCH = "chtSrch";
+
+		public static final String CHAT_OVRFLW_ITEM = "chtOvrflwItem";
 		
 		public static final String DEVICE_ROOT="root";
 
