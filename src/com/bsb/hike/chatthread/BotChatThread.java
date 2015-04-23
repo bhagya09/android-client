@@ -58,7 +58,18 @@ public class BotChatThread extends OneToOneChatThread
 	@Override
 	protected String[] getPubSubListeners()
 	{
-		return super.getPubSubListeners();
+		String[] oneToOnePubSub = super.getPubSubListeners();
+		int superpubSubLength = oneToOnePubSub.length;
+		String[] botPubSubListeners = new String[superpubSubLength + 1];
+		int index = 0;
+		for (index = 0; index < superpubSubLength; index++)
+		{
+			botPubSubListeners[index] = oneToOnePubSub[index];
+		}
+
+		botPubSubListeners[index] = HikePubSub.MUTE_BOT;
+
+		return botPubSubListeners;
 	}
 
 	@Override
