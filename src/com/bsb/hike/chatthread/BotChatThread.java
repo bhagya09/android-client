@@ -6,9 +6,12 @@ import java.util.List;
 import com.actionbarsherlock.view.Menu;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
+import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.media.OverFlowMenuItem;
+import com.bsb.hike.models.Conversation.BotConversation;
 import com.bsb.hike.models.Conversation.Conversation;
+import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.utils.Logger;
 
 /**
@@ -88,4 +91,31 @@ public class BotChatThread extends OneToOneChatThread
 
 		return list;
 	}
+
+	@Override
+	public void itemClicked(OverFlowMenuItem item)
+	{
+		Logger.d(TAG, "Calling super Class' itemClicked");
+		super.itemClicked(item);
+
+		switch (item.id)
+		{
+		case R.string.mute:
+			onMuteBotClicked();
+			break;
+		default:
+			break;
+		}
+	}
+
+	private void onMuteBotClicked()
+	{
+		boolean wasMuted = mConversation.isMuted();
+		mConversation.setIsMute(!mConversation.isMuted());
+		HikeConversationsDatabase.getInstance().updateBot(msisdn, null, null, mConversation.isMuted() ? 1 : 0);
+		BotConversation.analyticsForBots(msisdn, wasMuted ? HikePlatformConstants.BOT_UNMUTE_CHAT : HikePlatformConstants.BOT_MUTE_CHAT, HikePlatformConstants.OVERFLOW_MENU,
+				AnalyticsConstants.CLICK_EVENT, null);
+	}
+
+
 }

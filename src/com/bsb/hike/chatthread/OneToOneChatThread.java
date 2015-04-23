@@ -89,7 +89,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 {
 	private static final String TAG = "oneonechatthread";
 
-	private ContactInfo mContactInfo;
+	protected ContactInfo mContactInfo;
 
 	private LastSeenScheduler lastSeenScheduler;
 
