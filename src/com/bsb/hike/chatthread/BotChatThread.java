@@ -194,4 +194,11 @@ public class BotChatThread extends OneToOneChatThread
 		super.openProfileScreen();
 		BotConversation.analyticsForBots(msisdn, HikePlatformConstants.BOT_VIEW_PROFILE, HikePlatformConstants.OVERFLOW_MENU, AnalyticsConstants.CLICK_EVENT, null);
 	}
+	
+	@Override
+	protected void setLastSeenStuff(boolean firstInflation)
+	{
+		hideLastSeenText();
+	}
+	
 }

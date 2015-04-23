@@ -73,7 +73,6 @@ import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.LastSeenScheduler;
 import com.bsb.hike.utils.LastSeenScheduler.LastSeenFetchedCallback;
 import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.SoundUtils;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
@@ -1031,7 +1030,12 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		super.setupActionBar(firstInflation);
 
 		setLabel(getConvLabel());
+		
+		setLastSeenStuff(firstInflation);
+	}
 
+	protected void setLastSeenStuff(boolean firstInflation)
+	{
 		/**
 		 * If unsaved contact : do not show last seen first. Wait for the query to return the result
 		 */
@@ -1052,6 +1056,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		{
 			setPrevLastSeenTextFromActionBar();
 		}
+		
 	}
 
 	private void setPrevLastSeenTextFromActionBar()
@@ -1141,7 +1146,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	/**
 	 * Utility method used for hiding the lastSeenView from the Action Bar
 	 */
-	private void hideLastSeenText()
+	protected void hideLastSeenText()
 	{
 		mActionBarView.findViewById(R.id.contact_status).setVisibility(View.GONE);
 	}
