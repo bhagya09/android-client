@@ -1,5 +1,8 @@
 package com.bsb.hike.productpopup;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 
 /**
  * 
@@ -8,7 +11,7 @@ package com.bsb.hike.productpopup;
  * This class has the information that the HikeDialogFragment may need to function properly.
  *
  */
-public class DialogPojo
+public class DialogPojo implements Parcelable
 {
 
 	boolean isFullScreen;
@@ -90,7 +93,44 @@ public class DialogPojo
 	}
 
 
-	
 
+	@Override
+	public int describeContents()
+	{
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+
+
+	@Override
+	public void writeToParcel(Parcel dest, int flags)
+	{
+		dest.writeValue(data);
+		dest.writeByte((byte) (isFullScreen ? 1 : 0));
+		dest.writeString(html);
+		dest.writeInt(heigth);
+	}
+
+	public static final Parcelable.Creator<DialogPojo> CREATOR = new Parcelable.Creator<DialogPojo>()
+	{
+		public DialogPojo createFromParcel(Parcel in)
+		{
+			Object data = in.readValue(Object.class.getClassLoader());
+			
+			boolean isFullScreen = in.readByte() != 0;
+
+			String html = in.readString();
+
+			int heigth = in.readInt();
+
+			return new DialogPojo(isFullScreen, heigth, html, data);
+		}
+
+		public DialogPojo[] newArray(int size)
+		{
+			return new DialogPojo[size];
+		}
+	};
 	
 }

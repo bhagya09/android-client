@@ -1,5 +1,6 @@
 package com.bsb.hike.voip;
 
+import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.KeyFactory;
@@ -11,6 +12,7 @@ import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.Arrays;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -21,6 +23,7 @@ import javax.crypto.spec.SecretKeySpec;
 import android.annotation.SuppressLint;
 
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 
 
 public class VoIPEncryptor {
@@ -94,6 +97,17 @@ public class VoIPEncryptor {
 	
 	public byte[] getSessionKey() {
 		return sessionKey;
+	}
+	
+	public String getSessionMD5() {
+		String md5 = null;
+		
+		if (sessionKey != null) {
+			String key = Arrays.toString(sessionKey);
+			md5 = Utils.StringToMD5(key);
+		}
+
+		return md5;
 	}
 	
 	public void setSessionKey(byte[] sessionKey) {

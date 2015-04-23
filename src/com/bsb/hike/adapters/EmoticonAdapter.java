@@ -1,6 +1,6 @@
 package com.bsb.hike.adapters;
 
-import android.app.Activity;
+import android.content.Context;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 import android.widget.GridView;
 
 import com.bsb.hike.R;
-import com.bsb.hike.adapters.EmoticonPageAdapter.EmoticonClickListener;
+import com.bsb.hike.media.EmoticonPickerListener;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.utils.EmoticonConstants;
 import com.bsb.hike.utils.SmileyParser;
@@ -28,9 +28,9 @@ public class EmoticonAdapter extends PagerAdapter implements StickerEmoticonIcon
 
 	private LayoutInflater inflater;
 
-	private Activity activity;
+	private Context context;
 
-	private EmoticonClickListener listener;
+	private EmoticonPickerListener listener;
 
 	private int[] emoticonResIds;
 
@@ -40,17 +40,17 @@ public class EmoticonAdapter extends PagerAdapter implements StickerEmoticonIcon
 
 	private int idOffset;
 
-	public EmoticonAdapter(Activity activity, EmoticonClickListener listener, boolean isPortrait, int[] categoryResIds)
+	public EmoticonAdapter(Context context, EmoticonPickerListener listener, boolean isPortrait, int[] categoryResIds)
 	{
-		this(activity, listener, isPortrait, categoryResIds, false);
+		this(context, listener, isPortrait, categoryResIds, false);
 	}
 
-	public EmoticonAdapter(Activity activity, EmoticonClickListener listener, boolean isPortrait, int[] categoryResIds, boolean emojiOnly)
+	public EmoticonAdapter(Context context, EmoticonPickerListener listener, boolean isPortrait, int[] categoryResIds, boolean emojiOnly)
 	{
 		MAX_EMOTICONS_PER_ROW = isPortrait ? MAX_EMOTICONS_PER_ROW_PORTRAIT : MAX_EMOTICONS_PER_ROW_LANDSCAPE;
 
-		this.inflater = LayoutInflater.from(activity);
-		this.activity = activity;
+		this.inflater = LayoutInflater.from(context);
+		this.context = context;
 		this.listener = listener;
 		this.categoryResIds = categoryResIds;
 
@@ -93,7 +93,7 @@ public class EmoticonAdapter extends PagerAdapter implements StickerEmoticonIcon
 		emoticonGrid.setNumColumns(MAX_EMOTICONS_PER_ROW);
 		emoticonGrid.setVerticalScrollBarEnabled(false);
 		emoticonGrid.setHorizontalScrollBarEnabled(false);
-		emoticonGrid.setAdapter(new EmoticonPageAdapter(activity, emoticonSubCategories, emoticonResIds, position, idOffset, listener));
+		emoticonGrid.setAdapter(new EmoticonPageAdapter(context, emoticonSubCategories, emoticonResIds, position, idOffset, listener));
 
 		((ViewPager) container).addView(emoticonPage);
 		return emoticonPage;

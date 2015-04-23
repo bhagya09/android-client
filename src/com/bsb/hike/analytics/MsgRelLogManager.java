@@ -17,6 +17,7 @@ import com.bsb.hike.models.HikePacket;
 import com.bsb.hike.models.MessagePrivateData;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.Utils;
 
 public class MsgRelLogManager
@@ -33,19 +34,22 @@ public class MsgRelLogManager
 	 */
 	public static void startMessageRelLogging(ConvMessage convMessage, String msgType)
 	{
-		if (isMessageToBeTracked(msgType))
+		if (convMessage != null)
 		{
-			Logger.d(AnalyticsConstants.MSG_REL_TAG, "===========================================");
-			Logger.d(AnalyticsConstants.MSG_REL_TAG, "Starting message sending");
-			if (convMessage.getPrivateData() == null)
+			if (isMessageToBeTracked(msgType))
 			{
-				convMessage.setPrivateData(new MessagePrivateData(UUID.randomUUID().toString(), msgType));
+				Logger.d(AnalyticsConstants.MSG_REL_TAG, "===========================================");
+				Logger.d(AnalyticsConstants.MSG_REL_TAG, "Starting message sending");
+				if (convMessage.getPrivateData() == null)
+				{
+					convMessage.setPrivateData(new MessagePrivateData(UUID.randomUUID().toString(), msgType));
+				}
+				else
+				{
+					Logger.e(MsgRelLogManager.class.getSimpleName(), "Found Conv Message With NUll PD, should not be case ");
+				}
+				recordMsgRel(convMessage.getPrivateData().getTrackID(), MsgRelEventType.SEND_BUTTON_CLICKED, msgType, convMessage.getMsisdn());
 			}
-			else
-			{
-				Logger.e(MsgRelLogManager.class.getSimpleName(), "Found Conv Message With NUll PD, should not be case ");
-			}
-			recordMsgRel(convMessage.getPrivateData().getTrackID(), convMessage.getMsgID(), MsgRelEventType.SEND_BUTTON_CLICKED, msgType);
 		}
 	}
 
@@ -75,7 +79,7 @@ public class MsgRelLogManager
 				String msgType = pdObject.optString(HikeConstants.MSG_REL_MSG_TYPE);
 				if (trackId != null && msgID != -1)
 				{
-					recordMsgRel(trackId, msgID, eventType, msgType);
+					recordMsgRel(trackId, eventType, msgType, "-1");
 				}
 			}
 		}
@@ -102,7 +106,7 @@ public class MsgRelLogManager
 				if (trackId != null)
 				{
 					long msgId = jsonObj.getLong(HikeConstants.MESSAGE_ID);
-					recordMsgRel(trackId, msgId, eventType);
+					recordMsgRel(trackId, eventType, "-1");
 				}
 			}
 		}
@@ -121,9 +125,9 @@ public class MsgRelLogManager
 	public static void logMsgRelEvent(ConvMessage convMessage, String eventType)
 	{
 		MessagePrivateData messagePrivateData = convMessage.getPrivateData();
-		if (messagePrivateData != null && messagePrivateData.getTrackID() != null)
+		if (messagePrivateData != null && messagePrivateData.getTrackID() != null && !OneToNConversationUtils.isOneToNConversation(convMessage.getMsisdn()))
 		{
-			recordMsgRel(messagePrivateData.getTrackID(), convMessage.getMsgID(), eventType, messagePrivateData.getMsgType());
+			recordMsgRel(messagePrivateData.getTrackID(), eventType, messagePrivateData.getMsgType(), convMessage.getMsisdn());
 		}
 	}
 
@@ -136,25 +140,25 @@ public class MsgRelLogManager
 	{
 		if (packet.getTrackId() != null)
 		{
-			recordMsgRel(packet.getTrackId(), packet.getMsgId(), eventType);
+			recordMsgRel(packet.getTrackId(), eventType, "-1");
 		}
 	}
 
 	/**
 	 * Records Event for Msg Reliability With High Priority and NON_UI_Event
-	 * 
+	 * @param eventType
+	 * @param msisdn TODO
 	 * @param uid
 	 * @param uId
-	 * @param eventType
 	 * @param msgType
 	 */
 	
-	public static void recordMsgRel(String trackID, long msgId, String eventType)
+	public static void recordMsgRel(String trackID, String eventType, String msisdn)
 	{
-		recordMsgRel(trackID, msgId, eventType, "-1");
+		recordMsgRel(trackID, eventType, "-1", msisdn);
 	}
 	
-	public static void recordMsgRel(String trackID, long msgId, String eventType, String msgType)
+	public static void recordMsgRel(String trackID, String eventType, String msgType, String msisdn)
 	{
 		JSONObject metadata = null;
 		try
@@ -164,8 +168,8 @@ public class MsgRelLogManager
 			// track_id:-
 			metadata.put(AnalyticsConstants.TRACK_ID, trackID);
 			
-			// msg_id:-
-			//metadata.put(AnalyticsConstants.MSG_ID, msgId);
+			// msisdn:-
+			metadata.put(AnalyticsConstants.T_USER, msisdn);
 			
 			//Constant Field need to be added for all the messages as required by Analytics Team
 			metadata.put(AnalyticsConstants.MSG_REL_CONST_STR, "msg");
@@ -174,14 +178,14 @@ public class MsgRelLogManager
 			metadata.put(AnalyticsConstants.MESSAGE_TYPE, msgType);
 			
 			// event type:- 0 to 19
-			metadata.put(AnalyticsConstants.MSG_REL_EVENT_TYPE, eventType);
+			metadata.put(AnalyticsConstants.REL_EVENT_STAGE, eventType);
 			
 			// con:- 2g/3g/4g/wifi/off
 			metadata.put(AnalyticsConstants.CONNECTION_TYPE, Utils.getNetworkType(HikeMessengerApp.getInstance().getApplicationContext()));
 			
 			HAManager.getInstance().record(AnalyticsConstants.MSG_REL, AnalyticsConstants.NON_UI_EVENT, EventPriority.HIGH, metadata, AnalyticsConstants.MSG_REL);
 			
-			Logger.d(AnalyticsConstants.MSG_REL_TAG, " --track: " + trackID + " --msg_id: " + msgId + " --m_type: " + msgType + " --event_num: " + eventType + " --con_type: "
+			Logger.d(AnalyticsConstants.MSG_REL_TAG, " --track: " + trackID + " --m_type: " + msgType + " --event_num: " + eventType + " --con_type: "
 					+ Utils.getNetworkType(HikeMessengerApp.getInstance().getApplicationContext()));
 		}
 		catch (JSONException e)

@@ -42,7 +42,7 @@
             android:layout_weight="1"
             android:layout_marginLeft="8dp"
             android:background="@null"
-            android:hint="@string/search_hint" />
+            android:hint="@string/search" />
 
         <com.bsb.hike.view.CustomFontButton
             android:id="@+id/search_button"
@@ -52,7 +52,7 @@
             android:layout_centerVertical="true"
             android:layout_marginRight="4dp"
             android:background="@drawable/bg_blue_btn"
-            android:text="@string/search_hint"
+            android:text="@string/search"
             android:textColor="@drawable/action_bar_btn_text"
             android:textSize="14sp"
             android:textStyle="bold"

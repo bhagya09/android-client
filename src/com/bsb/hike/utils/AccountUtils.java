@@ -17,6 +17,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.PlatformUIDFetch;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -185,6 +188,12 @@ public class AccountUtils
 	
 	public static String analyticsUploadUrl = base + ANALYTICS_UPLOAD_BASE;
 	
+	public static String USER_DP_UPDATE_URL = "/account/avatar";
+	
+	public static String GROUP_DP_UPDATE_URL_PREFIX = "/group/";
+	
+	public static String GROUP_DP_UPDATE_URL_SUFFIX = "/avatar";
+	
 	public static void setToken(String token)
 	{
 		mToken = token;
@@ -283,6 +292,7 @@ public class AccountUtils
 
 	public static JSONObject executeRequest(HttpRequestBase request)
 	{
+		setNoTransform(request);
 		HttpClient client = getClient(request);
 		HttpResponse response;
 		try
@@ -682,6 +692,13 @@ public class AccountUtils
 			return null;
 		}
 
+		ArrayList<String> msisdnForMissingPlatformUID = ContactManager.getInstance().getMsisdnForMissingPlatformUID();
+
+		if (msisdnForMissingPlatformUID != null && msisdnForMissingPlatformUID.size()>0)
+		{
+			PlatformUIDFetch.fetchPlatformUid(HikePlatformConstants.PlatformUIDFetchType.PARTIAL_ADDRESS_BOOK, msisdnForMissingPlatformUID.toArray(new String[] { }));
+		}
+
 		String encoded = data.toString();
 		// try
 		// {
@@ -800,7 +817,8 @@ public class AccountUtils
 				JSONObject entry = entries.optJSONObject(i);
 				String msisdn = entry.optString("msisdn");
 				boolean onhike = entry.optBoolean("onhike");
-				ContactInfo info = new ContactInfo(id, msisdn, cList.get(i).getName(), cList.get(i).getPhoneNum(), onhike);
+				String platformId = entry.optString(HikePlatformConstants.PLATFORM_USER_ID);
+				ContactInfo info = new ContactInfo(id, msisdn, cList.get(i).getName(), cList.get(i).getPhoneNum(), onhike, platformId);
 				server_contacts.add(info);
 			}
 		}
@@ -862,6 +880,11 @@ public class AccountUtils
 			{
 			case PROFILE_PIC:
 				requestBase = new HttpPost(base + hikeHttpRequest.getPath());
+				/*
+				 * Adding MD5 header to validate the file at server side.
+				 */
+				String fileMd5 = Utils.fileToMD5(hikeHttpRequest.getFilePath());
+				requestBase.addHeader("Content-MD5", fileMd5);
 				entity = new FileEntity(new File(hikeHttpRequest.getFilePath()), "");
 				break;
 
@@ -874,6 +897,7 @@ public class AccountUtils
 				
 
 			case DELETE_STATUS:
+			case DELETE_DP:
 				requestBase = new HttpDelete(base + hikeHttpRequest.getPath());
 				break;
 
@@ -983,6 +1007,7 @@ public class AccountUtils
 		HttpRequestBase req = new HttpGet(AccountUtils.fileTransferBase + "/user/pft/");
 		addToken(req);
 		req.addHeader("X-SESSION-ID", sessionId);
+		AccountUtils.setNoTransform(req);
 		HttpClient httpclient = getClient(req);
 		HttpResponse response = httpclient.execute(req);
 		StatusLine statusLine = response.getStatusLine();
@@ -1005,6 +1030,7 @@ public class AccountUtils
 	public static String crcValue(String fileKey) throws ClientProtocolException, IOException
 	{
 		HttpRequestBase req = new HttpGet(AccountUtils.fileTransferBase + "/user/ft/" + fileKey);
+		AccountUtils.setNoTransform(req);
 		addToken(req);
 		HttpClient httpclient = getClient(req);
 		HttpResponse response = httpclient.execute(req);
@@ -1056,5 +1082,10 @@ public class AccountUtils
 	public static void setNoTransform(URLConnection urlConnection)
 	{
 		urlConnection.setRequestProperty("Cache-Control", "no-transform");
+	}
+
+	public static void setNoTransform(HttpRequestBase request)
+	{
+		request.addHeader("Cache-Control", "no-transform");
 	}
 }

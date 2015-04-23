@@ -543,7 +543,6 @@
     <string name="sent_you_friend_request">Enviou uma solicitação de amigo a você</string>
     <string name="num_people">%1$d people</string>
     <string name="add">Adic.</string>
-    <string name="no_updates">No updates from %1$s yet.</string>
     <string name="email_conversation">Enviar conversa por e-mail</string>
     <string name="me_key">eu</string>
     <string name="group_name_email">"Grupo "</string>
@@ -558,7 +557,7 @@
     <string name="new_update">Nova atualização</string>
     <string name="invite_via_facebook">Convidar via Facebook</string>
     <string name="invite_via_twitter">Convidar via Twitter</string>
-    <string name="search_hint">Procurar</string>
+    <string name="search">Procurar</string>
     <string name="fb_invite_success">Convite bem-sucedido</string>
     <string name="fb_invite_failed">Convite cancelado</string>
     <string name="social_invite_network_error">Não foi possível enviar o convite. Verifique as configurações de rede.</string>

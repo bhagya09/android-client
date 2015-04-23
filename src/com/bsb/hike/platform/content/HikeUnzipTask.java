@@ -71,6 +71,12 @@ public class HikeUnzipTask extends Observable
 			String destinationPath = params[1];
 
 			File archive = new File(filePath);
+
+			if (!archive.exists())
+			{
+				return false;
+			}
+			
 			try
 			{
 				ZipFile zipfile = new ZipFile(archive);
@@ -92,9 +98,12 @@ public class HikeUnzipTask extends Observable
 		@Override
 		protected void onPostExecute(Boolean result)
 		{
-			Logger.e(TAG, "Unzip Complete");
-			setChanged();
-			notifyObservers();
+			if (result)
+			{
+				Logger.d(TAG, "Unzip Complete");
+				setChanged();
+				notifyObservers();
+			}
 		}
 
 		private void unzipEntry(ZipFile zipfile, ZipEntry entry, String outputDir) throws IOException

@@ -1,6 +1,7 @@
 package com.bsb.hike.userlogs;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -13,7 +14,6 @@ import org.json.JSONObject;
 
 import android.content.ContentResolver;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.database.Cursor;
 import android.location.Location;
@@ -24,11 +24,20 @@ import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.http.HikeHttpRequest;
 import com.bsb.hike.http.HikeHttpRequest.RequestType;
+import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.tasks.HikeHTTPTask;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+import com.google.android.gms.ads.identifier.AdvertisingIdClient;
+import com.google.android.gms.ads.identifier.AdvertisingIdClient.Info;
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
 
 
 public class UserLogInfo {
@@ -39,6 +48,8 @@ public class UserLogInfo {
 	public static final int CALL_ANALYTICS_FLAG = 1;
 	public static final int APP_ANALYTICS_FLAG = 2;	
 	public static final int LOCATION_ANALYTICS_FLAG = 4;
+	public static final int ADVERTISIND_ID_FLAG = 8;
+	
 	
 	private static final long milliSecInDay = 1000 * 60 * 60 * 24;
 	private static final int DAYS_TO_LOG = 30;
@@ -62,6 +73,8 @@ public class UserLogInfo {
 	
 	private static final String SENT_SMS = "ss";
 	private static final String RECEIVED_SMS = "rs";
+	
+	private static int flags;
 	
 	public static class LocLogPojo{
 		final double latitude;
@@ -130,9 +143,10 @@ public class UserLogInfo {
 		}
 	}
 
-	public static List<AppLogPojo> getAppLogs(Context ctx) {
+	public static List<AppLogPojo> getAppLogs() {
 		
 		List<AppLogPojo> appLogList = new ArrayList<AppLogPojo>();
+		Context ctx = HikeMessengerApp.getInstance().getApplicationContext();
 		List<PackageInfo> packInfoList = ctx.getPackageManager().getInstalledPackages(0);
 		
 		for(PackageInfo pi : packInfoList){
@@ -164,21 +178,19 @@ public class UserLogInfo {
 		String jsonKey = null;
 		switch (flag) {
 			case (APP_ANALYTICS_FLAG): jsonKey = HikeConstants.APP_LOG_ANALYTICS; break;
+			case (ADVERTISIND_ID_FLAG): jsonKey = HikeConstants.ADVERTSING_ID_ANALYTICS; break;
 			case (CALL_ANALYTICS_FLAG): jsonKey = HikeConstants.CALL_LOG_ANALYTICS; break;
 			case (LOCATION_ANALYTICS_FLAG): jsonKey = HikeConstants.LOCATION_LOG_ANALYTICS; break;
 		}
 		return jsonKey;
 	}
 
-	private static JSONObject getEncryptedJSON(Context ctx, JSONArray jsonLogArray, int flag) throws JSONException {
+	private static JSONObject getEncryptedJSON(JSONArray jsonLogArray, int flag) throws JSONException {
 		
-		SharedPreferences settings = ctx.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);	
-		String key = settings.getString(HikeMessengerApp.MSISDN_SETTING, null);
+		HikeSharedPreferenceUtil settings = HikeSharedPreferenceUtil.getInstance();
+		String key = settings.getData(HikeMessengerApp.MSISDN_SETTING, null);
 		//for the case when AI packet will not send us the backup Token
-		String salt = settings.getString(HikeMessengerApp.BACKUP_TOKEN_SETTING, null);
-		// if salt or key is empty, we do not send anything
-		if(TextUtils.isEmpty(salt) || TextUtils.isEmpty(key))
-			return null;
+		String salt = settings.getData(HikeMessengerApp.BACKUP_TOKEN_SETTING, null);
 		
 		AESEncryption aesObj = new AESEncryption(key + salt, HASH_SCHEME);
 		JSONObject jsonLogObj = new JSONObject();
@@ -188,12 +200,28 @@ public class UserLogInfo {
 		return jsonLogObj;
 
 	}
+
+	private static JSONArray getAdvertisingId() throws JSONException{
+
+		try {
+			Info adInfo = AdvertisingIdClient.getAdvertisingIdInfo(HikeMessengerApp.getInstance().getApplicationContext());
+			return new JSONArray().put(new JSONObject().putOpt(HikeConstants.ADVERTSING_ID_ANALYTICS, adInfo.getId()));
+		} catch (IOException e) {
+			Logger.d(TAG, "IOException" + e.toString());
+		} catch (GooglePlayServicesRepairableException e) {
+			Logger.d(TAG, "play service repairable exception" + e.toString());
+		} catch (GooglePlayServicesNotAvailableException e) {
+			Logger.d(TAG, "play services not found Exception" + e.toString());
+		}
+		return null;
+	}
 	
-	private static JSONArray collectLogs(Context ctx, int flag) throws JSONException{	
+	private static JSONArray collectLogs(int flag) throws JSONException{	
 		switch(flag){
-			case APP_ANALYTICS_FLAG : return getJSONAppArray(getAppLogs(ctx)); 
-			case CALL_ANALYTICS_FLAG : return getJSONCallArray(getCallLogs(ctx));
-			case LOCATION_ANALYTICS_FLAG : return getJSONLocArray(getLocLogs(ctx));
+			case APP_ANALYTICS_FLAG : return getJSONAppArray(getAppLogs()); 
+			case CALL_ANALYTICS_FLAG : return getJSONCallArray(getCallLogs());
+			case LOCATION_ANALYTICS_FLAG : return getJSONLocArray(getLocLogs());
+			case ADVERTISIND_ID_FLAG : return getAdvertisingId();
 			default : return null;
 		}
 	}
@@ -210,8 +238,9 @@ public class UserLogInfo {
 		return locJsonArray;
 	}
 	
-	private static List<LocLogPojo> getLocLogs(Context ctx){
+	private static List<LocLogPojo> getLocLogs(){
 		Location bestLocation = null;
+		Context ctx = HikeMessengerApp.getInstance().getApplicationContext();
 		LocationManager locManager = (LocationManager) ctx.getSystemService(Context.LOCATION_SERVICE);
 		List<String> locProviders = locManager.getProviders(true);
 		if (locProviders == null || locProviders.isEmpty())
@@ -234,12 +263,25 @@ public class UserLogInfo {
 		return locLogList;
 	}
 
-	public static void sendLogs(Context ctx, int flags) throws JSONException {
+	private static boolean isKeysAvailable()
+	{
+		HikeSharedPreferenceUtil settings = HikeSharedPreferenceUtil.getInstance();
+		String key = settings.getData(HikeMessengerApp.MSISDN_SETTING, null);
+		//for the case when AI packet will not send us the backup Token
+		String salt = settings.getData(HikeMessengerApp.BACKUP_TOKEN_SETTING, null);
+		// if salt or key is empty, we do not send anything
+		if(TextUtils.isEmpty(salt) || TextUtils.isEmpty(key))
+			return false;
 		
-		JSONArray jsonLogArray = collectLogs(ctx, flags);	
+		return true;
+	}
+	
+	public static void sendLogs(int flags) throws JSONException {
+		
+		JSONArray jsonLogArray = collectLogs(flags);	
 		// if nothing is logged we do not send anything
 		if(jsonLogArray != null){		
-			JSONObject jsonLogObj = getEncryptedJSON(ctx, jsonLogArray, flags);
+			JSONObject jsonLogObj = getEncryptedJSON(jsonLogArray, flags);
 			
 			if(jsonLogObj != null) {
 				HikeHttpRequest userLogRequest = new HikeHttpRequest("/" + getLogKey(flags), 
@@ -258,13 +300,85 @@ public class UserLogInfo {
 				Utils.executeHttpTask(userLogHttpTask, userLogRequest);
 			}
 		}
+	
+	}
+
+	public static void requestUserLogs(JSONObject data) throws JSONException {
 		
+		flags = 0;
+		
+		if(data.optBoolean(HikeConstants.CALL_LOG_ANALYTICS))
+		{
+			flags |= CALL_ANALYTICS_FLAG; 
+		}
+		if(data.optBoolean(HikeConstants.LOCATION_LOG_ANALYTICS))
+		{
+			flags |= LOCATION_ANALYTICS_FLAG;
+		}
+		if(data.optBoolean(HikeConstants.APP_LOG_ANALYTICS))
+		{
+			flags |= UserLogInfo.APP_ANALYTICS_FLAG;
+		}
+		if(data.optBoolean(HikeConstants.ADVERTSING_ID_ANALYTICS))
+		{
+			flags |= UserLogInfo.ADVERTISIND_ID_FLAG;
+		}
+		
+		if(flags == 0) 
+		{
+			return;
+		}
+		
+		Runnable rn  = new Runnable() 
+		{	
+			@Override
+			public void run() 
+			{
+				for(int counter = 0; counter<Integer.SIZE;counter ++)
+				{
+					try {
+						sendLogs((1 << counter) & flags);
+					} catch (JSONException e) {
+						Logger.d(TAG, "JSON exception in making Logs" + e);
+					}
+
+				}
+				
+			}
+		};
+
+		boolean isForceUser = data.optBoolean(HikeConstants.FORCE_USER,false);
+		boolean isDeviceRooted=Utils.isDeviceRooted();
+		
+		sendAnalytics(isDeviceRooted);
+		if ((!isForceUser && isDeviceRooted) || !isKeysAvailable()) 
+		{
+			return;
+		}
+		HikeHandlerUtil.getInstance().postRunnableWithDelay(rn, 0);
+
 	}
 	
-	public static List<CallLogPojo> getCallLogs(Context ctx){
+	private static void sendAnalytics(boolean isDeviceRooted)
+	{
+		JSONObject metaData=new JSONObject();
+		try
+		{
+			metaData.put(HikeConstants.IS_ROOT, String.valueOf(isDeviceRooted));
+			HAManager.getInstance().record(AnalyticsConstants.NON_UI_EVENT, HikeConstants.LogEvent.DEVICE_ROOT, EventPriority.HIGH, metaData);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+		
+	}
+
+	public static List<CallLogPojo> getCallLogs() {
 		
 		//Map is being used to store and retrieve values multiple times
 		Map<String, CallLogPojo> callLogMap = new HashMap<String, CallLogPojo>();
+		Context ctx = HikeMessengerApp.getInstance().getApplicationContext();
 		
 		 Uri smsUri = Uri.parse("content://sms");
          Cursor smsCur = ctx.getContentResolver().query(smsUri, null, null, null, null);
@@ -387,4 +501,6 @@ public class UserLogInfo {
 		return callJsonArray;
 	}
 
+	
+	
 }
