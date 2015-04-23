@@ -183,8 +183,8 @@
 	<dimen name="photos_doodle_preview_padding">16dp</dimen>
 	<dimen name="photos_action_bar_left_right_padding">16dp</dimen>
 	<dimen name="photos_action_internal_padding">8dp</dimen>
-	<dimen name="photos_thumbnail_dimen_mdpi">45dp</dimen>
-	<dimen name="photos_thumbnail_dimen_hdpi">60dp</dimen>
+	<dimen name="photos_thumbnail_dimen_hdpi">45dp</dimen>
+	<dimen name="photos_thumbnail_dimen_xhdpi">60dp</dimen>
 	<dimen name="broadcast_ftue_text_bottom_padding">15dp</dimen>
 	<dimen name="broadcast_ftue_text_right_padding">15dp</dimen>
 	<dimen name="sticker_empty_pallete_preview_image_width">125dp</dimen>
