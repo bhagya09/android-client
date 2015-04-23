@@ -153,5 +153,12 @@ public class BotChatThread extends OneToOneChatThread
 				HikePlatformConstants.OVERFLOW_MENU, AnalyticsConstants.CLICK_EVENT, null);
 		super.onBlockUserclicked();
 	}
+	
+	@Override
+	protected void emailChat()
+	{
+		BotConversation.analyticsForBots(msisdn, HikePlatformConstants.BOT_EMAIL_CONVERSATION, HikePlatformConstants.OVERFLOW_MENU, AnalyticsConstants.CLICK_EVENT, null);
+		super.emailChat();
+	}
 
 }

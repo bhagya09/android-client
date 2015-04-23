@@ -3835,7 +3835,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	/**
 	 * Used to email chat
 	 */
-	private void emailChat()
+	protected void emailChat()
 	{
 		if (messages != null && messages.size() > 0)
 		{
