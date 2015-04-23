@@ -468,15 +468,6 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			{
 				msg.setState(ConvMessage.State.SENT_DELIVERED_READ);
 				removeFromMessageMap(msg);
-				
-				//Log Events For Message Reliability
-				MessagePrivateData pd = msg.getPrivateData();
-				if(pd != null && pd.getTrackID() != null)
-				{
-					Logger.d(AnalyticsConstants.MSG_REL_TAG, "===========================================");
-					Logger.d(AnalyticsConstants.MSG_REL_TAG, "Read Shown to Sender:track_id "+ msg.getPrivateData().getTrackID());
-					MsgRelLogManager.logMsgRelEvent(msg, MsgRelEventType.MR_SHOWN_AT_SENEDER_SCREEN);
-				}
 			}
 		}
 		if (mConversation.isOnHike())

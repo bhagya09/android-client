@@ -1687,10 +1687,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	{
 		ConvMessage convMessage = Utils.makeConvMessage(msisdn, getString(R.string.poke_msg), mConversation.isOnHike());
 		ChatThreadUtils.setPokeMetadata(convMessage);
-
-		// 1) user double clicked on Chat Screen i.e Sending nudge
-		MsgRelLogManager.startMessageRelLogging(convMessage, MessageType.TEXT);
-				
 		sendMessage(convMessage);
 	}
 
@@ -3228,6 +3224,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 			if (updateView)
 			{
+				MsgRelLogManager.logMsgRelEvent(msg, MsgRelEventType.SINGLE_TICK_ON_SENDER);
+				
 				uiHandler.sendEmptyMessage(NOTIFY_DATASET_CHANGED);
 			}
 		}
