@@ -56,8 +56,6 @@ public class GroupChatThread extends OneToNChatThread
 
 	private static final String TAG = "groupchatthread";
 
-	private static final int MUTE_CONVERSATION_TOGGLED = 301;
-
 	private static final int PIN_CREATE_ACTION_MODE = 302;
 	
 	private static final int LATEST_PIN_DELETED = 303;
@@ -107,7 +105,7 @@ public class GroupChatThread extends OneToNChatThread
 	@Override
 	protected String[] getPubSubListeners()
 	{
-		return new String[] { HikePubSub.ONETON_MESSAGE_DELIVERED_READ, HikePubSub.MUTE_CONVERSATION_TOGGLED, HikePubSub.LATEST_PIN_DELETED, HikePubSub.CONV_META_DATA_UPDATED,
+		return new String[] { HikePubSub.ONETON_MESSAGE_DELIVERED_READ, HikePubSub.LATEST_PIN_DELETED, HikePubSub.CONV_META_DATA_UPDATED,
 				HikePubSub.BULK_MESSAGE_RECEIVED, HikePubSub.CONVERSATION_REVIVED, HikePubSub.PARTICIPANT_JOINED_ONETONCONV, HikePubSub.PARTICIPANT_LEFT_ONETONCONV,
 				HikePubSub.PARTICIPANT_JOINED_SYSTEM_MESSAGE, HikePubSub.ONETONCONV_NAME_CHANGED, HikePubSub.GROUP_END };
 	}
@@ -209,9 +207,6 @@ public class GroupChatThread extends OneToNChatThread
 	{
 		switch (msg.what)
 		{
-		case MUTE_CONVERSATION_TOGGLED:
-			muteConvToggledUIChange((boolean) msg.obj);
-			break;
 		case LATEST_PIN_DELETED:
 			hidePinFromUI((boolean) msg.obj);
 			break;
@@ -235,9 +230,6 @@ public class GroupChatThread extends OneToNChatThread
 	{
 		switch (type)
 		{
-		case HikePubSub.MUTE_CONVERSATION_TOGGLED:
-			onMuteConversationToggled(object);
-			break;
 		case HikePubSub.LATEST_PIN_DELETED:
 			onLatestPinDeleted(object);
 			break;
@@ -348,46 +340,6 @@ public class GroupChatThread extends OneToNChatThread
 	protected void addMessage(ConvMessage message)
 	{
 		super.addMessage(message);
-	}
-
-	private void onMuteConversationToggled(Object object)
-	{
-		Pair<String, Boolean> groupMute = (Pair<String, Boolean>) object;
-
-		/**
-		 * Proceeding only if we caught an event for this groupchat thread
-		 */
-
-		if (groupMute.first.equals(msisdn))
-		{
-			oneToNConversation.setIsMute(groupMute.second);
-		}
-
-		sendUIMessage(MUTE_CONVERSATION_TOGGLED, groupMute.second);
-	}
-
-	/**
-	 * This method handles the UI part of Mute group conversation It is to be strictly called from the UI Thread
-	 * 
-	 * @param isMuted
-	 */
-	private void muteConvToggledUIChange(boolean isMuted)
-	{
-		if (!ChatThreadUtils.checkNetworkError())
-		{
-			toggleConversationMuteViewVisibility(isMuted);
-		}
-
-		/**
-		 * Updating the overflow menu item
-		 */
-
-		mActionBar.updateOverflowMenuItemString(R.string.mute_group, isMuted ? activity.getString(R.string.unmute_group) : activity.getString(R.string.mute_group));
-	}
-
-	private void toggleConversationMuteViewVisibility(boolean isMuted)
-	{
-		activity.findViewById(R.id.conversation_mute).setVisibility(isMuted ? View.VISIBLE : View.GONE);
 	}
 
 	/*

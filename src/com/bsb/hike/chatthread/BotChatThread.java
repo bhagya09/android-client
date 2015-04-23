@@ -3,8 +3,12 @@ package com.bsb.hike.chatthread;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.util.Pair;
+
 import com.actionbarsherlock.view.Menu;
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
@@ -115,7 +119,9 @@ public class BotChatThread extends OneToOneChatThread
 		HikeConversationsDatabase.getInstance().updateBot(msisdn, null, null, mConversation.isMuted() ? 1 : 0);
 		BotConversation.analyticsForBots(msisdn, wasMuted ? HikePlatformConstants.BOT_UNMUTE_CHAT : HikePlatformConstants.BOT_MUTE_CHAT, HikePlatformConstants.OVERFLOW_MENU,
 				AnalyticsConstants.CLICK_EVENT, null);
-	}
 
+		HikeMessengerApp.getPubSub().publish(HikePubSub.MUTE_CONVERSATION_TOGGLED, new Pair<String, Boolean>(mConversation.getMsisdn(), mConversation.isMuted()));
+
+	}
 
 }
