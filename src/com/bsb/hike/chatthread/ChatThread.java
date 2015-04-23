@@ -221,8 +221,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
     
 	protected static final int BLOCK_UNBLOCK_USER = 30;
 
-	public static final String SCROLL_END = "scroll";
-   
     private int NUDGE_TOAST_OCCURENCE = 2;
     	
     private int currentNudgeCount = 0;
@@ -1967,11 +1965,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			showAudioRecordView();
 		}
 		
-		else if(intent.hasExtra(SCROLL_END))
-		{
-			uiHandler.sendEmptyMessage(SCROLL_TO_END);
-		}
-
 		/**
 		 * 7. Since the message was not forwarded, we check if we have any drafts saved for this conversation, if we do we enter it in the compose box.
 		 */
@@ -4552,5 +4545,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		{
 			HikeMessengerApp.getPubSub().publish(HikePubSub.BLOCK_USER, msisdn);
 		}
+	}
+
+	public void scrollToEnd()
+	{
+		uiHandler.sendEmptyMessage(SCROLL_TO_END);
 	}
 }
