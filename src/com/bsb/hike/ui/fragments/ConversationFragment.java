@@ -1144,6 +1144,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 
 	public void setupSearch()
 	{
+		checkAndRemoveExistingHeaders();
 		if (mAdapter != null)
 		{
 			searchMode = true;
@@ -1479,6 +1480,11 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 				}
 				else if (getString(R.string.viewcontact).equals(option))
 				{
+					if (conv.isBlocked())
+					{
+						Toast.makeText(getActivity(), getString(R.string.block_overlay_message, conv.getLabel()), Toast.LENGTH_SHORT).show();
+						return;
+					}
 					viewContacts(conv);
                     if (Utils.isBot(conv.getMsisdn()))
                     {
@@ -1628,6 +1634,12 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		displayedConversations = new ArrayList<ConvInfo>();
 		List<ConvInfo> conversationList = db.getConvInfoObjects();
 
+		for (ConvInfo convInfo : conversationList)
+		{
+			convInfo.setBlocked(ContactManager.getInstance().isBlocked(convInfo.getMsisdn()));
+
+		}
+		
 		stealthConversations = new HashSet<ConvInfo>();
 
 		displayedConversations.addAll(conversationList);
@@ -2821,7 +2833,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 						return;
 					}
 
-					convInfo.setMute(true);
+					convInfo.setMute(isMuted);
 
 					notifyDataSetChanged();
 				}
@@ -3421,13 +3433,12 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		{
 			return;
 		}
-
-		mAdapter.setIsListFlinging(velocity > HikeConstants.MAX_VELOCITY_FOR_LOADING_IMAGES_SMALL);
 	}
 
 	@Override
 	public void onScrollStateChanged(AbsListView view, int scrollState)
 	{
+		mAdapter.setIsListFlinging(velocity > HikeConstants.MAX_VELOCITY_FOR_LOADING_IMAGES_SMALL && scrollState == OnScrollListener.SCROLL_STATE_FLING);
 	}
 
 	private void removeTipIfExists(int whichTip)

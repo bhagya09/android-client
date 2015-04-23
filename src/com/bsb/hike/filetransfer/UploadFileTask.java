@@ -566,16 +566,18 @@ public class UploadFileTask extends FileTransferBase
 	@Override
 	public FTResult call()
 	{
+		if(!Utils.isUserOnline(context))
+		{
+			saveStateOnNoInternet();
+			return FTResult.UPLOAD_FAILED;
+		}
 		mThread = Thread.currentThread();
 		boolean isValidKey = false;
 		try{
 			isValidKey = isFileKeyValid();
 		}catch(Exception e){
 			Logger.e(getClass().getSimpleName(), "Exception", e);
-			_state = FTState.ERROR;
-			stateFile = getStateFile((ConvMessage) userContext);
-			saveFileKeyState(fileKey);
-			fileKey = null;
+			saveStateOnNoInternet();
 			return FTResult.UPLOAD_FAILED;
 		}
 		try
@@ -901,7 +903,7 @@ public class UploadFileTask extends FileTransferBase
 				// In case there is error uploading this chunk
 				if (responseString == null)
 				{
-					if (shouldRetry())
+					if (shouldRetry() && Utils.isUserOnline(context))
 					{
 						if (freshStart)
 						{
@@ -1389,5 +1391,13 @@ public class UploadFileTask extends FileTransferBase
 			}
 		}
 		throw new Exception("Network error.");
+	}
+
+	private void saveStateOnNoInternet()
+	{
+		_state = FTState.ERROR;
+		stateFile = getStateFile((ConvMessage) userContext);
+		saveFileKeyState(fileKey);
+		fileKey = null;
 	}
 }

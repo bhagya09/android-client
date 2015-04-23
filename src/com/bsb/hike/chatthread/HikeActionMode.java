@@ -171,12 +171,10 @@ public class HikeActionMode implements ActionMode.Callback, OnClickListener
 		{
 			initDefaultView();
 		}
-		else
+		
+		if (mListener != null)
 		{
-			if (mListener != null)
-			{
-				mListener.initActionbarActionModeView(actionModeId, mActionMode.getCustomView());
-			}
+			mListener.initActionbarActionModeView(actionModeId, mActionMode.getCustomView());
 		}
 	}
 
