@@ -27,6 +27,7 @@
 
     <ImageView
         android:id="@+id/status"
+        android:contentDescription="@string/content_des_message_send_rec_read_status"
         android:layout_width="21dp"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_tick"

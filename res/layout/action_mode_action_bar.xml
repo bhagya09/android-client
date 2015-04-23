@@ -20,6 +20,7 @@
 
             <ImageView
                 android:id="@+id/close_action_mode"
+                android:contentDescription="@string/content_des_reset_selected_contacts_create_group"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:scaleType="centerInside"

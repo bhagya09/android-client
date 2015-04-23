@@ -59,6 +59,8 @@ public class StickerPreviewImageDownloadTask extends BaseStickerDownloadTask
 				}
 			}
 			
+			Utils.makeNoMediaFile(otherDir);
+			
 			String urlString = AccountUtils.base + "/stickers/preview?catId=" + catId + "&resId=" + Utils.getResolutionId();
 			if(AccountUtils.ssl)
 			{

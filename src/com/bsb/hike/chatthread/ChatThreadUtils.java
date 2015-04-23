@@ -31,6 +31,7 @@ import android.widget.Toast;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.MqttConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.MsgRelEventType;
@@ -181,7 +182,7 @@ public class ChatThreadUtils
 			Logger.wtf(TAG, "Exception in Adding bulk messages : " + e.toString());
 		}
 
-		HikeMqttManagerNew.getInstance().sendMessage(jsonObject, HikeMqttManagerNew.MQTT_QOS_ONE);
+		HikeMqttManagerNew.getInstance().sendMessage(jsonObject, MqttConstants.MQTT_QOS_ONE);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.MSG_READ, msisdn);
 	}
 
@@ -403,7 +404,7 @@ public class ChatThreadUtils
 		mConversationDb.updateMsgStatus(message.getMsgID(), ConvMessage.State.RECEIVED_READ.ordinal(), msisdn);
 		if (message.getParticipantInfoState() == ParticipantInfoState.NO_INFO)
 		{
-			HikeMqttManagerNew.getInstance().sendMessage(message.serializeDeliveryReportRead(), HikeMqttManagerNew.MQTT_QOS_ONE);
+			HikeMqttManagerNew.getInstance().sendMessage(message.serializeDeliveryReportRead(), MqttConstants.MQTT_QOS_ONE);
 		}
 
 		HikeMessengerApp.getPubSub().publish(HikePubSub.MSG_READ, msisdn);
@@ -457,7 +458,7 @@ public class ChatThreadUtils
 				e.printStackTrace();
 			}
 
-			HikeMqttManagerNew.getInstance().sendMessage(object, HikeMqttManagerNew.MQTT_QOS_ONE);
+			HikeMqttManagerNew.getInstance().sendMessage(object, MqttConstants.MQTT_QOS_ONE);
 		}
 	}
 
@@ -604,8 +605,6 @@ public class ChatThreadUtils
 						{
 							dataMR.putOpt(String.valueOf(pair.first), pd);
 							// Logs for Msg Reliability
-							Logger.d(AnalyticsConstants.MSG_REL_TAG, "===========================================");
-							Logger.d(AnalyticsConstants.MSG_REL_TAG, "Receiver reads msg on after opening screen,track_id:- " + trackId);
 							MsgRelLogManager.recordMsgRel(trackId, MsgRelEventType.RECEIVER_OPENS_CONV_SCREEN, msisdn);
 						}
 						else
@@ -621,8 +620,6 @@ public class ChatThreadUtils
 			}
 
 			Logger.d("UnreadBug", "Unread count event triggered");
-			Logger.d(AnalyticsConstants.MSG_REL_TAG, "inside API setMessageRead in CT ===========================================");
-			Logger.d(AnalyticsConstants.MSG_REL_TAG, "Going to set MR/NMR as user is on chat screen ");
 
 			/*
 			 * If there are msgs which are RECEIVED UNREAD then only broadcast a msg that these are read avoid sending read notifications for group chats
@@ -634,7 +631,7 @@ public class ChatThreadUtils
 				object.put(HikeConstants.TO, msisdn);
 				object.put(HikeConstants.DATA, ids);
 
-				HikeMqttManagerNew.getInstance().sendMessage(object, HikeMqttManagerNew.MQTT_QOS_ONE);
+				HikeMqttManagerNew.getInstance().sendMessage(object, MqttConstants.MQTT_QOS_ONE);
 			}
 
 			if (dataMR != null && dataMR.length() > 0)
@@ -644,7 +641,7 @@ public class ChatThreadUtils
 				object.put(HikeConstants.TO, msisdn);
 				object.put(HikeConstants.DATA, dataMR);
 
-				HikeMqttManagerNew.getInstance().sendMessage(object, HikeMqttManagerNew.MQTT_QOS_ONE);
+				HikeMqttManagerNew.getInstance().sendMessage(object, MqttConstants.MQTT_QOS_ONE);
 			}
 			Logger.d(TAG, "Unread Count event triggered");
 
