@@ -7,10 +7,10 @@
     android:layout_marginBottom="10dp"
     android:gravity="center" >
 
-    <com.bsb.hike.ui.utils.RecyclingImageView
+    <ImageView
         android:id="@+id/preview_image"
-        android:layout_width="125dp"
-        android:layout_height="178dp"
+        android:layout_width="@dimen/sticker_empty_pallete_preview_image_width"
+        android:layout_height="@dimen/sticker_empty_pallete_preview_image_height"
         android:layout_marginRight="18dp"
         android:scaleType="centerInside"
         android:src="@drawable/sticker_069_hi" />

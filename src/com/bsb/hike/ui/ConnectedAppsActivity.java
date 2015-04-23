@@ -24,9 +24,9 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.dialog.CustomAlertDialog;
 import com.bsb.hike.models.ConnectedApp;
 import com.bsb.hike.platform.HikePlatformConstants;
-import com.bsb.hike.utils.CustomAlertDialog;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 
@@ -247,7 +247,7 @@ public class ConnectedAppsActivity extends HikeAppStateBaseFragmentActivity impl
 		try
 		{
 			final int position = (Integer) v.getTag();
-			final CustomAlertDialog alertDialog = new CustomAlertDialog(ConnectedAppsActivity.this);
+			final CustomAlertDialog alertDialog = new CustomAlertDialog(ConnectedAppsActivity.this, 0);  //A dialogId is supplied as well to the constructor. Choosing 0 randomly here
 			alertDialog.setHeader(getString(R.string.are_you_sure));
 			alertDialog.setBody(getString(R.string.confirm_disconnect_app));
 			alertDialog.setOkButton(getString(R.string.yes), new OnClickListener()

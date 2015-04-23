@@ -2,7 +2,7 @@ package com.bsb.hike.adapters;
 
 import java.util.List;
 
-import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
 import android.view.LayoutInflater;
@@ -18,12 +18,12 @@ import android.widget.TextView;
 
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
+import com.bsb.hike.media.StickerPickerListener;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.models.StickerPageAdapterItem;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadSource;
 import com.bsb.hike.smartImageLoader.StickerLoader;
-import com.bsb.hike.ui.ChatThread;
 import com.bsb.hike.ui.utils.RecyclingImageView;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
@@ -41,7 +41,7 @@ public class StickerPageAdapter extends BaseAdapter implements OnClickListener
 
 	private int sizeEachImage;
 
-	private Activity activity;
+	private Context mContext;
 
 	private List<StickerPageAdapterItem> itemList;
 
@@ -53,14 +53,17 @@ public class StickerPageAdapter extends BaseAdapter implements OnClickListener
 
 	private boolean isListFlinging;
 	
+	private StickerPickerListener mStickerPickerListener;
+	
 	AbsListView absListView;
 	
-	public StickerPageAdapter(Activity activity, List<StickerPageAdapterItem> itemList, StickerCategory category, StickerLoader worker, AbsListView absListView )
+	public StickerPageAdapter(Context context, List<StickerPageAdapterItem> itemList, StickerCategory category, StickerLoader worker, AbsListView absListView, StickerPickerListener listener )
 	{
-		this.activity = activity;
+		this.mContext = context;
 		this.itemList = itemList;
 		this.category = category;
-		this.inflater = LayoutInflater.from(activity);
+		this.mStickerPickerListener = listener;
+		this.inflater = LayoutInflater.from(mContext);
 		this.stickerLoader = worker;
 		this.absListView = absListView;
 		calculateSizeOfStickerImage();
@@ -73,12 +76,12 @@ public class StickerPageAdapter extends BaseAdapter implements OnClickListener
 
 	public void calculateSizeOfStickerImage()
 	{
-		int screenWidth = activity.getResources().getDisplayMetrics().widthPixels;
+		int screenWidth = mContext.getResources().getDisplayMetrics().widthPixels;
 
-		this.numItemsRow = StickerManager.getInstance().getNumColumnsForStickerGrid(activity);
+		this.numItemsRow = StickerManager.getInstance().getNumColumnsForStickerGrid(mContext);
 
-		int stickerPadding = (int) 2 * activity.getResources().getDimensionPixelSize(R.dimen.sticker_padding);
-		int horizontalSpacing = (int) (this.numItemsRow - 1) * activity.getResources().getDimensionPixelSize(R.dimen.sticker_grid_horizontal_padding);
+		int stickerPadding = (int) 2 * mContext.getResources().getDimensionPixelSize(R.dimen.sticker_padding);
+		int horizontalSpacing = (int) (this.numItemsRow - 1) * mContext.getResources().getDimensionPixelSize(R.dimen.sticker_grid_horizontal_padding);
 		
 		int remainingSpace = (screenWidth - horizontalSpacing - stickerPadding) - (this.numItemsRow * StickerManager.SIZE_IMAGE);
 
@@ -156,7 +159,7 @@ public class StickerPageAdapter extends BaseAdapter implements OnClickListener
 			switch (viewType)
 			{
 			case STICKER:
-				convertView = new RecyclingImageView(activity);
+				convertView = new ImageView(mContext);
 				int padding = (int) (5 * Utils.scaledDensityMultiplier);
 				convertView.setLayoutParams(ll);
 				((ImageView) convertView).setScaleType(ScaleType.FIT_CENTER);
@@ -204,7 +207,7 @@ public class StickerPageAdapter extends BaseAdapter implements OnClickListener
 			if(item.getCategoryMoreStickerCount() > 0)
 			{
 				viewHolder.text.setVisibility(View.VISIBLE);
-				viewHolder.text.setText(activity.getResources().getString(R.string.n_more, item.getCategoryMoreStickerCount()));
+				viewHolder.text.setText(mContext.getResources().getString(R.string.n_more, item.getCategoryMoreStickerCount()));
 			}
 			else
 			{
@@ -221,11 +224,11 @@ public class StickerPageAdapter extends BaseAdapter implements OnClickListener
 			
 			break;
 		case RETRY:
-			viewHolder.image.setImageBitmap(HikeBitmapFactory.decodeResource(activity.getResources(), R.drawable.ic_retry_sticker));
+			viewHolder.image.setImageBitmap(HikeBitmapFactory.decodeResource(mContext.getResources(), R.drawable.ic_retry_sticker));
 			viewHolder.image.setVisibility(View.VISIBLE);
 			viewHolder.text.setVisibility(View.VISIBLE);
 			viewHolder.progress.setVisibility(View.GONE);
-			viewHolder.text.setText(activity.getResources().getString(R.string.retry_sticker));
+			viewHolder.text.setText(mContext.getResources().getString(R.string.retry_sticker));
 			viewHolder.tickImage.setVisibility(View.GONE);
 			convertView.setOnClickListener(this);
 			
@@ -235,7 +238,7 @@ public class StickerPageAdapter extends BaseAdapter implements OnClickListener
 			viewHolder.text.setVisibility(View.GONE);
 			viewHolder.progress.setVisibility(View.GONE);
 			viewHolder.tickImage.setVisibility(View.VISIBLE);
-			viewHolder.tickImage.setImageBitmap(HikeBitmapFactory.decodeResource(activity.getResources(), R.drawable.ic_done_palette));
+			viewHolder.tickImage.setImageBitmap(HikeBitmapFactory.decodeResource(mContext.getResources(), R.drawable.ic_done_palette));
 			convertView.setOnClickListener(this);
 			
 			break;
@@ -249,7 +252,7 @@ public class StickerPageAdapter extends BaseAdapter implements OnClickListener
 
 	private void initialiseDownloadStickerTask(DownloadSource source)
 	{
-		StickerManager.getInstance().initialiseDownloadStickerTask(category, source, activity);
+		StickerManager.getInstance().initialiseDownloadStickerTask(category, source, mContext);
 		replaceDownloadingatTop();
 	}
 
@@ -292,13 +295,13 @@ public class StickerPageAdapter extends BaseAdapter implements OnClickListener
 		case StickerPageAdapterItem.STICKER:
 			Sticker sticker = item.getSticker();
 			String source = category.isCustom() ? StickerManager.FROM_RECENT : StickerManager.FROM_OTHER;
-			((ChatThread) activity).sendSticker(sticker, source);
+			mStickerPickerListener.stickerSelected(sticker, source);
 
 			/* In case sticker is clicked on the recents screen, don't update the UI or recents list. Also if this sticker is disabled don't update the recents UI */
 			if (!category.isCustom())
 			{
 				StickerManager.getInstance().addRecentSticker(sticker);
-				LocalBroadcastManager.getInstance(activity).sendBroadcast(new Intent(StickerManager.RECENTS_UPDATED).putExtra(StickerManager.RECENT_STICKER_SENT, sticker));
+				LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(StickerManager.RECENTS_UPDATED).putExtra(StickerManager.RECENT_STICKER_SENT, sticker));
 			}
 			break;
 		case StickerPageAdapterItem.UPDATE:

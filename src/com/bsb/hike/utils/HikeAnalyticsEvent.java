@@ -12,6 +12,7 @@ import org.json.JSONObject;
 import android.content.Context;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.MqttConstants;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.service.HikeMqttManagerNew;
@@ -39,7 +40,7 @@ public class HikeAnalyticsEvent
 				dataJson.put(HikeConstants.DISABLED_STEALTH, new JSONArray(disabledMsisdn));
 			}
 			object.put(HikeConstants.DATA, dataJson);
-	        HikeMqttManagerNew.getInstance().sendMessage(object, HikeMqttManagerNew.MQTT_QOS_ONE);
+	        HikeMqttManagerNew.getInstance().sendMessage(object, MqttConstants.MQTT_QOS_ONE);
 		}
 		catch (JSONException e)
 		{
@@ -61,7 +62,7 @@ public class HikeAnalyticsEvent
 			JSONObject dataJson = new JSONObject();
 			dataJson.put(HikeConstants.RESET, true);
 			object.put(HikeConstants.DATA, dataJson);
-	        HikeMqttManagerNew.getInstance().sendMessage(object, HikeMqttManagerNew.MQTT_QOS_ONE);
+	        HikeMqttManagerNew.getInstance().sendMessage(object, MqttConstants.MQTT_QOS_ONE);
 		}
 		catch (JSONException e)
 		{
@@ -82,7 +83,7 @@ public class HikeAnalyticsEvent
 			JSONObject dataJson = new JSONObject();
 			dataJson.put(HikeConstants.ENABLED, enabled);
 			object.put(HikeConstants.DATA, dataJson);
-			HikeMqttManagerNew.getInstance().sendMessage(object, HikeMqttManagerNew.MQTT_QOS_ZERO);
+			HikeMqttManagerNew.getInstance().sendMessage(object, MqttConstants.MQTT_QOS_ZERO);
 		}
 		catch (JSONException e)
 		{
