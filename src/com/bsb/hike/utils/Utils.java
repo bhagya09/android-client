@@ -87,7 +87,6 @@ import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Shader.TileMode;
 import android.graphics.Typeface;
@@ -109,7 +108,6 @@ import android.os.PowerManager;
 import android.os.RemoteException;
 import android.os.StatFs;
 import android.os.Vibrator;
-import android.preference.ListPreference;
 import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.CommonDataKinds.Email;
@@ -2943,6 +2941,12 @@ public class Utils
 		}
 	}
 
+	public static long getServerTimeOffsetInMsec(Context context)
+	{
+		long timeDiff = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getLong(HikeMessengerApp.SERVER_TIME_OFFSET_MSEC, 0);  
+		return timeDiff;
+	}
+	
 	public static long getServerTimeOffset(Context context)
 	{
 		return context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getLong(HikeMessengerApp.SERVER_TIME_OFFSET, 0);
@@ -2967,6 +2971,18 @@ public class Utils
 		{
 			return time;
 		}
+	}
+	
+	/**
+	 * Applies the server time offset and ensures that the time becomes sync with server
+	 * @param context
+	 * @param time in seconds
+	 * @return time in milliseconds
+	 */
+	public static long applyOffsetToMakeTimeServerSync(Context context, long timeInMSec)
+	{
+		timeInMSec = timeInMSec - getServerTimeOffsetInMsec(context);
+		return timeInMSec;
 	}
 
 	public static void blockOrientationChange(Activity activity)
