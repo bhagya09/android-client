@@ -2585,10 +2585,6 @@ public class HikeConstants
 
 		public static final int Min_BRUSH_WIDTH = 8;
 
-		public static final int PREVIEW_THUMBNAIL_WIDTH_MDPI = 40;
-
-		public static final int PREVIEW_THUMBNAIL_WIDTH_HDPI = 60;
-
 		public static final int DELTA_BRUSH_WIDTH = 10;
 
 		public static final int FILTER_FRAGMENT_ID = 0;

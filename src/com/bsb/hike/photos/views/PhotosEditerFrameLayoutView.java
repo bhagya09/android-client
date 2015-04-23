@@ -109,10 +109,10 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 		{
 		case DisplayMetrics.DENSITY_LOW:
 		case DisplayMetrics.DENSITY_MEDIUM:
-			return HikeConstants.HikePhotos.PREVIEW_THUMBNAIL_WIDTH_MDPI;
+			return (int) getResources().getDimension(R.dimen.photos_thumbnail_dimen_mdpi);
 		case DisplayMetrics.DENSITY_HIGH:
 		default:
-				return HikeConstants.HikePhotos.PREVIEW_THUMBNAIL_WIDTH_HDPI;
+				return (int) getResources().getDimension(R.dimen.photos_thumbnail_dimen_mdpi);
 
 		}
 	}
@@ -121,8 +121,8 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 	{
 		if (scaledImageOriginal == null)
 		{
-			scaledImageOriginal = HikePhotosUtils.compressBitamp(imageOriginal, HikePhotosUtils.dpToPx(getContext(), getThumbnailDimen()),
-					HikePhotosUtils.dpToPx(getContext(), getThumbnailDimen()), false);
+			scaledImageOriginal = HikePhotosUtils.compressBitamp(imageOriginal,  getThumbnailDimen(),
+					getThumbnailDimen(), false);
 
 			if (scaledImageOriginal == null)
 			{
