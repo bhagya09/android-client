@@ -748,8 +748,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		default:
 			break;
 		}
-		
-		recordOverflowItemClicked(id);
+		if (id != -1)
+		{
+			recordOverflowItemClicked(id);
+		}
 	}
 	
 	private void recordOverflowItemClicked(int whichItem)
