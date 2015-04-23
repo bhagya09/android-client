@@ -112,7 +112,7 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 			return (int) getResources().getDimension(R.dimen.photos_thumbnail_dimen_mdpi);
 		case DisplayMetrics.DENSITY_HIGH:
 		default:
-				return (int) getResources().getDimension(R.dimen.photos_thumbnail_dimen_mdpi);
+			return (int) getResources().getDimension(R.dimen.photos_thumbnail_dimen_hdpi);
 
 		}
 	}
