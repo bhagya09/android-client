@@ -2832,7 +2832,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 						return;
 					}
 
-					convInfo.setMute(true);
+					convInfo.setMute(isMuted);
 
 					notifyDataSetChanged();
 				}
