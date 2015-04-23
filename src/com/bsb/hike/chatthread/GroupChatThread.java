@@ -885,9 +885,12 @@ public class GroupChatThread extends OneToNChatThread
 			switch (overFlowMenuItem.id)
 			{
 			case R.string.group_profile:
-			case R.string.mute_group:
 			case R.string.chat_theme:
 				overFlowMenuItem.enabled = oneToNConversation.isConversationAlive();
+				break;
+			case R.string.mute_group:
+				overFlowMenuItem.enabled = oneToNConversation.isConversationAlive();
+				overFlowMenuItem.text = oneToNConversation.isMuted() ? activity.getString(R.string.unmute_group) : activity.getString(R.string.mute_group);
 				break;
 			}
 		}

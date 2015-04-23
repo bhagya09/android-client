@@ -124,4 +124,26 @@ public class BotChatThread extends OneToOneChatThread
 
 	}
 
+	@Override
+	public void onPrepareOverflowOptionsMenu(List<OverFlowMenuItem> overflowItems)
+	{
+		if (overflowItems == null)
+		{
+			return;
+		}
+
+		super.onPrepareOverflowOptionsMenu(overflowItems);
+
+		for (OverFlowMenuItem overFlowMenuItem : overflowItems)
+		{
+
+			switch (overFlowMenuItem.id)
+			{
+			case R.string.mute:
+				overFlowMenuItem.text = mConversation.isMuted() ? getString(R.string.unmute) : getString(R.string.mute);
+				break;
+			}
+		}
+	}
+
 }
