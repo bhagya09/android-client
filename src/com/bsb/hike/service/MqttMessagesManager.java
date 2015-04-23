@@ -126,11 +126,7 @@ public class MqttMessagesManager
 	private final String userMsisdn;
 
 	private boolean isBulkMessage = false;
-
-	private final SQLiteDatabase convWriteDb;
-
-	private final SQLiteDatabase userWriteDb;
-
+	
 	private LinkedList<ConvMessage> messageList;
 
 	private Map<String, LinkedList<ConvMessage>> messageListMap;
@@ -141,9 +137,8 @@ public class MqttMessagesManager
 	
 	private MqttMessagesManager(Context context)
 	{
+		Logger.d(getClass().getSimpleName(), "initialising MqttMessagesManager");
 		this.convDb = HikeConversationsDatabase.getInstance();
-		this.userWriteDb = ContactManager.getInstance().getWritableDatabase();
-		this.convWriteDb = convDb.getWritableDatabase();
 		this.settings = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
 		this.context = context;
 		this.pubSub = HikeMessengerApp.getPubSub();
@@ -2479,8 +2474,8 @@ public class MqttMessagesManager
 
 				try
 				{
-					userWriteDb.beginTransaction();
-					convWriteDb.beginTransaction();
+					ContactManager.getInstance().getWritableDatabase().beginTransaction();
+					convDb.getWriteDatabase().beginTransaction();
 
 					while (i < length)
 					{
@@ -2492,8 +2487,8 @@ public class MqttMessagesManager
 					}
 					Logger.d("BulkProcess", "going on");
 					finalProcessing();
-					convWriteDb.setTransactionSuccessful();
-					userWriteDb.setTransactionSuccessful();
+					convDb.getWriteDatabase().setTransactionSuccessful();
+					ContactManager.getInstance().getWritableDatabase().setTransactionSuccessful();
 				}
 				catch (JSONException e)
 				{
@@ -2506,8 +2501,8 @@ public class MqttMessagesManager
 				}
 				finally
 				{
-					convWriteDb.endTransaction();
-					userWriteDb.endTransaction();
+					convDb.getWriteDatabase().endTransaction();
+					ContactManager.getInstance().getWritableDatabase().endTransaction();
 
 					Logger.d("BulkProcess", "stopped");
 					isBulkMessage = false;
