@@ -57,7 +57,6 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeConstants.MESSAGE_TYPE;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
-import com.bsb.hike.MqttConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.adapters.ComposeChatAdapter;
 import com.bsb.hike.adapters.FriendsAdapter;
@@ -759,12 +758,6 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	public void charResetAfterSeperator()
 	{
 		adapter.removeFilter();
-		
-//		We do not add 'Select all' button at the bottom for Group Chats
-		if (this.composeMode == CREATE_BROADCAST_MODE || this.composeMode == MULTIPLE_FWD)
-		{
-			setupForSelectAll();
-		}
 	}
 
 	private void setMode(int mode)
@@ -814,7 +807,6 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			adapter.setStatusForEmptyContactInfo(R.string.compose_chat_empty_contact_status_group_mode);
 			if (this.composeMode == CREATE_BROADCAST_MODE)
 			{
-				setupForSelectAll();
 				triggerPointForPopup = ProductPopupsConstants.PopupTriggerPoints.BROADCAST.ordinal();
 			}
 			break;
@@ -833,8 +825,6 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			adapter.removeFilter();
 			adapter.clearAllSelection(true);
 			adapter.setStatusForEmptyContactInfo(R.string.compose_chat_empty_contact_status_group_mode);
-			// select all bottom text
-			setupForSelectAll();
 			break;
 		case NUX_INCENTIVE_MODE:
 			adapter.showCheckBoxAgainstItems(true);
@@ -853,6 +843,17 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	}
 	
 	private void setupForSelectAll(){
+		
+		if(!(this.composeMode == CREATE_BROADCAST_MODE || this.composeMode == MULTIPLE_FWD))
+		{
+			return;
+		}
+		
+		if (existingGroupOrBroadcastId != null && adapter.getOnHikeContactsCount() == 0)
+		{
+			return;
+		}
+		
 		View selectAllCont = findViewById(R.id.select_all_container);
 		selectAllCont.setVisibility(View.VISIBLE);
 		final TextView tv = (TextView) selectAllCont.findViewById(R.id.select_all_text);
@@ -1928,6 +1929,10 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				{
 					View selectAllCont = findViewById(R.id.select_all_container);
 					selectAllCont.setVisibility(View.GONE);
+				}
+				else
+				{
+					setupForSelectAll();
 				}
 			}
 			
