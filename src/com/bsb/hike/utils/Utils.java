@@ -2387,14 +2387,14 @@ public class Utils
 		intent.putExtra(MediaStore.EXTRA_OUTPUT, destPath);
 		intent.putExtra(HikeConstants.Extras.IMAGE_PATH, path);
 		intent.putExtra(HikeConstants.Extras.SCALE, true);
-		intent.putExtra(HikeConstants.Extras.OUTPUT_X, HikeConstants.MAX_DIMENSION_FULL_SIZE_PROFILE_PX);
-		intent.putExtra(HikeConstants.Extras.OUTPUT_Y, HikeConstants.MAX_DIMENSION_FULL_SIZE_PROFILE_PX);
+		intent.putExtra(HikeConstants.Extras.OUTPUT_X, HikeConstants.MAX_DIMENSION_LOW_FULL_SIZE_PX);
+		intent.putExtra(HikeConstants.Extras.OUTPUT_Y, HikeConstants.MAX_DIMENSION_LOW_FULL_SIZE_PX);
 		intent.putExtra(HikeConstants.Extras.ASPECT_X, 1);
 		intent.putExtra(HikeConstants.Extras.ASPECT_Y, 1);
 		activity.startActivityForResult(intent, HikeConstants.CROP_RESULT);
 	}
 
-	public static void startCropActivityForResult(Activity activity, String path, String destPath, boolean preventScaling)
+	public static void startCropActivityForResult(Activity activity, String path, String destPath, boolean preventScaling, int quality)
 	{
 		/* Crop the image */
 		Intent intent = new Intent(activity, CropImage.class);
@@ -2404,6 +2404,7 @@ public class Utils
 		intent.putExtra(HikeConstants.Extras.RETURN_CROP_RESULT_TO_FILE, preventScaling);
 		intent.putExtra(HikeConstants.Extras.ASPECT_X, 1);
 		intent.putExtra(HikeConstants.Extras.ASPECT_Y, 1);
+		intent.putExtra(HikeConstants.Extras.JPEG_COMPRESSION_QUALITY, quality);
 		activity.startActivityForResult(intent, HikeConstants.CROP_RESULT);
 	}
 
@@ -4035,24 +4036,24 @@ public class Utils
 	{
 		SharedPreferences settings = (SharedPreferences) context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
 		String msisdn = settings.getString(HikeMessengerApp.MSISDN_SETTING, "");
-		friendsList.addAll(HikeMessengerApp.getContactManager().getContactsOfFavoriteType(FavoriteType.FRIEND, HikeConstants.BOTH_VALUE, msisdn, false));
-		friendsList.addAll(HikeMessengerApp.getContactManager().getContactsOfFavoriteType(FavoriteType.REQUEST_SENT, HikeConstants.BOTH_VALUE, msisdn, false));
-		friendsList.addAll(HikeMessengerApp.getContactManager().getContactsOfFavoriteType(FavoriteType.REQUEST_SENT_REJECTED, HikeConstants.BOTH_VALUE, msisdn, false));
+		friendsList.addAll(ContactManager.getInstance().getContactsOfFavoriteType(FavoriteType.FRIEND, HikeConstants.BOTH_VALUE, msisdn, false));
+		friendsList.addAll(ContactManager.getInstance().getContactsOfFavoriteType(FavoriteType.REQUEST_SENT, HikeConstants.BOTH_VALUE, msisdn, false));
+		friendsList.addAll(ContactManager.getInstance().getContactsOfFavoriteType(FavoriteType.REQUEST_SENT_REJECTED, HikeConstants.BOTH_VALUE, msisdn, false));
 
 		Logger.d("AddFriendsActivity", " friendsList size " + friendsList.size());
 		Set<String> recommendedContactsSelection = Utils.getServerRecommendedContactsSelection(settings.getString(HikeMessengerApp.SERVER_RECOMMENDED_CONTACTS, null), msisdn);
 		Logger.d("AddFriendsActivity", " recommendedContactsSelection " + recommendedContactsSelection);
 		if (!recommendedContactsSelection.isEmpty())
 		{
-			recommendedContacts.addAll(HikeMessengerApp.getContactManager().getHikeContacts(-1, recommendedContactsSelection, null, msisdn));
+			recommendedContacts.addAll(ContactManager.getInstance().getHikeContacts(-1, recommendedContactsSelection, null, msisdn));
 		}
 
 		Logger.d("AddFriendsActivity", " size recommendedContacts = " + recommendedContacts.size());
 
-		hikeContacts.addAll(HikeMessengerApp.getContactManager().getContactsOfFavoriteType(FavoriteType.NOT_FRIEND, HikeConstants.ON_HIKE_VALUE, msisdn, false));
-		hikeContacts.addAll(HikeMessengerApp.getContactManager()
+		hikeContacts.addAll(ContactManager.getInstance().getContactsOfFavoriteType(FavoriteType.NOT_FRIEND, HikeConstants.ON_HIKE_VALUE, msisdn, false));
+		hikeContacts.addAll(ContactManager.getInstance()
 				.getContactsOfFavoriteType(FavoriteType.REQUEST_RECEIVED_REJECTED, HikeConstants.ON_HIKE_VALUE, msisdn, false, true));
-		hikeContacts.addAll(HikeMessengerApp.getContactManager().getContactsOfFavoriteType(FavoriteType.REQUEST_RECEIVED, HikeConstants.BOTH_VALUE, msisdn, false, true));
+		hikeContacts.addAll(ContactManager.getInstance().getContactsOfFavoriteType(FavoriteType.REQUEST_RECEIVED, HikeConstants.BOTH_VALUE, msisdn, false, true));
 	}
 
 	public static void addFavorite(final Context context, final ContactInfo contactInfo, final boolean isFtueContact)

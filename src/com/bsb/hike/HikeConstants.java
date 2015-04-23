@@ -1135,6 +1135,8 @@ public class HikeConstants
 
 		public static final String ASPECT_Y = "aspectY";
 
+		public static final String JPEG_COMPRESSION_QUALITY = "jpegCompressionQuality";
+		
 		public static final String DATA = "data";
 
 		public static final String RETURN_DATA = "return-data";
