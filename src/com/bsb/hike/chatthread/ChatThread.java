@@ -3272,6 +3272,11 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		{
 			themePicker.dismiss();
 		}
+		
+		if (attachmentPicker != null && attachmentPicker.isShowing())
+		{
+			attachmentPicker.dismiss();
+		}
 	}
 	
 	protected void onStart()
