@@ -85,6 +85,12 @@ public class SearchManager
 		itemViewBacklash = backlash;
 	}
 
+	/**
+	 * Returns the position of the next item in the item list after applying the view backlash.
+	 * Return -1 if not item is found.
+	 * @param cursorPosition
+	 * @return
+	 */
 	public int getNextItem(int cursorPosition, int lastPosition)
 	{
 		// if the search text is empty, no need to perform any search.
@@ -168,6 +174,12 @@ public class SearchManager
 		}
 	}
 
+	/**
+	 * Returns the position of the previous item in the item list after applying the view backlash.
+	 * Return -1 if not item is found.
+	 * @param cursorPosition
+	 * @return
+	 */
 	public int getPrevItem(int cursorPosition)
 	{
 		if (TextUtils.isEmpty(searchText))
