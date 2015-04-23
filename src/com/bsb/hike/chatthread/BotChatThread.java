@@ -256,4 +256,10 @@ public class BotChatThread extends OneToOneChatThread
 		return;
 	}
 	
+	@Override
+	protected void setLastSeenTextBasedOnHikeValue(boolean isConvOnHike)
+	{
+		hideLastSeenText();
+	}
+	
 }

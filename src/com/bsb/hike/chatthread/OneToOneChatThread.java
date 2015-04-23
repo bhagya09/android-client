@@ -225,7 +225,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			list.add(item);
 		}
 
-		if (mContactInfo.isNotOrRejectedFavourite() && mConversation.isOnHike() && !Utils.isBot(msisdn))
+		if (mContactInfo.isNotOrRejectedFavourite() && mConversation.isOnHike())
 		{
 			list.add(new OverFlowMenuItem(getString(R.string.add_as_favorite_menu), 0, 0, R.string.add_as_favorite_menu));
 		}
@@ -1070,9 +1070,9 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	 * 
 	 * @param isConvOnHike
 	 */
-	private void setLastSeenTextBasedOnHikeValue(boolean isConvOnHike)
+	protected void setLastSeenTextBasedOnHikeValue(boolean isConvOnHike)
 	{
-		if (isConvOnHike || Utils.isBot(msisdn))
+		if (isConvOnHike)
 		{
 			hideLastSeenText();
 		}
