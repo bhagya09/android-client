@@ -1328,6 +1328,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 				// Check on the dialog is optimal here as it directly reflects the user intentions.
 				(searchDialog == null || !searchDialog.isShowing()))
 		{
+			searchDialog = ProgressDialog.show(activity, null, getString(R.string.searching));
 			if (loop)
 			{
 				activity.getSupportLoaderManager().restartLoader(SEARCH_LOOP, null, this);
@@ -1340,7 +1341,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			{
 				activity.getSupportLoaderManager().restartLoader(SEARCH_PREVIOUS, null, this);
 			}
-			searchDialog = ProgressDialog.show(activity, null, getString(R.string.searching));
 		}
 	}
 
