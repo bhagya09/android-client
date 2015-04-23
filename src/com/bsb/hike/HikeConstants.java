@@ -44,8 +44,6 @@ public class HikeConstants
 	public static final String FROM = "f";
 
 	public static final String SUB_TYPE = "st";
-	
-	public static final String GROUP_CHAT_TIMESTAMP = "gts";	
 
 	public static final String HIKE_MESSAGE = "hm";
 
@@ -2065,7 +2063,7 @@ public class HikeConstants
 		public static final String ICON = "ic";
 
 		public static final String INVITE_INFO = "ii";
-		
+
 		public static final String GROUP_CHAT_JOIN = "gcj";
 
 		public static final String GROUP_CHAT_LEAVE = "gcl";
