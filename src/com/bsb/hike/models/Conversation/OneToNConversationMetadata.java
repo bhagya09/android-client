@@ -31,10 +31,18 @@ public class OneToNConversationMetadata extends ConversationMetadata {
 
 	private JSONObject getPinJson(int pinType) throws JSONException
 	{
-		JSONObject json = jsonObject.optJSONObject(Integer.toString(pinType));
+		String key = null;
+		switch (pinType)
+		{
+		case HikeConstants.MESSAGE_TYPE.TEXT_PIN:
+			key = HikeConstants.PIN;
+			break;
+		}
+
+		JSONObject json = jsonObject.optJSONObject(key);
 		if (json == null)
 		{
-			jsonObject.put(Integer.toString(pinType), json = new JSONObject());
+			jsonObject.put(key, json = new JSONObject());
 		}
 		return json;
 	}
