@@ -35,8 +35,6 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
-import com.bsb.hike.analytics.AnalyticsConstants.MsgRelEventType;
-import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.AnalyticsConstants.MessageType;
 import com.bsb.hike.analytics.MsgRelLogManager;
 import com.bsb.hike.db.HikeConversationsDatabase;
@@ -52,7 +50,7 @@ import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.ProgressListener;
 import com.bsb.hike.utils.Utils;
-import com.google.android.maps.GeoPoint;
+import com.google.android.gms.maps.model.LatLng;
 
 public class UploadContactOrLocationTask extends FileTransferBase
 {
@@ -137,7 +135,7 @@ public class UploadContactOrLocationTask extends FileTransferBase
 				address = hikeFile.getAddress();
 
 				if (address == null)
-					address = Utils.getAddressFromGeoPoint(new GeoPoint((int) (latitude * 1E6), (int) (longitude * 1E6)), context);
+					address = Utils.getAddressFromGeoPoint(new LatLng(latitude, longitude), context);
 
 				if (TextUtils.isEmpty(hikeFile.getThumbnailString()))
 				{

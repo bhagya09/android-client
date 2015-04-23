@@ -87,7 +87,6 @@ import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Shader.TileMode;
 import android.graphics.Typeface;
@@ -109,7 +108,6 @@ import android.os.PowerManager;
 import android.os.RemoteException;
 import android.os.StatFs;
 import android.os.Vibrator;
-import android.preference.ListPreference;
 import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.CommonDataKinds.Email;
@@ -216,7 +214,7 @@ import com.bsb.hike.ui.WebViewActivity;
 import com.bsb.hike.ui.WelcomeActivity;
 import com.bsb.hike.utils.AccountUtils.AccountInfo;
 import com.bsb.hike.voip.VoIPUtils;
-import com.google.android.maps.GeoPoint;
+import com.google.android.gms.maps.model.LatLng;
 
 public class Utils
 {
@@ -1932,12 +1930,12 @@ public class Utils
 		}
 	}
 
-	public static String getAddressFromGeoPoint(GeoPoint geoPoint, Context context)
+	public static String getAddressFromGeoPoint(LatLng geoPoint, Context context)
 	{
 		try
 		{
 			Geocoder geoCoder = new Geocoder(context, Locale.getDefault());
-			List<Address> addresses = geoCoder.getFromLocation(geoPoint.getLatitudeE6() / 1E6, geoPoint.getLongitudeE6() / 1E6, 1);
+			List<Address> addresses = geoCoder.getFromLocation(geoPoint.latitude, geoPoint.longitude, 1);
 
 			final StringBuilder address = new StringBuilder();
 			if (!addresses.isEmpty())
