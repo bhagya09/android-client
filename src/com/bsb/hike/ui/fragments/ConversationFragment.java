@@ -1144,6 +1144,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 
 	public void setupSearch()
 	{
+		checkAndRemoveExistingHeaders();
 		if (mAdapter != null)
 		{
 			searchMode = true;
@@ -3432,13 +3433,12 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		{
 			return;
 		}
-
-		mAdapter.setIsListFlinging(velocity > HikeConstants.MAX_VELOCITY_FOR_LOADING_IMAGES_SMALL);
 	}
 
 	@Override
 	public void onScrollStateChanged(AbsListView view, int scrollState)
 	{
+		mAdapter.setIsListFlinging(velocity > HikeConstants.MAX_VELOCITY_FOR_LOADING_IMAGES_SMALL && scrollState == OnScrollListener.SCROLL_STATE_FLING);
 	}
 
 	private void removeTipIfExists(int whichTip)

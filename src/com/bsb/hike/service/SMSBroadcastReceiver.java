@@ -16,6 +16,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -64,7 +65,7 @@ public class SMSBroadcastReceiver extends BroadcastReceiver
 				String body = sms.getMessageBody();
 				long timestamp = sms.getTimestampMillis() / 1000;
 				String from = sms.getOriginatingAddress();
-				ContactInfo contactInfo = HikeMessengerApp.getContactManager().getContact(from, true, true);
+				ContactInfo contactInfo = ContactManager.getInstance().getContact(from, true, true);
 				if (contactInfo == null)
 				{
 					Logger.d(getClass().getSimpleName(), "Ignoring SMS message because contact not in addressbook phone_no=" + from);

@@ -16,7 +16,6 @@
         android:id="@+id/previous"
         android:layout_width="40dp"
         android:layout_height="match_parent"
-        android:layout_marginRight="2dp"
         android:layout_toLeftOf="@id/next"
         android:background="@drawable/bg_action_bar_icon"
         android:scaleType="centerInside"
@@ -45,7 +44,7 @@
             android:singleLine="true"
             android:textColor="@color/white"
             android:textCursorDrawable="@null"
-            android:textSize="14sp" />
+            android:textSize="16sp" />
 
         <ImageView
             android:id="@+id/search_clear_btn"

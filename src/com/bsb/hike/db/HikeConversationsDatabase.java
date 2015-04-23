@@ -109,6 +109,15 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		super(context, DBConstants.CONVERSATIONS_DATABASE_NAME, null, DBConstants.CONVERSATIONS_DATABASE_VERSION);
 		mDb = getWritableDatabase();
 	}
+	
+	public SQLiteDatabase getWriteDatabase()
+	{
+		if(mDb == null || !mDb.isOpen())
+		{
+			mDb = super.getWritableDatabase();
+		}
+		return mDb;
+	}
 
 	@Override
 	public void onCreate(SQLiteDatabase db)
@@ -735,19 +744,17 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 	public void reinitializeDB()
 	{
+		Logger.d(getClass().getSimpleName(), "Reinitialising conversation DB");
 		close();
+		Logger.d(getClass().getSimpleName(), "conversation DB is closed now");
 		hikeConversationsDatabase = new HikeConversationsDatabase(HikeMessengerApp.getInstance());
 		/*
 		 * We can remove this line, if we can guarantee, NoOne keeps a local copy of HikeConversationsDatabase. 
 		 * right now we store convDb reference in some classes and use that refenence to query db. ex. DbConversationListener. 
 		 * i.e. on restore we have two objects of HikeConversationsDatabase in memory.
 		 */
-		mDb = hikeConversationsDatabase.getMdb(); 
-	}
-	
-	private SQLiteDatabase getMdb()
-	{
-		return mDb;
+		mDb = hikeConversationsDatabase.getWriteDatabase(); 
+		Logger.d(getClass().getSimpleName(), "Conversation DB initialization is complete");
 	}
 
 	public void clearTable(String table)
@@ -2164,7 +2171,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	 */
 	public Conversation addConversation(String msisdn, boolean onhike, String groupName, String groupOwner, ConvMessage initialConvMessage)
 	{
-		ContactInfo contactInfo = OneToNConversationUtils.isOneToNConversation(msisdn) ? new ContactInfo(msisdn, msisdn, groupName, msisdn) : HikeMessengerApp.getContactManager().getContact(msisdn,
+		ContactInfo contactInfo = OneToNConversationUtils.isOneToNConversation(msisdn) ? new ContactInfo(msisdn, msisdn, groupName, msisdn) : ContactManager.getInstance().getContact(msisdn,
 				false, true);
 		InsertHelper ih = null;
 		try
@@ -2470,7 +2477,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		return getConversation(msisdn, limit, false);
 	}
 
-
 	/**
 	 * Using this method to get the conversation with the last message. If there is no last message, we return null if the conversation is not a GC.
 	 *
@@ -2524,7 +2530,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			
 			else
 			{
-				ContactInfo contactInfo = HikeMessengerApp.getContactManager().getContact(msisdn, false, true);
+				ContactInfo contactInfo = ContactManager.getInstance().getContact(msisdn, false, true);
 
 				onhike |= contactInfo.isOnhike();
 				conv = new OneToOneConversation.ConversationBuilder(msisdn).setConvName(contactInfo.getName()).setIsOnHike(onhike).build();
@@ -3314,7 +3320,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				if (OneToNConversationUtils.isOneToNConversation(msisdn))
 				{
 					updateGroupRecency(message);
-					HikeMessengerApp.getContactManager().removeContact(c.getString(groupParticipantColumn), false);
+					ContactManager.getInstance().removeContact(c.getString(groupParticipantColumn), false);
 				}
 				mDb.update(DBConstants.CONVERSATIONS_TABLE, contentValues, DBConstants.MSISDN + "=?", new String[] { msisdn });
 			}
@@ -4074,7 +4080,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			}
 			if (msisdns.size() > 0)
 			{
-				List<ContactInfo> contactList = HikeMessengerApp.getContactManager().getContact(msisdns, true, true);
+				List<ContactInfo> contactList = ContactManager.getInstance().getContact(msisdns, true, true);
 
 				for (ContactInfo contactInfo : contactList)
 				{
