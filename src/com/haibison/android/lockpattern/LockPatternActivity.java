@@ -314,7 +314,6 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
     private Button mBtnCancel;
     private Button mBtnConfirm;
     private Boolean mIsRetryBtnVisible;
-    private static String userPin;
     private Button changePasswordSetting;
     /**
      * Called when the activity is first created.
@@ -492,6 +491,7 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
         mBtnCancel = (Button) findViewById(R.id.alp_42447968_button_cancel);
         mBtnConfirm = (Button) findViewById(R.id.alp_42447968_button_confirm);
         
+        mLockPinView.setFocusable(true);
         mLockPinView.addTextChangedListener(new TextWatcher(){
             public void afterTextChanged(Editable s) {
             	if (ACTION_CREATE_PATTERN.equals(getIntent().getAction())) {
@@ -575,6 +575,8 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
         	{
         		mLockPatternView.setVisibility(View.GONE);
         		mLockPinView.setVisibility(View.VISIBLE);
+        		mLockPinView.requestFocus();
+        		Utils.showSoftKeyboard(LockPatternActivity.this, mLockPinView);
         	}
         	else
         	{
@@ -618,8 +620,8 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
 						mLockPinView.setVisibility(View.VISIBLE);
 			        	changePasswordSetting.setText(getString(R.string.stealth_set_pattern));
 			        	StealthModeManager.getInstance().usePinAsPassword(true);
-			        	mLockPinView.setFocusableInTouchMode(true);
-						Utils.showSoftKeyboard(LockPatternActivity.this, mLockPinView);
+			        	mLockPinView.requestFocus();
+			        	Utils.showSoftKeyboard(LockPatternActivity.this, mLockPinView);
 			        	mTextInfo.setText(R.string.stealth_msg_enter_an_unlock_pin);
 					} else 
 					{
