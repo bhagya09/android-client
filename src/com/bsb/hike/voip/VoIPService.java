@@ -124,6 +124,7 @@ public class VoIPService extends Service {
 	private Thread senderThread, reconnectingBeepsThread;
 	private boolean reconnectingBeeps = false;
 	private int callSource = -1;
+	private Thread notificationThread;
 
 	// Ringtones (incoming and outgoing)
 	private Ringtone ringtone;
@@ -534,7 +535,7 @@ public class VoIPService extends Service {
 	
 	private void startNotificationThread() {
 		
-		new Thread(new Runnable() {
+		notificationThread = new Thread(new Runnable() {
 			
 			@Override
 			public void run() {
@@ -544,13 +545,15 @@ public class VoIPService extends Service {
 						if (keepRunning)
 							showNotification();
 					} catch (InterruptedException e) {
-						// All good
+						Logger.d(VoIPConstants.TAG, "Notification thread interrupted.");
 						break;
 					}
-					
+
 				}
 			}
-		}, "NOTIFICATION_THREAD").start();
+		}, "NOTIFICATION_THREAD");
+
+		notificationThread.start();
 	}
 
 	private void showNotification() {
@@ -884,6 +887,9 @@ public class VoIPService extends Service {
 			socket.close();
 
 		// Terminate threads
+		if(notificationThread!=null)
+			notificationThread.interrupt();
+
 		if (connectionTimeoutThread != null)
 			connectionTimeoutThread.interrupt();
 
