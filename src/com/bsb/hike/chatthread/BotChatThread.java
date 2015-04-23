@@ -146,4 +146,12 @@ public class BotChatThread extends OneToOneChatThread
 		}
 	}
 
+	@Override
+	protected void onBlockUserclicked()
+	{
+		BotConversation.analyticsForBots(msisdn, mConversation.isBlocked() ? HikePlatformConstants.BOT_UNBLOCK_CHAT : HikePlatformConstants.BOT_BLOCK_CHAT,
+				HikePlatformConstants.OVERFLOW_MENU, AnalyticsConstants.CLICK_EVENT, null);
+		super.onBlockUserclicked();
+	}
+
 }

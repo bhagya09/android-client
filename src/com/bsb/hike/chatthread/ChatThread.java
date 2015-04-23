@@ -4704,14 +4704,12 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		{
 			Utils.logEvent(activity.getApplicationContext(), HikeConstants.LogEvent.MENU_BLOCK);
 			showBlockOverlay(getBlockedUserLabel());
-			mActionBar.updateOverflowMenuItemString(R.string.block_title, activity.getString(R.string.unblock_title));
 		}
 
 		else
 		{
 			mComposeView.setEnabled(true);
 			hideOverlay();
-			mActionBar.updateOverflowMenuItemString(R.string.block_title, activity.getString(R.string.block_title));
 		}
 	}
 	

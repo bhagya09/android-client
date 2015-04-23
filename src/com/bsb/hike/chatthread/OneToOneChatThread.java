@@ -2628,6 +2628,9 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			case R.string.chat_theme:
 				overFlowMenuItem.enabled = !mConversation.isBlocked();
 				break;
+			case R.string.block_title:
+				overFlowMenuItem.text = mConversation.isBlocked() ? getString(R.string.unblock_title) : getString(R.string.block_title);
+				break;
 			}
 		}
 	}
