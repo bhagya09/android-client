@@ -3,6 +3,9 @@ package com.bsb.hike.chatthread;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.util.Pair;
 
 import com.actionbarsherlock.view.Menu;
@@ -153,7 +156,7 @@ public class BotChatThread extends OneToOneChatThread
 				HikePlatformConstants.OVERFLOW_MENU, AnalyticsConstants.CLICK_EVENT, null);
 		super.onBlockUserclicked();
 	}
-	
+
 	@Override
 	protected void emailChat()
 	{
@@ -166,5 +169,22 @@ public class BotChatThread extends OneToOneChatThread
 	{
 		BotConversation.analyticsForBots(msisdn, HikePlatformConstants.BOT_CLEAR_CONVERSATION, HikePlatformConstants.OVERFLOW_MENU, AnalyticsConstants.CLICK_EVENT, null);
 		super.showClearConversationDialog();
+	}
+
+	@Override
+	protected void sendChatThemeMessage()
+	{
+		super.sendChatThemeMessage();
+		
+		JSONObject json = new JSONObject();
+		try
+		{
+			json.put(HikeConstants.BG_ID, currentTheme.bgId());
+			BotConversation.analyticsForBots(msisdn, HikePlatformConstants.BOT_CHAT_THEME_PICKER, HikePlatformConstants.OVERFLOW_MENU, AnalyticsConstants.CLICK_EVENT, json);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
 	}
 }

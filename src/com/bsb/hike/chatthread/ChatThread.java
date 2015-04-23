@@ -3774,7 +3774,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		
 	}
 
-	private void sendChatThemeMessage()
+	protected void sendChatThemeMessage()
 	{
 		long timestamp = System.currentTimeMillis() / 1000;
 		mConversationDb.setChatBackground(msisdn, currentTheme.bgId(), timestamp);
