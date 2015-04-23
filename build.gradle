@@ -70,6 +70,7 @@ android {
             renderscript.srcDirs = ['src']
             res.srcDirs = ['res']
             assets.srcDirs = ['assets']
+            jniLibs.srcDirs = ['libs']
         }
     }
     compileOptions {
@@ -92,7 +93,16 @@ android {
             signingConfig signingConfigs.release
         }
     }
+    productFlavors {
+    arm {
+        ndk {
+            abiFilters "armeabi", "armeabi-v7a"
+        }
+    }
+    x86 {
+        ndk {
+            abiFilter "x86"
+        }
+    }
 }
-
-dependencies {
 }
