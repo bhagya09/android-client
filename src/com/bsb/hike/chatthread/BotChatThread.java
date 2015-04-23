@@ -47,6 +47,13 @@ public class BotChatThread extends OneToOneChatThread
 		mConversation.setIsMute(HikeConversationsDatabase.getInstance().isBotMuted(msisdn));
 		return mConversation;
 	}
+	
+	@Override
+	protected void fetchConversationFinished(Conversation conversation)
+	{
+		super.fetchConversationFinished(conversation);
+		toggleConversationMuteViewVisibility(mConversation.isMuted());
+	}
 
 	@Override
 	protected String[] getPubSubListeners()
