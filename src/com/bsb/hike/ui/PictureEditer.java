@@ -164,8 +164,6 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 
 		setupActionBar();
 
-		editView = (PhotosEditerFrameLayoutView) findViewById(R.id.editer);
-		
 		//We need to create a single destination copy
 		String destinationFileHandle = intent.getStringExtra(HikeConstants.HikePhotos.DESTINATION_FILENAME);
 		
