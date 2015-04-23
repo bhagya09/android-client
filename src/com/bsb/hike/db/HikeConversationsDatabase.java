@@ -109,6 +109,15 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		super(context, DBConstants.CONVERSATIONS_DATABASE_NAME, null, DBConstants.CONVERSATIONS_DATABASE_VERSION);
 		mDb = getWritableDatabase();
 	}
+	
+	public SQLiteDatabase getWriteDatabase()
+	{
+		if(mDb == null || !mDb.isOpen())
+		{
+			mDb = super.getWritableDatabase();
+		}
+		return mDb;
+	}
 
 	@Override
 	public void onCreate(SQLiteDatabase db)
@@ -754,11 +763,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		 */
 		mDb = hikeConversationsDatabase.getWriteDatabase(); 
 		Logger.d(getClass().getSimpleName(), "Conversation DB initialization is complete");
-	}
-	
-	public SQLiteDatabase getWriteDatabase()
-	{
-		return mDb;
 	}
 
 	public void clearTable(String table)
