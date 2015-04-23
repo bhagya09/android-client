@@ -3810,7 +3810,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	/**
 	 * Used to show clear conversation confirmation dialog
 	 */
-	private void showClearConversationDialog()
+	protected void showClearConversationDialog()
 	{
 		this.dialog = HikeDialogFactory.showDialog(activity, HikeDialogFactory.CLEAR_CONVERSATION_DIALOG, this);
 	}

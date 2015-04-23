@@ -161,4 +161,10 @@ public class BotChatThread extends OneToOneChatThread
 		super.emailChat();
 	}
 
+	@Override
+	protected void showClearConversationDialog()
+	{
+		BotConversation.analyticsForBots(msisdn, HikePlatformConstants.BOT_CLEAR_CONVERSATION, HikePlatformConstants.OVERFLOW_MENU, AnalyticsConstants.CLICK_EVENT, null);
+		super.showClearConversationDialog();
+	}
 }
