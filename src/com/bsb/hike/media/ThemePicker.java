@@ -237,17 +237,21 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 	@Override
 	public boolean onBackPressed()
 	{
+		/**
+		 * Can add other cases in future here as well.
+		 */
+		return dismiss();
+	}
+	
+	public boolean dismiss()
+	{
 		if (popUpLayout.isShowing())
 		{
 			actionMode.finish();
 			return true;
 		}
+
 		return false;
-	}
-	
-	public void dismiss()
-	{
-		onBackPressed();
 	}
 
 	private int getNumColumnsChatThemes()

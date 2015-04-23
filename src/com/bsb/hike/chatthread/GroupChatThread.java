@@ -219,7 +219,7 @@ public class GroupChatThread extends OneToNChatThread
 			showStickyMessageAtTop((ConvMessage) msg.obj, true);
 			break;
 		case MESSAGE_RECEIVED:
-			addMessage((ConvMessage) msg.obj);
+			messageAdded((ConvMessage) msg.obj);
 			break;
 		case GROUP_END:
 			toggleGroupLife(false);
@@ -306,7 +306,7 @@ public class GroupChatThread extends OneToNChatThread
 	}
 
 	@Override
-	protected void addMessage(ConvMessage convMessage)
+	protected void messageAdded(ConvMessage convMessage)
 	{
 		/*
 		 * If we were showing the typing bubble, we remove it from the add the new message and add the typing bubble back again
@@ -325,7 +325,7 @@ public class GroupChatThread extends OneToNChatThread
 		/**
 		 * Adding message to the adapter
 		 */
-		mAdapter.addMessage(convMessage);
+		addMessage(convMessage);
 
 		if (convMessage.isSent())
 		{
@@ -337,11 +337,17 @@ public class GroupChatThread extends OneToNChatThread
 			if (!((GroupTypingNotification) typingNotification).getGroupParticipantList().isEmpty())
 			{
 				Logger.d(TAG, "Typing notification in group chat thread: " + ((GroupTypingNotification) typingNotification).getGroupParticipantList().size());
-				mAdapter.addMessage(new ConvMessage(typingNotification));
+				addMessage(new ConvMessage(typingNotification));
 			}
 		}
 
-		super.addMessage(convMessage);
+		super.messageAdded(convMessage);
+	}
+
+	@Override
+	protected void addMessage(ConvMessage message)
+	{
+		super.addMessage(message);
 	}
 
 	private void onMuteConversationToggled(Object object)
@@ -658,7 +664,7 @@ public class GroupChatThread extends OneToNChatThread
 	{
 		if (convMessage != null)
 		{
-			addMessage(convMessage);
+			messageAdded(convMessage);
 			HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_SENT, convMessage);
 
 			if (convMessage.getMessageType() == HikeConstants.MESSAGE_TYPE.TEXT_PIN)

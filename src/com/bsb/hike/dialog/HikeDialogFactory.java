@@ -2,9 +2,6 @@ package com.bsb.hike.dialog;
 
 import java.util.ArrayList;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
@@ -42,17 +39,12 @@ import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.adapters.AccountAdapter;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
-import com.bsb.hike.analytics.AnalyticsConstants.ProfileImageActions;
-import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.AccountData;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfoData;
 import com.bsb.hike.models.PhonebookContact;
-import com.bsb.hike.models.StatusMessage;
-import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.tasks.SyncOldSMSTask;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.CustomFontTextView;
 
@@ -118,7 +110,9 @@ public class HikeDialogFactory
 
 	public static final int DELETE_BROADCAST_DIALOG = 32;
 	
-	public static final int REMOVE_DP_CONFIRM_DIALOG = 33;
+	public static final int DELETE_FROM_BROADCAST = 33;
+	
+	public static final int REMOVE_DP_CONFIRM_DIALOG = 34;
 
 	public static HikeDialog showDialog(Context context, int whichDialog, Object... data)
 	{
