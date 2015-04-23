@@ -1,6 +1,7 @@
 package com.bsb.hike.ui;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import org.json.JSONException;
@@ -17,6 +18,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -164,10 +166,16 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 
 		editView = (PhotosEditerFrameLayoutView) findViewById(R.id.editer);
 		
-		if(intent.hasExtra(HikeConstants.HikePhotos.DESTINATION_FILENAME))
+		//We need to create a single destination copy
+		String destinationFileHandle = intent.getStringExtra(HikeConstants.HikePhotos.DESTINATION_FILENAME);
+		
+		if(TextUtils.isEmpty(destinationFileHandle))
 		{
-			editView.setDestinationPath(intent.getStringExtra(HikeConstants.HikePhotos.DESTINATION_FILENAME));
+			destinationFileHandle = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.IMAGE_ROOT + File.separator
+					+ Utils.getOriginalFile(HikeFileType.IMAGE, null);
 		}
+		
+		editView.setDestinationPath(destinationFileHandle);
 
 		pager = (ViewPager) findViewById(R.id.pager);
 
@@ -543,9 +551,20 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 									{
 										destFilePath.delete();
 									}
-
-									Utils.startCropActivityForResult(PictureEditer.this, f.getAbsolutePath(), destFilePath.getAbsolutePath(), true, true);
-
+									
+									String timeStamp = Long.toString(System.currentTimeMillis());
+									File file = null;
+									try
+									{
+										//We do not want to persist cropped result on storage
+										file = File.createTempFile("IMG_" + timeStamp, ".jpg");
+										file.deleteOnExit();
+										Utils.startCropActivityForResult(PictureEditer.this, f.getAbsolutePath(), file.getAbsolutePath(), true, true);
+									}
+									catch (IOException e)
+									{
+										e.printStackTrace();
+									}
 								}
 							});
 
