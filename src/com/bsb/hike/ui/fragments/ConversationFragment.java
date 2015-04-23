@@ -2829,7 +2829,14 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 						return;
 					}
 
-					convInfo.setMute(isMuted);
+					if (convInfo instanceof OneToNConvInfo)
+					{
+						convInfo.setMute(isMuted);
+					}
+					else if (Utils.isBot(convInfo.getMsisdn()))
+					{
+						convInfo.setMute(true);
+					}
 
 					notifyDataSetChanged();
 				}
