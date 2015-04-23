@@ -92,7 +92,7 @@ public class BotChatThread extends OneToOneChatThread
 		 * Making an exception for Hike Daily and Team Hike bots
 		 */
 
-		if (!msisdn.equals(HikeConstants.FTUE_HIKE_DAILY) && !msisdn.equals(HikeConstants.FTUE_TEAMHIKE_MSISDN))
+		if (!msisdn.equals(HikeConstants.FTUE_HIKE_DAILY) && !msisdn.equals(HikeConstants.FTUE_TEAMHIKE_MSISDN) && !msisdn.equals(HikeConstants.NUX_BOT))
 		{
 			list.add(new OverFlowMenuItem(mConversation.isBlocked() ? getString(R.string.unblock_title) : getString(R.string.block_title), 0, 0, R.string.block_title));
 			list.add(new OverFlowMenuItem(mConversation.isMuted() ? getString(R.string.unmute) : getString(R.string.mute), 0, 0, R.string.mute));
