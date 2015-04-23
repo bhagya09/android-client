@@ -333,6 +333,8 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
                     R.style.Alp_42447968_Theme_Dialog_Dark));
 
         super.onCreate(savedInstanceState);
+        
+        Utils.blockOrientationChange(this);
 
         loadSettings();
 
