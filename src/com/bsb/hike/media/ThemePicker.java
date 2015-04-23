@@ -244,6 +244,11 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 		}
 		return false;
 	}
+	
+	public void dismiss()
+	{
+		onBackPressed();
+	}
 
 	private int getNumColumnsChatThemes()
 	{

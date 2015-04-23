@@ -178,6 +178,18 @@ public class GroupChatThread extends OneToNChatThread
 		oneToNConversation = (GroupConversation) conversation;
 		super.fetchConversationFinished(conversation);
 
+		/**
+		 * Is the group owner blocked ? If true then show the block overlay with appropriate strings
+		 */
+
+		if (oneToNConversation.isBlocked())
+		{
+			String label = oneToNConversation.getConversationParticipantName(oneToNConversation.getConversationOwner());
+
+			showBlockOverlay(label);
+
+		}
+
 		showTips();
 
 		toggleConversationMuteViewVisibility(oneToNConversation.isMuted());

@@ -33,6 +33,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.adapters.GalleryAdapter;
+import com.bsb.hike.chatthread.ChatThread;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
@@ -540,24 +541,13 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 						progressDialog = null;
 					}
 					
-					/**
-					 * This flag indicates whether this was opened from chatThread or not
-					 */
-					boolean sendResult = getIntent().getBooleanExtra(GalleryActivity.START_FOR_RESULT, false);
+					String msisdn = getIntent().getStringExtra(HikeConstants.Extras.MSISDN);
+					Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(GallerySelectionViewer.this, msisdn, false);
+					intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+					intent.putExtra(ChatThread.SCROLL_END, true);
+					startActivity(intent);
+					finish();
 					
-					if (!sendResult)
-					{
-						String msisdn = getIntent().getStringExtra(HikeConstants.Extras.MSISDN);
-						Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(GallerySelectionViewer.this, msisdn, false);
-						intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-						startActivity(intent);
-					}
-					
-					else
-					{
-						setResult(RESULT_OK);
-						finish();
-					}
 				}
 			});
 		}

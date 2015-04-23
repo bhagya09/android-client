@@ -150,7 +150,7 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 		ChatTheme currentTheme = mConversationDb.getChatThemeForMsisdn(msisdn);
 		Logger.d("ChatThread", "Calling setchattheme from createConversation");
 		oneToNConversation.setChatTheme(currentTheme);
-
+		oneToNConversation.setBlocked(ContactManager.getInstance().isBlocked(oneToNConversation.getConversationOwner()));
 		return oneToNConversation;
 	}
 
@@ -647,5 +647,11 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 			tryScrollingToBottom(convMessage, messagesList.size());
 
 		}
+	}
+	
+	@Override
+	protected String getBlockedUserLabel()
+	{
+		return oneToNConversation.getConversationParticipantName(oneToNConversation.getConversationOwner());
 	}
 }

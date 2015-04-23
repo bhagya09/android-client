@@ -109,6 +109,8 @@ public class HikeDialogFactory
 	public static final int VOIP_INTRO_DIALOG = 31;
 
 	public static final int DELETE_BROADCAST_DIALOG = 32;
+	
+	public static final int DELETE_FROM_BROADCAST = 33;
 
 	public static HikeDialog showDialog(Context context, int whichDialog, Object... data)
 	{
@@ -166,6 +168,7 @@ public class HikeDialogFactory
 		case DELETE_PINS_DIALOG:
 		case DELETE_STATUS_DIALOG:
 		case DELETE_FROM_GROUP:
+		case DELETE_FROM_BROADCAST:
 		case DELETE_CHAT_DIALOG:
 		case DELETE_GROUP_DIALOG:
 		case DELETE_ALL_CONVERSATIONS:
@@ -917,6 +920,13 @@ public class HikeDialogFactory
 		case DELETE_FROM_GROUP:
 			deleteConfirmDialog.setHeader(R.string.remove_from_group);
 			deleteConfirmDialog.setBody(context.getString(R.string.remove_confirm, (String) data[0]));
+			deleteConfirmDialog.setOkButton(R.string.yes, positiveListener);
+			deleteConfirmDialog.setCancelButton(R.string.no, negativeListener);
+			break;
+		
+		case DELETE_FROM_BROADCAST:
+			deleteConfirmDialog.setHeader(R.string.remove_from_broadcast);
+			deleteConfirmDialog.setBody(context.getString(R.string.remove_confirm_broadcast, (String) data[0]));
 			deleteConfirmDialog.setOkButton(R.string.yes, positiveListener);
 			deleteConfirmDialog.setCancelButton(R.string.no, negativeListener);
 			break;

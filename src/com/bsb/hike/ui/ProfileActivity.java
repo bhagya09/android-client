@@ -944,7 +944,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			text.setText(name);
  			long groupCreation=oneToNConversation.getCreationDateInLong();
 			if(groupCreation!=-1l)
-				creation.setText(getResources().getString(R.string.group_creation)+" "+OneToNConversationUtils.getGroupCreationTimeAsString(getApplicationContext(), groupCreation));
+				creation.setText(getResources().getString(R.string.group_creation)+" "+OneToNConversationUtils.getGroupCreationTimeAsString(groupCreation));
 			break;
 			
 		default:
@@ -2882,7 +2882,8 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 
 	private void removeFromGroup(final ContactInfo contactInfo)
 	{
-		HikeDialogFactory.showDialog(this, HikeDialogFactory.DELETE_FROM_GROUP, new HikeDialogListener()
+		int dialogId = oneToNConversation instanceof BroadcastConversation? HikeDialogFactory.DELETE_FROM_BROADCAST : HikeDialogFactory.DELETE_FROM_GROUP;
+		HikeDialogFactory.showDialog(this, dialogId, new HikeDialogListener()
 		{	
 			@Override
 			public void positiveClicked(HikeDialog hikeDialog)
