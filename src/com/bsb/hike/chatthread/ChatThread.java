@@ -2299,7 +2299,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 		int loaderId;
 	
-		int position = -1;
+		int position = -2;
 
 		int loadMessageCount = 50;
 
