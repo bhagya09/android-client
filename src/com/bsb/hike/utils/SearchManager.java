@@ -39,6 +39,8 @@ public class SearchManager
 	private int itemViewBacklash;
 
 	private ArrayList<Searchable> itemList;
+	
+	private boolean active;
 
 	public SearchManager()
 	{
@@ -49,6 +51,17 @@ public class SearchManager
 	{
 		this.itemList = new ArrayList<Searchable>(collection);
 		clearSearch();
+		active = true;
+	}
+
+	public void deactivate()
+	{
+		active = false;
+	}
+
+	public boolean isActive()
+	{
+		return active;
 	}
 
 	public void makeNewSearch(String s)
@@ -72,6 +85,12 @@ public class SearchManager
 		itemViewBacklash = backlash;
 	}
 
+	/**
+	 * Returns the position of the next item in the item list after applying the view backlash.
+	 * Return -1 if not item is found.
+	 * @param cursorPosition
+	 * @return
+	 */
 	public int getNextItem(int cursorPosition, int lastPosition)
 	{
 		// if the search text is empty, no need to perform any search.
@@ -85,11 +104,7 @@ public class SearchManager
 		{
 			itemViewBacklash = lastPosition-cursorPosition;
 		}
-		Logger.d("search","first last:" + cursorPosition + lastPosition);
-		Logger.d("search", "nextMessage()");
-		Logger.d("search", "list: " + indexList.toString());
 		int searchCusrsor = getCurrentCursor(cursorPosition);
-		Logger.d("search", "currentCusrsor: " + searchCusrsor);
 
 		int start, end, threshold = -1;
 		int lastMessageIndex = itemList.size() - 1;
@@ -140,7 +155,6 @@ public class SearchManager
 	private int getNextIndexItem(int searchCusrsor)
 	{
 		int position = Collections.binarySearch(indexList, searchCusrsor);
-		Logger.d("search", "position: " + position);
 		if (position >= 0)
 		{
 			position++;
@@ -160,6 +174,12 @@ public class SearchManager
 		}
 	}
 
+	/**
+	 * Returns the position of the previous item in the item list after applying the view backlash.
+	 * Return -1 if not item is found.
+	 * @param cursorPosition
+	 * @return
+	 */
 	public int getPrevItem(int cursorPosition)
 	{
 		if (TextUtils.isEmpty(searchText))
@@ -167,12 +187,8 @@ public class SearchManager
 			return -1;
 		}
 		itemViewBacklash = defaultItemViewBacklash;
-		Logger.d("search", "prevMessage()");
-		Logger.d("search", "list: " + indexList.toString());
 		int searchCusrsor = getCurrentCursor(cursorPosition);
-		Logger.d("search", "currentCusrsor: " + searchCusrsor);
 		int position = Collections.binarySearch(indexList, searchCusrsor);
-		Logger.d("search", "position: " + position);
 
 		int start, end, threshold = -1;
 		// If the index list is empty, this is first request.
@@ -271,21 +287,19 @@ public class SearchManager
 	 */
 	private boolean searchAllMessages(int from, int to)
 	{
+		from = checkNApplyBound(from);
+		to = checkNApplyBound(to);
 		boolean found = false;
 		if (from > to)
 		{
+			// Swapping 'to' and 'from'
 			from ^= to ^= from ^= to;
 		}
+
 		for (; from <= to; from++)
 		{
-			// Just a precaution.
-			// This is possible if the caller sends a junk call due to some reason.
-			if (from >= itemList.size())
-				continue;
-
 			if (itemList.get(from).doesItemContain(searchText))
 			{
-				Logger.d("search", "adding: " + from);
 				if (!indexList.contains(from))
 				{
 					indexList.add(from);
@@ -308,19 +322,15 @@ public class SearchManager
 	 */
 	private boolean searchFirstMessage(int from, int to, int threshold)
 	{
-		Logger.d("search", "searching first in range: " + from + "-" + to + " with threshold of " + threshold);
+		from = checkNApplyBound(from);
+		to = checkNApplyBound(to);
 		if (from > to)
 		{
 			for (; from >= to; from--)
 			{
-				// Just a precaution.
-				// This is possible if the caller sends a junk call due to some reason.
-				if (from >= itemList.size())
-					continue;
 
 				if (itemList.get(from).doesItemContain(searchText))
 				{
-					Logger.d("search", "adding: " + from);
 					if (!indexList.contains(from))
 					{
 						indexList.add(from);
@@ -345,14 +355,9 @@ public class SearchManager
 		{
 			for (; from <= to; from++)
 			{
-				// Just a precaution.
-				// This is possible if the caller sends a junk call due to some reason.
-				if (from >= itemList.size())
-					continue;
 
 				if (itemList.get(from).doesItemContain(searchText))
 				{
-					Logger.d("search", "adding: " + from);
 					if (!indexList.contains(from))
 					{
 						indexList.add(from);
@@ -375,9 +380,22 @@ public class SearchManager
 		}
 	}
 
+	/*
+	 * Just a precaution.
+	 * This is possible if the caller sends a junk call due to some reason.
+	 */
+	private int checkNApplyBound(int position)
+	{
+		if (position >= itemList.size())
+			return (itemList.size() - 1);
+		else if (position < 0)
+			return 0;
+		else
+			return position;
+	}
+
 	private int applyBackLash(int position)
 	{
-		Logger.d("search","itemViewBacklash: " + itemViewBacklash);
 		if (position <= itemViewBacklash)
 			position = 0;
 		else
@@ -406,6 +424,15 @@ public class SearchManager
 		{
 			indexList.set(i, indexList.get(i) + count );
 		}
+	}
+
+	/**
+	 * Adds an item to the end of current item list.
+	 * @param item
+	 */
+	public void addItem(Searchable item)
+	{
+		itemList.add(item);
 	}
 
 }

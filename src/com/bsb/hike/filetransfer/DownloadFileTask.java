@@ -142,6 +142,11 @@ public class DownloadFileTask extends FileTransferBase
 		{
 			try
 			{
+				if(!Utils.isUserOnline(context)){
+					Logger.d(getClass().getSimpleName(), "No Internet");
+					error();
+					return FTResult.DOWNLOAD_FAILED;
+				}
 				conn = initConn();
 				// set the range of byte to download
 				String byteRange = mStart + "-";

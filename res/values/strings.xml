@@ -1447,6 +1447,22 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="voip_reconnecting">&#8230;RECONNECTING</string>
     <string name="terms_conditions_hint">Terms and Conditions</string>
     <string name="terms_conditions_title">T &amp; C</string>
+
+    <string name="content_des_message_send_rec_read_status">Message send or pending status</string>
+    <string name="content_des_restore_if_backup_found">Restore (Backup found)</string>
+    <string name="content_des_add_photo_gallery_create_group">Add photo while creating a group</string>
+    <string name="content_des_add_photo_camera_create_group">Capture photo while creating a group</string>
+    <string name="content_des_reset_selected_contacts_create_group">Unselect selected contacts while creating a group</string>
+    <string name="content_des_choose_smiley_while_chatting">Choose smiley to send while chatting/setting status</string>
+    <string name="content_des_choose_sticker_while_chatting">Choose sticker to send while chatting</string>
+    <string name="content_des_send_recorded_audio_text_chatting">Send recorded audio/text while chatting</string>
+    <string name="content_des_back_button_chatthread_actionbar">Press back button from chat-thread actionbar</string>
+    <string name="content_des_round_user_image_chatthread_actionbar">User image (rounded) chat-thread actionbar</string>
+    <string name="content_des_typing_notification_chatting">Typing information to user while chatting</string>
+    <string name="content_des_typing_notification_received">Typing notification received to user</string>
+
     <string name="group_creation">Created on </string>
     <string name="ls_change_failed">Last Seen update failed!</string>
+	<string name="activity_not_found">No app found that can handle this action</string>
+		
 </resources>

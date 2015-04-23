@@ -119,8 +119,8 @@ public class OneToNConvInfo extends ConvInfo
 	 */
 	public String getConvParticipantName(String groupParticipantMsisdn)
 	{
-		HikeMessengerApp.getContactManager().getContact(groupParticipantMsisdn, true, false);
-		String name = HikeMessengerApp.getContactManager().getName(getMsisdn(), groupParticipantMsisdn);
+		ContactManager.getInstance().getContact(groupParticipantMsisdn, true, false);
+		String name = ContactManager.getInstance().getName(getMsisdn(), groupParticipantMsisdn);
 		return name;
 	}
 

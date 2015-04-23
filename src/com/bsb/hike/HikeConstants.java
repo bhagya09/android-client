@@ -44,8 +44,6 @@ public class HikeConstants
 	public static final String FROM = "f";
 
 	public static final String SUB_TYPE = "st";
-	
-	public static final String GROUP_CHAT_TIMESTAMP = "gts";	
 
 	public static final String HIKE_MESSAGE = "hm";
 
@@ -1135,6 +1133,8 @@ public class HikeConstants
 
 		public static final String ASPECT_Y = "aspectY";
 
+		public static final String JPEG_COMPRESSION_QUALITY = "jpegCompressionQuality";
+		
 		public static final String DATA = "data";
 
 		public static final String RETURN_DATA = "return-data";
@@ -1623,6 +1623,10 @@ public class HikeConstants
 		public static final String SELECT_ALL_HIKE_CONTACTS = "compSslctAllFwd";
 
 		public static final String CONFIRM_FORWARD = "compSconfFwd";
+		
+		public static final String SELECT_ALL_SHARE = "compSslctAllShare";
+
+		public static final String CONFIRM_SHARE = "compSconfShare";
 
 		/*
 		 * Drawer screen <screen> = drS <event> = homE, gC, inV, reW, creD, proF, settinG
@@ -2021,10 +2025,16 @@ public class HikeConstants
 		// Home search events
 
 		public static final String HOME_SEARCH = "hmSrch";
+
+		public static final String CHAT_SEARCH = "chtSrch";
+
+		public static final String CHAT_OVRFLW_ITEM = "chtOvrflwItem";
 		
 		public static final String DEVICE_ROOT="root";
 
 		public static final String ADDRESSBOOK_UPLOAD = "addressbookUpload";
+
+		public static final String GET_ACTIVE_NETWORK_INFO = "getActiveNetworkInfo";
 
 	}
 
@@ -2053,7 +2063,7 @@ public class HikeConstants
 		public static final String ICON = "ic";
 
 		public static final String INVITE_INFO = "ii";
-		
+
 		public static final String GROUP_CHAT_JOIN = "gcj";
 
 		public static final String GROUP_CHAT_LEAVE = "gcl";
@@ -2660,6 +2670,24 @@ public class HikeConstants
 	public static final String ENABLE_EXCEPTION_ANALYTIS = "enableExceptionAnalytics";
 
 	public static final String PAYLOAD = "payload";
+	
+	public static final String MESSAGE_MAP="MessageMap";
+	
+	public static final String CONV_MESSAGE="ConvMessage";
+	
+	public static final String TICKER_TEXT="TickerText";
+	
+	public static final String LAST_ADDED_MSISDN="lastAddedMsisdn";
+	
+	public static final String LAST_ADDED_TIMESTAMP="latestAddedTimestamp";
+	
+	public static final String TTL_NEW_MSG="totalNewMessages";
+	
+	public static final String FORCE_BKL_NOTIF="forceBlockNotificationSound";
+	
+	public static final String NOTIFICATION_OBJ="notif";
+	
+	public static final String BIG_TEXT_LIST="BigTextList";
 	
 	public static final String HIKE_CONTACT_PICKER_RESULT = "contact_pick_result";
 }
