@@ -502,21 +502,7 @@ public class HikeConstants
 
 	public static final String HIKEBOT_CONV_STATE = "isHikeBotConvState";
 
-	public static final String FTUE_TEAMHIKE_MSISDN = "+hike+";
-
-	public static final String FTUE_HIKEBOT_MSISDN = "+hike1+";
-
-	public static final String FTUE_GAMING_MSISDN = "+hike2+";
-
-	public static final String FTUE_HIKE_DAILY = "+hike3+";
-
-	public static final String FTUE_HIKE_SUPPORT = "+hike4+";
-
 	public static final String BACKUP_PREF = "backupAccount";
-
-	public static final String NUX_BOT = "+hike5+";
-
-	public static final String CRICKET_BOT = "+hikecricket+";
 
 	public static final String NUX = "nux";
 
@@ -2688,4 +2674,34 @@ public class HikeConstants
 	public static final String BIG_TEXT_LIST="BigTextList";
 	
 	public static final String HIKE_CONTACT_PICKER_RESULT = "contact_pick_result";
+
+	public static final class Bots
+	{
+		public static final String FTUE_TEAM_HIKE_NAME = "team hike";
+
+		public static final String FTUE_HIKEBOT_NAME = "Emma from hike";
+
+		public static final String FTUE_GAMING_NAME = "Games on hike";
+
+		public static final String FTUE_HIKE_DAILY_NAME = "hike daily";
+
+		public static final String FTUE_HIKE_SUPPORT_NAME = "hike support";
+
+		public static final String NUX_BOT_NAME = "Natasha";
+
+		public static final String FTUE_TEAMHIKE_MSISDN = "+hike+";
+
+		public static final String FTUE_HIKEBOT_MSISDN = "+hike1+";
+
+		public static final String FTUE_GAMING_MSISDN = "+hike2+";
+
+		public static final String FTUE_HIKE_DAILY = "+hike3+";
+
+		public static final String FTUE_HIKE_SUPPORT = "+hike4+";
+
+		public static final String NUX_BOT_MSISDN = "+hike5+";
+
+		public static final String CRICKET_BOT_MSISDN = "+hikecricket+";
+
+	}
 }

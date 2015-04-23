@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import com.bsb.hike.bots.BotInfo;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -2422,7 +2423,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				String name;
 				if (HikeMessengerApp.hikeBotNamesMap.containsKey(msisdn))
 				{
-					name = HikeMessengerApp.hikeBotNamesMap.get(msisdn);
+					name = HikeMessengerApp.hikeBotNamesMap.get(msisdn).getConversationName();
 					onhike = true;
 				}
 				else
@@ -5145,24 +5146,46 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 	}
 
-	public HashMap addBotToHashMap(HashMap<String, String> hikeBotNamesMap)
+	public HashMap addBotToHashMap(HashMap<String, BotInfo> hikeBotNamesMap)
 	{
 		Cursor c = null;
+		if (hikeBotNamesMap == null)
+		{
+			hikeBotNamesMap = new HashMap<String, BotInfo>();
+		}
 		try
 		{
-			c = mDb.query(DBConstants.BOT_TABLE, new String[] { DBConstants.MSISDN, DBConstants.NAME }, null, null, null, null, null);
+			c = mDb.query(DBConstants.BOT_TABLE, null, null, null, null, null, null);
 
 			while (c.moveToNext())
 			{
 				int msisdnIdx = c.getColumnIndex(DBConstants.MSISDN);
 				int nameIdx = c.getColumnIndex(DBConstants.NAME);
+				int configurationIdx = c.getColumnIndex(DBConstants.BOT_CONFIGURATION);
+				int botTypeIdx = c.getColumnIndex(DBConstants.BOT_TYPE);
+				int metadataIdx = c.getColumnIndex(DBConstants.CONVERSATION_METADATA);
+				int muteIdx = c.getColumnIndex(DBConstants.IS_MUTE);
+
 				String msisdn = c.getString(msisdnIdx);
 				String name = c.getString(nameIdx);
-				if (!TextUtils.isEmpty(name) && !TextUtils.isEmpty(msisdn))
-				{
-					hikeBotNamesMap.put(msisdn, name);
-				}
+				int config = c.getInt(configurationIdx);
+				int botType = c.getInt(botTypeIdx);
+				String metadata = c.getString(metadataIdx);
+				int mute = c.getInt(muteIdx);
+
+
+				BotInfo botInfo = new BotInfo.HikeBotBuilder(msisdn)
+						.setConvName(name)
+						.setConfig(config)
+						.setType(botType)
+						.setMetadata(metadata)
+						.setIsMute(mute == 1)
+						.build();
+
+				hikeBotNamesMap.put(msisdn, botInfo);
+
 			}
+			return hikeBotNamesMap;
 		}
 		finally
 		{
@@ -5171,7 +5194,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				c.close();
 			}
 		}
-		return hikeBotNamesMap;
+
 	}
 
 	public ConvMessage showParticipantStatusMessage(String groupId)

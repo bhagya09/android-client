@@ -142,7 +142,7 @@ public class HikeNotificationUtils
 			return HikeMessengerApp.getInstance().getApplicationContext().getString(R.string.app_name);
 		}
 
-		String name = HikeMessengerApp.hikeBotNamesMap.get(argMsisdn);
+		String name = HikeMessengerApp.hikeBotNamesMap.get(argMsisdn).getConversationName();
 
 		if (TextUtils.isEmpty(name))
 		{

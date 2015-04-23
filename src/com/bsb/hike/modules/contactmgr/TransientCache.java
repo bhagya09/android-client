@@ -1116,7 +1116,7 @@ public class TransientCache extends ContactsCache
 		{
 			String name = ms;
 			if (HikeMessengerApp.hikeBotNamesMap.containsKey(ms))
-				name = HikeMessengerApp.hikeBotNamesMap.get(ms);
+				name = HikeMessengerApp.hikeBotNamesMap.get(ms).getConversationName();
 			blockedUserList.add(new Pair<AtomicBoolean, ContactInfo>(new AtomicBoolean(true), new ContactInfo(ms, ms, name, ms)));
 		}
 		blockedUserList.addAll(allUserList);
