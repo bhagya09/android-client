@@ -15,6 +15,7 @@ import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikePacket;
 import com.bsb.hike.models.MessagePrivateData;
+import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
@@ -180,7 +181,7 @@ public class MsgRelLogManager
 			metadata.put(AnalyticsConstants.REL_EVENT_STAGE, eventType);
 			
 			// adding app version
-			metadata.put(AnalyticsConstants.APP_VERSION_NAME, Utils.getAppVersionName(HikeMessengerApp.getInstance().getApplicationContext()));
+			metadata.put(AnalyticsConstants.APP_VERSION_NAME, AccountUtils.getAppVersion());
 			
 			// con:- 2g/3g/4g/wifi/off
 			metadata.put(AnalyticsConstants.CONNECTION_TYPE, Utils.getNetworkType(HikeMessengerApp.getInstance().getApplicationContext()));

@@ -924,21 +924,6 @@ public class Utils
 		}
 	}
 
-	public static String getAppVersionName(Context context)
-	{
-		String appVersion = "";
-		try
-		{
-			appVersion = context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionName;
-		}
-		catch (NameNotFoundException e)
-		{
-			Logger.e("AccountUtils", "Unable to get app version");
-		}
-
-		return appVersion;
-	}
-	
 	public static CharSequence addContactName(String firstName, CharSequence message)
 	{
 		SpannableStringBuilder messageWithName = new SpannableStringBuilder(firstName + HikeConstants.SEPARATOR + message);
