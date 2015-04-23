@@ -69,6 +69,7 @@ import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.FtueContactsData;
 import com.bsb.hike.models.OverFlowMenuItem;
+import com.bsb.hike.models.Conversation.ConversationTip;
 import com.bsb.hike.modules.animationModule.HikeAnimationFactory;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.notifications.HikeNotificationMsgStack;
@@ -1295,6 +1296,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 				}
 			});
 		}
+		//TODO UmangX remove PASS TIPS
 		else if (HikePubSub.SHOW_STEALTH_FTUE_SET_PASS_TIP.equals(type))
 		{
 			runOnUiThread(new Runnable()
@@ -1306,6 +1308,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 				}
 			});
 		}
+		//TODO UmangX remove PASS TIPS
 		else if (HikePubSub.SHOW_STEALTH_FTUE_ENTER_PASS_TIP.equals(type))
 		{
 			runOnUiThread(new Runnable()
@@ -1317,6 +1320,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 				}
 			});
 		}
+		//TODO UmangX remove STEALTH TIP from home screen
 		else if (HikePubSub.SHOW_STEALTH_FTUE_CONV_TIP.equals(type))
 		{
 			runOnUiThread(new Runnable()
@@ -1999,8 +2003,10 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 				{
 					switch (dialogShowing)
 					{
+					
+					//TODO UmangX remove stealth ftue Popup
 					case STEALTH_FTUE_POPUP:
-						HikeMessengerApp.getPubSub().publish(HikePubSub.SHOW_STEALTH_FTUE_CONV_TIP, null);
+						HikeMessengerApp.getPubSub().publish(HikePubSub.SHOW_STEALTH_FTUE_CONV_TIP, ConversationTip.STEALTH_FTUE_TIP);
 						
 						try
 						{

@@ -2427,6 +2427,12 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 			{
 				return;
 			}
+			
+			final int stealthTipType = (object instanceof Integer) ? (int)object : ConversationTip.STEALTH_FTUE_TIP;
+			if(stealthTipType == ConversationTip.STEALTH_INFO_TIP)
+			{
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.SHOW_STEALTH_INFO_TIP, true);
+			}
 			/**
 			 * Setting stealth mode on as we need to show the StealthFTUE convTip
 			 */
@@ -2438,7 +2444,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 				@Override
 				public void run()
 				{
-					showStealthTip(ConversationTip.STEALTH_FTUE_TIP);
+					showStealthTip(stealthTipType);
 				}
 			});
 
@@ -2559,6 +2565,8 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 				@Override
 				public void run()
 				{
+					
+					//TODO UMANGX get persist RESET stealth Tip
 					getFirstConversation();
 					//Adding stealth reset tip
 					showStealthTip(ConversationTip.RESET_STEALTH_TIP);

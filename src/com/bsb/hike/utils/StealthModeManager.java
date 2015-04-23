@@ -8,6 +8,7 @@ import org.json.JSONObject;
 
 import android.app.Activity;
 import android.content.Context;
+import android.preference.PreferenceManager;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -16,6 +17,7 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.Conversation.ConvInfo;
+import com.bsb.hike.models.Conversation.ConversationTip;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.ui.utils.LockPattern;
@@ -26,10 +28,9 @@ import com.bsb.hike.ui.utils.LockPattern;
 public class StealthModeManager
 {
 	
-	enum States{
-		SETUP_PENDING, ACTIVE, INACTIVE, FAKE_ACTIVE; 
-	}
-	private static int RESET_TOGGLE_TIME_MS =10 * 1000;
+	private static final String DEFAULT_RESET_TOGGLE_TIME = "0";
+	
+	private static final String NEVER_RESET_TOGGLE_TIME = "-1";
 
 	private static final StealthModeManager stealthModeManager = new StealthModeManager();
 
@@ -40,6 +41,8 @@ public class StealthModeManager
 	private final String TAG =  "StealthModeManager";
 	
 	private int currentState;
+	
+	private static boolean inFakeHiddenMode = false;
 
 	private StealthModeManager()
 	{
@@ -107,11 +110,18 @@ public class StealthModeManager
 	public void resetStealthToggle()
 	{
 		clearScheduledStealthToggleTimer();
-		handler.postRunnableWithDelay(toggleReset, RESET_TOGGLE_TIME_MS);
+		String stealthTimeOut = PreferenceManager.getDefaultSharedPreferences(HikeMessengerApp.getInstance().getApplicationContext()).getString(HikeConstants.CHANGE_STEALTH_TIMEOUT, DEFAULT_RESET_TOGGLE_TIME);
+		inFakeHiddenMode = true;
+		if(!stealthTimeOut.equals(NEVER_RESET_TOGGLE_TIME))
+		{
+			
+			handler.postRunnableWithDelay(toggleReset, Long.parseLong(stealthTimeOut) * 1000);
+		}
 	}
 
 	public void clearScheduledStealthToggleTimer()
 	{
+		inFakeHiddenMode = false;
 		handler.removeRunnable(toggleReset);
 	}
 
@@ -124,6 +134,7 @@ public class StealthModeManager
 			activate(false);
 			HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_MODE_TOGGLED, true);
 			HikeMessengerApp.getPubSub().publish(HikePubSub.CLOSE_CURRENT_STEALTH_CHAT, true);
+			inFakeHiddenMode = false;
 		}
 	};
 	
@@ -194,6 +205,11 @@ public class StealthModeManager
 	{
 		if (!StealthModeManager.getInstance().isSetUp())
 		{
+			if (!HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOW_STEALTH_INFO_TIP, true))
+			{
+				HikeMessengerApp.getPubSub().publish(HikePubSub.SHOW_STEALTH_FTUE_CONV_TIP, ConversationTip.STEALTH_INFO_TIP);
+				return;
+			}
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STEALTH_MODE_FTUE_DONE, false);
 			LockPattern.createNewPattern(activity, false, HikeConstants.ResultCodes.CREATE_LOCK_PATTERN);
 		}
