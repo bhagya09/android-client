@@ -711,6 +711,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	@Override
 	public void itemClicked(OverFlowMenuItem item)
 	{
+		recordOverflowItemClicked(item);
 		switch (item.id)
 		{
 		case R.string.clear_chat:
@@ -728,6 +729,23 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			break;
 		default:
 			break;
+		}
+	}
+	
+	private void recordOverflowItemClicked(OverFlowMenuItem item)
+	{
+		String ITEM = "item";
+		try
+		{
+			JSONObject metadata = new JSONObject();
+			metadata
+			.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.CHAT_OVRFLW_ITEM)
+			.put(ITEM,getString(item.id));
+			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+		}
+		catch (JSONException e)
+		{
+			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
 		}
 	}
 
