@@ -653,7 +653,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	private void setupContactProfileScreen()
 	{
 		this.mLocalMSISDN = getIntent().getStringExtra(HikeConstants.Extras.CONTACT_INFO);
-		contactInfo = HikeMessengerApp.getContactManager().getContact(mLocalMSISDN, true, true);
+		contactInfo = ContactManager.getInstance().getContact(mLocalMSISDN, true, true);
 		sharedMediaCount = HikeConversationsDatabase.getInstance().getSharedMediaCount(mLocalMSISDN, true);
 		sharedPinCount = 0;  //Add a query here to get shared groups count. sharedPincount is to be treated as shared group count here.
 		unreadPinCount = 0;
@@ -677,7 +677,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	private void setupContactTimelineScreen()
 	{
 		this.mLocalMSISDN = getIntent().getStringExtra(HikeConstants.Extras.CONTACT_INFO_TIMELINE);
-		contactInfo = HikeMessengerApp.getContactManager().getContact(mLocalMSISDN, true, true);
+		contactInfo = ContactManager.getInstance().getContact(mLocalMSISDN, true, true);
 		if(!contactInfo.isOnhike())
 		{
 			contactInfo.setOnhike(getIntent().getBooleanExtra(HikeConstants.Extras.ON_HIKE, false));
@@ -2078,7 +2078,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 
 				if (msisdns.size() > 0)
 				{
-					List<ContactInfo> contacts = HikeMessengerApp.getContactManager().getContact(msisdns, true, true);
+					List<ContactInfo> contacts = ContactManager.getInstance().getContact(msisdns, true, true);
 					for (ContactInfo contactInfo : contacts)
 					{
 						GroupParticipant grpParticipant = participantMap.get(contactInfo.getMsisdn()).getFirst();
@@ -3026,7 +3026,6 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		{			
 			httpApi = AccountUtils.GROUP_DP_UPDATE_URL_PREFIX + oneToNConversation.getMsisdn() + AccountUtils.GROUP_DP_UPDATE_URL_SUFFIX;
 		}
-		Utils.compressAndCopyImage(path, path, ProfileActivity.this, ImageQuality.QUALITY_MEDIUM);
 		uploadProfilePicture(httpApi);			
 		return path;
 	}

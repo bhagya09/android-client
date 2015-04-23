@@ -1135,6 +1135,8 @@ public class HikeConstants
 
 		public static final String ASPECT_Y = "aspectY";
 
+		public static final String JPEG_COMPRESSION_QUALITY = "jpegCompressionQuality";
+		
 		public static final String DATA = "data";
 
 		public static final String RETURN_DATA = "return-data";
@@ -2030,6 +2032,8 @@ public class HikeConstants
 
 		public static final String ADDRESSBOOK_UPLOAD = "addressbookUpload";
 
+		public static final String GET_ACTIVE_NETWORK_INFO = "getActiveNetworkInfo";
+
 	}
 
 	public static final class MqttMessageTypes
@@ -2664,6 +2668,24 @@ public class HikeConstants
 	public static final String ENABLE_EXCEPTION_ANALYTIS = "enableExceptionAnalytics";
 
 	public static final String PAYLOAD = "payload";
+	
+	public static final String MESSAGE_MAP="MessageMap";
+	
+	public static final String CONV_MESSAGE="ConvMessage";
+	
+	public static final String TICKER_TEXT="TickerText";
+	
+	public static final String LAST_ADDED_MSISDN="lastAddedMsisdn";
+	
+	public static final String LAST_ADDED_TIMESTAMP="latestAddedTimestamp";
+	
+	public static final String TTL_NEW_MSG="totalNewMessages";
+	
+	public static final String FORCE_BKL_NOTIF="forceBlockNotificationSound";
+	
+	public static final String NOTIFICATION_OBJ="notif";
+	
+	public static final String BIG_TEXT_LIST="BigTextList";
 	
 	public static final String HIKE_CONTACT_PICKER_RESULT = "contact_pick_result";
 }

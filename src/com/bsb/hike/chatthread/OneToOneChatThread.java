@@ -243,7 +243,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	{
 		mConversation = mConversationDb.getConversation(msisdn, HikeConstants.MAX_MESSAGES_TO_LOAD_INITIALLY, OneToNConversationUtils.isGroupConversation(msisdn));
 
-		mContactInfo = HikeMessengerApp.getContactManager().getContact(msisdn, true, true);
+		mContactInfo = ContactManager.getInstance().getContact(msisdn, true, true);
 
 		if (mConversation == null)
 		{
