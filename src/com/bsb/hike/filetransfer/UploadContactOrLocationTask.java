@@ -317,7 +317,7 @@ public class UploadContactOrLocationTask extends FileTransferBase
 			convMessage.setMessageOriginType(OriginType.BROADCAST);
 		}
 
-		HikeConversationsDatabase.getInstance().addConversationMessages(convMessage,false);
+		HikeConversationsDatabase.getInstance().addConversationMessages(convMessage,true);
 
 		HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_MESSAGE_CREATED, convMessage);
 		return convMessage;
