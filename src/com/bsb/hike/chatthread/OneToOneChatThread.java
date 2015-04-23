@@ -327,7 +327,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 
 	protected void addUnkownContactBlockHeader()
 	{
-		if (mContactInfo != null && mContactInfo.isUnknownContact() && messages != null && messages.size() > 0 && !Utils.isBot(msisdn))
+		if (mContactInfo != null && mContactInfo.isUnknownContact() && messages != null && messages.size() > 0)
 		{
 			ConvMessage cm = messages.get(0);
 			/**

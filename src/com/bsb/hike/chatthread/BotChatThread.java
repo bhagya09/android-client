@@ -209,4 +209,11 @@ public class BotChatThread extends OneToOneChatThread
 		toggleConversationMuteViewVisibility(networkError ? false : mConversation.isMuted());
 	}
 	
+	@Override
+	protected void addUnkownContactBlockHeader()
+	{
+		//Do Nothing
+		return;
+	}
+	
 }
