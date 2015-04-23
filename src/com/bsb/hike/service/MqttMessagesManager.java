@@ -12,6 +12,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.bots.MessagingBotConfiguration;
+import com.bsb.hike.bots.NonMessagingBotConfiguration;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -20,7 +23,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -2918,6 +2920,32 @@ public class MqttMessagesManager
 		msisdn = Utils.validateBotMsisdn(msisdn);
 		String name = jsonObj.optString(HikeConstants.NAME);
 		String thumbnailString = jsonObj.optString(HikeConstants.BOT_THUMBNAIL);
+		String type = jsonObj.optString(HikeConstants.TYPE);
+		int config = jsonObj.optInt(HikeConstants.CONFIGURATION);
+		BotInfo botInfo;
+		if (type.equals(HikeConstants.MESSAGING_BOT))
+		{
+			boolean isReceiveEnabled = jsonObj.optBoolean(HikeConstants.IS_RECEIVE_ENABLED_IN_BOT);
+			MessagingBotConfiguration configuration = new MessagingBotConfiguration(config, isReceiveEnabled);
+			botInfo = new BotInfo.HikeBotBuilder(msisdn)
+					.setType(BotInfo.MESSAGING_BOT)
+					.setConvName(name)
+					.setIsMute(false)
+					.setConfig(configuration.getConfig())
+					.build();
+		}
+		else
+		{
+			JSONObject metadata = jsonObj.optJSONObject(HikeConstants.METADATA);
+			NonMessagingBotConfiguration configuration = new NonMessagingBotConfiguration(config, metadata.toString());
+			botInfo = new BotInfo.HikeBotBuilder(msisdn)
+					.setType(BotInfo.NON_MESSAGING_BOT)
+					.setConvName(name)
+					.setIsMute(false)
+					.setConfig(configuration.getConfig())
+					.setMetadata(configuration.getMetadata())
+					.build();
+		}
 		if (!TextUtils.isEmpty(thumbnailString))
 		{
 			ContactManager.getInstance().setIcon(msisdn, Base64.decode(thumbnailString, Base64.DEFAULT), false);
@@ -2927,7 +2955,7 @@ public class MqttMessagesManager
 
 		convDb.setChatBackground(msisdn, jsonObj.optString(HikeConstants.BOT_CHAT_THEME), System.currentTimeMillis()/1000);
 
-		convDb.insertBot(msisdn, name, null, 0);
+		convDb.insertBot(botInfo);
 
 		if (HikeMessengerApp.hikeBotNamesMap.containsKey(msisdn))
 		{
@@ -2936,7 +2964,7 @@ public class MqttMessagesManager
 			ContactManager.getInstance().updateContacts(contact);
 			HikeMessengerApp.getPubSub().publish(HikePubSub.CONTACT_ADDED, contact);
 		}
-		HikeMessengerApp.hikeBotNamesMap.put(msisdn, name);
+		HikeMessengerApp.hikeBotNamesMap.put(msisdn, botInfo);
 		Logger.d("create bot", "It takes " + String.valueOf(System.currentTimeMillis() - startTime) + "msecs");
 	}
 

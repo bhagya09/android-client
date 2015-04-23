@@ -2291,13 +2291,15 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 	}
 
-	public void insertBot(String msisdn, String name, String metadata, int isMute)
+	public void insertBot(BotInfo botInfo)
 	{
 		ContentValues values = new ContentValues();
-		values.put(DBConstants.MSISDN, msisdn);
-		values.put(DBConstants.NAME, name);
-		values.put(DBConstants.CONVERSATION_METADATA, metadata);
-		values.put(DBConstants.IS_MUTE, isMute);
+		values.put(DBConstants.MSISDN, botInfo.getMsisdn());
+		values.put(DBConstants.NAME, botInfo.getConversationName());
+		values.put(DBConstants.CONVERSATION_METADATA, botInfo.getMetadata());
+		values.put(DBConstants.IS_MUTE, botInfo.isMute());
+		values.put(DBConstants.BOT_TYPE, botInfo.getType());
+		values.put(DBConstants.BOT_CONFIGURATION, botInfo.getConfiguration());
 		mDb.insertWithOnConflict(DBConstants.BOT_TABLE, null, values, SQLiteDatabase.CONFLICT_REPLACE);
 	}
 

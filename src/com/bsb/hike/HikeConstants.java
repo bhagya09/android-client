@@ -77,7 +77,11 @@ public class HikeConstants
 
 	public static final String BOT_THUMBNAIL = "dp";
 
+	public static final String CONFIGURATION = "config";
+
 	public static final String BOT_CHAT_THEME = "bg_id";
+
+	public static final String IS_RECEIVE_ENABLED_IN_BOT = "rec_enable";
 
 	public static final String NEW_USER = "nu";
 
@@ -196,6 +200,10 @@ public class HikeConstants
 	public static final String ICON = "icon";
 
 	public static final String BOT = "bot";
+
+	public static final String MESSAGING_BOT = "m_bot";
+
+	public static final String NON_MESSAGING_BOT = "nm_bot";
 
 	public static final String GROUP_CONVERSATION = "gc";
 
