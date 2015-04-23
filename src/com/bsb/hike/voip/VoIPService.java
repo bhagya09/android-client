@@ -197,6 +197,7 @@ public class VoIPService extends Service {
 //		String myMsisdn = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE).getString(HikeMessengerApp.MSISDN_SETTING, null);
 
 		setCallid(0);
+		setCallStatus(VoIPConstants.CallStatus.UNINITIALIZED);
 		encryptionStage = EncryptionStage.STAGE_INITIAL;
 		initAudioManager();
 		keepRunning = true;
@@ -460,7 +461,7 @@ public class VoIPService extends Service {
 			sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CALL_CLICK);
 		}
 
-		if(getCallStatus() == null)
+		if(getCallStatus() == VoIPConstants.CallStatus.UNINITIALIZED)
 		{
 			setInitialCallStatus();
 		}
@@ -575,23 +576,30 @@ public class VoIPService extends Service {
 			title = getString(R.string.voip_call_notification_title, clientPartner.getName()); 
 		
 		String text = null;
-		switch (getCallStatus()) {
-		case ON_HOLD:
-			text = getString(R.string.voip_on_hold);
-			break;
-			
-		case OUTGOING_CONNECTING:
-		case OUTGOING_RINGING:
-			text = getString(R.string.voip_call_summary_outgoing);
-			break;
-			
-		case INCOMING_CALL:
-			text = getString(R.string.voip_call_summary_incoming);
-			break;
-			
-		default:
-			text = getString(R.string.voip_call_notification_text, durationString); 
-			break;
+		switch (getCallStatus())
+		{
+			case ON_HOLD:
+				text = getString(R.string.voip_on_hold);
+				break;
+
+			case OUTGOING_CONNECTING:
+			case OUTGOING_RINGING:
+				text = getString(R.string.voip_call_summary_outgoing);
+				break;
+
+			case INCOMING_CALL:
+				text = getString(R.string.voip_call_summary_incoming);
+				break;
+
+			case ACTIVE:
+			case RECONNECTING:
+			case PARTNER_BUSY:
+			case ENDED:
+				text = getString(R.string.voip_call_notification_text, durationString); 
+				break;
+
+			case UNINITIALIZED:
+				return;
 		}
 
 		Notification myNotification = builder

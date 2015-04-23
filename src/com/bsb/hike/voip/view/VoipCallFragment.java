@@ -392,7 +392,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 
 		if(voipService != null)
 		{
-			voipService.setCallStatus(null);
+			voipService.setCallStatus(VoIPConstants.CallStatus.UNINITIALIZED);
 		}
 
 		try
