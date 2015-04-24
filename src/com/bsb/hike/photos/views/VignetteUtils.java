@@ -48,93 +48,93 @@ public class VignetteUtils
 
 		float stops[], radius = 1f;
 
-		radius = bitmap.getWidth()>bitmap.getHeight()?bitmap.getHeight():bitmap.getWidth();
+		radius = bitmap.getWidth()<bitmap.getHeight()?bitmap.getHeight():bitmap.getWidth();
+		float width = bitmap.getWidth();
 		
 		switch (filter)
 		{
 		case X_PRO_2:
 			// Vignette: Stop 1 = #000000 84%, Opacity = 0%; Stop 2 = #232443 120%, Opacity = 100%
 			colors = new int[] { 0xFFFFFFFF, 0x00FFFFFF, 0x00000000, 0xFF232443 };
-			stops = new float[] { 0.0f, 1.45f / 1.8f, 1.47f / 1.8f, 1.0f };
-			radius = 2.2f * radius / 2;
+			stops = new float[] { 0.0f, 1.35f /1.55f, 1.37f / 1.55f, 1.0f };
+			radius = 1.55f * radius / 2;
 			break;
 		case E1977:
 			colors = new int[] { 0xFFFFFFFF, 0x00FFFFFF, 0x00000000, 0xFF232443 };
-			stops = new float[] { 0.0f, 1.60f / 1.85f, 1.62f / 1.85f, 1.0f };
-			radius = 2f * radius / 2;
+			stops = new float[] { 0.0f, 1.40f / 1.5f, 1.42f / 1.5f, 1.0f };
+			radius = 1.5f * radius / 2;
 			break;
 		case EARLYBIRD:
 			colors = new int[] { 0xFFFFFFFF, 0x00FFFFFF, 0x004B2B1E, 0xFF4B2B1E };
-			stops = new float[] { 0.0f, 1.67f / 2.65f, 1.7f / 2.65f, 1.0f };
-			radius = 2.65f * radius / 2;
+			stops = new float[] { 0.0f, 1.37f / 1.65f, 1.4f / 1.65f, 1.0f };
+			radius = 1.65f * radius / 2;
 			break;
 		case GHOSTLY:
 		case BGR:
 			colors = new int[] { 0xFFFFFFFF, 0x00FFFFFF, 0x00000000, 0xFF000000 };
-			stops = new float[] { 0.0f, 1.67f / 2.65f, 1.7f / 2.65f, 1.0f };
-			radius = 2.65f * radius / 2;
+			stops = new float[] { 0.0f, 1.37f / 1.65f, 1.4f / 1.65f, 1.0f };
+			radius = 1.65f * radius / 2;
 			break;
 		case BRANNAN:
 			colors = new int[] { 0xFFFFFFFF, 0x00FFFFFF, 0x00A9AA98, 0xFFA9AA98 };
-			stops = new float[] { 0.0f, 1.67f / 2.65f, 1.7f / 2.65f, 1.0f };
-			radius = 2.65f * radius / 2;
+			stops = new float[] { 0.0f, 1.37f / 1.65f, 1.4f / 1.65f, 1.0f };
+			radius = 1.65f * radius / 2;
 			break;
 		case RETRO:
 		case KELVIN:
 			// Vignette: Stop 1 = #000000 74%, Opacity = 0%; Stop 2 = #000000 120%, Opacity = 100%
 			colors = new int[] { 0xFFFFFFFF, 0x00FFFFFF, 0x00000000, 0xFF000000 };
-			stops = new float[] { 0.0f, 1.45f / 1.8f, 1.48f / 1.8f, 1.0f };
-			radius = 1.8f * radius / 2;
+			stops = new float[] { 0.0f, 1.25f / 1.4f, 1.28f / 1.4f, 1.0f };
+			radius = 1.4f * radius / 2;
 			break;
 		case APOLLO:
 			// Vignette Stop 1: #18363f, Position 72%, Opacity 0% Stop 2: #18363f, Position 120%, Opacity 100%
 			colors = new int[] { 0xFFFFFFFF, 0x00FFFFFF, 0x0018363F, 0xFF18363F };
-			stops = new float[] { 0.0f, 1.65f / 2.6f, 1.68f / 2.6f, 1.0f };
-			radius = 2.6f * radius / 2;
+			stops = new float[] { 0.0f, 1.35f / 1.6f, 1.38f / 1.6f, 1.0f };
+			radius = 1.6f * radius / 2;
 			break;
 		case CHILLUM:
 			colors = new int[] { 0xFFFFFFFF, 0x00FFFFFF, 0x00000000, 0xFF000000 };
-			stops = new float[] { 0.0f, 1.85f / 2.65f, 1.90f / 2.65f, 1.0f };
-			radius = 2.65f * radius / 2;
+			stops = new float[] { 0.0f, 1.37f / 1.65f, 1.4f / 1.65f, 1.0f };
+			radius = 1.65f * radius / 2;
 			break;
 		case JALEBI:
 			// Vignette: Stop 1 = #000000 74%, Opacity = 0%; Stop 2 = #000000 120%, Opacity = 100%
 			colors = new int[] { 0x00000000, 0x00000000, 0xFF000000 };
-			stops = new float[] { 0.0f, 0.98f / 1.8f, 1.0f };
-			radius = 1.8f * radius / 2;
+			stops = new float[] { 0.0f, 0.78f / 1.4f, 1.0f };
+			radius = 1.4f * radius / 2;
 			break;
 		case LO_FI:
 			// Vignette Stop 1: #18363f, Position 72%, Opacity 0% Stop 2: #18363f, Position 120%, Opacity 100%
 			colors = new int[] { 0xFFFFFFFF, 0x00FFFFFF, 0x00525252, 0xFF525252 };
-			stops = new float[] { 0.0f, 1.65f / 2.6f, 1.68f / 2.6f, 1.0f };
-			radius = 2.6f * radius / 2;
+			stops = new float[] { 0.0f, 1.35f / 1.6f, 1.38f / 1.6f, 1.0f };
+			radius = 1.6f * radius / 2;
 			break;
 		case GULAAL:
 			// Gradient: Linear - Start From Right Side #ff0000 (opacity: 86% to 0%) (Scale: 150%)
 			colors = new int[] { 0x00FF0000, 0x88FF0000 };
 			stops = new float[] { 0.0f, 1.0f };
-			radius = 1f * radius;
+			radius = 1f * width;
 			radialGradient = false;
 			break;
 			
 		case POLAROID:
 			colors = new int[] { 0xFFAAB1CB,  0xFF382529 };
 			stops = new float[] { 0.0f,  1.0f };
-			radius = 2.6f * radius / 2;
+			radius = 1.6f * radius / 2;
 			break;
 
 		case SUNLITT:
 			isLinearDiagonal = false;
 			colors = new int[] { 0xFF290A59, 0xFFFF7C00 };
 			stops = new float[] { 0.0f, 1.0f };
-			radius = 1.76f * radius;
+			radius = 1.76f * width;
 			makeLinearGradient(radius, bitmap.getWidth(), bitmap.getHeight(), bitmap, colors, stops, sX, sY, eX, eY, isLinearDiagonal);
 			radialGradient = false;
 			isLinearDiagonal = true;
 			colors = new int[] { 0x00FF0000,0x55FF0000,0x55FF0000, 0x00FF0000 };
 			stops = new float[] { 0.0f,0.15f, 0.42f, 1.0f };
-			radius = bitmap.getWidth()>bitmap.getHeight()?bitmap.getHeight():bitmap.getWidth();
-			radius = 1f * bitmap.getWidth();
+			radius = 1f * width;
 			sX =eX;
 			eX=0;
 			break;
