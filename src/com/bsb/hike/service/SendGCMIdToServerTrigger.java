@@ -42,8 +42,6 @@ public class SendGCMIdToServerTrigger extends BroadcastReceiver
 	 * 
 	 * This class is called when a SMS/Network change occurs preactivation.So has to maintain a single reference so that we can maintain the status  of the  task.
 	 */
-	
-	private RequestToken requestToken;
 
 	@Override
 	public void onReceive(Context context, Intent intent)
@@ -89,10 +87,6 @@ public class SendGCMIdToServerTrigger extends BroadcastReceiver
 
 	private void sentToServer()
 	{
-		if (requestToken != null && requestToken.isRequestRunning())
-		{
-			return;
-		}
 		Logger.d(getClass().getSimpleName(), "Sending GCM ID");
 		
 		Context context = HikeMessengerApp.getInstance().getApplicationContext();
@@ -135,8 +129,11 @@ public class SendGCMIdToServerTrigger extends BroadcastReceiver
 				{
 					Logger.d(getClass().getSimpleName(), "Invalid JSON", e);
 				}
-				requestToken = HttpRequests.sendDeviceDetailsRequest(requestBody, getRequestListener());
-				requestToken.execute();
+				RequestToken requestToken = HttpRequests.sendDeviceDetailsRequest(requestBody, getRequestListener());
+				if (!requestToken.isRequestRunning())
+				{
+					requestToken.execute();
+				}
 			}
 			break;
 		case HikeConstants.REGISTEM_GCM_BEFORE_SIGNUP:
@@ -157,8 +154,11 @@ public class SendGCMIdToServerTrigger extends BroadcastReceiver
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				requestToken = HttpRequests.sendPreActivationRequest(requestBody, getRequestListener());
-				requestToken.execute();
+				RequestToken requestToken = HttpRequests.sendPreActivationRequest(requestBody, getRequestListener());
+				if (!requestToken.isRequestRunning())
+				{
+					requestToken.execute();
+				}
 			}
 			break;
 		default:
