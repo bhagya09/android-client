@@ -7,6 +7,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.util.Pair;
+import android.view.View;
 
 import com.actionbarsherlock.view.Menu;
 import com.bsb.hike.HikeConstants;
@@ -150,6 +151,9 @@ public class BotChatThread extends OneToOneChatThread
 		case R.string.mute:
 			onMuteBotClicked();
 			break;
+		case R.string.view_profile:
+			BotConversation.analyticsForBots(msisdn, HikePlatformConstants.BOT_VIEW_PROFILE, HikePlatformConstants.OVERFLOW_MENU, AnalyticsConstants.CLICK_EVENT, null);
+			break;
 		default:
 			break;
 		}
@@ -229,13 +233,6 @@ public class BotChatThread extends OneToOneChatThread
 	}
 	
 	@Override
-	protected void openProfileScreen()
-	{
-		super.openProfileScreen();
-		BotConversation.analyticsForBots(msisdn, HikePlatformConstants.BOT_VIEW_PROFILE, HikePlatformConstants.OVERFLOW_MENU, AnalyticsConstants.CLICK_EVENT, null);
-	}
-	
-	@Override
 	protected void setLastSeenStuff(boolean firstInflation)
 	{
 		hideLastSeenText();
@@ -260,6 +257,16 @@ public class BotChatThread extends OneToOneChatThread
 	protected void setLastSeenTextBasedOnHikeValue(boolean isConvOnHike)
 	{
 		hideLastSeenText();
+	}
+	
+	@Override
+	public void onClick(View v)
+	{
+		if(v.getId() == R.id.contact_info)
+		{
+			BotConversation.analyticsForBots(msisdn, HikePlatformConstants.BOT_VIEW_PROFILE, HikePlatformConstants.ACTION_BAR, AnalyticsConstants.CLICK_EVENT, null);
+		}
+		super.onClick(v);
 	}
 	
 }
