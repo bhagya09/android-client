@@ -557,7 +557,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 										//We do not want to persist cropped result on storage
 										file = File.createTempFile("IMG_" + timeStamp, ".jpg");
 										file.deleteOnExit();
-										Utils.startCropActivityForResult(PictureEditer.this, f.getAbsolutePath(), file.getAbsolutePath(), true, true);
+										Utils.startCropActivityForResult(PictureEditer.this, f.getAbsolutePath(), file.getAbsolutePath(), true, 100, true);
 									}
 									catch (IOException e)
 									{

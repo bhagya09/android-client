@@ -70,11 +70,14 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 
 	private Context context;
 
-	private String[] pubSubListeners = { HikePubSub.APP_BACKGROUNDED };
+	private static String[] pubSubListeners = { HikePubSub.APP_BACKGROUNDED };
 
 	private ContactManager()
 	{
-		HikeMessengerApp.getPubSub().addListeners(this, pubSubListeners);
+		context = HikeMessengerApp.getInstance().getApplicationContext();
+		hDb = HikeUserDatabase.getInstance();
+		persistenceCache = new PersistenceCache(hDb);
+		transientCache = new TransientCache(hDb);
 	}
 
 	public static ContactManager getInstance()
@@ -86,12 +89,27 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 				if (_instance == null)
 				{
 					_instance = new ContactManager();
+					init();
 				}
 			}
 		}
 		return _instance;
 	}
 
+	private static void init()
+	{
+		if (_instance == null)
+		{
+			throw new IllegalStateException("Contact Manager getInstance() should be called that will create a new instance and initialize");
+		}
+
+		HikeMessengerApp.getPubSub().addListeners(_instance, pubSubListeners);
+
+		// Called to set name for group whose group name is empty (group created by ios) , we cannot do this inside persistence cache load memory because at taht point transient
+		// and persistence cache have not been initialized completely
+		_instance.persistenceCache.updateGroupNames();
+	}
+	
 	public SQLiteDatabase getWritableDatabase()
 	{
 		return hDb.getWritableDatabase();
@@ -100,18 +118,6 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	public SQLiteDatabase getReadableDatabase()
 	{
 		return hDb.getReadableDatabase();
-	}
-	
-	public void init(Context ctx)
-	{
-		context = ctx.getApplicationContext();
-		hDb = new HikeUserDatabase(ctx);
-		persistenceCache = new PersistenceCache(hDb);
-		transientCache = new TransientCache(hDb);
-
-		// Called to set name for group whose group name is empty (group created by ios) , we cannot do this inside persistence cache load memory because at taht point transient
-		// and persistence cache have not been initialized completely
-		persistenceCache.updateGroupNames();
 	}
 
 	/**
@@ -2161,7 +2167,32 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 			 */
 			unload();
 		}
+	}
 
+	/**
+	 * Shutdowns the contact manager and re-initializes it with new values in db {@see #shutdown()}
+	 */
+	public void refreshContactManager()
+	{
+		// clear persistence, transient cache and assign null to all other class members
+		shutdown();
+		// create a new instance and initialize it
+		getInstance();
+	}
+
+	/**
+	 * Shutdown's both {@link PersistenceCache} and {@link TransientCache} and make all references to null
+	 */
+	public void shutdown()
+	{
+		HikeMessengerApp.getPubSub().removeListeners(this, pubSubListeners);
+		persistenceCache.shutdown();
+		persistenceCache = null;
+		transientCache.shutdown();
+		transientCache = null;
+		hDb = null;
+		context = null;
+		_instance = null;
 	}
 
 	public void platformUserIdEntry(JSONArray data)
