@@ -3245,11 +3245,12 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		}
 		else
 		{
-			if (!wasViewSetup())
+			//for cases when list view is null or index is -1 (stealth chats that are not displayes)
+			if (!wasViewSetup() || newIndex < 0)
 			{
 				return;
 			}
-
+			
 			View parentView = getListView().getChildAt(newIndex - getListView().getFirstVisiblePosition() + getOffsetForListHeader());
 
 			if (parentView == null)
