@@ -272,7 +272,7 @@ public class GroupChatThread extends OneToNChatThread
 		/**
 		 * Proceeding only if the group is alive
 		 */
-		if (oneToNConversation.isConversationAlive())
+		if (oneToNConversation.isConversationAlive() && !oneToNConversation.isBlocked())
 		{
 			Utils.logEvent(activity.getApplicationContext(), HikeConstants.LogEvent.GROUP_INFO_TOP_BUTTON);
 
@@ -280,6 +280,13 @@ public class GroupChatThread extends OneToNChatThread
 
 			activity.startActivity(intent);
 		}
+		
+		else if (oneToNConversation.isBlocked())
+		{
+			String label = oneToNConversation.getConversationParticipantName(oneToNConversation.getConversationOwner());
+			Toast.makeText(activity.getApplicationContext(), activity.getString(R.string.block_overlay_message, label), Toast.LENGTH_SHORT).show();
+		}
+		
 		else
 		{
 			Toast.makeText(activity.getApplicationContext(), getString(R.string.group_chat_end), Toast.LENGTH_SHORT).show();
@@ -463,22 +470,38 @@ public class GroupChatThread extends OneToNChatThread
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item)
 	{
-//		Not allowing user to access actionbar items on a dead conversation
+		if (!checkForDeadOrBlocked())
+		{
+			switch (item.getItemId())
+			{
+			case R.id.pin_imp:
+				showPinCreateView();
+				break;
+			}
+			return super.onOptionsItemSelected(item);
+		}
+		
+		return false;
+	}
+	
+	private boolean checkForDeadOrBlocked()
+	{
 		if (!oneToNConversation.isConversationAlive())
 		{
 			Toast.makeText(activity.getApplicationContext(), getString(R.string.group_chat_end), Toast.LENGTH_SHORT).show();
-			return false;
+			return true;
 		}
-		
-		switch (item.getItemId())
+
+		if (oneToNConversation.isBlocked())
 		{
-		case R.id.pin_imp:
-			showPinCreateView();
-			break;
+			String label = oneToNConversation.getConversationParticipantName(oneToNConversation.getConversationOwner());
+			Toast.makeText(activity.getApplicationContext(), activity.getString(R.string.block_overlay_message, label), Toast.LENGTH_SHORT).show();
+			return true;
 		}
-		return super.onOptionsItemSelected(item);
+
+		return false;
 	}
-	
+
 	private void showPinCreateView()
 	{
 		mActionMode.showActionMode(PIN_CREATE_ACTION_MODE, getString(R.string.create_pin), getString(R.string.pin), HikeActionMode.DEFAULT_LAYOUT_RESID);
@@ -886,7 +909,7 @@ public class GroupChatThread extends OneToNChatThread
 			{
 			case R.string.group_profile:
 			case R.string.chat_theme:
-				overFlowMenuItem.enabled = oneToNConversation.isConversationAlive();
+				overFlowMenuItem.enabled = !checkForDeadOrBlocked();
 				break;
 			case R.string.mute_group:
 				overFlowMenuItem.enabled = oneToNConversation.isConversationAlive();
