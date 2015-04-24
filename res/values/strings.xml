@@ -1366,7 +1366,6 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="voip_missed_call_notif">Missed Call</string>
     <string name="voip_missed_call_action">Call Back</string>
     <string name="voip_missed_call_message">Message</string>
-    <string name="valentine_day">Happy Valentine\'s Day</string>
     <string name="empty_email">You have no messages in this conversation to e-mail.</string>
     <string name="no_results">No results</string>
     <string name="take_photo">Take a photo</string>
@@ -1442,9 +1441,10 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="searching">Searching...</string>
     <string name="pick_contact_zero">Please select minimum one contact</string>
     <string name="choose_contact">Choose Contact(s)</string>
+    <string name="group_creation">Created on </string>
+    <string name="ls_change_failed">Last Seen update failed!</string>
     <string name="terms_conditions_hint">Terms and Conditions</string>
     <string name="terms_conditions_title">T &amp; C</string>
-
     <string name="content_des_message_send_rec_read_status">Message send or pending status</string>
     <string name="content_des_restore_if_backup_found">Restore (Backup found)</string>
     <string name="content_des_add_photo_gallery_create_group">Add photo while creating a group</string>
@@ -1457,9 +1457,6 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="content_des_round_user_image_chatthread_actionbar">User image (rounded) chat-thread actionbar</string>
     <string name="content_des_typing_notification_chatting">Typing information to user while chatting</string>
     <string name="content_des_typing_notification_received">Typing notification received to user</string>
-
-    <string name="group_creation">Created on </string>
-    <string name="ls_change_failed">Last Seen update failed!</string>
 	<string name="activity_not_found">No app found that can handle this action</string>
-		
+	<string name="selectPreview">Select a preview</string>
 </resources>

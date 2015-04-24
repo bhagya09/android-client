@@ -74,6 +74,8 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 
 	private Bitmap smallerBitmap;
 
+	private String origImagePath;
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 	{
@@ -90,6 +92,8 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 		Bundle bundle = getArguments();
 
 		imagePath = bundle.getString(HikeConstants.HikePhotos.FILENAME);
+		
+		origImagePath = bundle.getString(HikeConstants.HikePhotos.ORIG_FILE);
 
 		BitmapFactory.Options options = new BitmapFactory.Options();
 		options.inPreferredConfig = Bitmap.Config.RGB_565;
@@ -245,7 +249,7 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 				}
 			});
 
-			request.setFilePath(imagePath);
+			request.setFilePath(origImagePath);
 
 			Utils.executeHttpTask(new HikeHTTPTask(ProfilePicFragment.this, R.string.delete_status_error), request);
 
