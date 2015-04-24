@@ -725,36 +725,42 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	@Override
 	public void itemClicked(OverFlowMenuItem item)
 	{
-		recordOverflowItemClicked(item);
+		int id = -1;
 		switch (item.id)
 		{
 		case R.string.clear_chat:
+			id = item.id;
 			showClearConversationDialog();
 			break;
 		case R.string.email_chat:
+			id = item.id;
 			emailChat();
 			break;
 		case AttachmentPicker.GALLERY:
+			id = R.string.gallery;
 			startHikeGallery(mConversation.isOnHike());
 			break;
 		case R.string.search:
+			id = item.id;
 			recordSearchOptionClick();
 			setupSearchMode();
 			break;
 		default:
 			break;
 		}
+		if (id != -1)
+		{
+			recordOverflowItemClicked(id);
+		}
 	}
 	
-	private void recordOverflowItemClicked(OverFlowMenuItem item)
+	private void recordOverflowItemClicked(int whichItem)
 	{
 		String ITEM = "item";
 		try
 		{
 			JSONObject metadata = new JSONObject();
-			metadata
-			.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.CHAT_OVRFLW_ITEM)
-			.put(ITEM,getString(item.id));
+			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.CHAT_OVRFLW_ITEM).put(ITEM, getString(whichItem));
 			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
 		}
 		catch (JSONException e)
@@ -1322,6 +1328,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 				// Check on the dialog is optimal here as it directly reflects the user intentions.
 				(searchDialog == null || !searchDialog.isShowing()))
 		{
+			searchDialog = ProgressDialog.show(activity, null, getString(R.string.searching));
 			if (loop)
 			{
 				activity.getSupportLoaderManager().restartLoader(SEARCH_LOOP, null, this);
@@ -1334,7 +1341,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			{
 				activity.getSupportLoaderManager().restartLoader(SEARCH_PREVIOUS, null, this);
 			}
-			searchDialog = ProgressDialog.show(activity, null, getString(R.string.searching));
 		}
 	}
 
@@ -1783,10 +1789,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	{
 		ConvMessage convMessage = Utils.makeConvMessage(msisdn, getString(R.string.poke_msg), mConversation.isOnHike());
 		ChatThreadUtils.setPokeMetadata(convMessage);
-
-		// 1) user double clicked on Chat Screen i.e Sending nudge
-		MsgRelLogManager.startMessageRelLogging(convMessage, MessageType.TEXT);
-				
 		sendMessage(convMessage);
 	}
 
@@ -2297,7 +2299,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 		int loaderId;
 	
-		int position = -1;
+		int position = -2;
 
 		int loadMessageCount = 50;
 
@@ -3386,6 +3388,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 			if (updateView)
 			{
+				MsgRelLogManager.logMsgRelEvent(msg, MsgRelEventType.SINGLE_TICK_ON_SENDER);
+				
 				uiHandler.sendEmptyMessage(NOTIFY_DATASET_CHANGED);
 			}
 		}
