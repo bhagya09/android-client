@@ -101,7 +101,7 @@ public class GCMIntentService extends GCMBaseIntentService
 				}
 			
 		}
-		context.sendBroadcast(new Intent(HikeMqttManagerNew.MQTT_CONNECTION_CHECK_ACTION).putExtra("reconnect", reconnect));
+		context.sendBroadcast(new Intent(MqttConstants.MQTT_CONNECTION_CHECK_ACTION).putExtra("reconnect", reconnect));
 		}
 
 	}

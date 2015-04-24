@@ -1,12 +1,15 @@
 package com.bsb.hike.utils;
 
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.widget.Toast;
 
+import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -20,10 +23,7 @@ import com.bsb.hike.productpopup.HikeDialogFragment;
 import com.bsb.hike.productpopup.IActivityPopup;
 import com.bsb.hike.productpopup.ProductContentModel;
 import com.bsb.hike.productpopup.ProductInfoManager;
-import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.ui.fragments.ImageViewerFragment;
-import com.bsb.hike.voip.view.CallIssuesDialogFragment;
-import com.bsb.hike.voip.view.CallRateDialogFragment;
 
 public class HikeAppStateBaseFragmentActivity extends SherlockFragmentActivity implements Listener
 {
@@ -160,16 +160,46 @@ public class HikeAppStateBaseFragmentActivity extends SherlockFragmentActivity i
 	public void startActivityFromFragment(Fragment fragment, Intent intent, int requestCode)
 	{
 		HikeMessengerApp.currentState = CurrentState.NEW_ACTIVITY;
-		super.startActivityFromFragment(fragment, intent, requestCode);
+		try
+		{
+			super.startActivityFromFragment(fragment, intent, requestCode);
+		}
+		catch (ActivityNotFoundException e)
+		{
+			Logger.w(getClass().getSimpleName(), "Unable to find activity", e);
+			Toast.makeText(this, R.string.activity_not_found, Toast.LENGTH_SHORT).show();
+		}
 	}
 
 	@Override
 	public void startActivityForResult(Intent intent, int requestCode)
 	{
 		HikeAppStateUtils.startActivityForResult(this);
-		super.startActivityForResult(intent, requestCode);
+		try
+		{
+			super.startActivityForResult(intent, requestCode);
+		}
+		catch (ActivityNotFoundException e)
+		{
+			Logger.w(getClass().getSimpleName(), "Unable to find activity", e);
+			Toast.makeText(this, R.string.activity_not_found, Toast.LENGTH_SHORT).show();
+		}
 	}
 
+	@Override
+	public void startActivity(Intent intent)
+	{
+		try
+		{
+			super.startActivity(intent);	
+		}
+		catch (ActivityNotFoundException e)
+		{
+			Logger.w(getClass().getSimpleName(), "Unable to find activity", e);
+			Toast.makeText(this, R.string.activity_not_found, Toast.LENGTH_SHORT).show();
+		}		
+	}
+	
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data)
 	{
@@ -188,25 +218,15 @@ public class HikeAppStateBaseFragmentActivity extends SherlockFragmentActivity i
 				@Override
 				public void run()
 				{
-					/*
-					 * Making sure we don't add the fragment if the activity is finishing.
-					 */
-					if (isFinishing())
-					{
-						return;
-					}
-
-					Bundle arguments = (Bundle) object;
-
-					ImageViewerFragment imageViewerFragment = new ImageViewerFragment();
-					imageViewerFragment.setArguments(arguments);
-
-					FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-					fragmentTransaction.add(R.id.parent_layout, imageViewerFragment, HikeConstants.IMAGE_FRAGMENT_TAG);
-					fragmentTransaction.commitAllowingStateLoss();
+					openImageViewerFragment(object);
 				}
 			});
 		}
+	}
+	
+	protected void openImageViewerFragment(Object object)
+	{
+		return;
 	}
 
 	public void addFragment(Fragment fragment, String tag)
@@ -240,6 +260,16 @@ public class HikeAppStateBaseFragmentActivity extends SherlockFragmentActivity i
 	public boolean isFragmentAdded(String tag)
 	{
 		return getSupportFragmentManager().findFragmentByTag(tag) != null;
+	}
+	
+	public void updateActionBarColor(int backgroundDrawable)
+	{
+		ActionBar actionBar = getSupportActionBar();
+		actionBar.setBackgroundDrawable(getResources().getDrawable(backgroundDrawable));
+		// * Workaround to set actionbar background drawable multiple times. Refer SO.
+		// http://stackoverflow.com/questions/17076958/change-actionbar-color-programmatically-more-then-once/17198657#17198657
+		actionBar.setDisplayShowTitleEnabled(true);
+		actionBar.setDisplayShowTitleEnabled(false);
 	}
 
 	private void isThereAnyPopUpForMe(int popUpTriggerPoint)

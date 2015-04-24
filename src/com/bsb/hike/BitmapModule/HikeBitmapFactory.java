@@ -28,12 +28,15 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.smartcache.HikeLruCache;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.Utils;
 
 public class HikeBitmapFactory
 {
 	private static final String TAG = "HikeBitmapFactory";
 
+	public static final int DEFAULT_BITMAP_COMPRESSION = 75;
+	
 	public static Bitmap getCircularBitmap(Bitmap bitmap)
 	{
 		if (bitmap == null)
@@ -1125,15 +1128,11 @@ public class HikeBitmapFactory
 	
 	private static int getDefaultAvatarIconResId( String msisdn, boolean hiRes)
 	{
-		boolean isGroupConversation = Utils.isGroupConversation(msisdn);
-		
-		boolean isBroadcastConversation = Utils.isBroadcastConversation(msisdn);
-
-		if (isBroadcastConversation)
+		if (OneToNConversationUtils.isBroadcastConversation(msisdn))
 		{
 			return hiRes ? R.drawable.ic_default_avatar_broadcast_hires : R.drawable.ic_default_avatar_broadcast;
 		}
-		else if (isGroupConversation)
+		else if (OneToNConversationUtils.isGroupConversation(msisdn))
 		{
 			return hiRes ? R.drawable.ic_default_avatar_group_hires : R.drawable.ic_default_avatar_group;
 		}

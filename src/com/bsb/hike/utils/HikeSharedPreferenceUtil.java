@@ -139,4 +139,10 @@ public class HikeSharedPreferenceUtil
 	{
 		return hikeSharedPreferences;
 	}
+	
+	public synchronized boolean contains(String key)
+	{
+		return hikeSharedPreferences.contains(key);
+	}
+
 }

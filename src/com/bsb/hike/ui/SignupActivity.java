@@ -468,6 +468,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 				boolean isIndianUser = countryCode.equals(HikeConstants.INDIA_COUNTRY_CODE);
 				boolean isSAUser = countryCode.equals(HikeConstants.SAUDI_ARABIA_COUNTRY_CODE);
 
+				Utils.setSSLAllowed(countryCode);
 				Editor accountEditor = accountPrefs.edit();
 				accountEditor.putBoolean(HikeMessengerApp.JUST_SIGNED_UP, true);
 				if (mActivityState != null)
@@ -500,6 +501,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 				
 				JSONObject sessionDataObject = HAManager.getInstance().recordAndReturnSessionStart();
 				Utils.sendSessionMQTTPacket(SignupActivity.this, HikeConstants.FOREGROUND, sessionDataObject);
+				Utils.appStateChanged(getApplicationContext(), false, false, false, true, false);
 			}
 			else if (mCurrentState != null && mCurrentState.value != null && mCurrentState.value.equals(HikeConstants.CHANGE_NUMBER))
 			{
@@ -817,6 +819,19 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 			enterEditText = (EditText) layout.findViewById(R.id.et_enter_name);
 			birthdayText = (TextView) layout.findViewById(R.id.birthday);
 			profilePicCamIcon = (ImageView) layout.findViewById(R.id.profile_cam);
+			
+			if(profilePicCamIcon != null)
+			{
+				profilePicCamIcon.setOnClickListener(new OnClickListener()
+				{				
+					@Override
+					public void onClick(View v)
+					{
+						String msisdn = accountPrefs.getString(HikeMessengerApp.MSISDN_SETTING, null);
+						showProfileImageEditDialog(SignupActivity.this, SignupActivity.this, msisdn, null);
+					}
+				});
+			}
 			break;
 		case R.id.num_layout:
 			enterEditText = (EditText) layout.findViewById(R.id.et_enter_num);
@@ -844,6 +859,19 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		selectedCountryPicker = layout.findViewById(R.id.selected_country);
 		callmeBtn = (Button) layout.findViewById(R.id.btn_call_me);
 		mIconView = (ImageView) layout.findViewById(R.id.profile);
+		
+		if(mIconView != null)
+		{
+			mIconView.setOnClickListener(new OnClickListener()
+			{			
+				@Override
+				public void onClick(View v)
+				{
+					String msisdn = accountPrefs.getString(HikeMessengerApp.MSISDN_SETTING, null);
+					showProfileImageEditDialog(SignupActivity.this, SignupActivity.this, msisdn, null);
+				}
+			});
+		}
 
 		if (loadingLayout != null)
 		{
@@ -2605,5 +2633,4 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		arrow.setEnabled(enabled);
 		postText.setEnabled(enabled);
 	}
-
 }

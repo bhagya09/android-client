@@ -5,7 +5,7 @@
 		android:id="@+id/search"
 		android:icon="@drawable/ic_top_bar_search"
 		android:showAsAction="always"
-		android:title="@string/search_hint" >
+		android:title="@string/search" >
     </item>
     <item
         android:id="@+id/new_conversation"
