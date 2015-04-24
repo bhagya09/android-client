@@ -395,4 +395,10 @@ public class TagEditText extends EditText
 			toggleTag(tag);
 		}
 	}
+	
+	public void resetTags(List<Tag> tags)
+	{
+		clear(false);
+		toggleTags(tags);
+	}
 }
