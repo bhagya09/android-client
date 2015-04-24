@@ -440,6 +440,21 @@ public class Utils
 		return orgFileName;
 	}
 
+	public static File createNewFile(HikeFileType type,String prefix)
+	{
+		File selectedDir = new File(Utils.getFileParent(type, false));
+		if (!selectedDir.exists())
+		{
+			if (!selectedDir.mkdirs())
+			{
+				return null;
+			}
+		}
+		String fileName = prefix + Utils.getOriginalFile(type, null);
+		File selectedFile = new File(selectedDir.getPath() + File.separator + fileName);
+		return selectedFile;
+	}
+	
 	public static String getFinalFileName(HikeFileType type)
 	{
 		return getFinalFileName(type, null);
@@ -2394,12 +2409,13 @@ public class Utils
 		activity.startActivityForResult(intent, HikeConstants.CROP_RESULT);
 	}
 
-	public static void startCropActivityForResult(Activity activity, String path, String destPath, boolean preventScaling, int quality)
+	public static void startCropActivityForResult(Activity activity, String path, String destPath, boolean preventScaling, int quality,boolean circleHighlight)
 	{
 		/* Crop the image */
 		Intent intent = new Intent(activity, CropImage.class);
 		intent.putExtra(MediaStore.EXTRA_OUTPUT, destPath);
 		intent.putExtra(HikeConstants.Extras.IMAGE_PATH, path);
+		intent.putExtra(HikeConstants.Extras.CIRCLE_HIGHLIGHT, circleHighlight);
 		intent.putExtra(HikeConstants.Extras.SCALE, false);
 		intent.putExtra(HikeConstants.Extras.RETURN_CROP_RESULT_TO_FILE, preventScaling);
 		intent.putExtra(HikeConstants.Extras.ASPECT_X, 1);
@@ -5664,6 +5680,19 @@ public class Utils
 		}
 		return fullFirstName;
 	}
+	public static int getLayoutIdFromName(String layoutName)
+	{
+		if (!TextUtils.isEmpty(layoutName))
+		{
+			Context context = HikeMessengerApp.getInstance().getApplicationContext();
+			int resID = context.getResources().getIdentifier(layoutName, "layout", context.getPackageName());
+			return resID;
+		}
+		else
+		{
+			return -1;
+		}
+	}
 
 	/**
 	 * Making the profile pic change a status message 
@@ -5775,5 +5804,4 @@ public class Utils
 			}
 		}
 	}
-
 }

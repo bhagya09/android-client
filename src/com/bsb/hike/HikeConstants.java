@@ -1097,6 +1097,8 @@ public class HikeConstants
 		public static final int CONFIRM_LOCK_PATTERN = 4003;
 
 		public static final int CONFIRM_AND_ENTER_NEW_PASSWORD = 4004;
+		
+		public static final int PHOTOS_REQUEST_CODE = 739;
 	}
 
 	public static final class Extras
@@ -1142,6 +1144,8 @@ public class HikeConstants
 		public static final String BITMAP = "bitmap";
 
 		public static final String CIRCLE_CROP = "circleCrop";
+		
+		public static final String CIRCLE_HIGHLIGHT = "circleHighlight";
 
 		public static final String SCALE_UP = "scaleUpIfNeeded";
 
@@ -1480,7 +1484,11 @@ public class HikeConstants
 		public static final String MAX_MESSAGE_PROCESS_TIME = "mmpt";
 		
 		public static final String CHANGE_MAX_MESSAGE_PROCESS_TIME = "cmpt";
-
+		
+		public static final String PHOTOS_RETURN_FILE = "editedReturnFile";
+		
+		public static final String CAMERA_RETURN_FILE = "capturedReturnFile";
+		
 		public static final String BROADCAST_CREATE_BUNDLE = "broadcastCreationBundle";
 		
 		public static final String GROUP_CREATE_BUNDLE = "groupCreationBundle";
@@ -2011,6 +2019,7 @@ public class HikeConstants
 		public static final String PHOTOS_SET_AS_DP = "phSetDP";
 		
 		public static final String PHOTOS_SEND_TO = "phSend";
+		
 		
 		
 		//Broadcast
@@ -2560,22 +2569,27 @@ public class HikeConstants
 	}
 	public static final class HikePhotos
 	{
+		public static final String CAMERA_ALLOW_GALLERY_KEY = "galleryKey";
+		
+		public static final String EDITOR_ALLOW_COMPRESSION_KEY = "compressKey";
 		
 		public static final String PHOTOS_FILTER_NAME_KEY = "phFilName";
 		
 		public static final String PHOTOS_DOODLE_COLOR_KEY = "phDodCol";
 		
 		public static final String PHOTOS_IS_FFC_MODE = "isFFC";
+		
+		public static final int GALLERY_PICKER_REQUEST = 2;
 
 		public static final String FILENAME = "FilePath";
+		
+		public static final String DESTINATION_FILENAME = "Destination_FilePath";
+		
+		public static final String ORIG_FILE = "OrigFile";
 
 		public static final int MAX_BRUSH_WIDTH = 48;
 
 		public static final int Min_BRUSH_WIDTH = 8;
-
-		public static final int PREVIEW_THUMBNAIL_WIDTH_MDPI = 60;
-
-		public static final int PREVIEW_THUMBNAIL_WIDTH_HDPI = 78;
 
 		public static final int DELTA_BRUSH_WIDTH = 10;
 
@@ -2609,6 +2623,8 @@ public class HikeConstants
 		
 		public static final int PHOTOS_PAGER_DOODLE_WEIGHT_SUM = 10000;
 		
+		public static final int MAXIMUM_ALLOWED_IMAGE_AREA = 800 * 600;
+
 	}
 
 	
