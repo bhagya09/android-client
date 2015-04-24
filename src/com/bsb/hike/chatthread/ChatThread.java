@@ -222,6 +222,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	protected static final int BLOCK_UNBLOCK_USER = 30;
 
     protected static final int ADD_MORE_MSG = 31;
+    
+    protected static final int ACTION_MODE_CONFIG_CHANGE = 32;
 
     private int NUDGE_TOAST_OCCURENCE = 2;
     	
@@ -415,6 +417,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			break;
 		case ADD_MORE_MSG:
 			addMoreMessages((List<ConvMessage>) msg.obj);
+		case ACTION_MODE_CONFIG_CHANGE:
+			handleActionModeOrientationChange(mActionMode.whichActionModeIsOn());
 			break;
 		default:
 			Logger.d(TAG, "Did not find any matching event for msg.what : " + msg.what);
@@ -4293,7 +4297,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		 */
 		if (mActionMode != null)
 		{
-			handleActionModeOrientationChange(mActionMode.whichActionModeIsOn());
+			uiHandler.sendEmptyMessage(ACTION_MODE_CONFIG_CHANGE);
 		}
 		
 		if (themePicker != null && themePicker.isShowing())
