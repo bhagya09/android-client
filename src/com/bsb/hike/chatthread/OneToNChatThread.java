@@ -664,4 +664,12 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 	{
 		super.addMessages(list, startIndex);
 	}
+	
+	@Override
+	protected void updateNetworkState()
+	{
+		super.updateNetworkState();
+		boolean networkError = ChatThreadUtils.checkNetworkError();
+		toggleConversationMuteViewVisibility(networkError ? false : oneToNConversation.isMuted());
+	}
 }
