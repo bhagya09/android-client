@@ -114,7 +114,7 @@ public class ImageViewerFragment extends SherlockFragment implements OnClickList
 			}
 			ContactManager.getInstance().hasIcon(key);
 		}
-		ProfileImageLoader profileImageLoader = new ProfileImageLoader(getActivity(), key, imageView, imageSize);
+		ProfileImageLoader profileImageLoader = new ProfileImageLoader(getActivity(), key, imageView, imageSize, isStatusImage);
 		profileImageLoader.setLoaderListener(new ProfileImageLoader.LoaderListener() {
 
 			@Override
