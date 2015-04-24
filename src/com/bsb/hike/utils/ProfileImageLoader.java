@@ -79,7 +79,9 @@ public class ProfileImageLoader implements LoaderCallbacks<Boolean>
 	 */
 	public boolean loadProfileImage(LoaderManager loaderManager)
 	{
-		hasCustomImage = ContactManager.getInstance().hasIcon(msisdn);
+		
+		hasCustomImage = isStatusImage || ContactManager.getInstance().hasIcon(msisdn);
+		
 		if (hasCustomImage)
 		{
 			String fileName = Utils.getProfileImageFileName(msisdn);

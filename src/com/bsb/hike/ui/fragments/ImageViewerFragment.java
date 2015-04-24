@@ -22,6 +22,14 @@ import com.bsb.hike.R;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.smartImageLoader.IconLoader;
+import com.bsb.hike.tasks.ProfileImageDownloader;
+import com.bsb.hike.ui.ProfileActivity;
+import com.bsb.hike.ui.SettingsActivity;
+import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.ProfileImageLoader;
+import com.bsb.hike.utils.Utils;
+
+
 import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.ui.SettingsActivity;
 import com.bsb.hike.utils.ProfileImageLoader;
@@ -112,7 +120,6 @@ public class ImageViewerFragment extends SherlockFragment implements OnClickList
 			{
 				key = new String(key.substring(0, idx));
 			}
-			ContactManager.getInstance().hasIcon(key);
 		}
 		ProfileImageLoader profileImageLoader = new ProfileImageLoader(getActivity(), key, imageView, imageSize);
 		profileImageLoader.setLoaderListener(new ProfileImageLoader.LoaderListener() {

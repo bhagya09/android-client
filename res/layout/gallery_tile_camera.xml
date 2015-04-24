@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:background="@color/transparent"
+    android:layout_height="match_parent" >
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:layout_width="wrap_content"
+            android:drawableTop="@drawable/btn_cam"
+            android:textSize="15sp"
+            android:layout_marginTop="4dp"
+            android:background="@color/transparent"
+            android:layout_height="wrap_content"
+            android:textStyle="italic"
+            android:layout_centerInParent="true"
+            android:text="@string/take_photo"
+            android:textColor="@color/white" />
+
+</RelativeLayout>
