@@ -107,10 +107,7 @@ public class TagEditText extends EditText
 			if (listener != null)
 			{
      			listener.tagAdded(tag);
-     			if(filterReset)
-     			{
-     				listener.charResetAfterSeperator();
-     			}
+     			listener.charResetAfterSeperator();
 			}
 		}
 	}
