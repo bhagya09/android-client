@@ -103,7 +103,7 @@ public class VoIPEncryptor {
 		String md5 = null;
 		
 		if (sessionKey != null) {
-			String key = Arrays.toString(sessionKey);
+			String key = Arrays.toString(publicKey.getEncoded());
 			md5 = Utils.StringToMD5(key);
 		}
 
