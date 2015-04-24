@@ -368,6 +368,7 @@ public class TagEditText extends EditText
 	{
 		final public String text;
 		final public String id;
+		private String onclick;
 		final public Object data;
 		
 		public Tag(String text, String id,Object data)
@@ -375,6 +376,15 @@ public class TagEditText extends EditText
 			this.text = text;
 			this.id = id;
 			this.data = data;
+		}
+		public void setOnclick(String onclick)
+		{
+			this.onclick = onclick;
+		}
+		
+		public String getOnclick()
+		{
+			return onclick;
 		}
 	}
 	
