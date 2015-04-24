@@ -126,11 +126,7 @@ public class MqttMessagesManager
 	private final String userMsisdn;
 
 	private boolean isBulkMessage = false;
-
-	private final SQLiteDatabase convWriteDb;
-
-	private final SQLiteDatabase userWriteDb;
-
+	
 	private LinkedList<ConvMessage> messageList;
 
 	private Map<String, LinkedList<ConvMessage>> messageListMap;
@@ -141,9 +137,8 @@ public class MqttMessagesManager
 	
 	private MqttMessagesManager(Context context)
 	{
+		Logger.d(getClass().getSimpleName(), "initialising MqttMessagesManager");
 		this.convDb = HikeConversationsDatabase.getInstance();
-		this.userWriteDb = ContactManager.getInstance().getWritableDatabase();
-		this.convWriteDb = convDb.getWritableDatabase();
 		this.settings = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
 		this.context = context;
 		this.pubSub = HikeMessengerApp.getPubSub();
@@ -418,7 +413,6 @@ public class MqttMessagesManager
 		oneToNConversation = OneToNConversation.createOneToNConversationFromJSON(jsonObj);
 		
 		boolean groupRevived = false;
-		
 
 		if (!ContactManager.getInstance().isGroupAlive(oneToNConversation.getMsisdn()))
 		{
@@ -445,7 +439,6 @@ public class MqttMessagesManager
 		int gcjAdd = this.convDb.addRemoveGroupParticipants(oneToNConversation.getMsisdn(), oneToNConversation.getConversationParticipantList(), groupRevived);
 		if (!groupRevived && gcjAdd != HikeConstants.NEW_PARTICIPANT)
 		{
-			this.convDb.setGroupCreationTime(oneToNConversation.getMsisdn(),  oneToNConversation.getCreationDate());
 			Logger.d(getClass().getSimpleName(), "GCJ Message was already received");
 			return;
 		}
@@ -476,7 +469,7 @@ public class MqttMessagesManager
 				groupName = metadata.optString(HikeConstants.NAME);
 			}
 			
-			oneToNConversation = (OneToNConversation) this.convDb.addConversation(oneToNConversation.getMsisdn(), false, groupName, oneToNConversation.getConversationOwner(), null, oneToNConversation.getCreationDate());
+			oneToNConversation = (OneToNConversation) this.convDb.addConversation(oneToNConversation.getMsisdn(), false, groupName, oneToNConversation.getConversationOwner());
 			ContactManager.getInstance().insertGroup(oneToNConversation.getMsisdn(), groupName);
 
 			// Adding a key to the json signify that this was the GCJ
@@ -571,8 +564,6 @@ public class MqttMessagesManager
 		final ConvMessage convMessage = messagePreProcess(jsonObj);
 		
 		//Logs for Msg Reliability
-		Logger.d(AnalyticsConstants.MSG_REL_TAG, "===========================================");
-		Logger.d(AnalyticsConstants.MSG_REL_TAG, "Packet Arrived at RECV MQTT,track_id:- " + convMessage);
 		MsgRelLogManager.logMsgRelEvent(convMessage, MsgRelEventType.RECEIVER_MQTT_RECVS_SENT_MSG);
 
 		if (ContactManager.getInstance().isBlocked(convMessage.getMsisdn()))
@@ -603,8 +594,6 @@ public class MqttMessagesManager
 		}
 
 		//Logs for Msg Reliability
-		Logger.d(AnalyticsConstants.MSG_REL_TAG, "===========================================");
-		Logger.d(AnalyticsConstants.MSG_REL_TAG, "Receiver recvs Msg,track_id:- " + convMessage);
 		MsgRelLogManager.logMsgRelEvent(convMessage, MsgRelEventType.RECIEVR_RECV_MSG);
 		
 		/*
@@ -683,9 +672,9 @@ public class MqttMessagesManager
 	{
 		ConvMessage convMessage = messagePreProcess(jsonObj);
 		addToLists(convMessage.getMsisdn(), convMessage);
-
-		MsgRelLogManager.logMsgRelEvent(convMessage, MsgRelEventType.RECEIVER_MQTT_RECVS_SENT_MSG);
 		
+		MsgRelLogManager.logMsgRelEvent(convMessage, MsgRelEventType.RECIEVR_RECV_MSG);
+
 		if (convMessage.isOneToNChat() && convMessage.getParticipantInfoState() == ParticipantInfoState.NO_INFO)
 		{
 			ConvMessage convMessageNew = convDb.showParticipantStatusMessage(convMessage.getMsisdn());
@@ -876,7 +865,6 @@ public class MqttMessagesManager
 					long msgId = values.get(0); //max size this list will be of 1 only
 					saveDeliveryReport(msgId, chatMsisdn);
 					
-					Logger.d(AnalyticsConstants.MSG_REL_TAG, "===========================================");
 					Logger.d(AnalyticsConstants.MSG_REL_TAG, "Handling ndr for json: "+ jsonObj);
 					MsgRelLogManager.logMsgRelDR(jsonObj, MsgRelEventType.DR_SHOWN_AT_SENEDER_SCREEN);
 				}
@@ -923,6 +911,8 @@ public class MqttMessagesManager
 		}
 		Logger.d(getClass().getSimpleName(), "Delivery report received for msgid : " + msgID + "	;	REPORT : DELIVERED");
 
+		MsgRelLogManager.logMsgRelDR(jsonObj, MsgRelEventType.DR_SHOWN_AT_SENEDER_SCREEN);
+		
 		/*
 		 * update message status map with max dr msgId corresponding to its msisdn
 		 */
@@ -942,8 +932,6 @@ public class MqttMessagesManager
 			messageStatusMap.get(msisdn).setSecond(msgID);
 		}
 		
-
-		MsgRelLogManager.logMsgRelDR(jsonObj, MsgRelEventType.DR_SHOWN_AT_SENEDER_SCREEN);
 	}
 
 	private void saveMessageRead(JSONObject jsonObj) throws JSONException
@@ -1038,8 +1026,9 @@ public class MqttMessagesManager
 	{
 		try
 		{
-			Logger.d(AnalyticsConstants.MSG_REL_TAG, "inside API saveNewMessageRead ===========================================");
 			Logger.d(AnalyticsConstants.MSG_REL_TAG, "For nmr,jsonObject: " + jsonObj);
+			
+			// "d":{"msgid1":{track_id:"value"}}
 			JSONObject msgMetadata = jsonObj.optJSONObject(HikeConstants.DATA);
 			if (msgMetadata != null)
 			{
@@ -1049,10 +1038,17 @@ public class MqttMessagesManager
 				{
 					Long key = Long.parseLong((String) keys.next());
 					serverIds.put(key);
+
+					//Log Events For Message Reliability
+					JSONObject pd = (JSONObject)msgMetadata.getJSONObject(String.valueOf(key));
+					if(pd != null && pd.has(HikeConstants.MSG_REL_UID))
+					{
+						MsgRelLogManager.recordMsgRel(pd.optString(HikeConstants.MSG_REL_UID), MsgRelEventType.MR_SHOWN_AT_SENEDER_SCREEN, "-1");
+					}
 				}
 				jsonObj.put(HikeConstants.DATA, serverIds);
 				Logger.d(AnalyticsConstants.MSG_REL_TAG, "For nmr,jsonObject sent to call 'mr' API: " + jsonObj);
-				MsgRelLogManager.logMsgRelEvent(jsonObj, MsgRelEventType.GOING_TO_CALL_MR_SAVE_API);
+				
 				saveMessageRead(jsonObj);
 			}
 		}
@@ -2121,6 +2117,12 @@ public class MqttMessagesManager
 		Logger.d(getClass().getSimpleName(), "Diff b/w server and client: " + diff);
 		Editor editor = settings.edit();
 		editor.putLong(HikeMessengerApp.SERVER_TIME_OFFSET, diff);
+		
+		JSONObject data = jsonObj.getJSONObject(HikeConstants.DATA);
+		long serverTimestampInMsec = serverTimestamp * 1000 + data.getLong(HikeConstants.TIMESTAMP_MILLIS);
+		long diffInMsec = System.currentTimeMillis() - serverTimestampInMsec;
+		Logger.d(getClass().getSimpleName(), "Diff b/w server and client in msec : " + diffInMsec);
+		editor.putLong(HikeMessengerApp.SERVER_TIME_OFFSET_MSEC, diffInMsec);
 		editor.commit();
 	}
 
@@ -2494,8 +2496,8 @@ public class MqttMessagesManager
 
 				try
 				{
-					userWriteDb.beginTransaction();
-					convWriteDb.beginTransaction();
+					ContactManager.getInstance().getWritableDatabase().beginTransaction();
+					convDb.getWriteDatabase().beginTransaction();
 
 					while (i < length)
 					{
@@ -2507,8 +2509,8 @@ public class MqttMessagesManager
 					}
 					Logger.d("BulkProcess", "going on");
 					finalProcessing();
-					convWriteDb.setTransactionSuccessful();
-					userWriteDb.setTransactionSuccessful();
+					convDb.getWriteDatabase().setTransactionSuccessful();
+					ContactManager.getInstance().getWritableDatabase().setTransactionSuccessful();
 				}
 				catch (JSONException e)
 				{
@@ -2521,8 +2523,8 @@ public class MqttMessagesManager
 				}
 				finally
 				{
-					convWriteDb.endTransaction();
-					userWriteDb.endTransaction();
+					convDb.getWriteDatabase().endTransaction();
+					ContactManager.getInstance().getWritableDatabase().endTransaction();
 
 					Logger.d("BulkProcess", "stopped");
 					isBulkMessage = false;
@@ -2585,12 +2587,6 @@ public class MqttMessagesManager
 				lastPinMap.get(msisdn).setSecond(lastPinMap.get(msisdn).getSecond() + 1); // increment pin unread count for a msisdn
 			}
 			
-			// Adding Logs for Message Reliability
-			MessagePrivateData pd = convMessage.getPrivateData();
-			if (pd != null && pd.getTrackID() != null && !OneToNConversationUtils.isGroupConversation(convMessage.getMsisdn()))
-			{
-				MsgRelLogManager.recordMsgRel(pd.getTrackID(), MsgRelEventType.RECIEVR_RECV_MSG, msisdn);
-			}
 		}
 
 		/*
@@ -2730,14 +2726,13 @@ public class MqttMessagesManager
 		// to
 		// receiver
 		{
+			MsgRelLogManager.logMsgRelDR(jsonObj, MsgRelEventType.DR_RECEIVED_AT_SENEDER_MQTT);
 			if (isBulkMessage)
 			{
 				saveDeliveryReportBulk(jsonObj);
 			}
 			else
 			{
-				MsgRelLogManager.logMsgRelDR(jsonObj, MsgRelEventType.DR_RECEIVED_AT_SENEDER_MQTT);
-				
 				saveDeliveryReport(jsonObj);
 			}
 		}
@@ -3067,7 +3062,7 @@ public class MqttMessagesManager
 
 	private void removeOrPostponeFriendType(String msisdn)
 	{
-		ContactInfo contactInfo = HikeMessengerApp.getContactManager().getContact(msisdn, true, true);
+		ContactInfo contactInfo = ContactManager.getInstance().getContact(msisdn, true, true);
 		if (contactInfo.getFavoriteType() == FavoriteType.NOT_FRIEND)
 		{
 			return;
@@ -3608,7 +3603,7 @@ public class MqttMessagesManager
 				}
 					
 				// Check if the initiator (us) has already hung up
-				if (metadataJSON.getBoolean(VoIPConstants.Extras.INITIATOR) == false && VoIPService.isConnected() == false &&
+				if (metadataJSON.getBoolean(VoIPConstants.Extras.INITIATOR) == false &&
 						metadataJSON.getInt(VoIPConstants.Extras.CALL_ID) != VoIPService.getCallId()) {
 					Logger.w(VoIPConstants.TAG, "Receiving a reply for a terminated call. local: " + VoIPService.getCallId() +
 							", remote: " + metadataJSON.getInt(VoIPConstants.Extras.CALL_ID));

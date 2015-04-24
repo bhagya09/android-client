@@ -18,6 +18,7 @@ import android.widget.TextView;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
+import com.bsb.hike.utils.Utils;
 
 public class OverFlowMenuLayout implements OnItemClickListener {
 	public static interface OverflowViewListener
@@ -167,6 +168,10 @@ public class OverFlowMenuLayout implements OnItemClickListener {
 		if(viewListener!=null)
 		{
 			viewListener.onPrepareOverflowOptionsMenu(overflowItems);
+			if (!Utils.isHoneycombOrHigher())
+			{
+				notifyDateSetChanged();
+			}
 		}
 		popUpLayout.showPopUpWindow(width, height, xOffset, yOffset, anchor,
 				getView(), inputMethodMode);

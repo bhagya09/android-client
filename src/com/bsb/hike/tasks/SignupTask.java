@@ -715,7 +715,11 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 		
 		if (status)
 		{
-			ContactManager.getInstance().init(context);
+			/**
+			 * This will shutdown the contact manager completely and then Contact Manager will be initialized with new hike user db values that restored during backup restore
+			 * process.
+			 */
+			ContactManager.getInstance().refreshContactManager();
 			editor.putBoolean(HikeMessengerApp.RESTORE_ACCOUNT_SETTING, true);
 			editor.commit();
 		}

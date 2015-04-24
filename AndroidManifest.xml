@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1183"
-    android:versionName="3.9.0.59.photos" >
+    android:versionCode="1182"
+    android:versionName="3.9.0.58" >
 
     <uses-sdk
         android:minSdkVersion="9"
@@ -429,6 +429,7 @@
             android:launchMode="singleTask"
             android:showOnLockScreen="true"
             android:taskAffinity=":voip"
+            android:excludeFromRecents="true"
             android:theme="@style/TranslucentBlack" >
         </activity>
 
