@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1179"
-    android:versionName="3.9.0.55.photos" >
+    android:versionCode="1183"
+    android:versionName="3.9.0.59.photos" >
 
     <uses-sdk
         android:minSdkVersion="9"
@@ -330,8 +330,8 @@
         <activity
             android:name="com.bsb.hike.ui.DelegateActivity"
             android:launchMode="standard"
-            android:screenOrientation="portrait"
-            android:theme="@android:style/Theme.NoDisplay" >
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:screenOrientation="portrait" >
         </activity>
         <activity
             android:name=".ui.PinHistoryActivity"
