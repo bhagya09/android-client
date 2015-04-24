@@ -163,6 +163,7 @@ import com.bsb.hike.HikeConstants.SMSSyncState;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikeMessengerApp.CurrentState;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.MqttConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
@@ -189,6 +190,8 @@ import com.bsb.hike.models.FtueContactsData;
 import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.models.StatusMessage;
+import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.GroupConversation;
@@ -437,6 +440,21 @@ public class Utils
 		return orgFileName;
 	}
 
+	public static File createNewFile(HikeFileType type,String prefix)
+	{
+		File selectedDir = new File(Utils.getFileParent(type, false));
+		if (!selectedDir.exists())
+		{
+			if (!selectedDir.mkdirs())
+			{
+				return null;
+			}
+		}
+		String fileName = prefix + Utils.getOriginalFile(type, null);
+		File selectedFile = new File(selectedDir.getPath() + File.separator + fileName);
+		return selectedFile;
+	}
+	
 	public static String getFinalFileName(HikeFileType type)
 	{
 		return getFinalFileName(type, null);
@@ -1096,12 +1114,7 @@ public class Utils
 
 	public static boolean isUserOnline(Context context)
 	{
-		if(getActiveNetInfo() != null)
-		{
-			return true;
-		}
-		
-		return false;
+		return getNetInfoFromConnectivityManager().second;
 	}
 
 	/**
@@ -1122,7 +1135,7 @@ public class Utils
 			data.put(HikeConstants.RESOLUTION_ID, Utils.getResolutionId());
 			data.put(HikeConstants.NEW_LAST_SEEN_SETTING, true);
 			requestAccountInfo.put(HikeConstants.DATA, data);
-			HikeMqttManagerNew.getInstance().sendMessage(requestAccountInfo, HikeMqttManagerNew.MQTT_QOS_ONE);
+			HikeMqttManagerNew.getInstance().sendMessage(requestAccountInfo, MqttConstants.MQTT_QOS_ONE);
 		}
 		catch (JSONException e)
 		{
@@ -1767,7 +1780,7 @@ public class Utils
 		ConvMessage convMessage = Utils.makeHike2SMSInviteMessage(msisdn, context);
 		if (!sentMqttPacket)
 		{
-			HikeMqttManagerNew.getInstance().sendMessage(convMessage.serialize(sendNativeInvite), HikeMqttManagerNew.MQTT_QOS_ONE);
+			HikeMqttManagerNew.getInstance().sendMessage(convMessage.serialize(sendNativeInvite), MqttConstants.MQTT_QOS_ONE);
 		}
 
 		if (sendNativeInvite)
@@ -2336,10 +2349,8 @@ public class Utils
 		{
 			return;
 		}
-		AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-		int ringerMode = audioManager.getRingerMode();
 
-		if (ringerMode != AudioManager.RINGER_MODE_SILENT && !Utils.isUserInAnyTypeOfCall(context))
+		if (!SoundUtils.isSilentMode(context) && !Utils.isUserInAnyTypeOfCall(context))
 		{
 			vibrate(100);
 		}
@@ -2391,23 +2402,25 @@ public class Utils
 		intent.putExtra(MediaStore.EXTRA_OUTPUT, destPath);
 		intent.putExtra(HikeConstants.Extras.IMAGE_PATH, path);
 		intent.putExtra(HikeConstants.Extras.SCALE, true);
-		intent.putExtra(HikeConstants.Extras.OUTPUT_X, HikeConstants.MAX_DIMENSION_FULL_SIZE_PROFILE_PX);
-		intent.putExtra(HikeConstants.Extras.OUTPUT_Y, HikeConstants.MAX_DIMENSION_FULL_SIZE_PROFILE_PX);
+		intent.putExtra(HikeConstants.Extras.OUTPUT_X, HikeConstants.MAX_DIMENSION_LOW_FULL_SIZE_PX);
+		intent.putExtra(HikeConstants.Extras.OUTPUT_Y, HikeConstants.MAX_DIMENSION_LOW_FULL_SIZE_PX);
 		intent.putExtra(HikeConstants.Extras.ASPECT_X, 1);
 		intent.putExtra(HikeConstants.Extras.ASPECT_Y, 1);
 		activity.startActivityForResult(intent, HikeConstants.CROP_RESULT);
 	}
 
-	public static void startCropActivityForResult(Activity activity, String path, String destPath, boolean preventScaling)
+	public static void startCropActivityForResult(Activity activity, String path, String destPath, boolean preventScaling, int quality,boolean circleHighlight)
 	{
 		/* Crop the image */
 		Intent intent = new Intent(activity, CropImage.class);
 		intent.putExtra(MediaStore.EXTRA_OUTPUT, destPath);
 		intent.putExtra(HikeConstants.Extras.IMAGE_PATH, path);
+		intent.putExtra(HikeConstants.Extras.CIRCLE_HIGHLIGHT, circleHighlight);
 		intent.putExtra(HikeConstants.Extras.SCALE, false);
 		intent.putExtra(HikeConstants.Extras.RETURN_CROP_RESULT_TO_FILE, preventScaling);
 		intent.putExtra(HikeConstants.Extras.ASPECT_X, 1);
 		intent.putExtra(HikeConstants.Extras.ASPECT_Y, 1);
+		intent.putExtra(HikeConstants.Extras.JPEG_COMPRESSION_QUALITY, quality);
 		activity.startActivityForResult(intent, HikeConstants.CROP_RESULT);
 	}
 
@@ -2560,7 +2573,7 @@ public class Utils
 			object.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.ACCOUNT_CONFIG);
 			object.put(HikeConstants.DATA, data);
 
-			HikeMqttManagerNew.getInstance().sendMessage(object, HikeMqttManagerNew.MQTT_QOS_ONE);
+			HikeMqttManagerNew.getInstance().sendMessage(object, MqttConstants.MQTT_QOS_ONE);
 		}
 		catch (JSONException e)
 		{
@@ -2759,7 +2772,7 @@ public class Utils
 			{
 				return;
 			}
-			HikeMqttManagerNew.getInstance().sendMessage(object, HikeMqttManagerNew.MQTT_QOS_ZERO);
+			HikeMqttManagerNew.getInstance().sendMessage(object, MqttConstants.MQTT_QOS_ZERO);
 		}
 		catch (JSONException e)
 		{
@@ -2787,7 +2800,7 @@ public class Utils
 			data.put(AnalyticsConstants.METADATA, sessionMetaDataObject);
 			
 			sessionObject.put(HikeConstants.DATA, data);
-			HikeMqttManagerNew.getInstance().sendMessage(sessionObject, HikeMqttManagerNew.MQTT_QOS_ONE);
+			HikeMqttManagerNew.getInstance().sendMessage(sessionObject, MqttConstants.MQTT_QOS_ONE);
 			Logger.d("sessionmqtt", "Sesnding Session MQTT Packet with qos 1, and : "+ subType);
 		}
 		catch (JSONException e)
@@ -2924,7 +2937,6 @@ public class Utils
 		return lastSeen;
 
 	}
-	
 
 	private static String getDayOfMonthSuffix(int dayOfMonth)
 	{
@@ -2945,6 +2957,12 @@ public class Utils
 		}
 	}
 
+	public static long getServerTimeOffsetInMsec(Context context)
+	{
+		long timeDiff = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getLong(HikeMessengerApp.SERVER_TIME_OFFSET_MSEC, 0);  
+		return timeDiff;
+	}
+	
 	public static long getServerTimeOffset(Context context)
 	{
 		return context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getLong(HikeMessengerApp.SERVER_TIME_OFFSET, 0);
@@ -2969,6 +2987,18 @@ public class Utils
 		{
 			return time;
 		}
+	}
+	
+	/**
+	 * Applies the server time offset and ensures that the time becomes sync with server
+	 * @param context
+	 * @param time in seconds
+	 * @return time in milliseconds
+	 */
+	public static long applyOffsetToMakeTimeServerSync(Context context, long timeInMSec)
+	{
+		timeInMSec = timeInMSec - getServerTimeOffsetInMsec(context);
+		return timeInMSec;
 	}
 
 	public static void blockOrientationChange(Activity activity)
@@ -3065,7 +3095,7 @@ public class Utils
 			object.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.ANALYTICS_EVENT);
 			object.put(HikeConstants.DATA, data);
 
-			HikeMqttManagerNew.getInstance().sendMessage(object, HikeMqttManagerNew.MQTT_QOS_ONE);
+			HikeMqttManagerNew.getInstance().sendMessage(object, MqttConstants.MQTT_QOS_ONE);
 		}
 		catch (JSONException e)
 		{
@@ -4021,24 +4051,24 @@ public class Utils
 	{
 		SharedPreferences settings = (SharedPreferences) context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
 		String msisdn = settings.getString(HikeMessengerApp.MSISDN_SETTING, "");
-		friendsList.addAll(HikeMessengerApp.getContactManager().getContactsOfFavoriteType(FavoriteType.FRIEND, HikeConstants.BOTH_VALUE, msisdn, false));
-		friendsList.addAll(HikeMessengerApp.getContactManager().getContactsOfFavoriteType(FavoriteType.REQUEST_SENT, HikeConstants.BOTH_VALUE, msisdn, false));
-		friendsList.addAll(HikeMessengerApp.getContactManager().getContactsOfFavoriteType(FavoriteType.REQUEST_SENT_REJECTED, HikeConstants.BOTH_VALUE, msisdn, false));
+		friendsList.addAll(ContactManager.getInstance().getContactsOfFavoriteType(FavoriteType.FRIEND, HikeConstants.BOTH_VALUE, msisdn, false));
+		friendsList.addAll(ContactManager.getInstance().getContactsOfFavoriteType(FavoriteType.REQUEST_SENT, HikeConstants.BOTH_VALUE, msisdn, false));
+		friendsList.addAll(ContactManager.getInstance().getContactsOfFavoriteType(FavoriteType.REQUEST_SENT_REJECTED, HikeConstants.BOTH_VALUE, msisdn, false));
 
 		Logger.d("AddFriendsActivity", " friendsList size " + friendsList.size());
 		Set<String> recommendedContactsSelection = Utils.getServerRecommendedContactsSelection(settings.getString(HikeMessengerApp.SERVER_RECOMMENDED_CONTACTS, null), msisdn);
 		Logger.d("AddFriendsActivity", " recommendedContactsSelection " + recommendedContactsSelection);
 		if (!recommendedContactsSelection.isEmpty())
 		{
-			recommendedContacts.addAll(HikeMessengerApp.getContactManager().getHikeContacts(-1, recommendedContactsSelection, null, msisdn));
+			recommendedContacts.addAll(ContactManager.getInstance().getHikeContacts(-1, recommendedContactsSelection, null, msisdn));
 		}
 
 		Logger.d("AddFriendsActivity", " size recommendedContacts = " + recommendedContacts.size());
 
-		hikeContacts.addAll(HikeMessengerApp.getContactManager().getContactsOfFavoriteType(FavoriteType.NOT_FRIEND, HikeConstants.ON_HIKE_VALUE, msisdn, false));
-		hikeContacts.addAll(HikeMessengerApp.getContactManager()
+		hikeContacts.addAll(ContactManager.getInstance().getContactsOfFavoriteType(FavoriteType.NOT_FRIEND, HikeConstants.ON_HIKE_VALUE, msisdn, false));
+		hikeContacts.addAll(ContactManager.getInstance()
 				.getContactsOfFavoriteType(FavoriteType.REQUEST_RECEIVED_REJECTED, HikeConstants.ON_HIKE_VALUE, msisdn, false, true));
-		hikeContacts.addAll(HikeMessengerApp.getContactManager().getContactsOfFavoriteType(FavoriteType.REQUEST_RECEIVED, HikeConstants.BOTH_VALUE, msisdn, false, true));
+		hikeContacts.addAll(ContactManager.getInstance().getContactsOfFavoriteType(FavoriteType.REQUEST_RECEIVED, HikeConstants.BOTH_VALUE, msisdn, false, true));
 	}
 
 	public static void addFavorite(final Context context, final ContactInfo contactInfo, final boolean isFtueContact)
@@ -5076,21 +5106,9 @@ public class Utils
 	 * Fetches the network connection using connectivity manager
 	 * 
 	 * @param context
-<<<<<<< HEAD
 	 * @return <li>-1 in case of no network</li> <li>0 in case of unknown network</li> <li>1 in case of wifi</li> <li>2 in case of 2g</li> <li>3 in case of 3g</li> <li>4 in case of
 	 *         4g</li>
 	 * 
-=======
-	 * @param info -- the network info for which you want to get network type. if null is passed it will give info about active network info
-	 * @return
-	 * <li>-1 in case of no network</li>
-	 * <li> 0 in case of unknown network</li>
-	 * <li> 1 in case of wifi</li>
-	 * <li> 2 in case of 2g</li>
-	 * <li> 3 in case of 3g</li>
-	 * <li> 4 in case of 4g</li>
-	 *     
->>>>>>> 6c2da8659503395989b56afad7350292e2f5082f
 	 */
 	public static short getNetworkType(Context context)
 	{
@@ -5304,7 +5322,11 @@ public class Utils
 		return true;
 	}
 
-	 /** Tells if User is on Telephonic/Audio/Vedio/Voip Call
+
+	 /** Tells if User is on 
+	  * 1) Between any Telephonic/Audio/Vedio/Voip Call
+	  * 2) Any Telephonic call is ringing
+
 	 * @param context
 	 * @return
 	 */
@@ -5313,7 +5335,9 @@ public class Utils
 
 		AudioManager manager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
 
-		boolean callMode = manager.getMode() == AudioManager.MODE_IN_COMMUNICATION || manager.getMode() == AudioManager.MODE_IN_CALL;
+		boolean callMode = manager.getMode() == AudioManager.MODE_IN_COMMUNICATION 
+				|| manager.getMode() == AudioManager.MODE_IN_CALL
+				|| manager.getMode() == AudioManager.MODE_RINGTONE;
 
 		return callMode;
 	}
@@ -5511,25 +5535,75 @@ public class Utils
 	 */
 	public static NetworkInfo getActiveNetInfo()
 	{
-		/*
-		 * We've seen NPEs in this method on the dev console but have not been able to figure out the reason so putting this in a try catch block.
-		 */
-		NetworkInfo info = null;
+		NetworkInfo netInfo = getNetInfoFromConnectivityManager().first;
+		return netInfo;
+	}
+	
+	/**
+	 * Now we might say network is there even if we don't have a NetworkInfo object that is why we returning NetworkInfo and NeworkAvailable states seprately. this is basically
+	 * done to tackle some exception scenarios where getActiveNetworkInfo unexpectedly throws an error.
+	 * 
+	 * @return Pair<NetworkInfo, Boolean>.first ==> NeworkInfo object of current available network ;
+	 * 		   Pair<NetworkInfo, Boolean>.second ==> boolean indicating wheather network is available or not
+	 */
+	public static Pair<NetworkInfo, Boolean> getNetInfoFromConnectivityManager()
+	{
 		try
 		{
 			ConnectivityManager cm = (ConnectivityManager) HikeMessengerApp.getInstance().getSystemService(Context.CONNECTIVITY_SERVICE);
-			
-			if (cm != null && cm.getActiveNetworkInfo() != null && cm.getActiveNetworkInfo().isAvailable() && cm.getActiveNetworkInfo().isConnected())
+			NetworkInfo netInfo = cm.getActiveNetworkInfo();
+
+			if (netInfo != null && (netInfo.isConnectedOrConnecting() || netInfo.isAvailable()))
 			{
-				info = cm.getActiveNetworkInfo();
+				Logger.d("getNetInfoFromConnectivityManager", "Trying to connect using getActiveNetworkInfo");
+				return new Pair<NetworkInfo, Boolean>(netInfo, true);
 			}
-			return info;
+
+			netInfo = cm.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+
+			if (netInfo != null && netInfo.isConnectedOrConnecting())
+			{
+				Logger.d("getNetInfoFromConnectivityManager", "Trying to connect using TYPE_MOBILE NetworkInfo");
+				return new Pair<NetworkInfo, Boolean>(netInfo, true);
+			}
+			else
+			{
+				netInfo = cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+				if (netInfo != null && netInfo.isConnectedOrConnecting())
+				{
+					Logger.d("getNetInfoFromConnectivityManager", "Trying to connect using TYPE_WIFI NetworkInfo");
+					return new Pair<NetworkInfo, Boolean>(netInfo, true);
+				}
+			}
 		}
-		catch (NullPointerException e)
+		catch (Exception e)
 		{
-			Logger.e("Utils", "Exception :", e);
+			Logger.e("getNetInfoFromConnectivityManager", "Got expection while trying to get NetworkInfo from ConnectivityManager", e);
+			recordGetActiveNetworkInfoException(e.getMessage());
+			return new Pair<NetworkInfo, Boolean>(null, true);
 		}
-		return null;
+		return new Pair<NetworkInfo, Boolean>(null, false);
+	}
+	
+	private static void recordGetActiveNetworkInfoException(String exceptionMessage)
+	{
+		if (!HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.EXCEPTION_ANALYTIS_ENABLED, true))
+		{
+			return;
+		}
+		try
+		{
+			JSONObject metadata = new JSONObject();
+
+			metadata.put(HikeConstants.PAYLOAD, exceptionMessage);
+
+			Logger.w("Utils", "recording getActiveNetworkInfo exception message = " + exceptionMessage);
+			HAManager.getInstance().record(HikeConstants.EXCEPTION, HikeConstants.LogEvent.GET_ACTIVE_NETWORK_INFO, metadata);
+		}
+		catch (JSONException e)
+		{
+			Logger.e(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+		}
 	}
 	
 	public static String valuesToCommaSepratedString(ArrayList<Long> entries)
@@ -5546,7 +5620,6 @@ public class Utils
 		}
 		return result.toString();
 	}
-	
 	
 	public static Long getMaxLongValue(ArrayList<Long> values)
 	{
@@ -5565,6 +5638,24 @@ public class Utils
 		}
 		
 		return maxVal;
+	}
+	
+	public static boolean isOnProduction()
+	{
+		return HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PRODUCTION, true);
+	}
+	
+	public static void setSSLAllowed(String countryCode)
+	{
+		if(countryCode.equalsIgnoreCase(HikeConstants.SAUDI_ARABIA_COUNTRY_CODE))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.SSL_ALLOWED, false);
+		}
+	}
+	
+	public static boolean isSSLAllowed()
+	{
+		return HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SSL_ALLOWED, true);
 	}
 	
 	public static String extractFullFirstName(String fullName)
@@ -5589,7 +5680,73 @@ public class Utils
 		}
 		return fullFirstName;
 	}
-	
+	public static int getLayoutIdFromName(String layoutName)
+	{
+		if (!TextUtils.isEmpty(layoutName))
+		{
+			Context context = HikeMessengerApp.getInstance().getApplicationContext();
+			int resID = context.getResources().getIdentifier(layoutName, "layout", context.getPackageName());
+			return resID;
+		}
+		else
+		{
+			return -1;
+		}
+	}
+
+	/**
+	 * Making the profile pic change a status message 
+	 * @param response json packet received from server
+	 * @return StatusMessage created
+	 */
+	public static StatusMessage createTimelinePostForDPChange(JSONObject response)
+	{
+		StatusMessage statusMessage = null;
+		JSONObject data = response.optJSONObject("status");
+
+		if (data == null)
+		{
+			return null;
+		}
+
+		// parse status params
+		String mappedId = data.optString(HikeConstants.STATUS_ID);
+		String msisdn = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, "");
+		String name = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.NAME_SETTING, "");
+		long time = (long) System.currentTimeMillis() / 1000;
+
+		// saving mapped status id for this dp change. delete update will clear this pref later
+		// this pref's current value will decide whether to give option to user to delete dp post from favourites timelines or not
+		Editor ed = HikeSharedPreferenceUtil.getInstance().getPref().edit();
+		ed.putString(HikeMessengerApp.DP_CHANGE_STATUS_ID, mappedId);
+		ed.commit();
+		
+		// save to db
+		statusMessage = new StatusMessage(0, mappedId, msisdn, name, "", StatusMessageType.PROFILE_PIC, time, -1, 0);
+		HikeConversationsDatabase.getInstance().addStatusMessage(statusMessage, true);
+
+		/*
+		 * Making a status update file so we don't need to download this file again.
+		 */
+		String srcFilePath = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT + "/" + msisdn + ".jpg";
+		String destFilePath = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT + "/" + mappedId + ".jpg";
+		Utils.copyFile(srcFilePath, destFilePath, null);
+		
+		/* the server only needs a smaller version */
+		final Bitmap smallerBitmap = HikeBitmapFactory.scaleDownBitmap(destFilePath, HikeConstants.PROFILE_IMAGE_DIMENSIONS, HikeConstants.PROFILE_IMAGE_DIMENSIONS,
+				Bitmap.Config.RGB_565, true, false);
+
+		byte[] bytes = null;
+		
+		if(smallerBitmap != null)
+		{
+			bytes = BitmapUtils.bitmapToBytes(smallerBitmap, Bitmap.CompressFormat.JPEG, 100);
+		}
+		ContactManager.getInstance().setIcon(mappedId, bytes, false);
+
+		return statusMessage;
+	}
+
 	public static boolean isDeviceRooted()
 	{
 		return RootUtil.isDeviceRooted();

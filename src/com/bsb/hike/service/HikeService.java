@@ -15,6 +15,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.database.ContentObserver;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.IBinder;
@@ -27,6 +28,8 @@ import android.support.v4.content.LocalBroadcastManager;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.BitmapModule.BitmapUtils;
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.db.DBBackupRestore;
@@ -36,7 +39,10 @@ import com.bsb.hike.http.HikeHttpRequest.RequestType;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.HikeHandlerUtil;
+import com.bsb.hike.models.StatusMessage;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.notifications.HikeNotification;
+import com.bsb.hike.notifications.HikeNotificationMsgStack;
 import com.bsb.hike.platform.HikeSDKRequestHandler;
 import com.bsb.hike.tasks.CheckForUpdateTask;
 import com.bsb.hike.tasks.HikeHTTPTask;
@@ -46,6 +52,7 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
+import com.google.gson.Gson;
 
 public class HikeService extends Service
 {
@@ -292,6 +299,14 @@ public class HikeService extends Service
 		setInitialized(true);
 	}
 
+	@Override
+	public void onTaskRemoved(Intent rootIntent)
+	{
+		super.onTaskRemoved(rootIntent);
+		String notifObject = HikeNotificationMsgStack.getInstance(getApplicationContext()).serializeObject();
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.NOTIFICATION_OBJ, notifObject);
+	}
+	
 	private void assignUtilityThread()
 	{
 		/**
@@ -770,9 +785,17 @@ public class HikeService extends Service
 					String msisdn = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, null);
 					HikeSharedPreferenceUtil.getInstance().removeData(HikeMessengerApp.SIGNUP_PROFILE_PIC_PATH);
 					Utils.renameTempProfileImage(msisdn);
+					
 					// clearing cache for this msisdn because if user go to profile before rename (above line) executes then icon blurred image will be set in cache
 					HikeMessengerApp.getLruCache().clearIconForMSISDN(msisdn);
 					Logger.d(getClass().getSimpleName(), "profile pic upload done");
+
+					StatusMessage sm = Utils.createTimelinePostForDPChange(response);
+					
+					if(sm == null)
+					{
+						return;
+					}					
 				}
 
 				public void onFailure()

@@ -102,7 +102,7 @@
     <dimen name="icon_picture_size">50dp</dimen>
     <dimen name="gallery_grid_spacing">5dp</dimen>
     <dimen name="gallery_cover_item_size">179dp</dimen>
-    <dimen name="gallery_album_item_size">89dp</dimen>
+    <dimen name="gallery_album_item_size">134dp</dimen>
     <dimen name="gallery_selection_item_size">89dp</dimen>
     <dimen name="file_message_item_size">56dp</dimen>
     <dimen name="file_thumbnail_size">150dp</dimen>
@@ -183,7 +183,11 @@
 	<dimen name="photos_doodle_preview_padding">16dp</dimen>
 	<dimen name="photos_action_bar_left_right_padding">16dp</dimen>
 	<dimen name="photos_action_internal_padding">8dp</dimen>
+	<dimen name="photos_thumbnail_dimen_hdpi">45dp</dimen>
+	<dimen name="photos_thumbnail_dimen_xhdpi">60dp</dimen>
 	<dimen name="broadcast_ftue_text_bottom_padding">15dp</dimen>
 	<dimen name="broadcast_ftue_text_right_padding">15dp</dimen>
+	<dimen name="sticker_empty_pallete_preview_image_width">125dp</dimen>
+	<dimen name="sticker_empty_pallete_preview_image_height">178dp</dimen>
 	
 </resources>

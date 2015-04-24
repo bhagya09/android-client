@@ -11,6 +11,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Message;
@@ -18,7 +19,6 @@ import android.provider.ContactsContract.Contacts;
 import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.widget.Toast;
-
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
@@ -26,7 +26,6 @@ import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
-import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.ui.ComposeChatActivity;
@@ -37,7 +36,6 @@ import com.bsb.hike.ui.FileSelectActivity;
 import com.bsb.hike.ui.FtueBroadcast;
 import com.bsb.hike.ui.GalleryActivity;
 import com.bsb.hike.ui.HikeAuthActivity;
-import com.bsb.hike.ui.HikeCameraActivity;
 import com.bsb.hike.ui.HikeListActivity;
 import com.bsb.hike.ui.HikePreferences;
 import com.bsb.hike.ui.HomeActivity;
@@ -110,13 +108,14 @@ public class IntentFactory
 		context.startActivity(intent);
 	}
 
-	public static void openSettingChat(Context context) {
+	public static void openSettingChat(Context context)
+	{
 		Intent intent = new Intent(context, HikePreferences.class);
-		intent.putExtra(HikeConstants.Extras.PREF,
-				R.xml.chat_settings_preferences);
+		intent.putExtra(HikeConstants.Extras.PREF, R.xml.chat_settings_preferences);
 		intent.putExtra(HikeConstants.Extras.TITLE, R.string.settings_chat);
 		context.startActivity(intent);
 	}
+
 	public static void openInviteSMS(Context context)
 	{
 		context.startActivity(new Intent(context, HikeListActivity.class));
@@ -235,7 +234,7 @@ public class IntentFactory
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		return intent;
 	}
-	
+
 	public static Intent openComposeChatIntentForGroup(Context appContext, String convId, String convName)
 	{
 		Intent intent = new Intent(appContext.getApplicationContext(), ComposeChatActivity.class);
@@ -247,7 +246,7 @@ public class IntentFactory
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		return intent;
 	}
-	
+
 	public static Intent getForwardStickerIntent(Context context, String stickerId, String categoryId)
 	{
 		Utils.sendUILogEvent(HikeConstants.LogEvent.FORWARD_MSG);
@@ -269,7 +268,7 @@ public class IntentFactory
 		intent.putExtra(HikeConstants.Extras.MULTIPLE_MSG_OBJECT, multipleMsgArray.toString());
 		return intent;
 	}
-	
+
 	public static void createBroadcastFtue(Context appContext)
 	{
 		Intent intent = new Intent(appContext.getApplicationContext(), FtueBroadcast.class);
@@ -278,7 +277,7 @@ public class IntentFactory
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		appContext.startActivity(intent);
 	}
-	
+
 	public static void createBroadcastDefault(Context appContext)
 	{
 		Intent intent = new Intent(appContext.getApplicationContext(), ComposeChatActivity.class);
@@ -288,31 +287,6 @@ public class IntentFactory
 		appContext.startActivity(intent);
 	}
 	
-	public static Intent getImageCaptureIntent(Context context)
-	{
-		/*
-		 * Storing images in hike media folder of the camera
-		 */
-		File selectedDir = new File(Utils.getFileParent(HikeFileType.IMAGE, false));
-		if (!selectedDir.exists())
-		{
-			if (!selectedDir.mkdirs())
-			{
-				Logger.d("ImageCapture", "failed to create directory");
-				return null;
-			}
-		}
-		String fileName = HikeConstants.CAM_IMG_PREFIX + Utils.getOriginalFile(HikeFileType.IMAGE, null);
-		File selectedFile = new File(selectedDir.getPath() + File.separator + fileName);
-		
-		Intent pickIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-		pickIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(selectedFile));
-		/*
-		 * For images, save the file path as a preferences since in some devices the reference to the file becomes null.
-		 */
-		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.FILE_PATH, selectedFile.getAbsolutePath());
-		return pickIntent;
-	}
 
 	public static Intent getVideoRecordingIntent()
 	{
@@ -422,7 +396,7 @@ public class IntentFactory
 
 		return intent;
 	}
-	
+
 	/**
 	 * Used for retrieving the intent to place a call
 	 * 
@@ -435,8 +409,7 @@ public class IntentFactory
 		callIntent.setData(Uri.parse("tel:" + mMsisdn));
 		return callIntent;
 	}
-	
-	
+
 	public static Intent createChatThreadIntentFromMsisdn(Context context, String msisdnOrGroupId, boolean openKeyBoard)
 	{
 		Intent intent = new Intent();
@@ -457,7 +430,7 @@ public class IntentFactory
 		boolean isGroupConv = OneToNConversationUtils.isOneToNConversation(contactInfo.getMsisdn());
 		return createChatThreadIntentFromMsisdn(context, isGroupConv ? contactInfo.getId() : contactInfo.getMsisdn(), openKeyBoard);
 	}
-	
+
 	public static Intent createChatThreadIntentFromConversation(Context context, ConvInfo conversation)
 	{
 		Intent intent = new Intent(context, ChatThreadActivity.class);
@@ -471,19 +444,19 @@ public class IntentFactory
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		return intent;
 	}
-	
+
 	public static Intent getHomeActivityIntent(Context context)
 	{
 		Intent intent = new Intent(context, HomeActivity.class);
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		return intent;
 	}
-	
+
 	public static Intent getComposeChatActivityIntent(Context context)
 	{
 		return new Intent(context, ComposeChatActivity.class);
 	}
-	
+
 	public static Intent getPinHistoryIntent(Context context, String msisdn)
 	{
 		Intent intent = new Intent();
@@ -492,7 +465,7 @@ public class IntentFactory
 		intent.putExtra(HikeConstants.TEXT_PINS, msisdn);
 		return intent;
 	}
-	
+
 	public static Intent getForwardImageIntent(Context context, File argFile)
 	{
 		Intent intent = new Intent(context, ComposeChatActivity.class);
@@ -511,15 +484,16 @@ public class IntentFactory
 		intent.putExtras(b);
 		return intent;
 	}
-	
-	public static Intent getHikeGalleryPickerIntentForResult(Context context, boolean allowMultiSelect,boolean categorizeByFolders,int actionBarType,PendingIntent argIntent)
+
+	public static Intent getHikeGalleryPickerIntent(Context context, boolean allowMultiSelect, boolean categorizeByFolders, boolean enableCameraPick, int actionBarType,
+			PendingIntent argIntent)
 	{
 		Intent intent = new Intent(context, GalleryActivity.class);
 		Bundle b = new Bundle();
 		b.putParcelable(GalleryActivity.PENDING_INTENT_KEY, argIntent);
-		b.putBoolean(GalleryActivity.RETURN_RESULT_KEY, true);
 		b.putBoolean(GalleryActivity.DISABLE_MULTI_SELECT_KEY, !allowMultiSelect);
 		b.putBoolean(GalleryActivity.FOLDERS_REQUIRED_KEY, categorizeByFolders);
+		b.putBoolean(GalleryActivity.ENABLE_CAMERA_PICK, enableCameraPick);
 		b.putInt(GalleryActivity.ACTION_BAR_TYPE_KEY, actionBarType);
 		intent.putExtras(b);
 		return intent;
@@ -554,18 +528,15 @@ public class IntentFactory
 		i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		appContext.startActivity(i);
 	}
-	
-	public static void openHomeActivity(Context context)
+
+	public static void openHomeActivity(Context context, boolean clearTop)
 	{
 		Intent in = new Intent(context, HomeActivity.class);
+		if (clearTop)
+		{
+			in.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		}
 		context.startActivity(in);
-	}
-	
-	public static void openHomeActivity(Context context,boolean handlingCrash)
-	{
-		Intent in = new Intent(context, HomeActivity.class);
-        in.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        context.startActivity(in);
 	}
 
 	public static Intent openInviteFriends(Activity context)
@@ -588,7 +559,7 @@ public class IntentFactory
 		Intent in = new Intent(context, NuxSendCustomMessageActivity.class);
 		return in;
 	}
-	
+
 	public static Intent getWebViewActivityIntent(Context context, String url, String title)
 	{
 
@@ -604,7 +575,7 @@ public class IntentFactory
 		return intent;
 
 	}
-	
+
 	public static Intent getForwardIntentForConvMessage(Context context, ConvMessage convMessage, String metadata)
 	{
 		Intent intent = new Intent(context, ComposeChatActivity.class);
@@ -625,12 +596,8 @@ public class IntentFactory
 		{
 			Logger.e(context.getClass().getSimpleName(), "Invalid JSON", e);
 		}
-		String phoneNumber = convMessage.getMsisdn();
-		ContactInfo contactInfo = ContactManager.getInstance().getContactInfoFromPhoneNoOrMsisdn(phoneNumber);
-		String mContactName = contactInfo.getName();
 		intent.putExtra(HikeConstants.Extras.MULTIPLE_MSG_OBJECT, multipleMsgArray.toString());
 		intent.putExtra(HikeConstants.Extras.PREV_MSISDN, convMessage.getMsisdn());
-		intent.putExtra(HikeConstants.Extras.PREV_NAME, mContactName);
 
 		return intent;
 	}
@@ -641,7 +608,7 @@ public class IntentFactory
 		intent.putExtra(HikeConstants.Extras.EDIT, true);
 		return intent;
 	}
-	
+
 	public static Intent getFavouritesIntent(Activity context)
 	{
 		Intent intent = new Intent(context, PeopleActivity.class);
@@ -660,7 +627,7 @@ public class IntentFactory
 		Intent intent = new Intent(context, StickerSettingsActivity.class);
 		return intent;
 	}
-	
+
 	public static Intent getProfileIntent(Activity context)
 	{
 
@@ -668,12 +635,6 @@ public class IntentFactory
 		intent.setClass(context, ProfileActivity.class);
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		return intent;
-	}
-
-	public static void openHikeCameraActivity(Activity argActivity)
-	{
-		Intent in = new Intent(argActivity, HikeCameraActivity.class);
-		argActivity.startActivity(in);
 	}
 
 	public static Intent getVoipCallIntent(Context context, String msisdn, VoIPUtils.CallSource source)
@@ -702,21 +663,44 @@ public class IntentFactory
 
 	public static Intent getBrowserIntent(String url)
 	{
-		return new Intent(Intent.ACTION_VIEW,Uri.parse(url));
+		return new Intent(Intent.ACTION_VIEW, Uri.parse(url));
 	}
-	
-	public static Intent getPictureEditorActivityIntent(String imageFileName)
+
+	public static Intent getPictureEditorActivityIntent(Context context, String imageFileName, boolean compressOutput, String destinationPath)
 	{
-		Intent i = new Intent(HikeMessengerApp.getInstance().getApplicationContext(), PictureEditer.class);
-		i.putExtra(HikeConstants.HikePhotos.FILENAME, imageFileName);
+		Intent i = new Intent(context, PictureEditer.class);
+
+		if (imageFileName != null)
+		{
+			i.putExtra(HikeMessengerApp.FILE_PATH, imageFileName);
+		}
+		if (destinationPath != null)
+		{
+			i.putExtra(HikeConstants.HikePhotos.DESTINATION_FILENAME, destinationPath);
+		}
+		i.putExtra(HikeConstants.HikePhotos.EDITOR_ALLOW_COMPRESSION_KEY, compressOutput);
 		return i;
 	}
-	
-	public static void startShareImageIntent(String mimeType, String imagePath)
+
+	/**
+	 * If the EXTRA_OUTPUT is not present, then a small sized image is returned as a Bitmap object in the extra field
+	 *
+	 * For images, save the file path as a preferences since in some devices the reference to the file becomes null.
+	 * 
+	 * @param boolean : whether the image should be saved to a specified path to ensure full quality. File : the specified file where the full quality image should be saved.
+	 * 
+	 * @return Camera Intent
+	 */
+	public static Intent getNativeCameraAppIntent(boolean getFullSizedCaptureResult, File destination)
 	{
-		startShareImageIntent(mimeType, imagePath, null);
+		Intent pickIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+		if (getFullSizedCaptureResult)
+		{
+			pickIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(destination));
+		}
+		return pickIntent;
 	}
-	
+
 	public static void startShareImageIntent(String mimeType, String imagePath, String text)
 	{
 		Intent s = new Intent(android.content.Intent.ACTION_SEND);
@@ -730,5 +714,10 @@ public class IntentFactory
 		Logger.i("imageShare", "shared image with " + s.getExtras());
 		HikeMessengerApp.getInstance().getApplicationContext().startActivity(s);
 
+	}
+	
+	public static void startShareImageIntent(String mimeType, String imagePath)
+	{
+		startShareImageIntent(mimeType, imagePath, null);
 	}
 }

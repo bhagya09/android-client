@@ -37,8 +37,11 @@ import android.support.v4.content.Loader;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.Editable;
 import android.text.InputType;
+import android.text.Spannable;
+import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.text.style.StyleSpan;
 import android.util.Pair;
 import android.view.GestureDetector;
 import android.view.GestureDetector.SimpleOnGestureListener;
@@ -48,12 +51,14 @@ import android.view.View;
 import android.view.View.OnKeyListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup.LayoutParams;
+import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.EditorInfo;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
@@ -213,7 +218,11 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
     protected static final int SET_WINDOW_BG = 28;
 
     protected static final int SCROLL_TO_POSITION = 29;
-   
+    
+	protected static final int BLOCK_UNBLOCK_USER = 30;
+
+    protected static final int ADD_MORE_MSG = 31;
+
     private int NUDGE_TOAST_OCCURENCE = 2;
     	
     private int currentNudgeCount = 0;
@@ -345,7 +354,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			showToast(msg.arg1);
 			break;
 		case MESSAGE_RECEIVED:
-			addMessage((ConvMessage) msg.obj);
+			messageAdded((ConvMessage) msg.obj);
 			break;
 		case NOTIFY_DATASET_CHANGED:
 			Logger.i(TAG, "notifying data set changed on UI Handler");
@@ -359,7 +368,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			break;
 		case FILE_MESSAGE_CREATED:
         case MULTI_MSG_DB_INSERTED:
-			addMessage((ConvMessage) msg.obj);
+			messageAdded((ConvMessage) msg.obj);
 			break;
 		case DELETE_MESSAGE:
 			deleteMessages((Pair<Boolean, ArrayList<Long>>) msg.obj);
@@ -401,13 +410,19 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		case DISABLE_TRANSCRIPT_MODE:
 			mConversationsView.setTranscriptMode(ListView.TRANSCRIPT_MODE_DISABLED);		
 			break;
+		case BLOCK_UNBLOCK_USER:
+			blockUnBlockUser((boolean) msg.obj);
+			break;
+		case ADD_MORE_MSG:
+			addMoreMessages((List<ConvMessage>) msg.obj);
+			break;
 		default:
 			Logger.d(TAG, "Did not find any matching event for msg.what : " + msg.what);
 			break;
 		}
 	}
 
-	protected void addMessage(ConvMessage convMessage)
+	protected void messageAdded(ConvMessage convMessage)
 	{
 
 		addtoMessageMap(messages.size() - 1, messages.size());
@@ -477,7 +492,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	{
 		init();
 		setContentView();
-		fetchConversationOnNewIntent(true);
+		fetchConversationOnNewIntent(false);
 	}
 
 	protected void init()
@@ -700,28 +715,57 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 				mConversationsView.requestFocusFromTouch();
 				mConversationsView.setSelection(messages.size() - 1);
 			}
+			break;
+		case HikeConstants.PLATFORM_REQUEST:
+			mAdapter.onActivityResult(requestCode, resultCode, data);
+
 		}
 	}
 
 	@Override
 	public void itemClicked(OverFlowMenuItem item)
 	{
+		int id = -1;
 		switch (item.id)
 		{
 		case R.string.clear_chat:
+			id = item.id;
 			showClearConversationDialog();
 			break;
 		case R.string.email_chat:
+			id = item.id;
 			emailChat();
 			break;
 		case AttachmentPicker.GALLERY:
+			id = R.string.gallery;
 			startHikeGallery(mConversation.isOnHike());
 			break;
 		case R.string.search:
+			id = item.id;
+			recordSearchOptionClick();
 			setupSearchMode();
 			break;
 		default:
 			break;
+		}
+		if (id != -1)
+		{
+			recordOverflowItemClicked(id);
+		}
+	}
+	
+	private void recordOverflowItemClicked(int whichItem)
+	{
+		String ITEM = "item";
+		try
+		{
+			JSONObject metadata = new JSONObject();
+			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.CHAT_OVRFLW_ITEM).put(ITEM, getString(whichItem));
+			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+		}
+		catch (JSONException e)
+		{
+			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
 		}
 	}
 
@@ -807,6 +851,14 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		case R.id.contact_info:
 			openProfileScreen();
 			break;
+		case R.id.overlay_layout:
+			/**
+			 * Do nothing. We simply eat this event to avoid chat thread window from catching this
+			 */
+			break;
+		case R.id.overlay_button:
+			onOverlayLayoutClicked((int) v.getTag());
+			break;
 		case R.id.scroll_top_indicator:
 			mConversationsView.setSelection(0);
 			hideView(R.id.scroll_top_indicator);
@@ -881,7 +933,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	{
 		if (convMessage != null)
 		{
-			addMessage(convMessage);
+			messageAdded(convMessage);
 			HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_SENT, convMessage);
 		}
 	}
@@ -1131,6 +1183,66 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		imageIntent.putExtra(GalleryActivity.START_FOR_RESULT, true);
 		activity.startActivityForResult(imageIntent, AttachmentPicker.GALLERY);
 	}
+	
+	private void recordSearchOptionClick()
+	{
+		String CHAT = "chat";
+		int chat = 0;
+		switch (ChatThreadUtils.getChatThreadType(msisdn))
+		{
+		case HikeConstants.Extras.ONE_TO_ONE_CHAT_THREAD:
+			chat = 1;
+			break;
+		case HikeConstants.Extras.GROUP_CHAT:
+			chat = 2;
+			break;
+		case HikeConstants.Extras.BROADCAST_CHAT_THREAD:
+			chat = 3;
+			break;
+		}
+		try
+		{
+			JSONObject metadata = new JSONObject();
+			metadata
+			.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.CHAT_SEARCH)
+			.put(CHAT,chat);
+			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+		}
+		catch (JSONException e)
+		{
+			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+		}
+	}
+	
+	private void recordSearchInputWithResult(int id, String searchText, int result)
+	{
+		String PREV = "Prev";
+		String NEXT = "Next";
+		String LOOP = "Loop";
+		String TEXT = "txt";
+		String RESULT = "rslt";
+
+		String eventKey;
+		if (id == SEARCH_PREVIOUS)
+			eventKey = HikeConstants.LogEvent.CHAT_SEARCH + PREV;
+		else if (id == SEARCH_NEXT)
+			eventKey = HikeConstants.LogEvent.CHAT_SEARCH + NEXT;
+		else
+			eventKey = HikeConstants.LogEvent.CHAT_SEARCH + LOOP;
+		try
+		{
+			JSONObject metadata = new JSONObject();
+			metadata
+			.put(HikeConstants.EVENT_KEY, eventKey)
+			.put(TEXT, searchText)
+			.put(RESULT, result);
+			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+		}
+		catch (JSONException e)
+		{
+			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+		}
+	}
 
 	private void setupSearchMode()
 	{
@@ -1147,8 +1259,11 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		{
 			messageSearchManager = new SearchManager();
 		}
-		Logger.d("search","call to initialize:" + messages.size());
 		messageSearchManager.init(messages);
+		/**
+		 * Hiding any open tip
+		 */
+		mTips.hideTip();
 	}
 	
 	private void setUpSearchViews()
@@ -1174,7 +1289,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		mComposeView.requestFocus();
 		Utils.showSoftKeyboard(activity.getApplicationContext());
 	}
-	
+
 	TextWatcher searchTextWatcher = new TextWatcher()
 	{
 		
@@ -1213,6 +1328,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 				// Check on the dialog is optimal here as it directly reflects the user intentions.
 				(searchDialog == null || !searchDialog.isShowing()))
 		{
+			searchDialog = ProgressDialog.show(activity, null, getString(R.string.searching));
 			if (loop)
 			{
 				activity.getSupportLoaderManager().restartLoader(SEARCH_LOOP, null, this);
@@ -1225,7 +1341,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			{
 				activity.getSupportLoaderManager().restartLoader(SEARCH_PREVIOUS, null, this);
 			}
-			searchDialog = ProgressDialog.show(activity, null, getString(R.string.searching));
 		}
 	}
 
@@ -1242,7 +1357,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		}
 	}
 
-	private void destroySearchMode()
+	protected void destroySearchMode()
 	{
 		mComposeView = (CustomFontEditText) activity.findViewById(R.id.msg_compose);
 		mComposeView.requestFocus();
@@ -1253,6 +1368,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		mBottomView.startAnimation(AnimationUtils.loadAnimation(activity.getApplicationContext(), R.anim.down_up_lower_part));
 		mBottomView.setVisibility(View.VISIBLE);
 		messageSearchManager.clearSearch();
+		messageSearchManager.deactivate();
 		mAdapter.setSearchText(null);
 	}
 
@@ -1349,14 +1465,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		switch (dialog.getId())
 		{
 		case HikeDialogFactory.DELETE_MESSAGES_DIALOG:
-			dialog.dismiss();
-			mActionMode.finish();
-			
-			this.dialog = null;
-			break;
-			
 		case HikeDialogFactory.CONTACT_SEND_DIALOG:
-		case HikeDialogFactory.CONTACT_SAVE_DIALOG:
 		case HikeDialogFactory.CLEAR_CONVERSATION_DIALOG:
 			dialog.dismiss();
 			this.dialog = null;
@@ -1374,9 +1483,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			ChatThreadUtils.initialiseContactTransfer(activity.getApplicationContext(), msisdn, ((PhonebookContact) dialog.data).jsonData, mConversation.isOnHike());
 			dialog.dismiss();
 
-			break;
-		case HikeDialogFactory.CONTACT_SAVE_DIALOG:
-			// TODO
 			break;
 
 		case HikeDialogFactory.CLEAR_CONVERSATION_DIALOG:
@@ -1683,10 +1789,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	{
 		ConvMessage convMessage = Utils.makeConvMessage(msisdn, getString(R.string.poke_msg), mConversation.isOnHike());
 		ChatThreadUtils.setPokeMetadata(convMessage);
-
-		// 1) user double clicked on Chat Screen i.e Sending nudge
-		MsgRelLogManager.startMessageRelLogging(convMessage, MessageType.TEXT);
-				
 		sendMessage(convMessage);
 	}
 
@@ -1704,7 +1806,9 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			}
 			if (message.getState() == ConvMessage.State.RECEIVED_UNREAD)
 			{
-				mConversationsView.setSelection(messages.size() - mConversation.getUnreadCount() - 1);
+				int index = (messages.size() - mConversation.getUnreadCount() - 1) ;
+				index = index >= 0 ? index : 0;
+				mConversationsView.setSelection(index);
 			}
 			else
 			{
@@ -1950,7 +2054,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		{
 			showAudioRecordView();
 		}
-
+		
 		/**
 		 * 7. Since the message was not forwarded, we check if we have any drafts saved for this conversation, if we do we enter it in the compose box.
 		 */
@@ -1999,7 +2103,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 				addMoreMessages(list);
 
-				mAdapter.notifyDataSetChanged();
 				mConversationsView.setSelectionFromTop(firstVisibleItem + list.size(), scrollOffset);
 				
 			}
@@ -2015,16 +2118,40 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			loadingMoreMessages = false;
 		}
 	}
+
+	protected void addMessage(ConvMessage message)
+	{
+		mAdapter.addMessage(message);
+		if (messageSearchManager != null && messageSearchManager.isActive())
+		{
+			messageSearchManager.addItem(message);
+		}	
+	}
+
+	protected void addMessages(List<ConvMessage> list, int startIndex)
+	{
+		mAdapter.addMessages(list, startIndex);
+	}
 	
 	private void addMoreMessages(List<ConvMessage> list)
 	{
 		int startIndex = getMessagesStartIndex();
-		mAdapter.addMessages(list, startIndex);
+		addMessages(list, startIndex);
 		addtoMessageMap(startIndex, startIndex + list.size());
-		if (messageSearchManager != null)
+		updateNNotifySearchParams(list);
+		mAdapter.notifyDataSetChanged();
+	}
+	
+	private void updateNNotifySearchParams(List<ConvMessage> list)
+	{
+		if (messageSearchManager != null && messageSearchManager.isActive())
 		{
 			messageSearchManager.updateIndex(list.size());
 			messageSearchManager.updateDataSet(messages);
+			synchronized (MessageFinder.class)
+			{
+				MessageFinder.class.notify();
+			}
 		}
 	}
 	
@@ -2081,6 +2208,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			int id = loader.loaderId;
 			if (id == SEARCH_LOOP || id == SEARCH_NEXT || id == SEARCH_PREVIOUS)
 			{
+				recordSearchInputWithResult(id, searchText, (int) arg1);
 				updateUIforSearchResult((int) arg1);
 			}
 		}
@@ -2167,9 +2295,11 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	
 	private static class MessageFinder extends AsyncTaskLoader<Object>
 	{
+		static long ADD_MSG_TIME = 2000;
+
 		int loaderId;
 	
-		int position = -1;
+		int position = -2;
 
 		int loadMessageCount = 50;
 
@@ -2206,7 +2336,20 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 							break;
 						}
 						
-						chatThread.get().addMoreMessages(msgList);
+						// Messages are to be added on UI thread.
+						chatThread.get().sendUIMessage(ADD_MORE_MSG, msgList);
+						try
+						{
+							// Waiting till the time messages are added. Maximum wait time is 2 seconds.
+							synchronized (MessageFinder.class)
+							{
+								MessageFinder.class.wait(ADD_MSG_TIME);
+							}
+						}
+						catch (InterruptedException e)
+						{
+							e.printStackTrace();
+						}
 						loadMessageCount *= 2;
 						position = messageSearchManager.getPrevItem(chatThread.get().mConversationsView.getFirstVisiblePosition());
 					}
@@ -2219,14 +2362,24 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			}
 			return position;
 		}
-		
+
 		/**
 		 * This has to be done due to some bug in compat library -- http://stackoverflow.com/questions/10524667/android-asynctaskloader-doesnt-start-loadinbackground
 		 */
 		protected void onStartLoading()
 		{
 			Logger.i(TAG, "message finder onStartLoading");
-			forceLoad();
+			// The search manager returns the values greater than equal to -1
+			// So if the loader has executed, the result is always greater than -2.
+			// Else we need to start the loader.
+			if (position > -2)
+			{
+				deliverResult(position);
+			}
+			else
+			{
+				forceLoad();
+			}
 		}
 	}
 
@@ -2712,6 +2865,12 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		case HikePubSub.ClOSE_PHOTO_VIEWER_FRAGMENT:
 			uiHandler.sendEmptyMessage(CLOSE_PHOTO_VIEWER_FRAGMENT);
 			break;
+		case HikePubSub.BLOCK_USER:
+			blockUser(object, true);
+			break;
+		case HikePubSub.UNBLOCK_USER:
+			blockUser(object, false);
+			break;
 		case HikePubSub.UPDATE_NETWORK_STATE:
 			uiHandler.sendEmptyMessage(UPDATE_NETWORK_STATE);
 			break;
@@ -2768,7 +2927,9 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		if (senderMsisdn == null)
 		{
 			Logger.wtf(TAG, "Message with missing msisdn:" + message.toString());
+			return;
 		}
+		
 		if (msisdn.equals(senderMsisdn))
 		{
 			if (activity.hasWindowFocus())
@@ -2778,8 +2939,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 				if(message.getPrivateData() != null && message.getPrivateData().getTrackID() != null)
 				{
 					//Logs for Msg Reliability
-					Logger.d(AnalyticsConstants.MSG_REL_TAG, "===========================================");
-					Logger.d(AnalyticsConstants.MSG_REL_TAG, "Receiver reads msg on already opened screen,track_id:- " + message.getPrivateData().getTrackID());
 					MsgRelLogManager.logMsgRelEvent(message, MsgRelEventType.RECEIVER_OPENS_CONV_SCREEN);
 				}
 			}
@@ -2882,7 +3041,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 				HikePubSub.MESSAGE_DELIVERED_READ, HikePubSub.SERVER_RECEIVED_MSG, HikePubSub.SERVER_RECEIVED_MULTI_MSG, HikePubSub.ICON_CHANGED, HikePubSub.UPLOAD_FINISHED,
 				HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, HikePubSub.FILE_MESSAGE_CREATED, HikePubSub.DELETE_MESSAGE, HikePubSub.STICKER_DOWNLOADED, HikePubSub.MESSAGE_FAILED,
 				HikePubSub.CHAT_BACKGROUND_CHANGED, HikePubSub.CLOSE_CURRENT_STEALTH_CHAT, HikePubSub.ClOSE_PHOTO_VIEWER_FRAGMENT, HikePubSub.STICKER_CATEGORY_MAP_UPDATED,
-				HikePubSub.UPDATE_NETWORK_STATE, HikePubSub.BULK_MESSAGE_RECEIVED, HikePubSub.MULTI_MESSAGE_DB_INSERTED};
+				HikePubSub.UPDATE_NETWORK_STATE, HikePubSub.BULK_MESSAGE_RECEIVED, HikePubSub.MULTI_MESSAGE_DB_INSERTED, HikePubSub.BLOCK_USER, HikePubSub.UNBLOCK_USER };
 
 		/**
 		 * Array of pubSub listeners we get from {@link OneToOneChatThread} or {@link GroupChatThread}
@@ -3061,6 +3220,11 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		{
 			activity.removeFragment(HikeConstants.IMAGE_FRAGMENT_TAG);
 		}
+		
+		if (themePicker != null && themePicker.isShowing())
+		{
+			themePicker.dismiss();
+		}
 	}
 	
 	protected void onStart()
@@ -3182,7 +3346,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	{
 		if (messages.isEmpty() || messages.get(messages.size() - 1).getTypingNotification() == null)
 		{
-			addMessage(new ConvMessage(typingNotification));
+			messageAdded(new ConvMessage(typingNotification));
 		}
 		else if (messages.get(messages.size() - 1).getTypingNotification() != null)
 		{
@@ -3224,6 +3388,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 			if (updateView)
 			{
+				MsgRelLogManager.logMsgRelEvent(msg, MsgRelEventType.SINGLE_TICK_ON_SENDER);
+				
 				uiHandler.sendEmptyMessage(NOTIFY_DATASET_CHANGED);
 			}
 		}
@@ -4339,5 +4505,189 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		{
 			mActionMode.finish();
 		}
+	}
+	
+	/**
+	 * blockOverLay flag indicates whether this is used to block a user or not. This function can also be called from in zero SMS Credits case.
+	 * 
+	 * @param label
+	 * @param formatString
+	 * @param overlayBtnText
+	 * @param str
+	 * @param drawableResId
+	 */
+
+	protected void showOverlay(String label, String formatString, String overlayBtnText, SpannableString str, int drawableResId, int viewTag)
+	{
+		Utils.hideSoftKeyboard(activity.getApplicationContext(), mComposeView);
+
+		View mOverlayLayout = activity.findViewById(R.id.overlay_layout);
+
+		if (mOverlayLayout.getVisibility() != View.VISIBLE && activity.hasWindowFocus())
+		{
+			Animation fadeIn = AnimationUtils.loadAnimation(activity, android.R.anim.fade_in);
+			mOverlayLayout.setAnimation(fadeIn);
+		}
+
+		mComposeView.setEnabled(false);
+
+		mOverlayLayout.setVisibility(View.VISIBLE);
+		mOverlayLayout.setOnClickListener(this);
+
+		TextView message = (TextView) mOverlayLayout.findViewById(R.id.overlay_message);
+		Button overlayBtn = (Button) mOverlayLayout.findViewById(R.id.overlay_button);
+		ImageView overlayImg = (ImageView) mOverlayLayout.findViewById(R.id.overlay_image);
+
+		overlayBtn.setOnClickListener(this);
+		overlayBtn.setTag(viewTag);
+
+		mComposeView.setEnabled(false);
+
+		overlayImg.setImageResource(R.drawable.ic_no);
+		overlayBtn.setText(overlayBtnText);
+
+		message.setText(str);
+	}
+
+
+	/**
+	 * Used to call {@link #showOverlay(boolean, String, String, String)} from {@link OneToOneChatThread} or {@link OneToNChatThread}
+	 * 
+	 * @param label
+	 */
+	protected void showBlockOverlay(String label)
+	{
+		/**
+		 * Making the blocked user's name as bold
+		 */
+		String formatString = activity.getString(R.string.block_overlay_message);
+		String formatted = String.format(formatString, label);
+		SpannableString str = new SpannableString(formatted);
+		int start = formatString.indexOf("%1$s");
+		str.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), start, start + label.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+		showOverlay(label, formatString, activity.getString(R.string.unblock_title), str, R.drawable.ic_no, R.string.unblock_title);
+	}
+
+	private void onOverlayLayoutClicked(int tag)
+	{
+		switch (tag)
+		{
+
+		/**
+		 * Block Case :
+		 */
+		case R.string.unblock_title:
+			HikeMessengerApp.getPubSub().publish(HikePubSub.UNBLOCK_USER, getMsisdnMainUser());
+			break;
+
+		/**
+		 * Zero SMS Credits :
+		 */
+		case R.string.invite_now:
+			Utils.logEvent(activity.getApplicationContext(), HikeConstants.LogEvent.INVITE_OVERLAY_BUTTON);
+			inviteUser();
+			hideOverlay();
+			break;
+		}
+	}
+
+	/**
+	 * Invite user
+	 */
+	private void inviteUser()
+	{
+		if (mConversation.isOnHike())
+		{
+			Toast.makeText(activity, R.string.already_hike_user, Toast.LENGTH_LONG).show();
+		}
+
+		else
+		{
+			Utils.sendInviteUtil(new ContactInfo(msisdn, msisdn, mConversation.getConversationName(), msisdn), activity.getApplicationContext(),
+					HikeConstants.SINGLE_INVITE_SMS_ALERT_CHECKED, getString(R.string.native_header), getString(R.string.native_info));
+
+		}
+	}
+	
+	private void blockUser(Object object, boolean isBlocked)
+	{
+		String mMsisdn = (String) object;
+
+		/**
+		 * Proceeding only if the blocked user's msisdn is that of the current chat thread
+		 */
+		if (mMsisdn.equals(getMsisdnMainUser()))
+		{
+			sendUIMessage(BLOCK_UNBLOCK_USER, isBlocked);
+		}
+	}
+	
+	protected void hideOverlay()
+	{
+		View mOverlayLayout = activity.findViewById(R.id.overlay_layout);
+
+		if (mOverlayLayout.getVisibility() == View.VISIBLE && activity.hasWindowFocus())
+		{
+			Animation fadeOut = AnimationUtils.loadAnimation(activity.getApplicationContext(), android.R.anim.fade_out);
+			mOverlayLayout.setAnimation(fadeOut);
+		}
+
+		mOverlayLayout.setVisibility(View.INVISIBLE);
+	}
+	
+	/**
+	 * This method is overriden by {@link OneToOneChatThread} and {@link OneToNChatThread}
+	 * 
+	 * @return
+	 */
+	protected String getBlockedUserLabel()
+	{
+		return null;
+	}
+
+	/**
+	 * This runs only on the UI Thread
+	 * 
+	 * @param isBlocked
+	 */
+	protected void blockUnBlockUser(boolean isBlocked)
+	{
+		mConversation.setBlocked(isBlocked);
+
+		if (isBlocked)
+		{
+			Utils.logEvent(activity.getApplicationContext(), HikeConstants.LogEvent.MENU_BLOCK);
+			showBlockOverlay(getBlockedUserLabel());
+			mActionBar.updateOverflowMenuItemString(R.string.block_title, activity.getString(R.string.unblock_title));
+		}
+
+		else
+		{
+			mComposeView.setEnabled(true);
+			hideOverlay();
+			mActionBar.updateOverflowMenuItemString(R.string.block_title, activity.getString(R.string.block_title));
+		}
+	}
+	
+	/**
+	 * Used for giving block and unblock user pubSubs
+	 */
+	protected void onBlockUserclicked()
+	{
+		if (mConversation.isBlocked())
+		{
+			HikeMessengerApp.getPubSub().publish(HikePubSub.UNBLOCK_USER, msisdn);
+		}
+
+		else
+		{
+			HikeMessengerApp.getPubSub().publish(HikePubSub.BLOCK_USER, msisdn);
+		}
+	}
+
+	public void scrollToEnd()
+	{
+		uiHandler.sendEmptyMessage(SCROLL_TO_END);
 	}
 }

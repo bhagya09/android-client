@@ -159,10 +159,10 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 				showCallFailedFragment(VoIPConstants.CallFailedCodes.PARTNER_ANSWER_TIMEOUT);
 				break;
 			case VoIPConstants.MSG_RECONNECTING:
-				showMessage("Reconnecting your call...");
+				updateCallStatus();
 				break;
 			case VoIPConstants.MSG_RECONNECTED:
-//				showMessage("Reconnected!");
+				updateCallStatus();
 				break;
 			case VoIPConstants.MSG_UPDATE_QUALITY:
 				CallQuality quality = voipService.getQuality();
@@ -181,9 +181,8 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 			case VoIPConstants.MSG_ALREADY_IN_CALL:
 				showCallFailedFragment(VoIPConstants.CallFailedCodes.CALLER_IN_NATIVE_CALL);
 				break;
-			case VoIPConstants.MSG_PHONE_NOT_SUPPORTED:
-				showMessage(getString(R.string.voip_phone_unsupported));
-				isCallActive = false;
+			case VoIPConstants.MSG_AUDIORECORD_FAILURE:
+				showMessage(getString(R.string.voip_mic_error));
 				break;
 			default:
 				super.handleMessage(msg);
@@ -220,6 +219,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		getSherlockActivity().startService(new Intent(getSherlockActivity(), VoIPService.class));
 		Intent intent = new Intent(getSherlockActivity(), VoIPService.class);
 		getSherlockActivity().bindService(intent, myConnection, Context.BIND_AUTO_CREATE);
+		updateCallStatus();
 		initProximitySensor();
 		super.onResume();
 	}
@@ -366,7 +366,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		
 		if (action.equals(VoIPConstants.INCOMING_NATIVE_CALL_HOLD) && voipService != null) 
 		{
-			if (VoIPService.isConnected()) 
+			if (VoIPService.getCallId() > 0) 
 			{
 				if(VoIPService.isAudioRunning())
 				{
@@ -392,7 +392,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 
 		if(voipService != null)
 		{
-			voipService.setCallStatus(null);
+			voipService.setCallStatus(VoIPConstants.CallStatus.UNINITIALIZED);
 		}
 
 		try
@@ -728,6 +728,12 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 				callDuration.setText(getString(R.string.voip_on_hold));
 				break;
 
+			case RECONNECTING:
+				callDuration.stop();
+				callDuration.startAnimation(anim);
+				callDuration.setText(getString(R.string.voip_reconnecting));
+				break;
+
 			case ENDED:
 				if(!isCallActive)
 				{
@@ -871,7 +877,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		ImageView imageView = (ImageView) getView().findViewById(R.id.profile_image);
 		int size = getResources().getDimensionPixelSize(R.dimen.timeine_big_picture_size);
 
-		ProfileImageLoader profileImageLoader = new ProfileImageLoader(getActivity(), msisdn, imageView, size);
+		ProfileImageLoader profileImageLoader = new ProfileImageLoader(getActivity(), msisdn, imageView, size, false);
 		profileImageLoader.setDefaultDrawable(getResources().getDrawable(R.drawable.ic_avatar_voip_hires));
 		boolean hasCustomImage = profileImageLoader.loadProfileImage(getLoaderManager());
 		if(!hasCustomImage)

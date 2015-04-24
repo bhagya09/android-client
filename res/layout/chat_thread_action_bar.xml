@@ -14,6 +14,7 @@
 
         <ImageView
             android:id="@id/abs__up"
+            android:contentDescription="@string/content_des_back_button_chatthread_actionbar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="left|center"
@@ -32,6 +33,7 @@
 
             <com.bsb.hike.view.RoundedImageView
                 android:id="@+id/avatar"
+                android:contentDescription="@string/content_des_round_user_image_chatthread_actionbar"
                 style="@style/AvatarStyle.Padding" />
 
             <ImageView
