@@ -938,11 +938,11 @@ public class ConversationsAdapter extends BaseAdapter
 			for (int i = 0; i < count; i++)
 			{
 				View view = listView.getChildAt(i);
-				int indexOfData = listView.getFirstVisiblePosition() + i;
+				int indexOfData = listView.getFirstVisiblePosition() + i - listView.getHeaderViewsCount();
 
-				if(indexOfData >= getCount())
+				if(indexOfData >= getCount() || indexOfData < 0)
 				{
-					return;
+					continue;
 				}
 				ViewType viewType = ViewType.values()[getItemViewType(indexOfData)];
 				/*
