@@ -22,7 +22,6 @@
         android:widgetLayout="@layout/checkbox_widget" />
 
 	<com.bsb.hike.view.IconListPreference
-        android:defaultValue="@string/led_color_white"
         android:entries="@array/ledPrefKeys"
         android:entryValues="@array/ledPrefValues"
         icon="@drawable/preference_led"

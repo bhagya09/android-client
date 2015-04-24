@@ -105,9 +105,8 @@ public class TagEditText extends EditText
 			setSelection(ssb.length());
 			if (listener != null)
 			{
-
-				listener.tagAdded(data, uniqueness);
-				listener.charResetAfterSeperator();
+     			listener.tagAdded(data, uniqueness);
+     			listener.charResetAfterSeperator();
 			}
 		}
 	}
@@ -159,17 +158,6 @@ public class TagEditText extends EditText
 		Logger.i("tagedit", "after toggle #" + getText().toString() + "#");
 	}
 	
-	public void addTag(String text, String uniqueness, Object data)
-	{
-		Logger.i("tagedit", "before toggle #" + getText().toString() + "#");
-		String newUniqueness = generateUniqueness(uniqueness);
-		if (!addedTags.containsKey(newUniqueness))
-		{
-			appendTag(text, uniqueness, data);
-		}
-		Logger.i("tagedit", "after adding #" + getText().toString() + "#");
-	}
-
 	/**
 	 * clears all text of edit text and add new tags
 	 * 

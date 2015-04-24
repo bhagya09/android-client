@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:title="@string/settings_chat">
+ 
+    <com.bsb.hike.view.IconCheckBoxPreference
+        icon="@drawable/ic_chatsettings_nudge"
+        android:defaultValue="true"
+        android:key="doubleTapPref"
+        android:layout="@layout/icon_preference"
+        android:summary="@string/nudge_setting_info"
+        android:title="@string/nudge_setting_header"
+        android:widgetLayout="@layout/checkbox_widget" />
+    
+    <com.bsb.hike.view.IconCheckBoxPreference
+        icon="@drawable/ic_chatsettings_enter"
+        android:defaultValue="false"
+        android:key="enterSendPref"
+        android:layout="@layout/icon_preference"
+        android:summary="@string/enter_setting_info"
+        android:title="@string/enter_setting_header"
+        android:widgetLayout="@layout/checkbox_widget" />
+   
+</PreferenceScreen>

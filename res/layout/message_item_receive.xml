@@ -467,6 +467,7 @@
 
 	        <ImageView
 	            android:id="@+id/typing"
+	            android:contentDescription="@string/content_des_typing_notification_chatting"
 	            android:layout_width="46dp"
 	            android:layout_height="wrap_content"
 	            android:layout_toRightOf="@+id/typing_avatar_container"

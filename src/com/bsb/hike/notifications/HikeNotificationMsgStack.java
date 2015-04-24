@@ -1,5 +1,6 @@
 package com.bsb.hike.notifications;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -7,6 +8,8 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import org.json.JSONObject;
 
 import android.app.Activity;
 import android.content.Context;
@@ -21,12 +24,18 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
+import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.NotificationPreview;
-import com.bsb.hike.ui.ChatThread;
 import com.bsb.hike.ui.HomeActivity;
-import com.bsb.hike.utils.IntentManager;
+import com.bsb.hike.utils.IntentFactory;
+import com.bsb.hike.utils.Logger;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.reflect.TypeToken;
 
 /**
  * This class is responsible for maintaining states of ConvMessages to be used for showing Android notifications.
@@ -297,7 +306,7 @@ public class HikeNotificationMsgStack implements Listener
 			else
 			{
 
-				mNotificationIntent = IntentManager.getChatThreadIntent(mContext, lastAddedMsisdn);
+				mNotificationIntent = IntentFactory.createChatThreadIntentFromMsisdn(mContext, lastAddedMsisdn, false);
 
 				/*
 				 * notifications appear to be cached, and their .equals doesn't check 'Extra's. In order to prevent the wrong intent being fired, set a data field that's unique to
@@ -456,7 +465,7 @@ public class HikeNotificationMsgStack implements Listener
 			if (object instanceof Activity)
 			{
 				Activity activity = (Activity) object;
-				if ((activity instanceof ChatThread))
+				if ((activity instanceof ChatThreadActivity))
 				{
 					HikeMessengerApp.getPubSub().publish(HikePubSub.CANCEL_ALL_NOTIFICATIONS, null);
 				}
@@ -507,6 +516,12 @@ public class HikeNotificationMsgStack implements Listener
 		mMessagesMap.clear();
 		lastAddedMsisdn = null;
 		totalNewMessages = 0;
+		mLastInsertedConvMessage = null;
+		if (mBigTextList != null)
+		{
+			mBigTextList.clear();
+		}
+		latestAddedTimestamp = 0l;
 	}
 
 	/**
@@ -608,5 +623,93 @@ public class HikeNotificationMsgStack implements Listener
 		{
 			return false;
 		}
+	}
+	
+	public String serializeObject()
+	{
+		Gson gson = new GsonBuilder().serializeNulls().create();
+		Type type = new TypeToken<LinkedHashMap<String,LinkedList<NotificationPreview>>> () {}.getType();
+		String str = gson.toJson(mMessagesMap, type);
+
+		JsonObject mmObject = new JsonObject();
+
+		mmObject.addProperty(HikeConstants.MESSAGE_MAP, str);
+		if (mLastInsertedConvMessage != null)
+		{
+			mmObject.addProperty(HikeConstants.CONV_MESSAGE, mLastInsertedConvMessage.serialize().toString());
+		}
+		if(mBigTextList!=null&&mBigTextList.size()>0)
+		{
+			str = gson.toJson(mBigTextList, ArrayList.class);
+			mmObject.addProperty(HikeConstants.BIG_TEXT_LIST, str);
+		}
+		if (!TextUtils.isEmpty(mTickerText))
+		{
+			mmObject.addProperty(HikeConstants.TICKER_TEXT, mTickerText.toString());
+		}
+		if (!TextUtils.isEmpty(lastAddedMsisdn))
+		{
+			mmObject.addProperty(HikeConstants.LAST_ADDED_MSISDN, lastAddedMsisdn);
+		}
+
+		mmObject.addProperty(HikeConstants.LAST_ADDED_TIMESTAMP, latestAddedTimestamp);
+		mmObject.addProperty(HikeConstants.TTL_NEW_MSG, totalNewMessages);
+		mmObject.addProperty(HikeConstants.FORCE_BKL_NOTIF, forceBlockNotificationSound);
+		Logger.d("NotificationSerialize", mmObject.toString());
+		return mmObject.toString();
+
+	}
+
+	public void deserializeObject(String notif)
+	{
+		if (TextUtils.isEmpty(notif))
+		{
+			return;
+		}
+		
+		try
+		{
+			Gson gson = new Gson();
+			JsonParser parser = new JsonParser();
+			JsonObject jsonObj = (JsonObject) parser.parse(notif);
+			Type type = new TypeToken<LinkedHashMap<String, LinkedList<NotificationPreview>>>()
+			{
+			}.getType();
+			mMessagesMap = (LinkedHashMap<String, LinkedList<NotificationPreview>>) gson.fromJson(jsonObj.get(HikeConstants.MESSAGE_MAP).getAsString(), type);
+
+			if (!mMessagesMap.isEmpty())
+			{
+
+				JSONObject convMessageObj;
+
+				if (jsonObj.has(HikeConstants.CONV_MESSAGE))
+				{
+
+					convMessageObj = new JSONObject(jsonObj.get(HikeConstants.CONV_MESSAGE).getAsString());
+					mLastInsertedConvMessage = new ConvMessage(convMessageObj, mContext);
+				}
+				if (jsonObj.has(HikeConstants.TICKER_TEXT))
+				{
+					mTickerText = new StringBuilder(jsonObj.get(HikeConstants.TICKER_TEXT).getAsString());
+				}
+				if (jsonObj.has(HikeConstants.LAST_ADDED_MSISDN))
+				{
+					lastAddedMsisdn = jsonObj.get(HikeConstants.LAST_ADDED_MSISDN).getAsString();
+				}
+				if (jsonObj.has(HikeConstants.BIG_TEXT_LIST))
+				{
+					mBigTextList = (ArrayList<SpannableString>) gson.fromJson(jsonObj.get(HikeConstants.BIG_TEXT_LIST).getAsString(), ArrayList.class);
+				}
+
+				latestAddedTimestamp = jsonObj.get(HikeConstants.LAST_ADDED_TIMESTAMP).getAsLong();
+				totalNewMessages = jsonObj.get(HikeConstants.TTL_NEW_MSG).getAsInt();
+				forceBlockNotificationSound = jsonObj.get(HikeConstants.FORCE_BKL_NOTIF).getAsBoolean();
+			}
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+		Logger.d("NotificationSerialize", mMessagesMap + ""+"<<<<<<"+mBigTextList);
 	}
 }

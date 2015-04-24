@@ -4,7 +4,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/transparent_black"
-    android:onClick="onOverlayButtonClick"
     android:visibility="gone" >
 
     <com.bsb.hike.view.CustomFontTextView
@@ -37,7 +36,6 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="25dp"
         android:background="@drawable/bg_blue_btn_selector"
-        android:onClick="onOverlayButtonClick"
         android:paddingLeft="16dp"
         android:paddingRight="16dp"
         android:shadowColor="#000000"
