@@ -2822,20 +2822,20 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 				@Override
 				public void run()
 				{
-					View parentView = getParenViewForConversation(convInfo);
-					if (parentView == null)
-					{
-						notifyDataSetChanged();
-						return;
-					}
-
 					if (convInfo instanceof OneToNConvInfo)
 					{
 						convInfo.setMute(isMuted);
 					}
 					else if (Utils.isBot(convInfo.getMsisdn()))
 					{
-						convInfo.setMute(true);
+						convInfo.setMute(isMuted);
+					}
+					
+					View parentView = getParenViewForConversation(convInfo);
+					if (parentView == null)
+					{
+						notifyDataSetChanged();
+						return;
 					}
 
 					notifyDataSetChanged();
