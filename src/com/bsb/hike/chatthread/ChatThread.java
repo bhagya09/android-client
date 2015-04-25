@@ -3248,6 +3248,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	 * 2. Dismiss stickers and emoticon pallete 
 	 * 3. If actionMode is on, dismiss it
 	 * 4. If photoViewer fragment was attached, remove it
+	 * 5. If overflow menu is open then close it
 	 */
 	protected void onPreNewIntent()
 	{
@@ -3271,6 +3272,11 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		if (themePicker != null && themePicker.isShowing())
 		{
 			themePicker.dismiss();
+		}
+		
+		if (mActionBar != null && mActionBar.isOverflowMenuShowing())
+		{
+			mActionBar.dismissOverflowMenu();
 		}
 	}
 	
