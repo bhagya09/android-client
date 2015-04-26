@@ -57,7 +57,6 @@ import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeConstants.ImageQuality;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
@@ -646,7 +645,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	
 	private void setupContactProfileScreen()
 	{
-		this.mLocalMSISDN = getIntent().getStringExtra(HikeConstants.Extras.CONTACT_INFO);
+		setLocalMsisdn(getIntent().getStringExtra(HikeConstants.Extras.CONTACT_INFO));
 		contactInfo = ContactManager.getInstance().getContact(mLocalMSISDN, true, true);
 		sharedMediaCount = HikeConversationsDatabase.getInstance().getSharedMediaCount(mLocalMSISDN, true);
 		sharedPinCount = 0;  //Add a query here to get shared groups count. sharedPincount is to be treated as shared group count here.
@@ -670,7 +669,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	
 	private void setupContactTimelineScreen()
 	{
-		this.mLocalMSISDN = getIntent().getStringExtra(HikeConstants.Extras.CONTACT_INFO_TIMELINE);
+		setLocalMsisdn(getIntent().getStringExtra(HikeConstants.Extras.CONTACT_INFO_TIMELINE));
 		contactInfo = ContactManager.getInstance().getContact(mLocalMSISDN, true, true);
 		if(!contactInfo.isOnhike())
 		{
@@ -1025,14 +1024,14 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 
 		if (this.profileType == ProfileType.BROADCAST_INFO)
 		{
-			this.mLocalMSISDN = getIntent().getStringExtra(HikeConstants.Extras.EXISTING_BROADCAST_LIST);
+			setLocalMsisdn(getIntent().getStringExtra(HikeConstants.Extras.EXISTING_BROADCAST_LIST));
 			oneToNConversation = (BroadcastConversation) hCDB.getConversation(mLocalMSISDN, 0, true);
 			sharedMediaCount = hCDB.getSharedMediaCount(mLocalMSISDN,true);
 			sharedPinCount = 0;
 		}
 		else if (this.profileType == ProfileType.GROUP_INFO)
 		{
-			this.mLocalMSISDN = getIntent().getStringExtra(HikeConstants.Extras.EXISTING_GROUP_CHAT);
+			setLocalMsisdn(getIntent().getStringExtra(HikeConstants.Extras.EXISTING_GROUP_CHAT));
 			oneToNConversation = (GroupConversation) hCDB.getConversation(mLocalMSISDN, 0, true);
 			sharedMediaCount = hCDB.getSharedMediaCount(mLocalMSISDN,true);
 			sharedPinCount = hCDB.getPinCount(mLocalMSISDN);
@@ -1189,7 +1188,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		{			
 			@Override
 			public void onClick(View v)
-			{
+			{				
 				showProfileImageEditDialog(ProfileActivity.this, ProfileActivity.this, mLocalMSISDN, ProfileImageActions.DP_EDIT_FROM_PROFILE_OVERFLOW_MENU);
 				
 				JSONObject md = new JSONObject();
@@ -1396,7 +1395,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	private void fetchPersistentData()
 	{
 		nameTxt = preferences.getString(HikeMessengerApp.NAME, "Set a name!");
-		mLocalMSISDN = preferences.getString(HikeMessengerApp.MSISDN_SETTING, null);
+		setLocalMsisdn(preferences.getString(HikeMessengerApp.MSISDN_SETTING, null));
 		emailTxt = preferences.getString(HikeConstants.Extras.EMAIL, "");
 		lastSavedGender = preferences.getInt(HikeConstants.Extras.GENDER, 0);
 		mActivityState.genderType = mActivityState.genderType == 0 ? lastSavedGender : mActivityState.genderType;
@@ -3059,5 +3058,14 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
 		fragmentTransaction.add(R.id.parent_layout, imageViewerFragment, HikeConstants.IMAGE_FRAGMENT_TAG);
 		fragmentTransaction.commitAllowingStateLoss();
+	}
+	
+	/**
+	 * Sets the local msisdn for the profile
+	 */
+	public void setLocalMsisdn(String msisdn)
+	{
+		this.mLocalMSISDN = msisdn;
+		super.setLocalMsisdn(mLocalMSISDN);
 	}
 }

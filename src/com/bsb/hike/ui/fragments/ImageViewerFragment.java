@@ -20,16 +20,6 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
 import com.bsb.hike.models.ContactInfo;
-import com.bsb.hike.modules.contactmgr.ContactManager;
-import com.bsb.hike.smartImageLoader.IconLoader;
-import com.bsb.hike.tasks.ProfileImageDownloader;
-import com.bsb.hike.ui.ProfileActivity;
-import com.bsb.hike.ui.SettingsActivity;
-import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.ProfileImageLoader;
-import com.bsb.hike.utils.Utils;
-
-
 import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.ui.SettingsActivity;
 import com.bsb.hike.utils.ProfileImageLoader;
@@ -104,7 +94,7 @@ public class ImageViewerFragment extends SherlockFragment implements OnClickList
 		isStatusImage = getArguments().getBoolean(HikeConstants.Extras.IS_STATUS_IMAGE);
 
 		imageSize = this.getActivity().getResources().getDimensionPixelSize(R.dimen.timeine_big_picture_size);
-		
+						
 		showImage();
 	}
 
@@ -194,18 +184,20 @@ public class ImageViewerFragment extends SherlockFragment implements OnClickList
 		else if(activity instanceof ProfileActivity)
 		{
 			whichActivity = FROM_PROFILE_ACTIVITY;
-		}
-		
+		}					
+
+		isViewEditable = getArguments().getBoolean(HikeConstants.CAN_EDIT_DP);
+
 		if(isViewEditable)
 		{
 			// activity should implement DisplayPictureEditListener interface
 			try 
 			{
-	            mProfilePhotoEditListener = (DisplayPictureEditListener) activity;            
+	            mProfilePhotoEditListener = (DisplayPictureEditListener) getActivity();            
 	        }
 			catch (ClassCastException e) 
 			{
-	            throw new ClassCastException(activity.toString() + " must implement DisplayPictureEditListener");
+	            throw new ClassCastException(getActivity().toString() + " must implement DisplayPictureEditListener");
 	        }
 		}
 	}

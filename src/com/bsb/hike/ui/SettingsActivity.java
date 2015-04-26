@@ -231,7 +231,7 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 		nameView = (TextView) header.findViewById(R.id.name);
 		statusView = (TextView) header.findViewById(R.id.subtext);
 		contactInfo = Utils.getUserContactInfo(getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE));
-		msisdn = contactInfo.getMsisdn();
+		setLocalMsisdn(contactInfo.getMsisdn());
 
 		String infoSubText = getString(Utils.isLastSeenSetToFavorite() ? R.string.both_ls_status_update : R.string.status_updates_proper_casing);
 		((TextView) header.findViewById(R.id.update_text)).setText(getString(R.string.add_fav_msg, infoSubText));
@@ -553,5 +553,14 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 		FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
 		fragmentTransaction.add(R.id.parent_layout, imageViewerFragment, HikeConstants.IMAGE_FRAGMENT_TAG);
 		fragmentTransaction.commitAllowingStateLoss();
+	}
+
+	/**
+	 * Sets the local msisdn of the profile
+	 */
+	protected void setLocalMsisdn(String msisdn)
+	{
+		this.msisdn = msisdn;
+		super.setLocalMsisdn(this.msisdn);			
 	}
 }
