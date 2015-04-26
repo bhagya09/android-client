@@ -770,8 +770,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			break;
 		case R.string.search:
 			id = item.id;
-			recordSearchOptionClick();
-			setupSearchMode();
+			//recordSearchOptionClick();
+			//setupSearchMode();
 			break;
 		default:
 			break;
@@ -2653,7 +2653,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	
 	private void showOverflowIndicatorIfRequired(int firstVisibleItem, int visibleItemCount, int totalItemCount)
 	{
-		showOverflowSearchIndicatorIfRequired(firstVisibleItem, visibleItemCount, totalItemCount);
+		//showOverflowSearchIndicatorIfRequired(firstVisibleItem, visibleItemCount, totalItemCount);
 	}
 
 	private void showOverflowSearchIndicatorIfRequired(int firstVisibleItem, int visibleItemCount, int totalItemCount)
