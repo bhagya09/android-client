@@ -141,6 +141,12 @@ public class BroadcastChatThread extends OneToNChatThread
 		{
 			oneToNConversation.setupReadByList(null, convMessage.getMsgID());
 		}
+		
+		/**
+		 * Adding message to the adapter
+		 */
+		addMessage(convMessage);
+
 		super.messageAdded(convMessage);
 	}
 	
