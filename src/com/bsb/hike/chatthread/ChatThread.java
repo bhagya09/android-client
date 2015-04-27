@@ -406,7 +406,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			mConversationsView.setSelection(messages.size() - 1);
 			break;
 		case SCROLL_TO_POSITION:
-			mConversationsView.setSelection((int)msg.obj);
+			scrollToPosition((int)msg.obj);
 			break;
 		case STICKER_FTUE_TIP:
 			mTips.showStickerFtueTip();
@@ -674,7 +674,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			{
 			case R.string.search:
 				overFlowMenuItem.enabled = !isMessageListEmpty && !mConversation.isBlocked();
-				if (!sharedPreference.getData(HikeMessengerApp.CT_SEARCH_CLICKED, false) && !isMessageListEmpty)
+				if (!sharedPreference.getData(HikeMessengerApp.CT_SEARCH_CLICKED, false) && overFlowMenuItem.enabled)
 				{
 					overFlowMenuItem.drawableId = R.drawable.ic_top_bar_indicator_search;
 				}
@@ -770,8 +770,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			break;
 		case R.string.search:
 			id = item.id;
-			recordSearchOptionClick();
-			setupSearchMode();
+			//recordSearchOptionClick();
+			//setupSearchMode();
 			break;
 		default:
 			break;
@@ -2653,7 +2653,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	
 	private void showOverflowIndicatorIfRequired(int firstVisibleItem, int visibleItemCount, int totalItemCount)
 	{
-		showOverflowSearchIndicatorIfRequired(firstVisibleItem, visibleItemCount, totalItemCount);
+		//showOverflowSearchIndicatorIfRequired(firstVisibleItem, visibleItemCount, totalItemCount);
 	}
 
 	private void showOverflowSearchIndicatorIfRequired(int firstVisibleItem, int visibleItemCount, int totalItemCount)
@@ -4734,5 +4734,29 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	public void scrollToEnd()
 	{
 		uiHandler.sendEmptyMessage(SCROLL_TO_END);
+	}
+	
+	private void scrollToPosition(int position)
+	{
+		int LAST_FEW_MESSAGES = 4;
+		// SetSelection doesnt work for last few items.
+		// We need to enable TRANSCRIPT_MODE_ALWAYS_SCROLL in such cases.
+		if (position >= (messages.size() - 1) - LAST_FEW_MESSAGES)
+		{
+			/**
+			 * Scrolling to bottom.
+			 */
+			mConversationsView.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
+			mConversationsView.setSelection(position);
+
+			/*
+			 * Resetting the transcript mode once the list has scrolled to the bottom.
+			 */
+			uiHandler.sendEmptyMessage(DISABLE_TRANSCRIPT_MODE);
+		}
+		else
+		{
+			mConversationsView.setSelection(position);
+		}
 	}
 }
