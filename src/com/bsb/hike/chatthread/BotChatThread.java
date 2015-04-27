@@ -3,6 +3,9 @@ package com.bsb.hike.chatthread;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.bots.MessagingBotConfiguration;
+import com.bsb.hike.utils.Utils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -31,6 +34,7 @@ public class BotChatThread extends OneToOneChatThread
 {
 
 	private static final String TAG = "BotChatThread";
+	private MessagingBotConfiguration configuration;
 
 	/**
 	 * @param activity
@@ -45,6 +49,13 @@ public class BotChatThread extends OneToOneChatThread
 	protected Conversation fetchConversation()
 	{
 		super.fetchConversation();
+		BotInfo botInfo = Utils.getBotInfoForBotMsisdn(msisdn);
+
+		configuration = new MessagingBotConfiguration(botInfo.getConfiguration(), botInfo.isReceiveEnabled());
+		mConversation = new BotConversation.ConversationBuilder(msisdn)
+				.setBotInfo(botInfo)
+				.build();
+
 		mConversation.setIsMute(HikeConversationsDatabase.getInstance().isBotMuted(msisdn));
 		return mConversation;
 	}

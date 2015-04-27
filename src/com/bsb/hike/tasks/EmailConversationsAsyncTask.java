@@ -18,9 +18,11 @@ import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
+import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.Conversation.BotConversation;
 import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
@@ -81,8 +83,15 @@ public class EmailConversationsAsyncTask extends AsyncTask<ConvInfo, Void, Conve
 					conv = new BroadcastConversation.ConversationBuilder(msisdn).setConvName((contactInfo != null) ? contactInfo.getName() : null).build();
 				}
 				
+				else if (Utils.isBot(msisdn))
+				{
+					BotInfo botInfo= Utils.getBotInfoForBotMsisdn(msisdn);
+					conv = new BotConversation.ConversationBuilder(msisdn).setBotInfo(botInfo).build();
+				}
 				else
+				{
 					conv = new OneToOneConversation.ConversationBuilder(msisdn).setConvName((contactInfo != null) ? contactInfo.getName() : null).build();
+				}
 				
 				conv.setMessages(HikeConversationsDatabase.getInstance().getConversationThread(msisdn, -1, conv, -1));
 			}

@@ -14,6 +14,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.cropimage.Util;
+import com.bsb.hike.models.Conversation.BotConversation;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -2258,6 +2260,11 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 					((OneToNConversation) conv).setConversationParticipantList(ContactManager.getInstance().getGroupParticipants(msisdn, false, false));
 				}
 				
+				else if (Utils.isBot(msisdn))
+				{
+					BotInfo botInfo = Utils.getBotInfoForBotMsisdn(msisdn);
+					conv = new BotConversation.ConversationBuilder(msisdn).setBotInfo(botInfo).build();
+				}
 				else
 				{
 					conv = new OneToOneConversation.ConversationBuilder(msisdn).setConvName((contactInfo != null) ? contactInfo.getName() : null).setIsOnHike(onhike).build();
@@ -2418,19 +2425,19 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			 */
 			else
 			{
-				String name;
-				if (HikeMessengerApp.hikeBotNamesMap.containsKey(msisdn))
+				if (Utils.isBot(msisdn))
 				{
-					name = HikeMessengerApp.hikeBotNamesMap.get(msisdn).getConversationName();
-					onhike = true;
+					BotInfo botInfo= Utils.getBotInfoForBotMsisdn(msisdn);
+					conv = new BotConversation.ConversationBuilder(msisdn).setBotInfo(botInfo).build();
 				}
 				else
 				{
 					ContactInfo contactInfo = ContactManager.getInstance().getContact(msisdn, false, true, false);
-					name = contactInfo.getName();
+					String name = contactInfo.getName();
 					onhike |= contactInfo.isOnhike();
+					conv = new OneToOneConversation.ConversationBuilder(msisdn).setConvName(name).setIsOnHike(onhike).setIsStealth(isStealth).build();
 				}
-				conv = new OneToOneConversation.ConversationBuilder(msisdn).setConvName(name).setIsOnHike(onhike).setIsStealth(isStealth).build();
+
 
 			}
 			if (getMetadata)
@@ -2554,6 +2561,11 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				conv = getBroadcastConversation(msisdn);
 			}
 			
+			else if (Utils.isBot(msisdn))
+			{
+				BotInfo botInfo= Utils.getBotInfoForBotMsisdn(msisdn);
+				conv = new BotConversation.ConversationBuilder(msisdn).setBotInfo(botInfo).build();
+			}
 			else
 			{
 				ContactInfo contactInfo = ContactManager.getInstance().getContact(msisdn, false, true);
