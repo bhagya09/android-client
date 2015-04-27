@@ -1,5 +1,6 @@
 package com.bsb.hike.BitmapModule;
 
+import java.io.IOException;
 import java.io.InputStream;
 
 import android.annotation.TargetApi;
@@ -17,6 +18,7 @@ import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
+import android.media.ExifInterface;
 import android.os.Build;
 import android.text.TextUtils;
 import android.util.Base64;
@@ -26,6 +28,8 @@ import android.view.View.MeasureSpec;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
+import com.bsb.hike.models.HikeHandlerUtil;
+import com.bsb.hike.photos.HikePhotosListener;
 import com.bsb.hike.smartcache.HikeLruCache;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
@@ -35,6 +39,8 @@ public class HikeBitmapFactory
 {
 	private static final String TAG = "HikeBitmapFactory";
 
+	public static final int DEFAULT_BITMAP_COMPRESSION = 75;
+	
 	public static Bitmap getCircularBitmap(Bitmap bitmap)
 	{
 		if (bitmap == null)
@@ -152,27 +158,68 @@ public class HikeBitmapFactory
 		drawable.draw(canvas);
 		return bitmap;
 	}
-	
-	public static Bitmap drawableToBitmap(Drawable drawable) {
-        if (drawable instanceof BitmapDrawable) {
-            return ((BitmapDrawable) drawable).getBitmap();
-        }
 
-        Bitmap bitmap;
-        int width = Math.max(drawable.getIntrinsicWidth(), 2);
-        int height = Math.max(drawable.getIntrinsicHeight(), 2);
-        try {
-            bitmap = Bitmap.createBitmap(width, height, Config.ARGB_8888);
-            Canvas canvas = new Canvas(bitmap);
-            drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
-            drawable.draw(canvas);
-        } catch (Exception e) {
-            e.printStackTrace();
-            bitmap = null;
-        }
+	public static Bitmap drawableToBitmap(Drawable drawable)
+	{
+		if (drawable instanceof BitmapDrawable)
+		{
+			return ((BitmapDrawable) drawable).getBitmap();
+		}
 
-        return bitmap;
-    }
+		Bitmap bitmap;
+		int width = Math.max(drawable.getIntrinsicWidth(), 2);
+		int height = Math.max(drawable.getIntrinsicHeight(), 2);
+		try
+		{
+			bitmap = Bitmap.createBitmap(width, height, Config.ARGB_8888);
+			Canvas canvas = new Canvas(bitmap);
+			drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+			drawable.draw(canvas);
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+			bitmap = null;
+		}
+
+		return bitmap;
+	}
+
+	public static void correctBitmapRotation(final String srcFilePath, final HikePhotosListener mListener)
+	{
+		HikeHandlerUtil.getInstance().postRunnableWithDelay(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				Bitmap bmp = HikeBitmapFactory.decodeFile(srcFilePath);
+				try
+				{
+					ExifInterface ei = new ExifInterface(srcFilePath);
+					int orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+					Logger.d(TAG, "Orientation: " + orientation);
+					switch (orientation)
+					{
+					case ExifInterface.ORIENTATION_ROTATE_90:
+						bmp = HikeBitmapFactory.rotateBitmap(bmp, 90);
+						break;
+					case ExifInterface.ORIENTATION_ROTATE_180:
+						bmp = HikeBitmapFactory.rotateBitmap(bmp, 180);
+						break;
+					case ExifInterface.ORIENTATION_ROTATE_270:
+						bmp = HikeBitmapFactory.rotateBitmap(bmp, 270);
+						break;
+					}
+				}
+				catch (IOException ioe)
+				{
+					ioe.printStackTrace();
+					mListener.onFailure();
+				}
+				mListener.onComplete(bmp);
+			}
+		}, 0);
+	}
 
 	public static Bitmap rotateBitmap(Bitmap b, int degrees)
 	{

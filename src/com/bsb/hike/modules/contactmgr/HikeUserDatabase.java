@@ -53,10 +53,35 @@ class HikeUserDatabase extends SQLiteOpenHelper
 {
 	private SQLiteDatabase mDb;
 
+	private static volatile HikeUserDatabase hikeUserDatabase;
+	
 	private SQLiteDatabase mReadDb;
 
 	private Context mContext;
-
+	
+	private HikeUserDatabase(Context context)
+	{
+		super(context, DBConstants.USERS_DATABASE_NAME, null, DBConstants.USERS_DATABASE_VERSION);
+		this.mContext = context;
+		mDb = getWritableDatabase();
+		mReadDb = getReadableDatabase();
+	}
+	
+	public static HikeUserDatabase getInstance()
+	{
+		if (hikeUserDatabase == null)
+		{
+			synchronized (HikeUserDatabase.class)
+			{
+				if (hikeUserDatabase == null)
+				{
+					hikeUserDatabase = new HikeUserDatabase(HikeMessengerApp.getInstance().getApplicationContext());
+				}
+			}
+		}
+		return hikeUserDatabase;
+	}
+	
 	@Override
 	public void onCreate(SQLiteDatabase db)
 	{
@@ -97,14 +122,6 @@ class HikeUserDatabase extends SQLiteOpenHelper
 
 		create = "CREATE INDEX IF NOT EXISTS " + DBConstants.FAVORITE_INDEX + " ON " + DBConstants.FAVORITES_TABLE + " (" + DBConstants.MSISDN + ")";
 		db.execSQL(create);
-	}
-
-	HikeUserDatabase(Context context)
-	{
-		super(context, DBConstants.USERS_DATABASE_NAME, null, DBConstants.USERS_DATABASE_VERSION);
-		this.mContext = context;
-		mDb = getWritableDatabase();
-		mReadDb = getReadableDatabase();
 	}
 
 	@Override
@@ -2071,7 +2088,7 @@ class HikeUserDatabase extends SQLiteOpenHelper
 		Logger.d("getFTUEContacts", "recommendedContactsSelection = " + recommendedContactsSelection);
 		if (null != recommendedContactsSelection && !recommendedContactsSelection.isEmpty())
 		{
-			List<ContactInfo> recommendedContacts = getDuplicateContactsForFtue(HikeMessengerApp.getContactManager().getHikeContacts(limit * 2, recommendedContactsSelection, null,
+			List<ContactInfo> recommendedContacts = getDuplicateContactsForFtue(ContactManager.getInstance().getHikeContacts(limit * 2, recommendedContactsSelection, null,
 					myMsisdn));
 			if (recommendedContacts.size() >= limit)
 			{
@@ -2092,7 +2109,7 @@ class HikeUserDatabase extends SQLiteOpenHelper
 		 */
 		if (limit > 0)
 		{
-			List<ContactInfo> friendList = getDuplicateContactsForFtue(HikeMessengerApp.getContactManager().getContactsOfFavoriteType(FavoriteType.FRIEND,
+			List<ContactInfo> friendList = getDuplicateContactsForFtue(ContactManager.getInstance().getContactsOfFavoriteType(FavoriteType.FRIEND,
 					HikeConstants.ON_HIKE_VALUE, myMsisdn, false, true));
 			for (ContactInfo contactInfo : friendList)
 			{
@@ -2122,7 +2139,7 @@ class HikeUserDatabase extends SQLiteOpenHelper
 		if (limit > 0)
 		{
 			Set<String> currentSelection = getQueryableNumbersString(ftueContactsData.getHikeContacts());
-			List<ContactInfo> hikeContacts = getDuplicateContactsForFtue(HikeMessengerApp.getContactManager().getHikeContacts(limit * 2, null, currentSelection, myMsisdn));
+			List<ContactInfo> hikeContacts = getDuplicateContactsForFtue(ContactManager.getInstance().getHikeContacts(limit * 2, null, currentSelection, myMsisdn));
 			if (hikeContacts.size() >= limit)
 			{
 				ftueContactsData.getHikeContacts().addAll(hikeContacts.subList(0, limit));
@@ -2147,7 +2164,7 @@ class HikeUserDatabase extends SQLiteOpenHelper
 		 */
 		if (limit > 0)
 		{
-			List<ContactInfo> nonHikeContacts = getDuplicateContactsForFtue(HikeMessengerApp.getContactManager().getNonHikeMostContactedContacts(limit * 4));
+			List<ContactInfo> nonHikeContacts = getDuplicateContactsForFtue(ContactManager.getInstance().getNonHikeMostContactedContacts(limit * 4));
 			ftueContactsData.setTotalSmsContactsCount(getNonHikeContactsCount());
 
 			if (nonHikeContacts.size() >= limit)

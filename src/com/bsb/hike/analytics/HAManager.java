@@ -13,6 +13,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -462,13 +463,13 @@ public class HAManager
 	{		
 		JSONObject json = new JSONObject();
 		JSONObject data = new JSONObject();
-		
 		try 
 		{
 			data.put(AnalyticsConstants.EVENT_TYPE, type);				
 			data.put(AnalyticsConstants.EVENT_SUB_TYPE, eventContext);
 			data.put(AnalyticsConstants.EVENT_PRIORITY, priority);
-			data.put(AnalyticsConstants.CURRENT_TIME_STAMP, System.currentTimeMillis());
+			long ts = Utils.applyOffsetToMakeTimeServerSync(context, System.currentTimeMillis());
+			data.put(AnalyticsConstants.CURRENT_TIME_STAMP, ts);
 			data.put(AnalyticsConstants.EVENT_TAG, tagValue);
 
 			if(metadata == null)
