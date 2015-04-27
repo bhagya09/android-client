@@ -342,8 +342,10 @@ public class BotChatThread extends OneToOneChatThread
 	@Override
 	protected void addUnkownContactBlockHeader()
 	{
-		//Do Nothing
-		return;
+		if (configuration.isAddBlockStripEnabled())
+		{
+			super.addUnkownContactBlockHeader();
+		}
 	}
 	
 	@Override
