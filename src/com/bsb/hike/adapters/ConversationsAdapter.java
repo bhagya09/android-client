@@ -28,6 +28,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.BaseAdapter;
 import android.widget.Filter;
+import android.widget.Filter.FilterListener;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -317,14 +318,26 @@ public class ConversationsAdapter extends BaseAdapter
 		return convInfo;
 	}
 
-	public void onQueryChanged(String s)
+	public void onQueryChanged(String s, FilterListener filterListener)
 	{
 		if (s == null)
 		{
 			s = "";
 		}
 		refinedSearchText = s.toLowerCase();
-		contactFilter.filter(refinedSearchText);
+		if(filterListener!=null)
+		{
+			contactFilter.filter(refinedSearchText, filterListener);
+		}
+		else
+		{
+			contactFilter.filter(refinedSearchText);
+		}
+	}
+	
+	public void onQueryChanged(String s)
+	{
+		onQueryChanged(s, null);
 	}
 
 	private class ContactFilter extends Filter
