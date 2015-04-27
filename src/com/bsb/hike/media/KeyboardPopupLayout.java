@@ -70,8 +70,9 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 
 	public boolean showKeyboardPopup(View view)
 	{
-		if (mainView.getWindowToken() == null)
+		if (mainView == null || mainView.getWindowToken() == null)
 		{
+			//Add Analytics Logs
 			Logger.wtf("chatthread", "window token is null or view itself is null! Cannot show sticker/emoticons. Eating this exception");
 			return false;
 		}

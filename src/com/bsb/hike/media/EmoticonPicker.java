@@ -245,6 +245,15 @@ public class EmoticonPicker implements ShareablePopup, EmoticonPickerListener, O
 		
 		if (mViewToDisplay == null)
 		{
+			/**
+			 * Defensive null check
+			 */
+			if (mContext == null)
+			{
+				//Add Analytics Logs
+				return null;
+			}
+			
 			initView();
 		}
 		return mViewToDisplay;

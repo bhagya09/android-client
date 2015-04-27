@@ -226,6 +226,15 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 		
 		if (viewToDisplay == null)
 		{
+			/**
+			 * Defensive null check
+			 */
+			if (mContext == null)
+			{
+				// Add Analytics Logs
+				return null;
+			}
+				
 			initView();
 		}
 		

@@ -992,10 +992,14 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		{
 			activity.showProductPopup(ProductPopupsConstants.PopupTriggerPoints.STKBUT_BUT.ordinal());
 		}
-		else
+		
+		else 
 		{
-			setStickerButtonSelected(false);
-			Toast.makeText(activity.getApplicationContext(), R.string.some_error, Toast.LENGTH_SHORT).show();	
+			if (!retryToInflateStickers())
+			{
+				setStickerButtonSelected(false);
+				Toast.makeText(activity.getApplicationContext(), R.string.some_error, Toast.LENGTH_SHORT).show();
+			}
 		}
 	}
 	
@@ -1032,9 +1036,32 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	{
 		if (!mShareablePopupLayout.togglePopup(mEmoticonPicker, activity.getResources().getConfiguration().orientation))
 		{
-			setEmoticonButtonSelected(false);
-			Toast.makeText(activity.getApplicationContext(), R.string.some_error, Toast.LENGTH_SHORT).show();
+			if (!retryToInflateEmoticons())
+			{
+				setEmoticonButtonSelected(false);
+				Toast.makeText(activity.getApplicationContext(), R.string.some_error, Toast.LENGTH_SHORT).show();
+			}
 		}
+	}
+
+	/**
+	 * Got a failure while opening emoticon pallete possibly due to null context, mainView is null or mainView.getWindowToken() is null (very rare scenarios though)
+	 * @return
+	 */
+	private boolean retryToInflateEmoticons()
+	{
+		//TODO Add analytics
+		mShareablePopupLayout = null;
+		initShareablePopup();
+		return mShareablePopupLayout.togglePopup(mEmoticonPicker, activity.getResources().getConfiguration().orientation);
+	}
+	
+	private boolean retryToInflateStickers()
+	{
+		//TODO Add analytics
+		mShareablePopupLayout = null;
+		initShareablePopup();
+		return mShareablePopupLayout.togglePopup(mStickerPicker, activity.getResources().getConfiguration().orientation);
 	}
 
 	protected void setUpThemePicker()
