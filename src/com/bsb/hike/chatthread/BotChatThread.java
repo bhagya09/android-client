@@ -150,14 +150,41 @@ public class BotChatThread extends OneToOneChatThread
 	{
 		Logger.i(TAG, "on create options menu " + menu.hashCode());
 
-		if (mConversation != null)
+		if (mConversation == null)
 		{
-			mActionBar.onCreateOptionsMenu(menu, R.menu.one_one_chat_thread_menu, getOverFlowItems(), this, this);
+			return false;
+		}
+
+		mActionBar.onCreateOptionsMenu(menu, R.menu.one_one_chat_thread_menu, getOverFlowItems(), this, this);
+		if (configuration.isOverflowMenuEnabled())
+		{
+			menu.findItem(R.id.overflow_menu).setVisible(true);
 			menu.findItem(R.id.overflow_menu).getActionView().setOnClickListener(this);
 			mActionBar.setOverflowViewListener(this);
 		}
+		else
+		{
+			menu.findItem(R.id.overflow_menu).setVisible(false);
+		}
 
-		return false;
+		if (configuration.isCallEnabled())
+		{
+			menu.findItem(R.id.voip_call).setVisible(true);
+		}
+		else
+		{
+			menu.findItem(R.id.voip_call).setVisible(false);
+		}
+
+		if (configuration.isAttachmentPickerEnabled())
+		{
+			menu.findItem(R.id.attachment).setVisible(true);
+		}
+		else
+		{
+			menu.findItem(R.id.attachment).setVisible(false);
+		}
+		return true;
 	}
 
 	/**
