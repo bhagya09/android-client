@@ -5121,6 +5121,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				int botTypeIdx = c.getColumnIndex(DBConstants.BOT_TYPE);
 				int metadataIdx = c.getColumnIndex(DBConstants.CONVERSATION_METADATA);
 				int muteIdx = c.getColumnIndex(DBConstants.IS_MUTE);
+				int isReceiveEnabledIdx = c.getColumnIndex(DBConstants.IS_RECEIVE_ENABLED);
 
 				String msisdn = c.getString(msisdnIdx);
 				String name = c.getString(nameIdx);
@@ -5128,6 +5129,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				int botType = c.getInt(botTypeIdx);
 				String metadata = c.getString(metadataIdx);
 				int mute = c.getInt(muteIdx);
+				int isReceiveEnabled = c.getInt(isReceiveEnabledIdx);
 
 
 				BotInfo botInfo = new BotInfo.HikeBotBuilder(msisdn)
@@ -5136,6 +5138,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 						.setType(botType)
 						.setMetadata(metadata)
 						.setIsMute(mute == 1)
+						.setIsReceiveEnabled(isReceiveEnabled == 1)
 						.build();
 
 				hikeBotNamesMap.put(msisdn, botInfo);
