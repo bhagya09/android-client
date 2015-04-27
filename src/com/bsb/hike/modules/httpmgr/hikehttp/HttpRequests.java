@@ -296,7 +296,7 @@ public class HttpRequests
 
 				if (hasCustomIcon)
 				{
-					urlString = (isGroupConversation ? getGroupBaseUrl() + "/" + id + "/avatar" : getAvatarBaseUrl() + "/" + id)  + "?fullsize=1";
+					urlString = (isGroupConversation ? getGroupBaseUrl() + id + "/avatar" : getAvatarBaseUrl() + "/" + id) + "?fullsize=1";
 				}
 				else
 				{
