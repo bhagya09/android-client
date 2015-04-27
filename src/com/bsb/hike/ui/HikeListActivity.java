@@ -462,7 +462,7 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 		case BLOCK:
 			return ContactManager.getInstance().getBlockedUserList();
 		case INVITE:
-			return HikeMessengerApp.getContactManager().getNonHikeContacts();
+			return ContactManager.getInstance().getNonHikeContacts();
 		}
 		return null;
 	}
@@ -625,7 +625,7 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 	private void getRecommendedInvitesList(List<Pair<AtomicBoolean, ContactInfo>> contactList, List<Pair<AtomicBoolean, ContactInfo>> firstSectionList)
 	{
 		int limit = 6;
-		List<ContactInfo> recommendedContactList = HikeMessengerApp.getContactManager().getNonHikeMostContactedContacts(20);
+		List<ContactInfo> recommendedContactList = ContactManager.getInstance().getNonHikeMostContactedContacts(20);
 		if (recommendedContactList.size() >= limit)
 		{
 			recommendedContactList = recommendedContactList.subList(0, limit);

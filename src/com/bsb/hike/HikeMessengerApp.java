@@ -49,6 +49,7 @@ import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.HttpManager;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
+import com.bsb.hike.notifications.HikeNotificationMsgStack;
 import com.bsb.hike.notifications.HikeNotificationUtils;
 import com.bsb.hike.notifications.ToastListener;
 import com.bsb.hike.platform.HikePlatformConstants;
@@ -175,6 +176,8 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	public static final String COUNTRY_CODE = "countryCode";
 
 	public static final String FILE_PATH = "filePath";
+	
+	public static final String FILE_PATHS = "multi_filepaths";
 
 	public static final String TEMP_NAME = "tempName";
 
@@ -273,6 +276,8 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	public static final String SHOWN_SMS_SYNC_POPUP = "shownSMSSyncPopup";
 
 	public static final String SERVER_TIME_OFFSET = "serverTimeOffset";
+	
+	public static final String SERVER_TIME_OFFSET_MSEC = "serverTimeOffsetInMsec";
 
 	public static final String SHOWN_EMOTICON_TIP = "shownEmoticonTip1";
 	
@@ -647,7 +652,6 @@ public void onTrimMemory(int level)
 }
 	public void onCreate()
 	{
-
 		SharedPreferences settings = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
 		token = settings.getString(HikeMessengerApp.TOKEN_SETTING, null);
 		msisdn = settings.getString(HikeMessengerApp.MSISDN_SETTING, null);
@@ -700,6 +704,7 @@ public void onTrimMemory(int level)
 		 * Resetting the stealth mode when the app starts. 
 		 */
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF);
+		HikeNotificationMsgStack.getInstance(getApplicationContext()).deserializeObject(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.NOTIFICATION_OBJ, ""));
 		String currentAppVersion = settings.getString(CURRENT_APP_VERSION, "");
 		String actualAppVersion = "";
 		try
@@ -986,17 +991,12 @@ public void onTrimMemory(int level)
 		return cache;
 	}
 
-	private static ContactManager conMgr;
-
 	private void initContactManager()
 	{
-		conMgr = ContactManager.getInstance();
-		conMgr.init(getApplicationContext());
-	}
-	
-	public static ContactManager getContactManager()
-	{
-		return conMgr;
+		/*
+		 * Contact Manager getInstance will initialize contact manager if already not initialized and returns the ContactManager's instance
+		 */
+		ContactManager.getInstance();
 	}
 
 	private void makeNoMediaFiles()

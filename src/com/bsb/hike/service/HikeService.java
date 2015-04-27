@@ -41,6 +41,8 @@ import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.StatusMessage;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.notifications.HikeNotification;
+import com.bsb.hike.notifications.HikeNotificationMsgStack;
 import com.bsb.hike.platform.HikeSDKRequestHandler;
 import com.bsb.hike.tasks.CheckForUpdateTask;
 import com.bsb.hike.tasks.HikeHTTPTask;
@@ -50,6 +52,7 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
+import com.google.gson.Gson;
 
 public class HikeService extends Service
 {
@@ -296,6 +299,14 @@ public class HikeService extends Service
 		setInitialized(true);
 	}
 
+	@Override
+	public void onTaskRemoved(Intent rootIntent)
+	{
+		super.onTaskRemoved(rootIntent);
+		String notifObject = HikeNotificationMsgStack.getInstance(getApplicationContext()).serializeObject();
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.NOTIFICATION_OBJ, notifObject);
+	}
+	
 	private void assignUtilityThread()
 	{
 		/**

@@ -9,5 +9,8 @@
 
     <style name="AppTheme.Home.Photos">
         <item name="vpiTabPageIndicatorStyle">@style/PhotosTabPageIndicator</item>
+         <item name="actionBarStyle">@style/Widget.Styled.PhotosActionBar</item>
+        <item name="android:actionBarStyle">@style/Widget.Styled.PhotosActionBar</item>
     </style>
+    
 </resources>

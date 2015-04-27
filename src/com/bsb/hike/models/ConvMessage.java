@@ -952,8 +952,6 @@ public class ConvMessage implements Searchable
 			Logger.e("ConvMessage", "invalid json message", e);
 		}
 
-		Logger.d(AnalyticsConstants.MSG_REL_TAG, "===========================================");
-		Logger.d(AnalyticsConstants.MSG_REL_TAG, "MR gen after Serializing DR :- " + object);
 		return object;
 	}
 
@@ -1190,9 +1188,9 @@ public class ConvMessage implements Searchable
 		{
 			return false;
 		}
-		// No search on sticker messages.
+		// No search on sticker/nudge messages.
 		// Atleast till theres no tagging.
-		else if (isStickerMessage())
+		else if (isStickerMessage() || (metadata != null && metadata.isPokeMessage()))
 		{
 			return false;
 		}
