@@ -15,7 +15,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignBottom="@id/album_image"
-        android:background="#009bff"
+        android:background="@color/gallery_camera_tile_bg"
         android:layout_alignLeft="@id/album_image"
         android:layout_alignRight="@id/album_image"
         android:layout_alignTop="@id/album_image"

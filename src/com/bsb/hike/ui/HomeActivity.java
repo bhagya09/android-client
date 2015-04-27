@@ -217,7 +217,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			initialiseHomeScreen(savedInstanceState);
 		}
 		
-		photosEnabled = accountPrefs.getBoolean(HikeConstants.Extras.ENABLE_PHOTOS, false);
+		photosEnabled = Utils.isPhotosEditEnabled();
 		
 		showProductPopup(ProductPopupsConstants.PopupTriggerPoints.HOME_SCREEN.ordinal());
 	}
@@ -1539,7 +1539,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			boolean isRewardsClicked = accountPrefs.getBoolean(HikeConstants.IS_REWARDS_ITEM_CLICKED, false);
 			boolean showTimelineRedDot = accountPrefs.getBoolean(HikeConstants.SHOW_TIMELINE_RED_DOT, true);
 			boolean showBroadcastRedDot = accountPrefs.getBoolean(HikeConstants.SHOW_NEW_BROADCAST_RED_DOT, true);
-			boolean showPhotosRedDot = accountPrefs.getBoolean(HikeConstants.SHOW_PHOTOS_RED_DOT, false);
+			boolean showPhotosRedDot = accountPrefs.getBoolean(HikeConstants.SHOW_PHOTOS_RED_DOT, true);
 			boolean showNUJRedDot = accountPrefs.getBoolean(HikeConstants.SHOW_RECENTLY_JOINED_DOT, false);
 
 			int count = 0;
@@ -2047,7 +2047,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 					newConversationIndicator.setVisibility(View.VISIBLE);
 					newConversationIndicator.startAnimation(Utils.getNotificationIndicatorAnim());
 				}
-				else if (photosEnabled && accountPrefs.getBoolean(HikeConstants.SHOW_PHOTOS_RED_DOT, false))
+				else if (photosEnabled && accountPrefs.getBoolean(HikeConstants.SHOW_PHOTOS_RED_DOT, true))
 				{
 					newConversationIndicator.setText("1");
 					newConversationIndicator.setVisibility(View.VISIBLE);
