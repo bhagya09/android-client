@@ -2635,4 +2635,26 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	{
 		return getConvLabel();
 	}
+	
+	@Override
+	protected void blockUnBlockUser(boolean isBlocked)
+	{
+		super.blockUnBlockUser(isBlocked);
+
+		/**
+		 * If blocked, hide LastSeen view, else, try to show the lastSeen
+		 */
+		if (isBlocked)
+		{
+			hideLastSeenText();
+		}
+
+		else
+		{
+			if (ChatThreadUtils.shouldShowLastSeen(msisdn, activity.getApplicationContext(), mConversation.isOnHike()))
+			{
+				checkAndStartLastSeenTask();
+			}
+		}
+	}
 }
