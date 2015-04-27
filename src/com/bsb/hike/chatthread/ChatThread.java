@@ -3277,6 +3277,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		if (mActionBar != null && mActionBar.isOverflowMenuShowing())
 		{
 			mActionBar.dismissOverflowMenu();
+			mActionBar.resetView();
 		}
 	}
 	
