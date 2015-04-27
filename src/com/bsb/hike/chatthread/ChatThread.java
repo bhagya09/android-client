@@ -3238,8 +3238,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	 */
 	protected void onStop()
 	{
-		saveDraft();
 		releaseStickerAndEmoticon();
+		saveDraft();
 	}
 	
 	/**
@@ -3249,31 +3249,38 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	 * 3. If actionMode is on, dismiss it
 	 * 4. If photoViewer fragment was attached, remove it
 	 * 5. If overflow menu is open then close it
+	 * 6. Hide dialog if showing
 	 */
 	protected void onPreNewIntent()
 	{
 		Logger.d(TAG, "Calling ChatThread's onPreNewIntent()");
+		
+		hideShareablePopups();
+		
+		hideActionMode();
+		
+		hideFragment(HikeConstants.IMAGE_FRAGMENT_TAG);
+		
+		hideThemePicker();
+		
+		hideOverflowMenu();
+		
+		hideDialog();
+		
 		saveDraft();
-		if (mShareablePopupLayout.isShowing())
+	}
+	
+	private void hideDialog()
+	{
+		if (dialog != null)
 		{
-			mShareablePopupLayout.dismiss();
+			dialog.dismiss();
+			dialog = null;
 		}
-		
-		if(mActionMode!= null && mActionMode.isActionModeOn())
-		{
-			mActionMode.finish();
-		}
-		
-		if (activity.isFragmentAdded(HikeConstants.IMAGE_FRAGMENT_TAG))
-		{
-			activity.removeFragment(HikeConstants.IMAGE_FRAGMENT_TAG);
-		}
-		
-		if (themePicker != null && themePicker.isShowing())
-		{
-			themePicker.dismiss();
-		}
-		
+	}
+	
+	private void hideOverflowMenu()
+	{
 		if (mActionBar != null && mActionBar.isOverflowMenuShowing())
 		{
 			mActionBar.dismissOverflowMenu();
@@ -3281,6 +3288,38 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		}
 	}
 	
+	private void hideThemePicker()
+	{
+		if (themePicker != null && themePicker.isShowing())
+		{
+			themePicker.dismiss();
+		}
+	}
+	
+	private void hideFragment(String tag)
+	{
+		if (activity.isFragmentAdded(tag))
+		{
+			activity.removeFragment(tag);
+		}
+	}
+	
+	private void hideActionMode()
+	{
+		if(mActionMode!= null && mActionMode.isActionModeOn())
+		{
+			mActionMode.finish();
+		}
+	}
+	
+	private void hideShareablePopups()
+	{
+		if (mShareablePopupLayout.isShowing())
+		{
+			mShareablePopupLayout.dismiss();
+		}
+	}
+
 	protected void onStart()
 	{
 		/**
