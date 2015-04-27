@@ -145,6 +145,11 @@ public class MessagingBotConfiguration extends BotConfiguration
 		return isBitSet(VIEW_PROFILE);
 	}
 
+	public boolean isAddBlockStripEnabled()
+	{
+		return isBitSet(ADD_BLOCK_STRIP);
+	}
+
 	public boolean isNudgeEnabled()
 	{
 		return isReceiveEnabled && isBitSet(NUDGE);
