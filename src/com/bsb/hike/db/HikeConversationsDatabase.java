@@ -2295,6 +2295,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		values.put(DBConstants.IS_MUTE, botInfo.isMute());
 		values.put(DBConstants.BOT_TYPE, botInfo.getType());
 		values.put(DBConstants.BOT_CONFIGURATION, botInfo.getConfiguration());
+		values.put(DBConstants.IS_RECEIVE_ENABLED, botInfo.isReceiveEnabled());
 		mDb.insertWithOnConflict(DBConstants.BOT_TABLE, null, values, SQLiteDatabase.CONFLICT_REPLACE);
 	}
 
