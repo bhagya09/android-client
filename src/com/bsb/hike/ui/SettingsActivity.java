@@ -537,17 +537,7 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 		}
 
 		Bundle arguments = (Bundle) object;
-		ImageViewerFragment imageViewerFragment = null;
-		boolean isEdit = arguments.getBoolean(HikeConstants.CAN_EDIT_DP);
-		
-		if(isEdit)
-		{
-			imageViewerFragment = new ImageViewerFragment(isEdit);
-		}
-		else
-		{
-			imageViewerFragment = new ImageViewerFragment();			
-		}
+		ImageViewerFragment imageViewerFragment = new ImageViewerFragment();			
 		imageViewerFragment.setArguments(arguments);
 
 		FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();

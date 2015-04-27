@@ -87,7 +87,7 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 
 		if (savedInstanceState != null)
 		{
-			setLocalMsisdn(savedInstanceState.getString(HikeConstants.Extras.CONVERSATION_ID));
+			setConversationId(savedInstanceState.getString(HikeConstants.Extras.CONVERSATION_ID));
 		}
 
 		if (TextUtils.isEmpty(convId))
@@ -105,7 +105,7 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 					conversationId = uid + ":" + System.currentTimeMillis();
 					break;
 			}
-			setLocalMsisdn(conversationId);
+			setConversationId(conversationId);
 		}
 
 		Object object = getLastCustomNonConfigurationInstance();
@@ -210,9 +210,7 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 					
 					@Override
 					public void onClick(View v)
-					{
-						setLocalMsisdn(convId);
-						
+					{												
 						showProfileImageEditDialog(CreateNewGroupOrBroadcastActivity.this, CreateNewGroupOrBroadcastActivity.this, convId, null);
 					}
 				});
@@ -374,9 +372,9 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 	/**
 	 * Sets the local msisdn of the profile 
 	 */
-	protected void setLocalMsisdn(String groupId)
+	protected void setConversationId(String convId)
 	{
-		this.convId = groupId;
-		super.setLocalMsisdn(groupId);
+		this.convId = convId;
+		super.setLocalMsisdn(this.convId);
 	}
 }

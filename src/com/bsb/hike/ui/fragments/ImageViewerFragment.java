@@ -57,16 +57,7 @@ public class ImageViewerFragment extends SherlockFragment implements OnClickList
 	public ImageViewerFragment() 
 	{
 	}
-	
-	/**
-	 * Used to check if the imageview is editable from the acitivty or not
-	 * @param isEditable true if editable, false otherwise
-	 */
-	public ImageViewerFragment(boolean isEditable)
-	{
-		this.isViewEditable = isEditable;
-	}
-	
+		
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
@@ -193,11 +184,11 @@ public class ImageViewerFragment extends SherlockFragment implements OnClickList
 			// activity should implement DisplayPictureEditListener interface
 			try 
 			{
-	            mProfilePhotoEditListener = (DisplayPictureEditListener) getActivity();            
+	            mProfilePhotoEditListener = (DisplayPictureEditListener) activity;            
 	        }
 			catch (ClassCastException e) 
 			{
-	            throw new ClassCastException(getActivity().toString() + " must implement DisplayPictureEditListener");
+	            throw new ClassCastException(activity.toString() + " must implement DisplayPictureEditListener");
 	        }
 		}
 	}
