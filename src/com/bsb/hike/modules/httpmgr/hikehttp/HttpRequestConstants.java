@@ -230,4 +230,9 @@ public class HttpRequestConstants
 	{
 		return BASE_URL + BASE_V1 + BASE_ACCOUNT + "/validate";
 	}
+	
+	public static String setProfileUrl()
+	{
+		return BASE_URL + BASE_V1 + BASE_ACCOUNT + "/profile";
+	}
 }

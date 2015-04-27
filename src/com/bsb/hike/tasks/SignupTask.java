@@ -38,6 +38,7 @@ import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.contactmgr.ContactUtils;
 import com.bsb.hike.modules.signupmgr.RegisterAccountTask;
+import com.bsb.hike.modules.signupmgr.SetProfileTask;
 import com.bsb.hike.modules.signupmgr.ValidateNumberTask;
 import com.bsb.hike.ui.SignupActivity;
 import com.bsb.hike.utils.AccountUtils;
@@ -560,7 +561,8 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 					publishProgress(new StateValue(State.SCANNING_CONTACTS, ""));
 				}
 				publishProgress(new StateValue(State.PROFILE_IMAGE, START_UPLOAD_PROFILE));
-				AccountUtils.setProfile(userName, birthdate, isFemale.booleanValue());
+				
+				new SetProfileTask(userName, birthdate, isFemale.booleanValue()).execute();
 			}
 			catch (InterruptedException e)
 			{
