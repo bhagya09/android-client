@@ -152,22 +152,27 @@ public class MessagingBotConfiguration extends BotConfiguration
 
 	public boolean isTextInputEnabled()
 	{
-		return isReceiveEnabled && isBitSet(TEXT_INPUT);
+		return isReceiveEnabled && isInputEnabled() && isBitSet(TEXT_INPUT);
 	}
 
 	public boolean isAudioRecordingEnabled()
 	{
-		return isReceiveEnabled && isBitSet(AUDIO_RECORD);
+		return isReceiveEnabled && isInputEnabled() && isBitSet(AUDIO_RECORD);
 	}
 
 	public boolean isEmoticonPickerEnabled()
 	{
-		return isReceiveEnabled && isBitSet(EMOTICON_PICKER);
+		return isReceiveEnabled && isInputEnabled() && isBitSet(EMOTICON_PICKER);
 	}
 
 	public boolean isStickerPickerEnabled()
 	{
-		return isReceiveEnabled && isBitSet(STICKER_PICKER);
+		return isReceiveEnabled && isInputEnabled() && isBitSet(STICKER_PICKER);
+	}
+
+	public boolean isInputEnabled()
+	{
+		return (isBitSet(INPUT_BOX));
 	}
 
 	public boolean isAttachmentPickerEnabled()
