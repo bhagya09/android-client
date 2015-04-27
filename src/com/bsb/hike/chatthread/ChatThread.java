@@ -4575,6 +4575,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		Utils.hideSoftKeyboard(activity.getApplicationContext(), mComposeView);
 
 		View mOverlayLayout = activity.findViewById(R.id.overlay_layout);
+		mOverlayLayout.setTag(viewTag);
 
 		if (mOverlayLayout.getVisibility() != View.VISIBLE && activity.hasWindowFocus())
 		{
