@@ -866,7 +866,7 @@ public void onTrimMemory(int level)
 		if (HikeSharedPreferenceUtil.getInstance().getData(UPGRADE_FOR_DEFAULT_BOT_ENTRY, true))
 		{
 			addDefaultBotsToDB();
-			HikeSharedPreferenceUtil.getInstance().saveData(UPGRADE_FOR_DEFAULT_BOT_ENTRY,true);
+			HikeSharedPreferenceUtil.getInstance().saveData(UPGRADE_FOR_DEFAULT_BOT_ENTRY,false);
 		}
 
 
