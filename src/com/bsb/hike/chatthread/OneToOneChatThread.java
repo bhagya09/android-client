@@ -73,7 +73,6 @@ import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.LastSeenScheduler;
 import com.bsb.hike.utils.LastSeenScheduler.LastSeenFetchedCallback;
 import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.SoundUtils;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
@@ -89,7 +88,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 {
 	private static final String TAG = "oneonechatthread";
 
-	private ContactInfo mContactInfo;
+	protected ContactInfo mContactInfo;
 
 	private LastSeenScheduler lastSeenScheduler;
 
@@ -218,7 +217,6 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		List<OverFlowMenuItem> list = new ArrayList<OverFlowMenuItem>();
 		list.add(new OverFlowMenuItem(getString(R.string.view_profile), 0, 0, R.string.view_profile));
 		list.add(new OverFlowMenuItem(getString(R.string.chat_theme), 0, 0, R.string.chat_theme));
-		list.add(new OverFlowMenuItem(getString(R.string.search), 0, 0, R.string.search));
 		list.add(new OverFlowMenuItem(mConversation.isBlocked() ? getString(R.string.unblock_title) : getString(R.string.block_title), 0, 0, R.string.block_title));
 		
 		for (OverFlowMenuItem item : super.getOverFlowMenuItems())
@@ -226,7 +224,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			list.add(item);
 		}
 
-		if (mContactInfo.isNotOrRejectedFavourite() && mConversation.isOnHike() && !Utils.isBot(msisdn))
+		if (mContactInfo.isNotOrRejectedFavourite() && mConversation.isOnHike())
 		{
 			list.add(new OverFlowMenuItem(getString(R.string.add_as_favorite_menu), 0, 0, R.string.add_as_favorite_menu));
 		}
@@ -236,7 +234,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	@Override
 	protected Conversation fetchConversation()
 	{
-		mConversation = mConversationDb.getConversation(msisdn, HikeConstants.MAX_MESSAGES_TO_LOAD_INITIALLY, OneToNConversationUtils.isGroupConversation(msisdn));
+		mConversation = mConversationDb.getConversation(msisdn, HikeConstants.MAX_MESSAGES_TO_LOAD_INITIALLY, false);
 
 		mContactInfo = ContactManager.getInstance().getContact(msisdn, true, true);
 
@@ -279,7 +277,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			FetchHikeUser.fetchHikeUser(activity.getApplicationContext(), msisdn);
 		}
 
-		if (ChatThreadUtils.shouldShowLastSeen(activity.getApplicationContext(), mContactInfo.getFavoriteType(), mConversation.isOnHike()))
+		if (ChatThreadUtils.shouldShowLastSeen(msisdn, activity.getApplicationContext(), mConversation.isOnHike()))
 		{
 			checkAndStartLastSeenTask();
 		}
@@ -328,7 +326,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 
 	protected void addUnkownContactBlockHeader()
 	{
-		if (mContactInfo != null && mContactInfo.isUnknownContact() && messages != null && messages.size() > 0 && !Utils.isBot(msisdn))
+		if (mContactInfo != null && mContactInfo.isUnknownContact() && messages != null && messages.size() > 0)
 		{
 			ConvMessage cm = messages.get(0);
 			/**
@@ -411,7 +409,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			sendUIMessage(TYPING_CONVERSATION, typingNotification);
 		}
 
-		if (ChatThreadUtils.shouldShowLastSeen(activity.getApplicationContext(), mContactInfo.getFavoriteType(), mConversation.isOnHike()) && mContactInfo.getOffline() != -1)
+		if (ChatThreadUtils.shouldShowLastSeen(msisdn, activity.getApplicationContext(), mConversation.isOnHike()) && mContactInfo.getOffline() != -1)
 		{
 			/*
 			 * Publishing an online event for this number.
@@ -719,7 +717,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		/**
 		 * Proceeding only if the current chat thread is open and we should show the last seen
 		 */
-		if (msisdn.equals(contMsisdn) && ChatThreadUtils.shouldShowLastSeen(activity.getApplicationContext(), mContactInfo.getFavoriteType(), mConversation.isOnHike()))
+		if (msisdn.equals(contMsisdn) && ChatThreadUtils.shouldShowLastSeen(msisdn, activity.getApplicationContext(), mConversation.isOnHike()))
 		{
 			/**
 			 * Fix for case where server and client values are out of sync
@@ -1022,7 +1020,12 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		super.setupActionBar(firstInflation);
 
 		setLabel(getConvLabel());
+		
+		setLastSeenStuff(firstInflation);
+	}
 
+	protected void setLastSeenStuff(boolean firstInflation)
+	{
 		/**
 		 * If unsaved contact : do not show last seen first. Wait for the query to return the result
 		 */
@@ -1043,6 +1046,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		{
 			setPrevLastSeenTextFromActionBar();
 		}
+		
 	}
 
 	private void setPrevLastSeenTextFromActionBar()
@@ -1056,9 +1060,9 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	 * 
 	 * @param isConvOnHike
 	 */
-	private void setLastSeenTextBasedOnHikeValue(boolean isConvOnHike)
+	protected void setLastSeenTextBasedOnHikeValue(boolean isConvOnHike)
 	{
-		if (isConvOnHike || Utils.isBot(msisdn))
+		if (isConvOnHike)
 		{
 			hideLastSeenText();
 		}
@@ -1132,7 +1136,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	/**
 	 * Utility method used for hiding the lastSeenView from the Action Bar
 	 */
-	private void hideLastSeenText()
+	protected void hideLastSeenText()
 	{
 		mActionBarView.findViewById(R.id.contact_status).setVisibility(View.GONE);
 	}
@@ -1511,7 +1515,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			return;
 		}
 
-		if (!ChatThreadUtils.shouldShowLastSeen(activity.getApplicationContext(), mContactInfo.getFavoriteType(), mConversation.isOnHike()))
+		if (!ChatThreadUtils.shouldShowLastSeen(msisdn, activity.getApplicationContext(), mConversation.isOnHike()))
 		{
 			return;
 		}
@@ -2618,6 +2622,9 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			case R.string.view_profile:
 			case R.string.chat_theme:
 				overFlowMenuItem.enabled = !mConversation.isBlocked();
+				break;
+			case R.string.block_title:
+				overFlowMenuItem.text = mConversation.isBlocked() ? getString(R.string.unblock_title) : getString(R.string.block_title);
 				break;
 			}
 		}

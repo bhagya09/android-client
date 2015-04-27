@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
-
+    
     <item
-        android:id="@+id/share_msgs"
-        android:icon="@drawable/share_icon"
+        android:id="@+id/edit_pic"
+        android:icon="@drawable/btn_doodle_enable"
         android:showAsAction="always"
-        android:title="@string/share"/>
+        android:title="@string/edit"/>
+
     <item
         android:id="@+id/forward_msgs"
         android:icon="@drawable/actionbar_ic_forward"
@@ -17,6 +18,10 @@
         android:showAsAction="always"
         android:title="@string/other">
         <menu>
+            <item
+                android:id="@+id/share_msgs"
+                android:showAsAction="never"
+                android:title="@string/share"/>
             <item
                 android:id="@+id/delete_msgs"
                 android:showAsAction="never"

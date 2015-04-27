@@ -69,6 +69,25 @@ public class BotConversation extends OneToOneConversation
 			e.printStackTrace();
 		}
 	}
+	
+	public static void analyticsForBots(String msisdn, String key, String origin, String subType, JSONObject json)
+	{
+		if (json == null || json.length() == 0)
+		{
+			json = new JSONObject();
+		}
+		try
+		{
+			json.put(AnalyticsConstants.EVENT_KEY, key);
+			json.put(AnalyticsConstants.ORIGIN, origin);
+			json.put(AnalyticsConstants.CHAT_MSISDN, msisdn);
+			HikeAnalyticsEvent.analyticsForBots(AnalyticsConstants.UI_EVENT, subType, json);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+	}
 
 	/**
 	 * Builder base class extending {@link OneToOneConversation.InitBuilder}
