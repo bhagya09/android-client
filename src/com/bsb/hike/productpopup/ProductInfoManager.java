@@ -21,6 +21,11 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.HikeHandlerUtil;
+import com.bsb.hike.modules.httpmgr.RequestToken;
+import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
+import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
+import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformContent.EventCode;
@@ -377,32 +382,26 @@ public class ProductInfoManager
 	 */
 	public void callToServer(final String metaData)
 	{
-
-		handler.post(new Runnable()
-		{
-		
+		RequestToken requestToken = HttpRequests.productPopupRequest(getFormedUrl(metaData), new IRequestListener()
+		{	
 			@Override
-			public void run()
+			public void onRequestSuccess(Response result)
 			{
-				try
-				{
-					String host = getFormedUrl(metaData);
-					if (!TextUtils.isEmpty(host))
-					{
-						URL url = new URL(host);
-						HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-						AccountUtils.setNoTransform(connection);
-						connection.connect();
-						Logger.d("ProductPopup",connection.getResponseCode()+"");
-					}
-				}
-				catch (IOException e)
-				{
-					e.printStackTrace();
-				}
-
+				Logger.d("ProductPopup", " response code " + result.getStatusCode());
+			}
+			
+			@Override
+			public void onRequestProgressUpdate(float progress)
+			{	
+			}
+			
+			@Override
+			public void onRequestFailure(HttpException httpException)
+			{
+				Logger.d("ProductPopup", " error code " + httpException.getErrorCode());
 			}
 		});
+		requestToken.execute();
 	}
 
 	public void deleteAllPopups()

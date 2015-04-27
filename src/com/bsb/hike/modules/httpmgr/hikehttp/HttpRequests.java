@@ -22,6 +22,7 @@ import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.analytics.HttpAnalyticsConstants;
 import com.bsb.hike.modules.httpmgr.interceptor.GzipRequestInterceptor;
 import com.bsb.hike.modules.httpmgr.interceptor.IRequestInterceptor;
+import com.bsb.hike.modules.httpmgr.request.ByteArrayRequest;
 import com.bsb.hike.modules.httpmgr.request.FileRequest;
 import com.bsb.hike.modules.httpmgr.request.JSONArrayRequest;
 import com.bsb.hike.modules.httpmgr.request.JSONObjectRequest;
@@ -198,6 +199,16 @@ public class HttpRequests
 				.setAsynchronous(false)
 				.build();
 		requestToken.getRequestInterceptors().addLast("gzip", new GzipRequestInterceptor());
+		return requestToken;
+	}
+	
+	public static RequestToken productPopupRequest(String url, IRequestListener requestListener)
+	{
+		RequestToken requestToken = new ByteArrayRequest.Builder()
+				.setUrl(url)
+				.setRequestType(Request.REQUEST_TYPE_SHORT)
+				.setRequestListener(requestListener)
+				.build();
 		return requestToken;
 	}
 }
