@@ -615,7 +615,14 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater)
 	{
 		menu.clear();
-		inflater.inflate(R.menu.photo_viewer_option_menu, menu);
+		if (Utils.isPhotosEditEnabled())
+		{
+			inflater.inflate(R.menu.photo_viewer_wedit_option_menu, menu);
+		}
+		else
+		{
+			inflater.inflate(R.menu.photo_viewer_option_menu, menu);
+		}
 		super.onCreateOptionsMenu(menu, inflater);
 	}
 	
