@@ -281,9 +281,9 @@ public class ChatThreadUtils
 		}
 	}
 
-	protected static boolean shouldShowLastSeen(Context context, FavoriteType mFavoriteType, boolean convOnHike)
+	protected static boolean shouldShowLastSeen(String msisdn, Context context, boolean convOnHike)
 	{
-		if (convOnHike)
+		if (convOnHike && !Utils.isBot(msisdn))
 		{
 			return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(HikeConstants.LAST_SEEN_PREF, true);
 		}
@@ -564,6 +564,11 @@ public class ChatThreadUtils
 		else if (OneToNConversationUtils.isGroupConversation(msisdn))
 		{
 			return HikeConstants.Extras.GROUP_CHAT_THREAD;
+		}
+		
+		else if (Utils.isBot(msisdn))
+		{
+			return HikeConstants.Extras.BOT_CHAT_THREAD;
 		}
 
 		return HikeConstants.Extras.ONE_TO_ONE_CHAT_THREAD;

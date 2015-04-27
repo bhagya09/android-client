@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1180"
-    android:versionName="3.9.0.56" >
+    android:versionCode="1183"
+    android:versionName="3.9.0.59.1.voip" >
 
     <uses-sdk
         android:minSdkVersion="9"
@@ -210,7 +210,6 @@
         </activity>
         <activity
             android:name=".ui.ProfileActivity"
-            android:configChanges="orientation|screenSize"            
             android:windowSoftInputMode="stateHidden" >
             <intent-filter android:label="@string/set_profile_pic" >
                 <action android:name="android.intent.action.ATTACH_DATA" />
