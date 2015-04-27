@@ -285,6 +285,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				+ DBConstants.IS_MUTE + " INTEGER DEFAULT 0, "  // bot conv mute or not
 				+ DBConstants.BOT_TYPE + " INTEGER, "				//bot type m/nm
 				+ DBConstants.BOT_CONFIGURATION + " INTEGER"	//bot configurations.. different server controlled properties of bot.
+				+ DBConstants.IS_RECEIVE_ENABLED + " INTEGER DEFAULT 0" // whether the bot has receive functionality enabled or not.
 				+ ")";
 		db.execSQL(sql);
 
@@ -755,9 +756,11 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		{
 			String alter1 = "ALTER TABLE " + DBConstants.BOT_TABLE + " ADD COLUMN " + DBConstants.BOT_TYPE + " INTEGER";
 			String alter2 = "ALTER TABLE " + DBConstants.BOT_TABLE + " ADD COLUMN " + DBConstants.BOT_CONFIGURATION + " INTEGER";
+			String alter3 = "ALTER TABLE " + DBConstants.BOT_TABLE + " ADD COLUMN " + DBConstants.IS_RECEIVE_ENABLED + " INTEGER DEFAULT 1";
 
 			db.execSQL(alter1);
 			db.execSQL(alter2);
+			db.execSQL(alter3);
 		}
 
 	}
