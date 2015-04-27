@@ -635,10 +635,14 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	public boolean onCreateOptionsMenu(Menu menu)
 	{
-		// overflow is common between all, one to one and group
-		menu.findItem(R.id.overflow_menu).getActionView().setOnClickListener(this);
-		mActionBar.setOverflowViewListener(this);
-		return true;
+		if (mConversation != null)
+		{
+			// overflow is common between all, one to one and group
+			menu.findItem(R.id.overflow_menu).getActionView().setOnClickListener(this);
+			mActionBar.setOverflowViewListener(this);
+			return true;
+		}
+		return false;
 	}
 
 	public boolean onPrepareOptionsMenu(Menu menu)
@@ -4763,5 +4767,11 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		{
 			mConversationsView.setSelection(position);
 		}
+	}
+	
+	protected void startHomeActivity()
+	{
+		Intent intent = IntentFactory.getHomeActivityIntent(activity);
+		activity.startActivity(intent);
 	}
 }
