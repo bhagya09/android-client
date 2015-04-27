@@ -45,11 +45,17 @@ public class ShareUtils
 		{
 
 		case HikeConstants.Extras.ShareTypes.STICKER_SHARE:
-			intent = stickerShare(path);
+			String stiHead = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.STICKER_HEADING, mContext.getString(R.string.sticker_share_heading));
+			String stiDesc = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.STICKER_DESCRIPTION, mContext.getString(R.string.sticker_share_description));
+			String stiCap = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.STICKER_CAPTION, mContext.getString(R.string.sticker_share_caption));			
+			intent = imageShare(path, stiHead, stiDesc, stiCap);
 			break;
 
 		case HikeConstants.Extras.ShareTypes.IMAGE_SHARE:
-			intent = imageShare(path);
+			String imgHead = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.IMAGE_HEADING, mContext.getString(R.string.image_share_heading));
+			String imgDesc = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.IMAGE_DESCRIPTION, mContext.getString(R.string.image_share_description));
+			String imgCap = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.IMAGE_CAPTION, mContext.getString(R.string.image_share_caption));
+			intent = imageShare(path,imgHead, imgDesc, imgCap);
 			break;
 
 		case HikeConstants.Extras.ShareTypes.TEXT_SHARE:
@@ -100,10 +106,8 @@ public class ShareUtils
 
 	}
 
-	private static View setViewImage(String filePath)
+	private static View setViewImage(String filePath, String imgHead, String imgDesc)
 	{
-		String imgHead = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.IMAGE_HEADING, mContext.getString(R.string.image_share_heading));
-		String imgDesc = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.IMAGE_DESCRIPTION, mContext.getString(R.string.image_share_description));
 		View share = LayoutInflater.from(mContext).inflate(R.layout.image_share_layout, null);
 		ImageView image = (ImageView) share.findViewById(R.id.user_image);
 	    Bitmap bmp = HikeBitmapFactory.decodeFile(filePath);
@@ -129,7 +133,7 @@ public class ShareUtils
 	    }
 	}
 
-	private static Intent imageShare(String imagePath)
+	private static Intent imageShare(String imagePath, String imgHead, String imgDesc, String imgCap)
 	{
 		File shareImageFile = null;
 
@@ -137,12 +141,11 @@ public class ShareUtils
 		{
 			Intent imageIntent;
 			shareImageFile = new File(mContext.getExternalCacheDir(), System.currentTimeMillis() + ".jpg");
-			View share = setViewImage(imagePath);
+			View share = setViewImage(imagePath, imgHead, imgDesc);
 			if (share != null)
 			{
 				ShareBitmapTask task = new ShareBitmapTask(share, mContext, shareImageFile);
 				task.execute();
-				String imgCap = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.IMAGE_CAPTION, mContext.getString(R.string.image_share_caption));
 				imageIntent = IntentFactory.shareIntent("image/jpeg", "file://" + shareImageFile.getAbsolutePath(), imgCap, HikeConstants.Extras.ShareTypes.IMAGE_SHARE, true);
 				return imageIntent;
 			}
@@ -164,66 +167,6 @@ public class ShareUtils
 		text = text + "\n\n" + textHead + "\n" + textCap;
 		Intent textIntent = IntentFactory.shareIntent("text/plain", null, text, HikeConstants.Extras.ShareTypes.TEXT_SHARE, true);
 		return textIntent;
-
-	}
-
-	private static View setViewSticker(String stickerFilePath)
-	{
-		String stiHead = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.STICKER_HEADING, mContext.getString(R.string.sticker_share_heading));
-		String stiDesc = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.STICKER_DESCRIPTION, mContext.getString(R.string.sticker_share_description));
-
-		View share = LayoutInflater.from(mContext).inflate(R.layout.sticker_share_layout, null);
-
-		ImageView image = (ImageView) share.findViewById(R.id.sticker_image);
-
-		Bitmap bmp = BitmapFactory.decodeFile(stickerFilePath);
-		
-		if (bmp != null)
-		{
-			image.setImageBitmap(bmp);
-
-			TextView heading = (TextView) share.findViewById(R.id.stickerShareHeading);
-			heading.setText(stiHead);
-
-			TextView tv = (TextView) share.findViewById(com.bsb.hike.R.id.stickerShareDescription);
-			tv.setText(Html.fromHtml(stiDesc));
-
-			return share;
-		}
-		else
-		{
-			return null;
-		}
-	}
-
-	private static Intent stickerShare(String stickerPath)
-	{
-		File shareStickerFile = null;
-		try
-		{
-			Intent stickerIntent;
-			shareStickerFile = new File(mContext.getExternalCacheDir(), System.currentTimeMillis() + ".jpg");
-
-			View share = setViewSticker(stickerPath);
-			if (share != null)
-			{
-				ShareBitmapTask task = new ShareBitmapTask(share, mContext, shareStickerFile);
-				task.execute();
-
-				String stiCap = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.STICKER_CAPTION, mContext.getString(R.string.sticker_share_caption));
-				stickerIntent = IntentFactory
-						.shareIntent("image/jpeg", "file://" + shareStickerFile.getAbsolutePath(), stiCap, HikeConstants.Extras.ShareTypes.STICKER_SHARE, true);
-				return stickerIntent;
-			}
-			else
-			{
-				return null;
-			}
-		}
-		finally
-		{
-			deleteFile(shareStickerFile);
-		}
 
 	}
 
