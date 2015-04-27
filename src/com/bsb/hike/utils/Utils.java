@@ -3432,6 +3432,14 @@ public class Utils
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.UNSEEN_STATUS_COUNT, 0);
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.UNSEEN_USER_STATUS_COUNT, 0);
 	}
+	
+	public static void incrementUnseenStatusCount()
+	{
+		HikeSharedPreferenceUtil prefs = HikeSharedPreferenceUtil.getInstance();
+		int unseenUserStatusCount = prefs.getData(HikeMessengerApp.UNSEEN_USER_STATUS_COUNT, 0);
+		prefs.saveData(HikeMessengerApp.UNSEEN_USER_STATUS_COUNT, ++unseenUserStatusCount);
+		prefs.saveData(HikeConstants.IS_HOME_OVERFLOW_CLICKED, false);
+	}
 
 	public static void resetUnseenFriendRequestCount(Context context)
 	{
@@ -5699,7 +5707,7 @@ public class Utils
 	 * @param response json packet received from server
 	 * @return StatusMessage created
 	 */
-	public static StatusMessage createTimelinePostForDPChange(JSONObject response)
+	public static StatusMessage createTimelinePostForDPChange(JSONObject response,boolean setIcon)
 	{
 		StatusMessage statusMessage = null;
 		JSONObject data = response.optJSONObject("status");
@@ -5731,20 +5739,28 @@ public class Utils
 		String srcFilePath = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT + "/" + msisdn + ".jpg";
 		String destFilePath = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT + "/" + mappedId + ".jpg";
 		Utils.copyFile(srcFilePath, destFilePath, null);
-		
-		/* the server only needs a smaller version */
-		final Bitmap smallerBitmap = HikeBitmapFactory.scaleDownBitmap(destFilePath, HikeConstants.PROFILE_IMAGE_DIMENSIONS, HikeConstants.PROFILE_IMAGE_DIMENSIONS,
-				Bitmap.Config.RGB_565, true, false);
 
-		byte[] bytes = null;
-		
-		if(smallerBitmap != null)
+		if (setIcon)
 		{
-			bytes = BitmapUtils.bitmapToBytes(smallerBitmap, Bitmap.CompressFormat.JPEG, 100);
+			/* the server only needs a smaller version */
+			final Bitmap smallerBitmap = HikeBitmapFactory.scaleDownBitmap(destFilePath, HikeConstants.PROFILE_IMAGE_DIMENSIONS, HikeConstants.PROFILE_IMAGE_DIMENSIONS,
+					Bitmap.Config.RGB_565, true, false);
+
+			byte[] bytes = null;
+
+			if (smallerBitmap != null)
+			{
+				bytes = BitmapUtils.bitmapToBytes(smallerBitmap, Bitmap.CompressFormat.JPEG, 100);
+			}
+			ContactManager.getInstance().setIcon(mappedId, bytes, false);
 		}
-		ContactManager.getInstance().setIcon(mappedId, bytes, false);
 
 		return statusMessage;
+	}
+
+	public static StatusMessage createTimelinePostForDPChange(JSONObject response)
+	{
+		return createTimelinePostForDPChange(response,true);
 	}
 
 	public static boolean isDeviceRooted()
