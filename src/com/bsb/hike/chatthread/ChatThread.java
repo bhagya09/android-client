@@ -332,6 +332,14 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	{
 		public void handleMessage(android.os.Message msg)
 		{
+			/**
+			 * Defensive check
+			 */
+			if (msg == null)
+			{
+				Logger.e(TAG, "Getting a null message in chat thread");
+				return;
+			}
 			handleUIMessage(msg);
 		}
 
