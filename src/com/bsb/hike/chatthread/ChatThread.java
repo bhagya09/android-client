@@ -335,6 +335,14 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	{
 		public void handleMessage(android.os.Message msg)
 		{
+			/**
+			 * Defensive check
+			 */
+			if (msg == null)
+			{
+				Logger.e(TAG, "Getting a null message in chat thread");
+				return;
+			}
 			handleUIMessage(msg);
 		}
 
@@ -997,10 +1005,14 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		{
 			activity.showProductPopup(ProductPopupsConstants.PopupTriggerPoints.STKBUT_BUT.ordinal());
 		}
-		else
+		
+		else 
 		{
-			setStickerButtonSelected(false);
-			Toast.makeText(activity.getApplicationContext(), R.string.some_error, Toast.LENGTH_SHORT).show();	
+			if (!retryToInflateStickers())
+			{
+				setStickerButtonSelected(false);
+				Toast.makeText(activity.getApplicationContext(), R.string.some_error, Toast.LENGTH_SHORT).show();
+			}
 		}
 	}
 	
@@ -1037,9 +1049,34 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	{
 		if (!mShareablePopupLayout.togglePopup(mEmoticonPicker, activity.getResources().getConfiguration().orientation))
 		{
-			setEmoticonButtonSelected(false);
-			Toast.makeText(activity.getApplicationContext(), R.string.some_error, Toast.LENGTH_SHORT).show();
+			if (!retryToInflateEmoticons())
+			{
+				setEmoticonButtonSelected(false);
+				Toast.makeText(activity.getApplicationContext(), R.string.some_error, Toast.LENGTH_SHORT).show();
+			}
 		}
+	}
+
+	/**
+	 * Got a failure while opening emoticon pallete possibly due to null context, mainView is null or mainView.getWindowToken() is null (very rare scenarios though)
+	 * @return
+	 */
+	private boolean retryToInflateEmoticons()
+	{
+		String errorMsg = "Inside method : retry to inflate emoticons. Houston!, something's not right here";
+		HAManager.sendStickerEmoticonStrangeBehaviourReport(errorMsg);
+		mShareablePopupLayout = null;
+		initShareablePopup();
+		return mShareablePopupLayout.togglePopup(mEmoticonPicker, activity.getResources().getConfiguration().orientation);
+	}
+	
+	private boolean retryToInflateStickers()
+	{
+		String errorMsg = "Inside method : retry to inflate stickers. Houston!, something's not right here";
+		HAManager.sendStickerEmoticonStrangeBehaviourReport(errorMsg);
+		mShareablePopupLayout = null;
+		initShareablePopup();
+		return mShareablePopupLayout.togglePopup(mStickerPicker, activity.getResources().getConfiguration().orientation);
 	}
 
 	protected void setUpThemePicker()
@@ -3253,8 +3290,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	 */
 	protected void onStop()
 	{
-		saveDraft();
 		releaseStickerAndEmoticon();
+		saveDraft();
 	}
 	
 	/**
@@ -3263,26 +3300,48 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	 * 2. Dismiss stickers and emoticon pallete 
 	 * 3. If actionMode is on, dismiss it
 	 * 4. If photoViewer fragment was attached, remove it
+	 * 5. If overflow menu is open then close it
+	 * 6. Hide dialog if showing
 	 */
 	protected void onPreNewIntent()
 	{
 		Logger.d(TAG, "Calling ChatThread's onPreNewIntent()");
+		
+		hideShareablePopups();
+		
+		hideActionMode();
+		
+		hideFragment(HikeConstants.IMAGE_FRAGMENT_TAG);
+		
+		hideThemePicker();
+		
+		hideOverflowMenu();
+		
+		hideDialog();
+		
 		saveDraft();
-		if (mShareablePopupLayout.isShowing())
+	}
+	
+	private void hideDialog()
+	{
+		if (dialog != null)
 		{
-			mShareablePopupLayout.dismiss();
+			dialog.dismiss();
+			dialog = null;
 		}
-		
-		if(mActionMode!= null && mActionMode.isActionModeOn())
+	}
+	
+	private void hideOverflowMenu()
+	{
+		if (mActionBar != null && mActionBar.isOverflowMenuShowing())
 		{
-			mActionMode.finish();
+			mActionBar.dismissOverflowMenu();
+			mActionBar.resetView();
 		}
-		
-		if (activity.isFragmentAdded(HikeConstants.IMAGE_FRAGMENT_TAG))
-		{
-			activity.removeFragment(HikeConstants.IMAGE_FRAGMENT_TAG);
-		}
-		
+	}
+	
+	private void hideThemePicker()
+	{
 		if (themePicker != null && themePicker.isShowing())
 		{
 			themePicker.dismiss();
@@ -3294,6 +3353,30 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		}
 	}
 	
+	private void hideFragment(String tag)
+	{
+		if (activity.isFragmentAdded(tag))
+		{
+			activity.removeFragment(tag);
+		}
+	}
+	
+	private void hideActionMode()
+	{
+		if(mActionMode!= null && mActionMode.isActionModeOn())
+		{
+			mActionMode.finish();
+		}
+	}
+	
+	private void hideShareablePopups()
+	{
+		if (mShareablePopupLayout.isShowing())
+		{
+			mShareablePopupLayout.dismiss();
+		}
+	}
+
 	protected void onStart()
 	{
 		/**
@@ -4383,6 +4466,14 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 				mActionBar.dismissOverflowMenu();
 			}
 		}
+		
+		if (attachmentPicker != null && attachmentPicker.isShowing())
+		{
+			if (mShareablePopupLayout.isKeyboardOpen())
+			{
+				attachmentPicker.dismiss();
+			}
+		}
 	}
 	
 	/**
@@ -4591,6 +4682,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		Utils.hideSoftKeyboard(activity.getApplicationContext(), mComposeView);
 
 		View mOverlayLayout = activity.findViewById(R.id.overlay_layout);
+		mOverlayLayout.setTag(viewTag);
 
 		if (mOverlayLayout.getVisibility() != View.VISIBLE && activity.hasWindowFocus())
 		{

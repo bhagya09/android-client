@@ -13,7 +13,6 @@ import org.json.JSONObject;
 import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.GroupParticipant;

@@ -23,7 +23,7 @@ public class ShareablePopupLayout
 
 	private View prevVisibleView;
 
-	private static String TAG = "ShareablePopupLayout";
+	public static String TAG = "ShareablePopupLayout";
 
 	/**
 	 * Constructor.
