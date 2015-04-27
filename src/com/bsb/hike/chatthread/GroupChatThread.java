@@ -426,11 +426,6 @@ public class GroupChatThread extends OneToNChatThread
 				Logger.d(TAG, "Found a pin message type");
 				ChatThreadUtils.modifyMessageToPin(activity.getApplicationContext(), convMessage);
 			}
-			
-			else
-			{
-				return null;
-			}
 		}
 		return convMessage;
 	}
