@@ -5804,4 +5804,16 @@ public class Utils
 			}
 		}
 	}
+	
+	public static boolean isPhotosEditEnabled()
+	{
+		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+		{
+			return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.ENABLE_PHOTOS, true);
+		}
+		else
+		{
+			return false;
+		}
+	}
 }

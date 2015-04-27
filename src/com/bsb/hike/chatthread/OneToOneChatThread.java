@@ -217,7 +217,6 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		List<OverFlowMenuItem> list = new ArrayList<OverFlowMenuItem>();
 		list.add(new OverFlowMenuItem(getString(R.string.view_profile), 0, 0, R.string.view_profile));
 		list.add(new OverFlowMenuItem(getString(R.string.chat_theme), 0, 0, R.string.chat_theme));
-		list.add(new OverFlowMenuItem(getString(R.string.search), 0, 0, R.string.search));
 		list.add(new OverFlowMenuItem(mConversation.isBlocked() ? getString(R.string.unblock_title) : getString(R.string.block_title), 0, 0, R.string.block_title));
 		
 		for (OverFlowMenuItem item : super.getOverFlowMenuItems())
@@ -278,7 +277,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			FetchHikeUser.fetchHikeUser(activity.getApplicationContext(), msisdn);
 		}
 
-		if (ChatThreadUtils.shouldShowLastSeen(activity.getApplicationContext(), mContactInfo.getFavoriteType(), mConversation.isOnHike()))
+		if (ChatThreadUtils.shouldShowLastSeen(msisdn, activity.getApplicationContext(), mConversation.isOnHike()))
 		{
 			checkAndStartLastSeenTask();
 		}
@@ -410,7 +409,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			sendUIMessage(TYPING_CONVERSATION, typingNotification);
 		}
 
-		if (ChatThreadUtils.shouldShowLastSeen(activity.getApplicationContext(), mContactInfo.getFavoriteType(), mConversation.isOnHike()) && mContactInfo.getOffline() != -1)
+		if (ChatThreadUtils.shouldShowLastSeen(msisdn, activity.getApplicationContext(), mConversation.isOnHike()) && mContactInfo.getOffline() != -1)
 		{
 			/*
 			 * Publishing an online event for this number.
@@ -718,7 +717,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		/**
 		 * Proceeding only if the current chat thread is open and we should show the last seen
 		 */
-		if (msisdn.equals(contMsisdn) && ChatThreadUtils.shouldShowLastSeen(activity.getApplicationContext(), mContactInfo.getFavoriteType(), mConversation.isOnHike()))
+		if (msisdn.equals(contMsisdn) && ChatThreadUtils.shouldShowLastSeen(msisdn, activity.getApplicationContext(), mConversation.isOnHike()))
 		{
 			/**
 			 * Fix for case where server and client values are out of sync
@@ -1516,7 +1515,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			return;
 		}
 
-		if (!ChatThreadUtils.shouldShowLastSeen(activity.getApplicationContext(), mContactInfo.getFavoriteType(), mConversation.isOnHike()))
+		if (!ChatThreadUtils.shouldShowLastSeen(msisdn, activity.getApplicationContext(), mConversation.isOnHike()))
 		{
 			return;
 		}
