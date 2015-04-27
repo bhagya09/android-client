@@ -1430,7 +1430,6 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="photos_oom_save">Unable to save Image!\nNot Enough Memory On Device.</string>
     <string name="photos_oom_load">Unable to load Image!\nNot Enough Memory On Device.</string>
     <string name="photos_oom_retry">Try Again!</string>
-    <string name="not_enough_memory">Not Enough Memory</string>
     <string name="photos_oom_camera">Unable to capture Image</string>
     <string name="nudge_setting_header">Double tap to Nudge</string>
     <string name="nudge_setting_info">Send a Nudge by double tapping while chatting</string>
@@ -1463,4 +1462,5 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="content_des_typing_notification_received">Typing notification received to user</string>
 	<string name="activity_not_found">No app found that can handle this action</string>
 	<string name="selectPreview">Select a preview</string>
+	<string name="not_enough_memory">Not Enough Memory</string>
 </resources>
