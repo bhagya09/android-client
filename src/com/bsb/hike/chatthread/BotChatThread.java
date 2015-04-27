@@ -189,29 +189,46 @@ public class BotChatThread extends OneToOneChatThread
 
 	/**
 	 * Returns a list of over flow menu items to be displayed
-	 * 
+	 *
 	 * @return
 	 */
 	private List<OverFlowMenuItem> getOverFlowItems()
 	{
 		List<OverFlowMenuItem> list = new ArrayList<OverFlowMenuItem>();
-		list.add(new OverFlowMenuItem(getString(R.string.view_profile), 0, 0, R.string.view_profile));
-		list.add(new OverFlowMenuItem(getString(R.string.chat_theme), 0, 0, R.string.chat_theme));
+
+		if (configuration.isViewProfileInOverflowMenuEnabled())
+		{
+			list.add(new OverFlowMenuItem(getString(R.string.view_profile), 0, 0, R.string.view_profile));
+		}
+		if (configuration.isChatThemeInOverflowMenuEnabled())
+		{
+			list.add(new OverFlowMenuItem(getString(R.string.chat_theme), 0, 0, R.string.chat_theme));
+		}
 
 		/**
-		 * Making an exception for Hike Daily and Team Hike bots
+		 * Blocking all bots except Team Hike and muting only cricket Bot.
 		 */
 
-		if (!msisdn.equals(HikeConstants.FTUE_HIKE_DAILY) && !msisdn.equals(HikeConstants.FTUE_TEAMHIKE_MSISDN) && !msisdn.equals(HikeConstants.NUX_BOT))
+		if (!msisdn.equals(HikeConstants.Bots.FTUE_TEAMHIKE_MSISDN) && configuration.isBlockInOverflowMenuEnabled() )
 		{
 			list.add(new OverFlowMenuItem(mConversation.isBlocked() ? getString(R.string.unblock_title) : getString(R.string.block_title), 0, 0, R.string.block_title));
+		}
+
+		if (msisdn.equals(HikeConstants.Bots.CRICKET_BOT_MSISDN) && configuration.isMuteInOverflowMenuEnabled())
+		{
 			list.add(new OverFlowMenuItem(mConversation.isMuted() ? getString(R.string.unmute) : getString(R.string.mute), 0, 0, R.string.mute));
 		}
 
-		for (OverFlowMenuItem item : super.getOverFlowMenuItems())
+		if (configuration.isClearChatInOverflowMenuEnabled())
 		{
-			list.add(item);
+			list.add (new OverFlowMenuItem(getString(R.string.clear_chat), 0, 0, R.string.clear_chat));
 		}
+
+		if (configuration.isEmailChatInOverflowMenuEnabled())
+		{
+			list.add(new OverFlowMenuItem(getString(R.string.email_chat), 0, 0, R.string.email_chat));
+		}
+
 
 		return list;
 	}
