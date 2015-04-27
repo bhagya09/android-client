@@ -339,11 +339,11 @@ public class HttpRequests
 		headerList.add(new Header("Content-type", "text/plain"));
 		if(authSDKBaseUrl().contains(HttpRequestConstants.BASE_SDK_STAGING))
 		{
-			headerList.add(new Header("cookie", "uid=UZtZkaEMFSBRwmys;token=EeEKpHJzesU="));
+			headerList.add(new Header("Cookie", "uid=UZtZkaEMFSBRwmys;token=EeEKpHJzesU="));
 		}
 		else
 		{
-			headerList.add(new Header("cookie", "uid="+AccountUtils.mUid +";token="+AccountUtils.mToken));
+			headerList.add(new Header("Cookie", "uid=" + AccountUtils.mUid + ";token=" + AccountUtils.mToken));
 		}
 			
 		RequestToken requestToken = new JSONObjectRequest.Builder()
