@@ -55,11 +55,6 @@ public final class PreviewFragment extends Fragment
 	{
 		super.onCreate(savedInstanceState);
 
-		if (getActivity() instanceof PictureEditer)
-		{
-			handler = ((PictureEditer) getActivity()).getClickHandler();
-		}
-
 		Bundle newFragBundle = getArguments();
 
 		menuType = newFragBundle.getInt(MENU_TYPE_KEY);
@@ -71,7 +66,7 @@ public final class PreviewFragment extends Fragment
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 	{
 		//adding null check since click handler becomes null if PictureEditor is restarted by the OS
-		if (getActivity() instanceof PictureEditer && handler == null)
+		if (handler == null && getActivity() instanceof PictureEditer)
 		{
 			handler = ((PictureEditer) getActivity()).getClickHandler();
 		}
