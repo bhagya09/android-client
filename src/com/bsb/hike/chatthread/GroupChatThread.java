@@ -155,8 +155,13 @@ public class GroupChatThread extends OneToNChatThread
 	{
 		mConversation = oneToNConversation = (GroupConversation) mConversationDb.getConversation(msisdn, HikeConstants.MAX_MESSAGES_TO_LOAD_INITIALLY, true);
 		// imp message from DB like pin
-		fetchImpMessage();
-		return super.fetchConversation();
+		if (mConversation != null)
+		{
+			fetchImpMessage();
+			return super.fetchConversation();
+		}
+		
+		return null;
 	}
 	
 	private void fetchImpMessage()
@@ -420,6 +425,11 @@ public class GroupChatThread extends OneToNChatThread
 			{
 				Logger.d(TAG, "Found a pin message type");
 				ChatThreadUtils.modifyMessageToPin(activity.getApplicationContext(), convMessage);
+			}
+			
+			else
+			{
+				return null;
 			}
 		}
 		return convMessage;
@@ -916,5 +926,19 @@ public class GroupChatThread extends OneToNChatThread
 				break;
 			}
 		}
+	}
+	
+	@Override
+	protected void fetchConversationFailed()
+	{
+		/* the user must have deleted the chat. */
+		Message message = Message.obtain();
+		message.what = SHOW_TOAST;
+		message.arg1 = R.string.invalid_group_chat;
+		uiHandler.sendMessage(message);
+
+		startHomeActivity();
+		
+		super.fetchConversationFailed();
 	}
 }

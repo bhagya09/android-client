@@ -43,7 +43,6 @@ import com.bsb.hike.MqttConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.MessageType;
-import com.bsb.hike.analytics.AnalyticsConstants.MsgRelEventType;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.MsgRelLogManager;
 import com.bsb.hike.db.HikeConversationsDatabase;
@@ -58,7 +57,6 @@ import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.ConvMessage.State;
 import com.bsb.hike.models.HikeFile;
-import com.bsb.hike.models.MessagePrivateData;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.models.Conversation.Conversation;
@@ -97,8 +95,6 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	private Dialog smsDialog;
 
 	private int mCredits;
-
-	private boolean mBlockOverlay;
 
 	private short modeOfChat = H2H_MODE;
 
@@ -826,7 +822,11 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		activity.findViewById(R.id.emoticon_btn).setEnabled(true);
 		activity.findViewById(R.id.sticker_btn).setEnabled(true);
 
-		if (!mBlockOverlay)
+		View mOverlayLayout = activity.findViewById(R.id.overlay_layout);
+		/**
+		 * If the overlayout is open for block case, we should not hide it here 
+		 */
+		if (mOverlayLayout.getTag() != null && (Integer) mOverlayLayout.getTag() != R.string.unblock_title)
 		{
 			hideOverlay();
 		}
@@ -2633,5 +2633,27 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	protected String getBlockedUserLabel()
 	{
 		return getConvLabel();
+	}
+	
+	@Override
+	protected void blockUnBlockUser(boolean isBlocked)
+	{
+		super.blockUnBlockUser(isBlocked);
+
+		/**
+		 * If blocked, hide LastSeen view, else, try to show the lastSeen
+		 */
+		if (isBlocked)
+		{
+			hideLastSeenText();
+		}
+
+		else
+		{
+			if (ChatThreadUtils.shouldShowLastSeen(msisdn, activity.getApplicationContext(), mConversation.isOnHike()))
+			{
+				checkAndStartLastSeenTask();
+			}
+		}
 	}
 }
