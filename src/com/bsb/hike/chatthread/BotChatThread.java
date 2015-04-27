@@ -137,6 +137,15 @@ public class BotChatThread extends OneToOneChatThread
 	}
 
 	@Override
+	protected void sendPoke()
+	{
+		if (configuration.isNudgeEnabled())
+		{
+			super.sendPoke();
+		}
+	}
+
+	@Override
 	public boolean onCreateOptionsMenu(Menu menu)
 	{
 		Logger.i(TAG, "on create options menu " + menu.hashCode());
