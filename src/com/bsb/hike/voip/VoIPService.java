@@ -2255,7 +2255,7 @@ public class VoIPService extends Service {
 	 * 
 	 * @return
 	 */
-	public static boolean isConnected() {
+	private static boolean isConnected() {
 		return connected;
 	}
 	
