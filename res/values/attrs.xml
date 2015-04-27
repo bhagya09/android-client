@@ -213,4 +213,5 @@
         </attr>
         <attr name="gravity" />
     </declare-styleable>
+    
 </resources>

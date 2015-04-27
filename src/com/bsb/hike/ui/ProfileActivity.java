@@ -45,7 +45,6 @@ import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListAdapter;
@@ -103,7 +102,6 @@ import com.bsb.hike.utils.EmoticonConstants;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.Utils;
@@ -216,10 +214,6 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	public SmileyParser smileyParser;
 	
 	int triggerPointPopup=ProductPopupsConstants.PopupTriggerPoints.UNKNOWN.ordinal();
-
-	private TextView creation;
-
-	private TextView owner;
 	
 	private static final String TAG = "Profile_Activity";
 	
@@ -889,34 +883,19 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			}
 			groupNameEditText = (EditText) headerView.findViewById(R.id.name_edit);
 			text = (TextView) headerView.findViewById(R.id.name);
-			creation = (TextView) headerView.findViewById(R.id.creation);
-			owner = (TextView) headerView.findViewById(R.id.owner);
 			profileImage = (ImageView) headerView.findViewById(R.id.group_profile_image);
 			smallIconFrame = (ImageView) headerView.findViewById(R.id.change_profile);
 			groupNameEditText.setText(oneToNConversation.getLabel());
 			msisdn = oneToNConversation.getMsisdn();
 			name = oneToNConversation.getLabel();
-			if(oneToNConversation.getConversationOwner()!=null)
-			{
-				String myMsisdn = preferences.getString(HikeMessengerApp.MSISDN_SETTING, null);
-				String ownerName = oneToNConversation.getConversationOwner();
-				if ((oneToNConversation.getConversationOwner()).equals(myMsisdn))
-				{
-					ownerName = getResources().getString(R.string.you);
-				}
-				
-				owner.setText(getResources().getString(R.string.group_owner)+": "+ownerName);
-			}
 			text.setText(name);
- 			long groupCreation=oneToNConversation.getCreationDateInLong();
-			if(groupCreation!=-1l)
-				creation.setText(getResources().getString(R.string.group_creation)+" "+OneToNConversationUtils.getGroupCreationTimeAsString(getApplicationContext(), groupCreation));
+			
 			break;
 			
 		default:
 			return;
 		}
-		  
+		
 		if(!isUpdate)
 		{
 			ImageViewerInfo imageViewerInfo = new ImageViewerInfo(msisdn + PROFILE_PIC_SUFFIX, null, false, !ContactManager.getInstance().hasIcon(msisdn));
@@ -2619,7 +2598,8 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 
 	private void removeFromGroup(final ContactInfo contactInfo)
 	{
-		HikeDialogFactory.showDialog(this, HikeDialogFactory.DELETE_FROM_GROUP, new HikeDialogListener()
+		int dialogId = oneToNConversation instanceof BroadcastConversation? HikeDialogFactory.DELETE_FROM_BROADCAST : HikeDialogFactory.DELETE_FROM_GROUP;
+		HikeDialogFactory.showDialog(this, dialogId, new HikeDialogListener()
 		{	
 			@Override
 			public void positiveClicked(HikeDialog hikeDialog)

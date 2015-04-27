@@ -60,7 +60,7 @@ public class VoIPConstants {
 	public static final int MSG_NETWORK_SUCKS = 18;
 	public static final int MSG_UPDATE_HOLD_BUTTON = 19;
 	public static final int MSG_ALREADY_IN_CALL = 20;
-	public static final int MSG_PHONE_NOT_SUPPORTED = 21;
+	public static final int MSG_AUDIORECORD_FAILURE = 21;
 	public static final int MSG_UPDATE_REMOTE_HOLD = 22;
 
 	public static final class Analytics
@@ -167,7 +167,7 @@ public class VoIPConstants {
 
 	public static enum CallStatus
 	{
-		OUTGOING_CONNECTING, OUTGOING_RINGING, INCOMING_CALL, PARTNER_BUSY, ON_HOLD, ACTIVE, ENDED
+		OUTGOING_CONNECTING, OUTGOING_RINGING, INCOMING_CALL, PARTNER_BUSY, RECONNECTING, ON_HOLD, ACTIVE, ENDED, UNINITIALIZED
 	}
 
 	/**

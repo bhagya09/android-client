@@ -72,8 +72,6 @@ public interface DBConstants
 	public static final String GROUP_ID = "groupId";
 
 	public static final String GROUP_NAME = "groupName";
-	
-	public static final String GROUP_CREATION_TIME = "groupCreationTime";
 
 	public static final String GROUP_INDEX = "group_idx";
 

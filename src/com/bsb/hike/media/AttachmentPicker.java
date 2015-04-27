@@ -1,5 +1,6 @@
 package com.bsb.hike.media;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,9 +19,14 @@ import android.widget.ImageView;
 import android.widget.PopupWindow.OnDismissListener;
 import android.widget.TextView;
 
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
+import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 
 public class AttachmentPicker extends OverFlowMenuLayout
 {
@@ -156,7 +162,9 @@ public class AttachmentPicker extends OverFlowMenuLayout
 				{
 				case CAMERA:
 					requestCode = CAMERA;
-					pickIntent = IntentFactory.getImageCaptureIntent(context);
+					File selectedFile = Utils.createNewFile(HikeFileType.IMAGE, HikeConstants.CAM_IMG_PREFIX);
+					pickIntent = IntentFactory.getNativeCameraAppIntent(true, selectedFile);
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.FILE_PATH, selectedFile.getAbsolutePath());
 					break;
 				case VIDEO:
 					requestCode = VIDEO;

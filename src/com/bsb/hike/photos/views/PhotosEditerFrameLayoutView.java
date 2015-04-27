@@ -11,17 +11,22 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.media.MediaScannerConnection;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
-import android.view.KeyCharacterMap;
-import android.view.KeyEvent;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.View.OnTouchListener;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.models.HikeHandlerUtil;
+import com.bsb.hike.photos.HikeEffectsFactory;
 import com.bsb.hike.photos.HikeEffectsFactory.OnFilterAppliedListener;
 import com.bsb.hike.photos.HikePhotosListener;
 import com.bsb.hike.photos.HikePhotosUtils;
@@ -37,21 +42,19 @@ import com.bsb.hike.utils.Utils;
  * @author akhiltripathi
  * 
  */
-public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilterAppliedListener
+public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilterAppliedListener, OnTouchListener
 {
 	private CanvasImageView doodleLayer;
 
-	private VignetteImageView vignetteLayer;
-
 	private EffectsImageView effectLayer;
 
-	private boolean enableDoodling, savingFinal;
+	private boolean enableDoodling, savingFinal, compressOutput, enableEffects;
 
 	private Bitmap imageOriginal, imageEdited, imageScaled, scaledImageOriginal;
 
 	private HikeFileType mFileType;
 
-	private String mOriginalName;
+	private String mOriginalName, mDestinationFilename;
 
 	private HikePhotosListener mListener;
 
@@ -59,82 +62,75 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 	{
 		super(context);
 		doodleLayer = new CanvasImageView(context);
-		vignetteLayer = new VignetteImageView(context);
 		effectLayer = new EffectsImageView(context);
-		addView(effectLayer);
-		addView(vignetteLayer);
-		addView(doodleLayer);
-		enableDoodling = false;
-		savingFinal = false;
+		init();
 	}
 
 	public PhotosEditerFrameLayoutView(Context context, AttributeSet attrs)
 	{
 		super(context, attrs);
 		doodleLayer = new CanvasImageView(context, attrs);
-		vignetteLayer = new VignetteImageView(context, attrs);
 		effectLayer = new EffectsImageView(context, attrs);
-		addView(effectLayer);
-		addView(vignetteLayer);
-		addView(doodleLayer);
-		enableDoodling = false;
-		savingFinal = false;
-		// TODO Auto-generated constructor stub
+		init();
 	}
 
 	public PhotosEditerFrameLayoutView(Context context, AttributeSet attrs, int defStyleAttr)
 	{
 		super(context, attrs, defStyleAttr);
 		doodleLayer = new CanvasImageView(context, attrs, defStyleAttr);
-		vignetteLayer = new VignetteImageView(context, attrs, defStyleAttr);
 		effectLayer = new EffectsImageView(context, attrs, defStyleAttr);
+		init();
+	}
+
+	private void init()
+	{
 		addView(effectLayer);
-		addView(vignetteLayer);
 		addView(doodleLayer);
 		enableDoodling = false;
+		enableEffects = true;
 		savingFinal = false;
+		compressOutput = true;
+		this.setOnTouchListener(this);
+	}
+
+	public void setCompressionEnabled(boolean state)
+	{
+		this.compressOutput = state;
+	}
+
+	public boolean isCompressionEnabled()
+	{
+		return this.compressOutput;
 	}
 
 	public int getThumbnailDimen()
 	{
 		int density = getResources().getDisplayMetrics().densityDpi;
-		int dimen = 0;
 		switch (density)
 		{
 		case DisplayMetrics.DENSITY_LOW:
 		case DisplayMetrics.DENSITY_MEDIUM:
 		case DisplayMetrics.DENSITY_HIGH:
-			return HikeConstants.HikePhotos.PREVIEW_THUMBNAIL_WIDTH_MDPI;
+			return (int) getResources().getDimension(R.dimen.photos_thumbnail_dimen_hdpi);
 		default:
-			boolean hasBackKey = KeyCharacterMap.deviceHasKey(KeyEvent.KEYCODE_BACK);
-			
-			if( !hasBackKey) {
-			    // Do whatever you need to do, this device has a navigation bar
-				return HikeConstants.HikePhotos.PREVIEW_THUMBNAIL_WIDTH_MDPI;
-			}
-
-			else{
-				return HikeConstants.HikePhotos.PREVIEW_THUMBNAIL_WIDTH_HDPI;
-			}
+			return (int) getResources().getDimension(R.dimen.photos_thumbnail_dimen_xhdpi);
 
 		}
-
 	}
 
 	public Bitmap getScaledImageOriginal()
 	{
 		if (scaledImageOriginal == null)
 		{
-			scaledImageOriginal = HikePhotosUtils.createBitmap(imageOriginal, 0, 0, HikePhotosUtils.dpToPx(getContext(), getThumbnailDimen()),
-					HikePhotosUtils.dpToPx(getContext(), getThumbnailDimen()), true, true, false, true);
+			scaledImageOriginal = HikePhotosUtils.compressBitamp(imageOriginal,  getThumbnailDimen(),
+					getThumbnailDimen(), false);
 
-			if(scaledImageOriginal == null)
+			if (scaledImageOriginal == null)
 			{
-				//To Do Out Of Memory Handling
+				// To Do Out Of Memory Handling
+				// Need to take a call on whether to OPEN home activity
 			}
-			
-			// scaledImageOriginal = Bitmap.createScaledBitmap(imageOriginal, HikePhotosUtils.dpToPx(getContext(),getThumbnailDimen()),
-			// HikePhotosUtils.dpToPx(getContext(),getThumbnailDimen()), false);
+
 		}
 		return scaledImageOriginal;
 	}
@@ -146,7 +142,6 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 
 	public void applyFilter(FilterType filter)
 	{
-		vignetteLayer.setFilter(filter);
 		effectLayer.applyEffect(filter, HikeConstants.HikePhotos.DEFAULT_FILTER_APPLY_PERCENTAGE, this);
 		effectLayer.invalidate();
 
@@ -154,31 +149,41 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 
 	/**
 	 * 
-	 * @param FilePath
+	 * @param filePath
 	 *            : absolute address of the file to be handled by the editor object
 	 */
-	public void loadImageFromFile(String FilePath)
+	public void loadImageFromFile(String filePath)
 	{
 		try
 		{
-			imageOriginal = BitmapFactory.decodeFile(FilePath);
+			imageOriginal = BitmapFactory.decodeFile(filePath);
 		}
 		catch (OutOfMemoryError e)
 		{
 			Toast.makeText(getContext(), getResources().getString(R.string.photos_oom_load), Toast.LENGTH_SHORT).show();
-			IntentFactory.openHomeActivity(getContext(),true);
+			IntentFactory.openHomeActivity(getContext(), true);
 		}
+
+		handleImage();
+
+	}
+
+	private void handleImage()
+	{
 		DisplayMetrics metrics = getContext().getResources().getDisplayMetrics();
 		int width = metrics.widthPixels;
+		int height = (int) (metrics.heightPixels * getContext().getResources().getInteger(R.integer.photos_editor_canvas_weight) * 1.0f / getContext().getResources().getInteger(
+				R.integer.photos_editor_weightSum));
 		if (width != imageOriginal.getWidth())
 		{
-			imageScaled = HikePhotosUtils.createBitmap(imageOriginal, 0, 0, width, width, true, true, false, true);
-			if(imageScaled == null)
+			imageScaled = HikePhotosUtils.compressBitamp(imageOriginal, width, height, true);
+			if (imageScaled == null)
 			{
 				Toast.makeText(getContext(), getResources().getString(R.string.photos_oom_load), Toast.LENGTH_SHORT).show();
-				IntentFactory.openHomeActivity(getContext(),true);
+				IntentFactory.openHomeActivity(getContext(), true);
+				return;
 			}
-			// imageScaled = Bitmap.createScaledBitmap(imageOriginal, width, width, false);
+
 			effectLayer.handleImage(imageScaled, true);
 		}
 		else
@@ -187,11 +192,17 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 			imageScaled = imageOriginal;
 		}
 
+		if (compressOutput && HikePhotosUtils.getBitmapArea(imageOriginal) > HikeConstants.HikePhotos.MAXIMUM_ALLOWED_IMAGE_AREA)
+		{
+			compressOutput = false;
+			imageOriginal = HikePhotosUtils.compressBitamp(imageOriginal, HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX, HikeConstants.MAX_DIMENSION_LOW_FULL_SIZE_PX, true);
+		}
 	}
 
 	public void loadImageFromBitmap(Bitmap bmp)
 	{
-		effectLayer.handleImage(bmp, false);
+		imageOriginal = bmp;
+		handleImage();
 	}
 
 	public void enableDoodling()
@@ -204,6 +215,18 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 	{
 		enableDoodling = false;
 		doodleLayer.setDrawEnabled(false);
+	}
+
+	public void enableFilters()
+	{
+		enableEffects = true;
+		effectLayer.setAllowTouchMode(true);
+	}
+
+	public void disableFilters()
+	{
+		enableEffects = false;
+		effectLayer.setAllowTouchMode(false);
 	}
 
 	public void setBrushColor(int Color)
@@ -221,9 +244,14 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 		doodleLayer.setDrawEnabled(enableDoodling);
 	}
 
+	public void setDestinationPath(String filename)
+	{
+		mDestinationFilename = filename;
+	}
+
 	public void saveImage(HikeFileType fileType, String originalName, HikePhotosListener listener)
 	{
-		doodleLayer.getMeasure();
+		doodleLayer.getMeasure(imageScaled.getWidth(), imageScaled.getHeight());
 
 		this.mFileType = fileType;
 		this.mOriginalName = originalName;
@@ -232,6 +260,13 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 		savingFinal = true;
 		effectLayer.getBitmapWithEffectsApplied(imageOriginal, this);
 
+	}
+
+	public boolean isImageEdited()
+	{
+		boolean ret = effectLayer.getCurrentFilter() != FilterType.ORIGINAL;
+		ret = ret || doodleLayer.getBitmap() != null;
+		return ret;
 	}
 
 	public void undoLastDoodleDraw()
@@ -252,8 +287,20 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 		{
 			try
 			{
-				String timeStamp = Long.toString(System.currentTimeMillis());
-				file = File.createTempFile("IMG_" + timeStamp, ".jpg");
+				if (!isImageEdited())
+				{
+					String timeStamp = Long.toString(System.currentTimeMillis());
+					file = File.createTempFile("IMG_" + timeStamp, ".jpg");
+					file.deleteOnExit();
+				}
+				else
+				{
+					file = new File(mDestinationFilename);
+					if (!file.exists())
+					{
+						file.createNewFile();
+					}
+				}
 			}
 			catch (IOException e)
 			{
@@ -296,10 +343,28 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 				{
 					out.flush();
 					out.close();
+					
+					//Copy edited image
+					if (mFileType == HikeFileType.PROFILE && isImageEdited())
+					{
+						HikeHandlerUtil.getInstance().postRunnableWithDelay(
+								new CopyFileRunnable(file.getAbsolutePath(), mDestinationFilename, HikeFileType.IMAGE), 0);
+					}
+
+					// Media scan newly created file
+					HikeHandlerUtil.getInstance().postRunnableWithDelay(new Runnable()
+					{
+						@Override
+						public void run()
+						{
+							MediaScannerConnection.scanFile(HikeMessengerApp.getInstance(), new String[] { mDestinationFilename }, null, null);
+						}
+					}, 0);
 				}
 				catch (IOException e)
 				{
 					// Do nothing
+					e.printStackTrace();
 				}
 			}
 		}
@@ -307,10 +372,40 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 		if (file.exists())
 		{
 			mListener.onComplete(file);
+			HikeEffectsFactory.finish();
 		}
 		else
 		{
 			mListener.onFailure();
+		}
+
+	}
+
+	public class CopyFileRunnable implements Runnable
+	{
+
+		private String srcPath, destPath;
+
+		private HikeFileType fileType;
+
+		public CopyFileRunnable(File srcPath, File destPath, HikeFileType fileType)
+		{
+			this.srcPath = srcPath.getAbsolutePath();
+			this.destPath = destPath.getAbsolutePath();
+			this.fileType = fileType;
+		}
+
+		public CopyFileRunnable(String srcPath, String destPath, HikeFileType fileType)
+		{
+			this.srcPath = srcPath;
+			this.destPath = destPath;
+			this.fileType = fileType;
+		}
+
+		@Override
+		public void run()
+		{
+			Utils.copyFile(srcPath, destPath, fileType);
 		}
 
 	}
@@ -320,28 +415,26 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 
 		if (imageEdited != null)
 		{
+
 			Canvas canvasResult = new Canvas(imageEdited);
 
 			sendAnalyticsFilterApplied(effectLayer.getCurrentFilter().name());
 
-			imageEdited = vignetteLayer.applyVignetteToBitmap(imageEdited);
-
 			if (doodleLayer.getBitmap() != null)
 			{
-				Bitmap temp = HikePhotosUtils.createBitmap(doodleLayer.getBitmap(), 0, 0, imageOriginal.getWidth(), imageOriginal.getHeight(), true, true, false, true);
-				// Bitmap temp = Bitmap.createScaledBitmap(doodleLayer.getBitmap(), imageOriginal.getWidth(), imageOriginal.getHeight(), false);
+				Bitmap temp = HikePhotosUtils.createBitmap(doodleLayer.getBitmap(), 0, 0, imageEdited.getWidth(), imageEdited.getHeight(), true, true, false, true);
 
 				if (temp != null)
 				{
 					canvasResult.drawBitmap(temp, 0, 0, doodleLayer.getPaint());
 					sendAnalyticsDoodleApplied(doodleLayer.getColor());
-					temp.recycle();
+					HikePhotosUtils.manageBitmaps(temp);
 				}
 				else
 				{
 					Toast.makeText(getContext(), getResources().getString(R.string.photos_oom_save), Toast.LENGTH_SHORT).show();
-					IntentFactory.openHomeActivity(getContext(),true);
-					
+					IntentFactory.openHomeActivity(getContext(), true);
+
 				}
 			}
 		}
@@ -359,19 +452,18 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 			if (savingFinal)
 			{
 				// Move Back to Home
-				Toast.makeText(getContext(),  getResources().getString(R.string.photos_oom_save), Toast.LENGTH_SHORT).show();
-				IntentFactory.openHomeActivity(getContext(),true);
+				Toast.makeText(getContext(), getResources().getString(R.string.photos_oom_save), Toast.LENGTH_SHORT).show();
+				IntentFactory.openHomeActivity(getContext(), true);
 			}
 			else
 			{
-				Toast.makeText(getContext(),getResources().getString(R.string.photos_oom_retry), Toast.LENGTH_SHORT).show();
+				Toast.makeText(getContext(), getResources().getString(R.string.photos_oom_retry), Toast.LENGTH_SHORT).show();
 			}
 		}
 		else
 		{
 			if (!savingFinal)
 			{
-				vignetteLayer.setVignetteforFilter();
 				effectLayer.changeDisplayImage(preview);
 			}
 			else
@@ -411,6 +503,21 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 		{
 			e.printStackTrace();
 		}
+	}
+
+	@Override
+	public boolean onTouch(View v, MotionEvent event)
+	{
+		if (enableDoodling)
+		{
+			return doodleLayer.onTouch(v, event);
+		}
+		if (enableEffects)
+		{
+			return effectLayer.onTouch(v, event);
+		}
+
+		return false;
 	}
 
 }

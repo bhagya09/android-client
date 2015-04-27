@@ -20,7 +20,6 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
-import android.text.style.StyleSpan;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -29,10 +28,8 @@ import android.view.ViewStub;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -76,7 +73,6 @@ import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.LastSeenScheduler;
 import com.bsb.hike.utils.LastSeenScheduler.LastSeenFetchedCallback;
 import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.SoundUtils;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
@@ -92,7 +88,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 {
 	private static final String TAG = "oneonechatthread";
 
-	private ContactInfo mContactInfo;
+	protected ContactInfo mContactInfo;
 
 	private LastSeenScheduler lastSeenScheduler;
 
@@ -133,8 +129,6 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	private static final int ADD_UNDELIVERED_MESSAGE = 114;
 
 	private static final int SHOW_CALL_ICON = 115;
-	
-	protected static final int BLOCK_UNBLOCK_USER = 116;
 	
 	private static short H2S_MODE = 0; // Hike to SMS Mode
 
@@ -200,7 +194,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 //		Not allowing user to access actionbar items on a blocked user's chatThread
 		if (mConversation.isBlocked())
 		{
-			Toast.makeText(activity.getApplicationContext(), activity.getString(R.string.block_overlay_message, mConversation.getMsisdn()), Toast.LENGTH_SHORT).show();
+			Toast.makeText(activity.getApplicationContext(), activity.getString(R.string.block_overlay_message, mConversation.getLabel()), Toast.LENGTH_SHORT).show();
 			return false;
 		}
 		
@@ -223,7 +217,6 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		List<OverFlowMenuItem> list = new ArrayList<OverFlowMenuItem>();
 		list.add(new OverFlowMenuItem(getString(R.string.view_profile), 0, 0, R.string.view_profile));
 		list.add(new OverFlowMenuItem(getString(R.string.chat_theme), 0, 0, R.string.chat_theme));
-		list.add(new OverFlowMenuItem(getString(R.string.search), 0, 0, R.string.search));
 		list.add(new OverFlowMenuItem(mConversation.isBlocked() ? getString(R.string.unblock_title) : getString(R.string.block_title), 0, 0, R.string.block_title));
 		
 		for (OverFlowMenuItem item : super.getOverFlowMenuItems())
@@ -241,7 +234,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	@Override
 	protected Conversation fetchConversation()
 	{
-		mConversation = mConversationDb.getConversation(msisdn, HikeConstants.MAX_MESSAGES_TO_LOAD_INITIALLY, OneToNConversationUtils.isGroupConversation(msisdn));
+		mConversation = mConversationDb.getConversation(msisdn, HikeConstants.MAX_MESSAGES_TO_LOAD_INITIALLY, false);
 
 		mContactInfo = ContactManager.getInstance().getContact(msisdn, true, true);
 
@@ -284,7 +277,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			FetchHikeUser.fetchHikeUser(activity.getApplicationContext(), msisdn);
 		}
 
-		if (ChatThreadUtils.shouldShowLastSeen(activity.getApplicationContext(), mContactInfo.getFavoriteType(), mConversation.isOnHike()))
+		if (ChatThreadUtils.shouldShowLastSeen(msisdn, activity.getApplicationContext(), mConversation.isOnHike()))
 		{
 			checkAndStartLastSeenTask();
 		}
@@ -333,7 +326,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 
 	protected void addUnkownContactBlockHeader()
 	{
-		if (mContactInfo != null && mContactInfo.isUnknownContact() && messages != null && messages.size() > 0 && !Utils.isBot(msisdn))
+		if (mContactInfo != null && mContactInfo.isUnknownContact() && messages != null && messages.size() > 0)
 		{
 			ConvMessage cm = messages.get(0);
 			/**
@@ -371,12 +364,12 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		String[] oneToOneListeners = new String[] { HikePubSub.SMS_CREDIT_CHANGED, HikePubSub.MESSAGE_DELIVERED_READ, HikePubSub.CONTACT_ADDED, HikePubSub.CONTACT_DELETED,
 				HikePubSub.CHANGED_MESSAGE_TYPE, HikePubSub.SHOW_SMS_SYNC_DIALOG, HikePubSub.SMS_SYNC_COMPLETE, HikePubSub.SMS_SYNC_FAIL, HikePubSub.SMS_SYNC_START,
 				HikePubSub.LAST_SEEN_TIME_UPDATED, HikePubSub.SEND_SMS_PREF_TOGGLED, HikePubSub.BULK_MESSAGE_RECEIVED, HikePubSub.USER_JOINED, HikePubSub.USER_LEFT,
-				HikePubSub.APP_FOREGROUNDED, HikePubSub.BLOCK_USER, HikePubSub.UNBLOCK_USER };
+				HikePubSub.APP_FOREGROUNDED };
 		return oneToOneListeners;
 	}
 
 	@Override
-	protected void addMessage(ConvMessage convMessage)
+	protected void messageAdded(ConvMessage convMessage)
 	{
 		/*
 		 * If we were showing the typing bubble, we remove it from the add the new message and add the typing bubble back again
@@ -388,14 +381,14 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		 * Adding message to the adapter
 		 */
 
-		mAdapter.addMessage(convMessage);
+		addMessage(convMessage);
 
 		if (convMessage.getTypingNotification() == null && typingNotification != null && convMessage.isSent())
 		{
-			mAdapter.addMessage(new ConvMessage(typingNotification));
+			addMessage(new ConvMessage(typingNotification));
 		}
 
-		super.addMessage(convMessage);
+		super.messageAdded(convMessage);
 	}
 
 	/**
@@ -416,7 +409,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			sendUIMessage(TYPING_CONVERSATION, typingNotification);
 		}
 
-		if (ChatThreadUtils.shouldShowLastSeen(activity.getApplicationContext(), mContactInfo.getFavoriteType(), mConversation.isOnHike()) && mContactInfo.getOffline() != -1)
+		if (ChatThreadUtils.shouldShowLastSeen(msisdn, activity.getApplicationContext(), mConversation.isOnHike()) && mContactInfo.getOffline() != -1)
 		{
 			/*
 			 * Publishing an online event for this number.
@@ -468,15 +461,6 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			{
 				msg.setState(ConvMessage.State.SENT_DELIVERED_READ);
 				removeFromMessageMap(msg);
-				
-				//Log Events For Message Reliability
-				MessagePrivateData pd = msg.getPrivateData();
-				if(pd != null && pd.getTrackID() != null)
-				{
-					Logger.d(AnalyticsConstants.MSG_REL_TAG, "===========================================");
-					Logger.d(AnalyticsConstants.MSG_REL_TAG, "Read Shown to Sender:track_id "+ msg.getPrivateData().getTrackID());
-					MsgRelLogManager.logMsgRelEvent(msg, MsgRelEventType.MR_SHOWN_AT_SENEDER_SCREEN);
-				}
 			}
 		}
 		if (mConversation.isOnHike())
@@ -558,12 +542,6 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			break;
 		case HikePubSub.APP_FOREGROUNDED:
 			onAppForegrounded();
-			break;
-		case HikePubSub.BLOCK_USER:
-			blockUser(object, true);
-			break;
-		case HikePubSub.UNBLOCK_USER:
-			blockUser(object, false);
 			break;
 		default:
 			Logger.d(TAG, "Did not find any matching PubSub event in OneToOne ChatThread. Calling super class' onEventReceived");
@@ -694,9 +672,6 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 				}
 			}
 			break;
-		case BLOCK_UNBLOCK_USER:
-			blockUnBlockUser((boolean) msg.obj);
-			break;
 		default:
 			Logger.d(TAG, "Did not find any matching event in OneToOne ChatThread. Calling super class' handleUIMessage");
 			super.handleUIMessage(msg);
@@ -742,7 +717,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		/**
 		 * Proceeding only if the current chat thread is open and we should show the last seen
 		 */
-		if (msisdn.equals(contMsisdn) && ChatThreadUtils.shouldShowLastSeen(activity.getApplicationContext(), mContactInfo.getFavoriteType(), mConversation.isOnHike()))
+		if (msisdn.equals(contMsisdn) && ChatThreadUtils.shouldShowLastSeen(msisdn, activity.getApplicationContext(), mConversation.isOnHike()))
 		{
 			/**
 			 * Fix for case where server and client values are out of sync
@@ -1045,7 +1020,12 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		super.setupActionBar(firstInflation);
 
 		setLabel(getConvLabel());
+		
+		setLastSeenStuff(firstInflation);
+	}
 
+	protected void setLastSeenStuff(boolean firstInflation)
+	{
 		/**
 		 * If unsaved contact : do not show last seen first. Wait for the query to return the result
 		 */
@@ -1066,6 +1046,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		{
 			setPrevLastSeenTextFromActionBar();
 		}
+		
 	}
 
 	private void setPrevLastSeenTextFromActionBar()
@@ -1079,9 +1060,9 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	 * 
 	 * @param isConvOnHike
 	 */
-	private void setLastSeenTextBasedOnHikeValue(boolean isConvOnHike)
+	protected void setLastSeenTextBasedOnHikeValue(boolean isConvOnHike)
 	{
-		if (isConvOnHike || Utils.isBot(msisdn))
+		if (isConvOnHike)
 		{
 			hideLastSeenText();
 		}
@@ -1155,7 +1136,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	/**
 	 * Utility method used for hiding the lastSeenView from the Action Bar
 	 */
-	private void hideLastSeenText()
+	protected void hideLastSeenText()
 	{
 		mActionBarView.findViewById(R.id.contact_status).setVisibility(View.GONE);
 	}
@@ -1259,6 +1240,8 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	@Override
 	public void itemClicked(OverFlowMenuItem item)
 	{
+		Logger.d(TAG, "Calling super Class' itemClicked");
+		super.itemClicked(item);
 		switch (item.id)
 		{
 		case R.string.block_title:
@@ -1274,8 +1257,6 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			addFavorite();
 			break;
 		default:
-			Logger.d(TAG, "Calling super Class' itemClicked");
-			super.itemClicked(item);
 		}
 	}
 
@@ -1283,11 +1264,6 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	protected String getMsisdnMainUser()
 	{
 		return msisdn;
-	}
-
-	private String getBlockedUserLabel()
-	{
-		return getConvLabel();
 	}
 
 	/**
@@ -1304,7 +1280,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		}
 		else
 		{
-			Toast.makeText(activity.getApplicationContext(), activity.getString(R.string.user_blocked, mConversation.getConversationName()), Toast.LENGTH_SHORT).show();
+			Toast.makeText(activity.getApplicationContext(), activity.getString(R.string.block_overlay_message, mConversation.getLabel()), Toast.LENGTH_SHORT).show();
 		}
 	}
 
@@ -1453,7 +1429,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 
 			TypingNotification typingNotification = removeTypingNotification();
 
-			mAdapter.addMessages(messagesList, messages.size());
+			addMessages(messagesList, messages.size());
 
 			reachedEnd = false;
 
@@ -1465,7 +1441,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 
 			if (typingNotification != null && convMessage.isSent())
 			{
-				mAdapter.addMessage(new ConvMessage(typingNotification));
+				addMessage(new ConvMessage(typingNotification));
 			}
 
 			mAdapter.notifyDataSetChanged();
@@ -1477,6 +1453,18 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			tryScrollingToBottom(convMessage, messagesList.size());
 
 		}
+	}
+
+	@Override
+	protected void addMessage(ConvMessage message)
+	{
+		super.addMessage(message);
+	}
+	
+	@Override
+	protected void addMessages(List<ConvMessage> list, int startIndex)
+	{
+		super.addMessages(list, startIndex);
 	}
 
 	/**
@@ -1527,7 +1515,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			return;
 		}
 
-		if (!ChatThreadUtils.shouldShowLastSeen(activity.getApplicationContext(), mContactInfo.getFavoriteType(), mConversation.isOnHike()))
+		if (!ChatThreadUtils.shouldShowLastSeen(msisdn, activity.getApplicationContext(), mConversation.isOnHike()))
 		{
 			return;
 		}
@@ -2096,16 +2084,6 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			Utils.addToContacts(activity, msisdn);
 			break;
 			
-		case R.id.overlay_layout:
-			/**
-			 * Do nothing. We simply eat this event to avoid chat thread window from catching this
-			 */
-			break;
-			
-		case R.id.overlay_button:
-			onOverlayLayoutClicked((int) v.getTag());
-			break;
-
 		default:
 			super.onClick(v);
 		}
@@ -2518,6 +2496,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		switch (id)
 		{
 		case MULTI_SELECT_ACTION_MODE:
+		case SEARCH_ACTION_MODE:
 			setEnabledH20NextButton(false);
 			break;
 		}
@@ -2546,6 +2525,17 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	protected void destroyActionMode()
 	{
 		super.destroyActionMode();
+		
+		if (isH20TipShowing())
+		{
+			setEnabledH20NextButton(true);
+		}
+	}
+	
+	@Override
+	protected void destroySearchMode()
+	{
+		super.destroySearchMode();
 		
 		if (isH20TipShowing())
 		{
@@ -2633,177 +2623,16 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			case R.string.chat_theme:
 				overFlowMenuItem.enabled = !mConversation.isBlocked();
 				break;
+			case R.string.block_title:
+				overFlowMenuItem.text = mConversation.isBlocked() ? getString(R.string.unblock_title) : getString(R.string.block_title);
+				break;
 			}
 		}
 	}
 	
-	/**
-	 * This runs only on the UI Thread
-	 * 
-	 * @param isBlocked
-	 */
-	protected void blockUnBlockUser(boolean isBlocked)
+	@Override
+	protected String getBlockedUserLabel()
 	{
-		mConversation.setBlocked(isBlocked);
-
-		if (isBlocked)
-		{
-			Utils.logEvent(activity.getApplicationContext(), HikeConstants.LogEvent.MENU_BLOCK);
-			showBlockOverlay(getBlockedUserLabel());
-			mActionBar.updateOverflowMenuItemString(R.string.block_title, activity.getString(R.string.unblock_title));
-		}
-
-		else
-		{
-			mComposeView.setEnabled(true);
-			hideOverlay();
-			mActionBar.updateOverflowMenuItemString(R.string.block_title, activity.getString(R.string.block_title));
-		}
+		return getConvLabel();
 	}
-	
-	private void blockUser(Object object, boolean isBlocked)
-	{
-		String mMsisdn = (String) object;
-
-		/**
-		 * Proceeding only if the blocked user's msisdn is that of the current chat thread
-		 */
-		if (mMsisdn.equals(getMsisdnMainUser()))
-		{
-			sendUIMessage(BLOCK_UNBLOCK_USER, isBlocked);
-		}
-	}
-
-	private void hideOverlay()
-	{
-		View mOverlayLayout = activity.findViewById(R.id.overlay_layout);
-
-		if (mOverlayLayout.getVisibility() == View.VISIBLE && activity.hasWindowFocus())
-		{
-			Animation fadeOut = AnimationUtils.loadAnimation(activity.getApplicationContext(), android.R.anim.fade_out);
-			mOverlayLayout.setAnimation(fadeOut);
-		}
-
-		mOverlayLayout.setVisibility(View.INVISIBLE);
-	}
-	
-	private void onOverlayLayoutClicked(int tag)
-	{
-		switch (tag)
-		{
-
-		/**
-		 * Block Case :
-		 */
-		case R.string.unblock_title:
-			HikeMessengerApp.getPubSub().publish(HikePubSub.UNBLOCK_USER, getMsisdnMainUser());
-			break;
-
-		/**
-		 * Zero SMS Credits :
-		 */
-		case R.string.invite_now:
-			Utils.logEvent(activity.getApplicationContext(), HikeConstants.LogEvent.INVITE_OVERLAY_BUTTON);
-			inviteUser();
-			hideOverlay();
-			break;
-		}
-	}
-
-	/**
-	 * Invite user
-	 */
-	private void inviteUser()
-	{
-		if (mConversation.isOnHike())
-		{
-			Toast.makeText(activity, R.string.already_hike_user, Toast.LENGTH_LONG).show();
-		}
-
-		else
-		{
-			Utils.sendInviteUtil(new ContactInfo(msisdn, msisdn, mConversation.getConversationName(), msisdn), activity.getApplicationContext(),
-					HikeConstants.SINGLE_INVITE_SMS_ALERT_CHECKED, getString(R.string.native_header), getString(R.string.native_info));
-
-		}
-	}
-
-	/**
-	 * blockOverLay flag indicates whether this is used to block a user or not. This function can also be called from in zero SMS Credits case.
-	 * 
-	 * @param label
-	 * @param formatString
-	 * @param overlayBtnText
-	 * @param str
-	 * @param drawableResId
-	 */
-
-	private void showOverlay(String label, String formatString, String overlayBtnText, SpannableString str, int drawableResId, int viewTag)
-	{
-		Utils.hideSoftKeyboard(activity.getApplicationContext(), mComposeView);
-
-		View mOverlayLayout = activity.findViewById(R.id.overlay_layout);
-
-		if (mOverlayLayout.getVisibility() != View.VISIBLE && activity.hasWindowFocus())
-		{
-			Animation fadeIn = AnimationUtils.loadAnimation(activity, android.R.anim.fade_in);
-			mOverlayLayout.setAnimation(fadeIn);
-		}
-
-		mComposeView.setEnabled(false);
-
-		mOverlayLayout.setVisibility(View.VISIBLE);
-		mOverlayLayout.setOnClickListener(this);
-
-		TextView message = (TextView) mOverlayLayout.findViewById(R.id.overlay_message);
-		Button overlayBtn = (Button) mOverlayLayout.findViewById(R.id.overlay_button);
-		ImageView overlayImg = (ImageView) mOverlayLayout.findViewById(R.id.overlay_image);
-
-		overlayBtn.setOnClickListener(this);
-		overlayBtn.setTag(viewTag);
-
-		mComposeView.setEnabled(false);
-
-		overlayImg.setImageResource(R.drawable.ic_no);
-		overlayBtn.setText(overlayBtnText);
-
-		message.setText(str);
-	}
-
-
-	/**
-	 * Used to call {@link #showOverlay(boolean, String, String, String)} from {@link OneToOneChatThread} 
-	 * 
-	 * @param label
-	 */
-	private void showBlockOverlay(String label)
-	{
-		/**
-		 * Making the blocked user's name as bold
-		 */
-		String formatString = activity.getString(R.string.block_overlay_message);
-		String formatted = String.format(formatString, label);
-		SpannableString str = new SpannableString(formatted);
-		int start = formatString.indexOf("%1$s");
-		str.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), start, start + label.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-
-		showOverlay(label, formatString, activity.getString(R.string.unblock_title), str, R.drawable.ic_no, R.string.unblock_title);
-	}
-
-	/**
-	 * Used for giving block and unblock user pubSubs
-	 */
-	private void onBlockUserclicked()
-	{
-		if (mConversation.isBlocked())
-		{
-			HikeMessengerApp.getPubSub().publish(HikePubSub.UNBLOCK_USER, msisdn);
-		}
-
-		else
-		{
-			HikeMessengerApp.getPubSub().publish(HikePubSub.BLOCK_USER, msisdn);
-		}
-	}
-
 }

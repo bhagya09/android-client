@@ -177,6 +177,8 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	public static final String COUNTRY_CODE = "countryCode";
 
 	public static final String FILE_PATH = "filePath";
+	
+	public static final String FILE_PATHS = "multi_filepaths";
 
 	public static final String TEMP_NAME = "tempName";
 

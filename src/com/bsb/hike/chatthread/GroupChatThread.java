@@ -56,8 +56,6 @@ public class GroupChatThread extends OneToNChatThread
 
 	private static final String TAG = "groupchatthread";
 
-	private static final int MUTE_CONVERSATION_TOGGLED = 301;
-
 	private static final int PIN_CREATE_ACTION_MODE = 302;
 	
 	private static final int LATEST_PIN_DELETED = 303;
@@ -107,7 +105,7 @@ public class GroupChatThread extends OneToNChatThread
 	@Override
 	protected String[] getPubSubListeners()
 	{
-		return new String[] { HikePubSub.ONETON_MESSAGE_DELIVERED_READ, HikePubSub.MUTE_CONVERSATION_TOGGLED, HikePubSub.LATEST_PIN_DELETED, HikePubSub.CONV_META_DATA_UPDATED,
+		return new String[] { HikePubSub.ONETON_MESSAGE_DELIVERED_READ, HikePubSub.LATEST_PIN_DELETED, HikePubSub.CONV_META_DATA_UPDATED,
 				HikePubSub.BULK_MESSAGE_RECEIVED, HikePubSub.CONVERSATION_REVIVED, HikePubSub.PARTICIPANT_JOINED_ONETONCONV, HikePubSub.PARTICIPANT_LEFT_ONETONCONV,
 				HikePubSub.PARTICIPANT_JOINED_SYSTEM_MESSAGE, HikePubSub.ONETONCONV_NAME_CHANGED, HikePubSub.GROUP_END };
 	}
@@ -126,7 +124,6 @@ public class GroupChatThread extends OneToNChatThread
 		}
 		list.add(new OverFlowMenuItem(getString(R.string.group_profile), unreadPinCount, 0, R.string.group_profile));
 		list.add(new OverFlowMenuItem(getString(R.string.chat_theme), 0, 0, R.string.chat_theme));
-		list.add(new OverFlowMenuItem(getString(R.string.search), 0, 0, R.string.search));
 		list.add(new OverFlowMenuItem(isMuted() ? getString(R.string.unmute_group) : getString(R.string.mute_group), 0, 0, R.string.mute_group));
 		
 		for (OverFlowMenuItem item : super.getOverFlowMenuItems())
@@ -178,6 +175,18 @@ public class GroupChatThread extends OneToNChatThread
 		oneToNConversation = (GroupConversation) conversation;
 		super.fetchConversationFinished(conversation);
 
+		/**
+		 * Is the group owner blocked ? If true then show the block overlay with appropriate strings
+		 */
+
+		if (oneToNConversation.isBlocked())
+		{
+			String label = oneToNConversation.getConversationParticipantName(oneToNConversation.getConversationOwner());
+
+			showBlockOverlay(label);
+
+		}
+
 		showTips();
 
 		toggleConversationMuteViewVisibility(oneToNConversation.isMuted());
@@ -197,9 +206,6 @@ public class GroupChatThread extends OneToNChatThread
 	{
 		switch (msg.what)
 		{
-		case MUTE_CONVERSATION_TOGGLED:
-			muteConvToggledUIChange((boolean) msg.obj);
-			break;
 		case LATEST_PIN_DELETED:
 			hidePinFromUI((boolean) msg.obj);
 			break;
@@ -207,7 +213,7 @@ public class GroupChatThread extends OneToNChatThread
 			showStickyMessageAtTop((ConvMessage) msg.obj, true);
 			break;
 		case MESSAGE_RECEIVED:
-			addMessage((ConvMessage) msg.obj);
+			messageAdded((ConvMessage) msg.obj);
 			break;
 		case GROUP_END:
 			toggleGroupLife(false);
@@ -223,9 +229,6 @@ public class GroupChatThread extends OneToNChatThread
 	{
 		switch (type)
 		{
-		case HikePubSub.MUTE_CONVERSATION_TOGGLED:
-			onMuteConversationToggled(object);
-			break;
 		case HikePubSub.LATEST_PIN_DELETED:
 			onLatestPinDeleted(object);
 			break;
@@ -268,7 +271,7 @@ public class GroupChatThread extends OneToNChatThread
 		/**
 		 * Proceeding only if the group is alive
 		 */
-		if (oneToNConversation.isConversationAlive())
+		if (oneToNConversation.isConversationAlive() && !oneToNConversation.isBlocked())
 		{
 			Utils.logEvent(activity.getApplicationContext(), HikeConstants.LogEvent.GROUP_INFO_TOP_BUTTON);
 
@@ -276,6 +279,13 @@ public class GroupChatThread extends OneToNChatThread
 
 			activity.startActivity(intent);
 		}
+		
+		else if (oneToNConversation.isBlocked())
+		{
+			String label = oneToNConversation.getConversationParticipantName(oneToNConversation.getConversationOwner());
+			Toast.makeText(activity.getApplicationContext(), activity.getString(R.string.block_overlay_message, label), Toast.LENGTH_SHORT).show();
+		}
+		
 		else
 		{
 			Toast.makeText(activity.getApplicationContext(), getString(R.string.group_chat_end), Toast.LENGTH_SHORT).show();
@@ -294,7 +304,7 @@ public class GroupChatThread extends OneToNChatThread
 	}
 
 	@Override
-	protected void addMessage(ConvMessage convMessage)
+	protected void messageAdded(ConvMessage convMessage)
 	{
 		/*
 		 * If we were showing the typing bubble, we remove it from the add the new message and add the typing bubble back again
@@ -313,7 +323,7 @@ public class GroupChatThread extends OneToNChatThread
 		/**
 		 * Adding message to the adapter
 		 */
-		mAdapter.addMessage(convMessage);
+		addMessage(convMessage);
 
 		if (convMessage.isSent())
 		{
@@ -325,51 +335,17 @@ public class GroupChatThread extends OneToNChatThread
 			if (!((GroupTypingNotification) typingNotification).getGroupParticipantList().isEmpty())
 			{
 				Logger.d(TAG, "Typing notification in group chat thread: " + ((GroupTypingNotification) typingNotification).getGroupParticipantList().size());
-				mAdapter.addMessage(new ConvMessage(typingNotification));
+				addMessage(new ConvMessage(typingNotification));
 			}
 		}
 
-		super.addMessage(convMessage);
+		super.messageAdded(convMessage);
 	}
 
-	private void onMuteConversationToggled(Object object)
+	@Override
+	protected void addMessage(ConvMessage message)
 	{
-		Pair<String, Boolean> groupMute = (Pair<String, Boolean>) object;
-
-		/**
-		 * Proceeding only if we caught an event for this groupchat thread
-		 */
-
-		if (groupMute.first.equals(msisdn))
-		{
-			oneToNConversation.setIsMute(groupMute.second);
-		}
-
-		sendUIMessage(MUTE_CONVERSATION_TOGGLED, groupMute.second);
-	}
-
-	/**
-	 * This method handles the UI part of Mute group conversation It is to be strictly called from the UI Thread
-	 * 
-	 * @param isMuted
-	 */
-	private void muteConvToggledUIChange(boolean isMuted)
-	{
-		if (!ChatThreadUtils.checkNetworkError())
-		{
-			toggleConversationMuteViewVisibility(isMuted);
-		}
-
-		/**
-		 * Updating the overflow menu item
-		 */
-
-		mActionBar.updateOverflowMenuItemString(R.string.mute_group, isMuted ? activity.getString(R.string.unmute_group) : activity.getString(R.string.mute_group));
-	}
-
-	private void toggleConversationMuteViewVisibility(boolean isMuted)
-	{
-		activity.findViewById(R.id.conversation_mute).setVisibility(isMuted ? View.VISIBLE : View.GONE);
+		super.addMessage(message);
 	}
 
 	/*
@@ -493,22 +469,38 @@ public class GroupChatThread extends OneToNChatThread
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item)
 	{
-//		Not allowing user to access actionbar items on a dead conversation
+		if (!checkForDeadOrBlocked())
+		{
+			switch (item.getItemId())
+			{
+			case R.id.pin_imp:
+				showPinCreateView();
+				break;
+			}
+			return super.onOptionsItemSelected(item);
+		}
+		
+		return false;
+	}
+	
+	private boolean checkForDeadOrBlocked()
+	{
 		if (!oneToNConversation.isConversationAlive())
 		{
 			Toast.makeText(activity.getApplicationContext(), getString(R.string.group_chat_end), Toast.LENGTH_SHORT).show();
-			return false;
+			return true;
 		}
-		
-		switch (item.getItemId())
+
+		if (oneToNConversation.isBlocked())
 		{
-		case R.id.pin_imp:
-			showPinCreateView();
-			break;
+			String label = oneToNConversation.getConversationParticipantName(oneToNConversation.getConversationOwner());
+			Toast.makeText(activity.getApplicationContext(), activity.getString(R.string.block_overlay_message, label), Toast.LENGTH_SHORT).show();
+			return true;
 		}
-		return super.onOptionsItemSelected(item);
+
+		return false;
 	}
-	
+
 	private void showPinCreateView()
 	{
 		mActionMode.showActionMode(PIN_CREATE_ACTION_MODE, getString(R.string.create_pin), getString(R.string.pin), HikeActionMode.DEFAULT_LAYOUT_RESID);
@@ -646,7 +638,7 @@ public class GroupChatThread extends OneToNChatThread
 	{
 		if (convMessage != null)
 		{
-			addMessage(convMessage);
+			messageAdded(convMessage);
 			HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_SENT, convMessage);
 
 			if (convMessage.getMessageType() == HikeConstants.MESSAGE_TYPE.TEXT_PIN)
@@ -915,9 +907,12 @@ public class GroupChatThread extends OneToNChatThread
 			switch (overFlowMenuItem.id)
 			{
 			case R.string.group_profile:
-			case R.string.mute_group:
 			case R.string.chat_theme:
+				overFlowMenuItem.enabled = !checkForDeadOrBlocked();
+				break;
+			case R.string.mute_group:
 				overFlowMenuItem.enabled = oneToNConversation.isConversationAlive();
+				overFlowMenuItem.text = oneToNConversation.isMuted() ? activity.getString(R.string.unmute_group) : activity.getString(R.string.mute_group);
 				break;
 			}
 		}

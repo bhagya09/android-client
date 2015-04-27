@@ -281,9 +281,9 @@ public class ChatThreadUtils
 		}
 	}
 
-	protected static boolean shouldShowLastSeen(Context context, FavoriteType mFavoriteType, boolean convOnHike)
+	protected static boolean shouldShowLastSeen(String msisdn, Context context, boolean convOnHike)
 	{
-		if (convOnHike)
+		if (convOnHike && !Utils.isBot(msisdn))
 		{
 			return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(HikeConstants.LAST_SEEN_PREF, true);
 		}
@@ -565,6 +565,11 @@ public class ChatThreadUtils
 		{
 			return HikeConstants.Extras.GROUP_CHAT_THREAD;
 		}
+		
+		else if (Utils.isBot(msisdn))
+		{
+			return HikeConstants.Extras.BOT_CHAT_THREAD;
+		}
 
 		return HikeConstants.Extras.ONE_TO_ONE_CHAT_THREAD;
 	}
@@ -658,5 +663,29 @@ public class ChatThreadUtils
 			e.printStackTrace();
 		}
 
+	}
+	
+	/**
+	 * Utility method for returning msisdn from action:SendTo intent which is invoked from outside the application
+	 * 
+	 * @param intent
+	 * @return
+	 */
+	public static String getMsisdnFromSendToIntent(Intent intent)
+	{
+		String smsToString = intent.getDataString();
+		smsToString = Uri.decode(smsToString);
+		int index = smsToString.indexOf(intent.getData().getScheme() + ":");
+		if (index != -1)
+		{
+			index += (intent.getData().getScheme() + ":").length();
+			String msisdn = smsToString.substring(index, smsToString.length());
+			if (msisdn != null)
+			{
+				return msisdn.trim();
+			}
+		}
+
+		return null;
 	}
 }
