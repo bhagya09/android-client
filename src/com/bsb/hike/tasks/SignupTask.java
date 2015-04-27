@@ -37,6 +37,7 @@ import com.bsb.hike.models.Birthday;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.contactmgr.ContactUtils;
+import com.bsb.hike.modules.signupmgr.RegisterAccountTask;
 import com.bsb.hike.ui.SignupActivity;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.Logger;
@@ -258,7 +259,7 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 			AccountInfo accountInfo = null;
 			if (!SignupTask.isAlreadyFetchingNumber && INDIA_ISO.equals(countryIso) && !wifi.isConnected())
 			{
-				accountInfo = AccountUtils.registerAccount(context, null, null);
+				accountInfo = new RegisterAccountTask(null, null).execute();
 				if (accountInfo == null)
 				{
 					/* network error, signal a failure */
@@ -374,13 +375,13 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 						publishProgress(new StateValue(State.ERROR, HikeConstants.CHANGE_NUMBER));
 						return Boolean.FALSE;
 					}
-					accountInfo = AccountUtils.registerAccount(context, pin, unauthedMSISDN);
+					accountInfo = new RegisterAccountTask(pin, unauthedMSISDN).execute();
 					/*
 					 * if it fails, we try once again.
 					 */
 					if (accountInfo == null)
 					{
-						accountInfo = AccountUtils.registerAccount(context, pin, unauthedMSISDN);
+						accountInfo = new RegisterAccountTask(pin, unauthedMSISDN).execute();
 					}
 
 					if (accountInfo == null)

@@ -200,24 +200,29 @@ public class HttpRequestConstants
 	{
 		return BASE_URL + ":" + PORT + "/static/avatars/";
 	}
-	
+
 	public static String editProfileAvatarBase()
 	{
 		return BASE_URL + BASE_V1 + BASE_ACCOUNT + "/avatar";
 	}
-	
+
 	public static String authSDKBaseUrl()
 	{
 		return BASE_SDK;
 	}
-	
+
 	public static String groupProfileBaseUrl()
 	{
 		return BASE_URL + BASE_V1 + "/group/";
 	}
-	
+
 	public static String getHikeJoinTimeBaseUrl()
 	{
 		return BASE_URL + BASE_V1 + BASE_ACCOUNT + "/profile/";
+	}
+
+	public static String registerAccountBaseUrl()
+	{
+		return BASE_URL + BASE_V1 + BASE_ACCOUNT;
 	}
 }
