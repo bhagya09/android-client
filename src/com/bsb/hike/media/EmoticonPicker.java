@@ -13,6 +13,7 @@ import android.widget.EditText;
 
 import com.bsb.hike.R;
 import com.bsb.hike.adapters.EmoticonAdapter;
+import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.utils.EmoticonConstants;
 import com.bsb.hike.utils.Logger;
@@ -250,7 +251,8 @@ public class EmoticonPicker implements ShareablePopup, EmoticonPickerListener, O
 			 */
 			if (mContext == null)
 			{
-				//Add Analytics Logs
+				String errorMsg = "Inside method : getView of EmoticonPicker. Context is null";
+				HAManager.sendStickerEmoticonStrangeBehaviourReport(errorMsg);
 				return null;
 			}
 			

@@ -231,7 +231,8 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 			 */
 			if (mContext == null)
 			{
-				// Add Analytics Logs
+				String errorMsg = "Inside method : getView of StickerPicker. Context is null";
+				HAManager.sendStickerEmoticonStrangeBehaviourReport(errorMsg);
 				return null;
 			}
 				

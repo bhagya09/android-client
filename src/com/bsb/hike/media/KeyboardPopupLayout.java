@@ -14,6 +14,7 @@ import android.widget.PopupWindow;
 import android.widget.PopupWindow.OnDismissListener;
 import android.widget.RelativeLayout;
 
+import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.utils.Logger;
 
 public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListener
@@ -72,7 +73,13 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 	{
 		if (mainView == null || mainView.getWindowToken() == null)
 		{
-			//Add Analytics Logs
+			String errorMsg = "Inside method : showKeyboardPopup of KeyboardPopupLayout. Is view null" + (mainView == null);
+			if (mainView != null)
+			{
+				errorMsg += " is WindowToken Null : " + (mainView.getWindowToken() == null);
+			}
+			
+			HAManager.sendStickerEmoticonStrangeBehaviourReport(errorMsg);
 			Logger.wtf("chatthread", "window token is null or view itself is null! Cannot show sticker/emoticons. Eating this exception");
 			return false;
 		}

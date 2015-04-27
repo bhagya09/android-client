@@ -1050,7 +1050,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	 */
 	private boolean retryToInflateEmoticons()
 	{
-		//TODO Add analytics
+		String errorMsg = "Inside method : retry to inflate emoticons. Houston!, something's not right here";
+		HAManager.sendStickerEmoticonStrangeBehaviourReport(errorMsg);
 		mShareablePopupLayout = null;
 		initShareablePopup();
 		return mShareablePopupLayout.togglePopup(mEmoticonPicker, activity.getResources().getConfiguration().orientation);
@@ -1058,7 +1059,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	
 	private boolean retryToInflateStickers()
 	{
-		//TODO Add analytics
+		String errorMsg = "Inside method : retry to inflate stickers. Houston!, something's not right here";
+		HAManager.sendStickerEmoticonStrangeBehaviourReport(errorMsg);
 		mShareablePopupLayout = null;
 		initShareablePopup();
 		return mShareablePopupLayout.togglePopup(mStickerPicker, activity.getResources().getConfiguration().orientation);
