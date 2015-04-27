@@ -225,4 +225,9 @@ public class HttpRequestConstants
 	{
 		return BASE_URL + BASE_V1 + BASE_ACCOUNT;
 	}
+	
+	public static String validateNumberBaseUrl()
+	{
+		return BASE_URL + BASE_V1 + BASE_ACCOUNT + "/validate";
+	}
 }

@@ -349,41 +349,6 @@ public class AccountUtils
 		return null;
 	}
 
-	public static String validateNumber(String number)
-	{
-		HttpPost httppost = new HttpPost(base + "/account/validate?digits=4");
-		AbstractHttpEntity entity = null;
-		JSONObject data = new JSONObject();
-		try
-		{
-			data.put("phone_no", number);
-			entity = new GzipByteArrayEntity(data.toString().getBytes(), HTTP.DEFAULT_CONTENT_CHARSET);
-			entity.setContentType("application/json");
-			httppost.setEntity(entity);
-		}
-		catch (UnsupportedEncodingException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		catch (JSONException e)
-		{
-			Logger.e("AccountUtils", "creating a string entity from an entry string threw!", e);
-		}
-
-		JSONObject obj = executeRequest(httppost);
-		if (obj == null)
-		{
-			Logger.w("HTTP", "Unable to Validate Phone Number.");
-			// raise an exception?
-			return null;
-		}
-
-		String msisdn = obj.optString("msisdn");
-		Logger.d("HTTP", "Successfully validated phone number.");
-		return msisdn;
-	}
-
 	public static void addToken(HttpRequestBase req) throws IllegalStateException
 	{
 		assertIfTokenNull();

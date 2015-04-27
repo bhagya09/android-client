@@ -38,6 +38,7 @@ import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.contactmgr.ContactUtils;
 import com.bsb.hike.modules.signupmgr.RegisterAccountTask;
+import com.bsb.hike.modules.signupmgr.ValidateNumberTask;
 import com.bsb.hike.ui.SignupActivity;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.Logger;
@@ -306,8 +307,8 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 					this.context.getApplicationContext().registerReceiver(receiver, new IntentFilter(intentFilter));
 				}
 
-				String unauthedMSISDN = AccountUtils.validateNumber(number);
-
+				String unauthedMSISDN = new ValidateNumberTask(number).execute();
+				
 				if (TextUtils.isEmpty(unauthedMSISDN))
 				{
 					Logger.d("SignupTask", "Unable to send PIN to user");
