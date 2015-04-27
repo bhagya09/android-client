@@ -73,6 +73,7 @@ import com.bsb.hike.http.CustomSSLSocketFactory;
 import com.bsb.hike.http.GzipByteArrayEntity;
 import com.bsb.hike.http.HikeHttpRequest;
 import com.bsb.hike.http.HikeHttpRequest.RequestType;
+import com.bsb.hike.models.AccountInfo;
 import com.bsb.hike.models.Birthday;
 import com.bsb.hike.models.ContactInfo;
 
@@ -347,37 +348,6 @@ public class AccountUtils
 		return null;
 	}
 
-	public static class AccountInfo
-	{
-		public String token;
-
-		public String msisdn;
-
-		public String uid;
-
-		public int smsCredits;
-
-		public int all_invitee;
-
-		public int all_invitee_joined;
-
-		public String country_code;
-		
-		public String backupToken;
-
-		public AccountInfo(String token, String msisdn, String uid, String backupToken, int smsCredits, int all_invitee, int all_invitee_joined, String country_code)
-		{
-			this.token = token;
-			this.msisdn = msisdn;
-			this.uid = uid;
-			this.backupToken = backupToken;
-			this.smsCredits = smsCredits;
-			this.all_invitee = all_invitee;
-			this.all_invitee_joined = all_invitee_joined;
-			this.country_code = country_code;
-		}
-	}
-
 	public static AccountInfo registerAccount(Context context, String pin, String unAuthMSISDN)
 	{
 		HttpPost httppost = new HttpPost(base + "/account");
@@ -459,12 +429,17 @@ public class AccountUtils
 		Logger.d("AccountUtils", "AccountCreation " + obj.toString());
 		if ("fail".equals(obj.optString("stat")))
 		{
-			if (pin != null)
-				return new AccountUtils.AccountInfo(null, null, null, null, -1, 0, 0, null);
-			/*
-			 * represents normal account creation , when user is on wifi and account creation failed
-			 */
-			return new AccountUtils.AccountInfo(null, null, null, null, -1, 0, 0, null);
+			AccountInfo accountInfo = new AccountInfo.Builder()
+					.setToken(null)
+					.setMsisdn(null)
+					.setUid(null)
+					.setBackupToken(null)
+					.setSmsCredits(-1)
+					.setAllInvitee(0)
+					.setAllInviteJoined(0)
+					.setCountryCode(null)
+					.build();
+			return accountInfo;
 		}
 		String token = obj.optString("token");
 		String msisdn = obj.optString("msisdn");
@@ -476,7 +451,16 @@ public class AccountUtils
 		String country_code = obj.optString("country_code");
 
 		Logger.d("HTTP", "Successfully created account token:" + token + "msisdn: " + msisdn + " uid: " + uid + "backup_token: " + backupToken);
-		return new AccountUtils.AccountInfo(token, msisdn, uid, backupToken, smsCredits, all_invitee, all_invitee_joined, country_code);
+		return new AccountInfo.Builder()
+				.setToken(token)
+				.setMsisdn(msisdn)
+				.setUid(uid)
+				.setBackupToken(backupToken)
+				.setSmsCredits(smsCredits)
+				.setAllInvitee(all_invitee)
+				.setAllInviteJoined(all_invitee_joined)
+				.setCountryCode(country_code)
+				.build();
 	}
 
 	public static String validateNumber(String number)

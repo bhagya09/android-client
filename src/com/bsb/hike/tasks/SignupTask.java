@@ -32,6 +32,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.db.DBBackupRestore;
 import com.bsb.hike.http.HikeHttpRequest;
+import com.bsb.hike.models.AccountInfo;
 import com.bsb.hike.models.Birthday;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
@@ -253,7 +254,7 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 			TelephonyManager manager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
 			String countryIso = manager.getNetworkCountryIso().toUpperCase();
 
-			AccountUtils.AccountInfo accountInfo = null;
+			AccountInfo accountInfo = null;
 			if (!SignupTask.isAlreadyFetchingNumber && INDIA_ISO.equals(countryIso) && !wifi.isConnected())
 			{
 				accountInfo = AccountUtils.registerAccount(context, null, null);
@@ -264,7 +265,7 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 					return Boolean.FALSE;
 				}
 			}
-			if (accountInfo == null || TextUtils.isEmpty(accountInfo.msisdn))
+			if (accountInfo == null || TextUtils.isEmpty(accountInfo.getMsisdn()))
 			{
 				if (!SignupTask.isAlreadyFetchingNumber)
 				{
@@ -387,7 +388,7 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 						publishProgress(new StateValue(State.ERROR, null));
 						return Boolean.FALSE;
 					}
-					else if (accountInfo.smsCredits == -1)
+					else if (accountInfo.getSmsCredits() == -1)
 					{
 						this.data = null;
 						isPinError = true;
@@ -418,11 +419,11 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 			}
 
 			Logger.d("SignupTask", "saving MSISDN/Token");
-			msisdn = accountInfo.msisdn;
+			msisdn = accountInfo.getMsisdn();
 			/* save the new msisdn */
 			Utils.savedAccountCredentials(accountInfo, settings.edit());
-			String hikeUID = accountInfo.uid;
-			String hikeToken = accountInfo.token;
+			String hikeUID = accountInfo.getUid();
+			String hikeToken = accountInfo.getToken();
 			if (!TextUtils.isEmpty(hikeUID) && !TextUtils.isEmpty(hikeToken))
 			{
 				PlatformUIDFetch.fetchPlatformUid(HikePlatformConstants.PlatformUIDFetchType.SELF);
