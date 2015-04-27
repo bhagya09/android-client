@@ -57,19 +57,23 @@ public class MessagingBotConfiguration extends BotConfiguration
 
 	private static byte VIEW_PROFILE = 13;
 
-	private static byte NUDGE = 14;
+	private static byte ADD_BLOCK_STRIP = 14;
 
-	private static byte TEXT_INPUT = 15;
+	private static byte NUDGE = 15;
 
-	private static byte AUDIO_RECORD = 16;
+	private static byte TEXT_INPUT = 16;
 
-	private static byte EMOTICON_PICKER = 17;
+	private static byte AUDIO_RECORD = 17;
 
-	private static byte STICKER_PICKER = 18;
+	private static byte EMOTICON_PICKER = 18;
 
-	private static byte ATTACHMENT_PICKER = 19;
+	private static byte STICKER_PICKER = 19;
 
-	private static byte CALL = 20;
+	private static byte ATTACHMENT_PICKER = 20;
+
+	private static byte INPUT_BOX = 21;
+
+	private static byte CALL = 22;
 
 	public boolean isLongTapEnabled()
 	{
