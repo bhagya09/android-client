@@ -1953,23 +1953,29 @@ public class VoIPService extends Service {
 					case ENCRYPTION_PUBLIC_KEY:
 						if (clientPartner.isInitiator() != true) {
 							Logger.e(VoIPConstants.TAG, "Was not expecting a public key.");
-							continue;
+							break;
 						}
+						
 						Logger.d(VoIPConstants.TAG, "Received public key.");
-						encryptor.setPublicKey(dataPacket.getData());
-						encryptionStage = EncryptionStage.STAGE_GOT_PUBLIC_KEY;
-						exchangeCryptoInfo();
+						if (encryptor.getPublicKey() == null) {
+							encryptor.setPublicKey(dataPacket.getData());
+							encryptionStage = EncryptionStage.STAGE_GOT_PUBLIC_KEY;
+							exchangeCryptoInfo();
+						}
 						break;
 						
 					case ENCRYPTION_SESSION_KEY:
 						if (clientPartner.isInitiator() == true) {
 							Logger.e(VoIPConstants.TAG, "Was not expecting a session key.");
-							continue;
+							break;
 						}
-						encryptor.setSessionKey(encryptor.rsaDecrypt(dataPacket.getData()));
-						Logger.d(VoIPConstants.TAG, "Received session key.");
-						encryptionStage = EncryptionStage.STAGE_GOT_SESSION_KEY;
-						exchangeCryptoInfo();
+						
+						if (encryptor.getSessionKey() == null) {
+							encryptor.setSessionKey(encryptor.rsaDecrypt(dataPacket.getData()));
+							Logger.d(VoIPConstants.TAG, "Received session key.");
+							encryptionStage = EncryptionStage.STAGE_GOT_SESSION_KEY;
+							exchangeCryptoInfo();
+						}
 						break;
 						
 					case ENCRYPTION_RECEIVED_SESSION_KEY:
