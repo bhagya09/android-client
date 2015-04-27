@@ -347,67 +347,6 @@ public class AccountUtils
 		return null;
 	}
 
-	public static int sendMessage(String phone_no, String message)
-	{
-		HttpPost httppost = new HttpPost(base + "/user/msg");
-		List<NameValuePair> pairs = new ArrayList<NameValuePair>(2);
-		pairs.add(new BasicNameValuePair("to", phone_no));
-		pairs.add(new BasicNameValuePair("body", message));
-		HttpEntity entity;
-		try
-		{
-			entity = new UrlEncodedFormEntity(pairs);
-			httppost.setEntity(entity);
-		}
-		catch (UnsupportedEncodingException e)
-		{
-			Logger.wtf("URL", "Unable to send message " + message);
-			return -1;
-		}
-
-		JSONObject obj = executeRequest(httppost);
-		if ((obj == null) || ("fail".equals(obj.optString("stat"))))
-		{
-			Logger.w("HTTP", "Unable to send message");
-			return -1;
-		}
-
-		int count = obj.optInt("sms_count");
-		return count;
-	}
-
-	public static void invite(String phone_no) throws UserError
-	{
-		HttpPost httppost = new HttpPost(base + "/user/invite");
-		addToken(httppost);
-		try
-		{
-			List<NameValuePair> pairs = new ArrayList<NameValuePair>(1);
-			pairs.add(new BasicNameValuePair("to", phone_no));
-			HttpEntity entity = new UrlEncodedFormEntity(pairs);
-			httppost.setEntity(entity);
-		}
-		catch (UnsupportedEncodingException e)
-		{
-			Logger.wtf("AccountUtils", "encoding exception", e);
-			throw new UserError("Invalid PhoneNumber", -2);
-		}
-
-		JSONObject obj = executeRequest(httppost);
-		if (((obj == null) || ("fail".equals(obj.optString("stat")))))
-		{
-			Logger.i("Invite", "Couldn't invite friend: " + obj);
-			if (obj == null)
-			{
-				throw new UserError("Unable to invite", -1);
-			}
-			else
-			{
-				throw new UserError(obj.optString("errorMsg"), obj.optInt("error"));
-			}
-		}
-	}
-
 	public static class AccountInfo
 	{
 		public String token;
@@ -891,60 +830,6 @@ public class AccountUtils
 		}
 	}
 
-	/*public static void deleteSocialCredentials(boolean facebook) throws NetworkErrorException, IllegalStateException
-	{
-		String url = facebook ? "/account/connect/fb" : "/account/connect/twitter";
-		HttpDelete delete = new HttpDelete(base + url);
-		addToken(delete);
-		JSONObject obj = executeRequest(delete);
-		if ((obj == null) || "fail".equals(obj.optString("stat")))
-		{
-			throw new NetworkErrorException("Could not delete account");
-		}
-	}*/
-
-	public static String getServerUrl()
-	{
-		return base;
-	}
-
-	public static JSONObject downloadSticker(String catId, JSONArray existingStickerIds) throws NetworkErrorException, IllegalStateException, JSONException
-	{
-
-		JSONObject request = new JSONObject();
-		request.put(StickerManager.CATEGORY_ID, catId);
-		request.put(HikeConstants.STICKER_IDS, existingStickerIds);
-		request.put(HikeConstants.RESOLUTION_ID, Utils.getResolutionId());
-		request.put(HikeConstants.NUMBER_OF_STICKERS, HikeConstants.MAX_NUM_STICKER_REQUEST);
-
-		Logger.d("Stickers", "Request: " + request);
-		GzipByteArrayEntity entity;
-		try
-		{
-			entity = new GzipByteArrayEntity(request.toString().getBytes(), HTTP.DEFAULT_CONTENT_CHARSET);
-
-			HttpPost httpPost = new HttpPost(base + "/stickers");
-			addToken(httpPost);
-			httpPost.setEntity(entity);
-
-			JSONObject obj = executeRequest(httpPost);
-			Logger.d("Stickers", "Response: " + obj);
-
-			if (((obj == null) || (!"ok".equals(obj.optString("stat")))))
-			{
-				throw new NetworkErrorException("Unable to perform request");
-			}
-
-			return obj;
-		}
-		catch (UnsupportedEncodingException e)
-		{
-			e.printStackTrace();
-			return null;
-		}
-
-	}
-
 	public static int getBytesUploaded(String sessionId) throws ClientProtocolException, IOException
 	{
 		int val = 0;
@@ -970,45 +855,7 @@ public class AccountUtils
 		}
 		return val;
 	}
-
-	public static String crcValue(String fileKey) throws ClientProtocolException, IOException
-	{
-		HttpRequestBase req = new HttpGet(AccountUtils.fileTransferBase + "/user/ft/" + fileKey);
-		AccountUtils.setNoTransform(req);
-		addToken(req);
-		HttpClient httpclient = getClient(req);
-		HttpResponse response = httpclient.execute(req);
-		StatusLine statusLine = response.getStatusLine();
-		if (statusLine.getStatusCode() == HttpStatus.SC_OK)
-		{
-			org.apache.http.Header msg = response.getFirstHeader("ETag");
-			return msg.getValue();
-		}
-		else
-		{
-			// Closes the connection.
-			try
-			{
-				response.getEntity().getContent().close();
-			}
-			catch (IllegalStateException e)
-			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			catch (IOException e)
-			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			catch (Exception e)
-			{
-
-			}
-			return null;
-		}
-	}
-
+	
 	private static int calculateGreenBlueValue(boolean isOnGreenBlue)
 	{
 		int rand = (new Random()).nextInt(100);
