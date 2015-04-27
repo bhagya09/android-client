@@ -13,12 +13,19 @@ public class BotInfo extends ConvInfo
 	public int type;
 
 	public int configuration;
+
+	private boolean isReceiveEnabled;
+
 	public String metadata;
 
 
-	protected static abstract class InitBuilder<P extends InitBuilder<P>> extends ConvInfo.InitBuilder<P>
+	public static abstract class InitBuilder<P extends InitBuilder<P>> extends ConvInfo.InitBuilder<P>
 	{
-		private int type;
+		private int type, config;
+
+		private boolean isReceiveEnabled;
+
+		private String metadata;
 
 		public P setType(int type)
 		{
@@ -30,10 +37,7 @@ public class BotInfo extends ConvInfo
 		{
 			this.config = config;
 			return  getSelfObject();
-
 		}
-
-		private int config;
 
 		public P setMetadata(String metadata)
 		{
@@ -41,7 +45,11 @@ public class BotInfo extends ConvInfo
 			return getSelfObject();
 		}
 
-		private String metadata;
+		public P setIsReceiveEnabled(boolean isReceiveEnabled)
+		{
+			this.isReceiveEnabled = isReceiveEnabled;
+			return getSelfObject();
+		}
 
 		protected InitBuilder(String msisdn)
 		{
@@ -72,6 +80,16 @@ public class BotInfo extends ConvInfo
 			return new BotInfo(this);
 		}
 
+	}
+
+	public boolean isReceiveEnabled()
+	{
+		return isReceiveEnabled;
+	}
+
+	public void setIsReceiveEnabled(boolean isReceiveEnabled)
+	{
+		this.isReceiveEnabled = isReceiveEnabled;
 	}
 
 	public void setType(int type)
