@@ -70,6 +70,12 @@ public final class PreviewFragment extends Fragment
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 	{
+		//adding null check since click handler becomes null if PictureEditor is restarted by the OS
+		if (getActivity() instanceof PictureEditer && handler == null)
+		{
+			handler = ((PictureEditer) getActivity()).getClickHandler();
+		}
+
 
 		LinearLayout layout = (LinearLayout) LayoutInflater.from(getActivity()).inflate(R.layout.photos_pager_layout, container, false);
 
