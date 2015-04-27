@@ -52,8 +52,7 @@
         android:visibility="gone"
         android:layout_toLeftOf="@id/seprator"
         android:layout_alignWithParentIfMissing="true" />
-    
-     <LinearLayout
+    <LinearLayout
         android:id="@+id/image_quality_settings_view"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
@@ -71,7 +70,6 @@
             android:layout_height="wrap_content"
             android:background="@drawable/ic_settings" />
     </LinearLayout>
-    
     <LinearLayout
         android:layout_width="wrap_content"
 	    android:layout_height="fill_parent"

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="#0a0a0a"
+    android:orientation="vertical" >
+
+    <com.bsb.hike.ui.utils.RecyclingImageView
+        android:id="@+id/sticker_image"
+        android:layout_width="200dp"
+        android:layout_height="150dp"
+        android:layout_gravity="center_horizontal"
+        android:adjustViewBounds="true"
+        android:background="#0a0a0a"
+        android:padding="16dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_marginLeft="4dp"
+        android:gravity="center"
+        android:orientation="horizontal" >
+
+        <com.bsb.hike.ui.utils.RecyclingImageView
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_marginLeft="5dp"
+            android:src="@drawable/ic_launcher" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="2dp"
+            android:layout_marginLeft="5dp"
+            android:orientation="vertical" >
+
+            <com.bsb.hike.view.CustomFontTextView
+                android:id="@+id/stickerShareHeading"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="1dp"
+                android:maxLines="2"
+                android:text="@string/sticker_share_heading"
+                android:textColor="@color/white"
+                android:textSize="8sp"
+                android:textStyle="bold" />
+
+            <com.bsb.hike.view.CustomFontTextView
+                android:id="@+id/stickerShareDescription"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="1dp"
+                android:layout_marginRight="4dp"
+                android:maxLines="2"
+                android:text="@string/sticker_share_description"
+                android:textColor="@color/white"
+                android:textSize="6sp"
+                android:textStyle="normal" />
+        </LinearLayout>
+    </LinearLayout>
+
+</LinearLayout>

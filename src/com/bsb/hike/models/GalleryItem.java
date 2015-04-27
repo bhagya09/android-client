@@ -1,10 +1,16 @@
 package com.bsb.hike.models;
 
+import android.app.PendingIntent;
 import android.os.Parcel;
 import android.os.Parcelable;
 
 public class GalleryItem implements Parcelable
 {
+
+	public static final byte DEFAULT_FILE = 1;
+
+	public static final byte CUSTOM = 2;
+
 	private long id;
 
 	private String bucketId;
@@ -15,6 +21,12 @@ public class GalleryItem implements Parcelable
 
 	private int bucketCount;
 
+	private String layoutIDName;
+
+	private PendingIntent pIntent;
+
+	private byte type;
+
 	public GalleryItem(long id, String bucketId, String name, String filePath, int bucketCount)
 	{
 		this.id = id;
@@ -22,14 +34,39 @@ public class GalleryItem implements Parcelable
 		this.name = name;
 		this.filePath = filePath;
 		this.bucketCount = bucketCount;
+		type = DEFAULT_FILE;
+	}
+
+	public GalleryItem(String name, String layoutIDName, int bucketCount, PendingIntent intent)
+	{
+		this.name = name;
+		this.layoutIDName = layoutIDName;
+		this.bucketCount = bucketCount;
+		this.pIntent = intent;
+		type = CUSTOM;
 	}
 
 	public GalleryItem(Parcel source)
 	{
+		this.type = source.readByte();
 		this.id = source.readLong();
 		this.bucketId = source.readString();
 		this.name = source.readString();
 		this.filePath = source.readString();
+		this.layoutIDName = source.readString();
+		this.pIntent = source.readParcelable(PendingIntent.class.getClassLoader());
+	}
+
+	@Override
+	public void writeToParcel(Parcel dest, int flags)
+	{
+		dest.writeByte(type);
+		dest.writeLong(id);
+		dest.writeString(bucketId);
+		dest.writeString(name);
+		dest.writeString(filePath);
+		dest.writeString(layoutIDName);
+		dest.writeParcelable(pIntent, flags);
 	}
 
 	public long getId()
@@ -63,15 +100,26 @@ public class GalleryItem implements Parcelable
 		return 0;
 	}
 
-	@Override
-	public void writeToParcel(Parcel dest, int flags)
+	public String getLayoutIDName()
 	{
-		dest.writeLong(id);
-		dest.writeString(bucketId);
-		dest.writeString(name);
-		dest.writeString(filePath);
+		return layoutIDName;
 	}
 
+	public void setFilePath(String filePath)
+	{
+		this.filePath = filePath;
+	}
+	
+	public byte getType()
+	{
+		return type;
+	}
+
+	public PendingIntent getPendingIntent()
+	{
+		return pIntent;
+	}
+	
 	public static final Creator<GalleryItem> CREATOR = new Creator<GalleryItem>()
 	{
 		@Override

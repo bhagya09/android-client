@@ -1302,6 +1302,8 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="voip_missed_call_outgoing">Missed your call</string>
     <string name="voip_missed_call_incoming">You missed a call</string>
     <string name="voip_call_chat">Hike Call</string>
+    <string name="voip_call_notification_title">Hike Call with %1$s</string>
+    <string name="voip_call_notification_text">Call in progress %1$s</string>
     <string name="voip_call">call</string>
     <string name="voip_call_ended">CALL ENDED</string>
     <string name="voip_on_hold">ON HOLD</string>
@@ -1366,7 +1368,6 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="voip_missed_call_notif">Missed Call</string>
     <string name="voip_missed_call_action">Call Back</string>
     <string name="voip_missed_call_message">Message</string>
-    <string name="valentine_day">Happy Valentine\'s Day</string>
     <string name="empty_email">You have no messages in this conversation to e-mail.</string>
     <string name="no_results">No results</string>
     <string name="take_photo">Take a photo</string>
@@ -1380,7 +1381,7 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="cropping_image">Cropping image..</string>
     <string name="compose_chat">New chat</string>
 	<string name="home_search_empty_text">Your search for \'%1$s\' did not match any contacts.</string>
-    <string name="voip_phone_unsupported">Your phone is not supported.</string>
+    <string name="voip_mic_error">Unable to start mic. This call may not work.</string>
     <string name="voip_call_failed_frag_subheader">You can still contact %1$s with a</string>
     <string name="dismiss_upper_case">DISMISS</string>
     <string name="voip_call_failed_voice_clip">Voice message</string>
@@ -1430,6 +1431,7 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="photos_oom_load">Unable to load Image!\nNot Enough Memory On Device.</string>
     <string name="photos_oom_retry">Try Again!</string>
     <string name="photos_oom_camera">Unable to capture Image</string>
+    <string name="search_hint">Search</string>
     <string name="nudge_setting_header">Double tap to Nudge</string>
     <string name="nudge_setting_info">Send a Nudge by double tapping while chatting</string>
     <string name="enter_setting_header">Enter key is send</string>
@@ -1440,11 +1442,23 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="select_all_hike">Select all</string>
     <string name="unselect_all_hike">Unselect all</string>
     <string name="searching">Searching...</string>
+    <string name="sticker_share_heading">Indian Stickers only on hike!</string>
+    <string name="sticker_share_description"><![CDATA[Visit <font color="#57dcf9">http://get.hike.in</font>  to get hike messenger]]></string>
+    <string name="sticker_share_caption">Download: http://hike.in</string>
+    <string name="text_share_heading">- Sent via hike</string>
+    <string name="text_share_caption">Download: http://hike.in</string> 
+    <string name="image_share_heading">Shared via hike!</string>
+    <string name="image_share_description"><![CDATA[Visit <font color="#57dcf9">http://get.hike.in</font>  to get hike messenger]]></string>
+    <string name="image_share_caption">Download: http://hike.in</string>
+    <string name="error_sharing">Some error occured, please try again</string>
+    <string name="whatsapp_uninstalled">Application not found!</string>
     <string name="pick_contact_zero">Please select minimum one contact</string>
     <string name="choose_contact">Choose Contact(s)</string>
+    <string name="voip_reconnecting">&#8230;RECONNECTING</string>
+    <string name="group_creation">Created on </string>
+    <string name="ls_change_failed">Last Seen update failed!</string>
     <string name="terms_conditions_hint">Terms and Conditions</string>
     <string name="terms_conditions_title">T &amp; C</string>
-
     <string name="content_des_message_send_rec_read_status">Message send or pending status</string>
     <string name="content_des_restore_if_backup_found">Restore (Backup found)</string>
     <string name="content_des_add_photo_gallery_create_group">Add photo while creating a group</string>
@@ -1457,9 +1471,7 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="content_des_round_user_image_chatthread_actionbar">User image (rounded) chat-thread actionbar</string>
     <string name="content_des_typing_notification_chatting">Typing information to user while chatting</string>
     <string name="content_des_typing_notification_received">Typing notification received to user</string>
-
-    <string name="group_creation">Created on </string>
-    <string name="ls_change_failed">Last Seen update failed!</string>
 	<string name="activity_not_found">No app found that can handle this action</string>
-		
+	<string name="selectPreview">Select a preview</string>
+	<string name="not_enough_memory">Not Enough Memory</string>
 </resources>

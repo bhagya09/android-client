@@ -440,6 +440,21 @@ public class Utils
 		return orgFileName;
 	}
 
+	public static File createNewFile(HikeFileType type,String prefix)
+	{
+		File selectedDir = new File(Utils.getFileParent(type, false));
+		if (!selectedDir.exists())
+		{
+			if (!selectedDir.mkdirs())
+			{
+				return null;
+			}
+		}
+		String fileName = prefix + Utils.getOriginalFile(type, null);
+		File selectedFile = new File(selectedDir.getPath() + File.separator + fileName);
+		return selectedFile;
+	}
+	
 	public static String getFinalFileName(HikeFileType type)
 	{
 		return getFinalFileName(type, null);
@@ -2394,12 +2409,13 @@ public class Utils
 		activity.startActivityForResult(intent, HikeConstants.CROP_RESULT);
 	}
 
-	public static void startCropActivityForResult(Activity activity, String path, String destPath, boolean preventScaling, int quality)
+	public static void startCropActivityForResult(Activity activity, String path, String destPath, boolean preventScaling, int quality,boolean circleHighlight)
 	{
 		/* Crop the image */
 		Intent intent = new Intent(activity, CropImage.class);
 		intent.putExtra(MediaStore.EXTRA_OUTPUT, destPath);
 		intent.putExtra(HikeConstants.Extras.IMAGE_PATH, path);
+		intent.putExtra(HikeConstants.Extras.CIRCLE_HIGHLIGHT, circleHighlight);
 		intent.putExtra(HikeConstants.Extras.SCALE, false);
 		intent.putExtra(HikeConstants.Extras.RETURN_CROP_RESULT_TO_FILE, preventScaling);
 		intent.putExtra(HikeConstants.Extras.ASPECT_X, 1);
@@ -3415,6 +3431,14 @@ public class Utils
 	{
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.UNSEEN_STATUS_COUNT, 0);
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.UNSEEN_USER_STATUS_COUNT, 0);
+	}
+	
+	public static void incrementUnseenStatusCount()
+	{
+		HikeSharedPreferenceUtil prefs = HikeSharedPreferenceUtil.getInstance();
+		int unseenUserStatusCount = prefs.getData(HikeMessengerApp.UNSEEN_USER_STATUS_COUNT, 0);
+		prefs.saveData(HikeMessengerApp.UNSEEN_USER_STATUS_COUNT, ++unseenUserStatusCount);
+		prefs.saveData(HikeConstants.IS_HOME_OVERFLOW_CLICKED, false);
 	}
 
 	public static void resetUnseenFriendRequestCount(Context context)
@@ -5664,13 +5688,26 @@ public class Utils
 		}
 		return fullFirstName;
 	}
+	public static int getLayoutIdFromName(String layoutName)
+	{
+		if (!TextUtils.isEmpty(layoutName))
+		{
+			Context context = HikeMessengerApp.getInstance().getApplicationContext();
+			int resID = context.getResources().getIdentifier(layoutName, "layout", context.getPackageName());
+			return resID;
+		}
+		else
+		{
+			return -1;
+		}
+	}
 
 	/**
 	 * Making the profile pic change a status message 
 	 * @param response json packet received from server
 	 * @return StatusMessage created
 	 */
-	public static StatusMessage createTimelinePostForDPChange(JSONObject response)
+	public static StatusMessage createTimelinePostForDPChange(JSONObject response,boolean setIcon)
 	{
 		StatusMessage statusMessage = null;
 		JSONObject data = response.optJSONObject("status");
@@ -5702,20 +5739,28 @@ public class Utils
 		String srcFilePath = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT + "/" + msisdn + ".jpg";
 		String destFilePath = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT + "/" + mappedId + ".jpg";
 		Utils.copyFile(srcFilePath, destFilePath, null);
-		
-		/* the server only needs a smaller version */
-		final Bitmap smallerBitmap = HikeBitmapFactory.scaleDownBitmap(destFilePath, HikeConstants.PROFILE_IMAGE_DIMENSIONS, HikeConstants.PROFILE_IMAGE_DIMENSIONS,
-				Bitmap.Config.RGB_565, true, false);
 
-		byte[] bytes = null;
-		
-		if(smallerBitmap != null)
+		if (setIcon)
 		{
-			bytes = BitmapUtils.bitmapToBytes(smallerBitmap, Bitmap.CompressFormat.JPEG, 100);
+			/* the server only needs a smaller version */
+			final Bitmap smallerBitmap = HikeBitmapFactory.scaleDownBitmap(destFilePath, HikeConstants.PROFILE_IMAGE_DIMENSIONS, HikeConstants.PROFILE_IMAGE_DIMENSIONS,
+					Bitmap.Config.RGB_565, true, false);
+
+			byte[] bytes = null;
+
+			if (smallerBitmap != null)
+			{
+				bytes = BitmapUtils.bitmapToBytes(smallerBitmap, Bitmap.CompressFormat.JPEG, 100);
+			}
+			ContactManager.getInstance().setIcon(mappedId, bytes, false);
 		}
-		ContactManager.getInstance().setIcon(mappedId, bytes, false);
 
 		return statusMessage;
+	}
+
+	public static StatusMessage createTimelinePostForDPChange(JSONObject response)
+	{
+		return createTimelinePostForDPChange(response,true);
 	}
 
 	public static boolean isDeviceRooted()
@@ -5775,5 +5820,16 @@ public class Utils
 			}
 		}
 	}
-
+	
+	public static boolean isPhotosEditEnabled()
+	{
+		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+		{
+			return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.ENABLE_PHOTOS, true);
+		}
+		else
+		{
+			return false;
+		}
+	}
 }

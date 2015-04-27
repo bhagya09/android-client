@@ -123,16 +123,6 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 	protected Conversation fetchConversation()
 	{
 		Logger.i(TAG, "fetch group conversation " + Thread.currentThread().getName());
-		
-		if (mConversation == null)
-		{
-			/* the user must have deleted the chat. */
-			Message message = Message.obtain();
-			message.what = SHOW_TOAST;
-			message.arg1 = R.string.invalid_group_chat;
-			uiHandler.sendMessage(message);
-			return null;
-		}
 
 		// Set participant read by list
 		Pair<String, Long> pair = HikeConversationsDatabase.getInstance().getReadByValueForGroup(oneToNConversation.getMsisdn());
@@ -663,5 +653,13 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 	protected void addMessages(List<ConvMessage> list, int startIndex)
 	{
 		super.addMessages(list, startIndex);
+	}
+	
+	@Override
+	protected void updateNetworkState()
+	{
+		super.updateNetworkState();
+		boolean networkError = ChatThreadUtils.checkNetworkError();
+		toggleConversationMuteViewVisibility(networkError ? false : oneToNConversation.isMuted());
 	}
 }

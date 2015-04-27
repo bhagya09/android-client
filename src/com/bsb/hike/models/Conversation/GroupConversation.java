@@ -24,6 +24,21 @@ public class GroupConversation extends OneToNConversation
 	{
 		super(builder);
 	}
+	
+	@Override
+	public int getUnreadPinnedMessageCount()
+	{
+		try
+		{
+			return (((OneToNConversationMetadata) metadata).getUnreadPinCount(HikeConstants.MESSAGE_TYPE.TEXT_PIN));
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+
+		return 0;
+	}
 
 	@Override
 	public JSONObject serialize(String type)
