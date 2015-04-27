@@ -36,6 +36,7 @@ import com.bsb.hike.models.AccountInfo;
 import com.bsb.hike.models.Birthday;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.modules.contactmgr.ContactUtils;
 import com.bsb.hike.ui.SignupActivity;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.Logger;
@@ -471,8 +472,8 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 				Map<String, List<ContactInfo>> contacts = conMgr.convertToMap(contactinfos);
 				JSONObject jsonForAddressBookAndBlockList = AccountUtils.postAddressBook(token, contacts);
 
-				List<ContactInfo> addressbook = AccountUtils.getContactList(jsonForAddressBookAndBlockList, contacts);
-				List<String> blockList = AccountUtils.getBlockList(jsonForAddressBookAndBlockList);
+				List<ContactInfo> addressbook = ContactUtils.getContactList(jsonForAddressBookAndBlockList, contacts);
+				List<String> blockList = ContactUtils.getBlockList(jsonForAddressBookAndBlockList);
 
 				if (jsonForAddressBookAndBlockList.has(HikeConstants.PREF))
 				{

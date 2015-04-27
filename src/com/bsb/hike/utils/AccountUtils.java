@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.Random;
 
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.modules.contactmgr.ContactUtils;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUIDFetch;
 import org.apache.http.HttpEntity;
@@ -576,7 +577,7 @@ public class AccountUtils
 		HttpPost httppost = new HttpPost(base + "/account/addressbook");
 		addToken(httppost);
 		JSONObject data;
-		data = getJsonContactList(contactsMap, true);
+		data = ContactUtils.getJsonContactList(contactsMap, true);
 		if (data == null)
 		{
 			return null;
@@ -628,7 +629,7 @@ public class AccountUtils
 					contactInfo.put("phone_no", cInfo.getPhoneNum());
 					if (sendWAValue)
 					{
-						contactInfo.put("t1", calculateGreenBlueValue(cInfo.isOnGreenBlue()));
+						contactInfo.put("t1", ContactUtils.calculateGreenBlueValue(cInfo.isOnGreenBlue()));
 					}
 					contactInfoList.put(contactInfo);
 				}
@@ -651,7 +652,7 @@ public class AccountUtils
 			for (ContactInfo cInfo : contactsList)
 			{
 				JSONObject waInfoObject = new JSONObject();
-				waInfoObject.put("t1", calculateGreenBlueValue(cInfo.isOnGreenBlue()));
+				waInfoObject.put("t1", ContactUtils.calculateGreenBlueValue(cInfo.isOnGreenBlue()));
 				contactsJson.put(cInfo.getMsisdn(), waInfoObject);
 			}
 
@@ -838,20 +839,6 @@ public class AccountUtils
 			response.getEntity().getContent().close();
 		}
 		return val;
-	}
-	
-	private static int calculateGreenBlueValue(boolean isOnGreenBlue)
-	{
-		int rand = (new Random()).nextInt(100);
-		int msb = (rand / 10);
-		if (isOnGreenBlue)
-		{
-			return ((msb & 1) == 0 ? rand : (rand + 10) % 100);
-		}
-		else
-		{
-			return ((msb & 1) != 0 ? rand : (rand + 10));
-		}
 	}
 
 	public static void setNoTransform(URLConnection urlConnection)

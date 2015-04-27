@@ -1,6 +1,7 @@
 package com.bsb.hike.service;
 
 import java.io.File;
+
 import java.util.Calendar;
 import java.util.List;
 
@@ -33,9 +34,6 @@ import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.db.DBBackupRestore;
-import com.bsb.hike.http.HikeHttpRequest;
-import com.bsb.hike.http.HikeHttpRequest.HikeHttpCallback;
-import com.bsb.hike.http.HikeHttpRequest.RequestType;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.HikeHandlerUtil;
@@ -46,11 +44,10 @@ import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.modules.contactmgr.ContactUtils;
 import com.bsb.hike.platform.HikeSDKRequestHandler;
 import com.bsb.hike.tasks.CheckForUpdateTask;
-import com.bsb.hike.tasks.HikeHTTPTask;
 import com.bsb.hike.tasks.SyncContactExtraInfo;
-import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
@@ -726,7 +723,7 @@ public class HikeService extends Service
 
 			List<ContactInfo> contactinfos = ContactManager.getInstance().getAllContacts();
 			ContactManager.getInstance().setGreenBlueStatus(context, contactinfos);
-			JSONObject data = AccountUtils.getWAJsonContactList(contactinfos);
+			JSONObject data = ContactUtils.getWAJsonContactList(contactinfos);
 
 			IRequestListener requestListener = new IRequestListener()
 			{
