@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.os.Message;
 import android.text.Spannable;
 import android.text.SpannableString;
+import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ForegroundColorSpan;
 import android.text.util.Linkify;
@@ -424,6 +425,12 @@ public class GroupChatThread extends OneToNChatThread
 			if (ChatThreadUtils.checkMessageTypeFromHash(activity.getApplicationContext(), convMessage, HASH_PIN))
 			{
 				Logger.d(TAG, "Found a pin message type");
+				if (TextUtils.isEmpty(convMessage.getMessage()))
+				{
+					Toast.makeText(activity, R.string.text_empty_error, Toast.LENGTH_SHORT).show();
+					return null;
+				}
+
 				ChatThreadUtils.modifyMessageToPin(activity.getApplicationContext(), convMessage);
 			}
 		}
