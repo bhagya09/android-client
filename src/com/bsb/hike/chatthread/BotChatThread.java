@@ -122,12 +122,16 @@ public class BotChatThread extends OneToOneChatThread
 		list.add(new OverFlowMenuItem(getString(R.string.chat_theme), 0, 0, R.string.chat_theme));
 
 		/**
-		 * Making an exception for Hike Daily and Team Hike bots
+		 * Blocking all bots except Team Hike and muting only cricket Bot.
 		 */
 
-		if (!msisdn.equals(HikeConstants.FTUE_HIKE_DAILY) && !msisdn.equals(HikeConstants.FTUE_TEAMHIKE_MSISDN) && !msisdn.equals(HikeConstants.NUX_BOT))
+		if (!msisdn.equals(HikeConstants.FTUE_TEAMHIKE_MSISDN) )
 		{
 			list.add(new OverFlowMenuItem(mConversation.isBlocked() ? getString(R.string.unblock_title) : getString(R.string.block_title), 0, 0, R.string.block_title));
+		}
+
+		if (msisdn.equals(HikePlatformConstants.CRICKET_BOT_MSISDN))
+		{
 			list.add(new OverFlowMenuItem(mConversation.isMuted() ? getString(R.string.unmute) : getString(R.string.mute), 0, 0, R.string.mute));
 		}
 
