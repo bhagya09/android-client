@@ -1756,7 +1756,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 		optionsList.add(new OverFlowMenuItem(getString(R.string.compose_chat), 11));
 
-		optionsList.add(new OverFlowMenuItem(getString(R.string.take_photo), 12));
+		optionsList.add(new OverFlowMenuItem(getString(R.string.edit_photos), 12));
 
 		overFlowWindow = new PopupWindow(this);
 
