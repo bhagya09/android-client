@@ -372,7 +372,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			showToast(msg.arg1);
 			break;
 		case MESSAGE_RECEIVED:
-			messageAdded((ConvMessage) msg.obj);
+			addMessage((ConvMessage) msg.obj);
 			break;
 		case NOTIFY_DATASET_CHANGED:
 			Logger.i(TAG, "notifying data set changed on UI Handler");
@@ -386,7 +386,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			break;
 		case FILE_MESSAGE_CREATED:
         case MULTI_MSG_DB_INSERTED:
-			messageAdded((ConvMessage) msg.obj);
+			addMessage((ConvMessage) msg.obj);
 			break;
 		case DELETE_MESSAGE:
 			deleteMessages((Pair<Boolean, ArrayList<Long>>) msg.obj);
@@ -473,7 +473,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		activity.findViewById(R.id.conversation_mute).setVisibility(isMuted ? View.VISIBLE : View.GONE);
 	}
 
-	protected void messageAdded(ConvMessage convMessage)
+	protected void addMessage(ConvMessage convMessage)
 	{
 
 		addtoMessageMap(messages.size() - 1, messages.size());
@@ -991,7 +991,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	{
 		if (convMessage != null)
 		{
-			messageAdded(convMessage);
+			addMessage(convMessage);
 			HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_SENT, convMessage);
 		}
 	}
@@ -2207,25 +2207,11 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			loadingMoreMessages = false;
 		}
 	}
-
-	protected void addMessage(ConvMessage message)
-	{
-		mAdapter.addMessage(message);
-		if (messageSearchManager != null && messageSearchManager.isActive())
-		{
-			messageSearchManager.addItem(message);
-		}	
-	}
-
-	protected void addMessages(List<ConvMessage> list, int startIndex)
-	{
-		mAdapter.addMessages(list, startIndex);
-	}
 	
 	private void addMoreMessages(List<ConvMessage> list)
 	{
 		int startIndex = getMessagesStartIndex();
-		addMessages(list, startIndex);
+		mAdapter.addMessages(list, startIndex);
 		addtoMessageMap(startIndex, startIndex + list.size());
 		updateNNotifySearchParams(list);
 		mAdapter.notifyDataSetChanged();
@@ -3510,7 +3496,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	{
 		if (messages.isEmpty() || messages.get(messages.size() - 1).getTypingNotification() == null)
 		{
-			messageAdded(new ConvMessage(typingNotification));
+			addMessage(new ConvMessage(typingNotification));
 		}
 		else if (messages.get(messages.size() - 1).getTypingNotification() != null)
 		{

@@ -365,7 +365,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	}
 
 	@Override
-	protected void messageAdded(ConvMessage convMessage)
+	protected void addMessage(ConvMessage convMessage)
 	{
 		/*
 		 * If we were showing the typing bubble, we remove it from the add the new message and add the typing bubble back again
@@ -377,14 +377,14 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		 * Adding message to the adapter
 		 */
 
-		addMessage(convMessage);
+		mAdapter.addMessage(convMessage);
 
 		if (convMessage.getTypingNotification() == null && typingNotification != null && convMessage.isSent())
 		{
-			addMessage(new ConvMessage(typingNotification));
+			mAdapter.addMessage(new ConvMessage(typingNotification));
 		}
 
-		super.messageAdded(convMessage);
+		super.addMessage(convMessage);
 	}
 
 	/**
@@ -1429,7 +1429,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 
 			TypingNotification typingNotification = removeTypingNotification();
 
-			addMessages(messagesList, messages.size());
+			mAdapter.addMessages(messagesList, messages.size());
 
 			reachedEnd = false;
 
@@ -1441,7 +1441,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 
 			if (typingNotification != null && convMessage.isSent())
 			{
-				addMessage(new ConvMessage(typingNotification));
+				mAdapter.addMessage(new ConvMessage(typingNotification));
 			}
 
 			mAdapter.notifyDataSetChanged();
@@ -1453,18 +1453,6 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			tryScrollingToBottom(convMessage, messagesList.size());
 
 		}
-	}
-
-	@Override
-	protected void addMessage(ConvMessage message)
-	{
-		super.addMessage(message);
-	}
-	
-	@Override
-	protected void addMessages(List<ConvMessage> list, int startIndex)
-	{
-		super.addMessages(list, startIndex);
 	}
 
 	/**
