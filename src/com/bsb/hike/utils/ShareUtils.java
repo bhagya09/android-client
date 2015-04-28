@@ -99,8 +99,9 @@ public class ShareUtils
 				sRatio = 1;
 		}
 		if (sRatio > 1)
-		{
-			sRatio = 1;
+		{   
+			//its for compromising the scaling ratio in case of image lesser than screensize
+			sRatio = 1.42f;
 		}
 		return sRatio;
 
