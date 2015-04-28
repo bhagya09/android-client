@@ -458,7 +458,8 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 		{
 			if (mPhotosActionsFragment == null)
 			{
-				mPhotosActionsFragment = new PhotoActionsFragment(new ActionListener()
+				mPhotosActionsFragment = new PhotoActionsFragment();
+				mPhotosActionsFragment.setActionListener(new ActionListener()
 				{
 					@Override
 					public void onAction(int actionCode)
