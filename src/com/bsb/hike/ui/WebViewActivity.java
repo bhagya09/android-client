@@ -10,9 +10,10 @@ import android.graphics.Bitmap;
 import android.net.MailTo;
 import android.net.Uri;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewStub;
+import android.view.ViewStub.OnInflateListener;
 import android.webkit.GeolocationPermissions;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceResponse;
@@ -22,29 +23,96 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.view.Menu;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.chatthread.HikeActionBar;
 import com.bsb.hike.db.HikeContentDatabase;
+import com.bsb.hike.media.TagPicker;
+import com.bsb.hike.media.TagPicker.TagOnClickListener;
 import com.bsb.hike.models.WhitelistDomain;
+import com.bsb.hike.models.Conversation.BotInfo;
+import com.bsb.hike.models.Conversation.BotInfo.NonMessagingBotConfig;
+import com.bsb.hike.models.Conversation.NonMessagingBotMetaData;
+import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.view.TagEditText.Tag;
 
-public class WebViewActivity extends HikeAppStateBaseFragmentActivity
+public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements OnInflateListener, OnClickListener, TagOnClickListener
 {
 
+	public static final int WEB_URL_MODE = 1; // DEFAULT MODE OF THIS ACTIVITY
+	
+	public static final int WEB_URL_WITH_BRIDGE_MODE = 2;
+	
+	public static final int MICRO_APP_MODE = 3;
+	
+	public static final String WEBVIEW_MODE = "webviewMode";
+	
 	private WebView webView;
+	
+	HikeActionBar actionBar;
+	
+	BotInfo botInfo;
+	NonMessagingBotConfig botConfig;
+	NonMessagingBotMetaData botMetaData;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.webview_activity);
+		init();
+		setMode(getIntent().getIntExtra(WEBVIEW_MODE, -1));
+	}	
+	
+	private void init()
+	{
+		actionBar = new HikeActionBar(this);
+	}
 
+	
+	private void setMode(int mode)
+	{
+		if(mode == MICRO_APP_MODE)
+		{
+			setMicroAppMode();
+		}
+		else 
+		{
+			setWebURLMode();
+		}
+	}
+	
+	private void setMicroAppMode()
+	{
+		String msisdn = getIntent().getStringExtra(HikeConstants.MSISDN);
+		if(msisdn==null){
+			throw new IllegalArgumentException("Seems You forgot to send msisdn of Bot my dear");
+		}
+		initBot();
+		setupMicroAppActionBar();
+		
+		
+	}
+	
+	private void initBot()
+	{
+		botInfo = null; //fetch
+		botConfig = new NonMessagingBotConfig(botInfo.configurtion);
+		setupActionBar(botInfo.getConversationName());
+		botMetaData = new NonMessagingBotMetaData(botInfo.metadata);	
+	}
+	
+	
+	
+	private void setWebURLMode()
+	{
 		String urlToLoad = getIntent().getStringExtra(HikeConstants.Extras.URL_TO_LOAD);
 		String title = getIntent().getStringExtra(HikeConstants.Extras.TITLE);
 		final boolean allowLoc = getIntent().getBooleanExtra(HikeConstants.Extras.WEBVIEW_ALLOW_LOCATION, false);
@@ -138,7 +206,6 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity
 		handleURLLoadInWebView(webView, urlToLoad);
 		setupActionBar(title);
 	}
-
 	
 	/**
 	 * 
@@ -202,28 +269,30 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity
 		return intent;
 	}
 
+	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu)
+	{
+		
+		return super.onCreateOptionsMenu(menu);
+	}
+	
 	private void setupActionBar(String titleString)
 	{
-		ActionBar actionBar = getSupportActionBar();
-		actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
-
-		View actionBarView = LayoutInflater.from(this).inflate(R.layout.compose_action_bar, null);
-
+		View  actionBarView = actionBar.setCustomActionBarView(R.layout.compose_action_bar);
 		View backContainer = actionBarView.findViewById(R.id.back);
-
+		backContainer.setOnClickListener(this);
 		TextView title = (TextView) actionBarView.findViewById(R.id.title);
 		title.setText(titleString);
-		backContainer.setOnClickListener(new OnClickListener()
-		{
-
-			@Override
-			public void onClick(View v)
-			{
-				finish();
-			}
-		});
-
-		actionBar.setCustomView(actionBarView);
+	}
+	
+	private void setupMicroAppActionBar()
+	{
+		View  actionBarView = actionBar.setCustomActionBarView(R.layout.compose_action_bar);
+		View backContainer = actionBarView.findViewById(R.id.back);
+		backContainer.setOnClickListener(this);
+		TextView title = (TextView) actionBarView.findViewById(R.id.title);
+		title.setText(botInfo.getConversationName());
 	}
 
 	@Override
@@ -237,5 +306,29 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity
 		{
 			super.onBackPressed();
 		}
+	}
+
+	@Override
+	public void onInflate(ViewStub arg0, View arg1)
+	{
+		
+	}
+	
+
+	@Override
+	public void onClick(View arg0)
+	{
+		switch(arg0.getId())
+		{
+		case R.id.back:
+			finish();
+			break;
+		}
+		
+	}
+
+	@Override
+	public void onTagClicked(Tag tag)
+	{
 	}
 }
