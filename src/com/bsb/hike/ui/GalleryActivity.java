@@ -627,11 +627,11 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 			{
 				try
 				{
-					galleryItem.getPendingIntent().send();
 					if (galleryItem.getId() == GalleryItem.CAMERA_TILE_ID)
 					{
 						sendAnalyticsCameraClicked();
 					}
+					galleryItem.getPendingIntent().send();
 				}
 				catch (CanceledException e)
 				{
