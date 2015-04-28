@@ -41,6 +41,7 @@ public class GalleryItem implements Parcelable
 
 	public GalleryItem(long id, String name, String layoutIDName, int bucketCount, PendingIntent intent)
 	{
+		this.id = id;
 		this.name = name;
 		this.layoutIDName = layoutIDName;
 		this.bucketCount = bucketCount;
