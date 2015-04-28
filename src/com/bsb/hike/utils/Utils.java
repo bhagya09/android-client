@@ -3460,7 +3460,7 @@ public class Utils
 		Intent shortcutIntent = IntentFactory.createChatThreadIntentFromConversation(activity, conv);
 		Intent intent = new Intent();
 		intent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, shortcutIntent);
-		intent.putExtra(Intent.EXTRA_SHORTCUT_NAME, conv.getConversationName());
+		intent.putExtra(Intent.EXTRA_SHORTCUT_NAME, conv.getLabel());
 
 		Drawable avatarDrawable = Utils.getAvatarDrawableForNotificationOrShortcut(activity, conv.getMsisdn(), false);
 

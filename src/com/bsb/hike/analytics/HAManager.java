@@ -18,6 +18,8 @@ import android.util.Log;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.analytics.AnalyticsConstants.AppOpenSource;
+import com.bsb.hike.media.ShareablePopup;
+import com.bsb.hike.media.ShareablePopupLayout;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
@@ -876,6 +878,25 @@ public class HAManager
 		try
 		{
 			error.put(StickerManager.STICKER_ERROR_LOG, errorMsg);
+			HAManager.getInstance().record(AnalyticsConstants.DEV_EVENT, AnalyticsConstants.STICKER_PALLETE, EventPriority.HIGH, error);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * Used for logging sticker/emoticon weird behaviours
+	 * 
+	 * @param errorMsg
+	 */
+	public static void sendStickerEmoticonStrangeBehaviourReport(String errorMsg)
+	{
+		JSONObject error = new JSONObject();
+		try
+		{
+			error.put(ShareablePopupLayout.TAG, errorMsg);
 			HAManager.getInstance().record(AnalyticsConstants.DEV_EVENT, AnalyticsConstants.STICKER_PALLETE, EventPriority.HIGH, error);
 		}
 		catch (JSONException e)
