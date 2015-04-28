@@ -104,11 +104,40 @@ public class BotInfo extends ConvInfo
 	
 	public static class NonMessagingBotConfig extends BotConfig
 	{
+		// BITS POSITIONS FOR CONFIGURATION
+		private static final byte NAV_BAR = 0;
 		
+		private static final byte SHARE_FORWARD = 1;
+		
+		public static final byte TAG_PICKER = 2;
+		
+		public static final byte THREE_DOT_MENU = 3;
+		
+		// BITS POSITIONS CONFIG ENDS HERE
 		
 		public NonMessagingBotConfig(int config)
 		{
 			super(config);
+		}
+		
+		public boolean isNavBarEnabled()
+		{
+			return isBitSet(NAV_BAR);
+		}
+		
+		public boolean isShareForwardEnabled()
+		{
+			return isBitSet(SHARE_FORWARD);
+		}
+		
+		public boolean isTagPickerEnabled()
+		{
+			return isBitSet(TAG_PICKER);
+		}
+		
+		public boolean isThreeDotMenuEnabled()
+		{
+			return isBitSet(THREE_DOT_MENU);
 		}
 		
 	}
