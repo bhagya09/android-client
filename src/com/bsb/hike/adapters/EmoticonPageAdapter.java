@@ -1,5 +1,8 @@
 package com.bsb.hike.adapters;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,7 +25,7 @@ public class EmoticonPageAdapter extends BaseAdapter implements OnClickListener
 
 	int offset;
 
-	private int[] recentEmoticons;
+	private List<Integer> recentEmoticons  = new ArrayList<Integer>();
 
 	private int[] emoticonSubCategories;
 
@@ -59,7 +62,11 @@ public class EmoticonPageAdapter extends BaseAdapter implements OnClickListener
 			int startOffset = idOffset;
 			int endOffset = startOffset + emoticonResIds.length;
 
-			recentEmoticons = HikeConversationsDatabase.getInstance().fetchEmoticonsOfType(startOffset, endOffset, -1);
+			int [] arr = HikeConversationsDatabase.getInstance().fetchEmoticonsOfType(startOffset, endOffset, -1);
+			for(int i:arr)
+			{
+				recentEmoticons.add(i);
+			}
 		}
 	}
 
@@ -68,7 +75,7 @@ public class EmoticonPageAdapter extends BaseAdapter implements OnClickListener
 	{
 		if (currentPage == 0)
 		{
-			return recentEmoticons.length;
+			return recentEmoticons.size();
 		}
 		else
 		{
@@ -98,8 +105,8 @@ public class EmoticonPageAdapter extends BaseAdapter implements OnClickListener
 
 		if (currentPage == 0)
 		{
-			convertView.setTag(Integer.valueOf(recentEmoticons[position]));
-			((ImageView) convertView).setImageResource(emoticonResIds[recentEmoticons[position] - idOffset]);
+			convertView.setTag(Integer.valueOf(recentEmoticons.get(position)));
+			((ImageView) convertView).setImageResource(emoticonResIds[recentEmoticons.get(position) - idOffset]);
 		}
 		else
 		{
@@ -115,7 +122,26 @@ public class EmoticonPageAdapter extends BaseAdapter implements OnClickListener
 	{
 		Logger.i("emoticon", "item clicked");
 		int emoticonIndex = (Integer) v.getTag();
+		updateRecentsPalette(emoticonIndex);
 		listener.emoticonSelected(emoticonIndex);
 
+	}
+
+	/**
+	 * This is to update the recent emoticons palette on sending any emoticons.
+	 * 
+	 * @param emoticonIndex
+	 */
+	private void updateRecentsPalette(int emoticonIndex)
+	{
+		if (!recentEmoticons.contains(emoticonIndex))
+		{
+			recentEmoticons.add(0, emoticonIndex);
+		}
+		else
+		{
+			recentEmoticons.remove((Object)emoticonIndex);
+			recentEmoticons.add(0, emoticonIndex);
+		}		
 	}
 }
