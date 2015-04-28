@@ -1079,7 +1079,11 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 	@Override
 	public void onStop()
 	{
-		// TODO Auto-generated method stub
+		if (tipType == ConversationTip.STEALTH_FTUE_TIP)
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF);
+			removeStealthConvTip();
+		}
 		super.onStop();
 	}
 	
