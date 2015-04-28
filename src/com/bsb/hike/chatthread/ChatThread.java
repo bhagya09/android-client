@@ -245,7 +245,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	protected String msisdn;
 
-	protected static StickerPicker mStickerPicker;
+	protected StickerPicker mStickerPicker;
 
 	protected static EmoticonPicker mEmoticonPicker;
 
@@ -322,7 +322,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			case StickerManager.STICKERS_UPDATED:
 			case StickerManager.MORE_STICKERS_DOWNLOADED:
 			case StickerManager.STICKERS_DOWNLOADED:
-				mStickerPicker.notifyDataSetChanged();
+				if (mStickerPicker != null)
+				{
+					mStickerPicker.notifyDataSetChanged();
+				}
 				StickerPicker.setRefreshStickers(true);
 			}
 		}
@@ -410,7 +413,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			setLabel((String) msg.obj);
 			break;
 		case STICKER_CATEGORY_MAP_UPDATED:
-			mStickerPicker.notifyDataSetChanged();
+			if (mStickerPicker != null)
+			{
+				mStickerPicker.notifyDataSetChanged();
+			}
 			StickerPicker.setRefreshStickers(true);
 			break;
 		case SCROLL_TO_END:
@@ -626,7 +632,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	private void updateSharedPopups()
 	{
 		mShareablePopupLayout.updateListenerAndView(this, activity.findViewById(R.id.chatThreadParentLayout));
-		mStickerPicker.updateListener(this, activity);
+		if (mStickerPicker != null)
+		{
+			mStickerPicker.updateListener(this, activity);
+		}
 		mEmoticonPicker.updateETAndContext(mComposeView, activity);
 	}
 
@@ -999,6 +1008,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	protected void stickerClicked()
 	{
+		initStickerPicker();
+		
 		closeStickerTip();
 		
 		if (mShareablePopupLayout.togglePopup(mStickerPicker, activity.getResources().getConfiguration().orientation))
@@ -3213,7 +3224,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		}
 		
 		mShareablePopupLayout.releaseResources();
-		mStickerPicker.releaseResources();
+		if (mStickerPicker != null)
+		{
+			mStickerPicker.releaseResources();
+		}
 		mEmoticonPicker.releaseReources();
 	}
 
@@ -4581,7 +4595,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		Logger.i(TAG, "onPopup Dismiss");
 		if(activity.findViewById(R.id.sticker_btn).isSelected())
 		{
-			mStickerPicker.resetToFirstPosition();
+			if (mStickerPicker != null)
+			{
+				mStickerPicker.resetToFirstPosition();
+			}
 			setStickerButtonSelected(false);
 		}
 		if(activity.findViewById(R.id.emoticon_btn).isSelected())
