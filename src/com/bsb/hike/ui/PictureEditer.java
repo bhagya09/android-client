@@ -53,6 +53,9 @@ import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeUiHandler;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Utils;
+import com.jess.ui.TwoWayAdapterView;
+import com.jess.ui.TwoWayGridView;
+import com.jess.ui.TwoWayAdapterView.OnItemClickListener;
 import com.viewpagerindicator.IconPagerAdapter;
 import com.viewpagerindicator.PhotosTabPageIndicator;
 
@@ -339,7 +342,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 		});
 	}
 
-	public class EditorClickListener implements OnClickListener, OnPageChangeListener, OnDoodleStateChangeListener
+	public class EditorClickListener implements OnClickListener, OnPageChangeListener, OnDoodleStateChangeListener,OnItemClickListener
 	{
 		private DoodleEffectItemLinearLayout doodlePreview;
 
@@ -364,32 +367,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 		@Override
 		public void onClick(View v)
 		{
-			if (v.getClass() == FilterEffectItemLinearLayout.class)
-			{
-				FilterEffectItemLinearLayout prev = HikePhotosUtils.FilterTools.getCurrentFilterItem();
-				FilterEffectItemLinearLayout me = (FilterEffectItemLinearLayout) v;
-				editView.applyFilter(me.getFilter());
-				if (prev != null && prev.getFilter() != me.getFilter())
-				{
-					prev.unSelect();
-				}
-				me.select();
-			}
-			else if (v.getClass() == DoodleEffectItemLinearLayout.class)
-			{
-				DoodleEffectItemLinearLayout prev = HikePhotosUtils.FilterTools.getCurrentDoodleItem();
-				DoodleEffectItemLinearLayout me = (DoodleEffectItemLinearLayout) v;
-				editView.setBrushColor(me.getBrushColor());
-				doodlePreview.setBrushColor(me.getBrushColor());
-				doodlePreview.refresh();
-				if (prev != null && prev.getBrushColor() != me.getBrushColor())
-				{
-					prev.unSelect();
-				}
-				me.select();
-			}
-			else
-			{
+			
 				switch (v.getId())
 				{
 				case R.id.plusWidth:
@@ -453,7 +431,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 					}
 					break;
 				}
-			}
+			
 		}
 
 		private void loadPreviewFragment()
@@ -636,7 +614,68 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 			}
 		}
 
+		@Override
+		public void onItemClick(TwoWayAdapterView<?> parent, View view, int position, long id)
+		{
+			if (view.getClass() == FilterEffectItemLinearLayout.class)
+			{
+				FilterEffectItemLinearLayout prev = HikePhotosUtils.FilterTools.getCurrentFilterItem();
+				FilterEffectItemLinearLayout me = (FilterEffectItemLinearLayout) view;
+				editView.applyFilter(me.getFilter());
+				if (prev != null && prev.getFilter() != me.getFilter())
+				{
+					prev.unSelect();
+				}
+				me.select();
+			}
+			else if (view.getClass() == DoodleEffectItemLinearLayout.class)
+			{
+				DoodleEffectItemLinearLayout prev = HikePhotosUtils.FilterTools.getCurrentDoodleItem();
+				DoodleEffectItemLinearLayout me = (DoodleEffectItemLinearLayout) view;
+				editView.setBrushColor(me.getBrushColor());
+				doodlePreview.setBrushColor(me.getBrushColor());
+				doodlePreview.refresh();
+				if (prev != null && prev.getBrushColor() != me.getBrushColor())
+				{
+					prev.unSelect();
+				}
+				me.select();
+			}
+			
+			autoScrollToNext((TwoWayGridView) parent, position);
+		}
+		
+		
+		/** 
+		 * {@link} : http://stackoverflow.com/questions/11431832/android-smoothscrolltoposition-not-working-correctly
+		 * 
+		 * @param TwoWayGridView parent whose children are to be scrolled
+		 * @param currentPosition of the element selected.(Scrolling occurs relative to this position)
+		 */
+		private void autoScrollToNext(final TwoWayGridView parent,int currentPosition)
+		{
+			final int positionFinal;
+			if(currentPosition-1==parent.getFirstVisiblePosition() || currentPosition==parent.getFirstVisiblePosition())
+			{
+				positionFinal = currentPosition -1;;
+			}
+			else 
+			{
+				positionFinal = currentPosition +1;;
+			}
+			
+			//SmoothScroll needs to do a lot of work
+			parent.post(new Runnable() {
+		        @Override
+		        public void run() {
+		        	parent.smoothScrollToPosition(positionFinal);
+		        }
+		    });
+		}
+
 	}
+	
+	
 
 	@Override
 	public void onBackPressed()
