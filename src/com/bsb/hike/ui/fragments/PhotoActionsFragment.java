@@ -33,7 +33,13 @@ public class PhotoActionsFragment extends SherlockFragment
 		void onAction(int actionCode);
 	}
 
-	public PhotoActionsFragment(ActionListener argListener)
+	//Default Constructor as per android guidelines
+	public PhotoActionsFragment()
+	{
+		
+	}
+	
+	public void setActionListener(ActionListener argListener)
 	{
 		mListener = argListener;
 	}

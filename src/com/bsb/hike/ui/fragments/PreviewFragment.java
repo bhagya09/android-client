@@ -40,6 +40,12 @@ public final class PreviewFragment extends Fragment
 
 	private static final String BITMAP_KEY = "BITMAP_KEY";
 
+	//Default Constructor as per android guidelines
+	public PreviewFragment()
+	{
+		
+	}
+	
 	public static PreviewFragment newInstance(int type, Bitmap bitmap)
 	{
 		PreviewFragment newFrag = new PreviewFragment();
