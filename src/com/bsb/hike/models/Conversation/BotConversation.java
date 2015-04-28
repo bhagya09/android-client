@@ -1,5 +1,6 @@
 package com.bsb.hike.models.Conversation;
 
+import com.bsb.hike.bots.BotInfo;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -21,6 +22,7 @@ public class BotConversation extends OneToOneConversation
 	 * properties
 	 */
 	private short properties = 0;
+	private BotInfo botInfo;
 
 	/**
 	 * 
@@ -28,7 +30,7 @@ public class BotConversation extends OneToOneConversation
 	private BotConversation(InitBuilder<?> builder)
 	{
 		super(builder);
-		this.properties = builder.properties;
+		this.botInfo = builder.botInfo;
 		this.isOnHike = true;
 		/**
 		 * Setting the mute state in the constructor itself as it is needed for BotConversations
@@ -69,26 +71,45 @@ public class BotConversation extends OneToOneConversation
 			e.printStackTrace();
 		}
 	}
+	
+	public static void analyticsForBots(String msisdn, String key, String origin, String subType, JSONObject json)
+	{
+		if (json == null || json.length() == 0)
+		{
+			json = new JSONObject();
+		}
+		try
+		{
+			json.put(AnalyticsConstants.EVENT_KEY, key);
+			json.put(AnalyticsConstants.ORIGIN, origin);
+			json.put(AnalyticsConstants.CHAT_MSISDN, msisdn);
+			HikeAnalyticsEvent.analyticsForBots(AnalyticsConstants.UI_EVENT, subType, json);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+	}
 
 	/**
 	 * Builder base class extending {@link OneToOneConversation.InitBuilder}
-	 * 
+	 *
 	 * @author piyush
-	 * 
+	 *
 	 * @param <P>
 	 */
 	protected static abstract class InitBuilder<P extends InitBuilder<P>> extends OneToOneConversation.InitBuilder<P>
 	{
-		private short properties;
+		private BotInfo botInfo;
 
 		public InitBuilder(String msisdn)
 		{
 			super(msisdn);
 		}
 
-		public P setProperties(short property)
+		public P setBotInfo(BotInfo botInfo)
 		{
-			this.properties = property;
+			this.botInfo = botInfo;
 			return getSelfObject();
 		}
 

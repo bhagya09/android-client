@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.content.Intent;
+import android.os.Message;
 import android.view.MotionEvent;
 import android.widget.TextView;
 
@@ -76,7 +77,6 @@ public class BroadcastChatThread extends OneToNChatThread
 
 		List<OverFlowMenuItem> list = new ArrayList<OverFlowMenuItem>();
 		list.add(new OverFlowMenuItem(getString(R.string.broadcast_profile), 0, 0, R.string.broadcast_profile));
-		list.add(new OverFlowMenuItem(getString(R.string.search), 0, 0, R.string.search));
 		for (OverFlowMenuItem item : super.getOverFlowMenuItems())
 		{
 			list.add(item);
@@ -90,7 +90,12 @@ public class BroadcastChatThread extends OneToNChatThread
 	protected Conversation fetchConversation()
 	{
 		mConversation = oneToNConversation = (BroadcastConversation) mConversationDb.getConversation(msisdn, HikeConstants.MAX_MESSAGES_TO_LOAD_INITIALLY, true);
-		return super.fetchConversation();
+		if (mConversation != null)
+		{
+			return super.fetchConversation();
+		}
+
+		return null;
 	}
 	
 	@Override
@@ -142,6 +147,12 @@ public class BroadcastChatThread extends OneToNChatThread
 		{
 			oneToNConversation.setupReadByList(null, convMessage.getMsgID());
 		}
+		
+		/**
+		 * Adding message to the adapter
+		 */
+		addMessage(convMessage);
+
 		super.messageAdded(convMessage);
 	}
 	
@@ -207,5 +218,19 @@ public class BroadcastChatThread extends OneToNChatThread
 	protected void closeStickerTip()
 	{
 		return;
+	}
+	
+	@Override
+	protected void fetchConversationFailed()
+	{
+		/* the user must have deleted the chat. */
+		Message message = Message.obtain();
+		message.what = SHOW_TOAST;
+		message.arg1 = R.string.invalid_broadcast_list;
+		uiHandler.sendMessage(message);
+
+		startHomeActivity();
+		
+		super.fetchConversationFailed();
 	}
 }

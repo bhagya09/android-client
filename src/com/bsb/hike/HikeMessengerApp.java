@@ -12,6 +12,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import android.text.TextUtils;
+import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.platform.PlatformUIDFetch;
 import com.bsb.hike.platform.content.PlatformContent;
 
@@ -53,7 +55,6 @@ import com.bsb.hike.notifications.HikeNotificationMsgStack;
 import com.bsb.hike.notifications.HikeNotificationUtils;
 import com.bsb.hike.notifications.ToastListener;
 import com.bsb.hike.platform.HikePlatformConstants;
-import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.service.HikeService;
 import com.bsb.hike.service.MqttMessagesManager;
@@ -483,6 +484,8 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 
 	public static final String UPGRADE_FOR_SERVER_ID_FIELD = "upgradeForServerIdField";
 
+	public static final String UPGRADE_FOR_DEFAULT_BOT_ENTRY = "upgradeForBotEntry";
+
 	public static final String SHOW_BROADCAST_FTUE_SCREEN = "showBroadcastFtueScreen";
 
 	public static final String EXCEPTION_ANALYTIS_ENABLED = "exceptionAnalaticsEnabled";
@@ -515,7 +518,7 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 
 	public static Map<String, Pair<Integer, Long>> lastSeenFriendsMap;
 
-	public static HashMap<String, String> hikeBotNamesMap;
+	public static HashMap<String, BotInfo> hikeBotNamesMap;
 
 	public static volatile boolean networkError;
 
@@ -842,16 +845,9 @@ public void onTrimMemory(int level)
 
 		makeNoMediaFiles();
 
-		hikeBotNamesMap = new HashMap<String, String>();
-		hikeBotNamesMap.put(HikeConstants.FTUE_TEAMHIKE_MSISDN, "team hike");
-		hikeBotNamesMap.put(HikeConstants.FTUE_HIKEBOT_MSISDN, "Emma from hike");
-		hikeBotNamesMap.put(HikeConstants.FTUE_GAMING_MSISDN, "Games on hike");
-		hikeBotNamesMap.put(HikeConstants.FTUE_HIKE_DAILY, "hike daily");
-		hikeBotNamesMap.put(HikeConstants.FTUE_HIKE_SUPPORT, "hike support");
-		hikeBotNamesMap.put(HikeConstants.NUX_BOT, "Natasha");
-		hikeBotNamesMap.put(HikeConstants.CRICKET_BOT, HikePlatformConstants.CRICKET_BOT_NAME);
+		hikeBotNamesMap = new HashMap<String, BotInfo>();
 
-		HikeConversationsDatabase.getInstance().addBotToHashMap(hikeBotNamesMap);
+
 		initHikeLruCache(getApplicationContext());
 		initContactManager();
 		/*
@@ -867,11 +863,14 @@ public void onTrimMemory(int level)
 		
 		HttpManager.init();
 
-		if (!HikeSharedPreferenceUtil.getInstance().getData(HikePlatformConstants.CRICKET_PREF_NAME, false))
+		if (HikeSharedPreferenceUtil.getInstance().getData(UPGRADE_FOR_DEFAULT_BOT_ENTRY, true))
 		{
-			cricketBotEntry();
-			HikeSharedPreferenceUtil.getInstance().saveData(HikePlatformConstants.CRICKET_PREF_NAME, true);
+			addDefaultBotsToDB();
+			HikeSharedPreferenceUtil.getInstance().saveData(UPGRADE_FOR_DEFAULT_BOT_ENTRY,false);
 		}
+
+
+		HikeConversationsDatabase.getInstance().addBotToHashMap(hikeBotNamesMap);
 		ProductInfoManager.getInstance().init();
 		PlatformContent.init(settings.getBoolean(HikeMessengerApp.PRODUCTION, true));
 
@@ -879,6 +878,22 @@ public void onTrimMemory(int level)
 		{
 			fetchPlatformIDIfNotPresent();
 		}
+	}
+
+	private void addDefaultBotsToDB()
+	{
+		defaultBotEntry(HikeConstants.Bots.FTUE_TEAMHIKE_MSISDN, HikeConstants.Bots.FTUE_TEAM_HIKE_NAME, null, null);
+		defaultBotEntry(HikeConstants.Bots.FTUE_HIKEBOT_MSISDN, HikeConstants.Bots.FTUE_HIKEBOT_NAME, null, null);
+		defaultBotEntry(HikeConstants.Bots.FTUE_GAMING_MSISDN, HikeConstants.Bots.FTUE_GAMING_NAME, null, null);
+		defaultBotEntry(HikeConstants.Bots.FTUE_HIKE_DAILY, HikeConstants.Bots.FTUE_HIKE_DAILY_NAME, null, null);
+		defaultBotEntry(HikeConstants.Bots.FTUE_HIKE_SUPPORT, HikeConstants.Bots.FTUE_HIKE_SUPPORT_NAME, null, null);
+		defaultBotEntry(HikeConstants.Bots.NUX_BOT_MSISDN, HikeConstants.Bots.NUX_BOT_NAME, null, null);
+
+		BitmapDrawable drawable = (BitmapDrawable) getApplicationContext().getResources().getDrawable(R.drawable.cric_icon);
+		String base64Icon = Utils.drawableToString(drawable);
+
+		defaultBotEntry(HikeConstants.Bots.CRICKET_BOT_MSISDN, HikePlatformConstants.CRICKET_BOT_NAME, HikePlatformConstants.CRICKET_CHAT_THEME_ID, base64Icon);
+
 	}
 
 	/**
@@ -896,9 +911,9 @@ public void onTrimMemory(int level)
 
 	// Hard coding the cricket bot on the App's onCreate so that there is a cricket bot entry
 	// when there is no bot currently in the app. Using the shared prefs for that matter.
-	// Hardcoding the bot name, bot msisdn and the bot chat theme. Can be updated using the
+	// Hardcoding the bot name, bot msisdn, the bot chat theme, bot's dp and its type. Can be updated using the
 	// AC packet cbot and delete using the ac packet dbot.
-	private void cricketBotEntry()
+	private void defaultBotEntry(final String msisdn, final String name, final String chatThemeId, final String dp)
 	{
 		HikeHandlerUtil mThread = HikeHandlerUtil.getInstance();
 		mThread.startHandlerThread();
@@ -911,16 +926,20 @@ public void onTrimMemory(int level)
 				final JSONObject jsonObject = new JSONObject();
 				try
 				{
-					jsonObject.put(HikeConstants.MSISDN, HikePlatformConstants.CRICKET_BOT_MSISDN);
-					jsonObject.put(HikeConstants.NAME, HikePlatformConstants.CRICKET_BOT_NAME);
-					jsonObject.put(HikeConstants.BOT_CHAT_THEME, HikePlatformConstants.CRICKET_CHAT_THEME_ID);
+					jsonObject.put(HikeConstants.MSISDN, msisdn);
+					jsonObject.put(HikeConstants.NAME, name);
 
-					BitmapDrawable drawable = (BitmapDrawable) getApplicationContext().getResources().getDrawable(R.drawable.cric_icon);
-					String base64Icon = Utils.drawableToString(drawable);
-					if (base64Icon != null)
+					if (!TextUtils.isEmpty(dp))
 					{
-						jsonObject.put(HikeConstants.BOT_THUMBNAIL, base64Icon);
+						jsonObject.put(HikeConstants.BOT_THUMBNAIL, dp);
 					}
+
+					if (!TextUtils.isEmpty(chatThemeId))
+					{
+						jsonObject.put(HikeConstants.BOT_CHAT_THEME, chatThemeId);
+					}
+					jsonObject.put(HikeConstants.TYPE, HikeConstants.MESSAGING_BOT);
+					jsonObject.put(HikeConstants.CONFIGURATION, Integer.MAX_VALUE);
 				}
 				catch (JSONException e)
 				{
