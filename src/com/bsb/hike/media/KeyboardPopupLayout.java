@@ -88,7 +88,15 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 		int height = islandScape ? possibleKeyboardHeightLand : possibleKeyboardHeight;
 		if (height == 0)
 		{
-			height = firstTimeHeight;
+			if (islandScape)
+			{
+				height = mainView.getHeight() / 2;
+			}
+			
+			else
+			{
+				height = firstTimeHeight;
+			}
 		}
 		
 		if (popup == null)
