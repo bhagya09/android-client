@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.os.Message;
 import android.text.Spannable;
 import android.text.SpannableString;
+import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ForegroundColorSpan;
 import android.text.util.Linkify;
@@ -155,8 +156,13 @@ public class GroupChatThread extends OneToNChatThread
 	{
 		mConversation = oneToNConversation = (GroupConversation) mConversationDb.getConversation(msisdn, HikeConstants.MAX_MESSAGES_TO_LOAD_INITIALLY, true);
 		// imp message from DB like pin
-		fetchImpMessage();
-		return super.fetchConversation();
+		if (mConversation != null)
+		{
+			fetchImpMessage();
+			return super.fetchConversation();
+		}
+		
+		return null;
 	}
 	
 	private void fetchImpMessage()
@@ -419,6 +425,12 @@ public class GroupChatThread extends OneToNChatThread
 			if (ChatThreadUtils.checkMessageTypeFromHash(activity.getApplicationContext(), convMessage, HASH_PIN))
 			{
 				Logger.d(TAG, "Found a pin message type");
+				if (TextUtils.isEmpty(convMessage.getMessage()))
+				{
+					Toast.makeText(activity, R.string.text_empty_error, Toast.LENGTH_SHORT).show();
+					return null;
+				}
+
 				ChatThreadUtils.modifyMessageToPin(activity.getApplicationContext(), convMessage);
 			}
 		}
@@ -916,5 +928,19 @@ public class GroupChatThread extends OneToNChatThread
 				break;
 			}
 		}
+	}
+	
+	@Override
+	protected void fetchConversationFailed()
+	{
+		/* the user must have deleted the chat. */
+		Message message = Message.obtain();
+		message.what = SHOW_TOAST;
+		message.arg1 = R.string.invalid_group_chat;
+		uiHandler.sendMessage(message);
+
+		startHomeActivity();
+		
+		super.fetchConversationFailed();
 	}
 }
