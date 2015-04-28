@@ -29,7 +29,7 @@
             android:layout_alignParentLeft="true"
             android:layout_centerVertical="true"
             android:layout_marginLeft="15dp"
-            android:text="@string/select_all"
+            android:text="@string/select_all_hike"
             android:textColor="@color/actionbar_text"
             android:textSize="18sp"
             android:textStyle="bold|italic" />

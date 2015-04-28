@@ -111,10 +111,12 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 			if (galleryList != null && !galleryList.isEmpty())
 			{
 				filename = galleryList.get(0).getFilePath();
+				sendAnalyticsGalleryPic();
 			}
 			if(filename == null)
 			{
 				filename = intent.getData().toString();
+				sendAnalyticsGalleryPic();
 			}
 		}
 
@@ -458,7 +460,8 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 		{
 			if (mPhotosActionsFragment == null)
 			{
-				mPhotosActionsFragment = new PhotoActionsFragment(new ActionListener()
+				mPhotosActionsFragment = new PhotoActionsFragment();
+				mPhotosActionsFragment.setActionListener(new ActionListener()
 				{
 					@Override
 					public void onAction(int actionCode)
@@ -674,6 +677,20 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 		{
 			JSONObject json = new JSONObject();
 			json.put(AnalyticsConstants.EVENT_KEY, HikeConstants.LogEvent.PHOTOS_SEND_TO);
+			HikeAnalyticsEvent.analyticsForPhotos(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, json);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+	}
+	
+	private void sendAnalyticsGalleryPic()
+	{
+		try
+		{
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.EVENT_KEY, HikeConstants.LogEvent.PHOTOS_GALLERY_PICK);
 			HikeAnalyticsEvent.analyticsForPhotos(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, json);
 		}
 		catch (JSONException e)

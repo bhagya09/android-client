@@ -388,34 +388,6 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	}
 
 	/**
-	 * This overrides {@link ChatThread}'s {@link #onTypingConversationNotificationReceived(Object)}
-	 */
-	@Override
-	protected void onTypingConversationNotificationReceived(Object object)
-	{
-		TypingNotification typingNotification = (TypingNotification) object;
-
-		if (typingNotification == null)
-		{
-			return;
-		}
-
-		if (msisdn.equals(typingNotification.getId()))
-		{
-			sendUIMessage(TYPING_CONVERSATION, typingNotification);
-		}
-
-		if (ChatThreadUtils.shouldShowLastSeen(msisdn, activity.getApplicationContext(), mConversation.isOnHike(), mConversation.isBlocked()) && mContactInfo.getOffline() != -1)
-		{
-			/*
-			 * Publishing an online event for this number.
-			 */
-			mContactInfo.setOffline(0);
-			HikeMessengerApp.getPubSub().publish(HikePubSub.LAST_SEEN_TIME_UPDATED, mContactInfo);
-		}
-	}
-
-	/**
 	 * This overrides : {@link ChatThread}'s {@link #setTypingText(boolean, TypingNotification)}
 	 */
 	@Override
