@@ -411,7 +411,7 @@ public class VoIPService extends Service {
 			if (VoIPUtils.isUserInCall(getApplicationContext())) 
 			{
 				Logger.w(VoIPConstants.TAG, "We are already in a cellular call.");
-				sendHandlerMessage(VoIPConstants.MSG_ALREADY_IN_CALL);
+				sendHandlerMessage(VoIPConstants.MSG_ALREADY_IN_NATIVE_CALL);
 				sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CONNECTION_FAILED, VoIPConstants.CallFailedCodes.CALLER_IN_NATIVE_CALL);
 				return returnInt;
 			}
@@ -430,7 +430,6 @@ public class VoIPService extends Service {
 			if (getCallId() > 0) 
 			{
 				Logger.e(VoIPConstants.TAG, "Error. Already in a call.");
-				sendHandlerMessage(VoIPConstants.MSG_ALREADY_IN_CALL);
 				return returnInt;
 			}
 			
