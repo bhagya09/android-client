@@ -98,11 +98,6 @@ public class ShareUtils
 			else
 				sRatio = 1;
 		}
-		if (sRatio > 1)
-		{   
-			//its for compromising the scaling ratio in case of image lesser than screensize
-			sRatio = 1.42f;
-		}
 		return sRatio;
 
 	}
@@ -120,7 +115,14 @@ public class ShareUtils
 			// gives the scaling ratio for the image
 			float sRatio = scaleRatio(imgWidth, imgHeight);
 			// will scale the image to the 0.7 of the screen size proportionally for width and height
-			bmp = Bitmap.createScaledBitmap(bmp, (int) (imgWidth * sRatio * 0.7), (int) (imgHeight * sRatio * 0.7), true);
+			if (sRatio>1)
+			{
+			bmp = Bitmap.createScaledBitmap(bmp, imgWidth ,imgHeight ,true);
+			}
+			else
+			{
+				bmp = Bitmap.createScaledBitmap(bmp, (int) (imgWidth * sRatio * 0.7), (int) (imgHeight * sRatio * 0.7), true);					
+			}
 			image.setImageBitmap(bmp);
 			TextView heading = (TextView) share.findViewById(R.id.imageShareHeading);
 			heading.setText(imgHead);
