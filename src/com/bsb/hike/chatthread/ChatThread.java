@@ -3302,6 +3302,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	 * 4. If photoViewer fragment was attached, remove it
 	 * 5. If overflow menu is open then close it
 	 * 6. Hide dialog if showing
+	 * 7. Hide Walkie Talkie if showing
 	 */
 	protected void onPreNewIntent()
 	{
@@ -3319,9 +3320,20 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		
 		hideDialog();
 		
+		hideWalkieTalkie();
+		
 		saveDraft();
 	}
 	
+	private void hideWalkieTalkie()
+	{
+		if (audioRecordView != null)
+		{
+			audioRecordView.dismissAudioRecordView();
+		}
+	}
+
+
 	private void hideDialog()
 	{
 		if (dialog != null)
