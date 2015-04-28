@@ -8,6 +8,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.bsb.hike.models.Conversation.ConvInfo;
 import org.json.JSONArray;
 
 import android.app.Dialog;
@@ -236,7 +237,8 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 
 		if (mConversation == null)
 		{
-			mConversation = new OneToOneConversation.ConversationBuilder(msisdn).setConvName((mContactInfo != null) ? mContactInfo.getName() : null).setIsOnHike(mContactInfo.isOnhike()).build();
+			ConvInfo convInfo = new ConvInfo.ConvInfoBuilder(msisdn).setConvName((mContactInfo != null) ? mContactInfo.getName() : null).setOnHike(mContactInfo.isOnhike()).build();
+			mConversation = new OneToOneConversation.ConversationBuilder(convInfo).build();
 			mConversation.setMessages(HikeConversationsDatabase.getInstance().getConversationThread(msisdn, HikeConstants.MAX_MESSAGES_TO_LOAD_INITIALLY, mConversation, -1));
 		}
 

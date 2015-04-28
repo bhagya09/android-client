@@ -30,8 +30,7 @@ public class BotConversation extends OneToOneConversation
 	private BotConversation(InitBuilder<?> builder)
 	{
 		super(builder);
-		this.botInfo = builder.botInfo;
-		this.isOnHike = true;
+		this.botInfo = (BotInfo) convInfo;
 		/**
 		 * Setting the mute state in the constructor itself as it is needed for BotConversations
 		 */
@@ -100,18 +99,12 @@ public class BotConversation extends OneToOneConversation
 	 */
 	protected static abstract class InitBuilder<P extends InitBuilder<P>> extends OneToOneConversation.InitBuilder<P>
 	{
-		private BotInfo botInfo;
 
-		public InitBuilder(String msisdn)
+		public InitBuilder(BotInfo botInfo)
 		{
-			super(msisdn);
+			super(botInfo);
 		}
 
-		public P setBotInfo(BotInfo botInfo)
-		{
-			this.botInfo = botInfo;
-			return getSelfObject();
-		}
 
 		public BotConversation build()
 		{
@@ -130,9 +123,9 @@ public class BotConversation extends OneToOneConversation
 	 */
 	public static class ConversationBuilder extends BotConversation.InitBuilder<ConversationBuilder>
 	{
-		public ConversationBuilder(String msisdn)
+		public ConversationBuilder(BotInfo botInfo)
 		{
-			super(msisdn);
+			super(botInfo);
 		}
 
 		@Override
