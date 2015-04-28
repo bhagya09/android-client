@@ -106,7 +106,7 @@ public class VoIPService extends Service {
 	private OpusWrapper opusWrapper;
 	private Resampler resampler;
 	private Thread partnerTimeoutThread = null, connectionTimeoutThread = null;
-	private Thread recordingThread = null, playbackThread = null, sendingThread = null, receivingThread = null, codecCompressionThread = null, codecDecompressionThread = null;
+	private Thread recordingThread = null, playbackThread = null, sendingThread = null, receivingThread = null, codecCompressionThread = null, codecDecompressionThread = null, iceThread = null;
 	private AudioTrack audioTrack = null;
 	private static int callId = 0;
 	private int totalPacketsSent = 0, totalPacketsReceived = 0;
@@ -888,6 +888,9 @@ public class VoIPService extends Service {
 		// Terminate threads
 		if(notificationThread!=null)
 			notificationThread.interrupt();
+
+		if (iceThread != null)
+			iceThread.interrupt();
 
 		if (connectionTimeoutThread != null)
 			connectionTimeoutThread.interrupt();
@@ -2433,7 +2436,7 @@ public class VoIPService extends Service {
 
 		keepRunning = true;
 		
-		Thread iceThread = new Thread(new Runnable() {
+		iceThread = new Thread(new Runnable() {
 
 			@Override
 			public void run() {
