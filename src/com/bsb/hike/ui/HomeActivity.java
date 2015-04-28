@@ -169,6 +169,12 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	private boolean showingSearchModeActionBar = false;
 	
 	private static final String TAG = "HomeActivity";
+	
+	private static byte OVERFLOW_MENU_STATE = -1;
+	
+	private static final byte OVERFLOW_MENU_TYPE_3DOT = 0;
+	
+	private static final byte OVERFLOW_MENU_TYPE_COMPOSE = 1;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -892,7 +898,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		{
 			outState.putInt(HikeConstants.Extras.DIALOG_SHOWING, dialogShowing != null ? dialogShowing.ordinal() : -1);
 		}
-		outState.putBoolean(HikeConstants.Extras.IS_HOME_POPUP_SHOWING, overFlowWindow != null && overFlowWindow.isShowing());
+		outState.putByte(HikeConstants.Extras.HOME_POPUP_TYPE, overFlowWindow != null && overFlowWindow.isShowing() ? OVERFLOW_MENU_STATE : -1);
 		outState.putInt(HikeConstants.Extras.FRIENDS_LIST_COUNT, friendsListCount);
 		outState.putInt(HikeConstants.Extras.HIKE_CONTACTS_COUNT, hikeContactsCount);
 		outState.putInt(HikeConstants.Extras.RECOMMENDED_CONTACTS_COUNT, recommendedCount);
@@ -1608,9 +1614,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 		addEmailLogItem(optionsList);
 
-		// Take a photo
-		// optionsList.add(new OverFlowMenuItem(getString(R.string.take_photo), 10));
-
 		overFlowWindow = new PopupWindow(this);
 
 		FrameLayout homeScreen = (FrameLayout) findViewById(R.id.home_screen);
@@ -1731,6 +1734,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		{
 			int rightMargin = getResources().getDimensionPixelSize(R.dimen.overflow_menu_right_margin);
 			overFlowWindow.showAsDropDown(findViewById(R.id.overflow_anchor), -rightMargin, 0);
+			OVERFLOW_MENU_STATE = OVERFLOW_MENU_TYPE_3DOT;
 		}
 		catch (BadTokenException e)
 		{
@@ -1756,10 +1760,10 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 		optionsList.add(new OverFlowMenuItem(getString(R.string.compose_chat), 11));
 
-		optionsList.add(new OverFlowMenuItem(getString(R.string.take_photo), 12));
+		optionsList.add(new OverFlowMenuItem(getString(R.string.edit_photos), 12));
 
 		overFlowWindow = new PopupWindow(this);
-
+		
 		FrameLayout homeScreen = (FrameLayout) findViewById(R.id.home_screen);
 
 		View parentView = getLayoutInflater().inflate(R.layout.overflow_menu, homeScreen, false);
@@ -1837,6 +1841,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		{
 			int rightMargin = getResources().getDimensionPixelSize(R.dimen.overflow_menu_right_margin);
 			overFlowWindow.showAsDropDown(findViewById(R.id.overflow_anchor), -rightMargin, 0);
+			OVERFLOW_MENU_STATE = OVERFLOW_MENU_TYPE_COMPOSE;
 		}
 		catch (BadTokenException e)
 		{
@@ -1864,7 +1869,9 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	@Override
 	protected void onRestoreInstanceState(Bundle savedInstanceState)
 	{
-		if (savedInstanceState.getBoolean(HikeConstants.Extras.IS_HOME_POPUP_SHOWING))
+		final byte overflowState = savedInstanceState.getByte(HikeConstants.Extras.HOME_POPUP_TYPE);
+		if (overflowState == OVERFLOW_MENU_TYPE_3DOT || overflowState == OVERFLOW_MENU_TYPE_COMPOSE)
+		{
 			// showOverFlowMenu() method should not be called until all
 			// lifecycle
 			// methods of activity creation have executed successfully otherwise
@@ -1874,9 +1881,17 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			{
 				public void run()
 				{
-					showOverFlowMenu();
+					if (overflowState == OVERFLOW_MENU_TYPE_3DOT)
+					{
+						showOverFlowMenu();
+					}
+					else if (overflowState == OVERFLOW_MENU_TYPE_COMPOSE)
+					{
+						showComposeOverflowMenu();
+					}
 				}
 			});
+		}
 		super.onRestoreInstanceState(savedInstanceState);
 	}
 
@@ -1907,7 +1922,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	@Override
 	public void onConfigurationChanged(Configuration newConfig)
 	{
-		// TODO Auto-generated method stub
 		super.onConfigurationChanged(newConfig);
 		// handle dialogs here
 		if(progDialog != null && progDialog.isShowing())
@@ -1924,7 +1938,15 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		if (overFlowWindow != null && overFlowWindow.isShowing())
 		{
 			overFlowWindow.dismiss();
-			showOverFlowMenu();
+
+			if (OVERFLOW_MENU_STATE == OVERFLOW_MENU_TYPE_3DOT)
+			{
+				showOverFlowMenu();
+			}
+			else if (OVERFLOW_MENU_STATE == OVERFLOW_MENU_TYPE_COMPOSE)
+			{
+				showComposeOverflowMenu();
+			}
 		}
 	}
 
