@@ -273,7 +273,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			FetchHikeUser.fetchHikeUser(activity.getApplicationContext(), msisdn);
 		}
 
-		if (ChatThreadUtils.shouldShowLastSeen(msisdn, activity.getApplicationContext(), mConversation.isOnHike()))
+		if (ChatThreadUtils.shouldShowLastSeen(msisdn, activity.getApplicationContext(), mConversation.isOnHike(), mConversation.isBlocked()))
 		{
 			checkAndStartLastSeenTask();
 		}
@@ -365,7 +365,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	}
 
 	@Override
-	protected void messageAdded(ConvMessage convMessage)
+	protected void addMessage(ConvMessage convMessage)
 	{
 		/*
 		 * If we were showing the typing bubble, we remove it from the add the new message and add the typing bubble back again
@@ -377,14 +377,14 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		 * Adding message to the adapter
 		 */
 
-		addMessage(convMessage);
+		mAdapter.addMessage(convMessage);
 
 		if (convMessage.getTypingNotification() == null && typingNotification != null && convMessage.isSent())
 		{
-			addMessage(new ConvMessage(typingNotification));
+			mAdapter.addMessage(new ConvMessage(typingNotification));
 		}
 
-		super.messageAdded(convMessage);
+		super.addMessage(convMessage);
 	}
 
 	/**
@@ -685,7 +685,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		/**
 		 * Proceeding only if the current chat thread is open and we should show the last seen
 		 */
-		if (msisdn.equals(contMsisdn) && ChatThreadUtils.shouldShowLastSeen(msisdn, activity.getApplicationContext(), mConversation.isOnHike()))
+		if (msisdn.equals(contMsisdn) && ChatThreadUtils.shouldShowLastSeen(msisdn, activity.getApplicationContext(), mConversation.isOnHike(), mConversation.isBlocked()))
 		{
 			/**
 			 * Fix for case where server and client values are out of sync
@@ -1401,7 +1401,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 
 			TypingNotification typingNotification = removeTypingNotification();
 
-			addMessages(messagesList, messages.size());
+			mAdapter.addMessages(messagesList, messages.size());
 
 			reachedEnd = false;
 
@@ -1413,7 +1413,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 
 			if (typingNotification != null && convMessage.isSent())
 			{
-				addMessage(new ConvMessage(typingNotification));
+				mAdapter.addMessage(new ConvMessage(typingNotification));
 			}
 
 			mAdapter.notifyDataSetChanged();
@@ -1425,18 +1425,6 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			tryScrollingToBottom(convMessage, messagesList.size());
 
 		}
-	}
-
-	@Override
-	protected void addMessage(ConvMessage message)
-	{
-		super.addMessage(message);
-	}
-	
-	@Override
-	protected void addMessages(List<ConvMessage> list, int startIndex)
-	{
-		super.addMessages(list, startIndex);
 	}
 
 	/**
@@ -1487,7 +1475,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			return;
 		}
 
-		if (!ChatThreadUtils.shouldShowLastSeen(msisdn, activity.getApplicationContext(), mConversation.isOnHike()))
+		if (!ChatThreadUtils.shouldShowLastSeen(msisdn, activity.getApplicationContext(), mConversation.isOnHike(), mConversation.isBlocked()))
 		{
 			return;
 		}
@@ -2623,7 +2611,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 
 		else
 		{
-			if (ChatThreadUtils.shouldShowLastSeen(msisdn, activity.getApplicationContext(), mConversation.isOnHike()))
+			if (ChatThreadUtils.shouldShowLastSeen(msisdn, activity.getApplicationContext(), mConversation.isOnHike(), mConversation.isBlocked()))
 			{
 				checkAndStartLastSeenTask();
 			}

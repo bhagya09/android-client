@@ -1353,10 +1353,10 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 					optionsList.add(getString(R.string.group_info));
 				}
 		}
-		if (conv.getConversationName() != null)
+		
+		if (conv.getLabel() != null)
 		{
 			optionsList.add(getString(R.string.shortcut));
-
 		}
 
 		if (!(conv instanceof OneToNConvInfo) && conv.getConversationName() == null)
