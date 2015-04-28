@@ -882,9 +882,8 @@ public class VoIPService extends Service {
 		establishingConnection = false;
 		isRingingOutgoing = false;
 		isRingingIncoming = false;
-
-		if(socket != null)
-			socket.close();
+		
+		removeExternalSocketInfo();
 
 		// Terminate threads
 		if(notificationThread!=null)
@@ -1033,12 +1032,18 @@ public class VoIPService extends Service {
 
 		reconnectAttempts++;
 		Logger.w(VoIPConstants.TAG, "VoIPService reconnect()");
+
+		// Interrupt the receiving thread since we will make the socket null
+		// and it could throw an NPE.
+		if (receivingThread != null) {
+			receivingThread.interrupt();
+		}
+		
 		setCallStatus(VoIPConstants.CallStatus.RECONNECTING);
 		sendHandlerMessage(VoIPConstants.MSG_RECONNECTING);
 		socketInfoReceived = false;
 		socketInfoSent = false;
 		connected = false;
-		removeExternalSocketInfo();
 		retrieveExternalSocket();
 		startReconnectBeeps();
 	}

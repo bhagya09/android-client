@@ -240,18 +240,20 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 		if (enableCameraPick)
 		{
 			File selectedFile = Utils.createNewFile(HikeFileType.IMAGE, HikeConstants.CAM_IMG_PREFIX);
-			Intent sourceIntent = IntentFactory.getNativeCameraAppIntent(true,selectedFile);
-			Intent desIntent = IntentFactory.getPictureEditorActivityIntent(GalleryActivity.this, null, !returnResult,selectedFile.getAbsolutePath());
+			if (selectedFile != null)
+			{
+				Intent sourceIntent = IntentFactory.getNativeCameraAppIntent(true, selectedFile);
+				Intent desIntent = IntentFactory.getPictureEditorActivityIntent(GalleryActivity.this, null, !returnResult, selectedFile.getAbsolutePath());
 
-			Intent proxyIntent = new Intent(GalleryActivity.this, DelegateActivity.class);
-			proxyIntent.putExtra(DelegateActivity.SOURCE_INTENT, sourceIntent);
-			proxyIntent.putExtra(DelegateActivity.DESTINATION_INTENT, desIntent);
-			proxyIntent.putExtra(HikeMessengerApp.FILE_PATHS, new String[]{selectedFile.getAbsolutePath()});
+				Intent proxyIntent = new Intent(GalleryActivity.this, DelegateActivity.class);
+				proxyIntent.putExtra(DelegateActivity.SOURCE_INTENT, sourceIntent);
+				proxyIntent.putExtra(DelegateActivity.DESTINATION_INTENT, desIntent);
+				proxyIntent.putExtra(HikeMessengerApp.FILE_PATHS, new String[] { selectedFile.getAbsolutePath() });
+				PendingIntent pIntent = PendingIntent.getActivity(getApplicationContext(), 0, proxyIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-			PendingIntent pIntent = PendingIntent.getActivity(getApplicationContext(), 0, proxyIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-			GalleryItem allImgItem = new GalleryItem(NEW_PHOTO, "gallery_tile_camera", 0, pIntent);
-			galleryItemList.add(allImgItem);
+				GalleryItem allImgItem = new GalleryItem(NEW_PHOTO, "gallery_tile_camera", 0, pIntent);
+				galleryItemList.add(allImgItem);
+			}
 		}
 
 		/*
@@ -318,19 +320,13 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 
 		int sizeOfImage = getResources().getDimensionPixelSize(isInsideAlbum ? R.dimen.gallery_album_item_size : R.dimen.gallery_cover_item_size);
 
-		int numColumns = Utils.getNumColumnsForGallery(getResources(), sizeOfImage);
+		int numColumns = isInsideAlbum ? 3 : Utils.getNumColumnsForGallery(getResources(), sizeOfImage);
+		
 		int actualSize = Utils.getActualSizeForGallery(getResources(), sizeOfImage, numColumns);
 
 		adapter = new GalleryAdapter(this, galleryItemList, isInsideAlbum, actualSize, selectedGalleryItems, false);
 
-		if (isInsideAlbum)
-		{
-			gridView.setNumColumns(3);
-		}
-		else
-		{
-			gridView.setNumColumns(numColumns);
-		}
+		gridView.setNumColumns(numColumns);
 		gridView.setAdapter(adapter);
 		gridView.setOnScrollListener(this);
 		gridView.setOnItemClickListener(this);

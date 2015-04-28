@@ -196,7 +196,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 			HikePubSub.RESET_STEALTH_INITIATED, HikePubSub.RESET_STEALTH_CANCELLED, HikePubSub.REMOVE_WELCOME_HIKE_TIP, HikePubSub.REMOVE_STEALTH_INFO_TIP,
 			HikePubSub.REMOVE_STEALTH_UNREAD_TIP, HikePubSub.BULK_MESSAGE_RECEIVED, HikePubSub.ONETON_MESSAGE_DELIVERED_READ, HikePubSub.BULK_MESSAGE_DELIVERED_READ, HikePubSub.GROUP_END,
 			HikePubSub.CONTACT_DELETED,HikePubSub.MULTI_MESSAGE_DB_INSERTED, HikePubSub.SERVER_RECEIVED_MULTI_MSG, HikePubSub.MUTE_CONVERSATION_TOGGLED, HikePubSub.CONV_UNREAD_COUNT_MODIFIED,
-			HikePubSub.CONVERSATION_TS_UPDATED, HikePubSub.PARTICIPANT_JOINED_ONETONCONV, HikePubSub.PARTICIPANT_LEFT_ONETONCONV};
+			HikePubSub.CONVERSATION_TS_UPDATED, HikePubSub.PARTICIPANT_JOINED_ONETONCONV, HikePubSub.PARTICIPANT_LEFT_ONETONCONV, HikePubSub.BLOCK_USER, HikePubSub.UNBLOCK_USER};
 
 	private ConversationsAdapter mAdapter;
 
@@ -2005,9 +2005,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 				{
 					if (conversationEmpty)
 					{
-						mConversationsByMSISDN.remove(msisdn);
-						mConversationsAdded.remove(msisdn);
-						mAdapter.remove(convInfo);
+						clearConversation(msisdn);
 						notifyDataSetChanged();
 						resetSearchIcon();
 					}
@@ -2840,14 +2838,21 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 				@Override
 				public void run()
 				{
+					if (convInfo instanceof OneToNConvInfo)
+					{
+						convInfo.setMute(isMuted);
+					}
+					else if (Utils.isBot(convInfo.getMsisdn()))
+					{
+						convInfo.setMute(isMuted);
+					}
+					
 					View parentView = getParenViewForConversation(convInfo);
 					if (parentView == null)
 					{
 						notifyDataSetChanged();
 						return;
 					}
-
-					convInfo.setMute(isMuted);
 
 					notifyDataSetChanged();
 				}
@@ -2892,6 +2897,15 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 					updateViewForNameChange(convInfo);
 				}
 			});
+		}
+		else if (HikePubSub.BLOCK_USER.equals(type) || HikePubSub.UNBLOCK_USER.equals(type))
+		{
+			String mMsisdn = (String) object;
+			ConvInfo convInfo = mConversationsByMSISDN.get(mMsisdn);
+			if (convInfo != null)
+			{
+				convInfo.setBlocked(HikePubSub.BLOCK_USER.equals(type) ? true : false);
+			}
 		}
 	}
 	
