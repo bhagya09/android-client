@@ -35,6 +35,11 @@ android {
     preDexLibraries = false
         jumboMode = true
     }
+    repositories {
+        flatDir {
+            dirs 'libs'
+        }
+    }
     dependencies {
         compile(project(':actionbar-sherlock')) {
             exclude module: 'support-v4'
@@ -48,19 +53,18 @@ android {
         compile(project(':viewpager-indicator-library')) {
             exclude module: 'support-v4'
         }
-        compile files('libs/acra-4.6.1.jar')
-        compile files('libs/gson-2.3.jar')
-        compile files('libs/gcm.jar')
-        compile files('libs/aspectjrt-1.8.2.jar')
-        compile files('libs/httpclient-android-4.3.5.jar')
-        compile files('libs/isoparser-1.0.4.2.jar')
-        compile files('libs/jmustache-1.9-2.jar')
-        compile files('libs/musicg-1.4.2.0.jar')
-        compile files('libs/okio-1.2.0.jar')
-        compile files('libs/protobuf-java-2.6.1.jar')
-        compile files('libs/prettytime-2.1.3.jar')
-        compile files('libs/twitter4j-core-3.0.5.jar')
-        compile files('libs/android-support-v4.jar')
+        compile name: 'acra-4.6.1'
+        compile name: 'gson-2.3'
+        compile name: 'gcm'
+        compile name: 'aspectjrt-1.8.2'
+        compile name: 'httpclient-android-4.3.5'
+        compile name: 'isoparser-1.0.4.2'
+        compile name: 'jmustache-1.9-2'
+        compile name: 'musicg-1.4.2.0'
+        compile name: 'okio-1.2.0'
+        compile name: 'protobuf-java-2.6.1'
+        compile name: 'prettytime-2.1.3'
+        compile name: 'android-support-v4'
     }
 
     sourceSets {
@@ -91,7 +95,6 @@ android {
         release {
         	minifyEnabled true
             proguardFile 'proguard.cfg'
-            proguardFile getDefaultProguardFile('proguard-android.txt')
             signingConfig signingConfigs.release
         }
     }
