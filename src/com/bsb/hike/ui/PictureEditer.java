@@ -85,7 +85,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 	private View overlayFrame;
 
 	private boolean startedForResult;
-	
+
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
@@ -116,7 +116,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 				filename = galleryList.get(0).getFilePath();
 				sendAnalyticsGalleryPic();
 			}
-			if(filename == null)
+			if (filename == null)
 			{
 				filename = intent.getData().toString();
 				sendAnalyticsGalleryPic();
@@ -139,7 +139,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 					@Override
 					public void run()
 					{
-						PictureEditer.this.finish();		
+						PictureEditer.this.finish();
 					}
 				});
 			}
@@ -164,20 +164,19 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 				// Not used
 			}
 		});
-		
+
 		startedForResult = (getCallingActivity() != null);
 
 		setupActionBar();
 
-		//We need to create a single destination copy
+		// We need to create a single destination copy
 		String destinationFileHandle = intent.getStringExtra(HikeConstants.HikePhotos.DESTINATION_FILENAME);
-		
-		if(TextUtils.isEmpty(destinationFileHandle))
+
+		if (TextUtils.isEmpty(destinationFileHandle))
 		{
-			destinationFileHandle = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.IMAGE_ROOT + File.separator
-					+ Utils.getOriginalFile(HikeFileType.IMAGE, null);
+			destinationFileHandle = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.IMAGE_ROOT + File.separator + Utils.getOriginalFile(HikeFileType.IMAGE, null);
 		}
-		
+
 		editView.setDestinationPath(destinationFileHandle);
 
 		pager = (ViewPager) findViewById(R.id.pager);
@@ -191,8 +190,6 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 		editView.setCompressionEnabled(intent.getBooleanExtra(HikeConstants.HikePhotos.EDITOR_ALLOW_COMPRESSION_KEY, true));
 
 	}
-	
-	
 
 	@Override
 	protected void onResume()
@@ -342,7 +339,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 		});
 	}
 
-	public class EditorClickListener implements OnClickListener, OnPageChangeListener, OnDoodleStateChangeListener,OnItemClickListener
+	public class EditorClickListener implements OnClickListener, OnPageChangeListener, OnDoodleStateChangeListener, OnItemClickListener
 	{
 		private DoodleEffectItemLinearLayout doodlePreview;
 
@@ -367,71 +364,71 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 		@Override
 		public void onClick(View v)
 		{
-			
-				switch (v.getId())
+
+			switch (v.getId())
+			{
+			case R.id.plusWidth:
+				if (doodleWidth + HikeConstants.HikePhotos.DELTA_BRUSH_WIDTH <= HikeConstants.HikePhotos.MAX_BRUSH_WIDTH)
 				{
-				case R.id.plusWidth:
-					if (doodleWidth + HikeConstants.HikePhotos.DELTA_BRUSH_WIDTH <= HikeConstants.HikePhotos.MAX_BRUSH_WIDTH)
-					{
-						doodleWidth += HikeConstants.HikePhotos.DELTA_BRUSH_WIDTH;
-					}
-					doodlePreview.setBrushWidth(HikePhotosUtils.dpToPx(mContext, doodleWidth));
-					doodlePreview.refresh();
-					editView.setBrushWidth(HikePhotosUtils.dpToPx(mContext, doodleWidth));
-					break;
-				case R.id.minusWidth:
-					if (doodleWidth - HikeConstants.HikePhotos.DELTA_BRUSH_WIDTH >= HikeConstants.HikePhotos.Min_BRUSH_WIDTH)
-					{
-						doodleWidth -= HikeConstants.HikePhotos.DELTA_BRUSH_WIDTH;
-					}
-					doodlePreview.setBrushWidth(HikePhotosUtils.dpToPx(mContext, doodleWidth));
-					doodlePreview.refresh();
-					editView.setBrushWidth(HikePhotosUtils.dpToPx(mContext, doodleWidth));
-					break;
-				case R.id.undo:
-					editView.undoLastDoodleDraw();
-					break;
-				case R.id.done_container:
-					if (!startedForResult)
-					{
-						loadPreviewFragment();
-					}
-					else
-					{
-						editView.saveImage(HikeFileType.IMAGE, null, new HikePhotosListener()
-						{
-
-							@Override
-							public void onFailure()
-							{
-								// TODO Auto-generated method stub
-								Intent intent = new Intent();
-								setResult(RESULT_CANCELED, intent);
-								finish();
-
-							}
-
-							@Override
-							public void onComplete(Bitmap bmp)
-							{
-								// TODO Auto-generated method stub
-
-							}
-
-							@Override
-							public void onComplete(File f)
-							{
-								// TODO Auto-generated method stub
-								Intent intent = new Intent();
-								intent.putExtra(HikeConstants.Extras.PHOTOS_RETURN_FILE, f.getAbsolutePath());
-								setResult(RESULT_OK, intent);
-								finish();
-							}
-						});
-					}
-					break;
+					doodleWidth += HikeConstants.HikePhotos.DELTA_BRUSH_WIDTH;
 				}
-			
+				doodlePreview.setBrushWidth(HikePhotosUtils.dpToPx(mContext, doodleWidth));
+				doodlePreview.refresh();
+				editView.setBrushWidth(HikePhotosUtils.dpToPx(mContext, doodleWidth));
+				break;
+			case R.id.minusWidth:
+				if (doodleWidth - HikeConstants.HikePhotos.DELTA_BRUSH_WIDTH >= HikeConstants.HikePhotos.Min_BRUSH_WIDTH)
+				{
+					doodleWidth -= HikeConstants.HikePhotos.DELTA_BRUSH_WIDTH;
+				}
+				doodlePreview.setBrushWidth(HikePhotosUtils.dpToPx(mContext, doodleWidth));
+				doodlePreview.refresh();
+				editView.setBrushWidth(HikePhotosUtils.dpToPx(mContext, doodleWidth));
+				break;
+			case R.id.undo:
+				editView.undoLastDoodleDraw();
+				break;
+			case R.id.done_container:
+				if (!startedForResult)
+				{
+					loadPreviewFragment();
+				}
+				else
+				{
+					editView.saveImage(HikeFileType.IMAGE, null, new HikePhotosListener()
+					{
+
+						@Override
+						public void onFailure()
+						{
+							// TODO Auto-generated method stub
+							Intent intent = new Intent();
+							setResult(RESULT_CANCELED, intent);
+							finish();
+
+						}
+
+						@Override
+						public void onComplete(Bitmap bmp)
+						{
+							// TODO Auto-generated method stub
+
+						}
+
+						@Override
+						public void onComplete(File f)
+						{
+							// TODO Auto-generated method stub
+							Intent intent = new Intent();
+							intent.putExtra(HikeConstants.Extras.PHOTOS_RETURN_FILE, f.getAbsolutePath());
+							setResult(RESULT_OK, intent);
+							finish();
+						}
+					});
+				}
+				break;
+			}
+
 		}
 
 		private void loadPreviewFragment()
@@ -530,12 +527,12 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 									{
 										destFilePath.delete();
 									}
-									
+
 									String timeStamp = Long.toString(System.currentTimeMillis());
 									File file = null;
 									try
 									{
-										//We do not want to persist cropped result on storage
+										// We do not want to persist cropped result on storage
 										file = File.createTempFile("IMG_" + timeStamp, ".jpg");
 										file.deleteOnExit();
 										Utils.startCropActivityForResult(PictureEditer.this, f.getAbsolutePath(), file.getAbsolutePath(), true, 100, true);
@@ -641,41 +638,44 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 				}
 				me.select();
 			}
-			
+
 			autoScrollToNext((TwoWayGridView) parent, position);
 		}
-		
-		
-		/** 
+
+		/**
 		 * {@link} : http://stackoverflow.com/questions/11431832/android-smoothscrolltoposition-not-working-correctly
 		 * 
-		 * @param TwoWayGridView parent whose children are to be scrolled
-		 * @param currentPosition of the element selected.(Scrolling occurs relative to this position)
+		 * @param TwoWayGridView
+		 *            parent whose children are to be scrolled
+		 * @param currentPosition
+		 *            of the element selected.(Scrolling occurs relative to this position)
 		 */
-		private void autoScrollToNext(final TwoWayGridView parent,int currentPosition)
+		private void autoScrollToNext(final TwoWayGridView parent, int currentPosition)
 		{
 			final int positionFinal;
-			if(currentPosition-1==parent.getFirstVisiblePosition() || currentPosition==parent.getFirstVisiblePosition())
+			if (currentPosition - 1 == parent.getFirstVisiblePosition() || currentPosition == parent.getFirstVisiblePosition())
 			{
-				positionFinal = currentPosition -1;;
+				positionFinal = currentPosition - 1;
+				;
 			}
-			else 
+			else
 			{
-				positionFinal = currentPosition +1;;
+				positionFinal = currentPosition + 1;
+				;
 			}
-			
-			//SmoothScroll needs to do a lot of work
-			parent.post(new Runnable() {
-		        @Override
-		        public void run() {
-		        	parent.smoothScrollToPosition(positionFinal);
-		        }
-		    });
+
+			// SmoothScroll needs to do a lot of work
+			parent.post(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					parent.smoothScrollToPosition(positionFinal);
+				}
+			});
 		}
 
 	}
-	
-	
 
 	@Override
 	public void onBackPressed()
@@ -723,7 +723,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 			e.printStackTrace();
 		}
 	}
-	
+
 	private void sendAnalyticsGalleryPic()
 	{
 		try
