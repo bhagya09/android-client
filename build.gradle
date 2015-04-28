@@ -35,11 +35,6 @@ android {
     preDexLibraries = false
         jumboMode = true
     }
-    repositories {
-        flatDir {
-            dirs 'libs'
-        }
-    }
     dependencies {
         compile(project(':actionbar-sherlock')) {
             exclude module: 'support-v4'
@@ -53,18 +48,7 @@ android {
         compile(project(':viewpager-indicator-library')) {
             exclude module: 'support-v4'
         }
-        compile name: 'acra-4.6.1'
-        compile name: 'gson-2.3'
-        compile name: 'gcm'
-        compile name: 'aspectjrt-1.8.2'
-        compile name: 'httpclient-android-4.3.5'
-        compile name: 'isoparser-1.0.4.2'
-        compile name: 'jmustache-1.9-2'
-        compile name: 'musicg-1.4.2.0'
-        compile name: 'okio-1.2.0'
-        compile name: 'protobuf-java-2.6.1'
-        compile name: 'prettytime-2.1.3'
-        compile name: 'android-support-v4'
+        compile fileTree(dir: 'libs', include: ['*.jar'])
     }
 
     sourceSets {
