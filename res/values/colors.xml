@@ -405,9 +405,10 @@
     <color name="overflow_item_text_enabled">#F3F3F3</color>
     <color name="overflow_item_text_disabled">#5CF3F3F3</color>
     <color name="call_rate_bg">#33000000</color>
-    <color name="photos_tabs_background">#1f1f1f</color>
+    <color name="photos_tabs_background">#881f1f1f</color>
     <color name="photos_pager_background">#141414</color>
-    <color name="photos_action_bar_background">#141414</color>
+    <color name="photos_action_bar_background">#FF1f1f1f</color>
+    <color name="photos_action_bar_transcluscent_background">#881F1F1F</color>
     <color name="photos_filters_font_color">#FFFFFF</color>
     <color name="photos_doodle_seperator">#2b2b2c</color>
     <color name="photos_action_bar_font">#FFFFFF</color>
@@ -416,5 +417,6 @@
     <color name="photos_circular_progress_red_alpha">#99dd2b28</color>
     <color name="photos_actions_selected">#f4f4f4</color>
     <color name="photos_camera_selector">#05e7e8e9</color>
+    <color name="gallery_camera_tile_bg">#263238</color>
 </resources>
 	

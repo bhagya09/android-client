@@ -117,8 +117,6 @@ public class HighlightView
 			canvas.restore();
 			canvas.drawPath(path, mOutlinePaint);
 
-			if (mMode == ModifyMode.Grow)
-			{
 				if (mCircle)
 				{
 					int width = mResizeDrawableDiagonal.getIntrinsicWidth();
@@ -152,7 +150,6 @@ public class HighlightView
 					mResizeDrawable.setBounds(right - width, bottom - height, right + width, bottom + height);
 					mResizeDrawable.draw(canvas);
 				}
-			}
 		}
 	}
 

@@ -115,6 +115,8 @@ public class CropImage extends MonitoredActivity
 
 	private String mImagePath;
 
+	private boolean mCircleHighlight;
+
 	@Override
 	public void onCreate(Bundle icicle)
 	{
@@ -162,11 +164,18 @@ public class CropImage extends MonitoredActivity
 
 		Intent intent = getIntent();
 		Bundle extras = intent.getExtras();
+		
 		if (extras != null)
 		{
-			if (extras.getString(HikeConstants.Extras.CIRCLE_CROP) != null)
+			boolean circleHighlight = extras.getBoolean(HikeConstants.Extras.CIRCLE_HIGHLIGHT);
+			
+			if (extras.getString(HikeConstants.Extras.CIRCLE_CROP) != null || circleHighlight)
 			{
 				mCircleCrop = true;
+				if (circleHighlight)
+				{
+					mCircleHighlight = true;
+				}
 				mAspectX = 1;
 				mAspectY = 1;
 			}
@@ -227,6 +236,7 @@ public class CropImage extends MonitoredActivity
 		actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
 
 		View actionBarView = LayoutInflater.from(this).inflate(R.layout.photos_action_bar, null);
+		actionBarView.setBackgroundResource(R.color.photos_action_bar_background);
 		actionBarView.findViewById(R.id.back).setOnClickListener(new OnClickListener()
 		{
 			@Override
@@ -236,6 +246,12 @@ public class CropImage extends MonitoredActivity
 			}
 		});
 
+		TextView titleView = (TextView) actionBarView.findViewById(R.id.title);
+
+		titleView.setText(getString(R.string.selectPreview));
+
+		titleView.setVisibility(View.VISIBLE);				
+		
 		actionBarView.findViewById(R.id.done_container).setOnClickListener(new View.OnClickListener()
 		{
 			
@@ -367,7 +383,7 @@ public class CropImage extends MonitoredActivity
 			canvas.drawBitmap(mBitmap, r, dstRect, null);
 		}
 
-		if (mCircleCrop)
+		if (mCircleCrop && !mCircleHighlight)
 		{
 			// OK, so what's all this about?
 			// Bitmaps are inherently rectangular but we want to return
@@ -481,12 +497,14 @@ public class CropImage extends MonitoredActivity
 			}
 			Bundle extras = new Bundle();
 			extras.putString(MediaStore.EXTRA_OUTPUT, croppedImage == null ? null : mSaveUri.getPath());
+			extras.putString(HikeConstants.HikePhotos.ORIG_FILE, mImagePath);
 			setResult(RESULT_OK, new Intent(mSaveUri.toString()).putExtras(extras));
 		}
 		else
 		{
 			Bundle extras = new Bundle();
 			extras.putParcelable(HikeConstants.Extras.BITMAP, croppedImage);
+			extras.putString(HikeConstants.HikePhotos.ORIG_FILE, mImagePath);
 			setResult(RESULT_OK, new Intent().putExtras(extras));
 		}
 		finish();

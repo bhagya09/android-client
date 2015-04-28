@@ -29,6 +29,7 @@ import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
 import android.widget.BaseAdapter;
 import android.widget.Filter;
+import android.widget.Filter.FilterListener;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -341,14 +342,26 @@ public class ConversationsAdapter extends BaseAdapter
 		return convInfo;
 	}
 
-	public void onQueryChanged(String s)
+	public void onQueryChanged(String s, FilterListener filterListener)
 	{
 		if (s == null)
 		{
 			s = "";
 		}
 		refinedSearchText = s.toLowerCase();
-		contactFilter.filter(refinedSearchText);
+		if(filterListener!=null)
+		{
+			contactFilter.filter(refinedSearchText, filterListener);
+		}
+		else
+		{
+			contactFilter.filter(refinedSearchText);
+		}
+	}
+	
+	public void onQueryChanged(String s)
+	{
+		onQueryChanged(s, null);
 	}
 
 	private class ContactFilter extends Filter
@@ -971,11 +984,11 @@ public class ConversationsAdapter extends BaseAdapter
 			for (int i = 0; i < count; i++)
 			{
 				View view = listView.getChildAt(i);
-				int indexOfData = listView.getFirstVisiblePosition() + i;
+				int indexOfData = listView.getFirstVisiblePosition() + i - listView.getHeaderViewsCount();
 
-				if(indexOfData >= getCount())
+				if(indexOfData >= getCount() || indexOfData < 0)
 				{
-					return;
+					continue;
 				}
 				ViewType viewType = ViewType.values()[getItemViewType(indexOfData)];
 				/*

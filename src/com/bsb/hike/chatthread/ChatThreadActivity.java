@@ -86,6 +86,7 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 	private void init(Intent intent)
 	{
 		String whichChatThread = intent.getStringExtra(HikeConstants.Extras.WHICH_CHAT_THREAD);
+		
 		if (HikeConstants.Extras.ONE_TO_ONE_CHAT_THREAD.equals(whichChatThread))
 		{
 			chatThread = new OneToOneChatThread(this, intent.getStringExtra(HikeConstants.Extras.MSISDN));
@@ -98,6 +99,12 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 		{
 			chatThread = new BroadcastChatThread(this, intent.getStringExtra(HikeConstants.Extras.MSISDN));
 		}
+		
+		else if(HikeConstants.Extras.BOT_CHAT_THREAD.equals(whichChatThread))
+		{
+			chatThread = new BotChatThread(this, intent.getStringExtra(HikeConstants.Extras.MSISDN));
+		}
+		
 		else
 		{
 			throw new IllegalArgumentException("Which chat thread I am !!! Did you pass proper arguments?");

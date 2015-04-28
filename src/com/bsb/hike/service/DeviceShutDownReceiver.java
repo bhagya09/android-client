@@ -6,8 +6,6 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikeMessengerApp.CurrentState;
 import com.bsb.hike.analytics.HAManager;
-import com.bsb.hike.notifications.HikeNotificationMsgStack;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Utils;
 
 import android.content.BroadcastReceiver;
@@ -28,9 +26,6 @@ public class DeviceShutDownReceiver extends BroadcastReceiver
 			JSONObject sessionDataObject = HAManager.getInstance().recordAndReturnSessionEnd();
 			Utils.sendSessionMQTTPacket(context, HikeConstants.BACKGROUND, sessionDataObject);
 		}
-		
-		String notifObject = HikeNotificationMsgStack.getInstance(context).serializeObject();
-		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.NOTIFICATION_OBJ, notifObject);
 	}
 
 }

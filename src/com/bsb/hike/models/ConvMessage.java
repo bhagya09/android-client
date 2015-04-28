@@ -1094,6 +1094,29 @@ public class ConvMessage implements Searchable
 			return false;
 		}
 	}
+	
+	public boolean isImageMsg()
+		{
+			return isFileTransferMessage() && getMetadata() != null && getMetadata().getHikeFiles().get(0).getHikeFileType() == HikeFileType.IMAGE ;
+			
+		}
+		
+		public boolean isTextMsg()
+		{
+			if(getMessageType() != MESSAGE_TYPE.PLAIN_TEXT)
+			{
+				return false;
+			}
+			
+			//a MESSAGE_TYPE.PLAIN_TEXT type message might be ft, sticker or nudge.So, rolling out these possibilities
+			if (isFileTransferMessage() || isStickerMessage() || (getMetadata() != null && getMetadata().isPokeMessage()))
+			{
+				return false;
+			}
+				
+			return true;
+		}
+	
 
 	public static boolean isMessageSent(State msgState)
 	{

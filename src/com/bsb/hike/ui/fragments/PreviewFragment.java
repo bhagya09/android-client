@@ -40,6 +40,12 @@ public final class PreviewFragment extends Fragment
 
 	private static final String BITMAP_KEY = "BITMAP_KEY";
 
+	//Default Constructor as per android guidelines
+	public PreviewFragment()
+	{
+		
+	}
+	
 	public static PreviewFragment newInstance(int type, Bitmap bitmap)
 	{
 		PreviewFragment newFrag = new PreviewFragment();
@@ -55,11 +61,6 @@ public final class PreviewFragment extends Fragment
 	{
 		super.onCreate(savedInstanceState);
 
-		if (getActivity() instanceof PictureEditer)
-		{
-			handler = ((PictureEditer) getActivity()).getClickHandler();
-		}
-
 		Bundle newFragBundle = getArguments();
 
 		menuType = newFragBundle.getInt(MENU_TYPE_KEY);
@@ -70,6 +71,12 @@ public final class PreviewFragment extends Fragment
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 	{
+		//adding null check since click handler becomes null if PictureEditor is restarted by the OS
+		if (handler == null && getActivity() instanceof PictureEditer)
+		{
+			handler = ((PictureEditer) getActivity()).getClickHandler();
+		}
+
 
 		LinearLayout layout = (LinearLayout) LayoutInflater.from(getActivity()).inflate(R.layout.photos_pager_layout, container, false);
 
