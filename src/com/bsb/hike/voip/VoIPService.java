@@ -218,7 +218,6 @@ public class VoIPService extends Service {
 		}
 		
 		VoIPUtils.resetNotificationStatus();
-		startNotificationThread();
 
 		minBufSizePlayback = AudioTrack.getMinBufferSize(playbackSampleRate, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT);
 		minBufSizeRecording = AudioRecord.getMinBufferSize(AUDIO_SAMPLE_RATE, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT);
@@ -452,6 +451,8 @@ public class VoIPService extends Service {
 			VoIPUtils.sendVoIPMessageUsingHike(clientPartner.getPhoneNumber(), 
 					HikeConstants.MqttMessageTypes.VOIP_CALL_REQUEST, 
 					getCallId(), true);
+
+			startNotificationThread();
 			
 			// Show activity
 			Intent i = new Intent(getApplicationContext(), VoIPActivity.class);
@@ -2380,7 +2381,10 @@ public class VoIPService extends Service {
 			if (isRingingIncoming == true)
 				return;
 			else isRingingIncoming = true;
-			
+
+			// Show notification
+			startNotificationThread();
+
 			// Show activity
 			Intent intent = IntentFactory.getVoipIncomingCallIntent(VoIPService.this);
 			startActivity(intent);

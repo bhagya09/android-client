@@ -113,7 +113,8 @@
 	        android:text="@string/call_rate_not_now"
 	        android:textSize="13dp"
 	        android:background="@null"
-	        android:textColor="@color/call_rate_dismiss" />
+	        android:textColor="@color/call_rate_dismiss"
+	        android:textStyle="italic" />
 
 	  <View
         android:layout_width="1dp"
