@@ -1370,7 +1370,6 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="voip_missed_call_message">Message</string>
     <string name="empty_email">You have no messages in this conversation to e-mail.</string>
     <string name="no_results">No results</string>
-    <string name="take_photo">Take a photo</string>
     <string name="photo_dp_saving">Saving as profile photo..</string>
     <string name="photo_dp_saved">All set!</string>
     <string name="photo_dp_finishing">Finishing up..</string>
@@ -1474,4 +1473,5 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
 	<string name="activity_not_found">No app found that can handle this action</string>
 	<string name="selectPreview">Select a preview</string>
 	<string name="not_enough_memory">Not Enough Memory</string>
+	<string name="edit_photos">Edit photos</string>
 </resources>
