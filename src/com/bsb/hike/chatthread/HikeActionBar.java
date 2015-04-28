@@ -344,4 +344,9 @@ public class HikeActionBar
 			overFlowMenuLayout.dismiss();
 		}
 	}
+
+	public void resetView()
+	{
+		mActivity.getSupportActionBar().setCustomView(null);
+	}
 }

@@ -320,19 +320,13 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 
 		int sizeOfImage = getResources().getDimensionPixelSize(isInsideAlbum ? R.dimen.gallery_album_item_size : R.dimen.gallery_cover_item_size);
 
-		int numColumns = Utils.getNumColumnsForGallery(getResources(), sizeOfImage);
+		int numColumns = isInsideAlbum ? 3 : Utils.getNumColumnsForGallery(getResources(), sizeOfImage);
+		
 		int actualSize = Utils.getActualSizeForGallery(getResources(), sizeOfImage, numColumns);
 
 		adapter = new GalleryAdapter(this, galleryItemList, isInsideAlbum, actualSize, selectedGalleryItems, false);
 
-		if (isInsideAlbum)
-		{
-			gridView.setNumColumns(3);
-		}
-		else
-		{
-			gridView.setNumColumns(numColumns);
-		}
+		gridView.setNumColumns(numColumns);
 		gridView.setAdapter(adapter);
 		gridView.setOnScrollListener(this);
 		gridView.setOnItemClickListener(this);
