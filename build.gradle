@@ -12,8 +12,7 @@ android {
     compileSdkVersion "Google Inc.:Google APIs:21"
     buildToolsVersion "21.0.2"
     aaptOptions {
-        noCompress '.9.png'
-        useNewCruncher false
+        useNewCruncher true
     }
     defaultConfig {
         minSdkVersion 9
@@ -22,17 +21,12 @@ android {
         targetSdkVersion 17
     }
     lintOptions {
-        ignoreWarnings true
-        checkAllWarnings false
-        warningsAsErrors false
         lintConfig file("lint.xml")
-        quiet true
-        checkReleaseBuilds false
         abortOnError false
     }
     dexOptions {
-    javaMaxHeapSize "2048M"
-    preDexLibraries = false
+        javaMaxHeapSize "2048M"
+        preDexLibraries = false 
         jumboMode = true
     }
     dependencies {
