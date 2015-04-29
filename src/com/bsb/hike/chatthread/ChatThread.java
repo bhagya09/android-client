@@ -2524,6 +2524,14 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		{
 			return false;
 		}
+		
+		if (message.getMessageType() == MESSAGE_TYPE.FORWARD_WEB_CONTENT || message.getMessageType() == MESSAGE_TYPE.WEB_CONTENT)
+		{
+			if (message.webMetadata.isLongPressDisabled())
+			{
+				return false;
+			}
+		}
 
 		mAdapter.toggleSelection(message);
 		/**
