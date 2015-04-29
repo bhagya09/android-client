@@ -861,8 +861,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	protected void showOverflowMenu()
 	{
-		if (mActionMode.whichActionModeIsOn() == SEARCH_ACTION_MODE)
+		if (mActionMode != null && mActionMode.isActionModeOn())
+		{
 			return;
+		}
 
 		/**
 		 * Hiding any open tip
