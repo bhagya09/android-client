@@ -245,7 +245,6 @@
                     android:layout_alignBottom="@+id/tb_layout"
                     android:layout_alignParentRight="true"
                     android:background="@null"
-                    android:onClick="onSendClick"
                     android:src="@drawable/walkie_talkie_btn_selector"
                     android:state_enabled="false" />
 

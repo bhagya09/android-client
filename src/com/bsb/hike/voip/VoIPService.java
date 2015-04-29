@@ -106,7 +106,7 @@ public class VoIPService extends Service {
 	private OpusWrapper opusWrapper;
 	private Resampler resampler;
 	private Thread partnerTimeoutThread = null, connectionTimeoutThread = null;
-	private Thread recordingThread = null, playbackThread = null, sendingThread = null, receivingThread = null, codecCompressionThread = null, codecDecompressionThread = null;
+	private Thread recordingThread = null, playbackThread = null, sendingThread = null, receivingThread = null, codecCompressionThread = null, codecDecompressionThread = null, iceThread = null;
 	private AudioTrack audioTrack = null;
 	private static int callId = 0;
 	private int totalPacketsSent = 0, totalPacketsReceived = 0;
@@ -218,7 +218,6 @@ public class VoIPService extends Service {
 		}
 		
 		VoIPUtils.resetNotificationStatus();
-		startNotificationThread();
 
 		minBufSizePlayback = AudioTrack.getMinBufferSize(playbackSampleRate, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT);
 		minBufSizeRecording = AudioRecord.getMinBufferSize(AUDIO_SAMPLE_RATE, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT);
@@ -412,7 +411,7 @@ public class VoIPService extends Service {
 			if (VoIPUtils.isUserInCall(getApplicationContext())) 
 			{
 				Logger.w(VoIPConstants.TAG, "We are already in a cellular call.");
-				sendHandlerMessage(VoIPConstants.MSG_ALREADY_IN_CALL);
+				sendHandlerMessage(VoIPConstants.MSG_ALREADY_IN_NATIVE_CALL);
 				sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CONNECTION_FAILED, VoIPConstants.CallFailedCodes.CALLER_IN_NATIVE_CALL);
 				return returnInt;
 			}
@@ -431,7 +430,6 @@ public class VoIPService extends Service {
 			if (getCallId() > 0) 
 			{
 				Logger.e(VoIPConstants.TAG, "Error. Already in a call.");
-				sendHandlerMessage(VoIPConstants.MSG_ALREADY_IN_CALL);
 				return returnInt;
 			}
 			
@@ -452,6 +450,8 @@ public class VoIPService extends Service {
 			VoIPUtils.sendVoIPMessageUsingHike(clientPartner.getPhoneNumber(), 
 					HikeConstants.MqttMessageTypes.VOIP_CALL_REQUEST, 
 					getCallId(), true);
+
+			startNotificationThread();
 			
 			// Show activity
 			Intent i = new Intent(getApplicationContext(), VoIPActivity.class);
@@ -882,13 +882,15 @@ public class VoIPService extends Service {
 		establishingConnection = false;
 		isRingingOutgoing = false;
 		isRingingIncoming = false;
-
-		if(socket != null)
-			socket.close();
+		
+		removeExternalSocketInfo();
 
 		// Terminate threads
 		if(notificationThread!=null)
 			notificationThread.interrupt();
+
+		if (iceThread != null)
+			iceThread.interrupt();
 
 		if (connectionTimeoutThread != null)
 			connectionTimeoutThread.interrupt();
@@ -1033,12 +1035,18 @@ public class VoIPService extends Service {
 
 		reconnectAttempts++;
 		Logger.w(VoIPConstants.TAG, "VoIPService reconnect()");
+
+		// Interrupt the receiving thread since we will make the socket null
+		// and it could throw an NPE.
+		if (receivingThread != null) {
+			receivingThread.interrupt();
+		}
+		
 		setCallStatus(VoIPConstants.CallStatus.RECONNECTING);
 		sendHandlerMessage(VoIPConstants.MSG_RECONNECTING);
 		socketInfoReceived = false;
 		socketInfoSent = false;
 		connected = false;
-		removeExternalSocketInfo();
 		retrieveExternalSocket();
 		startReconnectBeeps();
 	}
@@ -1948,23 +1956,29 @@ public class VoIPService extends Service {
 					case ENCRYPTION_PUBLIC_KEY:
 						if (clientPartner.isInitiator() != true) {
 							Logger.e(VoIPConstants.TAG, "Was not expecting a public key.");
-							continue;
+							break;
 						}
+						
 						Logger.d(VoIPConstants.TAG, "Received public key.");
-						encryptor.setPublicKey(dataPacket.getData());
-						encryptionStage = EncryptionStage.STAGE_GOT_PUBLIC_KEY;
-						exchangeCryptoInfo();
+						if (encryptor.getPublicKey() == null) {
+							encryptor.setPublicKey(dataPacket.getData());
+							encryptionStage = EncryptionStage.STAGE_GOT_PUBLIC_KEY;
+							exchangeCryptoInfo();
+						}
 						break;
 						
 					case ENCRYPTION_SESSION_KEY:
 						if (clientPartner.isInitiator() == true) {
 							Logger.e(VoIPConstants.TAG, "Was not expecting a session key.");
-							continue;
+							break;
 						}
-						encryptor.setSessionKey(encryptor.rsaDecrypt(dataPacket.getData()));
-						Logger.d(VoIPConstants.TAG, "Received session key.");
-						encryptionStage = EncryptionStage.STAGE_GOT_SESSION_KEY;
-						exchangeCryptoInfo();
+						
+						if (encryptor.getSessionKey() == null) {
+							encryptor.setSessionKey(encryptor.rsaDecrypt(dataPacket.getData()));
+							Logger.d(VoIPConstants.TAG, "Received session key.");
+							encryptionStage = EncryptionStage.STAGE_GOT_SESSION_KEY;
+							exchangeCryptoInfo();
+						}
 						break;
 						
 					case ENCRYPTION_RECEIVED_SESSION_KEY:
@@ -2244,7 +2258,7 @@ public class VoIPService extends Service {
 	 * 
 	 * @return
 	 */
-	public static boolean isConnected() {
+	private static boolean isConnected() {
 		return connected;
 	}
 	
@@ -2366,7 +2380,10 @@ public class VoIPService extends Service {
 			if (isRingingIncoming == true)
 				return;
 			else isRingingIncoming = true;
-			
+
+			// Show notification
+			startNotificationThread();
+
 			// Show activity
 			Intent intent = IntentFactory.getVoipIncomingCallIntent(VoIPService.this);
 			startActivity(intent);
@@ -2422,7 +2439,7 @@ public class VoIPService extends Service {
 
 		keepRunning = true;
 		
-		Thread iceThread = new Thread(new Runnable() {
+		iceThread = new Thread(new Runnable() {
 
 			@Override
 			public void run() {

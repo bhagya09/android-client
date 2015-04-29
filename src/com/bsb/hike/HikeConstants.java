@@ -1357,7 +1357,7 @@ public class HikeConstants
 
 		public static final String SHOW_RECORDING_DIALOG = "showRecordingDialog";
 
-		public static final String IS_HOME_POPUP_SHOWING = "isHomePopupShowing";
+		public static final String HOME_POPUP_TYPE = "homePopupType";
 
 		public static final String LAST_UPDATE_PACKET_ID = "lastUpdatePacketId";
 
@@ -1474,7 +1474,60 @@ public class HikeConstants
 		public static final String RETURN_CROP_RESULT_TO_FILE = "returnToFile";
 
 		public static final String CALL_RATE_BUNDLE = "callRateBundle";
+		
+		// constants related to sharing Functioanlity
+		public static final class ShareTypes
+		{
 
+			public static final int TEXT_SHARE = 0;
+
+			public static final int IMAGE_SHARE = 1;
+
+			public static final int STICKER_SHARE = 2;
+
+		}
+
+		public static final String SHARE_CONTENT = "shareContent";
+
+		public static final String WHATSAPP_PACKAGE = "com.whatsapp";
+
+		public static final String SHARE_TYPE = "shareType";
+
+		public static final int NOT_SHAREABLE = -1;
+		
+		public static final String STICKER_HEADING = "shareStkrTtl";
+
+		public static final String STICKER_DESCRIPTION = "shareStkrTxt";
+
+		public static final String STICKER_CAPTION = "shareStkrCptn";
+		
+        public static final String IMAGE_HEADING = "shareImgTtl";
+		
+		public static final String IMAGE_DESCRIPTION = "shareImgTxt";
+		
+		public static final String IMAGE_CAPTION = "shareImgCptn";
+
+        public static final String TEXT_HEADING = "shareMsgTitle";
+		
+		public static final String TEXT_CAPTION = "shareMsgTxt";
+				
+		public static final String SHOW_SHARE_FUNCTIONALITY = "shareWA";
+
+		public static final String STICKER_SHARE = "stkrShr";
+		
+		public static final String TEXT_SHARE = "textShr";
+		
+		public static final String IMAGE_SHARE = "imgShr";
+		
+		public static final String WHATSAPP_SHARE = "whatsappShare";
+
+		//required for analytics
+		public static final String CATEGORYID = "md1";
+
+		public static final String STICKERID = "md2";
+
+		public static final String PATH = "md3";
+		
 		public static final String GENERAL_SO_TIMEOUT = "sto";
 		
 		public static final String ENABLE_PHOTOS = "ph_en";
@@ -2686,24 +2739,6 @@ public class HikeConstants
 	public static final String ENABLE_EXCEPTION_ANALYTIS = "enableExceptionAnalytics";
 
 	public static final String PAYLOAD = "payload";
-	
-	public static final String MESSAGE_MAP="MessageMap";
-	
-	public static final String CONV_MESSAGE="ConvMessage";
-	
-	public static final String TICKER_TEXT="TickerText";
-	
-	public static final String LAST_ADDED_MSISDN="lastAddedMsisdn";
-	
-	public static final String LAST_ADDED_TIMESTAMP="latestAddedTimestamp";
-	
-	public static final String TTL_NEW_MSG="totalNewMessages";
-	
-	public static final String FORCE_BKL_NOTIF="forceBlockNotificationSound";
-	
-	public static final String NOTIFICATION_OBJ="notif";
-	
-	public static final String BIG_TEXT_LIST="BigTextList";
 	
 	public static final String HIKE_CONTACT_PICKER_RESULT = "contact_pick_result";
 }

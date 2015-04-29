@@ -216,23 +216,27 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	protected static final int SEARCH_LOOP = 27;
 
     protected static final int SET_WINDOW_BG = 28;
-
+ 
     protected static final int SCROLL_TO_POSITION = 29;
-    
-	protected static final int BLOCK_UNBLOCK_USER = 30;
+
+    protected static final int BLOCK_UNBLOCK_USER = 30;
 
     protected static final int ADD_MORE_MSG = 31;
     
     protected static final int ACTION_MODE_CONFIG_CHANGE = 32;
     
     private static final int MUTE_CONVERSATION_TOGGLED = 33;
+    
+    private static final int SHARING_FUNCTIONALITY = 34;
+    
+    private static final int THEME_PICKER_CONFIG_CHANGE = 35;
 
     private int NUDGE_TOAST_OCCURENCE = 2;
     	
     private int currentNudgeCount = 0;
     
-	protected ChatThreadActivity activity;
-
+    protected ChatThreadActivity activity;
+    
 	protected ThemePicker themePicker;
 
 	protected AttachmentPicker attachmentPicker;
@@ -243,7 +247,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	protected String msisdn;
 
-	protected static StickerPicker mStickerPicker;
+	protected StickerPicker mStickerPicker;
 
 	protected static EmoticonPicker mEmoticonPicker;
 
@@ -320,7 +324,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			case StickerManager.STICKERS_UPDATED:
 			case StickerManager.MORE_STICKERS_DOWNLOADED:
 			case StickerManager.STICKERS_DOWNLOADED:
-				mStickerPicker.notifyDataSetChanged();
+				if (mStickerPicker != null)
+				{
+					mStickerPicker.notifyDataSetChanged();
+				}
 				StickerPicker.setRefreshStickers(true);
 			}
 		}
@@ -328,10 +335,19 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	private ChatThreadBroadcasts mBroadCastReceiver;
 
+
 	protected Handler uiHandler = new Handler()
 	{
 		public void handleMessage(android.os.Message msg)
 		{
+			/**
+			 * Defensive check
+			 */
+			if (msg == null)
+			{
+				Logger.e(TAG, "Getting a null message in chat thread");
+				return;
+			}
 			handleUIMessage(msg);
 		}
 
@@ -358,7 +374,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			showToast(msg.arg1);
 			break;
 		case MESSAGE_RECEIVED:
-			messageAdded((ConvMessage) msg.obj);
+			addMessage((ConvMessage) msg.obj);
 			break;
 		case NOTIFY_DATASET_CHANGED:
 			Logger.i(TAG, "notifying data set changed on UI Handler");
@@ -372,7 +388,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			break;
 		case FILE_MESSAGE_CREATED:
         case MULTI_MSG_DB_INSERTED:
-			messageAdded((ConvMessage) msg.obj);
+			addMessage((ConvMessage) msg.obj);
 			break;
 		case DELETE_MESSAGE:
 			deleteMessages((Pair<Boolean, ArrayList<Long>>) msg.obj);
@@ -399,7 +415,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			setLabel((String) msg.obj);
 			break;
 		case STICKER_CATEGORY_MAP_UPDATED:
-			mStickerPicker.notifyDataSetChanged();
+			if (mStickerPicker != null)
+			{
+				mStickerPicker.notifyDataSetChanged();
+			}
 			StickerPicker.setRefreshStickers(true);
 			break;
 		case SCROLL_TO_END:
@@ -414,6 +433,12 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		case DISABLE_TRANSCRIPT_MODE:
 			mConversationsView.setTranscriptMode(ListView.TRANSCRIPT_MODE_DISABLED);		
 			break;
+		case SHARING_FUNCTIONALITY:
+			if (mActionMode!= null && mActionMode.whichActionModeIsOn() == MULTI_SELECT_ACTION_MODE)
+			{
+				mActionMode.finish();
+			}
+			 break;
 		case BLOCK_UNBLOCK_USER:
 			blockUnBlockUser((boolean) msg.obj);
 			break;
@@ -424,6 +449,13 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			break;
 		case MUTE_CONVERSATION_TOGGLED:
 			muteConvToggledUIChange((boolean) msg.obj);
+			break;
+		case THEME_PICKER_CONFIG_CHANGE : 
+			if (themePicker != null && themePicker.isShowing())
+			{
+				themePicker.setOrientation(activity.getResources().getConfiguration().orientation);
+				themePicker.refreshViews(true);
+			}
 			break;
 		default:
 			Logger.d(TAG, "Did not find any matching event for msg.what : " + msg.what);
@@ -450,7 +482,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		activity.findViewById(R.id.conversation_mute).setVisibility(isMuted ? View.VISIBLE : View.GONE);
 	}
 
-	protected void messageAdded(ConvMessage convMessage)
+	protected void addMessage(ConvMessage convMessage)
 	{
 
 		addtoMessageMap(messages.size() - 1, messages.size());
@@ -609,7 +641,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	private void updateSharedPopups()
 	{
 		mShareablePopupLayout.updateListenerAndView(this, activity.findViewById(R.id.chatThreadParentLayout));
-		mStickerPicker.updateListener(this, activity);
+		if (mStickerPicker != null)
+		{
+			mStickerPicker.updateListener(this, activity);
+		}
 		mEmoticonPicker.updateETAndContext(mComposeView, activity);
 	}
 
@@ -965,7 +1000,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	{
 		if (convMessage != null)
 		{
-			messageAdded(convMessage);
+			addMessage(convMessage);
 			HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_SENT, convMessage);
 		}
 	}
@@ -982,16 +1017,22 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	protected void stickerClicked()
 	{
+		initStickerPicker();
+		
 		closeStickerTip();
 		
 		if (mShareablePopupLayout.togglePopup(mStickerPicker, activity.getResources().getConfiguration().orientation))
 		{
 			activity.showProductPopup(ProductPopupsConstants.PopupTriggerPoints.STKBUT_BUT.ordinal());
 		}
-		else
+		
+		else 
 		{
-			setStickerButtonSelected(false);
-			Toast.makeText(activity.getApplicationContext(), R.string.some_error, Toast.LENGTH_SHORT).show();	
+			if (!retryToInflateStickers())
+			{
+				setStickerButtonSelected(false);
+				Toast.makeText(activity.getApplicationContext(), R.string.some_error, Toast.LENGTH_SHORT).show();
+			}
 		}
 	}
 	
@@ -1028,9 +1069,34 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	{
 		if (!mShareablePopupLayout.togglePopup(mEmoticonPicker, activity.getResources().getConfiguration().orientation))
 		{
-			setEmoticonButtonSelected(false);
-			Toast.makeText(activity.getApplicationContext(), R.string.some_error, Toast.LENGTH_SHORT).show();
+			if (!retryToInflateEmoticons())
+			{
+				setEmoticonButtonSelected(false);
+				Toast.makeText(activity.getApplicationContext(), R.string.some_error, Toast.LENGTH_SHORT).show();
+			}
 		}
+	}
+
+	/**
+	 * Got a failure while opening emoticon pallete possibly due to null context, mainView is null or mainView.getWindowToken() is null (very rare scenarios though)
+	 * @return
+	 */
+	private boolean retryToInflateEmoticons()
+	{
+		String errorMsg = "Inside method : retry to inflate emoticons. Houston!, something's not right here";
+		HAManager.sendStickerEmoticonStrangeBehaviourReport(errorMsg);
+		mShareablePopupLayout = null;
+		initShareablePopup();
+		return mShareablePopupLayout.togglePopup(mEmoticonPicker, activity.getResources().getConfiguration().orientation);
+	}
+	
+	private boolean retryToInflateStickers()
+	{
+		String errorMsg = "Inside method : retry to inflate stickers. Houston!, something's not right here";
+		HAManager.sendStickerEmoticonStrangeBehaviourReport(errorMsg);
+		mShareablePopupLayout = null;
+		initShareablePopup();
+		return mShareablePopupLayout.togglePopup(mStickerPicker, activity.getResources().getConfiguration().orientation);
 	}
 
 	protected void setUpThemePicker()
@@ -2150,25 +2216,11 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			loadingMoreMessages = false;
 		}
 	}
-
-	protected void addMessage(ConvMessage message)
-	{
-		mAdapter.addMessage(message);
-		if (messageSearchManager != null && messageSearchManager.isActive())
-		{
-			messageSearchManager.addItem(message);
-		}	
-	}
-
-	protected void addMessages(List<ConvMessage> list, int startIndex)
-	{
-		mAdapter.addMessages(list, startIndex);
-	}
 	
 	private void addMoreMessages(List<ConvMessage> list)
 	{
 		int startIndex = getMessagesStartIndex();
-		addMessages(list, startIndex);
+		mAdapter.addMessages(list, startIndex);
 		addtoMessageMap(startIndex, startIndex + list.size());
 		updateNNotifySearchParams(list);
 		mAdapter.notifyDataSetChanged();
@@ -2567,7 +2619,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		mAdapter.removeSelection();
 		mAdapter.setActionMode(false);
 		mAdapter.notifyDataSetChanged();
-
 		/**
 		 * if we have hidden tips while initializing action mode we should unhide them
 		 */ 
@@ -2918,6 +2969,9 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
         case HikePubSub.MULTI_MESSAGE_DB_INSERTED:
             onMultiMessageDbInserted(object);
             break;
+        case HikePubSub.SHARED_WHATSAPP:		
+          	 uiHandler.sendEmptyMessage(SHARING_FUNCTIONALITY);		
+        	 break;	   
         case HikePubSub.MUTE_CONVERSATION_TOGGLED:
 			onMuteConversationToggled(object);
 			break;
@@ -3092,7 +3146,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 				HikePubSub.MESSAGE_DELIVERED_READ, HikePubSub.SERVER_RECEIVED_MSG, HikePubSub.SERVER_RECEIVED_MULTI_MSG, HikePubSub.ICON_CHANGED, HikePubSub.UPLOAD_FINISHED,
 				HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, HikePubSub.FILE_MESSAGE_CREATED, HikePubSub.DELETE_MESSAGE, HikePubSub.STICKER_DOWNLOADED, HikePubSub.MESSAGE_FAILED,
 				HikePubSub.CHAT_BACKGROUND_CHANGED, HikePubSub.CLOSE_CURRENT_STEALTH_CHAT, HikePubSub.ClOSE_PHOTO_VIEWER_FRAGMENT, HikePubSub.STICKER_CATEGORY_MAP_UPDATED,
-				HikePubSub.UPDATE_NETWORK_STATE, HikePubSub.BULK_MESSAGE_RECEIVED, HikePubSub.MULTI_MESSAGE_DB_INSERTED, HikePubSub.BLOCK_USER, HikePubSub.UNBLOCK_USER, HikePubSub.MUTE_CONVERSATION_TOGGLED };
+				HikePubSub.UPDATE_NETWORK_STATE, HikePubSub.BULK_MESSAGE_RECEIVED, HikePubSub.MULTI_MESSAGE_DB_INSERTED, HikePubSub.BLOCK_USER, HikePubSub.UNBLOCK_USER, HikePubSub.MUTE_CONVERSATION_TOGGLED, HikePubSub.SHARED_WHATSAPP };
 
 		/**
 		 * Array of pubSub listeners we get from {@link OneToOneChatThread} or {@link GroupChatThread}
@@ -3165,7 +3219,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		}
 		
 		mShareablePopupLayout.releaseResources();
-		mStickerPicker.releaseResources();
+		if (mStickerPicker != null)
+		{
+			mStickerPicker.releaseResources();
+		}
 		mEmoticonPicker.releaseReources();
 	}
 
@@ -3242,8 +3299,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	 */
 	protected void onStop()
 	{
-		saveDraft();
 		releaseStickerAndEmoticon();
+		saveDraft();
 	}
 	
 	/**
@@ -3252,26 +3309,60 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	 * 2. Dismiss stickers and emoticon pallete 
 	 * 3. If actionMode is on, dismiss it
 	 * 4. If photoViewer fragment was attached, remove it
+	 * 5. If overflow menu is open then close it
+	 * 6. Hide dialog if showing
+	 * 7. Hide Walkie Talkie if showing
 	 */
 	protected void onPreNewIntent()
 	{
 		Logger.d(TAG, "Calling ChatThread's onPreNewIntent()");
+		
+		hideShareablePopups();
+		
+		hideActionMode();
+		
+		hideFragment(HikeConstants.IMAGE_FRAGMENT_TAG);
+		
+		hideThemePicker();
+		
+		hideOverflowMenu();
+		
+		hideDialog();
+		
+		hideWalkieTalkie();
+		
 		saveDraft();
-		if (mShareablePopupLayout.isShowing())
+	}
+	
+	private void hideWalkieTalkie()
+	{
+		if (audioRecordView != null)
 		{
-			mShareablePopupLayout.dismiss();
+			audioRecordView.dismissAudioRecordView();
 		}
-		
-		if(mActionMode!= null && mActionMode.isActionModeOn())
+	}
+
+
+	private void hideDialog()
+	{
+		if (dialog != null)
 		{
-			mActionMode.finish();
+			dialog.dismiss();
+			dialog = null;
 		}
-		
-		if (activity.isFragmentAdded(HikeConstants.IMAGE_FRAGMENT_TAG))
+	}
+	
+	private void hideOverflowMenu()
+	{
+		if (mActionBar != null && mActionBar.isOverflowMenuShowing())
 		{
-			activity.removeFragment(HikeConstants.IMAGE_FRAGMENT_TAG);
+			mActionBar.dismissOverflowMenu();
+			mActionBar.resetView();
 		}
-		
+	}
+	
+	private void hideThemePicker()
+	{
 		if (themePicker != null && themePicker.isShowing())
 		{
 			themePicker.dismiss();
@@ -3283,6 +3374,30 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		}
 	}
 	
+	private void hideFragment(String tag)
+	{
+		if (activity.isFragmentAdded(tag))
+		{
+			activity.removeFragment(tag);
+		}
+	}
+	
+	private void hideActionMode()
+	{
+		if(mActionMode!= null && mActionMode.isActionModeOn())
+		{
+			mActionMode.finish();
+		}
+	}
+	
+	private void hideShareablePopups()
+	{
+		if (mShareablePopupLayout.isShowing())
+		{
+			mShareablePopupLayout.dismiss();
+		}
+	}
+
 	protected void onStart()
 	{
 		/**
@@ -3402,7 +3517,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	{
 		if (messages.isEmpty() || messages.get(messages.size() - 1).getTypingNotification() == null)
 		{
-			messageAdded(new ConvMessage(typingNotification));
+			addMessage(new ConvMessage(typingNotification));
 		}
 		else if (messages.get(messages.size() - 1).getTypingNotification() != null)
 		{
@@ -3792,7 +3907,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		ConvMessage convMessage = ChatThreadUtils.getChatThemeConvMessage(activity.getApplicationContext(), timestamp, currentTheme.bgId(), mConversation);
 		sendMessage(convMessage);
 	}
-
+	
+	
 	/**
 	 * Called from the UI Handler to change the chat theme
 	 * 
@@ -4250,6 +4366,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			}
 			intent.putExtra(HikeConstants.Extras.MULTIPLE_MSG_OBJECT, multipleMsgArray.toString());
 			intent.putExtra(HikeConstants.Extras.PREV_MSISDN, msisdn);
+			intent = IntentFactory.shareFunctionality(intent, selectedMessagesMap.get(selectedMsgIds.get(0)), mAdapter, shareableMessagesCount, activity.getApplicationContext());
 			activity.startActivity(intent);
 			return true;
 
@@ -4354,8 +4471,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		
 		if (themePicker != null && themePicker.isShowing())
 		{
-			themePicker.setOrientation(newConfig.orientation);
-			themePicker.refreshViews(true);
+			uiHandler.sendEmptyMessage(THEME_PICKER_CONFIG_CHANGE);
 		}
 		
 		if (this.dialog != null)
@@ -4368,6 +4484,14 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			if (mShareablePopupLayout.isKeyboardOpen())
 			{
 				mActionBar.dismissOverflowMenu();
+			}
+		}
+		
+		if (attachmentPicker != null && attachmentPicker.isShowing())
+		{
+			if (mShareablePopupLayout.isKeyboardOpen())
+			{
+				attachmentPicker.dismiss();
 			}
 		}
 	}
@@ -4477,7 +4601,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		Logger.i(TAG, "onPopup Dismiss");
 		if(activity.findViewById(R.id.sticker_btn).isSelected())
 		{
-			mStickerPicker.resetToFirstPosition();
+			if (mStickerPicker != null)
+			{
+				mStickerPicker.resetToFirstPosition();
+			}
 			setStickerButtonSelected(false);
 		}
 		if(activity.findViewById(R.id.emoticon_btn).isSelected())
@@ -4578,6 +4705,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		Utils.hideSoftKeyboard(activity.getApplicationContext(), mComposeView);
 
 		View mOverlayLayout = activity.findViewById(R.id.overlay_layout);
+		mOverlayLayout.setTag(viewTag);
 
 		if (mOverlayLayout.getVisibility() != View.VISIBLE && activity.hasWindowFocus())
 		{

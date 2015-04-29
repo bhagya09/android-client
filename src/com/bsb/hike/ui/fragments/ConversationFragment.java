@@ -45,6 +45,7 @@ import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
+import android.widget.Filter.FilterListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -107,7 +108,7 @@ import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.HoloCircularProgress;
 
-public class ConversationFragment extends SherlockListFragment implements OnItemLongClickListener, Listener, OnScrollListener, HikeFragmentable, OnClickListener, ConversationTipClickedListener
+public class ConversationFragment extends SherlockListFragment implements OnItemLongClickListener, Listener, OnScrollListener, HikeFragmentable, OnClickListener, ConversationTipClickedListener, FilterListener
 {
 
 	private class DeleteConversationsAsyncTask extends AsyncTask<ConvInfo, Void, ConvInfo[]>
@@ -206,6 +207,10 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 	private Comparator<? super ConvInfo> mConversationsComparator;
 
 	private View emptyView;
+	
+	private View searchEmptyView;
+	
+	private ViewGroup emptyHolder;
 
 	private Set<ConvInfo> stealthConversations;
 
@@ -282,9 +287,19 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 
 	private void setSearchEmptyState()
 	{
-		ListView friendsList = (ListView) getView().findViewById(android.R.id.list);
-		View searchEmptyView = getView().findViewById(R.id.searchEmptyView);
-		searchEmptyView.setVisibility(View.VISIBLE);
+		emptyHolder = (ViewGroup) getView().findViewById(R.id.emptyViewHolder);
+		
+		searchEmptyView = getView().findViewById(R.id.searchEmptyView);
+		if(mAdapter.getCount() == 0)
+		{
+			emptyHolder.setVisibility(View.GONE);
+			searchEmptyView.setVisibility(View.VISIBLE);
+		}
+		else
+		{
+			emptyHolder.setVisibility(View.GONE);
+			searchEmptyView.setVisibility(View.GONE);
+		}
 		String emptyText = String.format(getActivity().getString(R.string.home_search_empty_text), searchText);
 		TextView emptyTextView = (TextView) searchEmptyView.findViewById(R.id.empty_search_txt);
 		if (!TextUtils.isEmpty(searchText))
@@ -300,7 +315,6 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		{
 			emptyTextView.setText(emptyText);
 		}
-		friendsList.setEmptyView(searchEmptyView);
 	}
 
 	private void bindNuxViews(final View root)
@@ -866,43 +880,52 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 
 		}
 	}
-
+	
 	private void setEmptyState()
 	{
 		// Adding wasViewSetup() safety check for an NPE here.
-		if (wasViewSetup())
+		if (!wasViewSetup())
 		{
-			if (emptyView == null)
-			{
-				ViewGroup emptyHolder = (ViewGroup) getView().findViewById(R.id.emptyViewHolder);
-				emptyView = LayoutInflater.from(getActivity()).inflate(R.layout.conversation_empty_view2, emptyHolder);
-				//emptyHolder.addView(emptyView);
-			}
-			
+			return;
+		}
+		
+		searchEmptyView = getView().findViewById(R.id.searchEmptyView);
+		emptyHolder = (ViewGroup) getView().findViewById(R.id.emptyViewHolder);
+
 			if (searchMode)
 			{
 				if (!TextUtils.isEmpty(searchText))
 				{
-					emptyView.setVisibility(View.GONE);
-					getView().findViewById(R.id.searchEmptyView).setVisibility(View.VISIBLE);
 					setSearchEmptyState();
 				}
-				else if (mConversationsByMSISDN.isEmpty())
+				else 
 				{
-					getView().findViewById(R.id.searchEmptyView).setVisibility(View.GONE);
-					emptyView.setVisibility(View.VISIBLE);
-					ListView friendsList = (ListView) getView().findViewById(android.R.id.list);
-					friendsList.setEmptyView(emptyView);
+					if (mAdapter.getCount() ==0 )
+					{
+						searchEmptyView.setVisibility(View.GONE);
+						emptyHolder.setVisibility(View.VISIBLE);
+					}
+					else
+					{
+						searchEmptyView.setVisibility(View.GONE);
+						emptyHolder.setVisibility(View.GONE);	
+					}
 				}
 			}
 			else
 			{
-				getView().findViewById(R.id.searchEmptyView).setVisibility(View.GONE);
-				emptyView.setVisibility(View.VISIBLE);
-				ListView friendsList = (ListView) getView().findViewById(android.R.id.list);
-				friendsList.setEmptyView(emptyView);
+				if (mAdapter.getCount() == 0)
+				{
+					searchEmptyView.setVisibility(View.GONE);
+					emptyHolder.setVisibility(View.VISIBLE);
+				}
+				else
+				{
+					searchEmptyView.setVisibility(View.GONE);
+					emptyHolder.setVisibility(View.GONE);	
+				}
 			}
-		}
+
 	}
 
 	private void setupFTUEEmptyView()
@@ -1056,7 +1079,11 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 	@Override
 	public void onStop()
 	{
-		// TODO Auto-generated method stub
+		if (tipType == ConversationTip.STEALTH_FTUE_TIP)
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF);
+			removeStealthConvTip();
+		}
 		super.onStop();
 	}
 	
@@ -1157,8 +1184,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		if (searchMode && mAdapter != null)
 		{
 			searchText = s.trim();
-			setEmptyState();
-			mAdapter.onQueryChanged(searchText);
+			mAdapter.onQueryChanged(searchText, this);
 		}
 	}
 
@@ -1327,10 +1353,10 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 					optionsList.add(getString(R.string.group_info));
 				}
 		}
-		if (conv.getConversationName() != null)
+		
+		if (conv.getLabel() != null)
 		{
 			optionsList.add(getString(R.string.shortcut));
-
 		}
 
 		if (!(conv instanceof OneToNConvInfo) && conv.getConversationName() == null)
@@ -1661,10 +1687,8 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		getListView().setOnScrollListener(this);
 
 		HikeMessengerApp.getPubSub().addListeners(this, pubSubListeners);
-		if (displayedConversations.isEmpty())
-		{
-			setEmptyState();
-		}
+		setEmptyState();
+
 	}
 
 	private void ShowTipIfNeeded(boolean hasNoConversation)
@@ -1775,18 +1799,14 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		if (stealthValue == HikeConstants.STEALTH_OFF || stealthValue == HikeConstants.STEALTH_ON_FAKE)
 		{
 			mAdapter.removeStealthConversationsFromLists();
-
-			if (mAdapter.getCount() == 0)
-			{
-				setEmptyState();
-			}
 		}
 		else
 		{
 			mAdapter.addItemsToAnimat(stealthConversations);
 			mAdapter.addToLists(stealthConversations);
 		}
-
+		setEmptyState();
+		
 		resetSearchIcon();
 		mAdapter.sortLists(mConversationsComparator);
 		notifyDataSetChanged();
@@ -2042,6 +2062,8 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 					}
 					mAdapter.addToLists(convInfo);
 					mAdapter.sortLists(mConversationsComparator);
+
+					setEmptyState();
 					notifyDataSetChanged();
 					resetSearchIcon();
 				}
@@ -3228,6 +3250,8 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		{
 			sortAndUpdateTheView(convInfo, convMessage, newConversationAdded);
 		}
+		
+		setEmptyState();
 	}
 
 	public void movedFromEmptyToNonEmpty()
@@ -3347,7 +3371,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		if(mAdapter != null)
 		{
 			mAdapter.getIconLoader().setExitTasksEarly(false);
-			mAdapter.notifyDataSetChanged();
+			notifyDataSetChanged();
 		}
 		super.onResume();
 	}
@@ -3486,11 +3510,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 
 		getListView().removeHeaderView(tipView);
 		tipType = ConversationTip.NO_TIP;
-		
-		if (mAdapter.getCount() == 0)
-		{
-			setEmptyState();
-		}
+
 	}
 
 	@Override
@@ -3574,6 +3594,11 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 			resetStealthTipClicked();
 		}
 		
+	}
+
+	@Override
+	public void onFilterComplete(int count) {
+		setEmptyState();
 	}
 
 }

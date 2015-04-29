@@ -14,6 +14,7 @@ import android.widget.PopupWindow;
 import android.widget.PopupWindow.OnDismissListener;
 import android.widget.RelativeLayout;
 
+import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.utils.Logger;
 
 public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListener
@@ -70,8 +71,15 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 
 	public boolean showKeyboardPopup(View view)
 	{
-		if (mainView.getWindowToken() == null)
+		if (mainView == null || mainView.getWindowToken() == null)
 		{
+			String errorMsg = "Inside method : showKeyboardPopup of KeyboardPopupLayout. Is view null" + (mainView == null);
+			if (mainView != null)
+			{
+				errorMsg += " is WindowToken Null : " + (mainView.getWindowToken() == null);
+			}
+			
+			HAManager.sendStickerEmoticonStrangeBehaviourReport(errorMsg);
 			Logger.wtf("chatthread", "window token is null or view itself is null! Cannot show sticker/emoticons. Eating this exception");
 			return false;
 		}
@@ -80,7 +88,15 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 		int height = islandScape ? possibleKeyboardHeightLand : possibleKeyboardHeight;
 		if (height == 0)
 		{
-			height = firstTimeHeight;
+			if (islandScape)
+			{
+				height = mainView.getHeight() / 2;
+			}
+			
+			else
+			{
+				height = firstTimeHeight;
+			}
 		}
 		
 		if (popup == null)

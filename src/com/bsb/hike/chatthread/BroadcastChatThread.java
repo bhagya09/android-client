@@ -135,19 +135,14 @@ public class BroadcastChatThread extends OneToNChatThread
 	}
 	
 	@Override
-	protected void addMessage(ConvMessage message)
+	protected void addMessage(ConvMessage convMessage)
 	{
-		super.addMessage(message);
-	}
-
-	@Override
-	protected void messageAdded(ConvMessage convMessage)
-	{
+		mAdapter.addMessage(convMessage);
 		if (convMessage.isSent())
 		{
 			oneToNConversation.setupReadByList(null, convMessage.getMsgID());
 		}
-		super.messageAdded(convMessage);
+		super.addMessage(convMessage);
 	}
 	
 	@Override
@@ -157,7 +152,6 @@ public class BroadcastChatThread extends OneToNChatThread
 		{
 			setSentTo(convMessage);
 			addMessage(convMessage);
-			messageAdded(convMessage);
 			convMessage.setMessageOriginType(OriginType.BROADCAST);
 			HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_SENT, convMessage);
 		}

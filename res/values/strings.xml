@@ -1370,7 +1370,6 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="voip_missed_call_message">Message</string>
     <string name="empty_email">You have no messages in this conversation to e-mail.</string>
     <string name="no_results">No results</string>
-    <string name="take_photo">Take a photo</string>
     <string name="photo_dp_saving">Saving as profile photo..</string>
     <string name="photo_dp_saved">All set!</string>
     <string name="photo_dp_finishing">Finishing up..</string>
@@ -1431,6 +1430,7 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="photos_oom_load">Unable to load Image!\nNot Enough Memory On Device.</string>
     <string name="photos_oom_retry">Try Again!</string>
     <string name="photos_oom_camera">Unable to capture Image</string>
+    <string name="search_hint">Search</string>
     <string name="nudge_setting_header">Double tap to Nudge</string>
     <string name="nudge_setting_info">Send a Nudge by double tapping while chatting</string>
     <string name="enter_setting_header">Enter key is send</string>
@@ -1441,6 +1441,16 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="select_all_hike">Select all</string>
     <string name="unselect_all_hike">Unselect all</string>
     <string name="searching">Searching...</string>
+    <string name="sticker_share_heading">Indian Stickers only on hike!</string>
+    <string name="sticker_share_description"><![CDATA[Visit <font color="#57dcf9">http://get.hike.in</font>  to get hike messenger]]></string>
+    <string name="sticker_share_caption">Download: http://hike.in</string>
+    <string name="text_share_heading">- Sent via hike</string>
+    <string name="text_share_caption">Download: http://hike.in</string> 
+    <string name="image_share_heading">Shared via hike!</string>
+    <string name="image_share_description"><![CDATA[Visit <font color="#57dcf9">http://get.hike.in</font>  to get hike messenger]]></string>
+    <string name="image_share_caption">Download: http://hike.in</string>
+    <string name="error_sharing">Some error occured, please try again</string>
+    <string name="whatsapp_uninstalled">Application not found!</string>
     <string name="pick_contact_zero">Please select minimum one contact</string>
     <string name="choose_contact">Choose Contact(s)</string>
     <string name="voip_reconnecting">&#8230;RECONNECTING</string>
@@ -1462,4 +1472,6 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="content_des_typing_notification_received">Typing notification received to user</string>
 	<string name="activity_not_found">No app found that can handle this action</string>
 	<string name="selectPreview">Select a preview</string>
+	<string name="not_enough_memory">Not Enough Memory</string>
+	<string name="edit_photos">Edit photos</string>
 </resources>
