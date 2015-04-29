@@ -639,7 +639,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		mEmoticonPicker.updateETAndContext(mComposeView, activity);
 	}
 
-	private void addOnClickListeners()
+	protected void addOnClickListeners()
 	{
 		activity.findViewById(R.id.sticker_btn).setOnClickListener(this);
 		activity.findViewById(R.id.emoticon_btn).setOnClickListener(this);
