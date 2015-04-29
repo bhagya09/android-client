@@ -326,7 +326,6 @@
                     android:layout_alignRight="@+id/tb_layout"
                     android:layout_alignTop="@+id/tb_layout"
                     android:gravity="right|center_vertical"
-                    android:onClick="onTitleIconClick"
                     android:visibility="gone" >
 
                     <ImageView
@@ -344,7 +343,6 @@
                     android:layout_alignRight="@+id/tb_layout"
                     android:layout_alignTop="@+id/tb_layout"
                     android:gravity="right|center_vertical"
-                    android:onClick="onTitleIconClick"
                     android:paddingLeft="10dp"
                     android:visibility="gone" >
 

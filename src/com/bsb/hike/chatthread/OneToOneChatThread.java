@@ -2084,6 +2084,10 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			Utils.addToContacts(activity, msisdn);
 			break;
 			
+		case R.id.info_layout:
+			updateChatMetadata();
+			break;
+			
 		default:
 			super.onClick(v);
 		}
@@ -2634,5 +2638,12 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	protected String getBlockedUserLabel()
 	{
 		return getConvLabel();
+	}
+	
+	@Override
+	protected void addOnClickListeners()
+	{
+		activity.findViewById(R.id.info_layout).setOnClickListener(this);
+		super.addOnClickListeners();
 	}
 }
