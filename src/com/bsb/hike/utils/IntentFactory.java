@@ -300,7 +300,7 @@ public class IntentFactory
 	public static Intent createNewBroadcastActivityIntent(Context appContext)
 	{
 		Intent intent = new Intent(appContext.getApplicationContext(), CreateNewGroupOrBroadcastActivity.class);
-		intent.putExtra(HikeConstants.IS_BROADCAST, true);
+		intent.putExtra(HikeConstants.Extras.CREATE_BROADCAST, true);
 		return intent;
 	}
 

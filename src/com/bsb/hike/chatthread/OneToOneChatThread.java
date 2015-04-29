@@ -497,7 +497,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			uiHandler.sendEmptyMessage(SEND_SMS_PREF_TOGGLED);
 			break;
 		case HikePubSub.SMS_CREDIT_CHANGED:
-			uiHandler.sendEmptyMessage(SMS_CREDIT_CHANGED);
+			sendUIMessage(SMS_CREDIT_CHANGED, object);
 			break;
 		case HikePubSub.BULK_MESSAGE_RECEIVED:
 			onBulkMessageReceived(object);
@@ -608,7 +608,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			updateUIForHikeStatus();
 			break;
 		case SMS_CREDIT_CHANGED:
-			setSMSCredits();
+			setSMSCredits((Integer) msg.obj);
 			break;
 		case REMOVE_UNDELIVERED_MESSAGES:
 			removeUndeliveredMessages(msg.obj);
@@ -744,8 +744,10 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		}
 	}
 
-	private void setSMSCredits()
+	private void setSMSCredits(int newValue)
 	{
+		mCredits = newValue;
+		
 		updateUIForHikeStatus();
 
 		if ((mCredits % HikeConstants.SHOW_CREDITS_AFTER_NUM == 0) && !mConversation.isOnHike())
@@ -1223,7 +1225,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			openProfileScreen();
 			break;
 		case R.string.chat_theme:
-			showThemePicker();
+			showThemePicker(R.string.chat_theme_tip);
 			break;
 		case R.string.add_as_favorite_menu:
 			addFavorite();
@@ -1585,6 +1587,15 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	@Override
 	protected void sendMessage()
 	{
+		if (!mConversation.isOnHike() && mCredits <= 0)
+		{
+			if (!Utils.getSendSmsPref(activity))
+			{
+				return;
+			}
+			
+		}
+		
 		ConvMessage convMessage = createConvMessageFromCompose();
 
 		// 1) user pressed send button i.e sending Text Message
@@ -2042,6 +2053,10 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 
 		case R.id.add_unknown_contact:
 			Utils.addToContacts(activity, msisdn);
+			break;
+			
+		case R.id.info_layout:
+			updateChatMetadata();
 			break;
 			
 		default:
@@ -2533,12 +2548,6 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		return Utils.isVoipActivated(activity.getApplicationContext()) && mConversation.isOnHike() && !HikeMessengerApp.hikeBotNamesMap.containsKey(msisdn);
 	}
 	
-	protected void showThemePicker()
-	{
-		setUpThemePicker();
-		themePicker.showThemePicker(activity.findViewById(R.id.cb_anchor), currentTheme, R.string.chat_theme_tip, activity.getResources().getConfiguration().orientation);
-	}
-
 	/*
 	 * Adding user as favorite
 	 */
@@ -2597,6 +2606,12 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	}
 	
 	@Override
+	protected void addOnClickListeners()
+	{
+		activity.findViewById(R.id.info_layout).setOnClickListener(this);
+		super.addOnClickListeners();
+	}
+	
 	protected void blockUnBlockUser(boolean isBlocked)
 	{
 		super.blockUnBlockUser(isBlocked);
