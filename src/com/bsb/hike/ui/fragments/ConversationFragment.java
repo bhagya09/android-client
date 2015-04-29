@@ -897,24 +897,16 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 			return;
 		}
 
-			if (searchMode)
-			{
-				if (!TextUtils.isEmpty(searchText))
-				{
-					setSearchEmptyState();
-				}
-				else 
-				{
-					searchEmptyView.setVisibility(View.GONE);
-					emptyHolder.setVisibility(View.VISIBLE);
-				}
-			}
-			else
-			{
-				searchEmptyView.setVisibility(View.GONE);
-				emptyHolder.setVisibility(View.VISIBLE);
-			}
-
+		if (searchMode && !TextUtils.isEmpty(searchText))
+		{
+			setSearchEmptyState();
+		}
+		else
+		{
+			searchEmptyView.setVisibility(View.GONE);
+			emptyHolder.setVisibility(View.VISIBLE);
+		}
+		
 	}
 
 	private void setupFTUEEmptyView()
