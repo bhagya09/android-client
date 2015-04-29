@@ -8,19 +8,19 @@
         android:layout_width="match_parent"
         android:layout_height="70dp"
         android:background="@drawable/list_item"
-        android:paddingLeft="14dp"
-        android:paddingRight="14dp"
         android:gravity="center_vertical"
-        android:orientation="horizontal" >
+        android:orientation="horizontal"
+        android:paddingLeft="14dp"
+        android:paddingRight="14dp" >
 
         <FrameLayout
             android:layout_width="@dimen/larger_avatar"
             android:layout_height="@dimen/larger_avatar" >
 
-            <com.bsb.hike.ui.utils.RecyclingImageView
+            <com.bsb.hike.view.RoundedImageView
                 android:id="@+id/avatar"
                 style="@style/AvatarStyle.MorePadding" />
-
+            
         </FrameLayout>
 
         <LinearLayout
@@ -51,12 +51,12 @@
                     android:layout_centerVertical="true"
                     android:layout_marginRight="5dp"
                     android:layout_toLeftOf="@id/last_message_timestamp"
+                    android:drawablePadding="3dp"
                     android:ellipsize="end"
                     android:singleLine="true"
                     android:text="Kavin Mittal kja skldlkas daskd asdjlasj dlasdl asdj las das d"
                     android:textColor="@color/list_item_header"
                     android:textSize="18sp"
-                    android:drawablePadding="3dp"
                     android:textStyle="bold|italic" />
             </RelativeLayout>
 
@@ -71,8 +71,8 @@
                     android:layout_height="wrap_content"
                     android:layout_alignParentLeft="true"
                     android:layout_centerVertical="true"
-                    android:paddingTop="1dp"
                     android:layout_marginRight="3dp"
+                    android:paddingTop="1dp"
                     android:visibility="gone" />
 
                 <FrameLayout
@@ -81,16 +81,16 @@
                     android:layout_height="wrap_content"
                     android:layout_alignParentRight="true"
                     android:layout_centerVertical="true"
-                    android:layout_marginLeft="5dp" >
+                    android:layout_marginLeft="2dp" >
 
                     <com.bsb.hike.view.CustomFontTextView
                         android:id="@+id/unread_indicator"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:background="@drawable/bg_unread_counter"
+                        android:gravity="center"
                         android:paddingLeft="2dp"
                         android:paddingRight="2dp"
-                        android:gravity="center"
                         android:text="99"
                         android:textColor="@color/white"
                         android:textSize="12dp"
@@ -98,18 +98,27 @@
                         android:visibility="gone" />
                 </FrameLayout>
 
+                <ImageView
+                    android:id="@+id/mute_indicator"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_toLeftOf="@+id/indicator_container"
+                    android:src="@drawable/ic_mute"
+                    android:visibility="gone" />
+
                 <com.bsb.hike.view.CustomFontTextView
                     android:id="@+id/last_message"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignWithParentIfMissing="true"
                     android:layout_centerVertical="true"
-                    android:layout_toLeftOf="@+id/indicator_container"
+                    android:layout_marginTop="1dp"
+                    android:layout_toLeftOf="@+id/mute_indicator"
                     android:layout_toRightOf="@id/msg_status_indicator"
                     android:ellipsize="end"
                     android:singleLine="true"
-                    android:layout_marginTop="1dp"
-                    android:text="what&apos;s up dude?  I really like cookies.  They taste so good and fresh.  I like pie as well.  I&apos;m so fat"
+                    android:text="what&apos;s up dude? I really like cookies. They taste so good and fresh. I like pie as well. I&apos;m so fat"
                     android:textColor="@color/list_item_header"
                     android:textSize="14sp"
                     android:textStyle="italic"

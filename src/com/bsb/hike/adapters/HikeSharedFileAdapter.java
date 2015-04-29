@@ -2,10 +2,8 @@ package com.bsb.hike.adapters;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 
 import android.content.Context;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,7 +16,6 @@ import android.widget.TextView;
 import com.bsb.hike.R;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.HikeSharedFile;
-import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.smartImageLoader.SharedFileImageLoader;
 
 public class HikeSharedFileAdapter extends BaseAdapter

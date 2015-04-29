@@ -3,34 +3,46 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content" >
 
-    <com.bsb.hike.ui.utils.RecyclingImageView
+    <com.bsb.hike.ui.utils.SquareRecyclingImageView
         android:id="@+id/album_image"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/dialog_header_bg"
         android:scaleType="centerCrop" />
-    
+
+    <RelativeLayout
+        android:id="@+id/contentLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignBottom="@id/album_image"
+        android:background="@color/gallery_camera_tile_bg"
+        android:layout_alignLeft="@id/album_image"
+        android:layout_alignRight="@id/album_image"
+        android:layout_alignTop="@id/album_image"
+        android:gravity="center"
+        android:visibility="gone" >
+    </RelativeLayout>
+
     <RelativeLayout
         android:id="@+id/vid_time_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
+        android:layout_centerInParent="true"
         android:layout_marginBottom="3dp"
         android:layout_marginLeft="3dp"
-        android:layout_centerInParent="true"
         android:paddingLeft="5dp"
         android:paddingRight="5dp"
         android:visibility="gone" >
-        
+
         <ImageView
             android:id="@+id/play_media"
             android:layout_width="36dp"
             android:layout_height="36dp"
             android:layout_centerInParent="true"
-            android:src="@drawable/ic_video_small"
             android:background="@drawable/play_icon_background_circle"
-            android:scaleType="centerInside"/>
-
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_video_small" />
     </RelativeLayout>
 
     <View
@@ -44,21 +56,45 @@
         android:background="@drawable/gallery_item_selector"
         android:visibility="visible" />
 
-    <com.bsb.hike.view.CustomFontTextView
-        android:id="@+id/album_title"
+    <RelativeLayout
+        android:id="@+id/album_layout"
         android:layout_width="match_parent"
         android:layout_height="25dp"
+        android:layout_alignLeft="@id/album_image"
+        android:layout_alignRight="@id/album_image"
         android:layout_alignParentBottom="true"
         android:background="#CD000000"
-        android:drawableLeft="@drawable/ic_gallery_folder"
-        android:drawablePadding="8dp"
         android:gravity="center_vertical"
-        android:paddingLeft="6dp"
-        android:paddingRight="6dp"
-        android:singleLine="true"
-        android:text="Test"
-        android:textColor="@color/actionbar_text"
-        android:textSize="12sp"
-        android:visibility="gone" />
+        android:visibility="gone" >
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/album_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawableLeft="@drawable/ic_gallery_folder"
+            android:drawablePadding="8dp"
+            android:gravity="center_vertical"
+            android:paddingLeft="6dp"
+            android:paddingRight="6dp"
+            android:singleLine="true"
+            android:text="Test"
+            android:textColor="@color/actionbar_text"
+            android:textSize="12sp"
+            android:visibility="gone" />
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/album_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:gravity="center_vertical"
+            android:paddingLeft="6dp"
+            android:paddingRight="6dp"
+            android:singleLine="true"
+            android:text="Test"
+            android:textColor="@color/actionbar_text"
+            android:textSize="12sp"
+            android:visibility="gone" />
+    </RelativeLayout>
 
 </RelativeLayout>

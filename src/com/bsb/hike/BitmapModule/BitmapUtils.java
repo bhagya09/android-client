@@ -5,10 +5,13 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.drawable.BitmapDrawable;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.utils.Utils;
 
@@ -36,7 +39,7 @@ public class BitmapUtils
 		return bao.toByteArray();
 	}
 
-	private static int iconHash(String s)
+	public static int iconHash(String s)
 	{
 		/*
 		 * ignore everything after :: so that your large icon by default matches your msisdn
@@ -80,6 +83,13 @@ public class BitmapUtils
 		return id;
 	}
 
+	public static void saveBitmapToFileAndRecycle(String fileDir, String fileName, Bitmap bitmap) throws IOException
+	{
+		File file = new File(fileDir, fileName);
+		saveBitmapToFile(file, bitmap, CompressFormat.PNG, 70);
+		bitmap.recycle();
+	}
+	
 	public static void saveBitmapToFile(File file, Bitmap bitmap) throws IOException
 	{
 		saveBitmapToFile(file, bitmap, CompressFormat.PNG, 70);
@@ -87,16 +97,27 @@ public class BitmapUtils
 
 	public static void saveBitmapToFile(File file, Bitmap bitmap, CompressFormat compressFormat, int quality) throws IOException
 	{
-		FileOutputStream fos = new FileOutputStream(file);
-
-		byte[] b = BitmapUtils.bitmapToBytes(bitmap, compressFormat, quality);
-		if (b == null)
+		FileOutputStream fos = null;
+		try
 		{
-			throw new IOException();
+		
+			fos = new FileOutputStream(file);
+
+			byte[] b = BitmapUtils.bitmapToBytes(bitmap, compressFormat, quality);
+			if (b == null)
+			{
+				throw new IOException();
+			}
+			
+			fos.write(b);
+			fos.flush();
+			fos.getFD().sync();
 		}
-		fos.write(b);
-		fos.flush();
-		fos.close();
+		finally
+		{
+			if(fos != null)
+				fos.close();
+		}
 	}
 
 	/**
@@ -151,4 +172,10 @@ public class BitmapUtils
 		}
 	}
 
+	public static Bitmap getBitmapFromResourceName(Context context ,String resName)
+	{
+		Resources resources = context.getResources();
+		int resourceId = resources.getIdentifier(resName, HikeConstants.DRAWABLE, context.getPackageName());
+		return HikeBitmapFactory.decodeBitmapFromResource(resources, resourceId, Bitmap.Config.ARGB_8888);
+	}
 }

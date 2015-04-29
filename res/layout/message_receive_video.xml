@@ -96,7 +96,7 @@
                     android:layout_centerInParent="true"
                     android:gravity="center"
                     app:marker_visible="false"
-                    app:progress="0.4"
+                    app:progress="0.0"
                     app:progress_background_color="@color/white_45"
                     app:progress_color="@color/white_85"
                     app:stroke_width="3dp"

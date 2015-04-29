@@ -2,7 +2,7 @@ package com.bsb.hike.adapters;
 
 import java.util.List;
 
-import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
 import android.view.LayoutInflater;
@@ -10,138 +10,83 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
-import android.widget.AbsListView.LayoutParams;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.bsb.hike.R;
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
+import com.bsb.hike.media.StickerPickerListener;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.StickerCategory;
-import com.bsb.hike.smartImageLoader.IconLoader;
+import com.bsb.hike.models.StickerPageAdapterItem;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadSource;
 import com.bsb.hike.smartImageLoader.StickerLoader;
-import com.bsb.hike.tasks.DownloadStickerTask;
-import com.bsb.hike.tasks.DownloadStickerTask.DownloadType;
-import com.bsb.hike.ui.ChatThread;
 import com.bsb.hike.ui.utils.RecyclingImageView;
 import com.bsb.hike.utils.StickerManager;
-import com.bsb.hike.utils.StickerManager.StickerCategoryId;
 import com.bsb.hike.utils.Utils;
+
 
 public class StickerPageAdapter extends BaseAdapter implements OnClickListener
 {
 
-	public static final int MAX_STICKER_PER_ROW_PORTRAIT = 4;
-
-	public static final int MAX_STICKER_PER_ROW_LANDSCAPE = 6;
-
 	public static enum ViewType
 	{
-		STICKER, UPDATING_STICKER, DOWNLOADING_MORE, RECENT_EMPTY
+		STICKER, UPDATE, DOWNLOADING, RETRY, DONE, PLACE_HOLDER
 	}
-
-	public static final int SIZE_IMAGE = (int) (80 * Utils.densityMultiplier);
 
 	private int numItemsRow;
 
 	private int sizeEachImage;
 
-	private Activity activity;
+	private Context mContext;
 
-	private List<Sticker> stickerList;
-
-	private List<ViewType> viewTypeList;
+	private List<StickerPageAdapterItem> itemList;
 
 	private LayoutInflater inflater;
 
 	private StickerCategory category;
 
-	private int numStickerRows;
-
 	private StickerLoader stickerLoader;
 
 	private boolean isListFlinging;
-
-	public StickerPageAdapter(Activity activity, List<Sticker> stickerList, StickerCategory category, List<ViewType> viewTypeList, StickerLoader worker)
+	
+	private StickerPickerListener mStickerPickerListener;
+	
+	AbsListView absListView;
+	
+	public StickerPageAdapter(Context context, List<StickerPageAdapterItem> itemList, StickerCategory category, StickerLoader worker, AbsListView absListView, StickerPickerListener listener )
 	{
-		this.activity = activity;
-		this.stickerList = stickerList;
-		this.viewTypeList = viewTypeList;
+		this.mContext = context;
+		this.itemList = itemList;
 		this.category = category;
-		this.inflater = LayoutInflater.from(activity);
+		this.mStickerPickerListener = listener;
+		this.inflater = LayoutInflater.from(mContext);
 		this.stickerLoader = worker;
-		calculateNumRowsAndSize(false);
+		this.absListView = absListView;
+		calculateSizeOfStickerImage();
 	}
 
-	public List<Sticker> getStickerList()
+	public List<StickerPageAdapterItem> getStickerPageAdapterItemList()
 	{
-		return stickerList;
+		return itemList;
 	}
 
-	public List<ViewType> getViewTypeList()
+	public void calculateSizeOfStickerImage()
 	{
-		return viewTypeList;
-	}
+		int screenWidth = mContext.getResources().getDisplayMetrics().widthPixels;
 
-	public void calculateNumRowsAndSize(boolean recal)
-	{
-		int screenWidth = activity.getResources().getDisplayMetrics().widthPixels;
+		this.numItemsRow = StickerManager.getInstance().getNumColumnsForStickerGrid(mContext);
 
-		this.numItemsRow = (int) (screenWidth / SIZE_IMAGE);
+		int stickerPadding = (int) 2 * mContext.getResources().getDimensionPixelSize(R.dimen.sticker_padding);
+		int horizontalSpacing = (int) (this.numItemsRow - 1) * mContext.getResources().getDimensionPixelSize(R.dimen.sticker_grid_horizontal_padding);
+		
+		int remainingSpace = (screenWidth - horizontalSpacing - stickerPadding) - (this.numItemsRow * StickerManager.SIZE_IMAGE);
 
-		int emoticonPagerPadding = (int) 2 * activity.getResources().getDimensionPixelSize(R.dimen.emoticon_pager_padding);
-		int stickerPadding = (int) 2 * activity.getResources().getDimensionPixelSize(R.dimen.sticker_padding);
+		this.sizeEachImage = StickerManager.SIZE_IMAGE + ((int) (remainingSpace / this.numItemsRow));
 
-		int remainingSpace = (screenWidth - emoticonPagerPadding - stickerPadding) - (this.numItemsRow * SIZE_IMAGE);
-
-		this.sizeEachImage = SIZE_IMAGE + ((int) (remainingSpace / this.numItemsRow));
-
-		if (stickerList.size() != 0)
-		{
-			if (stickerList.size() % numItemsRow == 0)
-			{
-				this.numStickerRows = stickerList.size() / numItemsRow;
-			}
-			else
-			{
-				this.numStickerRows = stickerList.size() / numItemsRow + 1;
-			}
-			if (category.categoryId.equals(StickerCategoryId.recent))
-			{
-				viewTypeList.clear();
-			}
-
-			int count = 0;
-
-			/*
-			 * Recal will be used when you download new stickers while scrolling. It will add new sticker rows at the end.
-			 */
-			if (recal)
-			{
-				for (int i = 0; i < viewTypeList.size(); i++)
-				{
-					if (viewTypeList.get(i).equals(ViewType.STICKER))
-						count++;
-				}
-			}
-			for (int i = 0; i < numStickerRows - count; i++)
-			{
-				viewTypeList.add(category.updateAvailable ? 1 : 0, ViewType.STICKER);
-			}
-		}
-		else if (category.categoryId.equals(StickerCategoryId.recent))
-		{
-			viewTypeList.add(ViewType.RECENT_EMPTY);
-		}
-	}
-
-	@Override
-	public int getItemViewType(int position)
-	{
-		return viewTypeList.get(position).ordinal();
 	}
 
 	@Override
@@ -153,176 +98,226 @@ public class StickerPageAdapter extends BaseAdapter implements OnClickListener
 	@Override
 	public int getCount()
 	{
-		return viewTypeList.size();
+		return itemList.size();
 	}
 
 	@Override
-	public Object getItem(int position)
+	public StickerPageAdapterItem getItem(int position)
 	{
-		return null;
+		return itemList.get(position);
 	}
 
 	@Override
 	public long getItemId(int position)
 	{
-		return 0;
+		return position;
+	}
+	
+	@Override
+	public int getItemViewType(int position)
+	{
+		ViewType viewType = ViewType.STICKER;  //Default value.
+		StickerPageAdapterItem item = getItem(position);
+		int itemId = item.getType();
+		switch(itemId)
+		{
+		case StickerPageAdapterItem.STICKER :
+			viewType = ViewType.STICKER;
+			break;
+		case StickerPageAdapterItem.UPDATE:
+			viewType = ViewType.UPDATE;
+			break;
+		case StickerPageAdapterItem.DOWNLOADING:
+			viewType = ViewType.DOWNLOADING;
+			break;
+		case StickerPageAdapterItem.RETRY:
+			viewType = ViewType.RETRY;
+			break;
+		case StickerPageAdapterItem.DONE:
+			viewType = ViewType.DONE;
+			break;
+		case StickerPageAdapterItem.PLACE_HOLDER:
+			viewType = ViewType.PLACE_HOLDER;
+			break;
+		}
+		
+		return viewType.ordinal();
 	}
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent)
 	{
-		ViewType viewType = viewTypeList.get(position);
+		ViewType viewType = ViewType.values()[getItemViewType(position)];
+		StickerPageAdapterItem item = getItem(position);
+		ViewHolder viewHolder = null;
+		AbsListView.LayoutParams ll = new AbsListView.LayoutParams(sizeEachImage,sizeEachImage);
+		
 		if (convertView == null)
 		{
+			viewHolder = new ViewHolder();
+			
 			switch (viewType)
 			{
 			case STICKER:
-				convertView = new LinearLayout(activity);
-				AbsListView.LayoutParams parentParams = new LayoutParams(LayoutParams.MATCH_PARENT, sizeEachImage);
-				convertView.setLayoutParams(parentParams);
-
-				LinearLayout.LayoutParams childParams = new LinearLayout.LayoutParams(sizeEachImage, LayoutParams.MATCH_PARENT);
-
-				int padding = (int) (5 * Utils.densityMultiplier);
-				for (int i = 0; i < numItemsRow; i++)
-				{
-					ImageView imageView = new RecyclingImageView(activity);
-					imageView.setLayoutParams(childParams);
-					imageView.setScaleType(ScaleType.FIT_CENTER);
-					imageView.setPadding(padding, padding, padding, padding);
-
-					((LinearLayout) convertView).addView(imageView);
-				}
+				convertView = new ImageView(mContext);
+				int padding = (int) (5 * Utils.scaledDensityMultiplier);
+				convertView.setLayoutParams(ll);
+				((ImageView) convertView).setScaleType(ScaleType.FIT_CENTER);
+				((ImageView) convertView).setPadding(padding, padding, padding, padding);
+				
 				break;
-			case UPDATING_STICKER:
+			case UPDATE:                //Since all of these have the same layout to be inflated
+			case DOWNLOADING:
+			case RETRY:
+			case DONE:
 				convertView = inflater.inflate(R.layout.update_sticker_set, null);
+				convertView.setLayoutParams(ll);
+				viewHolder.text = (TextView) convertView.findViewById(R.id.new_number_stickers);
+				viewHolder.image = (ImageView) convertView.findViewById(R.id.update_btn);
+				viewHolder.progress = (ProgressBar) convertView.findViewById(R.id.download_progress);
+				viewHolder.tickImage = (ImageView) convertView.findViewById(R.id.sticker_placeholder);
+				
 				break;
-			case DOWNLOADING_MORE:
-				convertView = inflater.inflate(R.layout.downloading_new_stickers, null);
-				break;
-			case RECENT_EMPTY:
-				convertView = inflater.inflate(R.layout.recent_empty_view, null);
+			case PLACE_HOLDER:
+				convertView = inflater.inflate(R.layout.update_sticker_set, null);
+				viewHolder.image = (ImageView) convertView.findViewById(R.id.sticker_placeholder);
+				convertView.setLayoutParams(ll);
 				break;
 			}
+			convertView.setTag(viewHolder);
 		}
-
+		
+		else
+		{
+			viewHolder = (ViewHolder) convertView.getTag();
+		}
+		
 		switch (viewType)
 		{
 		case STICKER:
-
-			/*
-			 * If this is the last item, its possible that the number of items won't fill the complete row
-			 */
-			int startPosition = category.updateAvailable ? position - 1 : position;
-
-			for (int i = 0; i < numItemsRow; i++)
-			{
-				ImageView imageView = (ImageView) ((LinearLayout) convertView).getChildAt(i);
-
-				int index = (startPosition * numItemsRow) + i;
-				if (index > stickerList.size() - 1)
-				{
-					imageView.setImageDrawable(null);
-					imageView.setTag(null);
-					imageView.setOnClickListener(null);
-					continue;
-				}
-
-				Sticker sticker = stickerList.get(index);
-				if (sticker.getStickerIndex() >= 0) // for already copied stickers this will be > -1
-				{
-					if (StickerCategoryId.expressions.equals(sticker.getCategory().categoryId))
-					{
-						stickerLoader.loadImage("res:" + StickerManager.getInstance().LOCAL_STICKER_SMALL_RES_IDS_EXPRESSIONS[sticker.getStickerIndex()], imageView, isListFlinging);
-					}
-					else if (StickerCategoryId.humanoid.equals(sticker.getCategory().categoryId))
-					{
-						stickerLoader.loadImage("res:" + StickerManager.getInstance().LOCAL_STICKER_SMALL_RES_IDS_HUMANOID[sticker.getStickerIndex()], imageView, isListFlinging);
-					}
-				}
-				else
-				{
-					stickerLoader.loadImage(sticker.getSmallStickerPath(activity), imageView, isListFlinging);
-				}
-				imageView.setTag(sticker);
-				imageView.setOnClickListener(this);
-			}
+			Sticker sticker = (Sticker) item.getSticker();
+			stickerLoader.loadImage(sticker.getSmallStickerPath(), ((ImageView) convertView), isListFlinging);
+			convertView.setOnClickListener(this);
+				
 			break;
-		case UPDATING_STICKER:
-			View button = convertView.findViewById(R.id.update_btn);
-			TextView updateText = (TextView) convertView.findViewById(R.id.txt);
-			ProgressBar progressBar = (ProgressBar) convertView.findViewById(R.id.download_progress);
-
-			if (StickerManager.getInstance().isStickerDownloading(category.categoryId.name()))
+		case UPDATE:
+			viewHolder.image.setVisibility(View.VISIBLE);
+			viewHolder.progress.setVisibility(View.GONE);
+			viewHolder.tickImage.setVisibility(View.GONE);
+			if(item.getCategoryMoreStickerCount() > 0)
 			{
-				progressBar.setVisibility(View.VISIBLE);
-				updateText.setText(R.string.updating_set);
-				updateText.setTextColor(activity.getResources().getColor(R.color.downloading_sticker));
-				convertView.setClickable(false);
-				button.setBackgroundResource(R.drawable.bg_sticker_downloading);
+				viewHolder.text.setVisibility(View.VISIBLE);
+				viewHolder.text.setText(mContext.getResources().getString(R.string.n_more, item.getCategoryMoreStickerCount()));
 			}
 			else
 			{
-				progressBar.setVisibility(View.GONE);
-				updateText.setText(R.string.new_stickers_available);
-				updateText.setTextColor(activity.getResources().getColor(R.color.actionbar_text));
-				convertView.setClickable(true);
-				button.setBackgroundResource(R.drawable.bg_download_sticker);
-				convertView.setOnClickListener(new OnClickListener()
-				{
-					@Override
-					public void onClick(View v)
-					{
-						DownloadStickerTask downloadStickerTask = new DownloadStickerTask(activity, category, DownloadType.UPDATE, StickerPageAdapter.this);
-						Utils.executeFtResultAsyncTask(downloadStickerTask);
-
-						StickerManager.getInstance().insertTask(category.categoryId.name(), downloadStickerTask);
-						notifyDataSetChanged();
-					}
-				});
+				viewHolder.text.setVisibility(View.GONE);
 			}
+			
+			convertView.setOnClickListener(this);
 
 			break;
-		case DOWNLOADING_MORE:
+		case DOWNLOADING:
+			viewHolder.progress.setVisibility(View.VISIBLE);
+			viewHolder.text.setVisibility(View.GONE);
+			viewHolder.tickImage.setVisibility(View.GONE);
+			
 			break;
-		case RECENT_EMPTY:
+		case RETRY:
+			viewHolder.image.setImageBitmap(HikeBitmapFactory.decodeResource(mContext.getResources(), R.drawable.ic_retry_sticker));
+			viewHolder.image.setVisibility(View.VISIBLE);
+			viewHolder.text.setVisibility(View.VISIBLE);
+			viewHolder.progress.setVisibility(View.GONE);
+			viewHolder.text.setText(mContext.getResources().getString(R.string.retry_sticker));
+			viewHolder.tickImage.setVisibility(View.GONE);
+			convertView.setOnClickListener(this);
+			
+			break;
+		case DONE:
+			viewHolder.image.setVisibility(View.GONE);
+			viewHolder.text.setVisibility(View.GONE);
+			viewHolder.progress.setVisibility(View.GONE);
+			viewHolder.tickImage.setVisibility(View.VISIBLE);
+			viewHolder.tickImage.setImageBitmap(HikeBitmapFactory.decodeResource(mContext.getResources(), R.drawable.ic_done_palette));
+			convertView.setOnClickListener(this);
+			
+			break;
+		case PLACE_HOLDER:
+			viewHolder.image.setVisibility(View.VISIBLE);
 			break;
 		}
-
+		viewHolder.position = position;
 		return convertView;
+	}
+
+	private void initialiseDownloadStickerTask(DownloadSource source)
+	{
+		StickerManager.getInstance().initialiseDownloadStickerTask(category, source, mContext);
+		replaceDownloadingatTop();
+	}
+
+	/**
+	 * Replaces the view at index 0 with Downloading view
+	 */
+	protected void replaceDownloadingatTop()
+	{
+		if(itemList.size() > 0 && (itemList.get(0).getType() != StickerPageAdapterItem.STICKER))
+		{
+			itemList.remove(0);
+			itemList.add(0, new StickerPageAdapterItem(StickerPageAdapterItem.DOWNLOADING));
+			notifyDataSetChanged();
+		}
+		
 	}
 
 	/* This should be used only for recent stickers */
 	public void updateRecentsList(Sticker st)
 	{
-		stickerList.remove(st);
-		if (stickerList.size() == StickerManager.RECENT_STICKERS_COUNT) // if size is already 30 remove first element and then add
+		StickerPageAdapterItem item = new StickerPageAdapterItem(StickerPageAdapterItem.STICKER, st);
+		itemList.remove(item);
+		
+		if (itemList.size() == StickerManager.RECENT_STICKERS_COUNT) // if size is already 30 remove first element and then add
 		{
 			// remove last sticker
-			stickerList.remove(stickerList.size() - 1);
+			itemList.remove(itemList.size() - 1);
 		}
-		stickerList.add(0, st);
-		calculateNumRowsAndSize(true);
+		itemList.add(0, item);
 	}
 
 	@Override
 	public void onClick(View v)
 	{
-		Sticker sticker = (Sticker) v.getTag();
-		((ChatThread) activity).sendSticker(sticker);
-		int currentIdx = ((ChatThread) activity).getCurrentPage();
-		if (currentIdx == -1)
+		ViewHolder viewHolder = (ViewHolder) v.getTag();
+		int position = viewHolder.position;
+		StickerPageAdapterItem item = (StickerPageAdapterItem) getItem(position); 
+		switch (item.getType())
 		{
-			return;
-		}
-		StickerCategory sc = StickerManager.getInstance().getCategoryForIndex(currentIdx);
+		case StickerPageAdapterItem.STICKER:
+			Sticker sticker = item.getSticker();
+			String source = category.isCustom() ? StickerManager.FROM_RECENT : StickerManager.FROM_OTHER;
+			mStickerPickerListener.stickerSelected(sticker, source);
 
-		/* In case sticker is clicked on the recents screen, don't update the UI or recents list. Also if this sticker is disabled don't update the recents UI */
-		if (!StickerCategoryId.recent.equals(sc.categoryId))
-		{
-			StickerManager.getInstance().addRecentSticker(sticker);
-			LocalBroadcastManager.getInstance(activity).sendBroadcast(new Intent(StickerManager.RECENTS_UPDATED).putExtra(StickerManager.RECENT_STICKER_SENT, sticker));
+			/* In case sticker is clicked on the recents screen, don't update the UI or recents list. Also if this sticker is disabled don't update the recents UI */
+			if (!category.isCustom())
+			{
+				StickerManager.getInstance().addRecentSticker(sticker);
+				LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(StickerManager.RECENTS_UPDATED).putExtra(StickerManager.RECENT_STICKER_SENT, sticker));
+			}
+			break;
+		case StickerPageAdapterItem.UPDATE:
+			initialiseDownloadStickerTask(DownloadSource.X_MORE);
+			break;
+		case StickerPageAdapterItem.RETRY:
+			initialiseDownloadStickerTask(DownloadSource.RETRY);
+			break;
+		case StickerPageAdapterItem.DONE:
+			final int count = getCount()-1;
+			absListView.smoothScrollBy(count*sizeEachImage, 300);
+			break;
+		default:
+			break;
 		}
+	
 	}
 
 	public void setIsListFlinging(boolean b)
@@ -341,4 +336,23 @@ public class StickerPageAdapter extends BaseAdapter implements OnClickListener
 	{
 		return stickerLoader;
 	}
+	
+	public void addSticker(Sticker st)
+	{
+		this.itemList.add(new StickerPageAdapterItem(StickerPageAdapterItem.STICKER, st));
+	}
+	
+	private class ViewHolder
+	{
+		ImageView image;
+		
+		TextView text;
+		
+		ProgressBar progress;
+		
+		int position;
+		
+		ImageView tickImage;
+	}
+	
 }

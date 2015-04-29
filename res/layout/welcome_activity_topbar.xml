@@ -23,8 +23,8 @@
                 android:paddingLeft="11dp"
                 android:paddingRight="11dp"
                 android:text="@string/terms"
-                android:textColor="@color/white"
-                android:textSize="16sp" />
+                android:textColor="@color/standard_grey"
+                android:textSize="14sp" />
         </LinearLayout>
         
         <View
@@ -35,7 +35,7 @@
             android:layout_marginBottom="8dp"
             android:layout_marginTop="8dp"
             android:layout_toLeftOf="@id/terms_and_conditions"
-            android:background="#66d8f5" />
+            android:background="#e6e6e6" />
         
         <ImageView
             android:id="@+id/ic_micromax"

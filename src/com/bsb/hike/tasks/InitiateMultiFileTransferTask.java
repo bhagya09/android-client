@@ -12,7 +12,6 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.models.HikeFile.HikeFileType;
-import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
 public class InitiateMultiFileTransferTask extends AsyncTask<Void, Void, Void>
@@ -25,12 +24,15 @@ public class InitiateMultiFileTransferTask extends AsyncTask<Void, Void, Void>
 
 	private boolean onHike;
 
-	public InitiateMultiFileTransferTask(Context context, ArrayList<Pair<String, String>> fileDetails, String msisdn, boolean onHike)
+	private int attachementType;
+
+	public InitiateMultiFileTransferTask(Context context, ArrayList<Pair<String, String>> fileDetails, String msisdn, boolean onHike, int attachementType)
 	{
 		this.context = context.getApplicationContext();
 		this.fileDetails = fileDetails;
 		this.msisdn = msisdn;
 		this.onHike = onHike;
+		this.attachementType = attachementType;
 	}
 
 	public String getMsisdn()
@@ -51,7 +53,7 @@ public class InitiateMultiFileTransferTask extends AsyncTask<Void, Void, Void>
 	@Override
 	protected void onPostExecute(Void result)
 	{
-		HikeMessengerApp.getPubSub().publish(HikePubSub.MULTI_FILE_TASK_FINISHED, null);
+		HikeMessengerApp.getPubSub().publish(HikePubSub.MULTI_FILE_TASK_FINISHED, this.getMsisdn());
 	}
 
 	private void initiateFileTransferFromIntentData(String filePath, String fileType)
@@ -69,7 +71,7 @@ public class InitiateMultiFileTransferTask extends AsyncTask<Void, Void, Void>
 			{
 				return;
 			}
-			FileTransferManager.getInstance(context).uploadFile(msisdn, file, null, fileType, hikeFileType, false, false, onHike, -1);
+			FileTransferManager.getInstance(context).uploadFile(msisdn, file, null, fileType, hikeFileType, false, false, onHike, -1, attachementType);
 		}
 	}
 }

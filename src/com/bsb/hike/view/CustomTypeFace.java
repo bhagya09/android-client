@@ -29,7 +29,7 @@ public class CustomTypeFace
 			name = "roboto";
 		}
 		fontName = name;
-		name = name.substring(0, 1).toUpperCase() + name.substring(1);
+		name = new String(name.substring(0, 1).toUpperCase() + name.substring(1));
 		try
 		{
 			bold = Typeface.createFromAsset(context.getAssets(), "fonts/" + name + "-Bold.ttf");

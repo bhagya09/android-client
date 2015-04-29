@@ -20,32 +20,16 @@
         layout="@layout/friends_group_view" >
     </include>
 
-     <LinearLayout
-            android:id="@+id/sm_emptystate"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:contentDescription="Empty State"
-            android:layout_marginLeft="24dp"
-            android:orientation="horizontal"
-            android:visibility="gone" >
-
-            <ImageView
-                android:id="@+id/sm_emptystate_iv"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginRight="22dp"
-                android:src="@drawable/ic_info_2" />
-
             <com.bsb.hike.view.CustomFontTextView
-                android:id="@+id/sm_emptystate_tv"
+                android:id="@+id/sm_emptystate"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
+                android:layout_height="48dp"
+                android:gravity="center_vertical"
                 android:text="@string/no_media"
                 android:textColor="#aaaaaa"
-                android:textSize="16sp" />
-        </LinearLayout>
+                android:textSize="16sp"
+                android:layout_marginLeft="24dp"
+                android:visibility="gone" />
     
      <LinearLayout 
          android:id="@+id/media_layout"

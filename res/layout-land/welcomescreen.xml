@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center_vertical"
+        android:orientation="horizontal" >
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/hike_messenger_img"
+            android:layout_centerHorizontal="true"
+            android:layout_weight="2"
+            android:paddingLeft="@dimen/welcome_artwork_padding"
+            android:paddingRight="@dimen/welcome_artwork_padding"
+            android:orientation="horizontal"
+            android:scaleType="fitEnd"
+            android:src="@drawable/welcome_artwork" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1.3"
+            android:gravity="center"
+            android:orientation="vertical" >
+
+            <LinearLayout
+                android:contentDescription="hike messenger logo"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:onClick="onHikeIconClicked"
+                android:gravity="bottom|center_horizontal" >
+
+                <com.bsb.hike.view.CustomFontTextView
+                    android:id="@+id/welcome_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:text="@string/welcome_to"
+                    android:textColor="@color/welcome_blue"
+                    android:textSize="14sp" />
+
+                <ImageView
+                    android:id="@+id/hike_messenger_img"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/welcome_text"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginTop="4dp"
+                    android:orientation="horizontal"
+                    android:src="@drawable/lbl_hike_messenger" />
+            </LinearLayout>
+
+            <RelativeLayout
+                android:id="@+id/tc_continue_layout"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_above="@+id/bottom_view"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:visibility="visible" >
+
+                <com.bsb.hike.view.CustomFontButton
+                    android:id="@+id/btn_continue"
+                    android:layout_width="180dp"
+                    android:layout_height="48dp"
+                    android:layout_centerHorizontal="true"
+                    android:background="@drawable/signup_button"
+                    android:onClick="onClick"
+                    android:text="@string/get_started"
+                    android:textColor="@drawable/signup_btn_text"
+                    android:textSize="15sp"
+                    android:textStyle="bold|italic" />
+
+                <LinearLayout
+                    android:id="@+id/loading_layout"
+                    android:layout_width="180dp"
+                    android:layout_height="48dp"
+                    android:layout_centerHorizontal="true"
+                    android:background="@drawable/signup_btn_loading"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:visibility="invisible" >
+
+                    <ProgressBar
+                        android:id="@+id/loading_progress"
+                        android:layout_width="25dp"
+                        android:layout_height="25dp"
+                        android:layout_centerVertical="true" />
+
+                    <com.bsb.hike.view.CustomFontTextView
+                        android:id="@+id/txt_loading"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_marginLeft="3dp"
+                        android:paddingLeft="10dp"
+                        android:singleLine="true"
+                        android:text="@string/getting_started"
+                        android:textColor="@drawable/signup_btn_text"
+                        android:textSize="15sp"
+                        android:textStyle="bold|italic" />
+                </LinearLayout>
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/bottom_view"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_alignParentBottom="true"
+                android:layout_weight="0.7"
+                android:orientation="vertical" >
+
+                <ImageView
+                    android:id="@+id/loveIndia"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:scaleType="centerInside"
+                    android:src="@drawable/lbl_madewithloveinindia" />
+            </RelativeLayout>
+        </LinearLayout>
+    </LinearLayout>
+    
+    <include
+        android:id="@+id/topbar"
+        layout="@layout/welcome_activity_topbar" />
+    
+</RelativeLayout>

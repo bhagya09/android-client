@@ -1,10 +1,15 @@
 package com.bsb.hike.utils;
 
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.widget.Toast;
 
+import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -12,13 +17,70 @@ import com.bsb.hike.HikeMessengerApp.CurrentState;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
+import com.bsb.hike.models.HikeAlarmManager;
+import com.bsb.hike.productpopup.DialogPojo;
+import com.bsb.hike.productpopup.HikeDialogFragment;
+import com.bsb.hike.productpopup.IActivityPopup;
+import com.bsb.hike.productpopup.ProductContentModel;
+import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.ui.fragments.ImageViewerFragment;
 
 public class HikeAppStateBaseFragmentActivity extends SherlockFragmentActivity implements Listener
 {
 
 	private static final String TAG = "HikeAppState";
+	
+	protected static final int PRODUCT_POPUP_HANDLER_WHAT = -99;
+	
+	protected static final int PRODUCT_POPUP_SHOW_DIALOG=-100;
+	
+	protected Handler mHandler = new Handler(){
+		public void handleMessage(android.os.Message msg) {
+			handleUIMessage(msg);
+		};
+	};
 
+	
+	/**
+	 * This method is made to be called from handler, do not call this method directly 
+	 * Post Message to mHandler to call this method
+	 * Subclasses should override this method to perform some UI functionality
+	 * <b>(DO NOT FORGET TO CALL super)</b>
+	 * @param msg
+	 */
+	protected void handleUIMessage(Message msg)
+	{
+		switch(msg.what)
+		{
+		case PRODUCT_POPUP_HANDLER_WHAT: 
+			isThereAnyPopUpForMe(msg.arg1);
+			break;
+		case PRODUCT_POPUP_SHOW_DIALOG:
+			showPopupDialog((ProductContentModel)msg.obj);
+			break;
+		}
+	}
+	
+	/**
+	 * 
+	 * @param msg
+	 * Shows the Popup on the Activity
+	 */
+	protected void showPopupDialog(ProductContentModel mmModel)
+	{
+		if (mmModel != null)
+		{
+			DialogPojo mmDialogPojo = ProductInfoManager.getInstance().getDialogPojo(mmModel);
+			HikeDialogFragment mmFragment = HikeDialogFragment.getInstance(mmDialogPojo);
+			
+		// If activity is finishing don't commit.
+			
+			if(!isFinishing())
+			mmFragment.showDialog(getSupportFragmentManager());
+		}
+	}
+	
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -31,6 +93,7 @@ public class HikeAppStateBaseFragmentActivity extends SherlockFragmentActivity i
 	protected void onResume()
 	{
 		HikeAppStateUtils.onResume(this);
+		HikeAlarmManager.cancelAlarm(HikeAppStateBaseFragmentActivity.this, HikeAlarmManager.REQUESTCODE_RETRY_LOCAL_NOTIFICATION);
 		super.onResume();
 	}
 
@@ -52,7 +115,11 @@ public class HikeAppStateBaseFragmentActivity extends SherlockFragmentActivity i
 	@Override
 	public void onBackPressed()
 	{
-		if (!removeFragment(HikeConstants.IMAGE_FRAGMENT_TAG))
+		if (removeFragment(HikeConstants.IMAGE_FRAGMENT_TAG))
+		{
+			getSupportActionBar().show();
+		}
+		else
 		{
 			HikeAppStateUtils.onBackPressed();
 			super.onBackPressed();
@@ -93,16 +160,46 @@ public class HikeAppStateBaseFragmentActivity extends SherlockFragmentActivity i
 	public void startActivityFromFragment(Fragment fragment, Intent intent, int requestCode)
 	{
 		HikeMessengerApp.currentState = CurrentState.NEW_ACTIVITY;
-		super.startActivityFromFragment(fragment, intent, requestCode);
+		try
+		{
+			super.startActivityFromFragment(fragment, intent, requestCode);
+		}
+		catch (ActivityNotFoundException e)
+		{
+			Logger.w(getClass().getSimpleName(), "Unable to find activity", e);
+			Toast.makeText(this, R.string.activity_not_found, Toast.LENGTH_SHORT).show();
+		}
 	}
 
 	@Override
 	public void startActivityForResult(Intent intent, int requestCode)
 	{
 		HikeAppStateUtils.startActivityForResult(this);
-		super.startActivityForResult(intent, requestCode);
+		try
+		{
+			super.startActivityForResult(intent, requestCode);
+		}
+		catch (ActivityNotFoundException e)
+		{
+			Logger.w(getClass().getSimpleName(), "Unable to find activity", e);
+			Toast.makeText(this, R.string.activity_not_found, Toast.LENGTH_SHORT).show();
+		}
 	}
 
+	@Override
+	public void startActivity(Intent intent)
+	{
+		try
+		{
+			super.startActivity(intent);	
+		}
+		catch (ActivityNotFoundException e)
+		{
+			Logger.w(getClass().getSimpleName(), "Unable to find activity", e);
+			Toast.makeText(this, R.string.activity_not_found, Toast.LENGTH_SHORT).show();
+		}		
+	}
+	
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data)
 	{
@@ -121,27 +218,31 @@ public class HikeAppStateBaseFragmentActivity extends SherlockFragmentActivity i
 				@Override
 				public void run()
 				{
-					/*
-					 * Making sure we don't add the fragment if the activity is finishing.
-					 */
-					if (isFinishing())
-					{
-						return;
-					}
-
-					Bundle arguments = (Bundle) object;
-
-					ImageViewerFragment imageViewerFragment = new ImageViewerFragment();
-					imageViewerFragment.setArguments(arguments);
-
-					FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-					fragmentTransaction.add(R.id.parent_layout, imageViewerFragment, HikeConstants.IMAGE_FRAGMENT_TAG);
-					fragmentTransaction.commitAllowingStateLoss();
+					openImageViewerFragment(object);
 				}
 			});
 		}
 	}
 	
+	protected void openImageViewerFragment(Object object)
+	{
+		return;
+	}
+
+	public void addFragment(Fragment fragment, String tag)
+	{
+		FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+		fragmentTransaction.add(fragment, tag);
+		fragmentTransaction.commitAllowingStateLoss();
+	}
+
+	public void addFragment(int containerView, Fragment fragment, String tag)
+	{
+		FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+		fragmentTransaction.add(containerView, fragment, tag);
+		fragmentTransaction.commitAllowingStateLoss();
+	}
+
 	public boolean removeFragment(String tag)
 	{
 		FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
@@ -151,7 +252,6 @@ public class HikeAppStateBaseFragmentActivity extends SherlockFragmentActivity i
 		{	
 			fragmentTransaction.remove(fragment);
 			fragmentTransaction.commitAllowingStateLoss();
-			getSupportActionBar().show();
 			return true;
 		}
 		return false;
@@ -160,5 +260,47 @@ public class HikeAppStateBaseFragmentActivity extends SherlockFragmentActivity i
 	public boolean isFragmentAdded(String tag)
 	{
 		return getSupportFragmentManager().findFragmentByTag(tag) != null;
+	}
+	
+	public void updateActionBarColor(int backgroundDrawable)
+	{
+		ActionBar actionBar = getSupportActionBar();
+		actionBar.setBackgroundDrawable(getResources().getDrawable(backgroundDrawable));
+		// * Workaround to set actionbar background drawable multiple times. Refer SO.
+		// http://stackoverflow.com/questions/17076958/change-actionbar-color-programmatically-more-then-once/17198657#17198657
+		actionBar.setDisplayShowTitleEnabled(true);
+		actionBar.setDisplayShowTitleEnabled(false);
+	}
+
+	private void isThereAnyPopUpForMe(int popUpTriggerPoint)
+	{
+		ProductInfoManager.getInstance().isThereAnyPopup(popUpTriggerPoint,new IActivityPopup()
+		{
+
+			@Override
+			public void onSuccess(final ProductContentModel mmModel)
+			{
+				Message msg = Message.obtain();
+				msg.what = PRODUCT_POPUP_SHOW_DIALOG;
+				msg.obj = mmModel;
+				mHandler.sendMessage(msg);
+			}
+
+			@Override
+			public void onFailure()
+			{
+				// No Popup to display
+			}
+			
+		});
+	
+	}
+	
+	protected void showProductPopup(int which)
+	{
+		Message m = Message.obtain();
+		m.what = PRODUCT_POPUP_HANDLER_WHAT;
+		m.arg1 = which;
+		mHandler.sendMessage(m);
 	}
 }

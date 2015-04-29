@@ -18,10 +18,12 @@ import android.database.DatabaseUtils;
 import android.util.Pair;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.GroupParticipant;
+import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.Utils;
 
@@ -188,7 +190,7 @@ public class TransientCache extends ContactsCache
 		writeLock.lock();
 		try
 		{
-			if (Utils.isGroupConversation(msisdn))
+			if (OneToNConversationUtils.isOneToNConversation(msisdn))
 			{
 				removeGroup(msisdn);
 			}
@@ -1102,13 +1104,33 @@ public class TransientCache extends ContactsCache
 			if ((blockedMsisdns.contains(contact.getMsisdn())))
 			{
 				blockedUserList.add(new Pair<AtomicBoolean, ContactInfo>(new AtomicBoolean(true), contact));
+				blockedMsisdns.remove(contact.getMsisdn());
 			}
 			else
 			{
 				allUserList.add(new Pair<AtomicBoolean, ContactInfo>(new AtomicBoolean(false), contact));
 			}
 		}
+
+		for (String ms : blockedMsisdns)
+		{
+			String name = ms;
+			if (HikeMessengerApp.hikeBotNamesMap.containsKey(ms))
+				name = HikeMessengerApp.hikeBotNamesMap.get(ms);
+			blockedUserList.add(new Pair<AtomicBoolean, ContactInfo>(new AtomicBoolean(true), new ContactInfo(ms, ms, name, ms)));
+		}
 		blockedUserList.addAll(allUserList);
 		return blockedUserList;
+	}
+
+	/**
+	 * Clears the memory {@see #clearMemory()} and make all references null
+	 */
+	void shutdown()
+	{
+		clearMemory();
+		hDb = null;
+		transientContacts = null;
+		groupParticipants = null;
 	}
 }

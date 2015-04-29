@@ -7,11 +7,14 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.ActivityNotFoundException;
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.widget.Toast;
 
@@ -19,9 +22,11 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.BitmapModule.RecyclingBitmapDrawable;
+import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.utils.Utils.ExternalStorageState;
+import com.bsb.hike.video.VideoUtilities.VideoEditedInfo;
 
 public class HikeFile
 {
@@ -160,6 +165,8 @@ public class HikeFile
 	private String img_quality;
 	
 	private String downloadURL;
+
+	private VideoEditedInfo vEditInfo;
 
 	public HikeFile(JSONObject fileJSON, boolean isSent)
 	{
@@ -452,7 +459,10 @@ public class HikeFile
 		{
 			file = Utils.getOutputMediaFile(hikeFileType, fileName, isSent);
 		}
-		return file.getPath();
+		if(file != null)
+			return file.getPath();
+		else
+			return null;
 	}
 
 	public File getFile()
@@ -508,6 +518,11 @@ public class HikeFile
 	{
 		fileName = fName;
 	}
+	
+	public void setVideoEditedInfo(VideoEditedInfo vEditInfo)
+	{
+		this.vEditInfo = vEditInfo;
+	}
 	/*
 	 * Get server configured download url 
 	 */
@@ -515,6 +530,11 @@ public class HikeFile
 	{
 		Logger.d("HikeDownloadURL", "DowloadURL = " + downloadURL);
 		return downloadURL;
+	}
+
+	public VideoEditedInfo getVideoEditorInfo()
+	{
+		return this.vEditInfo;
 	}
 
 	public boolean isSent()
@@ -568,7 +588,7 @@ public class HikeFile
 		 */
 		String currentFileSelectionPath = HikeConstants.FILE_SHARE_PREFIX + getExactFilePath();
 		String currentFileSelectionMimeType = getFileTypeString();
-		Utils.startShareImageIntent(context, currentFileSelectionMimeType, currentFileSelectionPath);
+		IntentFactory.startShareImageIntent(currentFileSelectionMimeType, currentFileSelectionPath);
 	}
 
 	public static void openFile(File file, String fileTypeString, Context context)
@@ -589,6 +609,84 @@ public class HikeFile
 	public static void openFile(HikeFile hikeFile, Context context)
 	{
 		openFile(hikeFile.getFile(), hikeFile.getFileTypeString(), context);
+	}
+	
+	/**
+	 * This method is used to delete HikeFiles from the SDCard/Internal memory of the phone. The method obtains Id from the MediaStore and then deletes files from MediaStore 
+	 * 
+	 * @param hikeFile
+	 */
+	
+	public void delete(Context context)
+	{
+		/*
+		 * Added check for hike media gallery because it is required to delete the media of that directory only.
+		 */
+		if(this.getFilePath() == null || !this.getFilePath().startsWith(Utils.getFileParent(this.getHikeFileType(), this.isSent())))
+		{
+			return;
+		}
+		String[] retCol = null;
+		Uri uri = null;
+		int id = -1;
+		switch (this.getHikeFileType())
+		{
+		case IMAGE:
+			retCol = new String[] { MediaStore.Images.Media._ID };
+			uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+			id = getMediaId(this.getFilePath(), retCol, uri, context);
+			break;
+		case VIDEO:
+			retCol = new String[] { MediaStore.Video.Media._ID };
+			uri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
+			id = getMediaId(this.getFilePath(), retCol, uri, context);
+			break;
+		default:
+			break;
+		}
+
+		if (id != -1)
+		{
+			context.getContentResolver().delete(ContentUris.withAppendedId(uri, id), null, null);
+		}
+
+		if (this.exactFilePathFileExists())
+		{
+			this.getFileFromExactFilePath().delete();
+		}
+	}
+	
+	/**
+	 * This method is used to query the internal Media Db of Android for the index of a media file.
+	 * 
+	 * @param filePath
+	 * @return The index of the Media from the relevant table if present or -1 if not present/the params supplied are null.
+	 */
+	
+	private int getMediaId(String filePath, String[] retCol, Uri uri, Context context)
+	{
+		int id = -1;
+		if (retCol == null || uri == null || filePath == null)
+		{
+			return -1;
+		}
+		Cursor cur = context.getContentResolver().query(uri, retCol, MediaStore.MediaColumns.DATA + "='" + filePath + "'", null, null);
+		try
+		{
+			if (cur.getCount() == 0)
+			{
+				return -1;
+			}
+			cur.moveToFirst();
+
+			id = cur.getInt(cur.getColumnIndex(MediaStore.MediaColumns._ID));
+		}
+
+		finally
+		{
+			cur.close();
+		}
+		return id;
 	}
 
 }

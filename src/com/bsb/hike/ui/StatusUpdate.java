@@ -1,6 +1,5 @@
 package com.bsb.hike.ui;
 
-import java.util.Arrays;
 import java.util.Calendar;
 
 import org.json.JSONException;
@@ -15,9 +14,9 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.view.ViewPager;
 import android.text.Editable;
-import android.text.InputFilter;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -33,35 +32,34 @@ import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.bsb.hike.HikeConstants;
-import com.bsb.hike.utils.HikeTip.TipType;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
 import com.bsb.hike.adapters.EmoticonAdapter;
-import com.bsb.hike.adapters.EmoticonPageAdapter.EmoticonClickListener;
 import com.bsb.hike.adapters.MoodAdapter;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.http.HikeHttpRequest;
 import com.bsb.hike.http.HikeHttpRequest.HikeHttpCallback;
 import com.bsb.hike.http.HikeHttpRequest.RequestType;
+import com.bsb.hike.media.EmoticonPickerListener;
 import com.bsb.hike.models.StatusMessage;
 import com.bsb.hike.models.StatusMessage.StatusMessageType;
+import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.tasks.HikeHTTPTask;
-import com.bsb.hike.utils.AuthSocialAccountBaseActivity;
+import com.bsb.hike.tasks.StatusUpdateTask;
 import com.bsb.hike.utils.EmoticonConstants;
 import com.bsb.hike.utils.EmoticonTextWatcher;
+import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeTip;
+import com.bsb.hike.utils.HikeTip.TipType;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.CustomLinearLayout;
 import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 import com.bsb.hike.view.StickerEmoticonIconPageIndicator;
-import com.facebook.Session;
-import com.facebook.Session.StatusCallback;
-import com.facebook.SessionState;
 
-public class StatusUpdate extends AuthSocialAccountBaseActivity implements Listener, OnSoftKeyboardListener, EmoticonClickListener
+public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Listener, OnSoftKeyboardListener, EmoticonPickerListener
 {
 
 	private class ActivityTask
@@ -71,10 +69,12 @@ public class StatusUpdate extends AuthSocialAccountBaseActivity implements Liste
 		int moodIndex = -1;
 
 		HikeHTTPTask hikeHTTPTask = null;
+		
+		StatusUpdateTask task;
 
-		boolean fbSelected = false;
+		/*boolean fbSelected = false;
 
-		boolean twitterSelected = false;
+		boolean twitterSelected = false;*/
 
 		boolean emojiShowing = false;
 
@@ -113,9 +113,9 @@ public class StatusUpdate extends AuthSocialAccountBaseActivity implements Liste
 
 	private TextView title;
 
-	private View fb;
+	//private View fb;
 
-	private View twitter;
+	//private View twitter;
 
 	@Override
 	public Object onRetainCustomNonConfigurationInstance()
@@ -134,6 +134,11 @@ public class StatusUpdate extends AuthSocialAccountBaseActivity implements Liste
 		{
 			mActivityTask = (ActivityTask) o;
 			if (mActivityTask.hikeHTTPTask != null)
+			{
+				progressDialog = ProgressDialog.show(this, null, getResources().getString(R.string.updating_status));
+			}
+			
+			if (Utils.isOkHttp() && mActivityTask.task != null)
 			{
 				progressDialog = ProgressDialog.show(this, null, getResources().getString(R.string.updating_status));
 			}
@@ -191,11 +196,11 @@ public class StatusUpdate extends AuthSocialAccountBaseActivity implements Liste
 		});
 		statusTxt.addTextChangedListener(new EmoticonTextWatcher());
 
-		fb = findViewById(R.id.post_fb_btn);
+		/*fb = findViewById(R.id.post_fb_btn);
 		twitter = findViewById(R.id.post_twitter_btn);
 
 		fb.setSelected(mActivityTask.fbSelected);
-		twitter.setSelected(mActivityTask.twitterSelected);
+		twitter.setSelected(mActivityTask.twitterSelected);*/
 
 		if (mActivityTask.emojiShowing)
 		{
@@ -225,12 +230,15 @@ public class StatusUpdate extends AuthSocialAccountBaseActivity implements Liste
 			RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) tipView.getLayoutParams();
 			int screenWidth = getResources().getDisplayMetrics().widthPixels;
 			int buttonWidth = screenWidth / 4;
-			int marginRight = (int) ((buttonWidth / 2) - ((int) 22 * Utils.densityMultiplier));
+			int marginRight = (int) ((buttonWidth / 2) - ((int) 22 * Utils.scaledDensityMultiplier));
 			layoutParams.rightMargin = marginRight;
 
 			tipView.setLayoutParams(layoutParams);
 			HikeTip.showTip(this, TipType.MOOD, tipView);
 		}
+		
+		
+		showProductPopup(ProductPopupsConstants.PopupTriggerPoints.STATUS.ordinal());
 	}
 
 	private void setupActionBar()
@@ -307,7 +315,7 @@ public class StatusUpdate extends AuthSocialAccountBaseActivity implements Liste
 		}
 	}
 
-	public void onTwitterClick(View v)
+	/*public void onTwitterClick(View v)
 	{
 		setSelectionSocialButton(false, !v.isSelected());
 		if (!v.isSelected() || preferences.getBoolean(HikeMessengerApp.TWITTER_AUTH_COMPLETE, false))
@@ -416,6 +424,7 @@ public class StatusUpdate extends AuthSocialAccountBaseActivity implements Liste
 			makeMeRequest(session, session.getAccessToken(), session.getExpirationDate().getTime());
 		}
 	}
+	*/
 
 	public void onEmojiClick(View v)
 	{
@@ -432,11 +441,11 @@ public class StatusUpdate extends AuthSocialAccountBaseActivity implements Liste
 
 	public void onMoodClick(View v)
 	{
-		if (findViewById(R.id.post_twitter_btn).isSelected() && statusTxt.length() > HikeConstants.MAX_MOOD_TWITTER_POST_LENGTH)
+		/*if (findViewById(R.id.post_twitter_btn).isSelected() && statusTxt.length() > HikeConstants.MAX_MOOD_TWITTER_POST_LENGTH)
 		{
 			Toast.makeText(getApplicationContext(), R.string.mood_tweet_error, Toast.LENGTH_LONG).show();
 			return;
-		}
+		}*/
 		if (tipView != null)
 		{
 			HikeTip.closeTip(TipType.MOOD, tipView, preferences);
@@ -496,6 +505,18 @@ public class StatusUpdate extends AuthSocialAccountBaseActivity implements Liste
 
 	private void postStatus()
 	{
+		if (Utils.isOkHttp())
+		{
+			postStatusOkHttp();
+		}
+		else
+		{
+			postStatusApacheClient();
+		}
+	}
+
+	private void postStatusApacheClient()
+	{
 		HikeHttpRequest hikeHttpRequest = new HikeHttpRequest("/user/status", RequestType.STATUS_UPDATE, new HikeHttpCallback()
 		{
 
@@ -522,6 +543,7 @@ public class StatusUpdate extends AuthSocialAccountBaseActivity implements Liste
 				editor.putString(HikeMessengerApp.LAST_STATUS, text);
 				editor.putInt(HikeMessengerApp.LAST_MOOD, moodId);
 				editor.putInt(HikeMessengerApp.UNSEEN_USER_STATUS_COUNT, ++unseenUserStatusCount);
+				editor.putBoolean(HikeConstants.IS_HOME_OVERFLOW_CLICKED, false);
 				editor.commit();
 
 				HikeMessengerApp.getPubSub().publish(HikePubSub.MY_STATUS_CHANGED, text);
@@ -559,16 +581,16 @@ public class StatusUpdate extends AuthSocialAccountBaseActivity implements Liste
 			status = statusTxt.getText().toString();
 		}
 
-		boolean facebook = findViewById(R.id.post_fb_btn).isSelected();
-		boolean twitter = findViewById(R.id.post_twitter_btn).isSelected();
+		//boolean facebook = findViewById(R.id.post_fb_btn).isSelected();
+		//boolean twitter = findViewById(R.id.post_twitter_btn).isSelected();
 
 		Logger.d(getClass().getSimpleName(), "Status: " + status);
 		JSONObject data = new JSONObject();
 		try
 		{
 			data.put(HikeConstants.STATUS_MESSAGE_2, status);
-			data.put(HikeConstants.FACEBOOK_STATUS, facebook);
-			data.put(HikeConstants.TWITTER_STATUS, twitter);
+			//data.put(HikeConstants.FACEBOOK_STATUS, facebook);
+			//data.put(HikeConstants.TWITTER_STATUS, twitter);
 			if (mActivityTask.moodId != -1)
 			{
 				data.put(HikeConstants.MOOD, mActivityTask.moodId + 1);
@@ -593,8 +615,29 @@ public class StatusUpdate extends AuthSocialAccountBaseActivity implements Liste
 
 		progressDialog = ProgressDialog.show(this, null, getResources().getString(R.string.updating_status));
 	}
-
-	private void setSelectionSocialButton(boolean facebook, boolean selection)
+	
+	private void postStatusOkHttp()
+	{
+		String status = null;
+		/*
+		 * If the text box is empty, the we take the hint text which is a prefill for moods.
+		 */
+		if (TextUtils.isEmpty(statusTxt.getText()))
+		{
+			status = statusTxt.getHint().toString();
+		}
+		else
+		{
+			status = statusTxt.getText().toString();
+		}
+		
+		mActivityTask.task = new StatusUpdateTask(status, mActivityTask.moodId);
+		mActivityTask.task.execute();
+		
+		progressDialog = ProgressDialog.show(this, null, getResources().getString(R.string.updating_status));
+	}
+	
+	/*private void setSelectionSocialButton(boolean facebook, boolean selection)
 	{
 		View v = findViewById(facebook ? R.id.post_fb_btn : R.id.post_twitter_btn);
 		v.setSelected(selection);
@@ -634,7 +677,7 @@ public class StatusUpdate extends AuthSocialAccountBaseActivity implements Liste
 		{
 			statusTxt.setFilters(new InputFilter[] {});
 		}
-	}
+	}*/
 
 	private void showEmojiSelector()
 	{
@@ -677,6 +720,19 @@ public class StatusUpdate extends AuthSocialAccountBaseActivity implements Liste
 		}
 		setupEmoticonLayout(whichSubcategory, tabDrawables);
 		emoticonLayout.setVisibility(View.VISIBLE);
+		
+		View eraseKey = (View) findViewById(R.id.erase_key_image);
+		eraseKey.setVisibility(View.VISIBLE);
+		eraseKey.setOnClickListener(new OnClickListener()
+		{
+			
+			@Override
+			public void onClick(View v)
+			{
+				statusTxt.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL));
+			}
+		});
+		
 	}
 
 	public void hideEmoticonSelector()
@@ -687,14 +743,14 @@ public class StatusUpdate extends AuthSocialAccountBaseActivity implements Liste
 	private void setupEmoticonLayout(int whichSubcategory, int[] tabDrawable)
 	{
 
-		EmoticonAdapter statusEmojiAdapter = new EmoticonAdapter(this, this, getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT, tabDrawable,
+		EmoticonAdapter statusEmojiAdapter = new EmoticonAdapter(this.getApplicationContext(), this, getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT, tabDrawable,
 				true);
 
 		ViewPager emoticonViewPager = (ViewPager) findViewById(R.id.emoticon_pager);
 		emoticonViewPager.setAdapter(statusEmojiAdapter);
 		emoticonViewPager.invalidate();
 
-		StickerEmoticonIconPageIndicator pageIndicator = (StickerEmoticonIconPageIndicator) findViewById(R.id.icon_indicator);
+		StickerEmoticonIconPageIndicator pageIndicator = (StickerEmoticonIconPageIndicator) findViewById(R.id.emoticon_icon_indicator);
 		pageIndicator.setViewPager(emoticonViewPager);
 		pageIndicator.setCurrentItem(whichSubcategory);
 	}
@@ -740,7 +796,7 @@ public class StatusUpdate extends AuthSocialAccountBaseActivity implements Liste
 		{
 			onBackPressed();
 		}
-		setCharCountForStatus(findViewById(R.id.post_twitter_btn).isSelected());
+		//setCharCountForStatus(findViewById(R.id.post_twitter_btn).isSelected());
 	}
 
 	private void showCancelButton(boolean moodLayout)
@@ -768,7 +824,7 @@ public class StatusUpdate extends AuthSocialAccountBaseActivity implements Liste
 	protected void onActivityResult(int requestCode, int resultCode, Intent data)
 	{
 		super.onActivityResult(requestCode, resultCode, data);
-		if (requestCode == HikeConstants.FACEBOOK_REQUEST_CODE)
+		/*if (requestCode == HikeConstants.FACEBOOK_REQUEST_CODE)
 		{
 			Session session = Session.getActiveSession();
 			if (session != null && resultCode == RESULT_OK)
@@ -789,7 +845,7 @@ public class StatusUpdate extends AuthSocialAccountBaseActivity implements Liste
 				Session.setActiveSession(null);
 			}
 			fb.setSelected(mActivityTask.fbSelected);
-		}
+		}*/
 	}
 
 	public void toggleEnablePostButton()
@@ -804,7 +860,7 @@ public class StatusUpdate extends AuthSocialAccountBaseActivity implements Liste
 	@Override
 	public void onEventReceived(final String type, Object object)
 	{
-		if (HikePubSub.SOCIAL_AUTH_COMPLETED.equals(type) || HikePubSub.SOCIAL_AUTH_FAILED.equals(type))
+		/*if (HikePubSub.SOCIAL_AUTH_COMPLETED.equals(type) || HikePubSub.SOCIAL_AUTH_FAILED.equals(type))
 		{
 			final boolean facebook = (Boolean) object;
 			runOnUiThread(new Runnable()
@@ -817,7 +873,7 @@ public class StatusUpdate extends AuthSocialAccountBaseActivity implements Liste
 				}
 			});
 		}
-		else if (HikePubSub.STATUS_POST_REQUEST_DONE.equals(type))
+		else*/ if (HikePubSub.STATUS_POST_REQUEST_DONE.equals(type))
 		{
 			final boolean statusPosted = (Boolean) object;
 			runOnUiThread(new Runnable()
@@ -826,6 +882,10 @@ public class StatusUpdate extends AuthSocialAccountBaseActivity implements Liste
 				@Override
 				public void run()
 				{
+					if (Utils.isOkHttp())
+					{
+						mActivityTask.task = null;
+					}
 					if (progressDialog != null)
 					{
 						progressDialog.dismiss();
@@ -835,6 +895,13 @@ public class StatusUpdate extends AuthSocialAccountBaseActivity implements Liste
 					{
 						Utils.hideSoftKeyboard(StatusUpdate.this, statusTxt);
 						finish();
+					}
+					else
+					{
+						if (Utils.isOkHttp())
+						{
+							Toast.makeText(getApplicationContext(), R.string.update_status_fail, Toast.LENGTH_SHORT).show();
+						}
 					}
 					handler.removeCallbacks(cancelStatusPost);
 				}
@@ -874,9 +941,9 @@ public class StatusUpdate extends AuthSocialAccountBaseActivity implements Liste
 	}
 
 	@Override
-	public void onEmoticonClicked(int emoticonIndex)
+	public void emoticonSelected(int emoticonIndex)
 	{
 		Utils.emoticonClicked(getApplicationContext(), emoticonIndex, statusTxt);
-		
 	}
+	
 }

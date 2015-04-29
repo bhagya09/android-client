@@ -2,17 +2,18 @@ package com.bsb.hike.adapters;
 
 import java.util.List;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences.Editor;
-import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.text.util.Linkify;
-import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -21,12 +22,13 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.ImageViewerInfo;
@@ -35,12 +37,12 @@ import com.bsb.hike.models.StatusMessage;
 import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.smartImageLoader.IconLoader;
 import com.bsb.hike.smartImageLoader.TimelineImageLoader;
-import com.bsb.hike.ui.ChatThread;
 import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.ui.PeopleActivity;
 import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.ui.StatusUpdate;
 import com.bsb.hike.utils.EmoticonConstants;
+import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.Utils;
@@ -72,13 +74,6 @@ public class CentralTimelineAdapter extends BaseAdapter
 	private IconLoader iconImageLoader;
 
 	private LayoutInflater inflater;
-
-	private int[] moodsRow1 = { R.drawable.mood_09_chilling, R.drawable.mood_35_partying_hard, R.drawable.mood_14_boozing, R.drawable.mood_01_happy };
-
-	private int[] moodsRow2 = { R.drawable.mood_15_movie, R.drawable.mood_34_music, R.drawable.mood_37_eating, R.drawable.mood_03_in_love };
-
-	private int[] moodsRowLand = { R.drawable.mood_09_chilling, R.drawable.mood_35_partying_hard, R.drawable.mood_14_boozing, R.drawable.mood_01_happy, R.drawable.mood_15_movie,
-			R.drawable.mood_34_music, R.drawable.mood_37_eating };
 
 	private enum ViewType
 	{
@@ -320,8 +315,9 @@ public class CentralTimelineAdapter extends BaseAdapter
 
 				boolean friendRequestAccepted = statusMessage.getStatusMessageType() == StatusMessageType.FRIEND_REQUEST_ACCEPTED;
 
-				viewHolder.mainInfo.setText(context.getString(friendRequestAccepted ? R.string.accepted_your_favorite_request_details
-						: R.string.you_accepted_favorite_request_details, Utils.getFirstName(statusMessage.getNotNullName())));
+				int infoMainResId = friendRequestAccepted ? R.string.accepted_your_favorite_request_details : R.string.you_accepted_favorite_request_details;
+				String infoSubText = context.getString(Utils.isLastSeenSetToFavorite() ? R.string.both_ls_status_update : R.string.status_updates_proper_casing);
+				viewHolder.mainInfo.setText(context.getString(infoMainResId, Utils.getFirstName(statusMessage.getNotNullName()), infoSubText));
 				break;
 			case PROTIP:
 				Protip protip = statusMessage.getProtip();
@@ -409,7 +405,8 @@ public class CentralTimelineAdapter extends BaseAdapter
 
 		case FTUE_ITEM:
 			viewHolder.name.setText(R.string.favorites_ftue_item_label);
-			viewHolder.mainInfo.setText(R.string.ftue_updates_are_fun_with_favorites);
+			String infoSubText = context.getString(Utils.isLastSeenSetToFavorite() ? R.string.both_ls_status_update : R.string.status_updates_proper_casing);
+			viewHolder.mainInfo.setText(context.getString(R.string.ftue_updates_are_fun_with_favorites, infoSubText));
 
 			viewHolder.contactsContainer.removeAllViews();
 
@@ -485,20 +482,7 @@ public class CentralTimelineAdapter extends BaseAdapter
 
 	private void setAvatar(String msisdn, ImageView avatar)
 	{
-		iconImageLoader.loadImage(msisdn, true, avatar, true);
-	}
-
-	private void addMoods(ViewGroup container, int[] moods)
-	{
-		container.removeAllViews();
-
-		for (int moodRes : moods)
-		{
-			ImageView imageView = (ImageView) inflater.inflate(R.layout.ftue_mood_item, container, false);
-			imageView.setImageResource(moodRes);
-
-			container.addView(imageView);
-		}
+		iconImageLoader.loadImage(msisdn, avatar, false, true);
 	}
 
 	private class ViewHolder
@@ -569,7 +553,16 @@ public class CentralTimelineAdapter extends BaseAdapter
 				Intent intent = new Intent(context, StatusUpdate.class);
 				context.startActivity(intent);
 
-				Utils.sendUILogEvent(HikeConstants.LogEvent.POST_UPDATE_FROM_CARD);
+				try 
+				{
+					JSONObject metadata = new JSONObject();
+					metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.POST_UPDATE_FROM_CARD);
+					HAManager.getInstance().record(HikeConstants.UI_EVENT, HikeConstants.LogEvent.CLICK, metadata);
+				}
+				catch (JSONException e) 
+				{
+					Logger.e(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+				}				
 			}
 			else if (statusMessage.getStatusMessageType() == StatusMessageType.PROTIP)
 			{
@@ -643,9 +636,9 @@ public class CentralTimelineAdapter extends BaseAdapter
 				return;
 			}
 
-			Intent intent = Utils.createIntentFromContactInfo(new ContactInfo(null, statusMessage.getMsisdn(), statusMessage.getNotNullName(), statusMessage.getMsisdn()), true);
+			Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(context, new ContactInfo(null, statusMessage.getMsisdn(), statusMessage.getNotNullName(), statusMessage.getMsisdn()), true);
+			//Add anything else to the intent
 			intent.putExtra(HikeConstants.Extras.FROM_CENTRAL_TIMELINE, true);
-			intent.setClass(context, ChatThread.class);
 			intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 			context.startActivity(intent);
 			context.finish();
@@ -664,7 +657,24 @@ public class CentralTimelineAdapter extends BaseAdapter
 
 			ContactInfo contactInfo2 = new ContactInfo(contactInfo);
 
-			Utils.sendUILogEvent(HikeConstants.LogEvent.ADD_UPDATES_CLICK, contactInfo2.getMsisdn());
+			try 
+			{
+				JSONObject metadata = new JSONObject();
+				
+				metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.ADD_UPDATES_CLICK);
+			
+				String msisdn = contactInfo2.getMsisdn();
+			
+				if(TextUtils.isEmpty(msisdn))
+				{
+					metadata.put(HikeConstants.TO, msisdn);
+				}
+				HAManager.getInstance().record(HikeConstants.UI_EVENT, HikeConstants.LogEvent.CLICK, metadata);
+			}
+			catch (JSONException e) 
+			{
+				Logger.e(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+			}
 
 			if (!contactInfo.isOnhike())
 				Utils.sendInviteUtil(contactInfo2, context, HikeConstants.FTUE_ADD_SMS_ALERT_CHECKED, context.getString(R.string.ftue_add_prompt_invite_title),
@@ -680,7 +690,17 @@ public class CentralTimelineAdapter extends BaseAdapter
 		{
 			Intent intent = new Intent(context, PeopleActivity.class);
 			context.startActivity(intent);
-			Utils.sendUILogEvent(HikeConstants.LogEvent.FTUE_FAV_CARD_SEEL_ALL_CLICKED);
+			
+			try 
+			{
+				JSONObject metadata = new JSONObject();
+				metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.FTUE_FAV_CARD_SEEL_ALL_CLICKED);
+				HAManager.getInstance().record(HikeConstants.UI_EVENT, HikeConstants.LogEvent.CLICK, metadata);
+			}
+			catch (JSONException e) 
+			{
+				Logger.e(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+			}
 		}
 	};
 	
@@ -693,8 +713,25 @@ public class CentralTimelineAdapter extends BaseAdapter
 			ContactInfo contactInfo = (ContactInfo) v.getTag();
 
 			Utils.startChatThread(context, contactInfo);
+						
+			try 
+			{
+				JSONObject metadata = new JSONObject();
+
+				metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.FTUE_FAV_CARD_START_CHAT_CLICKED);
 			
-			Utils.sendUILogEvent(HikeConstants.LogEvent.FTUE_FAV_CARD_START_CHAT_CLICKED, contactInfo.getMsisdn());
+				String msisdn = contactInfo.getMsisdn();
+			
+				if(TextUtils.isEmpty(msisdn))
+				{
+					metadata.put(HikeConstants.TO, msisdn);
+				}
+				HAManager.getInstance().record(HikeConstants.UI_EVENT, HikeConstants.LogEvent.CLICK, metadata);
+			}
+			catch (JSONException e) 
+			{
+				Logger.e(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+			}
 
 			context.finish();
 		}

@@ -79,7 +79,7 @@
 	        android:layout_marginRight="2dp"
 	        android:visibility="gone" >
 
-	        <com.bsb.hike.ui.utils.RecyclingImageView
+	        <com.bsb.hike.view.RoundedImageView
 	            android:id="@+id/avatar"
 	            style="@style/AvatarStyle.Padding" />
 
@@ -224,7 +224,7 @@
 			               app:progress_color="@color/white_85"
 			               app:progress_background_color="@color/white_45"
 			               android:gravity="center"
-			               app:progress="0.4"
+			               app:progress="0.0"
 			               app:stroke_width="3dp"
 			               app:marker_visible="false"
 			               app:thumb_visible="false"
@@ -441,7 +441,7 @@
 	               app:progress_color="@color/white_85"
 	               app:progress_background_color="@color/white_45"
 	               android:gravity="center"
-	               app:progress="0.4"
+	               app:progress="0.0"
 	               app:stroke_width="3dp"
 	               app:marker_visible="false"
 	               app:thumb_visible="false"
@@ -467,6 +467,7 @@
 
 	        <ImageView
 	            android:id="@+id/typing"
+	            android:contentDescription="@string/content_des_typing_notification_chatting"
 	            android:layout_width="46dp"
 	            android:layout_height="wrap_content"
 	            android:layout_toRightOf="@+id/typing_avatar_container"

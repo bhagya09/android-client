@@ -26,7 +26,7 @@ public class MyDrawable extends ShapeDrawable
 
 		paint = new Paint();
 		paint.setColor(context.getResources().getColor(onHike ? R.color.contact_blue : R.color.contact_green));
-		paint.setTextSize(13.5f * Utils.densityMultiplier);
+		paint.setTextSize(13.5f * Utils.scaledDensityMultiplier);
 		paint.setAntiAlias(true);
 		paint.setDither(true);
 
@@ -38,14 +38,14 @@ public class MyDrawable extends ShapeDrawable
 	{
 		Drawable d = context.getResources().getDrawable(onHike ? R.drawable.hike_contact_bg : R.drawable.sms_contact_bg);
 
-		int left = (int) (0 * Utils.densityMultiplier);
-		int top = (int) (1.5 * Utils.densityMultiplier);
-		int right = (int) (paint.measureText(text) + ((int) (14 * Utils.densityMultiplier)));
-		int bottom = (int) (25 * Utils.densityMultiplier);
+		int left = (int) (0 * Utils.scaledDensityMultiplier);
+		int top = (int) (1.5 * Utils.scaledDensityMultiplier);
+		int right = (int) (paint.measureText(text) + ((int) (14 * Utils.scaledDensityMultiplier)));
+		int bottom = (int) (25 * Utils.scaledDensityMultiplier);
 
 		d.setBounds(left, top, right, bottom);
 		d.draw(canvas);
 
-		canvas.drawText(text, 7 * Utils.densityMultiplier, 18 * Utils.densityMultiplier, paint);
+		canvas.drawText(text, 7 * Utils.scaledDensityMultiplier, 18 * Utils.scaledDensityMultiplier, paint);
 	}
 }

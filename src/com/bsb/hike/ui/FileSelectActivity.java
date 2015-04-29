@@ -9,6 +9,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
@@ -18,7 +19,6 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.StatFs;
-import android.text.TextUtils;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,7 +27,6 @@ import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.webkit.MimeTypeMap;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
@@ -42,13 +41,15 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.adapters.FileListAdapter;
+import com.bsb.hike.chatthread.ChatThreadActivity;
+import com.bsb.hike.filetransfer.FTAnalyticEvents;
 import com.bsb.hike.filetransfer.FileTransferManager;
-import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.models.FileListItem;
 import com.bsb.hike.tasks.InitiateMultiFileTransferTask;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
+import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
-import com.bsb.hike.models.FileListItem;
 
 public class FileSelectActivity extends HikeAppStateBaseFragmentActivity implements OnScrollListener, HikePubSub.Listener
 {
@@ -285,12 +286,12 @@ public class FileSelectActivity extends HikeAppStateBaseFragmentActivity impleme
 						{
 							return;
 						}
-						Intent intent = new Intent(FileSelectActivity.this, ChatThread.class);
-						intent.putExtra(HikeConstants.Extras.MSISDN, getIntent().getStringExtra(HikeConstants.MSISDN));
+						Intent intent = new Intent();
 						intent.putExtra(HikeConstants.Extras.FILE_PATH, file.getAbsolutePath());
 						intent.putExtra(HikeConstants.Extras.FILE_TYPE, item.getMimeType());
-						intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-						startActivity(intent);
+						intent.putExtra(FTAnalyticEvents.FT_ATTACHEMENT_TYPE, FTAnalyticEvents.FILE_ATTACHEMENT);
+						setResult(Activity.RESULT_OK, intent);
+						finish();
 					}
 				}
 			}
@@ -419,9 +420,13 @@ public class FileSelectActivity extends HikeAppStateBaseFragmentActivity impleme
 					fileDetails.add(new Pair<String, String>(filePath, fileType));
 				}
 				String msisdn = getIntent().getStringExtra(HikeConstants.Extras.MSISDN);
+				if (msisdn == null)
+				{
+					throw new IllegalArgumentException("You are not sending msisdn, and yet you expect to send files ?");
+				}
 				boolean onHike = getIntent().getBooleanExtra(HikeConstants.Extras.ON_HIKE, true);
 
-				fileTransferTask = new InitiateMultiFileTransferTask(getApplicationContext(), fileDetails, msisdn, onHike);
+				fileTransferTask = new InitiateMultiFileTransferTask(getApplicationContext(), fileDetails, msisdn, onHike, FTAnalyticEvents.FILE_ATTACHEMENT);
 				Utils.executeAsyncTask(fileTransferTask);
 
 				progressDialog = ProgressDialog.show(FileSelectActivity.this, null, getResources().getString(R.string.multi_file_creation));
@@ -713,9 +718,9 @@ public class FileSelectActivity extends HikeAppStateBaseFragmentActivity impleme
 				@Override
 				public void run()
 				{
-					Intent intent = new Intent(FileSelectActivity.this, ChatThread.class);
+					String msisdn = getIntent().getStringExtra(HikeConstants.Extras.MSISDN);
+					Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(FileSelectActivity.this, msisdn , false);
 					intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-					intent.putExtra(HikeConstants.Extras.MSISDN, getIntent().getStringExtra(HikeConstants.Extras.MSISDN));
 					startActivity(intent);
 
 					if (progressDialog != null)

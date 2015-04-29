@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ll_buttons"
+    android:layout_width="match_parent"
+    android:layout_height="0dp"
+    android:layout_weight=".5"
+    android:orientation="vertical" >
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height=".5dp"
+        android:background="#e6e6e6" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <Button
+            android:id="@+id/but_remind"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_gravity="center"
+            android:layout_weight=".35"
+            android:background="#00000000"
+            android:gravity="center"
+            android:text="@string/nux_remind"
+            android:textAllCaps="true"
+            android:textColor="#0f8fe1"
+            android:textSize="13sp" />
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="12dp"
+            android:layout_marginTop="12dp"
+            android:background="#e6e6e6" />
+
+        <Button
+            android:id="@+id/but_inviteMore"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_gravity="center"
+            android:layout_weight=".35"
+            android:background="#00000000"
+            android:gravity="center"
+            android:text="@string/nux_invite_more"
+            android:textAllCaps="true"
+            android:textColor="#0f8fe1"
+            android:textSize="13sp" />
+    </LinearLayout>
+
+</LinearLayout>

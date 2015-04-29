@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/restoring_backup_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginBottom="50dp"
+    android:gravity="center_horizontal|top"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="40dp"
+        android:gravity="center"
+        android:orientation="horizontal" >
+
+        <RelativeLayout
+            android:id="@+id/restore_items"
+            android:layout_width="232dp"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="12dp"
+            android:gravity="center" >
+
+            <ImageView
+                android:id="@+id/sd_card"
+                android:layout_width="61dp"
+                android:layout_height="77dp"
+                android:layout_margin="9dp"
+                android:src="@drawable/art_sdcard" />
+
+            <ImageView
+                android:id="@+id/restore_fail"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_marginLeft="26dp"
+                android:layout_marginTop="40dp"
+                android:layout_toRightOf="@id/sd_card"
+                android:background="@drawable/art_error"
+                android:scaleType="center"
+                android:visibility="invisible" />
+
+            <LinearLayout
+                android:id="@+id/restore_progress"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="37dp"
+                android:layout_toRightOf="@id/sd_card"
+                android:orientation="horizontal" >
+
+                <View
+                    android:id="@+id/dot_left"
+                    android:layout_width="8dp"
+                    android:layout_height="8dp"
+                    android:layout_margin="6dp"
+                    android:background="@color/blue_hike" />
+
+                <View
+                    android:id="@+id/dot_center"
+                    android:layout_width="8dp"
+                    android:layout_height="8dp"
+                    android:layout_margin="6dp"
+                    android:background="@color/blue_hike" />
+
+                <View
+                    android:id="@+id/dot_right"
+                    android:layout_width="8dp"
+                    android:layout_height="8dp"
+                    android:layout_margin="6dp"
+                    android:background="@color/blue_hike" />
+            </LinearLayout>
+
+            <ImageView
+                android:id="@+id/profile_pic"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="9dp"
+                android:layout_toRightOf="@id/restore_progress"
+                android:src="@drawable/art_profilepicture" />
+        </RelativeLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical" >
+
+            <com.bsb.hike.view.CustomFontTextView
+                android:id="@+id/txt_restore_title"
+                style="@style/SignupHeader"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Restoring..."
+                android:textSize="24dp" />
+
+            <com.bsb.hike.view.CustomFontTextView
+                android:id="@+id/txt_restore_hint"
+                style="@style/SignupHeader"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="please wait, this may take a while"
+                android:textColor="@color/black_45"
+                android:textSize="15dp" />
+
+            <com.bsb.hike.view.CustomFontButton
+                android:id="@+id/btn_retry"
+                android:layout_width="160dp"
+                android:layout_height="48dp"
+                android:layout_marginTop="24dp"
+                android:background="@drawable/signup_button"
+                android:text="@string/retry"
+                android:textColor="@drawable/signup_btn_text"
+                android:textSize="15sp"
+                android:textStyle="bold|italic"
+                android:visibility="gone" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/restore_success"
+        android:layout_width="75dp"
+        android:layout_height="75dp"
+        android:layout_marginLeft="92dp"
+        android:layout_marginTop="103dp"
+        android:background="@drawable/bg_restore_success"
+        android:scaleType="center"
+        android:src="@drawable/art_tick"
+        android:visibility="invisible" />
+
+</RelativeLayout>

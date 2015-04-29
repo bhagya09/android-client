@@ -17,7 +17,8 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_alignParentRight="true"
-        android:orientation="horizontal" >
+        android:orientation="horizontal"
+        android:visibility="gone" >
 
         <View
             android:layout_width="1dp"
@@ -70,7 +71,6 @@
         android:layout_marginLeft="19dp"
         android:ellipsize="end"
         android:layout_toRightOf="@id/hike_logo"
-        android:layout_toLeftOf="@id/next_btn_container"
-        android:text="Phone Number" />
+        android:layout_toLeftOf="@id/next_btn_container" />
 
 </RelativeLayout>

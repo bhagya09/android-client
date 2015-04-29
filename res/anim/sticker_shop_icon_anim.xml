@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<set xmlns:android="http://schemas.android.com/apk/res/android" >
+    
+    <scale
+        android:interpolator="@anim/accelerate_interpolator_fct_two"
+        android:duration="100"
+        android:startOffset="2000"
+   		android:fromXScale="1.0"
+	    android:fromYScale="1.0"
+	    android:pivotX="50%"
+	    android:pivotY="50%"
+	    android:toXScale="0.8"
+	    android:toYScale="0.8">
+    </scale>
+    
+    <scale
+        android:interpolator="@anim/accelerate_interpolator_fct_two"
+        android:duration="100"
+        android:startOffset="2100"
+   		android:fromXScale="1.0"
+	    android:fromYScale="1.0"
+	    android:pivotX="50%"
+	    android:pivotY="50%"
+	    android:toXScale="1.31"
+	    android:toYScale="1.31">
+    </scale>
+    
+    <scale
+        android:interpolator="@anim/accelerate_interpolator_neg_one"
+        android:duration="150"
+        android:startOffset="2200"
+   		android:fromXScale="1.0"
+	    android:fromYScale="1.0"
+	    android:pivotX="50%"
+	    android:pivotY="50%"
+	    android:toXScale="0.85"
+	    android:toYScale="0.85">
+    </scale>
+    
+    <scale
+        android:interpolator="@android:anim/accelerate_interpolator"     
+        android:duration="150"
+        android:startOffset="2350"
+   		android:fromXScale="1.0"
+	    android:fromYScale="1.0"
+	    android:pivotX="50%"
+	    android:pivotY="50%"
+	    android:toXScale="1.12"
+	    android:toYScale="1.12">
+    </scale>
+    
+    <scale
+        android:interpolator="@android:anim/accelerate_interpolator"     
+        android:duration="150"
+        android:startOffset="2500"
+   		android:fromXScale="1.0"
+	    android:fromYScale="1.0"
+	    android:pivotX="50%"
+	    android:pivotY="50%"
+	    android:toXScale="0.99"
+	    android:toYScale="0.99">
+    </scale>
+    
+
+</set>

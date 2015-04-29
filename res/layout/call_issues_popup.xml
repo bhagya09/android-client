@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/bg_voip_ftue_popup">
+
+	<LinearLayout
+	    android:layout_width="280dp"
+	    android:layout_height="344dp"
+	    android:orientation="vertical"
+	    android:layout_gravity="center"
+	    android:paddingTop="24dp"
+	    android:gravity="center" >
+	
+		<com.bsb.hike.view.CustomFontTextView
+	        android:id="@+id/heading"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:text="@string/voip_call_issues_header"
+	        android:textSize="18dp"
+	        android:textColor="@color/standard_black"
+	        android:textStyle="italic" />
+			
+		<com.bsb.hike.view.CustomFontTextView
+	        android:id="@+id/subheading"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:gravity="center"
+	        android:layout_marginTop="2dp"
+	        android:layout_marginRight="50dp"
+	        android:layout_marginLeft="50dp"
+	        android:text="@string/voip_call_issues_subheader"
+	        android:textSize="12dp"
+	        android:textColor="@color/standard_light_grey2"
+	        android:textStyle="italic" />
+		
+		
+		<TableLayout
+		    android:id="@+id/issues_container"
+		    android:layout_width="match_parent"
+		    android:layout_height="wrap_content"
+		    android:orientation="horizontal"
+		    android:paddingLeft="23dp"
+		    android:paddingRight="23dp"
+		    android:layout_marginTop="24dp">
+	
+		    <TableRow
+		        android:id="@+id/issues_row1">
+				<com.bsb.hike.view.CustomFontButton
+			        android:id="@+id/issue_echo"
+			        android:layout_width="0dp"
+			        android:layout_height="wrap_content"
+			        android:layout_weight="1"
+			        android:drawablePadding="8dp"
+			        android:text="@string/voip_issue_echo"
+			        android:textColor="@color/call_issues"
+			        android:drawableTop="@drawable/call_issues_echo_btn"
+			        android:textSize="12dp"
+			        android:textStyle="italic"
+			        android:tag="echoI"
+			        android:background="@null"
+			        android:scaleType="center" />
+		
+				<com.bsb.hike.view.CustomFontButton
+			        android:id="@+id/issue_noise"
+			        android:layout_width="0dp"
+			        android:layout_height="wrap_content"
+			        android:layout_weight="1"
+			        android:text="@string/voip_issue_noise"
+			        android:drawableTop="@drawable/call_issues_noise_btn"
+			        android:drawablePadding="8dp"
+			        android:background="@null"
+			        android:textSize="12dp"
+			        android:textStyle="italic"
+			        android:textColor="@color/call_issues"
+			        android:tag="noiseI"
+			        android:layout_marginRight="24dp"
+			        android:layout_marginLeft="24dp"
+			        android:scaleType="center" />
+		
+				<com.bsb.hike.view.CustomFontButton
+			        android:id="@+id/issue_cant_hear"
+			        android:layout_width="0dp"
+			        android:layout_height="wrap_content"
+			        android:layout_weight="1"
+			        android:drawablePadding="8dp"
+			        android:text="@string/voip_issue_hearing"
+			        android:drawableTop="@drawable/call_issues_hear_btn"
+			        android:textSize="12dp"
+			        android:textStyle="italic"
+			        android:textColor="@color/call_issues"
+			        android:tag="hearI"
+			        android:background="@null"
+			        android:scaleType="center" />	
+			</TableRow>
+		
+			<TableRow
+			    android:id="@+id/issues_row2"
+		    	android:layout_marginTop="24dp">
+				<com.bsb.hike.view.CustomFontButton
+			        android:id="@+id/issue_call_drop"
+			        android:layout_width="0dp"
+			        android:layout_height="wrap_content"
+			        android:layout_weight="1"
+			        android:drawablePadding="8dp"
+			        android:text="@string/voip_issue_drop"
+			        android:drawableTop="@drawable/call_issues_drop_btn"
+			        android:textSize="12dp"
+			        android:textStyle="italic"
+			        android:textColor="@color/call_issues"
+			        android:tag="dropI"
+			        android:background="@null"
+			        android:layout_marginRight="24dp"
+			        android:scaleType="center" />
+		
+				<com.bsb.hike.view.CustomFontButton
+			        android:id="@+id/issue_network"
+			        android:layout_width="0dp"
+			        android:layout_height="wrap_content"
+			        android:layout_weight="1"
+			        android:drawablePadding="8dp"
+			        android:text="@string/voip_issue_network"
+			        android:drawableTop="@drawable/call_issues_network_btn"
+			        android:background="@null"
+			        android:textSize="12dp"
+			        android:textStyle="italic"
+			        android:textColor="@color/call_issues"
+			        android:tag="netI"
+			        android:layout_marginRight="24dp"
+			        android:scaleType="center" />
+		
+				<com.bsb.hike.view.CustomFontButton
+			        android:id="@+id/issue_voice_delay"
+			        android:layout_width="0dp"
+			        android:layout_height="wrap_content"
+			        android:layout_weight="1"
+			        android:drawablePadding="8dp"
+			        android:text="@string/voip_issue_delay"
+			        android:drawableTop="@drawable/call_issues_delay_btn"
+			        android:textSize="12dp"
+			        android:textStyle="italic"
+			        android:textColor="@color/call_issues"
+			        android:tag="delayI"
+			        android:background="@null"
+			        android:scaleType="center" />
+			</TableRow>		
+		</TableLayout>
+		
+		<View
+	        android:layout_width="match_parent"
+	        android:layout_height="1dp"
+	        android:layout_marginTop="24dp"
+	        android:layout_marginLeft="5dp"
+	        android:layout_marginRight="5dp"
+	        android:background="@color/list_divider" />
+		
+		<com.bsb.hike.view.CustomFontButton
+	        android:id="@+id/call_issues_submit"
+	        android:layout_width="match_parent"
+	        android:layout_height="48dp"
+	        android:layout_gravity="bottom"
+	        android:text="@string/report_issue"
+	        android:textSize="13dp"
+	        android:background="@null"
+	        android:gravity="center"
+	        android:textStyle="bold"
+	        android:textColor="@color/call_rate_submit" />
+	</LinearLayout>
+</LinearLayout>

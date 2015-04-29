@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="86dp" >
+
+        <com.bsb.hike.ui.utils.RecyclingImageView
+            android:id="@+id/category_icon"
+            android:layout_width="58dp"
+            android:layout_height="58dp"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="18dp"
+            android:layout_marginRight="18dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/shop_placeholder" />
+        
+	<LinearLayout
+        android:id="@+id/category_download_group"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_alignBottom="@id/category_icon"
+        android:layout_alignTop="@id/category_icon"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="4dp"
+        android:layout_marginRight="4dp"
+        android:gravity="center">
+
+        <com.bsb.hike.ui.utils.RecyclingImageView
+            android:id="@+id/category_download_btn"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerInside"
+            android:src="@drawable/sticker_shop_download_drawable_selector" />
+
+       <ProgressBar 
+        android:id="@+id/download_progress_bar"
+       	android:layout_width="24dp"
+       	android:layout_height="24dp"
+       	android:indeterminateDrawable="@drawable/rotating_blue"
+        android:visibility="gone" />
+    </LinearLayout>
+	
+	<LinearLayout
+        android:id="@+id/category_description"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_centerVertical="true"
+        android:layout_toLeftOf="@id/category_download_group"
+        android:layout_toRightOf="@id/category_icon"
+        android:gravity="center_vertical"
+        android:orientation="vertical" >
+
+        <RelativeLayout
+            android:id="@+id/category_name_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical" >
+
+            <com.bsb.hike.view.CustomFontTextView
+                android:id="@+id/category_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:singleLine="true"
+                android:ellipsize="end"
+                android:textColor="@color/standard_black"
+                android:textSize="18sp" />
+
+            <com.bsb.hike.view.CustomFontTextView
+                android:id="@+id/category_freshness"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_marginLeft="6dp"
+                android:layout_toRightOf="@id/category_name"
+                android:text="@string/new_stickers"
+                android:textColor="#0f8fe1"
+                android:textSize="12sp"
+                android:visibility="gone" />
+        </RelativeLayout>
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/pack_details"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/missing_thumbnail"
+            android:textSize="12sp" />
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/category_price"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/sticker_pack_free"
+            android:textColor="@color/tab_pressed"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+</RelativeLayout>

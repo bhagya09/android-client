@@ -3,13 +3,20 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
+    android:id="@+id/ll_compose"
     android:orientation="vertical" >
 
     <include
         android:id="@+id/spinner"
         layout="@layout/spinner_center_screen"
         android:visibility="gone" />
-
+    
+	<FrameLayout
+       android:id="@+id/horizontal_friends_placeholder"
+       android:layout_height="wrap_content"
+       android:layout_width="match_parent">
+  	</FrameLayout>
+    
     <com.bsb.hike.view.TagEditText
         android:id="@+id/composeChatNewGroupTagET"
         android:layout_width="match_parent"
@@ -29,14 +36,16 @@
     </com.bsb.hike.view.TagEditText>
 
     <com.bsb.hike.view.PinnedSectionListView
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:id="@+id/list"
         style="@style/HomeList" >
     </com.bsb.hike.view.PinnedSectionListView>
-
     <include
         android:id="@android:id/empty"
         layout="@layout/list_empty_view"
         android:visibility="gone" >
     </include>
-
+	
+<include layout="@layout/select_all_bottom_bar"/>
 </LinearLayout>

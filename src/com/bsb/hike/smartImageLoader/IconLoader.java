@@ -4,9 +4,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 
-import com.bsb.hike.BitmapModule.HikeBitmapFactory;
-import com.bsb.hike.modules.contactmgr.ContactManager;
-
 public class IconLoader extends ImageWorker
 {
 
@@ -70,20 +67,13 @@ public class IconLoader extends ImageWorker
 	 */
 	protected Bitmap processBitmap(String id)
 	{
-		BitmapDrawable bd = this.getImageCache().get(id);
-		if (bd != null)
-			return bd.getBitmap();
-		int idx = id.indexOf(ROUND_SUFFIX);
-		boolean rounded = false;
-		if (idx > 0)
+		BitmapDrawable bd = getLruCache().getIconFromCache(id);
+		if(bd != null)
 		{
-			id = id.substring(0, idx);
-			rounded = true;
+			return bd.getBitmap();
 		}
-		byte[] icondata = ContactManager.getInstance().getIconByteArray(id, rounded);
 		
-		Bitmap bm = HikeBitmapFactory.decodeSampledBitmapFromByteArray(icondata, mImageWidth, mImageHeight);
-		return bm;
+		return null;
 	}
 
 	@Override

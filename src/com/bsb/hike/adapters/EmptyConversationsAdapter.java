@@ -2,9 +2,12 @@ package com.bsb.hike.adapters;
 
 import java.util.List;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.content.Context;
 import android.content.Intent;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -16,6 +19,8 @@ import android.widget.TextView;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.EmptyConversationContactItem;
 import com.bsb.hike.models.EmptyConversationFtueCardItem;
@@ -23,12 +28,13 @@ import com.bsb.hike.models.EmptyConversationItem;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.smartImageLoader.IconLoader;
 import com.bsb.hike.ui.ComposeChatActivity;
-import com.bsb.hike.ui.CreateNewGroupActivity;
+import com.bsb.hike.ui.CreateNewGroupOrBroadcastActivity;
 import com.bsb.hike.ui.HikeListActivity;
 import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.ui.PeopleActivity;
 import com.bsb.hike.ui.WebViewActivity;
 import com.bsb.hike.utils.AccountUtils;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.utils.Utils.WhichScreen;
 
@@ -209,7 +215,7 @@ public class EmptyConversationsAdapter extends ArrayAdapter<EmptyConversationIte
 					}
 				}
 
-				iconLoader.loadImage(contactInfo.getMsisdn(), true, avatar, true);
+				iconLoader.loadImage(contactInfo.getMsisdn(), avatar, false, true);
 
 				name.setText(contactInfo.getName());
 				status.setText(contactInfo.getMsisdn());
@@ -313,9 +319,24 @@ public class EmptyConversationsAdapter extends ArrayAdapter<EmptyConversationIte
 			ContactInfo contactInfo = (ContactInfo) v.getTag();
 
 			Utils.startChatThread(context, contactInfo);
-
-			Utils.sendUILogEvent(HikeConstants.LogEvent.FTUE_CARD_START_CHAT_CLICKED, contactInfo.getMsisdn());
-
+			
+			try
+			{
+				JSONObject metadata = new JSONObject();
+				metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.FTUE_CARD_START_CHAT_CLICKED);
+				
+				String msisdn = contactInfo.getMsisdn();
+				
+				if(!TextUtils.isEmpty(msisdn))
+				{
+					metadata.put(HikeConstants.TO, msisdn);				
+				}
+				HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+			}
+			catch(JSONException e)
+			{
+				Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+			}
 		}
 	};
 	
@@ -331,7 +352,7 @@ public class EmptyConversationsAdapter extends ArrayAdapter<EmptyConversationIte
 			}
 			else if (item.getType() == EmptyConversationItem.GROUP)
 			{
-				openActivityAndSendLogEvent(CreateNewGroupActivity.class, HikeConstants.LogEvent.FTUE_CARD_GROUP_CLICKED);
+				openActivityAndSendLogEvent(CreateNewGroupOrBroadcastActivity.class, HikeConstants.LogEvent.FTUE_CARD_GROUP_CLICKED);
 			}
 			else if (item.getType() == EmptyConversationItem.INVITE)
 			{
@@ -343,7 +364,17 @@ public class EmptyConversationsAdapter extends ArrayAdapter<EmptyConversationIte
 				intent.putExtra(HikeConstants.Extras.URL_TO_LOAD, AccountUtils.h2oTutorialUrl);
 				intent.putExtra(HikeConstants.Extras.TITLE, context.getResources().getString(R.string.hike_offline_caps));
 				context.startActivity(intent);
-				Utils.sendUILogEvent(HikeConstants.LogEvent.FTUE_CARD_HIKE_OFFLINE_CLICKED);
+				
+				try
+				{
+					JSONObject metadata = new JSONObject();
+					metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.FTUE_CARD_HIKE_OFFLINE_CLICKED);				
+					HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+				}
+				catch(JSONException e)
+				{
+					Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+				}
 			}
 		}
 	};
@@ -352,7 +383,17 @@ public class EmptyConversationsAdapter extends ArrayAdapter<EmptyConversationIte
 	{
 		Intent intent = new Intent(context, activity);
 		context.startActivity(intent);
-		Utils.sendUILogEvent(logEventKey);
+		
+		try
+		{
+			JSONObject metadata = new JSONObject();
+			metadata.put(HikeConstants.EVENT_KEY, logEventKey);				
+			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+		}
+		catch(JSONException e)
+		{
+			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+		}
 	}
 
 	private OnClickListener seeAllBtnClickListener = new OnClickListener()
@@ -370,7 +411,17 @@ public class EmptyConversationsAdapter extends ArrayAdapter<EmptyConversationIte
 				 intent = new Intent(context, ComposeChatActivity.class);
 			}
 			context.startActivity(intent);
-			Utils.sendUILogEvent(HikeConstants.LogEvent.FTUE_CARD_SEEL_ALL_CLICKED);
+			
+			try
+			{
+				JSONObject metadata = new JSONObject();
+				metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.FTUE_CARD_SEEL_ALL_CLICKED);				
+				HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+			}
+			catch(JSONException e)
+			{
+				Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+			}
 		}
 	};
 

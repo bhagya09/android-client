@@ -5,13 +5,67 @@
     android:gravity="center_horizontal"
     android:orientation="vertical" >
 
+    
+    
+    <LinearLayout
+        android:id="@+id/ll_commitId_branch_version"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/larger_avatar"
+        android:orientation="vertical"
+        android:visibility="gone" >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="Commit Id" />
+
+            <TextView
+                android:id="@+id/tv_last_commit_hash"
+              android:layout_width="0dp"
+                android:layout_weight="3"
+                android:layout_height="wrap_content"
+                android:textColor="@color/standard_black"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Branch Name" />
+
+            <TextView
+                android:id="@+id/tv_branch_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/status_btn_padding"
+                android:textColor="@color/standard_black"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+    </LinearLayout>
+    
+    
+    
     <com.bsb.hike.view.CustomFontTextView
         android:id="@+id/app_version"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/version_item_marginTop"
         android:text="@string/app_version"
-        android:textColor="@color/standerd_black"
+        android:textColor="@color/standard_black"
         android:textSize="12sp" />
 
     <ImageView

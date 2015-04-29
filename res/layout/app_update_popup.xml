@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="276dp"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical" 
+    android:background="@drawable/update_popup_background" >
+
+    <com.bsb.hike.ui.utils.RecyclingImageView
+        android:id="@+id/dialog_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:layout_marginTop="32dp"
+        android:scaleType="centerInside"
+        android:src="@drawable/art_sticker_mac" />
+
+    <LinearLayout
+        android:id="@+id/text_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="vertical">
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/dialog_header_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/sticker_shop"
+            android:textColor="@color/blue_hike"
+            android:layout_marginBottom="6dp"
+            android:textStyle="italic"
+            android:visibility="gone"
+            android:textSize="24sp" />
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/dialog_message_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/hike_upgrade_string"
+            android:layout_marginLeft="50dp"
+            android:layout_marginRight="50dp"
+            android:gravity="center_horizontal"
+            android:textStyle="italic"
+            android:textColor="#333333"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+    <ProgressBar
+        android:id="@+id/progress"
+        android:layout_width="18dp"
+        android:layout_height="18dp"
+        android:layout_marginTop="18dp"
+        android:indeterminateDrawable="@drawable/rotating_spinner"
+        android:layout_marginBottom="24dp" />
+
+</LinearLayout>

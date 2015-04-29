@@ -27,7 +27,7 @@
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
         android:text="@string/ftue_card_sep"
-        android:textColor="@color/standerd_grey"
+        android:textColor="@color/standard_grey"
         android:textSize="16dp"
         android:textStyle="normal" />
 

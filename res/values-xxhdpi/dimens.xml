@@ -12,4 +12,7 @@
 	<dimen name="ftue_card_click_text">14dp</dimen>
 	<dimen name="ftue_card_right_padding">10dp</dimen>
 	<dimen name="ftue_card_left_margin">18dp</dimen>
+	<dimen name="welcome_artwork_padding">0dp</dimen>
+	<dimen name="welcome_with_love_top">30dp</dimen>
+	<dimen name="sticker_settings_tip_margin">60dp</dimen>
 </resources>

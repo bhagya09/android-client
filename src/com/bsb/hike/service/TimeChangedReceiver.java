@@ -8,8 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 
 import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.HikePubSub;
+import com.bsb.hike.MqttConstants;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
@@ -29,7 +28,7 @@ public class TimeChangedReceiver extends BroadcastReceiver
 		
 		{
 			jsonObject.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.REQUEST_SERVER_TIMESTAMP);
-			HikeMessengerApp.getPubSub().publish(HikePubSub.MQTT_PUBLISH_LOW, jsonObject);
+			HikeMqttManagerNew.getInstance().sendMessage(jsonObject, MqttConstants.MQTT_QOS_ZERO);
 		}
 		catch (JSONException e)
 		{

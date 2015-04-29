@@ -23,6 +23,7 @@ import android.widget.ImageView.ScaleType;
 import android.widget.TextView;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.smartImageLoader.IconLoader;
@@ -91,22 +92,21 @@ public class HikeInviteAdapter extends SectionedBaseAdapter implements TextWatch
 		ImageView imageView = (ImageView) v.findViewById(R.id.contact_image);
 		if (pair != null)
 		{
-			iconLoader.loadImage(contactInfo.getMsisdn(), true, imageView, true);
+			iconLoader.loadImage(contactInfo.getMsisdn(), imageView, false, true, true);
 		}
 		else
 		{
-			imageView.setScaleType(ScaleType.CENTER_INSIDE);
-			imageView.setBackgroundResource(R.drawable.avatar_01_rounded);
-			imageView.setImageResource(R.drawable.ic_default_avatar);
+			imageView.setImageDrawable(HikeMessengerApp.getLruCache().getDefaultAvatar(1));
 		}
 
 		TextView textView = (TextView) v.findViewById(R.id.name);
 		textView.setText(contactInfo.getName());
 
 		TextView numView = (TextView) v.findViewById(R.id.number);
+		String msisdn = contactInfo.getMsisdn();
 		if (pair != null)
 		{
-			numView.setText(contactInfo.getMsisdn());
+			numView.setText(msisdn);
 			if (!TextUtils.isEmpty(contactInfo.getMsisdnType()))
 			{
 				numView.append(" (" + contactInfo.getMsisdnType() + ")");
@@ -116,8 +116,15 @@ public class HikeInviteAdapter extends SectionedBaseAdapter implements TextWatch
 		{
 			numView.setText(showingBlockedList ? R.string.tap_here_block : R.string.tap_here_invite);
 		}
-		numView.setVisibility(isEnabled(section, position) ? View.VISIBLE : View.INVISIBLE);
 
+		if (HikeMessengerApp.hikeBotNamesMap.containsKey(msisdn))
+		{
+			numView.setVisibility(View.GONE);
+		}
+		else
+		{
+			numView.setVisibility(isEnabled(section, position) ? View.VISIBLE : View.INVISIBLE);
+		}
 		CheckBox checkBox = (CheckBox) v.findViewById(R.id.checkbox);
 		checkBox.setVisibility(pair != null ? View.VISIBLE : View.GONE);
 		checkBox.setButtonDrawable(showingBlockedList ? R.drawable.block_button : R.drawable.hike_list_item_checkbox);
@@ -138,7 +145,13 @@ public class HikeInviteAdapter extends SectionedBaseAdapter implements TextWatch
 	public void afterTextChanged(Editable s)
 	{
 		filter.filter(s);
-		filterString = s.toString();
+		//Regex Explanation - number can start with '+', then any character between [0-9] one or more time and any character among them [-, ., space, slash ]only once
+		//if this pattern match then ignore all the hyphen, dot, space, slash 
+		if(s.toString().trim().matches("^\\+?(([0-9]+)[-.\\s/]?)*")){
+		    filterString =s.toString().trim().replaceAll("[-.\\s /]", "");
+		}else{
+			filterString =s.toString().trim();
+		}
 	}
 
 	@Override
@@ -164,7 +177,10 @@ public class HikeInviteAdapter extends SectionedBaseAdapter implements TextWatch
 			{
 
 				HashMap<Integer, List<Pair<AtomicBoolean, ContactInfo>>> filteredSectionsContacts = new HashMap<Integer, List<Pair<AtomicBoolean, ContactInfo>>>();
-
+				//Regex Explanation - number can start with '+', then any character between [0-9] one or more time and any character among them [-, ., space, slash ]only once
+				if(textToBeFiltered.matches("^\\+?(([0-9]+)[-.\\s/]?)*")){
+					textToBeFiltered = constraint.toString().toLowerCase().trim().replaceAll("[-.\\s /]", "");
+				}
 				Set<Entry<Integer, List<Pair<AtomicBoolean, ContactInfo>>>> entrySet = HikeInviteAdapter.this.completeSectionsData.entrySet();
 				for (Entry<Integer, List<Pair<AtomicBoolean, ContactInfo>>> entry : entrySet)
 				{

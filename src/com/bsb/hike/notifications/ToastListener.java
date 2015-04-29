@@ -1,6 +1,7 @@
 package com.bsb.hike.notifications;
 
 import java.lang.ref.WeakReference;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -8,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.bsb.hike.platform.HikePlatformConstants;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -18,7 +20,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.database.DatabaseUtils;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -30,7 +31,10 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
+import com.bsb.hike.MqttConstants;
+import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
+import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
@@ -42,15 +46,13 @@ import com.bsb.hike.models.Protip;
 import com.bsb.hike.models.StatusMessage;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.contactmgr.ContactManager;
-import com.bsb.hike.service.HikeMqttManagerNew;
-import com.bsb.hike.service.HikeMqttManagerNew.MQTTConnectionStatus;
-import com.bsb.hike.ui.ChatThread;
+import com.bsb.hike.MqttConstants.MQTTConnectionStatus;
+import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.ui.PeopleActivity;
 import com.bsb.hike.ui.TimelineActivity;
 import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.StickerManager;
+import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.Utils;
-import com.bsb.hike.utils.StickerManager.StickerCategoryId;
 
 public class ToastListener implements Listener
 {
@@ -63,21 +65,33 @@ public class ToastListener implements Listener
 
 	private MQTTConnectionStatus mCurrentUnnotifiedStatus;
 
+	private static ToastListener mToastListener;
+
 	String[] hikePubSubListeners = { HikePubSub.PUSH_AVATAR_DOWNLOADED, HikePubSub.PUSH_FILE_DOWNLOADED, HikePubSub.PUSH_STICKER_DOWNLOADED, HikePubSub.MESSAGE_RECEIVED,
 			HikePubSub.NEW_ACTIVITY, HikePubSub.CONNECTION_STATUS, HikePubSub.FAVORITE_TOGGLED, HikePubSub.TIMELINE_UPDATE_RECIEVED, HikePubSub.BATCH_STATUS_UPDATE_PUSH_RECEIVED,
 			HikePubSub.CANCEL_ALL_STATUS_NOTIFICATIONS, HikePubSub.CANCEL_ALL_NOTIFICATIONS, HikePubSub.PROTIP_ADDED, HikePubSub.UPDATE_PUSH, HikePubSub.APPLICATIONS_PUSH,
 			HikePubSub.SHOW_FREE_INVITE_SMS, HikePubSub.STEALTH_POPUP_WITH_PUSH, HikePubSub.HIKE_TO_OFFLINE_PUSH, HikePubSub.ATOMIC_POPUP_WITH_PUSH,
-			HikePubSub.BULK_MESSAGE_NOTIFICATION };
+			HikePubSub.BULK_MESSAGE_NOTIFICATION, HikePubSub.USER_JOINED_NOTIFICATION};
 
 	/**
 	 * Used to check whether NUJ/RUJ message notifications are disabled
 	 */
 	private SharedPreferences mDefaultPreferences;
 
-	public ToastListener(Context context)
+	public static ToastListener getInstance(Context argContext)
+	{
+		if (mToastListener == null)
+		{
+			mToastListener = new ToastListener(argContext);
+		}
+
+		return mToastListener;
+	}
+
+	private ToastListener(Context context)
 	{
 		HikeMessengerApp.getPubSub().addListeners(this, hikePubSubListeners);
-		this.toaster = new HikeNotification(context);
+		this.toaster = HikeNotification.getInstance(context);
 		this.context = context;
 		mCurrentUnnotifiedStatus = MQTTConnectionStatus.NOT_CONNECTED;
 		mDefaultPreferences = PreferenceManager.getDefaultSharedPreferences(context);
@@ -99,7 +113,7 @@ public class ToastListener implements Listener
 		}
 		else if (HikePubSub.CONNECTION_STATUS.equals(type))
 		{
-			HikeMqttManagerNew.MQTTConnectionStatus status = (HikeMqttManagerNew.MQTTConnectionStatus) object;
+			MqttConstants.MQTTConnectionStatus status = (MqttConstants.MQTTConnectionStatus) object;
 			mCurrentUnnotifiedStatus = status;
 			notifyConnStatus(status);
 		}
@@ -138,6 +152,7 @@ public class ToastListener implements Listener
 			if (activity instanceof TimelineActivity)
 			{
 				Utils.resetUnseenStatusCount(activity);
+				HikeMessengerApp.getPubSub().publish(HikePubSub.INCREMENTED_UNSEEN_STATUS_COUNT, null);
 				return;
 			}
 			StatusMessage statusMessage = (StatusMessage) object;
@@ -190,7 +205,7 @@ public class ToastListener implements Listener
 				return;
 			}
 
-			if (isGroupConversationAndMuted(message.getMsisdn()))
+			if (Utils.isConversationMuted(message.getMsisdn()))
 			{
 				return;
 			}
@@ -203,17 +218,17 @@ public class ToastListener implements Listener
 			if (bigPicture != null)
 			{
 				ContactInfo contactInfo;
-				if (message.isGroupChat())
+				if (message.isOneToNChat())
 				{
 					Logger.d("ToastListener", "GroupName is " + ContactManager.getInstance().getName(message.getMsisdn()));
 					contactInfo = new ContactInfo(message.getMsisdn(), message.getMsisdn(), ContactManager.getInstance().getName(message.getMsisdn()), message.getMsisdn());
 				}
 				else
 				{
-					contactInfo = HikeMessengerApp.getContactManager().getContact(message.getMsisdn(), true, true);
+					contactInfo = ContactManager.getInstance().getContact(message.getMsisdn(), true, true);
 				}
 
-				 toaster.notifyMessage(contactInfo, message, true, bigPicture);
+			toaster.notifyMessage(contactInfo, message, true, bigPicture);
 			}
 		}
 		else if (HikePubSub.CANCEL_ALL_NOTIFICATIONS.equals(type))
@@ -372,9 +387,9 @@ public class ToastListener implements Listener
 
 						Activity activity = (currentActivity != null) ? currentActivity.get() : null;
 
-						if ((activity instanceof ChatThread))
+						if ((activity instanceof ChatThreadActivity))
 						{
-							String contactNumber = ((ChatThread) activity).getContactNumber();
+							String contactNumber = ((ChatThreadActivity) activity).getContactNumber();
 							if (filteredMsisdnList.get(0).equals(contactNumber))
 							{
 								Logger.e("HikeToOffline", "same chat thread open");
@@ -394,7 +409,7 @@ public class ToastListener implements Listener
 
 			}
 		}
-		else if (HikePubSub.BULK_MESSAGE_NOTIFICATION.equals(type) || HikePubSub.MESSAGE_RECEIVED.equals(type))
+		else if (HikePubSub.BULK_MESSAGE_NOTIFICATION.equals(type) || HikePubSub.MESSAGE_RECEIVED.equals(type) || HikePubSub.USER_JOINED_NOTIFICATION.equals(type))
 		{
 			// Received bulk message map (msisdn - ConvMessage(s) pairs)
 			LinkedList<ConvMessage> messageList = null;
@@ -461,34 +476,41 @@ public class ToastListener implements Listener
 				{
 					String msisdn = message.getMsisdn();
 
-					if (Utils.isGroupConversation(msisdn) && !ContactManager.getInstance().isConvExists(msisdn))
+					if (OneToNConversationUtils.isGroupConversation(msisdn) && !ContactManager.getInstance().isConvExists(msisdn))
 					{
 						Logger.w(getClass().getSimpleName(), "The client did not get a GCJ message for us to handle this message.");
 						continue;
 					}
-					if (isGroupConversationAndMuted(message.getMsisdn()))
+					if (Utils.isConversationMuted(message.getMsisdn()))
 					{
 						Logger.d(getClass().getSimpleName(), "Group has been muted");
 						continue;
 					}
 
-					if (message.getParticipantInfoState() != null && message.getParticipantInfoState() == ParticipantInfoState.USER_JOIN
-							&& (!mDefaultPreferences.getBoolean(HikeConstants.NUJ_NOTIF_BOOLEAN_PREF, true)))
+					if (message.getMessageType() == HikeConstants.MESSAGE_TYPE.WEB_CONTENT && message.webMetadata.getPushType().equals(HikePlatformConstants.NO_PUSH))
+					{
+						continue;
+					}
+					ParticipantInfoState participantInfoState = message.getParticipantInfoState();
+					if (participantInfoState == ParticipantInfoState.USER_JOIN && (!mDefaultPreferences.getBoolean(HikeConstants.NUJ_NOTIF_BOOLEAN_PREF, true)))
 
 					{
 						// User has disabled NUJ/RUJ message notifications
 						continue;
 					}
 
-					if (message.getParticipantInfoState() != null && message.getParticipantInfoState() == ParticipantInfoState.PARTICIPANT_JOINED
-							&& message.getMetadata().isNewGroup())
+					if (participantInfoState == ParticipantInfoState.PARTICIPANT_JOINED )
 					{
-						continue;
+						if(message.getMetadata().isNewGroup() || message.getMetadata().isNewBroadcast())
+						{
+							continue;
+						}
 					}
-					if (message.getParticipantInfoState() == ParticipantInfoState.NO_INFO || message.getParticipantInfoState() == ParticipantInfoState.PARTICIPANT_JOINED
-							|| message.getParticipantInfoState() == ParticipantInfoState.USER_JOIN || message.getParticipantInfoState() == ParticipantInfoState.CHAT_BACKGROUND)
+					if (participantInfoState == ParticipantInfoState.NO_INFO || participantInfoState == ParticipantInfoState.PARTICIPANT_JOINED
+						|| participantInfoState == ParticipantInfoState.USER_JOIN || participantInfoState == ParticipantInfoState.CHAT_BACKGROUND 
+						|| message.isVoipMissedCallMsg())
 					{
-						if (message.getParticipantInfoState() == ParticipantInfoState.CHAT_BACKGROUND)
+						if (participantInfoState == ParticipantInfoState.CHAT_BACKGROUND)
 						{
 							boolean showNotification = PreferenceManager.getDefaultSharedPreferences(context).getBoolean(HikeConstants.CHAT_BG_NOTIFICATION_PREF, true);
 							if (!showNotification)
@@ -498,9 +520,9 @@ public class ToastListener implements Listener
 						}
 
 						Activity activity = (currentActivity != null) ? currentActivity.get() : null;
-						if ((activity instanceof ChatThread))
+						if ((activity instanceof ChatThreadActivity))
 						{
-							String contactNumber = ((ChatThread) activity).getContactNumber();
+							String contactNumber = ((ChatThreadActivity) activity).getContactNumber();
 							if (message.getMsisdn().equals(contactNumber))
 							{
 								continue;
@@ -528,18 +550,7 @@ public class ToastListener implements Listener
 		}
 	}
 
-	private boolean isGroupConversationAndMuted(String msisdn)
-	{
-		if ((Utils.isGroupConversation(msisdn)))
-		{
-			if (HikeConversationsDatabase.getInstance().isGroupMuted(msisdn))
-			{
-				Logger.d(getClass().getSimpleName(), "Group has been muted");
-				return true;
-			}
-		}
-		return false;
-	}
+	
 
 	public static Bitmap returnBigPicture(ConvMessage convMessage, Context context)
 	{
@@ -557,7 +568,7 @@ public class ToastListener implements Listener
 				if (hikeFile.getHikeFileType() == HikeFileType.IMAGE && hikeFile.wasFileDownloaded() && hikeFile.getThumbnail() != null)
 				{
 					final String filePath = hikeFile.getFilePath();
-					
+
 					bigPictureImage = HikeBitmapFactory.scaleDownBitmap(filePath, HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX, HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX,
 							Bitmap.Config.RGB_565, true, false);
 				}
@@ -569,36 +580,10 @@ public class ToastListener implements Listener
 		if (convMessage.isStickerMessage())
 		{
 			final Sticker sticker = convMessage.getMetadata().getSticker();
-			/*
-			 * If this is the first category, then the sticker are a part of the app bundle itself
-			 */
-			if (sticker.isDefaultSticker())
+			final String filePath = sticker.getStickerPath(context);
+			if (!TextUtils.isEmpty(filePath))
 			{
-				int resourceId = 0;
-
-				if (StickerCategoryId.humanoid.equals(sticker.getCategory().categoryId))
-				{
-					resourceId = StickerManager.getInstance().LOCAL_STICKER_RES_IDS_HUMANOID[sticker.getStickerIndex()];
-				}
-				else if (StickerCategoryId.expressions.equals(sticker.getCategory().categoryId))
-				{
-					resourceId = StickerManager.getInstance().LOCAL_STICKER_RES_IDS_EXPRESSIONS[sticker.getStickerIndex()];
-				}
-
-				if (resourceId > 0)
-				{
-					final Drawable dr = context.getResources().getDrawable(resourceId);
-					bigPictureImage = HikeBitmapFactory.drawableToBitmap(dr, Bitmap.Config.ARGB_8888);
-				}
-
-			}
-			else
-			{
-				final String filePath = sticker.getStickerPath(context);
-				if (!TextUtils.isEmpty(filePath))
-				{
-					bigPictureImage = HikeBitmapFactory.decodeFile(filePath);
-				}
+				bigPictureImage = HikeBitmapFactory.decodeFile(filePath);
 			}
 		}
 		return bigPictureImage;
@@ -609,7 +594,7 @@ public class ToastListener implements Listener
 		/* only show the trying to connect message after we've connected once */
 		SharedPreferences settings = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
 		boolean connectedOnce = settings.getBoolean(HikeMessengerApp.CONNECTED_ONCE, false);
-		if (status == HikeMqttManagerNew.MQTTConnectionStatus.CONNECTED)
+		if (status == MqttConstants.MQTTConnectionStatus.CONNECTED)
 		{
 			NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 			notificationManager.cancel(HikeConstants.HIKE_SYSTEM_NOTIFICATION);
@@ -622,5 +607,13 @@ public class ToastListener implements Listener
 			return;
 		}
 
+	}
+
+	public void notifyUser(String text, String title)
+	{
+		Drawable drawable = context.getResources().getDrawable(R.drawable.hike_avtar_protip);	
+		Intent intent = new Intent(context, HomeActivity.class);
+		toaster.showBigTextStyleNotification(intent, 0, System.currentTimeMillis(), HikeNotification.HIKE_SUMMARY_NOTIFICATION_ID, title, text, title, "",
+				null, drawable, false, 0);
 	}
 }

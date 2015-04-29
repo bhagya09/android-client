@@ -40,36 +40,17 @@
                 android:imeOptions="actionNext"
                 android:hint="@string/your_name" />
 
+            <com.bsb.hike.view.CustomFontEditText
+                android:id="@+id/birthday"
+                style="@style/NameInput"
+                android:layout_centerVertical="true"
+                android:clickable="true"
+                android:drawableLeft="@drawable/ic_birthday_common"
+                android:paddingTop="18dp"
+                android:hint="@string/how_young_are_you"
+                android:inputType="number"
+                android:maxLength="2" />
         </RelativeLayout>
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="@integer/profile_signup_weight3"
-        android:gravity="bottom|center_horizontal"
-        android:orientation="vertical" >
-
-        <com.bsb.hike.view.CustomFontTextView
-            android:id="@+id/txt_other"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/feeling_lazy"
-            android:textColor="#566167"
-            android:textSize="15sp" />
-
-        <com.bsb.hike.view.CustomFontButton
-            android:id="@+id/connect_fb"
-            style="@style/SignupButton.Text.Bold.Button"
-            android:layout_width="240dp"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="38dp"
-            android:layout_marginTop="16dp"
-            android:background="@drawable/connect_fb_btn"
-            android:onClick="onFacebookConnectClick"
-            android:text="@string/connect_fb"
-            android:textSize="15sp"
-            android:textStyle="bold" />
     </LinearLayout>
 
 </LinearLayout>

@@ -3,7 +3,7 @@
     android:title="@string/notifications" >
 
     <com.bsb.hike.view.IconListPreference
-        icon="preference_vibe"
+        icon="@drawable/preference_vibe"
         android:defaultValue="@string/vib_default"
         android:entries="@array/vibratePrefKeys"
         android:entryValues="@array/vibratePrefValues"
@@ -13,34 +13,33 @@
         android:title="@string/vibrate" />
 
     <com.bsb.hike.view.IconCheckBoxPreference
-        icon="preference_sound"
+        icon="@drawable/preference_sound"
         android:defaultValue="true"
         android:key="tickSoundPref"
         android:layout="@layout/icon_preference"
         android:summary="@string/tickSoundSummary"
         android:title="@string/tickSoundTitle"
         android:widgetLayout="@layout/checkbox_widget" />
-    <com.bsb.hike.view.IconCheckBoxPreference
-        icon="preference_led"
-        android:defaultValue="true"
-        android:key="ledPref"
-        android:layout="@layout/icon_preference"
-        android:summary="@string/led_notification_info"
-        android:title="@string/led_notification"
-        android:widgetLayout="@layout/checkbox_widget" />
 
-    <com.bsb.hike.view.IconListPreference
+	<com.bsb.hike.view.IconListPreference
+        android:entries="@array/ledPrefKeys"
+        android:entryValues="@array/ledPrefValues"
+        icon="@drawable/preference_led"
+        android:key="colorLedPref"
+        android:layout="@layout/list_preference"
+        android:summary="@string/led_notification_info"
+        android:title="@string/led_notification" />
+
+    <com.bsb.hike.view.NotificationToneListPreference
         android:defaultValue="@string/notif_sound_Hike"
-        android:entries="@array/notificationSoundPrefKeys"
-        android:entryValues="@array/notificationSoundPrefValues"
-        icon="ic_hike_jingle"
+        icon="@drawable/ic_hike_jingle"
         android:key="notifSoundPref"
         android:layout="@layout/list_preference"
         android:summary="@string/notificationSoundSummary"
         android:title="@string/notificationSoundTitle" />
 
     <com.bsb.hike.view.IconCheckBoxPreference
-        icon="ic_status_notification"
+        icon="@drawable/ic_status_notification"
         android:defaultValue="true"
         android:key="statusBooleanPref"
         android:layout="@layout/icon_preference"
@@ -49,7 +48,7 @@
         android:widgetLayout="@layout/checkbox_widget" />
     
     <com.bsb.hike.view.IconCheckBoxPreference
-        icon="ic_nujrujicon"
+        icon="@drawable/ic_nujrujicon"
         android:defaultValue="true"
         android:key="hikeNUJNotificationPref"
         android:layout="@layout/icon_preference"
@@ -58,7 +57,7 @@
         android:widgetLayout="@layout/checkbox_widget" />
     
     <com.bsb.hike.view.IconCheckBoxPreference
-        icon="ic_bolt_yellow"
+        icon="@drawable/ic_bolt_yellow"
         android:defaultValue="true"
         android:key="hikeOfflineNotificationPref"
         android:layout="@layout/icon_preference"
@@ -68,7 +67,7 @@
 	
 	<!-- this is the chat theme notification setting. commented out for now -->
 	<!-- <com.bsb.hike.view.IconCheckBoxPreference
-        icon="ic_status_notification"
+        icon="@drawable/ic_status_notification"
         android:defaultValue="true"
         android:key="chatBgNotificationPref"
         android:layout="@layout/icon_preference"

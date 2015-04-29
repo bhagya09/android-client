@@ -1,5 +1,6 @@
 package com.bsb.hike.BitmapModule;
 
+import java.io.IOException;
 import java.io.InputStream;
 
 import android.annotation.TargetApi;
@@ -16,21 +17,30 @@ import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
+import android.media.ExifInterface;
 import android.os.Build;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.view.View;
 import android.view.View.MeasureSpec;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.R;
+import com.bsb.hike.models.HikeHandlerUtil;
+import com.bsb.hike.photos.HikePhotosListener;
 import com.bsb.hike.smartcache.HikeLruCache;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.Utils;
 
 public class HikeBitmapFactory
 {
 	private static final String TAG = "HikeBitmapFactory";
 
+	public static final int DEFAULT_BITMAP_COMPRESSION = 75;
+	
 	public static Bitmap getCircularBitmap(Bitmap bitmap)
 	{
 		if (bitmap == null)
@@ -59,6 +69,7 @@ public class HikeBitmapFactory
 		return output;
 	}
 
+
 	public static Bitmap getBitMapFromTV(View textView)
 	{
 		// capture bitmapt of genreated textviewl
@@ -75,9 +86,10 @@ public class HikeBitmapFactory
 		textView.draw(canvas);
 		textView.setDrawingCacheEnabled(true);
 		Bitmap cacheBmp = textView.getDrawingCache();
-		Bitmap viewBmp = cacheBmp.copy(Bitmap.Config.ARGB_8888, true);
+		Bitmap viewBmp = null;
 		if (cacheBmp != null)
 		{
+			viewBmp = cacheBmp.copy(Bitmap.Config.ARGB_8888, true);
 			cacheBmp.recycle();
 		}
 		textView.destroyDrawingCache(); // destory drawable
@@ -135,7 +147,7 @@ public class HikeBitmapFactory
 		/*
 		 * http://developer.android.com/reference/android/graphics/Bitmap.Config. html
 		 */
-		Bitmap bitmap = createBitmap((int) (48 * Utils.densityMultiplier), (int) (48 * Utils.densityMultiplier), config);
+		Bitmap bitmap = createBitmap((int) (48 * Utils.scaledDensityMultiplier), (int) (48 * Utils.scaledDensityMultiplier), config);
 
 		if (bitmap == null)
 		{
@@ -145,6 +157,68 @@ public class HikeBitmapFactory
 		drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
 		drawable.draw(canvas);
 		return bitmap;
+	}
+
+	public static Bitmap drawableToBitmap(Drawable drawable)
+	{
+		if (drawable instanceof BitmapDrawable)
+		{
+			return ((BitmapDrawable) drawable).getBitmap();
+		}
+
+		Bitmap bitmap;
+		int width = Math.max(drawable.getIntrinsicWidth(), 2);
+		int height = Math.max(drawable.getIntrinsicHeight(), 2);
+		try
+		{
+			bitmap = Bitmap.createBitmap(width, height, Config.ARGB_8888);
+			Canvas canvas = new Canvas(bitmap);
+			drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+			drawable.draw(canvas);
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+			bitmap = null;
+		}
+
+		return bitmap;
+	}
+
+	public static void correctBitmapRotation(final String srcFilePath, final HikePhotosListener mListener)
+	{
+		HikeHandlerUtil.getInstance().postRunnableWithDelay(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				Bitmap bmp = HikeBitmapFactory.decodeFile(srcFilePath);
+				try
+				{
+					ExifInterface ei = new ExifInterface(srcFilePath);
+					int orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+					Logger.d(TAG, "Orientation: " + orientation);
+					switch (orientation)
+					{
+					case ExifInterface.ORIENTATION_ROTATE_90:
+						bmp = HikeBitmapFactory.rotateBitmap(bmp, 90);
+						break;
+					case ExifInterface.ORIENTATION_ROTATE_180:
+						bmp = HikeBitmapFactory.rotateBitmap(bmp, 180);
+						break;
+					case ExifInterface.ORIENTATION_ROTATE_270:
+						bmp = HikeBitmapFactory.rotateBitmap(bmp, 270);
+						break;
+					}
+				}
+				catch (IOException ioe)
+				{
+					ioe.printStackTrace();
+					mListener.onFailure();
+				}
+				mListener.onComplete(bmp);
+			}
+		}, 0);
 	}
 
 	public static Bitmap rotateBitmap(Bitmap b, int degrees)
@@ -185,26 +259,6 @@ public class HikeBitmapFactory
 		}
 		else
 			return src;
-	}
-
-	public static Drawable getDefaultIconForUser(Context context, String msisdn)
-	{
-		return getDefaultIconForUser(context, msisdn, false);
-	}
-
-	public static Drawable getDefaultIconForUser(Context context, String msisdn, boolean rounded)
-	{
-		return context.getResources().getDrawable(BitmapUtils.getDefaultAvatarResourceId(msisdn, rounded));
-	}
-
-	public static BitmapDrawable getDefaultIconForUserFromDecodingRes(Context context, String msisdn)
-	{
-		return getDefaultIconForUserFromDecodingRes(context, msisdn, false);
-	}
-
-	public static BitmapDrawable getDefaultIconForUserFromDecodingRes(Context context, String msisdn, boolean rounded)
-	{
-		return getBitmapDrawable(context.getResources(), decodeResource(context.getResources(), BitmapUtils.getDefaultAvatarResourceId(msisdn, rounded)));
 	}
 
 	public static BitmapDrawable getBitmapDrawable(Resources mResources, final Bitmap bitmap)
@@ -1036,6 +1090,100 @@ public class HikeBitmapFactory
 			{
 				return new Rect(0, 0, (int) (reqHeight * srcAspect), reqHeight);
 			}
+		}
+	}
+	
+	public static Bitmap decodeSmallStickerFromObject(Object bitmapSourceObject, int reqWidth, int reqHeight, Bitmap.Config con)
+	{
+		if (bitmapSourceObject == null)
+			return null;
+		// First decode with inJustDecodeBounds=true to check dimensions
+		final BitmapFactory.Options options = new BitmapFactory.Options();
+		options.inJustDecodeBounds = true;
+		decodeObject(bitmapSourceObject, options);
+
+		options.inPreferredConfig = con;
+		/*
+		 * this is an hit and trial approx factor for our stickers. 
+		 */
+		options.inSampleSize = calculateApproxSampleSize(options, reqWidth, reqHeight, 0.2);
+		options.inJustDecodeBounds = false;
+		Bitmap result = decodeObject(bitmapSourceObject, options);
+		if (options.inSampleSize < 2)
+		{
+			/*
+			 * if we calculated our sample size to be greater then 1 than all fine. if some how it is not the case than we need to create a scaled Bitmap which fits exactly into our
+			 * required window.
+			 */
+			result = createScaledBitmap(result, reqWidth, reqHeight, Bitmap.Config.ARGB_8888, true, true, false);
+		}
+		
+		return result;
+	}
+	
+	private static Bitmap decodeObject(Object object, BitmapFactory.Options options)
+	{
+		Bitmap bitmap = null;
+		if(object instanceof byte[])
+		{
+			byte[] byteArray = (byte[]) object; 
+			bitmap = decodeByteArray(byteArray, 0, byteArray.length, options);
+		}
+		else if (object instanceof String)
+		{
+			String filePath = (String) object;
+			bitmap = decodeFile(filePath, options);
+		}
+		return bitmap;
+	}
+	
+	/*
+	 * calculate a near about sample size base on give error parameter
+	 */
+	private static int calculateApproxSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight, double error)
+	{
+		double oneMinusError = 1-error;
+		reqHeight = (int)(reqHeight*oneMinusError);
+		reqWidth = (int)(reqWidth*oneMinusError);
+		
+		return calculateInSampleSize(options, reqWidth, reqHeight);
+	}
+	public static BitmapDrawable getDefaultAvatar(Resources res, String msisdn, boolean hiRes)
+	{
+	
+		int index = BitmapUtils.iconHash(msisdn) % (HikeConstants.DEFAULT_AVATAR_KEYS.length);
+
+		int defaultAvatarResId = HikeConstants.DEFAULT_AVATARS[index]; 
+		
+		Drawable layers[] = new Drawable[2];
+		layers[0] = res.getDrawable(defaultAvatarResId);
+		layers[1] = res.getDrawable(getDefaultAvatarIconResId(msisdn, hiRes));
+		
+		LayerDrawable ld = new LayerDrawable(layers);
+		ld.setId(0, 0);
+		ld.setId(1, 1);
+		ld.setDrawableByLayerId(0, layers[0]);
+		ld.setDrawableByLayerId(1, layers[1]);
+		
+		Bitmap bmp = drawableToBitmap(ld);
+		
+		BitmapDrawable bd = getBitmapDrawable(res, bmp);
+		return bd;
+	}
+	
+	private static int getDefaultAvatarIconResId( String msisdn, boolean hiRes)
+	{
+		if (OneToNConversationUtils.isBroadcastConversation(msisdn))
+		{
+			return hiRes ? R.drawable.ic_default_avatar_broadcast_hires : R.drawable.ic_default_avatar_broadcast;
+		}
+		else if (OneToNConversationUtils.isGroupConversation(msisdn))
+		{
+			return hiRes ? R.drawable.ic_default_avatar_group_hires : R.drawable.ic_default_avatar_group;
+		}
+		else
+		{
+			return hiRes ? R.drawable.ic_default_avatar_hires : R.drawable.ic_default_avatar;
 		}
 	}
 

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/gender_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:weightSum="519" >
+
+    <com.bsb.hike.view.CustomFontTextView
+        android:id="@+id/txt_img1"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="127"
+        android:gravity="center"
+        android:text="@string/pick_one"
+        style="@style/SignupHeader" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="288"
+        android:orientation="horizontal" >
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/male"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:paddingTop="@dimen/signup_gender_padding_top"
+            android:clickable="true"
+            android:drawableTop="@drawable/ic_male_selector"
+            android:drawablePadding="@dimen/signup_gender_drawable_padding"
+            android:gravity="center_horizontal"
+            android:onClick="onGenderClick"
+            android:text="@string/i_am_a_boy"
+            android:textSize="20sp"
+            android:textColor="@drawable/male_text_selector" />
+        
+         <View
+            android:id="@+id/seprator_bar"
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:background="#d9dbdc" />
+        
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/female"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:paddingTop="@dimen/signup_gender_padding_top"
+            android:clickable="true"
+            android:drawableTop="@drawable/ic_female_selector"
+            android:drawablePadding="@dimen/signup_gender_drawable_padding"
+            android:onClick="onGenderClick"
+            android:gravity="center_horizontal"
+            android:text="@string/i_am_a_girl"
+            android:textSize="20sp"
+            android:textColor="@drawable/female_text_selector" />
+    </LinearLayout>
+</LinearLayout>

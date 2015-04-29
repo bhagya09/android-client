@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:background="@color/white"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <com.bsb.hike.view.CustomFontTextView
+        android:id="@+id/text_view_connected_apps_numbers"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="left"
+        android:paddingBottom="10dp"
+        android:paddingLeft="15dp"
+        android:paddingTop="10dp"
+        android:textColor="@color/blue_hike"
+        android:textSize="15sp"
+        android:textStyle="bold" >
+    </com.bsb.hike.view.CustomFontTextView>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:background="@color/blue_hike" />
+
+    <ListView
+        android:id="@+id/list_view_connected_apps"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:scrollbars="none"
+        android:divider="@color/dark_grey_drop_shadow"
+        android:dividerHeight="1px"
+        android:paddingLeft="15dp"
+        android:paddingRight="15dp" >
+    </ListView>
+
+</LinearLayout>

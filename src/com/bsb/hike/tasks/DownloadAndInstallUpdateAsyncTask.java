@@ -22,6 +22,7 @@ import android.widget.Toast;
 
 import com.bsb.hike.R;
 import com.bsb.hike.ui.HomeActivity;
+import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.Logger;
 
 public class DownloadAndInstallUpdateAsyncTask extends AsyncTask<Void, Integer, Boolean>
@@ -69,10 +70,11 @@ public class DownloadAndInstallUpdateAsyncTask extends AsyncTask<Void, Integer, 
 		{
 			URL url = new URL(downloadUrl);
 			URLConnection urlConnection = url.openConnection();
+			AccountUtils.setNoTransform(urlConnection);
 
 			int length = urlConnection.getContentLength();
 
-			InputStream is = new BufferedInputStream(url.openConnection().getInputStream());
+			InputStream is = new BufferedInputStream(urlConnection.getInputStream());
 
 			filePath = Environment.getExternalStorageDirectory() + "/hike/";
 			File file = new File(filePath);
@@ -96,6 +98,8 @@ public class DownloadAndInstallUpdateAsyncTask extends AsyncTask<Void, Integer, 
 					publishProgress(progress);
 				}
 			}
+			fos.flush();
+			fos.getFD().sync();
 			fos.close();
 			is.close();
 

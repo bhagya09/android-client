@@ -1,11 +1,11 @@
 package com.bsb.hike.smartImageLoader;
 
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.utils.Utils;
-
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
 
 public class HighQualityThumbLoader extends ImageWorker
 {

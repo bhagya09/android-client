@@ -25,11 +25,11 @@
 
         <FrameLayout
             android:id="@+id/avatar_container"
-            android:layout_width="@dimen/medium_avatar_2"
-            android:layout_height="@dimen/medium_avatar_2"
+            android:layout_width="@dimen/hike_list_item_avtar"
+            android:layout_height="@dimen/hike_list_item_avtar"
             android:layout_centerVertical="true" >
 
-            <com.bsb.hike.ui.utils.RecyclingImageView
+            <com.bsb.hike.view.RoundedImageView
                 android:id="@+id/avatar"
                 style="@style/AvatarStyle.Padding" />
 

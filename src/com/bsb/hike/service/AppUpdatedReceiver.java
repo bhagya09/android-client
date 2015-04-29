@@ -11,8 +11,6 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.StickerManager;
-import com.bsb.hike.utils.TrackerUtil;
 import com.bsb.hike.utils.Utils;
 
 /**
@@ -61,7 +59,6 @@ public class AppUpdatedReceiver extends BroadcastReceiver
 				Editor editor = prefs.edit();
 				editor.putString(HikeMessengerApp.COUNTRY_CODE, HikeConstants.INDIA_COUNTRY_CODE);
 				editor.commit();
-				StickerManager.setStickersForIndianUsers(true, prefs);
 				HikeMessengerApp.getPubSub().publish(HikePubSub.REFRESH_RECENTS, null);
 			}
 
@@ -75,13 +72,6 @@ public class AppUpdatedReceiver extends BroadcastReceiver
 				HikeMessengerApp.getPubSub().publish(HikePubSub.FREE_SMS_TOGGLED, freeSMSOn);
 			}
 
-		}
-		// Call the MAT api on update flag here :
-		TrackerUtil tUtil = TrackerUtil.getInstance(context.getApplicationContext());
-		if (tUtil != null)
-		{
-			// tUtil.init();
-			tUtil.setTrackOptions(false);
 		}
 	}
 }

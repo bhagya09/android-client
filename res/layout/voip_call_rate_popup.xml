@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/call_rate_popup_parent"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/bg_voip_ftue_popup">
+
+	<LinearLayout
+	    android:layout_width="280dp"
+	    android:layout_height="229dp"
+	    android:orientation="vertical"
+	    android:layout_gravity="center"
+	    android:gravity="center">
+	    
+		<com.bsb.hike.view.CustomFontTextView
+	        android:id="@+id/heading"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:text="@string/call_rate_heading"
+	        android:textSize="24dp"
+	        android:textColor="@color/call_rate_header"
+	        android:textStyle="italic" />
+		
+		<com.bsb.hike.view.CustomFontTextView
+	        android:id="@+id/subheading"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:gravity="center"
+	        android:layout_marginTop="14dp"
+	        android:layout_marginRight="50dp"
+	        android:layout_marginLeft="50dp"
+	        android:lineSpacingExtra="6dp"
+	        android:text="@string/call_rate_subheading"
+	        android:textSize="14dp"
+	        android:textColor="@color/call_rate_subheader"
+	        android:textStyle="italic" />
+		
+		<LinearLayout
+		    android:id="@+id/star_rate_container"
+		    android:layout_width="match_parent"
+		    android:layout_height="wrap_content"
+		    android:orientation="horizontal"
+		    android:paddingLeft="29dp"
+		    android:paddingRight="29dp"
+		    android:layout_marginTop="36dp">
+		    
+		  <ImageButton
+		        android:id="@+id/star1"
+		        android:layout_width="0dp"
+		        android:layout_height="wrap_content"
+		        android:layout_weight="1"
+		        android:src="@drawable/voip_call_rate_star_selector"
+		        android:background="@null"
+		        android:scaleType="center" /> 
+		        
+		  <ImageButton
+		        android:id="@+id/star2"
+		        android:layout_width="0dp"
+		        android:layout_height="wrap_content"
+		        android:layout_weight="1"
+		        android:src="@drawable/voip_call_rate_star_selector"
+		        android:background="@null"
+		        android:scaleType="center" />  
+		        
+		  <ImageButton
+		        android:id="@+id/star3"
+		        android:layout_width="0dp"
+		        android:layout_height="wrap_content"
+		        android:layout_weight="1"
+		        android:src="@drawable/voip_call_rate_star_selector"
+		        android:background="@null"
+		        android:scaleType="center" />  
+		        
+		  <ImageButton
+		        android:id="@+id/star4"
+		        android:layout_width="0dp"
+		        android:layout_height="wrap_content"
+		        android:layout_weight="1"
+		        android:src="@drawable/voip_call_rate_star_selector"
+		        android:background="@null"
+		        android:scaleType="center" />  
+		        
+		  <ImageButton
+		        android:id="@+id/star5"
+		        android:layout_width="0dp"
+		        android:layout_height="wrap_content"
+		        android:layout_weight="1"
+		        android:src="@drawable/voip_call_rate_star_selector"
+		        android:background="@null"
+		        android:scaleType="center" />  
+		</LinearLayout>
+		
+	</LinearLayout>
+
+	<View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/list_divider" />
+	
+	<LinearLayout
+	    android:layout_width="match_parent"
+	    android:layout_height="48dp"
+	    android:orientation="horizontal"
+	    android:gravity="center_vertical">
+	    
+	  <com.bsb.hike.view.CustomFontButton
+	        android:id="@+id/call_rate_dismiss"
+	        android:layout_width="wrap_content"
+	        android:layout_height="match_parent"
+	        android:layout_weight="1"
+	        android:text="@string/call_rate_not_now"
+	        android:textSize="13dp"
+	        android:background="@null"
+	        android:textColor="@color/call_rate_dismiss"
+	        android:textStyle="italic" />
+
+	  <View
+        android:layout_width="1dp"
+        android:layout_height="match_parent"
+        android:background="@color/list_divider" />
+
+	  <com.bsb.hike.view.CustomFontButton
+	        android:id="@+id/call_rate_submit"
+	        android:layout_width="wrap_content"
+	        android:layout_height="match_parent"
+	        android:layout_weight="1"
+	        android:text="@string/call_rate_submit"
+	        android:textSize="13dp"
+	        android:background="@null"
+	        android:textStyle="bold"
+	        android:textColor="@color/call_rate_submit" />
+	    
+	</LinearLayout>
+
+</LinearLayout>

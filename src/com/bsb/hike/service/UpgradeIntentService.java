@@ -10,7 +10,8 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.db.HikeConversationsDatabase;
-import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.StickerManager;
 
 public class UpgradeIntentService extends IntentService
 {
@@ -26,24 +27,20 @@ public class UpgradeIntentService extends IntentService
 	{
 		context = this;
 		prefs = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
-		if (prefs.getInt(HikeConstants.UPGRADE_AVATAR_CONV_DB, -1) == 1 && prefs.getInt(HikeConstants.UPGRADE_AVATAR_PROGRESS_USER, -1) == 1)
+		if (prefs.getInt(HikeConstants.UPGRADE_AVATAR_CONV_DB, -1) == 1)
 		{
-			makeRoundedThumbsForUserDb();
-
 			initialiseSharedMediaAndFileThumbnailTable();
 
 			// setting the preferences to 2 to indicate we're done with the
 			// migration !
 			Editor editor = prefs.edit();
 			editor.putInt(HikeConstants.UPGRADE_AVATAR_CONV_DB, 2);
-			editor.putInt(HikeConstants.UPGRADE_AVATAR_PROGRESS_USER, 2);
 			editor.putBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false);
 			editor.commit();
 
 			// fire the pubsub event to let the HomeActivity class know that the
 			// avatar
 			// upgrade is done and it can stop the spinner
-			HikeMessengerApp.getPubSub().publish(HikePubSub.FINISHED_AVTAR_UPGRADE, null);
 		}
 
 		if (prefs.getInt(HikeConstants.UPGRADE_MSG_HASH_GROUP_READBY, -1) == 1)
@@ -67,6 +64,41 @@ public class UpgradeIntentService extends IntentService
 			editor.putBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false);
 			editor.commit();
 		}
+		
+		if (prefs.getInt(StickerManager.MOVED_HARDCODED_STICKERS_TO_SDCARD, 1) == 1)
+		{
+			if(StickerManager.moveHardcodedStickersToSdcard(getApplicationContext()))
+			{
+				Editor editor = prefs.edit();
+				editor.putInt(StickerManager.MOVED_HARDCODED_STICKERS_TO_SDCARD, 2);
+				editor.putBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false);
+				editor.commit();
+			}
+		}
+		
+		if (prefs.getInt(StickerManager.UPGRADE_FOR_STICKER_SHOP_VERSION_1, 1) == 1)
+		{
+			upgradeForStickerShopVersion1();
+			Editor editor = prefs.edit();
+			editor.putInt(StickerManager.UPGRADE_FOR_STICKER_SHOP_VERSION_1, 2);
+			editor.putBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false);
+			editor.commit();
+			StickerManager.getInstance().doInitialSetup();
+		}
+		
+		if (prefs.getInt(HikeMessengerApp.UPGRADE_FOR_SERVER_ID_FIELD, 1) == 1)
+		{
+			if(upgradeForServerIdField())
+			{
+				Editor editor = prefs.edit();
+				editor.putInt(HikeMessengerApp.UPGRADE_FOR_SERVER_ID_FIELD, 2);
+				editor.putBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false);
+				editor.commit();
+			}
+		}
+
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.UPGRADING, false);
+		HikeMessengerApp.getPubSub().publish(HikePubSub.FINISHED_UPGRADE_INTENT_SERVICE, null);
 	}
 
 	public UpgradeIntentService()
@@ -74,11 +106,6 @@ public class UpgradeIntentService extends IntentService
 
 		super(TAG);
 
-	}
-
-	private void makeRoundedThumbsForUserDb()
-	{
-		ContactManager.getInstance().makeOlderAvatarsRounded();
 	}
 
 	private void initialiseSharedMediaAndFileThumbnailTable()
@@ -94,5 +121,16 @@ public class UpgradeIntentService extends IntentService
 	private void upgradeForDatabaseVersion28()
 	{
 		HikeConversationsDatabase.getInstance().upgradeForDatabaseVersion28();
+	}
+
+	private void upgradeForStickerShopVersion1()
+	{
+		HikeConversationsDatabase.getInstance().upgradeForStickerShopVersion1();
+		StickerManager.getInstance().moveStickerPreviewAssetsToSdcard();
+	}
+	
+	private boolean upgradeForServerIdField()
+	{
+		return HikeConversationsDatabase.getInstance().upgradeForServerIdField();
 	}
 }

@@ -10,42 +10,29 @@ import android.content.Context;
 import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
-import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
-import com.bsb.hike.utils.StickerManager.StickerCategoryId;
 
 public class Sticker implements Serializable, Comparable<Sticker>
 {
 
-	/*
-	 * Used for the local stickers. Will be -1 for non local stickers
-	 */
-	private int stickerIndex = -1; 
-
 	private String stickerId;
 
 	private StickerCategory category;
-
-	public Sticker(StickerCategory category, String stickerId, int stickerIndex)
-	{
-		this.stickerId = stickerId;
-		this.stickerIndex = stickerIndex;
-		this.category = category;
-		setupIndexForSwapedCategories();
-	}
+	
+	private String categoryId;
 
 	public Sticker(StickerCategory category, String stickerId)
 	{
 		this.category = category;
 		this.stickerId = stickerId;
-		setupStickerindex(category, stickerId);
+		this.categoryId = category.getCategoryId();
 	}
 
-	public Sticker(String categoryName, String stickerId)
+	public Sticker(String categoryId, String stickerId)
 	{
 		this.stickerId = stickerId;
-		this.category = StickerManager.getInstance().getCategoryForName(categoryName);
-		setupStickerindex(category, stickerId);
+		this.category = StickerManager.getInstance().getCategoryForId(categoryId);
+		this.categoryId = categoryId;
 	}
 
 	public Sticker()
@@ -53,100 +40,41 @@ public class Sticker implements Serializable, Comparable<Sticker>
 
 	}
 
-	public Sticker(String categoryName, String stickerId, int stickerIdx)
+	public String getCategoryId()
+	{
+		return categoryId;
+	}
+
+	public void setCategoryId(String categoryId)
+	{
+		this.categoryId = categoryId;
+	}
+
+	public void setStickerId(String stickerId)
 	{
 		this.stickerId = stickerId;
-		this.category = StickerManager.getInstance().getCategoryForName(categoryName);
-		this.stickerIndex = stickerIdx;
-		setupIndexForSwapedCategories();
+	}
+
+	public void setCategory(StickerCategory category)
+	{
+		this.category = category;
 	}
 
 	public boolean isUnknownSticker()
 	{
-		return category == null || (category.categoryId == StickerCategoryId.unknown);
-	}
-
-	private void setupStickerindex(StickerCategory category2, String stickerId2)
-
-	{
-		/*
-		 * 
-		 * Only set sticker index if the category is a local one
-		 */
-		String[] cat = null;
-
-		if (category.categoryId == StickerCategoryId.humanoid)
-		{
-			cat = StickerManager.getInstance().LOCAL_STICKER_IDS_HUMANOID;
-		}
-		else if (category.categoryId == StickerCategoryId.expressions)
-		{
-			cat = StickerManager.getInstance().LOCAL_STICKER_IDS_EXPRESSIONS;
-		}
-
-		if (cat != null)
-		{
-			int count = cat.length;
-			for (int i = 0; i < count; i++)
-
-			{
-				if (cat[i].equals(stickerId))
-
-				{
-					this.stickerIndex = i;
-					break;
-
-				}
-			}
-		}
-	}
-
-	public boolean isDefaultSticker()
-	{
-		// TODO : change this logic to make it much more robust as searching in array is not good
-
-		if (category != null)
-		{
-			if (category.categoryId == StickerCategoryId.humanoid)
-			{
-				int count = StickerManager.getInstance().LOCAL_STICKER_IDS_HUMANOID.length;
-				for (int i = 0; i < count; i++)
-				{
-					if (StickerManager.getInstance().LOCAL_STICKER_IDS_HUMANOID[i].equals(stickerId))
-						return true;
-				}
-			}
-			else if (category.categoryId == StickerCategoryId.expressions)
-			{
-				int count = StickerManager.getInstance().LOCAL_STICKER_IDS_EXPRESSIONS.length;
-				for (int i = 0; i < count; i++)
-				{
-					if (StickerManager.getInstance().LOCAL_STICKER_IDS_EXPRESSIONS[i].equals(stickerId))
-						return true;
-				}
-			}
-			return false;
-		}
-		return false;
+		return category == null;
 	}
 
 	/**
-	 * If sticker is default sticker then its not disabled Else if sticker small image does'nt exist then also its disabled
+	 * if sticker small image does'nt exist then its disabled
 	 * 
 	 * @param sticker
 	 * @return
 	 */
 	public boolean isDisabled(Sticker sticker, Context ctx)
 	{
-		if (sticker.isDefaultSticker())
-			return false;
-		File f = new File(sticker.getSmallStickerPath(ctx));
+		File f = new File(sticker.getSmallStickerPath());
 		return !f.exists();
-	}
-
-	public int getStickerIndex()
-	{
-		return stickerIndex;
 	}
 
 	public String getStickerId()
@@ -161,8 +89,7 @@ public class Sticker implements Serializable, Comparable<Sticker>
 
 	public String getStickerPath(Context context)
 	{
-		String rootPath = category.categoryId == StickerCategoryId.unknown ? null : StickerManager.getInstance().getStickerDirectoryForCategoryId(context,
-				category.categoryId.name());
+		String rootPath = StickerManager.getInstance().getStickerDirectoryForCategoryId(categoryId);
 		if (rootPath == null)
 		{
 			return null;
@@ -170,9 +97,9 @@ public class Sticker implements Serializable, Comparable<Sticker>
 		return rootPath + HikeConstants.LARGE_STICKER_ROOT + "/" + stickerId;
 	}
 
-	public String getSmallStickerPath(Context context)
+	public String getSmallStickerPath()
 	{
-		return StickerManager.getInstance().getStickerDirectoryForCategoryId(context, category.categoryId.name()) + HikeConstants.SMALL_STICKER_ROOT + "/" + stickerId;
+		return StickerManager.getInstance().getStickerDirectoryForCategoryId(categoryId) + HikeConstants.SMALL_STICKER_ROOT + "/" + stickerId;
 	}
 
 	@Override
@@ -213,69 +140,46 @@ public class Sticker implements Serializable, Comparable<Sticker>
 		if (!(object instanceof Sticker))
 			return false;
 		Sticker st = (Sticker) object;
-		return ((this.stickerId.equals(st.getStickerId())) && (this.category != null && st.getCategory() != null && this.category.categoryId == st.getCategory().categoryId));
+		return ((this.stickerId.equals(st.getStickerId())) && (this.categoryId.equals(st.getCategoryId())));
 	}
 
 	@Override
 	public int hashCode()
 	{
 		int hash = 3;
-		if (category != null)
-			hash = 7 * hash + this.category.categoryId.ordinal();
+		if (!TextUtils.isEmpty(categoryId))
+			hash = 7 * hash + this.categoryId.hashCode();
 		hash = 7 * hash + this.stickerId.hashCode();
 		return hash;
 	}
 
 	public void serializeObj(ObjectOutputStream out) throws IOException
 	{
-		out.writeInt(stickerIndex);
+		// After removing reachedEnd variable, we need to write dummy
+		// boolean, just to ensure backward/forward compatibility
+		out.writeInt(0);
 		out.writeUTF(stickerId);
-		category.serializeObj(out);
+		StickerCategory cat = category;
+		if(cat == null)
+		{
+			cat = new StickerCategory(this.categoryId);
+		}
+		cat.serializeObj(out);
 	}
 
 	public void deSerializeObj(ObjectInputStream in) throws IOException, ClassNotFoundException
 	{
-		stickerIndex = in.readInt();
+		//ignoring this varialbe after reading just to ensure backward compatibility
+		in.readInt();
 		stickerId = in.readUTF();
-		category = new StickerCategory();
-		category.deSerializeObj(in);
-		setupIndexForSwapedCategories();
+		StickerCategory tempcategory = new StickerCategory();
+		tempcategory.deSerializeObj(in);
+		categoryId = tempcategory.getCategoryId();
+		this.category = StickerManager.getInstance().getCategoryForId(categoryId);
 	}
 
 	public void setStickerData(int stickerIndex,String stickerId,StickerCategory category){
-		this.stickerIndex = stickerIndex;
 		this.stickerId = stickerId;
 		this.category = category;
-		setupIndexForSwapedCategories();
-	}
-	/*
-	 * We save sticker index -1 for all non-hardcoded stickers in message metadata. So when moving doggy to non-hardcoded and expressions to hardcoded. all doggy sticker will now
-	 * be stickerIndex -1 and all hardcoded expressions will have a non negetive index value
-	 */
-	private void setupIndexForSwapedCategories()
-	{
-		if (category != null)
-		{
-			if (category.categoryId.equals(StickerCategoryId.doggy))
-			{
-				this.stickerIndex = -1;
-				return;
-			}
-			if (category.categoryId.equals(StickerCategoryId.expressions)||category.categoryId.equals(StickerCategoryId.humanoid) && stickerIndex == -1)
-			{
-				setupStickerindex(category, stickerId);
-				return;
-			}
-		}
-	}
-
-	public boolean isInAppSticker()
-	{
-		if(category != null)
-		{
-			if((category.categoryId == StickerCategoryId.humanoid || category.categoryId == StickerCategoryId.expressions) && stickerIndex >= 0)
-				return true;
-		}
-		return false;
 	}
 }

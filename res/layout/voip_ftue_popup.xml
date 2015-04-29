@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="275dp"
+    android:layout_height="wrap_content"
+    android:gravity="center" >
+
+    <LinearLayout
+        android:id="@+id/popup"
+        android:layout_width="275dp"
+        android:layout_height="356dp"
+        android:layout_centerInParent="true"
+        android:background="@drawable/bg_voip_ftue_popup"
+        android:gravity="center_horizontal"
+        android:orientation="vertical" >
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginBottom="@dimen/stealth_ftue_pu_img_margin_bottom"
+            android:layout_marginTop="@dimen/stealth_ftue_pu_img_margin_top"
+            android:src="@drawable/img_voip_intro" />
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/header"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginBottom="10dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:text="@string/hike_calls"
+            android:textColor="#111111"
+            android:textSize="24dp"
+            android:textStyle="italic" />
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/body"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="@dimen/stealth_ftue_pu_msg_margin_bottom"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            android:gravity="center"
+            android:text="@string/voip_intro_popup_msg"
+            android:textColor="#26292d"
+            android:textSize="14dp"
+            android:textStyle="italic" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="26dp"
+            android:background="@color/list_divider" />
+
+        <LinearLayout
+            android:id="@+id/button_container"
+            android:layout_width="match_parent"
+            android:layout_height="47dp"
+            android:layout_alignParentBottom="true"
+            android:orientation="horizontal" >
+
+            <com.bsb.hike.view.CustomFontTextView
+                android:id="@+id/awesomeButton"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/popup_button_bg_selector"
+                android:clickable="true"
+                android:gravity="center"
+                android:text="@string/voip_intro_popup_btn"
+                android:textColor="@color/blue_hike"
+                android:textSize="13dp"
+                android:textStyle="italic|bold" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <com.bsb.hike.view.CustomFontTextView
+        android:id="@+id/beta_tag"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignRight="@id/popup"
+        android:layout_alignTop="@id/popup"
+        android:layout_marginRight="-28dp"
+        android:layout_marginTop="6dp"
+        android:background="@color/blue_hike"
+        android:gravity="center"
+        android:maxLines="1"
+        android:minWidth="80dp"
+        android:text="@string/beta"
+        android:textColor="@color/white"
+        android:textSize="11dp" />
+
+</RelativeLayout>

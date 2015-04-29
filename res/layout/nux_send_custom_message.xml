@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:orientation="vertical" >
+
+    <include
+        android:id="@+id/spinner"
+        layout="@layout/spinner_center_screen"
+        android:visibility="gone" />
+
+    
+	<FrameLayout
+       android:id="@+id/horizontal_friends_placeholder"
+       android:layout_height="wrap_content"
+       android:layout_width="match_parent">
+  	</FrameLayout>
+  	
+  	<RelativeLayout
+  	    android:layout_width="wrap_content"
+  	    android:layout_height="wrap_content"
+  	    android:layout_gravity="center"
+  	    android:layout_marginTop="10dp"
+  	    android:paddingLeft="20dp"
+  	    android:paddingRight="20dp">
+  	    
+	  	<com.bsb.hike.view.CustomFontEditText
+	        android:id="@+id/multiforward_text_message"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:background="@drawable/bg_country_picker_selector"
+	        android:gravity="center"
+	        android:layout_centerInParent="true"
+	        android:imeOptions="actionDone"
+	        android:maxLength="140"
+	        android:layout_marginBottom="15dp"
+	        android:ems="50"
+	        android:text="@string/custom_message"
+	        android:hint="@string/custom_message"
+	        android:textColor="@color/selected_country"
+	        android:textSize="18sp"
+	        android:visibility="visible" />
+	  	
+	  	<com.bsb.hike.view.CustomFontTextView
+	  	    android:layout_width="wrap_content"
+	  	    android:layout_height="wrap_content"
+	  	    android:layout_alignRight="@id/multiforward_text_message"
+	  	    android:layout_below="@id/multiforward_text_message"
+	  	    android:textSize="10sp"
+	  	    android:text="@string/message_charcter_limit"/>
+  	</RelativeLayout>
+    
+    <com.bsb.hike.view.CustomFontTextView
+        android:id="@+id/tap_to_write"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:paddingTop="15dp"
+        android:textColor="@color/nux_disabled_text"
+        android:text="@string/custom_message_hint"
+        android:textSize="13sp"
+        android:textStyle="italic" />
+
+</LinearLayout>

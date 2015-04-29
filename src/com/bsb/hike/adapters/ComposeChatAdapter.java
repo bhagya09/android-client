@@ -2,14 +2,17 @@ package com.bsb.hike.adapters;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import android.view.View.OnClickListener;
 import android.content.Context;
 import android.preference.PreferenceManager;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.ImageView;
@@ -19,20 +22,24 @@ import android.widget.TextView;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.NUXConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.models.ContactInfo;
-import com.bsb.hike.models.StatusMessage;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
+import com.bsb.hike.models.NuxSelectFriends;
+import com.bsb.hike.models.StatusMessage;
+import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.smartImageLoader.IconLoader;
 import com.bsb.hike.tasks.FetchFriendsTask;
 import com.bsb.hike.utils.EmoticonConstants;
+import com.bsb.hike.utils.NUXManager;
+import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.utils.Utils.WhichScreen;
 import com.bsb.hike.view.PinnedSectionListView.PinnedSectionListAdapter;
 
 public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionListAdapter
 {
-	private static final String TAG = "composeChatAdapter";
 
 	private Map<String, ContactInfo> selectedPeople;
 
@@ -46,7 +53,13 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 
 	private boolean fetchGroups;
 
+	private boolean fetchRecents;
+	
+	private boolean fetchRecentlyJoined;
+
 	private String existingGroupId;
+
+	private String sendingMsisdn;
 
 	private int statusForEmptyContactInfo;
 
@@ -55,11 +68,15 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 	private boolean isCreatingOrEditingGroup;
 
 	private boolean lastSeenPref;
+	
+	private boolean showDefaultEmptyList;
+	
+	private boolean nuxStateActive = false;
 
-	public ComposeChatAdapter(Context context, ListView listView, boolean fetchGroups, String existingGroupId, FriendsListFetchedCallback friendsListFetchedCallback)
+	public ComposeChatAdapter(Context context, ListView listView, boolean fetchGroups, boolean fetchRecents, boolean fetchRecentlyJoined, String existingGroupId, String sendingMsisdn, FriendsListFetchedCallback friendsListFetchedCallback, boolean showSMSContacts)
 	{
 		super(context, listView, friendsListFetchedCallback, ContactInfo.lastSeenTimeComparatorWithoutFav);
-		selectedPeople = new HashMap<String, ContactInfo>();
+		selectedPeople = new LinkedHashMap<String, ContactInfo>();
 		existingParticipants = new HashMap<String, ContactInfo>();
 		mIconImageSize = context.getResources().getDimensionPixelSize(R.dimen.icon_picture_size);
 		iconloader = new IconLoader(context, mIconImageSize);
@@ -67,29 +84,79 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 		iconloader.setImageFadeIn(false);
 
 		this.existingGroupId = existingGroupId;
+		this.sendingMsisdn = sendingMsisdn;
 		this.fetchGroups = fetchGroups;
+		this.fetchRecents = fetchRecents;
+		this.fetchRecentlyJoined = fetchRecentlyJoined;
+		
 		groupsList = new ArrayList<ContactInfo>(0);
 		groupsStealthList = new ArrayList<ContactInfo>(0);
 		filteredGroupsList = new ArrayList<ContactInfo>(0);
+		
+
+		recentContactsList = new ArrayList<ContactInfo>(0);
+		recentStealthContactsList = new ArrayList<ContactInfo>(0);
+		filteredRecentsList = new ArrayList<ContactInfo>(0);
+
 		this.lastSeenPref = PreferenceManager.getDefaultSharedPreferences(context).getBoolean(HikeConstants.LAST_SEEN_PREF, true);
 		/*
 		 * We should show sms contacts section in new compose
 		 */
-		showSMSContacts = true;
+		this.showSMSContacts = showSMSContacts;
 	}
 
 	public void setIsCreatingOrEditingGroup(boolean b)
 	{
 		isCreatingOrEditingGroup = b;
 	}
+	
+	public void setNuxStateActive(boolean nuxStateActive) {
+		this.nuxStateActive = nuxStateActive;
+	}
 
 	@Override
 	public void executeFetchTask()
 	{
 		setLoadingView();
-		FetchFriendsTask fetchFriendsTask = new FetchFriendsTask(this, context, friendsList, hikeContactsList, smsContactsList, friendsStealthList, hikeStealthContactsList,
-				smsStealthContactsList, filteredFriendsList, filteredHikeContactsList, filteredSmsContactsList, groupsList, groupsStealthList, filteredGroupsList,
-				existingParticipants, fetchGroups, existingGroupId, isCreatingOrEditingGroup, true, false);
+		FetchFriendsTask fetchFriendsTask;
+		if(nuxStateActive){
+			boolean fetchHikeContacts = true;
+			boolean fetchSMSContacts = true;
+			boolean fetchRecommendedContacts;
+			boolean fetchHideListContacts;
+			
+			
+			NuxSelectFriends nuxPojo = NUXManager.getInstance().getNuxSelectFriendsPojo();
+			fetchHideListContacts = (nuxPojo.getHideList() != null && !nuxPojo.getHideList().isEmpty());
+			fetchRecommendedContacts = (nuxPojo.getRecoList() != null && !nuxPojo.getRecoList().isEmpty());
+			
+			int contactsShown = nuxPojo.getContactSectionType();
+			switch(NUXConstants.ContactSectionTypeEnum.getEnum(contactsShown)){
+				case none : 
+					fetchHikeContacts = false;
+					fetchSMSContacts = false;
+					break;
+				case nonhike:
+					fetchHikeContacts = false;
+					break;
+				case hike : 
+					fetchSMSContacts = false;
+					break;
+				case both :
+				case all :
+				default:
+						
+			}
+			
+			fetchFriendsTask = new FetchFriendsTask(this, context, friendsList, hikeContactsList, smsContactsList, recentContactsList,recentlyJoinedHikeContactsList, friendsStealthList, hikeStealthContactsList,
+					smsStealthContactsList, recentStealthContactsList, filteredFriendsList, filteredHikeContactsList, filteredSmsContactsList, groupsList, groupsStealthList, nuxRecommendedList, nuxFilteredRecoList, filteredGroupsList, filteredRecentsList,filteredRecentlyJoinedHikeContactsList,
+					existingParticipants, sendingMsisdn, false, existingGroupId, isCreatingOrEditingGroup, fetchSMSContacts, false, false , false, showDefaultEmptyList, fetchHikeContacts, false, fetchRecommendedContacts, fetchHideListContacts);
+			
+		} else {
+			fetchFriendsTask = new FetchFriendsTask(this, context, friendsList, hikeContactsList, smsContactsList, recentContactsList,recentlyJoinedHikeContactsList, friendsStealthList, hikeStealthContactsList,
+					smsStealthContactsList, recentStealthContactsList, filteredFriendsList, filteredHikeContactsList, filteredSmsContactsList, groupsList, groupsStealthList, null, null, filteredGroupsList, filteredRecentsList,filteredRecentlyJoinedHikeContactsList,
+					existingParticipants, sendingMsisdn, fetchGroups, existingGroupId, isCreatingOrEditingGroup, showSMSContacts, false, fetchRecents , fetchRecentlyJoined, showDefaultEmptyList, true, true, false , false );
+		}
 		Utils.executeAsyncTask(fetchFriendsTask);
 	}
 
@@ -137,12 +204,28 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 		else
 		{
 			holder = (ViewHolder) convertView.getTag();
-			holder.msisdn = contactInfo.getMsisdn();
+			String msisdn = contactInfo.getMsisdn();
+			holder.msisdn = msisdn;
 
 			holder.status.setText(contactInfo.getMsisdn());
 
 			String name = contactInfo.getName();
-			holder.name.setText("".equals(name) || null == name ? contactInfo.getMsisdn() : name);
+			if(TextUtils.isEmpty(name))
+			{
+				holder.name.setText(msisdn);
+			}
+			else
+			{
+				Integer startIndex = contactSpanStartIndexes.get(msisdn);
+				if(startIndex!=null)
+				{
+					holder.name.setText(getSpanText(name, startIndex), TextView.BufferType.SPANNABLE);
+				}
+				else
+				{
+					holder.name.setText(name);
+				}
+			}
 
 			if (viewType == ViewType.NEW_CONTACT)
 			{
@@ -201,7 +284,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 			else
 			{
 				holder.status.setTextColor(context.getResources().getColor(R.color.list_item_subtext));
-				holder.status.setText(contactInfo.getMsisdn());
+				holder.status.setText(OneToNConversationUtils.isGroupConversation(contactInfo.getMsisdn()) ? contactInfo.getPhoneNum():contactInfo.getMsisdn());
 				holder.statusMood.setVisibility(View.GONE);
 				holder.onlineIndicator.setVisibility(View.GONE);
 				if (viewType != ViewType.FRIEND && viewType != ViewType.FRIEND_REQUEST)
@@ -243,9 +326,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 			 */
 			if (viewType == ViewType.NEW_CONTACT)
 			{
-				holder.userImage.setScaleType(ScaleType.CENTER_INSIDE);
-				holder.userImage.setBackgroundResource(R.drawable.avatar_01_rounded);
-				holder.userImage.setImageResource(R.drawable.ic_default_avatar);
+				holder.userImage.setImageDrawable(HikeMessengerApp.getLruCache().getDefaultAvatar(1));
 			}
 			else
 			{
@@ -288,7 +369,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 
 		holder.userImage.setScaleType(ScaleType.FIT_CENTER);
 		String id = contactInfo.isGroupConversationContact() ? contactInfo.getId() : contactInfo.getMsisdn();
-		iconloader.loadImage(id, true, holder.userImage, false, isListFlinging, true);
+		iconloader.loadImage(id, holder.userImage, isListFlinging, false, true);
 	}
 
 	private View inflateView(ViewType viewType, ViewGroup parent)
@@ -357,6 +438,20 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 	}
 
 	@Override
+	protected List<List<ContactInfo>> makeOriginalList()
+	{
+		if(showDefaultEmptyList)
+		{
+			List<List<ContactInfo>> resultList = new ArrayList<List<ContactInfo>>();
+			return resultList;
+		}
+		else
+		{
+			return super.makeOriginalList();
+		}
+	}
+
+	@Override
 	public void makeCompleteList(boolean filtered)
 	{
 		makeCompleteList(filtered, false);
@@ -376,24 +471,51 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 		{
 			return;
 		}
-
-		// hack for header, as we are using pinnedSectionListView
-
-		if (fetchGroups && !groupsList.isEmpty())
+		
+		if(nuxRecommendedList != null && !nuxRecommendedList.isEmpty())
 		{
-			ContactInfo groupSection = new ContactInfo(SECTION_ID, Integer.toString(filteredGroupsList.size()), context.getString(R.string.group_chats_upper_case), GROUP_MSISDN);
-			if (filteredGroupsList.size() > 0)
-			{
-				completeList.add(groupSection);
-				completeList.addAll(filteredGroupsList);
+			String recoSectionHeader = NUXManager.getInstance().getNuxSelectFriendsPojo().getRecoSectionTitle();
+			ContactInfo recommendedSection = new ContactInfo(SECTION_ID, Integer.toString(nuxFilteredRecoList.size()), recoSectionHeader, RECOMMENDED);
+			if(nuxFilteredRecoList.size() > 0){
+				completeList.add(recommendedSection);
+				completeList.addAll(nuxFilteredRecoList);
 			}
 		}
-		ContactInfo friendsSection = null;
-		if (!filteredFriendsList.isEmpty())
+
+		if(fetchRecentlyJoined && !recentlyJoinedHikeContactsList.isEmpty())
 		{
-			friendsSection = new ContactInfo(SECTION_ID, Integer.toString(filteredFriendsList.size()), context.getString(R.string.favorites_upper_case), FRIEND_PHONE_NUM);
+			ContactInfo recentsSection = new ContactInfo(SECTION_ID, Integer.toString(filteredRecentlyJoinedHikeContactsList.size()), context.getString(R.string.recently_joined_hike), RECENTLY_JOINED);
+			if (filteredRecentlyJoinedHikeContactsList.size() > 0)
+			{
+				completeList.add(recentsSection);
+				completeList.addAll(filteredRecentlyJoinedHikeContactsList);
+			}
 		}
-		updateFriendsList(friendsSection, false, false);
+		
+		// hack for header, as we are using pinnedSectionListView
+		if(fetchRecents && !recentContactsList.isEmpty())
+		{
+			ContactInfo recentsSection = new ContactInfo(SECTION_ID, Integer.toString(filteredRecentsList.size()), context.getString(R.string.recent_chats), RECENT_PHONE_NUM);
+			if (filteredRecentsList.size() > 0)
+			{
+				completeList.add(recentsSection);
+				completeList.addAll(filteredRecentsList);
+			}
+		}
+
+		boolean addFirstGroups = true;
+	       
+		if (groupsList.size() < filteredFriendsList.size()) {
+			addFirstGroups = false;
+		}
+       
+		if(addFirstGroups){
+			addGroupList();
+			addFriendList();
+		}else{
+			addFriendList();
+			addGroupList();
+		}
 		if (isHikeContactsPresent())
 		{
 			ContactInfo hikeContactsSection = new ContactInfo(SECTION_ID, Integer.toString(filteredHikeContactsList.size()), context.getString(R.string.hike_contacts),
@@ -419,8 +541,31 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 
 		notifyDataSetChanged();
 		setEmptyView();
+		friendsListFetchedCallback.completeListFetched();
+		
+		
+		
+	}
+	private void addFriendList() {
+		ContactInfo friendsSection = null;
+		if (!filteredFriendsList.isEmpty())
+		{
+			friendsSection = new ContactInfo(SECTION_ID, Integer.toString(filteredFriendsList.size()), context.getString(R.string.favorites_upper_case), FRIEND_PHONE_NUM);
+		}
+		updateFriendsList(friendsSection, false, false);
 	}
 
+	private void addGroupList() {
+		if (fetchGroups && !groupsList.isEmpty())
+		{
+			ContactInfo groupSection = new ContactInfo(SECTION_ID, Integer.toString(filteredGroupsList.size()), context.getString(R.string.group_chats_upper_case), GROUP_MSISDN);
+			if (filteredGroupsList.size() > 0)
+			{
+				completeList.add(groupSection);
+				completeList.addAll(filteredGroupsList);
+			}
+		}
+	}
 	public void addContact(ContactInfo contactInfo)
 	{
 		selectedPeople.put(contactInfo.getMsisdn(), contactInfo);
@@ -451,6 +596,12 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 		return new ArrayList<ContactInfo>(selectedPeople.values());
 	}
 
+	public List<String> getAllSelectedContactsMsisdns()
+	{
+		List<String> people = new ArrayList<String>(selectedPeople.keySet());
+		return people;
+	}
+	
 	/**
 	 * It includes contact which are currently selected and existing to group (if applicable)
 	 * 
@@ -471,19 +622,25 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 		return existingParticipants.size();
 	}
 
+	public int getOnHikeContactsCount()
+	{
+		return hikeContactsList.size();
+	}
+	
 	public void setShowExtraAtFirst(boolean showExtraAtFirst)
 	{
 		this.showExtraAtFirst = showExtraAtFirst;
 	}
 
 	@Override
-	protected void makeFilteredList(CharSequence constraint, List<ContactInfo> friendList, List<ContactInfo> hikeContactList, List<ContactInfo> smsList)
+	protected void makeFilteredList(CharSequence constraint, List<List<ContactInfo>> resultList)
 	{
 		// TODO Auto-generated method stub
 
-		super.makeFilteredList(constraint, friendList, hikeContactList, smsList);
+		super.makeFilteredList(constraint, resultList);
 		// to add new section and number for user typed number
-		String text = constraint.toString();
+		String text = constraint.toString().trim();
+	
 		if (isIntegers(text))
 		{
 			newContactsList = new ArrayList<ContactInfo>();
@@ -529,7 +686,11 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 	public int getItemViewType(int position)
 	{
 		ContactInfo info = getItem(position);
-		if (info.isUnknownContact() && info.getFavoriteType() == null)
+		if(OneToNConversationUtils.isGroupConversation(info.getMsisdn()))
+		{
+			return super.getItemViewType(position);
+		}
+		else if (info.isUnknownContact() && info.getFavoriteType() == null)
 		{
 			return ViewType.NEW_CONTACT.ordinal();
 		}
@@ -575,4 +736,61 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 	{
 		return iconloader;
 	}
+	
+	public void selectAllContacts(boolean select)
+	{
+		if(select)
+		{
+			selectAllFromList(friendsList,recentContactsList,recentlyJoinedHikeContactsList,hikeContactsList,groupsList);
+			
+		}
+		else
+		{
+			selectedPeople.clear();
+		}
+		notifyDataSetChanged();
+	}
+	
+	public void preSelectContacts(HashSet<String> ... preSelectedMsisdnSets){
+		int total = preSelectedMsisdnSets.length;
+		for(int i=0;i<total;i++){
+			HashSet<String> preSelectedSet = preSelectedMsisdnSets[i];
+			if(preSelectedSet != null){
+				for(String msisdn : preSelectedSet){
+					if(msisdn != null && ContactManager.getInstance().getContact(msisdn) != null){
+						selectedPeople.put(msisdn, ContactManager.getInstance().getContact(msisdn));
+					}
+				}
+			}
+		}
+	}
+	
+	private void selectAllFromList(List<ContactInfo> ...lists){
+		int total = lists.length;
+		for(int i=0;i<total;i++){
+			List<ContactInfo> list = lists[i];
+			if(list!=null){
+				for(ContactInfo contactInfo: list){
+					if(contactInfo.isOnhike()){
+						selectedPeople.put(contactInfo.getMsisdn(), contactInfo);
+					}
+				}
+			}
+		}
+	}
+	
+	public void selectAllFromList(ArrayList<String> msisdns)
+	{
+		if (msisdns == null || msisdns.isEmpty())
+		{
+			return;
+		}
+		
+		for (String msisdn : msisdns)
+		{
+			ContactInfo contactInfo = ContactManager.getInstance().getContact(msisdn, true, false);
+			selectedPeople.put(msisdn, contactInfo);
+		}
+	}
+	
 }

@@ -10,12 +10,15 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
+import android.widget.RelativeLayout;
 import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TextView;
 
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.models.GalleryItem;
 import com.bsb.hike.smartImageLoader.GalleryImageLoader;
+import com.bsb.hike.utils.Utils;
 
 public class GalleryAdapter extends BaseAdapter
 {
@@ -87,8 +90,15 @@ public class GalleryAdapter extends BaseAdapter
 			holder = new ViewHolder();
 
 			holder.galleryName = (TextView) convertView.findViewById(R.id.album_title);
+			holder.galleryCount = (TextView) convertView.findViewById(R.id.album_count);
 			holder.galleryThumb = (ImageView) convertView.findViewById(R.id.album_image);
+			holder.contentLayout = (ViewGroup) convertView.findViewById(R.id.contentLayout);
 			holder.selected = convertView.findViewById(R.id.selected);
+
+			if (!isInsideAlbum)
+			{
+				(convertView.findViewById(R.id.album_layout)).setVisibility(View.VISIBLE);
+			}
 
 			holder.selected.setBackgroundResource(selectedScreen ? R.drawable.gallery_item_selected_selector : R.drawable.gallery_item_selector);
 
@@ -106,16 +116,36 @@ public class GalleryAdapter extends BaseAdapter
 		{
 			holder.galleryName.setVisibility(View.VISIBLE);
 			holder.galleryName.setText(galleryItem.getName());
+
+			if(galleryItem.getBucketCount() > 0)
+			{
+				holder.galleryCount.setVisibility(View.VISIBLE);
+				holder.galleryCount.setText(Integer.toString(galleryItem.getBucketCount()));
+			}
+			else
+				holder.galleryCount.setVisibility(View.GONE);
 		}
 		else
 		{
 			holder.galleryName.setVisibility(View.GONE);
+			holder.galleryCount.setVisibility(View.GONE);
 		}
 		if (galleryItem != null)
 		{
 			holder.galleryThumb.setImageDrawable(null);
-			galleryImageLoader.loadImage(GalleryImageLoader.GALLERY_KEY_PREFIX + galleryItem.getFilePath(), holder.galleryThumb, isListFlinging);
-			holder.galleryThumb.setScaleType(ScaleType.CENTER_CROP);
+			if (galleryItem.getType() == GalleryItem.CUSTOM)
+			{
+				holder.galleryThumb.setScaleType(ScaleType.CENTER_INSIDE);
+				holder.contentLayout.addView(LayoutInflater.from(HikeMessengerApp.getInstance().getApplicationContext()).inflate(
+						Utils.getLayoutIdFromName(galleryItem.getLayoutIDName()), null));
+				holder.contentLayout.setVisibility(View.VISIBLE);
+			}
+			else
+			{
+				galleryImageLoader.loadImage(GalleryImageLoader.GALLERY_KEY_PREFIX + galleryItem.getFilePath(), holder.galleryThumb, isListFlinging);
+				holder.galleryThumb.setScaleType(ScaleType.CENTER_CROP);
+				holder.contentLayout.setVisibility(View.GONE);
+			}
 		}
 		else
 		{
@@ -142,6 +172,10 @@ public class GalleryAdapter extends BaseAdapter
 		TextView galleryName;
 
 		View selected;
+
+		TextView galleryCount;
+
+		ViewGroup contentLayout;
 	}
 
 	public void setIsListFlinging(boolean b)

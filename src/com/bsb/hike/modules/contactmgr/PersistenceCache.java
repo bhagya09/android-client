@@ -17,9 +17,9 @@ import android.util.Pair;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.GroupParticipant;
-import com.bsb.hike.utils.Logger;
+import com.bsb.hike.models.Conversation.OneToNConversation;
+import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.PairModified;
-import com.bsb.hike.utils.Utils;
 
 class PersistenceCache extends ContactsCache
 {
@@ -283,7 +283,24 @@ class PersistenceCache extends ContactsCache
 			GroupDetails grpDetails = groupPersistence.get(groupId);
 			if (null != grpDetails)
 			{
-				grpDetails.setGroupName(name);
+				grpDetails.setCustomGroupName(name);
+			}
+		}
+		finally
+		{
+			writeLock.unlock();
+		}
+	}
+
+	void updateGroupRecency(String groupId, long timestamp)
+	{
+		writeLock.lock();
+		try
+		{
+			GroupDetails grpDetails = groupPersistence.get(groupId);
+			if (null != grpDetails)
+			{
+				grpDetails.setTimestamp(timestamp);
 			}
 		}
 		finally
@@ -304,27 +321,45 @@ class PersistenceCache extends ContactsCache
 		/**
 		 * Always try to take locks when and where required. Here we are separating out locking into different zones so that lock acquired should be for minimum time possible.
 		 */
-		if (Utils.isGroupConversation(msisdn))
+		if (OneToNConversationUtils.isOneToNConversation(msisdn))
 		{
+			GroupDetails grpDetails = null;
 			readLock.lock();
 			try
 			{
-				GroupDetails grpDetails = groupPersistence.get(msisdn);
+				grpDetails = groupPersistence.get(msisdn);
 				if (null == grpDetails)
 					return null;
-				if (!TextUtils.isEmpty(grpDetails.getGroupName()))
+				String groupName = grpDetails.getGroupName();
+				if (!(TextUtils.isEmpty(groupName) || groupName.equals(grpDetails.getGroupId())))
 					return grpDetails.getGroupName();
-				else
-				{
-					List<PairModified<GroupParticipant, String>> grpParticipants = ContactManager.getInstance().getGroupParticipants(msisdn, false, false);
-					return Utils.defaultGroupName(new ArrayList<PairModified<GroupParticipant, String>>(grpParticipants));
-				}
 			}
 			finally
 			{
 				readLock.unlock();
 			}
+			/*
+			 * most of cases will return before only-- below case is for groups which are created by ios and dont have name , so we create one using group participants and set in our
+			 * cache
+			 */
+
+			writeLock.lock();
+			try
+			{
+				List<PairModified<GroupParticipant, String>> grpParticipants = ContactManager.getInstance().getGroupParticipants(msisdn, false, false);
+				String grpName = OneToNConversation.defaultConversationName(new ArrayList<PairModified<GroupParticipant, String>>(grpParticipants));
+				grpDetails.setDefaultGroupName(grpName);
+				return grpName;
+			}
+			finally
+			{
+				writeLock.unlock();
+			}
 		}
+
+		/*
+		 * This is for getting name of an normal contact
+		 */
 		readLock.lock();
 		try
 		{
@@ -350,6 +385,30 @@ class PersistenceCache extends ContactsCache
 		}
 	}
 
+	void updateDefaultGroupName(String grpId)
+	{
+		readLock.lock();
+		try
+		{
+			GroupDetails grpDetails = groupPersistence.get(grpId);
+			if (null != grpDetails)
+			{
+				String grpName = grpDetails.getCustomGroupName();
+				if (!TextUtils.isEmpty(grpName))
+				{
+					return;
+				}
+				List<PairModified<GroupParticipant, String>> grpParticipants = ContactManager.getInstance().getGroupParticipants(grpId, false, false);
+				grpName = OneToNConversation.defaultConversationName(new ArrayList<PairModified<GroupParticipant, String>>(grpParticipants));
+				grpDetails.setDefaultGroupName(grpName);
+			}
+		}
+		finally
+		{
+			readLock.unlock();
+		}
+	}
+	
 	/**
 	 * Returns name of a contact using groupId. This first checks the contactInfo name as contact can be saved contact or unsaved contact.For unsaved we need group id as unsaved
 	 * contacts name is different in different groups
@@ -407,13 +466,16 @@ class PersistenceCache extends ContactsCache
 	 */
 	void loadMemory()
 	{
-		Pair<List<String>, Map<String, List<String>>> allmsisdns = HikeConversationsDatabase.getInstance().getConversationMsisdns();
+		if(HikeConversationsDatabase.getInstance() == null)
+			return;
+		
+		ConversationMsisdns allmsisdns = HikeConversationsDatabase.getInstance().getConversationMsisdns();
 		// oneToOneMsisdns contains list of msisdns with whom one to one conversation currently exists
 		// groupLastMsisdnsMap is map between group Id and list of last msisdns (msisdns of last message) in a group
-		List<String> oneToOneMsisdns = allmsisdns.first;
-		Map<String, List<String>> groupLastMsisdnsMap = allmsisdns.second;
+		List<String> oneToOneMsisdns = allmsisdns.getOneToOneMsisdns();
+		Map<String, Pair<List<String>, Long>> groupLastMsisdnsMap = allmsisdns.getGroupLastMsisdnsWithTimestamp();
 
-		Map<String, Pair<String, Boolean>> groupNamesMap = HikeConversationsDatabase.getInstance().getGroupNamesAndAliveStatus();
+		Map<String, GroupDetails> groupNamesMap = HikeConversationsDatabase.getInstance().getIdGroupDetailsMap();
 
 		HashSet<String> grouplastMsisdns = new HashSet<String>();
 
@@ -421,24 +483,30 @@ class PersistenceCache extends ContactsCache
 		 * groupPersistence is now populated using groupNamesMap(for group name) and groupLastMsisdnsMap(msisdns in last message of a group) , these are needed so that if last
 		 * message in a group changes then previous contact Info objects can be removed from persistence cache otherwise after some time all contacts will be loaded in cache
 		 */
-		for (Entry<String, Pair<String, Boolean>> mapEntry : groupNamesMap.entrySet())
+		for (Entry<String, GroupDetails> mapEntry : groupNamesMap.entrySet())
 		{
 			String grpId = mapEntry.getKey();
-			String name = mapEntry.getValue().first;
-			boolean groupAlive = mapEntry.getValue().second;
-			List<String> lastMsisdns = groupLastMsisdnsMap.get(grpId);
+			GroupDetails groupDetails = mapEntry.getValue();
+			Pair<List<String>, Long> lastMsisdnsAndTimestamp = groupLastMsisdnsMap.get(grpId);
+			long timestamp = 0;
 			ConcurrentLinkedQueue<PairModified<String, String>> lastMsisdnsConcurrentLinkedQueue = new ConcurrentLinkedQueue<PairModified<String, String>>();
-			if (null != lastMsisdns)
+			if (null != lastMsisdnsAndTimestamp)
 			{
-				grouplastMsisdns.addAll(lastMsisdns);
-				for (String ms : lastMsisdns)
+				List<String> lastMsisdns = lastMsisdnsAndTimestamp.first;
+				timestamp = lastMsisdnsAndTimestamp.second;
+				if (null != lastMsisdns)
 				{
-					lastMsisdnsConcurrentLinkedQueue.add(new PairModified<String, String>(ms, null));
-					// name for unsaved contact will be set later because at this point we don't know which msisdns are saved and which are not.
+					grouplastMsisdns.addAll(lastMsisdns);
+					for (String ms : lastMsisdns)
+					{
+						lastMsisdnsConcurrentLinkedQueue.add(new PairModified<String, String>(ms, null));
+						// name for unsaved contact will be set later because at this point we don't know which msisdns are saved and which are not.
+					}
 				}
 			}
-			GroupDetails grpDetails = new GroupDetails(name, groupAlive, lastMsisdnsConcurrentLinkedQueue);
-			groupPersistence.put(grpId, grpDetails);
+			groupDetails.setTimestamp(timestamp);
+			groupDetails.setLastMsisdns(lastMsisdnsConcurrentLinkedQueue);
+			groupPersistence.put(grpId, groupDetails);
 		}
 
 		// msisdnsToGetContactInfo is combination of one to one msisdns and group last msisdns to get contact info from users db
@@ -504,6 +572,37 @@ class PersistenceCache extends ContactsCache
 					msPair.setSecond(name);
 				}
 			}
+		}
+	}
+
+	/**
+	 * This method should be called when both persistence and transient cache have been initialized. It traverses through {@link #groupPersistence} map and if group name is empty
+	 * or equal to group id then it creates a default group name from group participants and sets it in map.
+	 */
+	void updateGroupNames()
+	{
+		writeLock.lock();
+		try
+		{
+			for (Entry<String, GroupDetails> mapEntry : groupPersistence.entrySet())
+			{
+				String msisdn = mapEntry.getKey();
+				GroupDetails grpDetails = mapEntry.getValue();
+				if (null != grpDetails)
+				{
+					String groupName = grpDetails.getGroupName();
+					if (TextUtils.isEmpty(groupName) || groupName.equals(grpDetails.getGroupId()))
+					{
+						List<PairModified<GroupParticipant, String>> grpParticipants = ContactManager.getInstance().getGroupParticipants(msisdn, false, false);
+						String grpName = OneToNConversation.defaultConversationName(new ArrayList<PairModified<GroupParticipant, String>>(grpParticipants));
+						grpDetails.setDefaultGroupName(grpName);
+					}
+				}
+			}
+		}
+		finally
+		{
+			writeLock.unlock();
 		}
 	}
 
@@ -711,7 +810,7 @@ class PersistenceCache extends ContactsCache
 		readLock.lock();
 		try
 		{
-			if (Utils.isGroupConversation(id))
+			if (OneToNConversationUtils.isOneToNConversation(id))
 				return groupPersistence.containsKey(id);
 			else
 				return convsContactsPersistence.containsKey(id);
@@ -748,7 +847,9 @@ class PersistenceCache extends ContactsCache
 		{
 			GroupDetails grpDetails = groupPersistence.get(groupId);
 			if (null == grpDetails)
+			{
 				return false;
+			}
 			return grpDetails.isGroupAlive();
 		}
 		finally
@@ -774,6 +875,62 @@ class PersistenceCache extends ContactsCache
 		}
 
 	}
+	
+	boolean isGroupMute(String groupId)
+	{
+		readLock.lock();
+		try
+		{
+			GroupDetails grpDetails = groupPersistence.get(groupId);
+			if (null == grpDetails)
+			{
+				return false;
+			}
+			return grpDetails.isGroupMute();
+		}
+		finally
+		{
+			readLock.unlock();
+		}
+	}
+
+	void setGroupMute(String groupId, boolean mute)
+	{
+		writeLock.lock();
+		try
+		{
+			GroupDetails grpDetails = groupPersistence.get(groupId);
+			if (null != grpDetails)
+			{
+				grpDetails.setGroupMute(mute);
+			}
+		}
+		finally
+		{
+			writeLock.unlock();
+		}
+
+	}
+
+	public void insertGroup(String grpId, GroupDetails grpDetails)
+	{
+		writeLock.lock();
+		try
+		{
+			String groupName = grpDetails.getGroupName();
+			if (TextUtils.isEmpty(groupName) || groupName.equals(grpId))
+			{
+				List<PairModified<GroupParticipant, String>> grpParticipants = ContactManager.getInstance().getGroupParticipants(grpId, false, false);
+				groupName = OneToNConversation.defaultConversationName(new ArrayList<PairModified<GroupParticipant, String>>(grpParticipants));
+				grpDetails.setDefaultGroupName(groupName);
+			}
+			groupPersistence.put(grpId, grpDetails);
+		}
+		finally
+		{
+			writeLock.unlock();
+		}
+	}
 
 	/**
 	 * Inserts the group with group id and groupName in the {@link #groupPersistence}
@@ -787,7 +944,13 @@ class PersistenceCache extends ContactsCache
 		try
 		{
 			ConcurrentLinkedQueue<PairModified<String, String>> clq = new ConcurrentLinkedQueue<PairModified<String, String>>();
-			GroupDetails grpDetails = new GroupDetails(groupName, alive, clq);
+			String defaultGroupName = null;
+			if (TextUtils.isEmpty(groupName) || groupName.equals(grpId))
+			{
+				List<PairModified<GroupParticipant, String>> grpParticipants = ContactManager.getInstance().getGroupParticipants(grpId, false, false);
+				defaultGroupName = OneToNConversation.defaultConversationName(new ArrayList<PairModified<GroupParticipant, String>>(grpParticipants));
+			}
+			GroupDetails grpDetails = new GroupDetails(grpId, groupName, defaultGroupName, alive, clq);
 			groupPersistence.put(grpId, grpDetails);
 		}
 		finally
@@ -887,5 +1050,74 @@ class PersistenceCache extends ContactsCache
 		{
 			readLock.unlock();
 		}
+	}
+
+	/**
+	 * Returns one to one contacts from {@link #convsContactsPersistence}.
+	 *
+	 * @param
+	 * @return List of convContacts
+	 */
+	List<ContactInfo> getConversationOneToOneContacts()
+	{
+		List<ContactInfo> convContacts = new ArrayList<ContactInfo>();
+		readLock.lock();
+		try
+		{
+			for(Map.Entry<String, ContactInfo> entry : convsContactsPersistence.entrySet())
+			{
+				convContacts.add(entry.getValue());
+			}
+			return convContacts;
+		}
+		finally
+		{
+			readLock.unlock();
+		}
+	}
+
+	List<GroupDetails> getGroupDetailsList()
+	{
+		// traverse through groupPersistence
+		readLock.lock();
+		try
+		{
+			List<GroupDetails> groupsList = new ArrayList<GroupDetails>();
+			for (Entry<String, GroupDetails> mapEntry : groupPersistence.entrySet())
+			{
+				GroupDetails grpDetails = mapEntry.getValue();
+				groupsList.add(grpDetails);
+			}
+			return groupsList;
+		}
+		finally
+		{
+			readLock.unlock();
+		}
+	}
+
+	public GroupDetails getGroupDetails(String msisdn)
+	{
+		readLock.lock();
+		try
+		{
+			return groupPersistence.get(msisdn);
+		}
+		finally
+		{
+			readLock.unlock();
+		}
+	}
+
+	/**
+	 * Clears the memory {@see #clearMemory()} and make all references null
+	 */
+	void shutdown()
+	{
+		clearMemory();
+		hDb = null;
+		convsContactsPersistence = null;
+		groupContactsPersistence = null;
+		groupPersistence = null;
 	}
 }

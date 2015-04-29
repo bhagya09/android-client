@@ -53,7 +53,17 @@ public class CustomReceiveMessageTextView extends CustomFontTextView
 			int linesMaxWidth = 0;
 			int lines = 0;
 			
-			super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+			// issue : https://code.google.com/p/android/issues/detail?id=35466
+			try
+			{
+				super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+			}
+			catch (IndexOutOfBoundsException e)
+			{
+				// Fallback to plain text
+				setText(getText().toString());
+				super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+			}
 			Layout layout = getLayout();
 			lines = layout.getLineCount();
 			float lastLine = layout.getLineWidth(lines - 1);
@@ -94,9 +104,9 @@ public class CustomReceiveMessageTextView extends CustomFontTextView
 			DisplayMetrics displaymetrics = context.getResources().getDisplayMetrics();
 			int height = displaymetrics.heightPixels;
 			int width = displaymetrics.widthPixels;
-			int widthInDP = (int)(width / Utils.densityMultiplier);
+			int widthInDP = (int)(width / Utils.scaledDensityMultiplier);
 			int max_width = Math.min((widthInDP - minOutMargin),maxWidth);
-			if(linesMaxWidth>= (int) ((widthAddition * Utils.densityMultiplier) + lastLineWidth))
+			if(linesMaxWidth>= (int) ((widthAddition * Utils.scaledDensityMultiplier) + lastLineWidth))
 			{
 				int parentWidth = MeasureSpec.getSize(widthMeasureSpec);
 				int parentHeight = MeasureSpec.getSize(heightMeasureSpec);
@@ -105,14 +115,14 @@ public class CustomReceiveMessageTextView extends CustomFontTextView
 				//Logger.d(TAG, "Width: " + parentWidth + ", Height: " + parentHeight);
 				this.setMeasuredDimension(linesMaxWidth, parentHeight);
 			}
-			else if((int) (((widthAddition + widthMargin) * Utils.densityMultiplier) + lastLineWidth) < (int)(max_width * Utils.densityMultiplier))
+			else if((int) (((widthAddition + widthMargin) * Utils.scaledDensityMultiplier) + lastLineWidth) < (int)(max_width * Utils.scaledDensityMultiplier))
 			{
 				int parentWidth = MeasureSpec.getSize(widthMeasureSpec);
 				int parentHeight = MeasureSpec.getSize(heightMeasureSpec);
 				//Logger.d(TAG, "Width: " + parentWidth + ", Height: " + parentHeight);
 				parentHeight = viewHeight;
 				//Logger.d(TAG, "Width: " + parentWidth + ", Height: " + parentHeight);
-				linesMaxWidth = Math.max(linesMaxWidth, (int) ((widthAddition * Utils.densityMultiplier) + lastLineWidth));
+				linesMaxWidth = Math.max(linesMaxWidth, (int) ((widthAddition * Utils.scaledDensityMultiplier) + lastLineWidth));
 				this.setMeasuredDimension(linesMaxWidth, parentHeight);
 			}
 			else
@@ -120,7 +130,7 @@ public class CustomReceiveMessageTextView extends CustomFontTextView
 				int parentWidth = MeasureSpec.getSize(widthMeasureSpec);
 				int parentHeight = MeasureSpec.getSize(heightMeasureSpec);
 				//Logger.d(TAG, "Width: " + parentWidth + ", Height: " + parentHeight);
-				parentHeight = (int) (viewHeight + (heightAddition * Utils.densityMultiplier));
+				parentHeight = (int) (viewHeight + (heightAddition * Utils.scaledDensityMultiplier));
 				//Logger.d(TAG, "Width: " + parentWidth + ", Height: " + parentHeight);
 				this.setMeasuredDimension(linesMaxWidth, parentHeight);
 			}
@@ -136,6 +146,33 @@ public class CustomReceiveMessageTextView extends CustomFontTextView
 			{
 				setMeasuredDimension(MeasureSpec.getSize(widthMeasureSpec), MeasureSpec.getSize(heightMeasureSpec));
 			}
+		}
+	}
+
+	@Override
+	public void setGravity(int gravity)
+	{
+		try
+		{
+			super.setGravity(gravity);
+		}
+		catch (IndexOutOfBoundsException e)
+		{
+			setText(getText().toString());
+			super.setGravity(gravity);
+		}
+	}
+
+	@Override
+	public void setText(CharSequence text, BufferType type)
+	{
+		try
+		{
+			super.setText(text, type);
+		}
+		catch (IndexOutOfBoundsException e)
+		{
+			setText(text.toString());
 		}
 	}
 }

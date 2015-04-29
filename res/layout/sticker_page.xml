@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
-    <ListView
+    <GridView
         android:id="@+id/emoticon_grid"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -14,47 +14,17 @@
         android:fadingEdge="none"
         android:listSelector="@android:color/transparent"
         android:paddingLeft="@dimen/sticker_padding"
-        android:paddingRight="@dimen/sticker_padding" />
+        android:paddingRight="@dimen/sticker_padding"
+        android:paddingTop="8dp"
+        android:horizontalSpacing="@dimen/sticker_grid_horizontal_padding"
+        android:verticalSpacing="@dimen/sticker_padding"
+        android:scrollbarStyle="outsideOverlay"/>
 
-    <com.bsb.hike.view.CustomFontButton
-        android:id="@+id/sticker_fail_btn"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
-        android:background="@drawable/bg_red_btn_selector"
-        android:text="@string/sticker_download_failed"
-        android:textColor="@color/actionbar_text"
-        android:textSize="14sp"
-        android:textStyle="bold|italic"
-        android:visibility="gone" />
-
+    
     <LinearLayout
-        android:id="@+id/downloading_container"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:visibility="visible" >
-
-        <ProgressBar
-            android:id="@+id/download_progress"
-            android:layout_width="28dp"
-            android:layout_height="28dp"
-            android:layout_marginBottom="15dp"
-            android:layout_marginTop="15dp"
-            android:indeterminateDrawable="@drawable/custom_progress_bar_drawable"
-            android:visibility="visible" />
-
-        <com.bsb.hike.view.CustomFontTextView
-            android:id="@+id/downloading_sticker"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/actionbar_text"
-            android:textSize="14sp"
-            android:text="Downloading Expressions" />
+        android:id="@+id/emptyViewHolder"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" >
     </LinearLayout>
 
 </RelativeLayout>

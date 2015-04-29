@@ -13,9 +13,14 @@ public class CustomSendMessageTextView extends CustomFontTextView
 	
 	private static final int maxWidth = 265;
 	
-	private static final int widthTime12Hour = 75;
+	private static final int widthTime12HourDefault = 75;
+	private static final int widthTime24HourDefault = 57;
+	private static final int widthTime12HourBroadcast = 90;
+	private static final int widthTime24HourBroadcast = 72;
 	
-	private static final int widthTime24Hour = 57;
+	private int widthTime12Hour;
+	
+	private int widthTime24Hour;
 	
 	private static final int widthMargin = 2;
 	
@@ -85,7 +90,7 @@ public class CustomSendMessageTextView extends CustomFontTextView
 				widthAddition = widthTime12Hour;
 			}
 			
-			if((int) (((widthAddition + widthMargin) * Utils.densityMultiplier) + lastLineWidth) < (int)(maxWidth * Utils.densityMultiplier))
+			if((int) (((widthAddition + widthMargin) * Utils.scaledDensityMultiplier) + lastLineWidth) < (int)(maxWidth * Utils.scaledDensityMultiplier))
 			//if (getContext().getResources().getDisplayMetrics().widthPixels - lastLineWidth > ((widthAddition + widthMargin) * Utils.densityMultiplier))
 			{
 				int parentWidth = MeasureSpec.getSize(widthMeasureSpec);
@@ -93,7 +98,7 @@ public class CustomSendMessageTextView extends CustomFontTextView
 				//Logger.d(TAG, "Width: " + parentWidth + ", Height: " + parentHeight);
 				parentHeight = viewHeight;
 				//Logger.d(TAG, "Width: " + parentWidth + ", Height: " + parentHeight);
-				linesMaxWidth = Math.max(linesMaxWidth, (int) (((widthAddition + 0) * Utils.densityMultiplier) + lastLineWidth));
+				linesMaxWidth = Math.max(linesMaxWidth, (int) (((widthAddition + 0) * Utils.scaledDensityMultiplier) + lastLineWidth));
 				//super.onMeasure(MeasureSpec.makeMeasureSpec(linesMaxWidth, MeasureSpec.EXACTLY), heightMeasureSpec);
 				this.setMeasuredDimension(linesMaxWidth, parentHeight);
 			}
@@ -102,7 +107,7 @@ public class CustomSendMessageTextView extends CustomFontTextView
 				int parentWidth = MeasureSpec.getSize(widthMeasureSpec);
 				int parentHeight = MeasureSpec.getSize(heightMeasureSpec);
 				//Logger.d(TAG, "Width: " + parentWidth + ", Height: " + parentHeight);
-				parentHeight = (int) (viewHeight + (heightAddition * Utils.densityMultiplier));
+				parentHeight = (int) (viewHeight + (heightAddition * Utils.scaledDensityMultiplier));
 				//Logger.d(TAG, "Width: " + parentWidth + ", Height: " + parentHeight);
 				this.setMeasuredDimension(linesMaxWidth, parentHeight);
 			}
@@ -119,5 +124,17 @@ public class CustomSendMessageTextView extends CustomFontTextView
 				setMeasuredDimension(MeasureSpec.getSize(widthMeasureSpec), MeasureSpec.getSize(heightMeasureSpec));
 			}
 		}
+	}
+	
+	public void setDefaultLength()
+	{
+		widthTime12Hour = widthTime12HourDefault;
+		widthTime24Hour = widthTime24HourDefault;
+	}
+	
+	public void setBroadcastLength()
+	{
+		widthTime12Hour = widthTime12HourBroadcast;
+		widthTime24Hour = widthTime24HourBroadcast;
 	}
 }

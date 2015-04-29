@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginLeft="@dimen/sticker_pack_empty_view_margin"
+    android:layout_marginTop="6dp"
+    android:layout_marginBottom="6dp"
+    android:gravity="center" >
+
+    <ImageView
+        android:id="@+id/preview_image"
+        android:layout_width="125dp"
+        android:layout_height="178dp"
+        android:layout_marginRight="18dp"
+        android:scaleType="centerInside"
+        android:src="@drawable/sticker_069_hi" />
+
+    <LinearLayout
+        android:id="@+id/category_update_details"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_alignTop="@id/preview_image"
+        android:layout_alignBottom="@id/preview_image"
+        android:layout_toRightOf="@id/preview_image"
+        android:paddingRight="@dimen/sticker_pack_empty_view_margin"
+        android:gravity="center_vertical"
+        android:orientation="vertical" >
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/new_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/new_stickers"
+            android:textColor="@color/shop_icon_color"
+            android:textSize="12sp" 
+            android:layout_marginTop="4dp" />
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/category_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:textColor="@color/white"
+            android:textSize="18sp" />
+
+        <LinearLayout 
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+            
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/category_details"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="8dp"
+            android:textColor="@color/standard_light_grey2"
+            android:textSize="12sp" />
+        
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/separator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="|"
+            android:textColor="#333333"
+            android:textSize="12sp"
+            android:visibility="gone" />
+        
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/category_price"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/sticker_pack_free"
+            android:layout_marginLeft="8dp"
+            android:textColor="@color/standard_light_grey2"
+            android:textSize="12sp" />
+        </LinearLayout>
+        
+        <com.bsb.hike.view.CustomFontButton
+            android:id="@+id/download_btn"
+            android:layout_width="150dp"
+            android:layout_height="36dp"
+            android:background="@drawable/download_btn_round"
+            android:layout_marginTop="8dp"
+            android:textSize="12sp"
+            android:text="@string/download_category"
+            android:textColor="@color/white" />
+        
+    </LinearLayout>
+
+</RelativeLayout>

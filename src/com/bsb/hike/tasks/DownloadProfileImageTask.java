@@ -21,10 +21,11 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
-import com.bsb.hike.adapters.ProfileAdapter;
+import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.HikeSSLUtil;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.Utils;
 
 public class DownloadProfileImageTask extends AsyncTask<Void, Void, Boolean>
@@ -78,7 +79,7 @@ public class DownloadProfileImageTask extends AsyncTask<Void, Void, Boolean>
 			}
 			else
 			{
-				boolean isGroupConversation = Utils.isGroupConversation(id);
+				boolean isGroupConversation = OneToNConversationUtils.isGroupConversation(id);
 
 				if (hasCustomIcon)
 				{
@@ -125,6 +126,7 @@ public class DownloadProfileImageTask extends AsyncTask<Void, Void, Boolean>
 
 			URLConnection connection = url.openConnection();
 			AccountUtils.addUserAgent(connection);
+			AccountUtils.setNoTransform(connection);
 			connection.addRequestProperty("Cookie", "user=" + AccountUtils.mToken + "; UID=" + AccountUtils.mUid);
 
 			if (isSslON)
@@ -161,6 +163,8 @@ public class DownloadProfileImageTask extends AsyncTask<Void, Void, Boolean>
 			{
 				if (fos != null)
 				{
+					fos.flush();
+					fos.getFD().sync();
 					fos.close();
 				}
 				if (is != null)
@@ -210,7 +214,7 @@ public class DownloadProfileImageTask extends AsyncTask<Void, Void, Boolean>
 
 			if (!statusImage)
 			{
-				idpp = id + ProfileAdapter.PROFILE_PIC_SUFFIX;
+				idpp = id + ProfileActivity.PROFILE_PIC_SUFFIX;
 			}
 
 			HikeMessengerApp.getLruCache().remove(idpp);

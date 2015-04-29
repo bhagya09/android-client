@@ -325,14 +325,21 @@
     <style name="AppTheme" parent="Theme.Sherlock.Light.DarkActionBar">
         <item name="actionBarStyle">@style/Widget.Styled.ActionBar</item>
         <item name="android:actionBarStyle">@style/Widget.Styled.ActionBar</item>
-        <item name="vpiIconPageIndicatorStyle">@style/CustomIconPageIndicator</item>
         <item name="actionOverflowButtonStyle">@style/OverflowMenu</item>
         <item name="android:actionOverflowButtonStyle">@style/OverflowMenu</item>
         <item name="actionBarSize">@dimen/st__action_bar_default_height</item>
         <item name="android:actionBarSize">@dimen/st__action_bar_default_height</item>
-        <item name="android:actionModeBackground">@drawable/bg_header_transparent</item>
-        
+        <item name="actionModeBackground">@color/transparent</item>
+        <item name="android:actionModeBackground">@color/transparent</item>
+        <item name="actionModeCloseButtonStyle">@style/NoCloseButton</item>
+        <item name="actionModeCloseDrawable">@drawable/ic_close_chat_bg_palette</item>
+        <item name="android:actionModeCloseButtonStyle">@style/NoCloseButton</item>
+        <item name="android:actionModeCloseDrawable">@drawable/ic_close_chat_bg_palette</item>
     </style>
+    <style name="NoCloseButton" parent="@style/Widget.Sherlock.ActionButton.CloseMode">
+    <item name="android:visibility">visible</item>
+	</style>
+	
     <style name="ActivityAnimation">
         <item name="android:windowExitAnimation">@anim/fade_out_animation</item>
     	<item name="android:windowEnterAnimation">@anim/fade_in_animation</item>
@@ -344,6 +351,13 @@
         <item name="vpiTabTextIndicatorStyle">@style/TabText</item>
     </style>
     
+    <style name="AppTheme.Home.Photos">
+        <item name="vpiTabPageIndicatorStyle">@style/PhotosTabPageIndicator</item>
+         <item name="actionBarStyle">@style/Widget.Styled.PhotosActionBar</item>
+        <item name="android:actionBarStyle">@style/Widget.Styled.PhotosActionBar</item>
+       
+    </style>
+    
     <style name="Widget.Styled.ActionBar" parent="Widget.Sherlock.Light.ActionBar.Solid.Inverse">
         <item name="background">@drawable/bg_header</item>
         <item name="android:background">@drawable/bg_header</item>
@@ -353,6 +367,15 @@
         <item name="android:titleTextStyle">@style/NoTitleText</item>
     </style>
 
+    <style name="Widget.Styled.PhotosActionBar" parent="Widget.Sherlock.Light.ActionBar.Solid.Inverse">
+        <item name="background">@color/photos_action_bar_transcluscent_background</item>
+        <item name="android:background">@color/photos_action_bar_transcluscent_background</item>
+        <item name="backgroundSplit">@color/credits_blue</item>
+        <item name="android:backgroundSplit">@color/credits_blue</item>
+        <item name="titleTextStyle">@style/NoTitleText</item>
+        <item name="android:titleTextStyle">@style/NoTitleText</item>
+    </style>
+    
 	<style name="NoTitleText">
         <item name="android:textColor">#00000000</item>
 	</style>
@@ -367,15 +390,18 @@
         <item name="android:fadingEdge">horizontal</item>
         <item name="android:fadingEdgeLength">8dp</item>
     </style>
-
-    <style name="CustomIconPageIndicator" parent="Widget.IconPageIndicator">
-        <item name="android:background">@drawable/emoticon_tab_indicator</item>
-        <item name="android:divider">@drawable/emoticon_tab_divider</item>
-        <item name="android:showDividers">middle</item>
-        <item name="android:layout_marginLeft">0dp</item>
-        <item name="android:layout_marginRight">0dp</item>
-    </style>
     
+    <style name="PhotosTabPageIndicator" parent="Widget.TabPageIndicator">
+        <item name="android:background">@drawable/photos_tab_selector</item>
+        <item name="android:dividerPadding">0dp</item>
+        <item name="android:divider">@drawable/home_tab_divider</item>
+        <item name="android:showDividers">none</item>
+        <item name="android:fadingEdge">horizontal</item>
+        <item name="android:fadingEdgeLength">8dp</item>
+        <item name="android:paddingLeft">8dp</item>
+        <item name="android:paddingRight">8dp</item>
+    </style>
+
     <style name="TabText">
         <item name="android:textColor">@drawable/tab_text_selector</item>
         <item name="android:textSize">12sp</item>
@@ -442,7 +468,19 @@
 	    <item name="android:background">@drawable/bg_updates_white</item>
 	</style>
 	
-	<style name="AvatarStyle">
+	<style name="NuxScreenCardContainer">
+	    <item name="android:layout_marginLeft">@dimen/updates_margin</item>
+	    <item name="android:layout_marginRight">@dimen/updates_margin</item>
+	    <item name="android:layout_marginTop">@dimen/updates_margin_top</item>
+	    <item name="android:background">@drawable/bg_sticker_card_white</item>
+	</style>
+	
+	<style name="RoundedStyle">
+	    <item name="riv_oval">true</item>
+	    <item name="riv_mutate_background">true</item>
+	</style>
+	
+	<style name="AvatarStyle" parent="RoundedStyle">
 	    <item name="android:layout_width">match_parent</item>
 	    <item name="android:layout_height">match_parent</item>
 	    <item name="android:layout_centerInParent">true</item>
@@ -649,7 +687,7 @@
 	<style name="SmallListContactItemHeader">
 	    <item name="android:layout_width">wrap_content</item>
 	    <item name="android:layout_height">wrap_content</item>
-	    <item name="android:textColor">@color/standerd_black</item>
+	    <item name="android:textColor">@color/standard_black</item>
 	    <item name="android:textSize">16sp</item>
 	    <item name="android:textStyle">bold|italic</item>
 	    <item name="android:ellipsize">end</item>
@@ -661,33 +699,27 @@
 	    <item name="android:textStyle">italic</item>
 	</style>
 	
-	<style name="TipHeader">
-	    <item name="android:layout_width">wrap_content</item>
-	    <item name="android:layout_height">wrap_content</item>
-	    <item name="android:textSize">24sp</item>
-	    <item name="android:textStyle">italic</item>
-	    <item name="android:textColor">#ffffff</item>
-	</style>
-
-	<style name="TipBody">
-	    <item name="android:layout_width">wrap_content</item>
-	    <item name="android:layout_height">wrap_content</item>
-	    <item name="android:textSize">12sp</item>
-	    <item name="android:textStyle">italic</item>
-	    <item name="android:textColor">#ffffff</item>
-	</style>
-	
 	<style name="Divider">
 	    <item name="android:layout_width">match_parent</item>
 	    <item name="android:layout_height">0.5dp</item>
 	    <item name="android:background">@drawable/home_list_divider</item>
 	</style>
-	
-	<style name="PinsReadContainer">
-	    <item name="android:layout_marginLeft">8dp</item>
-	    <item name="android:layout_marginRight">8dp</item>
-	    <item name="android:layout_marginTop">8dp</item>
-        <item name="android:background">@drawable/pins_bg_read_selector</item>
+		
+	<style name="DiwaliPopupButton">
+	    <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:gravity">center</item>
+        <item name="android:background">@null</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:textColor">@color/diwali_popup_btn_txt</item>
 	</style>
 	
+	<color name="transparent_black_color">#66ffffff</color>
+	<style name="TranslucentBlack" parent="@style/Theme.Sherlock.Light.NoActionBar">
+        <item name="android:windowBackground">@color/transparent_black_color</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowIsFloating">false</item>
+    </style>
+    	
 </resources>

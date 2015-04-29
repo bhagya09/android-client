@@ -14,46 +14,13 @@
         android:layout_marginRight="8dp"
         android:background="@drawable/bg_country_search_bar"
         android:gravity="center_vertical"
-        android:hint="@string/search_hint"
+        android:hint="@string/search"
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
         android:paddingTop="8dp"
         android:singleLine="true" />
 
-    <RelativeLayout
-        android:id="@+id/select_all_container"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:layout_alignParentBottom="true"
-        android:background="#566167"
-        android:visibility="gone" >
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="2dp"
-            android:background="#4f5a60" />
-
-        <CheckBox
-            android:id="@+id/select_all_cb"
-            android:layout_width="wrap_content"
-            android:layout_height="35dp"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            android:layout_marginRight="12dp"
-            android:button="@drawable/select_all_checkbox" />
-
-        <com.bsb.hike.view.CustomFontTextView
-            android:id="@+id/select_all_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_centerVertical="true"
-            android:layout_marginLeft="15dp"
-            android:text="@string/select_all"
-            android:textColor="@color/actionbar_text"
-            android:textSize="18sp"
-            android:textStyle="bold|italic" />
-    </RelativeLayout>
+    <include layout="@layout/select_all_bottom_bar" android:id="@+id/select_all_container"/>
 
     <LinearLayout
         android:layout_width="match_parent"

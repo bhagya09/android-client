@@ -17,16 +17,13 @@ package com.bsb.hike.cropimage;
  */
 
 import java.io.Closeable;
-import java.io.IOException;
 
 import android.app.ProgressDialog;
-import android.content.ContentResolver;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Rect;
-import android.net.Uri;
 import android.os.Handler;
 import android.os.ParcelFileDescriptor;
 import android.view.View;
@@ -39,7 +36,6 @@ import com.bsb.hike.utils.Logger;
  */
 public class Util
 {
-	private static final String TAG = "db.Util";
 
 	private static OnClickListener sNullOnClickListener;
 
@@ -252,24 +248,6 @@ public class Util
 		catch (Throwable t)
 		{
 			// do nothing
-		}
-	}
-
-	/**
-	 * Make a bitmap from a given Uri.
-	 * 
-	 * @param uri
-	 */
-
-	private static ParcelFileDescriptor makeInputStream(Uri uri, ContentResolver cr)
-	{
-		try
-		{
-			return cr.openFileDescriptor(uri, "r");
-		}
-		catch (IOException ex)
-		{
-			return null;
 		}
 	}
 

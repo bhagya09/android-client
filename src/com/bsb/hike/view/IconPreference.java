@@ -23,7 +23,7 @@ public class IconPreference extends Preference
 	private void setIcon(Context context, AttributeSet attrs)
 	{
 		String iconName = attrs.getAttributeValue(null, "icon");
-
+		iconName = iconName.split("/")[1];
 		int id = context.getResources().getIdentifier(iconName, "drawable", context.getPackageName());
 
 		this.mIcon = context.getResources().getDrawable(id);

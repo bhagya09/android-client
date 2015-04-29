@@ -1,0 +1,86 @@
+buildscript {
+
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:1.0.0+'
+    }
+}
+apply plugin: 'com.android.application'
+android {
+    compileSdkVersion "Google Inc.:Google APIs:21"
+    buildToolsVersion "21.0.2"
+    aaptOptions {
+        useNewCruncher true
+    }
+    defaultConfig {
+        minSdkVersion 9
+        renderscriptTargetApi 18
+        renderscriptSupportModeEnabled true
+        targetSdkVersion 17
+    }
+    lintOptions {
+        lintConfig file("lint.xml")
+        abortOnError false
+    }
+    dexOptions {
+        javaMaxHeapSize "2048M"
+        preDexLibraries = false 
+        jumboMode = true
+    }
+    dependencies {
+        compile(project(':actionbar-sherlock')) {
+            exclude module: 'support-v4'
+        }
+        compile(project(':google-play')) {
+            exclude module: 'support-v4'
+        }
+        compile(project(':facebook')) {
+            exclude module: 'support-v4'
+        }
+        compile(project(':viewpager-indicator-library')) {
+            exclude module: 'support-v4'
+        }
+        compile fileTree(dir: 'libs', include: ['*.jar'])
+    }
+
+    sourceSets {
+        main {
+            manifest.srcFile 'AndroidManifest.xml'
+            java.srcDirs = ['okhttp-urlconnection','okhttp','mqtt', 'src']
+            renderscript.srcDirs = ['src']
+            res.srcDirs = ['res']
+            assets.srcDirs = ['assets']
+            jniLibs.srcDirs = ['libs']
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
+    }
+
+    signingConfigs {
+        release {
+            storeFile file("hike-android-release-key.keystore")
+            storePassword "Tequ1laFr1day5"
+            keyAlias "hhikedroid"
+            keyPassword "Tequ1laFr1day5"
+        }
+    }
+
+    buildTypes {
+        release {
+        	minifyEnabled true
+            proguardFile 'proguard.cfg'
+            signingConfig signingConfigs.release
+        }
+    }
+    productFlavors {
+    arm {
+        ndk {
+            abiFilters "armeabi", "armeabi-v7a"
+        	}
+    	}
+	}
+}

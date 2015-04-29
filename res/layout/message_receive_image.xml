@@ -31,19 +31,20 @@
         android:layout_marginLeft="@dimen/chat_bubble_edge_spacing"
         android:layout_marginTop="2.5dp"
         android:layout_toRightOf="@id/avatar_container"
-        android:background="@drawable/ic_bubble_white_selector"
         android:orientation="vertical" >
 
         <include
             android:id="@+id/sender_details"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
             layout="@layout/message_sender_details" />
 
         <RelativeLayout
             android:id="@+id/placeholder"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:background="@drawable/ic_bubble_white_selector"
             android:layout_marginLeft="1dp"
             android:layout_marginRight="2dp" >
 
@@ -76,7 +77,7 @@
                     android:layout_centerInParent="true"
                     android:gravity="center"
                     app:marker_visible="false"
-                    app:progress="0.4"
+                    app:progress="0.0"
                     app:progress_background_color="@color/white_45"
                     app:progress_color="@color/white_85"
                     app:stroke_width="3dp"

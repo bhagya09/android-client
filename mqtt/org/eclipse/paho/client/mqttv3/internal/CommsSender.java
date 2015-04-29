@@ -101,9 +101,17 @@ public class CommsSender implements Runnable
 					try
 					{
 						// first notify get routine to finish
-						clientState.notifyQueueLock();
-						// Wait for the thread to finish.
-						sendThread.join();
+						// stop() can be called multiple time so need a null check. Defensive check
+						if(clientState != null)
+						{
+							clientState.notifyQueueLock();
+						}
+						
+						if(sendThread != null)
+						{
+							// Wait for the thread to finish.
+							sendThread.join();
+						}
 					}
 					catch (InterruptedException ex)
 					{

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<integer name="profile_signup_weight1">195</integer>
-	<integer name="profile_signup_weight2">43</integer>
-	<integer name="profile_signup_weight3">282</integer>
+	<integer name="profile_signup_weight1">154</integer>
+	<integer name="profile_signup_weight2">100</integer>
+	<integer name="profile_signup_weight3">266</integer>
 	<integer name="ft_limit">15</integer>
 </resources>

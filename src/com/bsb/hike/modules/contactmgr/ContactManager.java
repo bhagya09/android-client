@@ -5,6 +5,8 @@ package com.bsb.hike.modules.contactmgr;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -17,6 +19,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -32,8 +35,11 @@ import android.provider.ContactsContract.CommonDataKinds.Phone;
 import android.text.TextUtils;
 import android.util.Pair;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.R;
+import com.bsb.hike.db.DBConstants;
 import com.bsb.hike.db.DbException;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
@@ -43,6 +49,7 @@ import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.modules.iface.ITransientCache;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.Utils;
 
@@ -53,7 +60,7 @@ import com.bsb.hike.utils.Utils;
 public class ContactManager implements ITransientCache, HikePubSub.Listener
 {
 	// This should always be present so making it loading on class loading itself
-	private volatile static ContactManager _instance = new ContactManager();
+	private volatile static ContactManager _instance;
 
 	private PersistenceCache persistenceCache;
 
@@ -63,11 +70,14 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 
 	private Context context;
 
-	private String[] pubSubListeners = { HikePubSub.APP_BACKGROUNDED };
+	private static String[] pubSubListeners = { HikePubSub.APP_BACKGROUNDED };
 
 	private ContactManager()
 	{
-		HikeMessengerApp.getPubSub().addListeners(this, pubSubListeners);
+		context = HikeMessengerApp.getInstance().getApplicationContext();
+		hDb = HikeUserDatabase.getInstance();
+		persistenceCache = new PersistenceCache(hDb);
+		transientCache = new TransientCache(hDb);
 	}
 
 	public static ContactManager getInstance()
@@ -79,23 +89,35 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 				if (_instance == null)
 				{
 					_instance = new ContactManager();
+					init();
 				}
 			}
 		}
 		return _instance;
 	}
 
+	private static void init()
+	{
+		if (_instance == null)
+		{
+			throw new IllegalStateException("Contact Manager getInstance() should be called that will create a new instance and initialize");
+		}
+
+		HikeMessengerApp.getPubSub().addListeners(_instance, pubSubListeners);
+
+		// Called to set name for group whose group name is empty (group created by ios) , we cannot do this inside persistence cache load memory because at taht point transient
+		// and persistence cache have not been initialized completely
+		_instance.persistenceCache.updateGroupNames();
+	}
+	
 	public SQLiteDatabase getWritableDatabase()
 	{
 		return hDb.getWritableDatabase();
 	}
 
-	public void init(Context ctx)
+	public SQLiteDatabase getReadableDatabase()
 	{
-		context = ctx.getApplicationContext();
-		hDb = new HikeUserDatabase(ctx);
-		persistenceCache = new PersistenceCache(hDb);
-		transientCache = new TransientCache(hDb);
+		return hDb.getReadableDatabase();
 	}
 
 	/**
@@ -129,7 +151,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	}
 
 	/**
-	 * This is used to remove the list of msisdns from either group or 1-1 conversation and should be called when multiple group or one to one conversations are deleted.
+	 * This is used to remove the list of msisdns from either 1-n or 1-1 conversation and should be called when multiple group or one to one conversations are deleted.
 	 * 
 	 * @param msisdns
 	 */
@@ -137,7 +159,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	{
 		for (String ms : msisdns)
 		{
-			if (Utils.isGroupConversation(ms))
+			if (OneToNConversationUtils.isOneToNConversation(ms))
 			{
 				persistenceCache.removeGroup(ms);
 				transientCache.removeGroup(ms);
@@ -424,21 +446,31 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 		return transientCache.getAllContacts();
 	}
 
+	
+	public List<ContactInfo> getAllContacts(boolean ignoreUnknownContacts)
+	{
+		return transientCache.getAllContacts(ignoreUnknownContacts);
+	}
 	/**
 	 * This method should be called when last message in a group is changed, we remove the previous contact from the {@link PersistenceCache} and inserts the new contacts in memory
 	 * 
 	 * @param map
 	 */
-	public void removeOlderLastGroupMsisdns(Map<String, List<String>> map)
+	public void removeOlderLastGroupMsisdns(Map<String, Pair<List<String>, Long>> map)
 	{
 		List<String> msisdns = new ArrayList<String>();
 		List<String> msisdnsDB = new ArrayList<String>();
 
-		for (Entry<String, List<String>> mapEntry : map.entrySet())
+		for (Entry<String, Pair<List<String>, Long>> mapEntry : map.entrySet())
 		{
 			String groupId = mapEntry.getKey();
-			List<String> lastMsisdns = mapEntry.getValue();
-			msisdns.addAll(persistenceCache.removeOlderLastGroupMsisdn(groupId, lastMsisdns));
+			Pair<List<String>, Long> lastMsisdnspair = mapEntry.getValue();
+			if (null != lastMsisdnspair)
+			{
+				List<String> lastMsisdns = lastMsisdnspair.first;
+				updateGroupRecency(groupId, lastMsisdnspair.second);
+				msisdns.addAll(persistenceCache.removeOlderLastGroupMsisdn(groupId, lastMsisdns));
+			}
 		}
 
 		for (String ms : msisdns)
@@ -454,16 +486,20 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 			}
 		}
 		persistenceCache.putInCache(msisdnsDB, false);
-		for (Entry<String, List<String>> mapEntry : map.entrySet())
+		for (Entry<String, Pair<List<String>, Long>> mapEntry : map.entrySet())
 		{
 			String groupId = mapEntry.getKey();
-			List<String> last = mapEntry.getValue();
-			for (String ms : last)
+			Pair<List<String>, Long> lastPair = mapEntry.getValue();
+			if (null != lastPair)
 			{
-				ContactInfo contact = getContact(ms, false, false);
-				if (null != contact && null != contact.getName())
+				List<String> last = lastPair.first;
+				for (String ms : last)
 				{
-					setGroupParticipantContactName(groupId, ms, contact.getName());
+					ContactInfo contact = getContact(ms, false, false);
+					if (null != contact && null != contact.getName())
+					{
+						setGroupParticipantContactName(groupId, ms, contact.getName());
+					}
 				}
 			}
 		}
@@ -491,6 +527,39 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 		persistenceCache.setGroupAlive(groupId, alive);
 	}
 
+	/**
+	 * Returns true if group is mute otherwise false
+	 * 
+	 * @param groupId
+	 * @return
+	 */
+	public boolean isGroupMute(String groupId)
+	{
+		return persistenceCache.isGroupMute(groupId);
+	}
+
+	/**
+	 * Sets the group mute status in {@link #persistenceCache}
+	 * 
+	 * @param groupId
+	 * @param mute
+	 */
+	public void setGroupMute(String groupId, boolean mute)
+	{
+		persistenceCache.setGroupMute(groupId, mute);
+	}
+	
+	/**
+	 * Gets the Name, alive and Mute status of Group
+	 * 
+	 * @param msisdn
+	 * @return GroupDetails
+	 */
+	public GroupDetails getGroupDetails(String msisdn)
+	{
+		return persistenceCache.getGroupDetails(msisdn);
+	}
+	
 	/**
 	 * This method returns a list {@link ContactInfo} objects of a particular favorite type and if parameter <code>onHike</code> is one then these are hike contacts otherwise non
 	 * hike contacts. This list should not contain contact whose msisdn is same as parameter <code>myMsisdn</code>. Unsaved contacts are also included in these.
@@ -819,6 +888,18 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	 */
 	public void updateContactRecency(String msisdn, long timestamp)
 	{
+		updateContactRecency(msisdn, timestamp, true);
+	}
+
+	/**
+	 * This method updates the <code>lastMessaged</code> parameter of {@link ContactInfo} object and updates in database depending on parameter <code>updateInDb</code>
+	 * 
+	 * @param msisdn
+	 * @param timestamp
+	 * @param updateInDb
+	 */
+	public void updateContactRecency(String msisdn, long timestamp, boolean updateInDb)
+	{
 		ContactInfo contact = getContact(msisdn);
 		if (null != contact)
 		{
@@ -826,7 +907,10 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 			updatedContact.setLastMessaged(timestamp);
 			updateContacts(updatedContact);
 		}
-		hDb.updateContactRecency(msisdn, timestamp);
+		if (updateInDb)
+		{
+			hDb.updateContactRecency(msisdn, timestamp);
+		}
 	}
 
 	/**
@@ -1006,35 +1090,26 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 		return transientCache.doesContactExist(msisdn);
 	}
 
-	public void makeOlderAvatarsRounded()
-	{
-		hDb.makeOlderAvatarsRounded();
-	}
-
 	/**
 	 * This method returns a drawable of an icon from the database
 	 * 
 	 * @param msisdn
-	 * @param rounded
-	 *            if true returns rounded drawable from rounded thumbnails table
 	 * @return
 	 */
-	public Drawable getIcon(String msisdn, boolean rounded)
+	public Drawable getIcon(String msisdn)
 	{
-		return hDb.getIcon(msisdn, rounded);
+		return hDb.getIcon(msisdn);
 	}
 
 	/**
 	 * This method returns a byte array of an icon from the database
 	 * 
 	 * @param id
-	 * @param rounded
-	 *            if true returns rounded thumbnail byte array from rounded thumbnails table
 	 * @return
 	 */
-	public byte[] getIconByteArray(String id, boolean rounded)
+	public byte[] getIconByteArray(String id)
 	{
-		return hDb.getIconByteArray(id, rounded);
+		return hDb.getIconByteArray(id);
 	}
 
 	/**
@@ -1118,15 +1193,14 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	 * @param grpIds
 	 * @return
 	 */
-	public Map<String, Pair<String, Boolean>> getGroupNamesAndAliveStatus(List<String> grpIds)
+	public Map<String, GroupDetails> getGroupDetails(List<String> grpIds)
 	{
-		Map<String, Pair<String, Boolean>> groupNames = HikeConversationsDatabase.getInstance().getGroupNamesAndAliveStatus(grpIds);
-		for (Entry<String, Pair<String, Boolean>> mapEntry : groupNames.entrySet())
+		Map<String, GroupDetails> groupNames = HikeConversationsDatabase.getInstance().getIdGroupDetailsMap(grpIds);
+		for (Entry<String, GroupDetails> mapEntry : groupNames.entrySet())
 		{
 			String groupId = mapEntry.getKey();
-			String groupName = mapEntry.getValue().first;
-			boolean groupAlive = mapEntry.getValue().second;
-			persistenceCache.insertGroup(groupId, groupName, groupAlive);
+			GroupDetails grpDetails = mapEntry.getValue();
+			persistenceCache.insertGroup(groupId, grpDetails);
 		}
 		return groupNames;
 	}
@@ -1142,6 +1216,18 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	public List<PairModified<GroupParticipant, String>> getGroupParticipants(String groupId, boolean activeOnly, boolean notShownStatusMsgOnly)
 	{
 		return getGroupParticipants(groupId, activeOnly, notShownStatusMsgOnly, true);
+	}
+
+	/**
+	 * Returns a list of participants in a 1-n conversation with their names in case of unsaved contact. This method also increases reference count if the contact is already loaded
+	 * in memory
+	 * 
+	 * @param convId
+	 * @return
+	 */
+	public List<PairModified<GroupParticipant, String>> getActiveConversationParticipants(String convId)
+	{
+		return getGroupParticipants(convId, true, false);
 	}
 
 	/**
@@ -1241,6 +1327,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	public void addGroupParticipants(String groupId, Map<String, PairModified<GroupParticipant, String>> participantList)
 	{
 		transientCache.addGroupParticipants(groupId, participantList);
+		persistenceCache.updateDefaultGroupName(groupId);
 	}
 
 	/**
@@ -1252,6 +1339,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	public void removeGroupParticipant(String groupId, String msisdn)
 	{
 		transientCache.removeGroupParticipants(groupId, msisdn);
+		persistenceCache.updateDefaultGroupName(groupId);
 	}
 
 	/**
@@ -1262,6 +1350,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	public void removeGroupParticipant(String groupId, Collection<String> msisdns)
 	{
 		transientCache.removeGroupParticipants(groupId, msisdns);
+		persistenceCache.updateDefaultGroupName(groupId);
 	}
 
 	public void removeGroup(String groupId)
@@ -1278,6 +1367,11 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	public void setGroupName(String groupId, String name)
 	{
 		persistenceCache.setGroupName(groupId, name);
+	}
+
+	public void updateGroupRecency(String groupId, long timestamp)
+	{
+		persistenceCache.updateGroupRecency(groupId, timestamp);
 	}
 
 	/**
@@ -1313,6 +1407,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 		 * 'new' map as items to add, and send the 'hike' map as IDs to remove
 		 */
 		Map.Entry<String, List<ContactInfo>> entry = null;
+		Set<String> msisdns = new HashSet<String>();
 		for (Iterator<Map.Entry<String, List<ContactInfo>>> iterator = new_contacts_by_id.entrySet().iterator(); iterator.hasNext();)
 		{
 			entry = iterator.next();
@@ -1333,9 +1428,17 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 				/* hike db is up to date, so don't send update */
 				iterator.remove();
 				hike_contacts_by_id.remove(id);
+				for (ContactInfo con : hike_contacts_for_id)
+				{
+					msisdns.add(con.getMsisdn());
+				}
 				continue;
 			}
 			/* item is different than our db, so send an update */
+			for (ContactInfo con : hike_contacts_for_id)
+			{
+				msisdns.add(con.getMsisdn());
+			}
 			hike_contacts_by_id.remove(id);
 		}
 
@@ -1361,6 +1464,19 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 			List<ContactInfo> updatedContacts = AccountUtils.updateAddressBook(new_contacts_by_id, ids_json);
 
 			List<ContactInfo> contactsToDelete = new ArrayList<ContactInfo>();
+			String myMsisdn = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeMessengerApp.MSISDN_SETTING, "");
+			
+			if (!hike_contacts_by_id.isEmpty())
+			{
+				for (Entry<String, List<ContactInfo>> mapEntry : new_contacts_by_id.entrySet())
+				{
+					List<ContactInfo> contacts = mapEntry.getValue();
+					for (ContactInfo con : contacts)
+					{
+						msisdns.add(con.getMsisdn());
+					}
+				}
+			}
 
 			for (Entry<String, List<ContactInfo>> mapEntry : hike_contacts_by_id.entrySet())
 			{
@@ -1371,7 +1487,19 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 				{
 					c.setName(null);
 					c.setId(c.getMsisdn());
-					HikeMessengerApp.getLruCache().deleteIconForMSISDN(c.getMsisdn());
+					/*
+					 * not deleting profile icon in case of contact to be deleted 
+					 * 1. is self contact
+					 * 2. has favorite state : friends
+					 * 3. has favorite state : request received
+					 * 4. has favorite state : request received rejected
+					 * 
+					 * Also if one msisdn is saved with more than one name in address book
+					 */
+					if (Utils.shouldDeleteIcon(c, myMsisdn) && !msisdns.contains(c.getMsisdn()))
+					{
+						HikeMessengerApp.getLruCache().deleteIconForMSISDN(c.getMsisdn());
+					}
 					HikeMessengerApp.getPubSub().publish(HikePubSub.CONTACT_DELETED, c);
 				}
 			}
@@ -1793,6 +1921,70 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 		}
 	}
 
+	public List<ContactInfo> getAllConversationContactsSorted(boolean removeNewOrReturningUsers, boolean fetchGroups)
+	{
+		List<ContactInfo> allContacts = new ArrayList<ContactInfo>();
+		List<ContactInfo> oneToOneContacts = HikeConversationsDatabase.getInstance().getOneToOneContacts(removeNewOrReturningUsers);
+		allContacts.addAll(oneToOneContacts);
+		if(fetchGroups)
+		{
+			allContacts.addAll(getConversationGroupsAsContacts(false));
+		}
+
+		/*
+		 * Sort in descending order of timestamp.
+		 */
+		Collections.sort(allContacts, new Comparator<ContactInfo>()
+		{
+			@Override
+			public int compare(ContactInfo lhs, ContactInfo  rhs)
+			{
+				return ((Long)rhs.getLastMessaged()).compareTo(lhs.getLastMessaged());
+			}
+		});
+		return allContacts;
+	}
+
+	public List<ContactInfo> getConversationGroupsAsContacts(boolean shouldSort)
+	{
+		List<GroupDetails> groupDetails = persistenceCache.getGroupDetailsList();
+		List<ContactInfo> groupContacts = new ArrayList<ContactInfo>();
+		Map<String, Integer> groupCountMap = HikeConversationsDatabase.getInstance().getAllGroupsActiveParticipantCount();
+		for(GroupDetails group : groupDetails)
+		{
+			if(group.isGroupAlive())
+			{
+				if (!OneToNConversationUtils.isBroadcastConversation(group.getGroupId()))
+				{
+					int numMembers = 0;
+					if(groupCountMap.containsKey(group.getGroupId()))
+					{
+						numMembers = groupCountMap.get(group.getGroupId());
+					}
+					String numberMembers = context.getString(R.string.num_people, (numMembers + 1));
+
+					ContactInfo groupContact = new ContactInfo(group.getGroupId(), group.getGroupId(), group.getGroupName(), numberMembers, true);
+					groupContact.setLastMessaged(group.getTimestamp());
+
+					groupContacts.add(groupContact);
+				}
+			}
+		}
+		if(shouldSort)
+		{
+			Collections.sort(groupContacts, new Comparator<ContactInfo>()
+			{
+				@Override
+				public int compare(ContactInfo lhs, ContactInfo  rhs)
+				{
+					return ((Long)rhs.getLastMessaged()).compareTo(lhs.getLastMessaged());
+				}
+			});
+		}
+
+		return groupContacts;
+	}
+
 	public boolean isIndianMobileNumber(String number)
 	{
 		if (HikeMessengerApp.isIndianUser())
@@ -1931,6 +2123,40 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 		}
 	}
 
+	public ArrayList<String> getMsisdnFromId(ArrayList<String> selectionArgs)
+	{
+		String msisdnStatement = Utils.getMsisdnStatement(selectionArgs);
+		if (TextUtils.isEmpty(msisdnStatement))
+		{
+			return new ArrayList<String>();
+		}
+		Cursor c = getReadableDatabase().query(DBConstants.USERS_TABLE, new String[] { DBConstants.MSISDN },
+				DBConstants.PLATFORM_USER_ID + " IN " + msisdnStatement, null, null, null, null);
+
+		ArrayList<String> msisdnList = new ArrayList<String>();
+
+		if (c.moveToFirst())
+		{
+			do
+			{
+				msisdnList.add(c.getString(c.getColumnIndexOrThrow(DBConstants.MSISDN)));
+			}
+			while (c.moveToNext());
+		}
+
+		// Incase of hike id == platform uid for user, add self msisdn
+		for (String id : selectionArgs)
+		{
+			if (id.equals(HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_UID_SETTING, null)))
+			{
+				ContactInfo userContact = Utils.getUserContactInfo(context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, Context.MODE_PRIVATE));
+				msisdnList.add(userContact.getMsisdn());
+			}
+		}
+
+		return msisdnList;
+	}
+
 	@Override
 	public void onEventReceived(String type, Object object)
 	{
@@ -1941,6 +2167,41 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 			 */
 			unload();
 		}
+	}
 
+	/**
+	 * Shutdowns the contact manager and re-initializes it with new values in db {@see #shutdown()}
+	 */
+	public void refreshContactManager()
+	{
+		// clear persistence, transient cache and assign null to all other class members
+		shutdown();
+		// create a new instance and initialize it
+		getInstance();
+	}
+
+	/**
+	 * Shutdown's both {@link PersistenceCache} and {@link TransientCache} and make all references to null
+	 */
+	public void shutdown()
+	{
+		HikeMessengerApp.getPubSub().removeListeners(this, pubSubListeners);
+		persistenceCache.shutdown();
+		persistenceCache = null;
+		transientCache.shutdown();
+		transientCache = null;
+		hDb = null;
+		context = null;
+		_instance = null;
+	}
+
+	public void platformUserIdEntry(JSONArray data)
+	{
+		hDb.platformUserIdDbEntry(data);
+	}
+
+	public ArrayList<String> getMsisdnForMissingPlatformUID()
+	{
+		return hDb.getMsisdnsForMissingPlatformUID();
 	}
 }

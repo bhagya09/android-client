@@ -3,44 +3,39 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_alignParentBottom="true"
-    android:background="#2a3231"
     android:orientation="vertical" >
 
     <RelativeLayout
         android:id="@+id/icon_container"
         android:layout_width="match_parent"
-        android:layout_height="48dp"
+        android:layout_height="48.5dp"
         android:layout_alignParentBottom="true" >
 
-        <LinearLayout
-            android:id="@+id/erase_key"
-            android:layout_width="48dp"
-            android:layout_height="match_parent"
-            android:layout_alignParentRight="true"
-            android:background="#434748"
-            android:orientation="vertical"
-            android:visibility="gone" >
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="#4f5455" />
-
-            <ImageView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/emoticon_erase_key_background_selector"
-                android:scaleType="centerInside"
-                android:src="@drawable/ic_erase" />
-        </LinearLayout>
+     <View
+       	android:id="@+id/divider"
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:layout_alignParentTop="true"
+        android:background="@color/sticker_emoticon_divider" />
+        
+     <ImageView
+         android:id="@+id/erase_key_image"
+         android:layout_width="48dp"
+         android:layout_height="match_parent"
+         android:layout_alignParentRight="true"
+         android:layout_below="@id/divider"
+         android:background="@color/erase_key_color"
+         android:scaleType="centerInside"
+         android:src="@drawable/ic_erase" />
 
         <com.bsb.hike.view.StickerEmoticonIconPageIndicator
-            android:id="@+id/icon_indicator"
+            android:id="@+id/emoticon_icon_indicator"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_alignWithParentIfMissing="true"
-            android:layout_toLeftOf="@id/erase_key"
-            android:background="@drawable/emoticon_tab_normal" />
+            android:layout_below="@id/divider"
+            android:layout_toLeftOf="@id/erase_key_image"
+            android:background="#2d2f31" />
     </RelativeLayout>
 
     <android.support.v4.view.ViewPager
@@ -48,30 +43,12 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@id/icon_container"
-        android:paddingBottom="@dimen/emoticon_pager_padding"
-        android:paddingTop="@dimen/emoticon_pager_padding" />
-
+        android:background="#1f2122" />
+    
     <View
         android:layout_width="match_parent"
-        android:layout_height="2dp"
+        android:layout_height="0.5dp"
         android:layout_alignParentTop="true"
         android:background="@color/sticker_emoticon_divider" />
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="2dp"
-        android:layout_above="@id/icon_container"
-        android:background="@color/sticker_emoticon_divider" />
-
-    <LinearLayout
-        android:id="@+id/stickers_tip"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_marginRight="35dp"
-        android:visibility="gone" >
-
-        <include layout="@layout/tool_tip" />
-    </LinearLayout>
 
 </RelativeLayout>

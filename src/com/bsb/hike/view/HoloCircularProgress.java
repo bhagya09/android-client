@@ -3,6 +3,9 @@
  */
 package com.bsb.hike.view;
 
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
+import android.animation.ValueAnimator.AnimatorUpdateListener;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -16,8 +19,10 @@ import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.View;
+import android.view.animation.LinearInterpolator;
 
 import com.bsb.hike.R;
+import com.bsb.hike.utils.Utils;
 
 /**
  * The Class HoloCircularProgressBar.
@@ -128,7 +133,7 @@ public class HoloCircularProgress extends View {
 	/**
 	 * The current progress.
 	 */
-	private float mProgress = 0.3f;
+	private float mProgress = 0.0f;
 
 	/**
 	 * The Thumb color paint.
@@ -220,9 +225,6 @@ public class HoloCircularProgress extends View {
 	 * @param context
 	 *            the context
 	 */
-	public HoloCircularProgress(final Context context) {
-		this(context, null);
-	}
 
 	/**
 	 * Instantiates a new holo circular progress bar.
@@ -596,7 +598,8 @@ public class HoloCircularProgress extends View {
 	 *            the new progress
 	 */
 	public void setProgress(final float progress) {
-		if (progress == mProgress) {
+		
+		if (progress <= mProgress) {
 			return;
 		}
 
@@ -647,5 +650,74 @@ public class HoloCircularProgress extends View {
 	public void setThumbEnabled(final boolean enabled) {
 		mIsThumbEnabled = enabled;
 	}
+	
+	private ObjectAnimator animation;
 
+	private long msgId = -1;
+	
+	public synchronized void setAnimatedProgress(int start, int target, int duration)
+	{
+		if (Utils.isHoneycombOrHigher())
+		{
+			if (animation == null)
+			{
+				animation = ObjectAnimator.ofInt(this, "progress", start, target);
+				animation.setDuration(duration); // 0.5 second
+				animation.setInterpolator(new LinearInterpolator());
+				if (android.os.Build.VERSION.SDK_INT >= 18)
+					animation.setAutoCancel(true);
+				animation.addUpdateListener(new AnimatorUpdateListener()
+				{
+					
+					@Override
+					public void onAnimationUpdate(ValueAnimator animation)
+					{
+						// TODO Auto-generated method stub
+						float progress = ((Integer)animation.getAnimatedValue()) * 0.01f;
+						progress = (float) (Math.round(progress*100.0)/100.0);
+						HoloCircularProgress.this.setProgress(progress);
+					}
+				});
+				animation.start();
+			}
+			else
+			{
+				animation.setIntValues(start, target);
+				animation.setDuration(duration);
+				animation.start();
+			}
+
+		}
+		else
+			this.setProgress(target);
+	}
+	
+	public void stopAnimation()
+	{
+		if (animation != null)
+		{
+			animation.cancel();
+		}
+	}
+	
+	public void resetProgress()
+	{
+		mProgress = 0.0f;
+		invalidate();
+	}
+
+	public float getCurrentProgress()
+	{
+		return mProgress;
+	}
+
+	public long getRelatedMsgId()
+	{
+		return msgId;
+	}
+
+	public void setRelatedMsgId(long id)
+	{
+		this.msgId = id;
+	}
 }

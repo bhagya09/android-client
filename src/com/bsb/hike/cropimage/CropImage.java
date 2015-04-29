@@ -47,12 +47,15 @@ import android.os.Handler;
 import android.os.StatFs;
 import android.provider.MediaStore;
 import android.util.AttributeSet;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.Window;
+import android.view.View.OnClickListener;
 import android.view.WindowManager;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.actionbarsherlock.app.ActionBar;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
@@ -74,6 +77,8 @@ public class CropImage extends MonitoredActivity
 
 	private Uri mSaveUri = null;
 
+	private boolean returnToFile;// check to prevent scaling when required
+
 	private int mAspectX, mAspectY;
 
 	private boolean mCircleCrop = false;
@@ -84,6 +89,8 @@ public class CropImage extends MonitoredActivity
 	// scale the output to fit it (or just crop it).
 	private int mOutputX, mOutputY;
 
+	private int mQuality = HikeBitmapFactory.DEFAULT_BITMAP_COMPRESSION;
+	
 	private boolean mScale;
 
 	private boolean mScaleUp = true;
@@ -108,13 +115,19 @@ public class CropImage extends MonitoredActivity
 
 	private String mImagePath;
 
+	private boolean mCircleHighlight;
+
 	@Override
 	public void onCreate(Bundle icicle)
 	{
+		overridePendingTransition(R.anim.fade_in_animation, R.anim.fade_out_animation);
+		
 		super.onCreate(icicle);
+		
 		mContentResolver = getContentResolver();
 
-		requestWindowFeature(Window.FEATURE_NO_TITLE);
+		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+		
 		setContentView(R.layout.cropimage);
 
 		/*
@@ -151,17 +164,31 @@ public class CropImage extends MonitoredActivity
 
 		Intent intent = getIntent();
 		Bundle extras = intent.getExtras();
+		
 		if (extras != null)
 		{
-			if (extras.getString(HikeConstants.Extras.CIRCLE_CROP) != null)
+			boolean circleHighlight = extras.getBoolean(HikeConstants.Extras.CIRCLE_HIGHLIGHT);
+			
+			if (extras.getString(HikeConstants.Extras.CIRCLE_CROP) != null || circleHighlight)
 			{
 				mCircleCrop = true;
+				if (circleHighlight)
+				{
+					mCircleHighlight = true;
+				}
 				mAspectX = 1;
 				mAspectY = 1;
 			}
 
+			if (extras.containsKey(HikeConstants.Extras.RETURN_CROP_RESULT_TO_FILE))
+			{
+				returnToFile = extras.getBoolean(HikeConstants.Extras.RETURN_CROP_RESULT_TO_FILE);
+			}
+
 			mImagePath = extras.getString(HikeConstants.Extras.IMAGE_PATH);
 			mSaveUri = extras.containsKey(MediaStore.EXTRA_OUTPUT) ? getImageUri(extras.getString(MediaStore.EXTRA_OUTPUT)) : null;
+
+			// look here
 			mBitmap = getBitmap(mImagePath);
 			String imageOrientation = Utils.getImageOrientation(mImagePath);
 			mBitmap = HikeBitmapFactory.rotateBitmap(mBitmap, Utils.getRotatedAngle(imageOrientation));
@@ -172,6 +199,7 @@ public class CropImage extends MonitoredActivity
 			mOutputY = extras.getInt(HikeConstants.Extras.OUTPUT_Y);
 			mScale = extras.getBoolean(HikeConstants.Extras.SCALE, true);
 			mScaleUp = extras.getBoolean(HikeConstants.Extras.SCALE_UP, true);
+			mQuality = extras.getInt(HikeConstants.Extras.JPEG_COMPRESSION_QUALITY, HikeBitmapFactory.DEFAULT_BITMAP_COMPRESSION);
 		}
 
 		if (mBitmap == null)
@@ -186,14 +214,6 @@ public class CropImage extends MonitoredActivity
 		// Make UI fullscreen.
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-		findViewById(R.id.save).setOnClickListener(new View.OnClickListener()
-		{
-			public void onClick(View v)
-			{
-				onSaveClicked();
-			}
-		});
-
 		findViewById(R.id.rotateLeft).setOnClickListener(new View.OnClickListener()
 		{
 			public void onClick(View v)
@@ -205,9 +225,46 @@ public class CropImage extends MonitoredActivity
 			}
 		});
 
+		setupActionBar();
+		
 		startFaceDetection();
 	}
+	
+	private void setupActionBar()
+	{
+		ActionBar actionBar = getSupportActionBar();
+		actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
 
+		View actionBarView = LayoutInflater.from(this).inflate(R.layout.photos_action_bar, null);
+		actionBarView.setBackgroundResource(R.color.photos_action_bar_background);
+		actionBarView.findViewById(R.id.back).setOnClickListener(new OnClickListener()
+		{
+			@Override
+			public void onClick(View v)
+			{
+				onBackPressed();
+			}
+		});
+
+		TextView titleView = (TextView) actionBarView.findViewById(R.id.title);
+
+		titleView.setText(getString(R.string.selectPreview));
+
+		titleView.setVisibility(View.VISIBLE);				
+		
+		actionBarView.findViewById(R.id.done_container).setOnClickListener(new View.OnClickListener()
+		{
+			
+			@Override
+			public void onClick(View v)
+			{
+				onSaveClicked();
+			}
+		});
+
+		actionBar.setCustomView(actionBarView);
+	}
+	
 	@Override
 	public void onBackPressed()
 	{
@@ -226,23 +283,30 @@ public class CropImage extends MonitoredActivity
 		 * resize the image while opening it. http://stackoverflow.com/questions/ 477572/android-strange-out-of-memory
 		 * -issue-while-loading-an-image-to-a-bitmap-object/823966#823966
 		 */
-		BitmapFactory.Options options = new BitmapFactory.Options();
-
-		/* query the filesize of the bitmap */
-		options.inJustDecodeBounds = true;
-		BitmapFactory.decodeFile(path, options);
-
-		final int maxSize = 1024;
-		int scale = 1;
-		/* determine the correct scale (must be a power of 2) */
-		if (options.outHeight > maxSize || options.outWidth > maxSize)
+		if (!returnToFile)
 		{
-			scale = Math.max(options.outHeight, options.outWidth) / maxSize;
-		}
+			BitmapFactory.Options options = new BitmapFactory.Options();
 
-		options = new BitmapFactory.Options();
-		options.inSampleSize = scale;
-		return BitmapFactory.decodeFile(path, options);
+			/* query the filesize of the bitmap */
+			options.inJustDecodeBounds = true;
+			BitmapFactory.decodeFile(path, options);
+
+			final int maxSize = 1024;
+			int scale = 1;
+			/* determine the correct scale (must be a power of 2) */
+			if (options.outHeight > maxSize || options.outWidth > maxSize)
+			{
+				scale = Math.max(options.outHeight, options.outWidth) / maxSize;
+			}
+
+			options = new BitmapFactory.Options();
+			options.inSampleSize = scale;
+			return BitmapFactory.decodeFile(path, options);
+		}
+		else
+		{
+			return BitmapFactory.decodeFile(path);// crop without scaling
+		}
 	}
 
 	private void startFaceDetection()
@@ -311,14 +375,15 @@ public class CropImage extends MonitoredActivity
 
 		// If we are circle cropping, we want alpha channel, which is the
 		// third param here.
-		Bitmap croppedImage = Bitmap.createBitmap(width, height, mCircleCrop ? Bitmap.Config.ARGB_8888 : Bitmap.Config.RGB_565);
+		Bitmap croppedImage = returnToFile ? Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888) : Bitmap.createBitmap(width, height, mCircleCrop ? Bitmap.Config.ARGB_8888
+				: Bitmap.Config.RGB_565);
 		{
 			Canvas canvas = new Canvas(croppedImage);
 			Rect dstRect = new Rect(0, 0, width, height);
 			canvas.drawBitmap(mBitmap, r, dstRect, null);
 		}
 
-		if (mCircleCrop)
+		if (mCircleCrop && !mCircleHighlight)
 		{
 			// OK, so what's all this about?
 			// Bitmaps are inherently rectangular but we want to return
@@ -384,7 +449,7 @@ public class CropImage extends MonitoredActivity
 
 		// Return the cropped image directly or save it to the specified URI.
 		Bundle myExtras = getIntent().getExtras();
-		if (myExtras != null && (myExtras.getParcelable(HikeConstants.Extras.DATA) != null || myExtras.getBoolean(HikeConstants.Extras.RETURN_DATA)))
+		if (!returnToFile && myExtras != null && (myExtras.getParcelable(HikeConstants.Extras.DATA) != null || myExtras.getBoolean(HikeConstants.Extras.RETURN_DATA)))
 		{
 			Bundle extras = new Bundle();
 			extras.putParcelable(HikeConstants.Extras.DATA, croppedImage);
@@ -394,7 +459,7 @@ public class CropImage extends MonitoredActivity
 		else
 		{
 			final Bitmap b = croppedImage;
-			Util.startBackgroundJob(this, null, "Saving image", new Runnable()
+			Util.startBackgroundJob(this, null, getString(R.string.cropping_image), new Runnable()
 			{
 				public void run()
 				{
@@ -416,7 +481,8 @@ public class CropImage extends MonitoredActivity
 					outputStream = mContentResolver.openOutputStream(mSaveUri);
 					if (outputStream != null)
 					{
-						croppedImage.compress(mOutputFormat, 100, outputStream);
+						Logger.d(TAG, "quality factor : " + mQuality);
+						croppedImage.compress(mOutputFormat, mQuality, outputStream);
 					}
 				}
 				catch (IOException ex)
@@ -431,12 +497,14 @@ public class CropImage extends MonitoredActivity
 			}
 			Bundle extras = new Bundle();
 			extras.putString(MediaStore.EXTRA_OUTPUT, croppedImage == null ? null : mSaveUri.getPath());
+			extras.putString(HikeConstants.HikePhotos.ORIG_FILE, mImagePath);
 			setResult(RESULT_OK, new Intent(mSaveUri.toString()).putExtras(extras));
 		}
 		else
 		{
 			Bundle extras = new Bundle();
 			extras.putParcelable(HikeConstants.Extras.BITMAP, croppedImage);
+			extras.putString(HikeConstants.HikePhotos.ORIG_FILE, mImagePath);
 			setResult(RESULT_OK, new Intent().putExtras(extras));
 		}
 		finish();
@@ -460,7 +528,6 @@ public class CropImage extends MonitoredActivity
 
 	Runnable mRunFaceDetection = new Runnable()
 	{
-		@SuppressWarnings("hiding")
 		float mScale = 1F;
 
 		Matrix mImageMatrix;
@@ -526,8 +593,9 @@ public class CropImage extends MonitoredActivity
 
 			Rect imageRect = new Rect(0, 0, width, height);
 
-			// make the default size about 4/5 of the width or height
-			int cropWidth = Math.min(width, height) * 4 / 5;
+			// REMOVED: make the default size about 4/5 of the width or height//* 4 / 5;
+			int cropWidth = Math.min(width, height);
+			
 			int cropHeight = cropWidth;
 
 			if (mAspectX != 0 && mAspectY != 0)

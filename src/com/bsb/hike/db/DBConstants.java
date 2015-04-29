@@ -2,12 +2,12 @@ package com.bsb.hike.db;
 
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 
-public class DBConstants
+public interface DBConstants
 {
 
-	public static final int CONVERSATIONS_DATABASE_VERSION = 29;
+	public static final int CONVERSATIONS_DATABASE_VERSION = 38;
 
-	public static final int USERS_DATABASE_VERSION = 15;
+	public static final int USERS_DATABASE_VERSION = 17;
 
 	public static final String HAS_CUSTOM_PHOTO = "hascustomphoto";
 
@@ -106,6 +106,8 @@ public class DBConstants
 	public static final String EMOTICON_INDEX = "emoticonIdx";
 
 	public static final String MUTE_GROUP = "muteGroup";
+	
+	public static final String IS_MUTE = "isMute";
 
 	public static final String FAVORITES_TABLE = "favoritesTable";
 
@@ -144,13 +146,11 @@ public class DBConstants
 
 	public static final String IS_HIKE_MESSAGE = "isHikeMessage";
 
-	public static final String STICKERS_TABLE = "stickersTable";
-
+	public static final String STICKER_CATEGORIES_TABLE = "stickerCategoriesTable";
+	
 	public static final String CATEGORY_ID = "categoryId";
 
 	public static final String TOTAL_NUMBER = "totalNum";
-
-	public static final String REACHED_END = "reachedEnd";
 
 	public static final String UPDATE_AVAILABLE = "updateAvailable";
 
@@ -188,6 +188,8 @@ public class DBConstants
 
 	public static final String INVITE_TIMESTAMP = "inviteTimestamp";
 
+	public static final String PLATFORM_USER_ID = "platformUserId";
+
 	public static final String CHAT_BG_TABLE = "chatBgTable";
 
 	public static final String BG_ID = "bgId";
@@ -200,5 +202,126 @@ public class DBConstants
 
 	public static final String HIKE_FILE_TYPE = "hikeFileType";
 
+	public static final String _ID = "_id";
+	
+	public static final String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS ";
+	public static final String CREATE_INDEX = "CREATE INDEX IF NOT EXISTS ";
+	
 	public static final String IS_SENT = "isSent";
+	public static final String BOT_TABLE = "botTable";
+
+	public static interface HIKE_CONV_DB{
+		// CHANNEL TABLE -> _id,channel_id,name,visibility,index 
+		public static final String CHANNEL_TABLE = "channel";
+		public static final String CHANNEL_ID = "channel_id";
+		public static final String CHANNEL_NAME = "name";
+		public static final String VISIILITY = "visibility";
+		public static final String INDEX_ORDER = "index";
+		// CHANNEL TABLE ENDS HERE
+		// LOVE TABLE -> _id,love_id,count,user_status,ref_count,timestamp
+		public static final String LOVE_TABLE = "love";
+		public static final String LOVE_ID = "love_id";
+		public static final String COUNT = "count";
+		public static final String USER_STATUS = "user_status";
+		public static final String REF_COUNT = "ref_count";
+		public static final String TIMESTAMP = "timestamp";
+		// LOVE TABLE ENDS HERE
+		// MESSAGE TABLE
+		public static final String LOVE_ID_REL = "love_id";
+		// MESSAGE TABLE ENDS HERE
+	}
+	/**
+	 * 
+	 * @author gauravKhanna
+	 *
+	 */
+	public static interface HIKE_CONTENT{
+		public static final int DB_VERSION = 3;
+		public static final String DB_NAME = "hike_content_db";
+		// CONTENT TABLE -> _id,content_id,love_id,channel_id,timestamp,metadata
+		public static final String CONTENT_TABLE = "content";
+		public static final String CONTENT_ID = "content_id";
+		public static final String LOVE_ID = "love_id";
+		public static final String CHANNEL_ID = "channel_id";
+		public static final String TIMESTAMP = "timestamp";
+		public static final String METADATA = "metadata";
+		
+		//ALARM TABLE->id,time,willWakeCpu,time,intent
+		
+		public static final String ALARM_MGR_TABLE = "HikeAlaMge";
+
+		public static final String TIME = "time";
+
+		public static final String WILL_WAKE_CPU = "willwakecpu";
+
+		public static final String INTENT = "intent";
+
+		// CONTENT TABLE ENDS HERE
+		// APP DATA TABLE
+		
+		// APP DATA TABLE ENDS HERE
+		// APP ALARM -> id, data 
+		public static final String APP_ALARM_TABLE = "app_alarms";
+		public static final String ID = "id";
+		public static final String ALARM_DATA = "data";
+		// APP ALARM ENDS HERE
+
+		// PopupDB -->json,start time,end time ,trigger point,Status
+
+		public static final String POPUPDATA = "popupdata";
+
+		public static final String START_TIME = "start_time";
+
+		public static final String END_TIME = "end_time";
+
+		public static final String TRIGGER_POINT = "trigger_point";
+
+		public static final String STATUS = "status";
+		
+		// URL WHITELIST TABLE --> domain, in_hike
+		public static final String URL_WHITELIST = "url_whitelist";
+		
+		public static final String DOMAIN = "domain";
+		
+		public static final String IN_HIKE = "in_hike"; 
+		// URL Whitelist ends here
+		
+		public static final String CONTENT_ID_INDEX = "contentTableContentIdIndex";
+		public static final String CONTENT_TABLE_NAMESPACE_INDEX = "contentTableNamespaceIndex";
+		String NAMESPACE = "nameSpace";
+	}
+
+	public static final String CATEGORY_NAME = "categoryName";
+
+	public static final String IS_VISIBLE = "isVisible";
+
+	public static final String IS_CUSTOM = "isCustom";
+
+	public static final String IS_ADDED = "isAdded";
+
+	public static final String CATEGORY_INDEX = "catIndex";
+
+	public static final String CATEGORY_SIZE = "categorySize";
+
+	public static final String STICKER_SHOP_TABLE = "stickerShopTable";
+	
+	public static final String MESSAGE_TABLE_CONTENT_INDEX = "messageContentIndex";
+	public static final String SERVER_ID = "serverId";
+	
+	public static final String MESSAGE_ORIGIN_TYPE = "messageOriginType";
+	
+	public static final int NORMAL_TYPE = 0;
+	
+	public static final int BROADCAST_TYPE = 1;
+
+	//We are just using a different name for old timestamp field here.
+	public static final String LAST_MESSAGE_TIMESTAMP = "timestamp";
+
+	public static final String SORTING_TIMESTAMP = "sortingTimeStamp";
+
+	public static final String SERVER_ID_INDEX = "serverid_idx";
+
+	public static final String PRIVATE_DATA = "pd";
+
+	public static final String MESSAGE_TABLE_NAMESPACE_INDEX = "messageNamespaceIndex";
 }

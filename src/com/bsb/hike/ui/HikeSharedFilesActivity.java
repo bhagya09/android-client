@@ -2,11 +2,9 @@ package com.bsb.hike.ui;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -16,21 +14,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.Window;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.AbsListView;
-import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.GridView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -43,17 +36,29 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.adapters.HikeSharedFileAdapter;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.dialog.CustomAlertDialog;
+import com.bsb.hike.dialog.HikeDialog;
+import com.bsb.hike.dialog.HikeDialogFactory;
+import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.filetransfer.FileTransferManager;
-import com.bsb.hike.models.Conversation;
 import com.bsb.hike.models.HikeFile.HikeFileType;
-import com.bsb.hike.models.GroupConversation;
 import com.bsb.hike.models.HikeSharedFile;
+import com.bsb.hike.models.Conversation.Conversation;
+import com.bsb.hike.models.Conversation.GroupConversation;
+import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.ui.fragments.PhotoViewerFragment;
-import com.bsb.hike.utils.CustomAlertDialog;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+import com.jess.ui.TwoWayAbsListView;
+import com.jess.ui.TwoWayAbsListView.OnScrollListener;
+import com.jess.ui.TwoWayAdapterView;
+import com.jess.ui.TwoWayAdapterView.OnItemClickListener;
+import com.jess.ui.TwoWayAdapterView.OnItemLongClickListener;
+import com.jess.ui.TwoWayGridView;
 
 public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity implements OnScrollListener, OnItemClickListener, OnItemLongClickListener
 {
@@ -132,7 +137,7 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity im
 			nameArray = data.getStringArray(HikeConstants.Extras.PARTICIPANT_NAME_ARRAY);
 		}
 
-		GridView gridView = (GridView) findViewById(R.id.gallery);
+		TwoWayGridView gridView = (TwoWayGridView) findViewById(R.id.gallery);
 
 		int sizeOfImage = getResources().getDimensionPixelSize(R.dimen.gallery_album_item_size);
 
@@ -302,7 +307,7 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity im
 
 	
 	@Override
-	public void onScroll(AbsListView view, final int firstVisibleItem, int visibleItemCount, int totalItemCount)
+	public void onScroll(TwoWayAbsListView view, final int firstVisibleItem, int visibleItemCount, int totalItemCount)
 	{
 
 		if (previousFirstVisibleItem != firstVisibleItem)
@@ -359,19 +364,19 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity im
 	}
 
 	@Override
-	public void onScrollStateChanged(AbsListView view, int scrollState)
+	public void onScrollStateChanged(TwoWayAbsListView view, int scrollState)
 	{
 		adapter.setIsListFlinging(velocity > HikeConstants.MAX_VELOCITY_FOR_LOADING_IMAGES && scrollState == OnScrollListener.SCROLL_STATE_FLING);
 	}
 
 	@Override
-	public void onItemClick(AdapterView<?> adapterView, View view, int position, long id)
+	public void onItemClick(TwoWayAdapterView<?> adapterView, View view, int position, long id)
 	{
 		handleItemClick(position, id);
 	}
 
 	@Override
-	public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long id)
+	public boolean onItemLongClick(TwoWayAdapterView<?> adapterView, View view, int position, long id)
 	{
 		if (!multiSelectMode)
 		{
@@ -412,7 +417,17 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity im
 		}
 		else
 		{
-			Utils.sendUILogEvent(HikeConstants.LogEvent.OPEN_THUMBNAIL_VIA_GALLERY);
+			try
+			{
+				JSONObject metadata = new JSONObject();
+				metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.OPEN_THUMBNAIL_VIA_GALLERY);
+				HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+			}
+			catch(JSONException e)
+			{
+				Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+			}
+
 			ArrayList<HikeSharedFile> sharedMediaItems = new ArrayList<HikeSharedFile>(sharedFilesList.size());
 			sharedMediaItems.addAll(sharedFilesList);
 			Collections.reverse(sharedMediaItems);
@@ -445,22 +460,11 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity im
 		switch (item.getItemId())
 		{
 		case R.id.delete_msgs:
-			final CustomAlertDialog deleteConfirmDialog = new CustomAlertDialog(HikeSharedFilesActivity.this);
-			if (selectedSharedFileItems.size() == 1)
+			HikeDialogFactory.showDialog(HikeSharedFilesActivity.this, HikeDialogFactory.DELETE_FILES_DIALOG, new HikeDialogListener()
 			{
-				deleteConfirmDialog.setHeader(R.string.confirm_delete_msg_header);
-				deleteConfirmDialog.setBody(R.string.confirm_delete_msg);
-			}
-			else
-			{
-				deleteConfirmDialog.setHeader(R.string.confirm_delete_msgs_header);
-				deleteConfirmDialog.setBody(getString(R.string.confirm_delete_msgs, selectedSharedFileItems.size()));
-			}
-			View.OnClickListener dialogOkClickListener = new View.OnClickListener()
-			{
-
+				
 				@Override
-				public void onClick(View v)
+				public void positiveClicked(HikeDialog hikeDialog)
 				{
 					ArrayList<Long> msgIds = new ArrayList<Long>(selectedSharedFileItems);
 					Bundle bundle = new Bundle();
@@ -474,23 +478,32 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity im
 						if(selectedSharedFileItems.contains(hsf.getMsgId()))
 						{
 							// if delete media from phone is checked
-							if(deleteConfirmDialog.isChecked() && hsf.exactFilePathFileExists())
+							if(((CustomAlertDialog) hikeDialog).isChecked() && hsf.exactFilePathFileExists())
 							{
-								hsf.getFileFromExactFilePath().delete();
+								hsf.delete(getApplicationContext());
 							}
 							iterator.remove();
 						}
 					}
 					
 					destroyActionMode();
-					deleteConfirmDialog.dismiss();
-				}
-			};
+					hikeDialog.dismiss();
 
-			deleteConfirmDialog.setCheckBox(R.string.delete_media_from_sdcard);
-			deleteConfirmDialog.setOkButton(R.string.delete, dialogOkClickListener);
-			deleteConfirmDialog.setCancelButton(R.string.cancel);
-			deleteConfirmDialog.show();
+				}
+				
+				@Override
+				public void neutralClicked(HikeDialog hikeDialog)
+				{
+					
+				}
+				
+				@Override
+				public void negativeClicked(HikeDialog hikeDialog)
+				{
+					hikeDialog.dismiss();
+				}
+			}, selectedSharedFileItems.size());
+			
 			return true;
 		case R.id.forward_msgs:
 			ArrayList<Long> selectedMsgIds = new ArrayList<Long>(selectedSharedFileItems);
@@ -655,7 +668,8 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity im
 	{
 		boolean isRemoved = super.removeFragment(tag);
 		if (isRemoved)
-		{	
+		{
+			getSupportActionBar().show();
 			setupActionBar();
 		}
 		return isRemoved;

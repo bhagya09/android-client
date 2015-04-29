@@ -1,37 +1,32 @@
 package com.bsb.hike.notifications;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
+import java.util.Map;
+import java.util.Map.Entry;
 
-import android.R.color;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.Typeface;
 import android.net.Uri;
-import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextUtils;
-import android.text.style.ForegroundColorSpan;
-import android.text.style.StyleSpan;
-import android.util.Pair;
+import android.util.Log;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
+import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
-import com.bsb.hike.modules.contactmgr.ContactManager;
-import com.bsb.hike.ui.ChatThread;
+import com.bsb.hike.models.NotificationPreview;
 import com.bsb.hike.ui.HomeActivity;
-import com.bsb.hike.utils.Utils;
+import com.bsb.hike.utils.IntentFactory;
 
 /**
  * This class is responsible for maintaining states of ConvMessages to be used for showing Android notifications.
@@ -46,9 +41,8 @@ public class HikeNotificationMsgStack implements Listener
 
 	private static Context mContext;
 
-	// Use linked list since the list is going to be small (<8 elements)
-	// and there is a lot of removal/sorting is involved.
-	private LinkedList<Pair<String, String>> mMessageTitlePairList;
+	// Construct to store msisdn - message1,message2,message3
+	private LinkedHashMap<String, LinkedList<NotificationPreview>> mMessagesMap;
 
 	private Intent mNotificationIntent;
 
@@ -58,8 +52,6 @@ public class HikeNotificationMsgStack implements Listener
 
 	private ConvMessage mLastInsertedConvMessage;
 
-	private int mNotificationTextLines;
-
 	// Saving ticker text here. A line is inserted for each new message added to the stack.
 	// This is cleared once getNotificationTickerText() is called.
 	private StringBuilder mTickerText;
@@ -68,14 +60,9 @@ public class HikeNotificationMsgStack implements Listener
 
 	private long latestAddedTimestamp;
 
-	private final int MAX_LINES = 8;
-
-	private boolean sortedTillEnd;
+	private final int MAX_LINES = 7;
 
 	private int totalNewMessages;
-
-	// Used to store msisdns which is required to display "From X conversations" in notifications.
-	private HashSet<String> uniqueMsisdns = new HashSet<String>();
 
 	private boolean forceBlockNotificationSound;
 
@@ -106,7 +93,16 @@ public class HikeNotificationMsgStack implements Listener
 
 	private HikeNotificationMsgStack()
 	{
-		mMessageTitlePairList = new LinkedList<Pair<String, String>>();
+		mMessagesMap = new LinkedHashMap<String, LinkedList<NotificationPreview>>()
+		{
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected boolean removeEldestEntry(java.util.Map.Entry<String, LinkedList<NotificationPreview>> eldest)
+			{
+				return size() > MAX_LINES;
+			}
+		};
 		this.mConvDb = HikeConversationsDatabase.getInstance();
 	}
 
@@ -120,10 +116,9 @@ public class HikeNotificationMsgStack implements Listener
 		if (argConvMessage != null)
 		{
 
-			// Add to ticker text string
-			Pair<String, String> convMessagePair = HikeNotificationUtils.getNotificationPreview(mContext, argConvMessage);
+			NotificationPreview convNotifPrvw = HikeNotificationUtils.getNotificationPreview(mContext, argConvMessage);
 
-			addPair(argConvMessage.getMsisdn(), convMessagePair.first);
+			addPair(argConvMessage.getMsisdn(), convNotifPrvw);
 
 			mLastInsertedConvMessage = argConvMessage;
 		}
@@ -143,7 +138,16 @@ public class HikeNotificationMsgStack implements Listener
 		{
 			for (ConvMessage conv : argConvMessageList)
 			{
-				addConvMessage(conv);
+				if (conv.getMessageType() == HikeConstants.MESSAGE_TYPE.WEB_CONTENT || conv.getMessageType() == HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT)
+				{
+					addMessage(conv.getMsisdn(), conv.webMetadata.getNotifText());
+					mLastInsertedConvMessage = conv;
+					forceBlockNotificationSound = conv.isSilent();
+				}
+				else
+				{
+					addConvMessage(conv);					
+				}
 			}
 		}
 	}
@@ -159,9 +163,10 @@ public class HikeNotificationMsgStack implements Listener
 	{
 		if (TextUtils.isEmpty(argMessage))
 		{
-			throw new IllegalArgumentException("argMessage cannot be null or empty");
+			Log.wtf("HikeNotification", "Notification message is empty, check packet, msisdn= "+argMsisdn);
+			return;
 		}
-		addPair(argMsisdn, argMessage);
+		addPair(argMsisdn, new NotificationPreview(argMessage, HikeNotificationUtils.getNameForMsisdn(argMsisdn)));
 	}
 
 	/**
@@ -170,127 +175,81 @@ public class HikeNotificationMsgStack implements Listener
 	 * @param argMsisdn
 	 * @param argMessage
 	 */
-	private void addPair(String argMsisdn, String argMessage)
+	private void addPair(String argMsisdn, NotificationPreview notifPrvw)
 	{
 		lastAddedMsisdn = argMsisdn;
 
-		if (argMsisdn.equals(HikeNotification.HIKE_STEALTH_MESSAGE_KEY))
+		// If message stack consists of any stealth messages, do not add new message, change
+		// stealth message string to notify multiple messages (add s to message"S")
+		if (argMsisdn.equals(HikeNotification.HIKE_STEALTH_MESSAGE_KEY) && mMessagesMap.containsKey(HikeNotification.HIKE_STEALTH_MESSAGE_KEY))
 		{
-			if (uniqueMsisdns.contains(argMsisdn))
+
+			LinkedList<NotificationPreview> stealthMessageList = mMessagesMap.get(argMsisdn);
+
+			// There should only be 1 item dedicated to stealth message
+			// hike - You have new notification(s)
+			stealthMessageList.set(0, new NotificationPreview(mContext.getString(R.string.stealth_notification_messages), null));
+		}
+		else
+		{
+			// Add message to corresponding msisdn key in messages map
+			if (mMessagesMap.containsKey(argMsisdn))
 			{
-				for (Pair<String, String> pair : mMessageTitlePairList)
+				LinkedList<NotificationPreview> messagesList = mMessagesMap.get(argMsisdn);
+
+				// Add message to the end of message list for a particular msisdn
+				messagesList.add(notifPrvw);
+				totalNewMessages++;
+				if (!isFromSingleMsisdn())
 				{
-					if (pair.first.equals(argMsisdn))
-					{
-						mMessageTitlePairList.remove(pair);
-						argMessage = mContext.getString(R.string.stealth_notification_messages);
-						break;
-					}
+					// Move the conversation map to first index
+					LinkedList<NotificationPreview> lastModifiedMapList = mMessagesMap.remove(argMsisdn);
+					mMessagesMap.put(argMsisdn, lastModifiedMapList);
 				}
 			}
-		}
-
-		// Sort/Trim/Group message pair list to show messages smartly
-
-		Pair<String, String> newPair = new Pair<String, String>(argMsisdn, argMessage);
-
-		// Check if the latest message has the same msisdn.
-		// Else, iterate through the list, move newPair's message group to the bottom
-		Iterator<Pair<String, String>> messageTitleListIterator = mMessageTitlePairList.iterator();
-
-		// This is used to store items temporarily while grouping items in the main data list
-		LinkedList<Pair<String, String>> tempMessageTitlePairList = new LinkedList<Pair<String, String>>();
-
-		if (!mMessageTitlePairList.isEmpty() && !mMessageTitlePairList.getLast().first.equals(newPair.first))
-		{
-			while (messageTitleListIterator.hasNext())
+			else
 			{
-				Pair<String, String> messageTitlePair = messageTitleListIterator.next();
-				if (messageTitlePair.first.equals(newPair.first))
-				{
-					tempMessageTitlePairList.add(messageTitlePair);
-					messageTitleListIterator.remove();
-				}
-			}
-
-			if (!tempMessageTitlePairList.isEmpty())
-			{
-				for (Pair<String, String> pair : tempMessageTitlePairList)
-				{
-					mMessageTitlePairList.addLast(pair);
-				}
-			}
-
-			tempMessageTitlePairList.clear();
-		}
-
-		mMessageTitlePairList.addLast(newPair);
-
-		messageTitleListIterator = mMessageTitlePairList.iterator();
-
-		sortedTillEnd = false;
-
-		// If list size > MAX_LINES, remove messages starting from top.
-		// Skip if there is only 1 message exists from a particular msisdn
-		while (mMessageTitlePairList.size() > (MAX_LINES > 7 ? 7 : MAX_LINES) && !sortedTillEnd)
-		{
-			trimMessagePairList();
-		}
-
-		// If this list is still > MAX_LINES, remove oldest message-msisdn pairs
-		if (mMessageTitlePairList.size() > (MAX_LINES > 7 ? 7 : MAX_LINES))
-		{
-			int toBeTrimmed = mMessageTitlePairList.size() - MAX_LINES;
-
-			for (int i = 0; i < toBeTrimmed; i++)
-			{
-				mMessageTitlePairList.removeFirst();
+				LinkedList<NotificationPreview> newMessagesList = new LinkedList<NotificationPreview>();
+				newMessagesList.add(notifPrvw);
+				totalNewMessages++;
+				mMessagesMap.put(argMsisdn, newMessagesList);
 			}
 		}
+
+		trimMessageMap();
 
 		latestAddedTimestamp = System.currentTimeMillis();
 
-		totalNewMessages++;
-
-		uniqueMsisdns.add(argMsisdn);
-
 		if (mTickerText != null)
 		{
-			mTickerText.append("\n" + HikeNotificationUtils.getNameForMsisdn(mContext, argMsisdn) + " - " + argMessage);
+			mTickerText.append("\n" + HikeNotificationUtils.getNameForMsisdn(argMsisdn) + " - " + notifPrvw.getMessage());
 		}
 		else
 		{
 			mTickerText = new StringBuilder();
-			mTickerText.append(HikeNotificationUtils.getNameForMsisdn(mContext, argMsisdn) + " - " + argMessage);
+			mTickerText.append(HikeNotificationUtils.getNameForMsisdn(argMsisdn) + " - " + notifPrvw.getMessage());
 		}
 	}
 
-	/**
-	 * Use when number of messages present in messages stack > MAX_LINES
-	 */
-	private void trimMessagePairList()
+	private void trimMessageMap()
 	{
-		for (int i = 0; i < mMessageTitlePairList.size() - 1; i++)
+		boolean trimmedAll = false;
+		ListIterator<Entry<String, LinkedList<NotificationPreview>>> mapIterator = new ArrayList<Map.Entry<String, LinkedList<NotificationPreview>>>(mMessagesMap.entrySet()).listIterator();
+
+		while (totalNewMessages > MAX_LINES  && !trimmedAll)
 		{
-			Pair<String, String> lhs = mMessageTitlePairList.get(i);
-
-			Pair<String, String> rhs = mMessageTitlePairList.get(i + 1);
-
-			if (lhs == null || rhs == null)
+			while (mapIterator.hasNext())
 			{
-				break;
+				Entry<String, LinkedList<NotificationPreview>> entry = mapIterator.next();
+				if (entry.getValue().size() > 1)
+				{
+					// Remove first message
+					entry.getValue().removeFirst();
+					return;
+				}
 			}
 
-			if (lhs.first.equals(rhs.first))
-			{
-				mMessageTitlePairList.remove(lhs);
-				break;
-			}
-
-			if (i == mMessageTitlePairList.size() - 2)
-			{
-				sortedTillEnd = true;
-			}
+			trimmedAll = true;
 		}
 	}
 
@@ -300,10 +259,6 @@ public class HikeNotificationMsgStack implements Listener
 	public void invalidateConvMsgList()
 	{
 		updateNotificationIntent();
-
-		mNotificationTextLines = mMessageTitlePairList.size();
-
-		mNotificationTextLines = mNotificationTextLines > MAX_LINES ? MAX_LINES : mNotificationTextLines;
 	}
 
 	/**
@@ -313,7 +268,7 @@ public class HikeNotificationMsgStack implements Listener
 	 */
 	public boolean isFromSingleMsisdn()
 	{
-		return uniqueMsisdns.size() == 1 ? true : false;
+		return mMessagesMap.size() == 1 ? true : false;
 	}
 
 	/**
@@ -334,7 +289,7 @@ public class HikeNotificationMsgStack implements Listener
 		// users
 		else
 		{
-			if (lastAddedMsisdn.contains(mContext.getString(R.string.app_name)))
+			if (lastAddedMsisdn.equals(mContext.getString(R.string.app_name)))
 			{
 				mNotificationIntent = new Intent(mContext, HomeActivity.class);
 				mNotificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -342,9 +297,7 @@ public class HikeNotificationMsgStack implements Listener
 			else
 			{
 
-				mNotificationIntent = new Intent(mContext, ChatThread.class);
-				mNotificationIntent.putExtra(HikeConstants.Extras.MSISDN, lastAddedMsisdn);
-				mNotificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+				mNotificationIntent = IntentFactory.createChatThreadIntentFromMsisdn(mContext, lastAddedMsisdn, false);
 
 				/*
 				 * notifications appear to be cached, and their .equals doesn't check 'Extra's. In order to prevent the wrong intent being fired, set a data field that's unique to
@@ -404,77 +357,47 @@ public class HikeNotificationMsgStack implements Listener
 	 */
 	public String getNotificationBigText()
 	{
-		int addedNotifications = 0;
 		setBigTextList(new ArrayList<SpannableString>());
 		StringBuilder bigText = new StringBuilder();
 
-		for (Pair<String, String> convMsgPair : mMessageTitlePairList)
+		ListIterator<Entry<String, LinkedList<NotificationPreview>>> mapIterator = new ArrayList<Map.Entry<String, LinkedList<NotificationPreview>>>(mMessagesMap.entrySet()).listIterator(mMessagesMap
+				.size());
+
+		while (mapIterator.hasPrevious())
 		{
-			bigText = new StringBuilder();
+			Entry<String, LinkedList<NotificationPreview>> conv = mapIterator.previous();
 
-			String notificationMsgTitle = mContext.getString(R.string.app_name);
+			String msisdn = conv.getKey();
 
-			notificationMsgTitle = HikeNotificationUtils.getNameForMsisdn(mContext, convMsgPair.first);
-
-			if (!isFromSingleMsisdn())
+			for (NotificationPreview notifPrvw : conv.getValue())
 			{
-				bigText.append("<strong>" + notificationMsgTitle + "</strong>  " + convMsgPair.second);
-				getBigTextList().add(HikeNotificationUtils.makeNotificationLine(notificationMsgTitle, convMsgPair.second));
-			} 
-			else
-			{
-				bigText.append(convMsgPair.second);
-				getBigTextList().add(HikeNotificationUtils.makeNotificationLine(null, convMsgPair.second));
+
+				String notificationMsgTitle = mContext.getString(R.string.app_name);
+
+				notificationMsgTitle = HikeNotificationUtils.getNameForMsisdn(msisdn);
+
+				if (!isFromSingleMsisdn())
+				{
+					getBigTextList().add(HikeNotificationUtils.makeNotificationLine(notificationMsgTitle, notifPrvw.getMessage()));
+				}
+				else
+				{
+					getBigTextList().add(HikeNotificationUtils.makeNotificationLine(null, notifPrvw.getMessage()));
+				}
 			}
+		}
 
-			if (!(addedNotifications == 0))
+		bigText = new StringBuilder();
+		for (int i = 0; i < getBigTextList().size(); i++)
+		{
+			bigText.append(getBigTextList().get(i));
+
+			if (i != getBigTextList().size() - 1)
 			{
 				bigText.append("\n");
 			}
-
-			addedNotifications++;
-
-			if (addedNotifications == mNotificationTextLines)
-			{
-				break;
-			}
-		}
-
-		Collections.reverse(getBigTextList());
-		bigText = new StringBuilder();
-		for (SpannableString text : getBigTextList())
-		{
-			bigText.append(text);
 		}
 		return bigText.toString();
-	}
-
-	/**
-	 * If the notification messages are from different msisdns, returns string/app_name, else returns the name/msisdn of the only participant involved
-	 * 
-	 * @return
-	 */
-	public String getSendersCSV()
-	{
-		StringBuilder notificationMsgTitle = new StringBuilder();
-
-		for (Pair<String, String> entry : mMessageTitlePairList)
-		{
-			// Take any message from message list since the contact info will
-			// remain the same
-			String msisdn = entry.first;
-			if (Utils.isGroupConversation(msisdn))
-			{
-				notificationMsgTitle.append(mConvDb.getConversation(msisdn, 1).getLabel() + "\n");
-			}
-			else
-			{
-				String name = ContactManager.getInstance().getName(msisdn);
-				notificationMsgTitle.append(name + "\n");
-			}
-		}
-
-		return notificationMsgTitle.toString();
 	}
 
 	/**
@@ -533,7 +456,7 @@ public class HikeNotificationMsgStack implements Listener
 			if (object instanceof Activity)
 			{
 				Activity activity = (Activity) object;
-				if ((activity instanceof ChatThread))
+				if ((activity instanceof ChatThreadActivity))
 				{
 					HikeMessengerApp.getPubSub().publish(HikePubSub.CANCEL_ALL_NOTIFICATIONS, null);
 				}
@@ -576,20 +499,14 @@ public class HikeNotificationMsgStack implements Listener
 		return mLastInsertedConvMessage;
 	}
 
-	public int getNotificationTextLines()
-	{
-		return mNotificationTextLines;
-	}
-
 	/**
 	 * Clear all messages in the notifications stack
 	 */
 	public void resetMsgStack()
 	{
-		mMessageTitlePairList.clear();
+		mMessagesMap.clear();
 		lastAddedMsisdn = null;
 		totalNewMessages = 0;
-		uniqueMsisdns.clear();
 	}
 
 	/**
@@ -599,14 +516,7 @@ public class HikeNotificationMsgStack implements Listener
 	 */
 	public int getSize()
 	{
-		if (mMessageTitlePairList != null)
-		{
-			return mMessageTitlePairList.size();
-		}
-		else
-		{
-			return 0;
-		}
+		return totalNewMessages;
 	}
 
 	/**
@@ -653,7 +563,7 @@ public class HikeNotificationMsgStack implements Listener
 	 */
 	public int getNewConversations()
 	{
-		return uniqueMsisdns.size();
+		return mMessagesMap.size();
 	}
 
 	/**
@@ -665,17 +575,17 @@ public class HikeNotificationMsgStack implements Listener
 	{
 		if (isFromSingleMsisdn())
 		{
-			return HikeNotificationUtils.getNameForMsisdn(mContext, lastAddedMsisdn);
+			String title = mMessagesMap.get(lastAddedMsisdn).getLast().getTitle();
+			
+			if(getNewMessages() <=1 && !TextUtils.isEmpty(title))
+			{
+				return title;
+			}
+			
+			return HikeNotificationUtils.getNameForMsisdn(lastAddedMsisdn);
 		}
 
-		if (getNewMessages() <= 1)
-		{
-			return mContext.getString(R.string.one_new_message);
-		}
-		else
-		{
-			return String.format(mContext.getString(R.string.num_new_messages), getNewMessages());
-		}
+		return String.format(mContext.getString(R.string.num_new_messages), getNewMessages());
 	}
 
 	public boolean forceBlockNotificationSound()
@@ -690,7 +600,7 @@ public class HikeNotificationMsgStack implements Listener
 
 	private boolean containsStealthMessage()
 	{
-		if (uniqueMsisdns.contains(HikeNotification.HIKE_STEALTH_MESSAGE_KEY))
+		if (mMessagesMap.keySet().contains(HikeNotification.HIKE_STEALTH_MESSAGE_KEY))
 		{
 			return true;
 		}

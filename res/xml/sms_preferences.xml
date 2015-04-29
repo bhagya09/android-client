@@ -3,7 +3,7 @@
     android:title="@string/sms" >
 
     <com.bsb.hike.view.IconCheckBoxPreference
-        icon="preference_free_sms"
+        icon="@drawable/preference_free_sms"
         android:defaultValue="true"
         android:key="freeSmsPref"
         android:layout="@layout/icon_preference"
@@ -11,7 +11,7 @@
         android:title="@string/free_sms"
         android:widgetLayout="@layout/checkbox_widget" />
     <com.bsb.hike.view.IconCheckBoxPreference
-        icon="preference_default_client"
+        icon="@drawable/preference_default_client"
         android:key="receiveSmsPref"
         android:layout="@layout/icon_preference"
         android:summary="@string/default_client_info"

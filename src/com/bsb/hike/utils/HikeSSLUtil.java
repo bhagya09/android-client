@@ -14,6 +14,9 @@ public class HikeSSLUtil
 
 	// Server certificate is only valid for the following names: *.hike.in , hike.in
 	private static String validServerName = "hike.in";
+	
+	// Added Cloud front server certificate and is only valid for the following names: *.cloudfront.net , cloudfront.net
+	private static String validCloudFrontServerName = "cloudfront.net";
 
 	// Create a trust manager that does not validate certificate chains
 	public static TrustManager[] trustHikeCerts = new TrustManager[] { new X509TrustManager()
@@ -26,11 +29,11 @@ public class HikeSSLUtil
 		public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException
 		{
 
-			String cn_recieved = getCN(chain[0].getSubjectDN().getName());
-			if (cn_recieved == null || !cn_recieved.endsWith(validServerName))
-			{
-				throw new CertificateException("Not a valid certificate.");
-			}
+//			String cn_recieved = getCN(chain[0].getSubjectDN().getName());
+//			if (cn_recieved == null || (!cn_recieved.endsWith(validServerName) && !cn_recieved.endsWith(validCloudFrontServerName)))
+//			{
+//				throw new CertificateException("Not a valid certificate.");
+//			}
 
 		}
 
@@ -51,7 +54,7 @@ public class HikeSSLUtil
 		}
 
 		// get the remaining DN without CN=
-		dn = dn.substring(i + 3);
+		dn = new String(dn.substring(i + 3));
 		char[] dncs = dn.toCharArray();
 		for (i = 0; i < dncs.length; i++)
 		{

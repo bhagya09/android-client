@@ -104,6 +104,10 @@ public abstract class FileTransferBase implements Callable<FTResult>
 	
 	protected int pausedProgress ;
 
+	protected FTAnalyticEvents analyticEvents;
+
+	protected final int DEFAULT_CHUNK_SIZE = 100 * 1024;
+
 	protected FileTransferBase(Handler handler, ConcurrentHashMap<Long, FutureTask<FTResult>> fileTaskMap, Context ctx, File destinationFile, long msgId, HikeFileType hikeFileType)
 	{
 		this.handler = handler;
@@ -165,6 +169,49 @@ public abstract class FileTransferBase implements Callable<FTResult>
 			FileOutputStream fileOut = new FileOutputStream(stateFile);
 			ObjectOutputStream out = new ObjectOutputStream(fileOut);
 			out.writeObject(fss);
+			out.flush();
+			fileOut.flush();
+			fileOut.getFD().sync();
+			out.close();
+			fileOut.close();
+		}
+		catch (IOException i)
+		{
+			i.printStackTrace();
+		}
+	}
+	
+	protected void saveFileState(File stateFile, FTState state, String uuid, JSONObject response)
+	{
+		FileSavedState fss = new FileSavedState(state, _totalSize, _bytesTransferred, uuid, response);
+		try
+		{
+			FileOutputStream fileOut = new FileOutputStream(stateFile);
+			ObjectOutputStream out = new ObjectOutputStream(fileOut);
+			out.writeObject(fss);
+			out.flush();
+			fileOut.flush();
+			fileOut.getFD().sync();
+			out.close();
+			fileOut.close();
+		}
+		catch (IOException i)
+		{
+			i.printStackTrace();
+		}
+	}
+	
+	protected void saveFileKeyState(File stateFile, String mFileKey)
+	{
+		FileSavedState fss = new FileSavedState(_state, mFileKey);
+		try
+		{
+			FileOutputStream fileOut = new FileOutputStream(stateFile);
+			ObjectOutputStream out = new ObjectOutputStream(fileOut);
+			out.writeObject(fss);
+			out.flush();
+			fileOut.flush();
+			fileOut.getFD().sync();
 			out.close();
 			fileOut.close();
 		}
@@ -182,6 +229,9 @@ public abstract class FileTransferBase implements Callable<FTResult>
 			FileOutputStream fileOut = new FileOutputStream(stateFile);
 			ObjectOutputStream out = new ObjectOutputStream(fileOut);
 			out.writeObject(fss);
+			out.flush();
+			fileOut.flush();
+			fileOut.getFD().sync();
 			out.close();
 			fileOut.close();
 		}
@@ -193,8 +243,13 @@ public abstract class FileTransferBase implements Callable<FTResult>
 
 	protected void deleteStateFile()
 	{
-		if (stateFile != null && stateFile.exists())
-			stateFile.delete();
+		deleteStateFile(stateFile);
+	}
+	
+	protected void deleteStateFile(File file)
+	{
+		if (file != null && file.exists())
+			file.delete();
 	}
 
 	protected void setState(FTState mState)
@@ -249,9 +304,9 @@ public abstract class FileTransferBase implements Callable<FTResult>
 	protected void setChunkSize()
 	{
 		NetworkType networkType = FileTransferManager.getInstance(context).getNetworkType();
-		if (Utils.densityMultiplier > 1)
+		if (Utils.scaledDensityMultiplier > 1)
 			chunkSize = networkType.getMaxChunkSize();
-		else if (Utils.densityMultiplier == 1)
+		else if (Utils.scaledDensityMultiplier == 1)
 			chunkSize = networkType.getMinChunkSize() * 2;
 		else
 			chunkSize = networkType.getMinChunkSize();
@@ -295,5 +350,4 @@ public abstract class FileTransferBase implements Callable<FTResult>
 	{
 		this.pausedProgress = pausedProgress;
 	}
-
 }

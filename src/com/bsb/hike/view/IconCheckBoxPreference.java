@@ -24,7 +24,7 @@ public class IconCheckBoxPreference extends CheckBoxPreference
 	private void setIcon(Context context, AttributeSet attrs)
 	{
 		String iconName = attrs.getAttributeValue(null, "icon");
-
+		iconName = iconName.split("/")[1];
 		if (iconName != null)
 		{
 			int id = context.getResources().getIdentifier(iconName, "drawable", context.getPackageName());

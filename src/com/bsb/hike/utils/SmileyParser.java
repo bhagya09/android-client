@@ -21,11 +21,11 @@ public class SmileyParser
 {
 	private static int MAX_EMOTICONS = 100;
 
-	public static final int[] EMOTICONS_SUBCATEGORIES = { 80, 30, 39, 25, 189, 116, 230, 101, 209 };
+	public static final int[] EMOTICONS_SUBCATEGORIES = { 80, 30, 39, 25, 189, 116, 230, 102, 209 };
 
 	public static final int[] HIKE_SUBCATEGORIES = { 80, 30, 39, 25 };
 
-	public static final int[] EMOJI_SUBCATEGORIES = { 189, 116, 230, 101, 209 };
+	public static final int[] EMOJI_SUBCATEGORIES = { 189, 116, 230, 102, 209 };
 
 	public static final int MAX_EMOTICON_TEXT_LENGTH = 17;
 

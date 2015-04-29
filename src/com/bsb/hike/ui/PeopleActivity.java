@@ -16,6 +16,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
+import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.ui.fragments.FriendsFragment;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.Utils;
@@ -28,6 +29,8 @@ public class PeopleActivity extends HikeAppStateBaseFragmentActivity implements 
 	{
 		super.onCreate(savedInstanceState);
 		initialisePeopleScreen(savedInstanceState);
+		showProductPopup(ProductPopupsConstants.PopupTriggerPoints.FAVOURITES.ordinal());
+		
 	}
 
 	private void initialisePeopleScreen(Bundle savedInstanceState)
@@ -82,16 +85,14 @@ public class PeopleActivity extends HikeAppStateBaseFragmentActivity implements 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu)
 	{
-		getSupportMenuInflater().inflate(R.menu.friends_menu, menu);
 		
 		final SearchView searchView = new SearchView(getSupportActionBar().getThemedContext());
-		searchView.setQueryHint(getString(R.string.search_hint));
 		searchView.setIconifiedByDefault(false);
 		searchView.setIconified(false);
 		searchView.setOnQueryTextListener(onQueryTextListener);
 		searchView.clearFocus();
 
-		MenuItem searchItem = menu.add(Menu.NONE, Menu.NONE, 1, R.string.search_hint);
+		MenuItem searchItem = menu.add(Menu.NONE, Menu.NONE, 1, R.string.search);
 
 		searchItem.setIcon(R.drawable.ic_top_bar_search).setActionView(searchView)
 				.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
@@ -122,30 +123,6 @@ public class PeopleActivity extends HikeAppStateBaseFragmentActivity implements 
 	{
 
 		return super.onPrepareOptionsMenu(menu);
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item)
-	{
-		Intent intent = null;
-
-		switch (item.getItemId())
-		{
-		case R.id.show_timeline:
-			intent = new Intent(this, TimelineActivity.class);
-			intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-			break;	
-		}
-
-		if (intent != null)
-		{
-			startActivity(intent);
-			return true;
-		}
-		else
-		{
-			return super.onOptionsItemSelected(item);
-		}
 	}
 
 	private OnQueryTextListener onQueryTextListener = new OnQueryTextListener()

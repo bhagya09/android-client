@@ -6,10 +6,8 @@ import android.graphics.drawable.BitmapDrawable;
 import android.media.ThumbnailUtils;
 import android.provider.MediaStore;
 
-import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.models.HikeFile.HikeFileType;
-import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
 public class SharedFileImageLoader extends ImageWorker

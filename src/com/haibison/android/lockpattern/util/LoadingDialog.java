@@ -16,14 +16,14 @@
 
 package com.haibison.android.lockpattern.util;
 
-import com.bsb.hike.R;
-
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.util.Log;
+
+import com.bsb.hike.R;
 
 
 /**

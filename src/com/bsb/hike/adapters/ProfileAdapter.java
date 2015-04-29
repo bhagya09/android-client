@@ -2,37 +2,25 @@ package com.bsb.hike.adapters;
 
 import java.util.List;
 
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.text.util.Linkify;
-import android.util.Pair;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.WebView.FindListener;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.ImageView.ScaleType;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
-import android.widget.Toast;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
+import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.models.ContactInfo;
-import com.bsb.hike.models.ContactInfo.FavoriteType;
-import com.bsb.hike.models.GroupConversation;
 import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.HikeSharedFile;
@@ -44,6 +32,9 @@ import com.bsb.hike.models.ProfileItem.ProfileSharedMedia;
 import com.bsb.hike.models.ProfileItem.ProfileStatusItem;
 import com.bsb.hike.models.StatusMessage;
 import com.bsb.hike.models.StatusMessage.StatusMessageType;
+import com.bsb.hike.models.Conversation.BroadcastConversation;
+import com.bsb.hike.models.Conversation.GroupConversation;
+import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.smartImageLoader.IconLoader;
 import com.bsb.hike.smartImageLoader.ProfilePicImageLoader;
@@ -52,18 +43,11 @@ import com.bsb.hike.smartImageLoader.TimelineImageLoader;
 import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.utils.EmoticonConstants;
 import com.bsb.hike.utils.PairModified;
-import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.Utils;
-import com.bsb.hike.view.CustomFontTextView;
 
 public class ProfileAdapter extends ArrayAdapter<ProfileItem>
-{
-
-	public static final String PROFILE_PIC_SUFFIX = "pp";
-	
-	public static final String PROFILE_ROUND_SUFFIX = "round";
-	
+{		
 	public static final String OPEN_GALLERY = "OpenGallery";
 	
 	public static final String IMAGE_TAG = "image";
@@ -77,7 +61,7 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 
 	private ProfileActivity profileActivity;
 
-	private GroupConversation groupConversation;
+	private OneToNConversation groupConversation;
 
 	private ContactInfo mContactInfo;
 
@@ -88,9 +72,7 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 	private boolean myProfile;
 
 	private boolean isContactBlocked;
-
-	private boolean lastSeenPref;
-
+	
 	private IconLoader iconLoader;
 
 	private TimelineImageLoader bigPicImageLoader;
@@ -100,7 +82,9 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 	private SharedFileImageLoader thumbnailLoader;
 
 	private int mIconImageSize;
-
+	
+	private boolean hasCustomPhoto;
+	
 	private static final int SHOW_CONTACTS_STATUS = 0;
 	
 	private static final int NOT_A_FRIEND = 1;
@@ -113,12 +97,12 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 	
 	private int sizeOfThumbnail;
 
-	public ProfileAdapter(ProfileActivity profileActivity, List<ProfileItem> itemList, GroupConversation groupConversation, ContactInfo contactInfo, boolean myProfile)
+	public ProfileAdapter(ProfileActivity profileActivity, List<ProfileItem> itemList, OneToNConversation groupConversation, ContactInfo contactInfo, boolean myProfile)
 	{
 		this(profileActivity, itemList, groupConversation, contactInfo, myProfile, false);
 	}
 	
-	public ProfileAdapter(ProfileActivity profileActivity, List<ProfileItem> itemList, GroupConversation groupConversation, ContactInfo contactInfo, boolean myProfile, boolean isContactBlocked, int sizeOfThumbNail)
+	public ProfileAdapter(ProfileActivity profileActivity, List<ProfileItem> itemList, OneToNConversation groupConversation, ContactInfo contactInfo, boolean myProfile, boolean isContactBlocked, int sizeOfThumbNail)
 	{
 		this(profileActivity, itemList, groupConversation, contactInfo, myProfile, false);
 		this.sizeOfThumbnail = sizeOfThumbNail;
@@ -126,7 +110,7 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 		thumbnailLoader.setDefaultDrawable(context.getResources().getDrawable(R.drawable.ic_file_thumbnail_missing));
 	}
 	
-	public ProfileAdapter(ProfileActivity profileActivity, List<ProfileItem> itemList, GroupConversation groupConversation, ContactInfo contactInfo, boolean myProfile,
+	public ProfileAdapter(ProfileActivity profileActivity, List<ProfileItem> itemList, OneToNConversation groupConversation, ContactInfo contactInfo, boolean myProfile,
 			boolean isContactBlocked)
 	{
 		super(profileActivity, -1, itemList);
@@ -137,7 +121,6 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 		this.groupConversation = groupConversation;
 		this.myProfile = myProfile;
 		this.isContactBlocked = isContactBlocked;
-		this.lastSeenPref = PreferenceManager.getDefaultSharedPreferences(context).getBoolean(HikeConstants.LAST_SEEN_PREF, true);
 		mIconImageSize = context.getResources().getDimensionPixelSize(R.dimen.icon_picture_size);
 		int mBigImageSize = context.getResources().getDimensionPixelSize(R.dimen.timeine_big_picture_size);
 		this.bigPicImageLoader = new TimelineImageLoader(context, mBigImageSize);
@@ -146,9 +129,9 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 		profileImageLoader.setHiResDefaultAvatar(true);
 		this.iconLoader = new IconLoader(context, mIconImageSize);
 		iconLoader.setDefaultAvatarIfNoCustomIcon(true);
+		hasCustomPhoto = getHasCustomPhoto(); 
 	}
 	
-
 	@Override
 	public int getItemViewType(int position)
 	{
@@ -222,7 +205,7 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 	public boolean isEnabled(int position)
 	{
 		ViewType viewType = ViewType.values()[getItemViewType(position)];
-		if (viewType == ViewType.HEADER)
+		if (viewType == ViewType.HEADER || viewType == ViewType.SHARED_MEDIA || viewType == ViewType.PHONE_NUMBER)
 		{
 			return false;
 		}
@@ -238,8 +221,9 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 
 		ProfileItem profileItem = getItem(position);
 
-		ViewHolder viewHolder = null;
 		View v = convertView;
+		
+		ViewHolder viewHolder = null;
 
 		if (v == null)
 		{
@@ -302,15 +286,14 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 				viewHolder.groupOrPins = (TextView) v.findViewById(R.id.shared_pins);
 				viewHolder.sharedFilesCount = (TextView) v.findViewById(R.id.count_sf);
 				viewHolder.icon = (ImageView) v.findViewById(R.id.shared_pin_icon);
-				viewHolder.phoneNumView =  v.findViewById(R.id.sm_emptystate);
-				viewHolder.timeStamp = (TextView) v.findViewById(R.id.sm_emptystate_tv);
+				viewHolder.timeStamp = (TextView) v.findViewById(R.id.sm_emptystate);
 				viewHolder.files = v.findViewById(R.id.shared_files_rl);
 				viewHolder.pins = v.findViewById(R.id.shared_pins_rl);
 				if(!groupProfile)
 				{
-					LayoutParams ll = (LayoutParams) viewHolder.phoneNumView.getLayoutParams();
+					LayoutParams ll = (LayoutParams) viewHolder.timeStamp.getLayoutParams();
 					ll.topMargin -= context.getResources().getDimensionPixelSize(R.dimen.top_margin_shared_content);
-					viewHolder.phoneNumView.setLayoutParams(ll); // Hack for top margin in case of one to one profile for empty state of content
+					viewHolder.timeStamp.setLayoutParams(ll); // Hack for top margin in case of one to one profile for empty state of content
 				}
 				break;
 
@@ -367,6 +350,8 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 				viewHolder.text = (TextView) viewHolder.parent.findViewById(R.id.name);
 				viewHolder.extraInfo = (TextView) v.findViewById(R.id.phone_number);
 				viewHolder.subText = (TextView) v.findViewById(R.id.main_info);
+				viewHolder.phoneIcon = (ImageView) v.findViewById(R.id.call);
+				viewHolder.divider = v.findViewById(R.id.divider);
 				break;
 			}
 
@@ -384,12 +369,20 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 			String contmsisdn = mContactInfo.getMsisdn();
 			String contname = TextUtils.isEmpty(mContactInfo.getName()) ? mContactInfo.getMsisdn() : mContactInfo.getName();
 			viewHolder.text.setText(contname);
-			String mapedId = contmsisdn + PROFILE_PIC_SUFFIX;
+			String mapedId = contmsisdn + ProfileActivity.PROFILE_PIC_SUFFIX;
 			ImageViewerInfo imageViewerInf = new ImageViewerInfo(mapedId, null, false, !ContactManager.getInstance().hasIcon(contmsisdn));
 			viewHolder.image.setTag(imageViewerInf);
 			if (profilePreview == null)
 			{
-				profileImageLoader.loadImage(mapedId, viewHolder.image, isListFlinging);
+				if(hasCustomPhoto)
+				{
+					profileImageLoader.loadImage(mapedId, viewHolder.image, isListFlinging);
+				}
+				else
+				{
+					viewHolder.image.setBackgroundResource(BitmapUtils.getDefaultAvatarResourceId(mContactInfo.getMsisdn(), false));
+					viewHolder.image.setImageResource(R.drawable.ic_default_avatar_hires);
+				}
 			}
 			else
 			{
@@ -399,6 +392,11 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 			if (myProfile)
 			{
 				viewHolder.icon.setImageResource(R.drawable.ic_change_profile_pic);
+			}
+			
+			else
+			{
+				viewHolder.icon.setImageResource(R.drawable.ic_new_conversation);
 			}
 
 			if (mContactInfo != null)
@@ -482,7 +480,39 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 			String heading = ((ProfileSharedContent)profileItem).getText();
 			viewHolder.text.setText(heading);
 			viewHolder.sharedFilesCount.setText(Integer.toString(((ProfileSharedContent) profileItem).getSharedFilesCount()));
-			viewHolder.extraInfo.setText(Integer.toString(((ProfileSharedContent) profileItem).getSharedPinsCount())); //PinCount
+			
+			TextView countView = (TextView)v.findViewById(R.id.count_pin_unread);
+			
+			int pinUnreadCount = ((ProfileSharedContent)profileItem).getUnreadPinCount();
+			
+			if (pinUnreadCount > 0)
+			{			
+				viewHolder.extraInfo.setVisibility(View.GONE);
+				
+				countView.setVisibility(View.VISIBLE);
+				
+				if (pinUnreadCount >= HikeConstants.MAX_PIN_CONTENT_LINES_IN_HISTORY)
+				{
+					countView.setText(R.string.max_pin_unread_counter);
+				}
+				else
+				{
+					countView.setText(Integer.toString(pinUnreadCount));
+				}
+				if(((ProfileSharedContent)profileItem).getPinAnimation())
+				{
+					countView.startAnimation(Utils.getNotificationIndicatorAnim());
+
+					((ProfileSharedContent)profileItem).setPinAnimation(false);
+				}
+			}
+			else
+			{			
+				countView.setVisibility(View.GONE);
+				viewHolder.extraInfo.setVisibility(View.VISIBLE);
+				viewHolder.extraInfo.setText(Integer.toString(((ProfileSharedContent) profileItem).getSharedPinsCount()));
+			}
+			
 			int totalfiles = ((ProfileSharedContent) profileItem).getSharedFilesCount() + ((ProfileSharedContent) profileItem).getSharedPinsCount();
 			int filesCount = ((ProfileSharedContent) profileItem).getSharedFilesCount();
 			int pinsCount = ((ProfileSharedContent) profileItem).getSharedPinsCount();
@@ -497,23 +527,37 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 				if(totalfiles>0)
 				{
 					viewHolder.sharedFiles.setVisibility(View.VISIBLE);
-					((LinearLayout) viewHolder.sharedFiles).getChildAt(1).setVisibility(View.VISIBLE);
-					((LinearLayout) viewHolder.sharedFiles).findViewById(R.id.shared_content_seprator).setVisibility(View.VISIBLE);
+					if (groupConversation instanceof BroadcastConversation)
+					{
+						((LinearLayout) viewHolder.sharedFiles).getChildAt(1).setVisibility(View.GONE);
+					}
+					else
+					{
+						((LinearLayout) viewHolder.sharedFiles).getChildAt(1).setVisibility(View.VISIBLE);
+						((LinearLayout) viewHolder.sharedFiles).findViewById(R.id.shared_content_seprator).setVisibility(View.VISIBLE);
+					}
 				
 					viewHolder.groupOrPins.setText(context.getResources().getString(R.string.pins));
 					viewHolder.icon.setBackgroundDrawable(context.getResources().getDrawable(R.drawable.ic_pin_2));
-					viewHolder.phoneNumView.setVisibility(View.GONE);
+					viewHolder.timeStamp.setVisibility(View.GONE);
 					if(filesCount == 0)
 						disableView(viewHolder.sharedFilesText, viewHolder.sharedFilesCount,viewHolder.files);
 					if(pinsCount == 0)
 						disableView(viewHolder.groupOrPins, viewHolder.extraInfo,viewHolder.pins);
 					
 				}
-				else
+				else//EmptyState
 				{
 					viewHolder.sharedFiles.setVisibility(View.GONE);
-					viewHolder.phoneNumView.setVisibility(View.VISIBLE);
-					viewHolder.timeStamp.setText(context.getResources().getString(R.string.no_file));
+					viewHolder.timeStamp.setVisibility(View.VISIBLE);
+					if (groupConversation instanceof BroadcastConversation)
+					{
+						viewHolder.timeStamp.setText(context.getResources().getString(R.string.no_file_broadcast));
+					}
+					else
+					{
+						viewHolder.timeStamp.setText(context.getResources().getString(R.string.no_file));
+					}
 				}
 			}
 			else
@@ -533,15 +577,15 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 					((LinearLayout) viewHolder.sharedFiles).findViewById(R.id.shared_content_seprator).setVisibility(View.GONE);
 					viewHolder.groupOrPins.setText(context.getResources().getString(R.string.groups));
 					viewHolder.icon.setBackgroundDrawable(context.getResources().getDrawable(R.drawable.ic_group_2));
-					viewHolder.phoneNumView.setVisibility(View.GONE);
+					viewHolder.timeStamp.setVisibility(View.GONE);
 					if(filesCount == 0)
 						disableView(viewHolder.sharedFilesText, viewHolder.sharedFilesCount,viewHolder.files);
 						
 				}
-				else
+				else //EmptyState
 				{	
 					viewHolder.sharedFiles.setVisibility(View.GONE);
-					viewHolder.phoneNumView.setVisibility(View.VISIBLE);
+					viewHolder.timeStamp.setVisibility(View.VISIBLE);
 					
 					viewHolder.timeStamp.setText(context.getResources().getString(R.string.no_file_profile));
 				}
@@ -553,14 +597,27 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 			viewHolder.text.setText(head);
 			viewHolder.extraInfo.setText(mContactInfo.getMsisdn());
 			
-			if(mContactInfo.getMsisdnType().length()>0)
+			if (!TextUtils.isEmpty(mContactInfo.getMsisdnType()))
 				viewHolder.subText.setText(" (" + mContactInfo.getMsisdnType().toLowerCase() + ")");
-			
+
+			if(!mContactInfo.isOnhike() || !Utils.isVoipActivated(context))
+			{
+				viewHolder.phoneIcon.setVisibility(View.GONE);
+				viewHolder.divider.setVisibility(View.GONE);
+			}
 			break;
 
 		case MEMBERS:
-			viewHolder.text.setText(context.getResources().getString(R.string.members));
-			viewHolder.subText.setText(Integer.toString(((ProfileGroupItem)profileItem).getTotalMembers()) + "/" + HikeConstants.MAX_CONTACTS_IN_GROUP);
+			if (groupConversation instanceof BroadcastConversation)
+			{
+				viewHolder.text.setText(context.getResources().getString(R.string.recipients));
+				viewHolder.subText.setText(Integer.toString(((ProfileGroupItem)profileItem).getTotalMembers()) + "/" + HikeConstants.MAX_CONTACTS_IN_BROADCAST);
+			}
+			else
+			{
+				viewHolder.text.setText(context.getResources().getString(R.string.members));
+				viewHolder.subText.setText(Integer.toString(((ProfileGroupItem)profileItem).getTotalMembers()) + "/" + HikeConstants.MAX_CONTACTS_IN_GROUP);
+			}
 			break;
 
 		case GROUP_PARTICIPANT:
@@ -571,7 +628,7 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 			GroupParticipant groupParticipant = groupParticipants.getFirst();
 			
 			ContactInfo contactInfo = groupParticipant.getContactInfo();
-			if (contactInfo.getMsisdn().equals(groupConversation.getGroupOwner()))
+			if (contactInfo.getMsisdn().equals(groupConversation.getConversationOwner()))
 			{
 				viewHolder.infoContainer.setVisibility(View.VISIBLE);
 			}
@@ -580,14 +637,6 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 				viewHolder.infoContainer.setVisibility(View.GONE);
 			}
 
-			int offline = contactInfo.getOffline();
-			String lastSeenString = null;
-			boolean showingLastSeen = false;
-			if (lastSeenPref && contactInfo.getFavoriteType() == FavoriteType.FRIEND && !contactInfo.getMsisdn().equals(contactInfo.getId()))
-			{
-				lastSeenString = Utils.getLastSeenTimeAsString(context, contactInfo.getLastSeenTime(), offline, true);
-				showingLastSeen = !TextUtils.isEmpty(lastSeenString);
-			}
 			String groupParticipantName = groupParticipants.getSecond();
 			if (null == groupParticipantName)
 			{
@@ -623,7 +672,14 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 			TextView nameTextView_mem = (TextView) groupParticipantParentView_mem.findViewById(R.id.name);
 			ImageView avatar_mem = (ImageView) groupParticipantParentView_mem.findViewById(R.id.add_participant);
 			avatar_mem.setVisibility(View.VISIBLE);
-			nameTextView_mem.setText(R.string.add_people);
+			if (groupConversation instanceof BroadcastConversation)
+			{
+				nameTextView_mem.setText(R.string.add_recipients);
+			}
+			else
+			{
+				nameTextView_mem.setText(R.string.add_people);
+			}
 			nameTextView_mem.setTextColor(context.getResources().getColor(R.color.blue_hike));
 			groupParticipantParentView_mem.setTag(null);
 			groupParticipantParentView_mem.setOnClickListener(profileActivity);
@@ -640,8 +696,9 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 			{
 				boolean friendRequestAccepted = statusMessage.getStatusMessageType() == StatusMessageType.FRIEND_REQUEST_ACCEPTED;
 
-				viewHolder.subText.setText(context.getString(friendRequestAccepted ? R.string.accepted_your_favorite_request_details
-						: R.string.you_accepted_favorite_request_details, Utils.getFirstName(statusMessage.getNotNullName())));
+				int infoMainResId = friendRequestAccepted ? R.string.accepted_your_favorite_request_details:R.string.you_accepted_favorite_request_details;
+				String infoSubText = context.getString(Utils.isLastSeenSetToFavorite() ? R.string.both_ls_status_update : R.string.status_updates_proper_casing);
+				viewHolder.subText.setText(context.getString(infoMainResId, Utils.getFirstName(statusMessage.getNotNullName()), infoSubText));
 			}
 			else
 			{
@@ -649,7 +706,7 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 				viewHolder.subText.setText(smileyParser.addSmileySpans(statusMessage.getText(), true));
 			}
 
-			Linkify.addLinks(viewHolder.text, Linkify.ALL);
+			Linkify.addLinks(viewHolder.subText, Linkify.ALL);
 			viewHolder.text.setMovementMethod(null);
 
 			viewHolder.timeStamp.setText(statusMessage.getTimestampFormatted(true, context));
@@ -658,6 +715,7 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 			{
 				viewHolder.icon.setImageResource(EmoticonConstants.moodMapping.get(statusMessage.getMoodId()));
 				viewHolder.iconFrame.setVisibility(View.GONE);
+				viewHolder.icon.setBackgroundResource(0);
 			}
 			else
 			{
@@ -708,7 +766,6 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 
 	private void disableView(TextView text, TextView count, View background)
 	{
-		// TODO Auto-generated method stub
 		text.setTextColor(context.getResources().getColor(R.color.files_disabled));
 		count.setTextColor(context.getResources().getColor(R.color.files_disabled));
 		background.setBackgroundDrawable(null);   //Removing the pressed state
@@ -716,7 +773,6 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 
 	private void loadMediaInProfile(int size, LinearLayout layout, List<HikeSharedFile> sharedMedia)
 	{
-		// TODO Auto-generated method stub
 		int i = 0;
 		while(i<size)
 		{
@@ -758,14 +814,12 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 
 	private void setAvatar(String msisdn, ImageView avatarView)
 	{
-		iconLoader.loadImage(msisdn, true, avatarView, true);
+		iconLoader.loadImage(msisdn, avatarView, false, true);
 	}
 
 	private class ViewHolder
 	{
 		TextView text;
-
-		EditText editName;
 
 		TextView subText;
 
@@ -783,13 +837,9 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 
 		ImageView iconFrame;
 
-		Button btn1;
+		ImageView phoneIcon;
 
-		Button btn2;
-
-		ImageButton imageBtn1;
-
-		ImageButton imageBtn2;
+		View divider;
 
 		TextView timeStamp;
 
@@ -814,7 +864,7 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 		notifyDataSetChanged();
 	}
 
-	public void updateGroupConversation(GroupConversation groupConversation)
+	public void updateGroupConversation(OneToNConversation groupConversation)
 	{
 		this.groupConversation = groupConversation;
 		notifyDataSetChanged();
@@ -868,5 +918,24 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 		{
 			notifyDataSetChanged();
 		}
+	}
+	
+
+	private boolean getHasCustomPhoto()
+	{
+		// basically for the case of unknown number contactInfo object doesn't have the hasIcon information
+		if(mContactInfo != null)
+		{
+			return this.mContactInfo.hasCustomPhoto() || ContactManager.getInstance().hasIcon(this.mContactInfo.getMsisdn());	
+		}
+		else 
+		{
+			return false;
+		}
+	}
+	
+	public void updateHasCustomPhoto()
+	{
+		this.hasCustomPhoto = getHasCustomPhoto();
 	}
 }

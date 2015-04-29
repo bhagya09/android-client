@@ -2,13 +2,20 @@ package com.bsb.hike.utils;
 
 import java.util.List;
 
+import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.content.PlatformContent;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.content.Context;
+
 import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.HikePubSub;
+import com.bsb.hike.MqttConstants;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.service.HikeMqttManagerNew;
 
 public class HikeAnalyticsEvent
 {
@@ -33,7 +40,7 @@ public class HikeAnalyticsEvent
 				dataJson.put(HikeConstants.DISABLED_STEALTH, new JSONArray(disabledMsisdn));
 			}
 			object.put(HikeConstants.DATA, dataJson);
-			HikeMessengerApp.getPubSub().publish(HikePubSub.MQTT_PUBLISH, object);
+	        HikeMqttManagerNew.getInstance().sendMessage(object, MqttConstants.MQTT_QOS_ONE);
 		}
 		catch (JSONException e)
 		{
@@ -55,7 +62,7 @@ public class HikeAnalyticsEvent
 			JSONObject dataJson = new JSONObject();
 			dataJson.put(HikeConstants.RESET, true);
 			object.put(HikeConstants.DATA, dataJson);
-			HikeMessengerApp.getPubSub().publish(HikePubSub.MQTT_PUBLISH, object);
+	        HikeMqttManagerNew.getInstance().sendMessage(object, MqttConstants.MQTT_QOS_ONE);
 		}
 		catch (JSONException e)
 		{
@@ -76,7 +83,7 @@ public class HikeAnalyticsEvent
 			JSONObject dataJson = new JSONObject();
 			dataJson.put(HikeConstants.ENABLED, enabled);
 			object.put(HikeConstants.DATA, dataJson);
-			HikeMessengerApp.getPubSub().publish(HikePubSub.MQTT_PUBLISH_LOW, object);
+			HikeMqttManagerNew.getInstance().sendMessage(object, MqttConstants.MQTT_QOS_ZERO);
 		}
 		catch (JSONException e)
 		{
@@ -88,28 +95,78 @@ public class HikeAnalyticsEvent
 	/*
 	 * We send an event every time user exists the gallery selection activity
 	 */
-	public static void sendGallerySelectionEvent(int total, int successful)
+	public static void sendGallerySelectionEvent(int total, int successful, Context context)
 	{
 		try
 		{
 			JSONObject metadata = new JSONObject();
 			metadata.put(HikeConstants.TOTAL_SELECTIONS, total);
 			metadata.put(HikeConstants.SUCCESSFUL_SELECTIONS, successful);
-			
-			JSONObject data = new JSONObject();
-			data.put(HikeConstants.SUB_TYPE, HikeConstants.UI_EVENT);
-			data.put(HikeConstants.METADATA, metadata);
-			data.put(HikeConstants.LogEvent.TAG, HikeConstants.LogEvent.GALLERY_SELECTION);
-			
-			JSONObject object = new JSONObject();
-			object.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.ANALYTICS_EVENT);
-			object.put(HikeConstants.DATA, data);
-			
-			HikeMessengerApp.getPubSub().publish(HikePubSub.MQTT_PUBLISH, object);
+			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.EXIT_FROM_GALLERY, metadata, HikeConstants.LogEvent.GALLERY_SELECTION);			
 		}
 		catch (JSONException e)
 		{
 			Logger.e("HikeAnalyticsEvent", "Exception is sending analytics event for gallery selections", e);
 		}
 	}
+
+	public static void cardErrorAnalytics(PlatformContent.EventCode reason, ConvMessage convMessage)
+	{
+		JSONObject json = new JSONObject();
+		try
+		{
+			json.put(HikePlatformConstants.ERROR_CODE, reason.toString());
+			json.put(AnalyticsConstants.EVENT_KEY, HikePlatformConstants.BOT_ERROR);
+			json.put(AnalyticsConstants.CONTENT_ID, convMessage.getContentId());
+			HikeAnalyticsEvent.analyticsForCards(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.ERROR_EVENT, json);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+		catch (NullPointerException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
+	public static void analyticsForBots(String type, String subType, JSONObject json)
+	{
+		try
+		{
+			Logger.d("HikeAnalyticsEvent", json.toString());
+			HAManager.getInstance().record(type, subType, HAManager.EventPriority.NORMAL, json, AnalyticsConstants.EVENT_TAG_BOTS);
+		}
+		catch (NullPointerException npe)
+		{
+			npe.printStackTrace();
+		}
+	}
+
+    public static void analyticsForCards(String type, String subType, JSONObject json)
+    {
+        try
+        {
+            Logger.d("HikeAnalyticsEvent", json.toString());
+            HAManager.getInstance().record(type, subType, HAManager.EventPriority.HIGH, json, AnalyticsConstants.EVENT_TAG_PLATFORM);
+        }
+        catch (NullPointerException npe)
+        {
+            npe.printStackTrace();
+        }
+    }
+    
+    public static void analyticsForPhotos(String type, String subType, JSONObject json)
+    {
+        try
+        {
+            Logger.d("HikeAnalyticsEvent", json.toString());
+            HAManager.getInstance().record(type, subType, HAManager.EventPriority.HIGH, json, AnalyticsConstants.EVENT_TAG_PHOTOS);
+        }
+        catch (NullPointerException npe)
+        {
+            npe.printStackTrace();
+        }
+    }
+
 }

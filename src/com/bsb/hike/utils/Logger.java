@@ -2,9 +2,11 @@ package com.bsb.hike.utils;
 
 import android.util.Log;
 
+import com.bsb.hike.AppConfig;
+
 public class Logger
 {
-	public static boolean printLogs = true;
+	public static boolean printLogs = AppConfig.SHOW_LOGS;
 
 	/**
 	 * Send a {@link #VERBOSE} log message.

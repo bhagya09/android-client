@@ -18,33 +18,18 @@
             android:layout_marginTop="0dp"
             layout="@layout/friends_group_view" />
 
-        <LinearLayout
-            android:id="@+id/sm_emptystate"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:layout_marginLeft="24dp"
-            android:layout_marginRight="16dp"
-            android:contentDescription="Empty State"
-            android:orientation="horizontal" 
-            android:visibility="gone">
-
-            <ImageView
-                android:id="@+id/sm_emptystate_iv"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginRight="22dp"
-                android:src="@drawable/ic_info_2" />
 
             <com.bsb.hike.view.CustomFontTextView
-                android:id="@+id/sm_emptystate_tv"
+                android:id="@+id/sm_emptystate"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
+                android:layout_height="48dp"
+                android:gravity="center_vertical"
                 android:text="@string/no_file"
                 android:textColor="#aaaaaa"
-                android:textSize="16sp" />
-        </LinearLayout>
+                android:textSize="16sp"
+                android:layout_marginLeft="24dp"
+            	android:contentDescription="Empty State"
+            	android:visibility="gone" />
 
         <LinearLayout
             android:id="@+id/shared_content_layout"
@@ -135,8 +120,23 @@
                     android:text="23"
                     android:textColor="#aaaaaa"
                     android:textSize="14sp" />
-
+                
                 <com.bsb.hike.view.CustomFontTextView
+                    android:id="@+id/count_pin_unread"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="10dp"
+                    android:background="@drawable/ic_top_bar_indicator"
+                    android:contentDescription="shared unread pin count"
+                    android:gravity="center"
+                    android:text="23"
+                    android:textColor="@color/white"
+                    android:textSize="12sp"
+                    android:visibility="gone" />
+                
+				<com.bsb.hike.view.CustomFontTextView
                     android:id="@+id/shared_pins"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

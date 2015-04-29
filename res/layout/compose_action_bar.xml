@@ -2,14 +2,6 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent" >
-
-    <ProgressBar
-        android:id="@+id/loading_progress"
-        android:layout_width="36dp"
-        android:layout_height="36dp"
-        android:layout_centerVertical="true"
-        android:layout_alignParentRight="true"
-        android:visibility="gone" />
     
     <LinearLayout
         android:id="@+id/done_container"
@@ -49,9 +41,18 @@
         android:layout_marginTop="8dp"
         android:background="@color/transparent_white_ab"
         android:layout_alignWithParentIfMissing="true"
+        android:visibility="gone"
         android:layout_toLeftOf="@id/done_container" />
     
-     <LinearLayout
+    <ProgressBar
+        android:id="@+id/loading_progress"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_centerVertical="true"
+        android:visibility="gone"
+        android:layout_toLeftOf="@id/seprator"
+        android:layout_alignWithParentIfMissing="true" />
+    <LinearLayout
         android:id="@+id/image_quality_settings_view"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
@@ -69,7 +70,6 @@
             android:layout_height="wrap_content"
             android:background="@drawable/ic_settings" />
     </LinearLayout>
-    
     <LinearLayout
         android:layout_width="wrap_content"
 	    android:layout_height="fill_parent"

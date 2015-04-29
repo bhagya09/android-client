@@ -1,8 +1,13 @@
 package com.bsb.hike.notifications;
 
+import org.json.JSONException;
+
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.graphics.Color;
 import android.os.Build;
+import android.preference.PreferenceManager;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextUtils;
@@ -10,6 +15,7 @@ import android.text.style.ForegroundColorSpan;
 import android.util.Pair;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
@@ -17,8 +23,12 @@ import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.models.NotificationPreview;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.SmileyParser;
+import com.bsb.hike.utils.Utils;
 
 public class HikeNotificationUtils
 {
@@ -31,7 +41,7 @@ public class HikeNotificationUtils
 	 * @param convMsg
 	 * @return
 	 */
-	public static Pair<String, String> getNotificationPreview(Context context, ConvMessage convMsg)
+	public static NotificationPreview getNotificationPreview(Context context, ConvMessage convMsg)
 	{
 
 		final String msisdn = convMsg.getMsisdn();
@@ -43,7 +53,7 @@ public class HikeNotificationUtils
 		ContactManager contactManager = ContactManager.getInstance();
 
 		ContactInfo contactInfo;
-		if (convMsg.isGroupChat())
+		if (convMsg.isOneToNChat())
 		{
 			contactInfo = new ContactInfo(convMsg.getMsisdn(), convMsg.getMsisdn(), contactManager.getName(msisdn), convMsg.getMsisdn());
 		}
@@ -57,7 +67,7 @@ public class HikeNotificationUtils
 		{
 			if (convMsg.getParticipantInfoState() == ParticipantInfoState.USER_JOIN)
 			{
-				message = String.format(context.getString(convMsg.getMetadata().isOldUser() ? R.string.user_back_on_hike : R.string.joined_hike_new), contactInfo.getFirstName());
+				message = String.format(convMsg.getMessage(), contactInfo.getFirstName());
 			}
 			else
 			{
@@ -77,7 +87,7 @@ public class HikeNotificationUtils
 		String key = (contactInfo != null && !TextUtils.isEmpty(contactInfo.getName())) ? contactInfo.getName() : msisdn;
 		// For showing the name of the contact that sent the message in a group
 		// chat
-		if (convMsg.isGroupChat() && !TextUtils.isEmpty(convMsg.getGroupParticipantMsisdn()) && convMsg.getParticipantInfoState() == ParticipantInfoState.NO_INFO)
+		if (convMsg.isOneToNChat() && !TextUtils.isEmpty(convMsg.getGroupParticipantMsisdn()) && convMsg.getParticipantInfoState() == ParticipantInfoState.NO_INFO)
 		{
 
 			GroupParticipant groupParticipant = HikeConversationsDatabase.getInstance().getGroupParticipant(convMsg.getMsisdn(), convMsg.getGroupParticipantMsisdn());
@@ -108,8 +118,12 @@ public class HikeNotificationUtils
 			}
 			key = ContactManager.getInstance().getName(convMsg.getMsisdn());
 		}
+		else if(convMsg.getParticipantInfoState() == ParticipantInfoState.USER_JOIN)
+		{
+			key = String.format(convMsg.getMetadata().getKey(), key);
+		}
 
-		return new Pair<String, String>(message, key);
+		return new NotificationPreview(message, key);
 	}
 
 	/**
@@ -121,15 +135,20 @@ public class HikeNotificationUtils
 	 * @param argMsisdn
 	 * @return
 	 */
-	public static String getNameForMsisdn(Context context, String argMsisdn)
+	public static String getNameForMsisdn(String argMsisdn)
 	{
 		if (HikeNotification.HIKE_STEALTH_MESSAGE_KEY.equals(argMsisdn))
 		{
-			return context.getString(R.string.app_name);
+			return HikeMessengerApp.getInstance().getApplicationContext().getString(R.string.app_name);
 		}
 
-		String name = ContactManager.getInstance().getName(argMsisdn);
+		String name = HikeMessengerApp.hikeBotNamesMap.get(argMsisdn);
 
+		if (TextUtils.isEmpty(name))
+		{
+			name = ContactManager.getInstance().getName(argMsisdn);
+		}
+		
 		if (TextUtils.isEmpty(name))
 		{
 			name = argMsisdn;
@@ -163,5 +182,37 @@ public class HikeNotificationUtils
 			spannableString = new SpannableString(text);
 		}
 		return spannableString;
+	}
+	
+	/**
+	 * Restore Notification Params like sound, vibration and led
+	 * 
+	 * @param Context context
+	 */
+	public static void restoreNotificationParams(Context context)
+	{
+		// To get old NotificaticationSoundPref preference before NotificaticationSoundPref list preference
+		SharedPreferences defaultPref = PreferenceManager.getDefaultSharedPreferences(context);
+		HikeSharedPreferenceUtil hikeSharedPreferenceUtil = HikeSharedPreferenceUtil.getInstance();
+		if (!hikeSharedPreferenceUtil.contains(HikeConstants.NOTIF_SOUND_PREF) && defaultPref.contains(HikeConstants.NOTIF_SOUND_PREF))
+		{
+			hikeSharedPreferenceUtil.saveData(HikeConstants.NOTIF_SOUND_PREF, defaultPref.getString(HikeConstants.NOTIF_SOUND_PREF, context.getString(R.string.notif_sound_default)));
+		}
+
+		// To get old NotificaticationLED preference before NotificaticationLED list preference
+		if (!hikeSharedPreferenceUtil.contains(HikeMessengerApp.LED_NOTIFICATION_COLOR_CODE) && defaultPref.contains(HikeConstants.LED_PREF))
+		{
+				hikeSharedPreferenceUtil.saveData(HikeMessengerApp.LED_NOTIFICATION_COLOR_CODE,
+						defaultPref.getBoolean(HikeConstants.LED_PREF, true) ? HikeConstants.LED_DEFAULT_WHITE_COLOR : HikeConstants.LED_NONE_COLOR);
+				defaultPref.edit().remove(HikeConstants.LED_PREF).commit();
+		}
+		
+		// To get old NotificaticationSoundPref preference before NotificaticationSoundPref list preference
+		if (!defaultPref.contains(HikeConstants.VIBRATE_PREF_LIST))
+		{
+			Editor edit = defaultPref.edit();
+			edit.putString(HikeConstants.VIBRATE_PREF_LIST, Utils.getOldVibratePref(context));
+			edit.commit();
+		}
 	}
 }

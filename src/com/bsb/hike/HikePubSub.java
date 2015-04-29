@@ -35,6 +35,12 @@ public class HikePubSub implements Runnable
 	 * broadcast when the sender sends the message (click the send button in chat thread view)
 	 */
 	public static final String MESSAGE_SENT = "messagesent";
+	
+	public static final String MULTI_MESSAGE_SENT = "multimessagesent";
+	
+	public static final String MULTI_MESSAGE_DB_INSERTED = "multimessagedbinserted";
+
+	public static final String MULTI_FILE_UPLOADED = "multiFileUploaded";
 
 	public static final String MESSAGE_DELIVERED = "messageDelivered"; // represents
 																		// that
@@ -62,7 +68,7 @@ public class HikePubSub implements Runnable
 																				// the
 																				// same.
 	
-	public static final String GROUP_MESSAGE_DELIVERED_READ = "groupMessageDeliveredRead";
+	public static final String ONETON_MESSAGE_DELIVERED_READ = "groupMessageDeliveredRead";
 
 	public static final String WS_CLOSE = "ws_close";
 
@@ -83,8 +89,6 @@ public class HikePubSub implements Runnable
 
 	public static final String TYPING_CONVERSATION = "typingconv";
 
-	public static final String TOKEN_CREATED = "tokencreated";
-
 	/* sms credits have been modified */
 	public static final String SMS_CREDIT_CHANGED = "smscredits";
 
@@ -92,6 +96,8 @@ public class HikePubSub implements Runnable
 	 * broadcast when the server receives the message and replies with a confirmation
 	 */
 	public static final String SERVER_RECEIVED_MSG = "serverReceivedMsg";
+	
+	public static final String SERVER_RECEIVED_MULTI_MSG = "serverReceivedMultiMsg";
 
 	/*
 	 * broadcast when a message is received from the sender but before it's been written our DB
@@ -99,12 +105,6 @@ public class HikePubSub implements Runnable
 	public static final String MESSAGE_RECEIVED_FROM_SENDER = "messageReceivedFromSender";
 
 	public static final String MSG_READ = "msgRead";
-
-	/* publishes a message via mqtt to the server */
-	public static final String MQTT_PUBLISH = "serviceSend";
-
-	/* publishes a message via mqtt to the server with QoS 0 */
-	public static final String MQTT_PUBLISH_LOW = "serviceSendLow";
 
 	/* published when the app is asked to delete a message */
 	public static final String DELETE_MESSAGE = "deleteMessage";
@@ -130,11 +130,11 @@ public class HikePubSub implements Runnable
 
 	public static final String GROUP_END = "groupEnd";
 
-	public static final String GROUP_NAME_CHANGED = "groupNameChanged";
+	public static final String ONETONCONV_NAME_CHANGED = "groupNameChanged";
 
-	public static final String PARTICIPANT_JOINED_GROUP = "participantJoinedGroup";
+	public static final String PARTICIPANT_JOINED_ONETONCONV = "participantJoinedGroup";
 
-	public static final String PARTICIPANT_LEFT_GROUP = "participantLeftGroup";
+	public static final String PARTICIPANT_LEFT_ONETONCONV = "participantLeftGroup";
 
 	public static final String INVITEE_NUM_CHANGED = "inviteeNoChanged";
 
@@ -178,7 +178,7 @@ public class HikePubSub implements Runnable
 
 	public static final String SSL_PREFERENCE_CHANGED = "sslPrefChanged";
 
-	public static final String GROUP_REVIVED = "groupRevived";
+	public static final String CONVERSATION_REVIVED = "groupRevived";
 
 	public static final String PROFILE_IMAGE_DOWNLOADED = "profileImageDownloaded";
 
@@ -254,8 +254,6 @@ public class HikePubSub implements Runnable
 
 	public static final String SHOW_IMAGE = "showImage";
 
-	public static final String RESET_UNREAD_COUNT = "resetUnreadCount";
-
 	public static final String PUSH_FILE_DOWNLOADED = "pushFileDownloaded";
 
 	public static final String PUSH_AVATAR_DOWNLOADED = "pushAvtarDownloaded";
@@ -274,7 +272,7 @@ public class HikePubSub implements Runnable
 
 	public static final String SEND_SMS_PREF_TOGGLED = "sendSmsPrefToggled";
 
-	public static final String FINISHED_AVTAR_UPGRADE = "finshedAvtarDBUpgrade";
+	public static final String FINISHED_UPGRADE_INTENT_SERVICE = "finshedUpgradeIntentService";
 
 	public static final String FTUE_LIST_FETCHED_OR_UPDATED = "ftueListFetchedOrUpdated";
 
@@ -369,11 +367,35 @@ public class HikePubSub implements Runnable
 	public static String HIKE_TO_OFFLINE_PUSH = "hikeToOfflinePush";
 
 	public static String PROFILE_UPDATE_FINISH = "profileUpdateFinish";
+
+	public static String HIKE_SDK_MESSAGE = "hikeSDKMessage";
 	
 	public static final String CONV_META_DATA_UPDATED = "convMetaDataUpdated";
 	
 	public static final String LATEST_PIN_DELETED = "lastPinDeleted";
+	
+	public static final String UNREAD_PIN_COUNT_RESET = "pinCountReset";
+	
+	public static final String AUTH_TOKEN_RECEIVED = "authTokenReceived";
+	
+	public static final String STICKER_CATEGORY_MAP_UPDATED = "stickerCategoryMapUpdated";
+	
+	public static final String STICKER_FTUE_TIP = "stickerFtueTip";
+	
+	public static final String USER_JOINED_NOTIFICATION = "userJoinedNotification";
+	
+	public static final String CONV_UNREAD_COUNT_MODIFIED = "convUnreadCountModified";
+	
+	public static final String PLATFORM_CARD_ALARM = "platformCardAlarm";
 
+	public static final String CONVERSATION_TS_UPDATED = "conversationTSUpdated";
+
+	public static final String MUTE_BOT = "muteBot";
+	
+	public static final String PARTICIPANT_JOINED_SYSTEM_MESSAGE = "participantJoinedSystemMsg";
+	
+	public static final String SHARED_WHATSAPP = "sharedWhatsApp";
+	
 	private final Thread mThread;
 
 	private final BlockingQueue<Operation> mQueue;

@@ -3,7 +3,6 @@ package com.bsb.hike.models;
 import java.util.Comparator;
 
 import android.text.TextUtils;
-import android.util.Pair;
 
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.utils.PairModified;
@@ -72,29 +71,6 @@ public class GroupParticipant implements Comparable<GroupParticipant>
 		{
 			ContactInfo lhsContactInfo = lhs.getFirst().contactInfo;
 			ContactInfo rhsContactInfo = rhs.getFirst().contactInfo;
-
-			if (lhsContactInfo.getFavoriteType() != rhsContactInfo.getFavoriteType())
-			{
-				if (lhsContactInfo.getFavoriteType() == FavoriteType.REQUEST_RECEIVED)
-				{
-					return -1;
-				}
-				else if (rhsContactInfo.getFavoriteType() == FavoriteType.REQUEST_RECEIVED)
-				{
-					return 1;
-				}
-			}
-			if (lhsContactInfo.getOffline() != rhsContactInfo.getOffline())
-			{
-				if (lhsContactInfo.getOffline() == 0)
-				{
-					return -1;
-				}
-				else if (rhsContactInfo.getOffline() == 0)
-				{
-					return 1;
-				}
-			}
 
 			if (TextUtils.isEmpty(lhs.getSecond()) && TextUtils.isEmpty(rhs.getSecond()))
 			{

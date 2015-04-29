@@ -19,18 +19,24 @@ import android.text.TextUtils;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
-import com.bsb.hike.models.Conversation;
-import com.bsb.hike.models.GroupConversation;
 import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.MessageMetadata;
+import com.bsb.hike.models.Conversation.BroadcastConversation;
+import com.bsb.hike.models.Conversation.ConvInfo;
+import com.bsb.hike.models.Conversation.Conversation;
+import com.bsb.hike.models.Conversation.GroupConversation;
+import com.bsb.hike.models.Conversation.OneToNConversation;
+import com.bsb.hike.models.Conversation.OneToOneConversation;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.Utils;
 
-public class EmailConversationsAsyncTask extends AsyncTask<Conversation, Void, Conversation[]>
+public class EmailConversationsAsyncTask extends AsyncTask<ConvInfo, Void, Conversation[]>
 {
 
 	Activity activity;
@@ -48,38 +54,63 @@ public class EmailConversationsAsyncTask extends AsyncTask<Conversation, Void, C
 	}
 
 	@Override
-	protected Conversation[] doInBackground(Conversation... convs)
+	protected Conversation[] doInBackground(ConvInfo... convInfos)
 	{
 		ArrayList<Uri> uris = new ArrayList<Uri>();
 		String chatLabel = "";
-		for (int k = 0; k < convs.length; k++)
+		for (int k = 0; k < convInfos.length; k++)
 		{
 			HikeConversationsDatabase db = null;
-			String msisdn = convs[k].getMsisdn();
+			String msisdn = convInfos[k].getMsisdn();
 			StringBuilder sBuilder = new StringBuilder();
 			Map<String, PairModified<GroupParticipant, String>> participantMap = null;
 
 			db = HikeConversationsDatabase.getInstance();
 			Conversation conv = db.getConversation(msisdn, -1);
-			boolean isGroup = Utils.isGroupConversation(msisdn);
+			boolean isGroup = OneToNConversationUtils.isGroupConversation(msisdn);
+			if (conv == null)
+			{
+				ContactInfo contactInfo = ContactManager.getInstance().getContact(msisdn, true, true);
+				if (isGroup)
+				{
+					conv = new GroupConversation.ConversationBuilder(msisdn).setConvName((contactInfo != null) ? contactInfo.getName() : null).build();
+				}
+				
+				else if (OneToNConversationUtils.isBroadcastConversation(msisdn))
+				{
+					conv = new BroadcastConversation.ConversationBuilder(msisdn).setConvName((contactInfo != null) ? contactInfo.getName() : null).build();
+				}
+				
+				else
+					conv = new OneToOneConversation.ConversationBuilder(msisdn).setConvName((contactInfo != null) ? contactInfo.getName() : null).build();
+				
+				conv.setMessages(HikeConversationsDatabase.getInstance().getConversationThread(msisdn, -1, conv, -1));
+			}
+			
 			chatLabel = conv.getLabel();
 
-			if (isGroup)
+			if (conv instanceof OneToNConversation)
 			{
 				sBuilder.append(R.string.group_name_email);
-				GroupConversation gConv = ((GroupConversation) convs[k]);
-				if (null == gConv.getGroupParticipantList())
+				OneToNConversation gConv = ((OneToNConversation) conv);
+				if (null == gConv.getConversationParticipantList())
 				{
-					gConv.setGroupParticipantList(ContactManager.getInstance().getGroupParticipants(gConv.getMsisdn(), false, false));
+					gConv.setConversationParticipantList(ContactManager.getInstance().getGroupParticipants(gConv.getMsisdn(), false, false));
 				}
-				participantMap = gConv.getGroupParticipantList();
+				participantMap = gConv.getConversationParticipantList();
 			}
 			// initialize with a label
 			sBuilder.append(activity.getResources().getString(R.string.chat_with_prefix) + chatLabel + "\n");
 
+			String chatFileName = activity.getResources().getString(R.string.chat_backup_) + System.currentTimeMillis() + ".txt";
+			File chatFile = getChatFile(chatFileName);
+			if(chatFile == null)
+			{
+				return null;
+			}
 			// iterate through the messages and construct a meaningful
 			// payload
-			List<ConvMessage> cList = conv.getMessages();
+			List<ConvMessage> cList = conv.getMessagesList();
 			for (int i = 0; i < cList.size(); i++)
 			{
 				ConvMessage cMessage = cList.get(i);
@@ -91,7 +122,7 @@ public class EmailConversationsAsyncTask extends AsyncTask<Conversation, Void, C
 				// file backup
 				MessageMetadata cMetadata = cMessage.getMetadata();
 				boolean isSent = cMessage.isSent();
-				if (cMessage.isGroupChat()) // gc naming logic
+				if (cMessage.isOneToNChat()) // gc naming logic
 				{
 					GroupParticipant gPart = null;
 					PairModified<GroupParticipant, String> groupParticipantPair = participantMap.get(cMessage.getGroupParticipantMsisdn());
@@ -133,14 +164,16 @@ public class EmailConversationsAsyncTask extends AsyncTask<Conversation, Void, C
 				sBuilder.append(Utils.getFormattedDateTimeFromTimestamp(cMessage.getTimestamp(), activity.getResources().getConfiguration().locale) + ":" + fromString + "- "
 						+ messageMask + "\n");
 
+				if(sBuilder.length() > 10000)
+				{
+					writeToChatTextFile(sBuilder.toString(), chatFile);
+					sBuilder.delete(0, sBuilder.length());
+				}
 				// TODO: add location and contact handling here.
 			}
 			chatLabel = (Utils.isFilenameValid(chatLabel)) ? chatLabel : "_";
-			File chatFile = createChatTextFile(sBuilder.toString(), activity.getResources().getString(R.string.chat_backup_) + "_" + +System.currentTimeMillis() + ".txt");
-			if (chatFile != null)
-			{
-				uris.add(Uri.fromFile(chatFile));
-			}
+			writeToChatTextFile(sBuilder.toString(), chatFile);
+			uris.add(Uri.fromFile(chatFile));
 		}
 		// append the attachments in hike messages in form of URI's. Dodo
 		// android needs uris duh!
@@ -206,9 +239,28 @@ public class EmailConversationsAsyncTask extends AsyncTask<Conversation, Void, C
 		return dialog != null && dialog.isShowing();
 	}
 
-	public File createChatTextFile(String text, String fileName)
+	public void writeToChatTextFile(String text, File chatFile)
 	{
 
+		if(chatFile == null)
+		{
+			return;
+		}
+		try
+		{
+			BufferedWriter buf = new BufferedWriter(new FileWriter(chatFile, true));
+			buf.append(text);
+			buf.newLine();
+			buf.close();
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+	}
+	
+	private File getChatFile(String fileName)
+	{
 		File chatFile = new File(HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT, fileName);
 
 		if (!chatFile.exists())
@@ -223,19 +275,7 @@ public class EmailConversationsAsyncTask extends AsyncTask<Conversation, Void, C
 				return null;
 			}
 		}
-
-		try
-		{
-			BufferedWriter buf = new BufferedWriter(new FileWriter(chatFile, true));
-			buf.append(text);
-			buf.newLine();
-			buf.close();
-			return chatFile;
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-			return null;
-		}
+		
+		return chatFile;
 	}
 }

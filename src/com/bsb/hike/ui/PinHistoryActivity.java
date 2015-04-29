@@ -27,6 +27,7 @@ import android.widget.LinearLayout.LayoutParams;
 import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.view.Menu;
@@ -38,10 +39,13 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.adapters.PinHistoryAdapter;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.dialog.CustomAlertDialog;
+import com.bsb.hike.dialog.HikeDialog;
+import com.bsb.hike.dialog.HikeDialogFactory;
+import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.models.ConvMessage;
-import com.bsb.hike.models.Conversation;
+import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.utils.ChatTheme;
-import com.bsb.hike.utils.CustomAlertDialog;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.Utils;
 
@@ -59,7 +63,7 @@ public class PinHistoryActivity extends HikeAppStateBaseFragmentActivity impleme
 		
 	private HikeConversationsDatabase mDb;
 
-	private Conversation mConversation;
+	private OneToNConversation mConversation;
 	
 	private long convId;
 	
@@ -101,7 +105,7 @@ public class PinHistoryActivity extends HikeAppStateBaseFragmentActivity impleme
 
 		mDb = HikeConversationsDatabase.getInstance();
 		
-		this.mConversation = mDb.getConversation(msisdn, 0, true);
+		this.mConversation = (OneToNConversation) mDb.getConversation(msisdn, 0, true);
 		
 		this.textPins = mDb.getAllPinMessage(0, HikeConstants.MAX_PINS_TO_LOAD_INITIALLY, msisdn, mConversation);
 		
@@ -189,6 +193,8 @@ public class PinHistoryActivity extends HikeAppStateBaseFragmentActivity impleme
 			getSupportMenuInflater().inflate(R.menu.multi_select_chat_menu, menu);
 			
 			menu.findItem(R.id.forward_msgs).setVisible(false);
+			
+			menu.findItem(R.id.copy_msgs).setVisible(true);
 		}
 		return super.onCreateOptionsMenu(menu);
 	}
@@ -457,35 +463,49 @@ public class PinHistoryActivity extends HikeAppStateBaseFragmentActivity impleme
 		switch (item.getItemId())
 		{
 		case R.id.delete_msgs:
-			final CustomAlertDialog deleteConfirmDialog = new CustomAlertDialog(PinHistoryActivity.this);
-			
-			if (pinAdapter.getSelectedPinsCount() == 1)
+			HikeDialogFactory.showDialog(PinHistoryActivity.this, HikeDialogFactory.DELETE_PINS_DIALOG, new HikeDialogListener()
 			{
-				deleteConfirmDialog.setHeader(R.string.confirm_delete_pin_header);
-				deleteConfirmDialog.setBody(R.string.confirm_delete_pin);
-			}
-			else
-			{
-				deleteConfirmDialog.setHeader(R.string.confirm_delete_pins_header);
-				deleteConfirmDialog.setBody(getString(R.string.confirm_delete_pins, pinAdapter.getSelectedPinsCount()));
-			}
-			View.OnClickListener dialogOkClickListener = new View.OnClickListener()
-			{
+				
 				@Override
-				public void onClick(View v)
+				public void positiveClicked(HikeDialog hikeDialog)
 				{
 					removeMessage(selectedPinIds);					
 					pinAdapter.notifyDataSetChanged();
 					destroyActionMode();
-					deleteConfirmDialog.dismiss();
+					hikeDialog.dismiss();
 				}
-			};
-
-			deleteConfirmDialog.setOkButton(R.string.delete, dialogOkClickListener);
-			deleteConfirmDialog.setCancelButton(R.string.cancel);
-			deleteConfirmDialog.show();
+				
+				@Override
+				public void neutralClicked(HikeDialog hikeDialog)
+				{
+					
+				}
+				
+				@Override
+				public void negativeClicked(HikeDialog hikeDialog)
+				{
+					hikeDialog.dismiss();
+				}
+				
+			}, pinAdapter.getSelectedPinsCount());
+			
 			return true;
 			
+		case R.id.copy_msgs:
+			Collections.sort(selectedPinIds);
+			StringBuilder pinStr = new StringBuilder();
+			int size = selectedPinIds.size();
+			
+			for (int i = 0; i < size; i++)
+			{
+				pinStr.append(pinAdapter.getSelectedPinsMap().get(selectedPinIds.get(i)).getMessage());
+				pinStr.append("\n");				
+			}
+			Utils.setClipboardText(pinStr.toString(), getApplicationContext());
+			Toast.makeText(PinHistoryActivity.this, R.string.copied, Toast.LENGTH_SHORT).show();
+			destroyActionMode();
+			return true;
+
 		default:
 			destroyActionMode();
 		return false;
@@ -501,6 +521,7 @@ public class PinHistoryActivity extends HikeAppStateBaseFragmentActivity impleme
 	{
 		Bundle bundle = new Bundle();
 		bundle.putString(HikeConstants.Extras.MSISDN, msisdn);
+		bundle.putInt(HikeConstants.Extras.DELETED_MESSAGE_TYPE, HikeConstants.SHARED_PIN_TYPE);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.DELETE_MESSAGE, new Pair<ArrayList<Long>, Bundle>(selectedPinIds, bundle));
 		
 		

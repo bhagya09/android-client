@@ -60,7 +60,7 @@ public class SendLogsTask extends AsyncTask<Void, Void, Void>
 
 			int pid = android.os.Process.myPid();
 
-			Process process = Runtime.getRuntime().exec("logcat -d");
+			Process process = Runtime.getRuntime().exec("logcat -d -v time");
 
 			BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
 
@@ -87,6 +87,8 @@ public class SendLogsTask extends AsyncTask<Void, Void, Void>
 			{
 				try
 				{
+					fos.flush();
+					fos.getFD().sync();
 					fos.close();
 				}
 				catch (IOException e)

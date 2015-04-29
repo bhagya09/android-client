@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/select_all_container"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_alignParentBottom="true"
+        android:background="#566167"
+        android:visibility="gone" >
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:background="#4f5a60" />
+
+        <CheckBox
+            android:id="@+id/select_all_cb"
+            android:layout_width="wrap_content"
+            android:layout_height="35dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="12dp"
+            android:button="@drawable/select_all_checkbox" />
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/select_all_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="15dp"
+            android:text="@string/select_all_hike"
+            android:textColor="@color/actionbar_text"
+            android:textSize="18sp"
+            android:textStyle="bold|italic" />
+    </RelativeLayout>
