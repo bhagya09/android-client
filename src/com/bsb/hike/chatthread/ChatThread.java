@@ -4902,4 +4902,11 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		Intent intent = IntentFactory.getHomeActivityIntent(activity);
 		activity.startActivity(intent);
 	}
+	
+
+	protected void showThemePicker(int footerTextId)
+	{
+		setUpThemePicker();
+		themePicker.showThemePicker(activity.findViewById(R.id.cb_anchor), currentTheme,footerTextId, activity.getResources().getConfiguration().orientation);
+	}
 }

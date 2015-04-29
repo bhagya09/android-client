@@ -260,7 +260,7 @@ public class GroupChatThread extends OneToNChatThread
 			openProfileScreen();
 			break;
 		case R.string.chat_theme:
-			showThemePicker();
+			showThemePicker(R.string.chat_theme_tip_group);
 			break;
 		default:
 			Logger.d(TAG, "Calling super Class' itemClicked");
@@ -889,12 +889,6 @@ public class GroupChatThread extends OneToNChatThread
 			Logger.wtf(TAG, "Got an exception during the pubSub : onLatestPinDeleted " + e.toString());
 		}
 
-	}
-	
-	protected void showThemePicker()
-	{
-		setUpThemePicker();
-		themePicker.showThemePicker(activity.findViewById(R.id.cb_anchor), currentTheme, R.string.chat_theme_tip_group, activity.getResources().getConfiguration().orientation);
 	}
 
 	@Override

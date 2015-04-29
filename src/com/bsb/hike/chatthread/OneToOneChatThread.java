@@ -1223,7 +1223,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			openProfileScreen();
 			break;
 		case R.string.chat_theme:
-			showThemePicker();
+			showThemePicker(R.string.chat_theme_tip);
 			break;
 		case R.string.add_as_favorite_menu:
 			addFavorite();
@@ -2533,12 +2533,6 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		return Utils.isVoipActivated(activity.getApplicationContext()) && mConversation.isOnHike() && !HikeMessengerApp.hikeBotNamesMap.containsKey(msisdn);
 	}
 	
-	protected void showThemePicker()
-	{
-		setUpThemePicker();
-		themePicker.showThemePicker(activity.findViewById(R.id.cb_anchor), currentTheme, R.string.chat_theme_tip, activity.getResources().getConfiguration().orientation);
-	}
-
 	/*
 	 * Adding user as favorite
 	 */
