@@ -335,25 +335,6 @@
                         android:src="@drawable/ic_info" />
                 </LinearLayout>
 
-                <LinearLayout
-                    android:id="@+id/group_info_layout"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignBottom="@+id/tb_layout"
-                    android:layout_alignRight="@+id/tb_layout"
-                    android:layout_alignTop="@+id/tb_layout"
-                    android:gravity="right|center_vertical"
-                    android:onClick="onTitleIconClick"
-                    android:paddingLeft="10dp"
-                    android:visibility="gone" >
-
-                    <ImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginRight="5dp"
-                        android:src="@drawable/ic_info" />
-                </LinearLayout>
-
                 <com.bsb.hike.view.CustomFontTextView
                     android:id="@+id/sms_chat_metadata_num_chars"
                     android:layout_width="47dp"
@@ -365,14 +346,6 @@
             </RelativeLayout>
         </RelativeLayout>
     </com.bsb.hike.view.CustomLinearLayout>
-
-    <View
-        android:id="@+id/sticker_palette_filler"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_alignParentBottom="true"
-        android:background="@color/black"
-        android:visibility="gone" />
 
     <include layout="@layout/dark_overlay" />
 
