@@ -133,21 +133,8 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 				updateCallStatus();
 				activateActiveCallButtons();
 				break;
-			case VoIPConstants.MSG_ENCRYPTION_INITIALIZED:
-//				showMessage("Encryption initialized.");
-				break;
-			case VoIPConstants.MSG_INCOMING_CALL_DECLINED:
-				// VoIPUtils.addMessageToChatThread(VoIPActivity.this, clientPartner, HikeConstants.MqttMessageTypes.VOIP_MSG_TYPE_MISSED_CALL_INCOMING, 0);
-				break;
-			case VoIPConstants.MSG_OUTGOING_CALL_DECLINED:
-//				showMessage("Call was declined.");
-				break;
 			case VoIPConstants.MSG_CONNECTION_FAILURE:
 				showCallFailedFragment(VoIPConstants.CallFailedCodes.UDP_CONNECTION_FAIL);
-				break;
-			case VoIPConstants.MSG_CURRENT_BITRATE:
-//				int bitrate = voipService.getBitrate();
-//				showMessage("Bitrate: " + bitrate);
 				break;
 			case VoIPConstants.MSG_EXTERNAL_SOCKET_RETRIEVAL_FAILURE:
 				showCallFailedFragment(VoIPConstants.CallFailedCodes.EXTERNAL_SOCKET_RETRIEVAL_FAILURE);
