@@ -591,13 +591,6 @@ public class GroupChatThread extends OneToNChatThread
 			@Override
 			public void onAnimationStart(Animation animation)
 			{
-				/**
-				 * If the pin had been hidden while pinCreate view was shown, now is the best time to make it visible again.
-				 */
-				if (wasPinHidden())
-				{
-					pinView.setVisibility(View.VISIBLE);
-				}
 			}
 
 			@Override
@@ -670,6 +663,15 @@ public class GroupChatThread extends OneToNChatThread
 		View mBottomView = activity.findViewById(R.id.bottom_panel);
 		mBottomView.startAnimation(AnimationUtils.loadAnimation(activity.getApplicationContext(), R.anim.down_up_lower_part));
 		mBottomView.setVisibility(View.VISIBLE);
+		
+		/**
+		 * If the pin had been hidden while pinCreate view was shown, now is the best time to make it visible again.
+		 */
+		if (wasPinHidden())
+		{
+			pinView.setVisibility(View.VISIBLE);
+		}
+
 		playPinCreateDestroyViewAnim();
 
 		if (mShareablePopupLayout != null && mShareablePopupLayout.isShowing())

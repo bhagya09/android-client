@@ -1636,7 +1636,10 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		// we do not show edit dp option in group info 
 		if(this.profileType == ProfileType.USER_PROFILE)
 		{
-			arguments.putBoolean(HikeConstants.CAN_EDIT_DP, true);
+			if(!imageViewerInfo.isStatusMessage)
+			{
+				arguments.putBoolean(HikeConstants.CAN_EDIT_DP, true);
+			}
 		}
 
 		HikeMessengerApp.getPubSub().publish(HikePubSub.SHOW_IMAGE, arguments);
