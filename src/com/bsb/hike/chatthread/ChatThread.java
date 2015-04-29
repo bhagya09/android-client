@@ -1777,8 +1777,21 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		checkAndAddTypingNotifications();
 		
 		takeActionBasedOnIntent();
+		
+		/**
+		 * Showing the keyboard in case of empty conversation
+		 */
+		if (shouldShowKeyboard())
+		{
+			Utils.showSoftKeyboard(activity.getApplicationContext());
+		}
 	}
 	
+	private boolean shouldShowKeyboard()
+	{
+		return mConversation.getMessagesList().isEmpty();
+	}
+
 	/**
 	 * Checks if there is any typing notification present for the given msisdn, if present, it adds it to the ConvMessages
 	 */
