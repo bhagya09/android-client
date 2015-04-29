@@ -1147,12 +1147,20 @@ public class MqttMessagesManager
 			boolean showRewards = data.getBoolean(HikeConstants.SHOW_REWARDS);
 			editor.putBoolean(HikeMessengerApp.SHOW_REWARDS, showRewards);
 			editor.putBoolean(HikeConstants.IS_REWARDS_ITEM_CLICKED, !showRewards);
+			if(showRewards)
+			{
+				editor.putBoolean(HikeConstants.IS_HOME_OVERFLOW_CLICKED, false);
+			}
 		}
 		if (data.has(HikeConstants.SHOW_GAMES))
 		{
 			boolean showGames = data.getBoolean(HikeConstants.SHOW_GAMES);
 			editor.putBoolean(HikeMessengerApp.SHOW_GAMES, showGames);
 			editor.putBoolean(HikeConstants.IS_GAMES_ITEM_CLICKED, !showGames);
+			if(showGames)
+			{
+				editor.putBoolean(HikeConstants.IS_HOME_OVERFLOW_CLICKED, false);
+			}
 		}
 		if (data.has(HikeConstants.ENABLE_PUSH_BATCHING_STATUS_NOTIFICATIONS))
 		{
