@@ -181,10 +181,8 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 
 			notifyDataSetChanged();
 
-			if (mAdapter.getCount() == 0)
-			{
-				setEmptyState();
-			}
+			setEmptyState(mAdapter.isEmpty());
+			
 		}
 	}
 
@@ -881,7 +879,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		}
 	}
 	
-	private void setEmptyState()
+	private void setEmptyState(boolean isConvScreenEmpty)
 	{
 		// Adding wasViewSetup() safety check for an NPE here.
 		if (!wasViewSetup())
@@ -891,6 +889,13 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		
 		searchEmptyView = getView().findViewById(R.id.searchEmptyView);
 		emptyHolder = (ViewGroup) getView().findViewById(R.id.emptyViewHolder);
+		
+		if(!isConvScreenEmpty)
+		{
+			searchEmptyView.setVisibility(View.GONE);
+			emptyHolder.setVisibility(View.GONE);	
+			return;
+		}
 
 			if (searchMode)
 			{
@@ -900,30 +905,14 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 				}
 				else 
 				{
-					if (mAdapter.getCount() ==0 )
-					{
-						searchEmptyView.setVisibility(View.GONE);
-						emptyHolder.setVisibility(View.VISIBLE);
-					}
-					else
-					{
-						searchEmptyView.setVisibility(View.GONE);
-						emptyHolder.setVisibility(View.GONE);	
-					}
+					searchEmptyView.setVisibility(View.GONE);
+					emptyHolder.setVisibility(View.VISIBLE);
 				}
 			}
 			else
 			{
-				if (mAdapter.getCount() == 0)
-				{
-					searchEmptyView.setVisibility(View.GONE);
-					emptyHolder.setVisibility(View.VISIBLE);
-				}
-				else
-				{
-					searchEmptyView.setVisibility(View.GONE);
-					emptyHolder.setVisibility(View.GONE);	
-				}
+				searchEmptyView.setVisibility(View.GONE);
+				emptyHolder.setVisibility(View.VISIBLE);
 			}
 
 	}
@@ -1194,8 +1183,8 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		{
 			searchText = null;
 			searchMode = false;
-			setEmptyState();
 			mAdapter.removeSearch();
+			setEmptyState(displayedConversations.isEmpty());
 		}
 	}
 
@@ -1687,7 +1676,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		getListView().setOnScrollListener(this);
 
 		HikeMessengerApp.getPubSub().addListeners(this, pubSubListeners);
-		setEmptyState();
+		setEmptyState(mAdapter.isEmpty());
 
 	}
 
@@ -1805,7 +1794,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 			mAdapter.addItemsToAnimat(stealthConversations);
 			mAdapter.addToLists(stealthConversations);
 		}
-		setEmptyState();
+		setEmptyState(mAdapter.isEmpty());
 		
 		resetSearchIcon();
 		mAdapter.sortLists(mConversationsComparator);
@@ -2063,7 +2052,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 					mAdapter.addToLists(convInfo);
 					mAdapter.sortLists(mConversationsComparator);
 
-					setEmptyState();
+					setEmptyState(mAdapter.isEmpty());
 					notifyDataSetChanged();
 					resetSearchIcon();
 				}
@@ -2392,7 +2381,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 				@Override
 				public void run()
 				{
-					setEmptyState();
+					setEmptyState(mAdapter!=null && mAdapter.isEmpty());
 					setupFTUEEmptyView();
 				}
 			});
@@ -3251,7 +3240,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 			sortAndUpdateTheView(convInfo, convMessage, newConversationAdded);
 		}
 		
-		setEmptyState();
+		setEmptyState(mAdapter.isEmpty());
 	}
 
 	public void movedFromEmptyToNonEmpty()
@@ -3598,7 +3587,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 
 	@Override
 	public void onFilterComplete(int count) {
-		setEmptyState();
+		setEmptyState(mAdapter != null && mAdapter.isEmpty());
 	}
 
 }
