@@ -529,7 +529,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			uiHandler.sendEmptyMessage(SEND_SMS_PREF_TOGGLED);
 			break;
 		case HikePubSub.SMS_CREDIT_CHANGED:
-			uiHandler.sendEmptyMessage(SMS_CREDIT_CHANGED);
+			sendUIMessage(SMS_CREDIT_CHANGED, object);
 			break;
 		case HikePubSub.BULK_MESSAGE_RECEIVED:
 			onBulkMessageReceived(object);
@@ -640,7 +640,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			updateUIForHikeStatus();
 			break;
 		case SMS_CREDIT_CHANGED:
-			setSMSCredits();
+			setSMSCredits((Integer) msg.obj);
 			break;
 		case REMOVE_UNDELIVERED_MESSAGES:
 			removeUndeliveredMessages(msg.obj);
@@ -776,8 +776,10 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		}
 	}
 
-	private void setSMSCredits()
+	private void setSMSCredits(int newValue)
 	{
+		mCredits = newValue;
+		
 		updateUIForHikeStatus();
 
 		if ((mCredits % HikeConstants.SHOW_CREDITS_AFTER_NUM == 0) && !mConversation.isOnHike())
@@ -1625,6 +1627,15 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	@Override
 	protected void sendMessage()
 	{
+		if (!mConversation.isOnHike() && mCredits <= 0)
+		{
+			if (!Utils.getSendSmsPref(activity))
+			{
+				return;
+			}
+			
+		}
+		
 		ConvMessage convMessage = createConvMessageFromCompose();
 
 		// 1) user pressed send button i.e sending Text Message
