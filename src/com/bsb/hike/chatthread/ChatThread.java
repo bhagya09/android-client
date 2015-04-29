@@ -852,8 +852,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	protected void showOverflowMenu()
 	{
-		if (mActionMode.whichActionModeIsOn() == SEARCH_ACTION_MODE)
+		if (mActionMode != null && mActionMode.isActionModeOn())
+		{
 			return;
+		}
 
 		/**
 		 * Hiding any open tip
@@ -1766,8 +1768,21 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		checkAndAddTypingNotifications();
 		
 		takeActionBasedOnIntent();
+		
+		/**
+		 * Showing the keyboard in case of empty conversation
+		 */
+		if (shouldShowKeyboard())
+		{
+			Utils.showSoftKeyboard(activity.getApplicationContext());
+		}
 	}
 	
+	private boolean shouldShowKeyboard()
+	{
+		return mConversation.getMessagesList().isEmpty();
+	}
+
 	/**
 	 * Checks if there is any typing notification present for the given msisdn, if present, it adds it to the ConvMessages
 	 */
@@ -2512,6 +2527,14 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		if (message == null || message.getParticipantInfoState() != ParticipantInfoState.NO_INFO || message.getTypingNotification() != null || message.isBlockAddHeader())
 		{
 			return false;
+		}
+		
+		if (message.getMessageType() == MESSAGE_TYPE.FORWARD_WEB_CONTENT || message.getMessageType() == MESSAGE_TYPE.WEB_CONTENT)
+		{
+			if (message.webMetadata.isLongPressDisabled())
+			{
+				return false;
+			}
 		}
 
 		mAdapter.toggleSelection(message);
