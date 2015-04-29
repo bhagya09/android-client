@@ -300,7 +300,7 @@ public class IntentFactory
 	public static Intent createNewBroadcastActivityIntent(Context appContext)
 	{
 		Intent intent = new Intent(appContext.getApplicationContext(), CreateNewGroupOrBroadcastActivity.class);
-		intent.putExtra(HikeConstants.IS_BROADCAST, true);
+		intent.putExtra(HikeConstants.Extras.CREATE_BROADCAST, true);
 		return intent;
 	}
 
@@ -355,7 +355,6 @@ public class IntentFactory
 		Intent intent = new Intent(appContext.getApplicationContext(), FtueBroadcast.class);
 		intent.putExtra(HikeConstants.Extras.COMPOSE_MODE, HikeConstants.Extras.CREATE_BROADCAST_MODE);
 		intent.putExtra(HikeConstants.Extras.CREATE_BROADCAST, true);
-		intent.putExtra(HikeConstants.IS_BROADCAST, true);
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		appContext.startActivity(intent);
 	}
@@ -365,7 +364,6 @@ public class IntentFactory
 		Intent intent = new Intent(appContext.getApplicationContext(), ComposeChatActivity.class);
 		intent.putExtra(HikeConstants.Extras.COMPOSE_MODE, HikeConstants.Extras.CREATE_BROADCAST_MODE);
 		intent.putExtra(HikeConstants.Extras.CREATE_BROADCAST, true);
-		intent.putExtra(HikeConstants.IS_BROADCAST, true);
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		appContext.startActivity(intent);
 	}
