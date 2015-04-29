@@ -1257,7 +1257,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	         * since we start an async task for initiating the file upload and an activity is started when
 	         * that async task finishes execution.
 	         */
-		 	if (!Intent.ACTION_SEND_MULTIPLE.equals(presentIntent.getAction())&&arrayList.size()<=1)
+		 	if (!Intent.ACTION_SEND_MULTIPLE.equals(presentIntent.getAction())&&arrayList.size()<=1 && !HikeMessengerApp.isStealthMsisdn(arrayList.get(0).getMsisdn()))
 	        {
 	        	startActivity(intent);
 	        	finish();
@@ -1680,7 +1680,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	
 				intent.putExtra(HikeConstants.Extras.FILE_PATH, filePath);
 				intent.putExtra(HikeConstants.Extras.FILE_TYPE, type);
-				if (arrayList.size() > 1) {
+				if (arrayList.size() > 1 || ((arrayList.size() == 1) && HikeMessengerApp.isStealthMsisdn(arrayList.get(0).getMsisdn()))) {
 					
 					HikeFileType hikeFileType = HikeFileType.fromString(
 							type, false);
