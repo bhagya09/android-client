@@ -177,7 +177,7 @@ public class MessagingBotConfiguration extends BotConfiguration
 
 	public boolean isInputEnabled()
 	{
-		return (isBitSet(INPUT_BOX));
+		return  isReceiveEnabled && isBitSet(INPUT_BOX);
 	}
 
 	public boolean isAttachmentPickerEnabled()
