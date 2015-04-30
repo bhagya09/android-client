@@ -2974,6 +2974,7 @@ public class MqttMessagesManager
 			botInfo = new BotInfo.HikeBotBuilder(msisdn)
 					.setType(BotInfo.MESSAGING_BOT)
 					.setConvName(name)
+					.setIsReceiveEnabled(isReceiveEnabled)
 					.setIsMute(false)
 					.setConfig(configuration.getConfig())
 					.build();

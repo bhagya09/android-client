@@ -69,9 +69,9 @@ public class MessagingBotConfiguration extends BotConfiguration
 
 	private static byte STICKER_PICKER = 19;
 
-	private static byte ATTACHMENT_PICKER = 20;
+	private static byte INPUT_BOX = 20;
 
-	private static byte INPUT_BOX = 21;
+	private static byte ATTACHMENT_PICKER = 21;
 
 	private static byte CALL = 22;
 
