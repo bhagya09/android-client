@@ -521,6 +521,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		setContentView();
 		fetchConversation(false);
 		uiHandler.sendEmptyMessage(SET_WINDOW_BG);
+		StickerManager.getInstance().checkAndDownLoadStickerData();
 	}
 	
 	/**
