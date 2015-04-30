@@ -230,7 +230,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
     private static final int MUTE_CONVERSATION_TOGGLED = 33;
     
     private static final int SHARING_FUNCTIONALITY = 34;
-
+    
     private int NUDGE_TOAST_OCCURENCE = 2;
     	
     private int currentNudgeCount = 0;
@@ -247,7 +247,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	protected String msisdn;
 
-	protected static StickerPicker mStickerPicker;
+	protected StickerPicker mStickerPicker;
 
 	protected static EmoticonPicker mEmoticonPicker;
 
@@ -324,7 +324,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			case StickerManager.STICKERS_UPDATED:
 			case StickerManager.MORE_STICKERS_DOWNLOADED:
 			case StickerManager.STICKERS_DOWNLOADED:
-				mStickerPicker.notifyDataSetChanged();
+				if (mStickerPicker != null)
+				{
+					mStickerPicker.notifyDataSetChanged();
+				}
 				StickerPicker.setRefreshStickers(true);
 			}
 		}
@@ -371,7 +374,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			showToast(msg.arg1);
 			break;
 		case MESSAGE_RECEIVED:
-			messageAdded((ConvMessage) msg.obj);
+			addMessage((ConvMessage) msg.obj);
 			break;
 		case NOTIFY_DATASET_CHANGED:
 			Logger.i(TAG, "notifying data set changed on UI Handler");
@@ -385,7 +388,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			break;
 		case FILE_MESSAGE_CREATED:
         case MULTI_MSG_DB_INSERTED:
-			messageAdded((ConvMessage) msg.obj);
+			addMessage((ConvMessage) msg.obj);
 			break;
 		case DELETE_MESSAGE:
 			deleteMessages((Pair<Boolean, ArrayList<Long>>) msg.obj);
@@ -412,7 +415,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			setLabel((String) msg.obj);
 			break;
 		case STICKER_CATEGORY_MAP_UPDATED:
-			mStickerPicker.notifyDataSetChanged();
+			if (mStickerPicker != null)
+			{
+				mStickerPicker.notifyDataSetChanged();
+			}
 			StickerPicker.setRefreshStickers(true);
 			break;
 		case SCROLL_TO_END:
@@ -469,7 +475,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		activity.findViewById(R.id.conversation_mute).setVisibility(isMuted ? View.VISIBLE : View.GONE);
 	}
 
-	protected void messageAdded(ConvMessage convMessage)
+	protected void addMessage(ConvMessage convMessage)
 	{
 
 		addtoMessageMap(messages.size() - 1, messages.size());
@@ -628,11 +634,14 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	private void updateSharedPopups()
 	{
 		mShareablePopupLayout.updateListenerAndView(this, activity.findViewById(R.id.chatThreadParentLayout));
-		mStickerPicker.updateListener(this, activity);
+		if (mStickerPicker != null)
+		{
+			mStickerPicker.updateListener(this, activity);
+		}
 		mEmoticonPicker.updateETAndContext(mComposeView, activity);
 	}
 
-	private void addOnClickListeners()
+	protected void addOnClickListeners()
 	{
 		activity.findViewById(R.id.sticker_btn).setOnClickListener(this);
 		activity.findViewById(R.id.emoticon_btn).setOnClickListener(this);
@@ -878,8 +887,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	protected void showOverflowMenu()
 	{
-		if (mActionMode.whichActionModeIsOn() == SEARCH_ACTION_MODE)
+		if (mActionMode != null && mActionMode.isActionModeOn())
+		{
 			return;
+		}
 
 		/**
 		 * Hiding any open tip
@@ -1017,7 +1028,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	{
 		if (convMessage != null)
 		{
-			messageAdded(convMessage);
+			addMessage(convMessage);
 			HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_SENT, convMessage);
 		}
 	}
@@ -1034,6 +1045,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	protected void stickerClicked()
 	{
+		initStickerPicker();
+		
 		closeStickerTip();
 		
 		if (mShareablePopupLayout.togglePopup(mStickerPicker, activity.getResources().getConfiguration().orientation))
@@ -1790,8 +1803,21 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		checkAndAddTypingNotifications();
 		
 		takeActionBasedOnIntent();
+		
+		/**
+		 * Showing the keyboard in case of empty conversation
+		 */
+		if (shouldShowKeyboard())
+		{
+			Utils.showSoftKeyboard(activity.getApplicationContext());
+		}
 	}
 	
+	private boolean shouldShowKeyboard()
+	{
+		return mConversation.getMessagesList().isEmpty();
+	}
+
 	/**
 	 * Checks if there is any typing notification present for the given msisdn, if present, it adds it to the ConvMessages
 	 */
@@ -2231,25 +2257,11 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			loadingMoreMessages = false;
 		}
 	}
-
-	protected void addMessage(ConvMessage message)
-	{
-		mAdapter.addMessage(message);
-		if (messageSearchManager != null && messageSearchManager.isActive())
-		{
-			messageSearchManager.addItem(message);
-		}	
-	}
-
-	protected void addMessages(List<ConvMessage> list, int startIndex)
-	{
-		mAdapter.addMessages(list, startIndex);
-	}
 	
 	private void addMoreMessages(List<ConvMessage> list)
 	{
 		int startIndex = getMessagesStartIndex();
-		addMessages(list, startIndex);
+		mAdapter.addMessages(list, startIndex);
 		addtoMessageMap(startIndex, startIndex + list.size());
 		updateNNotifySearchParams(list);
 		mAdapter.notifyDataSetChanged();
@@ -2550,6 +2562,14 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		if (message == null || message.getParticipantInfoState() != ParticipantInfoState.NO_INFO || message.getTypingNotification() != null || message.isBlockAddHeader())
 		{
 			return false;
+		}
+		
+		if (message.getMessageType() == MESSAGE_TYPE.FORWARD_WEB_CONTENT || message.getMessageType() == MESSAGE_TYPE.WEB_CONTENT)
+		{
+			if (message.webMetadata.isLongPressDisabled())
+			{
+				return false;
+			}
 		}
 
 		mAdapter.toggleSelection(message);
@@ -3248,7 +3268,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		}
 		
 		mShareablePopupLayout.releaseResources();
-		mStickerPicker.releaseResources();
+		if (mStickerPicker != null)
+		{
+			mStickerPicker.releaseResources();
+		}
 		mEmoticonPicker.releaseReources();
 	}
 
@@ -3337,6 +3360,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	 * 4. If photoViewer fragment was attached, remove it
 	 * 5. If overflow menu is open then close it
 	 * 6. Hide dialog if showing
+	 * 7. Hide Walkie Talkie if showing
 	 */
 	protected void onPreNewIntent()
 	{
@@ -3354,9 +3378,20 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		
 		hideDialog();
 		
+		hideWalkieTalkie();
+		
 		saveDraft();
 	}
 	
+	private void hideWalkieTalkie()
+	{
+		if (audioRecordView != null)
+		{
+			audioRecordView.dismissAudioRecordView();
+		}
+	}
+
+
 	private void hideDialog()
 	{
 		if (dialog != null)
@@ -3531,7 +3566,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	{
 		if (messages.isEmpty() || messages.get(messages.size() - 1).getTypingNotification() == null)
 		{
-			messageAdded(new ConvMessage(typingNotification));
+			addMessage(new ConvMessage(typingNotification));
 		}
 		else if (messages.get(messages.size() - 1).getTypingNotification() != null)
 		{
@@ -4485,8 +4520,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		
 		if (themePicker != null && themePicker.isShowing())
 		{
-			themePicker.setOrientation(newConfig.orientation);
-			themePicker.refreshViews(true);
+			themePicker.onOrientationChange(newConfig.orientation);
 		}
 		
 		if (this.dialog != null)
@@ -4616,7 +4650,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		Logger.i(TAG, "onPopup Dismiss");
 		if(activity.findViewById(R.id.sticker_btn).isSelected())
 		{
-			mStickerPicker.resetToFirstPosition();
+			if (mStickerPicker != null)
+			{
+				mStickerPicker.resetToFirstPosition();
+			}
 			setStickerButtonSelected(false);
 		}
 		if(activity.findViewById(R.id.emoticon_btn).isSelected())
@@ -4913,5 +4950,12 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	{
 		Intent intent = IntentFactory.getHomeActivityIntent(activity);
 		activity.startActivity(intent);
+	}
+	
+
+	protected void showThemePicker(int footerTextId)
+	{
+		setUpThemePicker();
+		themePicker.showThemePicker(activity.findViewById(R.id.cb_anchor), currentTheme,footerTextId, activity.getResources().getConfiguration().orientation);
 	}
 }
