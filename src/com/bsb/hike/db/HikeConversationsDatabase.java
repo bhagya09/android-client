@@ -286,8 +286,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				+ DBConstants.CONVERSATION_METADATA + " TEXT, "  //bot metadata
 				+ DBConstants.IS_MUTE + " INTEGER DEFAULT 0, "  // bot conv mute or not
 				+ DBConstants.BOT_TYPE + " INTEGER, "				//bot type m/nm
-				+ DBConstants.BOT_CONFIGURATION + " INTEGER"	//bot configurations.. different server controlled properties of bot.
-				+ DBConstants.IS_RECEIVE_ENABLED + " INTEGER DEFAULT 0" // whether the bot has receive functionality enabled or not.
+				+ DBConstants.BOT_CONFIGURATION + " INTEGER, "	//bot configurations.. different server controlled properties of bot.
+				+ DBConstants.IS_RECEIVE_ENABLED + " INTEGER DEFAULT 1" // whether the bot has receive functionality enabled or not.
 				+ ")";
 		db.execSQL(sql);
 
@@ -2305,7 +2305,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		values.put(DBConstants.IS_MUTE, botInfo.isMute());
 		values.put(DBConstants.BOT_TYPE, botInfo.getType());
 		values.put(DBConstants.BOT_CONFIGURATION, botInfo.getConfiguration());
-		values.put(DBConstants.IS_RECEIVE_ENABLED, botInfo.isReceiveEnabled());
+		values.put(DBConstants.IS_RECEIVE_ENABLED, botInfo.isReceiveEnabled() ? 1 : 0);
 		mDb.insertWithOnConflict(DBConstants.BOT_TABLE, null, values, SQLiteDatabase.CONFLICT_REPLACE);
 	}
 

@@ -149,7 +149,7 @@ public class BotInfo extends ConvInfo
 		this.type = builder.type;
 		this.configuration = builder.config;
 		this.metadata = builder.metadata;
-
+		this.isReceiveEnabled = builder.isReceiveEnabled;
 	}
 
 	public boolean isMessagingBot()
