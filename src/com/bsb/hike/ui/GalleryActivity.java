@@ -627,11 +627,11 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 			{
 				try
 				{
-					galleryItem.getPendingIntent().send();
 					if (galleryItem.getId() == GalleryItem.CAMERA_TILE_ID)
 					{
 						sendAnalyticsCameraClicked();
 					}
+					galleryItem.getPendingIntent().send();
 				}
 				catch (CanceledException e)
 				{
@@ -679,6 +679,12 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 				{
 					try
 					{
+						File file = new File(item.get(0).getFilePath());
+						if(!file.exists()) 
+						{
+							Toast.makeText(GalleryActivity.this, getResources().getString(R.string.file_expire), Toast.LENGTH_SHORT).show();
+							return;
+						}
 						pendingIntent.send(GalleryActivity.this, RESULT_OK, intent);
 					}
 					catch (CanceledException e)

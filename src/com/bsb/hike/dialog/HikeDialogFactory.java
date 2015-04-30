@@ -899,7 +899,7 @@ public class HikeDialogFactory
 		{
 		case DELETE_FILES_DIALOG:
 			deleteConfirmDialog.setBody(((int) data[0] == 1) ? context.getString(R.string.confirm_delete_msg) : context.getString(R.string.confirm_delete_msgs, (int) data[0]));
-			deleteConfirmDialog.setHeader(R.string.confirm_delete_msgs_header);
+			deleteConfirmDialog.setHeader(((int) data[0] == 1) ? context.getString(R.string.confirm_delete_msg_header) : context.getString(R.string.confirm_delete_msgs_header, (int) data[0]));
 			deleteConfirmDialog.setCheckBox(R.string.delete_media_from_sdcard, true);
 			deleteConfirmDialog.setOkButton(R.string.delete, positiveListener);
 			deleteConfirmDialog.setCancelButton(R.string.cancel, negativeListener);
@@ -907,7 +907,7 @@ public class HikeDialogFactory
 			
 		case DELETE_PINS_DIALOG:
 			deleteConfirmDialog.setBody(((int) data[0] == 1) ? context.getString(R.string.confirm_delete_pin) : context.getString(R.string.confirm_delete_pins, (int) data[0]));
-			deleteConfirmDialog.setHeader(R.string.confirm_delete_pin_header);
+			deleteConfirmDialog.setHeader(((int) data[0] == 1) ? context.getString(R.string.confirm_delete_pin_header) : context.getString(R.string.confirm_delete_pins_header, (int) data[0]));
 			deleteConfirmDialog.setOkButton(R.string.delete, positiveListener);
 			deleteConfirmDialog.setCancelButton(R.string.cancel, negativeListener);
 			break;
