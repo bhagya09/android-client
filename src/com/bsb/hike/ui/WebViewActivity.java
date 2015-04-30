@@ -143,8 +143,8 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity
 	@Override
 	protected void onDestroy()
 	{
-		super.onDestroy();
 		webView.onActivityDestroyed();
+		super.onDestroy();
 	}
 
 

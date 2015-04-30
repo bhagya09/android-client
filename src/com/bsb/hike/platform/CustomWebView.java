@@ -107,10 +107,10 @@ public class CustomWebView extends WebView
 
 	public void onActivityDestroyed()
 	{
-		removeAllViews();
 		stopLoading();
 		setWebChromeClient(null);
 		setWebViewClient(null);
+		removeAllViews();
 		destroy();
 	}
 
