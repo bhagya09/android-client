@@ -180,23 +180,10 @@ public class BotChatThread extends OneToOneChatThread
 			menu.findItem(R.id.overflow_menu).setVisible(false);
 		}
 
-		if (configuration.isCallEnabled())
-		{
-			menu.findItem(R.id.voip_call).setVisible(true);
-		}
-		else
-		{
-			menu.findItem(R.id.voip_call).setVisible(false);
-		}
+		menu.findItem(R.id.voip_call).setVisible(configuration.isCallEnabled());
 
-		if (configuration.isAttachmentPickerEnabled())
-		{
-			menu.findItem(R.id.attachment).setVisible(true);
-		}
-		else
-		{
-			menu.findItem(R.id.attachment).setVisible(false);
-		}
+		menu.findItem(R.id.attachment).setVisible(configuration.isAttachmentPickerEnabled());
+
 		return true;
 	}
 
