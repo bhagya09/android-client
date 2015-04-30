@@ -5120,27 +5120,24 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 	}
 
-	public HashMap addBotToHashMap(HashMap<String, BotInfo> hikeBotNamesMap)
+	public void addBotToHashMap()
 	{
 		Cursor c = null;
-		if (hikeBotNamesMap == null)
-		{
-			hikeBotNamesMap = new HashMap<String, BotInfo>();
-		}
 		try
 		{
 			c = mDb.query(DBConstants.BOT_TABLE, null, null, null, null, null, null);
 
+			int msisdnIdx = c.getColumnIndex(DBConstants.MSISDN);
+			int nameIdx = c.getColumnIndex(DBConstants.NAME);
+			int configurationIdx = c.getColumnIndex(DBConstants.BOT_CONFIGURATION);
+			int botTypeIdx = c.getColumnIndex(DBConstants.BOT_TYPE);
+			int metadataIdx = c.getColumnIndex(DBConstants.CONVERSATION_METADATA);
+			int muteIdx = c.getColumnIndex(DBConstants.IS_MUTE);
+			int isReceiveEnabledIdx = c.getColumnIndex(DBConstants.IS_RECEIVE_ENABLED);
+
+			mDb.beginTransaction();
 			while (c.moveToNext())
 			{
-				int msisdnIdx = c.getColumnIndex(DBConstants.MSISDN);
-				int nameIdx = c.getColumnIndex(DBConstants.NAME);
-				int configurationIdx = c.getColumnIndex(DBConstants.BOT_CONFIGURATION);
-				int botTypeIdx = c.getColumnIndex(DBConstants.BOT_TYPE);
-				int metadataIdx = c.getColumnIndex(DBConstants.CONVERSATION_METADATA);
-				int muteIdx = c.getColumnIndex(DBConstants.IS_MUTE);
-				int isReceiveEnabledIdx = c.getColumnIndex(DBConstants.IS_RECEIVE_ENABLED);
-
 				String msisdn = c.getString(msisdnIdx);
 				String name = c.getString(nameIdx);
 				int config = c.getInt(configurationIdx);
@@ -5159,10 +5156,10 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 						.setIsReceiveEnabled(isReceiveEnabled == 1)
 						.build();
 
-				hikeBotNamesMap.put(msisdn, botInfo);
+				HikeMessengerApp.hikeBotNamesMap.put(msisdn, botInfo);
 
 			}
-			return hikeBotNamesMap;
+			mDb.setTransactionSuccessful();
 		}
 		finally
 		{
@@ -5170,6 +5167,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			{
 				c.close();
 			}
+			mDb.endTransaction();
 		}
 
 	}

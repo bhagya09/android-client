@@ -210,12 +210,12 @@ public class BotChatThread extends OneToOneChatThread
 		 * Blocking all bots except Team Hike and muting only cricket Bot.
 		 */
 
-		if (!msisdn.equals(HikeConstants.Bots.FTUE_TEAMHIKE_MSISDN) && configuration.isBlockInOverflowMenuEnabled() )
+		if (configuration.isBlockInOverflowMenuEnabled() )
 		{
 			list.add(new OverFlowMenuItem(mConversation.isBlocked() ? getString(R.string.unblock_title) : getString(R.string.block_title), 0, 0, R.string.block_title));
 		}
 
-		if (msisdn.equals(HikeConstants.Bots.CRICKET_BOT_MSISDN) && configuration.isMuteInOverflowMenuEnabled())
+		if (configuration.isMuteInOverflowMenuEnabled())
 		{
 			list.add(new OverFlowMenuItem(mConversation.isMuted() ? getString(R.string.unmute) : getString(R.string.mute), 0, 0, R.string.mute));
 		}

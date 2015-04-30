@@ -846,7 +846,7 @@ public void onTrimMemory(int level)
 		makeNoMediaFiles();
 
 		hikeBotNamesMap = new HashMap<String, BotInfo>();
-
+		initBots();
 
 		initHikeLruCache(getApplicationContext());
 		initContactManager();
@@ -858,19 +858,11 @@ public void onTrimMemory(int level)
 		appStateHandler = new Handler();
 
 		HikeMessengerApp.getPubSub().addListener(HikePubSub.CONNECTED_TO_MQTT, this);
-		
+
 		registerReceivers();
-		
+
 		HttpManager.init();
 
-		if (HikeSharedPreferenceUtil.getInstance().getData(UPGRADE_FOR_DEFAULT_BOT_ENTRY, true))
-		{
-			addDefaultBotsToDB();
-			HikeSharedPreferenceUtil.getInstance().saveData(UPGRADE_FOR_DEFAULT_BOT_ENTRY,false);
-		}
-
-
-		HikeConversationsDatabase.getInstance().addBotToHashMap(hikeBotNamesMap);
 		ProductInfoManager.getInstance().init();
 		PlatformContent.init(settings.getBoolean(HikeMessengerApp.PRODUCTION, true));
 
@@ -880,19 +872,43 @@ public void onTrimMemory(int level)
 		}
 	}
 
+	private void initBots()
+	{
+		HikeHandlerUtil mThread = HikeHandlerUtil.getInstance();
+		mThread.startHandlerThread();
+		mThread.postRunnableWithDelay(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				if (HikeSharedPreferenceUtil.getInstance().getData(UPGRADE_FOR_DEFAULT_BOT_ENTRY, true))
+				{
+					addDefaultBotsToDB();
+					HikeSharedPreferenceUtil.getInstance().saveData(UPGRADE_FOR_DEFAULT_BOT_ENTRY, false);
+				}
+
+				HikeConversationsDatabase.getInstance().addBotToHashMap();
+				Logger.d("create bot", "Keys are " + hikeBotNamesMap.keySet() + "------");
+				Logger.d("create bot", "values are " + hikeBotNamesMap.values());
+			}
+		}, 0);
+
+	}
+
 	private void addDefaultBotsToDB()
 	{
-		defaultBotEntry(HikeConstants.Bots.FTUE_TEAMHIKE_MSISDN, HikeConstants.Bots.FTUE_TEAM_HIKE_NAME, null, null);
-		defaultBotEntry(HikeConstants.Bots.FTUE_HIKEBOT_MSISDN, HikeConstants.Bots.FTUE_HIKEBOT_NAME, null, null);
-		defaultBotEntry(HikeConstants.Bots.FTUE_GAMING_MSISDN, HikeConstants.Bots.FTUE_GAMING_NAME, null, null);
-		defaultBotEntry(HikeConstants.Bots.FTUE_HIKE_DAILY, HikeConstants.Bots.FTUE_HIKE_DAILY_NAME, null, null);
-		defaultBotEntry(HikeConstants.Bots.FTUE_HIKE_SUPPORT, HikeConstants.Bots.FTUE_HIKE_SUPPORT_NAME, null, null);
-		defaultBotEntry(HikeConstants.Bots.NUX_BOT_MSISDN, HikeConstants.Bots.NUX_BOT_NAME, null, null);
+		defaultBotEntry(HikeConstants.Bots.FTUE_TEAMHIKE_MSISDN, HikeConstants.Bots.FTUE_TEAM_HIKE_NAME, null, null, HikeConstants.Bots.FTUE_TEAM_HIKE_CONFIG, false);
+		defaultBotEntry(HikeConstants.Bots.FTUE_HIKEBOT_MSISDN, HikeConstants.Bots.FTUE_HIKEBOT_NAME, null, null, HikeConstants.Bots.SENT_RECEIVE_BOT_CONFIG, true);
+		defaultBotEntry(HikeConstants.Bots.FTUE_GAMING_MSISDN, HikeConstants.Bots.FTUE_GAMING_NAME, null, null, HikeConstants.Bots.SENT_BOT_CONFIG, false);
+		defaultBotEntry(HikeConstants.Bots.FTUE_HIKE_DAILY, HikeConstants.Bots.FTUE_HIKE_DAILY_NAME, null, null, HikeConstants.Bots.SENT_BOT_CONFIG, false);
+		defaultBotEntry(HikeConstants.Bots.FTUE_HIKE_SUPPORT, HikeConstants.Bots.FTUE_HIKE_SUPPORT_NAME, null, null, HikeConstants.Bots.SENT_RECEIVE_BOT_CONFIG, true);
+		defaultBotEntry(HikeConstants.Bots.NUX_BOT_MSISDN, HikeConstants.Bots.NUX_BOT_NAME, null, null, HikeConstants.Bots.SENT_RECEIVE_BOT_CONFIG, true);
 
 		BitmapDrawable drawable = (BitmapDrawable) getApplicationContext().getResources().getDrawable(R.drawable.cric_icon);
 		String base64Icon = Utils.drawableToString(drawable);
 
-		defaultBotEntry(HikeConstants.Bots.CRICKET_BOT_MSISDN, HikePlatformConstants.CRICKET_BOT_NAME, HikePlatformConstants.CRICKET_CHAT_THEME_ID, base64Icon);
+		defaultBotEntry(HikeConstants.Bots.CRICKET_BOT_MSISDN, HikePlatformConstants.CRICKET_BOT_NAME, HikePlatformConstants.CRICKET_CHAT_THEME_ID, base64Icon,
+				HikeConstants.Bots.SENT_BOT_CONFIG, false);
 
 	}
 
@@ -913,43 +929,35 @@ public void onTrimMemory(int level)
 	// when there is no bot currently in the app. Using the shared prefs for that matter.
 	// Hardcoding the bot name, bot msisdn, the bot chat theme, bot's dp and its type. Can be updated using the
 	// AC packet cbot and delete using the ac packet dbot.
-	private void defaultBotEntry(final String msisdn, final String name, final String chatThemeId, final String dp)
+	private void defaultBotEntry(final String msisdn, final String name, final String chatThemeId, final String dp, final int config, final boolean isReceiveEnabled)
 	{
-		HikeHandlerUtil mThread = HikeHandlerUtil.getInstance();
-		mThread.startHandlerThread();
-		mThread.postRunnableWithDelay(new Runnable()
+
+		Logger.d("create bot", "default bot entry started");
+		final JSONObject jsonObject = new JSONObject();
+		try
 		{
-			@Override
-			public void run()
+			jsonObject.put(HikeConstants.MSISDN, msisdn);
+			jsonObject.put(HikeConstants.NAME, name);
+
+			if (!TextUtils.isEmpty(dp))
 			{
-				Logger.d("create bot", "cricket bot entry started");
-				final JSONObject jsonObject = new JSONObject();
-				try
-				{
-					jsonObject.put(HikeConstants.MSISDN, msisdn);
-					jsonObject.put(HikeConstants.NAME, name);
-
-					if (!TextUtils.isEmpty(dp))
-					{
-						jsonObject.put(HikeConstants.BOT_THUMBNAIL, dp);
-					}
-
-					if (!TextUtils.isEmpty(chatThemeId))
-					{
-						jsonObject.put(HikeConstants.BOT_CHAT_THEME, chatThemeId);
-					}
-					jsonObject.put(HikeConstants.TYPE, HikeConstants.MESSAGING_BOT);
-					jsonObject.put(HikeConstants.CONFIGURATION, Integer.MAX_VALUE);
-				}
-				catch (JSONException e)
-				{
-					e.printStackTrace();
-				}
-
-				MqttMessagesManager.getInstance(getApplicationContext()).createBot(jsonObject);
+				jsonObject.put(HikeConstants.BOT_THUMBNAIL, dp);
 			}
-		}, 0);
 
+			if (!TextUtils.isEmpty(chatThemeId))
+			{
+				jsonObject.put(HikeConstants.BOT_CHAT_THEME, chatThemeId);
+			}
+			jsonObject.put(HikeConstants.TYPE, HikeConstants.MESSAGING_BOT);
+			jsonObject.put(HikeConstants.CONFIGURATION, config);
+			jsonObject.put(HikeConstants.IS_RECEIVE_ENABLED_IN_BOT, isReceiveEnabled);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+
+		MqttMessagesManager.getInstance(getApplicationContext()).createBot(jsonObject);
 	}
 
 	public static HikeMessengerApp getInstance()

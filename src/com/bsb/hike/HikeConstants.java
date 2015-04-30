@@ -2782,5 +2782,11 @@ public class HikeConstants
 
 		public static final String CRICKET_BOT_MSISDN = "+hikecricket+";
 
+		public static final int FTUE_TEAM_HIKE_CONFIG = 4527;
+
+		public static final int SENT_RECEIVE_BOT_CONFIG = 2069487;
+
+		public static final int SENT_BOT_CONFIG = 21487;
+
 	}
 }
