@@ -3090,7 +3090,7 @@ public class MqttMessagesManager
 
 		String fileName = Utils.getProfileImageFileName(statusMessage.getMappedId());
 		DownloadProfileImageTask downloadProfileImageTask = new DownloadProfileImageTask(context, statusMessage.getMappedId(), fileName, true, statusUpdate,
-				statusMessage.getMsisdn(), statusMessage.getNotNullName(), false);
+				statusMessage.getMsisdn(), statusMessage.getNotNullName());
 		downloadProfileImageTask.execute();
 	}
 
@@ -3102,7 +3102,7 @@ public class MqttMessagesManager
 			return;
 		}
 		String fileName = Utils.getProfileImageFileName(id);
-		DownloadProfileImageTask downloadProfileImageTask = new DownloadProfileImageTask(context, id, fileName, true, false, null, null, false);
+		DownloadProfileImageTask downloadProfileImageTask = new DownloadProfileImageTask(context, id, fileName, true, false, null, null);
 		downloadProfileImageTask.execute();
 	}
 
@@ -3110,7 +3110,7 @@ public class MqttMessagesManager
 	{
 		String fileName = Utils.getProfileImageFileName(statusMessage.getMappedId());
 		DownloadProfileImageTask downloadProfileImageTask = new DownloadProfileImageTask(context, statusMessage.getMappedId(), fileName, true, statusUpdate,
-				statusMessage.getMsisdn(), statusMessage.getNotNullName(), false, statusMessage.getProtip().getImageURL());
+				statusMessage.getMsisdn(), statusMessage.getNotNullName(), statusMessage.getProtip().getImageURL());
 		downloadProfileImageTask.execute();
 	}
 

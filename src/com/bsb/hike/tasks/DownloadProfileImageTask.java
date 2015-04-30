@@ -35,20 +35,18 @@ public class DownloadProfileImageTask
 	private String name;
 
 	private boolean statusImage;
-
-	private boolean showToast;
-
+	
 	private boolean hasCustomIcon;
 
 	private String urlString;
 
-	public DownloadProfileImageTask(Context context, String id, String fileName, boolean hasCustomIcon, boolean statusImage, String msisdn, String name, boolean showToast)
+	public DownloadProfileImageTask(Context context, String id, String fileName, boolean hasCustomIcon, boolean statusImage, String msisdn, String name)
 	{
-		this(context, id, fileName, hasCustomIcon, statusImage, msisdn, name, showToast, null);
+		this(context, id, fileName, hasCustomIcon, statusImage, msisdn, name, null);
 	}
 
 	public DownloadProfileImageTask(Context context, String id, String fileName, boolean hasCustomIcon, boolean statusImage, String msisdn, String name,
-			boolean showToast, String url)
+			String url)
 	{
 		this.context = context;
 		this.id = id;
@@ -56,8 +54,7 @@ public class DownloadProfileImageTask
 		this.statusImage = statusImage;
 		this.name = name;
 		this.filePath = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
-		this.fileName = fileName; 
-		this.showToast = showToast;
+		this.fileName = fileName;
 		this.hasCustomIcon = hasCustomIcon;
 		this.urlString = url;
 	}
@@ -121,10 +118,6 @@ public class DownloadProfileImageTask
 	private void doOnFailure()
 	{
 		Utils.removeTempProfileImage(id);
-		if (showToast)
-		{
-			Toast.makeText(context, R.string.error_download, Toast.LENGTH_SHORT).show();
-		}
 		File file = new File(fileName);
 		file.delete();
 		HikeMessengerApp.getPubSub().publish(HikePubSub.PROFILE_IMAGE_NOT_DOWNLOADED, id);

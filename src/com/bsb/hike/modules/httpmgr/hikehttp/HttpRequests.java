@@ -312,7 +312,6 @@ public class HttpRequests
 				.setUrl(urlString)
 				.setFile(filePath)
 				.setRequestListener(requestListener)
-				.setResponseOnUIThread(true)
 				.get()
 				.build();
 		return requestToken;		
