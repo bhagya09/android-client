@@ -150,6 +150,15 @@ public class BotChatThread extends OneToOneChatThread
 	}
 
 	@Override
+	protected void openProfileScreen()
+	{
+		if (configuration.isViewProfileEnabled())
+		{
+			super.openProfileScreen();
+		}
+	}
+
+	@Override
 	public boolean onCreateOptionsMenu(Menu menu)
 	{
 		Logger.i(TAG, "on create options menu " + menu.hashCode());
