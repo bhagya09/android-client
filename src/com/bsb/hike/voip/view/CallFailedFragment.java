@@ -83,6 +83,7 @@ public class CallFailedFragment extends SherlockFragment
 			@Override
 			public void onClick(View v) {
 				Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(getSherlockActivity(), msisdn, true);
+				intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 				startActivity(intent);
 				getSherlockActivity().finish();
 			}
