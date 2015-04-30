@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
+import com.bsb.hike.view.CustomFontButton;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -2375,11 +2376,24 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			Logger.i("chatthread", "getview of unknown header");
 			if (convertView == null)
 			{
-				convertView = inflater.inflate(R.layout.block_add_unknown_contact, parent, false);
+				convertView = inflater.inflate(R.layout.block_add_unknown_contact_mute_bot, parent, false);
+				CustomFontButton addButton = (CustomFontButton) convertView.findViewById(R.id.add_unknown_contact);
+				if (Utils.isBot(conversation.getMsisdn()))
+				{
+					addButton.setTag(R.string.mute);
+					addButton.setText(conversation.isMuted() ? R.string.unmute : R.string.mute);
+					convertView.setTag(R.string.mute);
+				}
+				else
+				{
+					addButton.setTag(R.string.add);
+				}
+				addButton.setOnClickListener(mOnClickListener);
 				convertView.findViewById(R.id.block_unknown_contact).setOnClickListener(mOnClickListener);
-				convertView.findViewById(R.id.add_unknown_contact).setOnClickListener(mOnClickListener);
+
 			}
 			return convertView;
+
 		}
 		if (showDayIndicator(position))
 		{

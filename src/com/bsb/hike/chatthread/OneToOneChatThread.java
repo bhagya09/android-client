@@ -2083,7 +2083,10 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			break;
 
 		case R.id.add_unknown_contact:
-			Utils.addToContacts(activity, msisdn);
+			if (v.getTag().equals(R.string.add))
+			{
+				Utils.addToContacts(activity, msisdn);
+			}
 			break;
 			
 		default:

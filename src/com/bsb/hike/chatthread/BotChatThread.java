@@ -6,6 +6,7 @@ import java.util.List;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.MessagingBotConfiguration;
 import com.bsb.hike.utils.Utils;
+import com.bsb.hike.view.CustomFontButton;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -124,7 +125,7 @@ public class BotChatThread extends OneToOneChatThread
 		switch (type)
 		{
 		case HikePubSub.MUTE_BOT:
-			muteBotPubSub();
+			muteBotToggled(true);
 			break;
 		default:
 			Logger.d(TAG, "Did not find any matching PubSub event in OneToOne ChatThread. Calling super class' onEventReceived");
@@ -133,9 +134,9 @@ public class BotChatThread extends OneToOneChatThread
 		}
 	}
 
-	private void muteBotPubSub()
+	private void muteBotToggled(boolean isMuted)
 	{
-		mConversation.setIsMute(true);
+		mConversation.setIsMute(isMuted);
 		HikeConversationsDatabase.getInstance().updateBot(msisdn, null, null, mConversation.isMuted() ? 1 : 0);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.MUTE_CONVERSATION_TOGGLED, new Pair<String, Boolean>(mConversation.getMsisdn(), mConversation.isMuted()));
 	}
@@ -338,7 +339,21 @@ public class BotChatThread extends OneToOneChatThread
 		boolean networkError = ChatThreadUtils.checkNetworkError();
 		toggleConversationMuteViewVisibility(networkError ? false : mConversation.isMuted());
 	}
-	
+
+	@Override
+	protected void toggleConversationMuteViewVisibility(boolean isMuted)
+	{
+
+		View v = mConversationsView.getChildAt(0);
+		if (v != null && v.getTag() != null && v.getTag().equals(R.string.mute))
+		{
+			CustomFontButton button = (CustomFontButton) v.findViewById(R.id.add_unknown_contact);
+			button.setText(mConversation.isMuted() ? R.string.unmute : R.string.mute);
+		}
+
+
+	}
+
 	@Override
 	protected void addUnkownContactBlockHeader()
 	{
@@ -357,10 +372,17 @@ public class BotChatThread extends OneToOneChatThread
 	@Override
 	public void onClick(View v)
 	{
-		if(v.getId() == R.id.contact_info)
+		switch (v.getId())
 		{
+		case R.id.contact_info:
 			BotConversation.analyticsForBots(msisdn, HikePlatformConstants.BOT_VIEW_PROFILE, HikePlatformConstants.ACTION_BAR, AnalyticsConstants.CLICK_EVENT, null);
+			break;
+
+		case R.id.add_unknown_contact:
+			muteBotToggled(!mConversation.isMuted());
+			break;
 		}
+
 		super.onClick(v);
 	}
 	
