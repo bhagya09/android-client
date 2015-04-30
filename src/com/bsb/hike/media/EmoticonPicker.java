@@ -339,12 +339,4 @@ public class EmoticonPicker implements ShareablePopup, EmoticonPickerListener, O
 		return currentConfig != deviceOrientation;
 	}
 	
-	public void resetToFirstPosition()
-	{
-		if (mIconPageIndicator != null)
-		{
-			mIconPageIndicator.setCurrentItem(0);
-		}
-	}
-
 }
