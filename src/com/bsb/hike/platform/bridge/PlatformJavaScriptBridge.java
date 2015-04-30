@@ -410,6 +410,30 @@ public class PlatformJavaScriptBridge extends JavascriptBridge
 				HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_UID_SETTING,null) + "','" + AccountUtils.getAppVersion() + "')");
 	}
 
+	public void init(WebViewHolder holder)
+	{
+		JSONObject jsonObject = new JSONObject();
+		try
+		{
+			jsonObject.put(HikeConstants.MSISDN, message.getMsisdn());
+			jsonObject.put(HikePlatformConstants.HELPER_DATA, message.webMetadata.getHelperData().toString());
+			jsonObject.put(HikePlatformConstants.IS_SENT, message.isSent());
+			jsonObject.put(HikePlatformConstants.PLATFORM_USER_ID,HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_UID_SETTING,null) );
+			jsonObject.put(HikeConstants.APP_VERSION, AccountUtils.getAppVersion());
+
+			JSONObject time = new JSONObject();
+			time.put(HikePlatformConstants.RENDERING_TIME, holder.renderingTime);
+			time.put(HikePlatformConstants.INFLATION_TIME, holder.inflationTime);
+			time.put(HikePlatformConstants.TEMPLATING_TIME, holder.templatingTime);
+
+			jsonObject.put(HikePlatformConstants.PROFILING_TIME, time);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
 	public void alarmPlayed(String alarmData)
 	{
 		mWebView.loadUrl("javascript:alarmPlayed(" + "'" + alarmData + "')");
