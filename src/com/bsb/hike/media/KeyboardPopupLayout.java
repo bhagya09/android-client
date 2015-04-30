@@ -15,6 +15,7 @@ import android.widget.PopupWindow.OnDismissListener;
 import android.widget.RelativeLayout;
 
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.utils.Logger;
 
 public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListener
@@ -90,7 +91,10 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 		{
 			if (islandScape)
 			{
-				height = mainView.getHeight() / 2;
+                int maxHeight = mainView.getRootView().getHeight();
+                // giving half height of screen in landscape mode
+                Logger.i("chatthread", "landscape mode is on setting half of screen " + maxHeight);
+                height = (maxHeight) / 2;
 			}
 			
 			else
