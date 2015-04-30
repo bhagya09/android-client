@@ -1991,7 +1991,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 					if (messagesSent)
 					{
 						String toastMsg = isNativeSms ? activity.getString(R.string.regular_sms_sent_confirmation) : activity.getString(R.string.hike_offline_messages_sent_msg,
-								mCredits - getSelectedFreeSmsCount());
+								mCredits);
 						Toast.makeText(activity.getApplicationContext(), toastMsg, Toast.LENGTH_SHORT).show();
 					}
 				}
