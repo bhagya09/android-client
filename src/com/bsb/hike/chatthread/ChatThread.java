@@ -79,7 +79,6 @@ import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
 import com.bsb.hike.adapters.MessagesAdapter;
 import com.bsb.hike.analytics.AnalyticsConstants;
-import com.bsb.hike.analytics.AnalyticsConstants.MessageType;
 import com.bsb.hike.analytics.AnalyticsConstants.MsgRelEventType;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
@@ -247,7 +246,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	protected StickerPicker mStickerPicker;
 
-	protected static EmoticonPicker mEmoticonPicker;
+	protected EmoticonPicker mEmoticonPicker;
 
 	protected static ShareablePopupLayout mShareablePopupLayout;
 
@@ -636,7 +635,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		{
 			mStickerPicker.updateListener(this, activity);
 		}
-		mEmoticonPicker.updateETAndContext(mComposeView, activity);
+		if (mEmoticonPicker != null)
+		{
+			mEmoticonPicker.updateETAndContext(mComposeView, activity);
+		}
 	}
 
 	protected void addOnClickListeners()
@@ -1060,6 +1062,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	protected void emoticonClicked()
 	{
+		initEmoticonPicker();
+		
 		if (!mShareablePopupLayout.togglePopup(mEmoticonPicker, activity.getResources().getConfiguration().orientation))
 		{
 			if (!retryToInflateEmoticons())
@@ -1453,7 +1457,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		mComposeView = (CustomFontEditText) activity.findViewById(R.id.msg_compose);
 		mComposeView.requestFocus();
 		mComposeView.removeTextChangedListener(searchTextWatcher);
-		mEmoticonPicker.updateET(mComposeView);
+		if (mEmoticonPicker != null)
+		{
+			mEmoticonPicker.updateET(mComposeView);
+		}
 		
 		View mBottomView = activity.findViewById(R.id.bottom_panel);
 		mBottomView.startAnimation(AnimationUtils.loadAnimation(activity.getApplicationContext(), R.anim.down_up_lower_part));
@@ -3233,11 +3240,15 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		}
 		
 		mShareablePopupLayout.releaseResources();
+		
 		if (mStickerPicker != null)
 		{
 			mStickerPicker.releaseResources();
 		}
-		mEmoticonPicker.releaseReources();
+		if (mEmoticonPicker != null)
+		{	
+			mEmoticonPicker.releaseReources();
+		}
 	}
 
 	/**
@@ -4615,15 +4626,11 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		Logger.i(TAG, "onPopup Dismiss");
 		if(activity.findViewById(R.id.sticker_btn).isSelected())
 		{
-			if (mStickerPicker != null)
-			{
-				mStickerPicker.resetToFirstPosition();
-			}
 			setStickerButtonSelected(false);
 		}
+		
 		if(activity.findViewById(R.id.emoticon_btn).isSelected())
 		{
-			mEmoticonPicker.resetToFirstPosition();
 			setEmoticonButtonSelected(false);
 		}
 	}

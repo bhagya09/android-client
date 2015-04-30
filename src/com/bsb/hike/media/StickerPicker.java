@@ -455,14 +455,6 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 		return currentConfig != deviceOrientation;
 	}
 
-	public void resetToFirstPosition()
-	{
-		if (mIconPageIndicator != null)
-		{
-			mIconPageIndicator.setCurrentItem(0);
-		}
-	}
-
 	/**
 	 * Used for indicating to the sticker picker to refresh its underlying dataset
 	 * 
