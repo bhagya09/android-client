@@ -8,6 +8,7 @@ import org.json.JSONObject;
 
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.Utils;
+import com.bsb.hike.modules.httpmgr.log.LogFull;
 
 /**
  * JSONObject request is used to return response in form of {@link JSONObject} to the request listener. InputStream to {@link JSONObject} is done in
@@ -43,10 +44,18 @@ public class JSONObjectRequest extends Request<JSONObject>
 	}
 
 	@Override
-	public JSONObject parseResponse(InputStream in) throws IOException, JSONException
+	public JSONObject parseResponse(InputStream in) throws IOException
 	{
-		byte[] bytes = Utils.streamToBytes(in);
-		JSONObject json = new JSONObject(new String(bytes));
-		return json;
+		try
+		{
+			byte[] bytes = Utils.streamToBytes(in);
+			JSONObject json = new JSONObject(new String(bytes));
+			return json;
+		}
+		catch (JSONException ex)
+		{
+			LogFull.e("JSONException while parsing json object response : " + ex);
+			return null;
+		}
 	}
 }

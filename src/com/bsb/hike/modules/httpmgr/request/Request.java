@@ -5,6 +5,7 @@ import static com.bsb.hike.modules.httpmgr.request.PriorityConstants.PRIORITY_LO
 import static com.bsb.hike.modules.httpmgr.request.PriorityConstants.PRIORITY_NORMAL;
 import static com.bsb.hike.modules.httpmgr.request.RequestConstants.GET;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -144,7 +145,7 @@ public abstract class Request<T> implements IRequestFacade
 		this.future = null;
 	}
 	
-	public abstract T parseResponse(InputStream in) throws Throwable;
+	public abstract T parseResponse(InputStream in) throws IOException;
 
 	/**
 	 * Returns the unique id of the request
