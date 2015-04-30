@@ -463,6 +463,11 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 
 	private void initProximitySensor() 
 	{
+		if(activity.isShowingCallFailedFragment())
+		{
+			return;
+		}
+
 		sensorManager = (SensorManager) getSherlockActivity().getSystemService(Context.SENSOR_SERVICE);
 		Sensor proximitySensor = sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
 
