@@ -36,6 +36,16 @@ public class BotChatThread extends OneToOneChatThread
 	private static final String TAG = "BotChatThread";
 	private MessagingBotConfiguration configuration;
 
+	@Override
+	protected void init()
+	{
+		super.init();
+		BotInfo botInfo = Utils.getBotInfoForBotMsisdn(msisdn);
+
+		configuration = new MessagingBotConfiguration(botInfo.getConfiguration(), botInfo.isReceiveEnabled());
+		mConversation = new BotConversation.ConversationBuilder(botInfo).build();
+	}
+
 	/**
 	 * @param activity
 	 * @param msisdn
@@ -79,12 +89,6 @@ public class BotChatThread extends OneToOneChatThread
 	protected Conversation fetchConversation()
 	{
 		super.fetchConversation();
-		BotInfo botInfo = Utils.getBotInfoForBotMsisdn(msisdn);
-
-		configuration = new MessagingBotConfiguration(botInfo.getConfiguration(), botInfo.isReceiveEnabled());
-		mConversation = new BotConversation.ConversationBuilder(msisdn)
-				.setBotInfo(botInfo)
-				.build();
 
 		mConversation.setIsMute(HikeConversationsDatabase.getInstance().isBotMuted(msisdn));
 		return mConversation;
