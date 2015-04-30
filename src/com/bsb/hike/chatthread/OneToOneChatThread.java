@@ -273,7 +273,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			FetchHikeUser.fetchHikeUser(activity.getApplicationContext(), msisdn);
 		}
 
-		if (ChatThreadUtils.shouldShowLastSeen(msisdn, activity.getApplicationContext(), mConversation.isOnHike()))
+		if (ChatThreadUtils.shouldShowLastSeen(msisdn, activity.getApplicationContext(), mConversation.isOnHike(), mConversation.isBlocked()))
 		{
 			checkAndStartLastSeenTask();
 		}
@@ -365,7 +365,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	}
 
 	@Override
-	protected void messageAdded(ConvMessage convMessage)
+	protected void addMessage(ConvMessage convMessage)
 	{
 		/*
 		 * If we were showing the typing bubble, we remove it from the add the new message and add the typing bubble back again
@@ -377,42 +377,14 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		 * Adding message to the adapter
 		 */
 
-		addMessage(convMessage);
+		mAdapter.addMessage(convMessage);
 
 		if (convMessage.getTypingNotification() == null && typingNotification != null && convMessage.isSent())
 		{
-			addMessage(new ConvMessage(typingNotification));
+			mAdapter.addMessage(new ConvMessage(typingNotification));
 		}
 
-		super.messageAdded(convMessage);
-	}
-
-	/**
-	 * This overrides {@link ChatThread}'s {@link #onTypingConversationNotificationReceived(Object)}
-	 */
-	@Override
-	protected void onTypingConversationNotificationReceived(Object object)
-	{
-		TypingNotification typingNotification = (TypingNotification) object;
-
-		if (typingNotification == null)
-		{
-			return;
-		}
-
-		if (msisdn.equals(typingNotification.getId()))
-		{
-			sendUIMessage(TYPING_CONVERSATION, typingNotification);
-		}
-
-		if (ChatThreadUtils.shouldShowLastSeen(msisdn, activity.getApplicationContext(), mConversation.isOnHike()) && mContactInfo.getOffline() != -1)
-		{
-			/*
-			 * Publishing an online event for this number.
-			 */
-			mContactInfo.setOffline(0);
-			HikeMessengerApp.getPubSub().publish(HikePubSub.LAST_SEEN_TIME_UPDATED, mContactInfo);
-		}
+		super.addMessage(convMessage);
 	}
 
 	/**
@@ -525,7 +497,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			uiHandler.sendEmptyMessage(SEND_SMS_PREF_TOGGLED);
 			break;
 		case HikePubSub.SMS_CREDIT_CHANGED:
-			uiHandler.sendEmptyMessage(SMS_CREDIT_CHANGED);
+			sendUIMessage(SMS_CREDIT_CHANGED, object);
 			break;
 		case HikePubSub.BULK_MESSAGE_RECEIVED:
 			onBulkMessageReceived(object);
@@ -636,7 +608,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			updateUIForHikeStatus();
 			break;
 		case SMS_CREDIT_CHANGED:
-			setSMSCredits();
+			setSMSCredits((Integer) msg.obj);
 			break;
 		case REMOVE_UNDELIVERED_MESSAGES:
 			removeUndeliveredMessages(msg.obj);
@@ -713,7 +685,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		/**
 		 * Proceeding only if the current chat thread is open and we should show the last seen
 		 */
-		if (msisdn.equals(contMsisdn) && ChatThreadUtils.shouldShowLastSeen(msisdn, activity.getApplicationContext(), mConversation.isOnHike()))
+		if (msisdn.equals(contMsisdn) && ChatThreadUtils.shouldShowLastSeen(msisdn, activity.getApplicationContext(), mConversation.isOnHike(), mConversation.isBlocked()))
 		{
 			/**
 			 * Fix for case where server and client values are out of sync
@@ -772,8 +744,10 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		}
 	}
 
-	private void setSMSCredits()
+	private void setSMSCredits(int newValue)
 	{
+		mCredits = newValue;
+		
 		updateUIForHikeStatus();
 
 		if ((mCredits % HikeConstants.SHOW_CREDITS_AFTER_NUM == 0) && !mConversation.isOnHike())
@@ -1251,7 +1225,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			openProfileScreen();
 			break;
 		case R.string.chat_theme:
-			showThemePicker();
+			showThemePicker(R.string.chat_theme_tip);
 			break;
 		case R.string.add_as_favorite_menu:
 			addFavorite();
@@ -1429,7 +1403,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 
 			TypingNotification typingNotification = removeTypingNotification();
 
-			addMessages(messagesList, messages.size());
+			mAdapter.addMessages(messagesList, messages.size());
 
 			reachedEnd = false;
 
@@ -1441,7 +1415,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 
 			if (typingNotification != null && convMessage.isSent())
 			{
-				addMessage(new ConvMessage(typingNotification));
+				mAdapter.addMessage(new ConvMessage(typingNotification));
 			}
 
 			mAdapter.notifyDataSetChanged();
@@ -1453,18 +1427,6 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			tryScrollingToBottom(convMessage, messagesList.size());
 
 		}
-	}
-
-	@Override
-	protected void addMessage(ConvMessage message)
-	{
-		super.addMessage(message);
-	}
-	
-	@Override
-	protected void addMessages(List<ConvMessage> list, int startIndex)
-	{
-		super.addMessages(list, startIndex);
 	}
 
 	/**
@@ -1515,7 +1477,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			return;
 		}
 
-		if (!ChatThreadUtils.shouldShowLastSeen(msisdn, activity.getApplicationContext(), mConversation.isOnHike()))
+		if (!ChatThreadUtils.shouldShowLastSeen(msisdn, activity.getApplicationContext(), mConversation.isOnHike(), mConversation.isBlocked()))
 		{
 			return;
 		}
@@ -1625,6 +1587,15 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	@Override
 	protected void sendMessage()
 	{
+		if (!mConversation.isOnHike() && mCredits <= 0)
+		{
+			if (!Utils.getSendSmsPref(activity))
+			{
+				return;
+			}
+			
+		}
+		
 		ConvMessage convMessage = createConvMessageFromCompose();
 
 		// 1) user pressed send button i.e sending Text Message
@@ -2020,7 +1991,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 					if (messagesSent)
 					{
 						String toastMsg = isNativeSms ? activity.getString(R.string.regular_sms_sent_confirmation) : activity.getString(R.string.hike_offline_messages_sent_msg,
-								mCredits - getSelectedFreeSmsCount());
+								mCredits);
 						Toast.makeText(activity.getApplicationContext(), toastMsg, Toast.LENGTH_SHORT).show();
 					}
 				}
@@ -2082,6 +2053,10 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 
 		case R.id.add_unknown_contact:
 			Utils.addToContacts(activity, msisdn);
+			break;
+			
+		case R.id.info_layout:
+			updateChatMetadata();
 			break;
 			
 		default:
@@ -2573,12 +2548,6 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		return Utils.isVoipActivated(activity.getApplicationContext()) && mConversation.isOnHike() && !HikeMessengerApp.hikeBotNamesMap.containsKey(msisdn);
 	}
 	
-	protected void showThemePicker()
-	{
-		setUpThemePicker();
-		themePicker.showThemePicker(activity.findViewById(R.id.cb_anchor), currentTheme, R.string.chat_theme_tip, activity.getResources().getConfiguration().orientation);
-	}
-
 	/*
 	 * Adding user as favorite
 	 */
@@ -2637,6 +2606,12 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	}
 	
 	@Override
+	protected void addOnClickListeners()
+	{
+		activity.findViewById(R.id.info_layout).setOnClickListener(this);
+		super.addOnClickListeners();
+	}
+	
 	protected void blockUnBlockUser(boolean isBlocked)
 	{
 		super.blockUnBlockUser(isBlocked);
@@ -2651,7 +2626,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 
 		else
 		{
-			if (ChatThreadUtils.shouldShowLastSeen(msisdn, activity.getApplicationContext(), mConversation.isOnHike()))
+			if (ChatThreadUtils.shouldShowLastSeen(msisdn, activity.getApplicationContext(), mConversation.isOnHike(), mConversation.isBlocked()))
 			{
 				checkAndStartLastSeenTask();
 			}

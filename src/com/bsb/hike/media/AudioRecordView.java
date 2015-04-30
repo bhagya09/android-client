@@ -409,4 +409,12 @@ public class AudioRecordView
 			}
 		}
 	};
+	
+	public void dismissAudioRecordView()
+	{
+		if (dialog != null && dialog.isShowing())
+		{
+			dialog.dismiss();
+		}
+	}
 }
