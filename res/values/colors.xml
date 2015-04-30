@@ -397,7 +397,7 @@
     <color name="signal_green">#45ad25</color>
     <color name="signal_good">#8bb605</color>
     <color name="black_80">#CC000000</color>
-    <color name="call_rate_dismiss">#bec1c1</color>
+    <color name="call_rate_dismiss">#26292d</color>
     <color name="call_rate_submit">#0f8fe1</color>
     <color name="call_rate_header">#111111</color>
     <color name="call_rate_subheader">#26292d</color>

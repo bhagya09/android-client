@@ -229,8 +229,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
     
     private static final int SHARING_FUNCTIONALITY = 34;
     
-    private static final int THEME_PICKER_CONFIG_CHANGE = 35;
-
     private int NUDGE_TOAST_OCCURENCE = 2;
     	
     private int currentNudgeCount = 0;
@@ -450,13 +448,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		case MUTE_CONVERSATION_TOGGLED:
 			muteConvToggledUIChange((boolean) msg.obj);
 			break;
-		case THEME_PICKER_CONFIG_CHANGE : 
-			if (themePicker != null && themePicker.isShowing())
-			{
-				themePicker.setOrientation(activity.getResources().getConfiguration().orientation);
-				themePicker.refreshViews(true);
-			}
-			break;
 		default:
 			Logger.d(TAG, "Did not find any matching event for msg.what : " + msg.what);
 			break;
@@ -648,7 +639,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		mEmoticonPicker.updateETAndContext(mComposeView, activity);
 	}
 
-	private void addOnClickListeners()
+	protected void addOnClickListeners()
 	{
 		activity.findViewById(R.id.sticker_btn).setOnClickListener(this);
 		activity.findViewById(R.id.emoticon_btn).setOnClickListener(this);
@@ -861,8 +852,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	protected void showOverflowMenu()
 	{
-		if (mActionMode.whichActionModeIsOn() == SEARCH_ACTION_MODE)
+		if (mActionMode != null && mActionMode.isActionModeOn())
+		{
 			return;
+		}
 
 		/**
 		 * Hiding any open tip
@@ -1775,8 +1768,21 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		checkAndAddTypingNotifications();
 		
 		takeActionBasedOnIntent();
+		
+		/**
+		 * Showing the keyboard in case of empty conversation
+		 */
+		if (shouldShowKeyboard())
+		{
+			Utils.showSoftKeyboard(activity.getApplicationContext());
+		}
 	}
 	
+	private boolean shouldShowKeyboard()
+	{
+		return mConversation.getMessagesList().isEmpty();
+	}
+
 	/**
 	 * Checks if there is any typing notification present for the given msisdn, if present, it adds it to the ConvMessages
 	 */
@@ -2521,6 +2527,14 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		if (message == null || message.getParticipantInfoState() != ParticipantInfoState.NO_INFO || message.getTypingNotification() != null || message.isBlockAddHeader())
 		{
 			return false;
+		}
+		
+		if (message.getMessageType() == MESSAGE_TYPE.FORWARD_WEB_CONTENT || message.getMessageType() == MESSAGE_TYPE.WEB_CONTENT)
+		{
+			if (message.webMetadata.isLongPressDisabled())
+			{
+				return false;
+			}
 		}
 
 		mAdapter.toggleSelection(message);
@@ -4471,7 +4485,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		
 		if (themePicker != null && themePicker.isShowing())
 		{
-			uiHandler.sendEmptyMessage(THEME_PICKER_CONFIG_CHANGE);
+			themePicker.onOrientationChange(newConfig.orientation);
 		}
 		
 		if (this.dialog != null)
@@ -4901,5 +4915,12 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	{
 		Intent intent = IntentFactory.getHomeActivityIntent(activity);
 		activity.startActivity(intent);
+	}
+	
+
+	protected void showThemePicker(int footerTextId)
+	{
+		setUpThemePicker();
+		themePicker.showThemePicker(activity.findViewById(R.id.cb_anchor), currentTheme,footerTextId, activity.getResources().getConfiguration().orientation);
 	}
 }
