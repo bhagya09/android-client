@@ -46,22 +46,18 @@ public class VoIPConstants {
 	public static final int MSG_SHUTDOWN_ACTIVITY = 1;
 	public static final int CONNECTION_ESTABLISHED_FIRST_TIME = 2;
 	public static final int MSG_AUDIO_START = 3;
-	public static final int MSG_ENCRYPTION_INITIALIZED = 4;
-	public static final int MSG_OUTGOING_CALL_DECLINED = 5;
-	public static final int MSG_CONNECTION_FAILURE = 6;
-	public static final int MSG_CURRENT_BITRATE = 7;
-	public static final int MSG_EXTERNAL_SOCKET_RETRIEVAL_FAILURE = 8;
-	public static final int MSG_PARTNER_SOCKET_INFO_TIMEOUT = 10;
-	public static final int MSG_PARTNER_ANSWER_TIMEOUT = 11;
-	public static final int MSG_INCOMING_CALL_DECLINED = 14;
-	public static final int MSG_RECONNECTING = 15;
-	public static final int MSG_RECONNECTED = 16;
-	public static final int MSG_UPDATE_QUALITY = 17;
-	public static final int MSG_NETWORK_SUCKS = 18;
-	public static final int MSG_UPDATE_HOLD_BUTTON = 19;
-	public static final int MSG_ALREADY_IN_NATIVE_CALL = 20;
-	public static final int MSG_AUDIORECORD_FAILURE = 21;
-	public static final int MSG_UPDATE_REMOTE_HOLD = 22;
+	public static final int MSG_CONNECTION_FAILURE = 4;
+	public static final int MSG_EXTERNAL_SOCKET_RETRIEVAL_FAILURE = 5;
+	public static final int MSG_PARTNER_SOCKET_INFO_TIMEOUT = 6;
+	public static final int MSG_PARTNER_ANSWER_TIMEOUT = 7;
+	public static final int MSG_RECONNECTING = 8;
+	public static final int MSG_RECONNECTED = 9;
+	public static final int MSG_UPDATE_QUALITY = 10;
+	public static final int MSG_NETWORK_SUCKS = 11;
+	public static final int MSG_UPDATE_HOLD_BUTTON = 12;
+	public static final int MSG_ALREADY_IN_NATIVE_CALL = 13;
+	public static final int MSG_AUDIORECORD_FAILURE = 14;
+	public static final int MSG_UPDATE_REMOTE_HOLD = 15;
 
 	public static final class Analytics
 	{
