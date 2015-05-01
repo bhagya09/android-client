@@ -1783,7 +1783,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		 */
 		if (shouldShowKeyboard())
 		{
-			Utils.showSoftKeyboard(activity.getApplicationContext());
+			activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 		}
 	}
 	
