@@ -325,7 +325,6 @@ public class HttpRequests
 				.setUrl(editProfileAvatarBase())
 				.setRequestType(Request.REQUEST_TYPE_LONG)
 				.setRequestListener(requestListener)
-				.setResponseOnUIThread(true)
 				.post(body)
 				.build();
 		requestToken.getRequestInterceptors().addLast("gzip", new GzipRequestInterceptor());
