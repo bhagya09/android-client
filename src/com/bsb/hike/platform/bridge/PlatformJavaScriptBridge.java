@@ -12,7 +12,6 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Pair;
 import android.webkit.JavascriptInterface;
-import android.webkit.WebView;
 import android.widget.BaseAdapter;
 
 import com.bsb.hike.HikeConstants;
@@ -427,6 +426,7 @@ public class PlatformJavaScriptBridge extends JavascriptBridge
 			time.put(HikePlatformConstants.TEMPLATING_TIME, holder.templatingTime);
 
 			jsonObject.put(HikePlatformConstants.PROFILING_TIME, time);
+			mWebView.loadUrl("javascript:init('" + jsonObject.toString() + "')");
 		}
 		catch (JSONException e)
 		{
