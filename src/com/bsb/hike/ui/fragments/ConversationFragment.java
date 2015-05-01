@@ -294,22 +294,9 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 	}
 
 	private void setSearchEmptyState()
-	{
-		emptyHolder = (ViewGroup) getView().findViewById(R.id.emptyViewHolder);
-		
-		searchEmptyView = getView().findViewById(R.id.searchEmptyView);
-		if(mAdapter.getCount() == 0)
-		{
-			emptyHolder.setVisibility(View.GONE);
-			searchEmptyView.setVisibility(View.VISIBLE);
-		}
-		else
-		{
-			emptyHolder.setVisibility(View.GONE);
-			searchEmptyView.setVisibility(View.GONE);
-		}
+	{	
 		String emptyText = String.format(getActivity().getString(R.string.home_search_empty_text), searchText);
-		TextView emptyTextView = (TextView) searchEmptyView.findViewById(R.id.empty_search_txt);
+		TextView emptyTextView = (TextView) getView().findViewById(R.id.searchEmptyView).findViewById(R.id.empty_search_txt);
 		if (!TextUtils.isEmpty(searchText))
 		{
 			SpannableString spanEmptyText = new SpannableString(emptyText);
@@ -909,6 +896,8 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 
 		if (searchMode && !TextUtils.isEmpty(searchText))
 		{
+			emptyHolder.setVisibility(View.GONE);
+			searchEmptyView.setVisibility(View.VISIBLE);
 			setSearchEmptyState();
 		}
 		else
