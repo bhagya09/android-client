@@ -51,6 +51,7 @@ import android.view.View;
 import android.view.View.OnKeyListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup.LayoutParams;
+import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.EditorInfo;
@@ -1383,7 +1384,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		
 		mBottomView.setVisibility(View.GONE);
 		mComposeView.requestFocus();
-		Utils.showSoftKeyboard(activity.getApplicationContext());
+//		Utils.showSoftKeyboard(activity.getApplicationContext());
 	}
 
 	TextWatcher searchTextWatcher = new TextWatcher()
