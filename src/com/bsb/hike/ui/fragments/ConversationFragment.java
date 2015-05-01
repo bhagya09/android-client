@@ -187,8 +187,6 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 			}
 
 			notifyDataSetChanged();
-
-			setEmptyState(mAdapter.isEmpty());
 			
 		}
 	}
@@ -1798,7 +1796,6 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 			mAdapter.addItemsToAnimat(stealthConversations);
 			mAdapter.addToLists(stealthConversations);
 		}
-		setEmptyState(mAdapter.isEmpty());
 		
 		resetSearchIcon();
 		mAdapter.sortLists(mConversationsComparator);
@@ -2058,8 +2055,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 					}
 					mAdapter.addToLists(convInfo);
 					mAdapter.sortLists(mConversationsComparator);
-
-					setEmptyState(mAdapter.isEmpty());
+					
 					notifyDataSetChanged();
 					resetSearchIcon();
 				}
@@ -3360,8 +3356,6 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		{
 			sortAndUpdateTheView(convInfo, convMessage, newConversationAdded);
 		}
-		
-		setEmptyState(mAdapter.isEmpty());
 	}
 
 	public void movedFromEmptyToNonEmpty()
