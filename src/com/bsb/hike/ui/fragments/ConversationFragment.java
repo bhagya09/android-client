@@ -2567,7 +2567,6 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 				{
 					
 					//TODO UMANGX get persist RESET stealth Tip
-					getFirstConversation();
 					//Adding stealth reset tip
 					showStealthTip(ConversationTip.RESET_STEALTH_TIP);
 					notifyDataSetChanged();
@@ -3098,16 +3097,16 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		}
 	}
 
-	protected void showStealthTip(int tipType)
+	protected void showStealthTip(int whichType)
 	{
 		if (convTip == null)
 		{
 			convTip = new ConversationTip(getActivity(), this);
 		}
 
-		tipType = ConversationTip.STEALTH_INFO_TIP;
 		checkAndRemoveExistingHeaders();
-		tipView = convTip.getView(tipType);
+		this.tipType = whichType;
+		tipView = convTip.getView(whichType);
 		if (tipView != null)
 		{
 			checkAndAddListViewHeader(tipView);
@@ -3144,6 +3143,10 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 	
 	protected void removeStealthConvTip()
 	{
+		if(tipType != ConversationTip.STEALTH_FTUE_TIP)
+		{
+			return;
+		}
 		HikeSharedPreferenceUtil.getInstance().removeData(HikeMessengerApp.SHOWING_STEALTH_FTUE_CONV_TIP);
 		showingStealthFtueConvTip = false;
 		if (tipView != null)
