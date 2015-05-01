@@ -412,7 +412,7 @@ public class FriendsFragment extends SherlockListFragment implements Listener, O
 				@Override
 				public void run()
 				{
-					friendsAdapter.onQueryChanged(query);
+					friendsAdapter.onQueryChanged(query.trim());
 				}
 			});
 		}
