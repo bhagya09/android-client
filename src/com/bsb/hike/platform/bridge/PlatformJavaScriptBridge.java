@@ -2,6 +2,7 @@ package com.bsb.hike.platform.bridge;
 
 import java.util.ArrayList;
 
+import com.bsb.hike.platform.CustomWebView;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -50,12 +51,12 @@ public class PlatformJavaScriptBridge extends JavascriptBridge
 
 	BaseAdapter adapter;
 
-	public PlatformJavaScriptBridge(Activity activity,WebView mWebView)
+	public PlatformJavaScriptBridge(Activity activity,CustomWebView mWebView)
 	{
 		super(activity,mWebView);
 	}
 
-	public PlatformJavaScriptBridge(Activity activity,WebView webView, ConvMessage convMessage, BaseAdapter adapter)
+	public PlatformJavaScriptBridge(Activity activity,CustomWebView webView, ConvMessage convMessage, BaseAdapter adapter)
 	{
 		super(activity,webView);
 		this.message = convMessage;

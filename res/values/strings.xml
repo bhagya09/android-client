@@ -1407,7 +1407,7 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="ls_my_contacts_summary">Last seen is visible to your address book contacts and favorites</string>
     <string name="ls_favorites_summary">Last seen is visible only to your favorites</string>
     <string name="ls_everyone_summary">Last seen is visible to everyone on hike</string>
-    <string name="ls_nobody_summary">Last seen is not visible to anyone</string>
+    <string name="ls_nobody_summary">Remember: You will not be able to see anyone else\'s last seen</string>
     <string name="you_accepted_favorite_request_details">Great! %1$s will now be able to see your %2$s.</string>
     <string name="accepted_your_favorite_request_details">You can now see %1$s\'s %2$s</string>
     <string name="favorite_confirmed_notification">You can now see %1$s\'s %2$s</string>
