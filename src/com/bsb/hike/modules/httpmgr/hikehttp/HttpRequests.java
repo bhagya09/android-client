@@ -334,7 +334,7 @@ public class HttpRequests
 	
 	public static RequestToken authSDKRequest(String urlParamString, IRequestListener requestListener)
 	{
-		ArrayList<Header> headerList = new ArrayList<Header>(1);
+		List<Header> headerList = new ArrayList<Header>(1);
 		headerList.add(new Header("Content-type", "text/plain"));
 		if(authSDKBaseUrl().contains(HttpRequestConstants.BASE_SDK_STAGING))
 		{
