@@ -1496,9 +1496,6 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="content_des_round_user_image_chatthread_actionbar">User image (rounded) chat-thread actionbar</string>
     <string name="content_des_typing_notification_chatting">Typing information to user while chatting</string>
     <string name="content_des_typing_notification_received">Typing notification received to user</string>
-
-    <string name="group_creation">Created on </string>
-    <string name="ls_change_failed">Last Seen update failed!</string>
     <string name="stealth_timeout_always_key">Always</string>
     <string name="stealth_timeout_never_key">Never</string>
     <string name="stealth_timeout_immediate_key">1 minute</string>
