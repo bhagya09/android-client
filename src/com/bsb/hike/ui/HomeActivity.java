@@ -1382,7 +1382,11 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 					@Override
 					public void run()
 					{
-						findViewById(android.R.id.home).startAnimation(HikeAnimationFactory.getHikeActionBarLogoAnimation(HomeActivity.this));
+						View hiButton = findViewById(android.R.id.home);
+						if(hiButton != null)
+						{
+							hiButton.startAnimation(HikeAnimationFactory.getHikeActionBarLogoAnimation(HomeActivity.this));
+						}
 					}
 				});
 			}
