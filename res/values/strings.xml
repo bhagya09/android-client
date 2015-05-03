@@ -1378,7 +1378,7 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="photo_dp_save_error_sub">Tap to retry</string>
     <string name="photo_gallery_choose_pic">Choose a photo</string>
     <string name="cropping_image">Cropping image..</string>
-    <string name="compose_chat">New chat</string>
+    <string name="compose_chat">New Chat</string>
 	<string name="home_search_empty_text">Your search for \'%1$s\' did not match any contacts.</string>
     <string name="voip_mic_error">Unable to start mic. This call may not work.</string>
     <string name="voip_call_failed_frag_subheader">You can still contact %1$s with a</string>
@@ -1473,5 +1473,5 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
 	<string name="activity_not_found">No app found that can handle this action</string>
 	<string name="selectPreview">Select a preview</string>
 	<string name="not_enough_memory">Not Enough Memory</string>
-	<string name="edit_photos">Edit photos</string>
+	<string name="edit_photos">New Photo</string>
 </resources>
