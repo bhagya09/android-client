@@ -28,6 +28,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragment;
@@ -47,6 +48,7 @@ import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.models.HikeSharedFile;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.GroupConversation;
+import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.ui.ComposeChatActivity;
 import com.bsb.hike.ui.HikeSharedFilesActivity;
 import com.bsb.hike.ui.utils.DepthPageTransformer;
@@ -284,7 +286,6 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 	@Override
 	public void onPageSelected(int position)
 	{
-		// TODO Auto-generated method stub
 		if (!reachedEndRight && !loadingMoreItems && position == (getCount() - PAGER_LIMIT))
 		{
 			loadingMoreItems = true;
@@ -615,8 +616,15 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 			getCurrentSelectedItem().shareFile(getSherlockActivity());
 			return true;
 		case R.id.edit_pic:
-			Intent editIntent = IntentFactory.getPictureEditorActivityIntent(getActivity(),getCurrentSelectedItem().getExactFilePath(), true,null);
-			getActivity().startActivity(editIntent);
+			if (getCurrentSelectedItem().getHikeFileType().compareTo(HikeFileType.IMAGE) == 0)
+			{
+				Intent editIntent = IntentFactory.getPictureEditorActivityIntent(getActivity(), getCurrentSelectedItem().getExactFilePath(), true, null);
+				getActivity().startActivity(editIntent);
+			}
+			else
+			{
+				Toast.makeText(getActivity().getApplicationContext(), getString(R.string.only_photos_edit), Toast.LENGTH_SHORT).show();
+			}
 			return true;
 		}
 		return false;
