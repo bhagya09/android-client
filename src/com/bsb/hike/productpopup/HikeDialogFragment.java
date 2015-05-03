@@ -18,6 +18,7 @@ import android.webkit.WebView;
 import android.widget.LinearLayout;
 
 import com.bsb.hike.R;
+import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.content.HikeWebClient;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -26,7 +27,7 @@ public class HikeDialogFragment extends DialogFragment
 {
 	DialogPojo mmModel;
 
-	WebView mmWebView;
+	CustomWebView mmWebView;
 
 	ProductJavaScriptBridge mmBridge;
 	
@@ -92,7 +93,7 @@ public class HikeDialogFragment extends DialogFragment
 	{
 		View view = inflater.inflate(R.layout.product_popup, container, false);
 		loadingCard=(View)view.findViewById(R.id.loading_data);
-		mmWebView =  (WebView) view.findViewById(R.id.webView);
+		mmWebView =  (CustomWebView) view.findViewById(R.id.webView);
 		if (!mmModel.isFullScreen())
 		{
 			int minHeight = (int) (mmModel.getHeight() * Utils.densityMultiplier);
