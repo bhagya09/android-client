@@ -47,6 +47,7 @@ import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.models.HikeSharedFile;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.GroupConversation;
+import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.ui.ComposeChatActivity;
 import com.bsb.hike.ui.HikeSharedFilesActivity;
 import com.bsb.hike.ui.utils.DepthPageTransformer;
@@ -110,6 +111,10 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 
 	private ImageView gallaryButton;
 	
+	private Menu menu;
+
+	private boolean isEditEnabled;  
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
@@ -130,6 +135,8 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 		{
 			initialPosition = savedInstanceState.getInt(HikeConstants.Extras.CURRENT_POSITION, initialPosition);
 		}
+		
+		isEditEnabled = Utils.isPhotosEditEnabled();
 		
 		return mParent;
 	}
@@ -284,7 +291,6 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 	@Override
 	public void onPageSelected(int position)
 	{
-		// TODO Auto-generated method stub
 		if (!reachedEndRight && !loadingMoreItems && position == (getCount() - PAGER_LIMIT))
 		{
 			loadingMoreItems = true;
@@ -301,6 +307,18 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 		}
 		
 		setSenderDetails(position);
+		
+		// Display edit button only if,
+		// 1.Photos is enabled
+		// 2.Media is of type image/*
+		if (isEditEnabled && getCurrentSelectedItem().getHikeFileType().compareTo(HikeFileType.IMAGE) == 0)
+		{
+			menu.findItem(R.id.edit_pic).setVisible(true);
+		}
+		else
+		{
+			menu.findItem(R.id.edit_pic).setVisible(false);
+		}
 	}
 
 	private void setSenderDetails(int position)
@@ -615,7 +633,7 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 			getCurrentSelectedItem().shareFile(getSherlockActivity());
 			return true;
 		case R.id.edit_pic:
-			Intent editIntent = IntentFactory.getPictureEditorActivityIntent(getActivity(),getCurrentSelectedItem().getExactFilePath(), true,null);
+			Intent editIntent = IntentFactory.getPictureEditorActivityIntent(getActivity(), getCurrentSelectedItem().getExactFilePath(), true, null);
 			getActivity().startActivity(editIntent);
 			return true;
 		}
@@ -626,14 +644,14 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater)
 	{
 		menu.clear();
-		if (Utils.isPhotosEditEnabled())
-		{
-			inflater.inflate(R.menu.photo_viewer_wedit_option_menu, menu);
-		}
-		else
-		{
-			inflater.inflate(R.menu.photo_viewer_option_menu, menu);
-		}
+		inflater.inflate(R.menu.photo_viewer_wedit_option_menu, menu);
+
+		// Keep a private reference to change menu items dynamically.
+		// Display edit button only if,
+		// 1.Photos is enabled
+		// 2.Media is of type image/*
+		this.menu = menu;
+
 		super.onCreateOptionsMenu(menu, inflater);
 	}
 	
