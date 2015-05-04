@@ -13,6 +13,7 @@ import org.json.JSONObject;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
@@ -111,9 +112,9 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 
 	private ImageView gallaryButton;
 	
-	private Menu menu;
+	private boolean isEditEnabled;
 
-	private boolean isEditEnabled;  
+	private Menu menu;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState)
@@ -308,9 +309,6 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 		
 		setSenderDetails(position);
 		
-		// Display edit button only if,
-		// 1.Photos is enabled
-		// 2.Media is of type image/*
 		if (menu != null)
 		{
 			if (isEditEnabled && getCurrentSelectedItem().getHikeFileType().compareTo(HikeFileType.IMAGE) == 0)
@@ -648,13 +646,7 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 	{
 		menu.clear();
 		inflater.inflate(R.menu.photo_viewer_wedit_option_menu, menu);
-
-		// Keep a private reference to change menu items dynamically.
-		// Display edit button only if,
-		// 1.Photos is enabled
-		// 2.Media is of type image/*
 		this.menu = menu;
-
 		super.onCreateOptionsMenu(menu, inflater);
 	}
 	
@@ -693,6 +685,24 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 			animation.setFillAfter(true);
 			mParent.findViewById(R.id.info_group).startAnimation(animation);
 			mParent.findViewById(R.id.gradient).startAnimation(animation);
+		}
+	}
+	
+	@Override
+	public void onPrepareOptionsMenu(Menu menu)
+	{
+		super.onPrepareOptionsMenu(menu);
+
+		// Display edit button only if,
+		// 1.Photos is enabled
+		// 2.Media is of type image/*
+		if (isEditEnabled && getCurrentSelectedItem().getHikeFileType().compareTo(HikeFileType.IMAGE) == 0)
+		{
+			menu.findItem(R.id.edit_pic).setVisible(true);
+		}
+		else
+		{
+			menu.findItem(R.id.edit_pic).setVisible(false);
 		}
 	}
 }
