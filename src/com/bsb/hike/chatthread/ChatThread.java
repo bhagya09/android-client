@@ -4467,7 +4467,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	@Override
 	public void onDismiss()
 	{
-		mTips.showHiddenTip();
+		if (mActionMode == null || mActionMode.isActionModeOn())
+		{
+			mTips.showHiddenTip();
+		}
 	}
 
 	protected void onConfigurationChanged(Configuration newConfig)
