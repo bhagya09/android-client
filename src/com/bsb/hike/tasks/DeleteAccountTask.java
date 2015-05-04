@@ -63,6 +63,7 @@ public class DeleteAccountTask implements ActivityCallableTask
 				if (!Utils.isResponseValid(json))
 				{
 					doOnFailure();
+					return;
 				}
 				doOnSuccess();
 			}
@@ -205,10 +206,6 @@ public class DeleteAccountTask implements ActivityCallableTask
 		{
 			listener.accountDeleted(false);
 		}
-		int duration = Toast.LENGTH_LONG;
-		Toast toast = Toast.makeText(ctx,
-				delete ? ctx.getResources().getString(R.string.delete_account_failed) : ctx.getResources().getString(R.string.unlink_account_failed), duration);
-		toast.show();
 	}
 
 }

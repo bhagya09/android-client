@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.bsb.hike.HikeConstants;
@@ -232,17 +233,27 @@ public class DeleteAccount extends HikeAppStateBaseFragmentActivity implements D
 	}
 
 	@Override
-	public void accountDeleted(boolean isSuccess)
+	public void accountDeleted(final boolean isSuccess)
 	{
-		if (isSuccess)
+		runOnUiThread(new Runnable()
 		{
-			accountDeleted();
-		}
-		else
-		{
-			dismissProgressDialog();
-		}
-		task = null;
+			@Override
+			public void run()
+			{
+				if (isSuccess)
+				{
+					accountDeleted();
+				}
+				else
+				{
+					dismissProgressDialog();
+					int duration = Toast.LENGTH_LONG;
+					Toast toast = Toast.makeText(getApplicationContext(), getApplicationContext().getResources().getString(R.string.delete_account_failed), duration);
+					toast.show();
+				}
+				task = null;
+			}
+		});
 	}
 
 	@Override
