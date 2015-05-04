@@ -1357,7 +1357,7 @@ public class HikeConstants
 
 		public static final String SHOW_RECORDING_DIALOG = "showRecordingDialog";
 
-		public static final String IS_HOME_POPUP_SHOWING = "isHomePopupShowing";
+		public static final String HOME_POPUP_TYPE = "homePopupType";
 
 		public static final String LAST_UPDATE_PACKET_ID = "lastUpdatePacketId";
 
@@ -2739,24 +2739,6 @@ public class HikeConstants
 	public static final String ENABLE_EXCEPTION_ANALYTIS = "enableExceptionAnalytics";
 
 	public static final String PAYLOAD = "payload";
-	
-	public static final String MESSAGE_MAP="MessageMap";
-	
-	public static final String CONV_MESSAGE="ConvMessage";
-	
-	public static final String TICKER_TEXT="TickerText";
-	
-	public static final String LAST_ADDED_MSISDN="lastAddedMsisdn";
-	
-	public static final String LAST_ADDED_TIMESTAMP="latestAddedTimestamp";
-	
-	public static final String TTL_NEW_MSG="totalNewMessages";
-	
-	public static final String FORCE_BKL_NOTIF="forceBlockNotificationSound";
-	
-	public static final String NOTIFICATION_OBJ="notif";
-	
-	public static final String BIG_TEXT_LIST="BigTextList";
 	
 	public static final String HIKE_CONTACT_PICKER_RESULT = "contact_pick_result";
 }

@@ -94,6 +94,7 @@ public class EmoticonAdapter extends PagerAdapter implements StickerEmoticonIcon
 		emoticonGrid.setVerticalScrollBarEnabled(false);
 		emoticonGrid.setHorizontalScrollBarEnabled(false);
 		emoticonGrid.setAdapter(new EmoticonPageAdapter(context, emoticonSubCategories, emoticonResIds, position, idOffset, listener));
+		emoticonPage.setTag(position);
 
 		((ViewPager) container).addView(emoticonPage);
 		return emoticonPage;
@@ -116,5 +117,19 @@ public class EmoticonAdapter extends PagerAdapter implements StickerEmoticonIcon
 	{
 		return null;
 	}
+	
+	/**
+	 * This is to update the recent emoticons palette, because of caching.
+	 * 
+	 * @param view
+	 * @param position
+	 */
+	public void refreshView(View view, int position)
+	{
+		GridView grid = (GridView) view.findViewById(R.id.emoticon_grid);
+		grid.setAdapter(new EmoticonPageAdapter(context, emoticonSubCategories, emoticonResIds, position, idOffset, listener));
+	}
+	
+	
 
 }

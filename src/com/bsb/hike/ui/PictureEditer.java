@@ -311,7 +311,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 			switch (requestCode)
 			{
 			case HikeConstants.CROP_RESULT:
-				uploadProfilePic(data.getStringExtra(MediaStore.EXTRA_OUTPUT), data.getStringExtra(MediaStore.EXTRA_OUTPUT));
+				uploadProfilePic(data.getStringExtra(MediaStore.EXTRA_OUTPUT), data.getStringExtra(HikeConstants.HikePhotos.ORIG_FILE));
 				break;
 			}
 		}
@@ -519,28 +519,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 								@Override
 								public void onComplete(File f)
 								{
-									File myDir = new File(Utils.getFileParent(HikeFileType.IMAGE, false));
-									myDir.mkdir();
-									String fname = Utils.getOriginalFile(HikeFileType.IMAGE, null);
-									File destFilePath = new File(myDir, fname);
-									if (destFilePath.exists())
-									{
-										destFilePath.delete();
-									}
-
-									String timeStamp = Long.toString(System.currentTimeMillis());
-									File file = null;
-									try
-									{
-										// We do not want to persist cropped result on storage
-										file = File.createTempFile("IMG_" + timeStamp, ".jpg");
-										file.deleteOnExit();
-										Utils.startCropActivityForResult(PictureEditer.this, f.getAbsolutePath(), file.getAbsolutePath(), true, 100, true);
-									}
-									catch (IOException e)
-									{
-										e.printStackTrace();
-									}
+									Utils.startCropActivityForResult(PictureEditer.this, f.getAbsolutePath(), f.getAbsolutePath(), true, 100, true);
 								}
 							});
 

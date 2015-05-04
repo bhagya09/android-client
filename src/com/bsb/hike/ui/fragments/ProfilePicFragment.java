@@ -207,6 +207,7 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 					}
 
 					HikeMessengerApp.getLruCache().clearIconForMSISDN(mLocalMSISDN);
+					
 					HikeMessengerApp.getPubSub().publish(HikePubSub.ICON_CHANGED, mLocalMSISDN);
 
 					HikeMessengerApp.getPubSub().publish(HikePubSub.PROFILE_UPDATE_FINISH, null);
