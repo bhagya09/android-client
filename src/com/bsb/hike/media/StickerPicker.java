@@ -226,20 +226,32 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 		
 		if (viewToDisplay == null)
 		{
+			/**
+			 * Defensive null check
+			 */
+			if (mContext == null)
+			{
+				String errorMsg = "Inside method : getView of StickerPicker. Context is null";
+				HAManager.sendStickerEmoticonStrangeBehaviourReport(errorMsg);
+				return null;
+			}
+				
 			initView();
 		}
 		
-		/**
-		 * If this variable is set to true, then we refresh the dataset for stickers. This would happen when we download new packs from shop or we update stickers from sticker
-		 * settings page
-		 */
-		if (refreshStickers)
-		{
-			mIconPageIndicator.notifyDataSetChanged();
-			stickerAdapter.notifyDataSetChanged();
-		}
+		// Commenting it out. This is to be uncommented if we move to caching strategy later on. 
+		
+//		/**
+//		 * If this variable is set to true, then we refresh the dataset for stickers. This would happen when we download new packs from shop or we update stickers from sticker
+//		 * settings page
+//		 */
+//		if (refreshStickers)
+//		{
+//			mIconPageIndicator.notifyDataSetChanged();
+//			stickerAdapter.notifyDataSetChanged();
+//		}
 
-		refreshStickers = false;
+//		refreshStickers = false;
 		
 		return viewToDisplay;
 	}
@@ -441,14 +453,6 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 	private boolean orientationChanged(int deviceOrientation)
 	{
 		return currentConfig != deviceOrientation;
-	}
-
-	public void resetToFirstPosition()
-	{
-		if (mIconPageIndicator != null)
-		{
-			mIconPageIndicator.setCurrentItem(0);
-		}
 	}
 
 	/**

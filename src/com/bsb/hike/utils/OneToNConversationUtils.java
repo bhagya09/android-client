@@ -1,8 +1,6 @@
 package com.bsb.hike.utils;
 
 import java.io.File;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -20,6 +18,7 @@ import android.util.Pair;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.MqttConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
@@ -129,13 +128,13 @@ public class OneToNConversationUtils
 		ContactInfo userContactInfo = Utils.getUserContactInfo(activity.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, Context.MODE_PRIVATE));
 
 		OneToNConversation oneToNConversation;
-		if (activity.getIntent().hasExtra(HikeConstants.IS_BROADCAST))
+		if (activity.getIntent().hasExtra(HikeConstants.Extras.CREATE_BROADCAST))
 		{
-			oneToNConversation = new BroadcastConversation.ConversationBuilder(oneToNConvId).setConversationOwner(userContactInfo.getMsisdn()).setIsAlive(true).setCreationTime(System.currentTimeMillis()).build();
+			oneToNConversation = new BroadcastConversation.ConversationBuilder(oneToNConvId).setConversationOwner(userContactInfo.getMsisdn()).setIsAlive(true).build();
 		}
 		else
 		{
-			oneToNConversation = new GroupConversation.ConversationBuilder(oneToNConvId).setConversationOwner(userContactInfo.getMsisdn()).setIsAlive(true).setCreationTime(System.currentTimeMillis()).build();
+			oneToNConversation = new GroupConversation.ConversationBuilder(oneToNConvId).setConversationOwner(userContactInfo.getMsisdn()).setIsAlive(true).build();
 		}
 
 		oneToNConversation.setConversationParticipantList(participantList);
@@ -145,7 +144,7 @@ public class OneToNConversationUtils
 		mConversationDb.addRemoveGroupParticipants(oneToNConvId, oneToNConversation.getConversationParticipantList(), false);
 		if (newOneToNConv)
 		{
-			mConversationDb.addConversation(oneToNConversation.getMsisdn(), false, convName, oneToNConversation.getConversationOwner(), null, oneToNConversation.getCreationDate());
+			mConversationDb.addConversation(oneToNConversation.getMsisdn(), false, convName, oneToNConversation.getConversationOwner());
 			ContactManager.getInstance().insertGroup(oneToNConversation.getMsisdn(), convName);
 		}
 
@@ -187,7 +186,7 @@ public class OneToNConversationUtils
 			ContactManager.getInstance().updateGroupRecency(oneToNConvId, msg.getTimestamp());
 			HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_SENT, msg);
 			
-			HikeMqttManagerNew.getInstance().sendMessage(gcjPacket, HikeMqttManagerNew.MQTT_QOS_ONE);
+			HikeMqttManagerNew.getInstance().sendMessage(gcjPacket, MqttConstants.MQTT_QOS_ONE);
 
 			/**
 			 * This is for updating the UI in ChatThread if it is not a new conversation. Also used for updating the default broadcast name on homescreen
@@ -264,15 +263,5 @@ public class OneToNConversationUtils
 			allPairs.add(pair);
 		}
 		HikeMessengerApp.getPubSub().publish(HikePubSub.MULTI_MESSAGE_DB_INSERTED, allPairs);
-	}
-
-	public static String getGroupCreationTimeAsString(Context context,
-			long creationTime) {
-		String format;
-		format = "dd/MM/yyyy 'at' hh:mm a";
-
-		DateFormat df = new SimpleDateFormat(format);
-		return df.format(creationTime);
-
 	}
 }

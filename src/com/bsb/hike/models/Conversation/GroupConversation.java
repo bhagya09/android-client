@@ -24,6 +24,21 @@ public class GroupConversation extends OneToNConversation
 	{
 		super(builder);
 	}
+	
+	@Override
+	public int getUnreadPinnedMessageCount()
+	{
+		try
+		{
+			return (((OneToNConversationMetadata) metadata).getUnreadPinCount(HikeConstants.MESSAGE_TYPE.TEXT_PIN));
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+
+		return 0;
+	}
 
 	@Override
 	public JSONObject serialize(String type)
@@ -33,7 +48,6 @@ public class GroupConversation extends OneToNConversation
 		{
 			object.put(HikeConstants.TYPE, type);
 			object.put(HikeConstants.TO, getMsisdn());
-			object.put(HikeConstants.GROUP_CHAT_TIMESTAMP, creationTime);
 			if (type.equals(HikeConstants.MqttMessageTypes.GROUP_CHAT_JOIN))
 			{
 				JSONArray array = new JSONArray();

@@ -186,6 +186,21 @@ public class UploadFileTask extends FileTransferBase
 		this.mAttachementType = attachement;
 		createConvMessage();
 	}
+	
+	protected UploadFileTask(Handler handler, ConcurrentHashMap<Long, FutureTask<FTResult>> fileTaskMap, Context ctx, String token, String uId, Uri picasaUri,
+			HikeFileType hikeFileType, List<ContactInfo> contactList, boolean isRecipientOnHike, int attachement)
+	{
+		super(handler, fileTaskMap, ctx, null, -1, null, token, uId);
+		this.picasaUri = picasaUri;
+		this.hikeFileType = hikeFileType;
+		this.contactList = new ArrayList<>(contactList);
+		this.isMultiMsg = true;
+		this.isRecipientOnhike = isRecipientOnHike;
+		_state = FTState.INITIALIZED;
+		this.mAttachementType = attachement;
+		createConvMessage();
+	}
+	
 
 	protected void setFutureTask(FutureTask<FTResult> fuTask)
 	{
@@ -566,16 +581,18 @@ public class UploadFileTask extends FileTransferBase
 	@Override
 	public FTResult call()
 	{
+		if(!Utils.isUserOnline(context))
+		{
+			saveStateOnNoInternet();
+			return FTResult.UPLOAD_FAILED;
+		}
 		mThread = Thread.currentThread();
 		boolean isValidKey = false;
 		try{
 			isValidKey = isFileKeyValid();
 		}catch(Exception e){
 			Logger.e(getClass().getSimpleName(), "Exception", e);
-			_state = FTState.ERROR;
-			stateFile = getStateFile((ConvMessage) userContext);
-			saveFileKeyState(fileKey);
-			fileKey = null;
+			saveStateOnNoInternet();
 			return FTResult.UPLOAD_FAILED;
 		}
 		try
@@ -901,7 +918,7 @@ public class UploadFileTask extends FileTransferBase
 				// In case there is error uploading this chunk
 				if (responseString == null)
 				{
-					if (shouldRetry())
+					if (shouldRetry() && Utils.isUserOnline(context))
 					{
 						if (freshStart)
 						{
@@ -1389,5 +1406,13 @@ public class UploadFileTask extends FileTransferBase
 			}
 		}
 		throw new Exception("Network error.");
+	}
+
+	private void saveStateOnNoInternet()
+	{
+		_state = FTState.ERROR;
+		stateFile = getStateFile((ConvMessage) userContext);
+		saveFileKeyState(fileKey);
+		fileKey = null;
 	}
 }

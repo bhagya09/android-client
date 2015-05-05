@@ -13,7 +13,6 @@ import org.json.JSONObject;
 import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.GroupParticipant;
@@ -47,7 +46,6 @@ public abstract class OneToNConversation extends Conversation
 	protected long lastSentMsgId = -1;
 
 	protected int unreadPinnedMessageCount;
-	protected long creationTime =-1;
 
 	/**
 	 * @param builder
@@ -57,8 +55,6 @@ public abstract class OneToNConversation extends Conversation
 		super(builder);
 		
 		this.conversationOwner = builder.conversationOwner;
-		
-		this.creationTime = builder.creationTime;
 
 		this.conversationParticipantList = builder.conversationParticipantList;
 
@@ -166,8 +162,8 @@ public abstract class OneToNConversation extends Conversation
 		 */
 		if (null == name)
 		{
-			HikeMessengerApp.getContactManager().getContact(msisdn, true, false);
-			name = HikeMessengerApp.getContactManager().getName(getMsisdn(), msisdn);
+			ContactManager.getInstance().getContact(msisdn, true, false);
+			name = ContactManager.getInstance().getName(getMsisdn(), msisdn);
 		}
 		return name;
 	}
@@ -365,8 +361,6 @@ public abstract class OneToNConversation extends Conversation
 	protected static abstract class InitBuilder<P extends InitBuilder<P>> extends Conversation.InitBuilder<P>
 	{
 		private String conversationOwner;
-		
-		private long creationTime;
 
 		private Map<String, PairModified<GroupParticipant, String>> conversationParticipantList;
 
@@ -388,12 +382,6 @@ public abstract class OneToNConversation extends Conversation
 		public P setConversationOwner(String conversationOwner)
 		{
 			this.conversationOwner = conversationOwner;
-			return getSelfObject();
-		}
-		
-		public P setCreationTime(long creationTime)
-		{
-			this.creationTime = creationTime;
 			return getSelfObject();
 		}
 
@@ -517,32 +505,12 @@ public abstract class OneToNConversation extends Conversation
 			return name;
 		}
 	}
-	
-	public long getCreationDateInLong() {
-		if (creationTime != -1) {
-			return creationTime;
-		} else if (((OneToNConvInfo) convInfo).getMsisdn() != null) {
-			String id = ((OneToNConvInfo) convInfo).getMsisdn();
-			int index = id.indexOf(":");
-			if (index != -1) {
-				return Long.parseLong(id.substring(index + 1, id.length()));
-			}
-		}
-		return -1l;
-	}
 
-	public long getCreationDate() {
-		return creationTime;
-	}
-	public void setCreationDate(long creationDate) {
-		this.creationTime = creationDate;
-	}
-	
 	public static OneToNConversation createOneToNConversationFromJSON(JSONObject jsonObj) throws JSONException
 	{
 		OneToNConversation conversation;
 		String msisdn = jsonObj.getString(HikeConstants.TO);
-	
+
 		Map<String, PairModified<GroupParticipant, String>> participants = new HashMap<String, PairModified<GroupParticipant, String>>();
 
 		JSONArray array = jsonObj.getJSONArray(HikeConstants.DATA);
@@ -581,13 +549,13 @@ public abstract class OneToNConversation extends Conversation
 		if (OneToNConversationUtils.isBroadcastConversation(msisdn))
 		{
 			conversation = new BroadcastConversation.ConversationBuilder(msisdn).setConversationOwner(jsonObj.getString(HikeConstants.FROM))
-					.setConversationParticipantsList(participants).setConvName(convName).setCreationTime(jsonObj.optLong(HikeConstants.GROUP_CHAT_TIMESTAMP)).build();
+					.setConversationParticipantsList(participants).setConvName(convName).build();
 
 		}
 		else
 		{
 			conversation = new GroupConversation.ConversationBuilder(msisdn).setConversationOwner(jsonObj.getString(HikeConstants.FROM))
-					.setConversationParticipantsList(participants).setConvName(convName).setCreationTime(jsonObj.optLong(HikeConstants.GROUP_CHAT_TIMESTAMP)).build();
+					.setConversationParticipantsList(participants).setConvName(convName).build();
 		}
 
 		return conversation;

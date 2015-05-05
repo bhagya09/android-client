@@ -13,6 +13,7 @@ import org.json.JSONObject;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
@@ -47,10 +48,11 @@ import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.models.HikeSharedFile;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.GroupConversation;
-import com.bsb.hike.models.Conversation.OneToNConversation;
+import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.ui.ComposeChatActivity;
 import com.bsb.hike.ui.HikeSharedFilesActivity;
 import com.bsb.hike.ui.utils.DepthPageTransformer;
+import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
@@ -110,6 +112,10 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 
 	private ImageView gallaryButton;
 	
+	private boolean isEditEnabled;
+
+	private Menu menu;
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
@@ -130,6 +136,8 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 		{
 			initialPosition = savedInstanceState.getInt(HikeConstants.Extras.CURRENT_POSITION, initialPosition);
 		}
+		
+		isEditEnabled = Utils.isPhotosEditEnabled();
 		
 		return mParent;
 	}
@@ -284,7 +292,6 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 	@Override
 	public void onPageSelected(int position)
 	{
-		// TODO Auto-generated method stub
 		if (!reachedEndRight && !loadingMoreItems && position == (getCount() - PAGER_LIMIT))
 		{
 			loadingMoreItems = true;
@@ -301,6 +308,18 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 		}
 		
 		setSenderDetails(position);
+		
+		if (menu != null)
+		{
+			if (isEditEnabled && getCurrentSelectedItem().getHikeFileType().compareTo(HikeFileType.IMAGE) == 0)
+			{
+				menu.findItem(R.id.edit_pic).setVisible(true);
+			}
+			else
+			{
+				menu.findItem(R.id.edit_pic).setVisible(false);
+			}
+		}
 	}
 
 	private void setSenderDetails(int position)
@@ -519,12 +538,19 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 	
 	public HikeSharedFile getCurrentSelectedItem()
 	{
-		return sharedMediaItems.get(selectedPager.getCurrentItem());
+		if(selectedPager.getCurrentItem() < getCount())
+		{
+			return sharedMediaItems.get(selectedPager.getCurrentItem());
+		}
+		return null;
 	}
 	
 	public void removeCurrentSelectedItem()
 	{
-		sharedMediaItems.remove(selectedPager.getCurrentItem());
+		if(selectedPager.getCurrentItem() < getCount())
+		{
+			sharedMediaItems.remove(selectedPager.getCurrentItem());
+		}
 		if(sharedMediaItems.isEmpty())
 		{
 			//if list is empty close the fragment
@@ -546,22 +572,26 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 				@Override
 				public void positiveClicked(HikeDialog hikeDialog)
 				{
-					ArrayList<Long> msgIds = new ArrayList<Long>(1);
-					msgIds.add(getCurrentSelectedItem().getMsgId());
-					
-					Bundle bundle = new Bundle();
-					bundle.putString(HikeConstants.Extras.MSISDN, msisdn);
-					bundle.putInt(HikeConstants.Extras.DELETED_MESSAGE_TYPE, HikeConstants.SHARED_MEDIA_TYPE);
-					HikeMessengerApp.getPubSub().publish(HikePubSub.DELETE_MESSAGE, new Pair<ArrayList<Long>, Bundle>(msgIds, bundle));
-					
-					// if delete media from phone is checked
-					if(((CustomAlertDialog) hikeDialog).isChecked() && getCurrentSelectedItem() != null)
+					HikeSharedFile itemToDelete = getCurrentSelectedItem();
+					if(itemToDelete != null)
 					{
-						getCurrentSelectedItem().delete(getActivity().getApplicationContext());
-					}
-					if(!fromChatThread)
-					{
-						HikeMessengerApp.getPubSub().publish(HikePubSub.HIKE_SHARED_FILE_DELETED, getCurrentSelectedItem());
+						ArrayList<Long> msgIds = new ArrayList<Long>(1);
+						msgIds.add(itemToDelete.getMsgId());
+
+						Bundle bundle = new Bundle();
+						bundle.putString(HikeConstants.Extras.MSISDN, msisdn);
+						bundle.putInt(HikeConstants.Extras.DELETED_MESSAGE_TYPE, HikeConstants.SHARED_MEDIA_TYPE);
+						HikeMessengerApp.getPubSub().publish(HikePubSub.DELETE_MESSAGE, new Pair<ArrayList<Long>, Bundle>(msgIds, bundle));
+
+						// if delete media from phone is checked
+						if (((CustomAlertDialog) hikeDialog).isChecked())
+						{
+							itemToDelete.delete(getActivity().getApplicationContext());
+						}
+						if (!fromChatThread)
+						{
+							HikeMessengerApp.getPubSub().publish(HikePubSub.HIKE_SHARED_FILE_DELETED, itemToDelete);
+						}
 					}
 					removeCurrentSelectedItem();
 					hikeDialog.dismiss();
@@ -603,6 +633,10 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 		case R.id.share_msgs:
 			getCurrentSelectedItem().shareFile(getSherlockActivity());
 			return true;
+		case R.id.edit_pic:
+			Intent editIntent = IntentFactory.getPictureEditorActivityIntent(getActivity(), getCurrentSelectedItem().getExactFilePath(), true, null);
+			getActivity().startActivity(editIntent);
+			return true;
 		}
 		return false;
 	}
@@ -611,7 +645,8 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater)
 	{
 		menu.clear();
-		inflater.inflate(R.menu.photo_viewer_option_menu, menu);
+		inflater.inflate(R.menu.photo_viewer_wedit_option_menu, menu);
+		this.menu = menu;
 		super.onCreateOptionsMenu(menu, inflater);
 	}
 	
@@ -650,6 +685,24 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 			animation.setFillAfter(true);
 			mParent.findViewById(R.id.info_group).startAnimation(animation);
 			mParent.findViewById(R.id.gradient).startAnimation(animation);
+		}
+	}
+	
+	@Override
+	public void onPrepareOptionsMenu(Menu menu)
+	{
+		super.onPrepareOptionsMenu(menu);
+
+		// Display edit button only if,
+		// 1.Photos is enabled
+		// 2.Media is of type image/*
+		if (isEditEnabled && getCurrentSelectedItem().getHikeFileType().compareTo(HikeFileType.IMAGE) == 0)
+		{
+			menu.findItem(R.id.edit_pic).setVisible(true);
+		}
+		else
+		{
+			menu.findItem(R.id.edit_pic).setVisible(false);
 		}
 	}
 }
