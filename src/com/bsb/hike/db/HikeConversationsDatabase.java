@@ -13,9 +13,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import com.bsb.hike.bots.BotInfo;
-import com.bsb.hike.cropimage.Util;
-import com.bsb.hike.models.Conversation.BotConversation;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -43,6 +40,7 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.db.DBConstants.HIKE_CONV_DB;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
@@ -60,6 +58,7 @@ import com.bsb.hike.models.Protip;
 import com.bsb.hike.models.StatusMessage;
 import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.models.StickerCategory;
+import com.bsb.hike.models.Conversation.BotConversation;
 import com.bsb.hike.models.Conversation.BroadcastConversation;
 import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.models.Conversation.Conversation;
@@ -2263,7 +2262,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				else if (Utils.isBot(msisdn))
 				{
 					BotInfo botInfo = Utils.getBotInfoForBotMsisdn(msisdn);
-					conv = new BotConversation.ConversationBuilder(msisdn).setBotInfo(botInfo).build();
+					conv = new BotConversation.ConversationBuilder(msisdn).setConvInfo(botInfo).build();
 				}
 				else
 				{
@@ -2428,7 +2427,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				if (Utils.isBot(msisdn))
 				{
 					BotInfo botInfo= Utils.getBotInfoForBotMsisdn(msisdn);
-					conv = new BotConversation.ConversationBuilder(msisdn).setBotInfo(botInfo).build();
+					conv = new BotConversation.ConversationBuilder(msisdn).setConvInfo(botInfo).build();
 				}
 				else
 				{
@@ -2564,7 +2563,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			else if (Utils.isBot(msisdn))
 			{
 				BotInfo botInfo= Utils.getBotInfoForBotMsisdn(msisdn);
-				conv = new BotConversation.ConversationBuilder(msisdn).setBotInfo(botInfo).build();
+				conv = new BotConversation.ConversationBuilder(msisdn).setConvInfo(botInfo).build();
 			}
 			else
 			{

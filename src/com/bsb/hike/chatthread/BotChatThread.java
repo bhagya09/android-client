@@ -3,10 +3,6 @@ package com.bsb.hike.chatthread;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.bsb.hike.bots.BotInfo;
-import com.bsb.hike.bots.MessagingBotConfiguration;
-import com.bsb.hike.utils.Utils;
-import com.bsb.hike.view.CustomFontButton;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -19,12 +15,16 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.bots.MessagingBotConfiguration;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.media.OverFlowMenuItem;
 import com.bsb.hike.models.Conversation.BotConversation;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
+import com.bsb.hike.view.CustomFontButton;
 
 /**
  * This class is a barebones skeleton for Bot chat thread. This is still Work in progress.
@@ -44,7 +44,6 @@ public class BotChatThread extends OneToOneChatThread
 		BotInfo botInfo = Utils.getBotInfoForBotMsisdn(msisdn);
 
 		configuration = new MessagingBotConfiguration(botInfo.getConfiguration(), botInfo.isReceiveEnabled());
-		mConversation = new BotConversation.ConversationBuilder(botInfo).build();
 	}
 
 	/**
