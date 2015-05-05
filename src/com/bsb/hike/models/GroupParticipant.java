@@ -72,29 +72,6 @@ public class GroupParticipant implements Comparable<GroupParticipant>
 			ContactInfo lhsContactInfo = lhs.getFirst().contactInfo;
 			ContactInfo rhsContactInfo = rhs.getFirst().contactInfo;
 
-			if (lhsContactInfo.getFavoriteType() != rhsContactInfo.getFavoriteType())
-			{
-				if (lhsContactInfo.getFavoriteType() == FavoriteType.REQUEST_RECEIVED)
-				{
-					return -1;
-				}
-				else if (rhsContactInfo.getFavoriteType() == FavoriteType.REQUEST_RECEIVED)
-				{
-					return 1;
-				}
-			}
-			if (lhsContactInfo.getOffline() != rhsContactInfo.getOffline())
-			{
-				if (lhsContactInfo.getOffline() == 0)
-				{
-					return -1;
-				}
-				else if (rhsContactInfo.getOffline() == 0)
-				{
-					return 1;
-				}
-			}
-
 			if (TextUtils.isEmpty(lhs.getSecond()) && TextUtils.isEmpty(rhs.getSecond()))
 			{
 				return (lhsContactInfo.getMsisdn().toLowerCase().compareTo(rhsContactInfo.getMsisdn().toLowerCase()));

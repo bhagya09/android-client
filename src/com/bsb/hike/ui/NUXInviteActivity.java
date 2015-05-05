@@ -120,7 +120,7 @@ public class NUXInviteActivity extends HikeAppStateBaseFragmentActivity implemen
 			}
 			if (!mmInviteFriends.showSkipButton())
 			{
-				butSkip.setVisibility(View.INVISIBLE);
+				findViewById(R.id.ll_skip).setVisibility(View.INVISIBLE);
 			}
 		}
 	}

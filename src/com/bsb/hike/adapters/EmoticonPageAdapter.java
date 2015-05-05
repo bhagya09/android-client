@@ -1,6 +1,9 @@
 package com.bsb.hike.adapters;
 
-import android.app.Activity;
+import java.util.ArrayList;
+import java.util.List;
+
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -10,22 +13,19 @@ import android.widget.ImageView;
 
 import com.bsb.hike.R;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.media.EmoticonPickerListener;
 import com.bsb.hike.utils.Logger;
 
 public class EmoticonPageAdapter extends BaseAdapter implements OnClickListener
 {
 	
-	public static interface EmoticonClickListener{
-		public void onEmoticonClicked(int emoticonIndex);
-	}
-
 	LayoutInflater inflater;
 
 	int currentPage;
 
 	int offset;
 
-	private int[] recentEmoticons;
+	private List<Integer> recentEmoticons  = new ArrayList<Integer>();
 
 	private int[] emoticonSubCategories;
 
@@ -33,14 +33,14 @@ public class EmoticonPageAdapter extends BaseAdapter implements OnClickListener
 
 	private int idOffset;
 
-	Activity activity;
-	EmoticonClickListener listener;
+	Context context;
+	EmoticonPickerListener listener;
 	
 
-	public EmoticonPageAdapter(Activity context, int[] emoticonSubCategories, int[] emoticonResIds, int currentPage, int idOffset, EmoticonClickListener listener)
+	public EmoticonPageAdapter(Context context, int[] emoticonSubCategories, int[] emoticonResIds, int currentPage, int idOffset, EmoticonPickerListener listener)
 	{
 		this.listener = listener;
-		this.activity = context;
+		this.context = context;
 		this.currentPage = currentPage;
 		this.inflater = LayoutInflater.from(context);
 		this.emoticonSubCategories = emoticonSubCategories;
@@ -62,7 +62,11 @@ public class EmoticonPageAdapter extends BaseAdapter implements OnClickListener
 			int startOffset = idOffset;
 			int endOffset = startOffset + emoticonResIds.length;
 
-			recentEmoticons = HikeConversationsDatabase.getInstance().fetchEmoticonsOfType(startOffset, endOffset, -1);
+			int [] arr = HikeConversationsDatabase.getInstance().fetchEmoticonsOfType(startOffset, endOffset, -1);
+			for(int i:arr)
+			{
+				recentEmoticons.add(i);
+			}
 		}
 	}
 
@@ -71,7 +75,7 @@ public class EmoticonPageAdapter extends BaseAdapter implements OnClickListener
 	{
 		if (currentPage == 0)
 		{
-			return recentEmoticons.length;
+			return recentEmoticons.size();
 		}
 		else
 		{
@@ -101,8 +105,8 @@ public class EmoticonPageAdapter extends BaseAdapter implements OnClickListener
 
 		if (currentPage == 0)
 		{
-			convertView.setTag(Integer.valueOf(recentEmoticons[position]));
-			((ImageView) convertView).setImageResource(emoticonResIds[recentEmoticons[position] - idOffset]);
+			convertView.setTag(Integer.valueOf(recentEmoticons.get(position)));
+			((ImageView) convertView).setImageResource(emoticonResIds[recentEmoticons.get(position) - idOffset]);
 		}
 		else
 		{
@@ -118,7 +122,26 @@ public class EmoticonPageAdapter extends BaseAdapter implements OnClickListener
 	{
 		Logger.i("emoticon", "item clicked");
 		int emoticonIndex = (Integer) v.getTag();
-		listener.onEmoticonClicked(emoticonIndex);
+		updateRecentsPalette(emoticonIndex);
+		listener.emoticonSelected(emoticonIndex);
 
+	}
+
+	/**
+	 * This is to update the recent emoticons palette on sending any emoticons.
+	 * 
+	 * @param emoticonIndex
+	 */
+	private void updateRecentsPalette(int emoticonIndex)
+	{
+		if (!recentEmoticons.contains(emoticonIndex))
+		{
+			recentEmoticons.add(0, emoticonIndex);
+		}
+		else
+		{
+			recentEmoticons.remove((Object)emoticonIndex);
+			recentEmoticons.add(0, emoticonIndex);
+		}		
 	}
 }

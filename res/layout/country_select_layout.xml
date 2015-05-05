@@ -15,7 +15,7 @@
         android:drawableLeft="@drawable/ic_search_dark_grey"
         android:drawablePadding="9dp"
         android:gravity="center_vertical"
-        android:hint="@string/search_hint"
+        android:hint="@string/search"
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
         android:paddingTop="8dp"

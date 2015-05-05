@@ -14,7 +14,7 @@
         android:drawablePadding="7dp"
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
-        android:hint="@string/search_hint"
+        android:hint="@string/search"
         android:singleLine="true" />
 
     <View

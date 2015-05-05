@@ -63,8 +63,8 @@ import com.bsb.hike.analytics.AnalyticsConstants.MessageType;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
-import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.models.ConvMessage.OriginType;
+import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.MessageMetadata;
@@ -74,6 +74,7 @@ import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.FileTransferCancelledException;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.video.HikeVideoCompressor;
@@ -185,6 +186,21 @@ public class UploadFileTask extends FileTransferBase
 		this.mAttachementType = attachement;
 		createConvMessage();
 	}
+	
+	protected UploadFileTask(Handler handler, ConcurrentHashMap<Long, FutureTask<FTResult>> fileTaskMap, Context ctx, String token, String uId, Uri picasaUri,
+			HikeFileType hikeFileType, List<ContactInfo> contactList, boolean isRecipientOnHike, int attachement)
+	{
+		super(handler, fileTaskMap, ctx, null, -1, null, token, uId);
+		this.picasaUri = picasaUri;
+		this.hikeFileType = hikeFileType;
+		this.contactList = new ArrayList<>(contactList);
+		this.isMultiMsg = true;
+		this.isRecipientOnhike = isRecipientOnHike;
+		_state = FTState.INITIALIZED;
+		this.mAttachementType = attachement;
+		createConvMessage();
+	}
+	
 
 	protected void setFutureTask(FutureTask<FTResult> fuTask)
 	{
@@ -318,7 +334,7 @@ public class UploadFileTask extends FileTransferBase
 					convMessageObject.setMessageOriginType(OriginType.BROADCAST);
 				}
 
-				HikeConversationsDatabase.getInstance().addConversationMessages(convMessageObject);
+				HikeConversationsDatabase.getInstance().addConversationMessages(convMessageObject,true);
 				
 				// 1) user clicked Media file and sending it
 				MsgRelLogManager.startMessageRelLogging((ConvMessage) userContext, MessageType.MULTIMEDIA);
@@ -565,16 +581,18 @@ public class UploadFileTask extends FileTransferBase
 	@Override
 	public FTResult call()
 	{
+		if(!Utils.isUserOnline(context))
+		{
+			saveStateOnNoInternet();
+			return FTResult.UPLOAD_FAILED;
+		}
 		mThread = Thread.currentThread();
 		boolean isValidKey = false;
 		try{
 			isValidKey = isFileKeyValid();
 		}catch(Exception e){
 			Logger.e(getClass().getSimpleName(), "Exception", e);
-			_state = FTState.ERROR;
-			stateFile = getStateFile((ConvMessage) userContext);
-			saveFileKeyState(fileKey);
-			fileKey = null;
+			saveStateOnNoInternet();
 			return FTResult.UPLOAD_FAILED;
 		}
 		try
@@ -700,7 +718,7 @@ public class UploadFileTask extends FileTransferBase
 						String msisdn = grpParticipant.getFirst().getContactInfo().getMsisdn();
 						convMessageObject.addToSentToMsisdnsList(msisdn);
 					}
-					Utils.addBroadcastRecipientConversations(convMessageObject);
+					OneToNConversationUtils.addBroadcastRecipientConversations(convMessageObject);
 				}
 				
 				//Message sent from here will contain file key and also message_id ==> this is actually being sent to the server.
@@ -900,7 +918,7 @@ public class UploadFileTask extends FileTransferBase
 				// In case there is error uploading this chunk
 				if (responseString == null)
 				{
-					if (shouldRetry())
+					if (shouldRetry() && Utils.isUserOnline(context))
 					{
 						if (freshStart)
 						{
@@ -963,7 +981,10 @@ public class UploadFileTask extends FileTransferBase
 				temp /= _totalSize;
 				progressPercentage = (int) temp;
 				if(_state != FTState.PAUSED)
-					LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED));
+				{
+					HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
+
+				}
 			}
 		}
 
@@ -1125,6 +1146,7 @@ public class UploadFileTask extends FileTransferBase
 				client.getParams().setParameter(CoreProtocolPNames.USER_AGENT, "android-" + AccountUtils.getAppVersion());
 				HttpHead head = new HttpHead(mUrl.toString());
 				head.addHeader("Cookie", "user=" + token + ";uid=" + uId);
+				AccountUtils.setNoTransform(head);
 	
 				HttpResponse resp = client.execute(head);
 				int resCode = resp.getStatusLine().getStatusCode();
@@ -1202,6 +1224,7 @@ public class UploadFileTask extends FileTransferBase
 			post.addHeader("X-SESSION-ID", X_SESSION_ID);
 			post.addHeader("X-CONTENT-RANGE", contentRange);
 			post.addHeader("Cookie", "user=" + token + ";UID=" + uId);
+			AccountUtils.setNoTransform(post);
 			Logger.d(getClass().getSimpleName(), "user=" + token + ";UID=" + uId);
 			post.setHeader("Content-Type", "multipart/form-data; boundary=" + BOUNDARY);
 
@@ -1269,7 +1292,9 @@ public class UploadFileTask extends FileTransferBase
 			removeTask();
 			this.pausedProgress = -1;
 			if(result != FTResult.PAUSED)
-				LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED));
+			{
+					HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
+			}
 		}
 
 		if (result != FTResult.PAUSED && result != FTResult.SUCCESS)
@@ -1339,6 +1364,7 @@ public class UploadFileTask extends FileTransferBase
 				client.getParams().setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 10 * 1000);
 				client.getParams().setParameter(CoreProtocolPNames.USER_AGENT, "android-" + AccountUtils.getAppVersion());
 				HttpHead head = new HttpHead(mUrl.toString());
+				AccountUtils.setNoTransform(head);
 
 				HttpResponse resp = client.execute(head);
 				int resCode = resp.getStatusLine().getStatusCode();
@@ -1380,5 +1406,13 @@ public class UploadFileTask extends FileTransferBase
 			}
 		}
 		throw new Exception("Network error.");
+	}
+
+	private void saveStateOnNoInternet()
+	{
+		_state = FTState.ERROR;
+		stateFile = getStateFile((ConvMessage) userContext);
+		saveFileKeyState(fileKey);
+		fileKey = null;
 	}
 }

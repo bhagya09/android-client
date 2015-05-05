@@ -2,19 +2,19 @@ package com.bsb.hike.photos.views;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.ColorMatrixColorFilter;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.View.OnTouchListener;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.photos.HikeEffectsFactory;
 import com.bsb.hike.photos.HikeEffectsFactory.OnFilterAppliedListener;
 import com.bsb.hike.photos.HikePhotosUtils;
 import com.bsb.hike.photos.HikePhotosUtils.FilterTools.FilterType;
-import com.bsb.hike.utils.IntentManager;
+import com.bsb.hike.utils.IntentFactory;
 
 /**
  * Custom View Class extends ImageView in android
@@ -24,20 +24,19 @@ import com.bsb.hike.utils.IntentManager;
  * @author akhiltripathi
  *
  */
-public class EffectsImageView extends ImageView
+public class EffectsImageView extends ImageView implements OnTouchListener
 {
 
 	private Bitmap originalImage, currentImage;
 
 	private FilterType currentFilter;
 
-	private boolean isScaled;
+	private boolean isScaled, allowTouch;
 
 	public EffectsImageView(Context context)
 	{
 		super(context);
 		currentFilter = FilterType.ORIGINAL;
-
 	}
 
 	public EffectsImageView(Context context, AttributeSet attrs)
@@ -68,11 +67,16 @@ public class EffectsImageView extends ImageView
 			if (!HikeEffectsFactory.applyFilterToBitmap(bitmap, listener, currentFilter, true))
 			{
 				Toast.makeText(getContext(), getResources().getString(R.string.photos_oom_save), Toast.LENGTH_SHORT).show();
-				IntentManager.openHomeActivity(getContext(), true);
+				IntentFactory.openHomeActivity(getContext(), true);
 
 			}
 		}
 
+	}
+
+	public void setAllowTouchMode(boolean allow)
+	{
+		this.allowTouch = allow;
 	}
 
 	public void handleImage(Bitmap image, boolean hasBeenScaled)
@@ -86,7 +90,6 @@ public class EffectsImageView extends ImageView
 	public void changeDisplayImage(Bitmap image)
 	{
 		this.setImageBitmap(image);
-		HikeEffectsFactory.clearCache();
 		currentImage = image;
 	}
 
@@ -95,8 +98,8 @@ public class EffectsImageView extends ImageView
 		currentFilter = filter;
 		if (!HikeEffectsFactory.applyFilterToBitmap(originalImage, listener, filter, false))
 		{
-			Toast.makeText(getContext(),getResources().getString(R.string.photos_oom_load), Toast.LENGTH_SHORT).show();
-			IntentManager.openHomeActivity(getContext(), true);
+			Toast.makeText(getContext(), getResources().getString(R.string.photos_oom_load), Toast.LENGTH_SHORT).show();
+			IntentFactory.openHomeActivity(getContext(), true);
 
 		}
 	}
@@ -104,6 +107,32 @@ public class EffectsImageView extends ImageView
 	public FilterType getCurrentFilter()
 	{
 		return currentFilter;
+	}
+
+	@Override
+	public boolean onTouch(View v, MotionEvent event)
+	{
+		if (this.allowTouch)
+		{
+			switch (event.getAction())
+			{
+			case MotionEvent.ACTION_DOWN:
+				this.setImageBitmap(originalImage);
+				invalidate();
+				return true;
+			case MotionEvent.ACTION_MOVE:
+				return false;
+			case MotionEvent.ACTION_UP:
+				if(currentImage!=null)
+				{
+					this.setImageBitmap(currentImage);
+					invalidate();
+				}
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 }

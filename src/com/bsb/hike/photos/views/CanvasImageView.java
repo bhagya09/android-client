@@ -4,13 +4,10 @@ import java.util.ArrayList;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.util.AttributeSet;
-import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
@@ -20,7 +17,6 @@ import android.widget.Toast;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.photos.HikePhotosUtils;
-import com.bsb.hike.utils.IntentManager;
 
 /**
  * @author akhiltripathi
@@ -94,7 +90,6 @@ public class CanvasImageView extends ImageView implements OnTouchListener
 	private void init()
 	{
 
-		setOnTouchListener(this);
 		setDrawingCacheEnabled(true);
 		buildDrawingCache(true);
 		this.mPaint = new Paint();
@@ -110,14 +105,18 @@ public class CanvasImageView extends ImageView implements OnTouchListener
 
 	}
 
-	public void getMeasure()
+	public void getMeasure(int width,int height)
 	{
 		if (paths.size() > 0)
 		{
-			DisplayMetrics metrics = getContext().getResources().getDisplayMetrics();
-			int width = metrics.widthPixels;
-
-			mBitmap = HikePhotosUtils.createBitmap(null, 0, 0, width, width, false, false, false, true);
+			if(mBitmap == null)
+			{
+				mBitmap = HikePhotosUtils.createBitmap(null, 0, 0, width, height, false, false, false, true);
+			}
+			else
+			{
+				mBitmap.eraseColor(0x00000000);
+			}
 			// mBitmap = Bitmap.createBitmap(width, width, Config.ARGB_8888);
 			if (mBitmap != null)
 			{
@@ -215,14 +214,18 @@ public class CanvasImageView extends ImageView implements OnTouchListener
 
 	public void setDrawEnabled(boolean drawEnabled)
 	{
-		this.drawEnabled = drawEnabled;
-		if (drawEnabled && paths.size() > 0)
+		if (mDoodleStateChangeListener != null)
 		{
-			mDoodleStateChangeListener.onDoodleStateChanged(false);
-		}
-		else
-		{
-			mDoodleStateChangeListener.onDoodleStateChanged(true);
+			this.drawEnabled = drawEnabled;
+			
+			if (drawEnabled && paths.size() > 0)
+			{
+				mDoodleStateChangeListener.onDoodleStateChanged(false);
+			}
+			else
+			{
+				mDoodleStateChangeListener.onDoodleStateChanged(true);
+			}
 		}
 	}
 
@@ -281,22 +284,18 @@ public class CanvasImageView extends ImageView implements OnTouchListener
 			case MotionEvent.ACTION_DOWN:
 				touchStart(x, y);
 				invalidate();
-
-				break;
+				return true;
 			case MotionEvent.ACTION_MOVE:
 				touchMove(x, y);
 				invalidate();
-
-				break;
+				return true;
 			case MotionEvent.ACTION_UP:
-
 				touchUp();
 				invalidate();
-
-				break;
+				return true;
 			}
 		}
-		return true;
+		return false;
 	}
 
 	public void onClickUndo()

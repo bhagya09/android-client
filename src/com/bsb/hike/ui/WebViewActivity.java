@@ -1,5 +1,6 @@
 package com.bsb.hike.ui;
 
+import com.bsb.hike.platform.CustomWebView;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -31,13 +32,13 @@ import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.models.WhitelistDomain;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.bsb.hike.utils.IntentManager;
+import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 
 public class WebViewActivity extends HikeAppStateBaseFragmentActivity
 {
 
-	private WebView webView;
+	private CustomWebView webView;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -49,7 +50,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity
 		String title = getIntent().getStringExtra(HikeConstants.Extras.TITLE);
 		final boolean allowLoc = getIntent().getBooleanExtra(HikeConstants.Extras.WEBVIEW_ALLOW_LOCATION, false);
 
-		webView = (WebView) findViewById(R.id.t_and_c_page);
+		webView = (CustomWebView) findViewById(R.id.t_and_c_page);
 		final ProgressBar bar = (ProgressBar) findViewById(R.id.progress);
 
 		WebViewClient client = new WebViewClient()
@@ -139,7 +140,14 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity
 		setupActionBar(title);
 	}
 
-	
+	@Override
+	protected void onDestroy()
+	{
+		webView.onActivityDestroyed();
+		super.onDestroy();
+	}
+
+
 	/**
 	 * 
 	 * @param view
@@ -161,7 +169,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity
 					json.put(AnalyticsConstants.EVENT_KEY, HikeConstants.BLACKLIST_DOMAIN_ANALYTICS);
 					json.put(HikeConstants.URL, url);
 					HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.VIEW_EVENT, json);
-					startActivity(IntentManager.getBrowserIntent(url));
+					startActivity(IntentFactory.getBrowserIntent(url));
 					return false;
 				}
 				catch (JSONException e)
@@ -179,7 +187,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity
 				else
 				{
 					// open in browser
-					startActivity(IntentManager.getBrowserIntent(url));
+					startActivity(IntentFactory.getBrowserIntent(url));
 					this.finish();
 					return false;
 				}
