@@ -11,7 +11,6 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Message;
@@ -19,20 +18,18 @@ import android.provider.ContactsContract.Contacts;
 import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.widget.Toast;
+
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.adapters.MessagesAdapter;
-import com.bsb.hike.chatthread.ChatThread;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.Sticker;
-import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.Conversation.ConvInfo;
-import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.ui.ComposeChatActivity;
 import com.bsb.hike.ui.ConnectedAppsActivity;
 import com.bsb.hike.ui.CreateNewGroupOrBroadcastActivity;
@@ -750,6 +747,8 @@ public class IntentFactory
 	public static Intent getPictureEditorActivityIntent(Context context, String imageFileName, boolean compressOutput, String destinationPath)
 	{
 		Intent i = new Intent(context, PictureEditer.class);
+		
+		i.setAction(HikeConstants.HikePhotos.PHOTOS_ACTION_CODE);
 
 		if (imageFileName != null)
 		{

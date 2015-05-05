@@ -1,7 +1,6 @@
 package com.bsb.hike.ui;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 
 import org.json.JSONException;
@@ -56,8 +55,8 @@ import com.bsb.hike.utils.HikeUiHandler;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Utils;
 import com.jess.ui.TwoWayAdapterView;
-import com.jess.ui.TwoWayGridView;
 import com.jess.ui.TwoWayAdapterView.OnItemClickListener;
+import com.jess.ui.TwoWayGridView;
 import com.viewpagerindicator.IconPagerAdapter;
 import com.viewpagerindicator.PhotosTabPageIndicator;
 
@@ -435,6 +434,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 							// TODO Auto-generated method stub
 							Intent intent = new Intent();
 							intent.putExtra(HikeConstants.Extras.PHOTOS_RETURN_FILE, f.getAbsolutePath());
+							intent.setAction(HikeConstants.HikePhotos.PHOTOS_ACTION_CODE);
 							setResult(RESULT_OK, intent);
 							finish();
 						}

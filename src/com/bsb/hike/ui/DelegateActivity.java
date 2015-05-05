@@ -1,5 +1,7 @@
 package com.bsb.hike.ui;
 
+import java.util.ArrayList;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.media.MediaScannerConnection;
@@ -16,16 +18,18 @@ public class DelegateActivity extends HikeAppStateBaseFragmentActivity
 	public static final String SOURCE_INTENT = "si";
 
 	public static final String DESTINATION_INTENT = "di";
-	
-	private String fileDestinations[];
 
 	private Intent sourceIntent;
 
-	private Intent destinationIntent;
+	private ArrayList<Intent> destinationIntents;
+
+	private Intent resultIntent;
+
+	private boolean startedForResult;
 
 	private final String TAG = DelegateActivity.class.getSimpleName();
 
-	private int requestCode = 11; // We can have a single request code since DelegateActivity has standard launch mode
+	private int requestCode = 11, currentIntentCounter; // We can have a single request code since DelegateActivity has standard launch mode
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -33,6 +37,11 @@ public class DelegateActivity extends HikeAppStateBaseFragmentActivity
 		super.onCreate(savedInstanceState);
 
 		Intent intent = getIntent();
+
+		startedForResult = (getCallingActivity() != null);
+
+		currentIntentCounter = 0;
+
 		if (intent != null)
 		{
 			Parcelable parcel = intent.getParcelableExtra(SOURCE_INTENT);
@@ -42,20 +51,35 @@ public class DelegateActivity extends HikeAppStateBaseFragmentActivity
 			}
 			else
 			{
-				Logger.d(TAG, "Source intent not present. Nothing to do");
+				Logger.d(TAG, "Source intent not present. Nothing to do!");
 				onError();
 			}
 
-			parcel = intent.getParcelableExtra(DESTINATION_INTENT);
-			if (parcel != null && parcel instanceof Intent)
+			ArrayList<Parcelable> parcels = intent.getParcelableArrayListExtra(DESTINATION_INTENT);
+			if (parcels != null)
 			{
-				destinationIntent = (Intent) parcel;
+				destinationIntents = new ArrayList<Intent>(parcels.size());
+				for (Parcelable destParcel : parcels)
+				{
+					if (destParcel instanceof Intent)
+					{
+						destinationIntents.add((Intent) destParcel);
+					}
+					else
+					{
+						Logger.d(TAG, "Invalid Destination Intent!");
+						onError();
+						break;
+					}
+				}
+
 			}
-			
-			if(intent.hasExtra(HikeMessengerApp.FILE_PATHS))
+			else
 			{
-				fileDestinations = intent.getStringArrayExtra(HikeMessengerApp.FILE_PATHS);
+				Logger.d(TAG, "Destination intents not present. Nothing to do!");
+				onError();
 			}
+
 		}
 		else
 		{
@@ -63,9 +87,7 @@ public class DelegateActivity extends HikeAppStateBaseFragmentActivity
 			onError();
 		}
 
-		
-
-		if (destinationIntent != null)
+		if (destinationIntents != null)
 		{
 			Logger.d(TAG, "Starting activity for result");
 			DelegateActivity.this.startActivityForResult(sourceIntent, requestCode);
@@ -91,22 +113,50 @@ public class DelegateActivity extends HikeAppStateBaseFragmentActivity
 		{
 			if (requestCode == this.requestCode)
 			{
-				if (sourceIntent.getAction() == MediaStore.ACTION_IMAGE_CAPTURE)
+				Intent currentIntent = null, previousIntent = null;
+				previousIntent = currentIntentCounter == 0 ? sourceIntent : destinationIntents.get(currentIntentCounter - 1);
+				if (currentIntentCounter < destinationIntents.size())
 				{
-
-					// Retrieve saved file path
-					// Currently on accessing the first file since recursive call not yet involved.
-					String newFilePath = fileDestinations[0];
-					MediaScannerConnection.scanFile(getApplicationContext(), new String[] { newFilePath }, null, null);
-					destinationIntent.putExtra(HikeMessengerApp.FILE_PATH, newFilePath);
+					currentIntent = destinationIntents.get(currentIntentCounter);
+					currentIntentCounter++;
+				}
+				else
+				{
+					resultIntent = new Intent();
+					currentIntent = resultIntent;
 				}
 
 				if (data != null)
 				{
-					destinationIntent.putExtras(data);
+					currentIntent.setAction(data.getAction());
+					currentIntent.setData(data.getData());
+					currentIntent.putExtras(data.getExtras());
 				}
-				DelegateActivity.this.startActivity(destinationIntent);
-				DelegateActivity.this.finish();
+				else if (previousIntent.getAction() == MediaStore.ACTION_IMAGE_CAPTURE)
+				{
+					// Special case since camera returns null data
+					// Retrieve saved file path
+					// Currently on accessing the first file since recursive call not yet involved.
+					String newFilePath = currentIntent.getStringExtra(HikeMessengerApp.FILE_PATHS);
+					MediaScannerConnection.scanFile(getApplicationContext(), new String[] { newFilePath }, null, null);
+					currentIntent.putExtra(HikeMessengerApp.FILE_PATH, newFilePath);
+				}
+
+				if (resultIntent == null && startedForResult)
+				{
+					DelegateActivity.this.startActivityForResult(currentIntent, this.requestCode);
+				}
+				else if (!startedForResult)
+				{
+					DelegateActivity.this.startActivity(currentIntent);
+					DelegateActivity.this.finish();
+				}
+				else
+				{
+					DelegateActivity.this.setResult(RESULT_OK, resultIntent);
+					DelegateActivity.this.finish();
+				}
+
 			}
 		}
 		else
