@@ -25,6 +25,7 @@ import android.widget.TextView;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.smartImageLoader.IconLoader;
 
@@ -96,7 +97,7 @@ public class HikeInviteAdapter extends SectionedBaseAdapter implements TextWatch
 		}
 		else
 		{
-			imageView.setImageDrawable(HikeMessengerApp.getLruCache().getDefaultAvatar(1));
+			imageView.setImageDrawable(HikeBitmapFactory.getDefaultTextAvatar(null));
 		}
 
 		TextView textView = (TextView) v.findViewById(R.id.name);

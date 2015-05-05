@@ -226,7 +226,6 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 		undoButton.setOnClickListener(clickHandler);
 
 		indicator.setOnPageChangeListener(clickHandler);
-
 	}
 
 	@Override

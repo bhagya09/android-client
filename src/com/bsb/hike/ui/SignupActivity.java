@@ -1056,12 +1056,12 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 
 		if (mActivityState.profileBitmap == null)
 		{
-			BitmapDrawable bd = HikeMessengerApp.getLruCache().getIconFromCache(msisdn);
-			if (bd == null)
+			Drawable drawable = HikeMessengerApp.getLruCache().getIconFromCache(msisdn);
+			if (drawable == null)
 			{
-				bd = HikeMessengerApp.getLruCache().getDefaultAvatar(msisdn, false);
+				drawable = HikeBitmapFactory.getDefaultTextAvatar(msisdn);
 			}
-			mIconView.setImageDrawable(bd);
+			mIconView.setImageDrawable(drawable);
 			// mIconView.setImageDrawable(IconCacheManager.getInstance()
 			// .getIconForMSISDN(msisdn, true));
 		}
