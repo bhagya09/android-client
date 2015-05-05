@@ -787,6 +787,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			{
 				mComposeView.setText("");
 			}
+			mComposeView.setHint("");
 			mComposeView.setEnabled(true);
 		}
 
