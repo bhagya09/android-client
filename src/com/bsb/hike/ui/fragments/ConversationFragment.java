@@ -1073,6 +1073,10 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 	{
 		super.onPause();
 
+		if (searchMode)
+		{
+			mAdapter.onQueryChanged("",this);
+		}
 		if(mAdapter != null)
 		{
 			mAdapter.getIconLoader().setExitTasksEarly(true);
@@ -3349,6 +3353,10 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 				DeleteConversationsAsyncTask task = new DeleteConversationsAsyncTask(getActivity());
 				Utils.executeConvInfoAsyncTask(task, convInfo);
 			}
+		}
+		if (searchMode)
+		{
+			mAdapter.onQueryChanged(searchText,this);
 		}
 		if(mAdapter != null)
 		{
