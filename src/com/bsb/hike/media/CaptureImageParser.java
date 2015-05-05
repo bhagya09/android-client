@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
@@ -40,13 +41,24 @@ public class CaptureImageParser
 	{
 		Logger.d(TAG, "onactivity result");
 
-		HikeSharedPreferenceUtil sharedPreference = HikeSharedPreferenceUtil.getInstance();
 		if (resultCode == Activity.RESULT_OK)
 		{
 			Logger.d(TAG, "onactivity result ok");
 			// this key was saved when we started camera activity
-			String capturedFilepath = sharedPreference.getData(HikeMessengerApp.FILE_PATH, null);
-			sharedPreference.removeData(HikeMessengerApp.FILE_PATH);
+			
+			String capturedFilepath = null;
+			
+			if(data.getAction() == HikeConstants.HikePhotos.PHOTOS_ACTION_CODE)
+			{
+				capturedFilepath = data.getStringExtra(HikeConstants.Extras.PHOTOS_RETURN_FILE);
+			}
+			else
+			{
+				HikeSharedPreferenceUtil sharedPreference = HikeSharedPreferenceUtil.getInstance();
+				capturedFilepath = sharedPreference.getData(HikeMessengerApp.FILE_PATH, null);
+				sharedPreference.removeData(HikeMessengerApp.FILE_PATH);
+			}
+			
 
 			if (capturedFilepath != null)
 			{

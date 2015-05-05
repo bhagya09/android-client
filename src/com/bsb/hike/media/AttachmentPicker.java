@@ -24,7 +24,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.models.HikeFile.HikeFileType;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.ui.DelegateActivity;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -169,8 +169,17 @@ public class AttachmentPicker extends OverFlowMenuLayout
 						Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), R.string.not_enough_memory, Toast.LENGTH_SHORT).show();
 						break;
 					}
-					pickIntent = IntentFactory.getNativeCameraAppIntent(true, selectedFile);
-					HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.FILE_PATH, selectedFile.getAbsolutePath());
+					
+					Intent sourceIntent = IntentFactory.getNativeCameraAppIntent(true, selectedFile);
+					Intent i = IntentFactory.getPictureEditorActivityIntent(activity, null, false, selectedFile.getAbsolutePath());
+					i.putExtra(HikeMessengerApp.FILE_PATHS,  selectedFile.getAbsolutePath() );
+					ArrayList<Intent> desIntent = new ArrayList<Intent>();
+					desIntent.add(i);
+					
+					pickIntent = new Intent(activity, DelegateActivity.class);
+					pickIntent.putExtra(DelegateActivity.SOURCE_INTENT, sourceIntent);
+					pickIntent.putParcelableArrayListExtra(DelegateActivity.DESTINATION_INTENT, desIntent);
+					
 					break;
 				case VIDEO:
 					requestCode = VIDEO;
