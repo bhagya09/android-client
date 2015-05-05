@@ -4568,10 +4568,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 							.getDefaultSharedPreferences(
 									activity.getApplicationContext())
 							.getBoolean(HikeConstants.SEND_ENTER_PREF, false))
-					|| ((keyEvent != null)
-							&& (keyEvent.getKeyCode() == KeyEvent.KEYCODE_ENTER)
-							&& (keyEvent.getAction() != KeyEvent.ACTION_UP) && (getResources()
-							.getConfiguration().keyboard != Configuration.KEYBOARD_NOKEYS)))	{
+					)	{
 				
 				if (!TextUtils.isEmpty(mComposeView.getText())) {
 					sendButtonClicked();
