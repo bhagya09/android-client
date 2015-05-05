@@ -696,16 +696,19 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 	{
 		super.onPrepareOptionsMenu(menu);
 
-		// Display edit button only if,
-		// 1.Photos is enabled
-		// 2.Media is of type image/*
-		if (isEditEnabled && getCurrentSelectedItem().getHikeFileType().compareTo(HikeFileType.IMAGE) == 0)
+		if (getCurrentSelectedItem() != null)
 		{
-			menu.findItem(R.id.edit_pic).setVisible(true);
-		}
-		else
-		{
-			menu.findItem(R.id.edit_pic).setVisible(false);
+			// Display edit button only if,
+			// 1.Photos is enabled
+			// 2.Media is of type image/*
+			if (isEditEnabled && getCurrentSelectedItem().getHikeFileType().compareTo(HikeFileType.IMAGE) == 0)
+			{
+				menu.findItem(R.id.edit_pic).setVisible(true);
+			}
+			else
+			{
+				menu.findItem(R.id.edit_pic).setVisible(false);
+			}
 		}
 	}
 }
