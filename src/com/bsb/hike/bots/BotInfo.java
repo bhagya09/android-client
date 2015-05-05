@@ -1,5 +1,6 @@
 package com.bsb.hike.bots;
 
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.models.Conversation.ConvInfo;
 
 /**
@@ -150,6 +151,11 @@ public class BotInfo extends ConvInfo
 		this.configuration = builder.config;
 		this.metadata = builder.metadata;
 		this.isReceiveEnabled = builder.isReceiveEnabled;
+	}
+
+	public static BotInfo getBotInfoForBotMsisdn(String msisdn)
+	{
+		return HikeMessengerApp.hikeBotNamesMap.get(msisdn);
 	}
 
 	public boolean isMessagingBot()

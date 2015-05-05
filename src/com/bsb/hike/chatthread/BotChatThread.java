@@ -41,7 +41,7 @@ public class BotChatThread extends OneToOneChatThread
 	protected void init()
 	{
 		super.init();
-		BotInfo botInfo = Utils.getBotInfoForBotMsisdn(msisdn);
+		BotInfo botInfo = BotInfo.getBotInfoForBotMsisdn(msisdn);
 
 		configuration = new MessagingBotConfiguration(botInfo.getConfiguration(), botInfo.isReceiveEnabled());
 		mConversation = new BotConversation.ConversationBuilder(botInfo).build();

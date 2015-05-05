@@ -5649,11 +5649,7 @@ public class Utils
 		return maxVal;
 	}
 
-	public static BotInfo getBotInfoForBotMsisdn(String msisdn)
-	{
-		return HikeMessengerApp.hikeBotNamesMap.get(msisdn);
-	}
-	
+
 	public static boolean isOnProduction()
 	{
 		return HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PRODUCTION, true);

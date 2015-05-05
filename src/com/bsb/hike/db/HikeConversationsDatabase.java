@@ -2264,7 +2264,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				
 				else if (Utils.isBot(msisdn))
 				{
-					BotInfo botInfo = Utils.getBotInfoForBotMsisdn(msisdn);
+					BotInfo botInfo = BotInfo.getBotInfoForBotMsisdn(msisdn);
 					conv = new BotConversation.ConversationBuilder(botInfo).build();
 				}
 				else
@@ -2430,7 +2430,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			{
 				if (Utils.isBot(msisdn))
 				{
-					BotInfo botInfo= Utils.getBotInfoForBotMsisdn(msisdn);
+					BotInfo botInfo= BotInfo.getBotInfoForBotMsisdn(msisdn);
 					conv = new BotConversation.ConversationBuilder(botInfo).build();
 				}
 				else
@@ -2567,7 +2567,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			
 			else if (Utils.isBot(msisdn))
 			{
-				BotInfo botInfo= Utils.getBotInfoForBotMsisdn(msisdn);
+				BotInfo botInfo= BotInfo.getBotInfoForBotMsisdn(msisdn);
 				conv = new BotConversation.ConversationBuilder(botInfo).build();
 			}
 			else
