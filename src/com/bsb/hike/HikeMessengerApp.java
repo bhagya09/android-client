@@ -888,7 +888,7 @@ public void onTrimMemory(int level)
 					HikeSharedPreferenceUtil.getInstance().saveData(UPGRADE_FOR_DEFAULT_BOT_ENTRY, false);
 				}
 
-				HikeConversationsDatabase.getInstance().addBotToHashMap();
+				HikeConversationsDatabase.getInstance().getBotHashmap();
 				Logger.d("create bot", "Keys are " + hikeBotNamesMap.keySet() + "------");
 				Logger.d("create bot", "values are " + hikeBotNamesMap.values());
 			}

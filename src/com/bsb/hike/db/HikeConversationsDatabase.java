@@ -5120,7 +5120,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 	}
 
-	public void addBotToHashMap()
+	public void getBotHashmap()
 	{
 		Cursor c = null;
 		try
