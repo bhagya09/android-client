@@ -1097,7 +1097,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		}
 
 		SharedPreferences prefs = getActivity().getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
-		if (convInfo.getMsisdn().equals(HikeConstants.Bots.FTUE_HIKEBOT_MSISDN) && prefs.getInt(HikeConstants.HIKEBOT_CONV_STATE, 0) == hikeBotConvStat.NOTVIEWED.ordinal())
+		if (convInfo.getMsisdn().equals(HikeConstants.FTUE_HIKEBOT_MSISDN) && prefs.getInt(HikeConstants.HIKEBOT_CONV_STATE, 0) == hikeBotConvStat.NOTVIEWED.ordinal())
 		{
 			Editor editor = prefs.edit();
 			editor.putInt(HikeConstants.HIKEBOT_CONV_STATE, hikeBotConvStat.VIEWED.ordinal());
@@ -3364,7 +3364,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 			 * if there is a HikeBotConversation in Conversation list also it is Viewed by user then delete this.
 			 */
 			ConvInfo convInfo = null;
-			convInfo = mConversationsByMSISDN.get(HikeConstants.Bots.FTUE_HIKEBOT_MSISDN);
+			convInfo = mConversationsByMSISDN.get(HikeConstants.FTUE_HIKEBOT_MSISDN);
 			if (convInfo != null)
 			{
 				Editor editor = prefs.edit();

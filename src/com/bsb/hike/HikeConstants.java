@@ -2754,39 +2754,6 @@ public class HikeConstants
 	
 	public static final String HIKE_CONTACT_PICKER_RESULT = "contact_pick_result";
 
-	public static final class Bots
-	{
-		public static final String FTUE_TEAM_HIKE_NAME = "team hike";
+	public static final String FTUE_HIKEBOT_MSISDN = "+hike1+";
 
-		public static final String FTUE_HIKEBOT_NAME = "Emma from hike";
-
-		public static final String FTUE_GAMING_NAME = "Games on hike";
-
-		public static final String FTUE_HIKE_DAILY_NAME = "hike daily";
-
-		public static final String FTUE_HIKE_SUPPORT_NAME = "hike support";
-
-		public static final String NUX_BOT_NAME = "Natasha";
-
-		public static final String FTUE_TEAMHIKE_MSISDN = "+hike+";
-
-		public static final String FTUE_HIKEBOT_MSISDN = "+hike1+";
-
-		public static final String FTUE_GAMING_MSISDN = "+hike2+";
-
-		public static final String FTUE_HIKE_DAILY = "+hike3+";
-
-		public static final String FTUE_HIKE_SUPPORT = "+hike4+";
-
-		public static final String NUX_BOT_MSISDN = "+hike5+";
-
-		public static final String CRICKET_BOT_MSISDN = "+hikecricket+";
-
-		public static final int FTUE_TEAM_HIKE_CONFIG = 4527;
-
-		public static final int SENT_RECEIVE_BOT_CONFIG = 2069487;
-
-		public static final int SENT_BOT_CONFIG = 21487;
-
-	}
 }

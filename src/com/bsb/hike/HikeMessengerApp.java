@@ -895,20 +895,24 @@ public void onTrimMemory(int level)
 
 	}
 
+	/**
+	 * adding default bots on app upgrade. The config is set using {@link com.bsb.hike.bots.MessagingBotConfiguration}, where every bit is set according to the
+	 * requirement https://docs.google.com/spreadsheets/d/1hTrC9GdGRXrpAt9gnFnZACiTz2Th8aUIzVB5hrlD_4Y/edit#gid=0
+	 */
 	private void addDefaultBotsToDB()
 	{
-		defaultBotEntry(HikeConstants.Bots.FTUE_TEAMHIKE_MSISDN, HikeConstants.Bots.FTUE_TEAM_HIKE_NAME, null, null, HikeConstants.Bots.FTUE_TEAM_HIKE_CONFIG, false);
-		defaultBotEntry(HikeConstants.Bots.FTUE_HIKEBOT_MSISDN, HikeConstants.Bots.FTUE_HIKEBOT_NAME, null, null, HikeConstants.Bots.SENT_RECEIVE_BOT_CONFIG, true);
-		defaultBotEntry(HikeConstants.Bots.FTUE_GAMING_MSISDN, HikeConstants.Bots.FTUE_GAMING_NAME, null, null, HikeConstants.Bots.SENT_BOT_CONFIG, false);
-		defaultBotEntry(HikeConstants.Bots.FTUE_HIKE_DAILY, HikeConstants.Bots.FTUE_HIKE_DAILY_NAME, null, null, HikeConstants.Bots.SENT_BOT_CONFIG, false);
-		defaultBotEntry(HikeConstants.Bots.FTUE_HIKE_SUPPORT, HikeConstants.Bots.FTUE_HIKE_SUPPORT_NAME, null, null, HikeConstants.Bots.SENT_RECEIVE_BOT_CONFIG, true);
-		defaultBotEntry(HikeConstants.Bots.NUX_BOT_MSISDN, HikeConstants.Bots.NUX_BOT_NAME, null, null, HikeConstants.Bots.SENT_RECEIVE_BOT_CONFIG, true);
+		defaultBotEntry("+hike+","team hike", null, null, 4527, false);
+		defaultBotEntry("+hike1+", "Emma from hike", null, null, 2069487, true);
+		defaultBotEntry("+hike2+", "Games on hike", null, null, 21487, false);
+		defaultBotEntry("+hike3+", "hike daily", null, null, 21487, false);
+		defaultBotEntry("+hike4+", "hike support", null, null, 2069487, true);
+		defaultBotEntry("+hike5+", "Natasha", null, null, 2069487, true);
 
 		BitmapDrawable drawable = (BitmapDrawable) getApplicationContext().getResources().getDrawable(R.drawable.cric_icon);
 		String base64Icon = Utils.drawableToString(drawable);
 
-		defaultBotEntry(HikeConstants.Bots.CRICKET_BOT_MSISDN, HikePlatformConstants.CRICKET_BOT_NAME, HikePlatformConstants.CRICKET_CHAT_THEME_ID, base64Icon,
-				HikeConstants.Bots.SENT_BOT_CONFIG, false);
+		defaultBotEntry("+hikecricket+", "Cricket 2015", HikePlatformConstants.CRICKET_CHAT_THEME_ID, base64Icon,
+				21487, false);
 
 	}
 
