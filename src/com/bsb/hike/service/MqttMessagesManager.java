@@ -2960,6 +2960,14 @@ public class MqttMessagesManager
 	public void createBot(JSONObject jsonObj)
 	{
 		long startTime = System.currentTimeMillis();
+
+		String type = jsonObj.optString(HikeConstants.TYPE);
+		if (TextUtils.isEmpty(type))
+		{
+			Logger.e("bot error", "type is null.");
+			return;
+		}
+
 		String msisdn = jsonObj.optString(HikeConstants.MSISDN);
 		msisdn = Utils.validateBotMsisdn(msisdn);
 		String name = jsonObj.optString(HikeConstants.NAME);
