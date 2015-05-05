@@ -23,6 +23,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.WindowManager;
+import android.webkit.MimeTypeMap;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -126,6 +127,17 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 
 		if (filename == null)
 		{
+			PictureEditer.this.finish();
+			return;
+		}
+		
+		//Check file type
+		String fileType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(Utils.getFileExtension(filename));
+		HikeFileType hikeFileType = HikeFileType.fromString(fileType, false);
+
+		if (hikeFileType.compareTo(HikeFileType.IMAGE) != 0)
+		{
+			Toast.makeText(getApplicationContext(), getString(R.string.only_photos_edit), Toast.LENGTH_SHORT).show();
 			PictureEditer.this.finish();
 			return;
 		}
