@@ -136,8 +136,8 @@ public class BotChatThread extends OneToOneChatThread
 	private void muteBotToggled(boolean isMuted)
 	{
 		mConversation.setIsMute(isMuted);
-		HikeConversationsDatabase.getInstance().updateBot(msisdn, null, null, mConversation.isMuted() ? 1 : 0);
-		HikeMessengerApp.getPubSub().publish(HikePubSub.MUTE_CONVERSATION_TOGGLED, new Pair<String, Boolean>(mConversation.getMsisdn(), mConversation.isMuted()));
+		HikeConversationsDatabase.getInstance().updateBot(msisdn, null, null, isMuted ? 1 : 0);
+		HikeMessengerApp.getPubSub().publish(HikePubSub.MUTE_CONVERSATION_TOGGLED, new Pair<String, Boolean>(mConversation.getMsisdn(), isMuted));
 	}
 
 	@Override
@@ -347,7 +347,7 @@ public class BotChatThread extends OneToOneChatThread
 		if (v != null && v.getTag() != null && v.getTag().equals(R.string.mute))
 		{
 			CustomFontButton button = (CustomFontButton) v.findViewById(R.id.add_unknown_contact);
-			button.setText(mConversation.isMuted() ? R.string.unmute : R.string.mute);
+			button.setText(isMuted ? R.string.unmute : R.string.mute);
 		}
 
 
