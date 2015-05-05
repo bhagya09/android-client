@@ -522,7 +522,7 @@ public class Utils
 			extension = new String(fileName.substring(lastDotIndex + 1));
 		}
 
-		return extension;
+		return extension.toLowerCase();
 	}
 
 	public static String getFileParent(HikeFileType type, boolean isSent)

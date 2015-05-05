@@ -152,6 +152,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 					@Override
 					public void run()
 					{
+						Toast.makeText(PictureEditer.this, getResources().getString(R.string.file_expire), Toast.LENGTH_SHORT).show();
 						PictureEditer.this.finish();
 					}
 				});

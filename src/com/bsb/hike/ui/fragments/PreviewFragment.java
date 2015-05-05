@@ -88,6 +88,7 @@ public final class PreviewFragment extends Fragment
 		gridView.setColumnWidth(GridView.AUTO_FIT);
 		gridView.setRowHeight(height);
 		gridView.setOnItemClickListener(handler);
+		gridView.setSelector(R.drawable.photos_pager_item_selector);
 		mAdapter = new ImageAdapter(handler);
 		gridView.setAdapter(mAdapter);
 		ViewStub adjuster = (ViewStub) layout.findViewById(R.id.sizeBarStub);
