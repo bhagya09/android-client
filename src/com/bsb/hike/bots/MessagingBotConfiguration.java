@@ -20,7 +20,7 @@ public class MessagingBotConfiguration extends BotConfiguration
 	// email chat in 3dot menu, mute in 3dot menu, long tap, view profile in long tap,add conversation shortcut in long tap,
 	// chat in long tap, clear conv in long tap, email conv in long tap.
 
-	interface ConversationScreen
+	static class ConversationScreen
 	{
 		public static byte EMAIL_CONV = 0;
 
@@ -36,7 +36,7 @@ public class MessagingBotConfiguration extends BotConfiguration
 	}
 	private static byte LONG_TAP = 5;
 
-	interface OverflowMenu
+	static class OverflowMenu
 	{
 		public static byte MUTE = 6;
 
