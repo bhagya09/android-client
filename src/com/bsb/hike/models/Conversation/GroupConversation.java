@@ -79,9 +79,9 @@ public class GroupConversation extends OneToNConversation
 	protected static abstract class InitBuilder<P extends InitBuilder<P>> extends OneToNConversation.InitBuilder<P>
 	{
 
-		public InitBuilder(OneToNConvInfo convInfo)
+		public InitBuilder(String msisdn)
 		{
-			super(convInfo);
+			super(msisdn);
 		}
 
 		public GroupConversation build()
@@ -102,9 +102,9 @@ public class GroupConversation extends OneToNConversation
 	public static class ConversationBuilder extends GroupConversation.InitBuilder<ConversationBuilder>
 	{
 
-		public ConversationBuilder(OneToNConvInfo oneToNConvInfo)
+		public ConversationBuilder(String msisdn)
 		{
-			super(oneToNConvInfo);
+			super(msisdn);
 		}
 
 		@Override

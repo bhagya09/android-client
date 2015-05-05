@@ -14,12 +14,6 @@ public class BotInfo extends ConvInfo
 
 	public int configuration;
 
-	@Override
-	public void setOnHike(boolean isOnHike)
-	{
-		super.setOnHike(true);
-	}
-
 	private boolean isReceiveEnabled;
 
 	public String metadata;

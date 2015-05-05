@@ -92,9 +92,9 @@ public class BroadcastConversation extends OneToNConversation
 	protected static abstract class InitBuilder<P extends InitBuilder<P>> extends OneToNConversation.InitBuilder<P>
 	{
 
-		public InitBuilder(OneToNConvInfo oneToNConvInfo)
+		public InitBuilder(String msisdn)
 		{
-			super(oneToNConvInfo);
+			super(msisdn);
 		}
 
 		public BroadcastConversation build()
@@ -115,9 +115,9 @@ public class BroadcastConversation extends OneToNConversation
 	public static class ConversationBuilder extends BroadcastConversation.InitBuilder<ConversationBuilder>
 	{
 
-		public ConversationBuilder(OneToNConvInfo oneToNConvInfo)
+		public ConversationBuilder(String msisdn)
 		{
-			super(oneToNConvInfo);
+			super(msisdn);
 		}
 
 		@Override

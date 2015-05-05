@@ -23,7 +23,6 @@ import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.Conversation.BotConversation;
-import com.bsb.hike.models.Conversation.OneToNConvInfo;
 import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
@@ -74,28 +73,24 @@ public class EmailConversationsAsyncTask extends AsyncTask<ConvInfo, Void, Conve
 			if (conv == null)
 			{
 				ContactInfo contactInfo = ContactManager.getInstance().getContact(msisdn, true, true);
-
 				if (isGroup)
 				{
-					OneToNConvInfo oneToNConvInfo = new OneToNConvInfo.ConvInfoBuilder(msisdn).setConvName((contactInfo != null) ? contactInfo.getName() : null).build();
-					conv = new GroupConversation.ConversationBuilder(oneToNConvInfo).build();
+					conv = new GroupConversation.ConversationBuilder(msisdn).setConvName((contactInfo != null) ? contactInfo.getName() : null).build();
 				}
 				
 				else if (OneToNConversationUtils.isBroadcastConversation(msisdn))
 				{
-					OneToNConvInfo oneToNConvInfo = new OneToNConvInfo.ConvInfoBuilder(msisdn).setConvName((contactInfo != null) ? contactInfo.getName() : null).build();
-					conv = new BroadcastConversation.ConversationBuilder(oneToNConvInfo).build();
+					conv = new BroadcastConversation.ConversationBuilder(msisdn).setConvName((contactInfo != null) ? contactInfo.getName() : null).build();
 				}
 				
 				else if (Utils.isBot(msisdn))
 				{
 					BotInfo botInfo= Utils.getBotInfoForBotMsisdn(msisdn);
-					conv = new BotConversation.ConversationBuilder(botInfo).build();
+					conv = new BotConversation.ConversationBuilder(msisdn).setBotInfo(botInfo).build();
 				}
 				else
 				{
-					ConvInfo convInfo = new ConvInfo.ConvInfoBuilder(msisdn).setConvName(contactInfo != null? contactInfo.getName() : null).build();
-					conv = new OneToOneConversation.ConversationBuilder(convInfo).build();
+					conv = new OneToOneConversation.ConversationBuilder(msisdn).setConvName((contactInfo != null) ? contactInfo.getName() : null).build();
 				}
 				
 				conv.setMessages(HikeConversationsDatabase.getInstance().getConversationThread(msisdn, -1, conv, -1));
