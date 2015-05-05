@@ -654,6 +654,38 @@ public abstract class Request<T> implements IRequestFacade
 		}
 
 		/**
+		 * Adds a header to the list of request headers
+		 * 
+		 * @param header
+		 * @return
+		 */
+		public S addHeader(Header header)
+		{
+			if (null == this.headers)
+			{
+				this.headers = new ArrayList<Header>();
+			}
+			this.headers.add(header);
+			return self();
+		}
+
+		/**
+		 * Adds a list of headers to request headers
+		 * 
+		 * @param headers
+		 * @return
+		 */
+		public S addHeader(List<Header> headers)
+		{
+			if (null == this.headers)
+			{
+				this.headers = new ArrayList<Header>();
+			}
+			this.headers.addAll(headers);
+			return self();
+		}
+		
+		/**
 		 * Sets the priority of the request. Use priority constants or a positive integer. Will have no effect on a request after it starts being executed.
 		 * 
 		 * @param priority
