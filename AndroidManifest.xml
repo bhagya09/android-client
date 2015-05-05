@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1188"
-    android:versionName="3.9.0.64" >
+    android:versionCode="1189"
+    android:versionName="3.9.0.0.1.keyboard_issues" >
 
     <uses-sdk
         android:minSdkVersion="9"
