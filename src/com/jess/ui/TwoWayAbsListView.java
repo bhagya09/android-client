@@ -4994,7 +4994,7 @@ ViewTreeObserver.OnTouchModeChangeListener {
 									layoutChildren();
 									child.setPressed(true);
 									positionSelector(child);
-									setPressed(true);
+									//setPressed(true);
 									if (mSelector != null) {
 										Drawable d = mSelector.getCurrent();
 										if (d != null && d instanceof TransitionDrawable) {
