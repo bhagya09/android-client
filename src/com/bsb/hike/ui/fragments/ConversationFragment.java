@@ -1178,6 +1178,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 			searchText = null;
 			searchMode = false;
 			mAdapter.removeSearch();
+			ShowTipIfNeeded(displayedConversations.isEmpty());
 			setEmptyState(displayedConversations.isEmpty());
 		}
 	}
