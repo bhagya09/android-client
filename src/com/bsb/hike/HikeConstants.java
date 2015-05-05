@@ -2689,7 +2689,6 @@ public class HikeConstants
 	public static String DEFAULT_AVATAR_KEYS[] = {"avatar_01","avatar_02", "avatar_03", "avatar_04", "avatar_05"};
 	
 	public static String IS_GROUP = "isGroup";
-
 	public static final String CAM_IMG_PREFIX = "CAM_";
 	
 	public static final String URL_WHITELIST = "uwl";
