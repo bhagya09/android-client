@@ -28,7 +28,6 @@ public class BotConversation extends OneToOneConversation
 	private BotConversation(InitBuilder<?> builder)
 	{
 		super(builder);
-		this.isOnHike = true;
 		/**
 		 * Setting the mute state in the constructor itself as it is needed for BotConversations
 		 */

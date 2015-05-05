@@ -10,12 +10,9 @@ import com.bsb.hike.models.ConvMessage;
  */
 public class OneToOneConversation extends Conversation
 {
-	protected boolean isOnHike;
-
 	protected OneToOneConversation(InitBuilder<?> builder)
 	{
 		super(builder);
-		this.isOnHike = builder.isOnHike;
 	}
 
 	/**
@@ -24,7 +21,7 @@ public class OneToOneConversation extends Conversation
 	@Override
 	public boolean isOnHike()
 	{
-		return isOnHike;
+		return convInfo.isOnHike();
 	}
 
 	/**
@@ -33,7 +30,7 @@ public class OneToOneConversation extends Conversation
 	 */
 	public void setOnHike(boolean isOnHike)
 	{
-		this.isOnHike = isOnHike;
+		convInfo.setOnHike(isOnHike);
 	}
 
 	@Override
