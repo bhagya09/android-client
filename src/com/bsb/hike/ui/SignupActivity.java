@@ -19,6 +19,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
 import android.net.Uri;
@@ -1045,12 +1046,12 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 
 		if (mActivityState.profileBitmap == null)
 		{
-			BitmapDrawable bd = HikeMessengerApp.getLruCache().getIconFromCache(msisdn);
-			if (bd == null)
+			Drawable drawable = HikeMessengerApp.getLruCache().getIconFromCache(msisdn);
+			if (drawable == null)
 			{
-				bd = HikeMessengerApp.getLruCache().getDefaultAvatar(msisdn, false);
+				drawable = HikeBitmapFactory.getDefaultTextAvatar(msisdn);
 			}
-			mIconView.setImageDrawable(bd);
+			mIconView.setImageDrawable(drawable);
 			// mIconView.setImageDrawable(IconCacheManager.getInstance()
 			// .getIconForMSISDN(msisdn, true));
 		}
