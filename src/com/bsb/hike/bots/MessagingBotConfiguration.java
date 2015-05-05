@@ -82,27 +82,27 @@ public class MessagingBotConfiguration extends BotConfiguration
 
 	public boolean isEmailConvInConversationScreenEnabled()
 	{
-		return isLongTapEnabled() && isBitSet(ConversationScreen.EMAIL_CONV);
+		return  isBitSet(ConversationScreen.EMAIL_CONV);
 	}
 
 	public boolean isClearConvInConversationScreenEnabled()
 	{
-		return isLongTapEnabled() && isBitSet(ConversationScreen.CLEAR_CONV);
+		return  isBitSet(ConversationScreen.CLEAR_CONV);
 	}
 
 	public boolean isDeleteChatInConversationScreenEnabled()
 	{
-		return isLongTapEnabled() && isBitSet(ConversationScreen.DELETE_CHAT);
+		return  isBitSet(ConversationScreen.DELETE_CHAT);
 	}
 
 	public boolean isAddConvShortcutInConversationScreenEnabled()
 	{
-		return isLongTapEnabled() && isBitSet(ConversationScreen.ADD_CONVERSATION_SHORTCUT);
+		return isBitSet(ConversationScreen.ADD_CONVERSATION_SHORTCUT);
 	}
 
 	public boolean isViewProfileInConversationScreenEnabled()
 	{
-		return isLongTapEnabled() && isViewProfileEnabled() && isBitSet(ConversationScreen.VIEW_PROFILE);
+		return isBitSet(ConversationScreen.VIEW_PROFILE);
 	}
 
 	public boolean isOverflowMenuEnabled()
@@ -112,32 +112,32 @@ public class MessagingBotConfiguration extends BotConfiguration
 
 	public boolean isMuteInOverflowMenuEnabled()
 	{
-		return isOverflowMenuEnabled() && isBitSet(OverflowMenu.MUTE);
+		return isBitSet(OverflowMenu.MUTE);
 	}
 
 	public boolean isEmailChatInOverflowMenuEnabled()
 	{
-		return isOverflowMenuEnabled() && isBitSet(OverflowMenu.EMAIL_CHAT);
+		return isBitSet(OverflowMenu.EMAIL_CHAT);
 	}
 
 	public boolean isClearChatInOverflowMenuEnabled()
 	{
-		return isOverflowMenuEnabled() && isBitSet(OverflowMenu.CLEAR_CHAT);
+		return isBitSet(OverflowMenu.CLEAR_CHAT);
 	}
 
 	public boolean isBlockInOverflowMenuEnabled()
 	{
-		return isOverflowMenuEnabled() && isBitSet(OverflowMenu.BLOCK);
+		return isBitSet(OverflowMenu.BLOCK);
 	}
 
 	public boolean isChatThemeInOverflowMenuEnabled()
 	{
-		return isOverflowMenuEnabled() && isBitSet(OverflowMenu.CHAT_THEME);
+		return isBitSet(OverflowMenu.CHAT_THEME);
 	}
 
 	public boolean isViewProfileInOverflowMenuEnabled()
 	{
-		return isOverflowMenuEnabled() && isViewProfileEnabled() && isBitSet(OverflowMenu.VIEW_PROFILE);
+		return isBitSet(OverflowMenu.VIEW_PROFILE);
 	}
 
 	public boolean isViewProfileEnabled()
@@ -157,22 +157,22 @@ public class MessagingBotConfiguration extends BotConfiguration
 
 	public boolean isTextInputEnabled()
 	{
-		return isReceiveEnabled && isInputEnabled() && isBitSet(TEXT_INPUT);
+		return isReceiveEnabled &&  isBitSet(TEXT_INPUT);
 	}
 
 	public boolean isAudioRecordingEnabled()
 	{
-		return isReceiveEnabled && isInputEnabled() && isBitSet(AUDIO_RECORD);
+		return isReceiveEnabled &&  isBitSet(AUDIO_RECORD);
 	}
 
 	public boolean isEmoticonPickerEnabled()
 	{
-		return isReceiveEnabled && isInputEnabled() && isBitSet(EMOTICON_PICKER);
+		return isReceiveEnabled &&  isBitSet(EMOTICON_PICKER);
 	}
 
 	public boolean isStickerPickerEnabled()
 	{
-		return isReceiveEnabled && isInputEnabled() && isBitSet(STICKER_PICKER);
+		return isReceiveEnabled &&  isBitSet(STICKER_PICKER);
 	}
 
 	public boolean isInputEnabled()
