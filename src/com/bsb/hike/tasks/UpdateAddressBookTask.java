@@ -10,15 +10,22 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
+import com.bsb.hike.modules.httpmgr.request.requestbody.IRequestBody;
+import com.bsb.hike.modules.httpmgr.request.requestbody.JsonBody;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUIDFetch;
 import com.bsb.hike.utils.AccountUtils;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 
 public class UpdateAddressBookTask
@@ -29,6 +36,8 @@ public class UpdateAddressBookTask
 
 	private JSONObject resultObject;
 
+	private RequestToken requestToken;
+	
 	/**
 	 * 
 	 * @param new_contacts_by_id
@@ -57,8 +66,8 @@ public class UpdateAddressBookTask
 		{
 			PlatformUIDFetch.fetchPlatformUid(HikePlatformConstants.PlatformUIDFetchType.PARTIAL_ADDRESS_BOOK, msisdnForMissingPlatformUID.toArray(new String[] {}));
 		}
-
-		RequestToken requestToken = updateAddressBookRequest(postObject, getRequestListener());
+		
+		requestToken = updateAddressBookRequest(postObject, getRequestListener());
 		requestToken.execute();
 		return AccountUtils.getContactList(resultObject, new_contacts_by_id);
 	}
@@ -85,6 +94,16 @@ public class UpdateAddressBookTask
 			public void onRequestFailure(HttpException httpException)
 			{
 				resultObject = null;
+				// TODO Below code is for investigating an issue where invalid json is received at server end , should be removed once issue is solved
+				if (httpException.getErrorCode() == 400)
+				{
+					IRequestBody requestBody = requestToken.getRequestBody();
+					if (requestBody instanceof JsonBody)
+					{
+						byte[] bytes = ((JsonBody) requestBody).getBytes();
+						recordAddressBookUploadFailException(new String(bytes));
+					}
+				}
 			}
 		};
 	}
@@ -103,5 +122,26 @@ public class UpdateAddressBookTask
 			Logger.e("AccountUtils", "Invalid JSON put", e);
 		}
 		return data;
+	}
+	
+	private void recordAddressBookUploadFailException(String jsonString)
+	{
+		if(!HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.EXCEPTION_ANALYTIS_ENABLED, false))
+		{
+			return;
+		}
+		try
+		{
+			JSONObject metadata = new JSONObject();
+
+			metadata.put(HikeConstants.PAYLOAD, jsonString);
+
+			Logger.d(getClass().getSimpleName(), "recording update addressbook upload fail event. json = " + jsonString);
+			HAManager.getInstance().record(HikeConstants.EXCEPTION, HikeConstants.LogEvent.ADDRESSBOOK_UPLOAD, metadata);
+		}
+		catch (JSONException e)
+		{
+			Logger.e(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+		}
 	}
 }
