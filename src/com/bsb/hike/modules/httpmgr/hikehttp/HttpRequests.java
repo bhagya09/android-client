@@ -435,7 +435,6 @@ public class HttpRequests
 				.setUrl(getHikeJoinTimeBaseUrl() + msisdn)
 				.setRequestType(Request.REQUEST_TYPE_SHORT)
 				.setRequestListener(requestListener)
-				.setResponseOnUIThread(true)
 				.build();
 		return requestToken;
 	}
