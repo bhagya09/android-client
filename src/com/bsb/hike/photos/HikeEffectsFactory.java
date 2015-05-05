@@ -1,5 +1,8 @@
 package com.bsb.hike.photos;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.graphics.Bitmap;
 import android.graphics.ColorMatrix;
 import android.os.Handler;
@@ -10,12 +13,19 @@ import android.support.v8.renderscript.RSRuntimeException;
 import android.support.v8.renderscript.RenderScript;
 import android.support.v8.renderscript.ScriptIntrinsicBlur;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.R;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.photos.HikePhotosUtils.FilterTools.FilterType;
 import com.bsb.hike.photos.views.VignetteUtils;
+import com.bsb.hike.utils.HikeAnalyticsEvent;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 
 /**
@@ -52,16 +62,32 @@ public final class HikeEffectsFactory
 
 	private boolean loadRenderScript(Bitmap image, boolean isThumbnail, boolean isFinal)
 	{
-		// Initialize RS // Load script
+		// Initialize RS
+		
+		// Load script
 
 		boolean ret = true;
 
-		if (mRS == null)
+		try
 		{
-			mRS = RenderScript.create(HikeMessengerApp.getInstance().getApplicationContext());
-			mScript = new ScriptC_HikePhotosEffects(mRS);
-			mScriptBlur = ScriptIntrinsicBlur.create(mRS, Element.U8_4(mRS));
-
+			if (mRS == null)
+			{
+				mRS = RenderScript.create(HikeMessengerApp.getInstance().getApplicationContext());
+				mScript = new ScriptC_HikePhotosEffects(mRS);
+				mScriptBlur = ScriptIntrinsicBlur.create(mRS, Element.U8_4(mRS));
+			}
+		}
+		catch (RSRuntimeException rre)
+		{
+			rre.printStackTrace();
+			fallback(rre);
+			return false;
+		}
+		catch (android.renderscript.RSRuntimeException e)
+		{
+			e.printStackTrace();
+			fallback(e);
+			return false;
 		}
 
 		// Allocate buffer
@@ -102,6 +128,30 @@ public final class HikeEffectsFactory
 
 		return ret;
 
+	}
+
+	private void fallback(Exception rre)
+	{
+		// Disable photos
+		HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.ACCOUNT_SETTINGS).saveData(HikeConstants.Extras.ENABLE_PHOTOS, false);
+
+		// Send logs to analytics
+		try
+		{
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.EVENT_KEY, "RSRuntimeException");
+			json.put(AnalyticsConstants.LOG_KEY, rre.getStackTrace().toString());
+			HAManager.getInstance().record(AnalyticsConstants.DEV_EVENT, AnalyticsConstants.PHOTOS_ERROR_EVENT, HAManager.EventPriority.HIGH, json,
+					AnalyticsConstants.EVENT_TAG_PHOTOS);
+		}
+		catch (NullPointerException npe)
+		{
+			npe.printStackTrace();
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -153,6 +203,9 @@ public final class HikeEffectsFactory
 
 		if (!instance.loadRenderScript(scaledOriginal, true, false))
 		{
+			Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(),
+					HikeMessengerApp.getInstance().getApplicationContext().getResources().getString(R.string.photos_oom_load), Toast.LENGTH_SHORT).show();
+			IntentFactory.openHomeActivity(HikeMessengerApp.getInstance().getApplicationContext(), true);
 			return;
 		}
 		instance.beginEffectAsyncTask(listener, type, true);

@@ -1426,9 +1426,9 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="enter_valid_group_name">Group name cannot be empty</string>
     <string name="enter_valid_broadcast_name">Broadcast name cannot be empty</string>
     <string name="doodle_error_message">Unable to save Doodle!\nNot Enough Memory On Device.</string>
-    <string name="photos_oom_save">Unable to save Image!\nNot Enough Memory On Device.</string>
-    <string name="photos_oom_load">Unable to load Image!\nNot Enough Memory On Device.</string>
-    <string name="photos_oom_retry">Try Again!</string>
+    <string name="photos_oom_save">Unable to save Image\nNot Enough Memory On Device.</string>
+    <string name="photos_oom_load">Unable to load Image</string>
+    <string name="photos_oom_retry">Try Again</string>
     <string name="photos_oom_camera">Unable to capture Image</string>
     <string name="search_hint">Search</string>
     <string name="nudge_setting_header">Double tap to Nudge</string>
