@@ -117,7 +117,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 				filename = galleryList.get(0).getFilePath();
 				sendAnalyticsGalleryPic();
 			}
-			if (filename == null)
+			if (filename == null && intent.getData()!=null)
 			{
 				filename = intent.getData().toString();
 				sendAnalyticsGalleryPic();
