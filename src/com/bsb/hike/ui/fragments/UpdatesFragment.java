@@ -1,6 +1,7 @@
 package com.bsb.hike.ui.fragments;
 
 import java.util.ArrayList;
+
 import java.util.List;
 
 import android.content.Intent;
@@ -23,16 +24,18 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
 import com.bsb.hike.adapters.CentralTimelineAdapter;
+import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.Protip;
 import com.bsb.hike.models.StatusMessage;
 import com.bsb.hike.models.StatusMessage.StatusMessageType;
-import com.bsb.hike.ui.ChatThread;
+import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
@@ -156,9 +159,9 @@ public class UpdatesFragment extends SherlockListFragment implements OnScrollLis
 				return;
 			}
 		}
-		Intent intent = Utils.createIntentFromContactInfo(new ContactInfo(null, statusMessage.getMsisdn(), statusMessage.getNotNullName(), statusMessage.getMsisdn()), true);
+		Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(getActivity(), new ContactInfo(null, statusMessage.getMsisdn(), statusMessage.getNotNullName(), statusMessage.getMsisdn()), true);
+		//Add anything else which is needed to your intent
 		intent.putExtra(HikeConstants.Extras.FROM_CENTRAL_TIMELINE, true);
-		intent.setClass(getActivity(), ChatThread.class);
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		startActivity(intent);
 		getActivity().finish();
@@ -411,7 +414,7 @@ public class UpdatesFragment extends SherlockListFragment implements OnScrollLis
 		@Override
 		protected List<StatusMessage> doInBackground(Void... params)
 		{
-			List<ContactInfo> friendsList = HikeMessengerApp.getContactManager().getContactsOfFavoriteType(FavoriteType.FRIEND, HikeConstants.BOTH_VALUE, userMsisdn);
+			List<ContactInfo> friendsList = ContactManager.getInstance().getContactsOfFavoriteType(FavoriteType.FRIEND, HikeConstants.BOTH_VALUE, userMsisdn);
 
 			ArrayList<String> msisdnList = new ArrayList<String>();
 

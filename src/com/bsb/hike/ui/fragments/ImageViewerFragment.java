@@ -1,14 +1,9 @@
 package com.bsb.hike.ui.fragments;
 
-import java.io.File;
-
+import android.app.Activity;
 import android.app.ProgressDialog;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
-import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -18,32 +13,57 @@ import android.widget.ImageView;
 import com.actionbarsherlock.app.SherlockFragment;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
-import com.bsb.hike.BitmapModule.BitmapUtils;
-import com.bsb.hike.BitmapModule.HikeBitmapFactory;
-import com.bsb.hike.modules.contactmgr.ContactManager;
-import com.bsb.hike.smartImageLoader.IconLoader;
-import com.bsb.hike.tasks.ProfileImageDownloader;
+import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.ui.ProfileActivity;
-import com.bsb.hike.utils.Logger;
+import com.bsb.hike.ui.SettingsActivity;
 import com.bsb.hike.utils.ProfileImageLoader;
 import com.bsb.hike.utils.Utils;
 
-public class ImageViewerFragment extends SherlockFragment implements OnClickListener
+public class ImageViewerFragment extends SherlockFragment implements OnClickListener, Listener
 {
-
 	ImageView imageView;
 
 	private ProgressDialog mDialog;
 
+	private String mappedId;
+
+	private String key;
+
+	private boolean isStatusImage;
+
+	private int imageSize;
+	
+	public static final int FROM_PROFILE_ACTIVITY = 1;
+
+	public static final int FROM_SETTINGS_ACTIVITY = 2;
+	
+	private int whichActivity;
+
+	private DisplayPictureEditListener mProfilePhotoEditListener;
+	
+	private String[] profilePicPubSubListeners = { HikePubSub.ICON_CHANGED};
+	
+	private boolean isViewEditable = false;
+
+	/**
+	 * Default constructor
+	 */
+	public ImageViewerFragment() 
+	{
+	}
+		
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
 		setHasOptionsMenu(true);
+		HikeMessengerApp.getPubSub().addListeners(this, profilePicPubSubListeners);
 	}
 
 	@Override
@@ -52,7 +72,6 @@ public class ImageViewerFragment extends SherlockFragment implements OnClickList
 		View parent = inflater.inflate(R.layout.image_viewer, null);
 		imageView = (ImageView) parent.findViewById(R.id.image);
 		imageView.setOnClickListener(this);
-
 		return parent;
 	}
 
@@ -61,20 +80,29 @@ public class ImageViewerFragment extends SherlockFragment implements OnClickList
 	{
 		super.onActivityCreated(savedInstanceState);
 
-		String mappedId = getArguments().getString(HikeConstants.Extras.MAPPED_ID);
+		mappedId = getArguments().getString(HikeConstants.Extras.MAPPED_ID);
 
-		final boolean isStatusImage = getArguments().getBoolean(HikeConstants.Extras.IS_STATUS_IMAGE);
+		isStatusImage = getArguments().getBoolean(HikeConstants.Extras.IS_STATUS_IMAGE);
 
-		int imageSize = this.getActivity().getResources().getDimensionPixelSize(R.dimen.timeine_big_picture_size);
+		imageSize = this.getActivity().getResources().getDimensionPixelSize(R.dimen.timeine_big_picture_size);
+						
+		showImage();
+	}
 
-		String key = mappedId;
+	private void showImage() 
+	{
+		key = mappedId;
+		
 		if (!isStatusImage)
 		{
 			int idx = key.lastIndexOf(ProfileActivity.PROFILE_PIC_SUFFIX);
+			
 			if (idx > 0)
+			{
 				key = new String(key.substring(0, idx));
+			}
 		}
-		ProfileImageLoader profileImageLoader = new ProfileImageLoader(getActivity(), key, imageView, imageSize);
+		ProfileImageLoader profileImageLoader = new ProfileImageLoader(getActivity(), key, imageView, imageSize, isStatusImage);
 		profileImageLoader.setLoaderListener(new ProfileImageLoader.LoaderListener() {
 
 			@Override
@@ -99,7 +127,6 @@ public class ImageViewerFragment extends SherlockFragment implements OnClickList
 			}
 		});
 		profileImageLoader.loadProfileImage(getLoaderManager());
-
 	}
 
 	@Override
@@ -107,12 +134,63 @@ public class ImageViewerFragment extends SherlockFragment implements OnClickList
 	{
 		super.onDestroy();
 		dismissProgressDialog();
+		HikeMessengerApp.getPubSub().removeListeners(this, profilePicPubSubListeners);
 	}
 
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater)
 	{
-		menu.clear();
+		menu.clear();			
+
+		if(isViewEditable)
+		{
+			inflater.inflate(R.menu.edit_dp, menu);			
+		}	
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) 
+	{
+		switch(item.getItemId())
+		{
+			case R.id.edit_dp:
+				if(mProfilePhotoEditListener != null)
+				{
+					mProfilePhotoEditListener.onDisplayPictureEditClicked(whichActivity);
+				}
+			break;
+		}
+		return true;
+	}
+
+	@Override
+	public void onAttach(Activity activity) 
+	{
+		super.onAttach(activity);
+		
+		if(activity instanceof SettingsActivity)
+		{
+			whichActivity = FROM_SETTINGS_ACTIVITY;
+		}
+		else if(activity instanceof ProfileActivity)
+		{
+			whichActivity = FROM_PROFILE_ACTIVITY;
+		}					
+
+		isViewEditable = getArguments().getBoolean(HikeConstants.CAN_EDIT_DP);
+
+		if(isViewEditable)
+		{
+			// activity should implement DisplayPictureEditListener interface
+			try 
+			{
+	            mProfilePhotoEditListener = (DisplayPictureEditListener) activity;            
+	        }
+			catch (ClassCastException e) 
+			{
+	            throw new ClassCastException(activity.toString() + " must implement DisplayPictureEditListener");
+	        }
+		}
 	}
 
 	private void dismissProgressDialog()
@@ -136,4 +214,31 @@ public class ImageViewerFragment extends SherlockFragment implements OnClickList
 		}
 		getActivity().onBackPressed();
 	}
+	
+	public interface DisplayPictureEditListener
+	{
+		public void onDisplayPictureEditClicked(int fromWhichActivity);
+	}
+
+	@Override
+	public void onEventReceived(String type, Object object) 
+	{
+		if (HikePubSub.ICON_CHANGED.equals(type))
+		{
+			ContactInfo contactInfo = Utils.getUserContactInfo(getActivity().getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0));
+
+			if (contactInfo.getMsisdn().equals((String) object))
+			{
+				getActivity().runOnUiThread(new Runnable()
+				{
+					
+					@Override
+					public void run() 
+					{
+						showImage();						
+					}
+				});
+			}
+		}		
+	}	
 }

@@ -1,6 +1,7 @@
 package com.bsb.hike.ui.fragments;
 
 import java.util.ArrayList;
+
 import java.util.Collections;
 import java.util.List;
 
@@ -34,6 +35,7 @@ import com.bsb.hike.adapters.FriendsAdapter.FriendsListFetchedCallback;
 import com.bsb.hike.adapters.FriendsAdapter.ViewType;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
+import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.ui.CreateNewGroupOrBroadcastActivity;
 import com.bsb.hike.ui.TellAFriend;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -193,7 +195,7 @@ public class FriendsFragment extends SherlockListFragment implements Listener, O
 		}
 		else if (HikePubSub.USER_JOINED.equals(type) || HikePubSub.USER_LEFT.equals(type))
 		{
-			final ContactInfo contactInfo = HikeMessengerApp.getContactManager().getContact((String) object, true, true);
+			final ContactInfo contactInfo = ContactManager.getInstance().getContact((String) object, true, true);
 
 			if (contactInfo == null)
 			{
@@ -297,7 +299,7 @@ public class FriendsFragment extends SherlockListFragment implements Listener, O
 
 			boolean nativeSMSOn = Utils.getSendSmsPref(getActivity());
 
-			final List<ContactInfo> favoriteList = HikeMessengerApp.getContactManager().getContactsOfFavoriteType(new FavoriteType[] { FavoriteType.FRIEND, FavoriteType.REQUEST_RECEIVED,
+			final List<ContactInfo> favoriteList = ContactManager.getInstance().getContactsOfFavoriteType(new FavoriteType[] { FavoriteType.FRIEND, FavoriteType.REQUEST_RECEIVED,
 					FavoriteType.REQUEST_SENT, FavoriteType.REQUEST_SENT_REJECTED }, HikeConstants.BOTH_VALUE, myMsisdn, nativeSMSOn, false);
 			Collections.sort(favoriteList, ContactInfo.lastSeenTimeComparator);
 			if (!isAdded())
@@ -317,7 +319,7 @@ public class FriendsFragment extends SherlockListFragment implements Listener, O
 		else if (HikePubSub.BLOCK_USER.equals(type) || HikePubSub.UNBLOCK_USER.equals(type))
 		{
 			String msisdn = (String) object;
-			final ContactInfo contactInfo = HikeMessengerApp.getContactManager().getContact(msisdn, true, true);
+			final ContactInfo contactInfo = ContactManager.getInstance().getContact(msisdn, true, true);
 			final boolean blocked = HikePubSub.BLOCK_USER.equals(type);
 			if (contactInfo == null)
 			{
@@ -637,11 +639,11 @@ public class FriendsFragment extends SherlockListFragment implements Listener, O
 			return;
 		}
 
-		friendsAdapter.setIsListFlinging(velocity > HikeConstants.MAX_VELOCITY_FOR_LOADING_IMAGES_SMALL);
 	}
 
 	@Override
 	public void onScrollStateChanged(AbsListView view, int scrollState)
 	{
+		friendsAdapter.setIsListFlinging(velocity > HikeConstants.MAX_VELOCITY_FOR_LOADING_IMAGES_SMALL && scrollState == OnScrollListener.SCROLL_STATE_FLING);
 	}
 }

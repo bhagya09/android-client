@@ -2,18 +2,11 @@ package com.bsb.hike.platform.bridge;
 
 import java.util.ArrayList;
 
-import com.bsb.hike.platform.HikePlatformConstants;
-import com.bsb.hike.platform.PlatformAlarmManager;
-import com.bsb.hike.platform.WebMetadata;
-import com.bsb.hike.ui.ComposeChatActivity;
-import com.bsb.hike.utils.AccountUtils;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-
+import com.bsb.hike.platform.CustomWebView;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -28,10 +21,16 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.PlatformAlarmManager;
+import com.bsb.hike.platform.WebMetadata;
 import com.bsb.hike.platform.WebViewCardRenderer.WebViewHolder;
 import com.bsb.hike.platform.content.PlatformContent;
+import com.bsb.hike.ui.ComposeChatActivity;
+import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
-import com.bsb.hike.utils.IntentManager;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
@@ -52,12 +51,12 @@ public class PlatformJavaScriptBridge extends JavascriptBridge
 
 	BaseAdapter adapter;
 
-	public PlatformJavaScriptBridge(Activity activity,WebView mWebView)
+	public PlatformJavaScriptBridge(Activity activity,CustomWebView mWebView)
 	{
 		super(activity,mWebView);
 	}
 
-	public PlatformJavaScriptBridge(Activity activity,WebView webView, ConvMessage convMessage, BaseAdapter adapter)
+	public PlatformJavaScriptBridge(Activity activity,CustomWebView webView, ConvMessage convMessage, BaseAdapter adapter)
 	{
 		super(activity,webView);
 		this.message = convMessage;
@@ -305,7 +304,7 @@ public class PlatformJavaScriptBridge extends JavascriptBridge
 					Activity mContext = weakActivity.get();
 					if(mContext!=null)
 					{
-						final Intent intent = IntentManager.getForwardIntentForConvMessage(mContext, message,
+						final Intent intent = IntentFactory.getForwardIntentForConvMessage(mContext, message,
 							PlatformContent.getForwardCardData(message.webMetadata.JSONtoString()));
 						mContext.startActivity(intent);
 					}
@@ -397,7 +396,7 @@ public class PlatformJavaScriptBridge extends JavascriptBridge
 		Activity activity = weakActivity.get();
 		if(activity!=null)
 		{
-				Intent intent = IntentManager.getComposeChatIntent(activity);
+				Intent intent = IntentFactory.getComposeChatIntent(activity);
 				intent.putExtra(HikeConstants.Extras.COMPOSE_MODE, ComposeChatActivity.PICK_CONTACT_MODE);
 				intent.putExtra(tag,PlatformJavaScriptBridge.this.hashCode());
 				intent.putExtra(REQUEST_CODE, PICK_CONTACT_REQUEST);

@@ -16,11 +16,6 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
-import com.bsb.hike.productpopup.DialogPojo;
-import com.bsb.hike.productpopup.HikeDialogFragment;
-import com.bsb.hike.productpopup.IActivityPopup;
-import com.bsb.hike.productpopup.ProductContentModel;
-import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.ui.fragments.FriendsFragment;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
@@ -97,7 +92,7 @@ public class PeopleActivity extends HikeAppStateBaseFragmentActivity implements 
 		searchView.setOnQueryTextListener(onQueryTextListener);
 		searchView.clearFocus();
 
-		MenuItem searchItem = menu.add(Menu.NONE, Menu.NONE, 1, R.string.search_hint);
+		MenuItem searchItem = menu.add(Menu.NONE, Menu.NONE, 1, R.string.search);
 
 		searchItem.setIcon(R.drawable.ic_top_bar_search).setActionView(searchView)
 				.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);

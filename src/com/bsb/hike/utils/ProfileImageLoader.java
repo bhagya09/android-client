@@ -42,8 +42,10 @@ public class ProfileImageLoader implements LoaderCallbacks<Boolean>
 	String mappedId;
 
 	boolean hasCustomImage;
+	
+	boolean isStatusImage;
 
-	public ProfileImageLoader(Context context, String msisdn, ImageView imageView, int imageSize) 
+	public ProfileImageLoader(Context context, String msisdn, ImageView imageView, int imageSize, boolean isStatusImage) 
 	{
 		this.context = context;
 		this.msisdn = msisdn;
@@ -52,6 +54,7 @@ public class ProfileImageLoader implements LoaderCallbacks<Boolean>
 		this.defaultDrawable = HikeBitmapFactory.getDefaultAvatar(context.getResources(), msisdn, true);
 		basePath = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
 		mappedId = msisdn + ProfileActivity.PROFILE_PIC_SUFFIX;
+		this.isStatusImage = isStatusImage;
 	}
 
 	/*
@@ -79,7 +82,9 @@ public class ProfileImageLoader implements LoaderCallbacks<Boolean>
 	 */
 	public boolean loadProfileImage(LoaderManager loaderManager)
 	{
-		hasCustomImage = ContactManager.getInstance().hasIcon(msisdn);
+		
+		hasCustomImage = isStatusImage || ContactManager.getInstance().hasIcon(msisdn);
+		
 		if (hasCustomImage)
 		{
 			String fileName = Utils.getProfileImageFileName(msisdn);
@@ -188,7 +193,7 @@ public class ProfileImageLoader implements LoaderCallbacks<Boolean>
 				return loader;
 			}
 		}
-		return new ProfileImageDownloader(context, msisdn, Utils.getProfileImageFileName(msisdn), hasCustomImage, false, null);
+		return new ProfileImageDownloader(context, msisdn, Utils.getProfileImageFileName(msisdn), hasCustomImage, isStatusImage, null);
 	}
 
 	@Override

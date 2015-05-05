@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.lang.Thread.State;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -43,6 +44,7 @@ import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+import com.bsb.hike.utils.Utils.ExternalStorageState;
 
 /* 
  * This manager will manage the upload and download (File Transfers).
@@ -394,6 +396,32 @@ public class FileTransferManager extends BroadcastReceiver
 		task.setFutureTask(ft);
 		pool.execute(ft);
 	}
+	
+	public void uploadFile(Uri picasaUri, HikeFileType hikeFileType, List<ContactInfo> msisdnList, boolean isRecipientOnHike)
+	{
+		if(taskOverflowLimitAchieved())
+			return;
+		if(hikeFileType != HikeFileType.IMAGE)
+		{
+			handler.post(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					Toast.makeText(context, R.string.unknown_msg, Toast.LENGTH_SHORT).show();
+				}
+			});
+			return;
+		}
+		
+		settings = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
+		String token = settings.getString(HikeMessengerApp.TOKEN_SETTING, null);
+		String uId = settings.getString(HikeMessengerApp.UID_SETTING, null);
+		UploadFileTask task = new UploadFileTask(handler, fileTaskMap, context, token, uId, picasaUri, hikeFileType, msisdnList, isRecipientOnHike, FTAnalyticEvents.OTHER_ATTACHEMENT);
+		MyFutureTask ft = new MyFutureTask(task);
+		task.setFutureTask(ft);
+		pool.execute(ft);
+	}
 
 	public void uploadLocation(String msisdn, double latitude, double longitude, int zoomLevel, boolean isRecipientOnhike)
 	{
@@ -497,8 +525,8 @@ public class FileTransferManager extends BroadcastReceiver
 			FileTransferBase task = ((MyFutureTask) obj).getTask();
 			task.setPausedProgress(task._bytesTransferred);
 			task.setState(FTState.PAUSED);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
 			task.analyticEvents.mPauseCount += 1;
-			LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED));
 			Logger.d(getClass().getSimpleName(), "pausing the task....");
 		}
 	}
@@ -832,11 +860,11 @@ public class FileTransferManager extends BroadcastReceiver
 			FileTransferBase task = ((MyFutureTask) obj).getTask();
 			if(task.getPausedProgress() == task._bytesTransferred && task._state == FTState.PAUSED){
 				task.setState(FTState.IN_PROGRESS);
-				LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED));
+				HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
 			}
 		}
 	}
-
+	
 	public File getAnalyticFile(File file, long  msgId)
 	{
 		return new File(FileTransferManager.getInstance(context).getHikeTempDir(), file.getName() + ".log." + msgId);
