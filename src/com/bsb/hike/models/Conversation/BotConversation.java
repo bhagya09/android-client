@@ -112,6 +112,12 @@ public class BotConversation extends OneToOneConversation
 			this.botInfo = botInfo;
 			return getSelfObject();
 		}
+		
+		public P setConvInfo(ConvInfo newConvInfo)
+		{
+			this.convInfo = newConvInfo;
+			return getSelfObject();
+		}
 
 		public BotConversation build()
 		{
@@ -139,6 +145,12 @@ public class BotConversation extends OneToOneConversation
 		protected ConversationBuilder getSelfObject()
 		{
 			return this;
+		}
+		
+		@Override
+		protected ConvInfo getConvInfo(String msisdn)
+		{
+			return new ConvInfo.ConvInfoBuilder(msisdn).build();
 		}
 	}
 }

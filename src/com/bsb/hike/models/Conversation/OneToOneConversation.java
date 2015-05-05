@@ -63,7 +63,7 @@ public class OneToOneConversation extends Conversation
 
 		public InitBuilder(String msisdn)
 		{
-			super(msisdn, new ConvInfo.ConvInfoBuilder(msisdn));
+			super(msisdn);
 		}
 
 		public P setIsOnHike(boolean isOnHike)
@@ -100,6 +100,12 @@ public class OneToOneConversation extends Conversation
 		protected ConversationBuilder getSelfObject()
 		{
 			return this;
+		}
+		
+		@Override
+		protected ConvInfo getConvInfo(String msisdn)
+		{
+			return new ConvInfo.ConvInfoBuilder(msisdn).build();
 		}
 
 	}
