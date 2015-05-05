@@ -49,6 +49,7 @@ import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.modules.iface.ITransientCache;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.Utils;
 
@@ -69,11 +70,14 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 
 	private Context context;
 
-	private String[] pubSubListeners = { HikePubSub.APP_BACKGROUNDED };
+	private static String[] pubSubListeners = { HikePubSub.APP_BACKGROUNDED };
 
 	private ContactManager()
 	{
-		HikeMessengerApp.getPubSub().addListeners(this, pubSubListeners);
+		context = HikeMessengerApp.getInstance().getApplicationContext();
+		hDb = HikeUserDatabase.getInstance();
+		persistenceCache = new PersistenceCache(hDb);
+		transientCache = new TransientCache(hDb);
 	}
 
 	public static ContactManager getInstance()
@@ -85,12 +89,27 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 				if (_instance == null)
 				{
 					_instance = new ContactManager();
+					init();
 				}
 			}
 		}
 		return _instance;
 	}
 
+	private static void init()
+	{
+		if (_instance == null)
+		{
+			throw new IllegalStateException("Contact Manager getInstance() should be called that will create a new instance and initialize");
+		}
+
+		HikeMessengerApp.getPubSub().addListeners(_instance, pubSubListeners);
+
+		// Called to set name for group whose group name is empty (group created by ios) , we cannot do this inside persistence cache load memory because at taht point transient
+		// and persistence cache have not been initialized completely
+		_instance.persistenceCache.updateGroupNames();
+	}
+	
 	public SQLiteDatabase getWritableDatabase()
 	{
 		return hDb.getWritableDatabase();
@@ -99,18 +118,6 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	public SQLiteDatabase getReadableDatabase()
 	{
 		return hDb.getReadableDatabase();
-	}
-	
-	public void init(Context ctx)
-	{
-		context = ctx.getApplicationContext();
-		hDb = new HikeUserDatabase(ctx);
-		persistenceCache = new PersistenceCache(hDb);
-		transientCache = new TransientCache(hDb);
-
-		// Called to set name for group whose group name is empty (group created by ios) , we cannot do this inside persistence cache load memory because at taht point transient
-		// and persistence cache have not been initialized completely
-		persistenceCache.updateGroupNames();
 	}
 
 	/**
@@ -144,7 +151,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	}
 
 	/**
-	 * This is used to remove the list of msisdns from either group or 1-1 conversation and should be called when multiple group or one to one conversations are deleted.
+	 * This is used to remove the list of msisdns from either 1-n or 1-1 conversation and should be called when multiple group or one to one conversations are deleted.
 	 * 
 	 * @param msisdns
 	 */
@@ -152,7 +159,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	{
 		for (String ms : msisdns)
 		{
-			if (Utils.isGroupConversation(ms))
+			if (OneToNConversationUtils.isOneToNConversation(ms))
 			{
 				persistenceCache.removeGroup(ms);
 				transientCache.removeGroup(ms);
@@ -1212,6 +1219,18 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	}
 
 	/**
+	 * Returns a list of participants in a 1-n conversation with their names in case of unsaved contact. This method also increases reference count if the contact is already loaded
+	 * in memory
+	 * 
+	 * @param convId
+	 * @return
+	 */
+	public List<PairModified<GroupParticipant, String>> getActiveConversationParticipants(String convId)
+	{
+		return getGroupParticipants(convId, true, false);
+	}
+
+	/**
 	 * Returns a list of participants of a group with their names in case of unsaved contact. This method also increases the reference count if contact is already loaded in memory
 	 * 
 	 * @param groupId
@@ -1935,7 +1954,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 		{
 			if(group.isGroupAlive())
 			{
-				if (!Utils.isBroadcastConversation(group.getGroupId()))
+				if (!OneToNConversationUtils.isBroadcastConversation(group.getGroupId()))
 				{
 					int numMembers = 0;
 					if(groupCountMap.containsKey(group.getGroupId()))
@@ -2148,7 +2167,32 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 			 */
 			unload();
 		}
+	}
 
+	/**
+	 * Shutdowns the contact manager and re-initializes it with new values in db {@see #shutdown()}
+	 */
+	public void refreshContactManager()
+	{
+		// clear persistence, transient cache and assign null to all other class members
+		shutdown();
+		// create a new instance and initialize it
+		getInstance();
+	}
+
+	/**
+	 * Shutdown's both {@link PersistenceCache} and {@link TransientCache} and make all references to null
+	 */
+	public void shutdown()
+	{
+		HikeMessengerApp.getPubSub().removeListeners(this, pubSubListeners);
+		persistenceCache.shutdown();
+		persistenceCache = null;
+		transientCache.shutdown();
+		transientCache = null;
+		hDb = null;
+		context = null;
+		_instance = null;
 	}
 
 	public void platformUserIdEntry(JSONArray data)
