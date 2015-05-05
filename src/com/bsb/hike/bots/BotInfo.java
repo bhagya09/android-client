@@ -73,6 +73,12 @@ public class BotInfo extends ConvInfo
 			this.metadata = metaData;
 			return getSelfObject();
 		}
+		
+		@Override
+		public P setOnHike(boolean onHike)
+		{
+			return super.setOnHike(true);
+		}
 
 		@Override
 		public BotInfo build()
@@ -154,6 +160,12 @@ public class BotInfo extends ConvInfo
 	public boolean isNonMessagingBot()
 	{
 		return type == NON_MESSAGING_BOT;
+	}
+	
+	@Override
+	public void setOnHike(boolean isOnHike)
+	{
+		super.setOnHike(true);
 	}
 
 }
