@@ -1660,7 +1660,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 
 		ShowTipIfNeeded(displayedConversations.isEmpty());
 		
-		mAdapter = new ConversationsAdapter(getActivity(), displayedConversations, stealthConversations, getListView());
+		mAdapter = new ConversationsAdapter(getActivity(), displayedConversations, stealthConversations, getListView(), this);
 
 		setListAdapter(mAdapter);
 
@@ -1863,6 +1863,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		{
 			return;
 		}
+		setEmptyState(mAdapter.isEmpty());
 		mAdapter.notifyDataSetChanged();
 	}
 

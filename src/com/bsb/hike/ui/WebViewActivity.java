@@ -1,5 +1,6 @@
 package com.bsb.hike.ui;
 
+import com.bsb.hike.platform.CustomWebView;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -37,7 +38,7 @@ import com.bsb.hike.utils.Logger;
 public class WebViewActivity extends HikeAppStateBaseFragmentActivity
 {
 
-	private WebView webView;
+	private CustomWebView webView;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -49,7 +50,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity
 		String title = getIntent().getStringExtra(HikeConstants.Extras.TITLE);
 		final boolean allowLoc = getIntent().getBooleanExtra(HikeConstants.Extras.WEBVIEW_ALLOW_LOCATION, false);
 
-		webView = (WebView) findViewById(R.id.t_and_c_page);
+		webView = (CustomWebView) findViewById(R.id.t_and_c_page);
 		final ProgressBar bar = (ProgressBar) findViewById(R.id.progress);
 
 		WebViewClient client = new WebViewClient()
@@ -139,7 +140,14 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity
 		setupActionBar(title);
 	}
 
-	
+	@Override
+	protected void onDestroy()
+	{
+		webView.onActivityDestroyed();
+		super.onDestroy();
+	}
+
+
 	/**
 	 * 
 	 * @param view

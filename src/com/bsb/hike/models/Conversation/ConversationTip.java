@@ -20,6 +20,7 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.ui.PeopleActivity;
 import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.ui.StatusUpdate;
@@ -149,7 +150,7 @@ public class ConversationTip implements OnClickListener
 			((TextView) v.findViewById(R.id.tip_header)).setText(headerTxt);
 			((TextView) v.findViewById(R.id.tip_msg)).setText(msgTxt);
 			v.findViewById(R.id.close_tip).setOnClickListener(this);
-			v.findViewById(R.id.close_container).setOnClickListener(this);
+			v.findViewById(R.id.all_content).setOnClickListener(this);
 			return v;
 
 		case ATOMIC_PROFILE_PIC_TIP:
@@ -311,6 +312,10 @@ public class ConversationTip implements OnClickListener
 			{
 			case STEALTH_UNREAD_TIP:
 				HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_UNREAD_TIP_CLICKED, null);
+				if (mListener != null)
+				{
+					mListener.closeTip(tipType);
+				}
 				break;
 			case RESET_STEALTH_TIP:
 				if (mListener != null)

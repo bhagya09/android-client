@@ -516,7 +516,10 @@ public class GroupChatThread extends OneToNChatThread
 		content.setVisibility(View.VISIBLE);
 		mComposeView = (CustomFontEditText) content.findViewById(R.id.messageedittext);
 		mComposeView.requestFocus();
-		mEmoticonPicker.updateET(mComposeView);
+		if (mEmoticonPicker != null)
+		{
+			mEmoticonPicker.updateET(mComposeView);
+		}
 
 		View mBottomView = activity.findViewById(R.id.bottom_panel);
 		if (mShareablePopupLayout.isKeyboardOpen())
@@ -658,7 +661,10 @@ public class GroupChatThread extends OneToNChatThread
 		// AFTER PIN MODE, we make sure mComposeView is reinitialized to message composer compose
 
 		mComposeView = (CustomFontEditText) activity.findViewById(R.id.msg_compose);
-		mEmoticonPicker.updateET(mComposeView);
+		if (mEmoticonPicker != null)
+		{
+			mEmoticonPicker.updateET(mComposeView);
+		}
 		mComposeView.requestFocus();
 		View mBottomView = activity.findViewById(R.id.bottom_panel);
 		mBottomView.startAnimation(AnimationUtils.loadAnimation(activity.getApplicationContext(), R.anim.down_up_lower_part));
