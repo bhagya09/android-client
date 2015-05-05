@@ -556,7 +556,10 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 			//if list is empty close the fragment
 			finish();
 		}
-		smAdapter.notifyDataSetChanged();
+		else
+		{
+			smAdapter.notifyDataSetChanged();
+		}
 	}
 	
 	@Override
