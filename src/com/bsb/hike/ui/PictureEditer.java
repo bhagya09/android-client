@@ -25,6 +25,7 @@ import android.view.View.OnClickListener;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.view.Window;
@@ -139,6 +140,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 					@Override
 					public void run()
 					{
+						Toast.makeText(PictureEditer.this, getResources().getString(R.string.file_expire), Toast.LENGTH_SHORT).show();
 						PictureEditer.this.finish();
 					}
 				});
