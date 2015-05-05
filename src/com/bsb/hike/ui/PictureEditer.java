@@ -135,6 +135,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 		if (hikeFileType.compareTo(HikeFileType.IMAGE) != 0)
 		{
 			Toast.makeText(getApplicationContext(), getString(R.string.only_photos_edit), Toast.LENGTH_SHORT).show();
+			PictureEditer.this.finish();
 			return;
 		}
 

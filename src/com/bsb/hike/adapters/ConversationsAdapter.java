@@ -91,6 +91,8 @@ public class ConversationsAdapter extends BaseAdapter
 	private Set<String> conversationsMsisdns;
 
 	private boolean isSearchModeOn = false;
+	
+	private FilterListener searchFilterListener;
 
 	private enum ViewType
 	{
@@ -116,13 +118,14 @@ public class ConversationsAdapter extends BaseAdapter
 		ImageView muteIcon;
 	}
 
-	public ConversationsAdapter(Context context, List<ConvInfo> displayedConversations, Set<ConvInfo> stealthConversations, ListView listView)
+	public ConversationsAdapter(Context context, List<ConvInfo> displayedConversations, Set<ConvInfo> stealthConversations, ListView listView, FilterListener searchFilterListener)
 	{
 		this.context = context;
 		this.completeList = displayedConversations;
 		this.stealthConversations = stealthConversations;
 		this.listView = listView;
 		this.inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		this.searchFilterListener = searchFilterListener;
 		mIconImageSize = context.getResources().getDimensionPixelSize(R.dimen.icon_picture_size);
 		iconLoader = new IconLoader(context, mIconImageSize);
 		iconLoader.setImageFadeIn(false);
@@ -335,11 +338,6 @@ public class ConversationsAdapter extends BaseAdapter
 		{
 			contactFilter.filter(refinedSearchText);
 		}
-	}
-	
-	public void onQueryChanged(String s)
-	{
-		onQueryChanged(s, null);
 	}
 
 	private class ContactFilter extends Filter
@@ -1030,7 +1028,7 @@ public class ConversationsAdapter extends BaseAdapter
 		}
 		else
 		{
-			onQueryChanged(refinedSearchText);
+			onQueryChanged(refinedSearchText, searchFilterListener);
 		}
 	}
 
@@ -1058,7 +1056,7 @@ public class ConversationsAdapter extends BaseAdapter
 			}
 			if (isSearchModeOn)
 			{
-				onQueryChanged(refinedSearchText);
+				onQueryChanged(refinedSearchText, searchFilterListener);
 			}
 		}
 	}

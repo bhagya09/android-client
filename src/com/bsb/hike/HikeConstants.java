@@ -1530,6 +1530,12 @@ public class HikeConstants
 		
 		public static final String GENERAL_SO_TIMEOUT = "sto";
 		
+		public static final String OKHTTP_CONNECT_TIMEOUT = "okcto";
+
+		public static final String OKHTTP_READ_TIMEOUT = "okrto";
+
+		public static final String OKHTTP_WRITE_TIMEOUT = "okwto";
+
 		public static final String ENABLE_PHOTOS = "ph_en";
 
 		public static final String FT_UPLOAD_SO_TIMEOUT = "ftsto";
