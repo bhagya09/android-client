@@ -17,7 +17,7 @@ import android.text.TextUtils;
 
 import com.bsb.hike.modules.httpmgr.Header;
 import com.bsb.hike.modules.httpmgr.RequestToken;
-import com.bsb.hike.modules.httpmgr.Utils;
+import com.bsb.hike.modules.httpmgr.HttpUtils;
 import com.bsb.hike.modules.httpmgr.interceptor.IRequestInterceptor;
 import com.bsb.hike.modules.httpmgr.interceptor.IResponseInterceptor;
 import com.bsb.hike.modules.httpmgr.interceptor.Pipeline;
@@ -778,7 +778,7 @@ public abstract class Request<T> implements IRequestFacade
 		{
 			input += header.getName() + header.getValue();
 		}
-		return Utils.calculateMD5hash(input);
+		return HttpUtils.calculateMD5hash(input);
 	}
 	
 	@Override

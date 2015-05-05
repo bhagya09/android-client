@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.bsb.hike.modules.httpmgr.Header;
-import com.bsb.hike.modules.httpmgr.Utils;
+import com.bsb.hike.modules.httpmgr.HttpUtils;
 import com.bsb.hike.modules.httpmgr.request.Request;
 import com.bsb.hike.modules.httpmgr.request.requestbody.IRequestBody;
 import com.bsb.hike.modules.httpmgr.response.Response;
@@ -134,7 +134,7 @@ public class UrlConnectionClient implements IClient
 		}
 		finally
 		{
-			Utils.closeQuietly(stream);
+			HttpUtils.closeQuietly(stream);
 		}
 	}
 

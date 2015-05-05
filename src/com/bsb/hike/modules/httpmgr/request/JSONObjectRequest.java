@@ -7,7 +7,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.bsb.hike.modules.httpmgr.RequestToken;
-import com.bsb.hike.modules.httpmgr.Utils;
+import com.bsb.hike.modules.httpmgr.HttpUtils;
 import com.bsb.hike.modules.httpmgr.log.LogFull;
 
 /**
@@ -48,7 +48,7 @@ public class JSONObjectRequest extends Request<JSONObject>
 	{
 		try
 		{
-			byte[] bytes = Utils.streamToBytes(in);
+			byte[] bytes = HttpUtils.streamToBytes(in);
 			JSONObject json = new JSONObject(new String(bytes));
 			return json;
 		}

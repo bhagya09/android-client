@@ -20,7 +20,7 @@ import java.util.UUID;
 import org.apache.http.conn.ConnectTimeoutException;
 
 import com.bsb.hike.modules.httpmgr.DefaultHeaders;
-import com.bsb.hike.modules.httpmgr.Utils;
+import com.bsb.hike.modules.httpmgr.HttpUtils;
 import com.bsb.hike.modules.httpmgr.analytics.HttpAnalyticsConstants;
 import com.bsb.hike.modules.httpmgr.analytics.HttpAnalyticsLogger;
 import com.bsb.hike.modules.httpmgr.client.IClient;
@@ -92,7 +92,7 @@ public class RequestExecuter
 		 */
 		if (!allInterceptorsExecuted)
 		{
-			Utils.finish(request, response);
+			HttpUtils.finish(request, response);
 		}
 	}
 

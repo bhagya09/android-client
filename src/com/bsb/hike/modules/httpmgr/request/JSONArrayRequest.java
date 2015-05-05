@@ -8,7 +8,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.bsb.hike.modules.httpmgr.RequestToken;
-import com.bsb.hike.modules.httpmgr.Utils;
+import com.bsb.hike.modules.httpmgr.HttpUtils;
 import com.bsb.hike.modules.httpmgr.log.LogFull;
 
 /**
@@ -49,7 +49,7 @@ public class JSONArrayRequest extends Request<JSONArray>
 	{
 		try
 		{
-			byte[] bytes = Utils.streamToBytes(in);
+			byte[] bytes = HttpUtils.streamToBytes(in);
 			JSONArray json = new JSONArray(new String(bytes));
 			return json;
 		}
