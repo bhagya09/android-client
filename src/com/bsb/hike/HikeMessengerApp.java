@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import android.text.TextUtils;
@@ -518,7 +519,7 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 
 	public static Map<String, Pair<Integer, Long>> lastSeenFriendsMap;
 
-	public static HashMap<String, BotInfo> hikeBotNamesMap;
+	public static ConcurrentHashMap<String, BotInfo> hikeBotNamesMap;
 
 	public static volatile boolean networkError;
 
@@ -845,7 +846,7 @@ public void onTrimMemory(int level)
 
 		makeNoMediaFiles();
 
-		hikeBotNamesMap = new HashMap<String, BotInfo>();
+		hikeBotNamesMap = new ConcurrentHashMap<>();
 		initBots();
 
 		initHikeLruCache(getApplicationContext());
