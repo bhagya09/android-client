@@ -3,6 +3,7 @@ package com.bsb.hike.photos;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.ColorMatrix;
 import android.os.Handler;
@@ -81,12 +82,14 @@ public final class HikeEffectsFactory
 		{
 			rre.printStackTrace();
 			fallback(rre);
+			finish();
 			return false;
 		}
 		catch (android.renderscript.RSRuntimeException e)
 		{
 			e.printStackTrace();
 			fallback(e);
+			finish();
 			return false;
 		}
 
@@ -205,7 +208,11 @@ public final class HikeEffectsFactory
 		{
 			Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(),
 					HikeMessengerApp.getInstance().getApplicationContext().getResources().getString(R.string.photos_oom_load), Toast.LENGTH_SHORT).show();
-			IntentFactory.openHomeActivity(HikeMessengerApp.getInstance().getApplicationContext(), true);
+
+			Intent homeActivityIntent = IntentFactory.getHomeActivityIntent(HikeMessengerApp.getInstance().getApplicationContext());
+			homeActivityIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			HikeMessengerApp.getInstance().getApplicationContext().startActivity(homeActivityIntent);
+			
 			return;
 		}
 		instance.beginEffectAsyncTask(listener, type, true);
