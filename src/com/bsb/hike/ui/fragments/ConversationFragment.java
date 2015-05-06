@@ -1064,6 +1064,13 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 			removeStealthConvTip();
 		}
 		
+		if (tipType == ConversationTip.STEALTH_HIDE_TIP && tipView != null)
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STEALTH_MODE_FTUE_DONE, true);
+			removeTipIfExists(ConversationTip.STEALTH_HIDE_TIP);
+		}
+		
 		if (showingWelcomeHikeConvTip)
 		{
 			removeTipIfExists(ConversationTip.WELCOME_HIKE_TIP);
