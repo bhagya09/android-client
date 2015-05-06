@@ -1060,6 +1060,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		if (tipType == ConversationTip.STEALTH_FTUE_TIP || showingStealthFtueConvTip)
 		{
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STEALTH_MODE_FTUE_DONE, true);
 			removeStealthConvTip();
 		}
 		
