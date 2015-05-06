@@ -20,6 +20,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.BitmapUtils;
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.models.HikeFile.HikeFileType;
@@ -45,6 +46,7 @@ import com.bsb.hike.utils.EmoticonConstants;
 import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.Utils;
+import com.bsb.hike.view.TextDrawable;
 
 public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 {		
@@ -370,18 +372,18 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 			String contname = TextUtils.isEmpty(mContactInfo.getName()) ? mContactInfo.getMsisdn() : mContactInfo.getName();
 			viewHolder.text.setText(contname);
 			String mapedId = contmsisdn + ProfileActivity.PROFILE_PIC_SUFFIX;
-			ImageViewerInfo imageViewerInf = new ImageViewerInfo(mapedId, null, false, !ContactManager.getInstance().hasIcon(contmsisdn));
+			ImageViewerInfo imageViewerInf = new ImageViewerInfo(mapedId, null, false, !ContactManager.getInstance().hasIcon(contmsisdn, false));
 			viewHolder.image.setTag(imageViewerInf);
 			if (profilePreview == null)
 			{
+				viewHolder.image.setImageDrawable(HikeBitmapFactory.getRectTextAvatar(contmsisdn));
+				
 				if(hasCustomPhoto)
 				{
-					profileImageLoader.loadImage(mapedId, viewHolder.image, isListFlinging);
-				}
-				else
-				{
-					viewHolder.image.setBackgroundResource(BitmapUtils.getDefaultAvatarResourceId(mContactInfo.getMsisdn(), false));
-					viewHolder.image.setImageResource(R.drawable.ic_default_avatar_hires);
+					boolean defaultDrawableNull = profileImageLoader.getDefaultDrawableNull();
+					profileImageLoader.setDefaultDrawableNull(false);
+					profileImageLoader.loadImage(mapedId, viewHolder.image, isListFlinging,false,false);
+					profileImageLoader.setDefaultDrawableNull(defaultDrawableNull);
 				}
 			}
 			else
@@ -924,18 +926,21 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 	private boolean getHasCustomPhoto()
 	{
 		// basically for the case of unknown number contactInfo object doesn't have the hasIcon information
-		if(mContactInfo != null)
+		if (mContactInfo != null)
 		{
-			return this.mContactInfo.hasCustomPhoto() || ContactManager.getInstance().hasIcon(this.mContactInfo.getMsisdn());	
+			return this.mContactInfo.hasCustomPhoto() || ContactManager.getInstance().hasIcon(this.mContactInfo.getMsisdn(), false);
 		}
-		else 
+		else
 		{
 			return false;
 		}
 	}
-	
+
 	public void updateHasCustomPhoto()
 	{
-		this.hasCustomPhoto = getHasCustomPhoto();
+		if (mContactInfo != null)
+		{
+			this.hasCustomPhoto = ContactManager.getInstance().hasIcon(this.mContactInfo.getMsisdn(), true);
+		}
 	}
 }

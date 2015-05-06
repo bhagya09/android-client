@@ -969,19 +969,13 @@ public class ConversationsAdapter extends BaseAdapter
 				
 				ConvInfo conversationInfo = getItem(indexOfData);
 
-				if (!ContactManager.getInstance().hasIcon(conversationInfo.getMsisdn()))
+				if (!ContactManager.getInstance().hasIcon(conversationInfo.getMsisdn(),false))
 				{
-					return;
+					continue;
 				}
 
 				updateViewsRelatedToAvatar(view,conversationInfo);
 			}
-		}
-		
-		//TODO remove this log as this is just for testing
-		if(notify)
-		{
-			Logger.i("ConversationFling ", " isListFlinging : "+isListFlinging);
 		}
 	}
 	
