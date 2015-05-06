@@ -542,7 +542,7 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
                     	{
                     		mTextInfo.setText(R.string.stealth_msg_reenter_pin_to_confirm);
                     		changeRetryToCancel();
-                    		mBtnConfirm.setEnabled(true);
+                    		mBtnConfirm.setEnabled(false);
                     	}
                     	
                     }
