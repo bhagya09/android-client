@@ -1059,14 +1059,14 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 	{
 		if (tipType == ConversationTip.STEALTH_FTUE_TIP || showingStealthFtueConvTip)
 		{
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF);
+			StealthModeManager.getInstance().activate(false);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STEALTH_MODE_FTUE_DONE, true);
 			removeStealthConvTip();
 		}
 		
 		if (tipType == ConversationTip.STEALTH_HIDE_TIP && tipView != null)
 		{
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF);
+			StealthModeManager.getInstance().activate(false);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STEALTH_MODE_FTUE_DONE, true);
 			removeTipIfExists(ConversationTip.STEALTH_HIDE_TIP);
 		}
@@ -1251,15 +1251,12 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 	private void resetStealthMode()
 	{
 		removeTipIfExists(ConversationTip.RESET_STEALTH_TIP);
-
-		int prevStealthValue = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF);
-
 		resetStealthPreferences();
 
 		/*
 		 * If previously the stealth mode was off, we should publish an event telling the friends fragment to refresh its list.
 		 */
-		if (prevStealthValue == HikeConstants.STEALTH_OFF)
+		if (!StealthModeManager.getInstance().isActive())
 		{
 			HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_MODE_RESET_COMPLETE, null);
 		}
@@ -2413,7 +2410,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 			/**
 			 * Setting stealth mode off as we are hiding the StealthFTUE convTip
 			 */
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF);
+			StealthModeManager.getInstance().activate(false);
 			
 			getActivity().runOnUiThread(new Runnable()
 			{
@@ -2440,7 +2437,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 			/**
 			 * Setting stealth mode on as we need to show the StealthFTUE convTip
 			 */
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_ON);
+			StealthModeManager.getInstance().activate(true);
 			
 			getActivity().runOnUiThread(new Runnable()
 			{
