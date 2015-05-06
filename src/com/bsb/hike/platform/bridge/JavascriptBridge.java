@@ -33,6 +33,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.productpopup.ProductPopupsConstants.HIKESCREEN;
+import com.bsb.hike.ui.ComposeChatActivity;
 import com.bsb.hike.ui.CreateNewGroupOrBroadcastActivity;
 import com.bsb.hike.ui.HikeListActivity;
 import com.bsb.hike.ui.HomeActivity;
@@ -54,6 +55,11 @@ public abstract class JavascriptBridge
 	static final String tag = "JavascriptBridge";
 
 	protected Handler mHandler;
+	
+	private static final String REQUEST_CODE = "request_code";
+	
+	private static final int PICK_CONTACT_REQUEST = 1;
+
 
 	public JavascriptBridge(Activity activity, WebView mWebView)
 	{
@@ -552,9 +558,52 @@ public abstract class JavascriptBridge
 		}
 
 	}
+	
+	/**
+	 * This function can be used to start a hike native contact chooser/picker which will show all hike contacts to user and user can select few contacts (minimum 1). It will call
+	 * JavaScript function "onContactChooserResult(int resultCode,JsonArray array)" This JSOnArray contains list of JSONObject where each JSONObject reflects one user. As of now
+	 * each JSON will have name and platform_id, e.g : [{'name':'Paul','platform_id':'dvgd78as'}] resultCode will be 0 for fail and 1 for success NOTE : JSONArray could be null as
+	 * well, a micro app has to take care of this instance and startContactChooser not present
+	 */
+	@JavascriptInterface
+	public void startContactChooser()
+	{
+		Activity activity = weakActivity.get();
+		if (activity != null)
+		{
+			Intent intent = IntentFactory.getComposeChatIntent(activity);
+			intent.putExtra(HikeConstants.Extras.COMPOSE_MODE, ComposeChatActivity.PICK_CONTACT_MODE);
+			intent.putExtra(tag, JavascriptBridge.this.hashCode());
+			intent.putExtra(REQUEST_CODE, PICK_CONTACT_REQUEST);
+			activity.startActivityForResult(intent, HikeConstants.PLATFORM_REQUEST);
+		}
+	}
+	
+	public void onActivityResult(int resultCode, Intent data)
+	{
+		int requestCode = data.getIntExtra(REQUEST_CODE, -1);
+		if (requestCode != -1)
+		{
+			switch (requestCode)
+			{
+			case PICK_CONTACT_REQUEST:
+				handlePickContactResult(resultCode, data);
+				break;
+			}
+		}
+	}
 
-	
-	
-	
+	private void handlePickContactResult(int resultCode, Intent data)
+	{
+		Logger.i(tag, "pick contact result " + data.getExtras().toString());
+		if (resultCode == Activity.RESULT_OK)
+		{
+			mWebView.loadUrl("javascript:onContactChooserResult('1','" + data.getStringExtra(HikeConstants.HIKE_CONTACT_PICKER_RESULT) + "')");
+		}
+		else
+		{
+			mWebView.loadUrl("javascript:onContactChooserResult('0','[]')");
+		}
+	}
 
 }
