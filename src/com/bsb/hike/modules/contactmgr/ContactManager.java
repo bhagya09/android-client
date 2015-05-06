@@ -877,7 +877,22 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	 */
 	public boolean hasIcon(String msisdn)
 	{
-		return hDb.hasIcon(msisdn);
+		ContactInfo contactInfo = getContactInfoFromPhoneNoOrMsisdn(msisdn);
+		if (contactInfo != null)
+		{
+			if (contactInfo.hasCustomPhoto())
+			{
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		}
+		else
+		{
+			return hDb.hasIcon(msisdn);
+		}
 	}
 
 	/**
