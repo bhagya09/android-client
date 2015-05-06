@@ -111,5 +111,10 @@ public class CustomWebView extends WebView
 		setHorizontalScrollBarEnabled(false);
 		getSettings().setJavaScriptEnabled(true);
 	}
+	
+	public void loadMicroAppData(String data)
+	{
+		this.loadDataWithBaseURL("", data, "text/html", "UTF-8", "");
+	}
 
 }
