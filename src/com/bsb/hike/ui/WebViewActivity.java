@@ -1,12 +1,8 @@
 package com.bsb.hike.ui;
 
-import com.bsb.hike.platform.CustomWebView;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.lang.ref.WeakReference;
-
-import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
@@ -32,8 +28,9 @@ import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.db.HikeContentDatabase;
-import com.bsb.hike.models.WhitelistDomain;
 import com.bsb.hike.models.FullScreenJavascriptBridge;
+import com.bsb.hike.models.WhitelistDomain;
+import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -150,7 +147,11 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity
 	@Override
 	protected void onDestroy()
 	{
-		webView.onActivityDestroyed();
+		
+		if(webView!=null)
+		{
+			webView.onActivityDestroyed();
+		}
 		super.onDestroy();
 	}
 
@@ -252,15 +253,5 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity
 		{
 			super.onBackPressed();
 		}
-	}
-	@Override
-	protected void onDestroy()
-	{
-		
-		if(webView!=null)
-		{
-			webView.removeJavascriptInterface(HikePlatformConstants.PLATFORM_BRIDGE_NAME);
-		}
-		super.onDestroy();
 	}
 }
