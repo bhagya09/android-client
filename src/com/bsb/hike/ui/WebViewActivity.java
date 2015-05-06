@@ -1,6 +1,5 @@
 package com.bsb.hike.ui;
 
-import com.bsb.hike.platform.CustomWebView;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -30,6 +29,7 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.models.WhitelistDomain;
+import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.bridge.FullScreenJavascriptBridge;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
@@ -144,6 +144,18 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity
 		webView.addJavascriptInterface(mmBridge, HikePlatformConstants.PLATFORM_BRIDGE_NAME);
 	}
 
+	@Override
+	protected void onDestroy()
+	{
+		
+		if(webView!=null)
+		{
+			webView.onActivityDestroyed();
+		}
+		super.onDestroy();
+	}
+
+
 	/**
 	 * 
 	 * @param view
@@ -241,17 +253,5 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity
 		{
 			super.onBackPressed();
 		}
-	}
-	
-	@Override
-	protected void onDestroy()
-	{
-		
-		if(webView!=null)
-		{
-			webView.removeJavascriptInterface(HikePlatformConstants.PLATFORM_BRIDGE_NAME);
-			webView.onActivityDestroyed();
-		}
-		super.onDestroy();
 	}
 }
