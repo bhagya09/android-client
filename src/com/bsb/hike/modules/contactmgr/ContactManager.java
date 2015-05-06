@@ -70,6 +70,8 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 
 	private Context context;
 
+	private String myMsisdn;
+
 	private static String[] pubSubListeners = { HikePubSub.APP_BACKGROUNDED };
 
 	private ContactManager()
@@ -240,8 +242,23 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 		{
 			name = transientCache.getName(msisdn);
 		}
+
+		if (null == name)
+		{
+			if (null == myMsisdn)
+			{
+				myMsisdn = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeMessengerApp.MSISDN_SETTING, "");
+			}
+
+			if (msisdn.compareTo(myMsisdn) == 0)
+			{
+				return context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeMessengerApp.NAME_SETTING, "");
+			}
+		}
 		if (null == name && !returnNullIfNotFound)
+		{
 			return msisdn;
+		}
 		return name;
 	}
 

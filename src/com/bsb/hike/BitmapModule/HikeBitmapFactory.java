@@ -1156,30 +1156,34 @@ public class HikeBitmapFactory
 		
 		return calculateInSampleSize(options, reqWidth, reqHeight);
 	}
-	public static BitmapDrawable getDefaultAvatar(Resources res, String msisdn, boolean hiRes)
-	{
-	
-		int index = BitmapUtils.iconHash(msisdn) % (HikeConstants.DEFAULT_AVATAR_KEYS.length);
-
-		int defaultAvatarResId = HikeConstants.DEFAULT_AVATARS[index]; 
-		
-		Drawable layers[] = new Drawable[2];
-		layers[0] = res.getDrawable(defaultAvatarResId);
-		layers[1] = res.getDrawable(getDefaultAvatarIconResId(msisdn, hiRes));
-		
-		LayerDrawable ld = new LayerDrawable(layers);
-		ld.setId(0, 0);
-		ld.setId(1, 1);
-		ld.setDrawableByLayerId(0, layers[0]);
-		ld.setDrawableByLayerId(1, layers[1]);
-		
-		Bitmap bmp = drawableToBitmap(ld);
-		
-		BitmapDrawable bd = getBitmapDrawable(res, bmp);
-		return bd;
-	}
 	
 	public static Drawable getDefaultTextAvatar(final String msisdn)
+	{
+		String contactName = null;
+
+		if (TextUtils.isEmpty(msisdn))
+		{
+			int bgColor = HikeMessengerApp.getInstance().getApplicationContext().getResources()
+					.getColor(HikeConstants.DEFAULT_AVATAR_BG_COLORID[new Random().nextInt(HikeConstants.DEFAULT_AVATAR_BG_COLORID.length)]);
+
+			return TextDrawable.builder().buildRound("#", bgColor);
+		}
+		else
+		{
+			int index = BitmapUtils.iconHash(msisdn) % (HikeConstants.DEFAULT_AVATAR_BG_COLORID.length);
+
+			int defaultAvatarResId = HikeConstants.DEFAULT_AVATAR_BG_COLORID[index];
+
+			int bgColor = HikeMessengerApp.getInstance().getApplicationContext().getResources().getColor(defaultAvatarResId);
+
+			contactName = ContactManager.getInstance().getName(msisdn, true);
+
+			return TextDrawable.builder().buildRound(contactName == null ? "#" : Character.toString(contactName.charAt(0)), bgColor);
+		}
+
+	}
+	
+	public static Drawable getRectTextAvatar(final String msisdn)
 	{
 		String contactName = null;
 
@@ -1199,8 +1203,10 @@ public class HikeBitmapFactory
 			int bgColor = HikeMessengerApp.getInstance().getApplicationContext().getResources().getColor(defaultAvatarResId);
 
 			contactName = ContactManager.getInstance().getName(msisdn, true);
+			
+			
 
-			return TextDrawable.builder().buildRound(contactName == null ? "#" : Character.toString(contactName.charAt(0)), bgColor);
+			return TextDrawable.builder().buildRect(contactName == null ? "#" : Character.toString(contactName.charAt(0)), bgColor);
 		}
 
 	}

@@ -60,8 +60,8 @@ public class HikeAppStateBaseFragmentActivity extends HikeBaseActivity implement
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		HikeAppStateUtils.onCreate(this);
+		overridePendingTransition(R.anim.appear, R.anim.pop_top);
 		super.onCreate(savedInstanceState);
-
 	}
 
 	@Override
@@ -113,6 +113,7 @@ public class HikeAppStateBaseFragmentActivity extends HikeBaseActivity implement
 	protected void onPause()
 	{
 		HikeAppStateUtils.onPause(this);
+		overridePendingTransition(R.anim.pump_top, R.anim.disappear);
 		super.onPause();
 	}
 

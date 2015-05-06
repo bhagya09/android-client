@@ -1610,16 +1610,11 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 				/*
 				 * Since sms contacts and dividers cannot have custom avatars, we simply skip these cases.
 				 */
-				if (viewType == ViewType.SECTION || viewType == ViewType.EXTRA || viewType == ViewType.EMPTY || !contactInfo.isOnhike())
+				if (viewType == ViewType.SECTION || viewType == ViewType.EXTRA || viewType == ViewType.EMPTY || !contactInfo.isOnhike()||!contactInfo.hasCustomPhoto())
 				{
 					continue;
 				}
 				
-				if (!ContactManager.getInstance().hasIcon(contactInfo.getMsisdn()))
-				{
-					return;
-				}
-
 				updateViewsRelatedToAvatar(view, getItem(indexOfData));
 			}
 		}

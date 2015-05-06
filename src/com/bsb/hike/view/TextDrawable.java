@@ -1,5 +1,7 @@
 package com.bsb.hike.view;
 
+import com.bsb.hike.HikeMessengerApp;
+
 import android.graphics.*;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
@@ -13,7 +15,7 @@ public class TextDrawable extends ShapeDrawable
 
 	private final Paint borderPaint;
 
-	private static final float SHADE_FACTOR = 0.9f;
+	private static final float SHADE_FACTOR = 0.99f;
 
 	private final String text;
 
@@ -30,6 +32,10 @@ public class TextDrawable extends ShapeDrawable
 	private final float radius;
 
 	private final int borderThickness;
+
+	private LinearGradient gradient;
+
+	private Typeface typeface;
 
 	private TextDrawable(Builder builder)
 	{
@@ -49,11 +55,17 @@ public class TextDrawable extends ShapeDrawable
 		fontSize = builder.fontSize;
 		textPaint = new Paint();
 		textPaint.setColor(builder.textColor);
+		textPaint.setShadowLayer(2f, 5, 5, getLighterShade(Color.BLACK,12));
 		textPaint.setAntiAlias(true);
 		textPaint.setFakeBoldText(builder.isBold);
 		textPaint.setStyle(Paint.Style.FILL);
-		textPaint.setTypeface(builder.font);
-		textPaint.setAlpha(228);
+		if (typeface == null)
+		{
+			typeface = Typeface.createFromAsset(HikeMessengerApp.getInstance().getApplicationContext().getAssets(), "fonts/Roboto-Light.ttf");
+		}
+
+		textPaint.setTypeface(typeface);
+		textPaint.setAlpha(235);
 		textPaint.setTextAlign(Paint.Align.CENTER);
 		textPaint.setStrokeWidth(builder.borderThickness);
 
@@ -67,7 +79,13 @@ public class TextDrawable extends ShapeDrawable
 		// drawable paint color
 		Paint paint = getPaint();
 		paint.setColor(color);
-
+		
+		if(gradient == null)
+		{
+			gradient = new LinearGradient(80f, 0f, 80f, 160f,  color, getLighterShade(color,210), Shader.TileMode.CLAMP);
+		}
+		
+		paint.setShader(gradient);
 	}
 
 	private int getDarkerShade(int color)
@@ -75,12 +93,17 @@ public class TextDrawable extends ShapeDrawable
 		return Color.rgb((int) (SHADE_FACTOR * Color.red(color)), (int) (SHADE_FACTOR * Color.green(color)), (int) (SHADE_FACTOR * Color.blue(color)));
 	}
 
+	private int getLighterShade(int color, int alpha)
+	{
+		return Color.argb(alpha, Color.red(color), Color.green(color), Color.blue(color));
+	}
+
 	@Override
 	public void draw(Canvas canvas)
 	{
 		super.draw(canvas);
 		Rect r = getBounds();
-
+		
 		// draw border
 		if (borderThickness > 0)
 		{
@@ -93,7 +116,7 @@ public class TextDrawable extends ShapeDrawable
 		// draw text
 		int width = this.width < 0 ? r.width() : this.width;
 		int height = this.height < 0 ? r.height() : this.height;
-		int fontSize = (int) (this.fontSize < 0 ? (Math.min(width, height) *1f / 1.8f) : this.fontSize);
+		int fontSize = (int) (this.fontSize < 0 ? (Math.min(width, height) *1f / 1.9f) : this.fontSize);
 		textPaint.setTextSize(fontSize);
 		canvas.drawText(text, width / 2, height / 2 - ((textPaint.descent() + textPaint.ascent()) / 2), textPaint);
 
@@ -191,7 +214,6 @@ public class TextDrawable extends ShapeDrawable
 			width = -1;
 			height = -1;
 			shape = new RectShape();
-			font = Typeface.create("sans-serif-light", Typeface.NORMAL);
 			fontSize = -1;
 			isBold = false;
 			toUpperCase = true;

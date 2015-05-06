@@ -33,6 +33,7 @@ import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.smartImageLoader.IconLoader;
 import com.bsb.hike.tasks.FetchFriendsTask;
 import com.bsb.hike.utils.EmoticonConstants;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.NUXManager;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.Utils;
@@ -723,16 +724,11 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 				/*
 				 * Since sms contacts and dividers cannot have custom avatars, we simply skip these cases.
 				 */
-				if (viewType == ViewType.SECTION || viewType == ViewType.EXTRA || !contactInfo.isOnhike())
+				if (viewType == ViewType.SECTION || viewType == ViewType.EXTRA || !contactInfo.isOnhike()||!contactInfo.hasCustomPhoto())
 				{
 					continue;
 				}
 				
-				if (!ContactManager.getInstance().hasIcon(contactInfo.getMsisdn()))
-				{
-					return;
-				}
-
 				updateViewsRelatedToAvatar(view, getItem(indexOfData));
 			}
 		}
