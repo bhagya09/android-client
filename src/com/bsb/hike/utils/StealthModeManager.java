@@ -257,6 +257,10 @@ public class StealthModeManager
 	
 	public void toggleConversation(ConvInfo conv, Activity activity) 
  	{	
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOW_STEALTH_INFO_TIP, false))
+		{
+			HikeMessengerApp.getPubSub().publish(HikePubSub.REMOVE_STEALTH_INFO_TIP, null);
+		}
 		HikeMessengerApp.getPubSub().publish(conv.isStealth()? HikePubSub.STEALTH_CONVERSATION_UNMARKED : HikePubSub.STEALTH_CONVERSATION_MARKED, conv);
 	}
 	

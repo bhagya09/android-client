@@ -1546,6 +1546,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 					if (tipView != null)
 					{
 						removeStealthConvTip();
+						removeTipIfExists(ConversationTip.STEALTH_INFO_TIP);
 					}
 					
 //					else
