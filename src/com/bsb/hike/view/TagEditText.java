@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -32,7 +31,7 @@ public class TagEditText extends EditText
 
 	public static final String SEPARATOR_SPACE = " ";
 
-	private Map<String, Tag> addedTags;
+	private Map<String, Object> addedTags;
 
 	private Map<String, ImageSpan> addedSpans;
 
@@ -71,7 +70,7 @@ public class TagEditText extends EditText
 
 	private void init()
 	{
-		addedTags = new HashMap<String, Tag>();
+		addedTags = new HashMap<String, Object>();
 		addedSpans = new HashMap<String, ImageSpan>();
 		spanToUniqueness = new LinkedHashMap<ImageSpan, String>();
 	}
@@ -81,17 +80,17 @@ public class TagEditText extends EditText
 	 * 
 	 * @param text
 	 */
-	private void appendTag(Tag tag)
+	private void appendTag(String text, String uniqueness, Object data)
 	{
 
-		String customuniqueness = generateUniqueness(tag.id);
-		addedTags.put(customuniqueness, tag); 
+		String customuniqueness = generateUniqueness(uniqueness);
+		addedTags.put(customuniqueness, data); 
 		
-		   ImageSpan span = SpanUtil.getImageSpanFromTextView(getContext(), R.layout.tag, R.id.tagTV, tag.text);
+		   ImageSpan span = SpanUtil.getImageSpanFromTextView(getContext(), R.layout.tag, R.id.tagTV, text);
 		if (span != null)
 		{
 			addedSpans.put(customuniqueness, span);
-			spanToUniqueness.put(span, tag.id);
+			spanToUniqueness.put(span, uniqueness);
 			SpannableStringBuilder ssb = new SpannableStringBuilder();
 			Set<ImageSpan> allSpans = spanToUniqueness.keySet();
 			for (ImageSpan ispan : allSpans)
@@ -106,18 +105,18 @@ public class TagEditText extends EditText
 			setSelection(ssb.length());
 			if (listener != null)
 			{
-     			listener.tagAdded(tag);
+     			listener.tagAdded(data, uniqueness);
      			listener.charResetAfterSeperator();
 			}
 		}
 	}
 
-	public void removeTag(Tag tag)
+	public void removeTag(String text, String uniqueness, Object data)
 	{
 		Editable editable = getText();
 		SpannableStringBuilder ssb = new SpannableStringBuilder(editable);
 
-		String genUniqueNess = generateUniqueness(tag.id);
+		String genUniqueNess = generateUniqueness(uniqueness);
 		ImageSpan span = addedSpans.get(genUniqueNess);
 
 		if (span != null && ssb.getSpanStart(span) != -1)
@@ -126,7 +125,7 @@ public class TagEditText extends EditText
 			needCallback = false;
 			editable.delete(ssb.getSpanStart(span), ssb.getSpanEnd(span));
 			setSelection(editable.length());
-			tagRemoved(tag.id, span);
+			tagRemoved(uniqueness, span);
 
 		}
 
@@ -137,24 +136,24 @@ public class TagEditText extends EditText
 		String genUniqueNess = generateUniqueness(uniqueness);
 		if (listener != null)
 		{
-			listener.tagRemoved(addedTags.get(genUniqueNess));
+			listener.tagRemoved(addedTags.get(genUniqueNess), uniqueness);
 		}
 		addedTags.remove(genUniqueNess);
 		addedSpans.remove(genUniqueNess);
 		spanToUniqueness.remove(span);
 	}
 
-	public void toggleTag(Tag tag)
+	public void toggleTag(String text, String uniqueness, Object data)
 	{
 		Logger.i("tagedit", "before toggle #" + getText().toString() + "#");
-		String newUniqueness = generateUniqueness(tag.id);
+		String newUniqueness = generateUniqueness(uniqueness);
 		if (addedTags.containsKey(newUniqueness))
 		{
-			removeTag(tag);
+			removeTag(text, uniqueness, data);
 		}
 		else
 		{
-			appendTag(tag);
+			appendTag(text, uniqueness, data);
 		}
 		Logger.i("tagedit", "after toggle #" + getText().toString() + "#");
 	}
@@ -353,52 +352,12 @@ public class TagEditText extends EditText
 
 	public static interface TagEditorListener
 	{
-		public void tagRemoved(Tag tag);
+		public void tagRemoved(Object data, String uniqueNess);
 
-		public void tagAdded(Tag tag);
+		public void tagAdded(Object textData, String uniqueNess);
 
 		public void characterAddedAfterSeparator(String characters);
 
 		public void charResetAfterSeperator();
-		
-		public void tagClicked(Tag tag);
-	}
-	
-	public static class Tag
-	{
-		final public String text;
-		final public String id;
-		private String onclick;
-		final public Object data;
-		
-		public Tag(String text, String id,Object data)
-		{
-			this.text = text;
-			this.id = id;
-			this.data = data;
-		}
-		public void setOnclick(String onclick)
-		{
-			this.onclick = onclick;
-		}
-		
-		public String getOnclick()
-		{
-			return onclick;
-		}
-	}
-	
-	public void toggleTags(List<Tag> tags)
-	{
-		for(Tag tag :  tags)
-		{
-			toggleTag(tag);
-		}
-	}
-	
-	public void resetTags(List<Tag> tags)
-	{
-		clear(false);
-		toggleTags(tags);
 	}
 }
