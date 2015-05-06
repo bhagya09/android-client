@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 
+import com.bsb.hike.platform.CustomWebView;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -47,7 +48,7 @@ import com.bsb.hike.utils.Utils;
  */
 public abstract class JavascriptBridge
 {
-	protected WebView mWebView;
+	protected CustomWebView mWebView;
 
 	protected WeakReference<Activity> weakActivity;;
 
@@ -55,7 +56,7 @@ public abstract class JavascriptBridge
 
 	protected Handler mHandler;
 
-	public JavascriptBridge(Activity activity, WebView mWebView)
+	public JavascriptBridge(Activity activity, CustomWebView mWebView)
 	{
 		this.mWebView = mWebView;
 		weakActivity = new WeakReference<Activity>(activity);
@@ -385,6 +386,7 @@ public abstract class JavascriptBridge
 	public void onDestroy()
 	{
 		mWebView.removeCallbacks(heightRunnable);
+		mWebView.onActivityDestroyed();
 	}
 	
 	public void openActivity(String data, Activity context)

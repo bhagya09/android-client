@@ -5,7 +5,7 @@
     android:background="@drawable/thatch_repeat"
     android:orientation="vertical" >
 
-    <WebView
+    <com.bsb.hike.platform.CustomWebView
         android:id="@+id/t_and_c_page"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />

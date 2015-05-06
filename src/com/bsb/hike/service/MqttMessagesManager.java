@@ -1779,7 +1779,22 @@ public class MqttMessagesManager
 			long timeout = data.getLong(HikeConstants.Extras.GENERAL_SO_TIMEOUT);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.Extras.GENERAL_SO_TIMEOUT, timeout);
 			AccountUtils.setSocketTimeout((int) timeout);
-		}	
+		}
+		if (data.has(HikeConstants.Extras.OKHTTP_CONNECT_TIMEOUT))
+		{
+			int timeout = data.getInt(HikeConstants.Extras.OKHTTP_CONNECT_TIMEOUT);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.Extras.OKHTTP_CONNECT_TIMEOUT, timeout);
+		}
+		if (data.has(HikeConstants.Extras.OKHTTP_READ_TIMEOUT))
+		{
+			int timeout = data.getInt(HikeConstants.Extras.OKHTTP_READ_TIMEOUT);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.Extras.OKHTTP_READ_TIMEOUT, timeout);
+		}
+		if (data.has(HikeConstants.Extras.OKHTTP_WRITE_TIMEOUT))
+		{
+			int timeout = data.getInt(HikeConstants.Extras.OKHTTP_WRITE_TIMEOUT);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.Extras.OKHTTP_WRITE_TIMEOUT, timeout);
+		}
 		if (data.has(HikeConstants.OK_HTTP))
 		{
 			boolean okhttp = data.getBoolean(HikeConstants.OK_HTTP);
