@@ -1,4 +1,4 @@
-package com.bsb.hike.models;
+package com.bsb.hike.platform.bridge;
 
 import android.app.Activity;
 import android.webkit.JavascriptInterface;
