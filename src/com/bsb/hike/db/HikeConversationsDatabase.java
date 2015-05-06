@@ -3416,14 +3416,18 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		boolean participantsAlreadyAdded = true;
 		boolean infoChangeOnly = false;
 
-		List<PairModified<GroupParticipant, String>> currentParticipantsList = ContactManager.getInstance().getGroupParticipants(groupId, true, false);
-		Map<String, PairModified<GroupParticipant, String>> currentParticipants = new HashMap<String, PairModified<GroupParticipant, String>>();
-		for (PairModified<GroupParticipant, String> grpParticipant : currentParticipantsList)
-		{
-			String msisdn = grpParticipant.getFirst().getContactInfo().getMsisdn();
-			currentParticipants.put(msisdn, grpParticipant);
-		}
+		Map<String, PairModified<GroupParticipant, String>> currentParticipants = null;
 
+		Pair<Map<String, PairModified<GroupParticipant, String>>, List<String>> groupParticipantsPair = getGroupParticipants(groupId, true, false);
+		if (groupParticipantsPair == null)
+		{
+			currentParticipants = new HashMap<String, PairModified<GroupParticipant, String>>();
+		}
+		else
+		{
+			currentParticipants = groupParticipantsPair.first;
+		}
+		
 		if (currentParticipants.isEmpty())
 		{
 			participantsAlreadyAdded = false;

@@ -23,8 +23,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.WindowManager;
+import android.webkit.MimeTypeMap;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.view.Window;
@@ -53,6 +55,9 @@ import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeUiHandler;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Utils;
+import com.jess.ui.TwoWayAdapterView;
+import com.jess.ui.TwoWayGridView;
+import com.jess.ui.TwoWayAdapterView.OnItemClickListener;
 import com.viewpagerindicator.IconPagerAdapter;
 import com.viewpagerindicator.PhotosTabPageIndicator;
 
@@ -82,7 +87,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 	private View overlayFrame;
 
 	private boolean startedForResult;
-	
+
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
@@ -113,7 +118,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 				filename = galleryList.get(0).getFilePath();
 				sendAnalyticsGalleryPic();
 			}
-			if(filename == null)
+			if (filename == null)
 			{
 				filename = intent.getData().toString();
 				sendAnalyticsGalleryPic();
@@ -122,6 +127,17 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 
 		if (filename == null)
 		{
+			PictureEditer.this.finish();
+			return;
+		}
+		
+		//Check file type
+		String fileType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(Utils.getFileExtension(filename));
+		HikeFileType hikeFileType = HikeFileType.fromString(fileType, false);
+
+		if (hikeFileType.compareTo(HikeFileType.IMAGE) != 0)
+		{
+			Toast.makeText(getApplicationContext(), getString(R.string.only_photos_edit), Toast.LENGTH_SHORT).show();
 			PictureEditer.this.finish();
 			return;
 		}
@@ -136,7 +152,8 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 					@Override
 					public void run()
 					{
-						PictureEditer.this.finish();		
+						Toast.makeText(PictureEditer.this, getResources().getString(R.string.file_expire), Toast.LENGTH_SHORT).show();
+						PictureEditer.this.finish();
 					}
 				});
 			}
@@ -161,20 +178,19 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 				// Not used
 			}
 		});
-		
+
 		startedForResult = (getCallingActivity() != null);
 
 		setupActionBar();
 
-		//We need to create a single destination copy
+		// We need to create a single destination copy
 		String destinationFileHandle = intent.getStringExtra(HikeConstants.HikePhotos.DESTINATION_FILENAME);
-		
-		if(TextUtils.isEmpty(destinationFileHandle))
+
+		if (TextUtils.isEmpty(destinationFileHandle))
 		{
-			destinationFileHandle = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.IMAGE_ROOT + File.separator
-					+ Utils.getOriginalFile(HikeFileType.IMAGE, null);
+			destinationFileHandle = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.IMAGE_ROOT + File.separator + Utils.getOriginalFile(HikeFileType.IMAGE, null);
 		}
-		
+
 		editView.setDestinationPath(destinationFileHandle);
 
 		pager = (ViewPager) findViewById(R.id.pager);
@@ -188,8 +204,6 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 		editView.setCompressionEnabled(intent.getBooleanExtra(HikeConstants.HikePhotos.EDITOR_ALLOW_COMPRESSION_KEY, true));
 
 	}
-	
-	
 
 	@Override
 	protected void onResume()
@@ -311,7 +325,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 			switch (requestCode)
 			{
 			case HikeConstants.CROP_RESULT:
-				uploadProfilePic(data.getStringExtra(MediaStore.EXTRA_OUTPUT), data.getStringExtra(MediaStore.EXTRA_OUTPUT));
+				uploadProfilePic(data.getStringExtra(MediaStore.EXTRA_OUTPUT), data.getStringExtra(HikeConstants.HikePhotos.ORIG_FILE));
 				break;
 			}
 		}
@@ -339,7 +353,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 		});
 	}
 
-	public class EditorClickListener implements OnClickListener, OnPageChangeListener, OnDoodleStateChangeListener
+	public class EditorClickListener implements OnClickListener, OnPageChangeListener, OnDoodleStateChangeListener, OnItemClickListener
 	{
 		private DoodleEffectItemLinearLayout doodlePreview;
 
@@ -364,96 +378,71 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 		@Override
 		public void onClick(View v)
 		{
-			if (v.getClass() == FilterEffectItemLinearLayout.class)
+
+			switch (v.getId())
 			{
-				FilterEffectItemLinearLayout prev = HikePhotosUtils.FilterTools.getCurrentFilterItem();
-				FilterEffectItemLinearLayout me = (FilterEffectItemLinearLayout) v;
-				editView.applyFilter(me.getFilter());
-				if (prev != null && prev.getFilter() != me.getFilter())
+			case R.id.plusWidth:
+				if (doodleWidth + HikeConstants.HikePhotos.DELTA_BRUSH_WIDTH <= HikeConstants.HikePhotos.MAX_BRUSH_WIDTH)
 				{
-					prev.unSelect();
+					doodleWidth += HikeConstants.HikePhotos.DELTA_BRUSH_WIDTH;
 				}
-				me.select();
-			}
-			else if (v.getClass() == DoodleEffectItemLinearLayout.class)
-			{
-				DoodleEffectItemLinearLayout prev = HikePhotosUtils.FilterTools.getCurrentDoodleItem();
-				DoodleEffectItemLinearLayout me = (DoodleEffectItemLinearLayout) v;
-				editView.setBrushColor(me.getBrushColor());
-				doodlePreview.setBrushColor(me.getBrushColor());
+				doodlePreview.setBrushWidth(HikePhotosUtils.dpToPx(mContext, doodleWidth));
 				doodlePreview.refresh();
-				if (prev != null && prev.getBrushColor() != me.getBrushColor())
+				editView.setBrushWidth(HikePhotosUtils.dpToPx(mContext, doodleWidth));
+				break;
+			case R.id.minusWidth:
+				if (doodleWidth - HikeConstants.HikePhotos.DELTA_BRUSH_WIDTH >= HikeConstants.HikePhotos.Min_BRUSH_WIDTH)
 				{
-					prev.unSelect();
+					doodleWidth -= HikeConstants.HikePhotos.DELTA_BRUSH_WIDTH;
 				}
-				me.select();
-			}
-			else
-			{
-				switch (v.getId())
+				doodlePreview.setBrushWidth(HikePhotosUtils.dpToPx(mContext, doodleWidth));
+				doodlePreview.refresh();
+				editView.setBrushWidth(HikePhotosUtils.dpToPx(mContext, doodleWidth));
+				break;
+			case R.id.undo:
+				editView.undoLastDoodleDraw();
+				break;
+			case R.id.done_container:
+				if (!startedForResult)
 				{
-				case R.id.plusWidth:
-					if (doodleWidth + HikeConstants.HikePhotos.DELTA_BRUSH_WIDTH <= HikeConstants.HikePhotos.MAX_BRUSH_WIDTH)
+					loadPreviewFragment();
+				}
+				else
+				{
+					editView.saveImage(HikeFileType.IMAGE, null, new HikePhotosListener()
 					{
-						doodleWidth += HikeConstants.HikePhotos.DELTA_BRUSH_WIDTH;
-					}
-					doodlePreview.setBrushWidth(HikePhotosUtils.dpToPx(mContext, doodleWidth));
-					doodlePreview.refresh();
-					editView.setBrushWidth(HikePhotosUtils.dpToPx(mContext, doodleWidth));
-					break;
-				case R.id.minusWidth:
-					if (doodleWidth - HikeConstants.HikePhotos.DELTA_BRUSH_WIDTH >= HikeConstants.HikePhotos.Min_BRUSH_WIDTH)
-					{
-						doodleWidth -= HikeConstants.HikePhotos.DELTA_BRUSH_WIDTH;
-					}
-					doodlePreview.setBrushWidth(HikePhotosUtils.dpToPx(mContext, doodleWidth));
-					doodlePreview.refresh();
-					editView.setBrushWidth(HikePhotosUtils.dpToPx(mContext, doodleWidth));
-					break;
-				case R.id.undo:
-					editView.undoLastDoodleDraw();
-					break;
-				case R.id.done_container:
-					if (!startedForResult)
-					{
-						loadPreviewFragment();
-					}
-					else
-					{
-						editView.saveImage(HikeFileType.IMAGE, null, new HikePhotosListener()
+
+						@Override
+						public void onFailure()
 						{
+							// TODO Auto-generated method stub
+							Intent intent = new Intent();
+							setResult(RESULT_CANCELED, intent);
+							finish();
 
-							@Override
-							public void onFailure()
-							{
-								// TODO Auto-generated method stub
-								Intent intent = new Intent();
-								setResult(RESULT_CANCELED, intent);
-								finish();
+						}
 
-							}
+						@Override
+						public void onComplete(Bitmap bmp)
+						{
+							// TODO Auto-generated method stub
 
-							@Override
-							public void onComplete(Bitmap bmp)
-							{
-								// TODO Auto-generated method stub
+						}
 
-							}
-
-							@Override
-							public void onComplete(File f)
-							{
-								// TODO Auto-generated method stub
-								Intent intent = new Intent();
-								intent.putExtra(HikeConstants.Extras.PHOTOS_RETURN_FILE, f.getAbsolutePath());
-								setResult(RESULT_OK, intent);
-								finish();
-							}
-						});
-					}
-					break;
+						@Override
+						public void onComplete(File f)
+						{
+							// TODO Auto-generated method stub
+							Intent intent = new Intent();
+							intent.putExtra(HikeConstants.Extras.PHOTOS_RETURN_FILE, f.getAbsolutePath());
+							setResult(RESULT_OK, intent);
+							finish();
+						}
+					});
 				}
+				break;
 			}
+
 		}
 
 		private void loadPreviewFragment()
@@ -544,28 +533,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 								@Override
 								public void onComplete(File f)
 								{
-									File myDir = new File(Utils.getFileParent(HikeFileType.IMAGE, false));
-									myDir.mkdir();
-									String fname = Utils.getOriginalFile(HikeFileType.IMAGE, null);
-									File destFilePath = new File(myDir, fname);
-									if (destFilePath.exists())
-									{
-										destFilePath.delete();
-									}
-									
-									String timeStamp = Long.toString(System.currentTimeMillis());
-									File file = null;
-									try
-									{
-										//We do not want to persist cropped result on storage
-										file = File.createTempFile("IMG_" + timeStamp, ".jpg");
-										file.deleteOnExit();
-										Utils.startCropActivityForResult(PictureEditer.this, f.getAbsolutePath(), file.getAbsolutePath(), true, 100, true);
-									}
-									catch (IOException e)
-									{
-										e.printStackTrace();
-									}
+									Utils.startCropActivityForResult(PictureEditer.this, f.getAbsolutePath(), f.getAbsolutePath(), true, 100, true);
 								}
 							});
 
@@ -636,6 +604,68 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 			}
 		}
 
+		@Override
+		public void onItemClick(TwoWayAdapterView<?> parent, View view, int position, long id)
+		{
+			if (view.getClass() == FilterEffectItemLinearLayout.class)
+			{
+				FilterEffectItemLinearLayout prev = HikePhotosUtils.FilterTools.getCurrentFilterItem();
+				FilterEffectItemLinearLayout me = (FilterEffectItemLinearLayout) view;
+				editView.applyFilter(me.getFilter());
+				if (prev != null && prev.getFilter() != me.getFilter())
+				{
+					prev.unSelect();
+				}
+				me.select();
+			}
+			else if (view.getClass() == DoodleEffectItemLinearLayout.class)
+			{
+				DoodleEffectItemLinearLayout prev = HikePhotosUtils.FilterTools.getCurrentDoodleItem();
+				DoodleEffectItemLinearLayout me = (DoodleEffectItemLinearLayout) view;
+				editView.setBrushColor(me.getBrushColor());
+				doodlePreview.setBrushColor(me.getBrushColor());
+				doodlePreview.refresh();
+				if (prev != null && prev.getBrushColor() != me.getBrushColor())
+				{
+					prev.unSelect();
+				}
+				me.select();
+			}
+
+			autoScrollToNext((TwoWayGridView) parent, position);
+		}
+
+		/**
+		 * {@link} : http://stackoverflow.com/questions/11431832/android-smoothscrolltoposition-not-working-correctly
+		 * 
+		 * @param TwoWayGridView
+		 *            parent whose children are to be scrolled
+		 * @param currentPosition
+		 *            of the element selected.(Scrolling occurs relative to this position)
+		 */
+		private void autoScrollToNext(final TwoWayGridView parent, int currentPosition)
+		{
+			final int positionFinal;
+			if (currentPosition - 1 == parent.getFirstVisiblePosition() || currentPosition == parent.getFirstVisiblePosition())
+			{
+				positionFinal = currentPosition - 1;
+			}
+			else
+			{
+				positionFinal = currentPosition + 1;
+			}
+
+			// SmoothScroll needs to do a lot of work
+			parent.post(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					parent.smoothScrollToPosition(positionFinal);
+				}
+			});
+		}
+
 	}
 
 	@Override
@@ -684,7 +714,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 			e.printStackTrace();
 		}
 	}
-	
+
 	private void sendAnalyticsGalleryPic()
 	{
 		try
