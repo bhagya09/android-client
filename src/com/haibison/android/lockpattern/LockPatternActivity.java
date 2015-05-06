@@ -46,6 +46,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup.LayoutParams;
+import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
 import android.widget.Button;
 import android.widget.EditText;
@@ -57,6 +58,7 @@ import com.bsb.hike.R;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
+import com.googlecode.mp4parser.boxes.MLPSpecificBox;
 import com.haibison.android.lockpattern.util.IEncrypter;
 import com.haibison.android.lockpattern.util.InvalidEncrypterException;
 import com.haibison.android.lockpattern.util.LoadingDialog;
@@ -490,8 +492,9 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
         mFooter = findViewById(R.id.alp_42447968_viewgroup_footer);
         mBtnCancel = (Button) findViewById(R.id.alp_42447968_button_cancel);
         mBtnConfirm = (Button) findViewById(R.id.alp_42447968_button_confirm);
-        
+
         mLockPinView.setFocusable(true);
+        mLockPatternView.setFocusable(true);
         mLockPinView.addTextChangedListener(new TextWatcher(){
             public void afterTextChanged(Editable s) {
             	if (ACTION_CREATE_PATTERN.equals(getIntent().getAction())) {
@@ -577,11 +580,14 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
         		mLockPinView.setVisibility(View.VISIBLE);
         		mLockPinView.requestFocus();
         		Utils.showSoftKeyboard(LockPatternActivity.this, mLockPinView);
+        		getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
         	}
         	else
         	{
         		mLockPinView.setVisibility(View.GONE);
         		mLockPatternView.setVisibility(View.VISIBLE);
+        		mLockPatternView.requestFocus();
+        		Utils.hideSoftKeyboard(LockPatternActivity.this, mLockPinView);
         	}
         	
             changePasswordSetting.setVisibility(isReset ? View.GONE:View.VISIBLE);	
@@ -606,6 +612,7 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
             	mTextInfo.setText(R.string.stealth_msg_draw_an_unlock_pattern);
             	mLockPatternView.setVisibility(View.VISIBLE);
 				mLockPinView.setVisibility(View.GONE);
+				mLockPatternView.requestFocus();
 				Utils.hideSoftKeyboard(LockPatternActivity.this, mLockPinView);
         	}
         	else
@@ -615,7 +622,8 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
         		changePasswordSetting.setText(getString(R.string.stealth_set_pattern));
             	mTextInfo.setText(R.string.stealth_msg_enter_an_unlock_pin);
             	mLockPinView.requestFocus();
-	        	Utils.showSoftKeyboard(LockPatternActivity.this, mLockPinView);
+            	Utils.showSoftKeyboard(LockPatternActivity.this, mLockPinView);
+            	getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
         	}
         	changePasswordSetting.setOnClickListener(new View.OnClickListener()
 			{
@@ -640,6 +648,7 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
 					{
 						mLockPatternView.setVisibility(View.VISIBLE);
 						mLockPinView.setVisibility(View.GONE);
+						mLockPatternView.requestFocus();
 						Utils.hideSoftKeyboard(LockPatternActivity.this, mLockPinView);
 						mLockPinView.setText("");
 			        	changePasswordSetting.setText(getString(R.string.stealth_set_pin));
