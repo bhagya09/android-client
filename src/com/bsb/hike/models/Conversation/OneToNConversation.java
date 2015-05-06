@@ -374,9 +374,9 @@ public abstract class OneToNConversation extends Conversation
 		
 		private boolean isAlive;
 		
-		public InitBuilder(String msisdn)
+		public InitBuilder(OneToNConvInfo convInfo)
 		{
-			super(msisdn, new OneToNConvInfo.ConvInfoBuilder(msisdn));
+			super(convInfo);
 		}
 
 		public P setConversationOwner(String conversationOwner)
@@ -546,16 +546,18 @@ public abstract class OneToNConversation extends Conversation
 
 		String convName = ContactManager.getInstance().getName(msisdn);
 
+		OneToNConvInfo oneToNConvInfo = new OneToNConvInfo.ConvInfoBuilder(msisdn).setConvName(convName).build();
 		if (OneToNConversationUtils.isBroadcastConversation(msisdn))
 		{
-			conversation = new BroadcastConversation.ConversationBuilder(msisdn).setConversationOwner(jsonObj.getString(HikeConstants.FROM))
-					.setConversationParticipantsList(participants).setConvName(convName).build();
+			conversation = new BroadcastConversation.ConversationBuilder(oneToNConvInfo).setConversationOwner(jsonObj.getString(HikeConstants.FROM))
+					.setConversationParticipantsList(participants).build();
 
 		}
 		else
 		{
-			conversation = new GroupConversation.ConversationBuilder(msisdn).setConversationOwner(jsonObj.getString(HikeConstants.FROM))
-					.setConversationParticipantsList(participants).setConvName(convName).build();
+
+			conversation = new GroupConversation.ConversationBuilder(oneToNConvInfo).setConversationOwner(jsonObj.getString(HikeConstants.FROM))
+					.setConversationParticipantsList(participants).build();
 		}
 
 		return conversation;

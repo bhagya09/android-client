@@ -10,12 +10,10 @@ import com.bsb.hike.models.ConvMessage;
  */
 public class OneToOneConversation extends Conversation
 {
-	protected boolean isOnHike;
 
 	protected OneToOneConversation(InitBuilder<?> builder)
 	{
 		super(builder);
-		this.isOnHike = builder.isOnHike;
 	}
 
 	/**
@@ -24,17 +22,9 @@ public class OneToOneConversation extends Conversation
 	@Override
 	public boolean isOnHike()
 	{
-		return isOnHike;
+		return convInfo.isOnHike();
 	}
 
-	/**
-	 * @param isOnHike
-	 *            the isOnHike to set
-	 */
-	public void setOnHike(boolean isOnHike)
-	{
-		this.isOnHike = isOnHike;
-	}
 
 	@Override
 	public void updateLastConvMessage(ConvMessage message)
@@ -59,17 +49,9 @@ public class OneToOneConversation extends Conversation
 	 */
 	protected static abstract class InitBuilder<P extends InitBuilder<P>> extends Conversation.InitBuilder<P>
 	{
-		private boolean isOnHike;
-
-		public InitBuilder(String msisdn)
+		public InitBuilder(ConvInfo convInfo)
 		{
-			super(msisdn, new ConvInfo.ConvInfoBuilder(msisdn));
-		}
-
-		public P setIsOnHike(boolean isOnHike)
-		{
-			this.isOnHike = isOnHike;
-			return getSelfObject();
+			super(convInfo);
 		}
 
 		public OneToOneConversation build()
@@ -91,9 +73,9 @@ public class OneToOneConversation extends Conversation
 	public static class ConversationBuilder extends OneToOneConversation.InitBuilder<ConversationBuilder>
 	{
 
-		public ConversationBuilder(String msisdn)
+		public ConversationBuilder(ConvInfo convInfo)
 		{
-			super(msisdn);
+			super(convInfo);
 		}
 
 		@Override

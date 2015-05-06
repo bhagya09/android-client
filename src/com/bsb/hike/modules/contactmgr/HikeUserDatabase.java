@@ -592,7 +592,7 @@ class HikeUserDatabase extends SQLiteOpenHelper
 					 */
 					if (HikeMessengerApp.hikeBotNamesMap.containsKey(msisdn))
 					{
-						name = HikeMessengerApp.hikeBotNamesMap.get(msisdn);
+						name = HikeMessengerApp.hikeBotNamesMap.get(msisdn).getConversationName();
 					}
 
 					ContactInfo contactInfo = new ContactInfo(msisdn, msisdn, name, msisdn, false);
@@ -912,7 +912,7 @@ class HikeUserDatabase extends SQLiteOpenHelper
 
 					if (HikeMessengerApp.hikeBotNamesMap.containsKey(msisdn))
 					{
-						String name = HikeMessengerApp.hikeBotNamesMap.get(msisdn);
+						String name = HikeMessengerApp.hikeBotNamesMap.get(msisdn).getConversationName();
 						contactInfo.setName(name);
 						contactInfo.setFavoriteType(FavoriteType.NOT_FRIEND);
 					}

@@ -75,7 +75,11 @@ public class HikeConstants
 
 	public static final String BOT_THUMBNAIL = "dp";
 
+	public static final String CONFIGURATION = "config";
+
 	public static final String BOT_CHAT_THEME = "bg_id";
+
+	public static final String IS_RECEIVE_ENABLED_IN_BOT = "rec_enable";
 
 	public static final String NEW_USER = "nu";
 
@@ -194,6 +198,10 @@ public class HikeConstants
 	public static final String ICON = "icon";
 
 	public static final String BOT = "bot";
+
+	public static final String MESSAGING_BOT = "m_bot";
+
+	public static final String NON_MESSAGING_BOT = "nm_bot";
 
 	public static final String GROUP_CONVERSATION = "gc";
 
@@ -500,21 +508,7 @@ public class HikeConstants
 
 	public static final String HIKEBOT_CONV_STATE = "isHikeBotConvState";
 
-	public static final String FTUE_TEAMHIKE_MSISDN = "+hike+";
-
-	public static final String FTUE_HIKEBOT_MSISDN = "+hike1+";
-
-	public static final String FTUE_GAMING_MSISDN = "+hike2+";
-
-	public static final String FTUE_HIKE_DAILY = "+hike3+";
-
-	public static final String FTUE_HIKE_SUPPORT = "+hike4+";
-
 	public static final String BACKUP_PREF = "backupAccount";
-
-	public static final String NUX_BOT = "+hike5+";
-
-	public static final String CRICKET_BOT = "+hikecricket+";
 
 	public static final String NUX = "nux";
 
@@ -2758,4 +2752,7 @@ public class HikeConstants
 	public static final String BIG_TEXT_LIST="BigTextList";
 	
 	public static final String HIKE_CONTACT_PICKER_RESULT = "contact_pick_result";
+
+	public static final String FTUE_HIKEBOT_MSISDN = "+hike1+";
+
 }

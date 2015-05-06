@@ -8,6 +8,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.bsb.hike.models.Conversation.ConvInfo;
 import org.json.JSONArray;
 
 import android.app.Dialog;
@@ -236,7 +237,8 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 
 		if (mConversation == null)
 		{
-			mConversation = new OneToOneConversation.ConversationBuilder(msisdn).setConvName((mContactInfo != null) ? mContactInfo.getName() : null).setIsOnHike(mContactInfo.isOnhike()).build();
+			ConvInfo convInfo = new ConvInfo.ConvInfoBuilder(msisdn).setConvName((mContactInfo != null) ? mContactInfo.getName() : null).setOnHike(mContactInfo.isOnhike()).build();
+			mConversation = new OneToOneConversation.ConversationBuilder(convInfo).build();
 			mConversation.setMessages(HikeConversationsDatabase.getInstance().getConversationThread(msisdn, HikeConstants.MAX_MESSAGES_TO_LOAD_INITIALLY, mConversation, -1));
 		}
 
@@ -2081,7 +2083,10 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			break;
 
 		case R.id.add_unknown_contact:
-			Utils.addToContacts(activity, msisdn);
+			if ( null != v.getTag() && v.getTag().equals(R.string.add))
+			{
+				Utils.addToContacts(activity, msisdn);
+			}
 			break;
 			
 		default:
@@ -2566,11 +2571,10 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	 *  Show call icon in chat thread only if:
 	 *  1. When voip is activated for self.
 	 *  2. Partner is on hike.
-	 *  3. Partner not a bot.
 	 */
 	private boolean shouldShowCallIcon()
 	{
-		return Utils.isVoipActivated(activity.getApplicationContext()) && mConversation.isOnHike() && !HikeMessengerApp.hikeBotNamesMap.containsKey(msisdn);
+		return Utils.isVoipActivated(activity.getApplicationContext()) && mConversation.isOnHike();
 	}
 	
 	protected void showThemePicker()

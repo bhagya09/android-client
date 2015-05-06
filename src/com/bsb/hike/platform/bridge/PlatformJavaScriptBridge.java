@@ -2,6 +2,7 @@ package com.bsb.hike.platform.bridge;
 
 import java.util.ArrayList;
 
+import com.bsb.hike.platform.CustomWebView;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -11,7 +12,6 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Pair;
 import android.webkit.JavascriptInterface;
-import android.webkit.WebView;
 import android.widget.BaseAdapter;
 
 import com.bsb.hike.HikeConstants;
@@ -50,12 +50,12 @@ public class PlatformJavaScriptBridge extends JavascriptBridge
 
 	BaseAdapter adapter;
 
-	public PlatformJavaScriptBridge(Activity activity,WebView mWebView)
+	public PlatformJavaScriptBridge(Activity activity,CustomWebView mWebView)
 	{
 		super(activity,mWebView);
 	}
 
-	public PlatformJavaScriptBridge(Activity activity,WebView webView, ConvMessage convMessage, BaseAdapter adapter)
+	public PlatformJavaScriptBridge(Activity activity,CustomWebView webView, ConvMessage convMessage, BaseAdapter adapter)
 	{
 		super(activity,webView);
 		this.message = convMessage;
@@ -407,6 +407,31 @@ public class PlatformJavaScriptBridge extends JavascriptBridge
 	{
 		mWebView.loadUrl("javascript:setData('" + message.getMsisdn() + "','" + message.webMetadata.getHelperData().toString() + "','" + message.isSent() + "','" +
 				HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_UID_SETTING,null) + "','" + AccountUtils.getAppVersion() + "')");
+	}
+
+	public void init(WebViewHolder holder)
+	{
+		JSONObject jsonObject = new JSONObject();
+		try
+		{
+			jsonObject.put(HikeConstants.MSISDN, message.getMsisdn());
+			jsonObject.put(HikePlatformConstants.HELPER_DATA, message.webMetadata.getHelperData().toString());
+			jsonObject.put(HikePlatformConstants.IS_SENT, message.isSent());
+			jsonObject.put(HikePlatformConstants.PLATFORM_USER_ID,HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_UID_SETTING,null) );
+			jsonObject.put(HikeConstants.APP_VERSION, AccountUtils.getAppVersion());
+
+			JSONObject time = new JSONObject();
+			time.put(HikePlatformConstants.RENDERING_TIME, holder.renderingTime);
+			time.put(HikePlatformConstants.INFLATION_TIME, holder.inflationTime);
+			time.put(HikePlatformConstants.TEMPLATING_TIME, holder.templatingTime);
+
+			jsonObject.put(HikePlatformConstants.PROFILING_TIME, time);
+			mWebView.loadUrl("javascript:init('" + jsonObject.toString() + "')");
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
 	}
 
 	public void alarmPlayed(String alarmData)

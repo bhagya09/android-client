@@ -5,7 +5,7 @@ import com.bsb.hike.models.ContactInfo.FavoriteType;
 public interface DBConstants
 {
 
-	public static final int CONVERSATIONS_DATABASE_VERSION = 38;
+	public static final int CONVERSATIONS_DATABASE_VERSION = 39;
 
 	public static final int USERS_DATABASE_VERSION = 17;
 
@@ -209,6 +209,12 @@ public interface DBConstants
 	
 	public static final String IS_SENT = "isSent";
 	public static final String BOT_TABLE = "botTable";
+
+	public static final String BOT_TYPE = "type";
+
+	public static final String BOT_CONFIGURATION = "config";
+
+	public static final String IS_RECEIVE_ENABLED = "rec_enabled";
 
 	public static interface HIKE_CONV_DB{
 		// CHANNEL TABLE -> _id,channel_id,name,visibility,index 
