@@ -139,7 +139,7 @@ public class BotChatThread extends OneToOneChatThread
 	private void muteBotToggled(boolean isMuted)
 	{
 		mConversation.setIsMute(isMuted);
-		HikeConversationsDatabase.getInstance().updateBot(msisdn, null, null, isMuted ? 1 : 0);
+		HikeConversationsDatabase.getInstance().updateBotMuteState(msisdn, isMuted ? 1 : 0);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.MUTE_CONVERSATION_TOGGLED, new Pair<String, Boolean>(mConversation.getMsisdn(), isMuted));
 	}
 
@@ -259,7 +259,7 @@ public class BotChatThread extends OneToOneChatThread
 	{
 		boolean wasMuted = mConversation.isMuted();
 		mConversation.setIsMute(!mConversation.isMuted());
-		HikeConversationsDatabase.getInstance().updateBot(msisdn, null, null, mConversation.isMuted() ? 1 : 0);
+		HikeConversationsDatabase.getInstance().updateBotMuteState(msisdn, mConversation.isMuted() ? 1 : 0);
 		BotConversation.analyticsForBots(msisdn, wasMuted ? HikePlatformConstants.BOT_UNMUTE_CHAT : HikePlatformConstants.BOT_MUTE_CHAT, HikePlatformConstants.OVERFLOW_MENU,
 				AnalyticsConstants.CLICK_EVENT, null);
 

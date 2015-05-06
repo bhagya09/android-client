@@ -11,11 +11,11 @@ public class BotInfo extends ConvInfo
 	public static final int MESSAGING_BOT = 1;
 	public static final int NON_MESSAGING_BOT = 2;
 
-	public int type, configuration;
+	private int type, configuration;
 
-	private boolean isReceiveEnabled, isBotEnabled;
+	private boolean isBotEnabled;
 
-	public String metadata, configData;
+	private String metadata, configData;
 
 	public static abstract class InitBuilder<P extends InitBuilder<P>> extends ConvInfo.InitBuilder<P>
 	{
@@ -40,12 +40,6 @@ public class BotInfo extends ConvInfo
 		public P setMetadata(String metadata)
 		{
 			this.metadata = metadata;
-			return getSelfObject();
-		}
-
-		public P setIsReceiveEnabled(boolean isReceiveEnabled)
-		{
-			this.isReceiveEnabled = isReceiveEnabled;
 			return getSelfObject();
 		}
 
@@ -92,11 +86,6 @@ public class BotInfo extends ConvInfo
 
 	}
 
-	public boolean isReceiveEnabled()
-	{
-		return isReceiveEnabled;
-	}
-
 	public boolean isBotEnabled()
 	{
 		return isBotEnabled;
@@ -130,11 +119,6 @@ public class BotInfo extends ConvInfo
 	public void setConfiguration(int configuration)
 	{
 		this.configuration = configuration;
-	}
-
-	public void setReceiveEnabled(boolean isReceiveEnabled)
-	{
-		this.isReceiveEnabled = isReceiveEnabled;
 	}
 
 	public void setBotEnabled(boolean isBotEnabled)
@@ -175,7 +159,6 @@ public class BotInfo extends ConvInfo
 		this.configuration = builder.config;
 		this.metadata = builder.metadata;
 		this.configData = builder.configData;
-		this.isReceiveEnabled = builder.isReceiveEnabled;
 		this.isBotEnabled = builder.isBotEnabled;
 	}
 
