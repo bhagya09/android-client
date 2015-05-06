@@ -2414,7 +2414,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 			/**
 			 * Setting stealth mode off as we are hiding the StealthFTUE convTip
 			 */
-			StealthModeManager.getInstance().activate(false);
+			//StealthModeManager.getInstance().activate(false);
 			
 			getActivity().runOnUiThread(new Runnable()
 			{
