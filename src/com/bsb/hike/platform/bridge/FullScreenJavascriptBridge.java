@@ -9,9 +9,14 @@ public class FullScreenJavascriptBridge extends JavascriptBridge
 	
 	private String msisdn;
 
-	public FullScreenJavascriptBridge(WebView mWebView, Activity activity, String msisdn)
+	public FullScreenJavascriptBridge(WebView mWebView, Activity activity)
 	{
 		super(activity, mWebView);
+	}
+	
+	public FullScreenJavascriptBridge(WebView mWebView, Activity activity, String msisdn)
+	{
+		this(mWebView, activity);
 		this.msisdn = msisdn;
 	}
 
