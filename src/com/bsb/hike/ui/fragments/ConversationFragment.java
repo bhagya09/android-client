@@ -1709,7 +1709,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 			showingWelcomeHikeConvTip = true;
 			tipType = ConversationTip.WELCOME_HIKE_TIP;
 		}
-		else if (HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOW_STEALTH_INFO_TIP, false) &&  displayedConversations.size() > 2 && !StealthModeManager.getInstance().isSetUp())
+		else if (HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOW_STEALTH_INFO_TIP, false)  && !StealthModeManager.getInstance().isSetUp())
 		{
 			tipType = ConversationTip.STEALTH_INFO_TIP;
 		}
@@ -2439,7 +2439,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 				/**
 				 * Setting stealth mode on as we need to show the StealthFTUE convTip
 				 */
-				StealthModeManager.getInstance().activate(true);
+				//StealthModeManager.getInstance().activate(true);
 			}
 			
 			getActivity().runOnUiThread(new Runnable()

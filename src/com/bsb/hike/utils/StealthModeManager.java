@@ -205,7 +205,7 @@ public class StealthModeManager
 	{
 		if (!StealthModeManager.getInstance().isSetUp())
 		{
-			if (!HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOW_STEALTH_INFO_TIP, true))
+			if (!HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOW_STEALTH_INFO_TIP, false))
 			{
 				HikeMessengerApp.getPubSub().publish(HikePubSub.SHOW_STEALTH_FTUE_CONV_TIP, ConversationTip.STEALTH_INFO_TIP);
 				return;
