@@ -115,16 +115,33 @@ public class DelegateActivity extends HikeAppStateBaseFragmentActivity
 			{
 				Intent currentIntent = null, previousIntent = null;
 				previousIntent = currentIntentCounter == 0 ? sourceIntent : destinationIntents.get(currentIntentCounter - 1);
-				if (currentIntentCounter < destinationIntents.size())
+				if (startedForResult)
 				{
-					currentIntent = destinationIntents.get(currentIntentCounter);
-					currentIntentCounter++;
+					if (currentIntentCounter < destinationIntents.size())
+					{
+						currentIntent = destinationIntents.get(currentIntentCounter);
+						currentIntentCounter++;
+					}
+					else
+					{
+						resultIntent = new Intent();
+						currentIntent = resultIntent;
+					}
 				}
-				else
+				else 
 				{
-					resultIntent = new Intent();
-					currentIntent = resultIntent;
+					if(currentIntentCounter < destinationIntents.size() - 1)
+					{
+						currentIntent = destinationIntents.get(currentIntentCounter);
+						currentIntentCounter++;
+					}
+					else
+					{
+						resultIntent = destinationIntents.get(currentIntentCounter);
+						currentIntent = resultIntent;
+					}
 				}
+				
 
 				if (data != null)
 				{
@@ -142,13 +159,13 @@ public class DelegateActivity extends HikeAppStateBaseFragmentActivity
 					currentIntent.putExtra(HikeMessengerApp.FILE_PATH, newFilePath);
 				}
 
-				if (resultIntent == null && startedForResult)
+				if (resultIntent == null )
 				{
 					DelegateActivity.this.startActivityForResult(currentIntent, this.requestCode);
 				}
 				else if (!startedForResult)
 				{
-					DelegateActivity.this.startActivity(currentIntent);
+					DelegateActivity.this.startActivity(resultIntent);
 					DelegateActivity.this.finish();
 				}
 				else
