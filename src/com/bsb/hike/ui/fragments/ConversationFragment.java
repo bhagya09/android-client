@@ -2434,10 +2434,13 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 			{
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.SHOW_STEALTH_INFO_TIP, true);
 			}
-			/**
-			 * Setting stealth mode on as we need to show the StealthFTUE convTip
-			 */
-			StealthModeManager.getInstance().activate(true);
+			else if(stealthTipType == ConversationTip.STEALTH_FTUE_TIP)
+			{
+				/**
+				 * Setting stealth mode on as we need to show the StealthFTUE convTip
+				 */
+				StealthModeManager.getInstance().activate(true);
+			}
 			
 			getActivity().runOnUiThread(new Runnable()
 			{
