@@ -1,10 +1,10 @@
 package com.bsb.hike.models.Conversation;
 
-import com.bsb.hike.bots.BotInfo;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
@@ -22,15 +22,12 @@ public class BotConversation extends OneToOneConversation
 	 * properties
 	 */
 	private short properties = 0;
-	private BotInfo botInfo;
-
 	/**
 	 * 
 	 */
 	private BotConversation(InitBuilder<?> builder)
 	{
 		super(builder);
-		this.botInfo = (BotInfo) convInfo;
 		/**
 		 * Setting the mute state in the constructor itself as it is needed for BotConversations
 		 */
@@ -99,12 +96,16 @@ public class BotConversation extends OneToOneConversation
 	 */
 	protected static abstract class InitBuilder<P extends InitBuilder<P>> extends OneToOneConversation.InitBuilder<P>
 	{
-
-		public InitBuilder(BotInfo botInfo)
+		public InitBuilder(String msisdn)
 		{
-			super(botInfo);
+			super(msisdn);
 		}
 
+		public P setConvInfo(BotInfo newConvInfo)
+		{
+			this.convInfo = newConvInfo;
+			return getSelfObject();
+		}
 
 		public BotConversation build()
 		{
@@ -123,15 +124,21 @@ public class BotConversation extends OneToOneConversation
 	 */
 	public static class ConversationBuilder extends BotConversation.InitBuilder<ConversationBuilder>
 	{
-		public ConversationBuilder(BotInfo botInfo)
+		public ConversationBuilder(String msisdn)
 		{
-			super(botInfo);
+			super(msisdn);
 		}
 
 		@Override
 		protected ConversationBuilder getSelfObject()
 		{
 			return this;
+		}
+		
+		@Override
+		protected BotInfo getConvInfo(String msisdn)
+		{
+			return new BotInfo.HikeBotBuilder(msisdn).build();
 		}
 	}
 }

@@ -15,12 +15,6 @@ public class BotInfo extends ConvInfo
 
 	public int configuration;
 
-	@Override
-	public void setOnHike(boolean isOnHike)
-	{
-		super.setOnHike(true);
-	}
-
 	private boolean isReceiveEnabled;
 
 	public String metadata;
@@ -79,6 +73,12 @@ public class BotInfo extends ConvInfo
 		{
 			this.metadata = metaData;
 			return getSelfObject();
+		}
+		
+		@Override
+		public P setOnHike(boolean onHike)
+		{
+			return super.setOnHike(true);
 		}
 
 		@Override
@@ -166,6 +166,12 @@ public class BotInfo extends ConvInfo
 	public boolean isNonMessagingBot()
 	{
 		return type == NON_MESSAGING_BOT;
+	}
+	
+	@Override
+	public void setOnHike(boolean isOnHike)
+	{
+		super.setOnHike(true);
 	}
 
 }

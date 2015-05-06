@@ -13,9 +13,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import com.bsb.hike.bots.BotInfo;
-import com.bsb.hike.cropimage.Util;
-import com.bsb.hike.models.Conversation.BotConversation;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -43,6 +40,7 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.db.DBConstants.HIKE_CONV_DB;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
@@ -60,6 +58,7 @@ import com.bsb.hike.models.Protip;
 import com.bsb.hike.models.StatusMessage;
 import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.models.StickerCategory;
+import com.bsb.hike.models.Conversation.BotConversation;
 import com.bsb.hike.models.Conversation.BroadcastConversation;
 import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.models.Conversation.Conversation;
@@ -2229,16 +2228,14 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				Conversation conv = null;
 				if (OneToNConversationUtils.isOneToNConversation(msisdn))
 				{
-					OneToNConvInfo oneToNConvInfo = new OneToNConvInfo.ConvInfoBuilder(msisdn).setConvName((contactInfo != null) ? contactInfo.getName() : null).build();
-
 					if (OneToNConversationUtils.isGroupConversation(msisdn))
 					{
-						conv = new GroupConversation.ConversationBuilder(oneToNConvInfo).setConversationOwner(groupOwner)
+						conv = new GroupConversation.ConversationBuilder(msisdn).setConvName((contactInfo != null) ? contactInfo.getName() : null).setConversationOwner(groupOwner)
 								.setIsAlive(true).build();
 					}
 					else if (OneToNConversationUtils.isBroadcastConversation(msisdn))
 					{
-						conv = new BroadcastConversation.ConversationBuilder(oneToNConvInfo).setConversationOwner(groupOwner)
+						conv = new BroadcastConversation.ConversationBuilder(msisdn).setConvName((contactInfo != null) ? contactInfo.getName() : null).setConversationOwner(groupOwner)
 								.setIsAlive(true).build();
 					}
 					InsertHelper groupInfoIH = null;
@@ -2266,12 +2263,11 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				else if (Utils.isBot(msisdn))
 				{
 					BotInfo botInfo = BotInfo.getBotInfoForBotMsisdn(msisdn);
-					conv = new BotConversation.ConversationBuilder(botInfo).build();
+					conv = new BotConversation.ConversationBuilder(msisdn).setConvInfo(botInfo).build();
 				}
 				else
 				{
-					ConvInfo convInfo = new ConvInfo.ConvInfoBuilder(msisdn).setConvName((contactInfo != null) ? contactInfo.getName() : null).setOnHike(onhike).build();
-					conv = new OneToOneConversation.ConversationBuilder(convInfo).build();
+					conv = new OneToOneConversation.ConversationBuilder(msisdn).setConvName((contactInfo != null) ? contactInfo.getName() : null).setIsOnHike(onhike).build();
 				}
 				
 				if (initialConvMessage != null)
@@ -2432,15 +2428,14 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				if (Utils.isBot(msisdn))
 				{
 					BotInfo botInfo= BotInfo.getBotInfoForBotMsisdn(msisdn);
-					conv = new BotConversation.ConversationBuilder(botInfo).build();
+					conv = new BotConversation.ConversationBuilder(msisdn).setConvInfo(botInfo).build();
 				}
 				else
 				{
 					ContactInfo contactInfo = ContactManager.getInstance().getContact(msisdn, false, true, false);
 					String name = contactInfo.getName();
 					onhike |= contactInfo.isOnhike();
-					ConvInfo convInfo = new ConvInfo.ConvInfoBuilder(msisdn).setConvName(name).setOnHike(onhike).setIsStealth(isStealth).build();
-					conv = new OneToOneConversation.ConversationBuilder(convInfo).build();
+					conv = new OneToOneConversation.ConversationBuilder(msisdn).setConvName(name).setIsOnHike(onhike).setIsStealth(isStealth).build();
 				}
 
 
@@ -2569,15 +2564,14 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			else if (Utils.isBot(msisdn))
 			{
 				BotInfo botInfo= BotInfo.getBotInfoForBotMsisdn(msisdn);
-				conv = new BotConversation.ConversationBuilder(botInfo).build();
+				conv = new BotConversation.ConversationBuilder(msisdn).setConvInfo(botInfo).build();
 			}
 			else
 			{
 				ContactInfo contactInfo = ContactManager.getInstance().getContact(msisdn, false, true);
 
 				onhike |= contactInfo.isOnhike();
-				ConvInfo convInfo = new ConvInfo.ConvInfoBuilder(msisdn).setConvName(contactInfo.getName()).setOnHike(onhike).build();
-				conv = new OneToOneConversation.ConversationBuilder(convInfo).build();
+				conv = new OneToOneConversation.ConversationBuilder(msisdn).setConvName(contactInfo.getName()).setIsOnHike(onhike).build();
 			}
 
 			ConvMessage message = new ConvMessage(messageString, msisdn, c.getInt(lastMessageTsColumn), ConvMessage.stateValue(c.getInt(msgStatusColumn)), c.getLong(msgIdColumn),
@@ -3115,8 +3109,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			boolean isMuted = groupCursor.getInt(groupCursor.getColumnIndex(DBConstants.MUTE_GROUP)) != 0;
 
 			GroupConversation conv;
-			OneToNConvInfo convInfo = new OneToNConvInfo.ConvInfoBuilder(msisdn).setConvName(groupName).build();
-			conv = new GroupConversation.ConversationBuilder(convInfo).setIsAlive(isGroupAlive).build();
+			conv = new GroupConversation.ConversationBuilder(msisdn).setConvName(groupName).setConversationOwner(groupOwner).setIsAlive(isGroupAlive).build();
 			conv.setConversationParticipantList(ContactManager.getInstance().getActiveConversationParticipants(msisdn));
 //			conv.setGroupMemberAliveCount(getActiveParticipantCount(msisdn));
 			conv.setIsMute(isMuted);
@@ -3152,8 +3145,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			boolean isMuted = broadcastCursor.getInt(broadcastCursor.getColumnIndex(DBConstants.MUTE_GROUP)) != 0;
 
 			BroadcastConversation conv;
-			OneToNConvInfo oneToNConvInfo = new OneToNConvInfo.ConvInfoBuilder(msisdn).setConvName(groupName).build();
-			conv = new BroadcastConversation.ConversationBuilder(oneToNConvInfo).setConversationOwner(groupOwner).setIsAlive(isGroupAlive).build();
+			conv = new BroadcastConversation.ConversationBuilder(msisdn).setConvName(groupName).setConversationOwner(groupOwner).setIsAlive(isGroupAlive).build();
 			conv.setConversationParticipantList(ContactManager.getInstance().getActiveConversationParticipants(msisdn));
 //			conv.setGroupMemberAliveCount(getActiveParticipantCount(msisdn));
 			conv.setIsMute(isMuted);
