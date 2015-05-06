@@ -3,9 +3,6 @@ package com.bsb.hike.chatthread;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.bsb.hike.bots.BotInfo;
-import com.bsb.hike.bots.MessagingBotConfiguration;
-import com.bsb.hike.utils.Utils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -18,12 +15,16 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.bots.MessagingBotConfiguration;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.media.OverFlowMenuItem;
 import com.bsb.hike.models.Conversation.BotConversation;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
+import com.bsb.hike.view.CustomFontButton;
 
 /**
  * This class is a barebones skeleton for Bot chat thread. This is still Work in progress.
@@ -35,6 +36,15 @@ public class BotChatThread extends OneToOneChatThread
 
 	private static final String TAG = "BotChatThread";
 	private MessagingBotConfiguration configuration;
+
+	@Override
+	protected void init()
+	{
+		super.init();
+		BotInfo botInfo = BotInfo.getBotInfoForBotMsisdn(msisdn);
+
+		configuration = new MessagingBotConfiguration(botInfo.getConfiguration(), botInfo.isReceiveEnabled());
+	}
 
 	/**
 	 * @param activity
@@ -53,25 +63,28 @@ public class BotChatThread extends OneToOneChatThread
 		{
 			activity.findViewById(R.id.compose_container).setVisibility(View.GONE);
 		}
-
-		if (!configuration.isAudioRecordingEnabled())
+		else
 		{
-			activity.findViewById(R.id.send_message).setVisibility(View.GONE);
-		}
 
-		if (!configuration.isStickerPickerEnabled())
-		{
-			activity.findViewById(R.id.sticker_btn).setVisibility(View.GONE);
-		}
+			if (!configuration.isAudioRecordingEnabled())
+			{
+				activity.findViewById(R.id.send_message).setVisibility(View.GONE);
+			}
 
-		if(!configuration.isEmoticonPickerEnabled())
-		{
-			activity.findViewById(R.id.emoticon_btn).setVisibility(View.GONE);
-		}
+			if (!configuration.isStickerPickerEnabled())
+			{
+				activity.findViewById(R.id.sticker_btn).setVisibility(View.GONE);
+			}
 
-		if (!configuration.isTextInputEnabled())
-		{
-			activity.findViewById(R.id.msg_compose).setVisibility(View.GONE);
+			if (!configuration.isEmoticonPickerEnabled())
+			{
+				activity.findViewById(R.id.emoticon_btn).setVisibility(View.GONE);
+			}
+
+			if (!configuration.isTextInputEnabled())
+			{
+				activity.findViewById(R.id.msg_compose).setVisibility(View.GONE);
+			}
 		}
 	}
 
@@ -79,12 +92,6 @@ public class BotChatThread extends OneToOneChatThread
 	protected Conversation fetchConversation()
 	{
 		super.fetchConversation();
-		BotInfo botInfo = Utils.getBotInfoForBotMsisdn(msisdn);
-
-		configuration = new MessagingBotConfiguration(botInfo.getConfiguration(), botInfo.isReceiveEnabled());
-		mConversation = new BotConversation.ConversationBuilder(msisdn)
-				.setBotInfo(botInfo)
-				.build();
 
 		mConversation.setIsMute(HikeConversationsDatabase.getInstance().isBotMuted(msisdn));
 		return mConversation;
@@ -120,7 +127,7 @@ public class BotChatThread extends OneToOneChatThread
 		switch (type)
 		{
 		case HikePubSub.MUTE_BOT:
-			muteBotPubSub();
+			muteBotToggled(true);
 			break;
 		default:
 			Logger.d(TAG, "Did not find any matching PubSub event in OneToOne ChatThread. Calling super class' onEventReceived");
@@ -129,11 +136,11 @@ public class BotChatThread extends OneToOneChatThread
 		}
 	}
 
-	private void muteBotPubSub()
+	private void muteBotToggled(boolean isMuted)
 	{
-		mConversation.setIsMute(true);
-		HikeConversationsDatabase.getInstance().updateBot(msisdn, null, null, mConversation.isMuted() ? 1 : 0);
-		HikeMessengerApp.getPubSub().publish(HikePubSub.MUTE_CONVERSATION_TOGGLED, new Pair<String, Boolean>(mConversation.getMsisdn(), mConversation.isMuted()));
+		mConversation.setIsMute(isMuted);
+		HikeConversationsDatabase.getInstance().updateBot(msisdn, null, null, isMuted ? 1 : 0);
+		HikeMessengerApp.getPubSub().publish(HikePubSub.MUTE_CONVERSATION_TOGGLED, new Pair<String, Boolean>(mConversation.getMsisdn(), isMuted));
 	}
 
 	@Override
@@ -142,6 +149,15 @@ public class BotChatThread extends OneToOneChatThread
 		if (configuration.isNudgeEnabled())
 		{
 			super.sendPoke();
+		}
+	}
+
+	@Override
+	protected void openProfileScreen()
+	{
+		if (configuration.isViewProfileEnabled())
+		{
+			super.openProfileScreen();
 		}
 	}
 
@@ -167,23 +183,10 @@ public class BotChatThread extends OneToOneChatThread
 			menu.findItem(R.id.overflow_menu).setVisible(false);
 		}
 
-		if (configuration.isCallEnabled())
-		{
-			menu.findItem(R.id.voip_call).setVisible(true);
-		}
-		else
-		{
-			menu.findItem(R.id.voip_call).setVisible(false);
-		}
+		menu.findItem(R.id.voip_call).setVisible(configuration.isCallEnabled());
 
-		if (configuration.isAttachmentPickerEnabled())
-		{
-			menu.findItem(R.id.attachment).setVisible(true);
-		}
-		else
-		{
-			menu.findItem(R.id.attachment).setVisible(false);
-		}
+		menu.findItem(R.id.attachment).setVisible(configuration.isAttachmentPickerEnabled());
+
 		return true;
 	}
 
@@ -209,12 +212,12 @@ public class BotChatThread extends OneToOneChatThread
 		 * Blocking all bots except Team Hike and muting only cricket Bot.
 		 */
 
-		if (!msisdn.equals(HikeConstants.Bots.FTUE_TEAMHIKE_MSISDN) && configuration.isBlockInOverflowMenuEnabled() )
+		if (configuration.isBlockInOverflowMenuEnabled() )
 		{
 			list.add(new OverFlowMenuItem(mConversation.isBlocked() ? getString(R.string.unblock_title) : getString(R.string.block_title), 0, 0, R.string.block_title));
 		}
 
-		if (msisdn.equals(HikeConstants.Bots.CRICKET_BOT_MSISDN) && configuration.isMuteInOverflowMenuEnabled())
+		if (configuration.isMuteInOverflowMenuEnabled())
 		{
 			list.add(new OverFlowMenuItem(mConversation.isMuted() ? getString(R.string.unmute) : getString(R.string.mute), 0, 0, R.string.mute));
 		}
@@ -338,7 +341,21 @@ public class BotChatThread extends OneToOneChatThread
 		boolean networkError = ChatThreadUtils.checkNetworkError();
 		toggleConversationMuteViewVisibility(networkError ? false : mConversation.isMuted());
 	}
-	
+
+	@Override
+	protected void toggleConversationMuteViewVisibility(boolean isMuted)
+	{
+
+		View v = mConversationsView.getChildAt(0);
+		if (v != null && v.getTag() != null && v.getTag().equals(R.string.mute))
+		{
+			CustomFontButton button = (CustomFontButton) v.findViewById(R.id.add_unknown_contact);
+			button.setText(isMuted ? R.string.unmute : R.string.mute);
+		}
+
+
+	}
+
 	@Override
 	protected void addUnkownContactBlockHeader()
 	{
@@ -357,10 +374,17 @@ public class BotChatThread extends OneToOneChatThread
 	@Override
 	public void onClick(View v)
 	{
-		if(v.getId() == R.id.contact_info)
+		switch (v.getId())
 		{
+		case R.id.contact_info:
 			BotConversation.analyticsForBots(msisdn, HikePlatformConstants.BOT_VIEW_PROFILE, HikePlatformConstants.ACTION_BAR, AnalyticsConstants.CLICK_EVENT, null);
+			break;
+
+		case R.id.add_unknown_contact:
+			muteBotToggled(!mConversation.isMuted());
+			break;
 		}
+
 		super.onClick(v);
 	}
 	

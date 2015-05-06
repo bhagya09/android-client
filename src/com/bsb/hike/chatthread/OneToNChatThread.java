@@ -2,7 +2,6 @@ package com.bsb.hike.chatthread;
 
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Set;
 
 import org.json.JSONArray;
@@ -160,9 +159,9 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 	}
 	
 	@Override
-	protected void messageAdded(ConvMessage convMessage)
+	protected void addMessage(ConvMessage convMessage)
 	{
-		super.messageAdded(convMessage);
+		super.addMessage(convMessage);
 	}
 	
 	/**
@@ -611,7 +610,7 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 
 			TypingNotification typingNotification = removeTypingNotification();
 
-			addMessages(messagesList, messages.size());
+			mAdapter.addMessages(messagesList, messages.size());
 
 			reachedEnd = false;
 
@@ -624,7 +623,7 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 			if (typingNotification != null && (!((GroupTypingNotification) typingNotification).getGroupParticipantList().isEmpty()))
 			{
 				Logger.d(TAG, "Size in chat thread: " + ((GroupTypingNotification) typingNotification).getGroupParticipantList().size());
-				addMessage(new ConvMessage(typingNotification));
+				mAdapter.addMessage(new ConvMessage(typingNotification));
 			}
 
 			mAdapter.notifyDataSetChanged();
@@ -643,18 +642,6 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 		return oneToNConversation.getConversationParticipantName(oneToNConversation.getConversationOwner());
 	}
 
-	@Override
-	protected void addMessage(ConvMessage message)
-	{
-		super.addMessage(message);
-	}
-
-	@Override
-	protected void addMessages(List<ConvMessage> list, int startIndex)
-	{
-		super.addMessages(list, startIndex);
-	}
-	
 	@Override
 	protected void updateNetworkState()
 	{

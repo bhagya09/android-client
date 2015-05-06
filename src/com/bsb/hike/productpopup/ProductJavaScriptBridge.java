@@ -3,6 +3,7 @@ package com.bsb.hike.productpopup;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
+import com.bsb.hike.platform.CustomWebView;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -26,16 +27,13 @@ import com.bsb.hike.utils.Utils;
 
 public class ProductJavaScriptBridge extends JavascriptBridge
 {
-	WebView mmWebView;
-
 	WeakReference<HikeDialogFragment> mHikeDialogFragment;
 	
 	Object productContentModel;
 
-	public ProductJavaScriptBridge(WebView mWebView, WeakReference<HikeDialogFragment> activity, Object productContentModel)
+	public ProductJavaScriptBridge(CustomWebView mWebView, WeakReference<HikeDialogFragment> activity, Object productContentModel)
 	{
 		super(activity.get().getActivity(), mWebView);
-		this.mmWebView = mWebView;
 		this.mHikeDialogFragment = activity;
 		this.productContentModel=productContentModel;
 
@@ -69,7 +67,7 @@ public class ProductJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void onLoadFinished(final String height)
 	{
-		Logger.d("ProductPopup","Widht after  onLoadFinished " +mmWebView.getWidth());
+		Logger.d("ProductPopup","Widht after  onLoadFinished " +mWebView.getWidth());
 		onResize(height);
 	}
 

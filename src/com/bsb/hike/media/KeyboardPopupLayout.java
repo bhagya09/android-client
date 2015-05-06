@@ -15,6 +15,7 @@ import android.widget.PopupWindow.OnDismissListener;
 import android.widget.RelativeLayout;
 
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.utils.Logger;
 
 public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListener
@@ -88,7 +89,18 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 		int height = islandScape ? possibleKeyboardHeightLand : possibleKeyboardHeight;
 		if (height == 0)
 		{
-			height = firstTimeHeight;
+			if (islandScape)
+			{
+                int maxHeight = mainView.getRootView().getHeight();
+                // giving half height of screen in landscape mode
+                Logger.i("chatthread", "landscape mode is on setting half of screen " + maxHeight);
+                height = (maxHeight) / 2;
+			}
+			
+			else
+			{
+				height = firstTimeHeight;
+			}
 		}
 		
 		if (popup == null)
@@ -185,6 +197,9 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 	/**
 	 * Checks whether a touch event point lies within the ambit of a given view. The view is identified by its viewId.
 	 * 
+	 * We're checking the touch event along the Y-axis first. If it lies in the middle region containing the view,
+	 * we further check for their X-position, whether they lie over the view or elsewhere.
+	 * 
 	 * @param eventX
 	 * @param viewId
 	 * @return {@link Boolean}
@@ -194,8 +209,19 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 		View st = mainView.findViewById(viewId);
 		int[] xy = new int[2];
 		st.getLocationInWindow(xy);
-		boolean result = eventX >= xy[0] && eventX <= (xy[0] + st.getWidth()) && ((eventY + st.getHeight()) > xy[1]);
-		return result;
+		if (eventY < xy[1])
+		{
+			return false;
+		}
+		else if (eventY > (xy[1] + st.getHeight()))
+		{
+			return true;
+		}
+		else if (eventX > xy[0] && eventX < (xy[0] + st.getWidth()))
+		{
+			return true;
+		}
+		return false;
 	}
 
 	public void updateListenerAndView(PopupListener listener, View view)

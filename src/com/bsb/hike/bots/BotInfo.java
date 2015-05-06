@@ -1,5 +1,6 @@
 package com.bsb.hike.bots;
 
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.models.Conversation.ConvInfo;
 
 /**
@@ -73,6 +74,12 @@ public class BotInfo extends ConvInfo
 			this.metadata = metaData;
 			return getSelfObject();
 		}
+		
+		@Override
+		public P setOnHike(boolean onHike)
+		{
+			return super.setOnHike(true);
+		}
 
 		@Override
 		public BotInfo build()
@@ -143,7 +150,12 @@ public class BotInfo extends ConvInfo
 		this.type = builder.type;
 		this.configuration = builder.config;
 		this.metadata = builder.metadata;
+		this.isReceiveEnabled = builder.isReceiveEnabled;
+	}
 
+	public static BotInfo getBotInfoForBotMsisdn(String msisdn)
+	{
+		return HikeMessengerApp.hikeBotNamesMap.get(msisdn);
 	}
 
 	public boolean isMessagingBot()
@@ -154,6 +166,12 @@ public class BotInfo extends ConvInfo
 	public boolean isNonMessagingBot()
 	{
 		return type == NON_MESSAGING_BOT;
+	}
+	
+	@Override
+	public void setOnHike(boolean isOnHike)
+	{
+		super.setOnHike(true);
 	}
 
 }

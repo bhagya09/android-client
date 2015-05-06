@@ -1,8 +1,5 @@
 package com.bsb.hike.platform;
 
-import com.bsb.hike.R;
-import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.Utils;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -11,6 +8,8 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.webkit.WebView;
 
+import com.bsb.hike.utils.Logger;
+
 /**
  * Created by shobhitmandloi on 27/01/15.
  */
@@ -18,6 +17,7 @@ public class CustomWebView extends WebView
 {
 	public boolean isLoaded = true;
 	
+	private String javaScriptInterface;
 	//Custom WebView to stop background calls when moves out of view.
 	public CustomWebView(Context context)
 	{
@@ -105,6 +105,18 @@ public class CustomWebView extends WebView
 		}
 	}
 
+	public void onActivityDestroyed()
+	{
+
+		stopLoading();
+		setWebChromeClient(null);
+		setWebViewClient(null);
+		removeAllViews();
+		this.removeJavascriptInterface(javaScriptInterface);
+		destroy();
+	}
+
+
 	public void webViewProperties()
 	{
 		setVerticalScrollBarEnabled(false);
@@ -115,6 +127,13 @@ public class CustomWebView extends WebView
 	public void loadMicroAppData(String data)
 	{
 		this.loadDataWithBaseURL("", data, "text/html", "UTF-8", "");
+	}
+	
+	@Override
+	public void addJavascriptInterface(Object obj, String interfaceName)
+	{
+		this.javaScriptInterface = interfaceName;
+		super.addJavascriptInterface(obj, interfaceName);
 	}
 
 }

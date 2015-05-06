@@ -502,7 +502,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage && !isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, null, friendsListFetchedCallback, false);
 			break;
 		default:
-			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage && !isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, null, friendsListFetchedCallback, true);
+			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage || isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, null, friendsListFetchedCallback, true);
 			break;
 		}
 
@@ -920,7 +920,6 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		View selectAllCont = findViewById(R.id.select_all_container);
 		selectAllCont.setVisibility(View.VISIBLE);
 		final TextView tv = (TextView) selectAllCont.findViewById(R.id.select_all_text);
-		tv.setText(getString(R.string.select_all_hike));
 		CheckBox cb = (CheckBox) selectAllCont.findViewById(R.id.select_all_cb);
 		cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 			
@@ -930,7 +929,6 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					// call adapter select all
 					selectAllMode = true;
 					tv.setText(getString(R.string.unselect_all_hike));
-//					adapter.clearAllSelection(true);
 					if (composeMode == CREATE_BROADCAST_MODE)
 					{
 						if (adapter.getOnHikeContactsCount() > HikeConstants.MAX_CONTACTS_IN_BROADCAST)

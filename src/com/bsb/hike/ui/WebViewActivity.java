@@ -84,7 +84,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	String msisdn;
 
 	int mode;
-
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -128,7 +128,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 
 	private void initBot()
 	{
-		botInfo = Utils.getBotInfoForBotMsisdn(msisdn);
+		botInfo = BotInfo.getBotInfoForBotMsisdn(msisdn);
 		if (botInfo == null)
 		{
 			Logger.wtf(tag, "Botinfo does not exist in map");
@@ -242,7 +242,18 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		FullScreenJavascriptBridge mmBridge=new FullScreenJavascriptBridge(webView, this);
 		webView.addJavascriptInterface(mmBridge, HikePlatformConstants.PLATFORM_BRIDGE_NAME);
 	}
-	
+
+	@Override
+	protected void onDestroy()
+	{
+		
+		if(webView!=null)
+		{
+			webView.onActivityDestroyed();
+		}
+		super.onDestroy();
+	}
+
 	/**
 	 * 
 	 * @param view
@@ -375,7 +386,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			super.onBackPressed();
 		}
 	}
-
+	
 	@Override
 	public void onInflate(ViewStub arg0, View arg1)
 	{
@@ -398,17 +409,6 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	public void onTagClicked(Tag tag)
 	{
 
-	}
-
-	@Override
-	protected void onDestroy()
-	{
-
-		if (webView != null)
-		{
-			webView.removeJavascriptInterface(HikePlatformConstants.PLATFORM_BRIDGE_NAME);
-		}
-		super.onDestroy();
 	}
 
 	private List<OverFlowMenuItem> getOverflowMenuItems()

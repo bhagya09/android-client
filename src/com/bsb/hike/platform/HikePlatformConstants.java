@@ -119,4 +119,14 @@ public interface HikePlatformConstants
 	public static final String LOUD_PUSH = "loud";
 
 	public static final String  NO_PUSH = "none";
+
+	public static final String IS_SENT = "isSent";
+
+	public static final String INFLATION_TIME = "inflationTime";
+
+	public static final String TEMPLATING_TIME = "templatingTime";
+
+	public static final String RENDERING_TIME = "renderingTime";
+
+	public static final String PROFILING_TIME = "time";
 }
