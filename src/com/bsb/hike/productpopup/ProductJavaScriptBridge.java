@@ -158,7 +158,7 @@ public class ProductJavaScriptBridge extends JavascriptBridge
 				}
 				else
 				{
-					openActivity(metaData,activity);
+					openActivity(metaData);
 				}
 
 			}

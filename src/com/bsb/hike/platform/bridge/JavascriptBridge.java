@@ -389,8 +389,16 @@ public abstract class JavascriptBridge
 		mWebView.onActivityDestroyed();
 	}
 	
-	public void openActivity(String data, Activity context)
+	@JavascriptInterface
+	public void openActivity(String data)
 	{
+		
+		if (mHandler == null || weakActivity == null || weakActivity.get() == null)
+		{
+			return;
+		}
+
+		Activity context=weakActivity.get();
 		String activityName = null;
 		JSONObject mmObject = null;
 		try

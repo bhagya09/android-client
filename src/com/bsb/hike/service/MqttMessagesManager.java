@@ -2995,7 +2995,6 @@ public class MqttMessagesManager
 		msisdn = Utils.validateBotMsisdn(msisdn);
 		String name = jsonObj.optString(HikeConstants.NAME);
 		String thumbnailString = jsonObj.optString(HikeConstants.BOT_THUMBNAIL);
-		String type = jsonObj.optString(HikeConstants.TYPE);
 		int config = jsonObj.optInt(HikeConstants.CONFIGURATION);
 		BotInfo botInfo;
 		if (type.equals(HikeConstants.MESSAGING_BOT))
