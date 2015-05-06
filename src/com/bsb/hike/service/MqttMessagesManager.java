@@ -14,7 +14,10 @@ import java.util.Set;
 
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.MessagingBotConfiguration;
+import com.bsb.hike.bots.MessagingBotMetadata;
 import com.bsb.hike.bots.NonMessagingBotConfiguration;
+import com.bsb.hike.bots.NonMessagingBotMetadata;
+import com.bsb.hike.platform.WebMetadata;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -670,6 +673,43 @@ public class MqttMessagesManager
 		}
 	}
 
+	private void downloadZipForNonMessagingBot(final BotInfo botInfo, final boolean enableBot)
+	{
+		PlatformContentRequest rqst = PlatformContentRequest.make(
+				PlatformContentModel.make(botInfo.getMetadata()), new PlatformContentListener<PlatformContentModel>()
+				{
+
+					@Override
+					public void onComplete(PlatformContentModel content)
+					{
+						botInfo.setBotEnabled(enableBot);
+						HikeMessengerApp.hikeBotNamesMap.put(botInfo.getMsisdn(), botInfo);
+						convDb.updateBotEnablingState(botInfo.getMsisdn(), enableBot ? 1:0);
+					}
+
+					@Override
+					public void onEventOccured(PlatformContent.EventCode event)
+					{
+						if (event == PlatformContent.EventCode.DOWNLOADING || event == PlatformContent.EventCode.LOADED)
+						{
+							//do nothing
+							return;
+						}
+
+						else
+						{
+							//TODO
+						}
+					}
+				});
+
+		PlatformZipDownloader downloader = new PlatformZipDownloader(rqst, false);
+		if (!downloader.isMicroAppExist())
+		{
+			downloader.downloadAndUnzip();
+		}
+
+	}
 	private void saveMessageBulk(JSONObject jsonObj) throws JSONException
 	{
 		ConvMessage convMessage = messagePreProcess(jsonObj);
