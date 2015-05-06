@@ -477,19 +477,22 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	{
 		if (isEmojiOrMoodLayoutVisible())
 		{
-			if (moodParent.getVisibility() == View.VISIBLE)
-			{
-				mActivityTask.moodShowing = false;
-				moodParent.setVisibility(View.GONE);
-			}
-			else if (emojiParent.getVisibility() == View.VISIBLE)
+			if (emojiParent.getVisibility() == View.VISIBLE)
 			{
 				mActivityTask.emojiShowing = false;
 				emojiParent.setVisibility(View.GONE);
+				super.onBackPressed();
+			}
+			else
+			{
+				hideEmojiOrMoodLayout();
+				setTitle();
 			}
 		}
-		
-		super.onBackPressed();
+		else
+		{
+			super.onBackPressed();
+		}
 	}
 
 	private boolean isEmojiOrMoodLayoutVisible()
