@@ -269,7 +269,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 			public void onClick(View v)
 			{
 				Utils.hideSoftKeyboard(StatusUpdate.this, statusTxt);
-				onBackPressed();
+				actionBarBackPressed();
 			}
 		});
 
@@ -471,6 +471,25 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		{
 			super.onBackPressed();
 		}
+	}
+	
+	public void actionBarBackPressed()
+	{
+		if (isEmojiOrMoodLayoutVisible())
+		{
+			if (moodParent.getVisibility() == View.VISIBLE)
+			{
+				mActivityTask.moodShowing = false;
+				moodParent.setVisibility(View.GONE);
+			}
+			else if (emojiParent.getVisibility() == View.VISIBLE)
+			{
+				mActivityTask.emojiShowing = false;
+				emojiParent.setVisibility(View.GONE);
+			}
+		}
+		
+		super.onBackPressed();
 	}
 
 	private boolean isEmojiOrMoodLayoutVisible()
