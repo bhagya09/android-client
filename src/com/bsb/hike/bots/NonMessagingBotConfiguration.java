@@ -7,11 +7,11 @@ import org.json.JSONObject;
  */
 public class NonMessagingBotConfiguration extends BotConfiguration
 {
-	private String metadata;
+	private String configData;
 
-	public String getMetadata()
+	public String getConfigData()
 	{
-		return metadata;
+		return configData;
 	}
 
 	public NonMessagingBotConfiguration(int config)
@@ -19,9 +19,9 @@ public class NonMessagingBotConfiguration extends BotConfiguration
 		super(config);
 	}
 
-	public NonMessagingBotConfiguration(int config, String metadata)
+	public NonMessagingBotConfiguration(int config, String configData)
 	{
 		super(config);
-		this.metadata = metadata;
+		this.configData = configData;
 	}
 }
