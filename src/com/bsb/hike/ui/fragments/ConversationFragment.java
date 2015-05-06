@@ -1083,6 +1083,10 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 	{
 		super.onPause();
 
+		if (searchMode)
+		{
+			mAdapter.onQueryChanged("",this);
+		}
 		if(mAdapter != null)
 		{
 			mAdapter.getIconLoader().setExitTasksEarly(true);
@@ -1326,7 +1330,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		{
 			optionsList.add(getString(R.string.hide_chat));
 		}
-		if (!(conv instanceof OneToNConvInfo) && conv.getConversationName() == null)
+		if (!(conv instanceof OneToNConvInfo) && ContactManager.getInstance().isUnknownContact(conv.getMsisdn()))
 		{
 			optionsList.add(getString(R.string.add_to_contacts));
 			optionsList.add(getString(R.string.add_to_contacts_existing));
@@ -1673,7 +1677,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 
 		ShowTipIfNeeded(displayedConversations.isEmpty());
 		
-		mAdapter = new ConversationsAdapter(getActivity(), displayedConversations, stealthConversations, getListView());
+		mAdapter = new ConversationsAdapter(getActivity(), displayedConversations, stealthConversations, getListView(), this);
 
 		setListAdapter(mAdapter);
 
@@ -3478,6 +3482,10 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 				DeleteConversationsAsyncTask task = new DeleteConversationsAsyncTask(getActivity());
 				Utils.executeConvInfoAsyncTask(task, convInfo);
 			}
+		}
+		if (searchMode)
+		{
+			mAdapter.onQueryChanged(searchText,this);
 		}
 		if(mAdapter != null)
 		{

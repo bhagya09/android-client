@@ -72,8 +72,12 @@ android {
     buildTypes {
         release {
         	minifyEnabled true
+            debuggable false
             proguardFile 'proguard.cfg'
             signingConfig signingConfigs.release
+        }
+        debug {
+            debuggable true
         }
     }
     productFlavors {
