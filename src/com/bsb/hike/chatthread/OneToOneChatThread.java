@@ -2556,8 +2556,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	{
 		FavoriteType favoriteType = FavoriteType.REQUEST_SENT;
 		mContactInfo.setFavoriteType(favoriteType);
-		Pair<ContactInfo, FavoriteType> favoriteToggle = new Pair<ContactInfo, FavoriteType>(mContactInfo, favoriteType);
-		HikeMessengerApp.getPubSub().publish(HikePubSub.FAVORITE_TOGGLED, favoriteToggle);
+		Utils.addFavorite(activity, mContactInfo, false);
 	}
 	
 	@Override
