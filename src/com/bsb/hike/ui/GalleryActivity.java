@@ -71,7 +71,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 
 	private GalleryAdapter adapter;
 
-	private boolean isInsideAlbum, returnResult;
+	private boolean isInsideAlbum;
 
 	private String msisdn;
 
@@ -176,8 +176,6 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 			enableCameraPick = data.getBoolean(ENABLE_CAMERA_PICK);
 		}
 
-		returnResult = (getCallingActivity() != null);
-
 		String sortBy;
 		if (selectedBucket != null)
 		{
@@ -241,7 +239,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 			if (selectedFile != null)
 			{
 				Intent sourceIntent = IntentFactory.getNativeCameraAppIntent(true, selectedFile);
-				Intent i = IntentFactory.getPictureEditorActivityIntent(GalleryActivity.this, null, !returnResult, selectedFile.getAbsolutePath());
+				Intent i = IntentFactory.getPictureEditorActivityIntent(GalleryActivity.this, null, !sendResult, selectedFile.getAbsolutePath());
 				i.putExtra(HikeMessengerApp.FILE_PATHS,  selectedFile.getAbsolutePath() );
 				ArrayList<Intent> desIntent = new ArrayList<Intent>();
 				desIntent.add(i);
@@ -537,9 +535,17 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 			public void onClick(View v)
 			{
 				Intent intent = new Intent();
-				intent.putParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS, new ArrayList<GalleryItem>(selectedGalleryItems.values()));
-
-				sendGalleryIntent(intent);
+				ArrayList<GalleryItem> temp =new ArrayList<GalleryItem>(selectedGalleryItems.values());
+				intent.putParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS, temp);
+				if(temp.size()==1 && sendResult)
+				{
+					setResult(RESULT_OK, intent);
+					finish();
+				}
+				else
+				{
+					sendGalleryIntent(intent);
+				}
 			}
 		});
 
@@ -594,6 +600,22 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 			previousEventTime = currTime;
 		}
 	}
+	
+	
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data)
+	{
+		super.onActivityResult(requestCode, resultCode, data);
+		if(resultCode == RESULT_OK)
+		{
+			if(requestCode==GALLERY_ACTIVITY_RESULT_CODE )
+			{
+				setResult(RESULT_OK, data);
+				finish();
+			}
+		}
+	}
 
 	@Override
 	public void onScrollStateChanged(TwoWayAbsListView view, int scrollState)
@@ -619,8 +641,12 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 			if (sendResult)
 			{
 				intent.putExtra(START_FOR_RESULT, sendResult);
+				startActivityForResult(intent,GALLERY_ACTIVITY_RESULT_CODE);
 			}
-			startActivity(intent);
+			else
+			{
+				startActivity(intent);
+			}
 		}
 		else
 		{
@@ -694,7 +720,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 						e.printStackTrace();
 					}
 				}
-				else if (returnResult)
+				else if (sendResult)
 				{
 					setResult(RESULT_OK, intent);
 					finish();
