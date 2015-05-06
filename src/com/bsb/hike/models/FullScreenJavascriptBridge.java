@@ -9,7 +9,7 @@ import com.bsb.hike.platform.bridge.JavascriptBridge;
 public class FullScreenJavascriptBridge extends JavascriptBridge
 {
 
-	public FullScreenJavascriptBridge(WebView mWebView, Activity activity)
+	public FullScreenJavascriptBridge(CustomWebView mWebView, Activity activity)
 	{
 		super(activity, mWebView);
 
