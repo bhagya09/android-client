@@ -137,7 +137,7 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 	 */
 	private void setConvType()
 	{
-		convType = getIntent().hasExtra(HikeConstants.IS_BROADCAST) ? ConvType.BROADCAST : ConvType.GROUP;
+		convType = getIntent().hasExtra(HikeConstants.Extras.CREATE_BROADCAST) ? ConvType.BROADCAST : ConvType.GROUP;
 	}
 
 	private void createView() {

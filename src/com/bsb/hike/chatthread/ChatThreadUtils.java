@@ -18,7 +18,6 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.text.TextUtils;
 import android.util.Pair;
 import android.view.View;
 import android.view.animation.Animation;
@@ -41,7 +40,6 @@ import com.bsb.hike.analytics.MsgRelLogManager;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.filetransfer.FTAnalyticEvents;
 import com.bsb.hike.filetransfer.FileTransferManager;
-import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.HikeFile.HikeFileType;
@@ -154,13 +152,6 @@ public class ChatThreadUtils
 		{
 
 			convMessage.setMessage(message.substring(hashType.length()).trim());
-
-			if (TextUtils.isEmpty(convMessage.getMessage()))
-			{
-				Toast.makeText(context, R.string.text_empty_error, Toast.LENGTH_SHORT).show();
-				return false;
-			}
-
 			return true;
 		}
 		return false;
@@ -281,9 +272,9 @@ public class ChatThreadUtils
 		}
 	}
 
-	protected static boolean shouldShowLastSeen(String msisdn, Context context, boolean convOnHike)
+	protected static boolean shouldShowLastSeen(String msisdn, Context context, boolean convOnHike, boolean isBlocked)
 	{
-		if (convOnHike && !Utils.isBot(msisdn))
+		if (convOnHike && !isBlocked && !Utils.isBot(msisdn))
 		{
 			return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(HikeConstants.LAST_SEEN_PREF, true);
 		}

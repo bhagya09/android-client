@@ -10,6 +10,8 @@ public class GalleryItem implements Parcelable
 	public static final byte DEFAULT_FILE = 1;
 
 	public static final byte CUSTOM = 2;
+	
+	public static final long CAMERA_TILE_ID = -11L;
 
 	private long id;
 
@@ -37,8 +39,9 @@ public class GalleryItem implements Parcelable
 		type = DEFAULT_FILE;
 	}
 
-	public GalleryItem(String name, String layoutIDName, int bucketCount, PendingIntent intent)
+	public GalleryItem(long id, String name, String layoutIDName, int bucketCount, PendingIntent intent)
 	{
+		this.id = id;
 		this.name = name;
 		this.layoutIDName = layoutIDName;
 		this.bucketCount = bucketCount;

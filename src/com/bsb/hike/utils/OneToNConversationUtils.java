@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.bsb.hike.models.Conversation.OneToNConvInfo;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -129,14 +128,14 @@ public class OneToNConversationUtils
 		ContactInfo userContactInfo = Utils.getUserContactInfo(activity.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, Context.MODE_PRIVATE));
 
 		OneToNConversation oneToNConversation;
-		OneToNConvInfo oneToNConvInfo = new OneToNConvInfo.ConvInfoBuilder(oneToNConvId).build();
-		if (activity.getIntent().hasExtra(HikeConstants.IS_BROADCAST))
+
+		if (activity.getIntent().hasExtra(HikeConstants.Extras.CREATE_BROADCAST))
 		{
-			oneToNConversation = new BroadcastConversation.ConversationBuilder(oneToNConvInfo).setConversationOwner(userContactInfo.getMsisdn()).setIsAlive(true).build();
+			oneToNConversation = new BroadcastConversation.ConversationBuilder(oneToNConvId).setConversationOwner(userContactInfo.getMsisdn()).setIsAlive(true).build();
 		}
 		else
 		{
-			oneToNConversation = new GroupConversation.ConversationBuilder(oneToNConvInfo).setConversationOwner(userContactInfo.getMsisdn()).setIsAlive(true).build();
+			oneToNConversation = new GroupConversation.ConversationBuilder(oneToNConvId).setConversationOwner(userContactInfo.getMsisdn()).setIsAlive(true).build();
 		}
 
 		oneToNConversation.setConversationParticipantList(participantList);

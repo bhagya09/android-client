@@ -1572,12 +1572,20 @@ public class MqttMessagesManager
 			boolean showRewards = data.getBoolean(HikeConstants.SHOW_REWARDS);
 			editor.putBoolean(HikeMessengerApp.SHOW_REWARDS, showRewards);
 			editor.putBoolean(HikeConstants.IS_REWARDS_ITEM_CLICKED, !showRewards);
+			if(showRewards)
+			{
+				editor.putBoolean(HikeConstants.IS_HOME_OVERFLOW_CLICKED, false);
+			}
 		}
 		if (data.has(HikeConstants.SHOW_GAMES))
 		{
 			boolean showGames = data.getBoolean(HikeConstants.SHOW_GAMES);
 			editor.putBoolean(HikeMessengerApp.SHOW_GAMES, showGames);
 			editor.putBoolean(HikeConstants.IS_GAMES_ITEM_CLICKED, !showGames);
+			if(showGames)
+			{
+				editor.putBoolean(HikeConstants.IS_HOME_OVERFLOW_CLICKED, false);
+			}
 		}
 		if (data.has(HikeConstants.SHOW_BROADCAST))
 		{
@@ -1773,7 +1781,22 @@ public class MqttMessagesManager
 			long timeout = data.getLong(HikeConstants.Extras.GENERAL_SO_TIMEOUT);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.Extras.GENERAL_SO_TIMEOUT, timeout);
 			AccountUtils.setSocketTimeout((int) timeout);
-		}	
+		}
+		if (data.has(HikeConstants.Extras.OKHTTP_CONNECT_TIMEOUT))
+		{
+			int timeout = data.getInt(HikeConstants.Extras.OKHTTP_CONNECT_TIMEOUT);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.Extras.OKHTTP_CONNECT_TIMEOUT, timeout);
+		}
+		if (data.has(HikeConstants.Extras.OKHTTP_READ_TIMEOUT))
+		{
+			int timeout = data.getInt(HikeConstants.Extras.OKHTTP_READ_TIMEOUT);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.Extras.OKHTTP_READ_TIMEOUT, timeout);
+		}
+		if (data.has(HikeConstants.Extras.OKHTTP_WRITE_TIMEOUT))
+		{
+			int timeout = data.getInt(HikeConstants.Extras.OKHTTP_WRITE_TIMEOUT);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.Extras.OKHTTP_WRITE_TIMEOUT, timeout);
+		}
 		if (data.has(HikeConstants.OK_HTTP))
 		{
 			boolean okhttp = data.getBoolean(HikeConstants.OK_HTTP);
@@ -3795,5 +3818,4 @@ public class MqttMessagesManager
 		}
 	
 	}
-	
 }
