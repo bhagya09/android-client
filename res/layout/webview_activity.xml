@@ -4,7 +4,13 @@
     android:layout_height="match_parent"
     android:background="@drawable/thatch_repeat"
     android:orientation="vertical" >
-
+	<View
+        android:id="@+id/overflow_anchor"
+        android:layout_width="1dp"
+        android:layout_height="@dimen/st__action_bar_default_height"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true" />
+	
     <com.bsb.hike.platform.CustomWebView
         android:id="@+id/t_and_c_page"
         android:layout_width="match_parent"
