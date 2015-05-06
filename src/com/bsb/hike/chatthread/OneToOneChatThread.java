@@ -153,7 +153,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	 * We keep a flag which indicates whether we can schedule H20Tip or not
 	 */
 	private boolean shouldScheduleH20Tip = true;
-
+	
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * 
@@ -2347,7 +2347,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	private void sendAllMessagesAsSMS(boolean nativeSMS, List<ConvMessage> unsentMessages)
 	{
 		Logger.d(TAG, "Unsent messages: " + unsentMessages.size());
-
+		mCredits -= getSelectedFreeSmsCount();
 		if (nativeSMS)
 		{
 			HikeMessengerApp.getPubSub().publish(HikePubSub.SEND_NATIVE_SMS_FALLBACK, unsentMessages);

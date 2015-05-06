@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1193"
-    android:versionName="3.9.0.69.ct_search" >
+    android:versionCode="1200"
+    android:versionName="3.9.2.0.1.ct_search" >
 
     <uses-sdk
         android:minSdkVersion="9"
@@ -136,7 +136,7 @@
             android:label="@string/app_name"
             android:launchMode="singleTop"
             android:theme="@style/AppTheme.Home"
-            android:windowSoftInputMode="adjustResize" >
+            android:windowSoftInputMode="adjustResize|stateAlwaysHidden" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
