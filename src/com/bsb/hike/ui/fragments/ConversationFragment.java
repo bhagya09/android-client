@@ -1315,7 +1315,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		{
 			optionsList.add(getString(conv.isStealth() ? R.string.unmark_stealth : R.string.mark_stealth));
 		}
-		if (!(conv instanceof OneToNConvInfo) && conv.getConversationName() == null)
+		if (!(conv instanceof OneToNConvInfo) && ContactManager.getInstance().isUnknownContact(conv.getMsisdn()))
 		{
 			optionsList.add(getString(R.string.add_to_contacts));
 			optionsList.add(getString(R.string.add_to_contacts_existing));
