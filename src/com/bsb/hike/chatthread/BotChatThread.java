@@ -79,7 +79,7 @@ public class BotChatThread extends OneToOneChatThread
 		switch (type)
 		{
 		case HikePubSub.MUTE_BOT:
-			muteBotPubSub();
+			muteBotPubSub(object);
 			break;
 		default:
 			Logger.d(TAG, "Did not find any matching PubSub event in OneToOne ChatThread. Calling super class' onEventReceived");
@@ -88,11 +88,15 @@ public class BotChatThread extends OneToOneChatThread
 		}
 	}
 
-	private void muteBotPubSub()
+	private void muteBotPubSub(Object object)
 	{
-		mConversation.setIsMute(true);
-		HikeConversationsDatabase.getInstance().updateBot(msisdn, null, null, mConversation.isMuted() ? 1 : 0);
-		HikeMessengerApp.getPubSub().publish(HikePubSub.MUTE_CONVERSATION_TOGGLED, new Pair<String, Boolean>(mConversation.getMsisdn(), mConversation.isMuted()));
+		String botMsisdn = (String) object;
+		if (msisdn == botMsisdn)
+		{
+			mConversation.setIsMute(true);
+			HikeConversationsDatabase.getInstance().updateBot(msisdn, null, null, mConversation.isMuted() ? 1 : 0);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.MUTE_CONVERSATION_TOGGLED, new Pair<String, Boolean>(msisdn, mConversation.isMuted()));
+		}
 	}
 
 	@Override

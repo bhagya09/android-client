@@ -320,8 +320,7 @@ public class PlatformJavaScriptBridge extends JavascriptBridge
 	public void muteChatThread()
 	{
 
-		HikeMessengerApp.getPubSub().publish(HikePubSub.MUTE_BOT,
-				null);
+		HikeMessengerApp.getPubSub().publish(HikePubSub.MUTE_BOT, message.getMsisdn());
 
 	}
 

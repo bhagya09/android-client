@@ -1,5 +1,8 @@
 package com.bsb.hike.platform.bridge;
 
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
+
 import android.app.Activity;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
@@ -65,6 +68,15 @@ public class FullScreenJavascriptBridge extends JavascriptBridge
 
 	}
 	
+	/**
+	 * calling this method will forcefully mute the chat thread. The user won't receive any more
+	 * notifications after calling this.
+	 */
+	@JavascriptInterface
+	public void muteChatThread()
+	{
+		HikeMessengerApp.getPubSub().publish(HikePubSub.MUTE_BOT, msisdn);
+	}
 	
 
 }
