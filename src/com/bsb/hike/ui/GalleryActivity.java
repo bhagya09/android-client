@@ -537,7 +537,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 				Intent intent = new Intent();
 				ArrayList<GalleryItem> temp =new ArrayList<GalleryItem>(selectedGalleryItems.values());
 				intent.putParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS, temp);
-				if(temp.size()==1 && sendResult)
+				if(temp.size()==1 && sendResult && Utils.isPhotosEditEnabled())
 				{
 					setResult(RESULT_OK, intent);
 					finish();
@@ -641,7 +641,14 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 			if (sendResult)
 			{
 				intent.putExtra(START_FOR_RESULT, sendResult);
-				startActivityForResult(intent,GALLERY_ACTIVITY_RESULT_CODE);
+				if(Utils.isPhotosEditEnabled())
+				{
+					startActivityForResult(intent,GALLERY_ACTIVITY_RESULT_CODE);
+				}
+				else
+				{
+					startActivity(intent);
+				}
 			}
 			else
 			{
@@ -720,7 +727,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 						e.printStackTrace();
 					}
 				}
-				else if (sendResult)
+				else if (sendResult && Utils.isPhotosEditEnabled())
 				{
 					setResult(RESULT_OK, intent);
 					finish();
