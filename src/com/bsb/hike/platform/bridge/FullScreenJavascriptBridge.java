@@ -67,16 +67,23 @@ public class FullScreenJavascriptBridge extends JavascriptBridge
 	{
 
 	}
-	
+
 	/**
-	 * calling this method will forcefully mute the chat thread. The user won't receive any more
-	 * notifications after calling this.
+	 * calling this method will forcefully mute the full screen bot. The user won't receive any more notifications after calling this.
 	 */
 	@JavascriptInterface
 	public void muteChatThread()
 	{
 		HikeMessengerApp.getPubSub().publish(HikePubSub.MUTE_BOT, msisdn);
 	}
-	
+
+	/**
+	 * calling this method will forcefully block the full screen bot. The user won't see any messages in the chat thread after calling this.
+	 */
+	@JavascriptInterface
+	public void blockChatThread()
+	{
+		HikeMessengerApp.getPubSub().publish(HikePubSub.BLOCK_USER, msisdn);
+	}
 
 }
