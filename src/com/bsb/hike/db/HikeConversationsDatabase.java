@@ -3340,6 +3340,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 					/*
 					 * This conversation is empty.
 					 */
+					clearLastConversationMessage(msisdn);
 					conversationEmpty = true;
 				}
 			}
