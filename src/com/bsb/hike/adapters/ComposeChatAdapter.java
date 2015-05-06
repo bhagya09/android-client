@@ -727,6 +727,11 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 				{
 					continue;
 				}
+				
+				if (!ContactManager.getInstance().hasIcon(contactInfo.getMsisdn()))
+				{
+					return;
+				}
 
 				updateViewsRelatedToAvatar(view, getItem(indexOfData));
 			}
