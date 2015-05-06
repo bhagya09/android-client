@@ -87,6 +87,8 @@ public final class PreviewFragment extends Fragment
 		// height)));
 		gridView.setColumnWidth(GridView.AUTO_FIT);
 		gridView.setRowHeight(height);
+		gridView.setOnItemClickListener(handler);
+		gridView.setSelector(R.drawable.photos_pager_item_selector);
 		mAdapter = new ImageAdapter(handler);
 		gridView.setAdapter(mAdapter);
 		ViewStub adjuster = (ViewStub) layout.findViewById(R.id.sizeBarStub);
@@ -138,12 +140,9 @@ public final class PreviewFragment extends Fragment
 
 		private Context mContext;
 
-		private EditorClickListener clickListener;
-
 		public ImageAdapter(EditorClickListener adapter)
 		{
 			mContext = HikeMessengerApp.getInstance().getApplicationContext();
-			clickListener = adapter;
 		}
 
 		@Override
@@ -218,7 +217,6 @@ public final class PreviewFragment extends Fragment
 							FilterEffectItemLinearLayout filterPreviewView = (FilterEffectItemLinearLayout) convertView;
 							filterPreviewView.init(mOriginalBitmap, myFilters.names.get(position));
 							filterPreviewView.setFilter(mContext, myFilters.filters.get(position), false);
-							filterPreviewView.setOnClickListener(clickListener);
 							convertView.setTag(filterName);
 							return convertView;
 						}
@@ -226,7 +224,6 @@ public final class PreviewFragment extends Fragment
 					FilterEffectItemLinearLayout filterPreviewView = (FilterEffectItemLinearLayout) convertView;
 					filterPreviewView.init(mOriginalBitmap, myFilters.names.get(position));
 					filterPreviewView.setFilter(mContext, myFilters.filters.get(position), true);
-					filterPreviewView.setOnClickListener(clickListener);
 					convertView.setTag(filterName);
 				}
 
@@ -257,7 +254,6 @@ public final class PreviewFragment extends Fragment
 							DoodleEffectItemLinearLayout doodleItem = (DoodleEffectItemLinearLayout) convertView;
 							doodleItem.setBrushColor(currentPosColor, false);
 							doodleItem.refresh();
-							doodleItem.setOnClickListener(clickListener);
 							convertView.setTag(currentPosColor);
 							return convertView;
 						}
@@ -266,7 +262,6 @@ public final class PreviewFragment extends Fragment
 					DoodleEffectItemLinearLayout doodleItem = (DoodleEffectItemLinearLayout) convertView;
 					doodleItem.setBrushColor(currentPosColor, true);
 					doodleItem.refresh();
-					doodleItem.setOnClickListener(clickListener);
 					convertView.setTag(currentPosColor);
 				}
 				break;
