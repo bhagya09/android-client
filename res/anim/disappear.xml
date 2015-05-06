@@ -3,7 +3,7 @@
 
 	<alpha
 		android:interpolator="@android:anim/decelerate_interpolator"
-		android:fromAlpha="1.0" android:toAlpha="0.0"
+		android:fromAlpha="1.0" android:toAlpha="0.4"
 		android:duration="@android:integer/config_shortAnimTime"
 	/>
 </set>
