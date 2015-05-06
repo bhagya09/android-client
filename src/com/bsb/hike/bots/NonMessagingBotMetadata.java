@@ -1,11 +1,10 @@
 package com.bsb.hike.bots;
 
-import java.util.List;
-
+import com.bsb.hike.models.OverFlowMenuItem;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.bsb.hike.models.OverFlowMenuItem;
+import java.util.List;
 
 /**
  * Created by shobhit on 22/04/15.
@@ -14,19 +13,25 @@ public class NonMessagingBotMetadata
 {
 	JSONObject json;
 
-	public NonMessagingBotMetadata(String jsonString)
+
+	public NonMessagingBotMetadata(String jsonString) throws JSONException
 	{
-		try
-		{
-			json = new JSONObject(jsonString);
-		}
-		catch (JSONException e)
-		{
-			e.printStackTrace();
-			json = new JSONObject();
-		}
+		this(new JSONObject(jsonString));
 	}
 
-	
-	
+	public NonMessagingBotMetadata(JSONObject metadata)
+	{
+		this.json = metadata;
+	}
+
+	@Override
+	public String toString()
+	{
+		return json.toString();
+	}
+
+	public List<OverFlowMenuItem> getOverflowItems()
+	{
+		return null;
+	}
 }
