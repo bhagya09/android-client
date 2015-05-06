@@ -1178,7 +1178,7 @@ public class HikeBitmapFactory
 
 			contactName = ContactManager.getInstance().getName(msisdn, true);
 
-			return TextDrawable.builder().buildRound(contactName == null ? "#" : Character.toString(contactName.charAt(0)), bgColor);
+			return TextDrawable.builder().buildRound(TextUtils.isEmpty(contactName) ? "#" : Character.toString(contactName.charAt(0)), bgColor);
 		}
 
 	}
