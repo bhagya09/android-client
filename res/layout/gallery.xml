@@ -24,7 +24,7 @@
             app:verticalSpacing="@dimen/gallery_grid_spacing" 
             app:numColumns="3"
             app:numRows="2"
-            app:scrollDirectionLandscape="horizontal"
+            app:scrollDirectionLandscape="vertical"
             app:scrollDirectionPortrait="vertical"
             app:stretchMode="columnWidth" >
         </com.jess.ui.TwoWayGridView>

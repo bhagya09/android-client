@@ -53,7 +53,7 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 	private PopUpLayout popUpLayout;
 	
 	private int currentConfig = Configuration.ORIENTATION_PORTRAIT;
-
+	
 	public ThemePicker(SherlockFragmentActivity sherlockFragmentActivity, ThemePickerListener listener, ChatTheme currentTheme)
 	{
 		this.userSelection = currentTheme;
@@ -103,12 +103,7 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 			/**
 			 * If orientation was changed, we need to refresh views
 			 */
-			if (orientationChanged(orientation))
-			{
-				refreshViews(false);
-				currentConfig = orientation;
-			}
-			
+			setOrientation(orientation);
 			return;
 		}
 		
@@ -253,6 +248,32 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 
 		return false;
 	}
+	
+	/**
+	 * This function should be called when orientation of screen is changed, it will update its view based on orientation
+	 * If picker is being shown, it will first dismiss current picker and then show it again using post on view
+	 * 
+	 * NOTE : It will not give dismiss callback to listener as this is not explicit dismiss
+	 * @param orientation
+	 */
+	public void onOrientationChange(int orientation)
+	{
+		setOrientation(orientation);
+		if(viewToDisplay!=null && isShowing())
+		{
+			reInflation = true;
+			dismiss();
+			viewToDisplay.post(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					sherlockFragmentActivity.startActionMode(actionmodeCallback);
+				}
+			});
+		}
+		
+	}
 
 	private int getNumColumnsChatThemes()
 	{
@@ -296,21 +317,19 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 	/**
 	 * This method changes the number of columns field of the grid view and then calls notifyDataSetChanged
 	 */
-	public void refreshViews(boolean reInflateActionBar)
+	public void refreshViews()
 	{
 		GridView grid = (GridView) viewToDisplay.findViewById(R.id.attachment_grid);
 		grid.setNumColumns(getNumColumnsChatThemes());
 		((ArrayAdapter<ChatTheme>) grid.getAdapter()).notifyDataSetChanged();
-		
-		if (reInflateActionBar)
-		{
-			reInflation = true;
-			sherlockFragmentActivity.startActionMode(actionmodeCallback);
-		}
 	}
 	
 	public void setOrientation(int orientation)
 	{
-		this.currentConfig = orientation;
+		if(orientation != currentConfig)
+		{
+			this.currentConfig = orientation;
+			refreshViews();
+		}
 	}
 }

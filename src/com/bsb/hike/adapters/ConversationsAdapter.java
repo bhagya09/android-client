@@ -28,6 +28,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.BaseAdapter;
 import android.widget.Filter;
+import android.widget.Filter.FilterListener;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -88,6 +89,8 @@ public class ConversationsAdapter extends BaseAdapter
 	private Set<String> conversationsMsisdns;
 
 	private boolean isSearchModeOn = false;
+	
+	private FilterListener searchFilterListener;
 
 	private enum ViewType
 	{
@@ -113,13 +116,14 @@ public class ConversationsAdapter extends BaseAdapter
 		ImageView muteIcon;
 	}
 
-	public ConversationsAdapter(Context context, List<ConvInfo> displayedConversations, Set<ConvInfo> stealthConversations, ListView listView)
+	public ConversationsAdapter(Context context, List<ConvInfo> displayedConversations, Set<ConvInfo> stealthConversations, ListView listView, FilterListener searchFilterListener)
 	{
 		this.context = context;
 		this.completeList = displayedConversations;
 		this.stealthConversations = stealthConversations;
 		this.listView = listView;
 		this.inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		this.searchFilterListener = searchFilterListener;
 		mIconImageSize = context.getResources().getDimensionPixelSize(R.dimen.icon_picture_size);
 		iconLoader = new IconLoader(context, mIconImageSize);
 		iconLoader.setImageFadeIn(false);
@@ -317,14 +321,21 @@ public class ConversationsAdapter extends BaseAdapter
 		return convInfo;
 	}
 
-	public void onQueryChanged(String s)
+	public void onQueryChanged(String s, FilterListener filterListener)
 	{
 		if (s == null)
 		{
 			s = "";
 		}
 		refinedSearchText = s.toLowerCase();
-		contactFilter.filter(refinedSearchText);
+		if(filterListener!=null)
+		{
+			contactFilter.filter(refinedSearchText, filterListener);
+		}
+		else
+		{
+			contactFilter.filter(refinedSearchText);
+		}
 	}
 
 	private class ContactFilter extends Filter
@@ -1014,7 +1025,7 @@ public class ConversationsAdapter extends BaseAdapter
 		}
 		else
 		{
-			onQueryChanged(refinedSearchText);
+			onQueryChanged(refinedSearchText, searchFilterListener);
 		}
 	}
 
@@ -1042,7 +1053,7 @@ public class ConversationsAdapter extends BaseAdapter
 			}
 			if (isSearchModeOn)
 			{
-				onQueryChanged(refinedSearchText);
+				onQueryChanged(refinedSearchText, searchFilterListener);
 			}
 		}
 	}

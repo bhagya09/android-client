@@ -63,6 +63,10 @@ public class AnalyticsConstants
 	public static String VIEW_EVENT = "view";
 
 	public static String ERROR_EVENT = "error";
+	
+	public static String LOG_KEY = "logs";
+	
+	public static String PHOTOS_ERROR_EVENT = "ph_er";
 
     public static String MICROAPP_UI_EVENT = "muiEvent";
 

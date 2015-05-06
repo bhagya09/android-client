@@ -59,7 +59,7 @@ public class VoIPConstants {
 	public static final int MSG_UPDATE_QUALITY = 17;
 	public static final int MSG_NETWORK_SUCKS = 18;
 	public static final int MSG_UPDATE_HOLD_BUTTON = 19;
-	public static final int MSG_ALREADY_IN_CALL = 20;
+	public static final int MSG_ALREADY_IN_NATIVE_CALL = 20;
 	public static final int MSG_AUDIORECORD_FAILURE = 21;
 	public static final int MSG_UPDATE_REMOTE_HOLD = 22;
 

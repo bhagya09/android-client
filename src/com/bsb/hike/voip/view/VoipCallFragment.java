@@ -178,7 +178,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 			case VoIPConstants.MSG_UPDATE_REMOTE_HOLD:
 				updateCallStatus();
 				break;
-			case VoIPConstants.MSG_ALREADY_IN_CALL:
+			case VoIPConstants.MSG_ALREADY_IN_NATIVE_CALL:
 				showCallFailedFragment(VoIPConstants.CallFailedCodes.CALLER_IN_NATIVE_CALL);
 				break;
 			case VoIPConstants.MSG_AUDIORECORD_FAILURE:
