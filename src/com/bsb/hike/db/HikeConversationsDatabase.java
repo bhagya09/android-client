@@ -286,7 +286,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				+ DBConstants.IS_MUTE + " INTEGER DEFAULT 0, "  // bot conv mute or not
 				+ DBConstants.BOT_TYPE + " INTEGER, "				//bot type m/nm
 				+ DBConstants.BOT_CONFIGURATION + " INTEGER, "	//bot configurations.. different server controlled properties of bot.
-				+ DBConstants.IS_RECEIVE_ENABLED + " INTEGER DEFAULT 1" // whether the bot has receive functionality enabled or not.
+				+ DBConstants.IS_BOT_ENABLE + " INTEGER DEFAULT 1,"  //whether the bot is enabled or not.
+				+ DBConstants.CONFIG_DATA + " TEXT"            //config data for the bot.
 				+ ")";
 		db.execSQL(sql);
 
@@ -755,14 +756,16 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 		if (oldVersion < 39)
 		{
-			String alter = "ALTER TABLE " + DBConstants.BOT_TABLE + " ADD "
-					+ " ("
-					+ DBConstants.BOT_TYPE  + "INTEGER, "
-					+ DBConstants.BOT_CONFIGURATION + " INTEGER, "
-					+ DBConstants.IS_RECEIVE_ENABLED + " INTEGER DEFAULT 1"
-					+ " )";
 
-			db.execSQL(alter);
+			String alter1 = "ALTER TABLE " + DBConstants.BOT_TABLE + " ADD COLUMN " + DBConstants.BOT_TYPE + " INTEGER";
+			String alter2 = "ALTER TABLE " + DBConstants.BOT_TABLE + " ADD COLUMN " + DBConstants.BOT_CONFIGURATION + " INTEGER";
+			String alter3 = "ALTER TABLE " + DBConstants.BOT_TABLE + " ADD COLUMN " + DBConstants.IS_BOT_ENABLE + " INTEGER DEFAULT 1";
+			String alter4 = "ALTER TABLE " + DBConstants.BOT_TABLE + " ADD COLUMN " + DBConstants.CONFIG_DATA + " TEXT";
+
+			db.execSQL(alter1);
+			db.execSQL(alter2);
+			db.execSQL(alter3);
+			db.execSQL(alter4);
 		}
 
 	}

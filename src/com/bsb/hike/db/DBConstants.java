@@ -216,6 +216,10 @@ public interface DBConstants
 
 	public static final String IS_RECEIVE_ENABLED = "rec_enabled";
 
+	public static final String CONFIG_DATA = "config_data";
+
+	public static final String IS_BOT_ENABLE = "bot_enabled";
+
 	public static interface HIKE_CONV_DB{
 		// CHANNEL TABLE -> _id,channel_id,name,visibility,index 
 		public static final String CHANNEL_TABLE = "channel";
