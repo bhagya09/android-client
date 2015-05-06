@@ -68,7 +68,12 @@ android {
             keyPassword "Tequ1laFr1day5"
         }
     }
-
+    applicationVariants.all { variant -> 
+        variant.outputs.each { output -> 
+            def file = output.outputFile
+            output.outputFile = new File(file.parent, file.name.replace(".apk","-" + getVersionName() + "-" + getBranchAndCommitID() + "-"+ getDateTime() + ".apk"))
+        }
+    }
     buildTypes {
         black {
             applicationIdSuffix ".black"
@@ -92,4 +97,29 @@ android {
         	}
     	}
 	}
+}
+
+def getBranchAndCommitID() {
+    ext.revision = getGitRevParseInfo ( "--short" )
+    ext.branch = getGitRevParseInfo ( "--abbrev-ref" )
+    
+    return ext.revision 
+}
+
+def getGitRevParseInfo (what) {
+   def cmd = "git rev-parse " + what + " HEAD"
+   def proc = cmd.execute ()
+   proc.text.trim ()
+}
+
+def getVersionName() {
+    def manifestParser = new com.android.builder.core.DefaultManifestParser()
+    def versionName = manifestParser.getVersionName(android.sourceSets.main.manifest.srcFile)
+    return versionName.replaceAll('\\.','_')
+}
+
+def getDateTime() {
+    def date = new Date()
+    def formattedDate = date.format('yyyy_MM_dd-HH_mm_ss')
+    return formattedDate
 }
