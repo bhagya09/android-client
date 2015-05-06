@@ -2,8 +2,8 @@ package com.bsb.hike.models;
 
 import android.app.Activity;
 import android.webkit.JavascriptInterface;
-import android.webkit.WebView;
 
+import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.bridge.JavascriptBridge;
 
 public class FullScreenJavascriptBridge extends JavascriptBridge
