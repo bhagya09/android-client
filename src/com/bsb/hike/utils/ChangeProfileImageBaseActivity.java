@@ -712,4 +712,15 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 	{
 		this.mLocalMSISDN = msisdn;
 	}
+	
+	@Override
+	protected void onDestroy()
+	{
+		if (mDialog != null)
+		{
+			mDialog.dismiss();
+			mDialog = null;
+		}
+		super.onDestroy();
+	}
 }

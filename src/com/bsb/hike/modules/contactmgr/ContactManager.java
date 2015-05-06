@@ -1029,6 +1029,16 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 		hDb.setMultipleContactsToFavorites(favorites);
 	}
 
+	public boolean isUnknownContact(String msisdn)
+	{
+		ContactInfo contact = getContact(msisdn, true, false);
+		if (null == contact)
+		{
+			return true;
+		}
+		return contact.isUnknownContact();
+	}
+	
 	/**
 	 * This method returns true if a particular msisdn is blocked otherwise false
 	 * 

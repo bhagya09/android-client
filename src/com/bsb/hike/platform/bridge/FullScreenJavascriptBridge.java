@@ -1,25 +1,25 @@
 package com.bsb.hike.platform.bridge;
 
-import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.HikePubSub;
-
 import android.app.Activity;
 import android.webkit.JavascriptInterface;
-import android.webkit.WebView;
+
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
+import com.bsb.hike.platform.CustomWebView;
 
 public class FullScreenJavascriptBridge extends JavascriptBridge
 {
 	
 	private String msisdn;
 
-	public FullScreenJavascriptBridge(WebView mWebView, Activity activity)
+	public FullScreenJavascriptBridge(Activity activity, CustomWebView mWebView)
 	{
 		super(activity, mWebView);
 	}
 	
-	public FullScreenJavascriptBridge(WebView mWebView, Activity activity, String msisdn)
+	public FullScreenJavascriptBridge(Activity activity, CustomWebView mWebView, String msisdn)
 	{
-		this(mWebView, activity);
+		this(activity, mWebView);
 		this.msisdn = msisdn;
 	}
 

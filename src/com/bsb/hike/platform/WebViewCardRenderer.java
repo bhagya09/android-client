@@ -69,6 +69,8 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 
 	private static final int WEBVIEW_CARD_COUNT = 3;
 
+	private long startTime;
+
 	Activity mContext;
 
 	ArrayList<ConvMessage> convMessages;
@@ -92,6 +94,12 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 	public static class WebViewHolder extends MessagesAdapter.DetailViewHolder
 	{
 		public long id = 0;
+
+		public long inflationTime;
+
+		public long templatingTime;
+
+		public long renderingTime;
 
 		CustomWebView customWebView;
 
@@ -199,6 +207,7 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 	@Override
 	public View getView(final int position, View convertView, ViewGroup parent)
 	{
+		startTime = System.currentTimeMillis();
 		Logger.i(tag, "get view with called with position " + position);
 		int type = getItemViewType(position);
 		View view = convertView;
@@ -259,11 +268,13 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 		if (viewHolder.id != getItemId(position))
 		{
 			showLoadingState(viewHolder);
-
+			viewHolder.inflationTime = System.currentTimeMillis() - startTime;
+			Logger.d(tag, "Inflation time is ---->" + viewHolder.inflationTime);
 			loadContent(position, convMessage, viewHolder);
 		}
 		else
 		{
+			viewHolder.inflationTime = -1;
 			Logger.i(tag, "either tag is not null ");
 			int mId = (int) convMessage.getMsgID();
 			String alarm;
@@ -302,6 +313,7 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 				else
 				{
 					Logger.e(tag, "error");
+					viewHolder.templatingTime = -1;
 					showConnErrState(viewHolder, convMessage, position);
 					HikeAnalyticsEvent.cardErrorAnalytics(reason, convMessage);
 				}
@@ -311,7 +323,10 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 			{
 				if (position < getCount())
 				{
+					Logger.d(tag, "templating success");
 					viewHolder.id = getItemId(position);
+					viewHolder.templatingTime = System.currentTimeMillis() - viewHolder.inflationTime;
+					Logger.d(tag, "Templating time is ---->" + viewHolder.templatingTime);
 					fillContent(content, convMessage, viewHolder);
 				}
 				else
@@ -410,7 +425,11 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 			try
 			{
 				WebViewHolder holder = (WebViewHolder) view.getTag();
+				Logger.d(tag, "Rendering success");
+				holder.renderingTime = System.currentTimeMillis() - holder.templatingTime - holder.inflationTime - startTime;
+				Logger.d(tag, "rendering time is ---->" + holder.inflationTime);
 				holder.platformJavaScriptBridge.setData();
+				holder.platformJavaScriptBridge.init(holder);
 				showCard(holder);
 				String alarmData = convMessage.webMetadata.getAlarmData();
 				Logger.d(tag, "alarm data to html is " + alarmData);

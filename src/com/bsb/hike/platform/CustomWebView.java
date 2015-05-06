@@ -105,6 +105,17 @@ public class CustomWebView extends WebView
 		}
 	}
 
+	public void onActivityDestroyed()
+	{
+
+		stopLoading();
+		setWebChromeClient(null);
+		setWebViewClient(null);
+		removeAllViews();
+		destroy();
+	}
+
+
 	public void webViewProperties()
 	{
 		setVerticalScrollBarEnabled(false);

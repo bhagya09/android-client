@@ -1370,7 +1370,6 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="voip_missed_call_message">Message</string>
     <string name="empty_email">You have no messages in this conversation to e-mail.</string>
     <string name="no_results">No results</string>
-    <string name="take_photo">Take a photo</string>
     <string name="photo_dp_saving">Saving as profile photo..</string>
     <string name="photo_dp_saved">All set!</string>
     <string name="photo_dp_finishing">Finishing up..</string>
@@ -1379,7 +1378,7 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="photo_dp_save_error_sub">Tap to retry</string>
     <string name="photo_gallery_choose_pic">Choose a photo</string>
     <string name="cropping_image">Cropping image..</string>
-    <string name="compose_chat">New chat</string>
+    <string name="compose_chat">New Chat</string>
 	<string name="home_search_empty_text">Your search for \'%1$s\' did not match any contacts.</string>
     <string name="voip_mic_error">Unable to start mic. This call may not work.</string>
     <string name="voip_call_failed_frag_subheader">You can still contact %1$s with a</string>
@@ -1410,7 +1409,7 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="ls_my_contacts_summary">Last seen is visible to your address book contacts and favorites</string>
     <string name="ls_favorites_summary">Last seen is visible only to your favorites</string>
     <string name="ls_everyone_summary">Last seen is visible to everyone on hike</string>
-    <string name="ls_nobody_summary">Last seen is not visible to anyone</string>
+    <string name="ls_nobody_summary">Remember: You will not be able to see anyone else\'s last seen</string>
     <string name="you_accepted_favorite_request_details">Great! %1$s will now be able to see your %2$s.</string>
     <string name="accepted_your_favorite_request_details">You can now see %1$s\'s %2$s</string>
     <string name="favorite_confirmed_notification">You can now see %1$s\'s %2$s</string>
@@ -1427,9 +1426,9 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="enter_valid_group_name">Group name cannot be empty</string>
     <string name="enter_valid_broadcast_name">Broadcast name cannot be empty</string>
     <string name="doodle_error_message">Unable to save Doodle!\nNot Enough Memory On Device.</string>
-    <string name="photos_oom_save">Unable to save Image!\nNot Enough Memory On Device.</string>
-    <string name="photos_oom_load">Unable to load Image!\nNot Enough Memory On Device.</string>
-    <string name="photos_oom_retry">Try Again!</string>
+    <string name="photos_oom_save">Unable to save Image\nNot Enough Memory On Device.</string>
+    <string name="photos_oom_load">Unable to load Image</string>
+    <string name="photos_oom_retry">Try Again</string>
     <string name="photos_oom_camera">Unable to capture Image</string>
     <string name="search_hint">Search</string>
     <string name="nudge_setting_header">Double tap to Nudge</string>
@@ -1474,4 +1473,6 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
 	<string name="activity_not_found">No app found that can handle this action</string>
 	<string name="selectPreview">Select a preview</string>
 	<string name="not_enough_memory">Not Enough Memory</string>
+	<string name="edit_photos">New Photo</string>
+	<string name="only_photos_edit">Only photos can be edited</string>
 </resources>

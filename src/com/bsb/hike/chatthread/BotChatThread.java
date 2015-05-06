@@ -15,12 +15,15 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.bots.MessagingBotConfiguration;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.media.OverFlowMenuItem;
 import com.bsb.hike.models.Conversation.BotConversation;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.view.CustomFontButton;
 
 /**
  * This class is a barebones skeleton for Bot chat thread. This is still Work in progress.
@@ -31,6 +34,16 @@ public class BotChatThread extends OneToOneChatThread
 {
 
 	private static final String TAG = "BotChatThread";
+	private MessagingBotConfiguration configuration;
+
+	@Override
+	protected void init()
+	{
+		super.init();
+		BotInfo botInfo = BotInfo.getBotInfoForBotMsisdn(msisdn);
+
+		configuration = new MessagingBotConfiguration(botInfo.getConfiguration(), botInfo.isReceiveEnabled());
+	}
 
 	/**
 	 * @param activity
@@ -42,9 +55,43 @@ public class BotChatThread extends OneToOneChatThread
 	}
 
 	@Override
+	protected void initView()
+	{
+		super.initView();
+		if (!configuration.isInputEnabled())
+		{
+			activity.findViewById(R.id.compose_container).setVisibility(View.GONE);
+		}
+		else
+		{
+
+			if (!configuration.isAudioRecordingEnabled())
+			{
+				activity.findViewById(R.id.send_message).setVisibility(View.GONE);
+			}
+
+			if (!configuration.isStickerPickerEnabled())
+			{
+				activity.findViewById(R.id.sticker_btn).setVisibility(View.GONE);
+			}
+
+			if (!configuration.isEmoticonPickerEnabled())
+			{
+				activity.findViewById(R.id.emoticon_btn).setVisibility(View.GONE);
+			}
+
+			if (!configuration.isTextInputEnabled())
+			{
+				activity.findViewById(R.id.msg_compose).setVisibility(View.GONE);
+			}
+		}
+	}
+
+	@Override
 	protected Conversation fetchConversation()
 	{
 		super.fetchConversation();
+
 		mConversation.setIsMute(HikeConversationsDatabase.getInstance().isBotMuted(msisdn));
 		return mConversation;
 	}
@@ -79,7 +126,7 @@ public class BotChatThread extends OneToOneChatThread
 		switch (type)
 		{
 		case HikePubSub.MUTE_BOT:
-			muteBotPubSub(object);
+			muteBotToggled(true);
 			break;
 		default:
 			Logger.d(TAG, "Did not find any matching PubSub event in OneToOne ChatThread. Calling super class' onEventReceived");
@@ -88,14 +135,28 @@ public class BotChatThread extends OneToOneChatThread
 		}
 	}
 
-	private void muteBotPubSub(Object object)
+	private void muteBotToggled(boolean isMuted)
 	{
-		String botMsisdn = (String) object;
-		if (msisdn == botMsisdn)
+		mConversation.setIsMute(isMuted);
+		HikeConversationsDatabase.getInstance().updateBot(msisdn, null, null, isMuted ? 1 : 0);
+		HikeMessengerApp.getPubSub().publish(HikePubSub.MUTE_CONVERSATION_TOGGLED, new Pair<String, Boolean>(mConversation.getMsisdn(), isMuted));
+	}
+
+	@Override
+	protected void sendPoke()
+	{
+		if (configuration.isNudgeEnabled())
 		{
-			mConversation.setIsMute(true);
-			HikeConversationsDatabase.getInstance().updateBot(msisdn, null, null, mConversation.isMuted() ? 1 : 0);
-			HikeMessengerApp.getPubSub().publish(HikePubSub.MUTE_CONVERSATION_TOGGLED, new Pair<String, Boolean>(msisdn, mConversation.isMuted()));
+			super.sendPoke();
+		}
+	}
+
+	@Override
+	protected void openProfileScreen()
+	{
+		if (configuration.isViewProfileEnabled())
+		{
+			super.openProfileScreen();
 		}
 	}
 
@@ -104,45 +165,72 @@ public class BotChatThread extends OneToOneChatThread
 	{
 		Logger.i(TAG, "on create options menu " + menu.hashCode());
 
-		if (mConversation != null)
+		if (mConversation == null)
 		{
-			mActionBar.onCreateOptionsMenu(menu, R.menu.one_one_chat_thread_menu, getOverFlowItems(), this, this);
+			return false;
+		}
+
+		mActionBar.onCreateOptionsMenu(menu, R.menu.one_one_chat_thread_menu, getOverFlowItems(), this, this);
+		if (configuration.isOverflowMenuEnabled())
+		{
+			menu.findItem(R.id.overflow_menu).setVisible(true);
 			menu.findItem(R.id.overflow_menu).getActionView().setOnClickListener(this);
 			mActionBar.setOverflowViewListener(this);
 		}
+		else
+		{
+			menu.findItem(R.id.overflow_menu).setVisible(false);
+		}
 
-		return false;
+		menu.findItem(R.id.voip_call).setVisible(configuration.isCallEnabled());
+
+		menu.findItem(R.id.attachment).setVisible(configuration.isAttachmentPickerEnabled());
+
+		return true;
 	}
 
 	/**
 	 * Returns a list of over flow menu items to be displayed
-	 * 
+	 *
 	 * @return
 	 */
 	private List<OverFlowMenuItem> getOverFlowItems()
 	{
 		List<OverFlowMenuItem> list = new ArrayList<OverFlowMenuItem>();
-		list.add(new OverFlowMenuItem(getString(R.string.view_profile), 0, 0, R.string.view_profile));
-		list.add(new OverFlowMenuItem(getString(R.string.chat_theme), 0, 0, R.string.chat_theme));
+
+		if (configuration.isViewProfileInOverflowMenuEnabled())
+		{
+			list.add(new OverFlowMenuItem(getString(R.string.view_profile), 0, 0, R.string.view_profile));
+		}
+		if (configuration.isChatThemeInOverflowMenuEnabled())
+		{
+			list.add(new OverFlowMenuItem(getString(R.string.chat_theme), 0, 0, R.string.chat_theme));
+		}
 
 		/**
 		 * Blocking all bots except Team Hike and muting only cricket Bot.
 		 */
 
-		if (!msisdn.equals(HikeConstants.FTUE_TEAMHIKE_MSISDN) )
+		if (configuration.isBlockInOverflowMenuEnabled() )
 		{
 			list.add(new OverFlowMenuItem(mConversation.isBlocked() ? getString(R.string.unblock_title) : getString(R.string.block_title), 0, 0, R.string.block_title));
 		}
 
-		if (msisdn.equals(HikePlatformConstants.CRICKET_BOT_MSISDN))
+		if (configuration.isMuteInOverflowMenuEnabled())
 		{
 			list.add(new OverFlowMenuItem(mConversation.isMuted() ? getString(R.string.unmute) : getString(R.string.mute), 0, 0, R.string.mute));
 		}
 
-		for (OverFlowMenuItem item : super.getOverFlowMenuItems())
+		if (configuration.isClearChatInOverflowMenuEnabled())
 		{
-			list.add(item);
+			list.add (new OverFlowMenuItem(getString(R.string.clear_chat), 0, 0, R.string.clear_chat));
 		}
+
+		if (configuration.isEmailChatInOverflowMenuEnabled())
+		{
+			list.add(new OverFlowMenuItem(getString(R.string.email_chat), 0, 0, R.string.email_chat));
+		}
+
 
 		return list;
 	}
@@ -252,12 +340,28 @@ public class BotChatThread extends OneToOneChatThread
 		boolean networkError = ChatThreadUtils.checkNetworkError();
 		toggleConversationMuteViewVisibility(networkError ? false : mConversation.isMuted());
 	}
-	
+
+	@Override
+	protected void toggleConversationMuteViewVisibility(boolean isMuted)
+	{
+
+		View v = mConversationsView.getChildAt(0);
+		if (v != null && v.getTag() != null && v.getTag().equals(R.string.mute))
+		{
+			CustomFontButton button = (CustomFontButton) v.findViewById(R.id.add_unknown_contact);
+			button.setText(isMuted ? R.string.unmute : R.string.mute);
+		}
+
+
+	}
+
 	@Override
 	protected void addUnkownContactBlockHeader()
 	{
-		//Do Nothing
-		return;
+		if (configuration.isAddBlockStripEnabled())
+		{
+			super.addUnkownContactBlockHeader();
+		}
 	}
 	
 	@Override
@@ -269,10 +373,17 @@ public class BotChatThread extends OneToOneChatThread
 	@Override
 	public void onClick(View v)
 	{
-		if(v.getId() == R.id.contact_info)
+		switch (v.getId())
 		{
+		case R.id.contact_info:
 			BotConversation.analyticsForBots(msisdn, HikePlatformConstants.BOT_VIEW_PROFILE, HikePlatformConstants.ACTION_BAR, AnalyticsConstants.CLICK_EVENT, null);
+			break;
+
+		case R.id.add_unknown_contact:
+			muteBotToggled(!mConversation.isMuted());
+			break;
 		}
+
 		super.onClick(v);
 	}
 	

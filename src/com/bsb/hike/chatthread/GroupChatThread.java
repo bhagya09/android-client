@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.os.Message;
 import android.text.Spannable;
 import android.text.SpannableString;
+import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ForegroundColorSpan;
 import android.text.util.Linkify;
@@ -218,7 +219,7 @@ public class GroupChatThread extends OneToNChatThread
 			showStickyMessageAtTop((ConvMessage) msg.obj, true);
 			break;
 		case MESSAGE_RECEIVED:
-			messageAdded((ConvMessage) msg.obj);
+			addMessage((ConvMessage) msg.obj);
 			break;
 		case GROUP_END:
 			toggleGroupLife(false);
@@ -259,7 +260,7 @@ public class GroupChatThread extends OneToNChatThread
 			openProfileScreen();
 			break;
 		case R.string.chat_theme:
-			showThemePicker();
+			showThemePicker(R.string.chat_theme_tip_group);
 			break;
 		default:
 			Logger.d(TAG, "Calling super Class' itemClicked");
@@ -309,7 +310,7 @@ public class GroupChatThread extends OneToNChatThread
 	}
 
 	@Override
-	protected void messageAdded(ConvMessage convMessage)
+	protected void addMessage(ConvMessage convMessage)
 	{
 		/*
 		 * If we were showing the typing bubble, we remove it from the add the new message and add the typing bubble back again
@@ -328,7 +329,7 @@ public class GroupChatThread extends OneToNChatThread
 		/**
 		 * Adding message to the adapter
 		 */
-		addMessage(convMessage);
+		mAdapter.addMessage(convMessage);
 
 		if (convMessage.isSent())
 		{
@@ -340,17 +341,11 @@ public class GroupChatThread extends OneToNChatThread
 			if (!((GroupTypingNotification) typingNotification).getGroupParticipantList().isEmpty())
 			{
 				Logger.d(TAG, "Typing notification in group chat thread: " + ((GroupTypingNotification) typingNotification).getGroupParticipantList().size());
-				addMessage(new ConvMessage(typingNotification));
+				mAdapter.addMessage(new ConvMessage(typingNotification));
 			}
 		}
 
-		super.messageAdded(convMessage);
-	}
-
-	@Override
-	protected void addMessage(ConvMessage message)
-	{
-		super.addMessage(message);
+		super.addMessage(convMessage);
 	}
 
 	/*
@@ -424,12 +419,13 @@ public class GroupChatThread extends OneToNChatThread
 			if (ChatThreadUtils.checkMessageTypeFromHash(activity.getApplicationContext(), convMessage, HASH_PIN))
 			{
 				Logger.d(TAG, "Found a pin message type");
+				if (TextUtils.isEmpty(convMessage.getMessage()))
+				{
+					Toast.makeText(activity, R.string.text_empty_error, Toast.LENGTH_SHORT).show();
+					return null;
+				}
+
 				ChatThreadUtils.modifyMessageToPin(activity.getApplicationContext(), convMessage);
-			}
-			
-			else
-			{
-				return null;
 			}
 		}
 		return convMessage;
@@ -520,7 +516,10 @@ public class GroupChatThread extends OneToNChatThread
 		content.setVisibility(View.VISIBLE);
 		mComposeView = (CustomFontEditText) content.findViewById(R.id.messageedittext);
 		mComposeView.requestFocus();
-		mEmoticonPicker.updateET(mComposeView);
+		if (mEmoticonPicker != null)
+		{
+			mEmoticonPicker.updateET(mComposeView);
+		}
 
 		View mBottomView = activity.findViewById(R.id.bottom_panel);
 		if (mShareablePopupLayout.isKeyboardOpen())
@@ -595,13 +594,6 @@ public class GroupChatThread extends OneToNChatThread
 			@Override
 			public void onAnimationStart(Animation animation)
 			{
-				/**
-				 * If the pin had been hidden while pinCreate view was shown, now is the best time to make it visible again.
-				 */
-				if (wasPinHidden())
-				{
-					pinView.setVisibility(View.VISIBLE);
-				}
 			}
 
 			@Override
@@ -648,7 +640,7 @@ public class GroupChatThread extends OneToNChatThread
 	{
 		if (convMessage != null)
 		{
-			messageAdded(convMessage);
+			addMessage(convMessage);
 			HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_SENT, convMessage);
 
 			if (convMessage.getMessageType() == HikeConstants.MESSAGE_TYPE.TEXT_PIN)
@@ -669,11 +661,23 @@ public class GroupChatThread extends OneToNChatThread
 		// AFTER PIN MODE, we make sure mComposeView is reinitialized to message composer compose
 
 		mComposeView = (CustomFontEditText) activity.findViewById(R.id.msg_compose);
-		mEmoticonPicker.updateET(mComposeView);
+		if (mEmoticonPicker != null)
+		{
+			mEmoticonPicker.updateET(mComposeView);
+		}
 		mComposeView.requestFocus();
 		View mBottomView = activity.findViewById(R.id.bottom_panel);
 		mBottomView.startAnimation(AnimationUtils.loadAnimation(activity.getApplicationContext(), R.anim.down_up_lower_part));
 		mBottomView.setVisibility(View.VISIBLE);
+		
+		/**
+		 * If the pin had been hidden while pinCreate view was shown, now is the best time to make it visible again.
+		 */
+		if (wasPinHidden())
+		{
+			pinView.setVisibility(View.VISIBLE);
+		}
+
 		playPinCreateDestroyViewAnim();
 
 		if (mShareablePopupLayout != null && mShareablePopupLayout.isShowing())
@@ -893,12 +897,6 @@ public class GroupChatThread extends OneToNChatThread
 			Logger.wtf(TAG, "Got an exception during the pubSub : onLatestPinDeleted " + e.toString());
 		}
 
-	}
-	
-	protected void showThemePicker()
-	{
-		setUpThemePicker();
-		themePicker.showThemePicker(activity.findViewById(R.id.cb_anchor), currentTheme, R.string.chat_theme_tip_group, activity.getResources().getConfiguration().orientation);
 	}
 
 	@Override

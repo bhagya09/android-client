@@ -43,6 +43,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 
+import com.bsb.hike.bots.BotInfo;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -120,10 +121,10 @@ import android.provider.ContactsContract.Intents.Insert;
 import android.provider.ContactsContract.RawContacts;
 import android.provider.MediaStore;
 import android.provider.Settings.Secure;
-import android.renderscript.Allocation;
-import android.renderscript.Element;
-import android.renderscript.RenderScript;
-import android.renderscript.ScriptIntrinsicBlur;
+import android.support.v8.renderscript.Allocation;
+import android.support.v8.renderscript.Element;
+import android.support.v8.renderscript.RenderScript;
+import android.support.v8.renderscript.ScriptIntrinsicBlur;
 import android.telephony.SmsManager;
 import android.telephony.TelephonyManager;
 import android.text.Editable;
@@ -214,7 +215,7 @@ import com.bsb.hike.ui.WebViewActivity;
 import com.bsb.hike.ui.WelcomeActivity;
 import com.bsb.hike.utils.AccountUtils.AccountInfo;
 import com.bsb.hike.voip.VoIPUtils;
-import com.google.android.maps.GeoPoint;
+import com.google.android.gms.maps.model.LatLng;
 
 public class Utils
 {
@@ -522,7 +523,7 @@ public class Utils
 			extension = new String(fileName.substring(lastDotIndex + 1));
 		}
 
-		return extension;
+		return extension.toLowerCase();
 	}
 
 	public static String getFileParent(HikeFileType type, boolean isSent)
@@ -1940,12 +1941,12 @@ public class Utils
 		}
 	}
 
-	public static String getAddressFromGeoPoint(GeoPoint geoPoint, Context context)
+	public static String getAddressFromGeoPoint(LatLng geoPoint, Context context)
 	{
 		try
 		{
 			Geocoder geoCoder = new Geocoder(context, Locale.getDefault());
-			List<Address> addresses = geoCoder.getFromLocation(geoPoint.getLatitudeE6() / 1E6, geoPoint.getLongitudeE6() / 1E6, 1);
+			List<Address> addresses = geoCoder.getFromLocation(geoPoint.latitude, geoPoint.longitude, 1);
 
 			final StringBuilder address = new StringBuilder();
 			if (!addresses.isEmpty())
@@ -2554,11 +2555,11 @@ public class Utils
 		imm.showSoftInput(v, InputMethodManager.RESULT_UNCHANGED_SHOWN);
 	}
 	
-	public static void showSoftKeyboard(Context context)
-	{
-		InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
-		imm.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT, InputMethodManager.HIDE_IMPLICIT_ONLY);
-	}
+//	public static void showSoftKeyboard(Context context)
+//	{
+//		InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+//		imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
+//	}
 
 	public static void sendLocaleToServer(Context context)
 	{
@@ -3460,7 +3461,7 @@ public class Utils
 		Intent shortcutIntent = IntentFactory.createChatThreadIntentFromConversation(activity, conv);
 		Intent intent = new Intent();
 		intent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, shortcutIntent);
-		intent.putExtra(Intent.EXTRA_SHORTCUT_NAME, conv.getConversationName());
+		intent.putExtra(Intent.EXTRA_SHORTCUT_NAME, conv.getLabel());
 
 		Drawable avatarDrawable = Utils.getAvatarDrawableForNotificationOrShortcut(activity, conv.getMsisdn(), false);
 
@@ -5647,7 +5648,8 @@ public class Utils
 		
 		return maxVal;
 	}
-	
+
+
 	public static boolean isOnProduction()
 	{
 		return HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PRODUCTION, true);

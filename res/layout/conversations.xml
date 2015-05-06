@@ -8,12 +8,13 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical" >
-
-        <LinearLayout
+        
+        <include 
             android:id="@+id/emptyViewHolder"
+            layout="@layout/conversation_empty_view2"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" >
-        </LinearLayout>
+            android:layout_height="match_parent"
+            android:visibility="gone"/>
 
         <include
             android:id="@+id/searchEmptyView"
