@@ -3,6 +3,7 @@ package com.bsb.hike.chatthread;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.bsb.hike.bots.MessagingBotMetadata;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -23,7 +24,6 @@ import com.bsb.hike.models.Conversation.BotConversation;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.CustomFontButton;
 
 /**
@@ -42,8 +42,16 @@ public class BotChatThread extends OneToOneChatThread
 	{
 		super.init();
 		BotInfo botInfo = BotInfo.getBotInfoForBotMsisdn(msisdn);
+		try
+		{
+			MessagingBotMetadata botMetadata = new MessagingBotMetadata(botInfo.getMetadata());
+			configuration = new MessagingBotConfiguration(botInfo.getConfiguration(), botMetadata.isReceiveEnabled());
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
 
-		configuration = new MessagingBotConfiguration(botInfo.getConfiguration(), botInfo.isReceiveEnabled());
 	}
 
 	/**
