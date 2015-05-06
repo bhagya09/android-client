@@ -1015,8 +1015,15 @@ public class ConversationsAdapter extends BaseAdapter
 				{
 					continue;
 				}
+				
+				ConvInfo conversationInfo = getItem(indexOfData);
 
-				updateViewsRelatedToAvatar(view, getItem(indexOfData));
+				if (!ContactManager.getInstance().hasIcon(conversationInfo.getMsisdn()))
+				{
+					return;
+				}
+
+				updateViewsRelatedToAvatar(view,conversationInfo);
 			}
 		}
 		
