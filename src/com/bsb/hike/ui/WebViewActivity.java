@@ -1,6 +1,9 @@
 package com.bsb.hike.ui;
 
+
 import com.bsb.hike.chatthread.HikeActionBar;
+import java.util.ArrayList;
+import java.util.List;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -11,38 +14,77 @@ import android.graphics.Bitmap;
 import android.net.MailTo;
 import android.net.Uri;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup.LayoutParams;
+import android.view.ViewStub;
+import android.view.ViewStub.OnInflateListener;
 import android.webkit.GeolocationPermissions;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.PopupWindow.OnDismissListener;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.bots.NonMessagingBotConfiguration;
+import com.bsb.hike.bots.NonMessagingBotMetadata;
 import com.bsb.hike.db.HikeContentDatabase;
+import com.bsb.hike.media.OverFlowMenuItem;
+import com.bsb.hike.media.OverflowItemClickListener;
+import com.bsb.hike.media.TagPicker.TagOnClickListener;
 import com.bsb.hike.models.FullScreenJavascriptBridge;
 import com.bsb.hike.models.WhitelistDomain;
 import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.content.PlatformContent;
+import com.bsb.hike.platform.content.PlatformContent.EventCode;
+import com.bsb.hike.platform.content.PlatformContentListener;
+import com.bsb.hike.platform.content.PlatformContentModel;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
+import com.bsb.hike.view.TagEditText.Tag;
 
-public class WebViewActivity extends HikeAppStateBaseFragmentActivity
+public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements OnInflateListener, OnClickListener, TagOnClickListener, OverflowItemClickListener,
+		OnDismissListener
 {
+
+	private static final String tag = "WebViewActivity";
+	
+	public static final int WEB_URL_MODE = 1; // DEFAULT MODE OF THIS ACTIVITY
+
+	public static final int WEB_URL_WITH_BRIDGE_MODE = 2;
+
+	public static final int MICRO_APP_MODE = 3;
+
+	public static final String WEBVIEW_MODE = "webviewMode";
 
 	private CustomWebView webView;
 
+	HikeActionBar actionBar;
+
+	BotInfo botInfo;
+	
+	NonMessagingBotConfiguration botConfig;
+
+	NonMessagingBotMetadata botMetaData;
+	
+	String msisdn;
+
+	int mode;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -102,7 +144,8 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity
 		botMetaData = new NonMessagingBotMetadata(botInfo.getMetadata());
 	}
 
-
+	private void setWebURLMode()
+	{
 		String urlToLoad = getIntent().getStringExtra(HikeConstants.Extras.URL_TO_LOAD);
 		String title = getIntent().getStringExtra(HikeConstants.Extras.TITLE);
 		final boolean allowLoc = getIntent().getBooleanExtra(HikeConstants.Extras.WEBVIEW_ALLOW_LOCATION, false);
@@ -133,6 +176,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity
 				// TODO Auto-generated method stub
 				return super.shouldInterceptRequest(view, url);
 			}
+
 			@Override
 			public boolean shouldOverrideUrlLoading(WebView view, String url)
 			{
@@ -185,16 +229,21 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity
 			}
 			
 			@Override
-	        public void onGeolocationPermissionsShowPrompt(String origin, GeolocationPermissions.Callback callback) 
+			public void onGeolocationPermissionsShowPrompt(String origin, GeolocationPermissions.Callback callback)
 			{
-				if(allowLoc)
+				if (allowLoc)
 					callback.invoke(origin, true, false);
 				else
 					super.onGeolocationPermissionsShowPrompt(origin, callback);
-	        }
+			}
 		});
 		handleURLLoadInWebView(webView, urlToLoad);
 		setupActionBar(title);
+		attachBridge();
+	}
+	
+	private void attachBridge()
+	{
 		FullScreenJavascriptBridge mmBridge=new FullScreenJavascriptBridge(webView, this);
 		webView.addJavascriptInterface(mmBridge, HikePlatformConstants.PLATFORM_BRIDGE_NAME);
 	}
@@ -209,7 +258,6 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity
 		}
 		super.onDestroy();
 	}
-
 
 	/**
 	 * 
@@ -273,18 +321,37 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity
 		return intent;
 	}
 
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu)
+	{
+		if (mode == MICRO_APP_MODE && actionBar != null)
+		{
+			actionBar.onCreateOptionsMenu(menu, R.menu.just_overflow_menu, getOverflowMenuItems(), this, this);
+			return true;
+		}
+		return super.onCreateOptionsMenu(menu);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item)
+	{
+		if (item.getItemId() == R.id.overflow_menu)
+		{
+			int width = getResources().getDimensionPixelSize(R.dimen.overflow_menu_width);
+			int rightMargin = width + getResources().getDimensionPixelSize(R.dimen.overflow_menu_right_margin);
+			actionBar.showOverflowMenu(width, LayoutParams.WRAP_CONTENT, -rightMargin, -(int) (0.5 * Utils.scaledDensityMultiplier), findViewById(R.id.overflow_anchor));
+			return true;
+		}
+		return super.onOptionsItemSelected(item);
+	}
+
 	private void setupActionBar(String titleString)
 	{
-		ActionBar actionBar = getSupportActionBar();
-		actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
-
-		View actionBarView = LayoutInflater.from(this).inflate(R.layout.compose_action_bar, null);
-
+		View actionBarView = actionBar.setCustomActionBarView(R.layout.compose_action_bar);
 		View backContainer = actionBarView.findViewById(R.id.back);
-
+		backContainer.setOnClickListener(this);
 		TextView title = (TextView) actionBarView.findViewById(R.id.title);
 		title.setText(titleString);
-<<<<<<< HEAD
 	}
 
 	private void setupMicroAppActionBar()
@@ -295,20 +362,23 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity
 	private void loadMicroApp()
 	{
 		// fetch micro app card
+
 		PlatformContent.getContent(botMetaData.toString(), new PlatformContentListener<PlatformContentModel>()
-=======
-		backContainer.setOnClickListener(new OnClickListener()
->>>>>>> 7d3ac5476adad37c60ddfa5412148700fa3cf53e
+
 		{
 
 			@Override
-			public void onClick(View v)
+			public void onEventOccured(EventCode event)
 			{
-				finish();
+				Toast.makeText(getApplicationContext(), "Error occured while loading " + botInfo.getLabel(), Toast.LENGTH_SHORT).show();
+			}
+
+			@Override
+			public void onComplete(PlatformContentModel content)
+			{
+				webView.loadMicroAppData(content.getFormedData());
 			}
 		});
-
-		actionBar.setCustomView(actionBarView);
 	}
 
 	@Override
@@ -323,4 +393,77 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity
 			super.onBackPressed();
 		}
 	}
+	
+	@Override
+	public void onInflate(ViewStub arg0, View arg1)
+	{
+
+	}
+
+	@Override
+	public void onClick(View arg0)
+	{
+		switch (arg0.getId())
+		{
+		case R.id.back:
+			finish();
+			break;
+		}
+
+	}
+
+	@Override
+	public void onTagClicked(Tag tag)
+	{
+
+	}
+
+	private List<OverFlowMenuItem> getOverflowMenuItems()
+	{
+		List<OverFlowMenuItem> list = new ArrayList<>();
+		list.add(new OverFlowMenuItem(getString(R.string.mute), -1, -1, R.string.mute));
+		list.add(new OverFlowMenuItem(getString(R.string.block_title), -1, -1, R.string.block_title));
+		return null;
+	}
+
+	@Override
+	public void itemClicked(OverFlowMenuItem parameter)
+	{
+		switch (parameter.id)
+		{
+		case R.string.mute:
+			muteClicked();
+			break;
+		case R.string.block_title:
+			blockClicked();
+			break;
+		}
+	}
+
+	private void muteClicked()
+	{
+		
+	}
+
+	private void blockClicked()
+	{
+		
+	}
+
+	@Override
+	public void onDismiss()
+	{
+
+	}
+	
+	private void setupNavBar()
+	{
+		
+	}
+	
+	private void setupTagPicker()
+	{
+		
+	}
+	
 }
