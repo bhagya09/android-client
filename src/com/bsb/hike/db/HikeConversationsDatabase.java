@@ -2938,7 +2938,16 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				}
 				else
 				{
-					convInfo = new ConvInfo.ConvInfoBuilder(msisdn).setSortingTimeStamp(sortingTimestamp).setOnHike(onhike).build();
+
+					if (Utils.isBot(msisdn))
+					{
+						convInfo = BotInfo.getBotInfoForBotMsisdn(msisdn);
+					}
+
+					else
+					{
+						convInfo = new ConvInfo.ConvInfoBuilder(msisdn).setSortingTimeStamp(sortingTimestamp).setOnHike(onhike).build();
+					}
 
 					ContactInfo contact = ContactManager.getInstance().getContact(convInfo.getMsisdn());
 
