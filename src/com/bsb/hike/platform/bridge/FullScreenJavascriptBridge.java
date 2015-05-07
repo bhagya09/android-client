@@ -11,9 +11,11 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.utils.Logger;
 
 public class FullScreenJavascriptBridge extends JavascriptBridge
@@ -62,6 +64,13 @@ public class FullScreenJavascriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void updateHelperData(String json)
 	{
+		Logger.i(tag, "update metadata called " + json + " , MicroApp msisdn : " + msisdn);
+		String originalmetadata = HikeConversationsDatabase.getInstance().getMetadataOfBot(msisdn);
+		originalmetadata = PlatformUtils.updateHelperData(json, originalmetadata);
+		if (originalmetadata != null)
+		{
+			HikeConversationsDatabase.getInstance().updateMetadataOfBot(msisdn, originalmetadata);
+		}
 
 	}
 
