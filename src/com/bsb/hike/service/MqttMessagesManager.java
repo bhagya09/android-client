@@ -673,6 +673,11 @@ public class MqttMessagesManager
 		}
 	}
 
+	/**
+	 * download the microapp and then set the state to whatever that has been passed by the server.
+	 * @param botInfo
+	 * @param enableBot
+	 */
 	private void downloadZipForNonMessagingBot(final BotInfo botInfo, final boolean enableBot)
 	{
 		PlatformContentRequest rqst = PlatformContentRequest.make(
