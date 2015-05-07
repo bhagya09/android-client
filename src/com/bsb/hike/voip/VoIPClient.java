@@ -12,6 +12,7 @@ import java.nio.ByteOrder;
 import java.util.BitSet;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -59,7 +60,7 @@ public class VoIPClient  {
 
 	private Context context;
 	private DatagramSocket socket = null;
-	private Thread iceThread = null, partnerTimeoutThread = null, senderThread = null, receivingThread = null;
+	private Thread iceThread = null, partnerTimeoutThread = null, responseTimeoutThread = null, senderThread = null, receivingThread = null;
 	private Thread reconnectingBeepsThread;
 	private boolean keepRunning = true;
 	public boolean reconnecting = false;
@@ -75,8 +76,14 @@ public class VoIPClient  {
 	private BitSet packetTrackingBits = new BitSet(PACKET_TRACKING_SIZE);
 	public long lastHeartbeat;	// TODO should be private
 	public VoIPEncryptor encryptor = new VoIPEncryptor();
+	private boolean cryptoEnabled = true;
+	public VoIPEncryptor.EncryptionStage encryptionStage; // TODO should be private
+	public boolean remoteHold = false;
+
+
 	
 	public final ConcurrentHashMap<Integer, VoIPDataPacket> ackWaitQueue		 = new ConcurrentHashMap<Integer, VoIPDataPacket>();
+	public final ConcurrentLinkedQueue<VoIPDataPacket> samplesToDecodeQueue     = new ConcurrentLinkedQueue<VoIPDataPacket>();
 	
 	public enum ConnectionMethods {
 		UNKNOWN,
@@ -91,6 +98,8 @@ public class VoIPClient  {
 		super();
 		this.context = context;
 		this.handler = handler;
+		encryptionStage = EncryptionStage.STAGE_INITIAL;
+		
 	}
 
 	public String getName() {
@@ -292,6 +301,9 @@ public class VoIPClient  {
 					socket.setReuseAddress(true);
 					socket.setSoTimeout(2000);
 
+					setOurInternalIPAddress(VoIPUtils.getLocalIpAddress(context)); 
+					setOurInternalPort(socket.getLocalPort());
+
 					while (continueSending && keepRunning && (counter < 10 || reconnecting)) {
 						counter++;
 						try {
@@ -305,9 +317,6 @@ public class VoIPClient  {
 								setRelayAddress(host.getHostAddress());
 								setRelayPort(VoIPUtils.getRelayPort(context));
 							}
-
-							setOurInternalIPAddress(VoIPUtils.getLocalIpAddress(context)); 
-							setOurInternalPort(socket.getLocalPort());
 
 							Logger.d(VoIPConstants.TAG, "ICE Sending.");
 							sendPacket(dp, false);
@@ -529,6 +538,41 @@ public class VoIPClient  {
 
 	}
 
+	private void startResponseTimeout() {
+		responseTimeoutThread = new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				try {
+					Thread.sleep(VoIPConstants.TIMEOUT_PARTNER_ANSWER);
+					if (!isAudioRunning()) {
+						// Call not answered yet?
+						if (connected) 
+						{
+							if (!isInitiator())
+							{
+								sendHandlerMessage(VoIPConstants.MSG_PARTNER_ANSWER_TIMEOUT);
+								sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_PARTNER_ANSWER_TIMEOUT);
+								VoIPUtils.addMessageToChatThread(context, VoIPClient.this, HikeConstants.MqttMessageTypes.VOIP_MSG_TYPE_MISSED_CALL_OUTGOING, 0, -1, false);
+							}
+							else
+							{
+								VoIPUtils.addMessageToChatThread(context, VoIPClient.this, HikeConstants.MqttMessageTypes.VOIP_MSG_TYPE_MISSED_CALL_INCOMING, 0, -1, true);
+							}
+						}
+						stop();
+						
+					}
+				} catch (InterruptedException e) {
+					// Do nothing, all is good
+				}
+			}
+		}, "PARTNER_TIMEOUT_THREAD");
+		
+		responseTimeoutThread.start();
+	}
+
+	
 	public void interruptSenderThread() {
 		if (senderThread != null)
 			senderThread.interrupt();
@@ -541,24 +585,27 @@ public class VoIPClient  {
 	}
 	
 	public void close() {
-		
+
 		keepRunning = false;
 		socketInfoReceived = false;
 		establishingConnection = false;
-		
+
 		if (iceThread != null)
 			iceThread.interrupt();
 
 		if (partnerTimeoutThread != null)
 			partnerTimeoutThread.interrupt();
+		if (responseTimeoutThread != null)
+			responseTimeoutThread.interrupt();
 		if (reconnectingBeepsThread != null)
 			reconnectingBeepsThread.interrupt();
 		if (receivingThread != null)
 			receivingThread.interrupt();
-		
+
 		removeExternalSocketInfo();
 		ackWaitQueue.clear();
-}
+		samplesToDecodeQueue.clear();
+	}
 
 	private void setExternalSocketInfo(String ICEResponse) throws JSONException {
 		JSONObject jsonObject = new JSONObject(ICEResponse);
@@ -1086,6 +1133,68 @@ public class VoIPClient  {
 		int mod = packetNumber % PACKET_TRACKING_SIZE;
 		packetTrackingBits.set(mod);
 	}
+	
+	public synchronized void exchangeCryptoInfo() {
+
+		if (cryptoEnabled == false)
+			return;
+
+		new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				if (encryptionStage == EncryptionStage.STAGE_INITIAL && isInitiator() != true) {
+					// The initiator (caller) generates and sends a public key
+					encryptor.initKeys();
+					VoIPDataPacket dp = new VoIPDataPacket(PacketType.ENCRYPTION_PUBLIC_KEY);
+					dp.write(encryptor.getPublicKey());
+					sendPacket(dp, true);
+					Logger.d(VoIPConstants.TAG, "Sending public key.");
+				}
+
+				if (encryptionStage == EncryptionStage.STAGE_GOT_PUBLIC_KEY && isInitiator() == true) {
+					// Generate and send the AES session key
+					encryptor.initSessionKey();
+					byte[] encryptedSessionKey = encryptor.rsaEncrypt(encryptor.getSessionKey(), encryptor.getPublicKey());
+					VoIPDataPacket dp = new VoIPDataPacket(PacketType.ENCRYPTION_SESSION_KEY);
+					dp.write(encryptedSessionKey);
+					sendPacket(dp, true);
+					Logger.d(VoIPConstants.TAG, "Sending AES key.");
+				}
+
+				if (encryptionStage == EncryptionStage.STAGE_GOT_SESSION_KEY) {
+					VoIPDataPacket dp = new VoIPDataPacket(PacketType.ENCRYPTION_RECEIVED_SESSION_KEY);
+					sendPacket(dp, true);
+					encryptionStage = EncryptionStage.STAGE_READY;
+					Logger.d(VoIPConstants.TAG, "Encryption ready. MD5: " + encryptor.getSessionMD5());
+				}
+			}
+		}, "EXCHANGE_CRYPTO_THREAD").start();
+	}
+
+	private void setRemoteHold(boolean newHold) {
+		
+		if (remoteHold == newHold)
+			return;
+
+		remoteHold = newHold;
+		sendHandlerMessage(VoIPConstants.MSG_UPDATE_REMOTE_HOLD);
+	}
+
+	public void startStreaming() {
+		
+		startCodec(); 
+		startSendingAndReceiving();
+		startHeartbeat();
+		exchangeCryptoInfo();
+		
+		if (responseTimeoutThread != null)
+			responseTimeoutThread.interrupt();
+		
+		Logger.d(VoIPConstants.TAG, "Streaming started.");
+	}
+	
+
 
 	private void stop() {
 		sendHandlerMessage(VoIPConstants.MSG_VOIP_CLIENT_STOP);
