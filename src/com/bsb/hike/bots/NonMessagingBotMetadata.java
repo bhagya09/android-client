@@ -41,4 +41,5 @@ public class NonMessagingBotMetadata
 	{
 		return null;
 	}
+
 }

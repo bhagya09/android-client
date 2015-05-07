@@ -128,11 +128,6 @@ public class CustomWebView extends WebView
 		getSettings().setJavaScriptEnabled(true);
 	}
 	
-	public void loadMicroAppData(String data)
-	{
-		this.loadDataWithBaseURL("", data, "text/html", "UTF-8", "");
-	}
-	
 	@Override
 	public void addJavascriptInterface(Object obj, String interfaceName)
 	{
