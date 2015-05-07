@@ -2112,24 +2112,22 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		return metadata;
 	}
 
-	public void deleteConversation(List<String> msisdns)
+	public void deleteConversation(String msisdn)
 	{
 		try
 		{
 			mDb.beginTransaction();
-			for (String msisdn : msisdns)
+			mDb.delete(DBConstants.CONVERSATIONS_TABLE, DBConstants.MSISDN + "=?", new String[] { msisdn });
+			mDb.delete(DBConstants.MESSAGES_TABLE, DBConstants.MSISDN + "=?", new String[] { msisdn });
+			mDb.delete(DBConstants.SHARED_MEDIA_TABLE, DBConstants.MSISDN + "=?", new String[] { msisdn });
+			
+			if (OneToNConversationUtils.isOneToNConversation(msisdn))
 			{
-				mDb.delete(DBConstants.CONVERSATIONS_TABLE, DBConstants.MSISDN + "=?", new String[] { msisdn });
-				mDb.delete(DBConstants.MESSAGES_TABLE, DBConstants.MSISDN + "=?", new String[] { msisdn });
-				mDb.delete(DBConstants.SHARED_MEDIA_TABLE, DBConstants.MSISDN + "=?", new String[] { msisdn });
-				if (OneToNConversationUtils.isOneToNConversation(msisdn))
-				{
-					mDb.delete(DBConstants.GROUP_MEMBERS_TABLE, DBConstants.GROUP_ID + " =?", new String[] { msisdn });
-					mDb.delete(DBConstants.GROUP_INFO_TABLE, DBConstants.GROUP_ID + " =?", new String[] { msisdn });
-					removeChatThemeForMsisdn(msisdn);
-				}
-				setExtraConvUnreadCount(msisdn, 0);
+				mDb.delete(DBConstants.GROUP_MEMBERS_TABLE, DBConstants.GROUP_ID + " =?", new String[] { msisdn });
+				mDb.delete(DBConstants.GROUP_INFO_TABLE, DBConstants.GROUP_ID + " =?", new String[] { msisdn });
+				removeChatThemeForMsisdn(msisdn);
 			}
+			setExtraConvUnreadCount(msisdn, 0);		
 			mDb.setTransactionSuccessful();
 		}
 		finally
@@ -3340,6 +3338,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 					/*
 					 * This conversation is empty.
 					 */
+					clearLastConversationMessage(msisdn);
 					conversationEmpty = true;
 				}
 			}
@@ -3416,14 +3415,18 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		boolean participantsAlreadyAdded = true;
 		boolean infoChangeOnly = false;
 
-		List<PairModified<GroupParticipant, String>> currentParticipantsList = ContactManager.getInstance().getGroupParticipants(groupId, true, false);
-		Map<String, PairModified<GroupParticipant, String>> currentParticipants = new HashMap<String, PairModified<GroupParticipant, String>>();
-		for (PairModified<GroupParticipant, String> grpParticipant : currentParticipantsList)
-		{
-			String msisdn = grpParticipant.getFirst().getContactInfo().getMsisdn();
-			currentParticipants.put(msisdn, grpParticipant);
-		}
+		Map<String, PairModified<GroupParticipant, String>> currentParticipants = null;
 
+		Pair<Map<String, PairModified<GroupParticipant, String>>, List<String>> groupParticipantsPair = getGroupParticipants(groupId, true, false);
+		if (groupParticipantsPair == null)
+		{
+			currentParticipants = new HashMap<String, PairModified<GroupParticipant, String>>();
+		}
+		else
+		{
+			currentParticipants = groupParticipantsPair.first;
+		}
+		
 		if (currentParticipants.isEmpty())
 		{
 			participantsAlreadyAdded = false;
