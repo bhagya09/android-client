@@ -17,6 +17,7 @@ import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 
 public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 {
@@ -32,6 +33,14 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 		requestWindowFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
 		super.onCreate(savedInstanceState);
 
+		/**
+		 * force the user into the reg-flow process if the token isn't set
+		 */
+        if (Utils.requireAuth(this))
+        {
+            return;
+        }
+		
 		if (filter(getIntent()))
 		{
 			init(getIntent());
