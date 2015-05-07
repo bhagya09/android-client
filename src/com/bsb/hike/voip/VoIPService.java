@@ -2457,6 +2457,9 @@ public class VoIPService extends Service {
 					socket.setReuseAddress(true);
 					socket.setSoTimeout(2000);
 
+					clientPartner.setOurInternalIPAddress(VoIPUtils.getLocalIpAddress(getApplicationContext())); 
+					clientPartner.setOurInternalPort(socket.getLocalPort());
+
 					while (continueSending && keepRunning && (counter < 10 || reconnecting)) {
 						counter++;
 						try {
@@ -2470,9 +2473,6 @@ public class VoIPService extends Service {
 								clientPartner.setRelayAddress(host.getHostAddress());
 								clientPartner.setRelayPort(VoIPUtils.getRelayPort(getApplicationContext()));
 							}
-
-							clientPartner.setOurInternalIPAddress(VoIPUtils.getLocalIpAddress(getApplicationContext())); 
-							clientPartner.setOurInternalPort(socket.getLocalPort());
 
 							Logger.d(VoIPConstants.TAG, "ICE Sending.");
 							sendPacket(dp, false);
