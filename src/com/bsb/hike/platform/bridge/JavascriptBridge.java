@@ -7,6 +7,7 @@ import java.lang.ref.WeakReference;
 
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.platform.CustomWebView;
+import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContent;
 
 import org.json.JSONException;
@@ -399,7 +400,7 @@ public abstract class JavascriptBridge
 	}
 	
 	@JavascriptInterface
-	public void openActivity(String data)
+	public void openActivity(final String data)
 	{
 		
 		if (mHandler == null || weakActivity == null || weakActivity.get() == null)
@@ -407,161 +408,14 @@ public abstract class JavascriptBridge
 			return;
 		}
 
-		Activity context=weakActivity.get();
-		String activityName = null;
-		JSONObject mmObject = null;
-		try
+		mHandler.post(new Runnable()
 		{
-			mmObject = new JSONObject(data);
-			activityName = mmObject.optString(HikeConstants.SCREEN);
-
-			if (activityName.equals(HIKESCREEN.SETTING.toString()))
+			@Override
+			public void run()
 			{
-				IntentFactory.openSetting(context);
+				PlatformUtils.openActivity(weakActivity.get(), data);
 			}
-
-			if (activityName.equals(HIKESCREEN.ACCOUNT.toString()))
-			{
-				IntentFactory.openSettingAccount(context);
-			}
-			if (activityName.equals(HIKESCREEN.FREE_SMS.toString()))
-			{
-				IntentFactory.openSettingSMS(context);
-			}
-			if (activityName.equals(HIKESCREEN.MEDIA.toString()))
-			{
-				IntentFactory.openSettingMedia(context);
-			}
-			if (activityName.equals(HIKESCREEN.NOTIFICATION.toString()))
-			{
-				IntentFactory.openSettingNotification(context);
-			}
-			if (activityName.equals(HIKESCREEN.PRIVACY.toString()))
-			{
-				IntentFactory.openSettingPrivacy(context);
-			}
-			if (activityName.equals(HIKESCREEN.TIMELINE.toString()))
-			{
-				IntentFactory.openTimeLine(context);
-			}
-			if (activityName.equals(HIKESCREEN.NEWGRP.toString()))
-			{
-				context.startActivity(new Intent(context, CreateNewGroupOrBroadcastActivity.class));
-			}
-			if (activityName.equals(HIKESCREEN.INVITEFRNDS.toString()))
-			{
-				context.startActivity(new Intent(context, TellAFriend.class));
-			}
-			if (activityName.equals(HIKESCREEN.REWARDS_EXTRAS.toString()))
-			{
-				context.startActivity(IntentFactory.getRewardsIntent(context));
-			}
-			if (activityName.equals(HIKESCREEN.STICKER_SHOP.toString()))
-			{
-				context.startActivity(IntentFactory.getStickerShopIntent(context));
-			}
-			if (activityName.equals(HIKESCREEN.STICKER_SHOP_SETTINGS.toString()))
-			{
-				context.startActivity(IntentFactory.getStickerSettingIntent(context));
-			}
-			if (activityName.equals(HIKESCREEN.STATUS.toString()))
-			{
-				context.startActivity(new Intent(context, StatusUpdate.class));
-			}
-			if (activityName.equals(HIKESCREEN.HIDDEN_MODE.toString()))
-			{
-				if (context instanceof HomeActivity)
-				{
-					((HomeActivity) context).hikeLogoClicked();
-				}
-			}
-			if (activityName.equals(HIKESCREEN.COMPOSE_CHAT.toString()))
-			{
-				context.startActivity(IntentFactory.getComposeChatIntent(context));
-			}
-			if (activityName.equals(HIKESCREEN.INVITE_SMS.toString()))
-			{
-				boolean selectAll = mmObject.optBoolean(ProductPopupsConstants.SELECTALL, false);
-				Intent intent = new Intent(context, HikeListActivity.class);
-				intent.putExtra(ProductPopupsConstants.SELECTALL, selectAll);
-				context.startActivity(intent);
-			}
-			if (activityName.equals(HIKESCREEN.FAVOURITES.toString()))
-			{
-				context.startActivity(IntentFactory.getFavouritesIntent(context));
-			}
-			if (activityName.equals(HIKESCREEN.HOME_SCREEN.toString()))
-			{
-				context.startActivity(Utils.getHomeActivityIntent(context));
-			}
-			if (activityName.equals(HIKESCREEN.PROFILE_PHOTO.toString()))
-			{
-
-				Intent intent =IntentFactory.getProfileIntent(context);
-				if (mmObject.optBoolean(ProductPopupsConstants.SHOW_CAMERA, false))
-				{
-					intent.putExtra(ProductPopupsConstants.SHOW_CAMERA, true);
-				}
-				context.startActivity(intent);
-
-			}
-			if (activityName.equals(HIKESCREEN.EDIT_PROFILE.toString()))
-			{
-				Intent intent =IntentFactory.getProfileIntent(context);
-				intent.putExtra(HikeConstants.Extras.EDIT_PROFILE, true);
-				context.startActivity(intent);
-
-			}
-			if (activityName.equals(HIKESCREEN.INVITE_WHATSAPP.toString()))
-			{
-				IntentFactory.openInviteWatsApp(context);
-			}
-			if (activityName.equals(HIKESCREEN.OPENINBROWSER.toString()))
-			{
-				String url = mmObject.optString(HikeConstants.URL);
-
-				if (!TextUtils.isEmpty(url))
-				{
-					Intent in = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-					context.startActivity(in);
-				}
-			}
-			if (activityName.equals(HIKESCREEN.OPENAPPSTORE.toString()))
-			{
-				String url = mmObject.optString(HikeConstants.URL);
-
-				if (!TextUtils.isEmpty(url))
-				{
-					Utils.launchPlayStore(url, context);
-				}
-			}
-			if (activityName.equals(HIKESCREEN.HELP.toString()))
-			{
-				IntentFactory.openSettingHelp(context);
-			}
-			if (activityName.equals(HIKESCREEN.NUXINVITE.toString()))
-			{
-				context.startActivity(IntentFactory.openNuxFriendSelector(context));
-			}
-			if (activityName.equals(HIKESCREEN.NUXREMIND.toString()))
-			{
-				context.startActivity(IntentFactory.openNuxCustomMessage(context));
-			}
-			if(activityName.equals(HIKESCREEN.BROADCAST.toString()))
-			{
-				IntentFactory.createBroadcastDefault(context);
-			}
-		}
-		catch (JSONException e)
-		{
-			e.printStackTrace();
-		}
-		catch (ActivityNotFoundException e)
-		{
-			Toast.makeText(context, "No activity found", Toast.LENGTH_SHORT).show();
-			e.printStackTrace();
-		}
-
+		});
 	}
 	
 	/**
@@ -633,9 +487,4 @@ public abstract class JavascriptBridge
 		});
 	}
 	
-	@JavascriptInterface
-	public void openHikeActivity(final String metaData)
-	{
-		openActivity(metaData);
-	}
 }
