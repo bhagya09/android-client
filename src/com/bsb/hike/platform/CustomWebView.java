@@ -9,6 +9,7 @@ import android.view.View;
 import android.webkit.WebView;
 
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 
 /**
  * Created by shobhitmandloi on 27/01/15.
@@ -112,7 +113,10 @@ public class CustomWebView extends WebView
 		setWebChromeClient(null);
 		setWebViewClient(null);
 		removeAllViews();
-		this.removeJavascriptInterface(javaScriptInterface);
+		if (Utils.isHoneycombOrHigher())
+		{
+			removeJavascriptInterface(javaScriptInterface);
+		}
 		destroy();
 	}
 
