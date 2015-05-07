@@ -324,6 +324,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 					String name = info.getName();
 					boolean found = false;
 					int startIndex = 0;
+					if(name!=null){
 					name = name.toLowerCase();
 					if (name.startsWith(textToBeFiltered))
 					{
@@ -333,6 +334,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 					{
 						found = true;
 						startIndex = name.indexOf(" " + textToBeFiltered) + 1;
+					}
 					}
 					if(found)
 					{
