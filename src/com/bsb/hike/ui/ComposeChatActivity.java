@@ -682,6 +682,17 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				return;
 			}
 
+			/*
+			 * This would be true if the user entered a stealth msisdn and tried starting a chat with him/her in non stealth mode.
+			 */
+			if (StealthModeManager.getInstance().isStealthMsisdn(contactInfo.getMsisdn()))
+			{
+				if (!StealthModeManager.getInstance().isActive())
+				{
+					return;
+				}
+			}
+
 			if (isForwardingMessage)
 			{
 				
@@ -727,17 +738,6 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			}
 			else
 			{
-				/*
-				 * This would be true if the user entered a stealth msisdn and tried starting a chat with him/her in non stealth mode.
-				 */
-				if (StealthModeManager.getInstance().isStealthMsisdn(contactInfo.getMsisdn()))
-				{
-					if (!StealthModeManager.getInstance().isActive())
-					{
-						return;
-					}
-				}
-
 				Utils.startChatThread(this, contactInfo);
 				finish();
 			}
