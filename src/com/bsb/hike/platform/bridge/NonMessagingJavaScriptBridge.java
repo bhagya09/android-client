@@ -131,7 +131,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	 * calling this method will forcefully mute the full screen bot. The user won't receive any more notifications after calling this.
 	 */
 	@JavascriptInterface
-	public void muteChatThread()
+	public void mute()
 	{
 		HikeMessengerApp.getPubSub().publish(HikePubSub.MUTE_BOT, msisdn);
 	}
@@ -140,7 +140,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	 * calling this method will forcefully block the full screen bot. The user won't see any messages in the chat thread after calling this.
 	 */
 	@JavascriptInterface
-	public void blockChatThread()
+	public void block()
 	{
 		HikeMessengerApp.getPubSub().publish(HikePubSub.BLOCK_USER, msisdn);
 	}
