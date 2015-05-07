@@ -272,6 +272,14 @@ public class ConversationsAdapter extends BaseAdapter
 		notifyDataSetChanged();
 	}
 
+	/**
+	 * This will prevent the search related changes until further notice.
+	 */
+	public void pauseSearch()
+	{
+		refinedSearchText = "";
+	}
+
 	private class FetchPhoneBookContactsTask extends AsyncTask<Void, Void, Void>
 	{
 		List<ConvInfo> hikeContacts = new ArrayList<ConvInfo>();
