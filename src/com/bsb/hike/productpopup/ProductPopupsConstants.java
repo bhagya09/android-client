@@ -106,6 +106,8 @@ public class ProductPopupsConstants
 		public static final String OPENAPPSCREEN="openappscreen";
 
 		public static final String CALLTOSERVER="callserver";
+		
+		public static final String DOWNLOAD_STKPK="dwnldstkpk";
 	}
 
 	public static enum HIKESCREEN

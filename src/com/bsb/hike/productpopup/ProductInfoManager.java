@@ -1,11 +1,7 @@
 package com.bsb.hike.productpopup;
 
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -21,20 +17,24 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.HikeHandlerUtil;
+import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadSource;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadType;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerDownloadManager;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformContent.EventCode;
 import com.bsb.hike.platform.content.PlatformContentModel;
 import com.bsb.hike.productpopup.ProductPopupsConstants.PopupStateEnum;
 import com.bsb.hike.productpopup.ProductPopupsConstants.PopupTriggerPoints;
-import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
 /**
@@ -429,6 +429,35 @@ public class ProductInfoManager
 	private void clearPopupStack()
 	{
 		mmSparseArray.clear();
+	}
+
+	public void downloadStkPk(String metaData)
+	{
+		try
+		{
+			JSONObject object=new JSONObject(metaData);
+			String categoryId=object.optString(StickerManager.CATEGORY_ID);
+			String categoryName=object.optString(StickerManager.CATEGORY_NAME);
+			int totalStickers = object.optInt(StickerManager.TOTAL_STICKERS);
+			int categorySize = object.optInt(StickerManager.CATEGORY_SIZE);
+
+			if (!TextUtils.isEmpty(categoryId) && !TextUtils.isEmpty(categoryName))
+			{
+				StickerCategory category = new StickerCategory(categoryId, categoryName, totalStickers, categorySize);
+				downloadStkPk(category);
+			}
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+	}
+	
+	private void downloadStkPk(StickerCategory category)
+	{
+		StickerDownloadManager.getInstance().DownloadEnableDisableImage(category.getCategoryId(), null);
+		StickerManager.getInstance().initialiseDownloadStickerTask(category, DownloadSource.POPUP, DownloadType.NEW_CATEGORY, context);
+		
 	}
 
 }
