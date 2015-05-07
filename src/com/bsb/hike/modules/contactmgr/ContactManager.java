@@ -19,7 +19,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -35,7 +34,6 @@ import android.provider.ContactsContract.CommonDataKinds.Phone;
 import android.text.TextUtils;
 import android.util.Pair;
 
-import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
@@ -48,6 +46,7 @@ import com.bsb.hike.models.FtueContactsData;
 import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.modules.iface.ITransientCache;
 import com.bsb.hike.utils.AccountUtils;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.PairModified;
@@ -155,19 +154,16 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	 * 
 	 * @param msisdns
 	 */
-	public void removeContacts(List<String> msisdns)
+	public void removeContacts(String msisdn)
 	{
-		for (String ms : msisdns)
+		if (OneToNConversationUtils.isOneToNConversation(msisdn))
 		{
-			if (OneToNConversationUtils.isOneToNConversation(ms))
-			{
-				persistenceCache.removeGroup(ms);
-				transientCache.removeGroup(ms);
-			}
-			else
-			{
-				persistenceCache.removeContact(ms);
-			}
+			persistenceCache.removeGroup(msisdn);
+			transientCache.removeGroup(msisdn);
+		}
+		else
+		{
+			persistenceCache.removeContact(msisdn);
 		}
 	}
 
@@ -1029,6 +1025,16 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 		hDb.setMultipleContactsToFavorites(favorites);
 	}
 
+	public boolean isUnknownContact(String msisdn)
+	{
+		ContactInfo contact = getContact(msisdn, true, false);
+		if (null == contact)
+		{
+			return true;
+		}
+		return contact.isUnknownContact();
+	}
+	
 	/**
 	 * This method returns true if a particular msisdn is blocked otherwise false
 	 * 

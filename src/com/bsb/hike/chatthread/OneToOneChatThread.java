@@ -361,7 +361,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		String[] oneToOneListeners = new String[] { HikePubSub.SMS_CREDIT_CHANGED, HikePubSub.MESSAGE_DELIVERED_READ, HikePubSub.CONTACT_ADDED, HikePubSub.CONTACT_DELETED,
 				HikePubSub.CHANGED_MESSAGE_TYPE, HikePubSub.SHOW_SMS_SYNC_DIALOG, HikePubSub.SMS_SYNC_COMPLETE, HikePubSub.SMS_SYNC_FAIL, HikePubSub.SMS_SYNC_START,
 				HikePubSub.LAST_SEEN_TIME_UPDATED, HikePubSub.SEND_SMS_PREF_TOGGLED, HikePubSub.BULK_MESSAGE_RECEIVED, HikePubSub.USER_JOINED, HikePubSub.USER_LEFT,
-				HikePubSub.APP_FOREGROUNDED };
+				HikePubSub.APP_FOREGROUNDED, HikePubSub.FAVORITE_TOGGLED, HikePubSub.FRIEND_REQUEST_ACCEPTED, HikePubSub.REJECT_FRIEND_REQUEST };
 		return oneToOneListeners;
 	}
 
@@ -512,11 +512,31 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		case HikePubSub.APP_FOREGROUNDED:
 			onAppForegrounded();
 			break;
+		case HikePubSub.FAVORITE_TOGGLED:
+		case HikePubSub.FRIEND_REQUEST_ACCEPTED:
+		case HikePubSub.REJECT_FRIEND_REQUEST:
+			onFavoriteToggled(object);
+			break;
 		default:
 			Logger.d(TAG, "Did not find any matching PubSub event in OneToOne ChatThread. Calling super class' onEventReceived");
 			super.onEventReceived(type, object);
 			break;
 		}
+	}
+
+	private void onFavoriteToggled(Object object)
+	{
+		final Pair<ContactInfo, FavoriteType> favoriteToggle = (Pair<ContactInfo, FavoriteType>) object;
+
+		ContactInfo contactInfo = favoriteToggle.first;
+		FavoriteType favoriteType = favoriteToggle.second;
+
+		if (!msisdn.equals(contactInfo.getMsisdn()))
+		{
+			return;
+		}
+		
+		this.mContactInfo.setFavoriteType(favoriteType);		
 	}
 
 	@Override
@@ -788,6 +808,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			{
 				mComposeView.setText("");
 			}
+			mComposeView.setHint("");
 			mComposeView.setEnabled(true);
 		}
 
@@ -2556,8 +2577,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	{
 		FavoriteType favoriteType = FavoriteType.REQUEST_SENT;
 		mContactInfo.setFavoriteType(favoriteType);
-		Pair<ContactInfo, FavoriteType> favoriteToggle = new Pair<ContactInfo, FavoriteType>(mContactInfo, favoriteType);
-		HikeMessengerApp.getPubSub().publish(HikePubSub.FAVORITE_TOGGLED, favoriteToggle);
+		Utils.addFavorite(activity, mContactInfo, false);
 	}
 	
 	@Override
