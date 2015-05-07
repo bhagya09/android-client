@@ -3017,7 +3017,10 @@ public class MqttMessagesManager
 
 	private void deleteBot(String msisdn)
 	{
-		msisdn = Utils.validateBotMsisdn(msisdn);
+		if (!Utils.validateBotMsisdn(msisdn))
+		{
+			return;
+		}
 		List<String> msisdns = new ArrayList<String>(1);
 		msisdns.add(msisdn);
 		convDb.deleteConversation(msisdns);
