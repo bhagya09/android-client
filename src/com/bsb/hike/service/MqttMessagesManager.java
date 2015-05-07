@@ -685,6 +685,7 @@ public class MqttMessagesManager
 						botInfo.setBotEnabled(enableBot);
 						HikeMessengerApp.hikeBotNamesMap.put(botInfo.getMsisdn(), botInfo);
 						convDb.updateBotEnablingState(botInfo.getMsisdn(), enableBot ? 1:0);
+						convDb.addConversation(botInfo.getMsisdn(), true, null, null);
 					}
 
 					@Override
