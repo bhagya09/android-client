@@ -58,6 +58,9 @@ public class VoIPConstants {
 	public static final int MSG_ALREADY_IN_NATIVE_CALL = 13;
 	public static final int MSG_AUDIORECORD_FAILURE = 14;
 	public static final int MSG_UPDATE_REMOTE_HOLD = 15;
+	public static final int MSG_VOIP_CLIENT_STOP = 16;
+	public static final int MSG_VOIP_CLIENT_OUTGOING_CALL_RINGTONE = 17;
+	public static final int MSG_VOIP_CLIENT_INCOMING_CALL_RINGTONE = 18;
 
 	public static final class Analytics
 	{
