@@ -2632,4 +2632,14 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			}
 		}
 	}
+	
+	@Override
+	public void onResume()
+	{
+		super.onResume();
+		
+		// fetch last seen call here to get the latest ls time for the user for which chat thread is opened
+		// fix for fogbugz 44584
+		scheduleLastSeen();
+	}
 }
