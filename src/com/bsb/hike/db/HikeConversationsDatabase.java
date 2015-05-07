@@ -767,6 +767,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			db.execSQL(alter3);
 			db.execSQL(alter4);
 
+
 		}
 
 	}
