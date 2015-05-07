@@ -24,6 +24,7 @@ import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
+import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -42,6 +43,8 @@ public class AudioRecordView
 
 		public void audioRecordCancelled();
 	}
+	
+	private static final int AUDIO_RECORD_VIEW_ID = 121;
 
 	// DIALOG STATES
 	private static final byte IDLE = 1;
@@ -104,7 +107,7 @@ public class AudioRecordView
 	private void initView()
 	{
 
-		dialog = new Dialog(activity, R.style.Theme_CustomDialog);
+		dialog = new HikeDialog(activity, R.style.Theme_CustomDialog, AUDIO_RECORD_VIEW_ID);
 
 		dialog.setContentView(R.layout.record_audio_dialog);
 
@@ -409,4 +412,12 @@ public class AudioRecordView
 			}
 		}
 	};
+	
+	public void dismissAudioRecordView()
+	{
+		if (dialog != null && dialog.isShowing())
+		{
+			dialog.dismiss();
+		}
+	}
 }

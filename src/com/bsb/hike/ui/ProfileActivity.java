@@ -1636,7 +1636,10 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		// we do not show edit dp option in group info 
 		if(this.profileType == ProfileType.USER_PROFILE)
 		{
-			arguments.putBoolean(HikeConstants.CAN_EDIT_DP, true);
+			if(!imageViewerInfo.isStatusMessage)
+			{
+				arguments.putBoolean(HikeConstants.CAN_EDIT_DP, true);
+			}
 		}
 
 		HikeMessengerApp.getPubSub().publish(HikePubSub.SHOW_IMAGE, arguments);
@@ -1753,7 +1756,8 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				{
 					HikePubSub hikePubSub = HikeMessengerApp.getPubSub();
 					HikeMqttManagerNew.getInstance().sendMessage(oneToNConversation.serialize(HikeConstants.MqttMessageTypes.GROUP_CHAT_LEAVE), MqttConstants.MQTT_QOS_ONE);
-					hikePubSub.publish(HikePubSub.GROUP_LEFT, oneToNConversation.getMsisdn());
+					hikePubSub.publish(HikePubSub.GROUP_LEFT, oneToNConversation.getConvInfo());
+					
 					Intent intent = new Intent(ProfileActivity.this, HomeActivity.class);
 					intent.putExtra(HikeConstants.Extras.GROUP_LEFT, mLocalMSISDN);
 					intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);

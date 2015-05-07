@@ -223,8 +223,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			initialiseHomeScreen(savedInstanceState);
 		}
 		
-		photosEnabled = Utils.isPhotosEditEnabled();
-		
 		showProductPopup(ProductPopupsConstants.PopupTriggerPoints.HOME_SCREEN.ordinal());
 	}
 
@@ -497,6 +495,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	private boolean setupMenuOptions(final Menu menu)
 	{
+		//Adding definsive null pointer check (bug#44531)May be due to sherlock code, nullpointerexception occured.
+		try{
 		getSupportMenuInflater().inflate(R.menu.chats_menu, menu);
 
 		topBarIndicator = (TextView) menu.findItem(R.id.overflow_menu).getActionView().findViewById(R.id.top_bar_indicator_text);
@@ -591,6 +591,10 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		});
 		
 		return true;
+		}catch(NullPointerException e){
+			Logger.d("NulllpointerException :setupMenuOptions" , e.getMessage());
+			return false;
+		}
 	}
 
 	private void recordSearchOptionClick()
@@ -881,6 +885,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		Utils.clearJar(this);
 		t2 = System.currentTimeMillis();
 		Logger.d("clearJar", "time : " + (t2 - t1));
+		photosEnabled = Utils.isPhotosEditEnabled();
 	}
 
 	

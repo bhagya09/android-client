@@ -43,6 +43,8 @@ public class EmoticonPicker implements ShareablePopup, EmoticonPickerListener, O
 	private EditText mEditText;
 	
 	private StickerEmoticonIconPageIndicator mIconPageIndicator;
+	
+	private EmoticonAdapter mEmoticonAdapter;
 
 	/**
 	 * Constructor
@@ -203,7 +205,7 @@ public class EmoticonPicker implements ShareablePopup, EmoticonPickerListener, O
 		 */
 		int firstCategoryToShow = (mRecentEmoticons.length < recentEmoticonsSizeReq) ? 1 : 0;
 
-		EmoticonAdapter mEmoticonAdapter = new EmoticonAdapter(mContext, this, isPortrait, tabDrawables);
+		mEmoticonAdapter = new EmoticonAdapter(mContext, this, isPortrait, tabDrawables);
 
 		mPager.setVisibility(View.VISIBLE);
 
@@ -257,6 +259,16 @@ public class EmoticonPicker implements ShareablePopup, EmoticonPickerListener, O
 			}
 			
 			initView();
+		}
+		/*
+		 * This is to update the recent emoticons palette, because of caching.
+		 */
+		else
+		{
+			ViewPager mPager = ((ViewPager) mViewToDisplay.findViewById(R.id.emoticon_pager));
+			View view = mPager.getChildAt(0);
+			if (view != null && view.getTag() != null && view.getTag() instanceof Integer)
+				mEmoticonAdapter.refreshView(view, (Integer) view.getTag());
 		}
 		return mViewToDisplay;
 	}
@@ -327,12 +339,4 @@ public class EmoticonPicker implements ShareablePopup, EmoticonPickerListener, O
 		return currentConfig != deviceOrientation;
 	}
 	
-	public void resetToFirstPosition()
-	{
-		if (mIconPageIndicator != null)
-		{
-			mIconPageIndicator.setCurrentItem(0);
-		}
-	}
-
 }
