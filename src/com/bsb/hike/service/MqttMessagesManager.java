@@ -3033,7 +3033,10 @@ public class MqttMessagesManager
 		}
 
 		String msisdn = jsonObj.optString(HikeConstants.MSISDN);
-		msisdn = Utils.validateBotMsisdn(msisdn);
+		if (!Utils.validateBotMsisdn(msisdn))
+		{
+			return;
+		}
 		String name = jsonObj.optString(HikeConstants.NAME);
 		String thumbnailString = jsonObj.optString(HikeConstants.BOT_THUMBNAIL);
 		if (!TextUtils.isEmpty(thumbnailString))

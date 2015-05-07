@@ -13,7 +13,7 @@ public interface HikePlatformConstants
 	String INTENT_URI = "intentUri";
 	String CONTENT_TYPE = "contentType";
 	String VERSION = "version";
-	String TAG = "tag";
+	String TAG = "platform";
 	String KEY = "key";
 	String SUBTYPE = "st";
 	String TEXT = "title";
