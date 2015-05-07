@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import com.bsb.hike.modules.httpmgr.RequestToken;
-import com.bsb.hike.modules.httpmgr.Utils;
+import com.bsb.hike.modules.httpmgr.HttpUtils;
 
 /**
  * Byte array request is used to return response in form of byte[] to the request listener. InputStream to byte[] is done in {@link Request#parseResponse(InputStream)}
@@ -41,6 +41,6 @@ public class ByteArrayRequest extends Request<byte[]>
 	@Override
 	public byte[] parseResponse(InputStream in) throws IOException
 	{
-		return Utils.streamToBytes(in);
+		return HttpUtils.streamToBytes(in);
 	}
 }
