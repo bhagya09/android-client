@@ -1425,6 +1425,11 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 			optionsList.add(getString(R.string.email_conversations));
 		}
 
+		if (optionsList.isEmpty())
+		{
+			return false;
+		}
+
 		final String[] options = new String[optionsList.size()];
 		optionsList.toArray(options);
 
