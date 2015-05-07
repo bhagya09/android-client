@@ -1424,6 +1424,11 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 	private void bindConversationInsert(SQLiteStatement insertStatement, ConvMessage conv,boolean bindForConvId)
 	{
+		if(conv.getMessage() == null)
+		{
+			return;
+		}
+
 		final int msgOriginTypeColumn = 1;
 		final int messageColumn = 2;
 		final int msgStatusColumn = 3;

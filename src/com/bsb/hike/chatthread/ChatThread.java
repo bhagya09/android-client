@@ -817,6 +817,11 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			break;
 		case R.string.hide_chat:
 
+			if(mConversation.getMessagesList().isEmpty())
+			{
+				createEmptyConversation();
+			}
+
 			StealthModeManager.getInstance().toggleConversation(mConversation.getConvInfo(), activity);
 			//HACK though above statement will do the same, but the convInfo objects are different, hence redoing
 			mConversation.setIsStealth(!mConversation.isStealth());
@@ -1938,6 +1943,12 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		ConvMessage convMessage = Utils.makeConvMessage(msisdn, getString(R.string.poke_msg), mConversation.isOnHike());
 		ChatThreadUtils.setPokeMetadata(convMessage);
 		sendMessage(convMessage);
+	}
+
+	private void createEmptyConversation()
+	{
+	    ConvMessage convMessage = Utils.makeConvMessage(msisdn, null, mConversation.isOnHike(), State.RECEIVED_READ);
+	    HikeConversationsDatabase.getInstance().addConversationMessages(convMessage, true);
 	}
 
 	private void initListViewAndAdapter()
