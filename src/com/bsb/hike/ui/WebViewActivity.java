@@ -90,10 +90,15 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.webview_activity);
+		initView();
 		init();
 		setMode(getIntent().getIntExtra(WEBVIEW_MODE, WEB_URL_MODE));
 	}
 
+	private void initView()
+	{
+		webView = (CustomWebView) findViewById(R.id.t_and_c_page);
+	}
 	private void init()
 	{
 		actionBar = new HikeActionBar(this);
@@ -145,7 +150,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		String title = getIntent().getStringExtra(HikeConstants.Extras.TITLE);
 		final boolean allowLoc = getIntent().getBooleanExtra(HikeConstants.Extras.WEBVIEW_ALLOW_LOCATION, false);
 
-		webView = (CustomWebView) findViewById(R.id.t_and_c_page);
+
 		final ProgressBar bar = (ProgressBar) findViewById(R.id.progress);
 
 		WebViewClient client = new WebViewClient()
@@ -357,7 +362,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	private void loadMicroApp()
 	{
 		// fetch micro app card
-		PlatformContent.getContent(null, new PlatformContentListener<PlatformContentModel>()
+		PlatformContent.getContent(botMetaData.toString(), new PlatformContentListener<PlatformContentModel>()
 		{
 
 			@Override
