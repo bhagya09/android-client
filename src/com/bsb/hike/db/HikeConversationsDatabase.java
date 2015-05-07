@@ -6550,52 +6550,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		return -1;
 	}
 
-	/*
-	 * 
-	 * metadata:{'layout_id':'','file_id':'','card_data':{},'helper_data':{}}
-	 * 
-	 * This function reads helper json given in parameter and update it in metadata of message , it inserts new keys in metadata present in helper and updates old
-	 */
-	public String updateHelperData(long messageId, String helper)
-	{
-
-		String json = getMetadataOfMessage(messageId);
-		if (json != null)
-		{
-			try
-			{
-				JSONObject metadataJSON = new JSONObject(json);
-				JSONObject helperData = new JSONObject(helper);
-				JSONObject cardObj = metadataJSON.optJSONObject(HikePlatformConstants.CARD_OBJECT);
-				JSONObject oldHelper = cardObj.optJSONObject(HikePlatformConstants.HELPER_DATA);
-				if (oldHelper == null)
-				{
-					oldHelper = new JSONObject();
-				}
-				Iterator<String> i = helperData.keys();
-				while (i.hasNext())
-				{
-					String key = i.next();
-					oldHelper.put(key, helperData.get(key));
-				}
-				cardObj.put(HikePlatformConstants.HELPER_DATA, oldHelper);
-				metadataJSON.put(HikePlatformConstants.CARD_OBJECT, cardObj);
-				json = metadataJSON.toString();
-				updateMetadataOfMessage(messageId, json);
-				return json;
-			}
-			catch (JSONException e)
-			{
-				e.printStackTrace();
-			}
-		}
-		else
-		{
-			Logger.e("HikeconversationDB", "Meta data of message is null, id= " + messageId);
-		}
-		return null;
-	}
-
 	public String updateJSONMetadata(int messageId, String newMeta)
 	{
 		String json = getMetadataOfMessage(messageId);

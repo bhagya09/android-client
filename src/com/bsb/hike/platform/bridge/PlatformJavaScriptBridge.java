@@ -2,12 +2,10 @@ package com.bsb.hike.platform.bridge;
 
 import java.util.ArrayList;
 
-import com.bsb.hike.platform.CustomWebView;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Pair;
@@ -20,15 +18,15 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformAlarmManager;
+import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.WebMetadata;
 import com.bsb.hike.platform.WebViewCardRenderer.WebViewHolder;
-import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
@@ -165,10 +163,12 @@ public class PlatformJavaScriptBridge extends JavascriptBridge
 		try
 		{
 			Logger.i(tag, "update metadata called " + json + " , message id=" + message.getMsgID());
-			String updatedJSON = HikeConversationsDatabase.getInstance().updateHelperData((message.getMsgID()), json);
-			if (updatedJSON != null)
+			String originalmetadata = HikeConversationsDatabase.getInstance().getMetadataOfMessage(message.getMsgID());
+			originalmetadata = PlatformUtils.updateHelperData(json, originalmetadata);
+			if (originalmetadata != null)
 			{
-				message.webMetadata = new WebMetadata(updatedJSON);
+				HikeConversationsDatabase.getInstance().updateMetadataOfMessage(message.getMsgID(), originalmetadata);
+				message.webMetadata = new WebMetadata(originalmetadata);
 			}
 
 		}
