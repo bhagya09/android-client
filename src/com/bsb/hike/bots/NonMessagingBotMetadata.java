@@ -13,15 +13,22 @@ public class NonMessagingBotMetadata
 {
 	JSONObject json;
 
-
-	public NonMessagingBotMetadata(String jsonString) throws JSONException
+	public NonMessagingBotMetadata(String jsonString)
 	{
-		this(new JSONObject(jsonString));
+		try
+		{
+			this.json = new JSONObject(jsonString);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+			this.json = new JSONObject();
+		}
 	}
 
 	public NonMessagingBotMetadata(JSONObject metadata)
 	{
-		this.json = metadata;
+		this.json = (null == metadata) ? new JSONObject() : metadata;
 	}
 
 	@Override

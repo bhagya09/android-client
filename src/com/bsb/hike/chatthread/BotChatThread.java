@@ -42,16 +42,8 @@ public class BotChatThread extends OneToOneChatThread
 	{
 		super.init();
 		BotInfo botInfo = BotInfo.getBotInfoForBotMsisdn(msisdn);
-		try
-		{
-			MessagingBotMetadata botMetadata = new MessagingBotMetadata(botInfo.getMetadata());
-			configuration = new MessagingBotConfiguration(botInfo.getConfiguration(), botMetadata.isReceiveEnabled());
-		}
-		catch (JSONException e)
-		{
-			e.printStackTrace();
-		}
-
+		MessagingBotMetadata botMetadata = new MessagingBotMetadata(botInfo.getMetadata());
+		configuration = new MessagingBotConfiguration(botInfo.getConfiguration(), botMetadata.isReceiveEnabled());
 	}
 
 	/**

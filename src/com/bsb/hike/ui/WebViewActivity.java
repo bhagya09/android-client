@@ -136,14 +136,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			return;
 		}
 		botConfig = new NonMessagingBotConfiguration(botInfo.getConfiguration());
-		try
-		{
-			botMetaData = new NonMessagingBotMetadata(botInfo.getMetadata());
-		}
-		catch (JSONException e)
-		{
-			e.printStackTrace();
-		}
+		botMetaData = new NonMessagingBotMetadata(botInfo.getMetadata());
 	}
 
 	private void setWebURLMode()

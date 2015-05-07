@@ -1337,7 +1337,11 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		}
         if (Utils.isBot(conv.getMsisdn()))
         {	BotInfo botInfo = BotInfo.getBotInfoForBotMsisdn(conv.getMsisdn());
-			MessagingBotConfiguration configuration = new MessagingBotConfiguration( botInfo.getConfiguration(), botInfo.isReceiveEnabled());
+			MessagingBotMetadata metadata;
+
+			metadata = new MessagingBotMetadata (botInfo.getMetadata());
+
+			MessagingBotConfiguration configuration = new MessagingBotConfiguration( botInfo.getConfiguration(), metadata.isReceiveEnabled());
 			if (configuration.isLongTapEnabled())
 			{
 				BotConversation.analyticsForBots(conv, HikePlatformConstants.BOT_LONG_PRESS, AnalyticsConstants.LONG_PRESS_EVENT);

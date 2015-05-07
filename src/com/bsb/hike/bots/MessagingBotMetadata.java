@@ -10,17 +10,36 @@ import org.json.JSONObject;
 public class MessagingBotMetadata
 {
 	JSONObject json;
+
 	boolean isReceiveEnabled;
 
-	public MessagingBotMetadata (String metadata) throws JSONException
+	public MessagingBotMetadata(String metadata)
 	{
-		this(new JSONObject(metadata));
+		try
+		{
+			this.json = new JSONObject(metadata);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+			this.json = new JSONObject();
+		}
+		init();
+
 	}
 
 	public MessagingBotMetadata(JSONObject jsonObject)
 	{
-		this.json = jsonObject;
-		this.isReceiveEnabled = json.optBoolean(HikeConstants.IS_RECEIVE_ENABLED_IN_BOT);
+
+		this.json = (null == jsonObject) ? new JSONObject() : jsonObject;
+
+		init();
+	}
+
+	private void init()
+	{
+
+		this.isReceiveEnabled = json.optBoolean(HikeConstants.IS_RECEIVE_ENABLED_IN_BOT, true);
 	}
 
 	public boolean isReceiveEnabled()
