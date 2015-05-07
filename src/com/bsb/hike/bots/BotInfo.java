@@ -1,7 +1,11 @@
 package com.bsb.hike.bots;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.models.Conversation.ConvInfo;
+import com.bsb.hike.platform.HikePlatformConstants;
 
 /**
  * Created by shobhit on 22/04/15.
@@ -172,6 +176,31 @@ public class BotInfo extends ConvInfo
 	public void setOnHike(boolean isOnHike)
 	{
 		super.setOnHike(true);
+	}
+	
+	/**
+	 * Returns the microAppName this botInfo object belongs to.
+	 * 
+	 * @return
+	 */
+	public String getMicroAppName()
+	{
+		String appName = null;
+
+		if (metadata != null)
+		{
+			try
+			{
+				JSONObject md = new JSONObject(metadata);
+				appName = md.getString(HikePlatformConstants.APP_NAME);
+			}
+			catch (JSONException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return appName;
 	}
 
 }

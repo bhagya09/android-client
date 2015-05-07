@@ -5,7 +5,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 
+import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.platform.CustomWebView;
+import com.bsb.hike.platform.PlatformUtils;
+import com.bsb.hike.platform.content.PlatformContent;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -34,6 +38,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.productpopup.ProductPopupsConstants.HIKESCREEN;
+import com.bsb.hike.ui.ComposeChatActivity;
 import com.bsb.hike.ui.CreateNewGroupOrBroadcastActivity;
 import com.bsb.hike.ui.HikeListActivity;
 import com.bsb.hike.ui.HomeActivity;
@@ -55,6 +60,11 @@ public abstract class JavascriptBridge
 	static final String tag = "JavascriptBridge";
 
 	protected Handler mHandler;
+	
+	private static final String REQUEST_CODE = "request_code";
+	
+	private static final int PICK_CONTACT_REQUEST = 1;
+
 
 	public JavascriptBridge(Activity activity, CustomWebView mWebView)
 	{
@@ -390,7 +400,7 @@ public abstract class JavascriptBridge
 	}
 	
 	@JavascriptInterface
-	public void openActivity(String data)
+	public void openActivity(final String data)
 	{
 		
 		if (mHandler == null || weakActivity == null || weakActivity.get() == null)
@@ -398,165 +408,83 @@ public abstract class JavascriptBridge
 			return;
 		}
 
-		Activity context=weakActivity.get();
-		String activityName = null;
-		JSONObject mmObject = null;
-		try
+		mHandler.post(new Runnable()
 		{
-			mmObject = new JSONObject(data);
-			activityName = mmObject.optString(HikeConstants.SCREEN);
-
-			if (activityName.equals(HIKESCREEN.SETTING.toString()))
+			@Override
+			public void run()
 			{
-				IntentFactory.openSetting(context);
+				PlatformUtils.openActivity(weakActivity.get(), data);
 			}
-
-			if (activityName.equals(HIKESCREEN.ACCOUNT.toString()))
+		});
+	}
+	
+	/**
+	 * This function can be used to start a hike native contact chooser/picker which will show all hike contacts to user and user can select few contacts (minimum 1). It will call
+	 * JavaScript function "onContactChooserResult(int resultCode,JsonArray array)" This JSOnArray contains list of JSONObject where each JSONObject reflects one user. As of now
+	 * each JSON will have name and platform_id, e.g : [{'name':'Paul','platform_id':'dvgd78as'}] resultCode will be 0 for fail and 1 for success NOTE : JSONArray could be null as
+	 * well, a micro app has to take care of this instance and startContactChooser not present
+	 */
+	@JavascriptInterface
+	public void startContactChooser()
+	{
+		Activity activity = weakActivity.get();
+		if (activity != null)
+		{
+			Intent intent = IntentFactory.getComposeChatIntent(activity);
+			intent.putExtra(HikeConstants.Extras.COMPOSE_MODE, ComposeChatActivity.PICK_CONTACT_MODE);
+			intent.putExtra(tag, JavascriptBridge.this.hashCode());
+			intent.putExtra(REQUEST_CODE, PICK_CONTACT_REQUEST);
+			activity.startActivityForResult(intent, HikeConstants.PLATFORM_REQUEST);
+		}
+	}
+	
+	public void onActivityResult(int resultCode, Intent data)
+	{
+		int requestCode = data.getIntExtra(REQUEST_CODE, -1);
+		if (requestCode != -1)
+		{
+			switch (requestCode)
 			{
-				IntentFactory.openSettingAccount(context);
-			}
-			if (activityName.equals(HIKESCREEN.FREE_SMS.toString()))
-			{
-				IntentFactory.openSettingSMS(context);
-			}
-			if (activityName.equals(HIKESCREEN.MEDIA.toString()))
-			{
-				IntentFactory.openSettingMedia(context);
-			}
-			if (activityName.equals(HIKESCREEN.NOTIFICATION.toString()))
-			{
-				IntentFactory.openSettingNotification(context);
-			}
-			if (activityName.equals(HIKESCREEN.PRIVACY.toString()))
-			{
-				IntentFactory.openSettingPrivacy(context);
-			}
-			if (activityName.equals(HIKESCREEN.TIMELINE.toString()))
-			{
-				IntentFactory.openTimeLine(context);
-			}
-			if (activityName.equals(HIKESCREEN.NEWGRP.toString()))
-			{
-				context.startActivity(new Intent(context, CreateNewGroupOrBroadcastActivity.class));
-			}
-			if (activityName.equals(HIKESCREEN.INVITEFRNDS.toString()))
-			{
-				context.startActivity(new Intent(context, TellAFriend.class));
-			}
-			if (activityName.equals(HIKESCREEN.REWARDS_EXTRAS.toString()))
-			{
-				context.startActivity(IntentFactory.getRewardsIntent(context));
-			}
-			if (activityName.equals(HIKESCREEN.STICKER_SHOP.toString()))
-			{
-				context.startActivity(IntentFactory.getStickerShopIntent(context));
-			}
-			if (activityName.equals(HIKESCREEN.STICKER_SHOP_SETTINGS.toString()))
-			{
-				context.startActivity(IntentFactory.getStickerSettingIntent(context));
-			}
-			if (activityName.equals(HIKESCREEN.STATUS.toString()))
-			{
-				context.startActivity(new Intent(context, StatusUpdate.class));
-			}
-			if (activityName.equals(HIKESCREEN.HIDDEN_MODE.toString()))
-			{
-				if (context instanceof HomeActivity)
-				{
-					((HomeActivity) context).hikeLogoClicked();
-				}
-			}
-			if (activityName.equals(HIKESCREEN.COMPOSE_CHAT.toString()))
-			{
-				context.startActivity(IntentFactory.getComposeChatIntent(context));
-			}
-			if (activityName.equals(HIKESCREEN.INVITE_SMS.toString()))
-			{
-				boolean selectAll = mmObject.optBoolean(ProductPopupsConstants.SELECTALL, false);
-				Intent intent = new Intent(context, HikeListActivity.class);
-				intent.putExtra(ProductPopupsConstants.SELECTALL, selectAll);
-				context.startActivity(intent);
-			}
-			if (activityName.equals(HIKESCREEN.FAVOURITES.toString()))
-			{
-				context.startActivity(IntentFactory.getFavouritesIntent(context));
-			}
-			if (activityName.equals(HIKESCREEN.HOME_SCREEN.toString()))
-			{
-				context.startActivity(Utils.getHomeActivityIntent(context));
-			}
-			if (activityName.equals(HIKESCREEN.PROFILE_PHOTO.toString()))
-			{
-
-				Intent intent =IntentFactory.getProfileIntent(context);
-				if (mmObject.optBoolean(ProductPopupsConstants.SHOW_CAMERA, false))
-				{
-					intent.putExtra(ProductPopupsConstants.SHOW_CAMERA, true);
-				}
-				context.startActivity(intent);
-
-			}
-			if (activityName.equals(HIKESCREEN.EDIT_PROFILE.toString()))
-			{
-				Intent intent =IntentFactory.getProfileIntent(context);
-				intent.putExtra(HikeConstants.Extras.EDIT_PROFILE, true);
-				context.startActivity(intent);
-
-			}
-			if (activityName.equals(HIKESCREEN.INVITE_WHATSAPP.toString()))
-			{
-				IntentFactory.openInviteWatsApp(context);
-			}
-			if (activityName.equals(HIKESCREEN.OPENINBROWSER.toString()))
-			{
-				String url = mmObject.optString(HikeConstants.URL);
-
-				if (!TextUtils.isEmpty(url))
-				{
-					Intent in = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-					context.startActivity(in);
-				}
-			}
-			if (activityName.equals(HIKESCREEN.OPENAPPSTORE.toString()))
-			{
-				String url = mmObject.optString(HikeConstants.URL);
-
-				if (!TextUtils.isEmpty(url))
-				{
-					Utils.launchPlayStore(url, context);
-				}
-			}
-			if (activityName.equals(HIKESCREEN.HELP.toString()))
-			{
-				IntentFactory.openSettingHelp(context);
-			}
-			if (activityName.equals(HIKESCREEN.NUXINVITE.toString()))
-			{
-				context.startActivity(IntentFactory.openNuxFriendSelector(context));
-			}
-			if (activityName.equals(HIKESCREEN.NUXREMIND.toString()))
-			{
-				context.startActivity(IntentFactory.openNuxCustomMessage(context));
-			}
-			if(activityName.equals(HIKESCREEN.BROADCAST.toString()))
-			{
-				IntentFactory.createBroadcastDefault(context);
+			case PICK_CONTACT_REQUEST:
+				handlePickContactResult(resultCode, data);
+				break;
 			}
 		}
-		catch (JSONException e)
-		{
-			e.printStackTrace();
-		}
-		catch (ActivityNotFoundException e)
-		{
-			Toast.makeText(context, "No activity found", Toast.LENGTH_SHORT).show();
-			e.printStackTrace();
-		}
-
 	}
 
+	private void handlePickContactResult(int resultCode, Intent data)
+	{
+		Logger.i(tag, "pick contact result " + data.getExtras().toString());
+		if (resultCode == Activity.RESULT_OK)
+		{
+			mWebView.loadUrl("javascript:onContactChooserResult('1','" + data.getStringExtra(HikeConstants.HIKE_CONTACT_PICKER_RESULT) + "')");
+		}
+		else
+		{
+			mWebView.loadUrl("javascript:onContactChooserResult('0','[]')");
+		}
+	}
 	
-	
-	
+	protected void startComPoseChatActivity(final ConvMessage message)
+	{
+		if (null == mHandler)
+		{
+			return;
+		}
 
+		mHandler.post(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				Activity mContext = weakActivity.get();
+				if (mContext != null)
+				{
+					final Intent intent = IntentFactory.getForwardIntentForConvMessage(mContext, message, PlatformContent.getForwardCardData(message.webMetadata.JSONtoString()));
+					mContext.startActivity(intent);
+				}
+			}
+		});
+	}
+	
 }

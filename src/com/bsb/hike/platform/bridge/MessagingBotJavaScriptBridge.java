@@ -2,12 +2,10 @@ package com.bsb.hike.platform.bridge;
 
 import java.util.ArrayList;
 
-import com.bsb.hike.platform.CustomWebView;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Pair;
@@ -20,16 +18,15 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformAlarmManager;
+import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.WebMetadata;
 import com.bsb.hike.platform.WebViewCardRenderer.WebViewHolder;
-import com.bsb.hike.platform.content.PlatformContent;
-import com.bsb.hike.ui.ComposeChatActivity;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
@@ -37,25 +34,21 @@ import com.bsb.hike.utils.Utils;
  * API bridge that connects the javascript to the Native environment. Make the instance of this class and add it as the JavaScript interface of the Card WebView.
  */
 
-public class PlatformJavaScriptBridge extends JavascriptBridge
+public class MessagingBotJavaScriptBridge extends JavascriptBridge
 {
 
 	public static final String tag = "platformbridge";
 	
-	private static final String REQUEST_CODE = "request_code";
-	
-	private static final int PICK_CONTACT_REQUEST = 1;
-
 	ConvMessage message;
 
 	BaseAdapter adapter;
 
-	public PlatformJavaScriptBridge(Activity activity,CustomWebView mWebView)
+	public MessagingBotJavaScriptBridge(Activity activity,CustomWebView mWebView)
 	{
 		super(activity,mWebView);
 	}
 
-	public PlatformJavaScriptBridge(Activity activity,CustomWebView webView, ConvMessage convMessage, BaseAdapter adapter)
+	public MessagingBotJavaScriptBridge(Activity activity,CustomWebView webView, ConvMessage convMessage, BaseAdapter adapter)
 	{
 		super(activity,webView);
 		this.message = convMessage;
@@ -170,10 +163,12 @@ public class PlatformJavaScriptBridge extends JavascriptBridge
 		try
 		{
 			Logger.i(tag, "update metadata called " + json + " , message id=" + message.getMsgID());
-			String updatedJSON = HikeConversationsDatabase.getInstance().updateHelperData((message.getMsgID()), json);
-			if (updatedJSON != null)
+			String originalmetadata = HikeConversationsDatabase.getInstance().getMetadataOfMessage(message.getMsgID());
+			originalmetadata = PlatformUtils.updateHelperData(json, originalmetadata);
+			if (originalmetadata != null)
 			{
-				message.webMetadata = new WebMetadata(updatedJSON);
+				HikeConversationsDatabase.getInstance().updateMetadataOfMessage(message.getMsgID(), originalmetadata);
+				message.webMetadata = new WebMetadata(originalmetadata);
 			}
 
 		}
@@ -288,28 +283,8 @@ public class PlatformJavaScriptBridge extends JavascriptBridge
 					message.webMetadata = new WebMetadata(updatedJSON);
 				}
 			}
-			
 
-			if (null == mHandler)
-			{
-				return;
-			}
-
-			mHandler.post(new Runnable()
-			{
-				@Override
-				public void run()
-				{
-					Activity mContext = weakActivity.get();
-					if(mContext!=null)
-					{
-						final Intent intent = IntentFactory.getForwardIntentForConvMessage(mContext, message,
-							PlatformContent.getForwardCardData(message.webMetadata.JSONtoString()));
-						mContext.startActivity(intent);
-					}
-				}
-			});
-
+			startComPoseChatActivity(message);
 		}
 		catch (JSONException e)
 		{
@@ -325,8 +300,7 @@ public class PlatformJavaScriptBridge extends JavascriptBridge
 	public void muteChatThread()
 	{
 
-		HikeMessengerApp.getPubSub().publish(HikePubSub.MUTE_BOT,
-				null);
+		HikeMessengerApp.getPubSub().publish(HikePubSub.MUTE_BOT, message.getMsisdn());
 
 	}
 
@@ -380,29 +354,6 @@ public class PlatformJavaScriptBridge extends JavascriptBridge
 
 	}
 	
-	/**
-	 * This function can be used to start a hike native contact chooser/picker which will show all hike contacts to user and user can select few contacts (minimum 1). 
-	 * It will call JavaScript function "onContactChooserResult(int resultCode,JsonArray array)"
-	 * This JSOnArray contains list of JSONObject where each JSONObject reflects one user.
-	 * As of now each JSON will have name and platform_id, e.g : [{'name':'Paul','platform_id':'dvgd78as'}]
-	 * resultCode will be 0 for fail and 1 for success
-	 * NOTE : JSONArray could be null as well, a micro app has to take care of this instance and        
-	 * startContactChooser not present
-	 */
-	@JavascriptInterface
-	public void startContactChooser()
-	{
-		Activity activity = weakActivity.get();
-		if(activity!=null)
-		{
-				Intent intent = IntentFactory.getComposeChatIntent(activity);
-				intent.putExtra(HikeConstants.Extras.COMPOSE_MODE, ComposeChatActivity.PICK_CONTACT_MODE);
-				intent.putExtra(tag,PlatformJavaScriptBridge.this.hashCode());
-				intent.putExtra(REQUEST_CODE, PICK_CONTACT_REQUEST);
-				activity.startActivityForResult(intent, HikeConstants.PLATFORM_REQUEST);
-		}
-	}
-
 	public void setData()
 	{
 		mWebView.loadUrl("javascript:setData('" + message.getMsisdn() + "','" + message.webMetadata.getHelperData().toString() + "','" + message.isSent() + "','" +
@@ -444,30 +395,4 @@ public class PlatformJavaScriptBridge extends JavascriptBridge
 		this.message = message;
 	}
 	
-	public void onActivityResult(int resultCode, Intent data)
-	{
-		int requestCode = data.getIntExtra(REQUEST_CODE, -1);
-		if(requestCode!=-1)
-		{
-			switch(requestCode)
-			{
-			case PICK_CONTACT_REQUEST:
-				handlePickContactResult(resultCode, data);
-				break;
-			}
-		}
-	}
-	
-	private void handlePickContactResult(int resultCode,Intent data)
-	{
-		Logger.i(tag, "pick contact result "+data.getExtras().toString());
-		if (resultCode == Activity.RESULT_OK)
-		{
-			mWebView.loadUrl("javascript:onContactChooserResult('1','"+data.getStringExtra(HikeConstants.HIKE_CONTACT_PICKER_RESULT)+"')");
-		}
-		else
-		{
-			mWebView.loadUrl("javascript:onContactChooserResult('0','[]')");
-		}
-	}
 }
