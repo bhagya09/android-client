@@ -350,8 +350,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 	public void showProfileImageEditDialog(android.content.DialogInterface.OnClickListener listener, Context ctx, String msisdn, String removeImagePath)
 	{
 		mRemoveImagePath = removeImagePath;		
- 		mLocalMSISDN = msisdn;
- 		
+		
 		AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
 		builder.setTitle(R.string.profile_photo);
 
@@ -703,5 +702,25 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 		Editor ed = prefs.getPref().edit();
 		ed.putString(HikeMessengerApp.DP_CHANGE_STATUS_ID, "");
 		ed.commit();
+	}
+	
+	/**
+	 * Sets the local msisdn for the profile
+	 * @param msisdn
+	 */
+	protected void setLocalMsisdn(String msisdn)
+	{
+		this.mLocalMSISDN = msisdn;
+	}
+	
+	@Override
+	protected void onDestroy()
+	{
+		if (mDialog != null)
+		{
+			mDialog.dismiss();
+			mDialog = null;
+		}
+		super.onDestroy();
 	}
 }

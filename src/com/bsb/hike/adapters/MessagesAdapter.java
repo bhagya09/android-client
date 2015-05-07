@@ -1892,11 +1892,10 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				}
 			}
 			
-			CharSequence markedUp = convMessage.getMessage();
+			CharSequence markedUp = getSpannableSearchString(convMessage.getMessage());
 			SmileyParser smileyParser = SmileyParser.getInstance();
 			markedUp = smileyParser.addSmileySpans(markedUp, false);
 			textHolder.text.setText(markedUp);
-			checkIfContainsSearchText(textHolder.text);
 
 			Linkify.addLinks(textHolder.text, Linkify.ALL);
 			Linkify.addLinks(textHolder.text, Utils.shortCodeRegex, "tel:");
@@ -2621,16 +2620,23 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 	private void checkIfContainsSearchText(TextView tv)
 	{
-		String text = tv.getText().toString();
-		if (!TextUtils.isEmpty(searchText) && text.toLowerCase().contains(searchText))
+		CharSequence text = tv.getText();
+		if (!TextUtils.isEmpty(searchText) && text.toString().toLowerCase().contains(searchText))
 		{
-			SpannableString spanText = new SpannableString(text);
-
+			SpannableString spanText = getSpannableSearchString(text);
+			tv.setText(spanText, TextView.BufferType.SPANNABLE);
+		}
+	}
+	
+	private SpannableString getSpannableSearchString(CharSequence text)
+	{
+		SpannableString spanText = new SpannableString(text);
+		if (!TextUtils.isEmpty(searchText) && text.toString().toLowerCase().contains(searchText))
+		{
 			int startSpanIndex = 0;
-
 			while (startSpanIndex != -1)
 			{
-				startSpanIndex = text.toLowerCase().indexOf(searchText, startSpanIndex);
+				startSpanIndex = text.toString().toLowerCase().indexOf(searchText, startSpanIndex);
 				if (startSpanIndex != -1)
 				{
 					spanText.setSpan(new BackgroundColorSpan(context.getResources().getColor(R.color.text_bg)), startSpanIndex, startSpanIndex + searchText.length(),
@@ -2638,8 +2644,8 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					startSpanIndex += searchText.length();
 				}
 			}
-			tv.setText(spanText, TextView.BufferType.SPANNABLE);
 		}
+		return spanText;
 	}
 
 	private void setGroupParticipantName(ConvMessage convMessage, View participantDetails, TextView participantName, TextView participantNameUnsaved,
@@ -3389,7 +3395,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				ArrayList<HikeSharedFile> hsf = new ArrayList<HikeSharedFile>();
 				hsf.add(new HikeSharedFile(hikeFile.serialize(), hikeFile.isSent(), convMessage.getMsgID(), convMessage.getMsisdn(), convMessage.getTimestamp(), convMessage
 						.getGroupParticipantMsisdn()));
-				PhotoViewerFragment.openPhoto(R.id.chatThreadParentLayout, context, hsf, true, conversation);
+				PhotoViewerFragment.openPhoto(R.id.ct_parent_rl, context, hsf, true, conversation);
 			}
 			else
 			{

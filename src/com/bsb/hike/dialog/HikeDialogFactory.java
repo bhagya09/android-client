@@ -2,9 +2,6 @@ package com.bsb.hike.dialog;
 
 import java.util.ArrayList;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
@@ -42,17 +39,12 @@ import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.adapters.AccountAdapter;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
-import com.bsb.hike.analytics.AnalyticsConstants.ProfileImageActions;
-import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.AccountData;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfoData;
 import com.bsb.hike.models.PhonebookContact;
-import com.bsb.hike.models.StatusMessage;
-import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.tasks.SyncOldSMSTask;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.CustomFontTextView;
 
@@ -118,7 +110,9 @@ public class HikeDialogFactory
 
 	public static final int DELETE_BROADCAST_DIALOG = 32;
 	
-	public static final int REMOVE_DP_CONFIRM_DIALOG = 33;
+	public static final int DELETE_FROM_BROADCAST = 33;
+	
+	public static final int REMOVE_DP_CONFIRM_DIALOG = 34;
 
 	public static HikeDialog showDialog(Context context, int whichDialog, Object... data)
 	{
@@ -176,6 +170,7 @@ public class HikeDialogFactory
 		case DELETE_PINS_DIALOG:
 		case DELETE_STATUS_DIALOG:
 		case DELETE_FROM_GROUP:
+		case DELETE_FROM_BROADCAST:
 		case DELETE_CHAT_DIALOG:
 		case DELETE_GROUP_DIALOG:
 		case DELETE_ALL_CONVERSATIONS:
@@ -904,7 +899,7 @@ public class HikeDialogFactory
 		{
 		case DELETE_FILES_DIALOG:
 			deleteConfirmDialog.setBody(((int) data[0] == 1) ? context.getString(R.string.confirm_delete_msg) : context.getString(R.string.confirm_delete_msgs, (int) data[0]));
-			deleteConfirmDialog.setHeader(R.string.confirm_delete_msgs_header);
+			deleteConfirmDialog.setHeader(((int) data[0] == 1) ? context.getString(R.string.confirm_delete_msg_header) : context.getString(R.string.confirm_delete_msgs_header, (int) data[0]));
 			deleteConfirmDialog.setCheckBox(R.string.delete_media_from_sdcard, true);
 			deleteConfirmDialog.setOkButton(R.string.delete, positiveListener);
 			deleteConfirmDialog.setCancelButton(R.string.cancel, negativeListener);
@@ -912,7 +907,7 @@ public class HikeDialogFactory
 			
 		case DELETE_PINS_DIALOG:
 			deleteConfirmDialog.setBody(((int) data[0] == 1) ? context.getString(R.string.confirm_delete_pin) : context.getString(R.string.confirm_delete_pins, (int) data[0]));
-			deleteConfirmDialog.setHeader(R.string.confirm_delete_pin_header);
+			deleteConfirmDialog.setHeader(((int) data[0] == 1) ? context.getString(R.string.confirm_delete_pin_header) : context.getString(R.string.confirm_delete_pins_header, (int) data[0]));
 			deleteConfirmDialog.setOkButton(R.string.delete, positiveListener);
 			deleteConfirmDialog.setCancelButton(R.string.cancel, negativeListener);
 			break;
@@ -927,6 +922,13 @@ public class HikeDialogFactory
 		case DELETE_FROM_GROUP:
 			deleteConfirmDialog.setHeader(R.string.remove_from_group);
 			deleteConfirmDialog.setBody(context.getString(R.string.remove_confirm, (String) data[0]));
+			deleteConfirmDialog.setOkButton(R.string.yes, positiveListener);
+			deleteConfirmDialog.setCancelButton(R.string.no, negativeListener);
+			break;
+		
+		case DELETE_FROM_BROADCAST:
+			deleteConfirmDialog.setHeader(R.string.remove_from_broadcast);
+			deleteConfirmDialog.setBody(context.getString(R.string.remove_confirm_broadcast, (String) data[0]));
 			deleteConfirmDialog.setOkButton(R.string.yes, positiveListener);
 			deleteConfirmDialog.setCancelButton(R.string.no, negativeListener);
 			break;

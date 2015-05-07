@@ -15,6 +15,7 @@ import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikePacket;
 import com.bsb.hike.models.MessagePrivateData;
+import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
@@ -23,6 +24,8 @@ import com.bsb.hike.utils.Utils;
 public class MsgRelLogManager
 {
 	private static final String TAG = "MsgRelLogManager";
+	
+	private static final String DEFAULT_MSISDN_VALUE = "-1";
 	
 	public static Random randomGenerator = new Random();
 	
@@ -38,8 +41,6 @@ public class MsgRelLogManager
 		{
 			if (isMessageToBeTracked(msgType))
 			{
-				Logger.d(AnalyticsConstants.MSG_REL_TAG, "===========================================");
-				Logger.d(AnalyticsConstants.MSG_REL_TAG, "Starting message sending");
 				if (convMessage.getPrivateData() == null)
 				{
 					convMessage.setPrivateData(new MessagePrivateData(UUID.randomUUID().toString(), msgType));
@@ -77,9 +78,10 @@ public class MsgRelLogManager
 				JSONObject pdObject = jsonObj.optJSONObject(HikeConstants.PRIVATE_DATA);
 				String trackId = pdObject.optString(HikeConstants.MSG_REL_UID);
 				String msgType = pdObject.optString(HikeConstants.MSG_REL_MSG_TYPE);
+				String msisdn = jsonObj.has(HikeConstants.TO) ? jsonObj.getString(HikeConstants.TO) : jsonObj.getString(HikeConstants.FROM);
 				if (trackId != null && msgID != -1)
 				{
-					recordMsgRel(trackId, eventType, msgType, "-1");
+					recordMsgRel(trackId, eventType, msgType, msisdn);
 				}
 			}
 		}
@@ -106,7 +108,7 @@ public class MsgRelLogManager
 				if (trackId != null)
 				{
 					long msgId = jsonObj.getLong(HikeConstants.MESSAGE_ID);
-					recordMsgRel(trackId, eventType, "-1");
+					recordMsgRel(trackId, eventType, DEFAULT_MSISDN_VALUE);
 				}
 			}
 		}
@@ -140,7 +142,7 @@ public class MsgRelLogManager
 	{
 		if (packet.getTrackId() != null)
 		{
-			recordMsgRel(packet.getTrackId(), eventType, "-1");
+			recordMsgRel(packet.getTrackId(), eventType, DEFAULT_MSISDN_VALUE);
 		}
 	}
 
@@ -180,12 +182,15 @@ public class MsgRelLogManager
 			// event type:- 0 to 19
 			metadata.put(AnalyticsConstants.REL_EVENT_STAGE, eventType);
 			
+			// adding app version
+			metadata.put(AnalyticsConstants.APP_VERSION_NAME, AccountUtils.getAppVersion());
+			
 			// con:- 2g/3g/4g/wifi/off
 			metadata.put(AnalyticsConstants.CONNECTION_TYPE, Utils.getNetworkType(HikeMessengerApp.getInstance().getApplicationContext()));
 			
 			HAManager.getInstance().record(AnalyticsConstants.MSG_REL, AnalyticsConstants.NON_UI_EVENT, EventPriority.HIGH, metadata, AnalyticsConstants.MSG_REL);
 			
-			Logger.d(AnalyticsConstants.MSG_REL_TAG, " --track: " + trackID + " --m_type: " + msgType + " --event_num: " + eventType + " --con_type: "
+			Logger.d(AnalyticsConstants.MSG_REL_TAG, " --track: " + trackID + "t_user: "+ msisdn + " --m_type: " + msgType + " --event_num: " + eventType + " --con_type: "
 					+ Utils.getNetworkType(HikeMessengerApp.getInstance().getApplicationContext()));
 		}
 		catch (JSONException e)
@@ -238,8 +243,6 @@ public class MsgRelLogManager
 	
 	public static void recordAckMsgRelEvent(HikePacket packet)
 	{
-		Logger.d(AnalyticsConstants.MSG_REL_TAG, "===========================================");
-		Logger.d(AnalyticsConstants.MSG_REL_TAG, "Ack Arrives, track_id:- " + packet.getTrackId());
 		if (HikeConstants.MqttMessageTypes.NEW_MESSAGE_READ.equals(packet.getMsgType()))
 		{
 			MsgRelLogManager.logPacketForMsgReliability(packet, MsgRelEventType.RECEIVER_MQTT_RECV_MSG_ACK);
@@ -252,8 +255,6 @@ public class MsgRelLogManager
 	
 	public static void recordPacketArrivedAtMqtt(HikePacket packet)
 	{
-		Logger.d(AnalyticsConstants.MSG_REL_TAG, "===========================================");
-		Logger.d(AnalyticsConstants.MSG_REL_TAG, "Packet Arrives at MQTT , track_id:- " + packet.getTrackId());
 		if (HikeConstants.MqttMessageTypes.NEW_MESSAGE_READ.equals(packet.getMsgType()))
 		{
 			MsgRelLogManager.logPacketForMsgReliability(packet, MsgRelEventType.RECEIVER_MQTT_RECV_MR_FROM_RECEIVER);

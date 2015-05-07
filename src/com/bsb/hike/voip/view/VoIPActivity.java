@@ -102,4 +102,11 @@ public class VoIPActivity extends HikeAppStateBaseFragmentActivity implements Ca
 	{
 		return isFragmentAdded(HikeConstants.VOIP_CALL_FAILED_FRAGMENT_TAG);
 	}
+
+	@Override
+	protected void onStop() 
+	{
+		super.onStop();
+		removeCallFailedFragment();
+	}
 }

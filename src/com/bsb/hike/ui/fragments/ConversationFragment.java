@@ -16,13 +16,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.AlertDialog;
-import android.app.NotificationManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Message;
 import android.provider.ContactsContract;
@@ -47,6 +45,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.Filter.FilterListener;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListAdapter;
@@ -107,95 +106,17 @@ import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.HoloCircularProgress;
 
-public class ConversationFragment extends SherlockListFragment implements OnItemLongClickListener, Listener, OnScrollListener, HikeFragmentable, OnClickListener, ConversationTipClickedListener
+public class ConversationFragment extends SherlockListFragment implements OnItemLongClickListener, Listener, OnScrollListener, HikeFragmentable, OnClickListener, ConversationTipClickedListener, FilterListener
 {
-
-	private class DeleteConversationsAsyncTask extends AsyncTask<ConvInfo, Void, ConvInfo[]>
-	{
-
-		Context context;
-
-		boolean publishStealthEvent;
-
-		public DeleteConversationsAsyncTask(Context context)
-		{
-			this(context, true);
-		}
-
-		public DeleteConversationsAsyncTask(Context context, boolean publishStealthEvent)
-		{
-			/*
-			 * Using application context since that will never be null while the task is running.
-			 */
-			this.context = context.getApplicationContext();
-			this.publishStealthEvent = publishStealthEvent;
-		}
-
-		@Override
-		protected ConvInfo[] doInBackground(ConvInfo... convs)
-		{
-			HikeConversationsDatabase db = null;
-			ArrayList<String> msisdns = new ArrayList<String>(convs.length);
-			Editor editor = context.getSharedPreferences(HikeConstants.DRAFT_SETTING, Context.MODE_PRIVATE).edit();
-			for (ConvInfo conv : convs)
-			{
-				
-				 if (conv instanceof OneToNConvInfo)
-				{
-					//TODO in case of leaving group from group info screen ==> 2 gcl event will trigger
-					//we can avoid these by moving delete conversation task to db
-					HikeMqttManagerNew.getInstance().sendMessage(conv.serialize(HikeConstants.MqttMessageTypes.GROUP_CHAT_LEAVE), MqttConstants.MQTT_QOS_ONE);
-				}
-
-				msisdns.add(conv.getMsisdn());
-				editor.remove(conv.getMsisdn());
-			}
-			editor.commit();
-
-			db = HikeConversationsDatabase.getInstance();
-			db.deleteConversation(msisdns);
-
-			ContactManager.getInstance().removeContacts(msisdns);
-			return convs;
-		}
-
-		@Override
-		protected void onPostExecute(ConvInfo[] deleted)
-		{
-			if (!isAdded())
-			{
-				return;
-			}
-			NotificationManager mgr = (NotificationManager) getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
-			for (ConvInfo convInfo : deleted)
-			{
-				mAdapter.remove(convInfo);
-				mConversationsByMSISDN.remove(convInfo.getMsisdn());
-				mConversationsAdded.remove(convInfo.getMsisdn());
-				resetSearchIcon();
-
-				HikeMessengerApp.removeStealthMsisdn(convInfo.getMsisdn(), publishStealthEvent);
-				stealthConversations.remove(convInfo);
-			}
-
-			notifyDataSetChanged();
-
-			if (mAdapter.getCount() == 0)
-			{
-				setEmptyState();
-			}
-		}
-	}
-
 	private String[] pubSubListeners = { HikePubSub.MESSAGE_RECEIVED, HikePubSub.SERVER_RECEIVED_MSG, HikePubSub.MESSAGE_DELIVERED_READ, HikePubSub.MESSAGE_DELIVERED,
-			HikePubSub.NEW_CONVERSATION, HikePubSub.MESSAGE_SENT, HikePubSub.MSG_READ, HikePubSub.ICON_CHANGED, HikePubSub.ONETONCONV_NAME_CHANGED, HikePubSub.CONTACT_ADDED,
-			HikePubSub.LAST_MESSAGE_DELETED, HikePubSub.TYPING_CONVERSATION, HikePubSub.END_TYPING_CONVERSATION, HikePubSub.GROUP_LEFT,
-			HikePubSub.FTUE_LIST_FETCHED_OR_UPDATED, HikePubSub.CLEAR_CONVERSATION, HikePubSub.CONVERSATION_CLEARED_BY_DELETING_LAST_MESSAGE, 
-			HikePubSub.DISMISS_STEALTH_FTUE_CONV_TIP, HikePubSub.SHOW_STEALTH_FTUE_CONV_TIP, HikePubSub.STEALTH_MODE_TOGGLED, HikePubSub.CLEAR_FTUE_STEALTH_CONV,
-			HikePubSub.RESET_STEALTH_INITIATED, HikePubSub.RESET_STEALTH_CANCELLED, HikePubSub.REMOVE_WELCOME_HIKE_TIP, HikePubSub.REMOVE_STEALTH_INFO_TIP,
-			HikePubSub.REMOVE_STEALTH_UNREAD_TIP, HikePubSub.BULK_MESSAGE_RECEIVED, HikePubSub.ONETON_MESSAGE_DELIVERED_READ, HikePubSub.BULK_MESSAGE_DELIVERED_READ, HikePubSub.GROUP_END,
-			HikePubSub.CONTACT_DELETED,HikePubSub.MULTI_MESSAGE_DB_INSERTED, HikePubSub.SERVER_RECEIVED_MULTI_MSG, HikePubSub.MUTE_CONVERSATION_TOGGLED, HikePubSub.CONV_UNREAD_COUNT_MODIFIED,
-			HikePubSub.CONVERSATION_TS_UPDATED, HikePubSub.PARTICIPANT_JOINED_ONETONCONV, HikePubSub.PARTICIPANT_LEFT_ONETONCONV};
+			HikePubSub.NEW_CONVERSATION, HikePubSub.MESSAGE_SENT, HikePubSub.MSG_READ, HikePubSub.ICON_CHANGED, HikePubSub.CONTACT_ADDED,
+			HikePubSub.LAST_MESSAGE_DELETED, HikePubSub.TYPING_CONVERSATION, HikePubSub.END_TYPING_CONVERSATION, HikePubSub.GROUP_LEFT, HikePubSub.FTUE_LIST_FETCHED_OR_UPDATED,
+			HikePubSub.CLEAR_CONVERSATION, HikePubSub.CONVERSATION_CLEARED_BY_DELETING_LAST_MESSAGE, HikePubSub.DISMISS_STEALTH_FTUE_CONV_TIP,
+			HikePubSub.SHOW_STEALTH_FTUE_CONV_TIP, HikePubSub.STEALTH_MODE_TOGGLED, HikePubSub.CLEAR_FTUE_STEALTH_CONV, HikePubSub.RESET_STEALTH_INITIATED,
+			HikePubSub.RESET_STEALTH_CANCELLED, HikePubSub.REMOVE_WELCOME_HIKE_TIP, HikePubSub.REMOVE_STEALTH_INFO_TIP, HikePubSub.REMOVE_STEALTH_UNREAD_TIP,
+			HikePubSub.BULK_MESSAGE_RECEIVED, HikePubSub.BULK_MESSAGE_DELIVERED_READ, HikePubSub.GROUP_END, HikePubSub.CONTACT_DELETED,
+			HikePubSub.MULTI_MESSAGE_DB_INSERTED, HikePubSub.SERVER_RECEIVED_MULTI_MSG, HikePubSub.MUTE_CONVERSATION_TOGGLED, HikePubSub.CONV_UNREAD_COUNT_MODIFIED,
+			HikePubSub.CONVERSATION_TS_UPDATED, HikePubSub.CONVERSATION_DELETED, HikePubSub.DELETE_THIS_CONVERSATION };
 
 	private ConversationsAdapter mAdapter;
 
@@ -206,6 +127,10 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 	private Comparator<? super ConvInfo> mConversationsComparator;
 
 	private View emptyView;
+	
+	private View searchEmptyView;
+	
+	private ViewGroup emptyHolder;
 
 	private Set<ConvInfo> stealthConversations;
 
@@ -282,9 +207,19 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 
 	private void setSearchEmptyState()
 	{
-		ListView friendsList = (ListView) getView().findViewById(android.R.id.list);
-		View searchEmptyView = getView().findViewById(R.id.searchEmptyView);
-		searchEmptyView.setVisibility(View.VISIBLE);
+		emptyHolder = (ViewGroup) getView().findViewById(R.id.emptyViewHolder);
+		
+		searchEmptyView = getView().findViewById(R.id.searchEmptyView);
+		if(mAdapter.getCount() == 0)
+		{
+			emptyHolder.setVisibility(View.GONE);
+			searchEmptyView.setVisibility(View.VISIBLE);
+		}
+		else
+		{
+			emptyHolder.setVisibility(View.GONE);
+			searchEmptyView.setVisibility(View.GONE);
+		}
 		String emptyText = String.format(getActivity().getString(R.string.home_search_empty_text), searchText);
 		TextView emptyTextView = (TextView) searchEmptyView.findViewById(R.id.empty_search_txt);
 		if (!TextUtils.isEmpty(searchText))
@@ -300,7 +235,6 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		{
 			emptyTextView.setText(emptyText);
 		}
-		friendsList.setEmptyView(searchEmptyView);
 	}
 
 	private void bindNuxViews(final View root)
@@ -866,43 +800,35 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 
 		}
 	}
-
-	private void setEmptyState()
+	
+	private void setEmptyState(boolean isConvScreenEmpty)
 	{
 		// Adding wasViewSetup() safety check for an NPE here.
-		if (wasViewSetup())
+		if (!wasViewSetup())
 		{
-			if (emptyView == null)
-			{
-				ViewGroup emptyHolder = (ViewGroup) getView().findViewById(R.id.emptyViewHolder);
-				emptyView = LayoutInflater.from(getActivity()).inflate(R.layout.conversation_empty_view2, emptyHolder);
-				//emptyHolder.addView(emptyView);
-			}
-			
-			if (searchMode)
-			{
-				if (!TextUtils.isEmpty(searchText))
-				{
-					emptyView.setVisibility(View.GONE);
-					getView().findViewById(R.id.searchEmptyView).setVisibility(View.VISIBLE);
-					setSearchEmptyState();
-				}
-				else if (mConversationsByMSISDN.isEmpty())
-				{
-					getView().findViewById(R.id.searchEmptyView).setVisibility(View.GONE);
-					emptyView.setVisibility(View.VISIBLE);
-					ListView friendsList = (ListView) getView().findViewById(android.R.id.list);
-					friendsList.setEmptyView(emptyView);
-				}
-			}
-			else
-			{
-				getView().findViewById(R.id.searchEmptyView).setVisibility(View.GONE);
-				emptyView.setVisibility(View.VISIBLE);
-				ListView friendsList = (ListView) getView().findViewById(android.R.id.list);
-				friendsList.setEmptyView(emptyView);
-			}
+			return;
 		}
+		
+		searchEmptyView = getView().findViewById(R.id.searchEmptyView);
+		emptyHolder = (ViewGroup) getView().findViewById(R.id.emptyViewHolder);
+		
+		if(!isConvScreenEmpty)
+		{
+			searchEmptyView.setVisibility(View.GONE);
+			emptyHolder.setVisibility(View.GONE);	
+			return;
+		}
+
+		if (searchMode && !TextUtils.isEmpty(searchText))
+		{
+			setSearchEmptyState();
+		}
+		else
+		{
+			searchEmptyView.setVisibility(View.GONE);
+			emptyHolder.setVisibility(View.VISIBLE);
+		}
+		
 	}
 
 	private void setupFTUEEmptyView()
@@ -1056,7 +982,11 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 	@Override
 	public void onStop()
 	{
-		// TODO Auto-generated method stub
+		if (tipType == ConversationTip.STEALTH_FTUE_TIP)
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF);
+			removeStealthConvTip();
+		}
 		super.onStop();
 	}
 	
@@ -1065,6 +995,10 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 	{
 		super.onPause();
 
+		if (searchMode)
+		{
+			mAdapter.onQueryChanged("",this);
+		}
 		if(mAdapter != null)
 		{
 			mAdapter.getIconLoader().setExitTasksEarly(true);
@@ -1144,6 +1078,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 
 	public void setupSearch()
 	{
+		checkAndRemoveExistingHeaders();
 		if (mAdapter != null)
 		{
 			searchMode = true;
@@ -1156,8 +1091,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		if (searchMode && mAdapter != null)
 		{
 			searchText = s.trim();
-			setEmptyState();
-			mAdapter.onQueryChanged(searchText);
+			mAdapter.onQueryChanged(searchText, this);
 		}
 	}
 
@@ -1167,97 +1101,96 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		{
 			searchText = null;
 			searchMode = false;
-			setEmptyState();
 			mAdapter.removeSearch();
+			setEmptyState(displayedConversations.isEmpty());
 		}
 	}
-// TODO
-//	private void resetStealthTipClicked()
-//	{
-//		long remainingTime = System.currentTimeMillis() - HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.RESET_COMPLETE_STEALTH_START_TIME, 0l);
-//
-//		if (remainingTime > HikeConstants.RESET_COMPLETE_STEALTH_TIME_MS)
-//		{
-//			Object[] dialogStrings = new Object[4];
-//			dialogStrings[0] = getString(R.string.reset_complete_stealth_header);
-//			dialogStrings[1] = getString(R.string.reset_stealth_confirmation);
-//			dialogStrings[2] = getString(R.string.confirm);
-//			dialogStrings[3] = getString(R.string.cancel);
-//
-//			HikeDialog.showDialog(getActivity(), HikeDialog.RESET_STEALTH_DIALOG, new HikeDialog.HikeDialogListener()
-//			{
-//
-//				@Override
-//				public void positiveClicked(Dialog dialog)
-//				{
-//					HikeAnalyticsEvent.sendStealthReset();
-//					resetStealthMode();
-//					dialog.dismiss();
-//				}
-//
-//				@Override
-//				public void neutralClicked(Dialog dialog)
-//				{
-//
-//				}
-//
-//				@Override
-//				public void negativeClicked(Dialog dialog)
-//				{
-//					removeTipIfExists(ConversationTip.RESET_STEALTH_TIP);
-//
-//					Utils.cancelScheduledStealthReset();
-//
-//					dialog.dismiss();
-//
-//					try
-//					{
-//						JSONObject metadata = new JSONObject();
-//						metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.RESET_STEALTH_CANCEL);
-//						HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
-//					}
-//					catch(JSONException e)
-//					{
-//						Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
-//					}
-//				}
-//
-//				@Override
-//				public void onSucess(Dialog dialog)
-//				{
-//					// TODO Auto-generated method stub
-//					
-//				}
-//			}, dialogStrings);
-//		}
-//	}
 
-//	TODO
-//	private void resetStealthMode()
-//	{
-//		removeTipIfExists(ConversationTip.RESET_STEALTH_TIP);
-//
-//		int prevStealthValue = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF);
-//
-//		resetStealthPreferences();
-//
-//		/*
-//		 * If previously the stealth mode was off, we should publish an event telling the friends fragment to refresh its list.
-//		 */
-//		if (prevStealthValue == HikeConstants.STEALTH_OFF)
-//		{
-//			HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_MODE_RESET_COMPLETE, null);
-//		}
-//
-//		/*
-//		 * Calling the delete conversation task in the end to ensure that we first publish the reset event. If the delete task was published at first, it was causing a threading
-//		 * issue where the contacts in the friends fragment were getting removed and not added again.
-//		 */
-//		DeleteConversationsAsyncTask task = new DeleteConversationsAsyncTask(getActivity(), false);
-//		task.execute(stealthConversations.toArray(new ConvInfo[0]));
-//
-//		HikeMessengerApp.clearStealthMsisdn();
-//	}
+	private void resetStealthTipClicked()
+	{
+		long remainingTime = System.currentTimeMillis() - HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.RESET_COMPLETE_STEALTH_START_TIME, 0l);
+
+		if (remainingTime > HikeConstants.RESET_COMPLETE_STEALTH_TIME_MS)
+		{
+			removeTipIfExists(ConversationTip.RESET_STEALTH_TIP);
+			
+			Object[] dialogStrings = new Object[4];
+			dialogStrings[0] = getString(R.string.reset_complete_stealth_header);
+			dialogStrings[1] = getString(R.string.reset_stealth_confirmation);
+			dialogStrings[2] = getString(R.string.confirm);
+			dialogStrings[3] = getString(R.string.cancel);
+		
+			HikeDialogFactory.showDialog(getActivity(), HikeDialogFactory.RESET_STEALTH_DIALOG, new HikeDialogListener()
+			{
+
+				@Override
+				public void positiveClicked(HikeDialog dialog)
+				{
+					HikeAnalyticsEvent.sendStealthReset();
+					resetStealthMode();
+					dialog.dismiss();
+				}
+
+				@Override
+				public void neutralClicked(HikeDialog dialog)
+				{
+
+				}
+
+				@Override
+				public void negativeClicked(HikeDialog dialog)
+				{
+					removeTipIfExists(ConversationTip.RESET_STEALTH_TIP);
+
+					Utils.cancelScheduledStealthReset();
+
+					dialog.dismiss();
+
+					try
+					{
+						JSONObject metadata = new JSONObject();
+						metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.RESET_STEALTH_CANCEL);
+						HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+					}
+					catch(JSONException e)
+					{
+						Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+					}
+				}
+
+				
+			}, dialogStrings);
+		}
+	}
+
+	private void resetStealthMode()
+	{
+		removeTipIfExists(ConversationTip.RESET_STEALTH_TIP);
+
+		int prevStealthValue = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF);
+
+		resetStealthPreferences();
+
+		/*
+		 * If previously the stealth mode was off, we should publish an event telling the friends fragment to refresh its list.
+		 */
+		if (prevStealthValue == HikeConstants.STEALTH_OFF)
+		{
+			HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_MODE_RESET_COMPLETE, null);
+		}
+
+		/*
+		 * Calling the delete conversation task in the end to ensure that we first publish the reset event. If the delete task was published at first, it was causing a threading
+		 * issue where the contacts in the friends fragment were getting removed and not added again.
+		 */
+		ConvInfo[] stealthConvs = stealthConversations.toArray(new ConvInfo[0]);
+		
+		for(ConvInfo convInfo : stealthConvs)
+		{
+			HikeMessengerApp.getPubSub().publish(HikePubSub.DELETE_THIS_CONVERSATION, convInfo);
+		}
+		HikeMessengerApp.clearStealthMsisdn();
+	}
 
 	private void resetStealthPreferences()
 	{
@@ -1307,7 +1240,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		{
 			optionsList.add(getString(conv.isStealth() ? R.string.unmark_stealth : R.string.mark_stealth));
 		}
-		if (!(conv instanceof OneToNConvInfo) && conv.getConversationName() == null)
+		if (!(conv instanceof OneToNConvInfo) && ContactManager.getInstance().isUnknownContact(conv.getMsisdn()))
 		{
 			optionsList.add(getString(R.string.add_to_contacts));
 			optionsList.add(getString(R.string.add_to_contacts_existing));
@@ -1330,10 +1263,10 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 					optionsList.add(getString(R.string.group_info));
 				}
 		}
-		if (conv.getConversationName() != null)
+		
+		if (conv.getLabel() != null)
 		{
 			optionsList.add(getString(R.string.shortcut));
-
 		}
 
 		if (!(conv instanceof OneToNConvInfo) && conv.getConversationName() == null)
@@ -1390,13 +1323,13 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 						public void positiveClicked(HikeDialog hikeDialog)
 						{
 							Utils.logEvent(getActivity(), HikeConstants.LogEvent.DELETE_CONVERSATION);
-							DeleteConversationsAsyncTask task = new DeleteConversationsAsyncTask(getActivity());
-							Utils.executeConvInfoAsyncTask(task, conv);
+							HikeMessengerApp.getPubSub().publish(HikePubSub.DELETE_THIS_CONVERSATION, conv);
 							hikeDialog.dismiss();
-                            if (Utils.isBot(conv.getMsisdn()))
-                            {
-                                BotConversation.analyticsForBots(conv, HikePlatformConstants.BOT_DELETE_CHAT, AnalyticsConstants.CLICK_EVENT);
-                            }
+							
+							if (Utils.isBot(conv.getMsisdn()))
+							{
+								BotConversation.analyticsForBots(conv, HikePlatformConstants.BOT_DELETE_CHAT, AnalyticsConstants.CLICK_EVENT);
+							}
 						}
 						
 						@Override
@@ -1421,7 +1354,8 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 						public void positiveClicked(HikeDialog hikeDialog)
 						{
 							Utils.logEvent(getActivity(), HikeConstants.LogEvent.DELETE_CONVERSATION);
-							deleteConversation(conv);
+							HikeMqttManagerNew.getInstance().sendMessage(conv.serialize(HikeConstants.MqttMessageTypes.GROUP_CHAT_LEAVE), MqttConstants.MQTT_QOS_ONE);
+							HikeMessengerApp.getPubSub().publish(HikePubSub.GROUP_LEFT, conv);
 							hikeDialog.dismiss();
 						}
 						
@@ -1447,7 +1381,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 						public void positiveClicked(HikeDialog hikeDialog)
 						{
 							Utils.logEvent(getActivity(), HikeConstants.LogEvent.DELETE_CONVERSATION);
-							deleteConversation(conv);
+							HikeMessengerApp.getPubSub().publish(HikePubSub.DELETE_THIS_CONVERSATION, conv);
 							hikeDialog.dismiss();
 						}
 						
@@ -1467,19 +1401,27 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 				{
 					EmailConversationsAsyncTask task = new EmailConversationsAsyncTask(getSherlockActivity(), ConversationFragment.this);
 					Utils.executeConvAsyncTask(task, conv);
-                    if (Utils.isBot(conv.getMsisdn()))
-                    {
-                        BotConversation.analyticsForBots(conv, HikePlatformConstants.BOT_EMAIL_CONVERSATION, AnalyticsConstants.CLICK_EVENT);
-                    }
+					
+					if (Utils.isBot(conv.getMsisdn()))
+					{
+						BotConversation.analyticsForBots(conv, HikePlatformConstants.BOT_EMAIL_CONVERSATION, AnalyticsConstants.CLICK_EVENT);
+					}
 				}
-				else if (getString(R.string.deleteconversations).equals(option))
-				{
-					Utils.logEvent(getActivity(), HikeConstants.LogEvent.DELETE_ALL_CONVERSATIONS_MENU);
-					DeleteAllConversations();
-				}
+				// UNUSED CODE
+//				else if (getString(R.string.deleteconversations).equals(option))
+//				{
+//					Utils.logEvent(getActivity(), HikeConstants.LogEvent.DELETE_ALL_CONVERSATIONS_MENU);
+//					DeleteAllConversations();
+//				}
 				else if (getString(R.string.viewcontact).equals(option))
 				{
+					if (conv.isBlocked())
+					{
+						Toast.makeText(getActivity(), getString(R.string.block_overlay_message, conv.getLabel()), Toast.LENGTH_SHORT).show();
+						return;
+					}
 					viewContacts(conv);
+					
                     if (Utils.isBot(conv.getMsisdn()))
                     {
                         BotConversation.analyticsForBots(conv, HikePlatformConstants.BOT_VIEW_PROFILE, AnalyticsConstants.CLICK_EVENT);
@@ -1488,6 +1430,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 				else if (getString(R.string.clear_whole_conversation).equals(option))
 				{
 					clearConversation(conv);
+					
 				    if (Utils.isBot(conv.getMsisdn()))
                     {
 				    	BotConversation.analyticsForBots(conv, HikePlatformConstants.BOT_CLEAR_CONVERSATION,  AnalyticsConstants.CLICK_EVENT);
@@ -1501,7 +1444,6 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 				{
 					addToContactsExisting(conv.getMsisdn());
 				}
-
 				else if (getString(R.string.group_info).equals(option) || getString(R.string.broadcast_info).equals(option))
 				{
 					if (!((OneToNConvInfo) conv).isConversationAlive())
@@ -1589,7 +1531,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 					HikeMessengerApp.getPubSub().publish(HikePubSub.UNBLOCK_USER, conv.getMsisdn());
 				}
 			}
-		});
+		});	
 
 		AlertDialog alertDialog = builder.show();
 		alertDialog.getListView().setDivider(getResources().getDrawable(R.drawable.ic_thread_divider_profile));
@@ -1628,6 +1570,12 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		displayedConversations = new ArrayList<ConvInfo>();
 		List<ConvInfo> conversationList = db.getConvInfoObjects();
 
+		for (ConvInfo convInfo : conversationList)
+		{
+			convInfo.setBlocked(ContactManager.getInstance().isBlocked(convInfo.getMsisdn()));
+
+		}
+		
 		stealthConversations = new HashSet<ConvInfo>();
 
 		displayedConversations.addAll(conversationList);
@@ -1645,7 +1593,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 
 		ShowTipIfNeeded(displayedConversations.isEmpty());
 		
-		mAdapter = new ConversationsAdapter(getActivity(), displayedConversations, stealthConversations, getListView());
+		mAdapter = new ConversationsAdapter(getActivity(), displayedConversations, stealthConversations, getListView(), this);
 
 		setListAdapter(mAdapter);
 
@@ -1653,10 +1601,8 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		getListView().setOnScrollListener(this);
 
 		HikeMessengerApp.getPubSub().addListeners(this, pubSubListeners);
-		if (displayedConversations.isEmpty())
-		{
-			setEmptyState();
-		}
+		setEmptyState(mAdapter.isEmpty());
+
 	}
 
 	private void ShowTipIfNeeded(boolean hasNoConversation)
@@ -1767,27 +1713,17 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		if (stealthValue == HikeConstants.STEALTH_OFF || stealthValue == HikeConstants.STEALTH_ON_FAKE)
 		{
 			mAdapter.removeStealthConversationsFromLists();
-
-			if (mAdapter.getCount() == 0)
-			{
-				setEmptyState();
-			}
 		}
 		else
 		{
 			mAdapter.addItemsToAnimat(stealthConversations);
 			mAdapter.addToLists(stealthConversations);
 		}
-
+		setEmptyState(mAdapter.isEmpty());
+		
 		resetSearchIcon();
 		mAdapter.sortLists(mConversationsComparator);
 		notifyDataSetChanged();
-	}
-
-	private void deleteConversation(ConvInfo conv)
-	{
-		DeleteConversationsAsyncTask task = new DeleteConversationsAsyncTask(getActivity());
-		Utils.executeConvInfoAsyncTask(task, conv);
 	}
 
 	private void toggleTypingNotification(boolean isTyping, TypingNotification typingNotification)
@@ -1854,6 +1790,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		{
 			return;
 		}
+		setEmptyState(mAdapter.isEmpty());
 		mAdapter.notifyDataSetChanged();
 	}
 
@@ -1981,9 +1918,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 				{
 					if (conversationEmpty)
 					{
-						mConversationsByMSISDN.remove(msisdn);
-						mConversationsAdded.remove(msisdn);
-						mAdapter.remove(convInfo);
+						clearConversation(msisdn);
 						notifyDataSetChanged();
 						resetSearchIcon();
 					}
@@ -2036,6 +1971,8 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 					}
 					mAdapter.addToLists(convInfo);
 					mAdapter.sortLists(mConversationsComparator);
+
+					setEmptyState(mAdapter.isEmpty());
 					notifyDataSetChanged();
 					resetSearchIcon();
 				}
@@ -2330,28 +2267,6 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 				}
 			});
 		}
-		else if (HikePubSub.GROUP_LEFT.equals(type))
-		{
-			String groupId = (String) object;
-			final ConvInfo convInfo = mConversationsByMSISDN.get(groupId);
-			if (convInfo == null)
-			{
-				return;
-			}
-
-			if (!isAdded())
-			{
-				return;
-			}
-			getActivity().runOnUiThread(new Runnable()
-			{
-				@Override
-				public void run()
-				{
-					deleteConversation(convInfo);
-				}
-			});
-		}
 		else if (HikePubSub.FTUE_LIST_FETCHED_OR_UPDATED.equals(type))
 		{
 			if (!isAdded())
@@ -2364,7 +2279,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 				@Override
 				public void run()
 				{
-					setEmptyState();
+					setEmptyState(mAdapter!=null && mAdapter.isEmpty());
 					setupFTUEEmptyView();
 				}
 			});
@@ -2814,14 +2729,21 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 				@Override
 				public void run()
 				{
+					if (convInfo instanceof OneToNConvInfo)
+					{
+						convInfo.setMute(isMuted);
+					}
+					else if (Utils.isBot(convInfo.getMsisdn()))
+					{
+						convInfo.setMute(isMuted);
+					}
+					
 					View parentView = getParenViewForConversation(convInfo);
 					if (parentView == null)
 					{
 						notifyDataSetChanged();
 						return;
 					}
-
-					convInfo.setMute(true);
 
 					notifyDataSetChanged();
 				}
@@ -2867,9 +2789,51 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 				}
 			});
 		}
+		else if (HikePubSub.CONVERSATION_DELETED.equals(type))
+		{
+			final ConvInfo delConv = (ConvInfo) object;
+			final String msisdn = delConv.getMsisdn();
+
+			if (!isAdded())
+			{
+				return;
+			}
+
+			getActivity().runOnUiThread(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					mAdapter.remove(delConv);
+					mConversationsByMSISDN.remove(msisdn);
+					mConversationsAdded.remove(msisdn);
+					resetSearchIcon();
+
+					HikeMessengerApp.removeStealthMsisdn(msisdn, false);
+					stealthConversations.remove(delConv);
+
+					notifyDataSetChanged();
+
+					if (mAdapter.getCount() == 0)
+					{
+						setEmptyState(mAdapter!=null && mAdapter.isEmpty());
+					}
+				}
+			});
+		}
+		else if (HikePubSub.BLOCK_USER.equals(type) || HikePubSub.UNBLOCK_USER.equals(type))
+		{
+			String mMsisdn = (String) object;
+			ConvInfo convInfo = mConversationsByMSISDN.get(mMsisdn);
+			if (convInfo != null)
+			{
+				convInfo.setBlocked(HikePubSub.BLOCK_USER.equals(type) ? true : false);
+			}
+		}
 	}
-	
-	private void unreadCountModified(Message message){
+
+	private void unreadCountModified(Message message)
+	{
 		String msisdn = (String) message.obj;
 		final ConvInfo convInfo = mConversationsByMSISDN.get(msisdn);
 		if (convInfo == null)
@@ -2972,8 +2936,9 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 			convTip = new ConversationTip(getActivity(), this);
 		}
 
-		tipType = ConversationTip.RESET_STEALTH_TIP;
 		checkAndRemoveExistingHeaders();
+		
+		tipType = ConversationTip.RESET_STEALTH_TIP;
 		tipView = convTip.getView(tipType);
 		if (tipView != null)
 		{
@@ -3205,6 +3170,8 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		{
 			sortAndUpdateTheView(convInfo, convMessage, newConversationAdded);
 		}
+		
+		setEmptyState(mAdapter.isEmpty());
 	}
 
 	public void movedFromEmptyToNonEmpty()
@@ -3233,11 +3200,12 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		}
 		else
 		{
-			if (!wasViewSetup())
+			//for cases when list view is null or index is -1 (stealth chats that are not displayes)
+			if (!wasViewSetup() || newIndex < 0)
 			{
 				return;
 			}
-
+			
 			View parentView = getListView().getChildAt(newIndex - getListView().getFirstVisiblePosition() + getOffsetForListHeader());
 
 			if (parentView == null)
@@ -3259,6 +3227,8 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		return getView() != null;
 	}
 
+	// NOT IN USE
+	/*
 	public void DeleteAllConversations()
 	{
 		if (!mAdapter.isEmpty())
@@ -3297,7 +3267,8 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 			});
 		}
 	}
-
+*/
+	
 	@Override
 	public void onResume()
 	{
@@ -3316,14 +3287,18 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 				editor.putInt(HikeConstants.HIKEBOT_CONV_STATE, hikeBotConvStat.DELETED.ordinal());
 				editor.commit();
 				Utils.logEvent(getActivity(), HikeConstants.LogEvent.DELETE_CONVERSATION);
-				DeleteConversationsAsyncTask task = new DeleteConversationsAsyncTask(getActivity());
-				Utils.executeConvInfoAsyncTask(task, convInfo);
+				HikeMqttManagerNew.getInstance().sendMessage(convInfo.serialize(HikeConstants.MqttMessageTypes.GROUP_CHAT_LEAVE), MqttConstants.MQTT_QOS_ONE);
+				HikeMessengerApp.getPubSub().publish(HikePubSub.GROUP_LEFT, convInfo);
 			}
+		}
+		if (searchMode)
+		{
+			mAdapter.onQueryChanged(searchText,this);
 		}
 		if(mAdapter != null)
 		{
 			mAdapter.getIconLoader().setExitTasksEarly(false);
-			mAdapter.notifyDataSetChanged();
+			notifyDataSetChanged();
 		}
 		super.onResume();
 	}
@@ -3421,17 +3396,17 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		{
 			return;
 		}
-
-		mAdapter.setIsListFlinging(velocity > HikeConstants.MAX_VELOCITY_FOR_LOADING_IMAGES_SMALL);
 	}
 
 	@Override
 	public void onScrollStateChanged(AbsListView view, int scrollState)
 	{
+		mAdapter.setIsListFlinging(velocity > HikeConstants.MAX_VELOCITY_FOR_LOADING_IMAGES_SMALL && scrollState == OnScrollListener.SCROLL_STATE_FLING);
 	}
 
 	private void removeTipIfExists(int whichTip)
 	{
+		
 		if (tipType != whichTip)
 		{
 			return;
@@ -3459,6 +3434,10 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 			default:
 				break;
 		}
+
+		getListView().removeHeaderView(tipView);
+		tipType = ConversationTip.NO_TIP;
+
 	}
 
 	@Override
@@ -3530,11 +3509,23 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 	{
 		if (tipView != null && tipType == whichTip)
 		{
-			getListView().removeHeaderView(tipView);
-			tipView = null;
 			removeTipIfExists(whichTip);
-			tipType = ConversationTip.NO_TIP;
 		}
+	}
+
+	@Override
+	public void clickTip(int whichTip) 
+	{	
+		if (tipView != null && whichTip == ConversationTip.RESET_STEALTH_TIP)
+		{
+			resetStealthTipClicked();
+		}
+		
+	}
+
+	@Override
+	public void onFilterComplete(int count) {
+		setEmptyState(mAdapter != null && mAdapter.isEmpty());
 	}
 
 }

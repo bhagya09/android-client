@@ -389,10 +389,16 @@ public class HikePubSub implements Runnable
 	public static final String PLATFORM_CARD_ALARM = "platformCardAlarm";
 
 	public static final String CONVERSATION_TS_UPDATED = "conversationTSUpdated";
+	
+	public static final String CONVERSATION_DELETED = "conversationDeleted";
+	
+	public static final String DELETE_THIS_CONVERSATION = "deleteThisConv";
 
 	public static final String MUTE_BOT = "muteBot";
 	
 	public static final String PARTICIPANT_JOINED_SYSTEM_MESSAGE = "participantJoinedSystemMsg";
+	
+	public static final String SHARED_WHATSAPP = "sharedWhatsApp";
 	
 	private final Thread mThread;
 

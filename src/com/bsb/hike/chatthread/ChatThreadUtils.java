@@ -18,7 +18,6 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.text.TextUtils;
 import android.util.Pair;
 import android.view.View;
 import android.view.animation.Animation;
@@ -41,7 +40,6 @@ import com.bsb.hike.analytics.MsgRelLogManager;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.filetransfer.FTAnalyticEvents;
 import com.bsb.hike.filetransfer.FileTransferManager;
-import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.HikeFile.HikeFileType;
@@ -154,13 +152,6 @@ public class ChatThreadUtils
 		{
 
 			convMessage.setMessage(message.substring(hashType.length()).trim());
-
-			if (TextUtils.isEmpty(convMessage.getMessage()))
-			{
-				Toast.makeText(context, R.string.text_empty_error, Toast.LENGTH_SHORT).show();
-				return false;
-			}
-
 			return true;
 		}
 		return false;
@@ -281,9 +272,9 @@ public class ChatThreadUtils
 		}
 	}
 
-	protected static boolean shouldShowLastSeen(Context context, FavoriteType mFavoriteType, boolean convOnHike)
+	protected static boolean shouldShowLastSeen(String msisdn, Context context, boolean convOnHike, boolean isBlocked)
 	{
-		if (convOnHike)
+		if (convOnHike && !isBlocked && !Utils.isBot(msisdn))
 		{
 			return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(HikeConstants.LAST_SEEN_PREF, true);
 		}
@@ -565,6 +556,11 @@ public class ChatThreadUtils
 		{
 			return HikeConstants.Extras.GROUP_CHAT_THREAD;
 		}
+		
+		else if (Utils.isBot(msisdn))
+		{
+			return HikeConstants.Extras.BOT_CHAT_THREAD;
+		}
 
 		return HikeConstants.Extras.ONE_TO_ONE_CHAT_THREAD;
 	}
@@ -605,8 +601,6 @@ public class ChatThreadUtils
 						{
 							dataMR.putOpt(String.valueOf(pair.first), pd);
 							// Logs for Msg Reliability
-							Logger.d(AnalyticsConstants.MSG_REL_TAG, "===========================================");
-							Logger.d(AnalyticsConstants.MSG_REL_TAG, "Receiver reads msg on after opening screen,track_id:- " + trackId);
 							MsgRelLogManager.recordMsgRel(trackId, MsgRelEventType.RECEIVER_OPENS_CONV_SCREEN, msisdn);
 						}
 						else
@@ -622,8 +616,6 @@ public class ChatThreadUtils
 			}
 
 			Logger.d("UnreadBug", "Unread count event triggered");
-			Logger.d(AnalyticsConstants.MSG_REL_TAG, "inside API setMessageRead in CT ===========================================");
-			Logger.d(AnalyticsConstants.MSG_REL_TAG, "Going to set MR/NMR as user is on chat screen ");
 
 			/*
 			 * If there are msgs which are RECEIVED UNREAD then only broadcast a msg that these are read avoid sending read notifications for group chats
@@ -662,5 +654,29 @@ public class ChatThreadUtils
 			e.printStackTrace();
 		}
 
+	}
+	
+	/**
+	 * Utility method for returning msisdn from action:SendTo intent which is invoked from outside the application
+	 * 
+	 * @param intent
+	 * @return
+	 */
+	public static String getMsisdnFromSendToIntent(Intent intent)
+	{
+		String smsToString = intent.getDataString();
+		smsToString = Uri.decode(smsToString);
+		int index = smsToString.indexOf(intent.getData().getScheme() + ":");
+		if (index != -1)
+		{
+			index += (intent.getData().getScheme() + ":").length();
+			String msisdn = smsToString.substring(index, smsToString.length());
+			if (msisdn != null)
+			{
+				return msisdn.trim();
+			}
+		}
+
+		return null;
 	}
 }
