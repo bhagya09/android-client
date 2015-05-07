@@ -570,7 +570,7 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
 
         changePasswordSetting = (Button) findViewById(R.id.alp_42447968_change_password_setting);
         
-        boolean isReset = getIntent().getBooleanExtra(HikeConstants.Extras.STEALTH_PASS_RESET, false);
+        final boolean isReset = getIntent().getBooleanExtra(HikeConstants.Extras.STEALTH_PASS_RESET, false);
         
         if(ACTION_COMPARE_PATTERN.equals(getIntent().getAction())) 
         {
@@ -634,12 +634,15 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
 					changeRetryToCancel();
 					getIntent().removeExtra(EXTRA_PATTERN);
 					mBtnConfirm.setEnabled(false);
-					if(!StealthModeManager.getInstance().isPinAsPassword())
+					if(mLockPinView.getVisibility() != View.VISIBLE)
 					{
 						mLockPatternView.setVisibility(View.GONE);
 						mLockPinView.setVisibility(View.VISIBLE);
 			        	changePasswordSetting.setText(getString(R.string.stealth_set_pattern));
-			        	StealthModeManager.getInstance().usePinAsPassword(true);
+			        	if(!isReset)
+			        	{
+			        		StealthModeManager.getInstance().usePinAsPassword(true);
+			        	}
 						mLockPatternView.clearPattern();
 			        	mLockPinView.requestFocus();
 			        	Utils.showSoftKeyboard(LockPatternActivity.this, mLockPinView);
@@ -652,7 +655,10 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
 						Utils.hideSoftKeyboard(LockPatternActivity.this, mLockPinView);
 						mLockPinView.setText("");
 			        	changePasswordSetting.setText(getString(R.string.stealth_set_pin));
-			        	StealthModeManager.getInstance().usePinAsPassword(false);
+			        	if(!isReset)
+			        	{
+			        		StealthModeManager.getInstance().usePinAsPassword(false);
+			        	}
 			        	mTextInfo.setText(R.string.stealth_msg_draw_an_unlock_pattern);
 					}
 				}
@@ -1244,6 +1250,7 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
                 } else {
                     final char[] pattern = getIntent().getCharArrayExtra(
                             EXTRA_PATTERN);
+                    StealthModeManager.getInstance().usePinAsPassword(mLockPatternView.getVisibility() != View.VISIBLE && mLockPinView.getVisibility() == View.VISIBLE);
                     if (mAutoSave)
                         Settings.Security.setPattern(LockPatternActivity.this,
                                 pattern);
