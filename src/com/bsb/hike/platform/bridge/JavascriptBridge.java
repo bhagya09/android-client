@@ -5,7 +5,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 
+import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.platform.CustomWebView;
+import com.bsb.hike.platform.content.PlatformContent;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -606,6 +609,28 @@ public abstract class JavascriptBridge
 		{
 			mWebView.loadUrl("javascript:onContactChooserResult('0','[]')");
 		}
+	}
+	
+	protected void startComPoseChatActivity(final ConvMessage message)
+	{
+		if (null == mHandler)
+		{
+			return;
+		}
+
+		mHandler.post(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				Activity mContext = weakActivity.get();
+				if (mContext != null)
+				{
+					final Intent intent = IntentFactory.getForwardIntentForConvMessage(mContext, message, PlatformContent.getForwardCardData(message.webMetadata.JSONtoString()));
+					mContext.startActivity(intent);
+				}
+			}
+		});
 	}
 
 }

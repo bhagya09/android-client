@@ -283,28 +283,8 @@ public class PlatformJavaScriptBridge extends JavascriptBridge
 					message.webMetadata = new WebMetadata(updatedJSON);
 				}
 			}
-			
 
-			if (null == mHandler)
-			{
-				return;
-			}
-
-			mHandler.post(new Runnable()
-			{
-				@Override
-				public void run()
-				{
-					Activity mContext = weakActivity.get();
-					if(mContext!=null)
-					{
-						final Intent intent = IntentFactory.getForwardIntentForConvMessage(mContext, message,
-							PlatformContent.getForwardCardData(message.webMetadata.JSONtoString()));
-						mContext.startActivity(intent);
-					}
-				}
-			});
-
+			startComPoseChatActivity(message);
 		}
 		catch (JSONException e)
 		{
