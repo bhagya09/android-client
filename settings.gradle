@@ -17,7 +17,6 @@ include 'services:webservice'
 */
 include ':android-client',':google-play',':cwac-camera',':actionbar-sherlock',':facebook',':viewpager-indicator-library'
 project(':google-play').projectDir = new File('./google-play-services_lib')
-project(':cwac-camera').projectDir = new File('./cwaccamera')
 project(':facebook').projectDir = new File('./facebook-android-sdk/facebook')
 project(':actionbar-sherlock').projectDir = new File('./actionbarsherlock library')
 project(':viewpager-indicator-library').projectDir = new File('./Android ViewPagerIndicator library')

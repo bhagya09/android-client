@@ -34,13 +34,14 @@ import android.text.TextUtils;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.MqttConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
-import com.bsb.hike.models.Conversation;
+import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.bsb.hike.utils.IntentManager;
+import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
@@ -177,7 +178,7 @@ public class VoIPUtils {
 			
 			ConvMessage convMessage = new ConvMessage(jsonObject, mConversation, context, selfGenerated);
 			convMessage.setShouldShowPush(shouldShowPush);
-			mConversationDb.addConversationMessages(convMessage);
+			mConversationDb.addConversationMessages(convMessage,true);
 			HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_RECEIVED, convMessage);
 		}
 		catch (JSONException e)
@@ -203,7 +204,7 @@ public class VoIPUtils {
 			message.put(HikeConstants.SUB_TYPE, HikeConstants.MqttMessageTypes.VOIP_MSG_TYPE_MISSED_CALL_INCOMING);
 			message.put(HikeConstants.DATA, data);
 			
-			HikeMqttManagerNew.getInstance().sendMessage(message, HikeMqttManagerNew.MQTT_QOS_ONE);
+			HikeMqttManagerNew.getInstance().sendMessage(message, MqttConstants.MQTT_QOS_ONE);
 			Logger.d(VoIPConstants.TAG, "Sent missed call notifier to partner.");
 			
 		} catch (JSONException e) {
@@ -347,11 +348,10 @@ public class VoIPUtils {
 
 	public static NotificationCompat.Action[] getMissedCallNotifActions(Context context, String msisdn)
 	{
-		Intent callIntent = IntentManager.getVoipCallIntent(context, msisdn, CallSource.MISSED_CALL_NOTIF);
+		Intent callIntent = IntentFactory.getVoipCallIntent(context, msisdn, CallSource.MISSED_CALL_NOTIF);
 		PendingIntent callPendingIntent = PendingIntent.getService(context, 0, callIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-		Intent messageIntent = IntentManager.getChatThreadIntent(context, msisdn);
-		messageIntent.putExtra(HikeConstants.Extras.SHOW_KEYBOARD, true);
+		Intent messageIntent = IntentFactory.createChatThreadIntentFromMsisdn(context, msisdn, true);
 		PendingIntent messagePendingIntent = PendingIntent.getActivity(context, 0, messageIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
 		NotificationCompat.Action actions[] = new NotificationCompat.Action[2];
@@ -432,7 +432,7 @@ public class VoIPUtils {
 			message.put(HikeConstants.SUB_TYPE, callMessage);
 			message.put(HikeConstants.DATA, data);
 			
-			HikeMqttManagerNew.getInstance().sendMessage(message, HikeMqttManagerNew.MQTT_QOS_ONE);
+			HikeMqttManagerNew.getInstance().sendMessage(message, MqttConstants.MQTT_QOS_ONE);
 			Logger.d(VoIPConstants.TAG, "Sent call request message of type: " + callMessage + " to: " + recipient);
 
 		} catch (JSONException e) {

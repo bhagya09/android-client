@@ -10,6 +10,8 @@ public class StickerOtherIconLoader extends ImageWorker
 {
 	private Context ctx;
 	private boolean downloadIfNotFound;
+	private int width = -1;
+	private int height = -1;
 	
 	/**
 	 * 
@@ -23,6 +25,12 @@ public class StickerOtherIconLoader extends ImageWorker
 		mResources = ctx.getResources();
 		this.downloadIfNotFound = downloadIfNotFound;
 	}
+	
+	public void setImageSize(int width, int height)
+	{
+		this.width = width;
+		this.height = height;
+	}
 
 	@Override
 	protected Bitmap processBitmap(String data)
@@ -30,7 +38,7 @@ public class StickerOtherIconLoader extends ImageWorker
 		String[] args = data.split(HikeConstants.DELIMETER);
 		String categoryId = args[0];
 		int type = Integer.valueOf(args[1]);
-		Bitmap bmp = StickerManager.getInstance().getCategoryOtherAsset(ctx, categoryId, type, downloadIfNotFound);
+		Bitmap bmp = StickerManager.getInstance().getCategoryOtherAsset(ctx, categoryId, type, width, height, downloadIfNotFound);
 		return bmp;
 	}
 
