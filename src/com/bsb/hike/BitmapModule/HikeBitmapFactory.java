@@ -1206,7 +1206,7 @@ public class HikeBitmapFactory
 			
 			
 
-			return TextDrawable.builder().buildRect(contactName == null ? "#" : Character.toString(contactName.charAt(0)), bgColor);
+			return TextDrawable.builder().buildRect(TextUtils.isEmpty(contactName) ? "#" : Character.toString(contactName.charAt(0)), bgColor);
 		}
 
 	}
