@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.ViewConfiguration;
 
@@ -61,10 +62,10 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 		 * Possibly Chat Thread is being invoked from outside the application
 		 */
 		
-		if (msisdn == null)
+		if (TextUtils.isEmpty(msisdn))
 		{
 			msisdn = ChatThreadUtils.getMsisdnFromSendToIntent(intent);
-			if (msisdn == null)
+			if (TextUtils.isEmpty(msisdn))
 			{
 				return false;
 			}
