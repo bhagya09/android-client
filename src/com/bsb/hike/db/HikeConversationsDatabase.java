@@ -6549,6 +6549,25 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 		return null;
 	}
+	
+	public String getMetadataOfBot(String botMsisdn)
+	{
+		String selection = MSISDN + "=?";
+		Cursor c = mDb.query(BOT_TABLE, new String[] { CONVERSATION_METADATA }, selection, new String[] { botMsisdn }, null, null, null);
+		if (c.moveToFirst())
+		{
+			return c.getString(c.getColumnIndex(CONVERSATION_METADATA));
+		}
+		return null;
+	}
+	
+	public void updateMetadataOfBot(String botMsisdn, String metadata)
+	{
+		ContentValues contentValues = new ContentValues();
+		contentValues.put(MSISDN, botMsisdn);
+		contentValues.put(CONVERSATION_METADATA, metadata);
+		mDb.update(BOT_TABLE, contentValues, MSISDN + "=?", new String[] { botMsisdn });
+	}
 
 	/**
 	 *
@@ -6562,52 +6581,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			return c.getInt(c.getColumnIndex(DBConstants.UNREAD_COUNT));
 		}
 		return -1;
-	}
-
-	/*
-	 * 
-	 * metadata:{'layout_id':'','file_id':'','card_data':{},'helper_data':{}}
-	 * 
-	 * This function reads helper json given in parameter and update it in metadata of message , it inserts new keys in metadata present in helper and updates old
-	 */
-	public String updateHelperData(long messageId, String helper)
-	{
-
-		String json = getMetadataOfMessage(messageId);
-		if (json != null)
-		{
-			try
-			{
-				JSONObject metadataJSON = new JSONObject(json);
-				JSONObject helperData = new JSONObject(helper);
-				JSONObject cardObj = metadataJSON.optJSONObject(HikePlatformConstants.CARD_OBJECT);
-				JSONObject oldHelper = cardObj.optJSONObject(HikePlatformConstants.HELPER_DATA);
-				if (oldHelper == null)
-				{
-					oldHelper = new JSONObject();
-				}
-				Iterator<String> i = helperData.keys();
-				while (i.hasNext())
-				{
-					String key = i.next();
-					oldHelper.put(key, helperData.get(key));
-				}
-				cardObj.put(HikePlatformConstants.HELPER_DATA, oldHelper);
-				metadataJSON.put(HikePlatformConstants.CARD_OBJECT, cardObj);
-				json = metadataJSON.toString();
-				updateMetadataOfMessage(messageId, json);
-				return json;
-			}
-			catch (JSONException e)
-			{
-				e.printStackTrace();
-			}
-		}
-		else
-		{
-			Logger.e("HikeconversationDB", "Meta data of message is null, id= " + messageId);
-		}
-		return null;
 	}
 
 	public String updateJSONMetadata(int messageId, String newMeta)
