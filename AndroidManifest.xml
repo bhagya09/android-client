@@ -223,6 +223,7 @@
         </activity>
         <activity
             android:name=".cropimage.CropImage"
+            android:configChanges="orientation|screenSize|screenLayout"
             android:theme="@style/AppTheme.Home.Photos" />
         <activity android:name=".ui.CreditsActivity" >
         </activity>
