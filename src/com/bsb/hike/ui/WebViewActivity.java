@@ -31,7 +31,7 @@ import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.models.WhitelistDomain;
 import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.HikePlatformConstants;
-import com.bsb.hike.platform.bridge.FullScreenJavascriptBridge;
+import com.bsb.hike.platform.bridge.NonMessagingJavaScriptBridge;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
@@ -140,7 +140,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity
 		});
 		handleURLLoadInWebView(webView, urlToLoad);
 		setupActionBar(title);
-		FullScreenJavascriptBridge mmBridge=new FullScreenJavascriptBridge(this, webView);
+		NonMessagingJavaScriptBridge mmBridge=new NonMessagingJavaScriptBridge(this, webView);
 		webView.addJavascriptInterface(mmBridge, HikePlatformConstants.PLATFORM_BRIDGE_NAME);
 	}
 

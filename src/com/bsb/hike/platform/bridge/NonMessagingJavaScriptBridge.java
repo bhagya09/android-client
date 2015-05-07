@@ -18,19 +18,19 @@ import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.utils.Logger;
 
-public class FullScreenJavascriptBridge extends JavascriptBridge
+public class NonMessagingJavaScriptBridge extends JavascriptBridge
 {
 	
 	private String msisdn;
 	
 	private static final String TAG  = "FullScreenJavaScriptBridge";
 
-	public FullScreenJavascriptBridge(Activity activity, CustomWebView mWebView)
+	public NonMessagingJavaScriptBridge(Activity activity, CustomWebView mWebView)
 	{
 		super(activity, mWebView);
 	}
 	
-	public FullScreenJavascriptBridge(Activity activity, CustomWebView mWebView, String msisdn)
+	public NonMessagingJavaScriptBridge(Activity activity, CustomWebView mWebView, String msisdn)
 	{
 		this(activity, mWebView);
 		this.msisdn = msisdn;
@@ -48,12 +48,6 @@ public class FullScreenJavascriptBridge extends JavascriptBridge
 	public void onLoadFinished(String height)
 	{
 
-	}
-
-	@JavascriptInterface
-	public void openHikeActivity(final String metaData)
-	{
-		openActivity(metaData);
 	}
 
 	/**

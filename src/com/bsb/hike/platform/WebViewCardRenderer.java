@@ -42,7 +42,7 @@ import com.bsb.hike.R;
 import com.bsb.hike.adapters.MessagesAdapter;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.models.ConvMessage;
-import com.bsb.hike.platform.bridge.PlatformJavaScriptBridge;
+import com.bsb.hike.platform.bridge.MessagingBotJavaScriptBridge;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformContent.EventCode;
 import com.bsb.hike.platform.content.PlatformContentListener;
@@ -103,7 +103,7 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 
 		CustomWebView customWebView;
 
-		PlatformJavaScriptBridge platformJavaScriptBridge;
+		MessagingBotJavaScriptBridge platformJavaScriptBridge;
 
 		public View selectedStateOverlay;
 
@@ -142,7 +142,7 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 	{
 		holder.main = view;
 		holder.customWebView = (CustomWebView) view.findViewById(R.id.webcontent);
-		holder.platformJavaScriptBridge = new PlatformJavaScriptBridge(mContext,holder.customWebView, convMessage, adapter);
+		holder.platformJavaScriptBridge = new MessagingBotJavaScriptBridge(mContext,holder.customWebView, convMessage, adapter);
 		holder.selectedStateOverlay = view.findViewById(R.id.selected_state_overlay);
 		holder.loadingSpinner = view.findViewById(R.id.loading_data);
 		holder.cardFadeScreen = view.findViewById(R.id.card_fade_screen);
@@ -638,7 +638,7 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 	 */
 	public void onActivityResult(int resultCode, Intent data)
 	{
-		int platformBridgeHashcode = data.getIntExtra(PlatformJavaScriptBridge.tag, -1);
+		int platformBridgeHashcode = data.getIntExtra(MessagingBotJavaScriptBridge.tag, -1);
 		if(platformBridgeHashcode != -1)
 		{
 			for(WebViewHolder holder : holderList)

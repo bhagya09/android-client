@@ -632,5 +632,10 @@ public abstract class JavascriptBridge
 			}
 		});
 	}
-
+	
+	@JavascriptInterface
+	public void openHikeActivity(final String metaData)
+	{
+		openActivity(metaData);
+	}
 }

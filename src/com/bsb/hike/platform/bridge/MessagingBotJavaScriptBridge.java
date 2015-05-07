@@ -34,7 +34,7 @@ import com.bsb.hike.utils.Utils;
  * API bridge that connects the javascript to the Native environment. Make the instance of this class and add it as the JavaScript interface of the Card WebView.
  */
 
-public class PlatformJavaScriptBridge extends JavascriptBridge
+public class MessagingBotJavaScriptBridge extends JavascriptBridge
 {
 
 	public static final String tag = "platformbridge";
@@ -43,12 +43,12 @@ public class PlatformJavaScriptBridge extends JavascriptBridge
 
 	BaseAdapter adapter;
 
-	public PlatformJavaScriptBridge(Activity activity,CustomWebView mWebView)
+	public MessagingBotJavaScriptBridge(Activity activity,CustomWebView mWebView)
 	{
 		super(activity,mWebView);
 	}
 
-	public PlatformJavaScriptBridge(Activity activity,CustomWebView webView, ConvMessage convMessage, BaseAdapter adapter)
+	public MessagingBotJavaScriptBridge(Activity activity,CustomWebView webView, ConvMessage convMessage, BaseAdapter adapter)
 	{
 		super(activity,webView);
 		this.message = convMessage;
