@@ -7,9 +7,9 @@ import org.json.JSONObject;
  */
 public class NonMessagingBotConfiguration extends BotConfiguration
 {
-	private String configData;
+	private JSONObject configData;
 
-	public String getConfigData()
+	public JSONObject getConfigData()
 	{
 		return configData;
 	}
@@ -19,7 +19,7 @@ public class NonMessagingBotConfiguration extends BotConfiguration
 		super(config);
 	}
 
-	public NonMessagingBotConfiguration(int config, String configData)
+	public NonMessagingBotConfiguration(int config, JSONObject configData)
 	{
 		super(config);
 		this.configData = configData;

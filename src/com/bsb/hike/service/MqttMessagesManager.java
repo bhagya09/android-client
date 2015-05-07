@@ -3077,12 +3077,12 @@ public class MqttMessagesManager
 		JSONObject metadata = jsonObj.optJSONObject(HikeConstants.METADATA);
 		NonMessagingBotMetadata botMetadata = new NonMessagingBotMetadata(metadata);
 		JSONObject configData = jsonObj.optJSONObject(HikePlatformConstants.CONFIG_DATA);
-		NonMessagingBotConfiguration configuration = new NonMessagingBotConfiguration(config, configData.toString());
+		NonMessagingBotConfiguration configuration = new NonMessagingBotConfiguration(config, configData);
 		botInfo = new BotInfo.HikeBotBuilder(msisdn)
 				.setType(BotInfo.NON_MESSAGING_BOT)
 				.setConvName(name)
 				.setIsMute(false)
-				.setConfigData(configuration.getConfigData())
+				.setConfigData(null == configuration.getConfigData() ? null : configuration.getConfigData().toString())
 				.setConfig(configuration.getConfig())
 				.setIsBotEnabled(false)
 				.setMetadata(botMetadata.toString())
