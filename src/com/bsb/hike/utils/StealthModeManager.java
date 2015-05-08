@@ -122,6 +122,7 @@ public class StealthModeManager
 	public void clearScheduledStealthToggleTimer()
 	{
 		inFakeHiddenMode = false;
+		stealthFakeOn();
 		handler.removeRunnable(toggleReset);
 	}
 
@@ -150,6 +151,20 @@ public class StealthModeManager
 		 {
 			 activate(false);
 		 }
+	}
+	
+	private void stealthFakeOn()
+	{
+		if(isActive())
+		{
+			currentState = HikeConstants.STEALTH_ON_FAKE;
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STEALTH_MODE, currentState);
+		}
+	}
+	
+	public boolean isStealthFakeOn()
+	{
+		return (currentState == HikeConstants.STEALTH_ON_FAKE);
 	}
 
 	public boolean isActive()
@@ -231,7 +246,16 @@ public class StealthModeManager
 				}
 				else
 				{
-					LockPattern.confirmPattern(activity, false, HikeConstants.ResultCodes.CONFIRM_LOCK_PATTERN);
+					if(!isStealthFakeOn())
+					{
+						LockPattern.confirmPattern(activity, false, HikeConstants.ResultCodes.CONFIRM_LOCK_PATTERN);
+					}
+					else
+					{
+						StealthModeManager.getInstance().activate(true);
+						HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_MODE_TOGGLED, true);
+					}
+						
 				}
 			}
 			else
