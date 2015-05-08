@@ -4,7 +4,7 @@
     package="com.bsb.hike"
     android:installLocation="auto"
     android:versionCode="1202"
-    android:versionName="3.9.2.51.1.voip" >
+    android:versionName="3.9.2.51.2.voip" >
 
     <uses-sdk
         android:minSdkVersion="9"
@@ -221,6 +221,7 @@
         </activity>
         <activity
             android:name=".cropimage.CropImage"
+            android:configChanges="orientation|screenSize|screenLayout"
             android:theme="@style/AppTheme.Home.Photos" />
         <activity android:name=".ui.CreditsActivity" >
         </activity>
