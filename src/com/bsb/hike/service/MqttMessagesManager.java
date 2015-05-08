@@ -3067,11 +3067,12 @@ public class MqttMessagesManager
 			downloadZipForNonMessagingBot(botInfo, enableBot);
 		}
 
-
 		convDb.setChatBackground(msisdn, jsonObj.optString(HikeConstants.BOT_CHAT_THEME), System.currentTimeMillis()/1000);
 
 		convDb.insertBot(botInfo);
 
+		HikeMessengerApp.hikeBotNamesMap.put(msisdn, botInfo);
+		
 		if (HikeMessengerApp.hikeBotNamesMap.containsKey(msisdn))
 		{
 			ContactInfo contact = new ContactInfo(msisdn, msisdn, name, msisdn);
@@ -3079,7 +3080,7 @@ public class MqttMessagesManager
 			ContactManager.getInstance().updateContacts(contact);
 			HikeMessengerApp.getPubSub().publish(HikePubSub.CONTACT_ADDED, contact);
 		}
-		HikeMessengerApp.hikeBotNamesMap.put(msisdn, botInfo);
+
 		Logger.d("create bot", "It takes " + String.valueOf(System.currentTimeMillis() - startTime) + "msecs");
 	}
 
