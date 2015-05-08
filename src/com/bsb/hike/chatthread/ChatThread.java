@@ -1369,6 +1369,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		mComposeView = (CustomFontEditText) activity.findViewById(R.id.search_text);
 		mComposeView.setTag(id);
 		
+		mComposeView.requestFocus();
+		Utils.showSoftKeyboard(activity.getApplicationContext(), mComposeView);
 		mComposeView.addTextChangedListener(searchTextWatcher);
 		mComposeView.setOnEditorActionListener(this);
 		activity.findViewById(R.id.next).setOnClickListener(this);
@@ -1381,10 +1383,12 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			// ifkeyboard is not open, then keyboard will come which will make so much animation on screen
 			mBottomView.startAnimation(AnimationUtils.loadAnimation(activity.getApplicationContext(), R.anim.up_down_lower_part));
 		}
+		else
+		{
+			Utils.toggleSoftKeyboard(activity.getApplicationContext());
+		}
 		
 		mBottomView.setVisibility(View.GONE);
-		mComposeView.requestFocus();
-//		Utils.showSoftKeyboard(activity.getApplicationContext());
 	}
 
 	TextWatcher searchTextWatcher = new TextWatcher()
