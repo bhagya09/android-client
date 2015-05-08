@@ -253,7 +253,7 @@ public class SendGCMIdToServerTrigger extends BroadcastReceiver
 		}
 		catch (JSONException e)
 		{
-			Logger.e(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+			Logger.e(getClass().getSimpleName(), "invalid json");
 		}
 	}
 }
