@@ -1475,4 +1475,5 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
 	<string name="not_enough_memory">Not Enough Memory</string>
 	<string name="edit_photos">New Photo</string>
 	<string name="only_photos_edit">Only photos can be edited</string>
+	<string name="num_members">%1$d members</string>
 </resources>
