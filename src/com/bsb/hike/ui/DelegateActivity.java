@@ -76,7 +76,7 @@ public class DelegateActivity extends HikeAppStateBaseFragmentActivity
 			destinationIntents.add((Intent) destParcel);
 		}
 
-		if (startedForResult)
+		if (destinationIntents.size()>1)
 		{
 			Logger.d(TAG, "Starting activity for result");
 			DelegateActivity.this.startActivityForResult(destinationIntents.get(currentIntentCounter++), requestCode);
@@ -143,7 +143,7 @@ public class DelegateActivity extends HikeAppStateBaseFragmentActivity
 		else
 		{
 			currentIntent = destinationIntents.get(currentIntentCounter++);
-			if (currentIntentCounter == destinationIntents.size() - 1)
+			if (currentIntentCounter == destinationIntents.size())
 			{
 				isLastIntent = true;
 			}
