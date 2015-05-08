@@ -51,7 +51,9 @@ public class DelegateActivity extends HikeAppStateBaseFragmentActivity
 
 		if (intent == null || !intent.hasExtra(DelegateActivity.DESTINATION_INTENT))
 		{
+			Logger.d(TAG, "No Intent to handle.");
 			onError();
+			return;
 		}
 
 		ArrayList<Parcelable> parcels = intent.getParcelableArrayListExtra(DESTINATION_INTENT);
@@ -59,6 +61,7 @@ public class DelegateActivity extends HikeAppStateBaseFragmentActivity
 		{
 			Logger.d(TAG, "Destination intents not present. Nothing to do!");
 			onError();
+			return;
 		}
 		destinationIntents = new ArrayList<Intent>(parcels.size());
 		for (Parcelable destParcel : parcels)
@@ -155,7 +158,6 @@ public class DelegateActivity extends HikeAppStateBaseFragmentActivity
 			String newFilePath = currentIntent.getStringExtra(HikeMessengerApp.FILE_PATHS);
 			MediaScannerConnection.scanFile(getApplicationContext(), new String[] { newFilePath }, null, null);
 			currentIntent.putExtra(HikeMessengerApp.FILE_PATH, newFilePath);
-			currentIntent.setAction(MediaStore.ACTION_IMAGE_CAPTURE);
 		}
 		else if (data != null)
 		{
