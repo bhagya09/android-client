@@ -177,10 +177,10 @@ public class AttachmentPicker extends OverFlowMenuLayout
 						Intent i = IntentFactory.getPictureEditorActivityIntent(activity, null, false, selectedFile.getAbsolutePath());
 						i.putExtra(HikeMessengerApp.FILE_PATHS, selectedFile.getAbsolutePath());
 						ArrayList<Intent> desIntent = new ArrayList<Intent>();
+						desIntent.add(sourceIntent);
 						desIntent.add(i);
 
 						pickIntent = new Intent(activity, DelegateActivity.class);
-						pickIntent.putExtra(DelegateActivity.SOURCE_INTENT, sourceIntent);
 						pickIntent.putParcelableArrayListExtra(DelegateActivity.DESTINATION_INTENT, desIntent);
 					}
 					else

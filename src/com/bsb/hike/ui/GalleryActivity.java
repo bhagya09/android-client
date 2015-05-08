@@ -242,10 +242,10 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 				Intent i = IntentFactory.getPictureEditorActivityIntent(GalleryActivity.this, null, !sendResult, selectedFile.getAbsolutePath());
 				i.putExtra(HikeMessengerApp.FILE_PATHS,  selectedFile.getAbsolutePath() );
 				ArrayList<Intent> desIntent = new ArrayList<Intent>();
+				desIntent.add(sourceIntent);
 				desIntent.add(i);
 				
 				Intent proxyIntent = new Intent(GalleryActivity.this, DelegateActivity.class);
-				proxyIntent.putExtra(DelegateActivity.SOURCE_INTENT, sourceIntent);
 				proxyIntent.putParcelableArrayListExtra(DelegateActivity.DESTINATION_INTENT, desIntent);
 				PendingIntent pIntent = PendingIntent.getActivity(getApplicationContext(), 0, proxyIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 

@@ -76,7 +76,7 @@ public class ImageParser
 			}
 			else
 			{
-				Logger.e(TAG, "captured image path is null");
+				Logger.e(TAG, "Image path is null");
 				listener.imageParseFailed();
 			}
 		}

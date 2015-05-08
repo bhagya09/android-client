@@ -1287,10 +1287,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			sourceIntent.putExtra(GalleryActivity.START_FOR_RESULT, true);
 			Intent i = IntentFactory.getPictureEditorActivityIntent(activity, null, false, null);
 			ArrayList<Intent> desIntent = new ArrayList<Intent>();
+			desIntent.add(sourceIntent);
 			desIntent.add(i);
 
 			Intent imageIntent = new Intent(activity, DelegateActivity.class);
-			imageIntent.putExtra(DelegateActivity.SOURCE_INTENT, sourceIntent);
 			imageIntent.putParcelableArrayListExtra(DelegateActivity.DESTINATION_INTENT, desIntent);
 			activity.startActivityForResult(imageIntent, AttachmentPicker.GALLERY);
 		}
