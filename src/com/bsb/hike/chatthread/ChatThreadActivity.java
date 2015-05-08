@@ -32,8 +32,6 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 	{
 		Logger.i(TAG, "OnCreate");
 		requestWindowFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
-		super.onCreate(savedInstanceState);
-
 		/**
 		 * force the user into the reg-flow process if the token isn't set
 		 */
@@ -52,6 +50,7 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 		{
 			closeChatThread();
 		}
+		super.onCreate(savedInstanceState);
 	}
 
 	private boolean filter(Intent intent)
@@ -128,14 +127,12 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu)
 	{
-
 		return chatThread.onPrepareOptionsMenu(menu) ? true : super.onPrepareOptionsMenu(menu);
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item)
 	{
-
 		return chatThread.onOptionsItemSelected(item) ? true : super.onOptionsItemSelected(item);
 	}
 
