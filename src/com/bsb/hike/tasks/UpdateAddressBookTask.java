@@ -95,7 +95,7 @@ public class UpdateAddressBookTask
 			{
 				resultObject = null;
 				// TODO Below code is for investigating an issue where invalid json is received at server end , should be removed once issue is solved
-				if (httpException.getErrorCode() == 400)
+				if (httpException.getErrorCode() == HttpException.REASON_CODE_SERVER_ERROR)
 				{
 					IRequestBody requestBody = requestToken.getRequestBody();
 					if (requestBody instanceof JsonBody)
