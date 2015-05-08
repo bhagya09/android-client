@@ -1787,7 +1787,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		}
 	}
 	
-	private boolean shouldShowKeyboard()
+	protected boolean shouldShowKeyboard()
 	{
 		return mConversation.getMessagesList().isEmpty();
 	}
