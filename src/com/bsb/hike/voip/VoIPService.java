@@ -77,25 +77,18 @@ import com.musicg.dsp.Resampler;
 public class VoIPService extends Service {
 	
 	private final IBinder myBinder = new LocalBinder();
-	private final int AUDIO_SAMPLE_RATE = 48000; 
-	private final int HEARTBEAT_INTERVAL = 1000;
-	private final int HEARTBEAT_TIMEOUT = 5000;
-	private final int HEARTBEAT_HARD_TIMEOUT = 60000;
-	private final int MAX_SAMPLES_BUFFER = 3;
 	private static final int NOTIFICATION_IDENTIFIER = 10;
 
-	private int localBitrate = VoIPConstants.BITRATE_WIFI, remoteBitrate = 0;
 	private Messenger mMessenger;
 	private volatile boolean keepRunning = true;
 	private VoIPClient clientPartner = null;
 	private boolean mute, hold, speaker, vibratorEnabled = true;
-	private static boolean audioStarted = false;
 	private int droppedDecodedPackets = 0;
 	private int minBufSizePlayback, minBufSizeRecording;
 	private OpusWrapper opusWrapper;
 	private Resampler resampler;
 	private Thread connectionTimeoutThread = null;
-	private Thread recordingThread = null, playbackThread = null, sendingThread = null, codecCompressionThread = null, codecDecompressionThread = null;
+	private Thread recordingThread = null, playbackThread = null, codecCompressionThread = null, codecDecompressionThread = null;
 	private AudioTrack audioTrack = null;
 	private static int callId = 0;
 	private NotificationManager notificationManager;
@@ -105,8 +98,6 @@ public class VoIPService extends Service {
 	private boolean initialSpeakerMode;
 	private AudioManager.OnAudioFocusChangeListener mOnAudioFocusChangeListener;
 	private int reconnectAttempts = 0;
-	private Chronometer chronometer = null;
-	private int chronoBackup = 0;
 	private int playbackSampleRate = 0;
 	private int callSource = -1;
 	private Thread notificationThread;
@@ -117,11 +108,6 @@ public class VoIPService extends Service {
 	private int ringtoneStreamID = 0;
 	private boolean isRingingIncoming = false, isRingingOutgoing = false;
 
-	// Call quality fields
-	private int qualityCounter = 0;
-	private long lastQualityReset = 0;
-	private CallQuality currentCallQuality = CallQuality.UNKNOWN;
-	
 	// Sounds
 	private SoundPool soundpool;
 	private SparseIntArray soundpoolMap;
@@ -134,7 +120,6 @@ public class VoIPService extends Service {
 	private int networkQualityPacketsReceived = 0;
 
 	private final ConcurrentLinkedQueue<VoIPDataPacket> samplesToEncodeQueue     = new ConcurrentLinkedQueue<VoIPDataPacket>();
-	private final ConcurrentLinkedQueue<VoIPDataPacket> encodedBuffersQueue      = new ConcurrentLinkedQueue<VoIPDataPacket>();
 	private final ConcurrentLinkedQueue<VoIPDataPacket> decodedBuffersQueue      = new ConcurrentLinkedQueue<VoIPDataPacket>();
 	
 	// Echo cancellation
@@ -169,7 +154,7 @@ public class VoIPService extends Service {
 				break;
 				
 			case VoIPConstants.MSG_UPDATE_REMOTE_HOLD:
-				setCallStatus(!hold && !clientPartner.remoteHold ? VoIPConstants.CallStatus.ACTIVE : VoIPConstants.CallStatus.ON_HOLD);
+				clientPartner.setCallStatus(!hold && !clientPartner.remoteHold ? VoIPConstants.CallStatus.ACTIVE : VoIPConstants.CallStatus.ON_HOLD);
 				sendHandlerMessage(VoIPConstants.MSG_UPDATE_REMOTE_HOLD);
 				break;
 				
@@ -178,8 +163,6 @@ public class VoIPService extends Service {
 		}
 		
 	};
-
-	private VoIPConstants.CallStatus currentCallStatus;
 
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -206,7 +189,7 @@ public class VoIPService extends Service {
 //		String myMsisdn = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE).getString(HikeMessengerApp.MSISDN_SETTING, null);
 
 		setCallid(0);
-		setCallStatus(VoIPConstants.CallStatus.UNINITIALIZED);
+		clientPartner.setCallStatus(VoIPConstants.CallStatus.UNINITIALIZED);
 		initAudioManager();
 		keepRunning = true;
 		isRingingIncoming = false;
@@ -214,7 +197,7 @@ public class VoIPService extends Service {
 		if (resamplerEnabled)
 			playbackSampleRate = AudioTrack.getNativeOutputSampleRate(AudioManager.STREAM_VOICE_CALL);
 		else
-			playbackSampleRate = AUDIO_SAMPLE_RATE;
+			playbackSampleRate = VoIPConstants.AUDIO_SAMPLE_RATE;
 		
 		Logger.d(VoIPConstants.TAG, "Native playback sample rate: " + AudioTrack.getNativeOutputSampleRate(AudioManager.STREAM_VOICE_CALL));
 
@@ -227,7 +210,7 @@ public class VoIPService extends Service {
 		VoIPUtils.resetNotificationStatus();
 
 		minBufSizePlayback = AudioTrack.getMinBufferSize(playbackSampleRate, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT);
-		minBufSizeRecording = AudioRecord.getMinBufferSize(AUDIO_SAMPLE_RATE, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT);
+		minBufSizeRecording = AudioRecord.getMinBufferSize(VoIPConstants.AUDIO_SAMPLE_RATE, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT);
 		
 		if (!VoIPUtils.useAEC(getApplicationContext())) {
 			Logger.w(VoIPConstants.TAG, "AEC disabled.");
@@ -469,9 +452,9 @@ public class VoIPService extends Service {
 			clientPartner.sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CALL_CLICK);
 		}
 
-		if(getCallStatus() == VoIPConstants.CallStatus.UNINITIALIZED)
+		if(clientPartner.getCallStatus() == VoIPConstants.CallStatus.UNINITIALIZED)
 		{
-			setInitialCallStatus();
+			clientPartner.setInitialCallStatus();
 		}
 
 		return returnInt;
@@ -576,7 +559,7 @@ public class VoIPService extends Service {
 		if (builder == null) 
 			builder = new NotificationCompat.Builder(getApplicationContext());
 
-		int callDuration = getCallDuration();
+		int callDuration = clientPartner.getCallDuration();
 		String durationString = (callDuration == 0)? "" : String.format(Locale.getDefault(), " (%02d:%02d)", (callDuration / 60), (callDuration % 60));
 
 		String title = null;
@@ -586,7 +569,7 @@ public class VoIPService extends Service {
 			title = getString(R.string.voip_call_notification_title, clientPartner.getName()); 
 		
 		String text = null;
-		switch (getCallStatus())
+		switch (clientPartner.getCallStatus())
 		{
 			case ON_HOLD:
 				text = getString(R.string.voip_on_hold);
@@ -649,17 +632,17 @@ public class VoIPService extends Service {
 				switch (focusChange) {
 				case AudioManager.AUDIOFOCUS_GAIN:
 					Logger.w(VoIPConstants.TAG, "AUDIOFOCUS_GAIN");
-					if (getCallDuration() > 0 && hold == true)
+					if (clientPartner.getCallDuration() > 0 && hold == true)
 						setHold(false);
 					break;
 				case AudioManager.AUDIOFOCUS_LOSS:
 					Logger.w(VoIPConstants.TAG, "AUDIOFOCUS_LOSS");
-					if (getCallDuration() > 0)
+					if (clientPartner.getCallDuration() > 0)
 						setHold(true);
 					break;
 				case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
 					Logger.d(VoIPConstants.TAG, "AUDIOFOCUS_LOSS_TRANSIENT");
-					if (getCallDuration() > 0)
+					if (clientPartner.getCallDuration() > 0)
 						setHold(true);
 					break;
 				case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
@@ -781,16 +764,6 @@ public class VoIPService extends Service {
 		return clientPartner;
 	}
 	
-	public int getCallDuration() {
-		int seconds = 0;
-		if (chronometer != null) {
-			seconds = (int) ((SystemClock.elapsedRealtime() - chronometer.getBase()) / 1000);
-		} else
-			seconds = chronoBackup;
-		
-		return seconds;
-	}
-	
 	public ConnectionMethods getConnectionMethod() {
 		return clientPartner.getPreferredConnectionMethod();
 	}
@@ -798,12 +771,12 @@ public class VoIPService extends Service {
 	public void startChrono() {
 
 		try {
-			if (chronometer == null) {
+			if (clientPartner.chronometer == null) {
 //				Looper.prepare();
 //				Logger.w(VoIPConstants.TAG, "Starting chrono..");
-				chronometer = new Chronometer(VoIPService.this);
-				chronometer.setBase(SystemClock.elapsedRealtime());
-				chronometer.start();
+				clientPartner.chronometer = new Chronometer(VoIPService.this);
+				clientPartner.chronometer.setBase(SystemClock.elapsedRealtime());
+				clientPartner.chronometer.start();
 //				Looper.loop();
 			}
 		} catch (Exception e) {
@@ -828,9 +801,9 @@ public class VoIPService extends Service {
 			keepRunning = false;
 		}
 
-		if(currentCallStatus!=VoIPConstants.CallStatus.PARTNER_BUSY)
+		if (clientPartner.getCallStatus() != VoIPConstants.CallStatus.PARTNER_BUSY)
 		{
-			setCallStatus(VoIPConstants.CallStatus.ENDED);
+			clientPartner.setCallStatus(VoIPConstants.CallStatus.ENDED);
 		}
 
 		Bundle bundle = new Bundle();
@@ -865,8 +838,6 @@ public class VoIPService extends Service {
 
 		// Reset variables
 		setCallid(0);
-		clientPartner.connected = false;
-		audioStarted = false;
 		isRingingOutgoing = false;
 		isRingingIncoming = false;
 		
@@ -878,9 +849,6 @@ public class VoIPService extends Service {
 
 		if (connectionTimeoutThread != null)
 			connectionTimeoutThread.interrupt();
-
-		if (sendingThread != null)
-			sendingThread.interrupt();
 
 		if (codecDecompressionThread != null)
 			codecDecompressionThread.interrupt();
@@ -913,17 +881,10 @@ public class VoIPService extends Service {
 			solicallAec = null;
 		}
 		
-		if(chronometer != null)
-		{
-			chronometer.stop();
-			chronometer = null;
-		}
-
 		releaseAudioManager();
 		
 		// Empty the queues
 		samplesToEncodeQueue.clear();
-		encodedBuffersQueue.clear();
 		decodedBuffersQueue.clear();
 		
 		releaseWakeLock();
@@ -944,7 +905,7 @@ public class VoIPService extends Service {
 				stop();
 			}
 		},"HANG_UP_THREAD").start();
-		VoIPUtils.addMessageToChatThread(this, clientPartner, HikeConstants.MqttMessageTypes.VOIP_MSG_TYPE_CALL_SUMMARY, getCallDuration(), -1, false);
+		VoIPUtils.addMessageToChatThread(this, clientPartner, HikeConstants.MqttMessageTypes.VOIP_MSG_TYPE_CALL_SUMMARY, clientPartner.getCallDuration(), -1, false);
 	}
 	
 	public void rejectIncomingCall() {
@@ -1013,7 +974,7 @@ public class VoIPService extends Service {
 		// and it could throw an NPE.
 		clientPartner.interruptReceivingThread();
 		
-		setCallStatus(VoIPConstants.CallStatus.RECONNECTING);
+		clientPartner.setCallStatus(VoIPConstants.CallStatus.RECONNECTING);
 		sendHandlerMessage(VoIPConstants.MSG_RECONNECTING);
 		clientPartner.socketInfoReceived = false;
 		clientPartner.socketInfoSent = false;
@@ -1022,144 +983,12 @@ public class VoIPService extends Service {
 		clientPartner.startReconnectBeeps();
 	}
 	
-	private void setIdealBitrate() {
-		
-		ConnectionClass connection = VoIPUtils.getConnectionClass(getApplicationContext());
-
-		SharedPreferences prefs = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
-		int twoGBitrate = prefs.getInt(HikeMessengerApp.VOIP_BITRATE_2G, VoIPConstants.BITRATE_2G);
-		int threeGBitrate = prefs.getInt(HikeMessengerApp.VOIP_BITRATE_3G, VoIPConstants.BITRATE_3G);
-		int wifiBitrate = prefs.getInt(HikeMessengerApp.VOIP_BITRATE_WIFI, VoIPConstants.BITRATE_WIFI);
-		
-		if (connection == ConnectionClass.TwoG)
-			localBitrate = twoGBitrate;
-		else if (connection == ConnectionClass.ThreeG)
-			localBitrate = threeGBitrate;
-		else if (connection == ConnectionClass.WiFi)
-			localBitrate = wifiBitrate;
-		else 
-			localBitrate = wifiBitrate;
-		
-		if (remoteBitrate > 0 && remoteBitrate < localBitrate)
-			localBitrate = remoteBitrate;
-		
-		Logger.d(VoIPConstants.TAG, "Detected ideal bitrate: " + localBitrate);
-		
-		if (opusWrapper != null)
-			opusWrapper.setEncoderBitrate(localBitrate);
-	}
-	
-	private void startHeartbeat() {
-	
-		// Sending heart beat
-		new Thread(new Runnable() {
-			
-			@Override
-			public void run() {
-				VoIPDataPacket dp = new VoIPDataPacket(PacketType.HEARTBEAT);
-				while (keepRunning == true) {
-					clientPartner.sendPacket(dp, false);
-					try {
-						Thread.sleep(HEARTBEAT_INTERVAL);
-					} catch (InterruptedException e) {
-						Logger.d(VoIPConstants.TAG, "Heartbeat InterruptedException: " + e.toString());
-						break;
-					}
-
-					if (isAudioRunning())
-						chronoBackup++;
-				}
-			}
-		}, "SEND_HEART_BEAT_THREAD").start();
-		
-		// Listening for heartbeat, and housekeeping
-		new Thread(new Runnable() {
-			
-			@Override
-			public void run() {
-				clientPartner.lastHeartbeat = System.currentTimeMillis();
-				while (keepRunning == true) {
-					if (System.currentTimeMillis() - clientPartner.lastHeartbeat > HEARTBEAT_TIMEOUT && !clientPartner.reconnecting) {
-//						Logger.w(VoIPConstants.TAG, "Heartbeat failure. Reconnecting.. ");
-						clientPartner.startReconnectBeeps();
-						if (!clientPartner.isInitiator() && isConnected() && isAudioRunning())
-							reconnect();
-					}
-					
-					if (System.currentTimeMillis() - clientPartner.lastHeartbeat > HEARTBEAT_HARD_TIMEOUT) {
-						Logger.d(VoIPConstants.TAG, "Giving up on connection.");
-						hangUp();
-						break;
-					}
-					
-					sendPacketsWaitingForAck();
-					
-					// Monitor quality of incoming data
-					if ((System.currentTimeMillis() - lastQualityReset > VoIPConstants.QUALITY_WINDOW * 1000) 
-							&& getCallDuration() > VoIPConstants.QUALITY_WINDOW
-							&& clientPartner.remoteHold == false) {
-						
-						CallQuality newQuality;
-						int idealPacketCount = (AUDIO_SAMPLE_RATE * VoIPConstants.QUALITY_WINDOW) / OpusWrapper.OPUS_FRAME_SIZE; 
-						if (qualityCounter >= idealPacketCount)
-							newQuality = CallQuality.EXCELLENT;
-						else if (qualityCounter >= idealPacketCount - VoIPConstants.QUALITY_WINDOW)
-							newQuality = CallQuality.GOOD;
-						else if (qualityCounter >= idealPacketCount - VoIPConstants.QUALITY_WINDOW * 2)
-							newQuality = CallQuality.FAIR;
-						else 
-							newQuality = CallQuality.WEAK;
-
-						if (currentCallQuality != newQuality) {
-							currentCallQuality = newQuality;
-							sendHandlerMessage(VoIPConstants.MSG_UPDATE_QUALITY);
-						}
-
-						qualityCounter = 0;
-						lastQualityReset = System.currentTimeMillis();
-					}
-					
-					// Drop packets if getting left behind
-					while (clientPartner.samplesToDecodeQueue.size() > MAX_SAMPLES_BUFFER) {
-						Logger.d(VoIPConstants.TAG, "Dropping to_decode packet.");
-						clientPartner.samplesToDecodeQueue.poll();
-					}
-					
-					while (samplesToEncodeQueue.size() > MAX_SAMPLES_BUFFER) {
-						if (audioStarted)
-							Logger.d(VoIPConstants.TAG, "Dropping to_encode packet.");
-						samplesToEncodeQueue.poll();
-					}
-					
-					while (encodedBuffersQueue.size() > MAX_SAMPLES_BUFFER) {
-						Logger.d(VoIPConstants.TAG, "Dropping encoded packet.");
-						encodedBuffersQueue.poll();
-					}
-
-					while (decodedBuffersQueue.size() > MAX_SAMPLES_BUFFER) {
-//						Logger.d(VoIPConstants.TAG, "Dropping decoded packet.");
-						droppedDecodedPackets++;
-						decodedBuffersQueue.poll();
-					}
-
-					try {
-						Thread.sleep(HEARTBEAT_INTERVAL);
-					} catch (InterruptedException e) {
-						Logger.d(VoIPConstants.TAG, "Heartbeat InterruptedException: " + e.toString());
-					}
-					
-				}
-			}
-		}, "LISTEN_HEART_BEAT_THREAD").start();
-		
-	}
-	
 	private void startCodec() {
 		try
 		{
 			opusWrapper = new OpusWrapper();
-			opusWrapper.getDecoder(AUDIO_SAMPLE_RATE, 1);
-			opusWrapper.getEncoder(AUDIO_SAMPLE_RATE, 1, localBitrate);
+			opusWrapper.getDecoder(VoIPConstants.AUDIO_SAMPLE_RATE, 1);
+			opusWrapper.getEncoder(VoIPConstants.AUDIO_SAMPLE_RATE, 1, clientPartner.localBitrate);
 		}
 		catch (UnsatisfiedLinkError e)
 		{
@@ -1331,7 +1160,7 @@ public class VoIPService extends Service {
 								} else if (lowBitrateTrigger) {
 									// Mic signal is reverting to voice
 									lowBitrateTrigger = false;
-									opusWrapper.setEncoderBitrate(localBitrate);
+									opusWrapper.setEncoderBitrate(clientPartner.localBitrate);
 								}
 							}
 						} else
@@ -1346,9 +1175,9 @@ public class VoIPService extends Service {
 								System.arraycopy(compressedData, 0, trimmedCompressedData, 0, compressedDataLength);
 								VoIPDataPacket dp = new VoIPDataPacket(PacketType.VOICE_PACKET);
 								dp.write(trimmedCompressedData);
-								synchronized (encodedBuffersQueue) { 
-									encodedBuffersQueue.add(dp);
-									encodedBuffersQueue.notify();
+								synchronized (clientPartner.encodedBuffersQueue) { 
+									clientPartner.encodedBuffersQueue.add(dp);
+									clientPartner.encodedBuffersQueue.notify();
 								}
 							}
 						} catch (Exception e) {
@@ -1389,7 +1218,7 @@ public class VoIPService extends Service {
 	
 	private void startRecordingAndPlayback() {
 
-		if (audioStarted == true) {
+		if (clientPartner.audioStarted == true) {
 			Logger.d(VoIPConstants.TAG, "Audio already started.");
 			return;
 		}
@@ -1413,19 +1242,19 @@ public class VoIPService extends Service {
 		playFromSoundPool(SOUND_ACCEPT, false);
 		startRecording();
 		startPlayBack();
-		setCallStatus(VoIPConstants.CallStatus.ACTIVE);
+		clientPartner.setCallStatus(VoIPConstants.CallStatus.ACTIVE);
 		sendHandlerMessage(VoIPConstants.MSG_AUDIO_START);
 		startChrono();
-		audioStarted = true;
+		clientPartner.audioStarted = true;
 		
 		// When the call has been answered, we will send our network connection class
 		new Thread(new Runnable() {
 			
 			@Override
 			public void run() {
-				setIdealBitrate();
+				clientPartner.setIdealBitrate();
 				VoIPDataPacket dp = new VoIPDataPacket(PacketType.CURRENT_BITRATE);
-				dp.write(ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt(localBitrate).array());
+				dp.write(ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt(clientPartner.localBitrate).array());
 				clientPartner.sendPacket(dp, true);
 			}
 		}, "SEND_CURRENT_BITRATE").start();
@@ -1446,7 +1275,7 @@ public class VoIPService extends Service {
 				// Start recording audio from the mic
 				try
 				{
-					recorder = new AudioRecord(audioSource, AUDIO_SAMPLE_RATE, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, minBufSizeRecording);
+					recorder = new AudioRecord(audioSource, VoIPConstants.AUDIO_SAMPLE_RATE, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, minBufSizeRecording);
 					recorder.startRecording();
 				}
 				catch(IllegalArgumentException e)
@@ -1568,9 +1397,9 @@ public class VoIPService extends Service {
 							aecSpeakerSignal = true;
 
 						// Resample
-						if (resamplerEnabled && playbackSampleRate != AUDIO_SAMPLE_RATE) {
+						if (resamplerEnabled && playbackSampleRate != VoIPConstants.AUDIO_SAMPLE_RATE) {
 							// We need to resample the output signal
-							byte[] output = resampler.reSample(dp.getData(), 16, AUDIO_SAMPLE_RATE, playbackSampleRate);
+							byte[] output = resampler.reSample(dp.getData(), 16, VoIPConstants.AUDIO_SAMPLE_RATE, playbackSampleRate);
 							dp.write(output);
 						} 
 						
@@ -1662,98 +1491,6 @@ public class VoIPService extends Service {
 		}, "AUDIOTRACK_MONITOR_THREAD").start();
 	}
 	
-	private void startSendingAndReceiving() {
-		
-		// In case we are reconnecting, current sending and receiving threads
-		// need to be restarted because the sockets would have changed.
-		if (sendingThread != null)
-			sendingThread.interrupt();
-		clientPartner.interruptReceivingThread();
-		
-		startSending();
-		clientPartner.startReceiving();
-	}
-	
-	private void startSending() {
-		sendingThread = new Thread(new Runnable() {
-			
-			@Override
-			public void run() {
-				android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
-				int voicePacketCount = 1;
-				while (keepRunning == true) {
-					
-					if (Thread.interrupted()) {
-//						Logger.w(VoIPConstants.TAG, "Quitting sending thread.");
-						break;
-					}
-
-					VoIPDataPacket dp = encodedBuffersQueue.peek();
-					if (dp != null) {
-						encodedBuffersQueue.poll();
-						dp.voicePacketNumber = voicePacketCount++;
-						
-						// Encrypt packet
-						if (clientPartner.encryptionStage == EncryptionStage.STAGE_READY) {
-							byte[] origData = dp.getData();
-							dp.write(clientPartner.encryptor.aesEncrypt(origData));
-							dp.setEncrypted(true);
-						}
-						
-						clientPartner.sendPacket(dp, false);
-					} else {
-						synchronized (encodedBuffersQueue) {
-							try {
-								encodedBuffersQueue.wait();
-							} catch (InterruptedException e) {
-//								Logger.d(VoIPConstants.TAG, "encodedBuffersQueue interrupted: " + e.toString());
-								break;
-							}
-						}
-					}
-				}
-			}
-		}, "VOIP_SEND_THREAD");
-		
-		sendingThread.start();
-	}
-	
-	private void sendPacketsWaitingForAck() {
-		if (clientPartner.ackWaitQueue.isEmpty() || !clientPartner.connected)
-			return;
-		
-		synchronized (clientPartner.ackWaitQueue) {
-			Iterator<Integer> iterator = clientPartner.ackWaitQueue.keySet().iterator();;
-			long currentTime = System.currentTimeMillis();
-
-			while (iterator.hasNext()) {
-				Integer i = iterator.next();
-				if (clientPartner.ackWaitQueue.get(i).getTimestamp() < currentTime - 1000) {	// Give each packet 1 second to get ack
-					Logger.d(VoIPConstants.TAG, "Re-Requesting ack for: " + clientPartner.ackWaitQueue.get(i).getType());
-					clientPartner.sendPacket(clientPartner.ackWaitQueue.get(i), true);
-				}
-			}
-		}		
-	}
-	
-	public int adjustBitrate(int delta) {
-		if (delta > 0 && localBitrate + delta < 64000)
-			localBitrate += delta;
-		if (delta < 0 && localBitrate + delta >= 3000)
-			localBitrate += delta;
-		
-		if (opusWrapper == null)
-			return localBitrate;
-		
-		opusWrapper.setEncoderBitrate(localBitrate);
-		
-		return localBitrate;
-	}
-	
-	public int getBitrate() {
-		return localBitrate;
-	}
-	
 	/**
 	 * Is the VoIP service currently connected to another phone?
 	 * This can return <b>false</b> even for an ongoing call, in case
@@ -1764,10 +1501,6 @@ public class VoIPService extends Service {
 	 */
 	private boolean isConnected() {
 		return clientPartner.connected;
-	}
-	
-	public static boolean isAudioRunning() {
-		return audioStarted;
 	}
 	
 	public void setHold(boolean newHold) {
@@ -1790,7 +1523,7 @@ public class VoIPService extends Service {
 			startPlayBack();
 		}
 
-		setCallStatus(!hold && !clientPartner.remoteHold ? VoIPConstants.CallStatus.ACTIVE : VoIPConstants.CallStatus.ON_HOLD);
+		clientPartner.setCallStatus(!hold && !clientPartner.remoteHold ? VoIPConstants.CallStatus.ACTIVE : VoIPConstants.CallStatus.ON_HOLD);
 		sendHandlerMessage(VoIPConstants.MSG_UPDATE_HOLD_BUTTON);
 		
 		// Send hold status to partner
@@ -1846,7 +1579,7 @@ public class VoIPService extends Service {
 	private void playOutgoingCallRingtone() {
 		synchronized (this) {
 			
-			if (clientPartner.reconnecting || audioStarted)
+			if (clientPartner.reconnecting || clientPartner.audioStarted)
 				return;
 			
 			if (isRingingOutgoing == true) {
@@ -1855,7 +1588,7 @@ public class VoIPService extends Service {
 			} else isRingingOutgoing = true;
 
 			Logger.d(VoIPConstants.TAG, "Playing outgoing call ringer.");
-			setCallStatus(VoIPConstants.CallStatus.OUTGOING_RINGING);
+			clientPartner.setCallStatus(VoIPConstants.CallStatus.OUTGOING_RINGING);
 			sendHandlerMessage(VoIPConstants.CONNECTION_ESTABLISHED_FIRST_TIME);
 			clientPartner.sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CONNECTION_ESTABLISHED);
 			setAudioModeInCall();
@@ -1866,7 +1599,7 @@ public class VoIPService extends Service {
 	@SuppressWarnings("deprecation")
 	private void playIncomingCallRingtone() {
 
-		if (clientPartner.reconnecting || audioStarted || keepRunning == false)
+		if (clientPartner.reconnecting || clientPartner.audioStarted || keepRunning == false)
 			return;
 
 		synchronized (this) {
@@ -1925,31 +1658,5 @@ public class VoIPService extends Service {
 		}
 	}
 	
-	public CallQuality getQuality() {
-		return currentCallQuality;
-	}
-	
-	public void setCallStatus(VoIPConstants.CallStatus status)
-	{
-		currentCallStatus = status;
-	}
-
-	public VoIPConstants.CallStatus getCallStatus()
-	{
-		return currentCallStatus;
-	}
-
-	private void setInitialCallStatus()
-	{
-		if(isAudioRunning())
-		{
-			setCallStatus(VoIPConstants.CallStatus.ACTIVE);
-		}
-		else
-		{
-			setCallStatus(clientPartner.isInitiator() ? VoIPConstants.CallStatus.INCOMING_CALL : VoIPConstants.CallStatus.OUTGOING_CONNECTING);
-		}
-	}
-
 }
 

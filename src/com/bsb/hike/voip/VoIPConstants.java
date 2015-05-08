@@ -8,6 +8,8 @@ public class VoIPConstants {
 	public static final String ICEServerName = "relay.hike.in";
 	public static final int ICEServerPort = 9999;
 
+	public static final int AUDIO_SAMPLE_RATE = 48000; 
+
 	/**
 	 * Time (ms) to wait before the client being called replies with its
 	 * own socket information.

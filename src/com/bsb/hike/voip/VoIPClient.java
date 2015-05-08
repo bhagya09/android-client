@@ -10,6 +10,7 @@ import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.BitSet;
+import java.util.Iterator;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -18,13 +19,17 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.os.SystemClock;
 import android.text.TextUtils;
+import android.widget.Chronometer;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.MqttConstants;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
@@ -33,8 +38,10 @@ import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.voip.VoIPConstants.CallQuality;
 import com.bsb.hike.voip.VoIPDataPacket.PacketType;
 import com.bsb.hike.voip.VoIPEncryptor.EncryptionStage;
+import com.bsb.hike.voip.VoIPUtils.ConnectionClass;
 import com.bsb.hike.voip.protobuf.VoIPSerializer;
 
 public class VoIPClient  {		
@@ -45,6 +52,10 @@ public class VoIPClient  {
 	private static final byte PP_PROTOCOL_BUFFER = 0x03;
 	
 	private final int PACKET_TRACKING_SIZE = 128;
+	private final int HEARTBEAT_INTERVAL = 1000;
+	private final int HEARTBEAT_TIMEOUT = 5000;
+	private final int HEARTBEAT_HARD_TIMEOUT = 60000;
+	private final int MAX_SAMPLES_BUFFER = 3;
 	
 	private String phoneNumber;
 	private String internalIPAddress, externalIPAddress;
@@ -61,7 +72,7 @@ public class VoIPClient  {
 	private Context context;
 	private DatagramSocket socket = null;
 	private Thread iceThread = null, partnerTimeoutThread = null, responseTimeoutThread = null, senderThread = null, receivingThread = null;
-	private Thread reconnectingBeepsThread;
+	private Thread reconnectingBeepsThread = null, sendingThread = null;
 	private boolean keepRunning = true;
 	public boolean reconnecting = false;
 	private int currentPacketNumber = 0, rawVoiceSent = 0;
@@ -79,11 +90,21 @@ public class VoIPClient  {
 	private boolean cryptoEnabled = true;
 	public VoIPEncryptor.EncryptionStage encryptionStage; // TODO should be private
 	public boolean remoteHold = false;
+	public boolean audioStarted = false;
+	private VoIPConstants.CallStatus currentCallStatus;
+	public int localBitrate = VoIPConstants.BITRATE_WIFI, remoteBitrate = 0;
+	private int chronoBackup = 0;
+	public Chronometer chronometer = null;
 
-
+	// Call quality fields
+	private int qualityCounter = 0;
+	private long lastQualityReset = 0;
+	private CallQuality currentCallQuality = CallQuality.UNKNOWN;
+	
 	
 	public final ConcurrentHashMap<Integer, VoIPDataPacket> ackWaitQueue		 = new ConcurrentHashMap<Integer, VoIPDataPacket>();
 	public final ConcurrentLinkedQueue<VoIPDataPacket> samplesToDecodeQueue     = new ConcurrentLinkedQueue<VoIPDataPacket>();
+	public final ConcurrentLinkedQueue<VoIPDataPacket> encodedBuffersQueue      = new ConcurrentLinkedQueue<VoIPDataPacket>();
 	
 	public enum ConnectionMethods {
 		UNKNOWN,
@@ -420,6 +441,113 @@ public class VoIPClient  {
 		
 	}
 	
+	private void startHeartbeat() {
+		
+		// Sending heart beat
+		new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				VoIPDataPacket dp = new VoIPDataPacket(PacketType.HEARTBEAT);
+				while (keepRunning == true) {
+					sendPacket(dp, false);
+					try {
+						Thread.sleep(HEARTBEAT_INTERVAL);
+					} catch (InterruptedException e) {
+						Logger.d(VoIPConstants.TAG, "Heartbeat InterruptedException: " + e.toString());
+						break;
+					}
+
+					if (isAudioRunning())
+						chronoBackup++;
+				}
+			}
+		}, "SEND_HEART_BEAT_THREAD").start();
+		
+		// Listening for heartbeat, and housekeeping
+		new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				lastHeartbeat = System.currentTimeMillis();
+				while (keepRunning == true) {
+					if (System.currentTimeMillis() - lastHeartbeat > HEARTBEAT_TIMEOUT && !reconnecting) {
+//						Logger.w(VoIPConstants.TAG, "Heartbeat failure. Reconnecting.. ");
+						startReconnectBeeps();
+						if (!isInitiator() && connected && isAudioRunning())
+							reconnect();
+					}
+					
+					if (System.currentTimeMillis() - lastHeartbeat > HEARTBEAT_HARD_TIMEOUT) {
+						Logger.d(VoIPConstants.TAG, "Giving up on connection.");
+						hangUp();
+						break;
+					}
+					
+					sendPacketsWaitingForAck();
+					
+					// Monitor quality of incoming data
+					if ((System.currentTimeMillis() - lastQualityReset > VoIPConstants.QUALITY_WINDOW * 1000) 
+							&& getCallDuration() > VoIPConstants.QUALITY_WINDOW
+							&& remoteHold == false) {
+						
+						CallQuality newQuality;
+						int idealPacketCount = (VoIPConstants.AUDIO_SAMPLE_RATE * VoIPConstants.QUALITY_WINDOW) / OpusWrapper.OPUS_FRAME_SIZE; 
+						if (qualityCounter >= idealPacketCount)
+							newQuality = CallQuality.EXCELLENT;
+						else if (qualityCounter >= idealPacketCount - VoIPConstants.QUALITY_WINDOW)
+							newQuality = CallQuality.GOOD;
+						else if (qualityCounter >= idealPacketCount - VoIPConstants.QUALITY_WINDOW * 2)
+							newQuality = CallQuality.FAIR;
+						else 
+							newQuality = CallQuality.WEAK;
+
+						if (currentCallQuality != newQuality) {
+							currentCallQuality = newQuality;
+							sendHandlerMessage(VoIPConstants.MSG_UPDATE_QUALITY);
+						}
+
+						qualityCounter = 0;
+						lastQualityReset = System.currentTimeMillis();
+					}
+					
+					// Drop packets if getting left behind
+					while (samplesToDecodeQueue.size() > MAX_SAMPLES_BUFFER) {
+						Logger.d(VoIPConstants.TAG, "Dropping to_decode packet.");
+						samplesToDecodeQueue.poll();
+					}
+					
+					while (samplesToEncodeQueue.size() > MAX_SAMPLES_BUFFER) {
+						if (audioStarted)
+							Logger.d(VoIPConstants.TAG, "Dropping to_encode packet.");
+						samplesToEncodeQueue.poll();
+					}
+					
+					while (encodedBuffersQueue.size() > MAX_SAMPLES_BUFFER) {
+						Logger.d(VoIPConstants.TAG, "Dropping encoded packet.");
+						encodedBuffersQueue.poll();
+					}
+
+					while (decodedBuffersQueue.size() > MAX_SAMPLES_BUFFER) {
+//						Logger.d(VoIPConstants.TAG, "Dropping decoded packet.");
+						droppedDecodedPackets++;
+						decodedBuffersQueue.poll();
+					}
+
+					try {
+						Thread.sleep(HEARTBEAT_INTERVAL);
+					} catch (InterruptedException e) {
+						Logger.d(VoIPConstants.TAG, "Heartbeat InterruptedException: " + e.toString());
+					}
+					
+				}
+			}
+		}, "LISTEN_HEART_BEAT_THREAD").start();
+		
+	}
+	
+	
+	
 	/**
 	 * Once socket information for the partner has been received, this
 	 * function should be called to establish and verify a UDP connection.
@@ -572,6 +700,62 @@ public class VoIPClient  {
 		responseTimeoutThread.start();
 	}
 
+	private void startSendingAndReceiving() {
+		
+		// In case we are reconnecting, current sending and receiving threads
+		// need to be restarted because the sockets would have changed.
+		if (sendingThread != null)
+			sendingThread.interrupt();
+		
+		interruptReceivingThread();
+		startSending();
+		startReceiving();
+	}
+	
+	private void startSending() {
+		sendingThread = new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
+				int voicePacketCount = 1;
+				while (keepRunning == true) {
+					
+					if (Thread.interrupted()) {
+//						Logger.w(VoIPConstants.TAG, "Quitting sending thread.");
+						break;
+					}
+
+					VoIPDataPacket dp = encodedBuffersQueue.peek();
+					if (dp != null) {
+						encodedBuffersQueue.poll();
+						dp.voicePacketNumber = voicePacketCount++;
+						
+						// Encrypt packet
+						if (encryptionStage == EncryptionStage.STAGE_READY) {
+							byte[] origData = dp.getData();
+							dp.write(encryptor.aesEncrypt(origData));
+							dp.setEncrypted(true);
+						}
+						
+						sendPacket(dp, false);
+					} else {
+						synchronized (encodedBuffersQueue) {
+							try {
+								encodedBuffersQueue.wait();
+							} catch (InterruptedException e) {
+//								Logger.d(VoIPConstants.TAG, "encodedBuffersQueue interrupted: " + e.toString());
+								break;
+							}
+						}
+					}
+				}
+			}
+		}, "VOIP_SEND_THREAD");
+		
+		sendingThread.start();
+	}
+	
 	
 	public void interruptSenderThread() {
 		if (senderThread != null)
@@ -601,10 +785,22 @@ public class VoIPClient  {
 			reconnectingBeepsThread.interrupt();
 		if (receivingThread != null)
 			receivingThread.interrupt();
+		if (sendingThread != null)
+			sendingThread.interrupt();
 
+		if(chronometer != null)
+		{
+			chronometer.stop();
+			chronometer = null;
+		}
+
+
+		connected = false;
+		audioStarted = false;
 		removeExternalSocketInfo();
 		ackWaitQueue.clear();
 		samplesToDecodeQueue.clear();
+		encodedBuffersQueue.clear();
 	}
 
 	private void setExternalSocketInfo(String ICEResponse) throws JSONException {
@@ -723,6 +919,23 @@ public class VoIPClient  {
 		}
 	}
 	
+	private void sendPacketsWaitingForAck() {
+		if (ackWaitQueue.isEmpty() || !connected)
+			return;
+		
+		synchronized (ackWaitQueue) {
+			Iterator<Integer> iterator = ackWaitQueue.keySet().iterator();;
+			long currentTime = System.currentTimeMillis();
+
+			while (iterator.hasNext()) {
+				Integer i = iterator.next();
+				if (ackWaitQueue.get(i).getTimestamp() < currentTime - 1000) {	// Give each packet 1 second to get ack
+					Logger.d(VoIPConstants.TAG, "Re-Requesting ack for: " + ackWaitQueue.get(i).getType());
+					sendPacket(ackWaitQueue.get(i), true);
+				}
+			}
+		}		
+	}
 	
 	private void sendHandlerMessage(int message) {
 		Message msg = Message.obtain();
@@ -968,7 +1181,7 @@ public class VoIPClient  {
 						Logger.d(VoIPConstants.TAG, "Other party hung up.");
 						setEnder(true);
 						stop();
-						VoIPUtils.addMessageToChatThread(getApplicationContext(), clientPartner, HikeConstants.MqttMessageTypes.VOIP_MSG_TYPE_CALL_SUMMARY, getCallDuration(), -1, true);
+						VoIPUtils.addMessageToChatThread(context, VoIPClient.this, HikeConstants.MqttMessageTypes.VOIP_MSG_TYPE_CALL_SUMMARY, getCallDuration(), -1, true);
 						break;
 						
 					case START_VOICE:
@@ -1194,8 +1407,73 @@ public class VoIPClient  {
 		Logger.d(VoIPConstants.TAG, "Streaming started.");
 	}
 	
+	public boolean isAudioRunning() {
+		return audioStarted;
+	}
+	
+	public void setCallStatus(VoIPConstants.CallStatus status)
+	{
+		currentCallStatus = status;
+	}
 
+	public VoIPConstants.CallStatus getCallStatus()
+	{
+		return currentCallStatus;
+	}
 
+	public void setInitialCallStatus()
+	{
+		if(isAudioRunning())
+		{
+			setCallStatus(VoIPConstants.CallStatus.ACTIVE);
+		}
+		else
+		{
+			setCallStatus(isInitiator() ? VoIPConstants.CallStatus.INCOMING_CALL : VoIPConstants.CallStatus.OUTGOING_CONNECTING);
+		}
+	}
+
+	public void setIdealBitrate() {
+		
+		ConnectionClass connection = VoIPUtils.getConnectionClass(context);
+
+		SharedPreferences prefs = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
+		int twoGBitrate = prefs.getInt(HikeMessengerApp.VOIP_BITRATE_2G, VoIPConstants.BITRATE_2G);
+		int threeGBitrate = prefs.getInt(HikeMessengerApp.VOIP_BITRATE_3G, VoIPConstants.BITRATE_3G);
+		int wifiBitrate = prefs.getInt(HikeMessengerApp.VOIP_BITRATE_WIFI, VoIPConstants.BITRATE_WIFI);
+		
+		if (connection == ConnectionClass.TwoG)
+			localBitrate = twoGBitrate;
+		else if (connection == ConnectionClass.ThreeG)
+			localBitrate = threeGBitrate;
+		else if (connection == ConnectionClass.WiFi)
+			localBitrate = wifiBitrate;
+		else 
+			localBitrate = wifiBitrate;
+		
+		if (remoteBitrate > 0 && remoteBitrate < localBitrate)
+			localBitrate = remoteBitrate;
+		
+		Logger.d(VoIPConstants.TAG, "Detected ideal bitrate: " + localBitrate);
+		
+		if (opusWrapper != null)
+			opusWrapper.setEncoderBitrate(localBitrate);
+	}
+	
+	public int getCallDuration() {
+		int seconds = 0;
+		if (chronometer != null) {
+			seconds = (int) ((SystemClock.elapsedRealtime() - chronometer.getBase()) / 1000);
+		} else
+			seconds = chronoBackup;
+		
+		return seconds;
+	}
+	
+	public CallQuality getQuality() {
+		return currentCallQuality;
+	}
+	
 	private void stop() {
 		sendHandlerMessage(VoIPConstants.MSG_VOIP_CLIENT_STOP);
 	}
@@ -1207,5 +1485,6 @@ public class VoIPClient  {
 	private void playIncomingCallRingtone() {
 		sendHandlerMessage(VoIPConstants.MSG_VOIP_CLIENT_INCOMING_CALL_RINGTONE);
 	}
+
 }
 
