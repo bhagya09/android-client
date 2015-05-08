@@ -1780,12 +1780,20 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 
 	}
 
-	private void changeConversationsVisibility()
+	private void changeConversationsVisibility(boolean toggleHiddenMode)
 	{
 
 		if (!StealthModeManager.getInstance().isActive())
 		{
-			mAdapter.removeStealthConversationsFromLists();
+			if(toggleHiddenMode)
+			{
+				mAdapter.removeStealthConversationsFromLists();
+			}
+			else
+			{
+				mAdapter.addItemsToAnimat(stealthConversations);
+			}
+			
 		}
 		else
 		{
@@ -2482,12 +2490,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		}
 		else if (HikePubSub.STEALTH_MODE_TOGGLED.equals(type))
 		{
-			boolean changeItemsVisibility = (Boolean) object;
-
-			if (!changeItemsVisibility)
-			{
-				return;
-			}
+			final boolean toggleHiddenMode = (Boolean) object;
 
 			if (!isAdded())
 			{
@@ -2499,7 +2502,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 				@Override
 				public void run()
 				{
-					changeConversationsVisibility();
+					changeConversationsVisibility(toggleHiddenMode);
 				}
 			});
 		}
@@ -2536,10 +2539,10 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 							else
 							{
 								convInfo.setStealth(true);
-								mAdapter.remove(convInfo);
 								stealthConversations.add(convInfo);
 								StealthModeManager.getInstance().addStealthMsisdnToMap(convInfo.getMsisdn());
 								HikeConversationsDatabase.getInstance().toggleStealth(convInfo.getMsisdn(), true);
+								HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_MODE_TOGGLED, false);
 								notifyDataSetChanged();
 							}
 							

@@ -468,12 +468,6 @@ public class FriendsFragment extends SherlockListFragment implements Listener, O
 		}
 		else if (HikePubSub.STEALTH_MODE_TOGGLED.equals(type))
 		{
-			boolean shouldChangeItemVisibility = (Boolean) object;
-
-			if (!shouldChangeItemVisibility)
-			{
-				return;
-			}
 
 			if (!isAdded())
 			{

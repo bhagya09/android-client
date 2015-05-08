@@ -192,7 +192,7 @@ public class StealthModeManager
 	
 	public void settingupTriggered(Activity activity, boolean toggleVisibility)
 	{
-		HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_MODE_TOGGLED, !isActive() && toggleVisibility);
+		//HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_MODE_TOGGLED, !isActive() && toggleVisibility);
 		
 		if (!StealthModeManager.getInstance().isSetUp())
 		{

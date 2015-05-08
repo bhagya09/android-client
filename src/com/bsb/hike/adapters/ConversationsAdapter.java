@@ -1013,8 +1013,6 @@ public class ConversationsAdapter extends BaseAdapter
 		return iconLoader;
 	}
 
-	
-	//TODO deleting this func, as no one uses it anymore
 	public void removeStealthConversationsFromLists()
 	{
 		for (Iterator<ConvInfo> iter = completeList.iterator(); iter.hasNext();)
