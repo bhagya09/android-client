@@ -4,7 +4,7 @@
     package="com.bsb.hike"
     android:installLocation="auto"
     android:versionCode="1202"
-    android:versionName="3.9.2.51.1.voip" >
+    android:versionName="3.9.2.51.2.voip" >
 
     <uses-sdk
         android:minSdkVersion="9"
