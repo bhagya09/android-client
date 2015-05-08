@@ -249,7 +249,7 @@ public class SendGCMIdToServerTrigger extends BroadcastReceiver
 			JSONObject metadata = new JSONObject();
 			metadata.put(HikeConstants.PAYLOAD, jsonString);
 			Logger.d(getClass().getSimpleName(), "recording send device details fail event. json = " + jsonString);
-			HAManager.getInstance().record(HikeConstants.EXCEPTION, HikeConstants.LogEvent.ADDRESSBOOK_UPLOAD, metadata);
+			HAManager.getInstance().record(HikeConstants.EXCEPTION, HikeConstants.LogEvent.SEND_DEVICE_DETAILS, metadata);
 		}
 		catch (JSONException e)
 		{
