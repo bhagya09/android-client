@@ -141,7 +141,7 @@ public class UpdateAddressBookTask
 		}
 		catch (JSONException e)
 		{
-			Logger.e(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+			Logger.e(getClass().getSimpleName(), "invalid json");
 		}
 	}
 }
