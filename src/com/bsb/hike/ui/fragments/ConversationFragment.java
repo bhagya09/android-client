@@ -1711,6 +1711,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		else if (HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOW_STEALTH_UNREAD_TIP, false))
 		{
 			tipType = ConversationTip.STEALTH_UNREAD_TIP;
+			HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_INDICATOR, null);
 		}
 		else if (tip.equals(HikeMessengerApp.ATOMIC_POP_UP_PROFILE_PIC))
 		{

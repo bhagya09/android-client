@@ -41,8 +41,6 @@ public class StealthModeManager
 	private final String TAG =  "StealthModeManager";
 	
 	private int currentState;
-	
-	private static boolean inFakeHiddenMode = false;
 
 	private StealthModeManager()
 	{
@@ -111,7 +109,7 @@ public class StealthModeManager
 	{
 		clearScheduledStealthToggleTimer();
 		String stealthTimeOut = PreferenceManager.getDefaultSharedPreferences(HikeMessengerApp.getInstance().getApplicationContext()).getString(HikeConstants.CHANGE_STEALTH_TIMEOUT, DEFAULT_RESET_TOGGLE_TIME);
-		inFakeHiddenMode = true;
+
 		if(!stealthTimeOut.equals(NEVER_RESET_TOGGLE_TIME))
 		{
 			
@@ -121,7 +119,6 @@ public class StealthModeManager
 
 	public void clearScheduledStealthToggleTimer()
 	{
-		inFakeHiddenMode = false;
 		stealthFakeOn();
 		handler.removeRunnable(toggleReset);
 	}
@@ -135,7 +132,6 @@ public class StealthModeManager
 			activate(false);
 			HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_MODE_TOGGLED, true);
 			HikeMessengerApp.getPubSub().publish(HikePubSub.CLOSE_CURRENT_STEALTH_CHAT, true);
-			inFakeHiddenMode = false;
 		}
 	};
 	

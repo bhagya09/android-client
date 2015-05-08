@@ -345,6 +345,8 @@ public class HikePubSub implements Runnable
 	public static final String REMOVE_WELCOME_HIKE_TIP = "removeWelcomeHikeTip";
 
 	public static final String STEALTH_POPUP_WITH_PUSH = "stealthPopupShowPush";
+	
+	public static final String STEALTH_INDICATOR = "stealthIndicator";
 
 	public static final String ATOMIC_POPUP_WITH_PUSH = "atomicPopupShowPush";
 

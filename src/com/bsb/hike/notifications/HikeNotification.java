@@ -26,6 +26,7 @@ import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.chatthread.ChatThreadActivity;
@@ -654,10 +655,17 @@ public class HikeNotification
 		String message = context.getString(R.string.stealth_notification_message);
 		String key = HIKE_STEALTH_MESSAGE_KEY;
 
+		Boolean stealthNotificationEnabled = PreferenceManager.getDefaultSharedPreferences(context).getBoolean(HikeConstants.STEALTH_NOTIFICATION_ENABLED, true);
+		Boolean stealthIndicatorEnabled = PreferenceManager.getDefaultSharedPreferences(context).getBoolean(HikeConstants.STEALTH_INDICATOR_ENABLED, true);
+	
+		if(stealthIndicatorEnabled)
+		{
+			HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_INDICATOR, null);
+		}
 		/*
 		 * return straight away if the block notification setting is ON
 		 */
-		if (sharedPreferences.getBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false))
+		if (sharedPreferences.getBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false) || !stealthNotificationEnabled)
 		{
 			return;
 		}
