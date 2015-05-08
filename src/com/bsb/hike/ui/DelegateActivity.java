@@ -76,7 +76,7 @@ public class DelegateActivity extends HikeAppStateBaseFragmentActivity
 			destinationIntents.add((Intent) destParcel);
 		}
 
-		if (destinationIntents.size()>1)
+		if (startedForResult)
 		{
 			Logger.d(TAG, "Starting activity for result");
 			DelegateActivity.this.startActivityForResult(destinationIntents.get(currentIntentCounter++), requestCode);
