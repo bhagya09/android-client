@@ -2073,14 +2073,22 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	private void initialiseLocationTransfer(double latitude, double longitude, int zoomLevel, ArrayList<ContactInfo> arrayList)
 	{
 		clearTempData();
+		boolean newConvIfnotExist = false;
+		if(arrayList.size()==1){
+			newConvIfnotExist = true;
+		}
 		for(ContactInfo contactInfo:arrayList){
-		FileTransferManager.getInstance(getApplicationContext()).uploadLocation(contactInfo.getMsisdn(), latitude, longitude, zoomLevel, ((ContactInfo)arrayList.get(0)).isOnhike());
+		FileTransferManager.getInstance(getApplicationContext()).uploadLocation(contactInfo.getMsisdn(), latitude, longitude, zoomLevel, ((ContactInfo)arrayList.get(0)).isOnhike(),newConvIfnotExist);
 		}
 	}
 	private void initialiseContactTransfer(JSONObject contactJson, ArrayList<ContactInfo> arrayList)
 	{
+		boolean newConvIfnotExist = false;
+		if(arrayList.size()==1){
+			newConvIfnotExist = true;
+		}
 		for(ContactInfo contactInfo:arrayList){
-		FileTransferManager.getInstance(getApplicationContext()).uploadContact(contactInfo.getMsisdn(), contactJson, (((ContactInfo)arrayList.get(0)).isOnhike()));
+		FileTransferManager.getInstance(getApplicationContext()).uploadContact(contactInfo.getMsisdn(), contactJson, (((ContactInfo)arrayList.get(0)).isOnhike()), newConvIfnotExist);
 		}
 	}
 

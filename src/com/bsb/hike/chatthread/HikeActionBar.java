@@ -141,7 +141,13 @@ public class HikeActionBar
 
 	public void showOverflowMenu(int width, int height, int xOffset, int yOffset, View anchor)
 	{
-		overFlowMenuLayout.show(width, height, xOffset, yOffset, anchor, PopupWindow.INPUT_METHOD_NOT_NEEDED);
+		/**
+		 * Getting an NPE at times here. This can be null only in case where onCreateOptionsMenu is yet to be called though it shouldn't happen. It's a defensive check
+		 */
+		if (overFlowMenuLayout != null)
+		{	
+			overFlowMenuLayout.show(width, height, xOffset, yOffset, anchor, PopupWindow.INPUT_METHOD_NOT_NEEDED);
+		}
 	}
 	
 	/**

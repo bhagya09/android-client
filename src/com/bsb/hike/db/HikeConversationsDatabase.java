@@ -2118,24 +2118,22 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		return metadata;
 	}
 
-	public void deleteConversation(List<String> msisdns)
+	public void deleteConversation(String msisdn)
 	{
 		try
 		{
 			mDb.beginTransaction();
-			for (String msisdn : msisdns)
+			mDb.delete(DBConstants.CONVERSATIONS_TABLE, DBConstants.MSISDN + "=?", new String[] { msisdn });
+			mDb.delete(DBConstants.MESSAGES_TABLE, DBConstants.MSISDN + "=?", new String[] { msisdn });
+			mDb.delete(DBConstants.SHARED_MEDIA_TABLE, DBConstants.MSISDN + "=?", new String[] { msisdn });
+			
+			if (OneToNConversationUtils.isOneToNConversation(msisdn))
 			{
-				mDb.delete(DBConstants.CONVERSATIONS_TABLE, DBConstants.MSISDN + "=?", new String[] { msisdn });
-				mDb.delete(DBConstants.MESSAGES_TABLE, DBConstants.MSISDN + "=?", new String[] { msisdn });
-				mDb.delete(DBConstants.SHARED_MEDIA_TABLE, DBConstants.MSISDN + "=?", new String[] { msisdn });
-				if (OneToNConversationUtils.isOneToNConversation(msisdn))
-				{
-					mDb.delete(DBConstants.GROUP_MEMBERS_TABLE, DBConstants.GROUP_ID + " =?", new String[] { msisdn });
-					mDb.delete(DBConstants.GROUP_INFO_TABLE, DBConstants.GROUP_ID + " =?", new String[] { msisdn });
-					removeChatThemeForMsisdn(msisdn);
-				}
-				setExtraConvUnreadCount(msisdn, 0);
+				mDb.delete(DBConstants.GROUP_MEMBERS_TABLE, DBConstants.GROUP_ID + " =?", new String[] { msisdn });
+				mDb.delete(DBConstants.GROUP_INFO_TABLE, DBConstants.GROUP_ID + " =?", new String[] { msisdn });
+				removeChatThemeForMsisdn(msisdn);
 			}
+			setExtraConvUnreadCount(msisdn, 0);		
 			mDb.setTransactionSuccessful();
 		}
 		finally
@@ -3346,6 +3344,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 					/*
 					 * This conversation is empty.
 					 */
+					clearLastConversationMessage(msisdn);
 					conversationEmpty = true;
 				}
 			}

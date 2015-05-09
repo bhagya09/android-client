@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.ViewConfiguration;
 
@@ -17,6 +18,7 @@ import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 import com.bsb.hike.utils.StealthModeManager;
 
 public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
@@ -33,6 +35,14 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 		requestWindowFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
 		super.onCreate(savedInstanceState);
 
+		/**
+		 * force the user into the reg-flow process if the token isn't set
+		 */
+        if (Utils.requireAuth(this))
+        {
+            return;
+        }
+		
 		if (filter(getIntent()))
 		{
 			init(getIntent());
@@ -53,10 +63,10 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 		 * Possibly Chat Thread is being invoked from outside the application
 		 */
 		
-		if (msisdn == null)
+		if (TextUtils.isEmpty(msisdn))
 		{
 			msisdn = ChatThreadUtils.getMsisdnFromSendToIntent(intent);
-			if (msisdn == null)
+			if (TextUtils.isEmpty(msisdn))
 			{
 				return false;
 			}
