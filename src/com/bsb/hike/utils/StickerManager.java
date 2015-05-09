@@ -391,7 +391,7 @@ public class StickerManager
 			String path = directory.getPath();
 			if (path.endsWith(HikeConstants.LARGE_STICKER_ROOT) || path.endsWith(HikeConstants.SMALL_STICKER_ROOT) || path.endsWith(OTHER_STICKER_ASSET_ROOT))
 			{
-				Utils.makeNoMediaFile(directory);
+				Utils.makeNoMediaFile(directory, true);
 			}
 			else if (directory.isDirectory())
 			{
