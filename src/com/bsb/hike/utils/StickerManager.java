@@ -104,6 +104,8 @@ public class StickerManager
 	public static final String ADD_NO_MEDIA_FILE_FOR_STICKERS = "addNoMediaFileForStickers";
 	
 	public static final String ADD_NO_MEDIA_FILE_FOR_STICKER_OTHER_FOLDERS = "addNoMediaFileForStickerOtherFolders";
+	
+	public static final String ADD_NO_MEDIA_FILE_FOR_SINGLE_STICKER_DOWNLOADS = "addNoMediaFileForSingleStickerDownloads";
 
 	public static final String DELETE_DEFAULT_DOWNLOADED_EXPRESSIONS_STICKER = "delDefaultDownloadedExpressionsStickers";
 	
@@ -279,6 +281,11 @@ public class StickerManager
 		{
 			addNoMediaFilesToStickerDirectories();
 		}
+		
+		if (!settings.getBoolean(StickerManager.ADD_NO_MEDIA_FILE_FOR_SINGLE_STICKER_DOWNLOADS, false))
+		{
+			addNoMediaFilesToStickerDirectories();
+		}
 
 		/*
 		 * this code path will be for users upgrading to the build where we make expressions a default loaded category
@@ -373,6 +380,7 @@ public class StickerManager
 		Editor editor = preferenceManager.edit();
 		editor.putBoolean(ADD_NO_MEDIA_FILE_FOR_STICKERS, true);
 		editor.putBoolean(ADD_NO_MEDIA_FILE_FOR_STICKER_OTHER_FOLDERS, true);
+		editor.putBoolean(ADD_NO_MEDIA_FILE_FOR_SINGLE_STICKER_DOWNLOADS, true);
 		editor.commit();
 	}
 
