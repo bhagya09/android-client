@@ -4551,9 +4551,18 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		case SEARCH_ACTION_MODE:
 			mActionMode.reInflateActionMode();
 			String oldText = mComposeView.getText().toString();
+			int start = mComposeView.getSelectionStart();
+			int end = mComposeView.getSelectionEnd();
 			setUpSearchViews();
 			mComposeView.setText(oldText);
-			mComposeView.setSelection(oldText.length());
+			if (start != end)
+			{
+				mComposeView.setSelection(start, end);
+			}
+			else
+			{
+				mComposeView.setSelection(start);
+			}
 			break;
 			
 		default:
