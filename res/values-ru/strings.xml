@@ -831,10 +831,6 @@
     <string name="last_seen_proper_casing">В онлайн:</string>
     <string name="status_updates_proper_casing">Обнов. состоян</string>
     <string name="bigger_better_attachments">Вложения большего объема</string>
-    <string name="introducing_stealth_mode">Представляем скрытый режим</string>
-    <string name="stealth_mode_popup_msg">Теперь вы можете скрывать ото всех свои личные чаты, защищая их с помощью пароля.</string>
-    <string name="quick_setup">Быстрая настройка</string>
-    <string name="stealth_double_tap_tip"><![CDATA[ Ваш чат скрыт! Установите пароль для доступа к скрытому режиму.<br> <br> <b> Для начала нажмите \\"hi\\".</b ]]></string>
     <string name="alp_42447968_cmd_confirm">Подтв.</string>
     <string name="alp_42447968_cmd_continue">Продолжить</string>
     <string name="alp_42447968_cmd_forgot_pattern">Забыли рисунок?</string>
@@ -861,7 +857,6 @@
         <item quantity="other">Надо соединить хотя бы %1$d точки. Попробуйте еще раз</item>
     </plurals>
 
-    <string name="stealth_enter_pass_tip">Настройка завершена! Нажмите \\"hi\\", чтобы перейти к скрытым чатам.</string>
     <string name="stealth_notification_message">Появилось новое уведомление</string>
     <string name="stealth_notification_messages">Получены новые уведомления</string>
     <string name="retry">Повторить</string>
@@ -880,7 +875,6 @@
 	    
     ]]></string>
     <string name="reset_stealth_confirmation">При сбросе скрытого режима будут удалены все скрытые чаты.\nПродолжить?</string>
-    <string name="stealth_mode_empty_conv_popup_msg">Теперь вы можете скрывать ото всех свои личные чаты и получать к ним доступ только с помощью пароля. Начните новый чат и нажмите \\"hi\\", чтобы попробовать скрытый режим!</string>
     <string name="stealth_tap_and_hold_tip">Нажмите и удерживайте чат, чтобы пометить его как \\"скрытый\\".</string>
     <string name="chat_marked_stealth">Вы сделали чат скрытым.</string>
     <string name="chat_unmarked_stealth">Вы сделали чат видимым.</string>

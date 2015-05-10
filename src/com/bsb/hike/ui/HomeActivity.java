@@ -107,7 +107,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	private enum DialogShowing
 	{
-		SMS_CLIENT, SMS_SYNC_CONFIRMATION, SMS_SYNCING, UPGRADE_POPUP, FREE_INVITE_POPUP, STEALTH_FTUE_POPUP, STEALTH_FTUE_EMPTY_STATE_POPUP, FESTIVE_POPUP, VOIP_FTUE_POPUP
+		SMS_CLIENT, SMS_SYNC_CONFIRMATION, SMS_SYNCING, UPGRADE_POPUP, FREE_INVITE_POPUP, FESTIVE_POPUP, VOIP_FTUE_POPUP
 	}
 
 	private DialogShowing dialogShowing;
@@ -163,7 +163,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	private String[] homePubSubListeners = { HikePubSub.INCREMENTED_UNSEEN_STATUS_COUNT, HikePubSub.SMS_SYNC_COMPLETE, HikePubSub.SMS_SYNC_FAIL, HikePubSub.FAVORITE_TOGGLED,
 			HikePubSub.USER_JOINED, HikePubSub.USER_LEFT, HikePubSub.FRIEND_REQUEST_ACCEPTED, HikePubSub.REJECT_FRIEND_REQUEST, HikePubSub.UPDATE_OF_MENU_NOTIFICATION,
 			HikePubSub.SERVICE_STARTED, HikePubSub.UPDATE_PUSH, HikePubSub.REFRESH_FAVORITES, HikePubSub.UPDATE_NETWORK_STATE, HikePubSub.CONTACT_SYNCED,
-			HikePubSub.SHOW_STEALTH_FTUE_SET_PASS_TIP, HikePubSub.SHOW_STEALTH_FTUE_ENTER_PASS_TIP, HikePubSub.SHOW_STEALTH_FTUE_CONV_TIP, HikePubSub.FAVORITE_COUNT_CHANGED,
+			HikePubSub.SHOW_STEALTH_FTUE_CONV_TIP, HikePubSub.FAVORITE_COUNT_CHANGED,
 			HikePubSub.STEALTH_UNREAD_TIP_CLICKED,HikePubSub.FTUE_LIST_FETCHED_OR_UPDATED, HikePubSub.STEALTH_INDICATOR, HikePubSub.USER_JOINED_NOTIFICATION  };
 
 	private String[] progressPubSubListeners = { HikePubSub.FINISHED_UPGRADE_INTENT_SERVICE };
@@ -398,31 +398,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		findViewById(R.id.action_bar_img).setVisibility(View.GONE);
 		getSupportActionBar().show();
 		Utils.unblockOrientationChange(this);
-	}
-
-	private void showStealthFtueTip(final boolean isSetPasswordTip)
-	{
-		ViewStub stealthTipViewStub = (ViewStub) findViewById(R.id.stealth_double_tap_tip_viewstub);
-		if (stealthTipViewStub != null)
-		{
-			stealthTipViewStub.setOnInflateListener(new ViewStub.OnInflateListener()
-			{
-				@Override
-				public void onInflate(ViewStub stub, View inflated)
-				{
-					showStealthFtueTip(isSetPasswordTip);
-				}
-			});
-			stealthTipViewStub.inflate();
-		}
-		else
-		{
-			tipTypeShowing = isSetPasswordTip ? TipType.STEALTH_FTUE_TIP_2 : TipType.STEALTH_FTUE_ENTER_PASS_TIP;
-			HikeTip.showTip(HomeActivity.this, tipTypeShowing, findViewById(R.id.stealth_double_tap_tip));
-			Animation anim = AnimationUtils.loadAnimation(this, R.anim.fade_in_animation);
-			anim.setDuration(300);
-			findViewById(R.id.stealth_double_tap_tip).startAnimation(anim);
-		}
 	}
 
 	@Override
@@ -1310,42 +1285,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 				}
 			});
 		}
-		//TODO UmangX remove PASS TIPS
-		else if (HikePubSub.SHOW_STEALTH_FTUE_SET_PASS_TIP.equals(type))
-		{
-			runOnUiThread(new Runnable()
-			{
-				@Override
-				public void run()
-				{
-					showStealthFtueTip(true);
-				}
-			});
-		}
-		//TODO UmangX remove PASS TIPS
-		else if (HikePubSub.SHOW_STEALTH_FTUE_ENTER_PASS_TIP.equals(type))
-		{
-			runOnUiThread(new Runnable()
-			{
-				@Override
-				public void run()
-				{
-					showStealthFtueTip(false);
-				}
-			});
-		}
-		//TODO UmangX remove STEALTH TIP from home screen
-		else if (HikePubSub.SHOW_STEALTH_FTUE_CONV_TIP.equals(type))
-		{
-			runOnUiThread(new Runnable()
-			{
-
-				@Override
-				public void run()
-				{
-				}
-			});
-		}
 		else if (HikePubSub.STEALTH_UNREAD_TIP_CLICKED.equals(type))
 		{
 			runOnUiThread(new Runnable() {
@@ -2012,14 +1951,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		case FREE_INVITE_POPUP:
 			showFreeInviteDialog();
 			break;
-		case STEALTH_FTUE_POPUP:
-			dialogShowing = DialogShowing.STEALTH_FTUE_POPUP;
-			dialog = HikeDialogFactory.showDialog(this, HikeDialogFactory.STEALTH_FTUE_DIALOG, getHomeActivityDialogListener(), null);
-			break;
-		case STEALTH_FTUE_EMPTY_STATE_POPUP:
-			dialogShowing = DialogShowing.STEALTH_FTUE_EMPTY_STATE_POPUP;
-			dialog = HikeDialogFactory.showDialog(this, HikeDialogFactory.STEALTH_FTUE_EMPTY_STATE_DIALOG, getHomeActivityDialogListener(), null);
-			break;
 		case VOIP_FTUE_POPUP:
 			dialogShowing = DialogShowing.VOIP_FTUE_POPUP;
 			dialog = HikeDialogFactory.showDialog(this, HikeDialogFactory.VOIP_INTRO_DIALOG, getHomeActivityDialogListener(), null);
@@ -2040,32 +1971,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			@Override
 			public void neutralClicked(HikeDialog hikeDialog)
 			{
-				if(dialogShowing != null)
-				{
-					switch (dialogShowing)
-					{
-					
-					//TODO UmangX remove stealth ftue Popup
-					case STEALTH_FTUE_POPUP:
-						HikeMessengerApp.getPubSub().publish(HikePubSub.SHOW_STEALTH_FTUE_CONV_TIP, ConversationTip.STEALTH_FTUE_TIP);
-						
-						try
-						{
-							JSONObject metadata = new JSONObject();
-							metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.QUICK_SETUP_CLICK);
-							HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
-						}
-						catch(JSONException e)
-						{
-							Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
-						}
-						break;
-	
-					default:
-						break;
-					}
-				}
-
 				dialogShowing = null;
 				hikeDialog.dismiss();
 				HomeActivity.this.dialog = null;

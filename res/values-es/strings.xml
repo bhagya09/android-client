@@ -831,10 +831,6 @@
     <string name="last_seen_proper_casing">Última conexión</string>
     <string name="status_updates_proper_casing">Estados</string>
     <string name="bigger_better_attachments">Adjuntos más grandes y mejores</string>
-    <string name="introducing_stealth_mode">Nuevo modo oculto</string>
-    <string name="stealth_mode_popup_msg">Ahora puedes ocultar tus chats privados y leerlos solo mediante una contraseña.</string>
-    <string name="quick_setup">Configuración rápida</string>
-    <string name="stealth_double_tap_tip"><![CDATA[ Your chat has been hidden! Set up a password to access Hidden Mode.<br> <br> <b> Tap on \'hi\' to begin.</b> ]]></string>
     <string name="alp_42447968_cmd_confirm">Confirmar</string>
     <string name="alp_42447968_cmd_continue">Continuar</string>
     <string name="alp_42447968_cmd_forgot_pattern">¿Has olvidado el patrón?</string>
@@ -861,7 +857,6 @@
         <item quantity="other">Conecta al menos %1$d puntos. Inténtalo de nuevo</item>
     </plurals>
 
-    <string name="stealth_enter_pass_tip">Setup is complete! Tap on \'hi\' to access your hidden chats.</string>
     <string name="stealth_notification_message">Tienes una notificación nueva</string>
     <string name="stealth_notification_messages">Tienes notificaciones nuevas</string>
     <string name="retry">Reintentar</string>
@@ -880,7 +875,6 @@
 	    
     ]]></string>
     <string name="reset_stealth_confirmation">Resetting Hidden Mode will delete all your hidden Chats.\nAre you sure?</string>
-    <string name="stealth_mode_empty_conv_popup_msg">You can now hide your private chats from the world and read them only with a password. Start a new chat and try it out by tapping on \'hi\'!</string>
     <string name="stealth_tap_and_hold_tip">Tap and hold on a chat to mark a chat \'Hidden\'.</string>
     <string name="chat_marked_stealth">Has ocultado un chat.</string>
     <string name="chat_unmarked_stealth">Has marcado un chat como visible.</string>

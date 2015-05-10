@@ -53,12 +53,4 @@
     	android:textSize="15sp"
     	android:textColor="@color/white"
     	android:gravity="center"/>
-    
-    <ViewStub android:id="@+id/stealth_double_tap_tip_viewstub"
-         android:inflatedId="@+id/stealth_double_tap_tip"
-         android:layout_marginLeft="5dp"
-         android:layout="@layout/tool_tip"
-         android:layout_width="wrap_content"
-         android:layout_height="wrap_content"
-         android:layout_marginRight="40dp" />
 </RelativeLayout>

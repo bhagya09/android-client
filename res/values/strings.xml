@@ -845,10 +845,6 @@
     <string name="last_seen_proper_casing">Last Seen</string>
     <string name="status_updates_proper_casing">Status Updates</string>
     <string name="bigger_better_attachments">Bigger, better attachments</string>
-    <string name="introducing_stealth_mode">Introducing Hidden Mode</string>
-    <string name="stealth_mode_popup_msg">You can now hide your private chats from the world and read them only with a password.</string>
-    <string name="quick_setup">Quick Setup</string>
-    <string name="stealth_double_tap_tip"><![CDATA[ Your chat has been hidden! Set up a password to access Hidden Mode.<br> <br> <b> Tap on \'hi\' to begin.</b> ]]></string>
     <string name="alp_42447968_cmd_confirm">Confirm</string>
     <string name="alp_42447968_cmd_continue">Continue</string>
     <string name="alp_42447968_cmd_forgot_pattern">Forgot pattern?</string>
@@ -872,7 +868,6 @@
         <item quantity="other">Connect at least %1$d dots. Try again</item>
     </plurals>
 
-    <string name="stealth_enter_pass_tip">Setup is complete! Tap on \'hi\' to access your hidden chats.</string>
     <string name="stealth_notification_message">You have a new notification</string>
     <string name="stealth_notification_messages">You have new notifications</string>
     <string name="retry">Retry</string>
@@ -893,7 +888,6 @@
         <string name="tap_to_reveal_stealth_contacts">To reveal chats, tap \'hi\'</string> 
     <string name="tap_to_hide_stealth_contacts">To hide chats, tap \'hi\'</string>
     <string name="reset_stealth_confirmation">Resetting Hidden Mode will delete all your hidden Chats.\nAre you sure?</string>
-    <string name="stealth_mode_empty_conv_popup_msg">You can now hide your private chats from the world and read them only with a password. Start a new chat and try it out by tapping on \'hi\'!</string>
     <string name="stealth_tap_and_hold_tip">Tap and hold on a chat to mark a chat \'Hidden\'.</string>
     <string name="chat_marked_stealth">You’ve hidden a chat.</string>
     <string name="chat_unmarked_stealth">You’ve marked a chat visible.</string>

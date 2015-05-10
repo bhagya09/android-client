@@ -831,10 +831,6 @@
     <string name="last_seen_proper_casing">अंतिम बार दिखे</string>
     <string name="status_updates_proper_casing">स्थिति अपडेट</string>
     <string name="bigger_better_attachments">बड़े, बेहतर संलग्नक</string>
-    <string name="introducing_stealth_mode">पेश है अदृश्य मोड</string>
-    <string name="stealth_mode_popup_msg">अब आप अपनी निजी चैट को दुनिया से छिपा सकते हैं और उन्हें केवल पासवर्ड से पढ़ सकते हैं।</string>
-    <string name="quick_setup">शीघ्र सेटअप</string>
-    <string name="stealth_double_tap_tip"><![CDATA[ Your chat has been hidden! Set up a password to access Hidden Mode.<br> <br> <b> Tap on \'hi\' to begin.</b> ]]></string>
     <string name="alp_42447968_cmd_confirm">पुष्टि करे</string>
     <string name="alp_42447968_cmd_continue">जारी रखें</string>
     <string name="alp_42447968_cmd_forgot_pattern">पैटर्न भूल गए?</string>
@@ -861,7 +857,6 @@
         <item quantity="other">कम-से-कम %1$d डॉट कनेक्ट करें। पुनः प्रयास करें</item>
     </plurals>
 
-    <string name="stealth_enter_pass_tip">Setup is complete! Tap on \'hi\' to access your hidden chats.</string>
     <string name="stealth_notification_message">आपके लिए नई अधिसूचना है</string>
     <string name="stealth_notification_messages">आपके लिए नई अधिसूचनाएँ हैं</string>
     <string name="retry">फिर से कोशिश करें</string>
@@ -880,7 +875,6 @@
 	    
     ]]></string>
     <string name="reset_stealth_confirmation">Resetting Hidden Mode will delete all your hidden Chats.\nAre you sure?</string>
-    <string name="stealth_mode_empty_conv_popup_msg">You can now hide your private chats from the world and read them only with a password. Start a new chat and try it out by tapping on \'hi\'!</string>
     <string name="stealth_tap_and_hold_tip">Tap and hold on a chat to mark a chat \'Hidden\'.</string>
     <string name="chat_marked_stealth">आपने चैट को अदृश्य कर दिया है।</string>
     <string name="chat_unmarked_stealth">You’ve marked a chat visible.</string>
