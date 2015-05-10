@@ -441,7 +441,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			blockUnBlockUser((boolean) msg.obj);
 			break;
 		case ADD_MORE_MSG:
-			addMoreMessages((List<ConvMessage>) msg.obj);
+			addAndSetMessages((List<ConvMessage>) msg.obj);
+			break;
 		case ACTION_MODE_CONFIG_CHANGE:
 			handleActionModeOrientationChange(mActionMode.whichActionModeIsOn());
 			break;
@@ -2208,20 +2209,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			if (!list.isEmpty())
 			{
 				Logger.i(TAG, "Adding 'n' new messages in the list : " + list.size());
-				int scrollOffset = 0;
-
-
-				int firstVisibleItem = mConversationsView.getFirstVisiblePosition();
-
-				if (mConversationsView.getChildAt(0) != null)
-				{
-					scrollOffset = mConversationsView.getChildAt(0).getTop();
-				}
-
-				addMoreMessages(list);
-
-				mConversationsView.setSelectionFromTop(firstVisibleItem + list.size(), scrollOffset);
-				
+				addAndSetMessages(list);
 			}
 
 			else
@@ -2234,6 +2222,20 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 			loadingMoreMessages = false;
 		}
+	}
+
+	private void addAndSetMessages(List<ConvMessage> list)
+	{
+		int scrollOffset = 0;
+		int firstVisibleItem = mConversationsView.getFirstVisiblePosition();
+		if (mConversationsView.getChildAt(0) != null)
+		{
+			scrollOffset = mConversationsView.getChildAt(0).getTop();
+		}
+
+		addMoreMessages(list);
+
+		mConversationsView.setSelectionFromTop(firstVisibleItem + list.size(), scrollOffset);
 	}
 	
 	private void addMoreMessages(List<ConvMessage> list)
