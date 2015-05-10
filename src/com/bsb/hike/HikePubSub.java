@@ -304,12 +304,6 @@ public class HikePubSub implements Runnable
 	
 	public static final String IPS_CHANGED = "ipsChanged";
 
-	public static final String DISMISS_STEALTH_FTUE_CONV_TIP = "dismissStealthFtueConvTip";
-
-	public static final String REMOVE_STEALTH_HIDE_TIP = "removeStealthHideTip";
-
-	public static final String REMOVE_STEALTH_REVEAL_TIP = "removeStealthRevealTip";
-
 	public static final String SHOW_STEALTH_FTUE_CONV_TIP = "showStealthFtueConvTip";
 
 	public static final String SHOW_STEALTH_REVEAL_TIP = "showStealthRevealTip";
@@ -330,7 +324,7 @@ public class HikePubSub implements Runnable
 
 	public static final String RESET_STEALTH_INITIATED = "resetStealthInitiated";
 
-	public static final String RESET_STEALTH_CANCELLED = "resetStealthCancelled";
+	public static final String REMOVE_TIP = "removeTip";
 
 	public static final String STEALTH_MODE_RESET_COMPLETE = "stealthModeResetComplete";
 
@@ -342,17 +336,11 @@ public class HikePubSub implements Runnable
 	
 	public static final String APP_BACKGROUNDED = "appBackgrounded";
 
-	public static final String REMOVE_WELCOME_HIKE_TIP = "removeWelcomeHikeTip";
-
 	public static final String STEALTH_POPUP_WITH_PUSH = "stealthPopupShowPush";
 	
 	public static final String STEALTH_INDICATOR = "stealthIndicator";
 
 	public static final String ATOMIC_POPUP_WITH_PUSH = "atomicPopupShowPush";
-
-	public static final String REMOVE_STEALTH_INFO_TIP = "removeStealthInfoTip";
-
-	public static final String REMOVE_STEALTH_UNREAD_TIP = "removeStealthUnreadTip";
 
 	public static final String STEALTH_UNREAD_TIP_CLICKED = "stealthUnreadTipClicked";
 	

@@ -43,6 +43,7 @@ import com.bsb.hike.db.DBBackupRestore;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
+import com.bsb.hike.models.Conversation.ConversationTip;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.tasks.ActivityCallableTask;
@@ -724,7 +725,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 				preference.setTitle(R.string.reset_complete_stealth_header);
 				preference.setSummary(R.string.reset_complete_stealth_info);
 
-				HikeMessengerApp.getPubSub().publish(HikePubSub.RESET_STEALTH_CANCELLED, null);
+				HikeMessengerApp.getPubSub().publish(HikePubSub.REMOVE_TIP, ConversationTip.RESET_STEALTH_TIP);
 
 				try
 				{

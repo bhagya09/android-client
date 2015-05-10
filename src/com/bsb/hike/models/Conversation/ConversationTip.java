@@ -379,7 +379,7 @@ public class ConversationTip implements OnClickListener
 				break;
 
 			case STEALTH_FTUE_TIP:
-				HikeMessengerApp.getPubSub().publish(HikePubSub.DISMISS_STEALTH_FTUE_CONV_TIP, null);
+				HikeMessengerApp.getPubSub().publish(HikePubSub.REMOVE_TIP, ConversationTip.STEALTH_FTUE_TIP);
 				break;
 				
 			case ATOMIC_PROFILE_PIC_TIP:
@@ -392,11 +392,11 @@ public class ConversationTip implements OnClickListener
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.ATOMIC_POP_UP_TYPE_MAIN, "");
 				break;
 			case STEALTH_HIDE_TIP:
-				HikeMessengerApp.getPubSub().publish(HikePubSub.REMOVE_STEALTH_HIDE_TIP, null);
+				HikeMessengerApp.getPubSub().publish(HikePubSub.REMOVE_TIP, ConversationTip.STEALTH_HIDE_TIP);
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STEALTH_MODE_FTUE_DONE, true);
 				break;
 			case STEALTH_REVEAL_TIP:
-				HikeMessengerApp.getPubSub().publish(HikePubSub.REMOVE_STEALTH_REVEAL_TIP, null);
+				HikeMessengerApp.getPubSub().publish(HikePubSub.REMOVE_TIP, ConversationTip.STEALTH_REVEAL_TIP);
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STEALTH_MODE_FTUE_DONE, true);			
 				break;
 			default:

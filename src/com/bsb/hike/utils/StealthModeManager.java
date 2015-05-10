@@ -256,7 +256,7 @@ public class StealthModeManager
 			}
 			else
 			{
-				HikeMessengerApp.getPubSub().publish(HikePubSub.REMOVE_STEALTH_HIDE_TIP, null);
+				HikeMessengerApp.getPubSub().publish(HikePubSub.REMOVE_TIP, ConversationTip.STEALTH_HIDE_TIP);
 				StealthModeManager.getInstance().activate(false);
 			
 					HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_MODE_TOGGLED, true);
@@ -279,7 +279,7 @@ public class StealthModeManager
  	{	
 		if (HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOW_STEALTH_INFO_TIP, false))
 		{
-			HikeMessengerApp.getPubSub().publish(HikePubSub.REMOVE_STEALTH_INFO_TIP, null);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.REMOVE_TIP, ConversationTip.STEALTH_INFO_TIP);
 		}
 		HikeMessengerApp.getPubSub().publish(conv.isStealth()? HikePubSub.STEALTH_CONVERSATION_UNMARKED : HikePubSub.STEALTH_CONVERSATION_MARKED, conv);
 	}
