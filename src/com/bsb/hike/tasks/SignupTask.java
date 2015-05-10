@@ -615,12 +615,6 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 		 * We show these tips only to upgrading users
 		 */
 		edit.putBoolean(HikeMessengerApp.SHOWN_WELCOME_HIKE_TIP, true);
-		
-		/*
-		 * We show this tip only to new signup users
-		 */
-		edit.putBoolean(HikeMessengerApp.SHOW_STEALTH_INFO_TIP, true);
-		
 		/*
 		 * We don't want to show red dot on overflow menu for new users
 		 */

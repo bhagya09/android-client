@@ -303,22 +303,16 @@ public class HikePubSub implements Runnable
 	public static final String DISMISS_GROUP_CHAT_TIP = "dismissGroupChatTip";
 	
 	public static final String IPS_CHANGED = "ipsChanged";
-	
-	public static final String SHOW_STEALTH_FTUE_CONV_TIP = "showStealthFtueConvTip";
-
-	public static final String SHOW_STEALTH_REVEAL_TIP = "showStealthRevealTip";
 
 	public static final String STEALTH_MODE_TOGGLED = "stealthModeToggled";
-
-	public static final String SHOW_STEALTH_HIDE_TIP = "showStealthHideTip";
 
 	public static final String CLEAR_FTUE_STEALTH_CONV = "clearFtueStealthConv";
 
 	public static final String STEALTH_CONVERSATION_MARKED = "stealthConverstaionMarked";
 
 	public static final String STEALTH_CONVERSATION_UNMARKED = "stealthConversationUnmarked";
-
-	public static final String RESET_STEALTH_INITIATED = "resetStealthInitiated";
+	
+	public static final String SHOW_TIP = "showTip";
 
 	public static final String REMOVE_TIP = "removeTip";
 

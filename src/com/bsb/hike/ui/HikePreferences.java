@@ -754,7 +754,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 					{
 						HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.RESET_COMPLETE_STEALTH_START_TIME, System.currentTimeMillis());
 
-						HikeMessengerApp.getPubSub().publish(HikePubSub.RESET_STEALTH_INITIATED, null);
+						HikeMessengerApp.getPubSub().publish(HikePubSub.SHOW_TIP, ConversationTip.RESET_STEALTH_TIP);
 
 						preference.setTitle(R.string.resetting_complete_stealth_header);
 						preference.setSummary(R.string.resetting_complete_stealth_info);

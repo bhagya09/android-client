@@ -160,11 +160,13 @@ public class StealthModeManager
 	
 	public boolean isStealthFakeOn()
 	{
+		//specific use case where we want to activate hidden mode with out confirming password/pin
 		return (currentState == HikeConstants.STEALTH_ON_FAKE);
 	}
 
 	public boolean isActive()
 	{
+		//this means stealth is neither fake on nor off
 		return (currentState == HikeConstants.STEALTH_ON);
 	}
 
@@ -186,59 +188,62 @@ public class StealthModeManager
 		prefUtil.removeData(HikeMessengerApp.SHOWN_FIRST_UNMARK_STEALTH_TOAST);
 	}
 	
+	public void ftuePending(boolean pending)
+	{
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STEALTH_MODE_FTUE_DONE, !pending);
+	}
+	
+	public boolean isFtueDone()
+	{
+		return HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STEALTH_MODE_FTUE_DONE, true);
+	}
+	
 	public void settingupTriggered(Activity activity, boolean toggleVisibility)
 	{
-		//HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_MODE_TOGGLED, !isActive() && toggleVisibility);
-		
-		if (!StealthModeManager.getInstance().isSetUp())
+
+		if (!isSetUp())
 		{
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STEALTH_MODE_FTUE_DONE, false);
+			ftuePending(true);
 			LockPattern.createNewPattern(activity, false, HikeConstants.ResultCodes.CREATE_LOCK_PATTERN_HIDE_CHAT);
 		} 
-		else if (!StealthModeManager.getInstance().isActive())
+		else if (!isActive())
 		{
-			if(HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STEALTH_MODE_FTUE_DONE, true))
+			if(isFtueDone())
 			{
 				LockPattern.confirmPattern(activity, false, HikeConstants.ResultCodes.CONFIRM_LOCK_PATTERN_HIDE_CHAT);
 			}
 			else
 			{
-				HikeMessengerApp.getPubSub().publish(HikePubSub.SHOW_STEALTH_REVEAL_TIP, null);
-
+				HikeMessengerApp.getPubSub().publish(HikePubSub.SHOW_TIP, ConversationTip.STEALTH_REVEAL_TIP);
 				HikeMessengerApp.getPubSub().publish(HikePubSub.CLEAR_FTUE_STEALTH_CONV, false);
 			}
 		}
-			
-	
+
 	}
 
 	public void toggleActionTriggered(Activity activity)
 	{
-		if (!StealthModeManager.getInstance().isSetUp())
+		if (!isSetUp())
 		{
 			if (!HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOW_STEALTH_INFO_TIP, false))
 			{
-				HikeMessengerApp.getPubSub().publish(HikePubSub.SHOW_STEALTH_FTUE_CONV_TIP, ConversationTip.STEALTH_INFO_TIP);
+				HikeMessengerApp.getPubSub().publish(HikePubSub.SHOW_TIP, ConversationTip.STEALTH_INFO_TIP);
 				return;
 			}
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STEALTH_MODE_FTUE_DONE, false);
+			ftuePending(true);
 			LockPattern.createNewPattern(activity, false, HikeConstants.ResultCodes.CREATE_LOCK_PATTERN);
 		}
 		else
 		{
-			if (!StealthModeManager.getInstance().isActive())
+			if (!isActive())
 			{
 				//if FTUE is not setup, show the HIDE TIP after removing REVEAL TIP
-				if(!HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STEALTH_MODE_FTUE_DONE, true))
+				if(!isFtueDone())
 				{
-					//TODO need to find a way to know if stealth mSisdn hidden is just on
-					if(true)
-					{
-						HikeMessengerApp.getPubSub().publish(HikePubSub.SHOW_STEALTH_HIDE_TIP, true);
-						StealthModeManager.getInstance().activate(true);
-						HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_MODE_TOGGLED, true);
-					}
-					HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STEALTH_MODE_FTUE_DONE, true);
+					HikeMessengerApp.getPubSub().publish(HikePubSub.SHOW_TIP, ConversationTip.STEALTH_HIDE_TIP);
+					StealthModeManager.getInstance().activate(true);
+					HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_MODE_TOGGLED, true);
+					ftuePending(false);
 				}
 				else
 				{
