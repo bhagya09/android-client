@@ -443,7 +443,7 @@
 
         <provider
             android:name="com.bsb.hike.providers.HikeProvider"
-            android:authorities="com.bsb.hike.providers.HikeProvider"
+            android:authorities="@string/authority"
             android:exported="true" >
         </provider>
 
