@@ -2117,6 +2117,8 @@ public class HikeConstants
 		public static final String DEVICE_ROOT="root";
 
 		public static final String ADDRESSBOOK_UPLOAD = "addressbookUpload";
+		
+		public static final String SEND_DEVICE_DETAILS = "sendDeviceDetails";
 
 		public static final String GET_ACTIVE_NETWORK_INFO = "getActiveNetworkInfo";
 
