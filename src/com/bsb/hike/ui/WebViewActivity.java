@@ -42,6 +42,7 @@ import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.media.HikeActionBar;
 import com.bsb.hike.media.OverFlowMenuItem;
 import com.bsb.hike.media.OverflowItemClickListener;
+import com.bsb.hike.media.TagPicker.TagOnClickListener;
 import com.bsb.hike.models.WhitelistDomain;
 import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.HikePlatformConstants;
@@ -331,11 +332,17 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu)
 	{
+		if (mActionBar == null)
+		{
+			initActionBar();
+		}
+		
 		if (mode == MICRO_APP_MODE && mActionBar != null)
 		{
-			mActionBar.onCreateOptionsMenu(menu, R.menu.just_overflow_menu, getOverflowMenuItems(), this, this);
+			mActionBar.onCreateOptionsMenu(menu, R.menu.simple_overflow_menu, getOverflowMenuItems(), this, this);
 			return true;
 		}
+		
 		return super.onCreateOptionsMenu(menu);
 	}
 
@@ -428,9 +435,14 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	private List<OverFlowMenuItem> getOverflowMenuItems()
 	{
 		List<OverFlowMenuItem> list = new ArrayList<>();
+		if (botConfig != null)
+		{
+			list.addAll(botConfig.getOverflowItems());
+		}
+		
 		list.add(new OverFlowMenuItem(getString(R.string.mute), -1, -1, R.string.mute));
 		list.add(new OverFlowMenuItem(getString(R.string.block_title), -1, -1, R.string.block_title));
-		return null;
+		return list;
 	}
 
 	@Override
