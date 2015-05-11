@@ -13,6 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import android.text.TextUtils;
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.platform.PlatformUIDFetch;
 import com.bsb.hike.platform.content.PlatformContent;
@@ -900,17 +901,21 @@ public void onTrimMemory(int level)
 	 */
 	private void addDefaultBotsToDB()
 	{
-		defaultBotEntry("+hike+","team hike", null, null, 4527, false);
+
+		defaultBotEntry("+hike+", "team hike", null, HikeBitmapFactory.getBase64ForDrawable(R.drawable.hiketeam, getApplicationContext()), 4527, false);
+
 		defaultBotEntry("+hike1+", "Emma from hike", null, null, 2069487, true);
+
 		defaultBotEntry("+hike2+", "Games on hike", null, null, 21487, false);
-		defaultBotEntry("+hike3+", "hike daily", null, null, 21487, false);
+
+		defaultBotEntry("+hike3+", "hike daily", null, HikeBitmapFactory.getBase64ForDrawable(R.drawable.hikedaily, getApplicationContext()), 21487, false);
+
 		defaultBotEntry("+hike4+", "hike support", null, null, 2069487, true);
+
 		defaultBotEntry("+hike5+", "Natasha", null, null, 2069487, true);
 
-		BitmapDrawable drawable = (BitmapDrawable) getApplicationContext().getResources().getDrawable(R.drawable.cric_icon);
-		String base64Icon = Utils.drawableToString(drawable);
-
-		defaultBotEntry("+hikecricket+", "Cricket 2015", HikePlatformConstants.CRICKET_CHAT_THEME_ID, base64Icon,
+		defaultBotEntry("+hikecricket+", "Cricket 2015", HikePlatformConstants.CRICKET_CHAT_THEME_ID,
+				HikeBitmapFactory.getBase64ForDrawable(R.drawable.cric_icon, getApplicationContext()),
 				21487, false);
 
 	}

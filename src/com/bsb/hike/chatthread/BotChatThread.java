@@ -65,26 +65,8 @@ public class BotChatThread extends OneToOneChatThread
 		}
 		else
 		{
+			activity.findViewById(R.id.compose_container).setVisibility(View.VISIBLE);
 
-			if (!configuration.isAudioRecordingEnabled())
-			{
-				activity.findViewById(R.id.send_message).setVisibility(View.GONE);
-			}
-
-			if (!configuration.isStickerPickerEnabled())
-			{
-				activity.findViewById(R.id.sticker_btn).setVisibility(View.GONE);
-			}
-
-			if (!configuration.isEmoticonPickerEnabled())
-			{
-				activity.findViewById(R.id.emoticon_btn).setVisibility(View.GONE);
-			}
-
-			if (!configuration.isTextInputEnabled())
-			{
-				activity.findViewById(R.id.msg_compose).setVisibility(View.GONE);
-			}
 		}
 	}
 
