@@ -9,6 +9,7 @@ public class VoIPConstants {
 	public static final int ICEServerPort = 9999;
 
 	public static final int AUDIO_SAMPLE_RATE = 48000; 
+	public static final int MAX_SAMPLES_BUFFER = 3;
 
 	/**
 	 * Time (ms) to wait before the client being called replies with its
@@ -63,6 +64,10 @@ public class VoIPConstants {
 	public static final int MSG_VOIP_CLIENT_STOP = 16;
 	public static final int MSG_VOIP_CLIENT_OUTGOING_CALL_RINGTONE = 17;
 	public static final int MSG_VOIP_CLIENT_INCOMING_CALL_RINGTONE = 18;
+	public static final int MSG_START_RECORDING_AND_PLAYBACK = 19;
+	public static final int MSG_START_COMPRESSION = 20;
+	public static final int MSG_START_RECONNECTION_BEEPS = 21;
+	public static final int MSG_STOP_RECONNECTION_BEEPS = 22;
 
 	public static final class Analytics
 	{

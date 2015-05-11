@@ -548,7 +548,7 @@ public class VoIPUtils {
 			if (subType.equals(HikeConstants.MqttMessageTypes.VOIP_MSG_TYPE_MISSED_CALL_INCOMING)) 
 			{
 				Logger.d(VoIPConstants.TAG, "Adding a missed call to our chat history.");
-				VoIPClient clientPartner = new VoIPClient();
+				VoIPClient clientPartner = new VoIPClient(context, null);
 				clientPartner.setPhoneNumber(jsonObj.getString(HikeConstants.FROM));
 				clientPartner.setInitiator(true);
 				VoIPUtils.resetNotificationStatus();

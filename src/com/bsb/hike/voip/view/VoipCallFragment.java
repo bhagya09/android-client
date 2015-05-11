@@ -282,7 +282,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 			return;
 		}
 
-		if(VoIPService.isAudioRunning())
+		if(voipService.isAudioRunning())
 		{
 			// Active Call
 			isCallActive = true;
@@ -355,7 +355,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		{
 			if (VoIPService.getCallId() > 0) 
 			{
-				if(VoIPService.isAudioRunning())
+				if(voipService.isAudioRunning())
 				{
 					showMessage(getString(R.string.voip_call_on_hold));
 					voipService.setHold(true);
@@ -424,7 +424,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 
 	public boolean onKeyDown(int keyCode, KeyEvent event)
 	{
-		if (voipService!=null && !VoIPService.isAudioRunning() && (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP)
+		if (voipService!=null && !voipService.isAudioRunning() && (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP)
 			&& voipService.getPartnerClient().isInitiator())
 		{
 			voipService.stopRingtone();
