@@ -245,7 +245,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	protected String msisdn;
 
-	protected static StickerPicker mStickerPicker;
+	protected StickerPicker mStickerPicker;
 
 	protected EmoticonPicker mEmoticonPicker;
 
@@ -326,6 +326,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 				{
 					mStickerPicker.notifyDataSetChanged();
 				}
+				StickerPicker.setRefreshStickers(true);
 			}
 		}
 	}
@@ -416,6 +417,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			{
 				mStickerPicker.notifyDataSetChanged();
 			}
+			StickerPicker.setRefreshStickers(true);
 			break;
 		case SCROLL_TO_END:
 			mConversationsView.setSelection(messages.size() - 1);
@@ -1012,7 +1014,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	protected void stickerClicked()
 	{
-		Long time = System.currentTimeMillis();
+		initStickerPicker();
 		
 		closeStickerTip();
 		
@@ -1029,8 +1031,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 				Toast.makeText(activity.getApplicationContext(), R.string.some_error, Toast.LENGTH_SHORT).show();
 			}
 		}
-		
-		Logger.d(TAG, "Time taken to show sticker pallete: " + (System.currentTimeMillis() - time));
 	}
 	
 	protected void closeStickerTip()
