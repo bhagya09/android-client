@@ -3216,8 +3216,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 		StickerManager.getInstance().saveCustomCategories();
 		
-		removeStickerListeners();
-
 		releaseMessageMap();
 		
 		((CustomLinearLayout) activity.findViewById(R.id.chat_layout)).setOnSoftKeyboardListener(null);
@@ -4108,14 +4106,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		}
 	}
 	
-	private void removeStickerListeners()
-	{
-		if (mStickerPicker != null)
-		{
-			mStickerPicker.unregisterListeners();
-		}
-	}
-
 	private void resumeImageLoaders(boolean flag)
 	{
 		if (mAdapter != null)
