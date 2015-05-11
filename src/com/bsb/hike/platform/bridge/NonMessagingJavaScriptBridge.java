@@ -167,5 +167,22 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			((WebViewActivity) activity).updateOverflowMenuItemTitle(id, newTitle);
 		}
 	}
+	
+	/**
+	 * Calling this method will update the menu title(for the given id) in WebViewActivity
+	 * 
+	 * @param id
+	 * @param newTitle
+	 */
+	@JavascriptInterface
+	public void updateMenuEnabledState(int id, boolean enabled)
+	{
+		Activity activity = weakActivity.get();
+		
+		if (activity != null && activity instanceof WebViewActivity)
+		{
+			((WebViewActivity) activity).updateOverflowMenuItemState(id, enabled);
+		}
+	}
 
 }

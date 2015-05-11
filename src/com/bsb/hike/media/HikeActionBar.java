@@ -196,7 +196,7 @@ public class HikeActionBar
 	 * @param itemId
 	 * @param enabled
 	 */
-	protected void updateOverflowMenuItemActiveState(int itemId, boolean enabled)
+	public void updateOverflowMenuItemActiveState(int itemId, boolean enabled)
 	{
 		if(overFlowMenuLayout!=null)
 		{
@@ -210,7 +210,7 @@ public class HikeActionBar
 	 * @param itemId
 	 * @param newTitle
 	 */
-	protected void updateOverflowMenuItemIcon(int itemId, int drawableId)
+	public void updateOverflowMenuItemIcon(int itemId, int drawableId)
 	{
 		if(overFlowMenuLayout!=null)
 		{
