@@ -28,6 +28,7 @@ import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.db.HikeContentDatabase;
+import com.bsb.hike.media.HikeActionBar;
 import com.bsb.hike.models.WhitelistDomain;
 import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.HikePlatformConstants;
@@ -41,13 +42,16 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity
 {
 
 	private CustomWebView webView;
-
+	
+	private HikeActionBar mActionBar;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.webview_activity);
-
+		
+		initActionBar();
 		String urlToLoad = getIntent().getStringExtra(HikeConstants.Extras.URL_TO_LOAD);
 		String title = getIntent().getStringExtra(HikeConstants.Extras.TITLE);
 		final boolean allowLoc = getIntent().getBooleanExtra(HikeConstants.Extras.WEBVIEW_ALLOW_LOCATION, false);
@@ -144,6 +148,11 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity
 		webView.addJavascriptInterface(mmBridge, HikePlatformConstants.PLATFORM_BRIDGE_NAME);
 	}
 
+	private void initActionBar()
+	{
+		mActionBar = new HikeActionBar(this);
+	}
+
 	@Override
 	protected void onDestroy()
 	{
@@ -151,6 +160,12 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity
 		if(webView!=null)
 		{
 			webView.onActivityDestroyed();
+		}
+		
+		if (mActionBar != null)
+		{
+			mActionBar.releseResources();
+			mActionBar = null;
 		}
 		super.onDestroy();
 	}
