@@ -11,6 +11,7 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.net.MailTo;
 import android.net.Uri;
 import android.os.Bundle;
@@ -24,7 +25,9 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.ImageView.ScaleType;
 import android.widget.PopupWindow.OnDismissListener;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -32,6 +35,7 @@ import android.widget.Toast;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
@@ -363,11 +367,31 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 
 	private void setupActionBar(String titleString)
 	{
-		View actionBarView = mActionBar.setCustomActionBarView(R.layout.compose_action_bar);
+		View actionBarView = mActionBar.setCustomActionBarView(R.layout.chat_thread_action_bar);
 		View backContainer = actionBarView.findViewById(R.id.back);
 		backContainer.setOnClickListener(this);
 		TextView title = (TextView) actionBarView.findViewById(R.id.title);
 		title.setText(titleString);
+		
+		setAvatar();
+	}
+
+	private void setAvatar()
+	{
+		View actionBarView = mActionBar.setCustomActionBarView(R.layout.chat_thread_action_bar);
+		ImageView avatar = (ImageView) actionBarView.findViewById(R.id.avatar);
+		if (avatar == null)
+		{
+			return;
+		}
+
+		Drawable drawable = HikeMessengerApp.getLruCache().getIconFromCache(msisdn);
+		if (drawable == null)
+		{
+			drawable = HikeMessengerApp.getLruCache().getDefaultAvatar(msisdn, false);
+		}
+		avatar.setScaleType(ScaleType.FIT_CENTER);
+		avatar.setImageDrawable(drawable);
 	}
 
 	private void setupMicroAppActionBar()
