@@ -363,6 +363,14 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 			}
 		}
 	}
+	
+	public void unregisterListeners()
+	{
+		if(stickerAdapter != null)
+		{
+			stickerAdapter.unregisterListeners();
+		}
+	}
 
 	private void updateIconPageIndicator()
 	{
