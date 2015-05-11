@@ -35,6 +35,7 @@ public class VoIPConstants {
 	public static final int BITRATE_WIFI = 48000;
 
 	public static final String CALL_ID = "callId";
+	public static final String MSISDN = "msisdn";
 	public static final String IS_CALL_INITIATOR = "isCallInitiator";
 	public static final String CALL_RATING = "rating";
 	public static final String CALL_NETWORK_TYPE = "network";
@@ -68,6 +69,7 @@ public class VoIPConstants {
 	public static final int MSG_START_COMPRESSION = 20;
 	public static final int MSG_START_RECONNECTION_BEEPS = 21;
 	public static final int MSG_STOP_RECONNECTION_BEEPS = 22;
+	public static final int MSG_CONNECTED = 23;
 
 	public static final class Analytics
 	{

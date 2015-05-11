@@ -20,6 +20,7 @@ import org.json.JSONObject;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
@@ -40,8 +41,8 @@ import com.bsb.hike.voip.VoIPConstants.CallQuality;
 import com.bsb.hike.voip.VoIPDataPacket.PacketType;
 import com.bsb.hike.voip.VoIPEncryptor.EncryptionStage;
 import com.bsb.hike.voip.VoIPUtils.ConnectionClass;
+import com.bsb.hike.voip.protobuf.DataPacketProtoBuf.DataPacket;
 import com.bsb.hike.voip.protobuf.VoIPSerializer;
-import com.musicg.dsp.Resampler;
 
 public class VoIPClient  {		
 	
@@ -97,10 +98,6 @@ public class VoIPClient  {
 	private int reconnectAttempts = 0;
 	private int droppedDecodedPackets = 0;
 	
-	// Echo cancellation
-	public boolean aecEnabled = true;
-	SolicallWrapper solicallAec = null;
-
 	// Call quality fields
 	private int qualityCounter = 0;
 	private long lastQualityReset = 0;
@@ -675,6 +672,7 @@ public class VoIPClient  {
 					} else {
 						startStreaming();
 						startResponseTimeout();
+						sendHandlerMessage(VoIPConstants.MSG_CONNECTED);
 					}
 				} else {
 					Logger.d(VoIPConstants.TAG, "UDP connection failure! :(");
@@ -799,7 +797,8 @@ public class VoIPClient  {
 
 		Logger.d(VoIPConstants.TAG,
 				"============= Call Summary =============\n" +
-				"Bytes sent / received: " + totalBytesSent + " / " + totalBytesReceived +
+				"Phone number: " + getPhoneNumber() +
+				"\nBytes sent / received: " + totalBytesSent + " / " + totalBytesReceived +
 				"\nPackets sent / received: " + totalPacketsSent + " / " + totalPacketsReceived +
 				"\nPure voice bytes: " + rawVoiceSent +
 				"\nDropped decoded packets: " + droppedDecodedPackets +
@@ -839,11 +838,6 @@ public class VoIPClient  {
 			opusWrapper = null;
 		}
 		
-		if (solicallAec != null) {
-			solicallAec.destroy();
-			solicallAec = null;
-		}
-
 		stopReconnectBeeps();
 		connected = false;
 		audioStarted = false;
@@ -975,22 +969,24 @@ public class VoIPClient  {
 			return;
 		
 		synchronized (ackWaitQueue) {
-			Iterator<Integer> iterator = ackWaitQueue.keySet().iterator();;
 			long currentTime = System.currentTimeMillis();
-
-			while (iterator.hasNext()) {
-				Integer i = iterator.next();
-				if (ackWaitQueue.get(i).getTimestamp() < currentTime - 1000) {	// Give each packet 1 second to get ack
-					Logger.d(VoIPConstants.TAG, "Re-Requesting ack for: " + ackWaitQueue.get(i).getType());
-					sendPacket(ackWaitQueue.get(i), true);
+			for (VoIPDataPacket dp : ackWaitQueue.values()) {
+				if (dp.getTimestamp() < currentTime - 1000) {	// Give each packet 1 second to get ack
+					Logger.d(VoIPConstants.TAG, "Re-Requesting ack for: " + dp.getType());
+					sendPacket(dp, true);
 				}
 			}
 		}		
 	}
 	
 	private void sendHandlerMessage(int message) {
+
+		Bundle bundle = new Bundle();
+		bundle.putString(VoIPConstants.MSISDN, getPhoneNumber());
+		
 		Message msg = Message.obtain();
 		msg.what = message;
+		msg.setData(bundle);
 		if (handler != null)
 			handler.sendMessage(msg);
 	}
@@ -1452,37 +1448,9 @@ public class VoIPClient  {
 		startCodecDecompression();
 		startCodecCompression();
 		
-		/*
-		// Set audio gain
-		SharedPreferences preferences = getSharedPreferences(HikeMessengerApp.VOIP_SETTINGS, Context.MODE_PRIVATE);
-		gain = preferences.getInt(HikeMessengerApp.VOIP_AUDIO_GAIN, 0);
-		opusWrapper.setDecoderGain(gain);
-		*/
-		
 		// Set encoder complexity which directly affects CPU usage
 		opusWrapper.setEncoderComplexity(0);
 		
-		// Initialize AEC
-		if (aecEnabled) 
-		{
-			try 
-			{
-				solicallAec = new SolicallWrapper();
-				solicallAec.init();
-			}
-			catch (UnsatisfiedLinkError e)
-			{
-				Logger.e(VoIPConstants.TAG, "Solicall init error: " + e.toString());
-				solicallAec = null;
-				aecEnabled = false;
-			}
-			catch (IOException e) 
-			{
-				Logger.e(VoIPConstants.TAG, "Solicall init exception: " + e.toString());
-				solicallAec = null;
-				aecEnabled = false;
-			}	
-		}
 	}
 	
 	private void startCodecDecompression() {
