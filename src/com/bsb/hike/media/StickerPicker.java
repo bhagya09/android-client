@@ -51,6 +51,8 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 	
 	private static final String TAG = "StickerPicker";
 	
+	private ViewPager mViewPager;
+	
 	private static boolean refreshStickers = false;
 
 	/**
@@ -142,6 +144,7 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 		}
 		
 		initView();
+		addAdaptersToViews();
 
 		popUpLayout.showKeyboardPopup(viewToDisplay);
 	}
@@ -174,7 +177,7 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 	 */
 	private void initViewComponents(View view)
 	{
-		ViewPager mViewPager = ((ViewPager) view.findViewById(R.id.sticker_pager));
+		mViewPager = ((ViewPager) view.findViewById(R.id.sticker_pager));
 
 		if (null == mViewPager)
 		{
@@ -192,12 +195,6 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 		handleStickerIntro(view);		
 
 		mViewPager.setVisibility(View.VISIBLE);
-
-		mViewPager.setAdapter(stickerAdapter);
-
-		mIconPageIndicator.setViewPager(mViewPager);
-
-		mIconPageIndicator.setOnPageChangeListener(onPageChangeListener);
 	}
 
 	/**
@@ -253,7 +250,24 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 
 //		refreshStickers = false;
 		
+		addAdaptersToViews();
+		
 		return viewToDisplay;
+	}
+	
+	private void addAdaptersToViews()
+	{
+		mViewPager.setAdapter(stickerAdapter);
+
+		mViewPager.setCurrentItem(0, false);
+
+		mIconPageIndicator.setViewPager(mViewPager);
+
+		mIconPageIndicator.setOnPageChangeListener(onPageChangeListener);
+
+		mIconPageIndicator.setCurrentItem(0);
+
+		mIconPageIndicator.notifyDataSetChanged();
 	}
 
 	public boolean isShowing()
