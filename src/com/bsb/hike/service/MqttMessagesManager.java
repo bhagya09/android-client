@@ -81,6 +81,7 @@ import com.bsb.hike.platform.content.PlatformZipDownloader;
 import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.tasks.DownloadProfileImageTask;
 import com.bsb.hike.tasks.HikeHTTPTask;
+import com.bsb.hike.tasks.PostAddressBookTask;
 import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.userlogs.UserLogInfo;
 import com.bsb.hike.utils.AccountUtils;
@@ -1925,13 +1926,9 @@ public class MqttMessagesManager
 			Map<String, List<ContactInfo>> contacts = ContactManager.getInstance().convertToMap(contactinfos);
 			try
 			{
-				AccountUtils.postAddressBook(token, contacts);
+				new PostAddressBookTask(contacts).execute();
 			}
 			catch (IllegalStateException e)
-			{
-				Logger.w(getClass().getSimpleName(), "Exception while posting ab", e);
-			}
-			catch (IOException e)
 			{
 				Logger.w(getClass().getSimpleName(), "Exception while posting ab", e);
 			}

@@ -470,7 +470,7 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 			try
 			{
 				Map<String, List<ContactInfo>> contacts = conMgr.convertToMap(contactinfos);
-				JSONObject jsonForAddressBookAndBlockList = AccountUtils.postAddressBook(token, contacts);
+				JSONObject jsonForAddressBookAndBlockList = new PostAddressBookTask(contacts).execute();
 
 				List<ContactInfo> addressbook = ContactUtils.getContactList(jsonForAddressBookAndBlockList, contacts);
 				List<String> blockList = ContactUtils.getBlockList(jsonForAddressBookAndBlockList);

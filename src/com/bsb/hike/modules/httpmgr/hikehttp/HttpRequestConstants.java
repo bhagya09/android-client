@@ -150,7 +150,12 @@ public class HttpRequestConstants
 	{
 		return BASE_URL + BASE_V1 + "/pa";
 	}
-	
+
+	public static String postAddressbookBaseUrl()
+	{
+		return BASE_URL + BASE_V1 + BASE_ACCOUNT + "/addressbook";
+	}
+
 	public static String updateAddressbookBaseUrl()
 	{
 		return BASE_URL + BASE_V1 + BASE_ACCOUNT + "/addressbook-update";

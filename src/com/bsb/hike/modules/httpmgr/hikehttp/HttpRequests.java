@@ -12,6 +12,7 @@ import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getStat
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.groupProfileBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.lastSeenUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.multiStickerDownloadUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.postAddressbookBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.postDeviceDetailsBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.postGreenBlueDetailsBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.preActivationBaseUrl;
@@ -200,7 +201,21 @@ public class HttpRequests
 		requestToken.getRequestInterceptors().addLast("gzip", new GzipRequestInterceptor());
 		return requestToken;
 	}
-	
+
+	public static RequestToken postAddressBookRequest(JSONObject json, IRequestListener requestListener)
+	{
+		JsonBody body = new JsonBody(json);
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(postAddressbookBaseUrl())
+				.setRequestType(Request.REQUEST_TYPE_LONG)
+				.setRequestListener(requestListener)
+				.post(body)
+				.setAsynchronous(false)
+				.build();
+		requestToken.getRequestInterceptors().addLast("gzip", new GzipRequestInterceptor());
+		return requestToken;
+	}
+
 	public static RequestToken updateAddressBookRequest(JSONObject json, IRequestListener requestListener)
 	{
 		JsonBody body = new JsonBody(json);
