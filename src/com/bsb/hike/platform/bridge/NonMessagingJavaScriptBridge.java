@@ -145,4 +145,9 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		HikeMessengerApp.getPubSub().publish(HikePubSub.BLOCK_USER, msisdn);
 	}
 
+	public void onMenuItemClicked(int id)
+	{
+		mWebView.loadUrl("javascript:onMenuItemClicked('" + id + "')");
+	}
+
 }

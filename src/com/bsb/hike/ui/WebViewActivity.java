@@ -86,6 +86,8 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 
 	int mode;
 	
+	private NonMessagingJavaScriptBridge mmBridge;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -241,7 +243,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	
 	private void attachBridge()
 	{
-		NonMessagingJavaScriptBridge mmBridge=new NonMessagingJavaScriptBridge(this, webView);
+		 mmBridge =new NonMessagingJavaScriptBridge(this, webView);
 		webView.addJavascriptInterface(mmBridge, HikePlatformConstants.PLATFORM_BRIDGE_NAME);
 	}
 
@@ -456,6 +458,12 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		case R.string.block_title:
 			blockClicked();
 			break;
+			
+		default: 
+			if (mmBridge != null)
+			{
+				mmBridge.onMenuItemClicked(parameter.id);
+			}
 		}
 	}
 
