@@ -44,6 +44,7 @@ import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 
 import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.platform.HikePlatformConstants;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -768,13 +769,19 @@ public class Utils
 		return contactNames;
 	}
 
-	public static String validateBotMsisdn(String msisdn)
+	public static boolean validateBotMsisdn(String msisdn)
 	{
+		if (TextUtils.isEmpty(msisdn))
+		{
+			Logger.wtf(HikePlatformConstants.TAG, "msisdn is ---->" + msisdn);
+			return false;
+		}
 		if (!msisdn.startsWith("+"))
 		{
-			msisdn = "+" + msisdn;
+			Logger.wtf(HikePlatformConstants.TAG, "msisdn does not start with +. It is ---->" + msisdn);
+			return false;
 		}
-		return msisdn;
+		return true;
 	}
 
 	public static String defaultGroupName(List<PairModified<GroupParticipant, String>> participantList)

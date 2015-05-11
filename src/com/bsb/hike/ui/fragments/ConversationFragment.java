@@ -14,6 +14,10 @@ import java.util.Set;
 
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.MessagingBotConfiguration;
+import com.bsb.hike.bots.MessagingBotMetadata;
+import com.bsb.hike.bots.NonMessagingBotConfiguration;
+import com.bsb.hike.bots.NonMessagingBotMetadata;
+import com.bsb.hike.ui.WebViewActivity;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -1097,12 +1101,31 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		}
 
 		position -= getListView().getHeaderViewsCount();
-		
+
 		ConvInfo convInfo = (ConvInfo) mAdapter.getItem(position);
-		
-		Intent intent = IntentFactory.createChatThreadIntentFromConversation(getSherlockActivity(), convInfo);
-		startActivity(intent);
-		
+
+		if (convInfo instanceof BotInfo)
+		{
+			BotInfo botInfo = (BotInfo) convInfo;
+			if (botInfo.isMessagingBot())
+			{
+				Intent intent = IntentFactory.createChatThreadIntentFromConversation(getSherlockActivity(), convInfo);
+				startActivity(intent);
+			}
+			else
+			{
+				Intent web = IntentFactory.getWebViewActivityIntent(getActivity(), "", "");
+				web.putExtra(WebViewActivity.WEBVIEW_MODE, WebViewActivity.MICRO_APP_MODE);
+				web.putExtra(HikeConstants.MSISDN, botInfo.getMsisdn());
+				startActivity(web);
+			}
+		}
+		else
+		{
+			Intent intent = IntentFactory.createChatThreadIntentFromConversation(getSherlockActivity(), convInfo);
+			startActivity(intent);
+		}
+
 		if (searchMode)
 		{
 			recordSearchItemClicked(convInfo, position, searchText);
@@ -1314,7 +1337,11 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		}
         if (Utils.isBot(conv.getMsisdn()))
         {	BotInfo botInfo = BotInfo.getBotInfoForBotMsisdn(conv.getMsisdn());
-			MessagingBotConfiguration configuration = new MessagingBotConfiguration( botInfo.getConfiguration(), botInfo.isReceiveEnabled());
+			MessagingBotMetadata metadata;
+
+			metadata = new MessagingBotMetadata (botInfo.getMetadata());
+
+			MessagingBotConfiguration configuration = new MessagingBotConfiguration( botInfo.getConfiguration(), metadata.isReceiveEnabled());
 			if (configuration.isLongTapEnabled())
 			{
 				BotConversation.analyticsForBots(conv, HikePlatformConstants.BOT_LONG_PRESS, AnalyticsConstants.LONG_PRESS_EVENT);
@@ -1396,6 +1423,11 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 			optionsList.add(getString(R.string.clear_whole_conversation));
 
 			optionsList.add(getString(R.string.email_conversations));
+		}
+
+		if (optionsList.isEmpty())
+		{
+			return false;
 		}
 
 		final String[] options = new String[optionsList.size()];

@@ -953,7 +953,10 @@ public void onTrimMemory(int level)
 			}
 			jsonObject.put(HikeConstants.TYPE, HikeConstants.MESSAGING_BOT);
 			jsonObject.put(HikeConstants.CONFIGURATION, config);
-			jsonObject.put(HikeConstants.IS_RECEIVE_ENABLED_IN_BOT, isReceiveEnabled);
+
+			JSONObject metadata = new JSONObject();
+			metadata.put(HikeConstants.IS_RECEIVE_ENABLED_IN_BOT, isReceiveEnabled);
+			jsonObject.put(HikeConstants.METADATA, metadata);
 		}
 		catch (JSONException e)
 		{

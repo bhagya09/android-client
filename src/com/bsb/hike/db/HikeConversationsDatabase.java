@@ -286,7 +286,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				+ DBConstants.IS_MUTE + " INTEGER DEFAULT 0, "  // bot conv mute or not
 				+ DBConstants.BOT_TYPE + " INTEGER, "				//bot type m/nm
 				+ DBConstants.BOT_CONFIGURATION + " INTEGER, "	//bot configurations.. different server controlled properties of bot.
-				+ DBConstants.IS_RECEIVE_ENABLED + " INTEGER DEFAULT 1" // whether the bot has receive functionality enabled or not.
+				+ DBConstants.IS_BOT_ENABLE + " INTEGER DEFAULT 1,"  //whether the bot is enabled or not.
+				+ DBConstants.CONFIG_DATA + " TEXT"            //config data for the bot.
 				+ ")";
 		db.execSQL(sql);
 
@@ -755,14 +756,18 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 		if (oldVersion < 39)
 		{
-			String alter = "ALTER TABLE " + DBConstants.BOT_TABLE + " ADD "
-					+ " ("
-					+ DBConstants.BOT_TYPE  + "INTEGER, "
-					+ DBConstants.BOT_CONFIGURATION + " INTEGER, "
-					+ DBConstants.IS_RECEIVE_ENABLED + " INTEGER DEFAULT 1"
-					+ " )";
 
-			db.execSQL(alter);
+			String alter1 = "ALTER TABLE " + DBConstants.BOT_TABLE + " ADD COLUMN " + DBConstants.BOT_TYPE + " INTEGER";
+			String alter2 = "ALTER TABLE " + DBConstants.BOT_TABLE + " ADD COLUMN " + DBConstants.BOT_CONFIGURATION + " INTEGER";
+			String alter3 = "ALTER TABLE " + DBConstants.BOT_TABLE + " ADD COLUMN " + DBConstants.IS_BOT_ENABLE + " INTEGER DEFAULT 1";
+			String alter4 = "ALTER TABLE " + DBConstants.BOT_TABLE + " ADD COLUMN " + DBConstants.CONFIG_DATA + " TEXT";
+
+			db.execSQL(alter1);
+			db.execSQL(alter2);
+			db.execSQL(alter3);
+			db.execSQL(alter4);
+
+
 		}
 
 	}
@@ -2302,24 +2307,27 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		values.put(DBConstants.IS_MUTE, botInfo.isMute());
 		values.put(DBConstants.BOT_TYPE, botInfo.getType());
 		values.put(DBConstants.BOT_CONFIGURATION, botInfo.getConfiguration());
-		values.put(DBConstants.IS_RECEIVE_ENABLED, botInfo.isReceiveEnabled() ? 1 : 0);
+		values.put(DBConstants.CONFIG_DATA, botInfo.getConfigData());
+		values.put(DBConstants.IS_BOT_ENABLE, botInfo.isBotEnabled());
 		mDb.insertWithOnConflict(DBConstants.BOT_TABLE, null, values, SQLiteDatabase.CONFLICT_REPLACE);
 	}
 
-	public void updateBot(String msisdn, String name, String metadata, int isMute)
+	public void updateBotMuteState( String msisdn, int isMute)
 	{
 		ContentValues values = new ContentValues();
-		if (!TextUtils.isEmpty(name))
-		{
-			values.put(DBConstants.NAME, name);
-		}
-		if (!TextUtils.isEmpty(metadata))
-		{
-			values.put(DBConstants.CONVERSATION_METADATA, metadata);
-		}
 		if (isMute != -1)
 		{
 			values.put(DBConstants.IS_MUTE, isMute);
+		}
+		mDb.updateWithOnConflict(DBConstants.BOT_TABLE, values, DBConstants.MSISDN + "=?", new String[] { msisdn }, SQLiteDatabase.CONFLICT_REPLACE);
+	}
+
+	public void updateBotEnablingState(String msisdn, int isEnabled)
+	{
+		ContentValues values = new ContentValues();
+		if (isEnabled != -1)
+		{
+			values.put(DBConstants.IS_BOT_ENABLE, isEnabled);
 		}
 		mDb.updateWithOnConflict(DBConstants.BOT_TABLE, values, DBConstants.MSISDN + "=?", new String[] { msisdn }, SQLiteDatabase.CONFLICT_REPLACE);
 	}
@@ -2932,7 +2940,16 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				}
 				else
 				{
-					convInfo = new ConvInfo.ConvInfoBuilder(msisdn).setSortingTimeStamp(sortingTimestamp).setOnHike(onhike).build();
+
+					if (Utils.isBot(msisdn))
+					{
+						convInfo = BotInfo.getBotInfoForBotMsisdn(msisdn);
+					}
+
+					else
+					{
+						convInfo = new ConvInfo.ConvInfoBuilder(msisdn).setSortingTimeStamp(sortingTimestamp).setOnHike(onhike).build();
+					}
 
 					ContactInfo contact = ContactManager.getInstance().getContact(convInfo.getMsisdn());
 
@@ -5130,7 +5147,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			int botTypeIdx = c.getColumnIndex(DBConstants.BOT_TYPE);
 			int metadataIdx = c.getColumnIndex(DBConstants.CONVERSATION_METADATA);
 			int muteIdx = c.getColumnIndex(DBConstants.IS_MUTE);
-			int isReceiveEnabledIdx = c.getColumnIndex(DBConstants.IS_RECEIVE_ENABLED);
 
 			mDb.beginTransaction();
 			while (c.moveToNext())
@@ -5141,7 +5157,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				int botType = c.getInt(botTypeIdx);
 				String metadata = c.getString(metadataIdx);
 				int mute = c.getInt(muteIdx);
-				int isReceiveEnabled = c.getInt(isReceiveEnabledIdx);
 
 
 				BotInfo botInfo = new BotInfo.HikeBotBuilder(msisdn)
@@ -5150,7 +5165,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 						.setType(botType)
 						.setMetadata(metadata)
 						.setIsMute(mute == 1)
-						.setIsReceiveEnabled(isReceiveEnabled == 1)
 						.build();
 
 				HikeMessengerApp.hikeBotNamesMap.put(msisdn, botInfo);
