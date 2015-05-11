@@ -516,5 +516,16 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	{
 		
 	}
+
+	/**
+	 * Utility method to update the actionBar string
+	 */
+	public void updateOverflowMenuItemTitle(int id, String newTitle)
+	{
+		if (mActionBar != null)
+		{
+			mActionBar.updateOverflowMenuItemString(id, newTitle);
+		}
+	}
 	
 }

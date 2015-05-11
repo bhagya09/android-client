@@ -16,6 +16,7 @@ import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
+import com.bsb.hike.ui.WebViewActivity;
 import com.bsb.hike.utils.Logger;
 
 public class NonMessagingJavaScriptBridge extends JavascriptBridge
@@ -148,6 +149,23 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	public void onMenuItemClicked(int id)
 	{
 		mWebView.loadUrl("javascript:onMenuItemClicked('" + id + "')");
+	}
+	
+	/**
+	 * Calling this method will update the menu title(for the given id) in WebViewActivity
+	 * 
+	 * @param id
+	 * @param newTitle
+	 */
+	@JavascriptInterface
+	public void updateMenuTitle(int id, String newTitle)
+	{
+		Activity activity = weakActivity.get();
+		
+		if (activity != null && activity instanceof WebViewActivity)
+		{
+			((WebViewActivity) activity).updateOverflowMenuItemTitle(id, newTitle);
+		}
 	}
 
 }

@@ -182,7 +182,7 @@ public class HikeActionBar
 	 * @param itemId
 	 * @param newTitle
 	 */
-	protected void updateOverflowMenuItemString(int itemId, String newTitle)
+	public void updateOverflowMenuItemString(int itemId, String newTitle)
 	{
 		if(overFlowMenuLayout!=null)
 		{
