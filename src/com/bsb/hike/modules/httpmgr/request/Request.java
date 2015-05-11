@@ -5,6 +5,7 @@ import static com.bsb.hike.modules.httpmgr.request.PriorityConstants.PRIORITY_LO
 import static com.bsb.hike.modules.httpmgr.request.PriorityConstants.PRIORITY_NORMAL;
 import static com.bsb.hike.modules.httpmgr.request.RequestConstants.GET;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -16,7 +17,7 @@ import android.text.TextUtils;
 
 import com.bsb.hike.modules.httpmgr.Header;
 import com.bsb.hike.modules.httpmgr.RequestToken;
-import com.bsb.hike.modules.httpmgr.Utils;
+import com.bsb.hike.modules.httpmgr.HttpUtils;
 import com.bsb.hike.modules.httpmgr.interceptor.IRequestInterceptor;
 import com.bsb.hike.modules.httpmgr.interceptor.IResponseInterceptor;
 import com.bsb.hike.modules.httpmgr.interceptor.Pipeline;
@@ -37,7 +38,9 @@ public abstract class Request<T> implements IRequestFacade
 
 	public static final short REQUEST_TYPE_SHORT = 0x1;
 
-	private String id;
+	private String defaultId = "";
+	
+	private String md5Id;
 
 	private String analyticsParam;
 	
@@ -75,7 +78,7 @@ public abstract class Request<T> implements IRequestFacade
 
 	protected Request(Init<?> builder)
 	{
-		this.id = builder.id;
+		this.defaultId = builder.id;
 		this.analyticsParam = builder.analyticsParam;
 		this.method = builder.method;
 		this.url = builder.url;
@@ -112,10 +115,8 @@ public abstract class Request<T> implements IRequestFacade
 			headers = new ArrayList<Header>();
 		}
 
-		if (TextUtils.isEmpty(id))
-		{
-			id = generateId();
-		}
+		md5Id = generateId();
+		
 		if (requestInteceptors == null)
 		{
 			requestInteceptors = new Pipeline<IRequestInterceptor>();
@@ -130,6 +131,8 @@ public abstract class Request<T> implements IRequestFacade
 	public void finish()
 	{
 		this.method = null;
+		this.defaultId = null;
+		this.md5Id = null;
 		this.url = null;
 		this.headers = null;
 		this.body = null;
@@ -142,7 +145,7 @@ public abstract class Request<T> implements IRequestFacade
 		this.future = null;
 	}
 	
-	public abstract T parseResponse(InputStream in) throws Throwable;
+	public abstract T parseResponse(InputStream in) throws IOException;
 
 	/**
 	 * Returns the unique id of the request
@@ -151,7 +154,7 @@ public abstract class Request<T> implements IRequestFacade
 	 */
 	public String getId()
 	{
-		return id;
+		return md5Id;
 	}
 
 	/**
@@ -311,6 +314,11 @@ public abstract class Request<T> implements IRequestFacade
 		return future;
 	}
 
+	public void setId(String id)
+	{
+		this.md5Id = id;
+	}
+	
 	/**
 	 * Sets the headers of the request
 	 * 
@@ -646,6 +654,38 @@ public abstract class Request<T> implements IRequestFacade
 		}
 
 		/**
+		 * Adds a header to the list of request headers
+		 * 
+		 * @param header
+		 * @return
+		 */
+		public S addHeader(Header header)
+		{
+			if (null == this.headers)
+			{
+				this.headers = new ArrayList<Header>();
+			}
+			this.headers.add(header);
+			return self();
+		}
+
+		/**
+		 * Adds a list of headers to request headers
+		 * 
+		 * @param headers
+		 * @return
+		 */
+		public S addHeader(List<Header> headers)
+		{
+			if (null == this.headers)
+			{
+				this.headers = new ArrayList<Header>();
+			}
+			this.headers.addAll(headers);
+			return self();
+		}
+		
+		/**
 		 * Sets the priority of the request. Use priority constants or a positive integer. Will have no effect on a request after it starts being executed.
 		 * 
 		 * @param priority
@@ -732,13 +772,13 @@ public abstract class Request<T> implements IRequestFacade
 
 	public String generateId()
 	{
-		String input = url;
+		String input = url + defaultId;
 		Collections.sort(headers);
 		for (Header header : headers)
 		{
 			input += header.getName() + header.getValue();
 		}
-		return Utils.calculateMD5hash(input);
+		return HttpUtils.calculateMD5hash(input);
 	}
 	
 	@Override

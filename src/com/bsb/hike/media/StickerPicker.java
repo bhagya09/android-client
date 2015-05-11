@@ -44,14 +44,14 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 	private View viewToDisplay;
 
 	private int mLayoutResId = -1;
-	
-	private int currentConfig = Configuration.ORIENTATION_PORTRAIT; 
-	
+
+	private int currentConfig = Configuration.ORIENTATION_PORTRAIT;
+
 	private StickerEmoticonIconPageIndicator mIconPageIndicator;
-	
+
 	private static final String TAG = "StickerPicker";
-	
-	private static boolean refreshStickers = false;
+
+	private ViewPager mViewPager;
 
 	/**
 	 * Constructor
@@ -140,8 +140,10 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 			resetView();
 			currentConfig = screenOritentation;
 		}
-		
+
 		initView();
+
+		addAdaptersToViews();
 
 		popUpLayout.showKeyboardPopup(viewToDisplay);
 	}
@@ -174,7 +176,7 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 	 */
 	private void initViewComponents(View view)
 	{
-		ViewPager mViewPager = ((ViewPager) view.findViewById(R.id.sticker_pager));
+		mViewPager = ((ViewPager) view.findViewById(R.id.sticker_pager));
 
 		if (null == mViewPager)
 		{
@@ -189,15 +191,10 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 
 		shopIcon.setOnClickListener(this);
 
-		handleStickerIntro(view);		
+		handleStickerIntro(view);
 
 		mViewPager.setVisibility(View.VISIBLE);
 
-		mViewPager.setAdapter(stickerAdapter);
-
-		mIconPageIndicator.setViewPager(mViewPager);
-
-		mIconPageIndicator.setOnPageChangeListener(onPageChangeListener);
 	}
 
 	/**
@@ -235,25 +232,28 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 				HAManager.sendStickerEmoticonStrangeBehaviourReport(errorMsg);
 				return null;
 			}
-				
+
 			initView();
 		}
-		
-		// Commenting it out. This is to be uncommented if we move to caching strategy later on. 
-		
-//		/**
-//		 * If this variable is set to true, then we refresh the dataset for stickers. This would happen when we download new packs from shop or we update stickers from sticker
-//		 * settings page
-//		 */
-//		if (refreshStickers)
-//		{
-//			mIconPageIndicator.notifyDataSetChanged();
-//			stickerAdapter.notifyDataSetChanged();
-//		}
 
-//		refreshStickers = false;
-		
+		addAdaptersToViews();
+
 		return viewToDisplay;
+	}
+
+	private void addAdaptersToViews()
+	{
+		mViewPager.setAdapter(stickerAdapter);
+
+		mViewPager.setCurrentItem(0, false);
+
+		mIconPageIndicator.setViewPager(mViewPager);
+
+		mIconPageIndicator.setOnPageChangeListener(onPageChangeListener);
+
+		mIconPageIndicator.setCurrentItem(0);
+
+		mIconPageIndicator.notifyDataSetChanged();
 	}
 
 	public boolean isShowing()
@@ -436,33 +436,22 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 		}
 
 		if (HikeSharedPreferenceUtil.getInstance().getData(StickerManager.SHOW_STICKER_SHOP_BADGE, false)) // The shop icon would be blue unless the
-																																			// user clicks
+																											// user clicks
 		// on it once
 		{
 			HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.SHOW_STICKER_SHOP_BADGE, false);
 			viewToDisplay.findViewById(R.id.shop_icon_badge).setVisibility(View.GONE);
 		}
 	}
-	
+
 	private void resetView()
 	{
 		viewToDisplay = null;
 		stickerAdapter = null;
 	}
-	
+
 	private boolean orientationChanged(int deviceOrientation)
 	{
 		return currentConfig != deviceOrientation;
-	}
-
-	/**
-	 * Used for indicating to the sticker picker to refresh its underlying dataset
-	 * 
-	 * @param refreshStickers
-	 *            the refreshStickers to set
-	 */
-	public static void setRefreshStickers(boolean refreshStickers)
-	{
-		StickerPicker.refreshStickers = refreshStickers;
 	}
 }
