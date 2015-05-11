@@ -1,9 +1,9 @@
 package com.bsb.hike.ui;
 
 
-import com.bsb.hike.chatthread.HikeActionBar;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -38,6 +38,7 @@ import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.NonMessagingBotConfiguration;
 import com.bsb.hike.bots.NonMessagingBotMetadata;
+import com.bsb.hike.chatthread.HikeActionBar;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.media.OverFlowMenuItem;
 import com.bsb.hike.media.OverflowItemClickListener;
@@ -45,11 +46,11 @@ import com.bsb.hike.media.TagPicker.TagOnClickListener;
 import com.bsb.hike.models.WhitelistDomain;
 import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.bridge.NonMessagingJavaScriptBridge;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformContent.EventCode;
 import com.bsb.hike.platform.content.PlatformContentListener;
 import com.bsb.hike.platform.content.PlatformContentModel;
-import com.bsb.hike.platform.bridge.NonMessagingJavaScriptBridge;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
@@ -84,6 +85,8 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	String msisdn;
 
 	int mode;
+	
+	NonMessagingJavaScriptBridge mmBridge;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -244,7 +247,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	
 	private void attachBridge()
 	{
-		NonMessagingJavaScriptBridge mmBridge=new NonMessagingJavaScriptBridge(this, webView);
+		mmBridge=new NonMessagingJavaScriptBridge(this, webView);
 		webView.addJavascriptInterface(mmBridge, HikePlatformConstants.PLATFORM_BRIDGE_NAME);
 	}
 
@@ -384,6 +387,12 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	@Override
 	public void onBackPressed()
 	{
+		if (mode == MICRO_APP_MODE)
+		{
+			mmBridge.onBackPressed();
+			return;
+		}
+		
 		if (webView.canGoBack())
 		{
 			webView.goBack();
