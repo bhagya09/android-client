@@ -153,8 +153,10 @@ public class BotChatThread extends OneToOneChatThread
 			return false;
 		}
 
-		mActionBar.onCreateOptionsMenu(menu, R.menu.one_one_chat_thread_menu, getOverFlowItems(), this, this);
-		if (configuration.isOverflowMenuEnabled())
+		List<OverFlowMenuItem> menuItemList = getOverFlowItems();
+
+		mActionBar.onCreateOptionsMenu(menu, R.menu.one_one_chat_thread_menu, menuItemList, this, this);
+		if (configuration.isOverflowMenuEnabled() && !menuItemList.isEmpty())
 		{
 			menu.findItem(R.id.overflow_menu).setVisible(true);
 			menu.findItem(R.id.overflow_menu).getActionView().setOnClickListener(this);
