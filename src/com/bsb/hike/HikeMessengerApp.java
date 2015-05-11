@@ -900,16 +900,27 @@ public void onTrimMemory(int level)
 	 */
 	private void addDefaultBotsToDB()
 	{
-		defaultBotEntry("+hike+","team hike", null, null, 4527, false);
+		BitmapDrawable drawable;
+		String base64Icon;
+
+		drawable = (BitmapDrawable) getApplicationContext().getResources().getDrawable(R.drawable.hiketeam);
+		base64Icon = Utils.drawableToString(drawable);
+		defaultBotEntry("+hike+","team hike", null, base64Icon , 4527, false);
+
 		defaultBotEntry("+hike1+", "Emma from hike", null, null, 2069487, true);
+
 		defaultBotEntry("+hike2+", "Games on hike", null, null, 21487, false);
-		defaultBotEntry("+hike3+", "hike daily", null, null, 21487, false);
+
+		drawable = (BitmapDrawable) getApplicationContext().getResources().getDrawable(R.drawable.hikedaily);
+		base64Icon = Utils.drawableToString(drawable);
+		defaultBotEntry("+hike3+", "hike daily", null, base64Icon, 21487, false);
+
 		defaultBotEntry("+hike4+", "hike support", null, null, 2069487, true);
+		
 		defaultBotEntry("+hike5+", "Natasha", null, null, 2069487, true);
 
-		BitmapDrawable drawable = (BitmapDrawable) getApplicationContext().getResources().getDrawable(R.drawable.cric_icon);
-		String base64Icon = Utils.drawableToString(drawable);
-
+		drawable = (BitmapDrawable) getApplicationContext().getResources().getDrawable(R.drawable.cric_icon);
+		base64Icon = Utils.drawableToString(drawable);
 		defaultBotEntry("+hikecricket+", "Cricket 2015", HikePlatformConstants.CRICKET_CHAT_THEME_ID, base64Icon,
 				21487, false);
 
