@@ -96,9 +96,9 @@ import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.media.AttachmentPicker;
 import com.bsb.hike.media.AudioRecordView;
 import com.bsb.hike.media.AudioRecordView.AudioRecordListener;
-import com.bsb.hike.media.CaptureImageParser;
-import com.bsb.hike.media.CaptureImageParser.CaptureImageListener;
 import com.bsb.hike.media.EmoticonPicker;
+import com.bsb.hike.media.ImageParser;
+import com.bsb.hike.media.ImageParser.ImageParserListener;
 import com.bsb.hike.media.OverFlowMenuItem;
 import com.bsb.hike.media.OverFlowMenuLayout.OverflowViewListener;
 import com.bsb.hike.media.OverflowItemClickListener;
@@ -130,6 +130,7 @@ import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.tasks.EmailConversationsAsyncTask;
 import com.bsb.hike.ui.ComposeViewWatcher;
+import com.bsb.hike.ui.DelegateActivity;
 import com.bsb.hike.ui.GalleryActivity;
 import com.bsb.hike.utils.ChatTheme;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
@@ -152,7 +153,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
  * @generated
  */
 
-public abstract class ChatThread extends SimpleOnGestureListener implements OverflowItemClickListener, View.OnClickListener, ThemePickerListener, CaptureImageListener,
+public abstract class ChatThread extends SimpleOnGestureListener implements OverflowItemClickListener, View.OnClickListener, ThemePickerListener, ImageParserListener,
 		PickFileListener, StickerPickerListener, AudioRecordListener, LoaderCallbacks<Object>, OnItemLongClickListener, OnTouchListener, OnScrollListener,
 		Listener, ActionModeListener, HikeDialogListener, TextWatcher, OnDismissListener, OnEditorActionListener, OnKeyListener, PopupListener, BackKeyListener,
 		OverflowViewListener, OnSoftKeyboardListener
@@ -751,7 +752,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		switch (requestCode)
 		{
 		case AttachmentPicker.CAMERA:
-			CaptureImageParser.parseCameraResult(activity, resultCode, data, this);
+			ImageParser.parseResult(activity, resultCode, data, this);
 			break;
 		case AttachmentPicker.AUDIO:
 		case AttachmentPicker.VIDEO:
@@ -775,8 +776,13 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		case AttachmentPicker.GALLERY:
 			if (resultCode == GalleryActivity.GALLERY_ACTIVITY_RESULT_CODE)
 			{
+				// This would be executed if photos is not enabled on the device
 				mConversationsView.requestFocusFromTouch();
 				mConversationsView.setSelection(messages.size() - 1);
+			}
+			else if(resultCode == Activity.RESULT_OK)
+			{
+				ImageParser.parseResult(activity, resultCode, data, this);
 			}
 			break;
 		case HikeConstants.PLATFORM_REQUEST:
@@ -1275,11 +1281,25 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		}
 	}
 
+	
+	/**
+	 * If photos enable it will launch a series of activities to return the final edited image.
+	 * Delegate activity handles the launching of the required activities in series and handling their respective results
+	 * @param onHike
+	 */
 	private void startHikeGallery(boolean onHike)
 	{
-		Intent imageIntent = IntentFactory.getHikeGallaryShare(activity.getApplicationContext(), msisdn, onHike);
-		imageIntent.putExtra(GalleryActivity.START_FOR_RESULT, true);
-		activity.startActivityForResult(imageIntent, AttachmentPicker.GALLERY);
+		if(Utils.isPhotosEditEnabled())
+		{
+			Intent imageIntent = IntentFactory.getDelegateActivityIntent(activity.getApplicationContext(), IntentFactory.getPhotosFlowFromGalleryIntents(activity.getApplicationContext(), msisdn, onHike,false));
+			activity.startActivityForResult(imageIntent, AttachmentPicker.GALLERY);
+		}
+		else
+		{
+			Intent imageIntent = IntentFactory.getHikeGallaryShare(activity.getApplicationContext(), msisdn, onHike);
+			imageIntent.putExtra(GalleryActivity.START_FOR_RESULT, true);
+			activity.startActivityForResult(imageIntent, AttachmentPicker.GALLERY);
+		}
 	}
 	
 	private void recordSearchOptionClick()
@@ -1479,19 +1499,19 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	}
 
 	@Override
-	public void imageCaptured(Uri uri)
+	public void imageParsed(Uri uri)
 	{
 		ChatThreadUtils.uploadFile(activity.getApplicationContext(), msisdn, uri, HikeFileType.IMAGE, mConversation.isOnHike());
 	}
 
 	@Override
-	public void imageCaptured(String imagePath)
+	public void imageParsed(String imagePath)
 	{
 		ChatThreadUtils.uploadFile(activity.getApplicationContext(), msisdn, imagePath, HikeFileType.IMAGE, mConversation.isOnHike(), FTAnalyticEvents.CAMERA_ATTACHEMENT);
 	}
 
 	@Override
-	public void imageCaptureFailed()
+	public void imageParseFailed()
 	{
 		showToast(R.string.error_capture);
 		ChatThreadUtils.clearTempData(activity.getApplicationContext());

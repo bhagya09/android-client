@@ -1,6 +1,7 @@
 package com.bsb.hike.utils;
 
 import java.io.File;
+import java.util.ArrayList;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -11,7 +12,6 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Message;
@@ -19,24 +19,23 @@ import android.provider.ContactsContract.Contacts;
 import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.widget.Toast;
+
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.adapters.MessagesAdapter;
-import com.bsb.hike.chatthread.ChatThread;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.Sticker;
-import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.Conversation.ConvInfo;
-import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.ui.ComposeChatActivity;
 import com.bsb.hike.ui.ConnectedAppsActivity;
 import com.bsb.hike.ui.CreateNewGroupOrBroadcastActivity;
 import com.bsb.hike.ui.CreditsActivity;
+import com.bsb.hike.ui.DelegateActivity;
 import com.bsb.hike.ui.FileSelectActivity;
 import com.bsb.hike.ui.FtueBroadcast;
 import com.bsb.hike.ui.GalleryActivity;
@@ -750,6 +749,8 @@ public class IntentFactory
 	public static Intent getPictureEditorActivityIntent(Context context, String imageFileName, boolean compressOutput, String destinationPath)
 	{
 		Intent i = new Intent(context, PictureEditer.class);
+		
+		i.setAction(HikeConstants.HikePhotos.PHOTOS_ACTION_CODE);
 
 		if (imageFileName != null)
 		{
@@ -800,5 +801,34 @@ public class IntentFactory
 	public static void startShareImageIntent(String mimeType, String imagePath)
 	{
 		startShareImageIntent(mimeType, imagePath, null);
+	}
+	
+	public static Intent getDelegateActivityIntent(Context context,ArrayList<Intent> desIntents)
+	{
+		Intent intent = new Intent(context, DelegateActivity.class);
+		intent.putParcelableArrayListExtra(DelegateActivity.DESTINATION_INTENT, desIntents);
+		return intent;
+	}
+	
+	public static ArrayList<Intent> getPhotosFlowFromGalleryIntents(Context context,String msisdn,boolean onHike,boolean compressOutput)
+	{
+		Intent sourceIntent = IntentFactory.getHikeGallaryShare(context, msisdn, onHike);
+		sourceIntent.putExtra(GalleryActivity.START_FOR_RESULT, true);
+		Intent destination = IntentFactory.getPictureEditorActivityIntent(context, null, compressOutput, null);
+		ArrayList<Intent> desIntent = new ArrayList<Intent>(2);
+		desIntent.add(sourceIntent);
+		desIntent.add(destination);
+		return desIntent;
+	}
+	
+	public static ArrayList<Intent> getPhotosFlowFromCameraIntents(Context context,File selectedFile,boolean compressOutput)
+	{
+		Intent sourceIntent = IntentFactory.getNativeCameraAppIntent(true, selectedFile);
+		Intent destination = IntentFactory.getPictureEditorActivityIntent(context, null, compressOutput, selectedFile.getAbsolutePath());
+		destination.putExtra(HikeMessengerApp.FILE_PATHS, selectedFile.getAbsolutePath());
+		ArrayList<Intent> desIntent = new ArrayList<Intent>(2);
+		desIntent.add(sourceIntent);
+		desIntent.add(destination);
+		return desIntent;
 	}
 }
