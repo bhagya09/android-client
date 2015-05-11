@@ -348,12 +348,21 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 	{
 		this.mContext = null;
 		this.listener = null;
+		if (stickerAdapter != null)
+		{
+			stickerAdapter.unregisterListeners();
+		}
+
 	}
 	
 	public void updateListener(StickerPickerListener mListener, Context context)
 	{
 		this.listener = mListener;
 		this.mContext = context;
+		if (stickerAdapter != null)
+		{
+			stickerAdapter.registerListener();
+		}
 	}
 	
 	private void updateStickerAdapter()
@@ -378,14 +387,6 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 		}
 	}
 	
-	public void unregisterListeners()
-	{
-		if(stickerAdapter != null)
-		{
-			stickerAdapter.unregisterListeners();
-		}
-	}
-
 	private void updateIconPageIndicator()
 	{
 		if (mIconPageIndicator != null)
