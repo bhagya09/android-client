@@ -2476,6 +2476,10 @@ public class VoIPService extends Service {
 
 							Logger.d(VoIPConstants.TAG, "ICE Sending.");
 							sendPacket(dp, false);
+							
+							if (socket == null)
+								return;
+							
 							socket.receive(incomingPacket);
 							
 							String serverResponse = new String(incomingPacket.getData(), 0, incomingPacket.getLength());
