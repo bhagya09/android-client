@@ -119,7 +119,11 @@ public class StealthModeManager
 
 	public void clearScheduledStealthToggleTimer()
 	{
-		stealthFakeOn();
+		if(isActive())
+		{
+			stealthFakeOn();
+			HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_MODE_TOGGLED, true);
+		}
 		handler.removeRunnable(toggleReset);
 	}
 
@@ -129,8 +133,11 @@ public class StealthModeManager
 		@Override
 		public void run()
 		{
-			activate(false);
-			HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_MODE_TOGGLED, true);
+			if(isActive() || isStealthFakeOn())
+			{
+				activate(false);
+				HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_MODE_TOGGLED, true);
+			}
 			HikeMessengerApp.getPubSub().publish(HikePubSub.CLOSE_CURRENT_STEALTH_CHAT, true);
 		}
 	};
