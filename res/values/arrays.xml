@@ -693,8 +693,7 @@
 	</string-array>
 
 	<string-array name="profile_pic_dialog">
-	    <item>@string/camera</item>
-	    <item>@string/gallery</item>
+	    <item>@string/edit_photos</item>
 	</string-array>
 		
 	<string-array name="family_array_exact_name">

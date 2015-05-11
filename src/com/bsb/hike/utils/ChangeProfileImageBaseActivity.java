@@ -1,13 +1,13 @@
 package com.bsb.hike.utils;
 
 import java.io.File;
-import java.net.URI;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -15,10 +15,7 @@ import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.SharedPreferences.Editor;
 import android.graphics.Bitmap;
-import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
-import android.text.TextUtils;
 import android.view.View;
 import android.widget.Toast;
 
@@ -43,9 +40,9 @@ import com.bsb.hike.models.StatusMessage;
 import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.tasks.DownloadImageTask;
-import com.bsb.hike.tasks.DownloadImageTask.ImageDownloadResult;
 import com.bsb.hike.tasks.FinishableEvent;
 import com.bsb.hike.tasks.HikeHTTPTask;
+import com.bsb.hike.ui.GalleryActivity;
 import com.bsb.hike.ui.fragments.ImageViewerFragment;
 import com.bsb.hike.ui.fragments.ImageViewerFragment.DisplayPictureEditListener;
 import com.bsb.hike.utils.Utils.ExternalStorageState;
@@ -119,10 +116,14 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 	@Override
 	public void onClick(DialogInterface dialog, int item)
 	{
-		Intent intent = null;
 		switch (item)
 		{
-		case HikeConstants.PROFILE_PICTURE_FROM_CAMERA:
+		case HikeConstants.NEW_PROFILE_PICTURE:
+			if (Utils.getExternalStorageState() == ExternalStorageState.NONE)
+			{
+				Toast.makeText(getApplicationContext(), R.string.no_external_storage, Toast.LENGTH_SHORT).show();
+				return;
+			}
 			if (Utils.getExternalStorageState() != ExternalStorageState.WRITEABLE)
 			{
 				Toast.makeText(getApplicationContext(), R.string.no_external_storage, Toast.LENGTH_SHORT).show();
@@ -133,42 +134,19 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 				Toast.makeText(getApplicationContext(), R.string.not_enough_space_profile_pic, Toast.LENGTH_SHORT).show();
 				return;
 			}
-			intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-			File selectedFileIcon = Utils.getOutputMediaFile(HikeFileType.PROFILE, null, false); // create a file to save
 			
-			// the image
-			if (selectedFileIcon != null)
-			{
-				intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(selectedFileIcon));
-
-				/*
-				 * Saving the file path. Will use this to get the file once the image has been captured.
-				 */
-				Editor editor = prefs.getPref().edit();
-				editor.putString(HikeMessengerApp.FILE_PATH, selectedFileIcon.getAbsolutePath());
-				editor.commit();
-
-				startActivityForResult(intent, HikeConstants.CAMERA_RESULT);
-			}
-			else
-			{
-				Toast.makeText(this, getString(R.string.no_sd_card), Toast.LENGTH_LONG).show();
-			}
-			break;
-		case HikeConstants.PROFILE_PICTURE_FROM_GALLERY:
-			if (Utils.getExternalStorageState() == ExternalStorageState.NONE)
-			{
-				Toast.makeText(getApplicationContext(), R.string.no_external_storage, Toast.LENGTH_SHORT).show();
-				return;
-			}
-			if (!Utils.hasEnoughFreeSpaceForProfilePic())
-			{
-				Toast.makeText(getApplicationContext(), R.string.not_enough_space_profile_pic, Toast.LENGTH_SHORT).show();
-				return;
-			}
-			intent = new Intent(Intent.ACTION_PICK);
-			intent.setType("image/*");
-			startActivityForResult(intent, HikeConstants.GALLERY_RESULT);
+			String destString = Utils.getFileParent(HikeFileType.IMAGE, false)+ File.separator + Utils.getOriginalFile(HikeFileType.IMAGE, null);
+			
+			Intent picEditerIntent = IntentFactory.getPictureEditorActivityIntent(ChangeProfileImageBaseActivity.this, null, true, destString);
+			picEditerIntent.putExtra(HikeConstants.HikePhotos.ONLY_PROFILE_UPDATE, true);
+			
+			PendingIntent editorPendingIntent = PendingIntent.getActivity(HikeMessengerApp.getInstance().getApplicationContext(), RESULT_OK, picEditerIntent,PendingIntent.FLAG_UPDATE_CURRENT);
+			
+			// Open gallery
+			Intent galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(ChangeProfileImageBaseActivity.this, false, false,true, GalleryActivity.PHOTOS_EDITOR_ACTION_BAR_TYPE, editorPendingIntent);
+			
+			startActivity(galleryPickerIntent);
+			
 			break;
 
 		case HikeConstants.REMOVE_PROFILE_PICTURE:
@@ -376,159 +354,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 		builder.show();
 	}
 
-	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data)
-	{
-		super.onActivityResult(requestCode, resultCode, data);
-
-		String path = null;
-		File selectedFileIcon = null;
-
-		if (resultCode != RESULT_OK)
-		{
-			return;
-		}
-
-		String directory = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
-		/*
-		 * Making sure the directory exists before setting a profile image
-		 */
-		File dir = new File(directory);
-
-		if (!dir.exists())
-		{
-			dir.mkdirs();
-		}
-
-		String fileName = Utils.getTempProfileImageFileName(mLocalMSISDN);
-		final String destFilePath = directory + "/" + fileName;
-
-		switch (requestCode)
-		{
-		case HikeConstants.CAMERA_RESULT:
-			Logger.d("ProfileActivity", "The activity is " + this);
-			String filePath = prefs.getData(HikeMessengerApp.FILE_PATH, "");
-			selectedFileIcon = new File(filePath);
-
-			/*
-			 * Removing this key. We no longer need this.
-			 */
-			Editor editor = prefs.getPref().edit();
-			editor.remove(HikeMessengerApp.FILE_PATH);
-			editor.commit();
-
-			if (!selectedFileIcon.exists())
-			{
-				Toast.makeText(getApplicationContext(), R.string.error_capture, Toast.LENGTH_SHORT).show();
-				return;
-			}
-			path = selectedFileIcon.getAbsolutePath();
-
-			if (TextUtils.isEmpty(path))
-			{
-				Toast.makeText(getApplicationContext(), R.string.error_capture, Toast.LENGTH_SHORT).show();
-				return;
-			}
-			Utils.startCropActivity(this, path, destFilePath);
-			break;
-
-		case HikeConstants.GALLERY_RESULT:
-			Logger.d("ProfileActivity", "The activity is " + this);
-			boolean isPicasaImage = false;
-			Uri selectedFileUri = null;
-
-			if (data == null || data.getData() == null)
-			{
-				Toast.makeText(getApplicationContext(), R.string.error_capture, Toast.LENGTH_SHORT).show();
-				return;
-			}
-			selectedFileUri = data.getData();
-
-			if (Utils.isPicasaUri(selectedFileUri.toString()))
-			{
-				isPicasaImage = true;
-				path = Utils.getOutputMediaFile(HikeFileType.PROFILE, null, false).getAbsolutePath();
-			}
-			else
-			{
-				String fileUriStart = "file://";
-				String fileUriString = selectedFileUri.toString();
-				if (fileUriString.startsWith(fileUriStart))
-				{
-					selectedFileIcon = new File(URI.create(Utils.replaceUrlSpaces(fileUriString)));
-					/*
-					 * Done to fix the issue in a few Sony devices.
-					 */
-					path = selectedFileIcon.getAbsolutePath();
-				}
-				else
-				{
-					path = Utils.getRealPathFromUri(selectedFileUri, this);
-				}
-			}
-			if (TextUtils.isEmpty(path))
-			{
-				Toast.makeText(getApplicationContext(), R.string.error_capture, Toast.LENGTH_SHORT).show();
-				return;
-			}
-			if (!isPicasaImage)
-			{
-				Utils.startCropActivity(this, path, destFilePath);
-			}
-			else
-			{
-				final File destFile = new File(path);
-
-				mActivityState.downloadPicasaImageTask = new DownloadImageTask(getApplicationContext(), destFile, selectedFileUri, new ImageDownloadResult()
-				{
-					@Override
-					public void downloadFinished(boolean result)
-					{
-						if (mDialog != null)
-						{
-							mDialog.dismiss();
-							mDialog = null;
-						}
-						mActivityState.downloadPicasaImageTask = null;
-
-						if (!result)
-						{
-							Toast.makeText(getApplicationContext(), R.string.error_download, Toast.LENGTH_SHORT).show();
-						}
-						else
-						{
-							Utils.startCropActivity(ChangeProfileImageBaseActivity.this, destFile.getAbsolutePath(), destFilePath);
-						}
-					}
-				});
-				Utils.executeBoolResultAsyncTask(mActivityState.downloadPicasaImageTask);
-				mDialog = ProgressDialog.show(this, null, getResources().getString(R.string.downloading_image));
-			}
-			try
-			{
-				JSONObject metadata = new JSONObject();
-				metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.SET_PROFILE_PIC_GALLERY);
-				HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
-			}
-			catch (JSONException e)
-			{
-				Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
-			}
-			break;
-
-		case HikeConstants.CROP_RESULT:
-			mActivityState.destFilePath = data.getStringExtra(MediaStore.EXTRA_OUTPUT);
-
-			if (mActivityState.destFilePath == null)
-			{
-				Toast.makeText(getApplicationContext(), R.string.error_setting_profile, Toast.LENGTH_SHORT).show();
-				return;
-			}
-			profileImageCropped();
-			break;
-		}
-	}
-
+	
 	/**
 	 * Used as a callback for image crop action
 	 * 
