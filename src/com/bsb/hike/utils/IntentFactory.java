@@ -1,6 +1,7 @@
 package com.bsb.hike.utils;
 
 import java.io.File;
+import java.util.ArrayList;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -34,6 +35,7 @@ import com.bsb.hike.ui.ComposeChatActivity;
 import com.bsb.hike.ui.ConnectedAppsActivity;
 import com.bsb.hike.ui.CreateNewGroupOrBroadcastActivity;
 import com.bsb.hike.ui.CreditsActivity;
+import com.bsb.hike.ui.DelegateActivity;
 import com.bsb.hike.ui.FileSelectActivity;
 import com.bsb.hike.ui.FtueBroadcast;
 import com.bsb.hike.ui.GalleryActivity;
@@ -799,5 +801,34 @@ public class IntentFactory
 	public static void startShareImageIntent(String mimeType, String imagePath)
 	{
 		startShareImageIntent(mimeType, imagePath, null);
+	}
+	
+	public static Intent getDelegateActivityIntent(Context context,ArrayList<Intent> desIntents)
+	{
+		Intent intent = new Intent(context, DelegateActivity.class);
+		intent.putParcelableArrayListExtra(DelegateActivity.DESTINATION_INTENT, desIntents);
+		return intent;
+	}
+	
+	public static ArrayList<Intent> getPhotosFlowFromGalleryIntents(Context context,String msisdn,boolean onHike,boolean compressOutput)
+	{
+		Intent sourceIntent = IntentFactory.getHikeGallaryShare(context, msisdn, onHike);
+		sourceIntent.putExtra(GalleryActivity.START_FOR_RESULT, true);
+		Intent destination = IntentFactory.getPictureEditorActivityIntent(context, null, compressOutput, null);
+		ArrayList<Intent> desIntent = new ArrayList<Intent>();
+		desIntent.add(sourceIntent);
+		desIntent.add(destination);
+		return desIntent;
+	}
+	
+	public static ArrayList<Intent> getPhotosFlowFromCameraIntents(Context context,File selectedFile,boolean compressOutput)
+	{
+		Intent sourceIntent = IntentFactory.getNativeCameraAppIntent(true, selectedFile);
+		Intent destination = IntentFactory.getPictureEditorActivityIntent(context, null, compressOutput, selectedFile.getAbsolutePath());
+		destination.putExtra(HikeMessengerApp.FILE_PATHS, selectedFile.getAbsolutePath());
+		ArrayList<Intent> desIntent = new ArrayList<Intent>();
+		desIntent.add(sourceIntent);
+		desIntent.add(destination);
+		return desIntent;
 	}
 }

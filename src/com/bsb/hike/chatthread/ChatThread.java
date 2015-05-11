@@ -775,6 +775,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		case AttachmentPicker.GALLERY:
 			if (resultCode == GalleryActivity.GALLERY_ACTIVITY_RESULT_CODE)
 			{
+				// This would be executed if photos is not enabled on the device
 				mConversationsView.requestFocusFromTouch();
 				mConversationsView.setSelection(messages.size() - 1);
 			}
@@ -1279,19 +1280,17 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		}
 	}
 
-	private void startHikeGallery(boolean onHike)//look here
+	
+	/**
+	 * If photos enable it will launch a series of activities to return the final edited image.
+	 * Delegate activity handles the launching of the required activities in series and handling their respective results
+	 * @param onHike
+	 */
+	private void startHikeGallery(boolean onHike)
 	{
 		if(Utils.isPhotosEditEnabled())
 		{
-			Intent sourceIntent = IntentFactory.getHikeGallaryShare(activity.getApplicationContext(), msisdn, onHike);
-			sourceIntent.putExtra(GalleryActivity.START_FOR_RESULT, true);
-			Intent i = IntentFactory.getPictureEditorActivityIntent(activity, null, false, null);
-			ArrayList<Intent> desIntent = new ArrayList<Intent>();
-			desIntent.add(sourceIntent);
-			desIntent.add(i);
-
-			Intent imageIntent = new Intent(activity, DelegateActivity.class);
-			imageIntent.putParcelableArrayListExtra(DelegateActivity.DESTINATION_INTENT, desIntent);
+			Intent imageIntent = IntentFactory.getDelegateActivityIntent(activity.getApplicationContext(), IntentFactory.getPhotosFlowFromGalleryIntents(activity.getApplicationContext(), msisdn, onHike,false));
 			activity.startActivityForResult(imageIntent, AttachmentPicker.GALLERY);
 		}
 		else

@@ -24,7 +24,6 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.models.HikeFile.HikeFileType;
-import com.bsb.hike.ui.DelegateActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
@@ -173,15 +172,11 @@ public class AttachmentPicker extends OverFlowMenuLayout
 					}
 					if (Utils.isPhotosEditEnabled())
 					{
-						Intent sourceIntent = IntentFactory.getNativeCameraAppIntent(true, selectedFile);
-						Intent i = IntentFactory.getPictureEditorActivityIntent(activity, null, false, selectedFile.getAbsolutePath());
-						i.putExtra(HikeMessengerApp.FILE_PATHS, selectedFile.getAbsolutePath());
-						ArrayList<Intent> desIntent = new ArrayList<Intent>();
-						desIntent.add(sourceIntent);
-						desIntent.add(i);
-
-						pickIntent = new Intent(activity, DelegateActivity.class);
-						pickIntent.putParcelableArrayListExtra(DelegateActivity.DESTINATION_INTENT, desIntent);
+						/**
+						 * If photos enable it will launch a series of activities to return the final edited image.
+						 * Delegate activity handles the launching of the required activities in series and handling their respective results
+						 */
+						pickIntent = IntentFactory.getDelegateActivityIntent(activity, IntentFactory.getPhotosFlowFromCameraIntents(activity, selectedFile,false));
 					}
 					else
 					{
