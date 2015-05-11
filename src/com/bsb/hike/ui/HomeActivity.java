@@ -1312,6 +1312,10 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		}
 		else if(HikePubSub.STEALTH_INDICATOR.equals(type))
 		{
+			if(StealthModeManager.getInstance().isActive())
+			{
+				return;
+			}
 			runOnUiThread( new Runnable()
 			{
 				@Override
