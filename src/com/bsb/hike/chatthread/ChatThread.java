@@ -655,12 +655,13 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	private void initStickerPicker()
 	{
-		mStickerPicker = new StickerPicker(activity, this);
+		
+		mStickerPicker = mStickerPicker != null ? mStickerPicker : (new StickerPicker(activity, this));
 	}
 
 	private void initEmoticonPicker()
 	{
-		mEmoticonPicker = new EmoticonPicker(activity, mComposeView);
+		mEmoticonPicker = mEmoticonPicker != null ? mEmoticonPicker : (new EmoticonPicker(activity, mComposeView));
 	}
 
 	public boolean onCreateOptionsMenu(Menu menu)
@@ -3214,6 +3215,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		releaseMessageAdapterResources();
 
 		StickerManager.getInstance().saveCustomCategories();
+		
+		removeStickerListeners();
 
 		releaseMessageMap();
 		
@@ -4102,6 +4105,14 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		{
 			mMessageMap.clear();
 			mMessageMap = null;
+		}
+	}
+	
+	private void removeStickerListeners()
+	{
+		if (mStickerPicker != null)
+		{
+			mStickerPicker.unregisterListeners();
 		}
 	}
 

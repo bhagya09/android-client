@@ -18,7 +18,7 @@ import com.coremedia.iso.Hex;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 
-public class Utils
+public class HttpUtils
 {
 	private static final int BUFFER_SIZE = 4096;
 	
@@ -137,13 +137,13 @@ public class Utils
 	{
 		if (null != request)
 		{
+			RequestProcessor.removeRequest(request);
 			request.finish();
 		}
 		if (null != response)
 		{
 			response.finish();
 		}
-		RequestProcessor.removeRequest(request);
 	}
 	
 	public static String calculateMD5hash(String input)
@@ -159,6 +159,22 @@ public class Utils
 		catch (UnsupportedEncodingException e)
 		{
 			e.printStackTrace();
+		}
+		catch (NoSuchAlgorithmException e)
+		{
+			e.printStackTrace();
+		}
+		return output;
+	}
+	
+	public static String calculateMD5hash(byte[] input)
+	{
+		String output = null;
+		try
+		{
+			MessageDigest md = MessageDigest.getInstance("MD5");
+			byte[] thedigest = md.digest(input);
+			output = new String(Hex.encodeHex(thedigest));
 		}
 		catch (NoSuchAlgorithmException e)
 		{

@@ -7,6 +7,7 @@ import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.multiSt
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.preActivationBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.sendDeviceDetailBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.singleStickerDownloadBase;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.updateAddressbookBaseUrl;
 import static com.bsb.hike.modules.httpmgr.request.PriorityConstants.PRIORITY_HIGH;
 import static com.bsb.hike.modules.httpmgr.request.Request.REQUEST_TYPE_LONG;
 import static com.bsb.hike.modules.httpmgr.request.Request.REQUEST_TYPE_SHORT;
@@ -16,6 +17,7 @@ import java.util.List;
 import org.json.JSONObject;
 
 import com.bsb.hike.modules.httpmgr.Header;
+import com.bsb.hike.modules.httpmgr.HttpUtils;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.analytics.HttpAnalyticsConstants;
 import com.bsb.hike.modules.httpmgr.interceptor.GzipRequestInterceptor;
@@ -152,11 +154,16 @@ public class HttpRequests
 	public static RequestToken sendDeviceDetailsRequest(JSONObject json, IRequestListener requestListener)
 	{
 		JsonBody body = new JsonBody(json);
+		
+		String md5hash = HttpUtils.calculateMD5hash(body.getBytes());
+		Header header = new Header(HttpHeaderConstants.CONTENT_MD5, md5hash);
+		
 		RequestToken requestToken = new JSONObjectRequest.Builder()
 				.setUrl(sendDeviceDetailBaseUrl())
 				.setRequestType(Request.REQUEST_TYPE_SHORT)
 				.setRequestListener(requestListener)
 				.post(body)
+				.addHeader(header)
 				.build();
 		requestToken.getRequestInterceptors().addFirst("gzip", new GzipRequestInterceptor());
 		return requestToken;
@@ -172,6 +179,25 @@ public class HttpRequests
 				.post(body)
 				.build();
 		requestToken.getRequestInterceptors().addFirst("gzip", new GzipRequestInterceptor());
+		return requestToken;
+	}
+	
+	public static RequestToken updateAddressBookRequest(JSONObject json, IRequestListener requestListener)
+	{
+		JsonBody body = new JsonBody(json);
+		
+		String md5hash = HttpUtils.calculateMD5hash(body.getBytes());
+		Header header = new Header(HttpHeaderConstants.CONTENT_MD5, md5hash);
+		
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(updateAddressbookBaseUrl())
+				.setRequestType(Request.REQUEST_TYPE_SHORT)
+				.setRequestListener(requestListener)
+				.addHeader(header)
+				.post(body)
+				.setAsynchronous(false)
+				.build();
+		requestToken.getRequestInterceptors().addLast("gzip", new GzipRequestInterceptor());
 		return requestToken;
 	}
 }
