@@ -815,7 +815,7 @@ public class IntentFactory
 		Intent sourceIntent = IntentFactory.getHikeGallaryShare(context, msisdn, onHike);
 		sourceIntent.putExtra(GalleryActivity.START_FOR_RESULT, true);
 		Intent destination = IntentFactory.getPictureEditorActivityIntent(context, null, compressOutput, null);
-		ArrayList<Intent> desIntent = new ArrayList<Intent>();
+		ArrayList<Intent> desIntent = new ArrayList<Intent>(2);
 		desIntent.add(sourceIntent);
 		desIntent.add(destination);
 		return desIntent;
@@ -826,7 +826,7 @@ public class IntentFactory
 		Intent sourceIntent = IntentFactory.getNativeCameraAppIntent(true, selectedFile);
 		Intent destination = IntentFactory.getPictureEditorActivityIntent(context, null, compressOutput, selectedFile.getAbsolutePath());
 		destination.putExtra(HikeMessengerApp.FILE_PATHS, selectedFile.getAbsolutePath());
-		ArrayList<Intent> desIntent = new ArrayList<Intent>();
+		ArrayList<Intent> desIntent = new ArrayList<Intent>(2);
 		desIntent.add(sourceIntent);
 		desIntent.add(destination);
 		return desIntent;
