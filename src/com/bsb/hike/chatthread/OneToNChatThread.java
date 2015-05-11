@@ -649,4 +649,10 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 		boolean networkError = ChatThreadUtils.checkNetworkError();
 		toggleConversationMuteViewVisibility(networkError ? false : oneToNConversation.isMuted());
 	}
+	
+	@Override
+	protected boolean shouldShowKeyboard()
+	{
+		return (oneToNConversation.isConversationAlive() && super.shouldShowKeyboard());
+	}
 }
