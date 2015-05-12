@@ -11,6 +11,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.bots.NonMessagingBotConfiguration;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.platform.CustomWebView;
@@ -153,13 +154,12 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	 * @param newTitle
 	 */
 	@JavascriptInterface
-	public void updateMenuTitle(int id, String newTitle)
+	public void updateMenuTitle(int id, String newTitle, boolean enabled)
 	{
-		Activity activity = weakActivity.get();
-		
-		if (activity != null && activity instanceof WebViewActivity)
+		NonMessagingBotConfiguration botConfig = new NonMessagingBotConfiguration(mBotInfo.getConfiguration());
+		if (botConfig != null)
 		{
-			((WebViewActivity) activity).updateOverflowMenuItemTitle(id, newTitle);
+			botConfig.updateOverFlowMenu(id, newTitle, enabled);
 		}
 	}
 	
@@ -172,11 +172,10 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void updateMenuEnabledState(int id, boolean enabled)
 	{
-		Activity activity = weakActivity.get();
-		
-		if (activity != null && activity instanceof WebViewActivity)
+		NonMessagingBotConfiguration botConfig = new NonMessagingBotConfiguration(mBotInfo.getConfiguration());
+		if (botConfig != null)
 		{
-			((WebViewActivity) activity).updateOverflowMenuItemState(id, enabled);
+			botConfig.updateOverFlowMenu(id, enabled);
 		}
 	}
 

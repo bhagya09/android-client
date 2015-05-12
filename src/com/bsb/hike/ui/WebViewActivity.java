@@ -517,35 +517,4 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		
 	}
 
-	/**
-	 * Utility method to update the actionBar string
-	 */
-	public void updateOverflowMenuItemTitle(int id, String newTitle)
-	{
-		if (mActionBar != null)
-		{
-			mActionBar.updateOverflowMenuItemString(id, newTitle);
-		}
-	}
-	
-	/**
-	 * Utility method to update the actionBar string
-	 */
-	public void updateOverflowMenuItemState(int id, boolean enabled)
-	{
-		if (mActionBar != null)
-		{
-			mActionBar.updateOverflowMenuItemActiveState(id, enabled);
-			
-			/**
-			 * If enabled, update the tick asset too
-			 */
-			if (enabled)
-			{
-				// TODO 
-//				mActionBar.updateOverflowMenuItemIcon(id, drawableId);
-			}
-		}
-	}
-	
 }
