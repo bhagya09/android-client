@@ -1380,7 +1380,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		}
 	}
 
-	private void setupSearchMode()
+	protected void setupSearchMode()
 	{
 		searchText = null;
 		if (!sharedPreference.getData(HikeMessengerApp.CT_SEARCH_CLICKED, false))

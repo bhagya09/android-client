@@ -940,4 +940,25 @@ public class GroupChatThread extends OneToNChatThread
 		
 		super.fetchConversationFailed();
 	}
+
+	@Override
+	protected void setupSearchMode()
+	{
+		if (isShowingPin())
+		{
+			pinView.setVisibility(View.GONE);
+		}
+		super.setupSearchMode();
+	}
+
+	@Override
+	protected void destroySearchMode()
+	{
+		if (wasPinHidden())
+		{
+			pinView.setVisibility(View.VISIBLE);
+		}
+		super.destroySearchMode();
+	}
+
 }
