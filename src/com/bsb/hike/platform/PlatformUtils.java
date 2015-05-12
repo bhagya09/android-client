@@ -2,6 +2,14 @@ package com.bsb.hike.platform;
 
 import java.util.Iterator;
 
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.platform.content.PlatformContent;
+import com.bsb.hike.platform.content.PlatformContentListener;
+import com.bsb.hike.platform.content.PlatformContentModel;
+import com.bsb.hike.platform.content.PlatformContentRequest;
+import com.bsb.hike.platform.content.PlatformZipDownloader;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -242,4 +250,101 @@ public class PlatformUtils
 		}
 
 	}
+
+	/**
+	 * download the microapp and then set the state to whatever that has been passed by the server.
+	 * @param botInfo
+	 * @param enableBot
+	 */
+	public static void downloadZipForNonMessagingBot(final BotInfo botInfo, final boolean enableBot)
+	{
+		PlatformContentRequest rqst = PlatformContentRequest.make(
+				PlatformContentModel.make(botInfo.getMetadata()), new PlatformContentListener<PlatformContentModel>()
+				{
+
+					@Override
+					public void onComplete(PlatformContentModel content)
+					{
+						Logger.d(TAG, "microapp download packet success.");
+						botInfo.setBotEnabled(enableBot);
+						HikeMessengerApp.hikeBotNamesMap.put(botInfo.getMsisdn(), botInfo);
+						HikeConversationsDatabase.getInstance().updateBotEnablingState(botInfo.getMsisdn(), enableBot ? 1 : 0);
+						HikeConversationsDatabase.getInstance().addConversation(botInfo.getMsisdn(), true, null, null);
+						//TODO Analytics
+					}
+
+					@Override
+					public void onEventOccured(PlatformContent.EventCode event)
+					{
+						if (event == PlatformContent.EventCode.DOWNLOADING || event == PlatformContent.EventCode.LOADED)
+						{
+							//do nothing
+							return;
+						}
+
+						else
+						{
+							Logger.wtf(TAG, "microapp download packet failed.");
+							//TODO Analytics
+						}
+					}
+				});
+
+		downloadAndUnzip(rqst, false);
+
+	}
+
+	/**
+	 * download the microapp, can be used by nonmessaging as well as messaging only to download and unzip the app.
+	 * @param downloadData: the data used to download microapp from ac packet to download the app.
+	 */
+	public static void downloadZipFromPacket(final JSONObject downloadData)
+	{
+		if (downloadData == null)
+		{
+			return;
+		}
+
+		PlatformContentRequest rqst = PlatformContentRequest.make(
+				PlatformContentModel.make(downloadData.toString()), new PlatformContentListener<PlatformContentModel>()
+				{
+
+					@Override
+					public void onComplete(PlatformContentModel content)
+					{
+						//TODO Analytics
+						Logger.d(TAG, "microapp download packet success.");
+					}
+
+					@Override
+					public void onEventOccured(PlatformContent.EventCode event)
+					{
+						if (event == PlatformContent.EventCode.DOWNLOADING || event == PlatformContent.EventCode.LOADED)
+						{
+							//do nothing
+							return;
+						}
+
+						else
+						{
+							//TODO Analytics
+							Logger.wtf(TAG, "microapp download packet failed.");
+						}
+					}
+				});
+
+				downloadAndUnzip(rqst, false);
+
+	}
+
+
+	public static void downloadAndUnzip(PlatformContentRequest request, boolean isTemplatingEnabled)
+	{
+		PlatformZipDownloader downloader = new PlatformZipDownloader(request, isTemplatingEnabled);
+		if (!downloader.isMicroAppExist())
+		{
+			downloader.downloadAndUnzip();
+		}
+	}
+
 }

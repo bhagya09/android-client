@@ -325,7 +325,7 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 				{
 					Logger.d(tag, "templating success");
 					viewHolder.id = getItemId(position);
-					viewHolder.templatingTime = System.currentTimeMillis() - viewHolder.inflationTime;
+					viewHolder.templatingTime = System.currentTimeMillis() - viewHolder.inflationTime - startTime;
 					Logger.d(tag, "Templating time is ---->" + viewHolder.templatingTime);
 					fillContent(content, convMessage, viewHolder);
 				}
@@ -427,7 +427,7 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 				WebViewHolder holder = (WebViewHolder) view.getTag();
 				Logger.d(tag, "Rendering success");
 				holder.renderingTime = System.currentTimeMillis() - holder.templatingTime - holder.inflationTime - startTime;
-				Logger.d(tag, "rendering time is ---->" + holder.inflationTime);
+				Logger.d(tag, "rendering time is ---->" + holder.renderingTime);
 				holder.platformJavaScriptBridge.setData();
 				holder.platformJavaScriptBridge.init(holder);
 				showCard(holder);
