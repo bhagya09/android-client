@@ -189,4 +189,31 @@ public class NonMessagingBotConfiguration extends BotConfiguration
 		}
 		
 	}
+
+	public OverFlowMenuItem getOverflowItemForId(int id)
+	{
+		if (configData != null)
+		{
+			Logger.v(TAG, "Trying to get overflow menu for : " + id + " for this botConfig : " + configData.toString());
+			try
+			{
+				JSONArray menuItems = configData.getJSONArray(HikePlatformConstants.OVERFLOW_MENU);
+				for (int i = 0; i < menuItems.length(); i++)
+				{
+					JSONObject menuJSON = menuItems.getJSONObject(i);
+					int menuId = menuJSON.getInt(HikePlatformConstants.ID);
+					if (menuId == id)
+					{
+						return parseMenuItemFromJSON(menuJSON); 
+					}
+				}
+			}
+			catch (JSONException e)
+			{
+				Logger.e(TAG, "Geting JSON exception while reading overflow menu items : " + e.toString());
+			}
+		}
+		
+		return null;
+	}
 }

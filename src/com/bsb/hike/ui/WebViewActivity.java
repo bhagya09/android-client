@@ -45,6 +45,7 @@ import com.bsb.hike.bots.NonMessagingBotMetadata;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.media.HikeActionBar;
 import com.bsb.hike.media.OverFlowMenuItem;
+import com.bsb.hike.media.OverFlowMenuLayout.OverflowViewListener;
 import com.bsb.hike.media.OverflowItemClickListener;
 import com.bsb.hike.media.TagPicker.TagOnClickListener;
 import com.bsb.hike.models.WhitelistDomain;
@@ -63,7 +64,7 @@ import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.TagEditText.Tag;
 
 public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements OnInflateListener, OnClickListener, TagOnClickListener, OverflowItemClickListener,
-		OnDismissListener
+		OnDismissListener, OverflowViewListener
 {
 
 	private static final String tag = "WebViewActivity";
@@ -346,6 +347,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		if (mode == MICRO_APP_MODE && mActionBar != null)
 		{
 			mActionBar.onCreateOptionsMenu(menu, R.menu.simple_overflow_menu, getOverflowMenuItems(), this, this);
+			mActionBar.setOverflowViewListener(this);
 			return true;
 		}
 		
@@ -515,6 +517,23 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	private void setupTagPicker()
 	{
 		
+	}
+
+	@Override
+	public void onPrepareOverflowOptionsMenu(List<OverFlowMenuItem> overflowItems)
+	{
+		if (overflowItems == null)
+		{
+			return;
+		}
+		
+		for (OverFlowMenuItem overFlowMenuItem : overflowItems)
+		{
+			OverFlowMenuItem item = botConfig.getOverflowItemForId(overFlowMenuItem.id);
+			overFlowMenuItem.text = item.text;
+			overFlowMenuItem.drawableId = item.drawableId;
+			overFlowMenuItem.enabled = item.enabled;
+		}
 	}
 
 }
