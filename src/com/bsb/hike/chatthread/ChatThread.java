@@ -14,6 +14,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.R.integer;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.NotificationManager;
@@ -27,6 +28,7 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -441,7 +443,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			blockUnBlockUser((boolean) msg.obj);
 			break;
 		case ADD_MORE_MSG:
-			addMoreMessages((List<ConvMessage>) msg.obj);
+			addAndSetMessages((List<ConvMessage>) msg.obj);
+			break;
 		case ACTION_MODE_CONFIG_CHANGE:
 			handleActionModeOrientationChange(mActionMode.whichActionModeIsOn());
 			break;
@@ -807,6 +810,13 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			recordSearchOptionClick();
 			setupSearchMode();
 			break;
+		case 420:
+			String numberonly = messages.get(messages.size() - 1).getMessage().replaceAll("[^0-9]", "");
+			int count = 0;
+			if (!TextUtils.isEmpty(numberonly))
+				count = new Integer(numberonly);
+			automateMessages(count);
+			break;
 		default:
 			break;
 		}
@@ -814,6 +824,34 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		{
 			recordOverflowItemClicked(id);
 		}
+	}
+	
+	private void automateMessages(final int count)
+	{
+		AsyncTask<Void, Void, Void> automateMessages = new AsyncTask<Void, Void, Void>()
+		{
+
+			@Override
+			protected Void doInBackground(Void... params)
+			{
+				for(int i=0; i<count; i++)
+				{
+					ConvMessage convMessage = Utils.makeConvMessage(msisdn, "Message No. " + i, mConversation.isOnHike());
+					HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_SENT, convMessage);
+					try
+					{							
+						Thread.sleep(20);
+					}
+					catch (InterruptedException e)
+					{
+						e.printStackTrace();
+					}
+				}
+				return null;
+			}
+			
+		};
+		Utils.executeAsyncTask(automateMessages);
 	}
 	
 	private void recordOverflowItemClicked(int whichItem)
@@ -851,7 +889,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	{
 		return new OverFlowMenuItem[] {
 				new OverFlowMenuItem(getString(R.string.clear_chat), 0, 0, R.string.clear_chat),
-				new OverFlowMenuItem(getString(R.string.email_chat), 0, 0, R.string.email_chat)};
+				new OverFlowMenuItem(getString(R.string.email_chat), 0, 0, R.string.email_chat),
+				new OverFlowMenuItem("Auto_Msg", 0, 0, 420)};
 	}
 
 	protected void showOverflowMenu()
@@ -2208,20 +2247,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			if (!list.isEmpty())
 			{
 				Logger.i(TAG, "Adding 'n' new messages in the list : " + list.size());
-				int scrollOffset = 0;
-
-
-				int firstVisibleItem = mConversationsView.getFirstVisiblePosition();
-
-				if (mConversationsView.getChildAt(0) != null)
-				{
-					scrollOffset = mConversationsView.getChildAt(0).getTop();
-				}
-
-				addMoreMessages(list);
-
-				mConversationsView.setSelectionFromTop(firstVisibleItem + list.size(), scrollOffset);
-				
+				addAndSetMessages(list);
 			}
 
 			else
@@ -2234,6 +2260,20 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 			loadingMoreMessages = false;
 		}
+	}
+
+	private void addAndSetMessages(List<ConvMessage> list)
+	{
+		int scrollOffset = 0;
+		int firstVisibleItem = mConversationsView.getFirstVisiblePosition();
+		if (mConversationsView.getChildAt(0) != null)
+		{
+			scrollOffset = mConversationsView.getChildAt(0).getTop();
+		}
+
+		addMoreMessages(list);
+
+		mConversationsView.setSelectionFromTop(firstVisibleItem + list.size(), scrollOffset);
 	}
 	
 	private void addMoreMessages(List<ConvMessage> list)
@@ -4549,9 +4589,18 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		case SEARCH_ACTION_MODE:
 			mActionMode.reInflateActionMode();
 			String oldText = mComposeView.getText().toString();
+			int start = mComposeView.getSelectionStart();
+			int end = mComposeView.getSelectionEnd();
 			setUpSearchViews();
 			mComposeView.setText(oldText);
-			mComposeView.setSelection(oldText.length());
+			if (start != end)
+			{
+				mComposeView.setSelection(start, end);
+			}
+			else
+			{
+				mComposeView.setSelection(start);
+			}
 			break;
 			
 		default:
