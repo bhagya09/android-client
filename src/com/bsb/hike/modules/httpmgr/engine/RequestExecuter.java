@@ -4,6 +4,7 @@ import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_A
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_CONNECTION_TIMEOUT;
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_MALFORMED_URL;
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_NO_NETWORK;
+import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_RESPONSE_PARSING_ERROR;
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_SERVER_ERROR;
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_SOCKET_TIMEOUT;
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_UNEXPECTED_ERROR;
@@ -18,10 +19,8 @@ import java.util.UUID;
 
 import org.apache.http.conn.ConnectTimeoutException;
 
-import android.text.TextUtils;
-
 import com.bsb.hike.modules.httpmgr.DefaultHeaders;
-import com.bsb.hike.modules.httpmgr.Utils;
+import com.bsb.hike.modules.httpmgr.HttpUtils;
 import com.bsb.hike.modules.httpmgr.analytics.HttpAnalyticsConstants;
 import com.bsb.hike.modules.httpmgr.analytics.HttpAnalyticsLogger;
 import com.bsb.hike.modules.httpmgr.client.IClient;
@@ -33,6 +32,7 @@ import com.bsb.hike.modules.httpmgr.request.Request;
 import com.bsb.hike.modules.httpmgr.request.RequestCall;
 import com.bsb.hike.modules.httpmgr.request.facade.RequestFacade;
 import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.modules.httpmgr.response.ResponseBody;
 import com.bsb.hike.modules.httpmgr.retry.IRetryPolicy;
 
 /**
@@ -92,14 +92,7 @@ public class RequestExecuter
 		 */
 		if (!allInterceptorsExecuted)
 		{
-			Utils.finish(request, response);
-		}
-		else
-		{
-			if (RequestProcessor.isRequestDuplicateAfterInterceptorsProcessing(request))
-			{
-				return;
-			}
+			HttpUtils.finish(request, response);
 		}
 	}
 
@@ -242,12 +235,9 @@ public class RequestExecuter
 				throw new IOException();
 			}
 
-			/** Logging request with response code for analytics */
-			HttpAnalyticsLogger.logResponseReceived(trackId, request.getUrl(), response.getStatusCode(), request.getMethod(), request.getAnalyticsParam());
-
 			LogFull.d(request.toString() + " completed");
-			// positive response
-			listener.onResponse(response, null);
+			
+			notifyResponseToRequestRunner();
 		}
 		catch (SocketTimeoutException ex)
 		{
@@ -294,6 +284,22 @@ public class RequestExecuter
 			HttpAnalyticsLogger.logResponseReceived(trackId, request.getUrl(), REASON_CODE_UNEXPECTED_ERROR, request.getMethod(), request.getAnalyticsParam());
 			handleException(ex, REASON_CODE_UNEXPECTED_ERROR);
 		}
+	}
+
+	private void notifyResponseToRequestRunner()
+	{
+		ResponseBody<?> body = response.getBody();
+		if (null == body || null == body.getContent())
+		{
+			HttpAnalyticsLogger.logResponseReceived(trackId, request.getUrl(), REASON_CODE_RESPONSE_PARSING_ERROR, request.getMethod(), request.getAnalyticsParam());
+			listener.onResponse(null, new HttpException(REASON_CODE_RESPONSE_PARSING_ERROR, "response parsing error"));
+		}
+		else
+		{
+			// positive response
+			HttpAnalyticsLogger.logResponseReceived(trackId, request.getUrl(), response.getStatusCode(), request.getMethod(), request.getAnalyticsParam());
+			listener.onResponse(response, null);
+		}	
 	}
 
 	/**
@@ -371,6 +377,10 @@ public class RequestExecuter
 			else
 			{
 				LogFull.d("Pre-processing completed for " + request.toString());
+				if (RequestProcessor.isRequestDuplicateAfterInterceptorsProcessing(request))
+				{
+					return;
+				}
 				allInterceptorsExecuted = true;
 				processRequest();
 			}
