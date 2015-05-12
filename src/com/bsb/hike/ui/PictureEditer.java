@@ -85,7 +85,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 
 	private View overlayFrame;
 
-	private boolean startedForResult;
+	private boolean startedForResult,startedForProfileUpdate;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState)
@@ -179,6 +179,11 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 		});
 
 		startedForResult = (getCallingActivity() != null);
+		
+		if(!startedForResult)
+		{
+			startedForProfileUpdate = intent.getBooleanExtra(HikeConstants.HikePhotos.ONLY_PROFILE_UPDATE, false);
+		}
 
 		setupActionBar();
 
@@ -401,9 +406,13 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 				editView.undoLastDoodleDraw();
 				break;
 			case R.id.done_container:
-				if (!startedForResult)
+				if (!startedForResult && !startedForProfileUpdate)
 				{
 					loadPreviewFragment();
+				}
+				else if(!startedForResult && startedForProfileUpdate)
+				{
+					setupProfilePicUpload();
 				}
 				else
 				{
@@ -506,36 +515,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 						}
 						else if (actionCode == PhotoActionsFragment.ACTION_SET_DP)
 						{
-
-							sendAnalyticsSetAsDp();
-							// User info is saved in shared preferences
-							SharedPreferences preferences = HikeMessengerApp.getInstance().getApplicationContext()
-									.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, Context.MODE_PRIVATE);
-							ContactInfo userInfo = Utils.getUserContactInfo(preferences);
-							String mLocalMSISDN = userInfo.getMsisdn();
-
-							editView.saveImage(HikeFileType.PROFILE, mLocalMSISDN, new HikePhotosListener()
-							{
-
-								@Override
-								public void onFailure()
-								{
-									// Do nothing
-								}
-
-								@Override
-								public void onComplete(Bitmap bmp)
-								{
-									// Do nothing
-								}
-
-								@Override
-								public void onComplete(File f)
-								{
-									Utils.startCropActivityForResult(PictureEditer.this, f.getAbsolutePath(), f.getAbsolutePath(), true, 100, true);
-								}
-							});
-
+							setupProfilePicUpload();
 						}
 					}
 				});
@@ -551,6 +531,38 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 
 			overlayFrame.setVisibility(View.VISIBLE);
 
+		}
+		
+		private void setupProfilePicUpload()
+		{
+			sendAnalyticsSetAsDp();
+			// User info is saved in shared preferences
+			SharedPreferences preferences = HikeMessengerApp.getInstance().getApplicationContext()
+					.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, Context.MODE_PRIVATE);
+			ContactInfo userInfo = Utils.getUserContactInfo(preferences);
+			String mLocalMSISDN = userInfo.getMsisdn();
+
+			editView.saveImage(HikeFileType.PROFILE, mLocalMSISDN, new HikePhotosListener()
+			{
+
+				@Override
+				public void onFailure()
+				{
+					// Do nothing
+				}
+
+				@Override
+				public void onComplete(Bitmap bmp)
+				{
+					// Do nothing
+				}
+
+				@Override
+				public void onComplete(File f)
+				{
+					Utils.startCropActivityForResult(PictureEditer.this, f.getAbsolutePath(), f.getAbsolutePath(), true, 100, true);
+				}
+			});
 		}
 
 		@Override
