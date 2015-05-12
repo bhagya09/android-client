@@ -149,9 +149,9 @@
     <string name="call_me_pass">We will call you within a few seconds.</string>
     <string name="call_me_fail">Unable to call you. Please try again.</string>
     <string name="calling_you">Calling you now...</string>
-    <string name="new_group_message">Group Chat with %1$s</string>
+    <string name="new_group_message">%1$s added you</string>
     <string name="new_broadcast_message">Broadcast List with %1$s</string>
-    <string name="add_to_group_message">Added %1$s to the group</string>
+    <string name="add_to_group_message">have added %1$s</string>
     <string name="add_to_broadcast_message">Added %1$s to the list</string>
     <string name="connect_and_get">Connect and get 100 free SMS instantly</string>
     <string name="free_sms_100">100 free SMS</string>
