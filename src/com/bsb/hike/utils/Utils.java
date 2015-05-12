@@ -194,6 +194,7 @@ import com.bsb.hike.models.StatusMessage;
 import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.models.Conversation.Conversation;
+import com.bsb.hike.models.Conversation.ConversationTip;
 import com.bsb.hike.models.Conversation.GroupConversation;
 import com.bsb.hike.models.Conversation.OneToNConvInfo;
 import com.bsb.hike.models.Conversation.OneToNConversation;
@@ -2711,9 +2712,20 @@ public class Utils
 				}
 			}
 		}
-
+		
 		sendAppState(context, requestBulkLastSeen, dueToConnect, toLog);
 
+		if (HikeMessengerApp.currentState != CurrentState.OPENED && HikeMessengerApp.currentState != CurrentState.RESUMED)
+		{
+			if(HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOWING_STEALTH_FTUE_CONV_TIP, false))
+			{
+				StealthModeManager.getInstance().activate(false);
+				HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_MODE_TOGGLED, true);
+				HikeMessengerApp.getPubSub().publish(HikePubSub.REMOVE_TIP, ConversationTip.STEALTH_FTUE_TIP);
+				StealthModeManager.getInstance().ftuePending(false);
+			}
+		}
+		
 		if (resetStealth)
 		{
 			if (HikeMessengerApp.currentState != CurrentState.OPENED && HikeMessengerApp.currentState != CurrentState.RESUMED)
