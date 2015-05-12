@@ -92,6 +92,7 @@ import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.smartImageLoader.IconLoader;
 import com.bsb.hike.tasks.FinishableEvent;
+import com.bsb.hike.tasks.GetHikeJoinTimeTask;
 import com.bsb.hike.tasks.HikeHTTPTask;
 import com.bsb.hike.ui.fragments.ImageViewerFragment;
 import com.bsb.hike.ui.fragments.PhotoViewerFragment;
@@ -262,10 +263,6 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		if ((mActivityState != null) && (mActivityState.task != null))
 		{
 			mActivityState.task.setActivity(null);
-		}
-		if ((mActivityState != null) && (mActivityState.getHikeJoinTimeTask != null))
-		{
-			mActivityState.getHikeJoinTimeTask.cancel(true);
 		}
 		if (profileType == ProfileType.GROUP_INFO || profileType == ProfileType.BROADCAST_INFO)
 		{
@@ -663,7 +660,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		 */
 		if (contactInfo.isOnhike() && contactInfo.getHikeJoinTime() == 0)
 		{
-			getHikeJoinedTimeFromServer();
+			getHikeJoinTime();
 		}
 	}
 	
@@ -680,33 +677,14 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		
 		if(contactInfo.isOnhike() && contactInfo.getHikeJoinTime() == 0)
 		{
-			getHikeJoinedTimeFromServer();
+			getHikeJoinTime();
 		}
 	}
 	
-	private void getHikeJoinedTimeFromServer()
+	private void getHikeJoinTime()
 	{
-		HikeHttpRequest hikeHttpRequest = new HikeHttpRequest(HikeConstants.REQUEST_BASE_URLS.HTTP_REQUEST_PROFILE_BASE_URL + mLocalMSISDN, RequestType.HIKE_JOIN_TIME, new HikeHttpCallback()
-		{
-			@Override
-			public void onSuccess(JSONObject response)
-			{
-				Logger.d(getClass().getSimpleName(), "Response: " + response.toString());
-				try
-				{
-					JSONObject profile = response.getJSONObject(HikeConstants.PROFILE);
-					long hikeJoinTime = profile.optLong(HikeConstants.JOIN_TIME, 0);
-					hikeJoinTime = Utils.applyServerTimeOffset(ProfileActivity.this, hikeJoinTime);
-					HikeMessengerApp.getPubSub().publish(HikePubSub.HIKE_JOIN_TIME_OBTAINED, new Pair<String, Long>(mLocalMSISDN, hikeJoinTime));
-				}
-				catch (JSONException e)
-				{
-					e.printStackTrace();
-				}
-			}
-		});
-		mActivityState.getHikeJoinTimeTask = new HikeHTTPTask(null, -1);
-		Utils.executeHttpTask(mActivityState.getHikeJoinTimeTask, hikeHttpRequest);
+		GetHikeJoinTimeTask getHikeJoinTimeTask = new GetHikeJoinTimeTask(mLocalMSISDN);
+		getHikeJoinTimeTask.execute();
 	}
 	
 	private void updateProfileHeaderView()
@@ -1247,31 +1225,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		initializeListviewAndAdapter();
 		if (contactInfo.isOnhike() && contactInfo.getHikeJoinTime() == 0)
 		{
-			HikeHttpRequest hikeHttpRequest = new HikeHttpRequest("/account/profile/" + mLocalMSISDN, RequestType.HIKE_JOIN_TIME, new HikeHttpCallback()
-			{
-				@Override
-				public void onSuccess(JSONObject response)
-				{
-					Logger.d(getClass().getSimpleName(), "Response: " + response.toString());
-					try
-					{
-						JSONObject profile = response.getJSONObject(HikeConstants.PROFILE);
-						long hikeJoinTime = profile.optLong(HikeConstants.JOIN_TIME, 0);
-
-						Editor editor = preferences.edit();
-						editor.putLong(HikeMessengerApp.USER_JOIN_TIME, hikeJoinTime);
-						editor.commit();
-
-						HikeMessengerApp.getPubSub().publish(HikePubSub.USER_JOIN_TIME_OBTAINED, new Pair<String, Long>(mLocalMSISDN, hikeJoinTime));
-					}
-					catch (JSONException e)
-					{
-						e.printStackTrace();
-					}
-				}
-			});
-			mActivityState.getHikeJoinTimeTask = new HikeHTTPTask(null, -1);
-			Utils.executeHttpTask(mActivityState.getHikeJoinTimeTask, hikeHttpRequest);
+			getHikeJoinTime();
 		}
 	}
 
