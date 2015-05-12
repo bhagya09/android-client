@@ -246,7 +246,13 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		actionBar.setDisplayShowTitleEnabled(true);
 		if(HikeNotificationMsgStack.getInstance(HikeMessengerApp.getInstance().getApplicationContext()).containsStealthMessage())
 		{
-			findViewById(android.R.id.home).setAnimation(HikeAnimationFactory.getHikeActionBarLogoAnimation(HomeActivity.this));
+			View hiButton = findViewById(android.R.id.home);
+			boolean stealthIndicatorEnabled = PreferenceManager.getDefaultSharedPreferences(this).getBoolean(HikeConstants.STEALTH_INDICATOR_ENABLED, true);
+
+			if(hiButton != null && !StealthModeManager.getInstance().isActive() && stealthIndicatorEnabled)
+			{
+				hiButton.setAnimation(HikeAnimationFactory.getHikeActionBarLogoAnimation(HomeActivity.this));
+			}
 		}
 	}
 
