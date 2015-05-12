@@ -14,6 +14,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import pl.droidsonroids.gif.GifDrawable;
+import pl.droidsonroids.gif.GifImageView;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
@@ -22,6 +25,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.content.res.Resources.NotFoundException;
 import android.graphics.Typeface;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.Drawable;
@@ -55,6 +59,7 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.LinearLayout.LayoutParams;
+import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -122,7 +127,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 	private enum ViewType
 	{
 		STICKER_SENT, STICKER_RECEIVE, NUDGE_SENT, NUDGE_RECEIVE, WALKIE_TALKIE_SENT, WALKIE_TALKIE_RECEIVE, VIDEO_SENT, VIDEO_RECEIVE, IMAGE_SENT, IMAGE_RECEIVE, FILE_SENT, FILE_RECEIVE, LOCATION_SENT, LOCATION_RECEIVE, CONTACT_SENT, CONTACT_RECEIVE, RECEIVE, SEND_SMS, SEND_HIKE, PARTICIPANT_INFO, FILE_TRANSFER_SEND, FILE_TRANSFER_RECEIVE, STATUS_MESSAGE, UNREAD_COUNT, TYPING_NOTIFICATION, UNKNOWN_BLOCK_ADD, PIN_TEXT_SENT, PIN_TEXT_RECEIVE,
-		VOIP_CALL;
+		VOIP_CALL,GIF_SENT, GIF_RECEIVE;
 		
 	};
 
@@ -218,6 +223,11 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		ImageView filmstripLeft;
 
 		ImageView filmstripRight;
+	}
+	
+	private static class GifViewHolder extends FTViewHolder
+	{
+		GifImageView gifView;
 	}
 
 	private static class ImageViewHolder extends FTViewHolder
@@ -536,6 +546,17 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				else
 				{
 					type = ViewType.WALKIE_TALKIE_RECEIVE;
+				}
+			}
+			else if (hikeFileType == HikeFileType.GIF)
+			{
+				if (convMessage.isSent())
+				{
+					type = ViewType.GIF_SENT;
+				}
+				else
+				{
+					type = ViewType.GIF_RECEIVE;
 				}
 			}
 			else if (hikeFileType == HikeFileType.VIDEO)
@@ -1184,7 +1205,6 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					{
 						videoHolder = new VideoViewHolder();
 						v = inflateView(R.layout.message_receive_video, parent, false);
-
 						videoHolder.fileThumb = (ImageView) v.findViewById(R.id.file_thumb);
 						videoHolder.circularProgressBg = v.findViewById(R.id.circular_bg);
 						videoHolder.initializing = (ProgressBar) v.findViewById(R.id.initializing);
@@ -1302,6 +1322,189 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				videoHolder.fileThumb.setTag(convMessage);
 				videoHolder.fileThumb.setOnClickListener(this);
 				videoHolder.fileThumb.setOnLongClickListener(this);
+			}
+			else if(viewType == ViewType.GIF_RECEIVE || viewType == ViewType.GIF_SENT)
+			{
+
+				GifViewHolder videoHolder = null;
+				if (viewType == ViewType.GIF_SENT)
+				{
+					if ((v != null) && (v.getTag() instanceof VideoViewHolder))
+					{
+						videoHolder = (GifViewHolder) v.getTag();
+					}
+					else
+					{
+						videoHolder = new GifViewHolder();
+						v = inflateView(R.layout.message_sent_gif, parent, false);
+						videoHolder.fileThumb = (ImageView) v.findViewById(R.id.file_thumb);
+						videoHolder.circularProgressBg = v.findViewById(R.id.circular_bg);
+						videoHolder.initializing = (ProgressBar) v.findViewById(R.id.initializing);
+						videoHolder.circularProgress = (HoloCircularProgress) v.findViewById(R.id.progress);
+						videoHolder.ftAction = (ImageView) v.findViewById(R.id.action);
+						videoHolder.fileDetails = v.findViewById(R.id.file_details);
+						videoHolder.fileSize = (TextView) v.findViewById(R.id.file_size);
+						videoHolder.fileName = (TextView) v.findViewById(R.id.file_name);
+						videoHolder.broadcastIndicator = (ImageView) v.findViewById(R.id.broadcastIndicator);
+						videoHolder.time = (TextView) v.findViewById(R.id.time);
+						videoHolder.status = (ImageView) v.findViewById(R.id.status);
+						videoHolder.timeStatus = (View) v.findViewById(R.id.time_status);
+						videoHolder.selectedStateOverlay = v.findViewById(R.id.selected_state_overlay);
+						videoHolder.messageContainer = (ViewGroup) v.findViewById(R.id.message_container);
+						videoHolder.dayStub = (ViewStub) v.findViewById(R.id.day_stub);
+						videoHolder.messageInfoStub = (ViewStub) v.findViewById(R.id.message_info_stub);
+						videoHolder.gifView = (GifImageView)v.findViewById(R.id.gif_view);
+						v.setTag(videoHolder);
+					}
+				}
+				else if (viewType == ViewType.GIF_RECEIVE)
+				{
+					if ((v != null) && (v.getTag() instanceof VideoViewHolder))
+					{
+						videoHolder = (GifViewHolder) v.getTag();
+					}
+					else
+					{
+						videoHolder = new GifViewHolder();
+						v = inflateView(R.layout.message_receive_gif, parent, false);
+						videoHolder.fileThumb = (ImageView) v.findViewById(R.id.file_thumb);
+						videoHolder.circularProgressBg = v.findViewById(R.id.circular_bg);
+						videoHolder.initializing = (ProgressBar) v.findViewById(R.id.initializing);
+						videoHolder.circularProgress = (HoloCircularProgress) v.findViewById(R.id.progress);
+						videoHolder.ftAction = (ImageView) v.findViewById(R.id.action);
+						videoHolder.fileDetails = v.findViewById(R.id.file_details);
+						videoHolder.fileSize = (TextView) v.findViewById(R.id.file_size);
+						videoHolder.fileName = (TextView) v.findViewById(R.id.file_name);
+						videoHolder.time = (TextView) v.findViewById(R.id.time);
+						videoHolder.broadcastIndicator = (ImageView) v.findViewById(R.id.broadcastIndicator);
+						videoHolder.status = (ImageView) v.findViewById(R.id.status);
+						videoHolder.timeStatus = (View) v.findViewById(R.id.time_status);
+						videoHolder.selectedStateOverlay = v.findViewById(R.id.selected_state_overlay);
+						videoHolder.senderDetails = v.findViewById(R.id.sender_details);
+						videoHolder.senderName = (TextView) v.findViewById(R.id.sender_name);
+						videoHolder.senderNameUnsaved = (TextView) v.findViewById(R.id.sender_unsaved_name);
+						videoHolder.avatarImage = (ImageView) v.findViewById(R.id.avatar);
+						videoHolder.avatarContainer = (ViewGroup) v.findViewById(R.id.avatar_container);
+						videoHolder.messageContainer = (ViewGroup) v.findViewById(R.id.message_container);
+						videoHolder.dayStub = (ViewStub) v.findViewById(R.id.day_stub);
+						videoHolder.gifView = (GifImageView)v.findViewById(R.id.gif_view);
+						v.setTag(videoHolder);
+					}
+				}
+				dayHolder = videoHolder;
+				setSenderDetails(convMessage, position, videoHolder, false);
+
+				videoHolder.fileThumb.setBackgroundResource(0);
+				videoHolder.fileThumb.setImageResource(0);
+
+//				showThumbnail = ((convMessage.isSent()) || (conversation instanceof OneToNConversation) || (!TextUtils.isEmpty(conversation.getConversationName())) || (hikeFile
+//						.wasFileDownloaded()));
+				showThumbnail = false;
+				
+				if (hikeFile.getThumbnail() == null && !TextUtils.isEmpty(hikeFile.getFileKey()))
+				{
+					thumbnail = HikeMessengerApp.getLruCache().getFileIconFromCache(hikeFile.getFileKey());
+				}
+				else
+				{
+					thumbnail = hikeFile.getThumbnail();
+				}
+
+				if (showThumbnail)
+				{
+					videoHolder.fileThumb.setBackgroundDrawable(thumbnail);
+				}
+				else
+				{
+					createMediaThumb(videoHolder.fileThumb);
+				}
+
+				RelativeLayout.LayoutParams fileThumbParams = (RelativeLayout.LayoutParams) videoHolder.fileThumb.getLayoutParams();
+
+				if (showThumbnail && thumbnail != null)
+				{
+					videoHolder.fileThumb.setScaleType(ScaleType.CENTER);
+					fileThumbParams.height = (int) (150 * Utils.scaledDensityMultiplier);
+					fileThumbParams.width = (int) ((thumbnail.getIntrinsicWidth() * fileThumbParams.height) / thumbnail.getIntrinsicHeight());
+					/*
+					 * fixed the bug when image thumbnail is very big. By specifying a maximum width for the thumbnail so that download button can also fit to the screen.
+					 */
+
+					// Set Thumbnail Width
+					int maxWidth = (int) (250 * Utils.scaledDensityMultiplier);
+					fileThumbParams.width = Math.min(fileThumbParams.width, maxWidth);
+					int minWidth = (int) (119 * Utils.scaledDensityMultiplier);
+					fileThumbParams.width = Math.max(fileThumbParams.width, minWidth);
+					if (fileThumbParams.width == minWidth)
+					{
+						fileThumbParams.height = ((thumbnail.getIntrinsicHeight() * minWidth) / thumbnail.getIntrinsicWidth());
+					}
+					else if (fileThumbParams.width == maxWidth)
+					{
+						fileThumbParams.height = ((thumbnail.getIntrinsicHeight() * maxWidth) / thumbnail.getIntrinsicWidth());
+					}
+
+					// Set Thumbnail Height
+					int minHeight = (int) (70 * Utils.scaledDensityMultiplier);
+					fileThumbParams.height = Math.max(fileThumbParams.height, minHeight);
+					if (fileThumbParams.height == minHeight)
+					{
+						int width = ((thumbnail.getIntrinsicWidth() * minHeight) / thumbnail.getIntrinsicHeight());
+						if (width >= minWidth && width <= maxWidth)
+							fileThumbParams.width = width;
+					}
+				}
+				videoHolder.fileThumb.setScaleType(ScaleType.CENTER);
+				videoHolder.fileThumb.setLayoutParams(fileThumbParams);
+
+				if (convMessage.isSent() && ((int) hikeFile.getFile().length() > 0) && fss.getFTState() != FTState.INITIALIZED)
+				{
+					videoHolder.fileSize.setText(Utils.getSizeForDisplay((int) hikeFile.getFile().length()));
+					videoHolder.fileSize.setVisibility(View.VISIBLE);
+				}
+				else if (!convMessage.isSent() && hikeFile.getFileSize() > 0)
+				{
+					videoHolder.fileSize.setText(Utils.getSizeForDisplay(hikeFile.getFileSize()));
+					videoHolder.fileSize.setVisibility(View.VISIBLE);
+				}
+				else
+				{
+					videoHolder.fileSize.setText("");
+					videoHolder.fileSize.setVisibility(View.GONE);
+				}
+				videoHolder.fileThumb.setVisibility(View.VISIBLE);
+
+				displayBroadcastIndicator(convMessage, videoHolder.broadcastIndicator, false);
+				setBubbleColor(convMessage, videoHolder.messageContainer);
+				setupFileState(videoHolder, fss, convMessage.getMsgID(), hikeFile, convMessage.isSent(), false);
+				setTimeNStatus(position, videoHolder, true, videoHolder.fileThumb);
+				setSelection(convMessage, videoHolder.selectedStateOverlay);
+
+				videoHolder.fileThumb.setTag(convMessage);
+				videoHolder.fileThumb.setOnClickListener(this);
+				videoHolder.fileThumb.setOnLongClickListener(this);
+
+				try
+				{
+					GifDrawable gifFromResource = new GifDrawable(context.getResources(), R.drawable.testt);
+
+					GifImageView gifView = videoHolder.gifView;
+
+					LinearLayout.LayoutParams params = (LayoutParams) gifView.getLayoutParams();
+
+					params.width = gifFromResource.getIntrinsicWidth() * 2;
+
+					params.height = gifFromResource.getIntrinsicHeight() * 2;
+
+					gifView.setLayoutParams(params);
+
+					gifView.setImageResource(gifFromResource);
+				}
+				catch (NotFoundException | IOException e)
+				{
+					e.printStackTrace();
+				}
+
 			}
 			else if (viewType == ViewType.IMAGE_SENT || viewType == ViewType.IMAGE_RECEIVE)
 			{

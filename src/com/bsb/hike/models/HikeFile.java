@@ -32,7 +32,7 @@ public class HikeFile
 {
 	public static enum HikeFileType
 	{
-		PROFILE, IMAGE, VIDEO, AUDIO, LOCATION, CONTACT, AUDIO_RECORDING, OTHER;
+		PROFILE, IMAGE, VIDEO, AUDIO, LOCATION, CONTACT, AUDIO_RECORDING, GIF, OTHER;
 
 		public static HikeFileType fromString(String fileTypeString)
 		{
@@ -55,6 +55,10 @@ public class HikeFile
 				{
 					return HikeFileType.LOCATION;
 				}
+				else if (fileTypeString.equals("image/gif"))
+				{
+					return HikeFileType.GIF;
+				}
 				else if (fileTypeString.startsWith("image"))
 				{
 					return HikeFileType.IMAGE;
@@ -69,7 +73,11 @@ public class HikeFile
 
 		public static String toString(HikeFileType hikeFileType)
 		{
-			if (hikeFileType == PROFILE || hikeFileType == IMAGE)
+			if (hikeFileType == GIF)
+			{
+				return "image/gif";
+			}
+			else if (hikeFileType == PROFILE || hikeFileType == IMAGE)
 			{
 				return "image/*";
 			}
