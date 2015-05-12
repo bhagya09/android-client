@@ -533,13 +533,16 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			return;
 		}
 		
-		for (OverFlowMenuItem overFlowMenuItem : overflowItems)
+		/**
+		 * Updating menu conditionally
+		 */
+		if (botConfig.isConfigDataRefreshed())
 		{
-			OverFlowMenuItem item = botConfig.getOverflowItemForId(overFlowMenuItem.id);
-			overFlowMenuItem.text = item.text;
-			overFlowMenuItem.drawableId = item.drawableId;
-			overFlowMenuItem.enabled = item.enabled;
+			overflowItems.clear();
+			overflowItems.addAll(getOverflowMenuItems());
+			botConfig.setConfigDataRefreshed(false);
 		}
+		
 	}
 
 }

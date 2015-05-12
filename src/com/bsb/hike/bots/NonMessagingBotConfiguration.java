@@ -21,6 +21,8 @@ public class NonMessagingBotConfiguration extends BotConfiguration
 	private JSONObject configData;
 	
 	private static final String TAG = "NonMessagingBotConfig";
+	
+	private boolean configDataRefreshed = false;
 
 	public JSONObject getConfigData()
 	{
@@ -110,6 +112,7 @@ public class NonMessagingBotConfiguration extends BotConfiguration
 					if (menuId == id)
 					{
 						updateMenuJSON(newTitle, enabled, menuJSON);
+						setConfigDataRefreshed(true);
 						break;
 					}
 				}
@@ -164,6 +167,7 @@ public class NonMessagingBotConfiguration extends BotConfiguration
 					if (menuId == id)
 					{
 						updateMenuJSON(enabled, menuJSON);
+						setConfigDataRefreshed(true);
 						break;
 					}
 				}
@@ -215,5 +219,21 @@ public class NonMessagingBotConfiguration extends BotConfiguration
 		}
 		
 		return null;
+	}
+
+	/**
+	 * @return the wasConfigDataRefreshed
+	 */
+	public boolean isConfigDataRefreshed()
+	{
+		return configDataRefreshed;
+	}
+
+	/**
+	 * @param wasConfigDataRefreshed the wasConfigDataRefreshed to set
+	 */
+	public void setConfigDataRefreshed(boolean wasConfigDataRefreshed)
+	{
+		this.configDataRefreshed = wasConfigDataRefreshed;
 	}
 }
