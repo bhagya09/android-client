@@ -655,12 +655,13 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	private void initStickerPicker()
 	{
-		mStickerPicker = new StickerPicker(activity, this);
+		
+		mStickerPicker = mStickerPicker != null ? mStickerPicker : (new StickerPicker(activity, this));
 	}
 
 	private void initEmoticonPicker()
 	{
-		mEmoticonPicker = new EmoticonPicker(activity, mComposeView);
+		mEmoticonPicker = mEmoticonPicker != null ? mEmoticonPicker : (new EmoticonPicker(activity, mComposeView));
 	}
 
 	public boolean onCreateOptionsMenu(Menu menu)
@@ -1014,6 +1015,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	protected void stickerClicked()
 	{
+		Long time = System.currentTimeMillis();
 		initStickerPicker();
 		
 		closeStickerTip();
@@ -1031,6 +1033,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 				Toast.makeText(activity.getApplicationContext(), R.string.some_error, Toast.LENGTH_SHORT).show();
 			}
 		}
+		Logger.v(TAG, "Time taken to open sticker pallete : " + (System.currentTimeMillis() - time));
 	}
 	
 	protected void closeStickerTip()
@@ -1064,6 +1067,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	protected void emoticonClicked()
 	{
+		Long time = System.currentTimeMillis();
 		initEmoticonPicker();
 		
 		if (!mShareablePopupLayout.togglePopup(mEmoticonPicker, activity.getResources().getConfiguration().orientation))
@@ -1074,6 +1078,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 				Toast.makeText(activity.getApplicationContext(), R.string.some_error, Toast.LENGTH_SHORT).show();
 			}
 		}
+		
+		Logger.v(TAG, "Time taken to open emoticon pallete : " + (System.currentTimeMillis() - time));
 	}
 
 	/**
@@ -1084,7 +1090,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	{
 		String errorMsg = "Inside method : retry to inflate emoticons. Houston!, something's not right here";
 		HAManager.sendStickerEmoticonStrangeBehaviourReport(errorMsg);
-		mShareablePopupLayout = null;
 		initShareablePopup();
 		return mShareablePopupLayout.togglePopup(mEmoticonPicker, activity.getResources().getConfiguration().orientation);
 	}
@@ -1093,7 +1098,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	{
 		String errorMsg = "Inside method : retry to inflate stickers. Houston!, something's not right here";
 		HAManager.sendStickerEmoticonStrangeBehaviourReport(errorMsg);
-		mShareablePopupLayout = null;
 		initShareablePopup();
 		return mShareablePopupLayout.togglePopup(mStickerPicker, activity.getResources().getConfiguration().orientation);
 	}
@@ -1787,7 +1791,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		}
 	}
 	
-	private boolean shouldShowKeyboard()
+	protected boolean shouldShowKeyboard()
 	{
 		return mConversation.getMessagesList().isEmpty();
 	}
@@ -3214,7 +3218,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		releaseMessageAdapterResources();
 
 		StickerManager.getInstance().saveCustomCategories();
-
+		
 		releaseMessageMap();
 		
 		((CustomLinearLayout) activity.findViewById(R.id.chat_layout)).setOnSoftKeyboardListener(null);
@@ -4104,7 +4108,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			mMessageMap = null;
 		}
 	}
-
+	
 	private void resumeImageLoaders(boolean flag)
 	{
 		if (mAdapter != null)
