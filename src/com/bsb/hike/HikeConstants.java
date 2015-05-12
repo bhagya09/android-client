@@ -2233,6 +2233,8 @@ public class HikeConstants
 
 		public static final String DELETE_MULTIPLE_BOTS = "dbot";
 
+		public static final String MICROAPP_DOWNLOAD = "mapp";
+
 		public static final String PACKET_ECHO = "pecho";
 
 		public static final String VOIP_SOCKET_INFO = "ve";
@@ -2259,10 +2261,6 @@ public class HikeConstants
 		 * The person we are calling is on a compatible platform, but is using an old version of the client which does not support VoIP.
 		 */
 		public static final String VOIP_ERROR_CALLEE_INCOMPATIBLE_UPGRADABLE = "e0";
-
-		public static final String CREATE_BOT = "cb";
-
-		public static final String DELETE_BOT = "db";
 
 		/**
 		 * The person we are calling is on a client that cannot be upgraded to support VoIP. For example, might be on iOS and we have no iOS client.

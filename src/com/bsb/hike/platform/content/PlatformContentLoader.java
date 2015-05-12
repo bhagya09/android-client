@@ -3,11 +3,10 @@ package com.bsb.hike.platform.content;
 import java.util.ArrayList;
 
 import android.annotation.SuppressLint;
-import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Handler;
 
 import com.bsb.hike.models.HikeHandlerUtil;
+import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContent.EventCode;
 import com.bsb.hike.utils.Logger;
 import com.samskivert.mustache.Template;
@@ -119,6 +118,6 @@ class PlatformContentLoader extends Handler
 
 		Logger.d(TAG, "fetching template from remote");
 
-		new PlatformZipDownloader(argContentRequest, true).downloadAndUnzip();
+		PlatformUtils.downloadAndUnzip(argContentRequest, true);
 	}
 }
