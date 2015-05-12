@@ -22,19 +22,14 @@ import com.bsb.hike.utils.Logger;
 public class NonMessagingJavaScriptBridge extends JavascriptBridge
 {
 	
-	private String msisdn;
+	private BotInfo mBotInfo;
 	
 	private static final String TAG  = "FullScreenJavaScriptBridge";
-
-	public NonMessagingJavaScriptBridge(Activity activity, CustomWebView mWebView)
+	
+	public NonMessagingJavaScriptBridge(Activity activity, CustomWebView mWebView, BotInfo botInfo)
 	{
 		super(activity, mWebView);
-	}
-	
-	public NonMessagingJavaScriptBridge(Activity activity, CustomWebView mWebView, String msisdn)
-	{
-		this(activity, mWebView);
-		this.msisdn = msisdn;
+		this.mBotInfo = botInfo;
 	}
 
 	@Override
@@ -59,12 +54,12 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void updateHelperData(String json)
 	{
-		Logger.i(tag, "update metadata called " + json + " , MicroApp msisdn : " + msisdn);
-		String originalmetadata = HikeConversationsDatabase.getInstance().getMetadataOfBot(msisdn);
+		Logger.i(tag, "update metadata called " + json + " , MicroApp msisdn : " + mBotInfo.getMsisdn());
+		String originalmetadata = HikeConversationsDatabase.getInstance().getMetadataOfBot(mBotInfo.getMsisdn());
 		originalmetadata = PlatformUtils.updateHelperData(json, originalmetadata);
 		if (originalmetadata != null)
 		{
-			HikeConversationsDatabase.getInstance().updateMetadataOfBot(msisdn, originalmetadata);
+			HikeConversationsDatabase.getInstance().updateMetadataOfBot(mBotInfo.getMsisdn(), originalmetadata);
 		}
 
 	}
@@ -94,7 +89,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			/**
 			 * Blindly inserting the appName in the cardObj JSON.
 			 */
-			cardObj.put(HikePlatformConstants.APP_NAME, BotInfo.getBotInfoForBotMsisdn(msisdn).getMicroAppName());
+			cardObj.put(HikePlatformConstants.APP_NAME, BotInfo.getBotInfoForBotMsisdn(mBotInfo.getMsisdn()).getMicroAppName());
 			
 			ConvMessage message = getConvMessageFromJSON(cardObj, hikeMessage);
 			
@@ -134,7 +129,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void mute()
 	{
-		HikeMessengerApp.getPubSub().publish(HikePubSub.MUTE_BOT, msisdn);
+		HikeMessengerApp.getPubSub().publish(HikePubSub.MUTE_BOT, mBotInfo.getMsisdn());
 	}
 
 	/**
@@ -143,7 +138,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void block()
 	{
-		HikeMessengerApp.getPubSub().publish(HikePubSub.BLOCK_USER, msisdn);
+		HikeMessengerApp.getPubSub().publish(HikePubSub.BLOCK_USER, mBotInfo.getMsisdn());
 	}
 
 	public void onMenuItemClicked(int id)
