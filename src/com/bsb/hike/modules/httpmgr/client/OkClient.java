@@ -4,7 +4,7 @@ import java.io.InputStream;
 import java.util.concurrent.TimeUnit;
 
 import com.bsb.hike.modules.httpmgr.Header;
-import com.bsb.hike.modules.httpmgr.Utils;
+import com.bsb.hike.modules.httpmgr.HttpUtils;
 import com.bsb.hike.modules.httpmgr.request.Request;
 import com.bsb.hike.modules.httpmgr.request.requestbody.IRequestBody;
 import com.bsb.hike.modules.httpmgr.response.Response;
@@ -216,7 +216,7 @@ public class OkClient implements IClient
 		}
 		finally
 		{
-			Utils.closeQuietly(stream);
+			HttpUtils.closeQuietly(stream);
 		}
 	}
 
