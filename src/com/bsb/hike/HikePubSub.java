@@ -312,6 +312,10 @@ public class HikePubSub implements Runnable
 
 	public static final String STEALTH_CONVERSATION_UNMARKED = "stealthConversationUnmarked";
 	
+	public static final String STEALTH_DB_MARKED = "stealthDatabaseMarked";
+
+	public static final String STEALTH_DB_UNMARKED = "stealthDatabaseUnmarked";
+	
 	public static final String SHOW_TIP = "showTip";
 
 	public static final String REMOVE_TIP = "removeTip";

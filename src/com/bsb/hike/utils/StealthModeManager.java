@@ -7,7 +7,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
-import android.content.Context;
 import android.preference.PreferenceManager;
 
 import com.bsb.hike.HikeConstants;
@@ -205,7 +204,7 @@ public class StealthModeManager
 		return HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STEALTH_MODE_FTUE_DONE, true);
 	}
 	
-	public void settingupTriggered(Activity activity, boolean toggleVisibility)
+	public void settingupTriggered(Activity activity)
 	{
 
 		if (!isSetUp())
@@ -286,16 +285,29 @@ public class StealthModeManager
 			}
 		}
 	}
-	
+
 	public void toggleConversation(ConvInfo conv, Activity activity) 
- 	{	
-		if (HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOW_STEALTH_INFO_TIP, false))
+ 	{
+		boolean markStealth = !conv.isStealth();
+
+		HikeMessengerApp.getPubSub().publish(HikePubSub.REMOVE_TIP, ConversationTip.STEALTH_INFO_TIP);
+		HikeMessengerApp.getPubSub().publish(HikePubSub.REMOVE_TIP, ConversationTip.STEALTH_FTUE_TIP);
+
+		HikeMessengerApp.getPubSub().publish(markStealth ? HikePubSub.STEALTH_CONVERSATION_MARKED : HikePubSub.STEALTH_CONVERSATION_UNMARKED, conv);
+
+		if(isActive())
 		{
-			HikeMessengerApp.getPubSub().publish(HikePubSub.REMOVE_TIP, ConversationTip.STEALTH_INFO_TIP);
+			HikeMessengerApp.getPubSub().publish(markStealth ? HikePubSub.STEALTH_DB_MARKED : HikePubSub.STEALTH_DB_UNMARKED, conv);
 		}
-		HikeMessengerApp.getPubSub().publish(conv.isStealth()? HikePubSub.STEALTH_CONVERSATION_UNMARKED : HikePubSub.STEALTH_CONVERSATION_MARKED, conv);
+		else
+		{
+			if(activity instanceof HomeActivity)
+			{
+				settingupTriggered(activity);
+			}
+		}
 	}
-	
+
 	public void usePinAsPassword(boolean usePin) 
 	{
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STEALTH_PIN_AS_PASSWORD, usePin);

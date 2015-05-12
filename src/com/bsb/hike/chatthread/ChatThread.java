@@ -121,6 +121,7 @@ import com.bsb.hike.models.PhonebookContact;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.models.Conversation.Conversation;
+import com.bsb.hike.models.Conversation.ConversationTip;
 import com.bsb.hike.platform.CardComponent;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformMessageMetadata;
@@ -819,30 +820,9 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			{
 				createEmptyConversation();
 			}
-
+			
 			StealthModeManager.getInstance().toggleConversation(mConversation.getConvInfo(), activity);
-			//HACK though above statement will do the same, but the convInfo objects are different, hence redoing
-			mConversation.setIsStealth(!mConversation.isStealth());
-		
-			if(!StealthModeManager.getInstance().isActive())
-			{
-				Bundle stealthMsisdns = new Bundle();
-				stealthMsisdns.putString(HikeConstants.MSISDN, mConversation.getMsisdn());
-				activity.closeChatThread(stealthMsisdns);
-			}
-			else 
-			{	
-				if(mConversation.isStealth())
-				{
-					StealthModeManager.getInstance().addStealthMsisdnToMap(mConversation.getMsisdn());
-					HikeConversationsDatabase.getInstance().toggleStealth(mConversation.getMsisdn(), true);
-				}
-				else
-				{
-					StealthModeManager.getInstance().removeStealthMsisdn(mConversation.getConvInfo(), false);
-					HikeConversationsDatabase.getInstance().toggleStealth(mConversation.getMsisdn(), false);
-				}	
-			}
+
 			break;
 		default:
 			break;
@@ -3044,9 +3024,24 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
         case HikePubSub.MUTE_CONVERSATION_TOGGLED:
 			onMuteConversationToggled(object);
 			break;
+        case HikePubSub.STEALTH_CONVERSATION_MARKED:
+        case HikePubSub.STEALTH_CONVERSATION_UNMARKED:
+        	onConversationStealthToggle(object,type.equals(HikePubSub.STEALTH_CONVERSATION_MARKED));
+			break;
 		default:
 			Logger.e(TAG, "PubSub Registered But Not used : " + type);
 			break;
+		}
+	}
+	
+	private void onConversationStealthToggle(Object object, boolean markStealth)
+	{
+		mConversation.setIsStealth(markStealth);
+		if(!StealthModeManager.getInstance().isActive() && markStealth)
+		{
+			Bundle stealthMsisdns = new Bundle();
+			stealthMsisdns.putString(HikeConstants.MSISDN, mConversation.getMsisdn());
+			activity.closeChatThread(stealthMsisdns);
 		}
 	}
 	
@@ -3215,7 +3210,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 				HikePubSub.MESSAGE_DELIVERED_READ, HikePubSub.SERVER_RECEIVED_MSG, HikePubSub.SERVER_RECEIVED_MULTI_MSG, HikePubSub.ICON_CHANGED, HikePubSub.UPLOAD_FINISHED,
 				HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, HikePubSub.FILE_MESSAGE_CREATED, HikePubSub.DELETE_MESSAGE, HikePubSub.STICKER_DOWNLOADED, HikePubSub.MESSAGE_FAILED,
 				HikePubSub.CHAT_BACKGROUND_CHANGED, HikePubSub.CLOSE_CURRENT_STEALTH_CHAT, HikePubSub.ClOSE_PHOTO_VIEWER_FRAGMENT, HikePubSub.STICKER_CATEGORY_MAP_UPDATED,
-				HikePubSub.UPDATE_NETWORK_STATE, HikePubSub.BULK_MESSAGE_RECEIVED, HikePubSub.MULTI_MESSAGE_DB_INSERTED, HikePubSub.BLOCK_USER, HikePubSub.UNBLOCK_USER, HikePubSub.MUTE_CONVERSATION_TOGGLED, HikePubSub.SHARED_WHATSAPP };
+				HikePubSub.UPDATE_NETWORK_STATE, HikePubSub.BULK_MESSAGE_RECEIVED, HikePubSub.MULTI_MESSAGE_DB_INSERTED, HikePubSub.BLOCK_USER, HikePubSub.UNBLOCK_USER, HikePubSub.MUTE_CONVERSATION_TOGGLED, HikePubSub.SHARED_WHATSAPP, 
+				HikePubSub.STEALTH_CONVERSATION_MARKED, HikePubSub.STEALTH_CONVERSATION_UNMARKED};
 
 		/**
 		 * Array of pubSub listeners we get from {@link OneToOneChatThread} or {@link GroupChatThread}

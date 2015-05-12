@@ -122,7 +122,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 			HikePubSub.SHOW_TIP, HikePubSub.STEALTH_MODE_TOGGLED, HikePubSub.CLEAR_FTUE_STEALTH_CONV,
 			HikePubSub.BULK_MESSAGE_RECEIVED, HikePubSub.BULK_MESSAGE_DELIVERED_READ, HikePubSub.GROUP_END, HikePubSub.CONTACT_DELETED,
 			HikePubSub.MULTI_MESSAGE_DB_INSERTED, HikePubSub.SERVER_RECEIVED_MULTI_MSG, HikePubSub.MUTE_CONVERSATION_TOGGLED, HikePubSub.CONV_UNREAD_COUNT_MODIFIED,
-            HikePubSub.STEALTH_CONVERSATION_MARKED, HikePubSub.STEALTH_CONVERSATION_UNMARKED,
+			HikePubSub.STEALTH_DB_MARKED, HikePubSub.STEALTH_DB_UNMARKED, HikePubSub.STEALTH_CONVERSATION_MARKED, HikePubSub.STEALTH_CONVERSATION_UNMARKED,
 			HikePubSub.CONVERSATION_TS_UPDATED, HikePubSub.CONVERSATION_DELETED, HikePubSub.DELETE_THIS_CONVERSATION, HikePubSub.ONETONCONV_NAME_CHANGED };
 
 	private ConversationsAdapter mAdapter;
@@ -1450,44 +1450,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 				}
 				else if (getString(R.string.mark_stealth).equals(option) || getString(R.string.unmark_stealth).equals(option) || getString(R.string.hide_chat).equals(option))
 				{
-					boolean newStealthValue = !conv.isStealth();
-					/*
-					 * If stealth ftue conv tap tip is visible than remove it
-					 */
-					if (tipView != null)
-					{
-						removeTipIfExists(ConversationTip.STEALTH_FTUE_TIP);
-						removeTipIfExists(ConversationTip.STEALTH_INFO_TIP);
-					}
-					if (getString(R.string.mark_stealth).equals(option) || getString(R.string.hide_chat).equals(option))
-					{
-						List<String> enabledConvs = new ArrayList<String>(1);
-						enabledConvs.add(conv.getMsisdn());
-						HikeAnalyticsEvent.sendStealthMsisdns(enabledConvs, null);
-						
-						stealthConversations.add(conv);
-						
-						if(getString(R.string.mark_stealth).equals(option))
-						{
-							HikeConversationsDatabase.getInstance().toggleStealth(conv.getMsisdn(), newStealthValue);
-							StealthModeManager.getInstance().addNewStealthMsisdn(conv);
-						}
-					}
-					else
-					{
-						List<String> disabledConvs = new ArrayList<String>(1);
-						disabledConvs.add(conv.getMsisdn());
-						HikeAnalyticsEvent.sendStealthMsisdns(null, disabledConvs);
-
-						stealthConversations.remove(conv);
-						StealthModeManager.getInstance().removeStealthMsisdn(conv, true);
-						HikeConversationsDatabase.getInstance().toggleStealth(conv.getMsisdn(), newStealthValue);
-					}
-
-					conv.setStealth(newStealthValue);
-					notifyDataSetChanged();
-					
-					StealthModeManager.getInstance().settingupTriggered(getActivity(), false);
+					StealthModeManager.getInstance().toggleConversation(conv, getActivity());
 				}
 				else if (getString(R.string.block_title).equals(option))
 				{
@@ -2338,7 +2301,10 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 								stealthConversations.add(convInfo);
 								StealthModeManager.getInstance().addStealthMsisdnToMap(convInfo.getMsisdn());
 								HikeConversationsDatabase.getInstance().toggleStealth(convInfo.getMsisdn(), true);
-								HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_MODE_TOGGLED, false);
+								if(!StealthModeManager.getInstance().isActive())
+								{
+									HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_MODE_TOGGLED, false);
+								}
 								notifyDataSetChanged();
 							}
 							
@@ -2596,6 +2562,47 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		{
 			unreadCountModified((Message) object);
 		}
+		else if(HikePubSub.STEALTH_DB_MARKED.equals(type) || HikePubSub.STEALTH_DB_UNMARKED.equals(type))
+		{
+			if (!isAdded())
+			{
+				return;
+			}
+			ConvInfo convInfo = mConversationsByMSISDN.get(((ConvInfo)object).getMsisdn()); 
+			if(convInfo == null)
+			{
+				return;
+			}
+			if(HikePubSub.STEALTH_DB_UNMARKED.equals(type))
+			{
+				convInfo.setStealth(false);
+				HikeConversationsDatabase.getInstance().toggleStealth(convInfo.getMsisdn(), false);
+				StealthModeManager.getInstance().removeStealthMsisdn(convInfo, false);
+
+				//mAdapter.addToLists(convInfo);
+				stealthConversations.remove(convInfo);
+				mAdapter.sortLists(mConversationsComparator);
+			}
+			else if(HikePubSub.STEALTH_DB_MARKED.equals(type))
+			{
+				convInfo.setStealth(true);
+				stealthConversations.add(convInfo);
+				StealthModeManager.getInstance().addStealthMsisdnToMap(convInfo.getMsisdn());
+				HikeConversationsDatabase.getInstance().toggleStealth(convInfo.getMsisdn(), true);
+				if(!StealthModeManager.getInstance().isActive())
+				{
+					HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_MODE_TOGGLED, false);
+				}
+			}
+			getActivity().runOnUiThread(new Runnable() {
+				
+				@Override
+				public void run() {
+					notifyDataSetChanged();
+				}
+			});
+			
+		}
 		else if(HikePubSub.STEALTH_CONVERSATION_MARKED.equals(type) || HikePubSub.STEALTH_CONVERSATION_UNMARKED.equals(type))
 		{
 			//HACK, this is done because, convInfo object can have a different reference (if coming from chat thread)
@@ -2608,11 +2615,19 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 			{
 				stealthConversations.add(conv);
 				conv.setStealth(true);
+				
+//				List<String> enabledConvs = new ArrayList<String>(1);
+//				enabledConvs.add(conv.getMsisdn());
+//				HikeAnalyticsEvent.sendStealthMsisdns(enabledConvs, null);
 			}
 			else if (HikePubSub.STEALTH_CONVERSATION_UNMARKED.equals(type))
 			{
 				stealthConversations.remove(conv);
 				conv.setStealth(false);
+				
+//				List<String> disabledConvs = new ArrayList<String>(1);
+//				disabledConvs.add(conv.getMsisdn());
+//				HikeAnalyticsEvent.sendStealthMsisdns(null, disabledConvs);
 			}
 
 			getActivity().runOnUiThread(new Runnable() {
@@ -3335,7 +3350,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		
 		if(intent.hasExtra(HikeConstants.STEALTH)  || intent.hasExtra(HikeConstants.MSISDN))
 		{
-			StealthModeManager.getInstance().settingupTriggered(getActivity(), false);
+			StealthModeManager.getInstance().settingupTriggered(getActivity());
 		}
 		final NUXManager nm=NUXManager.getInstance();
 
