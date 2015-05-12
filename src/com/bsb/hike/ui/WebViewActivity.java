@@ -24,6 +24,7 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+
 import android.widget.PopupWindow.OnDismissListener;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -244,7 +245,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	
 	private void attachBridge()
 	{
-		NonMessagingJavaScriptBridge mmBridge=new NonMessagingJavaScriptBridge(this, webView);
+		NonMessagingJavaScriptBridge mmBridge =new NonMessagingJavaScriptBridge(this, webView, BotInfo.getBotInfoForBotMsisdn(msisdn));
 		webView.addJavascriptInterface(mmBridge, HikePlatformConstants.PLATFORM_BRIDGE_NAME);
 	}
 
