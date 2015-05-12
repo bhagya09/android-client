@@ -23,6 +23,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.RemoteException;
 import android.os.SystemClock;
 import android.text.TextUtils;
 import android.widget.Chronometer;
@@ -70,7 +71,7 @@ public class VoIPClient  {
 
 	private Context context;
 	private DatagramSocket socket = null;
-	public OpusWrapper opusWrapper;
+	private OpusWrapper opusWrapper;
 	private Thread iceThread = null, partnerTimeoutThread = null, responseTimeoutThread = null, senderThread = null, receivingThread = null;
 	private Thread sendingThread = null;
 	private Thread codecDecompressionThread = null;
@@ -810,9 +811,9 @@ public class VoIPClient  {
 				"\nCall duration: " + getCallDuration() + "\n" +
 				"========================================");
 		
-		keepRunning = false;
-		socketInfoReceived = false;
-		establishingConnection = false;
+		if (getCallStatus() != VoIPConstants.CallStatus.PARTNER_BUSY) {
+			setCallStatus(VoIPConstants.CallStatus.ENDED);
+		}
 
 		if (iceThread != null)
 			iceThread.interrupt();
@@ -842,6 +843,29 @@ public class VoIPClient  {
 			opusWrapper = null;
 		}
 		
+		Bundle bundle = new Bundle();
+		bundle.putInt(VoIPConstants.CALL_ID, VoIPService.getCallId());
+		bundle.putInt(VoIPConstants.IS_CALL_INITIATOR, isInitiator() ? 0 : 1);
+		bundle.putInt(VoIPConstants.CALL_NETWORK_TYPE, VoIPUtils.getConnectionClass(context).ordinal());
+		bundle.putString(VoIPConstants.PARTNER_MSISDN, getPhoneNumber());
+		bundle.putBoolean(VoIPConstants.IS_CONNECTED, connected);
+
+		// sendHandlerMessage(VoIPConstants.MSG_SHUTDOWN_ACTIVITY, bundle);
+
+		sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CALL_END);
+
+		if(reconnecting) {
+			sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CALL_DROP);
+		}
+		
+		// send a call rejected message through hike as well
+		VoIPUtils.sendVoIPMessageUsingHike(getPhoneNumber(), 
+				HikeConstants.MqttMessageTypes.VOIP_CALL_CANCELLED, 
+				VoIPService.getCallId(), false);
+		
+		keepRunning = false;
+		socketInfoReceived = false;
+		establishingConnection = false;
 		stopReconnectBeeps();
 		connected = false;
 		audioStarted = false;
@@ -984,16 +1008,22 @@ public class VoIPClient  {
 	}
 	
 	private void sendHandlerMessage(int message) {
-
-		Bundle bundle = new Bundle();
-		bundle.putString(VoIPConstants.MSISDN, getPhoneNumber());
+		sendHandlerMessage(message, null);
+	}
+	
+	private void sendHandlerMessage(int message, Bundle bundle) {
 		
+		if (bundle == null)
+			bundle = new Bundle();
+
+		bundle.putString(VoIPConstants.MSISDN, getPhoneNumber());
 		Message msg = Message.obtain();
 		msg.what = message;
 		msg.setData(bundle);
 		if (handler != null)
 			handler.sendMessage(msg);
 	}
+	
 
 	public void startReceiving() {
 		if (receivingThread != null) {

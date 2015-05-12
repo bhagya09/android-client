@@ -15,8 +15,8 @@ import com.bsb.hike.utils.UnzipUtil;
 
 public class OpusWrapper {
 	
-	private static long encoder = 0;
-	private static long decoder = 0;
+	private long encoder = 0;
+	private long decoder = 0;
 	public static final int OPUS_FRAME_SIZE = 2880; // permitted values are 120, 240, 480, 960, 1920, and 2880
 	public static final int OPUS_LOWEST_SUPPORTED_BITRATE = 3000; 
 	
@@ -32,8 +32,8 @@ public class OpusWrapper {
 	private native void opus_decoder_destroy(long decoder);
 	private native int opus_decode(long decoder, byte[] stream, int length, byte[] output, int frameSize, int decodeFEC);
 	
-	private static Object encoderLock = new Object();
-	private static Object decoderLock = new Object();
+	private Object encoderLock = new Object();
+	private Object decoderLock = new Object();
 
 	private static String TAG = "OpusWrapper";
 	

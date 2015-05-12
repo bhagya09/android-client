@@ -5,15 +5,15 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#define  LOG_TAG    "NDK Message"
+#define  LOG_TAG    "VoIP NDK (Opus)"
 #define  LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
 #define  LOGE(...)  __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 
 #define INPUT_BUFFER_SIZE	1000000
 jbyte* inputBuffer = NULL;
 jbyte *writeMarker, *readMarker, *finalMarker, *loopMemory;
-static jint availableData = 0;
-static int inputBufferSize;
+jint availableData = 0;
+int inputBufferSize;
 
 void allocateInputBuffer() {
 	inputBufferSize = INPUT_BUFFER_SIZE;
