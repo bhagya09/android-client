@@ -60,6 +60,7 @@ import com.bsb.hike.db.MqttPersistenceException;
 import com.bsb.hike.models.HikePacket;
 import com.bsb.hike.models.NetInfo;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
+import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.HikeSSLUtil;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
@@ -736,6 +737,10 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 			return SSL_PROTOCOL + serverURIs.get(0) + COLON + PRODUCTION_BROKER_PORT_NUMBER_SSL;	 // ssl://mqtt.im.hike.in:443
 		case PRODUCTION_NON_SSL:
 			return TCP_PROTOCOL + serverURIs.get(0) + COLON + PRODUCTION_BROKER_PORT_NUMBER;	 	 // tcp://mqtt.im.hike.in:8080
+		case CUSTOM_HOST:
+			String brokerHost = settings.getString(HikeMessengerApp.CUSTOM_MQTT_HOST, PRODUCTION_BROKER_HOST_NAME);
+			int brokerPort = settings.getInt(HikeMessengerApp.CUSTOM_MQTT_PORT, PRODUCTION_BROKER_PORT_NUMBER);
+			return TCP_PROTOCOL + brokerHost + COLON + brokerPort;		 // tcp://mqtt.im.hike.in:8080
 		default:
 			return TCP_PROTOCOL + serverURIs.get(0) + COLON + PRODUCTION_BROKER_PORT_NUMBER;		 // tcp://mqtt.im.hike.in:8080
 		}
@@ -748,7 +753,13 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 		boolean sslAllowed = Utils.isSSLAllowed();
 		
 		boolean production = Utils.isOnProduction();
+		int whichServer = settings.getInt(HikeMessengerApp.PRODUCTION_HOST_TOGGLE, AccountUtils._PRODUCTION_HOST);
 		
+		if (whichServer == AccountUtils._CUSTOM_HOST) // using custom host
+		{
+			return HostState.CUSTOM_HOST;
+		}
+
 		if(!production) // on statging
 		{
 			return (ssl ? HostState.STAGING_SSL : HostState.STAGING_NON_SSL);
@@ -1358,7 +1369,7 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 					connectOnMqttThread();
 				}
 			}
-			Utils.setupUri(context); // TODO : this should be moved out from here to some other place
+			Utils.setupUri(); // TODO : this should be moved out from here to some other place
 			HttpRequestConstants.toggleSSL();
 		}
 		else if (intent.getAction().equals(MQTT_CONNECTION_CHECK_ACTION))

@@ -94,6 +94,10 @@ public class AccountUtils
 
 	public static final int _DEV_STAGING_HOST = 2;
 
+	public static final int _PROD_DEBUGMQTT_HOST = 3;
+	
+	public static final int _CUSTOM_HOST = 4;
+
 	public static final int PRODUCTION_PORT = 80;
 
 	public static final int PRODUCTION_PORT_SSL = 443;
@@ -128,29 +132,27 @@ public class AccountUtils
 
 	public static final String FILE_TRANSFER_BASE_VIEW_URL_STAGING = "staging.im.hike.in/f/";
 
-	public static String fileTransferBaseViewUrl = FILE_TRANSFER_BASE_VIEW_URL_PRODUCTION;
-
 	public static final String REWARDS_PRODUCTION_BASE = "hike.in/rewards/";
 
-	public static final String REWARDS_STAGING_BASE = "staging.im.hike.in/rewards/";
+	public static final String REWARDS_STAGING_PATH = "/rewards/";
 
 	public static String rewardsUrl = REWARDS_PRODUCTION_BASE;
 
 	public static final String GAMES_PRODUCTION_BASE = "hike.in/games/";
 
-	public static final String GAMES_STAGING_BASE = "staging.im.hike.in/games/";
+	public static final String GAMES_STAGING_PATH = "/games/";
 
 	public static String gamesUrl = GAMES_PRODUCTION_BASE;
 
 	public static final String STICKERS_PRODUCTION_BASE = "hike.in/s/%1$s/%2$s";
 
-	public static final String STICKERS_STAGING_BASE = "staging.im.hike.in/s/%1$s/%2$s";
+	public static final String STICKERS_STAGING_PATH = "/s/%1$s/%2$s";
 
 	public static String stickersUrl = HTTP_STRING + STICKERS_PRODUCTION_BASE;
 	
 	public static final String H2O_TUTORIAL_PRODUCTION_BASE = "hike.in/offlinedemo/";
 
-	public static final String H2O_TUTORIAL_STAGING_BASE = "staging.im.hike.in/offlinedemo/";
+	public static final String H2O_TUTORIAL_STAGING_PATH = "/offlinedemo/";
 
 	public static String h2oTutorialUrl = HTTP_STRING + H2O_TUTORIAL_PRODUCTION_BASE;
 
@@ -184,9 +186,9 @@ public class AccountUtils
 	
 	public static final String SDK_AUTH_PARAM_SHA1 = "sha1";
 
-	public static final String ANALYTICS_UPLOAD_BASE = "/logs/analytics";
+	public static final String ANALYTICS_UPLOAD_PATH = "/logs/analytics";
 	
-	public static String analyticsUploadUrl = base + ANALYTICS_UPLOAD_BASE;
+	public static String analyticsUploadUrl = base + ANALYTICS_UPLOAD_PATH;
 	
 	public static String USER_DP_UPDATE_URL = "/account/avatar";
 	
