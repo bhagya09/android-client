@@ -1134,7 +1134,7 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="notificationSoundSummary">Select a sound to play for a new notification</string>
     <string name="hike_offline_notifications">Hike offline</string>
     <string name="h2o_notifications_setting_summary">Notify to send SMS for offline contact</string>
-    <string name="stealth_info_tip_subtext">Tap on \'hi\' to hide your chats.</string>
+    <string name="stealth_info_tip_subtext">Tap \'hi\' to hide chats with a password.</string>
     <string name="file_attachment_info">Share doc, pdf &amp; media up to 100 MB</string>
     <string name="status_text_notification">posted an update %1$s</string>
     <string name="shared_files">Files</string>
