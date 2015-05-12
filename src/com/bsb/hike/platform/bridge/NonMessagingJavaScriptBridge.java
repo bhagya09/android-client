@@ -17,7 +17,6 @@ import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
-import com.bsb.hike.ui.WebViewActivity;
 import com.bsb.hike.utils.Logger;
 
 public class NonMessagingJavaScriptBridge extends JavascriptBridge
@@ -177,6 +176,11 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		{
 			botConfig.updateOverFlowMenu(id, enabled);
 		}
+	}
+
+	public void onBackPressed()
+	{
+		mWebView.loadUrl("javascript:onBackPressed()");
 	}
 
 }

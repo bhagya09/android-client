@@ -249,7 +249,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	private void attachBridge()
 	{
 		 mmBridge =new NonMessagingJavaScriptBridge(this, webView, BotInfo.getBotInfoForBotMsisdn(msisdn));
-		webView.addJavascriptInterface(mmBridge, HikePlatformConstants.PLATFORM_BRIDGE_NAME);
+		 webView.addJavascriptInterface(mmBridge, HikePlatformConstants.PLATFORM_BRIDGE_NAME);
 	}
 
 	private void initActionBar()
@@ -426,6 +426,12 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	@Override
 	public void onBackPressed()
 	{
+		if (mode == MICRO_APP_MODE)
+		{
+			mmBridge.onBackPressed();
+			return;
+		}
+		
 		if (webView.canGoBack())
 		{
 			webView.goBack();

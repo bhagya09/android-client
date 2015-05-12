@@ -65,26 +65,8 @@ public class BotChatThread extends OneToOneChatThread
 		}
 		else
 		{
+			activity.findViewById(R.id.compose_container).setVisibility(View.VISIBLE);
 
-			if (!configuration.isAudioRecordingEnabled())
-			{
-				activity.findViewById(R.id.send_message).setVisibility(View.GONE);
-			}
-
-			if (!configuration.isStickerPickerEnabled())
-			{
-				activity.findViewById(R.id.sticker_btn).setVisibility(View.GONE);
-			}
-
-			if (!configuration.isEmoticonPickerEnabled())
-			{
-				activity.findViewById(R.id.emoticon_btn).setVisibility(View.GONE);
-			}
-
-			if (!configuration.isTextInputEnabled())
-			{
-				activity.findViewById(R.id.msg_compose).setVisibility(View.GONE);
-			}
 		}
 	}
 
@@ -171,8 +153,10 @@ public class BotChatThread extends OneToOneChatThread
 			return false;
 		}
 
-		mActionBar.onCreateOptionsMenu(menu, R.menu.one_one_chat_thread_menu, getOverFlowItems(), this, this);
-		if (configuration.isOverflowMenuEnabled())
+		List<OverFlowMenuItem> menuItemList = getOverFlowItems();
+
+		mActionBar.onCreateOptionsMenu(menu, R.menu.one_one_chat_thread_menu, menuItemList, this, this);
+		if (configuration.isOverflowMenuEnabled() && !menuItemList.isEmpty())
 		{
 			menu.findItem(R.id.overflow_menu).setVisible(true);
 			menu.findItem(R.id.overflow_menu).getActionView().setOnClickListener(this);

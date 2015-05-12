@@ -72,6 +72,7 @@ import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformContentListener;
 import com.bsb.hike.platform.content.PlatformContentModel;
@@ -672,49 +673,7 @@ public class MqttMessagesManager
 		}
 	}
 
-	/**
-	 * download the microapp and then set the state to whatever that has been passed by the server.
-	 * @param botInfo
-	 * @param enableBot
-	 */
-	private void downloadZipForNonMessagingBot(final BotInfo botInfo, final boolean enableBot)
-	{
-		PlatformContentRequest rqst = PlatformContentRequest.make(
-				PlatformContentModel.make(botInfo.getMetadata()), new PlatformContentListener<PlatformContentModel>()
-				{
 
-					@Override
-					public void onComplete(PlatformContentModel content)
-					{
-						botInfo.setBotEnabled(enableBot);
-						HikeMessengerApp.hikeBotNamesMap.put(botInfo.getMsisdn(), botInfo);
-						convDb.updateBotEnablingState(botInfo.getMsisdn(), enableBot ? 1:0);
-						convDb.addConversation(botInfo.getMsisdn(), true, null, null);
-					}
-
-					@Override
-					public void onEventOccured(PlatformContent.EventCode event)
-					{
-						if (event == PlatformContent.EventCode.DOWNLOADING || event == PlatformContent.EventCode.LOADED)
-						{
-							//do nothing
-							return;
-						}
-
-						else
-						{
-							//TODO
-						}
-					}
-				});
-
-		PlatformZipDownloader downloader = new PlatformZipDownloader(rqst, false);
-		if (!downloader.isMicroAppExist())
-		{
-			downloader.downloadAndUnzip();
-		}
-
-	}
 	private void saveMessageBulk(JSONObject jsonObj) throws JSONException
 	{
 		ConvMessage convMessage = messagePreProcess(jsonObj);
@@ -1740,6 +1699,15 @@ public class MqttMessagesManager
 			JSONArray botsTobeAdded = data.optJSONArray(HikeConstants.MqttMessageTypes.DELETE_MULTIPLE_BOTS);
 			for (int i = 0; i< botsTobeAdded.length(); i++){
 				deleteBot((String) botsTobeAdded.get(i));
+			}
+		}
+
+		if (data.has(HikeConstants.MqttMessageTypes.MICROAPP_DOWNLOAD))
+		{
+			JSONArray appsToBeDownloaded = data.optJSONArray(HikeConstants.MqttMessageTypes.MICROAPP_DOWNLOAD);
+			for (int i = 0; i< appsToBeDownloaded.length(); i++)
+			{
+				PlatformUtils.downloadZipFromPacket((JSONObject) appsToBeDownloaded.get(i));
 			}
 		}
 		if(data.has(HikeConstants.GET_BULK_LAST_SEEN))
@@ -3063,7 +3031,7 @@ public class MqttMessagesManager
 		{
 			botInfo = getBotInfoForNonMessagingBots(jsonObj, msisdn, name, config);
 			boolean enableBot = jsonObj.optBoolean(HikePlatformConstants.ENABLE_BOT);
-			downloadZipForNonMessagingBot(botInfo, enableBot);
+			PlatformUtils.downloadZipForNonMessagingBot(botInfo, enableBot);
 		}
 
 		convDb.setChatBackground(msisdn, jsonObj.optString(HikeConstants.BOT_CHAT_THEME), System.currentTimeMillis()/1000);
