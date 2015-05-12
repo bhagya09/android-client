@@ -1098,7 +1098,6 @@ public class VoIPService extends Service {
 			localBitrate = remoteBitrate;
 		
 		Logger.d(VoIPConstants.TAG, "Detected ideal bitrate: " + localBitrate);
-		sendHandlerMessage(VoIPConstants.MSG_CURRENT_BITRATE);
 		
 		if (opusWrapper != null)
 			opusWrapper.setEncoderBitrate(localBitrate);
@@ -1999,7 +1998,6 @@ public class VoIPService extends Service {
 						
 					case CALL_DECLINED:
 						clientPartner.setEnder(true);
-						sendHandlerMessage(VoIPConstants.MSG_OUTGOING_CALL_DECLINED);
 						stop();
 						break;
 						
@@ -2241,7 +2239,6 @@ public class VoIPService extends Service {
 			return localBitrate;
 		
 		opusWrapper.setEncoderBitrate(localBitrate);
-		sendHandlerMessage(VoIPConstants.MSG_CURRENT_BITRATE);
 		
 		return localBitrate;
 	}
@@ -2460,6 +2457,9 @@ public class VoIPService extends Service {
 					socket.setReuseAddress(true);
 					socket.setSoTimeout(2000);
 
+					clientPartner.setOurInternalIPAddress(VoIPUtils.getLocalIpAddress(getApplicationContext())); 
+					clientPartner.setOurInternalPort(socket.getLocalPort());
+
 					while (continueSending && keepRunning && (counter < 10 || reconnecting)) {
 						counter++;
 						try {
@@ -2473,9 +2473,6 @@ public class VoIPService extends Service {
 								clientPartner.setRelayAddress(host.getHostAddress());
 								clientPartner.setRelayPort(VoIPUtils.getRelayPort(getApplicationContext()));
 							}
-
-							clientPartner.setOurInternalIPAddress(VoIPUtils.getLocalIpAddress(getApplicationContext())); 
-							clientPartner.setOurInternalPort(socket.getLocalPort());
 
 							Logger.d(VoIPConstants.TAG, "ICE Sending.");
 							sendPacket(dp, false);

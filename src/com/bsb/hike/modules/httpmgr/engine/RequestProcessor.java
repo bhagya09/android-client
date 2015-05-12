@@ -113,6 +113,7 @@ public class RequestProcessor
 			return false;
 		}
 
+		request.setId(newRequestId);
 		if (requestMap.containsKey(newRequestId))
 		{
 			LogFull.i(request.toString() + " already exists");
