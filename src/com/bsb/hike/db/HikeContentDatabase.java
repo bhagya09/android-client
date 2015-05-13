@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import org.json.JSONObject;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -21,7 +20,6 @@ import com.bsb.hike.db.DBConstants.HIKE_CONTENT;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.WhitelistDomain;
 import com.bsb.hike.productpopup.ProductContentModel;
-import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.utils.Logger;
 
 public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants, HIKE_CONTENT
@@ -70,7 +68,7 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 
 	private String[] getCreateQueries()
 	{
-		String[] createAndIndexes = new String[6];
+		String[] createAndIndexes = new String[7];
 		int i = 0;
 		// CREATE TABLE
 		// CONTENT TABLE -> _id,content_id,love_id,channel_id,timestamp,metadata
@@ -123,6 +121,16 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 		
 		createAndIndexes[i++] = contentIndex;
 		createAndIndexes[i++] = nameSpaceIndex;
+
+		String cacheDataTable = CREATE_TABLE +CONTENT_CACHE_TABLE
+				+ "("
+				+_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+				+ KEY + " TEXT, "
+				+ VALUE + " TEXT, "
+				+ NAMESPACE + " TEXT "
+				+ ")";
+
+		createAndIndexes[i++] = cacheDataTable;
 		// INDEX ENDS HERE
 
 		return createAndIndexes;
@@ -160,6 +168,17 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 					+ DOMAIN + " TEXT UNIQUE, "
 					+ IN_HIKE + " INTEGER" + ")";
 			queries.add(urlWhitelistTable);
+		}
+		if (oldVersion < 4)
+		{
+			String cacheDataTable = CREATE_TABLE + CONTENT_CACHE_TABLE
+					+ "("
+					+_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+					+ KEY + " TEXT, "
+					+ VALUE + " TEXT, "
+					+ NAMESPACE + " TEXT "
+					+ ")";
+			queries.add(cacheDataTable);
 		}
 		
 		return queries.toArray(new String[]{});
