@@ -2,6 +2,7 @@ package com.bsb.hike.service;
 
 import static com.bsb.hike.MqttConstants.*;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.nio.channels.UnresolvedAddressException;
 import java.util.ArrayList;
@@ -150,6 +151,8 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 	private NetInfo previousNetInfo;
 
 	private long maxMessageProcessTime = 0;
+	
+	private int connectRetryCount = 0;
 	
 	private class ActivityCheckRunnable implements Runnable
 	{
@@ -596,6 +599,7 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 			if (forceDisconnect)
 				return;
 
+			int connectionTimeOut = getConnectionTimeOut(connectRetryCount);
 			if (op == null)
 			{
 				op = new MqttConnectOptions();
@@ -603,7 +607,6 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 				op.setPassword(password.toCharArray());
 				op.setCleanSession(true);
 				op.setKeepAliveInterval((short) KEEP_ALIVE_SECONDS);
-				op.setConnectionTimeout(CONNECTION_TIMEOUT_SECONDS);
 			}
 
 			if (mqtt == null)
@@ -621,14 +624,17 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 			// if any network is available, then only connect, else connect at next check or when network gets available
 			if (Utils.isUserOnline(context))
 			{
-				acquireWakeLock(CONNECTION_TIMEOUT_SECONDS);
-				Logger.d(TAG, "Connect using pushconnect : " + pushConnect + "  fast reconnect : " + fastReconnect);
+				acquireWakeLock(connectionTimeOut);
+				Logger.d(TAG, "Connect using pushconnect : " + pushConnect + "  fast reconnect : " + fastReconnect + " connection time out = "+connectionTimeOut);
 				mqtt.setClientId(clientId + ":" + pushConnect + ":" + fastReconnect);
 				mqtt.setServerURI(getServerUri());
+				
+				//Setting some connection options which we need to reset on every connect
 				if (isSSL())
 					op.setSocketFactory(HikeSSLUtil.getSSLSocketFactory());
 				else
 					op.setSocketFactory(null);
+				op.setConnectionTimeout(connectionTimeOut);
 				
 				Logger.d(TAG, "MQTT connecting on : " + mqtt.getServerURI());
 				
@@ -666,6 +672,18 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 			scheduleNextConnectionCheck();
 			releaseWakeLock();
 		}
+	}
+
+	private void incrementConnectRetryCount()
+	{
+		connectRetryCount++;
+		connectRetryCount = Math.min(3, connectRetryCount);
+		Logger.e(TAG, "Increasing connect retry count , connectRetryCount : " + connectRetryCount);
+	}
+
+	private int getConnectionTimeOut(int retryCount)
+	{
+		return CONNECTION_TIMEOUT_SECONDS[Math.min(3, retryCount)];
 	}
 
 	private void setServerUris()
@@ -1157,6 +1175,7 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 
 	private void handleMqttException(MqttException e, boolean reConnect)
 	{
+		Logger.i(TAG, "entered handleMqttException method " );
 		switch (e.getReasonCode())
 		{
 		case MqttException.REASON_CODE_BROKER_UNAVAILABLE:
@@ -1188,6 +1207,7 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 				scheduleNextConnectionCheck(1); // try reconnect after 1 sec, so that disconnect happens properly
 			break;
 		case MqttException.REASON_CODE_CLIENT_EXCEPTION:
+			Logger.e(TAG, "Client exception : entered REASON_CODE_CLIENT_EXCEPTION");
 			if (e.getCause() != null)
 			{
 				Logger.e(TAG, "Exception : " + e.getCause().getMessage());
@@ -1202,6 +1222,10 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 					{
 						handleDNSException();
 					}
+				}
+				else if (e.getCause() instanceof SocketTimeoutException)
+				{
+					handleSocketTimeOutException();
 				}
 				// added this exception for safety , we might also get this exception in some phones
 				else if (e.getCause() instanceof UnresolvedAddressException)
@@ -1282,6 +1306,13 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 			break;
 		}
 		e.printStackTrace();
+	}
+
+	private void handleSocketTimeOutException()
+	{
+		Logger.e(TAG, "Client exception : entered handleSocketTimeOutException");
+		incrementConnectRetryCount();
+		connectOnMqttThread(MQTT_WAIT_BEFORE_RECONNECT_TIME);
 	}
 
 	/**
@@ -1724,6 +1755,7 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 		connectUsingIp = false;
 		connectToFallbackPort = false;
 		ipConnectCount = 0;
+		connectRetryCount = 0;
 	}
 	
 	/**
