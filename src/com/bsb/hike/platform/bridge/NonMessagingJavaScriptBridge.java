@@ -16,6 +16,8 @@ import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
+import com.bsb.hike.utils.AccountUtils;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 
 public class NonMessagingJavaScriptBridge extends JavascriptBridge
@@ -138,6 +140,11 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	public void block()
 	{
 		HikeMessengerApp.getPubSub().publish(HikePubSub.BLOCK_USER, mBotInfo.getMsisdn());
+	}
+
+	public void onBackPressed()
+	{
+		mWebView.loadUrl("javascript:onBackPressed()");
 	}
 
 }
