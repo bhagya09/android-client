@@ -93,6 +93,8 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	
 	private NonMessagingJavaScriptBridge mmBridge;
 	
+	private View actionBarView;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -369,18 +371,19 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 
 	private void setupActionBar(String titleString)
 	{
-		View actionBarView = mActionBar.setCustomActionBarView(R.layout.chat_thread_action_bar);
+		actionBarView = mActionBar.setCustomActionBarView(R.layout.chat_thread_action_bar);
 		View backContainer = actionBarView.findViewById(R.id.back);
-		backContainer.setOnClickListener(this);
-		TextView title = (TextView) actionBarView.findViewById(R.id.title);
+		TextView title = (TextView) actionBarView.findViewById(R.id.contact_name);
 		title.setText(titleString);
 		
+		actionBarView.findViewById(R.id.contact_status).setVisibility(View.GONE);
+		
+		backContainer.setOnClickListener(this);
 		setAvatar();
 	}
 
 	private void setAvatar()
 	{
-		View actionBarView = mActionBar.setCustomActionBarView(R.layout.chat_thread_action_bar);
 		ImageView avatar = (ImageView) actionBarView.findViewById(R.id.avatar);
 		if (avatar == null)
 		{
