@@ -19,15 +19,24 @@ public class BotInfo extends ConvInfo
 
 	private boolean isBotEnabled;
 
+	private String namespace;
+
 	private String metadata, configData;
 
 	public static abstract class InitBuilder<P extends InitBuilder<P>> extends ConvInfo.InitBuilder<P>
 	{
 		private int type, config;
 
-		private boolean isReceiveEnabled, isBotEnabled;
+		private boolean isBotEnabled;
+
+		private String namespace;
 
 		private String metadata, configData;
+
+		protected InitBuilder(String msisdn)
+		{
+			super(msisdn);
+		}
 
 		public P setType(int type)
 		{
@@ -45,11 +54,6 @@ public class BotInfo extends ConvInfo
 		{
 			this.metadata = metadata;
 			return getSelfObject();
-		}
-
-		protected InitBuilder(String msisdn)
-		{
-			super(msisdn);
 		}
 
 		public P type(int type)
@@ -75,7 +79,13 @@ public class BotInfo extends ConvInfo
 			this.isBotEnabled = isBotEnabled;
 			return getSelfObject();
 		}
-		
+
+		public P setNamespace(String namespace)
+		{
+			this.namespace = namespace;
+			return getSelfObject();
+		}
+
 		@Override
 		public P setOnHike(boolean onHike)
 		{
@@ -113,6 +123,11 @@ public class BotInfo extends ConvInfo
 	public String getConfigData()
 	{
 		return configData;
+	}
+
+	public String getNamespace()
+	{
+		return namespace;
 	}
 
 	public void setType(int type)
@@ -164,6 +179,7 @@ public class BotInfo extends ConvInfo
 		this.metadata = builder.metadata;
 		this.configData = builder.configData;
 		this.isBotEnabled = builder.isBotEnabled;
+		this.namespace = builder.namespace;
 	}
 
 	public static BotInfo getBotInfoForBotMsisdn(String msisdn)
