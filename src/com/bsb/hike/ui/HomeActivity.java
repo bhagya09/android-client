@@ -185,6 +185,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
+		Logger.d(TAG,"onCreate");
 		super.onCreate(savedInstanceState);
 		if (Utils.requireAuth(this))
 		{
