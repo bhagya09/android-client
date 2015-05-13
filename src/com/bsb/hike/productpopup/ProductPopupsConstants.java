@@ -43,6 +43,8 @@ public class ProductPopupsConstants
 
 	public static String BUNDLE_DATA="bundleData";
 	
+	public static String IS_CANCELLABLE="isCancellable";
+	
 	public static enum PopupStateEnum
 	{
 		NOT_DOWNLOADED(0), DOWNLOADED(1), UNKNOWN(3);
