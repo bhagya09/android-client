@@ -79,7 +79,7 @@ public class NonMessagingBotConfiguration extends BotConfiguration
 			/**
 			 * Note : This is a dummy icon. Will replace once I get proper assets
 			 */
-			return new OverFlowMenuItem(title, -1, enabled ? R.drawable.ic_delete : -1, id, enabled);
+			return new OverFlowMenuItem(title, 0, enabled ? R.drawable.ic_delete : 0, id, enabled);
 		}
 		catch (JSONException e)
 		{
