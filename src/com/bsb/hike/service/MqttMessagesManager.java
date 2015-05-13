@@ -3000,7 +3000,7 @@ public class MqttMessagesManager
 	{
 		long startTime = System.currentTimeMillis();
 
-		String type = jsonObj.optString(HikeConstants.TYPE);
+		String type = jsonObj.optString(HikePlatformConstants.BOT_TYPE);
 		if (TextUtils.isEmpty(type))
 		{
 			Logger.e("bot error", "type is null.");

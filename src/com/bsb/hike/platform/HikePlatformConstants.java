@@ -132,4 +132,6 @@ public interface HikePlatformConstants
 	public static final String CONFIG_DATA = "cd";
 
 	public static final String ENABLE_BOT = "enable_bot";
+
+	public static final String BOT_TYPE = "bot_type";
 }
