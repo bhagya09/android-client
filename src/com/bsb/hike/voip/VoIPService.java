@@ -63,6 +63,7 @@ import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 import com.bsb.hike.voip.VoIPClient.ConnectionMethods;
 import com.bsb.hike.voip.VoIPConstants.CallQuality;
 import com.bsb.hike.voip.VoIPDataPacket.PacketType;
@@ -2390,7 +2391,14 @@ public class VoIPService extends Service {
 			Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
 			if (ringtone == null)
 				ringtone = RingtoneManager.getRingtone(getApplicationContext(), notification);
-			ringtone.setStreamType(AudioManager.STREAM_RING);
+			
+			if (Utils.isLollipopOrHigher()) {
+				AudioAttributes.Builder attrs = new AudioAttributes.Builder();
+				attrs.setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION);
+				attrs.setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE);
+				ringtone.setAudioAttributes(attrs.build());
+			} else
+				ringtone.setStreamType(AudioManager.STREAM_RING);
 			ringtone.play();		
 
 			// Vibrator
