@@ -184,5 +184,22 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	{
 		mWebView.loadUrl("javascript:onBackPressed()");
 	}
+	
+	/**
+	 * Utility method to update the title of the overflow menu for bot
+	 * 
+	 * @param id
+	 * @param newTitle
+	 */
+	@JavascriptInterface
+	public void updateMenuTitle(int id, String newTitle)
+	{
+		NonMessagingBotConfiguration botConfig = new NonMessagingBotConfiguration(mBotInfo.getConfiguration());
+		if (botConfig != null)
+		{
+			botConfig.updateOverFlowMenu(id, newTitle);
+			HikeConversationsDatabase.getInstance().updateConfigData(mBotInfo.getMsisdn(), botConfig.getConfigData().toString());
+		}
+	}
 
 }

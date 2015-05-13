@@ -125,6 +125,58 @@ public class NonMessagingBotConfiguration extends BotConfiguration
 
 		}
 	}
+	
+	/**
+	 * Utility method to update the overflow menu title
+	 * @param id
+	 * @param newTitle
+	 */
+	public void updateOverFlowMenu(int id, String newTitle)
+	{
+		if (configData != null)
+		{
+			Logger.v(TAG, "Trying to update overflow menu for : " + id + " for this botConfig : " + configData.toString());
+			try
+			{
+				JSONArray menuItems = configData.getJSONArray(HikePlatformConstants.OVERFLOW_MENU);
+				for (int i = 0; i < menuItems.length(); i++)
+				{
+					JSONObject menuJSON = menuItems.getJSONObject(i);
+					int menuId = menuJSON.getInt(HikePlatformConstants.ID);
+					if (menuId == id)
+					{
+						updateMenuJSON(newTitle, menuJSON);
+						setConfigDataRefreshed(true);
+						break;
+					}
+				}
+
+			}
+			catch (JSONException e)
+			{
+				Logger.e(TAG, "Geting JSON exception while reading overflow menu items : " + e.toString());
+			}
+
+		}
+	}
+
+	/**
+	 * Utility to update the title in BotConfig JSON
+	 * 
+	 * @param newTitle
+	 * @param menuJSON
+	 */
+	private void updateMenuJSON(String newTitle, JSONObject menuJSON)
+	{
+		try
+		{
+			menuJSON.put(HikePlatformConstants.TITLE, newTitle);
+		}
+		catch (JSONException e)
+		{
+			Logger.e(TAG, "Got JSON Exception in updateMenuJSON " + e.toString());
+		}
+	}
 
 	/**
 	 * Utility method to update the OverFlowMenu field in BotConfig JSON
