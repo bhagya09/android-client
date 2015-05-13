@@ -482,6 +482,11 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		addtoMessageMap(messages.size() - 1, messages.size());
 
 		mAdapter.notifyDataSetChanged();
+		
+		if (messageSearchManager != null && messageSearchManager.isActive())
+		{
+			messageSearchManager.addItem(convMessage);
+		}
 
 		// Reset this boolean to load more messages when the user scrolls to
 		// the top
