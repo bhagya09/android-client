@@ -478,8 +478,8 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			list.addAll(botConfig.getOverflowItems());
 		}
 		
-		list.add(new OverFlowMenuItem(getString(R.string.mute), 0, 0, R.string.mute));
-		list.add(new OverFlowMenuItem(getString(R.string.block_title), 0, 0, R.string.block_title));
+		list.add(new OverFlowMenuItem(getString(botInfo.isMute() ? R.string.unmute : R.string.mute), 0, 0, R.string.mute));
+		list.add(new OverFlowMenuItem(getString(botInfo.isBlocked() ? R.string.unblock_title : R.string.block_title), 0, 0, R.string.block_title));
 		return list;
 	}
 
@@ -512,7 +512,9 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 
 	private void blockClicked()
 	{
-		
+		botInfo.setBlocked(!botInfo.isBlocked());
+		botConfig.setConfigDataRefreshed(true);
+		HikeMessengerApp.getPubSub().publish(botInfo.isBlocked() ? HikePubSub.BLOCK_USER : HikePubSub.UNBLOCK_USER, botInfo.getMsisdn());
 	}
 
 	@Override
