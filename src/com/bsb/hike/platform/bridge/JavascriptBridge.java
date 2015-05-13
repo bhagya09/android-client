@@ -504,7 +504,7 @@ public abstract class JavascriptBridge
 			@Override
 			public void run()
 			{
-				mWebView.loadUrl("javascript:" + functionName + "(" + value + ")");
+				mWebView.loadUrl("javascript:" + functionName + "('" + value + "')");
 			}
 		});
 	}
