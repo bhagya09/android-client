@@ -3026,7 +3026,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			break;
         case HikePubSub.STEALTH_CONVERSATION_MARKED:
         case HikePubSub.STEALTH_CONVERSATION_UNMARKED:
-        	onConversationStealthToggle(object,type.equals(HikePubSub.STEALTH_CONVERSATION_MARKED));
+        	onConversationStealthToggle(object,HikePubSub.STEALTH_CONVERSATION_MARKED.equals(type));
 			break;
 		default:
 			Logger.e(TAG, "PubSub Registered But Not used : " + type);

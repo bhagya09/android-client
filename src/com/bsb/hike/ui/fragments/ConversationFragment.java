@@ -2824,6 +2824,11 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 
 	protected void showStealthTip(int whichType)
 	{
+		if(whichType == tipType)
+		{
+			return;
+		}
+
 		if (convTip == null)
 		{
 			convTip = new ConversationTip(getActivity(), this);

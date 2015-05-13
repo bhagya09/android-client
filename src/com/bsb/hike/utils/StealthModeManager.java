@@ -269,9 +269,8 @@ public class StealthModeManager
 			{
 				HikeMessengerApp.getPubSub().publish(HikePubSub.REMOVE_TIP, ConversationTip.STEALTH_HIDE_TIP);
 				StealthModeManager.getInstance().activate(false);
-			
-					HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_MODE_TOGGLED, true);
-				
+				HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_MODE_TOGGLED, true);
+
 				try
 				{
 					JSONObject metadata = new JSONObject();
