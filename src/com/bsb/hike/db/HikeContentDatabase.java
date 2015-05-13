@@ -443,4 +443,43 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 		mDB.delete(POPUPDATA, null, null);
 		
 	}
+
+	/**
+	 * The microapps call this function to put large data in the content cache.
+	 * @param key
+	 * @param namespace
+	 * @param value
+	 */
+	public void putInContentCache(String key, String namespace, String value)
+	{
+		ContentValues values = new ContentValues();
+		values.put(KEY, key);
+		values.put(VALUE, value);
+		values.put(NAMESPACE, namespace);
+
+		mDB.insertWithOnConflict(CONTENT_CACHE_TABLE, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+	}
+
+	public String getFromContentCache(String key, String namespace)
+	{
+		Cursor c = null;
+		try
+		{
+			c = mDB.query(CONTENT_CACHE_TABLE, new String[] { VALUE }, KEY + "=? AND " + NAMESPACE + "=?", new String[] { key, namespace }, null, null, null);
+			if (c.moveToFirst())
+			{
+				int valueIndex = c.getColumnIndex(VALUE);
+				String value = c.getString(valueIndex);
+				return value;
+			}
+			return "";
+		}
+		finally
+		{
+			if (c != null)
+			{
+				c.close();
+			}
+		}
+	}
 }
