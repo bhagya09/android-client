@@ -2312,16 +2312,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		mDb.insertWithOnConflict(DBConstants.BOT_TABLE, null, values, SQLiteDatabase.CONFLICT_REPLACE);
 	}
 
-	public void updateBotMuteState( String msisdn, int isMute)
-	{
-		ContentValues values = new ContentValues();
-		if (isMute != -1)
-		{
-			values.put(DBConstants.IS_MUTE, isMute);
-		}
-		mDb.updateWithOnConflict(DBConstants.BOT_TABLE, values, DBConstants.MSISDN + "=?", new String[] { msisdn }, SQLiteDatabase.CONFLICT_REPLACE);
-	}
-
 	public void updateBotEnablingState(String msisdn, int isEnabled)
 	{
 		ContentValues values = new ContentValues();
@@ -6831,7 +6821,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		mDb.update(BOT_TABLE, contentValues, MSISDN + "=?", new String[] { msisdn });
 	}
 
-	public void muteBot(String botMsisdn, boolean newMuteState)
+	public void toggleMuteBot(String botMsisdn, boolean newMuteState)
 	{
 		ContentValues contentValues = new ContentValues();
 		contentValues.put(IS_MUTE, newMuteState ? 1 : 0);

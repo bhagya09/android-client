@@ -441,7 +441,7 @@ public class DbConversationListener implements Listener
 		else if (HikePubSub.MUTE_BOT.equals(type))
 		{
 			String botMsisdn = (String) object;
-			mConversationDb.muteBot(botMsisdn, BotInfo.getBotInfoForBotMsisdn(botMsisdn).isMute());
+			mConversationDb.toggleMuteBot(botMsisdn, BotInfo.getBotInfoForBotMsisdn(botMsisdn).isMute());
 		}
 		
 	}
