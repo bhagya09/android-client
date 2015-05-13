@@ -6827,8 +6827,14 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	public void updateConfigData(String msisdn, String configData)
 	{
 		ContentValues contentValues = new ContentValues();
-		contentValues.put(MSISDN, msisdn);
 		contentValues.put(CONFIG_DATA, configData);
 		mDb.update(BOT_TABLE, contentValues, MSISDN + "=?", new String[] { msisdn });
+	}
+
+	public void muteBot(String botMsisdn, boolean newMuteState)
+	{
+		ContentValues contentValues = new ContentValues();
+		contentValues.put(IS_MUTE, newMuteState ? 1 : 0);
+		mDb.update(BOT_TABLE, contentValues, MSISDN + "=?", new String[] { botMsisdn });
 	}
 }

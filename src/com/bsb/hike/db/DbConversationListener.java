@@ -28,6 +28,7 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.MsgRelEventType;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.MsgRelLogManager;
+import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.ConvMessage;
@@ -93,7 +94,8 @@ public class DbConversationListener implements Listener
 		mPubSub.addListener(HikePubSub.MULTI_MESSAGE_SENT, this);
 		mPubSub.addListener(HikePubSub.MULTI_FILE_UPLOADED, this);
 		mPubSub.addListener(HikePubSub.HIKE_SDK_MESSAGE, this);
-		mPubSub.addListener(HikePubSub.CONVERSATION_TS_UPDATED, this);		
+		mPubSub.addListener(HikePubSub.CONVERSATION_TS_UPDATED, this);	
+		mPubSub.addListener(HikePubSub.MUTE_BOT, this);
 	}
 
 	@Override
@@ -435,6 +437,13 @@ public class DbConversationListener implements Listener
 			long timestamp = p.second;
 			boolean isUpdated = mConversationDb.updateSortingTimestamp(msisdn, timestamp);
 		}
+		
+		else if (HikePubSub.MUTE_BOT.equals(type))
+		{
+			String botMsisdn = (String) object;
+			mConversationDb.muteBot(botMsisdn, BotInfo.getBotInfoForBotMsisdn(botMsisdn).isMute());
+		}
+		
 	}
 
     private void sendMultiConvMessage(MultipleConvMessage multiConvMessages) {

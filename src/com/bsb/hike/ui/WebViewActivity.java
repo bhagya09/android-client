@@ -36,6 +36,7 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
@@ -504,7 +505,9 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 
 	private void muteClicked()
 	{
-		
+		botInfo.setMute(!botInfo.isMute());
+		botConfig.setConfigDataRefreshed(true);
+		HikeMessengerApp.getPubSub().publish(HikePubSub.MUTE_BOT, botInfo.getMsisdn());
 	}
 
 	private void blockClicked()
