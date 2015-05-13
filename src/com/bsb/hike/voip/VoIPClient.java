@@ -12,8 +12,10 @@ import java.nio.ByteOrder;
 import java.util.BitSet;
 import java.util.Iterator;
 import java.util.Random;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -109,7 +111,7 @@ public class VoIPClient  {
 
 	public final ConcurrentHashMap<Integer, VoIPDataPacket> ackWaitQueue		 = new ConcurrentHashMap<Integer, VoIPDataPacket>();
 	public final ConcurrentLinkedQueue<VoIPDataPacket> samplesToDecodeQueue     = new ConcurrentLinkedQueue<VoIPDataPacket>();
-	public final ConcurrentLinkedQueue<VoIPDataPacket> encodedBuffersQueue      = new ConcurrentLinkedQueue<VoIPDataPacket>();
+	public final LinkedBlockingQueue<VoIPDataPacket> encodedBuffersQueue      = new LinkedBlockingQueue<VoIPDataPacket>();
 	public final ConcurrentLinkedQueue<VoIPDataPacket> decodedBuffersQueue      = new ConcurrentLinkedQueue<VoIPDataPacket>();
 	
 	public enum ConnectionMethods {
@@ -750,34 +752,27 @@ public class VoIPClient  {
 				android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
 				int voicePacketCount = 1;
 				while (keepRunning == true) {
-					
+
 					if (Thread.interrupted()) {
-//						Logger.w(VoIPConstants.TAG, "Quitting sending thread.");
+						//						Logger.w(VoIPConstants.TAG, "Quitting sending thread.");
 						break;
 					}
 
-					VoIPDataPacket dp = encodedBuffersQueue.peek();
-					if (dp != null) {
-						encodedBuffersQueue.poll();
+					VoIPDataPacket dp;
+					try {
+						dp = encodedBuffersQueue.take();
 						dp.voicePacketNumber = voicePacketCount++;
-						
+
 						// Encrypt packet
 						if (encryptionStage == EncryptionStage.STAGE_READY) {
 							byte[] origData = dp.getData();
 							dp.write(encryptor.aesEncrypt(origData));
 							dp.setEncrypted(true);
 						}
-						
+
 						sendPacket(dp, false);
-					} else {
-						synchronized (encodedBuffersQueue) {
-							try {
-								encodedBuffersQueue.wait();
-							} catch (InterruptedException e) {
-//								Logger.d(VoIPConstants.TAG, "encodedBuffersQueue interrupted: " + e.toString());
-								break;
-							}
-						}
+					} catch (InterruptedException e) {
+						break;
 					}
 				}
 			}

@@ -61,7 +61,7 @@ public class VoIPService extends Service {
 	private static final int NOTIFICATION_IDENTIFIER = 10;
 
 	private Messenger mMessenger;
-	private Thread codecCompressionThread = null, reconnectingBeepsThread = null;
+	private Thread codecCompressionThread = null, bufferSendingThread = null, reconnectingBeepsThread = null;
 	private boolean reconnectingBeeps = false;
 	private volatile boolean keepRunning = true;
 	private boolean mute, hold, speaker, vibratorEnabled = true;
@@ -948,6 +948,9 @@ public class VoIPService extends Service {
 		if (codecCompressionThread != null)
 			codecCompressionThread.interrupt();
 		
+		if (bufferSendingThread != null)
+			bufferSendingThread.interrupt();
+		
 		stopRingtone();
 		stopFromSoundPool(ringtoneStreamID);
 		
@@ -1118,8 +1121,40 @@ public class VoIPService extends Service {
 		}, "CODE_COMPRESSION_THREAD");
 		
 		codecCompressionThread.start();
+		startSendingEncodedBuffers();
 	}
-	
+
+	private void startSendingEncodedBuffers() {
+		bufferSendingThread = new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				while (keepRunning) {
+					VoIPDataPacket dp = encodedBuffersQueue.peek();
+					if (dp != null) {
+						encodedBuffersQueue.poll();
+						for (VoIPClient client : clients.values()) {
+								try {
+									client.encodedBuffersQueue.put(dp);
+								} catch (InterruptedException e) {
+									break;
+								}
+						}
+					} else {
+						synchronized (encodedBuffersQueue) {
+							try {
+								encodedBuffersQueue.wait();
+							} catch (InterruptedException e) {
+								break;
+							}
+						}
+					}
+					
+				}
+			}
+		}, "BUFFER_ALLOCATOR_THREAD");
+		bufferSendingThread.start();
+	}
 
 	
 	private void startRecordingAndPlayback(String msisdn) {
@@ -1543,6 +1578,7 @@ public class VoIPService extends Service {
 			Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
 			if (ringtone == null)
 				ringtone = RingtoneManager.getRingtone(getApplicationContext(), notification);
+			// TODO: ringtone code for lollipop is in voip branch
 			ringtone.setStreamType(AudioManager.STREAM_RING);
 			ringtone.play();		
 
