@@ -128,6 +128,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		{
 			throw new IllegalArgumentException("Seems You forgot to send msisdn of Bot my dear");
 		}
+		attachBridge();
 		initBot();
 		setupMicroAppActionBar();
 		setupNavBar();
