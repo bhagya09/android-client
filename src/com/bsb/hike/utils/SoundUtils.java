@@ -35,14 +35,15 @@ public class SoundUtils
 	 * 
 	 * @param context
 	 * @param soundId
+	 * @param streamTYpe: on Which stream this sound is to be played Notification/Ringtone/Music
 	 */
-	public static void playSoundFromRaw(final Context context, int soundId)
+	public static void playSoundFromRaw(final Context context, int soundId, int streamType)
 	{
 		Logger.i("sound", "playing sound " + soundId);
 
 		// define sound URI, the sound to be played when there's a notification
 		Uri soundUri = Uri.parse("android.resource://" + context.getPackageName() + "/" + soundId);
-		playSound(context, soundUri);
+		playSound(context, soundUri, streamType);
 	}
 
 	/**
@@ -52,7 +53,7 @@ public class SoundUtils
 	public static void playDefaultNotificationSound(Context context)
 	{
 		Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-		playSound(context, notification);
+		playSound(context, notification, AudioManager.STREAM_MUSIC);
 	}
 
 	/**
@@ -60,13 +61,14 @@ public class SoundUtils
 	 * 
 	 * @param context
 	 * @param soundUri
+	 * @param streamTYpe: on Which stream this sound is to be played Notification/Ringtone/Music
 	 */
-	public static void playSound(final Context context, Uri soundUri)
+	public static void playSound(final Context context, Uri soundUri, int streamType)
 	{
 		Ringtone r = RingtoneManager.getRingtone(context, soundUri);
 		if(r != null)
 		{
-			r.setStreamType(AudioManager.STREAM_MUSIC);
+			r.setStreamType(streamType);
 			r.play();
 		}
 		else
