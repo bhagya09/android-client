@@ -288,4 +288,37 @@ public class NonMessagingBotConfiguration extends BotConfiguration
 	{
 		this.configDataRefreshed = wasConfigDataRefreshed;
 	}
+
+	/**
+	 * Method to remove menu from JSON Array of menu options in configData
+	 * @param id
+	 */
+	public void removeOverflowMenu(int id)
+	{
+		if (configData != null)
+		{
+			Logger.v(TAG, "Trying to update overflow menu for : " + id + " for this botConfig : " + configData.toString());
+			try
+			{
+				JSONArray menuItems = configData.getJSONArray(HikePlatformConstants.OVERFLOW_MENU);
+				for (int i = 0; i < menuItems.length(); i++)
+				{
+					JSONObject menuJSON = menuItems.getJSONObject(i);
+					int menuId = menuJSON.getInt(HikePlatformConstants.ID);
+					if (menuId == id)
+					{
+						menuItems.remove(i);
+						setConfigDataRefreshed(true);
+						break;
+					}
+				}
+
+			}
+			catch (JSONException e)
+			{
+				Logger.e(TAG, "Geting JSON exception while reading overflow menu items : " + e.toString());
+			}
+
+		}
+	}
 }

@@ -201,5 +201,21 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			HikeConversationsDatabase.getInstance().updateConfigData(mBotInfo.getMsisdn(), botConfig.getConfigData().toString());
 		}
 	}
+	
+	/**
+	 * Utility method to remove a menu from the list of menu options for a bot
+	 * 
+	 * @param id
+	 */
+	@JavascriptInterface
+	public void removeMenu(int id)
+	{
+		NonMessagingBotConfiguration botConfig = new NonMessagingBotConfiguration(mBotInfo.getConfiguration());
+		if (botConfig != null)
+		{
+			botConfig.removeOverflowMenu(id);
+			HikeConversationsDatabase.getInstance().updateConfigData(mBotInfo.getMsisdn(), botConfig.getConfigData().toString());
+		}
+	}
 
 }
