@@ -200,7 +200,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 			HikePubSub.RESET_STEALTH_INITIATED, HikePubSub.RESET_STEALTH_CANCELLED, HikePubSub.REMOVE_WELCOME_HIKE_TIP, HikePubSub.REMOVE_STEALTH_INFO_TIP,
 			HikePubSub.REMOVE_STEALTH_UNREAD_TIP, HikePubSub.BULK_MESSAGE_RECEIVED, HikePubSub.ONETON_MESSAGE_DELIVERED_READ, HikePubSub.BULK_MESSAGE_DELIVERED_READ, HikePubSub.GROUP_END,
 			HikePubSub.CONTACT_DELETED,HikePubSub.MULTI_MESSAGE_DB_INSERTED, HikePubSub.SERVER_RECEIVED_MULTI_MSG, HikePubSub.MUTE_CONVERSATION_TOGGLED, HikePubSub.CONV_UNREAD_COUNT_MODIFIED,
-			HikePubSub.CONVERSATION_TS_UPDATED, HikePubSub.PARTICIPANT_JOINED_ONETONCONV, HikePubSub.PARTICIPANT_LEFT_ONETONCONV, HikePubSub.BLOCK_USER, HikePubSub.UNBLOCK_USER};
+			HikePubSub.CONVERSATION_TS_UPDATED, HikePubSub.PARTICIPANT_JOINED_ONETONCONV, HikePubSub.PARTICIPANT_LEFT_ONETONCONV, HikePubSub.BLOCK_USER, HikePubSub.UNBLOCK_USER, HikePubSub.MUTE_BOT};
 
 	private ConversationsAdapter mAdapter;
 
@@ -2959,6 +2959,34 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 			{
 				convInfo.setBlocked(HikePubSub.BLOCK_USER.equals(type) ? true : false);
 			}
+		}
+		
+		else if (HikePubSub.MUTE_BOT.equals(type))
+		{
+			final String mMsisdn = (String) object;
+			
+			getActivity().runOnUiThread(new Runnable()
+			{
+				
+				@Override
+				public void run()
+				{
+					ConvInfo convInfo = mConversationsByMSISDN.get(mMsisdn);
+					// If this convInfo is coming from the memory map, then we do not need to set mute here, WebViewActivity has already taken care of that. 
+					// If the source is not memory map, then we're in trouble.
+					if (convInfo != null)
+					{
+						View parentView = getParenViewForConversation(convInfo);
+						if (parentView == null)
+						{
+							notifyDataSetChanged();
+							return;
+						}
+
+						notifyDataSetChanged();
+					}
+				}
+			});
 		}
 	}
 	

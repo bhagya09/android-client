@@ -2,6 +2,8 @@ package com.bsb.hike.platform.bridge;
 
 import com.bsb.hike.bots.NonMessagingBotMetadata;
 import com.bsb.hike.db.HikeContentDatabase;
+import com.bsb.hike.utils.AccountUtils;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -13,13 +15,12 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.bots.NonMessagingBotConfiguration;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
-import com.bsb.hike.utils.AccountUtils;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 
 public class NonMessagingJavaScriptBridge extends JavascriptBridge
@@ -124,7 +125,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			NonMessagingBotMetadata metadata = new NonMessagingBotMetadata(mBotInfo.getMetadata());
 			jsonObject.put(HikeConstants.MSISDN, mBotInfo.getMsisdn());
 			jsonObject.put(HikePlatformConstants.HELPER_DATA, metadata.getHelperData());
-			jsonObject.put(HikePlatformConstants.PLATFORM_USER_ID,HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_UID_SETTING,null) );
+			jsonObject.put(HikePlatformConstants.PLATFORM_USER_ID, HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_UID_SETTING,null) );
 			jsonObject.put(HikeConstants.APP_VERSION, AccountUtils.getAppVersion());
 
 			mWebView.loadUrl("javascript:init('" + jsonObject.toString() + "')");
@@ -171,9 +172,81 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		HikeMessengerApp.getPubSub().publish(HikePubSub.BLOCK_USER, mBotInfo.getMsisdn());
 	}
 
+	public void onMenuItemClicked(int id)
+	{
+		mWebView.loadUrl("javascript:onMenuItemClicked('" + id + "')");
+	}
+	
+	/**
+	 * Calling this method will update the menu title(for the given id) in WebViewActivity
+	 * 
+	 * @param id
+	 * @param newTitle
+	 */
+	@JavascriptInterface
+	public void updateMenuTitleAndState(int id, String newTitle, boolean enabled)
+	{
+		NonMessagingBotConfiguration botConfig = new NonMessagingBotConfiguration(mBotInfo.getConfiguration());
+		if (botConfig != null && botConfig.getConfigData() != null)
+		{
+			botConfig.updateOverFlowMenu(id, newTitle, enabled);
+			HikeConversationsDatabase.getInstance().updateConfigData(mBotInfo.getMsisdn(), botConfig.getConfigData().toString());
+		}
+	}
+	
+	/**
+	 * Calling this method will update the menu title(for the given id) in WebViewActivity
+	 * 
+	 * @param id
+	 * @param enabled
+	 */
+	@JavascriptInterface
+	public void updateMenuEnabledState(int id, boolean enabled)
+	{
+		NonMessagingBotConfiguration botConfig = new NonMessagingBotConfiguration(mBotInfo.getConfiguration());
+		if (botConfig != null && botConfig.getConfigData() != null)
+		{
+			botConfig.updateOverFlowMenu(id, enabled);
+			HikeConversationsDatabase.getInstance().updateConfigData(mBotInfo.getMsisdn(), botConfig.getConfigData().toString());
+		}
+	}
+
 	public void onBackPressed()
 	{
 		mWebView.loadUrl("javascript:onBackPressed()");
+	}
+	
+	/**
+	 * Utility method to update the title of the overflow menu for bot
+	 * 
+	 * @param id
+	 * @param newTitle
+	 */
+	@JavascriptInterface
+	public void updateMenuTitle(int id, String newTitle)
+	{
+		NonMessagingBotConfiguration botConfig = new NonMessagingBotConfiguration(mBotInfo.getConfiguration());
+		if (botConfig != null && botConfig.getConfigData() != null)
+		{
+			botConfig.updateOverFlowMenu(id, newTitle);
+			HikeConversationsDatabase.getInstance().updateConfigData(mBotInfo.getMsisdn(), botConfig.getConfigData().toString());
+		}
+	}
+	
+	/**
+	 * Utility method to remove a menu from the list of menu options for a bot
+	 * 
+	 * @param id
+	 */
+	@JavascriptInterface
+	public void removeMenu(int id)
+	{
+		NonMessagingBotConfiguration botConfig = new NonMessagingBotConfiguration(mBotInfo.getConfiguration());
+		if (botConfig != null && botConfig.getConfigData() != null)
+		{
+			botConfig.removeOverflowMenu(id);
+			HikeConversationsDatabase.getInstance().updateConfigData(mBotInfo.getMsisdn(), botConfig.getConfigData().toString());
+		}
 	}
 
 	/**
@@ -212,8 +285,8 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 
 	/**
 	 * call this function to get the data from the native memory
-	 * @param functionName
-	 * @param key
+	 * @param functionName: the function name that native will call to give the cache back to js.
+	 * @param key: the key for which the js is demanding a value
 	 */
 	@JavascriptInterface
 	public void getFromCache(String functionName, String key)

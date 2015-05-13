@@ -134,4 +134,17 @@ public interface HikePlatformConstants
 	public static final String ENABLE_BOT = "enable_bot";
 
 	public static final String BOT_TYPE = "bot_type";
+
+	/**
+	 * Overflow menu item constants :
+	 */
+	public static final String TITLE = "title";
+	
+	public static final String ID = "id";
+	
+	public static final String ENABLED = "en";
+	
+	/**
+	 * Overflow menu item constants end
+	 */
 }

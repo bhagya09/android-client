@@ -1,4 +1,4 @@
-package com.bsb.hike.chatthread;
+package com.bsb.hike.media;
 
 import java.util.List;
 
@@ -168,7 +168,7 @@ public class HikeActionBar
 	 * @param itemId
 	 * @param newCount
 	 */
-	protected void updateOverflowMenuItemCount(int itemId, int newCount)
+	public void updateOverflowMenuItemCount(int itemId, int newCount)
 	{
 		if(overFlowMenuLayout!=null)
 		{
@@ -182,7 +182,7 @@ public class HikeActionBar
 	 * @param itemId
 	 * @param newTitle
 	 */
-	protected void updateOverflowMenuItemString(int itemId, String newTitle)
+	public void updateOverflowMenuItemString(int itemId, String newTitle)
 	{
 		if(overFlowMenuLayout!=null)
 		{
@@ -196,7 +196,7 @@ public class HikeActionBar
 	 * @param itemId
 	 * @param enabled
 	 */
-	protected void updateOverflowMenuItemActiveState(int itemId, boolean enabled)
+	public void updateOverflowMenuItemActiveState(int itemId, boolean enabled)
 	{
 		if(overFlowMenuLayout!=null)
 		{
@@ -210,7 +210,7 @@ public class HikeActionBar
 	 * @param itemId
 	 * @param newTitle
 	 */
-	protected void updateOverflowMenuItemIcon(int itemId, int drawableId)
+	public void updateOverflowMenuItemIcon(int itemId, int drawableId)
 	{
 		if(overFlowMenuLayout!=null)
 		{
@@ -229,7 +229,7 @@ public class HikeActionBar
 	 * 	true - if the indicator image is successfully displayed.
 	 * 	false - if the image can not be displayed. This will also happen if the counter is currently visible.
 	 */
-	protected boolean updateOverflowMenuIndicatorImage(int imadeResId)
+	public boolean updateOverflowMenuIndicatorImage(int imadeResId)
 	{
 		MenuItem menuItem = getMenuItem(R.id.overflow_menu);
 		
@@ -269,7 +269,7 @@ public class HikeActionBar
 	 * 
 	 * Count indicator takes priority over image indicator.
 	 */
-	protected void updateOverflowMenuIndicatorCount(int newCount)
+	public void updateOverflowMenuIndicatorCount(int newCount)
 	{
 		MenuItem menuItem = getMenuItem(R.id.overflow_menu);
 		
