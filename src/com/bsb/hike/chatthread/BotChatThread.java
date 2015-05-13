@@ -3,7 +3,6 @@ package com.bsb.hike.chatthread;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.bsb.hike.bots.MessagingBotMetadata;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -18,6 +17,7 @@ import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.MessagingBotConfiguration;
+import com.bsb.hike.bots.MessagingBotMetadata;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.media.OverFlowMenuItem;
 import com.bsb.hike.models.Conversation.BotConversation;
@@ -121,7 +121,7 @@ public class BotChatThread extends OneToOneChatThread
 	private void muteBotToggled(boolean isMuted)
 	{
 		mConversation.setIsMute(isMuted);
-		HikeConversationsDatabase.getInstance().updateBotMuteState(msisdn, isMuted ? 1 : 0);
+		HikeConversationsDatabase.getInstance().toggleMuteBot(msisdn, isMuted);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.MUTE_CONVERSATION_TOGGLED, new Pair<String, Boolean>(mConversation.getMsisdn(), isMuted));
 	}
 
@@ -243,7 +243,7 @@ public class BotChatThread extends OneToOneChatThread
 	{
 		boolean wasMuted = mConversation.isMuted();
 		mConversation.setIsMute(!mConversation.isMuted());
-		HikeConversationsDatabase.getInstance().updateBotMuteState(msisdn, mConversation.isMuted() ? 1 : 0);
+		HikeConversationsDatabase.getInstance().toggleMuteBot(msisdn, mConversation.isMuted());
 		BotConversation.analyticsForBots(msisdn, wasMuted ? HikePlatformConstants.BOT_UNMUTE_CHAT : HikePlatformConstants.BOT_MUTE_CHAT, HikePlatformConstants.OVERFLOW_MENU,
 				AnalyticsConstants.CLICK_EVENT, null);
 

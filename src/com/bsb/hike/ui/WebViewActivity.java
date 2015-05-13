@@ -11,6 +11,7 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.net.MailTo;
 import android.net.Uri;
 import android.os.Bundle;
@@ -24,6 +25,8 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.ImageView;
+import android.widget.ImageView.ScaleType;
 import android.widget.PopupWindow.OnDismissListener;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -32,15 +35,18 @@ import android.widget.Toast;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.NonMessagingBotConfiguration;
 import com.bsb.hike.bots.NonMessagingBotMetadata;
-import com.bsb.hike.chatthread.HikeActionBar;
 import com.bsb.hike.db.HikeContentDatabase;
+import com.bsb.hike.media.HikeActionBar;
 import com.bsb.hike.media.OverFlowMenuItem;
+import com.bsb.hike.media.OverFlowMenuLayout.OverflowViewListener;
 import com.bsb.hike.media.OverflowItemClickListener;
 import com.bsb.hike.media.TagPicker.TagOnClickListener;
 import com.bsb.hike.models.WhitelistDomain;
@@ -59,7 +65,7 @@ import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.TagEditText.Tag;
 
 public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements OnInflateListener, OnClickListener, TagOnClickListener, OverflowItemClickListener,
-		OnDismissListener
+		OnDismissListener, OverflowViewListener
 {
 
 	private static final String tag = "WebViewActivity";
@@ -73,8 +79,8 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	public static final String WEBVIEW_MODE = "webviewMode";
 
 	private CustomWebView webView;
-
-	HikeActionBar actionBar;
+	
+	private HikeActionBar mActionBar;
 
 	BotInfo botInfo;
 	
@@ -86,25 +92,23 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 
 	int mode;
 	
-	NonMessagingJavaScriptBridge mmBridge;
+	private NonMessagingJavaScriptBridge mmBridge;
+	
+	private View actionBarView;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.webview_activity);
-		initView();
-		init();
+		initView();	
+		initActionBar();
 		setMode(getIntent().getIntExtra(WEBVIEW_MODE, WEB_URL_MODE));
 	}
 
 	private void initView()
 	{
 		webView = (CustomWebView) findViewById(R.id.t_and_c_page);
-	}
-	private void init()
-	{
-		actionBar = new HikeActionBar(this);
 	}
 
 	private void setMode(int mode)
@@ -247,8 +251,13 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	
 	private void attachBridge()
 	{
-		mmBridge=new NonMessagingJavaScriptBridge(this, webView);
-		webView.addJavascriptInterface(mmBridge, HikePlatformConstants.PLATFORM_BRIDGE_NAME);
+		 mmBridge =new NonMessagingJavaScriptBridge(this, webView, BotInfo.getBotInfoForBotMsisdn(msisdn));
+		 webView.addJavascriptInterface(mmBridge, HikePlatformConstants.PLATFORM_BRIDGE_NAME);
+	}
+
+	private void initActionBar()
+	{
+		mActionBar = new HikeActionBar(this);
 	}
 
 	@Override
@@ -258,6 +267,12 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		if(webView!=null)
 		{
 			webView.onActivityDestroyed();
+		}
+		
+		if (mActionBar != null)
+		{
+			mActionBar.releseResources();
+			mActionBar = null;
 		}
 		super.onDestroy();
 	}
@@ -327,11 +342,18 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu)
 	{
-		if (mode == MICRO_APP_MODE && actionBar != null)
+		if (mActionBar == null)
 		{
-			actionBar.onCreateOptionsMenu(menu, R.menu.just_overflow_menu, getOverflowMenuItems(), this, this);
+			initActionBar();
+		}
+		
+		if (mode == MICRO_APP_MODE && mActionBar != null)
+		{
+			mActionBar.onCreateOptionsMenu(menu, R.menu.simple_overflow_menu, getOverflowMenuItems(), this, this);
+			mActionBar.setOverflowViewListener(this);
 			return true;
 		}
+		
 		return super.onCreateOptionsMenu(menu);
 	}
 
@@ -342,7 +364,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		{
 			int width = getResources().getDimensionPixelSize(R.dimen.overflow_menu_width);
 			int rightMargin = width + getResources().getDimensionPixelSize(R.dimen.overflow_menu_right_margin);
-			actionBar.showOverflowMenu(width, LayoutParams.WRAP_CONTENT, -rightMargin, -(int) (0.5 * Utils.scaledDensityMultiplier), findViewById(R.id.overflow_anchor));
+			mActionBar.showOverflowMenu(width, LayoutParams.WRAP_CONTENT, -rightMargin, -(int) (0.5 * Utils.scaledDensityMultiplier), findViewById(R.id.overflow_anchor));
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
@@ -350,11 +372,32 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 
 	private void setupActionBar(String titleString)
 	{
-		View actionBarView = actionBar.setCustomActionBarView(R.layout.compose_action_bar);
+		actionBarView = mActionBar.setCustomActionBarView(R.layout.chat_thread_action_bar);
 		View backContainer = actionBarView.findViewById(R.id.back);
-		backContainer.setOnClickListener(this);
-		TextView title = (TextView) actionBarView.findViewById(R.id.title);
+		TextView title = (TextView) actionBarView.findViewById(R.id.contact_name);
 		title.setText(titleString);
+		
+		actionBarView.findViewById(R.id.contact_status).setVisibility(View.GONE);
+		
+		backContainer.setOnClickListener(this);
+		setAvatar();
+	}
+
+	private void setAvatar()
+	{
+		ImageView avatar = (ImageView) actionBarView.findViewById(R.id.avatar);
+		if (avatar == null)
+		{
+			return;
+		}
+
+		Drawable drawable = HikeMessengerApp.getLruCache().getIconFromCache(msisdn);
+		if (drawable == null)
+		{
+			drawable = HikeMessengerApp.getLruCache().getDefaultAvatar(msisdn, false);
+		}
+		avatar.setScaleType(ScaleType.FIT_CENTER);
+		avatar.setImageDrawable(drawable);
 	}
 
 	private void setupMicroAppActionBar()
@@ -430,9 +473,14 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	private List<OverFlowMenuItem> getOverflowMenuItems()
 	{
 		List<OverFlowMenuItem> list = new ArrayList<>();
-		list.add(new OverFlowMenuItem(getString(R.string.mute), -1, -1, R.string.mute));
-		list.add(new OverFlowMenuItem(getString(R.string.block_title), -1, -1, R.string.block_title));
-		return null;
+		if (botConfig != null)
+		{
+			list.addAll(botConfig.getOverflowItems());
+		}
+		
+		list.add(new OverFlowMenuItem(getString(botInfo.isMute() ? R.string.unmute : R.string.mute), 0, 0, R.string.mute));
+		list.add(new OverFlowMenuItem(getString(botInfo.isBlocked() ? R.string.unblock_title : R.string.block_title), 0, 0, R.string.block_title));
+		return list;
 	}
 
 	@Override
@@ -446,17 +494,27 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		case R.string.block_title:
 			blockClicked();
 			break;
+			
+		default: 
+			if (mmBridge != null)
+			{
+				mmBridge.onMenuItemClicked(parameter.id);
+			}
 		}
 	}
 
 	private void muteClicked()
 	{
-		
+		botInfo.setMute(!botInfo.isMute());
+		botConfig.setConfigDataRefreshed(true);
+		HikeMessengerApp.getPubSub().publish(HikePubSub.MUTE_BOT, botInfo.getMsisdn());
 	}
 
 	private void blockClicked()
 	{
-		
+		botInfo.setBlocked(!botInfo.isBlocked());
+		botConfig.setConfigDataRefreshed(true);
+		HikeMessengerApp.getPubSub().publish(botInfo.isBlocked() ? HikePubSub.BLOCK_USER : HikePubSub.UNBLOCK_USER, botInfo.getMsisdn());
 	}
 
 	@Override
@@ -474,5 +532,25 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	{
 		
 	}
-	
+
+	@Override
+	public void onPrepareOverflowOptionsMenu(List<OverFlowMenuItem> overflowItems)
+	{
+		if (overflowItems == null)
+		{
+			return;
+		}
+		
+		/**
+		 * Updating menu conditionally
+		 */
+		if (botConfig.isConfigDataRefreshed())
+		{
+			overflowItems.clear();
+			overflowItems.addAll(getOverflowMenuItems());
+			botConfig.setConfigDataRefreshed(false);
+		}
+		
+	}
+
 }
