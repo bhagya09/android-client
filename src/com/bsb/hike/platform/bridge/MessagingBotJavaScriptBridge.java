@@ -330,6 +330,16 @@ public class MessagingBotJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void onLoadFinished(String height)
 	{
+		mHandler.post(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				init();
+				setData();
+			}
+		});
+
 		try
 		{
 			int requiredHeightinDP = Integer.parseInt(height);
@@ -361,7 +371,7 @@ public class MessagingBotJavaScriptBridge extends JavascriptBridge
 				HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_UID_SETTING,null) + "','" + AccountUtils.getAppVersion() + "')");
 	}
 
-	public void init(WebViewHolder holder)
+	public void init()
 	{
 		JSONObject jsonObject = new JSONObject();
 		try
@@ -384,6 +394,11 @@ public class MessagingBotJavaScriptBridge extends JavascriptBridge
 	public void alarmPlayed(String alarmData)
 	{
 		mWebView.loadUrl("javascript:alarmPlayed(" + "'" + alarmData + "')");
+	}
+
+	public void updateProfilingTime(JSONObject profilingTime)
+	{
+		this.profilingTime = profilingTime;
 	}
 
 	public void updateConvMessage(ConvMessage message)

@@ -1,5 +1,6 @@
 package com.bsb.hike.platform.bridge;
 
+import com.bsb.hike.bots.NonMessagingBotMetadata;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -44,6 +45,14 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void onLoadFinished(String height)
 	{
+		mHandler.post(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				init();
+			}
+		});
 
 	}
 
@@ -102,6 +111,25 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		catch (JSONException e)
 		{
 			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	public void init()
+	{
+		JSONObject jsonObject = new JSONObject();
+		try
+		{
+			NonMessagingBotMetadata metadata = new NonMessagingBotMetadata(mBotInfo.getMetadata());
+			jsonObject.put(HikeConstants.MSISDN, mBotInfo.getMsisdn());
+			jsonObject.put(HikePlatformConstants.HELPER_DATA, metadata.getHelperData());
+			jsonObject.put(HikePlatformConstants.PLATFORM_USER_ID,HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_UID_SETTING,null) );
+			jsonObject.put(HikeConstants.APP_VERSION, AccountUtils.getAppVersion());
+
+			mWebView.loadUrl("javascript:init('" + jsonObject.toString() + "')");
+		}
+		catch (JSONException e)
+		{
 			e.printStackTrace();
 		}
 	}

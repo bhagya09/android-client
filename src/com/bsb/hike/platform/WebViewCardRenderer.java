@@ -436,8 +436,6 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 			{
 				WebViewHolder holder = (WebViewHolder) view.getTag();
 				Logger.d(tag, "Rendering success");
-				holder.platformJavaScriptBridge.setData();
-				holder.platformJavaScriptBridge.init(holder);
 				showCard(holder);
 				String alarmData = convMessage.webMetadata.getAlarmData();
 				Logger.d(tag, "alarm data to html is " + alarmData);
