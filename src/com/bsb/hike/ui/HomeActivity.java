@@ -247,7 +247,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		if(HikeNotificationMsgStack.getInstance(HikeMessengerApp.getInstance().getApplicationContext()).containsStealthMessage())
 		{
 			View hiButton = findViewById(android.R.id.home);
-			boolean stealthIndicatorEnabled = PreferenceManager.getDefaultSharedPreferences(this).getBoolean(HikeConstants.STEALTH_INDICATOR_ENABLED, true);
+			boolean stealthIndicatorEnabled = PreferenceManager.getDefaultSharedPreferences(this).getBoolean(HikeConstants.STEALTH_INDICATOR_ENABLED, false);
 
 			if(hiButton != null && !StealthModeManager.getInstance().isActive() && stealthIndicatorEnabled)
 			{

@@ -589,8 +589,12 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
         		mLockPatternView.requestFocus();
         		Utils.hideSoftKeyboard(LockPatternActivity.this, mLockPinView);
         	}
-        	
-            changePasswordSetting.setVisibility(isReset ? View.GONE:View.VISIBLE);	
+
+        	if(isReset)
+            {
+        		changePasswordSetting.setEnabled(false);
+        		setAlphaForView(changePasswordSetting, 0.1f);
+            }
         	changePasswordSetting.setText(getString(R.string.change_password_from_privacy));
         	changePasswordSetting.setOnClickListener(new View.OnClickListener()
 			{

@@ -656,7 +656,7 @@ public class HikeNotification
 		String key = HIKE_STEALTH_MESSAGE_KEY;
 
 		Boolean stealthNotificationEnabled = PreferenceManager.getDefaultSharedPreferences(context).getBoolean(HikeConstants.STEALTH_NOTIFICATION_ENABLED, true);
-		Boolean stealthIndicatorEnabled = PreferenceManager.getDefaultSharedPreferences(context).getBoolean(HikeConstants.STEALTH_INDICATOR_ENABLED, true);
+		Boolean stealthIndicatorEnabled = PreferenceManager.getDefaultSharedPreferences(context).getBoolean(HikeConstants.STEALTH_INDICATOR_ENABLED, false);
 	
 		if(stealthIndicatorEnabled)
 		{

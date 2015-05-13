@@ -262,7 +262,6 @@ public class StealthModeManager
 						StealthModeManager.getInstance().activate(true);
 						HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_MODE_TOGGLED, true);
 					}
-						
 				}
 			}
 			else
