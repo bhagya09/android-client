@@ -3,7 +3,7 @@ package com.bsb.hike.modules.httpmgr.engine;
 import java.util.Iterator;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import com.bsb.hike.modules.httpmgr.Utils;
+import com.bsb.hike.modules.httpmgr.HttpUtils;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.interceptor.IResponseInterceptor;
 import com.bsb.hike.modules.httpmgr.request.Request;
@@ -90,7 +90,7 @@ public class RequestListenerNotifier
 		}
 		finally
 		{
-			Utils.finish(request, response);
+			HttpUtils.finish(request, response);
 		}
 	}
 
@@ -170,7 +170,7 @@ public class RequestListenerNotifier
 		}
 		finally
 		{
-			Utils.finish(request, null);
+			HttpUtils.finish(request, null);
 		}
 	}
 
