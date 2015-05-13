@@ -427,8 +427,8 @@ public class ConvMessage implements Searchable
 			md.put(HikeConstants.POKE, true);
 			data.put(HikeConstants.METADATA, md);
 		}
-		setContentId(data.optInt(HikeConstants.CONTENT_ID));
-		setNameSpace(data.optString(DBConstants.HIKE_CONTENT.NAMESPACE));
+		setContentId(data.optInt(HikePlatformConstants.CONTENT_ID));
+		setNameSpace(data.optString(HikePlatformConstants.NAMESPACE));
 		if (data.has(HikeConstants.METADATA))
 		{
 			JSONObject mdata = data.getJSONObject(HikeConstants.METADATA);

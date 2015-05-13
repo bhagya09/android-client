@@ -214,8 +214,6 @@ public interface DBConstants
 
 	public static final String BOT_CONFIGURATION = "config";
 
-	public static final String IS_RECEIVE_ENABLED = "rec_enabled";
-
 	public static final String CONFIG_DATA = "config_data";
 
 	public static final String IS_BOT_ENABLE = "bot_enabled";
@@ -246,7 +244,7 @@ public interface DBConstants
 	 *
 	 */
 	public static interface HIKE_CONTENT{
-		public static final int DB_VERSION = 3;
+		public static final int DB_VERSION = 4;
 		public static final String DB_NAME = "hike_content_db";
 		// CONTENT TABLE -> _id,content_id,love_id,channel_id,timestamp,metadata
 		public static final String CONTENT_TABLE = "content";
@@ -299,6 +297,9 @@ public interface DBConstants
 		public static final String CONTENT_ID_INDEX = "contentTableContentIdIndex";
 		public static final String CONTENT_TABLE_NAMESPACE_INDEX = "contentTableNamespaceIndex";
 		String NAMESPACE = "nameSpace";
+		public static final String VALUE = "value";
+		public static final String CONTENT_CACHE_TABLE = "contentCache";
+		public static final String KEY = "key";
 	}
 
 	public static final String CATEGORY_NAME = "categoryName";

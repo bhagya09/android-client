@@ -2,6 +2,7 @@ package com.bsb.hike.platform.bridge;
 
 import java.util.ArrayList;
 
+import com.bsb.hike.db.HikeContentDatabase;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -41,6 +42,7 @@ public class MessagingBotJavaScriptBridge extends JavascriptBridge
 	
 	ConvMessage message;
 
+	JSONObject profilingTime;
 	BaseAdapter adapter;
 
 	public MessagingBotJavaScriptBridge(Activity activity,CustomWebView mWebView)
@@ -329,6 +331,16 @@ public class MessagingBotJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void onLoadFinished(String height)
 	{
+		mHandler.post(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				init();
+				setData();
+			}
+		});
+
 		try
 		{
 			int requiredHeightinDP = Integer.parseInt(height);
@@ -360,7 +372,7 @@ public class MessagingBotJavaScriptBridge extends JavascriptBridge
 				HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_UID_SETTING,null) + "','" + AccountUtils.getAppVersion() + "')");
 	}
 
-	public void init(WebViewHolder holder)
+	public void init()
 	{
 		JSONObject jsonObject = new JSONObject();
 		try
@@ -371,12 +383,7 @@ public class MessagingBotJavaScriptBridge extends JavascriptBridge
 			jsonObject.put(HikePlatformConstants.PLATFORM_USER_ID,HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_UID_SETTING,null) );
 			jsonObject.put(HikeConstants.APP_VERSION, AccountUtils.getAppVersion());
 
-			JSONObject time = new JSONObject();
-			time.put(HikePlatformConstants.RENDERING_TIME, holder.renderingTime);
-			time.put(HikePlatformConstants.INFLATION_TIME, holder.inflationTime);
-			time.put(HikePlatformConstants.TEMPLATING_TIME, holder.templatingTime);
-
-			jsonObject.put(HikePlatformConstants.PROFILING_TIME, time);
+			jsonObject.put(HikePlatformConstants.PROFILING_TIME, profilingTime);
 			mWebView.loadUrl("javascript:init('" + jsonObject.toString() + "')");
 		}
 		catch (JSONException e)
@@ -390,9 +397,63 @@ public class MessagingBotJavaScriptBridge extends JavascriptBridge
 		mWebView.loadUrl("javascript:alarmPlayed(" + "'" + alarmData + "')");
 	}
 
+	public void updateProfilingTime(JSONObject profilingTime)
+	{
+		this.profilingTime = profilingTime;
+	}
+
 	public void updateConvMessage(ConvMessage message)
 	{
 		this.message = message;
 	}
+
+
+
+	/**
+	 * Call this method to put bulk large data in cache. Earlier large data will be replaced by this new data and there will
+	 * be only one entry per microapp.
+	 * @param value: the data that the app need to cache.
+	 */
+	@JavascriptInterface
+	public void putLargeDataInCache(String value)
+	{
+		HikeContentDatabase.getInstance().putInContentCache(message.getNameSpace(), message.getNameSpace(), value);
+	}
+
+	/**
+	 * Call this method to put data in cache. This will be a key-value pair. A microapp can have different key-value pairs
+	 * in the native's cache.
+	 * @param key: key of the data to be saved. Microapp needs to make sure about the uniqueness of the key.
+	 * @param value: : the data that the app need to cache.
+	 */
+	@JavascriptInterface
+	public void putInCache(String key, String value)
+	{
+		HikeContentDatabase.getInstance().putInContentCache(key, message.getNameSpace(), value);
+	}
+
+	/**
+	 * Call this function to get the bulk large data from the native memory
+	 * @param functionName : the function name that native will call to give the cache back to js.
+	 */
+	@JavascriptInterface
+	public void getLargeDataFromCache(String functionName)
+	{
+		String value = HikeContentDatabase.getInstance().getFromContentCache(message.getNameSpace(), message.getNameSpace());
+		callbackToJS(functionName, value);
+	}
+
+	/**
+	 * call this function to get the data from the native memory
+	 * @param functionName
+	 * @param key
+	 */
+	@JavascriptInterface
+	public void getFromCache(String functionName, String key)
+	{
+		String value = HikeContentDatabase.getInstance().getFromContentCache(key, message.getNameSpace());
+		callbackToJS(functionName, value);
+	}
+
 	
 }

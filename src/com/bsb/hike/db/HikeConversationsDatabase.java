@@ -287,7 +287,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				+ DBConstants.BOT_TYPE + " INTEGER, "				//bot type m/nm
 				+ DBConstants.BOT_CONFIGURATION + " INTEGER, "	//bot configurations.. different server controlled properties of bot.
 				+ DBConstants.IS_BOT_ENABLE + " INTEGER DEFAULT 1,"  //whether the bot is enabled or not.
-				+ DBConstants.CONFIG_DATA + " TEXT"            //config data for the bot.
+				+ DBConstants.CONFIG_DATA + " TEXT, "            //config data for the bot.
+				+ HIKE_CONTENT.NAMESPACE + " TEXT"         //namespace of a bot for caching purpose.
 				+ ")";
 		db.execSQL(sql);
 
@@ -761,11 +762,13 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			String alter2 = "ALTER TABLE " + DBConstants.BOT_TABLE + " ADD COLUMN " + DBConstants.BOT_CONFIGURATION + " INTEGER";
 			String alter3 = "ALTER TABLE " + DBConstants.BOT_TABLE + " ADD COLUMN " + DBConstants.IS_BOT_ENABLE + " INTEGER DEFAULT 1";
 			String alter4 = "ALTER TABLE " + DBConstants.BOT_TABLE + " ADD COLUMN " + DBConstants.CONFIG_DATA + " TEXT";
+			String alter5 = "ALTER TABLE " + DBConstants.BOT_TABLE + " ADD COLUMN " + HIKE_CONTENT.NAMESPACE + " TEXT";
 
 			db.execSQL(alter1);
 			db.execSQL(alter2);
 			db.execSQL(alter3);
 			db.execSQL(alter4);
+			db.execSQL(alter5);
 
 
 		}
@@ -2309,6 +2312,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		values.put(DBConstants.BOT_CONFIGURATION, botInfo.getConfiguration());
 		values.put(DBConstants.CONFIG_DATA, botInfo.getConfigData());
 		values.put(DBConstants.IS_BOT_ENABLE, botInfo.isBotEnabled());
+		values.put(HIKE_CONTENT.NAMESPACE, botInfo.getNamespace());
 		mDb.insertWithOnConflict(DBConstants.BOT_TABLE, null, values, SQLiteDatabase.CONFLICT_REPLACE);
 	}
 
@@ -5137,6 +5141,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			int botTypeIdx = c.getColumnIndex(DBConstants.BOT_TYPE);
 			int metadataIdx = c.getColumnIndex(DBConstants.CONVERSATION_METADATA);
 			int muteIdx = c.getColumnIndex(DBConstants.IS_MUTE);
+			int namespaceIdx = c.getColumnIndex(HIKE_CONTENT.NAMESPACE);
+			int configDataidx = c.getColumnIndex(DBConstants.CONFIG_DATA);
+			int enableIdx = c.getColumnIndex(DBConstants.IS_BOT_ENABLE);
 
 			mDb.beginTransaction();
 			while (c.moveToNext())
@@ -5147,7 +5154,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				int botType = c.getInt(botTypeIdx);
 				String metadata = c.getString(metadataIdx);
 				int mute = c.getInt(muteIdx);
-
+				String namespace = c.getString(namespaceIdx);
+				int isBotEnable = c.getInt(enableIdx);
+				String configData = c.getString(configDataidx);
 
 				BotInfo botInfo = new BotInfo.HikeBotBuilder(msisdn)
 						.setConvName(name)
@@ -5155,6 +5164,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 						.setType(botType)
 						.setMetadata(metadata)
 						.setIsMute(mute == 1)
+						.setNamespace(namespace)
+						.setIsBotEnabled(isBotEnable == 1)
+						.setConfigData(configData)
 						.build();
 
 				HikeMessengerApp.hikeBotNamesMap.put(msisdn, botInfo);

@@ -1,5 +1,9 @@
 package com.bsb.hike.platform.bridge;
 
+import com.bsb.hike.bots.NonMessagingBotMetadata;
+import com.bsb.hike.db.HikeContentDatabase;
+import com.bsb.hike.utils.AccountUtils;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -24,7 +28,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	
 	private BotInfo mBotInfo;
 	
-	private static final String TAG  = "FullScreenJavaScriptBridge";
+	private static final String TAG  = "NonMessagingJavaScriptBridge";
 	
 	public NonMessagingJavaScriptBridge(Activity activity, CustomWebView mWebView, BotInfo botInfo)
 	{
@@ -36,13 +40,21 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void logAnalytics(String isUI, String subType, String json)
 	{
-
+		//TODO log analytics
 	}
 
 	@Override
 	@JavascriptInterface
 	public void onLoadFinished(String height)
 	{
+		mHandler.post(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				init();
+			}
+		});
 
 	}
 
@@ -101,6 +113,25 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		catch (JSONException e)
 		{
 			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	public void init()
+	{
+		JSONObject jsonObject = new JSONObject();
+		try
+		{
+			NonMessagingBotMetadata metadata = new NonMessagingBotMetadata(mBotInfo.getMetadata());
+			jsonObject.put(HikeConstants.MSISDN, mBotInfo.getMsisdn());
+			jsonObject.put(HikePlatformConstants.HELPER_DATA, metadata.getHelperData());
+			jsonObject.put(HikePlatformConstants.PLATFORM_USER_ID, HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_UID_SETTING,null) );
+			jsonObject.put(HikeConstants.APP_VERSION, AccountUtils.getAppVersion());
+
+			mWebView.loadUrl("javascript:init('" + jsonObject.toString() + "')");
+		}
+		catch (JSONException e)
+		{
 			e.printStackTrace();
 		}
 	}
@@ -167,7 +198,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	 * Calling this method will update the menu title(for the given id) in WebViewActivity
 	 * 
 	 * @param id
-	 * @param newTitle
+	 * @param enabled
 	 */
 	@JavascriptInterface
 	public void updateMenuEnabledState(int id, boolean enabled)
@@ -217,5 +248,53 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			HikeConversationsDatabase.getInstance().updateConfigData(mBotInfo.getMsisdn(), botConfig.getConfigData().toString());
 		}
 	}
+
+	/**
+	 * Call this method to put bulk large data in cache. Earlier large data will be replaced by this new data and there will
+	 * be only one entry per microapp.
+	 * @param value: the data that the app need to cache.
+	 */
+	@JavascriptInterface
+	public void putLargeDataInCache(String value)
+	{
+		HikeContentDatabase.getInstance().putInContentCache(mBotInfo.getNamespace(), mBotInfo.getNamespace(), value);
+	}
+
+	/**
+	 * Call this method to put data in cache. This will be a key-value pair. A microapp can have different key-value pairs
+	 * in the native's cache.
+	 * @param key: key of the data to be saved. Microapp needs to make sure about the uniqueness of the key.
+	 * @param value: : the data that the app need to cache.
+	 */
+	@JavascriptInterface
+	public void putInCache(String key, String value)
+	{
+		HikeContentDatabase.getInstance().putInContentCache(key, mBotInfo.getNamespace(), value);
+	}
+
+	/**
+	 * Call this function to get the bulk large data from the native memory
+	 * @param functionName : the function name that native will call to give the cache back to js.
+	 */
+	@JavascriptInterface
+	public void getLargeDataFromCache(String functionName)
+	{
+		String value = HikeContentDatabase.getInstance().getFromContentCache(mBotInfo.getNamespace(), mBotInfo.getNamespace());
+		callbackToJS(functionName, value);
+	}
+
+	/**
+	 * call this function to get the data from the native memory
+	 * @param functionName: the function name that native will call to give the cache back to js.
+	 * @param key: the key for which the js is demanding a value
+	 */
+	@JavascriptInterface
+	public void getFromCache(String functionName, String key)
+	{
+	 	String value = HikeContentDatabase.getInstance().getFromContentCache(key, mBotInfo.getNamespace());
+		callbackToJS(functionName, value);
+	}
+
+
 
 }

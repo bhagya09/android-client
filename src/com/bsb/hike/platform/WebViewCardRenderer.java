@@ -99,8 +99,6 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 
 		public long templatingTime;
 
-		public long renderingTime;
-
 		CustomWebView customWebView;
 
 		MessagingBotJavaScriptBridge platformJavaScriptBridge;
@@ -384,6 +382,18 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 	{
 		holder.webViewClient.convMessage = convMessage;
 		holder.platformJavaScriptBridge.updateConvMessage(convMessage);
+		JSONObject time = new JSONObject();
+		try
+		{
+			time.put(HikePlatformConstants.INFLATION_TIME, holder.inflationTime);
+			time.put(HikePlatformConstants.TEMPLATING_TIME, holder.templatingTime);
+			holder.platformJavaScriptBridge.updateProfilingTime(time);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+
 		Logger.d("content"+holder.id, content == null ? "CONTENT IS NULL!!":""+content.getFormedData());
 		holder.customWebView.loadDataWithBaseURL("", content.getFormedData(), "text/html", "UTF-8", "");
 	}
@@ -426,10 +436,6 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 			{
 				WebViewHolder holder = (WebViewHolder) view.getTag();
 				Logger.d(tag, "Rendering success");
-				holder.renderingTime = System.currentTimeMillis() - holder.templatingTime - holder.inflationTime - startTime;
-				Logger.d(tag, "rendering time is ---->" + holder.renderingTime);
-				holder.platformJavaScriptBridge.setData();
-				holder.platformJavaScriptBridge.init(holder);
 				showCard(holder);
 				String alarmData = convMessage.webMetadata.getAlarmData();
 				Logger.d(tag, "alarm data to html is " + alarmData);

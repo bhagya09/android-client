@@ -25,6 +25,7 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.PopupWindow.OnDismissListener;
@@ -131,6 +132,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		{
 			throw new IllegalArgumentException("Seems You forgot to send msisdn of Bot my dear");
 		}
+		attachBridge();
 		initBot();
 		setupMicroAppActionBar();
 		setupNavBar();
@@ -251,6 +253,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	
 	private void attachBridge()
 	{
+
 		 mmBridge =new NonMessagingJavaScriptBridge(this, webView, BotInfo.getBotInfoForBotMsisdn(msisdn));
 		 webView.addJavascriptInterface(mmBridge, HikePlatformConstants.PLATFORM_BRIDGE_NAME);
 	}
