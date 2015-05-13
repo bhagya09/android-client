@@ -2477,8 +2477,8 @@ public class MqttMessagesManager
 				lastNotifPacket = hash;
 				String body = data.optString(HikeConstants.BODY);
 				String destination = data.optString("u");
-				String contentId = data.optString(HikeConstants.CONTENT_ID);
-				String nameSpace = data.optString(DBConstants.HIKE_CONTENT.NAMESPACE);
+				String contentId = data.optString(HikePlatformConstants.CONTENT_ID);
+				String nameSpace = data.optString(HikePlatformConstants.NAMESPACE);
 				if (data.optBoolean(HikeConstants.PUSH, true) && !TextUtils.isEmpty(destination) && !TextUtils.isEmpty(body))
 				{
 
@@ -3057,11 +3057,13 @@ public class MqttMessagesManager
 		JSONObject metadata = jsonObj.optJSONObject(HikeConstants.METADATA);
 		NonMessagingBotMetadata botMetadata = new NonMessagingBotMetadata(metadata);
 		JSONObject configData = jsonObj.optJSONObject(HikePlatformConstants.CONFIG_DATA);
+		String namespace = jsonObj.optString(HikePlatformConstants.NAMESPACE);
 		NonMessagingBotConfiguration configuration = new NonMessagingBotConfiguration(config, configData);
 		botInfo = new BotInfo.HikeBotBuilder(msisdn)
 				.setType(BotInfo.NON_MESSAGING_BOT)
 				.setConvName(name)
 				.setIsMute(false)
+				.setNamespace(namespace)
 				.setConfigData(null == configuration.getConfigData() ? null : configuration.getConfigData().toString())
 				.setConfig(configuration.getConfig())
 				.setIsBotEnabled(false)
