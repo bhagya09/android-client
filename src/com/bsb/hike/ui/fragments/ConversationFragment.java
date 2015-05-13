@@ -37,6 +37,7 @@ import android.view.ViewGroup;
 import android.view.ViewStub;
 import android.view.ViewStub.OnInflateListener;
 import android.view.animation.Animation;
+import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
 import android.view.animation.TranslateAnimation;
 import android.widget.AbsListView;
@@ -2793,10 +2794,29 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		return conv;
 	}
 
-	private void animateListView(boolean animateDown)
+	private void animateListView(final boolean animateDown)
 	{
-		float fromYDelta = 70*Utils.scaledDensityMultiplier;
-		TranslateAnimation animation = new TranslateAnimation(0, 0, animateDown ? -1*fromYDelta : fromYDelta,0);
+		
+		float fromYDelta = 74*Utils.scaledDensityMultiplier;
+		TranslateAnimation animation = new TranslateAnimation(0, 0, animateDown ? -1*fromYDelta : 0, animateDown ? 0: -1*fromYDelta);
+		animation.setAnimationListener(new AnimationListener() {
+			@Override
+			public void onAnimationStart(Animation animation) {
+				if(animateDown)
+				{
+					checkAndAddListViewHeader(tipView);
+				}
+			}
+			@Override
+			public void onAnimationRepeat(Animation animation) {}
+			@Override
+			public void onAnimationEnd(Animation animation) {
+				if(!animateDown)
+				{
+					getListView().removeHeaderView(tipView);
+				}
+			}
+		});
 		animation.setDuration(300);
 		parent.startAnimation(animation);
 	}
@@ -2860,7 +2880,6 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 
 		if (tipView != null)
 		{
-			checkAndAddListViewHeader(tipView);
 			animateListView(true);
 		}
 	}
@@ -3338,7 +3357,6 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 				break;
 		}
 
-		getListView().removeHeaderView(tipView);
 		animateListView(false);
 		tipType = ConversationTip.NO_TIP;
 
