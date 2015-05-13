@@ -274,22 +274,21 @@ public class StealthModeManager
 		}
 	}
 
-	public void toggleConversation(ConvInfo conv, Activity activity) 
+	public void toggleConversation(String msisdn, boolean markStealth, Activity activity) 
  	{
-		boolean markStealth = !conv.isStealth();
 
 		HikeMessengerApp.getPubSub().publish(HikePubSub.REMOVE_TIP, ConversationTip.STEALTH_INFO_TIP);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.REMOVE_TIP, ConversationTip.STEALTH_FTUE_TIP);
 
 		if(isActive())
 		{
-			markStealthMsisdn(conv.getMsisdn(), markStealth, true);
+			markStealthMsisdn(msisdn, markStealth, true);
 		}
 		else
 		{
 			if(activity instanceof HomeActivity)
 			{
-				settingupTriggered(conv.getMsisdn(), activity);
+				settingupTriggered(msisdn, activity);
 			}
 		}
 	}

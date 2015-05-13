@@ -1461,7 +1461,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 				}
 				else if (getString(R.string.mark_stealth).equals(option) || getString(R.string.unmark_stealth).equals(option) || getString(R.string.hide_chat).equals(option))
 				{
-					StealthModeManager.getInstance().toggleConversation(conv, getActivity());
+					StealthModeManager.getInstance().toggleConversation(conv.getMsisdn(), !conv.isStealth(), getActivity());
 				}
 				else if (getString(R.string.block_title).equals(option))
 				{

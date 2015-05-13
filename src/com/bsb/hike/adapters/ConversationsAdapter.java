@@ -648,6 +648,9 @@ public class ConversationsAdapter extends BaseAdapter
 		 */
 		if(viewHolder == null || !convInfo.getMsisdn().equals(viewHolder.msisdn))
 		{
+
+			// TODO: The cause of view holder being null is related to the header tip's entry-exit issue
+			// empty last message will be resulted here
 			return;
 		}
 		

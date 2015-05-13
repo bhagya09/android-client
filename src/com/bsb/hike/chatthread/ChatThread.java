@@ -819,12 +819,11 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			{
 				createEmptyConversation();
 			}
-			
-			StealthModeManager.getInstance().toggleConversation(mConversation.getConvInfo(), activity);
-			
+			StealthModeManager.getInstance().toggleConversation(msisdn, !mConversation.isStealth(), activity);
+			//exiting chat thread 
 			if(!StealthModeManager.getInstance().isActive())
 			{
-				activity.closeChatThread(mConversation.getMsisdn());
+				activity.closeChatThread(msisdn);
 			}
 
 			break;
