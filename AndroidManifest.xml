@@ -4,7 +4,7 @@
     package="com.bsb.hike"
     android:installLocation="auto"
     android:versionCode="1204"
-    android:versionName="3.9.2.55" >
+    android:versionName="3.9.2.55.001_bug_fix_sound" >
     
     <uses-sdk
         android:minSdkVersion="9"
