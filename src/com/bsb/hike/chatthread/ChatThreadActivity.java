@@ -82,12 +82,12 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 		return true;
 	}
 	
-	public void closeChatThread(Bundle bundle)
+	public void closeChatThread(String msisdn)
 	{
 		Intent homeintent = IntentFactory.getHomeActivityIntent(this);
-		if(bundle != null)
+		if(msisdn != null)
 		{
-			homeintent.putExtra(HikeConstants.STEALTH, bundle);
+			homeintent.putExtra(HikeConstants.MSISDN, msisdn);
 		}
 		this.startActivity(homeintent);
 		this.finish();

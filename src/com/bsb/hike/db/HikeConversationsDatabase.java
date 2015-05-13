@@ -5072,7 +5072,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 			while (c.moveToNext())
 			{
-				StealthModeManager.getInstance().addStealthMsisdnToMap(c.getString(msisdnIdx));
+				StealthModeManager.getInstance().markStealthMsisdn(c.getString(msisdnIdx), true, false);
 			}
 		}
 		finally

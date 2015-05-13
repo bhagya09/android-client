@@ -1002,21 +1002,19 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
     	}
     	else if(ACTION_COMPARE_PATTERN.equals(getIntent().getAction()))
         {
-    		if(getIntent().getBooleanExtra(HikeConstants.Extras.STEALTH_PASS_RESET, false))
-    		{
-    			Bundle stealthBundle = getIntent().getBundleExtra(HikeConstants.STEALTH);
-            	if(stealthBundle!=null)
-            	{
-            		mIntentResult.putExtras(stealthBundle);
-            	}
-    		}
             /*
              * If the user was "logging in", minimum try count can not be zero.
              */
             mIntentResult.putExtra(EXTRA_RETRY_COUNT, mRetryCount + 1);
         }
 
-        setResult(RESULT_OK, mIntentResult);
+    	Bundle stealthBundle = getIntent().getBundleExtra(HikeConstants.STEALTH);
+    	if(stealthBundle!=null)
+    	{
+    		mIntentResult.putExtras(stealthBundle);
+    	}
+
+    	setResult(RESULT_OK, mIntentResult);
 
         /*
          * ResultReceiver

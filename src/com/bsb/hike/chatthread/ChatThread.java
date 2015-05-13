@@ -821,6 +821,11 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			}
 			
 			StealthModeManager.getInstance().toggleConversation(mConversation.getConvInfo(), activity);
+			
+			if(!StealthModeManager.getInstance().isActive())
+			{
+				activity.closeChatThread(mConversation.getMsisdn());
+			}
 
 			break;
 		default:
@@ -3040,12 +3045,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			return;
 		}
 		mConversation.setIsStealth(markStealth);
-		if(!StealthModeManager.getInstance().isActive() && markStealth)
-		{
-			Bundle stealthMsisdns = new Bundle();
-			stealthMsisdns.putString(HikeConstants.MSISDN, mConversation.getMsisdn());
-			activity.closeChatThread(stealthMsisdns);
-		}
 	}
 	
 	private void onMuteConversationToggled(Object object)

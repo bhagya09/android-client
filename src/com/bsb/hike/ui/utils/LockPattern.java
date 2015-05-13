@@ -42,7 +42,6 @@ public class LockPattern
 			 */
 			if(null == data)
 			{
-				HikeMessengerApp.getPubSub().publish(HikePubSub.CLEAR_FTUE_STEALTH_CONV, true);
 				break;
 			}
 			
@@ -61,11 +60,8 @@ public class LockPattern
 					else if (requestCode == HikeConstants.ResultCodes.CREATE_LOCK_PATTERN_HIDE_CHAT)
 					{
 						HikeMessengerApp.getPubSub().publish(HikePubSub.SHOW_TIP, ConversationTip.STEALTH_REVEAL_TIP);
-						HikeMessengerApp.getPubSub().publish(HikePubSub.CLEAR_FTUE_STEALTH_CONV, false);
-					
+						markStealthMsisdn(data.getExtras());
 					}
-					//StealthResetTimer.getInstance().activate(false);
-//					HikeMessengerApp.getPubSub().publish(HikePubSub.SHOW_STEALTH_FTUE_ENTER_PASS_TIP, null);
 					
 					try
 					{
@@ -84,7 +80,6 @@ public class LockPattern
 				//making this check so that we can find out if this is password reset flow or otherwise
 				if(!isReset)
 				{
-					HikeMessengerApp.getPubSub().publish(HikePubSub.CLEAR_FTUE_STEALTH_CONV, true);
 				}
 			}
 			break;// _ReqCreateLockPattern
@@ -103,8 +98,7 @@ public class LockPattern
 				}
 				else if(requestCode ==  HikeConstants.ResultCodes.CONFIRM_LOCK_PATTERN_HIDE_CHAT)
 				{
-					HikeMessengerApp.getPubSub().publish(HikePubSub.CLEAR_FTUE_STEALTH_CONV, false);
-					
+					markStealthMsisdn(data.getExtras());
 				}
 				break;
 			case Activity.RESULT_CANCELED:
@@ -116,7 +110,6 @@ public class LockPattern
 					}
 					else if(requestCode ==  HikeConstants.ResultCodes.CONFIRM_LOCK_PATTERN_HIDE_CHAT)
 					{
-						HikeMessengerApp.getPubSub().publish(HikePubSub.CLEAR_FTUE_STEALTH_CONV, true);
 					}	
 				}
 				try
@@ -133,7 +126,6 @@ public class LockPattern
 			case LockPatternActivity.RESULT_FAILED:
 				if(requestCode ==  HikeConstants.ResultCodes.CONFIRM_LOCK_PATTERN_HIDE_CHAT)
 				{
-					HikeMessengerApp.getPubSub().publish(HikePubSub.CLEAR_FTUE_STEALTH_CONV, true);
 				}	
 				break;
 			default:
@@ -156,6 +148,15 @@ public class LockPattern
 				return;
 			}
 			break;
+		}
+	}
+	
+	private static void markStealthMsisdn(Bundle stealthBundle)
+	{
+		if(stealthBundle != null && stealthBundle.containsKey(HikeConstants.MSISDN))
+		{
+			String msisdn = stealthBundle.getString(HikeConstants.MSISDN);
+			StealthModeManager.getInstance().markStealthMsisdn(msisdn, true, true);
 		}
 	}
 

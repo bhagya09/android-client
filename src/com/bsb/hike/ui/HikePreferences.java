@@ -1367,7 +1367,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 	{
 		if(requestCode == HikeConstants.ResultCodes.CONFIRM_LOCK_PATTERN_CHANGE_PREF)
 		{
-			if(resultCode != this.RESULT_OK)
+			if(resultCode != RESULT_OK)
 			{
 				return;
 			}
