@@ -2,6 +2,7 @@ package com.bsb.hike.platform.bridge;
 
 import java.util.ArrayList;
 
+import com.bsb.hike.db.HikeContentDatabase;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -405,5 +406,54 @@ public class MessagingBotJavaScriptBridge extends JavascriptBridge
 	{
 		this.message = message;
 	}
+
+
+
+	/**
+	 * Call this method to put bulk large data in cache. Earlier large data will be replaced by this new data and there will
+	 * be only one entry per microapp.
+	 * @param value: the data that the app need to cache.
+	 */
+	@JavascriptInterface
+	public void putLargeDataInCache(String value)
+	{
+		HikeContentDatabase.getInstance().putInContentCache(message.getNameSpace(), message.getNameSpace(), value);
+	}
+
+	/**
+	 * Call this method to put data in cache. This will be a key-value pair. A microapp can have different key-value pairs
+	 * in the native's cache.
+	 * @param key: key of the data to be saved. Microapp needs to make sure about the uniqueness of the key.
+	 * @param value: : the data that the app need to cache.
+	 */
+	@JavascriptInterface
+	public void putInCache(String key, String value)
+	{
+		HikeContentDatabase.getInstance().putInContentCache(key, message.getNameSpace(), value);
+	}
+
+	/**
+	 * Call this function to get the bulk large data from the native memory
+	 * @param functionName : the function name that native will call to give the cache back to js.
+	 */
+	@JavascriptInterface
+	public void getLargeDataFromCache(String functionName)
+	{
+		String value = HikeContentDatabase.getInstance().getFromContentCache(message.getNameSpace(), message.getNameSpace());
+		callbackToJS(functionName, value);
+	}
+
+	/**
+	 * call this function to get the data from the native memory
+	 * @param functionName
+	 * @param key
+	 */
+	@JavascriptInterface
+	public void getFromCache(String functionName, String key)
+	{
+		String value = HikeContentDatabase.getInstance().getFromContentCache(key, message.getNameSpace());
+		callbackToJS(functionName, value);
+	}
+
 	
 }
