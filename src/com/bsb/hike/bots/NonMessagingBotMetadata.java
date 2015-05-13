@@ -36,14 +36,20 @@ public class NonMessagingBotMetadata
 	public NonMessagingBotMetadata(JSONObject metadata)
 	{
 		this.json = (null == metadata) ? new JSONObject() : metadata;
-		if (cardObj.has(HikePlatformConstants.HELPER_DATA))
-		{
-			setHelperData(cardObj.optJSONObject(HikePlatformConstants.HELPER_DATA));
-		}
 
-		if (cardObj.has(HikePlatformConstants.APP_NAME))
+		if (json.has(HikePlatformConstants.CARD_OBJECT))
 		{
-			setAppName(cardObj.optString(HikePlatformConstants.APP_NAME));
+			cardObj = metadata.optJSONObject(HikePlatformConstants.CARD_OBJECT);
+
+			if (cardObj.has(HikePlatformConstants.HELPER_DATA))
+			{
+				setHelperData(cardObj.optJSONObject(HikePlatformConstants.HELPER_DATA));
+			}
+
+			if (cardObj.has(HikePlatformConstants.APP_NAME))
+			{
+				setAppName(cardObj.optString(HikePlatformConstants.APP_NAME));
+			}
 		}
 	}
 
