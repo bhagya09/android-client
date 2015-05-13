@@ -1326,80 +1326,79 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			else if(viewType == ViewType.GIF_RECEIVE || viewType == ViewType.GIF_SENT)
 			{
 
-				GifViewHolder videoHolder = null;
+				GifViewHolder gifHolder = null;
 				if (viewType == ViewType.GIF_SENT)
 				{
 					if ((v != null) && (v.getTag() instanceof VideoViewHolder))
 					{
-						videoHolder = (GifViewHolder) v.getTag();
+						gifHolder = (GifViewHolder) v.getTag();
 					}
 					else
 					{
-						videoHolder = new GifViewHolder();
+						gifHolder = new GifViewHolder();
 						v = inflateView(R.layout.message_sent_gif, parent, false);
-						videoHolder.fileThumb = (ImageView) v.findViewById(R.id.file_thumb);
-						videoHolder.circularProgressBg = v.findViewById(R.id.circular_bg);
-						videoHolder.initializing = (ProgressBar) v.findViewById(R.id.initializing);
-						videoHolder.circularProgress = (HoloCircularProgress) v.findViewById(R.id.progress);
-						videoHolder.ftAction = (ImageView) v.findViewById(R.id.action);
-						videoHolder.fileDetails = v.findViewById(R.id.file_details);
-						videoHolder.fileSize = (TextView) v.findViewById(R.id.file_size);
-						videoHolder.fileName = (TextView) v.findViewById(R.id.file_name);
-						videoHolder.broadcastIndicator = (ImageView) v.findViewById(R.id.broadcastIndicator);
-						videoHolder.time = (TextView) v.findViewById(R.id.time);
-						videoHolder.status = (ImageView) v.findViewById(R.id.status);
-						videoHolder.timeStatus = (View) v.findViewById(R.id.time_status);
-						videoHolder.selectedStateOverlay = v.findViewById(R.id.selected_state_overlay);
-						videoHolder.messageContainer = (ViewGroup) v.findViewById(R.id.message_container);
-						videoHolder.dayStub = (ViewStub) v.findViewById(R.id.day_stub);
-						videoHolder.messageInfoStub = (ViewStub) v.findViewById(R.id.message_info_stub);
-						videoHolder.gifView = (GifImageView)v.findViewById(R.id.gif_view);
-						v.setTag(videoHolder);
+						gifHolder.fileThumb = (ImageView) v.findViewById(R.id.file_thumb);
+						gifHolder.circularProgressBg = v.findViewById(R.id.circular_bg);
+						gifHolder.initializing = (ProgressBar) v.findViewById(R.id.initializing);
+						gifHolder.circularProgress = (HoloCircularProgress) v.findViewById(R.id.progress);
+						gifHolder.ftAction = (ImageView) v.findViewById(R.id.action);
+						gifHolder.fileDetails = v.findViewById(R.id.file_details);
+						gifHolder.fileSize = (TextView) v.findViewById(R.id.file_size);
+						gifHolder.fileName = (TextView) v.findViewById(R.id.file_name);
+						gifHolder.broadcastIndicator = (ImageView) v.findViewById(R.id.broadcastIndicator);
+						gifHolder.time = (TextView) v.findViewById(R.id.time);
+						gifHolder.status = (ImageView) v.findViewById(R.id.status);
+						gifHolder.timeStatus = (View) v.findViewById(R.id.time_status);
+						gifHolder.selectedStateOverlay = v.findViewById(R.id.selected_state_overlay);
+						gifHolder.messageContainer = (ViewGroup) v.findViewById(R.id.message_container);
+						gifHolder.dayStub = (ViewStub) v.findViewById(R.id.day_stub);
+						gifHolder.messageInfoStub = (ViewStub) v.findViewById(R.id.message_info_stub);
+						gifHolder.gifView = (GifImageView)v.findViewById(R.id.gif_view);
+						v.setTag(gifHolder);
 					}
 				}
 				else if (viewType == ViewType.GIF_RECEIVE)
 				{
 					if ((v != null) && (v.getTag() instanceof VideoViewHolder))
 					{
-						videoHolder = (GifViewHolder) v.getTag();
+						gifHolder = (GifViewHolder) v.getTag();
 					}
 					else
 					{
-						videoHolder = new GifViewHolder();
+						gifHolder = new GifViewHolder();
 						v = inflateView(R.layout.message_receive_gif, parent, false);
-						videoHolder.fileThumb = (ImageView) v.findViewById(R.id.file_thumb);
-						videoHolder.circularProgressBg = v.findViewById(R.id.circular_bg);
-						videoHolder.initializing = (ProgressBar) v.findViewById(R.id.initializing);
-						videoHolder.circularProgress = (HoloCircularProgress) v.findViewById(R.id.progress);
-						videoHolder.ftAction = (ImageView) v.findViewById(R.id.action);
-						videoHolder.fileDetails = v.findViewById(R.id.file_details);
-						videoHolder.fileSize = (TextView) v.findViewById(R.id.file_size);
-						videoHolder.fileName = (TextView) v.findViewById(R.id.file_name);
-						videoHolder.time = (TextView) v.findViewById(R.id.time);
-						videoHolder.broadcastIndicator = (ImageView) v.findViewById(R.id.broadcastIndicator);
-						videoHolder.status = (ImageView) v.findViewById(R.id.status);
-						videoHolder.timeStatus = (View) v.findViewById(R.id.time_status);
-						videoHolder.selectedStateOverlay = v.findViewById(R.id.selected_state_overlay);
-						videoHolder.senderDetails = v.findViewById(R.id.sender_details);
-						videoHolder.senderName = (TextView) v.findViewById(R.id.sender_name);
-						videoHolder.senderNameUnsaved = (TextView) v.findViewById(R.id.sender_unsaved_name);
-						videoHolder.avatarImage = (ImageView) v.findViewById(R.id.avatar);
-						videoHolder.avatarContainer = (ViewGroup) v.findViewById(R.id.avatar_container);
-						videoHolder.messageContainer = (ViewGroup) v.findViewById(R.id.message_container);
-						videoHolder.dayStub = (ViewStub) v.findViewById(R.id.day_stub);
-						videoHolder.gifView = (GifImageView)v.findViewById(R.id.gif_view);
-						v.setTag(videoHolder);
+						gifHolder.fileThumb = (ImageView) v.findViewById(R.id.file_thumb);
+						gifHolder.circularProgressBg = v.findViewById(R.id.circular_bg);
+						gifHolder.initializing = (ProgressBar) v.findViewById(R.id.initializing);
+						gifHolder.circularProgress = (HoloCircularProgress) v.findViewById(R.id.progress);
+						gifHolder.ftAction = (ImageView) v.findViewById(R.id.action);
+						gifHolder.fileDetails = v.findViewById(R.id.file_details);
+						gifHolder.fileSize = (TextView) v.findViewById(R.id.file_size);
+						gifHolder.fileName = (TextView) v.findViewById(R.id.file_name);
+						gifHolder.time = (TextView) v.findViewById(R.id.time);
+						gifHolder.broadcastIndicator = (ImageView) v.findViewById(R.id.broadcastIndicator);
+						gifHolder.status = (ImageView) v.findViewById(R.id.status);
+						gifHolder.timeStatus = (View) v.findViewById(R.id.time_status);
+						gifHolder.selectedStateOverlay = v.findViewById(R.id.selected_state_overlay);
+						gifHolder.senderDetails = v.findViewById(R.id.sender_details);
+						gifHolder.senderName = (TextView) v.findViewById(R.id.sender_name);
+						gifHolder.senderNameUnsaved = (TextView) v.findViewById(R.id.sender_unsaved_name);
+						gifHolder.avatarImage = (ImageView) v.findViewById(R.id.avatar);
+						gifHolder.avatarContainer = (ViewGroup) v.findViewById(R.id.avatar_container);
+						gifHolder.messageContainer = (ViewGroup) v.findViewById(R.id.message_container);
+						gifHolder.dayStub = (ViewStub) v.findViewById(R.id.day_stub);
+						gifHolder.gifView = (GifImageView)v.findViewById(R.id.gif_view);
+						v.setTag(gifHolder);
 					}
 				}
-				dayHolder = videoHolder;
-				setSenderDetails(convMessage, position, videoHolder, false);
+				dayHolder = gifHolder;
+				setSenderDetails(convMessage, position, gifHolder, false);
 
-				videoHolder.fileThumb.setBackgroundResource(0);
-				videoHolder.fileThumb.setImageResource(0);
+				gifHolder.fileThumb.setBackgroundResource(0);
+				gifHolder.fileThumb.setImageResource(0);
 
-//				showThumbnail = ((convMessage.isSent()) || (conversation instanceof OneToNConversation) || (!TextUtils.isEmpty(conversation.getConversationName())) || (hikeFile
-//						.wasFileDownloaded()));
-				showThumbnail = false;
+				showThumbnail = ((convMessage.isSent()) || (conversation instanceof OneToNConversation) || (!TextUtils.isEmpty(conversation.getConversationName())) || (hikeFile
+						.wasFileDownloaded()));
 				
 				if (hikeFile.getThumbnail() == null && !TextUtils.isEmpty(hikeFile.getFileKey()))
 				{
@@ -1412,18 +1411,18 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 				if (showThumbnail)
 				{
-					videoHolder.fileThumb.setBackgroundDrawable(thumbnail);
+					gifHolder.fileThumb.setBackgroundDrawable(thumbnail);
 				}
 				else
 				{
-					createMediaThumb(videoHolder.fileThumb);
+					createMediaThumb(gifHolder.fileThumb);
 				}
 
-				RelativeLayout.LayoutParams fileThumbParams = (RelativeLayout.LayoutParams) videoHolder.fileThumb.getLayoutParams();
+				RelativeLayout.LayoutParams fileThumbParams = (RelativeLayout.LayoutParams) gifHolder.fileThumb.getLayoutParams();
 
 				if (showThumbnail && thumbnail != null)
 				{
-					videoHolder.fileThumb.setScaleType(ScaleType.CENTER);
+					gifHolder.fileThumb.setScaleType(ScaleType.CENTER);
 					fileThumbParams.height = (int) (150 * Utils.scaledDensityMultiplier);
 					fileThumbParams.width = (int) ((thumbnail.getIntrinsicWidth() * fileThumbParams.height) / thumbnail.getIntrinsicHeight());
 					/*
@@ -1454,56 +1453,56 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 							fileThumbParams.width = width;
 					}
 				}
-				videoHolder.fileThumb.setScaleType(ScaleType.CENTER);
-				videoHolder.fileThumb.setLayoutParams(fileThumbParams);
+				gifHolder.fileThumb.setScaleType(ScaleType.CENTER);
+				gifHolder.fileThumb.setLayoutParams(fileThumbParams);
 
 				if (convMessage.isSent() && ((int) hikeFile.getFile().length() > 0) && fss.getFTState() != FTState.INITIALIZED)
 				{
-					videoHolder.fileSize.setText(Utils.getSizeForDisplay((int) hikeFile.getFile().length()));
-					videoHolder.fileSize.setVisibility(View.VISIBLE);
+					gifHolder.fileSize.setText(Utils.getSizeForDisplay((int) hikeFile.getFile().length()));
+					gifHolder.fileSize.setVisibility(View.VISIBLE);
 				}
 				else if (!convMessage.isSent() && hikeFile.getFileSize() > 0)
 				{
-					videoHolder.fileSize.setText(Utils.getSizeForDisplay(hikeFile.getFileSize()));
-					videoHolder.fileSize.setVisibility(View.VISIBLE);
+					gifHolder.fileSize.setText(Utils.getSizeForDisplay(hikeFile.getFileSize()));
+					gifHolder.fileSize.setVisibility(View.VISIBLE);
 				}
 				else
 				{
-					videoHolder.fileSize.setText("");
-					videoHolder.fileSize.setVisibility(View.GONE);
+					gifHolder.fileSize.setText("");
+					gifHolder.fileSize.setVisibility(View.GONE);
 				}
-				videoHolder.fileThumb.setVisibility(View.VISIBLE);
+				gifHolder.fileThumb.setVisibility(View.VISIBLE);
 
-				displayBroadcastIndicator(convMessage, videoHolder.broadcastIndicator, false);
-				setBubbleColor(convMessage, videoHolder.messageContainer);
-				setupFileState(videoHolder, fss, convMessage.getMsgID(), hikeFile, convMessage.isSent(), false);
-				setTimeNStatus(position, videoHolder, true, videoHolder.fileThumb);
-				setSelection(convMessage, videoHolder.selectedStateOverlay);
+				displayBroadcastIndicator(convMessage, gifHolder.broadcastIndicator, false);
+				setBubbleColor(convMessage, gifHolder.messageContainer);
+				setupFileState(gifHolder, fss, convMessage.getMsgID(), hikeFile, convMessage.isSent(), false);
+				setTimeNStatus(position, gifHolder, true, gifHolder.fileThumb);
+				setSelection(convMessage, gifHolder.selectedStateOverlay);
 
-				videoHolder.fileThumb.setTag(convMessage);
-				videoHolder.fileThumb.setOnClickListener(this);
-				videoHolder.fileThumb.setOnLongClickListener(this);
+				gifHolder.fileThumb.setTag(convMessage);
+				gifHolder.fileThumb.setOnClickListener(this);
+				gifHolder.fileThumb.setOnLongClickListener(this);
 
-				try
-				{
-					GifDrawable gifFromResource = new GifDrawable(context.getResources(), R.drawable.testt);
-
-					GifImageView gifView = videoHolder.gifView;
-
-					LinearLayout.LayoutParams params = (LayoutParams) gifView.getLayoutParams();
-
-					params.width = gifFromResource.getIntrinsicWidth() * 2;
-
-					params.height = gifFromResource.getIntrinsicHeight() * 2;
-
-					gifView.setLayoutParams(params);
-
-					gifView.setImageResource(gifFromResource);
-				}
-				catch (NotFoundException | IOException e)
-				{
-					e.printStackTrace();
-				}
+//				try
+//				{
+//					GifDrawable gifFromResource = new GifDrawable(context.getResources(), R.drawable.testt);
+//
+//					GifImageView gifView = gifHolder.gifView;
+//
+//					LinearLayout.LayoutParams params = (LayoutParams) gifView.getLayoutParams();
+//
+//					params.width = gifFromResource.getIntrinsicWidth() * 2;
+//
+//					params.height = gifFromResource.getIntrinsicHeight() * 2;
+//
+//					gifView.setLayoutParams(params);
+//
+//					gifView.setImageResource(gifFromResource);
+//				}
+//				catch (NotFoundException | IOException e)
+//				{
+//					e.printStackTrace();
+//				}
 
 			}
 			else if (viewType == ViewType.IMAGE_SENT || viewType == ViewType.IMAGE_RECEIVE)
@@ -2927,7 +2926,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					holder.ftAction.setVisibility(View.VISIBLE);
 					holder.circularProgressBg.setVisibility(View.VISIBLE);
 				}
-				else if (hikeFile.getHikeFileType() == HikeFileType.VIDEO && !ext)
+				else if ((hikeFile.getHikeFileType() == HikeFileType.VIDEO || hikeFile.getHikeFileType() == HikeFileType.GIF) && !ext)
 				{
 					holder.ftAction.setImageResource(playImage);
 					holder.ftAction.setVisibility(View.VISIBLE);
@@ -2960,7 +2959,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			holder.circularProgressBg.setVisibility(View.VISIBLE);
 			break;
 		case COMPLETED:
-			if (hikeFile.getHikeFileType() == HikeFileType.VIDEO && !ext)
+			if ((hikeFile.getHikeFileType() == HikeFileType.VIDEO || hikeFile.getHikeFileType() == HikeFileType.GIF) && !ext)
 			{
 				holder.ftAction.setImageResource(playImage);
 				holder.ftAction.setVisibility(View.VISIBLE);

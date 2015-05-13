@@ -52,12 +52,11 @@
                 android:layout_width="100dp"
                 android:layout_height="100dp"
                 android:layout_gravity="center" />
-            
+
             <pl.droidsonroids.gif.GifImageView
                 android:id="@+id/gif_view"
                 android:layout_width="100dp"
-                android:layout_height="100dp"
-                android:src="@drawable/testt" />
+                android:layout_height="100dp" />
 
             <ImageView
                 android:id="@+id/filmstrip_left"

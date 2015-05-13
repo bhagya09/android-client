@@ -236,7 +236,7 @@ public class UploadFileTask extends FileTransferBase
 				Bitmap thumbnail = null;
 				String thumbnailString = null;
 				String quality = null;
-				if (hikeFileType == HikeFileType.IMAGE)
+				if (hikeFileType == HikeFileType.IMAGE || hikeFileType == HikeFileType.GIF)
 				{
 					Bitmap.Config config = Bitmap.Config.RGB_565;
 					if(Utils.hasJellyBeanMR1()){
