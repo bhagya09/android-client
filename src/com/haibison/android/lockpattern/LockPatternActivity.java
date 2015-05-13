@@ -1292,5 +1292,10 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
             mLockPatternViewListener.onPatternCleared();
         }// run()
     };// mLockPatternViewReloader
+    
+    protected void onStop() {
+    	finishWithNegativeResult(RESULT_CANCELED);
+    	super.onStop();
+    };
 
 }

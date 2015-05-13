@@ -172,6 +172,8 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 	
 	private View tipView;
 	
+	private AlertDialog alertDialog;
+	
 	private int tipType = ConversationTip.NO_TIP;
 
 	private enum hikeBotConvStat
@@ -999,6 +1001,10 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 	{
 		super.onPause();
 
+		if(alertDialog != null)
+		{
+			alertDialog.dismiss();
+		}
 		if(mAdapter != null)
 		{
 			mAdapter.getIconLoader().setExitTasksEarly(true);
@@ -1464,7 +1470,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 			}
 		});	
 
-		AlertDialog alertDialog = builder.show();
+		alertDialog = builder.show();
 		alertDialog.getListView().setDivider(getResources().getDrawable(R.drawable.ic_thread_divider_profile));
 		return true;
 	}
