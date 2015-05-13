@@ -67,7 +67,7 @@ public class StealthModeManager
 	{
 		addStealthMsisdnToMap(conv.getMsisdn());
 		HikeConversationsDatabase.getInstance().toggleStealth(conv.getMsisdn(), true);
-		HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_CONVERSATION_MARKED, conv);
+		HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_CONVERSATION_MARKED, conv.getMsisdn());
 	}
 
 	public void removeStealthMsisdn(ConvInfo conv)
@@ -90,7 +90,7 @@ public class StealthModeManager
 		if(publishEvent)
 		{
 			HikeConversationsDatabase.getInstance().toggleStealth(conv.getMsisdn(), false);
-			HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_CONVERSATION_UNMARKED, conv);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_CONVERSATION_UNMARKED, conv.getMsisdn());
 		}
 	}
 
@@ -292,11 +292,11 @@ public class StealthModeManager
 		HikeMessengerApp.getPubSub().publish(HikePubSub.REMOVE_TIP, ConversationTip.STEALTH_INFO_TIP);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.REMOVE_TIP, ConversationTip.STEALTH_FTUE_TIP);
 
-		HikeMessengerApp.getPubSub().publish(markStealth ? HikePubSub.STEALTH_CONVERSATION_MARKED : HikePubSub.STEALTH_CONVERSATION_UNMARKED, conv);
+		HikeMessengerApp.getPubSub().publish(markStealth ? HikePubSub.STEALTH_CONVERSATION_MARKED : HikePubSub.STEALTH_CONVERSATION_UNMARKED, conv.getMsisdn());
 
 		if(isActive())
 		{
-			HikeMessengerApp.getPubSub().publish(markStealth ? HikePubSub.STEALTH_DB_MARKED : HikePubSub.STEALTH_DB_UNMARKED, conv);
+			HikeMessengerApp.getPubSub().publish(markStealth ? HikePubSub.STEALTH_DB_MARKED : HikePubSub.STEALTH_DB_UNMARKED, conv.getMsisdn());
 		}
 		else
 		{

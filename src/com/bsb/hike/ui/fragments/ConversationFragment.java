@@ -2568,8 +2568,8 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 			if (!isAdded())
 			{
 				return;
-			}
-			ConvInfo convInfo = mConversationsByMSISDN.get(((ConvInfo)object).getMsisdn()); 
+			} 	
+			ConvInfo convInfo = mConversationsByMSISDN.get((String)object); 
 			if(convInfo == null)
 			{
 				return;
@@ -2606,8 +2606,12 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		}
 		else if(HikePubSub.STEALTH_CONVERSATION_MARKED.equals(type) || HikePubSub.STEALTH_CONVERSATION_UNMARKED.equals(type))
 		{
+			if(!isAdded())
+			{
+				return;
+			}
 			//HACK, this is done because, convInfo object can have a different reference (if coming from chat thread)
-			ConvInfo conv = mConversationsByMSISDN.get(((ConvInfo)object).getMsisdn()); 
+			ConvInfo conv = mConversationsByMSISDN.get((String)object); 
 			if(conv == null)
 			{
 				return;

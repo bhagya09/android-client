@@ -492,7 +492,7 @@ public class FriendsFragment extends SherlockListFragment implements Listener, O
 		}
 		else if (HikePubSub.STEALTH_CONVERSATION_MARKED.equals(type) || HikePubSub.STEALTH_CONVERSATION_UNMARKED.equals(type))
 		{
-			String msisdn = ((ConvInfo) object).getMsisdn();
+			String msisdn = ((String) object);
 			if (HikePubSub.STEALTH_CONVERSATION_UNMARKED.equals(type))
 			{
 				friendsAdapter.stealthContactRemoved(msisdn);

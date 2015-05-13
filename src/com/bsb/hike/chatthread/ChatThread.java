@@ -3036,6 +3036,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	
 	private void onConversationStealthToggle(Object object, boolean markStealth)
 	{
+		if(!mConversation.getMsisdn().equals((String)object))
+		{
+			return;
+		}
 		mConversation.setIsStealth(markStealth);
 		if(!StealthModeManager.getInstance().isActive() && markStealth)
 		{

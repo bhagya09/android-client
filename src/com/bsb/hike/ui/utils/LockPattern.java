@@ -175,7 +175,20 @@ public class LockPattern
 	 * @param activity
 	 * @param isResetPassword 
 	 */
+	public static void createNewPattern(Activity activity, boolean isResetPassword, int requestCode, Bundle bundle)
+	{
+		Intent i = createNewPatternIntent(activity, isResetPassword, requestCode);
+		i.putExtra(HikeConstants.STEALTH, bundle);
+		activity.startActivityForResult(i, requestCode);
+	}// onClick()
+
 	public static void createNewPattern(Activity activity, boolean isResetPassword, int requestCode)
+	{
+		Intent i = createNewPatternIntent(activity, isResetPassword, requestCode);
+		activity.startActivityForResult(i, requestCode);
+	}
+
+	private static Intent createNewPatternIntent(Activity activity, boolean isResetPassword, int requestCode)
 	{
 		Intent i = new Intent(LockPatternActivity.ACTION_CREATE_PATTERN, null, activity, LockPatternActivity.class);
 		i.putExtra(LockPatternActivity.EXTRA_THEME, getThemeForLockPatternActivity());
@@ -183,8 +196,8 @@ public class LockPattern
 		i.putExtra(Settings.Display.METADATA_MIN_WIRED_DOTS, mBarMinWiredDots);
 		i.putExtra(HikeConstants.Extras.STEALTH_PASS_RESET, isResetPassword);
 		i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-		activity.startActivityForResult(i, requestCode);
-	}// onClick()
+		return i;
+	}
 
 	/**
 	 * This method validates an existing password
