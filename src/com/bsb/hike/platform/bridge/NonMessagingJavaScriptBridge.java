@@ -159,6 +159,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		if (botConfig != null)
 		{
 			botConfig.updateOverFlowMenu(id, newTitle, enabled);
+			HikeConversationsDatabase.getInstance().updateConfigData(mBotInfo.getMsisdn(), botConfig.getConfigData().toString());
 		}
 	}
 	
@@ -175,6 +176,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		if (botConfig != null)
 		{
 			botConfig.updateOverFlowMenu(id, enabled);
+			HikeConversationsDatabase.getInstance().updateConfigData(mBotInfo.getMsisdn(), botConfig.getConfigData().toString());
 		}
 	}
 

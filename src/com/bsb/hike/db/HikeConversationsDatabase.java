@@ -6817,4 +6817,18 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 		return map;
 	}
+
+	/**
+	 * Utility method to Update the config data in BotTable
+	 * 
+	 * @param msisdn
+	 * @param configData
+	 */
+	public void updateConfigData(String msisdn, String configData)
+	{
+		ContentValues contentValues = new ContentValues();
+		contentValues.put(MSISDN, msisdn);
+		contentValues.put(CONFIG_DATA, configData);
+		mDb.update(BOT_TABLE, contentValues, MSISDN + "=?", new String[] { msisdn });
+	}
 }
