@@ -1225,8 +1225,7 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 				}
 				else if (e.getCause() instanceof SocketTimeoutException)
 				{
-					Logger.e(TAG, "Client exception : entered SocketTimeoutException");
-					incrementConnectRetryCount();
+					handleSocketTimeOutException();
 				}
 				// added this exception for safety , we might also get this exception in some phones
 				else if (e.getCause() instanceof UnresolvedAddressException)
@@ -1307,6 +1306,13 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 			break;
 		}
 		e.printStackTrace();
+	}
+
+	private void handleSocketTimeOutException()
+	{
+		Logger.e(TAG, "Client exception : entered handleSocketTimeOutException");
+		incrementConnectRetryCount();
+		connectOnMqttThread(MQTT_WAIT_BEFORE_RECONNECT_TIME);
 	}
 
 	/**
