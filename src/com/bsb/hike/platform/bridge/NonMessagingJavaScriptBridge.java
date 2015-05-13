@@ -153,7 +153,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	 * @param newTitle
 	 */
 	@JavascriptInterface
-	public void updateMenuTitle(int id, String newTitle, boolean enabled)
+	public void updateMenuTitleAndState(int id, String newTitle, boolean enabled)
 	{
 		NonMessagingBotConfiguration botConfig = new NonMessagingBotConfiguration(mBotInfo.getConfiguration());
 		if (botConfig != null)
