@@ -129,7 +129,7 @@ public interface HikePlatformConstants
 
 	public static final String PROFILING_TIME = "time";
 
-	public static final String CONFIG_DATA = "configData";
+	public static final String CONFIG_DATA = "cd";
 
 	public static final String ENABLE_BOT = "enable_bot";
 }
