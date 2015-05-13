@@ -41,6 +41,7 @@ public class MessagingBotJavaScriptBridge extends JavascriptBridge
 	
 	ConvMessage message;
 
+	JSONObject profilingTime;
 	BaseAdapter adapter;
 
 	public MessagingBotJavaScriptBridge(Activity activity,CustomWebView mWebView)
@@ -371,12 +372,7 @@ public class MessagingBotJavaScriptBridge extends JavascriptBridge
 			jsonObject.put(HikePlatformConstants.PLATFORM_USER_ID,HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_UID_SETTING,null) );
 			jsonObject.put(HikeConstants.APP_VERSION, AccountUtils.getAppVersion());
 
-			JSONObject time = new JSONObject();
-			time.put(HikePlatformConstants.RENDERING_TIME, holder.renderingTime);
-			time.put(HikePlatformConstants.INFLATION_TIME, holder.inflationTime);
-			time.put(HikePlatformConstants.TEMPLATING_TIME, holder.templatingTime);
-
-			jsonObject.put(HikePlatformConstants.PROFILING_TIME, time);
+			jsonObject.put(HikePlatformConstants.PROFILING_TIME, profilingTime);
 			mWebView.loadUrl("javascript:init('" + jsonObject.toString() + "')");
 		}
 		catch (JSONException e)
