@@ -1497,7 +1497,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	 */
 	private void onAppForegrounded()
 	{
-		if (mContactInfo != null)
+		if (mContactInfo == null)
 		{
 			return;
 		}
