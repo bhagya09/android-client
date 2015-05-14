@@ -24,6 +24,15 @@ public class MessagingBotMetadata
 			e.printStackTrace();
 			this.json = new JSONObject();
 		}
+		/**
+		 * Can get an NPE if the string metadata is null
+		 */
+		catch (NullPointerException e)
+		{
+			e.printStackTrace();
+			this.json = new JSONObject();
+		}
+		
 		init();
 
 	}
