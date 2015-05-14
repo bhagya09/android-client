@@ -489,12 +489,12 @@ public abstract class JavascriptBridge
 
 	/**
 	 * this function will call the js back when the javascript demands some value back from the native.
-	 * @param functionName : the function of javascript that native will call.
+	 * @param id : the id of the function that native will call to call the js .
 	 * @param value: value that will be given back.
 	 */
-	public void callbackToJS(final String functionName, final String value)
+	public void callbackToJS(final String id, final String value)
 	{
-		if (TextUtils.isEmpty(functionName))
+		if (TextUtils.isEmpty(id))
 		{
 			Logger.e(tag, "Empty function name when calling the JS back");
 			return;
@@ -504,7 +504,7 @@ public abstract class JavascriptBridge
 			@Override
 			public void run()
 			{
-				mWebView.loadUrl("javascript:" + functionName + "('" + value + "')");
+				mWebView.loadUrl("javascript:callbackFromNative" + "('" + value + "')");
 			}
 		});
 	}
