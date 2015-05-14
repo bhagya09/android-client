@@ -1495,27 +1495,6 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				gifHolder.messageContainer.setOnClickListener(this);
 				gifHolder.messageContainer.setOnLongClickListener(this);
 
-//				try
-//				{
-//					GifDrawable gifFromResource = new GifDrawable(context.getResources(), R.drawable.testt);
-//
-//					GifImageView gifView = gifHolder.gifView;
-//
-//					LinearLayout.LayoutParams params = (LayoutParams) gifView.getLayoutParams();
-//
-//					params.width = gifFromResource.getIntrinsicWidth() * 2;
-//
-//					params.height = gifFromResource.getIntrinsicHeight() * 2;
-//
-//					gifView.setLayoutParams(params);
-//
-//					gifView.setImageResource(gifFromResource);
-//				}
-//				catch (NotFoundException | IOException e)
-//				{
-//					e.printStackTrace();
-//				}
-
 			}
 			else if (viewType == ViewType.IMAGE_SENT || viewType == ViewType.IMAGE_RECEIVE)
 			{

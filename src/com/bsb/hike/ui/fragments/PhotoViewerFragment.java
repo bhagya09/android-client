@@ -1,5 +1,6 @@
 package com.bsb.hike.ui.fragments;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -9,6 +10,9 @@ import java.util.Map;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import pl.droidsonroids.gif.GifDrawable;
+import pl.droidsonroids.gif.GifImageView;
 
 import android.content.Context;
 import android.content.Intent;
@@ -115,6 +119,8 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 	private boolean isEditEnabled;
 
 	private Menu menu;
+	
+	private WeakReference<GifDrawable> gifLastRef;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState)
@@ -280,13 +286,11 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 	@Override
 	public void onPageScrollStateChanged(int arg0)
 	{
-		// TODO Auto-generated method stub
 	}
 
 	@Override
 	public void onPageScrolled(int arg0, float arg1, int arg2)
 	{
-		// TODO Auto-generated method stub
 	}
 
 	@Override
@@ -320,6 +324,27 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 				menu.findItem(R.id.edit_pic).setVisible(false);
 			}
 		}
+
+		if (gifLastRef != null && gifLastRef.get() != null)
+		{
+			Logger.d(TAG, "Stopping previous gif");
+			gifLastRef.get().stop();
+		}
+
+		View view = selectedPager.findViewWithTag("gif" + position);
+
+		if (view != null && view instanceof GifImageView)
+		{
+			GifImageView gifView = (GifImageView) view;
+
+			GifDrawable gifDrawable = (GifDrawable) gifView.getDrawable();
+			gifDrawable.start();
+
+			Logger.d(TAG, "Starting gif at " + position);
+
+			gifLastRef = new WeakReference<GifDrawable>(gifDrawable);
+		}
+
 	}
 
 	private void setSenderDetails(int position)

@@ -1,6 +1,11 @@
 package com.bsb.hike.adapters;
 
+import java.io.IOException;
+import java.lang.ref.SoftReference;
 import java.util.ArrayList;
+
+import pl.droidsonroids.gif.GifDrawable;
+import pl.droidsonroids.gif.GifImageView;
 
 import android.content.Context;
 import android.support.v4.view.PagerAdapter;
@@ -18,6 +23,7 @@ import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.HikeSharedFile;
 import com.bsb.hike.smartImageLoader.SharedFileImageLoader;
 import com.bsb.hike.ui.fragments.PhotoViewerFragment;
+import com.bsb.hike.view.TextDrawable;
 import com.bsb.hike.view.TouchImageView;
 
 public class SharedMediaAdapter extends PagerAdapter implements OnClickListener
@@ -78,6 +84,7 @@ public class SharedMediaAdapter extends PagerAdapter implements OnClickListener
 		TouchImageView galleryImageView = (TouchImageView) page.findViewById(R.id.album_image);
 		ImageView videPlayButton = (ImageView)  page.findViewById(R.id.play_media);
 		ProgressBar progressBar = (ProgressBar)  page.findViewById(R.id.progress_bar);
+		GifImageView gifView = (GifImageView) page.findViewById(R.id.gif_view);
 		galleryImageView.setZoom(1.0f);
 		galleryImageView.setScaleType(ScaleType.FIT_CENTER);
 		
@@ -86,14 +93,41 @@ public class SharedMediaAdapter extends PagerAdapter implements OnClickListener
 			progressBar.setVisibility(View.GONE);
 			videPlayButton.setVisibility(View.VISIBLE);
 		}
+		else if (sharedMediaItem.getHikeFileType() == HikeFileType.GIF)
+		{
+			galleryImageView.setVisibility(View.GONE);
+			gifView.setVisibility(View.VISIBLE);
+			videPlayButton.setVisibility(View.GONE);
+		}
 		else
 		{
 			videPlayButton.setVisibility(View.GONE);
 		}
 
-		if(sharedMediaItem.exactFilePathFileExists())
+		if (sharedMediaItem.exactFilePathFileExists())
 		{
-			sharedMediaLoader.loadImage(sharedMediaItem.getImageLoaderKey(true), galleryImageView);
+			if (sharedMediaItem.getHikeFileType() == HikeFileType.GIF)
+			{
+				try
+				{
+					GifDrawable drawable = new GifDrawable(sharedMediaItem.getExactFilePath());
+					gifView.setImageResource(drawable);
+					gifView.setTag("gif"+position);
+					drawable.stop();
+				}
+				catch (IOException e)
+				{
+					e.printStackTrace();
+					progressBar.setVisibility(View.GONE);
+					videPlayButton.setVisibility(View.GONE);
+					galleryImageView.setVisibility(View.GONE);
+					page.findViewById(R.id.file_missing_layout).setVisibility(View.VISIBLE);
+				}
+			}
+			else
+			{
+				sharedMediaLoader.loadImage(sharedMediaItem.getImageLoaderKey(true), galleryImageView);
+			}
 		}
 		else
 		{
@@ -102,7 +136,7 @@ public class SharedMediaAdapter extends PagerAdapter implements OnClickListener
 			galleryImageView.setVisibility(View.GONE);
 			page.findViewById(R.id.file_missing_layout).setVisibility(View.VISIBLE);
 		}
-		
+
 		galleryImageView.setTag(sharedMediaItem);
 		galleryImageView.setOnClickListener(this);
 		((ViewPager) container).addView(page);
@@ -130,4 +164,5 @@ public class SharedMediaAdapter extends PagerAdapter implements OnClickListener
 	{
 		return sharedMediaLoader;
 	}
+
 }
