@@ -89,6 +89,7 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.NUXManager;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.PairModified;
+import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.voip.VoIPClient;
@@ -755,11 +756,16 @@ public class MqttMessagesManager
 				String msisdn = convMessage.getMsisdn();
 				if (ContactManager.getInstance().isConvExists(msisdn))
 				{
-					if (OneToNConversationUtils.isGroupConversation(msisdn))
+					boolean activeStealthChat = StealthModeManager.getInstance().isStealthMsisdn(msisdn) && StealthModeManager.getInstance().isActive();
+					boolean stealthNotifPref = PreferenceManager.getDefaultSharedPreferences(context).getBoolean(HikeConstants.STEALTH_NOTIFICATION_ENABLED, true);
+					if(!activeStealthChat || !stealthNotifPref)
 					{
-						if (!HikeConversationsDatabase.getInstance().isGroupMuted(msisdn))
+						if (OneToNConversationUtils.isGroupConversation(msisdn))
 						{
-							vibrate = true;
+							if (!HikeConversationsDatabase.getInstance().isGroupMuted(msisdn))
+							{
+								vibrate = true;
+							}
 						}
 					}
 					else

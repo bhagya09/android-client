@@ -56,12 +56,7 @@ public class StealthModeManager
 		stealthMsisdn = new HashSet<String>();
 		HikeConversationsDatabase.getInstance().addStealthMsisdnToMap();
 	}
-	
-	public boolean containsStealthMsisdn(String msisdn)
-	{
-		return stealthMsisdn.contains(msisdn);
-	}
-	
+
 	public int getStealthMsisdnMapSize() {
 		return stealthMsisdn.size();
 	}
