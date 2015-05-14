@@ -1476,6 +1476,6 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
 	<string name="only_photos_edit">Only photos can be edited</string>
 	<string name="num_members">%1$d members</string>
 	<string name="group_selected">%1$s/1000 selected</string>
-	<string name="group_participant_info"><![CDATA[<font color=\"#000000\">You can add upto </font><font color=\"#1090e0\"><b>1000</b> </font><font color=\"#000000\">members</font>]]></string>
+	<string name="group_participant_info"><![CDATA[<font color=\"#000000\">Now you can add upto </font><font color=\"#1090e0\"><b>1000</b> </font><font color=\"#000000\">members</font>]]></string>
 	<string name="add_members">Add Members</string>
 </resources>
