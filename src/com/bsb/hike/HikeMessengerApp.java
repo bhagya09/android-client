@@ -956,7 +956,7 @@ public void onTrimMemory(int level)
 			{
 				jsonObject.put(HikeConstants.BOT_CHAT_THEME, chatThemeId);
 			}
-			jsonObject.put(HikeConstants.TYPE, HikeConstants.MESSAGING_BOT);
+			jsonObject.put(HikePlatformConstants.BOT_TYPE, HikeConstants.MESSAGING_BOT);
 			jsonObject.put(HikeConstants.CONFIGURATION, config);
 
 			JSONObject metadata = new JSONObject();
