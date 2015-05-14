@@ -10,11 +10,15 @@ import android.content.Intent;
 import com.bsb.hike.GCMIntentService;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
+import com.bsb.hike.modules.httpmgr.request.requestbody.IRequestBody;
+import com.bsb.hike.modules.httpmgr.request.requestbody.JsonBody;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
@@ -37,6 +41,8 @@ public class SendGCMIdToServerTrigger extends BroadcastReceiver
 	private static RunnableGCMIdToServer mGcmIdToServer = null;
 
 	private HikeHandlerUtil mHikeHandler = null;
+	
+	private RequestToken requestToken;
 	
 	/**
 	 * 
@@ -129,7 +135,7 @@ public class SendGCMIdToServerTrigger extends BroadcastReceiver
 				{
 					Logger.d(getClass().getSimpleName(), "Invalid JSON", e);
 				}
-				RequestToken requestToken = HttpRequests.sendDeviceDetailsRequest(requestBody, getRequestListener());
+				requestToken = HttpRequests.sendDeviceDetailsRequest(requestBody, getRequestListener());
 				if (!requestToken.isRequestRunning())
 				{
 					requestToken.execute();
@@ -154,7 +160,7 @@ public class SendGCMIdToServerTrigger extends BroadcastReceiver
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				RequestToken requestToken = HttpRequests.sendPreActivationRequest(requestBody, getRequestListener());
+				requestToken = HttpRequests.sendPreActivationRequest(requestBody, getRequestListener());
 				if (!requestToken.isRequestRunning())
 				{
 					requestToken.execute();
@@ -217,9 +223,37 @@ public class SendGCMIdToServerTrigger extends BroadcastReceiver
 			public void onRequestFailure(HttpException httpException)
 			{
 				Logger.d(SendGCMIdToServerTrigger.this.getClass().getSimpleName(), "Send unsuccessful");
+				// TODO Below code is for investigating an issue where invalid json is received at server end , should be removed once issue is solved
+				if (httpException.getErrorCode() == HttpException.REASON_CODE_SERVER_ERROR)
+				{
+					IRequestBody requestBody = requestToken.getRequestBody();
+					if (requestBody instanceof JsonBody)
+					{
+						byte[] bytes = ((JsonBody) requestBody).getBytes();
+						recordSendDeviceDetailsFailException(new String(bytes));
+					}
+				}
 				scheduleNextSendToServerAction(HikeMessengerApp.LAST_BACK_OFF_TIME, mGcmIdToServer);
 			}
 		};
 	};
 
+	private void recordSendDeviceDetailsFailException(String jsonString)
+	{
+		if(!HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.EXCEPTION_ANALYTIS_ENABLED, false))
+		{
+			return;
+		}
+		try
+		{
+			JSONObject metadata = new JSONObject();
+			metadata.put(HikeConstants.PAYLOAD, jsonString);
+			Logger.d(getClass().getSimpleName(), "recording send device details fail event. json = " + jsonString);
+			HAManager.getInstance().record(HikeConstants.EXCEPTION, HikeConstants.LogEvent.SEND_DEVICE_DETAILS, metadata);
+		}
+		catch (JSONException e)
+		{
+			Logger.e(getClass().getSimpleName(), "invalid json");
+		}
+	}
 }

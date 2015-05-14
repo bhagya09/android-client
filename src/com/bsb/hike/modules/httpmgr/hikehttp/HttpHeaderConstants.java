@@ -14,5 +14,7 @@ public class HttpHeaderConstants
 	public static final String USER = "user";
 
 	public static final String UID = "UID";
+	
+	public static final String CONTENT_MD5 = "Content-MD5";
 
 }

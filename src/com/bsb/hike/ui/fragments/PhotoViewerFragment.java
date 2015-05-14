@@ -123,13 +123,6 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 	private WeakReference<GifDrawable> gifLastRef;
 	
 	@Override
-	public void onCreate(Bundle savedInstanceState)
-	{
-		super.onCreate(savedInstanceState);
-		setHasOptionsMenu(true);
-	}
-	
-	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 	{
 		mParent = inflater.inflate(R.layout.shared_media_viewer, null);
@@ -256,13 +249,15 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 			}
 		});
 		
+		setHasOptionsMenu(true);
+		
 		super.onActivityCreated(savedInstanceState);
 	}
 
 	@Override
 	public void onStop()
-	{	super.onStop();
-		
+	{	
+		super.onStop();
 	}
 	
 	@Override
@@ -575,14 +570,11 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 		if(selectedPager.getCurrentItem() < getCount())
 		{
 			sharedMediaItems.remove(selectedPager.getCurrentItem());
+			smAdapter.notifyDataSetChanged();
 			if(sharedMediaItems.isEmpty())
 			{
 				//if list is empty close the fragment
 				finish();
-			}
-			else
-			{
-				smAdapter.notifyDataSetChanged();
 			}
 		}
 	}
