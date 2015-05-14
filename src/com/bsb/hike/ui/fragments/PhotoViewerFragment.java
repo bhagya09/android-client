@@ -545,14 +545,11 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 		if(selectedPager.getCurrentItem() < getCount())
 		{
 			sharedMediaItems.remove(selectedPager.getCurrentItem());
+			smAdapter.notifyDataSetChanged();
 			if(sharedMediaItems.isEmpty())
 			{
 				//if list is empty close the fragment
 				finish();
-			}
-			else
-			{
-				smAdapter.notifyDataSetChanged();
 			}
 		}
 	}
