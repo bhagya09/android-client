@@ -149,9 +149,9 @@
     <string name="call_me_pass">We will call you within a few seconds.</string>
     <string name="call_me_fail">Unable to call you. Please try again.</string>
     <string name="calling_you">Calling you now...</string>
-    <string name="new_group_message">Group Chat with %1$s</string>
+    <string name="new_group_message">%1$s added you</string>
     <string name="new_broadcast_message">Broadcast List with %1$s</string>
-    <string name="add_to_group_message">Added %1$s to the group</string>
+    <string name="add_to_group_message">have added %1$s</string>
     <string name="add_to_broadcast_message">Added %1$s to the list</string>
     <string name="connect_and_get">Connect and get 100 free SMS instantly</string>
     <string name="free_sms_100">100 free SMS</string>
@@ -933,7 +933,6 @@
     <string name="shortcut">Add conversation shortcut</string>
     <string name="add_to_contacts">Add to contacts</string>
     <string name="delete_leave">Delete and exit group</string>
-    <string name="group_participant_info">You can add upto 500 people to a group</string>
     <string name="broadcast_ftue_message">A broadcast lets you send the same message to multiple hike contacts at once</string>
     <string name="broadcast_participant_info"><![CDATA[<font color=\"#848484\"><b>Note: </b>Only hike contacts with %1$s in their address book will receive this broadcast.</font>]]></string>
     <string name="photo">GALLERY</string>
@@ -1475,4 +1474,8 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
 	<string name="not_enough_memory">Not Enough Memory</string>
 	<string name="edit_photos">New Photo</string>
 	<string name="only_photos_edit">Only photos can be edited</string>
+	<string name="num_members">%1$d members</string>
+	<string name="group_selected">%1$s/1000 selected</string>
+	<string name="group_participant_info"><![CDATA[<font color=\"#000000\">You can add upto </font><font color=\"#1090e0\"><b>1000</b> </font><font color=\"#000000\">members</font>]]></string>
+	<string name="add_members">Add Members</string>
 </resources>

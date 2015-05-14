@@ -22,6 +22,7 @@ import com.bsb.hike.MqttConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
+import com.bsb.hike.models.ContactInfoData;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.OriginType;
 import com.bsb.hike.models.GroupParticipant;
@@ -55,11 +56,23 @@ public class OneToNConversationUtils
 		{
 			if (metadata.isNewGroup())
 			{
-				participantAddedMessage = String.format(context.getString(R.string.new_group_message), highlight);
+				String adder = "";
+				if(convMessage.getGroupParticipantMsisdn()!=null&& convMessage.getGroupParticipantMsisdn().trim().length()>0){
+					ContactInfo contact = ContactManager.getInstance().getContact(convMessage.getGroupParticipantMsisdn(),true,false);
+					if(contact!=null){
+						adder =contact.getFirstName();
+					}
+				}
+				participantAddedMessage =context.getString(R.string.new_group_message,adder);
 			}
 			else
 			{
-				participantAddedMessage = String.format(context.getString(R.string.add_to_group_message), highlight);
+				String adder = "You";
+				ContactInfo contact = ContactManager.getInstance().getContact(convMessage.getGroupParticipantMsisdn(),true,false);
+				if(contact!=null){
+					adder =contact.getFirstName();
+				}
+				participantAddedMessage =adder +" "+  context.getString(R.string.add_to_group_message,highlight);
 			}
 		}
 		return participantAddedMessage;
