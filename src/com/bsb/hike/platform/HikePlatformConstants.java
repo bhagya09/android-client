@@ -92,6 +92,7 @@ public interface HikePlatformConstants
 	public static final String BLOCKED_MESSAGE = "blocked_msg";
 	public static final String CARD = "card";
 	public static final String NOTIF = "notif";
+	public static final String APP_VERSION = "appVersion";
 
 	public static final String PLATFORM_BRIDGE_NAME = "PlatformBridge";
 
