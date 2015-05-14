@@ -815,10 +815,11 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			break;
 		case R.string.hide_chat:
 
-			if(mConversation.getMessagesList().isEmpty())
+			if(mMessageMap.isEmpty())
 			{
 				createEmptyConversation();
 			}
+
 			StealthModeManager.getInstance().toggleConversation(msisdn, !mConversation.isStealth(), activity);
 			//exiting chat thread 
 			if(!StealthModeManager.getInstance().isActive())
