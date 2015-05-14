@@ -2389,8 +2389,14 @@ public class VoIPService extends Service {
 			// Ringer
 			Logger.d(VoIPConstants.TAG, "Playing ringtone.");
 			Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
+			
 			if (ringtone == null)
 				ringtone = RingtoneManager.getRingtone(getApplicationContext(), notification);
+			
+			if (ringtone == null) {
+				Logger.e(VoIPConstants.TAG, "Unable to get ringtone object.");
+				return;
+			}
 			
 			if (Utils.isLollipopOrHigher()) {
 				AudioAttributes.Builder attrs = new AudioAttributes.Builder();
