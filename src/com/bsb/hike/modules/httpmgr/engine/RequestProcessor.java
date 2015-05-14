@@ -58,6 +58,7 @@ public class RequestProcessor
 				{
 					LogFull.i("on cancel called for " + request.toString() + "  removing from request map");
 					requestListenerNotifier.notifyListenersOfRequestCancellation(request);
+					removeRequest(request);
 				}
 			};
 			request.setRequestCancellationListener(listener);
