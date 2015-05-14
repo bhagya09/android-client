@@ -1073,7 +1073,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		}
 		else if (createGroup)
 		{
-			title.setText(R.string.new_group);
+			title.setText(R.string.add_members);
 		}
 		else if (createBroadcast)
 		{
