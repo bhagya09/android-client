@@ -1015,6 +1015,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	protected void stickerClicked()
 	{
+		Long time = System.currentTimeMillis();
 		initStickerPicker();
 		
 		closeStickerTip();
@@ -1032,6 +1033,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 				Toast.makeText(activity.getApplicationContext(), R.string.some_error, Toast.LENGTH_SHORT).show();
 			}
 		}
+		Logger.v(TAG, "Time taken to open sticker pallete : " + (System.currentTimeMillis() - time));
 	}
 	
 	protected void closeStickerTip()
@@ -1065,6 +1067,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	protected void emoticonClicked()
 	{
+		Long time = System.currentTimeMillis();
 		initEmoticonPicker();
 		
 		if (!mShareablePopupLayout.togglePopup(mEmoticonPicker, activity.getResources().getConfiguration().orientation))
@@ -1075,6 +1078,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 				Toast.makeText(activity.getApplicationContext(), R.string.some_error, Toast.LENGTH_SHORT).show();
 			}
 		}
+		
+		Logger.v(TAG, "Time taken to open emoticon pallete : " + (System.currentTimeMillis() - time));
 	}
 
 	/**
@@ -1085,7 +1090,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	{
 		String errorMsg = "Inside method : retry to inflate emoticons. Houston!, something's not right here";
 		HAManager.sendStickerEmoticonStrangeBehaviourReport(errorMsg);
-		mShareablePopupLayout = null;
 		initShareablePopup();
 		return mShareablePopupLayout.togglePopup(mEmoticonPicker, activity.getResources().getConfiguration().orientation);
 	}
@@ -1094,7 +1098,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	{
 		String errorMsg = "Inside method : retry to inflate stickers. Houston!, something's not right here";
 		HAManager.sendStickerEmoticonStrangeBehaviourReport(errorMsg);
-		mShareablePopupLayout = null;
 		initShareablePopup();
 		return mShareablePopupLayout.togglePopup(mStickerPicker, activity.getResources().getConfiguration().orientation);
 	}
