@@ -33,8 +33,6 @@ public class TextDrawable extends ShapeDrawable
 
 	private final int borderThickness;
 
-	private LinearGradient gradient;
-
 	private Typeface typeface;
 
 	private TextDrawable(Builder builder)
@@ -80,12 +78,6 @@ public class TextDrawable extends ShapeDrawable
 		Paint paint = getPaint();
 		paint.setColor(color);
 		
-		if(gradient == null)
-		{
-			gradient = new LinearGradient(80f, 0f, 80f, 160f,  color, getLighterShade(color,210), Shader.TileMode.CLAMP);
-		}
-		
-		paint.setShader(gradient);
 	}
 
 	private int getDarkerShade(int color)

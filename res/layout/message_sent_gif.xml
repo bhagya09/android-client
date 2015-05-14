@@ -18,6 +18,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
+        android:animateLayoutChanges="true"
         android:layout_below="@id/day_container"
         android:layout_marginRight="@dimen/chat_bubble_edge_spacing"
         android:background="@drawable/ic_bubble_green_selector"
@@ -25,15 +26,19 @@
 
         <pl.droidsonroids.gif.GifImageView
                 android:id="@+id/gif_view"
-                android:layout_width="wrap_content"
-                android:layout_centerInParent="true"
-                android:layout_height="wrap_content"/>
+                android:layout_marginRight="2dp"
+                android:layout_marginLeft="2dp"
+                android:layout_gravity="center"
+                android:visibility="gone"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
         
         <RelativeLayout
             android:id="@+id/placeholder"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="2dp"
+            android:animateLayoutChanges="true"
             android:layout_marginRight="2dp" >
 
             <com.bsb.hike.ui.utils.RecyclingImageView
@@ -41,8 +46,6 @@
                 android:layout_width="100dp"
                 android:layout_height="100dp"
                 android:layout_gravity="center" />
-            
-            
 
             <ImageView
                 android:id="@+id/filmstrip_left"

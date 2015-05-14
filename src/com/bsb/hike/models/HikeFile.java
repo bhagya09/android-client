@@ -126,6 +126,10 @@ public class HikeFile
 			{
 				return isSent ? context.getString(R.string.audio_recording_msg_sent) : context.getString(R.string.audio_recording_msg_received);
 			}
+			else if (hikeFileType == GIF)
+			{
+				return isSent ? context.getString(R.string.gif_sent) : context.getString(R.string.gif_received);
+			}
 			return isSent ? context.getString(R.string.file_msg_sent) : context.getString(R.string.file_msg_received);
 		}
 	}

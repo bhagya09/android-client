@@ -26,6 +26,7 @@
         android:id="@+id/message_container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:animateLayoutChanges="true"
         android:layout_below="@id/day_container"
         android:layout_marginBottom="2.5dp"
         android:layout_marginLeft="@dimen/chat_bubble_edge_spacing"
@@ -40,9 +41,19 @@
             android:layout_height="wrap_content"
             layout="@layout/message_sender_details" />
 
+        <pl.droidsonroids.gif.GifImageView
+                android:id="@+id/gif_view"
+                android:layout_marginRight="2dp"
+                android:layout_marginLeft="2dp"
+                android:layout_gravity="center"
+                android:visibility="gone"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+        
         <RelativeLayout
             android:id="@+id/placeholder"
             android:layout_width="wrap_content"
+            android:animateLayoutChanges="true"
             android:layout_height="wrap_content"
             android:layout_marginLeft="1dp"
             android:layout_marginRight="2dp" >
@@ -52,11 +63,6 @@
                 android:layout_width="100dp"
                 android:layout_height="100dp"
                 android:layout_gravity="center" />
-
-            <pl.droidsonroids.gif.GifImageView
-                android:id="@+id/gif_view"
-                android:layout_width="100dp"
-                android:layout_height="100dp" />
 
             <ImageView
                 android:id="@+id/filmstrip_left"

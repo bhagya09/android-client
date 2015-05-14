@@ -120,6 +120,7 @@ import com.bsb.hike.utils.Utils;
 import com.bsb.hike.utils.Utils.ExternalStorageState;
 import com.bsb.hike.view.CustomSendMessageTextView;
 import com.bsb.hike.view.HoloCircularProgress;
+import com.bsb.hike.view.TextDrawable;
 
 
 public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnLongClickListener, OnCheckedChangeListener
@@ -1455,7 +1456,18 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				}
 				gifHolder.fileThumb.setScaleType(ScaleType.CENTER);
 				gifHolder.fileThumb.setLayoutParams(fileThumbParams);
+				
+				//Set GIF view param
+				GifImageView gifView = gifHolder.gifView;
 
+				LinearLayout.LayoutParams params = (LayoutParams) gifView.getLayoutParams();
+
+				params.width = fileThumbParams.width;
+
+				params.height = fileThumbParams.height;
+
+				gifView.setLayoutParams(params);
+				
 				if (convMessage.isSent() && ((int) hikeFile.getFile().length() > 0) && fss.getFTState() != FTState.INITIALIZED)
 				{
 					gifHolder.fileSize.setText(Utils.getSizeForDisplay((int) hikeFile.getFile().length()));
@@ -1479,9 +1491,9 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				setTimeNStatus(position, gifHolder, true, gifHolder.fileThumb);
 				setSelection(convMessage, gifHolder.selectedStateOverlay);
 
-				gifHolder.fileThumb.setTag(convMessage);
-				gifHolder.fileThumb.setOnClickListener(this);
-				gifHolder.fileThumb.setOnLongClickListener(this);
+				gifHolder.messageContainer.setTag(convMessage);
+				gifHolder.messageContainer.setOnClickListener(this);
+				gifHolder.messageContainer.setOnLongClickListener(this);
 
 //				try
 //				{
@@ -2928,7 +2940,14 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				}
 				else if ((hikeFile.getHikeFileType() == HikeFileType.VIDEO || hikeFile.getHikeFileType() == HikeFileType.GIF) && !ext)
 				{
-					holder.ftAction.setImageResource(playImage);
+					if (hikeFile.getHikeFileType() == HikeFileType.GIF)
+					{
+						holder.ftAction.setImageDrawable(TextDrawable.builder().buildRound("GIF", 0x33333333));
+					}
+					else if (hikeFile.getHikeFileType() == HikeFileType.VIDEO)
+					{
+						holder.ftAction.setImageResource(playImage);
+					}
 					holder.ftAction.setVisibility(View.VISIBLE);
 					holder.circularProgressBg.setVisibility(View.VISIBLE);
 				}
@@ -2961,7 +2980,15 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		case COMPLETED:
 			if ((hikeFile.getHikeFileType() == HikeFileType.VIDEO || hikeFile.getHikeFileType() == HikeFileType.GIF) && !ext)
 			{
-				holder.ftAction.setImageResource(playImage);
+				if (hikeFile.getHikeFileType() == HikeFileType.GIF)
+				{
+					holder.ftAction.setImageDrawable(TextDrawable.builder().buildRound("GIF", 0x33333333));
+				}
+				else if (hikeFile.getHikeFileType() == HikeFileType.VIDEO)
+				{
+					holder.ftAction.setImageResource(playImage);
+				}
+				
 				holder.ftAction.setVisibility(View.VISIBLE);
 				holder.circularProgressBg.setVisibility(View.VISIBLE);
 			}
@@ -3533,6 +3560,46 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		Intent openFile = new Intent(Intent.ACTION_VIEW);
 		switch (hikeFile.getHikeFileType())
 		{
+		case GIF:
+			try
+			{
+				GifImageView gifView = (GifImageView) parent.findViewById(R.id.gif_view);
+				
+				Drawable existingDrawable = gifView.getDrawable();
+				
+				if(existingDrawable!=null && existingDrawable instanceof GifDrawable)
+				{
+					GifDrawable gifDrawable = (GifDrawable) existingDrawable;
+
+					//cannot rely on gifDrawable.isanimating since it returns wrong value sometimes
+					if (gifView.getVisibility() == View.VISIBLE)
+					{
+						gifDrawable.stop();
+						gifDrawable.reset();
+						parent.findViewById(R.id.placeholder).setVisibility(View.VISIBLE);
+						gifView.setVisibility(View.GONE);
+					}
+					else
+					{
+						gifDrawable.start();
+						gifView.setVisibility(View.VISIBLE);
+						parent.findViewById(R.id.placeholder).setVisibility(View.GONE);
+					}
+				}
+				else
+				{
+					GifDrawable gifDrawable = new GifDrawable(hikeFile.getFile());
+					gifView.setImageResource(gifDrawable);
+					gifView.setVisibility(View.VISIBLE);
+					parent.findViewById(R.id.placeholder).setVisibility(View.GONE);
+				}
+			}
+			catch (IOException e1)
+			{
+				Toast.makeText(context, R.string.gif_not_working, Toast.LENGTH_SHORT).show();
+				e1.printStackTrace();
+			}
+			return;
 		case LOCATION:
 			String uri = String.format(Locale.US, "geo:%1$f,%2$f?z=%3$d&q=%1$f,%2$f", hikeFile.getLatitude(), hikeFile.getLongitude(), hikeFile.getZoomLevel());
 			openFile.setData(Uri.parse(uri));

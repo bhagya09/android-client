@@ -792,10 +792,16 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 			{
 				thumbnailLoader.loadImage(galleryItem.getImageLoaderKey(false), image);
 				fileMissing.setVisibility(View.GONE);
-				
-				if (galleryItem.getHikeFileType() == HikeFileType.VIDEO)
+
+				if (galleryItem.getHikeFileType() == HikeFileType.VIDEO || galleryItem.getHikeFileType() == HikeFileType.GIF)
 				{
 					image_duration.setVisibility(View.VISIBLE);
+
+					if (galleryItem.getHikeFileType() == HikeFileType.GIF)
+					{
+						ImageView actionBtn = (ImageView) image_thumb.findViewById(R.id.play_media);
+						actionBtn.setImageDrawable(TextDrawable.builder().buildRound("GIF", 0x22222222));
+					}
 				}
 				else
 				{

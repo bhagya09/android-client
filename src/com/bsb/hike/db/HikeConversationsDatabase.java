@@ -5758,7 +5758,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		HikeFileType[] mediaFileTypes;
 		if (onlyMedia)
 		{
-			mediaFileTypes = new HikeFileType[] { HikeFileType.IMAGE, HikeFileType.VIDEO };
+			mediaFileTypes = new HikeFileType[] { HikeFileType.IMAGE, HikeFileType.VIDEO, HikeFileType.GIF };
 		}
 		else
 		{
