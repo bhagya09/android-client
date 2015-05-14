@@ -163,15 +163,6 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	{
 		super(activity, msisdn);
 	}
-
-	@Override
-	protected void onStart()
-	{
-		super.onStart();
-
-		// fetch the latest last seen
-		fetchLastSeen();
-	}
 	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu)
@@ -282,6 +273,10 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			FetchHikeUser.fetchHikeUser(activity.getApplicationContext(), msisdn);
 		}
 
+		if (ChatThreadUtils.shouldShowLastSeen(msisdn, activity.getApplicationContext(), mConversation.isOnHike(), mConversation.isBlocked()))
+		{
+			checkAndStartLastSeenTask();
+		}
 		/**
 		 * If user is blocked
 		 */
