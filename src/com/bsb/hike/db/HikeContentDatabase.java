@@ -125,7 +125,7 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 		String cacheDataTable = CREATE_TABLE +CONTENT_CACHE_TABLE
 				+ "("
 				+_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-				+ KEY + " TEXT, "
+				+ KEY + " TEXT UNIQUE, "
 				+ VALUE + " TEXT, "
 				+ NAMESPACE + " TEXT "
 				+ ")";
@@ -174,7 +174,7 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 			String cacheDataTable = CREATE_TABLE + CONTENT_CACHE_TABLE
 					+ "("
 					+_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-					+ KEY + " TEXT, "
+					+ KEY + " TEXT UNIQUE, "
 					+ VALUE + " TEXT, "
 					+ NAMESPACE + " TEXT "
 					+ ")";

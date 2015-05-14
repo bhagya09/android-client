@@ -504,7 +504,7 @@ public abstract class JavascriptBridge
 			@Override
 			public void run()
 			{
-				mWebView.loadUrl("javascript:callbackFromNative" + "('" + value + "')");
+				mWebView.loadUrl("javascript:callbackFromNative" + "('" + id + "','" + value + "')");
 			}
 		});
 	}

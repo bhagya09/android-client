@@ -434,25 +434,25 @@ public class MessagingBotJavaScriptBridge extends JavascriptBridge
 
 	/**
 	 * Call this function to get the bulk large data from the native memory
-	 * @param functionName : the function name that native will call to give the cache back to js.
+	 * @param id : the id of the function that native will call to call the js .
 	 */
 	@JavascriptInterface
-	public void getLargeDataFromCache(String functionName)
+	public void getLargeDataFromCache(String id)
 	{
 		String value = HikeContentDatabase.getInstance().getFromContentCache(message.getNameSpace(), message.getNameSpace());
-		callbackToJS(functionName, value);
+		callbackToJS(id, value);
 	}
 
 	/**
 	 * call this function to get the data from the native memory
-	 * @param functionName
-	 * @param key
+	 * @param id: the id of the function that native will call to call the js .
+	 * @param key: key of the data to be saved. Microapp needs to make sure about the uniqueness of the key.
 	 */
 	@JavascriptInterface
-	public void getFromCache(String functionName, String key)
+	public void getFromCache(String id, String key)
 	{
 		String value = HikeContentDatabase.getInstance().getFromContentCache(key, message.getNameSpace());
-		callbackToJS(functionName, value);
+		callbackToJS(id, value);
 	}
 
 	
