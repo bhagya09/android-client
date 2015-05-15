@@ -15,6 +15,7 @@ import android.graphics.drawable.Drawable;
 import android.net.MailTo;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.view.WindowCompat;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
@@ -25,7 +26,6 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.PopupWindow.OnDismissListener;
@@ -101,6 +101,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
+		getWindow().requestFeature(WindowCompat.FEATURE_ACTION_BAR_OVERLAY);
 		setContentView(R.layout.webview_activity);
 		initView();	
 		initActionBar();
