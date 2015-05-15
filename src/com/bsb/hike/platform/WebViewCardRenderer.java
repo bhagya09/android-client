@@ -42,9 +42,8 @@ import com.bsb.hike.R;
 import com.bsb.hike.adapters.MessagesAdapter;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.models.ConvMessage;
-import com.bsb.hike.platform.bridge.PlatformJavaScriptBridge;
-import com.bsb.hike.platform.bridge.PlatformJavaScriptBridge.WebviewEventListener;
 import com.bsb.hike.platform.content.HikeWebClient;
+import com.bsb.hike.platform.bridge.MessagingBotJavaScriptBridge;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformContent.EventCode;
 import com.bsb.hike.platform.content.PlatformContentListener;
@@ -70,6 +69,8 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 
 	private static final int WEBVIEW_CARD_COUNT = 3;
 
+	private long startTime;
+
 	Activity mContext;
 
 	ArrayList<ConvMessage> convMessages;
@@ -94,9 +95,13 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 	{
 		public long id = 0;
 
+		public long inflationTime;
+
+		public long templatingTime;
+
 		CustomWebView customWebView;
 
-		PlatformJavaScriptBridge platformJavaScriptBridge;
+		MessagingBotJavaScriptBridge platformJavaScriptBridge;
 
 		public View selectedStateOverlay;
 
@@ -135,7 +140,7 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 	{
 		holder.main = view;
 		holder.customWebView = (CustomWebView) view.findViewById(R.id.webcontent);
-		holder.platformJavaScriptBridge = new PlatformJavaScriptBridge(mContext,holder.customWebView, convMessage, adapter);
+		holder.platformJavaScriptBridge = new MessagingBotJavaScriptBridge(mContext,holder.customWebView, convMessage, adapter);
 		holder.selectedStateOverlay = view.findViewById(R.id.selected_state_overlay);
 		holder.loadingSpinner = view.findViewById(R.id.loading_data);
 		holder.cardFadeScreen = view.findViewById(R.id.card_fade_screen);
@@ -200,6 +205,7 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 	@Override
 	public View getView(final int position, View convertView, ViewGroup parent)
 	{
+		startTime = System.currentTimeMillis();
 		Logger.i(tag, "get view with called with position " + position);
 		int type = getItemViewType(position);
 		View view = convertView;
@@ -259,12 +265,12 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 		if (viewHolder.id != getItemId(position))
 		{
 			showLoadingState(view);
-
+			viewHolder.inflationTime = System.currentTimeMillis() - startTime;
 			loadContent(position, convMessage, viewHolder);
 		}
 		else
 		{
-			Logger.i(tag, "view reused without loading again ");
+			viewHolder.inflationTime = -1;
 			int mId = (int) convMessage.getMsgID();
 			String alarm;
 			if ((alarm = cardAlarms.get(mId))!=null)
@@ -301,6 +307,7 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 				else
 				{
 					Logger.e(tag, "error");
+					viewHolder.templatingTime = -1;
 					showConnErrState(viewHolder, convMessage, position);
 					HikeAnalyticsEvent.cardErrorAnalytics(reason, convMessage);
 				}
@@ -317,6 +324,7 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 						if((Integer)viewHolder.customWebView.getTag() == content.getUniqueId())
 						{
 							viewHolder.id = getItemId(position);
+							viewHolder.templatingTime = System.currentTimeMillis() - viewHolder.inflationTime - startTime;
 							fillContent(content, convMessage, viewHolder);
 						}
 						else
@@ -385,6 +393,18 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 		holder.webViewClient.convMessage = convMessage;
 		holder.platformJavaScriptBridge.updateConvMessage(convMessage);
 		holder.customWebView.loadDataWithBaseURL("content://"+content.getUniqueId(), content.getFormedData(), "text/html", "UTF-8", "");
+		JSONObject time = new JSONObject();
+		try
+		{
+			time.put(HikePlatformConstants.INFLATION_TIME, holder.inflationTime);
+			time.put(HikePlatformConstants.TEMPLATING_TIME, holder.templatingTime);
+			holder.platformJavaScriptBridge.updateProfilingTime(time);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+
 	}
 
 	private class CustomWebViewClient extends HikeWebClient
@@ -613,7 +633,7 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 	 */
 	public void onActivityResult(int resultCode, Intent data)
 	{
-		int platformBridgeHashcode = data.getIntExtra(PlatformJavaScriptBridge.tag, -1);
+		int platformBridgeHashcode = data.getIntExtra(MessagingBotJavaScriptBridge.tag, -1);
 		if(platformBridgeHashcode != -1)
 		{
 			for(WebViewHolder holder : holderList)

@@ -13,7 +13,7 @@ public interface HikePlatformConstants
 	String INTENT_URI = "intentUri";
 	String CONTENT_TYPE = "contentType";
 	String VERSION = "version";
-	String TAG = "tag";
+	String TAG = "platform";
 	String KEY = "key";
 	String SUBTYPE = "st";
 	String TEXT = "title";
@@ -37,10 +37,7 @@ public interface HikePlatformConstants
 	String CARD_OBJECT = "cardObj";
 	String NOTIF_TEXT_WC = "notifText";
 	String WC_PUSH_KEY = "push";
-	String CRICKET_BOT_MSISDN = "+hikecricket+";
-	String CRICKET_BOT_NAME = "Cricket 2015";
 	String CRICKET_CHAT_THEME_ID = "39";
-	String CRICKET_PREF_NAME = "cricket_pref_name";
 	String APP_NAME = "appName";
 	String LAYOUT = "layoutId";
 	String LONG_PRESS_DISABLED = "lpd";
@@ -54,6 +51,8 @@ public interface HikePlatformConstants
 	public int HTTP_CALL_MADE = 2;
 	public int MAKE_HTTP_CALL = 1;
 	public static final String PLATFORM_UID_FETCH_TAG = "platformUID";
+	public static final String CONTENT_ID = "content_id";
+	public static final String NAMESPACE = "namespace";
 
 	public static final class PlatformUIDFetchType
 	{
@@ -93,6 +92,7 @@ public interface HikePlatformConstants
 	public static final String BLOCKED_MESSAGE = "blocked_msg";
 	public static final String CARD = "card";
 	public static final String NOTIF = "notif";
+	public static final String APP_VERSION = "appVersion";
 
 	public static final String PLATFORM_BRIDGE_NAME = "PlatformBridge";
 
@@ -121,4 +121,33 @@ public interface HikePlatformConstants
 	public static final String  NO_PUSH = "none";
 	
 	public static final String PLATFORM_JS_VERSION = "platform_js";
+
+	public static final String IS_SENT = "isSent";
+
+	public static final String INFLATION_TIME = "inflationTime";
+
+	public static final String TEMPLATING_TIME = "templatingTime";
+
+	public static final String RENDERING_TIME = "renderingTime";
+
+	public static final String PROFILING_TIME = "time";
+
+	public static final String CONFIG_DATA = "cd";
+
+	public static final String ENABLE_BOT = "enable_bot";
+
+	public static final String BOT_TYPE = "bot_type";
+
+	/**
+	 * Overflow menu item constants :
+	 */
+	public static final String TITLE = "title";
+	
+	public static final String ID = "id";
+	
+	public static final String ENABLED = "en";
+	
+	/**
+	 * Overflow menu item constants end
+	 */
 }

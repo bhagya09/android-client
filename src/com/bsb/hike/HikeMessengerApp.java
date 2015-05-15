@@ -9,7 +9,14 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import android.text.TextUtils;
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
+import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.platform.PlatformUIDFetch;
+import com.bsb.hike.platform.content.PlatformContent;
 
 import org.acra.ACRA;
 import org.acra.ErrorReporter;
@@ -48,8 +55,6 @@ import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.notifications.HikeNotificationUtils;
 import com.bsb.hike.notifications.ToastListener;
 import com.bsb.hike.platform.HikePlatformConstants;
-import com.bsb.hike.platform.PlatformUIDFetch;
-import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.service.HikeService;
 import com.bsb.hike.service.MqttMessagesManager;
@@ -479,6 +484,8 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 
 	public static final String UPGRADE_FOR_SERVER_ID_FIELD = "upgradeForServerIdField";
 
+	public static final String UPGRADE_FOR_DEFAULT_BOT_ENTRY = "upgradeForBotEntry";
+
 	public static final String SHOW_BROADCAST_FTUE_SCREEN = "showBroadcastFtueScreen";
 
 	public static final String EXCEPTION_ANALYTIS_ENABLED = "exceptionAnalaticsEnabled";
@@ -511,7 +518,7 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 
 	public static Map<String, Pair<Integer, Long>> lastSeenFriendsMap;
 
-	public static HashMap<String, String> hikeBotNamesMap;
+	public static ConcurrentHashMap<String, BotInfo> hikeBotNamesMap;
 
 	public static volatile boolean networkError;
 
@@ -838,16 +845,9 @@ public void onTrimMemory(int level)
 
 		makeNoMediaFiles();
 
-		hikeBotNamesMap = new HashMap<String, String>();
-		hikeBotNamesMap.put(HikeConstants.FTUE_TEAMHIKE_MSISDN, "team hike");
-		hikeBotNamesMap.put(HikeConstants.FTUE_HIKEBOT_MSISDN, "Emma from hike");
-		hikeBotNamesMap.put(HikeConstants.FTUE_GAMING_MSISDN, "Games on hike");
-		hikeBotNamesMap.put(HikeConstants.FTUE_HIKE_DAILY, "hike daily");
-		hikeBotNamesMap.put(HikeConstants.FTUE_HIKE_SUPPORT, "hike support");
-		hikeBotNamesMap.put(HikeConstants.NUX_BOT, "Natasha");
-		hikeBotNamesMap.put(HikeConstants.CRICKET_BOT, HikePlatformConstants.CRICKET_BOT_NAME);
+		hikeBotNamesMap = new ConcurrentHashMap<>();
+		initBots();
 
-		HikeConversationsDatabase.getInstance().addBotToHashMap(hikeBotNamesMap);
 		initHikeLruCache(getApplicationContext());
 		initContactManager();
 		/*
@@ -858,16 +858,11 @@ public void onTrimMemory(int level)
 		appStateHandler = new Handler();
 
 		HikeMessengerApp.getPubSub().addListener(HikePubSub.CONNECTED_TO_MQTT, this);
-		
+
 		registerReceivers();
-		
+
 		HttpManager.init();
 
-		if (!HikeSharedPreferenceUtil.getInstance().getData(HikePlatformConstants.CRICKET_PREF_NAME, false))
-		{
-			cricketBotEntry();
-			HikeSharedPreferenceUtil.getInstance().saveData(HikePlatformConstants.CRICKET_PREF_NAME, true);
-		}
 		ProductInfoManager.getInstance().init();
 		PlatformContent.init(settings.getBoolean(HikeMessengerApp.PRODUCTION, true));
 
@@ -875,6 +870,54 @@ public void onTrimMemory(int level)
 		{
 			fetchPlatformIDIfNotPresent();
 		}
+	}
+
+	private void initBots()
+	{
+		HikeHandlerUtil mThread = HikeHandlerUtil.getInstance();
+		mThread.startHandlerThread();
+		mThread.postRunnableWithDelay(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				if (HikeSharedPreferenceUtil.getInstance().getData(UPGRADE_FOR_DEFAULT_BOT_ENTRY, true))
+				{
+					addDefaultBotsToDB();
+					HikeSharedPreferenceUtil.getInstance().saveData(UPGRADE_FOR_DEFAULT_BOT_ENTRY, false);
+				}
+
+				HikeConversationsDatabase.getInstance().getBotHashmap();
+				Logger.d("create bot", "Keys are " + hikeBotNamesMap.keySet() + "------");
+				Logger.d("create bot", "values are " + hikeBotNamesMap.values());
+			}
+		}, 0);
+
+	}
+
+	/**
+	 * adding default bots on app upgrade. The config is set using {@link com.bsb.hike.bots.MessagingBotConfiguration}, where every bit is set according to the
+	 * requirement https://docs.google.com/spreadsheets/d/1hTrC9GdGRXrpAt9gnFnZACiTz2Th8aUIzVB5hrlD_4Y/edit#gid=0
+	 */
+	private void addDefaultBotsToDB()
+	{
+
+		defaultBotEntry("+hike+", "team hike", null, HikeBitmapFactory.getBase64ForDrawable(R.drawable.hiketeam, getApplicationContext()), 4527, false);
+
+		defaultBotEntry("+hike1+", "Emma from hike", null, null, 2069487, true);
+
+		defaultBotEntry("+hike2+", "Games on hike", null, null, 21487, false);
+
+		defaultBotEntry("+hike3+", "hike daily", null, HikeBitmapFactory.getBase64ForDrawable(R.drawable.hikedaily, getApplicationContext()), 21487, false);
+
+		defaultBotEntry("+hike4+", "hike support", null, null, 2069487, true);
+
+		defaultBotEntry("+hike5+", "Natasha", null, null, 2069487, true);
+
+		defaultBotEntry("+hikecricket+", "Cricket 2015", HikePlatformConstants.CRICKET_CHAT_THEME_ID,
+				HikeBitmapFactory.getBase64ForDrawable(R.drawable.cric_icon, getApplicationContext()),
+				21487, false);
+
 	}
 
 	/**
@@ -892,41 +935,40 @@ public void onTrimMemory(int level)
 
 	// Hard coding the cricket bot on the App's onCreate so that there is a cricket bot entry
 	// when there is no bot currently in the app. Using the shared prefs for that matter.
-	// Hardcoding the bot name, bot msisdn and the bot chat theme. Can be updated using the
+	// Hardcoding the bot name, bot msisdn, the bot chat theme, bot's dp and its type. Can be updated using the
 	// AC packet cbot and delete using the ac packet dbot.
-	private void cricketBotEntry()
+	private void defaultBotEntry(final String msisdn, final String name, final String chatThemeId, final String dp, final int config, final boolean isReceiveEnabled)
 	{
-		HikeHandlerUtil mThread = HikeHandlerUtil.getInstance();
-		mThread.startHandlerThread();
-		mThread.postRunnableWithDelay(new Runnable()
+
+		Logger.d("create bot", "default bot entry started");
+		final JSONObject jsonObject = new JSONObject();
+		try
 		{
-			@Override
-			public void run()
+			jsonObject.put(HikeConstants.MSISDN, msisdn);
+			jsonObject.put(HikeConstants.NAME, name);
+
+			if (!TextUtils.isEmpty(dp))
 			{
-				Logger.d("create bot", "cricket bot entry started");
-				final JSONObject jsonObject = new JSONObject();
-				try
-				{
-					jsonObject.put(HikeConstants.MSISDN, HikePlatformConstants.CRICKET_BOT_MSISDN);
-					jsonObject.put(HikeConstants.NAME, HikePlatformConstants.CRICKET_BOT_NAME);
-					jsonObject.put(HikeConstants.BOT_CHAT_THEME, HikePlatformConstants.CRICKET_CHAT_THEME_ID);
-
-					BitmapDrawable drawable = (BitmapDrawable) getApplicationContext().getResources().getDrawable(R.drawable.cric_icon);
-					String base64Icon = Utils.drawableToString(drawable);
-					if (base64Icon != null)
-					{
-						jsonObject.put(HikeConstants.BOT_THUMBNAIL, base64Icon);
-					}
-				}
-				catch (JSONException e)
-				{
-					e.printStackTrace();
-				}
-
-				MqttMessagesManager.getInstance(getApplicationContext()).createBot(jsonObject);
+				jsonObject.put(HikeConstants.BOT_THUMBNAIL, dp);
 			}
-		}, 0);
 
+			if (!TextUtils.isEmpty(chatThemeId))
+			{
+				jsonObject.put(HikeConstants.BOT_CHAT_THEME, chatThemeId);
+			}
+			jsonObject.put(HikePlatformConstants.BOT_TYPE, HikeConstants.MESSAGING_BOT);
+			jsonObject.put(HikeConstants.CONFIGURATION, config);
+
+			JSONObject metadata = new JSONObject();
+			metadata.put(HikeConstants.IS_RECEIVE_ENABLED_IN_BOT, isReceiveEnabled);
+			jsonObject.put(HikeConstants.METADATA, metadata);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+
+		MqttMessagesManager.getInstance(getApplicationContext()).createBot(jsonObject);
 	}
 
 	public static HikeMessengerApp getInstance()

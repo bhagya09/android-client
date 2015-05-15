@@ -98,6 +98,7 @@ import com.bsb.hike.media.AudioRecordView.AudioRecordListener;
 import com.bsb.hike.media.CaptureImageParser;
 import com.bsb.hike.media.CaptureImageParser.CaptureImageListener;
 import com.bsb.hike.media.EmoticonPicker;
+import com.bsb.hike.media.HikeActionBar;
 import com.bsb.hike.media.OverFlowMenuItem;
 import com.bsb.hike.media.OverFlowMenuLayout.OverflowViewListener;
 import com.bsb.hike.media.OverflowItemClickListener;
@@ -1923,6 +1924,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			}
 			if (message.getState() == ConvMessage.State.RECEIVED_UNREAD)
 			{
+				// message size could be less than that of the unread count coz microapps have the authority
+				//to increase the unread count of the bot they are in. So a safety check to prevent exception.
 				int index = (messages.size() - mConversation.getUnreadCount() - 1) ;
 				index = index >= 0 ? index : 0;
 				mConversationsView.setSelection(index);
