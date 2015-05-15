@@ -2516,7 +2516,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 							e.printStackTrace();
 						}
 						loadMessageCount *= 2;
-						position = messageSearchManager.getPrevItem(chatThread.get().mConversationsView.getFirstVisiblePosition());
+						position = messageSearchManager.getPrevItem(msgList.size());
 					}
 					if (loaderId == SEARCH_LOOP && position < 0)
 					{
