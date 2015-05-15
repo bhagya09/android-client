@@ -28,4 +28,6 @@ public class PlatformContentConstants
 	public static final String CONTENT_FONTPATH_BASE = "fontpath://";
 
 	public static final String ASSETS_FONTS_DIR = "fonts/";
+	
+	public static final String CONTENT_ID = "content_id";
 }
