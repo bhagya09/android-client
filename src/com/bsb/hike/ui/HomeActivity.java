@@ -104,6 +104,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 												// for Production
 
 	private OverflowAdapter overflowAdapter;
+	
+	private boolean extrasClearedOut = false;
 
 	private enum DialogShowing
 	{
@@ -187,6 +189,20 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	{
 		Logger.d(TAG,"onCreate");
 		super.onCreate(savedInstanceState);
+
+		if (savedInstanceState != null && savedInstanceState.getBoolean(HikeConstants.Extras.CLEARED_OUT, false)) 
+		{
+			//this means that activity has been restarted after being destroyed 
+			extrasClearedOut = true;
+		}
+		
+		if(extrasClearedOut)
+		{
+			//removing the EXTRA becoz every time a singleTop activity is respawned, 
+			//android system uses the old intent to fire it, and it will contain unwanted extras.
+			getIntent().removeExtra(HikeConstants.MSISDN);
+		}
+
 		if (Utils.requireAuth(this))
 		{
 			Logger.wtf(TAG, "user is not authenticated. Finishing activity");
@@ -231,6 +247,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		}
 		
 		showProductPopup(ProductPopupsConstants.PopupTriggerPoints.HOME_SCREEN.ordinal());
+	
 	}
 
 	private void setupActionBar()
@@ -410,6 +427,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	@Override
 	protected void onDestroy()
 	{
+		Logger.d(TAG, "onDestroy");
 		if (progDialog != null)
 		{
 			progDialog.dismiss();
@@ -432,7 +450,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	{
 		Logger.d(getClass().getSimpleName(), "onNewIntent");
 		super.onNewIntent(intent);
-
+		setIntent(intent);
 		if (Utils.requireAuth(this))
 		{
 			return;
@@ -862,7 +880,15 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	@Override
 	protected void onResume()
 	{
+		Logger.d(TAG,"onResume");
 		super.onResume();
+		if(getIntent().hasExtra(HikeConstants.MSISDN))
+		{
+			//after showing the LockPatternActivity the extra is no longer needed, so clearing it out.
+			extrasClearedOut = true;
+			StealthModeManager.getInstance().settingupTriggered(getIntent().getStringExtra(HikeConstants.MSISDN), this);
+			getIntent().removeExtra(HikeConstants.MSISDN);
+		}
 		checkNShowNetworkError();
 		HikeMessengerApp.getPubSub().publish(HikePubSub.CANCEL_ALL_NOTIFICATIONS, null);
 	}
@@ -890,6 +916,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	@Override
 	protected void onSaveInstanceState(Bundle outState)
 	{
+		Logger.d(TAG,"onsavedInstance");
 		outState.putBoolean(HikeConstants.Extras.DEVICE_DETAILS_SENT, deviceDetailsSent);
 		if (dialog != null && dialog.isShowing())
 		{
@@ -899,6 +926,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		outState.putInt(HikeConstants.Extras.FRIENDS_LIST_COUNT, friendsListCount);
 		outState.putInt(HikeConstants.Extras.HIKE_CONTACTS_COUNT, hikeContactsCount);
 		outState.putInt(HikeConstants.Extras.RECOMMENDED_CONTACTS_COUNT, recommendedCount);
+		outState.putBoolean(HikeConstants.Extras.CLEARED_OUT, extrasClearedOut);
 		super.onSaveInstanceState(outState);
 	}
 
@@ -1852,6 +1880,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	@Override
 	protected void onRestoreInstanceState(Bundle savedInstanceState)
 	{
+		Logger.d(TAG, "onRestoredInstanceState");
 		final byte overflowState = savedInstanceState.getByte(HikeConstants.Extras.HOME_POPUP_TYPE);
 		if (overflowState == OVERFLOW_MENU_TYPE_3DOT || overflowState == OVERFLOW_MENU_TYPE_COMPOSE)
 		{

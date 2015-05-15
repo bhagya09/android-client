@@ -1491,6 +1491,8 @@ public class HikeConstants
 
 		public static final String CALL_RATE_BUNDLE = "callRateBundle";
 		
+		public static final String CLEARED_OUT = "extrasClearedOut";
+		
 		// constants related to sharing Functioanlity
 		public static final class ShareTypes
 		{

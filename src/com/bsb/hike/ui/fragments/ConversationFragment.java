@@ -905,10 +905,6 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 	{
 		super.onActivityCreated(savedInstanceState);
 		Logger.d("footer","onActivityCreated");
-		if(getActivity().getIntent().hasExtra(HikeConstants.MSISDN))
-		{
-			StealthModeManager.getInstance().settingupTriggered(getActivity().getIntent().getStringExtra(HikeConstants.MSISDN), getActivity());
-		}
 		if (NUXManager.getInstance().getCurrentState() == NUXConstants.NUX_IS_ACTIVE
 				|| (NUXManager.getInstance().getCurrentState() == NUXConstants.NUX_SKIPPED)||(NUXManager.getInstance().getCurrentState() == NUXConstants.COMPLETED))
 		{
@@ -3290,10 +3286,6 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 			ShowTipIfNeeded(displayedConversations.isEmpty());
 		}
 
-		if(intent.hasExtra(HikeConstants.MSISDN))
-		{
-			StealthModeManager.getInstance().settingupTriggered(intent.getStringExtra(HikeConstants.MSISDN), getActivity());
-		}
 		final NUXManager nm=NUXManager.getInstance();
 
 		if (nm.getCurrentState() == NUXConstants.NUX_IS_ACTIVE
