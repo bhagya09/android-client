@@ -132,6 +132,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		{
 			throw new IllegalArgumentException("Seems You forgot to send msisdn of Bot my dear");
 		}
+		findViewById(R.id.progress).setVisibility(View.GONE);;
 		attachBridge();
 		initBot();
 		setupMicroAppActionBar();
@@ -383,7 +384,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		actionBarView.findViewById(R.id.contact_status).setVisibility(View.GONE);
 		
 		backContainer.setOnClickListener(this);
-		setAvatar();
+	
 	}
 
 	private void setAvatar()
@@ -406,6 +407,8 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	private void setupMicroAppActionBar()
 	{
 		setupActionBar(botInfo.getConversationName());
+		updateActionBarColor(R.drawable.bg_header_transparent);
+		setAvatar();
 	}
 
 	private void loadMicroApp()
