@@ -164,7 +164,7 @@ public class EmoticonPicker implements ShareablePopup, EmoticonPickerListener, O
 
 		mLayoutResId = (mLayoutResId == -1) ? R.layout.emoticon_layout : mLayoutResId;
 
-		mViewToDisplay = (ViewGroup) LayoutInflater.from(mContext).inflate(mLayoutResId, null);
+		mViewToDisplay = (ViewGroup) LayoutInflater.from(mContext.getApplicationContext()).inflate(mLayoutResId, null);
 
 		initViewComponents(mViewToDisplay);
 	}

@@ -165,7 +165,7 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 
 		mLayoutResId = (mLayoutResId == -1) ? R.layout.sticker_layout : mLayoutResId;
 
-		viewToDisplay = (ViewGroup) LayoutInflater.from(mContext).inflate(mLayoutResId, null);
+		viewToDisplay = (ViewGroup) LayoutInflater.from(mContext.getApplicationContext()).inflate(mLayoutResId, null);
 
 		initViewComponents(viewToDisplay);
 	}
