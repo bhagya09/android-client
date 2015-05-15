@@ -2988,9 +2988,7 @@ public class MqttMessagesManager
 		{
 			return;
 		}
-		List<String> msisdns = new ArrayList<String>(1);
-		msisdns.add(msisdn);
-		convDb.deleteConversation(msisdns);
+		convDb.deleteConversation(msisdn);
 		HikeMessengerApp.hikeBotNamesMap.remove(msisdn);
 		ContactManager.getInstance().removeIcon(msisdn);
 		convDb.deleteBot(msisdn);
