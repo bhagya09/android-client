@@ -3000,10 +3000,12 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				if (ext)
 				{
 					status.setImageResource(R.drawable.ic_clock_white);
+					status.setContentDescription(context.getResources().getString(R.string.content_des_message_clock_state));
 				}
 				else
 				{
 					status.setImageResource(R.drawable.ic_clock);
+					status.setContentDescription(context.getResources().getString(R.string.content_des_message_clock_state));
 				}
 			}
 			else if (ext)
@@ -3012,15 +3014,18 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				{
 				case SENT_UNCONFIRMED:
 					status.setImageResource(R.drawable.ic_clock_white);
+					status.setContentDescription(context.getResources().getString(R.string.content_des_message_clock_state));
 					break;
 				case SENT_CONFIRMED:
 					setIconForSentMessage(message, status, R.drawable.ic_tick_white, R.drawable.ic_sms_white, R.drawable.ic_bolt_white);
 					break;
 				case SENT_DELIVERED:
 					status.setImageResource(R.drawable.ic_double_tick_white);
+					status.setContentDescription(context.getResources().getString(R.string.content_des_message_double_tick_state));
 					break;
 				case SENT_DELIVERED_READ:
 					status.setImageResource(R.drawable.ic_double_tick_r_white);
+					status.setContentDescription(context.getResources().getString(R.string.content_des_message_double_tick_read_state));
 					break;
 				default:
 					break;
@@ -3032,15 +3037,18 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				{
 				case SENT_UNCONFIRMED:
 					status.setImageResource(R.drawable.ic_clock);
+					status.setContentDescription(context.getResources().getString(R.string.content_des_message_clock_state));
 					break;
 				case SENT_CONFIRMED:
 					setIconForSentMessage(message, status, R.drawable.ic_tick, R.drawable.ic_sms, R.drawable.ic_bolt_grey);
 					break;
 				case SENT_DELIVERED:
 					status.setImageResource(R.drawable.ic_double_tick);
+					status.setContentDescription(context.getResources().getString(R.string.content_des_message_double_tick_state));
 					break;
 				case SENT_DELIVERED_READ:
 					status.setImageResource(R.drawable.ic_double_tick_r);
+					status.setContentDescription(context.getResources().getString(R.string.content_des_message_double_tick_read_state));
 					break;
 				default:
 					break;
@@ -3071,15 +3079,18 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			if (message.isSMS())
 			{
 				status.setImageResource(smsDrawableResId);
+				status.setContentDescription(context.getResources().getString(R.string.content_des_message_offline_state));
 				return;
 			}
 			else if (isH20TipShowing)
 			{
 				status.setImageResource(boltDrawableResId);
+				status.setContentDescription(context.getResources().getString(R.string.content_des_message_offline_state));
 				return;
 			}
 		}
 		status.setImageResource(tickResId);
+		status.setContentDescription(context.getResources().getString(R.string.content_des_message_clock_state));
 	}
 
 	private void inflateNSetMessageInfo(final ConvMessage message, final DetailViewHolder detailHolder, final View clickableItem)

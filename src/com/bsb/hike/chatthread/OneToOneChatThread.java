@@ -2765,6 +2765,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		mComposeView.setEnabled(false);
 
 		overlayImg.setImageResource(R.drawable.ic_no);
+		overlayImg.setContentDescription(getString(R.string.content_des_block_overlay_message));
 		overlayBtn.setText(overlayBtnText);
 
 		message.setText(str);

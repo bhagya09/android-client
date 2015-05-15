@@ -11,6 +11,7 @@ import android.os.Message;
 import android.text.Editable;
 import android.util.Pair;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bsb.hike.HikeConstants;
@@ -339,6 +340,9 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 	protected void setupActionBar(boolean firstInflation)
 	{
 		super.setupActionBar(firstInflation);
+		
+		ImageView avatar = (ImageView) mActionBarView.findViewById(R.id.avatar);
+		avatar.setContentDescription(getResources().getString(R.string.content_des_round_group_image_chatthread_actionbar));
 
 		setLabel(mConversation.getLabel());
 
