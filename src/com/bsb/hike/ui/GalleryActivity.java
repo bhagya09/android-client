@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -105,6 +106,8 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 	private final String ALL_IMAGES_BUCKET_NAME = "All images";
 
 	private final String HIKE_IMAGES = "hike";
+	
+	private final String CAMERA_TILE = "gallery_tile_camera";
 
 	private final String CAMERA_IMAGES = "Camera";
 
@@ -231,6 +234,14 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 			}
 
 		}
+		
+		// Add "pick from camera" button/bucket
+		if (enableCameraPick)
+		{
+			GalleryItem allImgItem = new GalleryItem(GalleryItem.CAMERA_TILE_ID, NEW_PHOTO, CAMERA_TILE, 0, pendingIntent);
+			galleryItemList.add(allImgItem);
+		}
+
 
 		/*
 		 * Creating All images bucket where we will show all images present in the device.
@@ -257,12 +268,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 				}
 			}
 		}
-		// Add "pick from camera" button/bucket
-		if (enableCameraPick)
-		{
-			GalleryItem allImgItem = new GalleryItem(GalleryItem.CAMERA_TILE_ID, NEW_PHOTO, "gallery_tile_camera", 0, pendingIntent);
-			galleryItemList.add(allImgItem);
-		}
+		
 		cursor = getContentResolver().query(uri, projection, selection, args, sortBy);
 
 		if (cursor != null)
@@ -296,7 +302,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 				cursor.close();
 			}
 		}
-
+		
 		TwoWayGridView gridView = (TwoWayGridView) findViewById(R.id.gallery);
 
 		int sizeOfImage = getResources().getDimensionPixelSize(isInsideAlbum ? R.dimen.gallery_album_item_size : R.dimen.gallery_cover_item_size);
@@ -326,31 +332,32 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 	private ArrayList<GalleryItem> reOrderList(List<GalleryItem> list)
 	{
 		ArrayList<GalleryItem> resultList = new ArrayList<GalleryItem>();
-		GalleryItem allImgItem = null;
-		GalleryItem hikeImages = null;
+		LinkedList<GalleryItem> customList = new LinkedList<GalleryItem>();
+		
+		int customCount = 0;
+		
 		for (Iterator iterator = list.iterator(); iterator.hasNext();)
 		{
 			GalleryItem galleryItem = (GalleryItem) iterator.next();
-			if (galleryItem.getName().startsWith(HIKE_IMAGES))
+			if (galleryItem.getName().startsWith(HIKE_IMAGES) || galleryItem.getName().startsWith(ALL_IMAGES_BUCKET_NAME) || galleryItem.getName().startsWith(CAMERA_IMAGES))
 			{
-				hikeImages = galleryItem;
+				customList.addLast(galleryItem);
 				iterator.remove();
 			}
-			else if (galleryItem.getName().startsWith(CAMERA_IMAGES))
+			else if (galleryItem.getType() == GalleryItem.CUSTOM)
 			{
-				resultList.add(galleryItem);
-				iterator.remove();
-			}
-			else if (galleryItem.getName().startsWith(ALL_IMAGES_BUCKET_NAME))
-			{
-				allImgItem = galleryItem;
+				customList.add(customCount, galleryItem);
+				customCount++;
 				iterator.remove();
 			}
 		}
-		if (allImgItem != null)
-			resultList.add(allImgItem);
-		if (hikeImages != null)
-			resultList.add(hikeImages);
+		
+		for (Iterator iterator = customList.iterator(); iterator.hasNext();)
+		{
+			GalleryItem galleryItem = (GalleryItem) iterator.next();
+			resultList.add(galleryItem);
+		}
+		
 		for (Iterator iterator = list.iterator(); iterator.hasNext();)
 		{
 			GalleryItem galleryItem = (GalleryItem) iterator.next();
@@ -602,7 +609,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 
 				Intent intent = new Intent();
 				ArrayList<GalleryItem> item = new ArrayList<GalleryItem>(1);
-				item.add(new GalleryItem(GalleryItem.CAMERA_TILE_ID, "Camera Result", NEW_PHOTO, cameraFile.getAbsolutePath(), 0));
+				item.add(new GalleryItem(GalleryItem.CAMERA_TILE_ID, CAMERA_TILE, NEW_PHOTO, cameraFile.getAbsolutePath(), 0));
 				intent.putParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS, item);
 				intent.setData(Uri.parse(item.get(0).getFilePath()));
 				if (pendingIntent != null)
