@@ -653,7 +653,10 @@ public class MqttMessagesManager
 					//do nothing
 					return;
 				}
-
+				else if (event == PlatformContent.EventCode.ALREADY_DOWNLOADED)
+				{
+					Logger.d(HikePlatformConstants.TAG, "microapp already exists");
+				}
 				else
 				{
 					saveMessage(convMessage);

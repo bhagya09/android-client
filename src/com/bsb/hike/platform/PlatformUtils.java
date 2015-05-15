@@ -266,10 +266,7 @@ public class PlatformUtils
 					public void onComplete(PlatformContentModel content)
 					{
 						Logger.d(TAG, "microapp download packet success.");
-						botInfo.setBotEnabled(enableBot);
-						HikeMessengerApp.hikeBotNamesMap.put(botInfo.getMsisdn(), botInfo);
-						HikeConversationsDatabase.getInstance().updateBotEnablingState(botInfo.getMsisdn(), enableBot ? 1 : 0);
-						HikeConversationsDatabase.getInstance().addConversation(botInfo.getMsisdn(), true, null, null);
+						enableBot(botInfo, enableBot);
 						//TODO Analytics
 					}
 
@@ -281,7 +278,11 @@ public class PlatformUtils
 							//do nothing
 							return;
 						}
-
+						else if (event == PlatformContent.EventCode.ALREADY_DOWNLOADED)
+						{
+							Logger.d(TAG, "microapp already exists");
+							enableBot(botInfo, enableBot);
+						}
 						else
 						{
 							Logger.wtf(TAG, "microapp download packet failed.");
@@ -292,6 +293,14 @@ public class PlatformUtils
 
 		downloadAndUnzip(rqst, false);
 
+	}
+
+	private static void enableBot(BotInfo botInfo, boolean enableBot)
+	{
+		botInfo.setBotEnabled(enableBot);
+		HikeMessengerApp.hikeBotNamesMap.put(botInfo.getMsisdn(), botInfo);
+		HikeConversationsDatabase.getInstance().updateBotEnablingState(botInfo.getMsisdn(), enableBot ? 1 : 0);
+		HikeConversationsDatabase.getInstance().addConversation(botInfo.getMsisdn(), true, null, null);
 	}
 
 	/**
@@ -324,7 +333,10 @@ public class PlatformUtils
 							//do nothing
 							return;
 						}
-
+						else if (event == PlatformContent.EventCode.ALREADY_DOWNLOADED)
+						{
+							Logger.d(TAG, "microapp already exists");
+						}
 						else
 						{
 							//TODO Analytics
