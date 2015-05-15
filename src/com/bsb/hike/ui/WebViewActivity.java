@@ -101,11 +101,27 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
-		getWindow().requestFeature(WindowCompat.FEATURE_ACTION_BAR_OVERLAY);
+		setMode(getIntent().getIntExtra(WEBVIEW_MODE, WEB_URL_MODE));
+		if (mode == MICRO_APP_MODE)
+		{
+			getWindow().requestFeature(WindowCompat.FEATURE_ACTION_BAR_OVERLAY);
+		}
 		setContentView(R.layout.webview_activity);
 		initView();	
 		initActionBar();
-		setMode(getIntent().getIntExtra(WEBVIEW_MODE, WEB_URL_MODE));
+		initAppsBasedOnMode();
+	}
+
+	private void initAppsBasedOnMode()
+	{
+		if (mode == MICRO_APP_MODE)
+		{
+			setMicroAppMode();
+		}
+		else
+		{
+			setWebURLMode(); // default mode we consider this activity is opened for
+		}
 	}
 
 	private void initView()
@@ -116,14 +132,6 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	private void setMode(int mode)
 	{
 		this.mode = mode;
-		if (mode == MICRO_APP_MODE)
-		{
-			setMicroAppMode();
-		}
-		else
-		{
-			setWebURLMode(); // default mode we consider this activity is opened for
-		}
 	}
 
 	private void setMicroAppMode()
