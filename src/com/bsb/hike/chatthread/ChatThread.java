@@ -306,7 +306,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	protected ChatThreadTips mTips;
 	
-	private Dialog searchDialog;
+	private ProgressDialog searchDialog;
 
 	private static final String NEW_LINE_DELIMETER = "\n";
 	
@@ -3424,7 +3424,21 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		
 		hideWalkieTalkie();
 		
+		deactivateMessageSearch();
+		
 		saveDraft();
+	}
+
+	private void deactivateMessageSearch()
+	{
+		if (messageSearchManager != null)
+		{
+			messageSearchManager.deactivate();
+		}
+		if (searchDialog != null)
+		{
+			searchDialog.dismiss();
+		}
 	}
 	
 	private void hideWalkieTalkie()
