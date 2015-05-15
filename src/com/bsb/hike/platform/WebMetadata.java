@@ -195,4 +195,9 @@ public class WebMetadata
 	{
 		this.notifText = notifText;
 	}
+	
+	public int getPlatformJSCompatibleVersion()
+	{
+		return this.json.optInt(HikePlatformConstants.PLATFORM_JS_VERSION);
+	}
 }

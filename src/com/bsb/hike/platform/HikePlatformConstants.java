@@ -119,4 +119,6 @@ public interface HikePlatformConstants
 	public static final String LOUD_PUSH = "loud";
 
 	public static final String  NO_PUSH = "none";
+	
+	public static final String PLATFORM_JS_VERSION = "platform_js";
 }
