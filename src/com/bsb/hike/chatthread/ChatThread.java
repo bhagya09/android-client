@@ -2465,6 +2465,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		int position = -2;
 
 		int loadMessageCount = 50;
+		
+		boolean taskComplete = false;
 
 		WeakReference<ChatThread> chatThread;
 
@@ -2521,8 +2523,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 						position = messageSearchManager.getNextItem(chatThread.get().mConversationsView.getFirstVisiblePosition(), chatThread.get().mConversationsView.getLastVisiblePosition());
 					}
 				}
-				return position;
 			}
+			taskComplete = true;
 			return position;
 		}
 
@@ -2535,7 +2537,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			// The search manager returns the values greater than equal to -1
 			// So if the loader has executed, the result is always greater than -2.
 			// Else we need to start the loader.
-			if (position > -2)
+			if (taskComplete)
 			{
 				deliverResult(position);
 			}
