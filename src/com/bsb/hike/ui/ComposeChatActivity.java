@@ -94,9 +94,8 @@ import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.LastSeenScheduler;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.NUXManager;
-import com.bsb.hike.utils.PairModified;
-import com.bsb.hike.utils.ShareUtils;
 import com.bsb.hike.utils.OneToNConversationUtils;
+import com.bsb.hike.utils.ShareUtils;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.TagEditText;
@@ -297,6 +296,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		}
 
 		init();
+		
 		mPubSub = HikeMessengerApp.getPubSub();
 		mPubSub.addListeners(this, hikePubSubListeners);
 	}
@@ -335,10 +335,43 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	@Override
 	protected void onSaveInstanceState(Bundle outState)
 	{
-		outState.putBoolean(HikeConstants.Extras.DEVICE_DETAILS_SENT, deviceDetailsSent);
 		super.onSaveInstanceState(outState);
+		outState.putBoolean(HikeConstants.Extras.DEVICE_DETAILS_SENT, deviceDetailsSent);
+		outState.putStringArrayList(HikeConstants.Extras.BROADCAST_RECIPIENTS, (ArrayList<String>)adapter.getAllSelectedContactsMsisdns());
 	}
 	
+	@Override
+	protected void onRestoreInstanceState(Bundle savedInstanceState)
+	{
+		super.onRestoreInstanceState(savedInstanceState);
+		restoreItemsOnConfigChange(savedInstanceState.getStringArrayList(HikeConstants.Extras.BROADCAST_RECIPIENTS));
+	}
+	
+	/**
+	 * This method has been created to handle the activity restoration when 'Do not keep activity' flag is checked in Developer options.
+	 * When this flag is checked, the activity is killed as soon as you leave it. 
+	 * So, we're using this method to restore the saved state parameters.
+	 * 
+	 * @param savedInstanceState
+	 */
+	private void restoreItemsOnConfigChange(ArrayList<String> msisdns)
+	{
+		if (!(msisdns == null || msisdns.isEmpty()))
+		{
+			adapter.selectAllFromList(msisdns);
+			adapter.notifyDataSetChanged();
+			int selected = adapter.getCurrentSelection();
+			// Using selectAllMode here, because it arises in a corner case of 'Do not keep activity' flag on, and user presses back from broadcast name screen.
+//			TODO a new selectSomeMode to handle this case
+			selectAllMode = true;
+			tagEditText.toggleTag(getString(selected == 1 ? R.string.selected_contacts_count_singular : R.string.selected_contacts_count_plural, selected), SELECT_ALL_MSISDN,
+					SELECT_ALL_MSISDN);
+			setupMultiSelectActionBar();
+			invalidateOptionsMenu();
+		}
+	}
+
+
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu)
 	{

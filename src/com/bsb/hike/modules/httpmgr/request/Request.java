@@ -58,7 +58,9 @@ public abstract class Request<T> implements IRequestFacade
 
 	private IRetryPolicy retryPolicy;
 
-	private boolean isCancelled;
+	private volatile boolean isCancelled;
+	
+	private volatile boolean isFinished;
 
 	private Pipeline<IRequestInterceptor> requestInteceptors;
 
@@ -130,6 +132,7 @@ public abstract class Request<T> implements IRequestFacade
 
 	public void finish()
 	{
+		this.isFinished = true;
 		this.method = null;
 		this.defaultId = null;
 		this.md5Id = null;
@@ -490,6 +493,10 @@ public abstract class Request<T> implements IRequestFacade
 	 */
 	public void cancel()
 	{
+		if (this.isFinished || this.isCancelled)
+		{
+			return;
+		}
 		this.isCancelled = true;
 
 		if (future != null)
