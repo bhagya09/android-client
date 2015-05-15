@@ -2396,20 +2396,6 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 			return;
 		}
 
-		String directory = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
-		/*
-		 * Making sure the directory exists before setting a profile image
-		 */
-		File dir = new File(directory);
-
-		if (!dir.exists())
-		{
-			dir.mkdirs();
-		}
-
-		String fileName = Utils.getTempProfileImageFileName(accountPrefs.getString(HikeMessengerApp.MSISDN_SETTING, ""));
-		final String destFilePath = directory + "/" + fileName;
-
 		switch (requestCode)
 		{
 		case GalleryActivity.GALLERY_ACTIVITY_RESULT_CODE:
@@ -2434,7 +2420,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 			}
 			else
 			{
-				Utils.startCropActivity(this, path, destFilePath);
+				Utils.startCropActivity(this, path, getNewProfileImagePath());
 			}
 			break;
 
