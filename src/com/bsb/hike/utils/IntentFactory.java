@@ -799,7 +799,7 @@ public class IntentFactory
 	
 	public static ArrayList<Intent> getPhotosFlowFromGalleryIntents(Context context,boolean enableCamera,String msisdn,boolean onHike,boolean compressOutput,boolean cropOutput,String cropDestPath)
 	{
-		int intentCount = cropOutput?3:2;
+		int intentCount = cropOutput ? 3 : 2;
 		
 		ArrayList<Intent> desIntent = new ArrayList<Intent>(intentCount);
 		Intent sourceIntent = IntentFactory.getHikeGalleryPickerIntent(context, true, true,enableCamera, GalleryActivity.PHOTOS_EDITOR_ACTION_BAR_TYPE, null, msisdn, onHike);
@@ -819,7 +819,7 @@ public class IntentFactory
 	
 	public static ArrayList<Intent> getPhotosFlowFromCameraIntents(Context context,File selectedFile,boolean compressOutput,boolean cropOutput)
 	{
-		int intentCount = cropOutput?3:2;
+		int intentCount = cropOutput ? 3 : 2;
 		ArrayList<Intent> desIntent = new ArrayList<Intent>(intentCount);
 		Intent sourceIntent = IntentFactory.getNativeCameraAppIntent(true, selectedFile);
 		Intent destination = IntentFactory.getPictureEditorActivityIntent(context, null, compressOutput, selectedFile.getAbsolutePath());

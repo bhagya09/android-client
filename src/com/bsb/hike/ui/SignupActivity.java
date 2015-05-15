@@ -2413,7 +2413,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 				}
 			}
 
-			if (path == null || TextUtils.isEmpty(path))
+			if (TextUtils.isEmpty(path))
 			{
 				Toast.makeText(getApplicationContext(), R.string.error_capture, Toast.LENGTH_SHORT).show();
 				return;

@@ -119,12 +119,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 
 	public void selectNewProfilePicture(Context context, boolean isPersonal)
 	{
-		if (Utils.getExternalStorageState() == ExternalStorageState.NONE)
-		{
-			Toast.makeText(getApplicationContext(), R.string.no_external_storage, Toast.LENGTH_SHORT).show();
-			return;
-		}
-		if (Utils.getExternalStorageState() != ExternalStorageState.WRITEABLE)
+		if (Utils.getExternalStorageState() == ExternalStorageState.NONE || Utils.getExternalStorageState() != ExternalStorageState.WRITEABLE)
 		{
 			Toast.makeText(getApplicationContext(), R.string.no_external_storage, Toast.LENGTH_SHORT).show();
 			return;
@@ -174,7 +169,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 		}
 
 		String fileName = Utils.getTempProfileImageFileName(mLocalMSISDN);
-		String destFilePath = directory + "/" + fileName;
+		String destFilePath = directory + File.separator + fileName;
 		return destFilePath;
 
 	}
@@ -208,7 +203,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 				}
 			}
 
-			if (path == null || TextUtils.isEmpty(path))
+			if (TextUtils.isEmpty(path))
 			{
 				Toast.makeText(getApplicationContext(), R.string.error_capture, Toast.LENGTH_SHORT).show();
 				return;
@@ -418,10 +413,12 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 		ContactInfo contactInfo = Utils.getUserContactInfo(prefs.getPref());
 		if (!OneToNConversationUtils.isOneToNConversation(mLocalMSISDN) && ContactManager.getInstance().hasIcon(contactInfo.getMsisdn()))
 		{
+			// case when we need to show dialog for change dp and remove dp 
 			showProfileImageEditDialog(this, context, removeImagePath);
 		}
 		else
 		{
+			// directly open gallery to allow user to select new image
 			selectNewProfilePicture(context, !OneToNConversationUtils.isOneToNConversation(mLocalMSISDN));
 		}
 	}
