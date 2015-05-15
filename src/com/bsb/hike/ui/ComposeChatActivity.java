@@ -1636,6 +1636,11 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					intent.putExtra(HikeConstants.Extras.CONTACT_ID, contactId);
 					intent.putExtra(HikeConstants.Extras.FILE_TYPE, type);
 				} else {
+					if (TextUtils.isEmpty(contactId))
+					{
+						Toast.makeText(getApplicationContext(), R.string.unknown_msg, Toast.LENGTH_SHORT).show();
+						return;
+					}
 					PhonebookContact contact = PickContactParser.getContactData(contactId, this);
 					final ArrayList<ContactInfo> finalArrayList = arrayList;
 					if (contact != null)
