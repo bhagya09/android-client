@@ -274,7 +274,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 
 	/**
 	 * Call this function to get the bulk large data from the native memory
-	 * @param id : key of the data to be saved. Microapp needs to make sure about the uniqueness of the key.
+	 * @param id : the id of the function that native will call to call the js .
 	 */
 	@JavascriptInterface
 	public void getLargeDataFromCache(String id)
@@ -285,8 +285,8 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 
 	/**
 	 * call this function to get the data from the native memory
-	 * @param id: key of the data to be saved. Microapp needs to make sure about the uniqueness of the key.
-	 * @param key: the key for which the js is demanding a value
+	 * @param id: the id of the function that native will call to call the js .
+	 * @param key: key of the data demanded. Microapp needs to make sure about the uniqueness of the key.
 	 */
 	@JavascriptInterface
 	public void getFromCache(String id, String key)
@@ -295,6 +295,35 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		callbackToJS(id, value);
 	}
 
+	/**
+	 * call this function to get the notif data pertaining to the microApp.
+	 * @param id: the id of the function that native will call to call the js .
+	 */
+	@JavascriptInterface
+	public void getNotifData(String id)
+	{
+		String value = HikeConversationsDatabase.getInstance().getNotifData(mBotInfo.getMsisdn());
+		callbackToJS(id, value);
+	}
+
+	/**
+	 * call this function to delete the entire notif data of the microApp.
+	 */
+	@JavascriptInterface
+	public void deleteAllNotifData()
+	{
+		HikeConversationsDatabase.getInstance().deleteAllNotifDataForMicroApp(mBotInfo.getMsisdn());
+	}
+
+	/**
+	 * Call this function to delete partial notif data pertaining to a microApp. The key is the timestamp provided by Native
+	 * @param key
+	 */
+	@JavascriptInterface
+	public void deletePartialNotifData(String key)
+	{
+		HikeConversationsDatabase.getInstance().deletePartialNotifData(key, mBotInfo.getMsisdn());
+	}
 
 
 }
