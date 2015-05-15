@@ -896,7 +896,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 		ContactInfo contactInfo = getContactInfoFromPhoneNoOrMsisdn(msisdn);
 		if (contactInfo != null && !forceRefresh)
 		{
-			if (contactInfo.hasCustomPhoto())
+			if (contactInfo.hasCustomPhoto() || getIcon(msisdn) != null)
 			{
 				hasIcon = true;
 			}
