@@ -1458,13 +1458,17 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		@Override
 		public void afterTextChanged(Editable s)
 		{
-			if (TextUtils.isEmpty(s.toString()))
+			View clearSearchText = activity.findViewById(R.id.search_clear_btn);
+			if (clearSearchText != null)
 			{
-				activity.findViewById(R.id.search_clear_btn).setVisibility(View.GONE);
-			}
-			else
-			{
-				activity.findViewById(R.id.search_clear_btn).setVisibility(View.VISIBLE);
+				if (TextUtils.isEmpty(s.toString()))
+				{
+					activity.findViewById(R.id.search_clear_btn).setVisibility(View.GONE);
+				}
+				else
+				{
+					activity.findViewById(R.id.search_clear_btn).setVisibility(View.VISIBLE);
+				}
 			}
 			searchText = s.toString().toLowerCase();
 			messageSearchManager.makeNewSearch(searchText);
