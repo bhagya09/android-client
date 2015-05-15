@@ -136,6 +136,8 @@ public interface HikePlatformConstants
 
 	public static final String BOT_TYPE = "bot_type";
 
+	public static final String NOTIF_DATA = "notifData";
+
 	/**
 	 * Overflow menu item constants :
 	 */
