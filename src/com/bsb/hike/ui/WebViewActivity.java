@@ -15,6 +15,7 @@ import android.graphics.drawable.Drawable;
 import android.net.MailTo;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.view.WindowCompat;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
@@ -25,7 +26,6 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.PopupWindow.OnDismissListener;
@@ -101,20 +101,19 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
+		setMode(getIntent().getIntExtra(WEBVIEW_MODE, WEB_URL_MODE));
+		if (mode == MICRO_APP_MODE)
+		{
+			getWindow().requestFeature(WindowCompat.FEATURE_ACTION_BAR_OVERLAY);
+		}
 		setContentView(R.layout.webview_activity);
 		initView();	
 		initActionBar();
-		setMode(getIntent().getIntExtra(WEBVIEW_MODE, WEB_URL_MODE));
+		initAppsBasedOnMode();
 	}
 
-	private void initView()
+	private void initAppsBasedOnMode()
 	{
-		webView = (CustomWebView) findViewById(R.id.t_and_c_page);
-	}
-
-	private void setMode(int mode)
-	{
-		this.mode = mode;
 		if (mode == MICRO_APP_MODE)
 		{
 			setMicroAppMode();
@@ -125,6 +124,16 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		}
 	}
 
+	private void initView()
+	{
+		webView = (CustomWebView) findViewById(R.id.t_and_c_page);
+	}
+
+	private void setMode(int mode)
+	{
+		this.mode = mode;
+	}
+
 	private void setMicroAppMode()
 	{
 		msisdn = getIntent().getStringExtra(HikeConstants.MSISDN);
@@ -132,6 +141,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		{
 			throw new IllegalArgumentException("Seems You forgot to send msisdn of Bot my dear");
 		}
+		findViewById(R.id.progress).setVisibility(View.GONE);;
 		attachBridge();
 		initBot();
 		setupMicroAppActionBar();
@@ -383,7 +393,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		actionBarView.findViewById(R.id.contact_status).setVisibility(View.GONE);
 		
 		backContainer.setOnClickListener(this);
-		setAvatar();
+	
 	}
 
 	private void setAvatar()
@@ -406,6 +416,8 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	private void setupMicroAppActionBar()
 	{
 		setupActionBar(botInfo.getConversationName());
+		updateActionBarColor(R.drawable.bg_header_transparent);
+		setAvatar();
 	}
 
 	private void loadMicroApp()
