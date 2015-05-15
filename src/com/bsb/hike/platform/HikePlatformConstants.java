@@ -52,7 +52,7 @@ public interface HikePlatformConstants
 	public int MAKE_HTTP_CALL = 1;
 	public static final String PLATFORM_UID_FETCH_TAG = "platformUID";
 	public static final String CONTENT_ID = "content_id";
-	public static final String NAMESPACE = "namespace";
+	public static final String NAMESPACE = "nameSpace";
 
 	public static final class PlatformUIDFetchType
 	{
