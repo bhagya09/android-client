@@ -43,6 +43,7 @@ public class RequestRunner
 			@Override
 			public void onResponse(Response response, HttpException ex)
 			{
+				RequestProcessor.removeRequest(request);
 				if (null == response)
 				{
 					requestListenerNotifier.notifyListenersOfRequestFailure(request, ex);
@@ -51,7 +52,6 @@ public class RequestRunner
 				{
 					requestListenerNotifier.notifyListenersOfRequestSuccess(request, response);
 				}
-				RequestProcessor.removeRequest(request);
 			}
 		});
 		requestExecuter.execute();
