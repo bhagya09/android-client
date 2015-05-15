@@ -364,6 +364,7 @@ public class ProductInfoManager
 				url = url.replace("$msisdn", mmHikeSharedPreferenceUtil.getData(HikeMessengerApp.MSISDN_SETTING, ""));
 				url = url.replace("$uid", mmHikeSharedPreferenceUtil.getData(HikeMessengerApp.UID_SETTING, ""));
 				url = url.replace("$invite_token", mmHikeSharedPreferenceUtil.getData(HikeConstants.INVITE_TOKEN, ""));
+				url = url.replace("$resId", Utils.getResolutionId()+"");
 			}
 			return url;
 
