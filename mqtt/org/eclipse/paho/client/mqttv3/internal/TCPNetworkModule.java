@@ -36,11 +36,11 @@ public class TCPNetworkModule implements NetworkModule
 {
 	protected Socket socket;
 
-	private SocketFactory factory;
+	protected SocketFactory factory;
 
-	private String host;
+	protected String host;
 
-	private int port;
+	protected int port;
 
 	private int conTimeout;
 
