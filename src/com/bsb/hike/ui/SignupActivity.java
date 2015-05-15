@@ -1,10 +1,8 @@
 package com.bsb.hike.ui;
 
 import java.io.File;
-
 import java.net.URI;
 import java.util.ArrayList;
-
 import java.util.Calendar;
 import java.util.HashMap;
 
@@ -77,6 +75,7 @@ import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.http.HikeHttpRequest;
 import com.bsb.hike.http.HikeHttpRequest.RequestType;
 import com.bsb.hike.models.Birthday;
+import com.bsb.hike.models.GalleryItem;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
@@ -827,8 +826,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 					@Override
 					public void onClick(View v)
 					{
-						String msisdn = accountPrefs.getString(HikeMessengerApp.MSISDN_SETTING, null);
-						showProfileImageEditDialog(SignupActivity.this, SignupActivity.this, msisdn, null);
+						selectNewProfilePicture(SignupActivity.this, false);
 					}
 				});
 			}
@@ -867,8 +865,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 				@Override
 				public void onClick(View v)
 				{
-					String msisdn = accountPrefs.getString(HikeMessengerApp.MSISDN_SETTING, null);
-					showProfileImageEditDialog(SignupActivity.this, SignupActivity.this, msisdn, null);
+					selectNewProfilePicture(SignupActivity.this, false);
 				}
 			});
 		}
@@ -2369,6 +2366,26 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		}
 
 	}
+	
+	@Override
+	protected String getNewProfileImagePath()
+	{
+		String directory = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
+		/*
+		 * Making sure the directory exists before setting a profile image
+		 */
+		File dir = new File(directory);
+
+		if (!dir.exists())
+		{
+			dir.mkdirs();
+		}
+
+		String fileName = Utils.getTempProfileImageFileName(accountPrefs.getString(HikeMessengerApp.MSISDN_SETTING, ""));
+		String destFilePath = directory + "/" + fileName;
+		return destFilePath;
+
+	}
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data)
@@ -2379,138 +2396,50 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 			return;
 		}
 
-		/*Session session = Session.getActiveSession();
-		if (session != null)
-		{
-			session.onActivityResult(this, requestCode, resultCode, data);
-		}
-		if (fbClicked)
-		{
-			onFacebookConnectClick(null);
-			fbAuthing = false;
-		}*/
-
-		File selectedFileIcon;
-		boolean isPicasaImage = false;
-		Uri selectedFileUri = null;
-
 		String directory = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
+		/*
+		 * Making sure the directory exists before setting a profile image
+		 */
+		File dir = new File(directory);
+
+		if (!dir.exists())
+		{
+			dir.mkdirs();
+		}
+
 		String fileName = Utils.getTempProfileImageFileName(accountPrefs.getString(HikeMessengerApp.MSISDN_SETTING, ""));
 		final String destFilePath = directory + "/" + fileName;
 
 		switch (requestCode)
 		{
-		case HikeConstants.CAMERA_RESULT:
-			/* fall-through on purpose */
-		case HikeConstants.GALLERY_RESULT:
-			Logger.d("ProfileActivity", "The activity is " + this);
-			if (requestCode == HikeConstants.CAMERA_RESULT)
-			{
-				String filePath = accountPrefs.getString(HikeMessengerApp.FILE_PATH, "");
-				selectedFileIcon = new File(filePath);
+		case GalleryActivity.GALLERY_ACTIVITY_RESULT_CODE:
 
-				/*
-				 * Removing this key. We no longer need this.
-				 */
-				Editor editor = accountPrefs.edit();
-				editor.remove(HikeMessengerApp.FILE_PATH);
-				editor.commit();
-				if (!selectedFileIcon.exists())
-				{
-					Toast.makeText(getApplicationContext(), R.string.error_capture, Toast.LENGTH_SHORT).show();
-					return;
-				}
-				else
-				{
-					path = selectedFileIcon.getAbsolutePath();
-				}
-			}
-			else
+			if (path == null)
 			{
-				if (data == null)
+				ArrayList<GalleryItem> galleryList = data.getParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS);
+				if (galleryList != null && !galleryList.isEmpty())
 				{
-					Toast.makeText(getApplicationContext(), R.string.error_capture, Toast.LENGTH_SHORT).show();
-					return;
+					path = galleryList.get(0).getFilePath();
 				}
-				selectedFileUri = data.getData();
-				if (Utils.isPicasaUri(selectedFileUri.toString()))
+				if (path == null && data.getData() != null)
 				{
-					isPicasaImage = true;
-					path = Utils.getOutputMediaFile(HikeFileType.PROFILE, null, false).getAbsolutePath();
-				}
-				else
-				{
-					String fileUriStart = "file://";
-					String fileUriString = selectedFileUri.toString();
-					if (fileUriString.startsWith(fileUriStart))
-					{
-						selectedFileIcon = new File(URI.create(Utils.replaceUrlSpaces(fileUriString)));
-						/*
-						 * Done to fix the issue in a few Sony devices.
-						 */
-						path = selectedFileIcon.getAbsolutePath();
-					}
-					else
-					{
-						path = Utils.getRealPathFromUri(selectedFileUri, this);
-					}
+					path = data.getData().toString();
 				}
 			}
-			if (TextUtils.isEmpty(path))
+
+			if (path == null || TextUtils.isEmpty(path))
 			{
 				Toast.makeText(getApplicationContext(), R.string.error_capture, Toast.LENGTH_SHORT).show();
 				return;
 			}
-			if (!isPicasaImage)
+			else
 			{
 				Utils.startCropActivity(this, path, destFilePath);
 			}
-			else
-			{
-				final File destFile = new File(path);
-				downloadImage(destFile, selectedFileUri, new ImageDownloadResult()
-				{
-
-					@Override
-					public void downloadFinished(boolean result)
-					{
-						runOnUiThread(new Runnable()
-						{
-
-							@Override
-							public void run()
-							{
-								if (dialog != null)
-								{
-									dialog.dismiss();
-									dialog = null;
-								}
-							}
-						});
-						mActivityState = new ActivityState();
-						if (!result)
-						{
-							runOnUiThread(new Runnable()
-							{
-
-								@Override
-								public void run()
-								{
-									Toast.makeText(getApplicationContext(), R.string.error_download, Toast.LENGTH_SHORT).show();
-								}
-							});
-						}
-						else
-						{
-							Utils.startCropActivity(SignupActivity.this, destFile.getAbsolutePath(), destFilePath);
-						}
-					}
-				});
-
-				dialog = ProgressDialog.show(this, null, getResources().getString(R.string.downloading_image));
-			}
 			break;
+
 		case HikeConstants.CROP_RESULT:
+		case HikeConstants.ResultCodes.PHOTOS_REQUEST_CODE:
 			mActivityState.destFilePath = data.getStringExtra(MediaStore.EXTRA_OUTPUT);
 			setProfileImage();
 			break;

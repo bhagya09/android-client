@@ -1290,12 +1290,12 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	{
 		if(Utils.isPhotosEditEnabled())
 		{
-			Intent imageIntent = IntentFactory.getDelegateActivityIntent(activity.getApplicationContext(), IntentFactory.getPhotosFlowFromGalleryIntents(activity.getApplicationContext(), msisdn, onHike,false));
+			Intent imageIntent = IntentFactory.getDelegateActivityIntent(activity.getApplicationContext(), IntentFactory.getPhotosFlowFromGalleryIntents(activity.getApplicationContext(),false, msisdn, onHike,false,false,null));
 			activity.startActivityForResult(imageIntent, AttachmentPicker.GALLERY);
 		}
 		else
 		{
-			Intent imageIntent = IntentFactory.getHikeGallaryShare(activity.getApplicationContext(), msisdn, onHike);
+			Intent imageIntent = IntentFactory.getHikeGalleryPickerIntent(activity.getApplicationContext(), true, true, false, GalleryActivity.PHOTOS_EDITOR_ACTION_BAR_TYPE, null, msisdn, onHike);
 			imageIntent.putExtra(GalleryActivity.START_FOR_RESULT, true);
 			activity.startActivityForResult(imageIntent, AttachmentPicker.GALLERY);
 		}

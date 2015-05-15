@@ -442,7 +442,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 						{
 							// TODO Auto-generated method stub
 							Intent intent = new Intent();
-							intent.putExtra(HikeConstants.Extras.PHOTOS_RETURN_FILE, f.getAbsolutePath());
+							intent.putExtra(HikeConstants.Extras.IMAGE_PATH, f.getAbsolutePath());
 							intent.setAction(HikeConstants.HikePhotos.PHOTOS_ACTION_CODE);
 							setResult(RESULT_OK, intent);
 							finish();
@@ -561,7 +561,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 				@Override
 				public void onComplete(File f)
 				{
-					Utils.startCropActivityForResult(PictureEditer.this, f.getAbsolutePath(), f.getAbsolutePath(), true, 100, true);
+					startActivityForResult(IntentFactory.getCropActivityIntent(PictureEditer.this, f.getAbsolutePath(), f.getAbsolutePath(), true, 100, true), HikeConstants.CROP_RESULT);
 				}
 			});
 		}

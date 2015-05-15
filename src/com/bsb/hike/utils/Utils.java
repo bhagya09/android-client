@@ -2409,21 +2409,6 @@ public class Utils
 		activity.startActivityForResult(intent, HikeConstants.CROP_RESULT);
 	}
 
-	public static void startCropActivityForResult(Activity activity, String path, String destPath, boolean preventScaling, int quality,boolean circleHighlight)
-	{
-		/* Crop the image */
-		Intent intent = new Intent(activity, CropImage.class);
-		intent.putExtra(MediaStore.EXTRA_OUTPUT, destPath);
-		intent.putExtra(HikeConstants.Extras.IMAGE_PATH, path);
-		intent.putExtra(HikeConstants.Extras.CIRCLE_HIGHLIGHT, circleHighlight);
-		intent.putExtra(HikeConstants.Extras.SCALE, false);
-		intent.putExtra(HikeConstants.Extras.RETURN_CROP_RESULT_TO_FILE, preventScaling);
-		intent.putExtra(HikeConstants.Extras.ASPECT_X, 1);
-		intent.putExtra(HikeConstants.Extras.ASPECT_Y, 1);
-		intent.putExtra(HikeConstants.Extras.JPEG_COMPRESSION_QUALITY, quality);
-		activity.startActivityForResult(intent, HikeConstants.CROP_RESULT);
-	}
-
 	public static long getContactId(Context context, long rawContactId)
 	{
 		Cursor cur = null;
@@ -5830,6 +5815,34 @@ public class Utils
 		else
 		{
 			return false;
+		}
+	}
+	
+	public static File getCameraResultFile()
+	{
+		HikeSharedPreferenceUtil sharedPreference = HikeSharedPreferenceUtil.getInstance();
+		String capturedFilepath = sharedPreference.getData(HikeMessengerApp.FILE_PATH, null);
+		sharedPreference.removeData(HikeMessengerApp.FILE_PATH);
+
+		if (capturedFilepath != null)
+		{
+			File imageFile = new File(capturedFilepath);
+
+			if (imageFile != null && imageFile.exists())
+			{
+				return imageFile;
+			}
+			else
+			{
+				Logger.e("Hike Camera Image", "Image File does not exists");
+				return null;
+			}
+
+		}
+		else
+		{
+			Logger.e("Hike Camera Image", "Image path is null");
+			return null;
 		}
 	}
 }

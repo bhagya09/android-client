@@ -18,6 +18,7 @@ import android.os.Message;
 import android.provider.ContactsContract.Contacts;
 import android.provider.MediaStore;
 import android.text.TextUtils;
+import android.widget.Gallery;
 import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
@@ -26,6 +27,7 @@ import com.bsb.hike.R;
 import com.bsb.hike.adapters.MessagesAdapter;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.chatthread.ChatThreadUtils;
+import com.bsb.hike.cropimage.CropImage;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeFile;
@@ -386,14 +388,6 @@ public class IntentFactory
 		return new Intent(Intent.ACTION_PICK, Contacts.CONTENT_URI);
 	}
 
-	public static Intent getHikeGallaryShare(Context context, String msisdn, boolean onHike)
-	{
-		Intent imageIntent = new Intent(context, GalleryActivity.class);
-		imageIntent.putExtra(HikeConstants.Extras.MSISDN, msisdn);
-		imageIntent.putExtra(HikeConstants.Extras.ON_HIKE, onHike);
-		return imageIntent;
-	}
-
 	public static Intent getAudioShareIntent(Context context)
 	{
 		Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
@@ -555,18 +549,8 @@ public class IntentFactory
 		return intent;
 	}
 
-	public static Intent getHikeGalleryPickerIntent(Context context, boolean allowMultiSelect, PendingIntent argIntent)
-	{
-		Intent intent = new Intent(context, GalleryActivity.class);
-		Bundle b = new Bundle();
-		b.putParcelable(GalleryActivity.PENDING_INTENT_KEY, argIntent);
-		b.putBoolean(GalleryActivity.DISABLE_MULTI_SELECT_KEY, !allowMultiSelect);
-		intent.putExtras(b);
-		return intent;
-	}
-
 	public static Intent getHikeGalleryPickerIntent(Context context, boolean allowMultiSelect, boolean categorizeByFolders, boolean enableCameraPick, int actionBarType,
-			PendingIntent argIntent)
+			PendingIntent argIntent,String msisdn,boolean onHike)
 	{
 		Intent intent = new Intent(context, GalleryActivity.class);
 		Bundle b = new Bundle();
@@ -575,6 +559,8 @@ public class IntentFactory
 		b.putBoolean(GalleryActivity.FOLDERS_REQUIRED_KEY, categorizeByFolders);
 		b.putBoolean(GalleryActivity.ENABLE_CAMERA_PICK, enableCameraPick);
 		b.putInt(GalleryActivity.ACTION_BAR_TYPE_KEY, actionBarType);
+		b.putString(HikeConstants.Extras.MSISDN, msisdn);
+		b.putBoolean(HikeConstants.Extras.ON_HIKE, onHike);
 		intent.putExtras(b);
 		return intent;
 	}
@@ -779,6 +765,7 @@ public class IntentFactory
 		if (getFullSizedCaptureResult)
 		{
 			pickIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(destination));
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.FILE_PATH, destination.getAbsolutePath());
 		}
 		return pickIntent;
 	}
@@ -810,25 +797,56 @@ public class IntentFactory
 		return intent;
 	}
 	
-	public static ArrayList<Intent> getPhotosFlowFromGalleryIntents(Context context,String msisdn,boolean onHike,boolean compressOutput)
+	public static ArrayList<Intent> getPhotosFlowFromGalleryIntents(Context context,boolean enableCamera,String msisdn,boolean onHike,boolean compressOutput,boolean cropOutput,String cropDestPath)
 	{
-		Intent sourceIntent = IntentFactory.getHikeGallaryShare(context, msisdn, onHike);
+		int intentCount = cropOutput?3:2;
+		
+		ArrayList<Intent> desIntent = new ArrayList<Intent>(intentCount);
+		Intent sourceIntent = IntentFactory.getHikeGalleryPickerIntent(context, true, true,enableCamera, GalleryActivity.PHOTOS_EDITOR_ACTION_BAR_TYPE, null, msisdn, onHike);
 		sourceIntent.putExtra(GalleryActivity.START_FOR_RESULT, true);
-		Intent destination = IntentFactory.getPictureEditorActivityIntent(context, null, compressOutput, null);
-		ArrayList<Intent> desIntent = new ArrayList<Intent>(2);
+		Intent editer = IntentFactory.getPictureEditorActivityIntent(context, null, compressOutput, null);
+		Intent cropper = null;
+		
 		desIntent.add(sourceIntent);
-		desIntent.add(destination);
+		desIntent.add(editer);
+		if(cropOutput)
+		{
+			cropper = IntentFactory.getCropActivityIntent(context, null, cropDestPath, true, 100, true);
+			desIntent.add(cropper);
+		}
 		return desIntent;
 	}
 	
-	public static ArrayList<Intent> getPhotosFlowFromCameraIntents(Context context,File selectedFile,boolean compressOutput)
+	public static ArrayList<Intent> getPhotosFlowFromCameraIntents(Context context,File selectedFile,boolean compressOutput,boolean cropOutput)
 	{
+		int intentCount = cropOutput?3:2;
+		ArrayList<Intent> desIntent = new ArrayList<Intent>(intentCount);
 		Intent sourceIntent = IntentFactory.getNativeCameraAppIntent(true, selectedFile);
 		Intent destination = IntentFactory.getPictureEditorActivityIntent(context, null, compressOutput, selectedFile.getAbsolutePath());
 		destination.putExtra(HikeMessengerApp.FILE_PATHS, selectedFile.getAbsolutePath());
-		ArrayList<Intent> desIntent = new ArrayList<Intent>(2);
+
 		desIntent.add(sourceIntent);
 		desIntent.add(destination);
+		if(cropOutput)
+		{
+			Intent cropper = IntentFactory.getCropActivityIntent(context, selectedFile.getAbsolutePath(), selectedFile.getAbsolutePath(), true, 100, true);
+			desIntent.add(cropper);
+		}
 		return desIntent;
+	}
+	
+	public static Intent getCropActivityIntent(Context context, String path, String destPath, boolean preventScaling, int quality,boolean circleHighlight)
+	{
+		/* Crop the image */
+		Intent intent = new Intent(context, CropImage.class);
+		intent.putExtra(MediaStore.EXTRA_OUTPUT, destPath);
+		intent.putExtra(HikeConstants.Extras.IMAGE_PATH, path);
+		intent.putExtra(HikeConstants.Extras.CIRCLE_HIGHLIGHT, circleHighlight);
+		intent.putExtra(HikeConstants.Extras.SCALE, false);
+		intent.putExtra(HikeConstants.Extras.RETURN_CROP_RESULT_TO_FILE, preventScaling);
+		intent.putExtra(HikeConstants.Extras.ASPECT_X, 1);
+		intent.putExtra(HikeConstants.Extras.ASPECT_Y, 1);
+		intent.putExtra(HikeConstants.Extras.JPEG_COMPRESSION_QUALITY, quality);
+		return intent;
 	}
 }
