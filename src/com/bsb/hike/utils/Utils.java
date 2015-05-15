@@ -5549,7 +5549,7 @@ public class Utils
 			ConnectivityManager cm = (ConnectivityManager) HikeMessengerApp.getInstance().getSystemService(Context.CONNECTIVITY_SERVICE);
 			NetworkInfo netInfo = cm.getActiveNetworkInfo();
 
-			if (netInfo != null && (netInfo.isConnectedOrConnecting() || netInfo.isAvailable()))
+			if (netInfo != null && netInfo.isConnectedOrConnecting())
 			{
 				Logger.d("getNetInfoFromConnectivityManager", "Trying to connect using getActiveNetworkInfo");
 				return new Pair<NetworkInfo, Boolean>(netInfo, true);
