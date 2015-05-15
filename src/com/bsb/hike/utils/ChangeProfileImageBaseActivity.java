@@ -135,7 +135,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 
 		if (Utils.isPhotosEditEnabled())
 		{
-			galleryPickerIntent = IntentFactory.getDelegateActivityIntent(context, IntentFactory.getPhotosFlowFromGalleryIntents(context, true, null, true, true,true,getNewProfileImagePath()));
+			galleryPickerIntent = IntentFactory.getDelegateActivityIntent(context, IntentFactory.getPhotosFlowFromGalleryIntents(context, true, null, true, true,!isPersonal,getNewProfileImagePath(),isPersonal));
 			if (!isPersonal)
 			{
 				startActivityForResult(galleryPickerIntent, HikeConstants.ResultCodes.PHOTOS_REQUEST_CODE);
@@ -148,7 +148,8 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 		else
 		{
 			galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(ChangeProfileImageBaseActivity.this, false, true, true, GalleryActivity.PHOTOS_EDITOR_ACTION_BAR_TYPE,
-					null, null, true);
+					null, null, false);
+			galleryPickerIntent.putExtra(GalleryActivity.START_FOR_RESULT, true);
 			startActivityForResult(galleryPickerIntent, GalleryActivity.GALLERY_ACTIVITY_RESULT_CODE);
 		}
 

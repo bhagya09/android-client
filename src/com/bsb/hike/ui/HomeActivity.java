@@ -1814,7 +1814,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 					
 					String destString = Utils.getFileParent(HikeFileType.IMAGE, false)+ File.separator + Utils.getOriginalFile(HikeFileType.IMAGE, null);
 					
-					Intent picEditerIntent = IntentFactory.getPictureEditorActivityIntent(HomeActivity.this, null, true, destString);
+					Intent picEditerIntent = IntentFactory.getPictureEditorActivityIntent(HomeActivity.this, null, true, destString,false);
 					
 					PendingIntent editorPendingIntent = PendingIntent.getActivity(HikeMessengerApp.getInstance().getApplicationContext(), RESULT_OK, picEditerIntent,PendingIntent.FLAG_UPDATE_CURRENT);
 					

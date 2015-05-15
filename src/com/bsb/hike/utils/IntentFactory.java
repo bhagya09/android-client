@@ -731,7 +731,7 @@ public class IntentFactory
 		return new Intent(Intent.ACTION_VIEW, Uri.parse(url));
 	}
 
-	public static Intent getPictureEditorActivityIntent(Context context, String imageFileName, boolean compressOutput, String destinationPath)
+	public static Intent getPictureEditorActivityIntent(Context context, String imageFileName, boolean compressOutput, String destinationPath,boolean forProfileUpdate)
 	{
 		Intent i = new Intent(context, PictureEditer.class);
 		
@@ -746,6 +746,9 @@ public class IntentFactory
 			i.putExtra(HikeConstants.HikePhotos.DESTINATION_FILENAME, destinationPath);
 		}
 		i.putExtra(HikeConstants.HikePhotos.EDITOR_ALLOW_COMPRESSION_KEY, compressOutput);
+		
+		i.putExtra(HikeConstants.HikePhotos.ONLY_PROFILE_UPDATE, forProfileUpdate);
+		
 		return i;
 	}
 
@@ -796,14 +799,14 @@ public class IntentFactory
 		return intent;
 	}
 	
-	public static ArrayList<Intent> getPhotosFlowFromGalleryIntents(Context context,boolean enableCamera,String msisdn,boolean onHike,boolean compressOutput,boolean cropOutput,String cropDestPath)
+	public static ArrayList<Intent> getPhotosFlowFromGalleryIntents(Context context,boolean enableCamera,String msisdn,boolean onHike,boolean compressOutput,boolean cropOutput,String cropDestPath,boolean isProfileOutput)
 	{
 		int intentCount = cropOutput ? 3 : 2;
 		
 		ArrayList<Intent> desIntent = new ArrayList<Intent>(intentCount);
 		Intent sourceIntent = IntentFactory.getHikeGalleryPickerIntent(context, true, true,enableCamera, GalleryActivity.PHOTOS_EDITOR_ACTION_BAR_TYPE, null, msisdn, onHike);
 		sourceIntent.putExtra(GalleryActivity.START_FOR_RESULT, true);
-		Intent editer = IntentFactory.getPictureEditorActivityIntent(context, null, compressOutput, null);
+		Intent editer = IntentFactory.getPictureEditorActivityIntent(context, null, compressOutput, null,isProfileOutput);
 		Intent cropper = null;
 		
 		desIntent.add(sourceIntent);
@@ -816,12 +819,12 @@ public class IntentFactory
 		return desIntent;
 	}
 	
-	public static ArrayList<Intent> getPhotosFlowFromCameraIntents(Context context,File selectedFile,boolean compressOutput,boolean cropOutput)
+	public static ArrayList<Intent> getPhotosFlowFromCameraIntents(Context context,File selectedFile,boolean compressOutput,boolean cropOutput,boolean forProfileUpdate)
 	{
 		int intentCount = cropOutput ? 3 : 2;
 		ArrayList<Intent> desIntent = new ArrayList<Intent>(intentCount);
 		Intent sourceIntent = IntentFactory.getNativeCameraAppIntent(true, selectedFile);
-		Intent destination = IntentFactory.getPictureEditorActivityIntent(context, null, compressOutput, selectedFile.getAbsolutePath());
+		Intent destination = IntentFactory.getPictureEditorActivityIntent(context, null, compressOutput, selectedFile.getAbsolutePath(),forProfileUpdate);
 		destination.putExtra(HikeMessengerApp.FILE_PATHS, selectedFile.getAbsolutePath());
 
 		desIntent.add(sourceIntent);

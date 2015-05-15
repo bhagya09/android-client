@@ -176,7 +176,7 @@ public class AttachmentPicker extends OverFlowMenuLayout
 						 * If photos enable it will launch a series of activities to return the final edited image.
 						 * Delegate activity handles the launching of the required activities in series and handling their respective results
 						 */
-						pickIntent = IntentFactory.getDelegateActivityIntent(activity, IntentFactory.getPhotosFlowFromCameraIntents(activity, selectedFile,false,false));
+						pickIntent = IntentFactory.getDelegateActivityIntent(activity, IntentFactory.getPhotosFlowFromCameraIntents(activity, selectedFile,false,false,false));
 					}
 					else
 					{

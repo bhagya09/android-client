@@ -666,10 +666,11 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 			intent.putExtra(HikeConstants.Extras.ON_HIKE, getIntent().getBooleanExtra(HikeConstants.Extras.ON_HIKE, true));
 			intent.putExtra(PENDING_INTENT_KEY, pendingIntent);
 			intent.putExtra(DISABLE_MULTI_SELECT_KEY, disableMultiSelect);
-			if (sendResult)
-			{
-				intent.putExtra(START_FOR_RESULT, sendResult);
-				if (Utils.isPhotosEditEnabled())
+				if(sendResult)
+				{
+					intent.putExtra(START_FOR_RESULT, sendResult);
+				}
+				if(getCallingActivity()!=null)
 				{
 					startActivityForResult(intent, GALLERY_ACTIVITY_RESULT_CODE);
 				}
@@ -677,11 +678,6 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 				{
 					startActivity(intent);
 				}
-			}
-			else
-			{
-				startActivity(intent);
-			}
 		}
 		else
 		{
@@ -738,7 +734,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 						e.printStackTrace();
 					}
 				}
-				else if (sendResult && Utils.isPhotosEditEnabled())
+				else if (sendResult && getCallingActivity()!=null)
 				{
 					setResult(RESULT_OK, intent);
 					finish();
