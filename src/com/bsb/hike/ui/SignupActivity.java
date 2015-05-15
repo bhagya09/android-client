@@ -2541,7 +2541,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		mActivityState.profileBitmap = HikeBitmapFactory.getCircularBitmap(tempBitmap);
 		mIconView.setImageBitmap(mActivityState.profileBitmap);
 		mIconView.setBackgroundResource(R.color.transparent);
-		profilePicCamIcon.setImageResource(R.drawable.ic_signup_editphoto);
+		profilePicCamIcon.setImageResource(R.drawable.ic_edit_group);
 
 		tempBitmap.recycle();
 		tempBitmap = null;
