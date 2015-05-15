@@ -16,6 +16,7 @@ import java.util.List;
 
 import org.json.JSONObject;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.modules.httpmgr.Header;
 import com.bsb.hike.modules.httpmgr.HttpUtils;
 import com.bsb.hike.modules.httpmgr.RequestToken;
@@ -32,6 +33,7 @@ import com.bsb.hike.modules.httpmgr.request.requestbody.JsonBody;
 import com.bsb.hike.modules.httpmgr.retry.DefaultRetryPolicy;
 import com.bsb.hike.modules.httpmgr.retry.IRetryPolicy;
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.utils.Utils;
 
 public class HttpRequests
@@ -202,13 +204,19 @@ public class HttpRequests
 		return requestToken;
 	}
 	
-	public static RequestToken productPopupRequest(String url, IRequestListener requestListener)
+	public static RequestToken productPopupRequest(String url, IRequestListener requestListener, String requestType)
 	{
-		RequestToken requestToken = new ByteArrayRequest.Builder()
-				.setUrl(url)
-				.setRequestType(Request.REQUEST_TYPE_SHORT)
-				.setRequestListener(requestListener)
-				.build();
-		return requestToken;
+		ByteArrayRequest.Builder builder = new ByteArrayRequest.Builder().
+				setUrl(url).
+				setRequestType(Request.REQUEST_TYPE_SHORT).
+				setRetryPolicy(new DefaultRetryPolicy(ProductPopupsConstants.numberOfRetries, ProductPopupsConstants.retryDelay, ProductPopupsConstants.backOffMultiplier)).
+				setRequestListener(requestListener);
+
+		if (requestType.equals(HikeConstants.POST))
+		{
+			builder = builder.post(null);
+		}
+
+		return builder.build();
 	}
 }

@@ -45,6 +45,14 @@ public class ProductPopupsConstants
 	
 	public static String IS_CANCELLABLE="isCancellable";
 	
+	public static  final int  numberOfRetries=3;
+	
+	public static final int retryDelay=1000*60*1; // 1 minute
+	
+	public static final int backOffMultiplier=2;
+
+	public static final String REQUEST_TYPE = "requestType";
+	
 	public static enum PopupStateEnum
 	{
 		NOT_DOWNLOADED(0), DOWNLOADED(1), UNKNOWN(3);

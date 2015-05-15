@@ -401,15 +401,29 @@ public class ProductInfoManager
 			{
 				Logger.d("ProductPopup", " error code " + httpException.getErrorCode());
 			}
-		});
+		},getRequestType(metaData));
 		requestToken.execute();
+	}
+
+	private String getRequestType(String metaData) 
+	{
+		String request=HikeConstants.GET;
+		try
+		{
+			JSONObject object=new JSONObject(metaData);
+			request=object.optString(ProductPopupsConstants.REQUEST_TYPE,HikeConstants.GET);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+		return request;
 	}
 
 	public void deleteAllPopups()
 	{
 		HikeContentDatabase.getInstance().deleteAllPopupsFromDatabase();
 		clearPopupStack();
-		
 	}
 	
 	private void clearPopupStack()
