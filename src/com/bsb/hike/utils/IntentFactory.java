@@ -18,7 +18,6 @@ import android.os.Message;
 import android.provider.ContactsContract.Contacts;
 import android.provider.MediaStore;
 import android.text.TextUtils;
-import android.widget.Gallery;
 import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
