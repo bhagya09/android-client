@@ -3,11 +3,13 @@ package com.bsb.hike.platform.bridge;
 import java.util.ArrayList;
 
 import com.bsb.hike.db.HikeContentDatabase;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.Message;
 import android.text.TextUtils;
 import android.util.Pair;
 import android.webkit.JavascriptInterface;
@@ -39,6 +41,9 @@ public class MessagingBotJavaScriptBridge extends JavascriptBridge
 {
 
 	public static final String tag = "platformbridge";
+	private static final int UPDATE_MESSAGE = 1;
+	
+	
 	
 	ConvMessage message;
 
@@ -63,21 +68,7 @@ public class MessagingBotJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void deleteMessage()
 	{
-		ArrayList<Long> msgIds = new ArrayList<Long>(1);
-		msgIds.add(message.getMsgID());
-		Bundle bundle = new Bundle();
-		if (adapter.getCount() <= 1)
-		{
-			bundle.putBoolean(HikeConstants.Extras.IS_LAST_MESSAGE, true);
-		}
-		else
-		{
-			bundle.putBoolean(HikeConstants.Extras.IS_LAST_MESSAGE, false);
-		}
-
-		bundle.putString(HikeConstants.Extras.MSISDN, message.getMsisdn());
-		bundle.putBoolean(HikeConstants.Extras.DELETE_MEDIA_FROM_PHONE, false);
-		HikeMessengerApp.getPubSub().publish(HikePubSub.DELETE_MESSAGE, new Pair<ArrayList<Long>, Bundle>(msgIds, bundle));
+		MessagingBotBridgeHelper.deleteMessage(message.getMsgID(), message.getMsisdn(), adapter);
 	}
 
 	/**
@@ -135,22 +126,10 @@ public class MessagingBotJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void setAlarm(String json, String timeInMills)
 	{
-		try
-		{
-			Logger.i(tag, "set alarm called " + json + " , mId " + message.getMsgID() + " , time " + timeInMills);
-			if(weakActivity.get()!=null)
-			{
-				PlatformAlarmManager.setAlarm(weakActivity.get().getApplicationContext(), new JSONObject(json), (int) message.getMsgID(), Long.valueOf(timeInMills));
+		Logger.i(tag, "set alarm called " + json + " , mId " + message.getMsgID() + " , time " + timeInMills);
+			if(weakActivity.get()!=null){
+				MessagingBotBridgeHelper.setAlarm(json, timeInMills, weakActivity.get(), (int)message.getMsgID());
 			}
-		}
-		catch(NumberFormatException ne)
-		{
-			ne.printStackTrace();
-		}
-		catch (JSONException e)
-		{
-			e.printStackTrace();
-		}
 	}
 
 	/**
@@ -162,41 +141,14 @@ public class MessagingBotJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void updateHelperData(String json)
 	{
-		try
+		Logger.i(tag, "update metadata called " + json + " , message id=" + message.getMsgID());
+		WebMetadata metadata = MessagingBotBridgeHelper.updateHelperData(message.getMsgID(), json);
+		if(metadata!=null)
 		{
-			Logger.i(tag, "update metadata called " + json + " , message id=" + message.getMsgID());
-			String originalmetadata = HikeConversationsDatabase.getInstance().getMetadataOfMessage(message.getMsgID());
-			originalmetadata = PlatformUtils.updateHelperData(json, originalmetadata);
-			if (originalmetadata != null)
-			{
-				HikeConversationsDatabase.getInstance().updateMetadataOfMessage(message.getMsgID(), originalmetadata);
-				message.webMetadata = new WebMetadata(originalmetadata);
-			}
-
-		}
-		catch (JSONException e)
-		{
-			e.printStackTrace();
+			message.webMetadata = metadata;
 		}
 	}
 
-	/**
-	 * This function will replace the entire metadata of the message.
-	 *
-	 * @param metadata
-	 */
-	@JavascriptInterface
-	public void replaceMetadata(String metadata)
-	{
-		try
-		{
-			message.webMetadata = new WebMetadata(new JSONObject(metadata));
-		}
-		catch (JSONException e)
-		{
-			e.printStackTrace();
-		}
-	}
 
 	/**
 	 * calling this function will delete the alarm associated with this javascript.
@@ -204,7 +156,7 @@ public class MessagingBotJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void deleteAlarm()
 	{
-		HikeConversationsDatabase.getInstance().deleteAppAlarm((int) (message.getMsgID()));
+		MessagingBotBridgeHelper.deleteAlarm((int)message.getMsgID());
 	}
 
 	/**
@@ -218,47 +170,39 @@ public class MessagingBotJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void updateMetadata(String json, String notifyScreen)
 	{
-		try
+		Logger.i(tag, "update metadata called " + json + " , message id=" + message.getMsgID() + " notifyScren is " + notifyScreen);
+		updateMetadata(MessagingBotBridgeHelper.updateMetadata((int)message.getMsgID(), json), notifyScreen);
+	}
+	
+	protected void updateMetadata(WebMetadata metadata, String notifyScreen)
+	{
+		if (metadata!=null && notifyScreen != null && Boolean.valueOf(notifyScreen))
 		{
-			Logger.i(tag, "update metadata called " + json + " , message id=" + message.getMsgID() + " notifyScren is " + notifyScreen);
-			String updatedJSON = HikeConversationsDatabase.getInstance().updateJSONMetadata((int) (message.getMsgID()), json);
-
-			if (updatedJSON != null)
+			if (null == mHandler)
 			{
-				message.webMetadata = new WebMetadata(updatedJSON); // the new metadata to inflate in webview
-				if (notifyScreen != null && Boolean.valueOf(notifyScreen))
-				{
-					if (null == mHandler)
-					{
-						return;
-					}
-					mHandler.post(new Runnable()
-					{
-
-						@Override
-						public void run()
-						{
-							Object obj = mWebView.getTag();
-							if (obj instanceof WebViewHolder)
-							{
-								Logger.i(tag, "updated metadata and calling notifydataset of " + adapter.getClass().getName() + " and thread= " + Thread.currentThread().getName());
-								WebViewHolder holder = (WebViewHolder) obj;
-								holder.id = -1; // will make sure new metadata is inflated in webview
-								adapter.notifyDataSetChanged();
-							}
-							else
-							{
-								Logger.e(tag, "Expected Tag of Webview was WebViewHolder and received " + obj.getClass().getCanonicalName());
-							}
-
-						}
-					});
-				}
+				return;
 			}
-		}
-		catch (JSONException e)
-		{
-			e.printStackTrace();
+			mHandler.post(new Runnable()
+			{
+
+				@Override
+				public void run()
+				{
+					Object obj = mWebView.getTag();
+					if (obj instanceof WebViewHolder)
+					{
+						Logger.i(tag, "updated metadata and calling notifydataset of " + adapter.getClass().getName() + " and thread= " + Thread.currentThread().getName());
+						WebViewHolder holder = (WebViewHolder) obj;
+						holder.id = -1; // will make sure new metadata is inflated in webview
+						adapter.notifyDataSetChanged();
+					}
+					else
+					{
+						Logger.e(tag, "Expected Tag of Webview was WebViewHolder and received " + obj.getClass().getCanonicalName());
+					}
+
+				}
+			});
 		}
 	}
 
@@ -402,9 +346,24 @@ public class MessagingBotJavaScriptBridge extends JavascriptBridge
 		this.profilingTime = profilingTime;
 	}
 
+	/**
+	 * Update this conv message on java bridge thread
+	 * @param message
+	 */
 	public void updateConvMessage(ConvMessage message)
 	{
-		this.message = message;
+		if(javaBridgeHandler!=null)
+		{
+			javaBridgeHandler.removeMessages(UPDATE_MESSAGE);
+			Message msg = Message.obtain();
+			msg.what = UPDATE_MESSAGE;
+			msg.obj = message;
+			javaBridgeHandler.sendMessage(msg);
+		}else{
+			this.message = message;
+			Logger.e(tag, "javabridge handler is null while updating conv message");
+		}
+		
 	}
 
 
@@ -455,5 +414,14 @@ public class MessagingBotJavaScriptBridge extends JavascriptBridge
 		callbackToJS(id, value);
 	}
 
-	
+	@Override
+	protected void handleJavaBridgeMessage(Message msg)
+	{
+		switch(msg.what)
+		{
+		case UPDATE_MESSAGE:
+			message = (ConvMessage) msg.obj;
+			break;
+		}
+	}
 }
