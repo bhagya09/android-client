@@ -21,6 +21,8 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.text.Html;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -59,7 +61,7 @@ public abstract class JavascriptBridge
 
 	static final String tag = "JavascriptBridge";
 
-	protected Handler mHandler;
+	protected Handler mHandler,javaBridgeHandler;
 	
 	private static final String REQUEST_CODE = "request_code";
 	
@@ -90,7 +92,26 @@ public abstract class JavascriptBridge
 	 * @param height : The height of the loaded content
 	 */
 	@JavascriptInterface
-	public abstract void onLoadFinished(String height);
+	public void onLoadFinished(String height)
+	{
+		if (javaBridgeHandler == null)
+		{
+			javaBridgeHandler = new Handler(Looper.myLooper())
+			{
+				@Override
+				public void handleMessage(Message msg)
+				{
+					super.handleMessage(msg);
+					handleJavaBridgeMessage(msg);
+				}
+			};
+		}
+	}
+	
+	protected void handleJavaBridgeMessage(Message msg)
+	{
+		
+	}
 
 	/**
 	 * call this function to Show toast for the string that is sent by the javascript.
