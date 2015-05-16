@@ -44,11 +44,16 @@ public class MessagingBotJavaScriptBridge extends JavascriptBridge
 	private static final int UPDATE_MESSAGE = 1;
 	
 	
+	public static interface WebviewEventsListener{
+		public void loadFinished(ConvMessage message);
+	}
+	
 	
 	ConvMessage message;
 
 	JSONObject profilingTime;
 	BaseAdapter adapter;
+	WebviewEventsListener listener;
 
 	public MessagingBotJavaScriptBridge(Activity activity,CustomWebView mWebView)
 	{
@@ -275,16 +280,22 @@ public class MessagingBotJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void onLoadFinished(String height)
 	{
-		mHandler.post(new Runnable()
+		if(message.webMetadata.getPlatformJSCompatibleVersion() >= HikePlatformConstants.VERSION_2)
 		{
-			@Override
-			public void run()
+			mHandler.post(new Runnable()
 			{
-				init();
-				setData();
-			}
-		});
-
+				@Override
+				public void run()
+				{
+					init();
+					setData();
+					if (listener != null)
+					{
+						listener.loadFinished(message);
+					}
+				}
+			});
+		}
 		try
 		{
 			int requiredHeightinDP = Integer.parseInt(height);
@@ -308,6 +319,11 @@ public class MessagingBotJavaScriptBridge extends JavascriptBridge
 			ne.printStackTrace();
 		}
 
+	}
+	
+	public void setListener(WebviewEventsListener listener)
+	{
+		this.listener = listener;
 	}
 	
 	public void setData()
