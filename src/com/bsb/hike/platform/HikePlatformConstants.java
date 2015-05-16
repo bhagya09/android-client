@@ -150,4 +150,11 @@ public interface HikePlatformConstants
 	/**
 	 * Overflow menu item constants end
 	 */
+	
+	
+	public static final int VERSION_1 = 1;
+	
+	public static final int VERSION_2 = 2;
+	
+	public static final int CURRENT_VERSION = VERSION_2;
 }
