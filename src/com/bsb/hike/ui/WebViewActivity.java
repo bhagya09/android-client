@@ -428,10 +428,19 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 
 		{
 
-			@Override
-			public void onEventOccured(EventCode event)
+			public void onEventOccured(PlatformContent.EventCode event)
 			{
-				Toast.makeText(getApplicationContext(), "Error occured while loading " + botInfo.getLabel(), Toast.LENGTH_SHORT).show();
+				if (event == PlatformContent.EventCode.DOWNLOADING || event == PlatformContent.EventCode.LOADED || event == EventCode.ALREADY_DOWNLOADED)
+				{
+					//do nothing
+					return;
+				}
+				else
+				{
+					//TODO Analytics
+					Logger.wtf(tag, "microapp download packet failed.");
+					Toast.makeText(getApplicationContext(), "Error occured while loading " + botInfo.getLabel(), Toast.LENGTH_SHORT).show();
+				}
 			}
 
 			@Override

@@ -288,7 +288,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				+ DBConstants.BOT_CONFIGURATION + " INTEGER, "	//bot configurations.. different server controlled properties of bot.
 				+ DBConstants.IS_BOT_ENABLE + " INTEGER DEFAULT 1,"  //whether the bot is enabled or not.
 				+ DBConstants.CONFIG_DATA + " TEXT, "            //config data for the bot.
-				+ HIKE_CONTENT.NAMESPACE + " TEXT"         //namespace of a bot for caching purpose.
+				+ HIKE_CONTENT.NAMESPACE + " TEXT, "         //namespace of a bot for caching purpose.
+				+ HIKE_CONTENT.NOTIF_DATA + " TEXT"       //notif data used for notifications pertaining to the microapp
 				+ ")";
 		db.execSQL(sql);
 
@@ -763,13 +764,14 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			String alter3 = "ALTER TABLE " + DBConstants.BOT_TABLE + " ADD COLUMN " + DBConstants.IS_BOT_ENABLE + " INTEGER DEFAULT 1";
 			String alter4 = "ALTER TABLE " + DBConstants.BOT_TABLE + " ADD COLUMN " + DBConstants.CONFIG_DATA + " TEXT";
 			String alter5 = "ALTER TABLE " + DBConstants.BOT_TABLE + " ADD COLUMN " + HIKE_CONTENT.NAMESPACE + " TEXT";
+			String alter6 = "ALTER TABLE " + DBConstants.BOT_TABLE + " ADD COLUMN " + HIKE_CONTENT.NOTIF_DATA + " TEXT";
 
 			db.execSQL(alter1);
 			db.execSQL(alter2);
 			db.execSQL(alter3);
 			db.execSQL(alter4);
 			db.execSQL(alter5);
-
+			db.execSQL(alter6);
 
 		}
 
@@ -6839,4 +6841,140 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		contentValues.put(IS_MUTE, newMuteState ? 1 : 0);
 		mDb.update(BOT_TABLE, contentValues, MSISDN + "=?", new String[] { botMsisdn });
 	}
+
+	/**
+	 * Calling this function will update the notif data. The notif data is a JSON Object to enable the app to have
+	 * multiple entries. It is having key as the timestamp and value as the notifData given at certain time.
+	 * @param botMsisdn: msisdn of non-messaging bot.
+	 * @param notifData: the data to be added to the notifData.
+	 */
+	public void updateNotifDataForMicroApps(String botMsisdn, String notifData)
+	{
+		Cursor c = null;
+		try
+		{
+			c = mDb.query(DBConstants.MESSAGES_TABLE, new String[] { HIKE_CONTENT.NOTIF_DATA }, DBConstants.MSISDN + "=?" , new String[] { botMsisdn}, null, null, null);
+			final int columnIndex = c.getColumnIndex(HIKE_CONTENT.NOTIF_DATA);
+			JSONObject notifDataJSON;
+			if (c.moveToFirst())
+			{
+				String notifDataExisting = c.getString(columnIndex);
+				notifDataJSON = TextUtils.isEmpty(notifDataExisting) ? new JSONObject() : new JSONObject(notifDataExisting);
+			}
+			else
+			{
+				notifDataJSON = new JSONObject();
+			}
+			notifDataJSON.put(String.valueOf(System.currentTimeMillis()), notifData);
+			ContentValues contentValues = new ContentValues();
+			contentValues.put(HIKE_CONTENT.NOTIF_DATA, notifDataJSON.toString());
+			mDb.update(BOT_TABLE, contentValues, MSISDN + "=?", new String[] { botMsisdn });
+
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+			Logger.e(HikePlatformConstants.TAG, "JSON exception in updating Notif data");
+		}
+		finally
+		{
+			if (null != c)
+			{
+				c.close();
+			}
+		}
+
+	}
+
+	/**
+	 * call this function to delete the entire notif data for the given microApp.
+	 * @param botMsisdn: msisdn of the non-messaging bot.
+	 */
+	public void deleteAllNotifDataForMicroApp(String botMsisdn)
+	{
+		ContentValues contentValues = new ContentValues();
+		contentValues.put(HIKE_CONTENT.NOTIF_DATA, "");
+		mDb.update(BOT_TABLE, contentValues, MSISDN + "=?", new String[] { botMsisdn });
+	}
+
+	/**
+	 * call this function to partially delete the notif data based on the key which notif data to be deleted.
+	 * @param key: the key or timestamp for which the notif data is to be deleted.
+	 * @param botMsisdn: the msisdn of the non messaging bot.
+	 */
+	public void deletePartialNotifData(String key, String botMsisdn)
+	{
+		Cursor c = null;
+		try
+		{
+			c = mDb.query(DBConstants.MESSAGES_TABLE, new String[] { HIKE_CONTENT.NOTIF_DATA }, DBConstants.MSISDN + "=?" , new String[] { botMsisdn}, null, null, null);
+			final int columnIndex = c.getColumnIndex(HIKE_CONTENT.NOTIF_DATA);
+			if (c.moveToFirst())
+			{
+				String notifDataExisting = c.getString(columnIndex);
+				if (TextUtils.isEmpty(notifDataExisting))
+				{
+					Logger.e(HikePlatformConstants.TAG, "Existing Notif data is empty or null" + notifDataExisting);
+					return;
+				}
+
+				JSONObject notifDataJSON = new JSONObject(notifDataExisting);
+				if (!notifDataJSON.has(key))
+				{
+					Logger.e(HikePlatformConstants.TAG, "The key for deleting notif data does not exist" + key);
+					return;
+				}
+
+				notifDataJSON.remove(key);
+				ContentValues contentValues = new ContentValues();
+				contentValues.put(HIKE_CONTENT.NOTIF_DATA, notifDataJSON.toString());
+				mDb.update(BOT_TABLE, contentValues, MSISDN + "=?", new String[] { botMsisdn });
+
+			}
+
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+			Logger.e(HikePlatformConstants.TAG, "JSON exception in updating Notif data");
+		}
+		finally
+		{
+			if (null != c)
+			{
+				c.close();
+			}
+		}
+	}
+
+	/**
+	 * Call this function to get the Notif data of the non messaging bot
+	 * @param botMsisdn: : msisdn of the non-messaging bot.
+	 * @return the notif data
+	 */
+	public String getNotifData(String botMsisdn)
+	{
+		Cursor c = null;
+		try
+		{
+			c = mDb.query(DBConstants.MESSAGES_TABLE, new String[] { HIKE_CONTENT.NOTIF_DATA }, DBConstants.MSISDN + "=?" , new String[] { botMsisdn}, null, null, null);
+			final int columnIndex = c.getColumnIndex(HIKE_CONTENT.NOTIF_DATA);
+			if (c.moveToFirst())
+			{
+				return c.getString(columnIndex);
+			}
+			return "{}";
+
+		}
+
+		finally
+		{
+			if (null != c)
+			{
+				c.close();
+			}
+		}
+	}
+
+
 }

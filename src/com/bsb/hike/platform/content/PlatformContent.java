@@ -60,15 +60,24 @@ public class PlatformContent
 					{
 						return "downloading";
 					}
-		},
+				},
 		LOADED
-		{
-			@Override
-			public String toString()
-			{
-				return "loaded";
-			}
-		}
+				{
+					@Override
+					public String toString()
+					{
+						return "loaded";
+					}
+				},
+		ALREADY_DOWNLOADED
+				{
+					@Override
+					public String toString()
+					{
+						return "already_dwnld";
+					}
+				}
+
 	}
 
 	/**

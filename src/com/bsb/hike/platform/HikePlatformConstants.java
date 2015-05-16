@@ -52,7 +52,7 @@ public interface HikePlatformConstants
 	public int MAKE_HTTP_CALL = 1;
 	public static final String PLATFORM_UID_FETCH_TAG = "platformUID";
 	public static final String CONTENT_ID = "content_id";
-	public static final String NAMESPACE = "namespace";
+	public static final String NAMESPACE = "nameSpace";
 
 	public static final class PlatformUIDFetchType
 	{
@@ -135,6 +135,8 @@ public interface HikePlatformConstants
 	public static final String ENABLE_BOT = "enable_bot";
 
 	public static final String BOT_TYPE = "bot_type";
+
+	public static final String NOTIF_DATA = "notifData";
 
 	/**
 	 * Overflow menu item constants :
