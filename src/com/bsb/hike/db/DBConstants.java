@@ -297,6 +297,7 @@ public interface DBConstants
 		public static final String CONTENT_ID_INDEX = "contentTableContentIdIndex";
 		public static final String CONTENT_TABLE_NAMESPACE_INDEX = "contentTableNamespaceIndex";
 		String NAMESPACE = "nameSpace";
+		public static final String NOTIF_DATA = "notif_data";
 		public static final String VALUE = "value";
 		public static final String CONTENT_CACHE_TABLE = "contentCache";
 		public static final String KEY = "key";

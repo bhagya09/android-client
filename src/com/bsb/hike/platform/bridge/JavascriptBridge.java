@@ -49,6 +49,8 @@ import com.bsb.hike.ui.TellAFriend;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+import com.bsb.hike.voip.VoIPUtils;
+import com.bsb.hike.voip.VoIPUtils.ConnectionClass;
 
 /**
  * Created by shobhit on 13/02/15.
@@ -529,7 +531,23 @@ public abstract class JavascriptBridge
 			}
 		});
 	}
-
-
 	
+	/**
+	 * This method will be called when you need to get the Connection type on the device. The result returned will be one of the following ordinal values :
+	 * 
+	 * TwoG : 0 <br>
+	 * ThreeG : 1 <br>
+	 * FourG : 2 <br>
+	 * WiFi : 3 <br>
+	 * Unknown : 4 <br>
+	 * 
+	 * @param id
+	 */
+	@JavascriptInterface
+	public void checkConnection(String id)
+	{
+		ConnectionClass connType = VoIPUtils.getConnectionClass(HikeMessengerApp.getInstance().getApplicationContext());
+		
+		callbackToJS(id, Integer.toString(connType.ordinal()));
+	}
 }

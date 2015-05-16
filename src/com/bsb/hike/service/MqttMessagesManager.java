@@ -653,7 +653,10 @@ public class MqttMessagesManager
 					//do nothing
 					return;
 				}
-
+				else if (event == PlatformContent.EventCode.ALREADY_DOWNLOADED)
+				{
+					Logger.d(HikePlatformConstants.TAG, "microapp already exists");
+				}
 				else
 				{
 					saveMessage(convMessage);
@@ -2477,39 +2480,74 @@ public class MqttMessagesManager
 				lastNotifPacket = hash;
 				String body = data.optString(HikeConstants.BODY);
 				String destination = data.optString("u");
-				String contentId = data.optString(HikePlatformConstants.CONTENT_ID);
-				String nameSpace = data.optString(HikePlatformConstants.NAMESPACE);
-				if (data.optBoolean(HikeConstants.PUSH, true) && !TextUtils.isEmpty(destination) && !TextUtils.isEmpty(body))
+				boolean silent = data.optBoolean(HikeConstants.SILENT, true);
+				boolean rearrangeChat = data.optBoolean(HikeConstants.REARRANGE_CHAT,false);
+				JSONObject metadata = data.has(HikeConstants.METADATA) ? data.optJSONObject(HikeConstants.METADATA) : new JSONObject();
+				Logger.i("mqttMessageManager", "Play Notification packet from Server " + data.toString());
+				// chat thread -- by default silent is true, so no sound
+				// open respective chat thread
+
+				if(Utils.isBot(destination))
 				{
-
-					if (ContactManager.getInstance().isBlocked(destination))
+					BotInfo botInfo = BotInfo.getBotInfoForBotMsisdn(destination);
+					if (botInfo.isNonMessagingBot())
 					{
-
-						blockedMessageAnalytics(HikePlatformConstants.NOTIF);
-						return;
-
-					}
-					else if (!Utils.isConversationMuted(destination)
-							&& HikeConversationsDatabase.getInstance().isContentMessageExist(destination, contentId, nameSpace))
-					{
-						Logger.i("mqttMessageManager", "Play Notification packet from Server " + data.toString());
-						// chat thread -- by default silent is true, so no sound
-						boolean silent = data.optBoolean(HikeConstants.SILENT, true);
-
-						// open respective chat thread
-						HikeNotification.getInstance(context).notifyStringMessage(destination, body, silent);
-						if(data.optBoolean(HikeConstants.REARRANGE_CHAT,false))
+						if (ContactManager.getInstance().isBlocked(destination))
 						{
-							Pair<String, Long> pair = new Pair<String, Long>(destination, System.currentTimeMillis() / 1000);
-							HikeMessengerApp.getPubSub().publish(HikePubSub.CONVERSATION_TS_UPDATED, pair);
+							return;
+						}
+						if (!Utils.isConversationMuted(destination) && data.optBoolean(HikeConstants.PUSH, true))
+						{
+							generateNotification(body, destination, silent, rearrangeChat);
+						}
+						JSONObject notifData = metadata.optJSONObject(HikePlatformConstants.NOTIF_DATA);
+						if (null != notifData)
+						{
+							HikeConversationsDatabase.getInstance().updateNotifDataForMicroApps(destination, notifData.toString());
+						}
+					}
+					else
+					{
+						if (data.optBoolean(HikeConstants.PUSH, true) && !TextUtils.isEmpty(destination) && !TextUtils.isEmpty(body))
+						{
+
+							if (ContactManager.getInstance().isBlocked(destination))
+							{
+								blockedMessageAnalytics(HikePlatformConstants.NOTIF);
+								return;
+							}
+							String contentId = metadata.optString(HikePlatformConstants.CONTENT_ID);
+							String nameSpace = metadata.optString(HikePlatformConstants.NAMESPACE);
+
+							if (!Utils.isConversationMuted(destination)
+									&& HikeConversationsDatabase.getInstance().isContentMessageExist(destination, contentId, nameSpace))
+							{
+								generateNotification(body, destination, silent, rearrangeChat);
+							}
 						}
 					}
 				}
+				else
+				{
+					Logger.e("mqtt", "msisdn is not that of a bot . Msisdn is----->" + destination);
+				}
+
 			}
 			else
 			{
 				Logger.e("mqttMessageManager", "duplicate Notification packet from server "+data.toString());
 			}
+		}
+	}
+
+	private void generateNotification(String body, String destination, boolean silent, boolean rearrangeChat)
+	{
+
+		HikeNotification.getInstance(context).notifyStringMessage(destination, body, silent);
+		if(rearrangeChat)
+		{
+			Pair<String, Long> pair = new Pair<String, Long>(destination, System.currentTimeMillis() / 1000);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.CONVERSATION_TS_UPDATED, pair);
 		}
 	}
 
