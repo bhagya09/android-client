@@ -300,7 +300,10 @@ public class PlatformUtils
 		botInfo.setBotEnabled(enableBot);
 		HikeMessengerApp.hikeBotNamesMap.put(botInfo.getMsisdn(), botInfo);
 		HikeConversationsDatabase.getInstance().updateBotEnablingState(botInfo.getMsisdn(), enableBot ? 1 : 0);
-		HikeConversationsDatabase.getInstance().addConversation(botInfo.getMsisdn(), true, null, null);
+		if (enableBot)
+		{
+			HikeConversationsDatabase.getInstance().addConversation(botInfo.getMsisdn(), true, null, null);
+		}
 	}
 
 	/**
@@ -356,6 +359,10 @@ public class PlatformUtils
 		if (!downloader.isMicroAppExist())
 		{
 			downloader.downloadAndUnzip();
+		}
+		else
+		{
+			request.getListener().onEventOccured(PlatformContent.EventCode.ALREADY_DOWNLOADED);
 		}
 	}
 

@@ -6963,7 +6963,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			{
 				return c.getString(columnIndex);
 			}
-			return "";
+			return "{}";
 
 		}
 
