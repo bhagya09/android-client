@@ -43,7 +43,10 @@ import com.bsb.hike.adapters.MessagesAdapter;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.platform.content.HikeWebClient;
+import com.bsb.hike.platform.bridge.MessagingBotBridgeV1;
+import com.bsb.hike.platform.bridge.MessagingBotBridgeV2;
 import com.bsb.hike.platform.bridge.MessagingBotJavaScriptBridge;
+import com.bsb.hike.platform.bridge.MessagingBotJavaScriptBridge.WebviewEventsListener;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformContent.EventCode;
 import com.bsb.hike.platform.content.PlatformContentListener;
@@ -140,16 +143,28 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 	{
 		holder.main = view;
 		holder.customWebView = (CustomWebView) view.findViewById(R.id.webcontent);
-		holder.platformJavaScriptBridge = new MessagingBotJavaScriptBridge(mContext,holder.customWebView, convMessage, adapter);
+		attachJSBridge(convMessage, holder);
 		holder.selectedStateOverlay = view.findViewById(R.id.selected_state_overlay);
 		holder.loadingSpinner = view.findViewById(R.id.loading_data);
 		holder.cardFadeScreen = view.findViewById(R.id.card_fade_screen);
 		holder.loadingFailed = view.findViewById(R.id.loading_failed);
 		holder.dayStub = (ViewStub) view.findViewById(R.id.day_stub);
-		holder.webViewClient = new CustomWebViewClient(convMessage,holder);
+		holder.webViewClient = new CustomWebViewClient(convMessage, holder);
 		webViewStates(holder);
 
 		return holder;
+	}
+	
+	private void attachJSBridge(ConvMessage convMessage,WebViewHolder holder)
+	{
+		if (convMessage.webMetadata.getPlatformJSCompatibleVersion() == HikePlatformConstants.VERSION_2)
+		{
+			holder.platformJavaScriptBridge = new MessagingBotBridgeV2(mContext, holder.customWebView, convMessage, adapter);
+		}
+		else
+		{
+			holder.platformJavaScriptBridge = new MessagingBotBridgeV1(mContext, holder.customWebView, convMessage, adapter);
+		}
 	}
 
 	@SuppressLint("NewApi")
@@ -407,7 +422,7 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 
 	}
 
-	private class CustomWebViewClient extends HikeWebClient
+	private class CustomWebViewClient extends HikeWebClient implements WebviewEventsListener
 	{
 
 		ConvMessage convMessage;
@@ -446,8 +461,11 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 			{
 				try
 				{
-					showCard(holder);
-					holder.platformJavaScriptBridge.setData();
+					if(convMessage.webMetadata.getPlatformJSCompatibleVersion() == HikePlatformConstants.VERSION_1)
+					{
+						showCard(holder);
+						holder.platformJavaScriptBridge.setData();
+					}
 					String alarmData = convMessage.webMetadata.getAlarmData();
 					Logger.d(tag, "alarm data to html is " + alarmData);
 					if (!TextUtils.isEmpty(alarmData))
@@ -464,6 +482,14 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 			else
 			{
 				Logger.e(tag, "Webview onpagefinished called but webview another load is in progress");
+			}
+		}
+
+		@Override
+		public void loadFinished(ConvMessage message)
+		{
+			if(url.contains(Integer.toString(message.hashCode()))){
+				showCard(holder);
 			}
 		}
 	}
