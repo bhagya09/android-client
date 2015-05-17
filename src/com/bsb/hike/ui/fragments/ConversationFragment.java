@@ -2534,7 +2534,6 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 			{
 				convInfo.setStealth(false);
 				stealthConversations.remove(convInfo);
-				mAdapter.sortLists(mConversationsComparator);
 			}
 			else if(HikePubSub.STEALTH_CONVERSATION_MARKED.equals(type))
 			{
@@ -2549,6 +2548,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 				
 				@Override
 				public void run() {
+					mAdapter.sortLists(mConversationsComparator);
 					notifyDataSetChanged();
 				}
 			});

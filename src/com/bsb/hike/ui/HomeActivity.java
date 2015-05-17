@@ -886,7 +886,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		{
 			//after showing the LockPatternActivity the extra is no longer needed, so clearing it out.
 			extrasClearedOut = true;
-			StealthModeManager.getInstance().settingupTriggered(getIntent().getStringExtra(HikeConstants.MSISDN), this);
+			StealthModeManager.getInstance().showLockPattern(getIntent().getStringExtra(HikeConstants.MSISDN), this);
 			getIntent().removeExtra(HikeConstants.MSISDN);
 		}
 		checkNShowNetworkError();

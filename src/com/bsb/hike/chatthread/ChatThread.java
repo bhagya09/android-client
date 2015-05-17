@@ -817,12 +817,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			//setupSearchMode();
 			break;
 		case R.string.hide_chat:
-
-			if(mMessageMap.isEmpty())
-			{
-				createEmptyConversation();
-			}
-
+			id = item.id;
 			StealthModeManager.getInstance().toggleConversation(msisdn, !mConversation.isStealth(), activity);
 			//exiting chat thread 
 			if(!StealthModeManager.getInstance().isActive())
@@ -1931,12 +1926,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		ConvMessage convMessage = Utils.makeConvMessage(msisdn, getString(R.string.poke_msg), mConversation.isOnHike());
 		ChatThreadUtils.setPokeMetadata(convMessage);
 		sendMessage(convMessage);
-	}
-
-	private void createEmptyConversation()
-	{
-	    ConvMessage convMessage = Utils.makeConvMessage(msisdn, null, mConversation.isOnHike(), State.RECEIVED_READ);
-	    HikeConversationsDatabase.getInstance().addConversationMessages(convMessage, true);
 	}
 
 	private void initListViewAndAdapter()

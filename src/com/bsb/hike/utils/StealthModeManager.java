@@ -73,7 +73,7 @@ public class StealthModeManager
 		}
 		if(publish)
 		{
-			HikeMessengerApp.getPubSub().publish(markStealth? HikePubSub.STEALTH_CONVERSATION_MARKED : HikePubSub.STEALTH_CONVERSATION_UNMARKED, msisdn);
+			HikeMessengerApp.getPubSub().publish(markStealth? HikePubSub.STEALTH_DATABASE_MARKED : HikePubSub.STEALTH_DATABASE_UNMARKED, msisdn);
 		}
 	}
 
@@ -187,7 +187,7 @@ public class StealthModeManager
 		return HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STEALTH_MODE_FTUE_DONE, true);
 	}
 	
-	public void settingupTriggered(String msisdn, Activity activity)
+	public void showLockPattern(String msisdn, Activity activity)
 	{
 		Bundle stealthBundle = new Bundle();
 		stealthBundle.putString(HikeConstants.MSISDN, msisdn);
@@ -232,7 +232,7 @@ public class StealthModeManager
 				if(!isFtueDone())
 				{
 					HikeMessengerApp.getPubSub().publish(HikePubSub.SHOW_TIP, ConversationTip.STEALTH_HIDE_TIP);
-					StealthModeManager.getInstance().activate(true);
+					activate(true);
 					HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_MODE_TOGGLED, true);
 					ftuePending(false);
 				}
@@ -244,7 +244,7 @@ public class StealthModeManager
 					}
 					else
 					{
-						StealthModeManager.getInstance().activate(true);
+						activate(true);
 						HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_MODE_TOGGLED, true);
 					}
 				}
@@ -252,7 +252,7 @@ public class StealthModeManager
 			else
 			{
 				HikeMessengerApp.getPubSub().publish(HikePubSub.REMOVE_TIP, ConversationTip.STEALTH_HIDE_TIP);
-				StealthModeManager.getInstance().activate(false);
+				activate(false);
 				HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_MODE_TOGGLED, true);
 
 				try
@@ -284,7 +284,7 @@ public class StealthModeManager
 		{
 			if(activity instanceof HomeActivity)
 			{
-				settingupTriggered(msisdn, activity);
+				showLockPattern(msisdn, activity);
 			}
 		}
 	}
