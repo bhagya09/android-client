@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.os.Message;
 import android.text.TextUtils;
 import android.util.Pair;
+import android.util.SparseArray;
 import android.webkit.JavascriptInterface;
 import android.widget.BaseAdapter;
 
@@ -44,6 +45,8 @@ public class MessagingBotJavaScriptBridge extends JavascriptBridge
 	private static final int UPDATE_MESSAGE = 1;
 	
 	
+	protected SparseArray<WebMetadata> metadataMap = new SparseArray<>();
+	
 	public static interface WebviewEventsListener{
 		public void loadFinished(ConvMessage message);
 		
@@ -69,14 +72,6 @@ public class MessagingBotJavaScriptBridge extends JavascriptBridge
 		this.adapter = adapter;
 	}
 
-	/**
-	 * call this function to delete the message. The message will get deleted instantaneously
-	 */
-	@JavascriptInterface
-	public void deleteMessage()
-	{
-		MessagingBotBridgeHelper.deleteMessage(message.getMsgID(), message.getMsisdn(), adapter);
-	}
 
 	/**
 	 * Call this function to log analytics events.
@@ -116,70 +111,12 @@ public class MessagingBotJavaScriptBridge extends JavascriptBridge
 		}
 	}
 
-	/**
-	 * Call this function to set the alarm at certain time that is defined by the second parameter.
-	 * The first param is a json that contains
-	 * 1.alarm_data: the data that the javascript receives when the alarm is played.
-	 * 2.delete_card: if present and true, used to delete the message on alarm getting played
-	 * 3.conv_msisdn: this field is must Send the msisdn.
-	 * 4.inc_unread: if inc_unread is present and true, we will increase red unread counter in Conversation screen.
-	 * 5.notification: contains message  if you want to show notification at some particular time
-	 * 6.notification_sound: true if we you want to play sound
-	 * sample json  :  {alarm_data:{}, conv_msisdn:'', ;delete_card' : 'true' , 'inc_unread' :'true ' , 'notification': 'message', 'notification_sound':'true'}
-	 *
-	 * @param json
-	 * @param timeInMills
-	 */
-	@JavascriptInterface
-	public void setAlarm(String json, String timeInMills)
-	{
-		Logger.i(tag, "set alarm called " + json + " , mId " + message.getMsgID() + " , time " + timeInMills);
-			if(weakActivity.get()!=null){
-				MessagingBotBridgeHelper.setAlarm(json, timeInMills, weakActivity.get(), (int)message.getMsgID());
-			}
-	}
+	
 
-	/**
-	 * this function will update the helper data. It will replace the key if it is present in the helper data and will add it if it is
-	 * not present in the helper data.
-	 *
-	 * @param json
-	 */
-	@JavascriptInterface
-	public void updateHelperData(String json)
-	{
-		Logger.i(tag, "update metadata called " + json + " , message id=" + message.getMsgID());
-		WebMetadata metadata = MessagingBotBridgeHelper.updateHelperData(message.getMsgID(), json);
-		if(metadata!=null)
-		{
-			message.webMetadata = metadata;
-		}
-	}
+	
 
-
-	/**
-	 * calling this function will delete the alarm associated with this javascript.
-	 */
-	@JavascriptInterface
-	public void deleteAlarm()
-	{
-		MessagingBotBridgeHelper.deleteAlarm((int)message.getMsgID());
-	}
-
-	/**
-	 * Calling this function will update the metadata. If the key is already present, it will be replaced else it will be added to the existent metadata.
-	 * If the json has JSONObject as key, there would be another round of iteration, and will replace the key-value pair if the key is already present
-	 * and will add the key-value pair if the key is not present in the existent metadata.
-	 *
-	 * @param json
-	 * @param notifyScreen : if true, the adapter will be notified of the change, else there will be only db update.
-	 */
-	@JavascriptInterface
-	public void updateMetadata(String json, String notifyScreen)
-	{
-		Logger.i(tag, "update metadata called " + json + " , message id=" + message.getMsgID() + " notifyScren is " + notifyScreen);
-		updateMetadata(MessagingBotBridgeHelper.updateMetadata((int)message.getMsgID(), json), notifyScreen);
-	}
+	
+	
 	
 	protected void updateMetadata(WebMetadata metadata, String notifyScreen)
 	{
@@ -195,55 +132,16 @@ public class MessagingBotJavaScriptBridge extends JavascriptBridge
 				@Override
 				public void run()
 				{
-					Object obj = mWebView.getTag();
-					if (obj instanceof WebViewHolder)
+					if(listener!=null)
 					{
-						Logger.i(tag, "updated metadata and calling notifydataset of " + adapter.getClass().getName() + " and thread= " + Thread.currentThread().getName());
-						WebViewHolder holder = (WebViewHolder) obj;
-						holder.id = -1; // will make sure new metadata is inflated in webview
-						adapter.notifyDataSetChanged();
+						listener.notifyDataSetChanged();
 					}
-					else
-					{
-						Logger.e(tag, "Expected Tag of Webview was WebViewHolder and received " + obj.getClass().getCanonicalName());
-					}
-
 				}
 			});
 		}
 	}
 
-	/**
-	 * Calling this function will initiate forward of the message to a friend or group.
-	 *
-	 * @param json : if the data has changed , then send the updated fields and it will update the metadata.
-	 *             If the key is already present, it will be replaced else it will be added to the existent metadata.
-	 *             If the json has JSONObject as key, there would be another round of iteration, and will replace the key-value pair if the key is already present
-	 *             and will add the key-value pair if the key is not present in the existent metadata.
-	 */
-	@JavascriptInterface
-	public void forwardToChat(String json)
-	{
-		try
-		{
-			Logger.i(tag, "forward to chat called " + json + " , message id=" + message.getMsgID());
-
-			if (!TextUtils.isEmpty(json))
-			{
-				String updatedJSON = HikeConversationsDatabase.getInstance().updateJSONMetadata((int) (message.getMsgID()), json);
-				if (!TextUtils.isEmpty(updatedJSON))
-				{
-					message.webMetadata = new WebMetadata(updatedJSON);
-				}
-			}
-
-			startComPoseChatActivity(message);
-		}
-		catch (JSONException e)
-		{
-			e.printStackTrace();
-		}
-	}
+	
 
 	/**
 	 * calling this method will forcefully mute the chat thread. The user won't receive any more
@@ -273,55 +171,7 @@ public class MessagingBotJavaScriptBridge extends JavascriptBridge
 		share(null, null);
 	}
 
-	/**
-	 * This function is called whenever the onLoadFinished of the html is called. This function calling is MUST.
-	 * This function is also used for analytics purpose.
-	 *
-	 * @param height : The height of the loaded content
-	 */
-	@JavascriptInterface
-	public void onLoadFinished(String height)
-	{
-		if(message.webMetadata.getPlatformJSCompatibleVersion() >= HikePlatformConstants.VERSION_2)
-		{
-			mHandler.post(new Runnable()
-			{
-				@Override
-				public void run()
-				{
-					init();
-					setData();
-					if (listener != null)
-					{
-						listener.loadFinished(message);
-					}
-				}
-			});
-		}
-		try
-		{
-			int requiredHeightinDP = Integer.parseInt(height);
-			int requiredHeightInPX = (int) (requiredHeightinDP * Utils.densityMultiplier);
-			if (requiredHeightInPX != mWebView.getHeight())
-			{
-				Logger.i(tag, "onloadfinished called with height=" + requiredHeightInPX + " current height is " + mWebView.getHeight() + " : updated in DB as well");
-				// lets save in DB, so that from next time onwards we will have less flickering
-				message.webMetadata.setCardHeight(requiredHeightinDP);
-				HikeConversationsDatabase.getInstance().updateMetadataOfMessage(message.getMsgID(), message.webMetadata.JSONtoString());
-				resizeWebview(height);
-			}
-			else
-			{
-				Logger.i(tag, "onloadfinished called with height=" + requiredHeightInPX + " current height is " + mWebView.getHeight());
-			}
-
-		}
-		catch (NumberFormatException ne)
-		{
-			ne.printStackTrace();
-		}
-
-	}
+	
 	
 	public void setListener(WebviewEventsListener listener)
 	{
@@ -370,56 +220,48 @@ public class MessagingBotJavaScriptBridge extends JavascriptBridge
 	 */
 	public void updateConvMessage(ConvMessage message)
 	{
-		if(javaBridgeHandler!=null)
-		{
-			javaBridgeHandler.removeMessages(UPDATE_MESSAGE);
-			Message msg = Message.obtain();
-			msg.what = UPDATE_MESSAGE;
-			msg.obj = message;
-			javaBridgeHandler.sendMessage(msg);
-		}else{
 			this.message = message;
-			Logger.e(tag, "javabridge handler is null while updating conv message");
+			WebMetadata metadata = metadataMap.get((int)message.getMsgID());
+			if( metadata !=null )
+			{
+				this.message.webMetadata = metadata;
+				metadataMap.remove((int) message.getMsgID());
+			}
+	}
+
+	
+	/**
+	 * Calling this function will initiate forward of the message to a friend or group.
+	 *
+	 * @param json : if the data has changed , then send the updated fields and it will update the metadata.
+	 *             If the key is already present, it will be replaced else it will be added to the existent metadata.
+	 *             If the json has JSONObject as key, there would be another round of iteration, and will replace the key-value pair if the key is already present
+	 *             and will add the key-value pair if the key is not present in the existent metadata.
+	 */
+	@JavascriptInterface
+	public void forwardToChat(String json)
+	{
+		try
+		{
+			Logger.i(tag, "forward to chat called " + json + " , message id=" + message.getMsgID());
+
+			if (!TextUtils.isEmpty(json))
+			{
+				String updatedJSON = HikeConversationsDatabase.getInstance().updateJSONMetadata((int) (message.getMsgID()), json);
+				if (!TextUtils.isEmpty(updatedJSON))
+				{
+					message.webMetadata = new WebMetadata(updatedJSON);
+				}
+			}
+
+			startComPoseChatActivity(message);
 		}
-		
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
 	}
-
-
-
-	/**
-	 * Call this method to put bulk large data in cache. Earlier large data will be replaced by this new data and there will
-	 * be only one entry per microapp.
-	 * @param value: the data that the app need to cache.
-	 */
-	@JavascriptInterface
-	public void putLargeDataInCache(String value)
-	{
-		HikeContentDatabase.getInstance().putInContentCache(message.getNameSpace(), message.getNameSpace(), value);
-	}
-
-	/**
-	 * Call this method to put data in cache. This will be a key-value pair. A microapp can have different key-value pairs
-	 * in the native's cache.
-	 * @param key: key of the data to be saved. Microapp needs to make sure about the uniqueness of the key.
-	 * @param value: : the data that the app need to cache.
-	 */
-	@JavascriptInterface
-	public void putInCache(String key, String value)
-	{
-		HikeContentDatabase.getInstance().putInContentCache(key, message.getNameSpace(), value);
-	}
-
-	/**
-	 * Call this function to get the bulk large data from the native memory
-	 * @param id : the id of the function that native will call to call the js .
-	 */
-	@JavascriptInterface
-	public void getLargeDataFromCache(String id)
-	{
-		String value = HikeContentDatabase.getInstance().getFromContentCache(message.getNameSpace(), message.getNameSpace());
-		callbackToJS(id, value);
-	}
-
+	
 	/**
 	 * call this function to get the data from the native memory
 	 * @param id: the id of the function that native will call to call the js .
@@ -431,15 +273,85 @@ public class MessagingBotJavaScriptBridge extends JavascriptBridge
 		String value = HikeContentDatabase.getInstance().getFromContentCache(key, message.getNameSpace());
 		callbackToJS(id, value);
 	}
-
-	@Override
-	protected void handleJavaBridgeMessage(Message msg)
+	
+	/**
+	 * Call this function to get the bulk large data from the native memory
+	 * @param id : the id of the function that native will call to call the js .
+	 */
+	@JavascriptInterface
+	public void getLargeDataFromCache(String id)
 	{
-		switch(msg.what)
+		String value = HikeContentDatabase.getInstance().getFromContentCache(message.getNameSpace(), message.getNameSpace());
+		callbackToJS(id, value);
+	}
+	
+	/**
+	 * Call this method to put data in cache. This will be a key-value pair. A microapp can have different key-value pairs
+	 * in the native's cache.
+	 * @param key: key of the data to be saved. Microapp needs to make sure about the uniqueness of the key.
+	 * @param value: : the data that the app need to cache.
+	 */
+	@JavascriptInterface
+	public void putInCache(String key, String value)
+	{
+		HikeContentDatabase.getInstance().putInContentCache(key, message.getNameSpace(), value);
+	}
+	
+	/**
+	 * Call this method to put bulk large data in cache. Earlier large data will be replaced by this new data and there will
+	 * be only one entry per microapp.
+	 * @param value: the data that the app need to cache.
+	 */
+	@JavascriptInterface
+	public void putLargeDataInCache(String value)
+	{
+		HikeContentDatabase.getInstance().putInContentCache(message.getNameSpace(), message.getNameSpace(), value);
+	}
+	
+	/**
+	 * This function is called whenever the onLoadFinished of the html is called. This function calling is MUST.
+	 * This function is also used for analytics purpose.
+	 *
+	 * @param height : The height of the loaded content
+	 */
+	@JavascriptInterface
+	public void onLoadFinished(String height)
+	{
+		super.onLoadFinished(height);
+		if(message.webMetadata.getPlatformJSCompatibleVersion() >= HikePlatformConstants.VERSION_2)
 		{
-		case UPDATE_MESSAGE:
-			message = (ConvMessage) msg.obj;
-			break;
+			mHandler.post(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					Logger.i(tag, "inside run onloadfinished "+listener);
+					init();
+				}
+			});
 		}
+		try
+		{
+			int requiredHeightinDP = Integer.parseInt(height);
+			int requiredHeightInPX = (int) (requiredHeightinDP * Utils.densityMultiplier);
+			if (requiredHeightInPX != mWebView.getHeight())
+			{
+				Logger.i(tag, "onloadfinished called with height=" + requiredHeightInPX + " current height is " + mWebView.getHeight() + " : updated in DB as well");
+				// lets save in DB, so that from next time onwards we will have less flickering
+				message.webMetadata.setCardHeight(requiredHeightinDP);
+				HikeConversationsDatabase.getInstance().updateMetadataOfMessage(message.getMsgID(), message.webMetadata.JSONtoString());
+				resizeWebview(height);
+			}
+			else
+			{
+				Logger.i(tag, "onloadfinished called with height=" + requiredHeightInPX + " current height is " + mWebView.getHeight());
+			}
+
+		}
+		catch (NumberFormatException ne)
+		{
+			ne.printStackTrace();
+		}
+
 	}
 }
