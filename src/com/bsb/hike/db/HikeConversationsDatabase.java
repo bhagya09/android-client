@@ -286,7 +286,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				+ DBConstants.IS_MUTE + " INTEGER DEFAULT 0, "  // bot conv mute or not
 				+ DBConstants.BOT_TYPE + " INTEGER, "				//bot type m/nm
 				+ DBConstants.BOT_CONFIGURATION + " INTEGER, "	//bot configurations.. different server controlled properties of bot.
-				+ DBConstants.IS_BOT_ENABLE + " INTEGER DEFAULT 1,"  //whether the bot is enabled or not.
+				+ DBConstants.IS_BOT_ENABLE + " INTEGER DEFAULT 0,"  //whether the bot is enabled or not.
 				+ DBConstants.CONFIG_DATA + " TEXT, "            //config data for the bot.
 				+ HIKE_CONTENT.NAMESPACE + " TEXT, "         //namespace of a bot for caching purpose.
 				+ HIKE_CONTENT.NOTIF_DATA + " TEXT"       //notif data used for notifications pertaining to the microapp
@@ -761,7 +761,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 			String alter1 = "ALTER TABLE " + DBConstants.BOT_TABLE + " ADD COLUMN " + DBConstants.BOT_TYPE + " INTEGER";
 			String alter2 = "ALTER TABLE " + DBConstants.BOT_TABLE + " ADD COLUMN " + DBConstants.BOT_CONFIGURATION + " INTEGER";
-			String alter3 = "ALTER TABLE " + DBConstants.BOT_TABLE + " ADD COLUMN " + DBConstants.IS_BOT_ENABLE + " INTEGER DEFAULT 1";
+			String alter3 = "ALTER TABLE " + DBConstants.BOT_TABLE + " ADD COLUMN " + DBConstants.IS_BOT_ENABLE + " INTEGER DEFAULT 0";
 			String alter4 = "ALTER TABLE " + DBConstants.BOT_TABLE + " ADD COLUMN " + DBConstants.CONFIG_DATA + " TEXT";
 			String alter5 = "ALTER TABLE " + DBConstants.BOT_TABLE + " ADD COLUMN " + HIKE_CONTENT.NAMESPACE + " TEXT";
 			String alter6 = "ALTER TABLE " + DBConstants.BOT_TABLE + " ADD COLUMN " + HIKE_CONTENT.NOTIF_DATA + " TEXT";
@@ -2309,11 +2309,11 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		values.put(DBConstants.MSISDN, botInfo.getMsisdn());
 		values.put(DBConstants.NAME, botInfo.getConversationName());
 		values.put(DBConstants.CONVERSATION_METADATA, botInfo.getMetadata());
-		values.put(DBConstants.IS_MUTE, botInfo.isMute());
+		values.put(DBConstants.IS_MUTE, botInfo.isMute() ? 1 : 0);
 		values.put(DBConstants.BOT_TYPE, botInfo.getType());
 		values.put(DBConstants.BOT_CONFIGURATION, botInfo.getConfiguration());
 		values.put(DBConstants.CONFIG_DATA, botInfo.getConfigData());
-		values.put(DBConstants.IS_BOT_ENABLE, botInfo.isBotEnabled());
+		values.put(DBConstants.IS_BOT_ENABLE, botInfo.isBotEnabled() ? 1 : 0);
 		values.put(HIKE_CONTENT.NAMESPACE, botInfo.getNamespace());
 		mDb.insertWithOnConflict(DBConstants.BOT_TABLE, null, values, SQLiteDatabase.CONFLICT_REPLACE);
 	}
