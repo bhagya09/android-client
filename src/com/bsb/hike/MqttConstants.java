@@ -74,16 +74,4 @@ public class MqttConstants
 		CONNECTED, // connected
 		NOT_CONNECTED_UNKNOWN_REASON // failed to connect for some reason
 	}
-	
-	public enum HostState
-	{
-		STAGING_NON_SSL,
-		STAGING_SSL,
-		IP_NON_SSL,
-		IP_SSL,
-		FALLBACK_SSL,
-		FALLBACK_NON_SSL,
-		PRODUCTION_SSL,
-		PRODUCTION_NON_SSL
-	}
 }
