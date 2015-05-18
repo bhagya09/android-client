@@ -201,30 +201,6 @@ public class BotInfo extends ConvInfo
 	{
 		super.setOnHike(true);
 	}
-	
-	/**
-	 * Returns the microAppName this botInfo object belongs to.
-	 * 
-	 * @return
-	 */
-	public String getMicroAppName()
-	{
-		String appName = null;
 
-		if (metadata != null)
-		{
-			try
-			{
-				JSONObject md = new JSONObject(metadata);
-				appName = md.getString(HikePlatformConstants.APP_NAME);
-			}
-			catch (JSONException e)
-			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		return appName;
-	}
 
 }
