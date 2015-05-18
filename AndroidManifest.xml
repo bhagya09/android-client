@@ -188,7 +188,7 @@
             android:label="@string/app_label"
             android:launchMode="singleTop"
             android:theme="@style/AppTheme"
-            android:windowSoftInputMode="adjustResize|stateUnchanged" >
+            android:windowSoftInputMode="adjustResize|stateAlwaysHidden" >
             <intent-filter>
                 <action android:name="android.intent.action.SENDTO" />
 
@@ -221,6 +221,7 @@
         </activity>
         <activity
             android:name=".cropimage.CropImage"
+            android:configChanges="orientation|screenSize|screenLayout"
             android:theme="@style/AppTheme.Home.Photos" />
         <activity android:name=".ui.CreditsActivity" >
         </activity>

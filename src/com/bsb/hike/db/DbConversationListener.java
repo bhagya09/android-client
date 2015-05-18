@@ -39,6 +39,7 @@ import com.bsb.hike.models.MultipleConvMessage;
 import com.bsb.hike.models.Protip;
 import com.bsb.hike.models.StatusMessage;
 import com.bsb.hike.models.StatusMessage.StatusMessageType;
+import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.platform.HikePlatformConstants;
@@ -96,6 +97,8 @@ public class DbConversationListener implements Listener
 		mPubSub.addListener(HikePubSub.HIKE_SDK_MESSAGE, this);
 		mPubSub.addListener(HikePubSub.CONVERSATION_TS_UPDATED, this);	
 		mPubSub.addListener(HikePubSub.MUTE_BOT, this);
+		mPubSub.addListener(HikePubSub.GROUP_LEFT, this);
+		mPubSub.addListener(HikePubSub.DELETE_THIS_CONVERSATION, this);
 	}
 
 	@Override
@@ -444,6 +447,18 @@ public class DbConversationListener implements Listener
 			mConversationDb.toggleMuteBot(botMsisdn, BotInfo.getBotInfoForBotMsisdn(botMsisdn).isMute());
 		}
 		
+		else if(HikePubSub.GROUP_LEFT.equals(type) || HikePubSub.DELETE_THIS_CONVERSATION.equals(type))
+		{
+			ConvInfo convInfo = (ConvInfo) object;
+			String msisdn = convInfo.getMsisdn();
+			Editor editor = context.getSharedPreferences(HikeConstants.DRAFT_SETTING, Context.MODE_PRIVATE).edit();
+			editor.remove(msisdn);
+			editor.commit();
+
+			HikeConversationsDatabase.getInstance().deleteConversation(msisdn);				
+			ContactManager.getInstance().removeContacts(msisdn);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.CONVERSATION_DELETED, convInfo);
+		}
 	}
 
     private void sendMultiConvMessage(MultipleConvMessage multiConvMessages) {
