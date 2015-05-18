@@ -128,6 +128,10 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			{
 				changeCurrentOrientation(orientation);
 				Utils.blockOrientationChange(this);
+				if (mmBridge != null)
+				{
+					mmBridge.orientationChanged(orientation);
+				}
 			}
 		}
 	}
