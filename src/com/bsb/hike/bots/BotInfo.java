@@ -21,7 +21,11 @@ public class BotInfo extends ConvInfo
 
 	private String namespace;
 
-	private String metadata, configData;
+	private String metadata;
+
+	private String configData;
+
+	private String notifData;
 
 	public static abstract class InitBuilder<P extends InitBuilder<P>> extends ConvInfo.InitBuilder<P>
 	{
@@ -31,7 +35,7 @@ public class BotInfo extends ConvInfo
 
 		private String namespace;
 
-		private String metadata, configData;
+		private String metadata, configData, notifData;
 
 		protected InitBuilder(String msisdn)
 		{
@@ -86,6 +90,11 @@ public class BotInfo extends ConvInfo
 			return getSelfObject();
 		}
 
+		public P setNotifData(String notifData)
+		{
+			this.notifData = notifData;
+			return getSelfObject();
+		}
 		@Override
 		public P setOnHike(boolean onHike)
 		{
@@ -130,6 +139,11 @@ public class BotInfo extends ConvInfo
 		return namespace;
 	}
 
+	public String getNotifData()
+	{
+		return notifData;
+	}
+
 	public void setType(int type)
 	{
 		this.type = type;
@@ -153,6 +167,11 @@ public class BotInfo extends ConvInfo
 	public void setConfigData(String configData)
 	{
 		this.configData = configData;
+	}
+
+	public void setNotifData(String notifData)
+	{
+		this.notifData = notifData;
 	}
 
 
@@ -180,6 +199,7 @@ public class BotInfo extends ConvInfo
 		this.configData = builder.configData;
 		this.isBotEnabled = builder.isBotEnabled;
 		this.namespace = builder.namespace;
+		this.notifData = builder.notifData;
 	}
 
 	public static BotInfo getBotInfoForBotMsisdn(String msisdn)
