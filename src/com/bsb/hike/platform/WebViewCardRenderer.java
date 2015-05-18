@@ -143,13 +143,13 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 	{
 		holder.main = view;
 		holder.customWebView = (CustomWebView) view.findViewById(R.id.webcontent);
-		attachJSBridge(convMessage, holder);
 		holder.selectedStateOverlay = view.findViewById(R.id.selected_state_overlay);
 		holder.loadingSpinner = view.findViewById(R.id.loading_data);
 		holder.cardFadeScreen = view.findViewById(R.id.card_fade_screen);
 		holder.loadingFailed = view.findViewById(R.id.loading_failed);
 		holder.dayStub = (ViewStub) view.findViewById(R.id.day_stub);
 		holder.webViewClient = new CustomWebViewClient(convMessage, holder);
+		attachJSBridge(convMessage, holder);
 		webViewStates(holder);
 
 		return holder;
@@ -157,9 +157,11 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 	
 	private void attachJSBridge(ConvMessage convMessage,WebViewHolder holder)
 	{
+		Logger.i(tag, "ataching bridge version "+convMessage.webMetadata.getPlatformJSCompatibleVersion());
 		if (convMessage.webMetadata.getPlatformJSCompatibleVersion() == HikePlatformConstants.VERSION_2)
 		{
 			holder.platformJavaScriptBridge = new MessagingBotBridgeV2(mContext, holder.customWebView, convMessage, adapter);
+			holder.platformJavaScriptBridge.setListener(holder.webViewClient);
 		}
 		else
 		{
