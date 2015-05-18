@@ -494,9 +494,14 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 		@Override
 		public void loadFinished(ConvMessage message)
 		{
-			if(url.contains(Integer.toString(message.hashCode()))){
-				showCard(holder);
-			}
+			Logger.i(tag, "onload finsihed called from platform bridge "+url +" message: "+message.getMsgID());
+		}
+		
+		@Override
+		public void notifyDataSetChanged()
+		{
+			holder.id = -1;
+			adapter.notifyDataSetChanged();
 		}
 	}
 

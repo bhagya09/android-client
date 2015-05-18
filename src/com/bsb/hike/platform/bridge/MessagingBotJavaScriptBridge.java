@@ -46,6 +46,8 @@ public class MessagingBotJavaScriptBridge extends JavascriptBridge
 	
 	public static interface WebviewEventsListener{
 		public void loadFinished(ConvMessage message);
+		
+		public void notifyDataSetChanged(); 
 	}
 	
 	
