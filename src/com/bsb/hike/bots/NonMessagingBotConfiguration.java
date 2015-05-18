@@ -30,15 +30,56 @@ public class NonMessagingBotConfiguration extends BotConfiguration
 	 */
 	public static final byte OVERFLOW_MENU  = 0;
 	
-	public static final byte WHICH_ORIENTATION = 1;
+	public static final byte SHOW_BLOCK = 1;
 	
-	public static final byte LONG_TAP = 2;
+	public static final byte SHOW_MUTE = 2;
+	
+	public static final byte ALLOW_BACK_PRESS = 3;
+	
+	public static final byte ENABLE_LANDSCAPE = 4;
+	
+	public static final byte ENABLE_PORTRAIT = 5;
+	
+	public static final byte LONG_TAP = 6;
+	
+	/**
+	 * Bit positions end here.
+	 */
 	
 	private static final int PORTRAIT = 0;
+	
+	private static final int LANDSCAPE = 1;
+	
+	private static final int PORTRAIT_LANDSCAPE = 3;
 	
 	public boolean shouldShowOverflowMenu()
 	{
 		return isBitSet(OVERFLOW_MENU);
+	}
+	
+	public boolean isBlockEnabled()
+	{
+		return isBitSet(SHOW_BLOCK);
+	}
+	
+	public boolean isMuteEnabled()
+	{
+		return isBitSet(SHOW_MUTE);
+	}
+	
+	public boolean isBackPressAllowed()
+	{
+		return isBitSet(ALLOW_BACK_PRESS);
+	}
+	
+	public boolean isLandscapeEnabled()
+	{
+		return isBitSet(ENABLE_LANDSCAPE);
+	}
+	
+	public boolean isPortraitEnabled()
+	{
+		return isBitSet(ENABLE_PORTRAIT);
 	}
 	
 	public boolean isLongTapEnabled()
@@ -46,8 +87,6 @@ public class NonMessagingBotConfiguration extends BotConfiguration
 		return isBitSet(LONG_TAP);
 	}
 	
-	private static final int LANDSCAPE = 1;
-
 	public JSONObject getConfigData()
 	{
 		return configData;
