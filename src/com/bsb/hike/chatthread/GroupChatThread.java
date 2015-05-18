@@ -481,7 +481,7 @@ public class GroupChatThread extends OneToNChatThread
 			switch (item.getItemId())
 			{
 			case R.id.pin_imp:
-				showPinCreateView();
+				showPinCreateView(null);
 				break;
 			}
 			return super.onOptionsItemSelected(item);
@@ -508,7 +508,17 @@ public class GroupChatThread extends OneToNChatThread
 		return false;
 	}
 
-	private void showPinCreateView()
+	@Override
+	protected void setupActionBar(boolean firstInflation)
+	{
+		if (mCurrentActionMode == PIN_CREATE_ACTION_MODE)
+		{
+			showPinCreateView(mComposeView.getText().toString());
+		}
+		super.setupActionBar(firstInflation);
+	}
+
+	private void showPinCreateView(String pinText)
 	{
 		mActionMode.showActionMode(PIN_CREATE_ACTION_MODE, getString(R.string.create_pin), getString(R.string.pin), HikeActionMode.DEFAULT_LAYOUT_RESID);
 		// TODO : dismissPopupWindow was here : gaurav
@@ -537,6 +547,11 @@ public class GroupChatThread extends OneToNChatThread
 
 		mComposeView.addTextChangedListener(new EmoticonTextWatcher());
 		mComposeView.requestFocus();
+		if (!TextUtils.isEmpty(pinText))
+		{
+			mComposeView.setText(pinText);
+			mComposeView.setSelection(pinText.length());
+		}
 
 		content.findViewById(R.id.emo_btn).setOnClickListener(this);
 
@@ -940,4 +955,25 @@ public class GroupChatThread extends OneToNChatThread
 		
 		super.fetchConversationFailed();
 	}
+
+	@Override
+	protected void setupSearchMode(String searchText)
+	{
+		if (isShowingPin())
+		{
+			pinView.setVisibility(View.GONE);
+		}
+		super.setupSearchMode(searchText);
+	}
+
+	@Override
+	protected void destroySearchMode()
+	{
+		if (wasPinHidden())
+		{
+			pinView.setVisibility(View.VISIBLE);
+		}
+		super.destroySearchMode();
+	}
+
 }

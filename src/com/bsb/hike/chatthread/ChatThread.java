@@ -306,13 +306,15 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	protected ChatThreadTips mTips;
 	
-	private Dialog searchDialog;
+	private ProgressDialog searchDialog;
 
 	private static final String NEW_LINE_DELIMETER = "\n";
 	
 	private boolean ctSearchIndicatorShown;
 	
 	protected HikeDialog dialog;
+	
+	protected int mCurrentActionMode;
 
 	private class ChatThreadBroadcasts extends BroadcastReceiver
 	{
@@ -482,6 +484,11 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		addtoMessageMap(messages.size() - 1, messages.size());
 
 		mAdapter.notifyDataSetChanged();
+		
+		if (messageSearchManager != null && messageSearchManager.isActive())
+		{
+			messageSearchManager.addItem(convMessage);
+		}
 
 		// Reset this boolean to load more messages when the user scrolls to
 		// the top
@@ -808,7 +815,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		case R.string.search:
 			id = item.id;
 			recordSearchOptionClick();
-			setupSearchMode();
+			setupSearchMode(null);
 			break;
 		case 420:
 			String numberonly = messages.get(messages.size() - 1).getMessage().replaceAll("[^0-9]", "");
@@ -1380,9 +1387,9 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		}
 	}
 
-	private void setupSearchMode()
+	protected void setupSearchMode(String text)
 	{
-		searchText = null;
+		searchText = text;
 		if (!sharedPreference.getData(HikeMessengerApp.CT_SEARCH_CLICKED, false))
 		{
 			sharedPreference.saveData(HikeMessengerApp.CT_SEARCH_CLICKED, true);
@@ -1400,6 +1407,11 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		 * Hiding any open tip
 		 */
 		mTips.hideTip();
+		if (searchText != null)
+		{
+			mComposeView.setText(searchText);
+			mComposeView.setSelection(searchText.length());
+		}
 	}
 	
 	private void setUpSearchViews()
@@ -1446,13 +1458,17 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		@Override
 		public void afterTextChanged(Editable s)
 		{
-			if (TextUtils.isEmpty(s.toString()))
+			View clearSearchText = activity.findViewById(R.id.search_clear_btn);
+			if (clearSearchText != null)
 			{
-				activity.findViewById(R.id.search_clear_btn).setVisibility(View.GONE);
-			}
-			else
-			{
-				activity.findViewById(R.id.search_clear_btn).setVisibility(View.VISIBLE);
+				if (TextUtils.isEmpty(s.toString()))
+				{
+					activity.findViewById(R.id.search_clear_btn).setVisibility(View.GONE);
+				}
+				else
+				{
+					activity.findViewById(R.id.search_clear_btn).setVisibility(View.VISIBLE);
+				}
 			}
 			searchText = s.toString().toLowerCase();
 			messageSearchManager.makeNewSearch(searchText);
@@ -1499,20 +1515,24 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	protected void destroySearchMode()
 	{
-		mComposeView = (CustomFontEditText) activity.findViewById(R.id.msg_compose);
-		mComposeView.requestFocus();
-		mComposeView.removeTextChangedListener(searchTextWatcher);
-		if (mEmoticonPicker != null)
+		if (mCurrentActionMode != SEARCH_ACTION_MODE)
 		{
-			mEmoticonPicker.updateET(mComposeView);
+			mComposeView = (CustomFontEditText) activity.findViewById(R.id.msg_compose);
+			mComposeView.requestFocus();
+			mComposeView.removeTextChangedListener(searchTextWatcher);
+			if (mEmoticonPicker != null)
+			{
+				mEmoticonPicker.updateET(mComposeView);
+			}
+			
+			View mBottomView = activity.findViewById(R.id.bottom_panel);
+			mBottomView.startAnimation(AnimationUtils.loadAnimation(activity.getApplicationContext(), R.anim.down_up_lower_part));
+			mBottomView.setVisibility(View.VISIBLE);
+			messageSearchManager.clearSearch();
+			messageSearchManager.deactivate();
+			mAdapter.setSearchText(null);
+			searchText = null;
 		}
-		
-		View mBottomView = activity.findViewById(R.id.bottom_panel);
-		mBottomView.startAnimation(AnimationUtils.loadAnimation(activity.getApplicationContext(), R.anim.down_up_lower_part));
-		mBottomView.setVisibility(View.VISIBLE);
-		messageSearchManager.clearSearch();
-		messageSearchManager.deactivate();
-		mAdapter.setSearchText(null);
 	}
 
 	protected void showToast(int messageId)
@@ -1795,7 +1815,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		initListViewAndAdapter(); // init adapter, listView and add clicks etc
 		currentTheme = mConversation.getChatTheme();
 		updateUIAsPerTheme(currentTheme);// it has to be done after setting adapter
-		setupActionBar(true); // Setup the action bar
+		setupDefaultActionBar(true); // Setup the action bar
 		initMessageSenderLayout();
 
 		setMessagesRead(); // Setting messages as read if there are any unread ones
@@ -2445,6 +2465,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		int position = -2;
 
 		int loadMessageCount = 50;
+		
+		boolean taskComplete = false;
 
 		WeakReference<ChatThread> chatThread;
 
@@ -2494,15 +2516,15 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 							e.printStackTrace();
 						}
 						loadMessageCount *= 2;
-						position = messageSearchManager.getPrevItem(chatThread.get().mConversationsView.getFirstVisiblePosition());
+						position = messageSearchManager.getPrevItem(msgList.size());
 					}
 					if (loaderId == SEARCH_LOOP && position < 0)
 					{
 						position = messageSearchManager.getNextItem(chatThread.get().mConversationsView.getFirstVisiblePosition(), chatThread.get().mConversationsView.getLastVisiblePosition());
 					}
 				}
-				return position;
 			}
+			taskComplete = true;
 			return position;
 		}
 
@@ -2515,7 +2537,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			// The search manager returns the values greater than equal to -1
 			// So if the loader has executed, the result is always greater than -2.
 			// Else we need to start the loader.
-			if (position > -2)
+			if (taskComplete)
 			{
 				deliverResult(position);
 			}
@@ -3402,7 +3424,21 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		
 		hideWalkieTalkie();
 		
+		deactivateMessageSearch();
+		
 		saveDraft();
+	}
+
+	private void deactivateMessageSearch()
+	{
+		if (messageSearchManager != null)
+		{
+			messageSearchManager.deactivate();
+		}
+		if (searchDialog != null)
+		{
+			searchDialog.dismiss();
+		}
 	}
 	
 	private void hideWalkieTalkie()
@@ -3921,11 +3957,24 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		return isRemoved;
 	}
 
+	protected void setupActionBar(boolean firstInflation)
+	{
+		if (mCurrentActionMode ==  SEARCH_ACTION_MODE)
+		{
+			setupSearchMode(searchText);
+		}
+		else
+		{
+			setupDefaultActionBar(firstInflation);
+		}
+		mCurrentActionMode = -1;
+	}
+
 	/**
 	 * Utility method used for setting up the ActionBar in the ChatThread.
 	 * 
 	 */
-	protected void setupActionBar(boolean firstInflation)
+	protected void setupDefaultActionBar(boolean firstInflation)
 	{
 		mActionBarView = mActionBar.setCustomActionBarView(R.layout.chat_thread_action_bar);
 
@@ -4713,6 +4762,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	{
 		Utils.hideSoftKeyboard(activity.getApplicationContext(), mComposeView);
 
+		saveCurrentActionMode();
 		if (mShareablePopupLayout != null)
 		{
 			mShareablePopupLayout.onCloseKeyBoard();
@@ -4987,5 +5037,13 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	{
 		setUpThemePicker();
 		themePicker.showThemePicker(activity.findViewById(R.id.cb_anchor), currentTheme,footerTextId, activity.getResources().getConfiguration().orientation);
+	}
+	
+	public void saveCurrentActionMode()
+	{
+		if (mActionMode != null && mActionMode.isActionModeOn())
+		{
+			mCurrentActionMode = mActionMode.whichActionModeIsOn();
+		}
 	}
 }

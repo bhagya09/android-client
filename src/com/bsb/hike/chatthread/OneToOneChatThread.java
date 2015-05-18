@@ -1011,9 +1011,9 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	 * Overrides {@link ChatThread}'s {@link #setupActionBar()}, to set the last seen time
 	 */
 	@Override
-	protected void setupActionBar(boolean firstInflation)
+	protected void setupDefaultActionBar(boolean firstInflation)
 	{
-		super.setupActionBar(firstInflation);
+		super.setupDefaultActionBar(firstInflation);
 
 		setLabel(getConvLabel());
 		
