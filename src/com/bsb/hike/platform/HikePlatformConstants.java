@@ -39,6 +39,7 @@ public interface HikePlatformConstants
 	String WC_PUSH_KEY = "push";
 	String CRICKET_CHAT_THEME_ID = "39";
 	String APP_NAME = "appName";
+	String APP_PACKAGE = "appPackage";
 	String LAYOUT = "layoutId";
 	String LONG_PRESS_DISABLED = "lpd";
 	String HIKE_MSISDN = "hikemsisdn";

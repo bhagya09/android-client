@@ -17,21 +17,21 @@ public class BotInfo extends ConvInfo
 
 	private int type, configuration;
 
-	private boolean isBotEnabled;
-
 	private String namespace;
 
-	private String metadata, configData;
+	private String metadata;
+
+	private String configData;
+
+	private String notifData;
 
 	public static abstract class InitBuilder<P extends InitBuilder<P>> extends ConvInfo.InitBuilder<P>
 	{
 		private int type, config;
 
-		private boolean isBotEnabled;
-
 		private String namespace;
 
-		private String metadata, configData;
+		private String metadata, configData, notifData;
 
 		protected InitBuilder(String msisdn)
 		{
@@ -74,18 +74,17 @@ public class BotInfo extends ConvInfo
 			return getSelfObject();
 		}
 
-		public P setIsBotEnabled(boolean isBotEnabled)
-		{
-			this.isBotEnabled = isBotEnabled;
-			return getSelfObject();
-		}
-
 		public P setNamespace(String namespace)
 		{
 			this.namespace = namespace;
 			return getSelfObject();
 		}
 
+		public P setNotifData(String notifData)
+		{
+			this.notifData = notifData;
+			return getSelfObject();
+		}
 		@Override
 		public P setOnHike(boolean onHike)
 		{
@@ -98,11 +97,6 @@ public class BotInfo extends ConvInfo
 			return new BotInfo(this);
 		}
 
-	}
-
-	public boolean isBotEnabled()
-	{
-		return isBotEnabled;
 	}
 
 	public int getConfiguration()
@@ -130,6 +124,11 @@ public class BotInfo extends ConvInfo
 		return namespace;
 	}
 
+	public String getNotifData()
+	{
+		return notifData;
+	}
+
 	public void setType(int type)
 	{
 		this.type = type;
@@ -140,11 +139,6 @@ public class BotInfo extends ConvInfo
 		this.configuration = configuration;
 	}
 
-	public void setBotEnabled(boolean isBotEnabled)
-	{
-		this.isBotEnabled = isBotEnabled;
-	}
-
 	public void setMetadata(String metadata)
 	{
 		this.metadata = metadata;
@@ -153,6 +147,11 @@ public class BotInfo extends ConvInfo
 	public void setConfigData(String configData)
 	{
 		this.configData = configData;
+	}
+
+	public void setNotifData(String notifData)
+	{
+		this.notifData = notifData;
 	}
 
 
@@ -178,8 +177,8 @@ public class BotInfo extends ConvInfo
 		this.configuration = builder.config;
 		this.metadata = builder.metadata;
 		this.configData = builder.configData;
-		this.isBotEnabled = builder.isBotEnabled;
 		this.namespace = builder.namespace;
+		this.notifData = builder.notifData;
 	}
 
 	public static BotInfo getBotInfoForBotMsisdn(String msisdn)
@@ -202,30 +201,6 @@ public class BotInfo extends ConvInfo
 	{
 		super.setOnHike(true);
 	}
-	
-	/**
-	 * Returns the microAppName this botInfo object belongs to.
-	 * 
-	 * @return
-	 */
-	public String getMicroAppName()
-	{
-		String appName = null;
 
-		if (metadata != null)
-		{
-			try
-			{
-				JSONObject md = new JSONObject(metadata);
-				appName = md.getString(HikePlatformConstants.APP_NAME);
-			}
-			catch (JSONException e)
-			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		return appName;
-	}
 
 }

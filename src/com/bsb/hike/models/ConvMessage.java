@@ -427,8 +427,7 @@ public class ConvMessage implements Searchable
 			md.put(HikeConstants.POKE, true);
 			data.put(HikeConstants.METADATA, md);
 		}
-		setContentId(data.optInt(HikePlatformConstants.CONTENT_ID));
-		setNameSpace(data.optString(HikePlatformConstants.NAMESPACE));
+
 		if (data.has(HikeConstants.METADATA))
 		{
 			JSONObject mdata = data.getJSONObject(HikeConstants.METADATA);
@@ -446,12 +445,16 @@ public class ConvMessage implements Searchable
 			else if (ConvMessagePacketKeys.WEB_CONTENT_TYPE.equals(obj.optString(HikeConstants.SUB_TYPE)))
 			{
 				this.messageType  = MESSAGE_TYPE.WEB_CONTENT;
-				webMetadata = new WebMetadata(data.optJSONObject(HikeConstants.METADATA));
+				setContentId(mdata.optInt(HikePlatformConstants.CONTENT_ID));
+				setNameSpace(mdata.optString(HikePlatformConstants.NAMESPACE));
+				webMetadata = new WebMetadata(mdata);
 			}
 			else if (ConvMessagePacketKeys.FORWARD_WEB_CONTENT_TYPE.equals(obj.optString(HikeConstants.SUB_TYPE)))
 			{
 				this.messageType  = MESSAGE_TYPE.FORWARD_WEB_CONTENT;
-				webMetadata = new WebMetadata(data.optJSONObject(HikeConstants.METADATA));
+				setContentId(mdata.optInt(HikePlatformConstants.CONTENT_ID));
+				setNameSpace(mdata.optString(HikePlatformConstants.NAMESPACE));
+				webMetadata = new WebMetadata(mdata);
 			}
 			else
 			{

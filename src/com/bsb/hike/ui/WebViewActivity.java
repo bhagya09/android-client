@@ -69,7 +69,7 @@ import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.TagEditText.Tag;
 
 public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements OnInflateListener, OnClickListener, TagOnClickListener, OverflowItemClickListener,
-		OnDismissListener, OverflowViewListener
+		OnDismissListener, OverflowViewListener, HikePubSub.Listener
 {
 
 	private static final String tag = "WebViewActivity";
@@ -113,6 +113,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		initView();	
 		initActionBar();
 		initAppsBasedOnMode();
+		HikeMessengerApp.getPubSub().addListener(HikePubSub.NOTIF_DATA_RECEIVED, this);
 		checkAndBlockOrientation();
 	}
 
@@ -525,7 +526,21 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			super.onBackPressed();
 		}
 	}
-	
+
+	@Override
+	public void onEventReceived(String type, Object object)
+	{
+		final String notifData = (String) object;
+		if (type.equals(HikePubSub.NOTIF_DATA_RECEIVED))
+		{
+			if (null != mmBridge)
+			{
+				mmBridge.notifDataReceived(notifData);
+			}
+		}
+
+	}
+
 	@Override
 	public void onInflate(ViewStub arg0, View arg1)
 	{

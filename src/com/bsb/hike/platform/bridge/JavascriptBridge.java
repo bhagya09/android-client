@@ -199,6 +199,34 @@ public abstract class JavascriptBridge
 	}
 
 	/**
+	 * call this function to open a web page in the default browser.
+	 * @param url: : the url that will be loaded.
+	 */
+	@JavascriptInterface
+	public void openPageInBrowser(final String url)
+	{
+		Logger.i(tag, "openPageInBrowser called with url = " + url);
+
+		if (null == mHandler)
+		{
+			return;
+		}
+		mHandler.post(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				if (weakActivity.get() != null)
+				{
+					Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+					weakActivity.get().startActivity(browserIntent);
+				}
+			}
+		});
+
+	}
+
+	/**
 	 * calling this function will share the screenshot of the webView along with the text at the top and a caption text
 	 * to all social network platforms by calling the system's intent.
 	 *

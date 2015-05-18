@@ -2496,10 +2496,12 @@ public class MqttMessagesManager
 						{
 							generateNotification(body, destination, silent, rearrangeChat);
 						}
-						JSONObject notifData = metadata.optJSONObject(HikePlatformConstants.NOTIF_DATA);
-						if (null != notifData)
+						String notifData = metadata.optString(HikePlatformConstants.NOTIF_DATA);
+						if (!TextUtils.isEmpty(notifData))
 						{
-							HikeConversationsDatabase.getInstance().updateNotifDataForMicroApps(destination, notifData.toString());
+							convDb.updateNotifDataForMicroApps(destination, notifData);
+
+							HikeMessengerApp.getPubSub().publish(HikePubSub.NOTIF_DATA_RECEIVED, botInfo.getNotifData());
 						}
 					}
 					else
@@ -2516,7 +2518,7 @@ public class MqttMessagesManager
 							String nameSpace = metadata.optString(HikePlatformConstants.NAMESPACE);
 
 							if (!Utils.isConversationMuted(destination)
-									&& HikeConversationsDatabase.getInstance().isContentMessageExist(destination, contentId, nameSpace))
+									&& convDb.isContentMessageExist(destination, contentId, nameSpace))
 							{
 								generateNotification(body, destination, silent, rearrangeChat);
 							}
