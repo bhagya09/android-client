@@ -8,6 +8,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.R;
+import android.content.res.Configuration;
 import android.graphics.Color;
 
 import com.bsb.hike.media.OverFlowMenuItem;
@@ -45,12 +46,6 @@ public class NonMessagingBotConfiguration extends BotConfiguration
 	/**
 	 * Bit positions end here.
 	 */
-	
-	private static final int PORTRAIT = 0;
-	
-	private static final int LANDSCAPE = 1;
-	
-	private static final int PORTRAIT_LANDSCAPE = 3;
 	
 	public boolean shouldShowOverflowMenu()
 	{
@@ -419,12 +414,12 @@ public class NonMessagingBotConfiguration extends BotConfiguration
 			{
 				if (isLandscapeEnabled())
 				{
-					return PORTRAIT_LANDSCAPE;
+					return Configuration.ORIENTATION_UNDEFINED;
 				}
 
 				else
 				{
-					return PORTRAIT;
+					return Configuration.ORIENTATION_PORTRAIT;
 				}
 			}
 
@@ -432,16 +427,15 @@ public class NonMessagingBotConfiguration extends BotConfiguration
 			{
 				if (isLandscapeEnabled())
 				{
-					return LANDSCAPE;
+					return Configuration.ORIENTATION_LANDSCAPE;
 				}
 
 				else
 				{
-					return PORTRAIT_LANDSCAPE;
+					return Configuration.ORIENTATION_UNDEFINED;
 				}
 			}
 		}
-
-		return PORTRAIT_LANDSCAPE;
+		return Configuration.ORIENTATION_UNDEFINED;
 	}
 }

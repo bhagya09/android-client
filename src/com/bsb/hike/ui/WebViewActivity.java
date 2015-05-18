@@ -10,6 +10,8 @@ import org.json.JSONObject;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -111,6 +113,41 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		initView();	
 		initActionBar();
 		initAppsBasedOnMode();
+		checkAndBlockOrientation();
+	}
+
+	/**
+	 * Utility method to block orientation for a given bot
+	 */
+	private void checkAndBlockOrientation()
+	{
+		if (botConfig != null)
+		{
+			int orientation = botConfig.getOritentationForBot();
+			if (orientation == Configuration.ORIENTATION_LANDSCAPE || orientation == Configuration.ORIENTATION_PORTRAIT)
+			{
+				changeCurrentOrientation(orientation);
+				Utils.blockOrientationChange(this);
+			}
+		}
+	}
+
+	/**
+	 * Utility method to change the screen orientation of the device
+	 */
+	private void changeCurrentOrientation(int orientation)
+	{
+		if (getResources().getConfiguration().orientation != orientation)
+		{
+			if (orientation == Configuration.ORIENTATION_LANDSCAPE)
+			{
+				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+			}
+			else
+			{
+				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+			}
+		}
 	}
 
 	private void initAppsBasedOnMode()
