@@ -132,6 +132,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			jsonObject.put(HikePlatformConstants.HELPER_DATA, metadata.getHelperData());
 			jsonObject.put(HikePlatformConstants.PLATFORM_USER_ID, HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_UID_SETTING,null) );
 			jsonObject.put(HikePlatformConstants.APP_VERSION, AccountUtils.getAppVersion());
+			jsonObject.put(HikePlatformConstants.NOTIF_DATA, mBotInfo.getNotifData());
 
 			mWebView.loadUrl("javascript:init('" + jsonObject.toString() + "')");
 		}
