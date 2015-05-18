@@ -405,18 +405,43 @@ public class NonMessagingBotConfiguration extends BotConfiguration
 	 * 0 indicates : PORTRAIT <br>
 	 * 1 indicates : LANDSCAPE
 	 * 
-	 * Default value will be PORTRAIT
+	 * Default value will be PORTRAIT_LANDSCAPE.
+	 * 
+	 * If portrait flag is enabled and landscape flag is enabled as well, we return PORTRAIT_LANDSCAPE. If only portrait/landscape is enabled we return the respective value
 	 * 
 	 * @return
 	 */
 	public int getOritentationForBot()
 	{
-		int config = PORTRAIT;
 		if (configData != null)
 		{
-			config = configData.optInt(HikePlatformConstants.ORIENTATION, PORTRAIT);
+			if (isPortraitEnabled())
+			{
+				if (isLandscapeEnabled())
+				{
+					return PORTRAIT_LANDSCAPE;
+				}
+
+				else
+				{
+					return PORTRAIT;
+				}
+			}
+
+			else
+			{
+				if (isLandscapeEnabled())
+				{
+					return LANDSCAPE;
+				}
+
+				else
+				{
+					return PORTRAIT_LANDSCAPE;
+				}
+			}
 		}
 
-		return config;
+		return PORTRAIT_LANDSCAPE;
 	}
 }
