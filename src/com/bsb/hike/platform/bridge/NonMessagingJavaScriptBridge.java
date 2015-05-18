@@ -176,7 +176,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	public void updateMenuTitleAndState(int id, String newTitle, boolean enabled)
 	{
 		NonMessagingBotConfiguration botConfig = new NonMessagingBotConfiguration(mBotInfo.getConfiguration());
-		if (botConfig != null && botConfig.getConfigData() != null)
+		if (botConfig.getConfigData() != null)
 		{
 			botConfig.updateOverFlowMenu(id, newTitle, enabled);
 			HikeConversationsDatabase.getInstance().updateConfigData(mBotInfo.getMsisdn(), botConfig.getConfigData().toString());
@@ -193,7 +193,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	public void updateMenuEnabledState(int id, boolean enabled)
 	{
 		NonMessagingBotConfiguration botConfig = new NonMessagingBotConfiguration(mBotInfo.getConfiguration());
-		if (botConfig != null && botConfig.getConfigData() != null)
+		if (botConfig.getConfigData() != null)
 		{
 			botConfig.updateOverFlowMenu(id, enabled);
 			HikeConversationsDatabase.getInstance().updateConfigData(mBotInfo.getMsisdn(), botConfig.getConfigData().toString());
@@ -215,7 +215,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	public void updateMenuTitle(int id, String newTitle)
 	{
 		NonMessagingBotConfiguration botConfig = new NonMessagingBotConfiguration(mBotInfo.getConfiguration());
-		if (botConfig != null && botConfig.getConfigData() != null)
+		if (botConfig.getConfigData() != null)
 		{
 			botConfig.updateOverFlowMenu(id, newTitle);
 			HikeConversationsDatabase.getInstance().updateConfigData(mBotInfo.getMsisdn(), botConfig.getConfigData().toString());
@@ -231,7 +231,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	public void removeMenu(int id)
 	{
 		NonMessagingBotConfiguration botConfig = new NonMessagingBotConfiguration(mBotInfo.getConfiguration());
-		if (botConfig != null && botConfig.getConfigData() != null)
+		if (botConfig.getConfigData() != null)
 		{
 			botConfig.removeOverflowMenu(id);
 			HikeConversationsDatabase.getInstance().updateConfigData(mBotInfo.getMsisdn(), botConfig.getConfigData().toString());
@@ -250,7 +250,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	public void replaceOverflowMenu(String newMenuString)
 	{
 		NonMessagingBotConfiguration botConfig = new NonMessagingBotConfiguration(mBotInfo.getConfiguration());
-		if (botConfig != null && botConfig.getConfigData() != null)
+		if(botConfig.getConfigData() != null)
 		{
 			botConfig.replaceOverflowMenu(newMenuString);
 			HikeConversationsDatabase.getInstance().updateConfigData(mBotInfo.getMsisdn(), botConfig.getConfigData().toString());
