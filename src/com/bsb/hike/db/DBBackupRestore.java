@@ -120,7 +120,7 @@ public class DBBackupRestore
 					break;
 				}
 
-				File backup = getDBBackupFile(dbCopy.getName());
+				File backup = getBackupFile(dbCopy.getName());
 				String backupToken = getBackupToken();
 				Logger.d(getClass().getSimpleName(), "encrypting with key: " + backupToken);
 				if (TextUtils.isEmpty(backupToken))
@@ -218,7 +218,7 @@ public class DBBackupRestore
 				{
 					File currentDB = getCurrentDBFile(fileName);
 					File dbCopy = getDBCopyFile(currentDB.getName());
-					File backup = getDBBackupFile(dbCopy.getName());
+					File backup = getBackupFile(dbCopy.getName());
 					String backupToken = getBackupToken();
 					Logger.d(getClass().getSimpleName(), "decrypting with key: " + backupToken);
 					if (TextUtils.isEmpty(backupToken))
@@ -295,7 +295,7 @@ public class DBBackupRestore
 			{
 				File currentDB = getCurrentDBFile(fileName);
 				File dbCopy = getDBCopyFile(currentDB.getName());
-				File backup = getDBBackupFile(dbCopy.getName());
+				File backup = getBackupFile(dbCopy.getName());
 				sizes.put(backup.length());
 			}
 			metadata
@@ -363,7 +363,7 @@ public class DBBackupRestore
 		{
 			File currentDB = getCurrentDBFile(fileName);
 			File DBCopy = getDBCopyFile(currentDB.getName());
-			File backup = getDBBackupFile(DBCopy.getName());
+			File backup = getBackupFile(DBCopy.getName());
 			if (!backup.exists())
 				return false;
 		}
@@ -410,7 +410,7 @@ public class DBBackupRestore
 		{
 			File currentDB = getCurrentDBFile(fileName);
 			File dbCopy = getDBCopyFile(currentDB.getName());
-			File backup = getDBBackupFile(dbCopy.getName());
+			File backup = getBackupFile(dbCopy.getName());
 			dbCopy.delete();
 			backup.delete();
 		}
@@ -426,7 +426,7 @@ public class DBBackupRestore
 		return currentDB;
 	}
 
-	private File getDBBackupFile(String name)
+	private File getBackupFile(String name)
 	{
 		new File(HikeConstants.HIKE_BACKUP_DIRECTORY_ROOT).mkdirs();
 		return new File(HikeConstants.HIKE_BACKUP_DIRECTORY_ROOT, name + "." + BACKUP);
