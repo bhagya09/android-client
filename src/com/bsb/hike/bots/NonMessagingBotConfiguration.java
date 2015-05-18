@@ -217,6 +217,28 @@ public class NonMessagingBotConfiguration extends BotConfiguration
 
 		}
 	}
+	
+	/**
+	 * This method replaces the overflow menu array in the config data
+	 * 
+	 * @param newMenuJSON
+	 */
+	public void replaceOverflowMenu(String newMenuJSON)
+	{
+		if (configData != null)
+		{
+			try
+			{
+				JSONArray menuArray = new JSONArray(newMenuJSON);
+				configData.put(HikePlatformConstants.OVERFLOW_MENU, menuArray);
+			}
+			catch (JSONException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
 
 	/**
 	 * Utility to update the title in BotConfig JSON

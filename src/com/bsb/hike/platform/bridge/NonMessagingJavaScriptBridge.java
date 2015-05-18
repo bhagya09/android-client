@@ -250,6 +250,25 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	}
 
 	/**
+	 * Utility method to fetch the overflowMenu from the MicroApp. This replaces the existing menu in the config data of the app
+	 * 
+	 * MenuString should be in the following form : <br>
+	 * [ {“title”: “xyz”, “id” : <unique integer>, "en" : "true"}, {“title”:abc,”id”:<unique integer>, "en":"false" }]
+	 * 
+	 * @param newMenuString
+	 */
+	@JavascriptInterface
+	public void replaceOverflowMenu(String newMenuString)
+	{
+		NonMessagingBotConfiguration botConfig = new NonMessagingBotConfiguration(mBotInfo.getConfiguration());
+		if (botConfig != null && botConfig.getConfigData() != null)
+		{
+			botConfig.replaceOverflowMenu(newMenuString);
+			HikeConversationsDatabase.getInstance().updateConfigData(mBotInfo.getMsisdn(), botConfig.getConfigData().toString());
+		}
+	}
+
+	/**
 	 * Call this method to put bulk large data in cache. Earlier large data will be replaced by this new data and there will
 	 * be only one entry per microapp.
 	 * @param value: the data that the app need to cache.
