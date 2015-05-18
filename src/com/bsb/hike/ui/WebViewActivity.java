@@ -11,6 +11,7 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.MailTo;
 import android.net.Uri;
@@ -416,7 +417,8 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	private void setupMicroAppActionBar()
 	{
 		setupActionBar(botInfo.getConversationName());
-		updateActionBarColor(R.drawable.bg_header_transparent);
+		int color = botConfig.getActionBarColor();
+		updateActionBarColor(new ColorDrawable(color == -1 ? R.color.transparent : color));
 		setAvatar();
 	}
 

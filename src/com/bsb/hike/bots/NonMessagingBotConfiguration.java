@@ -8,6 +8,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.R;
+import android.graphics.Color;
 
 import com.bsb.hike.media.OverFlowMenuItem;
 import com.bsb.hike.platform.HikePlatformConstants;
@@ -320,5 +321,20 @@ public class NonMessagingBotConfiguration extends BotConfiguration
 			}
 
 		}
+	}
+	
+	/**
+	 * Utility method to get action bar color from configData
+	 * 
+	 * @return
+	 */
+	public int getActionBarColor()
+	{
+		if (configData != null)
+		{
+			String color = configData.optString(HikePlatformConstants.AB_COLOR, "transparent");
+			return Color.parseColor(color);
+		}
+		return -1;
 	}
 }

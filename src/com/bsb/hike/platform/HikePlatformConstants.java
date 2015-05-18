@@ -150,4 +150,5 @@ public interface HikePlatformConstants
 	/**
 	 * Overflow menu item constants end
 	 */
+	public static final String AB_COLOR = "color";
 }
