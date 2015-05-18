@@ -404,8 +404,17 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		
 		if (mode == MICRO_APP_MODE && mActionBar != null)
 		{
-			mActionBar.onCreateOptionsMenu(menu, R.menu.simple_overflow_menu, getOverflowMenuItems(), this, this);
-			mActionBar.setOverflowViewListener(this);
+			List<OverFlowMenuItem> menuItemsList = getOverflowMenuItems();
+			
+			if (menuItemsList != null && menuItemsList.isEmpty())
+			{
+				menu.findItem(R.id.overflow_menu).setVisible(false);
+			}
+			else
+			{
+				mActionBar.onCreateOptionsMenu(menu, R.menu.simple_overflow_menu, menuItemsList, this, this);
+				mActionBar.setOverflowViewListener(this);
+			}
 			return true;
 		}
 		
