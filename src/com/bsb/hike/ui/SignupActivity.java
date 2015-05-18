@@ -2374,7 +2374,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		}
 
 		String fileName = Utils.getTempProfileImageFileName(accountPrefs.getString(HikeMessengerApp.MSISDN_SETTING, ""));
-		String destFilePath = directory + "/" + fileName;
+		String destFilePath = directory + File.separator + fileName;
 		return destFilePath;
 
 	}
