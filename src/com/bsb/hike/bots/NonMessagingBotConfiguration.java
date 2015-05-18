@@ -24,6 +24,10 @@ public class NonMessagingBotConfiguration extends BotConfiguration
 	private static final String TAG = "NonMessagingBotConfig";
 	
 	private boolean configDataRefreshed = false;
+	
+	private static final int PORTRAIT = 0;
+	
+	private static final int LANDSCAPE = 1;
 
 	public JSONObject getConfigData()
 	{
@@ -336,5 +340,25 @@ public class NonMessagingBotConfiguration extends BotConfiguration
 			return Color.parseColor(color);
 		}
 		return -1;
+	}
+	
+	/**
+	 * Utility method to get orientation for Bot. <br>
+	 * 0 indicates : PORTRAIT <br>
+	 * 1 indicates : LANDSCAPE
+	 * 
+	 * Default value will be PORTRAIT
+	 * 
+	 * @return
+	 */
+	public int getOritentationForBot()
+	{
+		int config = PORTRAIT;
+		if (configData != null)
+		{
+			config = configData.optInt(HikePlatformConstants.ORIENTATION, PORTRAIT);
+		}
+
+		return config;
 	}
 }
