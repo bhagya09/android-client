@@ -6869,6 +6869,11 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			ContentValues contentValues = new ContentValues();
 			contentValues.put(HIKE_CONTENT.NOTIF_DATA, notifDataJSON.toString());
 			mDb.update(BOT_TABLE, contentValues, MSISDN + "=?", new String[] { botMsisdn });
+			BotInfo botInfo = BotInfo.getBotInfoForBotMsisdn(botMsisdn);
+			if (null != botInfo)
+			{
+				botInfo.setNotifData(notifDataJSON.toString());
+			}
 
 		}
 		catch (JSONException e)
@@ -6895,6 +6900,12 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		ContentValues contentValues = new ContentValues();
 		contentValues.put(HIKE_CONTENT.NOTIF_DATA, "");
 		mDb.update(BOT_TABLE, contentValues, MSISDN + "=?", new String[] { botMsisdn });
+		BotInfo botInfo = BotInfo.getBotInfoForBotMsisdn(botMsisdn);
+		if (null != botInfo)
+		{
+			botInfo.setNotifData("");
+		}
+
 	}
 
 	/**
@@ -6929,8 +6940,14 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				ContentValues contentValues = new ContentValues();
 				contentValues.put(HIKE_CONTENT.NOTIF_DATA, notifDataJSON.toString());
 				mDb.update(BOT_TABLE, contentValues, MSISDN + "=?", new String[] { botMsisdn });
+				BotInfo botInfo = BotInfo.getBotInfoForBotMsisdn(botMsisdn);
+				if (null != botInfo)
+				{
+					botInfo.setNotifData(notifDataJSON.toString());
+				}
 
 			}
+
 
 		}
 		catch (JSONException e)
