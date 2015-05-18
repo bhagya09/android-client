@@ -269,13 +269,13 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 		else
 		{
 			final WebViewHolder holder = (WebViewHolder) view.getTag();
-			Logger.i(tag, "view reused "+ ((Integer)holder.customWebView.getTag() +" into "+convMessage.hashCode()));
+			Logger.i(tag, "view reused "+ ((Integer)holder.customWebView.getTag() +" into "+((int)convMessage.getMsgID())));
 		}
 		final WebViewHolder viewHolder = (WebViewHolder) view.getTag();
 
 		final CustomWebView web = viewHolder.customWebView;
 		
-		web.setTag(convMessage.hashCode());
+		web.setTag(((int)convMessage.getMsgID()));
 
 		orientationChangeHandling(web);
 		
@@ -303,8 +303,8 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 
 	private void loadContent(final int position, final ConvMessage convMessage, final WebViewHolder viewHolder)
 	{
-		Logger.i(tag, "laoding content for "+convMessage.hashCode());
-		PlatformContent.getContent(convMessage.hashCode(),convMessage.webMetadata.JSONtoString(), new PlatformContentListener<PlatformContentModel>()
+		Logger.i(tag, "laoding content for "+((int)convMessage.getMsgID()));
+		PlatformContent.getContent(((int)convMessage.getMsgID()),convMessage.webMetadata.JSONtoString(), new PlatformContentListener<PlatformContentModel>()
 		{
 
 			@Override
@@ -464,14 +464,14 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 			this.url = url;
 			// check if webview has been reused, it mean another load is in progress 
 			CookieManager.getInstance().setAcceptCookie(true);
-			Logger.i(tag, "onpage finished called for "+convMessage.hashCode() +" URL "+url);
-			if(url.contains(Integer.toString(convMessage.hashCode())))
+			Logger.i(tag, "onpage finished called for "+((int)convMessage.getMsgID()) +" URL "+url);
+			if(url.contains(Integer.toString(((int)convMessage.getMsgID()))))
 			{
 				try
 				{
+					showCard(holder);
 					if(convMessage.webMetadata.getPlatformJSCompatibleVersion() == HikePlatformConstants.VERSION_1)
 					{
-						showCard(holder);
 						holder.platformJavaScriptBridge.setData();
 					}
 					String alarmData = convMessage.webMetadata.getAlarmData();
