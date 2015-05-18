@@ -300,7 +300,6 @@ public class PlatformUtils
 	{
 		botInfo.setBotEnabled(enableBot);
 		HikeMessengerApp.hikeBotNamesMap.put(botInfo.getMsisdn(), botInfo);
-		HikeConversationsDatabase.getInstance().updateBotEnablingState(botInfo.getMsisdn(), enableBot ? 1 : 0);
 		if (enableBot)
 		{
 			HikeConversationsDatabase.getInstance().addConversation(botInfo.getMsisdn(), true, null, null);

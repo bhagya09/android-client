@@ -17,8 +17,6 @@ public class BotInfo extends ConvInfo
 
 	private int type, configuration;
 
-	private boolean isBotEnabled;
-
 	private String namespace;
 
 	private String metadata;
@@ -30,8 +28,6 @@ public class BotInfo extends ConvInfo
 	public static abstract class InitBuilder<P extends InitBuilder<P>> extends ConvInfo.InitBuilder<P>
 	{
 		private int type, config;
-
-		private boolean isBotEnabled;
 
 		private String namespace;
 
@@ -78,12 +74,6 @@ public class BotInfo extends ConvInfo
 			return getSelfObject();
 		}
 
-		public P setIsBotEnabled(boolean isBotEnabled)
-		{
-			this.isBotEnabled = isBotEnabled;
-			return getSelfObject();
-		}
-
 		public P setNamespace(String namespace)
 		{
 			this.namespace = namespace;
@@ -107,11 +97,6 @@ public class BotInfo extends ConvInfo
 			return new BotInfo(this);
 		}
 
-	}
-
-	public boolean isBotEnabled()
-	{
-		return isBotEnabled;
 	}
 
 	public int getConfiguration()
@@ -154,11 +139,6 @@ public class BotInfo extends ConvInfo
 		this.configuration = configuration;
 	}
 
-	public void setBotEnabled(boolean isBotEnabled)
-	{
-		this.isBotEnabled = isBotEnabled;
-	}
-
 	public void setMetadata(String metadata)
 	{
 		this.metadata = metadata;
@@ -197,7 +177,6 @@ public class BotInfo extends ConvInfo
 		this.configuration = builder.config;
 		this.metadata = builder.metadata;
 		this.configData = builder.configData;
-		this.isBotEnabled = builder.isBotEnabled;
 		this.namespace = builder.namespace;
 		this.notifData = builder.notifData;
 	}
