@@ -2,6 +2,7 @@ package com.bsb.hike.platform.bridge;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.os.Message;
 import android.webkit.JavascriptInterface;
 import android.widget.BaseAdapter;
 
@@ -20,6 +21,7 @@ import com.bsb.hike.utils.Logger;
  */
 public class MessagingBotBridgeV2 extends MessagingBotJavaScriptBridge
 {
+	private static final int UPDATE_METDATA = 1201; 
 	
 	private static final String tag = "MessagingBotBridgev2";
 	
@@ -36,7 +38,7 @@ public class MessagingBotBridgeV2 extends MessagingBotJavaScriptBridge
 
 	private void notAllowedMethodCalled(String methodName)
 	{
-		Logger.e(tag, "Native Error Not Allowed Methid called : "+methodName);
+		//Logger.e(tag, "Native Error Not Allowed Methid called : "+methodName);
 		mWebView.loadUrl("javascript:nativeError('" + methodName + " is not allowed to call in this version')");
 	}
 	
@@ -51,30 +53,27 @@ public class MessagingBotBridgeV2 extends MessagingBotJavaScriptBridge
 		{
 			ne.printStackTrace();
 		}
-		Logger.e(tag, function+" called but conv message has been updated, message id did not match");
+		Logger.e(tag, function+" called but conv message has been updated, message id did not match, got from card : "+messageId +" and current is "+message.getMsgID());
 		return false;
 	}
 
-	@Override
-	@JavascriptInterface
-	public void deleteAlarm()
-	{
-		notAllowedMethodCalled("deleteAlarm");
-	}
 
+	/**
+	 * 
+	 * @param messageId for which you want to delete alarm
+	 */
 	@JavascriptInterface
 	public void deleteAlarm(String messageId)
 	{
 		MessagingBotBridgeHelper.deleteAlarm(Integer.parseInt(messageId));
 	}
 
-	@Override
-	@JavascriptInterface
-	public void forwardToChat(String json)
-	{
-		notAllowedMethodCalled("forwardToChat");
-	}
 	
+	/**
+	 * 
+	 * @param messageId : to validate whether you are forwarding proper message
+	 * @param json
+	 */
 	@JavascriptInterface
 	public void forwardToChat(String messageId,String json)
 	{
@@ -84,13 +83,12 @@ public class MessagingBotBridgeV2 extends MessagingBotJavaScriptBridge
 		}
 	}
 
-	@Override
-	@JavascriptInterface
-	public void getFromCache(String id, String key)
-	{
-		notAllowedMethodCalled("getFromCache");
-	}
-
+	/**
+	 * 
+	 * @param messageId 
+	 * @param id
+	 * @param key
+	 */
 	@JavascriptInterface
 	public void getFromCache(String messageId,String id, String key)
 	{
@@ -132,12 +130,6 @@ public class MessagingBotBridgeV2 extends MessagingBotJavaScriptBridge
 		}
 	}
 
-	@Override
-	@JavascriptInterface
-	public void putInCache(String key, String value)
-	{
-		notAllowedMethodCalled("putInCache");
-	}
 	
 	@JavascriptInterface
 	public void putInCache(String messageId,String key, String value)
@@ -147,12 +139,6 @@ public class MessagingBotBridgeV2 extends MessagingBotJavaScriptBridge
 		}
 	}
 
-	@Override
-	@JavascriptInterface
-	public void putLargeDataInCache(String value)
-	{
-		notAllowedMethodCalled("putLargeDataInCache");
-	}
 	
 	@JavascriptInterface
 	public void putLargeDataInCache(String messageId,String value)
@@ -162,11 +148,6 @@ public class MessagingBotBridgeV2 extends MessagingBotJavaScriptBridge
 		}
 	}
 
-	@Override
-	public void setAlarm(String json, String timeInMills)
-	{
-		notAllowedMethodCalled("setAlarm");
-	}
 	
 	@JavascriptInterface
 	public void setAlarm(String mId,String json, String timeInMills){
@@ -176,27 +157,15 @@ public class MessagingBotBridgeV2 extends MessagingBotJavaScriptBridge
 	}
 
 
-	@Override
-	@JavascriptInterface
-	public void onResize(String height)
-	{
-		notAllowedMethodCalled("onResize");
-	}
-	
 	@JavascriptInterface
 	public void onResize(String messageId,String height)
 	{
-		if(isCorrectMessage(messageId, "onResize")){
+		if (isCorrectMessage(messageId, "onResize"))
+		{
 			super.onResize(height);
-		}	
+		}
 	}
-
-	@Override
-	@JavascriptInterface
-	public void deleteMessage()
-	{
-		notAllowedMethodCalled("deleteMessage");
-	}
+	
 	
 	@JavascriptInterface
 	public void deleteMessage(String messageId)
@@ -237,12 +206,6 @@ public class MessagingBotBridgeV2 extends MessagingBotJavaScriptBridge
 		}
 	}
 
-	@Override
-	@JavascriptInterface
-	public void updateHelperData(String json)
-	{
-		notAllowedMethodCalled("updateHelperData");
-	}
 
 	@JavascriptInterface
 	public void updateHelperData(String messageId,String json)
@@ -250,24 +213,56 @@ public class MessagingBotBridgeV2 extends MessagingBotJavaScriptBridge
 		WebMetadata metadata = MessagingBotBridgeHelper.updateHelperData(Long.parseLong(messageId), json);
 		if(metadata!=null)
 		{
-			message.webMetadata = metadata;
+			sendMessageToUiThread(UPDATE_METDATA, Integer.parseInt(messageId), metadata);
 		}
 	}
 	
-	@Override
-	@JavascriptInterface
-	public void updateMetadata(String json, String notifyScreen)
-	{
-		notAllowedMethodCalled("updateMetadata");
-	}
 	
 	@JavascriptInterface
 	public void updateMetadata(String messageId,String json, String notifyScreen)
 	{
 		WebMetadata metadata = MessagingBotBridgeHelper.updateMetadata(Integer.parseInt(messageId), json);
-		if(metadata!=null && isCorrectMessage(messageId, "updatemetadata"))
+		if(metadata!=null)
 		{
-			updateMetadata(metadata, notifyScreen);
+			sendMessageToUiThread(UPDATE_METDATA, Integer.parseInt(messageId), metadata);
+		}
+	}
+	
+	/**
+	 * @deprecated
+	 */
+	@Override
+	@JavascriptInterface
+	public void logAnalytics(String isUI, String subType, String json)
+	{
+		notAllowedMethodCalled("loganalytics");
+	}
+	
+	@JavascriptInterface
+	public void logAnalytics(String messageId,String isUI, String subType, String json)
+	{
+		if(isCorrectMessage(messageId, "loganalytics"))
+		{
+			super.logAnalytics(isUI, subType, json);
+		}
+	}
+	
+	@Override
+	protected void handleUiMessage(Message msg)
+	{
+		switch (msg.what)
+		{
+		case UPDATE_METDATA:
+			if(msg.arg1 == message.getMsgID())
+			{
+				this.message.webMetadata = (WebMetadata) msg.obj;
+			}else{
+				metadataMap.put(msg.arg1, (WebMetadata) msg.obj);
+				Logger.e(tag, "update metadata called but message id is different, called with "+msg.arg1 + " and current is "+message.getMsgID());
+			}
+			break;
+		default:
+			super.handleUiMessage(msg);
 		}
 	}
 }
