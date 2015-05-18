@@ -97,13 +97,18 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		
 		try
 		{
+			BotInfo botInfo = BotInfo.getBotInfoForBotMsisdn(mBotInfo.getMsisdn());
+			NonMessagingBotMetadata metadata = new NonMessagingBotMetadata(botInfo.getMetadata());
 			JSONObject cardObj = new JSONObject(json);
+
 			/**
 			 * Blindly inserting the appName in the cardObj JSON.
 			 */
-			cardObj.put(HikePlatformConstants.APP_NAME, BotInfo.getBotInfoForBotMsisdn(mBotInfo.getMsisdn()).getMicroAppName());
+			cardObj.put(HikePlatformConstants.APP_NAME, metadata.getAppName());
+			cardObj.put(HikePlatformConstants.APP_PACKAGE, metadata.getAppPackage());
+			metadata.setCardObj(cardObj);
 			
-			ConvMessage message = getConvMessageFromJSON(cardObj, hikeMessage);
+			ConvMessage message = PlatformUtils.getConvMessageFromJSON(metadata.getJson(), hikeMessage);
 			
 			if (message != null)
 			{
@@ -127,6 +132,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			jsonObject.put(HikePlatformConstants.HELPER_DATA, metadata.getHelperData());
 			jsonObject.put(HikePlatformConstants.PLATFORM_USER_ID, HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_UID_SETTING,null) );
 			jsonObject.put(HikePlatformConstants.APP_VERSION, AccountUtils.getAppVersion());
+			jsonObject.put(HikePlatformConstants.NOTIF_DATA, mBotInfo.getNotifData());
 
 			mWebView.loadUrl("javascript:init('" + jsonObject.toString() + "')");
 		}
@@ -136,23 +142,6 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		}
 	}
 
-	private ConvMessage getConvMessageFromJSON(JSONObject cardObj, String text)
-	{
-		try
-		{
-			ConvMessage convMessage = new ConvMessage();
-			convMessage.setMetadata(cardObj);
-			convMessage.setMessage(text);
-			convMessage.setMessageType(HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT);
-			return convMessage;
-		}
-		catch (JSONException e)
-		{
-			e.printStackTrace();
-		}
-
-		return null;
-	}
 
 	/**
 	 * calling this method will forcefully mute the full screen bot. The user won't receive any more notifications after calling this.
@@ -187,7 +176,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	public void updateMenuTitleAndState(int id, String newTitle, boolean enabled)
 	{
 		NonMessagingBotConfiguration botConfig = new NonMessagingBotConfiguration(mBotInfo.getConfiguration());
-		if (botConfig != null && botConfig.getConfigData() != null)
+		if (botConfig.getConfigData() != null)
 		{
 			botConfig.updateOverFlowMenu(id, newTitle, enabled);
 			HikeConversationsDatabase.getInstance().updateConfigData(mBotInfo.getMsisdn(), botConfig.getConfigData().toString());
@@ -204,7 +193,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	public void updateMenuEnabledState(int id, boolean enabled)
 	{
 		NonMessagingBotConfiguration botConfig = new NonMessagingBotConfiguration(mBotInfo.getConfiguration());
-		if (botConfig != null && botConfig.getConfigData() != null)
+		if (botConfig.getConfigData() != null)
 		{
 			botConfig.updateOverFlowMenu(id, enabled);
 			HikeConversationsDatabase.getInstance().updateConfigData(mBotInfo.getMsisdn(), botConfig.getConfigData().toString());
@@ -226,7 +215,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	public void updateMenuTitle(int id, String newTitle)
 	{
 		NonMessagingBotConfiguration botConfig = new NonMessagingBotConfiguration(mBotInfo.getConfiguration());
-		if (botConfig != null && botConfig.getConfigData() != null)
+		if (botConfig.getConfigData() != null)
 		{
 			botConfig.updateOverFlowMenu(id, newTitle);
 			HikeConversationsDatabase.getInstance().updateConfigData(mBotInfo.getMsisdn(), botConfig.getConfigData().toString());
@@ -242,9 +231,28 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	public void removeMenu(int id)
 	{
 		NonMessagingBotConfiguration botConfig = new NonMessagingBotConfiguration(mBotInfo.getConfiguration());
-		if (botConfig != null && botConfig.getConfigData() != null)
+		if (botConfig.getConfigData() != null)
 		{
 			botConfig.removeOverflowMenu(id);
+			HikeConversationsDatabase.getInstance().updateConfigData(mBotInfo.getMsisdn(), botConfig.getConfigData().toString());
+		}
+	}
+
+	/**
+	 * Utility method to fetch the overflowMenu from the MicroApp. This replaces the existing menu in the config data of the app
+	 * 
+	 * MenuString should be in the following form : <br>
+	 * [ {“title”: “xyz”, “id” : <unique integer>, "en" : "true"}, {“title”:abc,”id”:<unique integer>, "en":"false" }]
+	 * 
+	 * @param newMenuString
+	 */
+	@JavascriptInterface
+	public void replaceOverflowMenu(String newMenuString)
+	{
+		NonMessagingBotConfiguration botConfig = new NonMessagingBotConfiguration(mBotInfo.getConfiguration());
+		if(botConfig.getConfigData() != null)
+		{
+			botConfig.replaceOverflowMenu(newMenuString);
 			HikeConversationsDatabase.getInstance().updateConfigData(mBotInfo.getMsisdn(), botConfig.getConfigData().toString());
 		}
 	}
@@ -302,7 +310,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void getNotifData(String id)
 	{
-		String value = HikeConversationsDatabase.getInstance().getNotifData(mBotInfo.getMsisdn());
+		String value = mBotInfo.getNotifData();
 		callbackToJS(id, value);
 	}
 
@@ -325,5 +333,35 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		HikeConversationsDatabase.getInstance().deletePartialNotifData(key, mBotInfo.getMsisdn());
 	}
 
+	/**
+	 * call this function to send notif data to js. Will be primarily used when the bot is in foreground and notif is received.
+	 * @param notifData : notif data to be sent to the js.
+	 */
+	public void notifDataReceived(final String notifData)
+	{
+		if (mHandler == null)
+		{
+			return;
+		}
+		mHandler.post(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				mWebView.loadUrl("javascript:notifDataReceived" + "('" + notifData + "')");
+			}
+		});
+	}
 
+	/**
+	 * Utility method to indicate change in orientation of the device.<br>
+	 * 1 : Indicates PORTRAIT <br>
+	 * 2 : Indicates LANDSCAPE
+	 * 
+	 * @param orientation
+	 */
+	public void orientationChanged(int orientation)
+	{
+		mWebView.loadUrl("javascript:orientationChanged('" + Integer.toString(orientation) + "')");
+	}
 }

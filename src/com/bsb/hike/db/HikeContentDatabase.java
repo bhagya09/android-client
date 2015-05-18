@@ -445,13 +445,6 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 		
 	}
 
-	public void deleteAll()
-	{
-		mDB.delete(CONTENT_TABLE, null, null);
-		mDB.delete(ALARM_MGR_TABLE, null, null);
-		ProductInfoManager.getInstance().deleteAllPopups();
-		deleteAllDomainsFromWhitelist();
-	}
 	/**
 	 * The microapps call this function to put large data in the content cache.
 	 * @param key
@@ -489,5 +482,13 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 				c.close();
 			}
 		}
+	}
+	
+	public void deleteAll()
+	{
+		mDB.delete(CONTENT_TABLE, null, null);
+		mDB.delete(ALARM_MGR_TABLE, null, null);
+		ProductInfoManager.getInstance().deleteAllPopups();
+		deleteAllDomainsFromWhitelist();
 	}
 }

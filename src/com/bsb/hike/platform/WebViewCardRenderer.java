@@ -47,6 +47,7 @@ import com.bsb.hike.platform.bridge.MessagingBotBridgeV1;
 import com.bsb.hike.platform.bridge.MessagingBotBridgeV2;
 import com.bsb.hike.platform.bridge.MessagingBotJavaScriptBridge;
 import com.bsb.hike.platform.bridge.MessagingBotJavaScriptBridge.WebviewEventsListener;
+import com.bsb.hike.platform.content.HikeWebClient;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformContent.EventCode;
 import com.bsb.hike.platform.content.PlatformContentListener;

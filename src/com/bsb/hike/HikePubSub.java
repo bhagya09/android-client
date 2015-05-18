@@ -399,6 +399,8 @@ public class HikePubSub implements Runnable
 	public static final String PARTICIPANT_JOINED_SYSTEM_MESSAGE = "participantJoinedSystemMsg";
 	
 	public static final String SHARED_WHATSAPP = "sharedWhatsApp";
+
+	public static final String NOTIF_DATA_RECEIVED = "notifDataReceived";
 	
 	private final Thread mThread;
 

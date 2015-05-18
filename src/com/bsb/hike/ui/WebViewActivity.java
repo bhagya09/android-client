@@ -10,7 +10,10 @@ import org.json.JSONObject;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.MailTo;
 import android.net.Uri;
@@ -66,7 +69,7 @@ import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.TagEditText.Tag;
 
 public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements OnInflateListener, OnClickListener, TagOnClickListener, OverflowItemClickListener,
-		OnDismissListener, OverflowViewListener
+		OnDismissListener, OverflowViewListener, HikePubSub.Listener
 {
 
 	private static final String tag = "WebViewActivity";
@@ -110,6 +113,46 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		initView();	
 		initActionBar();
 		initAppsBasedOnMode();
+		HikeMessengerApp.getPubSub().addListener(HikePubSub.NOTIF_DATA_RECEIVED, this);
+		checkAndBlockOrientation();
+	}
+
+	/**
+	 * Utility method to block orientation for a given bot
+	 */
+	private void checkAndBlockOrientation()
+	{
+		if (botConfig != null)
+		{
+			int orientation = botConfig.getOritentationForBot();
+			if (orientation == Configuration.ORIENTATION_LANDSCAPE || orientation == Configuration.ORIENTATION_PORTRAIT)
+			{
+				changeCurrentOrientation(orientation);
+				Utils.blockOrientationChange(this);
+				if (mmBridge != null)
+				{
+					mmBridge.orientationChanged(orientation);
+				}
+			}
+		}
+	}
+
+	/**
+	 * Utility method to change the screen orientation of the device
+	 */
+	private void changeCurrentOrientation(int orientation)
+	{
+		if (getResources().getConfiguration().orientation != orientation)
+		{
+			if (orientation == Configuration.ORIENTATION_LANDSCAPE)
+			{
+				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+			}
+			else
+			{
+				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+			}
+		}
 	}
 
 	private void initAppsBasedOnMode()
@@ -362,8 +405,17 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		
 		if (mode == MICRO_APP_MODE && mActionBar != null)
 		{
-			mActionBar.onCreateOptionsMenu(menu, R.menu.simple_overflow_menu, getOverflowMenuItems(), this, this);
-			mActionBar.setOverflowViewListener(this);
+			List<OverFlowMenuItem> menuItemsList = getOverflowMenuItems();
+			
+			if (menuItemsList != null && menuItemsList.isEmpty())
+			{
+				menu.findItem(R.id.overflow_menu).setVisible(false);
+			}
+			else
+			{
+				mActionBar.onCreateOptionsMenu(menu, R.menu.simple_overflow_menu, menuItemsList, this, this);
+				mActionBar.setOverflowViewListener(this);
+			}
 			return true;
 		}
 		
@@ -416,7 +468,8 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	private void setupMicroAppActionBar()
 	{
 		setupActionBar(botInfo.getConversationName());
-		updateActionBarColor(R.drawable.bg_header_transparent);
+		int color = botConfig.getActionBarColor();
+		updateActionBarColor(new ColorDrawable(color == -1 ? R.color.transparent : color));
 		setAvatar();
 	}
 
@@ -456,7 +509,11 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	{
 		if (mode == MICRO_APP_MODE)
 		{
-			mmBridge.onBackPressed();
+			if (botConfig != null && botConfig.isBackPressAllowed())
+			{
+				mmBridge.onBackPressed();
+
+			}
 			return;
 		}
 		
@@ -469,7 +526,21 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			super.onBackPressed();
 		}
 	}
-	
+
+	@Override
+	public void onEventReceived(String type, Object object)
+	{
+		final String notifData = (String) object;
+		if (type.equals(HikePubSub.NOTIF_DATA_RECEIVED))
+		{
+			if (null != mmBridge)
+			{
+				mmBridge.notifDataReceived(notifData);
+			}
+		}
+
+	}
+
 	@Override
 	public void onInflate(ViewStub arg0, View arg1)
 	{
@@ -497,17 +568,26 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	private List<OverFlowMenuItem> getOverflowMenuItems()
 	{
 		List<OverFlowMenuItem> list = new ArrayList<>();
-		if (botConfig != null)
+		if (botConfig != null && botConfig.shouldShowOverflowMenu())
 		{
 			List<OverFlowMenuItem> items = botConfig.getOverflowItems();
 			if (items != null)
 			{
 				list.addAll(items);
 			}
+
+			if (botConfig.isMuteEnabled())
+			{
+				list.add(new OverFlowMenuItem(getString(botInfo.isMute() ? R.string.unmute : R.string.mute), 0, 0, R.string.mute));
+
+			}
+			
+			if (botConfig.isBlockEnabled())
+			{
+				list.add(new OverFlowMenuItem(getString(botInfo.isBlocked() ? R.string.unblock_title : R.string.block_title), 0, 0, R.string.block_title));
+			}
+
 		}
-		
-		list.add(new OverFlowMenuItem(getString(botInfo.isMute() ? R.string.unmute : R.string.mute), 0, 0, R.string.mute));
-		list.add(new OverFlowMenuItem(getString(botInfo.isBlocked() ? R.string.unblock_title : R.string.block_title), 0, 0, R.string.block_title));
 		return list;
 	}
 

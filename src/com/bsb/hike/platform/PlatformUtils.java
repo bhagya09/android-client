@@ -5,6 +5,7 @@ import java.util.Iterator;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformContentListener;
 import com.bsb.hike.platform.content.PlatformContentModel;
@@ -297,9 +298,6 @@ public class PlatformUtils
 
 	private static void enableBot(BotInfo botInfo, boolean enableBot)
 	{
-		botInfo.setBotEnabled(enableBot);
-		HikeMessengerApp.hikeBotNamesMap.put(botInfo.getMsisdn(), botInfo);
-		HikeConversationsDatabase.getInstance().updateBotEnablingState(botInfo.getMsisdn(), enableBot ? 1 : 0);
 		if (enableBot)
 		{
 			HikeConversationsDatabase.getInstance().addConversation(botInfo.getMsisdn(), true, null, null);
@@ -364,6 +362,30 @@ public class PlatformUtils
 		{
 			request.getListener().onEventOccured(request.getContentData()!=null ? request.getContentData().getUniqueId() : 0,PlatformContent.EventCode.ALREADY_DOWNLOADED);
 		}
+	}
+
+	/**
+	 * Creating a forwarding message for Non-messaging microApp
+	 * @param cardObj: the cardObj given by the microApp
+	 * @param text: hm text
+	 * @return
+	 */
+	public static ConvMessage getConvMessageFromJSON(JSONObject cardObj, String text)
+	{
+		try
+		{
+			ConvMessage convMessage = new ConvMessage();
+			convMessage.setMetadata(cardObj);
+			convMessage.setMessage(text);
+			convMessage.setMessageType(HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT);
+			return convMessage;
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+
+		return null;
 	}
 
 }

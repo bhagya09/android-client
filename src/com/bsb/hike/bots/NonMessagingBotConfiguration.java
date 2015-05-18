@@ -8,6 +8,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.R;
+import android.content.res.Configuration;
+import android.graphics.Color;
 
 import com.bsb.hike.media.OverFlowMenuItem;
 import com.bsb.hike.platform.HikePlatformConstants;
@@ -23,7 +25,63 @@ public class NonMessagingBotConfiguration extends BotConfiguration
 	private static final String TAG = "NonMessagingBotConfig";
 	
 	private boolean configDataRefreshed = false;
-
+	
+	/**
+	 * Bit positions for configData. These positions start from the most significant bit
+	 */
+	public static final byte OVERFLOW_MENU  = 0;
+	
+	public static final byte SHOW_BLOCK = 1;
+	
+	public static final byte SHOW_MUTE = 2;
+	
+	public static final byte ALLOW_BACK_PRESS = 3;
+	
+	public static final byte ENABLE_LANDSCAPE = 4;
+	
+	public static final byte ENABLE_PORTRAIT = 5;
+	
+	public static final byte LONG_TAP = 6;
+	
+	/**
+	 * Bit positions end here.
+	 */
+	
+	public boolean shouldShowOverflowMenu()
+	{
+		return isBitSet(OVERFLOW_MENU);
+	}
+	
+	public boolean isBlockEnabled()
+	{
+		return isBitSet(SHOW_BLOCK);
+	}
+	
+	public boolean isMuteEnabled()
+	{
+		return isBitSet(SHOW_MUTE);
+	}
+	
+	public boolean isBackPressAllowed()
+	{
+		return isBitSet(ALLOW_BACK_PRESS);
+	}
+	
+	public boolean isLandscapeEnabled()
+	{
+		return isBitSet(ENABLE_LANDSCAPE);
+	}
+	
+	public boolean isPortraitEnabled()
+	{
+		return isBitSet(ENABLE_PORTRAIT);
+	}
+	
+	public boolean isLongTapEnabled()
+	{
+		return isBitSet(LONG_TAP);
+	}
+	
 	public JSONObject getConfigData()
 	{
 		return configData;
@@ -157,6 +215,28 @@ public class NonMessagingBotConfiguration extends BotConfiguration
 				Logger.e(TAG, "Geting JSON exception while reading overflow menu items : " + e.toString());
 			}
 
+		}
+	}
+	
+	/**
+	 * This method replaces the overflow menu array in the config data
+	 * 
+	 * @param newMenuJSON
+	 */
+	public void replaceOverflowMenu(String newMenuJSON)
+	{
+		if (configData != null)
+		{
+			try
+			{
+				JSONArray menuArray = new JSONArray(newMenuJSON);
+				configData.put(HikePlatformConstants.OVERFLOW_MENU, menuArray);
+			}
+			catch (JSONException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -320,5 +400,64 @@ public class NonMessagingBotConfiguration extends BotConfiguration
 			}
 
 		}
+	}
+	
+	/**
+	 * Utility method to get action bar color from configData
+	 * 
+	 * @return
+	 */
+	public int getActionBarColor()
+	{
+		if (configData != null)
+		{
+			String color = configData.optString(HikePlatformConstants.AB_COLOR, "transparent");
+			return Color.parseColor(color);
+		}
+		return -1;
+	}
+	
+	/**
+	 * Utility method to get orientation for Bot. <br>
+	 * 0 indicates : PORTRAIT <br>
+	 * 1 indicates : LANDSCAPE
+	 * 
+	 * Default value will be PORTRAIT_LANDSCAPE.
+	 * 
+	 * If portrait flag is enabled and landscape flag is enabled as well, we return PORTRAIT_LANDSCAPE. If only portrait/landscape is enabled we return the respective value
+	 * 
+	 * @return
+	 */
+	public int getOritentationForBot()
+	{
+		if (configData != null)
+		{
+			if (isPortraitEnabled())
+			{
+				if (isLandscapeEnabled())
+				{
+					return Configuration.ORIENTATION_UNDEFINED;
+				}
+
+				else
+				{
+					return Configuration.ORIENTATION_PORTRAIT;
+				}
+			}
+
+			else
+			{
+				if (isLandscapeEnabled())
+				{
+					return Configuration.ORIENTATION_LANDSCAPE;
+				}
+
+				else
+				{
+					return Configuration.ORIENTATION_UNDEFINED;
+				}
+			}
+		}
+		return Configuration.ORIENTATION_UNDEFINED;
 	}
 }

@@ -42,7 +42,6 @@ import com.bsb.hike.bots.MessagingBotConfiguration;
 import com.bsb.hike.bots.MessagingBotMetadata;
 import com.bsb.hike.bots.NonMessagingBotConfiguration;
 import com.bsb.hike.bots.NonMessagingBotMetadata;
-import com.bsb.hike.db.DBConstants;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.filetransfer.FileTransferManager;
@@ -96,11 +95,8 @@ import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
-import com.bsb.hike.voip.VoIPClient;
 import com.bsb.hike.voip.VoIPConstants;
-import com.bsb.hike.voip.VoIPService;
 import com.bsb.hike.voip.VoIPUtils;
-import com.bsb.hike.voip.view.VoIPActivity;
 
 /**
  * 
@@ -2500,10 +2496,12 @@ public class MqttMessagesManager
 						{
 							generateNotification(body, destination, silent, rearrangeChat);
 						}
-						JSONObject notifData = metadata.optJSONObject(HikePlatformConstants.NOTIF_DATA);
-						if (null != notifData)
+						String notifData = metadata.optString(HikePlatformConstants.NOTIF_DATA);
+						if (!TextUtils.isEmpty(notifData))
 						{
-							HikeConversationsDatabase.getInstance().updateNotifDataForMicroApps(destination, notifData.toString());
+							convDb.updateNotifDataForMicroApps(destination, notifData);
+
+							HikeMessengerApp.getPubSub().publish(HikePubSub.NOTIF_DATA_RECEIVED, botInfo.getNotifData());
 						}
 					}
 					else
@@ -2520,7 +2518,7 @@ public class MqttMessagesManager
 							String nameSpace = metadata.optString(HikePlatformConstants.NAMESPACE);
 
 							if (!Utils.isConversationMuted(destination)
-									&& HikeConversationsDatabase.getInstance().isContentMessageExist(destination, contentId, nameSpace))
+									&& convDb.isContentMessageExist(destination, contentId, nameSpace))
 							{
 								generateNotification(body, destination, silent, rearrangeChat);
 							}
@@ -3102,7 +3100,6 @@ public class MqttMessagesManager
 				.setNamespace(namespace)
 				.setConfigData(null == configuration.getConfigData() ? null : configuration.getConfigData().toString())
 				.setConfig(configuration.getConfig())
-				.setIsBotEnabled(false)
 				.setMetadata(botMetadata.toString())
 				.build();
 		return botInfo;

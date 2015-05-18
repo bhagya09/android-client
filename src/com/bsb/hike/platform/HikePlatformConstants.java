@@ -39,6 +39,7 @@ public interface HikePlatformConstants
 	String WC_PUSH_KEY = "push";
 	String CRICKET_CHAT_THEME_ID = "39";
 	String APP_NAME = "appName";
+	String APP_PACKAGE = "appPackage";
 	String LAYOUT = "layoutId";
 	String LONG_PRESS_DISABLED = "lpd";
 	String HIKE_MSISDN = "hikemsisdn";
@@ -113,6 +114,7 @@ public interface HikePlatformConstants
 	String ALARM_DATA = "alarm_data";
 	
 	String DELETE_CARD = "delete_card";
+	String ORIENTATION = "orientation";
 
 	public static final String SILENT_PUSH = "silent";
 
@@ -153,10 +155,10 @@ public interface HikePlatformConstants
 	 * Overflow menu item constants end
 	 */
 	
-	
 	public static final int VERSION_1 = 1;
 	
 	public static final int VERSION_2 = 2;
 	
 	public static final int CURRENT_VERSION = VERSION_2;
+	public static final String AB_COLOR = "color";
 }

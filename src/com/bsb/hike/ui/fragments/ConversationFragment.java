@@ -12,12 +12,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import com.bsb.hike.bots.BotInfo;
-import com.bsb.hike.bots.MessagingBotConfiguration;
-import com.bsb.hike.bots.MessagingBotMetadata;
-import com.bsb.hike.bots.NonMessagingBotConfiguration;
-import com.bsb.hike.bots.NonMessagingBotMetadata;
-import com.bsb.hike.ui.WebViewActivity;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -74,6 +68,9 @@ import com.bsb.hike.adapters.ConversationsAdapter;
 import com.bsb.hike.adapters.EmptyConversationsAdapter;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.bots.MessagingBotConfiguration;
+import com.bsb.hike.bots.MessagingBotMetadata;
 import com.bsb.hike.db.DBBackupRestore;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.HikeDialog;
@@ -102,6 +99,7 @@ import com.bsb.hike.tasks.EmailConversationsAsyncTask;
 import com.bsb.hike.ui.HikeFragmentable;
 import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.ui.ProfileActivity;
+import com.bsb.hike.ui.WebViewActivity;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
@@ -115,15 +113,15 @@ import com.bsb.hike.view.HoloCircularProgress;
 public class ConversationFragment extends SherlockListFragment implements OnItemLongClickListener, Listener, OnScrollListener, HikeFragmentable, OnClickListener, ConversationTipClickedListener, FilterListener
 {
 	private String[] pubSubListeners = { HikePubSub.MESSAGE_RECEIVED, HikePubSub.SERVER_RECEIVED_MSG, HikePubSub.MESSAGE_DELIVERED_READ, HikePubSub.MESSAGE_DELIVERED,
-			HikePubSub.NEW_CONVERSATION, HikePubSub.MESSAGE_SENT, HikePubSub.MSG_READ, HikePubSub.ICON_CHANGED, HikePubSub.CONTACT_ADDED,
-			HikePubSub.LAST_MESSAGE_DELETED, HikePubSub.TYPING_CONVERSATION, HikePubSub.END_TYPING_CONVERSATION, HikePubSub.GROUP_LEFT, HikePubSub.FTUE_LIST_FETCHED_OR_UPDATED,
-			HikePubSub.CLEAR_CONVERSATION, HikePubSub.CONVERSATION_CLEARED_BY_DELETING_LAST_MESSAGE, HikePubSub.DISMISS_STEALTH_FTUE_CONV_TIP,
-			HikePubSub.SHOW_STEALTH_FTUE_CONV_TIP, HikePubSub.STEALTH_MODE_TOGGLED, HikePubSub.CLEAR_FTUE_STEALTH_CONV, HikePubSub.RESET_STEALTH_INITIATED,
-			HikePubSub.RESET_STEALTH_CANCELLED, HikePubSub.REMOVE_WELCOME_HIKE_TIP, HikePubSub.REMOVE_STEALTH_INFO_TIP, HikePubSub.REMOVE_STEALTH_UNREAD_TIP,
-			HikePubSub.BULK_MESSAGE_RECEIVED, HikePubSub.BULK_MESSAGE_DELIVERED_READ, HikePubSub.GROUP_END, HikePubSub.CONTACT_DELETED,
-			HikePubSub.MULTI_MESSAGE_DB_INSERTED, HikePubSub.SERVER_RECEIVED_MULTI_MSG, HikePubSub.MUTE_CONVERSATION_TOGGLED, HikePubSub.CONV_UNREAD_COUNT_MODIFIED,
-			HikePubSub.CONVERSATION_TS_UPDATED, HikePubSub.CONVERSATION_DELETED, HikePubSub.DELETE_THIS_CONVERSATION, HikePubSub.ONETONCONV_NAME_CHANGED ,HikePubSub.PARTICIPANT_JOINED_ONETONCONV, HikePubSub.PARTICIPANT_LEFT_ONETONCONV, HikePubSub.BLOCK_USER, HikePubSub.UNBLOCK_USER, HikePubSub.MUTE_BOT};
-
+			HikePubSub.NEW_CONVERSATION, HikePubSub.MESSAGE_SENT, HikePubSub.MSG_READ, HikePubSub.ICON_CHANGED, HikePubSub.ONETONCONV_NAME_CHANGED, HikePubSub.CONTACT_ADDED,
+			HikePubSub.LAST_MESSAGE_DELETED, HikePubSub.TYPING_CONVERSATION, HikePubSub.END_TYPING_CONVERSATION, HikePubSub.GROUP_LEFT,
+			HikePubSub.FTUE_LIST_FETCHED_OR_UPDATED, HikePubSub.CLEAR_CONVERSATION, HikePubSub.CONVERSATION_CLEARED_BY_DELETING_LAST_MESSAGE, 
+			HikePubSub.DISMISS_STEALTH_FTUE_CONV_TIP, HikePubSub.SHOW_STEALTH_FTUE_CONV_TIP, HikePubSub.STEALTH_MODE_TOGGLED, HikePubSub.CLEAR_FTUE_STEALTH_CONV,
+			HikePubSub.RESET_STEALTH_INITIATED, HikePubSub.RESET_STEALTH_CANCELLED, HikePubSub.REMOVE_WELCOME_HIKE_TIP, HikePubSub.REMOVE_STEALTH_INFO_TIP,
+			HikePubSub.REMOVE_STEALTH_UNREAD_TIP, HikePubSub.BULK_MESSAGE_RECEIVED, HikePubSub.ONETON_MESSAGE_DELIVERED_READ, HikePubSub.BULK_MESSAGE_DELIVERED_READ, HikePubSub.GROUP_END,
+			HikePubSub.CONTACT_DELETED,HikePubSub.MULTI_MESSAGE_DB_INSERTED, HikePubSub.SERVER_RECEIVED_MULTI_MSG, HikePubSub.MUTE_CONVERSATION_TOGGLED, HikePubSub.CONV_UNREAD_COUNT_MODIFIED,
+			HikePubSub.CONVERSATION_TS_UPDATED, HikePubSub.PARTICIPANT_JOINED_ONETONCONV, HikePubSub.PARTICIPANT_LEFT_ONETONCONV, HikePubSub.BLOCK_USER, HikePubSub.UNBLOCK_USER, HikePubSub.MUTE_BOT, HikePubSub.CONVERSATION_DELETED, HikePubSub.DELETE_THIS_CONVERSATION, HikePubSub.ONETONCONV_NAME_CHANGED};
+	
 	private ConversationsAdapter mAdapter;
 
 	private HashMap<String, ConvInfo> mConversationsByMSISDN;
@@ -1260,6 +1258,9 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		{
 			optionsList.add(getString(conv.isStealth() ? R.string.unmark_stealth : R.string.mark_stealth));
 		}
+		/**
+		 * Bot Menus
+		 */
         if (Utils.isBot(conv.getMsisdn()))
         {	BotInfo botInfo = BotInfo.getBotInfoForBotMsisdn(conv.getMsisdn());
 			MessagingBotMetadata metadata;
@@ -1294,6 +1295,9 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 			}
 
         }
+        /**
+         * Other conversation menus
+         */
 		else
 		{
 			if (!(conv instanceof OneToNConvInfo) && conv.getConversationName() == null)
@@ -1324,7 +1328,6 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 				optionsList.add(getString(R.string.shortcut));
 
 			}
-
 
 			if (!(conv instanceof OneToNConvInfo) && conv.getConversationName() == null)
 			{
