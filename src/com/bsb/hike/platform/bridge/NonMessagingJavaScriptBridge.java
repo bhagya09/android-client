@@ -97,13 +97,18 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		
 		try
 		{
+			BotInfo botInfo = BotInfo.getBotInfoForBotMsisdn(mBotInfo.getMsisdn());
+			NonMessagingBotMetadata metadata = new NonMessagingBotMetadata(botInfo.getMetadata());
 			JSONObject cardObj = new JSONObject(json);
+
 			/**
 			 * Blindly inserting the appName in the cardObj JSON.
 			 */
-			cardObj.put(HikePlatformConstants.APP_NAME, BotInfo.getBotInfoForBotMsisdn(mBotInfo.getMsisdn()).getMicroAppName());
+			cardObj.put(HikePlatformConstants.APP_NAME, metadata.getAppName());
+			cardObj.put(HikePlatformConstants.APP_PACKAGE, metadata.getAppPackage());
+			metadata.setCardObj(cardObj);
 			
-			ConvMessage message = getConvMessageFromJSON(cardObj, hikeMessage);
+			ConvMessage message = PlatformUtils.getConvMessageFromJSON(metadata.getJson(), hikeMessage);
 			
 			if (message != null)
 			{
@@ -136,23 +141,6 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		}
 	}
 
-	private ConvMessage getConvMessageFromJSON(JSONObject cardObj, String text)
-	{
-		try
-		{
-			ConvMessage convMessage = new ConvMessage();
-			convMessage.setMetadata(cardObj);
-			convMessage.setMessage(text);
-			convMessage.setMessageType(HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT);
-			return convMessage;
-		}
-		catch (JSONException e)
-		{
-			e.printStackTrace();
-		}
-
-		return null;
-	}
 
 	/**
 	 * calling this method will forcefully mute the full screen bot. The user won't receive any more notifications after calling this.

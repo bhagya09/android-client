@@ -17,6 +17,7 @@ public class NonMessagingBotMetadata
 	JSONObject helperData;
 	String appName;
 	JSONObject cardObj;
+	String appPackage;
 
 	public NonMessagingBotMetadata(String jsonString)
 	{
@@ -38,6 +39,7 @@ public class NonMessagingBotMetadata
 			e.printStackTrace();
 			this.json = new JSONObject();
 		}
+		init(json);
 	}
 
 
@@ -46,6 +48,11 @@ public class NonMessagingBotMetadata
 	{
 		this.json = (null == metadata) ? new JSONObject() : metadata;
 
+		init(json);
+	}
+
+	private void init(JSONObject metadata)
+	{
 		if (json.has(HikePlatformConstants.CARD_OBJECT))
 		{
 			cardObj = metadata.optJSONObject(HikePlatformConstants.CARD_OBJECT);
@@ -58,6 +65,11 @@ public class NonMessagingBotMetadata
 			if (cardObj.has(HikePlatformConstants.APP_NAME))
 			{
 				setAppName(cardObj.optString(HikePlatformConstants.APP_NAME));
+			}
+
+			if (cardObj.has(HikePlatformConstants.APP_PACKAGE))
+			{
+				setAppPackage(cardObj.optString(HikePlatformConstants.APP_PACKAGE));
 			}
 		}
 	}
@@ -82,6 +94,16 @@ public class NonMessagingBotMetadata
 		this.appName = appName;
 	}
 
+	public String getAppPackage()
+	{
+		return appPackage;
+	}
+
+	public void setAppPackage(String appPackage)
+	{
+		this.appPackage = appPackage;
+	}
+
 	public JSONObject getCardObj()
 	{
 		return cardObj;
@@ -90,6 +112,11 @@ public class NonMessagingBotMetadata
 	public void setCardObj(JSONObject cardObj)
 	{
 		this.cardObj = cardObj;
+	}
+
+	public JSONObject getJson()
+	{
+		return json;
 	}
 
 	@Override
