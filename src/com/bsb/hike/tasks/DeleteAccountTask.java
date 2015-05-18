@@ -11,7 +11,7 @@ import android.widget.Toast;
 
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
-import com.bsb.hike.db.DBBackupRestore;
+import com.bsb.hike.db.AccountBackupRestore;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.modules.contactmgr.ContactManager;
@@ -55,7 +55,7 @@ public class DeleteAccountTask extends AsyncTask<Void, Void, Boolean> implements
 
 			if (delete)
 			{
-				DBBackupRestore.getInstance(ctx).deleteAllFiles();
+				AccountBackupRestore.getInstance(ctx).deleteAllFiles();
 			}
 
 			clearAppData();

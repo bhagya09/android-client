@@ -28,7 +28,7 @@ import com.bsb.hike.utils.CBCEncryption;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
-public class DBBackupRestore
+public class AccountBackupRestore
 {
 	/**
 	 * @author gauravmittal
@@ -46,7 +46,7 @@ public class DBBackupRestore
 
 	public static final String TIME_TAKEN = "tt";
 
-	private static volatile DBBackupRestore _instance = null;
+	private static volatile AccountBackupRestore _instance = null;
 
 	private static final String HIKE_PACKAGE_NAME = "com.bsb.hike";
 
@@ -60,7 +60,7 @@ public class DBBackupRestore
 
 	private final Context mContext;
 
-	private DBBackupRestore(Context context)
+	private AccountBackupRestore(Context context)
 	{
 		this.mContext = context;
 	}
@@ -71,14 +71,14 @@ public class DBBackupRestore
 	 * @return
 	 * 		The BDBackupRestore instance
 	 */
-	public static DBBackupRestore getInstance(Context context)
+	public static AccountBackupRestore getInstance(Context context)
 	{
 		if (_instance == null)
 		{
-			synchronized (DBBackupRestore.class)
+			synchronized (AccountBackupRestore.class)
 			{
 				if (_instance == null)
-					_instance = new DBBackupRestore(context.getApplicationContext());
+					_instance = new AccountBackupRestore(context.getApplicationContext());
 			}
 		}
 		return _instance;

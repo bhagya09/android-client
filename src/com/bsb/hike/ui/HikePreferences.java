@@ -37,7 +37,7 @@ import com.bsb.hike.MqttConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
-import com.bsb.hike.db.DBBackupRestore;
+import com.bsb.hike.db.AccountBackupRestore;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
@@ -1098,7 +1098,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 	private void updateAccountBackupPrefView()
 	{
 		Preference preference = getPreferenceScreen().findPreference(HikeConstants.BACKUP_PREF);
-		long lastBackupTime = DBBackupRestore.getInstance(getApplicationContext()).getLastBackupTime();
+		long lastBackupTime = AccountBackupRestore.getInstance(getApplicationContext()).getLastBackupTime();
 		if (lastBackupTime > 0)
 		{
 			String lastBackup = getResources().getString(R.string.last_backup);

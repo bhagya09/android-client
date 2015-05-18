@@ -7,7 +7,7 @@ import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
-import com.bsb.hike.db.DBBackupRestore;
+import com.bsb.hike.db.AccountBackupRestore;
 
 public class BackupAccountTask extends AsyncTask<Void, Void, Boolean> implements ActivityCallableTask
 {
@@ -31,7 +31,7 @@ public class BackupAccountTask extends AsyncTask<Void, Void, Boolean> implements
 	@Override
 	protected Boolean doInBackground(Void... unused)
 	{
-		boolean status = DBBackupRestore.getInstance(ctx).backupDB();
+		boolean status = AccountBackupRestore.getInstance(ctx).backupDB();
 		try
 		{
 			Thread.sleep(HikeConstants.BACKUP_RESTORE_UI_DELAY);

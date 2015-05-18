@@ -30,7 +30,7 @@ import android.text.TextUtils;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.BitmapModule.BitmapUtils;
-import com.bsb.hike.db.DBBackupRestore;
+import com.bsb.hike.db.AccountBackupRestore;
 import com.bsb.hike.http.HikeHttpRequest;
 import com.bsb.hike.models.Birthday;
 import com.bsb.hike.models.ContactInfo;
@@ -638,7 +638,7 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 				{
 					this.data = "true";
 				}
-				else if (DBBackupRestore.getInstance(context).isBackupAvailable())
+				else if (AccountBackupRestore.getInstance(context).isBackupAvailable())
 				{
 					publishProgress(new StateValue(State.BACKUP_AVAILABLE,null));
 					// After publishing 'backup available' the task waits for the user to make an input(Restore or Skip)
@@ -711,7 +711,7 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 		editor.commit();
 		
 		publishProgress(new StateValue(State.RESTORING_BACKUP,null));
-		boolean status = DBBackupRestore.getInstance(context).restoreDB();
+		boolean status = AccountBackupRestore.getInstance(context).restoreDB();
 		
 		if (status)
 		{
