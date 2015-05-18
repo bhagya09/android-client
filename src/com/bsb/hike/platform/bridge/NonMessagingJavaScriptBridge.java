@@ -302,7 +302,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void getNotifData(String id)
 	{
-		String value = HikeConversationsDatabase.getInstance().getNotifData(mBotInfo.getMsisdn());
+		String value = mBotInfo.getNotifData();
 		callbackToJS(id, value);
 	}
 

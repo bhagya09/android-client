@@ -6964,34 +6964,5 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 	}
 
-	/**
-	 * Call this function to get the Notif data of the non messaging bot
-	 * @param botMsisdn: : msisdn of the non-messaging bot.
-	 * @return the notif data
-	 */
-	public String getNotifData(String botMsisdn)
-	{
-		Cursor c = null;
-		try
-		{
-			c = mDb.query(DBConstants.MESSAGES_TABLE, new String[] { HIKE_CONTENT.NOTIF_DATA }, DBConstants.MSISDN + "=?" , new String[] { botMsisdn}, null, null, null);
-			final int columnIndex = c.getColumnIndex(HIKE_CONTENT.NOTIF_DATA);
-			if (c.moveToFirst())
-			{
-				return c.getString(columnIndex);
-			}
-			return "{}";
-
-		}
-
-		finally
-		{
-			if (null != c)
-			{
-				c.close();
-			}
-		}
-	}
-
-
+	
 }
