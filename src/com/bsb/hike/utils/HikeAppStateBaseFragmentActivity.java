@@ -2,6 +2,7 @@ package com.bsb.hike.utils;
 
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -23,7 +24,6 @@ import com.bsb.hike.productpopup.HikeDialogFragment;
 import com.bsb.hike.productpopup.IActivityPopup;
 import com.bsb.hike.productpopup.ProductContentModel;
 import com.bsb.hike.productpopup.ProductInfoManager;
-import com.bsb.hike.ui.fragments.ImageViewerFragment;
 
 public class HikeAppStateBaseFragmentActivity extends SherlockFragmentActivity implements Listener
 {
@@ -266,6 +266,16 @@ public class HikeAppStateBaseFragmentActivity extends SherlockFragmentActivity i
 	{
 		ActionBar actionBar = getSupportActionBar();
 		actionBar.setBackgroundDrawable(getResources().getDrawable(backgroundDrawable));
+		// * Workaround to set actionbar background drawable multiple times. Refer SO.
+		// http://stackoverflow.com/questions/17076958/change-actionbar-color-programmatically-more-then-once/17198657#17198657
+		actionBar.setDisplayShowTitleEnabled(true);
+		actionBar.setDisplayShowTitleEnabled(false);
+	}
+	
+	protected void updateActionBarColor(ColorDrawable colorDrawable)
+	{
+		ActionBar actionBar = getSupportActionBar();
+		actionBar.setBackgroundDrawable((colorDrawable));
 		// * Workaround to set actionbar background drawable multiple times. Refer SO.
 		// http://stackoverflow.com/questions/17076958/change-actionbar-color-programmatically-more-then-once/17198657#17198657
 		actionBar.setDisplayShowTitleEnabled(true);

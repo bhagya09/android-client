@@ -113,6 +113,7 @@ public interface HikePlatformConstants
 	String ALARM_DATA = "alarm_data";
 	
 	String DELETE_CARD = "delete_card";
+	String ORIENTATION = "orientation";
 
 	public static final String SILENT_PUSH = "silent";
 
@@ -150,4 +151,5 @@ public interface HikePlatformConstants
 	/**
 	 * Overflow menu item constants end
 	 */
+	public static final String AB_COLOR = "color";
 }
