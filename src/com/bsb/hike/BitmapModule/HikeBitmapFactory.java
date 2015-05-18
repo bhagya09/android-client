@@ -2,7 +2,6 @@ package com.bsb.hike.BitmapModule;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Random;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -30,13 +29,11 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.models.HikeHandlerUtil;
-import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.photos.HikePhotosListener;
 import com.bsb.hike.smartcache.HikeLruCache;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.Utils;
-import com.bsb.hike.view.TextDrawable;
 
 public class HikeBitmapFactory
 {
@@ -1156,61 +1153,29 @@ public class HikeBitmapFactory
 		
 		return calculateInSampleSize(options, reqWidth, reqHeight);
 	}
-	
-	public static Drawable getDefaultTextAvatar(final String msisdn)
+	public static BitmapDrawable getDefaultAvatar(Resources res, String msisdn, boolean hiRes)
 	{
-		String contactName = null;
+	
+		int index = BitmapUtils.iconHash(msisdn) % (HikeConstants.DEFAULT_AVATAR_KEYS.length);
 
-		if (TextUtils.isEmpty(msisdn))
-		{
-			int bgColor = HikeMessengerApp.getInstance().getApplicationContext().getResources()
-					.getColor(HikeConstants.DEFAULT_AVATAR_BG_COLORID[new Random().nextInt(HikeConstants.DEFAULT_AVATAR_BG_COLORID.length)]);
-
-			return TextDrawable.builder().buildRound("#", bgColor);
-		}
-		else
-		{
-			int index = BitmapUtils.iconHash(msisdn) % (HikeConstants.DEFAULT_AVATAR_BG_COLORID.length);
-
-			int defaultAvatarResId = HikeConstants.DEFAULT_AVATAR_BG_COLORID[index];
-
-			int bgColor = HikeMessengerApp.getInstance().getApplicationContext().getResources().getColor(defaultAvatarResId);
-
-			contactName = ContactManager.getInstance().getName(msisdn, true);
-
-			return TextDrawable.builder().buildRound(TextUtils.isEmpty(contactName) ? "#" : Character.toString(contactName.charAt(0)), bgColor);
-		}
-
+		int defaultAvatarResId = HikeConstants.DEFAULT_AVATARS[index]; 
+		
+		Drawable layers[] = new Drawable[2];
+		layers[0] = res.getDrawable(defaultAvatarResId);
+		layers[1] = res.getDrawable(getDefaultAvatarIconResId(msisdn, hiRes));
+		
+		LayerDrawable ld = new LayerDrawable(layers);
+		ld.setId(0, 0);
+		ld.setId(1, 1);
+		ld.setDrawableByLayerId(0, layers[0]);
+		ld.setDrawableByLayerId(1, layers[1]);
+		
+		Bitmap bmp = drawableToBitmap(ld);
+		
+		BitmapDrawable bd = getBitmapDrawable(res, bmp);
+		return bd;
 	}
 	
-	public static Drawable getRectTextAvatar(final String msisdn)
-	{
-		String contactName = null;
-
-		if (TextUtils.isEmpty(msisdn))
-		{
-			//Unlikely case
-			int bgColor = HikeMessengerApp.getInstance().getApplicationContext().getResources().getColor(new Random().nextInt(HikeConstants.DEFAULT_AVATAR_BG_COLORID.length));
-			
-			return TextDrawable.builder().buildRound("#", bgColor);
-		}
-		else
-		{
-			int index = BitmapUtils.iconHash(msisdn) % (HikeConstants.DEFAULT_AVATAR_BG_COLORID.length);
-
-			int defaultAvatarResId = HikeConstants.DEFAULT_AVATAR_BG_COLORID[index];
-
-			int bgColor = HikeMessengerApp.getInstance().getApplicationContext().getResources().getColor(defaultAvatarResId);
-
-			contactName = ContactManager.getInstance().getName(msisdn, true);
-			
-			
-
-			return TextDrawable.builder().buildRect(TextUtils.isEmpty(contactName) ? "#" : Character.toString(contactName.charAt(0)), bgColor);
-		}
-
-	}
-
 	private static int getDefaultAvatarIconResId( String msisdn, boolean hiRes)
 	{
 		if (OneToNConversationUtils.isBroadcastConversation(msisdn))
