@@ -1,9 +1,12 @@
 package com.bsb.hike.db;
 
+import java.io.BufferedReader;
 import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -25,6 +28,7 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.utils.CBCEncryption;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
@@ -32,9 +36,73 @@ public class AccountBackupRestore
 {
 	/**
 	 * @author gauravmittal
-	 * 	DBBackupRestore is a singleton class that performs are the backup/restore related
+	 * 	AccountBackupRestore is a singleton class that performs are the backup/restore related
 	 * 	operations
 	 */
+	
+	private class PreferenceBackup
+	{
+		public static final String PREFS = "pref";
+
+		private JSONObject prefJson;
+
+		public PreferenceBackup()
+		{
+		}
+
+		public PreferenceBackup takeBackup() throws JSONException
+		{
+			prefJson = new JSONObject();
+			HikeSharedPreferenceUtil prefUtil = HikeSharedPreferenceUtil.getInstance();
+
+			prefJson.put(HikeMessengerApp.STEALTH_ENCRYPTED_PATTERN, prefUtil.getData(HikeMessengerApp.STEALTH_ENCRYPTED_PATTERN, ""))
+					.put(HikeMessengerApp.STEALTH_MODE_SETUP_DONE, prefUtil.getData(HikeMessengerApp.STEALTH_MODE_SETUP_DONE, false))
+					.put(HikeMessengerApp.SHOWN_FIRST_UNMARK_STEALTH_TOAST, prefUtil.getData(HikeMessengerApp.SHOWN_FIRST_UNMARK_STEALTH_TOAST, false))
+					.put(HikeMessengerApp.SHOW_STEALTH_INFO_TIP, prefUtil.getData(HikeMessengerApp.SHOW_STEALTH_INFO_TIP, false));
+
+			return this;
+		}
+
+		public String serialize()
+		{
+			return prefJson.toString();
+		}
+
+		public void restore(String prefJsonString) throws JSONException
+		{
+			prefJson = new JSONObject(prefJsonString);
+			HikeSharedPreferenceUtil prefUtil = HikeSharedPreferenceUtil.getInstance();
+
+			if (prefJson.has(HikeMessengerApp.STEALTH_ENCRYPTED_PATTERN))
+			{
+				String key = HikeMessengerApp.STEALTH_ENCRYPTED_PATTERN;
+				prefUtil.saveData(key, prefJson.getString(key));
+			}
+
+			if (prefJson.has(HikeMessengerApp.STEALTH_MODE_SETUP_DONE))
+			{
+				String key = HikeMessengerApp.STEALTH_MODE_SETUP_DONE;
+				prefUtil.saveData(key, prefJson.getString(key));
+			}
+			if (prefJson.has(HikeMessengerApp.SHOWN_FIRST_UNMARK_STEALTH_TOAST))
+			{
+				String key = HikeMessengerApp.SHOWN_FIRST_UNMARK_STEALTH_TOAST;
+				prefUtil.saveData(key, prefJson.getString(key));
+			}
+			if (prefJson.has(HikeMessengerApp.SHOW_STEALTH_INFO_TIP))
+			{
+				String key = HikeMessengerApp.SHOW_STEALTH_INFO_TIP;
+				prefUtil.saveData(key, prefJson.getString(key));
+			}
+
+		}
+
+		public File getPrefFile()
+		{
+			new File(HikeConstants.HIKE_BACKUP_DIRECTORY_ROOT).mkdirs();
+			return new File(HikeConstants.HIKE_BACKUP_DIRECTORY_ROOT, PREFS);
+		}
+	}
 	
 	public static final String RESTORE_EVENT_KEY = "rstr";
 
@@ -109,31 +177,16 @@ public class AccountBackupRestore
 	{
 		Long time = System.currentTimeMillis();
 		boolean result = true;
+		String backupToken = getBackupToken();
 		try
 		{
-			for (String fileName : dbNames)
-			{
-				File dbCopy = exportDatabse(fileName);
-				if (dbCopy == null || !dbCopy.exists())
-				{
-					result = false;
-					break;
-				}
-
-				File backup = getBackupFile(dbCopy.getName());
-				String backupToken = getBackupToken();
-				Logger.d(getClass().getSimpleName(), "encrypting with key: " + backupToken);
-				if (TextUtils.isEmpty(backupToken))
-				{
-					throw new Exception("Backup Token is empty");
-				}
-				CBCEncryption.encryptFile(dbCopy, backup, backupToken);
-				dbCopy.delete();
-			}
+			backupDB(backupToken);
+			backupPrefs(backupToken);
 		}
 		catch (Exception e)
 		{
-			deleteTempFiles();
+			deleteTempDBFiles();
+			deleteTempPrefFile();
 			e.printStackTrace();
 			result = false;
 		}
@@ -149,6 +202,74 @@ public class AccountBackupRestore
 		recordLog(BACKUP_EVENT_KEY,result,time);
 		return result;
 	}
+	
+	private void backupDB(String backupToken) throws Exception
+	{
+		Logger.d(getClass().getSimpleName(), "encrypting with key: " + backupToken);
+		if (TextUtils.isEmpty(backupToken))
+		{
+			throw new Exception("Backup Token is empty");
+		}
+		for (String fileName : dbNames)
+		{
+			File dbCopy = exportDatabse(fileName);
+			if (dbCopy == null || !dbCopy.exists())
+			{
+				throw new Exception("Backup file " + dbCopy + " is missing");
+			}
+			File backup = getBackupFile(dbCopy.getName());
+			CBCEncryption.encryptFile(dbCopy, backup, backupToken);
+			dbCopy.delete();
+		}
+	}
+	
+	private void backupPrefs(String backupToken) throws Exception
+	{
+		PreferenceBackup prefBackup = new PreferenceBackup();
+		String prefBackupString = prefBackup.takeBackup().serialize();
+		File prefFile = prefBackup.getPrefFile();
+		writeToFile(prefBackupString, prefFile);
+		File prefFileBackup = getBackupFile(prefFile.getName());
+		CBCEncryption.encryptFile(prefFile, prefFileBackup, backupToken);
+		prefFile.delete();
+	}
+
+	private void writeToFile(String text, File file) throws IOException
+	{
+		FileWriter fileWriter = new FileWriter(file);
+		try
+		{
+			fileWriter.write(text);
+			fileWriter.close();
+		}
+		finally
+		{
+			closeChannelsAndStreams(fileWriter);
+		}
+	}
+	
+	private String readFile(File file) throws IOException
+	{
+		BufferedReader br = new BufferedReader(new FileReader(file));
+		try
+		{
+			StringBuilder sb = new StringBuilder();
+			String line = br.readLine();
+
+			while (line != null)
+			{
+				sb.append(line);
+				sb.append("\n");
+				line = br.readLine();
+			}
+			return sb.toString();
+		}
+		finally
+		{
+			closeChannelsAndStreams(br);
+		}
+	}
+
 
 	/**
 	 * Creates a copy of the specified database of the application.
@@ -232,7 +353,7 @@ public class AccountBackupRestore
 			}
 			catch (Exception e)
 			{
-				deleteTempFiles();
+				deleteTempDBFiles();
 				e.printStackTrace();
 				result = false;
 			}
@@ -391,7 +512,7 @@ public class AccountBackupRestore
 	/**
 	 * Deletes the temporary files.
 	 */
-	private void deleteTempFiles()
+	private void deleteTempDBFiles()
 	{
 		for (String fileName : dbNames)
 		{
@@ -399,6 +520,13 @@ public class AccountBackupRestore
 			File dbCopy = getDBCopyFile(currentDB.getName());
 			dbCopy.delete();
 		}
+	}
+	
+	private void deleteTempPrefFile()
+	{
+		PreferenceBackup prefBackup = new PreferenceBackup();
+		File prefFile = prefBackup.getPrefFile();
+		prefFile.delete();
 	}
 
 	/**
@@ -415,7 +543,8 @@ public class AccountBackupRestore
 			backup.delete();
 		}
 		getBackupStateFile().delete();
-		deleteTempFiles();
+		deleteTempDBFiles();
+		deleteTempPrefFile();
 	}
 
 	private File getCurrentDBFile(String dbName)
