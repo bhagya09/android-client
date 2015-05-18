@@ -32,19 +32,15 @@ import android.os.AsyncTask;
 import android.support.v4.app.FragmentManager;
 import android.widget.ImageView;
 
-import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
-import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.smartcache.HikeLruCache;
 import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.utils.customClasses.AsyncTask.MyAsyncTask;
-import com.bsb.hike.view.RoundedImageView;
-import com.bsb.hike.view.TextDrawable;
 
 /**
  * This class wraps up completing some arbitrary long running work when loading a bitmap to an ImageView. It handles things like using a memory and disk cache, running the work in
@@ -115,9 +111,9 @@ public abstract class ImageWorker
 		loadImage(data, imageView, isFlinging, runOnUiThread, false);
 	}
 
-	public void loadImage(String msisdn, ImageView imageView, boolean isFlinging, boolean runOnUiThread, boolean setDefaultAvatarInitially)
+	public void loadImage(String data, ImageView imageView, boolean isFlinging, boolean runOnUiThread, boolean setDefaultAvatarInitially)
 	{
-		if (msisdn == null)
+		if (data == null)
 		{
 			return;
 		}
@@ -126,11 +122,7 @@ public abstract class ImageWorker
 
 		if (setDefaultAvatarInitially)
 		{
-			setDefaultAvatar(imageView, msisdn);
-			if (!ContactManager.getInstance().hasIcon(msisdn,false))
-			{
-				return;
-			}
+			setDefaultAvatar(imageView, data);
 		}
 		else
 		{
@@ -139,41 +131,40 @@ public abstract class ImageWorker
 				imageView.setBackgroundDrawable(null);
 			}
 		}
-		
 		if (mImageCache != null)
 		{
-			value = mImageCache.get(msisdn);
+			value = mImageCache.get(data);
 			// if bitmap is found in cache and is recyclyed, remove this from cache and make thread get new Bitmap
 			if (value != null && value.getBitmap().isRecycled())
 			{
-				mImageCache.remove(msisdn);
+				mImageCache.remove(data);
 				value = null;
 			}
 		}
 		if (value != null)
 		{
-			Logger.d(TAG, msisdn + " Bitmap found in cache and is not recycled.");
+			Logger.d(TAG, data + " Bitmap found in cache and is not recycled.");
 			// Bitmap found in memory cache
 			imageView.setImageDrawable(value);
 		}
 		else if (runOnUiThread)
 		{
-			Bitmap b = processBitmapOnUiThread(msisdn);
+			Bitmap b = processBitmapOnUiThread(data);
 			if (b != null && mImageCache != null)
 			{
 				BitmapDrawable bd = HikeBitmapFactory.getBitmapDrawable(mResources, b);
 				if (bd != null)
 				{
-					mImageCache.putInCache(msisdn, bd);
+					mImageCache.putInCache(data, bd);
 				}
 				imageView.setImageDrawable(bd);
 			}
 			else if (b == null && setDefaultAvatarIfNoCustomIcon)
 			{
-				setDefaultAvatar(imageView, msisdn);
+				setDefaultAvatar(imageView, data);
 			}
 		}
-		else if (cancelPotentialWork(msisdn, imageView) && !isFlinging)
+		else if (cancelPotentialWork(data, imageView) && !isFlinging)
 		{
 			Bitmap loadingBitmap = mLoadingBitmap;
 
@@ -196,7 +187,7 @@ public abstract class ImageWorker
 			// NOTE: This uses a custom version of AsyncTask that has been pulled from the
 			// framework and slightly modified. Refer to the docs at the top of the class
 			// for more info on what was changed.
-			task.executeOnExecutor(MyAsyncTask.THREAD_POOL_EXECUTOR, msisdn);
+			task.executeOnExecutor(MyAsyncTask.THREAD_POOL_EXECUTOR, data);
 		}
 		// else
 		// {
@@ -206,7 +197,8 @@ public abstract class ImageWorker
 
 	protected void setDefaultAvatar(ImageView imageView, String data)
 	{
-		imageView.setImageDrawable(HikeBitmapFactory.getDefaultTextAvatar(data));
+		imageView.setBackgroundDrawable(HikeMessengerApp.getLruCache().getDefaultAvatar(data, setHiResDefaultAvatar));
+		imageView.setImageDrawable(null);
 	}
 
 	/**
@@ -288,11 +280,6 @@ public abstract class ImageWorker
 	public void setDefaultDrawableNull(boolean b)
 	{
 		this.setDefaultDrawableNull = b;
-	}
-	
-	public boolean getDefaultDrawableNull()
-	{
-		return setDefaultDrawableNull;
 	}
 	
 	public void setDefaultDrawable(Drawable d)

@@ -70,8 +70,6 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 
 	private Context context;
 
-	private String myMsisdn;
-
 	private static String[] pubSubListeners = { HikePubSub.APP_BACKGROUNDED };
 
 	private ContactManager()
@@ -242,23 +240,8 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 		{
 			name = transientCache.getName(msisdn);
 		}
-
-		if (null == name)
-		{
-			if (null == myMsisdn)
-			{
-				myMsisdn = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeMessengerApp.MSISDN_SETTING, "");
-			}
-
-			if (msisdn.compareTo(myMsisdn) == 0)
-			{
-				return context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeMessengerApp.NAME_SETTING, "");
-			}
-		}
 		if (null == name && !returnNullIfNotFound)
-		{
 			return msisdn;
-		}
 		return name;
 	}
 
@@ -889,32 +872,9 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	 * @param msisdn
 	 * @return
 	 */
-	public boolean hasIcon(String msisdn, boolean forceRefresh)
+	public boolean hasIcon(String msisdn)
 	{
-		boolean hasIcon = false;
-
-		ContactInfo contactInfo = getContactInfoFromPhoneNoOrMsisdn(msisdn);
-		if (contactInfo != null && !forceRefresh)
-		{
-			if (contactInfo.hasCustomPhoto())
-			{
-				hasIcon = true;
-			}
-			else
-			{
-				hasIcon = false;
-			}
-		}
-		else
-		{
-			hasIcon = hDb.hasIcon(msisdn);
-			if (contactInfo != null)
-			{
-				contactInfo.setHasCustomPhoto(hasIcon);
-			}
-		}
-
-		return hasIcon;
+		return hDb.hasIcon(msisdn);
 	}
 
 	/**

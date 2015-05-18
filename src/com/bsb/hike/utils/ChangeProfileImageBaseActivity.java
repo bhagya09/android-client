@@ -338,7 +338,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 		// Show Remove Photo item only if user has a profile photo other than default
 		ContactInfo contactInfo = Utils.getUserContactInfo(prefs.getPref());
 
-		if (!OneToNConversationUtils.isOneToNConversation(mLocalMSISDN) && ContactManager.getInstance().hasIcon(contactInfo.getMsisdn(),false))
+		if (!OneToNConversationUtils.isOneToNConversation(mLocalMSISDN) && ContactManager.getInstance().hasIcon(contactInfo.getMsisdn()))
 		{
 			CharSequence[] moreItems = new CharSequence[items.length + 1]; // adding one item to the existing list
 
