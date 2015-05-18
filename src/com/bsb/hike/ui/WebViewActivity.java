@@ -495,7 +495,11 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	{
 		if (mode == MICRO_APP_MODE)
 		{
-			mmBridge.onBackPressed();
+			if (botConfig != null && botConfig.isBackPressAllowed())
+			{
+				mmBridge.onBackPressed();
+
+			}
 			return;
 		}
 		
