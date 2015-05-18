@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import com.bsb.hike.modules.httpmgr.HttpUtils;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 
 /**
@@ -79,10 +80,7 @@ public class FileRequest extends Request<File>
 		}
 		finally
 		{
-			if (fos != null)
-			{
-				fos.close();
-			}
+			HttpUtils.closeQuietly(fos);
 		}
 	}
 }

@@ -272,6 +272,14 @@ public class ConversationsAdapter extends BaseAdapter
 		notifyDataSetChanged();
 	}
 
+	/**
+	 * This will prevent the search related changes until further notice.
+	 */
+	public void pauseSearch()
+	{
+		refinedSearchText = "";
+	}
+
 	private class FetchPhoneBookContactsTask extends AsyncTask<Void, Void, Void>
 	{
 		List<ConvInfo> hikeContacts = new ArrayList<ConvInfo>();
@@ -508,7 +516,7 @@ public class ConversationsAdapter extends BaseAdapter
 		 * If the viewholder's msisdn is different from the converstion's msisdn, it means that the viewholder is currently being used for a different conversation.
 		 * We don't need to do anything here then.
 		 */
-		if(!convInfo.getMsisdn().equals(viewHolder.msisdn))
+		if(viewHolder == null || !convInfo.getMsisdn().equals(viewHolder.msisdn))
 		{
 			return;
 		}
@@ -552,7 +560,7 @@ public class ConversationsAdapter extends BaseAdapter
 		 * If the viewholder's msisdn is different from the converstion's msisdn, it means that the viewholder is currently being used for a different conversation.
 		 * We don't need to do anything here then.
 		 */
-		if(!convInfo.getMsisdn().equals(viewHolder.msisdn))
+		if(viewHolder == null || !convInfo.getMsisdn().equals(viewHolder.msisdn))
 		{
 			return;
 		}
@@ -564,6 +572,11 @@ public class ConversationsAdapter extends BaseAdapter
 	public void updateViewsRelatedToMute(View parentView, ConvInfo convInfo)
 	{
 		ViewHolder viewHolder = (ViewHolder) parentView.getTag();
+		
+		if(viewHolder == null)
+		{
+			return;
+		}
 
 		ImageView muteIcon = viewHolder.muteIcon;
 		if (muteIcon != null)
@@ -605,7 +618,7 @@ public class ConversationsAdapter extends BaseAdapter
 		 * If the viewholder's msisdn is different from the converstion's msisdn, it means that the viewholder is currently being used for a different conversation.
 		 * We don't need to do anything here then.
 		 */
-		if(!convInfo.getMsisdn().equals(viewHolder.msisdn))
+		if(viewHolder == null || !convInfo.getMsisdn().equals(viewHolder.msisdn))
 		{
 			return;
 		}
