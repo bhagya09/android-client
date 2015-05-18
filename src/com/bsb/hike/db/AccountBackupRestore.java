@@ -82,17 +82,17 @@ public class AccountBackupRestore
 			if (prefJson.has(HikeMessengerApp.STEALTH_MODE_SETUP_DONE))
 			{
 				String key = HikeMessengerApp.STEALTH_MODE_SETUP_DONE;
-				prefUtil.saveData(key, prefJson.getString(key));
+				prefUtil.saveData(key, prefJson.getBoolean(key));
 			}
 			if (prefJson.has(HikeMessengerApp.SHOWN_FIRST_UNMARK_STEALTH_TOAST))
 			{
 				String key = HikeMessengerApp.SHOWN_FIRST_UNMARK_STEALTH_TOAST;
-				prefUtil.saveData(key, prefJson.getString(key));
+				prefUtil.saveData(key, prefJson.getBoolean(key));
 			}
 			if (prefJson.has(HikeMessengerApp.SHOW_STEALTH_INFO_TIP))
 			{
 				String key = HikeMessengerApp.SHOW_STEALTH_INFO_TIP;
-				prefUtil.saveData(key, prefJson.getString(key));
+				prefUtil.saveData(key, prefJson.getBoolean(key));
 			}
 
 		}
@@ -248,7 +248,7 @@ public class AccountBackupRestore
 		}
 	}
 	
-	private String readFile(File file) throws IOException
+	private String readStringFromFile(File file) throws IOException
 	{
 		BufferedReader br = new BufferedReader(new FileReader(file));
 		try
@@ -322,6 +322,7 @@ public class AccountBackupRestore
 	{
 		Long time = System.currentTimeMillis();
 		boolean result = true;
+		String backupToken = getBackupToken();
 		BackupState state = getBackupState();
 		if (state == null)
 		{
@@ -335,21 +336,8 @@ public class AccountBackupRestore
 		{
 			try
 			{
-				for (String fileName : dbNames)
-				{
-					File currentDB = getCurrentDBFile(fileName);
-					File dbCopy = getDBCopyFile(currentDB.getName());
-					File backup = getBackupFile(dbCopy.getName());
-					String backupToken = getBackupToken();
-					Logger.d(getClass().getSimpleName(), "decrypting with key: " + backupToken);
-					if (TextUtils.isEmpty(backupToken))
-					{
-						throw new Exception("Backup Token is empty");
-					}
-					CBCEncryption.decryptFile(backup, dbCopy, backupToken);
-					importDatabase(dbCopy);
-					dbCopy.delete();
-				}
+				restoreDB(backupToken);
+				restorePrefs(backupToken);
 			}
 			catch (Exception e)
 			{
@@ -367,6 +355,35 @@ public class AccountBackupRestore
 		Logger.d(getClass().getSimpleName(), "Restore " + result + " in " + time / 1000 + "." + time % 1000 + "s");
 		recordLog(RESTORE_EVENT_KEY,result,time);
 		return result;
+	}
+	
+	private void restoreDB(String backupToken) throws Exception
+	{
+		Logger.d(getClass().getSimpleName(), "decrypting with key: " + backupToken);
+		if (TextUtils.isEmpty(backupToken))
+		{
+			throw new Exception("Backup Token is empty");
+		}
+		for (String fileName : dbNames)
+		{
+			File currentDB = getCurrentDBFile(fileName);
+			File dbCopy = getDBCopyFile(currentDB.getName());
+			File backup = getBackupFile(dbCopy.getName());
+			CBCEncryption.decryptFile(backup, dbCopy, backupToken);
+			importDatabase(dbCopy);
+			dbCopy.delete();
+		}
+	}
+	
+	private void restorePrefs(String backupToken) throws Exception
+	{
+		PreferenceBackup prefBackup = new PreferenceBackup();
+		File prefFile = prefBackup.getPrefFile();
+		File prefFileBackup = getBackupFile(prefFile.getName());
+		CBCEncryption.decryptFile(prefFileBackup, prefFile, backupToken);
+		String prefBackupString = readStringFromFile(prefFile);
+		prefBackup.restore(prefBackupString);
+		prefFile.delete();
 	}
 
 	/**
