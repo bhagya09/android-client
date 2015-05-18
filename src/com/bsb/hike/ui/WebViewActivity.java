@@ -499,17 +499,18 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	private List<OverFlowMenuItem> getOverflowMenuItems()
 	{
 		List<OverFlowMenuItem> list = new ArrayList<>();
-		if (botConfig != null)
+		if (botConfig != null && botConfig.shouldShowOverflowMenu())
 		{
 			List<OverFlowMenuItem> items = botConfig.getOverflowItems();
 			if (items != null)
 			{
 				list.addAll(items);
 			}
+
+			list.add(new OverFlowMenuItem(getString(botInfo.isMute() ? R.string.unmute : R.string.mute), 0, 0, R.string.mute));
+			list.add(new OverFlowMenuItem(getString(botInfo.isBlocked() ? R.string.unblock_title : R.string.block_title), 0, 0, R.string.block_title));
+
 		}
-		
-		list.add(new OverFlowMenuItem(getString(botInfo.isMute() ? R.string.unmute : R.string.mute), 0, 0, R.string.mute));
-		list.add(new OverFlowMenuItem(getString(botInfo.isBlocked() ? R.string.unblock_title : R.string.block_title), 0, 0, R.string.block_title));
 		return list;
 	}
 

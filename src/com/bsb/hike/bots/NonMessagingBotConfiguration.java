@@ -25,7 +25,26 @@ public class NonMessagingBotConfiguration extends BotConfiguration
 	
 	private boolean configDataRefreshed = false;
 	
+	/**
+	 * Bit positions for configData. These positions start from the most significant bit
+	 */
+	public static final byte OVERFLOW_MENU  = 0;
+	
+	public static final byte WHICH_ORIENTATION = 1;
+	
+	public static final byte LONG_TAP = 2;
+	
 	private static final int PORTRAIT = 0;
+	
+	public boolean shouldShowOverflowMenu()
+	{
+		return isBitSet(OVERFLOW_MENU);
+	}
+	
+	public boolean isLongTapEnabled()
+	{
+		return isBitSet(LONG_TAP);
+	}
 	
 	private static final int LANDSCAPE = 1;
 
