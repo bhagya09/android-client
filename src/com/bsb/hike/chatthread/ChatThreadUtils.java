@@ -286,15 +286,15 @@ public class ChatThreadUtils
 		return HikeMessengerApp.networkError;
 	}
 
-	protected static void initialiseLocationTransfer(Context context, String msisdn, double latitude, double longitude, int zoomLevel, boolean convOnHike)
+	protected static void initialiseLocationTransfer(Context context, String msisdn, double latitude, double longitude, int zoomLevel, boolean convOnHike, boolean newConvIfnotExist)
 	{
-		FileTransferManager.getInstance(context).uploadLocation(msisdn, latitude, longitude, zoomLevel, convOnHike);
+		FileTransferManager.getInstance(context).uploadLocation(msisdn, latitude, longitude, zoomLevel, convOnHike,newConvIfnotExist);
 	}
 
 	protected static void initialiseContactTransfer(Context context, String msisdn, JSONObject contactJson, boolean convOnHike)
 	{
 		Logger.i(TAG, "initiate contact transfer " + contactJson.toString());
-		FileTransferManager.getInstance(context).uploadContact(msisdn, contactJson, convOnHike);
+		FileTransferManager.getInstance(context).uploadContact(msisdn, contactJson, convOnHike, true);
 	}
 
 	protected static int incrementDecrementMsgsCount(int var, boolean isMsgSelected)

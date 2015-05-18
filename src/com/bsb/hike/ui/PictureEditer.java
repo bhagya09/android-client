@@ -661,12 +661,10 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 			if (currentPosition - 1 == parent.getFirstVisiblePosition() || currentPosition == parent.getFirstVisiblePosition())
 			{
 				positionFinal = currentPosition - 1;
-				;
 			}
 			else
 			{
 				positionFinal = currentPosition + 1;
-				;
 			}
 
 			// SmoothScroll needs to do a lot of work
