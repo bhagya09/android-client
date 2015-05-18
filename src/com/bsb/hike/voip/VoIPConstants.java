@@ -67,7 +67,6 @@ public class VoIPConstants {
 	public static final int MSG_VOIP_CLIENT_OUTGOING_CALL_RINGTONE = 17;
 	public static final int MSG_VOIP_CLIENT_INCOMING_CALL_RINGTONE = 18;
 	public static final int MSG_START_RECORDING_AND_PLAYBACK = 19;
-	public static final int MSG_START_COMPRESSION = 20;
 	public static final int MSG_START_RECONNECTION_BEEPS = 21;
 	public static final int MSG_STOP_RECONNECTION_BEEPS = 22;
 	public static final int MSG_CONNECTED = 23;

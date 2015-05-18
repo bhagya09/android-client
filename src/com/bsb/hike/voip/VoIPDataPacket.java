@@ -1,7 +1,7 @@
 package com.bsb.hike.voip;
 
 
-public class VoIPDataPacket {
+public class VoIPDataPacket implements Cloneable {
 
 	private boolean encrypted = false; 
 	private PacketType packetType;
@@ -251,5 +251,12 @@ public class VoIPDataPacket {
 	public void setRequiresAck(boolean requiresAck) {
 		this.requiresAck = requiresAck;
 	}
+
+	@Override
+	protected Object clone() throws CloneNotSupportedException {
+		return super.clone();
+	}
+	
+	
 
 }

@@ -4,9 +4,6 @@ import java.io.File;
 import java.io.IOException;
 
 import android.content.Context;
-import android.content.pm.ApplicationInfo;
-import android.os.Build;
-import android.util.Log;
 
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.utils.Logger;
@@ -17,13 +14,19 @@ public class OpusWrapper {
 	
 	private long encoder = 0;
 	private long decoder = 0;
-	public static final int OPUS_FRAME_SIZE = 2880; // permitted values are 120, 240, 480, 960, 1920, and 2880
+	
+	/**
+	 * The frame size of samples expected by the Opus codec. 
+	 * Permitted values are 120, 240, 480, 960, 1920, and 2880.
+	 * Changing this will break backward compatibility.
+	 */
+	public static final int OPUS_FRAME_SIZE = 2880;
+	
 	public static final int OPUS_LOWEST_SUPPORTED_BITRATE = 3000; 
 	
 	private native long opus_encoder_create(int samplingRate, int channels, int errors);
+	private native int opus_encode(long encoder, byte[] input, int frameSize, byte[] output, int outputSize);
 	private native void opus_encoder_destroy(long encoder);
-	private native int opus_queue(byte[] stream);	
-	private native int opus_get_encoded_data(long encoder, int frameSize, byte[] output, int maxDataBytes);
 	private native void opus_set_bitrate(long encoder, int bitrate);
 	private native void opus_set_gain(long decoder, int gain);
 	private native void opus_set_complexity(long encoder, int complexity);
@@ -69,6 +72,7 @@ public class OpusWrapper {
 	public int getEncoder(int samplingRate, int channels, int bitrate) {
 		int errors = 0;
 		encoder = opus_encoder_create(samplingRate, channels, errors);
+		Logger.d(VoIPConstants.TAG, "Got encoder:" + encoder);
 		setEncoderBitrate(bitrate);
 		return errors;
 	}
@@ -79,14 +83,6 @@ public class OpusWrapper {
 		opus_set_bitrate(encoder, bitrate);
 	}
 	
-	public void setDecoderGain(int gain) {
-		if (decoder == 0)
-			return;
-		
-		opus_set_gain(decoder, gain);
-		Logger.d(VoIPConstants.TAG, "Setting gain to: " + gain);
-	}
-	
 	public void setEncoderComplexity(int complexity) {
 		if (encoder == 0)
 			return;
@@ -95,28 +91,40 @@ public class OpusWrapper {
 //		Log.d(VoIPConstants.TAG, "Setting complexity to: " + complexity);
 	}
 	
+	/**
+	 * Encode <b>one frame</b> of PCM data. <br/>
+	 * Frame size is {@link #OPUS_FRAME_SIZE}. Input buffer should twice as many bytes of data
+	 * since each sample is 16-bit.
+	 * @param input
+	 * @param output
+	 * @return
+	 * @throws Exception
+	 */
+	public int encode(byte[] input, byte[] output) throws Exception {
+		synchronized (encoderLock) {
+			if (encoder == 0)
+				throw new Exception("No encoder created.");
+			
+			if (input == null || output == null)
+				return 0;
+
+			return opus_encode(encoder, input, input.length / 2, output, output.length);
+		}
+	}
+
 	public int getDecoder(int samplingRate, int channels) {
 		int errors = 0;
 		decoder = opus_decoder_create(samplingRate, channels, errors);
+		Logger.d(VoIPConstants.TAG, "Got decoder:" + decoder);
 		return errors;
 	}
 	
-	public int queue(byte[] stream) throws Exception {
-		synchronized (encoderLock) {
-			if (encoder == 0)
-				throw new Exception("No encoder created.");
-			
-			return opus_queue(stream);
-		}
-	}
-	
-	public int getEncodedData(int frameSize, byte[] output, int maxDataBytes) throws Exception {
-		synchronized (encoderLock) {
-			if (encoder == 0)
-				throw new Exception("No encoder created.");
-			
-			return opus_get_encoded_data(encoder, frameSize, output, maxDataBytes);
-		}
+	public void setDecoderGain(int gain) {
+		if (decoder == 0)
+			return;
+		
+		opus_set_gain(decoder, gain);
+		Logger.d(VoIPConstants.TAG, "Setting gain to: " + gain);
 	}
 	
 	public int decode(byte[] input, byte[] output) throws Exception {
@@ -146,13 +154,16 @@ public class OpusWrapper {
 	public void destroy() {
 		synchronized (encoderLock) {
 			synchronized (decoderLock) {
-				if (encoder != 0)
+				if (encoder != 0) {
+					Logger.d(VoIPConstants.TAG, "Destroying encoder: " + encoder);
 					opus_encoder_destroy(encoder);
-				if (decoder != 0)
+					encoder = 0;
+				}
+				if (decoder != 0) {
+					Logger.d(VoIPConstants.TAG, "Destroying decoder: " + decoder);
 					opus_decoder_destroy(decoder);
-				
-				encoder = 0;
-				decoder = 0;
+					decoder = 0;
+				}
 			}
 		}
 	}

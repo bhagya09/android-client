@@ -3,10 +3,15 @@ package com.bsb.hike.voip;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.ShortBuffer;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Random;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import android.annotation.SuppressLint;
 import android.app.Notification;
@@ -61,9 +66,9 @@ public class VoIPService extends Service {
 	private static final int NOTIFICATION_IDENTIFIER = 10;
 
 	private Messenger mMessenger;
-	private Thread codecCompressionThread = null, bufferSendingThread = null, reconnectingBeepsThread = null;
+	private Thread processRecordedSamplesThread = null, bufferSendingThread = null, reconnectingBeepsThread = null;
 	private boolean reconnectingBeeps = false;
-	private volatile boolean keepRunning = true;
+	private volatile boolean keepRunning;
 	private boolean mute, hold, speaker, vibratorEnabled = true;
 	private int minBufSizePlayback, minBufSizeRecording;
 	private Thread connectionTimeoutThread = null;
@@ -80,9 +85,6 @@ public class VoIPService extends Service {
 	private int callSource = -1;
 	private Thread notificationThread;
 	
-	// Codec
-	private OpusWrapper opus;
-
 	// Attached VoIP client(s)
 	HashMap<String, VoIPClient> clients = new HashMap<String, VoIPClient>();
 
@@ -112,11 +114,14 @@ public class VoIPService extends Service {
 	private SolicallWrapper solicallAec = null;
 	private boolean useVADToReduceData = true;
 	private boolean aecSpeakerSignal = false, aecMicSignal = false;
-	private int audiotrackFramesWritten = 0;
 	private VoIPDataPacket silentPacket;
 
-	private final ConcurrentLinkedQueue<VoIPDataPacket> samplesToEncodeQueue     = new ConcurrentLinkedQueue<VoIPDataPacket>();
-	public final ConcurrentLinkedQueue<VoIPDataPacket> encodedBuffersQueue      = new ConcurrentLinkedQueue<VoIPDataPacket>();
+	private final LinkedBlockingQueue<VoIPDataPacket> recordedSamples     = new LinkedBlockingQueue<VoIPDataPacket>();
+	private final LinkedBlockingQueue<VoIPDataPacket> buffersToSend      = new LinkedBlockingQueue<VoIPDataPacket>();
+	private final LinkedBlockingQueue<VoIPDataPacket> processedRecordedSamples      = new LinkedBlockingQueue<VoIPDataPacket>();
+	private final LinkedBlockingQueue<VoIPDataPacket> playbackBuffersQueue      = new LinkedBlockingQueue<VoIPDataPacket>();
+	private final CircularByteBuffer recordBuffer = new CircularByteBuffer();
+	
 
 	// Handler for messages from VoIP clients
 	Handler handler = new Handler() {
@@ -126,7 +131,8 @@ public class VoIPService extends Service {
 			Bundle bundle = msg.getData();
 			String msisdn = bundle.getString(VoIPConstants.MSISDN);
 			
-			Logger.d(VoIPConstants.TAG, "Received message: " + msg.what + " from: " + msisdn);
+			// Logger.d(VoIPConstants.TAG, "Received message: " + msg.what + " from: " + msisdn);
+			
 			switch (msg.what) {
 			case VoIPConstants.MSG_VOIP_CLIENT_STOP:
 				if (!inConference())
@@ -156,10 +162,6 @@ public class VoIPService extends Service {
 				startRecordingAndPlayback(msisdn);
 				break;
 				
-			case VoIPConstants.MSG_START_COMPRESSION:
-				startCodecCompression();
-				break;
-			
 			case VoIPConstants.MSG_START_RECONNECTION_BEEPS:
 				startReconnectBeeps();
 				break;
@@ -173,7 +175,6 @@ public class VoIPService extends Service {
 				
 			case VoIPConstants.MSG_CONNECTED:
 				initializeAEC();
-				initializeOpus();
 				break;
 				
 			case VoIPConstants.MSG_SHUTDOWN_ACTIVITY:
@@ -472,7 +473,7 @@ public class VoIPService extends Service {
 				VoIPUtils.cancelMissedCallNotification(getApplicationContext());
 			}
 
-			if (inConference())
+			if (clients.size() > 0)
 				Logger.d(VoIPConstants.TAG, "We're in a conference. Maintaining call id: " + getCallId());
 			else
 				setCallid(new Random().nextInt(2000000000));
@@ -626,24 +627,6 @@ public class VoIPService extends Service {
 		}
 	}
 	
-	private void initializeOpus() {
-		
-		if (opus != null) {
-			Logger.d(VoIPConstants.TAG, "Opus already initialized.");
-			return;
-		}
-		
-		try {
-			opus = new OpusWrapper();
-			opus.getDecoder(VoIPConstants.AUDIO_SAMPLE_RATE, 1);
-			opus.getEncoder(VoIPConstants.AUDIO_SAMPLE_RATE, 1, getClient().localBitrate);
-			opus.setEncoderComplexity(0);
-		} catch (IOException e) {
-			Logger.w(VoIPConstants.TAG, "Opus creation exception: " + e.toString());
-		}
-		
-	}
-
 	private void showNotification() {
 		
 //		Logger.d(VoIPConstants.TAG, "Showing notification..");
@@ -945,8 +928,8 @@ public class VoIPService extends Service {
 		if (recordingThread != null)
 			recordingThread.interrupt();
 
-		if (codecCompressionThread != null)
-			codecCompressionThread.interrupt();
+		if (processRecordedSamplesThread != null)
+			processRecordedSamplesThread.interrupt();
 		
 		if (bufferSendingThread != null)
 			bufferSendingThread.interrupt();
@@ -959,15 +942,10 @@ public class VoIPService extends Service {
 			solicallAec = null;
 		}
 
-		if (opus != null) {
-			opus.destroy();
-			opus = null;
-		}
-		
 		releaseAudioManager();
 		
 		// Empty the queues
-		samplesToEncodeQueue.clear();
+		recordedSamples.clear();
 		
 		sendHandlerMessage(VoIPConstants.MSG_SHUTDOWN_ACTIVITY);
 		releaseWakeLock();
@@ -1035,121 +1013,29 @@ public class VoIPService extends Service {
 		client.sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CALL_ACCEPT);
 	}
 	
-	private void startCodecCompression() {
-
-		codecCompressionThread = new Thread(new Runnable() {
-			
-			@Override
-			public void run() {
-				android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
-				byte[] compressedData = new byte[OpusWrapper.OPUS_FRAME_SIZE * 10];
-				int compressedDataLength = 0;
-				boolean lowBitrateTrigger = false;
-				
-				while (keepRunning == true) {
-					VoIPDataPacket dpencode = samplesToEncodeQueue.peek();
-					if (dpencode != null) {
-						samplesToEncodeQueue.poll();
-
-						while (samplesToEncodeQueue.size() > VoIPConstants.MAX_SAMPLES_BUFFER) {
-							samplesToEncodeQueue.poll();
-						}
-						
-						if (encodedBuffersQueue.size() > VoIPConstants.MAX_SAMPLES_BUFFER)
-							continue;
-
-						// AEC
-						if (solicallAec != null && aecEnabled && aecMicSignal && aecSpeakerSignal) {
-							int ret = solicallAec.processMic(dpencode.getData());
-							
-							if (useVADToReduceData) {
-								
-								/*
-								 * If the mic signal does not contain voice, we can handle the situation in three ways -
-								 * 1. Don't transmit anything. The other end will fill up the gap with silence. Downside - signal quality indicator will switch to weak. 
-								 * 2. Send a special "silent" packet. Downside - older builds will not support this, and fall back to (1).
-								 * 3. Lower the bitrate for non-voice packets. Downside - (1) and (2) will reduce the CPU usage, and lower bandwidth consumption even more. 
-								 */
-
-								// Approach (3)
-								if (ret == 0) {
-									// There is no voice signal, bitrate should be lowered
-									if (!lowBitrateTrigger) {
-										lowBitrateTrigger = true;
-										opus.setEncoderBitrate(OpusWrapper.OPUS_LOWEST_SUPPORTED_BITRATE);
-									}
-								} else if (lowBitrateTrigger) {
-									// Mic signal is reverting to voice
-									lowBitrateTrigger = false;
-									opus.setEncoderBitrate(getClient().localBitrate);
-								}
-							}
-						} else
-							aecMicSignal = true;
-						
-						try {
-							// Add the uncompressed audio to the compression buffer
-							// Logger.d(VoIPConstants.TAG, "Adding data to opus queue: " + dpencode.getData().length);
-							opus.queue(dpencode.getData());
-							// Get compressed data from the encoder
-							while ((compressedDataLength = opus.getEncodedData(OpusWrapper.OPUS_FRAME_SIZE, compressedData, compressedData.length)) > 0) {
-								byte[] trimmedCompressedData = new byte[compressedDataLength];
-								System.arraycopy(compressedData, 0, trimmedCompressedData, 0, compressedDataLength);
-								VoIPDataPacket dp = new VoIPDataPacket(PacketType.VOICE_PACKET);
-								dp.write(trimmedCompressedData);
-								synchronized (encodedBuffersQueue) {
-									encodedBuffersQueue.add(dp);
-									encodedBuffersQueue.notify();
-								}
-							}
-						} catch (Exception e) {
-							Logger.e(VoIPConstants.TAG, "Compression error: " + e.toString());
-						}
-						
-					} else {
-						synchronized (samplesToEncodeQueue) {
-							try {
-								samplesToEncodeQueue.wait();
-							} catch (InterruptedException e) {
-//								Logger.d(VoIPConstants.TAG, "samplesToEncodeQueue interrupted: " + e.toString());
-								break;
-							}
-						}
-					}
-				}
-			}
-		}, "CODE_COMPRESSION_THREAD");
-		
-		codecCompressionThread.start();
-		startSendingEncodedBuffers();
-	}
-
-	private void startSendingEncodedBuffers() {
+	private void startSendingBuffersToEncode() {
 		bufferSendingThread = new Thread(new Runnable() {
 			
 			@Override
 			public void run() {
+				android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
 				while (keepRunning) {
-					VoIPDataPacket dp = encodedBuffersQueue.peek();
-					if (dp != null) {
-						encodedBuffersQueue.poll();
+					VoIPDataPacket dp;
+					try {
+						dp = buffersToSend.take();
 						for (VoIPClient client : clients.values()) {
-								try {
-									client.encodedBuffersQueue.put(dp);
-								} catch (InterruptedException e) {
-									break;
-								}
-						}
-					} else {
-						synchronized (encodedBuffersQueue) {
 							try {
-								encodedBuffersQueue.wait();
+								// client.encodedBuffersQueue.put(dp);
+								// Not sure if cloning is required. Test later. 
+								// VoIPDataPacket dpClone = (VoIPDataPacket)dp.clone();
+								client.samplesToEncodeQueue.put(dp.getData());
 							} catch (InterruptedException e) {
 								break;
-							}
+							} 
 						}
+					} catch (InterruptedException e1) {
+						break;
 					}
-					
 				}
 			}
 		}, "BUFFER_ALLOCATOR_THREAD");
@@ -1242,8 +1128,6 @@ public class VoIPService extends Service {
 				// Start processing recorded data
 				byte[] recordedData = new byte[minBufSizeRecording];
 				int retVal;
-            	int index = 0;
-            	int newSize = 0;
 				while (keepRunning == true) {
 					retVal = recorder.read(recordedData, 0, recordedData.length);
 					if (retVal != recordedData.length) {
@@ -1253,10 +1137,15 @@ public class VoIPService extends Service {
 					
 					if (mute == true)
 						continue;
-
-//					Logger.d(VoIPConstants.TAG, "Recorded: " + Arrays.toString(recordedData).substring(0, 50));
 					
-					// Break input audio into smaller chunks
+                	// Add it to the samples to encode queue
+//					VoIPDataPacket dp = new VoIPDataPacket(VoIPDataPacket.PacketType.VOICE_PACKET);
+//                	dp.write(recordedData);
+//                	recordedSamples.add(dp);
+
+					// Break input audio into smaller chunks for Solicall AEC
+	            	int index = 0;
+	            	int newSize = 0;
                 	while (index < retVal) {
                 		if (retVal - index < SolicallWrapper.SOLICALL_FRAME_SIZE * 2)
                 			newSize = retVal - index;
@@ -1271,21 +1160,20 @@ public class VoIPService extends Service {
 						VoIPDataPacket dp = new VoIPDataPacket(VoIPDataPacket.PacketType.VOICE_PACKET);
 	                	dp.write(data);
 
-	                	synchronized (samplesToEncodeQueue) {
-		                	samplesToEncodeQueue.add(dp);
-	                		samplesToEncodeQueue.notify();
+	                	synchronized (recordedSamples) {
+		                	recordedSamples.add(dp);
+	                		recordedSamples.notify();
 						}
                 	}
 					index = 0;
 					
 					if (Thread.interrupted()) {
-//						Logger.w(VoIPConstants.TAG, "Stopping recording thread.");
 						break;
 					}
 				}
 				
 				// Stop recording
-				if (recorder.getState() == AudioRecord.STATE_INITIALIZED)
+				if (recorder!= null && recorder.getState() == AudioRecord.STATE_INITIALIZED)
 					recorder.stop();
 				
 				recorder.release();
@@ -1293,11 +1181,97 @@ public class VoIPService extends Service {
 		}, "RECORDING_THREAD");
 		
 		recordingThread.start();
+		processRecordedSamples();
+	}
+	
+	private void processRecordedSamples() {
+
+		if (processRecordedSamplesThread != null)
+			processRecordedSamplesThread.interrupt();
+		
+		processRecordedSamplesThread = new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
+				boolean lowBitrateTrigger = false;
+				
+				while (keepRunning == true) {
+					VoIPDataPacket dpencode;
+					try {
+						dpencode = recordedSamples.take();
+					} catch (InterruptedException e) {
+						break;
+					}
+
+					while (recordedSamples.size() > VoIPConstants.MAX_SAMPLES_BUFFER) {
+						Logger.w(VoIPConstants.TAG, "Dropping recorded buffer. AEC sync will be lost.");
+						recordedSamples.poll();
+					}
+
+					// AEC
+					if (solicallAec != null && aecEnabled && aecMicSignal && aecSpeakerSignal) {
+						int ret = solicallAec.processMic(dpencode.getData());
+
+						if (useVADToReduceData) {
+
+							/*
+							 * If the mic signal does not contain voice, we can handle the situation in three ways -
+							 * 1. Don't transmit anything. The other end will fill up the gap with silence. Downside - signal quality indicator will switch to weak. 
+							 * 2. Send a special "silent" packet. Downside - older builds will not support this, and fall back to (1).
+							 * 3. Lower the bitrate for non-voice packets. Downside - (1) and (2) will reduce the CPU usage, and lower bandwidth consumption even more. 
+							 */
+
+							// Approach (3)
+							if (ret == 0 && !inConference()) {
+								// There is no voice signal, bitrate should be lowered
+								if (!lowBitrateTrigger) {
+									lowBitrateTrigger = true;
+									getClient().setEncoderBitrate(OpusWrapper.OPUS_LOWEST_SUPPORTED_BITRATE);
+								}
+							} else if (lowBitrateTrigger) {
+								// Mic signal is reverting to voice
+								lowBitrateTrigger = false;
+								getClient().setEncoderBitrate(getClient().localBitrate);
+							}
+						}
+					} else
+						aecMicSignal = true;
+
+					if (buffersToSend.size() > VoIPConstants.MAX_SAMPLES_BUFFER)
+						continue;
+
+					recordBuffer.write(dpencode.getData());
+
+					// Pass the recorded samples to the client objects
+					// so they can be compressed and sent
+					while (recordBuffer.getAvailable() >= OpusWrapper.OPUS_FRAME_SIZE * 2) {
+						byte[] pcmData = new byte[OpusWrapper.OPUS_FRAME_SIZE * 2];
+						recordBuffer.read(pcmData);
+						VoIPDataPacket dp = new VoIPDataPacket(PacketType.VOICE_PACKET);
+						dp.setData(pcmData);
+						
+						// If we are not in a conference, then we can just send the recorded
+						// sample to the connected client. 
+						// However, if we are in a conference, then the recorded sample must be
+						// mixed with all the other incoming audio
+						if (inConference()) {
+							// Maintain a tight queue
+							if (processedRecordedSamples.size() < 2)
+								processedRecordedSamples.add(dp);
+						} else
+							buffersToSend.add(dp);
+					}
+
+				}
+			}
+		}, "PROCESS_RECORDED_SAMPLES_THREAD");
+		
+		processRecordedSamplesThread.start();
+		startSendingBuffersToEncode();
 	}
 	
 	private void startPlayBack() {
-		
-		final VoIPClient client = getClient();
 		
 		playbackThread = new Thread(new Runnable() {
 			
@@ -1313,7 +1287,7 @@ public class VoIPService extends Service {
 					audioTrack = new AudioTrack(AudioManager.STREAM_VOICE_CALL, playbackSampleRate, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT, minBufSizePlayback, AudioTrack.MODE_STREAM);
 				} catch (IllegalArgumentException e) {
 					Logger.w(VoIPConstants.TAG, "Unable to initialize AudioTrack: " + e.toString());
-					client.hangUp();
+					getClient().hangUp();
 					return;
 				}
 				
@@ -1321,62 +1295,46 @@ public class VoIPService extends Service {
 					audioTrack.play();
 				} catch (IllegalStateException e) {
 					Logger.e(VoIPConstants.TAG, "Audiotrack error: " + e.toString());
-					client.hangUp();
+					getClient().hangUp();
 				}
-				
-				// Clear the audio queue
-				client.decodedBuffersQueue.clear();
 				
 				byte[] solicallSpeakerBuffer = new byte[SolicallWrapper.SOLICALL_FRAME_SIZE * 2];
 				while (keepRunning == true) {
-					VoIPDataPacket dp = client.decodedBuffersQueue.peek();
-					if (dp != null) {
-						client.decodedBuffersQueue.poll();
+					VoIPDataPacket dp;
+					try {
+						dp = playbackBuffersQueue.take();
+						
+						if (dp != null) {
 
-						// AEC
-						if (solicallAec != null && aecEnabled && aecSpeakerSignal && aecMicSignal) {
+							// AEC
+							if (solicallAec != null && aecEnabled && aecSpeakerSignal && aecMicSignal) {
+								index = 0;
+								while (index < dp.getData().length) {
+									size = Math.min(SolicallWrapper.SOLICALL_FRAME_SIZE * 2, dp.getLength() - index);
+									System.arraycopy(dp.getData(), index, solicallSpeakerBuffer, 0, size);
+									solicallAec.processSpeaker(solicallSpeakerBuffer);
+									index += size; 
+								}
+							} else
+								aecSpeakerSignal = true;
+
+							// Resample
+							if (resamplerEnabled && playbackSampleRate != VoIPConstants.AUDIO_SAMPLE_RATE) {
+								// We need to resample the output signal
+								byte[] output = resampler.reSample(dp.getData(), 16, VoIPConstants.AUDIO_SAMPLE_RATE, playbackSampleRate);
+								dp.write(output);
+							} 
+							
+							// For streaming mode, we must write data in chunks <= buffer size
 							index = 0;
-							while (index < dp.getData().length) {
-								size = Math.min(SolicallWrapper.SOLICALL_FRAME_SIZE * 2, dp.getLength() - index);
-								System.arraycopy(dp.getData(), index, solicallSpeakerBuffer, 0, size);
-								solicallAec.processSpeaker(solicallSpeakerBuffer);
+//							long timer = System.currentTimeMillis();
+							while (index < dp.getLength()) {
+								size = Math.min(minBufSizePlayback, dp.getLength() - index);
+								audioTrack.write(dp.getData(), index, size);
 								index += size; 
 							}
-						} else
-							aecSpeakerSignal = true;
-
-						// Resample
-						if (resamplerEnabled && playbackSampleRate != VoIPConstants.AUDIO_SAMPLE_RATE) {
-							// We need to resample the output signal
-							byte[] output = resampler.reSample(dp.getData(), 16, VoIPConstants.AUDIO_SAMPLE_RATE, playbackSampleRate);
-							dp.write(output);
 						} 
-						
-						// For streaming mode, we must write data in chunks <= buffer size
-						index = 0;
-//						long timer = System.currentTimeMillis();
-						while (index < dp.getLength()) {
-							size = Math.min(minBufSizePlayback, dp.getLength() - index);
-							audioTrack.write(dp.getData(), index, size);
-							index += size; 
-						}
-						audiotrackFramesWritten += dp.getLength() / 2;
-//						Logger.d(VoIPConstants.TAG, "Time: " + (System.currentTimeMillis() - timer) + "ms, " +
-//								"Data: " + (dp.getLength() / 2) * 1000 / playbackSampleRate + "ms.");
-
-					} else {
-						synchronized (client.decodedBuffersQueue) {
-							try {
-								client.decodedBuffersQueue.wait();
-							} catch (InterruptedException e) {
-//								Logger.d(VoIPConstants.TAG, "decodedBuffersQueue interrupted: " + e.toString());
-								break;
-							}
-						}
-					}
-					
-					if (Thread.interrupted()) {
-//						Logger.w(VoIPConstants.TAG, "Stopping playback thread.");
+					} catch (InterruptedException e) {
 						break;
 					}
 				}
@@ -1395,50 +1353,104 @@ public class VoIPService extends Service {
 		}, "PLAY_BACK_THREAD");
 		
 		playbackThread.start();
-		startAudioTrackMonitoringThread();
+		processDecodedSamples();
 	}
 	
-	private void startAudioTrackMonitoringThread() {
+	private void processDecodedSamples() {
 		
-		final VoIPClient client = getClient();
-		byte[] silence = new byte[OpusWrapper.OPUS_FRAME_SIZE * 2];
-		silentPacket = new VoIPDataPacket(PacketType.VOICE_PACKET);
-		silentPacket.setData(silence);
+		// This is how often we feed PCM samples to the speaker. 
+		// Should be equal to 60ms for a frame size of 2880. (2880 / 48000)
+		int sleepTime = OpusWrapper.OPUS_FRAME_SIZE * 1000 / VoIPConstants.AUDIO_SAMPLE_RATE;
+		
+		android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
+		final ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
 
-		new Thread(new Runnable() {
+		scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
 			
 			@Override
 			public void run() {
-				final int frameDuration = (OpusWrapper.OPUS_FRAME_SIZE * 1000) / (playbackSampleRate * 2);		// Monitor will run every 30ms
+				android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
 				
-				while (keepRunning) {
+				long time = System.currentTimeMillis();
+				
+				byte[] silence = new byte[OpusWrapper.OPUS_FRAME_SIZE * 2];
+				silentPacket = new VoIPDataPacket(PacketType.VOICE_PACKET);
+				silentPacket.setData(silence);
+				
+				if (keepRunning) {
 					
-					try {
-						if (audioTrack != null) {
-							if (audiotrackFramesWritten < audioTrack.getPlaybackHeadPosition() + OpusWrapper.OPUS_FRAME_SIZE &&
-									client.decodedBuffersQueue.size() == 0) {
-								// We are running low on speaker data
-			                	synchronized (client.decodedBuffersQueue) {
-			                		client.decodedBuffersQueue.add(silentPacket);
-			                		client.decodedBuffersQueue.notify();
-								}
+					HashMap<String, byte[]> clientSample = new HashMap<String, byte[]>();
+					
+					// Retrieve decoded samples from all clients and combine into one
+					VoIPDataPacket decodedSample = null;
+					for (VoIPClient client : clients.values()) {
+						VoIPDataPacket dp = client.decodedBuffersQueue.peek();
+						if (dp != null) {
+							client.decodedBuffersQueue.poll();
+							clientSample.put(client.getPhoneNumber(), dp.getData());
+							
+							if (decodedSample == null)
+								decodedSample = dp;
+							else {
+								// We have to combine samples
+								decodedSample.setData(VoIPUtils.addPCMSamples(decodedSample.getData(), dp.getData()));
 							}
 						}
-						Thread.sleep(frameDuration);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-						break;
-					} catch (IllegalStateException e) {
-						Logger.d(VoIPConstants.TAG, "startAudioTrackMonitoringThread() IllegalStateException: " + e.toString());
-						break;
-					} catch (NullPointerException e) {
-						Logger.d(VoIPConstants.TAG, "startAudioTrackMonitoringThread() NullPointerException: " + e.toString());
-						break;
 					}
+					
+					// Add to our decoded samples queue
+					try {
+						if (decodedSample == null)
+							decodedSample = silentPacket;
+
+						if (playbackBuffersQueue.size() < VoIPConstants.MAX_SAMPLES_BUFFER)
+							playbackBuffersQueue.put(decodedSample);
+						else
+							Logger.w(VoIPConstants.TAG, "Playback buffers queue full.");
+						
+					} catch (InterruptedException e) {
+						Logger.e(VoIPConstants.TAG, "InterruptedException while adding playback sample: " + e.toString());
+					}
+					
+					// If we are in conference, then add our own recorded signal as well
+					// to send to all connected clients. 
+					// From the sum of all signals, we will have to subtract each client's
+					// own signal before sending, or they will hear a perfect echo.
+					if (inConference()) {
+						VoIPDataPacket dp = processedRecordedSamples.poll();
+						if (dp != null) {
+							byte[] conferencePCM = VoIPUtils.addPCMSamples(decodedSample.getData(), dp.getData());
+							dp.setData(conferencePCM);
+							
+							for (VoIPClient client : clients.values()) {
+								try {
+									VoIPDataPacket clientDp = new VoIPDataPacket();
+									byte[] origPCM = clientSample.get(client.getPhoneNumber());
+									byte[] newPCM = null;
+									if (origPCM == null) {
+										newPCM = conferencePCM;
+									} else {
+										newPCM = VoIPUtils.subtractPCMSamples(conferencePCM, origPCM);
+									}
+									clientDp.setData(newPCM);
+									client.samplesToEncodeQueue.put(clientDp.getData());
+								} catch (InterruptedException e) {
+									Logger.w(VoIPConstants.TAG, "InterruptedException while adding client sample in conference.");
+								} 
+							}
+						}
+					}
+					
+					clientSample.clear();
+					
+				} else {
+					Logger.d(VoIPConstants.TAG, "Shutting down decoded samples poller.");
+					scheduledExecutorService.shutdown();
 				}
 				
+//				Logger.d(VoIPConstants.TAG, "Running time: " + (System.currentTimeMillis() - time) + "ms");
 			}
-		}, "AUDIOTRACK_MONITOR_THREAD").start();
+		}, 0, sleepTime, TimeUnit.MILLISECONDS);
 	}
 	
 	/**
@@ -1556,6 +1568,7 @@ public class VoIPService extends Service {
 	@SuppressWarnings("deprecation")
 	private void playIncomingCallRingtone() {
 
+		// TODO: update code from voip branch
 		VoIPClient client = getClient();
 		if (client.reconnecting || client.audioStarted || keepRunning == false)
 			return;
@@ -1578,7 +1591,6 @@ public class VoIPService extends Service {
 			Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
 			if (ringtone == null)
 				ringtone = RingtoneManager.getRingtone(getApplicationContext(), notification);
-			// TODO: ringtone code for lollipop is in voip branch
 			ringtone.setStreamType(AudioManager.STREAM_RING);
 			ringtone.play();		
 
@@ -1695,15 +1707,8 @@ public class VoIPService extends Service {
 		boolean conference = false;
 		if (clients.size() > 1)
 			conference = true;
-		Logger.d(VoIPConstants.TAG, "Conference check: " + conference);
+		// Logger.d(VoIPConstants.TAG, "Conference check: " + conference);
 		return conference;
-	}
-	
-	private void removeClient(String msisdn) {
-		VoIPClient client = clients.get(msisdn);
-		if (client != null) {
-			removeClient(client);
-		}
 	}
 	
 	private void removeClient(VoIPClient client) {
