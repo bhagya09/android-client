@@ -711,7 +711,7 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 		editor.commit();
 		
 		publishProgress(new StateValue(State.RESTORING_BACKUP,null));
-		boolean status = AccountBackupRestore.getInstance(context).restoreDB();
+		boolean status = AccountBackupRestore.getInstance(context).restore();
 		
 		if (status)
 		{

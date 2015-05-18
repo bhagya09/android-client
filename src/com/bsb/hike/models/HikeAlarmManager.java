@@ -291,7 +291,7 @@ public class HikeAlarmManager
 		break;
 		
 		case HikeAlarmManager.REQUESTCODE_PERIODIC_BACKUP:
-			AccountBackupRestore.getInstance(context).backupDB();
+			AccountBackupRestore.getInstance(context).backup();
 			AccountBackupRestore.getInstance(context).scheduleNextAutoBackup();
 			break;
 		case HikeAlarmManager.REQUESTCODE_PRODUCT_POPUP:

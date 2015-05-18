@@ -105,7 +105,7 @@ public class AccountBackupRestore
 	 * @return
 	 * 	true for success, and false for for failure. 
 	 */
-	public boolean backupDB()
+	public boolean backup()
 	{
 		Long time = System.currentTimeMillis();
 		boolean result = true;
@@ -197,7 +197,7 @@ public class AccountBackupRestore
 	 * @return
 	 * 	true for success, and false for for failure. 
 	 */
-	public boolean restoreDB()
+	public boolean restore()
 	{
 		Long time = System.currentTimeMillis();
 		boolean result = true;
