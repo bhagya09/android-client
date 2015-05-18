@@ -454,4 +454,16 @@ public class HttpRequests
 		requestToken.getRequestInterceptors().addFirst("gzip", new GzipRequestInterceptor());
 		return requestToken;
 	}
+	
+	public static RequestToken getJSONfromUrl(String url, IRequestListener requestListener)
+	{
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(url)
+				.setRequestType(Request.REQUEST_TYPE_SHORT)
+				.setRequestListener(requestListener)
+				.post(null)
+				.setAsynchronous(false)
+				.build();
+		return requestToken;
+	}
 }
