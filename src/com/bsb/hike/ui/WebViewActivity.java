@@ -507,8 +507,16 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 				list.addAll(items);
 			}
 
-			list.add(new OverFlowMenuItem(getString(botInfo.isMute() ? R.string.unmute : R.string.mute), 0, 0, R.string.mute));
-			list.add(new OverFlowMenuItem(getString(botInfo.isBlocked() ? R.string.unblock_title : R.string.block_title), 0, 0, R.string.block_title));
+			if (botConfig.isMuteEnabled())
+			{
+				list.add(new OverFlowMenuItem(getString(botInfo.isMute() ? R.string.unmute : R.string.mute), 0, 0, R.string.mute));
+
+			}
+			
+			if (botConfig.isBlockEnabled())
+			{
+				list.add(new OverFlowMenuItem(getString(botInfo.isBlocked() ? R.string.unblock_title : R.string.block_title), 0, 0, R.string.block_title));
+			}
 
 		}
 		return list;
