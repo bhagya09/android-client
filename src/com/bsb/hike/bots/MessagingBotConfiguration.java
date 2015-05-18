@@ -1,6 +1,5 @@
 package com.bsb.hike.bots;
 
-import org.json.JSONObject;
 
 /**
  * Created by shobhit on 22/04/15.

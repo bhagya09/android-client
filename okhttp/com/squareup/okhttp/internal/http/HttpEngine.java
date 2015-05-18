@@ -17,7 +17,7 @@
 
 package com.squareup.okhttp.internal.http;
 
-import com.bsb.hike.modules.httpmgr.Utils;
+import com.bsb.hike.modules.httpmgr.HttpUtils;
 import com.bsb.hike.modules.httpmgr.log.LogHttp;
 import com.squareup.okhttp.Address;
 import com.squareup.okhttp.CertificatePinner;
@@ -220,7 +220,7 @@ public final class HttpEngine {
     if (transport != null) throw new IllegalStateException();
 
     Request request = networkRequest(userRequest);
-    LogHttp.i("Request : " + Utils.requestToString(userRequest));
+    LogHttp.i("Request : " + HttpUtils.requestToString(userRequest));
 
     InternalCache responseCache = Internal.instance.internalCache(client);
     Response cacheCandidate = responseCache != null
@@ -569,12 +569,12 @@ public final class HttpEngine {
    */
   private Response unzip(final Response response) throws IOException {
     if (!transparentGzip || !"gzip".equalsIgnoreCase(userResponse.header("Content-Encoding"))) {
-      LogHttp.i("Response : " + Utils.responseToString(response));
+      LogHttp.i("Response : " + HttpUtils.responseToString(response));
       return response;
     }
 
     if (response.body() == null) {
-      LogHttp.i("Response : " + Utils.responseToString(response));
+      LogHttp.i("Response : " + HttpUtils.responseToString(response));
       return response;
     }
 
@@ -587,7 +587,7 @@ public final class HttpEngine {
         .headers(strippedHeaders)
         .body(new RealResponseBody(strippedHeaders, Okio.buffer(responseBody)))
         .build();
-    LogHttp.i("Response : " + Utils.responseToString(newResponse));
+    LogHttp.i("Response : " + HttpUtils.responseToString(newResponse));
     return newResponse;
   }
 

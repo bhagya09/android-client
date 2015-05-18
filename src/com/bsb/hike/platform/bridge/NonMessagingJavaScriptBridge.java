@@ -334,4 +334,15 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		});
 	}
 
+	/**
+	 * Utility method to indicate change in orientation of the device.<br>
+	 * 1 : Indicates PORTRAIT <br>
+	 * 2 : Indicates LANDSCAPE
+	 * 
+	 * @param orientation
+	 */
+	public void orientationChanged(int orientation)
+	{
+		mWebView.loadUrl("javascript:orientationChanged('" + Integer.toString(orientation) + "')");
+	}
 }
