@@ -314,5 +314,24 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		HikeConversationsDatabase.getInstance().deletePartialNotifData(key, mBotInfo.getMsisdn());
 	}
 
+	/**
+	 * call this function to send notif data to js. Will be primarily used when the bot is in foreground and notif is received.
+	 * @param notifData : notif data to be sent to the js.
+	 */
+	public void notifDataReceived(final String notifData)
+	{
+		if (mHandler == null)
+		{
+			return;
+		}
+		mHandler.post(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				mWebView.loadUrl("javascript:notifDataReceived" + "('" + notifData + "')");
+			}
+		});
+	}
 
 }

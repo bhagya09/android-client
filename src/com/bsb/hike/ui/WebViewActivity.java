@@ -476,14 +476,12 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	{
 		final String notifData = (String) object;
 		if (type.equals(HikePubSub.NOTIF_DATA_RECEIVED))
-		runOnUiThread(new Runnable()
 		{
-			@Override
-			public void run()
+			if (null != mmBridge)
 			{
-				webView.loadUrl("javascript:notifDataReceived" + "('" + notifData + "')");
+				mmBridge.notifDataReceived(notifData);
 			}
-		});
+		}
 
 	}
 
