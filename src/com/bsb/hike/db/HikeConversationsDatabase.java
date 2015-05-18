@@ -286,7 +286,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				+ DBConstants.IS_MUTE + " INTEGER DEFAULT 0, "  // bot conv mute or not
 				+ DBConstants.BOT_TYPE + " INTEGER, "				//bot type m/nm
 				+ DBConstants.BOT_CONFIGURATION + " INTEGER, "	//bot configurations.. different server controlled properties of bot.
-				+ DBConstants.IS_BOT_ENABLE + " INTEGER DEFAULT 1,"  //whether the bot is enabled or not.
 				+ DBConstants.CONFIG_DATA + " TEXT, "            //config data for the bot.
 				+ HIKE_CONTENT.NAMESPACE + " TEXT, "         //namespace of a bot for caching purpose.
 				+ HIKE_CONTENT.NOTIF_DATA + " TEXT"       //notif data used for notifications pertaining to the microapp
@@ -761,17 +760,15 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 			String alter1 = "ALTER TABLE " + DBConstants.BOT_TABLE + " ADD COLUMN " + DBConstants.BOT_TYPE + " INTEGER";
 			String alter2 = "ALTER TABLE " + DBConstants.BOT_TABLE + " ADD COLUMN " + DBConstants.BOT_CONFIGURATION + " INTEGER";
-			String alter3 = "ALTER TABLE " + DBConstants.BOT_TABLE + " ADD COLUMN " + DBConstants.IS_BOT_ENABLE + " INTEGER DEFAULT 1";
-			String alter4 = "ALTER TABLE " + DBConstants.BOT_TABLE + " ADD COLUMN " + DBConstants.CONFIG_DATA + " TEXT";
-			String alter5 = "ALTER TABLE " + DBConstants.BOT_TABLE + " ADD COLUMN " + HIKE_CONTENT.NAMESPACE + " TEXT";
-			String alter6 = "ALTER TABLE " + DBConstants.BOT_TABLE + " ADD COLUMN " + HIKE_CONTENT.NOTIF_DATA + " TEXT";
+			String alter3 = "ALTER TABLE " + DBConstants.BOT_TABLE + " ADD COLUMN " + DBConstants.CONFIG_DATA + " TEXT";
+			String alter4 = "ALTER TABLE " + DBConstants.BOT_TABLE + " ADD COLUMN " + HIKE_CONTENT.NAMESPACE + " TEXT";
+			String alter5 = "ALTER TABLE " + DBConstants.BOT_TABLE + " ADD COLUMN " + HIKE_CONTENT.NOTIF_DATA + " TEXT";
 
 			db.execSQL(alter1);
 			db.execSQL(alter2);
 			db.execSQL(alter3);
 			db.execSQL(alter4);
 			db.execSQL(alter5);
-			db.execSQL(alter6);
 
 		}
 
@@ -2307,23 +2304,12 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		values.put(DBConstants.MSISDN, botInfo.getMsisdn());
 		values.put(DBConstants.NAME, botInfo.getConversationName());
 		values.put(DBConstants.CONVERSATION_METADATA, botInfo.getMetadata());
-		values.put(DBConstants.IS_MUTE, botInfo.isMute());
+		values.put(DBConstants.IS_MUTE, botInfo.isMute() ? 1 : 0);
 		values.put(DBConstants.BOT_TYPE, botInfo.getType());
 		values.put(DBConstants.BOT_CONFIGURATION, botInfo.getConfiguration());
 		values.put(DBConstants.CONFIG_DATA, botInfo.getConfigData());
-		values.put(DBConstants.IS_BOT_ENABLE, botInfo.isBotEnabled());
 		values.put(HIKE_CONTENT.NAMESPACE, botInfo.getNamespace());
 		mDb.insertWithOnConflict(DBConstants.BOT_TABLE, null, values, SQLiteDatabase.CONFLICT_REPLACE);
-	}
-
-	public void updateBotEnablingState(String msisdn, int isEnabled)
-	{
-		ContentValues values = new ContentValues();
-		if (isEnabled != -1)
-		{
-			values.put(DBConstants.IS_BOT_ENABLE, isEnabled);
-		}
-		mDb.updateWithOnConflict(DBConstants.BOT_TABLE, values, DBConstants.MSISDN + "=?", new String[] { msisdn }, SQLiteDatabase.CONFLICT_REPLACE);
 	}
 
 	public boolean isBotMuted(String msisdn)
@@ -5144,7 +5130,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			int muteIdx = c.getColumnIndex(DBConstants.IS_MUTE);
 			int namespaceIdx = c.getColumnIndex(HIKE_CONTENT.NAMESPACE);
 			int configDataidx = c.getColumnIndex(DBConstants.CONFIG_DATA);
-			int enableIdx = c.getColumnIndex(DBConstants.IS_BOT_ENABLE);
 
 			mDb.beginTransaction();
 			while (c.moveToNext())
@@ -5156,7 +5141,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				String metadata = c.getString(metadataIdx);
 				int mute = c.getInt(muteIdx);
 				String namespace = c.getString(namespaceIdx);
-				int isBotEnable = c.getInt(enableIdx);
 				String configData = c.getString(configDataidx);
 
 				BotInfo botInfo = new BotInfo.HikeBotBuilder(msisdn)
@@ -5166,7 +5150,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 						.setMetadata(metadata)
 						.setIsMute(mute == 1)
 						.setNamespace(namespace)
-						.setIsBotEnabled(isBotEnable == 1)
 						.setConfigData(configData)
 						.build();
 
@@ -6868,6 +6851,11 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			ContentValues contentValues = new ContentValues();
 			contentValues.put(HIKE_CONTENT.NOTIF_DATA, notifDataJSON.toString());
 			mDb.update(BOT_TABLE, contentValues, MSISDN + "=?", new String[] { botMsisdn });
+			BotInfo botInfo = BotInfo.getBotInfoForBotMsisdn(botMsisdn);
+			if (null != botInfo)
+			{
+				botInfo.setNotifData(notifDataJSON.toString());
+			}
 
 		}
 		catch (JSONException e)
@@ -6894,6 +6882,12 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		ContentValues contentValues = new ContentValues();
 		contentValues.put(HIKE_CONTENT.NOTIF_DATA, "");
 		mDb.update(BOT_TABLE, contentValues, MSISDN + "=?", new String[] { botMsisdn });
+		BotInfo botInfo = BotInfo.getBotInfoForBotMsisdn(botMsisdn);
+		if (null != botInfo)
+		{
+			botInfo.setNotifData("");
+		}
+
 	}
 
 	/**
@@ -6928,8 +6922,14 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				ContentValues contentValues = new ContentValues();
 				contentValues.put(HIKE_CONTENT.NOTIF_DATA, notifDataJSON.toString());
 				mDb.update(BOT_TABLE, contentValues, MSISDN + "=?", new String[] { botMsisdn });
+				BotInfo botInfo = BotInfo.getBotInfoForBotMsisdn(botMsisdn);
+				if (null != botInfo)
+				{
+					botInfo.setNotifData(notifDataJSON.toString());
+				}
 
 			}
+
 
 		}
 		catch (JSONException e)
@@ -6946,34 +6946,5 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 	}
 
-	/**
-	 * Call this function to get the Notif data of the non messaging bot
-	 * @param botMsisdn: : msisdn of the non-messaging bot.
-	 * @return the notif data
-	 */
-	public String getNotifData(String botMsisdn)
-	{
-		Cursor c = null;
-		try
-		{
-			c = mDb.query(DBConstants.MESSAGES_TABLE, new String[] { HIKE_CONTENT.NOTIF_DATA }, DBConstants.MSISDN + "=?" , new String[] { botMsisdn}, null, null, null);
-			final int columnIndex = c.getColumnIndex(HIKE_CONTENT.NOTIF_DATA);
-			if (c.moveToFirst())
-			{
-				return c.getString(columnIndex);
-			}
-			return "{}";
-
-		}
-
-		finally
-		{
-			if (null != c)
-			{
-				c.close();
-			}
-		}
-	}
-
-
+	
 }
