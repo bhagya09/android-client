@@ -50,7 +50,7 @@ public class ImageParser
 			
 			if(data.getAction() == HikeConstants.HikePhotos.PHOTOS_ACTION_CODE)
 			{
-				capturedFilepath = data.getStringExtra(HikeConstants.Extras.PHOTOS_RETURN_FILE);
+				capturedFilepath = data.getStringExtra(HikeConstants.Extras.IMAGE_PATH);
 			}
 			else
 			{

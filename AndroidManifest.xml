@@ -267,9 +267,11 @@
             android:name=".ui.GalleryActivity"
             android:theme="@style/AppTheme.Home.Photos" >
         </activity>
-        <activity android:name=".ui.HikeSharedFilesActivity" >
+        <activity android:name=".ui.HikeSharedFilesActivity"
+            android:theme="@style/AppTheme.Home.Photos" >
         </activity>
-        <activity android:name=".ui.GallerySelectionViewer" >
+        <activity android:name=".ui.GallerySelectionViewer"
+            android:theme="@style/AppTheme.Home.Photos" >
         </activity>
         <activity android:name=".ui.CountrySelectActivity" >
         </activity>

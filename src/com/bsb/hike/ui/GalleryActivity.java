@@ -1,9 +1,10 @@
- package com.bsb.hike.ui;
+package com.bsb.hike.ui;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -60,7 +61,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 	public static final String ACTION_BAR_TYPE_KEY = "action_bar";
 
 	public static final String ENABLE_CAMERA_PICK = "cam_pk";
-	
+
 	public static final int GALLERY_ACTIVITY_RESULT_CODE = 97;
 
 	public static final int PHOTOS_EDITOR_ACTION_BAR_TYPE = 1;
@@ -90,9 +91,9 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 	private long previousEventTime;
 
 	private int velocity;
-	
+
 	public static final String START_FOR_RESULT = "startForResult";
-	
+
 	/**
 	 * This flag indicates whether this was opened for result or not, i.e. was it startActivityForResult
 	 */
@@ -105,6 +106,8 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 	private final String ALL_IMAGES_BUCKET_NAME = "All images";
 
 	private final String HIKE_IMAGES = "hike";
+	
+	private final String CAMERA_TILE = "gallery_tile_camera";
 
 	private final String CAMERA_IMAGES = "Camera";
 
@@ -231,20 +234,14 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 			}
 
 		}
-
+		
 		// Add "pick from camera" button/bucket
 		if (enableCameraPick)
 		{
-			File selectedFile = Utils.createNewFile(HikeFileType.IMAGE, HikeConstants.CAM_IMG_PREFIX);
-			if (selectedFile != null)
-			{
-				Intent proxyIntent = IntentFactory.getDelegateActivityIntent(GalleryActivity.this, IntentFactory.getPhotosFlowFromCameraIntents(GalleryActivity.this, selectedFile,true));
-				PendingIntent pIntent = PendingIntent.getActivity(getApplicationContext(), 0, proxyIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-				GalleryItem allImgItem = new GalleryItem(GalleryItem.CAMERA_TILE_ID, NEW_PHOTO, "gallery_tile_camera", 0, pIntent);
-				galleryItemList.add(allImgItem);
-			}
+			GalleryItem allImgItem = new GalleryItem(GalleryItem.CAMERA_TILE_ID, NEW_PHOTO, CAMERA_TILE, 0, pendingIntent);
+			galleryItemList.add(allImgItem);
 		}
+
 
 		/*
 		 * Creating All images bucket where we will show all images present in the device.
@@ -271,7 +268,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 				}
 			}
 		}
-
+		
 		cursor = getContentResolver().query(uri, projection, selection, args, sortBy);
 
 		if (cursor != null)
@@ -305,13 +302,13 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 				cursor.close();
 			}
 		}
-
+		
 		TwoWayGridView gridView = (TwoWayGridView) findViewById(R.id.gallery);
 
 		int sizeOfImage = getResources().getDimensionPixelSize(isInsideAlbum ? R.dimen.gallery_album_item_size : R.dimen.gallery_cover_item_size);
 
 		int numColumns = isInsideAlbum ? 3 : Utils.getNumColumnsForGallery(getResources(), sizeOfImage);
-		
+
 		int actualSize = Utils.getActualSizeForGallery(getResources(), sizeOfImage, numColumns);
 
 		adapter = new GalleryAdapter(this, galleryItemList, isInsideAlbum, actualSize, selectedGalleryItems, false);
@@ -335,31 +332,32 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 	private ArrayList<GalleryItem> reOrderList(List<GalleryItem> list)
 	{
 		ArrayList<GalleryItem> resultList = new ArrayList<GalleryItem>();
-		GalleryItem allImgItem = null;
-		GalleryItem hikeImages = null;
+		LinkedList<GalleryItem> customList = new LinkedList<GalleryItem>();
+		
+		int customCount = 0;
+		
 		for (Iterator iterator = list.iterator(); iterator.hasNext();)
 		{
 			GalleryItem galleryItem = (GalleryItem) iterator.next();
-			if (galleryItem.getName().startsWith(HIKE_IMAGES))
+			if (galleryItem.getName().startsWith(HIKE_IMAGES) || galleryItem.getName().startsWith(ALL_IMAGES_BUCKET_NAME) || galleryItem.getName().startsWith(CAMERA_IMAGES))
 			{
-				hikeImages = galleryItem;
+				customList.addLast(galleryItem);
 				iterator.remove();
 			}
-			else if (galleryItem.getName().startsWith(CAMERA_IMAGES))
+			else if (galleryItem.getType() == GalleryItem.CUSTOM)
 			{
-				resultList.add(galleryItem);
-				iterator.remove();
-			}
-			else if (galleryItem.getName().startsWith(ALL_IMAGES_BUCKET_NAME))
-			{
-				allImgItem = galleryItem;
+				customList.add(customCount, galleryItem);
+				customCount++;
 				iterator.remove();
 			}
 		}
-		if (allImgItem != null)
-			resultList.add(allImgItem);
-		if (hikeImages != null)
-			resultList.add(hikeImages);
+		
+		for (Iterator iterator = customList.iterator(); iterator.hasNext();)
+		{
+			GalleryItem galleryItem = (GalleryItem) iterator.next();
+			resultList.add(galleryItem);
+		}
+		
 		for (Iterator iterator = list.iterator(); iterator.hasNext();)
 		{
 			GalleryItem galleryItem = (GalleryItem) iterator.next();
@@ -527,9 +525,9 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 			public void onClick(View v)
 			{
 				Intent intent = new Intent();
-				ArrayList<GalleryItem> temp =new ArrayList<GalleryItem>(selectedGalleryItems.values());
+				ArrayList<GalleryItem> temp = new ArrayList<GalleryItem>(selectedGalleryItems.values());
 				intent.putParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS, temp);
-				if(temp.size()==1 && sendResult && Utils.isPhotosEditEnabled())
+				if (temp.size() == 1 && sendResult && Utils.isPhotosEditEnabled())
 				{
 					setResult(RESULT_OK, intent);
 					finish();
@@ -567,7 +565,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 		intent.putExtra(HikeConstants.Extras.MSISDN, msisdn);
 		intent.putExtra(HikeConstants.Extras.ON_HIKE, getIntent().getBooleanExtra(HikeConstants.Extras.ON_HIKE, true));
 		intent.putExtra(HikeConstants.Extras.SELECTED_BUCKET, getIntent().getParcelableExtra(HikeConstants.Extras.SELECTED_BUCKET));
-		
+
 		if (!sendResult)
 		{
 			startActivity(intent);
@@ -592,19 +590,45 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 			previousEventTime = currTime;
 		}
 	}
-	
-	
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data)
 	{
-		super.onActivityResult(requestCode, resultCode, data);
-		if(resultCode == RESULT_OK)
+		if (resultCode == RESULT_OK)
 		{
-			if(requestCode==GALLERY_ACTIVITY_RESULT_CODE )
+			if (requestCode == GALLERY_ACTIVITY_RESULT_CODE)
 			{
 				setResult(RESULT_OK, data);
 				finish();
+			}
+			else if (requestCode == HikeConstants.CAMERA_RESULT)
+			{
+				File cameraFile = Utils.getCameraResultFile();
+				if (cameraFile == null)
+					return;
+
+				Intent intent = new Intent();
+				ArrayList<GalleryItem> item = new ArrayList<GalleryItem>(1);
+				item.add(new GalleryItem(GalleryItem.CAMERA_TILE_ID, CAMERA_TILE, NEW_PHOTO, cameraFile.getAbsolutePath(), 0));
+				intent.putParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS, item);
+				intent.setData(Uri.parse(item.get(0).getFilePath()));
+				if (pendingIntent != null)
+				{
+					try
+					{
+						pendingIntent.send(GalleryActivity.this, RESULT_OK, intent);
+					}
+					catch (CanceledException e)
+					{
+						e.printStackTrace();
+					}
+				}
+				else
+				{
+					setResult(RESULT_OK, intent);
+					finish();
+				}
+
 			}
 		}
 	}
@@ -622,7 +646,19 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 
 		Intent intent;
 
-		if (!isInsideAlbum)
+		if (galleryItem.getId() == GalleryItem.CAMERA_TILE_ID)
+		{
+			sendAnalyticsCameraClicked();
+			File selectedFile = Utils.createNewFile(HikeFileType.IMAGE, HikeConstants.CAM_IMG_PREFIX);
+			if (selectedFile == null)
+			{
+				Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), R.string.not_enough_memory, Toast.LENGTH_SHORT).show();
+				return;
+			}
+			startActivityForResult(IntentFactory.getNativeCameraAppIntent(true, selectedFile), HikeConstants.CAMERA_RESULT);
+			return;
+		}
+		else if (!isInsideAlbum)
 		{
 			intent = new Intent(this, GalleryActivity.class);
 			intent.putExtra(HikeConstants.Extras.SELECTED_BUCKET, galleryItem);
@@ -630,42 +666,21 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 			intent.putExtra(HikeConstants.Extras.ON_HIKE, getIntent().getBooleanExtra(HikeConstants.Extras.ON_HIKE, true));
 			intent.putExtra(PENDING_INTENT_KEY, pendingIntent);
 			intent.putExtra(DISABLE_MULTI_SELECT_KEY, disableMultiSelect);
-			if (sendResult)
-			{
-				intent.putExtra(START_FOR_RESULT, sendResult);
-				if(Utils.isPhotosEditEnabled())
+				if(sendResult)
 				{
-					startActivityForResult(intent,GALLERY_ACTIVITY_RESULT_CODE);
+					intent.putExtra(START_FOR_RESULT, sendResult);
+				}
+				if(getCallingActivity()!=null)
+				{
+					startActivityForResult(intent, GALLERY_ACTIVITY_RESULT_CODE);
 				}
 				else
 				{
 					startActivity(intent);
 				}
-			}
-			else
-			{
-				startActivity(intent);
-			}
 		}
 		else
 		{
-
-			if (galleryItem.getType() == GalleryItem.CUSTOM)
-			{
-				try
-				{
-					if (galleryItem.getId() == GalleryItem.CAMERA_TILE_ID)
-					{
-						sendAnalyticsCameraClicked();
-					}
-					galleryItem.getPendingIntent().send();
-				}
-				catch (CanceledException e)
-				{
-					e.printStackTrace();
-				}
-				return;
-			}
 
 			if (multiSelectMode)
 			{
@@ -707,7 +722,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 					try
 					{
 						File file = new File(item.get(0).getFilePath());
-						if(!file.exists()) 
+						if (!file.exists())
 						{
 							Toast.makeText(GalleryActivity.this, getResources().getString(R.string.file_expire), Toast.LENGTH_SHORT).show();
 							return;
@@ -719,7 +734,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 						e.printStackTrace();
 					}
 				}
-				else if (sendResult && Utils.isPhotosEditEnabled())
+				else if (sendResult && getCallingActivity()!=null)
 				{
 					setResult(RESULT_OK, intent);
 					finish();
