@@ -63,7 +63,7 @@ public abstract class JavascriptBridge
 
 	static final String tag = "JavascriptBridge";
 
-	protected Handler mHandler,javaBridgeHandler;
+	protected Handler mHandler;
 	
 	private static final String REQUEST_CODE = "request_code";
 	
@@ -74,7 +74,12 @@ public abstract class JavascriptBridge
 	{
 		this.mWebView = mWebView;
 		weakActivity = new WeakReference<Activity>(activity);
-		this.mHandler = new Handler(HikeMessengerApp.getInstance().getMainLooper());
+		this.mHandler = new Handler(HikeMessengerApp.getInstance().getMainLooper())
+		{
+			public void handleMessage(Message msg) {
+				handleUiMessage(msg);
+			};
+		};
 	}
 
 	/**
@@ -96,23 +101,26 @@ public abstract class JavascriptBridge
 	@JavascriptInterface
 	public void onLoadFinished(String height)
 	{
-		if (javaBridgeHandler == null)
-		{
-			javaBridgeHandler = new Handler(Looper.myLooper())
-			{
-				@Override
-				public void handleMessage(Message msg)
-				{
-					super.handleMessage(msg);
-					handleJavaBridgeMessage(msg);
-				}
-			};
-		}
 	}
 	
-	protected void handleJavaBridgeMessage(Message msg)
+	protected void handleUiMessage(Message msg)
 	{
 		
+	}
+	
+	
+	protected void sendMessageToUiThread(int what,Object data)
+	{
+		sendMessageToUiThread(what, 0, data);
+	}
+	
+	protected void sendMessageToUiThread(int what, int arg1,Object data)
+	{
+		Message msg = Message.obtain(); 
+		msg.what = what;
+		msg.arg1 = arg1;
+		msg.obj = data;
+		mHandler.sendMessage(msg);
 	}
 
 	/**
