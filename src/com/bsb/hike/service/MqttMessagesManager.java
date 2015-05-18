@@ -3100,7 +3100,6 @@ public class MqttMessagesManager
 				.setNamespace(namespace)
 				.setConfigData(null == configuration.getConfigData() ? null : configuration.getConfigData().toString())
 				.setConfig(configuration.getConfig())
-				.setIsBotEnabled(false)
 				.setMetadata(botMetadata.toString())
 				.build();
 		return botInfo;
