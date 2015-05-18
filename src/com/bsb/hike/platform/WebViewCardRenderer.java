@@ -279,7 +279,7 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 		
 		if (viewHolder.id != getItemId(position))
 		{
-			showLoadingState(view);
+			showLoadingState(viewHolder);
 			viewHolder.inflationTime = System.currentTimeMillis() - startTime;
 			loadContent(position, convMessage, viewHolder);
 		}
@@ -306,7 +306,7 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 		{
 
 			@Override
-			public void onEventOccured(EventCode reason)
+			public void onEventOccured(int uniqueId,EventCode reason)
 			{
 
 				if (reason == EventCode.DOWNLOADING)
@@ -321,10 +321,16 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 				}
 				else
 				{
-					Logger.e(tag, "error");
-					viewHolder.templatingTime = -1;
-					showConnErrState(viewHolder, convMessage, position);
-					HikeAnalyticsEvent.cardErrorAnalytics(reason, convMessage);
+					viewHolder.id = 0;
+					if((Integer)viewHolder.customWebView.getTag() == uniqueId)
+					{
+						Logger.e(tag, "error");
+						viewHolder.templatingTime = -1;
+						showConnErrState(viewHolder, convMessage, position);
+						HikeAnalyticsEvent.cardErrorAnalytics(reason, convMessage);
+					}else{
+						
+					}
 				}
 			}
 
@@ -533,16 +539,16 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 	// TODO Replace with HikeUiHandler utility
 	static Handler uiHandler = new Handler(Looper.getMainLooper());
 
-	private void showLoadingState(final View view)
+	private void showLoadingState(WebViewHolder viewHolder)
 	{
-		if (view == null)
+		if (viewHolder == null)
 		{
 			return;
 		}
 
-		view.findViewById(R.id.loading_data).setVisibility(View.VISIBLE);;
-		view.findViewById(R.id.card_fade_screen).setVisibility(View.VISIBLE);
-		 view.findViewById(R.id.loading_failed).setVisibility(View.GONE);;
+		viewHolder.loadingSpinner.setVisibility(View.VISIBLE);
+		viewHolder.cardFadeScreen.setVisibility(View.VISIBLE);
+		viewHolder.loadingFailed.setVisibility(View.GONE);
 
 	}
 

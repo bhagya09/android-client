@@ -79,7 +79,7 @@ class PlatformContentLoader extends Handler
 				// Add to cache
 				PlatformContentCache.putFormedContent(argContentRequest.getContentData());
 				
-				argContentRequest.getListener().onEventOccured(EventCode.LOADED);
+				argContentRequest.getListener().onEventOccured(argContentRequest.getContentData().getUniqueId(), EventCode.LOADED);
 
 				PlatformRequestManager.completeRequest(argContentRequest);
 			}

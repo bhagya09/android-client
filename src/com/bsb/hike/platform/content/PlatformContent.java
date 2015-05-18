@@ -118,7 +118,7 @@ public class PlatformContent
 		else
 		{
 			Logger.e("PlatformContent", "Incorrect content data");
-			listener.onEventOccured(EventCode.INVALID_DATA);
+			listener.onEventOccured(0,EventCode.INVALID_DATA);
 			return null;
 		}
 	}
