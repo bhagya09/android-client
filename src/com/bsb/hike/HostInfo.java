@@ -49,7 +49,7 @@ public class HostInfo
 		setPort(previousHostInfo, isProduction, isSslOn);
 
 		//We need to do it when port is decided for the host
-		setConnectTimeOut(previousHostInfo);
+		setConnectTimeOut(previousHostInfo, this.getPort(), isSslOn);
 		setProtocol(this.getPort());
 	}
 
@@ -144,20 +144,27 @@ public class HostInfo
 
 	private void setProductionPort(HostInfo previousHostInfo, boolean isSslOn)
 	{
-		if(previousHostInfo != null && previousHostInfo.getExceptionOnConnect() == ConnectExceptions.SOCKET_TIME_OUT_EXCEPTION)
+		if (shouldConnectToFallbackPort(previousHostInfo, isSslOn))
 		{
 			/*
-			 * on production for some countries ssl port connection is not allowed at all in these
-			 * Countries we cannot use 443 as port fallback.
+			 * on production for some countries ssl port connection is not allowed at all in these Countries we cannot use 443 as port fallback.
+			 * Logic is 
+			 * 1. 8080 -- fallback to --> 5222
+			 * 2. 5222 -- fallback to --> 443 if ssl is allowed
+			 * 3. again fallback to 8080 -- if tried above
 			 */
 			boolean sslPortAllowedAsFallback = Utils.isSSLAllowed();
-			if(sslPortAllowedAsFallback)
-			{
-				setPort(FALLBACK_BROKER_PORT_NUMBER_SSL);
-			}
-			else
+			if(previousHostInfo.getPort() == MqttConstants.PRODUCTION_BROKER_PORT_NUMBER)
 			{
 				setPort(MqttConstants.FALLBACK_BROKER_PORT_5222);
+			}
+			else if(previousHostInfo.getPort() == MqttConstants.FALLBACK_BROKER_PORT_5222  && sslPortAllowedAsFallback)
+			{
+				setPort(MqttConstants.FALLBACK_BROKER_PORT_NUMBER_SSL);
+			}
+			else 
+			{
+				setPort(MqttConstants.PRODUCTION_BROKER_PORT_NUMBER);
 			}
 		}
 		else
@@ -187,11 +194,17 @@ public class HostInfo
 		this.connectTimeOut = connectTimeOut;
 	}
 
-	public void setConnectTimeOut(HostInfo previousHostInfo)
+	public void setConnectTimeOut(HostInfo previousHostInfo, int currentPortNum, boolean isSslOn)
 	{
 		if (previousHostInfo != null)
 		{
-			if (previousHostInfo.getExceptionOnConnect() == ConnectExceptions.SOCKET_TIME_OUT_EXCEPTION)
+			/*
+			 * We might need to increment connect timeout if
+			 * 1. Last connect call resulted into socket timeout
+			 * 2. AND we have tried all fallback cases. (i.e. if we trying to connect of a default port 8080 OR 443(if ssl on)) 
+			 */
+			if (previousHostInfo.getExceptionOnConnect() == ConnectExceptions.SOCKET_TIME_OUT_EXCEPTION 
+					&& currentPortNum == getStanderedProductionPort(isSslOn))
 			{
 				incrementConnectRetryCount();
 			}
