@@ -18,6 +18,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -302,6 +303,8 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	}
 
 	boolean isOpened = false;
+
+	private HikeDialog contactDialog;
 
 	 public void setListnerToRootView(){
 	    final View activityRootView = getWindow().getDecorView().findViewById(R.id.ll_compose); 
@@ -1645,7 +1648,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					final ArrayList<ContactInfo> finalArrayList = arrayList;
 					if (contact != null)
 					{
-						HikeDialogFactory.showDialog(this, HikeDialogFactory.CONTACT_SEND_DIALOG, new HikeDialogListener()
+						contactDialog = HikeDialogFactory.showDialog(this, HikeDialogFactory.CONTACT_SEND_DIALOG, new HikeDialogListener()
 						{
 							
 							@Override
@@ -1654,7 +1657,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 								initialiseContactTransfer(((PhonebookContact) hikeDialog.data).jsonData,finalArrayList);
 								hikeDialog.dismiss();
 								startActivity(intent);
-					      		finish();
+								finish();
 							}
 							
 							@Override
@@ -2249,4 +2252,15 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			}
 		}
 	}
+
+
+	@Override
+	public void onConfigurationChanged(Configuration newConfig) {
+		// TODO Auto-generated method stub
+		if(contactDialog!=null && contactDialog.isShowing()){
+			contactDialog.dismiss();
+		}
+		super.onConfigurationChanged(newConfig);
+	}
+	
 }
