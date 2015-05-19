@@ -214,7 +214,8 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 	@Override
 	public void onPause() 
 	{
-		releaseProximitySensor();
+		if (VoIPService.getCallId() == 0)	// Bug #45154
+			releaseProximitySensor();
 		Logger.d(VoIPConstants.TAG, "VoIPCallFragment onPause()");
 		super.onPause();
 	}
