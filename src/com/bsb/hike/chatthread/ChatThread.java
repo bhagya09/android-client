@@ -484,11 +484,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		addtoMessageMap(messages.size() - 1, messages.size());
 
 		mAdapter.notifyDataSetChanged();
-		
-		if (messageSearchManager != null && messageSearchManager.isActive())
-		{
-			messageSearchManager.addItem(convMessage);
-		}
 
 		// Reset this boolean to load more messages when the user scrolls to
 		// the top
@@ -2373,8 +2368,9 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			int id = loader.loaderId;
 			if (id == SEARCH_LOOP || id == SEARCH_NEXT || id == SEARCH_PREVIOUS)
 			{
-				recordSearchInputWithResult(id, searchText, (int) arg1);
 				updateUIforSearchResult((int) arg1);
+				messageSearchManager.updateDataSet(messages);
+				recordSearchInputWithResult(id, searchText, (int) arg1);
 			}
 		}
 		else
