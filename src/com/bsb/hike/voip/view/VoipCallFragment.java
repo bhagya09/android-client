@@ -487,7 +487,6 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 	SensorEventListener proximitySensorEventListener = new SensorEventListener() 
 	{
 
-		@SuppressLint("Wakelock") @Override
 		public void onSensorChanged(SensorEvent event) 
 		{
 			if (event.values[0] != proximitySensorMaximumRange) 
