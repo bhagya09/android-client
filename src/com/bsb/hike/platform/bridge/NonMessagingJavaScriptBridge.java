@@ -160,11 +160,21 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 
 	/**
 	 * calling this method will forcefully block the full screen bot. The user won't see any messages in the chat thread after calling this.
+	 * 
+	 * @param : true to block the microapp false to unblock it.
 	 */
 	@JavascriptInterface
-	public void block()
+	public void block(String isBlocked)
 	{
-		HikeMessengerApp.getPubSub().publish(HikePubSub.BLOCK_USER, mBotInfo.getMsisdn());
+		if (isBlocked.equalsIgnoreCase(Boolean.toString(true)))
+		{
+			HikeMessengerApp.getPubSub().publish(HikePubSub.BLOCK_USER, mBotInfo.getMsisdn());
+		}
+		
+		else
+		{
+			HikeMessengerApp.getPubSub().publish(HikePubSub.UNBLOCK_USER, mBotInfo.getMsisdn());
+		}
 	}
 
 	public void onMenuItemClicked(int id)
