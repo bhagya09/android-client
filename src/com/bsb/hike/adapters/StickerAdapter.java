@@ -142,7 +142,7 @@ public class StickerAdapter extends PagerAdapter implements StickerEmoticonIconP
 		return emoticonPage;
 	}
 
-	private void registerListener()
+	public void registerListener()
 	{
 		IntentFilter filter = new IntentFilter(StickerManager.STICKERS_DOWNLOADED);
 		filter.addAction(StickerManager.STICKERS_FAILED);

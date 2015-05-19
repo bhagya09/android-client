@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.ViewConfiguration;
 
@@ -17,6 +18,7 @@ import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 
 public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 {
@@ -30,8 +32,18 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 	{
 		Logger.i(TAG, "OnCreate");
 		requestWindowFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
-		super.onCreate(savedInstanceState);
-
+		/**
+		 * force the user into the reg-flow process if the token isn't set
+		 */
+        if (Utils.requireAuth(this))
+        {
+			/**
+			 * To avoid super Not Called exception
+			 */
+        	super.onCreate(savedInstanceState);
+            return;
+        }
+		
 		if (filter(getIntent()))
 		{
 			init(getIntent());
@@ -42,6 +54,7 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 		{
 			closeChatThread();
 		}
+		super.onCreate(savedInstanceState);
 	}
 
 	private boolean filter(Intent intent)
@@ -52,10 +65,10 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 		 * Possibly Chat Thread is being invoked from outside the application
 		 */
 		
-		if (msisdn == null)
+		if (TextUtils.isEmpty(msisdn))
 		{
 			msisdn = ChatThreadUtils.getMsisdnFromSendToIntent(intent);
-			if (msisdn == null)
+			if (TextUtils.isEmpty(msisdn))
 			{
 				return false;
 			}
@@ -118,14 +131,12 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu)
 	{
-
 		return chatThread.onPrepareOptionsMenu(menu) ? true : super.onPrepareOptionsMenu(menu);
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item)
 	{
-
 		return chatThread.onOptionsItemSelected(item) ? true : super.onOptionsItemSelected(item);
 	}
 

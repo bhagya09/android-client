@@ -52,6 +52,7 @@ import com.bsb.hike.R;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 import com.bsb.hike.voip.VoIPClient.ConnectionMethods;
 import com.bsb.hike.voip.VoIPConstants.CallQuality;
 import com.bsb.hike.voip.VoIPConstants.CallStatus;
@@ -1371,7 +1372,7 @@ public class VoIPService extends Service {
 			public void run() {
 				android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
 				
-				long time = System.currentTimeMillis();
+//				long time = System.currentTimeMillis();
 				
 				byte[] silence = new byte[OpusWrapper.OPUS_FRAME_SIZE * 2];
 				silentPacket = new VoIPDataPacket(PacketType.VOICE_PACKET);
@@ -1570,7 +1571,6 @@ public class VoIPService extends Service {
 	@SuppressWarnings("deprecation")
 	private void playIncomingCallRingtone() {
 
-		// TODO: update code from voip branch
 		VoIPClient client = getClient();
 		if (client.reconnecting || client.audioStarted || keepRunning == false)
 			return;
@@ -1591,9 +1591,22 @@ public class VoIPService extends Service {
 			// Ringer
 			Logger.d(VoIPConstants.TAG, "Playing ringtone.");
 			Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
+			
 			if (ringtone == null)
 				ringtone = RingtoneManager.getRingtone(getApplicationContext(), notification);
-			ringtone.setStreamType(AudioManager.STREAM_RING);
+			
+			if (ringtone == null) {
+				Logger.e(VoIPConstants.TAG, "Unable to get ringtone object.");
+				return;
+			}
+			
+			if (Utils.isLollipopOrHigher()) {
+				AudioAttributes.Builder attrs = new AudioAttributes.Builder();
+				attrs.setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION);
+				attrs.setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE);
+				ringtone.setAudioAttributes(attrs.build());
+			} else
+				ringtone.setStreamType(AudioManager.STREAM_RING);
 			ringtone.play();		
 
 			// Vibrator
