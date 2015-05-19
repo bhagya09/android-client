@@ -1511,6 +1511,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		{
 			showToast(R.string.no_results);
 		}
+		setMessagesRead();
 	}
 
 	protected void destroySearchMode()
