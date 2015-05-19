@@ -1,40 +1,52 @@
 package com.bsb.hike.platform.bridge;
 
+import org.json.JSONException;
+
 import android.app.Activity;
-import android.content.Intent;
 import android.os.Message;
+import android.text.TextUtils;
 import android.webkit.JavascriptInterface;
 import android.widget.BaseAdapter;
 
+import com.bsb.hike.db.HikeContentDatabase;
+import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.platform.CustomWebView;
+import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.WebMetadata;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
+
 
 /**
- * This Class is made to support MicroApps based on PlatformJS version 2, In this version we introduced messageId restriction
+ * This class was introduced to cater platform bridge version 1 onwards. We have introduced message id and platform version concept here.
  * 
- * We accept messageId and update database accordingly, version before than this had a bug of updating database of wrong message because of thread communication
- * 
- * All these functions are executed in JavaBridge Thread  
- * 
+ *  Now all communication between micro app and js bridge is made after message id version check
+ *  
+ *  We share message id with micro app during moustache templating 
+ *
+ *
+ *  @platformBridgeStart=0
+ *  @platformBridgeEnd= ~
  */
-public class MessagingBotBridgeV2 extends MessagingBotJavaScriptBridge
+public class MessagingBridge_Alto extends MessagingBridge_Nano
 {
+
+	public MessagingBridge_Alto(Activity activity, CustomWebView webView, ConvMessage convMessage, BaseAdapter adapter)
+	{
+		super(activity, webView, convMessage, adapter);
+	}
+
+	public MessagingBridge_Alto(Activity activity, CustomWebView mWebView)
+	{
+		super(activity, mWebView);
+	}
+	
 	private static final int UPDATE_METDATA = 1201; 
 	
 	private static final String tag = "MessagingBotBridgev2";
 	
 
-	public MessagingBotBridgeV2(Activity activity, CustomWebView mWebView)
-	{
-		super(activity, mWebView);
-	}
-
-	public MessagingBotBridgeV2(Activity activity, CustomWebView webView, ConvMessage convMessage, BaseAdapter adapter)
-	{
-		super(activity, webView, convMessage, adapter);
-	}
 
 	private void notAllowedMethodCalled(String methodName)
 	{
@@ -59,6 +71,16 @@ public class MessagingBotBridgeV2 extends MessagingBotJavaScriptBridge
 
 
 	/**
+	 * @deprecated
+	 */
+	@Override
+	@JavascriptInterface
+	public void deleteAlarm()
+	{
+		notAllowedMethodCalled("deleteAlarm");
+	}
+	
+	/**
 	 * 
 	 * @param messageId for which you want to delete alarm
 	 */
@@ -68,6 +90,16 @@ public class MessagingBotBridgeV2 extends MessagingBotJavaScriptBridge
 		MessagingBotBridgeHelper.deleteAlarm(Integer.parseInt(messageId));
 	}
 
+	
+	/**
+	 * @deprecated
+	 */
+	@Override
+	@JavascriptInterface
+	public void forwardToChat(String json)
+	{
+		notAllowedMethodCalled("forwardTochat");
+	}
 	
 	/**
 	 * 
@@ -83,6 +115,17 @@ public class MessagingBotBridgeV2 extends MessagingBotJavaScriptBridge
 		}
 	}
 
+	
+	/**
+	 * @deprecated
+	 */
+	@Override
+	@JavascriptInterface
+	public void getFromCache(String id, String key)
+	{
+		notAllowedMethodCalled("getFromCache");
+	}
+	
 	/**
 	 * 
 	 * @param messageId 
@@ -99,6 +142,9 @@ public class MessagingBotBridgeV2 extends MessagingBotJavaScriptBridge
 		
 	}
 
+	/**
+	 * @deprecated
+	 */
 	@Override
 	@JavascriptInterface
 	public void getLargeDataFromCache(String id)
@@ -131,6 +177,18 @@ public class MessagingBotBridgeV2 extends MessagingBotJavaScriptBridge
 	}
 
 	
+	/**
+	 * @deprecated
+	 * @param key
+	 * @param value
+	 */
+	@JavascriptInterface
+	@Override
+	public void putInCache(String key, String value)
+	{
+		notAllowedMethodCalled("putInCache");
+	}
+	
 	@JavascriptInterface
 	public void putInCache(String messageId,String key, String value)
 	{
@@ -148,6 +206,17 @@ public class MessagingBotBridgeV2 extends MessagingBotJavaScriptBridge
 		}
 	}
 
+	/**
+	 * @deprecated
+	 * @param json
+	 * @param timeInMills
+	 */
+	@Override
+	@JavascriptInterface
+	public void setAlarm(String json, String timeInMills)
+	{
+		notAllowedMethodCalled("setAlarm");
+	}
 	
 	@JavascriptInterface
 	public void setAlarm(String mId,String json, String timeInMills){
@@ -157,6 +226,17 @@ public class MessagingBotBridgeV2 extends MessagingBotJavaScriptBridge
 	}
 
 
+	/**
+	 * @deprecated
+	 * @param height
+	 */
+	@Override
+	@JavascriptInterface
+	public void onResize(String height)
+	{
+		notAllowedMethodCalled("onResize");
+	}
+	
 	@JavascriptInterface
 	public void onResize(String messageId,String height)
 	{
@@ -167,12 +247,25 @@ public class MessagingBotBridgeV2 extends MessagingBotJavaScriptBridge
 	}
 	
 	
+	/**
+	 * @deprecated
+	 */
+	@Override
+	@JavascriptInterface
+	public void deleteMessage()
+	{
+		notAllowedMethodCalled("deleteMessage");
+	}
+	
 	@JavascriptInterface
 	public void deleteMessage(String messageId)
 	{
 		MessagingBotBridgeHelper.deleteMessage(Long.parseLong(messageId), message.getMsisdn(), adapter);
 	}
 
+	/**
+	 * @deprecated
+	 */
 	@Override
 	@JavascriptInterface
 	public void share()
@@ -190,6 +283,9 @@ public class MessagingBotBridgeV2 extends MessagingBotJavaScriptBridge
 	}
 	
 	
+	/**
+	 * @deprecated
+	 */
 	@Override
 	@JavascriptInterface
 	public void share(String text, String caption)
@@ -207,6 +303,17 @@ public class MessagingBotBridgeV2 extends MessagingBotJavaScriptBridge
 	}
 
 
+	/**
+	 * @deprecated
+	 * @param json
+	 */
+	@Override
+	@JavascriptInterface
+	public void updateHelperData(String json)
+	{
+		notAllowedMethodCalled("updateHelperData");
+	}
+	
 	@JavascriptInterface
 	public void updateHelperData(String messageId,String json)
 	{
@@ -217,6 +324,15 @@ public class MessagingBotBridgeV2 extends MessagingBotJavaScriptBridge
 		}
 	}
 	
+	/**
+	 * @deprecated
+	 */
+	@Override
+	@JavascriptInterface
+	public void updateMetadata(String json, String notifyScreen)
+	{
+		notAllowedMethodCalled("updateMetadata");
+	}
 	
 	@JavascriptInterface
 	public void updateMetadata(String messageId,String json, String notifyScreen)
@@ -265,4 +381,10 @@ public class MessagingBotBridgeV2 extends MessagingBotJavaScriptBridge
 			super.handleUiMessage(msg);
 		}
 	}
+
+	
+	
+	
+	
+
 }

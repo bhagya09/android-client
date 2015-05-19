@@ -43,10 +43,9 @@ import com.bsb.hike.adapters.MessagesAdapter;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.platform.content.HikeWebClient;
-import com.bsb.hike.platform.bridge.MessagingBotBridgeV1;
-import com.bsb.hike.platform.bridge.MessagingBotBridgeV2;
-import com.bsb.hike.platform.bridge.MessagingBotJavaScriptBridge;
-import com.bsb.hike.platform.bridge.MessagingBotJavaScriptBridge.WebviewEventsListener;
+import com.bsb.hike.platform.bridge.MessagingBridge_Alto;
+import com.bsb.hike.platform.bridge.MessagingBridge_Nano;
+import com.bsb.hike.platform.bridge.MessagingBridge_Nano.WebviewEventsListener;
 import com.bsb.hike.platform.content.HikeWebClient;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformContent.EventCode;
@@ -105,7 +104,7 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 
 		CustomWebView customWebView;
 
-		MessagingBotJavaScriptBridge platformJavaScriptBridge;
+		MessagingBridge_Nano platformJavaScriptBridge;
 
 		public View selectedStateOverlay;
 
@@ -159,14 +158,14 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 	private void attachJSBridge(ConvMessage convMessage,WebViewHolder holder)
 	{
 		Logger.i(tag, "ataching bridge version "+convMessage.webMetadata.getPlatformJSCompatibleVersion());
-		if (convMessage.webMetadata.getPlatformJSCompatibleVersion() == HikePlatformConstants.VERSION_2)
+		if (convMessage.webMetadata.getPlatformJSCompatibleVersion() == HikePlatformConstants.VERSION_1)
 		{
-			holder.platformJavaScriptBridge = new MessagingBotBridgeV2(mContext, holder.customWebView, convMessage, adapter);
+			holder.platformJavaScriptBridge = new MessagingBridge_Alto(mContext, holder.customWebView, convMessage, adapter);
 			holder.platformJavaScriptBridge.setListener(holder.webViewClient);
 		}
 		else
 		{
-			holder.platformJavaScriptBridge = new MessagingBotBridgeV1(mContext, holder.customWebView, convMessage, adapter);
+			holder.platformJavaScriptBridge = new MessagingBridge_Nano(mContext, holder.customWebView, convMessage, adapter);
 		}
 	}
 
@@ -673,7 +672,7 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 	 */
 	public void onActivityResult(int resultCode, Intent data)
 	{
-		int platformBridgeHashcode = data.getIntExtra(MessagingBotJavaScriptBridge.tag, -1);
+		int platformBridgeHashcode = data.getIntExtra(MessagingBridge_Nano.tag, -1);
 		if(platformBridgeHashcode != -1)
 		{
 			for(WebViewHolder holder : holderList)

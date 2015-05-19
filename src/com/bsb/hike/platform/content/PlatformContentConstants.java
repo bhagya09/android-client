@@ -29,5 +29,5 @@ public class PlatformContentConstants
 
 	public static final String ASSETS_FONTS_DIR = "fonts/";
 	
-	public static final String CONTENT_ID = "content_id";
+	public static final String MESSAGE_ID = "message_id";
 }

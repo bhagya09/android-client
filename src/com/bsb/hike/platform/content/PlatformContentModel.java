@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.utils.Logger;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
@@ -104,7 +105,8 @@ public class PlatformContentModel
 		{
 			object = new Gson().fromJson(jsonObj, PlatformContentModel.class);
 			object.cardObj.ld.addProperty(PlatformContentConstants.KEY_TEMPLATE_PATH, PlatformContentConstants.CONTENT_AUTHORITY_BASE + object.cardObj.appName + File.separator);
-			object.cardObj.ld.addProperty(PlatformContentConstants.CONTENT_ID,Integer.toString(unique));
+			object.cardObj.ld.addProperty(PlatformContentConstants.MESSAGE_ID,Integer.toString(unique));
+			object.cardObj.ld.addProperty(HikePlatformConstants.PLATFORM_VERSION,HikePlatformConstants.CURRENT_VERSION);
 		}
 		catch (JsonParseException e)
 		{
