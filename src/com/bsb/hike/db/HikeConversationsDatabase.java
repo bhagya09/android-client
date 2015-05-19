@@ -5134,6 +5134,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			int muteIdx = c.getColumnIndex(DBConstants.IS_MUTE);
 			int namespaceIdx = c.getColumnIndex(HIKE_CONTENT.NAMESPACE);
 			int configDataidx = c.getColumnIndex(DBConstants.CONFIG_DATA);
+			int notifDataIdx = c.getColumnIndex(HIKE_CONTENT.NOTIF_DATA);
+			int helperDataIdx = c.getColumnIndex(HIKE_CONTENT.HELPER_DATA);
 
 			mDb.beginTransaction();
 			while (c.moveToNext())
@@ -5146,6 +5148,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				int mute = c.getInt(muteIdx);
 				String namespace = c.getString(namespaceIdx);
 				String configData = c.getString(configDataidx);
+				String notifData = c.getString(notifDataIdx);
+				String helperData = c.getString(helperDataIdx);
 
 				BotInfo botInfo = new BotInfo.HikeBotBuilder(msisdn)
 						.setConvName(name)
@@ -5155,6 +5159,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 						.setIsMute(mute == 1)
 						.setNamespace(namespace)
 						.setConfigData(configData)
+						.setHelperData(helperData)
+						.setNotifData(notifData)
 						.build();
 
 				HikeMessengerApp.hikeBotNamesMap.put(msisdn, botInfo);
