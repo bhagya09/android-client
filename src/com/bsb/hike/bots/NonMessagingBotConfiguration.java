@@ -159,7 +159,7 @@ public class NonMessagingBotConfiguration extends BotConfiguration
 		{
 			String title = jsonObject.getString(HikePlatformConstants.TITLE);
 			int id = jsonObject.getInt(HikePlatformConstants.ID);
-			boolean enabled = jsonObject.getBoolean(HikePlatformConstants.ENABLED);
+			boolean enabled = jsonObject.optBoolean(HikePlatformConstants.ENABLED, true);
 			/**
 			 * Note : This is a dummy icon. Will replace once I get proper assets
 			 */
