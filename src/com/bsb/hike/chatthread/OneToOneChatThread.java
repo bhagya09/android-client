@@ -2528,12 +2528,24 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			setEnabledH20NextButton(true);
 		}
 	}
-	
+
+	@Override
+	protected void setupSearchMode(String searchText)
+	{
+		if (messages.get(0).isBlockAddHeader())
+		{
+			messages.remove(0);
+			mAdapter.notifyDataSetChanged();
+		}
+		super.setupSearchMode(searchText);
+	}
+
 	@Override
 	protected void destroySearchMode()
 	{
 		super.destroySearchMode();
 		
+		addUnkownContactBlockHeader();
 		if (isH20TipShowing())
 		{
 			setEnabledH20NextButton(true);
