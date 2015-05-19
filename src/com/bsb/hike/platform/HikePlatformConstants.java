@@ -153,4 +153,10 @@ public interface HikePlatformConstants
 	 * Overflow menu item constants end
 	 */
 	public static final String AB_COLOR = "color";
+	
+	final String BLOCK = "block";
+	
+	final String MUTE = "mute";
+	
+	final String NETWORK_TYPE = "networkType";
 }

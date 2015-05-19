@@ -177,9 +177,9 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		}
 	}
 
-	public void onMenuItemClicked(String methodName )
+	public void onMenuItemClicked(int id )
 	{
-		mWebView.loadUrl("javascript:onMenuItemClicked('" + methodName + "')");
+		mWebView.loadUrl("javascript:onMenuItemClicked('" + id + "')");
 	}
 	
 	/**
