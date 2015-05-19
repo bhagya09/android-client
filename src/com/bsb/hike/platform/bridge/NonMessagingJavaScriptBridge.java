@@ -213,7 +213,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void removeMenu(int id)
 	{
-		NonMessagingBotConfiguration botConfig = new NonMessagingBotConfiguration(mBotInfo.getConfiguration());
+		NonMessagingBotConfiguration botConfig = new NonMessagingBotConfiguration(mBotInfo.getConfiguration(), mBotInfo.getConfigData());
 		if (botConfig.getConfigData() != null)
 		{
 			botConfig.removeOverflowMenu(id);
@@ -233,10 +233,11 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void replaceOverflowMenu(String newMenuString)
 	{
-		NonMessagingBotConfiguration botConfig = new NonMessagingBotConfiguration(mBotInfo.getConfiguration());
+		NonMessagingBotConfiguration botConfig = new NonMessagingBotConfiguration(mBotInfo.getConfiguration(), mBotInfo.getConfigData());
 		if(botConfig.getConfigData() != null)
 		{
 			botConfig.replaceOverflowMenu(newMenuString);
+			mBotInfo.setConfigData(botConfig.getConfigData().toString());
 			HikeConversationsDatabase.getInstance().updateConfigData(mBotInfo.getMsisdn(), botConfig.getConfigData().toString());
 		}
 	}
