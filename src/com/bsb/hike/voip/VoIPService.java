@@ -1400,8 +1400,10 @@ public class VoIPService extends Service {
 					
 					// Add to our decoded samples queue
 					try {
-						if (decodedSample == null)
+						if (decodedSample == null) {
+							Logger.d(VoIPConstants.TAG, "Decoded samples underrun. Adding silence.");
 							decodedSample = silentPacket;
+						}
 
 						if (playbackBuffersQueue.size() < VoIPConstants.MAX_SAMPLES_BUFFER)
 							playbackBuffersQueue.put(decodedSample);
