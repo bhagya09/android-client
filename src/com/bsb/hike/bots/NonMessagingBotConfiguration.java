@@ -171,14 +171,13 @@ public class NonMessagingBotConfiguration extends BotConfiguration
 	}
 	
 	/**
-	 * Utility method to update the overflow menu for a given id
+	 * Utility method to update the overflow menu title
 	 * 
 	 * @param id
-	 * @param newTitle
-	 * @param enabled
+	 * @param JSONObject
+	 *            menuObj
 	 */
-
-	public void updateOverFlowMenu(int id, String newTitle, boolean enabled)
+	public void updateOverFlowMenu(int id, JSONObject menuObj)
 	{
 		if (configData != null)
 		{
@@ -192,41 +191,7 @@ public class NonMessagingBotConfiguration extends BotConfiguration
 					int menuId = menuJSON.getInt(HikePlatformConstants.ID);
 					if (menuId == id)
 					{
-						updateMenuJSON(newTitle, enabled, menuJSON);
-						setConfigDataRefreshed(true);
-						break;
-					}
-				}
-
-			}
-			catch (JSONException e)
-			{
-				Logger.e(TAG, "Geting JSON exception while reading overflow menu items : " + e.toString());
-			}
-
-		}
-	}
-	
-	/**
-	 * Utility method to update the overflow menu title
-	 * @param id
-	 * @param newTitle
-	 */
-	public void updateOverFlowMenu(int id, String newTitle)
-	{
-		if (configData != null)
-		{
-			Logger.v(TAG, "Trying to update overflow menu for : " + id + " for this botConfig : " + configData.toString());
-			try
-			{
-				JSONArray menuItems = configData.getJSONArray(HikePlatformConstants.OVERFLOW_MENU);
-				for (int i = 0; i < menuItems.length(); i++)
-				{
-					JSONObject menuJSON = menuItems.getJSONObject(i);
-					int menuId = menuJSON.getInt(HikePlatformConstants.ID);
-					if (menuId == id)
-					{
-						updateMenuJSON(newTitle, menuJSON);
+						menuItems.put(i, menuObj);
 						setConfigDataRefreshed(true);
 						break;
 					}
@@ -261,92 +226,6 @@ public class NonMessagingBotConfiguration extends BotConfiguration
 				e.printStackTrace();
 			}
 		}
-	}
-
-	/**
-	 * Utility to update the title in BotConfig JSON
-	 * 
-	 * @param newTitle
-	 * @param menuJSON
-	 */
-	private void updateMenuJSON(String newTitle, JSONObject menuJSON)
-	{
-		try
-		{
-			menuJSON.put(HikePlatformConstants.TITLE, newTitle);
-		}
-		catch (JSONException e)
-		{
-			Logger.e(TAG, "Got JSON Exception in updateMenuJSON " + e.toString());
-		}
-	}
-
-	/**
-	 * Utility method to update the OverFlowMenu field in BotConfig JSON
-	 * 
-	 * @param newTitle
-	 * @param enabled
-	 * @param menuJSON
-	 */
-	private void updateMenuJSON(String newTitle, boolean enabled, JSONObject menuJSON)
-	{
-		try
-		{
-			menuJSON.put(HikePlatformConstants.TITLE, newTitle);
-			menuJSON.put(HikePlatformConstants.ENABLED, enabled);
-		}
-		catch (JSONException e)
-		{
-			Logger.e(TAG, "Got JSON Exception in updateMenuJSON " + e.toString());
-		}
-	}
-
-	/**
-	 * Utility method to updte overflow menu for a given id
-	 * 
-	 * @param id
-	 * @param enabled
-	 */
-	public void updateOverFlowMenu(int id, boolean enabled)
-	{
-		if (configData != null)
-		{
-			Logger.v(TAG, "Trying to update overflow menu for : " + id + " for this botConfig : " + configData.toString());
-			try
-			{
-				JSONArray menuItems = configData.getJSONArray(HikePlatformConstants.OVERFLOW_MENU);
-				for (int i = 0; i < menuItems.length(); i++)
-				{
-					JSONObject menuJSON = menuItems.getJSONObject(i);
-					int menuId = menuJSON.getInt(HikePlatformConstants.ID);
-					if (menuId == id)
-					{
-						updateMenuJSON(enabled, menuJSON);
-						setConfigDataRefreshed(true);
-						break;
-					}
-				}
-
-			}
-			catch (JSONException e)
-			{
-				Logger.e(TAG, "Geting JSON exception while reading overflow menu items : " + e.toString());
-			}
-
-		}
-	}
-
-	private void updateMenuJSON(boolean enabled, JSONObject menuJSON)
-	{
-		try
-		{
-			menuJSON.put(HikePlatformConstants.ENABLED, enabled);
-		}
-		catch (JSONException e)
-		{
-			Logger.e(TAG, "Got JSON Exception in updateMenuJSON " + e.toString());
-		}
-		
 	}
 
 	public OverFlowMenuItem getOverflowItemForId(int id)

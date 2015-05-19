@@ -182,60 +182,27 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		mWebView.loadUrl("javascript:onMenuItemClicked('" + id + "')");
 	}
 	
-	/**
-	 * Calling this method will update the menu title(for the given id) in WebViewActivity
-	 * 
-	 * @param id
-	 * @param newTitle
-	 */
 	@JavascriptInterface
-	public void updateMenuTitleAndState(int id, String newTitle, boolean enabled)
+	public void updateOverflowMenu(int id, String newMenuJSON)
 	{
-		NonMessagingBotConfiguration botConfig = new NonMessagingBotConfiguration(mBotInfo.getConfiguration());
+		NonMessagingBotConfiguration botConfig = new NonMessagingBotConfiguration(mBotInfo.getConfiguration(), mBotInfo.getConfigData());
 		if (botConfig.getConfigData() != null)
 		{
-			botConfig.updateOverFlowMenu(id, newTitle, enabled);
-			HikeConversationsDatabase.getInstance().updateConfigData(mBotInfo.getMsisdn(), botConfig.getConfigData().toString());
+			try
+			{
+				botConfig.updateOverFlowMenu(id, new JSONObject(newMenuJSON));
+				mBotInfo.setConfigData(botConfig.getConfigData().toString());
+			}
+			catch (JSONException e)
+			{
+				e.printStackTrace();
+			}
 		}
 	}
 	
-	/**
-	 * Calling this method will update the menu title(for the given id) in WebViewActivity
-	 * 
-	 * @param id
-	 * @param enabled
-	 */
-	@JavascriptInterface
-	public void updateMenuEnabledState(int id, boolean enabled)
-	{
-		NonMessagingBotConfiguration botConfig = new NonMessagingBotConfiguration(mBotInfo.getConfiguration());
-		if (botConfig.getConfigData() != null)
-		{
-			botConfig.updateOverFlowMenu(id, enabled);
-			HikeConversationsDatabase.getInstance().updateConfigData(mBotInfo.getMsisdn(), botConfig.getConfigData().toString());
-		}
-	}
-
 	public void onBackPressed()
 	{
 		mWebView.loadUrl("javascript:platformSdk.events.publish('onBackPressed')");
-	}
-	
-	/**
-	 * Utility method to update the title of the overflow menu for bot
-	 * 
-	 * @param id
-	 * @param newTitle
-	 */
-	@JavascriptInterface
-	public void updateMenuTitle(int id, String newTitle)
-	{
-		NonMessagingBotConfiguration botConfig = new NonMessagingBotConfiguration(mBotInfo.getConfiguration());
-		if (botConfig.getConfigData() != null)
-		{
-			botConfig.updateOverFlowMenu(id, newTitle);
-			HikeConversationsDatabase.getInstance().updateConfigData(mBotInfo.getMsisdn(), botConfig.getConfigData().toString());
-		}
 	}
 	
 	/**
