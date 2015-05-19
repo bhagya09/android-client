@@ -31,10 +31,10 @@ public class MqttConstants
 
 	public static final int DEV_STAGING_BROKER_PORT_NUMBER_SSL = 8883;
 
-	public static final int FALLBACK_BROKER_PORT_NUMBER_NON_SSL = 5222;
+	public static final int FALLBACK_BROKER_PORT_5222 = 5222;
 
 	public static final int FALLBACK_BROKER_PORT_NUMBER_SSL = 443;
-
+	
 	// this represents number of msgs published whose callback is not yet arrived
 	public static final short MAX_INFLIGHT_MESSAGES_ALLOWED = 100;
 

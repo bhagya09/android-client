@@ -140,8 +140,6 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 
 	List<String> serverURIs = null;
 
-	private volatile int ipConnectCount = 0;
-
 	private volatile short fastReconnect = 0;
 
 	private volatile int retryCount = 0;
@@ -150,7 +148,7 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 
 	private long maxMessageProcessTime = 0;
 	
-	private HostInfo previousHostInfo = null;
+	private volatile HostInfo previousHostInfo = null;
 	
 	private class ActivityCheckRunnable implements Runnable
 	{
@@ -608,7 +606,7 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 
 			// get host information for this connect try, which in turn is based on
 			// previous host informartion
-			HostInfo hostInfo = getNextHostInfo(previousHostInfo);
+			HostInfo hostInfo = new HostInfo(previousHostInfo, serverURIs);
 			if (mqtt == null)
 			{
 				// Here I am using my modified MQTT PAHO library
@@ -720,74 +718,6 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 			serverURIs.add("54.251.180.7");
 		}
 
-	}
-	
-	/*
-	 * method to get host and port for connect try call. 
-	 * this method takes care of IP/Port Fallback, SSL/Non-SSL
-	 * scenarios. 
-	 */
-	private HostInfo getNextHostInfo(HostInfo previousHostInfo)
-	{
-		boolean isSslOn = Utils.switchSSLOn(context);
-		boolean isProduction = Utils.isOnProduction();
-		
-		HostInfo hostInfo = new HostInfo();
-		setHostIp(hostInfo, previousHostInfo, isProduction);
-		setHostPort(hostInfo, previousHostInfo, isProduction, isSslOn);
-		hostInfo.setConnectTimeOut(previousHostInfo);
-		//We need to do it when port is decided for the host
-		hostInfo.setProtocol(hostInfo.getPort());
-		
-		return hostInfo;
-	}
-	
-	/*
-	 * calculates next ip to hit connect call based on previous host information
-	 */
-	public void setHostIp(HostInfo hostInfo, HostInfo previousHostInfo, boolean isProduction)
-	{
-		if(!isProduction)
-		{
-			hostInfo.setHost(STAGING_BROKER_HOST_NAME); //staging host
-		}
-		else if(previousHostInfo != null && previousHostInfo.getExceptionOnConnect() == ConnectExceptions.DNS_EXCEPTION)
-		{
-			hostInfo.setHost(getIp());  //connect using ip fallback
-		}
-		else
-		{
-			hostInfo.setHost(serverURIs.get(0));  //standerd Domain name => mqtt.im.hike.in/
-		}
-	}
-	
-	public void setHostPort(HostInfo hostInfo, HostInfo previousHostInfo, boolean isProduction, boolean isSslOn)
-	{
-		if(!isProduction)
-		{
-			hostInfo.setPort(isSslOn ? STAGING_BROKER_PORT_NUMBER_SSL : STAGING_BROKER_PORT_NUMBER); //staging ssl/non-ssl scenario
-		}
-		else if(previousHostInfo != null && previousHostInfo.getExceptionOnConnect() == ConnectExceptions.SOCKET_TIME_OUT_EXCEPTION)
-		{
-			/*
-			 * on production for some countries ssl port connection is not allowed at all in these
-			 * Countries we cannot use 443 as port fallback.
-			 */
-			boolean sslPortAllowedAsFallback = Utils.isSSLAllowed();
-			if(sslPortAllowedAsFallback)
-			{
-				hostInfo.setPort(FALLBACK_BROKER_PORT_NUMBER_SSL);
-			}
-			else
-			{
-				hostInfo.setPort(FALLBACK_BROKER_PORT_NUMBER_NON_SSL);
-			}
-		}
-		else
-		{
-			// Standard production 8080 and 443 port in case of non-ssl and ssl respectively.
-			hostInfo.setPort(isSslOn ? PRODUCTION_BROKER_PORT_NUMBER_SSL : PRODUCTION_BROKER_PORT_NUMBER);
-		}
 	}
 	
 	// This function should be called always from external classes inorder to run connect on MQTT thread
@@ -1495,23 +1425,6 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 		setServerUris();
 	}
 
-	private String getIp()
-	{
-		Random random = new Random();
-		int index = random.nextInt(serverURIs.size() - 1) + 1;
-		if (ipConnectCount == serverURIs.size())
-		{
-			ipConnectCount = 0;
-			return serverURIs.get(0);
-		}
-		else
-		{
-			ipConnectCount++;
-			return serverURIs.get(index);
-		}
-
-	}
-
 	// This class is just for testing .....
 	private class TestOutmsgs implements Runnable
 	{
@@ -1756,7 +1669,6 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 	private void resetConnectionVariables()
 	{
 		forceDisconnect = false;
-		ipConnectCount = 0;
 		previousHostInfo = null;
 	}
 	
