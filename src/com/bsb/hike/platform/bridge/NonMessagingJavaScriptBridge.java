@@ -177,9 +177,9 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		}
 	}
 
-	public void onMenuItemClicked(int id)
+	public void onMenuItemClicked(String methodName )
 	{
-		mWebView.loadUrl("javascript:onMenuItemClicked('" + id + "')");
+		mWebView.loadUrl("javascript:onMenuItemClicked('" + methodName + "')");
 	}
 	
 	/**
@@ -218,7 +218,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 
 	public void onBackPressed()
 	{
-		mWebView.loadUrl("javascript:onBackPressed()");
+		mWebView.loadUrl("javascript:platformSdk.events.publish('onBackPressed')");
 	}
 	
 	/**
