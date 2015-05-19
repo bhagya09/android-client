@@ -126,12 +126,12 @@ public class EmoticonPicker implements ShareablePopup, EmoticonPickerListener, O
 		this.mLayoutResId = layoutResId;
 	}
 
-	public void showEmoticonPicker(int screenOrientation)
+	public boolean showEmoticonPicker(int screenOrientation)
 	{
-		showEmoticonPicker(0, 0, screenOrientation);
+		return showEmoticonPicker(0, 0, screenOrientation);
 	}
 
-	public void showEmoticonPicker(int xoffset, int yoffset, int screenOritentation)
+	public boolean showEmoticonPicker(int xoffset, int yoffset, int screenOritentation)
 	{
 		/**
 		 * Checking for configuration change
@@ -144,7 +144,7 @@ public class EmoticonPicker implements ShareablePopup, EmoticonPickerListener, O
 		
 		initView();
 
-		mPopUpLayout.showKeyboardPopup(mViewToDisplay);
+		return mPopUpLayout.showKeyboardPopup(mViewToDisplay);
 	}
 
 	/**
