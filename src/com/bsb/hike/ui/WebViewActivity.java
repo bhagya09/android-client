@@ -407,11 +407,6 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		{
 			List<OverFlowMenuItem> menuItemsList = getOverflowMenuItems();
 			
-			if (menuItemsList != null && menuItemsList.isEmpty())
-			{
-				menu.findItem(R.id.overflow_menu).setVisible(false);
-			}
-			else
 			{
 				mActionBar.onCreateOptionsMenu(menu, R.menu.simple_overflow_menu, menuItemsList, this, this);
 				mActionBar.setOverflowViewListener(this);
@@ -575,18 +570,6 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			{
 				list.addAll(items);
 			}
-
-			if (botConfig.isMuteEnabled())
-			{
-				list.add(new OverFlowMenuItem(getString(botInfo.isMute() ? R.string.unmute : R.string.mute), 0, 0, R.string.mute));
-
-			}
-			
-			if (botConfig.isBlockEnabled())
-			{
-				list.add(new OverFlowMenuItem(getString(botInfo.isBlocked() ? R.string.unblock_title : R.string.block_title), 0, 0, R.string.block_title));
-			}
-
 		}
 		return list;
 	}
@@ -596,33 +579,12 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	{
 		switch (parameter.id)
 		{
-		case R.string.mute:
-			muteClicked();
-			break;
-		case R.string.block_title:
-			blockClicked();
-			break;
-			
 		default: 
 			if (mmBridge != null)
 			{
 				mmBridge.onMenuItemClicked(parameter.id);
 			}
 		}
-	}
-
-	private void muteClicked()
-	{
-		botInfo.setMute(!botInfo.isMute());
-		botConfig.setConfigDataRefreshed(true);
-		HikeMessengerApp.getPubSub().publish(HikePubSub.MUTE_BOT, botInfo.getMsisdn());
-	}
-
-	private void blockClicked()
-	{
-		botInfo.setBlocked(!botInfo.isBlocked());
-		botConfig.setConfigDataRefreshed(true);
-		HikeMessengerApp.getPubSub().publish(botInfo.isBlocked() ? HikePubSub.BLOCK_USER : HikePubSub.UNBLOCK_USER, botInfo.getMsisdn());
 	}
 
 	@Override
