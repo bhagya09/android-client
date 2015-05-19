@@ -146,7 +146,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		{
 			NonMessagingBotMetadata metadata = new NonMessagingBotMetadata(mBotInfo.getMetadata());
 			jsonObject.put(HikeConstants.MSISDN, mBotInfo.getMsisdn());
-			jsonObject.put(HikePlatformConstants.HELPER_DATA, metadata.getHelperData());
+			jsonObject.put(HikePlatformConstants.HELPER_DATA, mBotInfo.getHelperData());
 			jsonObject.put(HikePlatformConstants.PLATFORM_USER_ID, HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_UID_SETTING,null) );
 			jsonObject.put(HikePlatformConstants.APP_VERSION, AccountUtils.getAppVersion());
 			jsonObject.put(HikePlatformConstants.NOTIF_DATA, mBotInfo.getNotifData());
