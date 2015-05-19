@@ -380,4 +380,17 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	{
 		mWebView.loadUrl("javascript:orientationChanged('" + Integer.toString(orientation) + "')");
 	}
+	
+	/**
+	 * Utility method to call finish of the current activity
+	 */
+	@JavascriptInterface
+	public void finish()
+	{
+		Activity activity = weakActivity.get();
+		if (activity != null)
+		{
+			activity.finish();
+		}
+	}
 }
