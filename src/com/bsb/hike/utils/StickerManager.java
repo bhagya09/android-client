@@ -78,6 +78,8 @@ public class StickerManager
 	public static final String STICKERS_FAILED = "st_failed";
 	
 	public static final String STICKERS_PROGRESS = "st_progress";
+	
+	public static final String STICKER_PREVIEW_DOWNLOADED = "st_prv_dl";
 
 	public static final String STICKER_DOWNLOAD_TYPE = "stDownloadType";
 
