@@ -183,14 +183,14 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	}
 	
 	@JavascriptInterface
-	public void updateOverflowMenu(int id, String newMenuJSON)
+	public void updateOverflowMenu(String id, String newMenuJSON)
 	{
 		NonMessagingBotConfiguration botConfig = new NonMessagingBotConfiguration(mBotInfo.getConfiguration(), mBotInfo.getConfigData());
 		if (botConfig.getConfigData() != null)
 		{
 			try
 			{
-				botConfig.updateOverFlowMenu(id, new JSONObject(newMenuJSON));
+				botConfig.updateOverFlowMenu(Integer.parseInt(id), new JSONObject(newMenuJSON));
 				mBotInfo.setConfigData(botConfig.getConfigData().toString());
 			}
 			catch (JSONException e)
@@ -211,12 +211,12 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	 * @param id
 	 */
 	@JavascriptInterface
-	public void removeMenu(int id)
+	public void removeMenu(String id)
 	{
 		NonMessagingBotConfiguration botConfig = new NonMessagingBotConfiguration(mBotInfo.getConfiguration(), mBotInfo.getConfigData());
 		if (botConfig.getConfigData() != null)
 		{
-			botConfig.removeOverflowMenu(id);
+			botConfig.removeOverflowMenu(Integer.parseInt(id));
 			mBotInfo.setConfigData(botConfig.getConfigData().toString());
 			HikeConversationsDatabase.getInstance().updateConfigData(mBotInfo.getMsisdn(), botConfig.getConfigData().toString());
 		}
