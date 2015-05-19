@@ -8,6 +8,9 @@ public class VoIPConstants {
 	public static final String ICEServerName = "relay.hike.in";
 	public static final int ICEServerPort = 9999;
 
+	public static final int AUDIO_SAMPLE_RATE = 48000; 
+	public static final int MAX_SAMPLES_BUFFER = 3;
+
 	/**
 	 * Time (ms) to wait before the client being called replies with its
 	 * own socket information.
@@ -32,7 +35,9 @@ public class VoIPConstants {
 	public static final int BITRATE_WIFI = 48000;
 
 	public static final String CALL_ID = "callId";
+	public static final String MSISDN = "msisdn";
 	public static final String IS_CALL_INITIATOR = "isCallInitiator";
+	public static final String IS_CONNECTED = "isConnected";
 	public static final String CALL_RATING = "rating";
 	public static final String CALL_NETWORK_TYPE = "network";
 	public static final String PARTNER_MSISDN = "pmsisdn";
@@ -58,6 +63,13 @@ public class VoIPConstants {
 	public static final int MSG_ALREADY_IN_NATIVE_CALL = 13;
 	public static final int MSG_AUDIORECORD_FAILURE = 14;
 	public static final int MSG_UPDATE_REMOTE_HOLD = 15;
+	public static final int MSG_VOIP_CLIENT_STOP = 16;
+	public static final int MSG_VOIP_CLIENT_OUTGOING_CALL_RINGTONE = 17;
+	public static final int MSG_VOIP_CLIENT_INCOMING_CALL_RINGTONE = 18;
+	public static final int MSG_START_RECORDING_AND_PLAYBACK = 19;
+	public static final int MSG_START_RECONNECTION_BEEPS = 21;
+	public static final int MSG_STOP_RECONNECTION_BEEPS = 22;
+	public static final int MSG_CONNECTED = 23;
 
 	public static final class Analytics
 	{

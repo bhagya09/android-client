@@ -10,7 +10,9 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.ShortBuffer;
 import java.util.Enumeration;
 import java.util.Random;
 
@@ -548,7 +550,7 @@ public class VoIPUtils {
 			if (subType.equals(HikeConstants.MqttMessageTypes.VOIP_MSG_TYPE_MISSED_CALL_INCOMING)) 
 			{
 				Logger.d(VoIPConstants.TAG, "Adding a missed call to our chat history.");
-				VoIPClient clientPartner = new VoIPClient();
+				VoIPClient clientPartner = new VoIPClient(context, null);
 				clientPartner.setPhoneNumber(jsonObj.getString(HikeConstants.FROM));
 				clientPartner.setInitiator(true);
 				VoIPUtils.resetNotificationStatus();
@@ -596,4 +598,68 @@ public class VoIPUtils {
 		}
 	
 	}
+	
+	public static byte[] addPCMSamples(byte[] original, byte[] toadd) {
+		
+		// Get original sample as short
+		ShortBuffer shortBuffer = ByteBuffer.wrap(original).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer();
+		short[] originalShorts = new short[shortBuffer.capacity()];
+		shortBuffer.get(originalShorts);
+		
+		// Get second sample as short
+		ShortBuffer shortBuffer2 = ByteBuffer.wrap(toadd).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer();
+		short[] toAddShorts = new short[shortBuffer2.capacity()];
+		shortBuffer2.get(toAddShorts);
+		
+		// Add them together in a short array
+		short[] finalShorts = new short[shortBuffer2.capacity()];
+		for (int i = 0; i < finalShorts.length; i++) {
+			int sum = (int) ((originalShorts[i] + toAddShorts[i]));
+			if (sum > Short.MAX_VALUE) {
+				finalShorts[i] = Short.MAX_VALUE;
+			} else if (sum < Short.MIN_VALUE) {
+				finalShorts[i] = Short.MIN_VALUE;
+			} else
+				finalShorts[i] = (short) (sum);
+		}
+		
+		// Convert short array to byte array
+		ByteBuffer buffer = ByteBuffer.allocate(finalShorts.length * 2);
+		buffer.order(ByteOrder.LITTLE_ENDIAN);
+		buffer.asShortBuffer().put(finalShorts);
+		return buffer.array();
+	}
+	
+	public static byte[] subtractPCMSamples(byte[] from, byte[] tosubtract) {
+		
+		// Get original sample as short
+		ShortBuffer shortBuffer = ByteBuffer.wrap(from).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer();
+		short[] originalShorts = new short[shortBuffer.capacity()];
+		shortBuffer.get(originalShorts);
+		
+		// Get second sample as short
+		ShortBuffer shortBuffer2 = ByteBuffer.wrap(tosubtract).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer();
+		short[] toAddShorts = new short[shortBuffer2.capacity()];
+		shortBuffer2.get(toAddShorts);
+		
+		// Subtract them together in a short array
+		short[] finalShorts = new short[shortBuffer2.capacity()];
+		for (int i = 0; i < finalShorts.length; i++) {
+			int sum = (int) ((originalShorts[i] - toAddShorts[i]));
+			if (sum > Short.MAX_VALUE) {
+				finalShorts[i] = Short.MAX_VALUE;
+			} else if (sum < Short.MIN_VALUE) {
+				finalShorts[i] = Short.MIN_VALUE;
+			} else
+				finalShorts[i] = (short) (sum);
+		}
+		
+		// Convert short array to byte array
+		ByteBuffer buffer = ByteBuffer.allocate(finalShorts.length * 2);
+		buffer.order(ByteOrder.LITTLE_ENDIAN);
+		buffer.asShortBuffer().put(finalShorts);
+		return buffer.array();
+	}
+	
+	
 }
