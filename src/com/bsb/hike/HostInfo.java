@@ -252,6 +252,11 @@ public class HostInfo
 		}
 	}
 	
-
+	public String toString()
+	{
+		return " Protocol : "+protocol + " Host : " + host + " Port : "+ port + " connectTimeOut : " + connectTimeOut 
+				+ " connectRetryCount : "+ connectRetryCount + " ipConnectCount : "+ipConnectCount 
+				+ " exceptionOnConnect : "+exceptionOnConnect;
+	}
 
 }

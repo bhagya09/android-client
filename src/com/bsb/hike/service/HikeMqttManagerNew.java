@@ -639,6 +639,8 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 				previousNetInfo = NetInfo.getNetInfo(Utils.getActiveNetInfo()); // update previous netInfo
 				
 				previousHostInfo = hostInfo;
+				
+				Logger.d(TAG, "MQTT trying to connect on HostInfo : "+hostInfo.toString());
 				mqtt.connect(op, null, getConnectListener());
 				scheduleNextActivityCheck();
 			}
