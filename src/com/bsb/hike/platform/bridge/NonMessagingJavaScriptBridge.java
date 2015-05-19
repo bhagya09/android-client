@@ -217,6 +217,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		if (botConfig.getConfigData() != null)
 		{
 			botConfig.removeOverflowMenu(id);
+			mBotInfo.setConfigData(botConfig.getConfigData().toString());
 			HikeConversationsDatabase.getInstance().updateConfigData(mBotInfo.getMsisdn(), botConfig.getConfigData().toString());
 		}
 	}
