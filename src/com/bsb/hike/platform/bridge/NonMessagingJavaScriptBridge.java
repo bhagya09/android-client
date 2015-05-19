@@ -164,7 +164,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	 * @param : true to block the microapp false to unblock it.
 	 */
 	@JavascriptInterface
-	public void block(String isBlocked)
+	public void blockChatThread(String isBlocked)
 	{
 		if (isBlocked.equalsIgnoreCase(Boolean.toString(true)))
 		{
