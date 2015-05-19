@@ -1533,6 +1533,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			messageSearchManager.deactivate();
 			mAdapter.setSearchText(null);
 			searchText = null;
+			setupDefaultActionBar(false);
 		}
 	}
 
