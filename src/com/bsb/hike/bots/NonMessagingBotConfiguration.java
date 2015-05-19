@@ -10,6 +10,7 @@ import org.json.JSONObject;
 import android.R;
 import android.content.res.Configuration;
 import android.graphics.Color;
+import android.text.TextUtils;
 
 import com.bsb.hike.media.OverFlowMenuItem;
 import com.bsb.hike.platform.HikePlatformConstants;
@@ -92,10 +93,32 @@ public class NonMessagingBotConfiguration extends BotConfiguration
 		super(config);
 	}
 
-	public NonMessagingBotConfiguration(int config, JSONObject configData)
+	public NonMessagingBotConfiguration(int config, String configData)
 	{
-		super(config);
-		this.configData = configData;
+		this(config);
+		initConfigData(configData);
+	}
+
+	private void initConfigData(String configData)
+	{
+		if (!TextUtils.isEmpty(configData))
+		{
+			try
+			{
+				this.configData = new JSONObject(configData);
+			}
+			catch (JSONException e)
+			{
+				this.configData = new JSONObject();
+			}
+
+			return;
+		}
+
+		else
+		{
+			this.configData = new JSONObject();
+		}
 	}
 
 	/**
