@@ -1,11 +1,7 @@
 package com.bsb.hike.bots;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.models.Conversation.ConvInfo;
-import com.bsb.hike.platform.HikePlatformConstants;
 
 /**
  * Created by shobhit on 22/04/15.
@@ -24,6 +20,8 @@ public class BotInfo extends ConvInfo
 	private String configData;
 
 	private String notifData;
+	
+	private boolean configDataRefreshed = false;
 
 	public static abstract class InitBuilder<P extends InitBuilder<P>> extends ConvInfo.InitBuilder<P>
 	{
@@ -147,6 +145,7 @@ public class BotInfo extends ConvInfo
 	public void setConfigData(String configData)
 	{
 		this.configData = configData;
+		setConfigDataRefreshed(true);
 	}
 
 	public void setNotifData(String notifData)
@@ -200,6 +199,22 @@ public class BotInfo extends ConvInfo
 	public void setOnHike(boolean isOnHike)
 	{
 		super.setOnHike(true);
+	}
+
+	/**
+	 * @return the configDataRefreshed
+	 */
+	public boolean isConfigDataRefreshed()
+	{
+		return configDataRefreshed;
+	}
+
+	/**
+	 * @param configDataRefreshed the configDataRefreshed to set
+	 */
+	public void setConfigDataRefreshed(boolean configDataRefreshed)
+	{
+		this.configDataRefreshed = configDataRefreshed;
 	}
 
 

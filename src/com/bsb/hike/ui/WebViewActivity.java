@@ -652,11 +652,12 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		/**
 		 * Updating menu conditionally
 		 */
-		if (botConfig.isConfigDataRefreshed())
+		if (botInfo.isConfigDataRefreshed())
 		{
+			botConfig.setConfigData(botInfo.getConfigData());
 			overflowItems.clear();
 			overflowItems.addAll(getOverflowMenuItems());
-			botConfig.setConfigDataRefreshed(false);
+			botInfo.setConfigDataRefreshed(false);
 		}
 	}
 

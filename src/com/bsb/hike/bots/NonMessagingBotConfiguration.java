@@ -25,8 +25,6 @@ public class NonMessagingBotConfiguration extends BotConfiguration
 	
 	private static final String TAG = "NonMessagingBotConfig";
 	
-	private boolean configDataRefreshed = false;
-	
 	/**
 	 * Bit positions for configData. These positions start from the most significant bit
 	 */
@@ -97,6 +95,11 @@ public class NonMessagingBotConfiguration extends BotConfiguration
 	{
 		this(config);
 		initConfigData(configData);
+	}
+	
+	public void setConfigData(String newConfigData)
+	{
+		initConfigData(newConfigData);
 	}
 
 	private void initConfigData(String configData)
@@ -192,7 +195,6 @@ public class NonMessagingBotConfiguration extends BotConfiguration
 					if (menuId == id)
 					{
 						menuItems.put(i, menuObj);
-						setConfigDataRefreshed(true);
 						break;
 					}
 				}
@@ -256,22 +258,6 @@ public class NonMessagingBotConfiguration extends BotConfiguration
 	}
 
 	/**
-	 * @return the wasConfigDataRefreshed
-	 */
-	public boolean isConfigDataRefreshed()
-	{
-		return configDataRefreshed;
-	}
-
-	/**
-	 * @param wasConfigDataRefreshed the wasConfigDataRefreshed to set
-	 */
-	public void setConfigDataRefreshed(boolean wasConfigDataRefreshed)
-	{
-		this.configDataRefreshed = wasConfigDataRefreshed;
-	}
-
-	/**
 	 * Method to remove menu from JSON Array of menu options in configData
 	 * @param id
 	 */
@@ -290,7 +276,6 @@ public class NonMessagingBotConfiguration extends BotConfiguration
 					if (menuId == id)
 					{
 						menuItems.remove(i);
-						setConfigDataRefreshed(true);
 						break;
 					}
 				}
