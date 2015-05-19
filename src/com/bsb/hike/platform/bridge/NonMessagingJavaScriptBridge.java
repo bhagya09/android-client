@@ -23,6 +23,8 @@ import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.utils.Logger;
 
+import java.util.Iterator;
+
 public class NonMessagingJavaScriptBridge extends JavascriptBridge
 {
 	
@@ -66,12 +68,27 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void updateHelperData(String json)
 	{
-		Logger.i(tag, "update metadata called " + json + " , MicroApp msisdn : " + mBotInfo.getMsisdn());
-		String originalmetadata = HikeConversationsDatabase.getInstance().getMetadataOfBot(mBotInfo.getMsisdn());
-		originalmetadata = PlatformUtils.updateHelperData(json, originalmetadata);
-		if (originalmetadata != null)
+
+		Logger.i(tag, "update helperData called " + json + " , MicroApp msisdn : " + mBotInfo.getMsisdn());
+		String oldHelper = mBotInfo.getHelperData();
+		try
 		{
-			HikeConversationsDatabase.getInstance().updateMetadataOfBot(mBotInfo.getMsisdn(), originalmetadata);
+			JSONObject oldHelperDataJson = new JSONObject(oldHelper);
+			Iterator<String> i = oldHelperDataJson.keys();
+			while (i.hasNext())
+			{
+				String key = i.next();
+				oldHelperDataJson.put(key, oldHelperDataJson.get(key));
+			}
+			mBotInfo.setHelperData(oldHelperDataJson.toString());
+			if (!TextUtils.isEmpty(mBotInfo.getHelperData()))
+			{
+				HikeConversationsDatabase.getInstance().updateHelperDataForNonMessagingBot(mBotInfo.getMsisdn(), mBotInfo.getHelperData());
+			}
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
 		}
 
 	}
