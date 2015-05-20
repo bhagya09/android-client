@@ -1,19 +1,15 @@
 package com.bsb.hike.productpopup;
 
 import java.lang.ref.WeakReference;
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 
+import com.bsb.hike.platform.CustomWebView;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.support.v4.app.DialogFragment;
-import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
@@ -23,27 +19,21 @@ import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.platform.bridge.JavascriptBridge;
-import com.bsb.hike.productpopup.ProductPopupsConstants.PopUpAction;
-import com.bsb.hike.service.HikeService;
-import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.productpopup.ProductPopupsConstants.HIKESCREEN;
 import com.bsb.hike.productpopup.ProductPopupsConstants.PopUpAction;
-import com.bsb.hike.utils.IntentManager;
+import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
 public class ProductJavaScriptBridge extends JavascriptBridge
 {
-	WebView mmWebView;
-
 	WeakReference<HikeDialogFragment> mHikeDialogFragment;
 	
 	Object productContentModel;
 
-	public ProductJavaScriptBridge(WebView mWebView, WeakReference<HikeDialogFragment> activity, Object productContentModel)
+	public ProductJavaScriptBridge(CustomWebView mWebView, WeakReference<HikeDialogFragment> activity, Object productContentModel)
 	{
 		super(activity.get().getActivity(), mWebView);
-		this.mmWebView = mWebView;
 		this.mHikeDialogFragment = activity;
 		this.productContentModel=productContentModel;
 
@@ -77,7 +67,7 @@ public class ProductJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void onLoadFinished(final String height)
 	{
-		Logger.d("ProductPopup","Widht after  onLoadFinished " +mmWebView.getWidth());
+		Logger.d("ProductPopup","Widht after  onLoadFinished " +mWebView.getWidth());
 		onResize(height);
 	}
 
@@ -188,7 +178,7 @@ public class ProductJavaScriptBridge extends JavascriptBridge
 
 	private void multiFwdStickers(Context context, String stickerId, String categoryId, boolean selectAll)
 	{
-		Intent intent = IntentManager.getForwardStickerIntent(context, stickerId, categoryId);
+		Intent intent = IntentFactory.getForwardStickerIntent(context, stickerId, categoryId);
 		intent.putExtra(HikeConstants.Extras.SELECT_ALL_INITIALLY, selectAll);
 		context.startActivity(intent);
 	}

@@ -37,19 +37,14 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
 import com.bsb.hike.adapters.EmoticonAdapter;
-import com.bsb.hike.adapters.EmoticonPageAdapter.EmoticonClickListener;
 import com.bsb.hike.adapters.MoodAdapter;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.http.HikeHttpRequest;
 import com.bsb.hike.http.HikeHttpRequest.HikeHttpCallback;
 import com.bsb.hike.http.HikeHttpRequest.RequestType;
+import com.bsb.hike.media.EmoticonPickerListener;
 import com.bsb.hike.models.StatusMessage;
 import com.bsb.hike.models.StatusMessage.StatusMessageType;
-import com.bsb.hike.productpopup.DialogPojo;
-import com.bsb.hike.productpopup.HikeDialogFragment;
-import com.bsb.hike.productpopup.IActivityPopup;
-import com.bsb.hike.productpopup.ProductContentModel;
-import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.tasks.HikeHTTPTask;
 import com.bsb.hike.tasks.StatusUpdateTask;
@@ -64,7 +59,7 @@ import com.bsb.hike.view.CustomLinearLayout;
 import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 import com.bsb.hike.view.StickerEmoticonIconPageIndicator;
 
-public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Listener, OnSoftKeyboardListener, EmoticonClickListener
+public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Listener, OnSoftKeyboardListener, EmoticonPickerListener
 {
 
 	private class ActivityTask
@@ -274,7 +269,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 			public void onClick(View v)
 			{
 				Utils.hideSoftKeyboard(StatusUpdate.this, statusTxt);
-				onBackPressed();
+				actionBarBackPressed();
 			}
 		});
 
@@ -471,6 +466,28 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		{
 			hideEmojiOrMoodLayout();
 			setTitle();
+		}
+		else
+		{
+			super.onBackPressed();
+		}
+	}
+	
+	public void actionBarBackPressed()
+	{
+		if (isEmojiOrMoodLayoutVisible())
+		{
+			if (emojiParent.getVisibility() == View.VISIBLE)
+			{
+				mActivityTask.emojiShowing = false;
+				emojiParent.setVisibility(View.GONE);
+				super.onBackPressed();
+			}
+			else
+			{
+				hideEmojiOrMoodLayout();
+				setTitle();
+			}
 		}
 		else
 		{
@@ -726,7 +743,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		setupEmoticonLayout(whichSubcategory, tabDrawables);
 		emoticonLayout.setVisibility(View.VISIBLE);
 		
-		View eraseKey = (View) findViewById(R.id.erase_key);
+		View eraseKey = (View) findViewById(R.id.erase_key_image);
 		eraseKey.setVisibility(View.VISIBLE);
 		eraseKey.setOnClickListener(new OnClickListener()
 		{
@@ -748,14 +765,14 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	private void setupEmoticonLayout(int whichSubcategory, int[] tabDrawable)
 	{
 
-		EmoticonAdapter statusEmojiAdapter = new EmoticonAdapter(this, this, getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT, tabDrawable,
+		EmoticonAdapter statusEmojiAdapter = new EmoticonAdapter(this.getApplicationContext(), this, getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT, tabDrawable,
 				true);
 
 		ViewPager emoticonViewPager = (ViewPager) findViewById(R.id.emoticon_pager);
 		emoticonViewPager.setAdapter(statusEmojiAdapter);
 		emoticonViewPager.invalidate();
 
-		StickerEmoticonIconPageIndicator pageIndicator = (StickerEmoticonIconPageIndicator) findViewById(R.id.icon_indicator);
+		StickerEmoticonIconPageIndicator pageIndicator = (StickerEmoticonIconPageIndicator) findViewById(R.id.emoticon_icon_indicator);
 		pageIndicator.setViewPager(emoticonViewPager);
 		pageIndicator.setCurrentItem(whichSubcategory);
 	}
@@ -946,9 +963,9 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	}
 
 	@Override
-	public void onEmoticonClicked(int emoticonIndex)
+	public void emoticonSelected(int emoticonIndex)
 	{
 		Utils.emoticonClicked(getApplicationContext(), emoticonIndex, statusTxt);
-		
 	}
+	
 }

@@ -4,6 +4,7 @@ import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_A
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_CONNECTION_TIMEOUT;
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_MALFORMED_URL;
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_NO_NETWORK;
+import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_RESPONSE_PARSING_ERROR;
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_SERVER_ERROR;
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_SOCKET_TIMEOUT;
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_UNEXPECTED_ERROR;
@@ -14,11 +15,14 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
 import java.util.Iterator;
+import java.util.UUID;
 
 import org.apache.http.conn.ConnectTimeoutException;
 
 import com.bsb.hike.modules.httpmgr.DefaultHeaders;
-import com.bsb.hike.modules.httpmgr.Utils;
+import com.bsb.hike.modules.httpmgr.HttpUtils;
+import com.bsb.hike.modules.httpmgr.analytics.HttpAnalyticsConstants;
+import com.bsb.hike.modules.httpmgr.analytics.HttpAnalyticsLogger;
 import com.bsb.hike.modules.httpmgr.client.IClient;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.interceptor.IRequestInterceptor;
@@ -28,6 +32,7 @@ import com.bsb.hike.modules.httpmgr.request.Request;
 import com.bsb.hike.modules.httpmgr.request.RequestCall;
 import com.bsb.hike.modules.httpmgr.request.facade.RequestFacade;
 import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.modules.httpmgr.response.ResponseBody;
 import com.bsb.hike.modules.httpmgr.retry.IRetryPolicy;
 
 /**
@@ -51,12 +56,24 @@ public class RequestExecuter
 	
 	private boolean allInterceptorsExecuted;
 
+	private String trackId;
+	
 	public RequestExecuter(IClient client, HttpEngine engine, Request<?> request, IResponseListener listener)
 	{
 		this.client = client;
 		this.engine = engine;
 		this.request = request;
 		this.listener = listener;
+		checkAndInitializeAnalyticsFields();
+	}
+
+	private void checkAndInitializeAnalyticsFields()
+	{
+		if (HttpAnalyticsLogger.shouldSendLog(request.getUrl()))
+		{
+			this.trackId = UUID.randomUUID().toString();
+			this.request.addHeader(HttpAnalyticsConstants.TRACK_ID_HEADER_KEY, trackId);
+		}
 	}
 
 	/**
@@ -75,14 +92,7 @@ public class RequestExecuter
 		 */
 		if (!allInterceptorsExecuted)
 		{
-			Utils.finish(request, response);
-		}
-		else
-		{
-			if (RequestProcessor.isRequestDuplicateAfterInterceptorsProcessing(request))
-			{
-				return;
-			}
+			HttpUtils.finish(request, response);
 		}
 	}
 
@@ -216,27 +226,32 @@ public class RequestExecuter
 			 */
 			DefaultHeaders.applyDefaultHeaders(request);
 
-			response = client.execute(request);
+			/** Logging request for analytics */
+			HttpAnalyticsLogger.logHttpRequest(trackId, request.getUrl(), request.getMethod(), request.getAnalyticsParam());
 
+			response = client.execute(request);
 			if (response.getStatusCode() < 200 || response.getStatusCode() > 299)
 			{
 				throw new IOException();
 			}
 
 			LogFull.d(request.toString() + " completed");
-			// positive response
-			listener.onResponse(response, null);
+			
+			notifyResponseToRequestRunner();
 		}
 		catch (SocketTimeoutException ex)
 		{
+			HttpAnalyticsLogger.logResponseReceived(trackId, request.getUrl(), REASON_CODE_SOCKET_TIMEOUT, request.getMethod(), request.getAnalyticsParam());
 			handleRetry(ex, REASON_CODE_SOCKET_TIMEOUT);
 		}
 		catch (ConnectTimeoutException ex)
 		{
+			HttpAnalyticsLogger.logResponseReceived(trackId, request.getUrl(), REASON_CODE_CONNECTION_TIMEOUT, request.getMethod(), request.getAnalyticsParam());
 			handleRetry(ex, REASON_CODE_CONNECTION_TIMEOUT);
 		}
 		catch (MalformedURLException ex)
 		{
+			HttpAnalyticsLogger.logResponseReceived(trackId, request.getUrl(), REASON_CODE_MALFORMED_URL, request.getMethod(), request.getAnalyticsParam());
 			handleException(ex, REASON_CODE_MALFORMED_URL);
 		}
 		catch (IOException ex)
@@ -244,10 +259,12 @@ public class RequestExecuter
 			int statusCode = 0;
 			if (response != null)
 			{
+				HttpAnalyticsLogger.logResponseReceived(trackId, request.getUrl(), response.getStatusCode(), request.getMethod(), request.getAnalyticsParam());
 				statusCode = response.getStatusCode();
 			}
 			else
 			{
+				HttpAnalyticsLogger.logResponseReceived(trackId, request.getUrl(), REASON_CODE_NO_NETWORK, request.getMethod(), request.getAnalyticsParam());
 				handleRetry(ex, REASON_CODE_NO_NETWORK);
 				return;
 			}
@@ -264,8 +281,25 @@ public class RequestExecuter
 		}
 		catch (Throwable ex)
 		{
+			HttpAnalyticsLogger.logResponseReceived(trackId, request.getUrl(), REASON_CODE_UNEXPECTED_ERROR, request.getMethod(), request.getAnalyticsParam());
 			handleException(ex, REASON_CODE_UNEXPECTED_ERROR);
 		}
+	}
+
+	private void notifyResponseToRequestRunner()
+	{
+		ResponseBody<?> body = response.getBody();
+		if (null == body || null == body.getContent())
+		{
+			HttpAnalyticsLogger.logResponseReceived(trackId, request.getUrl(), REASON_CODE_RESPONSE_PARSING_ERROR, request.getMethod(), request.getAnalyticsParam());
+			listener.onResponse(null, new HttpException(REASON_CODE_RESPONSE_PARSING_ERROR, "response parsing error"));
+		}
+		else
+		{
+			// positive response
+			HttpAnalyticsLogger.logResponseReceived(trackId, request.getUrl(), response.getStatusCode(), request.getMethod(), request.getAnalyticsParam());
+			listener.onResponse(response, null);
+		}	
 	}
 
 	/**
@@ -343,6 +377,10 @@ public class RequestExecuter
 			else
 			{
 				LogFull.d("Pre-processing completed for " + request.toString());
+				if (RequestProcessor.isRequestDuplicateAfterInterceptorsProcessing(request))
+				{
+					return;
+				}
 				allInterceptorsExecuted = true;
 				processRequest();
 			}

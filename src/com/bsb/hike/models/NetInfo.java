@@ -15,8 +15,6 @@ public class NetInfo
 	
 	private boolean isConnected;
 	
-	private boolean isConnectedOrConnecting;
-	
 	private boolean isRoaming;
 
 	private int networkType;
@@ -42,7 +40,6 @@ public class NetInfo
 		NetInfo netInfo = new NetInfo();
 		netInfo.setInfo(info);
 		netInfo.setAvailable(info.isAvailable());
-		netInfo.setConnectedOrConnecting(info.isConnectedOrConnecting());
 		netInfo.setConnected(info.isConnected());
 		netInfo.setRoaming(info.isRoaming());
 		
@@ -192,16 +189,6 @@ public class NetInfo
 		this.ssid = ssid;
 	}
 	
-	public boolean isConnectedOrConnecting()
-	{
-		return isConnectedOrConnecting;
-	}
-
-	public void setConnectedOrConnecting(boolean isConnectedOrConnecting)
-	{
-		this.isConnectedOrConnecting = isConnectedOrConnecting;
-	}
-
 	public boolean isRoaming()
 	{
 		return isRoaming;

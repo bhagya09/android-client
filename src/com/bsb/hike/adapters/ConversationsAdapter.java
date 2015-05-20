@@ -15,25 +15,20 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.AsyncTask;
-import android.os.CountDownTimer;
-import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
-import android.text.style.TextAppearanceSpan;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.view.animation.TranslateAnimation;
 import android.widget.BaseAdapter;
 import android.widget.Filter;
+import android.widget.Filter.FilterListener;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -41,33 +36,25 @@ import android.widget.TextView;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.HikePubSub;
 import com.bsb.hike.NUXConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
-import com.bsb.hike.models.BroadcastConversation;
+import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.ConvMessage.State;
-import com.bsb.hike.models.ContactInfo;
-import com.bsb.hike.models.Conversation;
-import com.bsb.hike.models.ConversationTip;
-import com.bsb.hike.models.GroupConversation;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.MessageMetadata;
+import com.bsb.hike.models.TypingNotification;
+import com.bsb.hike.models.Conversation.ConvInfo;
+import com.bsb.hike.models.Conversation.OneToNConvInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.smartImageLoader.IconLoader;
-import com.bsb.hike.ui.PeopleActivity;
-import com.bsb.hike.ui.ProfileActivity;
-import com.bsb.hike.ui.StatusUpdate;
-import com.bsb.hike.ui.TellAFriend;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.bsb.hike.utils.IntentManager;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.NUXManager;
+import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.SmileyParser;
-import com.bsb.hike.utils.GroupUtils;
 import com.bsb.hike.utils.Utils;
 
 public class ConversationsAdapter extends BaseAdapter
@@ -77,25 +64,19 @@ public class ConversationsAdapter extends BaseAdapter
 
 	private int mIconImageSize;
 
-	private CountDownSetter countDownSetter;
-	
 	private SparseBooleanArray itemsToAnimat;
 	
-	private boolean stealthFtueTipAnimated = false;
-	
-	private boolean resetStealthTipAnimated = false;
+	private List<ConvInfo> conversationList;
 
-	private List<Conversation> conversationList;
+	private List<ConvInfo> phoneBookContacts;
 
-	private List<Conversation> phoneBookContacts;
+	private List<ConvInfo> completeList;
 
-	private List<Conversation> completeList;
-
-	private Set<Conversation> stealthConversations;
+	private Set<ConvInfo> stealthConversations;
 
 	private Map<String, Integer> convSpanStartIndexes;
 
-	private String refinedSearchText;
+	private String refinedSearchText = "";
 
 	private Context context;
 
@@ -108,10 +89,12 @@ public class ConversationsAdapter extends BaseAdapter
 	private Set<String> conversationsMsisdns;
 
 	private boolean isSearchModeOn = false;
+	
+	private FilterListener searchFilterListener;
 
 	private enum ViewType
 	{
-		CONVERSATION, STEALTH_FTUE_TIP_VIEW, RESET_STEALTH_TIP, WELCOME_HIKE_TIP, STEALTH_INFO_TIP, STEALTH_UNREAD_TIP, ATOMIC_PROFILE_PIC_TIP, ATOMIC_FAVOURITE_TIP, ATOMIC_INVITE_TIP, ATOMIC_STATUS_TIP, ATOMIC_INFO_TIP,ATOMIC_HTTP_TIP,ATOMIC_APP_GENERIC_TIP
+		CONVERSATION
 	}
 
 	private class ViewHolder
@@ -119,8 +102,6 @@ public class ConversationsAdapter extends BaseAdapter
 		String msisdn;
 
 		TextView headerText;
-
-		View closeTip;
 
 		TextView subText;
 
@@ -132,25 +113,24 @@ public class ConversationsAdapter extends BaseAdapter
 
 		ImageView avatar;
 		
-		View parent;
-		
 		ImageView muteIcon;
 	}
 
-	public ConversationsAdapter(Context context, List<Conversation> displayedConversations, Set<Conversation> stealthConversations, ListView listView)
+	public ConversationsAdapter(Context context, List<ConvInfo> displayedConversations, Set<ConvInfo> stealthConversations, ListView listView, FilterListener searchFilterListener)
 	{
 		this.context = context;
 		this.completeList = displayedConversations;
 		this.stealthConversations = stealthConversations;
 		this.listView = listView;
 		this.inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		this.searchFilterListener = searchFilterListener;
 		mIconImageSize = context.getResources().getDimensionPixelSize(R.dimen.icon_picture_size);
 		iconLoader = new IconLoader(context, mIconImageSize);
 		iconLoader.setImageFadeIn(false);
 		iconLoader.setDefaultAvatarIfNoCustomIcon(true);
 		itemsToAnimat = new SparseBooleanArray();
 		contactFilter = new ContactFilter();
-		conversationList = new ArrayList<Conversation>();
+		conversationList = new ArrayList<ConvInfo>();
 		convSpanStartIndexes = new HashMap<String, Integer>();
 	}
 
@@ -161,7 +141,7 @@ public class ConversationsAdapter extends BaseAdapter
 	}
 
 	@Override
-	public Conversation getItem(int position)
+	public ConvInfo getItem(int position)
 	{
 		return completeList.get(position);
 	}
@@ -185,41 +165,10 @@ public class ConversationsAdapter extends BaseAdapter
 	@Override
 	public int getItemViewType(int position)
 	{
-		Conversation conversation = getItem(position);
-		if (conversation instanceof ConversationTip)
-		{
-			switch (((ConversationTip) conversation).getTipType())
-			{
-			case ConversationTip.STEALTH_FTUE_TIP:
-				return ViewType.STEALTH_FTUE_TIP_VIEW.ordinal();
-			case ConversationTip.RESET_STEALTH_TIP:
-				return ViewType.RESET_STEALTH_TIP.ordinal();
-			case ConversationTip.WELCOME_HIKE_TIP:
-				return ViewType.WELCOME_HIKE_TIP.ordinal();
-			case ConversationTip.STEALTH_INFO_TIP:
-				return ViewType.STEALTH_INFO_TIP.ordinal();
-			case ConversationTip.STEALTH_UNREAD_TIP:
-				return ViewType.STEALTH_UNREAD_TIP.ordinal();
-			case ConversationTip.ATOMIC_PROFILE_PIC_TIP:
-				return ViewType.ATOMIC_PROFILE_PIC_TIP.ordinal();
-			case ConversationTip.ATOMIC_FAVOURTITES_TIP:
-				return ViewType.ATOMIC_FAVOURITE_TIP.ordinal();
-			case ConversationTip.ATOMIC_INVITE_TIP:
-				return ViewType.ATOMIC_INVITE_TIP.ordinal();
-			case ConversationTip.ATOMIC_STATUS_TIP:
-				return ViewType.ATOMIC_STATUS_TIP.ordinal();
-			case ConversationTip.ATOMIC_INFO_TIP:
-				return ViewType.ATOMIC_INFO_TIP.ordinal();
-			case ConversationTip.ATOMIC_HTTP_TIP:
-				return ViewType.ATOMIC_HTTP_TIP.ordinal();
-			case ConversationTip.ATOMIC_APP_GENERIC_TIP:
-				return ViewType.ATOMIC_APP_GENERIC_TIP.ordinal();
-			}
-		}
 		return ViewType.CONVERSATION.ordinal();
 	}
 
-	public List<Conversation> getCompleteList()
+	public List<ConvInfo> getCompleteList()
 	{
 		return completeList;
 	}
@@ -227,7 +176,7 @@ public class ConversationsAdapter extends BaseAdapter
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent)
 	{
-		final Conversation conversation = getItem(position);
+		final ConvInfo convInfo = getItem(position);
 
 		ViewType viewType = ViewType.values()[getItemViewType(position)];
 
@@ -248,279 +197,40 @@ public class ConversationsAdapter extends BaseAdapter
 				viewHolder.timeStamp = (TextView) v.findViewById(R.id.last_message_timestamp);
 				viewHolder.avatar = (ImageView) v.findViewById(R.id.avatar);
 				viewHolder.muteIcon = (ImageView) v.findViewById(R.id.mute_indicator);
-				break;
-			case STEALTH_FTUE_TIP_VIEW:
-			case RESET_STEALTH_TIP:
-				v = inflater.inflate(R.layout.stealth_ftue_conversation_tip, parent, false);
-				viewHolder.headerText = (TextView) v.findViewById(R.id.tip);
-				viewHolder.closeTip = v.findViewById(R.id.close);
-				break;
-			case WELCOME_HIKE_TIP:
-				v = inflater.inflate(R.layout.welcome_hike_tip, parent, false);
-				viewHolder.headerText = (TextView) v.findViewById(R.id.tip_header);
-				viewHolder.subText = (TextView) v.findViewById(R.id.tip_msg);
-				viewHolder.closeTip = v.findViewById(R.id.close_tip);
-				break;
-			case STEALTH_INFO_TIP:
-			case STEALTH_UNREAD_TIP:
-				v = inflater.inflate(R.layout.stealth_unread_tip, parent, false);
-				viewHolder.headerText = (TextView) v.findViewById(R.id.tip_header);
-				viewHolder.subText = (TextView) v.findViewById(R.id.tip_msg);
-				viewHolder.closeTip = v.findViewById(R.id.close_tip);
-				viewHolder.parent = v.findViewById(R.id.all_content);
-				break;
-			case ATOMIC_PROFILE_PIC_TIP:
-			case ATOMIC_FAVOURITE_TIP:
-			case ATOMIC_INVITE_TIP:
-			case ATOMIC_STATUS_TIP:
-			case ATOMIC_INFO_TIP:
-			case ATOMIC_HTTP_TIP:
-			case ATOMIC_APP_GENERIC_TIP:
-				v = inflater.inflate(R.layout.tip_left_arrow, parent, false);
-				viewHolder.avatar = (ImageView) v.findViewById(R.id.arrow_pointer);
-				viewHolder.headerText = (TextView) v.findViewById(R.id.tip_header);
-				viewHolder.subText = (TextView) v.findViewById(R.id.tip_msg);
-				viewHolder.closeTip = v.findViewById(R.id.close_tip);
-				viewHolder.parent = v.findViewById(R.id.all_content);
-				break;
-			default:
+				v.setTag(viewHolder);
 				break;
 			}
-
-			v.setTag(viewHolder);
 		}
 		else
 		{
 			viewHolder = (ViewHolder) v.getTag();
 		}
 
-		if (viewType == ViewType.STEALTH_FTUE_TIP_VIEW)
+		viewHolder.msisdn = convInfo.getMsisdn();
+
+		updateViewsRelatedToName(v, convInfo);
+
+		if (itemToBeAnimated(convInfo))
 		{
-			final int pos = position;
-			viewHolder.closeTip.setOnClickListener(new OnClickListener()
-			{
-
-				@Override
-				public void onClick(View view)
-				{
-					stealthFtueTipAnimated = false;
-					HikeMessengerApp.getPubSub().publish(HikePubSub.DISMISS_STEALTH_FTUE_CONV_TIP, pos);
-				}
-			});
-			if(!stealthFtueTipAnimated)
-			{
-				stealthFtueTipAnimated = true;
-				final TranslateAnimation animation = new TranslateAnimation(0, 0, -70*Utils.scaledDensityMultiplier, 0);
-				animation.setDuration(300);
-				parent.startAnimation(animation);
-			}
-			return v;
-		}
-		else if (viewType == ViewType.RESET_STEALTH_TIP)
-		{
-			long remainingTime = HikeConstants.RESET_COMPLETE_STEALTH_TIME_MS
-					- (System.currentTimeMillis() - HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.RESET_COMPLETE_STEALTH_START_TIME, 0l));
-
-			if (remainingTime <= 0)
-			{
-				viewHolder.headerText.setText(Html.fromHtml(context.getResources().getString(R.string.tap_to_reset_stealth_tip)));
-			}
-			else
-			{
-				if (countDownSetter == null)
-				{
-					countDownSetter = new CountDownSetter(viewHolder.headerText, remainingTime, 1000);
-					countDownSetter.start();
-
-					setTimeRemainingText(viewHolder.headerText, remainingTime);
-				}
-				else
-				{
-					countDownSetter.setTextView(viewHolder.headerText);
-				}
-			}
-
-			viewHolder.closeTip.setOnClickListener(new OnClickListener()
-			{
-
-				@Override
-				public void onClick(View view)
-				{
-					resetStealthTipAnimated = false;
-					resetCountDownSetter();
-
-					remove(conversation);
-					notifyDataSetChanged();
-
-					Utils.cancelScheduledStealthReset(context);
-					
-					try
-					{
-						JSONObject metadata = new JSONObject();
-						metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.RESET_STEALTH_CANCEL);				
-						HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
-					}
-					catch(JSONException e)
-					{
-						Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
-					}
-				}
-			});
-			
-			if(!resetStealthTipAnimated)
-			{
-				resetStealthTipAnimated = true;
-				final TranslateAnimation animation = new TranslateAnimation(0, 0, -70*Utils.scaledDensityMultiplier, 0);
-				animation.setDuration(300);
-				parent.startAnimation(animation);
-			}
-			
-			return v;
-		}
-		else if (viewType == ViewType.WELCOME_HIKE_TIP)
-		{
-			viewHolder.headerText.setText(R.string.new_ui_welcome_tip_header);
-			viewHolder.subText.setText(R.string.new_ui_welcome_tip_msg);
-			viewHolder.closeTip.setOnClickListener(new OnClickListener()
-			{
-
-				@Override
-				public void onClick(View view)
-				{
-					HikeMessengerApp.getPubSub().publish(HikePubSub.REMOVE_WELCOME_HIKE_TIP, null);
-				}
-			});
-			return v;
-		}
-		else if (viewType == ViewType.STEALTH_INFO_TIP)
-		{
-			viewHolder.headerText.setText(R.string.stealth_info_tip_header);
-			viewHolder.subText.setText(R.string.stealth_info_tip_subtext);
-			viewHolder.closeTip.setOnClickListener(new OnClickListener()
-			{
-				@Override
-				public void onClick(View view)
-				{
-					HikeMessengerApp.getPubSub().publish(HikePubSub.REMOVE_STEALTH_INFO_TIP, null);
-				}
-			});
-			return v;
-		}
-		else if (viewType == ViewType.STEALTH_UNREAD_TIP)
-		{
-			String headerTxt = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STEALTH_UNREAD_TIP_HEADER, "");
-			String msgTxt = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STEALTH_UNREAD_TIP_MESSAGE, "");
-			viewHolder.headerText.setText(headerTxt);
-			viewHolder.subText.setText(msgTxt);
-			viewHolder.parent.setOnClickListener(new OnClickListener()
-			{
-
-				@Override
-				public void onClick(View view)
-				{
-					HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_UNREAD_TIP_CLICKED, null);
-				}
-			});
-			
-			viewHolder.closeTip.setOnClickListener(new OnClickListener()
-			{
-
-				@Override
-				public void onClick(View view)
-				{
-					HikeMessengerApp.getPubSub().publish(HikePubSub.REMOVE_STEALTH_UNREAD_TIP, null);
-				}
-			});
-			return v;
-		}
-		else if (viewType == ViewType.ATOMIC_PROFILE_PIC_TIP || viewType == ViewType.ATOMIC_FAVOURITE_TIP || viewType == ViewType.ATOMIC_INVITE_TIP
-				|| viewType == ViewType.ATOMIC_STATUS_TIP || viewType == ViewType.ATOMIC_INFO_TIP || viewType == ViewType.ATOMIC_HTTP_TIP || viewType == ViewType.ATOMIC_APP_GENERIC_TIP)
-		{
-			HikeSharedPreferenceUtil pref = HikeSharedPreferenceUtil.getInstance();
-			String headerTxt = pref.getData(HikeMessengerApp.ATOMIC_POP_UP_HEADER_MAIN, "");
-			String message = pref.getData(HikeMessengerApp.ATOMIC_POP_UP_MESSAGE_MAIN, "");
-			viewHolder.headerText.setText(headerTxt);
-			viewHolder.subText.setText(message);
-			viewHolder.closeTip.setTag(position);
-			boolean clickParentEnabled = true;
-			if (viewType == ViewType.ATOMIC_PROFILE_PIC_TIP)
-			{
-				viewHolder.avatar.setImageResource(R.drawable.ic_profile);
-			}
-			else if (viewType == ViewType.ATOMIC_FAVOURITE_TIP)
-			{
-				viewHolder.avatar.setImageResource(R.drawable.ic_favorites);
-			}
-			else if (viewType == ViewType.ATOMIC_INVITE_TIP)
-			{
-				viewHolder.avatar.setImageResource(R.drawable.ic_rewards);
-			}
-			else if (viewType == ViewType.ATOMIC_STATUS_TIP)
-			{
-				viewHolder.avatar.setImageResource(R.drawable.ic_status_tip);
-			}
-			else if (viewType == ViewType.ATOMIC_INFO_TIP)
-			{
-				clickParentEnabled = false;
-				viewHolder.avatar.setImageResource(R.drawable.ic_information);
-			}else if(viewType == ViewType.ATOMIC_HTTP_TIP)
-			{
-				viewHolder.avatar.setImageResource(R.drawable.ic_information);
-			}else if(viewType == ViewType.ATOMIC_APP_GENERIC_TIP){
-				viewHolder.avatar.setImageDrawable(null);
-			}
-			viewHolder.closeTip.setOnClickListener(new OnClickListener()
-			{
-
-				@Override
-				public void onClick(View v)
-				{
-					Logger.i("tip", "on cross click ");
-					HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.ATOMIC_POP_UP_TYPE_MAIN, "");
-					// make sure it is on 0 position
-					completeList.remove((int) ((Integer) v.getTag()));
-					notifyDataSetChanged();
-				}
-			});
-			if (clickParentEnabled)
-			{
-				viewHolder.parent.setTag(position);
-				viewHolder.parent.setOnClickListener(new OnClickListener()
-				{
-
-					@Override
-					public void onClick(View v)
-					{
-						Integer position = (Integer) v.getTag();
-						resetAtomicPopUpKey(position);
-					}
-				});
-			}
-			return v;
-		}
-
-		viewHolder.msisdn = conversation.getMsisdn();
-
-		updateViewsRelatedToName(v, conversation);
-
-		if (itemToBeAnimated(conversation))
-		{
-			final Animation animation = AnimationUtils.loadAnimation(context,
-		            R.anim.slide_in_from_left);
+			Animation animation = AnimationUtils.loadAnimation(context, R.anim.slide_in_from_left);
 			v.startAnimation(animation);
-			setItemAnimated(conversation);
+			setItemAnimated(convInfo);
 		}
-
-		List<ConvMessage> messages = conversation.getMessages();
-		if (!messages.isEmpty())
+		
+		ConvMessage lastConvMessage = convInfo.getLastConversationMsg();
+		if (lastConvMessage != null)
 		{
-			ConvMessage message = messages.get(messages.size() - 1);
-			updateViewsRelatedToLastMessage(v, message, conversation);
+			updateViewsRelatedToLastMessage(v, lastConvMessage, convInfo);
+		}
+		
+		if (lastConvMessage != null && convInfo.getTypingNotif() != null)
+		{
+			updateViewsRelatedToTypingNotif(v, convInfo);
 		}
 
-		updateViewsRelatedToAvatar(v, conversation);
+		updateViewsRelatedToAvatar(v, convInfo);
 
-		updateViewsRelatedToMute(v, conversation);
+		updateViewsRelatedToMute(v, convInfo);
 		
 		return v;
 	}
@@ -536,13 +246,10 @@ public class ConversationsAdapter extends BaseAdapter
 		conversationList.clear();
 		// conversationsMsisdns will contain the conversations so that they are not added again when getting contacts list 
 		conversationsMsisdns = new HashSet<String>();
-		for(Conversation conv : completeList)
+		for (ConvInfo conv : completeList)
 		{
-			if (!(conv instanceof ConversationTip))
-			{
-				conversationList.add(conv);
-				conversationsMsisdns.add(conv.getMsisdn());
-			}
+			conversationList.add(conv);
+			conversationsMsisdns.add(conv.getMsisdn());
 		}
 		FetchPhoneBookContactsTask fetchContactsTask = new FetchPhoneBookContactsTask();
 		Utils.executeAsyncTask(fetchContactsTask);
@@ -556,7 +263,7 @@ public class ConversationsAdapter extends BaseAdapter
 	{
 		isSearchModeOn = false;
 		convSpanStartIndexes.clear();
-		refinedSearchText = null;
+		refinedSearchText = "";
 		/*
 		 * Purposely returning conversation list on the UI thread on collapse to avoid showing ftue empty state. 
 		 */
@@ -565,38 +272,31 @@ public class ConversationsAdapter extends BaseAdapter
 		notifyDataSetChanged();
 	}
 
+	/**
+	 * This will prevent the search related changes until further notice.
+	 */
+	public void pauseSearch()
+	{
+		refinedSearchText = "";
+	}
+
 	private class FetchPhoneBookContactsTask extends AsyncTask<Void, Void, Void>
 	{
-		List<Conversation> hikeContacts = new ArrayList<Conversation>();
+		List<ConvInfo> hikeContacts = new ArrayList<ConvInfo>();
 
 		@Override
 		protected Void doInBackground(Void... arg0)
 		{
 			List<ContactInfo> allContacts = ContactManager.getInstance().getAllContacts();
-			for(ContactInfo contact : allContacts)
+			for (ContactInfo contact : allContacts)
 			{
-				Conversation conv = new Conversation(contact.getMsisdn(), contact.getName(), contact.isOnhike());
-				if(stealthConversations.contains(conv) || conversationsMsisdns.contains(contact.getMsisdn()))
+				ConvInfo convInfo = new ConvInfo.ConvInfoBuilder(contact.getMsisdn()).setConvName(contact.getName()).setOnHike(contact.isOnhike()).build();
+				
+				if(stealthConversations.contains(convInfo) || conversationsMsisdns.contains(contact.getMsisdn()) || !convInfo.isOnHike())
 				{
 					continue;
 				}
-				String msg= null;
-				if (contact.isOnhike())
-				{
-					msg = context.getString(R.string.start_new_chat);
-				}
-				else
-				{
-					msg = context.getString(R.string.on_sms);
-				}
-				List<ConvMessage> messagesList = new ArrayList<ConvMessage>();
-				ConvMessage message = new ConvMessage(msg, contact.getMsisdn(), -1, State.RECEIVED_READ);
-				messagesList.add(message);
-				conv.setMessages(messagesList);
-				if (contact.isOnhike())
-				{
-					hikeContacts.add(conv);
-				}
+				hikeContacts.add(getPhoneContactFakeConv(convInfo));
 			}
 			return null;
 		}
@@ -604,16 +304,46 @@ public class ConversationsAdapter extends BaseAdapter
 		@Override
 		protected void onPostExecute(Void result)
 		{
-			phoneBookContacts = new ArrayList<Conversation>();
+			phoneBookContacts = new ArrayList<ConvInfo>();
 			phoneBookContacts.addAll(hikeContacts);
 			super.onPostExecute(result);
 		}
 	}
 
-	public void onQueryChanged(String s)
+	private ConvInfo getPhoneContactFakeConv(ConvInfo convInfo)
 	{
+		if (convInfo != null)
+		{
+			String msg= null;
+			if (convInfo.isOnHike())
+			{
+				msg = context.getString(R.string.start_new_chat);
+			}
+			else
+			{
+				msg = context.getString(R.string.on_sms);
+			}
+			ConvMessage message = new ConvMessage(msg, convInfo.getMsisdn(), -1, State.RECEIVED_READ);
+			convInfo.setLastConversationMsg(message);
+		}
+		return convInfo;
+	}
+
+	public void onQueryChanged(String s, FilterListener filterListener)
+	{
+		if (s == null)
+		{
+			s = "";
+		}
 		refinedSearchText = s.toLowerCase();
-		contactFilter.filter(refinedSearchText);
+		if(filterListener!=null)
+		{
+			contactFilter.filter(refinedSearchText, filterListener);
+		}
+		else
+		{
+			contactFilter.filter(refinedSearchText);
+		}
 	}
 
 	private class ContactFilter extends Filter
@@ -629,8 +359,8 @@ public class ConversationsAdapter extends BaseAdapter
 			String textToBeFiltered = constraint.toString();
 			if (!TextUtils.isEmpty(textToBeFiltered))
 			{
-				List<Conversation> filteredConversationsList = new ArrayList<Conversation>();
-				List<Conversation> filteredphoneBookContacts = new ArrayList<Conversation>();
+				List<ConvInfo> filteredConversationsList = new ArrayList<ConvInfo>();
+				List<ConvInfo> filteredphoneBookContacts = new ArrayList<ConvInfo>();
 
 				if (conversationList != null && !conversationList.isEmpty())
 				{
@@ -641,7 +371,7 @@ public class ConversationsAdapter extends BaseAdapter
 					filterList(phoneBookContacts, filteredphoneBookContacts, textToBeFiltered);
 				}
 
-				List<List<Conversation>> resultList = new ArrayList<List<Conversation>>();
+				List<List<ConvInfo>> resultList = new ArrayList<List<ConvInfo>>();
 				resultList.add(filteredConversationsList);
 				resultList.add(filteredphoneBookContacts);
 
@@ -649,7 +379,7 @@ public class ConversationsAdapter extends BaseAdapter
 			}
 			else
 			{
-				List<List<Conversation>> resultList = new ArrayList<List<Conversation>>();
+				List<List<ConvInfo>> resultList = new ArrayList<List<ConvInfo>>();
 				resultList.add(getOriginalList());
 				results.values = resultList;
 			}
@@ -657,40 +387,13 @@ public class ConversationsAdapter extends BaseAdapter
 			return results;
 		}
 
-		private void filterList(List<Conversation> allList, List<Conversation> listToUpdate, String textToBeFiltered)
+		private void filterList(List<ConvInfo> allList, List<ConvInfo> listToUpdate, String textToBeFiltered)
 		{
-
-			for (Conversation info : allList)
+			for (ConvInfo info : allList)
 			{
 				try
 				{
-					boolean found = false;
-					if (textToBeFiltered.equals("broadcast") && Utils.isBroadcastConversation(info.getMsisdn()))
-					{
-						found = true;
-					}
-					else if (textToBeFiltered.equals("group") && Utils.isGroupConversation(info.getMsisdn()) && !Utils.isBroadcastConversation(info.getMsisdn()))
-					{
-						found = true;
-					}
-					else
-					{
-						String name = info.getLabel().toLowerCase();
-						int startIndex = 0;
-						if (name.startsWith(textToBeFiltered))
-						{
-							found = true;
-							convSpanStartIndexes.put(info.getMsisdn(), startIndex);
-						}
-						else if (name.contains(" " + textToBeFiltered))
-						{
-							found = true;
-							startIndex = name.indexOf(" " + textToBeFiltered) + 1;
-							convSpanStartIndexes.put(info.getMsisdn(), startIndex);
-						}
-					}
-
-					if(found)
+					if(filterConvForSearch(info, textToBeFiltered))
 					{
 						listToUpdate.add(info);
 					}
@@ -702,13 +405,62 @@ public class ConversationsAdapter extends BaseAdapter
 			}
 			
 		}
+		
+		public boolean filterConvForSearch(ConvInfo convInfo, String textToBeFiltered)
+		{
+			boolean found = false;
+			String msisdn = convInfo.getMsisdn();
+			String name = convInfo.getConversationName();
+			// For Groups/Broadcasts, the contact name can be empty, so the search is to be performed on the diaplayed name.
+			if (OneToNConversationUtils.isOneToNConversation(msisdn))
+			{
+				// getLabel() fetches the appropriate display name.
+				name = convInfo.getLabel();
+			}
+			if (textToBeFiltered.equals(context.getString(R.string.broadcast).toLowerCase()) && OneToNConversationUtils.isBroadcastConversation(msisdn))
+			{
+				found = true;
+			}
+			else if (textToBeFiltered.equals(context.getString(R.string.group).toLowerCase()) && OneToNConversationUtils.isGroupConversation(msisdn))
+			{
+				found = true;
+			}
+			// The name field can be empty for unsaved 1 to 1 conversation
+			// In this case search is to be performed on the contact number.
+			else if (TextUtils.isEmpty(name))
+			{
+				if (msisdn.contains(textToBeFiltered))
+				{
+					found = true;
+					int startIndex = msisdn.indexOf(textToBeFiltered);
+					convSpanStartIndexes.put(msisdn, startIndex);
+				}
+			}
+			else
+			{
+				name = name.toLowerCase();
+				int startIndex = 0;
+				if (name.startsWith(textToBeFiltered))
+				{
+					found = true;
+					convSpanStartIndexes.put(msisdn, startIndex);
+				}
+				else if (name.contains(" " + textToBeFiltered))
+				{
+					found = true;
+					startIndex = name.indexOf(" " + textToBeFiltered) + 1;
+					convSpanStartIndexes.put(msisdn, startIndex);
+				}
+			}
+			return found;
+		}
 
 		@Override
 		protected void publishResults(CharSequence constraint, FilterResults results)
 		{
-			List<List<Conversation>> resultList = (List<List<Conversation>>) results.values;
+			List<List<ConvInfo>> resultList = (List<List<ConvInfo>>) results.values;
 
-			List<Conversation> filteredSearchList = new ArrayList<Conversation>();
+			List<ConvInfo> filteredSearchList = new ArrayList<ConvInfo>();
 			filteredSearchList.addAll(resultList.get(0));
 
 			if(phoneBookContacts!=null && !phoneBookContacts.isEmpty() && resultList.size() > 1)
@@ -744,146 +496,19 @@ public class ConversationsAdapter extends BaseAdapter
 			.put(SEARCH_TEXT, refinedSearchText);
 			HAManager.getInstance().record(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.ANALYTICS_HOME_SEARCH, metadata);
 		}
-		catch(JSONException e)
+
+		catch (JSONException e)
 		{
 			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
 		}
 	}
 
-	protected List<Conversation> getOriginalList()
+	protected List<ConvInfo> getOriginalList()
 	{
 		return conversationList;
 	}
 
-	private void resetAtomicPopUpKey(int position)
-	{
-		HikeSharedPreferenceUtil pref = HikeSharedPreferenceUtil.getInstance();
-		Conversation con = conversationList.get(position);
-		JSONObject metadata = new JSONObject();		
-		
-		if (con instanceof ConversationTip)
-		{
-			try
-			{
-				ConversationTip tip = (ConversationTip) con;
-				switch (tip.getTipType())
-				{
-				case ConversationTip.ATOMIC_FAVOURTITES_TIP:
-					context.startActivity(new Intent(context, PeopleActivity.class));
-					metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.ATOMIC_FAVOURITES_TIP_CLICKED);				
-					HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
-					break;
-				case ConversationTip.ATOMIC_INVITE_TIP:
-					context.startActivity(new Intent(context, TellAFriend.class));
-					metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.ATOMIC_INVITE_TIP_CLICKED);				
-					HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
-					break;
-				case ConversationTip.ATOMIC_PROFILE_PIC_TIP:
-					context.startActivity(new Intent(context, ProfileActivity.class));
-					metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.ATOMIC_PROFILE_PIC_TIP_CLICKED);				
-					HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
-					break;
-				case ConversationTip.ATOMIC_STATUS_TIP:
-					context.startActivity(new Intent(context, StatusUpdate.class));
-					metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.ATOMIC_STATUS_TIP_CLICKED);				
-					HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
-					break;
-				case ConversationTip.ATOMIC_HTTP_TIP:
-					String url = pref.getData(HikeMessengerApp.ATOMIC_POP_UP_HTTP_URL, null);
-					if(!TextUtils.isEmpty(url)){
-					Utils.startWebViewActivity(context, url, pref.getData(HikeMessengerApp.ATOMIC_POP_UP_HEADER_MAIN, ""));
-					pref.saveData(HikeMessengerApp.ATOMIC_POP_UP_HTTP_URL, "");
-					}
-					metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.ATOMIC_HTTP_TIP_CLICKED);				
-					HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
-					break;
-				case ConversationTip.ATOMIC_APP_GENERIC_TIP:
-					onClickGenericAppTip(pref);
-					break;
-				}			
-				conversationList.remove(position);
-				notifyDataSetChanged();
-				pref.saveData(HikeMessengerApp.ATOMIC_POP_UP_TYPE_MAIN, "");
-			}
-			catch(JSONException e)
-			{
-				Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
-			}
-		}
-
-	}
-	
-	private void onClickGenericAppTip(HikeSharedPreferenceUtil pref){
-		int what = pref.getData(HikeMessengerApp.ATOMIC_POP_UP_APP_GENERIC_WHAT, -1);
-		
-		try
-		{
-			JSONObject metadata = new JSONObject();
-	
-			switch(what){
-			case HikeConstants.ATOMIC_APP_TIP_SETTINGS:
-				IntentManager.openSetting(context);
-				metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.ATOMIC_APP_TIP_SETTINGS_CLICKED);				
-				HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
-				break;
-			case HikeConstants.ATOMIC_APP_TIP_SETTINGS_NOTIF:
-				IntentManager.openSettingNotification(context);
-				metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.ATOMIC_APP_TIP_SETTINGS_NOTIF_CLICKED);				
-				HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
-				break;
-			case HikeConstants.ATOMIC_APP_TIP_SETTINGS_PRIVACY:
-				IntentManager.openSettingPrivacy(context);
-				metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.ATOMIC_APP_TIP_SETTINGS_PRIVACY_CLICKED);				
-				HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
-				break;
-			case HikeConstants.ATOMIC_APP_TIP_SETTINGS_SMS:
-				IntentManager.openSettingSMS(context);
-				metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.ATOMIC_APP_TIP_SETTINGS_SMS_CLICKED);				
-				HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
-				break;
-			case HikeConstants.ATOMIC_APP_TIP_SETTINGS_MEDIA:
-				IntentManager.openSettingMedia(context);
-				metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.ATOMIC_APP_TIP_SETTINGS_MEDIA_CLICKED);				
-				HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
-				break;
-			case HikeConstants.ATOMIC_APP_TIP_INVITE_FREE_SMS:
-				IntentManager.openInviteSMS(context);
-				metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.ATOMIC_APP_TIP_INVITE_FREE_SMS_CLICKED);				
-				HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
-				break;
-			case HikeConstants.ATOMIC_APP_TIP_INVITE_WATSAPP:
-				if(Utils.isPackageInstalled(context, HikeConstants.PACKAGE_WATSAPP)){
-					IntentManager.openInviteWatsApp(context);
-				}
-				metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.ATOMIC_APP_TIP_INVITE_WHATSAPP_CLICKED);				
-				HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
-				break;
-			case HikeConstants.ATOMIC_APP_TIP_TIMELINE:
-				IntentManager.openTimeLine(context);
-				metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.ATOMIC_APP_TIP_TIMELINE_CLICKED);				
-				HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
-				break;
-			case HikeConstants.ATOMIC_APP_TIP_HIKE_EXTRA:
-				IntentManager.openHikeExtras(context);
-				metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.ATOMIC_APP_TIP_HIKE_EXTRA_CLICKED);				
-				HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
-				break;
-			case HikeConstants.ATOMIC_APP_TIP_HIKE_REWARDS:
-				IntentManager.openHikeRewards(context);
-				metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.ATOMIC_APP_TIP_HIKE_REWARDS_CLICKED);				
-				HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
-				break;
-			default:
-				return;
-			}
-		}
-		catch(JSONException e)
-		{
-			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
-		}
-	}
-
-	public void updateViewsRelatedToName(View parentView, Conversation conversation)
+	public void updateViewsRelatedToName(View parentView, ConvInfo convInfo)
 	{
 		ViewHolder viewHolder = (ViewHolder) parentView.getTag();
 
@@ -891,14 +516,14 @@ public class ConversationsAdapter extends BaseAdapter
 		 * If the viewholder's msisdn is different from the converstion's msisdn, it means that the viewholder is currently being used for a different conversation.
 		 * We don't need to do anything here then.
 		 */
-		if(!conversation.getMsisdn().equals(viewHolder.msisdn))
+		if(viewHolder == null || !convInfo.getMsisdn().equals(viewHolder.msisdn))
 		{
 			return;
 		}
 
 		TextView contactView = viewHolder.headerText;
-		String name = conversation.getLabel();
-		Integer startSpanIndex = convSpanStartIndexes.get(conversation.getMsisdn());
+		String name = convInfo.getLabel();
+		Integer startSpanIndex = convSpanStartIndexes.get(convInfo.getMsisdn());
 		if(isSearchModeOn && startSpanIndex!=null)
 		{
 			SpannableString spanName = new SpannableString(name);
@@ -913,16 +538,13 @@ public class ConversationsAdapter extends BaseAdapter
 			contactView.setText(name);
 		}
 
-		if (conversation instanceof GroupConversation)
+		if (OneToNConversationUtils.isBroadcastConversation(convInfo.getMsisdn()))
 		{
-			if (conversation instanceof BroadcastConversation)
-			{
 				contactView.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
-			}
-			else
-			{
+		}
+		else if (OneToNConversationUtils.isGroupConversation(convInfo.getMsisdn()))
+		{
 				contactView.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_group, 0, 0, 0);
-			}
 		}
 		else
 		{
@@ -930,7 +552,7 @@ public class ConversationsAdapter extends BaseAdapter
 		}
 	}
 
-	public void updateViewsRelatedToAvatar(View parentView, Conversation conversation)
+	public void updateViewsRelatedToAvatar(View parentView, ConvInfo convInfo)
 	{
 		ViewHolder viewHolder = (ViewHolder) parentView.getTag();
 
@@ -938,23 +560,28 @@ public class ConversationsAdapter extends BaseAdapter
 		 * If the viewholder's msisdn is different from the converstion's msisdn, it means that the viewholder is currently being used for a different conversation.
 		 * We don't need to do anything here then.
 		 */
-		if(!conversation.getMsisdn().equals(viewHolder.msisdn))
+		if(viewHolder == null || !convInfo.getMsisdn().equals(viewHolder.msisdn))
 		{
 			return;
 		}
 
 		ImageView avatarView = viewHolder.avatar;
-		iconLoader.loadImage(conversation.getMsisdn(), avatarView, isListFlinging, false, true);
+		iconLoader.loadImage(convInfo.getMsisdn(), avatarView, isListFlinging, false, true);
 	}
 
-	public void updateViewsRelatedToMute(View parentView, Conversation conversation)
+	public void updateViewsRelatedToMute(View parentView, ConvInfo convInfo)
 	{
 		ViewHolder viewHolder = (ViewHolder) parentView.getTag();
+		
+		if(viewHolder == null)
+		{
+			return;
+		}
 
 		ImageView muteIcon = viewHolder.muteIcon;
-		if (conversation instanceof GroupConversation && muteIcon != null)
+		if (muteIcon != null)
 		{
-			if (((GroupConversation) conversation).isMuted())
+			if(convInfo.isMute())
 			{
 				muteIcon.setVisibility(View.VISIBLE);
 			}
@@ -963,24 +590,27 @@ public class ConversationsAdapter extends BaseAdapter
 				muteIcon.setVisibility(View.GONE);
 			}
 		}
-		else if (conversation.isBotConv() && muteIcon != null)
+	}
+	
+	public void updateViewsRelatedToTypingNotif(View parentView, ConvInfo convInfo)
+	{
+		ConvMessage typingNotifMessage = generateTypingNotifMessage(convInfo.getLastConversationMsg(), convInfo.getTypingNotif());
+		if (typingNotifMessage != null)
 		{
-			if (conversation.isMutedBotConv(false))
-			{
-				muteIcon.setVisibility(View.VISIBLE);
-			}
-			else
-			{
-				muteIcon.setVisibility(View.GONE);
-			}
-		}
-		else if (muteIcon != null)
-		{
-			muteIcon.setVisibility(View.GONE);
+			updateViewsRelatedToLastMessage(parentView, typingNotifMessage, convInfo);
 		}
 	}
 
-	public void updateViewsRelatedToLastMessage(View parentView, ConvMessage message, Conversation conversation)
+	private ConvMessage generateTypingNotifMessage(ConvMessage lastConversationMsg, TypingNotification typingNotif)
+	{
+		ConvMessage convMessage = new ConvMessage(typingNotif);
+		convMessage.setTimestamp(lastConversationMsg.getTimestamp());
+		convMessage.setMessage(HikeConstants.IS_TYPING);
+		convMessage.setState(State.RECEIVED_UNREAD);
+		return convMessage;
+	}
+
+	public void updateViewsRelatedToLastMessage(View parentView, ConvMessage message, ConvInfo convInfo)
 	{
 		ViewHolder viewHolder = (ViewHolder) parentView.getTag();
 
@@ -988,23 +618,36 @@ public class ConversationsAdapter extends BaseAdapter
 		 * If the viewholder's msisdn is different from the converstion's msisdn, it means that the viewholder is currently being used for a different conversation.
 		 * We don't need to do anything here then.
 		 */
-		if(!conversation.getMsisdn().equals(viewHolder.msisdn))
+		if(viewHolder == null || !convInfo.getMsisdn().equals(viewHolder.msisdn))
 		{
 			return;
 		}
-
+		
+		/**
+		 * This indicates that this is a typing notif message
+		 */
+		if (message.getTypingNotification() != null)
+		{
+			convInfo.setLastMsgTyping(true);
+		}
+		
+		else
+		{
+			convInfo.setLastMsgTyping(false);
+		}
+		
 		TextView messageView = viewHolder.subText;
 		messageView.setVisibility(View.VISIBLE);
-		CharSequence markedUp = getConversationText(conversation, message);
+		CharSequence markedUp = getConversationText(convInfo, message);
 		messageView.setText(markedUp);
 		
-		updateViewsRelatedToMessageState(parentView, message, conversation);
+		updateViewsRelatedToMessageState(parentView, message, convInfo);
 		
 		TextView tsView = viewHolder.timeStamp;
 		tsView.setText(message.getTimestampFormatted(true, context));
 	}
 
-	public void updateViewsRelatedToMessageState(View parentView, ConvMessage message, Conversation conversation)
+	public void updateViewsRelatedToMessageState(View parentView, ConvMessage message, ConvInfo convInfo)
 	{
 		ViewHolder viewHolder = (ViewHolder) parentView.getTag();
 
@@ -1018,9 +661,9 @@ public class ConversationsAdapter extends BaseAdapter
 		 * If the viewholder's msisdn is different from the converstion's msisdn, it means that the viewholder is currently being used for a different conversation.
 		 * We don't need to do anything here then.
 		 */
-		if(!conversation.getMsisdn().equals(viewHolder.msisdn))
+		if(!convInfo.getMsisdn().equals(viewHolder.msisdn))
 		{
-			Logger.i("UnreadBug", "msisdns different !!! conversation msisdn : " + conversation.getMsisdn() + " veiwHolderMsisdn : " + viewHolder.msisdn);
+			Logger.i("UnreadBug", "msisdns different !!! conversation msisdn : " + convInfo.getMsisdn() + " veiwHolderMsisdn : " + viewHolder.msisdn);
 			return;
 		}
 
@@ -1065,11 +708,11 @@ public class ConversationsAdapter extends BaseAdapter
 			}
 			
 			messageView.setText(messageText);
-			if (message.getState() == ConvMessage.State.RECEIVED_UNREAD && (message.getTypingNotification() == null) && conversation.getUnreadCount() > 0 && !message.isSent())
+			if (message.getState() == ConvMessage.State.RECEIVED_UNREAD && (message.getTypingNotification() == null) && convInfo.getUnreadCount() > 0 && !message.isSent())
 			{
 				unreadIndicator.setVisibility(View.VISIBLE);
-				unreadIndicator.setBackgroundResource(conversation.isStealth() ? R.drawable.bg_unread_counter_stealth : R.drawable.bg_unread_counter);
-				unreadIndicator.setText(Integer.toString(conversation.getUnreadCount()));
+				unreadIndicator.setBackgroundResource(convInfo.isStealth() ? R.drawable.bg_unread_counter_stealth : R.drawable.bg_unread_counter);
+				unreadIndicator.setText(Integer.toString(convInfo.getUnreadCount()));
 			}
 
 			imgStatus.setImageResource(imageId);
@@ -1091,13 +734,13 @@ public class ConversationsAdapter extends BaseAdapter
 				imgStatus.setVisibility(View.VISIBLE);
 			}
 
-			if (message.getState() == ConvMessage.State.RECEIVED_UNREAD && (message.getTypingNotification() == null) && conversation.getUnreadCount() > 0 && !message.isSent())
+			if (message.getState() == ConvMessage.State.RECEIVED_UNREAD && (message.getTypingNotification() == null) && convInfo.getUnreadCount() > 0 && !message.isSent())
 			{
 				unreadIndicator.setVisibility(View.VISIBLE);
 
-				unreadIndicator.setBackgroundResource(conversation.isStealth() ? R.drawable.bg_unread_counter_stealth : R.drawable.bg_unread_counter);
+				unreadIndicator.setBackgroundResource(convInfo.isStealth() ? R.drawable.bg_unread_counter_stealth : R.drawable.bg_unread_counter);
 
-				unreadIndicator.setText(Integer.toString(conversation.getUnreadCount()));
+				unreadIndicator.setText(Integer.toString(convInfo.getUnreadCount()));
 			}
 			if(isNuxLocked)
 			{ 
@@ -1122,7 +765,7 @@ public class ConversationsAdapter extends BaseAdapter
 		}
 	}
 
-	private CharSequence getConversationText(Conversation conversation, ConvMessage message)
+	private CharSequence getConversationText(ConvInfo convInfo, ConvMessage message)
 	{
 		MessageMetadata metadata = message.getMetadata();
 		CharSequence markedUp = null;
@@ -1130,17 +773,19 @@ public class ConversationsAdapter extends BaseAdapter
 		if (message.isFileTransferMessage())
 		{
 			markedUp = HikeFileType.getFileTypeMessage(context, metadata.getHikeFiles().get(0).getHikeFileType(), message.isSent());
-			if ((conversation instanceof GroupConversation) && !message.isSent())
+			// Group or broadcast
+			if ((convInfo instanceof OneToNConvInfo) && !message.isSent())
 			{
-				markedUp = Utils.addContactName(((GroupConversation) conversation).getGroupParticipantFirstNameAndSurname(message.getGroupParticipantMsisdn()), markedUp);
+				markedUp = Utils.addContactName(((OneToNConvInfo)convInfo).getConvParticipantName(message.getGroupParticipantMsisdn()), markedUp);
 			}
 		}
 		else if (message.getParticipantInfoState() == ParticipantInfoState.PARTICIPANT_JOINED)
 		{
 			JSONArray participantInfoArray = metadata.getGcjParticipantInfo();
-			String highlight = Utils.getGroupJoinHighlightText(participantInfoArray, (GroupConversation) conversation);
-			markedUp = GroupUtils.getParticipantAddedMessage(message, context, highlight);
+			String highlight = Utils.getConversationJoinHighlightText(participantInfoArray, (OneToNConvInfo)convInfo);
+			markedUp = OneToNConversationUtils.getParticipantAddedMessage(message, context, highlight);
 		}
+		
 		else if (message.getParticipantInfoState() == ParticipantInfoState.DND_USER)
 		{
 			JSONArray dndNumbers = metadata.getDndNumbers();
@@ -1150,8 +795,8 @@ public class ConversationsAdapter extends BaseAdapter
 				for (int i = 0; i < dndNumbers.length(); i++)
 				{
 					String dndName;
-					dndName = conversation instanceof GroupConversation ? ((GroupConversation) conversation).getGroupParticipantFirstNameAndSurname(dndNumbers.optString(i)) : Utils
-							.getFirstName(conversation.getLabel());
+					dndName = convInfo instanceof OneToNConvInfo ? ((OneToNConvInfo) convInfo).getConvParticipantName(dndNumbers.optString(i)) : Utils
+							.getFirstName(convInfo.getLabel());
 					if (i < dndNumbers.length() - 2)
 					{
 						dndNames.append(dndName + ", ");
@@ -1165,32 +810,32 @@ public class ConversationsAdapter extends BaseAdapter
 						dndNames.append(dndName);
 					}
 				}
-				markedUp = String.format(context.getString(conversation instanceof GroupConversation ? R.string.dnd_msg_gc : R.string.dnd_one_to_one), dndNames.toString());
+				markedUp = String.format(context.getString(convInfo instanceof OneToNConvInfo ? R.string.dnd_msg_gc : R.string.dnd_one_to_one), dndNames.toString());
 			}
 		}
 		else if (message.getParticipantInfoState() == ParticipantInfoState.INTRO_MESSAGE)
 		{
-			if (conversation.isOnhike())
+//			if (convInfo.isOnhike())
 			{
-				boolean firstIntro = conversation.getMsisdn().hashCode() % 2 == 0;
-				markedUp = String.format(context.getString(firstIntro ? R.string.start_thread1 : R.string.start_thread1), Utils.getFirstName(conversation.getLabel()));
+				boolean firstIntro = convInfo.getMsisdn().hashCode() % 2 == 0;
+				markedUp = String.format(context.getString(firstIntro ? R.string.start_thread1 : R.string.start_thread2), Utils.getFirstName(convInfo.getLabel()));
 			}
-			else
-			{
-				markedUp = String.format(context.getString(R.string.intro_sms_thread), Utils.getFirstName(conversation.getLabel()));
-			}
+//			else
+//			{
+//				markedUp = String.format(context.getString(R.string.intro_sms_thread), Utils.getFirstName(convInfo.getConversationName()));
+//			}
 		}
 		else if (message.getParticipantInfoState() == ParticipantInfoState.USER_JOIN)
 		{
 			String participantName;
-			if (conversation instanceof GroupConversation)
+			if (convInfo instanceof OneToNConvInfo)
 			{
 				String participantMsisdn = metadata.getMsisdn();
-				participantName = ((GroupConversation) conversation).getGroupParticipantFirstNameAndSurname(participantMsisdn);
+				participantName = ((OneToNConvInfo) convInfo).getConvParticipantName(participantMsisdn);
 			}
 			else
 			{
-				participantName = Utils.getFirstName(conversation.getLabel());
+				participantName = Utils.getFirstName(convInfo.getLabel());
 			}
 			
 			markedUp = String.format(message.getMessage(), participantName);
@@ -1204,12 +849,12 @@ public class ConversationsAdapter extends BaseAdapter
 				// Showing the block internation sms message if the user was
 				// booted because of that reason
 				String participantMsisdn = metadata.getMsisdn();
-				String participantName = ((GroupConversation) conversation).getGroupParticipantFirstNameAndSurname(participantMsisdn);
-				markedUp = GroupUtils.getParticipantRemovedMessage(conversation, context, participantName);
+				String participantName = ((OneToNConvInfo) convInfo).getConvParticipantName(participantMsisdn);
+				markedUp = OneToNConversationUtils.getParticipantRemovedMessage(convInfo.getMsisdn(), context, participantName);
 			}
 			else
 			{
-				markedUp = GroupUtils.getConversationEndedMessage(conversation, context);
+				markedUp = OneToNConversationUtils.getConversationEndedMessage(convInfo.getMsisdn(), context);
 			}
 		}
 		else if (message.getParticipantInfoState() == ParticipantInfoState.CHANGED_GROUP_NAME)
@@ -1224,9 +869,9 @@ public class ConversationsAdapter extends BaseAdapter
 
 				String userMsisdn = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeMessengerApp.MSISDN_SETTING, "");
 
-				String participantName = userMsisdn.equals(msisdn) ? context.getString(R.string.you) : ((GroupConversation) conversation).getGroupParticipantFirstNameAndSurname(msisdn);
+				String participantName = userMsisdn.equals(msisdn) ? context.getString(R.string.you) : ((OneToNConvInfo) convInfo).getConvParticipantName(msisdn);
 				
-				markedUp = GroupUtils.getConversationNameChangedMessage(conversation, context, participantName);
+				markedUp = OneToNConversationUtils.getConversationNameChangedMessage(convInfo.getMsisdn(), context, participantName);
 			}
 		}
 		else if (message.getParticipantInfoState() == ParticipantInfoState.BLOCK_INTERNATIONAL_SMS)
@@ -1239,13 +884,13 @@ public class ConversationsAdapter extends BaseAdapter
 			String userMsisdn = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeMessengerApp.MSISDN_SETTING, "");
 
 			String nameString;
-			if (conversation instanceof GroupConversation)
+			if (convInfo instanceof OneToNConvInfo)
 			{
-				nameString = userMsisdn.equals(msisdn) ? context.getString(R.string.you) : ((GroupConversation) conversation).getGroupParticipantFirstNameAndSurname(msisdn);
+				nameString = userMsisdn.equals(msisdn) ? context.getString(R.string.you) : ((OneToNConvInfo) convInfo).getConvParticipantName(msisdn);
 			}
 			else
 			{
-				nameString = userMsisdn.equals(msisdn) ? context.getString(R.string.you) : Utils.getFirstName(conversation.getLabel());
+				nameString = userMsisdn.equals(msisdn) ? context.getString(R.string.you) : Utils.getFirstName(convInfo.getLabel());
 			}
 
 			markedUp = context.getString(R.string.chat_bg_changed, nameString);
@@ -1263,10 +908,10 @@ public class ConversationsAdapter extends BaseAdapter
 			markedUp = msg.substring(0, Math.min(msg.length(), HikeConstants.MAX_MESSAGE_PREVIEW_LENGTH));
 			// For showing the name of the contact that sent the message in
 			// a group chat
-			if (conversation instanceof GroupConversation && !TextUtils.isEmpty(message.getGroupParticipantMsisdn())
+			if (convInfo instanceof OneToNConvInfo && !TextUtils.isEmpty(message.getGroupParticipantMsisdn())
 					&& message.getParticipantInfoState() == ParticipantInfoState.NO_INFO)
 			{
-				markedUp = Utils.addContactName(((GroupConversation) conversation).getGroupParticipantFirstNameAndSurname(message.getGroupParticipantMsisdn()), markedUp);
+				markedUp = Utils.addContactName(((OneToNConvInfo) convInfo).getConvParticipantName(message.getGroupParticipantMsisdn()), markedUp);
 			}
 			SmileyParser smileyParser = SmileyParser.getInstance();
 			markedUp = smileyParser.addSmileySpans(markedUp, true);
@@ -1275,78 +920,20 @@ public class ConversationsAdapter extends BaseAdapter
 		return markedUp;
 	}
 
-	private class CountDownSetter extends CountDownTimer
+	public void addItemsToAnimat(Set<ConvInfo> stealthConversations)
 	{
-		TextView textView;
-
-		public CountDownSetter(TextView textView, long millisInFuture, long countDownInterval)
-		{
-			super(millisInFuture, countDownInterval);
-			this.textView = textView;
-		}
-
-		@Override
-		public void onFinish()
-		{
-			if (textView == null)
-			{
-				return;
-			}
-			textView.setText(Html.fromHtml(context.getResources().getString(R.string.tap_to_reset_stealth_tip)));
-		}
-
-		@Override
-		public void onTick(long millisUntilFinished)
-		{
-			if (textView == null)
-			{
-				return;
-			}
-
-			setTimeRemainingText(textView, millisUntilFinished);
-		}
-
-		public void setTextView(TextView tv)
-		{
-			this.textView = tv;
-		}
-	}
-
-	private void setTimeRemainingText(TextView textView, long millisUntilFinished)
-	{
-		long secondsUntilFinished = millisUntilFinished / 1000;
-		int minutes = (int) (secondsUntilFinished / 60);
-		int seconds = (int) (secondsUntilFinished % 60);
-		String text = String.format("%1$02d:%2$02d", minutes, seconds);
-		textView.setText(Html.fromHtml(context.getString(R.string.reset_stealth_tip, text)));
-
-	}
-
-	public void resetCountDownSetter()
-	{
-		if(countDownSetter == null)
-		{
-			return;
-		}
-
-		this.countDownSetter.cancel();
-		this.countDownSetter = null;
-	}
-
-	public void addItemsToAnimat(Set<Conversation> stealthConversations)
-	{
-		for (Conversation conversation : stealthConversations)
+		for (ConvInfo conversation : stealthConversations)
 		{
 			itemsToAnimat.put(conversation.hashCode(), true);
 		}
 	}
 	
-	public void setItemAnimated(Conversation conv)
+	public void setItemAnimated(ConvInfo conv)
 	{
 		itemsToAnimat.delete(conv.hashCode());
 	}
 	
-	public boolean itemToBeAnimated(Conversation conv)
+	public boolean itemToBeAnimated(ConvInfo conv)
 	{
 		return itemsToAnimat.get(conv.hashCode()) && conv.isStealth();
 	}
@@ -1375,11 +962,11 @@ public class ConversationsAdapter extends BaseAdapter
 			for (int i = 0; i < count; i++)
 			{
 				View view = listView.getChildAt(i);
-				int indexOfData = listView.getFirstVisiblePosition() + i;
+				int indexOfData = listView.getFirstVisiblePosition() + i - listView.getHeaderViewsCount();
 
-				if(indexOfData >= getCount())
+				if(indexOfData >= getCount() || indexOfData < 0)
 				{
-					return;
+					continue;
 				}
 				ViewType viewType = ViewType.values()[getItemViewType(indexOfData)];
 				/*
@@ -1393,6 +980,12 @@ public class ConversationsAdapter extends BaseAdapter
 				updateViewsRelatedToAvatar(view, getItem(indexOfData));
 			}
 		}
+		
+		//TODO remove this log as this is just for testing
+		if(notify)
+		{
+			Logger.i("ConversationFling ", " isListFlinging : "+isListFlinging);
+		}
 	}
 	
 	public IconLoader getIconLoader()
@@ -1400,44 +993,16 @@ public class ConversationsAdapter extends BaseAdapter
 		return iconLoader;
 	}
 
-	public void addToLists(Conversation conv)
-	{
-		if (!isSearchModeOn)
-		{
-			completeList.add(conv);
-		}
-		else
-		{
-			conversationList.add(conv);
-		}
-		if(conversationsMsisdns!=null)
-		{
-			conversationsMsisdns.add(conv.getMsisdn());
-		}
-		if(phoneBookContacts!=null)
-		{
-			phoneBookContacts.remove(conv);
-		}
-	}
-
-	public void addToLists(Set<Conversation> list)
-	{
-		for (Conversation conv : list)
-		{
-			addToLists(conv);
-		}
-	}
-
 	public void removeStealthConversationsFromLists()
 	{
-		for (Iterator<Conversation> iter = completeList.iterator(); iter.hasNext();)
+		for (Iterator<ConvInfo> iter = completeList.iterator(); iter.hasNext();)
 		{
 			Object object = iter.next();
 			if (object == null)
 			{
 				continue;
 			}
-			Conversation conv = (Conversation) object;
+			ConvInfo conv = (ConvInfo) object;
 			if (conv.isStealth())
 			{
 				iter.remove();
@@ -1450,13 +1015,42 @@ public class ConversationsAdapter extends BaseAdapter
 		}
 	}
 
-	public void sortLists(Comparator<? super Conversation> mConversationsComparator)
+	public void sortLists(Comparator<? super ConvInfo> mConversationsComparator)
 	{
 		Collections.sort(completeList, mConversationsComparator);
 		Collections.sort(conversationList, mConversationsComparator);
 	}
+	
+	public void addToLists(ConvInfo convInfo)
+	{
+		conversationList.add(convInfo);
+		if(conversationsMsisdns!=null)
+		{
+			conversationsMsisdns.add(convInfo.getMsisdn());
+		}
+		if(phoneBookContacts!=null)
+		{
+			phoneBookContacts.remove(convInfo);
+		}
+		if (!isSearchModeOn)
+		{
+			completeList.add(convInfo);
+		}
+		else
+		{
+			onQueryChanged(refinedSearchText, searchFilterListener);
+		}
+	}
 
-	public void remove(Conversation conv)
+	public void addToLists(Set<ConvInfo> list)
+	{
+		for (ConvInfo convInfo : list)
+		{
+			addToLists(convInfo);
+		}
+	}
+
+	public void remove(ConvInfo conv)
 	{
 		if (conv != null)
 		{
@@ -1466,11 +1060,14 @@ public class ConversationsAdapter extends BaseAdapter
 			{
 				conversationsMsisdns.remove(conv.getMsisdn());
 			}
-			if (phoneBookContacts != null)
+			if (phoneBookContacts != null && conv.isOnHike())
 			{
-				phoneBookContacts.add(conv);
+				phoneBookContacts.add(getPhoneContactFakeConv(conv));
+			}
+			if (isSearchModeOn)
+			{
+				onQueryChanged(refinedSearchText, searchFilterListener);
 			}
 		}
 	}
-
 }

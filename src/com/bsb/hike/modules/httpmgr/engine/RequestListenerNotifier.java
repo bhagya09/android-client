@@ -3,7 +3,7 @@ package com.bsb.hike.modules.httpmgr.engine;
 import java.util.Iterator;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import com.bsb.hike.modules.httpmgr.Utils;
+import com.bsb.hike.modules.httpmgr.HttpUtils;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.interceptor.IResponseInterceptor;
 import com.bsb.hike.modules.httpmgr.request.Request;
@@ -73,13 +73,13 @@ public class RequestListenerNotifier
 
 	private void sendSuccess(Request<?> request, Response response)
 	{
+		if (request.isCancelled())
+		{
+			return;
+		}
+		
 		try
 		{
-			if (request.isCancelled())
-			{
-				return;
-			}
-
 			postProcessResponse(request, response);
 
 			CopyOnWriteArrayList<IRequestListener> listeners = request.getRequestListeners();
@@ -90,7 +90,7 @@ public class RequestListenerNotifier
 		}
 		finally
 		{
-			Utils.finish(request, response);
+			HttpUtils.finish(request, response);
 		}
 	}
 
@@ -110,9 +110,55 @@ public class RequestListenerNotifier
 	 */
 	public void notifyListenersOfRequestCancellation(Request<?> request)
 	{
-		notifyListenersOfRequestFailure(request, new HttpException(HttpException.REASON_CODE_CANCELLATION, "Request Cancellation Exception"));
+		HttpException ex = new HttpException(HttpException.REASON_CODE_CANCELLATION, "Request Cancellation Exception");
+		if (!request.isAsynchronous())
+		{
+			// send response on same thread
+			sendCancellationFailure(request, ex);
+		}
+		else if (request.isResponseOnUIThread())
+		{
+			// send response on ui thread
+			ResponseCall call = getCancellationResponseCall(request, ex);
+			uiExecuter.execute(call);
+		}
+		else
+		{
+			// send response on other thread
+			ResponseCall call = getCancellationResponseCall(request, ex);
+			engine.submit(call);
+		}
 	}
 
+	private ResponseCall getCancellationResponseCall(final Request<?> request, final HttpException ex)
+	{
+		ResponseCall call = new ResponseCall()
+		{
+			@Override
+			public void execute()
+			{
+				sendCancellationFailure(request, ex);
+			}
+		};
+		return call;
+	}
+
+	private void sendCancellationFailure(Request<?> request, HttpException ex)
+	{
+		try
+		{
+			CopyOnWriteArrayList<IRequestListener> listeners = request.getRequestListeners();
+			for (IRequestListener listener : listeners)
+			{
+				listener.onRequestFailure(ex);
+			}
+		}
+		finally
+		{
+			// TODO
+		}
+	}
+	
 	/**
 	 * This method notifies the listeners about the request cancellation. Calls {@link IRequestListener#onRequestFailure(HttpException)} for each listener of the request
 	 * 
@@ -155,13 +201,13 @@ public class RequestListenerNotifier
 
 	private void sendFailure(Request<?> request, HttpException ex)
 	{
+		if (request.isCancelled())
+		{
+			return;
+		}
+		
 		try
 		{
-			if (request.isCancelled())
-			{
-				return;
-			}
-
 			CopyOnWriteArrayList<IRequestListener> listeners = request.getRequestListeners();
 			for (IRequestListener listener : listeners)
 			{
@@ -170,7 +216,7 @@ public class RequestListenerNotifier
 		}
 		finally
 		{
-			Utils.finish(request, null);
+			HttpUtils.finish(request, null);
 		}
 	}
 

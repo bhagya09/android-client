@@ -11,8 +11,8 @@
         android:orientation="horizontal" >
 
         <com.bsb.hike.view.CustomFontButton
+            android:id="@+id/block_unknown_contact"
             style="@style/BlockAddUnknownContact"
-            android:onClick="blockUser"
             android:text="@string/block_title" />
 
         <View
@@ -23,8 +23,8 @@
             android:background="#3DFFFFFF" />
 
         <com.bsb.hike.view.CustomFontButton
+            android:id="@+id/add_unknown_contact"
             style="@style/BlockAddUnknownContact"
-            android:onClick="addToContacts"
             android:text="@string/add" />
     </LinearLayout>
 

@@ -35,23 +35,22 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
-import com.bsb.hike.analytics.AnalyticsConstants.MsgRelEventType;
-import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.AnalyticsConstants.MessageType;
 import com.bsb.hike.analytics.MsgRelLogManager;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.http.CustomByteArrayEntity;
 import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.ConvMessage.OriginType;
 import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.models.HikeFile;
-import com.bsb.hike.models.ConvMessage.OriginType;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.ProgressListener;
 import com.bsb.hike.utils.Utils;
-import com.google.android.maps.GeoPoint;
+import com.google.android.gms.maps.model.LatLng;
 
 public class UploadContactOrLocationTask extends FileTransferBase
 {
@@ -78,7 +77,7 @@ public class UploadContactOrLocationTask extends FileTransferBase
 	private FutureTask<FTResult> futureTask;
 
 	protected UploadContactOrLocationTask(Handler handler, ConcurrentHashMap<Long, FutureTask<FTResult>> fileTaskMap, Context ctx, String msisdn, double latitude,
-			double longitude, int zoomLevel, boolean isRecipientOnhike, String token, String uId)
+			double longitude, int zoomLevel, boolean isRecipientOnhike, String token, String uId, boolean newConvIfnotExist)
 	{
 		super(handler, fileTaskMap, ctx, null, -1, null, token, uId);
 		this.latitude = latitude;
@@ -88,11 +87,11 @@ public class UploadContactOrLocationTask extends FileTransferBase
 		this.uploadingContact = false;
 		this.isRecipientOnhike = isRecipientOnhike;
 		_state = FTState.INITIALIZED;
-		createConvMessage();
+		createConvMessage(newConvIfnotExist);
 	}
 
 	protected UploadContactOrLocationTask(Handler handler, ConcurrentHashMap<Long, FutureTask<FTResult>> fileTaskMap, Context ctx, String msisdn, JSONObject contactJson,
-			boolean isRecipientOnhike, String token, String uId)
+			boolean isRecipientOnhike, String token, String uId, boolean newConvIfnotExist)
 	{
 		super(handler, fileTaskMap, ctx, null, -1, null, token, uId);
 		this.msisdn = msisdn;
@@ -100,7 +99,7 @@ public class UploadContactOrLocationTask extends FileTransferBase
 		this.uploadingContact = true;
 		this.isRecipientOnhike = isRecipientOnhike;
 		_state = FTState.INITIALIZED;
-		createConvMessage();
+		createConvMessage(newConvIfnotExist);
 	}
 
 	protected UploadContactOrLocationTask(Handler handler, ConcurrentHashMap<Long, FutureTask<FTResult>> fileTaskMap, Context ctx, Object convMessage, boolean uploadingContact,
@@ -126,7 +125,7 @@ public class UploadContactOrLocationTask extends FileTransferBase
 		{
 			if (userContext == null)
 			{
-				createConvMessage();
+				createConvMessage(false);
 			}
 			if (!uploadingContact)
 			{
@@ -136,7 +135,7 @@ public class UploadContactOrLocationTask extends FileTransferBase
 				address = hikeFile.getAddress();
 
 				if (address == null)
-					address = Utils.getAddressFromGeoPoint(new GeoPoint((int) (latitude * 1E6), (int) (longitude * 1E6)), context);
+					address = Utils.getAddressFromGeoPoint(new LatLng(latitude, longitude), context);
 
 				if (TextUtils.isEmpty(hikeFile.getThumbnailString()))
 				{
@@ -192,7 +191,7 @@ public class UploadContactOrLocationTask extends FileTransferBase
 					String msisdn = grpParticipant.getFirst().getContactInfo().getMsisdn();
 					convMessageObject.addToSentToMsisdnsList(msisdn);
 				}
-				Utils.addBroadcastRecipientConversations(convMessageObject);
+				OneToNConversationUtils.addBroadcastRecipientConversations(convMessageObject);
 			}
 
 			HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_SENT, convMessageObject);
@@ -220,6 +219,7 @@ public class UploadContactOrLocationTask extends FileTransferBase
 		Logger.d("Upload", "Content type: " + fileType);
 		httpPut.addHeader("Content-Type", TextUtils.isEmpty(fileType) ? "" : fileType);
 		httpPut.addHeader("X-Thumbnail-Required", "0");
+		AccountUtils.setNoTransform(httpPut);
 		final AbstractHttpEntity entity;
 		entity = new CustomByteArrayEntity(request.toString().getBytes(), new ProgressListener()
 		{
@@ -270,7 +270,7 @@ public class UploadContactOrLocationTask extends FileTransferBase
 		return metadata;
 	}
 
-	private void createConvMessage()
+	private void createConvMessage(boolean newConvIfnotExist)
 	{
 		try
 		{
@@ -284,7 +284,7 @@ public class UploadContactOrLocationTask extends FileTransferBase
 				metadata = getFileTransferMetadataForContact(contactJson);
 			}
 
-			userContext = createConvMessage(msisdn, metadata);
+			userContext = createConvMessage(msisdn, metadata, newConvIfnotExist);
 			
 			if (TextUtils.isEmpty(fileKey))
 			{
@@ -303,7 +303,7 @@ public class UploadContactOrLocationTask extends FileTransferBase
 		}
 	}
 
-	private ConvMessage createConvMessage(String msisdn, JSONObject metadata) throws JSONException
+	private ConvMessage createConvMessage(String msisdn, JSONObject metadata, boolean newConvIfnotExist) throws JSONException
 	{
 		long time = System.currentTimeMillis() / 1000;
 		ConvMessage convMessage = new ConvMessage(HikeConstants.LOCATION_FILE_NAME, msisdn, time, ConvMessage.State.SENT_UNCONFIRMED);
@@ -315,7 +315,7 @@ public class UploadContactOrLocationTask extends FileTransferBase
 			convMessage.setMessageOriginType(OriginType.BROADCAST);
 		}
 
-		HikeConversationsDatabase.getInstance().addConversationMessages(convMessage);
+		HikeConversationsDatabase.getInstance().addConversationMessages(convMessage,newConvIfnotExist);
 
 		HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_MESSAGE_CREATED, convMessage);
 		return convMessage;
@@ -336,9 +336,7 @@ public class UploadContactOrLocationTask extends FileTransferBase
 
 		convMessage.setMetadata(metadata);
 		HikeConversationsDatabase.getInstance().updateMessageMetadata(convMessage.getMsgID(), convMessage.getMetadata());
-		// HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
-		Intent intent = new Intent(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED);
-		LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+		HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
 	}
 
 	protected void postExecute(FTResult result)

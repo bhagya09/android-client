@@ -17,8 +17,9 @@ import android.util.Pair;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.GroupParticipant;
+import com.bsb.hike.models.Conversation.OneToNConversation;
+import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.PairModified;
-import com.bsb.hike.utils.Utils;
 
 class PersistenceCache extends ContactsCache
 {
@@ -320,7 +321,7 @@ class PersistenceCache extends ContactsCache
 		/**
 		 * Always try to take locks when and where required. Here we are separating out locking into different zones so that lock acquired should be for minimum time possible.
 		 */
-		if (Utils.isGroupConversation(msisdn))
+		if (OneToNConversationUtils.isOneToNConversation(msisdn))
 		{
 			GroupDetails grpDetails = null;
 			readLock.lock();
@@ -346,7 +347,7 @@ class PersistenceCache extends ContactsCache
 			try
 			{
 				List<PairModified<GroupParticipant, String>> grpParticipants = ContactManager.getInstance().getGroupParticipants(msisdn, false, false);
-				String grpName = Utils.defaultGroupName(new ArrayList<PairModified<GroupParticipant, String>>(grpParticipants));
+				String grpName = OneToNConversation.defaultConversationName(new ArrayList<PairModified<GroupParticipant, String>>(grpParticipants));
 				grpDetails.setDefaultGroupName(grpName);
 				return grpName;
 			}
@@ -398,7 +399,7 @@ class PersistenceCache extends ContactsCache
 					return;
 				}
 				List<PairModified<GroupParticipant, String>> grpParticipants = ContactManager.getInstance().getGroupParticipants(grpId, false, false);
-				grpName = Utils.defaultGroupName(new ArrayList<PairModified<GroupParticipant, String>>(grpParticipants));
+				grpName = OneToNConversation.defaultConversationName(new ArrayList<PairModified<GroupParticipant, String>>(grpParticipants));
 				grpDetails.setDefaultGroupName(grpName);
 			}
 		}
@@ -593,7 +594,7 @@ class PersistenceCache extends ContactsCache
 					if (TextUtils.isEmpty(groupName) || groupName.equals(grpDetails.getGroupId()))
 					{
 						List<PairModified<GroupParticipant, String>> grpParticipants = ContactManager.getInstance().getGroupParticipants(msisdn, false, false);
-						String grpName = Utils.defaultGroupName(new ArrayList<PairModified<GroupParticipant, String>>(grpParticipants));
+						String grpName = OneToNConversation.defaultConversationName(new ArrayList<PairModified<GroupParticipant, String>>(grpParticipants));
 						grpDetails.setDefaultGroupName(grpName);
 					}
 				}
@@ -809,7 +810,7 @@ class PersistenceCache extends ContactsCache
 		readLock.lock();
 		try
 		{
-			if (Utils.isGroupConversation(id))
+			if (OneToNConversationUtils.isOneToNConversation(id))
 				return groupPersistence.containsKey(id);
 			else
 				return convsContactsPersistence.containsKey(id);
@@ -920,7 +921,7 @@ class PersistenceCache extends ContactsCache
 			if (TextUtils.isEmpty(groupName) || groupName.equals(grpId))
 			{
 				List<PairModified<GroupParticipant, String>> grpParticipants = ContactManager.getInstance().getGroupParticipants(grpId, false, false);
-				groupName = Utils.defaultGroupName(new ArrayList<PairModified<GroupParticipant, String>>(grpParticipants));
+				groupName = OneToNConversation.defaultConversationName(new ArrayList<PairModified<GroupParticipant, String>>(grpParticipants));
 				grpDetails.setDefaultGroupName(groupName);
 			}
 			groupPersistence.put(grpId, grpDetails);
@@ -947,7 +948,7 @@ class PersistenceCache extends ContactsCache
 			if (TextUtils.isEmpty(groupName) || groupName.equals(grpId))
 			{
 				List<PairModified<GroupParticipant, String>> grpParticipants = ContactManager.getInstance().getGroupParticipants(grpId, false, false);
-				defaultGroupName = Utils.defaultGroupName(new ArrayList<PairModified<GroupParticipant, String>>(grpParticipants));
+				defaultGroupName = OneToNConversation.defaultConversationName(new ArrayList<PairModified<GroupParticipant, String>>(grpParticipants));
 			}
 			GroupDetails grpDetails = new GroupDetails(grpId, groupName, defaultGroupName, alive, clq);
 			groupPersistence.put(grpId, grpDetails);
@@ -1106,5 +1107,17 @@ class PersistenceCache extends ContactsCache
 		{
 			readLock.unlock();
 		}
+	}
+
+	/**
+	 * Clears the memory {@see #clearMemory()} and make all references null
+	 */
+	void shutdown()
+	{
+		clearMemory();
+		hDb = null;
+		convsContactsPersistence = null;
+		groupContactsPersistence = null;
+		groupPersistence = null;
 	}
 }
