@@ -104,9 +104,13 @@ public class PlatformContentModel
 		try
 		{
 			object = new Gson().fromJson(jsonObj, PlatformContentModel.class);
-			object.cardObj.ld.addProperty(PlatformContentConstants.KEY_TEMPLATE_PATH, PlatformContentConstants.CONTENT_AUTHORITY_BASE + object.cardObj.appName + File.separator);
-			object.cardObj.ld.addProperty(PlatformContentConstants.MESSAGE_ID,Integer.toString(unique));
-			object.cardObj.ld.addProperty(HikePlatformConstants.PLATFORM_VERSION,HikePlatformConstants.CURRENT_VERSION);
+			if (object.cardObj.getLd() != null)
+			{
+				object.cardObj.ld
+						.addProperty(PlatformContentConstants.KEY_TEMPLATE_PATH, PlatformContentConstants.CONTENT_AUTHORITY_BASE + object.cardObj.appName + File.separator);
+				object.cardObj.ld.addProperty(PlatformContentConstants.MESSAGE_ID, Integer.toString(unique));
+				object.cardObj.ld.addProperty(HikePlatformConstants.PLATFORM_VERSION, HikePlatformConstants.CURRENT_VERSION);
+			}
 		}
 		catch (JsonParseException e)
 		{
