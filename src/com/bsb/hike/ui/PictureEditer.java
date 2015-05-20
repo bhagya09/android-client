@@ -92,7 +92,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 
 	private boolean startedForResult;
 	private boolean startedForProfileUpdate;
-	private boolean isScreenActive;
+	private boolean isWorking;
 	
 
 	@Override
@@ -116,8 +116,6 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 		
 		progressLayout = findViewById(R.id.progressBar);
 
-		enableScreen(false);
-		
 		// Get filename from intent data
 		Intent intent = getIntent();
 		filename = intent.getStringExtra(HikeMessengerApp.FILE_PATH);
@@ -172,6 +170,8 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 				return;
 			}
 		}
+		
+		beginProgress();
 
 		HikeBitmapFactory.correctBitmapRotation(filename, new HikePhotosListener()
 		{
@@ -265,17 +265,16 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 		editView.enable();
 	}
 	
-	private void enableScreen(boolean state)
+	private void finishProgress()
 	{
-		isScreenActive = state;
-		if(!isScreenActive)
-		{
-			progressLayout.setVisibility(View.VISIBLE);
-		}
-		else
-		{
-			progressLayout.setVisibility(View.GONE);
-		}
+		isWorking = false;
+		progressLayout.setVisibility(View.GONE);
+	}
+	
+	private void beginProgress()
+	{
+		isWorking = true;
+		progressLayout.setVisibility(View.VISIBLE);
 	}
 	
 	private void init(Bitmap srcBitmap)
@@ -294,7 +293,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 
 		indicator.setOnPageChangeListener(clickHandler);
 		
-		enableScreen(true);
+		finishProgress();
 		
 	}
 
@@ -392,7 +391,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 			switch (requestCode)
 			{
 			case HikeConstants.CROP_RESULT:
-				enableScreen(true);
+				finishProgress();
 				uploadProfilePic(data.getStringExtra(MediaStore.EXTRA_OUTPUT), data.getStringExtra(HikeConstants.HikePhotos.ORIG_FILE));
 				break;
 			}
@@ -447,7 +446,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 		public void onClick(View v)
 		{
 			
-			if(!isScreenActive)
+			if(isWorking)
 			{
 				return;
 			}
@@ -486,14 +485,13 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 				}
 				else
 				{
-					enableScreen(false);
+					beginProgress();
 					editView.saveImage(HikeFileType.IMAGE, null, new HikePhotosListener()
 					{
 
 						@Override
 						public void onFailure()
 						{
-							progressLayout.setVisibility(View.GONE);
 							Intent intent = new Intent();
 							setResult(RESULT_CANCELED, intent);
 							finish();
@@ -510,7 +508,6 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 						@Override
 						public void onComplete(File f)
 						{
-							progressLayout.setVisibility(View.GONE);
 							Intent intent = new Intent();
 							intent.putExtra(HikeConstants.Extras.IMAGE_PATH, f.getAbsolutePath());
 							intent.setAction(HikeConstants.HikePhotos.PHOTOS_ACTION_CODE);
@@ -538,7 +535,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 						mActionBarDoneContainer.setVisibility(View.VISIBLE);
 						if (actionCode == PhotoActionsFragment.ACTION_SEND)
 						{
-							enableScreen(false);
+							beginProgress();
 							sendAnalyticsSendTo();
 							editView.saveImage(HikeFileType.IMAGE, null, new HikePhotosListener()
 							{
@@ -551,7 +548,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 										@Override
 										public void onFailure()
 										{
-											enableScreen(true);
+											finishProgress();
 										}
 
 										@Override
@@ -607,7 +604,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 		
 		private void setupProfilePicUpload()
 		{
-			enableScreen(false);
+			beginProgress();
 			sendAnalyticsSetAsDp();
 			// User info is saved in shared preferences
 			SharedPreferences preferences = HikeMessengerApp.getInstance().getApplicationContext()
@@ -691,7 +688,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 		@Override
 		public void onItemClick(TwoWayAdapterView<?> parent, View view, int position, long id)
 		{
-			if(!isScreenActive)
+			if(isWorking)
 			{
 				return;
 			}
@@ -766,7 +763,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 	@Override
 	public void onBackPressed()
 	{
-		if(!isScreenActive)
+		if(isWorking)
 		{
 			return;
 		}

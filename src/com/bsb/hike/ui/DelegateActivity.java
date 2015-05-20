@@ -93,7 +93,8 @@ public class DelegateActivity extends HikeAppStateBaseFragmentActivity
 	private void init()
 	{
 		Logger.d(TAG, "Starting activity for result");
-		DelegateActivity.this.startActivityForResult(destinationIntents.get(currentIntentCounter++), requestCode);
+		DelegateActivity.this.startActivityForResult(destinationIntents.get(0), requestCode);
+		currentIntentCounter = 1;
 	}
 
 	private void onError()
