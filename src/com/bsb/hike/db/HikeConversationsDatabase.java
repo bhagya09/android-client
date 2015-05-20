@@ -6556,19 +6556,10 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 		return null;
 	}
-	
-	public void updateMetadataOfBot(String botMsisdn, String metadata)
-	{
-		ContentValues contentValues = new ContentValues();
-		contentValues.put(MSISDN, botMsisdn);
-		contentValues.put(CONVERSATION_METADATA, metadata);
-		mDb.update(BOT_TABLE, contentValues, MSISDN + "=?", new String[] { botMsisdn });
-	}
 
 	public void updateHelperDataForNonMessagingBot(String botMsisdn, String helperData)
 	{
 		ContentValues contentValues = new ContentValues();
-		contentValues.put(MSISDN, botMsisdn);
 		contentValues.put(HIKE_CONTENT.HELPER_DATA, helperData);
 		mDb.update(BOT_TABLE, contentValues, MSISDN + "=?", new String[] { botMsisdn });
 	}

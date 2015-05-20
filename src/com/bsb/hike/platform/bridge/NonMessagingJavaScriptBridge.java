@@ -68,6 +68,11 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void updateHelperData(String json)
 	{
+		if (TextUtils.isEmpty(json))
+		{
+			Logger.e(tag, "json to update helper data is empty. Returning.");
+			return;
+		}
 
 		Logger.i(tag, "update helperData called " + json + " , MicroApp msisdn : " + mBotInfo.getMsisdn());
 		String oldHelper = mBotInfo.getHelperData();
@@ -80,11 +85,9 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 				String key = i.next();
 				oldHelperDataJson.put(key, oldHelperDataJson.get(key));
 			}
+
 			mBotInfo.setHelperData(oldHelperDataJson.toString());
-			if (!TextUtils.isEmpty(mBotInfo.getHelperData()))
-			{
-				HikeConversationsDatabase.getInstance().updateHelperDataForNonMessagingBot(mBotInfo.getMsisdn(), mBotInfo.getHelperData());
-			}
+			HikeConversationsDatabase.getInstance().updateHelperDataForNonMessagingBot(mBotInfo.getMsisdn(), mBotInfo.getHelperData());
 		}
 		catch (JSONException e)
 		{
