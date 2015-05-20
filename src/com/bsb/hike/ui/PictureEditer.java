@@ -114,7 +114,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 
 		clickHandler = new EditorClickListener(this);
 		
-		progressLayout = findViewById(R.id.progressLayout);
+		progressLayout = findViewById(R.id.progressBar);
 
 		enableScreen(false);
 		
