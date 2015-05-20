@@ -301,6 +301,7 @@ public interface DBConstants
 		public static final String VALUE = "value";
 		public static final String CONTENT_CACHE_TABLE = "contentCache";
 		public static final String KEY = "key";
+		public static final String HELPER_DATA = "helper_data";
 	}
 
 	public static final String CATEGORY_NAME = "categoryName";

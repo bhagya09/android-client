@@ -3128,10 +3128,12 @@ public class MqttMessagesManager
 		JSONObject configData = jsonObj.optJSONObject(HikePlatformConstants.CONFIG_DATA);
 		String namespace = jsonObj.optString(HikePlatformConstants.NAMESPACE);
 		NonMessagingBotConfiguration configuration = new NonMessagingBotConfiguration(config, configData.toString());
+		String helperData = jsonObj.optString(HikePlatformConstants.HELPER_DATA);
 		botInfo = new BotInfo.HikeBotBuilder(msisdn)
 				.setType(BotInfo.NON_MESSAGING_BOT)
 				.setConvName(name)
 				.setIsMute(false)
+				.setHelperData(helperData)
 				.setNamespace(namespace)
 				.setConfigData(null == configuration.getConfigData() ? null : configuration.getConfigData().toString())
 				.setConfig(configuration.getConfig())
