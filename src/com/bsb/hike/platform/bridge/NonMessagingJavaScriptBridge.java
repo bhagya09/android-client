@@ -166,7 +166,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void blockChatThread(String isBlocked)
 	{
-		if (isBlocked.equalsIgnoreCase(Boolean.toString(true)))
+		if (Boolean.valueOf(isBlocked))
 		{
 			HikeMessengerApp.getPubSub().publish(HikePubSub.BLOCK_USER, mBotInfo.getMsisdn());
 		}
