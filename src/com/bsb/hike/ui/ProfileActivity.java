@@ -1565,9 +1565,10 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 			startActivity(i);
 		}
-		else if (this.profileType == ProfileType.USER_PROFILE)
+		
+		if (Utils.isPhotosEditEnabled() && this.profileType != ProfileType.USER_PROFILE_EDIT)
 		{
-			super.onBackPressed();
+			//handling user profile edit case differently since photos flow will handle the created fragments
 			return;
 		}
 		super.onBackPressed();
