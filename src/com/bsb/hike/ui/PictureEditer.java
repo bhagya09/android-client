@@ -263,6 +263,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 		super.onResume();
 		overridePendingTransition(R.anim.fade_in_animation, R.anim.fade_out_animation);
 		editView.enable();
+		finishProgress();
 	}
 	
 	private void finishProgress()
@@ -407,7 +408,6 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 			public void run()
 			{
 				editView.setVisibility(View.VISIBLE);
-				mActionBarBackButton.setVisibility(View.GONE);
 				ProfilePicFragment profilePicFragment = new ProfilePicFragment();
 				Bundle b = new Bundle();
 				b.putString(HikeConstants.HikePhotos.FILENAME, croppedImageFile);
@@ -772,7 +772,6 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 		{
 			getSupportActionBar().show();
 			mActionBarDoneContainer.setVisibility(View.VISIBLE);
-			mActionBarBackButton.setVisibility(View.VISIBLE);
 			editView.enable();
 		}
 		else
