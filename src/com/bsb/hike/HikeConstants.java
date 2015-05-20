@@ -2683,6 +2683,8 @@ public class HikeConstants
 	
 	public static final String REARRANGE_CHAT = "rearrange_chat";
 	
+	public static final String UPDATE_UNREAD_COUNT = "uuc";
+	
 	public static final String CONTENT_ID = "content_id";
 	public static final String TIMESTAMP_MILLIS = "msec";
 	

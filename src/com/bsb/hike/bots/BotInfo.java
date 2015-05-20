@@ -1,11 +1,9 @@
 package com.bsb.hike.bots;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.models.Conversation.ConvInfo;
-import com.bsb.hike.platform.HikePlatformConstants;
 
 /**
  * Created by shobhit on 22/04/15.
@@ -24,6 +22,10 @@ public class BotInfo extends ConvInfo
 	private String configData;
 
 	private String notifData;
+	
+	private AtomicBoolean configDataRefreshed = new AtomicBoolean(false);
+	
+	private AtomicBoolean isBackPressAllowed = new AtomicBoolean(false);
 
 	private String helperData;
 
@@ -165,6 +167,7 @@ public class BotInfo extends ConvInfo
 	public void setConfigData(String configData)
 	{
 		this.configData = configData;
+		setConfigDataRefreshed(true);
 	}
 
 	public void setNotifData(String notifData)
@@ -221,5 +224,36 @@ public class BotInfo extends ConvInfo
 		super.setOnHike(true);
 	}
 
+	/**
+	 * @return the configDataRefreshed
+	 */
+	public boolean isConfigDataRefreshed()
+	{
+		return configDataRefreshed.get();
+	}
+
+	/**
+	 * @param configDataRefreshed the configDataRefreshed to set
+	 */
+	public void setConfigDataRefreshed(boolean configDataRefreshed)
+	{
+		this.configDataRefreshed.set(configDataRefreshed);
+	}
+
+	/**
+	 * @return the isBackPressAllowed
+	 */
+	public boolean getIsBackPressAllowed()
+	{
+		return isBackPressAllowed.get();
+	}
+
+	/**
+	 * @param isBackPressAllowed the isBackPressAllowed to set
+	 */
+	public void setIsBackPressAllowed(boolean isBackPressAllowed)
+	{
+		this.isBackPressAllowed.set(isBackPressAllowed);
+	}
 
 }

@@ -1,22 +1,14 @@
 package com.bsb.hike.platform.bridge;
 
-import java.util.ArrayList;
-
-import com.bsb.hike.db.HikeContentDatabase;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
-import android.os.Bundle;
-import android.os.Message;
 import android.text.TextUtils;
-import android.util.Pair;
 import android.util.SparseArray;
 import android.webkit.JavascriptInterface;
 import android.widget.BaseAdapter;
 
-import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.analytics.AnalyticsConstants;
@@ -24,10 +16,7 @@ import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.HikePlatformConstants;
-import com.bsb.hike.platform.PlatformAlarmManager;
-import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.WebMetadata;
-import com.bsb.hike.platform.WebViewCardRenderer.WebViewHolder;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -181,42 +170,6 @@ public class MessagingBridge_Nano extends JavascriptBridge
 		this.listener = listener;
 	}
 	
-	public void setData()
-	{
-		mWebView.loadUrl("javascript:setData('" + message.getMsisdn() + "','" + message.webMetadata.getHelperData().toString() + "','" + message.isSent() + "','" +
-				HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_UID_SETTING,null) + "','" + AccountUtils.getAppVersion() + "')");
-	}
-
-	public void init()
-	{
-		JSONObject jsonObject = new JSONObject();
-		try
-		{
-			jsonObject.put(HikeConstants.MSISDN, message.getMsisdn());
-			jsonObject.put(HikePlatformConstants.HELPER_DATA, message.webMetadata.getHelperData());
-			jsonObject.put(HikePlatformConstants.IS_SENT, message.isSent());
-			jsonObject.put(HikePlatformConstants.PLATFORM_USER_ID,HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_UID_SETTING,null) );
-			jsonObject.put(HikePlatformConstants.APP_VERSION, AccountUtils.getAppVersion());
-
-			jsonObject.put(HikePlatformConstants.PROFILING_TIME, profilingTime);
-			mWebView.loadUrl("javascript:init('" + jsonObject.toString() + "')");
-		}
-		catch (JSONException e)
-		{
-			e.printStackTrace();
-		}
-	}
-
-	public void alarmPlayed(String alarmData)
-	{
-		mWebView.loadUrl("javascript:alarmPlayed(" + "'" + alarmData + "')");
-	}
-
-	public void updateProfilingTime(JSONObject profilingTime)
-	{
-		this.profilingTime = profilingTime;
-	}
-
 	/**
 	 * Update this conv message on java bridge thread
 	 * @param message
@@ -300,6 +253,39 @@ public class MessagingBridge_Nano extends JavascriptBridge
 
 	}
 	
+	public void setData()
+	{
+		mWebView.loadUrl("javascript:setData('" + message.getMsisdn() + "','" + message.webMetadata.getHelperData().toString() + "','" + message.isSent() + "','" +
+				HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_UID_SETTING,null) + "','" + AccountUtils.getAppVersion() + "')");
+	}
+
+	public void init()
+	{
+		JSONObject jsonObject = new JSONObject();
+		try
+		{
+			getInitJson(jsonObject, message.getMsisdn());
+			jsonObject.put(HikePlatformConstants.HELPER_DATA, message.webMetadata.getHelperData());
+			jsonObject.put(HikePlatformConstants.IS_SENT, message.isSent());
+			jsonObject.put(HikePlatformConstants.PROFILING_TIME, profilingTime);
+			mWebView.loadUrl("javascript:init('" + jsonObject.toString() + "')");
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
+	public void alarmPlayed(String alarmData)
+	{
+		mWebView.loadUrl("javascript:alarmPlayed(" + "'" + alarmData + "')");
+	}
+
+	public void updateProfilingTime(JSONObject profilingTime)
+	{
+		this.profilingTime = profilingTime;
+	}
+
 	/**
 	 * call this function to delete the message. The message will get deleted instantaneously
 	 */
