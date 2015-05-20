@@ -19,6 +19,7 @@ import org.json.JSONObject;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Environment;
 import android.text.TextUtils;
 
@@ -104,6 +105,83 @@ public class AccountBackupRestore
 		}
 	}
 	
+	private class UserBackupData
+	{
+		public static final String DATA = "data";
+
+		public static final String TIMESTAMP = "ts";
+
+		public static final String VERSION = "version";
+
+		public static final String MSISDN = "msisdn";
+
+		private int appVersion;
+
+		private String msisdn;
+
+		private long backupTime;
+
+		private JSONObject userDataJson;
+
+		public UserBackupData()
+		{
+		}
+
+		public UserBackupData takeBackup() throws Exception
+		{
+			userDataJson = new JSONObject();
+			int appVersionCode = mContext.getPackageManager().getPackageInfo(mContext.getPackageName(), 0).versionCode;
+			String msisdn = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, "");
+			long time = System.currentTimeMillis();
+
+			userDataJson.put(VERSION, appVersionCode).put(MSISDN, msisdn).put(TIMESTAMP, time);
+
+			return this;
+		}
+
+		public String serialize()
+		{
+			return userDataJson.toString();
+		}
+
+		public void restore(String userDataJsonString) throws JSONException
+		{
+			userDataJson = new JSONObject(userDataJsonString);
+			HikeSharedPreferenceUtil prefUtil = HikeSharedPreferenceUtil.getInstance();
+
+			if (userDataJson.has(VERSION))
+			{
+				appVersion = userDataJson.getInt(VERSION);
+			}
+
+			if (userDataJson.has(MSISDN))
+			{
+				msisdn = userDataJson.getString(MSISDN);
+			}
+			if (userDataJson.has(TIMESTAMP))
+			{
+				backupTime = userDataJson.getLong(TIMESTAMP);
+			}
+		}
+
+		public int getAppVersion()
+		{
+			return appVersion;
+		}
+
+		public long getBackupTime()
+		{
+			return backupTime;
+		}
+
+		public File getUserDataFile()
+		{
+			new File(HikeConstants.HIKE_BACKUP_DIRECTORY_ROOT).mkdirs();
+			return new File(HikeConstants.HIKE_BACKUP_DIRECTORY_ROOT, DATA);
+		}
+
+	}
+	
 	public static final String RESTORE_EVENT_KEY = "rstr";
 
 	public static final String BACKUP_EVENT_KEY = "bck";
@@ -182,6 +260,7 @@ public class AccountBackupRestore
 		{
 			backupDB(backupToken);
 			backupPrefs(backupToken);
+			backupUserData();
 		}
 		catch (Exception e)
 		{
@@ -192,9 +271,10 @@ public class AccountBackupRestore
 		}
 		if (result)
 		{
-			if (!updateBackupState(null))
+			File oldBackupStateFile = getBackupStateFile();
+			if (oldBackupStateFile != null)
 			{
-				result = false;
+				oldBackupStateFile.delete();
 			}
 		}
 		time = System.currentTimeMillis() - time;
@@ -232,6 +312,31 @@ public class AccountBackupRestore
 		File prefFileBackup = getBackupFile(prefFile.getName());
 		CBCEncryption.encryptFile(prefFile, prefFileBackup, backupToken);
 		prefFile.delete();
+	}
+	
+	private void backupUserData() throws Exception
+	{
+		UserBackupData userData = new UserBackupData();
+		String userDataString = userData.takeBackup().serialize();
+		File userDataFile = userData.getUserDataFile();
+		writeToFile(userDataString, userDataFile);
+	}
+	
+	private UserBackupData getUserBackupData()
+	{
+		UserBackupData userData = new UserBackupData();
+		try
+		{
+			File userDataFile = userData.getUserDataFile();
+			String userDataString = readStringFromFile(userDataFile);
+			userData.restore(userDataString);
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+			return null;
+		}
+		return userData;
 	}
 
 	private void writeToFile(String text, File file) throws IOException
@@ -324,11 +429,25 @@ public class AccountBackupRestore
 		boolean result = true;
 		String backupToken = getBackupToken();
 		BackupState state = getBackupState();
-		if (state == null)
+		UserBackupData userBackupData = getUserBackupData();
+		int appCurrentVersionCode = 0;
+		try
+		{
+			appCurrentVersionCode = mContext.getPackageManager().getPackageInfo(mContext.getPackageName(), 0).versionCode;
+		}
+		catch (NameNotFoundException e1)
+		{
+			e1.printStackTrace();
+		}
+		if (state == null && userBackupData == null)
 		{
 			result = false;
 		}
-		if (state.getDBVersion() > DBConstants.CONVERSATIONS_DATABASE_VERSION)
+		else if (userBackupData != null && appCurrentVersionCode > 0 && appCurrentVersionCode < userBackupData.getAppVersion())
+		{
+			result = false;
+		}
+		else if (state!= null && state.getDBVersion() > DBConstants.CONVERSATIONS_DATABASE_VERSION)
 		{
 			result = false;
 		}
@@ -337,7 +456,10 @@ public class AccountBackupRestore
 			try
 			{
 				restoreDB(backupToken);
-				restorePrefs(backupToken);
+				if (state == null && userBackupData != null)
+				{
+					restorePrefs(backupToken);
+				}
 			}
 			catch (Exception e)
 			{
@@ -348,15 +470,18 @@ public class AccountBackupRestore
 		}
 		if (result)
 		{
-			state.restorePrefs(mContext);
-			postRestoreSetup(state);
+			if (state != null)
+			{
+				state.restorePrefs(mContext);
+			}
+			postRestoreSetup(state,userBackupData);
 		}
 		time = System.currentTimeMillis() - time;
 		Logger.d(getClass().getSimpleName(), "Restore " + result + " in " + time / 1000 + "." + time % 1000 + "s");
 		recordLog(RESTORE_EVENT_KEY,result,time);
 		return result;
 	}
-	
+
 	private void restoreDB(String backupToken) throws Exception
 	{
 		Logger.d(getClass().getSimpleName(), "decrypting with key: " + backupToken);
@@ -456,9 +581,13 @@ public class AccountBackupRestore
 		return backupToken;
 	}
 
-	private void postRestoreSetup(BackupState state)
+	private void postRestoreSetup(BackupState state, UserBackupData userBackupData)
 	{
-		if (state.getDBVersion() < DBConstants.CONVERSATIONS_DATABASE_VERSION)
+		if (state != null && state.getDBVersion() < DBConstants.CONVERSATIONS_DATABASE_VERSION)
+		{
+			HikeConversationsDatabase.getInstance().reinitializeDB();
+		}
+		else if (userBackupData != null)
 		{
 			HikeConversationsDatabase.getInstance().reinitializeDB();
 		}
@@ -505,25 +634,27 @@ public class AccountBackupRestore
 			if (!backup.exists())
 				return false;
 		}
-		BackupState state = getBackupState();
-		if (state != null)
+		if (getLastBackupTime() > 0)
 		{
-			if (state.getBackupTime() > 0)
-			{
-				return true;
-			}
+			return true;
 		}
 		return false;
 	}
 
 	public long getLastBackupTime()
 	{
+		Long backupTime = (long) -1;
 		BackupState state = getBackupState();
-		if (state != null)
+		UserBackupData userData = getUserBackupData();
+		if (userData != null)
 		{
-			return state.getBackupTime();
+			backupTime = userData.getBackupTime();
 		}
-		return -1;
+		else if (state != null)
+		{
+			backupTime = state.getBackupTime();
+		}
+		return backupTime;
 	}
 
 	/**
@@ -589,43 +720,6 @@ public class AccountBackupRestore
 		new File(HikeConstants.HIKE_BACKUP_DIRECTORY_ROOT).mkdirs();
 		return new File(HikeConstants.HIKE_BACKUP_DIRECTORY_ROOT, BACKUP);
 	}
-
-	/**
-	 * Update the backup state file
-	 * @param state
-	 * 
-	 * @return
-	 * 		Success or failure
-	 */
-	private boolean updateBackupState(BackupState state)
-	{
-		if (state == null)
-		{
-			state = new BackupState(dbNames[0], DBConstants.CONVERSATIONS_DATABASE_VERSION);
-			state.backupPrefs(mContext);
-		}
-		File backupStateFile = getBackupStateFile();
-		FileOutputStream fileOut = null;
-		ObjectOutputStream out = null;
-		try
-		{
-			fileOut = new FileOutputStream(backupStateFile);
-			out = new ObjectOutputStream(fileOut);
-			out.writeObject(state);
-			out.close();
-			fileOut.close();
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-			return false;
-		}
-		finally
-		{
-			closeChannelsAndStreams(fileOut,out);
-		}
-		return true;
-	}
 	
 	private BackupState getBackupState()
 	{
@@ -667,13 +761,17 @@ public class AccountBackupRestore
 	 */
 	public boolean updatePrefs()
 	{
-		BackupState state = getBackupState();
-		if (state == null)
+		boolean prefUpdated = true;
+		try
 		{
-			state = new BackupState(dbNames[0], DBConstants.CONVERSATIONS_DATABASE_VERSION);
+			backupPrefs(getBackupToken());
 		}
-		state.backupPrefs(mContext);
-		return updateBackupState(state);
+		catch(Exception e)
+		{
+			e.printStackTrace();
+			prefUpdated = false;
+		}
+		return prefUpdated;
 	}
 
 }
