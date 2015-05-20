@@ -611,6 +611,10 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 				ArrayList<GalleryItem> item = new ArrayList<GalleryItem>(1);
 				item.add(new GalleryItem(GalleryItem.CAMERA_TILE_ID, CAMERA_TILE, NEW_PHOTO, cameraFile.getAbsolutePath(), 0));
 				intent.putParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS, item);
+				
+				//Added to ensure delegate activity passes destination path
+				intent.putExtra(HikeConstants.HikePhotos.DESTINATION_FILENAME, cameraFile.getAbsolutePath()); 
+				
 				intent.setData(Uri.parse(item.get(0).getFilePath()));
 				if (pendingIntent != null)
 				{
