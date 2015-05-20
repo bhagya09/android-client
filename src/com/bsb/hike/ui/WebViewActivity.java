@@ -481,7 +481,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 
 		{
 
-			public void onEventOccured(PlatformContent.EventCode event)
+			public void onEventOccured(int uniqueId,PlatformContent.EventCode event)
 			{
 				if (event == PlatformContent.EventCode.DOWNLOADING || event == PlatformContent.EventCode.LOADED || event == EventCode.ALREADY_DOWNLOADED)
 				{
