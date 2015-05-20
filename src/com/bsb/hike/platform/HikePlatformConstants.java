@@ -149,6 +149,8 @@ public interface HikePlatformConstants
 	
 	public static final String ENABLED = "en";
 	
+	public static final String TICK_ENABLED = "tick_enabled";
+	
 	/**
 	 * Overflow menu item constants end
 	 */
