@@ -24,6 +24,8 @@ import com.bsb.hike.utils.Logger;
 public class DelegateActivity extends HikeAppStateBaseFragmentActivity
 {
 	public static final String DESTINATION_INTENT = "di";
+	
+	private static final String INTENT_COUNTER = "ic";
 
 	private ArrayList<Intent> destinationIntents;
 
@@ -39,12 +41,21 @@ public class DelegateActivity extends HikeAppStateBaseFragmentActivity
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
+		
+		if(savedInstanceState!=null)
+		{
+			currentIntentCounter = savedInstanceState.getInt(INTENT_COUNTER);
+		}
+		else
+		{
+			currentIntentCounter = 0;
+		}
 
 		Intent intent = getIntent();
 
 		startedForResult = (getCallingActivity() != null);
 
-		currentIntentCounter = 0;
+		
 
 		if (intent == null || !intent.hasExtra(DelegateActivity.DESTINATION_INTENT))
 		{
@@ -73,9 +84,17 @@ public class DelegateActivity extends HikeAppStateBaseFragmentActivity
 			destinationIntents.add((Intent) destParcel);
 		}
 		
+		if(currentIntentCounter == 0)
+		{
+			init();
+		}
+	}
+	
+	private void init()
+	{
 		Logger.d(TAG, "Starting activity for result");
-		DelegateActivity.this.startActivityForResult(destinationIntents.get(currentIntentCounter++), requestCode);
-
+		DelegateActivity.this.startActivityForResult(destinationIntents.get(0), requestCode);
+		currentIntentCounter = 1;
 	}
 
 	private void onError()
@@ -94,6 +113,7 @@ public class DelegateActivity extends HikeAppStateBaseFragmentActivity
 			// Delegate activity should not handle error states.The activity starting it should handle it.
 			Logger.d(TAG, "Invalid RESULT CODE = " + resultCode);
 			onError();
+			return;
 		}
 
 		if (requestCode != this.requestCode)
@@ -101,6 +121,7 @@ public class DelegateActivity extends HikeAppStateBaseFragmentActivity
 			// Adding Check since delegate activity should receive only its request code
 			Logger.d(TAG, "Invalid REQUEST CODE = " + requestCode);
 			onError();
+			return;
 		}
 
 		Intent currentIntent = null;
@@ -173,5 +194,14 @@ public class DelegateActivity extends HikeAppStateBaseFragmentActivity
 		}
 
 	}
+
+	@Override
+	protected void onSaveInstanceState(Bundle outState)
+	{
+		outState.putInt(INTENT_COUNTER, currentIntentCounter);
+		super.onSaveInstanceState(outState);
+	}
+	
+	
 
 }
