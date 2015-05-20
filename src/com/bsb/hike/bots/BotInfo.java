@@ -1,5 +1,7 @@
 package com.bsb.hike.bots;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.models.Conversation.ConvInfo;
 
@@ -21,7 +23,7 @@ public class BotInfo extends ConvInfo
 
 	private String notifData;
 	
-	private boolean configDataRefreshed = false;
+	private AtomicBoolean configDataRefreshed;
 
 	public static abstract class InitBuilder<P extends InitBuilder<P>> extends ConvInfo.InitBuilder<P>
 	{
@@ -206,7 +208,7 @@ public class BotInfo extends ConvInfo
 	 */
 	public boolean isConfigDataRefreshed()
 	{
-		return configDataRefreshed;
+		return configDataRefreshed.get();
 	}
 
 	/**
@@ -214,7 +216,7 @@ public class BotInfo extends ConvInfo
 	 */
 	public void setConfigDataRefreshed(boolean configDataRefreshed)
 	{
-		this.configDataRefreshed = configDataRefreshed;
+		this.configDataRefreshed.set(configDataRefreshed);
 	}
 
 
