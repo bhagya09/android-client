@@ -48,7 +48,7 @@ public class MessagingBridge_Nano extends JavascriptBridge
 	public static final String tag = "platformbridge";
 	
 	
-	protected SparseArray<WebMetadata> metadataMap = new SparseArray<>();
+	protected SparseArray<WebMetadata> metadataMap = new SparseArray<WebMetadata>();
 	
 	public static interface WebviewEventsListener{
 		public void loadFinished(ConvMessage message);
@@ -266,52 +266,6 @@ public class MessagingBridge_Nano extends JavascriptBridge
 	}
 	
 	/**
-	 * call this function to get the data from the native memory
-	 * @param id: the id of the function that native will call to call the js .
-	 * @param key: key of the data to be saved. Microapp needs to make sure about the uniqueness of the key.
-	 */
-	@JavascriptInterface
-	public void getFromCache(String id, String key)
-	{
-		String value = HikeContentDatabase.getInstance().getFromContentCache(key, message.getNameSpace());
-		callbackToJS(id, value);
-	}
-	
-	/**
-	 * Call this function to get the bulk large data from the native memory
-	 * @param id : the id of the function that native will call to call the js .
-	 */
-	@JavascriptInterface
-	public void getLargeDataFromCache(String id)
-	{
-		String value = HikeContentDatabase.getInstance().getFromContentCache(message.getNameSpace(), message.getNameSpace());
-		callbackToJS(id, value);
-	}
-	
-	/**
-	 * Call this method to put data in cache. This will be a key-value pair. A microapp can have different key-value pairs
-	 * in the native's cache.
-	 * @param key: key of the data to be saved. Microapp needs to make sure about the uniqueness of the key.
-	 * @param value: : the data that the app need to cache.
-	 */
-	@JavascriptInterface
-	public void putInCache(String key, String value)
-	{
-		HikeContentDatabase.getInstance().putInContentCache(key, message.getNameSpace(), value);
-	}
-	
-	/**
-	 * Call this method to put bulk large data in cache. Earlier large data will be replaced by this new data and there will
-	 * be only one entry per microapp.
-	 * @param value: the data that the app need to cache.
-	 */
-	@JavascriptInterface
-	public void putLargeDataInCache(String value)
-	{
-		HikeContentDatabase.getInstance().putInContentCache(message.getNameSpace(), message.getNameSpace(), value);
-	}
-	
-	/**
 	 * This function is called whenever the onLoadFinished of the html is called. This function calling is MUST.
 	 * This function is also used for analytics purpose.
 	 *
@@ -321,18 +275,6 @@ public class MessagingBridge_Nano extends JavascriptBridge
 	public void onLoadFinished(String height)
 	{
 		super.onLoadFinished(height);
-		if(message.webMetadata.getPlatformJSCompatibleVersion() >= HikePlatformConstants.VERSION_1)
-		{
-			mHandler.post(new Runnable()
-			{
-				@Override
-				public void run()
-				{
-					Logger.i(tag, "inside run onloadfinished "+listener);
-					init();
-				}
-			});
-		}
 		try
 		{
 			int requiredHeightinDP = Integer.parseInt(height);

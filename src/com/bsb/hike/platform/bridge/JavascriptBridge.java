@@ -61,7 +61,7 @@ public abstract class JavascriptBridge
 
 	protected WeakReference<Activity> weakActivity;;
 
-	static final String tag = "JavascriptBridge";
+	public static final String tag = "JavascriptBridge";
 
 	protected Handler mHandler;
 	

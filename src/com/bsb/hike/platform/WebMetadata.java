@@ -209,7 +209,7 @@ public class WebMetadata
 	
 	public void setTargetPlatform(int targetPlatform)
 	{
-		this.targetPlatform = targetPlatform < 0 || targetPlatform > HikePlatformConstants.CURRENT_VERSION ? HikePlatformConstants.VERSION_0 : targetPlatform;
+		this.targetPlatform = targetPlatform < 0 || targetPlatform > HikePlatformConstants.CURRENT_VERSION ? HikePlatformConstants.CURRENT_VERSION : targetPlatform;
 	}
 	
 	public int getTargetPlatform()

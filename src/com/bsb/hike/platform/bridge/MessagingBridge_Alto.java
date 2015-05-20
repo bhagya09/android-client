@@ -115,48 +115,38 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 		}
 	}
 
-	
-	/**
-	 * @deprecated
-	 */
-	@Override
-	@JavascriptInterface
-	public void getFromCache(String id, String key)
-	{
-		notAllowedMethodCalled("getFromCache");
-	}
-	
 	/**
 	 * 
 	 * @param messageId 
 	 * @param id
 	 * @param key
+	 * 
+	 * call this function to get the data from the native memory
+	 * @param id: the id of the function that native will call to call the js .
+	 * @param key: key of the data to be saved. Microapp needs to make sure about the uniqueness of the key.
 	 */
 	@JavascriptInterface
 	public void getFromCache(String messageId,String id, String key)
 	{
 		if(isCorrectMessage(messageId, "getfromcache"))
 		{
-			super.getFromCache(id, key);
+			String value = HikeContentDatabase.getInstance().getFromContentCache(key, message.getNameSpace());
+			callbackToJS(id, value);
 		}
 		
 	}
 
-	/**
-	 * @deprecated
-	 */
-	@Override
-	@JavascriptInterface
-	public void getLargeDataFromCache(String id)
-	{
-		notAllowedMethodCalled("getLargeDataFromCache");
-	}
 	
+	/**
+	 * Call this function to get the bulk large data from the native memory
+	 * @param id : the id of the function that native will call to call the js .
+	 */
 	@JavascriptInterface
 	public void getLargeDataFromCache(String messageId,String id)
 	{
 		if(isCorrectMessage(messageId, "getlargeDataFromCache")){
-			super.getLargeDataFromCache(id);
+			String value = HikeContentDatabase.getInstance().getFromContentCache(message.getNameSpace(), message.getNameSpace());
+			callbackToJS(id, value);
 		}
 	}
 	
@@ -173,36 +163,58 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	{
 		if(isCorrectMessage(messageId, "onloadfinished")){
 			super.onLoadFinished(height);
+			if(message.webMetadata.getPlatformJSCompatibleVersion() >= HikePlatformConstants.VERSION_1)
+			{
+				mHandler.post(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						Logger.i(tag, "inside run onloadfinished "+listener);
+						init();
+						sendAlarmData();
+					}
+				});
+			}
 		}
+	}
+	
+	private void sendAlarmData()
+	{
+		String alarmData = message.webMetadata.getAlarmData();
+		Logger.d(tag, "alarm data to html is " + alarmData);
+		if (!TextUtils.isEmpty(alarmData))
+		{
+			alarmPlayed(alarmData);
+		}
+			
 	}
 
 	
 	/**
-	 * @deprecated
-	 * @param key
-	 * @param value
+	 * Call this method to put data in cache. This will be a key-value pair. A microapp can have different key-value pairs
+	 * in the native's cache.
+	 * @param key: key of the data to be saved. Microapp needs to make sure about the uniqueness of the key.
+	 * @param value: : the data that the app need to cache.
 	 */
-	@JavascriptInterface
-	@Override
-	public void putInCache(String key, String value)
-	{
-		notAllowedMethodCalled("putInCache");
-	}
-	
 	@JavascriptInterface
 	public void putInCache(String messageId,String key, String value)
 	{
 		if(isCorrectMessage(messageId, "putInCache")){
-			super.putInCache(key, value);
+			HikeContentDatabase.getInstance().putInContentCache(key, message.getNameSpace(), value);
 		}
 	}
 
-	
+	/**
+	 * Call this method to put bulk large data in cache. Earlier large data will be replaced by this new data and there will
+	 * be only one entry per microapp.
+	 * @param value: the data that the app need to cache.
+	 */
 	@JavascriptInterface
 	public void putLargeDataInCache(String messageId,String value)
 	{
 		if(isCorrectMessage(messageId, "putLargeDataInCache")){
-			super.putLargeDataInCache(value);
+			HikeContentDatabase.getInstance().putInContentCache(message.getNameSpace(), message.getNameSpace(), value);
 		}
 	}
 

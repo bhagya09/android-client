@@ -43,6 +43,7 @@ import com.bsb.hike.adapters.MessagesAdapter;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.platform.content.HikeWebClient;
+import com.bsb.hike.platform.bridge.JavascriptBridge;
 import com.bsb.hike.platform.bridge.MessagingBridge_Alto;
 import com.bsb.hike.platform.bridge.MessagingBridge_Nano;
 import com.bsb.hike.platform.bridge.MessagingBridge_Nano.WebviewEventsListener;
@@ -323,11 +324,11 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 				}
 				else
 				{
+					viewHolder.templatingTime = -1;
 					viewHolder.id = 0;
 					if((Integer)viewHolder.customWebView.getTag() == uniqueId)
 					{
 						Logger.e(tag, "error");
-						viewHolder.templatingTime = -1;
 						showConnErrState(viewHolder, convMessage, position);
 						HikeAnalyticsEvent.cardErrorAnalytics(reason, convMessage);
 					}else{
@@ -470,17 +471,18 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 				try
 				{
 					showCard(holder);
-					if(convMessage.webMetadata.getPlatformJSCompatibleVersion() == HikePlatformConstants.VERSION_1)
+					if(convMessage.webMetadata.getPlatformJSCompatibleVersion() == HikePlatformConstants.VERSION_0)
 					{
 						holder.platformJavaScriptBridge.setData();
+						String alarmData = convMessage.webMetadata.getAlarmData();
+						Logger.d(tag, "alarm data to html is " + alarmData);
+						if (!TextUtils.isEmpty(alarmData))
+						{
+							holder.platformJavaScriptBridge.alarmPlayed(alarmData);
+							cardAlarms.remove((int) convMessage.getMsgID()); // to avoid calling from getview
+						}
 					}
-					String alarmData = convMessage.webMetadata.getAlarmData();
-					Logger.d(tag, "alarm data to html is " + alarmData);
-					if (!TextUtils.isEmpty(alarmData))
-					{
-						holder.platformJavaScriptBridge.alarmPlayed(alarmData);
-						cardAlarms.remove((int) convMessage.getMsgID()); // to avoid calling from getview
-					}
+					
 				}
 				catch (NullPointerException npe)
 				{
@@ -672,7 +674,7 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 	 */
 	public void onActivityResult(int resultCode, Intent data)
 	{
-		int platformBridgeHashcode = data.getIntExtra(MessagingBridge_Nano.tag, -1);
+		int platformBridgeHashcode = data.getIntExtra(JavascriptBridge.tag, -1);
 		if(platformBridgeHashcode != -1)
 		{
 			for(WebViewHolder holder : holderList)
