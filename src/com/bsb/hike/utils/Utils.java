@@ -401,6 +401,10 @@ public class Utils
 			}
 		}
 
+		if( !mediaStorageDir.isDirectory() && mediaStorageDir.canWrite() ){
+			mediaStorageDir.delete();
+			mediaStorageDir.mkdirs();
+		}
 		// File name should only be blank in case of profile images or while
 		// capturing new media.
 		if (TextUtils.isEmpty(orgFileName))
@@ -410,7 +414,17 @@ public class Utils
 
 		// String fileName = getUniqueFileName(orgFileName, fileKey);
 
-		return new File(mediaStorageDir, orgFileName);
+		/*
+		 * Changes done to fix the issue where some users are getting FileNotFoundEXception while creating file.
+		 */
+		File mFile = new File(mediaStorageDir, orgFileName);
+		try {
+			mFile.createNewFile();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return mFile;
 	}
 
 	public static String getOriginalFile(HikeFileType type, String orgFileName)
