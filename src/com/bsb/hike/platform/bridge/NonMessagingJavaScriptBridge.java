@@ -1,10 +1,5 @@
 package com.bsb.hike.platform.bridge;
 
-import com.bsb.hike.bots.NonMessagingBotMetadata;
-import com.bsb.hike.db.HikeContentDatabase;
-import com.bsb.hike.utils.AccountUtils;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -12,11 +7,12 @@ import android.app.Activity;
 import android.text.TextUtils;
 import android.webkit.JavascriptInterface;
 
-import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.NonMessagingBotConfiguration;
+import com.bsb.hike.bots.NonMessagingBotMetadata;
+import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.platform.CustomWebView;
@@ -130,10 +126,8 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		try
 		{
 			NonMessagingBotMetadata metadata = new NonMessagingBotMetadata(mBotInfo.getMetadata());
-			jsonObject.put(HikeConstants.MSISDN, mBotInfo.getMsisdn());
+			getInitJson(jsonObject, mBotInfo.getMsisdn());
 			jsonObject.put(HikePlatformConstants.HELPER_DATA, metadata.getHelperData());
-			jsonObject.put(HikePlatformConstants.PLATFORM_USER_ID, HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_UID_SETTING,null) );
-			jsonObject.put(HikePlatformConstants.APP_VERSION, AccountUtils.getAppVersion());
 			jsonObject.put(HikePlatformConstants.NOTIF_DATA, mBotInfo.getNotifData());
 			jsonObject.put(HikePlatformConstants.BLOCK, Boolean.toString(mBotInfo.isBlocked()));
 			jsonObject.put(HikePlatformConstants.MUTE, Boolean.toString(mBotInfo.isMute()));

@@ -377,12 +377,9 @@ public class MessagingBotJavaScriptBridge extends JavascriptBridge
 		JSONObject jsonObject = new JSONObject();
 		try
 		{
-			jsonObject.put(HikeConstants.MSISDN, message.getMsisdn());
+			getInitJson(jsonObject, message.getMsisdn());
 			jsonObject.put(HikePlatformConstants.HELPER_DATA, message.webMetadata.getHelperData());
 			jsonObject.put(HikePlatformConstants.IS_SENT, message.isSent());
-			jsonObject.put(HikePlatformConstants.PLATFORM_USER_ID,HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_UID_SETTING,null) );
-			jsonObject.put(HikePlatformConstants.APP_VERSION, AccountUtils.getAppVersion());
-
 			jsonObject.put(HikePlatformConstants.PROFILING_TIME, profilingTime);
 			mWebView.loadUrl("javascript:init('" + jsonObject.toString() + "')");
 		}

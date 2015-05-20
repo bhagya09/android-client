@@ -7,6 +7,7 @@ import java.lang.ref.WeakReference;
 
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.platform.CustomWebView;
+import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContent;
 
@@ -44,6 +45,8 @@ import com.bsb.hike.ui.HikeListActivity;
 import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.ui.StatusUpdate;
 import com.bsb.hike.ui.TellAFriend;
+import com.bsb.hike.utils.AccountUtils;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -556,5 +559,26 @@ public abstract class JavascriptBridge
 		ConnectionClass connType = VoIPUtils.getConnectionClass(HikeMessengerApp.getInstance().getApplicationContext());
 		
 		callbackToJS(id, Integer.toString(connType.ordinal()));
+	}
+	
+	/**
+	 * Utility method to put common stuff in initJSON
+	 * 
+	 * @param jsonObj
+	 * @param msisdn
+	 */
+	public void getInitJson(JSONObject jsonObj, String msisdn)
+	{
+		try
+		{
+			jsonObj.put(HikeConstants.MSISDN, msisdn);
+			jsonObj.put(HikePlatformConstants.PLATFORM_USER_ID, HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_UID_SETTING, null));
+			jsonObj.put(HikePlatformConstants.APP_VERSION, AccountUtils.getAppVersion());
+		}
+		catch (JSONException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }
