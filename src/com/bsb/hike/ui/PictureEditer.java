@@ -164,6 +164,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 				retIntent.setAction(HikeConstants.HikePhotos.PHOTOS_ACTION_CODE);
 				setResult(RESULT_OK, retIntent);
 				finish();
+				return;
 			}
 			else
 			{
