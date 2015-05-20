@@ -68,9 +68,11 @@ public class OneToNConversationUtils
 			else
 			{
 				String adder = "You";
+				if(convMessage.getGroupParticipantMsisdn()!=null&& convMessage.getGroupParticipantMsisdn().trim().length()>0){
 				ContactInfo contact = ContactManager.getInstance().getContact(convMessage.getGroupParticipantMsisdn(),true,false);
 				if(contact!=null){
 					adder =contact.getFirstName();
+				}
 				}
 				participantAddedMessage =adder +" "+  context.getString(R.string.add_to_group_message,highlight);
 			}
