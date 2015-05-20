@@ -557,6 +557,12 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item)
 	{
+		
+		if(getCurrentSelectedItem() == null)
+		{
+			return false;
+		}
+		
 		switch (item.getItemId())
 		{
 		//deletes current selected item from viewpager 
@@ -568,25 +574,22 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 				public void positiveClicked(HikeDialog hikeDialog)
 				{
 					HikeSharedFile itemToDelete = getCurrentSelectedItem();
-					if(itemToDelete != null)
+					ArrayList<Long> msgIds = new ArrayList<Long>(1);
+					msgIds.add(itemToDelete.getMsgId());
+
+					Bundle bundle = new Bundle();
+					bundle.putString(HikeConstants.Extras.MSISDN, msisdn);
+					bundle.putInt(HikeConstants.Extras.DELETED_MESSAGE_TYPE, HikeConstants.SHARED_MEDIA_TYPE);
+					HikeMessengerApp.getPubSub().publish(HikePubSub.DELETE_MESSAGE, new Pair<ArrayList<Long>, Bundle>(msgIds, bundle));
+
+					// if delete media from phone is checked
+					if (((CustomAlertDialog) hikeDialog).isChecked())
 					{
-						ArrayList<Long> msgIds = new ArrayList<Long>(1);
-						msgIds.add(itemToDelete.getMsgId());
-
-						Bundle bundle = new Bundle();
-						bundle.putString(HikeConstants.Extras.MSISDN, msisdn);
-						bundle.putInt(HikeConstants.Extras.DELETED_MESSAGE_TYPE, HikeConstants.SHARED_MEDIA_TYPE);
-						HikeMessengerApp.getPubSub().publish(HikePubSub.DELETE_MESSAGE, new Pair<ArrayList<Long>, Bundle>(msgIds, bundle));
-
-						// if delete media from phone is checked
-						if (((CustomAlertDialog) hikeDialog).isChecked())
-						{
-							itemToDelete.delete(getActivity().getApplicationContext());
-						}
-						if (!fromChatThread)
-						{
-							HikeMessengerApp.getPubSub().publish(HikePubSub.HIKE_SHARED_FILE_DELETED, itemToDelete);
-						}
+						itemToDelete.delete(getActivity().getApplicationContext());
+					}
+					if (!fromChatThread)
+					{
+						HikeMessengerApp.getPubSub().publish(HikePubSub.HIKE_SHARED_FILE_DELETED, itemToDelete);
 					}
 					removeCurrentSelectedItem();
 					hikeDialog.dismiss();
@@ -626,6 +629,7 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 			startActivity(intent);
 			return true;
 		case R.id.share_msgs:
+			
 			getCurrentSelectedItem().shareFile(getSherlockActivity());
 			return true;
 		case R.id.edit_pic:
