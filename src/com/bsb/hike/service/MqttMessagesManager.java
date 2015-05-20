@@ -22,6 +22,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
@@ -2478,6 +2479,8 @@ public class MqttMessagesManager
 				String destination = data.optString("u");
 				boolean silent = data.optBoolean(HikeConstants.SILENT, true);
 				boolean rearrangeChat = data.optBoolean(HikeConstants.REARRANGE_CHAT,false);
+				// This field is valid only for non messaging bots
+				boolean updateUnreadCount = data.optBoolean(HikeConstants.UPDATE_UNREAD_COUNT, false);
 				JSONObject metadata = data.has(HikeConstants.METADATA) ? data.optJSONObject(HikeConstants.METADATA) : new JSONObject();
 				Logger.i("mqttMessageManager", "Play Notification packet from Server " + data.toString());
 				// chat thread -- by default silent is true, so no sound
@@ -2492,9 +2495,15 @@ public class MqttMessagesManager
 						{
 							return;
 						}
-						if (!Utils.isConversationMuted(destination) && data.optBoolean(HikeConstants.PUSH, true))
+						
+						if (Utils.isConversationMuted(destination))
 						{
-							generateNotification(body, destination, silent, rearrangeChat);
+							rearrangeChat(destination, rearrangeChat, updateUnreadCount);
+						}
+						
+						else if (!Utils.isConversationMuted(destination) && data.optBoolean(HikeConstants.PUSH, true))
+						{
+							generateNotification(body, destination, silent, rearrangeChat, updateUnreadCount);
 						}
 						String notifData = metadata.optString(HikePlatformConstants.NOTIF_DATA);
 						if (!TextUtils.isEmpty(notifData))
@@ -2520,7 +2529,7 @@ public class MqttMessagesManager
 							if (!Utils.isConversationMuted(destination)
 									&& convDb.isContentMessageExist(destination, contentId, nameSpace))
 							{
-								generateNotification(body, destination, silent, rearrangeChat);
+								generateNotification(body, destination, silent, rearrangeChat, updateUnreadCount);
 							}
 						}
 					}
@@ -2538,15 +2547,41 @@ public class MqttMessagesManager
 		}
 	}
 
-	private void generateNotification(String body, String destination, boolean silent, boolean rearrangeChat)
+	/**
+	 * Utility method to rearrange chat and update the unread counter if needed
+	 * 
+	 * @param destination
+	 *            : Msisdn
+	 * @param rearrangeChat
+	 *            : Whether to shift the chat up or not
+	 * @param updateUnreadCount
+	 *            : Whether to update the unread counter or not
+	 */
+	private void rearrangeChat(String destination, boolean rearrangeChat, boolean updateUnreadCount)
 	{
+		if (updateUnreadCount)
+		{
+			convDb.incrementUnreadCounter(destination);
+			int unreadCount = convDb.getConvUnreadCount(destination);
+			Message ms = Message.obtain();
+			ms.arg1 = unreadCount;
+			ms.obj = destination;
+			HikeMessengerApp.getPubSub().publish(HikePubSub.CONV_UNREAD_COUNT_MODIFIED, ms);
+		}
 
-		HikeNotification.getInstance(context).notifyStringMessage(destination, body, silent);
-		if(rearrangeChat)
+		if (rearrangeChat)
 		{
 			Pair<String, Long> pair = new Pair<String, Long>(destination, System.currentTimeMillis() / 1000);
 			HikeMessengerApp.getPubSub().publish(HikePubSub.CONVERSATION_TS_UPDATED, pair);
 		}
+	}
+
+	private void generateNotification(String body, String destination, boolean silent, boolean rearrangeChat, boolean updateUnreadCount)
+	{
+
+		HikeNotification.getInstance(context).notifyStringMessage(destination, body, silent);
+		
+		rearrangeChat(destination, rearrangeChat, updateUnreadCount);
 	}
 
 	private void blockedMessageAnalytics(String type)
