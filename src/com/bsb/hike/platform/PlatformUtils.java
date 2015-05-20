@@ -272,7 +272,7 @@ public class PlatformUtils
 					}
 
 					@Override
-					public void onEventOccured(PlatformContent.EventCode event)
+					public void onEventOccured(int uniqueCode,PlatformContent.EventCode event)
 					{
 						if (event == PlatformContent.EventCode.DOWNLOADING || event == PlatformContent.EventCode.LOADED)
 						{
@@ -327,7 +327,7 @@ public class PlatformUtils
 					}
 
 					@Override
-					public void onEventOccured(PlatformContent.EventCode event)
+					public void onEventOccured(int uniqueId,PlatformContent.EventCode event)
 					{
 						if (event == PlatformContent.EventCode.DOWNLOADING || event == PlatformContent.EventCode.LOADED)
 						{
@@ -360,7 +360,7 @@ public class PlatformUtils
 		}
 		else
 		{
-			request.getListener().onEventOccured(PlatformContent.EventCode.ALREADY_DOWNLOADED);
+			request.getListener().onEventOccured(request.getContentData()!=null ? request.getContentData().getUniqueId() : 0,PlatformContent.EventCode.ALREADY_DOWNLOADED);
 		}
 	}
 

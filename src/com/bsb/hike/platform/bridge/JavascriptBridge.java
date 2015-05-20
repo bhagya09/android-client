@@ -15,6 +15,8 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.text.Html;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -53,7 +55,7 @@ public abstract class JavascriptBridge
 
 	protected WeakReference<Activity> weakActivity;;
 
-	static final String tag = "JavascriptBridge";
+	public static final String tag = "JavascriptBridge";
 
 	protected Handler mHandler;
 	
@@ -66,7 +68,12 @@ public abstract class JavascriptBridge
 	{
 		this.mWebView = mWebView;
 		weakActivity = new WeakReference<Activity>(activity);
-		this.mHandler = new Handler(HikeMessengerApp.getInstance().getMainLooper());
+		this.mHandler = new Handler(HikeMessengerApp.getInstance().getMainLooper())
+		{
+			public void handleMessage(Message msg) {
+				handleUiMessage(msg);
+			};
+		};
 	}
 
 	/**
@@ -86,7 +93,29 @@ public abstract class JavascriptBridge
 	 * @param height : The height of the loaded content
 	 */
 	@JavascriptInterface
-	public abstract void onLoadFinished(String height);
+	public void onLoadFinished(String height)
+	{
+	}
+	
+	protected void handleUiMessage(Message msg)
+	{
+		
+	}
+	
+	
+	protected void sendMessageToUiThread(int what,Object data)
+	{
+		sendMessageToUiThread(what, 0, data);
+	}
+	
+	protected void sendMessageToUiThread(int what, int arg1,Object data)
+	{
+		Message msg = Message.obtain(); 
+		msg.what = what;
+		msg.arg1 = arg1;
+		msg.obj = data;
+		mHandler.sendMessage(msg);
+	}
 
 	/**
 	 * call this function to Show toast for the string that is sent by the javascript.

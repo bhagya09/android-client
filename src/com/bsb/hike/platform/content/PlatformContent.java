@@ -93,10 +93,22 @@ public class PlatformContent
 	 */
 	public static PlatformContentRequest getContent(String contentData, PlatformContentListener<PlatformContentModel> listener)
 	{
-
+		return getContent(0, contentData, listener);
+	}
+	
+	/**
+	 * 
+	 * @param uniqueId - the id which you will get back once templating is finished :  {@link PlatformContentModel#getUniqueId()}
+	 * @param contentData
+	 * @param listener
+	 * @return
+	 */
+	public static PlatformContentRequest getContent(int uniqueId, String contentData, PlatformContentListener<PlatformContentModel> listener)
+	{
 		Logger.d("PlatformContent", "Content Dir : " + PlatformContentConstants.PLATFORM_CONTENT_DIR);
-
-		PlatformContentRequest request = PlatformContentRequest.make(PlatformContentModel.make(contentData), listener);
+		PlatformContentModel model = PlatformContentModel.make(uniqueId,contentData);
+		model.setUniqueId(uniqueId);
+		PlatformContentRequest request = PlatformContentRequest.make(model, listener);
 
 		if (request != null)
 		{
@@ -106,10 +118,9 @@ public class PlatformContent
 		else
 		{
 			Logger.e("PlatformContent", "Incorrect content data");
-			listener.onEventOccured(EventCode.INVALID_DATA);
+			listener.onEventOccured(0,EventCode.INVALID_DATA);
 			return null;
 		}
-
 	}
 
 	public static void init(boolean isProduction)

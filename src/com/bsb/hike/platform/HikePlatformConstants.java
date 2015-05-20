@@ -121,6 +121,10 @@ public interface HikePlatformConstants
 	public static final String LOUD_PUSH = "loud";
 
 	public static final String  NO_PUSH = "none";
+	
+	public static final String TARGET_PLATFORM = "target_platform";
+	
+	public static final String MIN_PLATFORM = "min_platform";
 
 	public static final String IS_SENT = "isSent";
 
@@ -154,6 +158,13 @@ public interface HikePlatformConstants
 	/**
 	 * Overflow menu item constants end
 	 */
+	
+	public static final int VERSION_0 = 0;
+	
+	public static final int VERSION_1 = 1;
+	
+	public static final int CURRENT_VERSION = VERSION_1;
+	
 	public static final String AB_COLOR = "color";
 	
 	final String BLOCK = "block";
@@ -161,4 +172,5 @@ public interface HikePlatformConstants
 	final String MUTE = "mute";
 	
 	final String NETWORK_TYPE = "networkType";
+	String PLATFORM_VERSION = "platform_version";
 }
