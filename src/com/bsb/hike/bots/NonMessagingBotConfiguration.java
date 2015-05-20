@@ -139,11 +139,11 @@ public class NonMessagingBotConfiguration extends BotConfiguration
 			String title = jsonObject.getString(HikePlatformConstants.TITLE);
 			int id = jsonObject.getInt(HikePlatformConstants.ID);
 			boolean enabled = jsonObject.optBoolean(HikePlatformConstants.ENABLED, true);
-			boolean customTickIcon = jsonObject.optBoolean(HikePlatformConstants.TICK_ENABLED, true);
+			boolean isChecked = jsonObject.optBoolean(HikePlatformConstants.IS_CHECKED, true);
 			/**
 			 * Note : This is a dummy icon. Will replace once I get proper assets
 			 */
-			return new OverFlowMenuItem(title, 0, customTickIcon ? R.drawable.ic_delete : 0, id, enabled);
+			return new OverFlowMenuItem(title, 0, isChecked ? R.drawable.ic_delete : 0, id, enabled);
 		}
 		catch (JSONException e)
 		{
