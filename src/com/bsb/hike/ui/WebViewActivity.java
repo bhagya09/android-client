@@ -507,9 +507,9 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			if (botConfig != null && botInfo.getIsBackPressAllowed())
 			{
 				mmBridge.onBackPressed();
-
+				return;
 			}
-			return;
+			
 		}
 		
 		if (webView.canGoBack())

@@ -23,9 +23,9 @@ public class BotInfo extends ConvInfo
 
 	private String notifData;
 	
-	private AtomicBoolean configDataRefreshed;
+	private AtomicBoolean configDataRefreshed = new AtomicBoolean(false);
 	
-	private AtomicBoolean isBackPressAllowed;
+	private AtomicBoolean isBackPressAllowed = new AtomicBoolean(false);
 
 	public static abstract class InitBuilder<P extends InitBuilder<P>> extends ConvInfo.InitBuilder<P>
 	{
