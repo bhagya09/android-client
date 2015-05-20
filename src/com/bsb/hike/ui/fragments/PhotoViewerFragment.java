@@ -304,9 +304,9 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 		
 		setSenderDetails(position);
 		
-		if (menu != null)
+		if (menu != null && getCurrentSelectedItem()!=null)
 		{
-			if (isEditEnabled && getCurrentSelectedItem().getHikeFileType().compareTo(HikeFileType.IMAGE) == 0)
+			if (isEditEnabled  && getCurrentSelectedItem().getHikeFileType().compareTo(HikeFileType.IMAGE) == 0)
 			{
 				menu.findItem(R.id.edit_pic).setVisible(true);
 			}
