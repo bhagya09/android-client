@@ -24,6 +24,8 @@ public class BotInfo extends ConvInfo
 	private String notifData;
 	
 	private AtomicBoolean configDataRefreshed;
+	
+	private AtomicBoolean isBackPressAllowed;
 
 	public static abstract class InitBuilder<P extends InitBuilder<P>> extends ConvInfo.InitBuilder<P>
 	{
@@ -219,5 +221,20 @@ public class BotInfo extends ConvInfo
 		this.configDataRefreshed.set(configDataRefreshed);
 	}
 
+	/**
+	 * @return the isBackPressAllowed
+	 */
+	public boolean getIsBackPressAllowed()
+	{
+		return isBackPressAllowed.get();
+	}
+
+	/**
+	 * @param isBackPressAllowed the isBackPressAllowed to set
+	 */
+	public void setIsBackPressAllowed(boolean isBackPressAllowed)
+	{
+		this.isBackPressAllowed.set(isBackPressAllowed);
+	}
 
 }

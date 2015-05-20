@@ -30,13 +30,11 @@ public class NonMessagingBotConfiguration extends BotConfiguration
 	 */
 	public static final byte OVERFLOW_MENU  = 0;
 	
-	public static final byte ALLOW_BACK_PRESS = 1;
+	public static final byte ENABLE_LANDSCAPE = 1;
 	
-	public static final byte ENABLE_LANDSCAPE = 2;
+	public static final byte ENABLE_PORTRAIT = 2;
 	
-	public static final byte ENABLE_PORTRAIT = 3;
-	
-	public static final byte LONG_TAP = 4;
+	public static final byte LONG_TAP = 3;
 	
 	/**
 	 * Bit positions end here.
@@ -45,11 +43,6 @@ public class NonMessagingBotConfiguration extends BotConfiguration
 	public boolean shouldShowOverflowMenu()
 	{
 		return isBitSet(OVERFLOW_MENU);
-	}
-	
-	public boolean isBackPressAllowed()
-	{
-		return isBitSet(ALLOW_BACK_PRESS);
 	}
 	
 	public boolean isLandscapeEnabled()

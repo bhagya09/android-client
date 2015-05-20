@@ -356,4 +356,10 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			activity.finish();
 		}
 	}
+	
+	@JavascriptInterface
+	public void allowBackPress(String allowBack)
+	{
+		mBotInfo.setIsBackPressAllowed(Boolean.valueOf(allowBack));
+	}
 }
