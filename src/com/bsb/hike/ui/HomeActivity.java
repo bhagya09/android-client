@@ -68,14 +68,12 @@ import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
-import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.FtueContactsData;
 import com.bsb.hike.models.OverFlowMenuItem;
 import com.bsb.hike.models.Conversation.ConversationTip;
 import com.bsb.hike.modules.animationModule.HikeAnimationFactory;
 import com.bsb.hike.modules.contactmgr.ContactManager;
-import com.bsb.hike.notifications.HikeNotificationMsgStack;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.snowfall.SnowFallView;
 import com.bsb.hike.tasks.DownloadAndInstallUpdateAsyncTask;
@@ -88,12 +86,10 @@ import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.HikeTip;
 import com.bsb.hike.utils.StealthModeManager;
-import com.bsb.hike.utils.HikeTip.TipType;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.NUXManager;
 import com.bsb.hike.utils.Utils;
-import com.haibison.android.lockpattern.LockPatternActivity;
 
 public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Listener
 {
@@ -262,7 +258,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		actionBar.setLogo(R.drawable.home_screen_top_bar_logo);
 		actionBar.setDisplayHomeAsUpEnabled(true);
 		actionBar.setDisplayShowTitleEnabled(true);
-		if(HikeNotificationMsgStack.getInstance(HikeMessengerApp.getInstance().getApplicationContext()).containsStealthMessage())
+		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STEALTH_INDICATOR_ENABLED, false))
 		{
 			View hiButton = findViewById(android.R.id.home);
 			boolean stealthIndicatorEnabled = PreferenceManager.getDefaultSharedPreferences(this).getBoolean(HikeConstants.STEALTH_INDICATOR_ENABLED, false);
@@ -270,6 +266,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			if(hiButton != null && !StealthModeManager.getInstance().isActive() && stealthIndicatorEnabled)
 			{
 				hiButton.setAnimation(HikeAnimationFactory.getHikeActionBarLogoAnimation(HomeActivity.this));
+				HikeSharedPreferenceUtil.getInstance().removeData(HikeConstants.STEALTH_INDICATOR_ENABLED);
 			}
 		}
 	}
@@ -1360,6 +1357,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 					if(hiButton != null)
 					{
 						hiButton.startAnimation(HikeAnimationFactory.getHikeActionBarLogoAnimation(HomeActivity.this));
+						HikeSharedPreferenceUtil.getInstance().removeData(HikeConstants.STEALTH_INDICATOR_ENABLED);
 					}
 				}
 			});

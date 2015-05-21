@@ -660,6 +660,7 @@ public class HikeNotification
 	
 		if(stealthIndicatorEnabled)
 		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STEALTH_INDICATOR_ENABLED, true);
 			HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_INDICATOR, null);
 		}
 		/*
