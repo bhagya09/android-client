@@ -1258,39 +1258,59 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		{
 			optionsList.add(getString(conv.isStealth() ? R.string.unmark_stealth : R.string.mark_stealth));
 		}
+		
 		/**
 		 * Bot Menus
 		 */
         if (Utils.isBot(conv.getMsisdn()))
         {	BotInfo botInfo = BotInfo.getBotInfoForBotMsisdn(conv.getMsisdn());
-			MessagingBotMetadata metadata;
-
-			metadata = new MessagingBotMetadata (botInfo.getMetadata());
-
-			MessagingBotConfiguration configuration = new MessagingBotConfiguration( botInfo.getConfiguration(), metadata.isReceiveEnabled());
-			if (configuration.isLongTapEnabled())
+        
+        /**
+         * Non-Messaging bot
+         */
+        	if (botInfo.isNonMessagingBot())
+        	{
+        		optionsList.add(getString(R.string.add_shortcut));
+        		
+        		optionsList.add(getString(R.string.delete));
+        		
+        		optionsList.add(getString(R.string.delete_block));
+        	}
+        	
+        	/**
+        	 * Messaging bot
+        	 */
+			else
 			{
-				BotConversation.analyticsForBots(conv, HikePlatformConstants.BOT_LONG_PRESS, AnalyticsConstants.LONG_PRESS_EVENT);
+				MessagingBotMetadata metadata;
 
-				if (configuration.isViewProfileInConversationScreenEnabled())
+				metadata = new MessagingBotMetadata(botInfo.getMetadata());
+
+				MessagingBotConfiguration configuration = new MessagingBotConfiguration(botInfo.getConfiguration(), metadata.isReceiveEnabled());
+				if (configuration.isLongTapEnabled())
 				{
-					optionsList.add(getString(R.string.viewcontact));
-				}
-				if (configuration.isAddConvShortcutInConversationScreenEnabled())
-				{
-					optionsList.add(getString(R.string.shortcut));
-				}
-				if (configuration.isDeleteChatInConversationScreenEnabled())
-				{
-					optionsList.add(getString(R.string.delete_chat));
-				}
-				if (configuration.isClearConvInConversationScreenEnabled())
-				{
-					optionsList.add(getString(R.string.clear_whole_conversation));
-				}
-				if (configuration.isEmailConvInConversationScreenEnabled())
-				{
-					optionsList.add(getString(R.string.email_conversations));
+					BotConversation.analyticsForBots(conv, HikePlatformConstants.BOT_LONG_PRESS, AnalyticsConstants.LONG_PRESS_EVENT);
+
+					if (configuration.isViewProfileInConversationScreenEnabled())
+					{
+						optionsList.add(getString(R.string.viewcontact));
+					}
+					if (configuration.isAddConvShortcutInConversationScreenEnabled())
+					{
+						optionsList.add(getString(R.string.shortcut));
+					}
+					if (configuration.isDeleteChatInConversationScreenEnabled())
+					{
+						optionsList.add(getString(R.string.delete_chat));
+					}
+					if (configuration.isClearConvInConversationScreenEnabled())
+					{
+						optionsList.add(getString(R.string.clear_whole_conversation));
+					}
+					if (configuration.isEmailConvInConversationScreenEnabled())
+					{
+						optionsList.add(getString(R.string.email_conversations));
+					}
 				}
 			}
 
@@ -1596,6 +1616,19 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 				{
 					HikeMessengerApp.getPubSub().publish(HikePubSub.UNBLOCK_USER, conv.getMsisdn());
 				}
+				
+				/**
+				 * Delete non messaging bot
+				 */
+				else if(getString(R.string.delete).equals(option))
+				{
+					onDeleteBotClicked(conv);
+				}
+				
+				else if (getString(R.string.delete_block).equals(option))
+				{
+					onDeleteBlockClicked(conv);
+				}
 			}
 		});	
 
@@ -1604,6 +1637,70 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		return true;
 	}
 
+
+	protected void onDeleteBotClicked(final ConvInfo conv)
+	{
+		HikeDialogFactory.showDialog(getActivity(), HikeDialogFactory.DELETE_NON_MESSAGING_BOT, new HikeDialogListener()
+		{
+
+			@Override
+			public void positiveClicked(HikeDialog hikeDialog)
+			{
+				Utils.logEvent(getActivity(), HikeConstants.LogEvent.DELETE_CONVERSATION);
+				HikeMessengerApp.getPubSub().publish(HikePubSub.DELETE_THIS_CONVERSATION, conv);
+				hikeDialog.dismiss();
+
+				if (Utils.isBot(conv.getMsisdn()))
+				{
+					BotConversation.analyticsForBots(conv, HikePlatformConstants.BOT_DELETE_CHAT, AnalyticsConstants.CLICK_EVENT);
+				}
+			}
+
+			@Override
+			public void neutralClicked(HikeDialog hikeDialog)
+			{
+			}
+
+			@Override
+			public void negativeClicked(HikeDialog hikeDialog)
+			{
+				hikeDialog.dismiss();
+			}
+		}, conv.getLabel());
+	}
+
+	protected void onDeleteBlockClicked(final ConvInfo conv)
+	{
+		HikeDialogFactory.showDialog(getActivity(), HikeDialogFactory.DELETE_BLOCK, new HikeDialogListener()
+		{
+
+			@Override
+			public void positiveClicked(HikeDialog hikeDialog)
+			{
+				Utils.logEvent(getActivity(), HikeConstants.LogEvent.DELETE_CONVERSATION);
+				HikeMessengerApp.getPubSub().publish(HikePubSub.BLOCK_USER, conv.getMsisdn());
+				HikeMessengerApp.getPubSub().publish(HikePubSub.DELETE_THIS_CONVERSATION, conv);
+
+				hikeDialog.dismiss();
+
+				if (Utils.isBot(conv.getMsisdn()))
+				{
+					BotConversation.analyticsForBots(conv, HikePlatformConstants.BOT_DELETE_BLOCK_CHAT, AnalyticsConstants.CLICK_EVENT);
+				}
+			}
+
+			@Override
+			public void neutralClicked(HikeDialog hikeDialog)
+			{
+			}
+
+			@Override
+			public void negativeClicked(HikeDialog hikeDialog)
+			{
+				hikeDialog.dismiss();
+			}
+		}, conv.getLabel());
+	}
 
 	protected void clearConversation(final ConvInfo conv)
 	{

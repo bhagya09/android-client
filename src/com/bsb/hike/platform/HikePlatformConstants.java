@@ -73,6 +73,7 @@ public interface HikePlatformConstants
     public static final String BOT_VIEW_PROFILE = "bot_vp";
     public static final String BOT_ADD_SHORTCUT = "bot_as";
     public static final String BOT_DELETE_CHAT = "bot_del";
+    public static final String BOT_DELETE_BLOCK_CHAT = "bot_del_block";
     public static final String BOT_CLEAR_CONVERSATION = "bot_clc";
     public static final String BOT_EMAIL_CONVERSATION = "bot_emc";
     public static final String CONVERSATION_FRAGMENT = "cf";
