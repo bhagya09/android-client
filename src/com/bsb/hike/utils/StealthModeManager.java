@@ -104,7 +104,7 @@ public class StealthModeManager
 		if(isActive())
 		{
 			stealthFakeOn();
-			HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_MODE_TOGGLED, true);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_MODE_TOGGLED, null);
 		}
 		handler.removeRunnable(toggleReset);
 	}
@@ -118,7 +118,7 @@ public class StealthModeManager
 			if(isActive() || isStealthFakeOn())
 			{
 				activate(false);
-				HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_MODE_TOGGLED, true);
+				HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_MODE_TOGGLED, null);
 			}
 			HikeMessengerApp.getPubSub().publish(HikePubSub.CLOSE_CURRENT_STEALTH_CHAT, true);
 		}
@@ -233,7 +233,7 @@ public class StealthModeManager
 				{
 					HikeMessengerApp.getPubSub().publish(HikePubSub.SHOW_TIP, ConversationTip.STEALTH_HIDE_TIP);
 					activate(true);
-					HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_MODE_TOGGLED, true);
+					HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_MODE_TOGGLED, null);
 					ftuePending(false);
 				}
 				else
@@ -245,7 +245,7 @@ public class StealthModeManager
 					else
 					{
 						activate(true);
-						HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_MODE_TOGGLED, true);
+						HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_MODE_TOGGLED, null);
 					}
 				}
 			}
@@ -253,7 +253,7 @@ public class StealthModeManager
 			{
 				HikeMessengerApp.getPubSub().publish(HikePubSub.REMOVE_TIP, ConversationTip.STEALTH_HIDE_TIP);
 				activate(false);
-				HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_MODE_TOGGLED, true);
+				HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_MODE_TOGGLED, null);
 
 				try
 				{

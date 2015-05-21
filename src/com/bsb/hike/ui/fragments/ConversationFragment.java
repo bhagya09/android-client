@@ -969,7 +969,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		if (tipType == ConversationTip.STEALTH_REVEAL_TIP && tipView != null)
 		{
 			StealthModeManager.getInstance().activate(false);
-			HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_MODE_TOGGLED, true);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_MODE_TOGGLED, null);
 			StealthModeManager.getInstance().ftuePending(false);
 			removeTipIfExists(tipType);
 		}
@@ -1635,17 +1635,18 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 
 	}
 
-	private void changeConversationsVisibility(boolean toggleHiddenMode)
+	private void changeConversationsVisibility(int scrollToPosition)
 	{
 
 		if (!StealthModeManager.getInstance().isActive())
 		{
-			if(toggleHiddenMode)
+			if(scrollToPosition < 0 )
 			{
 				mAdapter.removeStealthConversationsFromLists();
 			}
 			else
 			{
+				getListView().smoothScrollToPosition(scrollToPosition - getListView().getFirstVisiblePosition() + getOffsetForListHeader());
 				mAdapter.addItemsToAnimat(stealthConversations);
 			}
 			
@@ -1659,8 +1660,6 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		resetSearchIcon();
 		mAdapter.sortLists(mConversationsComparator);
 		notifyDataSetChanged();
-		Collections.sort(displayedConversations, mConversationsComparator);
-		
 	}
 
 	private void toggleTypingNotification(boolean isTyping, TypingNotification typingNotification)
@@ -2247,7 +2246,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		}
 		else if (HikePubSub.STEALTH_MODE_TOGGLED.equals(type))
 		{
-			final boolean toggleHiddenMode = (Boolean) object;
+			final int positionToScroll =  object == null ? -1 : (Integer) object;
 
 			if (!isAdded())
 			{
@@ -2259,7 +2258,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 				@Override
 				public void run()
 				{
-					changeConversationsVisibility(toggleHiddenMode);
+					changeConversationsVisibility(positionToScroll);
 				}
 			});
 		}
@@ -2532,7 +2531,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 				stealthConversations.add(convInfo);
 				if(!StealthModeManager.getInstance().isActive())
 				{
-					HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_MODE_TOGGLED, false);
+					HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_MODE_TOGGLED, displayedConversations.indexOf(convInfo));
 				}
 			}
 			getActivity().runOnUiThread(new Runnable() {
