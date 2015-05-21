@@ -61,5 +61,5 @@
     <string name="stealth_timeout_short">300</string>
     <string name="stealth_timeout_long">600</string>
 
-
+    <string name="authority">com.bsb.hike.providers.HikeProvider</string>
 </resources>
