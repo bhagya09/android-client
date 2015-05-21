@@ -21,8 +21,8 @@
                 android:id="@+id/avatar"
                 style="@style/AvatarStyle.MorePadding" />
             <com.bsb.hike.ui.utils.RecyclingImageView
-                android:id="@+id/hidden_indicator"
-                android:src="@drawable/hidden_mode_indicator"
+                android:id="@+id/stealth_badge"
+                android:src="@drawable/stealth_badge"
                 android:layout_gravity="bottom|right"
                 android:layout_width="13dp"
                 android:layout_height="14dp"

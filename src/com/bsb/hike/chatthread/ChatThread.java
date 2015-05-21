@@ -231,6 +231,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
     
     private static final int SHARING_FUNCTIONALITY = 34;
     
+	protected static final int UPDATE_STEALTH_BADGE = 35;
+    
     private int NUDGE_TOAST_OCCURENCE = 2;
     	
     private int currentNudgeCount = 0;
@@ -366,6 +368,9 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		{
 		case UPDATE_AVATAR:
 			setAvatar();
+			break;
+		case UPDATE_STEALTH_BADGE:
+			setAvatarStealthBadge();
 			break;
 		case SET_WINDOW_BG:
 			setWindowBackGround();
@@ -3038,6 +3043,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			return;
 		}
 		mConversation.setIsStealth(markStealth);
+		uiHandler.sendEmptyMessage(UPDATE_STEALTH_BADGE);
 	}
 	
 	private void onMuteConversationToggled(Object object)
@@ -3690,8 +3696,27 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		{
 			drawable = HikeMessengerApp.getLruCache().getDefaultAvatar(msisdn, false);
 		}
+
+		setAvatarStealthBadge();
 		avatar.setScaleType(ScaleType.FIT_CENTER);
 		avatar.setImageDrawable(drawable);
+	}
+	
+	protected void setAvatarStealthBadge()
+	{
+		ImageView hiddenBadge = (ImageView) mActionBarView.findViewById(R.id.stealth_badge);
+		if(hiddenBadge == null)
+		{
+			return;
+		}
+		if(mConversation.isStealth())
+		{
+			hiddenBadge.setVisibility(View.VISIBLE);
+		}
+		else
+		{
+			hiddenBadge.setVisibility(View.GONE);
+		}
 	}
 
 	/**

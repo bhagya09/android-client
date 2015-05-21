@@ -201,7 +201,7 @@ public class ConversationsAdapter extends BaseAdapter
 				viewHolder.subText = (TextView) v.findViewById(R.id.last_message);
 				viewHolder.timeStamp = (TextView) v.findViewById(R.id.last_message_timestamp);
 				viewHolder.avatar = (ImageView) v.findViewById(R.id.avatar);
-				viewHolder.hiddenIndicator = (ImageView) v.findViewById(R.id.hidden_indicator);
+				viewHolder.hiddenIndicator = (ImageView) v.findViewById(R.id.stealth_badge);
 				viewHolder.muteIcon = (ImageView) v.findViewById(R.id.mute_indicator);
 				v.setTag(viewHolder);
 				break;
