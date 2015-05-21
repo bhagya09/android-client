@@ -5832,4 +5832,9 @@ public class Utils
 			return false;
 		}
 	}
+	
+	public static boolean isOfflineConversation(String msisdn)
+	{
+		return msisdn != null &&  msisdn.startsWith("o:");
+	}
 }

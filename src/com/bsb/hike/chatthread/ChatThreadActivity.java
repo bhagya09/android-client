@@ -114,6 +114,11 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 			chatThread = new BotChatThread(this, intent.getStringExtra(HikeConstants.Extras.MSISDN));
 		}
 		
+		else if(HikeConstants.Extras.OFFLINE_CHAT_THREAD.equals(whichChatThread))
+		{
+			chatThread=new OfflineChatThread(this, intent.getStringExtra(HikeConstants.Extras.MSISDN));
+		}
+			
 		else
 		{
 			throw new IllegalArgumentException("Which chat thread I am !!! Did you pass proper arguments?");

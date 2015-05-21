@@ -561,7 +561,12 @@ public class ChatThreadUtils
 		{
 			return HikeConstants.Extras.BOT_CHAT_THREAD;
 		}
-
+		
+		else if(Utils.isOfflineConversation(msisdn))
+		{
+			return HikeConstants.Extras.OFFLINE_CHAT_THREAD;
+		}
+	
 		return HikeConstants.Extras.ONE_TO_ONE_CHAT_THREAD;
 	}
 
