@@ -93,7 +93,6 @@ public class LockPattern
 				if(requestCode ==  HikeConstants.ResultCodes.CONFIRM_LOCK_PATTERN)
 				{
 					StealthModeManager.getInstance().activate(true);
-					HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_MODE_TOGGLED, null);
 					HikeAnalyticsEvent.sendStealthEnabled(true);
 				}
 				else if(requestCode ==  HikeConstants.ResultCodes.CONFIRM_LOCK_PATTERN_HIDE_CHAT)
@@ -106,7 +105,6 @@ public class LockPattern
 				{
 					if(requestCode == HikeConstants.ResultCodes.CONFIRM_LOCK_PATTERN)
 					{
-						StealthModeManager.getInstance().activate(false);
 					}
 					else if(requestCode ==  HikeConstants.ResultCodes.CONFIRM_LOCK_PATTERN_HIDE_CHAT)
 					{

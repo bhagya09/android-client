@@ -701,11 +701,6 @@ public void onTrimMemory(int level)
 			mEditor.putInt(HikeConstants.UPGRADE_FOR_DATABASE_VERSION_28, 0);
 			mEditor.commit();
 		}
-		/*
-		 * Resetting the stealth mode when the app starts. 
-		 */
-		//UMANGX is this needed anymore becoz the STEALTH_FAKE_ON is also introduced
-		StealthModeManager.getInstance().activate(false);
 		String currentAppVersion = settings.getString(CURRENT_APP_VERSION, "");
 		String actualAppVersion = "";
 		try

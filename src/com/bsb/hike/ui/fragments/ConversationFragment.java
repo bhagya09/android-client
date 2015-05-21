@@ -969,7 +969,6 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		if (tipType == ConversationTip.STEALTH_REVEAL_TIP && tipView != null)
 		{
 			StealthModeManager.getInstance().activate(false);
-			HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_MODE_TOGGLED, null);
 			StealthModeManager.getInstance().ftuePending(false);
 			removeTipIfExists(tipType);
 		}

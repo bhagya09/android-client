@@ -54,6 +54,7 @@ public class StealthModeManager
 	{
 		stealthMsisdn = new HashSet<String>();
 		HikeConversationsDatabase.getInstance().addStealthMsisdnToMap();
+		activate(false);
 	}
 
 	public int getStealthMsisdnMapSize() {
@@ -117,7 +118,6 @@ public class StealthModeManager
 			if(isActive() || isStealthFakeOn())
 			{
 				activate(false);
-				HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_MODE_TOGGLED, null);
 			}
 			HikeMessengerApp.getPubSub().publish(HikePubSub.CLOSE_CURRENT_STEALTH_CHAT, true);
 		}
@@ -162,6 +162,7 @@ public class StealthModeManager
 	{
 		currentState = activate ? HikeConstants.STEALTH_ON : HikeConstants.STEALTH_OFF;
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STEALTH_MODE, currentState);
+		HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_MODE_TOGGLED, null);
 	}
 	
 	public void resetPreferences()
@@ -232,7 +233,6 @@ public class StealthModeManager
 				{
 					HikeMessengerApp.getPubSub().publish(HikePubSub.SHOW_TIP, ConversationTip.STEALTH_HIDE_TIP);
 					activate(true);
-					HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_MODE_TOGGLED, null);
 					ftuePending(false);
 				}
 				else
@@ -306,7 +306,6 @@ public class StealthModeManager
 			if(HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOWING_STEALTH_FTUE_CONV_TIP, false))
 			{
 				activate(false);
-				HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_MODE_TOGGLED, null);
 				HikeSharedPreferenceUtil.getInstance().removeData(HikeMessengerApp.SHOWING_STEALTH_FTUE_CONV_TIP);
 				HikeMessengerApp.getPubSub().publish(HikePubSub.REMOVE_TIP, ConversationTip.STEALTH_FTUE_TIP);
 				ftuePending(false);
