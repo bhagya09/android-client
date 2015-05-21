@@ -72,6 +72,7 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 
 	/**
 	 * @deprecated
+	 * VERSION 0
 	 */
 	@Override
 	@JavascriptInterface
@@ -81,7 +82,8 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	}
 	
 	/**
-	 * 
+	 * VERSION 1
+	 * calling this function will delete the alarm associated with this javascript.
 	 * @param messageId for which you want to delete alarm
 	 */
 	@JavascriptInterface
@@ -93,6 +95,7 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	
 	/**
 	 * @deprecated
+	 * VERSION 0
 	 */
 	@Override
 	@JavascriptInterface
@@ -102,9 +105,13 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	}
 	
 	/**
-	 * 
-	 * @param messageId : to validate whether you are forwarding proper message
-	 * @param json
+	 * VERSION 1
+	 *	Calling this function will initiate forward of the message to a friend or group.
+	 * @param messageId : to validate whether you are forwarding the proper message
+	 * @param json : if the data has changed , then send the updated fields and it will update the metadata.
+	 *             If the key is already present, it will be replaced else it will be added to the existent metadata.
+	 *             If the json has JSONObject as key, there would be another round of iteration, and will replace the key-value pair if the key is already present
+	 *             and will add the key-value pair if the key is not present in the existent metadata.
 	 */
 	@JavascriptInterface
 	public void forwardToChat(String messageId,String json)
@@ -116,12 +123,9 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	}
 
 	/**
-	 * 
-	 * @param messageId 
-	 * @param id
-	 * @param key
-	 * 
+	 * VERSION 1
 	 * call this function to get the data from the native memory
+	 * @param messageId: to validate whether you are getting cache data for proper message
 	 * @param id: the id of the function that native will call to call the js .
 	 * @param key: key of the data to be saved. Microapp needs to make sure about the uniqueness of the key.
 	 */
@@ -138,7 +142,9 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 
 	
 	/**
+	 * VERSION 1
 	 * Call this function to get the bulk large data from the native memory
+	 * @param messageId: : : to validate whether you are getting bulk cache data for proper message
 	 * @param id : the id of the function that native will call to call the js .
 	 */
 	@JavascriptInterface
@@ -149,15 +155,25 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 			callbackToJS(id, value);
 		}
 	}
-	
 
+	/**
+	 * VERSION 0
+	 * @deprecated
+	 * @param height : The height of the loaded content
+	 */
 	@Override
 	@JavascriptInterface
 	public void onLoadFinished(String height)
 	{
 		notAllowedMethodCalled("onLoadFinished");
 	}
-	
+
+	/**
+	 * VERSION 1
+	 * This function is called whenever the onLoadFinished of the html is called. This function calling is MUST.
+	 * @param messageId : : : : to validate whether you are calling the function for proper message
+	 * @param height : The height of the loaded content
+	 */
 	@JavascriptInterface
 	public void onLoadFinished(String messageId,String height)
 	{
@@ -192,36 +208,34 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 
 	
 	/**
+	 * VERSION 1
 	 * Call this method to put data in cache. This will be a key-value pair. A microapp can have different key-value pairs
 	 * in the native's cache.
 	 * @param key: key of the data to be saved. Microapp needs to make sure about the uniqueness of the key.
 	 * @param value: : the data that the app need to cache.
 	 */
 	@JavascriptInterface
-	public void putInCache(String messageId,String key, String value)
+	public void putInCache(String key, String value)
 	{
-		if(isCorrectMessage(messageId, "putInCache")){
-			HikeContentDatabase.getInstance().putInContentCache(key, message.getNameSpace(), value);
-		}
+		HikeContentDatabase.getInstance().putInContentCache(key, message.getNameSpace(), value);
 	}
 
 	/**
+	 * VERSION 1
 	 * Call this method to put bulk large data in cache. Earlier large data will be replaced by this new data and there will
 	 * be only one entry per microapp.
 	 * @param value: the data that the app need to cache.
 	 */
 	@JavascriptInterface
-	public void putLargeDataInCache(String messageId,String value)
+	public void putLargeDataInCache(String value)
 	{
-		if(isCorrectMessage(messageId, "putLargeDataInCache")){
-			HikeContentDatabase.getInstance().putInContentCache(message.getNameSpace(), message.getNameSpace(), value);
-		}
+		HikeContentDatabase.getInstance().putInContentCache(message.getNameSpace(), message.getNameSpace(), value);
+
 	}
 
 	/**
+	 * VERSION 0
 	 * @deprecated
-	 * @param json
-	 * @param timeInMills
 	 */
 	@Override
 	@JavascriptInterface
@@ -229,18 +243,33 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	{
 		notAllowedMethodCalled("setAlarm");
 	}
-	
+
+	/**
+	 * VERSION 1
+	 * Call this function to set the alarm at certain time that is defined by the second parameter.
+	 * The first param is a json that contains
+	 * 1.alarm_data: the data that the javascript receives when the alarm is played.
+	 * 2.delete_card: if present and true, used to delete the message on alarm getting played
+	 * 3.conv_msisdn: this field is must Send the msisdn.
+	 * 4.inc_unread: if inc_unread is present and true, we will increase red unread counter in Conversation screen.
+	 * 5.notification: contains message  if you want to show notification at some particular time
+	 * 6.notification_sound: true if we you want to play sound
+	 * sample json  :  {alarm_data:{}, conv_msisdn:'', ;delete_card' : 'true' , 'inc_unread' :'true ' , 'notification': 'message', 'notification_sound':'true'}
+	 * @param messageId:to validate whether you are setting alarm for proper message
+	 * @param json
+	 * @param timeInMills
+	 */
 	@JavascriptInterface
-	public void setAlarm(String mId,String json, String timeInMills){
+	public void setAlarm(String messageId,String json, String timeInMills){
 		if(weakActivity.get()!=null){
-			MessagingBotBridgeHelper.setAlarm(json, timeInMills, weakActivity.get(), Integer.parseInt(mId));
+			MessagingBotBridgeHelper.setAlarm(json, timeInMills, weakActivity.get(), Integer.parseInt(messageId));
 		}
 	}
 
 
 	/**
+	 * VERSION 0
 	 * @deprecated
-	 * @param height
 	 */
 	@Override
 	@JavascriptInterface
@@ -248,7 +277,14 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	{
 		notAllowedMethodCalled("onResize");
 	}
-	
+
+	/**
+	 * VERSION 1
+	 * Whenever the content's height is changed, the html will call this function to resize the height of the Android Webview.
+	 * Calling this function is MUST, whenever the height of the content changes.
+	 * @param messageId : : to validate whether you are calling the function for the proper message
+	 * @param height : the new height when the content is reloaded.
+	 */
 	@JavascriptInterface
 	public void onResize(String messageId,String height)
 	{
@@ -260,6 +296,7 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	
 	
 	/**
+	 * VERSION 0
 	 * @deprecated
 	 */
 	@Override
@@ -268,7 +305,12 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	{
 		notAllowedMethodCalled("deleteMessage");
 	}
-	
+
+	/**
+	 * VERSION 1
+	 * call this function to delete the message. The message will get deleted instantaneously
+	 * @param messageId
+	 */
 	@JavascriptInterface
 	public void deleteMessage(String messageId)
 	{
@@ -276,6 +318,7 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	}
 
 	/**
+	 * VERSION 0
 	 * @deprecated
 	 */
 	@Override
@@ -284,7 +327,11 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	{
 		notAllowedMethodCalled("share");
 	}
-	
+
+	/**
+	 * VERSION 1
+	 * @param messageId
+	 */
 	@JavascriptInterface
 	public void share(String messageId)
 	{
@@ -296,6 +343,7 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	
 	
 	/**
+	 * VERSION 0
 	 * @deprecated
 	 */
 	@Override
@@ -304,7 +352,15 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	{
 		notAllowedMethodCalled("share with params");
 	}
-	
+
+	/**
+	 * VERSION 1
+	 * calling this function will share the screenshot of the webView along with the text at the top and a caption text
+	 * to all social network platforms by calling the system's intent.
+	 * @param messageId : to validate whether sharing for proper message
+	 * @param text : heading of the image with the webView's screenshot.
+	 * @param caption : intent caption
+	 */
 	@JavascriptInterface
 	public void share(String messageId,String text, String caption)
 	{
@@ -316,8 +372,9 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 
 
 	/**
+	 * VERSION 0
 	 * @deprecated
-	 * @param json
+	 * @param json :
 	 */
 	@Override
 	@JavascriptInterface
@@ -325,7 +382,14 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	{
 		notAllowedMethodCalled("updateHelperData");
 	}
-	
+
+	/**
+	 * VERSION 1
+	 * this function will update the helper data. It will replace the key if it is present in the helper data and will add it if it is
+	 * not present in the helper data.
+	 * @param messageId : the message id to validate whether updating helper data for proper message.
+	 * @param json
+	 */
 	@JavascriptInterface
 	public void updateHelperData(String messageId,String json)
 	{
@@ -337,6 +401,7 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	}
 	
 	/**
+	 * VERSION 0
 	 * @deprecated
 	 */
 	@Override
@@ -345,7 +410,13 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	{
 		notAllowedMethodCalled("updateMetadata");
 	}
-	
+
+	/**
+	 * VERSION 1
+	 * @param messageId
+	 * @param json
+	 * @param notifyScreen
+	 */
 	@JavascriptInterface
 	public void updateMetadata(String messageId,String json, String notifyScreen)
 	{
@@ -357,6 +428,7 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	}
 	
 	/**
+	 * VERSION 0
 	 * @deprecated
 	 */
 	@Override
@@ -365,7 +437,15 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	{
 		notAllowedMethodCalled("loganalytics");
 	}
-	
+
+	/**
+	 * VERSION 1
+	 * Call this function to log analytics events.
+	 * @param messageId: : to validate whether you are logging for proper message
+	 * @param isUI    : whether the event is a UI event or not. This is a string. Send "true" or "false".
+	 * @param subType : the subtype of the event to be logged, eg. send "click", to determine whether it is a click event.
+	 * @param json    : any extra info for logging events, including the event key that is pretty crucial for analytics.
+	 */
 	@JavascriptInterface
 	public void logAnalytics(String messageId,String isUI, String subType, String json)
 	{
@@ -393,10 +473,5 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 			super.handleUiMessage(msg);
 		}
 	}
-
-	
-	
-	
-	
 
 }
