@@ -99,6 +99,7 @@ public class DbConversationListener implements Listener
 		mPubSub.addListener(HikePubSub.MUTE_BOT, this);
 		mPubSub.addListener(HikePubSub.GROUP_LEFT, this);
 		mPubSub.addListener(HikePubSub.DELETE_THIS_CONVERSATION, this);
+		mPubSub.addListener(HikePubSub.UPDATE_LAST_MSG_STATE, this);
 	}
 
 	@Override
@@ -458,6 +459,12 @@ public class DbConversationListener implements Listener
 			HikeConversationsDatabase.getInstance().deleteConversation(msisdn);				
 			ContactManager.getInstance().removeContacts(msisdn);
 			HikeMessengerApp.getPubSub().publish(HikePubSub.CONVERSATION_DELETED, convInfo);
+		}
+		
+		else if (HikePubSub.UPDATE_LAST_MSG_STATE.equals(type))
+		{
+			Pair<Integer, String> stateMsisdnPair = (Pair<Integer, String>) object;
+			mConversationDb.updateLastMessageState(stateMsisdnPair.second, stateMsisdnPair.first);
 		}
 	}
 
