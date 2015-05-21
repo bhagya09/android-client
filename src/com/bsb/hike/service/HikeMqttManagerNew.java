@@ -51,6 +51,8 @@ import android.util.Pair;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.HostInfo;
+import com.bsb.hike.HostInfo.ConnectExceptions;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.MsgRelEventType;
 import com.bsb.hike.analytics.HAManager;
@@ -138,12 +140,6 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 
 	List<String> serverURIs = null;
 
-	private volatile int ipConnectCount = 0;
-
-	private boolean connectUsingIp = false;
-	
-	private boolean connectToFallbackPort = false;
-
 	private volatile short fastReconnect = 0;
 
 	private volatile int retryCount = 0;
@@ -152,7 +148,7 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 
 	private long maxMessageProcessTime = 0;
 	
-	private int connectRetryCount = 0;
+	private volatile HostInfo previousHostInfo = null;
 	
 	private class ActivityCheckRunnable implements Runnable
 	{
@@ -599,7 +595,6 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 			if (forceDisconnect)
 				return;
 
-			int connectionTimeOut = getConnectionTimeOut(connectRetryCount);
 			if (op == null)
 			{
 				op = new MqttConnectOptions();
@@ -609,10 +604,13 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 				op.setKeepAliveInterval((short) KEEP_ALIVE_SECONDS);
 			}
 
+			// get host information for this connect try, which in turn is based on
+			// previous host informartion
+			HostInfo hostInfo = new HostInfo(previousHostInfo, serverURIs);
 			if (mqtt == null)
 			{
 				// Here I am using my modified MQTT PAHO library
-				mqtt = new MqttAsyncClient(getServerUri(), clientId + ":" + pushConnect + ":" + fastReconnect + ":" + Utils.getNetworkType(context), null,
+				mqtt = new MqttAsyncClient(hostInfo.getServerUri(), clientId + ":" + pushConnect + ":" + fastReconnect + ":" + Utils.getNetworkType(context), null,
 						MAX_INFLIGHT_MESSAGES_ALLOWED);
 				mqtt.setCallback(getMqttCallback());
 				Logger.d(TAG, "Number of max inflight msgs allowed : " + mqtt.getMaxflightMessages());
@@ -624,22 +622,25 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 			// if any network is available, then only connect, else connect at next check or when network gets available
 			if (Utils.isUserOnline(context))
 			{
-				acquireWakeLock(connectionTimeOut);
-				Logger.d(TAG, "Connect using pushconnect : " + pushConnect + "  fast reconnect : " + fastReconnect + " connection time out = "+connectionTimeOut);
+				acquireWakeLock(hostInfo.getConnectTimeOut());
+				Logger.d(TAG, "Connect using pushconnect : " + pushConnect + "  fast reconnect : " + fastReconnect + " connection time out = "+hostInfo.getConnectTimeOut());
 				mqtt.setClientId(clientId + ":" + pushConnect + ":" + fastReconnect);
-				mqtt.setServerURI(getServerUri());
+				mqtt.setServerURI(hostInfo.getServerUri());
 				
 				//Setting some connection options which we need to reset on every connect
 				if (isSSL())
 					op.setSocketFactory(HikeSSLUtil.getSSLSocketFactory());
 				else
 					op.setSocketFactory(null);
-				op.setConnectionTimeout(connectionTimeOut);
+				op.setConnectionTimeout(hostInfo.getConnectTimeOut());
 				
 				Logger.d(TAG, "MQTT connecting on : " + mqtt.getServerURI());
 				
 				previousNetInfo = NetInfo.getNetInfo(Utils.getActiveNetInfo()); // update previous netInfo
 				
+				previousHostInfo = hostInfo;
+				
+				Logger.d(TAG, "MQTT trying to connect on HostInfo : "+hostInfo.toString());
 				mqtt.connect(op, null, getConnectListener());
 				scheduleNextActivityCheck();
 			}
@@ -672,18 +673,6 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 			scheduleNextConnectionCheck();
 			releaseWakeLock();
 		}
-	}
-
-	private void incrementConnectRetryCount()
-	{
-		connectRetryCount++;
-		connectRetryCount = Math.min(3, connectRetryCount);
-		Logger.e(TAG, "Increasing connect retry count , connectRetryCount : " + connectRetryCount);
-	}
-
-	private int getConnectionTimeOut(int retryCount)
-	{
-		return CONNECTION_TIMEOUT_SECONDS[Math.min(3, retryCount)];
 	}
 
 	private void setServerUris()
@@ -731,58 +720,6 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 			serverURIs.add("54.251.180.7");
 		}
 
-	}
-
-	private String getServerUri()
-	{	
-		HostState state = getHostState();
-		switch (state)
-		{
-		case STAGING_SSL:
-			return SSL_PROTOCOL + STAGING_BROKER_HOST_NAME + COLON + STAGING_BROKER_PORT_NUMBER_SSL; // ssl://staging.im.hike.in:8883
-		case STAGING_NON_SSL:
-			return TCP_PROTOCOL + STAGING_BROKER_HOST_NAME + COLON + STAGING_BROKER_PORT_NUMBER;	 // tcp://staging.im.hike.in:1883
-		case IP_SSL:
-			return SSL_PROTOCOL + getIp() + COLON + FALLBACK_BROKER_PORT_NUMBER_SSL;				 // ssl://IP:443
-		case IP_NON_SSL:
-			return TCP_PROTOCOL + getIp() + COLON + FALLBACK_BROKER_PORT_NUMBER_NON_SSL;			 // tcp://IP:5222
-		case FALLBACK_SSL:
-			return SSL_PROTOCOL + serverURIs.get(0) + COLON + FALLBACK_BROKER_PORT_NUMBER_SSL;		 // ssl://mqtt.im.hike.in:443
-		case FALLBACK_NON_SSL:
-			return TCP_PROTOCOL + serverURIs.get(0) + COLON + FALLBACK_BROKER_PORT_NUMBER_NON_SSL;	 // tcp://mqtt.im.hike.in:5222
-		case PRODUCTION_SSL:
-			return SSL_PROTOCOL + serverURIs.get(0) + COLON + PRODUCTION_BROKER_PORT_NUMBER_SSL;	 // ssl://mqtt.im.hike.in:443
-		case PRODUCTION_NON_SSL:
-			return TCP_PROTOCOL + serverURIs.get(0) + COLON + PRODUCTION_BROKER_PORT_NUMBER;	 	 // tcp://mqtt.im.hike.in:8080
-		default:
-			return TCP_PROTOCOL + serverURIs.get(0) + COLON + PRODUCTION_BROKER_PORT_NUMBER;		 // tcp://mqtt.im.hike.in:8080
-		}
-	}
-	
-	private HostState getHostState()
-	{
-		boolean ssl = Utils.switchSSLOn(context);
-		
-		boolean sslAllowed = Utils.isSSLAllowed();
-		
-		boolean production = Utils.isOnProduction();
-		
-		if(!production) // on statging
-		{
-			return (ssl ? HostState.STAGING_SSL : HostState.STAGING_NON_SSL);
-		}
-		
-		if (connectUsingIp) // connect using ip
-		{
-			return (sslAllowed ? HostState.IP_SSL : HostState.IP_NON_SSL);
-		}
-		
-		if (connectToFallbackPort) // using using fallback
-		{
-			return (sslAllowed ? HostState.FALLBACK_SSL :HostState.FALLBACK_NON_SSL);
-		}
-		
-		return (ssl ? HostState.PRODUCTION_SSL :HostState.PRODUCTION_NON_SSL); // default case
 	}
 	
 	// This function should be called always from external classes inorder to run connect on MQTT thread
@@ -926,7 +863,6 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 					try
 					{
 						
-						connectToFallbackPort = !connectToFallbackPort;
 						MqttException exception = (MqttException) value;
 						handleMqttException(exception, true);
 					}
@@ -1310,8 +1246,8 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 
 	private void handleSocketTimeOutException()
 	{
+		previousHostInfo.setExceptionOnConnect(ConnectExceptions.SOCKET_TIME_OUT_EXCEPTION);
 		Logger.e(TAG, "Client exception : entered handleSocketTimeOutException");
-		incrementConnectRetryCount();
 		connectOnMqttThread(MQTT_WAIT_BEFORE_RECONNECT_TIME);
 	}
 
@@ -1321,7 +1257,7 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 	private void handleDNSException()
 	{
 		Logger.e(TAG, "DNS Failure , Connect using ips");
-		connectUsingIp = true;
+		previousHostInfo.setExceptionOnConnect(ConnectExceptions.DNS_EXCEPTION);
 		scheduleNextConnectionCheck(getConnRetryTime());
 	}
 	@SuppressLint("NewApi") public void destroyMqtt()
@@ -1489,23 +1425,6 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 		editor.putString(HikeMessengerApp.MQTT_IPS, ipString);
 		editor.commit();
 		setServerUris();
-	}
-
-	private String getIp()
-	{
-		Random random = new Random();
-		int index = random.nextInt(serverURIs.size() - 1) + 1;
-		if (ipConnectCount == serverURIs.size())
-		{
-			ipConnectCount = 0;
-			return serverURIs.get(0);
-		}
-		else
-		{
-			ipConnectCount++;
-			return serverURIs.get(index);
-		}
-
 	}
 
 	// This class is just for testing .....
@@ -1752,10 +1671,7 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 	private void resetConnectionVariables()
 	{
 		forceDisconnect = false;
-		connectUsingIp = false;
-		connectToFallbackPort = false;
-		ipConnectCount = 0;
-		connectRetryCount = 0;
+		previousHostInfo = null;
 	}
 	
 	/**

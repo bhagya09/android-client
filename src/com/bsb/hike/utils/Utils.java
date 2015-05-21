@@ -5563,7 +5563,7 @@ public class Utils
 			ConnectivityManager cm = (ConnectivityManager) HikeMessengerApp.getInstance().getSystemService(Context.CONNECTIVITY_SERVICE);
 			NetworkInfo netInfo = cm.getActiveNetworkInfo();
 
-			if (netInfo != null && netInfo.isConnectedOrConnecting())
+			if (netInfo != null && netInfo.isConnected())
 			{
 				Logger.d("getNetInfoFromConnectivityManager", "Trying to connect using getActiveNetworkInfo");
 				return new Pair<NetworkInfo, Boolean>(netInfo, true);
@@ -5571,7 +5571,7 @@ public class Utils
 
 			netInfo = cm.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
 
-			if (netInfo != null && netInfo.isConnectedOrConnecting())
+			if (netInfo != null && netInfo.isConnected())
 			{
 				Logger.d("getNetInfoFromConnectivityManager", "Trying to connect using TYPE_MOBILE NetworkInfo");
 				return new Pair<NetworkInfo, Boolean>(netInfo, true);
@@ -5579,7 +5579,7 @@ public class Utils
 			else
 			{
 				netInfo = cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-				if (netInfo != null && netInfo.isConnectedOrConnecting())
+				if (netInfo != null && netInfo.isConnected())
 				{
 					Logger.d("getNetInfoFromConnectivityManager", "Trying to connect using TYPE_WIFI NetworkInfo");
 					return new Pair<NetworkInfo, Boolean>(netInfo, true);
