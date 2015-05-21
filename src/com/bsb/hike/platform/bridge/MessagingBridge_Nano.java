@@ -1,17 +1,10 @@
 package com.bsb.hike.platform.bridge;
 
-import java.util.ArrayList;
-
-import com.bsb.hike.db.HikeContentDatabase;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
-import android.os.Bundle;
-import android.os.Message;
 import android.text.TextUtils;
-import android.util.Pair;
 import android.util.SparseArray;
 import android.webkit.JavascriptInterface;
 import android.widget.BaseAdapter;
@@ -24,10 +17,7 @@ import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.HikePlatformConstants;
-import com.bsb.hike.platform.PlatformAlarmManager;
-import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.WebMetadata;
-import com.bsb.hike.platform.WebViewCardRenderer.WebViewHolder;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;

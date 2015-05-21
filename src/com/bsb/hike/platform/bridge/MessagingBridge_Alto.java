@@ -1,6 +1,5 @@
 package com.bsb.hike.platform.bridge;
 
-import org.json.JSONException;
 
 import android.app.Activity;
 import android.os.Message;
@@ -9,13 +8,11 @@ import android.webkit.JavascriptInterface;
 import android.widget.BaseAdapter;
 
 import com.bsb.hike.db.HikeContentDatabase;
-import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.WebMetadata;
 import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.Utils;
 
 
 /**
