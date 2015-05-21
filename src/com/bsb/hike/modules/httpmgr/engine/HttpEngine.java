@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit;
 
 import android.util.Pair;
 
-import com.bsb.hike.modules.httpmgr.Utils;
+import com.bsb.hike.modules.httpmgr.HttpUtils;
 import com.bsb.hike.modules.httpmgr.log.LogFull;
 import com.bsb.hike.modules.httpmgr.request.Request;
 import com.bsb.hike.modules.httpmgr.request.RequestCall;
@@ -49,10 +49,10 @@ public class HttpEngine
 		LogFull.i("starting http engine");
 
 		// executer used for serving short requests
-		shortRequestExecuter = new HttpExecuter(this, SHORT_EXECUTER, CORE_POOL_SIZE, Utils.threadFactory("short-thread", false), Utils.rejectedExecutionHandler());
+		shortRequestExecuter = new HttpExecuter(this, SHORT_EXECUTER, CORE_POOL_SIZE, HttpUtils.threadFactory("short-thread", false), HttpUtils.rejectedExecutionHandler());
 
 		// executer used for serving long requests
-		longRequestExecuter = new HttpExecuter(this, LONG_EXECUTER, CORE_POOL_SIZE, Utils.threadFactory("long-thread", false), Utils.rejectedExecutionHandler());
+		longRequestExecuter = new HttpExecuter(this, LONG_EXECUTER, CORE_POOL_SIZE, HttpUtils.threadFactory("long-thread", false), HttpUtils.rejectedExecutionHandler());
 
 		// executer used for serving response
 		responseExecuter = new ThreadPoolExecutor(0, 2 * CORE_POOL_SIZE + 1, 60, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), Util.threadFactory("http-response", false));

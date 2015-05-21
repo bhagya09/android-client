@@ -211,6 +211,10 @@ public class SmileyParser
 			}
 			count++;
 			int resId = mSmileyToRes.get(matcher.group());
+			for (ImageSpan span : editable.getSpans(matcher.start(), matcher.end(), ImageSpan.class))
+			{  //We have to remove previous span otherwise more smiley will be there for same simley code
+				editable.removeSpan(span);
+			}
 			Drawable smiley = mContext.getResources().getDrawable(resId);
 			smiley.setBounds(0, 0, showSmallIcon ? smiley.getIntrinsicWidth() / 2 : (int) (SCALE_FACTOR * smiley.getIntrinsicWidth()),
 					showSmallIcon ? smiley.getIntrinsicHeight() / 2 : (int) (SCALE_FACTOR * smiley.getIntrinsicHeight()));

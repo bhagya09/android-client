@@ -537,7 +537,8 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		case CONTACT_INFO:
 			if(HikeMessengerApp.hikeBotNamesMap.containsKey(contactInfo.getMsisdn()))
 			{
-				return false;  /*No need to show menu for HikeBots.*/
+				menu.clear();
+				return true; 
 			}
 			else
 			{
@@ -1756,7 +1757,8 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				{
 					HikePubSub hikePubSub = HikeMessengerApp.getPubSub();
 					HikeMqttManagerNew.getInstance().sendMessage(oneToNConversation.serialize(HikeConstants.MqttMessageTypes.GROUP_CHAT_LEAVE), MqttConstants.MQTT_QOS_ONE);
-					hikePubSub.publish(HikePubSub.GROUP_LEFT, oneToNConversation.getMsisdn());
+					hikePubSub.publish(HikePubSub.GROUP_LEFT, oneToNConversation.getConvInfo());
+					
 					Intent intent = new Intent(ProfileActivity.this, HomeActivity.class);
 					intent.putExtra(HikeConstants.Extras.GROUP_LEFT, mLocalMSISDN);
 					intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
