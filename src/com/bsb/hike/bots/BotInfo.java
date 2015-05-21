@@ -2,8 +2,12 @@ package com.bsb.hike.bots;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.models.Conversation.ConvInfo;
+import com.bsb.hike.platform.HikePlatformConstants;
 
 /**
  * Created by shobhit on 22/04/15.
@@ -254,6 +258,42 @@ public class BotInfo extends ConvInfo
 	public void setIsBackPressAllowed(boolean isBackPressAllowed)
 	{
 		this.isBackPressAllowed.set(isBackPressAllowed);
+	}
+	
+	/**
+	 * Utility method to get the last message text to be displayed on the homeScreen
+	 * 
+	 * @return
+	 */
+	public String getLastMessageText()
+	{
+		if (isNonMessagingBot())
+		{
+			if (metadata != null)
+			{
+				try
+				{
+					JSONObject md = new JSONObject(metadata);
+					JSONObject cardObj = md.getJSONObject(HikePlatformConstants.CARD_OBJECT);
+					String hmText = cardObj.optString(HikePlatformConstants.HIKE_MESSAGE, "");
+					return hmText;
+				}
+				catch (JSONException e)
+				{
+					e.printStackTrace();
+				}
+			}
+		}
+
+		else
+		{
+			if (lastConversationMsg != null)
+			{
+				return lastConversationMsg.getMessage();
+			}
+		}
+
+		return "";
 	}
 
 }

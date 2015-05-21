@@ -44,7 +44,11 @@ import com.bsb.hike.voip.VoIPUtils;
 import com.bsb.hike.voip.VoIPUtils.ConnectionClass;
 
 /**
- * Created by shobhit on 13/02/15.
+ * API bridge that connects the javascript to the Native environment. Make the instance of this class and add it as the JavaScript interface of the Card WebView.
+ * This class caters Platform Bridge versions from:
+ *
+ * Platform Bridge Version Start = 0
+ * Platform Bridge Version End = ~
  */
 public abstract class JavascriptBridge
 {
@@ -74,6 +78,7 @@ public abstract class JavascriptBridge
 	}
 
 	/**
+	 * Platform Bridge Version 0
 	 * Call this function to log analytics events.
 	 *
 	 * @param isUI    : whether the event is a UI event or not. This is a string. Send "true" or "false".
@@ -84,6 +89,7 @@ public abstract class JavascriptBridge
 	protected abstract void logAnalytics(String isUI, String subType, String json);
 
 	/**
+	 * Platform Bridge Version 0
 	 * This function is called whenever the onLoadFinished of the html is called. This function calling is MUST.
 	 * This function is also used for analytics purpose.
 	 *
@@ -115,6 +121,7 @@ public abstract class JavascriptBridge
 	}
 
 	/**
+	 * Platform Bridge Version 0
 	 * call this function to Show toast for the string that is sent by the javascript.
 	 *
 	 * @param toast : the string to show in toast.
@@ -129,6 +136,7 @@ public abstract class JavascriptBridge
 	}
 
 	/**
+	 * Platform Bridge Version 0
 	 * Call this function to vibrate the device.
 	 *
 	 * @param msecs : the number of milliseconds the device will vibrate.
@@ -140,6 +148,7 @@ public abstract class JavascriptBridge
 	}
 
 	/**
+	 * Platform Bridge Version 0
 	 * call this function with parameter as true to enable the debugging for javascript.
 	 * The debuggable for javascript will get enabled only after KITKAT version.
 	 *
@@ -177,6 +186,7 @@ public abstract class JavascriptBridge
 	}
 
 	/**
+	 * Platform Bridge Version 0
 	 * calling this function will generate logs for testing at the android IDE. The first param will be tag used for logging and the second param
 	 * is data that is used for logging. this will create verbose logs for testing purposes.
 	 *
@@ -190,6 +200,7 @@ public abstract class JavascriptBridge
 	}
 
 	/**
+	 * Platform bridge Version 0
 	 * Call this function to open a full page webView within hike.
 	 *
 	 * @param title : the title on the action bar.
@@ -219,6 +230,7 @@ public abstract class JavascriptBridge
 	}
 
 	/**
+	 * Platform Bridge Version 1
 	 * call this function to open a web page in the default browser.
 	 * @param url: : the url that will be loaded.
 	 */
@@ -247,6 +259,7 @@ public abstract class JavascriptBridge
 	}
 
 	/**
+	 * Platform Bridge Version 0
 	 * calling this function will share the screenshot of the webView along with the text at the top and a caption text
 	 * to all social network platforms by calling the system's intent.
 	 *
@@ -321,6 +334,7 @@ public abstract class JavascriptBridge
 	}
 
 	/**
+	 * Platform Bridge Version 0
 	 * Whenever the content's height is changed, the html will call this function to resize the height of the Android Webview.
 	 * Calling this function is MUST, whenever the height of the content changes.
 	 *
@@ -469,6 +483,7 @@ public abstract class JavascriptBridge
 	}
 	
 	/**
+	 * Platform Bridge Version 0
 	 * This function can be used to start a hike native contact chooser/picker which will show all hike contacts to user and user can select few contacts (minimum 1). It will call
 	 * JavaScript function "onContactChooserResult(int resultCode,JsonArray array)" This JSOnArray contains list of JSONObject where each JSONObject reflects one user. As of now
 	 * each JSON will have name and platform_id, e.g : [{'name':'Paul','platform_id':'dvgd78as'}] resultCode will be 0 for fail and 1 for success NOTE : JSONArray could be null as
@@ -538,6 +553,7 @@ public abstract class JavascriptBridge
 	}
 
 	/**
+	 * Platform Bridge Version 1
 	 * this function will call the js back when the javascript demands some value back from the native.
 	 * @param id : the id of the function that native will call to call the js .
 	 * @param value: value that will be given back.
@@ -560,6 +576,7 @@ public abstract class JavascriptBridge
 	}
 	
 	/**
+	 * Platform Bridge Version 1
 	 * This method will be called when you need to get the Connection type on the device. The result returned will be one of the following ordinal values :
 	 * 
 	 * TwoG : 0 <br>
@@ -577,13 +594,7 @@ public abstract class JavascriptBridge
 		
 		callbackToJS(id, Integer.toString(connType.ordinal()));
 	}
-	
-	/**
-	 * Utility method to put common stuff in initJSON
-	 * 
-	 * @param jsonObj
-	 * @param msisdn
-	 */
+
 	public void getInitJson(JSONObject jsonObj, String msisdn)
 	{
 		try

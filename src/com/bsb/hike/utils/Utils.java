@@ -45,6 +45,7 @@ import java.util.zip.GZIPInputStream;
 
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.platform.HikePlatformConstants;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -3465,8 +3466,18 @@ public class Utils
 
 	public static void createShortcut(Activity activity, ConvInfo conv)
 	{
-		Intent shortcutIntent = IntentFactory.createChatThreadIntentFromConversation(activity, conv);
+		Intent shortcutIntent;
 		Intent intent = new Intent();
+		if (conv instanceof BotInfo && ((BotInfo) conv).isNonMessagingBot())
+		{
+			shortcutIntent = IntentFactory.getNonMessagingBotIntent(conv.getMsisdn(), "", "", activity);
+		}
+
+		else
+		{
+			shortcutIntent = IntentFactory.createChatThreadIntentFromConversation(activity, conv);
+		}
+		
 		intent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, shortcutIntent);
 		intent.putExtra(Intent.EXTRA_SHORTCUT_NAME, conv.getLabel());
 

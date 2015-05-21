@@ -113,6 +113,8 @@ public class HikeDialogFactory
 	public static final int DELETE_FROM_BROADCAST = 33;
 	
 	public static final int REMOVE_DP_CONFIRM_DIALOG = 34;
+	
+	public static final int DELETE_BLOCK = 35;
 
 	public static HikeDialog showDialog(Context context, int whichDialog, Object... data)
 	{
@@ -176,6 +178,7 @@ public class HikeDialogFactory
 		case DELETE_ALL_CONVERSATIONS:
 		case DELETE_MESSAGES_DIALOG:
 		case DELETE_BROADCAST_DIALOG:
+		case DELETE_BLOCK:
 			return showDeleteMessagesDialog(dialogId, context, listener, data);
 			
 		case GPS_DIALOG:
@@ -971,6 +974,12 @@ public class HikeDialogFactory
 			deleteConfirmDialog.setOkButton(R.string.delete, positiveListener);
 			deleteConfirmDialog.setCancelButton(R.string.cancel, negativeListener);
 			break;
+			
+		case DELETE_BLOCK:
+			deleteConfirmDialog.setHeader(R.string.delete_block);
+			deleteConfirmDialog.setBody(context.getString(R.string.confirm_delete_block_msg,(String) data[0]));
+			deleteConfirmDialog.setOkButton(R.string.yes, positiveListener);
+			deleteConfirmDialog.setCancelButton(R.string.no, negativeListener);
 		}
 		
 		deleteConfirmDialog.show();
