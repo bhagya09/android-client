@@ -23,6 +23,14 @@ import com.bsb.hike.voip.VoIPUtils;
 
 import java.util.Iterator;
 
+/**
+ * API bridge that connects the javascript to the non-messaging Native environment. Make the instance of this class and add it as the
+ * JavaScript interface of the MicroApp WebView.
+ * This class caters Platform Bridge version 0
+ *
+ * Platform Bridge Version Start = 1
+ * Platform Bridge Version End = ~
+ */
 public class NonMessagingJavaScriptBridge extends JavascriptBridge
 {
 	
@@ -59,8 +67,9 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	}
 
 	/**
+	 * Platform Bridge Version 1
 	 * this function will update the helper data. It will replace the key if it is present in the helper data and will add it if it is not present in the helper data.
-	 * 
+	 *
 	 * @param json
 	 */
 	@JavascriptInterface
@@ -95,6 +104,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	}
 
 	/**
+	 * Platform Bridge Version 1
 	 * Calling this function will initiate forward of the message to a friend or group.
 	 * 
 	 * @param json
@@ -164,6 +174,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 
 
 	/**
+	 * Platform Bridge Version 1
 	 * calling this method will forcefully mute the full screen bot. The user won't receive any more notifications after calling this.
 	 */
 	@JavascriptInterface
@@ -173,9 +184,10 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	}
 
 	/**
+	 * Platform Bridge Version 1
 	 * calling this method will forcefully block the full screen bot. The user won't see any messages in the chat thread after calling this.
 	 * 
-	 * @param : true to block the microapp false to unblock it.
+	 * @param isBlocked : true to block the microapp false to unblock it.
 	 */
 	@JavascriptInterface
 	public void blockChatThread(String isBlocked)
@@ -195,7 +207,13 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	{
 		mWebView.loadUrl("javascript:platformSdk.onMenuItemClicked('" + id + "')");
 	}
-	
+
+	/**
+	 * Platform Bridge Version 1
+	 * Call this function to update the overflow menu items.
+	 * @param id
+	 * @param newMenuJSON
+	 */
 	@JavascriptInterface
 	public void updateOverflowMenu(String id, String newMenuJSON)
 	{
@@ -220,6 +238,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	}
 	
 	/**
+	 * Platform Bridge Version 1
 	 * Utility method to remove a menu from the list of menu options for a bot
 	 * 
 	 * @param id
@@ -237,6 +256,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	}
 
 	/**
+	 * Platform Bridge Version 1
 	 * Utility method to fetch the overflowMenu from the MicroApp. This replaces the existing menu in the config data of the app
 	 * 
 	 * MenuString should be in the following form : <br>
@@ -257,6 +277,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	}
 
 	/**
+	 * Platform Bridge Version 1
 	 * Call this method to put bulk large data in cache. Earlier large data will be replaced by this new data and there will
 	 * be only one entry per microapp.
 	 * @param value: the data that the app need to cache.
@@ -268,6 +289,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	}
 
 	/**
+	 * Platform Bridge Version 1
 	 * Call this method to put data in cache. This will be a key-value pair. A microapp can have different key-value pairs
 	 * in the native's cache.
 	 * @param key: key of the data to be saved. Microapp needs to make sure about the uniqueness of the key.
@@ -280,6 +302,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	}
 
 	/**
+	 * Platform Bridge Version 1
 	 * Call this function to get the bulk large data from the native memory
 	 * @param id : the id of the function that native will call to call the js .
 	 */
@@ -291,6 +314,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	}
 
 	/**
+	 * Platform Bridge Version 1
 	 * call this function to get the data from the native memory
 	 * @param id: the id of the function that native will call to call the js .
 	 * @param key: key of the data demanded. Microapp needs to make sure about the uniqueness of the key.
@@ -303,6 +327,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	}
 
 	/**
+	 * Platform Bridge Version 1
 	 * call this function to get the notif data pertaining to the microApp.
 	 * @param id: the id of the function that native will call to call the js .
 	 */
@@ -314,6 +339,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	}
 
 	/**
+	 * Platform Bridge Version 1
 	 * call this function to delete the entire notif data of the microApp.
 	 */
 	@JavascriptInterface
@@ -323,6 +349,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	}
 
 	/**
+	 * Platform Bridge Version 1
 	 * Call this function to delete partial notif data pertaining to a microApp. The key is the timestamp provided by Native
 	 * @param key
 	 */
@@ -332,10 +359,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		HikeConversationsDatabase.getInstance().deletePartialNotifData(key, mBotInfo.getMsisdn());
 	}
 
-	/**
-	 * call this function to send notif data to js. Will be primarily used when the bot is in foreground and notif is received.
-	 * @param notifData : notif data to be sent to the js.
-	 */
+
 	public void notifDataReceived(final String notifData)
 	{
 		if (mHandler == null)
@@ -353,6 +377,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	}
 
 	/**
+	 * Platform Bridge Version 1
 	 * Utility method to indicate change in orientation of the device.<br>
 	 * 1 : Indicates PORTRAIT <br>
 	 * 2 : Indicates LANDSCAPE
@@ -365,6 +390,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	}
 	
 	/**
+	 * Platform Bridge Version 1
 	 * Utility method to call finish of the current activity
 	 */
 	@JavascriptInterface
@@ -376,10 +402,18 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			activity.finish();
 		}
 	}
-	
+
+	/**
+	 * Platform Bridge Version 1
+	 * Call this function to allow the back Press. The android back button will be given to the microapp.
+	 * @param allowBack
+	 */
 	@JavascriptInterface
 	public void allowBackPress(String allowBack)
 	{
 		mBotInfo.setIsBackPressAllowed(Boolean.valueOf(allowBack));
 	}
+
+
+
 }
