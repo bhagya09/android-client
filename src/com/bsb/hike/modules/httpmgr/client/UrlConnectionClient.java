@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.bsb.hike.modules.httpmgr.Header;
-import com.bsb.hike.modules.httpmgr.Utils;
+import com.bsb.hike.modules.httpmgr.HttpUtils;
 import com.bsb.hike.modules.httpmgr.request.Request;
 import com.bsb.hike.modules.httpmgr.request.requestbody.IRequestBody;
 import com.bsb.hike.modules.httpmgr.response.Response;
@@ -90,7 +90,7 @@ public class UrlConnectionClient implements IClient
 	 * @return
 	 * @throws Throwable
 	 */
-	<T> Response readResponse(Request<T> request, HttpURLConnection connection) throws Throwable
+	<T> Response readResponse(Request<T> request, HttpURLConnection connection) throws IOException
 	{
 		int status = connection.getResponseCode();
 		String reason = connection.getResponseMessage();
@@ -114,16 +114,17 @@ public class UrlConnectionClient implements IClient
 		InputStream stream = null;
 		try
 		{
-			if (status >= 400)
+			T bodyContent = null;
+
+			if (status >= 200 && status <= 299)
 			{
-				stream = connection.getErrorStream();
+				stream = connection.getInputStream();
+				bodyContent = request.parseResponse(stream);
 			}
 			else
 			{
-				stream = connection.getInputStream();
+				// TODO Later parse for other responses also so that we can give complete info in onFailure, will have to add some error content field in response class
 			}
-
-			T bodyContent = request.parseResponse(stream);
 
 			ResponseBody<T> responseBody = ResponseBody.create(mimeType, length, bodyContent);
 			Response response = new Response.Builder().setUrl(connection.getURL().toString()).setStatusCode(status).setReason(reason).setHeaders(headers).setBody(responseBody)
@@ -133,7 +134,7 @@ public class UrlConnectionClient implements IClient
 		}
 		finally
 		{
-			Utils.closeQuietly(stream);
+			HttpUtils.closeQuietly(stream);
 		}
 	}
 

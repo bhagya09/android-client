@@ -323,6 +323,11 @@ public class UploadFileTask extends FileTransferBase
 				pubsubMsgList.add((ConvMessage) userContext);
 				MultipleConvMessage multiConMsg = new MultipleConvMessage(pubsubMsgList, contactList);
 				HikeConversationsDatabase.getInstance().addConversations(multiConMsg.getMessageList(), multiConMsg.getContactList(),false);
+				msgId = ((ConvMessage) userContext).getMsgID();
+				for (int i=1 ; i < messageList.size() ; i++)
+				{
+					messageList.get(i).setMsgID(msgId + i);
+				}
 				multiConMsg.sendPubSubForConvScreenMultiMessage();
 			}
 			else
@@ -391,14 +396,6 @@ public class UploadFileTask extends FileTransferBase
 	 */
 	private void initFileUpload() throws FileTransferCancelledException, Exception
 	{
-		msgId = ((ConvMessage) userContext).getMsgID();
-		if (isMultiMsg)
-		{
-			for (int i=1 ; i < messageList.size() ; i++)
-			{
-				messageList.get(i).setMsgID(msgId + i);
-			}
-		}
 		HikeFile hikeFile = ((ConvMessage) userContext).getMetadata().getHikeFiles().get(0);
 		hikeFileType = hikeFile.getHikeFileType();
 

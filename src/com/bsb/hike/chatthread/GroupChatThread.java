@@ -302,12 +302,19 @@ public class GroupChatThread extends OneToNChatThread
 	@Override
 	public boolean onBackPressed()
 	{
-		if (mActionMode.whichActionModeIsOn() == PIN_CREATE_ACTION_MODE)
+		if (!super.onBackPressed())
 		{
-			destroyPinCreateView();
-			return true;
+			if (mActionMode.whichActionModeIsOn() == PIN_CREATE_ACTION_MODE)
+			{
+				destroyPinCreateView();
+				return true;
+			}
+			else
+			{
+				return false;
+			}
 		}
-		return super.onBackPressed();
+		return true;
 	}
 
 	@Override

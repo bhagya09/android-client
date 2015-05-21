@@ -226,7 +226,13 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 		// somewhere to make this faster
 		oneToNConversation.updateReadByList(participant, mrMsgId);
 		uiHandler.sendEmptyMessage(NOTIFY_DATASET_CHANGED);
-		uiHandler.sendEmptyMessage(SCROLL_TO_END);
+		/**
+		 * If the last message was visible before receiving the read notification it can be hidden, hence we need to scroll to bottom.
+		 */
+		if (mConversationsView != null && (mConversationsView.getLastVisiblePosition() == mConversationsView.getCount() - 1))
+		{
+			uiHandler.sendEmptyMessage(SCROLL_TO_END);
+		}
 	}
 
 	@Override
@@ -648,5 +654,11 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 		super.updateNetworkState();
 		boolean networkError = ChatThreadUtils.checkNetworkError();
 		toggleConversationMuteViewVisibility(networkError ? false : oneToNConversation.isMuted());
+	}
+	
+	@Override
+	protected boolean shouldShowKeyboard()
+	{
+		return (oneToNConversation.isConversationAlive() && super.shouldShowKeyboard());
 	}
 }
