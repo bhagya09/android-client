@@ -1677,6 +1677,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				else
 				{
 					fileHolder.ftAction.setImageResource(R.drawable.ic_retry_other);
+					fileHolder.ftAction.setContentDescription(context.getResources().getString(R.string.content_des_retry_file_download));
 					fileHolder.ftAction.setVisibility(View.VISIBLE);
 					fileHolder.ftAction.setScaleType(ScaleType.CENTER);
 					fileHolder.circularProgressBg.setVisibility(View.VISIBLE);
@@ -2707,6 +2708,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			if (!isSent)
 			{
 				holder.ftAction.setImageResource(downloadImage);
+				holder.ftAction.setContentDescription(context.getResources().getString(R.string.content_des_download_file));
 				holder.ftAction.setVisibility(View.VISIBLE);
 				holder.circularProgressBg.setVisibility(View.VISIBLE);
 			}
@@ -2715,6 +2717,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				if (TextUtils.isEmpty(hikeFile.getFileKey()))
 				{
 					holder.ftAction.setImageResource(retryImage);
+					holder.ftAction.setContentDescription(context.getResources().getString(R.string.content_des_retry_file_download));
 					holder.ftAction.setVisibility(View.VISIBLE);
 					holder.circularProgressBg.setVisibility(View.VISIBLE);
 				}
@@ -2728,6 +2731,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			break;
 		case IN_PROGRESS:
 			holder.ftAction.setImageResource(pauseImage);
+			holder.ftAction.setContentDescription(context.getResources().getString(R.string.content_des_pause_file_download));
 			holder.ftAction.setVisibility(View.VISIBLE);
 			holder.circularProgressBg.setVisibility(View.VISIBLE);
 			showTransferProgress(holder, fss, msgId, hikeFile, isSent);
@@ -2741,12 +2745,14 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		case ERROR:
 		case PAUSED:
 			holder.ftAction.setImageResource(retryImage);
+			holder.ftAction.setContentDescription(context.getResources().getString(R.string.content_des_retry_file_download));
 			holder.ftAction.setVisibility(View.VISIBLE);
 			holder.circularProgressBg.setVisibility(View.VISIBLE);
 			showTransferProgress(holder, fss, msgId, hikeFile, isSent);
 			break;
 		case CANCELLED:
 			holder.ftAction.setImageResource(retryImage);
+			holder.ftAction.setContentDescription(context.getResources().getString(R.string.content_des_retry_file_download));
 			holder.ftAction.setVisibility(View.VISIBLE);
 			holder.circularProgressBg.setVisibility(View.VISIBLE);
 			break;

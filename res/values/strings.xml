@@ -1468,6 +1468,9 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="content_des_user_profile_detail_user_phone_number">User\'s Phone Number</string>
     <string name="content_des_user_profile_detail_edit_profile_pic">Change Profile Pic</string>
     <string name="content_des_user_invitation_on_hike">Invite contact on Hike</string>
+    <string name="content_des_pause_file_download">Pause File Downloading</string>
+    <string name="content_des_download_file">Download File</string>
+    <string name="content_des_retry_file_download">Retry File Download</string>
     
     <string name="group_creation">Created on </string>
     <string name="ls_change_failed">Last Seen update failed!</string>
