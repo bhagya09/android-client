@@ -3,8 +3,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1209"
+
+    android:versionCode="1213"
     android:versionName="3.9.6.50" >
+
     <uses-sdk
         android:minSdkVersion="9"
         android:targetSdkVersion="17"/>
@@ -442,7 +444,7 @@
 
         <provider
             android:name="com.bsb.hike.providers.HikeProvider"
-            android:authorities="com.bsb.hike.providers.HikeProvider"
+            android:authorities="@string/authority"
             android:exported="true" >
         </provider>
 
