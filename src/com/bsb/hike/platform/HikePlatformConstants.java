@@ -174,4 +174,6 @@ public interface HikePlatformConstants
 	
 	final String NETWORK_TYPE = "networkType";
 	String PLATFORM_VERSION = "platform_version";
+	
+	final String HIKE_MESSAGE = "hm";
 }
