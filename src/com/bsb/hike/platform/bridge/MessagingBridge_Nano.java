@@ -103,13 +103,6 @@ public class MessagingBridge_Nano extends JavascriptBridge
 		}
 	}
 
-	
-
-	
-
-	
-	
-	
 	protected void updateMetadata(WebMetadata metadata, String notifyScreen)
 	{
 		if (metadata!=null && notifyScreen != null && Boolean.valueOf(notifyScreen))
@@ -323,7 +316,7 @@ public class MessagingBridge_Nano extends JavascriptBridge
 	 * this function will update the helper data. It will replace the key if it is present in the helper data and will add it if it is
 	 * not present in the helper data.
 	 *
-	 * @param json
+	 * @param json:
 	 */
 	@JavascriptInterface
 	public void updateHelperData(String json)
