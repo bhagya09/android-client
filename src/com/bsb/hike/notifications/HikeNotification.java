@@ -28,11 +28,11 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
-import com.bsb.hike.chatthread.ChatThreadActivity;
-import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.AppOpenSource;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.chatthread.ChatThreadActivity;
+import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
@@ -88,7 +88,6 @@ public class HikeNotification
 
 	public static final String HIKE_STEALTH_MESSAGE_KEY = "HIKE_STEALTH_MESSAGE_KEY";
 
-	private static final long MIN_TIME_BETWEEN_NOTIFICATIONS = 5 * 1000;
 
 	private static final String SEPERATOR = " ";
 
@@ -686,9 +685,7 @@ public class HikeNotification
 
 		setNotificationIntentForBuilder(mBuilder, notificationIntent);
 
-		final boolean shouldNotPlayNotification = (System.currentTimeMillis() - lastNotificationTime) < MIN_TIME_BETWEEN_NOTIFICATIONS;
 		notificationManager.notify(notificationId, mBuilder.getNotification());
-		lastNotificationTime = shouldNotPlayNotification ? lastNotificationTime : System.currentTimeMillis();
 	}
 
 	public void notifyFavorite(final ContactInfo contactInfo)
@@ -928,7 +925,6 @@ public class HikeNotification
 			final String key, final String message, final String msisdn, String subMessage, Drawable argAvatarDrawable, List<SpannableString> inboxLines, boolean shouldNotPlaySound, int retryCount)
 	{
 
-		final boolean shouldNotPlayNotification = shouldNotPlaySound ? shouldNotPlaySound : (System.currentTimeMillis() - lastNotificationTime) < MIN_TIME_BETWEEN_NOTIFICATIONS;
 
 		Drawable avatarDrawable = null;
 		if (argAvatarDrawable == null)
@@ -967,7 +963,6 @@ public class HikeNotification
 		if (!sharedPreferences.getBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false))
 		{
 			notificationManager.notify(notificationId, mBuilder.getNotification());
-			lastNotificationTime = shouldNotPlayNotification ? lastNotificationTime : System.currentTimeMillis();
 		}
 	}
 
@@ -980,8 +975,6 @@ public class HikeNotification
 	public void showBigTextStyleNotification(final Intent notificationIntent, final int icon, final long timestamp, final int notificationId, final CharSequence text,
 			final String key, final String message, final String msisdn, String subMessage, Drawable argAvatarDrawable, boolean shouldNotPlaySound, int retryCount, Action[] actions)
 	{
-
-		final boolean shouldNotPlayNotification = shouldNotPlaySound ? shouldNotPlaySound : (System.currentTimeMillis() - lastNotificationTime) < MIN_TIME_BETWEEN_NOTIFICATIONS;
 
 		Drawable avatarDrawable = null;
 		if (argAvatarDrawable == null)
@@ -1026,7 +1019,6 @@ public class HikeNotification
 		if (!sharedPreferences.getBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false))
 		{
 			notificationManager.notify(notificationId, mBuilder.getNotification());
-			lastNotificationTime = shouldNotPlayNotification ? lastNotificationTime : System.currentTimeMillis();
 		}
 	}
 
@@ -1034,7 +1026,6 @@ public class HikeNotification
 			final String message, final String msisdn, final Bitmap bigPictureImage, boolean isFTMessage, boolean isPin, boolean isBigText, String subMessage,
 			Drawable argAvatarDrawable, boolean forceNotPlaySound, int retryCount)
 	{
-		final boolean shouldNotPlayNotification = forceNotPlaySound ? forceNotPlaySound : (System.currentTimeMillis() - lastNotificationTime) < MIN_TIME_BETWEEN_NOTIFICATIONS;
 
 		Drawable avatarDrawable = null;
 		if (argAvatarDrawable == null)
@@ -1093,7 +1084,6 @@ public class HikeNotification
 		if (!sharedPreferences.getBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false))
 		{
 			notificationManager.notify(notificationId, mBuilder.getNotification());
-			lastNotificationTime = shouldNotPlayNotification ? lastNotificationTime : System.currentTimeMillis();
 		}
 	}
 
@@ -1146,13 +1136,11 @@ public class HikeNotification
 		
 		if (!forceNotPlaySound)
 		{
-			final boolean shouldNotPlayNotification = (System.currentTimeMillis() - lastNotificationTime) < MIN_TIME_BETWEEN_NOTIFICATIONS;
 			//Play (SOUND + VIBRATION) ONLY WHEN
-			//1) Previous Notification was > 5sec
-			//2) User is not in audio/vedio/Voip call....
+			//1) User is not in audio/vedio/Voip call....
 			// (2nd check is a safe check as this should be handled by NotificationBuilder itself)
-			//3) There should not be any voip action running(Calling/Connected) 
-			if (!shouldNotPlayNotification && !Utils.isUserInAnyTypeOfCall(context)
+			//2) There should not be any voip action running(Calling/Connected) 
+			if (!Utils.isUserInAnyTypeOfCall(context)
 					&& VoIPService.getCallId() <= 0)
 			{
 				String notifSound = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.NOTIF_SOUND_PREF, NOTIF_SOUND_HIKE);
