@@ -371,26 +371,19 @@ public class PlatformUtils
 
 	/**
 	 * Creating a forwarding message for Non-messaging microApp
-	 * @param cardObj: the cardObj given by the microApp
-	 * @param text: hm text
+	 * @param metadata: the metadata made after merging the json given by the microApp
+	 * @param text:     hm text
 	 * @return
 	 */
-	public static ConvMessage getConvMessageFromJSON(JSONObject cardObj, String text)
+	public static ConvMessage getConvMessageFromJSON(JSONObject metadata, String text)
 	{
-		try
-		{
-			ConvMessage convMessage = new ConvMessage();
-			convMessage.setMetadata(cardObj);
-			convMessage.setMessage(text);
-			convMessage.setMessageType(HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT);
-			return convMessage;
-		}
-		catch (JSONException e)
-		{
-			e.printStackTrace();
-		}
 
-		return null;
+		ConvMessage convMessage = new ConvMessage();
+		convMessage.setMessage(text);
+		convMessage.setMessageType(HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT);
+		convMessage.webMetadata = new WebMetadata(metadata);
+		return convMessage;
+
 	}
 
 	public static List<Header> getHeaders()
