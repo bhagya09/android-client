@@ -2715,29 +2715,7 @@ public class Utils
 		
 		sendAppState(context, requestBulkLastSeen, dueToConnect, toLog);
 
-		if (HikeMessengerApp.currentState != CurrentState.OPENED && HikeMessengerApp.currentState != CurrentState.RESUMED)
-		{
-			if(HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOWING_STEALTH_FTUE_CONV_TIP, false))
-			{
-				StealthModeManager.getInstance().activate(false);
-				HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_MODE_TOGGLED, null);
-				HikeSharedPreferenceUtil.getInstance().removeData(HikeMessengerApp.SHOWING_STEALTH_FTUE_CONV_TIP);
-				HikeMessengerApp.getPubSub().publish(HikePubSub.REMOVE_TIP, ConversationTip.STEALTH_FTUE_TIP);
-				StealthModeManager.getInstance().ftuePending(false);
-			}
-		}
-		
-		if (resetStealth)
-		{
-			if (HikeMessengerApp.currentState != CurrentState.OPENED && HikeMessengerApp.currentState != CurrentState.RESUMED)
-			{
-				StealthModeManager.getInstance().resetStealthToggle();
-			}
-			else
-			{
-				StealthModeManager.getInstance().clearScheduledStealthToggleTimer();
-			}
-		}
+		StealthModeManager.getInstance().appStateChange(resetStealth, HikeMessengerApp.currentState != CurrentState.OPENED && HikeMessengerApp.currentState != CurrentState.RESUMED);
 	}
 
 	public static boolean isScreenOn(Context context)

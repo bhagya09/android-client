@@ -87,7 +87,7 @@ public class StealthModeManager
 		return stealthMsisdn.contains(msisdn);
 	}
 
-	public void resetStealthToggle()
+	private void resetStealthToggle()
 	{
 		clearScheduledStealthToggleTimer();
 		String stealthTimeOut = PreferenceManager.getDefaultSharedPreferences(HikeMessengerApp.getInstance().getApplicationContext()).getString(HikeConstants.CHANGE_STEALTH_TIMEOUT, DEFAULT_RESET_TOGGLE_TIME);
@@ -99,7 +99,7 @@ public class StealthModeManager
 		}
 	}
 
-	public void clearScheduledStealthToggleTimer()
+	private void clearScheduledStealthToggleTimer()
 	{
 		if(isActive())
 		{
@@ -147,7 +147,7 @@ public class StealthModeManager
 		}
 	}
 	
-	public boolean isStealthFakeOn()
+	private boolean isStealthFakeOn()
 	{
 		//specific use case where we want to activate hidden mode with out confirming password/pin
 		return (currentState == HikeConstants.STEALTH_ON_FAKE);
@@ -297,5 +297,33 @@ public class StealthModeManager
 	public boolean isPinAsPassword() 
 	{
 		return HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STEALTH_PIN_AS_PASSWORD, false);
+	}
+
+	public void appStateChange(boolean resetStealth, boolean appBackgrounded)
+	{
+
+		if (appBackgrounded)
+		{
+			if(HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOWING_STEALTH_FTUE_CONV_TIP, false))
+			{
+				activate(false);
+				HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_MODE_TOGGLED, null);
+				HikeSharedPreferenceUtil.getInstance().removeData(HikeMessengerApp.SHOWING_STEALTH_FTUE_CONV_TIP);
+				HikeMessengerApp.getPubSub().publish(HikePubSub.REMOVE_TIP, ConversationTip.STEALTH_FTUE_TIP);
+				ftuePending(false);
+			}
+		}
+		
+		if (resetStealth)
+		{
+			if (appBackgrounded)
+			{
+				resetStealthToggle();
+			}
+			else
+			{
+				clearScheduledStealthToggleTimer();
+			}
+		}
 	}
 }
