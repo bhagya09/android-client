@@ -1443,6 +1443,9 @@ public class Utils
 		{
 			return true;
 		}
+		
+		boolean status = false;
+		
 		try
 		{
 			InputStream src;
@@ -1483,24 +1486,23 @@ public class Utils
 			dest.getFD().sync();
 			src.close();
 			dest.close();
-
-			return true;
+			
+			status = true;
 		}
 		catch (FileNotFoundException e)
 		{
 			Logger.e("Utils", "File not found while copying", e);
-			return false;
 		}
 		catch (IOException e)
 		{
 			Logger.e("Utils", "Error while reading/writing/closing file", e);
-			return false;
 		}
 		catch (Exception ex)
 		{
 			Logger.e("Utils", "WTF Error while reading/writing/closing file", ex);
-			return false;
 		}
+		
+		return status;
 	}
 
 	public static boolean compressAndCopyImage(String srcFilePath, String destFilePath, Context context)
@@ -5723,7 +5725,7 @@ public class Utils
 		 */
 		String srcFilePath = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT + "/" + msisdn + ".jpg";
 		String destFilePath = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT + "/" + mappedId + ".jpg";
-		Utils.copyFile(srcFilePath, destFilePath, null);
+		Utils.copyFile(srcFilePath, destFilePath, HikeFileType.IMAGE);
 
 		if (setIcon)
 		{
@@ -5737,7 +5739,7 @@ public class Utils
 			{
 				bytes = BitmapUtils.bitmapToBytes(smallerBitmap, Bitmap.CompressFormat.JPEG, 100);
 			}
-			ContactManager.getInstance().setIcon(mappedId, bytes, false);
+			ContactManager.getInstance().setIcon(mappedId, bytes, true);
 		}
 
 		return statusMessage;
