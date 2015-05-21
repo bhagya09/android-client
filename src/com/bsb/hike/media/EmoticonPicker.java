@@ -56,6 +56,7 @@ public class EmoticonPicker implements ShareablePopup, EmoticonPickerListener, O
 	{
 		this.mActivity = activity;
 		this.mEditText = editText;
+		this.currentConfig = activity.getResources().getConfiguration().orientation;
 	}
 
 	/**
