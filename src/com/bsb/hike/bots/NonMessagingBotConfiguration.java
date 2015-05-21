@@ -143,7 +143,7 @@ public class NonMessagingBotConfiguration extends BotConfiguration
 			/**
 			 * Note : This is a dummy icon. Will replace once I get proper assets
 			 */
-			return new OverFlowMenuItem(title, 0, isChecked ? R.drawable.ic_delete : 0, id, enabled);
+			return new OverFlowMenuItem(title, 0, isChecked ? com.bsb.hike.R.drawable.tick : com.bsb.hike.R.drawable.untick, id, enabled);
 		}
 		catch (JSONException e)
 		{
