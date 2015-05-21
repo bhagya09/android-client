@@ -643,7 +643,6 @@ public class IntentFactory
 
 	public static Intent getWebViewActivityIntent(Context context, String url, String title)
 	{
-
 		Intent intent = new Intent(context.getApplicationContext(), WebViewActivity.class);
 		intent.putExtra(HikeConstants.Extras.URL_TO_LOAD, url);
 

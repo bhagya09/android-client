@@ -1629,6 +1629,11 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 				{
 					onDeleteBlockClicked(conv);
 				}
+				
+				else if (getString(R.string.add_shortcut).equals(option))
+				{
+					onAddShortcutClicked(conv);
+				}
 			}
 		});	
 
@@ -1637,6 +1642,16 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		return true;
 	}
 
+
+	protected void onAddShortcutClicked(ConvInfo conv)
+	{
+		if (Utils.isBot(conv.getMsisdn()))
+		{
+			BotConversation.analyticsForBots(conv, HikePlatformConstants.BOT_ADD_SHORTCUT, AnalyticsConstants.CLICK_EVENT);
+		}
+		Utils.logEvent(getActivity(), HikeConstants.LogEvent.ADD_SHORTCUT);
+		Utils.createShortcut(getSherlockActivity(), conv);
+	}
 
 	protected void onDeleteBotClicked(final ConvInfo conv)
 	{
