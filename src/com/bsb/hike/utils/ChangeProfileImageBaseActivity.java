@@ -42,6 +42,7 @@ import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.StatusMessage;
 import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.tasks.DownloadImageTask;
 import com.bsb.hike.tasks.DownloadImageTask.ImageDownloadResult;
 import com.bsb.hike.tasks.FinishableEvent;
@@ -62,6 +63,8 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 	{
 		public HikeHTTPTask task; /* the task to update the global profile */
 
+		public RequestToken deleteStatusToken;
+		
 		public DownloadImageTask downloadPicasaImageTask; /*
 														 * the task to download the picasa image
 														 */
@@ -77,6 +80,10 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 		public boolean groupEditDialogShowing = false;
 
 		public String edittedGroupName = null;
+		
+		public String statusId;
+		
+		public StatusMessageType statusMsgType;
 	}
 
 	private ActivityState mActivityState;
