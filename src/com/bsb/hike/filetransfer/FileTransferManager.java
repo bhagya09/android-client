@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.lang.Thread.State;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -395,22 +396,34 @@ public class FileTransferManager extends BroadcastReceiver
 		task.setFutureTask(ft);
 		pool.execute(ft);
 	}
-
-	public void uploadLocation(String msisdn, double latitude, double longitude, int zoomLevel, boolean isRecipientOnhike)
+	
+	public void uploadFile(Uri picasaUri, HikeFileType hikeFileType, List<ContactInfo> msisdnList, boolean isRecipientOnHike)
 	{
 		if(taskOverflowLimitAchieved())
 			return;
+		if(hikeFileType != HikeFileType.IMAGE)
+		{
+			handler.post(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					Toast.makeText(context, R.string.unknown_msg, Toast.LENGTH_SHORT).show();
+				}
+			});
+			return;
+		}
 		
 		settings = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
 		String token = settings.getString(HikeMessengerApp.TOKEN_SETTING, null);
 		String uId = settings.getString(HikeMessengerApp.UID_SETTING, null);
-		UploadContactOrLocationTask task = new UploadContactOrLocationTask(handler, fileTaskMap, context, msisdn, latitude, longitude, zoomLevel, isRecipientOnhike, token, uId);
+		UploadFileTask task = new UploadFileTask(handler, fileTaskMap, context, token, uId, picasaUri, hikeFileType, msisdnList, isRecipientOnHike, FTAnalyticEvents.OTHER_ATTACHEMENT);
 		MyFutureTask ft = new MyFutureTask(task);
 		task.setFutureTask(ft);
 		pool.execute(ft);
 	}
 
-	public void uploadContact(String msisdn, JSONObject contactJson, boolean isRecipientOnhike)
+	public void uploadLocation(String msisdn, double latitude, double longitude, int zoomLevel, boolean isRecipientOnhike, boolean newConvIfnotExist)
 	{
 		if(taskOverflowLimitAchieved())
 			return;
@@ -418,7 +431,21 @@ public class FileTransferManager extends BroadcastReceiver
 		settings = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
 		String token = settings.getString(HikeMessengerApp.TOKEN_SETTING, null);
 		String uId = settings.getString(HikeMessengerApp.UID_SETTING, null);
-		UploadContactOrLocationTask task = new UploadContactOrLocationTask(handler, fileTaskMap, context, msisdn, contactJson, isRecipientOnhike, token, uId);
+		UploadContactOrLocationTask task = new UploadContactOrLocationTask(handler, fileTaskMap, context, msisdn, latitude, longitude, zoomLevel, isRecipientOnhike, token, uId,newConvIfnotExist);
+		MyFutureTask ft = new MyFutureTask(task);
+		task.setFutureTask(ft);
+		pool.execute(ft);
+	}
+
+	public void uploadContact(String msisdn, JSONObject contactJson, boolean isRecipientOnhike, boolean newConvIfnotExist)
+	{
+		if(taskOverflowLimitAchieved())
+			return;
+		
+		settings = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
+		String token = settings.getString(HikeMessengerApp.TOKEN_SETTING, null);
+		String uId = settings.getString(HikeMessengerApp.UID_SETTING, null);
+		UploadContactOrLocationTask task = new UploadContactOrLocationTask(handler, fileTaskMap, context, msisdn, contactJson, isRecipientOnhike, token, uId, newConvIfnotExist);
 		MyFutureTask ft = new MyFutureTask(task);
 		task.setFutureTask(ft);
 		pool.execute(ft);

@@ -18,7 +18,7 @@ public class IncomingCallListener extends BroadcastReceiver {
 		// EXTRA_STATE_RINGING can be called twice sometimes
 		if (TelephonyManager.EXTRA_STATE_RINGING.equals(state)) {
 			// We have an incoming call
-			if (VoIPService.isConnected()) {
+			if (VoIPService.getCallId() > 0) {
 				// We are in a call
 				// Put it on hold
 				Logger.d(VoIPConstants.TAG, "Detected incoming call. Putting VoIP on hold.");

@@ -11,6 +11,9 @@ import javax.net.SocketFactory;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLSocketFactory;
 
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.modules.httpmgr.log.LogFull;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.squareup.okhttp.Authenticator;
 import com.squareup.okhttp.Cache;
 import com.squareup.okhttp.CertificatePinner;
@@ -542,10 +545,16 @@ public class ClientOptions
 	 */
 	static ClientOptions getDefaultClientOptions()
 	{
+		int connectTimeout = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.OKHTTP_CONNECT_TIMEOUT, Defaults.CONNECT_TIMEOUT_MILLIS);
+		int readTimeout = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.OKHTTP_READ_TIMEOUT, Defaults.READ_TIMEOUT_MILLIS);
+		int writeTimeout = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.OKHTTP_WRITE_TIMEOUT, Defaults.WRITE_TIMEOUT_MILLIS);
+
+		LogFull.d("Connect Timeout : " + connectTimeout + "\n Read timeout : " + readTimeout + "\n Write timeout : " + writeTimeout);
+
 		ClientOptions defaultClientOptions = new ClientOptions.Builder()
-				.setConnectTimeout(Defaults.CONNECT_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)
-				.setReadTimeout(Defaults.CONNECT_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)
-				.setWriteTimeout(Defaults.WRITE_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)
+				.setConnectTimeout(connectTimeout, TimeUnit.MILLISECONDS)
+				.setReadTimeout(readTimeout, TimeUnit.MILLISECONDS)
+				.setWriteTimeout(writeTimeout, TimeUnit.MILLISECONDS)
 				.setSocketFactory(Defaults.SOCKET_FACTORY)
 				.setSslSocketFactory(Defaults.SSL_SOCKET_FACTORY)
 				.build();

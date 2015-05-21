@@ -1,7 +1,6 @@
 package com.bsb.hike;
 
 import java.io.File;
-
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
@@ -11,9 +10,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import com.bsb.hike.platform.PlatformUIDFetch;
-import com.bsb.hike.platform.content.PlatformContent;
 
 import org.acra.ACRA;
 import org.acra.ErrorReporter;
@@ -52,6 +48,7 @@ import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.notifications.HikeNotificationUtils;
 import com.bsb.hike.notifications.ToastListener;
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.PlatformUIDFetch;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.service.HikeService;
@@ -175,6 +172,8 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	public static final String COUNTRY_CODE = "countryCode";
 
 	public static final String FILE_PATH = "filePath";
+	
+	public static final String FILE_PATHS = "multi_filepaths";
 
 	public static final String TEMP_NAME = "tempName";
 
@@ -273,6 +272,8 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	public static final String SHOWN_SMS_SYNC_POPUP = "shownSMSSyncPopup";
 
 	public static final String SERVER_TIME_OFFSET = "serverTimeOffset";
+	
+	public static final String SERVER_TIME_OFFSET_MSEC = "serverTimeOffsetInMsec";
 
 	public static final String SHOWN_EMOTICON_TIP = "shownEmoticonTip1";
 	
@@ -986,17 +987,12 @@ public void onTrimMemory(int level)
 		return cache;
 	}
 
-	private static ContactManager conMgr;
-
 	private void initContactManager()
 	{
-		conMgr = ContactManager.getInstance();
-		conMgr.init(getApplicationContext());
-	}
-	
-	public static ContactManager getContactManager()
-	{
-		return conMgr;
+		/*
+		 * Contact Manager getInstance will initialize contact manager if already not initialized and returns the ContactManager's instance
+		 */
+		ContactManager.getInstance();
 	}
 
 	private void makeNoMediaFiles()

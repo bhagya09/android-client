@@ -51,6 +51,8 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 	
 	private static final String TAG = "StickerPicker";
 	
+	private ViewPager mViewPager;
+	
 	private static boolean refreshStickers = false;
 
 	/**
@@ -142,6 +144,7 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 		}
 		
 		initView();
+		addAdaptersToViews();
 
 		popUpLayout.showKeyboardPopup(viewToDisplay);
 	}
@@ -174,7 +177,7 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 	 */
 	private void initViewComponents(View view)
 	{
-		ViewPager mViewPager = ((ViewPager) view.findViewById(R.id.sticker_pager));
+		mViewPager = ((ViewPager) view.findViewById(R.id.sticker_pager));
 
 		if (null == mViewPager)
 		{
@@ -192,12 +195,6 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 		handleStickerIntro(view);		
 
 		mViewPager.setVisibility(View.VISIBLE);
-
-		mViewPager.setAdapter(stickerAdapter);
-
-		mIconPageIndicator.setViewPager(mViewPager);
-
-		mIconPageIndicator.setOnPageChangeListener(onPageChangeListener);
 	}
 
 	/**
@@ -226,22 +223,51 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 		
 		if (viewToDisplay == null)
 		{
+			/**
+			 * Defensive null check
+			 */
+			if (mContext == null)
+			{
+				String errorMsg = "Inside method : getView of StickerPicker. Context is null";
+				HAManager.sendStickerEmoticonStrangeBehaviourReport(errorMsg);
+				return null;
+			}
+				
 			initView();
 		}
 		
-		/**
-		 * If this variable is set to true, then we refresh the dataset for stickers. This would happen when we download new packs from shop or we update stickers from sticker
-		 * settings page
-		 */
-		if (refreshStickers)
-		{
-			mIconPageIndicator.notifyDataSetChanged();
-			stickerAdapter.notifyDataSetChanged();
-		}
+		// Commenting it out. This is to be uncommented if we move to caching strategy later on. 
+		
+//		/**
+//		 * If this variable is set to true, then we refresh the dataset for stickers. This would happen when we download new packs from shop or we update stickers from sticker
+//		 * settings page
+//		 */
+//		if (refreshStickers)
+//		{
+//			mIconPageIndicator.notifyDataSetChanged();
+//			stickerAdapter.notifyDataSetChanged();
+//		}
 
-		refreshStickers = false;
+//		refreshStickers = false;
+		
+		addAdaptersToViews();
 		
 		return viewToDisplay;
+	}
+	
+	private void addAdaptersToViews()
+	{
+		mViewPager.setAdapter(stickerAdapter);
+
+		mViewPager.setCurrentItem(0, false);
+
+		mIconPageIndicator.setViewPager(mViewPager);
+
+		mIconPageIndicator.setOnPageChangeListener(onPageChangeListener);
+
+		mIconPageIndicator.setCurrentItem(0);
+
+		mIconPageIndicator.notifyDataSetChanged();
 	}
 
 	public boolean isShowing()
@@ -322,12 +348,21 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 	{
 		this.mContext = null;
 		this.listener = null;
+		if (stickerAdapter != null)
+		{
+			stickerAdapter.unregisterListeners();
+		}
+
 	}
 	
 	public void updateListener(StickerPickerListener mListener, Context context)
 	{
 		this.listener = mListener;
 		this.mContext = context;
+		if (stickerAdapter != null)
+		{
+			stickerAdapter.registerListener();
+		}
 	}
 	
 	private void updateStickerAdapter()
@@ -351,7 +386,7 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 			}
 		}
 	}
-
+	
 	private void updateIconPageIndicator()
 	{
 		if (mIconPageIndicator != null)
@@ -441,14 +476,6 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 	private boolean orientationChanged(int deviceOrientation)
 	{
 		return currentConfig != deviceOrientation;
-	}
-
-	public void resetToFirstPosition()
-	{
-		if (mIconPageIndicator != null)
-		{
-			mIconPageIndicator.setCurrentItem(0);
-		}
 	}
 
 	/**

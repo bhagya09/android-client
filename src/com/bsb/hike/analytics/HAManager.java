@@ -13,10 +13,13 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.analytics.AnalyticsConstants.AppOpenSource;
+import com.bsb.hike.media.ShareablePopup;
+import com.bsb.hike.media.ShareablePopupLayout;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
@@ -243,7 +246,8 @@ public class HAManager
 			throw new NullPointerException("Type and Context of event cannot be null.");
 		}
 		eventsList.add(generateAnalticsJson(type, eventContext, priority, metadata, tag));
-
+		Logger.d(AnalyticsConstants.ANALYTICS_TAG, metadata.toString());
+		
 		if (eventsList.size() >= maxInMemorySize) 
 		{			
 			// clone a local copy and send for writing
@@ -461,13 +465,13 @@ public class HAManager
 	{		
 		JSONObject json = new JSONObject();
 		JSONObject data = new JSONObject();
-		
 		try 
 		{
 			data.put(AnalyticsConstants.EVENT_TYPE, type);				
 			data.put(AnalyticsConstants.EVENT_SUB_TYPE, eventContext);
 			data.put(AnalyticsConstants.EVENT_PRIORITY, priority);
-			data.put(AnalyticsConstants.CURRENT_TIME_STAMP, System.currentTimeMillis());
+			long ts = Utils.applyOffsetToMakeTimeServerSync(context, System.currentTimeMillis());
+			data.put(AnalyticsConstants.CURRENT_TIME_STAMP, ts);
 			data.put(AnalyticsConstants.EVENT_TAG, tagValue);
 
 			if(metadata == null)
@@ -624,6 +628,42 @@ public class HAManager
 		fgSessionInstance.setConvType(convType);
 	}
 	
+	public void shareWhatsappAnalytics(String shrType, String catId, String stkrId, String path)
+	{
+		JSONObject metadata = new JSONObject();
+		try
+		{
+			metadata.put(HikeConstants.Extras.SHARE_TYPE, shrType);
+			metadata.put(HikeConstants.Extras.CATEGORYID, catId);
+			metadata.put(HikeConstants.Extras.STICKERID, stkrId);
+			metadata.put(HikeConstants.Extras.PATH, path);
+			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.Extras.WHATSAPP_SHARE);
+			record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+
+	}
+
+	public void shareWhatsappAnalytics(String shr)
+	{
+		JSONObject metadata = new JSONObject();
+
+		try
+		{
+			metadata.put(HikeConstants.Extras.SHARE_TYPE, shr);
+			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.Extras.WHATSAPP_SHARE);
+			record(AnalyticsConstants.UI_EVENT, HikeConstants.LogEvent.CLICK, EventPriority.HIGH, metadata);
+
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+	}
+		
 	public void setAppOpenSource(String appOpenSource)
 	{
 		fgSessionInstance.setAppOpenSource(appOpenSource);
@@ -838,6 +878,25 @@ public class HAManager
 		try
 		{
 			error.put(StickerManager.STICKER_ERROR_LOG, errorMsg);
+			HAManager.getInstance().record(AnalyticsConstants.DEV_EVENT, AnalyticsConstants.STICKER_PALLETE, EventPriority.HIGH, error);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * Used for logging sticker/emoticon weird behaviours
+	 * 
+	 * @param errorMsg
+	 */
+	public static void sendStickerEmoticonStrangeBehaviourReport(String errorMsg)
+	{
+		JSONObject error = new JSONObject();
+		try
+		{
+			error.put(ShareablePopupLayout.TAG, errorMsg);
 			HAManager.getInstance().record(AnalyticsConstants.DEV_EVENT, AnalyticsConstants.STICKER_PALLETE, EventPriority.HIGH, error);
 		}
 		catch (JSONException e)

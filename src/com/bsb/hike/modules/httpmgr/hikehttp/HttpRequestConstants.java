@@ -126,4 +126,19 @@ public class HttpRequestConstants
 	{
 		return BASE_PLATFORM_URL  + BASE_USER +  BASE_V1 + BASE_ADDRESS_BOOK_READ;
 	}
+
+	public static String sendDeviceDetailBaseUrl()
+	{
+		return BASE_URL + BASE_V1 + BASE_ACCOUNT + "/device";
+	}
+
+	public static String preActivationBaseUrl()
+	{
+		return BASE_URL + BASE_V1 + "/pa";
+	}
+	
+	public static String updateAddressbookBaseUrl()
+	{
+		return BASE_URL + BASE_V1 + BASE_ACCOUNT + "/addressbook-update";
+	}
 }

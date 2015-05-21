@@ -20,6 +20,7 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.ui.PeopleActivity;
 import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.ui.StatusUpdate;
@@ -70,6 +71,7 @@ public class ConversationTip implements OnClickListener
 	public interface ConversationTipClickedListener
 	{
 		public void closeTip(int whichTip);
+		public void clickTip(int whichTip);
 	}
 
 	private ConversationTipClickedListener mListener;
@@ -101,6 +103,7 @@ public class ConversationTip implements OnClickListener
 		case RESET_STEALTH_TIP:
 			v = inflater.inflate(R.layout.stealth_ftue_conversation_tip, null, false);
 			v.findViewById(R.id.close).setOnClickListener(this);
+			v.findViewById(R.id.full_tip).setOnClickListener(this);
 			TextView headerText = (TextView) v.findViewById(R.id.tip);
 			long remainingTime = HikeConstants.RESET_COMPLETE_STEALTH_TIME_MS
 					- (System.currentTimeMillis() - HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.RESET_COMPLETE_STEALTH_START_TIME, 0l));
@@ -147,7 +150,7 @@ public class ConversationTip implements OnClickListener
 			((TextView) v.findViewById(R.id.tip_header)).setText(headerTxt);
 			((TextView) v.findViewById(R.id.tip_msg)).setText(msgTxt);
 			v.findViewById(R.id.close_tip).setOnClickListener(this);
-			v.findViewById(R.id.close_container).setOnClickListener(this);
+			v.findViewById(R.id.all_content).setOnClickListener(this);
 			return v;
 
 		case ATOMIC_PROFILE_PIC_TIP:
@@ -303,12 +306,22 @@ public class ConversationTip implements OnClickListener
 	public void onClick(View v)
 	{
 
-		if (v.getId() == R.id.all_content)
+		if (v.getId() == R.id.all_content || v.getId() == R.id.full_tip)
 		{
 			switch (tipType)
 			{
 			case STEALTH_UNREAD_TIP:
 				HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_UNREAD_TIP_CLICKED, null);
+				if (mListener != null)
+				{
+					mListener.closeTip(tipType);
+				}
+				break;
+			case RESET_STEALTH_TIP:
+				if (mListener != null)
+				{
+					mListener.clickTip(tipType);
+				}
 				break;
 
 			case ATOMIC_PROFILE_PIC_TIP:
@@ -322,6 +335,7 @@ public class ConversationTip implements OnClickListener
 			default:
 				break;
 			}
+			
 		}
 
 		if (v.getId() == R.id.close_tip || v.getId() == R.id.close)

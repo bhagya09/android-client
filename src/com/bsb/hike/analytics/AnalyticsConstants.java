@@ -63,6 +63,10 @@ public class AnalyticsConstants
 	public static String VIEW_EVENT = "view";
 
 	public static String ERROR_EVENT = "error";
+	
+	public static String LOG_KEY = "logs";
+	
+	public static String PHOTOS_ERROR_EVENT = "ph_er";
 
     public static String MICROAPP_UI_EVENT = "muiEvent";
 
@@ -270,11 +274,11 @@ public class AnalyticsConstants
 	
 	public static final String MSG_REL_CONST_STR = "ek";
 	
+	public static final String APP_VERSION_NAME = "app_ver";
+	
 	public static final class MsgRelEventType
 	{
 		public static final String SEND_BUTTON_CLICKED = "1";
-
-		public static final String SENDER_FIRE_MSG_SENT_PUBSUB = "1.1";
 
 		public static final String DB_ADD_TRANSACTION_COMPLETED = "1.2";
 		
@@ -288,8 +292,6 @@ public class AnalyticsConstants
 
 		public static final String DR_SHOWN_AT_SENEDER_SCREEN = "4";
 		
-		public static final String GOING_TO_CALL_MR_SAVE_API = "4.1";
-
 		public static final String MR_SHOWN_AT_SENEDER_SCREEN = "5";
 
 		public static final String SENDER_MQTT_RECV_SENDING_MSG = "5.9";
@@ -301,8 +303,6 @@ public class AnalyticsConstants
 		public static final String DR_RECEIVED_AT_SENEDER_MQTT = "13.1";
 
 		public static final String RECEIVER_MQTT_RECV_MR_FROM_RECEIVER = "13.9";
-
-		public static final String MR_RECEIVED_AT_SENEDER_MQTT = "17.1";
 
 		public static final String RECIEVR_RECV_MSG = "18";
 

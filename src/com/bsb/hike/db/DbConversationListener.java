@@ -38,7 +38,12 @@ import com.bsb.hike.models.MultipleConvMessage;
 import com.bsb.hike.models.Protip;
 import com.bsb.hike.models.StatusMessage;
 import com.bsb.hike.models.StatusMessage.StatusMessageType;
+import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.models.Conversation.Conversation;
+import com.bsb.hike.models.Conversation.ConversationTip;
+import com.bsb.hike.models.Conversation.GroupConversation;
+import com.bsb.hike.models.Conversation.OneToNConversation;
+import com.bsb.hike.models.Conversation.OneToOneConversation;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.HikeSDKMessageFilter;
@@ -93,7 +98,9 @@ public class DbConversationListener implements Listener
 		mPubSub.addListener(HikePubSub.MULTI_MESSAGE_SENT, this);
 		mPubSub.addListener(HikePubSub.MULTI_FILE_UPLOADED, this);
 		mPubSub.addListener(HikePubSub.HIKE_SDK_MESSAGE, this);
-		mPubSub.addListener(HikePubSub.CONVERSATION_TS_UPDATED, this);		
+		mPubSub.addListener(HikePubSub.CONVERSATION_TS_UPDATED, this);	
+		mPubSub.addListener(HikePubSub.GROUP_LEFT, this);
+		mPubSub.addListener(HikePubSub.DELETE_THIS_CONVERSATION, this);
 	}
 
 	@Override
@@ -108,8 +115,6 @@ public class DbConversationListener implements Listener
 				mConversationDb.updateMessageMetadata(convMessage.getMsgID(), convMessage.getMetadata());
 				
 				// Adding Logs for Message Reliability
-				Logger.d(AnalyticsConstants.MSG_REL_TAG, "===========================================");
-				Logger.d(AnalyticsConstants.MSG_REL_TAG, "DB Transaction completed");
 				MsgRelLogManager.logMsgRelEvent(convMessage, MsgRelEventType.DB_UPDATE_TRANSACTION_COMPLETED);
 			}
 			else
@@ -119,8 +124,6 @@ public class DbConversationListener implements Listener
 					mConversationDb.addConversationMessages(convMessage,true);
 				
 					// Adding Logs for Message Reliability
-					Logger.d(AnalyticsConstants.MSG_REL_TAG, "===========================================");
-					Logger.d(AnalyticsConstants.MSG_REL_TAG, "DB Transaction completed");
 					MsgRelLogManager.logMsgRelEvent(convMessage, MsgRelEventType.DB_ADD_TRANSACTION_COMPLETED);
 					
 					if (convMessage.isSent())
@@ -438,6 +441,18 @@ public class DbConversationListener implements Listener
 			String msisdn = p.first;
 			long timestamp = p.second;
 			boolean isUpdated = mConversationDb.updateSortingTimestamp(msisdn, timestamp);
+		}
+		else if(HikePubSub.GROUP_LEFT.equals(type) || HikePubSub.DELETE_THIS_CONVERSATION.equals(type))
+		{
+			ConvInfo convInfo = (ConvInfo) object;
+			String msisdn = convInfo.getMsisdn();
+			Editor editor = context.getSharedPreferences(HikeConstants.DRAFT_SETTING, Context.MODE_PRIVATE).edit();
+			editor.remove(msisdn);
+			editor.commit();
+
+			HikeConversationsDatabase.getInstance().deleteConversation(msisdn);;				
+			ContactManager.getInstance().removeContacts(msisdn);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.CONVERSATION_DELETED, convInfo);
 		}
 	}
 
