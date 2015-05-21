@@ -180,6 +180,7 @@ import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.http.HikeHttpRequest;
 import com.bsb.hike.models.AccountData;
+import com.bsb.hike.models.AccountInfo;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.ContactInfoData;
@@ -212,7 +213,6 @@ import com.bsb.hike.ui.SignupActivity;
 import com.bsb.hike.ui.TimelineActivity;
 import com.bsb.hike.ui.WebViewActivity;
 import com.bsb.hike.ui.WelcomeActivity;
-import com.bsb.hike.utils.AccountUtils.AccountInfo;
 import com.bsb.hike.voip.VoIPUtils;
 import com.google.android.gms.maps.model.LatLng;
 
@@ -401,6 +401,10 @@ public class Utils
 			}
 		}
 
+		if( !mediaStorageDir.isDirectory() && mediaStorageDir.canWrite() ){
+			mediaStorageDir.delete();
+			mediaStorageDir.mkdirs();
+		}
 		// File name should only be blank in case of profile images or while
 		// capturing new media.
 		if (TextUtils.isEmpty(orgFileName))
@@ -410,7 +414,17 @@ public class Utils
 
 		// String fileName = getUniqueFileName(orgFileName, fileKey);
 
-		return new File(mediaStorageDir, orgFileName);
+		/*
+		 * Changes done to fix the issue where some users are getting FileNotFoundEXception while creating file.
+		 */
+		File mFile = new File(mediaStorageDir, orgFileName);
+		try {
+			mFile.createNewFile();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return mFile;
 	}
 
 	public static String getOriginalFile(HikeFileType type, String orgFileName)
@@ -558,16 +572,16 @@ public class Utils
 
 	public static void savedAccountCredentials(AccountInfo accountInfo, SharedPreferences.Editor editor)
 	{
-		AccountUtils.setToken(accountInfo.token);
-		AccountUtils.setUID(accountInfo.uid);
-		editor.putString(HikeMessengerApp.MSISDN_SETTING, accountInfo.msisdn);
-		editor.putString(HikeMessengerApp.TOKEN_SETTING, accountInfo.token);
-		editor.putString(HikeMessengerApp.UID_SETTING, accountInfo.uid);
-		editor.putString(HikeMessengerApp.BACKUP_TOKEN_SETTING, accountInfo.backupToken);
-		editor.putInt(HikeMessengerApp.SMS_SETTING, accountInfo.smsCredits);
-		editor.putInt(HikeMessengerApp.INVITED, accountInfo.all_invitee);
-		editor.putInt(HikeMessengerApp.INVITED_JOINED, accountInfo.all_invitee_joined);
-		editor.putString(HikeMessengerApp.COUNTRY_CODE, accountInfo.country_code);
+		AccountUtils.setToken(accountInfo.getToken());
+		AccountUtils.setUID(accountInfo.getUid());
+		editor.putString(HikeMessengerApp.MSISDN_SETTING, accountInfo.getMsisdn());
+		editor.putString(HikeMessengerApp.TOKEN_SETTING, accountInfo.getToken());
+		editor.putString(HikeMessengerApp.UID_SETTING, accountInfo.getUid());
+		editor.putString(HikeMessengerApp.BACKUP_TOKEN_SETTING, accountInfo.getBackUpToken());
+		editor.putInt(HikeMessengerApp.SMS_SETTING, accountInfo.getSmsCredits());
+		editor.putInt(HikeMessengerApp.INVITED, accountInfo.getAllInvitee());
+		editor.putInt(HikeMessengerApp.INVITED_JOINED, accountInfo.getAllInviteeJoined());
+		editor.putString(HikeMessengerApp.COUNTRY_CODE, accountInfo.getCountryCode());
 		editor.commit();
 	}
 
