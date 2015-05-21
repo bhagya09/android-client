@@ -593,7 +593,7 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
         	if(isReset)
             {
         		changePasswordSetting.setEnabled(false);
-        		setAlphaForView(changePasswordSetting, 0.1f);
+        		setAlphaForView(changePasswordSetting, 0.0f);
             }
         	changePasswordSetting.setText(getString(R.string.change_password_from_privacy));
         	changePasswordSetting.setOnClickListener(new View.OnClickListener()
@@ -1236,7 +1236,7 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
                     doCheckAndCreatePin(mLockPinView.getText().toString());
                 	changeRetryToCancel();
                 	changePasswordSetting.setEnabled(false);
-                	setAlphaForView(changePasswordSetting, 0.1f);
+                	setAlphaForView(changePasswordSetting, 0.0f);
                     mBtnOkCmd = ButtonOkCommand.DONE;
                     mLockPatternView.clearPattern();
                     mLockPinView.setText("");
