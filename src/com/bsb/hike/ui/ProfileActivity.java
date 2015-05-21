@@ -534,7 +534,8 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		case CONTACT_INFO:
 			if(HikeMessengerApp.hikeBotNamesMap.containsKey(contactInfo.getMsisdn()))
 			{
-				return false;  /*No need to show menu for HikeBots.*/
+				menu.clear();
+				return true; 
 			}
 			else
 			{
