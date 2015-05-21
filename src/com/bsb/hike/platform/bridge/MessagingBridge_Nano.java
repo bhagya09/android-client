@@ -27,8 +27,8 @@ import com.bsb.hike.utils.Utils;
  * API bridge that connects the javascript to the Native environment. Make the instance of this class and add it as the JavaScript interface of the Card WebView.
  * This class caters Platform Bridge version 0
  * 
- * @platformBridgeStart=0
- * @platformBridgeEnd=0
+ * Platform Bridge Version Start = 0
+ * Platform Bridge Version End = 0
  */
 
 public class MessagingBridge_Nano extends JavascriptBridge
@@ -66,6 +66,7 @@ public class MessagingBridge_Nano extends JavascriptBridge
 
 
 	/**
+	 * Platform Bridge Version 0.
 	 * Call this function to log analytics events.
 	 *
 	 * @param isUI    : whether the event is a UI event or not. This is a string. Send "true" or "false".
@@ -129,6 +130,7 @@ public class MessagingBridge_Nano extends JavascriptBridge
 	
 
 	/**
+	 * Platform Bridge Version 0
 	 * calling this method will forcefully mute the chat thread. The user won't receive any more
 	 * notifications after calling this.
 	 */
@@ -141,6 +143,7 @@ public class MessagingBridge_Nano extends JavascriptBridge
 	}
 
 	/**
+	 * Platform Bridge Version 0
 	 * calling this method will forcefully block the chat thread. The user won't see any messages in the
 	 * chat thread after calling this.
 	 */
@@ -150,6 +153,9 @@ public class MessagingBridge_Nano extends JavascriptBridge
 		HikeMessengerApp.getPubSub().publish(HikePubSub.BLOCK_USER, message.getMsisdn());
 	}
 
+	/**
+	 * Platform Bridge Version 0
+	 */
 	@JavascriptInterface
 	public void share()
 	{
@@ -163,10 +169,7 @@ public class MessagingBridge_Nano extends JavascriptBridge
 		this.listener = listener;
 	}
 	
-	/**
-	 * Update this conv message on java bridge thread
-	 * @param message
-	 */
+
 	public void updateConvMessage(ConvMessage message)
 	{
 			this.message = message;
@@ -180,6 +183,7 @@ public class MessagingBridge_Nano extends JavascriptBridge
 
 	
 	/**
+	 * Platform Bridge Version 0.
 	 * Calling this function will initiate forward of the message to a friend or group.
 	 *
 	 * @param json : if the data has changed , then send the updated fields and it will update the metadata.
@@ -212,6 +216,7 @@ public class MessagingBridge_Nano extends JavascriptBridge
 	}
 	
 	/**
+	 * Platform Bridge Version 0
 	 * This function is called whenever the onLoadFinished of the html is called. This function calling is MUST.
 	 * This function is also used for analytics purpose.
 	 *
@@ -280,6 +285,7 @@ public class MessagingBridge_Nano extends JavascriptBridge
 	}
 
 	/**
+	 * Platform Bridge Version 0
 	 * call this function to delete the message. The message will get deleted instantaneously
 	 */
 	@JavascriptInterface
@@ -289,6 +295,7 @@ public class MessagingBridge_Nano extends JavascriptBridge
 	}
 	
 	/**
+	 * Platform Bridge Version 0
 	 * Call this function to set the alarm at certain time that is defined by the second parameter.
 	 * The first param is a json that contains
 	 * 1.alarm_data: the data that the javascript receives when the alarm is played.
@@ -313,6 +320,7 @@ public class MessagingBridge_Nano extends JavascriptBridge
 
 	
 	/**
+	 * Platform Bridge Version 0
 	 * this function will update the helper data. It will replace the key if it is present in the helper data and will add it if it is
 	 * not present in the helper data.
 	 *
@@ -330,6 +338,7 @@ public class MessagingBridge_Nano extends JavascriptBridge
 	}
 	
 	/**
+	 * Platform bridge Version 0
 	 * calling this function will delete the alarm associated with this javascript.
 	 */
 	@JavascriptInterface
@@ -340,6 +349,7 @@ public class MessagingBridge_Nano extends JavascriptBridge
 
 	
 	/**
+	 * Platform Bridge Version 0
 	 * Calling this function will update the metadata. If the key is already present, it will be replaced else it will be added to the existent metadata.
 	 * If the json has JSONObject as key, there would be another round of iteration, and will replace the key-value pair if the key is already present
 	 * and will add the key-value pair if the key is not present in the existent metadata.

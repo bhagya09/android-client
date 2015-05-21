@@ -14,17 +14,16 @@ import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.WebMetadata;
 import com.bsb.hike.utils.Logger;
 
-
 /**
- * This class was introduced to cater platform bridge version 1 onwards. We have introduced message id and platform version concept here.
+ * This class was introduced to cater platform bridge Platform Bridge Version 1 onwards. We have introduced message id and platform Platform Bridge Version concept here.
  * 
- *  Now all communication between micro app and js bridge is made after message id version check
+ *  Now all communication between micro app and js bridge is made after message id Platform Bridge Version check
  *  
  *  We share message id with micro app during moustache templating 
  *
  *
- *  @platformBridgeStart=0
- *  @platformBridgeEnd= ~
+ *  Platform Bridge Version Start = 0
+ *  Platform Bridge Version End = ~
  */
 public class MessagingBridge_Alto extends MessagingBridge_Nano
 {
@@ -48,7 +47,7 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	private void notAllowedMethodCalled(String methodName)
 	{
 		//Logger.e(tag, "Native Error Not Allowed Methid called : "+methodName);
-		mWebView.loadUrl("javascript:nativeError('" + methodName + " is not allowed to call in this version')");
+		mWebView.loadUrl("javascript:nativeError('" + methodName + " is not allowed to call in this Platform Bridge Version')");
 	}
 	
 	private boolean isCorrectMessage(String messageId,String function)
@@ -69,7 +68,8 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 
 	/**
 	 * @deprecated
-	 * VERSION 0
+	 *
+	 * Platform Bridge Version 0
 	 */
 	@Override
 	@JavascriptInterface
@@ -79,7 +79,7 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	}
 	
 	/**
-	 * VERSION 1
+	 * Platform Bridge Version 1
 	 * calling this function will delete the alarm associated with this javascript.
 	 * @param messageId for which you want to delete alarm
 	 */
@@ -92,7 +92,7 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	
 	/**
 	 * @deprecated
-	 * VERSION 0
+	 * Platform Bridge Version 0
 	 */
 	@Override
 	@JavascriptInterface
@@ -102,7 +102,7 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	}
 	
 	/**
-	 * VERSION 1
+	 * Platform Bridge Version 1
 	 *	Calling this function will initiate forward of the message to a friend or group.
 	 * @param messageId : to validate whether you are forwarding the proper message
 	 * @param json : if the data has changed , then send the updated fields and it will update the metadata.
@@ -120,7 +120,7 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	}
 
 	/**
-	 * VERSION 1
+	 * Platform Bridge Version 1
 	 * call this function to get the data from the native memory
 	 * @param messageId: to validate whether you are getting cache data for proper message
 	 * @param id: the id of the function that native will call to call the js .
@@ -139,7 +139,7 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 
 	
 	/**
-	 * VERSION 1
+	 * Platform Bridge Version 1
 	 * Call this function to get the bulk large data from the native memory
 	 * @param messageId: : : to validate whether you are getting bulk cache data for proper message
 	 * @param id : the id of the function that native will call to call the js .
@@ -154,7 +154,7 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	}
 
 	/**
-	 * VERSION 0
+	 * Platform Bridge Version 0
 	 * @deprecated
 	 * @param height : The height of the loaded content
 	 */
@@ -166,7 +166,7 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	}
 
 	/**
-	 * VERSION 1
+	 * Platform Bridge Version 1
 	 * This function is called whenever the onLoadFinished of the html is called. This function calling is MUST.
 	 * @param messageId : : : : to validate whether you are calling the function for proper message
 	 * @param height : The height of the loaded content
@@ -205,7 +205,7 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 
 	
 	/**
-	 * VERSION 1
+	 * Platform Bridge Version 1
 	 * Call this method to put data in cache. This will be a key-value pair. A microapp can have different key-value pairs
 	 * in the native's cache.
 	 * @param key: key of the data to be saved. Microapp needs to make sure about the uniqueness of the key.
@@ -218,7 +218,7 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	}
 
 	/**
-	 * VERSION 1
+	 * Platform Bridge Version 1
 	 * Call this method to put bulk large data in cache. Earlier large data will be replaced by this new data and there will
 	 * be only one entry per microapp.
 	 * @param value: the data that the app need to cache.
@@ -231,7 +231,7 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	}
 
 	/**
-	 * VERSION 0
+	 * Platform Bridge Version 0
 	 * @deprecated
 	 */
 	@Override
@@ -242,7 +242,7 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	}
 
 	/**
-	 * VERSION 1
+	 * Platform Bridge Version 1
 	 * Call this function to set the alarm at certain time that is defined by the second parameter.
 	 * The first param is a json that contains
 	 * 1.alarm_data: the data that the javascript receives when the alarm is played.
@@ -265,7 +265,7 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 
 
 	/**
-	 * VERSION 0
+	 * Platform Bridge Version 0
 	 * @deprecated
 	 */
 	@Override
@@ -276,7 +276,7 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	}
 
 	/**
-	 * VERSION 1
+	 * Platform Bridge Version 1
 	 * Whenever the content's height is changed, the html will call this function to resize the height of the Android Webview.
 	 * Calling this function is MUST, whenever the height of the content changes.
 	 * @param messageId : : to validate whether you are calling the function for the proper message
@@ -293,7 +293,7 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	
 	
 	/**
-	 * VERSION 0
+	 * Platform Bridge Version 0
 	 * @deprecated
 	 */
 	@Override
@@ -304,7 +304,7 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	}
 
 	/**
-	 * VERSION 1
+	 * Platform Bridge Version 1
 	 * call this function to delete the message. The message will get deleted instantaneously
 	 * @param messageId
 	 */
@@ -315,7 +315,7 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	}
 
 	/**
-	 * VERSION 0
+	 * Platform Bridge Version 0
 	 * @deprecated
 	 */
 	@Override
@@ -326,7 +326,7 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	}
 
 	/**
-	 * VERSION 1
+	 * Platform Bridge Version 1
 	 * @param messageId
 	 */
 	@JavascriptInterface
@@ -340,7 +340,7 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	
 	
 	/**
-	 * VERSION 0
+	 * Platform Bridge Version 0
 	 * @deprecated
 	 */
 	@Override
@@ -351,7 +351,7 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	}
 
 	/**
-	 * VERSION 1
+	 * Platform Bridge Version 1
 	 * calling this function will share the screenshot of the webView along with the text at the top and a caption text
 	 * to all social network platforms by calling the system's intent.
 	 * @param messageId : to validate whether sharing for proper message
@@ -369,7 +369,7 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 
 
 	/**
-	 * VERSION 0
+	 * Platform Bridge Version 0
 	 * @deprecated
 	 * @param json :
 	 */
@@ -381,7 +381,7 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	}
 
 	/**
-	 * VERSION 1
+	 * Platform Bridge Version 1
 	 * this function will update the helper data. It will replace the key if it is present in the helper data and will add it if it is
 	 * not present in the helper data.
 	 * @param messageId : the message id to validate whether updating helper data for proper message.
@@ -398,7 +398,7 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	}
 	
 	/**
-	 * VERSION 0
+	 * Platform Bridge Version 0
 	 * @deprecated
 	 */
 	@Override
@@ -409,7 +409,7 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	}
 
 	/**
-	 * VERSION 1
+	 * Platform Bridge Version 1
 	 * @param messageId
 	 * @param json
 	 * @param notifyScreen
@@ -425,7 +425,7 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	}
 	
 	/**
-	 * VERSION 0
+	 * Platform Bridge Version 0
 	 * @deprecated
 	 */
 	@Override
@@ -436,13 +436,14 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	}
 
 	/**
-	 * VERSION 1
+	 * Platform Bridge Version 1
 	 * Call this function to log analytics events.
 	 * @param messageId: : to validate whether you are logging for proper message
 	 * @param isUI    : whether the event is a UI event or not. This is a string. Send "true" or "false".
 	 * @param subType : the subtype of the event to be logged, eg. send "click", to determine whether it is a click event.
 	 * @param json    : any extra info for logging events, including the event key that is pretty crucial for analytics.
 	 */
+
 	@JavascriptInterface
 	public void logAnalytics(String messageId,String isUI, String subType, String json)
 	{
