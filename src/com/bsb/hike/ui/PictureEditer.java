@@ -263,7 +263,6 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 		super.onResume();
 		overridePendingTransition(R.anim.fade_in_animation, R.anim.fade_out_animation);
 		editView.enable();
-		finishProgress();
 	}
 	
 	private void finishProgress()
@@ -392,7 +391,6 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 			switch (requestCode)
 			{
 			case HikeConstants.CROP_RESULT:
-				finishProgress();
 				uploadProfilePic(data.getStringExtra(MediaStore.EXTRA_OUTPUT), data.getStringExtra(HikeConstants.HikePhotos.ORIG_FILE));
 				break;
 			}
@@ -560,6 +558,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 										@Override
 										public void onComplete(File f)
 										{
+											finishProgress();
 											Intent forwardIntent = IntentFactory.getForwardImageIntent(mContext, f);
 											forwardIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 											startActivity(forwardIntent);
@@ -618,7 +617,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 				@Override
 				public void onFailure()
 				{
-					// Do nothing
+					finishProgress();
 				}
 
 				@Override
@@ -630,6 +629,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 				@Override
 				public void onComplete(File f)
 				{
+					finishProgress();
 					startActivityForResult(IntentFactory.getCropActivityIntent(PictureEditer.this, f.getAbsolutePath(), f.getAbsolutePath(), true, 100, true), HikeConstants.CROP_RESULT);
 				}
 			});
