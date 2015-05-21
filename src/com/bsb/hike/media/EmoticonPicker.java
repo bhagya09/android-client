@@ -339,4 +339,11 @@ public class EmoticonPicker implements ShareablePopup, EmoticonPickerListener, O
 		return currentConfig != deviceOrientation;
 	}
 	
+	public void setOnDismissListener(PopupListener listener)
+	{
+		if (mPopUpLayout != null)
+		{
+			mPopUpLayout.setPopupDismissListener(listener);
+		}
+	}
 }
