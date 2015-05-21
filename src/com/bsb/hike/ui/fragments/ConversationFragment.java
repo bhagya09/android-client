@@ -1272,8 +1272,6 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
         	{
         		optionsList.add(getString(R.string.add_shortcut));
         		
-        		optionsList.add(getString(R.string.delete));
-        		
         		optionsList.add(getString(R.string.delete_block));
         	}
         	
@@ -1617,14 +1615,6 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 					HikeMessengerApp.getPubSub().publish(HikePubSub.UNBLOCK_USER, conv.getMsisdn());
 				}
 				
-				/**
-				 * Delete non messaging bot
-				 */
-				else if(getString(R.string.delete).equals(option))
-				{
-					onDeleteBotClicked(conv);
-				}
-				
 				else if (getString(R.string.delete_block).equals(option))
 				{
 					onDeleteBlockClicked(conv);
@@ -1651,37 +1641,6 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		}
 		Utils.logEvent(getActivity(), HikeConstants.LogEvent.ADD_SHORTCUT);
 		Utils.createShortcut(getSherlockActivity(), conv);
-	}
-
-	protected void onDeleteBotClicked(final ConvInfo conv)
-	{
-		HikeDialogFactory.showDialog(getActivity(), HikeDialogFactory.DELETE_NON_MESSAGING_BOT, new HikeDialogListener()
-		{
-
-			@Override
-			public void positiveClicked(HikeDialog hikeDialog)
-			{
-				Utils.logEvent(getActivity(), HikeConstants.LogEvent.DELETE_CONVERSATION);
-				HikeMessengerApp.getPubSub().publish(HikePubSub.DELETE_THIS_CONVERSATION, conv);
-				hikeDialog.dismiss();
-
-				if (Utils.isBot(conv.getMsisdn()))
-				{
-					BotConversation.analyticsForBots(conv, HikePlatformConstants.BOT_DELETE_CHAT, AnalyticsConstants.CLICK_EVENT);
-				}
-			}
-
-			@Override
-			public void neutralClicked(HikeDialog hikeDialog)
-			{
-			}
-
-			@Override
-			public void negativeClicked(HikeDialog hikeDialog)
-			{
-				hikeDialog.dismiss();
-			}
-		}, conv.getLabel());
 	}
 
 	protected void onDeleteBlockClicked(final ConvInfo conv)
