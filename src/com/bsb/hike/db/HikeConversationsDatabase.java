@@ -6978,4 +6978,21 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		mDb.insertWithOnConflict(DBConstants.CONVERSATIONS_TABLE, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE);
 
 	}
+
+	/**
+	 * Utility method for updating the last message text for non messaging bot
+	 * 
+	 * @param msisdn
+	 * @param lastMsgText
+	 */
+	public void updateLastMessageForNonMessagingBot(String msisdn, String lastMsgText)
+	{
+		ConvMessage convMessage = Utils.makeConvMessage(msisdn, lastMsgText, true, State.RECEIVED_UNREAD);
+		ContentValues contentValues = new ContentValues();
+		contentValues.put(DBConstants.MESSAGE, convMessage.getMessage());
+		contentValues.put(DBConstants.MSG_STATUS, convMessage.getState().ordinal());
+		contentValues.put(DBConstants.LAST_MESSAGE_TIMESTAMP, convMessage.getTimestamp());
+
+		mDb.updateWithOnConflict(DBConstants.CONVERSATIONS_TABLE, contentValues, MSISDN + "=?", new String[] { msisdn }, SQLiteDatabase.CONFLICT_REPLACE);
+	}
 }
