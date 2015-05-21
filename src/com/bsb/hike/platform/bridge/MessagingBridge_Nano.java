@@ -9,7 +9,6 @@ import android.util.SparseArray;
 import android.webkit.JavascriptInterface;
 import android.widget.BaseAdapter;
 
-import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.analytics.AnalyticsConstants;
@@ -164,42 +163,6 @@ public class MessagingBridge_Nano extends JavascriptBridge
 		this.listener = listener;
 	}
 	
-	public void setData()
-	{
-		mWebView.loadUrl("javascript:setData('" + message.getMsisdn() + "','" + message.webMetadata.getHelperData().toString() + "','" + message.isSent() + "','" +
-				HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_UID_SETTING,null) + "','" + AccountUtils.getAppVersion() + "')");
-	}
-
-	public void init()
-	{
-		JSONObject jsonObject = new JSONObject();
-		try
-		{
-			jsonObject.put(HikeConstants.MSISDN, message.getMsisdn());
-			jsonObject.put(HikePlatformConstants.HELPER_DATA, message.webMetadata.getHelperData());
-			jsonObject.put(HikePlatformConstants.IS_SENT, message.isSent());
-			jsonObject.put(HikePlatformConstants.PLATFORM_USER_ID,HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_UID_SETTING,null) );
-			jsonObject.put(HikePlatformConstants.APP_VERSION, AccountUtils.getAppVersion());
-
-			jsonObject.put(HikePlatformConstants.PROFILING_TIME, profilingTime);
-			mWebView.loadUrl("javascript:init('" + jsonObject.toString() + "')");
-		}
-		catch (JSONException e)
-		{
-			e.printStackTrace();
-		}
-	}
-
-	public void alarmPlayed(String alarmData)
-	{
-		mWebView.loadUrl("javascript:alarmPlayed(" + "'" + alarmData + "')");
-	}
-
-	public void updateProfilingTime(JSONObject profilingTime)
-	{
-		this.profilingTime = profilingTime;
-	}
-
 	/**
 	 * Update this conv message on java bridge thread
 	 * @param message
@@ -283,6 +246,39 @@ public class MessagingBridge_Nano extends JavascriptBridge
 
 	}
 	
+	public void setData()
+	{
+		mWebView.loadUrl("javascript:setData('" + message.getMsisdn() + "','" + message.webMetadata.getHelperData().toString() + "','" + message.isSent() + "','" +
+				HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_UID_SETTING,null) + "','" + AccountUtils.getAppVersion() + "')");
+	}
+
+	public void init()
+	{
+		JSONObject jsonObject = new JSONObject();
+		try
+		{
+			getInitJson(jsonObject, message.getMsisdn());
+			jsonObject.put(HikePlatformConstants.HELPER_DATA, message.webMetadata.getHelperData());
+			jsonObject.put(HikePlatformConstants.IS_SENT, message.isSent());
+			jsonObject.put(HikePlatformConstants.PROFILING_TIME, profilingTime);
+			mWebView.loadUrl("javascript:init('" + jsonObject.toString() + "')");
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
+	public void alarmPlayed(String alarmData)
+	{
+		mWebView.loadUrl("javascript:alarmPlayed(" + "'" + alarmData + "')");
+	}
+
+	public void updateProfilingTime(JSONObject profilingTime)
+	{
+		this.profilingTime = profilingTime;
+	}
+
 	/**
 	 * call this function to delete the message. The message will get deleted instantaneously
 	 */

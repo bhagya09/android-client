@@ -153,6 +153,8 @@ public interface HikePlatformConstants
 	
 	public static final String ENABLED = "en";
 	
+	public static final String IS_CHECKED = "is_checked";
+	
 	/**
 	 * Overflow menu item constants end
 	 */
@@ -165,5 +167,10 @@ public interface HikePlatformConstants
 	
 	public static final String AB_COLOR = "color";
 	
+	final String BLOCK = "block";
+	
+	final String MUTE = "mute";
+	
+	final String NETWORK_TYPE = "networkType";
 	String PLATFORM_VERSION = "platform_version";
 }

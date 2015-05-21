@@ -10,6 +10,7 @@ import org.json.JSONObject;
 import android.R;
 import android.content.res.Configuration;
 import android.graphics.Color;
+import android.text.TextUtils;
 
 import com.bsb.hike.media.OverFlowMenuItem;
 import com.bsb.hike.platform.HikePlatformConstants;
@@ -24,24 +25,16 @@ public class NonMessagingBotConfiguration extends BotConfiguration
 	
 	private static final String TAG = "NonMessagingBotConfig";
 	
-	private boolean configDataRefreshed = false;
-	
 	/**
 	 * Bit positions for configData. These positions start from the most significant bit
 	 */
 	public static final byte OVERFLOW_MENU  = 0;
 	
-	public static final byte SHOW_BLOCK = 1;
+	public static final byte ENABLE_LANDSCAPE = 1;
 	
-	public static final byte SHOW_MUTE = 2;
+	public static final byte ENABLE_PORTRAIT = 2;
 	
-	public static final byte ALLOW_BACK_PRESS = 3;
-	
-	public static final byte ENABLE_LANDSCAPE = 4;
-	
-	public static final byte ENABLE_PORTRAIT = 5;
-	
-	public static final byte LONG_TAP = 6;
+	public static final byte LONG_TAP = 3;
 	
 	/**
 	 * Bit positions end here.
@@ -50,21 +43,6 @@ public class NonMessagingBotConfiguration extends BotConfiguration
 	public boolean shouldShowOverflowMenu()
 	{
 		return isBitSet(OVERFLOW_MENU);
-	}
-	
-	public boolean isBlockEnabled()
-	{
-		return isBitSet(SHOW_BLOCK);
-	}
-	
-	public boolean isMuteEnabled()
-	{
-		return isBitSet(SHOW_MUTE);
-	}
-	
-	public boolean isBackPressAllowed()
-	{
-		return isBitSet(ALLOW_BACK_PRESS);
 	}
 	
 	public boolean isLandscapeEnabled()
@@ -92,10 +70,37 @@ public class NonMessagingBotConfiguration extends BotConfiguration
 		super(config);
 	}
 
-	public NonMessagingBotConfiguration(int config, JSONObject configData)
+	public NonMessagingBotConfiguration(int config, String configData)
 	{
-		super(config);
-		this.configData = configData;
+		this(config);
+		initConfigData(configData);
+	}
+	
+	public void setConfigData(String newConfigData)
+	{
+		initConfigData(newConfigData);
+	}
+
+	private void initConfigData(String configData)
+	{
+		if (!TextUtils.isEmpty(configData))
+		{
+			try
+			{
+				this.configData = new JSONObject(configData);
+			}
+			catch (JSONException e)
+			{
+				this.configData = new JSONObject();
+			}
+
+			return;
+		}
+
+		else
+		{
+			this.configData = new JSONObject();
+		}
 	}
 
 	/**
@@ -133,11 +138,12 @@ public class NonMessagingBotConfiguration extends BotConfiguration
 		{
 			String title = jsonObject.getString(HikePlatformConstants.TITLE);
 			int id = jsonObject.getInt(HikePlatformConstants.ID);
-			boolean enabled = jsonObject.getBoolean(HikePlatformConstants.ENABLED);
+			boolean enabled = jsonObject.optBoolean(HikePlatformConstants.ENABLED, true);
+			boolean isChecked = jsonObject.optBoolean(HikePlatformConstants.IS_CHECKED, true);
 			/**
 			 * Note : This is a dummy icon. Will replace once I get proper assets
 			 */
-			return new OverFlowMenuItem(title, 0, enabled ? R.drawable.ic_delete : 0, id, enabled);
+			return new OverFlowMenuItem(title, 0, isChecked ? R.drawable.ic_delete : 0, id, enabled);
 		}
 		catch (JSONException e)
 		{
@@ -148,14 +154,13 @@ public class NonMessagingBotConfiguration extends BotConfiguration
 	}
 	
 	/**
-	 * Utility method to update the overflow menu for a given id
+	 * Utility method to update the overflow menu title
 	 * 
 	 * @param id
-	 * @param newTitle
-	 * @param enabled
+	 * @param JSONObject
+	 *            menuObj
 	 */
-
-	public void updateOverFlowMenu(int id, String newTitle, boolean enabled)
+	public void updateOverFlowMenu(int id, JSONObject menuObj)
 	{
 		if (configData != null)
 		{
@@ -169,46 +174,10 @@ public class NonMessagingBotConfiguration extends BotConfiguration
 					int menuId = menuJSON.getInt(HikePlatformConstants.ID);
 					if (menuId == id)
 					{
-						updateMenuJSON(newTitle, enabled, menuJSON);
-						setConfigDataRefreshed(true);
+						menuItems.put(i, menuObj);
 						break;
 					}
 				}
-
-			}
-			catch (JSONException e)
-			{
-				Logger.e(TAG, "Geting JSON exception while reading overflow menu items : " + e.toString());
-			}
-
-		}
-	}
-	
-	/**
-	 * Utility method to update the overflow menu title
-	 * @param id
-	 * @param newTitle
-	 */
-	public void updateOverFlowMenu(int id, String newTitle)
-	{
-		if (configData != null)
-		{
-			Logger.v(TAG, "Trying to update overflow menu for : " + id + " for this botConfig : " + configData.toString());
-			try
-			{
-				JSONArray menuItems = configData.getJSONArray(HikePlatformConstants.OVERFLOW_MENU);
-				for (int i = 0; i < menuItems.length(); i++)
-				{
-					JSONObject menuJSON = menuItems.getJSONObject(i);
-					int menuId = menuJSON.getInt(HikePlatformConstants.ID);
-					if (menuId == id)
-					{
-						updateMenuJSON(newTitle, menuJSON);
-						setConfigDataRefreshed(true);
-						break;
-					}
-				}
-
 			}
 			catch (JSONException e)
 			{
@@ -240,92 +209,6 @@ public class NonMessagingBotConfiguration extends BotConfiguration
 		}
 	}
 
-	/**
-	 * Utility to update the title in BotConfig JSON
-	 * 
-	 * @param newTitle
-	 * @param menuJSON
-	 */
-	private void updateMenuJSON(String newTitle, JSONObject menuJSON)
-	{
-		try
-		{
-			menuJSON.put(HikePlatformConstants.TITLE, newTitle);
-		}
-		catch (JSONException e)
-		{
-			Logger.e(TAG, "Got JSON Exception in updateMenuJSON " + e.toString());
-		}
-	}
-
-	/**
-	 * Utility method to update the OverFlowMenu field in BotConfig JSON
-	 * 
-	 * @param newTitle
-	 * @param enabled
-	 * @param menuJSON
-	 */
-	private void updateMenuJSON(String newTitle, boolean enabled, JSONObject menuJSON)
-	{
-		try
-		{
-			menuJSON.put(HikePlatformConstants.TITLE, newTitle);
-			menuJSON.put(HikePlatformConstants.ENABLED, enabled);
-		}
-		catch (JSONException e)
-		{
-			Logger.e(TAG, "Got JSON Exception in updateMenuJSON " + e.toString());
-		}
-	}
-
-	/**
-	 * Utility method to updte overflow menu for a given id
-	 * 
-	 * @param id
-	 * @param enabled
-	 */
-	public void updateOverFlowMenu(int id, boolean enabled)
-	{
-		if (configData != null)
-		{
-			Logger.v(TAG, "Trying to update overflow menu for : " + id + " for this botConfig : " + configData.toString());
-			try
-			{
-				JSONArray menuItems = configData.getJSONArray(HikePlatformConstants.OVERFLOW_MENU);
-				for (int i = 0; i < menuItems.length(); i++)
-				{
-					JSONObject menuJSON = menuItems.getJSONObject(i);
-					int menuId = menuJSON.getInt(HikePlatformConstants.ID);
-					if (menuId == id)
-					{
-						updateMenuJSON(enabled, menuJSON);
-						setConfigDataRefreshed(true);
-						break;
-					}
-				}
-
-			}
-			catch (JSONException e)
-			{
-				Logger.e(TAG, "Geting JSON exception while reading overflow menu items : " + e.toString());
-			}
-
-		}
-	}
-
-	private void updateMenuJSON(boolean enabled, JSONObject menuJSON)
-	{
-		try
-		{
-			menuJSON.put(HikePlatformConstants.ENABLED, enabled);
-		}
-		catch (JSONException e)
-		{
-			Logger.e(TAG, "Got JSON Exception in updateMenuJSON " + e.toString());
-		}
-		
-	}
-
 	public OverFlowMenuItem getOverflowItemForId(int id)
 	{
 		if (configData != null)
@@ -354,22 +237,6 @@ public class NonMessagingBotConfiguration extends BotConfiguration
 	}
 
 	/**
-	 * @return the wasConfigDataRefreshed
-	 */
-	public boolean isConfigDataRefreshed()
-	{
-		return configDataRefreshed;
-	}
-
-	/**
-	 * @param wasConfigDataRefreshed the wasConfigDataRefreshed to set
-	 */
-	public void setConfigDataRefreshed(boolean wasConfigDataRefreshed)
-	{
-		this.configDataRefreshed = wasConfigDataRefreshed;
-	}
-
-	/**
 	 * Method to remove menu from JSON Array of menu options in configData
 	 * @param id
 	 */
@@ -388,7 +255,6 @@ public class NonMessagingBotConfiguration extends BotConfiguration
 					if (menuId == id)
 					{
 						menuItems.remove(i);
-						setConfigDataRefreshed(true);
 						break;
 					}
 				}
