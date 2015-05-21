@@ -79,6 +79,8 @@ public class ConvMessage implements Searchable
 	
 	private int contentId;
 	private String nameSpace;
+	
+	private boolean isOfflineMessage;
 
 	public String getNameSpace()
 	{
@@ -402,6 +404,7 @@ public class ConvMessage implements Searchable
 			mIsSMS = false;
 		}
 		
+		this.isOfflineMessage = obj.has(HikeConstants.IS_OFFLINE_MESSAGE) ? true : false;
 		this.mTimestamp = data.getLong(HikeConstants.TIMESTAMP);
 		/* prevent us from receiving a message from the future */
 		long now = System.currentTimeMillis() / 1000;
@@ -1277,4 +1280,13 @@ public class ConvMessage implements Searchable
 			this.privateData = messagePrivateData;
 		}
 	}
+	
+	public boolean getIsOfflineMessage()
+	{
+		return isOfflineMessage;
+	}
+	
+	public void setIsOfflineMessage(boolean  isOfflineMessage) {
+		this.isOfflineMessage = isOfflineMessage;
+  	}
 }
