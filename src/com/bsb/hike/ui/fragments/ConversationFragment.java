@@ -99,7 +99,6 @@ import com.bsb.hike.tasks.EmailConversationsAsyncTask;
 import com.bsb.hike.ui.HikeFragmentable;
 import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.ui.ProfileActivity;
-import com.bsb.hike.ui.WebViewActivity;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
@@ -1035,6 +1034,12 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 			else
 			{
 				Intent web = IntentFactory.getNonMessagingBotIntent(convInfo.getMsisdn(), "", "", getActivity());
+				ConvMessage convMsg = convInfo.getLastConversationMsg();
+				if (convMsg != null && convMsg.getState() == State.RECEIVED_UNREAD)
+				{
+					convMsg.setState(State.RECEIVED_READ);
+					HikeMessengerApp.getPubSub().publish(HikePubSub.UPDATE_LAST_MSG_STATE, new Pair<Integer, String>(convMsg.getState().ordinal(), convInfo.getMsisdn()));
+				}
 				startActivity(web);
 			}
 		}

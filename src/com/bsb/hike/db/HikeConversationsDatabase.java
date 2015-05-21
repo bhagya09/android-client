@@ -6995,4 +6995,18 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 		mDb.updateWithOnConflict(DBConstants.CONVERSATIONS_TABLE, contentValues, MSISDN + "=?", new String[] { msisdn }, SQLiteDatabase.CONFLICT_REPLACE);
 	}
+	
+	/**
+	 * Utility method to update the last message state for a conversation with a given msisdn
+	 * 
+	 * @param msisdn
+	 * @param newState
+	 */
+	public void updateLastMessageState(String msisdn, int newState)
+	{
+		ContentValues values = new ContentValues();
+		values.put(DBConstants.MSG_STATUS, newState);
+
+		mDb.updateWithOnConflict(DBConstants.CONVERSATIONS_TABLE, values, MSISDN + "=?", new String[] { msisdn }, SQLiteDatabase.CONFLICT_REPLACE);
+	}
 }

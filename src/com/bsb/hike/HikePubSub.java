@@ -402,6 +402,8 @@ public class HikePubSub implements Runnable
 
 	public static final String NOTIF_DATA_RECEIVED = "notifDataReceived";
 	
+	public static final String UPDATE_LAST_MSG_STATE = "updateLastMsgState";
+	
 	private final Thread mThread;
 
 	private final BlockingQueue<Operation> mQueue;
