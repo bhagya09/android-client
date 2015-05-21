@@ -1,5 +1,7 @@
 package com.bsb.hike.platform.bridge;
 
+import com.bsb.hike.modules.httpmgr.RequestToken;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -414,6 +416,30 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		mBotInfo.setIsBackPressAllowed(Boolean.valueOf(allowBack));
 	}
 
+	/**
+	 *  Platform Bridge Version 1
+	 * call this function for any post call. The call is gonna be fire and forget. MicroApp will not receive any response as this
+	 * request is a fire and forget request.
+	 * @param url: the url that will be called.
+	 * @param params: the push params to be included in the body.
+	 */
+	@JavascriptInterface
+	public void fireAndForgetPostRequest(String url, String params)
+	{
+		try
+		{
+			RequestToken token = HttpRequests.microAppPostRequest(url, new JSONObject(params));
+			if (!token.isRequestRunning())
+			{
+				token.execute();
+			}
+		}
+		catch (JSONException e)
+		{
+			Logger.e(tag, "error in JSON");
+			e.printStackTrace();
+		}
+	}
 
 
 }

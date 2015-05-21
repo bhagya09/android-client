@@ -1,16 +1,21 @@
 package com.bsb.hike.platform;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.modules.httpmgr.Header;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpHeaderConstants;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformContentListener;
 import com.bsb.hike.platform.content.PlatformContentModel;
 import com.bsb.hike.platform.content.PlatformContentRequest;
 import com.bsb.hike.platform.content.PlatformZipDownloader;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -385,6 +390,25 @@ public class PlatformUtils
 			e.printStackTrace();
 		}
 
+		return null;
+	}
+
+	public static List<Header> getHeaders()
+	{
+
+		HikeSharedPreferenceUtil mpref = HikeSharedPreferenceUtil.getInstance();
+		String platformUID = mpref.getData(HikeMessengerApp.PLATFORM_UID_SETTING, null);
+		String platformToken = mpref.getData(HikeMessengerApp.PLATFORM_TOKEN_SETTING, null);
+		if (!TextUtils.isEmpty(platformToken) && !TextUtils.isEmpty(platformUID))
+		{
+			List<Header> headers = new ArrayList<Header>(1);
+			if (platformToken != null && platformUID != null)
+			{
+				headers.add(new Header(HttpHeaderConstants.COOKIE_HEADER_NAME, HikePlatformConstants.PLATFORM_TOKEN + "=" + platformToken + "; " + HikePlatformConstants.PLATFORM_USER_ID + "=" + platformUID));
+			}
+
+			return headers;
+		}
 		return null;
 	}
 

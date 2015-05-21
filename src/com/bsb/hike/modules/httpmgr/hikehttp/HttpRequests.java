@@ -14,6 +14,7 @@ import static com.bsb.hike.modules.httpmgr.request.Request.REQUEST_TYPE_SHORT;
 
 import java.util.List;
 
+import com.bsb.hike.platform.PlatformUtils;
 import org.json.JSONObject;
 
 import com.bsb.hike.modules.httpmgr.Header;
@@ -198,6 +199,20 @@ public class HttpRequests
 				.setAsynchronous(false)
 				.build();
 		requestToken.getRequestInterceptors().addLast("gzip", new GzipRequestInterceptor());
+		return requestToken;
+	}
+
+	public static RequestToken microAppPostRequest(String url, JSONObject json)
+	{
+		JsonBody body = new JsonBody(json);
+
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(url)
+				.setRequestType(Request.REQUEST_TYPE_SHORT)
+				.addHeader(PlatformUtils.getHeaders())
+				.post(body)
+				.build();
+
 		return requestToken;
 	}
 }
