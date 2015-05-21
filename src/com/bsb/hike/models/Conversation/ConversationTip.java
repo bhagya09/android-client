@@ -159,16 +159,14 @@ public class ConversationTip implements OnClickListener
 			return v;
 			
 		case STEALTH_HIDE_TIP:
-			v = inflater.inflate(R.layout.stealth_unread_tip, null, false);
-			((TextView) v.findViewById(R.id.tip_header)).setText(R.string.tap_to_hide_stealth_contacts);
-			((TextView) v.findViewById(R.id.tip_msg)).setVisibility(View.GONE);
+			v = inflater.inflate(R.layout.stealth_tip, null, false);
+			((TextView) v.findViewById(R.id.tip_text)).setText(R.string.tap_to_hide_stealth_contacts);
 			v.findViewById(R.id.close_tip).setOnClickListener(this);
 			return v;
 			
 		case STEALTH_REVEAL_TIP:
-			v = inflater.inflate(R.layout.stealth_unread_tip, null, false);
-			((TextView) v.findViewById(R.id.tip_header)).setText(R.string.tap_to_reveal_stealth_contacts);
-			((TextView) v.findViewById(R.id.tip_msg)).setVisibility(View.GONE);
+			v = inflater.inflate(R.layout.stealth_tip, null, false);
+			((TextView) v.findViewById(R.id.tip_text)).setText(R.string.tap_to_reveal_stealth_contacts);
 			v.findViewById(R.id.close_tip).setOnClickListener(this);
 			return v;
 
