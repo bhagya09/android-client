@@ -980,14 +980,20 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 	@Override
 	public void onStop()
 	{
-		if ((tipType == ConversationTip.STEALTH_HIDE_TIP  || tipType == ConversationTip.STEALTH_REVEAL_TIP) && tipView != null)
+		if (tipType == ConversationTip.STEALTH_REVEAL_TIP && tipView != null)
 		{
 			StealthModeManager.getInstance().activate(false);
 			HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_MODE_TOGGLED, true);
 			StealthModeManager.getInstance().ftuePending(false);
 			removeTipIfExists(tipType);
 		}
-		
+
+		if (tipType == ConversationTip.STEALTH_HIDE_TIP && tipView != null)
+		{
+			StealthModeManager.getInstance().ftuePending(false);
+			removeTipIfExists(tipType);
+		}
+
 		if (showingWelcomeHikeConvTip)
 		{
 			removeTipIfExists(ConversationTip.WELCOME_HIKE_TIP);
