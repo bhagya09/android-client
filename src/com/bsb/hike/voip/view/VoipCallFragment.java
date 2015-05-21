@@ -732,6 +732,9 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 					callDuration.setText(getString(R.string.voip_call_ended));
 				}
 				break;
+		default:
+			Logger.w(VoIPConstants.TAG, "Unhandled status: " + status);
+			break;
 		}
 	}
 	
@@ -823,6 +826,9 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 			case EXCELLENT: 	gd.setColor(getResources().getColor(R.color.signal_green));
 					   			signalStrengthView.setText(getString(R.string.voip_signal_excellent));
 					   			break;
+		default:
+			Logger.w(VoIPConstants.TAG, "Unhandled voice quality: " + quality);
+			break;
 		}
 		signalContainer.startAnimation(anim);
 		signalContainer.setVisibility(View.VISIBLE);
