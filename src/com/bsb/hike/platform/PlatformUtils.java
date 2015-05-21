@@ -300,7 +300,7 @@ public class PlatformUtils
 	{
 		if (enableBot)
 		{
-			HikeConversationsDatabase.getInstance().addConversation(botInfo.getMsisdn(), true, null, null);
+			HikeConversationsDatabase.getInstance().addNonMessagingBotconversation(botInfo.getMsisdn(), botInfo.getLastMessageText());
 		}
 	}
 
