@@ -53,4 +53,13 @@
     	android:textSize="15sp"
     	android:textColor="@color/white"
     	android:gravity="center"/>
+    
+    <ViewStub
+        android:id="@+id/stealth_indicator_stub"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="40dp"
+        android:inflatedId="@+id/stealth_indicator_inflated"
+        android:layout="@layout/tool_tip" />
 </RelativeLayout>

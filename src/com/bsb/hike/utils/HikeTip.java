@@ -16,7 +16,7 @@ public class HikeTip
 {
 	public static enum TipType
 	{
-		EMOTICON, LAST_SEEN, MOOD, PIN
+		EMOTICON, LAST_SEEN, MOOD, PIN, STEALTH_INDICATOR
 	}
 
 	public static void showTip(final Activity activity, final TipType tipType, final View parentView)
@@ -41,6 +41,11 @@ public class HikeTip
 		case MOOD:
 			container.setBackgroundResource(R.drawable.bg_tip_top_left);
 			tipText.setText(R.string.moods_tip);
+			break;
+		case STEALTH_INDICATOR:
+			parentView.setBackgroundResource(R.drawable.bg_stealth_tip);
+			closeTip.setVisibility(View.GONE);
+			tipText.setText(R.string.stealth_notification_messages);
 			break;
 		}
 		if (closeTip != null)

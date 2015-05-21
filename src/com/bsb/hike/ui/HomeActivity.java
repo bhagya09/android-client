@@ -85,6 +85,7 @@ import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.HikeTip;
+import com.bsb.hike.utils.HikeTip.TipType;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
@@ -146,8 +147,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	private int recommendedCount = -1;
 
-	private HikeTip.TipType tipTypeShowing;
-
 	private FetchContactsTask fetchContactsTask;
 
 	private ConversationFragment mainFragment;
@@ -157,6 +156,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	private SnowFallView snowFallView;
 	
 	private int searchOptionID;
+	
+	private final long STEALTH_INDICATOR_DURATION = 3000;
 
 	private String[] homePubSubListeners = { HikePubSub.INCREMENTED_UNSEEN_STATUS_COUNT, HikePubSub.SMS_SYNC_COMPLETE, HikePubSub.SMS_SYNC_FAIL, HikePubSub.FAVORITE_TOGGLED,
 			HikePubSub.USER_JOINED, HikePubSub.USER_LEFT, HikePubSub.FRIEND_REQUEST_ACCEPTED, HikePubSub.REJECT_FRIEND_REQUEST, HikePubSub.UPDATE_OF_MENU_NOTIFICATION,
@@ -258,17 +259,27 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		actionBar.setLogo(R.drawable.home_screen_top_bar_logo);
 		actionBar.setDisplayHomeAsUpEnabled(true);
 		actionBar.setDisplayShowTitleEnabled(true);
-		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STEALTH_INDICATOR_ENABLED, false))
+	}
+	
+	private void flashStealthIndicatorView()
+	{
+		final View stealthIndicatorView;
+		if(findViewById(R.id.stealth_indicator_inflated) == null)
 		{
-			View hiButton = findViewById(android.R.id.home);
-			boolean stealthIndicatorEnabled = PreferenceManager.getDefaultSharedPreferences(this).getBoolean(HikeConstants.STEALTH_INDICATOR_ENABLED, false);
-
-			if(hiButton != null && !StealthModeManager.getInstance().isActive() && stealthIndicatorEnabled)
-			{
-				hiButton.setAnimation(HikeAnimationFactory.getHikeActionBarLogoAnimation(HomeActivity.this));
-				HikeSharedPreferenceUtil.getInstance().removeData(HikeConstants.STEALTH_INDICATOR_ENABLED);
-			}
+			stealthIndicatorView = ((ViewStub) findViewById(R.id.stealth_indicator_stub)).inflate();
 		}
+		else
+		{
+			stealthIndicatorView = findViewById(R.id.stealth_indicator_inflated);
+		}
+		
+		HikeTip.showTip(HomeActivity.this, TipType.STEALTH_INDICATOR, stealthIndicatorView);
+		stealthIndicatorView.postDelayed(new Runnable() {
+			@Override
+			public void run() {
+				stealthIndicatorView.setVisibility(View.GONE);
+			}
+		}, STEALTH_INDICATOR_DURATION);
 	}
 
 	private void setupSearchActionBar()
@@ -888,6 +899,10 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		}
 		checkNShowNetworkError();
 		HikeMessengerApp.getPubSub().publish(HikePubSub.CANCEL_ALL_NOTIFICATIONS, null);
+		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STEALTH_INDICATOR_ENABLED, false))
+		{
+			HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_INDICATOR, null);
+		}
 	}
 
 	@Override
@@ -1344,6 +1359,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		}
 		else if(HikePubSub.STEALTH_INDICATOR.equals(type))
 		{
+			HikeSharedPreferenceUtil.getInstance().removeData(HikeConstants.STEALTH_INDICATOR_ENABLED);
+			
 			if(StealthModeManager.getInstance().isActive())
 			{
 				return;
@@ -1357,7 +1374,10 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 					if(hiButton != null)
 					{
 						hiButton.startAnimation(HikeAnimationFactory.getHikeActionBarLogoAnimation(HomeActivity.this));
-						HikeSharedPreferenceUtil.getInstance().removeData(HikeConstants.STEALTH_INDICATOR_ENABLED);
+					}
+					else
+					{
+						flashStealthIndicatorView();
 					}
 				}
 			});
