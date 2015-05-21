@@ -1034,9 +1034,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 			}
 			else
 			{
-				Intent web = IntentFactory.getWebViewActivityIntent(getActivity(), "", "");
-				web.putExtra(WebViewActivity.WEBVIEW_MODE, WebViewActivity.MICRO_APP_MODE);
-				web.putExtra(HikeConstants.MSISDN, botInfo.getMsisdn());
+				Intent web = IntentFactory.getNonMessagingBotIntent(convInfo.getMsisdn(), "", "", getActivity());
 				startActivity(web);
 			}
 		}

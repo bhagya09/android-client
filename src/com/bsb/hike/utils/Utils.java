@@ -3470,9 +3470,7 @@ public class Utils
 		Intent intent = new Intent();
 		if (conv instanceof BotInfo && ((BotInfo) conv).isNonMessagingBot())
 		{
-			shortcutIntent = IntentFactory.getWebViewActivityIntent(activity, "", "");
-			shortcutIntent.putExtra(WebViewActivity.WEBVIEW_MODE, WebViewActivity.MICRO_APP_MODE);
-			shortcutIntent.putExtra(HikeConstants.MSISDN, conv.getMsisdn());
+			shortcutIntent = IntentFactory.getNonMessagingBotIntent(conv.getMsisdn(), "", "", activity);
 		}
 
 		else
