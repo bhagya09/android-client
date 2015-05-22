@@ -139,11 +139,16 @@ public class NonMessagingBotConfiguration extends BotConfiguration
 			String title = jsonObject.getString(HikePlatformConstants.TITLE);
 			int id = jsonObject.getInt(HikePlatformConstants.ID);
 			boolean enabled = jsonObject.optBoolean(HikePlatformConstants.ENABLED, true);
-			boolean isChecked = jsonObject.optBoolean(HikePlatformConstants.IS_CHECKED, true);
-			/**
-			 * Note : This is a dummy icon. Will replace once I get proper assets
-			 */
-			return new OverFlowMenuItem(title, 0, isChecked ? com.bsb.hike.R.drawable.tick : com.bsb.hike.R.drawable.untick, id, enabled);
+			if (jsonObject.has(HikePlatformConstants.IS_CHECKED))
+			{
+				boolean isChecked = jsonObject.optBoolean(HikePlatformConstants.IS_CHECKED, true);
+				return new OverFlowMenuItem(title, 0, isChecked ? com.bsb.hike.R.drawable.tick : com.bsb.hike.R.drawable.untick, id, enabled);
+			}
+			
+			else
+			{
+				return new OverFlowMenuItem(title, 0, 0, id, enabled);
+			}
 		}
 		catch (JSONException e)
 		{

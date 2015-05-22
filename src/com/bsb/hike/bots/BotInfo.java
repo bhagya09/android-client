@@ -301,7 +301,12 @@ public class BotInfo extends ConvInfo
 	@Override
 	public String getUnreadCountString()
 	{
-		return DEFAULT_UNREAD_COUNT;
+		if (isNonMessagingBot())
+		{
+			return DEFAULT_UNREAD_COUNT;
+		}
+		
+		return super.getUnreadCountString();
 	}
 
 }
