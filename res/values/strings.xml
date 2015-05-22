@@ -149,9 +149,9 @@
     <string name="call_me_pass">We will call you within a few seconds.</string>
     <string name="call_me_fail">Unable to call you. Please try again.</string>
     <string name="calling_you">Calling you now...</string>
-    <string name="new_group_message">%1$s added you</string>
+    <string name="new_group_message">Group Chat with %1$s</string>
     <string name="new_broadcast_message">Broadcast List with %1$s</string>
-    <string name="add_to_group_message">have added %1$s</string>
+    <string name="add_to_group_message">Added %1$s to the group</string>
     <string name="add_to_broadcast_message">Added %1$s to the list</string>
     <string name="connect_and_get">Connect and get 100 free SMS instantly</string>
     <string name="free_sms_100">100 free SMS</string>
@@ -1478,4 +1478,7 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
 	<string name="group_selected">%1$s/1000 selected</string>
 	<string name="group_participant_info"><![CDATA[<font color=\"#000000\">Now you can add upto </font><font color=\"#1090e0\"><b>1000</b> </font><font color=\"#000000\">members</font>]]></string>
 	<string name="add_members">Add Members</string>
+	<string name="created_group_text">You created the group</string>
+	<string name="group_member_added">added %1$s</string>
+
 </resources>

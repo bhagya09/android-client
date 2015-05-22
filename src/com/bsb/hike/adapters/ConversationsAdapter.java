@@ -800,7 +800,8 @@ public class ConversationsAdapter extends BaseAdapter
 		else if (message.getParticipantInfoState() == ParticipantInfoState.PARTICIPANT_JOINED)
 		{
 			JSONArray participantInfoArray = metadata.getGcjParticipantInfo();
-			String highlight = Utils.getConversationJoinHighlightText(participantInfoArray, (OneToNConvInfo)convInfo);
+			
+			String highlight = Utils.getConversationJoinHighlightText(participantInfoArray, (OneToNConvInfo)convInfo, metadata.isNewGroup()&&metadata.getGroupAdder()!=null, context);
 			markedUp = OneToNConversationUtils.getParticipantAddedMessage(message, context, highlight);
 		}
 		
