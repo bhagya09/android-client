@@ -690,7 +690,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	
 	private void hideSecondaryWebView()
 	{
-		secondaryWebView.destroy();
+		secondaryWebView.onActivityDestroyed();
 		secondaryWebView.setVisibility(View.GONE);
 		secondaryWebView = null;
 		

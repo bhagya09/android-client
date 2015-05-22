@@ -35,6 +35,8 @@ import java.util.Iterator;
 public class NonMessagingJavaScriptBridge extends JavascriptBridge
 {
 	
+	private static final int OPEN_FULL_PAGE = 111;
+	
 	public static interface NonMessagingBridgeEvents
 	{
 		public void openFullPage(String url);
@@ -425,7 +427,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void openFullPage(String url)
 	{
-		sendMessageToUiThread(111, url);
+		sendMessageToUiThread(OPEN_FULL_PAGE, url);
 		
 	}
 	
@@ -434,7 +436,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	{
 		switch(msg.what)
 		{
-		case 111:
+		case OPEN_FULL_PAGE:
 			String url = (String) msg.obj;
 			if(eventsListener!=null)
 			{
