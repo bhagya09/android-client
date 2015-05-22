@@ -1281,7 +1281,7 @@ public class ConvMessage implements Searchable
 		}
 	}
 	
-	public boolean getIsOfflineMessage()
+	public boolean IsOfflineMessage()
 	{
 		return isOfflineMessage;
 	}

@@ -4,8 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.actionbarsherlock.view.Menu;
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
+import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.media.OverFlowMenuItem;
+import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.Conversation.Conversation;
 
 public class OfflineChatThread extends OneToOneChatThread
@@ -46,6 +50,27 @@ public class OfflineChatThread extends OneToOneChatThread
 			list.add(item);
 		}
 		return list;
+	}
+	
+	@Override
+	protected void sendMessage(ConvMessage convMessage)
+	{
+		if (convMessage != null)
+		{
+			convMessage.setIsOfflineMessage(true);
+			addtoMessageMap(convMessage);
+
+			HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_SENT, convMessage);
+			
+			//TODO:Send it to the recepient
+		}
+	}
+
+	@Override
+	protected void sendMessage()
+	{
+		ConvMessage convMessage = createConvMessageFromCompose();
+		sendMessage(convMessage);
 	}
 	
 }

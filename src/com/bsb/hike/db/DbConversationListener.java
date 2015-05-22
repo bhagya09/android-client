@@ -141,7 +141,7 @@ public class DbConversationListener implements Listener
 				mPubSub.publish(HikePubSub.RECENT_CONTACTS_UPDATED, convMessage.getMsisdn());
 			}
 
-			if ((convMessage.getParticipantInfoState() == ParticipantInfoState.NO_INFO || convMessage.getParticipantInfoState() == ParticipantInfoState.CHAT_BACKGROUND)
+			if (!convMessage.IsOfflineMessage()&&(convMessage.getParticipantInfoState() == ParticipantInfoState.NO_INFO || convMessage.getParticipantInfoState() == ParticipantInfoState.CHAT_BACKGROUND)
 					&& (!convMessage.isFileTransferMessage() || shouldSendMessage))
 			{
 				Logger.d("DBCONVERSATION LISTENER", "Sending Message : " + convMessage.getMessage() + "	;	to : " + convMessage.getMsisdn());
