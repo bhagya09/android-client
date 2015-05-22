@@ -146,7 +146,7 @@ public class IntentFactory
 		context.startActivity(intent);
 	}
 
-	public static Intent shareIntent(String mimeType, String imagePath, String text, int type, boolean whatsapp)
+	public static Intent shareIntent(String mimeType, String imagePath, String text, int type, String pkgName)
 	{
 		Intent intent = new Intent(Intent.ACTION_SEND);
 		intent.setType(mimeType);
@@ -155,9 +155,9 @@ public class IntentFactory
 			intent.putExtra(Intent.EXTRA_TEXT, text);
 		}
 		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-		if (whatsapp)
+		if (pkgName != null)
 		{
-			intent.setPackage(HikeConstants.Extras.WHATSAPP_PACKAGE);
+			intent.setPackage(pkgName);
 		}
 		if (type != HikeConstants.Extras.ShareTypes.TEXT_SHARE)
 		{
