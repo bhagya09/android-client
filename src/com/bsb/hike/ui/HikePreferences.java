@@ -20,6 +20,7 @@ import android.os.Bundle;
 import android.os.Vibrator;
 import android.preference.ListPreference;
 import android.preference.Preference;
+import android.preference.PreferenceCategory;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceManager;
@@ -185,7 +186,14 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			}
 			else
 			{
-				getPreferenceScreen().removePreference(sslPreference);
+				if(getPreferenceScreen().findPreference(HikeConstants.PRIVACY_SETTINGS_CATEGORY) instanceof PreferenceCategory)
+				{
+					PreferenceCategory privacySettingsCategory = ((PreferenceCategory) getPreferenceScreen().findPreference(HikeConstants.PRIVACY_SETTINGS_CATEGORY));
+					if (privacySettingsCategory != null)
+					{
+						privacySettingsCategory.removePreference(sslPreference);
+					}
+				}
 			}
 		}
 
