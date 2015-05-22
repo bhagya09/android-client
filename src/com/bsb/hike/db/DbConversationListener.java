@@ -464,7 +464,7 @@ public class DbConversationListener implements Listener
 		else if (HikePubSub.UPDATE_LAST_MSG_STATE.equals(type))
 		{
 			Pair<Integer, String> stateMsisdnPair = (Pair<Integer, String>) object;
-			mConversationDb.updateLastMessageState(stateMsisdnPair.second, stateMsisdnPair.first);
+			mConversationDb.updateLastMessageStateAndCount(stateMsisdnPair.second, stateMsisdnPair.first);
 		}
 	}
 

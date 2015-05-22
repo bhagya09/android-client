@@ -1034,13 +1034,9 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 			else
 			{
 				Intent web = IntentFactory.getNonMessagingBotIntent(convInfo.getMsisdn(), "", "", getActivity());
-				ConvMessage convMsg = convInfo.getLastConversationMsg();
-				if (convMsg != null && convMsg.getState() == State.RECEIVED_UNREAD)
-				{
-					convMsg.setState(State.RECEIVED_READ);
-					HikeMessengerApp.getPubSub().publish(HikePubSub.UPDATE_LAST_MSG_STATE, new Pair<Integer, String>(convMsg.getState().ordinal(), convInfo.getMsisdn()));
-				}
 				startActivity(web);
+				
+				updateLastMessageStateForNonMessagingBot(convInfo);
 			}
 		}
 		else
@@ -1063,6 +1059,32 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		}
 	}
 	
+	/**
+	 * Utility method to update the last message state from unread to read
+	 * 
+	 * @param convInfo
+	 */
+	private void updateLastMessageStateForNonMessagingBot(ConvInfo convInfo)
+	{
+		ConvMessage convMsg = convInfo.getLastConversationMsg();
+		if (convMsg != null && convMsg.getState() == State.RECEIVED_UNREAD)
+		{
+			convMsg.setState(State.RECEIVED_READ);
+			convInfo.setUnreadCount(0);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.UPDATE_LAST_MSG_STATE, new Pair<Integer, String>(convMsg.getState().ordinal(), convInfo.getMsisdn()));
+
+			View parentView = getListView().getChildAt(displayedConversations.indexOf(convInfo) - getListView().getFirstVisiblePosition() + getOffsetForListHeader());
+
+			if (parentView == null)
+			{
+				notifyDataSetChanged();
+				return;
+			}
+
+			mAdapter.updateViewsRelatedToLastMessage(parentView, convMsg, convInfo);
+		}
+	}
+
 	private void recordSearchItemClicked(ConvInfo convInfo, int position, String text)
 	{
 		String SEARCH_RESULT = "srchRslt";
@@ -2130,7 +2152,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 				return;
 			}
 			convInfo.setUnreadCount(0);
-			HikeConversationsDatabase.getInstance().setExtraConvUnreadCount(msisdn, 0);
+			
 			/*
 			 * setting the last message as 'Read'
 			 */

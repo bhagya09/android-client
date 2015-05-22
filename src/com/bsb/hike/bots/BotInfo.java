@@ -32,6 +32,8 @@ public class BotInfo extends ConvInfo
 	private AtomicBoolean isBackPressAllowed = new AtomicBoolean(false);
 
 	private String helperData;
+	
+	private static final String DEFAULT_UNREAD_COUNT = "1+";
 
 	public static abstract class InitBuilder<P extends InitBuilder<P>> extends ConvInfo.InitBuilder<P>
 	{
@@ -294,6 +296,12 @@ public class BotInfo extends ConvInfo
 		}
 
 		return "";
+	}
+	
+	@Override
+	public String getUnreadCountString()
+	{
+		return DEFAULT_UNREAD_COUNT;
 	}
 
 }
