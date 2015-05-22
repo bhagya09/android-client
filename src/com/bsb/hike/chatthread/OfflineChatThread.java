@@ -25,12 +25,15 @@ import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.ui.GalleryActivity;
 import com.bsb.hike.utils.IntentFactory;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
 public class OfflineChatThread extends OneToOneChatThread implements IOfflineCallbacks
 {
 
 	OfflineController controller;
+	
+	private final String TAG="OfflineManager";
 	
 	public OfflineChatThread(ChatThreadActivity activity, String msisdn)
 	{
@@ -189,4 +192,34 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 	}
 	
 
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data)
+	{
+		Logger.i(TAG, "on activity result " + requestCode + " result " + resultCode);
+		switch (requestCode)
+		{
+			case  AttachmentPicker.APPS:
+				if(data!=null)
+				{
+					String filePath = data.getStringExtra(HikeConstants.Extras.EXTRAS_APK_PATH);
+					String mime  =  data.getStringExtra(HikeConstants.Extras.FILE_TYPE);
+					String apkLabel  = data.getStringExtra(HikeConstants.Extras.EXTRAS_APK_NAME);
+					//OfflineManager.getInstance().initialiseOfflineFileTransfer(filePath, null, HikeFileType.APK, mime, false, (long)-1, 
+						//	false, FTAnalyticEvents.APK_ATTACHMENT,msisdn,true,apkLabel);
+					//TODO: initialte file transfer to the host
+				}
+				break;
+			case AttachmentPicker.FILE:
+				if(data!=null)
+				{
+					//TODO: initialte file transfer process
+						//ChatThreadUtils.onShareFileOffline(activity.getApplicationContext(), msisdn, data, mConversation.isOnHike());
+						
+				}
+				break;	
+			default:
+				super.onActivityResult(requestCode, resultCode, data);
+		}
+	}	
+	
 }
