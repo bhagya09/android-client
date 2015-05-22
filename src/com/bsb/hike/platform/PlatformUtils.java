@@ -1,16 +1,21 @@
 package com.bsb.hike.platform;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.modules.httpmgr.Header;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpHeaderConstants;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformContentListener;
 import com.bsb.hike.platform.content.PlatformContentModel;
 import com.bsb.hike.platform.content.PlatformContentRequest;
 import com.bsb.hike.platform.content.PlatformZipDownloader;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -366,25 +371,35 @@ public class PlatformUtils
 
 	/**
 	 * Creating a forwarding message for Non-messaging microApp
-	 * @param cardObj: the cardObj given by the microApp
-	 * @param text: hm text
+	 * @param metadata: the metadata made after merging the json given by the microApp
+	 * @param text:     hm text
 	 * @return
 	 */
-	public static ConvMessage getConvMessageFromJSON(JSONObject cardObj, String text)
+	public static ConvMessage getConvMessageFromJSON(JSONObject metadata, String text)
 	{
-		try
-		{
-			ConvMessage convMessage = new ConvMessage();
-			convMessage.setMetadata(cardObj);
-			convMessage.setMessage(text);
-			convMessage.setMessageType(HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT);
-			return convMessage;
-		}
-		catch (JSONException e)
-		{
-			e.printStackTrace();
-		}
 
+		ConvMessage convMessage = new ConvMessage();
+		convMessage.setMessage(text);
+		convMessage.setMessageType(HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT);
+		convMessage.webMetadata = new WebMetadata(metadata);
+		return convMessage;
+
+	}
+
+	public static List<Header> getHeaders()
+	{
+
+		HikeSharedPreferenceUtil mpref = HikeSharedPreferenceUtil.getInstance();
+		String platformUID = mpref.getData(HikeMessengerApp.PLATFORM_UID_SETTING, null);
+		String platformToken = mpref.getData(HikeMessengerApp.PLATFORM_TOKEN_SETTING, null);
+		if (!TextUtils.isEmpty(platformToken) && !TextUtils.isEmpty(platformUID))
+		{
+			List<Header> headers = new ArrayList<Header>(1);
+			headers.add(new Header(HttpHeaderConstants.COOKIE_HEADER_NAME,
+					HikePlatformConstants.PLATFORM_TOKEN + "=" + platformToken + "; " + HikePlatformConstants.PLATFORM_USER_ID + "=" + platformUID));
+
+			return headers;
+		}
 		return null;
 	}
 

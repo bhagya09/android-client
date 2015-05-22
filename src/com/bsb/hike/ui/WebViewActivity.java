@@ -57,6 +57,7 @@ import com.bsb.hike.models.WhitelistDomain;
 import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.bridge.NonMessagingJavaScriptBridge;
+import com.bsb.hike.platform.bridge.NonMessagingJavaScriptBridge.NonMessagingBridgeEvents;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformContent.EventCode;
 import com.bsb.hike.platform.content.PlatformContentListener;
@@ -69,7 +70,7 @@ import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.TagEditText.Tag;
 
 public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements OnInflateListener, OnClickListener, TagOnClickListener, OverflowItemClickListener,
-		OnDismissListener, OverflowViewListener, HikePubSub.Listener
+		OnDismissListener, OverflowViewListener, HikePubSub.Listener,NonMessagingBridgeEvents
 {
 
 	private static final String tag = "WebViewActivity";
@@ -82,7 +83,9 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 
 	public static final String WEBVIEW_MODE = "webviewMode";
 
-	private CustomWebView webView;
+	private CustomWebView webView,secondaryWebView;
+	
+	private  ProgressBar bar;
 	
 	private HikeActionBar mActionBar;
 
@@ -170,6 +173,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	private void initView()
 	{
 		webView = (CustomWebView) findViewById(R.id.t_and_c_page);
+		bar = (ProgressBar) findViewById(R.id.progress);
 	}
 
 	private void setMode(int mode)
@@ -213,7 +217,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		final boolean allowLoc = getIntent().getBooleanExtra(HikeConstants.Extras.WEBVIEW_ALLOW_LOCATION, false);
 
 
-		final ProgressBar bar = (ProgressBar) findViewById(R.id.progress);
+		
 
 		WebViewClient client = new WebViewClient()
 		{
@@ -301,13 +305,13 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		});
 		handleURLLoadInWebView(webView, urlToLoad);
 		setupActionBar(title);
-		attachBridge();
 	}
 	
 	private void attachBridge()
 	{
 
 		 mmBridge =new NonMessagingJavaScriptBridge(this, webView, BotInfo.getBotInfoForBotMsisdn(msisdn));
+		 mmBridge.setEventsListener(this);
 		 webView.addJavascriptInterface(mmBridge, HikePlatformConstants.PLATFORM_BRIDGE_NAME);
 	}
 
@@ -503,6 +507,18 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	@Override
 	public void onBackPressed()
 	{
+		if(secondaryWebView!=null)
+		{
+			secondaryWebView.stopLoading();
+			if(secondaryWebView.canGoBack()) // 1 is for about:blank
+			{
+				Logger.i(tag, "taking secondary webview back");
+				secondaryWebView.goBack();
+			}else{
+				hideSecondaryWebView();
+			}
+			return;
+		}
 		if (mode == MICRO_APP_MODE)
 		{
 			if (botConfig != null && botInfo.getIsBackPressAllowed())
@@ -512,7 +528,6 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			}
 			
 		}
-		
 		if (webView.canGoBack())
 		{
 			webView.goBack();
@@ -549,7 +564,12 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		switch (arg0.getId())
 		{
 		case R.id.back:
+			if(secondaryWebView!=null)
+			{
+				hideSecondaryWebView();
+			}else{
 			finish();
+			}
 			break;
 		}
 
@@ -633,6 +653,59 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			overflowItems.addAll(getOverflowMenuItems());
 			botInfo.setConfigDataRefreshed(false);
 		}
+	}
+	
+	private void initSecondaryWebview()
+	{
+		if(secondaryWebView == null)
+		{
+			secondaryWebView = (CustomWebView) findViewById(R.id.secondaryWebView);
+			secondaryWebView.getSettings().setJavaScriptEnabled(true);
+		}
+	}
+
+	@Override
+	public void openFullPage(String url)
+	{
+		initSecondaryWebview();
+		secondaryWebView.setVisibility(View.VISIBLE);
+		secondaryWebView.setWebViewClient(new WebViewClient(){
+			@Override
+			public void onPageStarted(WebView view, String url, Bitmap favicon)
+			{
+				bar.setVisibility(View.VISIBLE);
+				super.onPageStarted(view, url, favicon);
+			}
+			@Override
+			public void onPageFinished(WebView view, String url)
+			{
+				Logger.i(tag, "onpage finished secondary "+url);
+				bar.setVisibility(View.GONE);
+				super.onPageFinished(view, url);
+			}
+			@Override
+			public boolean shouldOverrideUrlLoading(WebView view, String url)
+			{
+				Logger.i(tag, "url about to load in secondary "+url);
+				if (url == null)
+				{
+					return false;
+				}
+				view.loadUrl(url);
+				return true;
+			}
+		});
+		Logger.i(tag, "url about to load first time in secondary "+url);
+		secondaryWebView.loadUrl(url);
+		
+	}
+	
+	private void hideSecondaryWebView()
+	{
+		secondaryWebView.onActivityDestroyed();
+		secondaryWebView.setVisibility(View.GONE);
+		secondaryWebView = null;
+		
 	}
 
 }

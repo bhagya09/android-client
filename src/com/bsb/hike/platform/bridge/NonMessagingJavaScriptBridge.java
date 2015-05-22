@@ -1,9 +1,15 @@
 package com.bsb.hike.platform.bridge;
 
+import com.bsb.hike.modules.httpmgr.RequestToken;
+import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
+import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
+import com.bsb.hike.modules.httpmgr.response.Response;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
+import android.os.Message;
 import android.text.TextUtils;
 import android.webkit.JavascriptInterface;
 
@@ -34,9 +40,18 @@ import java.util.Iterator;
 public class NonMessagingJavaScriptBridge extends JavascriptBridge
 {
 	
+	private static final int OPEN_FULL_PAGE = 111;
+	
+	public static interface NonMessagingBridgeEvents
+	{
+		public void openFullPage(String url);
+	}
+	
 	private BotInfo mBotInfo;
 	
 	private static final String TAG  = "NonMessagingJavaScriptBridge";
+	
+	private NonMessagingBridgeEvents eventsListener;
 	
 	public NonMessagingJavaScriptBridge(Activity activity, CustomWebView mWebView, BotInfo botInfo)
 	{
@@ -413,7 +428,91 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	{
 		mBotInfo.setIsBackPressAllowed(Boolean.valueOf(allowBack));
 	}
+	
+	@JavascriptInterface
+	public void openFullPage(String url)
+	{
+		sendMessageToUiThread(OPEN_FULL_PAGE, url);
+		
+	}
+	
+	@Override
+	protected void handleUiMessage(Message msg)
+	{
+		switch(msg.what)
+		{
+		case OPEN_FULL_PAGE:
+			String url = (String) msg.obj;
+			if(eventsListener!=null)
+			{
+				eventsListener.openFullPage(url);
+			}else{
+				super.openFullPage("", url);
+			}
+			break;
+		default:
+				super.handleUiMessage(msg);
+		}
+	}
+	
+	public void setEventsListener(NonMessagingBridgeEvents eventsListener)
+	{
+		this.eventsListener = eventsListener;
+	}
 
 
+	/**
+	 *  Platform Bridge Version 1
+	 * call this function for any post call. The call is gonna be fire and forget. MicroApp will not receive any response as this
+	 * request is a fire and forget request.
+	 * @param functionId : function id to call back to the js.
+	 * @param url: the url that will be called.
+	 * @param params: the push params to be included in the body.
+	 */
+	@JavascriptInterface
+	public void doPostRequest(final String functionId, String url, String params)
+	{
+		try
+		{
+			IRequestListener requestListener = new IRequestListener()
+			{
+				@Override
+				public int hashCode()
+				{
+					return super.hashCode();
+				}
+
+				@Override
+				public void onRequestFailure(HttpException httpException)
+				{
+					Logger.e(tag, "microApp post request failed with exception " + httpException.getMessage());
+					callbackToJS(functionId, "Failure " + httpException.getMessage());
+				}
+
+				@Override
+				public void onRequestSuccess(Response result)
+				{
+					Logger.d(tag, "microapp post request success with code " + result.getStatusCode());
+					callbackToJS(functionId, "Success #" + String.valueOf(result.getStatusCode()));
+				}
+
+				@Override
+				public void onRequestProgressUpdate(float progress)
+				{
+
+				}
+			};
+			RequestToken token = HttpRequests.microAppPostRequest(url, new JSONObject(params), requestListener);
+			if (!token.isRequestRunning())
+			{
+				token.execute();
+			}
+		}
+		catch (JSONException e)
+		{
+			Logger.e(tag, "error in JSON");
+			e.printStackTrace();
+		}
+	}
 
 }
