@@ -712,7 +712,7 @@ public class ConversationsAdapter extends BaseAdapter
 			{
 				unreadIndicator.setVisibility(View.VISIBLE);
 				unreadIndicator.setBackgroundResource(convInfo.isStealth() ? R.drawable.bg_unread_counter_stealth : R.drawable.bg_unread_counter);
-				unreadIndicator.setText(Integer.toString(convInfo.getUnreadCount()));
+				unreadIndicator.setText(convInfo.getUnreadCountString());
 			}
 
 			imgStatus.setImageResource(imageId);
@@ -740,7 +740,7 @@ public class ConversationsAdapter extends BaseAdapter
 
 				unreadIndicator.setBackgroundResource(convInfo.isStealth() ? R.drawable.bg_unread_counter_stealth : R.drawable.bg_unread_counter);
 
-				unreadIndicator.setText(Integer.toString(convInfo.getUnreadCount()));
+				unreadIndicator.setText(convInfo.getUnreadCountString());
 			}
 			if(isNuxLocked)
 			{ 

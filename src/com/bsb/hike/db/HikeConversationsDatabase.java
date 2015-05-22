@@ -2162,7 +2162,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				mDb.delete(DBConstants.GROUP_INFO_TABLE, DBConstants.GROUP_ID + " =?", new String[] { msisdn });
 				removeChatThemeForMsisdn(msisdn);
 			}
-			setExtraConvUnreadCount(msisdn, 0);		
 			mDb.setTransactionSuccessful();
 		}
 		finally
@@ -2465,7 +2464,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				}
 				conv.setMessages(messages);
 			}
-			unreadCount += getExtraConvUnreadCount(msisdn);
+			
 			conv.setUnreadCount(unreadCount);
 			return conv;
 		}
@@ -2477,24 +2476,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			}
 		}
 
-	}
-
-	/*
-	 * This function returns unread count for any given msisdn , In addition to unread messages there could be many events which we might want to add in unread for any given
-	 * conversation , for example missed call, PIN, Micro App State chagned etc
-	 */
-	public int getExtraConvUnreadCount(String msisdn)
-	{
-		return HikeSharedPreferenceUtil.getInstance(HikeSharedPreferenceUtil.CONV_UNREAD_COUNT).getData(msisdn, 0);
-	}
-
-	/*
-	 * This function set unread count for any given msisdn , In addition to unread messages there could be many events which we might want to add in unread for any given
-	 * conversation , for example missed call, PIN, Micro App State chagned etc
-	 */
-	public void setExtraConvUnreadCount(String msisdn, int count)
-	{
-		HikeSharedPreferenceUtil.getInstance(HikeSharedPreferenceUtil.CONV_UNREAD_COUNT).saveData(msisdn, count);
 	}
 
 	public Conversation getConversation(String msisdn, int limit)
@@ -2949,7 +2930,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 					}
 				}
 
-				convInfo.setUnreadCount(c.getInt(unreadCountColumn) + getExtraConvUnreadCount(msisdn));
+				convInfo.setUnreadCount(c.getInt(unreadCountColumn));
 				convInfo.setStealth(c.getInt(isStealthColumn) == 1);
 
 				ConvMessage message = new ConvMessage(messageString, msisdn, lastMessageTimestamp, ConvMessage.stateValue(c.getInt(msgStatusColumn)), c.getLong(msgIdColumn),
@@ -3301,7 +3282,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 		mDb.execSQL("DELETE FROM " + DBConstants.SHARED_MEDIA_TABLE + " WHERE " + DBConstants.MSISDN + "= ?", args);
 
-		setExtraConvUnreadCount(msisdn, 0);
 		/*
 		 * Next we have to clear the conversation table.
 		 */
@@ -6994,5 +6974,20 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		contentValues.put(DBConstants.LAST_MESSAGE_TIMESTAMP, convMessage.getTimestamp());
 
 		mDb.updateWithOnConflict(DBConstants.CONVERSATIONS_TABLE, contentValues, MSISDN + "=?", new String[] { msisdn }, SQLiteDatabase.CONFLICT_REPLACE);
+	}
+	
+	/**
+	 * Utility method to update the last message state for a conversation with a given msisdn
+	 * 
+	 * @param msisdn
+	 * @param newState
+	 */
+	public void updateLastMessageStateAndCount(String msisdn, int newState)
+	{
+		ContentValues values = new ContentValues();
+		values.put(DBConstants.MSG_STATUS, newState);
+		//Reset the unread count
+		values.put(DBConstants.UNREAD_COUNT, 0);
+		mDb.updateWithOnConflict(DBConstants.CONVERSATIONS_TABLE, values, MSISDN + "=?", new String[] { msisdn }, SQLiteDatabase.CONFLICT_REPLACE);
 	}
 }
