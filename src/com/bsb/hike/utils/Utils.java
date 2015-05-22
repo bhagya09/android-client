@@ -419,7 +419,11 @@ public class Utils
 		 */
 		File mFile = new File(mediaStorageDir, orgFileName);
 		try {
-			mFile.createNewFile();
+			/*
+			 * Create temp file only for upload case.
+			 */
+			if(isSent)
+				mFile.createNewFile();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
