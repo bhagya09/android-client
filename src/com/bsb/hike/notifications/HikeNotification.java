@@ -83,6 +83,8 @@ public class HikeNotification
 	// number <= 99
 	public static final int HIKE_SUMMARY_NOTIFICATION_ID = -89;
 
+	public static final int TICKER_TEXT_MAX_LENGHT = 100;
+	
 	// We need a key to pair notification id. This will be used to retrieve notification id on notification dismiss/action.
 	public static final String HIKE_NOTIFICATION_ID_KEY = "hike.notification";
 
@@ -1122,6 +1124,10 @@ public class HikeNotification
 	public NotificationCompat.Builder getNotificationBuilder(String contentTitle, String contentText, String tickerText, Drawable avatarDrawable, int smallIconId,
 			boolean forceNotPlaySound)
 	{
+		if (!TextUtils.isEmpty(tickerText) && tickerText.length()>TICKER_TEXT_MAX_LENGHT+3)
+		{  // we are trimming ticker text so that it will not scroll in status bar.
+			tickerText=tickerText.substring(0, TICKER_TEXT_MAX_LENGHT)+"...";
+		}
 		final SharedPreferences preferenceManager = PreferenceManager.getDefaultSharedPreferences(this.context);
 		String vibrate = preferenceManager.getString(HikeConstants.VIBRATE_PREF_LIST, VIB_DEF);
 		final Bitmap avatarBitmap = HikeBitmapFactory.returnScaledBitmap((HikeBitmapFactory.drawableToBitmap(avatarDrawable, Bitmap.Config.RGB_565)), context);
