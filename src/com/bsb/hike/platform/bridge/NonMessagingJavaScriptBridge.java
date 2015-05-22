@@ -9,6 +9,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
+import android.os.Message;
 import android.text.TextUtils;
 import android.webkit.JavascriptInterface;
 
@@ -39,9 +40,18 @@ import java.util.Iterator;
 public class NonMessagingJavaScriptBridge extends JavascriptBridge
 {
 	
+	private static final int OPEN_FULL_PAGE = 111;
+	
+	public static interface NonMessagingBridgeEvents
+	{
+		public void openFullPage(String url);
+	}
+	
 	private BotInfo mBotInfo;
 	
 	private static final String TAG  = "NonMessagingJavaScriptBridge";
+	
+	private NonMessagingBridgeEvents eventsListener;
 	
 	public NonMessagingJavaScriptBridge(Activity activity, CustomWebView mWebView, BotInfo botInfo)
 	{
@@ -418,6 +428,37 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	{
 		mBotInfo.setIsBackPressAllowed(Boolean.valueOf(allowBack));
 	}
+	
+	@JavascriptInterface
+	public void openFullPage(String url)
+	{
+		sendMessageToUiThread(OPEN_FULL_PAGE, url);
+		
+	}
+	
+	@Override
+	protected void handleUiMessage(Message msg)
+	{
+		switch(msg.what)
+		{
+		case OPEN_FULL_PAGE:
+			String url = (String) msg.obj;
+			if(eventsListener!=null)
+			{
+				eventsListener.openFullPage(url);
+			}else{
+				super.openFullPage("", url);
+			}
+			break;
+		default:
+				super.handleUiMessage(msg);
+		}
+	}
+	
+	public void setEventsListener(NonMessagingBridgeEvents eventsListener)
+	{
+		this.eventsListener = eventsListener;
+	}
 
 
 	/**
@@ -473,6 +514,5 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			e.printStackTrace();
 		}
 	}
-
 
 }

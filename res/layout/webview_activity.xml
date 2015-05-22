@@ -16,6 +16,14 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
+    
+    
+    <com.bsb.hike.platform.CustomWebView
+        android:visibility="gone"
+        android:id="@+id/secondaryWebView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+    
     <ProgressBar 
         android:id="@+id/progress"
         style="?android:attr/progressBarStyleHorizontal"
@@ -24,5 +32,4 @@
         android:max="100"
         android:progress="100"
         android:progressDrawable="@drawable/webview_progress"/>
-    
 </RelativeLayout>
