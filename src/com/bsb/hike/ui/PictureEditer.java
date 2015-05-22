@@ -488,6 +488,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 						@Override
 						public void onFailure()
 						{
+							finishProgress();
 							Intent intent = new Intent();
 							setResult(RESULT_CANCELED, intent);
 							onError();
@@ -504,6 +505,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 						@Override
 						public void onComplete(File f)
 						{
+							finishProgress();
 							Bundle bundle = new Bundle();
 							bundle.putString(HikeConstants.Extras.IMAGE_PATH, f.getAbsolutePath());
 							if(hasDelegateActivities())
@@ -583,6 +585,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 								@Override
 								public void onComplete(File f)
 								{
+									finishProgress();
 									Intent forwardIntent = IntentFactory.getForwardImageIntent(mContext, f);
 									forwardIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 									startActivity(forwardIntent);
