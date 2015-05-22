@@ -539,45 +539,44 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data)
 	{
+		super.onActivityResult(requestCode, resultCode, data);
 		if (resultCode == RESULT_OK)
 		{
-			if (requestCode == GALLERY_ACTIVITY_RESULT_CODE)
+			switch(requestCode)
 			{
+			case GALLERY_ACTIVITY_RESULT_CODE:
 				setResult(RESULT_OK, data);
 				finish();
-			}
-			else if (requestCode == HikeConstants.CAMERA_RESULT)
-			{
-				File cameraFile = Utils.getCameraResultFile();
-				if (cameraFile == null)
+				break;
+			case HikeConstants.CAMERA_RESULT:
+				String cameraFilename = Utils.getCameraResultFile();
+				if (cameraFilename == null)
 					return;
 
 				Intent intent = new Intent();
+				Bundle bundle = new Bundle();
 				ArrayList<GalleryItem> item = new ArrayList<GalleryItem>(1);
-				item.add(new GalleryItem(GalleryItem.CAMERA_TILE_ID, CAMERA_TILE, NEW_PHOTO, cameraFile.getAbsolutePath(), 0));
-				intent.putParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS, item);
-				
-				//Added to ensure delegate activity passes destination path
-				intent.putExtra(HikeConstants.HikePhotos.DESTINATION_FILENAME, cameraFile.getAbsolutePath()); 
-				
+				item.add(new GalleryItem(GalleryItem.CAMERA_TILE_ID, CAMERA_TILE, NEW_PHOTO, cameraFilename, 0));
+				bundle.putParcelableArrayList(HikeConstants.Extras.GALLERY_SELECTIONS, item);
+				//Added to ensure delegate activity passes destination path to editer
+				bundle.putString(HikeConstants.HikePhotos.DESTINATION_FILENAME, cameraFilename); 
+				intent.putExtras(bundle);
 				intent.setData(Uri.parse(item.get(0).getFilePath()));
-				if (pendingIntent != null)
+				
+				if(hasDelegateActivities())
 				{
-					try
-					{
-						pendingIntent.send(GalleryActivity.this, RESULT_OK, intent);
-					}
-					catch (CanceledException e)
-					{
-						e.printStackTrace();
-					}
+					launchNextDelegateActivity(bundle);
 				}
-				else
+				else if(isStartedForResult())
 				{
 					setResult(RESULT_OK, intent);
 					finish();
 				}
-
+				else
+				{
+					sendGalleryIntent(intent);
+				}
+				break;
 			}
 		}
 	}
@@ -613,20 +612,26 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 			intent.putExtra(HikeConstants.Extras.SELECTED_BUCKET, galleryItem);
 			intent.putExtra(HikeConstants.Extras.MSISDN, msisdn);
 			intent.putExtra(HikeConstants.Extras.ON_HIKE, getIntent().getBooleanExtra(HikeConstants.Extras.ON_HIKE, true));
-			intent.putExtra(PENDING_INTENT_KEY, pendingIntent);
 			intent.putExtra(DISABLE_MULTI_SELECT_KEY, disableMultiSelect);
-				if(sendResult)
-				{
-					intent.putExtra(START_FOR_RESULT, sendResult);
-				}
-				if(getCallingActivity()!=null)
-				{
-					startActivityForResult(intent, GALLERY_ACTIVITY_RESULT_CODE);
-				}
-				else
-				{
-					startActivity(intent);
-				}
+			
+			if(hasDelegateActivities())
+			{
+				intent.putParcelableArrayListExtra(HikeBaseActivity.DESTINATION_INTENT, getDestinationIntents());
+			}
+			
+			if(sendResult)
+			{
+				intent.putExtra(START_FOR_RESULT, sendResult);
+			}
+			
+			if(isStartedForResult())
+			{
+				startActivityForResult(intent, GALLERY_ACTIVITY_RESULT_CODE);
+			}
+			else
+			{
+				startActivity(intent);
+			}
 		}
 		else
 		{
@@ -661,29 +666,26 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 			else
 			{
 				intent = new Intent();
-
+				Bundle bundle = new Bundle();
+				
 				ArrayList<GalleryItem> item = new ArrayList<GalleryItem>(1);
 				item.add(galleryItem);
-				intent.putParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS, item);
-				intent.setData(Uri.parse(item.get(0).getFilePath()));
-				if (pendingIntent != null)
+				
+				File file = new File(item.get(0).getFilePath());
+				if (!file.exists())
 				{
-					try
-					{
-						File file = new File(item.get(0).getFilePath());
-						if (!file.exists())
-						{
-							Toast.makeText(GalleryActivity.this, getResources().getString(R.string.file_expire), Toast.LENGTH_SHORT).show();
-							return;
-						}
-						pendingIntent.send(GalleryActivity.this, RESULT_OK, intent);
-					}
-					catch (CanceledException e)
-					{
-						e.printStackTrace();
-					}
+					Toast.makeText(GalleryActivity.this, getResources().getString(R.string.file_expire), Toast.LENGTH_SHORT).show();
+					return;
 				}
-				else if (sendResult && getCallingActivity()!=null)
+				
+				bundle.putParcelableArrayList(HikeConstants.Extras.GALLERY_SELECTIONS, item);
+				intent.putExtras(bundle);
+				
+				if(hasDelegateActivities())
+				{
+					launchNextDelegateActivity(bundle);
+				}
+				else if (isStartedForResult())
 				{
 					setResult(RESULT_OK, intent);
 					finish();

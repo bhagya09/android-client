@@ -1,7 +1,6 @@
 package com.bsb.hike.utils;
 
 import java.io.File;
-import java.util.ArrayList;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -17,7 +16,6 @@ import android.content.SharedPreferences.Editor;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.text.TextUtils;
 import android.view.View;
 import android.widget.Toast;
 
@@ -37,8 +35,6 @@ import com.bsb.hike.http.HikeHttpRequest;
 import com.bsb.hike.http.HikeHttpRequest.HikeHttpCallback;
 import com.bsb.hike.http.HikeHttpRequest.RequestType;
 import com.bsb.hike.models.ContactInfo;
-import com.bsb.hike.models.GalleryItem;
-import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.StatusMessage;
 import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.modules.contactmgr.ContactManager;
@@ -129,13 +125,12 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 			return;
 		}
 
-		String destString = Utils.getFileParent(HikeFileType.IMAGE, false) + File.separator + Utils.getOriginalFile(HikeFileType.IMAGE, null);
+		boolean editPic = Utils.isPhotosEditEnabled();
+		
+		Intent galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(ChangeProfileImageBaseActivity.this, false, true, true,editPic,getNewProfileImagePath());
 
-		Intent galleryPickerIntent = null;
-
-		if (Utils.isPhotosEditEnabled())
+		if (editPic)
 		{
-			galleryPickerIntent = IntentFactory.getDelegateActivityIntent(context, IntentFactory.getPhotosFlowFromGalleryIntents(context, true, null, true, true,!isPersonal,getNewProfileImagePath(),isPersonal));
 			if (!isPersonal)
 			{
 				startActivityForResult(galleryPickerIntent, HikeConstants.ResultCodes.PHOTOS_REQUEST_CODE);
@@ -147,10 +142,8 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 		}
 		else
 		{
-			galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(ChangeProfileImageBaseActivity.this, false, true, true, GalleryActivity.PHOTOS_EDITOR_ACTION_BAR_TYPE,
-					null, null, false);
 			galleryPickerIntent.putExtra(GalleryActivity.START_FOR_RESULT, true);
-			startActivityForResult(galleryPickerIntent, GalleryActivity.GALLERY_ACTIVITY_RESULT_CODE);
+			startActivityForResult(galleryPickerIntent, HikeConstants.ResultCodes.PHOTOS_REQUEST_CODE);
 		}
 
 	}
@@ -179,42 +172,14 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 	{
 		super.onActivityResult(requestCode, resultCode, data);
 
-		String path = null;
 		if (resultCode != RESULT_OK)
 		{
 			return;
 		}
-
 		
 		switch (requestCode)
 		{
-		case GalleryActivity.GALLERY_ACTIVITY_RESULT_CODE:
 
-			if (path == null)
-			{
-				ArrayList<GalleryItem> galleryList = data.getParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS);
-				if (galleryList != null && !galleryList.isEmpty())
-				{
-					path = galleryList.get(0).getFilePath();
-				}
-				if (path == null && data.getData() != null)
-				{
-					path = data.getData().toString();
-				}
-			}
-
-			if (TextUtils.isEmpty(path))
-			{
-				Toast.makeText(getApplicationContext(), R.string.error_capture, Toast.LENGTH_SHORT).show();
-				return;
-			}
-			else
-			{
-				Utils.startCropActivity(this, path, getNewProfileImagePath());
-			}
-			break;
-
-		case HikeConstants.CROP_RESULT:
 		case HikeConstants.ResultCodes.PHOTOS_REQUEST_CODE:
 			mActivityState.destFilePath = data.getStringExtra(MediaStore.EXTRA_OUTPUT);
 
@@ -225,6 +190,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 			}
 			profileImageCropped();
 			break;
+		
 		}
 	}
 

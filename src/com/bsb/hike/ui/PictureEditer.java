@@ -90,7 +90,6 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 	
 	private View progressLayout;
 
-	private boolean startedForResult;
 	private boolean startedForProfileUpdate;
 	private boolean isWorking;
 	
@@ -108,8 +107,6 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 
 		setContentView(R.layout.fragment_picture_editer);
 		
-		startedForResult = (getCallingActivity() != null);
-
 		editView = (PhotosEditerFrameLayoutView) findViewById(R.id.editer);
 
 		clickHandler = new EditorClickListener(this);
@@ -127,11 +124,6 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 			if (galleryList != null && !galleryList.isEmpty())
 			{
 				filename = galleryList.get(0).getFilePath();
-				sendAnalyticsGalleryPic();
-			}
-			if (filename == null && intent.getData()!=null)
-			{
-				filename = intent.getData().toString();
 				sendAnalyticsGalleryPic();
 			}
 		}
@@ -155,10 +147,16 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 		}
 		else if(isNotSupportedImageFormat(fileExtension))
 		{
-			if(startedForResult)
+			Bundle bundle = new Bundle();
+			bundle.putString(HikeConstants.Extras.IMAGE_PATH, filename);
+			if(hasDelegateActivities())
+			{
+				launchNextDelegateActivity(bundle);
+			}
+			else if(isStartedForResult())
 			{
 				Intent retIntent = new Intent();
-				retIntent.putExtra(HikeConstants.Extras.IMAGE_PATH, filename);
+				retIntent.putExtras(bundle);
 				retIntent.setAction(HikeConstants.HikePhotos.PHOTOS_ACTION_CODE);
 				setResult(RESULT_OK, retIntent);
 				finish();
@@ -210,7 +208,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 			}
 		});
 
-		if(!startedForResult)
+		if(!isStartedForResult())
 		{
 			startedForProfileUpdate = intent.getBooleanExtra(HikeConstants.HikePhotos.ONLY_PROFILE_UPDATE, false);
 		}
@@ -331,7 +329,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 
 		mActionBarDoneContainer.setOnClickListener(clickHandler);
 
-		if (startedForResult)
+		if (isStartedForResult())
 		{
 			((TextView) actionBarView.findViewById(R.id.done_text)).setText(R.string.image_quality_send);
 		}
@@ -473,11 +471,11 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 				editView.undoLastDoodleDraw();
 				break;
 			case R.id.done_container:
-				if (!startedForResult && !startedForProfileUpdate)
+				if (!isStartedForResult() && !startedForProfileUpdate)
 				{
 					loadPreviewFragment();
 				}
-				else if(!startedForResult && startedForProfileUpdate)
+				else if(!isStartedForResult() && startedForProfileUpdate)
 				{
 					setupProfilePicUpload();
 				}
@@ -492,7 +490,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 						{
 							Intent intent = new Intent();
 							setResult(RESULT_CANCELED, intent);
-							finish();
+							onError();
 
 						}
 
@@ -506,11 +504,21 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 						@Override
 						public void onComplete(File f)
 						{
-							Intent intent = new Intent();
-							intent.putExtra(HikeConstants.Extras.IMAGE_PATH, f.getAbsolutePath());
-							intent.setAction(HikeConstants.HikePhotos.PHOTOS_ACTION_CODE);
-							setResult(RESULT_OK, intent);
-							finish();
+							Bundle bundle = new Bundle();
+							bundle.putString(HikeConstants.Extras.IMAGE_PATH, f.getAbsolutePath());
+							if(hasDelegateActivities())
+							{
+								launchNextDelegateActivity(bundle);
+							}
+							else
+							{
+								Intent intent = new Intent();
+								intent.putExtras(bundle);
+								intent.setAction(HikeConstants.HikePhotos.PHOTOS_ACTION_CODE);
+								setResult(RESULT_OK, intent);
+								finish();
+
+							}
 						}
 					});
 				}
