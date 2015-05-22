@@ -54,6 +54,10 @@ android {
             assets.srcDirs = ['assets']
             jniLibs.srcDirs = ['libs']
         }
+
+        black {
+            res.srcDirs = ['res-black']
+        }
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_7

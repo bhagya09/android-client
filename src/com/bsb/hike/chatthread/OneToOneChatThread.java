@@ -1089,6 +1089,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		 * Setting text on lastSeenView
 		 */
 		mLastSeenView.setText(text);
+		mLastSeenView.setSelected(true);
 		
 		prevLastSeen = text;
 		
@@ -2502,18 +2503,25 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	@Override
 	public boolean onBackPressed()
 	{
-		if (modeOfChat == H2S_MODE)
+		if (!super.onBackPressed())
 		{
-			destroyH20Mode();
-			return true;
+			if (modeOfChat == H2S_MODE)
+			{
+				destroyH20Mode();
+				return true;
+			}
+			else if (isH20TipShowing())
+			{
+				hideH20Tip();
+				return true;
+			}
+			else
+			{
+				return false;
+			}
 		}
 
-		else if (isH20TipShowing())
-		{
-			hideH20Tip();
-			return true;
-		}
-		return super.onBackPressed();
+		return true;
 	}
 	
 	@Override

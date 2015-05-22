@@ -144,6 +144,9 @@ public class SingleStickerDownloadTaskOkHttp implements IHikeHTTPTask
 							return;
 						}
 					}
+					
+					Utils.makeNoMediaFile(smallDir);
+					Utils.makeNoMediaFile(largeDir);
 
 					Utils.saveBase64StringToFile(new File(largeStickerPath), stickerData);
 
