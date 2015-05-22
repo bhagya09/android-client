@@ -251,6 +251,11 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 
 	public void saveImage(HikeFileType fileType, String originalName, HikePhotosListener listener)
 	{
+		if(imageScaled == null)
+		{
+			return;
+		}
+		
 		doodleLayer.getMeasure(imageScaled.getWidth(), imageScaled.getHeight());
 
 		this.mFileType = fileType;

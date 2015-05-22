@@ -36,11 +36,11 @@ import com.bsb.hike.ui.ComposeChatActivity;
 import com.bsb.hike.ui.ConnectedAppsActivity;
 import com.bsb.hike.ui.CreateNewGroupOrBroadcastActivity;
 import com.bsb.hike.ui.CreditsActivity;
-import com.bsb.hike.ui.DelegateActivity;
 import com.bsb.hike.ui.FileSelectActivity;
 import com.bsb.hike.ui.FtueBroadcast;
 import com.bsb.hike.ui.GalleryActivity;
 import com.bsb.hike.ui.HikeAuthActivity;
+import com.bsb.hike.ui.HikeBaseActivity;
 import com.bsb.hike.ui.HikeListActivity;
 import com.bsb.hike.ui.HikePreferences;
 import com.bsb.hike.ui.HomeActivity;
@@ -548,18 +548,31 @@ public class IntentFactory
 		return intent;
 	}
 
-	public static Intent getHikeGalleryPickerIntent(Context context, boolean allowMultiSelect, boolean categorizeByFolders, boolean enableCameraPick, int actionBarType,
-			PendingIntent argIntent,String msisdn,boolean onHike)
+	public static Intent getHikeGalleryPickerIntent(Context context, boolean allowMultiSelect, boolean categorizeByFolders, boolean enableCameraPick,boolean editSelectedImage,String croppedOutputDestination)
 	{
 		Intent intent = new Intent(context, GalleryActivity.class);
 		Bundle b = new Bundle();
-		b.putParcelable(GalleryActivity.PENDING_INTENT_KEY, argIntent);
 		b.putBoolean(GalleryActivity.DISABLE_MULTI_SELECT_KEY, !allowMultiSelect);
 		b.putBoolean(GalleryActivity.FOLDERS_REQUIRED_KEY, categorizeByFolders);
 		b.putBoolean(GalleryActivity.ENABLE_CAMERA_PICK, enableCameraPick);
-		b.putInt(GalleryActivity.ACTION_BAR_TYPE_KEY, actionBarType);
-		b.putString(HikeConstants.Extras.MSISDN, msisdn);
-		b.putBoolean(HikeConstants.Extras.ON_HIKE, onHike);
+		
+		ArrayList<Intent> destIntents = new ArrayList<Intent>();
+		
+		if(editSelectedImage)
+		{
+			destIntents.add(IntentFactory.getPictureEditorActivityIntent(context, null, false, null, false));
+		}
+		
+		if(croppedOutputDestination != null)
+		{
+			destIntents.add(IntentFactory.getCropActivityIntent(context, null, croppedOutputDestination, true, 100, true));
+		}
+		
+		if(destIntents.size()>0)
+		{
+			b.putParcelableArrayList(HikeBaseActivity.DESTINATION_INTENT, destIntents);
+		}
+		
 		intent.putExtras(b);
 		return intent;
 	}
@@ -790,51 +803,6 @@ public class IntentFactory
 	public static void startShareImageIntent(String mimeType, String imagePath)
 	{
 		startShareImageIntent(mimeType, imagePath, null);
-	}
-	
-	public static Intent getDelegateActivityIntent(Context context,ArrayList<Intent> desIntents)
-	{
-		Intent intent = new Intent(context, DelegateActivity.class);
-		intent.putParcelableArrayListExtra(DelegateActivity.DESTINATION_INTENT, desIntents);
-		return intent;
-	}
-	
-	public static ArrayList<Intent> getPhotosFlowFromGalleryIntents(Context context,boolean enableCamera,String msisdn,boolean onHike,boolean compressOutput,boolean cropOutput,String cropDestPath,boolean isProfileOutput)
-	{
-		int intentCount = cropOutput ? 3 : 2;
-		
-		ArrayList<Intent> desIntent = new ArrayList<Intent>(intentCount);
-		Intent sourceIntent = IntentFactory.getHikeGalleryPickerIntent(context, true, true,enableCamera, GalleryActivity.PHOTOS_EDITOR_ACTION_BAR_TYPE, null, msisdn, onHike);
-		sourceIntent.putExtra(GalleryActivity.START_FOR_RESULT, true);
-		Intent editer = IntentFactory.getPictureEditorActivityIntent(context, null, compressOutput, null,isProfileOutput);
-		Intent cropper = null;
-		
-		desIntent.add(sourceIntent);
-		desIntent.add(editer);
-		if(cropOutput)
-		{
-			cropper = IntentFactory.getCropActivityIntent(context, null, cropDestPath, true, 100, true);
-			desIntent.add(cropper);
-		}
-		return desIntent;
-	}
-	
-	public static ArrayList<Intent> getPhotosFlowFromCameraIntents(Context context,File selectedFile,boolean compressOutput,boolean cropOutput,boolean forProfileUpdate)
-	{
-		int intentCount = cropOutput ? 3 : 2;
-		ArrayList<Intent> desIntent = new ArrayList<Intent>(intentCount);
-		Intent sourceIntent = IntentFactory.getNativeCameraAppIntent(true, selectedFile);
-		Intent destination = IntentFactory.getPictureEditorActivityIntent(context, null, compressOutput, selectedFile.getAbsolutePath(),forProfileUpdate);
-		destination.putExtra(HikeMessengerApp.FILE_PATHS, selectedFile.getAbsolutePath());
-
-		desIntent.add(sourceIntent);
-		desIntent.add(destination);
-		if(cropOutput)
-		{
-			Intent cropper = IntentFactory.getCropActivityIntent(context, selectedFile.getAbsolutePath(), selectedFile.getAbsolutePath(), true, 100, true);
-			desIntent.add(cropper);
-		}
-		return desIntent;
 	}
 	
 	public static Intent getCropActivityIntent(Context context, String path, String destPath, boolean preventScaling, int quality,boolean circleHighlight)

@@ -2687,6 +2687,8 @@ public class HikeConstants
 		public static final String PHOTOS_ACTION_CODE = "photos_action_code";
 		
 		public static final String ONLY_PROFILE_UPDATE = "update_profile_pic_only";
+		
+		public static final int MAX_IMAGE_DIMEN = 1240;
 
 	}
 

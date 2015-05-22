@@ -170,18 +170,7 @@ public class AttachmentPicker extends OverFlowMenuLayout
 						Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), R.string.not_enough_memory, Toast.LENGTH_SHORT).show();
 						break;
 					}
-					if (Utils.isPhotosEditEnabled())
-					{
-						/**
-						 * If photos enable it will launch a series of activities to return the final edited image.
-						 * Delegate activity handles the launching of the required activities in series and handling their respective results
-						 */
-						pickIntent = IntentFactory.getDelegateActivityIntent(activity, IntentFactory.getPhotosFlowFromCameraIntents(activity, selectedFile,false,false,false));
-					}
-					else
-					{
-						pickIntent = IntentFactory.getNativeCameraAppIntent(true, selectedFile);
-					}
+					pickIntent = IntentFactory.getNativeCameraAppIntent(true, selectedFile);
 					break;
 				case VIDEO:
 					requestCode = VIDEO;

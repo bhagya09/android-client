@@ -10,7 +10,6 @@ import android.support.v4.app.FragmentTransaction;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikeMessengerApp.CurrentState;
@@ -23,9 +22,9 @@ import com.bsb.hike.productpopup.HikeDialogFragment;
 import com.bsb.hike.productpopup.IActivityPopup;
 import com.bsb.hike.productpopup.ProductContentModel;
 import com.bsb.hike.productpopup.ProductInfoManager;
-import com.bsb.hike.ui.fragments.ImageViewerFragment;
+import com.bsb.hike.ui.HikeBaseActivity;
 
-public class HikeAppStateBaseFragmentActivity extends SherlockFragmentActivity implements Listener
+public class HikeAppStateBaseFragmentActivity extends HikeBaseActivity implements Listener
 {
 
 	private static final String TAG = "HikeAppState";
