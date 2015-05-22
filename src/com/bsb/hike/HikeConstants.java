@@ -1087,6 +1087,53 @@ public class HikeConstants
 
 	public static final String VOIP_AEC_TAIL_TYPE = "att";
 	
+	public static final class ChatHeadService
+	{
+		public static final int ANIMATION_TIME = 300;
+
+		public static final int RECT_CONST = 10;
+
+		public static final int DRAG_CONST = 3;
+
+		public static final String STATUS_BAR_HEIGHT = "status_bar_height";
+
+		public static final String STATUS_BAR_TYPE = "dimen";
+
+		public static final String STATUS_BAR_PACKAGE = "android";
+
+		public static final int INITIAL_POS_X = 0;
+
+		public static final int INITIAL_POS_Y = 0;
+
+		public static final int NOTIFICATION_TIMEOUT = 100;
+
+		public static final String CHAT_HEAD_SERVICE = "chtHdSrv";
+
+		public static final String CHAT_HEAD_USR_CONTROL = "chtHdUsrCntl";
+
+		public static final String STICKERS_PER_DAY = "stkrPDay";
+
+		public static final String EXTRA_STICKERS_PER_DAY = "exStkrPDay";
+
+		public static final String TOTAL_STICKER_SHARE_COUNT = "ttlStkrShrCount";
+
+		public static final int DEFAULT_NO_STICKERS_PER_DAY = 5;
+
+		public static final int CREATING_CHAT_HEAD_ACTIVITY_ANIMATION = 0;
+
+		public static final int FINISHING_CHAT_HEAD_ACTIVITY_ANIMATION = 1;
+
+		public static final int SHARING_BEFORE_FINISHING_ANIMATION = 2;
+
+		public static final int REMAINING_ANIMATION = 3;
+
+		public static final String INTENT_EXTRA = "time";
+
+		public static final int STARTING_SERVICE = 1;
+
+	}
+
+	
 	
 	public static final class ResultCodes
 	{
@@ -1486,9 +1533,24 @@ public class HikeConstants
 			public static final int STICKER_SHARE = 2;
 
 		}
-
+		
+		
 		public static final String SHARE_CONTENT = "shareContent";
 
+		public static final String PACKAGE_NAME = "packageName";
+		
+		public static final String HIKE_PACKAGE = "com.bsb.hike";
+		
+		public static final String LINE_PACKAGE = "jp.naver.line.android";
+		
+		public static final String VIBER_PACKAGE = "com.viber.voip";
+		
+		public static final String TELEGRAM_PACKAGE = "org.telegram.messenger";
+		
+		public static final String FACEBOOK_PACKAGE = "com.facebook.orca";
+		
+	    public static final String WECHAT_PACKAGE = "com.tencent.mm";
+	
 		public static final String WHATSAPP_PACKAGE = "com.whatsapp";
 
 		public static final String SHARE_TYPE = "shareType";
