@@ -395,10 +395,8 @@ public class PlatformUtils
 		if (!TextUtils.isEmpty(platformToken) && !TextUtils.isEmpty(platformUID))
 		{
 			List<Header> headers = new ArrayList<Header>(1);
-			if (platformToken != null && platformUID != null)
-			{
-				headers.add(new Header(HttpHeaderConstants.COOKIE_HEADER_NAME, HikePlatformConstants.PLATFORM_TOKEN + "=" + platformToken + "; " + HikePlatformConstants.PLATFORM_USER_ID + "=" + platformUID));
-			}
+			headers.add(new Header(HttpHeaderConstants.COOKIE_HEADER_NAME,
+					HikePlatformConstants.PLATFORM_TOKEN + "=" + platformToken + "; " + HikePlatformConstants.PLATFORM_USER_ID + "=" + platformUID));
 
 			return headers;
 		}
