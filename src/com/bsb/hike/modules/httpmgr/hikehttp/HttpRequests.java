@@ -202,7 +202,7 @@ public class HttpRequests
 		return requestToken;
 	}
 
-	public static RequestToken microAppPostRequest(String url, JSONObject json)
+	public static RequestToken microAppPostRequest(String url, JSONObject json, IRequestListener requestListener)
 	{
 		JsonBody body = new JsonBody(json);
 
@@ -210,6 +210,7 @@ public class HttpRequests
 				.setUrl(url)
 				.setRequestType(Request.REQUEST_TYPE_SHORT)
 				.addHeader(PlatformUtils.getHeaders())
+				.setRequestListener(requestListener)
 				.post(body)
 				.build();
 
