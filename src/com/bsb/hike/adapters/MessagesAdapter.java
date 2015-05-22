@@ -872,6 +872,12 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 						// This is being done to fix a legacy bug, where catId came as "unknown"
 						
 						String newCategoryId = (String) result;
+						
+						if(TextUtils.isEmpty(newCategoryId))
+						{
+							return ;
+						}
+						
 						String oldCategoryId = convMessage.getMetadata().getSticker().getStickerId();
 						if (!oldCategoryId.equals(newCategoryId))
 						{
