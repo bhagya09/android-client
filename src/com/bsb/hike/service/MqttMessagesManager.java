@@ -16,11 +16,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -38,6 +39,7 @@ import com.bsb.hike.analytics.AnalyticsConstants.MsgRelEventType;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.analytics.MsgRelLogManager;
+import com.bsb.hike.chatHead.ChatHeadServiceManager;
 import com.bsb.hike.db.DBConstants;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
@@ -211,6 +213,16 @@ public class MqttMessagesManager
 
 		HikeMessengerApp.getLruCache().clearIconForMSISDN(msisdn);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.ICON_CHANGED, msisdn);
+	}
+	
+
+	private void toggleChatHeadService()
+	{
+		Intent mIntent = new Intent(context, ChatHeadServiceManager.class);
+		mIntent.putExtra(HikeConstants.ChatHeadService.INTENT_EXTRA, HikeConstants.ChatHeadService.STARTING_SERVICE);
+		PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, mIntent, PendingIntent.FLAG_ONE_SHOT);
+		AlarmManager alarmManager = (AlarmManager) (context.getSystemService(context.ALARM_SERVICE));
+		alarmManager.set(AlarmManager.RTC, 1, pendingIntent);
 	}
 
 	private void saveDisplayPic(JSONObject jsonObj) throws JSONException
@@ -1863,6 +1875,28 @@ public class MqttMessagesManager
 		{
 			boolean shareStrings = data.getBoolean(HikeConstants.Extras.SHOW_SHARE_FUNCTIONALITY);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.Extras.SHOW_SHARE_FUNCTIONALITY, shareStrings);
+		}
+		if (data.has(HikeConstants.ChatHeadService.STICKERS_PER_DAY))
+		{
+			int stickersPerDay = data.getInt(HikeConstants.ChatHeadService.STICKERS_PER_DAY);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHeadService.STICKERS_PER_DAY, stickersPerDay);
+		}
+		if (data.has(HikeConstants.ChatHeadService.EXTRA_STICKERS_PER_DAY))
+		{
+			int extraStickersPerDay = data.getInt(HikeConstants.ChatHeadService.EXTRA_STICKERS_PER_DAY);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHeadService.EXTRA_STICKERS_PER_DAY, extraStickersPerDay);
+		}
+		if (data.has(HikeConstants.ChatHeadService.CHAT_HEAD_SERVICE))
+		{
+
+			boolean chatHeadService = data.getBoolean(HikeConstants.ChatHeadService.CHAT_HEAD_SERVICE);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHeadService.CHAT_HEAD_SERVICE, chatHeadService);
+		}
+		if (data.has(HikeConstants.ChatHeadService.CHAT_HEAD_USR_CONTROL))
+		{
+			Boolean chatHeadServiceUserControl = data.getBoolean(HikeConstants.ChatHeadService.CHAT_HEAD_USR_CONTROL);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHeadService.CHAT_HEAD_USR_CONTROL, chatHeadServiceUserControl);
+			toggleChatHeadService();
 		}
 		if(data.has(HikeConstants.PROB_NUM_TEXT_MSG))
 		{
