@@ -333,6 +333,11 @@
             android:screenOrientation="portrait" >
         </activity>
         <activity
+            android:name=".chatthread.ChatHeadActivity"
+            android:allowEmbedded="true"
+            android:configChanges="orientation|screenSize"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+		<activity
             android:name=".ui.PinHistoryActivity"
             android:configChanges="orientation|screenSize|keyboard|keyboardHidden" >
         </activity>
@@ -437,6 +442,8 @@
                 <action android:name="android.intent.action.PHONE_STATE" />
             </intent-filter>
         </receiver>
+        <receiver android:name=".chatHead.ChatHeadServiceManager" />
+        <service android:name=".chatHead.ChatHeadService" />
 
         <service android:name=".voip.VoIPService" />
 
