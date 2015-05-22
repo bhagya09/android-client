@@ -93,7 +93,6 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 	private boolean startedForProfileUpdate;
 	private boolean isWorking;
 	
-
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
@@ -507,7 +506,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 						{
 							finishProgress();
 							Bundle bundle = new Bundle();
-							bundle.putString(HikeConstants.Extras.IMAGE_PATH, f.getAbsolutePath());
+							bundle.putString(HikeConstants.Extras.IMAGE_PATH, editView.isImageEdited()?f.getAbsolutePath():filename);
 							if(hasDelegateActivities())
 							{
 								launchNextDelegateActivity(bundle);

@@ -192,7 +192,7 @@ public class HikeBitmapFactory
 			@Override
 			public void run()
 			{
-				Bitmap bmp = HikeBitmapFactory.decodeFile(srcFilePath);
+				Bitmap bmp = HikeBitmapFactory.decodeSampledBitmapFromFile(srcFilePath, HikeConstants.HikePhotos.MAX_IMAGE_DIMEN, HikeConstants.HikePhotos.MAX_IMAGE_DIMEN, Config.ARGB_8888);
 				if(bmp==null)
 				{
 					mListener.onFailure();
