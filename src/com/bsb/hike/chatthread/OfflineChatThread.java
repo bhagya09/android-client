@@ -4,11 +4,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import android.content.Intent;
 import android.net.wifi.ScanResult;
 import android.net.wifi.p2p.WifiP2pDeviceList;
+import android.view.ViewGroup.LayoutParams;
+import android.widget.PopupWindow;
 
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
@@ -19,9 +23,9 @@ import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.offline.IOfflineCallbacks;
 import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
+import com.bsb.hike.ui.GalleryActivity;
+import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Utils;
-import android.view.ViewGroup.LayoutParams;
-import android.widget.PopupWindow;
 
 public class OfflineChatThread extends OneToOneChatThread implements IOfflineCallbacks
 {
@@ -159,6 +163,30 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 			attachmentPicker.appendItem(new OverFlowMenuItem(getString(R.string.apps), 0, R.drawable.ic_attach_apk, AttachmentPicker.APPS));
 			
 		}
-	
 	}
+	
+	
+	protected void startHikeGallery(boolean onHike)
+	{
+		Intent imageIntent = IntentFactory.getHikeGallaryShare(activity.getApplicationContext(), msisdn, onHike);
+		imageIntent.putExtra(GalleryActivity.START_FOR_RESULT, true);
+		imageIntent.putExtra(HikeConstants.Extras.OFFLINE_MODE_ON, true);
+		activity.startActivityForResult(imageIntent, AttachmentPicker.GALLERY);
+	}
+
+	@Override
+	public void itemClicked(OverFlowMenuItem item)
+	{
+		switch (item.id)
+		{
+		case AttachmentPicker.GALLERY:
+			startHikeGallery(mConversation.isOnHike());
+			break;
+
+		default:
+			super.itemClicked(item);
+		}
+	}
+	
+
 }

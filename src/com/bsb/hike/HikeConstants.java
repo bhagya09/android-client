@@ -1553,6 +1553,8 @@ public class HikeConstants
 		public static final String GROUP_CREATE_BUNDLE = "groupCreationBundle";
 		
 		public static final String OFFLINE_CHAT_THREAD="offlineChatThread";
+
+		public static final String OFFLINE_MODE_ON = "offlineModeOn";
 	}
 
 	public static final class LogEvent
