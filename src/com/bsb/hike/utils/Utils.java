@@ -5820,7 +5820,7 @@ public class Utils
 		}
 	}
 	
-	public static File getCameraResultFile()
+	public static String getCameraResultFile()
 	{
 		HikeSharedPreferenceUtil sharedPreference = HikeSharedPreferenceUtil.getInstance();
 		String capturedFilepath = sharedPreference.getData(HikeMessengerApp.FILE_PATH, null);
@@ -5832,7 +5832,7 @@ public class Utils
 
 			if (imageFile != null && imageFile.exists())
 			{
-				return imageFile;
+				return capturedFilepath;
 			}
 			else
 			{

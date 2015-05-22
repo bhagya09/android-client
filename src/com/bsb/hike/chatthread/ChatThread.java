@@ -129,7 +129,6 @@ import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.tasks.EmailConversationsAsyncTask;
 import com.bsb.hike.ui.ComposeViewWatcher;
-import com.bsb.hike.ui.DelegateActivity;
 import com.bsb.hike.ui.GalleryActivity;
 import com.bsb.hike.utils.ChatTheme;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
@@ -1292,15 +1291,18 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	 */
 	private void startHikeGallery(boolean onHike)
 	{
-		if(Utils.isPhotosEditEnabled())
+		boolean editPic = Utils.isPhotosEditEnabled();
+		
+		Intent imageIntent = IntentFactory.getHikeGalleryPickerIntent(activity.getApplicationContext(), true, true, false,editPic,null);
+		imageIntent.putExtra(GalleryActivity.START_FOR_RESULT, true);
+		imageIntent.putExtra(HikeConstants.Extras.MSISDN, msisdn);
+		imageIntent.putExtra(HikeConstants.Extras.ON_HIKE, onHike);
+		if(editPic)
 		{
-			Intent imageIntent = IntentFactory.getDelegateActivityIntent(activity.getApplicationContext(), IntentFactory.getPhotosFlowFromGalleryIntents(activity.getApplicationContext(),false, msisdn, onHike,false,false,null,false));
-			activity.startActivityForResult(imageIntent, AttachmentPicker.GALLERY);
+			activity.startActivityForResult(imageIntent,AttachmentPicker.GALLERY);
 		}
 		else
 		{
-			Intent imageIntent = IntentFactory.getHikeGalleryPickerIntent(activity.getApplicationContext(), true, true, false, GalleryActivity.PHOTOS_EDITOR_ACTION_BAR_TYPE, null, msisdn, onHike);
-			imageIntent.putExtra(GalleryActivity.START_FOR_RESULT, true);
 			activity.startActivity(imageIntent);
 		}
 	}

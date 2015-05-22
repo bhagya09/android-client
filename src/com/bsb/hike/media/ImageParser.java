@@ -8,12 +8,11 @@ import android.content.Intent;
 import android.net.Uri;
 
 import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 
 public class ImageParser
 {
@@ -48,17 +47,15 @@ public class ImageParser
 			
 			String capturedFilepath = null;
 			
-			if(data.getAction() == HikeConstants.HikePhotos.PHOTOS_ACTION_CODE)
+			if(data == null) 
+			{
+				//result coming from camera
+				capturedFilepath = Utils.getCameraResultFile();
+			}
+			else if(data.getAction() == HikeConstants.HikePhotos.PHOTOS_ACTION_CODE)
 			{
 				capturedFilepath = data.getStringExtra(HikeConstants.Extras.IMAGE_PATH);
 			}
-			else
-			{
-				HikeSharedPreferenceUtil sharedPreference = HikeSharedPreferenceUtil.getInstance();
-				capturedFilepath = sharedPreference.getData(HikeMessengerApp.FILE_PATH, null);
-				sharedPreference.removeData(HikeMessengerApp.FILE_PATH);
-			}
-			
 
 			if (capturedFilepath != null)
 			{

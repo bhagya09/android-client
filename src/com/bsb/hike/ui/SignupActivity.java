@@ -2390,33 +2390,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 
 		switch (requestCode)
 		{
-		case GalleryActivity.GALLERY_ACTIVITY_RESULT_CODE:
 
-			if (path == null)
-			{
-				ArrayList<GalleryItem> galleryList = data.getParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS);
-				if (galleryList != null && !galleryList.isEmpty())
-				{
-					path = galleryList.get(0).getFilePath();
-				}
-				if (path == null && data.getData() != null)
-				{
-					path = data.getData().toString();
-				}
-			}
-
-			if (TextUtils.isEmpty(path))
-			{
-				Toast.makeText(getApplicationContext(), R.string.error_capture, Toast.LENGTH_SHORT).show();
-				return;
-			}
-			else
-			{
-				Utils.startCropActivity(this, path, getNewProfileImagePath());
-			}
-			break;
-
-		case HikeConstants.CROP_RESULT:
 		case HikeConstants.ResultCodes.PHOTOS_REQUEST_CODE:
 			mActivityState.destFilePath = data.getStringExtra(MediaStore.EXTRA_OUTPUT);
 			setProfileImage();

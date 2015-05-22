@@ -807,51 +807,6 @@ public class IntentFactory
 		startShareImageIntent(mimeType, imagePath, null);
 	}
 	
-	public static Intent getDelegateActivityIntent(Context context,ArrayList<Intent> desIntents)
-	{
-		Intent intent = new Intent(context, DelegateActivity.class);
-		intent.putParcelableArrayListExtra(DelegateActivity.DESTINATION_INTENT, desIntents);
-		return intent;
-	}
-	
-	public static ArrayList<Intent> getPhotosFlowFromGalleryIntents(Context context,boolean enableCamera,String msisdn,boolean onHike,boolean compressOutput,boolean cropOutput,String cropDestPath,boolean isProfileOutput)
-	{
-		int intentCount = cropOutput ? 3 : 2;
-		
-		ArrayList<Intent> desIntent = new ArrayList<Intent>(intentCount);
-		Intent sourceIntent = IntentFactory.getHikeGalleryPickerIntent(context, true, true,enableCamera, GalleryActivity.PHOTOS_EDITOR_ACTION_BAR_TYPE, null, msisdn, onHike);
-		sourceIntent.putExtra(GalleryActivity.START_FOR_RESULT, true);
-		Intent editer = IntentFactory.getPictureEditorActivityIntent(context, null, compressOutput, null,isProfileOutput);
-		Intent cropper = null;
-		
-		desIntent.add(sourceIntent);
-		desIntent.add(editer);
-		if(cropOutput)
-		{
-			cropper = IntentFactory.getCropActivityIntent(context, null, cropDestPath, true, 100, true);
-			desIntent.add(cropper);
-		}
-		return desIntent;
-	}
-	
-	public static ArrayList<Intent> getPhotosFlowFromCameraIntents(Context context,File selectedFile,boolean compressOutput,boolean cropOutput,boolean forProfileUpdate)
-	{
-		int intentCount = cropOutput ? 3 : 2;
-		ArrayList<Intent> desIntent = new ArrayList<Intent>(intentCount);
-		Intent sourceIntent = IntentFactory.getNativeCameraAppIntent(true, selectedFile);
-		Intent destination = IntentFactory.getPictureEditorActivityIntent(context, null, compressOutput, selectedFile.getAbsolutePath(),forProfileUpdate);
-		destination.putExtra(HikeMessengerApp.FILE_PATHS, selectedFile.getAbsolutePath());
-
-		desIntent.add(sourceIntent);
-		desIntent.add(destination);
-		if(cropOutput)
-		{
-			Intent cropper = IntentFactory.getCropActivityIntent(context, selectedFile.getAbsolutePath(), selectedFile.getAbsolutePath(), true, 100, true);
-			desIntent.add(cropper);
-		}
-		return desIntent;
-	}
-	
 	public static Intent getCropActivityIntent(Context context, String path, String destPath, boolean preventScaling, int quality,boolean circleHighlight)
 	{
 		/* Crop the image */
