@@ -188,11 +188,15 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 
 		mIconPageIndicator = (StickerEmoticonIconPageIndicator) view.findViewById(R.id.sticker_icon_indicator);
 
+		
 		View shopIcon = (view.findViewById(R.id.shop_icon));
+		
+		if (shopIcon != null)
+		{
+			shopIcon.setOnClickListener(this);
 
-		shopIcon.setOnClickListener(this);
-
-		handleStickerIntro(view);		
+			handleStickerIntro(view);
+		}
 
 		mViewPager.setVisibility(View.VISIBLE);
 	}
