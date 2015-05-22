@@ -415,7 +415,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 				mActionBar.setOverflowViewListener(this);
 				mActionBar.setShouldAvoidDismissOnClick(true);
 
-			if((menuItemsList == null) || (menuItemsList != null && menuItemsList.isEmpty()))
+			if((menuItemsList == null) || menuItemsList.isEmpty())
 			{
 				menu.findItem(R.id.overflow_menu).setVisible(false);
 			}
