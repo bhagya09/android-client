@@ -6982,11 +6982,12 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	 * @param msisdn
 	 * @param newState
 	 */
-	public void updateLastMessageState(String msisdn, int newState)
+	public void updateLastMessageStateAndCount(String msisdn, int newState)
 	{
 		ContentValues values = new ContentValues();
 		values.put(DBConstants.MSG_STATUS, newState);
-
+		//Reset the unread count
+		values.put(DBConstants.UNREAD_COUNT, 0);
 		mDb.updateWithOnConflict(DBConstants.CONVERSATIONS_TABLE, values, MSISDN + "=?", new String[] { msisdn }, SQLiteDatabase.CONFLICT_REPLACE);
 	}
 }
