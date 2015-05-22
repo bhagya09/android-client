@@ -1321,13 +1321,13 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 			Logger.d(TAG, "Network change event happened. Network connected : " + isNetwork);
 			if (isNetwork)
 			{
-				if(shouldDisconnectAndReconnect())
+				if(shouldReconnectNetworkCheck())
 				{
+					//Here we will disconnect and reconnect
 					disconnectOnMqttThread(true);
 				}
 				else
 				{
-					resetConnectionVariables();
 					connectOnMqttThread();
 				}
 			}
@@ -1352,7 +1352,7 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 			/*
 			 * ssl settings toggled so disconnect and reconnect mqtt
 			 */
-			if(shouldDisconnectAndReconnect())
+			if(shouldReconnectSSLCheck())
 			{
 				disconnectOnMqttThread(true);
 			}
@@ -1366,30 +1366,13 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 
 	/**
 	 * Return <b>True</b> if we should disconnect and reconnect in following scenarios
-	 * <li>1. If we should connect using ssl and currently we are not connected to ssl</li>
-	 * <li>2. if we should not connect using ssl and currently we are connected using ssl</li>
-	 * <li>3. if we are not connected and current network is different from previous network</li>
+	 * <li>1. if we are not connected and current network is different from previous network</li>
 	 * <p></p>
 	 * <b>False</b> otherwise
 	 * @return
 	 */
-	private boolean shouldDisconnectAndReconnect()
+	private boolean shouldReconnectNetworkCheck()
 	{
-		boolean shouldConnectUsingSSL = Utils.switchSSLOn(context);
-		boolean isSSLConnected = isSSL();
-		Logger.d(TAG, "SSL Preference has changed. OnSSL : " + shouldConnectUsingSSL + " ,isSSLAlreadyOn : " + isSSLConnected);
-		// reconnect using SSL as currently not connected using SSL
-		if (shouldConnectUsingSSL && !isSSLConnected)
-		{
-			return true;
-		}
-		// reconnect using nonSSL but currently connected using SSL
-		else if (!shouldConnectUsingSSL && isSSLConnected)
-		{
-			return true;
-		}
-		else
-		{
 			/**
 			 * In else we should handling only cases where we are in connecting state. So if we are already connected we should not disconnect.
 			 */
@@ -1410,7 +1393,24 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 				}
 			}
 			return false;
-		}
+	}
+	
+	/**
+	 * Return <b>True</b> if we should disconnect and reconnect in following scenarios
+	 * <li>1. If we should connect using ssl and currently we are not connected to ssl</li>
+	 * <li>2. if we should not connect using ssl and currently we are connected using ssl</li>
+	 * <p></p>
+	 * <b>False</b> otherwise
+	 * @return
+	 */
+
+	private boolean shouldReconnectSSLCheck()
+	{
+		boolean shouldConnectUsingSSL = Utils.switchSSLOn(context);
+		boolean isSSLConnected = isSSL();
+		Logger.d(TAG, "SSL Preference has changed. OnSSL : " + shouldConnectUsingSSL + " ,isSSLAlreadyOn : " + isSSLConnected);
+		// reconnect using SSL if currently not connected using SSL OR vice versa
+		return shouldConnectUsingSSL ^ isSSLConnected;
 	}
 	
 	
