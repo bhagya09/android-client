@@ -556,9 +556,7 @@ public class IntentFactory
 		b.putBoolean(GalleryActivity.FOLDERS_REQUIRED_KEY, categorizeByFolders);
 		b.putBoolean(GalleryActivity.ENABLE_CAMERA_PICK, enableCameraPick);
 		
-		int intentCount = (croppedOutputDestination == null) ? (editSelectedImage?1:0):(editSelectedImage?2:1);
-		
-		ArrayList<Intent> destIntents = new ArrayList<Intent>(intentCount);
+		ArrayList<Intent> destIntents = new ArrayList<Intent>();
 		
 		if(editSelectedImage)
 		{
@@ -570,7 +568,7 @@ public class IntentFactory
 			destIntents.add(IntentFactory.getCropActivityIntent(context, null, croppedOutputDestination, true, 100, true));
 		}
 		
-		if(intentCount>0)
+		if(destIntents.size()>0)
 		{
 			b.putParcelableArrayList(HikeBaseActivity.DESTINATION_INTENT, destIntents);
 		}
