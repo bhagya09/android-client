@@ -410,6 +410,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			{
 				mActionBar.onCreateOptionsMenu(menu, R.menu.simple_overflow_menu, menuItemsList, this, this);
 				mActionBar.setOverflowViewListener(this);
+				mActionBar.setShouldAvoidDismissOnClick(true);
 			}
 			return true;
 		}
@@ -583,6 +584,17 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			if (mmBridge != null)
 			{
 				mmBridge.onMenuItemClicked(parameter.id);
+				
+				if (parameter.drawableId != 0)
+				{
+					parameter.drawableId = parameter.drawableId == R.drawable.tick ? R.drawable.untick : R.drawable.tick;
+					mActionBar.refreshOverflowMenuItem(parameter);
+				}
+				
+				else
+				{
+					mActionBar.dismissOverflowMenu();
+				}
 			}
 		}
 	}

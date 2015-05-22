@@ -355,4 +355,28 @@ public class HikeActionBar
 	{
 		mActivity.getSupportActionBar().setCustomView(null);
 	}
+	
+	/**
+	 * @param shouldAvoidDismissOnClick the shouldAvoidDismissOnClick to set
+	 */
+	public void setShouldAvoidDismissOnClick(boolean shouldAvoidDismissOnClick)
+	{
+		if (overFlowMenuLayout != null)
+		{
+			overFlowMenuLayout.setShouldAvoidDismissOnClick(shouldAvoidDismissOnClick);
+		}
+	}
+	
+	/**
+	 * Utility method to refresh the overflow menu item
+	 * 
+	 * @param item
+	 */
+	public void refreshOverflowMenuItem(OverFlowMenuItem item)
+	{
+		if (overFlowMenuLayout != null)
+		{
+			overFlowMenuLayout.refreshOverflowMenuItm(item);
+		}
+	}
 }

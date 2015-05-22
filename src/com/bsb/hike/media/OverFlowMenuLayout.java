@@ -45,6 +45,8 @@ public class OverFlowMenuLayout implements OnItemClickListener
 	private OnDismissListener mOnDismisslistener;
 
 	private OverflowViewListener viewListener;
+	
+	private boolean shouldAvoidDismissOnClick = false;
 
 	/**
 	 * This class is made to show overflow menu items, by default it populates listview of items you want o display, if some other view is required, extend this class and override
@@ -89,58 +91,64 @@ public class OverFlowMenuLayout implements OnItemClickListener
 
 				OverFlowMenuItem item = getItem(position);
 
-				TextView itemTextView = (TextView) convertView.findViewById(R.id.item_title);
-				if (item.enabled)
-				{
-					itemTextView.setTextColor(context.getResources().getColor(R.color.overflow_item_text_enabled));
-				}
-				else
-				{
-					itemTextView.setTextColor(context.getResources().getColor(R.color.overflow_item_text_disabled));
-				}
-				itemTextView.setText(item.text);
-
-				if (item.drawableId != 0)
-				{
-					convertView.findViewById(R.id.item_image_view).setVisibility(View.VISIBLE);
-					convertView.findViewById(R.id.avatar_frame).setVisibility(View.GONE);
-					ImageView itemIcon = (ImageView) convertView.findViewById(R.id.item_icon);
-					itemIcon.setBackgroundResource(item.drawableId);
-					itemIcon.setImageResource(0);
-				}
-				else
-				{
-					convertView.findViewById(R.id.item_image_view).setVisibility(View.GONE);
-				}
-
-				TextView freeSmsCount = (TextView) convertView.findViewById(R.id.free_sms_count);
-				freeSmsCount.setVisibility(View.GONE);
-
-				TextView newGamesIndicator = (TextView) convertView.findViewById(R.id.new_games_indicator);
-
-				if (item.unreadCount <= 0)
-				{
-					newGamesIndicator.setVisibility(View.GONE);
-				}
-				else
-				{
-					newGamesIndicator.setText(setUnreadCounter(item.unreadCount));
-					newGamesIndicator.setVisibility(View.VISIBLE);
-				}
-
-				// Disabling click operation for disabled item.
-				if (item.enabled)
-				{
-					convertView.setClickable(false);
-				}
-				else
-				{
-					convertView.setClickable(true);
-				}
+				populateViewsForPosition(item, position, convertView);
 				return convertView;
 			}
 		});
 		overFlowListView.setOnItemClickListener(this);
+	}
+
+	protected void populateViewsForPosition(OverFlowMenuItem item, int position, View convertView)
+	{
+		TextView itemTextView = (TextView) convertView.findViewById(R.id.item_title);
+		if (item.enabled)
+		{
+			itemTextView.setTextColor(context.getResources().getColor(R.color.overflow_item_text_enabled));
+		}
+		else
+		{
+			itemTextView.setTextColor(context.getResources().getColor(R.color.overflow_item_text_disabled));
+		}
+		itemTextView.setText(item.text);
+
+		if (item.drawableId != 0)
+		{
+			convertView.findViewById(R.id.item_image_view).setVisibility(View.VISIBLE);
+			convertView.findViewById(R.id.avatar_frame).setVisibility(View.GONE);
+			ImageView itemIcon = (ImageView) convertView.findViewById(R.id.item_icon);
+			itemIcon.setBackgroundResource(item.drawableId);
+			itemIcon.setImageResource(0);
+		}
+		
+		else
+		{
+			convertView.findViewById(R.id.item_image_view).setVisibility(View.GONE);
+		}
+
+		TextView freeSmsCount = (TextView) convertView.findViewById(R.id.free_sms_count);
+		freeSmsCount.setVisibility(View.GONE);
+
+		TextView newGamesIndicator = (TextView) convertView.findViewById(R.id.new_games_indicator);
+
+		if (item.unreadCount <= 0)
+		{
+			newGamesIndicator.setVisibility(View.GONE);
+		}
+		else
+		{
+			newGamesIndicator.setText(setUnreadCounter(item.unreadCount));
+			newGamesIndicator.setVisibility(View.VISIBLE);
+		}
+
+		// Disabling click operation for disabled item.
+		if (item.enabled)
+		{
+			convertView.setClickable(false);
+		}
+		else
+		{
+			convertView.setClickable(true);
+		}
 	}
 
 	@Override
@@ -153,7 +161,10 @@ public class OverFlowMenuLayout implements OnItemClickListener
 			return;
 		}
 		listener.itemClicked((OverFlowMenuItem) arg0.getAdapter().getItem(arg2));
-		popUpLayout.dismiss();
+		if (!shouldAvoidDismissOnClick)
+		{
+			popUpLayout.dismiss();
+		}
 	}
 
 	public void show(int width, int height, View anchor)
@@ -394,6 +405,63 @@ public class OverFlowMenuLayout implements OnItemClickListener
 		if (popUpLayout != null)
 		{
 			popUpLayout.dismiss();
+		}
+	}
+
+	/**
+	 * @param shouldAvoidDismissOnClick the shouldAvoidDismissOnClick to set
+	 */
+	public void setShouldAvoidDismissOnClick(boolean shouldAvoidDismissOnClick)
+	{
+		this.shouldAvoidDismissOnClick = shouldAvoidDismissOnClick;
+	}
+
+	/**
+	 * Get position for a given itemId
+	 * 
+	 * @param itemId
+	 * @return
+	 */
+	private int getItemPosition(int itemId)
+	{
+		if (overflowItems != null)
+		{
+			int i = 0;
+			for (OverFlowMenuItem item : overflowItems)
+			{
+				if (item.id == itemId)
+				{
+					return i;
+				}
+
+				i++;
+			}
+		}
+		
+		return -1;
+	}
+	
+	/**
+	 * Utility method to refresh a overflow menu item
+	 * 
+	 * @param item
+	 */
+	public void refreshOverflowMenuItm(OverFlowMenuItem item)
+	{
+		int position = getItemPosition(item.id);
+		
+		if (position != -1 && viewToShow != null)
+		{
+			ListView list = (ListView) viewToShow.findViewById(R.id.overflow_menu_list);
+			if (list != null)
+			{
+				View convertView = list.getChildAt(position);
+				
+				if (convertView != null)
+				{
+					populateViewsForPosition(item, position, convertView);
+				}
+			}
 		}
 	}
 }
