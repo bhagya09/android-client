@@ -471,9 +471,18 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 			{
 				Intent intent = new Intent();
 				ArrayList<GalleryItem> temp = new ArrayList<GalleryItem>(selectedGalleryItems.values());
-				intent.putParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS, temp);
-				if (temp.size() == 1 && sendResult && Utils.isPhotosEditEnabled())
+				
+				Bundle bundle = new Bundle();
+				bundle.putParcelableArrayList(HikeConstants.Extras.GALLERY_SELECTIONS, temp);
+				intent.putExtras(bundle);
+				
+				if(temp.size() == 1 && hasDelegateActivities())
 				{
+					launchNextDelegateActivity(bundle);
+				}
+				else if(!sendResult && isStartedForResult())
+				{
+					//since sendResult is active when we need to send result to selection viewer
 					setResult(RESULT_OK, intent);
 					finish();
 				}
@@ -561,7 +570,6 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 				//Added to ensure delegate activity passes destination path to editer
 				bundle.putString(HikeConstants.HikePhotos.DESTINATION_FILENAME, cameraFilename); 
 				intent.putExtras(bundle);
-				intent.setData(Uri.parse(item.get(0).getFilePath()));
 				
 				if(hasDelegateActivities())
 				{
