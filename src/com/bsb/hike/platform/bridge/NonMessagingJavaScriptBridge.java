@@ -175,16 +175,17 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			NonMessagingBotMetadata metadata = new NonMessagingBotMetadata(mBotInfo.getMetadata());
 			getInitJson(jsonObject, mBotInfo.getMsisdn());
 			jsonObject.put(HikePlatformConstants.HELPER_DATA, metadata.getHelperData());
-			jsonObject.put(HikePlatformConstants.NOTIF_DATA, mBotInfo.getNotifData());
+			//jsonObject.put(HikePlatformConstants.NOTIF_DATA, mBotInfo.getNotifData());
 			jsonObject.put(HikePlatformConstants.BLOCK, Boolean.toString(mBotInfo.isBlocked()));
 			jsonObject.put(HikePlatformConstants.MUTE, Boolean.toString(mBotInfo.isMute()));
 			jsonObject.put(HikePlatformConstants.NETWORK_TYPE, Integer.toString(VoIPUtils.getConnectionClass(HikeMessengerApp.getInstance().getApplicationContext()).ordinal()));
-			
+
 
 			mWebView.loadUrl("javascript:init('" + jsonObject.toString() + "')");
 		}
 		catch (JSONException e)
 		{
+			Logger.e(tag, "JSON exception in init at NonMessagingJavascriptBridge");
 			e.printStackTrace();
 		}
 	}
