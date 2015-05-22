@@ -1327,7 +1327,6 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 				}
 				else
 				{
-					resetConnectionVariables();
 					connectOnMqttThread();
 				}
 			}
