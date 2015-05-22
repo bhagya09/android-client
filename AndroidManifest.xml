@@ -4,7 +4,7 @@
     package="com.bsb.hike"
     android:installLocation="auto"
     android:versionCode="1212"
-    android:versionName="3.9.6" >
+    android:versionName="3.9.6.0.1.chat_bubble_hidden_issue" >
     <uses-sdk
         android:minSdkVersion="9"
         android:targetSdkVersion="17"/>
