@@ -32,8 +32,8 @@ public class ChatHeadServiceManager extends BroadcastReceiver
 		// }
 
 		Context mContext = HikeMessengerApp.getInstance();
-		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHeadService.CHAT_HEAD_SERVICE, true)
-				&& HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHeadService.CHAT_HEAD_USR_CONTROL, true))
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, true)
+				&& HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL, true))
 		{
 			Logger.d("ashish", "hello");
 			/*
@@ -44,9 +44,9 @@ public class ChatHeadServiceManager extends BroadcastReceiver
 			 * }
 			 * 
 			 * else
-			 */if (intent.hasExtra(HikeConstants.ChatHeadService.INTENT_EXTRA))
+			 */if (intent.hasExtra(HikeConstants.ChatHead.INTENT_EXTRA))
 			{
-				if (intent.getIntExtra(HikeConstants.ChatHeadService.INTENT_EXTRA, HikeConstants.ChatHeadService.STARTING_SERVICE) == 1
+				if (intent.getIntExtra(HikeConstants.ChatHead.INTENT_EXTRA, HikeConstants.ChatHead.STARTING_SERVICE) == 1
 						&& !Utils.isMyServiceRunning(ChatHeadService.class, mContext))
 				{
 					mContext.startService(new Intent(mContext, ChatHeadService.class));
@@ -60,7 +60,7 @@ public class ChatHeadServiceManager extends BroadcastReceiver
 					Intent mIntent = new Intent(mContext, ChatHeadServiceManager.class);
 					PendingIntent pendingIntent = PendingIntent.getBroadcast(mContext, 0, mIntent, PendingIntent.FLAG_ONE_SHOT);
 					AlarmManager alarmManager = (AlarmManager) (mContext.getSystemService(mContext.ALARM_SERVICE));
-					alarmManager.set(AlarmManager.RTC, intent.getIntExtra(HikeConstants.ChatHeadService.INTENT_EXTRA, 0), pendingIntent);
+					alarmManager.set(AlarmManager.RTC, intent.getIntExtra(HikeConstants.ChatHead.INTENT_EXTRA, 0), pendingIntent);
 				}
 
 			}

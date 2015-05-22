@@ -219,7 +219,7 @@ public class MqttMessagesManager
 	private void toggleChatHeadService()
 	{
 		Intent mIntent = new Intent(context, ChatHeadServiceManager.class);
-		mIntent.putExtra(HikeConstants.ChatHeadService.INTENT_EXTRA, HikeConstants.ChatHeadService.STARTING_SERVICE);
+		mIntent.putExtra(HikeConstants.ChatHead.INTENT_EXTRA, HikeConstants.ChatHead.STARTING_SERVICE);
 		PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, mIntent, PendingIntent.FLAG_ONE_SHOT);
 		AlarmManager alarmManager = (AlarmManager) (context.getSystemService(context.ALARM_SERVICE));
 		alarmManager.set(AlarmManager.RTC, 1, pendingIntent);
@@ -1876,26 +1876,26 @@ public class MqttMessagesManager
 			boolean shareStrings = data.getBoolean(HikeConstants.Extras.SHOW_SHARE_FUNCTIONALITY);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.Extras.SHOW_SHARE_FUNCTIONALITY, shareStrings);
 		}
-		if (data.has(HikeConstants.ChatHeadService.STICKERS_PER_DAY))
+		if (data.has(HikeConstants.ChatHead.STICKERS_PER_DAY))
 		{
-			int stickersPerDay = data.getInt(HikeConstants.ChatHeadService.STICKERS_PER_DAY);
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHeadService.STICKERS_PER_DAY, stickersPerDay);
+			int stickersPerDay = data.getInt(HikeConstants.ChatHead.STICKERS_PER_DAY);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.STICKERS_PER_DAY, stickersPerDay);
 		}
-		if (data.has(HikeConstants.ChatHeadService.EXTRA_STICKERS_PER_DAY))
+		if (data.has(HikeConstants.ChatHead.EXTRA_STICKERS_PER_DAY))
 		{
-			int extraStickersPerDay = data.getInt(HikeConstants.ChatHeadService.EXTRA_STICKERS_PER_DAY);
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHeadService.EXTRA_STICKERS_PER_DAY, extraStickersPerDay);
+			int extraStickersPerDay = data.getInt(HikeConstants.ChatHead.EXTRA_STICKERS_PER_DAY);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.EXTRA_STICKERS_PER_DAY, extraStickersPerDay);
 		}
-		if (data.has(HikeConstants.ChatHeadService.CHAT_HEAD_SERVICE))
+		if (data.has(HikeConstants.ChatHead.CHAT_HEAD_SERVICE))
 		{
 
-			boolean chatHeadService = data.getBoolean(HikeConstants.ChatHeadService.CHAT_HEAD_SERVICE);
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHeadService.CHAT_HEAD_SERVICE, chatHeadService);
+			boolean chatHeadService = data.getBoolean(HikeConstants.ChatHead.CHAT_HEAD_SERVICE);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, chatHeadService);
 		}
-		if (data.has(HikeConstants.ChatHeadService.CHAT_HEAD_USR_CONTROL))
+		if (data.has(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL))
 		{
-			Boolean chatHeadServiceUserControl = data.getBoolean(HikeConstants.ChatHeadService.CHAT_HEAD_USR_CONTROL);
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHeadService.CHAT_HEAD_USR_CONTROL, chatHeadServiceUserControl);
+			Boolean chatHeadServiceUserControl = data.getBoolean(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL, chatHeadServiceUserControl);
 			toggleChatHeadService();
 		}
 		if(data.has(HikeConstants.PROB_NUM_TEXT_MSG))

@@ -155,9 +155,9 @@ public class ChatHeadService extends Service
 
 	ImageView chatHead, closeHead;
 
-	int savedPosX = HikeConstants.ChatHeadService.INITIAL_POS_X;
+	int savedPosX = HikeConstants.ChatHead.INITIAL_POS_X;
 
-	int savedPosY = HikeConstants.ChatHeadService.INITIAL_POS_Y;
+	int savedPosY = HikeConstants.ChatHead.INITIAL_POS_Y;
 
 	static int dismissed = 0;
 
@@ -184,7 +184,7 @@ public class ChatHeadService extends Service
 			}
 		});
 
-		translateX.setDuration(HikeConstants.ChatHeadService.ANIMATION_TIME);
+		translateX.setDuration(HikeConstants.ChatHead.ANIMATION_TIME);
 		translateY.addUpdateListener(new ValueAnimator.AnimatorUpdateListener()
 		{
 			@Override
@@ -196,7 +196,7 @@ public class ChatHeadService extends Service
 			}
 		});
 
-		translateY.setDuration(HikeConstants.ChatHeadService.ANIMATION_TIME);
+		translateY.setDuration(HikeConstants.ChatHead.ANIMATION_TIME);
 		AnimatorSet animatorSet = new AnimatorSet();
 		animatorSet.playTogether(translateX, translateY);
 		animatorSet.start();
@@ -216,7 +216,7 @@ public class ChatHeadService extends Service
 			@Override
 			public void onAnimationEnd(Animator animation)
 			{
-				if (flag == HikeConstants.ChatHeadService.CREATING_CHAT_HEAD_ACTIVITY_ANIMATION)
+				if (flag == HikeConstants.ChatHead.CREATING_CHAT_HEAD_ACTIVITY_ANIMATION)
 				{
 					flagActivityRunning = true;
 					Intent intent = new Intent(getApplicationContext(), ChatHeadActivity.class);
@@ -224,12 +224,12 @@ public class ChatHeadService extends Service
 					startActivity(intent);
 					ChatHeadActivity.flagActivity = true;
 				}
-				else if (flag == HikeConstants.ChatHeadService.FINISHING_CHAT_HEAD_ACTIVITY_ANIMATION)
+				else if (flag == HikeConstants.ChatHead.FINISHING_CHAT_HEAD_ACTIVITY_ANIMATION)
 				{
 					ChatHeadActivity.getInstance().finish();
 					ChatHeadActivity.getInstance().overridePendingTransition(0, 0);
 				}
-				else if (flag == HikeConstants.ChatHeadService.SHARING_BEFORE_FINISHING_ANIMATION)
+				else if (flag == HikeConstants.ChatHead.SHARING_BEFORE_FINISHING_ANIMATION)
 				{
 					Intent intent = ShareUtils.shareContent(HikeConstants.Extras.ShareTypes.STICKER_SHARE, path[0], foregroundApp);
 					if (intent != null)
@@ -251,8 +251,8 @@ public class ChatHeadService extends Service
 
 	void setChatHeadParams()
 	{
-		chatHeadParams.x = HikeConstants.ChatHeadService.INITIAL_POS_X;
-		chatHeadParams.y = HikeConstants.ChatHeadService.INITIAL_POS_Y;
+		chatHeadParams.x = HikeConstants.ChatHead.INITIAL_POS_X;
+		chatHeadParams.y = HikeConstants.ChatHead.INITIAL_POS_Y;
 		chatHeadParams.gravity = Gravity.TOP | Gravity.LEFT;
 	}
 
@@ -283,12 +283,12 @@ public class ChatHeadService extends Service
 
 		chatHead.getLocationOnScreen(chatHeadLocations);
 		closeHead.getLocationOnScreen(closeHeadLocations);
-		rectChatHead = new Rect(chatHeadLocations[0] - HikeConstants.ChatHeadService.RECT_CONST, chatHeadLocations[1] - HikeConstants.ChatHeadService.RECT_CONST,
-				chatHeadLocations[0] + chatHead.getWidth() + HikeConstants.ChatHeadService.RECT_CONST, chatHeadLocations[1] + chatHead.getHeight()
-						+ HikeConstants.ChatHeadService.RECT_CONST);
-		rectCloseHead = new Rect(closeHeadLocations[0] - HikeConstants.ChatHeadService.RECT_CONST, closeHeadLocations[1] - HikeConstants.ChatHeadService.RECT_CONST,
-				closeHeadLocations[0] + closeHead.getWidth() + HikeConstants.ChatHeadService.RECT_CONST, closeHeadLocations[1] + closeHead.getHeight()
-						+ HikeConstants.ChatHeadService.RECT_CONST);
+		rectChatHead = new Rect(chatHeadLocations[0] - HikeConstants.ChatHead.RECT_CONST, chatHeadLocations[1] - HikeConstants.ChatHead.RECT_CONST,
+				chatHeadLocations[0] + chatHead.getWidth() + HikeConstants.ChatHead.RECT_CONST, chatHeadLocations[1] + chatHead.getHeight()
+						+ HikeConstants.ChatHead.RECT_CONST);
+		rectCloseHead = new Rect(closeHeadLocations[0] - HikeConstants.ChatHead.RECT_CONST, closeHeadLocations[1] - HikeConstants.ChatHead.RECT_CONST,
+				closeHeadLocations[0] + closeHead.getWidth() + HikeConstants.ChatHead.RECT_CONST, closeHeadLocations[1] + closeHead.getHeight()
+						+ HikeConstants.ChatHead.RECT_CONST);
 		if (Rect.intersects(rectChatHead, rectCloseHead))
 		{
 			dismissed++;
@@ -306,15 +306,15 @@ public class ChatHeadService extends Service
 		}
 		else
 		{
-			if (drag < HikeConstants.ChatHeadService.DRAG_CONST)
+			if (drag < HikeConstants.ChatHead.DRAG_CONST)
 			{
 				if (!flagActivityRunning)
 				{
 					final float scale = getApplicationContext().getResources().getDisplayMetrics().density;
 
 					Resources resources = getApplicationContext().getResources();
-					int resourceId = getResources().getIdentifier(HikeConstants.ChatHeadService.STATUS_BAR_HEIGHT, HikeConstants.ChatHeadService.STATUS_BAR_TYPE,
-							HikeConstants.ChatHeadService.STATUS_BAR_PACKAGE);
+					int resourceId = getResources().getIdentifier(HikeConstants.ChatHead.STATUS_BAR_HEIGHT, HikeConstants.ChatHead.STATUS_BAR_TYPE,
+							HikeConstants.ChatHead.STATUS_BAR_PACKAGE);
 					int status_bar_height = (int) resources.getDimension(resourceId);
 					int pixelsX;
 					if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT)
@@ -333,23 +333,23 @@ public class ChatHeadService extends Service
 
 					savedPosX = chatHeadParams.x;
 					savedPosY = chatHeadParams.y;
-					overlayAnimation(chatHead, chatHeadParams.x, pixelsX, chatHeadParams.y, pixelsY, HikeConstants.ChatHeadService.CREATING_CHAT_HEAD_ACTIVITY_ANIMATION);
+					overlayAnimation(chatHead, chatHeadParams.x, pixelsX, chatHeadParams.y, pixelsY, HikeConstants.ChatHead.CREATING_CHAT_HEAD_ACTIVITY_ANIMATION);
 				}
 				else
 				{
-					resetPosition(HikeConstants.ChatHeadService.FINISHING_CHAT_HEAD_ACTIVITY_ANIMATION);
+					resetPosition(HikeConstants.ChatHead.FINISHING_CHAT_HEAD_ACTIVITY_ANIMATION);
 				}
 			}
 			else
 			{
 				if (chatHeadLocations[0] <= (int) ((displaymetrics.widthPixels - chatHead.getWidth()) / 2))
 				{
-					overlayAnimation(chatHead, chatHeadParams.x, 0, chatHeadParams.y, chatHeadParams.y, HikeConstants.ChatHeadService.REMAINING_ANIMATION);
+					overlayAnimation(chatHead, chatHeadParams.x, 0, chatHeadParams.y, chatHeadParams.y, HikeConstants.ChatHead.REMAINING_ANIMATION);
 				}
 				else
 				{
 					overlayAnimation(chatHead, chatHeadParams.x, displaymetrics.widthPixels - chatHead.getWidth(), chatHeadParams.y, chatHeadParams.y,
-							HikeConstants.ChatHeadService.REMAINING_ANIMATION);
+							HikeConstants.ChatHead.REMAINING_ANIMATION);
 				}
 			}
 		}
@@ -388,12 +388,12 @@ public class ChatHeadService extends Service
 			chatHead.getLocationOnScreen(chatHeadLocations);
 			closeHead.getLocationOnScreen(closeHeadLocations);
 
-			rectChatHead = new Rect(chatHeadLocations[0] - HikeConstants.ChatHeadService.RECT_CONST, chatHeadLocations[1] - HikeConstants.ChatHeadService.RECT_CONST,
-					chatHeadLocations[0] + chatHead.getWidth() + HikeConstants.ChatHeadService.RECT_CONST, chatHeadLocations[1] + chatHead.getHeight()
-							+ HikeConstants.ChatHeadService.RECT_CONST);
-			rectCloseHead = new Rect(closeHeadLocations[0] - HikeConstants.ChatHeadService.RECT_CONST, closeHeadLocations[1] - HikeConstants.ChatHeadService.RECT_CONST,
-					closeHeadLocations[0] + closeHead.getWidth() + HikeConstants.ChatHeadService.RECT_CONST, closeHeadLocations[1] + closeHead.getHeight()
-							+ HikeConstants.ChatHeadService.RECT_CONST);
+			rectChatHead = new Rect(chatHeadLocations[0] - HikeConstants.ChatHead.RECT_CONST, chatHeadLocations[1] - HikeConstants.ChatHead.RECT_CONST,
+					chatHeadLocations[0] + chatHead.getWidth() + HikeConstants.ChatHead.RECT_CONST, chatHeadLocations[1] + chatHead.getHeight()
+							+ HikeConstants.ChatHead.RECT_CONST);
+			rectCloseHead = new Rect(closeHeadLocations[0] - HikeConstants.ChatHead.RECT_CONST, closeHeadLocations[1] - HikeConstants.ChatHead.RECT_CONST,
+					closeHeadLocations[0] + closeHead.getWidth() + HikeConstants.ChatHead.RECT_CONST, closeHeadLocations[1] + closeHead.getHeight()
+							+ HikeConstants.ChatHead.RECT_CONST);
 
 			if (Rect.intersects(rectChatHead, rectCloseHead))
 			{

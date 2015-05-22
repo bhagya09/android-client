@@ -1087,7 +1087,7 @@ public class HikeConstants
 
 	public static final String VOIP_AEC_TAIL_TYPE = "att";
 	
-	public static final class ChatHeadService
+	public static final class ChatHead
 	{
 		public static final int ANIMATION_TIME = 300;
 
