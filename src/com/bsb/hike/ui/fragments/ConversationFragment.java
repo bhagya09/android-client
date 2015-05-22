@@ -1038,6 +1038,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 				if (convMsg != null && convMsg.getState() == State.RECEIVED_UNREAD)
 				{
 					convMsg.setState(State.RECEIVED_READ);
+					convInfo.setUnreadCount(0);
 					HikeMessengerApp.getPubSub().publish(HikePubSub.UPDATE_LAST_MSG_STATE, new Pair<Integer, String>(convMsg.getState().ordinal(), convInfo.getMsisdn()));
 				}
 				startActivity(web);
