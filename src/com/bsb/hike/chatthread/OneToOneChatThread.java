@@ -1089,6 +1089,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		 * Setting text on lastSeenView
 		 */
 		mLastSeenView.setText(text);
+		mLastSeenView.setSelected(true);
 		
 		prevLastSeen = text;
 		
