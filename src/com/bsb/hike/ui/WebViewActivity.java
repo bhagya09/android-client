@@ -4,6 +4,7 @@ package com.bsb.hike.ui;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.text.TextUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -410,12 +411,15 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		if (mode == MICRO_APP_MODE && mActionBar != null)
 		{
 			List<OverFlowMenuItem> menuItemsList = getOverflowMenuItems();
-			
-			{
 				mActionBar.onCreateOptionsMenu(menu, R.menu.simple_overflow_menu, menuItemsList, this, this);
 				mActionBar.setOverflowViewListener(this);
 				mActionBar.setShouldAvoidDismissOnClick(true);
+
+			if((menuItemsList == null) || (menuItemsList != null && menuItemsList.isEmpty()))
+			{
+				menu.findItem(R.id.overflow_menu).setVisible(false);
 			}
+
 			return true;
 		}
 		
@@ -541,10 +545,10 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	@Override
 	public void onEventReceived(String type, Object object)
 	{
-		final String notifData = (String) object;
+		final String notifData = (String ) object;
 		if (type.equals(HikePubSub.NOTIF_DATA_RECEIVED))
 		{
-			if (null != mmBridge)
+			if (null != mmBridge && !TextUtils.isEmpty(notifData))
 			{
 				mmBridge.notifDataReceived(notifData);
 			}
