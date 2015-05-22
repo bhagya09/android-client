@@ -565,6 +565,10 @@ public abstract class JavascriptBridge
 			Logger.e(tag, "Empty function name when calling the JS back");
 			return;
 		}
+		if (mHandler == null || !mWebView.isAttachedToWindow())
+		{
+			return;
+		}
 		mHandler.post(new Runnable()
 		{
 			@Override

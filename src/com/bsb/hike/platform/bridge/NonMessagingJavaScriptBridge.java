@@ -1,5 +1,10 @@
 package com.bsb.hike.platform.bridge;
 
+import com.bsb.hike.modules.httpmgr.RequestToken;
+import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
+import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
+import com.bsb.hike.modules.httpmgr.response.Response;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -414,6 +419,60 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		mBotInfo.setIsBackPressAllowed(Boolean.valueOf(allowBack));
 	}
 
+
+	/**
+	 *  Platform Bridge Version 1
+	 * call this function for any post call. The call is gonna be fire and forget. MicroApp will not receive any response as this
+	 * request is a fire and forget request.
+	 * @param functionId : function id to call back to the js.
+	 * @param url: the url that will be called.
+	 * @param params: the push params to be included in the body.
+	 */
+	@JavascriptInterface
+	public void doPostRequest(final String functionId, String url, String params)
+	{
+		try
+		{
+			IRequestListener requestListener = new IRequestListener()
+			{
+				@Override
+				public int hashCode()
+				{
+					return super.hashCode();
+				}
+
+				@Override
+				public void onRequestFailure(HttpException httpException)
+				{
+					Logger.e(tag, "microApp post request failed with exception " + httpException.getMessage());
+					callbackToJS(functionId, "Failure " + httpException.getMessage());
+				}
+
+				@Override
+				public void onRequestSuccess(Response result)
+				{
+					Logger.d(tag, "microapp post request success with code " + result.getStatusCode());
+					callbackToJS(functionId, "Success #" + String.valueOf(result.getStatusCode()));
+				}
+
+				@Override
+				public void onRequestProgressUpdate(float progress)
+				{
+
+				}
+			};
+			RequestToken token = HttpRequests.microAppPostRequest(url, new JSONObject(params), requestListener);
+			if (!token.isRequestRunning())
+			{
+				token.execute();
+			}
+		}
+		catch (JSONException e)
+		{
+			Logger.e(tag, "error in JSON");
+			e.printStackTrace();
+		}
+	}
 
 
 }
