@@ -391,7 +391,6 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 			switch (requestCode)
 			{
 			case HikeConstants.CROP_RESULT:
-				finishProgress();
 				uploadProfilePic(data.getStringExtra(MediaStore.EXTRA_OUTPUT), data.getStringExtra(HikeConstants.HikePhotos.ORIG_FILE));
 				break;
 			}
@@ -407,7 +406,6 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 			public void run()
 			{
 				editView.setVisibility(View.VISIBLE);
-				mActionBarBackButton.setVisibility(View.GONE);
 				ProfilePicFragment profilePicFragment = new ProfilePicFragment();
 				Bundle b = new Bundle();
 				b.putString(HikeConstants.HikePhotos.FILENAME, croppedImageFile);
@@ -560,6 +558,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 										@Override
 										public void onComplete(File f)
 										{
+											finishProgress();
 											Intent forwardIntent = IntentFactory.getForwardImageIntent(mContext, f);
 											forwardIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 											startActivity(forwardIntent);
@@ -618,7 +617,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 				@Override
 				public void onFailure()
 				{
-					// Do nothing
+					finishProgress();
 				}
 
 				@Override
@@ -630,6 +629,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 				@Override
 				public void onComplete(File f)
 				{
+					finishProgress();
 					startActivityForResult(IntentFactory.getCropActivityIntent(PictureEditer.this, f.getAbsolutePath(), f.getAbsolutePath(), true, 100, true), HikeConstants.CROP_RESULT);
 				}
 			});
@@ -772,7 +772,6 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 		{
 			getSupportActionBar().show();
 			mActionBarDoneContainer.setVisibility(View.VISIBLE);
-			mActionBarBackButton.setVisibility(View.VISIBLE);
 			editView.enable();
 		}
 		else
