@@ -6824,7 +6824,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		Cursor c = null;
 		try
 		{
-			c = mDb.query(DBConstants.MESSAGES_TABLE, new String[] { HIKE_CONTENT.NOTIF_DATA }, DBConstants.MSISDN + "=?" , new String[] { botMsisdn}, null, null, null);
+			c = mDb.query(DBConstants.BOT_TABLE, new String[] { HIKE_CONTENT.NOTIF_DATA }, DBConstants.MSISDN + "=?" , new String[] { botMsisdn}, null, null, null);
 			final int columnIndex = c.getColumnIndex(HIKE_CONTENT.NOTIF_DATA);
 			JSONObject notifDataJSON;
 			if (c.moveToFirst())

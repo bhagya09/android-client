@@ -2495,15 +2495,15 @@ public class MqttMessagesManager
 						{
 							return;
 						}
+
+						String hikeMessage = metadata.optString(HikePlatformConstants.HIKE_MESSAGE);
+						if (!TextUtils.isEmpty(hikeMessage))
+						{
+							convDb.updateLastMessageForNonMessagingBot(destination, hikeMessage);
+						}
 						
 						if (Utils.isConversationMuted(destination))
 						{
-							String notifData = metadata.optString(HikePlatformConstants.NOTIF_DATA);
-							if (!TextUtils.isEmpty(notifData))
-							{
-								convDb.updateLastMessageForNonMessagingBot(destination, notifData);
-							}
-							
 							rearrangeChat(destination, rearrangeChat, updateUnreadCount);
 						}
 						

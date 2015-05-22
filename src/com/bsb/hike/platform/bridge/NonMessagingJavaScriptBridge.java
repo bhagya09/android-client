@@ -126,6 +126,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	 *            : if the data has changed , then send the updated fields and it will update the metadata. If the key is already present, it will be replaced else it will be added
 	 *            to the existent metadata. If the json has JSONObject as key, there would be another round of iteration, and will replace the key-value pair if the key is already
 	 *            present and will add the key-value pair if the key is not present in the existent metadata.
+	 *@param hikeMessage : the hike message to be included in notif tupple and conversation tupple.
 	 */
 	@JavascriptInterface
 	public void forwardToChat(String json, String hikeMessage)
@@ -149,9 +150,10 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			 */
 			cardObj.put(HikePlatformConstants.APP_NAME, metadata.getAppName());
 			cardObj.put(HikePlatformConstants.APP_PACKAGE, metadata.getAppPackage());
-			metadata.setCardObj(cardObj);
-			
-			ConvMessage message = PlatformUtils.getConvMessageFromJSON(metadata.getJson(), hikeMessage);
+
+			JSONObject webMetadata = new JSONObject();
+			webMetadata.put(HikePlatformConstants.CARD_OBJECT, cardObj);
+			ConvMessage message = PlatformUtils.getConvMessageFromJSON(webMetadata, hikeMessage);
 			
 			if (message != null)
 			{
@@ -173,16 +175,17 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			NonMessagingBotMetadata metadata = new NonMessagingBotMetadata(mBotInfo.getMetadata());
 			getInitJson(jsonObject, mBotInfo.getMsisdn());
 			jsonObject.put(HikePlatformConstants.HELPER_DATA, metadata.getHelperData());
-			jsonObject.put(HikePlatformConstants.NOTIF_DATA, mBotInfo.getNotifData());
+			//jsonObject.put(HikePlatformConstants.NOTIF_DATA, mBotInfo.getNotifData());
 			jsonObject.put(HikePlatformConstants.BLOCK, Boolean.toString(mBotInfo.isBlocked()));
 			jsonObject.put(HikePlatformConstants.MUTE, Boolean.toString(mBotInfo.isMute()));
 			jsonObject.put(HikePlatformConstants.NETWORK_TYPE, Integer.toString(VoIPUtils.getConnectionClass(HikeMessengerApp.getInstance().getApplicationContext()).ordinal()));
-			
+
 
 			mWebView.loadUrl("javascript:init('" + jsonObject.toString() + "')");
 		}
 		catch (JSONException e)
 		{
+			Logger.e(tag, "JSON exception in init at NonMessagingJavascriptBridge");
 			e.printStackTrace();
 		}
 	}
