@@ -36,11 +36,11 @@ import com.bsb.hike.ui.ComposeChatActivity;
 import com.bsb.hike.ui.ConnectedAppsActivity;
 import com.bsb.hike.ui.CreateNewGroupOrBroadcastActivity;
 import com.bsb.hike.ui.CreditsActivity;
-import com.bsb.hike.ui.DelegateActivity;
 import com.bsb.hike.ui.FileSelectActivity;
 import com.bsb.hike.ui.FtueBroadcast;
 import com.bsb.hike.ui.GalleryActivity;
 import com.bsb.hike.ui.HikeAuthActivity;
+import com.bsb.hike.ui.HikeBaseActivity;
 import com.bsb.hike.ui.HikeListActivity;
 import com.bsb.hike.ui.HikePreferences;
 import com.bsb.hike.ui.HomeActivity;
@@ -548,18 +548,33 @@ public class IntentFactory
 		return intent;
 	}
 
-	public static Intent getHikeGalleryPickerIntent(Context context, boolean allowMultiSelect, boolean categorizeByFolders, boolean enableCameraPick, int actionBarType,
-			PendingIntent argIntent,String msisdn,boolean onHike)
+	public static Intent getHikeGalleryPickerIntent(Context context, boolean allowMultiSelect, boolean categorizeByFolders, boolean enableCameraPick,boolean editSelectedImage,String croppedOutputDestination)
 	{
 		Intent intent = new Intent(context, GalleryActivity.class);
 		Bundle b = new Bundle();
-		b.putParcelable(GalleryActivity.PENDING_INTENT_KEY, argIntent);
 		b.putBoolean(GalleryActivity.DISABLE_MULTI_SELECT_KEY, !allowMultiSelect);
 		b.putBoolean(GalleryActivity.FOLDERS_REQUIRED_KEY, categorizeByFolders);
 		b.putBoolean(GalleryActivity.ENABLE_CAMERA_PICK, enableCameraPick);
-		b.putInt(GalleryActivity.ACTION_BAR_TYPE_KEY, actionBarType);
-		b.putString(HikeConstants.Extras.MSISDN, msisdn);
-		b.putBoolean(HikeConstants.Extras.ON_HIKE, onHike);
+		
+		int intentCount = (croppedOutputDestination == null) ? (editSelectedImage?1:0):(editSelectedImage?2:1);
+		
+		ArrayList<Intent> destIntents = new ArrayList<Intent>(intentCount);
+		
+		if(editSelectedImage)
+		{
+			destIntents.add(IntentFactory.getPictureEditorActivityIntent(context, null, false, null, false));
+		}
+		
+		if(croppedOutputDestination != null)
+		{
+			destIntents.add(IntentFactory.getCropActivityIntent(context, null, croppedOutputDestination, true, 100, true));
+		}
+		
+		if(intentCount>0)
+		{
+			b.putParcelableArrayList(HikeBaseActivity.DESTINATION_INTENT, destIntents);
+		}
+		
 		intent.putExtras(b);
 		return intent;
 	}
