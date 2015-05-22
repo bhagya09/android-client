@@ -849,7 +849,6 @@
     <string name="alp_42447968_msg_try_again">आपके पैटर्न मेल नहीं खाते। फिर कोशिश करें।</string>
     <string name="alp_42447968_msg_your_new_unlock_pattern">Your new unlock pattern</string>
     <string name="alp_42447968_msg_draw_pattern_to_unlock_in_reset">मौजूदा पैटर्न बनाएँ</string>
-    <string name="alp_42447968_msg_draw_new_pattern">अपना नया पैटर्न बनाएँ </string>
     <string name="alp_42447968_msg_redraw_new_pattern_confirm">पुष्टि के लिए नया पैटर्न फिर से बनाएँ </string>
 
     <plurals name="alp_42447968_pmsg_connect_x_dots">

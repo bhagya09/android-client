@@ -849,7 +849,6 @@
     <string name="alp_42447968_msg_try_again">Tus patrones no coinciden. Inténtalo de nuevo.</string>
     <string name="alp_42447968_msg_your_new_unlock_pattern">Tu nuevo patrón de desbloqueo</string>
     <string name="alp_42447968_msg_draw_pattern_to_unlock_in_reset">Dibuja el patrón actual</string>
-    <string name="alp_42447968_msg_draw_new_pattern">Dibuja el patrón nuevo</string>
     <string name="alp_42447968_msg_redraw_new_pattern_confirm">Vuelve a dibujar el patrón nuevo para confirmar</string>
 
     <plurals name="alp_42447968_pmsg_connect_x_dots">

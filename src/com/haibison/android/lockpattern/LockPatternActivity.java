@@ -729,7 +729,7 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
             	//we use a different string if this was invoked from the reset flow
             	if( getIntent().getBooleanExtra(HikeConstants.Extras.STEALTH_PASS_RESET, false))
             	{
-                    mTextInfo.setText(R.string.alp_42447968_msg_draw_new_pattern);
+                    mTextInfo.setText(StealthModeManager.getInstance().isPinAsPassword()? R.string.stealth_msg_enter_an_unlock_pin : R.string.stealth_msg_draw_an_unlock_pattern);
             	}
             }
 

@@ -21,6 +21,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Environment;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
@@ -31,6 +32,7 @@ import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.utils.CBCEncryption;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
 
 public class AccountBackupRestore
@@ -59,8 +61,14 @@ public class AccountBackupRestore
 			prefJson.put(HikeMessengerApp.STEALTH_ENCRYPTED_PATTERN, prefUtil.getData(HikeMessengerApp.STEALTH_ENCRYPTED_PATTERN, ""))
 					.put(HikeMessengerApp.STEALTH_MODE_SETUP_DONE, prefUtil.getData(HikeMessengerApp.STEALTH_MODE_SETUP_DONE, false))
 					.put(HikeMessengerApp.SHOWN_FIRST_UNMARK_STEALTH_TOAST, prefUtil.getData(HikeMessengerApp.SHOWN_FIRST_UNMARK_STEALTH_TOAST, false))
-					.put(HikeMessengerApp.SHOW_STEALTH_INFO_TIP, prefUtil.getData(HikeMessengerApp.SHOW_STEALTH_INFO_TIP, false));
-
+					.put(HikeMessengerApp.SHOW_STEALTH_INFO_TIP, prefUtil.getData(HikeMessengerApp.SHOW_STEALTH_INFO_TIP, false))
+					.put(HikeMessengerApp.STEALTH_PIN_AS_PASSWORD, prefUtil.getData(HikeMessengerApp.STEALTH_PIN_AS_PASSWORD, false));
+			
+			SharedPreferences settingUtils =  PreferenceManager.getDefaultSharedPreferences(HikeMessengerApp.getInstance());
+			
+			prefJson.put(HikeConstants.STEALTH_NOTIFICATION_ENABLED, settingUtils.getBoolean(HikeConstants.STEALTH_NOTIFICATION_ENABLED, true))
+					.put(HikeConstants.STEALTH_INDICATOR_ENABLED, settingUtils.getBoolean(HikeConstants.STEALTH_INDICATOR_ENABLED, false))
+					.put(HikeConstants.CHANGE_STEALTH_TIMEOUT, settingUtils.getString(HikeConstants.CHANGE_STEALTH_TIMEOUT, StealthModeManager.DEFAULT_RESET_TOGGLE_TIME));
 			return this;
 		}
 
@@ -95,7 +103,29 @@ public class AccountBackupRestore
 				String key = HikeMessengerApp.SHOW_STEALTH_INFO_TIP;
 				prefUtil.saveData(key, prefJson.getBoolean(key));
 			}
-
+			if (prefJson.has(HikeMessengerApp.STEALTH_PIN_AS_PASSWORD))
+			{
+				String key = HikeMessengerApp.STEALTH_PIN_AS_PASSWORD;
+				prefUtil.saveData(key, prefJson.getBoolean(key));
+			}
+			
+			SharedPreferences settingUtils =  PreferenceManager.getDefaultSharedPreferences(HikeMessengerApp.getInstance());
+			
+			if (prefJson.has(HikeConstants.STEALTH_INDICATOR_ENABLED))
+			{
+				String key = HikeConstants.STEALTH_INDICATOR_ENABLED;
+				settingUtils.edit().putBoolean(key, prefJson.getBoolean(key)).commit();
+			}
+			if (prefJson.has(HikeConstants.CHANGE_STEALTH_TIMEOUT))
+			{
+				String key = HikeConstants.CHANGE_STEALTH_TIMEOUT;
+				settingUtils.edit().putString(key, prefJson.getString(key)).commit();
+			}
+			if (prefJson.has(HikeConstants.STEALTH_NOTIFICATION_ENABLED))
+			{
+				String key = HikeConstants.STEALTH_NOTIFICATION_ENABLED;
+				settingUtils.edit().putBoolean(key, prefJson.getBoolean(key)).commit();
+			}
 		}
 
 		public File getPrefFile()

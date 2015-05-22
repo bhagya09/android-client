@@ -27,7 +27,7 @@ import com.bsb.hike.ui.utils.LockPattern;
 public class StealthModeManager
 {
 	
-	private static final String DEFAULT_RESET_TOGGLE_TIME = "0";
+	public static final String DEFAULT_RESET_TOGGLE_TIME = "0";
 	
 	private static final String NEVER_RESET_TOGGLE_TIME = "-1";
 
@@ -244,7 +244,6 @@ public class StealthModeManager
 					else
 					{
 						activate(true);
-						HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_MODE_TOGGLED, null);
 					}
 				}
 			}

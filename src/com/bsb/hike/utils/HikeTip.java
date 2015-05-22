@@ -45,7 +45,7 @@ public class HikeTip
 		case STEALTH_INDICATOR:
 			parentView.setBackgroundResource(R.drawable.bg_stealth_tip);
 			closeTip.setVisibility(View.GONE);
-			tipText.setText(R.string.stealth_notification_messages);
+			tipText.setText(R.string.stealth_notification_message);
 			break;
 		}
 		if (closeTip != null)
