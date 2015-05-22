@@ -1876,28 +1876,45 @@ public class MqttMessagesManager
 			boolean shareStrings = data.getBoolean(HikeConstants.Extras.SHOW_SHARE_FUNCTIONALITY);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.Extras.SHOW_SHARE_FUNCTIONALITY, shareStrings);
 		}
-		if (data.has(HikeConstants.ChatHead.STICKERS_PER_DAY))
+		if(data.has(HikeConstants.ChatHead.STICKER_WIDGET))
 		{
-			int stickersPerDay = data.getInt(HikeConstants.ChatHead.STICKERS_PER_DAY);
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.STICKERS_PER_DAY, stickersPerDay);
-		}
-		if (data.has(HikeConstants.ChatHead.EXTRA_STICKERS_PER_DAY))
-		{
-			int extraStickersPerDay = data.getInt(HikeConstants.ChatHead.EXTRA_STICKERS_PER_DAY);
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.EXTRA_STICKERS_PER_DAY, extraStickersPerDay);
-		}
-		if (data.has(HikeConstants.ChatHead.CHAT_HEAD_SERVICE))
-		{
+			JSONObject stickerWidget = data.getJSONObject(HikeConstants.ChatHead.STICKER_WIDGET);
+			if (stickerWidget.has(HikeConstants.ChatHead.STICKERS_PER_DAY))
+			{
+				int stickersPerDay = data.getInt(HikeConstants.ChatHead.STICKERS_PER_DAY);
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.STICKERS_PER_DAY, stickersPerDay);
+			}
+			if (stickerWidget.has(HikeConstants.ChatHead.EXTRA_STICKERS_PER_DAY))
+			{
+				int extraStickersPerDay = data.getInt(HikeConstants.ChatHead.EXTRA_STICKERS_PER_DAY);
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.EXTRA_STICKERS_PER_DAY, extraStickersPerDay);
+			}
+			if (stickerWidget.has(HikeConstants.ChatHead.CHAT_HEAD_SERVICE))
+			{
 
-			boolean chatHeadService = data.getBoolean(HikeConstants.ChatHead.CHAT_HEAD_SERVICE);
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, chatHeadService);
+				boolean chatHeadService = data.getBoolean(HikeConstants.ChatHead.CHAT_HEAD_SERVICE);
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, chatHeadService);
+			}
+			if (stickerWidget.has(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL))
+			{
+				Boolean chatHeadServiceUserControl = data.getBoolean(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL);
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL, chatHeadServiceUserControl);
+				toggleChatHeadService();
+			}
+			if (stickerWidget.has(HikeConstants.ChatHead.PACKAGE_LIST))
+			{   
+				JSONArray list =  stickerWidget.getJSONArray(HikeConstants.ChatHead.PACKAGE_LIST);
+				
+				for(int j=0; j<list.length() ; j++)
+				{
+					list.getJSONObject(j).put(HikeConstants.ChatHead.APP_ENABLE, true);
+				}
+				
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.PACKAGE_LIST, list.toString());
+			}
+			
 		}
-		if (data.has(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL))
-		{
-			Boolean chatHeadServiceUserControl = data.getBoolean(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL);
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL, chatHeadServiceUserControl);
-			toggleChatHeadService();
-		}
+		
 		if(data.has(HikeConstants.PROB_NUM_TEXT_MSG))
 		{
 			int textMsgMaxNumber = data.getInt(HikeConstants.PROB_NUM_TEXT_MSG);
