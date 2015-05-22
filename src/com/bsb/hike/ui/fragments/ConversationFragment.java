@@ -2130,7 +2130,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 				return;
 			}
 			convInfo.setUnreadCount(0);
-			HikeConversationsDatabase.getInstance().setExtraConvUnreadCount(msisdn, 0);
+			
 			/*
 			 * setting the last message as 'Read'
 			 */
