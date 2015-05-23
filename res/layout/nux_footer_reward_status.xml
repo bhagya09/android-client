@@ -41,7 +41,7 @@
         android:layout_weight=".25" >
 
         <com.bsb.hike.view.HoloCircularProgress
-            xmlns:app="http://schemas.android.com/apk/res/com.bsb.hike"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
             android:id="@+id/nux_progress"
             android:layout_width="56dp"
             android:layout_height="56dp"

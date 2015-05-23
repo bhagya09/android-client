@@ -231,8 +231,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			initialiseHomeScreen(savedInstanceState);
 		}
 		
-		photosEnabled = Utils.isPhotosEditEnabled();
-		
 		showProductPopup(ProductPopupsConstants.PopupTriggerPoints.HOME_SCREEN.ordinal());
 	
 	}
@@ -970,6 +968,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		Utils.clearJar(this);
 		t2 = System.currentTimeMillis();
 		Logger.d("clearJar", "time : " + (t2 - t1));
+		photosEnabled = Utils.isPhotosEditEnabled();
 	}
 
 	
