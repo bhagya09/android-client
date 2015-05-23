@@ -83,7 +83,6 @@ public class VoIPService extends Service {
 	private boolean initialSpeakerMode;
 	private AudioManager.OnAudioFocusChangeListener mOnAudioFocusChangeListener;
 	private int playbackSampleRate = 0;
-	private int callSource = -1;
 	private Thread notificationThread;
 	
 	private boolean conferencingEnabled = false;
@@ -467,8 +466,8 @@ public class VoIPService extends Service {
 			client.setPhoneNumber(msisdn);
 			client.setInitiator(false);
 
-			callSource = intent.getIntExtra(VoIPConstants.Extras.CALL_SOURCE, -1);
-			if(callSource == CallSource.MISSED_CALL_NOTIF.ordinal())
+			client.callSource = intent.getIntExtra(VoIPConstants.Extras.CALL_SOURCE, -1);
+			if(client.callSource == CallSource.MISSED_CALL_NOTIF.ordinal())
 			{
 				VoIPUtils.cancelMissedCallNotification(getApplicationContext());
 			}

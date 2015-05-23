@@ -96,7 +96,8 @@ public class VoIPClient  {
 	public Chronometer chronometer = null;
 	private int reconnectAttempts = 0;
 	private int droppedDecodedPackets = 0;
-	
+	public int callSource = -1;
+
 	// Call quality fields
 	private int qualityCounter = 0;
 	private long lastQualityReset = 0;
@@ -1285,8 +1286,7 @@ public class VoIPClient  {
 
 			if(ek.equals(HikeConstants.LogEvent.VOIP_CALL_CLICK))
 			{
-				// TODO: uncomment next line
-//				 metadata.put(VoIPConstants.Analytics.CALL_SOURCE, callSource);
+				 metadata.put(VoIPConstants.Analytics.CALL_SOURCE, callSource);
 			}
 			else if(ek.equals(HikeConstants.LogEvent.VOIP_CALL_END) || ek.equals(HikeConstants.LogEvent.VOIP_CALL_DROP) ||
 					ek.equals(HikeConstants.LogEvent.VOIP_CALL_REJECT) || ek.equals(HikeConstants.LogEvent.VOIP_PARTNER_ANSWER_TIMEOUT))
