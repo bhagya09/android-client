@@ -900,7 +900,9 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 				easter++;
 				if (easter == 5) {
 					// Easter success
-					showMessage("Encryption key: " + voipService.getSessionKeyHash());
+					// showMessage("Encryption key: " + voipService.getSessionKeyHash());
+					boolean conferencing = voipService.toggleConferencing();
+					showMessage("Conferencing: " + conferencing);
 				}
 				return;
 			}

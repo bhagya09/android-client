@@ -86,6 +86,8 @@ public class VoIPService extends Service {
 	private int callSource = -1;
 	private Thread notificationThread;
 	
+	private boolean conferencingEnabled = false;
+	
 	// Attached VoIP client(s)
 	HashMap<String, VoIPClient> clients = new HashMap<String, VoIPClient>();
 
@@ -455,14 +457,11 @@ public class VoIPService extends Service {
 				return returnInt;
 			}
 
-			/*
-			// Commented to test conferencing
-			if (getCallId() > 0) 
+			if (getCallId() > 0 && !conferencingEnabled) 
 			{
 				Logger.e(VoIPConstants.TAG, "Error. Already in a call.");
 				return returnInt;
 			}
-			 */
 			
 			// we are making an outgoing call
 			client.setPhoneNumber(msisdn);
@@ -1551,7 +1550,7 @@ public class VoIPService extends Service {
 		VoIPClient client = getClient();
 		synchronized (this) {
 			
-			if (client.reconnecting || client.audioStarted)
+			if (client == null || client.reconnecting || client.audioStarted)
 				return;
 			
 			if (isRingingOutgoing == true) {
@@ -1729,6 +1728,11 @@ public class VoIPService extends Service {
 	private void removeClient(VoIPClient client) {
 		client.close();
 		clients.remove(client.getPhoneNumber());
+	}
+	
+	public boolean toggleConferencing() {
+		conferencingEnabled = !conferencingEnabled;
+		return conferencingEnabled;
 	}
 }
 
