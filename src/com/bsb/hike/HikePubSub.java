@@ -400,6 +400,10 @@ public class HikePubSub implements Runnable
 	
 	public static final String SHARED_WHATSAPP = "sharedWhatsApp";
 	
+	public static final String STICKER_SHOP_DOWNLOAD_SUCCESS = "stickerShopDownloadSucess";
+	
+	public static final String STICKER_SHOP_DOWNLOAD_FAILURE = "stickerShopDownloadFailure";
+	
 	private final Thread mThread;
 
 	private final BlockingQueue<Operation> mQueue;

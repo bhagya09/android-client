@@ -49,12 +49,13 @@ import com.bsb.hike.models.CustomStickerCategory;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.models.StickerPageAdapterItem;
-import com.bsb.hike.modules.stickerdownloadmgr.IStickerResultListener;
+import com.bsb.hike.modules.stickerdownloadmgr.MultiStickerDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.SingleStickerDownloadTask;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerPalleteImageDownloadTask;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerSignupUpgradeDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadSource;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadType;
-import com.bsb.hike.modules.stickerdownloadmgr.StickerDownloadManager;
-import com.bsb.hike.modules.stickerdownloadmgr.StickerException;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerPreviewImageDownloadTask;
 import com.bsb.hike.utils.Utils.ExternalStorageState;
 
 public class StickerManager
@@ -100,6 +101,8 @@ public class StickerManager
 	public static final String FWD_CATEGORY_ID = "fwdCategoryId";
 
 	public static final String STICKERS_UPDATED = "stickersUpdated";
+	
+	public static final String STICKER_PREVIEW_DOWNLOADED = "stickerPreviewDownloaded";
 
 	public static final String ADD_NO_MEDIA_FILE_FOR_STICKERS = "addNoMediaFileForStickers";
 	
@@ -1238,10 +1241,12 @@ public class StickerManager
 				{
 				case PALLATE_ICON_TYPE:
 				case PALLATE_ICON_SELECTED_TYPE:
-					StickerDownloadManager.getInstance().DownloadEnableDisableImage(categoryId, null);
+					StickerPalleteImageDownloadTask stickerPalleteImageDownloadTask = new StickerPalleteImageDownloadTask(categoryId);
+					stickerPalleteImageDownloadTask.execute();
 					break;
 				case PREVIEW_IMAGE_TYPE:
-					StickerDownloadManager.getInstance().DownloadStickerPreviewImage(categoryId, null);
+					StickerPreviewImageDownloadTask stickerPreviewImageDownloadTask = new StickerPreviewImageDownloadTask(categoryId);
+					stickerPreviewImageDownloadTask.execute();
 					break;
 				default:
 					break;
@@ -1304,32 +1309,8 @@ public class StickerManager
 			return;
 		}
 
-		StickerDownloadManager.getInstance().DownloadStickerSignupUpgradeTask(getAllInitialyInsertedStickerCategories(), new IStickerResultListener()
-		{
-
-			@Override
-			public void onSuccess(Object result)
-			{
-				// TODO Auto-generated method stub
-				JSONArray resultData = (JSONArray) result;
-				updateStickerCategoriesMetadata(resultData);
-				HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.STICKERS_SIZE_DOWNLOADED, true);
-			}
-
-			@Override
-			public void onProgressUpdated(double percentage)
-			{
-				// TODO Auto-generated method stub
-
-			}
-
-			@Override
-			public void onFailure(Object result, StickerException exception)
-			{
-				// TODO Auto-generated method stub
-
-			}
-		});
+		StickerSignupUpgradeDownloadTask stickerSignupUpgradeDownloadTask = new StickerSignupUpgradeDownloadTask(getAllInitialyInsertedStickerCategories());
+		stickerSignupUpgradeDownloadTask.execute();
 	}
 	
 	public void updateStickerCategoriesMetadata(JSONArray jsonArray)
@@ -1409,7 +1390,8 @@ public class StickerManager
 		if(category.getTotalStickers() == 0 || category.getDownloadedStickersCount() < category.getTotalStickers())
 		{
 			category.setState(StickerCategory.DOWNLOADING);
-			StickerDownloadManager.getInstance().DownloadMultipleStickers(category, downloadType, source, null);
+			MultiStickerDownloadTask multiStickerDownloadTask = new MultiStickerDownloadTask(category, downloadType, source);
+			multiStickerDownloadTask.execute();
 		}
 		saveCategoryAsVisible(category);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.STICKER_CATEGORY_MAP_UPDATED, null);
@@ -1554,9 +1536,12 @@ public class StickerManager
 		/**
 		 * Now download the Enable disable images as well as preview image
 		 */
-		StickerDownloadManager.getInstance().DownloadEnableDisableImage(stickerCategory.getCategoryId(), null);
-		StickerDownloadManager.getInstance().DownloadStickerPreviewImage(stickerCategory.getCategoryId(), null);
-
+		StickerPalleteImageDownloadTask stickerPalleteImageDownloadTask = new StickerPalleteImageDownloadTask(stickerCategory.getCategoryId());
+		stickerPalleteImageDownloadTask.execute();
+		
+		StickerPreviewImageDownloadTask stickerPreviewImageDownloadTask = new StickerPreviewImageDownloadTask(stickerCategory.getCategoryId());
+		stickerPreviewImageDownloadTask.execute();
+		
 		HikeMessengerApp.getPubSub().publish(HikePubSub.STICKER_CATEGORY_MAP_UPDATED, null);
 
 	}

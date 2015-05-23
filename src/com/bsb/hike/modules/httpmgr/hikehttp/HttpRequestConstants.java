@@ -97,6 +97,26 @@ public class HttpRequestConstants
 		return BASE_URL + BASE_V1 + BASE_STICKER;
 	}
 	
+	public static String stickerPalleteImageDownloadUrl()
+	{
+		return BASE_URL + BASE_V1 + BASE_STICKER + "/enable_disable";
+	}
+	
+	public static String stickerPreviewImageDownloadUrl()
+	{
+		return BASE_URL + BASE_V1 + BASE_STICKER + "/preview";
+	}
+	
+	public static String stickerShopDownloadUrl()
+	{
+		return BASE_URL + BASE_V1 + BASE_STICKER + "/shop";
+	}
+	
+	public static String stickerSignupUpgradeUrl()
+	{
+		return BASE_URL + BASE_V1 + BASE_STICKER + "/categories";
+	}
+	
 	public static String lastSeenUrl()
 	{
 		return BASE_URL + BASE_V1 + BASE_USER + "/lastseen";
