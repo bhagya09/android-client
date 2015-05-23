@@ -87,7 +87,7 @@ public class VoIPClient  {
 	private long lastHeartbeat;	
 	public VoIPEncryptor encryptor = new VoIPEncryptor();
 	private boolean cryptoEnabled = true;
-	private VoIPEncryptor.EncryptionStage encryptionStage; // TODO should be private
+	private VoIPEncryptor.EncryptionStage encryptionStage;
 	public boolean remoteHold = false;
 	public boolean audioStarted = false;
 	private VoIPConstants.CallStatus currentCallStatus;
@@ -96,7 +96,6 @@ public class VoIPClient  {
 	public Chronometer chronometer = null;
 	private int reconnectAttempts = 0;
 	private int droppedDecodedPackets = 0;
-	private boolean speech = false;
 	
 	// Call quality fields
 	private int qualityCounter = 0;
@@ -384,11 +383,12 @@ public class VoIPClient  {
 					else
 						startPartnerTimeoutThread();
 				} else {
-					Logger.d(VoIPConstants.TAG, "Failed to retrieve external socket.");
-					sendHandlerMessage(VoIPConstants.MSG_EXTERNAL_SOCKET_RETRIEVAL_FAILURE);
-					sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CONNECTION_FAILED, VoIPConstants.CallFailedCodes.EXTERNAL_SOCKET_RETRIEVAL_FAILURE);
-					
-					stop();
+					if (!Thread.currentThread().isInterrupted()) {
+						Logger.d(VoIPConstants.TAG, "Failed to retrieve external socket.");
+						sendHandlerMessage(VoIPConstants.MSG_EXTERNAL_SOCKET_RETRIEVAL_FAILURE);
+						sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CONNECTION_FAILED, VoIPConstants.CallFailedCodes.EXTERNAL_SOCKET_RETRIEVAL_FAILURE);
+						stop();
+					}
 				}
 			}
 		}, "ICE_THREAD");
@@ -459,12 +459,8 @@ public class VoIPClient  {
 			@Override
 			public void run() {
 				lastHeartbeat = System.currentTimeMillis();
-				int lastPacketsSent = 0;
+
 				while (keepRunning == true) {
-					
-					// Packets sent / second
-					// Logger.d(VoIPConstants.TAG, "Sent " + (totalPacketsSent - lastPacketsSent) + " to: " + getPhoneNumber());
-					lastPacketsSent = totalPacketsSent;
 					
 					// Send heartbeat
 					VoIPDataPacket dp = new VoIPDataPacket(PacketType.HEARTBEAT);
@@ -1270,6 +1266,7 @@ public class VoIPClient  {
 
 	public void sendAnalyticsEvent(String ek, int value)
 	{
+		Logger.d(VoIPConstants.TAG, "Logging event: " + ek);
 		try
 		{
 			JSONObject metadata = new JSONObject();
@@ -1289,7 +1286,7 @@ public class VoIPClient  {
 			if(ek.equals(HikeConstants.LogEvent.VOIP_CALL_CLICK))
 			{
 				// TODO: uncomment next line
-				// metadata.put(VoIPConstants.Analytics.CALL_SOURCE, callSource);
+//				 metadata.put(VoIPConstants.Analytics.CALL_SOURCE, callSource);
 			}
 			else if(ek.equals(HikeConstants.LogEvent.VOIP_CALL_END) || ek.equals(HikeConstants.LogEvent.VOIP_CALL_DROP) ||
 					ek.equals(HikeConstants.LogEvent.VOIP_CALL_REJECT) || ek.equals(HikeConstants.LogEvent.VOIP_PARTNER_ANSWER_TIMEOUT))
@@ -1504,7 +1501,6 @@ public class VoIPClient  {
 							Logger.w(VoIPConstants.TAG, "Compression error.");
 						}
 					} catch (InterruptedException e) {
-						Logger.e(VoIPConstants.TAG, "Compression thread interrupted. ");
 						break;
 					} catch (Exception e) {
 						Logger.e(VoIPConstants.TAG, "Compression error: " + e.toString());
@@ -1557,13 +1553,6 @@ public class VoIPClient  {
 								Logger.d(VoIPConstants.TAG, "PLC exception: " + e.toString());
 							}
 						}
-						
-						// Crude voice detection based on packet size
-						// Logger.d(VoIPConstants.TAG, "Incoming audio size: " + dpdecode.getData().length);
-						if (dpdecode.getData().length > 40)
-							setSpeaking(true);
-						else
-							setSpeaking(false);
 						
 						// Regular decoding
 						try {
@@ -1695,20 +1684,6 @@ public class VoIPClient  {
 	public void interruptResponseTimeoutThread() {
 		if (responseTimeoutThread != null)
 			responseTimeoutThread.interrupt();
-	}
-	
-	private void setSpeaking(boolean speaking) {
-		if (speaking == speech)
-			return;
-		speech = speaking;
-//		if (speech)
-//			Logger.d(VoIPConstants.TAG, getPhoneNumber() + " is talking.");
-//		else
-//			Logger.d(VoIPConstants.TAG, getPhoneNumber() + " stopped talking.");
-	}
-	
-	private boolean isSpeaking() {
-		return speech;
 	}
 	
 	public void setEncoderBitrate(int bitrate) {

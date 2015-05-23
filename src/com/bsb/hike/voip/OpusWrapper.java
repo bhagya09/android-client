@@ -155,12 +155,10 @@ public class OpusWrapper {
 		synchronized (encoderLock) {
 			synchronized (decoderLock) {
 				if (encoder != 0) {
-					Logger.d(VoIPConstants.TAG, "Destroying encoder: " + encoder);
 					opus_encoder_destroy(encoder);
 					encoder = 0;
 				}
 				if (decoder != 0) {
-					Logger.d(VoIPConstants.TAG, "Destroying decoder: " + decoder);
 					opus_decoder_destroy(decoder);
 					decoder = 0;
 				}

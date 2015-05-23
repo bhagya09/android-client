@@ -311,8 +311,13 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 			{
 				if (position < getCount())
 				{
-					viewHolder.id = getItemId(position);
-					fillContent(content, convMessage, viewHolder);
+					if(content!= null && content.getFormedData()!=null)
+					{
+						viewHolder.id = getItemId(position);
+						fillContent(content, convMessage, viewHolder);
+					}else{
+						showConnErrState(viewHolder, convMessage, position);	
+					}
 				}
 				else
 				{
