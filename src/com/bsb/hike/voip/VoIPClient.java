@@ -103,9 +103,6 @@ public class VoIPClient  {
 	private long lastQualityReset = 0;
 	private CallQuality currentCallQuality = CallQuality.UNKNOWN;
 	
-	// Network quality test
-	private int networkQualityPacketsReceived = 0;
-
 	public final ConcurrentHashMap<Integer, VoIPDataPacket> ackWaitQueue		 = new ConcurrentHashMap<Integer, VoIPDataPacket>();
 	public final ConcurrentLinkedQueue<VoIPDataPacket> samplesToDecodeQueue     = new ConcurrentLinkedQueue<VoIPDataPacket>();
 	private final LinkedBlockingQueue<VoIPDataPacket> encodedBuffersQueue      = new LinkedBlockingQueue<VoIPDataPacket>();
@@ -837,8 +834,6 @@ public class VoIPClient  {
 		bundle.putString(VoIPConstants.PARTNER_MSISDN, getPhoneNumber());
 		bundle.putBoolean(VoIPConstants.IS_CONNECTED, connected);
 
-		// sendHandlerMessage(VoIPConstants.MSG_SHUTDOWN_ACTIVITY, bundle);
-
 		sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CALL_END);
 
 		if(reconnecting) {
@@ -1236,10 +1231,6 @@ public class VoIPClient  {
 						setIdealBitrate();
 						break;
 
-					case NETWORK_QUALITY:
-						networkQualityPacketsReceived++;
-						break;
-						
 					case HOLD_ON:
 						setRemoteHold(true);
 						break;
