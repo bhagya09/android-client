@@ -383,11 +383,12 @@ public class VoIPClient  {
 					else
 						startPartnerTimeoutThread();
 				} else {
-					Logger.d(VoIPConstants.TAG, "Failed to retrieve external socket.");
-					sendHandlerMessage(VoIPConstants.MSG_EXTERNAL_SOCKET_RETRIEVAL_FAILURE);
-					sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CONNECTION_FAILED, VoIPConstants.CallFailedCodes.EXTERNAL_SOCKET_RETRIEVAL_FAILURE);
-					
-					stop();
+					if (!Thread.currentThread().isInterrupted()) {
+						Logger.d(VoIPConstants.TAG, "Failed to retrieve external socket.");
+						sendHandlerMessage(VoIPConstants.MSG_EXTERNAL_SOCKET_RETRIEVAL_FAILURE);
+						sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CONNECTION_FAILED, VoIPConstants.CallFailedCodes.EXTERNAL_SOCKET_RETRIEVAL_FAILURE);
+						stop();
+					}
 				}
 			}
 		}, "ICE_THREAD");
@@ -1265,6 +1266,7 @@ public class VoIPClient  {
 
 	public void sendAnalyticsEvent(String ek, int value)
 	{
+		Logger.d(VoIPConstants.TAG, "Logging event: " + ek);
 		try
 		{
 			JSONObject metadata = new JSONObject();

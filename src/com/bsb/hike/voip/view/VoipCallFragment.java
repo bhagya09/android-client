@@ -310,7 +310,12 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		{
 			return;
 		}
+		
 		Logger.d(VoIPConstants.TAG, "Intent action: " + action);
+		if (voipService == null) {
+			Logger.w(VoIPConstants.TAG, "voipService is null. Ignoring intent.");
+			return;
+		}
 		
 		if (action.equals(VoIPConstants.PARTNER_REQUIRES_UPGRADE)) 
 		{

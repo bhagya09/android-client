@@ -726,6 +726,9 @@ public class VoIPService extends Service {
 			@Override
 			public void onAudioFocusChange(int focusChange) {
 				VoIPClient client = getClient();
+				if (client == null)
+					return;
+				
 				switch (focusChange) {
 				case AudioManager.AUDIOFOCUS_GAIN:
 					Logger.w(VoIPConstants.TAG, "AUDIOFOCUS_GAIN");
