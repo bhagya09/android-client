@@ -12,7 +12,6 @@ public class HttpRequestConstants
 	
 	private static final String HTTP = "http://";
 
-	//TODO change it to https
 	private static final String HTTPS = "https://";
 
 	private static final String PRODUCTION_API = "api.im.hike.in";
@@ -22,6 +21,8 @@ public class HttpRequestConstants
 	private static final String PLATFORM_PRODUCTION_API = "platform.hike.in";
 
 	private static final String PLATFORM_STAGING_API = "staging.platform.hike.in";
+	
+	private static final String STICKERS_PRODUCTION_API = "stickers.im.hike.in";
 		
 	public static final int STAGING_PORT = 80;
 	
@@ -30,6 +31,8 @@ public class HttpRequestConstants
 	private static String BASE_URL = HTTP + PRODUCTION_API;
 
 	private static String BASE_PLATFORM_URL = HTTP + PLATFORM_PRODUCTION_API;
+	
+	private static String BASE_STICKERS_URL = HTTP + STICKERS_PRODUCTION_API;
 
 	private static final String BASE_V1 = "/v1";
 
@@ -60,6 +63,7 @@ public class HttpRequestConstants
 		isProduction = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PRODUCTION, true);
 		changeBaseUrl();
 		changeBasePlatformUrl();
+		changeBaseStickersUrl();
 	}
 
 	public static synchronized void toggleSSL()
@@ -67,6 +71,7 @@ public class HttpRequestConstants
 		isSSL = Utils.switchSSLOn(HikeMessengerApp.getInstance());
 		changeBaseUrl();
 		changeBasePlatformUrl();
+		changeBaseStickersUrl();
 	}
 	
 	private static void changeBaseUrl()
@@ -83,38 +88,45 @@ public class HttpRequestConstants
 		BASE_PLATFORM_URL += (isProduction) ? PLATFORM_PRODUCTION_API : PLATFORM_STAGING_API;
 	}
 	
+	private static void changeBaseStickersUrl()
+	{
+		BASE_STICKERS_URL = "";
+		BASE_STICKERS_URL += (isSSL) ? HTTPS : HTTP;
+		BASE_STICKERS_URL += (isProduction) ? STICKERS_PRODUCTION_API : STAGING_API;
+	}
+	
 	
 	
 	/*********************************************************************************************************************************************/
 	
 	public static String singleStickerDownloadBase()
 	{
-		return BASE_URL + BASE_V1 + "/stickers";
+		return BASE_STICKERS_URL + BASE_V1 + "/stickers";
 	}
 	
 	public static String multiStickerDownloadUrl()
 	{
-		return BASE_URL + BASE_V1 + BASE_STICKER;
+		return BASE_STICKERS_URL + BASE_V1 + BASE_STICKER;
 	}
 	
 	public static String stickerPalleteImageDownloadUrl()
 	{
-		return BASE_URL + BASE_V1 + BASE_STICKER + "/enable_disable";
+		return BASE_STICKERS_URL + BASE_V1 + BASE_STICKER + "/enable_disable";
 	}
 	
 	public static String stickerPreviewImageDownloadUrl()
 	{
-		return BASE_URL + BASE_V1 + BASE_STICKER + "/preview";
+		return BASE_STICKERS_URL + BASE_V1 + BASE_STICKER + "/preview";
 	}
 	
 	public static String stickerShopDownloadUrl()
 	{
-		return BASE_URL + BASE_V1 + BASE_STICKER + "/shop";
+		return BASE_STICKERS_URL + BASE_V1 + BASE_STICKER + "/shop";
 	}
 	
 	public static String stickerSignupUpgradeUrl()
 	{
-		return BASE_URL + BASE_V1 + BASE_STICKER + "/categories";
+		return BASE_STICKERS_URL + BASE_V1 + BASE_STICKER + "/categories";
 	}
 	
 	public static String lastSeenUrl()
