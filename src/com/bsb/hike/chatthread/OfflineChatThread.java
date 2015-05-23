@@ -16,6 +16,8 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
+import com.bsb.hike.dialog.HikeDialog;
+import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.media.AttachmentPicker;
 import com.bsb.hike.media.OverFlowMenuItem;
 import com.bsb.hike.models.ConvMessage;
@@ -41,6 +43,21 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 		controller=new OfflineController(this);
 	}
 
+	
+	@Override
+	public void onCreate()
+	{
+		
+		super.onCreate();
+		checkIfSharingFiles(activity.getIntent());
+	}
+	@Override
+	protected void onStart()
+	{
+		super.onStart();
+		//Check if we are connected to the User
+	}
+	
 	@Override
 	protected Conversation fetchConversation()
 	{
@@ -222,4 +239,84 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 		}
 	}	
 	
+	
+	@Override
+	protected void blockUnBlockUser(boolean isBlocked) {
+		/*
+		 * If offline mode is on, then disconnect the user if the blocked user's
+		 * msisdn is that of the current chat thread
+		 */
+//		if (isOfflineModeOn && isBlocked)
+//		{
+//			OfflineManager.getInstance().disconnect();
+//			Intent homeIntent = IntentFactory.getHomeActivityIntent(activity);
+//			activity.startActivity(homeIntent);
+//		}
+		
+		super.blockUnBlockUser(isBlocked);
+	}
+	
+	@Override
+	protected void onStop()
+	{
+		//Initialate a timer of x seconds to save battery.
+		super.onStop();
+	}
+	
+	@Override
+	public void positiveClicked(HikeDialog dialog)
+	{
+		switch (dialog.getId())
+		{
+		case HikeDialogFactory.CONTACT_SEND_DIALOG:
+
+			break;
+		default:
+			super.positiveClicked(dialog);
+		}
+	}
+	
+	@Override
+	public void imageCaptured(String imagePath)
+	{
+
+		// Send the captuerd image offline
+		// OfflineManager.getInstance().initialiseOfflineFileTransfer(imagePath, null, HikeFileType.IMAGE, null, false, -1, false, FTAnalyticEvents.CAMERA_ATTACHEMENT, msisdn,
+		// true,null);
+	}
+	
+	@Override
+	public void pickFileSuccess(int requestCode, String filePath)
+	{
+		switch (requestCode)
+		{
+		case AttachmentPicker.AUDIO:
+			// Send the captuerd audio offline
+			//OfflineManager.getInstance().initialiseOfflineFileTransfer(filePath, null, HikeFileType.AUDIO, null, false, -1, false, FTAnalyticEvents.AUDIO_ATTACHEMENT, msisdn,
+				//	true, null);
+			break;
+		case AttachmentPicker.VIDEO:
+			//// Send the captuerd video offline
+			//OfflineManager.getInstance().initialiseOfflineFileTransfer(filePath, null, HikeFileType.VIDEO, null, false, -1, false, FTAnalyticEvents.VIDEO_ATTACHEMENT, msisdn,
+				//	true, null);
+			break;
+		default:
+			super.pickFileSuccess(requestCode, filePath);
+		}
+	}
+	
+	@Override
+	public void audioRecordSuccess(String filePath, long duration)
+	{		
+		//Send the audio offline	
+		//OfflineManager.getInstance().initialiseOfflineFileTransfer(filePath, null, HikeFileType.AUDIO_RECORDING, HikeConstants.VOICE_MESSAGE_CONTENT_TYPE, true, duration, false, FTAnalyticEvents.AUDIO_ATTACHEMENT,msisdn,mConversation.isOnHike(),null);		
+	}
+	
+	private void checkIfSharingFiles(Intent intent) {
+		if (intent.hasExtra(HikeConstants.Extras.OFFLINE_SHARING_INTENT))
+		{
+			//We are coming from the sharing option.
+			//OfflineManager.getInstance().forwardSharingFiles(intent);
+		}
+	}
 }
