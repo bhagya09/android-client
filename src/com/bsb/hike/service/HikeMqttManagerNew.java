@@ -311,23 +311,26 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 		return InstanceHolder.INSTANCE;
 	}
 
-	/*
+	/**
 	 * This method should be used after creating this object. Note : Functions involving 'this' reference and Threads should not be used or started in constructor as it might
 	 * happen that incomplete 'this' object creation took place till that time.
+	 * 
+	 * @return true if successfully initialized false otherwise
 	 */
-	public void init()
+	public boolean init()
 	{
-		if(initialised.getAndSet(true))
-		{
-			Logger.d(TAG, "Already initialised , return now..");
-			return;
-		}
 		
 		// If user is not signed up. Do not initialize MQTT
 		if (!Utils.isUserSignedUp(HikeMessengerApp.getInstance(), false))
 		{
 			Logger.wtf(TAG, "User not signed up. Not starting mqtt service");
-			return;
+			return false;
+		}
+		
+		if(initialised.get())
+		{
+			Logger.d(TAG, "Already initialised , return now..");
+			return true;
 		}
 		
 		context = HikeMessengerApp.getInstance();
@@ -350,6 +353,9 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 
 		setServerUris();
 		// mqttThreadHandler.postDelayed(new TestOutmsgs(), 10 * 1000); // this is just for testing
+		
+		initialised.getAndSet(true);
+		return true;
 	}
 
 	private void createConnectionRunnables()
@@ -1630,6 +1636,18 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 			return ;
 		}
 		
+		if (!initialised.get())
+		{
+			Logger.d(TAG, "Not initialised, initializing...");
+			if(!init())
+			{
+				// not successfully initialized return;
+				return;
+			}
+			
+			// successfully initialized
+		}
+		
 		String data = o.toString();
 
 		long msgId = -1;
@@ -1672,11 +1690,6 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 			type = HikeConstants.NORMAL_MESSAGE_TYPE;
 		}
 
-		if (!initialised.get())
-		{
-			Logger.d(TAG, "Not initialised, initializing...");
-			init();
-		}
 
 		HikePacket packet = new HikePacket(data.getBytes(), msgId, System.currentTimeMillis(), type);
 		setTrackIDInPacketForMsgRel(o, packet);

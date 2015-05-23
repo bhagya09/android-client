@@ -163,15 +163,6 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	{
 		super(activity, msisdn);
 	}
-
-	@Override
-	protected void onStart()
-	{
-		super.onStart();
-
-		// fetch the latest last seen
-		fetchLastSeen();
-	}
 	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu)
@@ -282,6 +273,10 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			FetchHikeUser.fetchHikeUser(activity.getApplicationContext(), msisdn);
 		}
 
+		if (ChatThreadUtils.shouldShowLastSeen(msisdn, activity.getApplicationContext(), mConversation.isOnHike(), mConversation.isBlocked()))
+		{
+			checkAndStartLastSeenTask();
+		}
 		/**
 		 * If user is blocked
 		 */
@@ -1094,6 +1089,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		 * Setting text on lastSeenView
 		 */
 		mLastSeenView.setText(text);
+		mLastSeenView.setSelected(true);
 		
 		prevLastSeen = text;
 		
@@ -1497,7 +1493,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	 */
 	private void onAppForegrounded()
 	{
-		if (mContactInfo != null)
+		if (mContactInfo == null)
 		{
 			return;
 		}
@@ -2507,18 +2503,25 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	@Override
 	public boolean onBackPressed()
 	{
-		if (modeOfChat == H2S_MODE)
+		if (!super.onBackPressed())
 		{
-			destroyH20Mode();
-			return true;
+			if (modeOfChat == H2S_MODE)
+			{
+				destroyH20Mode();
+				return true;
+			}
+			else if (isH20TipShowing())
+			{
+				hideH20Tip();
+				return true;
+			}
+			else
+			{
+				return false;
+			}
 		}
 
-		else if (isH20TipShowing())
-		{
-			hideH20Tip();
-			return true;
-		}
-		return super.onBackPressed();
+		return true;
 	}
 	
 	@Override
