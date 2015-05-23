@@ -304,6 +304,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 	void handleIntent(Intent intent) 
 	{
 		String action = intent.getStringExtra(VoIPConstants.Extras.ACTION);
+		String msisdn = intent.getStringExtra(VoIPConstants.Extras.MSISDN);
 
 		if (action == null || action.isEmpty())
 		{
@@ -313,7 +314,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		
 		if (action.equals(VoIPConstants.PARTNER_REQUIRES_UPGRADE)) 
 		{
-			showCallFailedFragment(VoIPConstants.CallFailedCodes.PARTNER_UPGRADE);
+			showCallFailedFragment(VoIPConstants.CallFailedCodes.PARTNER_UPGRADE, msisdn);
 			if (voipService != null)
 			{
 				voipService.sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CONNECTION_FAILED, VoIPConstants.CallFailedCodes.PARTNER_UPGRADE);
@@ -323,7 +324,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		
 		if (action.equals(VoIPConstants.PARTNER_INCOMPATIBLE)) 
 		{
-			showCallFailedFragment(VoIPConstants.CallFailedCodes.PARTNER_INCOMPAT);
+			showCallFailedFragment(VoIPConstants.CallFailedCodes.PARTNER_INCOMPAT, msisdn);
 			if (voipService != null)
 			{
 				voipService.sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CONNECTION_FAILED, VoIPConstants.CallFailedCodes.PARTNER_INCOMPAT);
@@ -342,7 +343,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		
 		if (action.equals(VoIPConstants.PARTNER_IN_CALL)) 
 		{
-			showCallFailedFragment(VoIPConstants.CallFailedCodes.PARTNER_BUSY);
+			showCallFailedFragment(VoIPConstants.CallFailedCodes.PARTNER_BUSY, msisdn);
 			if (voipService != null)
 			{
 				voipService.setCallStatus(VoIPConstants.CallStatus.PARTNER_BUSY);
@@ -856,11 +857,20 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		{
 			return;
 		}
+		showCallFailedFragment(callFailCode, voipService.getPartnerClient().getPhoneNumber());
+	}
+
+	public void showCallFailedFragment(int callFailCode, String msisdn)
+	{
+		if(activity == null || voipService == null)
+		{
+			return;
+		}
 
 		releaseProximitySensor();
 
 		Bundle bundle = new Bundle();
-		bundle.putString(VoIPConstants.PARTNER_MSISDN, voipService.getPartnerClient().getPhoneNumber());
+		bundle.putString(VoIPConstants.PARTNER_MSISDN, msisdn);
 		bundle.putInt(VoIPConstants.CALL_FAILED_REASON, callFailCode);
 		bundle.putString(VoIPConstants.PARTNER_NAME, partnerName);
 
