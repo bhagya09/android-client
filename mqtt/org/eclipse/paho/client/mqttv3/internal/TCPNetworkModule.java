@@ -36,11 +36,11 @@ public class TCPNetworkModule implements NetworkModule
 {
 	protected Socket socket;
 
-	private SocketFactory factory;
+	protected SocketFactory factory;
 
-	private String host;
+	protected String host;
 
-	private int port;
+	protected int port;
 
 	private int conTimeout;
 
@@ -67,6 +67,7 @@ public class TCPNetworkModule implements NetworkModule
 		final String methodName = "start";
 		try
 		{
+			Logger.d(TAG, "Trying to connect on host : "+host + " and port :"+port);
 			// InetAddress localAddr = InetAddress.getLocalHost();
 			// socket = factory.createSocket(host, port, localAddr, 0);
 			// @TRACE 252=connect to host {0} port {1} timeout {2}
@@ -75,7 +76,11 @@ public class TCPNetworkModule implements NetworkModule
 			socket = factory.createSocket();
 			socket.setTcpNoDelay(true);
 			socket.setSoTimeout(6 * 60 * 1000); // setting socket timeout to 6 mins
+			
+			long sTime = System.currentTimeMillis();
 			socket.connect(sockaddr, conTimeout * 1000);
+			long eTime = System.currentTimeMillis();
+			Logger.d(TAG, "Connected : Time taken in socket.connect call : "+(eTime - sTime) + " on host : "+host + " and on port :"+port);
 
 			// SetTcpNoDelay was originally set ot true disabling Nagle's algorithm.
 			// This should not be required.

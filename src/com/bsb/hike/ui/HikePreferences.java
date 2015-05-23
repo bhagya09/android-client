@@ -20,6 +20,7 @@ import android.os.Bundle;
 import android.os.Vibrator;
 import android.preference.ListPreference;
 import android.preference.Preference;
+import android.preference.PreferenceCategory;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceManager;
@@ -185,7 +186,14 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			}
 			else
 			{
-				getPreferenceScreen().removePreference(sslPreference);
+				if(getPreferenceScreen().findPreference(HikeConstants.PRIVACY_SETTINGS_CATEGORY) instanceof PreferenceCategory)
+				{
+					PreferenceCategory privacySettingsCategory = ((PreferenceCategory) getPreferenceScreen().findPreference(HikeConstants.PRIVACY_SETTINGS_CATEGORY));
+					if (privacySettingsCategory != null)
+					{
+						privacySettingsCategory.removePreference(sslPreference);
+					}
+				}
 			}
 		}
 
@@ -444,7 +452,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 					DeleteAccountTask task = new DeleteAccountTask(HikePreferences.this, false, getApplicationContext());
 					blockingTaskType = BlockingTaskType.UNLINKING_ACCOUNT;
 					setBlockingTask(task);
-					Utils.executeBoolResultAsyncTask(task);
+					task.execute();
 					hikeDialog.dismiss();
 				}
 				
@@ -1250,18 +1258,28 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 	}
 
 	@Override
-	public void accountDeleted(boolean isSuccess)
+	public void accountDeleted(final boolean isSuccess)
 	{
-		if (isSuccess)
+		runOnUiThread(new Runnable()
 		{
-			accountDeleted();
-		}
-		else
-		{
-			dismissProgressDialog();
-		}
-
+			@Override
+			public void run()
+			{
+				if (isSuccess)
+				{
+					accountDeleted();
+				}
+				else
+				{
+					dismissProgressDialog();
+					int duration = Toast.LENGTH_LONG;
+					Toast toast = Toast.makeText(getApplicationContext(), getApplicationContext().getResources().getString(R.string.unlink_account_failed), duration);
+					toast.show();
+				}
+			}
+		});
 	}
+	
 	/**
 	 * Adding this to handle the onactivityresult callback for reset password 
 	 */

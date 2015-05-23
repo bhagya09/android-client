@@ -66,6 +66,11 @@ import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.GroupConversation;
 import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.modules.httpmgr.RequestToken;
+import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
+import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
+import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.content.PlatformContent;
@@ -76,6 +81,7 @@ import com.bsb.hike.platform.content.PlatformZipDownloader;
 import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.tasks.DownloadProfileImageTask;
 import com.bsb.hike.tasks.HikeHTTPTask;
+import com.bsb.hike.tasks.PostAddressBookTask;
 import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.userlogs.UserLogInfo;
 import com.bsb.hike.utils.AccountUtils;
@@ -1920,13 +1926,9 @@ public class MqttMessagesManager
 			Map<String, List<ContactInfo>> contacts = ContactManager.getInstance().convertToMap(contactinfos);
 			try
 			{
-				AccountUtils.postAddressBook(token, contacts);
+				new PostAddressBookTask(contacts).execute();
 			}
 			catch (IllegalStateException e)
-			{
-				Logger.w(getClass().getSimpleName(), "Exception while posting ab", e);
-			}
-			catch (IOException e)
 			{
 				Logger.w(getClass().getSimpleName(), "Exception while posting ab", e);
 			}
@@ -2387,7 +2389,7 @@ public class MqttMessagesManager
 	private void saveRequestDP(JSONObject jsonObj) throws JSONException
 	{
 		final String groupId = jsonObj.getString(HikeConstants.TO);
-		uploadGroupProfileImage(groupId, true);
+		uploadGroupProfileImage(groupId);
 	}
 
 	private void savePopup(JSONObject jsonObj) throws JSONException
@@ -3005,7 +3007,7 @@ public class MqttMessagesManager
 		Logger.d("create bot", "It takes " + String.valueOf(System.currentTimeMillis() - startTime) + "msecs");
 	}
 
-	private void uploadGroupProfileImage(final String groupId, final boolean retryOnce)
+	private void uploadGroupProfileImage(final String groupId)
 	{
 		String directory = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
 		String fileName = Utils.getTempProfileImageFileName(groupId);
@@ -3015,34 +3017,31 @@ public class MqttMessagesManager
 		{
 			return;
 		}
-
-		String path = "/group/" + groupId + "/avatar";
-
-		HikeHttpRequest hikeHttpRequest = new HikeHttpRequest(path, RequestType.PROFILE_PIC, new HikeHttpCallback()
+		
+		IRequestListener requestListener = new IRequestListener()
 		{
-			public void onFailure()
-			{
-				if (retryOnce)
-				{
-					uploadGroupProfileImage(groupId, false);
-				}
-				else
-				{
-					Utils.removeTempProfileImage(groupId);
-					HikeMessengerApp.getLruCache().deleteIconForMSISDN(groupId);
-					HikeMessengerApp.getPubSub().publish(HikePubSub.ICON_CHANGED, groupId);
-				}
-			}
-
-			public void onSuccess(JSONObject response)
+			@Override
+			public void onRequestSuccess(Response result)
 			{
 				Utils.renameTempProfileImage(groupId);
 			}
-		});
-		hikeHttpRequest.setFilePath(groupImageFile.getPath());
-
-		HikeHTTPTask task = new HikeHTTPTask(null, 0);
-		Utils.executeHttpTask(task, hikeHttpRequest);
+			
+			@Override
+			public void onRequestProgressUpdate(float progress)
+			{				
+			}
+			
+			@Override
+			public void onRequestFailure(HttpException httpException)
+			{
+				Utils.removeTempProfileImage(groupId);
+				HikeMessengerApp.getLruCache().deleteIconForMSISDN(groupId);
+				HikeMessengerApp.getPubSub().publish(HikePubSub.ICON_CHANGED, groupId);
+			}
+		};
+		
+		RequestToken requestToken = HttpRequests.editGroupProfileAvatarRequest(groupImageFile.getPath(), requestListener, groupId);
+		requestToken.execute();
 	}
 
 	private void handleSendNativeInviteKey(boolean sendNativeInvite, boolean showFreeSmsPopup, String header, String body, Editor editor)
@@ -3088,8 +3087,8 @@ public class MqttMessagesManager
 
 		String fileName = Utils.getProfileImageFileName(statusMessage.getMappedId());
 		DownloadProfileImageTask downloadProfileImageTask = new DownloadProfileImageTask(context, statusMessage.getMappedId(), fileName, true, statusUpdate,
-				statusMessage.getMsisdn(), statusMessage.getNotNullName(), false);
-		Utils.executeBoolResultAsyncTask(downloadProfileImageTask);
+				statusMessage.getMsisdn(), statusMessage.getNotNullName());
+		downloadProfileImageTask.execute();
 	}
 
 	private void autoDownloadGroupImage(String id)
@@ -3100,16 +3099,16 @@ public class MqttMessagesManager
 			return;
 		}
 		String fileName = Utils.getProfileImageFileName(id);
-		DownloadProfileImageTask downloadProfileImageTask = new DownloadProfileImageTask(context, id, fileName, true, false, null, null, false);
-		Utils.executeBoolResultAsyncTask(downloadProfileImageTask);
+		DownloadProfileImageTask downloadProfileImageTask = new DownloadProfileImageTask(context, id, fileName, true, false, null, null);
+		downloadProfileImageTask.execute();
 	}
 
 	private void autoDownloadProtipImage(StatusMessage statusMessage, boolean statusUpdate)
 	{
 		String fileName = Utils.getProfileImageFileName(statusMessage.getMappedId());
 		DownloadProfileImageTask downloadProfileImageTask = new DownloadProfileImageTask(context, statusMessage.getMappedId(), fileName, true, statusUpdate,
-				statusMessage.getMsisdn(), statusMessage.getNotNullName(), false, statusMessage.getProtip().getImageURL());
-		Utils.executeBoolResultAsyncTask(downloadProfileImageTask);
+				statusMessage.getMsisdn(), statusMessage.getNotNullName(), statusMessage.getProtip().getImageURL());
+		downloadProfileImageTask.execute();
 	}
 
 	private void setDefaultSMSClientTutorialSetting()
