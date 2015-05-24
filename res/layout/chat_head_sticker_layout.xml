@@ -42,7 +42,7 @@
         android:layout_height="match_parent"
         android:layout_gravity="center_horizontal"
         android:orientation="vertical"
-        android:visibility="visible" >
+        android:visibility="gone" >
 
         <TextView
             android:id="@+id/main_text"
@@ -50,7 +50,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="33dp"
             android:gravity="center_horizontal"
-            android:text="2/5 stickers sent today"
+            android:text="@string/stickers_sent_today"
             android:textColor="#CCCCCC"
             android:textSize="18sp" />
 
@@ -70,7 +70,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="18dp"
             android:gravity="center_horizontal"
-            android:text="You sent 34 stickers in the lat 8 days"
+            android:text="@string/disable_from_hike_settings"
             android:textColor="#666666"
             android:textSize="12sp" />
 
@@ -97,7 +97,7 @@
                 android:layout_height="48dp"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="DISABLE"
+                android:text="@string/disable_button"
                 android:textColor="#AAAAAA"
                 android:textSize="12sp" />
 
@@ -114,7 +114,7 @@
                 android:layout_height="48dp"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="GET MORE STICKERS"
+                android:text="@string/get_more_stickers_button"
                 android:textColor="#AAAAAA"
                 android:textSize="12sp" />
 
@@ -131,7 +131,7 @@
                 android:layout_height="48dp"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="OPEN HIKE"
+                android:text="@string/open_hike_button"
                 android:textColor="#AAAAAA"
                 android:textSize="12sp" />
         </LinearLayout>
@@ -167,7 +167,7 @@
                 android:layout_height="48dp"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="1 HOUR"
+                android:text="@string/one_hour_button"
                 android:textColor="#AAAAAA"
                 android:textSize="12sp" />
 
@@ -184,7 +184,7 @@
                 android:layout_height="48dp"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="8 HOURS"
+                android:text="@string/eight_hour_button"
                 android:textColor="#AAAAAA"
                 android:textSize="12sp" />
 
@@ -201,7 +201,7 @@
                 android:layout_height="48dp"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="24 HOURS"
+                android:text="@string/one_day_button"
                 android:textColor="#AAAAAA"
                 android:textSize="12sp" />
         </LinearLayout>

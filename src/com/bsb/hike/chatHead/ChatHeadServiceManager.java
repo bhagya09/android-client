@@ -1,7 +1,12 @@
 package com.bsb.hike.chatHead;
 
+import static com.bsb.hike.MqttConstants.MQTT_CONNECTION_CHECK_ACTION;
+
+import java.util.Calendar;
+
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
 import com.bsb.hike.chatHead.ChatHeadService;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
@@ -12,66 +17,71 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
+import android.support.v4.content.LocalBroadcastManager;
 
 public class ChatHeadServiceManager extends BroadcastReceiver
 {
-	static boolean flagScreen = true;
+	static boolean flagScreen = true, snooze = false;
+
+	static Context mContext = HikeMessengerApp.getInstance();
 
 	@Override
 	public void onReceive(Context context, Intent intent)
 	{
-		Logger.d("ashish", "hello5");
+		Logger.d("ashish", "receive");
 
-		// if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF))
-		// {
-		// Logger.d("ashish", "screenoff");
-		// }
-		// else
-		// {
-		// Logger.d("ashish", "screenon");
-		// }
-
-		Context mContext = HikeMessengerApp.getInstance();
 		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, true)
 				&& HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL, true))
 		{
-			Logger.d("ashish", "hello");
-			/*
-			 * if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF) && Utils.isMyServiceRunning(ChatHeadService.class, mContext)) { flagScreen = false; mContext.stopService(new
-			 * Intent(mContext, ChatHeadService.class)); Logger.d("ashish", "screenoff"); } else if (intent.getAction().equals(Intent.ACTION_SCREEN_ON) && !flagScreen) {
-			 * mContext.startService(new Intent(mContext, ChatHeadService.class)); flagScreen = true; Logger.d("ashish", "screenon");
-			 * 
-			 * }
-			 * 
-			 * else
-			 */if (intent.hasExtra(HikeConstants.ChatHead.INTENT_EXTRA))
+			if (intent.hasExtra(HikeConstants.ChatHead.INTENT_EXTRA))
 			{
-				if (intent.getIntExtra(HikeConstants.ChatHead.INTENT_EXTRA, HikeConstants.ChatHead.STARTING_SERVICE) == 1
-						&& !Utils.isMyServiceRunning(ChatHeadService.class, mContext))
-				{
-					mContext.startService(new Intent(mContext, ChatHeadService.class));
-				}
-				else
-				{
-					if (Utils.isMyServiceRunning(ChatHeadService.class, mContext))
-					{
-						mContext.stopService(new Intent(mContext, ChatHeadService.class));
-					}
-					Intent mIntent = new Intent(mContext, ChatHeadServiceManager.class);
-					PendingIntent pendingIntent = PendingIntent.getBroadcast(mContext, 0, mIntent, PendingIntent.FLAG_ONE_SHOT);
-					AlarmManager alarmManager = (AlarmManager) (mContext.getSystemService(mContext.ALARM_SERVICE));
-					alarmManager.set(AlarmManager.RTC, intent.getIntExtra(HikeConstants.ChatHead.INTENT_EXTRA, 0), pendingIntent);
-				}
-
+				snooze = false;
+				startService();
 			}
-
+			else if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF))
+			{
+				stopService();
+			}
+			else if (intent.getAction().equals(Intent.ACTION_SCREEN_ON))
+			{
+				startService();
+			}
 		}
 		else
 		{
-			if (Utils.isMyServiceRunning(ChatHeadService.class, mContext))
-			{
-				mContext.stopService(new Intent(mContext, ChatHeadService.class));
-			}
+			stopService();
+		}
+	}
+
+	public static void startService()
+	{
+		if (!Utils.isMyServiceRunning(ChatHeadService.class, mContext) && HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, true)
+				&& HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL, true) && !snooze)
+		{
+			mContext.startService(new Intent(mContext, ChatHeadService.class));
+		}
+	}
+
+	public static void stopService()
+	{
+		if (Utils.isMyServiceRunning(ChatHeadService.class, mContext))
+		{
+			mContext.stopService(new Intent(mContext, ChatHeadService.class));
+		}
+	}
+
+	public static void serviceDecision()
+	{
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, true)
+				&& HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL, true))
+		{
+			startService();
+		}
+		else
+		{
+			stopService();
 		}
 	}
 }

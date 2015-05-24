@@ -4,29 +4,16 @@
     <item
         android:id="@android:id/background"
         android:drawable="@drawable/progress_background">
-        <shape>
-            <padding
-                android:bottom="3dp"
-                android:left="3dp"
-                android:right="3dp"
-                android:top="3dp" />
-        </shape>
     </item>
     <item android:id="@android:id/progress">
         <clip>
             <shape>
                 <corners android:radius="5dp" />
 
-                <padding
-                    android:bottom="3dp"
-                    android:left="3dp"
-                    android:right="3dp"
-                    android:top="3dp" />
-
                 <gradient
                     android:angle="0"
-                    android:endColor="#FF3C3C"
-                    android:startColor="#59D44A" />
+                    android:endColor="#4A90E2"
+                    android:startColor="#4A90E2" />
             </shape>
         </clip>
     </item>

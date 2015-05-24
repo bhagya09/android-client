@@ -24,6 +24,7 @@ import android.animation.AnimatorSet;
 import android.animation.ValueAnimator;
 import android.app.ActivityManager;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.Resources;
@@ -49,7 +50,7 @@ import com.bsb.hike.chatHead.ChatHeadActivity;
 
 public class ChatHeadService extends Service
 {
-
+  
 	private class CheckForegroundActivity extends TimerTask
 	{
 		String getActivePackage()
@@ -72,7 +73,7 @@ public class ChatHeadService extends Service
 			try
 			{
 				List<String> list = new ArrayList<String>();
-               
+
 				JSONArray jsonObj = new JSONArray(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.PACKAGE_LIST, HikeConstants.Extras.WHATSAPP_PACKAGE));
 
 				for (int i = 0; i < jsonObj.length(); i++)
@@ -81,16 +82,16 @@ public class ChatHeadService extends Service
 					{
 						if (obj.getBoolean(HikeConstants.ChatHead.APP_ENABLE))
 						{
-						list.add(obj.getString(HikeConstants.ChatHead.APP_NAME));
-						Logger.d("ashish", obj.toString());
-					    }
+							list.add(obj.getString(HikeConstants.ChatHead.APP_NAME));
+						}
 					}
 
 				}
 				String foregroundPackage = getActivePackage();
 
 				if (!chatHead.isShown())
-				{  Logger.d("ashish", list.toString());
+				{
+					Logger.d("ashish", list.toString());
 					if (list.contains(foregroundPackage) && toShow)
 					{
 						foregroundApp = foregroundPackage;
@@ -154,6 +155,8 @@ public class ChatHeadService extends Service
 
 	static boolean toShow = true;
 
+	Timer processCheckTimer;
+
 	public static boolean flagActivityRunning = false;
 
 	WindowManager.LayoutParams chatHeadParams = new WindowManager.LayoutParams(WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT,
@@ -208,7 +211,7 @@ public class ChatHeadService extends Service
 			public void onAnimationEnd(Animator animation)
 			{
 				if (flag == HikeConstants.ChatHead.CREATING_CHAT_HEAD_ACTIVITY_ANIMATION)
-				{
+				{   
 					flagActivityRunning = true;
 					Intent intent = new Intent(getApplicationContext(), ChatHeadActivity.class);
 					intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -281,7 +284,8 @@ public class ChatHeadService extends Service
 		if (Rect.intersects(rectChatHead, rectCloseHead))
 		{
 			dismissed++;
-			if (chatHead.isShown())
+			if (dismissed<=HikeConstants.ChatHead.DISMISSED_CONST)
+			{if (chatHead.isShown())
 			{
 				ChatHeadService.toShow = false;
 				setChatHeadParams();
@@ -292,6 +296,12 @@ public class ChatHeadService extends Service
 			{
 				windowManager.removeView(closeHead);
 			}
+			}
+			else
+			{
+				flagActivityRunning = true;
+				openingChatHeadActivity();
+			}
 		}
 		else
 		{
@@ -299,30 +309,7 @@ public class ChatHeadService extends Service
 			{
 				if (!flagActivityRunning)
 				{
-					final float scale = getApplicationContext().getResources().getDisplayMetrics().density;
-
-					Resources resources = getApplicationContext().getResources();
-					int resourceId = getResources().getIdentifier(HikeConstants.ChatHead.STATUS_BAR_HEIGHT, HikeConstants.ChatHead.STATUS_BAR_TYPE,
-							HikeConstants.ChatHead.STATUS_BAR_PACKAGE);
-					int status_bar_height = (int) resources.getDimension(resourceId);
-					int pixelsX;
-					if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT)
-					{
-						// 12 dp margin + 12 dp left part of image
-						pixelsX = (int) (24 * scale);
-					}
-					else
-					{
-						pixelsX = (int) (24 * scale) + status_bar_height;
-
-					}
-
-					// 240 dp image height + 8dp image margin bottom + 42 dp size of icon
-					int pixelsY = (int) (displaymetrics.heightPixels - (scale * 248) - chatHead.getHeight() - status_bar_height);
-
-					savedPosX = chatHeadParams.x;
-					savedPosY = chatHeadParams.y;
-					overlayAnimation(chatHead, chatHeadParams.x, pixelsX, chatHeadParams.y, pixelsY, HikeConstants.ChatHead.CREATING_CHAT_HEAD_ACTIVITY_ANIMATION);
+					openingChatHeadActivity();
 				}
 				else
 				{
@@ -346,6 +333,37 @@ public class ChatHeadService extends Service
 		{
 			windowManager.removeView(closeHead);
 		}
+	}
+
+	private void openingChatHeadActivity()
+	{
+		DisplayMetrics displaymetrics = new DisplayMetrics();
+
+		windowManager.getDefaultDisplay().getMetrics(displaymetrics);
+
+		final float scale = getApplicationContext().getResources().getDisplayMetrics().density;
+
+		Resources resources = getApplicationContext().getResources();
+		int resourceId = getResources().getIdentifier(HikeConstants.ChatHead.STATUS_BAR_HEIGHT, HikeConstants.ChatHead.STATUS_BAR_TYPE, HikeConstants.ChatHead.STATUS_BAR_PACKAGE);
+		int status_bar_height = (int) resources.getDimension(resourceId);
+		int pixelsX;
+		if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT)
+		{
+			// 12 dp margin + 12 dp left part of image
+			pixelsX = (int) (24 * scale);
+		}
+		else
+		{
+			pixelsX = (int) (24 * scale) + status_bar_height;
+		}
+
+		// 240 dp image height + 8dp image margin bottom + 42 dp size of icon
+		int pixelsY = (int) (displaymetrics.heightPixels - (scale * 248) - chatHead.getHeight() - status_bar_height);
+
+		savedPosX = chatHeadParams.x;
+		savedPosY = chatHeadParams.y;
+		overlayAnimation(chatHead, chatHeadParams.x, pixelsX, chatHeadParams.y, pixelsY, HikeConstants.ChatHead.CREATING_CHAT_HEAD_ACTIVITY_ANIMATION);
+
 	}
 
 	private int actionMove(int drag, int initialX, int initialY, Float initialTouchX, Float initialTouchY, MotionEvent event)
@@ -455,7 +473,7 @@ public class ChatHeadService extends Service
 
 		setCloseHeadParams();
 
-		Timer processCheckTimer = new Timer();
+		processCheckTimer = new Timer();
 
 		processCheckTimer.schedule(new CheckForegroundActivity(), 0L, 1000L);
 
@@ -539,7 +557,7 @@ public class ChatHeadService extends Service
 	@Override
 	public void onDestroy()
 	{
-		Logger.d("ashish", "destroy");
+		Logger.d("ashish", "destroyser");
 		super.onDestroy();
 
 		if (chatHead.isShown())
@@ -550,6 +568,9 @@ public class ChatHeadService extends Service
 		{
 			ChatHeadActivity.getInstance().finish();
 		}
+		processCheckTimer.cancel();
+		processCheckTimer.purge();
+		
 
 	}
 

@@ -1475,4 +1475,17 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
 	<string name="not_enough_memory">Not Enough Memory</string>
 	<string name="edit_photos">New Photo</string>
 	<string name="only_photos_edit">Only photos can be edited</string>
+	<string name="stickers_sent_today"> stickers sent today</string>
+	<string name="disable_from_hike_settings">Disable permanently from hike Settings</string>
+	<string name="total_sticker_sent_start">You sent</string>
+	<string name="total_sticker_sent_middle">stickers in the last</string>
+	<string name="total_sticker_sent_end">days</string>
+    <string name="disable_button">DISABLE</string>
+    <string name="get_more_stickers_button">GET MORE STICKERS</string>
+    <string name="open_hike_button">OPEN HIKE</string>
+    <string name="one_hour_button">1 HOUR</string>
+    <string name="eight_hour_button">8 HOURS</string>
+    <string name="one_day_button">24 HOURS</string>
+    <string name="settings_share_stickers">Sticker Share</string>
+    
 </resources>

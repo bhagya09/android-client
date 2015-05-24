@@ -1111,13 +1111,15 @@ public class HikeConstants
 
 		public static final String CHAT_HEAD_SERVICE = "enable";
 
-		public static final String CHAT_HEAD_USR_CONTROL = "user_ctrl";
+		public static final String CHAT_HEAD_USR_CONTROL = "usr_ctrl";
 
 		public static final String STICKERS_PER_DAY = "stkr_per_day";
 
+		public static final String DAILY_STICKER_SHARE_COUNT = "shr_cnt_dly";
+		
 		public static final String EXTRA_STICKERS_PER_DAY = "extra_stkr_per_day";
 
-		public static final String TOTAL_STICKER_SHARE_COUNT = "ttlStkrShrCount";
+		public static final String TOTAL_STICKER_SHARE_COUNT = "ttl_stkr_shr_count";
 		
 		public static final String PACKAGE_LIST = "pkg_list";
 		
@@ -1137,7 +1139,13 @@ public class HikeConstants
 
 		public static final String INTENT_EXTRA = "time";
 
-		public static final int STARTING_SERVICE = 1;
+		public static final int ALARM_BROADCAST = 1;
+
+		public static final int DISMISSED_CONST = 5;
+
+		public static final String SERVICE_START_DATE= "strtDate";
+		
+		public static final String SERVICE_LAST_USED= "lastUsed";
 
 	}
 
