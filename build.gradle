@@ -12,34 +12,25 @@ android {
     compileSdkVersion "Google Inc.:Google APIs:21"
     buildToolsVersion "21.0.2"
     aaptOptions {
-        noCompress '.9.png'
-        useNewCruncher false
+        useNewCruncher true
     }
     defaultConfig {
-        minSdkVersion 8
+        minSdkVersion 9
         renderscriptTargetApi 18
         renderscriptSupportModeEnabled true
-        targetSdkVersion 21
+        targetSdkVersion 17
     }
     lintOptions {
-        ignoreWarnings true
-        checkAllWarnings false
-        warningsAsErrors false
         lintConfig file("lint.xml")
-        quiet true
-        checkReleaseBuilds false
         abortOnError false
     }
     dexOptions {
-    javaMaxHeapSize "2048M"
-    preDexLibraries = false
+        javaMaxHeapSize "2048M"
+        preDexLibraries = false 
         jumboMode = true
     }
     dependencies {
         compile(project(':actionbar-sherlock')) {
-            exclude module: 'support-v4'
-        }
-        compile(project(':cwac-camera') ) {
             exclude module: 'support-v4'
         }
         compile(project(':google-play')) {
@@ -51,19 +42,7 @@ android {
         compile(project(':viewpager-indicator-library')) {
             exclude module: 'support-v4'
         }
-        compile files('libs/acra-4.5.0.jar')
-        compile files('libs/gson-2.3.jar')
-        compile files('libs/gcm.jar')
-        compile files('libs/aspectjrt-1.8.2.jar')
-        compile files('libs/httpclient-android-4.3.5.jar')
-        compile files('libs/isoparser-1.0.4.2.jar')
-        compile files('libs/jmustache-1.9-2.jar')
-        compile files('libs/musicg-1.4.2.0.jar')
-        compile files('libs/okio-1.2.0.jar')
-        compile files('libs/protobuf-java-2.6.1.jar')
-        compile files('libs/prettytime-2.1.3.jar')
-        compile files('libs/twitter4j-core-3.0.5.jar')
-        compile files('libs/android-support-v4.jar')
+        compile fileTree(dir: 'libs', include: ['*.jar'])
     }
 
     sourceSets {
@@ -73,13 +52,78 @@ android {
             renderscript.srcDirs = ['src']
             res.srcDirs = ['res']
             assets.srcDirs = ['assets']
+            jniLibs.srcDirs = ['libs']
+        }
+
+        black {
+            res.srcDirs = ['res-black']
         }
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_7
         targetCompatibility JavaVersion.VERSION_1_7
     }
+
+    signingConfigs {
+        release {
+            storeFile file("hike-android-release-key.keystore")
+            storePassword "Tequ1laFr1day5"
+            keyAlias "hhikedroid"
+            keyPassword "Tequ1laFr1day5"
+        }
+    }
+    applicationVariants.all { variant -> 
+        variant.outputs.each { output -> 
+            def file = output.outputFile
+            output.outputFile = new File(file.parent, file.name.replace(".apk","-" + getVersionName() + "-" + getBranchAndCommitID() + "-"+ getDateTime() + ".apk"))
+        }
+    }
+    buildTypes {
+        black {
+            applicationIdSuffix ".black"
+            debuggable true
+            signingConfig signingConfigs.release
+        }
+        release {
+        	minifyEnabled true
+            debuggable false
+            proguardFile 'proguard.cfg'
+            signingConfig signingConfigs.release
+        }
+        debug {
+            debuggable true
+        }
+    }
+    productFlavors {
+    arm {
+        ndk {
+            abiFilters "armeabi", "armeabi-v7a"
+        	}
+    	}
+	}
 }
 
-dependencies {
+def getBranchAndCommitID() {
+    ext.revision = getGitRevParseInfo ( "--short" )
+    ext.branch = getGitRevParseInfo ( "--abbrev-ref" )
+    
+    return ext.revision 
+}
+
+def getGitRevParseInfo (what) {
+   def cmd = "git rev-parse " + what + " HEAD"
+   def proc = cmd.execute ()
+   proc.text.trim ()
+}
+
+def getVersionName() {
+    def manifestParser = new com.android.builder.core.DefaultManifestParser()
+    def versionName = manifestParser.getVersionName(android.sourceSets.main.manifest.srcFile)
+    return versionName.replaceAll('\\.','_')
+}
+
+def getDateTime() {
+    def date = new Date()
+    def formattedDate = date.format('yyyy_MM_dd-HH_mm_ss')
+    return formattedDate
 }

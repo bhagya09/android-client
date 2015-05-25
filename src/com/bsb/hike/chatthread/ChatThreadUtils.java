@@ -18,7 +18,6 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.text.TextUtils;
 import android.util.Pair;
 import android.view.View;
 import android.view.animation.Animation;
@@ -31,6 +30,7 @@ import android.widget.Toast;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.MqttConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.MsgRelEventType;
@@ -40,7 +40,6 @@ import com.bsb.hike.analytics.MsgRelLogManager;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.filetransfer.FTAnalyticEvents;
 import com.bsb.hike.filetransfer.FileTransferManager;
-import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.HikeFile.HikeFileType;
@@ -153,13 +152,6 @@ public class ChatThreadUtils
 		{
 
 			convMessage.setMessage(message.substring(hashType.length()).trim());
-
-			if (TextUtils.isEmpty(convMessage.getMessage()))
-			{
-				Toast.makeText(context, R.string.text_empty_error, Toast.LENGTH_SHORT).show();
-				return false;
-			}
-
 			return true;
 		}
 		return false;
@@ -181,7 +173,7 @@ public class ChatThreadUtils
 			Logger.wtf(TAG, "Exception in Adding bulk messages : " + e.toString());
 		}
 
-		HikeMqttManagerNew.getInstance().sendMessage(jsonObject, HikeMqttManagerNew.MQTT_QOS_ONE);
+		HikeMqttManagerNew.getInstance().sendMessage(jsonObject, MqttConstants.MQTT_QOS_ONE);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.MSG_READ, msisdn);
 	}
 
@@ -280,9 +272,9 @@ public class ChatThreadUtils
 		}
 	}
 
-	protected static boolean shouldShowLastSeen(Context context, FavoriteType mFavoriteType, boolean convOnHike)
+	protected static boolean shouldShowLastSeen(String msisdn, Context context, boolean convOnHike, boolean isBlocked)
 	{
-		if (convOnHike)
+		if (convOnHike && !isBlocked && !Utils.isBot(msisdn))
 		{
 			return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(HikeConstants.LAST_SEEN_PREF, true);
 		}
@@ -294,15 +286,15 @@ public class ChatThreadUtils
 		return HikeMessengerApp.networkError;
 	}
 
-	protected static void initialiseLocationTransfer(Context context, String msisdn, double latitude, double longitude, int zoomLevel, boolean convOnHike)
+	protected static void initialiseLocationTransfer(Context context, String msisdn, double latitude, double longitude, int zoomLevel, boolean convOnHike, boolean newConvIfnotExist)
 	{
-		FileTransferManager.getInstance(context).uploadLocation(msisdn, latitude, longitude, zoomLevel, convOnHike);
+		FileTransferManager.getInstance(context).uploadLocation(msisdn, latitude, longitude, zoomLevel, convOnHike,newConvIfnotExist);
 	}
 
 	protected static void initialiseContactTransfer(Context context, String msisdn, JSONObject contactJson, boolean convOnHike)
 	{
 		Logger.i(TAG, "initiate contact transfer " + contactJson.toString());
-		FileTransferManager.getInstance(context).uploadContact(msisdn, contactJson, convOnHike);
+		FileTransferManager.getInstance(context).uploadContact(msisdn, contactJson, convOnHike, true);
 	}
 
 	protected static int incrementDecrementMsgsCount(int var, boolean isMsgSelected)
@@ -403,7 +395,7 @@ public class ChatThreadUtils
 		mConversationDb.updateMsgStatus(message.getMsgID(), ConvMessage.State.RECEIVED_READ.ordinal(), msisdn);
 		if (message.getParticipantInfoState() == ParticipantInfoState.NO_INFO)
 		{
-			HikeMqttManagerNew.getInstance().sendMessage(message.serializeDeliveryReportRead(), HikeMqttManagerNew.MQTT_QOS_ONE);
+			HikeMqttManagerNew.getInstance().sendMessage(message.serializeDeliveryReportRead(), MqttConstants.MQTT_QOS_ONE);
 		}
 
 		HikeMessengerApp.getPubSub().publish(HikePubSub.MSG_READ, msisdn);
@@ -457,7 +449,7 @@ public class ChatThreadUtils
 				e.printStackTrace();
 			}
 
-			HikeMqttManagerNew.getInstance().sendMessage(object, HikeMqttManagerNew.MQTT_QOS_ONE);
+			HikeMqttManagerNew.getInstance().sendMessage(object, MqttConstants.MQTT_QOS_ONE);
 		}
 	}
 
@@ -564,6 +556,11 @@ public class ChatThreadUtils
 		{
 			return HikeConstants.Extras.GROUP_CHAT_THREAD;
 		}
+		
+		else if (Utils.isBot(msisdn))
+		{
+			return HikeConstants.Extras.BOT_CHAT_THREAD;
+		}
 
 		return HikeConstants.Extras.ONE_TO_ONE_CHAT_THREAD;
 	}
@@ -604,8 +601,6 @@ public class ChatThreadUtils
 						{
 							dataMR.putOpt(String.valueOf(pair.first), pd);
 							// Logs for Msg Reliability
-							Logger.d(AnalyticsConstants.MSG_REL_TAG, "===========================================");
-							Logger.d(AnalyticsConstants.MSG_REL_TAG, "Receiver reads msg on after opening screen,track_id:- " + trackId);
 							MsgRelLogManager.recordMsgRel(trackId, MsgRelEventType.RECEIVER_OPENS_CONV_SCREEN, msisdn);
 						}
 						else
@@ -621,8 +616,6 @@ public class ChatThreadUtils
 			}
 
 			Logger.d("UnreadBug", "Unread count event triggered");
-			Logger.d(AnalyticsConstants.MSG_REL_TAG, "inside API setMessageRead in CT ===========================================");
-			Logger.d(AnalyticsConstants.MSG_REL_TAG, "Going to set MR/NMR as user is on chat screen ");
 
 			/*
 			 * If there are msgs which are RECEIVED UNREAD then only broadcast a msg that these are read avoid sending read notifications for group chats
@@ -634,7 +627,7 @@ public class ChatThreadUtils
 				object.put(HikeConstants.TO, msisdn);
 				object.put(HikeConstants.DATA, ids);
 
-				HikeMqttManagerNew.getInstance().sendMessage(object, HikeMqttManagerNew.MQTT_QOS_ONE);
+				HikeMqttManagerNew.getInstance().sendMessage(object, MqttConstants.MQTT_QOS_ONE);
 			}
 
 			if (dataMR != null && dataMR.length() > 0)
@@ -644,7 +637,7 @@ public class ChatThreadUtils
 				object.put(HikeConstants.TO, msisdn);
 				object.put(HikeConstants.DATA, dataMR);
 
-				HikeMqttManagerNew.getInstance().sendMessage(object, HikeMqttManagerNew.MQTT_QOS_ONE);
+				HikeMqttManagerNew.getInstance().sendMessage(object, MqttConstants.MQTT_QOS_ONE);
 			}
 			Logger.d(TAG, "Unread Count event triggered");
 
@@ -661,5 +654,32 @@ public class ChatThreadUtils
 			e.printStackTrace();
 		}
 
+	}
+	
+	/**
+	 * Utility method for returning msisdn from action:SendTo intent which is invoked from outside the application
+	 * 
+	 * @param intent
+	 * @return
+	 */
+	public static String getMsisdnFromSendToIntent(Intent intent)
+	{
+		String smsToString = intent.getDataString();
+		smsToString = Uri.decode(smsToString); //Since this is coming from an external intent, the DataString can be null"
+		if (smsToString != null)
+		{
+			int index = smsToString.indexOf(intent.getData().getScheme() + ":");
+			if (index != -1)
+			{
+				index += (intent.getData().getScheme() + ":").length();
+				String msisdn = smsToString.substring(index, smsToString.length());
+				if (msisdn != null)
+				{
+					return msisdn.trim();
+				}
+			}
+		}
+
+		return null;
 	}
 }

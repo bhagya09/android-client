@@ -133,21 +133,8 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 				updateCallStatus();
 				activateActiveCallButtons();
 				break;
-			case VoIPConstants.MSG_ENCRYPTION_INITIALIZED:
-//				showMessage("Encryption initialized.");
-				break;
-			case VoIPConstants.MSG_INCOMING_CALL_DECLINED:
-				// VoIPUtils.addMessageToChatThread(VoIPActivity.this, clientPartner, HikeConstants.MqttMessageTypes.VOIP_MSG_TYPE_MISSED_CALL_INCOMING, 0);
-				break;
-			case VoIPConstants.MSG_OUTGOING_CALL_DECLINED:
-//				showMessage("Call was declined.");
-				break;
 			case VoIPConstants.MSG_CONNECTION_FAILURE:
 				showCallFailedFragment(VoIPConstants.CallFailedCodes.UDP_CONNECTION_FAIL);
-				break;
-			case VoIPConstants.MSG_CURRENT_BITRATE:
-//				int bitrate = voipService.getBitrate();
-//				showMessage("Bitrate: " + bitrate);
 				break;
 			case VoIPConstants.MSG_EXTERNAL_SOCKET_RETRIEVAL_FAILURE:
 				showCallFailedFragment(VoIPConstants.CallFailedCodes.EXTERNAL_SOCKET_RETRIEVAL_FAILURE);
@@ -159,10 +146,10 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 				showCallFailedFragment(VoIPConstants.CallFailedCodes.PARTNER_ANSWER_TIMEOUT);
 				break;
 			case VoIPConstants.MSG_RECONNECTING:
-				showMessage("Reconnecting your call...");
+				updateCallStatus();
 				break;
 			case VoIPConstants.MSG_RECONNECTED:
-//				showMessage("Reconnected!");
+				updateCallStatus();
 				break;
 			case VoIPConstants.MSG_UPDATE_QUALITY:
 				CallQuality quality = voipService.getQuality();
@@ -178,12 +165,11 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 			case VoIPConstants.MSG_UPDATE_REMOTE_HOLD:
 				updateCallStatus();
 				break;
-			case VoIPConstants.MSG_ALREADY_IN_CALL:
+			case VoIPConstants.MSG_ALREADY_IN_NATIVE_CALL:
 				showCallFailedFragment(VoIPConstants.CallFailedCodes.CALLER_IN_NATIVE_CALL);
 				break;
-			case VoIPConstants.MSG_PHONE_NOT_SUPPORTED:
-				showMessage(getString(R.string.voip_phone_unsupported));
-				isCallActive = false;
+			case VoIPConstants.MSG_AUDIORECORD_FAILURE:
+				showMessage(getString(R.string.voip_mic_error));
 				break;
 			default:
 				super.handleMessage(msg);
@@ -220,6 +206,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		getSherlockActivity().startService(new Intent(getSherlockActivity(), VoIPService.class));
 		Intent intent = new Intent(getSherlockActivity(), VoIPService.class);
 		getSherlockActivity().bindService(intent, myConnection, Context.BIND_AUTO_CREATE);
+		updateCallStatus();
 		initProximitySensor();
 		super.onResume();
 	}
@@ -366,7 +353,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		
 		if (action.equals(VoIPConstants.INCOMING_NATIVE_CALL_HOLD) && voipService != null) 
 		{
-			if (VoIPService.isConnected()) 
+			if (VoIPService.getCallId() > 0) 
 			{
 				if(VoIPService.isAudioRunning())
 				{
@@ -392,7 +379,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 
 		if(voipService != null)
 		{
-			voipService.setCallStatus(null);
+			voipService.setCallStatus(VoIPConstants.CallStatus.UNINITIALIZED);
 		}
 
 		try
@@ -463,6 +450,11 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 
 	private void initProximitySensor() 
 	{
+		if(activity.isShowingCallFailedFragment())
+		{
+			return;
+		}
+
 		sensorManager = (SensorManager) getSherlockActivity().getSystemService(Context.SENSOR_SERVICE);
 		Sensor proximitySensor = sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
 
@@ -726,6 +718,12 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 				callDuration.stop();
 				callDuration.startAnimation(anim);
 				callDuration.setText(getString(R.string.voip_on_hold));
+				break;
+
+			case RECONNECTING:
+				callDuration.stop();
+				callDuration.startAnimation(anim);
+				callDuration.setText(getString(R.string.voip_reconnecting));
 				break;
 
 			case ENDED:

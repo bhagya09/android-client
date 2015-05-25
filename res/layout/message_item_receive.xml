@@ -217,7 +217,7 @@
 				            android:indeterminateDrawable="@drawable/circular_double_spinner"
 				            android:layout_centerInParent="true" />
 			            <com.bsb.hike.view.HoloCircularProgress
-			               xmlns:app="http://schemas.android.com/apk/res/com.bsb.hike"
+			               xmlns:app="http://schemas.android.com/apk/res-auto"
 			               android:id="@+id/circular_progress"
 			               android:layout_width="56dp"
 			               android:layout_height="56dp"
@@ -434,7 +434,7 @@
 		            android:indeterminateDrawable="@drawable/circular_double_spinner_thin"
 				    android:layout_centerInParent="true" />
 	            <com.bsb.hike.view.HoloCircularProgress
-	               xmlns:app="http://schemas.android.com/apk/res/com.bsb.hike"
+	               xmlns:app="http://schemas.android.com/apk/res-auto"
 			       android:id="@+id/circular_progress_ext"
 	               android:layout_width="46dp"
 	               android:layout_height="46dp"
@@ -467,6 +467,7 @@
 
 	        <ImageView
 	            android:id="@+id/typing"
+	            android:contentDescription="@string/content_des_typing_notification_chatting"
 	            android:layout_width="46dp"
 	            android:layout_height="wrap_content"
 	            android:layout_toRightOf="@+id/typing_avatar_container"
@@ -558,7 +559,7 @@
 		            android:indeterminateDrawable="@drawable/circular_double_spinner_dark"
 		            android:layout_centerInParent="true" />
 	            <com.bsb.hike.view.HoloCircularProgress
-	               xmlns:app="http://schemas.android.com/apk/res/com.bsb.hike"
+	               xmlns:app="http://schemas.android.com/apk/res-auto"
 			       android:id="@+id/rec_circular_progress"
 	               android:layout_width="64dp"
 	               android:layout_height="64dp"

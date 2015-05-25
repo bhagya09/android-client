@@ -13,7 +13,6 @@ import org.json.JSONObject;
 import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.GroupParticipant;
@@ -166,8 +165,8 @@ public abstract class OneToNConversation extends Conversation
 		 */
 		if (null == name)
 		{
-			HikeMessengerApp.getContactManager().getContact(msisdn, true, false);
-			name = HikeMessengerApp.getContactManager().getName(getMsisdn(), msisdn);
+			ContactManager.getInstance().getContact(msisdn, true, false);
+			name = ContactManager.getInstance().getName(getMsisdn(), msisdn);
 		}
 		return name;
 	}
@@ -390,13 +389,13 @@ public abstract class OneToNConversation extends Conversation
 			this.conversationOwner = conversationOwner;
 			return getSelfObject();
 		}
-		
+
 		public P setCreationTime(long creationTime)
 		{
 			this.creationTime = creationTime;
 			return getSelfObject();
 		}
-
+		
 		public P setConversationParticipantsList(Map<String, PairModified<GroupParticipant, String>> participantList)
 		{
 			this.conversationParticipantList = participantList;
@@ -535,19 +534,19 @@ public abstract class OneToNConversation extends Conversation
 		}
 		return -1l;
 	}
-
+	
 	public long getCreationDate() {
 		return creationTime;
 	}
 	public void setCreationDate(long creationDate) {
 		this.creationTime = creationDate;
 	}
-	
+
 	public static OneToNConversation createOneToNConversationFromJSON(JSONObject jsonObj) throws JSONException
 	{
 		OneToNConversation conversation;
 		String msisdn = jsonObj.getString(HikeConstants.TO);
-	
+
 		Map<String, PairModified<GroupParticipant, String>> participants = new HashMap<String, PairModified<GroupParticipant, String>>();
 
 		JSONArray array = jsonObj.getJSONArray(HikeConstants.DATA);
@@ -587,12 +586,12 @@ public abstract class OneToNConversation extends Conversation
 		{
 			conversation = new BroadcastConversation.ConversationBuilder(msisdn).setConversationOwner(jsonObj.getString(HikeConstants.FROM))
 					.setConversationParticipantsList(participants).setConvName(convName).setCreationTime(jsonObj.optLong(HikeConstants.GROUP_CHAT_TIMESTAMP,-1)).build();
-
 		}
 		else
 		{
 			conversation = new GroupConversation.ConversationBuilder(msisdn).setConversationOwner(jsonObj.getString(HikeConstants.FROM))
 					.setConversationParticipantsList(participants).setConvName(convName).setCreationTime(jsonObj.optLong(HikeConstants.GROUP_CHAT_TIMESTAMP,-1)).build();
+
 		}
 
 		return conversation;

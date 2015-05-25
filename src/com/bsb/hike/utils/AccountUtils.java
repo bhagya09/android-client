@@ -188,6 +188,12 @@ public class AccountUtils
 	
 	public static String analyticsUploadUrl = base + ANALYTICS_UPLOAD_BASE;
 	
+	public static String USER_DP_UPDATE_URL = "/account/avatar";
+	
+	public static String GROUP_DP_UPDATE_URL_PREFIX = "/group/";
+	
+	public static String GROUP_DP_UPDATE_URL_SUFFIX = "/avatar";
+	
 	public static void setToken(String token)
 	{
 		mToken = token;
@@ -660,52 +666,6 @@ public class AccountUtils
 		JSONObject obj = executeRequest(httppost);
 		return obj;
 	}
-
-	/**
-	 * 
-	 * @param new_contacts_by_id
-	 *            new entries to update with. These will replace contact IDs on the server
-	 * @param ids_json
-	 *            , these are ids that are no longer present and should be removed
-	 * @return
-	 */
-	public static List<ContactInfo> updateAddressBook(Map<String, List<ContactInfo>> new_contacts_by_id, JSONArray ids_json) throws IllegalStateException
-	{
-		HttpPost request = new HttpPost(base + "/account/addressbook-update");
-		addToken(request);
-		JSONObject data = new JSONObject();
-
-		try
-		{
-			data.put("remove", ids_json);
-			data.put("update", getJsonContactList(new_contacts_by_id, false));
-		}
-		catch (JSONException e)
-		{
-			Logger.e("AccountUtils", "Invalid JSON put", e);
-			return null;
-		}
-
-		ArrayList<String> msisdnForMissingPlatformUID = ContactManager.getInstance().getMsisdnForMissingPlatformUID();
-
-		if (msisdnForMissingPlatformUID != null && msisdnForMissingPlatformUID.size()>0)
-		{
-			PlatformUIDFetch.fetchPlatformUid(HikePlatformConstants.PlatformUIDFetchType.PARTIAL_ADDRESS_BOOK, msisdnForMissingPlatformUID.toArray(new String[] { }));
-		}
-
-		String encoded = data.toString();
-		// try
-		// {
-		AbstractHttpEntity entity = new ByteArrayEntity(encoded.getBytes());
-		request.setEntity(entity);
-		entity.setContentType("application/json");
-		JSONObject obj = executeRequest(request);
-		if(obj == null)
-		{
-			recordAddressBookUploadFailException(data.toString());
-		}
-		return getContactList(obj, new_contacts_by_id);
-	}
 	
 	private static void recordAddressBookUploadFailException(String jsonString)
 	{
@@ -728,7 +688,7 @@ public class AccountUtils
 		}
 	}
 
-	private static JSONObject getJsonContactList(Map<String, List<ContactInfo>> contactsMap, boolean sendWAValue)
+	public static JSONObject getJsonContactList(Map<String, List<ContactInfo>> contactsMap, boolean sendWAValue)
 	{
 		JSONObject updateContacts = new JSONObject();
 		for (String id : contactsMap.keySet())
@@ -874,6 +834,11 @@ public class AccountUtils
 			{
 			case PROFILE_PIC:
 				requestBase = new HttpPost(base + hikeHttpRequest.getPath());
+				/*
+				 * Adding MD5 header to validate the file at server side.
+				 */
+				String fileMd5 = Utils.fileToMD5(hikeHttpRequest.getFilePath());
+				requestBase.addHeader("Content-MD5", fileMd5);
 				entity = new FileEntity(new File(hikeHttpRequest.getFilePath()), "");
 				break;
 
@@ -886,6 +851,7 @@ public class AccountUtils
 				
 
 			case DELETE_STATUS:
+			case DELETE_DP:
 				requestBase = new HttpDelete(base + hikeHttpRequest.getPath());
 				break;
 

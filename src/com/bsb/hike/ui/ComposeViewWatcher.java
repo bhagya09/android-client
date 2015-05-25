@@ -11,6 +11,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
+import com.bsb.hike.MqttConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.models.Conversation.BroadcastConversation;
 import com.bsb.hike.models.Conversation.Conversation;
@@ -87,10 +88,12 @@ public class ComposeViewWatcher extends EmoticonTextWatcher implements Runnable,
 		if (!canSend)
 		{
 			mButton.setImageResource(R.drawable.walkie_talkie_btn_selector);
+			mButton.setContentDescription(context.getResources().getString(R.string.content_des_send_recorded_audio_text_chatting));
 		}
 		else
 		{
 			mButton.setImageResource(R.drawable.send_btn_selector);
+			mButton.setContentDescription(context.getResources().getString(R.string.content_des_send_message_button));
 		}
 		if (mConversation instanceof OneToNConversation)
 		{
@@ -120,7 +123,7 @@ public class ComposeViewWatcher extends EmoticonTextWatcher implements Runnable,
 			// fire an event
 			if(!(mConversation instanceof BroadcastConversation))
 			{
-				HikeMqttManagerNew.getInstance().sendMessage(mConversation.serialize(HikeConstants.MqttMessageTypes.START_TYPING), HikeMqttManagerNew.MQTT_QOS_ZERO);
+				HikeMqttManagerNew.getInstance().sendMessage(mConversation.serialize(HikeConstants.MqttMessageTypes.START_TYPING), MqttConstants.MQTT_QOS_ZERO);
 			}
 			// create a timer to clear the event
 			mUIThreadHandler.removeCallbacks(this);

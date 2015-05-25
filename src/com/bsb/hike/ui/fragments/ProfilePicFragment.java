@@ -74,6 +74,8 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 
 	private Bitmap smallerBitmap;
 
+	private String origImagePath;
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 	{
@@ -90,6 +92,8 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 		Bundle bundle = getArguments();
 
 		imagePath = bundle.getString(HikeConstants.HikePhotos.FILENAME);
+		
+		origImagePath = bundle.getString(HikeConstants.HikePhotos.ORIG_FILE);
 
 		BitmapFactory.Options options = new BitmapFactory.Options();
 		options.inPreferredConfig = Bitmap.Config.RGB_565;
@@ -150,8 +154,6 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 
 		if (imagePath != null)
 		{
-
-			// TODO move this code to network manager refactoring module
 			if (smallerBitmap == null)
 			{
 				/* the server only needs a smaller version */
@@ -190,41 +192,9 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 
 					Utils.renameTempProfileImage(mLocalMSISDN);
 
-					/*
-					 * Making the profile pic change a status message.
-					 */
-					JSONObject data = response.optJSONObject("status");
+					StatusMessage statusMessage = Utils.createTimelinePostForDPChange(response, false);
 
-					if (data == null)
-					{
-						return;
-					}
-
-					String mappedId = data.optString(HikeConstants.STATUS_ID);
-					String msisdn = preferences.getString(HikeMessengerApp.MSISDN_SETTING, "");
-					String name = preferences.getString(HikeMessengerApp.NAME_SETTING, "");
-					long time = (long) System.currentTimeMillis() / 1000;
-
-					StatusMessage statusMessage = new StatusMessage(0, mappedId, msisdn, name, "", StatusMessageType.PROFILE_PIC, time, -1, 0);
-
-					HikeConversationsDatabase.getInstance().addStatusMessage(statusMessage, true);
-
-					ContactManager.getInstance().setIcon(statusMessage.getMappedId(), bytes, false);
-
-					String srcFilePath = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT + "/" + msisdn + ".jpg";
-
-					String destFilePath = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT + "/" + mappedId + ".jpg";
-
-					/*
-					 * Making a status update file so we don't need to download this file again.
-					 */
-					Utils.copyFile(srcFilePath, destFilePath, null);
-
-					int unseenUserStatusCount = preferences.getInt(HikeMessengerApp.UNSEEN_USER_STATUS_COUNT, 0);
-					Editor editor = preferences.edit();
-					editor.putInt(HikeMessengerApp.UNSEEN_USER_STATUS_COUNT, ++unseenUserStatusCount);
-					editor.putBoolean(HikeConstants.IS_HOME_OVERFLOW_CLICKED, false);
-					editor.commit();
+					Utils.incrementUnseenStatusCount();
 
 					/*
 					 * This would happen in the case where the user has added a self contact and received an mqtt message before saving this to the db.
@@ -237,6 +207,7 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 					}
 
 					HikeMessengerApp.getLruCache().clearIconForMSISDN(mLocalMSISDN);
+					
 					HikeMessengerApp.getPubSub().publish(HikePubSub.ICON_CHANGED, mLocalMSISDN);
 
 					HikeMessengerApp.getPubSub().publish(HikePubSub.PROFILE_UPDATE_FINISH, null);
@@ -245,7 +216,7 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 				}
 			});
 
-			request.setFilePath(imagePath);
+			request.setFilePath(origImagePath);
 
 			Utils.executeHttpTask(new HikeHTTPTask(ProfilePicFragment.this, R.string.delete_status_error), request);
 

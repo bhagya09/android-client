@@ -100,7 +100,7 @@ public class HikeActionBar
 	 * It returns the view inflated. The calling classes have to set the View in the ActionBar themselves.
 	 * @param layoutResId
 	 */
-	public View inflateCustomActionBarView(int layoutResId, int color)
+	public View inflateCustomActionBarView(int layoutResId)
 	{
 		ActionBar sherlockActionBar = mActivity.getSupportActionBar();
 		sherlockActionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
@@ -108,14 +108,6 @@ public class HikeActionBar
 		View actionBarView = LayoutInflater.from(mActivity.getApplicationContext()).inflate(layoutResId, null);
 		
 		sherlockActionBar.setCustomView(actionBarView);
-		
-		/**
-		 * Setting the custom color here
-		 */
-		if(color != -1)
-		{
-			mActivity.updateActionBarColor(color);
-		}
 		
 		return actionBarView;
 	}
@@ -127,7 +119,7 @@ public class HikeActionBar
 	 */
 	public View setCustomActionBarView(int layoutResId)
 	{
-		return inflateCustomActionBarView(layoutResId, -1);
+		return inflateCustomActionBarView(layoutResId);
 	}
 
 	/**
@@ -149,7 +141,13 @@ public class HikeActionBar
 
 	public void showOverflowMenu(int width, int height, int xOffset, int yOffset, View anchor)
 	{
-		overFlowMenuLayout.show(width, height, xOffset, yOffset, anchor, PopupWindow.INPUT_METHOD_NOT_NEEDED);
+		/**
+		 * Getting an NPE at times here. This can be null only in case where onCreateOptionsMenu is yet to be called though it shouldn't happen. It's a defensive check
+		 */
+		if (overFlowMenuLayout != null)
+		{	
+			overFlowMenuLayout.show(width, height, xOffset, yOffset, anchor, PopupWindow.INPUT_METHOD_NOT_NEEDED);
+		}
 	}
 	
 	/**
@@ -351,5 +349,10 @@ public class HikeActionBar
 		{
 			overFlowMenuLayout.dismiss();
 		}
+	}
+
+	public void resetView()
+	{
+		mActivity.getSupportActionBar().setCustomView(null);
 	}
 }
