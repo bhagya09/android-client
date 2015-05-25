@@ -104,8 +104,6 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	
 	private View actionBarView;
 	
-	private Menu mMenu;
-	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -420,8 +418,11 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 				menu.findItem(R.id.overflow_menu).setVisible(false);
 			}
 			
-			this.mMenu = menu;
-
+			else
+			{
+				menu.findItem(R.id.overflow_menu).setVisible(true);
+			}
+			
 			return true;
 		}
 		
@@ -721,16 +722,10 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	@Override
 	public void overflowMenuUpdated()
 	{
-		if (this.mMenu != null)
-		{
-			if (mMenu.findItem(R.id.overflow_menu) != null)
-			{
-				mMenu.findItem(R.id.overflow_menu).setVisible(true);
-				return;
-			}
-		}
-		
-		Logger.e(tag, "Either menu is null or could not find menu item");
+		botConfig.setConfigData(botInfo.getConfigData());
+		botInfo.setConfigDataRefreshed(false);
+		supportInvalidateOptionsMenu();
 	}
+		
 
 }

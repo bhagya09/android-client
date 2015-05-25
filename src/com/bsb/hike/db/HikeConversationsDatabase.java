@@ -6970,6 +6970,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		 */
 		if (mDb.insertWithOnConflict(DBConstants.CONVERSATIONS_TABLE, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE) != -1)
 		{
+			botInfo.setLastConversationMsg(convMessage);
+			botInfo.setUnreadCount(1);  // inOrder to show 1+ on conv screen, we need to have some unread counter
 			HikeMessengerApp.getPubSub().publish(HikePubSub.NEW_CONVERSATION, botInfo);
 		}
 
