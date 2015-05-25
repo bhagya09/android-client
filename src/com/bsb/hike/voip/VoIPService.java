@@ -9,6 +9,7 @@ import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import android.annotation.SuppressLint;
@@ -65,13 +66,10 @@ public class VoIPService extends Service {
 	private static final int NOTIFICATION_IDENTIFIER = 10;
 
 	private Messenger mMessenger;
-	private Thread processRecordedSamplesThread = null, bufferSendingThread = null, reconnectingBeepsThread = null;
 	private boolean reconnectingBeeps = false;
 	private volatile boolean keepRunning;
 	private boolean mute, hold, speaker, vibratorEnabled = true;
 	private int minBufSizePlayback, minBufSizeRecording;
-	private Thread connectionTimeoutThread = null;
-	private Thread recordingThread = null, playbackThread = null;
 	private AudioTrack audioTrack = null;
 	private static int callId = 0;
 	private NotificationManager notificationManager;
@@ -81,9 +79,16 @@ public class VoIPService extends Service {
 	private boolean initialSpeakerMode;
 	private AudioManager.OnAudioFocusChangeListener mOnAudioFocusChangeListener;
 	private int playbackSampleRate = 0;
-	private Thread notificationThread;
 	
 	private boolean conferencingEnabled = false;
+	
+	// Task executors
+	private Thread processRecordedSamplesThread = null, bufferSendingThread = null, reconnectingBeepsThread = null;
+	private Thread connectionTimeoutThread = null;
+	private Thread recordingThread = null, playbackThread = null;
+	private Thread notificationThread = null;
+	private ScheduledExecutorService scheduledExecutorService = null;
+	private ScheduledFuture<?> scheduledFuture = null;
 	
 	// Attached VoIP client(s)
 	HashMap<String, VoIPClient> clients = new HashMap<String, VoIPClient>();
@@ -471,8 +476,12 @@ public class VoIPService extends Service {
 				VoIPUtils.cancelMissedCallNotification(getApplicationContext());
 			}
 
-			if (clients.size() > 0)
+			if (clients.size() > 0) {
 				Logger.d(VoIPConstants.TAG, "We're in a conference. Maintaining call id: " + getCallId());
+				// Disable crypto for clients in conference. 
+				getClient().cryptoEnabled = false;
+				client.cryptoEnabled = false;
+			}
 			else
 				setCallid(new Random().nextInt(2000000000));
 				
@@ -1351,6 +1360,7 @@ public class VoIPService extends Service {
 						Logger.w(VoIPConstants.TAG, "Audiotrack IllegalStateException: " + e.toString());
 					}
 				}
+				
 			}
 		}, "PLAY_BACK_THREAD");
 		
@@ -1365,12 +1375,19 @@ public class VoIPService extends Service {
 		int sleepTime = OpusWrapper.OPUS_FRAME_SIZE * 1000 / VoIPConstants.AUDIO_SAMPLE_RATE;
 		
 		android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
-		final ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
 
-		scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
+		if (scheduledExecutorService != null) {
+			Logger.w(VoIPConstants.TAG, "Feeder is already running.");
+			return;
+		} else {
+			scheduledExecutorService = Executors.newScheduledThreadPool(1);
+		}
+		
+		scheduledFuture = scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
 			
 			@Override
 			public void run() {
+				// Logger.d(VoIPConstants.TAG, "Running feeder");
 				android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
 				
 //				long time = System.currentTimeMillis();
@@ -1403,14 +1420,16 @@ public class VoIPService extends Service {
 					// Add to our decoded samples queue
 					try {
 						if (decodedSample == null) {
-							Logger.d(VoIPConstants.TAG, "Decoded samples underrun. Adding silence.");
+							// Logger.d(VoIPConstants.TAG, "Decoded samples underrun. Adding silence.");
 							decodedSample = silentPacket;
 						}
 
-						if (playbackBuffersQueue.size() < VoIPConstants.MAX_SAMPLES_BUFFER)
-							playbackBuffersQueue.put(decodedSample);
-						else
-							Logger.w(VoIPConstants.TAG, "Playback buffers queue full.");
+						if (!hold) {
+							if (playbackBuffersQueue.size() < VoIPConstants.MAX_SAMPLES_BUFFER)
+								playbackBuffersQueue.put(decodedSample);
+							else
+								Logger.w(VoIPConstants.TAG, "Playback buffers queue full.");
+						}
 						
 					} catch (InterruptedException e) {
 						Logger.e(VoIPConstants.TAG, "InterruptedException while adding playback sample: " + e.toString());
@@ -1449,7 +1468,8 @@ public class VoIPService extends Service {
 					
 				} else {
 					Logger.d(VoIPConstants.TAG, "Shutting down decoded samples poller.");
-					scheduledExecutorService.shutdown();
+					scheduledFuture.cancel(true);
+					scheduledExecutorService.shutdownNow();
 				}
 				
 //				Logger.d(VoIPConstants.TAG, "Running time: " + (System.currentTimeMillis() - time) + "ms");

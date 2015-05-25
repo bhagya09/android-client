@@ -862,6 +862,12 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		{
 			return;
 		}
+		
+		if (voipService.getPartnerClient() == null) {
+			Logger.w(VoIPConstants.TAG, "Unable to retrieve client.");
+			return;
+		}
+		
 		showCallFailedFragment(callFailCode, voipService.getPartnerClient().getPhoneNumber());
 	}
 

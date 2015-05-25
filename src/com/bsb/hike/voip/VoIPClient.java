@@ -86,7 +86,7 @@ public class VoIPClient  {
 	private BitSet packetTrackingBits = new BitSet(PACKET_TRACKING_SIZE);
 	private long lastHeartbeat;	
 	public VoIPEncryptor encryptor = new VoIPEncryptor();
-	private boolean cryptoEnabled = true;
+	public boolean cryptoEnabled = true;
 	private VoIPEncryptor.EncryptionStage encryptionStage;
 	public boolean remoteHold = false;
 	public boolean audioStarted = false;
