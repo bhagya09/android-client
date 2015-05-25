@@ -22,6 +22,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
+import com.bsb.hike.MqttConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.MsgRelEventType;
@@ -37,7 +38,12 @@ import com.bsb.hike.models.MultipleConvMessage;
 import com.bsb.hike.models.Protip;
 import com.bsb.hike.models.StatusMessage;
 import com.bsb.hike.models.StatusMessage.StatusMessageType;
+import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.models.Conversation.Conversation;
+import com.bsb.hike.models.Conversation.ConversationTip;
+import com.bsb.hike.models.Conversation.GroupConversation;
+import com.bsb.hike.models.Conversation.OneToNConversation;
+import com.bsb.hike.models.Conversation.OneToOneConversation;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.HikeSDKMessageFilter;
@@ -92,7 +98,9 @@ public class DbConversationListener implements Listener
 		mPubSub.addListener(HikePubSub.MULTI_MESSAGE_SENT, this);
 		mPubSub.addListener(HikePubSub.MULTI_FILE_UPLOADED, this);
 		mPubSub.addListener(HikePubSub.HIKE_SDK_MESSAGE, this);
-		mPubSub.addListener(HikePubSub.CONVERSATION_TS_UPDATED, this);		
+		mPubSub.addListener(HikePubSub.CONVERSATION_TS_UPDATED, this);	
+		mPubSub.addListener(HikePubSub.GROUP_LEFT, this);
+		mPubSub.addListener(HikePubSub.DELETE_THIS_CONVERSATION, this);
 	}
 
 	@Override
@@ -107,8 +115,6 @@ public class DbConversationListener implements Listener
 				mConversationDb.updateMessageMetadata(convMessage.getMsgID(), convMessage.getMetadata());
 				
 				// Adding Logs for Message Reliability
-				Logger.d(AnalyticsConstants.MSG_REL_TAG, "===========================================");
-				Logger.d(AnalyticsConstants.MSG_REL_TAG, "DB Transaction completed");
 				MsgRelLogManager.logMsgRelEvent(convMessage, MsgRelEventType.DB_UPDATE_TRANSACTION_COMPLETED);
 			}
 			else
@@ -118,8 +124,6 @@ public class DbConversationListener implements Listener
 					mConversationDb.addConversationMessages(convMessage,true);
 				
 					// Adding Logs for Message Reliability
-					Logger.d(AnalyticsConstants.MSG_REL_TAG, "===========================================");
-					Logger.d(AnalyticsConstants.MSG_REL_TAG, "DB Transaction completed");
 					MsgRelLogManager.logMsgRelEvent(convMessage, MsgRelEventType.DB_ADD_TRANSACTION_COMPLETED);
 					
 					if (convMessage.isSent())
@@ -143,7 +147,7 @@ public class DbConversationListener implements Listener
 				Logger.d("DBCONVERSATION LISTENER", "Sending Message : " + convMessage.getMessage() + "	;	to : " + convMessage.getMsisdn());
 				if (!convMessage.isSMS() || !Utils.getSendSmsPref(context) || convMessage.getParticipantInfoState() == ParticipantInfoState.CHAT_BACKGROUND)
 				{
-					HikeMqttManagerNew.getInstance().sendMessage(convMessage.serialize(), HikeMqttManagerNew.MQTT_QOS_ONE);
+					HikeMqttManagerNew.getInstance().sendMessage(convMessage.serialize(), MqttConstants.MQTT_QOS_ONE);
 				}
 				else
 				{
@@ -169,7 +173,7 @@ public class DbConversationListener implements Listener
 		else if (HikePubSub.MULTI_FILE_UPLOADED.equals(type))
 		{
 			MultipleConvMessage multiConvMessages = (MultipleConvMessage) object;
-			HikeMqttManagerNew.getInstance().sendMessage(multiConvMessages.serialize(), HikeMqttManagerNew.MQTT_QOS_ONE);
+			HikeMqttManagerNew.getInstance().sendMessage(multiConvMessages.serialize(), MqttConstants.MQTT_QOS_ONE);
 		}
 		else if (HikePubSub.DELETE_MESSAGE.equals(type))
 		{
@@ -215,14 +219,14 @@ public class DbConversationListener implements Listener
 			}
 			
 			// IconCacheManager.getInstance().deleteIconForMSISDN(msisdn);
-			HikeMqttManagerNew.getInstance().sendMessage(blockObj, HikeMqttManagerNew.MQTT_QOS_ONE);
+			HikeMqttManagerNew.getInstance().sendMessage(blockObj, MqttConstants.MQTT_QOS_ONE);
 		}
 		else if (HikePubSub.UNBLOCK_USER.equals(type))
 		{
 			String msisdn = (String) object;
 			ContactManager.getInstance().unblock(msisdn);
 			JSONObject unblockObj = blockUnblockSerialize("ub", msisdn);
-			HikeMqttManagerNew.getInstance().sendMessage(unblockObj, HikeMqttManagerNew.MQTT_QOS_ONE);
+			HikeMqttManagerNew.getInstance().sendMessage(unblockObj, MqttConstants.MQTT_QOS_ONE);
 		}
 		else if (HikePubSub.SERVER_RECEIVED_MSG.equals(type)) // server got
 		// msg from
@@ -279,7 +283,7 @@ public class DbConversationListener implements Listener
 				{
 					requestType = HikeConstants.MqttMessageTypes.REMOVE_FAVORITE;
 				}
-				HikeMqttManagerNew.getInstance().sendMessage(serializeMsg(requestType, contactInfo.getMsisdn(), contactInfo instanceof FtueContactInfo), HikeMqttManagerNew.MQTT_QOS_ONE);
+				HikeMqttManagerNew.getInstance().sendMessage(serializeMsg(requestType, contactInfo.getMsisdn(), contactInfo instanceof FtueContactInfo), MqttConstants.MQTT_QOS_ONE);
 			}
 		}
 		else if (HikePubSub.MUTE_CONVERSATION_TOGGLED.equals(type))
@@ -297,7 +301,7 @@ public class DbConversationListener implements Listener
 			{
 				mConversationDb.toggleGroupMute(id, mute);
 				HikeMqttManagerNew.getInstance().sendMessage(serializeMsg(mute ? HikeConstants.MqttMessageTypes.MUTE : HikeConstants.MqttMessageTypes.UNMUTE, id),
-						HikeMqttManagerNew.MQTT_QOS_ONE);
+						MqttConstants.MQTT_QOS_ONE);
 			}
 
 		}
@@ -366,7 +370,7 @@ public class DbConversationListener implements Listener
 				jsonObject.put(HikeConstants.DATA, data);
 
 				mPubSub.publish(HikePubSub.CHANGED_MESSAGE_TYPE, null);
-				HikeMqttManagerNew.getInstance().sendMessage(jsonObject, HikeMqttManagerNew.MQTT_QOS_ONE);
+				HikeMqttManagerNew.getInstance().sendMessage(jsonObject, MqttConstants.MQTT_QOS_ONE);
 			}
 			catch (JSONException e)
 			{
@@ -438,6 +442,18 @@ public class DbConversationListener implements Listener
 			long timestamp = p.second;
 			boolean isUpdated = mConversationDb.updateSortingTimestamp(msisdn, timestamp);
 		}
+		else if(HikePubSub.GROUP_LEFT.equals(type) || HikePubSub.DELETE_THIS_CONVERSATION.equals(type))
+		{
+			ConvInfo convInfo = (ConvInfo) object;
+			String msisdn = convInfo.getMsisdn();
+			Editor editor = context.getSharedPreferences(HikeConstants.DRAFT_SETTING, Context.MODE_PRIVATE).edit();
+			editor.remove(msisdn);
+			editor.commit();
+
+			HikeConversationsDatabase.getInstance().deleteConversation(msisdn);;				
+			ContactManager.getInstance().removeContacts(msisdn);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.CONVERSATION_DELETED, convInfo);
+		}
 	}
 
     private void sendMultiConvMessage(MultipleConvMessage multiConvMessages) {
@@ -445,7 +461,7 @@ public class DbConversationListener implements Listener
         // after DB insertion, we need to update conversation UI , so sending event which contains all contacts and last message for each contact
         multiConvMessages.sendPubSubForConvScreenMultiMessage();
         // publishing mqtt packet
-        HikeMqttManagerNew.getInstance().sendMessage(multiConvMessages.serialize(), HikeMqttManagerNew.MQTT_QOS_ONE);
+        HikeMqttManagerNew.getInstance().sendMessage(multiConvMessages.serialize(), MqttConstants.MQTT_QOS_ONE);
     }
 
     private void handleHikeSdkMessage(Object object){
@@ -461,7 +477,19 @@ public class DbConversationListener implements Listener
             listOfMessages.add(convMessage);
 
             String[] toArray = parseJSON.has(HikePlatformConstants.RECEPIENT) ? parseJSON.getString(HikePlatformConstants.RECEPIENT).split(",") : new String[]{};
-            ArrayList<String> msisdns = ContactManager.getInstance().getMsisdnFromId(toArray);
+			ArrayList<String> platformIds = new ArrayList();
+			for (String id : toArray)
+			{
+				if (!TextUtils.isEmpty(id))
+				{
+					platformIds.add(id);
+				}
+			}
+			if ( platformIds.size() == 0)
+			{
+				return;
+			}
+            ArrayList<String> msisdns = ContactManager.getInstance().getMsisdnFromId(platformIds);
             ArrayList<ContactInfo> listOfContacts = new ArrayList<ContactInfo>();
             for (String msisdn:msisdns){
                 convMessage.platformMessageMetadata.addToThumbnailTable();

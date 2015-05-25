@@ -47,7 +47,9 @@ import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.SmileyParser;
+import com.bsb.hike.utils.SoundUtils;
 import com.bsb.hike.utils.Utils;
+import com.bsb.hike.voip.VoIPService;
 import com.bsb.hike.voip.VoIPUtils;
 
 public class HikeNotification
@@ -1109,7 +1111,7 @@ public class HikeNotification
 				hikeNotifMsgStack.getNotificationSubText(), null, forceNotPlaySound, retryCount);
 	}
 
-	private int returnSmallIcon()
+	public int returnSmallIcon()
 	{
 		if (Build.VERSION.SDK_INT < 16)
 		{
@@ -1130,47 +1132,63 @@ public class HikeNotification
 	public NotificationCompat.Builder getNotificationBuilder(String contentTitle, String contentText, String tickerText, Drawable avatarDrawable, int smallIconId,
 			boolean forceNotPlaySound)
 	{
-
 		final SharedPreferences preferenceManager = PreferenceManager.getDefaultSharedPreferences(this.context);
-
 		String vibrate = preferenceManager.getString(HikeConstants.VIBRATE_PREF_LIST, VIB_DEF);
-
 		final Bitmap avatarBitmap = HikeBitmapFactory.returnScaledBitmap((HikeBitmapFactory.drawableToBitmap(avatarDrawable, Bitmap.Config.RGB_565)), context);
-
+		
 		final NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context).setContentTitle(contentTitle).setSmallIcon(smallIconId).setLargeIcon(avatarBitmap)
 				.setContentText(contentText).setAutoCancel(true).setTicker(tickerText).setPriority(NotificationCompat.PRIORITY_DEFAULT);
-
-		//Reset ticker text since we dont want to tick older messages
+		
+		// Reset ticker text since we dont want to tick older messages
 		hikeNotifMsgStack.setTickerText(null);
 		
-		AudioManager manager = (AudioManager)context.getSystemService(Context.AUDIO_SERVICE);
+		AudioManager manager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
 		
-		if (!forceNotPlaySound && !manager.isMusicActive())
+		if (!forceNotPlaySound)
 		{
 			final boolean shouldNotPlayNotification = (System.currentTimeMillis() - lastNotificationTime) < MIN_TIME_BETWEEN_NOTIFICATIONS;
-			String notifSound = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.NOTIF_SOUND_PREF, NOTIF_SOUND_HIKE);
-			if (!shouldNotPlayNotification)
+			//Play (SOUND + VIBRATION) ONLY WHEN
+			//1) Previous Notification was > 5sec
+			//2) User is not in audio/vedio/Voip call....
+			// (2nd check is a safe check as this should be handled by NotificationBuilder itself)
+			//3) There should not be any voip action running(Calling/Connected) 
+			if (!shouldNotPlayNotification && !Utils.isUserInAnyTypeOfCall(context)
+					&& VoIPService.getCallId() <= 0)
 			{
+				String notifSound = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.NOTIF_SOUND_PREF, NOTIF_SOUND_HIKE);
 				Logger.i("notif", "sound " + notifSound);
-
-				if (!NOTIF_SOUND_OFF.equals(notifSound))
+				
+				//Decide if Sound is to be played,  
+				//1) Settings should be On
+				//2) Mode should not be in Silent and Not in Vibrate
+				//3) Notification volume is > 0
+				if (!NOTIF_SOUND_OFF.equals(notifSound) && !SoundUtils.isSilentOrVibrateMode(context)
+						&& !SoundUtils.isNotificationStreamVolZero(context))
 				{
-					if (NOTIF_SOUND_HIKE.equals(notifSound))
+					//Now We have to play sound ourself via RingtoneManager in following cases, 
+					//CASE 1:- If Music Is Playing, then play via Ringtone manager on Music Stream
+					// 		   controlled via Music Volume Stream
+					//CASE 2:- If wireless/wired handsfree is connected
+					if (manager.isMusicActive() 
+							|| manager.isWiredHeadsetOn() 
+							|| manager.isBluetoothA2dpOn()
+							|| (manager.isBluetoothScoAvailableOffCall() && manager.isBluetoothScoOn()))
 					{
-						mBuilder.setSound(Uri.parse("android.resource://" + context.getPackageName() + "/" + R.raw.hike_jingle_15));
+						playSoundViaPlayer(notifSound);
 					}
-					else if (NOTIF_SOUND_DEFAULT.equals(notifSound))
-					{
-						mBuilder.setDefaults(mBuilder.getNotification().defaults | Notification.DEFAULT_SOUND);
-					}
+					//CASE OTHERS: Play it via NotificationBuilder
 					else
 					{
-						notifSound = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.NOTIFICATION_TONE_URI, NOTIF_SOUND_HIKE);
-						mBuilder.setSound(Uri.parse(notifSound));
+						playSoundViaBuilder(mBuilder, notifSound);
 					}
 				}
-
-				if (!VIB_OFF.equals(vibrate))
+				// Though Notification Builder should not vibrate if phone is in silent mode, 
+				//But in some device (Micromax A110), it is vibrating, so we are adding extra
+				// safe check here to ensure that it does not vibrate in silent mode
+				//Now Vibration is turned off in these 2 scenarios
+				//1) Vibration Settings are off
+				//2) Phone is in silent mode
+				if (!VIB_OFF.equals(vibrate) && !SoundUtils.isSilentMode(context))
 				{
 					if (VIB_DEF.equals(vibrate))
 					{
@@ -1191,17 +1209,6 @@ public class HikeNotification
 			
 			int ledColor = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.LED_NOTIFICATION_COLOR_CODE, HikeConstants.LED_DEFAULT_WHITE_COLOR);
 		
-			//Check if Previously any boolean Key was present for this Led
-			if(preferenceManager.contains(HikeConstants.LED_PREF))
-			{
-				boolean led = preferenceManager.getBoolean(HikeConstants.LED_PREF, true);
-				ledColor = led == true ? ledColor : HikeConstants.LED_NONE_COLOR;
-				
-				//removing previous Key
-				preferenceManager.edit().remove(HikeConstants.LED_PREF).commit();
-				
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.LED_NOTIFICATION_COLOR_CODE, ledColor);
-			}
 			if(ledColor != HikeConstants.LED_NONE_COLOR)
 			{
 				mBuilder.setLights(ledColor, HikeConstants.LED_LIGHTS_ON_MS, HikeConstants.LED_LIGHTS_OFF_MS);
@@ -1288,6 +1295,39 @@ public class HikeNotification
 		HikeAlarmManager.cancelAlarm(context, HikeAlarmManager.REQUESTCODE_RETRY_LOCAL_NOTIFICATION);
 	}
 	
+	private void playSoundViaPlayer(String notifSound)
+	{
+		if (NOTIF_SOUND_HIKE.equals(notifSound))
+		{
+			SoundUtils.playSoundFromRaw(context, R.raw.hike_jingle_15);
+		}
+		else if (NOTIF_SOUND_DEFAULT.equals(notifSound))
+		{
+			SoundUtils.playDefaultNotificationSound(context);
+		}
+		else
+		{
+			notifSound = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.NOTIFICATION_TONE_URI, NOTIF_SOUND_HIKE);
+			SoundUtils.playSound(context, Uri.parse(notifSound));
+		}
+	}
+
+	private void playSoundViaBuilder(NotificationCompat.Builder mBuilder, String notifSound)
+	{
+		if (NOTIF_SOUND_HIKE.equals(notifSound))
+		{
+			mBuilder.setSound(Uri.parse("android.resource://" + context.getPackageName() + "/" + R.raw.hike_jingle_15));
+		}
+		else if (NOTIF_SOUND_DEFAULT.equals(notifSound))
+		{
+			mBuilder.setDefaults(mBuilder.getNotification().defaults | Notification.DEFAULT_SOUND);
+		}
+		else
+		{
+			notifSound = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.NOTIFICATION_TONE_URI, NOTIF_SOUND_HIKE);
+			mBuilder.setSound(Uri.parse(notifSound));
+		}
+	}
 	public  void notifyUserAndOpenHomeActivity(String text, String title, boolean shouldNotPlaySound)
 	{
 		Drawable drawable =context.getResources().getDrawable(R.drawable.hike_avtar_protip);

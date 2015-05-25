@@ -117,7 +117,7 @@ public class ConvInfo implements Comparable<ConvInfo>
 	 * @param isBlocked
 	 *            the isBlocked to set
 	 */
-	protected void setBlocked(boolean isBlocked)
+	public void setBlocked(boolean isBlocked)
 	{
 		this.isBlocked = isBlocked;
 	}

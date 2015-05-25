@@ -5,9 +5,9 @@ import com.bsb.hike.models.ContactInfo.FavoriteType;
 public interface DBConstants
 {
 
-	public static final int CONVERSATIONS_DATABASE_VERSION = 38;
+	public static final int CONVERSATIONS_DATABASE_VERSION = 39;
 
-	public static final int USERS_DATABASE_VERSION = 16;
+	public static final int USERS_DATABASE_VERSION = 17;
 
 	public static final String HAS_CUSTOM_PHOTO = "hascustomphoto";
 
@@ -189,6 +189,8 @@ public interface DBConstants
 	public static final String FILE_THUMBNAIL_INDEX = "fileThumbnailIndex";
 
 	public static final String INVITE_TIMESTAMP = "inviteTimestamp";
+
+	public static final String PLATFORM_USER_ID = "platformUserId";
 
 	public static final String CHAT_BG_TABLE = "chatBgTable";
 

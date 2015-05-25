@@ -11,6 +11,7 @@ import android.os.Message;
 import android.text.Editable;
 import android.util.Pair;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bsb.hike.HikeConstants;
@@ -111,12 +112,8 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 	@Override
 	public void itemClicked(OverFlowMenuItem item)
 	{
-		switch (item.id)
-		{
-		default:
-			Logger.d(TAG, "Calling super Class' itemClicked");
-			super.itemClicked(item);
-		}
+		Logger.d(TAG, "Calling super Class' itemClicked");
+		super.itemClicked(item);
 	}
 
 	/**
@@ -126,16 +123,6 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 	protected Conversation fetchConversation()
 	{
 		Logger.i(TAG, "fetch group conversation " + Thread.currentThread().getName());
-		
-		if (mConversation == null)
-		{
-			/* the user must have deleted the chat. */
-			Message message = Message.obtain();
-			message.what = SHOW_TOAST;
-			message.arg1 = R.string.invalid_group_chat;
-			uiHandler.sendMessage(message);
-			return null;
-		}
 
 		// Set participant read by list
 		Pair<String, Long> pair = HikeConversationsDatabase.getInstance().getReadByValueForGroup(oneToNConversation.getMsisdn());
@@ -150,7 +137,7 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 		ChatTheme currentTheme = mConversationDb.getChatThemeForMsisdn(msisdn);
 		Logger.d("ChatThread", "Calling setchattheme from createConversation");
 		oneToNConversation.setChatTheme(currentTheme);
-
+		oneToNConversation.setBlocked(ContactManager.getInstance().isBlocked(oneToNConversation.getConversationOwner()));
 		return oneToNConversation;
 	}
 
@@ -240,6 +227,13 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 		// somewhere to make this faster
 		oneToNConversation.updateReadByList(participant, mrMsgId);
 		uiHandler.sendEmptyMessage(NOTIFY_DATASET_CHANGED);
+		/**
+		 * If the last message was visible before receiving the read notification it can be hidden, hence we need to scroll to bottom.
+		 */
+		if (mConversationsView != null && (mConversationsView.getLastVisiblePosition() == mConversationsView.getCount() - 1))
+		{
+			uiHandler.sendEmptyMessage(SCROLL_TO_END);
+		}
 	}
 
 	@Override
@@ -339,6 +333,13 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 	protected void setupActionBar(boolean firstInflation)
 	{
 		super.setupActionBar(firstInflation);
+		
+		//Added for QA Automation
+		ImageView avatar = (ImageView) mActionBarView.findViewById(R.id.avatar);
+		if(avatar != null)
+		{
+			avatar.setContentDescription(getResources().getString(R.string.content_des_round_group_image_chatthread_actionbar));
+		}
 
 		setLabel(mConversation.getLabel());
 
@@ -647,5 +648,25 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 			tryScrollingToBottom(convMessage, messagesList.size());
 
 		}
+	}
+	
+	@Override
+	protected String getBlockedUserLabel()
+	{
+		return oneToNConversation.getConversationParticipantName(oneToNConversation.getConversationOwner());
+	}
+
+	@Override
+	protected void updateNetworkState()
+	{
+		super.updateNetworkState();
+		boolean networkError = ChatThreadUtils.checkNetworkError();
+		toggleConversationMuteViewVisibility(networkError ? false : oneToNConversation.isMuted());
+	}
+	
+	@Override
+	protected boolean shouldShowKeyboard()
+	{
+		return (oneToNConversation.isConversationAlive() && super.shouldShowKeyboard());
 	}
 }

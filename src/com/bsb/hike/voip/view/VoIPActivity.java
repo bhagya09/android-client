@@ -6,17 +6,25 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.view.KeyEvent;
-import android.view.View;
 import android.view.WindowManager;
+
+import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
-import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.voip.VoIPConstants;
 import com.bsb.hike.voip.view.CallFailedFragment.CallFailedFragListener;
 import com.bsb.hike.voip.view.VoipCallFragment.CallFragmentListener;
 
-public class VoIPActivity extends HikeAppStateBaseFragmentActivity implements CallFragmentListener, CallFailedFragListener
+/**
+ * This activity does not extend <b>HikeAppStateBaseFragmentActivity</b> because
+ * we do not want to send fg/bg packets from here because it leads to the problem that
+ * even a missed call will mark the recipient as online.  
+ * 
+ * @author anuj
+ *
+ */
+public class VoIPActivity extends SherlockFragmentActivity implements CallFragmentListener, CallFailedFragListener
 {
 	private VoipCallFragment mainFragment;
 
@@ -27,7 +35,6 @@ public class VoIPActivity extends HikeAppStateBaseFragmentActivity implements Ca
 		setContentView(R.layout.voip_activity);
 
 		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-		getWindow().addFlags(WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
@@ -104,5 +111,54 @@ public class VoIPActivity extends HikeAppStateBaseFragmentActivity implements Ca
 	public boolean isShowingCallFailedFragment() 
 	{
 		return isFragmentAdded(HikeConstants.VOIP_CALL_FAILED_FRAGMENT_TAG);
+	}
+
+	@Override
+	protected void onStop() 
+	{
+		super.onStop();
+		removeCallFailedFragment();
+	}
+
+	/**
+	 * Duplicate method from HikeAppStateBaseFragmentActivity
+	 * @param tag
+	 * @return
+	 */
+	public boolean isFragmentAdded(String tag)
+	{
+		return getSupportFragmentManager().findFragmentByTag(tag) != null;
+	}
+	
+	/**
+	 * Duplicate method from HikeAppStateBaseFragmentActivity
+	 * @param containerView
+	 * @param fragment
+	 * @param tag
+	 */
+	public void addFragment(int containerView, Fragment fragment, String tag)
+	{
+		FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+		fragmentTransaction.add(containerView, fragment, tag);
+		fragmentTransaction.commitAllowingStateLoss();
+	}
+
+	/**
+	 * Duplicate method from HikeAppStateBaseFragmentActivity
+	 * @param tag
+	 * @return
+	 */
+	public boolean removeFragment(String tag)
+	{
+		FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+		Fragment fragment = getSupportFragmentManager().findFragmentByTag(tag);
+
+		if (fragment != null)
+		{	
+			fragmentTransaction.remove(fragment);
+			fragmentTransaction.commitAllowingStateLoss();
+			return true;
+		}
+		return false;
 	}
 }

@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:animateLayoutChanges="true"
-    android:background="@color/photos_tabs_background"
+    android:background="@color/photos_pager_background"
     android:orientation="vertical"
     tools:context=".PictureEditer$PictureEditerFragment" >
 
@@ -11,61 +11,63 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:animateLayoutChanges="true"
+        android:background="@color/photos_pager_background"
         android:orientation="vertical" >
 
-        <View
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="48dp" />
-
-        <com.bsb.hike.photos.views.SquareRelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="@integer/photos_editor_canvas_weight"
             android:animateLayoutChanges="true" >
 
             <com.bsb.hike.photos.views.PhotosEditerFrameLayoutView
                 android:id="@+id/editer"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                 />
+                android:layout_centerInParent="true" />
 
             <ImageView
                 android:id="@+id/undo"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignBottom="@+id/editer"
+                android:layout_above="@+id/indicatorView"
                 android:layout_alignParentRight="true"
                 android:layout_margin="@dimen/photos_doodle_undo_padding"
                 android:background="@drawable/photos_undo_selector"
                 android:visibility="gone" />
-        </com.bsb.hike.photos.views.SquareRelativeLayout>
 
-        <RelativeLayout
-            android:id="@+id/indicatorView"
-            android:layout_width="match_parent"
-            android:layout_height="48dp" >
-
-            <com.viewpagerindicator.PhotosTabPageIndicator
-                android:id="@+id/indicator"
-                style="@style/AppTheme.Home.Photos"
+            <RelativeLayout
+                android:id="@+id/indicatorView"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@color/photos_tabs_background"
-                android:theme="@style/AppTheme.Home.Photos" />
+                android:layout_height="48dp"
+                android:layout_alignParentBottom="true" >
 
-            <View
-                android:layout_width="0.5dp"
-                android:layout_height="match_parent"
-                android:layout_centerInParent="true"
-                android:layout_marginBottom="10dp"
-                android:layout_marginTop="10dp"
-                android:background="#11FFFFFF" />
+                <com.viewpagerindicator.PhotosTabPageIndicator
+                    android:id="@+id/indicator"
+                    style="@style/AppTheme.Home.Photos"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@color/photos_tabs_background"
+                    android:theme="@style/AppTheme.Home.Photos"
+                    android:visibility="gone" />
+
+                <View
+                    android:layout_width="0.5dp"
+                    android:layout_height="match_parent"
+                    android:layout_centerInParent="true"
+                    android:layout_marginBottom="10dp"
+                    android:layout_marginTop="10dp"
+                    android:background="#22FFFFFF" />
+            </RelativeLayout>
         </RelativeLayout>
 
         <android.support.v4.view.ViewPager
             android:id="@+id/pager"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/photos_pager_background" />
+            android:layout_height="0dp"
+            android:layout_weight="@integer/photos_editor_pager_weight"
+            android:background="@color/photos_pager_background"
+            android:visibility="gone" />
     </LinearLayout>
 
     <FrameLayout

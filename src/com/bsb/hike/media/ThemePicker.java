@@ -53,13 +53,14 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 	private PopUpLayout popUpLayout;
 	
 	private int currentConfig = Configuration.ORIENTATION_PORTRAIT;
-
+	
 	public ThemePicker(SherlockFragmentActivity sherlockFragmentActivity, ThemePickerListener listener, ChatTheme currentTheme)
 	{
 		this.userSelection = currentTheme;
 		this.sherlockFragmentActivity = sherlockFragmentActivity;
 		this.listener = listener;
 		this.popUpLayout = new PopUpLayout(sherlockFragmentActivity.getApplicationContext());
+		this.currentConfig = sherlockFragmentActivity.getResources().getConfiguration().orientation;
 	}
 
 	/**
@@ -103,12 +104,7 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 			/**
 			 * If orientation was changed, we need to refresh views
 			 */
-			if (orientationChanged(orientation))
-			{
-				refreshViews(false);
-				currentConfig = orientation;
-			}
-			
+			setOrientation(orientation);
 			return;
 		}
 		
@@ -237,12 +233,47 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 	@Override
 	public boolean onBackPressed()
 	{
+		/**
+		 * Can add other cases in future here as well.
+		 */
+		return dismiss();
+	}
+	
+	public boolean dismiss()
+	{
 		if (popUpLayout.isShowing())
 		{
 			actionMode.finish();
 			return true;
 		}
+
 		return false;
+	}
+	
+	/**
+	 * This function should be called when orientation of screen is changed, it will update its view based on orientation
+	 * If picker is being shown, it will first dismiss current picker and then show it again using post on view
+	 * 
+	 * NOTE : It will not give dismiss callback to listener as this is not explicit dismiss
+	 * @param orientation
+	 */
+	public void onOrientationChange(int orientation)
+	{
+		setOrientation(orientation);
+		if(viewToDisplay!=null && isShowing())
+		{
+			reInflation = true;
+			dismiss();
+			viewToDisplay.post(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					sherlockFragmentActivity.startActionMode(actionmodeCallback);
+				}
+			});
+		}
+		
 	}
 
 	private int getNumColumnsChatThemes()
@@ -287,16 +318,19 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 	/**
 	 * This method changes the number of columns field of the grid view and then calls notifyDataSetChanged
 	 */
-	public void refreshViews(boolean reInflateActionBar)
+	public void refreshViews()
 	{
 		GridView grid = (GridView) viewToDisplay.findViewById(R.id.attachment_grid);
 		grid.setNumColumns(getNumColumnsChatThemes());
 		((ArrayAdapter<ChatTheme>) grid.getAdapter()).notifyDataSetChanged();
-		
-		if (reInflateActionBar)
+	}
+	
+	public void setOrientation(int orientation)
+	{
+		if(orientation != currentConfig)
 		{
-			reInflation = true;
-			sherlockFragmentActivity.startActionMode(actionmodeCallback);
+			this.currentConfig = orientation;
+			refreshViews();
 		}
 	}
 }

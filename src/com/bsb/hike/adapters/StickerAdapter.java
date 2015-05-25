@@ -142,7 +142,7 @@ public class StickerAdapter extends PagerAdapter implements StickerEmoticonIconP
 		return emoticonPage;
 	}
 
-	private void registerListener()
+	public void registerListener()
 	{
 		IntentFilter filter = new IntentFilter(StickerManager.STICKERS_DOWNLOADED);
 		filter.addAction(StickerManager.STICKERS_FAILED);
@@ -242,8 +242,10 @@ public class StickerAdapter extends PagerAdapter implements StickerEmoticonIconP
 
 		ViewGroup emptyView = (ViewGroup) parent.findViewById(R.id.emptyViewHolder);
 
-		checkAndSetEmptyView(parent, emptyView, category, stickerGridView);
-
+		if(category.getStickerList().size() == 0)
+		{
+			checkAndSetEmptyView(parent, emptyView, category, stickerGridView);
+		}
 		StickerPageObjects spo = new StickerPageObjects(stickerGridView);
 		stickerGridView.setNumColumns(StickerManager.getInstance().getNumColumnsForStickerGrid(mContext));
 		stickerObjMap.put(category.getCategoryId(), spo);
@@ -269,6 +271,7 @@ public class StickerAdapter extends PagerAdapter implements StickerEmoticonIconP
 			TextView category_details = (TextView) empty.findViewById(R.id.category_details);
 			ImageView previewImage = (ImageView) empty.findViewById(R.id.preview_image);
 			stickerOtherIconLoader.loadImage(StickerManager.getInstance().getCategoryOtherAssetLoaderKey(category.getCategoryId(), StickerManager.PREVIEW_IMAGE_TYPE), previewImage);
+			stickerOtherIconLoader.setImageSize(mContext.getResources().getDimensionPixelSize(R.dimen.sticker_empty_pallete_preview_image_width), mContext.getResources().getDimensionPixelSize(R.dimen.sticker_empty_pallete_preview_image_height));
 			TextView separator = (TextView) empty.findViewById(R.id.separator);
 			if(category.getTotalStickers() > 0)
 			{

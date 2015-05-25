@@ -17,15 +17,15 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.db.DBConstants;
-import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.models.ContactInfoData.DataType;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.StatusMessage.StatusMessageType;
-import com.bsb.hike.models.ContactInfoData.DataType;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.GroupConversation;
 import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.platform.ContentLove;
+import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformMessageMetadata;
 import com.bsb.hike.platform.WebMetadata;
 import com.bsb.hike.utils.Logger;
@@ -952,8 +952,6 @@ public class ConvMessage implements Searchable
 			Logger.e("ConvMessage", "invalid json message", e);
 		}
 
-		Logger.d(AnalyticsConstants.MSG_REL_TAG, "===========================================");
-		Logger.d(AnalyticsConstants.MSG_REL_TAG, "MR gen after Serializing DR :- " + object);
 		return object;
 	}
 
@@ -1078,7 +1076,7 @@ public class ConvMessage implements Searchable
 	{
 		if (getMessageType() == HikeConstants.MESSAGE_TYPE.WEB_CONTENT && webMetadata != null)
 		{
-			return webMetadata.isSilent();
+			return webMetadata.getPushType().equals(HikePlatformConstants.SILENT_PUSH);
 		}
 		// Do not play sound in case of bg change, status updates
 		if ((getParticipantInfoState() == ParticipantInfoState.CHAT_BACKGROUND) || (getParticipantInfoState() == ParticipantInfoState.PARTICIPANT_JOINED)
@@ -1095,6 +1093,29 @@ public class ConvMessage implements Searchable
 			return false;
 		}
 	}
+	
+	public boolean isImageMsg()
+		{
+			return isFileTransferMessage() && getMetadata() != null && getMetadata().getHikeFiles().get(0).getHikeFileType() == HikeFileType.IMAGE ;
+			
+		}
+		
+		public boolean isTextMsg()
+		{
+			if(getMessageType() != MESSAGE_TYPE.PLAIN_TEXT)
+			{
+				return false;
+			}
+			
+			//a MESSAGE_TYPE.PLAIN_TEXT type message might be ft, sticker or nudge.So, rolling out these possibilities
+			if (isFileTransferMessage() || isStickerMessage() || (getMetadata() != null && getMetadata().isPokeMessage()))
+			{
+				return false;
+			}
+				
+			return true;
+		}
+	
 
 	public static boolean isMessageSent(State msgState)
 	{
@@ -1167,9 +1188,9 @@ public class ConvMessage implements Searchable
 		{
 			return false;
 		}
-		// No search on sticker messages.
+		// No search on sticker/nudge messages.
 		// Atleast till theres no tagging.
-		else if (isStickerMessage())
+		else if (isStickerMessage() || (metadata != null && metadata.isPokeMessage()))
 		{
 			return false;
 		}

@@ -47,10 +47,6 @@ public class HikeProvider extends ContentProvider
 
 	public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/" + BASE_PATH_ROUNDED);
 
-	private SQLiteDatabase hUserDb;
-
-	private ContactManager conManager;
-
 	private static final UriMatcher sURIMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 	static
 	{
@@ -58,31 +54,23 @@ public class HikeProvider extends ContentProvider
 		sURIMatcher.addURI(AUTHORITY, BASE_PATH_NORMAL, NORMAL_INDEX);
 	}
 
+	/**
+	 * go to https://code.google.com/p/android/issues/detail?id=8727
+	 *
+	 * and search for @leach.it... if u are getting a npe while writing HikeMessengerApp.getInstance().getApplicationContext();
+	 * @return
+	 */
 	@Override
 	public boolean onCreate()
 	{
-		conManager = ContactManager.getInstance();
-
-		// It is observed that providers get initiated before conManager (conManager == null). Hence need to init
-		conManager.init(getContext());
-
-		hUserDb = conManager.getReadableDatabase();
-
-		// Check for initialization of required objects
-		if (hUserDb != null)
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
+		return true;
 	}
 
 	@Override
 	public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder)
 	{
-
+		ContactManager conMgr = ContactManager.getInstance();
+		
 		// Authenticate
 		List<String> uriPathSegments = uri.getPathSegments();
 
@@ -131,7 +119,7 @@ public class HikeProvider extends ContentProvider
 				// For better security, use hard-coded selection columns
 				if (selection == null)
 				{
-					c = hUserDb.rawQuery("SELECT " + DBConstants.THUMBNAILS_TABLE + "." + DBConstants.IMAGE + ", " + DBConstants.USERS_TABLE + "." + DBConstants.ID + " " + "FROM "
+					c = conMgr.getReadableDatabase().rawQuery("SELECT " + DBConstants.THUMBNAILS_TABLE + "." + DBConstants.IMAGE + ", " + DBConstants.USERS_TABLE + "." + DBConstants.ID + " " + "FROM "
 							+ DBConstants.THUMBNAILS_TABLE + " " + "INNER JOIN " + DBConstants.USERS_TABLE + " " + "ON " + DBConstants.THUMBNAILS_TABLE + "." + DBConstants.MSISDN
 							+ "=" + DBConstants.USERS_TABLE + "." + DBConstants.MSISDN + "", null);
 				}
@@ -140,19 +128,17 @@ public class HikeProvider extends ContentProvider
 					if (selectionArgs != null && selectionArgs.length > 0)
 					{
 						// TODO:Improve this. Make it more generic
-						if (selectionArgs[0].equals(HikeConstants.SELF_HIKE_ID))
+						if (selectionArgs[0].equals(HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_UID_SETTING, null)))
 						{
 							// self avatar request
 							ContactInfo contactInfo = Utils.getUserContactInfo(HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.ACCOUNT_SETTINGS).getPref());
-							c = ContactManager
-									.getInstance()
-									.getReadableDatabase()
+							c = conMgr.getReadableDatabase()
 									.query(DBConstants.THUMBNAILS_TABLE, new String[] { DBConstants.IMAGE }, DBConstants.MSISDN + "=?", new String[] { contactInfo.getMsisdn() },
 											null, null, null);
 						}
 						else
 						{
-							c = hUserDb.rawQuery("SELECT " + DBConstants.THUMBNAILS_TABLE + "." + DBConstants.IMAGE + ", " + DBConstants.USERS_TABLE + "." + DBConstants.ID + " "
+							c = conMgr.getReadableDatabase().rawQuery("SELECT " + DBConstants.THUMBNAILS_TABLE + "." + DBConstants.IMAGE + ", " + DBConstants.USERS_TABLE + "." + DBConstants.ID + " "
 									+ "FROM " + DBConstants.THUMBNAILS_TABLE + " " + "INNER JOIN " + DBConstants.USERS_TABLE + " " + "ON " + DBConstants.THUMBNAILS_TABLE + "."
 									+ DBConstants.MSISDN + "=" + DBConstants.USERS_TABLE + "." + DBConstants.MSISDN + " " + "WHERE " + DBConstants.USERS_TABLE + "."
 									+ DBConstants.ID + " IN " + Utils.getMsisdnStatement(Arrays.asList(selectionArgs)), null);

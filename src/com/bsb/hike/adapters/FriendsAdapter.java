@@ -235,6 +235,11 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 	public void onQueryChanged(String s)
 	{
 		queryText = s;
+		//Regex Explanation - number can start with '+', then any character between [0-9] one or more time and any character among them [-, ., space, slash ]only once
+		//if this pattern match then ignore all the hyphen, dot, space, slash 
+		if(queryText.matches("^\\+?(([0-9]+[-.\\s/]?))*")){
+			queryText = queryText.replaceAll("[-.\\s /]", "");
+		}
 		contactFilter.filter(queryText);
 	}
 
@@ -253,9 +258,8 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 
 			if (!TextUtils.isEmpty(constraint))
 			{
-
-				String textToBeFiltered = constraint.toString().toLowerCase().trim();
-
+            	String textToBeFiltered = constraint.toString().toLowerCase().trim();
+            	
 				List<ContactInfo> filteredFriendsList = new ArrayList<ContactInfo>();
 				List<ContactInfo> filteredHikeContactsList = new ArrayList<ContactInfo>();
 				List<ContactInfo> filteredSmsContactsList = new ArrayList<ContactInfo>();
@@ -320,6 +324,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 					String name = info.getName();
 					boolean found = false;
 					int startIndex = 0;
+					if(name!=null){
 					name = name.toLowerCase();
 					if (name.startsWith(textToBeFiltered))
 					{
@@ -329,6 +334,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 					{
 						found = true;
 						startIndex = name.indexOf(" " + textToBeFiltered) + 1;
+					}
 					}
 					if(found)
 					{
@@ -830,8 +836,14 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 			stealthList = smsStealthContactsList;
 			break;
 		}
-		groupList.clear();
-		stealthList.clear();
+		if (null != groupList)
+		{
+			groupList.clear();
+		}
+		if (null != stealthList)
+		{
+			stealthList.clear();
+		}
 
 		groupList.addAll(newGroupList);
 		setupStealthListAndRemoveFromActualList(groupList, stealthList);

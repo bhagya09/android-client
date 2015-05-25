@@ -66,6 +66,7 @@ import android.widget.Toast;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.MqttConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
@@ -871,6 +872,12 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 						// This is being done to fix a legacy bug, where catId came as "unknown"
 						
 						String newCategoryId = (String) result;
+						
+						if(TextUtils.isEmpty(newCategoryId))
+						{
+							return ;
+						}
+						
 						String oldCategoryId = convMessage.getMetadata().getSticker().getStickerId();
 						if (!oldCategoryId.equals(newCategoryId))
 						{
@@ -1676,6 +1683,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				else
 				{
 					fileHolder.ftAction.setImageResource(R.drawable.ic_retry_other);
+					fileHolder.ftAction.setContentDescription(context.getResources().getString(R.string.content_des_retry_file_download));
 					fileHolder.ftAction.setVisibility(View.VISIBLE);
 					fileHolder.ftAction.setScaleType(ScaleType.CENTER);
 					fileHolder.circularProgressBg.setVisibility(View.VISIBLE);
@@ -1891,11 +1899,10 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				}
 			}
 			
-			CharSequence markedUp = convMessage.getMessage();
+			CharSequence markedUp = getSpannableSearchString(convMessage.getMessage());
 			SmileyParser smileyParser = SmileyParser.getInstance();
 			markedUp = smileyParser.addSmileySpans(markedUp, false);
 			textHolder.text.setText(markedUp);
-			checkIfContainsSearchText(textHolder.text);
 
 			Linkify.addLinks(textHolder.text, Linkify.ALL);
 			Linkify.addLinks(textHolder.text, Utils.shortCodeRegex, "tel:");
@@ -2620,16 +2627,23 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 	private void checkIfContainsSearchText(TextView tv)
 	{
-		String text = tv.getText().toString();
-		if (!TextUtils.isEmpty(searchText) && text.toLowerCase().contains(searchText))
+		CharSequence text = tv.getText();
+		if (!TextUtils.isEmpty(searchText) && text.toString().toLowerCase().contains(searchText))
 		{
-			SpannableString spanText = new SpannableString(text);
-
+			SpannableString spanText = getSpannableSearchString(text);
+			tv.setText(spanText, TextView.BufferType.SPANNABLE);
+		}
+	}
+	
+	private SpannableString getSpannableSearchString(CharSequence text)
+	{
+		SpannableString spanText = new SpannableString(text);
+		if (!TextUtils.isEmpty(searchText) && text.toString().toLowerCase().contains(searchText))
+		{
 			int startSpanIndex = 0;
-
 			while (startSpanIndex != -1)
 			{
-				startSpanIndex = text.toLowerCase().indexOf(searchText, startSpanIndex);
+				startSpanIndex = text.toString().toLowerCase().indexOf(searchText, startSpanIndex);
 				if (startSpanIndex != -1)
 				{
 					spanText.setSpan(new BackgroundColorSpan(context.getResources().getColor(R.color.text_bg)), startSpanIndex, startSpanIndex + searchText.length(),
@@ -2637,8 +2651,8 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					startSpanIndex += searchText.length();
 				}
 			}
-			tv.setText(spanText, TextView.BufferType.SPANNABLE);
 		}
+		return spanText;
 	}
 
 	private void setGroupParticipantName(ConvMessage convMessage, View participantDetails, TextView participantName, TextView participantNameUnsaved,
@@ -2706,6 +2720,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			if (!isSent)
 			{
 				holder.ftAction.setImageResource(downloadImage);
+				holder.ftAction.setContentDescription(context.getResources().getString(R.string.content_des_download_file));
 				holder.ftAction.setVisibility(View.VISIBLE);
 				holder.circularProgressBg.setVisibility(View.VISIBLE);
 			}
@@ -2714,6 +2729,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				if (TextUtils.isEmpty(hikeFile.getFileKey()))
 				{
 					holder.ftAction.setImageResource(retryImage);
+					holder.ftAction.setContentDescription(context.getResources().getString(R.string.content_des_retry_file_download));
 					holder.ftAction.setVisibility(View.VISIBLE);
 					holder.circularProgressBg.setVisibility(View.VISIBLE);
 				}
@@ -2727,6 +2743,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			break;
 		case IN_PROGRESS:
 			holder.ftAction.setImageResource(pauseImage);
+			holder.ftAction.setContentDescription(context.getResources().getString(R.string.content_des_pause_file_download));
 			holder.ftAction.setVisibility(View.VISIBLE);
 			holder.circularProgressBg.setVisibility(View.VISIBLE);
 			showTransferProgress(holder, fss, msgId, hikeFile, isSent);
@@ -2740,12 +2757,14 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		case ERROR:
 		case PAUSED:
 			holder.ftAction.setImageResource(retryImage);
+			holder.ftAction.setContentDescription(context.getResources().getString(R.string.content_des_retry_file_download));
 			holder.ftAction.setVisibility(View.VISIBLE);
 			holder.circularProgressBg.setVisibility(View.VISIBLE);
 			showTransferProgress(holder, fss, msgId, hikeFile, isSent);
 			break;
 		case CANCELLED:
 			holder.ftAction.setImageResource(retryImage);
+			holder.ftAction.setContentDescription(context.getResources().getString(R.string.content_des_retry_file_download));
 			holder.ftAction.setVisibility(View.VISIBLE);
 			holder.circularProgressBg.setVisibility(View.VISIBLE);
 			break;
@@ -2999,10 +3018,12 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				if (ext)
 				{
 					status.setImageResource(R.drawable.ic_clock_white);
+					status.setContentDescription(context.getResources().getString(R.string.content_des_message_clock_state));
 				}
 				else
 				{
 					status.setImageResource(R.drawable.ic_clock);
+					status.setContentDescription(context.getResources().getString(R.string.content_des_message_clock_state));
 				}
 			}
 			else if (ext)
@@ -3011,15 +3032,18 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				{
 				case SENT_UNCONFIRMED:
 					status.setImageResource(R.drawable.ic_clock_white);
+					status.setContentDescription(context.getResources().getString(R.string.content_des_message_clock_state));
 					break;
 				case SENT_CONFIRMED:
 					setIconForSentMessage(message, status, R.drawable.ic_tick_white, R.drawable.ic_sms_white, R.drawable.ic_bolt_white);
 					break;
 				case SENT_DELIVERED:
 					status.setImageResource(R.drawable.ic_double_tick_white);
+					status.setContentDescription(context.getResources().getString(R.string.content_des_message_double_tick_state));
 					break;
 				case SENT_DELIVERED_READ:
 					status.setImageResource(R.drawable.ic_double_tick_r_white);
+					status.setContentDescription(context.getResources().getString(R.string.content_des_message_double_tick_read_state));
 					break;
 				default:
 					break;
@@ -3031,15 +3055,18 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				{
 				case SENT_UNCONFIRMED:
 					status.setImageResource(R.drawable.ic_clock);
+					status.setContentDescription(context.getResources().getString(R.string.content_des_message_clock_state));
 					break;
 				case SENT_CONFIRMED:
 					setIconForSentMessage(message, status, R.drawable.ic_tick, R.drawable.ic_sms, R.drawable.ic_bolt_grey);
 					break;
 				case SENT_DELIVERED:
 					status.setImageResource(R.drawable.ic_double_tick);
+					status.setContentDescription(context.getResources().getString(R.string.content_des_message_double_tick_state));
 					break;
 				case SENT_DELIVERED_READ:
 					status.setImageResource(R.drawable.ic_double_tick_r);
+					status.setContentDescription(context.getResources().getString(R.string.content_des_message_double_tick_read_state));
 					break;
 				default:
 					break;
@@ -3070,15 +3097,18 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			if (message.isSMS())
 			{
 				status.setImageResource(smsDrawableResId);
+				status.setContentDescription(context.getResources().getString(R.string.content_des_message_offline_state));
 				return;
 			}
 			else if (isH20TipShowing)
 			{
 				status.setImageResource(boltDrawableResId);
+				status.setContentDescription(context.getResources().getString(R.string.content_des_message_offline_state));
 				return;
 			}
 		}
 		status.setImageResource(tickResId);
+		status.setContentDescription(context.getResources().getString(R.string.content_des_message_clock_state));
 	}
 
 	private void inflateNSetMessageInfo(final ConvMessage message, final DetailViewHolder detailHolder, final View clickableItem)
@@ -3388,7 +3418,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				ArrayList<HikeSharedFile> hsf = new ArrayList<HikeSharedFile>();
 				hsf.add(new HikeSharedFile(hikeFile.serialize(), hikeFile.isSent(), convMessage.getMsgID(), convMessage.getMsisdn(), convMessage.getTimestamp(), convMessage
 						.getGroupParticipantMsisdn()));
-				PhotoViewerFragment.openPhoto(R.id.chatThreadParentLayout, context, hsf, true, conversation);
+				PhotoViewerFragment.openPhoto(R.id.ct_parent_rl, context, hsf, true, conversation);
 			}
 			else
 			{
@@ -3591,7 +3621,6 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			}
 
 		};
-
 		HikeDialogFactory.showDialog(context, HikeDialogFactory.SMS_CLIENT_DIALOG, smsClientDialogListener, triggeredFromToggle, checkBox, showingNativeInfoDialog);
 	}
 
@@ -4057,6 +4086,14 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		if (mWebViewCardRenderer != null)
 		{
 			mWebViewCardRenderer.onDestroy();
+		}
+	}
+	
+	public void onActivityResult(int requestCode, int resultCode, Intent data)
+	{
+		if(requestCode == HikeConstants.PLATFORM_REQUEST)
+		{
+			mWebViewCardRenderer.onActivityResult(resultCode, data);
 		}
 	}
 }

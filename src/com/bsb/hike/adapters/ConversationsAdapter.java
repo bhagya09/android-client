@@ -28,6 +28,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.BaseAdapter;
 import android.widget.Filter;
+import android.widget.Filter.FilterListener;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -88,6 +89,8 @@ public class ConversationsAdapter extends BaseAdapter
 	private Set<String> conversationsMsisdns;
 
 	private boolean isSearchModeOn = false;
+	
+	private FilterListener searchFilterListener;
 
 	private enum ViewType
 	{
@@ -113,13 +116,14 @@ public class ConversationsAdapter extends BaseAdapter
 		ImageView muteIcon;
 	}
 
-	public ConversationsAdapter(Context context, List<ConvInfo> displayedConversations, Set<ConvInfo> stealthConversations, ListView listView)
+	public ConversationsAdapter(Context context, List<ConvInfo> displayedConversations, Set<ConvInfo> stealthConversations, ListView listView, FilterListener searchFilterListener)
 	{
 		this.context = context;
 		this.completeList = displayedConversations;
 		this.stealthConversations = stealthConversations;
 		this.listView = listView;
 		this.inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		this.searchFilterListener = searchFilterListener;
 		mIconImageSize = context.getResources().getDimensionPixelSize(R.dimen.icon_picture_size);
 		iconLoader = new IconLoader(context, mIconImageSize);
 		iconLoader.setImageFadeIn(false);
@@ -268,6 +272,14 @@ public class ConversationsAdapter extends BaseAdapter
 		notifyDataSetChanged();
 	}
 
+	/**
+	 * This will prevent the search related changes until further notice.
+	 */
+	public void pauseSearch()
+	{
+		refinedSearchText = "";
+	}
+
 	private class FetchPhoneBookContactsTask extends AsyncTask<Void, Void, Void>
 	{
 		List<ConvInfo> hikeContacts = new ArrayList<ConvInfo>();
@@ -317,14 +329,21 @@ public class ConversationsAdapter extends BaseAdapter
 		return convInfo;
 	}
 
-	public void onQueryChanged(String s)
+	public void onQueryChanged(String s, FilterListener filterListener)
 	{
 		if (s == null)
 		{
 			s = "";
 		}
 		refinedSearchText = s.toLowerCase();
-		contactFilter.filter(refinedSearchText);
+		if(filterListener!=null)
+		{
+			contactFilter.filter(refinedSearchText, filterListener);
+		}
+		else
+		{
+			contactFilter.filter(refinedSearchText);
+		}
 	}
 
 	private class ContactFilter extends Filter
@@ -497,7 +516,7 @@ public class ConversationsAdapter extends BaseAdapter
 		 * If the viewholder's msisdn is different from the converstion's msisdn, it means that the viewholder is currently being used for a different conversation.
 		 * We don't need to do anything here then.
 		 */
-		if(!convInfo.getMsisdn().equals(viewHolder.msisdn))
+		if(viewHolder == null || !convInfo.getMsisdn().equals(viewHolder.msisdn))
 		{
 			return;
 		}
@@ -541,7 +560,7 @@ public class ConversationsAdapter extends BaseAdapter
 		 * If the viewholder's msisdn is different from the converstion's msisdn, it means that the viewholder is currently being used for a different conversation.
 		 * We don't need to do anything here then.
 		 */
-		if(!convInfo.getMsisdn().equals(viewHolder.msisdn))
+		if(viewHolder == null || !convInfo.getMsisdn().equals(viewHolder.msisdn))
 		{
 			return;
 		}
@@ -553,6 +572,11 @@ public class ConversationsAdapter extends BaseAdapter
 	public void updateViewsRelatedToMute(View parentView, ConvInfo convInfo)
 	{
 		ViewHolder viewHolder = (ViewHolder) parentView.getTag();
+		
+		if(viewHolder == null)
+		{
+			return;
+		}
 
 		ImageView muteIcon = viewHolder.muteIcon;
 		if (muteIcon != null)
@@ -594,7 +618,7 @@ public class ConversationsAdapter extends BaseAdapter
 		 * If the viewholder's msisdn is different from the converstion's msisdn, it means that the viewholder is currently being used for a different conversation.
 		 * We don't need to do anything here then.
 		 */
-		if(!convInfo.getMsisdn().equals(viewHolder.msisdn))
+		if(viewHolder == null || !convInfo.getMsisdn().equals(viewHolder.msisdn))
 		{
 			return;
 		}
@@ -938,11 +962,11 @@ public class ConversationsAdapter extends BaseAdapter
 			for (int i = 0; i < count; i++)
 			{
 				View view = listView.getChildAt(i);
-				int indexOfData = listView.getFirstVisiblePosition() + i;
+				int indexOfData = listView.getFirstVisiblePosition() + i - listView.getHeaderViewsCount();
 
-				if(indexOfData >= getCount())
+				if(indexOfData >= getCount() || indexOfData < 0)
 				{
-					return;
+					continue;
 				}
 				ViewType viewType = ViewType.values()[getItemViewType(indexOfData)];
 				/*
@@ -955,6 +979,12 @@ public class ConversationsAdapter extends BaseAdapter
 
 				updateViewsRelatedToAvatar(view, getItem(indexOfData));
 			}
+		}
+		
+		//TODO remove this log as this is just for testing
+		if(notify)
+		{
+			Logger.i("ConversationFling ", " isListFlinging : "+isListFlinging);
 		}
 	}
 	
@@ -1008,7 +1038,7 @@ public class ConversationsAdapter extends BaseAdapter
 		}
 		else
 		{
-			onQueryChanged(refinedSearchText);
+			onQueryChanged(refinedSearchText, searchFilterListener);
 		}
 	}
 
@@ -1036,7 +1066,7 @@ public class ConversationsAdapter extends BaseAdapter
 			}
 			if (isSearchModeOn)
 			{
-				onQueryChanged(refinedSearchText);
+				onQueryChanged(refinedSearchText, searchFilterListener);
 			}
 		}
 	}

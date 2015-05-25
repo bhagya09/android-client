@@ -3,7 +3,6 @@ package com.bsb.hike;
 import android.net.Uri;
 import android.os.Environment;
 
-import com.bsb.hike.NUXConstants.PushTypeEnum;
 import com.bsb.hike.models.StatusMessage.StatusMessageType;
 
 public class HikeConstants
@@ -46,7 +45,7 @@ public class HikeConstants
 
 	public static final String SUB_TYPE = "st";
 	
-	public static final String GROUP_CHAT_TIMESTAMP = "gts";	
+	public static final String GROUP_CHAT_TIMESTAMP = "gts";
 
 	public static final String HIKE_MESSAGE = "hm";
 
@@ -467,7 +466,11 @@ public class HikeConstants
 	public static final String MESSAGES = "msgs";
 
 	public static final String FILE_IMAGE_QUALITY = "img_quality";
-
+	
+	public static final String CAN_EDIT_DP = "canEditDP";
+	
+	public static final String HTTP_STATUS_ID = "?status_id=";
+	
 	// @GM
 	// public static final String AUTO_DOWNLOAD_IMAGE_PREF =
 	// "autoDownloadImagePref"
@@ -707,6 +710,8 @@ public class HikeConstants
 	public static final int SHARE_CONTACT_CODE = 1193;
 
 	public static final int SHARE_FILE_CODE = 1194;
+	
+	public static final int PLATFORM_REQUEST = 1195; 
 
 	public static final int FACEBOOK_REQUEST_CODE = 64206;
 
@@ -899,12 +904,14 @@ public class HikeConstants
 	public static final int PROFILE_PICTURE_FROM_CAMERA = 0;
 
 	public static final int PROFILE_PICTURE_FROM_GALLERY = 1;
+	
+	public static final int REMOVE_PROFILE_PICTURE = 2;
 
 	/* activityForResult IDs */
 	public static final int CAMERA_RESULT = 0;
 
 	public static final int GALLERY_RESULT = 1;
-
+	
 	public static final int CROP_RESULT = 2991;
 
 	public static final int MIN_STATUS_COUNT = 5;
@@ -1042,8 +1049,6 @@ public class HikeConstants
 
 	public static final String DRAWABLE = "drawable";
 
-	public static final String SELF_HIKE_ID = "-1";
-
 	public static final String VOIP_CALL_DURATION = "vcd";
 
 	public static final String VOIP_CALL_INITIATOR = "vci";
@@ -1058,6 +1063,8 @@ public class HikeConstants
 
 	public static final String VOIP_CALL_RATE_POPUP_SHOW = "vrmcs";
 
+	public static final String VOIP_FTUE_POPUP = "voip_popup";
+
 	public static final String VOIP_CALL_RATE_POPUP_FREQ = "vrmcf";
 
 	public static final String VOIP_RELAY_SERVER_PORT = "rsport";
@@ -1067,6 +1074,8 @@ public class HikeConstants
 	public static final String VOIP_QUALITY_TEST_SIMULATED_CALL_DURATION = "scd";
 
 	public static final String VOIP_AEC_ENABLED = "aec";
+
+	public static final String VOIP_NETWORK_TEST_ENABLED = "vnt";
 
 	public static final String VOIP_AEC_CPU_NR = "cpunr";
 
@@ -1090,6 +1099,8 @@ public class HikeConstants
 		public static final int CONFIRM_LOCK_PATTERN = 4003;
 
 		public static final int CONFIRM_AND_ENTER_NEW_PASSWORD = 4004;
+		
+		public static final int PHOTOS_REQUEST_CODE = 739;
 	}
 
 	public static final class Extras
@@ -1126,6 +1137,8 @@ public class HikeConstants
 
 		public static final String ASPECT_Y = "aspectY";
 
+		public static final String JPEG_COMPRESSION_QUALITY = "jpegCompressionQuality";
+		
 		public static final String DATA = "data";
 
 		public static final String RETURN_DATA = "return-data";
@@ -1133,6 +1146,8 @@ public class HikeConstants
 		public static final String BITMAP = "bitmap";
 
 		public static final String CIRCLE_CROP = "circleCrop";
+		
+		public static final String CIRCLE_HIGHLIGHT = "circleHighlight";
 
 		public static final String SCALE_UP = "scaleUpIfNeeded";
 
@@ -1344,7 +1359,7 @@ public class HikeConstants
 
 		public static final String SHOW_RECORDING_DIALOG = "showRecordingDialog";
 
-		public static final String IS_HOME_POPUP_SHOWING = "isHomePopupShowing";
+		public static final String HOME_POPUP_TYPE = "homePopupType";
 
 		public static final String LAST_UPDATE_PACKET_ID = "lastUpdatePacketId";
 
@@ -1461,9 +1476,68 @@ public class HikeConstants
 		public static final String RETURN_CROP_RESULT_TO_FILE = "returnToFile";
 
 		public static final String CALL_RATE_BUNDLE = "callRateBundle";
+		
+		// constants related to sharing Functioanlity
+		public static final class ShareTypes
+		{
 
+			public static final int TEXT_SHARE = 0;
+
+			public static final int IMAGE_SHARE = 1;
+
+			public static final int STICKER_SHARE = 2;
+
+		}
+
+		public static final String SHARE_CONTENT = "shareContent";
+
+		public static final String WHATSAPP_PACKAGE = "com.whatsapp";
+
+		public static final String SHARE_TYPE = "shareType";
+
+		public static final int NOT_SHAREABLE = -1;
+		
+		public static final String STICKER_HEADING = "shareStkrTtl";
+
+		public static final String STICKER_DESCRIPTION = "shareStkrTxt";
+
+		public static final String STICKER_CAPTION = "shareStkrCptn";
+		
+        public static final String IMAGE_HEADING = "shareImgTtl";
+		
+		public static final String IMAGE_DESCRIPTION = "shareImgTxt";
+		
+		public static final String IMAGE_CAPTION = "shareImgCptn";
+
+        public static final String TEXT_HEADING = "shareMsgTitle";
+		
+		public static final String TEXT_CAPTION = "shareMsgTxt";
+				
+		public static final String SHOW_SHARE_FUNCTIONALITY = "shareWA";
+
+		public static final String STICKER_SHARE = "stkrShr";
+		
+		public static final String TEXT_SHARE = "textShr";
+		
+		public static final String IMAGE_SHARE = "imgShr";
+		
+		public static final String WHATSAPP_SHARE = "whatsappShare";
+
+		//required for analytics
+		public static final String CATEGORYID = "md1";
+
+		public static final String STICKERID = "md2";
+
+		public static final String PATH = "md3";
+		
 		public static final String GENERAL_SO_TIMEOUT = "sto";
 		
+		public static final String OKHTTP_CONNECT_TIMEOUT = "okcto";
+
+		public static final String OKHTTP_READ_TIMEOUT = "okrto";
+
+		public static final String OKHTTP_WRITE_TIMEOUT = "okwto";
+
 		public static final String ENABLE_PHOTOS = "ph_en";
 
 		public static final String FT_UPLOAD_SO_TIMEOUT = "ftsto";
@@ -1471,7 +1545,11 @@ public class HikeConstants
 		public static final String MAX_MESSAGE_PROCESS_TIME = "mmpt";
 		
 		public static final String CHANGE_MAX_MESSAGE_PROCESS_TIME = "cmpt";
-
+		
+		public static final String PHOTOS_RETURN_FILE = "editedReturnFile";
+		
+		public static final String CAMERA_RETURN_FILE = "capturedReturnFile";
+		
 		public static final String BROADCAST_CREATE_BUNDLE = "broadcastCreationBundle";
 		
 		public static final String GROUP_CREATE_BUNDLE = "groupCreationBundle";
@@ -1614,6 +1692,10 @@ public class HikeConstants
 		public static final String SELECT_ALL_HIKE_CONTACTS = "compSslctAllFwd";
 
 		public static final String CONFIRM_FORWARD = "compSconfFwd";
+		
+		public static final String SELECT_ALL_SHARE = "compSslctAllShare";
+
+		public static final String CONFIRM_SHARE = "compSconfShare";
 
 		/*
 		 * Drawer screen <screen> = drS <event> = homE, gC, inV, reW, creD, proF, settinG
@@ -1917,6 +1999,10 @@ public class HikeConstants
 
 		public static final String VOIP_CALL_REJECT = "cr";
 
+		public static final String VOIP_CONNECTION_ESTABLISHED = "coest";
+
+		public static final String VOIP_PARTNER_ANSWER_TIMEOUT = "cpat";
+
 		public static final String VOIP_CALL_SPEAKER = "spk";
 
 		public static final String VOIP_CALL_MUTE = "mut";
@@ -1930,6 +2016,8 @@ public class HikeConstants
 		public static final String VOIP_NATIVE_CALL_INTERRUPT = "tci";
 
 		public static final String VOIP_CALL_RELAY = "cpur";
+
+		public static final String VOIP_HANDSHAKE_COMPLETE = "vh";
 
 		// GCM Events
 		public static final String GCM_EXPIRED = "gcmexp";
@@ -1994,6 +2082,7 @@ public class HikeConstants
 		public static final String PHOTOS_SEND_TO = "phSend";
 		
 		
+		
 		//Broadcast
 		public static final String NEW_BROADCAST_VIA_OVERFLOW = "nbcOf";
 		
@@ -2007,7 +2096,17 @@ public class HikeConstants
 
 		public static final String HOME_SEARCH = "hmSrch";
 
+		public static final String CHAT_SEARCH = "chtSrch";
+
+		public static final String CHAT_OVRFLW_ITEM = "chtOvrflwItem";
+		
+		public static final String DEVICE_ROOT="root";
+
 		public static final String ADDRESSBOOK_UPLOAD = "addressbookUpload";
+		
+		public static final String SEND_DEVICE_DETAILS = "sendDeviceDetails";
+
+		public static final String GET_ACTIVE_NETWORK_INFO = "getActiveNetworkInfo";
 
 	}
 
@@ -2036,7 +2135,7 @@ public class HikeConstants
 		public static final String ICON = "ic";
 
 		public static final String INVITE_INFO = "ii";
-		
+
 		public static final String GROUP_CHAT_JOIN = "gcj";
 
 		public static final String GROUP_CHAT_LEAVE = "gcl";
@@ -2147,6 +2246,14 @@ public class HikeConstants
 		public static final String PACKET_ECHO = "pecho";
 
 		public static final String VOIP_SOCKET_INFO = "ve";
+
+		public static final String VOIP_CALL_REQUEST = "vcr1";
+
+		public static final String VOIP_CALL_REQUEST_RESPONSE = "vcr2";
+
+		public static final String VOIP_CALL_RESPONSE_RESPONSE = "vcr3";
+
+		public static final String VOIP_CALL_CANCELLED = "vcrj";
 
 		/**
 		 * VoIP data packet with QoS 0. This packet will either be delivered immediately or never.
@@ -2459,6 +2566,8 @@ public class HikeConstants
 	public static final String REWARDS_URL = "rewards_url";
 
 	public static final String CALL_LOG_ANALYTICS = "cl";
+	
+	public static final String ADVERTSING_ID_ANALYTICS = "adv";
 
 	public static final String APP_LOG_ANALYTICS = "al";
 
@@ -2523,22 +2632,27 @@ public class HikeConstants
 	}
 	public static final class HikePhotos
 	{
+		public static final String CAMERA_ALLOW_GALLERY_KEY = "galleryKey";
+		
+		public static final String EDITOR_ALLOW_COMPRESSION_KEY = "compressKey";
 		
 		public static final String PHOTOS_FILTER_NAME_KEY = "phFilName";
 		
 		public static final String PHOTOS_DOODLE_COLOR_KEY = "phDodCol";
 		
 		public static final String PHOTOS_IS_FFC_MODE = "isFFC";
+		
+		public static final int GALLERY_PICKER_REQUEST = 2;
 
 		public static final String FILENAME = "FilePath";
+		
+		public static final String DESTINATION_FILENAME = "Destination_FilePath";
+		
+		public static final String ORIG_FILE = "OrigFile";
 
 		public static final int MAX_BRUSH_WIDTH = 48;
 
 		public static final int Min_BRUSH_WIDTH = 8;
-
-		public static final int PREVIEW_THUMBNAIL_WIDTH_MDPI = 60;
-
-		public static final int PREVIEW_THUMBNAIL_WIDTH_HDPI = 78;
 
 		public static final int DELTA_BRUSH_WIDTH = 10;
 
@@ -2572,6 +2686,8 @@ public class HikeConstants
 		
 		public static final int PHOTOS_PAGER_DOODLE_WEIGHT_SUM = 10000;
 		
+		public static final int MAXIMUM_ALLOWED_IMAGE_AREA = 800 * 600;
+
 	}
 
 	
@@ -2605,12 +2721,20 @@ public class HikeConstants
 	public static final String BLACKLIST_DOMAIN_ANALYTICS = "blacklist";
 
 	public static final String HIGHLIGHT_NLS_PERF = "nlsHighlightPerf";
+	
+	public static final String FLUSH = "flush";
+
+	public static final String FORCE_USER="fu";
+	
+	public static final String IS_ROOT="is_root";
 
 	public static final String PROB_NUM_TEXT_MSG = "p_txt";
 
 	public static final String PROB_NUM_STICKER_MSG = "p_stk";
 
 	public static final String PROB_NUM_MULTIMEDIA_MSG = "p_mul";
+	
+	public static final String PROB_NUM_HTTP_ANALYTICS = "p_http";
 
 	public static final String MSG_REL = "rel_m";
 	
@@ -2625,4 +2749,6 @@ public class HikeConstants
 	public static final String ENABLE_EXCEPTION_ANALYTIS = "enableExceptionAnalytics";
 
 	public static final String PAYLOAD = "payload";
+	
+	public static final String HIKE_CONTACT_PICKER_RESULT = "contact_pick_result";
 }

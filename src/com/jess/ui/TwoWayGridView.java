@@ -365,6 +365,13 @@ public class TwoWayGridView extends TwoWayAbsListView {
 		requestLayout();
 	}
 
+	@Override
+	public void smoothScrollToPosition(int position)
+	{
+		// TODO Auto-generated method stub
+		super.smoothScrollToPosition(position);
+	}
+
 	/**
 	 * Makes the item at the supplied position selected.
 	 *

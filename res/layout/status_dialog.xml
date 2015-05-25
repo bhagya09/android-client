@@ -57,6 +57,7 @@
 
                 <ImageButton
                     android:id="@+id/emoji_btn"
+                    android:contentDescription="@string/content_des_choose_smiley_while_chatting"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignBottom="@+id/status_txt"
