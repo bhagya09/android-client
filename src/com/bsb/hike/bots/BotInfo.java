@@ -154,6 +154,22 @@ public class BotInfo extends ConvInfo
 	{
 		return notifData;
 	}
+	
+	public JSONObject getNotifDataJSON() 
+	{
+		if(notifData != null ) 
+		{
+			try
+			{
+				return new JSONObject(notifData);
+			}
+			catch (JSONException e)
+			{
+				e.printStackTrace();
+			}
+		}
+		return new JSONObject();
+	}
 
 	public void setType(int type)
 	{
