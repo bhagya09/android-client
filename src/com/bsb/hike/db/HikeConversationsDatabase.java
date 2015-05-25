@@ -742,7 +742,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			db.execSQL(alter2);
 		}
 		// Add creation time column
-		if (oldVersion < 38) {
+		if (oldVersion < 39) {
 			String alter = "ALTER TABLE " + DBConstants.GROUP_INFO_TABLE
 					+ " ADD COLUMN " + DBConstants.GROUP_CREATION_TIME
 					+" LONG DEFAULT -1";
