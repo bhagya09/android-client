@@ -19,6 +19,8 @@ public class CustomWebView extends WebView
 	public boolean isLoaded = true;
 	
 	private String javaScriptInterface;
+	
+	private boolean isShowing = false;
 	//Custom WebView to stop background calls when moves out of view.
 	public CustomWebView(Context context)
 	{
@@ -50,13 +52,20 @@ public class CustomWebView extends WebView
 	public void onWindowVisibilityChanged(int visibility)
 	{
 		super.onWindowVisibilityChanged(visibility);
-		if (visibility == View.GONE)
+		if (visibility == View.INVISIBLE)
 		{
+			this.isShowing = false;
+		}
+		
+		else if (visibility == View.GONE)
+		{
+			this.isShowing = false;
 			onWebViewGone();
 		}
 		else if (visibility == View.VISIBLE)
 		{
 			onWebViewVisible();
+			this.isShowing = true;
 		}
 	}
 	
@@ -138,6 +147,11 @@ public class CustomWebView extends WebView
 	{
 		this.javaScriptInterface = interfaceName;
 		super.addJavascriptInterface(obj, interfaceName);
+	}
+	
+	public boolean isWebViewShowing()
+	{
+		return this.isShowing;
 	}
 
 }

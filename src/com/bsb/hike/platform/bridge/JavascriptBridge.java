@@ -4,12 +4,10 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
-import com.bsb.hike.models.ConvMessage;
-import com.bsb.hike.platform.CustomWebView;
-import com.bsb.hike.platform.PlatformUtils;
-import com.bsb.hike.platform.content.PlatformContent;
+
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
@@ -33,8 +31,12 @@ import android.widget.Toast;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
-import com.bsb.hike.ui.ComposeChatActivity;
+import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.PlatformUtils;
+import com.bsb.hike.platform.content.PlatformContent;
+import com.bsb.hike.ui.ComposeChatActivity;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
@@ -565,7 +567,7 @@ public abstract class JavascriptBridge
 			Logger.e(tag, "Empty function name when calling the JS back");
 			return;
 		}
-		if (mHandler == null || !mWebView.isAttachedToWindow())
+		if (mHandler == null || !mWebView.isWebViewShowing())
 		{
 			return;
 		}
