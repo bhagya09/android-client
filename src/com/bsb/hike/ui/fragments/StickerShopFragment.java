@@ -454,6 +454,14 @@ public class StickerShopFragment extends SherlockFragment implements OnScrollLis
 					return;
 				}
 			}
+			else if(intent.getAction().equals(StickerManager.STICKER_PREVIEW_DOWNLOADED))
+			{
+				if(mAdapter == null)
+				{
+					return ;
+				}
+				mAdapter.notifyDataSetChanged();
+			}
 
 			else
 			{
@@ -525,6 +533,7 @@ public class StickerShopFragment extends SherlockFragment implements OnScrollLis
 		filter.addAction(StickerManager.STICKERS_FAILED);
 		filter.addAction(StickerManager.STICKERS_PROGRESS);
 		filter.addAction(StickerManager.MORE_STICKERS_DOWNLOADED);
+		filter.addAction(StickerManager.STICKER_PREVIEW_DOWNLOADED);
 		LocalBroadcastManager.getInstance(getSherlockActivity()).registerReceiver(mMessageReceiver, filter);
 	}
 	
