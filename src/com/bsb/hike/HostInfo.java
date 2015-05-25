@@ -31,8 +31,6 @@ public class HostInfo
 
 	private int connectRetryCount = 0;
 	
-	private volatile int ipConnectCount = 0;
-	
 	List<String> serverURIs = null;
 
 	private ConnectExceptions exceptionOnConnect = ConnectExceptions.NO_EXCEPTION;
@@ -44,7 +42,6 @@ public class HostInfo
 		
 		this.serverURIs = serverURIs;
 		
-		setIpConnectCount(previousHostInfo);
 		setConnectRetryCount(previousHostInfo);
 		this.setHost(previousHostInfo, isProduction);
 		setPort(previousHostInfo, isProduction, isSslOn);
@@ -64,19 +61,6 @@ public class HostInfo
 		if(previousHostInfo != null)
 		{
 			this.connectRetryCount = previousHostInfo.getConnectRetryCount();
-		}
-	}
-
-	public int getIpConnectCount()
-	{
-		return ipConnectCount;
-	}
-
-	private void setIpConnectCount(HostInfo previousHostInfo)
-	{
-		if(previousHostInfo != null)
-		{
-			this.ipConnectCount = previousHostInfo.getIpConnectCount();
 		}
 	}
 
@@ -117,9 +101,16 @@ public class HostInfo
 		{
 			setHost(STAGING_BROKER_HOST_NAME); //staging host
 		}
-		else if(previousHostInfo != null && previousHostInfo.getExceptionOnConnect() == ConnectExceptions.DNS_EXCEPTION)
+		else if(previousHostInfo != null)
 		{
-			setHost(getIp());  //connect using ip fallback
+			if(previousHostInfo.getExceptionOnConnect() == ConnectExceptions.DNS_EXCEPTION)
+			{
+				setHost(getIp());  //connect using ip fallback
+			}
+			else
+			{
+				setHost(previousHostInfo.getHost());  //otherwise we should try on host as last try
+			}
 		}
 		else
 		{
@@ -158,28 +149,43 @@ public class HostInfo
 
 	private void setProductionPort(HostInfo previousHostInfo, boolean isSslOn)
 	{
-		if (shouldConnectToFallbackPort(previousHostInfo, isSslOn))
+		if(previousHostInfo != null)
 		{
-			/*
-			 * on production for some countries ssl port connection is not allowed at all in these Countries we cannot use 443 as port fallback.
-			 * Logic is 
-			 * 1. 8080 -- fallback to --> 5222
-			 * 2. 5222 -- fallback to --> 443 if ssl is allowed
-			 * 3. again fallback to 8080 -- if tried above
-			 */
-			boolean sslPortAllowedAsFallback = Utils.isSSLAllowed();
-			if(previousHostInfo.getPort() == MqttConstants.PRODUCTION_BROKER_PORT_NUMBER)
+			if(isSslOn)
 			{
-				setPort(MqttConstants.FALLBACK_BROKER_PORT_5222);
+				//if ssl is on(plus on wifi) than we always try on 443
+				setPort(getStanderedProductionPort(isSslOn));
 			}
-			else if(previousHostInfo.getPort() == MqttConstants.FALLBACK_BROKER_PORT_5222  && sslPortAllowedAsFallback)
+			// ssl off and we got an socket timeout than we go to fallback ports
+			else if (previousHostInfo.getExceptionOnConnect() == ConnectExceptions.SOCKET_TIME_OUT_EXCEPTION )
 			{
-				setPort(MqttConstants.FALLBACK_BROKER_PORT_NUMBER_SSL);
+				/*
+				 * on production for some countries ssl port connection is not allowed at all in these Countries we cannot use 443 as port fallback.
+				 * Logic is 
+				 * 1. 8080 -- fallback to --> 5222
+				 * 2. 5222 -- fallback to --> 443 if ssl is allowed
+				 * 3. again fallback to 8080 -- if tried above
+				 */
+				boolean sslPortAllowedAsFallback = Utils.isSSLAllowed();
+				if(previousHostInfo.getPort() == MqttConstants.PRODUCTION_BROKER_PORT_NUMBER)
+				{
+					setPort(MqttConstants.FALLBACK_BROKER_PORT_5222);
+				}
+				else if(previousHostInfo.getPort() == MqttConstants.FALLBACK_BROKER_PORT_5222  && sslPortAllowedAsFallback)
+				{
+					setPort(MqttConstants.FALLBACK_BROKER_PORT_NUMBER_SSL);
+				}
+				else 
+				{
+					setPort(MqttConstants.PRODUCTION_BROKER_PORT_NUMBER);
+				}
 			}
-			else 
+			else
 			{
-				setPort(MqttConstants.PRODUCTION_BROKER_PORT_NUMBER);
+				//otherwise we should try on same port as last try
+				setPort(previousHostInfo.getPort());
 			}
+				
 		}
 		else
 		{
@@ -188,11 +194,6 @@ public class HostInfo
 		}
 	}
 	
-	private boolean shouldConnectToFallbackPort(HostInfo previousHostInfo, boolean isSslOn)
-	{
-		return previousHostInfo != null && previousHostInfo.getExceptionOnConnect() == ConnectExceptions.SOCKET_TIME_OUT_EXCEPTION && !isSslOn;
-	}
-
 	private int getStanderedProductionPort(boolean isSslOn)
 	{
 		return isSslOn ? MqttConstants.PRODUCTION_BROKER_PORT_NUMBER_SSL : MqttConstants.PRODUCTION_BROKER_PORT_NUMBER;
@@ -254,23 +255,13 @@ public class HostInfo
 	{
 		Random random = new Random();
 		int index = random.nextInt(serverURIs.size() - 1) + 1;
-		if (ipConnectCount == serverURIs.size())
-		{
-			ipConnectCount = 0;
-			return serverURIs.get(0);
-		}
-		else
-		{
-			ipConnectCount++;
-			return serverURIs.get(index);
-		}
+		return serverURIs.get(index);
 	}
 	
 	public String toString()
 	{
 		return " Protocol : "+protocol + " Host : " + host + " Port : "+ port + " connectTimeOut : " + connectTimeOut 
-				+ " connectRetryCount : "+ connectRetryCount + " ipConnectCount : "+ipConnectCount 
-				+ " exceptionOnConnect : "+exceptionOnConnect;
+				+ " connectRetryCount : "+ connectRetryCount  + " exceptionOnConnect : "+exceptionOnConnect;
 	}
 
 }
