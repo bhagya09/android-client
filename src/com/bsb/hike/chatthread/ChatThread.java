@@ -751,7 +751,22 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		switch (requestCode)
 		{
 		case AttachmentPicker.CAMERA:
-			ImageParser.parseResult(activity, resultCode, data, this);
+			if(!Utils.isPhotosEditEnabled())
+			{
+				ImageParser.parseResult(activity, resultCode, data, this);
+			}
+			else
+			{
+				String filename = Utils.getCameraResultFile();
+				if(filename!=null)
+				{
+					activity.startActivityForResult(IntentFactory.getPictureEditorActivityIntent(activity, filename, false, filename, false), AttachmentPicker.EDITOR);
+				}
+				else
+				{
+					imageParseFailed();
+				}
+			}
 			break;
 		case AttachmentPicker.AUDIO:
 		case AttachmentPicker.VIDEO:
@@ -773,15 +788,16 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			onShareContact(resultCode, data);
 			break;
 		case AttachmentPicker.GALLERY:
+		case AttachmentPicker.EDITOR:
+			if(resultCode == Activity.RESULT_OK)
+			{
+				ImageParser.parseResult(activity, resultCode, data, this);
+			}
 			if (resultCode == GalleryActivity.GALLERY_ACTIVITY_RESULT_CODE)
 			{
 				// This would be executed if photos is not enabled on the device
 				mConversationsView.requestFocusFromTouch();
 				mConversationsView.setSelection(messages.size() - 1);
-			}
-			else if(resultCode == Activity.RESULT_OK)
-			{
-				ImageParser.parseResult(activity, resultCode, data, this);
 			}
 			break;
 		case HikeConstants.PLATFORM_REQUEST:
