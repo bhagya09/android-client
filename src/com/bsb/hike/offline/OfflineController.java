@@ -12,12 +12,12 @@ public class OfflineController
 		this.offlineListener=listener;
 	}
 	
-	public void startScanning()
+	public void startScanningWifiDirect()
 	{
 		
 	}
 	
-	public void stopScanning()
+	public void stopScanningWifiDirect()
 	{
 		
 	}
@@ -31,6 +31,38 @@ public class OfflineController
 	{
 		
 	}
+	
+	public void sendAudioFile()
+	{
+		
+	}
+	
+	public void sendVideoFile()
+	{
+		
+	}
+	
+	public void sendRecordingFile()
+	{
+		
+	}
+	
+	public void sendImage()
+	{
+		
+	}
+	
+	public void sendFile()
+	{
+		
+	}
+	
+	public void sendApps()
+	{
+		
+	}
+	
+	
 	
 	public boolean isConnected()
 	{
