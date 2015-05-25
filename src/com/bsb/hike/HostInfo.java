@@ -47,12 +47,26 @@ public class HostInfo
 		this.serverURIs = serverURIs;
 		
 		setIpConnectCount(previousHostInfo);
+		setConnectRetryCount(previousHostInfo);
 		this.setHost(previousHostInfo, isProduction);
 		setPort(previousHostInfo, isProduction, isSslOn);
 
 		//We need to do it when port is decided for the host
 		setConnectTimeOut(previousHostInfo, this.getPort(), isSslOn);
 		setProtocol(this.getPort());
+	}
+
+	private int getConnectRetryCount()
+	{
+		return connectRetryCount;
+	}
+	
+	private void setConnectRetryCount(HostInfo previousHostInfo)
+	{
+		if(previousHostInfo != null)
+		{
+			this.connectRetryCount = previousHostInfo.getConnectRetryCount();
+		}
 	}
 
 	public int getIpConnectCount()
