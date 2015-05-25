@@ -6941,21 +6941,28 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	 * @param msisdn
 	 * @param lastMsgText
 	 */
-	public void addNonMessagingBotconversation(String msisdn, String lastMsgText)
+	public void addNonMessagingBotconversation(BotInfo botInfo)
 	{
-		ConvMessage convMessage = Utils.makeConvMessage(msisdn, lastMsgText, true, State.RECEIVED_UNREAD);
+		ConvMessage convMessage = Utils.makeConvMessage(botInfo.getMsisdn(), botInfo.getLastMessageText(), true, State.RECEIVED_UNREAD);
 
 		ContentValues contentValues = new ContentValues();
-		contentValues.put(DBConstants.MSISDN, msisdn);
-		contentValues.put(DBConstants.CONTACT_ID, msisdn);
+		contentValues.put(DBConstants.MSISDN, botInfo.getMsisdn());
+		contentValues.put(DBConstants.CONTACT_ID, botInfo.getMsisdn());
 		contentValues.put(DBConstants.ONHIKE, 1);
 		contentValues.put(DBConstants.MESSAGE, convMessage.getMessage());
 		contentValues.put(DBConstants.MSG_STATUS, convMessage.getState().ordinal());
 		contentValues.put(DBConstants.LAST_MESSAGE_TIMESTAMP, convMessage.getTimestamp());
 		contentValues.put(DBConstants.SORTING_TIMESTAMP, convMessage.getTimestamp());
 		contentValues.put(DBConstants.MESSAGE_ID, convMessage.getMsgID());
+		contentValues.put(DBConstants.UNREAD_COUNT, 1); // inOrder to show 1+ on conv screen, we need to have some unread counter
 
-		mDb.insertWithOnConflict(DBConstants.CONVERSATIONS_TABLE, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE);
+		/**
+		 * InsertWithOnConflict returns -1 on error while inserting/replacing a new row
+		 */
+		if (mDb.insertWithOnConflict(DBConstants.CONVERSATIONS_TABLE, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE) != -1)
+		{
+			HikeMessengerApp.getPubSub().publish(HikePubSub.NEW_CONVERSATION, botInfo);
+		}
 
 	}
 
