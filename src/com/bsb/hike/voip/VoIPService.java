@@ -114,7 +114,6 @@ public class VoIPService extends Service {
 	private SolicallWrapper solicallAec = null;
 	private boolean useVADToReduceData = true;
 	private boolean aecSpeakerSignal = false, aecMicSignal = false;
-	private VoIPDataPacket silentPacket;
 
 	private final LinkedBlockingQueue<VoIPDataPacket> recordedSamples     = new LinkedBlockingQueue<VoIPDataPacket>();
 	private final LinkedBlockingQueue<VoIPDataPacket> buffersToSend      = new LinkedBlockingQueue<VoIPDataPacket>();
@@ -244,6 +243,8 @@ public class VoIPService extends Service {
 		}
 		
 		if (aecEnabled) {
+			// For the Solicall AEC library to work, we must record data in chunks
+			// which are a multiple of the library's supported frame size (20ms).
 			Logger.d(VoIPConstants.TAG, "Old minBufSizeRecording: " + minBufSizeRecording);
 			if (minBufSizeRecording < SolicallWrapper.SOLICALL_FRAME_SIZE * 2) {
 				minBufSizeRecording = SolicallWrapper.SOLICALL_FRAME_SIZE * 2;
@@ -507,6 +508,7 @@ public class VoIPService extends Service {
 		super.onDestroy();
 		stop();
 		setCallid(0);	// Redundant, for bug #44018
+		clients.clear();
 		dismissNotification();
 		releaseWakeLock();
 		Logger.d(VoIPConstants.TAG, "VoIP Service destroyed.");
@@ -908,7 +910,7 @@ public class VoIPService extends Service {
 
 		for (VoIPClient client : clients.values())
 			removeClient(client);
-		clients.clear();
+		// clients.clear();
 
 		// Reset variables
 		setCallid(0);
@@ -1374,7 +1376,7 @@ public class VoIPService extends Service {
 //				long time = System.currentTimeMillis();
 				
 				byte[] silence = new byte[OpusWrapper.OPUS_FRAME_SIZE * 2];
-				silentPacket = new VoIPDataPacket(PacketType.VOICE_PACKET);
+				VoIPDataPacket silentPacket = new VoIPDataPacket(PacketType.VOICE_PACKET);
 				silentPacket.setData(silence);
 				
 				if (keepRunning) {
@@ -1727,7 +1729,7 @@ public class VoIPService extends Service {
 	
 	private void removeClient(VoIPClient client) {
 		client.close();
-		clients.remove(client.getPhoneNumber());
+		// clients.remove(client.getPhoneNumber());
 	}
 	
 	public boolean toggleConferencing() {

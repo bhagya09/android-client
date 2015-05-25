@@ -104,7 +104,7 @@ public class VoIPClient  {
 	private CallQuality currentCallQuality = CallQuality.UNKNOWN;
 	
 	public final ConcurrentHashMap<Integer, VoIPDataPacket> ackWaitQueue		 = new ConcurrentHashMap<Integer, VoIPDataPacket>();
-	public final ConcurrentLinkedQueue<VoIPDataPacket> samplesToDecodeQueue     = new ConcurrentLinkedQueue<VoIPDataPacket>();
+	private final ConcurrentLinkedQueue<VoIPDataPacket> samplesToDecodeQueue     = new ConcurrentLinkedQueue<VoIPDataPacket>();
 	private final LinkedBlockingQueue<VoIPDataPacket> encodedBuffersQueue      = new LinkedBlockingQueue<VoIPDataPacket>();
 	public final ConcurrentLinkedQueue<VoIPDataPacket> decodedBuffersQueue      = new ConcurrentLinkedQueue<VoIPDataPacket>();
 	public final LinkedBlockingQueue<byte[]> samplesToEncodeQueue      = new LinkedBlockingQueue<byte[]>();
@@ -116,8 +116,6 @@ public class VoIPClient  {
 		RELAY
 	}
 	
-	
-
 	public VoIPClient(Context context, Handler handler) {
 		super();
 		this.context = context;
@@ -852,10 +850,12 @@ public class VoIPClient  {
 		connected = false;
 		audioStarted = false;
 		removeExternalSocketInfo();
+		
 		ackWaitQueue.clear();
 		samplesToDecodeQueue.clear();
 		encodedBuffersQueue.clear();
 		decodedBuffersQueue.clear();
+		samplesToEncodeQueue.clear();
 	}
 
 	private void setExternalSocketInfo(String ICEResponse) throws JSONException {
