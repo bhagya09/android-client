@@ -127,7 +127,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 
 		boolean editPic = Utils.isPhotosEditEnabled();
 		
-		Intent galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(ChangeProfileImageBaseActivity.this, false, true, true,editPic,getNewProfileImagePath());
+		Intent galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(ChangeProfileImageBaseActivity.this, false, true, true,editPic,isPersonal,getNewProfileImagePath());
 
 		if (editPic)
 		{

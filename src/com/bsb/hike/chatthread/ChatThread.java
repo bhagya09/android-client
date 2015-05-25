@@ -1309,7 +1309,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	{
 		boolean editPic = Utils.isPhotosEditEnabled();
 		
-		Intent imageIntent = IntentFactory.getHikeGalleryPickerIntent(activity.getApplicationContext(), true, true, false,editPic,null);
+		Intent imageIntent = IntentFactory.getHikeGalleryPickerIntent(activity.getApplicationContext(), true, true, false,editPic,false,null);
 		imageIntent.putExtra(GalleryActivity.START_FOR_RESULT, true);
 		imageIntent.putExtra(HikeConstants.Extras.MSISDN, msisdn);
 		imageIntent.putExtra(HikeConstants.Extras.ON_HIKE, onHike);

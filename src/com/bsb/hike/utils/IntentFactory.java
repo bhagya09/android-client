@@ -548,7 +548,7 @@ public class IntentFactory
 		return intent;
 	}
 
-	public static Intent getHikeGalleryPickerIntent(Context context, boolean allowMultiSelect, boolean categorizeByFolders, boolean enableCameraPick,boolean editSelectedImage,String croppedOutputDestination)
+	public static Intent getHikeGalleryPickerIntent(Context context, boolean allowMultiSelect, boolean categorizeByFolders, boolean enableCameraPick,boolean editSelectedImage,boolean forProfileUpdate,String croppedOutputDestination)
 	{
 		Intent intent = new Intent(context, GalleryActivity.class);
 		Bundle b = new Bundle();
@@ -560,7 +560,7 @@ public class IntentFactory
 		
 		if(editSelectedImage)
 		{
-			destIntents.add(IntentFactory.getPictureEditorActivityIntent(context, null, false, null, false));
+			destIntents.add(IntentFactory.getPictureEditorActivityIntent(context, null, false, null, forProfileUpdate));
 		}
 		
 		if(croppedOutputDestination != null)
