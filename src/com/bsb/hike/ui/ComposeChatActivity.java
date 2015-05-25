@@ -1383,6 +1383,13 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 							filePath = Utils.getRealPathFromUri(fileUri, this);
 						}
 
+						// Defensive fix for play store crash. java.lang.NullPointerException in java.io.File.fixSlashes.
+						if(filePath == null)
+						{
+							Logger.e(getClass().getSimpleName(), "filePath was null. Defensive check for play store crash was hit");
+							continue;
+						}
+						
 						File file = new File(filePath);
 						if (file.length() > HikeConstants.MAX_FILE_SIZE)
 						{
