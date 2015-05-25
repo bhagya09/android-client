@@ -1,94 +1,130 @@
 package com.bsb.hike.modules.stickerdownloadmgr;
 
+import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_OUT_OF_SPACE;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.StickerShopDownloadRequest;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import android.content.Context;
-import android.os.Bundle;
-import android.os.Handler;
-
 import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeConstants.STResult;
-import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.HttpRequestType;
-import com.bsb.hike.utils.AccountUtils;
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
+import com.bsb.hike.modules.httpmgr.RequestToken;
+import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHTTPTask;
+import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHttpTaskResult;
+import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
+import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.StickerRequestType;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
-class StickerShopDownloadTask extends BaseStickerDownloadTask
+public class StickerShopDownloadTask implements IHikeHTTPTask, IHikeHttpTaskResult
 {
-	
-	private Handler handler;
-	private Context context;
-	private String taskId;
-	private Bundle bundle;
 	private int offset;
-	private Object resultObject;
 	
-	protected StickerShopDownloadTask(Handler handler, Context ctx, String taskId, int offset, IStickerResultListener callback)
+	private final String TAG = "StickerShopDownloadTask";
+	
+	private RequestToken token;
+	
+	public StickerShopDownloadTask(int offset)
 	{
-		super(handler, ctx, taskId, callback);
-		this.handler = handler;
-		this.taskId = taskId;
-		context = ctx;
 		this.offset = offset;
 	}
-
+	
 	@Override
-	public STResult call() throws Exception
+	public void execute()
 	{
+		if (!StickerManager.getInstance().isMinimumMemoryAvailable())
+		{
+			doOnFailure(new HttpException(REASON_CODE_OUT_OF_SPACE));
+			return;
+		}
+
+		String requestId = getRequestId();
+		token = StickerShopDownloadRequest(requestId, offset, getRequestListener());
 		
-		try
+		if(token.isRequestRunning())
 		{
-			String urlString = AccountUtils.base + "/stickers/shop?offset=" + offset;
-			if(AccountUtils.ssl)
-			{
-				urlString = AccountUtils.HTTPS_STRING + AccountUtils.host + "/v1" + "/stickers/shop?offset=" + offset ;
-			}
-			
-			urlString += "&resId=" + Utils.getResolutionId();
-			
-			setDownloadUrl(urlString);
-			
-			JSONObject response = (JSONObject) download(null, HttpRequestType.GET);
-			
-			Logger.d(StickerDownloadManager.TAG,  "Starting download task : " + taskId + " url : " + urlString );
-			if (response == null || !HikeConstants.OK.equals(response.getString(HikeConstants.STATUS)))
-			{
-				setException(new StickerException(StickerException.NULL_OR_INVALID_RESPONSE));
-				Logger.e(StickerDownloadManager.TAG, "Sticker download failed null or invalid response for task : " + taskId);
-				return STResult.DOWNLOAD_FAILED;
-			}
-			Logger.d(StickerDownloadManager.TAG,  "Got response for download task : " + taskId + " response : " + response.toString());
-			JSONArray data = response.optJSONArray(HikeConstants.DATA_2);
-			if(null == data)
-			{
-				setException(new StickerException(StickerException.NULL_DATA));
-				Logger.e(StickerDownloadManager.TAG, "Sticker download failed null data for task : " + taskId);
-				return STResult.DOWNLOAD_FAILED;
-			}
-			resultObject = data;
+			return ;
 		}
-		catch (StickerException e)
+		token.execute();
+	}
+	
+	@Override
+	public void cancel()
+	{
+		if (null != token)
 		{
-			Logger.e(StickerDownloadManager.TAG, "Sticker download failed for task : " + taskId, e);
-			setException(e);
-			return STResult.DOWNLOAD_FAILED;
+			token.cancel();
 		}
-		catch (Exception e)
-		{
-			Logger.e(StickerDownloadManager.TAG, "Sticker download failed for task : " + taskId, e);
-			setException(new StickerException(e));
-			return STResult.DOWNLOAD_FAILED;
-		}
-		return STResult.SUCCESS;
+	}
+	
+	private String getRequestId()
+	{
+		return StickerRequestType.SHOP.getLabel();
 	}
 
-	@Override
-	protected void postExecute(STResult result)
+	private IRequestListener getRequestListener()
 	{
-		// TODO Auto-generated method stub
-		setResult(resultObject);
-		super.postExecute(result);
+		return new IRequestListener()
+		{
+
+			@Override
+			public void onRequestSuccess(Response result)
+			{
+				try
+				{
+					JSONObject response = (JSONObject) result.getBody().getContent();
+
+					if (!Utils.isResponseValid(response))
+					{
+						Logger.e(TAG, "Sticker download failed null response");
+						doOnFailure(null);
+					}
+
+					JSONArray resultData = response.optJSONArray(HikeConstants.DATA_2);
+					if (null == resultData)
+					{
+						Logger.e(TAG, "Sticker download failed null data");
+						doOnFailure(null);
+					}
+					
+					doOnSuccess(resultData);
+				}
+				catch (Exception e)
+				{
+					doOnFailure(new HttpException(HttpException.REASON_CODE_UNEXPECTED_ERROR, e));
+					return;
+				}
+
+			}
+
+			@Override
+			public void onRequestProgressUpdate(float progress)
+			{
+
+			}
+
+			@Override
+			public void onRequestFailure(HttpException httpException)
+			{
+				doOnFailure(httpException);
+			}
+		};
+	}
+	
+	@Override
+	public void doOnSuccess(Object result)
+	{
+		HikeMessengerApp.getPubSub().publish(HikePubSub.STICKER_SHOP_DOWNLOAD_SUCCESS, result);
+	}
+	
+	@Override
+	public void doOnFailure(HttpException e)
+	{
+		Logger.e(TAG, "on failure, exception ", e);
+		HikeMessengerApp.getPubSub().publish(HikePubSub.STICKER_SHOP_DOWNLOAD_FAILURE, e);
 	}
 }
-

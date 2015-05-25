@@ -37,17 +37,16 @@ import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.adapters.StickerShopAdapter;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.StickerCategory;
-import com.bsb.hike.modules.stickerdownloadmgr.IStickerResultListener;
+import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadType;
-import com.bsb.hike.modules.stickerdownloadmgr.StickerDownloadManager;
-import com.bsb.hike.modules.stickerdownloadmgr.StickerException;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerShopDownloadTask;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
 public class StickerShopFragment extends SherlockFragment implements OnScrollListener, Listener
 {
-	private String[] pubSubListeners = {HikePubSub.STICKER_CATEGORY_MAP_UPDATED};
+	private String[] pubSubListeners = {HikePubSub.STICKER_CATEGORY_MAP_UPDATED, HikePubSub.STICKER_SHOP_DOWNLOAD_SUCCESS, HikePubSub.STICKER_SHOP_DOWNLOAD_FAILURE};
 
 	private StickerShopAdapter mAdapter;
 	
@@ -70,6 +69,10 @@ public class StickerShopFragment extends SherlockFragment implements OnScrollLis
 	private int downloadState = NOT_DOWNLOADING;
 	
 	View loadingFooterView, downloadFailedFooterView, loadingEmptyState, loadingFailedEmptyState;
+	
+	TextView loadingFailedEmptyStateMainText, loadingFailedEmptyStateSubText;
+	
+	private int currentCategoriesCount;
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -222,7 +225,7 @@ public class StickerShopFragment extends SherlockFragment implements OnScrollLis
 	
 	public void downLoadStickerData()
 	{
-		final int currentCategoriesCount = (mAdapter == null) || (mAdapter.getCursor() == null) ? 0 : mAdapter.getCursor().getCount();
+		currentCategoriesCount = (mAdapter == null) || (mAdapter.getCursor() == null) ? 0 : mAdapter.getCursor().getCount();
 		downloadState = DOWNLOADING;
 		final TextView loadingFailedEmptyStateMainText = (TextView) loadingFailedEmptyState.findViewById(R.id.main_text);
 		final TextView loadingFailedEmptyStateSubText = (TextView) loadingFailedEmptyState.findViewById(R.id.sub_text);
@@ -241,119 +244,8 @@ public class StickerShopFragment extends SherlockFragment implements OnScrollLis
 			listview.addFooterView(loadingFooterView);
 		}
 		
-		StickerDownloadManager.getInstance().DownloadStickerShopTask(currentCategoriesCount, new IStickerResultListener()
-		{
-
-			@Override
-			public void onSuccess(Object result)
-			{
-				// TODO Auto-generated method stub
-				JSONArray resultData = (JSONArray) result;
-				if(resultData.length() == 0)
-				{
-					HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.STICKER_SHOP_DATA_FULLY_FETCHED, true);
-				}
-				else
-				{
-					//TODO we should also update stickerCategoriesMap in StickerManager from here as well
-					HikeConversationsDatabase.getInstance().updateStickerCategoriesInDb(resultData);
-				}
-				final Cursor updatedCursor = HikeConversationsDatabase.getInstance().getCursorForStickerShop();
-				if (!isAdded())
-				{
-					return;
-				}
-				getSherlockActivity().runOnUiThread(new Runnable()
-				{
-
-					@Override
-					public void run()
-					{
-						if(currentCategoriesCount == 0)
-						{
-							HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.LAST_STICKER_SHOP_UPDATE_TIME, System.currentTimeMillis());
-						}
-						mAdapter.changeCursor(updatedCursor);
-						listview.setVisibility(View.VISIBLE);
-						listview.removeFooterView(loadingFooterView);
-						loadingEmptyState.setVisibility(View.GONE);
-						loadingFailedEmptyState.setVisibility(View.GONE);
-						
-						mAdapter.notifyDataSetChanged();
-						downloadState = NOT_DOWNLOADING;
-					}
-				});
-			}
-
-			@Override
-			public void onProgressUpdated(double percentage)
-			{
-				// TODO Auto-generated method stub
-
-			}
-
-			@Override
-			public void onFailure(Object result, final StickerException exception)
-			{
-				//footerView.setVisibility(View.GONE);
-				if (!isAdded())
-				{
-					return;
-				}
-				getSherlockActivity().runOnUiThread(new Runnable()
-				{
-
-					@Override
-					public void run()
-					{
-						downloadState = DOWNLOAD_FAILED;
-						if(currentCategoriesCount == 0)
-						{
-							loadingEmptyState.setVisibility(View.GONE);
-							loadingFailedEmptyState.setVisibility(View.VISIBLE);
-							
-							if (exception != null && exception.getErrorCode() == StickerException.OUT_OF_SPACE)
-							{
-								loadingFailedEmptyStateMainText.setText(R.string.shop_download_failed_out_of_space);
-								loadingFailedEmptyStateSubText.setVisibility(View.GONE);
-							}
-							else if(exception != null && exception.getErrorCode() == StickerException.NO_NETWORK)
-							{
-								loadingFailedEmptyStateMainText.setText(R.string.shop_loading_failed_no_internet);
-								loadingFailedEmptyStateSubText.setVisibility(View.VISIBLE);
-								loadingFailedEmptyStateSubText.setText(R.string.shop_loading_failed_switch_on);
-							}
-							else
-							{
-								loadingFailedEmptyStateMainText.setText(R.string.shop_download_failed);
-								loadingFailedEmptyStateSubText.setVisibility(View.GONE);
-							}
-						}
-						else
-						{
-							listview.removeFooterView(loadingFooterView);
-							listview.removeFooterView(downloadFailedFooterView);
-							listview.addFooterView(downloadFailedFooterView);
-
-							TextView failedText = (TextView) downloadFailedFooterView.findViewById(R.id.footer_downloading_failed);
-							if (exception != null && exception.getErrorCode() == StickerException.OUT_OF_SPACE)
-							{
-								failedText.setText(R.string.shop_download_failed_out_of_space);
-							}
-							else if(exception != null && exception.getErrorCode() == StickerException.NO_NETWORK)
-							{
-								failedText.setText(R.string.shop_loading_failed_no_internet);
-							}
-							
-							else
-							{
-								failedText.setText(R.string.shop_download_failed);
-							}
-						}
-					}
-				});
-			}
-		});
+		StickerShopDownloadTask stickerShopDownloadTask = new StickerShopDownloadTask(currentCategoriesCount);
+		stickerShopDownloadTask.execute();
 	}
 
 	@Override
@@ -412,6 +304,107 @@ public class StickerShopFragment extends SherlockFragment implements OnScrollLis
 				}
 			});
 		}
+		else if(HikePubSub.STICKER_SHOP_DOWNLOAD_SUCCESS.equals(type))
+		{
+			// TODO Auto-generated method stub
+			JSONArray resultData = (JSONArray) object;
+			if(resultData.length() == 0)
+			{
+				HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.STICKER_SHOP_DATA_FULLY_FETCHED, true);
+			}
+			else
+			{
+				//TODO we should also update stickerCategoriesMap in StickerManager from here as well
+				HikeConversationsDatabase.getInstance().updateStickerCategoriesInDb(resultData);
+			}
+			final Cursor updatedCursor = HikeConversationsDatabase.getInstance().getCursorForStickerShop();
+			if (!isAdded())
+			{
+				return;
+			}
+			getSherlockActivity().runOnUiThread(new Runnable()
+			{
+
+				@Override
+				public void run()
+				{
+					if(currentCategoriesCount == 0)
+					{
+						HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.LAST_STICKER_SHOP_UPDATE_TIME, System.currentTimeMillis());
+					}
+					mAdapter.changeCursor(updatedCursor);
+					listview.setVisibility(View.VISIBLE);
+					listview.removeFooterView(loadingFooterView);
+					loadingEmptyState.setVisibility(View.GONE);
+					loadingFailedEmptyState.setVisibility(View.GONE);
+					
+					mAdapter.notifyDataSetChanged();
+					downloadState = NOT_DOWNLOADING;
+				}
+			});
+		}
+		else if(HikePubSub.STICKER_SHOP_DOWNLOAD_FAILURE.equals(type))
+		{
+			final HttpException exception = (HttpException) object;
+			
+			//footerView.setVisibility(View.GONE);
+			if (!isAdded())
+			{
+				return;
+			}
+			getSherlockActivity().runOnUiThread(new Runnable()
+			{
+
+				@Override
+				public void run()
+				{
+					downloadState = DOWNLOAD_FAILED;
+					if(currentCategoriesCount == 0)
+					{
+						loadingEmptyState.setVisibility(View.GONE);
+						loadingFailedEmptyState.setVisibility(View.VISIBLE);
+						
+						if (exception != null && exception.getErrorCode() == HttpException.REASON_CODE_OUT_OF_SPACE)
+						{
+							loadingFailedEmptyStateMainText.setText(R.string.shop_download_failed_out_of_space);
+							loadingFailedEmptyStateSubText.setVisibility(View.GONE);
+						}
+						else if(exception != null && exception.getErrorCode() == HttpException.REASON_CODE_NO_NETWORK)
+						{
+							loadingFailedEmptyStateMainText.setText(R.string.shop_loading_failed_no_internet);
+							loadingFailedEmptyStateSubText.setVisibility(View.VISIBLE);
+							loadingFailedEmptyStateSubText.setText(R.string.shop_loading_failed_switch_on);
+						}
+						else
+						{
+							loadingFailedEmptyStateMainText.setText(R.string.shop_download_failed);
+							loadingFailedEmptyStateSubText.setVisibility(View.GONE);
+						}
+					}
+					else
+					{
+						listview.removeFooterView(loadingFooterView);
+						listview.removeFooterView(downloadFailedFooterView);
+						listview.addFooterView(downloadFailedFooterView);
+
+						TextView failedText = (TextView) downloadFailedFooterView.findViewById(R.id.footer_downloading_failed);
+						if (exception != null && exception.getErrorCode() == HttpException.REASON_CODE_OUT_OF_SPACE)
+						{
+							failedText.setText(R.string.shop_download_failed_out_of_space);
+						}
+						else if(exception != null && exception.getErrorCode() == HttpException.REASON_CODE_NO_NETWORK)
+						{
+							failedText.setText(R.string.shop_loading_failed_no_internet);
+						}
+						
+						else
+						{
+							failedText.setText(R.string.shop_download_failed);
+						}
+					}
+				}
+			});
+		}
 
 	}
 
@@ -454,7 +447,14 @@ public class StickerShopFragment extends SherlockFragment implements OnScrollLis
 					return;
 				}
 			}
-
+			else if(intent.getAction().equals(StickerManager.STICKER_PREVIEW_DOWNLOADED))
+			{
+				if(mAdapter == null)
+				{
+					return ;
+				}
+				mAdapter.notifyDataSetChanged();
+			}
 			else
 			{
 				Bundle b = intent.getBundleExtra(StickerManager.STICKER_DATA_BUNDLE);
@@ -525,6 +525,7 @@ public class StickerShopFragment extends SherlockFragment implements OnScrollLis
 		filter.addAction(StickerManager.STICKERS_FAILED);
 		filter.addAction(StickerManager.STICKERS_PROGRESS);
 		filter.addAction(StickerManager.MORE_STICKERS_DOWNLOADED);
+		filter.addAction(StickerManager.STICKER_PREVIEW_DOWNLOADED);
 		LocalBroadcastManager.getInstance(getSherlockActivity()).registerReceiver(mMessageReceiver, filter);
 	}
 	

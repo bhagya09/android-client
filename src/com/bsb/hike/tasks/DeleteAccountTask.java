@@ -16,7 +16,6 @@ import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.modules.contactmgr.ContactManager;
-import com.bsb.hike.modules.stickerdownloadmgr.StickerDownloadManager;
 import com.bsb.hike.service.HikeService;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.Logger;
@@ -81,8 +80,6 @@ public class DeleteAccountTask extends AsyncTask<Void, Void, Boolean> implements
 	 */
 	private void clearAppData()
 	{
-		StickerDownloadManager.getInstance().shutDownAll();
-
 		/**
 		 * Clearing the shared preferences
 		 */
