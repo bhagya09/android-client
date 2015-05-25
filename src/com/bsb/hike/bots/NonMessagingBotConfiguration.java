@@ -301,34 +301,30 @@ public class NonMessagingBotConfiguration extends BotConfiguration
 	 */
 	public int getOritentationForBot()
 	{
-		if (configData != null)
+		if (isPortraitEnabled())
 		{
-			if (isPortraitEnabled())
+			if (isLandscapeEnabled())
 			{
-				if (isLandscapeEnabled())
-				{
-					return Configuration.ORIENTATION_UNDEFINED;
-				}
-
-				else
-				{
-					return Configuration.ORIENTATION_PORTRAIT;
-				}
+				return Configuration.ORIENTATION_UNDEFINED;
 			}
 
 			else
 			{
-				if (isLandscapeEnabled())
-				{
-					return Configuration.ORIENTATION_LANDSCAPE;
-				}
-
-				else
-				{
-					return Configuration.ORIENTATION_UNDEFINED;
-				}
+				return Configuration.ORIENTATION_PORTRAIT;
 			}
 		}
-		return Configuration.ORIENTATION_UNDEFINED;
+
+		else
+		{
+			if (isLandscapeEnabled())
+			{
+				return Configuration.ORIENTATION_LANDSCAPE;
+			}
+
+			else
+			{
+				return Configuration.ORIENTATION_UNDEFINED;
+			}
+		}
 	}
 }
