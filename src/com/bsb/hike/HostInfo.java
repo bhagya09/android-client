@@ -5,6 +5,8 @@ import static com.bsb.hike.MqttConstants.*;
 import java.util.List;
 import java.util.Random;
 
+import com.bsb.hike.utils.AccountUtils;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
@@ -101,7 +103,7 @@ public class HostInfo
 	{
 		if(!isProduction)
 		{
-			setHost(STAGING_BROKER_HOST_NAME); //staging host
+			setStagingHost();
 		}
 		else if(previousHostInfo != null && previousHostInfo.getExceptionOnConnect() == ConnectExceptions.DNS_EXCEPTION)
 		{
@@ -113,6 +115,18 @@ public class HostInfo
 		}
 	}
 	
+	private void setStagingHost()
+	{
+		int whichServer = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PRODUCTION_HOST_TOGGLE, AccountUtils._STAGING_HOST);
+		if (whichServer == AccountUtils._CUSTOM_HOST)
+		{
+			setHost( HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.CUSTOM_MQTT_HOST, STAGING_BROKER_HOST_NAME) );
+		}
+		else
+		{
+			setHost(STAGING_BROKER_HOST_NAME); //staging host
+		}
+	}
 
 
 	public int getPort()
@@ -139,7 +153,15 @@ public class HostInfo
 
 	private void setStagingPort(boolean isSslOn)
 	{
-		setPort(isSslOn ? STAGING_BROKER_PORT_NUMBER_SSL : STAGING_BROKER_PORT_NUMBER); //staging ssl/non-ssl scenario
+		int whichServer = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PRODUCTION_HOST_TOGGLE, AccountUtils._STAGING_HOST);
+		if (whichServer == AccountUtils._CUSTOM_HOST)
+		{
+			setPort( HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.CUSTOM_MQTT_PORT, STAGING_BROKER_PORT_NUMBER) );
+		}
+		else
+		{
+			setPort(isSslOn ? STAGING_BROKER_PORT_NUMBER_SSL : STAGING_BROKER_PORT_NUMBER); //staging ssl/non-ssl scenario
+		}
 	}
 
 	private void setProductionPort(HostInfo previousHostInfo, boolean isSslOn)
