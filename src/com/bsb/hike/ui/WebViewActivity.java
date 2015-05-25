@@ -109,9 +109,14 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	{
 		super.onCreate(savedInstanceState);
 		setMode(getIntent().getIntExtra(WEBVIEW_MODE, WEB_URL_MODE));
+		initMsisdn();
 		if (mode == MICRO_APP_MODE)
 		{
-			getWindow().requestFeature(WindowCompat.FEATURE_ACTION_BAR_OVERLAY);
+			initBot();
+			if (botConfig.shouldOverlayActionBar())
+			{
+				getWindow().requestFeature(WindowCompat.FEATURE_ACTION_BAR_OVERLAY);
+			}
 		}
 		setContentView(R.layout.webview_activity);
 		initView();	
@@ -184,11 +189,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 
 	private void setMicroAppMode()
 	{
-		msisdn = getIntent().getStringExtra(HikeConstants.MSISDN);
-		if (msisdn == null)
-		{
-			throw new IllegalArgumentException("Seems You forgot to send msisdn of Bot my dear");
-		}
+		initMsisdn();
 		findViewById(R.id.progress).setVisibility(View.GONE);;
 		attachBridge();
 		initBot();
@@ -196,6 +197,15 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		setupNavBar();
 		setupTagPicker();
 		loadMicroApp();
+	}
+	
+	private void initMsisdn()
+	{
+		msisdn = getIntent().getStringExtra(HikeConstants.MSISDN);
+		if (msisdn == null)
+		{
+			throw new IllegalArgumentException("Seems You forgot to send msisdn of Bot my dear");
+		}
 	}
 
 	private void initBot()

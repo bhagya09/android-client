@@ -71,6 +71,7 @@ import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.MessagingBotConfiguration;
 import com.bsb.hike.bots.MessagingBotMetadata;
+import com.bsb.hike.bots.NonMessagingBotConfiguration;
 import com.bsb.hike.db.DBBackupRestore;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.HikeDialog;
@@ -1295,9 +1296,20 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
          */
         	if (botInfo.isNonMessagingBot())
         	{
-        		optionsList.add(getString(R.string.add_shortcut));
+        		NonMessagingBotConfiguration botConfig = new NonMessagingBotConfiguration(botInfo.getConfiguration());
         		
-        		optionsList.add(getString(R.string.delete_block));
+        		if (botConfig.isLongTapEnabled())
+        		{
+					if (botConfig.isAddShortCutEnabled())
+						optionsList.add(getString(R.string.add_shortcut));
+
+					if (botConfig.isDeleteAndBlockEnabled())
+						optionsList.add(getString(R.string.delete_block));
+
+					if (botConfig.isDeleteEnabled())
+						optionsList.add(getString(R.string.delete));
+        		}
+        		
         	}
         	
         	/**
@@ -1642,12 +1654,17 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 				
 				else if (getString(R.string.delete_block).equals(option))
 				{
-					onDeleteBlockClicked(conv);
+					onDeleteBotClicked(conv, true);
 				}
 				
 				else if (getString(R.string.add_shortcut).equals(option))
 				{
 					onAddShortcutClicked(conv);
+				}
+				
+				else if (getString(R.string.delete).equals(option))
+				{
+					onDeleteBotClicked(conv, false);
 				}
 			}
 		});	
@@ -1668,24 +1685,23 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		Utils.createShortcut(getSherlockActivity(), conv);
 	}
 
-	protected void onDeleteBlockClicked(final ConvInfo conv)
+	protected void onDeleteBotClicked(final ConvInfo conv, final boolean shouldBlock)
 	{
-		HikeDialogFactory.showDialog(getActivity(), HikeDialogFactory.DELETE_BLOCK, new HikeDialogListener()
+		HikeDialogFactory.showDialog(getActivity(), shouldBlock ? HikeDialogFactory.DELETE_BLOCK : HikeDialogFactory.DELETE_NON_MESSAGING_BOT, new HikeDialogListener()
 		{
 
 			@Override
 			public void positiveClicked(HikeDialog hikeDialog)
 			{
 				Utils.logEvent(getActivity(), HikeConstants.LogEvent.DELETE_CONVERSATION);
-				HikeMessengerApp.getPubSub().publish(HikePubSub.BLOCK_USER, conv.getMsisdn());
+				if (shouldBlock)
+				{
+					HikeMessengerApp.getPubSub().publish(HikePubSub.BLOCK_USER, conv.getMsisdn());
+					BotConversation.analyticsForBots(conv, HikePlatformConstants.BOT_DELETE_BLOCK_CHAT, AnalyticsConstants.CLICK_EVENT);
+				}
 				HikeMessengerApp.getPubSub().publish(HikePubSub.DELETE_THIS_CONVERSATION, conv);
 
 				hikeDialog.dismiss();
-
-				if (Utils.isBot(conv.getMsisdn()))
-				{
-					BotConversation.analyticsForBots(conv, HikePlatformConstants.BOT_DELETE_BLOCK_CHAT, AnalyticsConstants.CLICK_EVENT);
-				}
 			}
 
 			@Override
