@@ -36,6 +36,8 @@ public class NonMessagingBotConfiguration extends BotConfiguration
 	
 	public static final byte LONG_TAP = 3;
 	
+	public static final byte ACTION_BAR_OVERLAY = 4;
+	
 	/**
 	 * Bit positions end here.
 	 */
@@ -58,6 +60,11 @@ public class NonMessagingBotConfiguration extends BotConfiguration
 	public boolean isLongTapEnabled()
 	{
 		return isBitSet(LONG_TAP);
+	}
+	
+	public boolean shouldOverlayActionBar()
+	{
+		return isBitSet(ACTION_BAR_OVERLAY);
 	}
 	
 	public JSONObject getConfigData()
