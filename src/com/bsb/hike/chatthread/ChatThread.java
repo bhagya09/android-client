@@ -793,7 +793,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			{
 				ImageParser.parseResult(activity, resultCode, data, this);
 			}
-			if (resultCode == GalleryActivity.GALLERY_ACTIVITY_RESULT_CODE)
+			else if (resultCode == GalleryActivity.GALLERY_ACTIVITY_RESULT_CODE)
 			{
 				// This would be executed if photos is not enabled on the device
 				mConversationsView.requestFocusFromTouch();
