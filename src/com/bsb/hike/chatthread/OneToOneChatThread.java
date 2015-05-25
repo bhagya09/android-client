@@ -213,6 +213,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		List<OverFlowMenuItem> list = new ArrayList<OverFlowMenuItem>();
 		list.add(new OverFlowMenuItem(getString(R.string.view_profile), 0, 0, R.string.view_profile));
 		list.add(new OverFlowMenuItem(getString(R.string.chat_theme), 0, 0, R.string.chat_theme));
+		list.add(new OverFlowMenuItem(getString(R.string.search), 0, 0, R.string.search));
 		list.add(new OverFlowMenuItem(mConversation.isBlocked() ? getString(R.string.unblock_title) : getString(R.string.block_title), 0, 0, R.string.block_title));
 		
 		for (OverFlowMenuItem item : super.getOverFlowMenuItems())
@@ -1009,9 +1010,9 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	 * Overrides {@link ChatThread}'s {@link #setupActionBar()}, to set the last seen time
 	 */
 	@Override
-	protected void setupActionBar(boolean firstInflation)
+	protected void setupDefaultActionBar(boolean firstInflation)
 	{
-		super.setupActionBar(firstInflation);
+		super.setupDefaultActionBar(firstInflation);
 
 		setLabel(getConvLabel());
 		
@@ -2534,12 +2535,24 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			setEnabledH20NextButton(true);
 		}
 	}
-	
+
+	@Override
+	protected void setupSearchMode(String searchText)
+	{
+		if (messages.get(0).isBlockAddHeader())
+		{
+			messages.remove(0);
+			mAdapter.notifyDataSetChanged();
+		}
+		super.setupSearchMode(searchText);
+	}
+
 	@Override
 	protected void destroySearchMode()
 	{
 		super.destroySearchMode();
 		
+		addUnkownContactBlockHeader();
 		if (isH20TipShowing())
 		{
 			setEnabledH20NextButton(true);

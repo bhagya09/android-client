@@ -120,6 +120,7 @@ public class BotChatThread extends OneToOneChatThread
 		List<OverFlowMenuItem> list = new ArrayList<OverFlowMenuItem>();
 		list.add(new OverFlowMenuItem(getString(R.string.view_profile), 0, 0, R.string.view_profile));
 		list.add(new OverFlowMenuItem(getString(R.string.chat_theme), 0, 0, R.string.chat_theme));
+		list.add(new OverFlowMenuItem(getString(R.string.search), 0, 0, R.string.search));
 
 		/**
 		 * Blocking all bots except Team Hike and muting only cricket Bot.
