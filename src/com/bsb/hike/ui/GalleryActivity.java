@@ -473,6 +473,14 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 				ArrayList<GalleryItem> temp = new ArrayList<GalleryItem>(selectedGalleryItems.values());
 				
 				Bundle bundle = new Bundle();
+				
+				/**
+				 * Setting class loader due class not found exception on GalleryItem whie parcing
+				 * @link : http://stackoverflow.com/questions/28589509/android-e-parcel-class-not-found-when-unmarshalling-only-on-samsung-tab3
+				 * @see : http://stackoverflow.com/questions/13421582/parcelable-inside-bundle-which-is-added-to-parcel
+				 */
+				bundle.setClassLoader(GalleryItem.class.getClassLoader());
+				
 				bundle.putParcelableArrayList(HikeConstants.Extras.GALLERY_SELECTIONS, temp);
 				intent.putExtras(bundle);
 				
@@ -566,6 +574,15 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 				Bundle bundle = new Bundle();
 				ArrayList<GalleryItem> item = new ArrayList<GalleryItem>(1);
 				item.add(new GalleryItem(GalleryItem.CAMERA_TILE_ID, CAMERA_TILE, NEW_PHOTO, cameraFilename, 0));
+				
+				/**
+				 * Setting class loader due class not found exception on GalleryItem whie parcing
+				 * @link : http://stackoverflow.com/questions/28589509/android-e-parcel-class-not-found-when-unmarshalling-only-on-samsung-tab3
+				 * @see : http://stackoverflow.com/questions/13421582/parcelable-inside-bundle-which-is-added-to-parcel
+				 */
+				bundle.setClassLoader(GalleryItem.class.getClassLoader());
+				
+				
 				bundle.putParcelableArrayList(HikeConstants.Extras.GALLERY_SELECTIONS, item);
 				//Added to ensure delegate activity passes destination path to editer
 				bundle.putString(HikeConstants.HikePhotos.DESTINATION_FILENAME, cameraFilename); 
@@ -685,6 +702,13 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 					Toast.makeText(GalleryActivity.this, getResources().getString(R.string.file_expire), Toast.LENGTH_SHORT).show();
 					return;
 				}
+				
+				/**
+				 * Setting class loader due class not found exception on GalleryItem whie parcing
+				 * @link : http://stackoverflow.com/questions/28589509/android-e-parcel-class-not-found-when-unmarshalling-only-on-samsung-tab3
+				 * @see : http://stackoverflow.com/questions/13421582/parcelable-inside-bundle-which-is-added-to-parcel
+				 */
+				bundle.setClassLoader(GalleryItem.class.getClassLoader());
 				
 				bundle.putParcelableArrayList(HikeConstants.Extras.GALLERY_SELECTIONS, item);
 				intent.putExtras(bundle);

@@ -1818,7 +1818,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 					PendingIntent editorPendingIntent = PendingIntent.getActivity(HikeMessengerApp.getInstance().getApplicationContext(), RESULT_OK, picEditerIntent,PendingIntent.FLAG_UPDATE_CURRENT);
 					
 					// Open gallery
-					Intent galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(HomeActivity.this, false, true,true,true,null);
+					Intent galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(HomeActivity.this, false, true,true,true,false,null);
 					
 					startActivity(galleryPickerIntent);
 					

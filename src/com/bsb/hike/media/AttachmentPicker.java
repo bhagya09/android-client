@@ -47,6 +47,8 @@ public class AttachmentPicker extends OverFlowMenuLayout
 	public static final int CONTACT = 318;
 
 	public static final int LOCATOIN = 319;
+	
+	public static final int EDITOR = 320;
 
 	private boolean startRespectiveActivities;
 
