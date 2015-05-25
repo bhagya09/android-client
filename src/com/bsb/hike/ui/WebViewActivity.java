@@ -4,7 +4,6 @@ package com.bsb.hike.ui;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.text.TextUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -20,6 +19,7 @@ import android.net.MailTo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.view.WindowCompat;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
@@ -57,8 +57,8 @@ import com.bsb.hike.media.TagPicker.TagOnClickListener;
 import com.bsb.hike.models.WhitelistDomain;
 import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.bridge.IBridgeCallback;
 import com.bsb.hike.platform.bridge.NonMessagingJavaScriptBridge;
-import com.bsb.hike.platform.bridge.NonMessagingJavaScriptBridge.NonMessagingBridgeEvents;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformContent.EventCode;
 import com.bsb.hike.platform.content.PlatformContentListener;
@@ -71,7 +71,7 @@ import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.TagEditText.Tag;
 
 public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements OnInflateListener, OnClickListener, TagOnClickListener, OverflowItemClickListener,
-		OnDismissListener, OverflowViewListener, HikePubSub.Listener,NonMessagingBridgeEvents
+		OnDismissListener, OverflowViewListener, HikePubSub.Listener, IBridgeCallback
 {
 
 	private static final String tag = "WebViewActivity";
@@ -103,6 +103,8 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	private NonMessagingJavaScriptBridge mmBridge;
 	
 	private View actionBarView;
+	
+	private Menu mMenu;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -310,9 +312,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	
 	private void attachBridge()
 	{
-
-		 mmBridge =new NonMessagingJavaScriptBridge(this, webView, BotInfo.getBotInfoForBotMsisdn(msisdn));
-		 mmBridge.setEventsListener(this);
+		 mmBridge =new NonMessagingJavaScriptBridge(this, webView, BotInfo.getBotInfoForBotMsisdn(msisdn), this);
 		 webView.addJavascriptInterface(mmBridge, HikePlatformConstants.PLATFORM_BRIDGE_NAME);
 	}
 
@@ -414,6 +414,13 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			mActionBar.onCreateOptionsMenu(menu, R.menu.simple_overflow_menu, menuItemsList, this, this);
 			mActionBar.setOverflowViewListener(this);
 			mActionBar.setShouldAvoidDismissOnClick(true);
+			
+			if (menuItemsList == null || menuItemsList.isEmpty())
+			{
+				menu.findItem(R.id.overflow_menu).setVisible(false);
+			}
+			
+			this.mMenu = menu;
 
 			return true;
 		}
@@ -705,6 +712,25 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		secondaryWebView.setVisibility(View.GONE);
 		secondaryWebView = null;
 		
+	}
+
+	/**
+	 * This method is called on the UI thread. 
+	 * It is basically intended to show the overflow menu icon
+	 */
+	@Override
+	public void overflowMenuUpdated()
+	{
+		if (this.mMenu != null)
+		{
+			if (mMenu.findItem(R.id.overflow_menu) != null)
+			{
+				mMenu.findItem(R.id.overflow_menu).setVisible(true);
+				return;
+			}
+		}
+		
+		Logger.e(tag, "Either menu is null or could not find menu item");
 	}
 
 }

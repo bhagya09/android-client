@@ -1,10 +1,7 @@
 package com.bsb.hike.platform.bridge;
 
-import com.bsb.hike.modules.httpmgr.RequestToken;
-import com.bsb.hike.modules.httpmgr.exception.HttpException;
-import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
-import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
-import com.bsb.hike.modules.httpmgr.response.Response;
+import java.util.Iterator;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -21,13 +18,16 @@ import com.bsb.hike.bots.NonMessagingBotMetadata;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.modules.httpmgr.RequestToken;
+import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
+import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
+import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.voip.VoIPUtils;
-
-import java.util.Iterator;
 
 /**
  * API bridge that connects the javascript to the non-messaging Native environment. Make the instance of this class and add it as the
@@ -42,21 +42,19 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	
 	private static final int OPEN_FULL_PAGE = 111;
 	
-	public static interface NonMessagingBridgeEvents
-	{
-		public void openFullPage(String url);
-	}
+	private static final int SHOW_OVERFLOW_MENU = 112;
 	
 	private BotInfo mBotInfo;
 	
 	private static final String TAG  = "NonMessagingJavaScriptBridge";
 	
-	private NonMessagingBridgeEvents eventsListener;
+	private IBridgeCallback mCallback;
 	
-	public NonMessagingJavaScriptBridge(Activity activity, CustomWebView mWebView, BotInfo botInfo)
+	public NonMessagingJavaScriptBridge(Activity activity, CustomWebView mWebView, BotInfo botInfo, IBridgeCallback callback)
 	{
 		super(activity, mWebView);
 		this.mBotInfo = botInfo;
+		this.mCallback = callback;
 	}
 
 	@Override
@@ -291,6 +289,8 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			botConfig.replaceOverflowMenu(newMenuString);
 			mBotInfo.setConfigData(botConfig.getConfigData().toString());
 			HikeConversationsDatabase.getInstance().updateConfigData(mBotInfo.getMsisdn(), botConfig.getConfigData().toString());
+			
+			sendMessageToUiThread(SHOW_OVERFLOW_MENU, null);
 		}
 	}
 
@@ -436,36 +436,39 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	public void openFullPage(String url)
 	{
 		sendMessageToUiThread(OPEN_FULL_PAGE, url);
-		
 	}
 	
 	@Override
 	protected void handleUiMessage(Message msg)
 	{
-		switch(msg.what)
+		switch (msg.what)
 		{
 		case OPEN_FULL_PAGE:
 			String url = (String) msg.obj;
-			if(eventsListener!=null)
+			if (mCallback != null)
 			{
-				eventsListener.openFullPage(url);
-			}else{
+				mCallback.openFullPage(url);
+			}
+			else
+			{
 				super.openFullPage("", url);
 			}
 			break;
+
+		case SHOW_OVERFLOW_MENU:
+			if (mCallback != null)
+			{
+				mCallback.overflowMenuUpdated();
+			}
+			break;
+
 		default:
-				super.handleUiMessage(msg);
+			super.handleUiMessage(msg);
 		}
 	}
 	
-	public void setEventsListener(NonMessagingBridgeEvents eventsListener)
-	{
-		this.eventsListener = eventsListener;
-	}
-
-
 	/**
-	 *  Platform Bridge Version 1
+	 * Platform Bridge Version 1
 	 * call this function for any post call. The call is gonna be fire and forget. MicroApp will not receive any response as this
 	 * request is a fire and forget request.
 	 * @param functionId : function id to call back to the js.
