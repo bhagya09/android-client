@@ -4,7 +4,7 @@
     package="com.bsb.hike"
     android:installLocation="auto"
     android:versionCode="1206"
-    android:versionName="3.8.9.58.03.retrynotification" >
+    android:versionName="3.8.9.58.04.retrynotification" >
 
     <uses-sdk
         android:minSdkVersion="9"
