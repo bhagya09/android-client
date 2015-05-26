@@ -328,28 +328,6 @@ public class DownloadFileTask extends FileTransferBase
 						{
 							Logger.d(getClass().getSimpleName(), "FT Completed");
 							
-							if (hikeFile.getHikeFileType() == HikeFileType.IMAGE)
-							{
-								//Correct rotation
-								HikeHandlerUtil.getInstance().postRunnableWithDelay(new Runnable()
-								{
-									@Override
-									public void run()
-									{
-										try
-										{
-											Bitmap bmp = HikeBitmapFactory.decodeFile(mFile.getAbsolutePath());
-											Bitmap correctedBmp = Utils.getRotatedBitmap(mFile.getAbsolutePath(), bmp);
-											BitmapUtils.saveBitmapToFile(mFile, correctedBmp, CompressFormat.PNG, 100);
-										}
-										catch (IOException e)
-										{
-											e.printStackTrace();
-										}
-									}
-								}, 0);
-							}
-							
 							// Added sleep to complete the progress.
 							//TODO Need to remove sleep and implement in a better way to achieve the progress UX.
 							Thread.sleep(300);
@@ -413,9 +391,28 @@ public class DownloadFileTask extends FileTransferBase
 //			}
 		}
 		if (res == FTResult.SUCCESS)
+		{
 			res = closeStreams(raf, in);
+
+			// Correct image rotation
+			if (hikeFile.getHikeFileType() == HikeFileType.IMAGE)
+			{
+				try
+				{
+					Bitmap bmp = HikeBitmapFactory.decodeFile(mFile.getAbsolutePath());
+					Bitmap correctedBmp = Utils.getRotatedBitmap(mFile.getAbsolutePath(), bmp);
+					BitmapUtils.saveBitmapToFile(mFile, correctedBmp, CompressFormat.PNG, 100);
+				}
+				catch (IOException e)
+				{
+					e.printStackTrace();
+				}
+			}
+		}
 		else
+		{
 			closeStreams(raf, in);
+		}
 		return res;
 	}
 
