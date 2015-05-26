@@ -999,10 +999,20 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 			mAdapter.pauseSearch();
 		}
 		
-		if (tipType == ConversationTip.STEALTH_FTUE_TIP)
+		if (tipType == ConversationTip.STEALTH_REVEAL_TIP && tipView != null)
 		{
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF);
-			removeStealthConvTip();
+			StealthModeManager.getInstance().activate(false);
+			StealthModeManager.getInstance().ftuePending(false);
+			removeTipIfExists(tipType);
+		}
+		if (tipType == ConversationTip.STEALTH_HIDE_TIP && tipView != null)
+		{
+			StealthModeManager.getInstance().ftuePending(false);
+			removeTipIfExists(tipType);
+		}
+		if (showingWelcomeHikeConvTip)
+		{
+			removeTipIfExists(ConversationTip.WELCOME_HIKE_TIP);
 		}
 	}
 	
@@ -1637,22 +1647,26 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 
 	private void changeConversationsVisibility(int scrollToPosition)
 	{
-
+		// we do not animate removal of multiple chats, coz hidden chats outside visible list
+		// might duplicate once you move back to normal mode from hidden mode
 		if (!StealthModeManager.getInstance().isActive())
 		{
 			if(scrollToPosition < 0 )
 			{
+				// moving from hidden to normal mode without animation
 				mAdapter.removeStealthConversationsFromLists();
 			}
 			else
 			{
-				getListView().smoothScrollToPosition(scrollToPosition - getListView().getFirstVisiblePosition() + getOffsetForListHeader());
+				//hiding individual chat with animation
+				getListView().smoothScrollToPosition(scrollToPosition);
 				mAdapter.addItemsToAnimat(stealthConversations);
 			}
 			
 		}
 		else
 		{
+			//moving from normal to hidden mode with animation
 			mAdapter.addItemsToAnimat(stealthConversations);
 			mAdapter.addToLists(stealthConversations);
 		}
@@ -2246,19 +2260,16 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		}
 		else if (HikePubSub.STEALTH_MODE_TOGGLED.equals(type))
 		{
-			final int positionToScroll =  object == null ? -1 : (Integer) object;
-
 			if (!isAdded())
 			{
 				return;
 			}
-
 			getActivity().runOnUiThread(new Runnable()
 			{
 				@Override
 				public void run()
 				{
-					changeConversationsVisibility(positionToScroll);
+					changeConversationsVisibility(-1);
 				}
 			});
 		}
@@ -2515,7 +2526,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 			{
 				return;
 			} 	
-			ConvInfo convInfo = mConversationsByMSISDN.get((String)object); 
+			final ConvInfo convInfo = mConversationsByMSISDN.get((String)object); 
 			if(convInfo == null)
 			{
 				return;
@@ -2529,17 +2540,19 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 			{
 				convInfo.setStealth(true);
 				stealthConversations.add(convInfo);
-				if(!StealthModeManager.getInstance().isActive())
-				{
-					HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_MODE_TOGGLED, displayedConversations.indexOf(convInfo));
-				}
 			}
 			getActivity().runOnUiThread(new Runnable() {
 				
 				@Override
 				public void run() {
-					mAdapter.sortLists(mConversationsComparator);
+					// this is to show/remove the stealth badge
 					notifyDataSetChanged();
+					if(!StealthModeManager.getInstance().isActive() && convInfo.isStealth())
+					{
+						// the conversation is marked as stealth but is visible, even though stealth mode is inactive
+						// so we play animation here to slide out the chat
+						changeConversationsVisibility(displayedConversations.indexOf(convInfo));
+					}
 				}
 			});
 			
