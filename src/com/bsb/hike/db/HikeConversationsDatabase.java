@@ -2527,14 +2527,12 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				{
 					Logger.e(HikeConversationsDatabase.class.getName(), "Invalid JSON metadata", e);
 				}
-
 				return message;
 			}
-			return null;
 		} 
 		catch (Exception e) 
 		{
-			return null;
+			Logger.e(HikeConversationsDatabase.class.getName(), e.toString());
 		}
 		finally
 		{
@@ -2543,6 +2541,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				c.close();
 			}
 		}
+		return null;
 	}
  
 	/**
@@ -5099,7 +5098,10 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			{
 				lastConvMessage = Utils.makeConvMessage(msisdn, mContext.getString(R.string.start_new_chat), true, State.RECEIVED_READ);
 			}
-			lastConvMessage.setTimestamp((long) (System.currentTimeMillis()/1000));
+			else
+			{
+				lastConvMessage.setTimestamp((long) (System.currentTimeMillis()/1000));
+			}
 			
 			Conversation conv = addConversation(msisdn, true, null, null, lastConvMessage);
 			

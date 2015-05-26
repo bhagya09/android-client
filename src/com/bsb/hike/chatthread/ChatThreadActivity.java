@@ -90,7 +90,7 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 		Intent homeintent = IntentFactory.getHomeActivityIntent(this);
 		if(msisdn != null)
 		{
-			homeintent.putExtra(HikeConstants.MSISDN, msisdn);
+			homeintent.putExtra(HikeConstants.STEALTH_MSISDN, msisdn);
 		}
 		this.startActivity(homeintent);
 		this.finish();

@@ -3067,6 +3067,11 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 	@Override
 	public void onResume()
 	{
+		
+		if(getActivity().getIntent().hasExtra(HikeConstants.STEALTH_MSISDN))
+		{
+			StealthModeManager.getInstance().showLockPattern(getActivity().getIntent().getStringExtra(HikeConstants.STEALTH_MSISDN), getActivity());
+		}
 
 		SharedPreferences prefs = getActivity().getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
 		if (getActivity() == null && prefs.getInt(HikeConstants.HIKEBOT_CONV_STATE, 0) == hikeBotConvStat.VIEWED.ordinal())

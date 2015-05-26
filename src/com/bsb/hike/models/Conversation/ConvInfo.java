@@ -312,7 +312,7 @@ public class ConvInfo implements Comparable<ConvInfo>
 	{
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((msisdn == null) ? 0 : msisdn.hashCode());
+		result = prime * result + msisdn.hashCode();
 
 		return result;
 	}

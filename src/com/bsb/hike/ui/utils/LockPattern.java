@@ -151,9 +151,9 @@ public class LockPattern
 	
 	private static void markStealthMsisdn(Bundle stealthBundle)
 	{
-		if(stealthBundle != null && stealthBundle.containsKey(HikeConstants.MSISDN))
+		if(stealthBundle != null && stealthBundle.containsKey(HikeConstants.STEALTH_MSISDN))
 		{
-			String msisdn = stealthBundle.getString(HikeConstants.MSISDN);
+			String msisdn = stealthBundle.getString(HikeConstants.STEALTH_MSISDN);
 			StealthModeManager.getInstance().markStealthMsisdn(msisdn, true, true);
 		}
 	}

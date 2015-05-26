@@ -75,6 +75,7 @@ import com.bsb.hike.models.OverFlowMenuItem;
 import com.bsb.hike.models.Conversation.ConversationTip;
 import com.bsb.hike.modules.animationModule.HikeAnimationFactory;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.notifications.HikeNotificationMsgStack;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.snowfall.SnowFallView;
 import com.bsb.hike.tasks.DownloadAndInstallUpdateAsyncTask;
@@ -196,15 +197,15 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 		if (savedInstanceState != null && savedInstanceState.getBoolean(HikeConstants.Extras.CLEARED_OUT, false)) 
 		{
-			//this means that activity has been restarted after being destroyed 
+			//this means that singleTop activity has been re-spawned after being destroyed 
 			extrasClearedOut = true;
 		}
 		
 		if(extrasClearedOut)
 		{
-			//removing the EXTRA becoz every time a singleTop activity is respawned, 
+			//removing unwanted EXTRA becoz every time a singleTop activity is re-spawned, 
 			//android system uses the old intent to fire it, and it will contain unwanted extras.
-			getIntent().removeExtra(HikeConstants.MSISDN);
+			getIntent().removeExtra(HikeConstants.STEALTH_MSISDN);
 		}
 
 		if (Utils.requireAuth(this))
@@ -971,19 +972,25 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	{
 		Logger.d(TAG,"onResume");
 		super.onResume();
-		if(getIntent().hasExtra(HikeConstants.MSISDN))
-		{
-			//after showing the LockPatternActivity the extra is no longer needed, so clearing it out.
-			extrasClearedOut = true;
-			StealthModeManager.getInstance().showLockPattern(getIntent().getStringExtra(HikeConstants.MSISDN), this);
-			getIntent().removeExtra(HikeConstants.MSISDN);
-		}
-		checkNShowNetworkError();
-		HikeMessengerApp.getPubSub().publish(HikePubSub.CANCEL_ALL_NOTIFICATIONS, null);
+
 		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STEALTH_INDICATOR_ENABLED, false))
 		{
 			HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_INDICATOR, null);
 		}
+		checkNShowNetworkError();
+		HikeMessengerApp.getPubSub().publish(HikePubSub.CANCEL_ALL_NOTIFICATIONS, null);
+	}
+
+	@Override
+	protected void onPause()
+	{
+		if(getIntent().hasExtra(HikeConstants.STEALTH_MSISDN))
+		{
+			//after showing the LockPatternActivity in onResume of ConvFrag the extra is no longer needed, so clearing it out.
+			extrasClearedOut = true;
+			getIntent().removeExtra(HikeConstants.STEALTH_MSISDN);
+		}
+		super.onPause();
 	}
 
 	@Override
@@ -1019,6 +1026,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		outState.putInt(HikeConstants.Extras.FRIENDS_LIST_COUNT, friendsListCount);
 		outState.putInt(HikeConstants.Extras.HIKE_CONTACTS_COUNT, hikeContactsCount);
 		outState.putInt(HikeConstants.Extras.RECOMMENDED_CONTACTS_COUNT, recommendedCount);
+		//saving the extrasClearedOut value to be used in onCreate, in case the activity is destroyed and re-spawned using old Intent
 		outState.putBoolean(HikeConstants.Extras.CLEARED_OUT, extrasClearedOut);
 		super.onSaveInstanceState(outState);
 	}

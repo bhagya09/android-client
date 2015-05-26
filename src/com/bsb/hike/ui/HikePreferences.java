@@ -1392,6 +1392,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 					stealthNotificationEnabled.setChecked(stealthBundle.getBoolean(HikeConstants.STEALTH_NOTIFICATION_ENABLED)); 
 				}		
 			}
+			//TODO analytics for preference change
 		}
 		else
 		{

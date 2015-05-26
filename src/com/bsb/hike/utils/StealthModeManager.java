@@ -75,6 +75,7 @@ public class StealthModeManager
 		if(publish)
 		{
 			HikeMessengerApp.getPubSub().publish(markStealth? HikePubSub.STEALTH_DATABASE_MARKED : HikePubSub.STEALTH_DATABASE_UNMARKED, msisdn);
+			// TODO analytics, marking/unmarking chat as stealth
 		}
 	}
 
@@ -132,6 +133,7 @@ public class StealthModeManager
 		 {
 			 activate(false);
 		 }
+		 // TODO analytics setup / unsetup
 	}
 	
 	private void stealthFakeOn()
@@ -161,6 +163,7 @@ public class StealthModeManager
 		currentState = activate ? HikeConstants.STEALTH_ON : HikeConstants.STEALTH_OFF;
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STEALTH_MODE, currentState);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_MODE_TOGGLED, null);
+		// TODO analytics activates/deactivated
 	}
 	
 	public void resetPreferences()
@@ -188,7 +191,7 @@ public class StealthModeManager
 	public void showLockPattern(String msisdn, Activity activity)
 	{
 		Bundle stealthBundle = new Bundle();
-		stealthBundle.putString(HikeConstants.MSISDN, msisdn);
+		stealthBundle.putString(HikeConstants.STEALTH_MSISDN, msisdn);
 
 		if (!isSetUp())
 		{
@@ -278,6 +281,7 @@ public class StealthModeManager
 				}
 			}
 		}
+		//TODO anayltics if Hi button was pressed or not
 	}
 
 	public boolean isTipPersisted(int tipType)
@@ -326,6 +330,7 @@ public class StealthModeManager
 			break;
 		}
 		HikeMessengerApp.getPubSub().publish(makeTipVisible ? HikePubSub.SHOW_TIP : HikePubSub.REMOVE_TIP, tipType);
+		// TODO analytics tip close-show
 	}
 	
 	public void toggleConversation(String msisdn, boolean markStealth, Activity activity) 
@@ -345,6 +350,7 @@ public class StealthModeManager
 				showLockPattern(msisdn, activity);
 			}
 		}
+		//TODO analytics activity defines MH 1/0, MV 1/0, HC 1/0,[1/0 - inside/outside]
 	}
 
 	public void usePinAsPassword(boolean usePin) 

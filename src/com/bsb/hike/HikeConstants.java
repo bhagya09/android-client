@@ -455,6 +455,8 @@ public class HikeConstants
 
 	public static final String STEALTH_PERF_SETTING = "steathPerfCategory";
 
+	public static final String STEALTH_MSISDN = "stealthMsisdn";
+
 	public static final String SEND_UNDELIVERED_AS_NATIVE_PREF = "sendUndeliveredAsNativePref";
 
 	public static final String SEND_UNDELIVERED_ALWAYS_AS_SMS_PREF = "sendUndeliveredAlwaysAsSmsPref";
