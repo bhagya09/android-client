@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import com.bsb.hike.platform.PlatformUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -1699,7 +1700,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 					HikeMessengerApp.getPubSub().publish(HikePubSub.BLOCK_USER, conv.getMsisdn());
 					BotConversation.analyticsForBots(conv, HikePlatformConstants.BOT_DELETE_BLOCK_CHAT, AnalyticsConstants.CLICK_EVENT);
 				}
-				HikeMessengerApp.getPubSub().publish(HikePubSub.DELETE_THIS_CONVERSATION, conv);
+				PlatformUtils.deleteBotConversation(conv.getMsisdn());
 
 				hikeDialog.dismiss();
 			}
@@ -2111,6 +2112,18 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		else if (HikePubSub.NEW_CONVERSATION.equals(type))
 		{
 			final ConvInfo convInfo = (ConvInfo) object;
+			if (convInfo == null)
+			{
+				Logger.e(ConversationFragment.class.getSimpleName(), "convInfo is null");
+				return;
+			}
+
+			if (mConversationsByMSISDN.containsKey(convInfo.getMsisdn()))
+			{
+				Logger.e(ConversationFragment.class.getSimpleName(), "conversation already exists");
+				return;
+			}
+
 			if (HikeMessengerApp.hikeBotNamesMap.containsKey(convInfo.getMsisdn()))
 			{
 				convInfo.setmConversationName(HikeMessengerApp.hikeBotNamesMap.get(convInfo.getMsisdn()).getConversationName());
