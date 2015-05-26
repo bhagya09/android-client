@@ -23,6 +23,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Message;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
@@ -68,8 +69,8 @@ import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
-import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.FtueContactsData;
+import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.OverFlowMenuItem;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
@@ -170,6 +171,13 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	
 	private static final String TAG = "HomeActivity";
 	
+	// Declare all Handler Msg Id here
+	
+	protected static final int FESTIVE_POPUP = -101;
+
+	protected static final int SHOW_OVERFLOW_INDICATOR = -102;
+
+	protected static final int SHOW_RECENTLY_JOINED_INDICATOR = -103;
 	private static byte OVERFLOW_MENU_STATE = -1;
 	
 	private static final byte OVERFLOW_MENU_TYPE_3DOT = 0;
@@ -224,6 +232,85 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		}
 		
 		showProductPopup(ProductPopupsConstants.PopupTriggerPoints.HOME_SCREEN.ordinal());
+	
+	}
+	
+	@Override
+	public void handleUIMessage(Message msg)
+	{
+		switch (msg.what)
+		{
+		case FESTIVE_POPUP:
+			startFestivePopup(msg.arg1);
+			break;
+		case SHOW_OVERFLOW_INDICATOR:
+			showOverFlowIndicator(msg.arg1);
+			break;
+		case SHOW_RECENTLY_JOINED_INDICATOR:
+			showRecentlyJoinedDot();
+			break;
+		default:
+			super.handleUIMessage(msg);
+			break;
+		}
+
+	}
+
+	private void startFestivePopup(int type)
+	{
+		snowFallView = FestivePopup.startAndSetSnowFallView(HomeActivity.this, type, false);
+	}
+	
+	private void showRecentlyJoinedDot()
+	{
+		// Defensive check for case where newConversationIndicator was coming as null. Possible due to the various if..else conditions for newConversationIndicator initialisation.
+		if(newConversationIndicator == null)
+			return;
+		
+		boolean showNujNotif = PreferenceManager.getDefaultSharedPreferences(HomeActivity.this).getBoolean(HikeConstants.NUJ_NOTIF_BOOLEAN_PREF, true);
+		if (showNujNotif && accountPrefs.getBoolean(HikeConstants.SHOW_RECENTLY_JOINED_DOT, false))
+		{
+			newConversationIndicator.setText("1");
+			newConversationIndicator.setVisibility(View.VISIBLE);
+			newConversationIndicator.startAnimation(Utils.getNotificationIndicatorAnim());
+		}
+		else if (photosEnabled && accountPrefs.getBoolean(HikeConstants.SHOW_PHOTOS_RED_DOT, true))
+		{
+			newConversationIndicator.setText("1");
+			newConversationIndicator.setVisibility(View.VISIBLE);
+			newConversationIndicator.startAnimation(Utils.getNotificationIndicatorAnim());
+		}
+		else
+		{
+			newConversationIndicator.setVisibility(View.GONE);
+		}
+	}
+	
+	private void showOverFlowIndicator(int count)
+	{
+		if (topBarIndicator != null)
+		{
+			/*
+			 * Fetching the count again since it could have changed after the delay. 
+			 */
+			int newCount = getHomeOverflowCount(accountPrefs, false, false);
+			if (newCount < 1)
+			{
+				topBarIndicator.setVisibility(View.GONE);
+			}
+			else if (newCount > 9)
+			{
+				topBarIndicator.setVisibility(View.VISIBLE);
+				topBarIndicator.setText("9+");
+				topBarIndicator.startAnimation(Utils.getNotificationIndicatorAnim());
+			}
+			else if (newCount > 0)
+			{
+				topBarIndicator.setVisibility(View.VISIBLE);
+				topBarIndicator.setText(String.valueOf(count));
+				topBarIndicator.startAnimation(Utils.getNotificationIndicatorAnim());
+			}
+		}
 	}
 
 	private void setupActionBar()
@@ -349,15 +436,11 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 		if(snowFallView == null)
 		{
-			mHandler.postDelayed(new Runnable()
-			{
-
-				@Override
-				public void run()
-				{
-					snowFallView = FestivePopup.startAndSetSnowFallView(HomeActivity.this, type, false);
-				}
-			}, 300);
+			Message msg = Message.obtain();
+			msg.arg1 = type;
+			msg.what = FESTIVE_POPUP;
+			uiHandler.sendMessageDelayed(msg, 300);
+			
 		}
 	}
 
@@ -1368,37 +1451,10 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		}
 		else
 		{
-			mHandler.postDelayed(new Runnable()
-			{
-
-				@Override
-				public void run()
-				{
-					if (topBarIndicator != null)
-					{
-						/*
-						 * Fetching the count again since it could have changed after the delay. 
-						 */
-						int newCount = getHomeOverflowCount(accountPrefs, false, false);
-						if (newCount < 1)
-						{
-							topBarIndicator.setVisibility(View.GONE);
-						}
-						else if (newCount > 9)
-						{
-							topBarIndicator.setVisibility(View.VISIBLE);
-							topBarIndicator.setText("9+");
-							topBarIndicator.startAnimation(Utils.getNotificationIndicatorAnim());
-						}
-						else if (newCount > 0)
-						{
-							topBarIndicator.setVisibility(View.VISIBLE);
-							topBarIndicator.setText(String.valueOf(count));
-							topBarIndicator.startAnimation(Utils.getNotificationIndicatorAnim());
-						}
-					}
-				}
-			}, delayTime);
+			Message msg = Message.obtain();
+			msg.what = SHOW_OVERFLOW_INDICATOR;
+			msg.arg1 = count;
+			uiHandler.sendMessageDelayed(msg, delayTime);
 		}
 
 	}
@@ -2058,34 +2114,9 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	
 	public void showRecentlyJoinedDot(int delayTime)
 	{
-		mHandler.postDelayed(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				// Defensive check for case where newConversationIndicator was coming as null. Possible due to the various if..else conditions for newConversationIndicator initialisation.
-				if(newConversationIndicator == null)
-					return;
-				
-				boolean showNujNotif = PreferenceManager.getDefaultSharedPreferences(HomeActivity.this).getBoolean(HikeConstants.NUJ_NOTIF_BOOLEAN_PREF, true);
-				if (showNujNotif && accountPrefs.getBoolean(HikeConstants.SHOW_RECENTLY_JOINED_DOT, false))
-				{
-					newConversationIndicator.setText("1");
-					newConversationIndicator.setVisibility(View.VISIBLE);
-					newConversationIndicator.startAnimation(Utils.getNotificationIndicatorAnim());
-				}
-				else if (photosEnabled && accountPrefs.getBoolean(HikeConstants.SHOW_PHOTOS_RED_DOT, true))
-				{
-					newConversationIndicator.setText("1");
-					newConversationIndicator.setVisibility(View.VISIBLE);
-					newConversationIndicator.startAnimation(Utils.getNotificationIndicatorAnim());
-				}
-				else
-				{
-					newConversationIndicator.setVisibility(View.GONE);
-				}
-			}
-		}, delayTime);
+		Message msg = Message.obtain();
+		msg.what = SHOW_RECENTLY_JOINED_INDICATOR;
+		uiHandler.sendMessageDelayed(msg, delayTime);
 	}
 
 	public void hikeLogoClicked()
