@@ -469,11 +469,12 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	
 	/**
 	 * Platform Bridge Version 1
-	 * call this function for any post call. The call is gonna be fire and forget. MicroApp will not receive any response as this
-	 * request is a fire and forget request.
+	 * call this function for any post call.
 	 * @param functionId : function id to call back to the js.
 	 * @param url: the url that will be called.
 	 * @param params: the push params to be included in the body.
+	 * Success: callbackFromNative(functionId, Success #(version code))
+	 * Failure: callbackFromNative(functionId, Failure http error message)
 	 */
 	@JavascriptInterface
 	public void doPostRequest(final String functionId, String url, String params)
