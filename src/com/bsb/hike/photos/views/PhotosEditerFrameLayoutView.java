@@ -194,7 +194,6 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 
 		if (compressOutput && HikePhotosUtils.getBitmapArea(imageOriginal) > HikeConstants.HikePhotos.MAXIMUM_ALLOWED_IMAGE_AREA)
 		{
-			compressOutput = false;
 			imageOriginal = HikePhotosUtils.compressBitamp(imageOriginal, HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX, HikeConstants.MAX_DIMENSION_LOW_FULL_SIZE_PX, true);
 		}
 	}
@@ -292,22 +291,12 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 		{
 			try
 			{
-				if (!isImageEdited() )
+				if (!isImageEdited() && !compressOutput)
 				{
-					if(compressOutput)
-					{
-						String timeStamp = Long.toString(System.currentTimeMillis());
-						file = File.createTempFile("IMG_" + timeStamp, ".jpg");
-						file.deleteOnExit();
-					}
-					else
-					{
-						file = new File(mOriginalName);
-						returnResult(file);
-						return;
-					}
+					file = new File(mOriginalName);
+					returnResult(file);
+					return;
 				}
-				
 				else
 				{
 					file = new File(mDestinationFilename);
