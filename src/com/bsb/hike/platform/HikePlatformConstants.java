@@ -54,7 +54,6 @@ public interface HikePlatformConstants
 	public static final String PLATFORM_UID_FETCH_TAG = "platformUID";
 	public static final String CONTENT_ID = "content_id";
 	public static final String NAMESPACE = "nameSpace";
-	public static final String URL = "url";
 	public static final String PARAMS = "params";
 
 	public static final class PlatformUIDFetchType
