@@ -223,6 +223,7 @@ public class BotInfo extends ConvInfo
 		this.namespace = builder.namespace;
 		this.notifData = builder.notifData;
 		this.helperData = builder.helperData;
+		this.setOnHike(true);
 	}
 
 	public static BotInfo getBotInfoForBotMsisdn(String msisdn)
