@@ -380,7 +380,7 @@ public class ConversationTip implements OnClickListener
 			case STEALTH_REVEAL_TIP:
 			case STEALTH_HIDE_TIP:
 			case STEALTH_FTUE_TIP:
-				HikeMessengerApp.getPubSub().publish(HikePubSub.REMOVE_TIP, tipType);
+				StealthModeManager.getInstance().setTipVisibility(false, tipType);
 				StealthModeManager.getInstance().ftuePending(false);
 				break;
 				

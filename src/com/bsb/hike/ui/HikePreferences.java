@@ -725,7 +725,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 				preference.setTitle(R.string.reset_complete_stealth_header);
 				preference.setSummary(R.string.reset_complete_stealth_info);
 
-				HikeMessengerApp.getPubSub().publish(HikePubSub.REMOVE_TIP, ConversationTip.RESET_STEALTH_TIP);
+				StealthModeManager.getInstance().setTipVisibility(false, ConversationTip.RESET_STEALTH_TIP);
 
 				try
 				{
@@ -754,7 +754,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 					{
 						HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.RESET_COMPLETE_STEALTH_START_TIME, System.currentTimeMillis());
 
-						HikeMessengerApp.getPubSub().publish(HikePubSub.SHOW_TIP, ConversationTip.RESET_STEALTH_TIP);
+						StealthModeManager.getInstance().setTipVisibility(true, ConversationTip.RESET_STEALTH_TIP);
 
 						preference.setTitle(R.string.resetting_complete_stealth_header);
 						preference.setSummary(R.string.resetting_complete_stealth_info);

@@ -56,10 +56,10 @@ public class LockPattern
 				if (!isReset)
 				{
 					if(requestCode == HikeConstants.ResultCodes.CREATE_LOCK_PATTERN)
-						HikeMessengerApp.getPubSub().publish(HikePubSub.SHOW_TIP, ConversationTip.STEALTH_FTUE_TIP);
+						StealthModeManager.getInstance().setTipVisibility(true,  ConversationTip.STEALTH_FTUE_TIP);
 					else if (requestCode == HikeConstants.ResultCodes.CREATE_LOCK_PATTERN_HIDE_CHAT)
 					{
-						HikeMessengerApp.getPubSub().publish(HikePubSub.SHOW_TIP, ConversationTip.STEALTH_REVEAL_TIP);
+						StealthModeManager.getInstance().setTipVisibility(true,  ConversationTip.STEALTH_REVEAL_TIP);
 						markStealthMsisdn(data.getExtras());
 					}
 					

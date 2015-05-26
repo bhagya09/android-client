@@ -54,7 +54,7 @@ public class StealthModeManager
 	{
 		stealthMsisdn = new HashSet<String>();
 		HikeConversationsDatabase.getInstance().addStealthMsisdnToMap();
-		HikeSharedPreferenceUtil.getInstance().removeData(HikeMessengerApp.SHOWING_STEALTH_FTUE_CONV_TIP);
+		setTipVisibility(false, ConversationTip.STEALTH_FTUE_TIP);
 		activate(false);
 	}
 
@@ -88,7 +88,7 @@ public class StealthModeManager
 		return stealthMsisdn.contains(msisdn);
 	}
 
-	private void resetStealthToggle()
+	private void resetStealthToggleTimer()
 	{
 		clearScheduledStealthToggleTimer();
 		String stealthTimeOut = PreferenceManager.getDefaultSharedPreferences(HikeMessengerApp.getInstance().getApplicationContext()).getString(HikeConstants.CHANGE_STEALTH_TIMEOUT, DEFAULT_RESET_TOGGLE_TIME);
@@ -203,7 +203,7 @@ public class StealthModeManager
 			}
 			else
 			{
-				HikeMessengerApp.getPubSub().publish(HikePubSub.SHOW_TIP, ConversationTip.STEALTH_REVEAL_TIP);
+				setTipVisibility(true, ConversationTip.STEALTH_REVEAL_TIP);
 				markStealthMsisdn(msisdn, true, true);
 			}
 		}
@@ -212,24 +212,40 @@ public class StealthModeManager
 
 	public void toggleActionTriggered(Activity activity)
 	{
+
+		if (isTipPersisted(ConversationTip.STEALTH_UNREAD_TIP))
+		{
+			setTipVisibility(false, ConversationTip.STEALTH_UNREAD_TIP);
+		}
+
 		if (!isSetUp())
 		{
-			if (!HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOW_STEALTH_INFO_TIP, false))
+			if (!isTipPersisted(ConversationTip.STEALTH_INFO_TIP))
 			{
-				HikeMessengerApp.getPubSub().publish(HikePubSub.SHOW_TIP, ConversationTip.STEALTH_INFO_TIP);
+				setTipVisibility(true, ConversationTip.STEALTH_INFO_TIP);
 				return;
+			}
+			else
+			{
+				setTipVisibility(false, ConversationTip.STEALTH_INFO_TIP);
 			}
 			ftuePending(true);
 			LockPattern.createNewPattern(activity, false, HikeConstants.ResultCodes.CREATE_LOCK_PATTERN);
 		}
 		else
 		{
+
+			if (isTipPersisted(ConversationTip.STEALTH_FTUE_TIP) && !isFtueDone())
+			{
+				return;
+			}
+
 			if (!isActive())
 			{
 				//if FTUE is not setup, show the HIDE TIP after removing REVEAL TIP
 				if(!isFtueDone())
 				{
-					HikeMessengerApp.getPubSub().publish(HikePubSub.SHOW_TIP, ConversationTip.STEALTH_HIDE_TIP);
+					setTipVisibility(true, ConversationTip.STEALTH_HIDE_TIP);
 					activate(true);
 					ftuePending(false);
 				}
@@ -247,7 +263,7 @@ public class StealthModeManager
 			}
 			else
 			{
-				HikeMessengerApp.getPubSub().publish(HikePubSub.REMOVE_TIP, ConversationTip.STEALTH_HIDE_TIP);
+				setTipVisibility(false,ConversationTip.STEALTH_HIDE_TIP);
 				activate(false);
 
 				try
@@ -264,12 +280,59 @@ public class StealthModeManager
 		}
 	}
 
+	public boolean isTipPersisted(int tipType)
+	{
+		HikeSharedPreferenceUtil mPrefs = HikeSharedPreferenceUtil.getInstance();
+		switch (tipType)
+		{
+		case ConversationTip.STEALTH_FTUE_TIP:
+			return mPrefs.getData(HikeMessengerApp.SHOWING_STEALTH_FTUE_CONV_TIP, false);
+		case ConversationTip.STEALTH_INFO_TIP:
+			return mPrefs.getData(HikeMessengerApp.SHOW_STEALTH_INFO_TIP, false);
+		case ConversationTip.STEALTH_UNREAD_TIP:
+			return mPrefs.getData(HikeMessengerApp.SHOW_STEALTH_UNREAD_TIP, false);
+		default: 
+			break;
+		}
+		return false;
+	}
+	
+	public void closingConversationScreen(int tipType)
+	{
+		if (tipType == ConversationTip.STEALTH_REVEAL_TIP || tipType == ConversationTip.STEALTH_HIDE_TIP)
+		{
+			if(tipType == ConversationTip.STEALTH_REVEAL_TIP)
+			{
+				// not sure if it is needed
+				activate(false);
+			}
+			ftuePending(false);
+			setTipVisibility(false, tipType);
+		}
+	}
+	
+	public void setTipVisibility(boolean makeTipVisible, int tipType)
+	{
+		HikeSharedPreferenceUtil mPrefs = HikeSharedPreferenceUtil.getInstance();
+		switch (tipType)
+		{
+		case ConversationTip.STEALTH_FTUE_TIP:
+			mPrefs.saveData(HikeMessengerApp.SHOWING_STEALTH_FTUE_CONV_TIP, makeTipVisible && isSetUp());
+			break;
+		case ConversationTip.STEALTH_INFO_TIP:
+			mPrefs.saveData(HikeMessengerApp.SHOW_STEALTH_INFO_TIP, makeTipVisible && !isSetUp());
+			break;
+		default: 
+			break;
+		}
+		HikeMessengerApp.getPubSub().publish(makeTipVisible ? HikePubSub.SHOW_TIP : HikePubSub.REMOVE_TIP, tipType);
+	}
+	
 	public void toggleConversation(String msisdn, boolean markStealth, Activity activity) 
  	{
 
-		HikeMessengerApp.getPubSub().publish(HikePubSub.REMOVE_TIP, ConversationTip.STEALTH_INFO_TIP);
-		HikeSharedPreferenceUtil.getInstance().removeData(HikeMessengerApp.SHOWING_STEALTH_FTUE_CONV_TIP);
-		HikeMessengerApp.getPubSub().publish(HikePubSub.REMOVE_TIP, ConversationTip.STEALTH_FTUE_TIP);
+		setTipVisibility(false, ConversationTip.STEALTH_INFO_TIP);
+		setTipVisibility(false, ConversationTip.STEALTH_FTUE_TIP);
 
 		if(isActive())
 		{
@@ -299,10 +362,10 @@ public class StealthModeManager
 
 		if (appBackgrounded)
 		{
-			if(!isFtueDone() || HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOWING_STEALTH_FTUE_CONV_TIP, false))
+			if(!isFtueDone() || isTipPersisted(ConversationTip.STEALTH_FTUE_TIP))
 			{
 				activate(false);
-				HikeSharedPreferenceUtil.getInstance().removeData(HikeMessengerApp.SHOWING_STEALTH_FTUE_CONV_TIP);
+				setTipVisibility(false, ConversationTip.STEALTH_FTUE_TIP);
 				ftuePending(false);
 			}
 		}
@@ -311,7 +374,7 @@ public class StealthModeManager
 		{
 			if (appBackgrounded)
 			{
-				resetStealthToggle();
+				resetStealthToggleTimer();
 			}
 			else
 			{
