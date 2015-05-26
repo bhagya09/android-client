@@ -3065,10 +3065,7 @@ public class MqttMessagesManager
 		{
 			return;
 		}
-		convDb.deleteConversation(msisdn);
-		HikeMessengerApp.hikeBotNamesMap.remove(msisdn);
-		ContactManager.getInstance().removeIcon(msisdn);
-		convDb.deleteBot(msisdn);
+		PlatformUtils.deleteBotConversation(msisdn);
 	}
 
 	public void createBot(JSONObject jsonObj)

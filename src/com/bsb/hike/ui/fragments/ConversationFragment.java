@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import com.bsb.hike.platform.PlatformUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -1699,7 +1700,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 					HikeMessengerApp.getPubSub().publish(HikePubSub.BLOCK_USER, conv.getMsisdn());
 					BotConversation.analyticsForBots(conv, HikePlatformConstants.BOT_DELETE_BLOCK_CHAT, AnalyticsConstants.CLICK_EVENT);
 				}
-				HikeMessengerApp.getPubSub().publish(HikePubSub.DELETE_THIS_CONVERSATION, conv);
+				PlatformUtils.deleteBotConversation(conv.getMsisdn());
 
 				hikeDialog.dismiss();
 			}

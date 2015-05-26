@@ -2162,6 +2162,11 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				mDb.delete(DBConstants.GROUP_INFO_TABLE, DBConstants.GROUP_ID + " =?", new String[] { msisdn });
 				removeChatThemeForMsisdn(msisdn);
 			}
+
+			if(Utils.isBot(msisdn))
+			{
+				deleteBot(msisdn);
+			}
 			mDb.setTransactionSuccessful();
 		}
 		finally
