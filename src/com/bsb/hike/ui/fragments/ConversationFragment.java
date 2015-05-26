@@ -2111,6 +2111,18 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		else if (HikePubSub.NEW_CONVERSATION.equals(type))
 		{
 			final ConvInfo convInfo = (ConvInfo) object;
+			if (convInfo == null)
+			{
+				Logger.e(ConversationFragment.class.getSimpleName(), "convInfo is null");
+				return;
+			}
+
+			if (mConversationsByMSISDN.containsKey(convInfo.getMsisdn()))
+			{
+				Logger.e(ConversationFragment.class.getSimpleName(), "conversation already exists");
+				return;
+			}
+
 			if (HikeMessengerApp.hikeBotNamesMap.containsKey(convInfo.getMsisdn()))
 			{
 				convInfo.setmConversationName(HikeMessengerApp.hikeBotNamesMap.get(convInfo.getMsisdn()).getConversationName());
