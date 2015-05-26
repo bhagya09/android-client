@@ -400,16 +400,8 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 			case RESULT_CANCELED:
 				//The user returned from crop...deleting temporary profile image if created
 				String directory = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
-				/*
-				 * Making sure the directory exists before setting a profile image
-				 */
-				File dir = new File(directory);
-				if (!dir.exists())
-				{
-					dir.mkdirs();
-				}
 				String fileName = Utils.getTempProfileImageFileName(mLocalMSISDN);
-				final String destFilePath = directory + "/" + fileName;
+				final String destFilePath = directory + File.separator + fileName;
 				File temp = new File(destFilePath);
 				if(temp.exists())
 				{

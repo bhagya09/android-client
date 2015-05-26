@@ -339,7 +339,7 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 			}
 
 			String fileName = Utils.getTempProfileImageFileName(mOriginalName);
-			final String destFilePath = directory + "/" + fileName;
+			final String destFilePath = directory + File.separator + fileName;
 			file = new File(destFilePath);
 		}
 
