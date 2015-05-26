@@ -1,10 +1,7 @@
 package com.bsb.hike.ui;
 
 import java.io.File;
-
-import java.net.URI;
 import java.util.ArrayList;
-
 import java.util.Calendar;
 import java.util.HashMap;
 
@@ -22,7 +19,6 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
 import android.net.Uri;
@@ -59,7 +55,6 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.ImageView.ScaleType;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
@@ -77,12 +72,8 @@ import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.http.HikeHttpRequest;
 import com.bsb.hike.http.HikeHttpRequest.RequestType;
 import com.bsb.hike.models.Birthday;
-import com.bsb.hike.models.HikeFile.HikeFileType;
-import com.bsb.hike.modules.httpmgr.RequestToken;
-import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.models.GalleryItem;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
-import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
-import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.tasks.FinishableEvent;
 import com.bsb.hike.tasks.HikeHTTPTask;
 import com.bsb.hike.tasks.SignupTask;
@@ -827,8 +818,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 					@Override
 					public void onClick(View v)
 					{
-						String msisdn = accountPrefs.getString(HikeMessengerApp.MSISDN_SETTING, null);
-						showProfileImageEditDialog(SignupActivity.this, SignupActivity.this, msisdn, null);
+						selectNewProfilePicture(SignupActivity.this, false);
 					}
 				});
 			}
@@ -867,8 +857,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 				@Override
 				public void onClick(View v)
 				{
-					String msisdn = accountPrefs.getString(HikeMessengerApp.MSISDN_SETTING, null);
-					showProfileImageEditDialog(SignupActivity.this, SignupActivity.this, msisdn, null);
+					selectNewProfilePicture(SignupActivity.this, false);
 				}
 			});
 		}
@@ -2369,6 +2358,26 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		}
 
 	}
+	
+	@Override
+	protected String getNewProfileImagePath()
+	{
+		String directory = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
+		/*
+		 * Making sure the directory exists before setting a profile image
+		 */
+		File dir = new File(directory);
+
+		if (!dir.exists())
+		{
+			dir.mkdirs();
+		}
+
+		String fileName = Utils.getTempProfileImageFileName(accountPrefs.getString(HikeMessengerApp.MSISDN_SETTING, ""));
+		String destFilePath = directory + File.separator + fileName;
+		return destFilePath;
+
+	}
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data)
@@ -2379,138 +2388,10 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 			return;
 		}
 
-		/*Session session = Session.getActiveSession();
-		if (session != null)
-		{
-			session.onActivityResult(this, requestCode, resultCode, data);
-		}
-		if (fbClicked)
-		{
-			onFacebookConnectClick(null);
-			fbAuthing = false;
-		}*/
-
-		File selectedFileIcon;
-		boolean isPicasaImage = false;
-		Uri selectedFileUri = null;
-
-		String directory = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
-		String fileName = Utils.getTempProfileImageFileName(accountPrefs.getString(HikeMessengerApp.MSISDN_SETTING, ""));
-		final String destFilePath = directory + "/" + fileName;
-
 		switch (requestCode)
 		{
-		case HikeConstants.CAMERA_RESULT:
-			/* fall-through on purpose */
-		case HikeConstants.GALLERY_RESULT:
-			Logger.d("ProfileActivity", "The activity is " + this);
-			if (requestCode == HikeConstants.CAMERA_RESULT)
-			{
-				String filePath = accountPrefs.getString(HikeMessengerApp.FILE_PATH, "");
-				selectedFileIcon = new File(filePath);
 
-				/*
-				 * Removing this key. We no longer need this.
-				 */
-				Editor editor = accountPrefs.edit();
-				editor.remove(HikeMessengerApp.FILE_PATH);
-				editor.commit();
-				if (!selectedFileIcon.exists())
-				{
-					Toast.makeText(getApplicationContext(), R.string.error_capture, Toast.LENGTH_SHORT).show();
-					return;
-				}
-				else
-				{
-					path = selectedFileIcon.getAbsolutePath();
-				}
-			}
-			else
-			{
-				if (data == null)
-				{
-					Toast.makeText(getApplicationContext(), R.string.error_capture, Toast.LENGTH_SHORT).show();
-					return;
-				}
-				selectedFileUri = data.getData();
-				if (Utils.isPicasaUri(selectedFileUri.toString()))
-				{
-					isPicasaImage = true;
-					path = Utils.getOutputMediaFile(HikeFileType.PROFILE, null, false).getAbsolutePath();
-				}
-				else
-				{
-					String fileUriStart = "file://";
-					String fileUriString = selectedFileUri.toString();
-					if (fileUriString.startsWith(fileUriStart))
-					{
-						selectedFileIcon = new File(URI.create(Utils.replaceUrlSpaces(fileUriString)));
-						/*
-						 * Done to fix the issue in a few Sony devices.
-						 */
-						path = selectedFileIcon.getAbsolutePath();
-					}
-					else
-					{
-						path = Utils.getRealPathFromUri(selectedFileUri, this);
-					}
-				}
-			}
-			if (TextUtils.isEmpty(path))
-			{
-				Toast.makeText(getApplicationContext(), R.string.error_capture, Toast.LENGTH_SHORT).show();
-				return;
-			}
-			if (!isPicasaImage)
-			{
-				Utils.startCropActivity(this, path, destFilePath);
-			}
-			else
-			{
-				final File destFile = new File(path);
-				downloadImage(destFile, selectedFileUri, new ImageDownloadResult()
-				{
-
-					@Override
-					public void downloadFinished(boolean result)
-					{
-						runOnUiThread(new Runnable()
-						{
-
-							@Override
-							public void run()
-							{
-								if (dialog != null)
-								{
-									dialog.dismiss();
-									dialog = null;
-								}
-							}
-						});
-						mActivityState = new ActivityState();
-						if (!result)
-						{
-							runOnUiThread(new Runnable()
-							{
-
-								@Override
-								public void run()
-								{
-									Toast.makeText(getApplicationContext(), R.string.error_download, Toast.LENGTH_SHORT).show();
-								}
-							});
-						}
-						else
-						{
-							Utils.startCropActivity(SignupActivity.this, destFile.getAbsolutePath(), destFilePath);
-						}
-					}
-				});
-
-				dialog = ProgressDialog.show(this, null, getResources().getString(R.string.downloading_image));
-			}
-			break;
-		case HikeConstants.CROP_RESULT:
+		case HikeConstants.ResultCodes.PHOTOS_REQUEST_CODE:
 			mActivityState.destFilePath = data.getStringExtra(MediaStore.EXTRA_OUTPUT);
 			setProfileImage();
 			break;

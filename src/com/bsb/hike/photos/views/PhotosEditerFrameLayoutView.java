@@ -194,7 +194,6 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 
 		if (compressOutput && HikePhotosUtils.getBitmapArea(imageOriginal) > HikeConstants.HikePhotos.MAXIMUM_ALLOWED_IMAGE_AREA)
 		{
-			compressOutput = false;
 			imageOriginal = HikePhotosUtils.compressBitamp(imageOriginal, HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX, HikeConstants.MAX_DIMENSION_LOW_FULL_SIZE_PX, true);
 		}
 	}
@@ -251,6 +250,11 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 
 	public void saveImage(HikeFileType fileType, String originalName, HikePhotosListener listener)
 	{
+		if(imageScaled == null || originalName == null)
+		{
+			return;
+		}
+		
 		doodleLayer.getMeasure(imageScaled.getWidth(), imageScaled.getHeight());
 
 		this.mFileType = fileType;
@@ -287,11 +291,11 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 		{
 			try
 			{
-				if (!isImageEdited())
+				if (!isImageEdited() && !compressOutput)
 				{
-					String timeStamp = Long.toString(System.currentTimeMillis());
-					file = File.createTempFile("IMG_" + timeStamp, ".jpg");
-					file.deleteOnExit();
+					file = new File(mOriginalName);
+					returnResult(file);
+					return;
 				}
 				else
 				{
@@ -368,7 +372,12 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 				}
 			}
 		}
+		returnResult(file);
 
+	}
+	
+	private void returnResult(File file)
+	{
 		if (file.exists())
 		{
 			mListener.onComplete(file);
@@ -378,7 +387,6 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 		{
 			mListener.onFailure();
 		}
-
 	}
 
 	public class CopyFileRunnable implements Runnable

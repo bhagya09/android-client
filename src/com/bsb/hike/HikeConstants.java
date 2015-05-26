@@ -899,11 +899,9 @@ public class HikeConstants
 	 * Constants for Profile Pic
 	 */
 	/* dialog IDs */
-	public static final int PROFILE_PICTURE_FROM_CAMERA = 0;
+	public static final int NEW_PROFILE_PICTURE = 0;
 
-	public static final int PROFILE_PICTURE_FROM_GALLERY = 1;
-	
-	public static final int REMOVE_PROFILE_PICTURE = 2;
+	public static final int REMOVE_PROFILE_PICTURE = 1;
 
 	/* activityForResult IDs */
 	public static final int CAMERA_RESULT = 0;
@@ -2685,6 +2683,12 @@ public class HikeConstants
 		public static final int PHOTOS_PAGER_DOODLE_WEIGHT_SUM = 10000;
 		
 		public static final int MAXIMUM_ALLOWED_IMAGE_AREA = 800 * 600;
+		
+		public static final String PHOTOS_ACTION_CODE = "photos_action_code";
+		
+		public static final String ONLY_PROFILE_UPDATE = "update_profile_pic_only";
+		
+		public static final int MAX_IMAGE_DIMEN = 1240;
 
 	}
 

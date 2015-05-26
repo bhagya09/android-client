@@ -1443,6 +1443,9 @@ public class Utils
 		{
 			return true;
 		}
+		
+		boolean status = false;
+		
 		try
 		{
 			InputStream src;
@@ -1483,24 +1486,23 @@ public class Utils
 			dest.getFD().sync();
 			src.close();
 			dest.close();
-
-			return true;
+			
+			status = true;
 		}
 		catch (FileNotFoundException e)
 		{
 			Logger.e("Utils", "File not found while copying", e);
-			return false;
 		}
 		catch (IOException e)
 		{
 			Logger.e("Utils", "Error while reading/writing/closing file", e);
-			return false;
 		}
 		catch (Exception ex)
 		{
 			Logger.e("Utils", "WTF Error while reading/writing/closing file", ex);
-			return false;
 		}
+		
+		return status;
 	}
 
 	public static boolean compressAndCopyImage(String srcFilePath, String destFilePath, Context context)
@@ -2406,21 +2408,6 @@ public class Utils
 		intent.putExtra(HikeConstants.Extras.OUTPUT_Y, HikeConstants.MAX_DIMENSION_LOW_FULL_SIZE_PX);
 		intent.putExtra(HikeConstants.Extras.ASPECT_X, 1);
 		intent.putExtra(HikeConstants.Extras.ASPECT_Y, 1);
-		activity.startActivityForResult(intent, HikeConstants.CROP_RESULT);
-	}
-
-	public static void startCropActivityForResult(Activity activity, String path, String destPath, boolean preventScaling, int quality,boolean circleHighlight)
-	{
-		/* Crop the image */
-		Intent intent = new Intent(activity, CropImage.class);
-		intent.putExtra(MediaStore.EXTRA_OUTPUT, destPath);
-		intent.putExtra(HikeConstants.Extras.IMAGE_PATH, path);
-		intent.putExtra(HikeConstants.Extras.CIRCLE_HIGHLIGHT, circleHighlight);
-		intent.putExtra(HikeConstants.Extras.SCALE, false);
-		intent.putExtra(HikeConstants.Extras.RETURN_CROP_RESULT_TO_FILE, preventScaling);
-		intent.putExtra(HikeConstants.Extras.ASPECT_X, 1);
-		intent.putExtra(HikeConstants.Extras.ASPECT_Y, 1);
-		intent.putExtra(HikeConstants.Extras.JPEG_COMPRESSION_QUALITY, quality);
 		activity.startActivityForResult(intent, HikeConstants.CROP_RESULT);
 	}
 
@@ -5738,7 +5725,7 @@ public class Utils
 		 */
 		String srcFilePath = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT + "/" + msisdn + ".jpg";
 		String destFilePath = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT + "/" + mappedId + ".jpg";
-		Utils.copyFile(srcFilePath, destFilePath, null);
+		Utils.copyFile(srcFilePath, destFilePath, HikeFileType.IMAGE);
 
 		if (setIcon)
 		{
@@ -5752,7 +5739,7 @@ public class Utils
 			{
 				bytes = BitmapUtils.bitmapToBytes(smallerBitmap, Bitmap.CompressFormat.JPEG, 100);
 			}
-			ContactManager.getInstance().setIcon(mappedId, bytes, false);
+			ContactManager.getInstance().setIcon(mappedId, bytes, true);
 		}
 
 		return statusMessage;
@@ -5830,6 +5817,34 @@ public class Utils
 		else
 		{
 			return false;
+		}
+	}
+	
+	public static String getCameraResultFile()
+	{
+		HikeSharedPreferenceUtil sharedPreference = HikeSharedPreferenceUtil.getInstance();
+		String capturedFilepath = sharedPreference.getData(HikeMessengerApp.FILE_PATH, null);
+		sharedPreference.removeData(HikeMessengerApp.FILE_PATH);
+
+		if (capturedFilepath != null)
+		{
+			File imageFile = new File(capturedFilepath);
+
+			if (imageFile != null && imageFile.exists())
+			{
+				return capturedFilepath;
+			}
+			else
+			{
+				Logger.e("Hike Camera Image", "Image File does not exists");
+				return null;
+			}
+
+		}
+		else
+		{
+			Logger.e("Hike Camera Image", "Image path is null");
+			return null;
 		}
 	}
 }

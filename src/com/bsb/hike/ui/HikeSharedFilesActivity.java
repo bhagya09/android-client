@@ -22,9 +22,6 @@ import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.AbsListView;
-import android.widget.AdapterView;
-import android.widget.GridView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -48,7 +45,6 @@ import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.HikeSharedFile;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.GroupConversation;
-import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.ui.fragments.PhotoViewerFragment;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.Logger;
@@ -192,12 +188,14 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity im
 		ActionBar actionBar = getSupportActionBar();
 		actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
 
-		View actionBarView = LayoutInflater.from(this).inflate(R.layout.compose_action_bar, null);
+		View actionBarView = LayoutInflater.from(this).inflate(R.layout.photos_action_bar, null);
+		actionBarView.setBackgroundResource(android.R.color.transparent);
 
 		View backContainer = actionBarView.findViewById(R.id.back);
 
 		TextView title = (TextView) actionBarView.findViewById(R.id.title);
 		title.setText(conversationName);
+		title.setVisibility(View.VISIBLE);
 
 		TextView subText = (TextView) actionBarView.findViewById(R.id.subtext);
 		subText.setVisibility(View.GONE);
@@ -212,8 +210,6 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity im
 			}
 		});
 
-		actionBar.setBackgroundDrawable(getResources().getDrawable(R.drawable.bg_header));
-		
 		actionBar.setCustomView(actionBarView);
 	}
 

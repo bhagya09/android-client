@@ -1869,12 +1869,13 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 					
 					String destString = Utils.getFileParent(HikeFileType.IMAGE, false)+ File.separator + Utils.getOriginalFile(HikeFileType.IMAGE, null);
 					
-					Intent picEditerIntent = IntentFactory.getPictureEditorActivityIntent(HomeActivity.this, null, true, destString);
+					Intent picEditerIntent = IntentFactory.getPictureEditorActivityIntent(HomeActivity.this, null, true, destString,false);
 					
 					PendingIntent editorPendingIntent = PendingIntent.getActivity(HikeMessengerApp.getInstance().getApplicationContext(), RESULT_OK, picEditerIntent,PendingIntent.FLAG_UPDATE_CURRENT);
 					
 					// Open gallery
-					Intent galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(HomeActivity.this, false, false,true, GalleryActivity.PHOTOS_EDITOR_ACTION_BAR_TYPE, editorPendingIntent);
+					int galleryFlags = GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS|GalleryActivity.GALLERY_EDIT_SELECTED_IMAGE|GalleryActivity.GALLERY_COMPRESS_EDITED_IMAGE|GalleryActivity.GALLERY_DISPLAY_CAMERA_ITEM;
+					Intent galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(HomeActivity.this, galleryFlags,null);
 					
 					startActivity(galleryPickerIntent);
 					
