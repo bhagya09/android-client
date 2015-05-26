@@ -124,13 +124,6 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 		showTipIfRequired();
 	}
 
-	@Override
-	public void onBackPressed()
-	{
-		startAddMoreGalleryIntent();
-		super.onBackPressed();
-	}
-
 	private void startAddMoreGalleryIntent()
 	{
 
