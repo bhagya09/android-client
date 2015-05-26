@@ -220,6 +220,12 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 
 		if (TextUtils.isEmpty(destinationFileHandle))
 		{
+			String directory = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.IMAGE_ROOT ;
+			File dir = new File(directory);
+			if (!dir.exists())
+			{
+				dir.mkdirs();
+			}
 			destinationFileHandle = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.IMAGE_ROOT + File.separator + Utils.getOriginalFile(HikeFileType.IMAGE, null);
 		}
 

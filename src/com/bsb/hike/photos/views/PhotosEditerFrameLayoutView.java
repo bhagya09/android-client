@@ -291,11 +291,25 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 		{
 			try
 			{
-				if (!isImageEdited() && !compressOutput)
+				if (!isImageEdited() )
 				{
-					file = new File(mOriginalName);
-					returnResult(file);
-					return;
+					if(!compressOutput)
+					{
+						file = new File(mOriginalName);
+						returnResult(file);
+						return;
+					}
+					else
+					{
+						file = new File(mDestinationFilename);
+						if (!file.exists())
+						{
+							String timeStamp = Long.toString(System.currentTimeMillis());
+							file = File.createTempFile("IMG_" + timeStamp, ".jpg");
+						}
+
+					}
+					
 				}
 				else
 				{
