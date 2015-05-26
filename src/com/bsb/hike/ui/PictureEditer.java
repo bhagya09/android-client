@@ -481,7 +481,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 				else
 				{
 					beginProgress();
-					editView.saveImage(HikeFileType.IMAGE, null, new HikePhotosListener()
+					editView.saveImage(HikeFileType.IMAGE, filename, new HikePhotosListener()
 					{
 
 						@Override
@@ -506,7 +506,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 						{
 							finishProgress();
 							Bundle bundle = new Bundle();
-							bundle.putString(HikeConstants.Extras.IMAGE_PATH, editView.isImageEdited()?f.getAbsolutePath():filename);
+							bundle.putString(HikeConstants.Extras.IMAGE_PATH, f.getAbsolutePath());
 							if(hasDelegateActivities())
 							{
 								launchNextDelegateActivity(bundle);
@@ -544,13 +544,13 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 						{
 							beginProgress();
 							sendAnalyticsSendTo();
-							editView.saveImage(HikeFileType.IMAGE, null, new HikePhotosListener()
+							editView.saveImage(HikeFileType.IMAGE, filename, new HikePhotosListener()
 							{
 								@Override
 								public void onFailure()
 								{
 									sendAnalyticsSendTo();
-									editView.saveImage(HikeFileType.IMAGE, null, new HikePhotosListener()
+									editView.saveImage(HikeFileType.IMAGE, filename, new HikePhotosListener()
 									{
 										@Override
 										public void onFailure()
