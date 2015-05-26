@@ -180,6 +180,25 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	{
 		webView = (CustomWebView) findViewById(R.id.t_and_c_page);
 		bar = (ProgressBar) findViewById(R.id.progress);
+
+		View view = findViewById(R.id.overflow_anchor);
+		LayoutParams layoutParams = view.getLayoutParams();
+		if (layoutParams == null)
+		{
+			layoutParams = new LayoutParams(R.dimen.one_dp, 0);
+		}
+
+		if (botConfig.shouldOverlayActionBar())
+		{
+			layoutParams.height = R.dimen.st__action_bar_default_height;
+		}
+		
+		else
+		{
+			layoutParams.height = 0;
+		}
+
+		view.setLayoutParams(layoutParams);
 	}
 
 	private void setMode(int mode)
