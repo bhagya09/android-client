@@ -104,6 +104,9 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	
 	private View actionBarView;
 	
+	private String[] pubsub = new String[]{HikePubSub.NOTIF_DATA_RECEIVED}; 
+	
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -122,7 +125,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		initView();	
 		initActionBar();
 		initAppsBasedOnMode();
-		HikeMessengerApp.getPubSub().addListener(HikePubSub.NOTIF_DATA_RECEIVED, this);
+		HikeMessengerApp.getPubSub().addListeners(this, pubsub);
 		checkAndBlockOrientation();
 	}
 
@@ -351,10 +354,16 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	@Override
 	protected void onDestroy()
 	{
-		
+		HikeMessengerApp.getPubSub().removeListeners(this, pubsub);
 		if(webView!=null)
 		{
 			webView.onActivityDestroyed();
+		}
+		
+		secondaryWebView  =(CustomWebView) findViewById(R.id.secondaryWebView);
+		if(secondaryWebView!=null)
+		{
+			secondaryWebView.onActivityDestroyed();
 		}
 		
 		if (mActionBar != null)
@@ -712,6 +721,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			{
 				bar.setVisibility(View.VISIBLE);
 				super.onPageStarted(view, url, favicon);
+				
 			}
 
 			@Override
