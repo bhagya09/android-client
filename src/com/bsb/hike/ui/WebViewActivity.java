@@ -109,9 +109,14 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	{
 		super.onCreate(savedInstanceState);
 		setMode(getIntent().getIntExtra(WEBVIEW_MODE, WEB_URL_MODE));
+		initMsisdn();
 		if (mode == MICRO_APP_MODE)
 		{
-			getWindow().requestFeature(WindowCompat.FEATURE_ACTION_BAR_OVERLAY);
+			initBot();
+			if (botConfig.shouldOverlayActionBar())
+			{
+				getWindow().requestFeature(WindowCompat.FEATURE_ACTION_BAR_OVERLAY);
+			}
 		}
 		setContentView(R.layout.webview_activity);
 		initView();	
@@ -184,11 +189,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 
 	private void setMicroAppMode()
 	{
-		msisdn = getIntent().getStringExtra(HikeConstants.MSISDN);
-		if (msisdn == null)
-		{
-			throw new IllegalArgumentException("Seems You forgot to send msisdn of Bot my dear");
-		}
+		initMsisdn();
 		findViewById(R.id.progress).setVisibility(View.GONE);;
 		attachBridge();
 		initBot();
@@ -196,6 +197,15 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		setupNavBar();
 		setupTagPicker();
 		loadMicroApp();
+	}
+	
+	private void initMsisdn()
+	{
+		msisdn = getIntent().getStringExtra(HikeConstants.MSISDN);
+		if (msisdn == null)
+		{
+			throw new IllegalArgumentException("Seems You forgot to send msisdn of Bot my dear");
+		}
 	}
 
 	private void initBot()
@@ -676,24 +686,27 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	{
 		initSecondaryWebview();
 		secondaryWebView.setVisibility(View.VISIBLE);
-		secondaryWebView.setWebViewClient(new WebViewClient(){
+		secondaryWebView.setWebViewClient(new WebViewClient()
+		{
 			@Override
 			public void onPageStarted(WebView view, String url, Bitmap favicon)
 			{
 				bar.setVisibility(View.VISIBLE);
 				super.onPageStarted(view, url, favicon);
 			}
+
 			@Override
 			public void onPageFinished(WebView view, String url)
 			{
-				Logger.i(tag, "onpage finished secondary "+url);
+				Logger.i(tag, "onpage finished secondary " + url);
 				bar.setVisibility(View.GONE);
 				super.onPageFinished(view, url);
 			}
+
 			@Override
 			public boolean shouldOverrideUrlLoading(WebView view, String url)
 			{
-				Logger.i(tag, "url about to load in secondary "+url);
+				Logger.i(tag, "url about to load in secondary " + url);
 				if (url == null)
 				{
 					return false;
@@ -702,7 +715,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 				return true;
 			}
 		});
-		Logger.i(tag, "url about to load first time in secondary "+url);
+		Logger.i(tag, "url about to load first time in secondary " + url);
 		secondaryWebView.loadUrl(url);
 		
 	}

@@ -36,6 +36,14 @@ public class NonMessagingBotConfiguration extends BotConfiguration
 	
 	public static final byte LONG_TAP = 3;
 	
+	public static final byte ACTION_BAR_OVERLAY = 4;
+	
+	public static final byte ADD_SHORTCUT = 5;
+	
+	public static final byte DELETE = 6;
+	
+	public static final byte DELETE_BLOCK = 7;
+	
 	/**
 	 * Bit positions end here.
 	 */
@@ -58,6 +66,26 @@ public class NonMessagingBotConfiguration extends BotConfiguration
 	public boolean isLongTapEnabled()
 	{
 		return isBitSet(LONG_TAP);
+	}
+	
+	public boolean shouldOverlayActionBar()
+	{
+		return isBitSet(ACTION_BAR_OVERLAY);
+	}
+	
+	public boolean isAddShortCutEnabled()
+	{
+		return isBitSet(ADD_SHORTCUT);
+	}
+	
+	public boolean isDeleteEnabled()
+	{
+		return isBitSet(DELETE);
+	}
+	
+	public boolean isDeleteAndBlockEnabled()
+	{
+		return isBitSet(DELETE_BLOCK);
 	}
 	
 	public JSONObject getConfigData()

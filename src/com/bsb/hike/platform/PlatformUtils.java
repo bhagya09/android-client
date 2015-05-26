@@ -5,9 +5,11 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.Header;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpHeaderConstants;
 import com.bsb.hike.platform.content.PlatformContent;
@@ -401,6 +403,18 @@ public class PlatformUtils
 			return headers;
 		}
 		return null;
+	}
+
+	public static void deleteBotConversation(String msisdn)
+	{
+		BotInfo botInfo = BotInfo.getBotInfoForBotMsisdn(msisdn);
+		if (botInfo == null)
+		{
+			return;
+		}
+		HikeMessengerApp.getPubSub().publish(HikePubSub.DELETE_THIS_CONVERSATION, botInfo);
+		HikeMessengerApp.hikeBotNamesMap.remove(msisdn);
+		ContactManager.getInstance().removeIcon(msisdn);
 	}
 
 }
