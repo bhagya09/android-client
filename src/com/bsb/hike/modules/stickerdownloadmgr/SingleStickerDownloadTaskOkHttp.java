@@ -163,7 +163,7 @@ public class SingleStickerDownloadTaskOkHttp implements IHikeHTTPTask
 						}
 					}
 					StickerManager.getInstance().checkAndRemoveUpdateFlag(categoryId);
-					onSuccess(null);
+					onSuccess(categoryId);
 				}
 				catch (JSONException ex)
 				{

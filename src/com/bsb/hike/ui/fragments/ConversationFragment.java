@@ -977,6 +977,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		{
 			removeTipIfExists(ConversationTip.WELCOME_HIKE_TIP);
 		}
+		
 		super.onStop();
 	}
 	
@@ -996,6 +997,12 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		if (searchMode)
 		{
 			mAdapter.pauseSearch();
+		}
+		
+		if (tipType == ConversationTip.STEALTH_FTUE_TIP)
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF);
+			removeStealthConvTip();
 		}
 	}
 	
@@ -3006,8 +3013,8 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 				return;
 			}
 			
-			View parentView = getListView().getChildAt(newIndex - getListView().getFirstVisiblePosition() + getOffsetForListHeader());
-
+			View parentView = getParenViewForConversation(convInfo);
+			
 			if (parentView == null)
 			{
 				notifyDataSetChanged();

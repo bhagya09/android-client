@@ -2380,6 +2380,13 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			if (OneToNConversationUtils.isGroupConversation(msisdn))
 			{
 				conv = getGroupConversation(msisdn);
+				/**
+				 * A rare case where there is a residual entry in the Conv_table, but not in the group_info table. Though it should not happen
+				 */
+				if (conv == null)
+				{
+					return null;
+				}
 				conv.setIsStealth(isStealth);
 			}
 			/**
@@ -2388,6 +2395,13 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			else if (OneToNConversationUtils.isBroadcastConversation(msisdn))
 			{
 				conv = getBroadcastConversation(msisdn);
+				/**
+				 * A rare case where there is a residual entry in the Conv_table, but not in the group_info table. Though it should not happen
+				 */
+				if (conv == null)
+				{
+					return null;
+				}
 				conv.setIsStealth(isStealth);
 			}
 			
