@@ -476,7 +476,7 @@ public class VoIPService extends Service {
 				VoIPUtils.cancelMissedCallNotification(getApplicationContext());
 			}
 
-			if (clients.size() > 0) {
+			if (clients.size() > 0 && getCallId() > 0) {
 				Logger.d(VoIPConstants.TAG, "We're in a conference. Maintaining call id: " + getCallId());
 				// Disable crypto for clients in conference. 
 				getClient().cryptoEnabled = false;
@@ -1216,7 +1216,7 @@ public class VoIPService extends Service {
 					}
 
 					while (recordedSamples.size() > VoIPConstants.MAX_SAMPLES_BUFFER) {
-						Logger.w(VoIPConstants.TAG, "Dropping recorded buffer. AEC sync will be lost.");
+						// Logger.w(VoIPConstants.TAG, "Dropping recorded buffer. AEC sync will be lost.");
 						recordedSamples.poll();
 					}
 

@@ -63,8 +63,6 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 	private boolean isBound = false;
 	private final Messenger mMessenger = new Messenger(new IncomingHandler());
 	private WakeLock proximityWakeLock;
-	private SensorManager sensorManager;
-	private float proximitySensorMaximumRange;
 	private int easter = 0;
 
 	private CallActionsView callActionsView;
@@ -247,19 +245,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		}
 
 		partnerName = null;
-
 		releaseWakeLock();
-
-		// Proximity sensor
-		if (sensorManager != null) 
-		{
-			if (proximityWakeLock != null) 
-			{
-				proximityWakeLock.release();
-			}
-			sensorManager.unregisterListener(proximitySensorEventListener);
-		}
-		
 		Logger.d(VoIPConstants.TAG, "VoipCallFragment onDestroy()");
 		super.onDestroy();
 	}
@@ -462,59 +448,19 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 			return;
 		}
 
-		sensorManager = (SensorManager) getSherlockActivity().getSystemService(Context.SENSOR_SERVICE);
-		Sensor proximitySensor = sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
-
-		if (proximitySensor == null) 
-		{
-			Logger.d(VoIPConstants.TAG, "No proximity sensor found.");
-			return;
-		}
 		// Set proximity sensor
-		proximitySensorMaximumRange = proximitySensor.getMaximumRange();
 		proximityWakeLock = ((PowerManager)getSherlockActivity().getSystemService(Context.POWER_SERVICE)).newWakeLock(PROXIMITY_SCREEN_OFF_WAKELOCK, "ProximityLock");
 		proximityWakeLock.setReferenceCounted(false);
-		sensorManager.registerListener(proximitySensorEventListener, proximitySensor, SensorManager.SENSOR_DELAY_NORMAL);
-
+		proximityWakeLock.acquire();
 	}
 
 	private void releaseProximitySensor()
 	{
-		if (sensorManager != null) 
+		if (proximityWakeLock != null)
 		{
-			if (proximityWakeLock != null)
-			{
-				proximityWakeLock.release();
-			}
-			sensorManager.unregisterListener(proximitySensorEventListener);
+			proximityWakeLock.release();
 		}
 	}
-	
-	SensorEventListener proximitySensorEventListener = new SensorEventListener() 
-	{
-
-		public void onSensorChanged(SensorEvent event) 
-		{
-			if (event.values[0] != proximitySensorMaximumRange) 
-			{
-				if (!proximityWakeLock.isHeld()) 
-				{
-					proximityWakeLock.acquire();
-				}
-			}
-			else
-			{
-				if (proximityWakeLock.isHeld()) 
-				{
-					proximityWakeLock.release();
-				}
-			}
-		}
-
-		@Override
-		public void onAccuracyChanged(Sensor sensor, int accuracy) {
-		}
-	};
 	
 	private void setupCallerLayout()
 	{
