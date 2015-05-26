@@ -8,7 +8,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -548,8 +547,16 @@ public class IntentFactory
 		return intent;
 	}
 
-	public static Intent getHikeGalleryPickerIntent(Context context, boolean allowMultiSelect, boolean categorizeByFolders, boolean enableCameraPick,boolean editSelectedImage,boolean forProfileUpdate,String croppedOutputDestination)
+	public static Intent getHikeGalleryPickerIntent(Context context, int flags,String croppedOutputDestination)
 	{
+		
+		boolean allowMultiSelect = (flags & GalleryActivity.GALLERY_ALLOW_MULTISELECT )!=0;
+		boolean categorizeByFolders = (flags & GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS)!=0;
+		boolean enableCameraPick = (flags & GalleryActivity.GALLERY_DISPLAY_CAMERA_ITEM)!=0;
+		boolean editSelectedImage = (flags & GalleryActivity.GALLERY_EDIT_SELECTED_IMAGE)!=0;
+		boolean compressEdited = (flags & GalleryActivity.GALLERY_COMPRESS_EDITED_IMAGE)!=0;
+		boolean forProfileUpdate = (flags & GalleryActivity.GALLERY_FOR_PROFILE_PIC_UPDATE)!=0;
+		
 		Intent intent = new Intent(context, GalleryActivity.class);
 		Bundle b = new Bundle();
 		b.putBoolean(GalleryActivity.DISABLE_MULTI_SELECT_KEY, !allowMultiSelect);
@@ -560,7 +567,7 @@ public class IntentFactory
 		
 		if(editSelectedImage)
 		{
-			destIntents.add(IntentFactory.getPictureEditorActivityIntent(context, null, false, null, forProfileUpdate));
+			destIntents.add(IntentFactory.getPictureEditorActivityIntent(context, null, compressEdited, null, forProfileUpdate));
 		}
 		
 		if(croppedOutputDestination != null)
