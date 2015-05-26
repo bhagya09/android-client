@@ -151,7 +151,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 
 			JSONObject webMetadata = new JSONObject();
 			webMetadata.put(HikePlatformConstants.CARD_OBJECT, cardObj);
-			ConvMessage message = PlatformUtils.getConvMessageFromJSON(webMetadata, hikeMessage);
+			ConvMessage message = PlatformUtils.getConvMessageFromJSON(webMetadata, hikeMessage, mBotInfo.getMsisdn());
 			
 			if (message != null)
 			{
