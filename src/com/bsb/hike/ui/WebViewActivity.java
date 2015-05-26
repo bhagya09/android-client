@@ -701,6 +701,11 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 				Logger.i(tag, "onpage finished secondary " + url);
 				bar.setVisibility(View.GONE);
 				super.onPageFinished(view, url);
+				if("about:blank".equals(url) && secondaryWebView!=null) {
+					secondaryWebView.clearHistory();
+					secondaryWebView.setVisibility(View.GONE);
+					secondaryWebView = null;
+				}
 			}
 
 			@Override
@@ -722,9 +727,8 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	
 	private void hideSecondaryWebView()
 	{
-		secondaryWebView.onActivityDestroyed();
-		secondaryWebView.setVisibility(View.GONE);
-		secondaryWebView = null;
+		secondaryWebView.loadUrl("about:blank");
+//		secondaryWebView.setVisibility(View.GONE);
 		
 	}
 

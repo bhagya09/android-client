@@ -1,5 +1,8 @@
 package com.bsb.hike.platform.bridge;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.IllegalCharsetNameException;
 import java.util.Iterator;
 
 import org.json.JSONException;
@@ -178,10 +181,10 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			jsonObject.put(HikePlatformConstants.MUTE, Boolean.toString(mBotInfo.isMute()));
 			jsonObject.put(HikePlatformConstants.NETWORK_TYPE, Integer.toString(VoIPUtils.getConnectionClass(HikeMessengerApp.getInstance().getApplicationContext()).ordinal()));
 
-
-			mWebView.loadUrl("javascript:init('" + jsonObject.toString() + "')");
+			
+			mWebView.loadUrl("javascript:init('"+URLEncoder.encode(jsonObject.toString(),"utf-8")+"')");
 		}
-		catch (JSONException e)
+		catch (JSONException | UnsupportedEncodingException | IllegalCharsetNameException e)
 		{
 			Logger.e(tag, "JSON exception in init at NonMessagingJavascriptBridge");
 			e.printStackTrace();
