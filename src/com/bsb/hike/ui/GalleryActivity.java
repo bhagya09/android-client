@@ -56,7 +56,19 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 	public static final String ENABLE_CAMERA_PICK = "cam_pk";
 
 	public static final int GALLERY_ACTIVITY_RESULT_CODE = 97;
-
+	
+	public static final int GALLERY_ALLOW_MULTISELECT = 32;
+	
+	public static final int GALLERY_CATEGORIZE_BY_FOLDERS = 16;
+	
+	public static final int GALLERY_DISPLAY_CAMERA_ITEM = 8;
+	
+	public static final int GALLERY_EDIT_SELECTED_IMAGE = 4;
+	
+	public static final int GALLERY_COMPRESS_EDITED_IMAGE = 2;
+	
+	public static final int GALLERY_FOR_PROFILE_PIC_UPDATE = 1;
+	
 	private List<GalleryItem> galleryItemList;
 
 	private GalleryAdapter adapter;
