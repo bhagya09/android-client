@@ -21,12 +21,14 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
+import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.NotificationPreview;
 import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.utils.IntentFactory;
+import com.bsb.hike.utils.Utils;
 
 /**
  * This class is responsible for maintaining states of ConvMessages to be used for showing Android notifications.
@@ -297,7 +299,15 @@ public class HikeNotificationMsgStack implements Listener
 			else
 			{
 
-				mNotificationIntent = IntentFactory.createChatThreadIntentFromMsisdn(mContext, lastAddedMsisdn, false);
+				if (Utils.isBot(lastAddedMsisdn))
+				{
+					mNotificationIntent = getIntentForBots(mContext, lastAddedMsisdn);
+				}
+				
+				else
+				{
+					mNotificationIntent = IntentFactory.createChatThreadIntentFromMsisdn(mContext, lastAddedMsisdn, false);
+				}
 
 				/*
 				 * notifications appear to be cached, and their .equals doesn't check 'Extra's. In order to prevent the wrong intent being fired, set a data field that's unique to
@@ -305,6 +315,26 @@ public class HikeNotificationMsgStack implements Listener
 				 */
 				mNotificationIntent.setData((Uri.parse("custom://" + getNotificationId())));
 			}
+		}
+	}
+
+	private Intent getIntentForBots(Context mContext, String lastAddedMsisdn)
+	{
+		BotInfo mBotInfo = BotInfo.getBotInfoForBotMsisdn(lastAddedMsisdn);
+		
+		if (mBotInfo == null)
+		{
+			mBotInfo = mConvDb.getBotInfoForMsisdn(lastAddedMsisdn);
+		}
+		
+		if (mBotInfo.isNonMessagingBot())
+		{
+			return IntentFactory.getNonMessagingBotIntent(lastAddedMsisdn, "", "", mContext);
+		}
+
+		else
+		{
+			return IntentFactory.createChatThreadIntentFromMsisdn(mContext, lastAddedMsisdn, false);
 		}
 	}
 

@@ -5104,46 +5104,27 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		Cursor c = null;
 		try
 		{
-			c = mDb.query(DBConstants.BOT_TABLE, null, null, null, null, null, null);
+			c = mDb.query(DBConstants.BOT_TABLE, new String[] { DBConstants.MSISDN }, null, null, null, null, null);
 
 			int msisdnIdx = c.getColumnIndex(DBConstants.MSISDN);
-			int nameIdx = c.getColumnIndex(DBConstants.NAME);
-			int configurationIdx = c.getColumnIndex(DBConstants.BOT_CONFIGURATION);
-			int botTypeIdx = c.getColumnIndex(DBConstants.BOT_TYPE);
-			int metadataIdx = c.getColumnIndex(DBConstants.CONVERSATION_METADATA);
-			int muteIdx = c.getColumnIndex(DBConstants.IS_MUTE);
-			int namespaceIdx = c.getColumnIndex(HIKE_CONTENT.NAMESPACE);
-			int configDataidx = c.getColumnIndex(DBConstants.CONFIG_DATA);
-			int notifDataIdx = c.getColumnIndex(HIKE_CONTENT.NOTIF_DATA);
-			int helperDataIdx = c.getColumnIndex(HIKE_CONTENT.HELPER_DATA);
 
 			mDb.beginTransaction();
 			while (c.moveToNext())
 			{
 				String msisdn = c.getString(msisdnIdx);
-				String name = c.getString(nameIdx);
-				int config = c.getInt(configurationIdx);
-				int botType = c.getInt(botTypeIdx);
-				String metadata = c.getString(metadataIdx);
-				int mute = c.getInt(muteIdx);
-				String namespace = c.getString(namespaceIdx);
-				String configData = c.getString(configDataidx);
-				String notifData = c.getString(notifDataIdx);
-				String helperData = c.getString(helperDataIdx);
 
-				BotInfo botInfo = new BotInfo.HikeBotBuilder(msisdn)
-						.setConvName(name)
-						.setConfig(config)
-						.setType(botType)
-						.setMetadata(metadata)
-						.setIsMute(mute == 1)
-						.setNamespace(namespace)
-						.setConfigData(configData)
-						.setHelperData(helperData)
-						.setNotifData(notifData)
-						.build();
+				BotInfo botInfo = getBotInfoForMsisdn(msisdn);
 
-				HikeMessengerApp.hikeBotNamesMap.put(msisdn, botInfo);
+				if (botInfo != null)
+				{
+					Logger.v("BOT", "Putting Bot Info in hashmap " + botInfo.toString());
+					HikeMessengerApp.hikeBotNamesMap.put(msisdn, botInfo);
+				}
+				
+				else
+				{
+					Logger.wtf("BOT", "got null bot Info for msisdn : " + msisdn);
+				}
 
 			}
 			mDb.setTransactionSuccessful();
@@ -7010,5 +6991,51 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		//Reset the unread count
 		values.put(DBConstants.UNREAD_COUNT, 0);
 		mDb.updateWithOnConflict(DBConstants.CONVERSATIONS_TABLE, values, MSISDN + "=?", new String[] { msisdn }, SQLiteDatabase.CONFLICT_REPLACE);
+	}
+
+	public BotInfo getBotInfoForMsisdn(String msisdn)
+	{
+		Cursor c = null;
+		try
+		{
+			c = mDb.query(DBConstants.BOT_TABLE, null, DBConstants.MSISDN + "=?", new String[] { msisdn }, null, null, null);
+
+			int nameIdx = c.getColumnIndex(DBConstants.NAME);
+			int configurationIdx = c.getColumnIndex(DBConstants.BOT_CONFIGURATION);
+			int botTypeIdx = c.getColumnIndex(DBConstants.BOT_TYPE);
+			int metadataIdx = c.getColumnIndex(DBConstants.CONVERSATION_METADATA);
+			int muteIdx = c.getColumnIndex(DBConstants.IS_MUTE);
+			int namespaceIdx = c.getColumnIndex(HIKE_CONTENT.NAMESPACE);
+			int configDataidx = c.getColumnIndex(DBConstants.CONFIG_DATA);
+			int notifDataIdx = c.getColumnIndex(HIKE_CONTENT.NOTIF_DATA);
+			int helperDataIdx = c.getColumnIndex(HIKE_CONTENT.HELPER_DATA);
+
+			if (c.moveToFirst())
+			{
+				String name = c.getString(nameIdx);
+				int config = c.getInt(configurationIdx);
+				int botType = c.getInt(botTypeIdx);
+				String metadata = c.getString(metadataIdx);
+				int mute = c.getInt(muteIdx);
+				String namespace = c.getString(namespaceIdx);
+				String configData = c.getString(configDataidx);
+				String notifData = c.getString(notifDataIdx);
+				String helperData = c.getString(helperDataIdx);
+
+				BotInfo botInfo = new BotInfo.HikeBotBuilder(msisdn).setConvName(name).setConfig(config).setType(botType).setMetadata(metadata).setIsMute(mute == 1)
+						.setNamespace(namespace).setConfigData(configData).setHelperData(helperData).setNotifData(notifData).build();
+
+				return botInfo;
+			}
+		}
+		finally
+		{
+			if (c != null)
+			{
+				c.close();
+			}
+		}
+
+		return null;
 	}
 }
