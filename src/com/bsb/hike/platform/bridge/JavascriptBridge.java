@@ -3,7 +3,9 @@ package com.bsb.hike.platform.bridge;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.lang.ref.WeakReference;
+import java.net.URLEncoder;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -614,5 +616,18 @@ public abstract class JavascriptBridge
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	protected String getEncodedDataForJS(String data) {
+		try
+		{
+			return URLEncoder.encode(data,"utf-8").replaceAll("\\+", "%20");
+		}
+		catch (UnsupportedEncodingException e)
+		{
+			e.printStackTrace();
+		}
+		return "";
+		
 	}
 }
