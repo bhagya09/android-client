@@ -112,9 +112,10 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	{
 		super.onCreate(savedInstanceState);
 		setMode(getIntent().getIntExtra(WEBVIEW_MODE, WEB_URL_MODE));
-		initMsisdn();
+
 		if (mode == MICRO_APP_MODE)
 		{
+			initMsisdn();
 			initBot();
 			if (botConfig.shouldOverlayActionBar())
 			{

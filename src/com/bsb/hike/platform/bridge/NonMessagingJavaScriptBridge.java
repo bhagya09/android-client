@@ -5,6 +5,7 @@ import java.net.URLEncoder;
 import java.nio.charset.IllegalCharsetNameException;
 import java.util.Iterator;
 
+import com.bsb.hike.HikeConstants;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -472,14 +473,17 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	
 	/**
 	 * Platform Bridge Version 1
-	 * call this function for any post call. The call is gonna be fire and forget. MicroApp will not receive any response as this
-	 * request is a fire and forget request.
+	 * call this function for any post call.
 	 * @param functionId : function id to call back to the js.
-	 * @param url: the url that will be called.
-	 * @param params: the push params to be included in the body.
+	 * @param data : the stringified data that contains:
+	 *     "url": the url that will be called.
+	 *     "params": the push params to be included in the body.
+	 * Response to the js will be sent as follows:
+	 * Success: callbackFromNative(functionId, Success #(version code))
+	 * Failure: callbackFromNative(functionId, Failure http error message)
 	 */
 	@JavascriptInterface
-	public void doPostRequest(final String functionId, String url, String params)
+	public void doPostRequest(final String functionId, String data)
 	{
 		try
 		{
@@ -511,6 +515,9 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 
 				}
 			};
+			JSONObject jsonObject = new JSONObject(data);
+			String url = jsonObject.optString(HikePlatformConstants.URL);
+			String params = jsonObject.optString(HikePlatformConstants.PARAMS);
 			RequestToken token = HttpRequests.microAppPostRequest(url, new JSONObject(params), requestListener);
 			if (!token.isRequestRunning())
 			{
