@@ -182,9 +182,9 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			jsonObject.put(HikePlatformConstants.NETWORK_TYPE, Integer.toString(VoIPUtils.getConnectionClass(HikeMessengerApp.getInstance().getApplicationContext()).ordinal()));
 
 			
-			mWebView.loadUrl("javascript:init('"+URLEncoder.encode(jsonObject.toString(),"utf-8").replaceAll("\\+", "%20")+"')");
+			mWebView.loadUrl("javascript:init('"+getEncodedDataForJS(jsonObject.toString())+"')");
 		}
-		catch (JSONException  | UnsupportedEncodingException | IllegalCharsetNameException e)
+		catch (JSONException e)
 		{
 			Logger.e(tag, "JSON exception in init at NonMessagingJavascriptBridge");
 			e.printStackTrace();
@@ -392,7 +392,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			@Override
 			public void run()
 			{
-				mWebView.loadUrl("javascript:notifDataReceived" + "('" + notifData + "')");
+				mWebView.loadUrl("javascript:notifDataReceived" + "('" + getEncodedDataForJS(notifData) + "')");
 			}
 		});
 	}
