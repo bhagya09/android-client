@@ -200,6 +200,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void muteChatThread()
 	{
+		mBotInfo.setMute(!mBotInfo.isMute());
 		HikeMessengerApp.getPubSub().publish(HikePubSub.MUTE_BOT, mBotInfo.getMsisdn());
 	}
 
