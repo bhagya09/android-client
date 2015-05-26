@@ -15,7 +15,7 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsSender;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
-import com.bsb.hike.db.DBBackupRestore;
+import com.bsb.hike.db.AccountBackupRestore;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.platform.PlatformAlarmManager;
@@ -291,8 +291,8 @@ public class HikeAlarmManager
 		break;
 		
 		case HikeAlarmManager.REQUESTCODE_PERIODIC_BACKUP:
-			DBBackupRestore.getInstance(context).backupDB();
-			DBBackupRestore.getInstance(context).scheduleNextAutoBackup();
+			AccountBackupRestore.getInstance(context).backup();
+			AccountBackupRestore.getInstance(context).scheduleNextAutoBackup();
 			break;
 		case HikeAlarmManager.REQUESTCODE_PRODUCT_POPUP:
 			
