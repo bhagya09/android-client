@@ -72,7 +72,6 @@ public class OpusWrapper {
 	public int getEncoder(int samplingRate, int channels, int bitrate) {
 		int errors = 0;
 		encoder = opus_encoder_create(samplingRate, channels, errors);
-		Logger.d(VoIPConstants.TAG, "Got encoder:" + encoder);
 		setEncoderBitrate(bitrate);
 		return errors;
 	}
@@ -115,7 +114,6 @@ public class OpusWrapper {
 	public int getDecoder(int samplingRate, int channels) {
 		int errors = 0;
 		decoder = opus_decoder_create(samplingRate, channels, errors);
-		Logger.d(VoIPConstants.TAG, "Got decoder:" + decoder);
 		return errors;
 	}
 	

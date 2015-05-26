@@ -86,7 +86,7 @@ public class VoIPClient  {
 	private BitSet packetTrackingBits = new BitSet(PACKET_TRACKING_SIZE);
 	private long lastHeartbeat;	
 	public VoIPEncryptor encryptor = new VoIPEncryptor();
-	private boolean cryptoEnabled = true;
+	public boolean cryptoEnabled = true;
 	private VoIPEncryptor.EncryptionStage encryptionStage;
 	public boolean remoteHold = false;
 	public boolean audioStarted = false;
@@ -96,17 +96,15 @@ public class VoIPClient  {
 	public Chronometer chronometer = null;
 	private int reconnectAttempts = 0;
 	private int droppedDecodedPackets = 0;
-	
+	public int callSource = -1;
+
 	// Call quality fields
 	private int qualityCounter = 0;
 	private long lastQualityReset = 0;
 	private CallQuality currentCallQuality = CallQuality.UNKNOWN;
 	
-	// Network quality test
-	private int networkQualityPacketsReceived = 0;
-
 	public final ConcurrentHashMap<Integer, VoIPDataPacket> ackWaitQueue		 = new ConcurrentHashMap<Integer, VoIPDataPacket>();
-	public final ConcurrentLinkedQueue<VoIPDataPacket> samplesToDecodeQueue     = new ConcurrentLinkedQueue<VoIPDataPacket>();
+	private final ConcurrentLinkedQueue<VoIPDataPacket> samplesToDecodeQueue     = new ConcurrentLinkedQueue<VoIPDataPacket>();
 	private final LinkedBlockingQueue<VoIPDataPacket> encodedBuffersQueue      = new LinkedBlockingQueue<VoIPDataPacket>();
 	public final ConcurrentLinkedQueue<VoIPDataPacket> decodedBuffersQueue      = new ConcurrentLinkedQueue<VoIPDataPacket>();
 	public final LinkedBlockingQueue<byte[]> samplesToEncodeQueue      = new LinkedBlockingQueue<byte[]>();
@@ -118,8 +116,6 @@ public class VoIPClient  {
 		RELAY
 	}
 	
-	
-
 	public VoIPClient(Context context, Handler handler) {
 		super();
 		this.context = context;
@@ -836,8 +832,6 @@ public class VoIPClient  {
 		bundle.putString(VoIPConstants.PARTNER_MSISDN, getPhoneNumber());
 		bundle.putBoolean(VoIPConstants.IS_CONNECTED, connected);
 
-		// sendHandlerMessage(VoIPConstants.MSG_SHUTDOWN_ACTIVITY, bundle);
-
 		sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CALL_END);
 
 		if(reconnecting) {
@@ -856,10 +850,12 @@ public class VoIPClient  {
 		connected = false;
 		audioStarted = false;
 		removeExternalSocketInfo();
+		
 		ackWaitQueue.clear();
 		samplesToDecodeQueue.clear();
 		encodedBuffersQueue.clear();
 		decodedBuffersQueue.clear();
+		samplesToEncodeQueue.clear();
 	}
 
 	private void setExternalSocketInfo(String ICEResponse) throws JSONException {
@@ -1235,10 +1231,6 @@ public class VoIPClient  {
 						setIdealBitrate();
 						break;
 
-					case NETWORK_QUALITY:
-						networkQualityPacketsReceived++;
-						break;
-						
 					case HOLD_ON:
 						setRemoteHold(true);
 						break;
@@ -1285,8 +1277,7 @@ public class VoIPClient  {
 
 			if(ek.equals(HikeConstants.LogEvent.VOIP_CALL_CLICK))
 			{
-				// TODO: uncomment next line
-//				 metadata.put(VoIPConstants.Analytics.CALL_SOURCE, callSource);
+				 metadata.put(VoIPConstants.Analytics.CALL_SOURCE, callSource);
 			}
 			else if(ek.equals(HikeConstants.LogEvent.VOIP_CALL_END) || ek.equals(HikeConstants.LogEvent.VOIP_CALL_DROP) ||
 					ek.equals(HikeConstants.LogEvent.VOIP_CALL_REJECT) || ek.equals(HikeConstants.LogEvent.VOIP_PARTNER_ANSWER_TIMEOUT))
