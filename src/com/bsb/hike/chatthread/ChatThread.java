@@ -1533,7 +1533,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			messageSearchManager.deactivate();
 			mAdapter.setSearchText(null);
 			searchText = null;
-			setupDefaultActionBar(false);
 		}
 		Utils.unblockOrientationChange(activity);
 	}
@@ -3967,13 +3966,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	protected void setupActionBar(boolean firstInflation)
 	{
+		setupDefaultActionBar(firstInflation);
 		if (mCurrentActionMode ==  SEARCH_ACTION_MODE)
 		{
 			setupSearchMode(searchText);
-		}
-		else
-		{
-			setupDefaultActionBar(firstInflation);
 		}
 		mCurrentActionMode = -1;
 	}
