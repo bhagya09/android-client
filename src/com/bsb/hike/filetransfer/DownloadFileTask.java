@@ -16,9 +16,10 @@ import javax.net.ssl.HttpsURLConnection;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Bitmap.CompressFormat;
 import android.net.Uri;
 import android.os.Handler;
-import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.widget.Toast;
 
@@ -26,10 +27,13 @@ import com.bsb.hike.HikeConstants.FTResult;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
+import com.bsb.hike.BitmapModule.BitmapUtils;
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.filetransfer.FileTransferManager.NetworkType;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -95,7 +99,7 @@ public class DownloadFileTask extends FileTransferBase
 				raf = new RandomAccessFile(tempDownloadedFile, "rw");
 				// TransferredBytes should always be set. It might be need for calculating percentage
 				setBytesTransferred(0);
-				return downloadFile(0, raf, AccountUtils.ssl);
+				return downloadFile(0, raf, AccountUtils.ssl,hikeFile);
 			}
 			else if (fst.getFTState().equals(FTState.PAUSED) || fst.getFTState().equals(FTState.ERROR))
 			{
@@ -108,7 +112,7 @@ public class DownloadFileTask extends FileTransferBase
 				setFileTotalSize(fst.getTotalSize());
 				if (_totalSize > 0)
 					progressPercentage = (int) ((_bytesTransferred * 100) / _totalSize);
-				return downloadFile(raf.length(), raf, AccountUtils.ssl);
+				return downloadFile(raf.length(), raf, AccountUtils.ssl,hikeFile);
 			}
 		}
 		catch (MalformedURLException e)
@@ -130,7 +134,7 @@ public class DownloadFileTask extends FileTransferBase
 	}
 
 	// we can extend this later to multiple download threads (if required)
-	private FTResult downloadFile(long mStartByte, RandomAccessFile raf, boolean ssl)
+	private FTResult downloadFile(long mStartByte, RandomAccessFile raf, boolean ssl,HikeFile hikeFile)
 	{
 		long mStart = mStartByte;
 		FTResult res = FTResult.SUCCESS;
@@ -323,6 +327,29 @@ public class DownloadFileTask extends FileTransferBase
 						else
 						{
 							Logger.d(getClass().getSimpleName(), "FT Completed");
+							
+							if (hikeFile.getHikeFileType() == HikeFileType.IMAGE)
+							{
+								//Correct rotation
+								HikeHandlerUtil.getInstance().postRunnableWithDelay(new Runnable()
+								{
+									@Override
+									public void run()
+									{
+										try
+										{
+											Bitmap bmp = HikeBitmapFactory.decodeFile(mFile.getAbsolutePath());
+											Bitmap correctedBmp = Utils.getRotatedBitmap(mFile.getAbsolutePath(), bmp);
+											BitmapUtils.saveBitmapToFile(mFile, correctedBmp, CompressFormat.PNG, 100);
+										}
+										catch (IOException e)
+										{
+											e.printStackTrace();
+										}
+									}
+								}, 0);
+							}
+							
 							// Added sleep to complete the progress.
 							//TODO Need to remove sleep and implement in a better way to achieve the progress UX.
 							Thread.sleep(300);
