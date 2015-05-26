@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.bsb.hike.bots.BotInfo;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -1341,7 +1342,23 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				if(presentIntent.hasExtra(HikeConstants.Extras.PREV_MSISDN)){
 					// open chat thread from where we initiated
 					String id = presentIntent.getStringExtra(HikeConstants.Extras.PREV_MSISDN);
-					intent = IntentFactory.createChatThreadIntentFromMsisdn(this, id, false);
+					if (Utils.isBot(id))
+					{
+						BotInfo botInfo = BotInfo.getBotInfoForBotMsisdn(id);
+						if (botInfo.isNonMessagingBot())
+						{
+							intent = IntentFactory.getNonMessagingBotIntent(botInfo.getMsisdn(), "", "", this);
+						}
+						else
+						{
+							intent = IntentFactory.createChatThreadIntentFromMsisdn(this, id, false);
+						}
+					}
+					else
+					{
+						intent = IntentFactory.createChatThreadIntentFromMsisdn(this, id, false);
+					}
+
 				}else{
 					//home activity
 					intent = Utils.getHomeActivityIntent(this);

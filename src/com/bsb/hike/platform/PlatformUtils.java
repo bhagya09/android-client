@@ -377,13 +377,14 @@ public class PlatformUtils
 	 * @param text:     hm text
 	 * @return
 	 */
-	public static ConvMessage getConvMessageFromJSON(JSONObject metadata, String text)
+	public static ConvMessage getConvMessageFromJSON(JSONObject metadata, String text, String msisdn)
 	{
 
 		ConvMessage convMessage = new ConvMessage();
 		convMessage.setMessage(text);
 		convMessage.setMessageType(HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT);
 		convMessage.webMetadata = new WebMetadata(metadata);
+		convMessage.setMsisdn(msisdn);
 		return convMessage;
 
 	}

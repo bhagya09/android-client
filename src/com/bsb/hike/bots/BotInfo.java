@@ -152,7 +152,7 @@ public class BotInfo extends ConvInfo
 
 	public String getNotifData()
 	{
-		return notifData;
+		return notifData == null ? "{}" : notifData;
 	}
 	
 	public JSONObject getNotifDataJSON() 
