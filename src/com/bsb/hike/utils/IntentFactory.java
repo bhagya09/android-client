@@ -19,10 +19,12 @@ import android.provider.ContactsContract.Contacts;
 import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.widget.Toast;
+
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.adapters.MessagesAdapter;
+import com.bsb.hike.chatHead.StickerShareSettings;
 import com.bsb.hike.chatthread.ChatThread;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.chatthread.ChatThreadUtils;
@@ -181,6 +183,13 @@ public class IntentFactory
 		context.startActivity(intent);
 	}
 
+	
+	public static void openSettingStickerOnOtherApp(Context context)
+	{
+		Intent intent = new Intent(context, StickerShareSettings.class);
+		context.startActivity(intent);
+	}
+	
 	public static void openSettingHelp(Context context)
 	{
 		Intent intent = new Intent(context, HikePreferences.class);

@@ -1123,9 +1123,11 @@ public class HikeConstants
 		
 		public static final String PACKAGE_LIST = "pkg_list";
 		
+		public static final String PACKAGE_NAME = "p";
+
 		public static final String APP_NAME = "a";
-		
-		public static final String APP_ENABLE = "p";
+
+		public static final String APP_ENABLE = "e";
 		
 		public static final int DEFAULT_NO_STICKERS_PER_DAY = 5;
 
@@ -1141,11 +1143,13 @@ public class HikeConstants
 
 		public static final int ALARM_BROADCAST = 1;
 
-		public static final int DISMISSED_CONST = 5;
+		public static final String DISMISS_COUNT = "dismiss_count";
 
 		public static final String SERVICE_START_DATE= "strtDate";
 		
 		public static final String SERVICE_LAST_USED= "lastUsed";
+
+		public static final int DISMISS_CONST= 5;
 
 	}
 

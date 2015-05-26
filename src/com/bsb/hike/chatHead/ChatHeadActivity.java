@@ -14,7 +14,6 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.view.StickerEmoticonIconPageIndicator;
-import com.bsb.hike.view.StickerEmoticonIconPageIndicator.StickerEmoticonIconPagerAdapter;
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -48,7 +47,7 @@ public class ChatHeadActivity extends Activity implements StickerPickerListener,
 
 	static ChatHeadActivity instance;
 
-	int shareCount, totalShareCount, noOfDays, shareLimit;
+	int shareCount, totalShareCount, noOfDays, shareLimit, maxDismissLimit;
 
 	StickerPicker picker;
 
@@ -144,11 +143,10 @@ public class ChatHeadActivity extends Activity implements StickerPickerListener,
 		mIconPageIndicator = (StickerEmoticonIconPageIndicator) stickerPickerView.findViewById(R.id.sticker_icon_indicator);
 		mIconPageIndicator.setOnPageChangeListener(onPageChangeListener);
 		layout.addView(stickerPickerView);
-		if (ChatHeadService.dismissed > HikeConstants.ChatHead.DISMISSED_CONST || shareCount >= shareLimit)
+		if (ChatHeadService.dismissed > maxDismissLimit || shareCount >= shareLimit)
 		{
 			infoIconClick();
 		}
-
 		instance = this;
 		setOnClick();
 	}
@@ -169,6 +167,7 @@ public class ChatHeadActivity extends Activity implements StickerPickerListener,
 		totalShareCount = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.TOTAL_STICKER_SHARE_COUNT, 0);
 		shareLimit = (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.STICKERS_PER_DAY, HikeConstants.ChatHead.DEFAULT_NO_STICKERS_PER_DAY) + HikeSharedPreferenceUtil
 				.getInstance().getData(HikeConstants.ChatHead.EXTRA_STICKERS_PER_DAY, 0));
+		maxDismissLimit = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.DISMISS_COUNT, HikeConstants.ChatHead.DISMISS_CONST);
 	}
 
 	private void settingShrdPrefVarFstTym()
@@ -247,15 +246,16 @@ public class ChatHeadActivity extends Activity implements StickerPickerListener,
 		infoIconLayout.setVisibility(View.VISIBLE);
 		disableLayout = (LinearLayout) (stickerPickerView.findViewById(R.id.disable_layout));
 		disableLayout.setVisibility(View.GONE);
-		if (ChatHeadService.dismissed > HikeConstants.ChatHead.DISMISSED_CONST)
+		if (ChatHeadService.dismissed > maxDismissLimit)
 		{
 			TextView tv = (TextView) (infoIconLayout.findViewById(R.id.disable));
-			tv.setTextColor(R.color.external_pallete_text_highlight_color);
+			tv.setTextColor(getResources().getColor(R.color.external_pallete_text_highlight_color));
+			ChatHeadService.dismissed = 0;
 		}
 		else if (shareCount >= shareLimit)
 		{
 			TextView tv = (TextView) (infoIconLayout.findViewById(R.id.get_more_stickers));
-			tv.setTextColor(R.color.external_pallete_text_highlight_color);
+			tv.setTextColor(getResources().getColor(R.color.external_pallete_text_highlight_color));
 		}
 		initLayoutComponentsView();
 		sideText = (TextView) (stickerPickerView.findViewById(R.id.info_icon_layout).findViewById(R.id.side_text));

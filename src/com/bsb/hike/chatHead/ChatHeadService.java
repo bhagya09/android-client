@@ -82,7 +82,7 @@ public class ChatHeadService extends Service
 					{
 						if (obj.getBoolean(HikeConstants.ChatHead.APP_ENABLE))
 						{
-							list.add(obj.getString(HikeConstants.ChatHead.APP_NAME));
+							list.add(obj.getString(HikeConstants.ChatHead.PACKAGE_NAME));
 						}
 					}
 
@@ -284,7 +284,7 @@ public class ChatHeadService extends Service
 		if (Rect.intersects(rectChatHead, rectCloseHead))
 		{
 			dismissed++;
-			if (dismissed<=HikeConstants.ChatHead.DISMISSED_CONST)
+			if (dismissed <= HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.DISMISS_COUNT, HikeConstants.ChatHead.DISMISS_CONST))
 			{if (chatHead.isShown())
 			{
 				ChatHeadService.toShow = false;
@@ -349,17 +349,16 @@ public class ChatHeadService extends Service
 		int pixelsX;
 		if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT)
 		{
-			// 12 dp margin + 12 dp left part of image
-			pixelsX = (int) (24 * scale);
+			// 8 dp margin + 38 dp left part of image to point - width of icon/2
+			pixelsX = (int) ((46 * scale)-(chatHead.getWidth()/2));
 		}
 		else
 		{
-			pixelsX = (int) (24 * scale) + status_bar_height;
+			pixelsX = (int) ((46 * scale)-(chatHead.getWidth()/2)) + status_bar_height;
 		}
 
-		// 240 dp image height + 8dp image margin bottom + 42 dp size of icon
+		// 240 dp image height + 8dp image margin bottom + size of icon
 		int pixelsY = (int) (displaymetrics.heightPixels - (scale * 248) - chatHead.getHeight() - status_bar_height);
-
 		savedPosX = chatHeadParams.x;
 		savedPosY = chatHeadParams.y;
 		overlayAnimation(chatHead, chatHeadParams.x, pixelsX, chatHeadParams.y, pixelsY, HikeConstants.ChatHead.CREATING_CHAT_HEAD_ACTIVITY_ANIMATION);

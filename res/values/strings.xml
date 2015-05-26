@@ -1487,5 +1487,7 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="eight_hour_button">8 HOURS</string>
     <string name="one_day_button">24 HOURS</string>
     <string name="settings_share_stickers">Sticker Share</string>
+    <string name="sticker_widget_hide">Hide The Sticker Widget from all apps listed</string>
+    <string name="sticker_widget_show">Show The Sticker Widget from all apps listed</string>
     
 </resources>
