@@ -251,7 +251,7 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 
 	public void saveImage(HikeFileType fileType, String originalName, HikePhotosListener listener)
 	{
-		if(imageScaled == null)
+		if(imageScaled == null || originalName == null)
 		{
 			return;
 		}
@@ -292,12 +292,22 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 		{
 			try
 			{
-				if (!isImageEdited())
+				if (!isImageEdited() )
 				{
-					String timeStamp = Long.toString(System.currentTimeMillis());
-					file = File.createTempFile("IMG_" + timeStamp, ".jpg");
-					file.deleteOnExit();
+					if(compressOutput)
+					{
+						String timeStamp = Long.toString(System.currentTimeMillis());
+						file = File.createTempFile("IMG_" + timeStamp, ".jpg");
+						file.deleteOnExit();
+					}
+					else
+					{
+						file = new File(mOriginalName);
+						returnResult(file);
+						return;
+					}
 				}
+				
 				else
 				{
 					file = new File(mDestinationFilename);
@@ -373,7 +383,12 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 				}
 			}
 		}
+		returnResult(file);
 
+	}
+	
+	private void returnResult(File file)
+	{
 		if (file.exists())
 		{
 			mListener.onComplete(file);
@@ -383,7 +398,6 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 		{
 			mListener.onFailure();
 		}
-
 	}
 
 	public class CopyFileRunnable implements Runnable
