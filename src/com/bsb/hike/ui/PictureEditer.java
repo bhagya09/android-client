@@ -1,6 +1,8 @@
 package com.bsb.hike.ui;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -393,7 +395,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 			switch (resultCode)
 			{
 			case RESULT_OK:
-				uploadProfilePic(data.getStringExtra(MediaStore.EXTRA_OUTPUT), data.getStringExtra(HikeConstants.HikePhotos.ORIG_FILE));
+				uploadProfilePic(data);
 				break;
 			case RESULT_CANCELED:
 				//The user returned from crop...deleting temporary profile image if created
@@ -416,18 +418,15 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 		}
 	}
 
-	private void uploadProfilePic(final String croppedImageFile, final String originalImageFile)
+	private void uploadProfilePic(Intent data)
 	{
-
-				editView.setVisibility(View.VISIBLE);
-				ProfilePicFragment profilePicFragment = new ProfilePicFragment();
-				Bundle b = new Bundle();
-				b.putString(HikeConstants.HikePhotos.FILENAME, croppedImageFile);
-				b.putString(HikeConstants.HikePhotos.ORIG_FILE, originalImageFile);
-				profilePicFragment.setArguments(b);
-				getSupportFragmentManager().beginTransaction()
-						.setCustomAnimations(R.anim.fade_in_animation, R.anim.fade_out_animation, R.anim.fade_in_animation, R.anim.fade_out_animation)
-						.replace(R.id.overlayFrame, profilePicFragment).addToBackStack(null).commit();
+		editView.setVisibility(View.VISIBLE);
+		ProfilePicFragment profilePicFragment = new ProfilePicFragment();
+		Bundle b = new Bundle(data.getExtras());
+		profilePicFragment.setArguments(b);
+		getSupportFragmentManager().beginTransaction()
+				.setCustomAnimations(R.anim.fade_in_animation, R.anim.fade_out_animation, R.anim.fade_in_animation, R.anim.fade_out_animation)
+				.replace(R.id.overlayFrame, profilePicFragment).addToBackStack(null).commit();
 	}
 
 	public class EditorClickListener implements OnClickListener, OnPageChangeListener, OnDoodleStateChangeListener, OnItemClickListener
@@ -655,7 +654,15 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 				public void onComplete(File f)
 				{
 					finishProgress();
-					startActivityForResult(IntentFactory.getCropActivityIntent(PictureEditer.this, f.getAbsolutePath(), f.getAbsolutePath(), true, 100, true), HikeConstants.CROP_RESULT);
+					try
+					{
+						File tempDest = File.createTempFile(f.getName(), null);
+						startActivityForResult(IntentFactory.getCropActivityIntent(PictureEditer.this, f.getAbsolutePath(), tempDest.getAbsolutePath(), true, 100, true,false), HikeConstants.CROP_RESULT);
+					}
+					catch (IOException e)
+					{
+						e.printStackTrace();
+					}
 				}
 			});
 		}
