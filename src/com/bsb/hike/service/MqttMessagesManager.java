@@ -1,3 +1,4 @@
+
 package com.bsb.hike.service;
 
 import java.io.File;
@@ -30,6 +31,7 @@ import android.util.Base64;
 import android.util.Pair;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeConstants.NotificationType;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
@@ -1684,8 +1686,8 @@ public class MqttMessagesManager
 		}
 		if (data.has(HikeConstants.REPLY_NOTIFICATION_RETRY_TIMER))
 		{
-			int retryTimeInMinutes = data.getInt(HikeConstants.REPLY_NOTIFICATION_RETRY_TIMER);
-			editor.putLong(HikeMessengerApp.RETRY_NOTIFICATION_COOL_OFF_TIME, retryTimeInMinutes * 60 * 1000);
+			int retryTimeInSeconds = data.getInt(HikeConstants.REPLY_NOTIFICATION_RETRY_TIMER);
+			editor.putLong(HikeMessengerApp.RETRY_NOTIFICATION_COOL_OFF_TIME, retryTimeInSeconds*1000);
 		}
 		if(data.has(HikeConstants.MqttMessageTypes.CREATE_MULTIPLE_BOTS))
 		{
@@ -1824,7 +1826,16 @@ public class MqttMessagesManager
 		{
 			handleWhitelistDomains(data.getString(HikeConstants.URL_WHITELIST));
 		}
-
+		if (data.has(HikeConstants.REPLY_NOTIFICATION_RETRY_COUNT))
+		{
+			int replyNotificationRetryCount = data.getInt(HikeConstants.REPLY_NOTIFICATION_RETRY_COUNT);
+			editor.putInt(HikeMessengerApp.MAX_REPLY_RETRY_NOTIF_COUNT, replyNotificationRetryCount);
+		}
+		if(data.has(HikeConstants.NOTIFICATION_RETRY))
+		{
+			String notification=data.getString(HikeConstants.NOTIFICATION_RETRY);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.NOTIFICATION_RETRY_JSON, notification);
+		}
 		if (data.has(HikeConstants.Extras.STICKER_HEADING))
 		{
 			String shareStrings = data.getString(HikeConstants.Extras.STICKER_HEADING);
@@ -2484,7 +2495,7 @@ public class MqttMessagesManager
 						boolean silent = data.optBoolean(HikeConstants.SILENT, true);
 
 						// open respective chat thread
-						HikeNotification.getInstance(context).notifyStringMessage(destination, body, silent);
+						HikeNotification.getInstance().notifyStringMessage(destination, body, silent,NotificationType.OTHER);
 						if(data.optBoolean(HikeConstants.REARRANGE_CHAT,false))
 						{
 							Pair<String, Long> pair = new Pair<String, Long>(destination, System.currentTimeMillis() / 1000);

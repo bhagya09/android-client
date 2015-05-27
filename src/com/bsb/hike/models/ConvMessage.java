@@ -79,6 +79,8 @@ public class ConvMessage implements Searchable
 	
 	private int contentId;
 	private String nameSpace;
+	
+	private int notificationType;
 
 	public String getNameSpace()
 	{
@@ -1263,6 +1265,22 @@ public class ConvMessage implements Searchable
 	public void setServerId(long serverId)
 	{
 		this.serverId = serverId;
+	}
+
+	/**
+	 * @return the notificaionType
+	 */
+	public int getNotificationType()
+	{
+		return notificationType;
+	}
+
+	/**
+	 * @param notificationType the notificaionType to set
+	 */
+	public void setNotificaionType(int notificationType)
+	{
+		this.notificationType = notificationType;
 	}
 
 	public MessagePrivateData getPrivateData()

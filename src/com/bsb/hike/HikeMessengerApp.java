@@ -491,6 +491,8 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 
 	public static final String EXCEPTION_ANALYTIS_ENABLED = "exceptionAnalaticsEnabled";
 	
+	public static final String MAX_REPLY_RETRY_NOTIF_COUNT = "maxReplyRetryNotifCount";
+
 	public static final String SSL_ALLOWED = "sslAllowed";
 	
 	public static CurrentState currentState = CurrentState.CLOSED;
@@ -1095,7 +1097,7 @@ public void onTrimMemory(int level)
 		}
 		if (toastListener == null)
 		{
-			toastListener = ToastListener.getInstance(getApplicationContext());
+			toastListener = ToastListener.getInstance();
 		}
 		if (activityTimeLogger == null)
 		{
