@@ -483,8 +483,11 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	 *     "url": the url that will be called.
 	 *     "params": the push params to be included in the body.
 	 * Response to the js will be sent as follows:
-	 * Success: callbackFromNative(functionId, Success #(version code))
-	 * Failure: callbackFromNative(functionId, Failure http error message)
+	 * callbackFromNative(functionId, responseJson)
+	 *    responseJson will be like this:
+	 *          Success: "{ "status": "success", "status_code" : status_code , "response": response}"
+	 *          Failure: "{ "status": "failure", "error_message" : error message}"
+	 *
 	 */
 	@JavascriptInterface
 	public void doPostRequest(final String functionId, String data)
@@ -503,14 +506,37 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 				public void onRequestFailure(HttpException httpException)
 				{
 					Logger.e(tag, "microApp post request failed with exception " + httpException.getMessage());
-					callbackToJS(functionId, "Failure " + httpException.getMessage());
+					JSONObject failure = new JSONObject();
+					try
+					{
+						failure.put(HikePlatformConstants.STATUS, HikePlatformConstants.FAILURE);
+						failure.put(HikePlatformConstants.ERROR_MESSAGE, httpException.getMessage());
+					}
+					catch (JSONException e)
+					{
+						Logger.e(tag, "Error while parsing failure request");
+						e.printStackTrace();
+					}
+					callbackToJS(functionId, String.valueOf(failure));
 				}
 
 				@Override
 				public void onRequestSuccess(Response result)
 				{
 					Logger.d(tag, "microapp post request success with code " + result.getStatusCode());
-					callbackToJS(functionId, "Success #" + String.valueOf(result.getStatusCode()));
+					JSONObject success = new JSONObject();
+					try
+					{
+						success.put(HikePlatformConstants.STATUS, HikePlatformConstants.SUCCESS);
+						success.put(HikePlatformConstants.STATUS_CODE, result.getStatusCode());
+						success.put(HikePlatformConstants.RESPONSE, result.getBody().getContent());
+					}
+					catch (JSONException e)
+					{
+						Logger.e(tag, "Error while parsing success request");
+						e.printStackTrace();
+					}
+					callbackToJS(functionId, String.valueOf(success));
 				}
 
 				@Override
