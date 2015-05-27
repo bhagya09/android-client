@@ -104,6 +104,8 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	
 	private View actionBarView;
 	
+	private Menu mMenu;
+	
 	private String[] pubsub = new String[]{HikePubSub.NOTIF_DATA_RECEIVED}; 
 	
 	
@@ -191,12 +193,12 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			LayoutParams layoutParams = view.getLayoutParams();
 			if (layoutParams == null)
 			{
-				layoutParams = new LayoutParams(R.dimen.one_dp, 0);
+				layoutParams = new LayoutParams((int) getResources().getDimension(R.dimen.one_dp), 0);
 			}
 
 			if (botConfig.shouldOverlayActionBar())
 			{
-				layoutParams.height = R.dimen.st__action_bar_default_height;
+				layoutParams.height = (int) getResources().getDimension(R.dimen.st__action_bar_default_height);
 			}
 
 			else
@@ -465,6 +467,8 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 				menu.findItem(R.id.overflow_menu).setVisible(true);
 			}
 			
+			this.mMenu = menu;
+			
 			return true;
 		}
 		
@@ -727,6 +731,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	{
 		initSecondaryWebview();
 		secondaryWebView.setVisibility(View.VISIBLE);
+		mMenu.findItem(R.id.overflow_menu).setVisible(false);
 		secondaryWebView.setWebViewClient(new WebViewClient()
 		{
 			@Override
@@ -746,6 +751,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 				if("about:blank".equals(url) && secondaryWebView!=null) {
 					secondaryWebView.clearHistory();
 					secondaryWebView.setVisibility(View.GONE);
+					mMenu.findItem(R.id.overflow_menu).setVisible(true);
 					secondaryWebView = null;
 				}
 			}

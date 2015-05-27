@@ -15,9 +15,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
-import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.MessagingBotConfiguration;
-import com.bsb.hike.bots.MessagingBotMetadata;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.media.OverFlowMenuItem;
 import com.bsb.hike.models.Conversation.BotConversation;
@@ -68,6 +66,12 @@ public class BotChatThread extends OneToOneChatThread
 			activity.findViewById(R.id.compose_container).setVisibility(View.VISIBLE);
 
 		}
+	}
+	
+	@Override
+	protected boolean shouldShowKeyboard()
+	{
+		return configuration.isInputEnabled() && super.shouldShowKeyboard();
 	}
 
 	@Override
