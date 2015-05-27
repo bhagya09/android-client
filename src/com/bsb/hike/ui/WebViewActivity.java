@@ -191,12 +191,12 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			LayoutParams layoutParams = view.getLayoutParams();
 			if (layoutParams == null)
 			{
-				layoutParams = new LayoutParams(R.dimen.one_dp, 0);
+				layoutParams = new LayoutParams((int) getResources().getDimension(R.dimen.one_dp), 0);
 			}
 
 			if (botConfig.shouldOverlayActionBar())
 			{
-				layoutParams.height = R.dimen.st__action_bar_default_height;
+				layoutParams.height = (int) getResources().getDimension(R.dimen.st__action_bar_default_height);
 			}
 
 			else
