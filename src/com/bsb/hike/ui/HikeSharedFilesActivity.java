@@ -210,6 +210,7 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity im
 			}
 		});
 
+		actionBarView.findViewById(R.id.done_container).setVisibility(View.INVISIBLE);
 		actionBar.setCustomView(actionBarView);
 	}
 
@@ -564,24 +565,34 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity im
 	@Override
 	public void onEventReceived(String type, Object object)
 	{
-		 if (HikePubSub.HIKE_SHARED_FILE_DELETED.equals(type))
+		if (HikePubSub.HIKE_SHARED_FILE_DELETED.equals(type))
+		{
+			if (!(object instanceof HikeSharedFile))
 			{
-				if(!(object instanceof HikeSharedFile))
-				{
-					return;
-				}
-				final HikeSharedFile hikeSharedFile = (HikeSharedFile) object;
-				runOnUiThread(new Runnable()
-				{
-
-					@Override
-					public void run()
-					{
-						sharedFilesList.remove(hikeSharedFile);
-						adapter.notifyDataSetChanged();
-					}
-				});
+				return;
 			}
+			final HikeSharedFile hikeSharedFile = (HikeSharedFile) object;
+			runOnUiThread(new Runnable()
+			{
+
+				@Override
+				public void run()
+				{
+					sharedFilesList.remove(hikeSharedFile);
+					adapter.notifyDataSetChanged();
+					// If there are no files to show, finish shared files gallery activity.
+					// This will only happen in an edge-case,
+					// 1. User comes to this gallery containing only 1 item
+					// 2. User clicks on it (photo viewer fragment)
+					// 3. Delete the only remaining item (fragment closes itself)
+					// 4. Since there are no items anymore, empty black screen is shown which seems like a bug (since we dont have an empty state UI as of now)
+					if (null == sharedFilesList || sharedFilesList.isEmpty())
+					{
+						finish();
+					}
+				}
+			});
+		}
 
 		super.onEventReceived(type, object);
 	}

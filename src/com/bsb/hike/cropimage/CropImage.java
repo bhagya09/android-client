@@ -200,12 +200,13 @@ public class CropImage extends MonitoredActivity
 			
 			if (mImagePath == null)
 			{
-				// Check if intent is from GalleryActivity
-				ArrayList<GalleryItem> galleryList = intent.getParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS);
-				if (galleryList != null && !galleryList.isEmpty())
-				{
-					mImagePath = galleryList.get(0).getFilePath();
-				}
+//				// Check if intent is from GalleryActivity
+//				ArrayList<GalleryItem> galleryList = intent.getParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS);
+//				if (galleryList != null && !galleryList.isEmpty())
+//				{
+//					mImagePath = galleryList.get(0).getFilePath();
+//				}
+				mImagePath = intent.getStringExtra(HikeConstants.Extras.GALLERY_SELECTIONS);
 			}
 			
 			mSaveUri = extras.containsKey(MediaStore.EXTRA_OUTPUT) ? getImageUri(extras.getString(MediaStore.EXTRA_OUTPUT)) : null;
