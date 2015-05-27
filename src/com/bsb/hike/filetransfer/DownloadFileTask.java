@@ -397,16 +397,7 @@ public class DownloadFileTask extends FileTransferBase
 			// Correct image rotation
 			if (hikeFile.getHikeFileType() == HikeFileType.IMAGE)
 			{
-				try
-				{
-					Bitmap bmp = HikeBitmapFactory.decodeFile(mFile.getAbsolutePath());
-					Bitmap correctedBmp = Utils.getRotatedBitmap(mFile.getAbsolutePath(), bmp);
-					BitmapUtils.saveBitmapToFile(mFile, correctedBmp, CompressFormat.PNG, 100);
-				}
-				catch (IOException e)
-				{
-					e.printStackTrace();
-				}
+				HikeBitmapFactory.correctImageOrientation(mFile.getAbsolutePath());
 			}
 		}
 		else
