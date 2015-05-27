@@ -1342,7 +1342,7 @@ public class HikeNotification
 	{
 		if (NOTIF_SOUND_HIKE.equals(notifSound))
 		{
-			SoundUtils.playSoundFromRaw(context, R.raw.hike_jingle_15);
+			SoundUtils.playSoundFromRaw(context, R.raw.hike_jingle_15, AudioManager.STREAM_MUSIC);
 		}
 		else if (NOTIF_SOUND_DEFAULT.equals(notifSound))
 		{
@@ -1351,7 +1351,7 @@ public class HikeNotification
 		else
 		{
 			notifSound = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.NOTIFICATION_TONE_URI, NOTIF_SOUND_HIKE);
-			SoundUtils.playSound(context, Uri.parse(notifSound));
+			SoundUtils.playSound(context, Uri.parse(notifSound), AudioManager.STREAM_MUSIC);
 		}
 	}
 
