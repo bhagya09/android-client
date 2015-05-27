@@ -1566,7 +1566,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			startActivity(i);
 		}
 		
-		if (Utils.isPhotosEditEnabled() && this.profileType != ProfileType.USER_PROFILE_EDIT)
+		if (Utils.isPhotosEditEnabled() && this.profileType == ProfileType.USER_PROFILE_EDIT)
 		{
 			//handling user profile edit case differently since photos flow will handle the created fragments
 			return;
