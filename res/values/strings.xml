@@ -1479,5 +1479,6 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
 	<string name="add_members">Add Members</string>
 	<string name="created_group_text">You created the group</string>
 	<string name="group_member_added">added %1$s</string>
+	<string name="num_members">%1$d members</string>
 	
 </resources>
