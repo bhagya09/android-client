@@ -169,6 +169,9 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		}
 	}
 
+	/**
+	 * Data is encoded with URL Encoded Scheme. Decode it before using.
+	 */
 	public void init()
 	{
 		JSONObject jsonObject = new JSONObject();
