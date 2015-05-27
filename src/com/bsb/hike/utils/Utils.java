@@ -52,6 +52,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.ocpsoft.prettytime.PrettyTime;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
@@ -129,7 +130,6 @@ import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.text.format.DateUtils;
 import android.text.style.StyleSpan;
 import android.util.Base64;
 import android.util.DisplayMetrics;
@@ -4864,103 +4864,33 @@ public class Utils
 		return df.format(date);
 	}
 
-	public static String getFormattedTime(boolean pretty, Context context, long timestampInSeconds)
+	public static String getFormattedTime(boolean pretty, Context context, long timestamp)
 	{
-		if (timestampInSeconds < 0)
+		if (timestamp < 0)
 		{
 			return "";
 		}
+		Date date = new Date(timestamp * 1000);
 		if (pretty)
 		{
-			return getFormattedPrettyTime(context, timestampInSeconds);
+			PrettyTime p = new PrettyTime();
+			return p.format(date);
 		}
 		else
 		{
-			return getFormattedTime(context, timestampInSeconds * 1000);
-		}
-	}
-	
-	public static String getFormattedTime(Context context, long timestampInMillis)
-	{
-		String format;
-		Date givenDate = new Date(timestampInMillis);
-		if (android.text.format.DateFormat.is24HourFormat(context))
-		{
-			format = "HH:mm";
-		}
-		else
-		{
-			format = "h:mm aaa";
-		}
-
-		DateFormat df = new SimpleDateFormat(format);
-		return df.format(givenDate);
-	}
-	
-	public static String getFormattedPrettyTime( Context context, long timestampInSeconds)
-	{
-		if (timestampInSeconds < 0)
-		{
-			return "";
-		}
-		
-		long givenTimeStampInMillis = timestampInSeconds * 1000; 
-		Calendar givenCalendar = Calendar.getInstance();
-		givenCalendar.setTimeInMillis(givenTimeStampInMillis);
-		
-		long currentTime = System.currentTimeMillis();
-		Calendar currentCalendar = Calendar.getInstance();
-		
-		if(givenCalendar.before(currentCalendar))
-		{
-			long timeDiff = currentTime - givenTimeStampInMillis;
-
-			if (timeDiff < 60 * 1000)
+			String format;
+			if (android.text.format.DateFormat.is24HourFormat(context))
 			{
-				// until 1 minute
-				return context.getResources().getString(R.string.now);
-			}
-			else if (givenCalendar.get(Calendar.YEAR) == currentCalendar.get(Calendar.YEAR))
-			{
-				if (givenCalendar.get(Calendar.DAY_OF_YEAR)+2 > currentCalendar.get(Calendar.DAY_OF_YEAR))
-				{
-					//Show date in relative format. eg. 2 hours ago, yesterday etc.
-					return DateUtils.getRelativeTimeSpanString(givenTimeStampInMillis, currentTime, DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_ABBREV_MONTH).toString();
-				}
-				else
-				{
-					// Show date in MMM dd format eg. Apr 21, May 13 etc.
-					return DateUtils.getRelativeTimeSpanString(givenTimeStampInMillis, currentTime, DateUtils.YEAR_IN_MILLIS, DateUtils.FORMAT_ABBREV_MONTH | DateUtils.FORMAT_SHOW_DATE).toString();
-				}
+				format = "HH:mm";
 			}
 			else
 			{
-				//Shows date in numeric format
-				return DateUtils.getRelativeTimeSpanString(givenTimeStampInMillis, currentTime, DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_NUMERIC_DATE).toString();
+				format = "h:mm aaa";
 			}
+
+			DateFormat df = new SimpleDateFormat(format);
+			return df.format(date);
 		}
-		else
-		{
-			if (givenCalendar.get(Calendar.YEAR) == currentCalendar.get(Calendar.YEAR))
-			{
-				if (givenCalendar.get(Calendar.DAY_OF_YEAR) == currentCalendar.get(Calendar.DAY_OF_YEAR))
-				{
-					//Show time in non relate default time format
-					return getFormattedTime(context, givenTimeStampInMillis);
-				}
-				else
-				{
-					// Show date in MMM dd format eg. Apr 21, May 13 etc.
-					return DateUtils.getRelativeTimeSpanString(givenTimeStampInMillis, currentTime, DateUtils.YEAR_IN_MILLIS, DateUtils.FORMAT_ABBREV_MONTH | DateUtils.FORMAT_SHOW_DATE).toString();
-				}
-			}
-			else
-			{
-				//Show date in numeric format
-				return DateUtils.getRelativeTimeSpanString(givenTimeStampInMillis, currentTime, DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_NUMERIC_DATE).toString();
-			}
-		}
-	
 	}
 
 	public static Pair<String[], String[]> getMsisdnToNameArray(Conversation conversation)
