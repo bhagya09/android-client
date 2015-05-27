@@ -5,7 +5,7 @@
     android:installLocation="auto"
 
     android:versionCode="1215"
-    android:versionName="3.9.6.52.stickerlag" >
+    android:versionName="3.9.6.52.stickerfix" >
 
     <uses-sdk
         android:minSdkVersion="9"
