@@ -3,8 +3,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1214"
-    android:versionName="3.9.6.0.2.sticker_download_migration" >
+
+    android:versionCode="1215"
+    android:versionName="3.9.6.0.3.sticker_download_migration" >
+
     <uses-sdk
         android:minSdkVersion="9"
         android:targetSdkVersion="17"/>
@@ -442,7 +444,7 @@
 
         <provider
             android:name="com.bsb.hike.providers.HikeProvider"
-            android:authorities="com.bsb.hike.providers.HikeProvider"
+            android:authorities="@string/authority"
             android:exported="true" >
         </provider>
 
