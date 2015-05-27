@@ -4,8 +4,8 @@
     package="com.bsb.hike"
     android:installLocation="auto"
 
-    android:versionCode="1214"
-    android:versionName="3.9.6.51.stickerlag" >
+    android:versionCode="1215"
+    android:versionName="3.9.6.52.stickerlag" >
 
     <uses-sdk
         android:minSdkVersion="9"
