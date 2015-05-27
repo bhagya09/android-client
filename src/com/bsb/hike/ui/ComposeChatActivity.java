@@ -814,12 +814,9 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		}
 		else
 		{
-			if(createGroup){
-				multiSelectTitle.setText(getString(R.string.group_selected, adapter.getCurrentSelection()));
-			}else{
+		
 			multiSelectTitle.setText(createBroadcast ? getString(R.string.broadcast_selected, adapter.getCurrentSelection()) : 
 				getString(R.string.gallery_num_selected, adapter.getCurrentSelection()));
-			}
 		}
 	}
 
@@ -837,12 +834,9 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		setupMultiSelectActionBar();
 		invalidateOptionsMenu();
 		
-		if(createGroup){
-			multiSelectTitle.setText(getString(R.string.group_selected, adapter.getCurrentSelection()));
-		}else{
-			multiSelectTitle.setText(createBroadcast ? getString(R.string.broadcast_selected, adapter.getCurrentSelection()) : 
+		multiSelectTitle.setText(createBroadcast ? getString(R.string.broadcast_selected, adapter.getCurrentSelection()) : 
 				getString(R.string.gallery_num_selected, adapter.getCurrentSelection()));
-		}
+
 	}
 
 	@Override
@@ -1119,13 +1113,9 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		ViewGroup closeContainer = (ViewGroup) multiSelectActionBar.findViewById(R.id.close_container);
 
 		multiSelectTitle = (TextView) multiSelectActionBar.findViewById(R.id.title);
-		if(createGroup){
-			multiSelectTitle.setText(getString(R.string.group_selected, adapter.getCurrentSelection()));
-		}else{
+		
 		multiSelectTitle.setText(createBroadcast ? getString(R.string.broadcast_selected, adapter.getCurrentSelection()) : 
 			getString(R.string.gallery_num_selected, adapter.getCurrentSelection()));
-		}
-		
 		if (isForwardingMessage)
 		{
 			TextView send = (TextView) multiSelectActionBar.findViewById(R.id.save);

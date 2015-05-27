@@ -616,7 +616,7 @@ public class ConversationsAdapter extends BaseAdapter
 							msg = contact.getFirstName()+" "+HikeConstants.IS_TYPING;
 						}
 					} else if (participants.size() > 1) {
-					    	msg = context.getString(R.string.num_people, (participants.size()))+" "+HikeConstants.ARE_TYPING;
+					    	msg = context.getString(R.string.num_members, (participants.size()))+" "+HikeConstants.ARE_TYPING;
 					}
 				}
 			}
