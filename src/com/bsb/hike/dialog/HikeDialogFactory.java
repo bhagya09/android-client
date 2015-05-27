@@ -570,10 +570,9 @@ public class HikeDialogFactory
 			final Spinner accounts = (Spinner) contactDialog.findViewById(R.id.account_spinner);
 			final TextView accountInfo = (TextView) contactDialog.findViewById(R.id.account_info);
 
-			int screenHeight = context.getResources().getDisplayMetrics().heightPixels;
 			int dialogWidth = (int) context.getResources().getDimension(R.dimen.contact_info_width);
-			int dialogHeight = (int) (context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT ? ((3 * screenHeight) / 4)
-					: FrameLayout.LayoutParams.MATCH_PARENT);
+			int dialogHeight = FrameLayout.LayoutParams.MATCH_PARENT;
+			
 			FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(dialogWidth, dialogHeight);
 			lp.topMargin = (int) (5 * Utils.scaledDensityMultiplier);
 			lp.bottomMargin = (int) (5 * Utils.scaledDensityMultiplier);
