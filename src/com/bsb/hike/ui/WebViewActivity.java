@@ -243,7 +243,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			this.finish();
 			return;
 		}
-		botConfig = new NonMessagingBotConfiguration(botInfo.getConfiguration());
+		botConfig = null == botInfo.getConfigData() ?  new NonMessagingBotConfiguration(botInfo.getConfiguration()) : new NonMessagingBotConfiguration(botInfo.getConfiguration(), botInfo.getConfigData());
 		botMetaData = new NonMessagingBotMetadata(botInfo.getMetadata());
 	}
 
@@ -518,7 +518,16 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	{
 		setupActionBar(botInfo.getConversationName());
 		int color = botConfig.getActionBarColor();
-		updateActionBarColor(new ColorDrawable(color == -1 ? R.color.transparent : color));
+		color = color == -1 ? R.color.transparent : color;
+		/**
+		 * If we don't have actionBar overlay, then we shouldn't show transparent color
+		 */
+		if (!botConfig.shouldOverlayActionBar() && color == R.color.transparent)
+		{
+			color = R.color.blue_hike;
+		}
+		
+		updateActionBarColor(new ColorDrawable(color));
 		setAvatar();
 	}
 
