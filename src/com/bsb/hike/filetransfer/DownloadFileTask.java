@@ -393,12 +393,6 @@ public class DownloadFileTask extends FileTransferBase
 		if (res == FTResult.SUCCESS)
 		{
 			res = closeStreams(raf, in);
-
-			// Correct image rotation
-			if (hikeFile.getHikeFileType() == HikeFileType.IMAGE)
-			{
-				HikeBitmapFactory.correctImageOrientation(mFile.getAbsolutePath());
-			}
 		}
 		else
 		{
