@@ -249,7 +249,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	protected EmoticonPicker mEmoticonPicker;
 
-	protected static ShareablePopupLayout mShareablePopupLayout;
+	protected ShareablePopupLayout mShareablePopupLayout;
 
 	protected AudioRecordView audioRecordView;
 
