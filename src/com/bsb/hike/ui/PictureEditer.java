@@ -77,7 +77,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 
 	private PhotoActionsFragment mPhotosActionsFragment;
 
-	private String filename;
+	private String filename, mLocalMSISDN;
 
 	private View mActionBarDoneContainer;
 
@@ -220,6 +220,12 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 
 		if (TextUtils.isEmpty(destinationFileHandle))
 		{
+			String directory = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.IMAGE_ROOT ;
+			File dir = new File(directory);
+			if (!dir.exists())
+			{
+				dir.mkdirs();
+			}
 			destinationFileHandle = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.IMAGE_ROOT + File.separator + Utils.getOriginalFile(HikeFileType.IMAGE, null);
 		}
 
@@ -384,12 +390,23 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 	protected void onActivityResult(int requestCode, int resultCode, Intent data)
 	{
 		super.onActivityResult(requestCode, resultCode, data);
-		if (resultCode == RESULT_OK)
+		if (requestCode == HikeConstants.CROP_RESULT)
 		{
-			switch (requestCode)
+			switch (resultCode)
 			{
-			case HikeConstants.CROP_RESULT:
+			case RESULT_OK:
 				uploadProfilePic(data.getStringExtra(MediaStore.EXTRA_OUTPUT), data.getStringExtra(HikeConstants.HikePhotos.ORIG_FILE));
+				break;
+			case RESULT_CANCELED:
+				//The user returned from crop...deleting temporary profile image if created
+				String directory = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
+				String fileName = Utils.getTempProfileImageFileName(mLocalMSISDN);
+				final String destFilePath = directory + File.separator + fileName;
+				File temp = new File(destFilePath);
+				if(temp.exists())
+				{
+					temp.delete();
+				}
 				break;
 			}
 		}
@@ -613,7 +630,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 			SharedPreferences preferences = HikeMessengerApp.getInstance().getApplicationContext()
 					.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, Context.MODE_PRIVATE);
 			ContactInfo userInfo = Utils.getUserContactInfo(preferences);
-			String mLocalMSISDN = userInfo.getMsisdn();
+			mLocalMSISDN = userInfo.getMsisdn();
 
 			editView.saveImage(HikeFileType.PROFILE, mLocalMSISDN, new HikePhotosListener()
 			{
