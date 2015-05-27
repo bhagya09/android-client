@@ -227,8 +227,8 @@ public class StickerShopFragment extends SherlockFragment implements OnScrollLis
 	{
 		currentCategoriesCount = (mAdapter == null) || (mAdapter.getCursor() == null) ? 0 : mAdapter.getCursor().getCount();
 		downloadState = DOWNLOADING;
-		final TextView loadingFailedEmptyStateMainText = (TextView) loadingFailedEmptyState.findViewById(R.id.main_text);
-		final TextView loadingFailedEmptyStateSubText = (TextView) loadingFailedEmptyState.findViewById(R.id.sub_text);
+		loadingFailedEmptyStateMainText = (TextView) loadingFailedEmptyState.findViewById(R.id.main_text);
+		loadingFailedEmptyStateSubText = (TextView) loadingFailedEmptyState.findViewById(R.id.sub_text);
 		if(currentCategoriesCount == 0)
 		{
 			loadingEmptyState.setVisibility(View.VISIBLE);
