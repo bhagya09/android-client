@@ -325,8 +325,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 				if (mStickerPicker != null)
 				{
 					mStickerPicker.notifyDataSetChanged();
+					mStickerPicker.setRefreshStickers(true);
 				}
-				StickerPicker.setRefreshStickers(true);
 			}
 		}
 	}
@@ -416,8 +416,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			if (mStickerPicker != null)
 			{
 				mStickerPicker.notifyDataSetChanged();
+				mStickerPicker.setRefreshStickers(true);
 			}
-			StickerPicker.setRefreshStickers(true);
 			break;
 		case SCROLL_TO_END:
 			mConversationsView.setSelection(messages.size() - 1);

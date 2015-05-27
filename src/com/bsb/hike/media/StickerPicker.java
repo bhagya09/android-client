@@ -1,7 +1,6 @@
 package com.bsb.hike.media;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.support.v4.view.ViewPager;
@@ -53,7 +52,7 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 	
 	private ViewPager mViewPager;
 	
-	private static boolean refreshStickers = false;
+	private boolean refreshStickers = false;
 
 	/**
 	 * Constructor
@@ -260,15 +259,17 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 	{
 		mViewPager.setAdapter(stickerAdapter);
 
-		mViewPager.setCurrentItem(0, false);
-
 		mIconPageIndicator.setViewPager(mViewPager);
 
 		mIconPageIndicator.setOnPageChangeListener(onPageChangeListener);
 
 		mIconPageIndicator.setCurrentItem(0);
-
-		mIconPageIndicator.notifyDataSetChanged();
+		
+		if (refreshStickers)
+		{
+			mIconPageIndicator.notifyDataSetChanged();
+			refreshStickers = false;
+		}
 	}
 
 	public boolean isShowing()
@@ -485,8 +486,8 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 	 * @param refreshStickers
 	 *            the refreshStickers to set
 	 */
-	public static void setRefreshStickers(boolean refreshStickers)
+	public void setRefreshStickers(boolean refreshStickers)
 	{
-		StickerPicker.refreshStickers = refreshStickers;
+		this.refreshStickers = refreshStickers;
 	}
 }
