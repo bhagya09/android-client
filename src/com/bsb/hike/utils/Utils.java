@@ -5810,6 +5810,10 @@ public class Utils
 	
 	public static boolean isPhotosEditEnabled()
 	{
+		if(!Utils.isUserSignedUp(HikeMessengerApp.getInstance().getApplicationContext(), false))
+		{
+			return false;
+		}
 		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH)
 		{
 			return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.ENABLE_PHOTOS, true);
