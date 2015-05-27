@@ -27,9 +27,14 @@ public class OfflineController
 		return null;
 	}
 	
+	/**
+	 * Add to Database and send to the recipent.
+	 * @param convMessage
+	 */
 	public void sendMessage(ConvMessage convMessage)
 	{
-		
+			//HikeConversationsDatabase.getInstance().addConversationMessages(convMessage,true);
+			//addToQueue(convMessage.serialize());
 	}
 	
 	public void sendAudioFile()
@@ -61,8 +66,6 @@ public class OfflineController
 	{
 		
 	}
-	
-	
 	
 	public boolean isConnected()
 	{
