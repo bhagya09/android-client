@@ -590,9 +590,8 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 					{
 						HikeMessengerApp.getPubSub().publish(HikePubSub.HIKE_SHARED_FILE_DELETED, itemToDelete);
 					}
-					removeCurrentSelectedItem();
 					hikeDialog.dismiss();
-
+					removeCurrentSelectedItem();
 				}
 				
 				@Override
