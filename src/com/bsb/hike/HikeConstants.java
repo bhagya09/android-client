@@ -1551,10 +1551,6 @@ public class HikeConstants
 		public static final String BROADCAST_CREATE_BUNDLE = "broadcastCreationBundle";
 		
 		public static final String GROUP_CREATE_BUNDLE = "groupCreationBundle";
-		
-		public static final String OFFLINE_CHAT_THREAD="offlineChatThread";
-
-		public static final String OFFLINE_MODE_ON = "offlineModeOn";
 	}
 
 	public static final class LogEvent
@@ -2753,6 +2749,6 @@ public class HikeConstants
 	public static final String PAYLOAD = "payload";
 	
 	public static final String HIKE_CONTACT_PICKER_RESULT = "contact_pick_result";
-
-	public static final String IS_OFFLINE_MESSAGE = "isOfflineMessage";
+	
+	public static final String GET="get";
 }
