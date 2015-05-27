@@ -982,11 +982,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 	@Override
 	public void onStop()
 	{
-		if (tipType == ConversationTip.STEALTH_FTUE_TIP)
-		{
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF);
-			removeStealthConvTip();
-		}
+		
 		super.onStop();
 	}
 	
@@ -1002,6 +998,12 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		if (searchMode)
 		{
 			mAdapter.pauseSearch();
+		}
+		
+		if (tipType == ConversationTip.STEALTH_FTUE_TIP)
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF);
+			removeStealthConvTip();
 		}
 	}
 	
@@ -1240,7 +1242,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		{
 			optionsList.add(getString(conv.isStealth() ? R.string.unmark_stealth : R.string.mark_stealth));
 		}
-		if (!(conv instanceof OneToNConvInfo) && ContactManager.getInstance().isUnknownContact(conv.getMsisdn()))
+		if (!(conv instanceof OneToNConvInfo || Utils.isBot(conv.getMsisdn())) && ContactManager.getInstance().isUnknownContact(conv.getMsisdn()))
 		{
 			optionsList.add(getString(R.string.add_to_contacts));
 			optionsList.add(getString(R.string.add_to_contacts_existing));
@@ -3206,8 +3208,8 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 				return;
 			}
 			
-			View parentView = getListView().getChildAt(newIndex - getListView().getFirstVisiblePosition() + getOffsetForListHeader());
-
+			View parentView = getParenViewForConversation(convInfo);
+			
 			if (parentView == null)
 			{
 				notifyDataSetChanged();
