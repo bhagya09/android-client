@@ -311,7 +311,15 @@ public class NonMessagingBotConfiguration extends BotConfiguration
 		if (configData != null)
 		{
 			String color = configData.optString(HikePlatformConstants.AB_COLOR, "transparent");
-			return Color.parseColor(color);
+			try
+			{
+				return Color.parseColor(color);
+			}
+
+			catch (IllegalArgumentException e)
+			{
+				Logger.e(TAG, "Seems like you sent a wrong color");
+			}
 		}
 		return -1;
 	}

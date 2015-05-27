@@ -1297,7 +1297,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
          */
         	if (botInfo.isNonMessagingBot())
         	{
-        		NonMessagingBotConfiguration botConfig = new NonMessagingBotConfiguration(botInfo.getConfiguration());
+        		NonMessagingBotConfiguration botConfig = null == botInfo.getConfigData() ? new NonMessagingBotConfiguration(botInfo.getConfiguration()) : new NonMessagingBotConfiguration(botInfo.getConfiguration(), botInfo.getConfigData());
         		
         		if (botConfig.isLongTapEnabled())
         		{
