@@ -665,15 +665,18 @@ public class ChatThreadUtils
 	public static String getMsisdnFromSendToIntent(Intent intent)
 	{
 		String smsToString = intent.getDataString();
-		smsToString = Uri.decode(smsToString);
-		int index = smsToString.indexOf(intent.getData().getScheme() + ":");
-		if (index != -1)
+		smsToString = Uri.decode(smsToString); //Since this is coming from an external intent, the DataString can be null"
+		if (smsToString != null)
 		{
-			index += (intent.getData().getScheme() + ":").length();
-			String msisdn = smsToString.substring(index, smsToString.length());
-			if (msisdn != null)
+			int index = smsToString.indexOf(intent.getData().getScheme() + ":");
+			if (index != -1)
 			{
-				return msisdn.trim();
+				index += (intent.getData().getScheme() + ":").length();
+				String msisdn = smsToString.substring(index, smsToString.length());
+				if (msisdn != null)
+				{
+					return msisdn.trim();
+				}
 			}
 		}
 
