@@ -393,21 +393,6 @@ public class DownloadFileTask extends FileTransferBase
 		if (res == FTResult.SUCCESS)
 		{
 			res = closeStreams(raf, in);
-
-			// Correct image rotation
-			if (hikeFile.getHikeFileType() == HikeFileType.IMAGE)
-			{
-				try
-				{
-					Bitmap bmp = HikeBitmapFactory.decodeFile(mFile.getAbsolutePath());
-					Bitmap correctedBmp = Utils.getRotatedBitmap(mFile.getAbsolutePath(), bmp);
-					BitmapUtils.saveBitmapToFile(mFile, correctedBmp, CompressFormat.PNG, 100);
-				}
-				catch (IOException e)
-				{
-					e.printStackTrace();
-				}
-			}
 		}
 		else
 		{
