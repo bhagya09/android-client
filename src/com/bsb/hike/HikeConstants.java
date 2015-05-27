@@ -202,6 +202,8 @@ public class HikeConstants
 	public static final String MUTED = "muted";
 
 	public static final String POST_AB = "postab";
+	
+	public static final String PATCH_AB = "patchab";
 
 	public static final String POST_INFO = "postinfo";
 
