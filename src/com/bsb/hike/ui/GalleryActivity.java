@@ -493,11 +493,11 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 				 */
 				bundle.setClassLoader(GalleryItem.class.getClassLoader());
 				
-				bundle.putParcelableArrayList(HikeConstants.Extras.GALLERY_SELECTIONS, temp);
-				intent.putExtras(bundle);
-				
+								
 				if(temp.size() == 1 && hasDelegateActivities())
 				{
+					bundle.putString(HikeConstants.Extras.GALLERY_SELECTIONS, temp.get(0).getFilePath());
+					intent.putExtras(bundle);
 					launchNextDelegateActivity(bundle);
 				}
 				else if(!sendResult && isStartedForResult())
@@ -508,6 +508,8 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 				}
 				else
 				{
+					bundle.putParcelableArrayList(HikeConstants.Extras.GALLERY_SELECTIONS, temp);
+					intent.putExtras(bundle);
 					sendGalleryIntent(intent);
 				}
 			}
@@ -595,7 +597,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 				bundle.setClassLoader(GalleryItem.class.getClassLoader());
 				
 				
-				bundle.putParcelableArrayList(HikeConstants.Extras.GALLERY_SELECTIONS, item);
+				bundle.putString(HikeConstants.Extras.GALLERY_SELECTIONS, cameraFilename);
 				//Added to ensure delegate activity passes destination path to editer
 				bundle.putString(HikeConstants.HikePhotos.DESTINATION_FILENAME, cameraFilename); 
 				intent.putExtras(bundle);
@@ -720,9 +722,8 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 				 * @link : http://stackoverflow.com/questions/28589509/android-e-parcel-class-not-found-when-unmarshalling-only-on-samsung-tab3
 				 * @see : http://stackoverflow.com/questions/13421582/parcelable-inside-bundle-which-is-added-to-parcel
 				 */
-				bundle.setClassLoader(GalleryItem.class.getClassLoader());
 				
-				bundle.putParcelableArrayList(HikeConstants.Extras.GALLERY_SELECTIONS, item);
+				bundle.putString(HikeConstants.Extras.GALLERY_SELECTIONS, galleryItem.getFilePath());
 				intent.putExtras(bundle);
 				
 				if(hasDelegateActivities())

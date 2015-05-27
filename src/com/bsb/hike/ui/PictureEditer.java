@@ -120,12 +120,13 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 		if (filename == null)
 		{
 			// Check if intent is from GalleryActivity
-			ArrayList<GalleryItem> galleryList = intent.getParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS);
-			if (galleryList != null && !galleryList.isEmpty())
-			{
-				filename = galleryList.get(0).getFilePath();
-				sendAnalyticsGalleryPic();
-			}
+//			ArrayList<GalleryItem> galleryList = intent.getParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS);
+//			if (galleryList != null && !galleryList.isEmpty())
+//			{
+//				filename = galleryList.get(0).getFilePath();
+//				sendAnalyticsGalleryPic();
+//			}
+			filename = intent.getStringExtra(HikeConstants.Extras.GALLERY_SELECTIONS);
 		}
 
 		if (filename == null)
