@@ -473,32 +473,13 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 			try
 			{
 				Map<String, List<ContactInfo>> contacts = conMgr.convertToMap(contactinfos);
-				JSONObject jsonForAddressBookAndBlockList = new PostAddressBookTask(contacts).execute();
+				boolean addressBookPosted = new PostAddressBookTask(contacts).execute();
 
-				List<ContactInfo> addressbook = ContactUtils.getContactList(jsonForAddressBookAndBlockList, contacts);
-				List<String> blockList = ContactUtils.getBlockList(jsonForAddressBookAndBlockList);
-
-				if (jsonForAddressBookAndBlockList.has(HikeConstants.PREF))
-				{
-					JSONObject prefJson = jsonForAddressBookAndBlockList.getJSONObject(HikeConstants.PREF);
-					JSONArray contactsArray = prefJson.optJSONArray(HikeConstants.CONTACTS);
-					if (contactsArray != null)
-					{
-						Editor editor = settings.edit();
-						editor.putString(HikeMessengerApp.SERVER_RECOMMENDED_CONTACTS, contactsArray.toString());
-						editor.commit();
-					}
-				}
-				// List<>
-				// TODO this exception should be raised from the postAddressBook
-				// code
-				if (addressbook == null)
+				if (addressBookPosted == false)
 				{
 					publishProgress(new StateValue(State.ERROR, HikeConstants.ADDRESS_BOOK_ERROR));
 					return Boolean.FALSE;
 				}
-				Logger.d("SignupTask", "about to insert addressbook");
-				ContactManager.getInstance().setAddressBookAndBlockList(addressbook, blockList);
 			}
 			catch (Exception e)
 			{
