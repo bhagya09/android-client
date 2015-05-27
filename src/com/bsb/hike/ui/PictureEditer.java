@@ -1,7 +1,6 @@
 package com.bsb.hike.ui;
 
 import java.io.File;
-import java.util.ArrayList;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -11,7 +10,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.os.Message;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -36,7 +34,6 @@ import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.models.ContactInfo;
-import com.bsb.hike.models.GalleryItem;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.photos.HikeEffectsFactory;
 import com.bsb.hike.photos.HikePhotosListener;
@@ -52,7 +49,6 @@ import com.bsb.hike.ui.fragments.PreviewFragment;
 import com.bsb.hike.ui.fragments.ProfilePicFragment;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
-import com.bsb.hike.utils.HikeUiHandler;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -126,6 +122,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 //				filename = galleryList.get(0).getFilePath();
 //				sendAnalyticsGalleryPic();
 //			}
+			sendAnalyticsGalleryPic();
 			filename = intent.getStringExtra(HikeConstants.Extras.GALLERY_SELECTIONS);
 		}
 
@@ -153,6 +150,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 			if(hasDelegateActivities())
 			{
 				launchNextDelegateActivity(bundle);
+				return;
 			}
 			else if(isStartedForResult())
 			{
@@ -410,6 +408,12 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 				}
 				break;
 			}
+		}
+		else if(resultCode == RESULT_CANCELED && requestCode == DELEGATION_REQUEST_CODE && isNotSupportedImageFormat(Utils.getFileExtension(filename)))
+		{
+			//The user returned from next delegate activity and picture editor does not support the file format
+			setResult(RESULT_CANCELED);
+			finish();
 		}
 	}
 

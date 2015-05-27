@@ -142,7 +142,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 			else
 			{
 				galleryFlags = galleryFlags | GalleryActivity.GALLERY_FOR_PROFILE_PIC_UPDATE;
-				galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(ChangeProfileImageBaseActivity.this,galleryFlags,getNewProfileImagePath());
+				galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(ChangeProfileImageBaseActivity.this,galleryFlags,null);
 				startActivity(galleryPickerIntent);
 			}
 		}
