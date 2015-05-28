@@ -188,4 +188,6 @@ public interface HikePlatformConstants
 	String PLATFORM_VERSION = "platform_version";
 	
 	final String HIKE_MESSAGE = "hm";
+	
+	final String JS_INJECT = "js_inject";
 }
