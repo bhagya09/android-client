@@ -5,13 +5,13 @@ import org.json.JSONObject;
 
 import com.bsb.hike.HikeConstants;
 
-public class FileTransferObject
+public class FileTransferModel
 {
 	public TransferProgress transferProgress;
 
 	public JSONObject packetData;
 
-	public FileTransferObject(TransferProgress transferProgress, JSONObject packetData)
+	public FileTransferModel(TransferProgress transferProgress, JSONObject packetData)
 	{
 		this.transferProgress = transferProgress;
 		this.packetData = packetData;
