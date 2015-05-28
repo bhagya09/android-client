@@ -13,6 +13,7 @@ import android.os.Message;
 import android.util.Pair;
 import android.text.TextUtils;
 
+import com.bsb.hike.HikeConstants.NotificationType;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.db.HikeConversationsDatabase;
@@ -115,7 +116,7 @@ public class PlatformAlarmManager implements HikePlatformConstants
 				
 				boolean playSound = playS!=null ? Boolean.valueOf(playS) : false;
 				
-				HikeNotification.getInstance(context).notifyStringMessage(data.getString(CONV_MSISDN), message, !playSound);
+				HikeNotification.getInstance().sendNotificationToChatThread(data.getString(CONV_MSISDN), message, !playSound);
 			}
 		}
 	}
