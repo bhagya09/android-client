@@ -103,6 +103,10 @@ public interface HikePlatformConstants
 	public static final String NOTIF = "notif";
 	public static final String APP_VERSION = "appVersion";
 	public static final String OVERFLOW_MENU_CLICKED = "om_click";
+	public static final String BOT_CREATED = "cbot";
+	public static final String BOT_CREATION_FAILED = "cbot_err";
+	public static final String MICROAPP_DOWNLOADED = "mapp";
+	public static final String MICROAPP_DOWNLOAD_FAILED = "mapp_err";
 
 	public static final String PLATFORM_BRIDGE_NAME = "PlatformBridge";
 

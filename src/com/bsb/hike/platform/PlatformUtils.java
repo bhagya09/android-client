@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
@@ -17,6 +18,7 @@ import com.bsb.hike.platform.content.PlatformContentListener;
 import com.bsb.hike.platform.content.PlatformContentModel;
 import com.bsb.hike.platform.content.PlatformContentRequest;
 import com.bsb.hike.platform.content.PlatformZipDownloader;
+import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -275,7 +277,7 @@ public class PlatformUtils
 					{
 						Logger.d(TAG, "microapp download packet success.");
 						enableBot(botInfo, enableBot);
-						//TODO Analytics
+						createBotAnalytics(HikePlatformConstants.BOT_CREATED, botInfo);
 					}
 
 					@Override
@@ -290,17 +292,34 @@ public class PlatformUtils
 						{
 							Logger.d(TAG, "microapp already exists");
 							enableBot(botInfo, enableBot);
+							createBotAnalytics(HikePlatformConstants.BOT_CREATED, botInfo);
 						}
 						else
 						{
 							Logger.wtf(TAG, "microapp download packet failed.");
-							//TODO Analytics
+							createBotAnalytics(HikePlatformConstants.BOT_CREATION_FAILED, botInfo);
 						}
 					}
 				});
 
 		downloadAndUnzip(rqst, false);
 
+	}
+
+	private static void createBotAnalytics(String key, BotInfo botInfo)
+	{
+		JSONObject json = new JSONObject();
+		try
+		{
+			json.put(AnalyticsConstants.EVENT_KEY, key);
+			json.put(AnalyticsConstants.BOT_NAME, botInfo.getConversationName());
+			json.put(AnalyticsConstants.BOT_MSISDN, botInfo.getMsisdn());
+			HikeAnalyticsEvent.analyticsForNonMessagingBots(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.DOWNLOAD_EVENT, json);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
 	}
 
 	private static void enableBot(BotInfo botInfo, boolean enableBot)
@@ -322,14 +341,25 @@ public class PlatformUtils
 			return;
 		}
 
+		final PlatformContentModel platformContentModel = PlatformContentModel.make(downloadData.toString());
 		PlatformContentRequest rqst = PlatformContentRequest.make(
-				PlatformContentModel.make(downloadData.toString()), new PlatformContentListener<PlatformContentModel>()
+				platformContentModel, new PlatformContentListener<PlatformContentModel>()
 				{
 
 					@Override
 					public void onComplete(PlatformContentModel content)
 					{
-						//TODO Analytics
+						JSONObject json = new JSONObject();
+						try
+						{
+							json.put(AnalyticsConstants.EVENT_KEY, HikePlatformConstants.MICROAPP_DOWNLOADED);
+							json.put(AnalyticsConstants.APP_NAME, content.getId());
+							HikeAnalyticsEvent.analyticsForNonMessagingBots(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.DOWNLOAD_EVENT, json);
+						}
+						catch (JSONException e)
+						{
+							e.printStackTrace();
+						}
 						Logger.d(TAG, "microapp download packet success.");
 					}
 
@@ -341,14 +371,21 @@ public class PlatformUtils
 							//do nothing
 							return;
 						}
-						else if (event == PlatformContent.EventCode.ALREADY_DOWNLOADED)
-						{
-							Logger.d(TAG, "microapp already exists");
-						}
 						else
 						{
-							//TODO Analytics
-							Logger.wtf(TAG, "microapp download packet failed.");
+							JSONObject json = new JSONObject();
+							try
+							{
+								json.put(AnalyticsConstants.EVENT_KEY, HikePlatformConstants.MICROAPP_DOWNLOAD_FAILED);
+								json.put(AnalyticsConstants.APP_NAME, platformContentModel.getId());
+								json.put(HikePlatformConstants.ERROR_CODE, event.toString());
+								HikeAnalyticsEvent.analyticsForNonMessagingBots(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.DOWNLOAD_EVENT, json);
+							}
+							catch (JSONException e)
+							{
+								e.printStackTrace();
+							}
+							Logger.wtf(TAG, "microapp download packet failed.Because it is" + event.toString());
 						}
 					}
 				});

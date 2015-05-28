@@ -92,6 +92,8 @@ public class AnalyticsConstants
     
     public static String SELECTED_USER_COUNT_SHARE = "ShareCount";
 
+	public static String DOWNLOAD_EVENT = "dwnld";
+
 	public static final String ANALYTICS = "analytics";
 
 	public static final String ANALYTICS_FILESIZE = "analyticsfs";
@@ -129,6 +131,8 @@ public class AnalyticsConstants
 	public static final String BOT_NAME = "bot_name";
 
 	public static final String BOT_MSISDN = "bot_msisdn";
+
+	public static final String APP_NAME = "app_name";
 
 	public static final String EVENT_TAG_CBS = "cbs";
 
