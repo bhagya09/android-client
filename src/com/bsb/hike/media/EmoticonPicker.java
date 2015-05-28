@@ -56,7 +56,6 @@ public class EmoticonPicker implements ShareablePopup, EmoticonPickerListener, O
 	{
 		this.mActivity = activity;
 		this.mEditText = editText;
-		this.currentConfig = activity.getResources().getConfiguration().orientation;
 	}
 
 	/**
@@ -126,12 +125,12 @@ public class EmoticonPicker implements ShareablePopup, EmoticonPickerListener, O
 		this.mLayoutResId = layoutResId;
 	}
 
-	public boolean showEmoticonPicker(int screenOrientation)
+	public void showEmoticonPicker(int screenOrientation)
 	{
-		return showEmoticonPicker(0, 0, screenOrientation);
+		showEmoticonPicker(0, 0, screenOrientation);
 	}
 
-	public boolean showEmoticonPicker(int xoffset, int yoffset, int screenOritentation)
+	public void showEmoticonPicker(int xoffset, int yoffset, int screenOritentation)
 	{
 		/**
 		 * Checking for configuration change
@@ -144,7 +143,7 @@ public class EmoticonPicker implements ShareablePopup, EmoticonPickerListener, O
 		
 		initView();
 
-		return mPopUpLayout.showKeyboardPopup(mViewToDisplay);
+		mPopUpLayout.showKeyboardPopup(mViewToDisplay);
 	}
 
 	/**
@@ -339,11 +338,4 @@ public class EmoticonPicker implements ShareablePopup, EmoticonPickerListener, O
 		return currentConfig != deviceOrientation;
 	}
 	
-	public void setOnDismissListener(PopupListener listener)
-	{
-		if (mPopUpLayout != null)
-		{
-			mPopUpLayout.setPopupDismissListener(listener);
-		}
-	}
 }
