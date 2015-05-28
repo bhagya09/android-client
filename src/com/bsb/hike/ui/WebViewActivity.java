@@ -817,6 +817,26 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		botInfo.setConfigDataRefreshed(false);
 		supportInvalidateOptionsMenu();
 	}
+
+	@Override
+	protected void onPause()
+	{
+		//Logging MicroApp Screen closing for bot case
+		if (mode == MICRO_APP_MODE)
+		{
+			HAManager.getInstance().endChatSession(msisdn);
+		}
+	}
+
+	@Override
+	protected void onResume()
+	{
+		//Logging MicroApp Screen opening for bot case
+		if (mode == MICRO_APP_MODE)
+		{
+			HAManager.getInstance().startChatSession(msisdn);
+		}
+	}
 		
 
 }
