@@ -63,10 +63,6 @@ public class ImageParser
 
 				if (imageFile != null && imageFile.exists())
 				{
-					/**
-					 * Sending broadcast to notify the System Gallery app to refresh itself since a new file has been added to DCIM folder
-					 */
-					context.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://" + imageFile)));
 					showSMODialog(context, imageFile, listener);
 				}
 

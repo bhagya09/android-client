@@ -96,6 +96,7 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.media.AudioManager;
 import android.media.ExifInterface;
+import android.media.MediaScannerConnection;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.TrafficStats;
@@ -180,6 +181,7 @@ import com.bsb.hike.http.HikeHttpRequest;
 import com.bsb.hike.models.AccountData;
 import com.bsb.hike.models.AccountInfo;
 import com.bsb.hike.models.ContactInfo;
+import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.ContactInfoData;
 import com.bsb.hike.models.ContactInfoData.DataType;
@@ -5829,7 +5831,7 @@ public class Utils
 	public static String getCameraResultFile()
 	{
 		HikeSharedPreferenceUtil sharedPreference = HikeSharedPreferenceUtil.getInstance();
-		String capturedFilepath = sharedPreference.getData(HikeMessengerApp.FILE_PATH, null);
+		final String capturedFilepath = sharedPreference.getData(HikeMessengerApp.FILE_PATH, null);
 		sharedPreference.removeData(HikeMessengerApp.FILE_PATH);
 
 		if (capturedFilepath != null)
@@ -5838,6 +5840,14 @@ public class Utils
 
 			if (imageFile != null && imageFile.exists())
 			{
+				HikeHandlerUtil.getInstance().postRunnableWithDelay(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						MediaScannerConnection.scanFile(HikeMessengerApp.getInstance(), new String[] { capturedFilepath }, null, null);
+					}
+				}, 0);
 				return capturedFilepath;
 			}
 			else
