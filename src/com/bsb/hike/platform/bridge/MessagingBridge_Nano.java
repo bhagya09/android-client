@@ -301,10 +301,10 @@ public class MessagingBridge_Nano extends JavascriptBridge
 	 * 1.alarm_data: the data that the javascript receives when the alarm is played.
 	 * 2.delete_card: if present and true, used to delete the message on alarm getting played
 	 * 3.conv_msisdn: this field is must Send the msisdn.
-	 * 4.inc_unread: if inc_unread is present and true, we will increase red unread counter in Conversation screen.
+	 * 4.increase_unread: if increase_unread is present and true, we will increase red unread counter in Conversation screen.
 	 * 5.notification: contains message  if you want to show notification at some particular time
 	 * 6.notification_sound: true if we you want to play sound
-	 * sample json  :  {alarm_data:{}, conv_msisdn:'', ;delete_card' : 'true' , 'inc_unread' :'true ' , 'notification': 'message', 'notification_sound':'true'}
+	 * sample json  :  {alarm_data:{}, conv_msisdn:'', ;delete_card' : 'true' , 'increase_unread' :'true ' , 'notification': 'message', 'notification_sound':'true'}
 	 *
 	 * @param json
 	 * @param timeInMills

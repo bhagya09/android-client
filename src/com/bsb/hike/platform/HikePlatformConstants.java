@@ -118,7 +118,7 @@ public interface HikePlatformConstants
 
 	public static final String NOTIFICATION_SOUND = "notification_sound";
 
-	public static final String INCREASE_UNREAD = "inc_unread";
+	public static final String INCREASE_UNREAD = "increase_unread";
 
 	public static final String MESSAGE_ID = "message_id";
 
