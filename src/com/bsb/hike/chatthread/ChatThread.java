@@ -3345,6 +3345,11 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	public void onPause()
 	{
+		//Logging ChatThread Screen closing for bot case
+		if(HikeMessengerApp.getInstance().isHikeBotNumber(msisdn))
+		{
+			HAManager.getInstance().endChatSession(msisdn);
+		}
 		isActivityVisible = false;
 		
 		resumeImageLoaders(true);
@@ -3358,6 +3363,12 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	public void onResume()
 	{
+		//Logging ChatThread Screen opening for bot case
+		if(HikeMessengerApp.getInstance().isHikeBotNumber(msisdn))
+		{
+			HAManager.getInstance().startChatSession(msisdn);
+		}
+		
 		isActivityVisible = true;
 
 		/**
