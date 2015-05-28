@@ -31,6 +31,7 @@ import com.bsb.hike.platform.WebMetadata;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.SearchManager.Searchable;
+import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
 
 public class ConvMessage implements Searchable
@@ -79,6 +80,8 @@ public class ConvMessage implements Searchable
 	
 	private int contentId;
 	private String nameSpace;
+	
+	private int notificationType;
 
 	public String getNameSpace()
 	{
@@ -806,7 +809,7 @@ public class ConvMessage implements Searchable
 				{
 					data.put(HikeConstants.MESSAGE_ID, msgID);
 
-					if(HikeMessengerApp.isStealthMsisdn(mMsisdn) && isSent())
+					if(StealthModeManager.getInstance().isStealthMsisdn(mMsisdn) && isSent())
 					{
 						data.put(HikeConstants.STEALTH, true);
 					}
@@ -1263,6 +1266,22 @@ public class ConvMessage implements Searchable
 	public void setServerId(long serverId)
 	{
 		this.serverId = serverId;
+	}
+
+	/**
+	 * @return the notificaionType
+	 */
+	public int getNotificationType()
+	{
+		return notificationType;
+	}
+
+	/**
+	 * @param notificationType the notificaionType to set
+	 */
+	public void setNotificaionType(int notificationType)
+	{
+		this.notificationType = notificationType;
 	}
 
 	public MessagePrivateData getPrivateData()

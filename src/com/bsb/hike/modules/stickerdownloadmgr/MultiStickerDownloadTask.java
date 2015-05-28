@@ -129,10 +129,7 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 					request.put(HikeConstants.STICKER_IDS, existingStickerIds);
 					request.put(HikeConstants.RESOLUTION_ID, Utils.getResolutionId());
 					request.put(HikeConstants.NUMBER_OF_STICKERS, getStickerDownloadSize());
-					if (source != null)
-					{
-						request.put(HikeConstants.DOWNLOAD_SOURCE, source.ordinal());
-					}
+					request.put(HikeConstants.DOWNLOAD_SOURCE, source.getValue());
 					Logger.d(TAG, "Sticker Download Task Request : " + request.toString());
 
 					IRequestBody body = new JsonBody(request);

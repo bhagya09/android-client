@@ -1,31 +1,38 @@
 package com.bsb.hike.tasks;
 
+import org.json.JSONObject;
+
 import android.app.Activity;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences.Editor;
-import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.widget.Toast;
 
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
-import com.bsb.hike.db.DBBackupRestore;
 import com.bsb.hike.db.HikeContentDatabase;
+import com.bsb.hike.db.AccountBackupRestore;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
+import com.bsb.hike.modules.httpmgr.RequestToken;
+import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
+import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.service.HikeService;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.NUXManager;
+import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
+import com.bsb.hike.utils.Utils;
 import com.google.android.gcm.GCMRegistrar;
 
-public class DeleteAccountTask extends AsyncTask<Void, Void, Boolean> implements ActivityCallableTask
+public class DeleteAccountTask implements ActivityCallableTask
 {
-
 	public static interface DeleteAccountListener
 	{
 		public void accountDeleted(boolean isSuccess);
@@ -46,33 +53,36 @@ public class DeleteAccountTask extends AsyncTask<Void, Void, Boolean> implements
 		this.ctx = context;
 	}
 
-	@Override
-	protected Boolean doInBackground(Void... unused)
+	public void execute()
 	{
-		try
+		IRequestListener requestListener = new IRequestListener()
 		{
-			AccountUtils.deleteOrUnlinkAccount(this.delete);
-
-			if (delete)
+			@Override
+			public void onRequestSuccess(Response result)
 			{
-				DBBackupRestore.getInstance(ctx).deleteAllFiles();
+				JSONObject json = (JSONObject) result.getBody().getContent();
+				if (!Utils.isResponseValid(json))
+				{
+					doOnFailure();
+					return;
+				}
+				doOnSuccess();
 			}
 
-			clearAppData();
-			Logger.d("DeleteAccountTask", "account deleted");
+			@Override
+			public void onRequestProgressUpdate(float progress)
+			{
+			}
 
-			/*
-			 * We need to do this where on reset/delete account. We need to we need to run initial setup for stickers. for normal cases it runs from onCreate method of
-			 * HikeMessangerApp but in this case onCreate won't be called and user can complete signup.
-			 */
-			HikeMessengerApp.getInstance().startUpdgradeIntent();
-			return true;
-		}
-		catch (Exception e)
-		{
-			Logger.e("DeleteAccountTask", "error deleting account", e);
-			return false;
-		}
+			@Override
+			public void onRequestFailure(HttpException httpException)
+			{
+				doOnFailure();
+			}
+		};
+
+		RequestToken requestToken = this.delete ? HttpRequests.deleteAccountRequest(requestListener) : HttpRequests.unlinkAccountRequest(requestListener);
+		requestToken.execute();
 	}
 
 	/**
@@ -90,7 +100,7 @@ public class DeleteAccountTask extends AsyncTask<Void, Void, Boolean> implements
 		appPrefEditor.clear();
 		editor.commit();
 		appPrefEditor.commit();
-		
+
 		NUXManager.getInstance().shutDownNUX();
 		/**
 		 * Stopping hike service which will call destroy mqtt
@@ -104,7 +114,7 @@ public class DeleteAccountTask extends AsyncTask<Void, Void, Boolean> implements
 		 */
 		GCMRegistrar.unregister(ctx.getApplicationContext());
 
-		HikeMessengerApp.clearStealthMsisdn();
+		StealthModeManager.getInstance().clearStealthMsisdn();
 
 		FileTransferManager.getInstance(ctx).shutDownAll();
 
@@ -132,46 +142,20 @@ public class DeleteAccountTask extends AsyncTask<Void, Void, Boolean> implements
 		/**
 		 * Clearing facebook session tokens
 		 */
-		/*Session session = Session.getActiveSession();
-		if (session != null)
-		{
-			session.closeAndClearTokenInformation();
-			Session.setActiveSession(null);
-		}*/
+		/*
+		 * Session session = Session.getActiveSession(); if (session != null) { session.closeAndClearTokenInformation(); Session.setActiveSession(null); }
+		 */
 
 		/**
 		 * Deleting residual sticker data
 		 */
 		StickerManager.getInstance().deleteStickers();
-	}
-
-	@Override
-	protected void onPostExecute(Boolean result)
-	{
-		finished = true;
-		if (result.booleanValue())
-		{
-			/* clear any toast notifications */
-			NotificationManager mgr = (NotificationManager) ctx.getSystemService(android.content.Context.NOTIFICATION_SERVICE);
-			mgr.cancelAll();
-
-			// redirect user to the welcome screen
-			if (listener != null)
-			{
-				listener.accountDeleted(true);
-			}
-		}
-		else
-		{
-			if (listener != null)
-			{
-				listener.accountDeleted(false);
-			}
-			int duration = Toast.LENGTH_LONG;
-			Toast toast = Toast.makeText(ctx,
-					this.delete ? ctx.getResources().getString(R.string.delete_account_failed) : ctx.getResources().getString(R.string.unlink_account_failed), duration);
-			toast.show();
-		}
+		
+		/**
+		 * Setting token and uid in memory to null
+		 */
+		AccountUtils.mToken = null;
+		AccountUtils.mUid = null;
 	}
 
 	@Override
@@ -184,6 +168,44 @@ public class DeleteAccountTask extends AsyncTask<Void, Void, Boolean> implements
 	public boolean isFinished()
 	{
 		return finished;
+	}
+
+	private void doOnSuccess()
+	{
+		if (delete)
+		{
+			AccountBackupRestore.getInstance(ctx).deleteAllFiles();
+		}
+		
+		clearAppData();
+		Logger.d("DeleteAccountTask", "account deleted");
+
+		/*
+		 * We need to do this where on reset/delete account. We need to we need to run initial setup for stickers. for normal cases it runs from onCreate method of HikeMessangerApp
+		 * but in this case onCreate won't be called and user can complete signup.
+		 */
+		HikeMessengerApp.getInstance().startUpdgradeIntent();
+
+		finished = true;
+
+		/* clear any toast notifications */
+		NotificationManager mgr = (NotificationManager) ctx.getSystemService(android.content.Context.NOTIFICATION_SERVICE);
+		mgr.cancelAll();
+
+		// redirect user to the welcome screen
+		if (listener != null)
+		{
+			listener.accountDeleted(true);
+		}
+	}
+
+	private void doOnFailure()
+	{
+		finished = true;
+		if (listener != null)
+		{
+			listener.accountDeleted(false);
+		}
 	}
 
 }

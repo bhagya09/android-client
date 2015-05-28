@@ -52,11 +52,7 @@ public class HikeDialogFactory
 {
 	public static final int FAVORITE_ADDED_DIALOG = 2;
 
-	public static final int STEALTH_FTUE_DIALOG = 3;
-
 	public static final int RESET_STEALTH_DIALOG = 4;
-
-	public static final int STEALTH_FTUE_EMPTY_STATE_DIALOG = 5;
 
 	public static final int SHARE_IMAGE_QUALITY_DIALOG = 6;
 
@@ -127,14 +123,8 @@ public class HikeDialogFactory
 		case FAVORITE_ADDED_DIALOG:
 			return showAddedAsFavoriteDialog(dialogId, context, listener, data);
 			
-		case STEALTH_FTUE_DIALOG:
-			return showStealthFtuePopUp(dialogId, context, listener, true);
-			
 		case RESET_STEALTH_DIALOG:
 			return showStealthResetDialog(dialogId, context, listener, data);
-			
-		case STEALTH_FTUE_EMPTY_STATE_DIALOG:
-			return showStealthFtuePopUp(dialogId, context, listener, false);
 			
 		case SHARE_IMAGE_QUALITY_DIALOG:
 			return showImageQualityDialog(dialogId, context, listener, data);
@@ -250,48 +240,6 @@ public class HikeDialogFactory
 		};
 		no.setOnClickListener(clickListener);
 		yes.setOnClickListener(clickListener);
-		hikeDialog.show();
-		return hikeDialog;
-	}
-
-	private static HikeDialog showStealthFtuePopUp(int dialogId, final Context context, final HikeDialogListener listener, boolean isStealthFtueDialog)
-	{
-		final HikeDialog hikeDialog = new HikeDialog(context, R.style.Theme_CustomDialog, dialogId);
-		hikeDialog.setContentView(R.layout.stealth_ftue_popup);
-		hikeDialog.setCancelable(true);
-		TextView okBtn = (TextView) hikeDialog.findViewById(R.id.awesomeButton);
-		TextView body = (TextView) hikeDialog.findViewById(R.id.body);
-
-		if (isStealthFtueDialog)
-		{
-			body.setText(R.string.stealth_mode_popup_msg);
-			okBtn.setText(R.string.quick_setup);
-		}
-		else
-		{
-			body.setText(R.string.stealth_mode_empty_conv_popup_msg);
-			okBtn.setText(android.R.string.ok);
-		}
-
-		okBtn.setOnClickListener(new OnClickListener()
-		{
-
-			@Override
-			public void onClick(View v)
-			{
-				if (listener != null)
-				{
-					listener.neutralClicked(hikeDialog);
-				}
-				else
-				{
-					hikeDialog.dismiss();
-				}
-
-				hikeDialog.dismiss();
-			}
-		});
-
 		hikeDialog.show();
 		return hikeDialog;
 	}

@@ -1139,7 +1139,7 @@ public class StickerManager
 			return;
 		}
 		category.updateDownloadedStickersCount();
-		if(downloadSource == DownloadSource.SHOP || downloadSource == DownloadSource.SETTINGS)
+		if(downloadSource == DownloadSource.SHOP || downloadSource == DownloadSource.SETTINGS|| downloadSource == DownloadSource.POPUP)
 		{
 			category.setState(StickerCategory.DONE_SHOP_SETTINGS);
 		}
