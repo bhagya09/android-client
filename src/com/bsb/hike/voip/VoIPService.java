@@ -3,6 +3,7 @@ package com.bsb.hike.voip;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.BitSet;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Random;
@@ -111,7 +112,7 @@ public class VoIPService extends Service {
 	private WakeLock wakeLock = null;
 	
 	// Resampler
-	private boolean resamplerEnabled = false;
+	private boolean resamplerEnabled = true;
 	private Resampler resampler;
 
 	// Echo cancellation
@@ -119,6 +120,14 @@ public class VoIPService extends Service {
 	private SolicallWrapper solicallAec = null;
 	private boolean useVADToReduceData = true;
 	private boolean aecSpeakerSignal = false, aecMicSignal = false;
+	
+	// Playback quality
+	private final int QUALITY_BUFFER_SIZE = 5;	// Quality is calculated over this many seconds
+	private final int QUALITY_CALCULATION_FREQUENCY = 4;	// Quality is calculated every 'x' playback samples
+	private BitSet playbackTrackingBits = new BitSet(VoIPConstants.AUDIO_SAMPLE_RATE * QUALITY_BUFFER_SIZE/ OpusWrapper.OPUS_FRAME_SIZE);
+	private int playbackFeederCounter = 0;
+	private CallQuality currentCallQuality = CallQuality.UNKNOWN;
+	
 
 	private final LinkedBlockingQueue<VoIPDataPacket> recordedSamples     = new LinkedBlockingQueue<VoIPDataPacket>();
 	private final LinkedBlockingQueue<VoIPDataPacket> buffersToSend      = new LinkedBlockingQueue<VoIPDataPacket>();
@@ -139,6 +148,7 @@ public class VoIPService extends Service {
 			
 			switch (msg.what) {
 			case VoIPConstants.MSG_VOIP_CLIENT_STOP:
+				Logger.d(VoIPConstants.TAG, msisdn + " has stopped.");
 				if (!inConference())
 					stop();
 				else {
@@ -223,9 +233,12 @@ public class VoIPService extends Service {
 		initAudioManager();
 		keepRunning = true;
 		isRingingIncoming = false;
+		currentCallQuality = CallQuality.UNKNOWN;
 		
-		if (resamplerEnabled)
+		if (resamplerEnabled) {
 			playbackSampleRate = AudioTrack.getNativeOutputSampleRate(AudioManager.STREAM_VOICE_CALL);
+			resampler = new Resampler();
+		}
 		else
 			playbackSampleRate = VoIPConstants.AUDIO_SAMPLE_RATE;
 		
@@ -257,10 +270,6 @@ public class VoIPService extends Service {
 				minBufSizeRecording = ((minBufSizeRecording + (SolicallWrapper.SOLICALL_FRAME_SIZE * 2) - 1) / (SolicallWrapper.SOLICALL_FRAME_SIZE * 2)) * SolicallWrapper.SOLICALL_FRAME_SIZE * 2;
 			}
 			Logger.d(VoIPConstants.TAG, "New minBufSizeRecording: " + minBufSizeRecording);
-		}
-		
-		if (resamplerEnabled) {
-			resampler = new Resampler();
 		}
 		
 		startConnectionTimeoutThread();
@@ -905,21 +914,22 @@ public class VoIPService extends Service {
 	 */
 	synchronized public void stop() {
 
-		synchronized (this) {
-			if (keepRunning == false) {
-				// Logger.w(VoIPConstants.TAG, "Trying to stop a stopped service?");
-				sendHandlerMessage(VoIPConstants.MSG_SHUTDOWN_ACTIVITY);
-				setCallid(0);
-				return;
-			}
-			keepRunning = false;
-		}
-
+//		synchronized (this) {
+//			if (keepRunning == false) {
+//				// Logger.w(VoIPConstants.TAG, "Trying to stop a stopped service?");
+//				sendHandlerMessage(VoIPConstants.MSG_SHUTDOWN_ACTIVITY);
+//				setCallid(0);
+//				return;
+//			}
+//			keepRunning = false;
+//		}
+//
 		Logger.d(VoIPConstants.TAG, "Stopping service..");
+		keepRunning = false;
 
 		for (VoIPClient client : clients.values())
 			removeClient(client);
-		// clients.clear();
+		clients.clear();
 
 		// Reset variables
 		setCallid(0);
@@ -1033,16 +1043,14 @@ public class VoIPService extends Service {
 				while (keepRunning) {
 					VoIPDataPacket dp;
 					try {
+						// We will only get a buffer to send if a conference is not active. 
 						dp = buffersToSend.take();
 						for (VoIPClient client : clients.values()) {
-							try {
-								// client.encodedBuffersQueue.put(dp);
-								// Not sure if cloning is required. Test later. 
-								// VoIPDataPacket dpClone = (VoIPDataPacket)dp.clone();
-								client.samplesToEncodeQueue.put(dp.getData());
-							} catch (InterruptedException e) {
-								break;
-							} 
+							// client.encodedBuffersQueue.put(dp);
+							// Not sure if cloning is required. Test later. 
+							// VoIPDataPacket dpClone = (VoIPDataPacket)dp.clone();
+							// client.samplesToEncodeQueue.put(dp.getData());
+							client.addSampleToEncode(dp.getData()); 
 						}
 					} catch (InterruptedException e1) {
 						break;
@@ -1332,6 +1340,7 @@ public class VoIPService extends Service {
 							// Resample
 							if (resamplerEnabled && playbackSampleRate != VoIPConstants.AUDIO_SAMPLE_RATE) {
 								// We need to resample the output signal
+								// Logger.d(VoIPConstants.TAG, "Resampling.");
 								byte[] output = resampler.reSample(dp.getData(), 16, VoIPConstants.AUDIO_SAMPLE_RATE, playbackSampleRate);
 								dp.write(output);
 							} 
@@ -1388,9 +1397,12 @@ public class VoIPService extends Service {
 			@Override
 			public void run() {
 				// Logger.d(VoIPConstants.TAG, "Running feeder");
-				android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
 				
-//				long time = System.currentTimeMillis();
+				playbackFeederCounter++;
+				if (playbackFeederCounter == Integer.MAX_VALUE)
+					playbackFeederCounter = 0;
+				
+				android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
 				
 				byte[] silence = new byte[OpusWrapper.OPUS_FRAME_SIZE * 2];
 				VoIPDataPacket silentPacket = new VoIPDataPacket(PacketType.VOICE_PACKET);
@@ -1403,9 +1415,8 @@ public class VoIPService extends Service {
 					// Retrieve decoded samples from all clients and combine into one
 					VoIPDataPacket decodedSample = null;
 					for (VoIPClient client : clients.values()) {
-						VoIPDataPacket dp = client.decodedBuffersQueue.peek();
+						VoIPDataPacket dp = client.getDecodedBuffer();
 						if (dp != null) {
-							client.decodedBuffersQueue.poll();
 							clientSample.put(client.getPhoneNumber(), dp.getData());
 							
 							if (decodedSample == null)
@@ -1421,7 +1432,10 @@ public class VoIPService extends Service {
 					try {
 						if (decodedSample == null) {
 							// Logger.d(VoIPConstants.TAG, "Decoded samples underrun. Adding silence.");
+							playbackTrackingBits.clear(playbackFeederCounter % playbackTrackingBits.size());
 							decodedSample = silentPacket;
+						} else {
+							playbackTrackingBits.set(playbackFeederCounter % playbackTrackingBits.size());
 						}
 
 						if (!hold) {
@@ -1446,23 +1460,22 @@ public class VoIPService extends Service {
 							dp.setData(conferencePCM);
 							
 							for (VoIPClient client : clients.values()) {
-								try {
-									VoIPDataPacket clientDp = new VoIPDataPacket();
-									byte[] origPCM = clientSample.get(client.getPhoneNumber());
-									byte[] newPCM = null;
-									if (origPCM == null) {
-										newPCM = conferencePCM;
-									} else {
-										newPCM = VoIPUtils.subtractPCMSamples(conferencePCM, origPCM);
-									}
-									clientDp.setData(newPCM);
-									client.samplesToEncodeQueue.put(clientDp.getData());
-								} catch (InterruptedException e) {
-									Logger.w(VoIPConstants.TAG, "InterruptedException while adding client sample in conference.");
-								} 
+								VoIPDataPacket clientDp = new VoIPDataPacket();
+								byte[] origPCM = clientSample.get(client.getPhoneNumber());
+								byte[] newPCM = null;
+								if (origPCM == null) {
+									newPCM = conferencePCM;
+								} else {
+									newPCM = VoIPUtils.subtractPCMSamples(conferencePCM, origPCM);
+								}
+								clientDp.setData(newPCM);
+								client.addSampleToEncode(clientDp.getData()); 
 							}
 						}
 					}
+					
+					if (playbackFeederCounter % QUALITY_CALCULATION_FREQUENCY == 0)
+						calculateQuality();
 					
 					clientSample.clear();
 					
@@ -1471,10 +1484,34 @@ public class VoIPService extends Service {
 					scheduledFuture.cancel(true);
 					scheduledExecutorService.shutdownNow();
 				}
-				
-//				Logger.d(VoIPConstants.TAG, "Running time: " + (System.currentTimeMillis() - time) + "ms");
 			}
 		}, 0, sleepTime, TimeUnit.MILLISECONDS);
+	}
+	
+	private void calculateQuality() {
+		if (getCallDuration() < QUALITY_BUFFER_SIZE)
+			return;
+		
+		int cardinality = playbackTrackingBits.cardinality();
+		int loss = (100 - (cardinality*100 / playbackTrackingBits.length()));
+		Logger.d(VoIPConstants.TAG, "Loss: " + loss + ", cardinality: " + cardinality);
+		
+		CallQuality newQuality;
+		
+		if (loss < 10)
+			newQuality = CallQuality.EXCELLENT;
+		else if (loss < 20)
+			newQuality = CallQuality.GOOD;
+		else if (loss < 30)
+			newQuality = CallQuality.FAIR;
+		else 
+			newQuality = CallQuality.WEAK;
+
+		if (currentCallQuality != newQuality) {
+			currentCallQuality = newQuality;
+			sendHandlerMessage(VoIPConstants.MSG_UPDATE_QUALITY);
+		}
+
 	}
 	
 	/**
@@ -1696,16 +1733,13 @@ public class VoIPService extends Service {
 	}
 
 	public void sendAnalyticsEvent(String ek, int value) {
-		getClient().sendAnalyticsEvent(ek, value);
+		VoIPClient client = getClient();
+		if (client != null)
+			client.sendAnalyticsEvent(ek, value);
 	}
 	
 	public CallQuality getQuality() {
-		VoIPClient client = getClient();
-		
-		if (client != null)
-			return getClient().getQuality();
-		else
-			return CallQuality.UNKNOWN;
+		return currentCallQuality;
 	}
 
 	public boolean isAudioRunning() {
@@ -1749,7 +1783,7 @@ public class VoIPService extends Service {
 	
 	private void removeClient(VoIPClient client) {
 		client.close();
-		// clients.remove(client.getPhoneNumber());
+		clients.remove(client.getPhoneNumber());
 	}
 	
 	public boolean toggleConferencing() {
