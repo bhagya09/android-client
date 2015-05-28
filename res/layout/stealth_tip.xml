@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/stealth_tip_bg"
+    android:orientation="vertical" >
+
+    <RelativeLayout
+        android:id="@+id/all_content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/popup_button_bg_selector" >
+        <ImageView
+            android:id="@+id/arrow_pointer"
+            android:layout_width="wrap_content"
+            android:layout_height="33dp"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="7dp"
+            android:scaleType="fitXY"
+            android:src="@drawable/ftue_up_arrow_left" />
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/tip_text"
+            style="@style/TipText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_toRightOf="@id/arrow_pointer"
+            android:paddingBottom="22.5dp"
+            android:paddingTop="22.5dp"
+            android:text="To reveal chats, tap" />
+
+        <ImageView
+            android:layout_width="15dp"
+            android:layout_height="15dp"
+            android:layout_centerInParent="true"
+            android:layout_marginLeft="7dp"
+            android:layout_toRightOf="@id/tip_text"
+            android:src="@drawable/hike_logo_top_bar" />
+
+        <View
+            android:id="@+id/close_divider"
+            android:layout_width="1dp"
+            android:layout_height="50dp"
+            android:layout_centerVertical="true"
+            android:layout_gravity="center_vertical"
+            android:layout_toLeftOf="@id/close_tip"
+            android:background="@color/stealth_tip_divider" />
+
+        <ImageView
+            android:id="@+id/close_tip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:padding="20dp"
+            android:background="@drawable/popup_button_bg_selector"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_tip_cross" />
+    </RelativeLayout>
+</LinearLayout>

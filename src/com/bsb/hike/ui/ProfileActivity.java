@@ -104,6 +104,7 @@ import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.SmileyParser;
+import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.CustomFontEditText;
 import com.bsb.hike.voip.VoIPUtils;
@@ -2770,10 +2771,9 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		{	
 			ContactInfo contactInfo = groupParticipant.getContactInfo();
 
-			if (HikeMessengerApp.isStealthMsisdn(contactInfo.getMsisdn()))
+			if (StealthModeManager.getInstance().isStealthMsisdn(contactInfo.getMsisdn()))
 			{
-				int stealthMode = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF);
-				if (stealthMode != HikeConstants.STEALTH_ON)
+				if (!StealthModeManager.getInstance().isActive())
 				{
 					return;
 				}

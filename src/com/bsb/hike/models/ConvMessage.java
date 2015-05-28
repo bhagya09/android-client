@@ -31,6 +31,7 @@ import com.bsb.hike.platform.WebMetadata;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.SearchManager.Searchable;
+import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
 
 public class ConvMessage implements Searchable
@@ -808,7 +809,7 @@ public class ConvMessage implements Searchable
 				{
 					data.put(HikeConstants.MESSAGE_ID, msgID);
 
-					if(HikeMessengerApp.isStealthMsisdn(mMsisdn) && isSent())
+					if(StealthModeManager.getInstance().isStealthMsisdn(mMsisdn) && isSent())
 					{
 						data.put(HikeConstants.STEALTH, true);
 					}

@@ -33,7 +33,7 @@ import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
-import com.bsb.hike.db.DBBackupRestore;
+import com.bsb.hike.db.AccountBackupRestore;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.HikeHandlerUtil;
@@ -235,7 +235,7 @@ public class HikeService extends Service
 		 */
 		assignUtilityThread();
 		scheduleNextAnalyticsSendAlarm();
-		DBBackupRestore.getInstance(getApplicationContext()).scheduleNextAutoBackup();
+		AccountBackupRestore.getInstance(getApplicationContext()).scheduleNextAutoBackup();
 
 		/*
 		 * register with the Contact list to get an update whenever the phone book changes. Use the application thread for the intent receiver, the IntentReceiver will take care of

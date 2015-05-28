@@ -95,6 +95,7 @@ import com.bsb.hike.utils.LastSeenScheduler;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.NUXManager;
 import com.bsb.hike.utils.OneToNConversationUtils;
+import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.ShareUtils;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
@@ -717,6 +718,17 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				return;
 			}
 
+			/*
+			 * This would be true if the user entered a stealth msisdn and tried starting a chat with him/her in non stealth mode.
+			 */
+			if (StealthModeManager.getInstance().isStealthMsisdn(contactInfo.getMsisdn()))
+			{
+				if (!StealthModeManager.getInstance().isActive())
+				{
+					return;
+				}
+			}
+
 			if (isForwardingMessage)
 			{
 				
@@ -762,18 +774,6 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			}
 			else
 			{
-				/*
-				 * This would be true if the user entered a stealth msisdn and tried starting a chat with him/her in non stealth mode.
-				 */
-				if (HikeMessengerApp.isStealthMsisdn(contactInfo.getMsisdn()))
-				{
-					int stealthMode = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF);
-					if (stealthMode != HikeConstants.STEALTH_ON)
-					{
-						return;
-					}
-				}
-
 				Utils.startChatThread(this, contactInfo);
 				finish();
 			}
