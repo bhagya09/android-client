@@ -102,6 +102,7 @@ public interface HikePlatformConstants
 	public static final String CARD = "card";
 	public static final String NOTIF = "notif";
 	public static final String APP_VERSION = "appVersion";
+	public static final String OVERFLOW_MENU_CLICKED = "om_click";
 
 	public static final String PLATFORM_BRIDGE_NAME = "PlatformBridge";
 
