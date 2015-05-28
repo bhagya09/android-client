@@ -655,7 +655,7 @@ public class HikeNotificationMsgStack implements Listener
 		this.mTickerText = mTickerText;
 	}
 
-	private boolean containsStealthMessage()
+	public boolean containsStealthMessage()
 	{
 		if (mMessagesMap.keySet().contains(HikeNotification.HIKE_STEALTH_MESSAGE_KEY))
 		{

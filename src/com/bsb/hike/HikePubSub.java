@@ -304,25 +304,19 @@ public class HikePubSub implements Runnable
 	
 	public static final String IPS_CHANGED = "ipsChanged";
 
-	public static final String DISMISS_STEALTH_FTUE_CONV_TIP = "dismissStealthFtueConvTip";
-
-	public static final String SHOW_STEALTH_FTUE_CONV_TIP = "showStealthFtueConvTip";
-
-	public static final String SHOW_STEALTH_FTUE_SET_PASS_TIP = "showStealthFtueSetPassTip";
-
-	public static final String SHOW_STEALTH_FTUE_ENTER_PASS_TIP = "showStealthFtueEnterPassTip";
-
 	public static final String STEALTH_MODE_TOGGLED = "stealthModeToggled";
-
-	public static final String CLEAR_FTUE_STEALTH_CONV = "clearFtueStealthConv";
 
 	public static final String STEALTH_CONVERSATION_MARKED = "stealthConverstaionMarked";
 
 	public static final String STEALTH_CONVERSATION_UNMARKED = "stealthConversationUnmarked";
 
-	public static final String RESET_STEALTH_INITIATED = "resetStealthInitiated";
+	public static final String STEALTH_DATABASE_MARKED = "stealthDatabaseMarked";
 
-	public static final String RESET_STEALTH_CANCELLED = "resetStealthCancelled";
+	public static final String STEALTH_DATABASE_UNMARKED = "stealthDatabaseUnmarked";
+	
+	public static final String SHOW_TIP = "showTip";
+
+	public static final String REMOVE_TIP = "removeTip";
 
 	public static final String STEALTH_MODE_RESET_COMPLETE = "stealthModeResetComplete";
 
@@ -334,15 +328,11 @@ public class HikePubSub implements Runnable
 	
 	public static final String APP_BACKGROUNDED = "appBackgrounded";
 
-	public static final String REMOVE_WELCOME_HIKE_TIP = "removeWelcomeHikeTip";
-
 	public static final String STEALTH_POPUP_WITH_PUSH = "stealthPopupShowPush";
+	
+	public static final String STEALTH_INDICATOR = "stealthIndicator";
 
 	public static final String ATOMIC_POPUP_WITH_PUSH = "atomicPopupShowPush";
-
-	public static final String REMOVE_STEALTH_INFO_TIP = "removeStealthInfoTip";
-
-	public static final String REMOVE_STEALTH_UNREAD_TIP = "removeStealthUnreadTip";
 
 	public static final String STEALTH_UNREAD_TIP_CLICKED = "stealthUnreadTipClicked";
 	

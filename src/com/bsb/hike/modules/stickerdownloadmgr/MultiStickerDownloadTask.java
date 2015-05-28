@@ -102,7 +102,7 @@ public class MultiStickerDownloadTask extends BaseStickerDownloadTask
 				request.put(HikeConstants.NUMBER_OF_STICKERS, getStickerDownloadSize());
 				if(source != null)
 				{
-					request.put(HikeConstants.DOWNLOAD_SOURCE, source.ordinal());
+					request.put(HikeConstants.DOWNLOAD_SOURCE, source.getValue());
 				}
 				
 

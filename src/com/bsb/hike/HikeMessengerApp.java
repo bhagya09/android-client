@@ -43,6 +43,7 @@ import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.db.DbConversationListener;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.db.HikeMqttPersistence;
+import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.modules.contactmgr.ContactManager;
@@ -66,6 +67,7 @@ import com.bsb.hike.utils.ActivityTimeLogger;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.SmileyParser;
+import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
@@ -379,6 +381,10 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	public static final String STEALTH_MODE = "stealthMode";
 
 	public static final String STEALTH_MODE_SETUP_DONE = "steatlhModeSetupDone";
+	
+	public static final String STEALTH_MODE_FTUE_DONE = "steatlhModeFtueDone";
+	
+	public static final String STEALTH_PIN_AS_PASSWORD = "steatlhPinAsPassword";
 
 	public static final String SHOWING_STEALTH_FTUE_CONV_TIP = "showingStealthFtueConvTip";
 
@@ -509,8 +515,6 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	public static boolean isIndianUser;
 
 	private static Map<String, TypingNotification> typingNotificationMap;
-
-	private static Set<String> stealthMsisdn;
 
 	private AtomicBoolean mInitialized = new AtomicBoolean(false);
 
@@ -712,10 +716,6 @@ public void onTrimMemory(int level)
 			mEditor.putInt(HikeConstants.UPGRADE_FOR_DATABASE_VERSION_28, 0);
 			mEditor.commit();
 		}
-		/*
-		 * Resetting the stealth mode when the app starts. 
-		 */
-		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF);
 		String currentAppVersion = settings.getString(CURRENT_APP_VERSION, "");
 		String actualAppVersion = "";
 		try
@@ -822,8 +822,6 @@ public void onTrimMemory(int level)
 		
 		typingNotificationMap = new HashMap<String, TypingNotification>();
 
-		stealthMsisdn = new HashSet<String>();
-
 		initialiseListeners();
 
 		if (token != null)
@@ -861,7 +859,7 @@ public void onTrimMemory(int level)
 		/*
 		 * Fetching all stealth contacts on app creation so that the conversation cannot be opened through the shortcut or share screen.
 		 */
-		HikeConversationsDatabase.getInstance().addStealthMsisdnToMap();
+		StealthModeManager.getInstance().initiate();
 
 		appStateHandler = new Handler();
 
@@ -1092,41 +1090,6 @@ public void onTrimMemory(int level)
 	public static Map<String, TypingNotification> getTypingNotificationSet()
 	{
 		return typingNotificationMap;
-	}
-
-	public static void addStealthMsisdnToMap(String msisdn)
-	{
-		stealthMsisdn.add(msisdn);
-	}
-
-	public static void addNewStealthMsisdn(String msisdn)
-	{
-		addStealthMsisdnToMap(msisdn);
-		getPubSub().publish(HikePubSub.STEALTH_CONVERSATION_MARKED, msisdn);
-	}
-
-	public static void removeStealthMsisdn(String msisdn)
-	{
-		removeStealthMsisdn(msisdn, true);
-	}
-
-	public static void removeStealthMsisdn(String msisdn, boolean publishEvent)
-	{
-		stealthMsisdn.remove(msisdn);
-		if(publishEvent)
-		{
-			getPubSub().publish(HikePubSub.STEALTH_CONVERSATION_UNMARKED, msisdn);
-		}
-	}
-
-	public static void clearStealthMsisdn()
-	{
-		stealthMsisdn.clear();
-	}
-
-	public static boolean isStealthMsisdn(String msisdn)
-	{
-		return stealthMsisdn.contains(msisdn);
 	}
 
 	public void initialiseListeners()

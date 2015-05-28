@@ -97,6 +97,7 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.NUXManager;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.PairModified;
+import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.voip.VoIPConstants;
@@ -764,11 +765,16 @@ public class MqttMessagesManager
 				String msisdn = convMessage.getMsisdn();
 				if (ContactManager.getInstance().isConvExists(msisdn))
 				{
-					if (OneToNConversationUtils.isGroupConversation(msisdn))
+					boolean activeStealthChat = StealthModeManager.getInstance().isStealthMsisdn(msisdn) && StealthModeManager.getInstance().isActive();
+					boolean stealthNotifPref = PreferenceManager.getDefaultSharedPreferences(context).getBoolean(HikeConstants.STEALTH_NOTIFICATION_ENABLED, true);
+					if(!activeStealthChat || !stealthNotifPref)
 					{
-						if (!HikeConversationsDatabase.getInstance().isGroupMuted(msisdn))
+						if (OneToNConversationUtils.isGroupConversation(msisdn))
 						{
-							vibrate = true;
+							if (!HikeConversationsDatabase.getInstance().isGroupMuted(msisdn))
+							{
+								vibrate = true;
+							}
 						}
 					}
 					else
@@ -962,7 +968,8 @@ public class MqttMessagesManager
 		{
 			serverIdsArrayList.add(serverIds.optLong(i));
 		}
-		if (!OneToNConversationUtils.isOneToNConversation(id))
+		
+        if (!OneToNConversationUtils.isOneToNConversation(id))
 		{
 			Map<String, ArrayList<Long>> map = convDb.getMsisdnMapForServerIds(serverIdsArrayList, id);
 			Logger.d(AnalyticsConstants.MSG_REL_TAG, "NOT GC so --> For mr/nmr, calling : ids, map" + serverIdsArrayList + " , .. "+ map);

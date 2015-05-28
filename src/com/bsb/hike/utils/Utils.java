@@ -197,6 +197,7 @@ import com.bsb.hike.models.StatusMessage;
 import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.models.Conversation.Conversation;
+import com.bsb.hike.models.Conversation.ConversationTip;
 import com.bsb.hike.models.Conversation.GroupConversation;
 import com.bsb.hike.models.Conversation.OneToNConvInfo;
 import com.bsb.hike.models.Conversation.OneToNConversation;
@@ -2745,20 +2746,10 @@ public class Utils
 				}
 			}
 		}
-
+		
 		sendAppState(context, requestBulkLastSeen, dueToConnect, toLog);
 
-		if (resetStealth)
-		{
-			if (HikeMessengerApp.currentState != CurrentState.OPENED && HikeMessengerApp.currentState != CurrentState.RESUMED)
-			{
-				resetStealthMode(context);
-			}
-			else
-			{
-				clearStealthResetTimer(context);
-			}
-		}
+		StealthModeManager.getInstance().appStateChange(resetStealth, HikeMessengerApp.currentState != CurrentState.OPENED && HikeMessengerApp.currentState != CurrentState.RESUMED);
 	}
 
 	public static boolean isScreenOn(Context context)
@@ -2843,16 +2834,6 @@ public class Utils
 		}
 	}
 	
-	private static void resetStealthMode(Context context)
-	{
-		StealthResetTimer.getInstance(context).resetStealthToggle();
-	}
-
-	private static void clearStealthResetTimer(Context context)
-	{
-		StealthResetTimer.getInstance(context).clearScheduledStealthToggleTimer();
-	}
-
 	public static String getLastSeenTimeAsString(Context context, long lastSeenTime, int offline)
 	{
 		return getLastSeenTimeAsString(context, lastSeenTime, offline, false);
@@ -4531,6 +4512,14 @@ public class Utils
 		Intent intent = new Intent(context, HikePreferences.class);
 		intent.putExtra(HikeConstants.Extras.PREF, R.xml.privacy_preferences);
 		intent.putExtra(HikeConstants.Extras.TITLE, R.string.privacy);
+		return intent;
+	}
+	
+	public static Intent getIntentForHiddenSettings(Context context)
+	{
+		Intent intent = new Intent(context, HikePreferences.class);
+		intent.putExtra(HikeConstants.Extras.PREF, R.xml.stealth_preferences);
+		intent.putExtra(HikeConstants.Extras.TITLE, R.string.stealth_mode_title);
 		return intent;
 	}
 

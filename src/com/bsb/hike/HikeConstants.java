@@ -455,7 +455,15 @@ public class HikeConstants
 
 	public static final String CHANGE_STEALTH_PASSCODE = "changeStealthPasscode";
 
+	public static final String CHANGE_STEALTH_TIMEOUT = "changeStealthTimeout";
+
+	public static final String STEALTH_INDICATOR_ENABLED = "stealthIndicatorEnabled";
+
+	public static final String STEALTH_NOTIFICATION_ENABLED = "stealthNotificationEnabled";
+
 	public static final String STEALTH_PERF_SETTING = "steathPerfCategory";
+
+	public static final String STEALTH_MSISDN = "stlthmsisdn";
 
 	public static final String SEND_UNDELIVERED_AS_NATIVE_PREF = "sendUndeliveredAsNativePref";
 
@@ -525,6 +533,10 @@ public class HikeConstants
 	public static final String BLOKED_LIST_PREF = "blockedList";
 
 	public static final String FAV_LIST_PREF = "favoriteList";
+
+	public static final String STEALTH_MODE_PREF = "stealthModeSettings";
+
+	public static final String STEALTH_PREF_SCREEN = "stealthPrefScreen";
 
 	public static final String SYSTEM_HEALTH_PREF = "systemHealth";
 
@@ -995,8 +1007,8 @@ public class HikeConstants
 
 	public static final int STEALTH_ON = 2;
 
-	public static final long RESET_COMPLETE_STEALTH_TIME_MS = 30 * 60 * 1000;
-
+	public static final long RESET_COMPLETE_STEALTH_TIME_MS = 5 * 1000;
+	
 	public static final String ENABLED = "enabled";
 
 	public static final String ENABLED_STEALTH = "en";
@@ -1091,6 +1103,12 @@ public class HikeConstants
 		public static final int CONFIRM_LOCK_PATTERN = 4003;
 
 		public static final int CONFIRM_AND_ENTER_NEW_PASSWORD = 4004;
+
+		public static final int CREATE_LOCK_PATTERN_HIDE_CHAT = 4005;
+
+		public static final int CONFIRM_LOCK_PATTERN_HIDE_CHAT = 4006;
+
+		public static final int CONFIRM_LOCK_PATTERN_CHANGE_PREF = 4007;
 		
 		public static final int PHOTOS_REQUEST_CODE = 739;
 	}
@@ -1469,6 +1487,8 @@ public class HikeConstants
 
 		public static final String CALL_RATE_BUNDLE = "callRateBundle";
 		
+		public static final String CLEARED_OUT = "extrasClearedOut";
+		
 		// constants related to sharing Functioanlity
 		public static final class ShareTypes
 		{
@@ -1789,8 +1809,6 @@ public class HikeConstants
 
 		public static final String RESET_STEALTH_CANCEL = "resetStlthCancel";
 
-		public static final String ENTER_WRONG_STEALTH_MODE = "entWrongStlth";
-
 		public static final String EXIT_STEALTH_MODE = "exitStlthMode";
 
 		public static final String FTUE_WELCOME_CARD_CLICKED = "ftueWelcomeCardClicked";
@@ -2099,6 +2117,22 @@ public class HikeConstants
 		public static final String SEND_DEVICE_DETAILS = "sendDeviceDetails";
 
 		public static final String GET_ACTIVE_NETWORK_INFO = "getActiveNetworkInfo";
+
+		//steatlh
+
+		public static final String STEALTH = "stlth";
+
+		public static final String STEALTH_CONV_MARK = "stlthmark";
+
+		public static final String STEALTH_SETUP = "stlthsetup";
+
+		public static final String STEALTH_PASSWORD_ENTRY = "entStlthPwd";
+
+		public static final String STEALTH_RESULT = "stlthrslt";
+
+		public static final String ENTER_WRONG_STEALTH_MODE = "entWrongStlth";
+
+		public static final String STEALTH_REQUEST = "stlthrqst";
 
 	}
 
@@ -2776,6 +2810,8 @@ public class HikeConstants
 	public static final String PAYLOAD = "payload";
 	
 	public static final String HIKE_CONTACT_PICKER_RESULT = "contact_pick_result";
+	
+	public static final String GET="get";
 
 	public static final String FTUE_HIKEBOT_MSISDN = "+hike1+";
 

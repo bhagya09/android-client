@@ -35,6 +35,7 @@ import java.util.List;
 import com.bsb.hike.platform.PlatformUtils;
 import org.json.JSONObject;
 
+import com.bsb.hike.HikeConstants;
 import android.text.TextUtils;
 
 import com.bsb.hike.modules.httpmgr.Header;
@@ -43,6 +44,7 @@ import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.analytics.HttpAnalyticsConstants;
 import com.bsb.hike.modules.httpmgr.interceptor.GzipRequestInterceptor;
 import com.bsb.hike.modules.httpmgr.interceptor.IRequestInterceptor;
+import com.bsb.hike.modules.httpmgr.request.ByteArrayRequest;
 import com.bsb.hike.modules.httpmgr.request.FileRequest;
 import com.bsb.hike.modules.httpmgr.request.JSONArrayRequest;
 import com.bsb.hike.modules.httpmgr.request.JSONObjectRequest;
@@ -53,6 +55,7 @@ import com.bsb.hike.modules.httpmgr.request.requestbody.JsonBody;
 import com.bsb.hike.modules.httpmgr.retry.DefaultRetryPolicy;
 import com.bsb.hike.modules.httpmgr.retry.IRetryPolicy;
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.Utils;
@@ -279,6 +282,22 @@ public class HttpRequests
 				.build();
 		requestToken.getRequestInterceptors().addLast("gzip", new GzipRequestInterceptor());
 		return requestToken;
+	}
+	
+	public static RequestToken productPopupRequest(String url, IRequestListener requestListener, String requestType)
+	{
+		ByteArrayRequest.Builder builder = new ByteArrayRequest.Builder().
+				setUrl(url).
+				setRequestType(Request.REQUEST_TYPE_SHORT).
+				setRetryPolicy(new DefaultRetryPolicy(ProductPopupsConstants.numberOfRetries, ProductPopupsConstants.retryDelay, ProductPopupsConstants.backOffMultiplier)).
+				setRequestListener(requestListener);
+
+		if (requestType.equals(HikeConstants.POST))
+		{
+			builder = builder.post(null);
+		}
+		
+		return builder.build();
 	}
 
 	public static RequestToken microAppPostRequest(String url, JSONObject json, IRequestListener requestListener)
