@@ -111,7 +111,7 @@ public class VoIPService extends Service {
 	private WakeLock wakeLock = null;
 	
 	// Resampler
-	private boolean resamplerEnabled = false;
+	private boolean resamplerEnabled = true;
 	private Resampler resampler;
 
 	// Echo cancellation
@@ -225,8 +225,10 @@ public class VoIPService extends Service {
 		keepRunning = true;
 		isRingingIncoming = false;
 		
-		if (resamplerEnabled)
+		if (resamplerEnabled) {
 			playbackSampleRate = AudioTrack.getNativeOutputSampleRate(AudioManager.STREAM_VOICE_CALL);
+			resampler = new Resampler();
+		}
 		else
 			playbackSampleRate = VoIPConstants.AUDIO_SAMPLE_RATE;
 		
@@ -258,10 +260,6 @@ public class VoIPService extends Service {
 				minBufSizeRecording = ((minBufSizeRecording + (SolicallWrapper.SOLICALL_FRAME_SIZE * 2) - 1) / (SolicallWrapper.SOLICALL_FRAME_SIZE * 2)) * SolicallWrapper.SOLICALL_FRAME_SIZE * 2;
 			}
 			Logger.d(VoIPConstants.TAG, "New minBufSizeRecording: " + minBufSizeRecording);
-		}
-		
-		if (resamplerEnabled) {
-			resampler = new Resampler();
 		}
 		
 		startConnectionTimeoutThread();
@@ -1332,6 +1330,7 @@ public class VoIPService extends Service {
 							// Resample
 							if (resamplerEnabled && playbackSampleRate != VoIPConstants.AUDIO_SAMPLE_RATE) {
 								// We need to resample the output signal
+								// Logger.d(VoIPConstants.TAG, "Resampling.");
 								byte[] output = resampler.reSample(dp.getData(), 16, VoIPConstants.AUDIO_SAMPLE_RATE, playbackSampleRate);
 								dp.write(output);
 							} 

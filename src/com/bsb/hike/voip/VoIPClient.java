@@ -7,6 +7,7 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
+import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.BitSet;
@@ -62,7 +63,7 @@ public class VoIPClient  {
 	private int ourInternalPort, ourExternalPort;
 	private String name;
 	private boolean initiator, ender;
-	private ConnectionMethods preferredConnectionMethod = ConnectionMethods.UNKNOWN;
+	private volatile ConnectionMethods preferredConnectionMethod = ConnectionMethods.UNKNOWN;
 	private InetAddress cachedInetAddress = null;
 	private String relayAddress;
 	private int relayPort;
@@ -81,7 +82,7 @@ public class VoIPClient  {
 	private boolean establishingConnection = false;
 	private int totalBytesReceived = 0, totalBytesSent = 0;
 	private int totalPacketsSent = 0, totalPacketsReceived = 0;
-	private int packetsReceivedPerSecond = 0, remotePacketsReceivedPerSecond = 0;
+	private int voicePacketsReceivedPerSecond = 0, remotePacketsReceivedPerSecond = 0;
 	private Handler handler;
 	private int previousHighestRemotePacketNumber = 0;
 	private BitSet packetTrackingBits = new BitSet(PACKET_TRACKING_SIZE);
@@ -203,7 +204,7 @@ public class VoIPClient  {
 		return preferredConnectionMethod;
 	}
 	
-	public void setPreferredConnectionMethod(
+	private void setPreferredConnectionMethod(
 			ConnectionMethods preferredConnectionMethod) {
 		this.preferredConnectionMethod = preferredConnectionMethod;
 		cachedInetAddress = null;
@@ -465,8 +466,8 @@ public class VoIPClient  {
 					// Send heartbeat packet
 					// Include packets received / second info
 					VoIPDataPacket dp = new VoIPDataPacket(PacketType.HEARTBEAT);
-					dp.write(ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt(packetsReceivedPerSecond).array());
-					packetsReceivedPerSecond = 0;
+					dp.write(ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt(voicePacketsReceivedPerSecond).array());
+					voicePacketsReceivedPerSecond = 0;
 					sendPacket(dp, false);
 
 					if (System.currentTimeMillis() - lastHeartbeat > HEARTBEAT_TIMEOUT && !reconnecting) {
@@ -608,6 +609,7 @@ public class VoIPClient  {
 						VoIPDataPacket dp = null;
 						synchronized (this) {
 							ConnectionMethods currentMethod = getPreferredConnectionMethod();
+							
 							setPreferredConnectionMethod(ConnectionMethods.PRIVATE);
 							dp = new VoIPDataPacket(PacketType.COMM_UDP_SYN_PRIVATE);
 							sendPacket(dp, false);
@@ -617,6 +619,7 @@ public class VoIPClient  {
 							setPreferredConnectionMethod(ConnectionMethods.RELAY);
 							dp = new VoIPDataPacket(PacketType.COMM_UDP_SYN_RELAY);
 							sendPacket(dp, false);
+							
 							setPreferredConnectionMethod(currentMethod);
 						}
 						Thread.sleep(250);
@@ -1040,7 +1043,6 @@ public class VoIPClient  {
 //						Logger.d(VoIPConstants.TAG, "Received something.");
 						totalBytesReceived += packet.getLength();
 						totalPacketsReceived++;
-						packetsReceivedPerSecond++;
 						
 					} catch (IOException e) {
 						Logger.e(VoIPConstants.TAG, "startReceiving() IOException: " + e.toString());
@@ -1161,6 +1163,7 @@ public class VoIPClient  {
 						break;
 						
 					case VOICE_PACKET:
+						voicePacketsReceivedPerSecond++;
 						qualityCounter++;
 						if (dataPacket.isEncrypted()) {
 							byte[] encryptedData = dataPacket.getData();
@@ -1176,8 +1179,13 @@ public class VoIPClient  {
 						
 					case HEARTBEAT:
 						lastHeartbeat = System.currentTimeMillis();
-						if (dataPacket.getData() != null)
-							remotePacketsReceivedPerSecond = ByteBuffer.wrap(dataPacket.getData()).order(ByteOrder.LITTLE_ENDIAN).getInt();
+						if (dataPacket.getData() != null) {
+							try {
+								remotePacketsReceivedPerSecond = ByteBuffer.wrap(dataPacket.getData()).order(ByteOrder.LITTLE_ENDIAN).getInt();
+							} catch (BufferUnderflowException e) {
+								remotePacketsReceivedPerSecond = 0;
+							}
+						}
 						
 						// Mostly redundant check to ensure that neither of the phones
 						// is playing the reconnecting tone
