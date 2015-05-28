@@ -3,14 +3,13 @@ package com.bsb.hike.offline;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.bsb.hike.HikeConstants;
-import com.bsb.hike.utils.Logger;
+import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.models.ConvMessage;
 
 public class OfflineUtils
 {
@@ -19,6 +18,8 @@ public class OfflineUtils
 
 	// Fix for Spice , Micromax , Xiomi
 	private final static String p2pIntOther = "ap0";
+	
+	
 
 	public static String getIPFromMac(String MAC)
 	{
@@ -92,7 +93,7 @@ public class OfflineUtils
 
 		try
 		{
-			if (packet.has(HikeConstants.SUB_TYPE) && packet.getString(HikeConstants.SUB_TYPE).equals(HikeConstants.GHOST))
+			if (packet.has(HikeConstants.SUB_TYPE) && packet.getString(HikeConstants.SUB_TYPE).equals(OfflineConstants.GHOST))
 			{
 				return true;
 			}
@@ -104,5 +105,8 @@ public class OfflineUtils
 		return false;
 	}
 
-	
+	public static  int updateDB(long msgId, ConvMessage.State status, String msisdn)
+	{
+		return HikeConversationsDatabase.getInstance().updateMsgStatus(msgId, status.ordinal(), msisdn);
+	}
 }
