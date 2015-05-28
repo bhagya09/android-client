@@ -492,24 +492,23 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 				 * @see : http://stackoverflow.com/questions/13421582/parcelable-inside-bundle-which-is-added-to-parcel
 				 */
 				bundle.setClassLoader(GalleryItem.class.getClassLoader());
-				
+				bundle.putString(HikeConstants.Extras.GALLERY_SELECTION_SINGLE, temp.get(0).getFilePath());
+				intent.putExtras(bundle);
 								
 				if(temp.size() == 1 && hasDelegateActivities())
 				{
-					bundle.putString(HikeConstants.Extras.GALLERY_SELECTIONS, temp.get(0).getFilePath());
-					intent.putExtras(bundle);
 					launchNextDelegateActivity(bundle);
 				}
 				else if(!sendResult && isStartedForResult())
 				{
 					//since sendResult is active when we need to send result to selection viewer
+					intent.putParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS, temp);
 					setResult(RESULT_OK, intent);
 					finish();
 				}
 				else
 				{
-					bundle.putParcelableArrayList(HikeConstants.Extras.GALLERY_SELECTIONS, temp);
-					intent.putExtras(bundle);
+					intent.putParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS, temp);
 					sendGalleryIntent(intent);
 				}
 			}
@@ -597,7 +596,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 				bundle.setClassLoader(GalleryItem.class.getClassLoader());
 				
 				
-				bundle.putString(HikeConstants.Extras.GALLERY_SELECTIONS, cameraFilename);
+				bundle.putString(HikeConstants.Extras.GALLERY_SELECTION_SINGLE, cameraFilename);
 				//Added to ensure delegate activity passes destination path to editer
 				bundle.putString(HikeConstants.HikePhotos.DESTINATION_FILENAME, cameraFilename); 
 				intent.putExtras(bundle);
@@ -608,11 +607,13 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 				}
 				else if(isStartedForResult())
 				{
+					intent.putParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS, item);
 					setResult(RESULT_OK, intent);
 					finish();
 				}
 				else
 				{
+					intent.putParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS, item);
 					sendGalleryIntent(intent);
 				}
 				break;
@@ -723,7 +724,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 				 * @see : http://stackoverflow.com/questions/13421582/parcelable-inside-bundle-which-is-added-to-parcel
 				 */
 				
-				bundle.putString(HikeConstants.Extras.GALLERY_SELECTIONS, galleryItem.getFilePath());
+				bundle.putString(HikeConstants.Extras.GALLERY_SELECTION_SINGLE, galleryItem.getFilePath());
 				intent.putExtras(bundle);
 				
 				if(hasDelegateActivities())
@@ -732,11 +733,13 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 				}
 				else if (isStartedForResult())
 				{
+					intent.putParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS, item);
 					setResult(RESULT_OK, intent);
 					finish();
 				}
 				else
 				{
+					intent.putParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS, item);
 					sendGalleryIntent(intent);
 				}
 			}

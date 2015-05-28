@@ -123,7 +123,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 //				sendAnalyticsGalleryPic();
 //			}
 			sendAnalyticsGalleryPic();
-			filename = intent.getStringExtra(HikeConstants.Extras.GALLERY_SELECTIONS);
+			filename = intent.getStringExtra(HikeConstants.Extras.GALLERY_SELECTION_SINGLE);
 		}
 
 		if (filename == null)
