@@ -64,11 +64,29 @@ public class DownloadFileTask extends FileTransferBase
 		
 		try
 		{
-			tempDownloadedFile = new File(FileTransferManager.getInstance(context).getHikeTempDir(), mFile.getName() + ".part");
+			/*
+			 * Changes done to fix the issue where some users are getting FileNotFoundEXception while creating file.
+			 */
+			File dir = FileTransferManager.getInstance(context).getHikeTempDir();
+			if(!dir.exists())
+			{
+				if (!dir.mkdirs())
+				{
+					Logger.d("DownloadFileTask", "failed to create directory");
+					return FTResult.NO_SD_CARD;
+				}
+			}
+			tempDownloadedFile = new File(dir, mFile.getName() + ".part");
+			if(!tempDownloadedFile.exists())
+				tempDownloadedFile.createNewFile();
 			stateFile = new File(FileTransferManager.getInstance(context).getHikeTempDir(), mFile.getName() + ".bin." + msgId);
 		}
 		catch(NullPointerException e)
 		{
+			return FTResult.NO_SD_CARD;
+		}
+		catch (IOException e) {
+			Logger.d("DownloadFileTask", "Failed to create File. " + e);
 			return FTResult.NO_SD_CARD;
 		}
 

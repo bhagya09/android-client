@@ -19,6 +19,7 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+import com.bsb.hike.utils.StealthModeManager;
 
 public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 {
@@ -52,7 +53,7 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 		}
 		else
 		{
-			closeChatThread();
+			closeChatThread(null);
 		}
 		super.onCreate(savedInstanceState);
 	}
@@ -77,17 +78,20 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 			intent.putExtra(HikeConstants.Extras.MSISDN, msisdn);
 		}
 		
-		if (HikeMessengerApp.isStealthMsisdn(msisdn)
-				&& HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF) != HikeConstants.STEALTH_ON)
+		if (StealthModeManager.getInstance().isStealthMsisdn(msisdn) && !StealthModeManager.getInstance().isActive())
 		{
 			return false;
 		}
 		return true;
 	}
 	
-	private void closeChatThread()
+	public void closeChatThread(String msisdn)
 	{
 		Intent homeintent = IntentFactory.getHomeActivityIntent(this);
+		if(msisdn != null)
+		{
+			homeintent.putExtra(HikeConstants.STEALTH_MSISDN, msisdn);
+		}
 		this.startActivity(homeintent);
 		this.finish();
 	}
