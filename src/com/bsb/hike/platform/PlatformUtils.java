@@ -403,7 +403,7 @@ public class PlatformUtils
 
 			return headers;
 		}
-		return null;
+		return new ArrayList<Header>();
 	}
 
 	public static void deleteBotConversation(String msisdn)

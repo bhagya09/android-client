@@ -32,6 +32,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.bsb.hike.modules.httpmgr.request.StringRequest;
 import com.bsb.hike.platform.PlatformUtils;
 import org.json.JSONObject;
 
@@ -304,7 +305,7 @@ public class HttpRequests
 	{
 		JsonBody body = new JsonBody(json);
 
-		RequestToken requestToken = new JSONObjectRequest.Builder()
+		RequestToken requestToken = new StringRequest.Builder()
 				.setUrl(url)
 				.setRequestType(Request.REQUEST_TYPE_SHORT)
 				.addHeader(PlatformUtils.getHeaders())
