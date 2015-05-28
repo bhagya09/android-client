@@ -130,6 +130,12 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		initAppsBasedOnMode();
 		HikeMessengerApp.getPubSub().addListeners(this, pubsub);
 		checkAndBlockOrientation();
+		resetNotificationCounter();
+	}
+
+	private void resetNotificationCounter()
+	{
+		Utils.resetUnreadCounterForConversation(botInfo);
 	}
 
 	/**

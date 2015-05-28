@@ -122,7 +122,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 			HikePubSub.MULTI_MESSAGE_DB_INSERTED, HikePubSub.SERVER_RECEIVED_MULTI_MSG, HikePubSub.MUTE_CONVERSATION_TOGGLED, HikePubSub.CONV_UNREAD_COUNT_MODIFIED,
 			HikePubSub.CONVERSATION_TS_UPDATED, HikePubSub.PARTICIPANT_JOINED_ONETONCONV, HikePubSub.PARTICIPANT_LEFT_ONETONCONV, HikePubSub.BLOCK_USER, HikePubSub.UNBLOCK_USER,
 			HikePubSub.MUTE_BOT, HikePubSub.CONVERSATION_DELETED, HikePubSub.DELETE_THIS_CONVERSATION, HikePubSub.ONETONCONV_NAME_CHANGED, HikePubSub.STEALTH_CONVERSATION_MARKED,
-			HikePubSub.STEALTH_CONVERSATION_UNMARKED };
+			HikePubSub.STEALTH_CONVERSATION_UNMARKED, HikePubSub.UPDATE_LAST_MSG_STATE };
 
 	private ConversationsAdapter mAdapter;
 
@@ -1024,7 +1024,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 				Intent web = IntentFactory.getNonMessagingBotIntent(convInfo.getMsisdn(), "", "", getActivity());
 				startActivity(web);
 				
-				updateLastMessageStateForNonMessagingBot(convInfo);
+				resetNotificationCounter(convInfo);
 			}
 		}
 		else
@@ -1052,25 +1052,9 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 	 * 
 	 * @param convInfo
 	 */
-	private void updateLastMessageStateForNonMessagingBot(ConvInfo convInfo)
+	private void resetNotificationCounter(ConvInfo convInfo)
 	{
-		ConvMessage convMsg = convInfo.getLastConversationMsg();
-		if (convMsg != null && convMsg.getState() == State.RECEIVED_UNREAD)
-		{
-			convMsg.setState(State.RECEIVED_READ);
-			convInfo.setUnreadCount(0);
-			HikeMessengerApp.getPubSub().publish(HikePubSub.UPDATE_LAST_MSG_STATE, new Pair<Integer, String>(convMsg.getState().ordinal(), convInfo.getMsisdn()));
-
-			View parentView = getListView().getChildAt(displayedConversations.indexOf(convInfo) - getListView().getFirstVisiblePosition() + getOffsetForListHeader());
-
-			if (parentView == null)
-			{
-				notifyDataSetChanged();
-				return;
-			}
-
-			mAdapter.updateViewsRelatedToLastMessage(parentView, convMsg, convInfo);
-		}
+		Utils.resetUnreadCounterForConversation(convInfo);
 	}
 
 	private void recordSearchItemClicked(ConvInfo convInfo, int position, String text)
@@ -2874,6 +2858,35 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 					}
 				}
 			});
+		}
+		
+		else if (HikePubSub.UPDATE_LAST_MSG_STATE.equals(type))
+		{
+			Pair<Integer, String> stateMsisdnPair = (Pair<Integer, String>) object;
+
+			final ConvInfo convInfo = mConversationsByMSISDN.get(stateMsisdnPair.second);
+
+			if (convInfo != null)
+			{
+				final ConvMessage convMsg = convInfo.getLastConversationMsg();
+				if (convMsg != null)
+				{
+					getActivity().runOnUiThread(new Runnable()
+					{
+						@Override
+						public void run()
+						{
+							View parentView = getListView().getChildAt(
+									displayedConversations.indexOf(convInfo) - getListView().getFirstVisiblePosition() + getOffsetForListHeader());
+
+							if (parentView != null)
+							{
+								mAdapter.updateViewsRelatedToLastMessage(parentView, convMsg, convInfo);
+							}
+						}
+					});
+				}
+			}
 		}
 	}
 
