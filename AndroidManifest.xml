@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1215"
-    android:versionName="3.9.6.53.stealth" >
+    android:versionCode="1213"
+    android:versionName="3.9.6.50" >
 
     <uses-sdk
         android:minSdkVersion="9"
@@ -347,6 +347,11 @@
             android:configChanges="orientation|screenSize|keyboard|keyboardHidden"
             android:screenOrientation="user"
             android:theme="@style/LockPatternTheme" />
+         <activity
+            android:name=".ui.ServerHostChangeActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize" 
+            android:label="@string/app_label"
+            />
 
         <receiver
             android:name=".service.BootService"
