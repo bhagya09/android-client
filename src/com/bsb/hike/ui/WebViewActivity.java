@@ -130,7 +130,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		initActionBar();
 		initAppsBasedOnMode();
 		HikeMessengerApp.getPubSub().addListeners(this, pubsub);
-		resetNotificationCounter();
+
 	}
 
 	private void resetNotificationCounter()
@@ -230,6 +230,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		setupTagPicker();
 		loadMicroApp();
 		checkAndBlockOrientation();
+		resetNotificationCounter();
 	}
 
 	private void initMsisdn()
