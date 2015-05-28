@@ -2998,7 +2998,13 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 					}
 					else
 					{
-						convInfo.setmConversationName(contact.getName());
+						/**
+						 * The contact manager can have null names for bot and if it sets null here, we're screwed big time.
+						 */
+						if (!BotUtils.isBot(msisdn))
+						{
+							convInfo.setmConversationName(contact.getName());
+						}
 					}
 				}
 
