@@ -2581,7 +2581,9 @@ public class HikeConstants
 	public static final String RETRY_COUNT = "retryCount";
 
 	public static final String REPLY_NOTIFICATION_RETRY_TIMER = "rnrt";
-
+	
+	public static final String REPLY_NOTIFICATION_RETRY_COUNT = "rnrc";
+	
 	// Intent send to register gcm before and after signup
 	public static final String REGISTER_GCM_SIGNUP = "register_gcm_signup";
 
@@ -2717,6 +2719,38 @@ public class HikeConstants
 	public static final String WHITELISTED_DOMAINS[] = new String[]{"hike.in"};
 	
 	public static final String BLACKLIST_DOMAIN_ANALYTICS = "blacklist";
+	
+	public static final int DEFAULT_MAX_REPLY_RETRY_NOTIF_COUNT = 3;
+
+	public static final String NOTIFICATION_RETRY = "notif";
+
+	public static class NotificationType
+	{
+		public static final int NORMALMSG1TO1 = 0;
+
+		public static final int NORMALGC = 1;
+
+		public static final int HIDDEN= 2;
+
+		public static final int BOTMSG = 4;
+
+		public static final int CHATTHEMECHNG = 5;
+
+		public static final int STATUSUPDATE = 6;
+
+		public static final int DPUPDATE = 7;
+
+		public static final int NUJORRUJ = 8;
+
+		public static final int FAVADD = 9;
+
+		public static final int H2O = 10;
+
+		public static final int OTHER = 11;
+
+	}
+	
+	public static final  String NOTIFICATION_RETRY_JSON="notifretry";
 
 	public static final String HIGHLIGHT_NLS_PERF = "nlsHighlightPerf";
 	
@@ -2749,4 +2783,6 @@ public class HikeConstants
 	public static final String PAYLOAD = "payload";
 	
 	public static final String HIKE_CONTACT_PICKER_RESULT = "contact_pick_result";
+
+	public static final String PRIVACY_SETTINGS_CATEGORY = "privacySettingsCategory";
 }

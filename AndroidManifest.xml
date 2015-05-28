@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1212"
-    android:versionName="3.9.6.0.1.ls_hidden_fix" >
+    android:versionCode="1213"
+    android:versionName="3.9.6.50" >
     <uses-sdk
         android:minSdkVersion="9"
         android:targetSdkVersion="17"/>
@@ -346,6 +346,11 @@
             android:configChanges="orientation|screenSize|keyboard|keyboardHidden"
             android:screenOrientation="user"
             android:theme="@style/LockPatternTheme" />
+         <activity
+            android:name=".ui.ServerHostChangeActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize" 
+            android:label="@string/app_label"
+            />
 
         <receiver
             android:name=".service.BootService"
@@ -442,7 +447,7 @@
 
         <provider
             android:name="com.bsb.hike.providers.HikeProvider"
-            android:authorities="com.bsb.hike.providers.HikeProvider"
+            android:authorities="@string/authority"
             android:exported="true" >
         </provider>
 
