@@ -52,6 +52,7 @@ import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
+import com.bsb.hike.models.ConvMessage.State;
 import com.bsb.hike.models.GroupTypingNotification;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
@@ -2515,6 +2516,8 @@ public class MqttMessagesManager
 						if (!TextUtils.isEmpty(hikeMessage))
 						{
 							convDb.updateLastMessageForNonMessagingBot(destination, hikeMessage);
+							// Saving lastConvMessage in memory as well to refresh the UI
+							botInfo.setLastConversationMsg(Utils.makeConvMessage(destination, hikeMessage, true, State.RECEIVED_UNREAD));
 						}
 						
 						if (Utils.isConversationMuted(destination))

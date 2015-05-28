@@ -1130,9 +1130,4 @@ public void onTrimMemory(int level)
 		}
 	};
 	
-	
-	public boolean isHikeBotNumber(String msisdn)
-	{
-		return hikeBotNamesMap.containsKey(msisdn);
-	}
 }
