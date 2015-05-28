@@ -250,7 +250,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			}
 			initialiseHomeScreen(savedInstanceState);
 		}
-		
+		Logger.d(getClass().getSimpleName(),"onCreate "+this.getClass().getSimpleName());
 		showProductPopup(ProductPopupsConstants.PopupTriggerPoints.HOME_SCREEN.ordinal());
 	
 	}

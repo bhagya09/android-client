@@ -2817,6 +2817,8 @@ public class HikeConstants
 	public static final String PAYLOAD = "payload";
 	
 	public static final String HIKE_CONTACT_PICKER_RESULT = "contact_pick_result";
+	
+	public static final String GET="get";
 
 	public static final String PRIVACY_SETTINGS_CATEGORY = "privacySettingsCategory";
 }
