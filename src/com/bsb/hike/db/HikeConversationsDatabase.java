@@ -78,6 +78,7 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.PairModified;
+import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
@@ -1423,6 +1424,11 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 	private void bindConversationInsert(SQLiteStatement insertStatement, ConvMessage conv,boolean bindForConvId)
 	{
+		if(conv.getMessage() == null)
+		{
+			return;
+		}
+
 		final int msgOriginTypeColumn = 1;
 		final int messageColumn = 2;
 		final int msgStatusColumn = 3;
@@ -2374,6 +2380,13 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			if (OneToNConversationUtils.isGroupConversation(msisdn))
 			{
 				conv = getGroupConversation(msisdn);
+				/**
+				 * A rare case where there is a residual entry in the Conv_table, but not in the group_info table. Though it should not happen
+				 */
+				if (conv == null)
+				{
+					return null;
+				}
 				conv.setIsStealth(isStealth);
 			}
 			/**
@@ -2382,6 +2395,13 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			else if (OneToNConversationUtils.isBroadcastConversation(msisdn))
 			{
 				conv = getBroadcastConversation(msisdn);
+				/**
+				 * A rare case where there is a residual entry in the Conv_table, but not in the group_info table. Though it should not happen
+				 */
+				if (conv == null)
+				{
+					return null;
+				}
 				conv.setIsStealth(isStealth);
 			}
 			
@@ -2474,7 +2494,56 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	{
 		return getConversation(msisdn, limit, false);
 	}
+	
+	private ConvMessage getLastMessage(String msisdn)
+	{
+		/*
+		 * We get the latest message from the messages table
+		 */
+		Cursor c = null;
 
+		try
+		{
+			c = mDb.query(DBConstants.MESSAGES_TABLE, null, DBConstants.MSISDN + "=?", new String[] { msisdn }, null, null, DBConstants.MESSAGE_ID + " DESC " , "1");
+			
+			if (c.moveToFirst())
+			{
+				final int msgColumn = c.getColumnIndex(DBConstants.MESSAGE);
+				final int msgStatusColumn = c.getColumnIndex(DBConstants.MSG_STATUS);
+				final int tsColumn = c.getColumnIndex(DBConstants.TIMESTAMP);
+				final int mappedMsgIdColumn = c.getColumnIndex(DBConstants.MAPPED_MSG_ID);
+				final int msgIdColumn = c.getColumnIndex(DBConstants.MESSAGE_ID);
+				final int metadataColumn = c.getColumnIndex(DBConstants.MESSAGE_METADATA);
+				final int groupParticipantColumn = c.getColumnIndex(DBConstants.GROUP_PARTICIPANT);
+
+				ConvMessage message = new ConvMessage(c.getString(msgColumn), msisdn, c.getInt(tsColumn), ConvMessage.stateValue(c.getInt(msgStatusColumn)),
+						c.getLong(msgIdColumn), c.getLong(mappedMsgIdColumn), c.getString(groupParticipantColumn));
+				String metadata = c.getString(metadataColumn);
+				try
+				{
+					message.setMetadata(metadata);
+				}
+				catch (JSONException e)
+				{
+					Logger.e(HikeConversationsDatabase.class.getName(), "Invalid JSON metadata", e);
+				}
+				return message;
+			}
+		} 
+		catch (Exception e) 
+		{
+			Logger.e(HikeConversationsDatabase.class.getName(), e.toString());
+		}
+		finally
+		{
+			if (c != null)
+			{
+				c.close();
+			}
+		}
+		return null;
+	}
+ 
 	/**
 	 * Using this method to get the conversation with the last message. If there is no last message, we return null if the conversation is not a GC.
 	 *
@@ -3284,75 +3353,41 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 	private void deleteMessageFromConversation(String msisdn)
 	{
-		/*
-		 * We get the latest message from the messages table
-		 */
-		Cursor c = null;
+		ConvMessage message =  getLastMessage(msisdn);
+		boolean conversationEmpty = false;
 
-		try
+		if (message != null)
 		{
-			c = mDb.query(DBConstants.MESSAGES_TABLE, null, DBConstants.MSISDN + "=?", new String[] { msisdn }, null, null, DBConstants.MESSAGE_ID + " DESC LIMIT " + 1);
-			boolean conversationEmpty = false;
-			if (c.moveToFirst())
+			ContentValues contentValues = getContentValueForConversationMessage(message,message.getTimestamp());
+			if (OneToNConversationUtils.isOneToNConversation(msisdn))
 			{
-				final int msgColumn = c.getColumnIndex(DBConstants.MESSAGE);
-				final int msgStatusColumn = c.getColumnIndex(DBConstants.MSG_STATUS);
-				final int tsColumn = c.getColumnIndex(DBConstants.TIMESTAMP);
-				final int mappedMsgIdColumn = c.getColumnIndex(DBConstants.MAPPED_MSG_ID);
-				final int msgIdColumn = c.getColumnIndex(DBConstants.MESSAGE_ID);
-				final int metadataColumn = c.getColumnIndex(DBConstants.MESSAGE_METADATA);
-				final int groupParticipantColumn = c.getColumnIndex(DBConstants.GROUP_PARTICIPANT);
-
-				ConvMessage message = new ConvMessage(c.getString(msgColumn), msisdn, c.getInt(tsColumn), ConvMessage.stateValue(c.getInt(msgStatusColumn)),
-						c.getLong(msgIdColumn), c.getLong(mappedMsgIdColumn), c.getString(groupParticipantColumn));
-				String metadata = c.getString(metadataColumn);
-				try
-				{
-					message.setMetadata(metadata);
-				}
-				catch (JSONException e)
-				{
-					Logger.e(HikeConversationsDatabase.class.getName(), "Invalid JSON metadata", e);
-				}
-				ContentValues contentValues = getContentValueForConversationMessage(message,message.getTimestamp());
-				if (OneToNConversationUtils.isOneToNConversation(msisdn))
-				{
-					updateGroupRecency(message);
-					ContactManager.getInstance().removeContact(c.getString(groupParticipantColumn), false);
-				}
-				mDb.update(DBConstants.CONVERSATIONS_TABLE, contentValues, DBConstants.MSISDN + "=?", new String[] { msisdn });
+				updateGroupRecency(message);
+				ContactManager.getInstance().removeContact(message.getGroupParticipantMsisdn(), false);
+			}
+			mDb.update(DBConstants.CONVERSATIONS_TABLE, contentValues, DBConstants.MSISDN + "=?", new String[] { msisdn });
+		}
+		else
+		{
+			if (OneToNConversationUtils.isOneToNConversation(msisdn))
+			{
+				/*
+				 * If we have removed the last message of a group, we should do the same operations we do when clearing a conversation.
+				 */
+				clearLastConversationMessage(msisdn);
+				HikeMessengerApp.getPubSub().publish(HikePubSub.CONVERSATION_CLEARED_BY_DELETING_LAST_MESSAGE, msisdn);
+				return;
 			}
 			else
 			{
-				if (OneToNConversationUtils.isOneToNConversation(msisdn))
-				{
-					/*
-					 * If we have removed the last message of a group, we should do the same operations we do when clearing a conversation.
-					 */
-					clearLastConversationMessage(msisdn);
-					HikeMessengerApp.getPubSub().publish(HikePubSub.CONVERSATION_CLEARED_BY_DELETING_LAST_MESSAGE, msisdn);
-					return;
-				}
-				else
-				{
-					/*
-					 * This conversation is empty.
-					 */
-					clearLastConversationMessage(msisdn);
-					conversationEmpty = true;
-				}
-			}
-			ConvMessage newLastMessage = conversationEmpty ? null : getLastMessageForConversation(msisdn);
-
-			HikeMessengerApp.getPubSub().publish(HikePubSub.LAST_MESSAGE_DELETED, new Pair<ConvMessage, String>(newLastMessage, msisdn));
-		}
-		finally
-		{
-			if (c != null)
-			{
-				c.close();
+				/*
+				 * This conversation is empty.
+				 */
+				clearLastConversationMessage(msisdn);
+				conversationEmpty = true;
 			}
 		}
+		ConvMessage newLastMessage = conversationEmpty ? null : getLastMessageForConversation(msisdn);
+		HikeMessengerApp.getPubSub().publish(HikePubSub.LAST_MESSAGE_DELETED, new Pair<ConvMessage, String>(newLastMessage, msisdn));
 	}
 
 	private void updateGroupRecency(ConvMessage conv)
@@ -5047,12 +5082,35 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		mDb.update(DBConstants.GROUP_INFO_TABLE, contentValues, DBConstants.GROUP_ID + "=?", new String[] { groupId });
 	}
 
-	public void toggleStealth(String msisdn, boolean isStealth)
+	public boolean toggleStealth(String msisdn, boolean isStealth)
 	{
 		ContentValues values = new ContentValues();
 		values.put(DBConstants.IS_STEALTH, isStealth ? 1 : 0);
 
-		mDb.update(DBConstants.CONVERSATIONS_TABLE, values, DBConstants.MSISDN + "=?", new String[] { msisdn });
+		int rowsUpdated = mDb.update(DBConstants.CONVERSATIONS_TABLE, values, DBConstants.MSISDN + "=?", new String[] { msisdn });
+		boolean updated = (rowsUpdated > 0);
+		
+		if(!updated)
+		{
+			//here if the row does not exist in Conversations table, we find the last ConvMessage of the contact from Messages table
+			ConvMessage lastConvMessage = getLastMessage(msisdn);
+			if(lastConvMessage == null)
+			{
+				lastConvMessage = Utils.makeConvMessage(msisdn, mContext.getString(R.string.start_new_chat), true, State.RECEIVED_READ);
+			}
+			else
+			{
+				lastConvMessage.setTimestamp((long) (System.currentTimeMillis()/1000));
+			}
+			
+			Conversation conv = addConversation(msisdn, true, null, null, lastConvMessage);
+			
+			ContentValues contentValues = getContentValueForConversationMessage(lastConvMessage, lastConvMessage.getTimestamp());
+			contentValues.put(DBConstants.IS_STEALTH, isStealth ? 1:0);
+			rowsUpdated = mDb.update(DBConstants.CONVERSATIONS_TABLE, contentValues, DBConstants.MSISDN + "=?", new String[] { msisdn });
+			updated = (rowsUpdated > 0);
+		}
+		return updated;
 	}
 
 	public void addStealthMsisdnToMap()
@@ -5066,7 +5124,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 			while (c.moveToNext())
 			{
-				HikeMessengerApp.addStealthMsisdnToMap(c.getString(msisdnIdx));
+				StealthModeManager.getInstance().markStealthMsisdn(c.getString(msisdnIdx), true, false);
 			}
 		}
 		finally

@@ -1,7 +1,6 @@
 package com.bsb.hike.media;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.support.v4.view.ViewPager;
@@ -35,7 +34,7 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 {
 	private StickerPickerListener listener;
 
-	private Context mContext;
+	private Activity mActivity;
 
 	private KeyboardPopupLayout popUpLayout;
 
@@ -53,7 +52,7 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 	
 	private ViewPager mViewPager;
 	
-	private static boolean refreshStickers = false;
+	private boolean refreshStickers = false;
 
 	/**
 	 * Constructor
@@ -63,7 +62,7 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 	 */
 	public StickerPicker(Activity activity, StickerPickerListener listener)
 	{
-		this.mContext = activity;
+		this.mActivity = activity;
 		this.listener = listener;
 	}
 
@@ -165,7 +164,7 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 
 		mLayoutResId = (mLayoutResId == -1) ? R.layout.sticker_layout : mLayoutResId;
 
-		viewToDisplay = (ViewGroup) LayoutInflater.from(mContext).inflate(mLayoutResId, null);
+		viewToDisplay = (ViewGroup) LayoutInflater.from(mActivity.getApplicationContext()).inflate(mLayoutResId, null);
 
 		initViewComponents(viewToDisplay);
 	}
@@ -184,7 +183,7 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 			throw new IllegalArgumentException("View Pager was not found in the view passed.");
 		}
 
-		stickerAdapter = new StickerAdapter(mContext, this);
+		stickerAdapter = new StickerAdapter(mActivity, this);
 
 		mIconPageIndicator = (StickerEmoticonIconPageIndicator) view.findViewById(R.id.sticker_icon_indicator);
 
@@ -214,7 +213,7 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 		 */
 		if ((Utils.getExternalStorageState() == ExternalStorageState.NONE))
 		{
-			Toast.makeText(mContext, R.string.no_external_storage, Toast.LENGTH_SHORT).show();
+			Toast.makeText(mActivity.getApplicationContext(), R.string.no_external_storage, Toast.LENGTH_SHORT).show();
 			return null;
 		}
 		
@@ -230,7 +229,7 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 			/**
 			 * Defensive null check
 			 */
-			if (mContext == null)
+			if (mActivity == null)
 			{
 				String errorMsg = "Inside method : getView of StickerPicker. Context is null";
 				HAManager.sendStickerEmoticonStrangeBehaviourReport(errorMsg);
@@ -263,15 +262,17 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 	{
 		mViewPager.setAdapter(stickerAdapter);
 
-		mViewPager.setCurrentItem(0, false);
-
 		mIconPageIndicator.setViewPager(mViewPager);
 
 		mIconPageIndicator.setOnPageChangeListener(onPageChangeListener);
 
 		mIconPageIndicator.setCurrentItem(0);
-
-		mIconPageIndicator.notifyDataSetChanged();
+		
+		if (refreshStickers)
+		{
+			mIconPageIndicator.notifyDataSetChanged();
+			refreshStickers = false;
+		}
 	}
 
 	public boolean isShowing()
@@ -294,8 +295,8 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 		setStickerIntroPrefs();
 		HAManager.getInstance().record(HikeConstants.LogEvent.STKR_SHOP_BTN_CLICKED, AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT);
 		
-		Intent i = IntentFactory.getStickerShopIntent(mContext);
-		mContext.startActivity(i);
+		Intent i = IntentFactory.getStickerShopIntent(mActivity);
+		mActivity.startActivity(i);
 	}
 
 	public void updateDimension(int width, int height)
@@ -350,7 +351,7 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 	 */
 	public void releaseResources()
 	{
-		this.mContext = null;
+		this.mActivity = null;
 		this.listener = null;
 		if (stickerAdapter != null)
 		{
@@ -359,10 +360,10 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 
 	}
 	
-	public void updateListener(StickerPickerListener mListener, Context context)
+	public void updateListener(StickerPickerListener mListener, Activity activity)
 	{
 		this.listener = mListener;
-		this.mContext = context;
+		this.mActivity = activity;
 		if (stickerAdapter != null)
 		{
 			stickerAdapter.registerListener();
@@ -436,10 +437,10 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 			View animatedBackground = view.findViewById(R.id.animated_backgroud);
 			
 			animatedBackground.setVisibility(View.VISIBLE);
-			Animation anim = AnimationUtils.loadAnimation(mContext, R.anim.scale_out_from_mid);
+			Animation anim = AnimationUtils.loadAnimation(mActivity, R.anim.scale_out_from_mid);
 			animatedBackground.startAnimation(anim);
 
-			view.findViewById(R.id.shop_icon).setAnimation(HikeAnimationFactory.getStickerShopIconAnimation(mContext));
+			view.findViewById(R.id.shop_icon).setAnimation(HikeAnimationFactory.getStickerShopIconAnimation(mActivity));
 		}
 	}
 	
@@ -488,8 +489,8 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 	 * @param refreshStickers
 	 *            the refreshStickers to set
 	 */
-	public static void setRefreshStickers(boolean refreshStickers)
+	public void setRefreshStickers(boolean refreshStickers)
 	{
-		StickerPicker.refreshStickers = refreshStickers;
+		this.refreshStickers = refreshStickers;
 	}
 }
