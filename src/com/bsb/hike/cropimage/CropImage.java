@@ -59,6 +59,7 @@ import com.actionbarsherlock.app.ActionBar;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
+import com.bsb.hike.models.GalleryItem;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
@@ -186,6 +187,18 @@ public class CropImage extends MonitoredActivity
 			}
 
 			mImagePath = extras.getString(HikeConstants.Extras.IMAGE_PATH);
+			
+			if (mImagePath == null)
+			{
+//				// Check if intent is from GalleryActivity
+//				ArrayList<GalleryItem> galleryList = intent.getParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS);
+//				if (galleryList != null && !galleryList.isEmpty())
+//				{
+//					mImagePath = galleryList.get(0).getFilePath();
+//				}
+				mImagePath = intent.getStringExtra(HikeConstants.Extras.GALLERY_SELECTIONS);
+			}
+			
 			mSaveUri = extras.containsKey(MediaStore.EXTRA_OUTPUT) ? getImageUri(extras.getString(MediaStore.EXTRA_OUTPUT)) : null;
 
 			// look here

@@ -894,6 +894,12 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 						// This is being done to fix a legacy bug, where catId came as "unknown"
 						
 						String newCategoryId = (String) result;
+						
+						if(TextUtils.isEmpty(newCategoryId))
+						{
+							return ;
+						}
+						
 						String oldCategoryId = convMessage.getMetadata().getSticker().getStickerId();
 						if (!oldCategoryId.equals(newCategoryId))
 						{
@@ -1870,6 +1876,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				else
 				{
 					fileHolder.ftAction.setImageResource(R.drawable.ic_retry_other);
+					fileHolder.ftAction.setContentDescription(context.getResources().getString(R.string.content_des_retry_file_download));
 					fileHolder.ftAction.setVisibility(View.VISIBLE);
 					fileHolder.ftAction.setScaleType(ScaleType.CENTER);
 					fileHolder.circularProgressBg.setVisibility(View.VISIBLE);
@@ -2906,6 +2913,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			if (!isSent)
 			{
 				holder.ftAction.setImageResource(downloadImage);
+				holder.ftAction.setContentDescription(context.getResources().getString(R.string.content_des_download_file));
 				holder.ftAction.setVisibility(View.VISIBLE);
 				holder.circularProgressBg.setVisibility(View.VISIBLE);
 			}
@@ -2914,6 +2922,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				if (TextUtils.isEmpty(hikeFile.getFileKey()))
 				{
 					holder.ftAction.setImageResource(retryImage);
+					holder.ftAction.setContentDescription(context.getResources().getString(R.string.content_des_retry_file_download));
 					holder.ftAction.setVisibility(View.VISIBLE);
 					holder.circularProgressBg.setVisibility(View.VISIBLE);
 				}
@@ -2934,6 +2943,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			break;
 		case IN_PROGRESS:
 			holder.ftAction.setImageResource(pauseImage);
+			holder.ftAction.setContentDescription(context.getResources().getString(R.string.content_des_pause_file_download));
 			holder.ftAction.setVisibility(View.VISIBLE);
 			holder.circularProgressBg.setVisibility(View.VISIBLE);
 			showTransferProgress(holder, fss, msgId, hikeFile, isSent);
@@ -2947,12 +2957,14 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		case ERROR:
 		case PAUSED:
 			holder.ftAction.setImageResource(retryImage);
+			holder.ftAction.setContentDescription(context.getResources().getString(R.string.content_des_retry_file_download));
 			holder.ftAction.setVisibility(View.VISIBLE);
 			holder.circularProgressBg.setVisibility(View.VISIBLE);
 			showTransferProgress(holder, fss, msgId, hikeFile, isSent);
 			break;
 		case CANCELLED:
 			holder.ftAction.setImageResource(retryImage);
+			holder.ftAction.setContentDescription(context.getResources().getString(R.string.content_des_retry_file_download));
 			holder.ftAction.setVisibility(View.VISIBLE);
 			holder.circularProgressBg.setVisibility(View.VISIBLE);
 			break;
@@ -3214,10 +3226,12 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				if (ext)
 				{
 					status.setImageResource(R.drawable.ic_clock_white);
+					status.setContentDescription(context.getResources().getString(R.string.content_des_message_clock_state));
 				}
 				else
 				{
 					status.setImageResource(R.drawable.ic_clock);
+					status.setContentDescription(context.getResources().getString(R.string.content_des_message_clock_state));
 				}
 			}
 			else if (ext)
@@ -3226,15 +3240,18 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				{
 				case SENT_UNCONFIRMED:
 					status.setImageResource(R.drawable.ic_clock_white);
+					status.setContentDescription(context.getResources().getString(R.string.content_des_message_clock_state));
 					break;
 				case SENT_CONFIRMED:
 					setIconForSentMessage(message, status, R.drawable.ic_tick_white, R.drawable.ic_sms_white, R.drawable.ic_bolt_white);
 					break;
 				case SENT_DELIVERED:
 					status.setImageResource(R.drawable.ic_double_tick_white);
+					status.setContentDescription(context.getResources().getString(R.string.content_des_message_double_tick_state));
 					break;
 				case SENT_DELIVERED_READ:
 					status.setImageResource(R.drawable.ic_double_tick_r_white);
+					status.setContentDescription(context.getResources().getString(R.string.content_des_message_double_tick_read_state));
 					break;
 				default:
 					break;
@@ -3246,15 +3263,18 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				{
 				case SENT_UNCONFIRMED:
 					status.setImageResource(R.drawable.ic_clock);
+					status.setContentDescription(context.getResources().getString(R.string.content_des_message_clock_state));
 					break;
 				case SENT_CONFIRMED:
 					setIconForSentMessage(message, status, R.drawable.ic_tick, R.drawable.ic_sms, R.drawable.ic_bolt_grey);
 					break;
 				case SENT_DELIVERED:
 					status.setImageResource(R.drawable.ic_double_tick);
+					status.setContentDescription(context.getResources().getString(R.string.content_des_message_double_tick_state));
 					break;
 				case SENT_DELIVERED_READ:
 					status.setImageResource(R.drawable.ic_double_tick_r);
+					status.setContentDescription(context.getResources().getString(R.string.content_des_message_double_tick_read_state));
 					break;
 				default:
 					break;
@@ -3285,15 +3305,18 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			if (message.isSMS())
 			{
 				status.setImageResource(smsDrawableResId);
+				status.setContentDescription(context.getResources().getString(R.string.content_des_message_offline_state));
 				return;
 			}
 			else if (isH20TipShowing)
 			{
 				status.setImageResource(boltDrawableResId);
+				status.setContentDescription(context.getResources().getString(R.string.content_des_message_offline_state));
 				return;
 			}
 		}
 		status.setImageResource(tickResId);
+		status.setContentDescription(context.getResources().getString(R.string.content_des_message_clock_state));
 	}
 
 	private void inflateNSetMessageInfo(final ConvMessage message, final DetailViewHolder detailHolder, final View clickableItem)

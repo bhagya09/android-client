@@ -899,11 +899,9 @@ public class HikeConstants
 	 * Constants for Profile Pic
 	 */
 	/* dialog IDs */
-	public static final int PROFILE_PICTURE_FROM_CAMERA = 0;
+	public static final int NEW_PROFILE_PICTURE = 0;
 
-	public static final int PROFILE_PICTURE_FROM_GALLERY = 1;
-	
-	public static final int REMOVE_PROFILE_PICTURE = 2;
+	public static final int REMOVE_PROFILE_PICTURE = 1;
 
 	/* activityForResult IDs */
 	public static final int CAMERA_RESULT = 0;
@@ -2685,6 +2683,12 @@ public class HikeConstants
 		public static final int PHOTOS_PAGER_DOODLE_WEIGHT_SUM = 10000;
 		
 		public static final int MAXIMUM_ALLOWED_IMAGE_AREA = 800 * 600;
+		
+		public static final String PHOTOS_ACTION_CODE = "photos_action_code";
+		
+		public static final String ONLY_PROFILE_UPDATE = "update_profile_pic_only";
+		
+		public static final int MAX_IMAGE_DIMEN = 1240;
 
 	}
 
@@ -2698,13 +2702,10 @@ public class HikeConstants
 
 	public static final String MESSAGE_PROCESS_TIME = "mpt";
 
-//	public static int DEFAULT_AVATARS[] = {R.drawable.avatar_01, R.drawable.avatar_02, R.drawable.avatar_03, R.drawable.avatar_04, R.drawable.avatar_05};
+	public static int DEFAULT_AVATARS[] = {R.drawable.avatar_01, R.drawable.avatar_02, R.drawable.avatar_03, R.drawable.avatar_04, R.drawable.avatar_05};
 
-//	public static String DEFAULT_AVATAR_KEYS[] = { "avatar_01", "avatar_02", "avatar_03", "avatar_04", "avatar_05" };
-
-	public static int DEFAULT_AVATAR_BG_COLORID[] = { R.color.dp_bg_1, R.color.dp_bg_2, R.color.dp_bg_3, R.color.dp_bg_4, R.color.dp_bg_5, R.color.dp_bg_6, R.color.dp_bg_7,
-			R.color.dp_bg_8, R.color.dp_bg_9, R.color.dp_bg_11 };
-
+	public static String DEFAULT_AVATAR_KEYS[] = {"avatar_01","avatar_02", "avatar_03", "avatar_04", "avatar_05"};
+	
 	public static String IS_GROUP = "isGroup";
 
 	public static final String CAM_IMG_PREFIX = "CAM_";

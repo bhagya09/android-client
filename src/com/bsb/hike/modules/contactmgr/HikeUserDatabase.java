@@ -1939,8 +1939,6 @@ class HikeUserDatabase extends SQLiteOpenHelper
 
 	boolean hasIcon(String msisdn)
 	{
-		Logger.e(HikeUserDatabase.class.getSimpleName(), "hasIcon: "+msisdn);
-		
 		Cursor c = null;
 		try
 		{

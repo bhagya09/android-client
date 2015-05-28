@@ -56,8 +56,6 @@ import com.bsb.hike.utils.NUXManager;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.Utils;
-import com.bsb.hike.view.RoundedImageView;
-import com.bsb.hike.view.TextDrawable;
 
 public class ConversationsAdapter extends BaseAdapter
 {
@@ -518,7 +516,7 @@ public class ConversationsAdapter extends BaseAdapter
 		 * If the viewholder's msisdn is different from the converstion's msisdn, it means that the viewholder is currently being used for a different conversation.
 		 * We don't need to do anything here then.
 		 */
-		if(!convInfo.getMsisdn().equals(viewHolder.msisdn))
+		if(viewHolder == null || !convInfo.getMsisdn().equals(viewHolder.msisdn))
 		{
 			return;
 		}
@@ -562,19 +560,23 @@ public class ConversationsAdapter extends BaseAdapter
 		 * If the viewholder's msisdn is different from the converstion's msisdn, it means that the viewholder is currently being used for a different conversation.
 		 * We don't need to do anything here then.
 		 */
-		if(!convInfo.getMsisdn().equals(viewHolder.msisdn))
+		if(viewHolder == null || !convInfo.getMsisdn().equals(viewHolder.msisdn))
 		{
 			return;
 		}
 
 		ImageView avatarView = viewHolder.avatar;
-		
 		iconLoader.loadImage(convInfo.getMsisdn(), avatarView, isListFlinging, false, true);
 	}
 
 	public void updateViewsRelatedToMute(View parentView, ConvInfo convInfo)
 	{
 		ViewHolder viewHolder = (ViewHolder) parentView.getTag();
+		
+		if(viewHolder == null)
+		{
+			return;
+		}
 
 		ImageView muteIcon = viewHolder.muteIcon;
 		if (muteIcon != null)
@@ -616,7 +618,7 @@ public class ConversationsAdapter extends BaseAdapter
 		 * If the viewholder's msisdn is different from the converstion's msisdn, it means that the viewholder is currently being used for a different conversation.
 		 * We don't need to do anything here then.
 		 */
-		if(!convInfo.getMsisdn().equals(viewHolder.msisdn))
+		if(viewHolder == null || !convInfo.getMsisdn().equals(viewHolder.msisdn))
 		{
 			return;
 		}
@@ -974,16 +976,15 @@ public class ConversationsAdapter extends BaseAdapter
 				{
 					continue;
 				}
-				
-				ConvInfo conversationInfo = getItem(indexOfData);
 
-				if (!ContactManager.getInstance().hasIcon(conversationInfo.getMsisdn(),false))
-				{
-					continue;
-				}
-
-				updateViewsRelatedToAvatar(view,conversationInfo);
+				updateViewsRelatedToAvatar(view, getItem(indexOfData));
 			}
+		}
+		
+		//TODO remove this log as this is just for testing
+		if(notify)
+		{
+			Logger.i("ConversationFling ", " isListFlinging : "+isListFlinging);
 		}
 	}
 	

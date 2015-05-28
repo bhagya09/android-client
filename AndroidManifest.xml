@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1206"
-    android:versionName="3.9.2.57" >
+    android:versionCode="1218"
+    android:versionName="3.9.6.50.photos.5" >
     <uses-sdk
         android:minSdkVersion="9"
         android:targetSdkVersion="17"/>
@@ -267,9 +267,11 @@
             android:name=".ui.GalleryActivity"
             android:theme="@style/AppTheme.Home.Photos" >
         </activity>
-        <activity android:name=".ui.HikeSharedFilesActivity" >
+        <activity android:name=".ui.HikeSharedFilesActivity"
+            android:theme="@style/AppTheme.Home.Photos" >
         </activity>
-        <activity android:name=".ui.GallerySelectionViewer" >
+        <activity android:name=".ui.GallerySelectionViewer"
+            android:theme="@style/AppTheme.Home.Photos" >
         </activity>
         <activity android:name=".ui.CountrySelectActivity" >
         </activity>
@@ -442,7 +444,7 @@
 
         <provider
             android:name="com.bsb.hike.providers.HikeProvider"
-            android:authorities="com.bsb.hike.providers.HikeProvider"
+            android:authorities="@string/authority"
             android:exported="true" >
         </provider>
 

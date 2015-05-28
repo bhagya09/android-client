@@ -898,7 +898,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		
 		if(!isUpdate)
 		{
-			ImageViewerInfo imageViewerInfo = new ImageViewerInfo(msisdn + PROFILE_PIC_SUFFIX, null, false, !ContactManager.getInstance().hasIcon(msisdn, false));
+			ImageViewerInfo imageViewerInfo = new ImageViewerInfo(msisdn + PROFILE_PIC_SUFFIX, null, false, !ContactManager.getInstance().hasIcon(msisdn,false));
 			profileImage.setTag(imageViewerInfo);
 		}
 		if(headerViewInitialized || profileImageUpdated )
@@ -1190,7 +1190,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			@Override
 			public void onClick(View v)
 			{				
-				showProfileImageEditDialog(ProfileActivity.this, ProfileActivity.this, mLocalMSISDN, ProfileImageActions.DP_EDIT_FROM_PROFILE_OVERFLOW_MENU);
+				beginProfilePicChange(ProfileActivity.this,ProfileActivity.this, ProfileImageActions.DP_EDIT_FROM_PROFILE_OVERFLOW_MENU);
 				
 				JSONObject md = new JSONObject();
 
@@ -1565,9 +1565,10 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 			startActivity(i);
 		}
-		else if (this.profileType == ProfileType.USER_PROFILE)
+		
+		if (Utils.isPhotosEditEnabled() && this.profileType == ProfileType.USER_PROFILE_EDIT)
 		{
-			super.onBackPressed();
+			//handling user profile edit case differently since photos flow will handle the created fragments
 			return;
 		}
 		super.onBackPressed();
@@ -1703,11 +1704,11 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	{
 		if(profileType == ProfileType.GROUP_INFO)
 		{
-			showProfileImageEditDialog(ProfileActivity.this, ProfileActivity.this, mLocalMSISDN, null);
+			beginProfilePicChange(ProfileActivity.this,ProfileActivity.this, null);
 		}
 		else if(profileType == ProfileType.USER_PROFILE)
 		{
-			showProfileImageEditDialog(ProfileActivity.this, ProfileActivity.this, mLocalMSISDN, ProfileImageActions.DP_EDIT_FROM_PROFILE_SCREEN);
+			beginProfilePicChange(ProfileActivity.this,ProfileActivity.this, ProfileImageActions.DP_EDIT_FROM_PROFILE_SCREEN);
 			
 			JSONObject md = new JSONObject();
 

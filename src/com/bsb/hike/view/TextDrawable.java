@@ -1,7 +1,6 @@
 package com.bsb.hike.view;
 
 import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.photos.HikePhotosUtils;
 
 import android.graphics.*;
 import android.graphics.drawable.ShapeDrawable;
@@ -54,7 +53,7 @@ public class TextDrawable extends ShapeDrawable
 		fontSize = builder.fontSize;
 		textPaint = new Paint();
 		textPaint.setColor(builder.textColor);
-		textPaint.setShadowLayer(2f, HikePhotosUtils.dpToPx(HikeMessengerApp.getInstance().getApplicationContext(), 2),HikePhotosUtils.dpToPx(HikeMessengerApp.getInstance().getApplicationContext(), 2), getLighterShade(Color.BLACK,12));
+		textPaint.setShadowLayer(2f, 5, 5, getLighterShade(Color.BLACK,12));
 		textPaint.setAntiAlias(true);
 		textPaint.setFakeBoldText(builder.isBold);
 		textPaint.setStyle(Paint.Style.FILL);

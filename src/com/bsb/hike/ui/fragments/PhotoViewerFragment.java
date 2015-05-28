@@ -17,7 +17,6 @@ import pl.droidsonroids.gif.GifImageView;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
@@ -49,10 +48,10 @@ import com.bsb.hike.dialog.CustomAlertDialog;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
+import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.HikeSharedFile;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.GroupConversation;
-import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.ui.ComposeChatActivity;
 import com.bsb.hike.ui.HikeSharedFilesActivity;
 import com.bsb.hike.ui.utils.DepthPageTransformer;
@@ -308,9 +307,9 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 		
 		setSenderDetails(position);
 		
-		if (menu != null)
+		if (menu != null && getCurrentSelectedItem()!=null)
 		{
-			if (isEditEnabled && getCurrentSelectedItem().getHikeFileType().compareTo(HikeFileType.IMAGE) == 0)
+			if (isEditEnabled  && getCurrentSelectedItem().getHikeFileType().compareTo(HikeFileType.IMAGE) == 0)
 			{
 				menu.findItem(R.id.edit_pic).setVisible(true);
 			}
@@ -582,6 +581,12 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item)
 	{
+		
+		if(getCurrentSelectedItem() == null)
+		{
+			return false;
+		}
+		
 		switch (item.getItemId())
 		{
 		//deletes current selected item from viewpager 
@@ -593,29 +598,25 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 				public void positiveClicked(HikeDialog hikeDialog)
 				{
 					HikeSharedFile itemToDelete = getCurrentSelectedItem();
-					if(itemToDelete != null)
+					ArrayList<Long> msgIds = new ArrayList<Long>(1);
+					msgIds.add(itemToDelete.getMsgId());
+
+					Bundle bundle = new Bundle();
+					bundle.putString(HikeConstants.Extras.MSISDN, msisdn);
+					bundle.putInt(HikeConstants.Extras.DELETED_MESSAGE_TYPE, HikeConstants.SHARED_MEDIA_TYPE);
+					HikeMessengerApp.getPubSub().publish(HikePubSub.DELETE_MESSAGE, new Pair<ArrayList<Long>, Bundle>(msgIds, bundle));
+
+					// if delete media from phone is checked
+					if (((CustomAlertDialog) hikeDialog).isChecked())
 					{
-						ArrayList<Long> msgIds = new ArrayList<Long>(1);
-						msgIds.add(itemToDelete.getMsgId());
-
-						Bundle bundle = new Bundle();
-						bundle.putString(HikeConstants.Extras.MSISDN, msisdn);
-						bundle.putInt(HikeConstants.Extras.DELETED_MESSAGE_TYPE, HikeConstants.SHARED_MEDIA_TYPE);
-						HikeMessengerApp.getPubSub().publish(HikePubSub.DELETE_MESSAGE, new Pair<ArrayList<Long>, Bundle>(msgIds, bundle));
-
-						// if delete media from phone is checked
-						if (((CustomAlertDialog) hikeDialog).isChecked())
-						{
-							itemToDelete.delete(getActivity().getApplicationContext());
-						}
-						if (!fromChatThread)
-						{
-							HikeMessengerApp.getPubSub().publish(HikePubSub.HIKE_SHARED_FILE_DELETED, itemToDelete);
-						}
+						itemToDelete.delete(getActivity().getApplicationContext());
 					}
-					removeCurrentSelectedItem();
+					if (!fromChatThread)
+					{
+						HikeMessengerApp.getPubSub().publish(HikePubSub.HIKE_SHARED_FILE_DELETED, itemToDelete);
+					}
 					hikeDialog.dismiss();
-
+					removeCurrentSelectedItem();
 				}
 				
 				@Override
@@ -651,10 +652,11 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 			startActivity(intent);
 			return true;
 		case R.id.share_msgs:
+			
 			getCurrentSelectedItem().shareFile(getSherlockActivity());
 			return true;
 		case R.id.edit_pic:
-			Intent editIntent = IntentFactory.getPictureEditorActivityIntent(getActivity(), getCurrentSelectedItem().getExactFilePath(), true, null);
+			Intent editIntent = IntentFactory.getPictureEditorActivityIntent(getActivity(), getCurrentSelectedItem().getExactFilePath(), true, null,false);
 			getActivity().startActivity(editIntent);
 			return true;
 		}
