@@ -36,13 +36,13 @@ public class OfflineThreadManager
 
 	private BlockingQueue<JSONObject> textMessageQueue = null;
 
-	private BlockingQueue<FileTransferObject> fileTransferQueue = null;
+	private BlockingQueue<FileTransferModel> fileTransferQueue = null;
 
 	private static OfflineThreadManager _instance = new OfflineThreadManager();
 
 	private final static String TAG = getInstance().getClass().getName();
 
-	private TextTransferThread textThread = null;
+	private TextTransferThread textTransferThread = null;
 
 	private Socket textReceiverSocket = null;
 
@@ -67,16 +67,16 @@ public class OfflineThreadManager
 
 	private OfflineThreadManager()
 	{
-		textMessageQueue = new LinkedBlockingQueue<JSONObject>();
-		fileTransferQueue = new LinkedBlockingQueue<FileTransferObject>();
-		textThread = new TextTransferThread();
+		textMessageQueue = OfflineManager.getInstance().getTextQueue();
+		fileTransferQueue = OfflineManager.getInstance().getFileTransferQueue();
+		textTransferThread = new TextTransferThread();
 		fileTransferThread = new FileTransferThread();
-		offlineManager=OfflineManager.getInstance();
+		offlineManager = OfflineManager.getInstance();
 	}
 	
 	public void startThread()
 	{
-		textThread.start();
+		textTransferThread.start();
 		fileTransferThread.start();
 	}
 	
@@ -108,9 +108,13 @@ public class OfflineThreadManager
 				while(((packet = textMessageQueue.take()) != null))
 				{
 						//TODO : Send Offline Text and take action on the basis of boolean  i.e. clock or single tick
-						val = sendOfflineText(packet);
+						val = sendOfflineText(packet,textSendSocket.getOutputStream());
 				}
 			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			catch (IOException e)
+			{
 				e.printStackTrace();
 			}
 		}
@@ -119,7 +123,7 @@ public class OfflineThreadManager
 	
 	class FileTransferThread extends Thread
 	{
-		FileTransferObject fileTranserObject;
+		FileTransferModel fileTranserObject;
 		boolean val;
 		@Override
 		public void run() {
@@ -225,11 +229,12 @@ public class OfflineThreadManager
 	{
 		String fileUri  =null;
 		InputStream inputStream=null;
+		boolean isSent=false;
 		if(OfflineUtils.isStickerMessage(packet))
 		{
 			try
 			{
-				fileUri = packet.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getString(HikeConstants.STICKER_PATH);
+				fileUri = packet.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getString(OfflineConstants.STICKER_PATH);
 			}
 			catch (JSONException e1)
 			{
@@ -245,13 +250,23 @@ public class OfflineThreadManager
 			catch (FileNotFoundException e)
 			{
 				Logger.d(TAG, e.toString());
+				return false;
 			}
 			byte[] messageBytes = packet.toString().getBytes();
 			int length = messageBytes.length;
 			byte[] intToBArray = OfflineUtils.intToByteArray(length);
-			outputStream.write(intToBArray, 0, intToBArray.length);
-			outputStream.write(messageBytes, 0, length);
-			isSent = copyFile(inputStream, outputStream, msgId, false, true);
+			try
+			{
+				outputStream.write(intToBArray, 0, intToBArray.length);
+				outputStream.write(messageBytes, 0, length);
+			}
+			catch (IOException e)
+			{
+				e.printStackTrace();
+				return false;
+			}
+			
+			isSent = offlineManager.copyFile(inputStream, outputStream);
 		}
 		else
 			{
@@ -259,22 +274,43 @@ public class OfflineThreadManager
 				byte[] messageBytes = packet.toString().getBytes();
 				int length = messageBytes.length;
 				byte[] intToBArray = OfflineUtils.intToByteArray(length);
-				outputStream.write(intToBArray, 0, intToBArray.length);
-				outputStream.write(messageBytes,0, length);
+				try
+				{
+					outputStream.write(intToBArray, 0, intToBArray.length);
+					outputStream.write(messageBytes,0, length);
+				}
+				catch (IOException e)
+				{
+					e.printStackTrace();
+					return false;
+				}
+				
 			}
 		
-		//Updating database
-		if(!OfflineUtils.isGhostPacket(packet))
+		// Updating database
+		if (!OfflineUtils.isGhostPacket(packet))
 		{
-			String msisdn =  packet.getString(HikeConstants.TO);
-			int rowsUpdated = updateDB(msgId, ConvMessage.State.SENT_DELIVERED, msisdn);
-			if (rowsUpdated == 0)
+			long msgId;
+			try
 			{
-				Logger.d(getClass().getSimpleName(), "No rows updated");
+				msgId = packet.getJSONObject(HikeConstants.DATA).getLong(HikeConstants.MESSAGE_ID);
+
+				String msisdn = packet.getString(HikeConstants.TO);
+				int rowsUpdated = OfflineUtils.updateDB(msgId, ConvMessage.State.SENT_DELIVERED, msisdn);
+				if (rowsUpdated == 0)
+				{
+					Logger.d(getClass().getSimpleName(), "No rows updated");
+				}
+				Pair<String, Long> pair = new Pair<String, Long>(msisdn, msgId);
+				HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_DELIVERED, pair);
 			}
-			Pair<String, Long> pair = new Pair<String, Long>(msisdn,msgId);
-			HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_DELIVERED, pair);	
+			catch (JSONException e)
+			{
+				e.printStackTrace();
+			}
 		}
-			
+		return isSent;
 	}
+	
+	
 }
