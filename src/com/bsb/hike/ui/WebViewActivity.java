@@ -128,7 +128,6 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		initActionBar();
 		initAppsBasedOnMode();
 		HikeMessengerApp.getPubSub().addListeners(this, pubsub);
-		checkAndBlockOrientation();
 	}
 
 	/**
@@ -216,16 +215,15 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 
 	private void setMicroAppMode()
 	{
-		initMsisdn();
-		findViewById(R.id.progress).setVisibility(View.GONE);;
+		findViewById(R.id.progress).setVisibility(View.GONE);
 		attachBridge();
-		initBot();
 		setupMicroAppActionBar();
 		setupNavBar();
 		setupTagPicker();
 		loadMicroApp();
+		checkAndBlockOrientation();
 	}
-	
+
 	private void initMsisdn()
 	{
 		msisdn = getIntent().getStringExtra(HikeConstants.MSISDN);
