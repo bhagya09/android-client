@@ -101,6 +101,8 @@ public class DbConversationListener implements Listener
 		mPubSub.addListener(HikePubSub.CONVERSATION_TS_UPDATED, this);	
 		mPubSub.addListener(HikePubSub.GROUP_LEFT, this);
 		mPubSub.addListener(HikePubSub.DELETE_THIS_CONVERSATION, this);
+		mPubSub.addListener(HikePubSub.STEALTH_DATABASE_MARKED, this);
+		mPubSub.addListener(HikePubSub.STEALTH_DATABASE_UNMARKED, this);
 	}
 
 	@Override
@@ -453,6 +455,15 @@ public class DbConversationListener implements Listener
 			HikeConversationsDatabase.getInstance().deleteConversation(msisdn);;				
 			ContactManager.getInstance().removeContacts(msisdn);
 			HikeMessengerApp.getPubSub().publish(HikePubSub.CONVERSATION_DELETED, convInfo);
+		}
+		else if(HikePubSub.STEALTH_DATABASE_MARKED.equals(type) || HikePubSub.STEALTH_DATABASE_UNMARKED.equals(type))
+		{
+			String msisdn = (String) object;
+			boolean markStealth = HikePubSub.STEALTH_DATABASE_MARKED.equals(type);
+			if( mConversationDb.toggleStealth(msisdn, markStealth) )
+			{
+				HikeMessengerApp.getPubSub().publish(markStealth ? HikePubSub.STEALTH_CONVERSATION_MARKED : HikePubSub.STEALTH_CONVERSATION_UNMARKED, msisdn);
+			}
 		}
 	}
 
