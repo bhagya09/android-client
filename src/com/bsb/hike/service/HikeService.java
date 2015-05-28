@@ -1,6 +1,7 @@
 package com.bsb.hike.service;
 
 import java.io.File;
+
 import java.util.Calendar;
 import java.util.List;
 
@@ -32,20 +33,21 @@ import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
-import com.bsb.hike.db.DBBackupRestore;
-import com.bsb.hike.http.HikeHttpRequest;
-import com.bsb.hike.http.HikeHttpRequest.HikeHttpCallback;
-import com.bsb.hike.http.HikeHttpRequest.RequestType;
+import com.bsb.hike.db.AccountBackupRestore;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.StatusMessage;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
+import com.bsb.hike.modules.httpmgr.RequestToken;
+import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
+import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.modules.contactmgr.ContactUtils;
 import com.bsb.hike.platform.HikeSDKRequestHandler;
 import com.bsb.hike.tasks.CheckForUpdateTask;
-import com.bsb.hike.tasks.HikeHTTPTask;
 import com.bsb.hike.tasks.SyncContactExtraInfo;
-import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
@@ -233,7 +235,7 @@ public class HikeService extends Service
 		 */
 		assignUtilityThread();
 		scheduleNextAnalyticsSendAlarm();
-		DBBackupRestore.getInstance(getApplicationContext()).scheduleNextAutoBackup();
+		AccountBackupRestore.getInstance(getApplicationContext()).scheduleNextAutoBackup();
 
 		/*
 		 * register with the Contact list to get an update whenever the phone book changes. Use the application thread for the intent receiver, the IntentReceiver will take care of
@@ -542,12 +544,13 @@ public class HikeService extends Service
 			JSONObject data=Utils.getPostDeviceDetails(context);
 			Logger.d("TestUpdate", "Sending data: " + data.toString());
 
-			HikeHttpRequest hikeHttpRequest = new HikeHttpRequest("/account/update", RequestType.OTHER, new HikeHttpCallback()
+			IRequestListener requestListener = new IRequestListener()
 			{
-				public void onSuccess(JSONObject response)
+				@Override
+				public void onRequestSuccess(Response result)
 				{
-					Logger.d("TestUpdate", "Device details sent successfully");
-					Logger.d(getClass().getSimpleName(), "Send successful");
+					JSONObject response = (JSONObject) result.getBody().getContent();
+					Logger.d(getClass().getSimpleName(), "Post device details request successful");
 					Editor editor = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE).edit();
 					editor.putBoolean(HikeMessengerApp.DEVICE_DETAILS_SENT, true);
 					if (response != null)
@@ -558,17 +561,21 @@ public class HikeService extends Service
 					editor.commit();
 				}
 
-				public void onFailure()
+				@Override
+				public void onRequestProgressUpdate(float progress)
 				{
-					Logger.d("TestUpdate", "Device details could not be sent");
-					Logger.d(getClass().getSimpleName(), "Send unsuccessful");
-					scheduleNextSendToServerAction(HikeMessengerApp.LAST_BACK_OFF_TIME_DEV_DETAILS, sendDevDetailsToServer);
 				}
-			});
-			hikeHttpRequest.setJSONData(data);
 
-			HikeHTTPTask hikeHTTPTask = new HikeHTTPTask(null, 0);
-			Utils.executeHttpTask(hikeHTTPTask, hikeHttpRequest);
+				@Override
+				public void onRequestFailure(HttpException httpException)
+				{
+					Logger.e(getClass().getSimpleName(), "Post device details request unsuccessful");
+					scheduleNextSendToServerAction(HikeMessengerApp.LAST_BACK_OFF_TIME_DEV_DETAILS, sendDevDetailsToServer);	
+				}
+			};
+			
+			RequestToken token = HttpRequests.postDeviceDetailsRequest(data, requestListener);
+			token.execute();
 		}
 	}
 
@@ -716,11 +723,12 @@ public class HikeService extends Service
 
 			List<ContactInfo> contactinfos = ContactManager.getInstance().getAllContacts();
 			ContactManager.getInstance().setGreenBlueStatus(context, contactinfos);
-			JSONObject data = AccountUtils.getWAJsonContactList(contactinfos);
+			JSONObject data = ContactUtils.getWAJsonContactList(contactinfos);
 
-			HikeHttpRequest hikeHttpRequest = new HikeHttpRequest("/account/info", RequestType.OTHER, new HikeHttpCallback()
+			IRequestListener requestListener = new IRequestListener()
 			{
-				public void onSuccess(JSONObject response)
+				@Override
+				public void onRequestSuccess(Response result)
 				{
 					Logger.d("PostInfo", "info sent successfully");
 					Editor editor = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE).edit();
@@ -728,17 +736,22 @@ public class HikeService extends Service
 					editor.putInt(HikeMessengerApp.LAST_BACK_OFF_TIME_GREENBLUE, 0);
 					editor.commit();
 				}
-
-				public void onFailure()
+				
+				@Override
+				public void onRequestProgressUpdate(float progress)
+				{
+				}
+				
+				@Override
+				public void onRequestFailure(HttpException httpException)
 				{
 					Logger.d("PostInfo", "info could not be sent");
 					scheduleNextSendToServerAction(HikeMessengerApp.LAST_BACK_OFF_TIME_GREENBLUE, sendGreenBlueDetailsToServer);
 				}
-			});
-			hikeHttpRequest.setJSONData(data);
-
-			HikeHTTPTask hikeHTTPTask = new HikeHTTPTask(null, 0);
-			Utils.executeHttpTask(hikeHTTPTask, hikeHttpRequest);
+			};
+			
+			RequestToken token = HttpRequests.postGreenBlueDetailsRequest(data, requestListener);
+			token.execute();
 		}
 	}
 
@@ -767,10 +780,12 @@ public class HikeService extends Service
 
 			Logger.d(getClass().getSimpleName(), "profile pic upload started");
 
-			HikeHttpCallback hikeHttpCallBack = new HikeHttpCallback()
+			IRequestListener requestListener = new IRequestListener()
 			{
-				public void onSuccess(JSONObject response)
+				@Override
+				public void onRequestSuccess(Response result)
 				{
+					JSONObject response = (JSONObject) result.getBody().getContent();
 					String msisdn = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, null);
 					HikeSharedPreferenceUtil.getInstance().removeData(HikeMessengerApp.SIGNUP_PROFILE_PIC_PATH);
 					Utils.renameTempProfileImage(msisdn);
@@ -787,7 +802,13 @@ public class HikeService extends Service
 					}					
 				}
 
-				public void onFailure()
+				@Override
+				public void onRequestProgressUpdate(float progress)
+				{
+				}
+
+				@Override
+				public void onRequestFailure(HttpException httpException)
 				{
 					Logger.d(getClass().getSimpleName(), "profile pic upload failed");
 					if (f.exists() && f.length() > 0)
@@ -801,11 +822,8 @@ public class HikeService extends Service
 					}
 				}
 			};
-
-			HikeHttpRequest profilePicRequest = new HikeHttpRequest("/account/avatar", RequestType.PROFILE_PIC, hikeHttpCallBack);
-			profilePicRequest.setFilePath(profilePicPath);
-			HikeHTTPTask hikeHTTPTask = new HikeHTTPTask(null, 0);
-			Utils.executeHttpTask(hikeHTTPTask, profilePicRequest);
+			RequestToken token = HttpRequests.editProfileAvatarRequest(profilePicPath, requestListener);
+			token.execute();
 		}
 	}
 
