@@ -126,6 +126,10 @@ public class AnalyticsConstants
 
 	public static final String CHAT_MSISDN = "chat_msisdn";
 
+	public static final String BOT_NAME = "bot_name";
+
+	public static final String BOT_MSISDN = "bot_msisdn";
+
 	public static final String EVENT_TAG_CBS = "cbs";
 
 	public static final String DEVICE_DETAILS = "devicedetails";
