@@ -74,7 +74,7 @@ import com.bsb.hike.view.TagEditText.Tag;
 public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements OnInflateListener, OnClickListener, TagOnClickListener, OverflowItemClickListener,
 		OnDismissListener, OverflowViewListener, HikePubSub.Listener, IBridgeCallback
 {
-
+	
 	private static final String tag = "WebViewActivity";
 	
 	public static final int WEB_URL_MODE = 1; // DEFAULT MODE OF THIS ACTIVITY
@@ -765,8 +765,8 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			{
 				bar.setVisibility(View.VISIBLE);
 				super.onPageStarted(view, url, favicon);
-				
 			}
+			
 
 			@Override
 			public void onPageFinished(WebView view, String url)
@@ -779,6 +779,14 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 					secondaryWebView.setVisibility(View.GONE);
 					mMenu.findItem(R.id.overflow_menu).setVisible(true);
 					secondaryWebView = null;
+				}else {
+					if(secondaryWebView!=null && botConfig.isJSInjectorEnabled()) {
+						String js = botConfig.getJSToInject();
+						if(js!=null) {
+							Logger.i(tag, "loading js injection");
+							secondaryWebView.loadUrl("javascript:"+js);
+						}
+					}
 				}
 			}
 

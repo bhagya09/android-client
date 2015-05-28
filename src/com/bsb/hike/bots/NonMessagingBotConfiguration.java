@@ -44,6 +44,8 @@ public class NonMessagingBotConfiguration extends BotConfiguration
 	
 	public static final byte DELETE_BLOCK = 7;
 	
+	public static final byte JS_INJECTOR = 8;
+	
 	/**
 	 * Bit positions end here.
 	 */
@@ -362,5 +364,19 @@ public class NonMessagingBotConfiguration extends BotConfiguration
 				return Configuration.ORIENTATION_UNDEFINED;
 			}
 		}
+	}
+	
+	public boolean isJSInjectorEnabled() 
+	{
+		return isBitSet(JS_INJECTOR);
+	}
+	
+	/**
+	 * 
+	 * @return JS if present in config data OR null
+	 */
+	public String getJSToInject()
+	{
+		return configData.optString(HikePlatformConstants.JS_INJECT, null);
 	}
 }
