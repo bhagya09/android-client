@@ -46,9 +46,9 @@ public interface HikePlatformConstants
 	String PLATFORM_USER_ID = "platformUid";
 	String PLATFORM_TOKEN = "platformToken";
 	String PLATFORM_UID_FOR_ADDRESS_BOOK_FETCH = "platformUidForAddressBookFetch";
-	public int numberOfRetries = 3;  // number of retries
-	public int retryDelay = 1000; // 1 sec
-	public float backOffMultiplier = 2.0f; // exponential time delay multiplier
+	public int NUMBER_OF_RETRIES = 3;  // number of retries
+	public int RETRY_DELAY = 1000; // 1 sec
+	public float BACK_OFF_MULTIPLIER = 2.0f; // exponential time delay multiplier
 	public int HTTP_CALL_MADE = 2;
 	public int MAKE_HTTP_CALL = 1;
 	public static final String PLATFORM_UID_FETCH_TAG = "platformUID";
@@ -102,6 +102,11 @@ public interface HikePlatformConstants
 	public static final String CARD = "card";
 	public static final String NOTIF = "notif";
 	public static final String APP_VERSION = "appVersion";
+	public static final String OVERFLOW_MENU_CLICKED = "om_click";
+	public static final String BOT_CREATED = "cbot";
+	public static final String BOT_CREATION_FAILED = "cbot_err";
+	public static final String MICROAPP_DOWNLOADED = "mapp";
+	public static final String MICROAPP_DOWNLOAD_FAILED = "mapp_err";
 
 	public static final String PLATFORM_BRIDGE_NAME = "PlatformBridge";
 
@@ -113,7 +118,7 @@ public interface HikePlatformConstants
 
 	public static final String NOTIFICATION_SOUND = "notification_sound";
 
-	public static final String INCREASE_UNREAD = "inc_unread";
+	public static final String INCREASE_UNREAD = "increase_unread";
 
 	public static final String MESSAGE_ID = "message_id";
 

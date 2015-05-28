@@ -2,9 +2,11 @@ package com.bsb.hike.utils;
 
 import java.util.List;
 
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.content.PlatformContent;
+import com.bsb.hike.voip.VoIPUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -168,5 +170,25 @@ public class HikeAnalyticsEvent
             npe.printStackTrace();
         }
     }
+
+	public static void analyticsForNonMessagingBots(String type, String subType, JSONObject json)
+	{
+		try
+		{
+			Logger.d("HikeAnalyticsEvent", json.toString());
+			VoIPUtils.ConnectionClass connType = VoIPUtils.getConnectionClass(HikeMessengerApp.getInstance().getApplicationContext());
+			json.put(HikePlatformConstants.NETWORK_TYPE, Integer.toString(connType.ordinal()));
+			json.put(HikePlatformConstants.APP_VERSION, AccountUtils.getAppVersion());
+			HAManager.getInstance().record(type, subType, HAManager.EventPriority.HIGH, json, AnalyticsConstants.EVENT_TAG_PLATFORM);
+		}
+		catch (NullPointerException npe)
+		{
+			npe.printStackTrace();
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+	}
 
 }

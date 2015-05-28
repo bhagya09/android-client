@@ -4,6 +4,7 @@ package com.bsb.hike.ui;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.bsb.hike.utils.HikeAnalyticsEvent;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -129,7 +130,6 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		initActionBar();
 		initAppsBasedOnMode();
 		HikeMessengerApp.getPubSub().addListeners(this, pubsub);
-		checkAndBlockOrientation();
 		resetNotificationCounter();
 	}
 
@@ -223,16 +223,15 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 
 	private void setMicroAppMode()
 	{
-		initMsisdn();
-		findViewById(R.id.progress).setVisibility(View.GONE);;
+		findViewById(R.id.progress).setVisibility(View.GONE);
 		attachBridge();
-		initBot();
 		setupMicroAppActionBar();
 		setupNavBar();
 		setupTagPicker();
 		loadMicroApp();
+		checkAndBlockOrientation();
 	}
-	
+
 	private void initMsisdn()
 	{
 		msisdn = getIntent().getStringExtra(HikeConstants.MSISDN);
@@ -486,12 +485,33 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	{
 		if (item.getItemId() == R.id.overflow_menu)
 		{
+			overflowMenuClickedAnalytics();
 			int width = getResources().getDimensionPixelSize(R.dimen.overflow_menu_width);
 			int rightMargin = width + getResources().getDimensionPixelSize(R.dimen.overflow_menu_right_margin);
 			mActionBar.showOverflowMenu(width, LayoutParams.WRAP_CONTENT, -rightMargin, -(int) (0.5 * Utils.scaledDensityMultiplier), findViewById(R.id.overflow_anchor));
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
+	}
+
+	private void overflowMenuClickedAnalytics()
+	{
+		JSONObject json = new JSONObject();
+		try
+		{
+			json.put(AnalyticsConstants.EVENT_KEY, HikePlatformConstants.OVERFLOW_MENU_CLICKED);
+			json.put(AnalyticsConstants.BOT_NAME, botInfo.getConversationName());
+			json.put(AnalyticsConstants.BOT_MSISDN, msisdn);
+			HikeAnalyticsEvent.analyticsForNonMessagingBots(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, json);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+		catch (NullPointerException e)
+		{
+			e.printStackTrace();
+		}
 	}
 
 	private void setupActionBar(String titleString)

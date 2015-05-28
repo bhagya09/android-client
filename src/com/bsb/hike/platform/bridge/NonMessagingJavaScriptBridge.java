@@ -6,6 +6,9 @@ import java.nio.charset.IllegalCharsetNameException;
 import java.util.Iterator;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.utils.HikeAnalyticsEvent;
+import com.bsb.hike.utils.Utils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -61,11 +64,40 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		this.mCallback = callback;
 	}
 
-	@Override
+	/**
+	 * Platform Bridge Version 0.
+	 * Call this function to log analytics events.
+	 *
+	 * @param isUI    : whether the event is a UI event or not. This is a string. Send "true" or "false".
+	 * @param subType : the subtype of the event to be logged, eg. send "click", to determine whether it is a click event.
+	 * @param json    : any extra info for logging events, including the event key that is pretty crucial for analytics.
+	 */
 	@JavascriptInterface
 	public void logAnalytics(String isUI, String subType, String json)
 	{
-		//TODO log analytics
+
+		try
+		{
+			JSONObject jsonObject = new JSONObject(json);
+			jsonObject.put(AnalyticsConstants.BOT_MSISDN, mBotInfo.getMsisdn());
+			jsonObject.put(AnalyticsConstants.BOT_NAME, mBotInfo.getConversationName());
+			if (Boolean.valueOf(isUI))
+			{
+				HikeAnalyticsEvent.analyticsForNonMessagingBots(AnalyticsConstants.MICROAPP_UI_EVENT, subType, jsonObject);
+			}
+			else
+			{
+				HikeAnalyticsEvent.analyticsForNonMessagingBots(AnalyticsConstants.MICROAPP_NON_UI_EVENT, subType, jsonObject);
+			}
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+		catch (NullPointerException e)
+		{
+			e.printStackTrace();
+		}
 	}
 
 	@Override
