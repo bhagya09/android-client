@@ -74,6 +74,7 @@ public class SSLNetworkModule extends TCPNetworkModule
 	public void start() throws IOException, MqttException
 	{
 		super.start();
+		socket = ((SSLSocketFactory)factory).createSocket(socket, host, port, true);
 		setEnabledCiphers(enabledCiphers);
 		int soTimeout = socket.getSoTimeout();
 		if (soTimeout == 0)

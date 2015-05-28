@@ -488,7 +488,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 				/*
 				 * Update the urls to use ssl or not.
 				 */
-				Utils.setupUri(this.getApplicationContext());
+				Utils.setupUri();
 				HttpRequestConstants.toggleSSL();
 
 				mHandler.removeCallbacks(startWelcomeScreen);

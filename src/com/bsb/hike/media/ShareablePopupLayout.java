@@ -42,7 +42,7 @@ public class ShareablePopupLayout
 
 	private void initViewToDisplay(Context context)
 	{
-		this.mViewToDisplay = LayoutInflater.from(context).inflate(R.layout.shared_keyboard_layout, null);
+		this.mViewToDisplay = LayoutInflater.from(context.getApplicationContext()).inflate(R.layout.shared_keyboard_layout, null);
 	}
 
 	/**

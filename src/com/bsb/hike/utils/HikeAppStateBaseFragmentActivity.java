@@ -4,7 +4,6 @@ import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -24,8 +23,9 @@ import com.bsb.hike.productpopup.HikeDialogFragment;
 import com.bsb.hike.productpopup.IActivityPopup;
 import com.bsb.hike.productpopup.ProductContentModel;
 import com.bsb.hike.productpopup.ProductInfoManager;
+import com.bsb.hike.utils.HikeUiHandler.IHandlerCallback;
 
-public class HikeAppStateBaseFragmentActivity extends SherlockFragmentActivity implements Listener
+public class HikeAppStateBaseFragmentActivity extends SherlockFragmentActivity implements Listener,IHandlerCallback
 {
 
 	private static final String TAG = "HikeAppState";
@@ -34,32 +34,8 @@ public class HikeAppStateBaseFragmentActivity extends SherlockFragmentActivity i
 	
 	protected static final int PRODUCT_POPUP_SHOW_DIALOG=-100;
 	
-	protected Handler mHandler = new Handler(){
-		public void handleMessage(android.os.Message msg) {
-			handleUIMessage(msg);
-		};
-	};
-
+	protected HikeUiHandler uiHandler = new HikeUiHandler (this);
 	
-	/**
-	 * This method is made to be called from handler, do not call this method directly 
-	 * Post Message to mHandler to call this method
-	 * Subclasses should override this method to perform some UI functionality
-	 * <b>(DO NOT FORGET TO CALL super)</b>
-	 * @param msg
-	 */
-	protected void handleUIMessage(Message msg)
-	{
-		switch(msg.what)
-		{
-		case PRODUCT_POPUP_HANDLER_WHAT: 
-			isThereAnyPopUpForMe(msg.arg1);
-			break;
-		case PRODUCT_POPUP_SHOW_DIALOG:
-			showPopupDialog((ProductContentModel)msg.obj);
-			break;
-		}
-	}
 	
 	/**
 	 * 
@@ -293,7 +269,7 @@ public class HikeAppStateBaseFragmentActivity extends SherlockFragmentActivity i
 				Message msg = Message.obtain();
 				msg.what = PRODUCT_POPUP_SHOW_DIALOG;
 				msg.obj = mmModel;
-				mHandler.sendMessage(msg);
+				uiHandler.sendMessage(msg);
 			}
 
 			@Override
@@ -311,6 +287,48 @@ public class HikeAppStateBaseFragmentActivity extends SherlockFragmentActivity i
 		Message m = Message.obtain();
 		m.what = PRODUCT_POPUP_HANDLER_WHAT;
 		m.arg1 = which;
-		mHandler.sendMessage(m);
+		uiHandler.sendMessage(m);
 	}
+	
+	@Override
+	protected void onDestroy()
+	{
+		onHandlerDestroy();
+		super.onDestroy();
+	}
+
+	/**
+	 * Removes all runnables and messages from the handler.Override this method to remove only specific
+	 *  runnables/messages
+	 */
+	protected void onHandlerDestroy()
+	{
+		Logger.d("HikeHandler","Base Activity onDestroy");
+		if (uiHandler != null)
+		{
+			uiHandler.onDestroy();
+		}
+	}
+	/**
+	 * This method is made to be called from handler, do not call this method directly 
+	 * Post Message to mHandler to call this method
+	 * Subclasses should override this method to perform some UI functionality
+	 * <b>(DO NOT FORGET TO CALL super)</b>
+	 * @param msg
+	 */
+	@Override
+	public void handleUIMessage(Message msg)
+	{
+		switch(msg.what)
+		{
+		case PRODUCT_POPUP_HANDLER_WHAT: 
+			isThereAnyPopUpForMe(msg.arg1);
+			break;
+		case PRODUCT_POPUP_SHOW_DIALOG:
+			showPopupDialog((ProductContentModel)msg.obj);
+			break;
+		}
+
+	}
+
 }

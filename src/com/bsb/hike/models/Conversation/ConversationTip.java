@@ -28,6 +28,7 @@ import com.bsb.hike.ui.TellAFriend;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
 
 public class ConversationTip implements OnClickListener
@@ -59,6 +60,10 @@ public class ConversationTip implements OnClickListener
 	public static final int ATOMIC_HTTP_TIP = 12;
 
 	public static final int ATOMIC_APP_GENERIC_TIP = 13;
+
+	public static final int STEALTH_REVEAL_TIP = 14;
+
+	public static final int STEALTH_HIDE_TIP = 15;
 
 	private int tipType;
 
@@ -151,6 +156,18 @@ public class ConversationTip implements OnClickListener
 			((TextView) v.findViewById(R.id.tip_msg)).setText(msgTxt);
 			v.findViewById(R.id.close_tip).setOnClickListener(this);
 			v.findViewById(R.id.all_content).setOnClickListener(this);
+			return v;
+			
+		case STEALTH_HIDE_TIP:
+			v = inflater.inflate(R.layout.stealth_tip, null, false);
+			((TextView) v.findViewById(R.id.tip_text)).setText(R.string.tap_to_hide_stealth_contacts);
+			v.findViewById(R.id.close_tip).setOnClickListener(this);
+			return v;
+			
+		case STEALTH_REVEAL_TIP:
+			v = inflater.inflate(R.layout.stealth_tip, null, false);
+			((TextView) v.findViewById(R.id.tip_text)).setText(R.string.tap_to_reveal_stealth_contacts);
+			v.findViewById(R.id.close_tip).setOnClickListener(this);
 			return v;
 
 		case ATOMIC_PROFILE_PIC_TIP:
@@ -360,8 +377,11 @@ public class ConversationTip implements OnClickListener
 
 				break;
 
+			case STEALTH_REVEAL_TIP:
+			case STEALTH_HIDE_TIP:
 			case STEALTH_FTUE_TIP:
-				HikeMessengerApp.getPubSub().publish(HikePubSub.DISMISS_STEALTH_FTUE_CONV_TIP, null);
+				StealthModeManager.getInstance().setTipVisibility(false, tipType);
+				StealthModeManager.getInstance().ftuePending(false);
 				break;
 				
 			case ATOMIC_PROFILE_PIC_TIP:
@@ -373,6 +393,7 @@ public class ConversationTip implements OnClickListener
 			case ATOMIC_APP_GENERIC_TIP:
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.ATOMIC_POP_UP_TYPE_MAIN, "");
 				break;
+
 			default:
 				break;
 			}

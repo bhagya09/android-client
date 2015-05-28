@@ -43,6 +43,16 @@ public class ProductPopupsConstants
 
 	public static String BUNDLE_DATA="bundleData";
 	
+	public static String IS_CANCELLABLE="isCancellable";
+	
+	public static  final int  numberOfRetries=3;
+	
+	public static final int retryDelay=1000*60*1; // 1 minute
+	
+	public static final int backOffMultiplier=2;
+
+	public static final String REQUEST_TYPE = "requestType";
+	
 	public static enum PopupStateEnum
 	{
 		NOT_DOWNLOADED(0), DOWNLOADED(1), UNKNOWN(3);
@@ -96,6 +106,8 @@ public class ProductPopupsConstants
 		public static final String OPENAPPSCREEN="openappscreen";
 
 		public static final String CALLTOSERVER="callserver";
+		
+		public static final String DOWNLOAD_STKPK="dwnldstkpk";
 	}
 
 	public static enum HIKESCREEN
