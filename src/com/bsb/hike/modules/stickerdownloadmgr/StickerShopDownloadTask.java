@@ -82,6 +82,7 @@ public class StickerShopDownloadTask implements IHikeHTTPTask, IHikeHttpTaskResu
 					{
 						Logger.e(TAG, "Sticker download failed null response");
 						doOnFailure(null);
+						return ;
 					}
 
 					JSONArray resultData = response.optJSONArray(HikeConstants.DATA_2);
@@ -89,6 +90,7 @@ public class StickerShopDownloadTask implements IHikeHTTPTask, IHikeHttpTaskResu
 					{
 						Logger.e(TAG, "Sticker download failed null data");
 						doOnFailure(null);
+						return;
 					}
 					
 					doOnSuccess(resultData);
