@@ -33,9 +33,7 @@ public class TextDrawable extends ShapeDrawable
 
 	private final int borderThickness;
 
-	private LinearGradient gradient;
-
-	private Typeface typeface;
+	private static Typeface typeface;
 
 	private TextDrawable(Builder builder)
 	{
