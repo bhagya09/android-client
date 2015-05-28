@@ -2631,12 +2631,13 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 	private SpannableString getSpannableSearchString(CharSequence text)
 	{
 		SpannableString spanText = new SpannableString(text);
-		if (!TextUtils.isEmpty(searchText) && text.toString().toLowerCase().contains(searchText))
+		String loweredCaseText = text.toString().toLowerCase();
+		if (!TextUtils.isEmpty(searchText))
 		{
 			int startSpanIndex = 0;
 			while (startSpanIndex != -1)
 			{
-				startSpanIndex = text.toString().toLowerCase().indexOf(searchText, startSpanIndex);
+				startSpanIndex = loweredCaseText.indexOf(searchText, startSpanIndex);
 				if (startSpanIndex != -1)
 				{
 					spanText.setSpan(new BackgroundColorSpan(context.getResources().getColor(R.color.text_bg)), startSpanIndex, startSpanIndex + searchText.length(),
