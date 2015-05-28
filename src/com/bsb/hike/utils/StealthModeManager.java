@@ -55,6 +55,7 @@ public class StealthModeManager
 		stealthMsisdn = new HashSet<String>();
 		HikeConversationsDatabase.getInstance().addStealthMsisdnToMap();
 		setTipVisibility(false, ConversationTip.STEALTH_FTUE_TIP);
+		ftuePending(false);
 		activate(false);
 	}
 
@@ -373,6 +374,16 @@ public class StealthModeManager
 				activate(false);
 				setTipVisibility(false, ConversationTip.STEALTH_FTUE_TIP);
 				ftuePending(false);
+			}
+			if (!isSetUp())
+			{
+				// if stealth setup is not done and user has marked some chats as stealth unmark all of them
+				// this should ideally only happen when user upgrades from HM1 to HM2 while his hidden is not setup
+				for (String msisdn : stealthMsisdn)
+				{
+					markStealthMsisdn(msisdn, false, true);
+				}
+				clearStealthMsisdn();
 			}
 		}
 		
