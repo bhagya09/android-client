@@ -36,7 +36,9 @@ import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.ResultReceiver;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -44,14 +46,19 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup.LayoutParams;
+import android.view.WindowManager;
+import android.view.animation.AlphaAnimation;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.bsb.hike.BuildConfig;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
+import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
+import com.googlecode.mp4parser.boxes.MLPSpecificBox;
 import com.haibison.android.lockpattern.util.IEncrypter;
 import com.haibison.android.lockpattern.util.InvalidEncrypterException;
 import com.haibison.android.lockpattern.util.LoadingDialog;
@@ -304,10 +311,12 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
      */
     private TextView mTextInfo;
     private LockPatternView mLockPatternView;
+    private EditText mLockPinView;
     private View mFooter;
     private Button mBtnCancel;
     private Button mBtnConfirm;
     private Boolean mIsRetryBtnVisible;
+    private Button changePasswordSetting;
     /**
      * Called when the activity is first created.
      */
@@ -325,6 +334,8 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
                     R.style.Alp_42447968_Theme_Dialog_Dark));
 
         super.onCreate(savedInstanceState);
+        
+        Utils.blockOrientationChange(this);
 
         loadSettings();
 
@@ -472,21 +483,118 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
         }
 
         setContentView(R.layout.alp_42447968_lock_pattern_activity);
-        UI.adjustDialogSizeForLargeScreens(getWindow(), ACTION_CREATE_PATTERN.equals(getIntent().getAction()));
+        UI.adjustDialogSizeForLargeScreens(getWindow());
         
         mTextInfo = (TextView) findViewById(R.id.alp_42447968_textview_info);
         mLockPatternView = (LockPatternView) findViewById(R.id.alp_42447968_view_lock_pattern);
+        mLockPinView = (EditText) findViewById(R.id.alp_42447968_lock_pin);
 
         mFooter = findViewById(R.id.alp_42447968_viewgroup_footer);
         mBtnCancel = (Button) findViewById(R.id.alp_42447968_button_cancel);
         mBtnConfirm = (Button) findViewById(R.id.alp_42447968_button_confirm);
 
-        TextView changePasswordSetting = (TextView) findViewById(R.id.change_password_setting);
-        if(!ACTION_CREATE_PATTERN.equals(getIntent().getAction()) 
-        		&& !getIntent().getBooleanExtra(HikeConstants.Extras.STEALTH_PASS_RESET, false) 
-        		&& changePasswordSetting != null)
+        mLockPinView.setFocusable(true);
+        mLockPatternView.setFocusable(true);
+        mLockPinView.addTextChangedListener(new TextWatcher(){
+            public void afterTextChanged(Editable s) {
+            	if (ACTION_CREATE_PATTERN.equals(getIntent().getAction())) {
+                   
+                    mBtnConfirm.setEnabled(false);
+                    if (mBtnOkCmd == ButtonOkCommand.CONTINUE){
+                    	if(s.length()>0)
+                    	{
+                    		if (s.length() == 4){
+                        		mTextInfo.setText(R.string.stealth_msg_pin_recorded);
+                        		mBtnConfirm.setEnabled(true);
+                        	} 
+                    		else 
+                        	{
+	                    		mTextInfo.setText(R.string.stealth_enter_4_digits);
+	                    		mBtnConfirm.setEnabled(false);
+	                    		changeCancelToRetry();
+                        	}
+                    	}
+                    	else
+                    	{
+                    		mTextInfo.setText(R.string.stealth_msg_enter_an_unlock_pin);
+                    		changeRetryToCancel();
+                    		mBtnConfirm.setEnabled(false);
+                    	}
+                    	
+                    } else {
+                    	if(s.length()>0)
+                    	{
+                    		if (s.length() == 4){
+                                boolean check = doCheckAndCreatePin(mLockPinView.getText().toString());
+                        		mTextInfo.setText(check ? R.string.stealth_msg_your_new_unlock_pin : R.string.stealth_msg_try_pin_again);
+//                        		if(!check) 
+//                        			mLockPinView.setText("");   
+                        		mBtnConfirm.setEnabled(check);
+                        	} 
+                    		else 
+                        	{
+	                    		mTextInfo.setText(R.string.stealth_enter_4_digits);
+	                    		mBtnConfirm.setEnabled(false);
+	                    		changeCancelToRetry();
+                        	}
+                    	}
+                    	else
+                    	{
+                    		mTextInfo.setText(R.string.stealth_msg_reenter_pin_to_confirm);
+                    		changeRetryToCancel();
+                    		mBtnConfirm.setEnabled(false);
+                    	}
+                    	
+                    }
+                }// ACTION_CREATE_PATTERN
+                else if (ACTION_COMPARE_PATTERN.equals(getIntent().getAction())) {
+                	if(s.length() == 4)
+                	{
+
+                        if (doComparePin(mLockPinView.getText().toString()))
+                            finishWithResultOk(null);
+                        else 
+                            finishWithNegativeResult(RESULT_CANCELED); 
+                	}
+                    mTextInfo
+                            .setText(R.string.stealth_msg_enter_pin_to_unlock);
+                }// ACTION_COMPARE_PATTERN
+                else if (ACTION_VERIFY_CAPTCHA.equals(getIntent().getAction())) {
+                    mTextInfo
+                            .setText(R.string.stealth_msg_enter_an_unlock_pin);
+                }// ACTION_VERIFY_CAPTCHA
+            }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after){}
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+        }); 
+
+        changePasswordSetting = (Button) findViewById(R.id.alp_42447968_change_password_setting);
+        
+        final boolean isReset = getIntent().getBooleanExtra(HikeConstants.Extras.STEALTH_PASS_RESET, false);
+        
+        if(ACTION_COMPARE_PATTERN.equals(getIntent().getAction())) 
         {
-        	changePasswordSetting.setVisibility(View.VISIBLE);
+        	if(StealthModeManager.getInstance().isPinAsPassword())
+        	{
+        		mLockPatternView.setVisibility(View.GONE);
+        		mLockPinView.setVisibility(View.VISIBLE);
+        		mLockPinView.requestFocus();
+        		Utils.showSoftKeyboard(LockPatternActivity.this, mLockPinView);
+        		getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+        	}
+        	else
+        	{
+        		mLockPinView.setVisibility(View.GONE);
+        		mLockPatternView.setVisibility(View.VISIBLE);
+        		mLockPatternView.requestFocus();
+        		Utils.hideSoftKeyboard(LockPatternActivity.this, mLockPinView);
+        	}
+
+        	if(isReset)
+            {
+        		changePasswordSetting.setEnabled(false);
+        		setAlphaForView(changePasswordSetting, 0.0f);
+            }
         	changePasswordSetting.setText(getString(R.string.change_password_from_privacy));
         	changePasswordSetting.setOnClickListener(new View.OnClickListener()
 			{
@@ -494,9 +602,69 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
 				@Override
 				public void onClick(View arg0)
 				{
-					Intent intent = Utils.getIntentForPrivacyScreen(LockPatternActivity.this);
+					Intent intent = Utils.getIntentForHiddenSettings(LockPatternActivity.this);
 					startActivity(intent);
 					finishWithNegativeResult(RESULT_CANCELED);
+				}
+			});
+        } 
+        else if(ACTION_CREATE_PATTERN.equals(getIntent().getAction()))
+        {
+        	if(!StealthModeManager.getInstance().isPinAsPassword())
+        	{
+            	changePasswordSetting.setText(getString(R.string.stealth_set_pin));
+            	mTextInfo.setText(R.string.stealth_msg_draw_an_unlock_pattern);
+            	mLockPatternView.setVisibility(View.VISIBLE);
+				mLockPinView.setVisibility(View.GONE);
+				mLockPatternView.requestFocus();
+				Utils.hideSoftKeyboard(LockPatternActivity.this, mLockPinView);
+        	}
+        	else
+        	{
+				mLockPatternView.setVisibility(View.GONE);
+				mLockPinView.setVisibility(View.VISIBLE);		
+        		changePasswordSetting.setText(getString(R.string.stealth_set_pattern));
+            	mTextInfo.setText(R.string.stealth_msg_enter_an_unlock_pin);
+            	mLockPinView.requestFocus();
+            	Utils.showSoftKeyboard(LockPatternActivity.this, mLockPinView);
+            	getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+        	}
+        	changePasswordSetting.setOnClickListener(new View.OnClickListener()
+			{
+				
+				@Override
+				public void onClick(View arg0)
+				{
+					changeRetryToCancel();
+					getIntent().removeExtra(EXTRA_PATTERN);
+					mBtnConfirm.setEnabled(false);
+					if(mLockPinView.getVisibility() != View.VISIBLE)
+					{
+						mLockPatternView.setVisibility(View.GONE);
+						mLockPinView.setVisibility(View.VISIBLE);
+			        	changePasswordSetting.setText(getString(R.string.stealth_set_pattern));
+			        	if(!isReset)
+			        	{
+			        		StealthModeManager.getInstance().usePinAsPassword(true);
+			        	}
+						mLockPatternView.clearPattern();
+			        	mLockPinView.requestFocus();
+			        	Utils.showSoftKeyboard(LockPatternActivity.this, mLockPinView);
+			        	mTextInfo.setText(R.string.stealth_msg_enter_an_unlock_pin);
+					} else 
+					{
+						mLockPatternView.setVisibility(View.VISIBLE);
+						mLockPinView.setVisibility(View.GONE);
+						mLockPatternView.requestFocus();
+						Utils.hideSoftKeyboard(LockPatternActivity.this, mLockPinView);
+						mLockPinView.setText("");
+			        	changePasswordSetting.setText(getString(R.string.stealth_set_pin));
+			        	if(!isReset)
+			        	{
+			        		StealthModeManager.getInstance().usePinAsPassword(false);
+			        	}
+			        	mTextInfo.setText(R.string.stealth_msg_draw_an_unlock_pattern);
+					}
 				}
 			});
         }
@@ -559,8 +727,10 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
             {
             	//checking whether this was invoked in a normal flow or stealth reset flow.
             	//we use a different string if this was invoked from the reset flow
-                mTextInfo.setText(getIntent().getBooleanExtra(HikeConstants.Extras.STEALTH_PASS_RESET, false)
-                		?R.string.alp_42447968_msg_draw_new_pattern : R.string.alp_42447968_msg_draw_an_unlock_pattern);
+            	if( getIntent().getBooleanExtra(HikeConstants.Extras.STEALTH_PASS_RESET, false))
+            	{
+                    mTextInfo.setText(StealthModeManager.getInstance().isPinAsPassword()? R.string.stealth_msg_enter_an_unlock_pin : R.string.stealth_msg_draw_an_unlock_pattern);
+            	}
             }
 
             /*
@@ -592,8 +762,13 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
         else if (ACTION_COMPARE_PATTERN.equals(getIntent().getAction())) {
             if (TextUtils.isEmpty(infoText))
             {
-            	mTextInfo.setText(getIntent().getBooleanExtra(HikeConstants.Extras.STEALTH_PASS_RESET, false)
+            	if(!StealthModeManager.getInstance().isPinAsPassword())
+            		mTextInfo.setText(getIntent().getBooleanExtra(HikeConstants.Extras.STEALTH_PASS_RESET, false)
                 		?R.string.alp_42447968_msg_draw_pattern_to_unlock_in_reset : R.string.alp_42447968_msg_draw_pattern_to_unlock);
+            	else
+            		mTextInfo.setText(getIntent().getBooleanExtra(HikeConstants.Extras.STEALTH_PASS_RESET, false)
+                		?R.string.stealth_msg_enter_pin_to_unlock_in_reset : R.string.stealth_msg_enter_pin_to_unlock);
+            		
             }
        
             else
@@ -608,7 +783,7 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
         }// ACTION_COMPARE_PATTERN
         else if (ACTION_VERIFY_CAPTCHA.equals(getIntent().getAction())) {
 				
-        	mTextInfo.setText(getIntent().getBooleanExtra(HikeConstants.Extras.STEALTH_PASS_RESET, false)?R.string.alp_42447968_msg_redraw_new_pattern_confirm:R.string.alp_42447968_msg_redraw_pattern_to_confirm);
+        	mTextInfo.setText(getIntent().getBooleanExtra(HikeConstants.Extras.STEALTH_PASS_RESET, false)?R.string.alp_42447968_msg_redraw_new_pattern_confirm:R.string.stealth_msg_redraw_pattern_to_confirm);
             /*
              * NOTE: EXTRA_PATTERN should hold a char[] array. In this case we
              * use it as a temporary variable to hold a list of Cell.
@@ -628,7 +803,38 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
         }// ACTION_VERIFY_CAPTCHA
     }// initContentView()
 
-    /**
+    protected boolean doCheckAndCreatePin(final String pin) {
+
+		if (pin.length() >= mMinWiredDots) 
+		{
+
+			if (getIntent().hasExtra(EXTRA_PATTERN)) 
+			{
+				return Arrays.equals(getIntent().getCharArrayExtra(EXTRA_PATTERN),LockPatternUtils.pinToSha1(pin).toCharArray());
+			}
+			else
+			{
+				getIntent().putExtra(EXTRA_PATTERN,LockPatternUtils.pinToSha1(pin).toCharArray());
+	
+			}
+		}
+
+		return false;
+	}
+    
+    protected boolean doComparePin(final String pin) 
+    {
+    	
+    	 char[] currentPattern = getIntent().getCharArrayExtra(EXTRA_PATTERN);
+          if (currentPattern != null) 
+         {    
+                 return Arrays.equals(currentPattern,LockPatternUtils.pinToSha1(pin).toCharArray());
+         }
+         return false;
+   
+	}
+
+	/**
      * Compares {@code pattern} to the given pattern (
      * {@link #ACTION_COMPARE_PATTERN}) or to the generated "CAPTCHA" pattern (
      * {@link #ACTION_VERIFY_CAPTCHA}). Then finishes the activity if they
@@ -638,7 +844,7 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
      *            the pattern to be compared.
      */
     private void doComparePattern(final List<Cell> pattern) {
-        if (pattern == null)
+         if (pattern == null)
             return;
 
         /*
@@ -789,17 +995,26 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
      *            cases, it can be set to {@code null}.
      */
     private void finishWithResultOk(char[] pattern) {
-    	mIntentResult.putExtra(HikeConstants.Extras.STEALTH_PASS_RESET,getIntent().getBooleanExtra(HikeConstants.Extras.STEALTH_PASS_RESET, false));
-        if (ACTION_CREATE_PATTERN.equals(getIntent().getAction()))
-            mIntentResult.putExtra(EXTRA_PATTERN, pattern);
-        else {
+    	if (ACTION_CREATE_PATTERN.equals(getIntent().getAction()))
+    	{
+    		mIntentResult.putExtra(HikeConstants.Extras.STEALTH_PASS_RESET,getIntent().getBooleanExtra(HikeConstants.Extras.STEALTH_PASS_RESET, false));
+    		mIntentResult.putExtra(EXTRA_PATTERN, pattern);
+    	}
+    	else if(ACTION_COMPARE_PATTERN.equals(getIntent().getAction()))
+        {
             /*
              * If the user was "logging in", minimum try count can not be zero.
              */
             mIntentResult.putExtra(EXTRA_RETRY_COUNT, mRetryCount + 1);
         }
 
-        setResult(RESULT_OK, mIntentResult);
+    	Bundle stealthBundle = getIntent().getBundleExtra(HikeConstants.STEALTH);
+    	if(stealthBundle!=null)
+    	{
+    		mIntentResult.putExtras(stealthBundle);
+    	}
+
+    	setResult(RESULT_OK, mIntentResult);
 
         /*
          * ResultReceiver
@@ -906,7 +1121,7 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
             }// ACTION_COMPARE_PATTERN
             else if (ACTION_VERIFY_CAPTCHA.equals(getIntent().getAction())) {
                 mTextInfo
-                        .setText(R.string.alp_42447968_msg_redraw_pattern_to_confirm);
+                        .setText(R.string.stealth_msg_redraw_pattern_to_confirm);
             }// ACTION_VERIFY_CAPTCHA
         }// onPatternStart()
 
@@ -938,10 +1153,10 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
                 if (mBtnOkCmd == ButtonOkCommand.CONTINUE) {
                     getIntent().removeExtra(EXTRA_PATTERN);
                     mTextInfo
-                            .setText(R.string.alp_42447968_msg_draw_an_unlock_pattern);
+                            .setText(StealthModeManager.getInstance().isPinAsPassword() ? R.string.stealth_msg_enter_an_unlock_pin : R.string.stealth_msg_draw_an_unlock_pattern);
                 } else
                     mTextInfo
-                            .setText(R.string.alp_42447968_msg_redraw_pattern_to_confirm);
+                            .setText(StealthModeManager.getInstance().isPinAsPassword() ? R.string.stealth_msg_reenter_pin_to_confirm: R.string.stealth_msg_redraw_pattern_to_confirm);
             }// ACTION_CREATE_PATTERN
             else if (ACTION_COMPARE_PATTERN.equals(getIntent().getAction())) {
                 mLockPatternView.setDisplayMode(DisplayMode.Correct);
@@ -950,7 +1165,7 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
             }// ACTION_COMPARE_PATTERN
             else if (ACTION_VERIFY_CAPTCHA.equals(getIntent().getAction())) {
                 mTextInfo
-                        .setText(R.string.alp_42447968_msg_redraw_pattern_to_confirm);
+                        .setText(R.string.stealth_msg_redraw_pattern_to_confirm);
                 List<Cell> pattern = getIntent().getParcelableArrayListExtra(
                         EXTRA_PATTERN);
                 mLockPatternView.setPattern(DisplayMode.Animate, pattern);
@@ -967,6 +1182,7 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
 
         @Override
         public void onClick(View v) {
+        	getIntent().removeExtra(EXTRA_PATTERN);
             finishWithNegativeResult(RESULT_CANCELED);
         }// onClick()
     };// mBtnCancelOnClickListener
@@ -975,6 +1191,11 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
 
         @Override
         public void onClick(View v) {
+        	if(StealthModeManager.getInstance().isPinAsPassword())
+        	{
+        		mLockPinView.setText("");
+        		mTextInfo.setText(R.string.stealth_msg_enter_an_unlock_pin);
+        	}
         	mLockPatternViewReloader.run();
         }// onClick()
     };
@@ -999,23 +1220,39 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
     	}
     }
     
+    private void setAlphaForView(View v, float alpha) {
+		AlphaAnimation animation = new AlphaAnimation(alpha, alpha);
+		animation.setDuration(0); 
+		animation.setFillAfter(true); 
+		v.startAnimation(animation);
+	}
+    
     private final View.OnClickListener mBtnConfirmOnClickListener = new View.OnClickListener() {
 
         @Override
         public void onClick(View v) {
             if (ACTION_CREATE_PATTERN.equals(getIntent().getAction())) {
                 if (mBtnOkCmd == ButtonOkCommand.CONTINUE) {
+                    doCheckAndCreatePin(mLockPinView.getText().toString());
                 	changeRetryToCancel();
+                	changePasswordSetting.setEnabled(false);
+                	setAlphaForView(changePasswordSetting, 0.0f);
                     mBtnOkCmd = ButtonOkCommand.DONE;
                     mLockPatternView.clearPattern();
-                    mTextInfo
-                            .setText(R.string.alp_42447968_msg_redraw_pattern_to_confirm);
+                    mLockPinView.setText("");
+                    if(StealthModeManager.getInstance().isPinAsPassword())
+                    {
+                    	mTextInfo.setText(R.string.stealth_msg_reenter_pin_to_confirm);   	
+                    } else {
+                    	mTextInfo.setText(R.string.stealth_msg_redraw_pattern_to_confirm);
+                    }
                     mBtnConfirm.setText(R.string.alp_42447968_cmd_confirm);
                     mBtnConfirm.setEnabled(false);
                     mIsRetryBtnVisible = null;
                 } else {
                     final char[] pattern = getIntent().getCharArrayExtra(
                             EXTRA_PATTERN);
+                    StealthModeManager.getInstance().usePinAsPassword(mLockPatternView.getVisibility() != View.VISIBLE && mLockPinView.getVisibility() == View.VISIBLE);
                     if (mAutoSave)
                         Settings.Security.setPattern(LockPatternActivity.this,
                                 pattern);
@@ -1053,5 +1290,10 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
             mLockPatternViewListener.onPatternCleared();
         }// run()
     };// mLockPatternViewReloader
+    
+    protected void onStop() {
+    	finishWithNegativeResult(RESULT_CANCELED);
+    	super.onStop();
+    };
 
 }
