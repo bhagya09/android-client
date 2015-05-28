@@ -193,6 +193,11 @@ public class HikeBitmapFactory
 			public void run()
 			{
 				Bitmap bmp = HikeBitmapFactory.decodeFile(srcFilePath);
+				if(bmp==null)
+				{
+					mListener.onFailure();
+					return;
+				}
 				try
 				{
 					ExifInterface ei = new ExifInterface(srcFilePath);

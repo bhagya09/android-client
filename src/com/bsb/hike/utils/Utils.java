@@ -120,10 +120,10 @@ import android.provider.ContactsContract.Intents.Insert;
 import android.provider.ContactsContract.RawContacts;
 import android.provider.MediaStore;
 import android.provider.Settings.Secure;
-import android.renderscript.Allocation;
-import android.renderscript.Element;
-import android.renderscript.RenderScript;
-import android.renderscript.ScriptIntrinsicBlur;
+import android.support.v8.renderscript.Allocation;
+import android.support.v8.renderscript.Element;
+import android.support.v8.renderscript.RenderScript;
+import android.support.v8.renderscript.ScriptIntrinsicBlur;
 import android.telephony.SmsManager;
 import android.telephony.TelephonyManager;
 import android.text.Editable;
@@ -522,7 +522,7 @@ public class Utils
 			extension = new String(fileName.substring(lastDotIndex + 1));
 		}
 
-		return extension;
+		return extension.toLowerCase();
 	}
 
 	public static String getFileParent(HikeFileType type, boolean isSent)
