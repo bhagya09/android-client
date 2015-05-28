@@ -38,7 +38,6 @@ import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.utils.Logger;
-import com.bsb.hike.voip.VoIPConstants.CallQuality;
 import com.bsb.hike.voip.VoIPDataPacket.PacketType;
 import com.bsb.hike.voip.VoIPEncryptor.EncryptionStage;
 import com.bsb.hike.voip.VoIPUtils.ConnectionClass;
@@ -100,11 +99,6 @@ public class VoIPClient  {
 	private int droppedDecodedPackets = 0;
 	public int callSource = -1;
 
-	// Call quality fields
-	private int qualityCounter = 0;
-	private long lastQualityReset = 0;
-	private CallQuality currentCallQuality = CallQuality.UNKNOWN;
-	
 	private final ConcurrentHashMap<Integer, VoIPDataPacket> ackWaitQueue		 = new ConcurrentHashMap<Integer, VoIPDataPacket>();
 	private final ConcurrentLinkedQueue<VoIPDataPacket> samplesToDecodeQueue     = new ConcurrentLinkedQueue<VoIPDataPacket>();
 	private final LinkedBlockingQueue<VoIPDataPacket> encodedBuffersQueue      = new LinkedBlockingQueue<VoIPDataPacket>();
@@ -484,31 +478,6 @@ public class VoIPClient  {
 					}
 					
 					sendPacketsWaitingForAck();
-					
-					// Monitor quality of incoming data
-					if ((System.currentTimeMillis() - lastQualityReset > VoIPConstants.QUALITY_WINDOW * 1000) 
-							&& getCallDuration() > VoIPConstants.QUALITY_WINDOW
-							&& remoteHold == false) {
-						
-						CallQuality newQuality;
-						int idealPacketCount = (VoIPConstants.AUDIO_SAMPLE_RATE * VoIPConstants.QUALITY_WINDOW) / OpusWrapper.OPUS_FRAME_SIZE; 
-						if (qualityCounter >= idealPacketCount)
-							newQuality = CallQuality.EXCELLENT;
-						else if (qualityCounter >= idealPacketCount - VoIPConstants.QUALITY_WINDOW)
-							newQuality = CallQuality.GOOD;
-						else if (qualityCounter >= idealPacketCount - VoIPConstants.QUALITY_WINDOW * 2)
-							newQuality = CallQuality.FAIR;
-						else 
-							newQuality = CallQuality.WEAK;
-
-						if (currentCallQuality != newQuality) {
-							currentCallQuality = newQuality;
-							sendHandlerMessage(VoIPConstants.MSG_UPDATE_QUALITY);
-						}
-
-						qualityCounter = 0;
-						lastQualityReset = System.currentTimeMillis();
-					}
 					
 					// Drop packets if getting left behind
 					while (samplesToEncodeQueue.size() > VoIPConstants.MAX_SAMPLES_BUFFER) {
@@ -1164,7 +1133,6 @@ public class VoIPClient  {
 						
 					case VOICE_PACKET:
 						voicePacketsReceivedPerSecond++;
-						qualityCounter++;
 						if (dataPacket.isEncrypted()) {
 							byte[] encryptedData = dataPacket.getData();
 							dataPacket.write(encryptor.aesDecrypt(encryptedData));
@@ -1686,11 +1654,6 @@ public class VoIPClient  {
 			}
 		},"HANG_UP_THREAD").start();
 		VoIPUtils.addMessageToChatThread(context, VoIPClient.this, HikeConstants.MqttMessageTypes.VOIP_MSG_TYPE_CALL_SUMMARY, getCallDuration(), -1, false);
-	}
-	
-	
-	public CallQuality getQuality() {
-		return currentCallQuality;
 	}
 	
 	public void interruptResponseTimeoutThread() {

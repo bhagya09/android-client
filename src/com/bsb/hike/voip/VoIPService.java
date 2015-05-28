@@ -3,6 +3,7 @@ package com.bsb.hike.voip;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.BitSet;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Random;
@@ -119,6 +120,14 @@ public class VoIPService extends Service {
 	private SolicallWrapper solicallAec = null;
 	private boolean useVADToReduceData = true;
 	private boolean aecSpeakerSignal = false, aecMicSignal = false;
+	
+	// Playback quality
+	private final int QUALITY_BUFFER_SIZE = 5;	// Quality is calculated over this many seconds
+	private final int QUALITY_CALCULATION_FREQUENCY = 4;	// Quality is calculated every 'x' playback samples
+	private BitSet playbackTrackingBits = new BitSet(VoIPConstants.AUDIO_SAMPLE_RATE * QUALITY_BUFFER_SIZE/ OpusWrapper.OPUS_FRAME_SIZE);
+	private int playbackFeederCounter = 0;
+	private CallQuality currentCallQuality = CallQuality.UNKNOWN;
+	
 
 	private final LinkedBlockingQueue<VoIPDataPacket> recordedSamples     = new LinkedBlockingQueue<VoIPDataPacket>();
 	private final LinkedBlockingQueue<VoIPDataPacket> buffersToSend      = new LinkedBlockingQueue<VoIPDataPacket>();
@@ -224,6 +233,7 @@ public class VoIPService extends Service {
 		initAudioManager();
 		keepRunning = true;
 		isRingingIncoming = false;
+		currentCallQuality = CallQuality.UNKNOWN;
 		
 		if (resamplerEnabled) {
 			playbackSampleRate = AudioTrack.getNativeOutputSampleRate(AudioManager.STREAM_VOICE_CALL);
@@ -1387,9 +1397,12 @@ public class VoIPService extends Service {
 			@Override
 			public void run() {
 				// Logger.d(VoIPConstants.TAG, "Running feeder");
-				android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
 				
-//				long time = System.currentTimeMillis();
+				playbackFeederCounter++;
+				if (playbackFeederCounter == Integer.MAX_VALUE)
+					playbackFeederCounter = 0;
+				
+				android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
 				
 				byte[] silence = new byte[OpusWrapper.OPUS_FRAME_SIZE * 2];
 				VoIPDataPacket silentPacket = new VoIPDataPacket(PacketType.VOICE_PACKET);
@@ -1419,7 +1432,10 @@ public class VoIPService extends Service {
 					try {
 						if (decodedSample == null) {
 							// Logger.d(VoIPConstants.TAG, "Decoded samples underrun. Adding silence.");
+							playbackTrackingBits.clear(playbackFeederCounter % playbackTrackingBits.size());
 							decodedSample = silentPacket;
+						} else {
+							playbackTrackingBits.set(playbackFeederCounter % playbackTrackingBits.size());
 						}
 
 						if (!hold) {
@@ -1458,6 +1474,9 @@ public class VoIPService extends Service {
 						}
 					}
 					
+					if (playbackFeederCounter % QUALITY_CALCULATION_FREQUENCY == 0)
+						calculateQuality();
+					
 					clientSample.clear();
 					
 				} else {
@@ -1465,10 +1484,34 @@ public class VoIPService extends Service {
 					scheduledFuture.cancel(true);
 					scheduledExecutorService.shutdownNow();
 				}
-				
-//				Logger.d(VoIPConstants.TAG, "Running time: " + (System.currentTimeMillis() - time) + "ms");
 			}
 		}, 0, sleepTime, TimeUnit.MILLISECONDS);
+	}
+	
+	private void calculateQuality() {
+		if (getCallDuration() < QUALITY_BUFFER_SIZE)
+			return;
+		
+		int cardinality = playbackTrackingBits.cardinality();
+		int loss = (100 - (cardinality*100 / playbackTrackingBits.length()));
+		Logger.d(VoIPConstants.TAG, "Loss: " + loss + ", cardinality: " + cardinality);
+		
+		CallQuality newQuality;
+		
+		if (loss < 10)
+			newQuality = CallQuality.EXCELLENT;
+		else if (loss < 20)
+			newQuality = CallQuality.GOOD;
+		else if (loss < 30)
+			newQuality = CallQuality.FAIR;
+		else 
+			newQuality = CallQuality.WEAK;
+
+		if (currentCallQuality != newQuality) {
+			currentCallQuality = newQuality;
+			sendHandlerMessage(VoIPConstants.MSG_UPDATE_QUALITY);
+		}
+
 	}
 	
 	/**
@@ -1696,12 +1739,7 @@ public class VoIPService extends Service {
 	}
 	
 	public CallQuality getQuality() {
-		VoIPClient client = getClient();
-		
-		if (client != null)
-			return getClient().getQuality();
-		else
-			return CallQuality.UNKNOWN;
+		return currentCallQuality;
 	}
 
 	public boolean isAudioRunning() {
