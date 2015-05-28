@@ -12,6 +12,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.os.Message;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -334,11 +335,6 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 	private void uploadProfilePic(final String croppedImageFile, final String originalImageFile)
 	{
 
-		HikeUiHandler.getHandler().post(new Runnable()
-		{
-			@Override
-			public void run()
-			{
 				editView.setVisibility(View.VISIBLE);
 				mActionBarBackButton.setVisibility(View.GONE);
 				ProfilePicFragment profilePicFragment = new ProfilePicFragment();
@@ -349,8 +345,6 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 				getSupportFragmentManager().beginTransaction()
 						.setCustomAnimations(R.anim.fade_in_animation, R.anim.fade_out_animation, R.anim.fade_in_animation, R.anim.fade_out_animation)
 						.replace(R.id.overlayFrame, profilePicFragment).addToBackStack(null).commit();
-			}
-		});
 	}
 
 	public class EditorClickListener implements OnClickListener, OnPageChangeListener, OnDoodleStateChangeListener, OnItemClickListener
