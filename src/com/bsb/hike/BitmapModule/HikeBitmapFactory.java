@@ -18,7 +18,6 @@ import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.LayerDrawable;
 import android.media.ExifInterface;
 import android.os.Build;
 import android.text.TextUtils;
@@ -1157,10 +1156,8 @@ public class HikeBitmapFactory
 		return calculateInSampleSize(options, reqWidth, reqHeight);
 	}
 	
-	public static Drawable getDefaultTextAvatar(final String msisdn)
+	public static Drawable getDefaultTextAvatar(String msisdn)
 	{
-		String contactName = null;
-
 		if (TextUtils.isEmpty(msisdn))
 		{
 			int bgColor = HikeMessengerApp.getInstance().getApplicationContext().getResources()
@@ -1168,46 +1165,99 @@ public class HikeBitmapFactory
 
 			return TextDrawable.builder().buildRound("#", bgColor);
 		}
+
+		String contactName = ContactManager.getInstance().getName(msisdn, true);
+
+		String initials = "";
+
+		if (TextUtils.isEmpty(contactName))
+		{
+			initials = "#";
+		}
 		else
 		{
-			int index = BitmapUtils.iconHash(msisdn) % (HikeConstants.DEFAULT_AVATAR_BG_COLORID.length);
 
-			int defaultAvatarResId = HikeConstants.DEFAULT_AVATAR_BG_COLORID[index];
+			String[] nameArray = contactName.trim().split(" ");
 
-			int bgColor = HikeMessengerApp.getInstance().getApplicationContext().getResources().getColor(defaultAvatarResId);
+			char first = nameArray[0].charAt(0);
 
-			contactName = ContactManager.getInstance().getName(msisdn, true);
+			if (Character.isLetter(first))
+			{
+				initials += first;
 
-			return TextDrawable.builder().buildRound(TextUtils.isEmpty(contactName) ? "#" : Character.toString(contactName.charAt(0)), bgColor);
+				if (nameArray.length > 1)
+				{
+					// Second is optional (only if is letter)
+					char second = nameArray[nameArray.length - 1].charAt(0);
+					if (Character.isLetter(second))
+					{
+						initials += second;
+					}
+				}
+			}else{
+				initials = "#";
+			}
 		}
 
+		int index = BitmapUtils.iconHash(msisdn) % (HikeConstants.DEFAULT_AVATAR_BG_COLORID.length);
+
+		int defaultAvatarResId = HikeConstants.DEFAULT_AVATAR_BG_COLORID[index];
+
+		int bgColor = HikeMessengerApp.getInstance().getApplicationContext().getResources().getColor(defaultAvatarResId);
+
+		return TextDrawable.builder().buildRound(initials, bgColor);
 	}
-	
+
 	public static Drawable getRectTextAvatar(final String msisdn)
 	{
-		String contactName = null;
-
 		if (TextUtils.isEmpty(msisdn))
 		{
-			//Unlikely case
-			int bgColor = HikeMessengerApp.getInstance().getApplicationContext().getResources().getColor(new Random().nextInt(HikeConstants.DEFAULT_AVATAR_BG_COLORID.length));
-			
-			return TextDrawable.builder().buildRound("#", bgColor);
+			int bgColor = HikeMessengerApp.getInstance().getApplicationContext().getResources()
+					.getColor(HikeConstants.DEFAULT_AVATAR_BG_COLORID[new Random().nextInt(HikeConstants.DEFAULT_AVATAR_BG_COLORID.length)]);
+
+			return TextDrawable.builder().buildRect("#", bgColor);
+		}
+
+		String contactName = ContactManager.getInstance().getName(msisdn, true);
+
+		String initials = "";
+
+		if (TextUtils.isEmpty(contactName))
+		{
+			initials = "#";
 		}
 		else
 		{
-			int index = BitmapUtils.iconHash(msisdn) % (HikeConstants.DEFAULT_AVATAR_BG_COLORID.length);
 
-			int defaultAvatarResId = HikeConstants.DEFAULT_AVATAR_BG_COLORID[index];
+			String[] nameArray = contactName.trim().split(" ");
 
-			int bgColor = HikeMessengerApp.getInstance().getApplicationContext().getResources().getColor(defaultAvatarResId);
+			char first = nameArray[0].charAt(0);
 
-			contactName = ContactManager.getInstance().getName(msisdn, true);
-			
-			
+			if (Character.isLetter(first))
+			{
+				initials += first;
 
-			return TextDrawable.builder().buildRect(TextUtils.isEmpty(contactName) ? "#" : Character.toString(contactName.charAt(0)), bgColor);
+				if (nameArray.length > 1)
+				{
+					// Second is optional (only if is letter)
+					char second = nameArray[nameArray.length - 1].charAt(0);
+					if (Character.isLetter(second))
+					{
+						initials += second;
+					}
+				}
+			}else{
+				initials = "#";
+			}
 		}
+
+		int index = BitmapUtils.iconHash(msisdn) % (HikeConstants.DEFAULT_AVATAR_BG_COLORID.length);
+
+		int defaultAvatarResId = HikeConstants.DEFAULT_AVATAR_BG_COLORID[index];
+
+		int bgColor = HikeMessengerApp.getInstance().getApplicationContext().getResources().getColor(defaultAvatarResId);
+
+		return TextDrawable.builder().buildRect(initials, bgColor);
 
 	}
 

@@ -23,9 +23,9 @@ public class TextDrawable extends ShapeDrawable
 
 	private final RectShape shape;
 
-	private final int height;
+	private int height;
 
-	private final int width;
+	private int width;
 
 	private final int fontSize;
 
@@ -79,6 +79,16 @@ public class TextDrawable extends ShapeDrawable
 		paint.setColor(color);
 	}
 
+	public void setWidth(int width)
+	{
+		this.width = width;
+	}
+
+	public void setHeight(int height)
+	{
+		this.height = height;
+	}
+	
 	private int getDarkerShade(int color)
 	{
 		return Color.rgb((int) (SHADE_FACTOR * Color.red(color)), (int) (SHADE_FACTOR * Color.green(color)), (int) (SHADE_FACTOR * Color.blue(color)));
@@ -107,12 +117,11 @@ public class TextDrawable extends ShapeDrawable
 		// draw text
 		int width = this.width < 0 ? r.width() : this.width;
 		int height = this.height < 0 ? r.height() : this.height;
-		int fontSize = (int) (this.fontSize < 0 ? (Math.min(width, height) *1f / 1.9f) : this.fontSize);
+		
+		int fontSize = (int) (this.fontSize < 0 ? (Math.min(width, height) *1f / 2.0f) : this.fontSize);
 		textPaint.setTextSize(fontSize);
 		canvas.drawText(text, width / 2, height / 2 - ((textPaint.descent() + textPaint.ascent()) / 2), textPaint);
-
 		canvas.restoreToCount(count);
-
 	}
 
 	private void drawBorder(Canvas canvas)
