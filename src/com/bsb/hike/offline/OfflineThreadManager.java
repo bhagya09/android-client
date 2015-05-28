@@ -110,12 +110,20 @@ public class OfflineThreadManager
 						//TODO : Send Offline Text and take action on the basis of boolean  i.e. clock or single tick
 						val = sendOfflineText(packet,textSendSocket.getOutputStream());
 				}
-			} catch (InterruptedException e) {
+			} 
+			catch (InterruptedException e) {
+				Logger.e(TAG,"Some called interrupt on File transfer Thread");
 				e.printStackTrace();
 			}
-			catch (IOException e)
+			catch(IOException e)
 			{
 				e.printStackTrace();
+				Logger.e(TAG, "IO Exception occured.Socket was not bounded");
+			}
+			catch(IllegalArgumentException e)
+			{
+				e.printStackTrace();
+				Logger.e(TAG,"Did we pass correct Address here ? ?");
 			}
 		}
 	}
@@ -125,17 +133,43 @@ public class OfflineThreadManager
 	{
 		FileTransferModel fileTranserObject;
 		boolean val;
+		String host=null;
 		@Override
 		public void run() {
 			try 
 			{
+				if(!fileSendSocket.isBound())
+				{
+					if(offlineManager.isHotspotCreated())
+					{
+						 host = OfflineUtils.getIPFromMac(null);
+					}
+					else
+					{
+						host = IP_SERVER;
+					}
+					fileSendSocket.bind(null);
+					fileSendSocket.connect(new InetSocketAddress(host, PORT_FILE_TRANSFER));
+				}
+				
 				while(((fileTranserObject = fileTransferQueue.take()) != null))
 				{
 					//TODO : Send Offline Text and take action on the basis of boolean  i.e. clock or single tick
 					val = transferFile(packet);
 				}
 			} catch (InterruptedException e) {
+				Logger.e(TAG,"Some called interrupt on File transfer Thread");
 				e.printStackTrace();
+			}
+			catch(IOException e)
+			{
+				e.printStackTrace();
+				Logger.e(TAG, "IO Exception occured.Socket was not bounded");
+			}
+			catch(IllegalArgumentException e)
+			{
+				e.printStackTrace();
+				Logger.e(TAG,"Did we pass correct Address here ? ?");
 			}
 		}
 	}
@@ -151,35 +185,31 @@ public class OfflineThreadManager
 				try
 				{
 					textServerSocket = new ServerSocket(PORT_TEXT_MESSAGE);
+					textReceiverSocket = textServerSocket.accept();
+					BufferedReader in = new BufferedReader(new InputStreamReader(textReceiverSocket.getInputStream()));
+					while (true)
+					{
+
+						while (in.readLine() != null)
+						{
+							// process the inputStream.
+						}
+					}
+
 				}
 				catch (IOException e)
 				{
 					e.printStackTrace();
+					Logger.e(TAG, "IO Exception occured.Socket was not bounded");
 				}
-			}
-
-			try
-			{
-				textReceiverSocket= textServerSocket.accept();
-				BufferedReader in = new BufferedReader(
-				        new InputStreamReader(textReceiverSocket.getInputStream()));
-				while (true)
+				catch (IllegalArgumentException e)
 				{
-
-					while (in.readLine() != null)
-					{
-						//process the inputStream.
-					}
+					e.printStackTrace();
+					Logger.e(TAG, "Did we pass correct Address here ? ?");
 				}
-				
-			}
-			catch (IOException e)
-			{
-				e.printStackTrace();
 			}
 		}
-	}
-	
+	}	
 	class FileReceiverThread extends Thread
 	{
 		@Override
@@ -190,14 +220,6 @@ public class OfflineThreadManager
 				try
 				{
 					fileServerSocket = new ServerSocket(PORT_FILE_TRANSFER);
-				}
-				catch (IOException e)
-				{
-					e.printStackTrace();
-				}
-
-				try
-				{
 					fileReceiveSocket = fileServerSocket.accept();
 					BufferedReader in = new BufferedReader(new InputStreamReader(fileReceiveSocket.getInputStream()));
 					while (true)
@@ -208,9 +230,15 @@ public class OfflineThreadManager
 						}
 					}
 				}
-				catch (IOException e)
+				catch(IOException e)
 				{
 					e.printStackTrace();
+					Logger.e(TAG, "IO Exception occured.Socket was not bounded");
+				}
+				catch(IllegalArgumentException e)
+				{
+					e.printStackTrace();
+					Logger.e(TAG,"Did we pass correct Address here ? ?");
 				}
 				
 			}
@@ -311,6 +339,7 @@ public class OfflineThreadManager
 		}
 		return isSent;
 	}
+	
 	
 	
 }

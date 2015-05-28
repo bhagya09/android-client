@@ -1,5 +1,7 @@
 package com.bsb.hike.offline;
 
+import static com.bsb.hike.offline.OfflineConstants.IP_SERVER;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -127,6 +129,20 @@ public class OfflineManager
 	public BlockingQueue<FileTransferModel> getFileTransferQueue()
 	{
 		return fileTransferQueue;
+	}
+	
+	public String getHostAddress()
+	{
+		String host = null;
+		if (isHotspotCreated())
+		{
+			host = OfflineUtils.getIPFromMac(null);
+		}
+		else
+		{
+			host = IP_SERVER;
+		}
+		return host;
 	}
 	
 	
