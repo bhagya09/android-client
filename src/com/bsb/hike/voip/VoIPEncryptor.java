@@ -1,6 +1,5 @@
 package com.bsb.hike.voip;
 
-import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.KeyFactory;

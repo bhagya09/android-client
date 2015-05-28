@@ -81,6 +81,7 @@ public class VoIPClient  {
 	private boolean establishingConnection = false;
 	private int totalBytesReceived = 0, totalBytesSent = 0;
 	private int totalPacketsSent = 0, totalPacketsReceived = 0;
+	private int packetsReceivedPerSecond = 0, remotePacketsReceivedPerSecond = 0;
 	private Handler handler;
 	private int previousHighestRemotePacketNumber = 0;
 	private BitSet packetTrackingBits = new BitSet(PACKET_TRACKING_SIZE);
@@ -103,11 +104,14 @@ public class VoIPClient  {
 	private long lastQualityReset = 0;
 	private CallQuality currentCallQuality = CallQuality.UNKNOWN;
 	
-	public final ConcurrentHashMap<Integer, VoIPDataPacket> ackWaitQueue		 = new ConcurrentHashMap<Integer, VoIPDataPacket>();
+	private final ConcurrentHashMap<Integer, VoIPDataPacket> ackWaitQueue		 = new ConcurrentHashMap<Integer, VoIPDataPacket>();
 	private final ConcurrentLinkedQueue<VoIPDataPacket> samplesToDecodeQueue     = new ConcurrentLinkedQueue<VoIPDataPacket>();
 	private final LinkedBlockingQueue<VoIPDataPacket> encodedBuffersQueue      = new LinkedBlockingQueue<VoIPDataPacket>();
-	public final ConcurrentLinkedQueue<VoIPDataPacket> decodedBuffersQueue      = new ConcurrentLinkedQueue<VoIPDataPacket>();
-	public final LinkedBlockingQueue<byte[]> samplesToEncodeQueue      = new LinkedBlockingQueue<byte[]>();
+	private final ConcurrentLinkedQueue<VoIPDataPacket> decodedBuffersQueue      = new ConcurrentLinkedQueue<VoIPDataPacket>();
+	private final LinkedBlockingQueue<byte[]> samplesToEncodeQueue      = new LinkedBlockingQueue<byte[]>();
+	
+	// Last decoded buffer cache
+	private VoIPDataPacket lastDecodedBuffer = null;
 	
 	public enum ConnectionMethods {
 		UNKNOWN,
@@ -458,8 +462,11 @@ public class VoIPClient  {
 
 				while (keepRunning == true) {
 					
-					// Send heartbeat
+					// Send heartbeat packet
+					// Include packets received / second info
 					VoIPDataPacket dp = new VoIPDataPacket(PacketType.HEARTBEAT);
+					dp.write(ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt(packetsReceivedPerSecond).array());
+					packetsReceivedPerSecond = 0;
 					sendPacket(dp, false);
 
 					if (System.currentTimeMillis() - lastHeartbeat > HEARTBEAT_TIMEOUT && !reconnecting) {
@@ -815,14 +822,16 @@ public class VoIPClient  {
 		if (codecDecompressionThread != null)
 			codecDecompressionThread.interrupt();
 		
-		if(chronometer != null) {
-			chronometer.stop();
-			chronometer = null;
-		}
+		synchronized (this) {
+			if(chronometer != null) {
+				chronometer.stop();
+				chronometer = null;
+			}
 
-		if (opusWrapper != null) {
-			opusWrapper.destroy();
-			opusWrapper = null;
+			if (opusWrapper != null) {
+				opusWrapper.destroy();
+				opusWrapper = null;
+			}
 		}
 		
 		Bundle bundle = new Bundle();
@@ -1031,6 +1040,7 @@ public class VoIPClient  {
 //						Logger.d(VoIPConstants.TAG, "Received something.");
 						totalBytesReceived += packet.getLength();
 						totalPacketsReceived++;
+						packetsReceivedPerSecond++;
 						
 					} catch (IOException e) {
 						Logger.e(VoIPConstants.TAG, "startReceiving() IOException: " + e.toString());
@@ -1165,8 +1175,9 @@ public class VoIPClient  {
 						break;
 						
 					case HEARTBEAT:
-						// Logger.d(VoIPConstants.TAG, "Received heartbeat.");
 						lastHeartbeat = System.currentTimeMillis();
+						if (dataPacket.getData() != null)
+							remotePacketsReceivedPerSecond = ByteBuffer.wrap(dataPacket.getData()).order(ByteOrder.LITTLE_ENDIAN).getInt();
 						
 						// Mostly redundant check to ensure that neither of the phones
 						// is playing the reconnecting tone
@@ -1642,10 +1653,12 @@ public class VoIPClient  {
 	
 	public int getCallDuration() {
 		int seconds = 0;
-		if (chronometer != null) {
-			seconds = (int) ((SystemClock.elapsedRealtime() - chronometer.getBase()) / 1000);
-		} else
-			seconds = chronoBackup;
+		synchronized (this) {
+			if (chronometer != null) {
+				seconds = (int) ((SystemClock.elapsedRealtime() - chronometer.getBase()) / 1000);
+			} else
+				seconds = chronoBackup;
+		}
 		
 		return seconds;
 	}
@@ -1680,6 +1693,28 @@ public class VoIPClient  {
 	public void setEncoderBitrate(int bitrate) {
 		if (opusWrapper != null)
 			opusWrapper.setEncoderBitrate(bitrate);
+	}
+	
+	public VoIPDataPacket getDecodedBuffer() {
+		VoIPDataPacket dp = decodedBuffersQueue.poll();
+		
+		if (dp != null)
+			lastDecodedBuffer = dp;
+		else {
+			// If the decoded buffers queue is empty, then we will return the
+			// last decoded sample (just once)
+			if (lastDecodedBuffer != null) {
+				// Logger.d(VoIPConstants.TAG, getPhoneNumber() + " returning cached decoded buffer.");
+				dp = lastDecodedBuffer;
+			}
+			lastDecodedBuffer = null;
+		}
+		
+		return dp;
+	}
+	
+	public void addSampleToEncode(byte[] sample) {
+		samplesToEncodeQueue.add(sample);
 	}
 	
 	private void stop() {

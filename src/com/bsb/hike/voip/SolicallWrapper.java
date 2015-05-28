@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 
 import android.content.Context;
-import android.content.pm.ApplicationInfo;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;

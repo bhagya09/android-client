@@ -139,6 +139,7 @@ public class VoIPService extends Service {
 			
 			switch (msg.what) {
 			case VoIPConstants.MSG_VOIP_CLIENT_STOP:
+				Logger.d(VoIPConstants.TAG, msisdn + " has stopped.");
 				if (!inConference())
 					stop();
 				else {
@@ -905,21 +906,22 @@ public class VoIPService extends Service {
 	 */
 	synchronized public void stop() {
 
-		synchronized (this) {
-			if (keepRunning == false) {
-				// Logger.w(VoIPConstants.TAG, "Trying to stop a stopped service?");
-				sendHandlerMessage(VoIPConstants.MSG_SHUTDOWN_ACTIVITY);
-				setCallid(0);
-				return;
-			}
-			keepRunning = false;
-		}
-
+//		synchronized (this) {
+//			if (keepRunning == false) {
+//				// Logger.w(VoIPConstants.TAG, "Trying to stop a stopped service?");
+//				sendHandlerMessage(VoIPConstants.MSG_SHUTDOWN_ACTIVITY);
+//				setCallid(0);
+//				return;
+//			}
+//			keepRunning = false;
+//		}
+//
 		Logger.d(VoIPConstants.TAG, "Stopping service..");
+		keepRunning = false;
 
 		for (VoIPClient client : clients.values())
 			removeClient(client);
-		// clients.clear();
+		clients.clear();
 
 		// Reset variables
 		setCallid(0);
@@ -1033,16 +1035,14 @@ public class VoIPService extends Service {
 				while (keepRunning) {
 					VoIPDataPacket dp;
 					try {
+						// We will only get a buffer to send if a conference is not active. 
 						dp = buffersToSend.take();
 						for (VoIPClient client : clients.values()) {
-							try {
-								// client.encodedBuffersQueue.put(dp);
-								// Not sure if cloning is required. Test later. 
-								// VoIPDataPacket dpClone = (VoIPDataPacket)dp.clone();
-								client.samplesToEncodeQueue.put(dp.getData());
-							} catch (InterruptedException e) {
-								break;
-							} 
+							// client.encodedBuffersQueue.put(dp);
+							// Not sure if cloning is required. Test later. 
+							// VoIPDataPacket dpClone = (VoIPDataPacket)dp.clone();
+							// client.samplesToEncodeQueue.put(dp.getData());
+							client.addSampleToEncode(dp.getData()); 
 						}
 					} catch (InterruptedException e1) {
 						break;
@@ -1403,9 +1403,8 @@ public class VoIPService extends Service {
 					// Retrieve decoded samples from all clients and combine into one
 					VoIPDataPacket decodedSample = null;
 					for (VoIPClient client : clients.values()) {
-						VoIPDataPacket dp = client.decodedBuffersQueue.peek();
+						VoIPDataPacket dp = client.getDecodedBuffer();
 						if (dp != null) {
-							client.decodedBuffersQueue.poll();
 							clientSample.put(client.getPhoneNumber(), dp.getData());
 							
 							if (decodedSample == null)
@@ -1446,20 +1445,16 @@ public class VoIPService extends Service {
 							dp.setData(conferencePCM);
 							
 							for (VoIPClient client : clients.values()) {
-								try {
-									VoIPDataPacket clientDp = new VoIPDataPacket();
-									byte[] origPCM = clientSample.get(client.getPhoneNumber());
-									byte[] newPCM = null;
-									if (origPCM == null) {
-										newPCM = conferencePCM;
-									} else {
-										newPCM = VoIPUtils.subtractPCMSamples(conferencePCM, origPCM);
-									}
-									clientDp.setData(newPCM);
-									client.samplesToEncodeQueue.put(clientDp.getData());
-								} catch (InterruptedException e) {
-									Logger.w(VoIPConstants.TAG, "InterruptedException while adding client sample in conference.");
-								} 
+								VoIPDataPacket clientDp = new VoIPDataPacket();
+								byte[] origPCM = clientSample.get(client.getPhoneNumber());
+								byte[] newPCM = null;
+								if (origPCM == null) {
+									newPCM = conferencePCM;
+								} else {
+									newPCM = VoIPUtils.subtractPCMSamples(conferencePCM, origPCM);
+								}
+								clientDp.setData(newPCM);
+								client.addSampleToEncode(clientDp.getData()); 
 							}
 						}
 					}
@@ -1696,7 +1691,9 @@ public class VoIPService extends Service {
 	}
 
 	public void sendAnalyticsEvent(String ek, int value) {
-		getClient().sendAnalyticsEvent(ek, value);
+		VoIPClient client = getClient();
+		if (client != null)
+			client.sendAnalyticsEvent(ek, value);
 	}
 	
 	public CallQuality getQuality() {
@@ -1749,7 +1746,7 @@ public class VoIPService extends Service {
 	
 	private void removeClient(VoIPClient client) {
 		client.close();
-		// clients.remove(client.getPhoneNumber());
+		clients.remove(client.getPhoneNumber());
 	}
 	
 	public boolean toggleConferencing() {
