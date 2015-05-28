@@ -17,6 +17,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeConstants.NotificationType;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
@@ -27,8 +28,11 @@ import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.NotificationPreview;
 import com.bsb.hike.ui.HomeActivity;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+import com.google.gson.Gson;
 
 /**
  * This class is responsible for maintaining states of ConvMessages to be used for showing Android notifications.
@@ -39,7 +43,7 @@ import com.bsb.hike.utils.Utils;
 public class HikeNotificationMsgStack implements Listener
 {
 
-	private static HikeNotificationMsgStack mHikeNotifMsgStack;
+	private static volatile HikeNotificationMsgStack mHikeNotifMsgStack;
 
 	private static Context mContext;
 
@@ -67,19 +71,10 @@ public class HikeNotificationMsgStack implements Listener
 	private int totalNewMessages;
 
 	private boolean forceBlockNotificationSound;
+	
+	private int maxRetryCount=0;
 
-	private static void init(Context context)
-	{
-		if (mHikeNotifMsgStack == null)
-		{
-			mContext = context.getApplicationContext();
-			mHikeNotifMsgStack = new HikeNotificationMsgStack();
-
-			// We register for NEW_ACTIVITY so that when a chat thread is opened,
-			// all unread notifications against the msisdn can be cleared
-			HikeMessengerApp.getPubSub().addListener(HikePubSub.NEW_ACTIVITY, mHikeNotifMsgStack);
-		}
-	}
+	private NotificationRetryCountModel mmCountModel;
 
 	/**
 	 * This class is responsible for maintaining states of ConvMessages to be used for showing Android notifications.
@@ -87,14 +82,24 @@ public class HikeNotificationMsgStack implements Listener
 	 * @param argContext
 	 * @return
 	 */
-	public static HikeNotificationMsgStack getInstance(Context argContext)
+	public static HikeNotificationMsgStack getInstance()
 	{
-		init(argContext);
+		if(mHikeNotifMsgStack==null)
+		synchronized (HikeNotificationMsgStack.class)
+		{
+			if(mHikeNotifMsgStack==null)
+			{
+				Logger.d("notification","HikeNotificationMsgStack");
+				mHikeNotifMsgStack=new HikeNotificationMsgStack();
+				HikeMessengerApp.getPubSub().addListener(HikePubSub.NEW_ACTIVITY, mHikeNotifMsgStack);
+			}
+		}
 		return mHikeNotifMsgStack;
 	}
 
 	private HikeNotificationMsgStack()
 	{
+		
 		mMessagesMap = new LinkedHashMap<String, LinkedList<NotificationPreview>>()
 		{
 			private static final long serialVersionUID = 1L;
@@ -105,7 +110,12 @@ public class HikeNotificationMsgStack implements Listener
 				return size() > MAX_LINES;
 			}
 		};
+		Logger.d("notification","HikeNotificationMsgStack....size is "+mMessagesMap.size());
 		this.mConvDb = HikeConversationsDatabase.getInstance();
+		mContext = HikeMessengerApp.getInstance().getApplicationContext();
+		// We register for NEW_ACTIVITY so that when a chat thread is opened,
+		// all unread notifications against the msisdn can be cleared
+		
 	}
 
 	/**
@@ -123,9 +133,13 @@ public class HikeNotificationMsgStack implements Listener
 			addPair(argConvMessage.getMsisdn(), convNotifPrvw);
 
 			mLastInsertedConvMessage = argConvMessage;
+			
+			forceBlockNotificationSound = argConvMessage.isSilent();
+			
+			Logger.d("NotificationRetry", "addConvMessage called");
 		}
 
-		forceBlockNotificationSound = argConvMessage.isSilent();
+		
 
 	}
 
@@ -142,7 +156,7 @@ public class HikeNotificationMsgStack implements Listener
 			{
 				if (conv.getMessageType() == HikeConstants.MESSAGE_TYPE.WEB_CONTENT || conv.getMessageType() == HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT)
 				{
-					addMessage(conv.getMsisdn(), conv.webMetadata.getNotifText());
+					addMessage(conv.getMsisdn(), conv.webMetadata.getNotifText(),conv.getNotificationType());
 					mLastInsertedConvMessage = conv;
 					forceBlockNotificationSound = conv.isSilent();
 				}
@@ -159,16 +173,18 @@ public class HikeNotificationMsgStack implements Listener
 	 * 
 	 * @param argMsisdn
 	 * @param argMessage
+	 * @param notificationType 
 	 * @throws IllegalArgumentException
 	 */
-	public void addMessage(String argMsisdn, String argMessage) throws IllegalArgumentException
+	public void addMessage(String argMsisdn, String argMessage, int notificationType) throws IllegalArgumentException
 	{
 		if (TextUtils.isEmpty(argMessage))
 		{
 			Log.wtf("HikeNotification", "Notification message is empty, check packet, msisdn= "+argMsisdn);
 			return;
 		}
-		addPair(argMsisdn, new NotificationPreview(argMessage, HikeNotificationUtils.getNameForMsisdn(argMsisdn)));
+		Logger.d("NotificationRetry", "addMessage called");
+		addPair(argMsisdn, new NotificationPreview(argMessage, HikeNotificationUtils.getNameForMsisdn(argMsisdn),notificationType));
 	}
 
 	/**
@@ -179,18 +195,22 @@ public class HikeNotificationMsgStack implements Listener
 	 */
 	private void addPair(String argMsisdn, NotificationPreview notifPrvw)
 	{
+		Logger.d("ToastListener","The Type is "+notifPrvw.getNotificationType()+"and the retry count is "+getNotificationCount(notifPrvw.getNotificationType()));
 		lastAddedMsisdn = argMsisdn;
 
+		maxRetryCount=Math.max(maxRetryCount, getNotificationCount(notifPrvw.getNotificationType()));
+		Logger.d("NotificationRetry","Adding NOtification to stack and max retry value is "+maxRetryCount);
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.MAX_REPLY_RETRY_NOTIF_COUNT, maxRetryCount);
 		// If message stack consists of any stealth messages, do not add new message, change
 		// stealth message string to notify multiple messages (add s to message"S")
 		if (argMsisdn.equals(HikeNotification.HIKE_STEALTH_MESSAGE_KEY) && mMessagesMap.containsKey(HikeNotification.HIKE_STEALTH_MESSAGE_KEY))
 		{
-
+			int notificationType=NotificationType.HIDDEN;
 			LinkedList<NotificationPreview> stealthMessageList = mMessagesMap.get(argMsisdn);
 
 			// There should only be 1 item dedicated to stealth message
 			// hike - You have new notification(s)
-			stealthMessageList.set(0, new NotificationPreview(mContext.getString(R.string.stealth_notification_messages), null));
+				stealthMessageList.set(0, new NotificationPreview(mContext.getString(R.string.stealth_notification_messages),null, notificationType));
 		}
 		else
 		{
@@ -385,18 +405,22 @@ public class HikeNotificationMsgStack implements Listener
 	 * 
 	 * @return
 	 */
-	public String getNotificationBigText()
+	public String getNotificationBigText(int retryCount)
 	{
 		setBigTextList(new ArrayList<SpannableString>());
 		StringBuilder bigText = new StringBuilder();
 
 		ListIterator<Entry<String, LinkedList<NotificationPreview>>> mapIterator = new ArrayList<Map.Entry<String, LinkedList<NotificationPreview>>>(mMessagesMap.entrySet()).listIterator(mMessagesMap
 				.size());
-
+		
+		if (retryCount > 0)
+		{
+			maxRetryCount--;
+		}
+	
 		while (mapIterator.hasPrevious())
 		{
 			Entry<String, LinkedList<NotificationPreview>> conv = mapIterator.previous();
-
 			String msisdn = conv.getKey();
 
 			for (NotificationPreview notifPrvw : conv.getValue())
@@ -415,6 +439,7 @@ public class HikeNotificationMsgStack implements Listener
 					getBigTextList().add(HikeNotificationUtils.makeNotificationLine(null, notifPrvw.getMessage()));
 				}
 			}
+
 		}
 
 		bigText = new StringBuilder();
@@ -537,6 +562,8 @@ public class HikeNotificationMsgStack implements Listener
 		mMessagesMap.clear();
 		lastAddedMsisdn = null;
 		totalNewMessages = 0;
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.MAX_REPLY_RETRY_NOTIF_COUNT, 0);
+		maxRetryCount=0;
 	}
 
 	/**
@@ -638,5 +665,118 @@ public class HikeNotificationMsgStack implements Listener
 		{
 			return false;
 		}
+	}
+	
+/**
+ * 	
+ * @param notificationType
+ * @return int
+ * 
+ * This function returns the notification count wrt notifivation type
+ */
+	private int getNotificationCount(int notificationType)
+	{
+		int retryCount = 0;
+
+		String str = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.NOTIFICATION_RETRY_JSON, "{}");
+
+		mmCountModel = new Gson().fromJson(str, NotificationRetryCountModel.class);
+		switch (notificationType)
+		{
+		case NotificationType.STATUSUPDATE:
+			retryCount = mmCountModel.getStatusUpdate();
+			break;
+			case NotificationType.BOTMSG:
+				retryCount = mmCountModel.getHikeBot();
+				break;
+			case NotificationType.CHATTHEMECHNG:
+				retryCount = mmCountModel.getChatThemeChange();
+				break;
+			case NotificationType.DPUPDATE:
+				retryCount = mmCountModel.getDpUpdate();
+				break;
+
+			case NotificationType.FAVADD:
+				retryCount = mmCountModel.getFav();
+				break;
+
+			case NotificationType.H2O:
+				retryCount = mmCountModel.getH2o();
+				break;
+
+			case NotificationType.NORMALGC:
+				retryCount = mmCountModel.getGc();
+				break;
+
+			case NotificationType.NORMALMSG1TO1:
+				retryCount = mmCountModel.getH2h();
+				break;
+
+			case NotificationType.NUJORRUJ:
+				retryCount = mmCountModel.getNuj();
+				break;
+
+			case NotificationType.OTHER:
+				retryCount = mmCountModel.getOther();
+				break;
+
+			case NotificationType.HIDDEN:
+				retryCount = mmCountModel.getHidden();
+				break;
+			}
+		
+		return retryCount;
+		
+		
+	}
+
+/**
+ * This function is called before retrying to remove all the unwanted message that we dont want to retry to avoid spamming.
+ * 
+ * If the notification count is -1 ,it should not  be included in retry. 
+ */
+	public  void processPreNotificationWork()
+	{
+		ListIterator<Entry<String, LinkedList<NotificationPreview>>> mapIterator = new ArrayList<Map.Entry<String, LinkedList<NotificationPreview>>>(mMessagesMap.entrySet())
+				.listIterator(mMessagesMap.size());
+
+		LinkedList<NotificationPreview> keySet = null;
+
+		while (mapIterator.hasPrevious())
+		{
+			Entry<String, LinkedList<NotificationPreview>> conv = mapIterator.previous();
+			String msisdn = conv.getKey();
+
+			if (keySet == null)
+			{
+				keySet = new LinkedList<NotificationPreview>();
+			}
+			for (NotificationPreview notifPrvw : conv.getValue())
+			{
+
+				if (getNotificationCount(notifPrvw.getNotificationType()) == -1)
+				{
+					totalNewMessages -= 1;
+					keySet.add(notifPrvw);
+					// remove from the stack;
+				}
+
+			}
+			for (NotificationPreview notificationPreview : keySet)
+			{
+				mMessagesMap.get(msisdn).remove(notificationPreview);
+			}
+
+			if (mMessagesMap.get(msisdn).size() == 0)
+			{
+				mMessagesMap.remove(msisdn);
+			}
+
+			if (keySet.size() > 0)
+			{
+				keySet.clear();
+			}
+		}
+
 	}
 }

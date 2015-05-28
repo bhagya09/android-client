@@ -13,6 +13,7 @@ import org.json.JSONArray;
 import android.app.Dialog;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.media.AudioManager;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import android.text.Editable;
@@ -1388,7 +1389,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 
 				if (isActivityVisible && SoundUtils.isTickSoundEnabled(activity.getApplicationContext()))
 				{
-					SoundUtils.playSoundFromRaw(activity.getApplicationContext(), R.raw.received_message);
+					SoundUtils.playSoundFromRaw(activity.getApplicationContext(), R.raw.received_message, AudioManager.STREAM_RING);
 				}
 			}
 

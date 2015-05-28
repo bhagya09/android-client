@@ -26,6 +26,7 @@ import android.content.SharedPreferences.Editor;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
+import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -3040,7 +3041,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 				if (isActivityVisible && SoundUtils.isTickSoundEnabled(activity.getApplicationContext()))
 				{
-					SoundUtils.playSoundFromRaw(activity.getApplicationContext(), R.raw.message_sent);
+					SoundUtils.playSoundFromRaw(activity.getApplicationContext(), R.raw.message_sent, AudioManager.STREAM_RING);
 				}
 
 				sendUIMessage(MULTI_MSG_DB_INSERTED, pair.second);
@@ -3088,7 +3089,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 			if (isActivityVisible && SoundUtils.isTickSoundEnabled(activity.getApplicationContext()))
 			{
-				SoundUtils.playSoundFromRaw(activity.getApplicationContext(), R.raw.received_message);
+				SoundUtils.playSoundFromRaw(activity.getApplicationContext(), R.raw.received_message, AudioManager.STREAM_RING);
 			}
 
 			sendUIMessage(MESSAGE_RECEIVED, message);
@@ -3586,7 +3587,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		{
 			if (isActivityVisible && (!msg.isTickSoundPlayed()) && SoundUtils.isTickSoundEnabled(activity.getApplicationContext()))
 			{
-				SoundUtils.playSoundFromRaw(activity.getApplicationContext(), R.raw.message_sent);
+				SoundUtils.playSoundFromRaw(activity.getApplicationContext(), R.raw.message_sent, AudioManager.STREAM_RING);
 			}
 			msg.setTickSoundPlayed(true);
 			msg.setState(ConvMessage.State.SENT_CONFIRMED);

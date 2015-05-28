@@ -172,6 +172,14 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	
 	public static final String PRODUCTION_HOST_TOGGLE = "productionHostToggle";
 
+	public static final String CUSTOM_MQTT_HOST = "cmqttho";
+	
+	public static final String CUSTOM_MQTT_PORT = "cmmqttpo";
+
+	public static final String CUSTOM_HTTP_HOST = "cmhttpho";
+	
+	public static final String CUSTOM_HTTP_PORT = "chttppo";
+
 	public static final String COUNTRY_CODE = "countryCode";
 
 	public static final String FILE_PATH = "filePath";
@@ -488,6 +496,8 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 
 	public static final String EXCEPTION_ANALYTIS_ENABLED = "exceptionAnalaticsEnabled";
 	
+	public static final String MAX_REPLY_RETRY_NOTIF_COUNT = "maxReplyRetryNotifCount";
+
 	public static final String SSL_ALLOWED = "sslAllowed";
 	
 	public static CurrentState currentState = CurrentState.CLOSED;
@@ -1127,7 +1137,7 @@ public void onTrimMemory(int level)
 		}
 		if (toastListener == null)
 		{
-			toastListener = ToastListener.getInstance(getApplicationContext());
+			toastListener = ToastListener.getInstance();
 		}
 		if (activityTimeLogger == null)
 		{
