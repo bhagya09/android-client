@@ -1,6 +1,7 @@
 package com.bsb.hike.utils;
 
 import java.io.BufferedReader;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -36,8 +37,6 @@ import java.util.Random;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.jar.JarFile;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -179,6 +178,7 @@ import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.http.HikeHttpRequest;
 import com.bsb.hike.models.AccountData;
+import com.bsb.hike.models.AccountInfo;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.ContactInfoData;
@@ -194,6 +194,7 @@ import com.bsb.hike.models.StatusMessage;
 import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.models.Conversation.Conversation;
+import com.bsb.hike.models.Conversation.ConversationTip;
 import com.bsb.hike.models.Conversation.GroupConversation;
 import com.bsb.hike.models.Conversation.OneToNConvInfo;
 import com.bsb.hike.models.Conversation.OneToNConversation;
@@ -202,7 +203,6 @@ import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.service.ConnectionChangeReceiver;
 import com.bsb.hike.service.HikeMqttManagerNew;
-import com.bsb.hike.tasks.AuthSDKAsyncTask;
 import com.bsb.hike.tasks.CheckForUpdateTask;
 import com.bsb.hike.tasks.SignupTask;
 import com.bsb.hike.ui.HikePreferences;
@@ -212,7 +212,6 @@ import com.bsb.hike.ui.SignupActivity;
 import com.bsb.hike.ui.TimelineActivity;
 import com.bsb.hike.ui.WebViewActivity;
 import com.bsb.hike.ui.WelcomeActivity;
-import com.bsb.hike.utils.AccountUtils.AccountInfo;
 import com.bsb.hike.voip.VoIPUtils;
 import com.google.android.gms.maps.model.LatLng;
 
@@ -239,8 +238,6 @@ public class Utils
 	public static float densityMultiplier = 1.0f;
 
 	public static int densityDpi;
-
-	private static Lock lockObj = new ReentrantLock();
 
 	private static final String defaultCountryName = "India";
 
@@ -401,6 +398,10 @@ public class Utils
 			}
 		}
 
+		if( !mediaStorageDir.isDirectory() && mediaStorageDir.canWrite() ){
+			mediaStorageDir.delete();
+			mediaStorageDir.mkdirs();
+		}
 		// File name should only be blank in case of profile images or while
 		// capturing new media.
 		if (TextUtils.isEmpty(orgFileName))
@@ -410,7 +411,21 @@ public class Utils
 
 		// String fileName = getUniqueFileName(orgFileName, fileKey);
 
-		return new File(mediaStorageDir, orgFileName);
+		/*
+		 * Changes done to fix the issue where some users are getting FileNotFoundEXception while creating file.
+		 */
+		File mFile = new File(mediaStorageDir, orgFileName);
+		try {
+			/*
+			 * Create temp file only for upload case.
+			 */
+			if(isSent)
+				mFile.createNewFile();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return mFile;
 	}
 
 	public static String getOriginalFile(HikeFileType type, String orgFileName)
@@ -558,16 +573,16 @@ public class Utils
 
 	public static void savedAccountCredentials(AccountInfo accountInfo, SharedPreferences.Editor editor)
 	{
-		AccountUtils.setToken(accountInfo.token);
-		AccountUtils.setUID(accountInfo.uid);
-		editor.putString(HikeMessengerApp.MSISDN_SETTING, accountInfo.msisdn);
-		editor.putString(HikeMessengerApp.TOKEN_SETTING, accountInfo.token);
-		editor.putString(HikeMessengerApp.UID_SETTING, accountInfo.uid);
-		editor.putString(HikeMessengerApp.BACKUP_TOKEN_SETTING, accountInfo.backupToken);
-		editor.putInt(HikeMessengerApp.SMS_SETTING, accountInfo.smsCredits);
-		editor.putInt(HikeMessengerApp.INVITED, accountInfo.all_invitee);
-		editor.putInt(HikeMessengerApp.INVITED_JOINED, accountInfo.all_invitee_joined);
-		editor.putString(HikeMessengerApp.COUNTRY_CODE, accountInfo.country_code);
+		AccountUtils.setToken(accountInfo.getToken());
+		AccountUtils.setUID(accountInfo.getUid());
+		editor.putString(HikeMessengerApp.MSISDN_SETTING, accountInfo.getMsisdn());
+		editor.putString(HikeMessengerApp.TOKEN_SETTING, accountInfo.getToken());
+		editor.putString(HikeMessengerApp.UID_SETTING, accountInfo.getUid());
+		editor.putString(HikeMessengerApp.BACKUP_TOKEN_SETTING, accountInfo.getBackUpToken());
+		editor.putInt(HikeMessengerApp.SMS_SETTING, accountInfo.getSmsCredits());
+		editor.putInt(HikeMessengerApp.INVITED, accountInfo.getAllInvitee());
+		editor.putInt(HikeMessengerApp.INVITED_JOINED, accountInfo.getAllInviteeJoined());
+		editor.putString(HikeMessengerApp.COUNTRY_CODE, accountInfo.getCountryCode());
 		editor.commit();
 	}
 
@@ -1637,29 +1652,32 @@ public class Utils
 		return b;
 	}
 
-	public static void setupUri(Context ctx)
+	public static void setupUri()
 	{
-		SharedPreferences settings = ctx.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
-		boolean connectUsingSSL = Utils.switchSSLOn(ctx);
+		SharedPreferences settings = HikeMessengerApp.getInstance().getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
+		boolean connectUsingSSL = Utils.switchSSLOn(HikeMessengerApp.getInstance());
 		Utils.setupServerURL(settings.getBoolean(HikeMessengerApp.PRODUCTION, true), connectUsingSSL);
 	}
 
 	public static void setupServerURL(boolean isProductionServer, boolean ssl)
-
 	{
 		Logger.d("SSL", "Switching SSL on? " + ssl);
 
-		AccountUtils.ssl = ssl;
+		int whichServer = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PRODUCTION_HOST_TOGGLE, AccountUtils._PRODUCTION_HOST);
+		
+		AccountUtils.ssl = (whichServer != AccountUtils._CUSTOM_HOST) ? ssl: false;
+		
 		AccountUtils.mClient = null;
+		
+		Logger.d("SSL", "Switching SSL on? " + AccountUtils.ssl);
 
-		String httpString = ssl ? AccountUtils.HTTPS_STRING : AccountUtils.HTTP_STRING;
+		String httpString = AccountUtils.ssl ? AccountUtils.HTTPS_STRING : AccountUtils.HTTP_STRING;
 
 		AccountUtils.host = isProductionServer ? AccountUtils.PRODUCTION_HOST : AccountUtils.STAGING_HOST;
 		AccountUtils.port = isProductionServer ? (ssl ? AccountUtils.PRODUCTION_PORT_SSL : AccountUtils.PRODUCTION_PORT) : (ssl ? AccountUtils.STAGING_PORT_SSL
 				: AccountUtils.STAGING_PORT);
 
 		if (isProductionServer)
-
 		{
 			AccountUtils.base = httpString + AccountUtils.host + "/v1";
 			AccountUtils.baseV2 = httpString + AccountUtils.host + "/v2";
@@ -1667,33 +1685,33 @@ public class Utils
 		}
 		else
 		{
+			setHostAndPort(whichServer, AccountUtils.ssl);
 			AccountUtils.base = httpString + AccountUtils.host + ":" + Integer.toString(AccountUtils.port) + "/v1";
 			AccountUtils.baseV2 = httpString + AccountUtils.host + ":" + Integer.toString(AccountUtils.port) + "/v2";
 			AccountUtils.SDK_AUTH_BASE = AccountUtils.SDK_AUTH_BASE_URL_STAGING;
 		}
 
-		AccountUtils.fileTransferHost = isProductionServer ? AccountUtils.PRODUCTION_FT_HOST : AccountUtils.STAGING_HOST;
+		AccountUtils.fileTransferHost = isProductionServer ? AccountUtils.PRODUCTION_FT_HOST : AccountUtils.host;
 		AccountUtils.fileTransferBase = httpString + AccountUtils.fileTransferHost + ":" + Integer.toString(AccountUtils.port) + "/v1";
 
-		CheckForUpdateTask.UPDATE_CHECK_URL = httpString + (isProductionServer ? CheckForUpdateTask.PRODUCTION_URL : CheckForUpdateTask.STAGING_URL);
+		CheckForUpdateTask.UPDATE_CHECK_URL = httpString + (isProductionServer ? CheckForUpdateTask.PRODUCTION_URL : CheckForUpdateTask.STAGING_URL_BASE);
 
 		AccountUtils.fileTransferBaseDownloadUrl = AccountUtils.fileTransferBase + AccountUtils.FILE_TRANSFER_DOWNLOAD_BASE;
 		AccountUtils.fastFileUploadUrl = AccountUtils.fileTransferBase + AccountUtils.FILE_TRANSFER_DOWNLOAD_BASE + "ffu/";
-		AccountUtils.fileTransferBaseViewUrl = AccountUtils.HTTP_STRING
-				+ (isProductionServer ? AccountUtils.FILE_TRANSFER_BASE_VIEW_URL_PRODUCTION : AccountUtils.FILE_TRANSFER_BASE_VIEW_URL_STAGING);
 
-		AccountUtils.analyticsUploadUrl = AccountUtils.base + AccountUtils.ANALYTICS_UPLOAD_BASE;
+		
+		AccountUtils.rewardsUrl = (isProductionServer ? AccountUtils.REWARDS_PRODUCTION_BASE : AccountUtils.base + AccountUtils.REWARDS_STAGING_PATH);
+		AccountUtils.gamesUrl = (isProductionServer ? AccountUtils.GAMES_PRODUCTION_BASE : AccountUtils.base + AccountUtils.GAMES_STAGING_PATH);
+		AccountUtils.stickersUrl = (isProductionServer ? AccountUtils.HTTP_STRING + AccountUtils.STICKERS_PRODUCTION_BASE : AccountUtils.base + AccountUtils.STICKERS_STAGING_PATH);
+		AccountUtils.h2oTutorialUrl = (isProductionServer ? AccountUtils.HTTP_STRING + AccountUtils.H2O_TUTORIAL_PRODUCTION_BASE : AccountUtils.base + AccountUtils.H2O_TUTORIAL_STAGING_PATH);
+		AccountUtils.analyticsUploadUrl = AccountUtils.base + AccountUtils.ANALYTICS_UPLOAD_PATH;
 
-		AccountUtils.rewardsUrl = isProductionServer ? AccountUtils.REWARDS_PRODUCTION_BASE : AccountUtils.REWARDS_STAGING_BASE;
-		AccountUtils.gamesUrl = isProductionServer ? AccountUtils.GAMES_PRODUCTION_BASE : AccountUtils.GAMES_STAGING_BASE;
-		AccountUtils.stickersUrl = AccountUtils.HTTP_STRING + (isProductionServer ? AccountUtils.STICKERS_PRODUCTION_BASE : AccountUtils.STICKERS_STAGING_BASE);
-		AccountUtils.h2oTutorialUrl = AccountUtils.HTTP_STRING + (isProductionServer ? AccountUtils.H2O_TUTORIAL_PRODUCTION_BASE : AccountUtils.H2O_TUTORIAL_STAGING_BASE);
 		Logger.d("SSL", "Base: " + AccountUtils.base);
 		Logger.d("SSL", "FTHost: " + AccountUtils.fileTransferHost);
 		Logger.d("SSL", "FTUploadBase: " + AccountUtils.fileTransferBase);
 		Logger.d("SSL", "UpdateCheck: " + CheckForUpdateTask.UPDATE_CHECK_URL);
 		Logger.d("SSL", "FTDloadBase: " + AccountUtils.fileTransferBaseDownloadUrl);
-		Logger.d("SSL", "FTViewBase: " + AccountUtils.fileTransferBaseViewUrl);
+	
 	}
 
 	private static void setHostAndPort(int whichServer, boolean ssl)
@@ -1715,6 +1733,14 @@ public class Utils
 			AccountUtils.host = AccountUtils.DEV_STAGING_HOST;
 			AccountUtils.port = ssl ? AccountUtils.STAGING_PORT_SSL : AccountUtils.STAGING_PORT;
 			break;
+		case AccountUtils._CUSTOM_HOST:
+			SharedPreferences sharedPreferences = HikeMessengerApp.getInstance().getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, Context.MODE_PRIVATE);
+			
+			AccountUtils.host = sharedPreferences.getString(HikeMessengerApp.CUSTOM_HTTP_HOST, AccountUtils.PRODUCTION_HOST);
+			AccountUtils.port = sharedPreferences.getInt(HikeMessengerApp.CUSTOM_HTTP_PORT, AccountUtils.PRODUCTION_PORT);
+			
+			break;
+
 		}
 
 	}
@@ -2698,20 +2724,10 @@ public class Utils
 				}
 			}
 		}
-
+		
 		sendAppState(context, requestBulkLastSeen, dueToConnect, toLog);
 
-		if (resetStealth)
-		{
-			if (HikeMessengerApp.currentState != CurrentState.OPENED && HikeMessengerApp.currentState != CurrentState.RESUMED)
-			{
-				resetStealthMode(context);
-			}
-			else
-			{
-				clearStealthResetTimer(context);
-			}
-		}
+		StealthModeManager.getInstance().appStateChange(resetStealth, HikeMessengerApp.currentState != CurrentState.OPENED && HikeMessengerApp.currentState != CurrentState.RESUMED);
 	}
 
 	public static boolean isScreenOn(Context context)
@@ -2796,16 +2812,6 @@ public class Utils
 		}
 	}
 	
-	private static void resetStealthMode(Context context)
-	{
-		StealthResetTimer.getInstance(context).resetStealthToggle();
-	}
-
-	private static void clearStealthResetTimer(Context context)
-	{
-		StealthResetTimer.getInstance(context).clearScheduledStealthToggleTimer();
-	}
-
 	public static String getLastSeenTimeAsString(Context context, long lastSeenTime, int offline)
 	{
 		return getLastSeenTimeAsString(context, lastSeenTime, offline, false);
@@ -3283,18 +3289,6 @@ public class Utils
 		else
 		{
 			asyncTask.execute(hikeHttpRequests);
-		}
-	}
-
-	public static void executeAuthSDKTask(AuthSDKAsyncTask argTask, HttpRequestBase... requests)
-	{
-		if (isHoneycombOrHigher())
-		{
-			argTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, requests);
-		}
-		else
-		{
-			argTask.execute(requests);
 		}
 	}
 
@@ -4224,7 +4218,7 @@ public class Utils
 
 	public static int getFreeSMSCount(Context context)
 	{
-		return context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, context.MODE_PRIVATE).getInt(HikeMessengerApp.SMS_SETTING, 0);
+		return context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, Context.MODE_PRIVATE).getInt(HikeMessengerApp.SMS_SETTING, 0);
 	}
 
 	public static void handleBulkLastSeenPacket(Context context, JSONObject jsonObj) throws JSONException
@@ -4486,6 +4480,14 @@ public class Utils
 		Intent intent = new Intent(context, HikePreferences.class);
 		intent.putExtra(HikeConstants.Extras.PREF, R.xml.privacy_preferences);
 		intent.putExtra(HikeConstants.Extras.TITLE, R.string.privacy);
+		return intent;
+	}
+	
+	public static Intent getIntentForHiddenSettings(Context context)
+	{
+		Intent intent = new Intent(context, HikePreferences.class);
+		intent.putExtra(HikeConstants.Extras.PREF, R.xml.stealth_preferences);
+		intent.putExtra(HikeConstants.Extras.TITLE, R.string.stealth_mode_title);
 		return intent;
 	}
 
@@ -5548,7 +5550,7 @@ public class Utils
 			ConnectivityManager cm = (ConnectivityManager) HikeMessengerApp.getInstance().getSystemService(Context.CONNECTIVITY_SERVICE);
 			NetworkInfo netInfo = cm.getActiveNetworkInfo();
 
-			if (netInfo != null && (netInfo.isConnectedOrConnecting() || netInfo.isAvailable()))
+			if (netInfo != null && netInfo.isConnected())
 			{
 				Logger.d("getNetInfoFromConnectivityManager", "Trying to connect using getActiveNetworkInfo");
 				return new Pair<NetworkInfo, Boolean>(netInfo, true);
@@ -5556,7 +5558,7 @@ public class Utils
 
 			netInfo = cm.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
 
-			if (netInfo != null && netInfo.isConnectedOrConnecting())
+			if (netInfo != null && netInfo.isConnected())
 			{
 				Logger.d("getNetInfoFromConnectivityManager", "Trying to connect using TYPE_MOBILE NetworkInfo");
 				return new Pair<NetworkInfo, Boolean>(netInfo, true);
@@ -5564,7 +5566,7 @@ public class Utils
 			else
 			{
 				netInfo = cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-				if (netInfo != null && netInfo.isConnectedOrConnecting())
+				if (netInfo != null && netInfo.isConnected())
 				{
 					Logger.d("getNetInfoFromConnectivityManager", "Trying to connect using TYPE_WIFI NetworkInfo");
 					return new Pair<NetworkInfo, Boolean>(netInfo, true);
