@@ -27,6 +27,7 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.NUXManager;
 import com.bsb.hike.utils.PairModified;
+import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
 
 public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
@@ -99,8 +100,6 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 	private boolean fetchGroups = false;
 
 	private boolean creatingOrEditingGroup = false;
-
-	private int stealthMode;
 
 	private Map<String, StatusMessage> lastStatusMessagesMap;
 
@@ -182,8 +181,7 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 		this.fetchRecentlyJoined = fetchRecentlyJoined;
 
 		this.showDefaultEmptyList = showDefaultEmptyList;
-		this.stealthMode = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF);
-
+		
 		this.nativeSMSOn = Utils.getSendSmsPref(context);
 	}
 
@@ -217,7 +215,7 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 				if(recentTaskList.size() >= HikeConstants.MAX_RECENTS_TO_SHOW)
 					break;
 			    String msisdn = recentContact.getMsisdn();
-			    boolean hideStealthMsisdn = HikeMessengerApp.isStealthMsisdn(msisdn) && stealthMode != HikeConstants.STEALTH_ON;
+			    boolean hideStealthMsisdn = StealthModeManager.getInstance().isStealthMsisdn(msisdn) && !StealthModeManager.getInstance().isActive();
 			    boolean removeSendingMsisdn = (sendingMsisdn!=null && sendingMsisdn.equals(msisdn));
 			    if (blockSet.contains(msisdn) || HikeMessengerApp.hikeBotNamesMap.containsKey(msisdn) || myMsisdn.equals(msisdn) || hideStealthMsisdn || removeSendingMsisdn)
 			    {
@@ -395,7 +393,7 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 	{
 		if(fetchRecentlyJoined && contactInfo.isOnhike() && !contactInfo.isUnknownContact())
 		{
-			if(stealthMode != HikeConstants.STEALTH_ON && HikeMessengerApp.isStealthMsisdn(contactInfo.getMsisdn()))
+			if(!StealthModeManager.getInstance().isActive() && StealthModeManager.getInstance().isStealthMsisdn(contactInfo.getMsisdn()))
 			{
 				return;
 			}
@@ -442,14 +440,14 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 			 * if case of group contactInfo.getId() will retrun groupId, which is treated as msisdn for groups.
 			 */
 			String msisdn = isGroupTask ? contactInfo.getId() : contactInfo.getMsisdn();
-			if (HikeMessengerApp.isStealthMsisdn(msisdn))
+			if (StealthModeManager.getInstance().isStealthMsisdn(msisdn))
 			{
 				stealthList.add(contactInfo);
 
 				/*
 				 * If stealth mode is currently off, we should remove these contacts from the list.
 				 */
-				if (stealthMode != HikeConstants.STEALTH_ON)
+				if (!StealthModeManager.getInstance().isActive())
 				{
 					iter.remove();
 				}
@@ -478,14 +476,14 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 			 * if case of group contactInfo.getId() will retrun groupId, which is treated as msisdn for groups.
 			 */
 			String msisdn = isGroupTask ? contactInfo.getId() : contactInfo.getMsisdn();
-			if (HikeMessengerApp.isStealthMsisdn(msisdn) && !creatingOrEditingGroup)
+			if (StealthModeManager.getInstance().isStealthMsisdn(msisdn) && !creatingOrEditingGroup)
 			{
 				stealthList.add(contactInfo);
 
 				/*
 				 * If stealth mode is currently off, we should remove these contacts from the list.
 				 */
-				if (stealthMode != HikeConstants.STEALTH_ON)
+				if (!StealthModeManager.getInstance().isActive())
 				{
 					iter.remove();
 				}

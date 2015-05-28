@@ -208,7 +208,7 @@ public final class HikeEffectsFactory
 		{
 			Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(),
 					HikeMessengerApp.getInstance().getApplicationContext().getResources().getString(R.string.photos_oom_load), Toast.LENGTH_SHORT).show();
-			
+
 			Intent homeActivityIntent = IntentFactory.getHomeActivityIntent(HikeMessengerApp.getInstance().getApplicationContext());
 			homeActivityIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 			HikeMessengerApp.getInstance().getApplicationContext().startActivity(homeActivityIntent);

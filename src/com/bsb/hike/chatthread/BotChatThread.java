@@ -69,6 +69,12 @@ public class BotChatThread extends OneToOneChatThread
 
 		}
 	}
+	
+	@Override
+	protected boolean shouldShowKeyboard()
+	{
+		return configuration.isInputEnabled() && super.shouldShowKeyboard();
+	}
 
 	@Override
 	protected Conversation fetchConversation()

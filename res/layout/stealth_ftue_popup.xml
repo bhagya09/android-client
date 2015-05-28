@@ -24,7 +24,6 @@
         android:layout_marginBottom="10dp"
         android:layout_marginLeft="5dp"
         android:layout_marginRight="5dp"
-        android:text="@string/introducing_stealth_mode"
         android:textColor="#ffffef"
         android:textStyle="bold"
         android:textSize="18dp" />
@@ -38,7 +37,6 @@
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
         android:gravity="center"
-        android:text="@string/stealth_mode_popup_msg"
         android:textColor="#ffffef"
         android:textSize="14dp" />
 
@@ -62,7 +60,6 @@
             android:background="@drawable/popup_button_bg_selector"
             android:clickable="true"
             android:gravity="center"
-            android:text="@string/quick_setup"
             android:textColor="#ffffef"
             android:textSize="16dp"
             android:visibility="gone" />
@@ -82,7 +79,6 @@
             android:background="@drawable/popup_button_bg_selector"
             android:clickable="true"
             android:gravity="center"
-            android:text="@string/quick_setup"
             android:textColor="#ffffef"
             android:textSize="16dp"
             android:textStyle="bold" />

@@ -173,6 +173,11 @@ public class ProductJavaScriptBridge extends JavascriptBridge
 		{
 			ProductInfoManager.getInstance().callToServer(metaData);
 		}
+		if(action.equals(PopUpAction.DOWNLOAD_STKPK.toString()))
+		{
+			ProductInfoManager.getInstance().downloadStkPk(metaData);
+		}
+		
 
 	}
 
