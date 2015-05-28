@@ -557,10 +557,10 @@ public abstract class JavascriptBridge
 	}
 
 	/**
-	 * Platform Bridge Version 1
+	 *
 	 * this function will call the js back when the javascript demands some value back from the native.
 	 * @param id : the id of the function that native will call to call the js .
-	 * @param value: value that will be given back.
+	 * @param value: value that will be given back. it is encoded with URL Encoded Scheme. Decode it before using.
 	 */
 	public void callbackToJS(final String id, final String value)
 	{
@@ -578,7 +578,7 @@ public abstract class JavascriptBridge
 			@Override
 			public void run()
 			{
-				mWebView.loadUrl("javascript:callbackFromNative" + "('" + id + "','" + value + "')");
+				mWebView.loadUrl("javascript:callbackFromNative" + "('" + id + "','" + getEncodedDataForJS(value) + "')");
 			}
 		});
 	}
