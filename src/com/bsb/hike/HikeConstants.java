@@ -455,7 +455,7 @@ public class HikeConstants
 
 	public static final String STEALTH_PERF_SETTING = "steathPerfCategory";
 
-	public static final String STEALTH_MSISDN = "stealthMsisdn";
+	public static final String STEALTH_MSISDN = "stlthmsisdn";
 
 	public static final String SEND_UNDELIVERED_AS_NATIVE_PREF = "sendUndeliveredAsNativePref";
 
@@ -1815,8 +1815,6 @@ public class HikeConstants
 
 		public static final String RESET_STEALTH_CANCEL = "resetStlthCancel";
 
-		public static final String ENTER_WRONG_STEALTH_MODE = "entWrongStlth";
-
 		public static final String EXIT_STEALTH_MODE = "exitStlthMode";
 
 		public static final String FTUE_WELCOME_CARD_CLICKED = "ftueWelcomeCardClicked";
@@ -2125,6 +2123,22 @@ public class HikeConstants
 		public static final String SEND_DEVICE_DETAILS = "sendDeviceDetails";
 
 		public static final String GET_ACTIVE_NETWORK_INFO = "getActiveNetworkInfo";
+
+		//steatlh
+
+		public static final String STEALTH = "stlth";
+
+		public static final String STEALTH_CONV_MARK = "stlthmark";
+
+		public static final String STEALTH_SETUP = "stlthsetup";
+
+		public static final String STEALTH_PASSWORD_ENTRY = "entStlthPwd";
+
+		public static final String STEALTH_RESULT = "stlthrslt";
+
+		public static final String ENTER_WRONG_STEALTH_MODE = "entWrongStlth";
+
+		public static final String STEALTH_REQUEST = "stlthrqst";
 
 	}
 

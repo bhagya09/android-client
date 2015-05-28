@@ -15,7 +15,9 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.models.Conversation.ConversationTip;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.ui.HomeActivity;
@@ -76,7 +78,19 @@ public class StealthModeManager
 		if(publish)
 		{
 			HikeMessengerApp.getPubSub().publish(markStealth? HikePubSub.STEALTH_DATABASE_MARKED : HikePubSub.STEALTH_DATABASE_UNMARKED, msisdn);
-			// TODO analytics, marking/unmarking chat as stealth
+			
+			JSONObject metadata = new JSONObject();
+			try
+			{
+				metadata.put(HikeConstants.EVENT_TYPE, HikeConstants.LogEvent.STEALTH);
+				metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.STEALTH_CONV_MARK);
+				metadata.put(HikeConstants.LogEvent.STEALTH_CONV_MARK, markStealth);
+				metadata.put(HikeConstants.STEALTH_MSISDN, msisdn);
+			} catch (JSONException e)
+			{
+				Logger.d(AnalyticsConstants.ANALYTICS_TAG, "JSONException");
+			}
+			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
 		}
 	}
 
@@ -133,8 +147,19 @@ public class StealthModeManager
 		 if(!isSetUp)
 		 {
 			 activate(false);
-		 }
-		 // TODO analytics setup / unsetup
+		}
+		JSONObject metadata = new JSONObject();
+		try
+		{
+			metadata.put(HikeConstants.EVENT_TYPE, HikeConstants.LogEvent.STEALTH);
+			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.STEALTH_SETUP);
+			metadata.put(HikeConstants.LogEvent.STEALTH_SETUP, isSetUp);
+		} catch (JSONException e)
+		{
+			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "JSONException");
+		}
+		HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
+
 	}
 	
 	private void stealthFakeOn()

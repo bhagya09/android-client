@@ -9,12 +9,11 @@ import android.os.Bundle;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.db.AccountBackupRestore;
-import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.Conversation.ConversationTip;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -46,7 +45,7 @@ public class LockPattern
 			}
 			
 			boolean isReset = data.getBooleanExtra(HikeConstants.Extras.STEALTH_PASS_RESET, false);
-			if (resultCode == activity.RESULT_OK)
+			if (resultCode == Activity.RESULT_OK)
 			{
 				String encryptedPattern = String.valueOf(data.getCharArrayExtra(LockPatternActivity.EXTRA_PATTERN));
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STEALTH_ENCRYPTED_PATTERN, encryptedPattern);
@@ -101,33 +100,9 @@ public class LockPattern
 				}
 				break;
 			case Activity.RESULT_CANCELED:
-				if(!(requestCode == HikeConstants.ResultCodes.CONFIRM_LOCK_PATTERN_CHANGE_PREF))
-				{
-					if(requestCode == HikeConstants.ResultCodes.CONFIRM_LOCK_PATTERN)
-					{
-					}
-					else if(requestCode ==  HikeConstants.ResultCodes.CONFIRM_LOCK_PATTERN_HIDE_CHAT)
-					{
-					}	
-				}
-				try
-				{
-					JSONObject metadata = new JSONObject();
-					metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.ENTER_WRONG_STEALTH_MODE);
-					HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
-				}
-				catch(JSONException e)
-				{
-					Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
-				}
-				break;
 			case LockPatternActivity.RESULT_FAILED:
-				if(requestCode ==  HikeConstants.ResultCodes.CONFIRM_LOCK_PATTERN_HIDE_CHAT)
-				{
-				}	
-				break;
 			default:
-				return;
+				break;
 			}
 
 			break;
@@ -139,14 +114,27 @@ public class LockPattern
 				LockPattern.createNewPattern(activity, true, HikeConstants.ResultCodes.CREATE_LOCK_PATTERN);
 				break;
 			case Activity.RESULT_CANCELED:
-				break;
 			case LockPatternActivity.RESULT_FAILED:
-				break;
 			default:
-				return;
+				break;
 			}
 			break;
 		}
+		
+		JSONObject metadata = new JSONObject();
+		try
+		{
+			metadata.put(HikeConstants.EVENT_TYPE, HikeConstants.LogEvent.STEALTH);
+			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.STEALTH_PASSWORD_ENTRY);
+			metadata.put(HikeConstants.LogEvent.STEALTH_REQUEST, requestCode);
+			metadata.put(HikeConstants.LogEvent.STEALTH_RESULT, resultCode);
+			metadata.put(HikeConstants.LogEvent.ENTER_WRONG_STEALTH_MODE, resultCode == Activity.RESULT_CANCELED);
+		} catch (JSONException e)
+		{
+			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "JSONException");
+		}
+		HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
+
 	}
 	
 	private static void markStealthMsisdn(Bundle stealthBundle)
