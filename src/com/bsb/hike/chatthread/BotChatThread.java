@@ -15,6 +15,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.media.OverFlowMenuItem;
 import com.bsb.hike.models.Conversation.BotConversation;
@@ -47,6 +48,20 @@ public class BotChatThread extends OneToOneChatThread
 		super.fetchConversation();
 		mConversation.setIsMute(HikeConversationsDatabase.getInstance().isBotMuted(msisdn));
 		return mConversation;
+	}
+	
+	@Override
+	public void onPause()
+	{
+		HAManager.getInstance().endChatSession(msisdn);
+		super.onPause();
+	}
+	
+	@Override
+	public void onResume()
+	{
+		HAManager.getInstance().startChatSession(msisdn);
+		super.onResume();
 	}
 	
 	@Override
