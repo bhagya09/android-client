@@ -189,5 +189,6 @@
 	<dimen name="broadcast_ftue_text_right_padding">15dp</dimen>
 	<dimen name="sticker_empty_pallete_preview_image_width">125dp</dimen>
 	<dimen name="sticker_empty_pallete_preview_image_height">178dp</dimen>
+	<dimen name="one_dp">1dp</dimen>
 	
 </resources>

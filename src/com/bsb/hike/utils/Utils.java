@@ -1,7 +1,6 @@
 package com.bsb.hike.utils;
 
 import java.io.BufferedReader;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -47,7 +46,6 @@ import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -170,6 +168,7 @@ import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.TrafficsStatsFile;
+import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.cropimage.CropImage;
@@ -196,13 +195,13 @@ import com.bsb.hike.models.StatusMessage;
 import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.models.Conversation.Conversation;
-import com.bsb.hike.models.Conversation.ConversationTip;
 import com.bsb.hike.models.Conversation.GroupConversation;
 import com.bsb.hike.models.Conversation.OneToNConvInfo;
 import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.models.utils.JSONSerializable;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.notifications.HikeNotification;
+import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.service.ConnectionChangeReceiver;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.tasks.CheckForUpdateTask;
@@ -784,13 +783,19 @@ public class Utils
 		return contactNames;
 	}
 
-	public static String validateBotMsisdn(String msisdn)
+	public static boolean validateBotMsisdn(String msisdn)
 	{
+		if (TextUtils.isEmpty(msisdn))
+		{
+			Logger.wtf(HikePlatformConstants.TAG, "msisdn is ---->" + msisdn);
+			return false;
+		}
 		if (!msisdn.startsWith("+"))
 		{
-			msisdn = "+" + msisdn;
+			Logger.wtf(HikePlatformConstants.TAG, "msisdn does not start with +. It is ---->" + msisdn);
+			return false;
 		}
-		return msisdn;
+		return true;
 	}
 
 	public static String defaultGroupName(List<PairModified<GroupParticipant, String>> participantList)
@@ -3440,8 +3445,18 @@ public class Utils
 
 	public static void createShortcut(Activity activity, ConvInfo conv)
 	{
-		Intent shortcutIntent = IntentFactory.createChatThreadIntentFromConversation(activity, conv);
+		Intent shortcutIntent;
 		Intent intent = new Intent();
+		if (conv instanceof BotInfo && ((BotInfo) conv).isNonMessagingBot())
+		{
+			shortcutIntent = IntentFactory.getNonMessagingBotIntent(conv.getMsisdn(), "", "", activity);
+		}
+
+		else
+		{
+			shortcutIntent = IntentFactory.createChatThreadIntentFromConversation(activity, conv);
+		}
+		
 		intent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, shortcutIntent);
 		intent.putExtra(Intent.EXTRA_SHORTCUT_NAME, conv.getLabel());
 
@@ -5638,7 +5653,8 @@ public class Utils
 		
 		return maxVal;
 	}
-	
+
+
 	public static boolean isOnProduction()
 	{
 		return HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PRODUCTION, true);
@@ -5828,6 +5844,20 @@ public class Utils
 		}
 	}
 	
+	public static boolean resetUnreadCounterForConversation(ConvInfo convInfo)
+	{
+		ConvMessage lastMessage = convInfo.getLastConversationMsg();
+		if (lastMessage != null && lastMessage.getState() == State.RECEIVED_UNREAD)
+		{
+			lastMessage.setState(State.RECEIVED_READ);
+			convInfo.setUnreadCount(0);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.UPDATE_LAST_MSG_STATE, new Pair<Integer, String>(lastMessage.getState().ordinal(), convInfo.getMsisdn()));
+			return true;
+		}
+
+		return false;
+	}
+	
 	public static String getCameraResultFile()
 	{
 		HikeSharedPreferenceUtil sharedPreference = HikeSharedPreferenceUtil.getInstance();
@@ -5863,5 +5893,4 @@ public class Utils
 			return null;
 		}
 	}
-	
 }

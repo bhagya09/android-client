@@ -75,7 +75,11 @@ public class HikeConstants
 
 	public static final String BOT_THUMBNAIL = "dp";
 
+	public static final String CONFIGURATION = "config";
+
 	public static final String BOT_CHAT_THEME = "bg_id";
+
+	public static final String IS_RECEIVE_ENABLED_IN_BOT = "rec_enable";
 
 	public static final String NEW_USER = "nu";
 
@@ -194,6 +198,10 @@ public class HikeConstants
 	public static final String ICON = "icon";
 
 	public static final String BOT = "bot";
+
+	public static final String MESSAGING_BOT = "m_bot";
+
+	public static final String NON_MESSAGING_BOT = "nm_bot";
 
 	public static final String GROUP_CONVERSATION = "gc";
 
@@ -508,21 +516,7 @@ public class HikeConstants
 
 	public static final String HIKEBOT_CONV_STATE = "isHikeBotConvState";
 
-	public static final String FTUE_TEAMHIKE_MSISDN = "+hike+";
-
-	public static final String FTUE_HIKEBOT_MSISDN = "+hike1+";
-
-	public static final String FTUE_GAMING_MSISDN = "+hike2+";
-
-	public static final String FTUE_HIKE_DAILY = "+hike3+";
-
-	public static final String FTUE_HIKE_SUPPORT = "+hike4+";
-
 	public static final String BACKUP_PREF = "backupAccount";
-
-	public static final String NUX_BOT = "+hike5+";
-
-	public static final String CRICKET_BOT = "+hikecricket+";
 
 	public static final String NUX = "nux";
 
@@ -2275,6 +2269,8 @@ public class HikeConstants
 
 		public static final String DELETE_MULTIPLE_BOTS = "dbot";
 
+		public static final String MICROAPP_DOWNLOAD = "mapp";
+
 		public static final String PACKET_ECHO = "pecho";
 
 		public static final String VOIP_SOCKET_INFO = "ve";
@@ -2301,10 +2297,6 @@ public class HikeConstants
 		 * The person we are calling is on a compatible platform, but is using an old version of the client which does not support VoIP.
 		 */
 		public static final String VOIP_ERROR_CALLEE_INCOMPATIBLE_UPGRADABLE = "e0";
-
-		public static final String CREATE_BOT = "cb";
-
-		public static final String DELETE_BOT = "db";
 
 		/**
 		 * The person we are calling is on a client that cannot be upgraded to support VoIP. For example, might be on iOS and we have no iOS client.
@@ -2733,6 +2725,8 @@ public class HikeConstants
 	
 	public static final String REARRANGE_CHAT = "rearrange_chat";
 	
+	public static final String UPDATE_UNREAD_COUNT = "uuc";
+	
 	public static final String CONTENT_ID = "content_id";
 	public static final String TIMESTAMP_MILLIS = "msec";
 	
@@ -2745,7 +2739,6 @@ public class HikeConstants
 	public static String DEFAULT_AVATAR_KEYS[] = {"avatar_01","avatar_02", "avatar_03", "avatar_04", "avatar_05"};
 	
 	public static String IS_GROUP = "isGroup";
-
 	public static final String CAM_IMG_PREFIX = "CAM_";
 	
 	public static final String URL_WHITELIST = "uwl";
@@ -2825,6 +2818,8 @@ public class HikeConstants
 	public static final String HIKE_CONTACT_PICKER_RESULT = "contact_pick_result";
 	
 	public static final String GET="get";
+
+	public static final String FTUE_HIKEBOT_MSISDN = "+hike1+";
 
 	public static final String PRIVACY_SETTINGS_CATEGORY = "privacySettingsCategory";
 }

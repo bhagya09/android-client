@@ -85,23 +85,17 @@ public class PlatformAlarmManager implements HikePlatformConstants
 	{
 		if (data.containsKey(CONV_MSISDN) && data.containsKey(INCREASE_UNREAD))
 		{
-
 			// increase unread count
 			HikeConversationsDatabase db = HikeConversationsDatabase.getInstance();
 			String msisdn = data.getString(CONV_MSISDN);
-			int dbUnreadCount = db.getConvUnreadCount(msisdn);
-			if (dbUnreadCount != -1)
-			{
-				int count = db.getExtraConvUnreadCount(data.getString(CONV_MSISDN));
-				count++;
-				db.setExtraConvUnreadCount(msisdn, count);
-				Message ms = Message.obtain();
-				ms.arg1 = count + dbUnreadCount; // db + extra unread
-				ms.obj = msisdn;
-				HikeMessengerApp.getPubSub().publish(HikePubSub.CONV_UNREAD_COUNT_MODIFIED, ms);
-				Pair<String, Long> pair = new Pair<String, Long>(msisdn, System.currentTimeMillis() / 1000);
-				HikeMessengerApp.getPubSub().publish(HikePubSub.CONVERSATION_TS_UPDATED, pair);
-			}
+			db.incrementUnreadCounter(msisdn, 1);
+			int newCount = db.getConvUnreadCount(msisdn);
+			Message ms = Message.obtain();
+			ms.arg1 = newCount;
+			ms.obj = msisdn;
+			HikeMessengerApp.getPubSub().publish(HikePubSub.CONV_UNREAD_COUNT_MODIFIED, ms);
+			Pair<String, Long> pair = new Pair<String, Long>(msisdn, System.currentTimeMillis() / 1000);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.CONVERSATION_TS_UPDATED, pair);
 		}
 	}
 

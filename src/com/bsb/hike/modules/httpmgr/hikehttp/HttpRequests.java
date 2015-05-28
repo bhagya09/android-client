@@ -32,6 +32,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.bsb.hike.modules.httpmgr.request.StringRequest;
+import com.bsb.hike.platform.PlatformUtils;
 import org.json.JSONObject;
 
 import com.bsb.hike.HikeConstants;
@@ -131,7 +133,7 @@ public class HttpRequests
 				.setUrl(url)
 				.setFile(filePath)
 				.setRequestListener(requestListener)
-				.setRetryPolicy(new DefaultRetryPolicy(HikePlatformConstants.numberOfRetries, HikePlatformConstants.retryDelay, HikePlatformConstants.backOffMultiplier))
+				.setRetryPolicy(new DefaultRetryPolicy(HikePlatformConstants.NUMBER_OF_RETRIES, HikePlatformConstants.RETRY_DELAY, HikePlatformConstants.BACK_OFF_MULTIPLIER))
 				.build();
 		return requestToken;
 	}
@@ -140,7 +142,7 @@ public class HttpRequests
 	{
 		RequestToken requestToken = new JSONArrayRequest.Builder()
 				.setUrl(url)
-				.setRetryPolicy(new DefaultRetryPolicy(HikePlatformConstants.numberOfRetries, HikePlatformConstants.retryDelay, HikePlatformConstants.backOffMultiplier))
+				.setRetryPolicy(new DefaultRetryPolicy(HikePlatformConstants.NUMBER_OF_RETRIES, HikePlatformConstants.RETRY_DELAY, HikePlatformConstants.BACK_OFF_MULTIPLIER))
 				.setRequestListener(requestListener)
 				.setHeaders(headers)
 				.setRequestType(REQUEST_TYPE_LONG)
@@ -155,7 +157,7 @@ public class HttpRequests
 		RequestToken requestToken = new JSONArrayRequest.Builder()
 				.setUrl(url)
 				.post(body)
-				.setRetryPolicy(new DefaultRetryPolicy(HikePlatformConstants.numberOfRetries, HikePlatformConstants.retryDelay, HikePlatformConstants.backOffMultiplier))
+				.setRetryPolicy(new DefaultRetryPolicy(HikePlatformConstants.NUMBER_OF_RETRIES, HikePlatformConstants.RETRY_DELAY, HikePlatformConstants.BACK_OFF_MULTIPLIER))
 				.setRequestListener(requestListener)
 				.setRequestType(REQUEST_TYPE_LONG)
 				.setHeaders(headers)
@@ -169,7 +171,7 @@ public class HttpRequests
 		RequestToken requestToken = new JSONObjectRequest.Builder()
 				.setUrl(url)
 				.post(null)
-				.setRetryPolicy(new DefaultRetryPolicy(HikePlatformConstants.numberOfRetries, HikePlatformConstants.retryDelay, HikePlatformConstants.backOffMultiplier))
+				.setRetryPolicy(new DefaultRetryPolicy(HikePlatformConstants.NUMBER_OF_RETRIES, HikePlatformConstants.RETRY_DELAY, HikePlatformConstants.BACK_OFF_MULTIPLIER))
 				.setRequestListener(requestListener)
 				.setRequestType(REQUEST_TYPE_SHORT)
 				.build();
@@ -295,9 +297,25 @@ public class HttpRequests
 		{
 			builder = builder.post(null);
 		}
-
+		
 		return builder.build();
 	}
+
+	public static RequestToken microAppPostRequest(String url, JSONObject json, IRequestListener requestListener)
+	{
+		JsonBody body = new JsonBody(json);
+
+		RequestToken requestToken = new StringRequest.Builder()
+				.setUrl(url)
+				.setRequestType(Request.REQUEST_TYPE_SHORT)
+				.addHeader(PlatformUtils.getHeaders())
+				.setRequestListener(requestListener)
+				.post(body)
+				.build();
+		
+		return requestToken;
+	}
+
 	public static RequestToken postDeviceDetailsRequest(JSONObject json, IRequestListener requestListener)
 	{
 		JsonBody body = new JsonBody(json);

@@ -229,6 +229,15 @@ public class ConvInfo implements Comparable<ConvInfo>
 	{
 		this.isOnHike = isOnHike;
 	}
+	
+	/**
+	 * Returns the unread counter string
+	 * @return
+	 */
+	public String getUnreadCountString()
+	{
+		return Integer.toString(unreadCount);
+	}
 
 	@Override
 	public String toString()
