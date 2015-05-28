@@ -821,6 +821,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	@Override
 	protected void onPause()
 	{
+		super.onPause();
 		//Logging MicroApp Screen closing for bot case
 		if (mode == MICRO_APP_MODE)
 		{
@@ -831,6 +832,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	@Override
 	protected void onResume()
 	{
+		super.onResume();
 		//Logging MicroApp Screen opening for bot case
 		if (mode == MICRO_APP_MODE)
 		{
