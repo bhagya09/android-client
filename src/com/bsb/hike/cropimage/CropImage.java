@@ -196,7 +196,7 @@ public class CropImage extends MonitoredActivity
 //				{
 //					mImagePath = galleryList.get(0).getFilePath();
 //				}
-				mImagePath = intent.getStringExtra(HikeConstants.Extras.GALLERY_SELECTIONS);
+				mImagePath = intent.getStringExtra(HikeConstants.Extras.GALLERY_SELECTION_SINGLE);
 			}
 			
 			mSaveUri = extras.containsKey(MediaStore.EXTRA_OUTPUT) ? getImageUri(extras.getString(MediaStore.EXTRA_OUTPUT)) : null;
