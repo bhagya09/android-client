@@ -13,6 +13,7 @@ import android.text.TextUtils;
 import android.util.SparseArray;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeConstants.NotificationType;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.models.HikeAlarmManager;
@@ -324,12 +325,12 @@ public class ProductInfoManager
 
 		if (triggerpoint == PopupTriggerPoints.CHAT_SCR.ordinal())
 		{
-			HikeNotification.getInstance(context).notifyStringMessage(user, title, !shouldPlaySound);
+			HikeNotification.getInstance().sendNotificationToChatThread(user, title, !shouldPlaySound);
 
 		}
 		else
 		{
-			HikeNotification.getInstance(context).notifyUserAndOpenHomeActivity(user, title, !shouldPlaySound);
+			HikeNotification.getInstance().notifyUserAndOpenHomeActivity(user, title, !shouldPlaySound);
 		}
 	}
 

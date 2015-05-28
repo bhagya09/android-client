@@ -5,6 +5,7 @@
     <PreferenceCategory
         android:orderingFromXml="true"
         android:selectable="false"
+        android:key="privacySettingsCategory"
         android:textColor="@color/auto_download"
         android:title="@string/privacy_settings" >
         <com.bsb.hike.view.IconCheckBoxPreference
