@@ -145,11 +145,14 @@ public class ShareablePopupLayout
 	private void addPopupView(View popupView)
 	{
 		FrameLayout frameLayout = (FrameLayout) mViewToDisplay.findViewById(R.id.shared_keyboard_parent);
-		
-		/**
-		 * Removing the residual views, if any
-		 */
-		frameLayout.removeAllViews();
+
+		for (int i = 0; i < frameLayout.getChildCount(); i++)
+		{
+			if (frameLayout.getChildAt(i) == popupView)
+			{
+				return;
+			}
+		}
 
 		/**
 		 * New view. Add it to the layout
