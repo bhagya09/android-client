@@ -3,20 +3,21 @@ package com.bsb.hike.platform.bridge;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.lang.ref.WeakReference;
+import java.net.URLEncoder;
 
-import com.bsb.hike.platform.CustomWebView;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
+import android.os.Message;
 import android.text.Html;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -32,19 +33,26 @@ import android.widget.Toast;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
-import com.bsb.hike.productpopup.ProductPopupsConstants;
-import com.bsb.hike.productpopup.ProductPopupsConstants.HIKESCREEN;
-import com.bsb.hike.ui.CreateNewGroupOrBroadcastActivity;
-import com.bsb.hike.ui.HikeListActivity;
-import com.bsb.hike.ui.HomeActivity;
-import com.bsb.hike.ui.StatusUpdate;
-import com.bsb.hike.ui.TellAFriend;
+import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.platform.CustomWebView;
+import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.PlatformUtils;
+import com.bsb.hike.platform.content.PlatformContent;
+import com.bsb.hike.ui.ComposeChatActivity;
+import com.bsb.hike.utils.AccountUtils;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+import com.bsb.hike.voip.VoIPUtils;
+import com.bsb.hike.voip.VoIPUtils.ConnectionClass;
 
 /**
- * Created by shobhit on 13/02/15.
+ * API bridge that connects the javascript to the Native environment. Make the instance of this class and add it as the JavaScript interface of the Card WebView.
+ * This class caters Platform Bridge versions from:
+ *
+ * Platform Bridge Version Start = 0
+ * Platform Bridge Version End = ~
  */
 public abstract class JavascriptBridge
 {
@@ -52,18 +60,29 @@ public abstract class JavascriptBridge
 
 	protected WeakReference<Activity> weakActivity;;
 
-	static final String tag = "JavascriptBridge";
+	public static final String tag = "JavascriptBridge";
 
 	protected Handler mHandler;
+	
+	private static final String REQUEST_CODE = "request_code";
+	
+	private static final int PICK_CONTACT_REQUEST = 1;
+
 
 	public JavascriptBridge(Activity activity, CustomWebView mWebView)
 	{
 		this.mWebView = mWebView;
 		weakActivity = new WeakReference<Activity>(activity);
-		this.mHandler = new Handler(HikeMessengerApp.getInstance().getMainLooper());
+		this.mHandler = new Handler(HikeMessengerApp.getInstance().getMainLooper())
+		{
+			public void handleMessage(Message msg) {
+				handleUiMessage(msg);
+			};
+		};
 	}
 
 	/**
+	 * Platform Bridge Version 0
 	 * Call this function to log analytics events.
 	 *
 	 * @param isUI    : whether the event is a UI event or not. This is a string. Send "true" or "false".
@@ -74,15 +93,39 @@ public abstract class JavascriptBridge
 	protected abstract void logAnalytics(String isUI, String subType, String json);
 
 	/**
+	 * Platform Bridge Version 0
 	 * This function is called whenever the onLoadFinished of the html is called. This function calling is MUST.
 	 * This function is also used for analytics purpose.
 	 *
 	 * @param height : The height of the loaded content
 	 */
 	@JavascriptInterface
-	public abstract void onLoadFinished(String height);
+	public void onLoadFinished(String height)
+	{
+	}
+	
+	protected void handleUiMessage(Message msg)
+	{
+		
+	}
+	
+	
+	protected void sendMessageToUiThread(int what,Object data)
+	{
+		sendMessageToUiThread(what, 0, data);
+	}
+	
+	protected void sendMessageToUiThread(int what, int arg1,Object data)
+	{
+		Message msg = Message.obtain(); 
+		msg.what = what;
+		msg.arg1 = arg1;
+		msg.obj = data;
+		mHandler.sendMessage(msg);
+	}
 
 	/**
+	 * Platform Bridge Version 0
 	 * call this function to Show toast for the string that is sent by the javascript.
 	 *
 	 * @param toast : the string to show in toast.
@@ -97,6 +140,7 @@ public abstract class JavascriptBridge
 	}
 
 	/**
+	 * Platform Bridge Version 0
 	 * Call this function to vibrate the device.
 	 *
 	 * @param msecs : the number of milliseconds the device will vibrate.
@@ -108,6 +152,7 @@ public abstract class JavascriptBridge
 	}
 
 	/**
+	 * Platform Bridge Version 0
 	 * call this function with parameter as true to enable the debugging for javascript.
 	 * The debuggable for javascript will get enabled only after KITKAT version.
 	 *
@@ -145,6 +190,7 @@ public abstract class JavascriptBridge
 	}
 
 	/**
+	 * Platform Bridge Version 0
 	 * calling this function will generate logs for testing at the android IDE. The first param will be tag used for logging and the second param
 	 * is data that is used for logging. this will create verbose logs for testing purposes.
 	 *
@@ -158,6 +204,7 @@ public abstract class JavascriptBridge
 	}
 
 	/**
+	 * Platform bridge Version 0
 	 * Call this function to open a full page webView within hike.
 	 *
 	 * @param title : the title on the action bar.
@@ -187,6 +234,36 @@ public abstract class JavascriptBridge
 	}
 
 	/**
+	 * Platform Bridge Version 1
+	 * call this function to open a web page in the default browser.
+	 * @param url: : the url that will be loaded.
+	 */
+	@JavascriptInterface
+	public void openPageInBrowser(final String url)
+	{
+		Logger.i(tag, "openPageInBrowser called with url = " + url);
+
+		if (null == mHandler)
+		{
+			return;
+		}
+		mHandler.post(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				if (weakActivity.get() != null)
+				{
+					Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+					weakActivity.get().startActivity(browserIntent);
+				}
+			}
+		});
+
+	}
+
+	/**
+	 * Platform Bridge Version 0
 	 * calling this function will share the screenshot of the webView along with the text at the top and a caption text
 	 * to all social network platforms by calling the system's intent.
 	 *
@@ -261,6 +338,7 @@ public abstract class JavascriptBridge
 	}
 
 	/**
+	 * Platform Bridge Version 0
 	 * Whenever the content's height is changed, the html will call this function to resize the height of the Android Webview.
 	 * Calling this function is MUST, whenever the height of the content changes.
 	 *
@@ -389,166 +467,167 @@ public abstract class JavascriptBridge
 		mWebView.onActivityDestroyed();
 	}
 	
-	public void openActivity(String data, Activity context)
+	@JavascriptInterface
+	public void openActivity(final String data)
 	{
-		String activityName = null;
-		JSONObject mmObject = null;
+		
+		if (mHandler == null || weakActivity == null || weakActivity.get() == null)
+		{
+			return;
+		}
+
+		mHandler.post(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				PlatformUtils.openActivity(weakActivity.get(), data);
+			}
+		});
+	}
+	
+	/**
+	 * Platform Bridge Version 0
+	 * This function can be used to start a hike native contact chooser/picker which will show all hike contacts to user and user can select few contacts (minimum 1). It will call
+	 * JavaScript function "onContactChooserResult(int resultCode,JsonArray array)" This JSOnArray contains list of JSONObject where each JSONObject reflects one user. As of now
+	 * each JSON will have name and platform_id, e.g : [{'name':'Paul','platform_id':'dvgd78as'}] resultCode will be 0 for fail and 1 for success NOTE : JSONArray could be null as
+	 * well, a micro app has to take care of this instance and startContactChooser not present
+	 */
+	@JavascriptInterface
+	public void startContactChooser()
+	{
+		Activity activity = weakActivity.get();
+		if (activity != null)
+		{
+			Intent intent = IntentFactory.getComposeChatIntent(activity);
+			intent.putExtra(HikeConstants.Extras.COMPOSE_MODE, ComposeChatActivity.PICK_CONTACT_MODE);
+			intent.putExtra(tag, JavascriptBridge.this.hashCode());
+			intent.putExtra(REQUEST_CODE, PICK_CONTACT_REQUEST);
+			activity.startActivityForResult(intent, HikeConstants.PLATFORM_REQUEST);
+		}
+	}
+	
+	public void onActivityResult(int resultCode, Intent data)
+	{
+		int requestCode = data.getIntExtra(REQUEST_CODE, -1);
+		if (requestCode != -1)
+		{
+			switch (requestCode)
+			{
+			case PICK_CONTACT_REQUEST:
+				handlePickContactResult(resultCode, data);
+				break;
+			}
+		}
+	}
+
+	private void handlePickContactResult(int resultCode, Intent data)
+	{
+		Logger.i(tag, "pick contact result " + data.getExtras().toString());
+		if (resultCode == Activity.RESULT_OK)
+		{
+			mWebView.loadUrl("javascript:onContactChooserResult('1','" + data.getStringExtra(HikeConstants.HIKE_CONTACT_PICKER_RESULT) + "')");
+		}
+		else
+		{
+			mWebView.loadUrl("javascript:onContactChooserResult('0','[]')");
+		}
+	}
+	
+	protected void startComPoseChatActivity(final ConvMessage message)
+	{
+		if (null == mHandler)
+		{
+			return;
+		}
+
+		mHandler.post(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				Activity mContext = weakActivity.get();
+				if (mContext != null)
+				{
+					final Intent intent = IntentFactory.getForwardIntentForConvMessage(mContext, message, PlatformContent.getForwardCardData(message.webMetadata.JSONtoString()));
+					mContext.startActivity(intent);
+				}
+			}
+		});
+	}
+
+	/**
+	 *
+	 * this function will call the js back when the javascript demands some value back from the native.
+	 * @param id : the id of the function that native will call to call the js .
+	 * @param value: value that will be given back. it is encoded with URL Encoded Scheme. Decode it before using.
+	 */
+	public void callbackToJS(final String id, final String value)
+	{
+		if (TextUtils.isEmpty(id))
+		{
+			Logger.e(tag, "Empty function name when calling the JS back");
+			return;
+		}
+		if (mHandler == null || !mWebView.isWebViewShowing())
+		{
+			return;
+		}
+		mHandler.post(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				mWebView.loadUrl("javascript:callbackFromNative" + "('" + id + "','" + getEncodedDataForJS(value) + "')");
+			}
+		});
+	}
+	
+	/**
+	 * Platform Bridge Version 1
+	 * This method will be called when you need to get the Connection type on the device. The result returned will be one of the following ordinal values :
+	 * 
+	 * TwoG : 0 <br>
+	 * ThreeG : 1 <br>
+	 * FourG : 2 <br>
+	 * WiFi : 3 <br>
+	 * Unknown : 4 <br>
+	 * 
+	 * @param id
+	 */
+	@JavascriptInterface
+	public void checkConnection(String id)
+	{
+		ConnectionClass connType = VoIPUtils.getConnectionClass(HikeMessengerApp.getInstance().getApplicationContext());
+		
+		callbackToJS(id, Integer.toString(connType.ordinal()));
+	}
+
+	public void getInitJson(JSONObject jsonObj, String msisdn)
+	{
 		try
 		{
-			mmObject = new JSONObject(data);
-			activityName = mmObject.optString(HikeConstants.SCREEN);
-
-			if (activityName.equals(HIKESCREEN.SETTING.toString()))
-			{
-				IntentFactory.openSetting(context);
-			}
-
-			if (activityName.equals(HIKESCREEN.ACCOUNT.toString()))
-			{
-				IntentFactory.openSettingAccount(context);
-			}
-			if (activityName.equals(HIKESCREEN.FREE_SMS.toString()))
-			{
-				IntentFactory.openSettingSMS(context);
-			}
-			if (activityName.equals(HIKESCREEN.MEDIA.toString()))
-			{
-				IntentFactory.openSettingMedia(context);
-			}
-			if (activityName.equals(HIKESCREEN.NOTIFICATION.toString()))
-			{
-				IntentFactory.openSettingNotification(context);
-			}
-			if (activityName.equals(HIKESCREEN.PRIVACY.toString()))
-			{
-				IntentFactory.openSettingPrivacy(context);
-			}
-			if (activityName.equals(HIKESCREEN.TIMELINE.toString()))
-			{
-				IntentFactory.openTimeLine(context);
-			}
-			if (activityName.equals(HIKESCREEN.NEWGRP.toString()))
-			{
-				context.startActivity(new Intent(context, CreateNewGroupOrBroadcastActivity.class));
-			}
-			if (activityName.equals(HIKESCREEN.INVITEFRNDS.toString()))
-			{
-				context.startActivity(new Intent(context, TellAFriend.class));
-			}
-			if (activityName.equals(HIKESCREEN.REWARDS_EXTRAS.toString()))
-			{
-				context.startActivity(IntentFactory.getRewardsIntent(context));
-			}
-			if (activityName.equals(HIKESCREEN.STICKER_SHOP.toString()))
-			{
-				context.startActivity(IntentFactory.getStickerShopIntent(context));
-			}
-			if (activityName.equals(HIKESCREEN.STICKER_SHOP_SETTINGS.toString()))
-			{
-				context.startActivity(IntentFactory.getStickerSettingIntent(context));
-			}
-			if (activityName.equals(HIKESCREEN.STATUS.toString()))
-			{
-				context.startActivity(new Intent(context, StatusUpdate.class));
-			}
-			if (activityName.equals(HIKESCREEN.HIDDEN_MODE.toString()))
-			{
-				if (context instanceof HomeActivity)
-				{
-					((HomeActivity) context).hikeLogoClicked();
-				}
-			}
-			if (activityName.equals(HIKESCREEN.COMPOSE_CHAT.toString()))
-			{
-				context.startActivity(IntentFactory.getComposeChatIntent(context));
-			}
-			if (activityName.equals(HIKESCREEN.INVITE_SMS.toString()))
-			{
-				boolean selectAll = mmObject.optBoolean(ProductPopupsConstants.SELECTALL, false);
-				Intent intent = new Intent(context, HikeListActivity.class);
-				intent.putExtra(ProductPopupsConstants.SELECTALL, selectAll);
-				context.startActivity(intent);
-			}
-			if (activityName.equals(HIKESCREEN.FAVOURITES.toString()))
-			{
-				context.startActivity(IntentFactory.getFavouritesIntent(context));
-			}
-			if (activityName.equals(HIKESCREEN.HOME_SCREEN.toString()))
-			{
-				context.startActivity(Utils.getHomeActivityIntent(context));
-			}
-			if (activityName.equals(HIKESCREEN.PROFILE_PHOTO.toString()))
-			{
-
-				Intent intent =IntentFactory.getProfileIntent(context);
-				if (mmObject.optBoolean(ProductPopupsConstants.SHOW_CAMERA, false))
-				{
-					intent.putExtra(ProductPopupsConstants.SHOW_CAMERA, true);
-				}
-				context.startActivity(intent);
-
-			}
-			if (activityName.equals(HIKESCREEN.EDIT_PROFILE.toString()))
-			{
-				Intent intent =IntentFactory.getProfileIntent(context);
-				intent.putExtra(HikeConstants.Extras.EDIT_PROFILE, true);
-				context.startActivity(intent);
-
-			}
-			if (activityName.equals(HIKESCREEN.INVITE_WHATSAPP.toString()))
-			{
-				IntentFactory.openInviteWatsApp(context);
-			}
-			if (activityName.equals(HIKESCREEN.OPENINBROWSER.toString()))
-			{
-				String url = mmObject.optString(HikeConstants.URL);
-
-				if (!TextUtils.isEmpty(url))
-				{
-					Intent in = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-					context.startActivity(in);
-				}
-			}
-			if (activityName.equals(HIKESCREEN.OPENAPPSTORE.toString()))
-			{
-				String url = mmObject.optString(HikeConstants.URL);
-
-				if (!TextUtils.isEmpty(url))
-				{
-					Utils.launchPlayStore(url, context);
-				}
-			}
-			if (activityName.equals(HIKESCREEN.HELP.toString()))
-			{
-				IntentFactory.openSettingHelp(context);
-			}
-			if (activityName.equals(HIKESCREEN.NUXINVITE.toString()))
-			{
-				context.startActivity(IntentFactory.openNuxFriendSelector(context));
-			}
-			if (activityName.equals(HIKESCREEN.NUXREMIND.toString()))
-			{
-				context.startActivity(IntentFactory.openNuxCustomMessage(context));
-			}
-			if(activityName.equals(HIKESCREEN.BROADCAST.toString()))
-			{
-				IntentFactory.createBroadcastDefault(context);
-			}
+			jsonObj.put(HikeConstants.MSISDN, msisdn);
+			jsonObj.put(HikePlatformConstants.PLATFORM_USER_ID, HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_UID_SETTING, null));
+			jsonObj.put(HikePlatformConstants.APP_VERSION, AccountUtils.getAppVersion());
 		}
 		catch (JSONException e)
 		{
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		catch (ActivityNotFoundException e)
-		{
-			Toast.makeText(context, "No activity found", Toast.LENGTH_SHORT).show();
-			e.printStackTrace();
-		}
-
 	}
-
 	
-	
-	
-
+	protected String getEncodedDataForJS(String data) {
+		try
+		{
+			return URLEncoder.encode(data,"utf-8").replaceAll("\\+", "%20");
+		}
+		catch (UnsupportedEncodingException e)
+		{
+			e.printStackTrace();
+		}
+		return "";
+		
+	}
 }

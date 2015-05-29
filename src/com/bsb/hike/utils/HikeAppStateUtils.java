@@ -124,11 +124,12 @@ public class HikeAppStateUtils
 		{
 			if (HikeMessengerApp.currentState == CurrentState.NEW_ACTIVITY)
 			{
-				Logger.d(TAG, "App was going to another activity");
+				Logger.d(TAG, "App was going to another activity 1");
 				HikeMessengerApp.currentState = CurrentState.RESUMED;
 			}
 			else if (HikeMessengerApp.currentState == CurrentState.BACK_PRESSED)
 			{
+				//case when back is pressed but the user was not on HomeActivity (still inside the app)
 				HikeMessengerApp.currentState = CurrentState.RESUMED;
 			}
 			else if (HikeMessengerApp.currentState != CurrentState.BACKGROUNDED && HikeMessengerApp.currentState != CurrentState.CLOSED
@@ -136,10 +137,11 @@ public class HikeAppStateUtils
 			{
 				if (Utils.isHoneycombOrHigher() && activity.isChangingConfigurations())
 				{
-					Logger.d(TAG, "App was going to another activity");
+					Logger.d(TAG, "App was going to another activity 2");
 					HikeMessengerApp.currentState = CurrentState.RESUMED;
 					return;
 				}
+				Logger.d(TAG, "FSM state at the point of going to BG :" + HikeMessengerApp.currentState);
 				Logger.d(TAG + activity.getClass().getSimpleName(), "App was backgrounded. Sending packet");
 				HikeMessengerApp.currentState = CurrentState.BACKGROUNDED;
 				Utils.appStateChanged(activity.getApplicationContext(), true, Utils.isHoneycombOrHigher());
@@ -149,7 +151,13 @@ public class HikeAppStateUtils
 
 	public static void finish()
 	{
-		HikeMessengerApp.currentState = CurrentState.BACK_PRESSED;
+		//this check it to prevent app in going to a back_pressed state from a BG/Closed state
+		//TODO : making a better FSM for state handling where transitions from one State to another are pre defined on Actions
+		if(HikeMessengerApp.currentState == CurrentState.NEW_ACTIVITY || HikeMessengerApp.currentState == CurrentState.OPENED 
+				|| HikeMessengerApp.currentState == CurrentState.RESUMED)
+		{
+			HikeMessengerApp.currentState = CurrentState.BACK_PRESSED;
+		}
 	}
 
 	public static void startActivityForResult(Activity activity)
@@ -158,6 +166,11 @@ public class HikeAppStateUtils
 		if (HikeMessengerApp.currentState == CurrentState.BACKGROUNDED || HikeMessengerApp.currentState == CurrentState.CLOSED)
 		{
 			HikeMessengerApp.currentState = CurrentState.NEW_ACTIVITY_IN_BG;
+		}
+		// fix for fogbugz ticket 44230 - If a url/location is browsed from chat thread, app sends bg packet to server
+		else if(HikeMessengerApp.currentState == CurrentState.RESUMED)
+		{
+			return;
 		}
 		else
 		{
