@@ -7,9 +7,9 @@ import com.bsb.hike.HikeConstants;
 
 public class FileTransferModel
 {
-	public TransferProgress transferProgress;
+	private TransferProgress transferProgress;
 
-	public JSONObject packetData;
+	private JSONObject packetData;
 
 	public FileTransferModel(TransferProgress transferProgress, JSONObject packetData)
 	{
@@ -42,4 +42,6 @@ public class FileTransferModel
 		}
 		return -1;
 	}
+	
+	
 }

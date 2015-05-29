@@ -2,19 +2,51 @@ package com.bsb.hike.offline;
 
 public class TransferProgress
 {
-	public int currentChunks;
+	private int currentChunks;
 
-	public int totalChunks;
+	private int totalChunks;
 
 	public TransferProgress()
 	{
-		currentChunks = 0;
-		totalChunks = 0;
+		setCurrentChunks(0);
+		setTotalChunks(0);
 	}
 
 	public TransferProgress(int cChunks, int tChunks)
 	{
-		this.currentChunks = cChunks;
-		this.totalChunks = tChunks;
+		this.setCurrentChunks(cChunks);
+		this.setTotalChunks(tChunks);
+	}
+
+	/**
+	 * @return the currentChunks
+	 */
+	public int getCurrentChunks()
+	{
+		return currentChunks;
+	}
+
+	/**
+	 * @param currentChunks the currentChunks to set
+	 */
+	public void setCurrentChunks(int currentChunks)
+	{
+		this.currentChunks = currentChunks;
+	}
+
+	/**
+	 * @return the totalChunks
+	 */
+	public int getTotalChunks()
+	{
+		return totalChunks;
+	}
+
+	/**
+	 * @param totalChunks the totalChunks to set
+	 */
+	public void setTotalChunks(int totalChunks)
+	{
+		this.totalChunks = totalChunks;
 	}
 }

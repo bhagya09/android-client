@@ -98,6 +98,7 @@ import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.modules.stickerdownloadmgr.IStickerResultListener;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerDownloadManager;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerException;
+import com.bsb.hike.offline.OfflineManager;
 import com.bsb.hike.platform.CardRenderer;
 import com.bsb.hike.platform.WebViewCardRenderer;
 import com.bsb.hike.smartImageLoader.HighQualityThumbLoader;
@@ -989,13 +990,21 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			FileSavedState fss = null;
 			final HikeFile hikeFile = convMessage.getMetadata().getHikeFiles().get(0);
 			File file = hikeFile.getFile();
-			if (convMessage.isSent())
+			
+			if (convMessage.IsOfflineMessage())
 			{
-				fss = FileTransferManager.getInstance(context).getUploadFileState(convMessage.getMsgID(), file);
+				fss=OfflineManager.getInstance().getFileState(convMessage,file);
 			}
 			else
 			{
-				fss = FileTransferManager.getInstance(context).getDownloadFileState(convMessage.getMsgID(), file);
+				if (convMessage.isSent())
+				{
+					fss = FileTransferManager.getInstance(context).getUploadFileState(convMessage.getMsgID(), file);
+				}
+				else
+				{
+					fss = FileTransferManager.getInstance(context).getDownloadFileState(convMessage.getMsgID(), file);
+				}
 			}
 			boolean showThumbnail = false;
 			Drawable thumbnail = null;

@@ -3,6 +3,7 @@ package com.bsb.hike.offline;
 import static com.bsb.hike.offline.OfflineConstants.IP_SERVER;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,7 +21,10 @@ import android.support.v4.util.Pair;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.filetransfer.FileSavedState;
+import com.bsb.hike.filetransfer.FileTransferBase.FTState;
 import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.utils.Logger;
 
 public class OfflineManager
@@ -131,14 +135,14 @@ public class OfflineManager
 		{
 			synchronized (currentSendingFilesLock) {
 				FileTransferModel fileTransfer=currentSendingFiles.get(msgId);
-				fileTransfer.getTransferProgress().currentChunks++;
+				fileTransfer.getTransferProgress().setCurrentChunks(fileTransfer.getTransferProgress().getCurrentChunks() + 1);
 			}
 		}
 		else
 		{
 			synchronized (currentReceivingFilesLock) {
 				FileTransferModel fileTransfer=currentReceivingFiles.get(msgId);
-				fileTransfer.getTransferProgress().currentChunks++;
+				fileTransfer.getTransferProgress().setCurrentChunks(fileTransfer.getTransferProgress().getCurrentChunks() + 1);
 			}
 			
 		}
@@ -203,7 +207,7 @@ public class OfflineManager
 			fileSize = fileJSON.getInt(HikeConstants.FILE_SIZE);
 			long msgID;
 			msgID = fileTransferModel.getPacket().getJSONObject(HikeConstants.DATA).getLong(HikeConstants.MESSAGE_ID);
-			fileTransferModel.getTransferProgress().currentChunks=OfflineUtils.getTotalChunks(fileSize);
+			fileTransferModel.getTransferProgress().setCurrentChunks(OfflineUtils.getTotalChunks(fileSize));
 			
 			//TODO:We can listen to PubSub ...Why to do this ...????
 			//showUploadTransferNotification(msgID,fileSize);
@@ -237,6 +241,61 @@ public class OfflineManager
 		return isSent;
 				
 
+	}
+
+	public FileSavedState getFileState(ConvMessage convMessage, File file)
+	{
+		return convMessage.isSent() ? getUploadFileState(convMessage,file):getDownloadFileState(convMessage,file); 
+	}
+	
+	private FileSavedState getUploadFileState(ConvMessage convMessage, File file)
+	{
+		long msgId = convMessage.getMsgID();
+		FileSavedState fss = null;
+		HikeFile hikeFile = convMessage.getMetadata().getHikeFiles().get(0);
+		synchronized (currentSendingFilesLock)
+		{
+			if (currentSendingFiles.containsKey(msgId))
+			{
+				Logger.d("Spinner", "Current Msg Id -> " + msgId);
+				fss = new FileSavedState(FTState.IN_PROGRESS, (int) file.length(), currentSendingFiles.get(msgId).getTransferProgress().getCurrentChunks() * 1024);
+			}
+			else
+			{
+				Logger.d("Spinner", "Completed Msg Id -> " + msgId);
+				fss = new FileSavedState(FTState.COMPLETED, hikeFile.getFileKey());
+			}
+		}
+		return fss;
+	}
+	
+	/**
+	 * 
+	 * @param convMessage
+	 * @param file
+	 * @return
+	 * TODO:Removing the try catch for the app to crash .So that we cab debug ki what was the issue.
+	 */
+	private FileSavedState getDownloadFileState(ConvMessage convMessage, File file)
+	{
+		long msgId = convMessage.getMappedMsgID();
+		FileSavedState fss = null;
+		HikeFile hikeFile = convMessage.getMetadata().getHikeFiles().get(0);
+		synchronized (currentReceivingFilesLock)
+		{
+			if (currentReceivingFiles.containsKey(msgId))
+			{
+				Logger.d("Spinner", "Current Msg Id -> " + msgId);
+				fss = new FileSavedState(FTState.IN_PROGRESS, (int) file.length(), currentReceivingFiles.get(msgId).getTransferProgress().getCurrentChunks() * 1024);
+
+			}
+			else
+			{
+				Logger.d("Spinner", "Completed Msg Id -> " + msgId);
+				fss = new FileSavedState(FTState.COMPLETED, hikeFile.getFileKey());
+			}
+		}
+		return fss;
 	}
 	
 }
