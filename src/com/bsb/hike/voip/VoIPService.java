@@ -282,7 +282,7 @@ public class VoIPService extends Service {
 		
 		int returnInt = super.onStartCommand(intent, flags, startId);
 		
-		Logger.d(VoIPConstants.TAG, "VoIPService onStartCommand()");
+		// Logger.d(VoIPConstants.TAG, "VoIPService onStartCommand()");
 
 		if (intent == null)
 			return returnInt;
@@ -1493,7 +1493,7 @@ public class VoIPService extends Service {
 			return;
 		
 		int cardinality = playbackTrackingBits.cardinality();
-		int loss = (100 - (cardinality*100 / playbackTrackingBits.length()));
+		int loss = (100 - (cardinality*100 / playbackTrackingBits.size()));
 		Logger.d(VoIPConstants.TAG, "Loss: " + loss + ", cardinality: " + cardinality);
 		
 		CallQuality newQuality;

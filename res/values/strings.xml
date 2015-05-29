@@ -1388,6 +1388,8 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="voip_call_failed_redial">Redial</string>
     <string name="voip_call_failed_native_call">Operator call</string>
     <string name="voip_not_reachable">%1$s is Not Reachable</string>
+    <string name="voip_callee_busy">%1$s is busy</string>
+    <string name="voip_callee_no_response">%1$s is not responding</string>
     <string name="voip_incompat_platform">Free hike calls are currently \navailable only on Android.</string>
     <string name="voip_older_app">%1$s is on an Older Version of hike</string>
     <string name="voip_caller_poor_network">You or %1$s is on a poor network</string>

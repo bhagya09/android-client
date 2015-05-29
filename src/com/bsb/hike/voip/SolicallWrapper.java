@@ -67,16 +67,16 @@ public class SolicallWrapper
 			short comfortNoise = (short) sharedPref.getData(HikeConstants.VOIP_AEC_CNP, 100);
 			int AecTailType = sharedPref.getData(HikeConstants.VOIP_AEC_TAIL_TYPE, -18);
 			
-			Logger.d(VoIPConstants.TAG, "AEC parameters: " + CpuNoiseReduction + ", " 
-					+ CpuAEC + ", " 
-					+ AecMinOutput + ", " 
-					+ AecTypeParam + ", " 
-					+ comfortNoise + ", " 
-					+ AecTailType);
+//			Logger.d(VoIPConstants.TAG, "AEC parameters: " + CpuNoiseReduction + ", " 
+//					+ CpuAEC + ", " 
+//					+ AecMinOutput + ", " 
+//					+ AecTypeParam + ", " 
+//					+ comfortNoise + ", " 
+//					+ AecTailType);
 			
 			// Initialize AEC
 			init = AECInit(CpuNoiseReduction, CpuAEC, AecMinOutput, AecTypeParam, comfortNoise, AecTailType);
-			Logger.d(VoIPConstants.TAG, "AEC init: " + init);
+			// Logger.d(VoIPConstants.TAG, "AEC init: " + init);
 		}
 	}
 	
