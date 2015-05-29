@@ -1,0 +1,1862 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><title>Lint Report</title>
+<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Roboto" />
+<link rel="stylesheet" type="text/css" href="lint-results_files/hololike.css" />
+<script language="javascript" type="text/javascript"> 
+<!--
+function reveal(id) {
+if (document.getElementById) {
+document.getElementById(id).style.display = 'block';
+document.getElementById(id+'Link').style.display = 'none';
+}
+}
+//--> 
+</script>
+</head>
+<body>
+<h1>Lint Report</h1>
+<div class="titleSeparator"></div>
+Check performed at Mon May 25 17:44:23 IST 2015.<br/>
+11 errors and 81 warnings found:<br/><br/>
+<table class="overview">
+<tr><td></td><td class="categoryColumn"><a href="#Correctness">Correctness</a>
+</td></tr>
+<tr>
+<td class="countColumn">1</td><td class="issueColumn"><img border="0" align="top" src="lint-results_files/lint-error.png" alt="Error" />
+<a href="#DuplicateIds">DuplicateIds: Duplicate ids within a single layout</a>
+</td></tr>
+<tr>
+<td class="countColumn">8</td><td class="issueColumn"><img border="0" align="top" src="lint-results_files/lint-error.png" alt="Error" />
+<a href="#NewApi">NewApi: Calling new methods on older versions</a>
+</td></tr>
+<tr>
+<td class="countColumn">7</td><td class="issueColumn"><img border="0" align="top" src="lint-results_files/lint-warning.png" alt="Warning" />
+<a href="#UnusedAttribute">UnusedAttribute: Attribute unused on older versions</a>
+</td></tr>
+<tr>
+<td class="countColumn">2</td><td class="issueColumn"><img border="0" align="top" src="lint-results_files/lint-warning.png" alt="Warning" />
+<a href="#GradleDependency">GradleDependency: Obsolete Gradle Dependency</a>
+</td></tr>
+<tr>
+<td class="countColumn">1</td><td class="issueColumn"><img border="0" align="top" src="lint-results_files/lint-warning.png" alt="Warning" />
+<a href="#GradleDynamicVersion">GradleDynamicVersion: Gradle Dynamic Version</a>
+</td></tr>
+<tr><td></td><td class="categoryColumn"><a href="#Correctness:Messages">Correctness:Messages</a>
+</td></tr>
+<tr>
+<td class="countColumn">2</td><td class="issueColumn"><img border="0" align="top" src="lint-results_files/lint-error.png" alt="Error" />
+<a href="#MissingTranslation">MissingTranslation: Incomplete translation</a>
+</td></tr>
+<tr><td></td><td class="categoryColumn"><a href="#Performance">Performance</a>
+</td></tr>
+<tr>
+<td class="countColumn">1</td><td class="issueColumn"><img border="0" align="top" src="lint-results_files/lint-warning.png" alt="Warning" />
+<a href="#UseCompoundDrawables">UseCompoundDrawables: Node can be replaced by a <code>TextView</code> with compound drawables</a>
+</td></tr>
+<tr>
+<td class="countColumn">2</td><td class="issueColumn"><img border="0" align="top" src="lint-results_files/lint-warning.png" alt="Warning" />
+<a href="#InefficientWeight">InefficientWeight: Inefficient layout weight</a>
+</td></tr>
+<tr>
+<td class="countColumn">2</td><td class="issueColumn"><img border="0" align="top" src="lint-results_files/lint-warning.png" alt="Warning" />
+<a href="#NestedWeights">NestedWeights: Nested layout weights</a>
+</td></tr>
+<tr>
+<td class="countColumn">1</td><td class="issueColumn"><img border="0" align="top" src="lint-results_files/lint-warning.png" alt="Warning" />
+<a href="#Overdraw">Overdraw: Overdraw: Painting regions more than once</a>
+</td></tr>
+<tr>
+<td class="countColumn">58</td><td class="issueColumn"><img border="0" align="top" src="lint-results_files/lint-warning.png" alt="Warning" />
+<a href="#UnusedResources">UnusedResources: Unused resources</a>
+</td></tr>
+<tr>
+<td class="countColumn">1</td><td class="issueColumn"><img border="0" align="top" src="lint-results_files/lint-warning.png" alt="Warning" />
+<a href="#UselessParent">UselessParent: Useless parent layout</a>
+</td></tr>
+<tr><td></td><td class="categoryColumn"><a href="#Usability:Typography">Usability:Typography</a>
+</td></tr>
+<tr>
+<td class="countColumn">1</td><td class="issueColumn"><img border="0" align="top" src="lint-results_files/lint-warning.png" alt="Warning" />
+<a href="#TypographyEllipsis">TypographyEllipsis: Ellipsis string can be replaced with ellipsis character</a>
+</td></tr>
+<tr><td></td><td class="categoryColumn"><a href="#Usability:Icons">Usability:Icons</a>
+</td></tr>
+<tr>
+<td class="countColumn">1</td><td class="issueColumn"><img border="0" align="top" src="lint-results_files/lint-warning.png" alt="Warning" />
+<a href="#IconDensities">IconDensities: Icon densities validation</a>
+</td></tr>
+<tr><td></td><td class="categoryColumn"><a href="#Accessibility">Accessibility</a>
+</td></tr>
+<tr>
+<td class="countColumn">4</td><td class="issueColumn"><img border="0" align="top" src="lint-results_files/lint-warning.png" alt="Warning" />
+<a href="#ContentDescription">ContentDescription: Image without <code>contentDescription</code></a>
+</td></tr>
+<tr><td></td><td class="categoryColumn"><a href="#MissingIssues">Disabled Checks (10)</a>
+</td></tr></table>
+<br/>
+<a name="Correctness"></a>
+<div class="category"><a href="#" title="Return to top">Correctness</a><div class="categorySeparator"></div>
+</div>
+<a name="DuplicateIds"></a>
+<div class="issue">
+<div class="id"><a href="#" title="Return to top">DuplicateIds: Duplicate ids within a single layout</a><div class="issueSeparator"></div>
+</div>
+<div class="warningslist">
+<span class="location"><a href="../../res/layout/abc_activity_chooser_view.xml">../../res/layout/abc_activity_chooser_view.xml</a>:58</span>: <span class="message">Duplicate id <code>@+id/image</code>, already defined earlier in this layout</span><br /><pre class="errorlines">
+<span class="lineno">  55</span>         android:addStatesFromChildren="true"
+<span class="lineno">  56</span>         android:background="?attr/actionBarItemBackground">
+<span class="lineno">  57</span> 
+<span class="lineno">  58</span>         &lt;ImageView <span class="errorspan">android:id="@+id/image"</span>
+<span class="lineno">  59</span>             android:layout_width="32dip"
+<span class="lineno">  60</span>             android:layout_height="32dip"
+</pre>
+<ul><span class="location"><a href="../../res/layout/abc_activity_chooser_view.xml">../../res/layout/abc_activity_chooser_view.xml</a>:36</span>: <span class="message"><code>@+id/image</code> originally defined here</span><br /><pre class="errorlines">
+<span class="lineno">  33</span>         android:addStatesFromChildren="true"
+<span class="lineno">  34</span>         android:background="?attr/actionBarItemBackground">
+<span class="lineno">  35</span> 
+<span class="lineno">  36</span>         &lt;ImageView <span class="errorspan">android:id="@+id/image"</span>
+<span class="lineno">  37</span>             android:layout_width="32dip"
+<span class="lineno">  38</span>             android:layout_height="32dip"
+</pre></ul></div>
+<div class="metadata">Priority: 7 / 10<br/>
+Category: Correctness</div>
+Severity: <span class="error">Fatal</span><div class="summary">
+Explanation: Duplicate ids within a single layout.</div>
+<div class="explanation">
+Within a layout, id's should be unique since otherwise <code>findViewById()</code> can return an unexpected view.
+</div>
+<br/><div class="moreinfo">More info: </div><br/>To suppress this error, use the issue id "DuplicateIds" as explained in the <a href="#SuppressInfo">Suppressing Warnings and Errors</a> section.<br/>
+</div>
+<a name="NewApi"></a>
+<div class="issue">
+<div class="id"><a href="#" title="Return to top">NewApi: Calling new methods on older versions</a><div class="issueSeparator"></div>
+</div>
+<div class="warningslist">
+<span class="location"><a href="../../res/values-v14/themes_base.xml">../../res/values-v14/themes_base.xml</a>:29</span>: <span class="message"><code>android:actionModeShareDrawable</code> requires API level 21 (current min is 7)</span><br /><pre class="errorlines">
+<span class="lineno">  26</span>         &lt;item name="android:actionModeCopyDrawable">?actionModeCopyDrawable&lt;/item>
+<span class="lineno">  27</span>         &lt;item name="android:actionModePasteDrawable">?actionModePasteDrawable&lt;/item>
+<span class="lineno">  28</span>         &lt;item name="android:actionModeSelectAllDrawable">?actionModeSelectAllDrawable&lt;/item>
+<span class="lineno">  29</span>         &lt;item <span class="errorspan">name="android:actionModeShareDrawable">?actionModeShareDrawable&lt;/item></span>
+<span class="lineno">  30</span>     &lt;/style>
+<span class="lineno">  31</span> 
+</pre>
+<span class="location"><a href="../../res/values-v14/themes_base.xml">../../res/values-v14/themes_base.xml</a>:37</span>: <span class="message"><code>android:actionModeShareDrawable</code> requires API level 21 (current min is 7)</span><br /><pre class="errorlines">
+<span class="lineno">  34</span>         &lt;item name="android:actionModeCopyDrawable">?actionModeCopyDrawable&lt;/item>
+<span class="lineno">  35</span>         &lt;item name="android:actionModePasteDrawable">?actionModePasteDrawable&lt;/item>
+<span class="lineno">  36</span>         &lt;item name="android:actionModeSelectAllDrawable">?actionModeSelectAllDrawable&lt;/item>
+<span class="lineno">  37</span>         &lt;item <span class="errorspan">name="android:actionModeShareDrawable">?actionModeShareDrawable&lt;/item></span>
+<span class="lineno">  38</span>     &lt;/style>
+<span class="lineno">  39</span> 
+</pre>
+<span class="location"><a href="../../res/values-v14/themes_base.xml">../../res/values-v14/themes_base.xml</a>:45</span>: <span class="message"><code>android:actionModeShareDrawable</code> requires API level 21 (current min is 7)</span><br /><pre class="errorlines">
+<span class="lineno">  42</span>         &lt;item name="android:actionModeCopyDrawable">?actionModeCopyDrawable&lt;/item>
+<span class="lineno">  43</span>         &lt;item name="android:actionModePasteDrawable">?actionModePasteDrawable&lt;/item>
+<span class="lineno">  44</span>         &lt;item name="android:actionModeSelectAllDrawable">?actionModeSelectAllDrawable&lt;/item>
+<span class="lineno">  45</span>         &lt;item <span class="errorspan">name="android:actionModeShareDrawable">?actionModeShareDrawable&lt;/item></span>
+<span class="lineno">  46</span>     &lt;/style>
+<span class="lineno">  47</span> 
+</pre>
+<span class="location"><a href="../../res/values-v14/themes_base.xml">../../res/values-v14/themes_base.xml</a>:53</span>: <span class="message"><code>android:actionModeShareDrawable</code> requires API level 21 (current min is 7)</span><br /><pre class="errorlines">
+<span class="lineno">  50</span>         &lt;item name="android:actionModeCopyDrawable">?actionModeCopyDrawable&lt;/item>
+<span class="lineno">  51</span>         &lt;item name="android:actionModePasteDrawable">?actionModePasteDrawable&lt;/item>
+<span class="lineno">  52</span>         &lt;item name="android:actionModeSelectAllDrawable">?actionModeSelectAllDrawable&lt;/item>
+<span class="lineno">  53</span>         &lt;item <span class="errorspan">name="android:actionModeShareDrawable">?actionModeShareDrawable&lt;/item></span>
+<span class="lineno">  54</span>     &lt;/style>
+<span class="lineno">  55</span> 
+</pre>
+<span class="location"><a href="../../res/values-v11/themes_base.xml">../../res/values-v11/themes_base.xml</a>:351</span>: <span class="message"><code>android:actionModeShareDrawable</code> requires API level 21 (current min is 7)</span><br /><pre class="errorlines">
+<span class="lineno"> 348</span>         &lt;item name="android:actionModeCutDrawable">?actionModeCutDrawable&lt;/item>
+<span class="lineno"> 349</span>         &lt;item name="android:actionModeCopyDrawable">?actionModeCopyDrawable&lt;/item>
+<span class="lineno"> 350</span>         &lt;item name="android:actionModePasteDrawable">?actionModePasteDrawable&lt;/item>
+<span class="lineno"> 351</span>         &lt;item <span class="errorspan">name="android:actionModeShareDrawable">?actionModeShareDrawable&lt;/item></span>
+<span class="lineno"> 352</span>     &lt;/style>
+<span class="lineno"> 353</span> 
+</pre>
+<span class="location"><a href="../../res/values-v11/themes_base.xml">../../res/values-v11/themes_base.xml</a>:358</span>: <span class="message"><code>android:actionModeShareDrawable</code> requires API level 21 (current min is 7)</span><br /><pre class="errorlines">
+<span class="lineno"> 355</span>         &lt;item name="android:actionModeCutDrawable">?actionModeCutDrawable&lt;/item>
+<span class="lineno"> 356</span>         &lt;item name="android:actionModeCopyDrawable">?actionModeCopyDrawable&lt;/item>
+<span class="lineno"> 357</span>         &lt;item name="android:actionModePasteDrawable">?actionModePasteDrawable&lt;/item>
+<span class="lineno"> 358</span>         &lt;item <span class="errorspan">name="android:actionModeShareDrawable">?actionModeShareDrawable&lt;/item></span>
+<span class="lineno"> 359</span>     &lt;/style>
+<span class="lineno"> 360</span> 
+</pre>
+<span class="location"><a href="../../res/values-v11/themes_base.xml">../../res/values-v11/themes_base.xml</a>:365</span>: <span class="message"><code>android:actionModeShareDrawable</code> requires API level 21 (current min is 7)</span><br /><pre class="errorlines">
+<span class="lineno"> 362</span>         &lt;item name="android:actionModeCutDrawable">?actionModeCutDrawable&lt;/item>
+<span class="lineno"> 363</span>         &lt;item name="android:actionModeCopyDrawable">?actionModeCopyDrawable&lt;/item>
+<span class="lineno"> 364</span>         &lt;item name="android:actionModePasteDrawable">?actionModePasteDrawable&lt;/item>
+<span class="lineno"> 365</span>         &lt;item <span class="errorspan">name="android:actionModeShareDrawable">?actionModeShareDrawable&lt;/item></span>
+<span class="lineno"> 366</span>     &lt;/style>
+<span class="lineno"> 367</span> 
+</pre>
+<span class="location"><a href="../../res/values-v11/themes_base.xml">../../res/values-v11/themes_base.xml</a>:372</span>: <span class="message"><code>android:actionModeShareDrawable</code> requires API level 21 (current min is 7)</span><br /><pre class="errorlines">
+<span class="lineno"> 369</span>         &lt;item name="android:actionModeCutDrawable">?actionModeCutDrawable&lt;/item>
+<span class="lineno"> 370</span>         &lt;item name="android:actionModeCopyDrawable">?actionModeCopyDrawable&lt;/item>
+<span class="lineno"> 371</span>         &lt;item name="android:actionModePasteDrawable">?actionModePasteDrawable&lt;/item>
+<span class="lineno"> 372</span>         &lt;item <span class="errorspan">name="android:actionModeShareDrawable">?actionModeShareDrawable&lt;/item></span>
+<span class="lineno"> 373</span>     &lt;/style>
+<span class="lineno"> 374</span> 
+</pre>
+</div>
+<div class="metadata">Note: This issue has an associated quickfix operation in Eclipse/ADT & Android Studio/IntelliJ&nbsp;<img alt="Fix" border="0" align="top" src="lint-results_files/lint-run.png" />
+<br>
+Priority: 6 / 10<br/>
+Category: Correctness</div>
+Severity: <span class="error">Error</span><div class="summary">
+Explanation: Calling new methods on older versions.</div>
+<div class="explanation">
+This check scans through all the Android API calls in the application and warns about any calls that are not available on <b>all</b> versions targeted by this application (according to its minimum SDK attribute in the manifest).<br/>
+<br/>
+If you really want to use this API and don't need to support older devices just set the <code>minSdkVersion</code> in your <code>build.gradle</code> or <code>AndroidManifest.xml</code> files.<br/>
+If your code is <b>deliberately</b> accessing newer APIs, and you have ensured (e.g. with conditional execution) that this code will only ever be called on a supported platform, then you can annotate your class or method with the <code>@TargetApi</code> annotation specifying the local minimum SDK to apply, such as <code>@TargetApi(11)</code>, such that this check considers 11 rather than your manifest file's minimum SDK as the required API level.<br/>
+<br/>
+If you are deliberately setting <code>android:</code> attributes in style definitions, make sure you place this in a <code>values-vNN</code> folder in order to avoid running into runtime conflicts on certain devices where manufacturers have added custom attributes whose ids conflict with the new ones on later platforms.<br/>
+<br/>
+Similarly, you can use tools:targetApi="11" in an XML file to indicate that the element will only be inflated in an adequate context.
+</div>
+<br/><div class="moreinfo">More info: </div><br/>To suppress this error, use the issue id "NewApi" as explained in the <a href="#SuppressInfo">Suppressing Warnings and Errors</a> section.<br/>
+</div>
+<a name="UnusedAttribute"></a>
+<div class="issue">
+<div class="id"><a href="#" title="Return to top">UnusedAttribute: Attribute unused on older versions</a><div class="issueSeparator"></div>
+</div>
+<div class="warningslist">
+<span class="location"><a href="../../res/color/abc_background_cache_hint_selector_material_dark.xml">../../res/color/abc_background_cache_hint_selector_material_dark.xml</a>:18</span>: <span class="message">Attribute <code>state_accelerated</code> is only used in API level 11 and higher (current min is 7)</span><br /><pre class="errorlines">
+<span class="lineno">  15</span> -->
+<span class="lineno">  16</span> 
+<span class="lineno">  17</span> &lt;selector xmlns:android="http://schemas.android.com/apk/res/android">
+<span class="lineno">  18</span>     &lt;item <span class="errorspan">android:state_accelerated="false" android:color="@color/background_material_dark" /></span>
+<span class="lineno">  19</span>     &lt;item android:color="@android:color/transparent" />
+<span class="lineno">  20</span> &lt;/selector>
+</pre>
+<span class="location"><a href="../../res/color/abc_background_cache_hint_selector_material_light.xml">../../res/color/abc_background_cache_hint_selector_material_light.xml</a>:18</span>: <span class="message">Attribute <code>state_accelerated</code> is only used in API level 11 and higher (current min is 7)</span><br /><pre class="errorlines">
+<span class="lineno">  15</span> -->
+<span class="lineno">  16</span> 
+<span class="lineno">  17</span> &lt;selector xmlns:android="http://schemas.android.com/apk/res/android">
+<span class="lineno">  18</span>     &lt;item <span class="errorspan">android:state_accelerated="false" android:color="@color/background_material_light" /></span>
+<span class="lineno">  19</span>     &lt;item android:color="@android:color/transparent" />
+<span class="lineno">  20</span> &lt;/selector>
+</pre>
+<span class="location"><a href="../../res/drawable/abc_cab_background_top_material.xml">../../res/drawable/abc_cab_background_top_material.xml</a>:18</span>: <span class="message">Attribute <code>paddingMode</code> is only used in API level 21 and higher (current min is 7)</span><br /><pre class="errorlines">
+<span class="lineno">  15</span> -->
+<span class="lineno">  16</span> 
+<span class="lineno">  17</span> &lt;layer-list xmlns:android="http://schemas.android.com/apk/res/android"
+<span class="lineno">  18</span>             <span class="errorspan">android:paddingMode="stack"></span>
+<span class="lineno">  19</span>     &lt;item android:drawable="@drawable/abc_cab_background_internal_bg" />
+<span class="lineno">  20</span>     &lt;item android:drawable="@drawable/abc_cab_background_top_mtrl_alpha" />
+</pre>
+<span class="location"><a href="../../res/drawable/abc_edit_text_material.xml">../../res/drawable/abc_edit_text_material.xml</a>:25</span>: <span class="message">Attribute <code>state_activated</code> is only used in API level 11 and higher (current min is 7)</span><br /><pre class="errorlines">
+<span class="lineno">  22</span> 
+<span class="lineno">  23</span>     &lt;selector>
+<span class="lineno">  24</span>         &lt;item android:state_enabled="true" android:state_focused="true" android:drawable="@drawable/abc_textfield_activated_mtrl_alpha"/>
+<span class="lineno">  25</span>         &lt;item android:state_enabled="true" <span class="errorspan">android:state_activated="true" android:drawable="@drawable/abc_textfield_activated_mtrl_alpha"/></span>
+<span class="lineno">  26</span>         &lt;item android:state_enabled="true" android:drawable="@drawable/abc_textfield_default_mtrl_alpha"/>
+<span class="lineno">  27</span>         &lt;item android:drawable="@drawable/abc_textfield_default_mtrl_alpha"/>
+</pre>
+<span class="location"><a href="../../res/layout/abc_screen_toolbar.xml">../../res/layout/abc_screen_toolbar.xml</a>:33</span>: <span class="message">Attribute <code>touchscreenBlocksFocus</code> is only used in API level 21 and higher (current min is 7)</span><br /><pre class="errorlines">
+<span class="lineno">  30</span>             android:layout_height="wrap_content"
+<span class="lineno">  31</span>             android:layout_alignParentTop="true"
+<span class="lineno">  32</span>             style="?attr/actionBarStyle"
+<span class="lineno">  33</span>             <span class="errorspan">android:touchscreenBlocksFocus="true"</span>
+<span class="lineno">  34</span>             android:gravity="top">
+<span class="lineno">  35</span> 
+</pre>
+<span class="location"><a href="../../res/layout/abc_search_view.xml">../../res/layout/abc_search_view.xml</a>:58</span>: <span class="message">Attribute <code>layoutDirection</code> is only used in API level 17 and higher (current min is 7)</span><br /><pre class="errorlines">
+<span class="lineno">  55</span>             android:layout_marginLeft="8dip"
+<span class="lineno">  56</span>             android:layout_marginRight="8dip"
+<span class="lineno">  57</span>             android:orientation="horizontal"
+<span class="lineno">  58</span>             <span class="errorspan">android:layoutDirection="locale"></span>
+<span class="lineno">  59</span> 
+<span class="lineno">  60</span>         &lt;android.support.v7.internal.widget.TintImageView
+</pre>
+<span class="location"><a href="../../res/drawable/abc_textfield_search_material.xml">../../res/drawable/abc_textfield_search_material.xml</a>:19</span>: <span class="message">Attribute <code>state_activated</code> is only used in API level 11 and higher (current min is 7)</span><br /><pre class="errorlines">
+<span class="lineno">  16</span> 
+<span class="lineno">  17</span> &lt;selector xmlns:android="http://schemas.android.com/apk/res/android">
+<span class="lineno">  18</span>     &lt;item android:state_enabled="true" android:state_focused="true" android:drawable="@drawable/abc_textfield_search_activated_mtrl_alpha"/>
+<span class="lineno">  19</span>     &lt;item android:state_enabled="true" <span class="errorspan">android:state_activated="true" android:drawable="@drawable/abc_textfield_search_activated_mtrl_alpha"/></span>
+<span class="lineno">  20</span>     &lt;item android:state_enabled="true" android:drawable="@drawable/abc_textfield_search_default_mtrl_alpha"/>
+<span class="lineno">  21</span>     &lt;item android:drawable="@drawable/abc_textfield_search_default_mtrl_alpha"/>
+</pre>
+</div>
+<div class="metadata">Priority: 6 / 10<br/>
+Category: Correctness</div>
+Severity: <span class="warning">Warning</span><div class="summary">
+Explanation: Attribute unused on older versions.</div>
+<div class="explanation">
+This check finds attributes set in XML files that were introduced in a version newer than the oldest version targeted by your application (with the the <code>minSdkVersion</code> attribute).<br/>
+<br/>
+This is not an error; the application will simply ignore the attribute. However, if the attribute is important to the appearance of functionality of your application, you should consider finding an alternative way to achieve the same result with only available attributes, and then you can optionally create a copy of the layout in a layout-vNN folder which will be used on API NN or higher where you can take advantage of the newer attribute.<br/>
+<br/>
+Note: This check does not only apply to attributes. For example, some tags can be unused too, such as the new <code>&lt;tag></code> element in layouts introduced in API 21.
+</div>
+<br/><div class="moreinfo">More info: </div><br/>To suppress this error, use the issue id "UnusedAttribute" as explained in the <a href="#SuppressInfo">Suppressing Warnings and Errors</a> section.<br/>
+</div>
+<a name="GradleDependency"></a>
+<div class="issue">
+<div class="id"><a href="#" title="Return to top">GradleDependency: Obsolete Gradle Dependency</a><div class="issueSeparator"></div>
+</div>
+<div class="warningslist">
+<span class="location"><a href="../../build.gradle">../../build.gradle</a>:14</span>: <span class="message">A newer version of com.android.support:support-v4 than 18.0.+ is available: 22.0.0</span><br /><pre class="errorlines">
+<span class="lineno">  11</span> 
+<span class="lineno">  12</span> apply plugin: 'com.android.library'
+<span class="lineno">  13</span> dependencies {
+<span class="lineno">  14</span>     <span class="errorspan">compile 'com.android.support:support-v4:18.0.+'</span>
+<span class="lineno">  15</span> }
+<span class="lineno">  16</span> android {
+</pre>
+<span class="location"><a href="../../build.gradle">../../build.gradle</a>:25</span>: <span class="message">Old buildToolsVersion 21.0.2; recommended version is 21.1.2 or later</span><br /><pre class="errorlines">
+<span class="lineno">  22</span>           abortOnError false
+<span class="lineno">  23</span>       }
+<span class="lineno">  24</span>     compileSdkVersion 21
+<span class="lineno">  25</span>     <span class="errorspan">buildToolsVersion '21.0.2'</span>
+<span class="lineno">  26</span>     sourceSets {
+<span class="lineno">  27</span>         main {
+</pre>
+</div>
+<div class="metadata">Note: This issue has an associated quickfix operation in Android Studio/IntelliJ&nbsp;<img alt="Fix" border="0" align="top" src="lint-results_files/lint-run.png" />
+<br>
+Priority: 4 / 10<br/>
+Category: Correctness</div>
+Severity: <span class="warning">Warning</span><div class="summary">
+Explanation: Obsolete Gradle Dependency.</div>
+<div class="explanation">
+This detector looks for usages of libraries where the version you are using is not the current stable release. Using older versions is fine, and there are cases where you deliberately want to stick with an older version. However, you may simply not be aware that a more recent version is available, and that is what this lint check helps find.
+</div>
+<br/><div class="moreinfo">More info: </div><br/>To suppress this error, use the issue id "GradleDependency" as explained in the <a href="#SuppressInfo">Suppressing Warnings and Errors</a> section.<br/>
+</div>
+<a name="GradleDynamicVersion"></a>
+<div class="issue">
+<div class="id"><a href="#" title="Return to top">GradleDynamicVersion: Gradle Dynamic Version</a><div class="issueSeparator"></div>
+</div>
+<div class="warningslist">
+<span class="location"><a href="../../build.gradle">../../build.gradle</a>:14</span>: <span class="message">Avoid using + in version numbers; can lead to unpredictable and unrepeatable builds (com.android.support:support-v4:18.0.+)</span><br /><pre class="errorlines">
+<span class="lineno">  11</span> 
+<span class="lineno">  12</span> apply plugin: 'com.android.library'
+<span class="lineno">  13</span> dependencies {
+<span class="lineno">  14</span>     <span class="errorspan">compile 'com.android.support:support-v4:18.0.+'</span>
+<span class="lineno">  15</span> }
+<span class="lineno">  16</span> android {
+</pre>
+</div>
+<div class="metadata">Note: This issue has an associated quickfix operation in Android Studio/IntelliJ&nbsp;<img alt="Fix" border="0" align="top" src="lint-results_files/lint-run.png" />
+<br>
+Priority: 4 / 10<br/>
+Category: Correctness</div>
+Severity: <span class="warning">Warning</span><div class="summary">
+Explanation: Gradle Dynamic Version.</div>
+<div class="explanation">
+Using <code>+</code> in dependencies lets you automatically pick up the latest available version rather than a specific, named version. However, this is not recommended; your builds are not repeatable; you may have tested with a slightly different version than what the build server used. (Using a dynamic version as the major version number is more problematic than using it in the minor version position.)
+</div>
+<br/><div class="moreinfo">More info: </div><br/>To suppress this error, use the issue id "GradleDynamicVersion" as explained in the <a href="#SuppressInfo">Suppressing Warnings and Errors</a> section.<br/>
+</div>
+
+<a name="Correctness:Messages"></a>
+<div class="category"><a href="#" title="Return to top">Correctness:Messages</a><div class="categorySeparator"></div>
+</div>
+<a name="MissingTranslation"></a>
+<div class="issue">
+<div class="id"><a href="#" title="Return to top">MissingTranslation: Incomplete translation</a><div class="issueSeparator"></div>
+</div>
+<div class="warningslist">
+<span class="location"><a href="../../res/values/strings.xml">../../res/values/strings.xml</a>:35</span>: <span class="message">"<code>abc_action_bar_home_description_format</code>" is not translated in "mk-rMK" (Macedonian: Macedonia, the former Yugoslav Republic of)</span><br /><pre class="errorlines">
+<span class="lineno">  32</span>          (usually a "&lt;" chevron) and the window title text.
+<span class="lineno">  33</span>          %1$s is the title. %2$s is the description of what tapping/clicking the whole
+<span class="lineno">  34</span>          thing is going to do. -->
+<span class="lineno">  35</span>     &lt;string <span class="errorspan">name="abc_action_bar_home_description_format">%1$s, %2$s&lt;/string></span>
+<span class="lineno">  36</span>     &lt;!-- Just like action_bar_home_description_format, but this one will be used
+<span class="lineno">  37</span>          if the window is also providing subtitle text.
+</pre>
+<span class="location"><a href="../../res/values/strings.xml">../../res/values/strings.xml</a>:59</span>: <span class="message">"<code>abc_shareactionprovider_share_with_application</code>" is not translated in "mk-rMK" (Macedonian: Macedonia, the former Yugoslav Republic of), "uz-rUZ" (Uzbek: Uzbekistan)</span><br /><pre class="errorlines">
+<span class="lineno">  56</span>     &lt;!-- Title for a button to expand the list of activities in ActivityChooserView [CHAR LIMIT=25] -->
+<span class="lineno">  57</span>     &lt;string name="abc_activity_chooser_view_see_all">See all&lt;/string>
+<span class="lineno">  58</span>     &lt;!-- Description of a share target (both in the list of such or the default share button) in a ShareActionProvider (share UI). [CHAR LIMIT=NONE] -->
+<span class="lineno">  59</span>     &lt;string <span class="errorspan">name="abc_shareactionprovider_share_with_application">Share with %s&lt;/string></span>
+<span class="lineno">  60</span>     &lt;!-- Description of the choose target button in a ShareActionProvider (share UI). [CHAR LIMIT=NONE] -->
+<span class="lineno">  61</span>     &lt;string name="abc_shareactionprovider_share_with">Share with&lt;/string>
+</pre>
+</div>
+<div class="metadata">Note: This issue has an associated quickfix operation in Eclipse/ADT&nbsp;<img alt="Fix" border="0" align="top" src="lint-results_files/lint-run.png" />
+<br>
+Priority: 8 / 10<br/>
+Category: Correctness:Messages</div>
+Severity: <span class="error">Fatal</span><div class="summary">
+Explanation: Incomplete translation.</div>
+<div class="explanation">
+If an application has more than one locale, then all the strings declared in one language should also be translated in all other languages.<br/>
+<br/>
+If the string should <b>not</b> be translated, you can add the attribute <code>translatable="false"</code> on the <code>&lt;string></code> element, or you can define all your non-translatable strings in a resource file called <code>donottranslate.xml</code>. Or, you can ignore the issue with a <code>tools:ignore="MissingTranslation"</code> attribute.<br/>
+<br/>
+By default this detector allows regions of a language to just provide a subset of the strings and fall back to the standard language strings. You can require all regions to provide a full translation by setting the environment variable <code>ANDROID_LINT_COMPLETE_REGIONS</code>.<br/>
+<br/>
+You can tell lint (and other tools) which language is the default language in your <code>res/values/</code> folder by specifying <code>tools:locale="languageCode"</code> for the root <code>&lt;resources></code> element in your resource file. (The <code>tools</code> prefix refers to the namespace declaration <code>http://schemas.android.com/tools</code>.)
+</div>
+<br/><div class="moreinfo">More info: </div><br/>To suppress this error, use the issue id "MissingTranslation" as explained in the <a href="#SuppressInfo">Suppressing Warnings and Errors</a> section.<br/>
+</div>
+
+<a name="Performance"></a>
+<div class="category"><a href="#" title="Return to top">Performance</a><div class="categorySeparator"></div>
+</div>
+<a name="UseCompoundDrawables"></a>
+<div class="issue">
+<div class="id"><a href="#" title="Return to top">UseCompoundDrawables: Node can be replaced by a <code>TextView</code> with compound drawables</a><div class="issueSeparator"></div>
+</div>
+<div class="warningslist">
+<span class="location"><a href="../../res/layout/abc_activity_chooser_view_list_item.xml">../../res/layout/abc_activity_chooser_view_list_item.xml</a>:26</span>: <span class="message">This tag and its children can be replaced by one <code>&lt;TextView/></code> and a compound drawable</span><br /><pre class="errorlines">
+<span class="lineno">  23</span>               android:minWidth="196dip"
+<span class="lineno">  24</span>               android:orientation="vertical">
+<span class="lineno">  25</span> 
+<span class="lineno">  26</span>     <span class="errorspan">&lt;LinearLayout</span>
+<span class="lineno">  27</span>             android:layout_width="wrap_content"
+<span class="lineno">  28</span>             android:layout_height="match_parent"
+</pre>
+</div>
+<div class="metadata">Note: This issue has an associated quickfix operation in Eclipse/ADT&nbsp;<img alt="Fix" border="0" align="top" src="lint-results_files/lint-run.png" />
+<br>
+Priority: 6 / 10<br/>
+Category: Performance</div>
+Severity: <span class="warning">Warning</span><div class="summary">
+Explanation: Node can be replaced by a <code>TextView</code> with compound drawables.</div>
+<div class="explanation">
+A <code>LinearLayout</code> which contains an <code>ImageView</code> and a <code>TextView</code> can be more efficiently handled as a compound drawable (a single TextView, using the <code>drawableTop</code>, <code>drawableLeft</code>, <code>drawableRight</code> and/or <code>drawableBottom</code> attributes to draw one or more images adjacent to the text).<br/>
+<br/>
+If the two widgets are offset from each other with margins, this can be replaced with a <code>drawablePadding</code> attribute.<br/>
+<br/>
+There's a lint quickfix to perform this conversion in the Eclipse plugin.
+</div>
+<br/><div class="moreinfo">More info: </div><br/>To suppress this error, use the issue id "UseCompoundDrawables" as explained in the <a href="#SuppressInfo">Suppressing Warnings and Errors</a> section.<br/>
+</div>
+<a name="InefficientWeight"></a>
+<div class="issue">
+<div class="id"><a href="#" title="Return to top">InefficientWeight: Inefficient layout weight</a><div class="issueSeparator"></div>
+</div>
+<div class="warningslist">
+<span class="location"><a href="../../res/layout/abc_search_view.xml">../../res/layout/abc_search_view.xml</a>:49</span>: <span class="message">Use a <code>layout_width</code> of <code>0dp</code> instead of <code>wrap_content</code> for better performance</span><br /><pre class="errorlines">
+<span class="lineno">  46</span> 
+<span class="lineno">  47</span>     &lt;LinearLayout
+<span class="lineno">  48</span>             android:id="@+id/search_edit_frame"
+<span class="lineno">  49</span>             <span class="errorspan">android:layout_width="wrap_content"</span>
+<span class="lineno">  50</span>             android:layout_height="wrap_content"
+<span class="lineno">  51</span>             android:layout_weight="1"
+</pre>
+<span class="location"><a href="../../res/layout/abc_search_view.xml">../../res/layout/abc_search_view.xml</a>:72</span>: <span class="message">Use a <code>layout_width</code> of <code>0dp</code> instead of <code>wrap_content</code> for better performance</span><br /><pre class="errorlines">
+<span class="lineno">  69</span>         &lt;!-- Inner layout contains the app icon, button(s) and EditText -->
+<span class="lineno">  70</span>         &lt;LinearLayout
+<span class="lineno">  71</span>                 android:id="@+id/search_plate"
+<span class="lineno">  72</span>                 <span class="errorspan">android:layout_width="wrap_content"</span>
+<span class="lineno">  73</span>                 android:layout_height="wrap_content"
+<span class="lineno">  74</span>                 android:layout_weight="1"
+</pre>
+</div>
+<div class="metadata">Note: This issue has an associated quickfix operation in Eclipse/ADT & Android Studio/IntelliJ&nbsp;<img alt="Fix" border="0" align="top" src="lint-results_files/lint-run.png" />
+<br>
+Priority: 3 / 10<br/>
+Category: Performance</div>
+Severity: <span class="warning">Warning</span><div class="summary">
+Explanation: Inefficient layout weight.</div>
+<div class="explanation">
+When only a single widget in a LinearLayout defines a weight, it is more efficient to assign a width/height of <code>0dp</code> to it since it will absorb all the remaining space anyway. With a declared width/height of <code>0dp</code> it does not have to measure its own size first.
+</div>
+<br/><div class="moreinfo">More info: </div><br/>To suppress this error, use the issue id "InefficientWeight" as explained in the <a href="#SuppressInfo">Suppressing Warnings and Errors</a> section.<br/>
+</div>
+<a name="NestedWeights"></a>
+<div class="issue">
+<div class="id"><a href="#" title="Return to top">NestedWeights: Nested layout weights</a><div class="issueSeparator"></div>
+</div>
+<div class="warningslist">
+<span class="location"><a href="../../res/layout/abc_search_view.xml">../../res/layout/abc_search_view.xml</a>:74</span>: <span class="message">Nested weights are bad for performance</span><br /><pre class="errorlines">
+<span class="lineno">  71</span>                 android:id="@+id/search_plate"
+<span class="lineno">  72</span>                 android:layout_width="wrap_content"
+<span class="lineno">  73</span>                 android:layout_height="wrap_content"
+<span class="lineno">  74</span>                 <span class="errorspan">android:layout_weight="1"</span>
+<span class="lineno">  75</span>                 android:layout_gravity="center_vertical"
+<span class="lineno">  76</span>                 android:orientation="horizontal">
+</pre>
+<span class="location"><a href="../../res/layout/abc_search_view.xml">../../res/layout/abc_search_view.xml</a>:82</span>: <span class="message">Nested weights are bad for performance</span><br /><pre class="errorlines">
+<span class="lineno">  79</span>                   android:id="@+id/search_src_text"
+<span class="lineno">  80</span>                   android:layout_height="36dip"
+<span class="lineno">  81</span>                   android:layout_width="0dp"
+<span class="lineno">  82</span>                   <span class="errorspan">android:layout_weight="1"</span>
+<span class="lineno">  83</span>                   android:minWidth="@dimen/abc_search_view_text_min_width"
+<span class="lineno">  84</span>                   android:layout_gravity="bottom"
+</pre>
+</div>
+<div class="metadata">Priority: 3 / 10<br/>
+Category: Performance</div>
+Severity: <span class="warning">Warning</span><div class="summary">
+Explanation: Nested layout weights.</div>
+<div class="explanation">
+Layout weights require a widget to be measured twice. When a LinearLayout with non-zero weights is nested inside another LinearLayout with non-zero weights, then the number of measurements increase exponentially.
+</div>
+<br/><div class="moreinfo">More info: </div><br/>To suppress this error, use the issue id "NestedWeights" as explained in the <a href="#SuppressInfo">Suppressing Warnings and Errors</a> section.<br/>
+</div>
+<a name="Overdraw"></a>
+<div class="issue">
+<div class="id"><a href="#" title="Return to top">Overdraw: Overdraw: Painting regions more than once</a><div class="issueSeparator"></div>
+</div>
+<div class="warningslist">
+<span class="location"><a href="../../res/layout/abc_action_bar_up_container.xml">../../res/layout/abc_action_bar_up_container.xml</a>:20</span>: <span class="message">Possible overdraw: Root element paints background <code>?attr/actionBarItemBackground</code> with a theme that also paints a background (inferred theme is <code>@android:style/Theme</code>)</span><br /><pre class="errorlines">
+<span class="lineno">  17</span> &lt;LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<span class="lineno">  18</span>               android:layout_width="wrap_content"
+<span class="lineno">  19</span>               android:layout_height="match_parent"
+<span class="lineno">  20</span>               <span class="errorspan">android:background="?attr/actionBarItemBackground"</span>
+<span class="lineno">  21</span>               android:gravity="center_vertical"
+<span class="lineno">  22</span>               android:enabled="false">
+</pre>
+</div>
+<div class="metadata">Priority: 3 / 10<br/>
+Category: Performance</div>
+Severity: <span class="warning">Warning</span><div class="summary">
+Explanation: Overdraw: Painting regions more than once.</div>
+<div class="explanation">
+If you set a background drawable on a root view, then you should use a custom theme where the theme background is null. Otherwise, the theme background will be painted first, only to have your custom background completely cover it; this is called "overdraw".<br/>
+<br/>
+NOTE: This detector relies on figuring out which layouts are associated with which activities based on scanning the Java code, and it's currently doing that using an inexact pattern matching algorithm. Therefore, it can incorrectly conclude which activity the layout is associated with and then wrongly complain that a background-theme is hidden.<br/>
+<br/>
+If you want your custom background on multiple pages, then you should consider making a custom theme with your custom background and just using that theme instead of a root element background.<br/>
+<br/>
+Of course it's possible that your custom drawable is translucent and you want it to be mixed with the background. However, you will get better performance if you pre-mix the background with your drawable and use that resulting image or color as a custom theme background instead.<br/>
+
+</div>
+<br/><div class="moreinfo">More info: </div><br/>To suppress this error, use the issue id "Overdraw" as explained in the <a href="#SuppressInfo">Suppressing Warnings and Errors</a> section.<br/>
+</div>
+<a name="UnusedResources"></a>
+<div class="issue">
+<div class="id"><a href="#" title="Return to top">UnusedResources: Unused resources</a><div class="issueSeparator"></div>
+</div>
+<div class="warningslist">
+<span class="location"><a href="../../res/layout/abc_action_bar_title_item.xml">../../res/layout/abc_action_bar_title_item.xml</a></span>: <span class="message">The resource <code>R.layout.abc_action_bar_title_item</code> appears to be unused</span><br />
+<span class="location"><a href="../../res/layout/abc_action_bar_up_container.xml">../../res/layout/abc_action_bar_up_container.xml</a></span>: <span class="message">The resource <code>R.layout.abc_action_bar_up_container</code> appears to be unused</span><br />
+<span class="location"><a href="../../res/layout/abc_action_bar_view_list_nav_layout.xml">../../res/layout/abc_action_bar_view_list_nav_layout.xml</a></span>: <span class="message">The resource <code>R.layout.abc_action_bar_view_list_nav_layout</code> appears to be unused</span><br />
+<span class="location"><a href="../../res/layout/abc_action_menu_item_layout.xml">../../res/layout/abc_action_menu_item_layout.xml</a></span>: <span class="message">The resource <code>R.layout.abc_action_menu_item_layout</code> appears to be unused</span><br />
+<span class="location"><a href="../../res/layout/abc_action_menu_layout.xml">../../res/layout/abc_action_menu_layout.xml</a></span>: <span class="message">The resource <code>R.layout.abc_action_menu_layout</code> appears to be unused</span><br />
+<button id="UnusedResourcesDivLink" onclick="reveal('UnusedResourcesDiv');" />+ 53 More Occurrences...</button>
+<div id="UnusedResourcesDiv" style="display: none">
+<span class="location"><a href="../../res/layout/abc_activity_chooser_view.xml">../../res/layout/abc_activity_chooser_view.xml</a></span>: <span class="message">The resource <code>R.layout.abc_activity_chooser_view</code> appears to be unused</span><br />
+<span class="location"><a href="../../res/layout/abc_activity_chooser_view_list_item.xml">../../res/layout/abc_activity_chooser_view_list_item.xml</a></span>: <span class="message">The resource <code>R.layout.abc_activity_chooser_view_list_item</code> appears to be unused</span><br />
+<span class="location"><a href="../../res/layout/abc_expanded_menu_layout.xml">../../res/layout/abc_expanded_menu_layout.xml</a></span>: <span class="message">The resource <code>R.layout.abc_expanded_menu_layout</code> appears to be unused</span><br />
+<span class="location"><a href="../../res/anim/abc_fade_in.xml">../../res/anim/abc_fade_in.xml</a></span>: <span class="message">The resource <code>R.anim.abc_fade_in</code> appears to be unused</span><br />
+<span class="location"><a href="../../res/anim/abc_fade_out.xml">../../res/anim/abc_fade_out.xml</a></span>: <span class="message">The resource <code>R.anim.abc_fade_out</code> appears to be unused</span><br />
+<span class="location"><a href="../../res/layout/abc_list_menu_item_checkbox.xml">../../res/layout/abc_list_menu_item_checkbox.xml</a></span>: <span class="message">The resource <code>R.layout.abc_list_menu_item_checkbox</code> appears to be unused</span><br />
+<span class="location"><a href="../../res/layout/abc_list_menu_item_icon.xml">../../res/layout/abc_list_menu_item_icon.xml</a></span>: <span class="message">The resource <code>R.layout.abc_list_menu_item_icon</code> appears to be unused</span><br />
+<span class="location"><a href="../../res/layout/abc_list_menu_item_layout.xml">../../res/layout/abc_list_menu_item_layout.xml</a></span>: <span class="message">The resource <code>R.layout.abc_list_menu_item_layout</code> appears to be unused</span><br />
+<span class="location"><a href="../../res/layout/abc_list_menu_item_radio.xml">../../res/layout/abc_list_menu_item_radio.xml</a></span>: <span class="message">The resource <code>R.layout.abc_list_menu_item_radio</code> appears to be unused</span><br />
+<span class="location"><a href="../../res/layout/abc_popup_menu_item_layout.xml">../../res/layout/abc_popup_menu_item_layout.xml</a></span>: <span class="message">The resource <code>R.layout.abc_popup_menu_item_layout</code> appears to be unused</span><br />
+<span class="location"><a href="../../res/layout/abc_screen_simple.xml">../../res/layout/abc_screen_simple.xml</a></span>: <span class="message">The resource <code>R.layout.abc_screen_simple</code> appears to be unused</span><br />
+<span class="location"><a href="../../res/layout/abc_screen_simple_overlay_action_mode.xml">../../res/layout/abc_screen_simple_overlay_action_mode.xml</a></span>: <span class="message">The resource <code>R.layout.abc_screen_simple_overlay_action_mode</code> appears to be unused</span><br />
+<span class="location"><a href="../../res/layout/abc_screen_toolbar.xml">../../res/layout/abc_screen_toolbar.xml</a></span>: <span class="message">The resource <code>R.layout.abc_screen_toolbar</code> appears to be unused</span><br />
+<span class="location"><a href="../../res/anim/abc_slide_in_bottom.xml">../../res/anim/abc_slide_in_bottom.xml</a></span>: <span class="message">The resource <code>R.anim.abc_slide_in_bottom</code> appears to be unused</span><br />
+<span class="location"><a href="../../res/anim/abc_slide_in_top.xml">../../res/anim/abc_slide_in_top.xml</a></span>: <span class="message">The resource <code>R.anim.abc_slide_in_top</code> appears to be unused</span><br />
+<span class="location"><a href="../../res/anim/abc_slide_out_bottom.xml">../../res/anim/abc_slide_out_bottom.xml</a></span>: <span class="message">The resource <code>R.anim.abc_slide_out_bottom</code> appears to be unused</span><br />
+<span class="location"><a href="../../res/anim/abc_slide_out_top.xml">../../res/anim/abc_slide_out_top.xml</a></span>: <span class="message">The resource <code>R.anim.abc_slide_out_top</code> appears to be unused</span><br />
+<span class="location"><a href="../../res/values/bools.xml">../../res/values/bools.xml</a>:19</span>: <span class="message">The resource <code>R.bool.abc_action_bar_embed_tabs</code> appears to be unused</span><br /><pre class="errorlines">
+<span class="lineno">  16</span> 
+<span class="lineno">  17</span> &lt;resources>
+<span class="lineno">  18</span> 
+<span class="lineno">  19</span>     &lt;bool <span class="errorspan">name="abc_action_bar_embed_tabs">true&lt;/bool></span>
+<span class="lineno">  20</span>     &lt;bool name="abc_action_bar_embed_tabs_pre_jb">false&lt;/bool>
+<span class="lineno">  21</span>     &lt;bool name="abc_action_bar_expanded_action_views_exclusive">true&lt;/bool>
+</pre>
+<ul></ul><button id="Location23DivLink" onclick="reveal('Location23Div');" />+ 1 Additional Locations...</button>
+<div id="Location23Div" style="display: none">
+Additional locations: <ul>
+<li> <span class="location"><a href="../../res/values-port/bools.xml">../../res/values-port/bools.xml</a>:19</span>
+</ul>
+</div><br/><br/>
+<span class="location"><a href="../../res/values/bools.xml">../../res/values/bools.xml</a>:20</span>: <span class="message">The resource <code>R.bool.abc_action_bar_embed_tabs_pre_jb</code> appears to be unused</span><br /><pre class="errorlines">
+<span class="lineno">  17</span> &lt;resources>
+<span class="lineno">  18</span> 
+<span class="lineno">  19</span>     &lt;bool name="abc_action_bar_embed_tabs">true&lt;/bool>
+<span class="lineno">  20</span>     &lt;bool <span class="errorspan">name="abc_action_bar_embed_tabs_pre_jb">false&lt;/bool></span>
+<span class="lineno">  21</span>     &lt;bool name="abc_action_bar_expanded_action_views_exclusive">true&lt;/bool>
+<span class="lineno">  22</span> 
+</pre>
+<ul></ul><button id="Location24DivLink" onclick="reveal('Location24Div');" />+ 3 Additional Locations...</button>
+<div id="Location24Div" style="display: none">
+Additional locations: <ul>
+<li> <span class="location"><a href="../../res/values-land/bools.xml">../../res/values-land/bools.xml</a>:18</span>
+<li> <span class="location"><a href="../../res/values-large/bools.xml">../../res/values-large/bools.xml</a>:18</span>
+<li> <span class="location"><a href="../../res/values-w480dp/bools.xml">../../res/values-w480dp/bools.xml</a>:17</span>
+</ul>
+</div><br/><br/>
+<span class="location"><a href="../../res/values/bools.xml">../../res/values/bools.xml</a>:21</span>: <span class="message">The resource <code>R.bool.abc_action_bar_expanded_action_views_exclusive</code> appears to be unused</span><br /><pre class="errorlines">
+<span class="lineno">  18</span> 
+<span class="lineno">  19</span>     &lt;bool name="abc_action_bar_embed_tabs">true&lt;/bool>
+<span class="lineno">  20</span>     &lt;bool name="abc_action_bar_embed_tabs_pre_jb">false&lt;/bool>
+<span class="lineno">  21</span>     &lt;bool <span class="errorspan">name="abc_action_bar_expanded_action_views_exclusive">true&lt;/bool></span>
+<span class="lineno">  22</span> 
+<span class="lineno">  23</span>     &lt;bool name="abc_config_showMenuShortcutsWhenKeyboardPresent">false&lt;/bool>
+</pre>
+<ul></ul><button id="Location25DivLink" onclick="reveal('Location25Div');" />+ 2 Additional Locations...</button>
+<div id="Location25Div" style="display: none">
+Additional locations: <ul>
+<li> <span class="location"><a href="../../res/values-w720dp/bools.xml">../../res/values-w720dp/bools.xml</a>:18</span>
+<li> <span class="location"><a href="../../res/values-xlarge/bools.xml">../../res/values-xlarge/bools.xml</a>:18</span>
+</ul>
+</div><br/><br/>
+<span class="location"><a href="../../res/values/bools.xml">../../res/values/bools.xml</a>:23</span>: <span class="message">The resource <code>R.bool.abc_config_showMenuShortcutsWhenKeyboardPresent</code> appears to be unused</span><br /><pre class="errorlines">
+<span class="lineno">  20</span>     &lt;bool name="abc_action_bar_embed_tabs_pre_jb">false&lt;/bool>
+<span class="lineno">  21</span>     &lt;bool name="abc_action_bar_expanded_action_views_exclusive">true&lt;/bool>
+<span class="lineno">  22</span> 
+<span class="lineno">  23</span>     &lt;bool <span class="errorspan">name="abc_config_showMenuShortcutsWhenKeyboardPresent">false&lt;/bool></span>
+<span class="lineno">  24</span> &lt;/resources>
+<span class="lineno">  25</span> 
+</pre>
+<span class="location"><a href="../../res/values/colors.xml">../../res/values/colors.xml</a>:21</span>: <span class="message">The resource <code>R.color.abc_input_method_navigation_guard</code> appears to be unused</span><br /><pre class="errorlines">
+<span class="lineno">  18</span>     &lt;color name="abc_search_url_text_selected">@android:color/black&lt;/color>
+<span class="lineno">  19</span>     &lt;color name="abc_search_url_text_pressed">@android:color/black&lt;/color>
+<span class="lineno">  20</span> 
+<span class="lineno">  21</span>     &lt;color <span class="errorspan">name="abc_input_method_navigation_guard">@android:color/black&lt;/color></span>
+<span class="lineno">  22</span> &lt;/resources>
+
+</pre>
+<span class="location"><a href="../../res/values/colors_material.xml">../../res/values/colors_material.xml</a>:22</span>: <span class="message">The resource <code>R.color.background_floating_material_dark</code> appears to be unused</span><br /><pre class="errorlines">
+<span class="lineno">  19</span> &lt;resources>
+<span class="lineno">  20</span>     &lt;color name="background_material_dark">#ff303030&lt;/color>
+<span class="lineno">  21</span>     &lt;color name="background_material_light">#ffeeeeee&lt;/color>
+<span class="lineno">  22</span>     &lt;color <span class="errorspan">name="background_floating_material_dark">#ff424242&lt;/color></span>
+<span class="lineno">  23</span>     &lt;color name="background_floating_material_light">#ffeeeeee&lt;/color>
+<span class="lineno">  24</span> 
+</pre>
+<span class="location"><a href="../../res/values/colors_material.xml">../../res/values/colors_material.xml</a>:23</span>: <span class="message">The resource <code>R.color.background_floating_material_light</code> appears to be unused</span><br /><pre class="errorlines">
+<span class="lineno">  20</span>     &lt;color name="background_material_dark">#ff303030&lt;/color>
+<span class="lineno">  21</span>     &lt;color name="background_material_light">#ffeeeeee&lt;/color>
+<span class="lineno">  22</span>     &lt;color name="background_floating_material_dark">#ff424242&lt;/color>
+<span class="lineno">  23</span>     &lt;color <span class="errorspan">name="background_floating_material_light">#ffeeeeee&lt;/color></span>
+<span class="lineno">  24</span> 
+<span class="lineno">  25</span>     &lt;color name="primary_material_dark">#ff212121&lt;/color>
+</pre>
+<span class="location"><a href="../../res/values/colors_material.xml">../../res/values/colors_material.xml</a>:48</span>: <span class="message">The resource <code>R.color.bright_foreground_inverse_material_dark</code> appears to be unused</span><br /><pre class="errorlines">
+<span class="lineno">  45</span>     &lt;color name="bright_foreground_disabled_material_dark">#80ffffff&lt;/color>
+<span class="lineno">  46</span>     &lt;!-- Black 50% -->
+<span class="lineno">  47</span>     &lt;color name="bright_foreground_disabled_material_light">#80000000&lt;/color>
+<span class="lineno">  48</span>     &lt;color <span class="errorspan">name="bright_foreground_inverse_material_dark">@color/bright_foreground_material_light&lt;/color></span>
+<span class="lineno">  49</span>     &lt;color name="bright_foreground_inverse_material_light">@color/bright_foreground_material_dark&lt;/color>
+<span class="lineno">  50</span> 
+</pre>
+<span class="location"><a href="../../res/values/colors_material.xml">../../res/values/colors_material.xml</a>:49</span>: <span class="message">The resource <code>R.color.bright_foreground_inverse_material_light</code> appears to be unused</span><br /><pre class="errorlines">
+<span class="lineno">  46</span>     &lt;!-- Black 50% -->
+<span class="lineno">  47</span>     &lt;color name="bright_foreground_disabled_material_light">#80000000&lt;/color>
+<span class="lineno">  48</span>     &lt;color name="bright_foreground_inverse_material_dark">@color/bright_foreground_material_light&lt;/color>
+<span class="lineno">  49</span>     &lt;color <span class="errorspan">name="bright_foreground_inverse_material_light">@color/bright_foreground_material_dark&lt;/color></span>
+<span class="lineno">  50</span> 
+<span class="lineno">  51</span>     &lt;color name="dim_foreground_material_dark">#ffbebebe&lt;/color>
+</pre>
+<span class="location"><a href="../../res/values/colors_material.xml">../../res/values/colors_material.xml</a>:51</span>: <span class="message">The resource <code>R.color.dim_foreground_material_dark</code> appears to be unused</span><br /><pre class="errorlines">
+<span class="lineno">  48</span>     &lt;color name="bright_foreground_inverse_material_dark">@color/bright_foreground_material_light&lt;/color>
+<span class="lineno">  49</span>     &lt;color name="bright_foreground_inverse_material_light">@color/bright_foreground_material_dark&lt;/color>
+<span class="lineno">  50</span> 
+<span class="lineno">  51</span>     &lt;color <span class="errorspan">name="dim_foreground_material_dark">#ffbebebe&lt;/color></span>
+<span class="lineno">  52</span>     &lt;color name="dim_foreground_material_light">#ff323232&lt;/color>
+<span class="lineno">  53</span>     &lt;color name="dim_foreground_disabled_material_dark">#80bebebe&lt;/color>
+</pre>
+<span class="location"><a href="../../res/values/colors_material.xml">../../res/values/colors_material.xml</a>:52</span>: <span class="message">The resource <code>R.color.dim_foreground_material_light</code> appears to be unused</span><br /><pre class="errorlines">
+<span class="lineno">  49</span>     &lt;color name="bright_foreground_inverse_material_light">@color/bright_foreground_material_dark&lt;/color>
+<span class="lineno">  50</span> 
+<span class="lineno">  51</span>     &lt;color name="dim_foreground_material_dark">#ffbebebe&lt;/color>
+<span class="lineno">  52</span>     &lt;color <span class="errorspan">name="dim_foreground_material_light">#ff323232&lt;/color></span>
+<span class="lineno">  53</span>     &lt;color name="dim_foreground_disabled_material_dark">#80bebebe&lt;/color>
+<span class="lineno">  54</span>     &lt;color name="dim_foreground_disabled_material_light">#80323232&lt;/color>
+</pre>
+<span class="location"><a href="../../res/values/colors_material.xml">../../res/values/colors_material.xml</a>:53</span>: <span class="message">The resource <code>R.color.dim_foreground_disabled_material_dark</code> appears to be unused</span><br /><pre class="errorlines">
+<span class="lineno">  50</span> 
+<span class="lineno">  51</span>     &lt;color name="dim_foreground_material_dark">#ffbebebe&lt;/color>
+<span class="lineno">  52</span>     &lt;color name="dim_foreground_material_light">#ff323232&lt;/color>
+<span class="lineno">  53</span>     &lt;color <span class="errorspan">name="dim_foreground_disabled_material_dark">#80bebebe&lt;/color></span>
+<span class="lineno">  54</span>     &lt;color name="dim_foreground_disabled_material_light">#80323232&lt;/color>
+<span class="lineno">  55</span> 
+</pre>
+<span class="location"><a href="../../res/values/colors_material.xml">../../res/values/colors_material.xml</a>:54</span>: <span class="message">The resource <code>R.color.dim_foreground_disabled_material_light</code> appears to be unused</span><br /><pre class="errorlines">
+<span class="lineno">  51</span>     &lt;color name="dim_foreground_material_dark">#ffbebebe&lt;/color>
+<span class="lineno">  52</span>     &lt;color name="dim_foreground_material_light">#ff323232&lt;/color>
+<span class="lineno">  53</span>     &lt;color name="dim_foreground_disabled_material_dark">#80bebebe&lt;/color>
+<span class="lineno">  54</span>     &lt;color <span class="errorspan">name="dim_foreground_disabled_material_light">#80323232&lt;/color></span>
+<span class="lineno">  55</span> 
+<span class="lineno">  56</span>     &lt;color name="hint_foreground_material_dark">@color/bright_foreground_disabled_material_dark&lt;/color>
+</pre>
+<span class="location"><a href="../../res/values/colors_material.xml">../../res/values/colors_material.xml</a>:76</span>: <span class="message">The resource <code>R.dimen.disabled_alpha_material_light</code> appears to be unused</span><br /><pre class="errorlines">
+<span class="lineno">  73</span>     &lt;color name="primary_text_default_material_dark">#ffffffff&lt;/color>
+<span class="lineno">  74</span>     &lt;color name="secondary_text_default_material_dark">#b3ffffff&lt;/color>
+<span class="lineno">  75</span> 
+<span class="lineno">  76</span>     &lt;item <span class="errorspan">name="disabled_alpha_material_light" format="float" type="dimen">0.26&lt;/item></span>
+<span class="lineno">  77</span>     &lt;item name="disabled_alpha_material_dark" format="float" type="dimen">0.30&lt;/item>
+<span class="lineno">  78</span> 
+</pre>
+<span class="location"><a href="../../res/values/colors_material.xml">../../res/values/colors_material.xml</a>:77</span>: <span class="message">The resource <code>R.dimen.disabled_alpha_material_dark</code> appears to be unused</span><br /><pre class="errorlines">
+<span class="lineno">  74</span>     &lt;color name="secondary_text_default_material_dark">#b3ffffff&lt;/color>
+<span class="lineno">  75</span> 
+<span class="lineno">  76</span>     &lt;item name="disabled_alpha_material_light" format="float" type="dimen">0.26&lt;/item>
+<span class="lineno">  77</span>     &lt;item <span class="errorspan">name="disabled_alpha_material_dark" format="float" type="dimen">0.30&lt;/item></span>
+<span class="lineno">  78</span> 
+<span class="lineno">  79</span>     &lt;!-- 26% of default values -->
+</pre>
+<span class="location"><a href="../../res/values/colors_material.xml">../../res/values/colors_material.xml</a>:93</span>: <span class="message">The resource <code>R.color.material_blue_grey_800</code> appears to be unused</span><br /><pre class="errorlines">
+<span class="lineno">  90</span>     &lt;color name="material_deep_teal_200">#ff80cbc4&lt;/color>
+<span class="lineno">  91</span>     &lt;color name="material_deep_teal_500">#ff009688&lt;/color>
+<span class="lineno">  92</span> 
+<span class="lineno">  93</span>     &lt;color <span class="errorspan">name="material_blue_grey_800">#ff37474f&lt;/color></span>
+<span class="lineno">  94</span>     &lt;color name="material_blue_grey_900">#ff263238&lt;/color>
+<span class="lineno">  95</span>     &lt;color name="material_blue_grey_950">#ff21272b&lt;/color>
+</pre>
+<span class="location"><a href="../../res/values/colors_material.xml">../../res/values/colors_material.xml</a>:94</span>: <span class="message">The resource <code>R.color.material_blue_grey_900</code> appears to be unused</span><br /><pre class="errorlines">
+<span class="lineno">  91</span>     &lt;color name="material_deep_teal_500">#ff009688&lt;/color>
+<span class="lineno">  92</span> 
+<span class="lineno">  93</span>     &lt;color name="material_blue_grey_800">#ff37474f&lt;/color>
+<span class="lineno">  94</span>     &lt;color <span class="errorspan">name="material_blue_grey_900">#ff263238&lt;/color></span>
+<span class="lineno">  95</span>     &lt;color name="material_blue_grey_950">#ff21272b&lt;/color>
+<span class="lineno">  96</span> 
+</pre>
+<span class="location"><a href="../../res/values/colors_material.xml">../../res/values/colors_material.xml</a>:95</span>: <span class="message">The resource <code>R.color.material_blue_grey_950</code> appears to be unused</span><br /><pre class="errorlines">
+<span class="lineno">  92</span> 
+<span class="lineno">  93</span>     &lt;color name="material_blue_grey_800">#ff37474f&lt;/color>
+<span class="lineno">  94</span>     &lt;color name="material_blue_grey_900">#ff263238&lt;/color>
+<span class="lineno">  95</span>     &lt;color <span class="errorspan">name="material_blue_grey_950">#ff21272b&lt;/color></span>
+<span class="lineno">  96</span> 
+<span class="lineno">  97</span> &lt;/resources>
+</pre>
+<span class="location"><a href="../../res/values/config.xml">../../res/values/config.xml</a>:23</span>: <span class="message">The resource <code>R.bool.abc_config_allowActionMenuItemTextWithIcon</code> appears to be unused</span><br /><pre class="errorlines">
+<span class="lineno">  20</span>     &lt;!-- Whether action menu items should obey the "withText" showAsAction
+<span class="lineno">  21</span>     flag. This may be set to false for situations where space is
+<span class="lineno">  22</span>     extremely limited. -->
+<span class="lineno">  23</span>     &lt;bool <span class="errorspan">name="abc_config_allowActionMenuItemTextWithIcon">false&lt;/bool></span>
+<span class="lineno">  24</span> 
+<span class="lineno">  25</span>     &lt;!-- The maximum width we would prefer dialogs to be.  0 if there is no
+</pre>
+<ul></ul><button id="Location41DivLink" onclick="reveal('Location41Div');" />+ 3 Additional Locations...</button>
+<div id="Location41Div" style="display: none">
+Additional locations: <ul>
+<li> <span class="location"><a href="../../res/values-land/config.xml">../../res/values-land/config.xml</a>:17</span>
+<li> <span class="location"><a href="../../res/values-large/config.xml">../../res/values-large/config.xml</a>:26</span>
+<li> <span class="location"><a href="../../res/values-w480dp/config.xml">../../res/values-w480dp/config.xml</a>:17</span>
+</ul>
+</div><br/><br/>
+<span class="location"><a href="../../res/values/config.xml">../../res/values/config.xml</a>:28</span>: <span class="message">The resource <code>R.dimen.abc_config_prefDialogWidth</code> appears to be unused</span><br /><pre class="errorlines">
+<span class="lineno">  25</span>     &lt;!-- The maximum width we would prefer dialogs to be.  0 if there is no
+<span class="lineno">  26</span>     maximum (let them grow as large as the screen).  Actual values are
+<span class="lineno">  27</span>     specified for -large and -xlarge configurations. -->
+<span class="lineno">  28</span>     &lt;dimen <span class="errorspan">name="abc_config_prefDialogWidth">320dp&lt;/dimen></span>
+<span class="lineno">  29</span> 
+<span class="lineno">  30</span>     &lt;!-- Whether action menu items should be displayed in ALLCAPS or not.
+</pre>
+<ul></ul><button id="Location42DivLink" onclick="reveal('Location42Div');" />+ 2 Additional Locations...</button>
+<div id="Location42Div" style="display: none">
+Additional locations: <ul>
+<li> <span class="location"><a href="../../res/values-large/config.xml">../../res/values-large/config.xml</a>:29</span>
+<li> <span class="location"><a href="../../res/values-sw600dp/config.xml">../../res/values-sw600dp/config.xml</a>:24</span>
+</ul>
+</div><br/><br/>
+<span class="location"><a href="../../res/values/dimens.xml">../../res/values/dimens.xml</a>:22</span>: <span class="message">The resource <code>R.integer.abc_max_action_buttons</code> appears to be unused</span><br /><pre class="errorlines">
+<span class="lineno">  19</span>     &lt;!-- The maximum number of action buttons that should be permitted within
+<span class="lineno">  20</span>          an action bar/action mode. This will be used to determine how many
+<span class="lineno">  21</span>          showAsAction="ifRoom" items can fit. "always" items can override this. -->
+<span class="lineno">  22</span>     &lt;integer <span class="errorspan">name="abc_max_action_buttons">2&lt;/integer></span>
+<span class="lineno">  23</span> 
+<span class="lineno">  24</span>     &lt;!-- Maximum width for a stacked action bar tab. This prevents
+</pre>
+<ul></ul><button id="Location43DivLink" onclick="reveal('Location43Div');" />+ 6 Additional Locations...</button>
+<div id="Location43Div" style="display: none">
+Additional locations: <ul>
+<li> <span class="location"><a href="../../res/values-large/dimens.xml">../../res/values-large/dimens.xml</a>:23</span>
+<li> <span class="location"><a href="../../res/values-sw600dp/dimens.xml">../../res/values-sw600dp/dimens.xml</a>:22</span>
+<li> <span class="location"><a href="../../res/values-w360dp/dimens.xml">../../res/values-w360dp/dimens.xml</a>:21</span>
+<li> <span class="location"><a href="../../res/values-w500dp/dimens.xml">../../res/values-w500dp/dimens.xml</a>:21</span>
+<li> <span class="location"><a href="../../res/values-w600dp/dimens.xml">../../res/values-w600dp/dimens.xml</a>:21</span>
+<li> <span class="location"><a href="../../res/values-xlarge/dimens.xml">../../res/values-xlarge/dimens.xml</a>:22</span>
+</ul>
+</div><br/><br/>
+<span class="location"><a href="../../res/values/dimens.xml">../../res/values/dimens.xml</a>:27</span>: <span class="message">The resource <code>R.dimen.abc_action_bar_stacked_tab_max_width</code> appears to be unused</span><br /><pre class="errorlines">
+<span class="lineno">  24</span>     &lt;!-- Maximum width for a stacked action bar tab. This prevents
+<span class="lineno">  25</span>          action bar tabs from becoming too wide on a wide screen when only
+<span class="lineno">  26</span>          a few are present. -->
+<span class="lineno">  27</span>     &lt;dimen <span class="errorspan">name="abc_action_bar_stacked_tab_max_width">180dp&lt;/dimen></span>
+<span class="lineno">  28</span> 
+<span class="lineno">  29</span>     &lt;!-- Maximum height for a stacked tab bar as part of an action bar -->
+</pre>
+<span class="location"><a href="../../res/values/dimens.xml">../../res/values/dimens.xml</a>:30</span>: <span class="message">The resource <code>R.dimen.abc_action_bar_stacked_max_height</code> appears to be unused</span><br /><pre class="errorlines">
+<span class="lineno">  27</span>     &lt;dimen name="abc_action_bar_stacked_tab_max_width">180dp&lt;/dimen>
+<span class="lineno">  28</span> 
+<span class="lineno">  29</span>     &lt;!-- Maximum height for a stacked tab bar as part of an action bar -->
+<span class="lineno">  30</span>     &lt;dimen <span class="errorspan">name="abc_action_bar_stacked_max_height">48dp&lt;/dimen></span>
+<span class="lineno">  31</span>     &lt;!-- Size of the indeterminate Progress Bar -->
+<span class="lineno">  32</span>     &lt;dimen name="abc_action_bar_progress_bar_size">40dp&lt;/dimen>
+</pre>
+<span class="location"><a href="../../res/values/dimens.xml">../../res/values/dimens.xml</a>:39</span>: <span class="message">The resource <code>R.dimen.abc_search_view_preferred_width</code> appears to be unused</span><br /><pre class="errorlines">
+<span class="lineno">  36</span>     &lt;!-- Minimum width of the search view text entry area. -->
+<span class="lineno">  37</span>     &lt;dimen name="abc_search_view_text_min_width">160dip&lt;/dimen>
+<span class="lineno">  38</span>     &lt;!-- Preferred width of the search view. -->
+<span class="lineno">  39</span>     &lt;dimen <span class="errorspan">name="abc_search_view_preferred_width">320dip&lt;/dimen></span>
+<span class="lineno">  40</span> 
+<span class="lineno">  41</span>     &lt;!-- Text padding for dropdown items -->
+</pre>
+<span class="location"><a href="../../res/values/dimens_material.xml">../../res/values/dimens_material.xml</a>:22</span>: <span class="message">The resource <code>R.dimen.abc_action_bar_default_padding_material</code> appears to be unused</span><br /><pre class="errorlines">
+<span class="lineno">  19</span>     &lt;!-- Default height of an action bar. -->
+<span class="lineno">  20</span>     &lt;dimen name="abc_action_bar_default_height_material">56dp&lt;/dimen>
+<span class="lineno">  21</span>     &lt;!-- Default padding of an action bar. -->
+<span class="lineno">  22</span>     &lt;dimen <span class="errorspan">name="abc_action_bar_default_padding_material">4dp&lt;/dimen></span>
+<span class="lineno">  23</span>     &lt;!-- Vertical padding around action bar icons. -->
+<span class="lineno">  24</span>     &lt;dimen name="abc_action_bar_icon_vertical_padding_material">16dp&lt;/dimen>
+</pre>
+<ul></ul><button id="Location47DivLink" onclick="reveal('Location47Div');" />+ 2 Additional Locations...</button>
+<div id="Location47Div" style="display: none">
+Additional locations: <ul>
+<li> <span class="location"><a href="../../res/values-land/dimens_material.xml">../../res/values-land/dimens_material.xml</a>:21</span>
+<li> <span class="location"><a href="../../res/values-sw600dp/dimens.xml">../../res/values-sw600dp/dimens.xml</a>:31</span>
+</ul>
+</div><br/><br/>
+<span class="location"><a href="../../res/values/dimens_material.xml">../../res/values/dimens_material.xml</a>:24</span>: <span class="message">The resource <code>R.dimen.abc_action_bar_icon_vertical_padding_material</code> appears to be unused</span><br /><pre class="errorlines">
+<span class="lineno">  21</span>     &lt;!-- Default padding of an action bar. -->
+<span class="lineno">  22</span>     &lt;dimen name="abc_action_bar_default_padding_material">4dp&lt;/dimen>
+<span class="lineno">  23</span>     &lt;!-- Vertical padding around action bar icons. -->
+<span class="lineno">  24</span>     &lt;dimen <span class="errorspan">name="abc_action_bar_icon_vertical_padding_material">16dp&lt;/dimen></span>
+<span class="lineno">  25</span>     &lt;!-- Top margin for action bar subtitles -->
+<span class="lineno">  26</span>     &lt;dimen name="abc_action_bar_subtitle_top_margin_material">-3dp&lt;/dimen>
+</pre>
+<span class="location"><a href="../../res/values/dimens_material.xml">../../res/values/dimens_material.xml</a>:28</span>: <span class="message">The resource <code>R.dimen.abc_action_bar_subtitle_bottom_margin_material</code> appears to be unused</span><br /><pre class="errorlines">
+<span class="lineno">  25</span>     &lt;!-- Top margin for action bar subtitles -->
+<span class="lineno">  26</span>     &lt;dimen name="abc_action_bar_subtitle_top_margin_material">-3dp&lt;/dimen>
+<span class="lineno">  27</span>     &lt;!-- Bottom margin for action bar subtitles -->
+<span class="lineno">  28</span>     &lt;dimen <span class="errorspan">name="abc_action_bar_subtitle_bottom_margin_material">5dp&lt;/dimen></span>
+<span class="lineno">  29</span> 
+<span class="lineno">  30</span>     &lt;dimen name="abc_action_button_min_width_overflow_material">36dp&lt;/dimen>
+</pre>
+<span class="location"><a href="../../res/values/strings.xml">../../res/values/strings.xml</a>:21</span>: <span class="message">The resource <code>R.string.abc_action_bar_home_description</code> appears to be unused</span><br /><pre class="errorlines">
+<span class="lineno">  18</span>     &lt;!-- Label for the "Done" button on the far left of action mode toolbars. -->
+<span class="lineno">  19</span>     &lt;string name="abc_action_mode_done">Done&lt;/string>
+<span class="lineno">  20</span>     &lt;!-- Content description for the action bar "home" affordance. [CHAR LIMIT=NONE] -->
+<span class="lineno">  21</span>     &lt;string <span class="errorspan">name="abc_action_bar_home_description">Navigate home&lt;/string></span>
+<span class="lineno">  22</span>     &lt;!-- Content description for the action bar "up" affordance. [CHAR LIMIT=NONE] -->
+<span class="lineno">  23</span>     &lt;string name="abc_action_bar_up_description">Navigate up&lt;/string>
+</pre>
+<ul></ul><button id="Location50DivLink" onclick="reveal('Location50Div');" />+ 72 Additional Locations...</button>
+<div id="Location50Div" style="display: none">
+Additional locations: <ul>
+<li> <span class="location"><a href="../../res/values-af/strings.xml">../../res/values-af/strings.xml</a>:20</span>
+<li> <span class="location"><a href="../../res/values-am/strings.xml">../../res/values-am/strings.xml</a>:20</span>
+<li> <span class="location"><a href="../../res/values-ar/strings.xml">../../res/values-ar/strings.xml</a>:20</span>
+<li> <span class="location"><a href="../../res/values-bg/strings.xml">../../res/values-bg/strings.xml</a>:20</span>
+<li> <span class="location"><a href="../../res/values-bn-rBD/strings.xml">../../res/values-bn-rBD/strings.xml</a>:20</span>
+<li> <span class="location"><a href="../../res/values-ca/strings.xml">../../res/values-ca/strings.xml</a>:20</span>
+<li> <span class="location"><a href="../../res/values-cs/strings.xml">../../res/values-cs/strings.xml</a>:20</span>
+<li> <span class="location"><a href="../../res/values-da/strings.xml">../../res/values-da/strings.xml</a>:20</span>
+<li> <span class="location"><a href="../../res/values-de/strings.xml">../../res/values-de/strings.xml</a>:20</span>
+<li> <span class="location"><a href="../../res/values-el/strings.xml">../../res/values-el/strings.xml</a>:20</span>
+<li> <span class="location"><a href="../../res/values-en-rGB/strings.xml">../../res/values-en-rGB/strings.xml</a>:20</span>
+<li> <span class="location"><a href="../../res/values-en-rIN/strings.xml">../../res/values-en-rIN/strings.xml</a>:20</span>
+<li> <span class="location"><a href="../../res/values-es/strings.xml">../../res/values-es/strings.xml</a>:20</span>
+<li> <span class="location"><a href="../../res/values-es-rUS/strings.xml">../../res/values-es-rUS/strings.xml</a>:20</span>
+<li> <span class="location"><a href="../../res/values-et-rEE/strings.xml">../../res/values-et-rEE/strings.xml</a>:20</span>
+<li> <span class="location"><a href="../../res/values-eu-rES/strings.xml">../../res/values-eu-rES/strings.xml</a>:20</span>
+<li> <span class="location"><a href="../../res/values-fa/strings.xml">../../res/values-fa/strings.xml</a>:20</span>
+<li> <span class="location"><a href="../../res/values-fi/strings.xml">../../res/values-fi/strings.xml</a>:20</span>
+<li> <span class="location"><a href="../../res/values-fr/strings.xml">../../res/values-fr/strings.xml</a>:20</span>
+<li> <span class="location"><a href="../../res/values-fr-rCA/strings.xml">../../res/values-fr-rCA/strings.xml</a>:20</span>
+<li> <span class="location"><a href="../../res/values-gl-rES/strings.xml">../../res/values-gl-rES/strings.xml</a>:20</span>
+<li> <span class="location"><a href="../../res/values-hi/strings.xml">../../res/values-hi/strings.xml</a>:20</span>
+<li> <span class="location"><a href="../../res/values-hr/strings.xml">../../res/values-hr/strings.xml</a>:20</span>
+<li> <span class="location"><a href="../../res/values-hu/strings.xml">../../res/values-hu/strings.xml</a>:20</span>
+<li> <span class="location"><a href="../../res/values-hy-rAM/strings.xml">../../res/values-hy-rAM/strings.xml</a>:20</span>
+<li> <span class="location"><a href="../../res/values-in/strings.xml">../../res/values-in/strings.xml</a>:20</span>
+<li> <span class="location"><a href="../../res/values-is-rIS/strings.xml">../../res/values-is-rIS/strings.xml</a>:20</span>
+<li> <span class="location"><a href="../../res/values-it/strings.xml">../../res/values-it/strings.xml</a>:20</span>
+<li> <span class="location"><a href="../../res/values-iw/strings.xml">../../res/values-iw/strings.xml</a>:20</span>
+<li> <span class="location"><a href="../../res/values-ja/strings.xml">../../res/values-ja/strings.xml</a>:20</span>
+<li> <span class="location"><a href="../../res/values-ka-rGE/strings.xml">../../res/values-ka-rGE/strings.xml</a>:20</span>
+<li> <span class="location"><a href="../../res/values-kk-rKZ/strings.xml">../../res/values-kk-rKZ/strings.xml</a>:20</span>
+<li> <span class="location"><a href="../../res/values-km-rKH/strings.xml">../../res/values-km-rKH/strings.xml</a>:20</span>
+<li> <span class="location"><a href="../../res/values-kn-rIN/strings.xml">../../res/values-kn-rIN/strings.xml</a>:20</span>
+<li> <span class="location"><a href="../../res/values-ko/strings.xml">../../res/values-ko/strings.xml</a>:20</span>
+<li> <span class="location"><a href="../../res/values-ky-rKG/strings.xml">../../res/values-ky-rKG/strings.xml</a>:20</span>
+<li> <span class="location"><a href="../../res/values-lo-rLA/strings.xml">../../res/values-lo-rLA/strings.xml</a>:20</span>
+<li> <span class="location"><a href="../../res/values-lt/strings.xml">../../res/values-lt/strings.xml</a>:20</span>
+<li> <span class="location"><a href="../../res/values-lv/strings.xml">../../res/values-lv/strings.xml</a>:20</span>
+<li> <span class="location"><a href="../../res/values-mk-rMK/strings.xml">../../res/values-mk-rMK/strings.xml</a>:20</span>
+<li> <span class="location"><a href="../../res/values-ml-rIN/strings.xml">../../res/values-ml-rIN/strings.xml</a>:20</span>
+<li> <span class="location"><a href="../../res/values-mn-rMN/strings.xml">../../res/values-mn-rMN/strings.xml</a>:20</span>
+<li> <span class="location"><a href="../../res/values-mr-rIN/strings.xml">../../res/values-mr-rIN/strings.xml</a>:20</span>
+<li> <span class="location"><a href="../../res/values-ms-rMY/strings.xml">../../res/values-ms-rMY/strings.xml</a>:20</span>
+<li> <span class="location"><a href="../../res/values-my-rMM/strings.xml">../../res/values-my-rMM/strings.xml</a>:20</span>
+<li> <span class="location"><a href="../../res/values-nb/strings.xml">../../res/values-nb/strings.xml</a>:20</span>
+<li> <span class="location"><a href="../../res/values-ne-rNP/strings.xml">../../res/values-ne-rNP/strings.xml</a>:20</span>
+<li> <span class="location"><a href="../../res/values-nl/strings.xml">../../res/values-nl/strings.xml</a>:20</span>
+<li> <span class="location"><a href="../../res/values-pl/strings.xml">../../res/values-pl/strings.xml</a>:20</span>
+<li> <span class="location"><a href="../../res/values-pt/strings.xml">../../res/values-pt/strings.xml</a>:20</span>
+<li> <span class="location"><a href="../../res/values-pt-rPT/strings.xml">../../res/values-pt-rPT/strings.xml</a>:20</span>
+<li> <span class="location"><a href="../../res/values-ro/strings.xml">../../res/values-ro/strings.xml</a>:20</span>
+<li> <span class="location"><a href="../../res/values-ru/strings.xml">../../res/values-ru/strings.xml</a>:20</span>
+<li> <span class="location"><a href="../../res/values-si-rLK/strings.xml">../../res/values-si-rLK/strings.xml</a>:20</span>
+<li> <span class="location"><a href="../../res/values-sk/strings.xml">../../res/values-sk/strings.xml</a>:20</span>
+<li> <span class="location"><a href="../../res/values-sl/strings.xml">../../res/values-sl/strings.xml</a>:20</span>
+<li> <span class="location"><a href="../../res/values-sr/strings.xml">../../res/values-sr/strings.xml</a>:20</span>
+<li> <span class="location"><a href="../../res/values-sv/strings.xml">../../res/values-sv/strings.xml</a>:20</span>
+<li> <span class="location"><a href="../../res/values-sw/strings.xml">../../res/values-sw/strings.xml</a>:20</span>
+<li> <span class="location"><a href="../../res/values-ta-rIN/strings.xml">../../res/values-ta-rIN/strings.xml</a>:20</span>
+<li> <span class="location"><a href="../../res/values-te-rIN/strings.xml">../../res/values-te-rIN/strings.xml</a>:20</span>
+<li> <span class="location"><a href="../../res/values-th/strings.xml">../../res/values-th/strings.xml</a>:20</span>
+<li> <span class="location"><a href="../../res/values-tl/strings.xml">../../res/values-tl/strings.xml</a>:20</span>
+<li> <span class="location"><a href="../../res/values-tr/strings.xml">../../res/values-tr/strings.xml</a>:20</span>
+<li> <span class="location"><a href="../../res/values-uk/strings.xml">../../res/values-uk/strings.xml</a>:20</span>
+<li> <span class="location"><a href="../../res/values-ur-rPK/strings.xml">../../res/values-ur-rPK/strings.xml</a>:20</span>
+<li> <span class="location"><a href="../../res/values-uz-rUZ/strings.xml">../../res/values-uz-rUZ/strings.xml</a>:20</span>
+<li> <span class="location"><a href="../../res/values-vi/strings.xml">../../res/values-vi/strings.xml</a>:20</span>
+<li> <span class="location"><a href="../../res/values-zh-rCN/strings.xml">../../res/values-zh-rCN/strings.xml</a>:20</span>
+<li> <span class="location"><a href="../../res/values-zh-rHK/strings.xml">../../res/values-zh-rHK/strings.xml</a>:20</span>
+<li> <span class="location"><a href="../../res/values-zh-rTW/strings.xml">../../res/values-zh-rTW/strings.xml</a>:20</span>
+<li> <span class="location"><a href="../../res/values-zu/strings.xml">../../res/values-zu/strings.xml</a>:20</span>
+</ul>
+</div><br/><br/>
+<span class="location"><a href="../../res/values/strings.xml">../../res/values/strings.xml</a>:35</span>: <span class="message">The resource <code>R.string.abc_action_bar_home_description_format</code> appears to be unused</span><br /><pre class="errorlines">
+<span class="lineno">  32</span>          (usually a "&lt;" chevron) and the window title text.
+<span class="lineno">  33</span>          %1$s is the title. %2$s is the description of what tapping/clicking the whole
+<span class="lineno">  34</span>          thing is going to do. -->
+<span class="lineno">  35</span>     &lt;string <span class="errorspan">name="abc_action_bar_home_description_format">%1$s, %2$s&lt;/string></span>
+<span class="lineno">  36</span>     &lt;!-- Just like action_bar_home_description_format, but this one will be used
+<span class="lineno">  37</span>          if the window is also providing subtitle text.
+</pre>
+<ul></ul><button id="Location51DivLink" onclick="reveal('Location51Div');" />+ 71 Additional Locations...</button>
+<div id="Location51Div" style="display: none">
+Additional locations: <ul>
+<li> <span class="location"><a href="../../res/values-af/strings.xml">../../res/values-af/strings.xml</a>:24</span>
+<li> <span class="location"><a href="../../res/values-am/strings.xml">../../res/values-am/strings.xml</a>:24</span>
+<li> <span class="location"><a href="../../res/values-ar/strings.xml">../../res/values-ar/strings.xml</a>:24</span>
+<li> <span class="location"><a href="../../res/values-bg/strings.xml">../../res/values-bg/strings.xml</a>:24</span>
+<li> <span class="location"><a href="../../res/values-bn-rBD/strings.xml">../../res/values-bn-rBD/strings.xml</a>:24</span>
+<li> <span class="location"><a href="../../res/values-ca/strings.xml">../../res/values-ca/strings.xml</a>:24</span>
+<li> <span class="location"><a href="../../res/values-cs/strings.xml">../../res/values-cs/strings.xml</a>:24</span>
+<li> <span class="location"><a href="../../res/values-da/strings.xml">../../res/values-da/strings.xml</a>:24</span>
+<li> <span class="location"><a href="../../res/values-de/strings.xml">../../res/values-de/strings.xml</a>:24</span>
+<li> <span class="location"><a href="../../res/values-el/strings.xml">../../res/values-el/strings.xml</a>:24</span>
+<li> <span class="location"><a href="../../res/values-en-rGB/strings.xml">../../res/values-en-rGB/strings.xml</a>:24</span>
+<li> <span class="location"><a href="../../res/values-en-rIN/strings.xml">../../res/values-en-rIN/strings.xml</a>:24</span>
+<li> <span class="location"><a href="../../res/values-es/strings.xml">../../res/values-es/strings.xml</a>:24</span>
+<li> <span class="location"><a href="../../res/values-es-rUS/strings.xml">../../res/values-es-rUS/strings.xml</a>:24</span>
+<li> <span class="location"><a href="../../res/values-et-rEE/strings.xml">../../res/values-et-rEE/strings.xml</a>:24</span>
+<li> <span class="location"><a href="../../res/values-eu-rES/strings.xml">../../res/values-eu-rES/strings.xml</a>:24</span>
+<li> <span class="location"><a href="../../res/values-fa/strings.xml">../../res/values-fa/strings.xml</a>:24</span>
+<li> <span class="location"><a href="../../res/values-fi/strings.xml">../../res/values-fi/strings.xml</a>:24</span>
+<li> <span class="location"><a href="../../res/values-fr/strings.xml">../../res/values-fr/strings.xml</a>:24</span>
+<li> <span class="location"><a href="../../res/values-fr-rCA/strings.xml">../../res/values-fr-rCA/strings.xml</a>:24</span>
+<li> <span class="location"><a href="../../res/values-gl-rES/strings.xml">../../res/values-gl-rES/strings.xml</a>:24</span>
+<li> <span class="location"><a href="../../res/values-hi/strings.xml">../../res/values-hi/strings.xml</a>:24</span>
+<li> <span class="location"><a href="../../res/values-hr/strings.xml">../../res/values-hr/strings.xml</a>:24</span>
+<li> <span class="location"><a href="../../res/values-hu/strings.xml">../../res/values-hu/strings.xml</a>:24</span>
+<li> <span class="location"><a href="../../res/values-hy-rAM/strings.xml">../../res/values-hy-rAM/strings.xml</a>:24</span>
+<li> <span class="location"><a href="../../res/values-in/strings.xml">../../res/values-in/strings.xml</a>:24</span>
+<li> <span class="location"><a href="../../res/values-is-rIS/strings.xml">../../res/values-is-rIS/strings.xml</a>:24</span>
+<li> <span class="location"><a href="../../res/values-it/strings.xml">../../res/values-it/strings.xml</a>:24</span>
+<li> <span class="location"><a href="../../res/values-iw/strings.xml">../../res/values-iw/strings.xml</a>:24</span>
+<li> <span class="location"><a href="../../res/values-ja/strings.xml">../../res/values-ja/strings.xml</a>:24</span>
+<li> <span class="location"><a href="../../res/values-ka-rGE/strings.xml">../../res/values-ka-rGE/strings.xml</a>:24</span>
+<li> <span class="location"><a href="../../res/values-kk-rKZ/strings.xml">../../res/values-kk-rKZ/strings.xml</a>:24</span>
+<li> <span class="location"><a href="../../res/values-km-rKH/strings.xml">../../res/values-km-rKH/strings.xml</a>:24</span>
+<li> <span class="location"><a href="../../res/values-kn-rIN/strings.xml">../../res/values-kn-rIN/strings.xml</a>:24</span>
+<li> <span class="location"><a href="../../res/values-ko/strings.xml">../../res/values-ko/strings.xml</a>:24</span>
+<li> <span class="location"><a href="../../res/values-ky-rKG/strings.xml">../../res/values-ky-rKG/strings.xml</a>:24</span>
+<li> <span class="location"><a href="../../res/values-lo-rLA/strings.xml">../../res/values-lo-rLA/strings.xml</a>:24</span>
+<li> <span class="location"><a href="../../res/values-lt/strings.xml">../../res/values-lt/strings.xml</a>:24</span>
+<li> <span class="location"><a href="../../res/values-lv/strings.xml">../../res/values-lv/strings.xml</a>:24</span>
+<li> <span class="location"><a href="../../res/values-ml-rIN/strings.xml">../../res/values-ml-rIN/strings.xml</a>:24</span>
+<li> <span class="location"><a href="../../res/values-mn-rMN/strings.xml">../../res/values-mn-rMN/strings.xml</a>:24</span>
+<li> <span class="location"><a href="../../res/values-mr-rIN/strings.xml">../../res/values-mr-rIN/strings.xml</a>:24</span>
+<li> <span class="location"><a href="../../res/values-ms-rMY/strings.xml">../../res/values-ms-rMY/strings.xml</a>:24</span>
+<li> <span class="location"><a href="../../res/values-my-rMM/strings.xml">../../res/values-my-rMM/strings.xml</a>:24</span>
+<li> <span class="location"><a href="../../res/values-nb/strings.xml">../../res/values-nb/strings.xml</a>:24</span>
+<li> <span class="location"><a href="../../res/values-ne-rNP/strings.xml">../../res/values-ne-rNP/strings.xml</a>:24</span>
+<li> <span class="location"><a href="../../res/values-nl/strings.xml">../../res/values-nl/strings.xml</a>:24</span>
+<li> <span class="location"><a href="../../res/values-pl/strings.xml">../../res/values-pl/strings.xml</a>:24</span>
+<li> <span class="location"><a href="../../res/values-pt/strings.xml">../../res/values-pt/strings.xml</a>:24</span>
+<li> <span class="location"><a href="../../res/values-pt-rPT/strings.xml">../../res/values-pt-rPT/strings.xml</a>:24</span>
+<li> <span class="location"><a href="../../res/values-ro/strings.xml">../../res/values-ro/strings.xml</a>:24</span>
+<li> <span class="location"><a href="../../res/values-ru/strings.xml">../../res/values-ru/strings.xml</a>:24</span>
+<li> <span class="location"><a href="../../res/values-si-rLK/strings.xml">../../res/values-si-rLK/strings.xml</a>:24</span>
+<li> <span class="location"><a href="../../res/values-sk/strings.xml">../../res/values-sk/strings.xml</a>:24</span>
+<li> <span class="location"><a href="../../res/values-sl/strings.xml">../../res/values-sl/strings.xml</a>:24</span>
+<li> <span class="location"><a href="../../res/values-sr/strings.xml">../../res/values-sr/strings.xml</a>:24</span>
+<li> <span class="location"><a href="../../res/values-sv/strings.xml">../../res/values-sv/strings.xml</a>:24</span>
+<li> <span class="location"><a href="../../res/values-sw/strings.xml">../../res/values-sw/strings.xml</a>:24</span>
+<li> <span class="location"><a href="../../res/values-ta-rIN/strings.xml">../../res/values-ta-rIN/strings.xml</a>:24</span>
+<li> <span class="location"><a href="../../res/values-te-rIN/strings.xml">../../res/values-te-rIN/strings.xml</a>:24</span>
+<li> <span class="location"><a href="../../res/values-th/strings.xml">../../res/values-th/strings.xml</a>:24</span>
+<li> <span class="location"><a href="../../res/values-tl/strings.xml">../../res/values-tl/strings.xml</a>:24</span>
+<li> <span class="location"><a href="../../res/values-tr/strings.xml">../../res/values-tr/strings.xml</a>:24</span>
+<li> <span class="location"><a href="../../res/values-uk/strings.xml">../../res/values-uk/strings.xml</a>:24</span>
+<li> <span class="location"><a href="../../res/values-ur-rPK/strings.xml">../../res/values-ur-rPK/strings.xml</a>:24</span>
+<li> <span class="location"><a href="../../res/values-uz-rUZ/strings.xml">../../res/values-uz-rUZ/strings.xml</a>:24</span>
+<li> <span class="location"><a href="../../res/values-vi/strings.xml">../../res/values-vi/strings.xml</a>:24</span>
+<li> <span class="location"><a href="../../res/values-zh-rCN/strings.xml">../../res/values-zh-rCN/strings.xml</a>:24</span>
+<li> <span class="location"><a href="../../res/values-zh-rHK/strings.xml">../../res/values-zh-rHK/strings.xml</a>:24</span>
+<li> <span class="location"><a href="../../res/values-zh-rTW/strings.xml">../../res/values-zh-rTW/strings.xml</a>:24</span>
+<li> <span class="location"><a href="../../res/values-zu/strings.xml">../../res/values-zu/strings.xml</a>:24</span>
+</ul>
+</div><br/><br/>
+<span class="location"><a href="../../res/values/strings.xml">../../res/values/strings.xml</a>:40</span>: <span class="message">The resource <code>R.string.abc_action_bar_home_subtitle_description_format</code> appears to be unused</span><br /><pre class="errorlines">
+<span class="lineno">  37</span>          if the window is also providing subtitle text.
+<span class="lineno">  38</span>          %1$s is the title. %2$s is the subtitle. %3$s is the description of what
+<span class="lineno">  39</span>          tapping/clicking the whole thing is going to do. -->
+<span class="lineno">  40</span>     &lt;string <span class="errorspan">name="abc_action_bar_home_subtitle_description_format">%1$s, %2$s, %3$s&lt;/string></span>
+<span class="lineno">  41</span> 
+<span class="lineno">  42</span>     &lt;!-- SearchView accessibility description for search button [CHAR LIMIT=NONE] -->
+</pre>
+<ul></ul><button id="Location52DivLink" onclick="reveal('Location52Div');" />+ 72 Additional Locations...</button>
+<div id="Location52Div" style="display: none">
+Additional locations: <ul>
+<li> <span class="location"><a href="../../res/values-af/strings.xml">../../res/values-af/strings.xml</a>:25</span>
+<li> <span class="location"><a href="../../res/values-am/strings.xml">../../res/values-am/strings.xml</a>:25</span>
+<li> <span class="location"><a href="../../res/values-ar/strings.xml">../../res/values-ar/strings.xml</a>:25</span>
+<li> <span class="location"><a href="../../res/values-bg/strings.xml">../../res/values-bg/strings.xml</a>:25</span>
+<li> <span class="location"><a href="../../res/values-bn-rBD/strings.xml">../../res/values-bn-rBD/strings.xml</a>:25</span>
+<li> <span class="location"><a href="../../res/values-ca/strings.xml">../../res/values-ca/strings.xml</a>:25</span>
+<li> <span class="location"><a href="../../res/values-cs/strings.xml">../../res/values-cs/strings.xml</a>:25</span>
+<li> <span class="location"><a href="../../res/values-da/strings.xml">../../res/values-da/strings.xml</a>:25</span>
+<li> <span class="location"><a href="../../res/values-de/strings.xml">../../res/values-de/strings.xml</a>:25</span>
+<li> <span class="location"><a href="../../res/values-el/strings.xml">../../res/values-el/strings.xml</a>:25</span>
+<li> <span class="location"><a href="../../res/values-en-rGB/strings.xml">../../res/values-en-rGB/strings.xml</a>:25</span>
+<li> <span class="location"><a href="../../res/values-en-rIN/strings.xml">../../res/values-en-rIN/strings.xml</a>:25</span>
+<li> <span class="location"><a href="../../res/values-es/strings.xml">../../res/values-es/strings.xml</a>:25</span>
+<li> <span class="location"><a href="../../res/values-es-rUS/strings.xml">../../res/values-es-rUS/strings.xml</a>:25</span>
+<li> <span class="location"><a href="../../res/values-et-rEE/strings.xml">../../res/values-et-rEE/strings.xml</a>:25</span>
+<li> <span class="location"><a href="../../res/values-eu-rES/strings.xml">../../res/values-eu-rES/strings.xml</a>:25</span>
+<li> <span class="location"><a href="../../res/values-fa/strings.xml">../../res/values-fa/strings.xml</a>:25</span>
+<li> <span class="location"><a href="../../res/values-fi/strings.xml">../../res/values-fi/strings.xml</a>:25</span>
+<li> <span class="location"><a href="../../res/values-fr/strings.xml">../../res/values-fr/strings.xml</a>:25</span>
+<li> <span class="location"><a href="../../res/values-fr-rCA/strings.xml">../../res/values-fr-rCA/strings.xml</a>:25</span>
+<li> <span class="location"><a href="../../res/values-gl-rES/strings.xml">../../res/values-gl-rES/strings.xml</a>:25</span>
+<li> <span class="location"><a href="../../res/values-hi/strings.xml">../../res/values-hi/strings.xml</a>:25</span>
+<li> <span class="location"><a href="../../res/values-hr/strings.xml">../../res/values-hr/strings.xml</a>:25</span>
+<li> <span class="location"><a href="../../res/values-hu/strings.xml">../../res/values-hu/strings.xml</a>:25</span>
+<li> <span class="location"><a href="../../res/values-hy-rAM/strings.xml">../../res/values-hy-rAM/strings.xml</a>:25</span>
+<li> <span class="location"><a href="../../res/values-in/strings.xml">../../res/values-in/strings.xml</a>:25</span>
+<li> <span class="location"><a href="../../res/values-is-rIS/strings.xml">../../res/values-is-rIS/strings.xml</a>:25</span>
+<li> <span class="location"><a href="../../res/values-it/strings.xml">../../res/values-it/strings.xml</a>:25</span>
+<li> <span class="location"><a href="../../res/values-iw/strings.xml">../../res/values-iw/strings.xml</a>:25</span>
+<li> <span class="location"><a href="../../res/values-ja/strings.xml">../../res/values-ja/strings.xml</a>:25</span>
+<li> <span class="location"><a href="../../res/values-ka-rGE/strings.xml">../../res/values-ka-rGE/strings.xml</a>:25</span>
+<li> <span class="location"><a href="../../res/values-kk-rKZ/strings.xml">../../res/values-kk-rKZ/strings.xml</a>:25</span>
+<li> <span class="location"><a href="../../res/values-km-rKH/strings.xml">../../res/values-km-rKH/strings.xml</a>:25</span>
+<li> <span class="location"><a href="../../res/values-kn-rIN/strings.xml">../../res/values-kn-rIN/strings.xml</a>:25</span>
+<li> <span class="location"><a href="../../res/values-ko/strings.xml">../../res/values-ko/strings.xml</a>:25</span>
+<li> <span class="location"><a href="../../res/values-ky-rKG/strings.xml">../../res/values-ky-rKG/strings.xml</a>:25</span>
+<li> <span class="location"><a href="../../res/values-lo-rLA/strings.xml">../../res/values-lo-rLA/strings.xml</a>:25</span>
+<li> <span class="location"><a href="../../res/values-lt/strings.xml">../../res/values-lt/strings.xml</a>:25</span>
+<li> <span class="location"><a href="../../res/values-lv/strings.xml">../../res/values-lv/strings.xml</a>:25</span>
+<li> <span class="location"><a href="../../res/values-mk-rMK/strings.xml">../../res/values-mk-rMK/strings.xml</a>:27</span>
+<li> <span class="location"><a href="../../res/values-ml-rIN/strings.xml">../../res/values-ml-rIN/strings.xml</a>:25</span>
+<li> <span class="location"><a href="../../res/values-mn-rMN/strings.xml">../../res/values-mn-rMN/strings.xml</a>:25</span>
+<li> <span class="location"><a href="../../res/values-mr-rIN/strings.xml">../../res/values-mr-rIN/strings.xml</a>:25</span>
+<li> <span class="location"><a href="../../res/values-ms-rMY/strings.xml">../../res/values-ms-rMY/strings.xml</a>:25</span>
+<li> <span class="location"><a href="../../res/values-my-rMM/strings.xml">../../res/values-my-rMM/strings.xml</a>:25</span>
+<li> <span class="location"><a href="../../res/values-nb/strings.xml">../../res/values-nb/strings.xml</a>:25</span>
+<li> <span class="location"><a href="../../res/values-ne-rNP/strings.xml">../../res/values-ne-rNP/strings.xml</a>:25</span>
+<li> <span class="location"><a href="../../res/values-nl/strings.xml">../../res/values-nl/strings.xml</a>:25</span>
+<li> <span class="location"><a href="../../res/values-pl/strings.xml">../../res/values-pl/strings.xml</a>:25</span>
+<li> <span class="location"><a href="../../res/values-pt/strings.xml">../../res/values-pt/strings.xml</a>:25</span>
+<li> <span class="location"><a href="../../res/values-pt-rPT/strings.xml">../../res/values-pt-rPT/strings.xml</a>:25</span>
+<li> <span class="location"><a href="../../res/values-ro/strings.xml">../../res/values-ro/strings.xml</a>:25</span>
+<li> <span class="location"><a href="../../res/values-ru/strings.xml">../../res/values-ru/strings.xml</a>:25</span>
+<li> <span class="location"><a href="../../res/values-si-rLK/strings.xml">../../res/values-si-rLK/strings.xml</a>:25</span>
+<li> <span class="location"><a href="../../res/values-sk/strings.xml">../../res/values-sk/strings.xml</a>:25</span>
+<li> <span class="location"><a href="../../res/values-sl/strings.xml">../../res/values-sl/strings.xml</a>:25</span>
+<li> <span class="location"><a href="../../res/values-sr/strings.xml">../../res/values-sr/strings.xml</a>:25</span>
+<li> <span class="location"><a href="../../res/values-sv/strings.xml">../../res/values-sv/strings.xml</a>:25</span>
+<li> <span class="location"><a href="../../res/values-sw/strings.xml">../../res/values-sw/strings.xml</a>:25</span>
+<li> <span class="location"><a href="../../res/values-ta-rIN/strings.xml">../../res/values-ta-rIN/strings.xml</a>:25</span>
+<li> <span class="location"><a href="../../res/values-te-rIN/strings.xml">../../res/values-te-rIN/strings.xml</a>:25</span>
+<li> <span class="location"><a href="../../res/values-th/strings.xml">../../res/values-th/strings.xml</a>:25</span>
+<li> <span class="location"><a href="../../res/values-tl/strings.xml">../../res/values-tl/strings.xml</a>:25</span>
+<li> <span class="location"><a href="../../res/values-tr/strings.xml">../../res/values-tr/strings.xml</a>:25</span>
+<li> <span class="location"><a href="../../res/values-uk/strings.xml">../../res/values-uk/strings.xml</a>:25</span>
+<li> <span class="location"><a href="../../res/values-ur-rPK/strings.xml">../../res/values-ur-rPK/strings.xml</a>:25</span>
+<li> <span class="location"><a href="../../res/values-uz-rUZ/strings.xml">../../res/values-uz-rUZ/strings.xml</a>:25</span>
+<li> <span class="location"><a href="../../res/values-vi/strings.xml">../../res/values-vi/strings.xml</a>:25</span>
+<li> <span class="location"><a href="../../res/values-zh-rCN/strings.xml">../../res/values-zh-rCN/strings.xml</a>:25</span>
+<li> <span class="location"><a href="../../res/values-zh-rHK/strings.xml">../../res/values-zh-rHK/strings.xml</a>:25</span>
+<li> <span class="location"><a href="../../res/values-zh-rTW/strings.xml">../../res/values-zh-rTW/strings.xml</a>:25</span>
+<li> <span class="location"><a href="../../res/values-zu/strings.xml">../../res/values-zu/strings.xml</a>:25</span>
+</ul>
+</div><br/><br/>
+<span class="location"><a href="../../res/values/strings.xml">../../res/values/strings.xml</a>:45</span>: <span class="message">The resource <code>R.string.abc_searchview_description_query</code> appears to be unused</span><br /><pre class="errorlines">
+<span class="lineno">  42</span>     &lt;!-- SearchView accessibility description for search button [CHAR LIMIT=NONE] -->
+<span class="lineno">  43</span>     &lt;string name="abc_searchview_description_search">Search&lt;/string>
+<span class="lineno">  44</span>     &lt;!-- SearchView accessibility description for search text field [CHAR LIMIT=NONE] -->
+<span class="lineno">  45</span>     &lt;string <span class="errorspan">name="abc_searchview_description_query">Search query&lt;/string></span>
+<span class="lineno">  46</span>     &lt;!-- SearchView accessibility description for clear button [CHAR LIMIT=NONE] -->
+<span class="lineno">  47</span>     &lt;string name="abc_searchview_description_clear">Clear query&lt;/string>
+</pre>
+<ul></ul><button id="Location53DivLink" onclick="reveal('Location53Div');" />+ 72 Additional Locations...</button>
+<div id="Location53Div" style="display: none">
+Additional locations: <ul>
+<li> <span class="location"><a href="../../res/values-af/strings.xml">../../res/values-af/strings.xml</a>:27</span>
+<li> <span class="location"><a href="../../res/values-am/strings.xml">../../res/values-am/strings.xml</a>:27</span>
+<li> <span class="location"><a href="../../res/values-ar/strings.xml">../../res/values-ar/strings.xml</a>:27</span>
+<li> <span class="location"><a href="../../res/values-bg/strings.xml">../../res/values-bg/strings.xml</a>:27</span>
+<li> <span class="location"><a href="../../res/values-bn-rBD/strings.xml">../../res/values-bn-rBD/strings.xml</a>:27</span>
+<li> <span class="location"><a href="../../res/values-ca/strings.xml">../../res/values-ca/strings.xml</a>:27</span>
+<li> <span class="location"><a href="../../res/values-cs/strings.xml">../../res/values-cs/strings.xml</a>:27</span>
+<li> <span class="location"><a href="../../res/values-da/strings.xml">../../res/values-da/strings.xml</a>:27</span>
+<li> <span class="location"><a href="../../res/values-de/strings.xml">../../res/values-de/strings.xml</a>:27</span>
+<li> <span class="location"><a href="../../res/values-el/strings.xml">../../res/values-el/strings.xml</a>:27</span>
+<li> <span class="location"><a href="../../res/values-en-rGB/strings.xml">../../res/values-en-rGB/strings.xml</a>:27</span>
+<li> <span class="location"><a href="../../res/values-en-rIN/strings.xml">../../res/values-en-rIN/strings.xml</a>:27</span>
+<li> <span class="location"><a href="../../res/values-es/strings.xml">../../res/values-es/strings.xml</a>:27</span>
+<li> <span class="location"><a href="../../res/values-es-rUS/strings.xml">../../res/values-es-rUS/strings.xml</a>:27</span>
+<li> <span class="location"><a href="../../res/values-et-rEE/strings.xml">../../res/values-et-rEE/strings.xml</a>:27</span>
+<li> <span class="location"><a href="../../res/values-eu-rES/strings.xml">../../res/values-eu-rES/strings.xml</a>:27</span>
+<li> <span class="location"><a href="../../res/values-fa/strings.xml">../../res/values-fa/strings.xml</a>:27</span>
+<li> <span class="location"><a href="../../res/values-fi/strings.xml">../../res/values-fi/strings.xml</a>:27</span>
+<li> <span class="location"><a href="../../res/values-fr/strings.xml">../../res/values-fr/strings.xml</a>:27</span>
+<li> <span class="location"><a href="../../res/values-fr-rCA/strings.xml">../../res/values-fr-rCA/strings.xml</a>:27</span>
+<li> <span class="location"><a href="../../res/values-gl-rES/strings.xml">../../res/values-gl-rES/strings.xml</a>:27</span>
+<li> <span class="location"><a href="../../res/values-hi/strings.xml">../../res/values-hi/strings.xml</a>:27</span>
+<li> <span class="location"><a href="../../res/values-hr/strings.xml">../../res/values-hr/strings.xml</a>:27</span>
+<li> <span class="location"><a href="../../res/values-hu/strings.xml">../../res/values-hu/strings.xml</a>:27</span>
+<li> <span class="location"><a href="../../res/values-hy-rAM/strings.xml">../../res/values-hy-rAM/strings.xml</a>:27</span>
+<li> <span class="location"><a href="../../res/values-in/strings.xml">../../res/values-in/strings.xml</a>:27</span>
+<li> <span class="location"><a href="../../res/values-is-rIS/strings.xml">../../res/values-is-rIS/strings.xml</a>:27</span>
+<li> <span class="location"><a href="../../res/values-it/strings.xml">../../res/values-it/strings.xml</a>:27</span>
+<li> <span class="location"><a href="../../res/values-iw/strings.xml">../../res/values-iw/strings.xml</a>:27</span>
+<li> <span class="location"><a href="../../res/values-ja/strings.xml">../../res/values-ja/strings.xml</a>:27</span>
+<li> <span class="location"><a href="../../res/values-ka-rGE/strings.xml">../../res/values-ka-rGE/strings.xml</a>:27</span>
+<li> <span class="location"><a href="../../res/values-kk-rKZ/strings.xml">../../res/values-kk-rKZ/strings.xml</a>:27</span>
+<li> <span class="location"><a href="../../res/values-km-rKH/strings.xml">../../res/values-km-rKH/strings.xml</a>:27</span>
+<li> <span class="location"><a href="../../res/values-kn-rIN/strings.xml">../../res/values-kn-rIN/strings.xml</a>:27</span>
+<li> <span class="location"><a href="../../res/values-ko/strings.xml">../../res/values-ko/strings.xml</a>:27</span>
+<li> <span class="location"><a href="../../res/values-ky-rKG/strings.xml">../../res/values-ky-rKG/strings.xml</a>:27</span>
+<li> <span class="location"><a href="../../res/values-lo-rLA/strings.xml">../../res/values-lo-rLA/strings.xml</a>:27</span>
+<li> <span class="location"><a href="../../res/values-lt/strings.xml">../../res/values-lt/strings.xml</a>:27</span>
+<li> <span class="location"><a href="../../res/values-lv/strings.xml">../../res/values-lv/strings.xml</a>:27</span>
+<li> <span class="location"><a href="../../res/values-mk-rMK/strings.xml">../../res/values-mk-rMK/strings.xml</a>:29</span>
+<li> <span class="location"><a href="../../res/values-ml-rIN/strings.xml">../../res/values-ml-rIN/strings.xml</a>:27</span>
+<li> <span class="location"><a href="../../res/values-mn-rMN/strings.xml">../../res/values-mn-rMN/strings.xml</a>:27</span>
+<li> <span class="location"><a href="../../res/values-mr-rIN/strings.xml">../../res/values-mr-rIN/strings.xml</a>:27</span>
+<li> <span class="location"><a href="../../res/values-ms-rMY/strings.xml">../../res/values-ms-rMY/strings.xml</a>:27</span>
+<li> <span class="location"><a href="../../res/values-my-rMM/strings.xml">../../res/values-my-rMM/strings.xml</a>:27</span>
+<li> <span class="location"><a href="../../res/values-nb/strings.xml">../../res/values-nb/strings.xml</a>:27</span>
+<li> <span class="location"><a href="../../res/values-ne-rNP/strings.xml">../../res/values-ne-rNP/strings.xml</a>:27</span>
+<li> <span class="location"><a href="../../res/values-nl/strings.xml">../../res/values-nl/strings.xml</a>:27</span>
+<li> <span class="location"><a href="../../res/values-pl/strings.xml">../../res/values-pl/strings.xml</a>:27</span>
+<li> <span class="location"><a href="../../res/values-pt/strings.xml">../../res/values-pt/strings.xml</a>:27</span>
+<li> <span class="location"><a href="../../res/values-pt-rPT/strings.xml">../../res/values-pt-rPT/strings.xml</a>:27</span>
+<li> <span class="location"><a href="../../res/values-ro/strings.xml">../../res/values-ro/strings.xml</a>:27</span>
+<li> <span class="location"><a href="../../res/values-ru/strings.xml">../../res/values-ru/strings.xml</a>:27</span>
+<li> <span class="location"><a href="../../res/values-si-rLK/strings.xml">../../res/values-si-rLK/strings.xml</a>:27</span>
+<li> <span class="location"><a href="../../res/values-sk/strings.xml">../../res/values-sk/strings.xml</a>:27</span>
+<li> <span class="location"><a href="../../res/values-sl/strings.xml">../../res/values-sl/strings.xml</a>:27</span>
+<li> <span class="location"><a href="../../res/values-sr/strings.xml">../../res/values-sr/strings.xml</a>:27</span>
+<li> <span class="location"><a href="../../res/values-sv/strings.xml">../../res/values-sv/strings.xml</a>:27</span>
+<li> <span class="location"><a href="../../res/values-sw/strings.xml">../../res/values-sw/strings.xml</a>:27</span>
+<li> <span class="location"><a href="../../res/values-ta-rIN/strings.xml">../../res/values-ta-rIN/strings.xml</a>:27</span>
+<li> <span class="location"><a href="../../res/values-te-rIN/strings.xml">../../res/values-te-rIN/strings.xml</a>:27</span>
+<li> <span class="location"><a href="../../res/values-th/strings.xml">../../res/values-th/strings.xml</a>:27</span>
+<li> <span class="location"><a href="../../res/values-tl/strings.xml">../../res/values-tl/strings.xml</a>:27</span>
+<li> <span class="location"><a href="../../res/values-tr/strings.xml">../../res/values-tr/strings.xml</a>:27</span>
+<li> <span class="location"><a href="../../res/values-uk/strings.xml">../../res/values-uk/strings.xml</a>:27</span>
+<li> <span class="location"><a href="../../res/values-ur-rPK/strings.xml">../../res/values-ur-rPK/strings.xml</a>:27</span>
+<li> <span class="location"><a href="../../res/values-uz-rUZ/strings.xml">../../res/values-uz-rUZ/strings.xml</a>:27</span>
+<li> <span class="location"><a href="../../res/values-vi/strings.xml">../../res/values-vi/strings.xml</a>:27</span>
+<li> <span class="location"><a href="../../res/values-zh-rCN/strings.xml">../../res/values-zh-rCN/strings.xml</a>:27</span>
+<li> <span class="location"><a href="../../res/values-zh-rHK/strings.xml">../../res/values-zh-rHK/strings.xml</a>:27</span>
+<li> <span class="location"><a href="../../res/values-zh-rTW/strings.xml">../../res/values-zh-rTW/strings.xml</a>:27</span>
+<li> <span class="location"><a href="../../res/values-zu/strings.xml">../../res/values-zu/strings.xml</a>:27</span>
+</ul>
+</div><br/><br/>
+<span class="location"><a href="../../res/values/strings.xml">../../res/values/strings.xml</a>:55</span>: <span class="message">The resource <code>R.string.abc_activitychooserview_choose_application</code> appears to be unused</span><br /><pre class="errorlines">
+<span class="lineno">  52</span> 
+<span class="lineno">  53</span>     &lt;!-- ActivityChooserView - accessibility support -->
+<span class="lineno">  54</span>     &lt;!-- Description of the shwoing of a popup window with activities to choose from. [CHAR LIMIT=NONE] -->
+<span class="lineno">  55</span>     &lt;string <span class="errorspan">name="abc_activitychooserview_choose_application">Choose an app&lt;/string></span>
+<span class="lineno">  56</span>     &lt;!-- Title for a button to expand the list of activities in ActivityChooserView [CHAR LIMIT=25] -->
+<span class="lineno">  57</span>     &lt;string name="abc_activity_chooser_view_see_all">See all&lt;/string>
+</pre>
+<ul></ul><button id="Location54DivLink" onclick="reveal('Location54Div');" />+ 72 Additional Locations...</button>
+<div id="Location54Div" style="display: none">
+Additional locations: <ul>
+<li> <span class="location"><a href="../../res/values-af/strings.xml">../../res/values-af/strings.xml</a>:31</span>
+<li> <span class="location"><a href="../../res/values-am/strings.xml">../../res/values-am/strings.xml</a>:31</span>
+<li> <span class="location"><a href="../../res/values-ar/strings.xml">../../res/values-ar/strings.xml</a>:31</span>
+<li> <span class="location"><a href="../../res/values-bg/strings.xml">../../res/values-bg/strings.xml</a>:31</span>
+<li> <span class="location"><a href="../../res/values-bn-rBD/strings.xml">../../res/values-bn-rBD/strings.xml</a>:31</span>
+<li> <span class="location"><a href="../../res/values-ca/strings.xml">../../res/values-ca/strings.xml</a>:31</span>
+<li> <span class="location"><a href="../../res/values-cs/strings.xml">../../res/values-cs/strings.xml</a>:31</span>
+<li> <span class="location"><a href="../../res/values-da/strings.xml">../../res/values-da/strings.xml</a>:31</span>
+<li> <span class="location"><a href="../../res/values-de/strings.xml">../../res/values-de/strings.xml</a>:31</span>
+<li> <span class="location"><a href="../../res/values-el/strings.xml">../../res/values-el/strings.xml</a>:31</span>
+<li> <span class="location"><a href="../../res/values-en-rGB/strings.xml">../../res/values-en-rGB/strings.xml</a>:31</span>
+<li> <span class="location"><a href="../../res/values-en-rIN/strings.xml">../../res/values-en-rIN/strings.xml</a>:31</span>
+<li> <span class="location"><a href="../../res/values-es/strings.xml">../../res/values-es/strings.xml</a>:31</span>
+<li> <span class="location"><a href="../../res/values-es-rUS/strings.xml">../../res/values-es-rUS/strings.xml</a>:31</span>
+<li> <span class="location"><a href="../../res/values-et-rEE/strings.xml">../../res/values-et-rEE/strings.xml</a>:31</span>
+<li> <span class="location"><a href="../../res/values-eu-rES/strings.xml">../../res/values-eu-rES/strings.xml</a>:31</span>
+<li> <span class="location"><a href="../../res/values-fa/strings.xml">../../res/values-fa/strings.xml</a>:31</span>
+<li> <span class="location"><a href="../../res/values-fi/strings.xml">../../res/values-fi/strings.xml</a>:31</span>
+<li> <span class="location"><a href="../../res/values-fr/strings.xml">../../res/values-fr/strings.xml</a>:31</span>
+<li> <span class="location"><a href="../../res/values-fr-rCA/strings.xml">../../res/values-fr-rCA/strings.xml</a>:31</span>
+<li> <span class="location"><a href="../../res/values-gl-rES/strings.xml">../../res/values-gl-rES/strings.xml</a>:31</span>
+<li> <span class="location"><a href="../../res/values-hi/strings.xml">../../res/values-hi/strings.xml</a>:31</span>
+<li> <span class="location"><a href="../../res/values-hr/strings.xml">../../res/values-hr/strings.xml</a>:31</span>
+<li> <span class="location"><a href="../../res/values-hu/strings.xml">../../res/values-hu/strings.xml</a>:31</span>
+<li> <span class="location"><a href="../../res/values-hy-rAM/strings.xml">../../res/values-hy-rAM/strings.xml</a>:31</span>
+<li> <span class="location"><a href="../../res/values-in/strings.xml">../../res/values-in/strings.xml</a>:31</span>
+<li> <span class="location"><a href="../../res/values-is-rIS/strings.xml">../../res/values-is-rIS/strings.xml</a>:31</span>
+<li> <span class="location"><a href="../../res/values-it/strings.xml">../../res/values-it/strings.xml</a>:31</span>
+<li> <span class="location"><a href="../../res/values-iw/strings.xml">../../res/values-iw/strings.xml</a>:31</span>
+<li> <span class="location"><a href="../../res/values-ja/strings.xml">../../res/values-ja/strings.xml</a>:31</span>
+<li> <span class="location"><a href="../../res/values-ka-rGE/strings.xml">../../res/values-ka-rGE/strings.xml</a>:31</span>
+<li> <span class="location"><a href="../../res/values-kk-rKZ/strings.xml">../../res/values-kk-rKZ/strings.xml</a>:31</span>
+<li> <span class="location"><a href="../../res/values-km-rKH/strings.xml">../../res/values-km-rKH/strings.xml</a>:31</span>
+<li> <span class="location"><a href="../../res/values-kn-rIN/strings.xml">../../res/values-kn-rIN/strings.xml</a>:31</span>
+<li> <span class="location"><a href="../../res/values-ko/strings.xml">../../res/values-ko/strings.xml</a>:31</span>
+<li> <span class="location"><a href="../../res/values-ky-rKG/strings.xml">../../res/values-ky-rKG/strings.xml</a>:31</span>
+<li> <span class="location"><a href="../../res/values-lo-rLA/strings.xml">../../res/values-lo-rLA/strings.xml</a>:31</span>
+<li> <span class="location"><a href="../../res/values-lt/strings.xml">../../res/values-lt/strings.xml</a>:31</span>
+<li> <span class="location"><a href="../../res/values-lv/strings.xml">../../res/values-lv/strings.xml</a>:31</span>
+<li> <span class="location"><a href="../../res/values-mk-rMK/strings.xml">../../res/values-mk-rMK/strings.xml</a>:33</span>
+<li> <span class="location"><a href="../../res/values-ml-rIN/strings.xml">../../res/values-ml-rIN/strings.xml</a>:31</span>
+<li> <span class="location"><a href="../../res/values-mn-rMN/strings.xml">../../res/values-mn-rMN/strings.xml</a>:31</span>
+<li> <span class="location"><a href="../../res/values-mr-rIN/strings.xml">../../res/values-mr-rIN/strings.xml</a>:31</span>
+<li> <span class="location"><a href="../../res/values-ms-rMY/strings.xml">../../res/values-ms-rMY/strings.xml</a>:31</span>
+<li> <span class="location"><a href="../../res/values-my-rMM/strings.xml">../../res/values-my-rMM/strings.xml</a>:31</span>
+<li> <span class="location"><a href="../../res/values-nb/strings.xml">../../res/values-nb/strings.xml</a>:31</span>
+<li> <span class="location"><a href="../../res/values-ne-rNP/strings.xml">../../res/values-ne-rNP/strings.xml</a>:31</span>
+<li> <span class="location"><a href="../../res/values-nl/strings.xml">../../res/values-nl/strings.xml</a>:31</span>
+<li> <span class="location"><a href="../../res/values-pl/strings.xml">../../res/values-pl/strings.xml</a>:31</span>
+<li> <span class="location"><a href="../../res/values-pt/strings.xml">../../res/values-pt/strings.xml</a>:31</span>
+<li> <span class="location"><a href="../../res/values-pt-rPT/strings.xml">../../res/values-pt-rPT/strings.xml</a>:31</span>
+<li> <span class="location"><a href="../../res/values-ro/strings.xml">../../res/values-ro/strings.xml</a>:31</span>
+<li> <span class="location"><a href="../../res/values-ru/strings.xml">../../res/values-ru/strings.xml</a>:31</span>
+<li> <span class="location"><a href="../../res/values-si-rLK/strings.xml">../../res/values-si-rLK/strings.xml</a>:31</span>
+<li> <span class="location"><a href="../../res/values-sk/strings.xml">../../res/values-sk/strings.xml</a>:31</span>
+<li> <span class="location"><a href="../../res/values-sl/strings.xml">../../res/values-sl/strings.xml</a>:31</span>
+<li> <span class="location"><a href="../../res/values-sr/strings.xml">../../res/values-sr/strings.xml</a>:31</span>
+<li> <span class="location"><a href="../../res/values-sv/strings.xml">../../res/values-sv/strings.xml</a>:31</span>
+<li> <span class="location"><a href="../../res/values-sw/strings.xml">../../res/values-sw/strings.xml</a>:31</span>
+<li> <span class="location"><a href="../../res/values-ta-rIN/strings.xml">../../res/values-ta-rIN/strings.xml</a>:31</span>
+<li> <span class="location"><a href="../../res/values-te-rIN/strings.xml">../../res/values-te-rIN/strings.xml</a>:31</span>
+<li> <span class="location"><a href="../../res/values-th/strings.xml">../../res/values-th/strings.xml</a>:31</span>
+<li> <span class="location"><a href="../../res/values-tl/strings.xml">../../res/values-tl/strings.xml</a>:31</span>
+<li> <span class="location"><a href="../../res/values-tr/strings.xml">../../res/values-tr/strings.xml</a>:31</span>
+<li> <span class="location"><a href="../../res/values-uk/strings.xml">../../res/values-uk/strings.xml</a>:31</span>
+<li> <span class="location"><a href="../../res/values-ur-rPK/strings.xml">../../res/values-ur-rPK/strings.xml</a>:31</span>
+<li> <span class="location"><a href="../../res/values-uz-rUZ/strings.xml">../../res/values-uz-rUZ/strings.xml</a>:31</span>
+<li> <span class="location"><a href="../../res/values-vi/strings.xml">../../res/values-vi/strings.xml</a>:31</span>
+<li> <span class="location"><a href="../../res/values-zh-rCN/strings.xml">../../res/values-zh-rCN/strings.xml</a>:31</span>
+<li> <span class="location"><a href="../../res/values-zh-rHK/strings.xml">../../res/values-zh-rHK/strings.xml</a>:31</span>
+<li> <span class="location"><a href="../../res/values-zh-rTW/strings.xml">../../res/values-zh-rTW/strings.xml</a>:31</span>
+<li> <span class="location"><a href="../../res/values-zu/strings.xml">../../res/values-zu/strings.xml</a>:31</span>
+</ul>
+</div><br/><br/>
+<span class="location"><a href="../../res/values/strings.xml">../../res/values/strings.xml</a>:57</span>: <span class="message">The resource <code>R.string.abc_activity_chooser_view_see_all</code> appears to be unused</span><br /><pre class="errorlines">
+<span class="lineno">  54</span>     &lt;!-- Description of the shwoing of a popup window with activities to choose from. [CHAR LIMIT=NONE] -->
+<span class="lineno">  55</span>     &lt;string name="abc_activitychooserview_choose_application">Choose an app&lt;/string>
+<span class="lineno">  56</span>     &lt;!-- Title for a button to expand the list of activities in ActivityChooserView [CHAR LIMIT=25] -->
+<span class="lineno">  57</span>     &lt;string <span class="errorspan">name="abc_activity_chooser_view_see_all">See all&lt;/string></span>
+<span class="lineno">  58</span>     &lt;!-- Description of a share target (both in the list of such or the default share button) in a ShareActionProvider (share UI). [CHAR LIMIT=NONE] -->
+<span class="lineno">  59</span>     &lt;string name="abc_shareactionprovider_share_with_application">Share with %s&lt;/string>
+</pre>
+<ul></ul><button id="Location55DivLink" onclick="reveal('Location55Div');" />+ 72 Additional Locations...</button>
+<div id="Location55Div" style="display: none">
+Additional locations: <ul>
+<li> <span class="location"><a href="../../res/values-af/strings.xml">../../res/values-af/strings.xml</a>:32</span>
+<li> <span class="location"><a href="../../res/values-am/strings.xml">../../res/values-am/strings.xml</a>:32</span>
+<li> <span class="location"><a href="../../res/values-ar/strings.xml">../../res/values-ar/strings.xml</a>:32</span>
+<li> <span class="location"><a href="../../res/values-bg/strings.xml">../../res/values-bg/strings.xml</a>:32</span>
+<li> <span class="location"><a href="../../res/values-bn-rBD/strings.xml">../../res/values-bn-rBD/strings.xml</a>:32</span>
+<li> <span class="location"><a href="../../res/values-ca/strings.xml">../../res/values-ca/strings.xml</a>:32</span>
+<li> <span class="location"><a href="../../res/values-cs/strings.xml">../../res/values-cs/strings.xml</a>:32</span>
+<li> <span class="location"><a href="../../res/values-da/strings.xml">../../res/values-da/strings.xml</a>:32</span>
+<li> <span class="location"><a href="../../res/values-de/strings.xml">../../res/values-de/strings.xml</a>:32</span>
+<li> <span class="location"><a href="../../res/values-el/strings.xml">../../res/values-el/strings.xml</a>:32</span>
+<li> <span class="location"><a href="../../res/values-en-rGB/strings.xml">../../res/values-en-rGB/strings.xml</a>:32</span>
+<li> <span class="location"><a href="../../res/values-en-rIN/strings.xml">../../res/values-en-rIN/strings.xml</a>:32</span>
+<li> <span class="location"><a href="../../res/values-es/strings.xml">../../res/values-es/strings.xml</a>:32</span>
+<li> <span class="location"><a href="../../res/values-es-rUS/strings.xml">../../res/values-es-rUS/strings.xml</a>:32</span>
+<li> <span class="location"><a href="../../res/values-et-rEE/strings.xml">../../res/values-et-rEE/strings.xml</a>:32</span>
+<li> <span class="location"><a href="../../res/values-eu-rES/strings.xml">../../res/values-eu-rES/strings.xml</a>:32</span>
+<li> <span class="location"><a href="../../res/values-fa/strings.xml">../../res/values-fa/strings.xml</a>:32</span>
+<li> <span class="location"><a href="../../res/values-fi/strings.xml">../../res/values-fi/strings.xml</a>:32</span>
+<li> <span class="location"><a href="../../res/values-fr/strings.xml">../../res/values-fr/strings.xml</a>:32</span>
+<li> <span class="location"><a href="../../res/values-fr-rCA/strings.xml">../../res/values-fr-rCA/strings.xml</a>:32</span>
+<li> <span class="location"><a href="../../res/values-gl-rES/strings.xml">../../res/values-gl-rES/strings.xml</a>:32</span>
+<li> <span class="location"><a href="../../res/values-hi/strings.xml">../../res/values-hi/strings.xml</a>:32</span>
+<li> <span class="location"><a href="../../res/values-hr/strings.xml">../../res/values-hr/strings.xml</a>:32</span>
+<li> <span class="location"><a href="../../res/values-hu/strings.xml">../../res/values-hu/strings.xml</a>:32</span>
+<li> <span class="location"><a href="../../res/values-hy-rAM/strings.xml">../../res/values-hy-rAM/strings.xml</a>:32</span>
+<li> <span class="location"><a href="../../res/values-in/strings.xml">../../res/values-in/strings.xml</a>:32</span>
+<li> <span class="location"><a href="../../res/values-is-rIS/strings.xml">../../res/values-is-rIS/strings.xml</a>:32</span>
+<li> <span class="location"><a href="../../res/values-it/strings.xml">../../res/values-it/strings.xml</a>:32</span>
+<li> <span class="location"><a href="../../res/values-iw/strings.xml">../../res/values-iw/strings.xml</a>:32</span>
+<li> <span class="location"><a href="../../res/values-ja/strings.xml">../../res/values-ja/strings.xml</a>:32</span>
+<li> <span class="location"><a href="../../res/values-ka-rGE/strings.xml">../../res/values-ka-rGE/strings.xml</a>:32</span>
+<li> <span class="location"><a href="../../res/values-kk-rKZ/strings.xml">../../res/values-kk-rKZ/strings.xml</a>:32</span>
+<li> <span class="location"><a href="../../res/values-km-rKH/strings.xml">../../res/values-km-rKH/strings.xml</a>:32</span>
+<li> <span class="location"><a href="../../res/values-kn-rIN/strings.xml">../../res/values-kn-rIN/strings.xml</a>:32</span>
+<li> <span class="location"><a href="../../res/values-ko/strings.xml">../../res/values-ko/strings.xml</a>:32</span>
+<li> <span class="location"><a href="../../res/values-ky-rKG/strings.xml">../../res/values-ky-rKG/strings.xml</a>:32</span>
+<li> <span class="location"><a href="../../res/values-lo-rLA/strings.xml">../../res/values-lo-rLA/strings.xml</a>:32</span>
+<li> <span class="location"><a href="../../res/values-lt/strings.xml">../../res/values-lt/strings.xml</a>:32</span>
+<li> <span class="location"><a href="../../res/values-lv/strings.xml">../../res/values-lv/strings.xml</a>:32</span>
+<li> <span class="location"><a href="../../res/values-mk-rMK/strings.xml">../../res/values-mk-rMK/strings.xml</a>:34</span>
+<li> <span class="location"><a href="../../res/values-ml-rIN/strings.xml">../../res/values-ml-rIN/strings.xml</a>:32</span>
+<li> <span class="location"><a href="../../res/values-mn-rMN/strings.xml">../../res/values-mn-rMN/strings.xml</a>:32</span>
+<li> <span class="location"><a href="../../res/values-mr-rIN/strings.xml">../../res/values-mr-rIN/strings.xml</a>:32</span>
+<li> <span class="location"><a href="../../res/values-ms-rMY/strings.xml">../../res/values-ms-rMY/strings.xml</a>:32</span>
+<li> <span class="location"><a href="../../res/values-my-rMM/strings.xml">../../res/values-my-rMM/strings.xml</a>:32</span>
+<li> <span class="location"><a href="../../res/values-nb/strings.xml">../../res/values-nb/strings.xml</a>:32</span>
+<li> <span class="location"><a href="../../res/values-ne-rNP/strings.xml">../../res/values-ne-rNP/strings.xml</a>:32</span>
+<li> <span class="location"><a href="../../res/values-nl/strings.xml">../../res/values-nl/strings.xml</a>:32</span>
+<li> <span class="location"><a href="../../res/values-pl/strings.xml">../../res/values-pl/strings.xml</a>:32</span>
+<li> <span class="location"><a href="../../res/values-pt/strings.xml">../../res/values-pt/strings.xml</a>:32</span>
+<li> <span class="location"><a href="../../res/values-pt-rPT/strings.xml">../../res/values-pt-rPT/strings.xml</a>:32</span>
+<li> <span class="location"><a href="../../res/values-ro/strings.xml">../../res/values-ro/strings.xml</a>:32</span>
+<li> <span class="location"><a href="../../res/values-ru/strings.xml">../../res/values-ru/strings.xml</a>:32</span>
+<li> <span class="location"><a href="../../res/values-si-rLK/strings.xml">../../res/values-si-rLK/strings.xml</a>:32</span>
+<li> <span class="location"><a href="../../res/values-sk/strings.xml">../../res/values-sk/strings.xml</a>:32</span>
+<li> <span class="location"><a href="../../res/values-sl/strings.xml">../../res/values-sl/strings.xml</a>:32</span>
+<li> <span class="location"><a href="../../res/values-sr/strings.xml">../../res/values-sr/strings.xml</a>:32</span>
+<li> <span class="location"><a href="../../res/values-sv/strings.xml">../../res/values-sv/strings.xml</a>:32</span>
+<li> <span class="location"><a href="../../res/values-sw/strings.xml">../../res/values-sw/strings.xml</a>:32</span>
+<li> <span class="location"><a href="../../res/values-ta-rIN/strings.xml">../../res/values-ta-rIN/strings.xml</a>:32</span>
+<li> <span class="location"><a href="../../res/values-te-rIN/strings.xml">../../res/values-te-rIN/strings.xml</a>:32</span>
+<li> <span class="location"><a href="../../res/values-th/strings.xml">../../res/values-th/strings.xml</a>:32</span>
+<li> <span class="location"><a href="../../res/values-tl/strings.xml">../../res/values-tl/strings.xml</a>:32</span>
+<li> <span class="location"><a href="../../res/values-tr/strings.xml">../../res/values-tr/strings.xml</a>:32</span>
+<li> <span class="location"><a href="../../res/values-uk/strings.xml">../../res/values-uk/strings.xml</a>:32</span>
+<li> <span class="location"><a href="../../res/values-ur-rPK/strings.xml">../../res/values-ur-rPK/strings.xml</a>:32</span>
+<li> <span class="location"><a href="../../res/values-uz-rUZ/strings.xml">../../res/values-uz-rUZ/strings.xml</a>:32</span>
+<li> <span class="location"><a href="../../res/values-vi/strings.xml">../../res/values-vi/strings.xml</a>:32</span>
+<li> <span class="location"><a href="../../res/values-zh-rCN/strings.xml">../../res/values-zh-rCN/strings.xml</a>:32</span>
+<li> <span class="location"><a href="../../res/values-zh-rHK/strings.xml">../../res/values-zh-rHK/strings.xml</a>:32</span>
+<li> <span class="location"><a href="../../res/values-zh-rTW/strings.xml">../../res/values-zh-rTW/strings.xml</a>:32</span>
+<li> <span class="location"><a href="../../res/values-zu/strings.xml">../../res/values-zu/strings.xml</a>:32</span>
+</ul>
+</div><br/><br/>
+<span class="location"><a href="../../res/values/strings.xml">../../res/values/strings.xml</a>:59</span>: <span class="message">The resource <code>R.string.abc_shareactionprovider_share_with_application</code> appears to be unused</span><br /><pre class="errorlines">
+<span class="lineno">  56</span>     &lt;!-- Title for a button to expand the list of activities in ActivityChooserView [CHAR LIMIT=25] -->
+<span class="lineno">  57</span>     &lt;string name="abc_activity_chooser_view_see_all">See all&lt;/string>
+<span class="lineno">  58</span>     &lt;!-- Description of a share target (both in the list of such or the default share button) in a ShareActionProvider (share UI). [CHAR LIMIT=NONE] -->
+<span class="lineno">  59</span>     &lt;string <span class="errorspan">name="abc_shareactionprovider_share_with_application">Share with %s&lt;/string></span>
+<span class="lineno">  60</span>     &lt;!-- Description of the choose target button in a ShareActionProvider (share UI). [CHAR LIMIT=NONE] -->
+<span class="lineno">  61</span>     &lt;string name="abc_shareactionprovider_share_with">Share with&lt;/string>
+</pre>
+<ul></ul><button id="Location56DivLink" onclick="reveal('Location56Div');" />+ 70 Additional Locations...</button>
+<div id="Location56Div" style="display: none">
+Additional locations: <ul>
+<li> <span class="location"><a href="../../res/values-af/strings.xml">../../res/values-af/strings.xml</a>:33</span>
+<li> <span class="location"><a href="../../res/values-am/strings.xml">../../res/values-am/strings.xml</a>:33</span>
+<li> <span class="location"><a href="../../res/values-ar/strings.xml">../../res/values-ar/strings.xml</a>:33</span>
+<li> <span class="location"><a href="../../res/values-bg/strings.xml">../../res/values-bg/strings.xml</a>:33</span>
+<li> <span class="location"><a href="../../res/values-bn-rBD/strings.xml">../../res/values-bn-rBD/strings.xml</a>:33</span>
+<li> <span class="location"><a href="../../res/values-ca/strings.xml">../../res/values-ca/strings.xml</a>:33</span>
+<li> <span class="location"><a href="../../res/values-cs/strings.xml">../../res/values-cs/strings.xml</a>:33</span>
+<li> <span class="location"><a href="../../res/values-da/strings.xml">../../res/values-da/strings.xml</a>:33</span>
+<li> <span class="location"><a href="../../res/values-de/strings.xml">../../res/values-de/strings.xml</a>:33</span>
+<li> <span class="location"><a href="../../res/values-el/strings.xml">../../res/values-el/strings.xml</a>:33</span>
+<li> <span class="location"><a href="../../res/values-en-rGB/strings.xml">../../res/values-en-rGB/strings.xml</a>:33</span>
+<li> <span class="location"><a href="../../res/values-en-rIN/strings.xml">../../res/values-en-rIN/strings.xml</a>:33</span>
+<li> <span class="location"><a href="../../res/values-es/strings.xml">../../res/values-es/strings.xml</a>:33</span>
+<li> <span class="location"><a href="../../res/values-es-rUS/strings.xml">../../res/values-es-rUS/strings.xml</a>:33</span>
+<li> <span class="location"><a href="../../res/values-et-rEE/strings.xml">../../res/values-et-rEE/strings.xml</a>:33</span>
+<li> <span class="location"><a href="../../res/values-eu-rES/strings.xml">../../res/values-eu-rES/strings.xml</a>:33</span>
+<li> <span class="location"><a href="../../res/values-fa/strings.xml">../../res/values-fa/strings.xml</a>:33</span>
+<li> <span class="location"><a href="../../res/values-fi/strings.xml">../../res/values-fi/strings.xml</a>:33</span>
+<li> <span class="location"><a href="../../res/values-fr/strings.xml">../../res/values-fr/strings.xml</a>:33</span>
+<li> <span class="location"><a href="../../res/values-fr-rCA/strings.xml">../../res/values-fr-rCA/strings.xml</a>:33</span>
+<li> <span class="location"><a href="../../res/values-gl-rES/strings.xml">../../res/values-gl-rES/strings.xml</a>:33</span>
+<li> <span class="location"><a href="../../res/values-hi/strings.xml">../../res/values-hi/strings.xml</a>:33</span>
+<li> <span class="location"><a href="../../res/values-hr/strings.xml">../../res/values-hr/strings.xml</a>:33</span>
+<li> <span class="location"><a href="../../res/values-hu/strings.xml">../../res/values-hu/strings.xml</a>:33</span>
+<li> <span class="location"><a href="../../res/values-hy-rAM/strings.xml">../../res/values-hy-rAM/strings.xml</a>:33</span>
+<li> <span class="location"><a href="../../res/values-in/strings.xml">../../res/values-in/strings.xml</a>:33</span>
+<li> <span class="location"><a href="../../res/values-is-rIS/strings.xml">../../res/values-is-rIS/strings.xml</a>:33</span>
+<li> <span class="location"><a href="../../res/values-it/strings.xml">../../res/values-it/strings.xml</a>:33</span>
+<li> <span class="location"><a href="../../res/values-iw/strings.xml">../../res/values-iw/strings.xml</a>:33</span>
+<li> <span class="location"><a href="../../res/values-ja/strings.xml">../../res/values-ja/strings.xml</a>:33</span>
+<li> <span class="location"><a href="../../res/values-ka-rGE/strings.xml">../../res/values-ka-rGE/strings.xml</a>:33</span>
+<li> <span class="location"><a href="../../res/values-kk-rKZ/strings.xml">../../res/values-kk-rKZ/strings.xml</a>:33</span>
+<li> <span class="location"><a href="../../res/values-km-rKH/strings.xml">../../res/values-km-rKH/strings.xml</a>:33</span>
+<li> <span class="location"><a href="../../res/values-kn-rIN/strings.xml">../../res/values-kn-rIN/strings.xml</a>:33</span>
+<li> <span class="location"><a href="../../res/values-ko/strings.xml">../../res/values-ko/strings.xml</a>:33</span>
+<li> <span class="location"><a href="../../res/values-ky-rKG/strings.xml">../../res/values-ky-rKG/strings.xml</a>:33</span>
+<li> <span class="location"><a href="../../res/values-lo-rLA/strings.xml">../../res/values-lo-rLA/strings.xml</a>:33</span>
+<li> <span class="location"><a href="../../res/values-lt/strings.xml">../../res/values-lt/strings.xml</a>:33</span>
+<li> <span class="location"><a href="../../res/values-lv/strings.xml">../../res/values-lv/strings.xml</a>:33</span>
+<li> <span class="location"><a href="../../res/values-ml-rIN/strings.xml">../../res/values-ml-rIN/strings.xml</a>:33</span>
+<li> <span class="location"><a href="../../res/values-mn-rMN/strings.xml">../../res/values-mn-rMN/strings.xml</a>:33</span>
+<li> <span class="location"><a href="../../res/values-mr-rIN/strings.xml">../../res/values-mr-rIN/strings.xml</a>:33</span>
+<li> <span class="location"><a href="../../res/values-ms-rMY/strings.xml">../../res/values-ms-rMY/strings.xml</a>:33</span>
+<li> <span class="location"><a href="../../res/values-my-rMM/strings.xml">../../res/values-my-rMM/strings.xml</a>:33</span>
+<li> <span class="location"><a href="../../res/values-nb/strings.xml">../../res/values-nb/strings.xml</a>:33</span>
+<li> <span class="location"><a href="../../res/values-ne-rNP/strings.xml">../../res/values-ne-rNP/strings.xml</a>:33</span>
+<li> <span class="location"><a href="../../res/values-nl/strings.xml">../../res/values-nl/strings.xml</a>:33</span>
+<li> <span class="location"><a href="../../res/values-pl/strings.xml">../../res/values-pl/strings.xml</a>:33</span>
+<li> <span class="location"><a href="../../res/values-pt/strings.xml">../../res/values-pt/strings.xml</a>:33</span>
+<li> <span class="location"><a href="../../res/values-pt-rPT/strings.xml">../../res/values-pt-rPT/strings.xml</a>:33</span>
+<li> <span class="location"><a href="../../res/values-ro/strings.xml">../../res/values-ro/strings.xml</a>:33</span>
+<li> <span class="location"><a href="../../res/values-ru/strings.xml">../../res/values-ru/strings.xml</a>:33</span>
+<li> <span class="location"><a href="../../res/values-si-rLK/strings.xml">../../res/values-si-rLK/strings.xml</a>:33</span>
+<li> <span class="location"><a href="../../res/values-sk/strings.xml">../../res/values-sk/strings.xml</a>:33</span>
+<li> <span class="location"><a href="../../res/values-sl/strings.xml">../../res/values-sl/strings.xml</a>:33</span>
+<li> <span class="location"><a href="../../res/values-sr/strings.xml">../../res/values-sr/strings.xml</a>:33</span>
+<li> <span class="location"><a href="../../res/values-sv/strings.xml">../../res/values-sv/strings.xml</a>:33</span>
+<li> <span class="location"><a href="../../res/values-sw/strings.xml">../../res/values-sw/strings.xml</a>:33</span>
+<li> <span class="location"><a href="../../res/values-ta-rIN/strings.xml">../../res/values-ta-rIN/strings.xml</a>:33</span>
+<li> <span class="location"><a href="../../res/values-te-rIN/strings.xml">../../res/values-te-rIN/strings.xml</a>:33</span>
+<li> <span class="location"><a href="../../res/values-th/strings.xml">../../res/values-th/strings.xml</a>:33</span>
+<li> <span class="location"><a href="../../res/values-tl/strings.xml">../../res/values-tl/strings.xml</a>:33</span>
+<li> <span class="location"><a href="../../res/values-tr/strings.xml">../../res/values-tr/strings.xml</a>:33</span>
+<li> <span class="location"><a href="../../res/values-uk/strings.xml">../../res/values-uk/strings.xml</a>:33</span>
+<li> <span class="location"><a href="../../res/values-ur-rPK/strings.xml">../../res/values-ur-rPK/strings.xml</a>:33</span>
+<li> <span class="location"><a href="../../res/values-vi/strings.xml">../../res/values-vi/strings.xml</a>:33</span>
+<li> <span class="location"><a href="../../res/values-zh-rCN/strings.xml">../../res/values-zh-rCN/strings.xml</a>:33</span>
+<li> <span class="location"><a href="../../res/values-zh-rHK/strings.xml">../../res/values-zh-rHK/strings.xml</a>:33</span>
+<li> <span class="location"><a href="../../res/values-zh-rTW/strings.xml">../../res/values-zh-rTW/strings.xml</a>:33</span>
+<li> <span class="location"><a href="../../res/values-zu/strings.xml">../../res/values-zu/strings.xml</a>:33</span>
+</ul>
+</div><br/><br/>
+<span class="location"><a href="../../res/values/strings.xml">../../res/values/strings.xml</a>:61</span>: <span class="message">The resource <code>R.string.abc_shareactionprovider_share_with</code> appears to be unused</span><br /><pre class="errorlines">
+<span class="lineno">  58</span>     &lt;!-- Description of a share target (both in the list of such or the default share button) in a ShareActionProvider (share UI). [CHAR LIMIT=NONE] -->
+<span class="lineno">  59</span>     &lt;string name="abc_shareactionprovider_share_with_application">Share with %s&lt;/string>
+<span class="lineno">  60</span>     &lt;!-- Description of the choose target button in a ShareActionProvider (share UI). [CHAR LIMIT=NONE] -->
+<span class="lineno">  61</span>     &lt;string <span class="errorspan">name="abc_shareactionprovider_share_with">Share with&lt;/string></span>
+<span class="lineno">  62</span> 
+<span class="lineno">  63</span> &lt;/resources>
+</pre>
+<ul></ul><button id="Location57DivLink" onclick="reveal('Location57Div');" />+ 72 Additional Locations...</button>
+<div id="Location57Div" style="display: none">
+Additional locations: <ul>
+<li> <span class="location"><a href="../../res/values-af/strings.xml">../../res/values-af/strings.xml</a>:34</span>
+<li> <span class="location"><a href="../../res/values-am/strings.xml">../../res/values-am/strings.xml</a>:34</span>
+<li> <span class="location"><a href="../../res/values-ar/strings.xml">../../res/values-ar/strings.xml</a>:34</span>
+<li> <span class="location"><a href="../../res/values-bg/strings.xml">../../res/values-bg/strings.xml</a>:34</span>
+<li> <span class="location"><a href="../../res/values-bn-rBD/strings.xml">../../res/values-bn-rBD/strings.xml</a>:34</span>
+<li> <span class="location"><a href="../../res/values-ca/strings.xml">../../res/values-ca/strings.xml</a>:34</span>
+<li> <span class="location"><a href="../../res/values-cs/strings.xml">../../res/values-cs/strings.xml</a>:34</span>
+<li> <span class="location"><a href="../../res/values-da/strings.xml">../../res/values-da/strings.xml</a>:34</span>
+<li> <span class="location"><a href="../../res/values-de/strings.xml">../../res/values-de/strings.xml</a>:34</span>
+<li> <span class="location"><a href="../../res/values-el/strings.xml">../../res/values-el/strings.xml</a>:34</span>
+<li> <span class="location"><a href="../../res/values-en-rGB/strings.xml">../../res/values-en-rGB/strings.xml</a>:34</span>
+<li> <span class="location"><a href="../../res/values-en-rIN/strings.xml">../../res/values-en-rIN/strings.xml</a>:34</span>
+<li> <span class="location"><a href="../../res/values-es/strings.xml">../../res/values-es/strings.xml</a>:34</span>
+<li> <span class="location"><a href="../../res/values-es-rUS/strings.xml">../../res/values-es-rUS/strings.xml</a>:34</span>
+<li> <span class="location"><a href="../../res/values-et-rEE/strings.xml">../../res/values-et-rEE/strings.xml</a>:34</span>
+<li> <span class="location"><a href="../../res/values-eu-rES/strings.xml">../../res/values-eu-rES/strings.xml</a>:34</span>
+<li> <span class="location"><a href="../../res/values-fa/strings.xml">../../res/values-fa/strings.xml</a>:34</span>
+<li> <span class="location"><a href="../../res/values-fi/strings.xml">../../res/values-fi/strings.xml</a>:34</span>
+<li> <span class="location"><a href="../../res/values-fr/strings.xml">../../res/values-fr/strings.xml</a>:34</span>
+<li> <span class="location"><a href="../../res/values-fr-rCA/strings.xml">../../res/values-fr-rCA/strings.xml</a>:34</span>
+<li> <span class="location"><a href="../../res/values-gl-rES/strings.xml">../../res/values-gl-rES/strings.xml</a>:34</span>
+<li> <span class="location"><a href="../../res/values-hi/strings.xml">../../res/values-hi/strings.xml</a>:34</span>
+<li> <span class="location"><a href="../../res/values-hr/strings.xml">../../res/values-hr/strings.xml</a>:34</span>
+<li> <span class="location"><a href="../../res/values-hu/strings.xml">../../res/values-hu/strings.xml</a>:34</span>
+<li> <span class="location"><a href="../../res/values-hy-rAM/strings.xml">../../res/values-hy-rAM/strings.xml</a>:34</span>
+<li> <span class="location"><a href="../../res/values-in/strings.xml">../../res/values-in/strings.xml</a>:34</span>
+<li> <span class="location"><a href="../../res/values-is-rIS/strings.xml">../../res/values-is-rIS/strings.xml</a>:34</span>
+<li> <span class="location"><a href="../../res/values-it/strings.xml">../../res/values-it/strings.xml</a>:34</span>
+<li> <span class="location"><a href="../../res/values-iw/strings.xml">../../res/values-iw/strings.xml</a>:34</span>
+<li> <span class="location"><a href="../../res/values-ja/strings.xml">../../res/values-ja/strings.xml</a>:34</span>
+<li> <span class="location"><a href="../../res/values-ka-rGE/strings.xml">../../res/values-ka-rGE/strings.xml</a>:34</span>
+<li> <span class="location"><a href="../../res/values-kk-rKZ/strings.xml">../../res/values-kk-rKZ/strings.xml</a>:34</span>
+<li> <span class="location"><a href="../../res/values-km-rKH/strings.xml">../../res/values-km-rKH/strings.xml</a>:34</span>
+<li> <span class="location"><a href="../../res/values-kn-rIN/strings.xml">../../res/values-kn-rIN/strings.xml</a>:34</span>
+<li> <span class="location"><a href="../../res/values-ko/strings.xml">../../res/values-ko/strings.xml</a>:34</span>
+<li> <span class="location"><a href="../../res/values-ky-rKG/strings.xml">../../res/values-ky-rKG/strings.xml</a>:34</span>
+<li> <span class="location"><a href="../../res/values-lo-rLA/strings.xml">../../res/values-lo-rLA/strings.xml</a>:34</span>
+<li> <span class="location"><a href="../../res/values-lt/strings.xml">../../res/values-lt/strings.xml</a>:34</span>
+<li> <span class="location"><a href="../../res/values-lv/strings.xml">../../res/values-lv/strings.xml</a>:34</span>
+<li> <span class="location"><a href="../../res/values-mk-rMK/strings.xml">../../res/values-mk-rMK/strings.xml</a>:38</span>
+<li> <span class="location"><a href="../../res/values-ml-rIN/strings.xml">../../res/values-ml-rIN/strings.xml</a>:34</span>
+<li> <span class="location"><a href="../../res/values-mn-rMN/strings.xml">../../res/values-mn-rMN/strings.xml</a>:34</span>
+<li> <span class="location"><a href="../../res/values-mr-rIN/strings.xml">../../res/values-mr-rIN/strings.xml</a>:34</span>
+<li> <span class="location"><a href="../../res/values-ms-rMY/strings.xml">../../res/values-ms-rMY/strings.xml</a>:34</span>
+<li> <span class="location"><a href="../../res/values-my-rMM/strings.xml">../../res/values-my-rMM/strings.xml</a>:34</span>
+<li> <span class="location"><a href="../../res/values-nb/strings.xml">../../res/values-nb/strings.xml</a>:34</span>
+<li> <span class="location"><a href="../../res/values-ne-rNP/strings.xml">../../res/values-ne-rNP/strings.xml</a>:34</span>
+<li> <span class="location"><a href="../../res/values-nl/strings.xml">../../res/values-nl/strings.xml</a>:34</span>
+<li> <span class="location"><a href="../../res/values-pl/strings.xml">../../res/values-pl/strings.xml</a>:34</span>
+<li> <span class="location"><a href="../../res/values-pt/strings.xml">../../res/values-pt/strings.xml</a>:34</span>
+<li> <span class="location"><a href="../../res/values-pt-rPT/strings.xml">../../res/values-pt-rPT/strings.xml</a>:34</span>
+<li> <span class="location"><a href="../../res/values-ro/strings.xml">../../res/values-ro/strings.xml</a>:34</span>
+<li> <span class="location"><a href="../../res/values-ru/strings.xml">../../res/values-ru/strings.xml</a>:34</span>
+<li> <span class="location"><a href="../../res/values-si-rLK/strings.xml">../../res/values-si-rLK/strings.xml</a>:34</span>
+<li> <span class="location"><a href="../../res/values-sk/strings.xml">../../res/values-sk/strings.xml</a>:34</span>
+<li> <span class="location"><a href="../../res/values-sl/strings.xml">../../res/values-sl/strings.xml</a>:34</span>
+<li> <span class="location"><a href="../../res/values-sr/strings.xml">../../res/values-sr/strings.xml</a>:34</span>
+<li> <span class="location"><a href="../../res/values-sv/strings.xml">../../res/values-sv/strings.xml</a>:34</span>
+<li> <span class="location"><a href="../../res/values-sw/strings.xml">../../res/values-sw/strings.xml</a>:34</span>
+<li> <span class="location"><a href="../../res/values-ta-rIN/strings.xml">../../res/values-ta-rIN/strings.xml</a>:34</span>
+<li> <span class="location"><a href="../../res/values-te-rIN/strings.xml">../../res/values-te-rIN/strings.xml</a>:34</span>
+<li> <span class="location"><a href="../../res/values-th/strings.xml">../../res/values-th/strings.xml</a>:34</span>
+<li> <span class="location"><a href="../../res/values-tl/strings.xml">../../res/values-tl/strings.xml</a>:34</span>
+<li> <span class="location"><a href="../../res/values-tr/strings.xml">../../res/values-tr/strings.xml</a>:34</span>
+<li> <span class="location"><a href="../../res/values-uk/strings.xml">../../res/values-uk/strings.xml</a>:34</span>
+<li> <span class="location"><a href="../../res/values-ur-rPK/strings.xml">../../res/values-ur-rPK/strings.xml</a>:34</span>
+<li> <span class="location"><a href="../../res/values-uz-rUZ/strings.xml">../../res/values-uz-rUZ/strings.xml</a>:36</span>
+<li> <span class="location"><a href="../../res/values-vi/strings.xml">../../res/values-vi/strings.xml</a>:34</span>
+<li> <span class="location"><a href="../../res/values-zh-rCN/strings.xml">../../res/values-zh-rCN/strings.xml</a>:34</span>
+<li> <span class="location"><a href="../../res/values-zh-rHK/strings.xml">../../res/values-zh-rHK/strings.xml</a>:34</span>
+<li> <span class="location"><a href="../../res/values-zh-rTW/strings.xml">../../res/values-zh-rTW/strings.xml</a>:34</span>
+<li> <span class="location"><a href="../../res/values-zu/strings.xml">../../res/values-zu/strings.xml</a>:34</span>
+</ul>
+</div><br/><br/>
+<span class="location"><a href="../../res/layout/support_simple_spinner_dropdown_item.xml">../../res/layout/support_simple_spinner_dropdown_item.xml</a></span>: <span class="message">The resource <code>R.layout.support_simple_spinner_dropdown_item</code> appears to be unused</span><br />
+</div>
+</div>
+<div class="metadata">Priority: 3 / 10<br/>
+Category: Performance</div>
+Severity: <span class="warning">Warning</span><div class="summary">
+Explanation: Unused resources.</div>
+<div class="explanation">
+Unused resources make applications larger and slow down builds.
+</div>
+<br/><div class="moreinfo">More info: </div><br/>To suppress this error, use the issue id "UnusedResources" as explained in the <a href="#SuppressInfo">Suppressing Warnings and Errors</a> section.<br/>
+</div>
+<a name="UselessParent"></a>
+<div class="issue">
+<div class="id"><a href="#" title="Return to top">UselessParent: Useless parent layout</a><div class="issueSeparator"></div>
+</div>
+<div class="warningslist">
+<span class="location"><a href="../../res/layout/abc_activity_chooser_view_list_item.xml">../../res/layout/abc_activity_chooser_view_list_item.xml</a>:26</span>: <span class="message">This <code>LinearLayout</code> layout or its <code>LinearLayout</code> parent is useless</span><br /><pre class="errorlines">
+<span class="lineno">  23</span>               android:minWidth="196dip"
+<span class="lineno">  24</span>               android:orientation="vertical">
+<span class="lineno">  25</span> 
+<span class="lineno">  26</span>     <span class="errorspan">&lt;LinearLayout</span>
+<span class="lineno">  27</span>             android:layout_width="wrap_content"
+<span class="lineno">  28</span>             android:layout_height="match_parent"
+</pre>
+</div>
+<div class="metadata">Note: This issue has an associated quickfix operation in Eclipse/ADT&nbsp;<img alt="Fix" border="0" align="top" src="lint-results_files/lint-run.png" />
+<br>
+Priority: 2 / 10<br/>
+Category: Performance</div>
+Severity: <span class="warning">Warning</span><div class="summary">
+Explanation: Useless parent layout.</div>
+<div class="explanation">
+A layout with children that has no siblings, is not a scrollview or a root layout, and does not have a background, can be removed and have its children moved directly into the parent for a flatter and more efficient layout hierarchy.
+</div>
+<br/><div class="moreinfo">More info: </div><br/>To suppress this error, use the issue id "UselessParent" as explained in the <a href="#SuppressInfo">Suppressing Warnings and Errors</a> section.<br/>
+</div>
+
+<a name="Usability:Typography"></a>
+<div class="category"><a href="#" title="Return to top">Usability:Typography</a><div class="categorySeparator"></div>
+</div>
+<a name="TypographyEllipsis"></a>
+<div class="issue">
+<div class="id"><a href="#" title="Return to top">TypographyEllipsis: Ellipsis string can be replaced with ellipsis character</a><div class="issueSeparator"></div>
+</div>
+<div class="warningslist">
+<span class="location"><a href="../../res/values-ne-rNP/strings.xml">../../res/values-ne-rNP/strings.xml</a>:34</span>: <span class="message">Replace "..." with ellipsis character (&#8230;, &amp;#8230;) ?</span><br /><pre class="errorlines">
+<span class="lineno">  31</span>     &lt;string name="abc_activitychooserview_choose_application" msgid="2031811694353399454">"&#2319;&#2313;&#2335;&#2366; &#2309;&#2344;&#2369;&#2346;&#2381;&#2352;&#2351;&#2379;&#2327; &#2331;&#2366;&#2344;&#2381;&#2344;&#2369;&#2361;&#2379;&#2360;&#2381;"&lt;/string>
+<span class="lineno">  32</span>     &lt;string name="abc_activity_chooser_view_see_all" msgid="7468859129482906941">"&#2360;&#2348;&#2376; &#2361;&#2375;&#2352;&#2381;&#2344;&#2369;&#2361;&#2379;&#2360;&#2381;"&lt;/string>
+<span class="lineno">  33</span>     &lt;string name="abc_shareactionprovider_share_with_application" msgid="7165123711973476752">"%s &#2360;&#2305;&#2327; &#2360;&#2366;&#2333;&#2375;&#2342;&#2366;&#2352;&#2368; &#2327;&#2352;&#2381;&#2344;&#2369;&#2361;&#2379;&#2360;&#2381;"&lt;/string>
+<span class="lineno">  34</span>     &lt;string name="abc_shareactionprovider_share_with" msgid="3421042268587513524"><span class="errorspan">"&#2360;&#2366;&#2333;&#2375;&#2342;&#2366;&#2352;&#2368; &#2327;&#2352;&#2381;&#2344;&#2369;&#2361;&#2379;&#2360;&#2381;..."&lt;/string></span>
+<span class="lineno">  35</span> &lt;/resources>
+<span class="lineno">  36</span> 
+</pre>
+</div>
+<div class="metadata">Note: This issue has an associated quickfix operation in Eclipse/ADT & Android Studio/IntelliJ&nbsp;<img alt="Fix" border="0" align="top" src="lint-results_files/lint-run.png" />
+<br>
+Priority: 5 / 10<br/>
+Category: Usability:Typography</div>
+Severity: <span class="warning">Warning</span><div class="summary">
+Explanation: Ellipsis string can be replaced with ellipsis character.</div>
+<div class="explanation">
+You can replace the string "..." with a dedicated ellipsis character, ellipsis character (&#8230;, &amp;#8230;). This can help make the text more readable.
+</div>
+<br/><div class="moreinfo">More info: <a href="http://en.wikipedia.org/wiki/Ellipsis">http://en.wikipedia.org/wiki/Ellipsis</a>
+</div><br/>To suppress this error, use the issue id "TypographyEllipsis" as explained in the <a href="#SuppressInfo">Suppressing Warnings and Errors</a> section.<br/>
+</div>
+
+<a name="Usability:Icons"></a>
+<div class="category"><a href="#" title="Return to top">Usability:Icons</a><div class="categorySeparator"></div>
+</div>
+<a name="IconDensities"></a>
+<div class="issue">
+<div class="id"><a href="#" title="Return to top">IconDensities: Icon densities validation</a><div class="issueSeparator"></div>
+</div>
+<div class="warningslist">
+<span class="location"><a href="../../res/drawable-xxxhdpi">../../res/drawable-xxxhdpi</a></span>: <span class="message">Missing the following drawables in <code>drawable-xxxhdpi</code>: abc_ab_share_pack_mtrl_alpha.9.png, abc_btn_rating_star_off_mtrl_alpha.png, abc_btn_rating_star_on_mtrl_alpha.png, abc_cab_background_top_mtrl_alpha.9.png, abc_ic_commit_search_api_mtrl_alpha.png... (14 more)</span><br />
+</div>
+<div class="metadata">Priority: 4 / 10<br/>
+Category: Usability:Icons</div>
+Severity: <span class="warning">Warning</span><div class="summary">
+Explanation: Icon densities validation.</div>
+<div class="explanation">
+Icons will look best if a custom version is provided for each of the major screen density classes (low, medium, high, extra high). This lint check identifies icons which do not have complete coverage across the densities.<br/>
+<br/>
+Low density is not really used much anymore, so this check ignores the ldpi density. To force lint to include it, set the environment variable <code>ANDROID_LINT_INCLUDE_LDPI=true</code>. For more information on current density usage, see <a href="http://developer.android.com/resources/dashboard/screens.html">http://developer.android.com/resources/dashboard/screens.html</a>
+</div>
+<br/><div class="moreinfo">More info: <a href="http://developer.android.com/guide/practices/screens_support.html">http://developer.android.com/guide/practices/screens_support.html</a>
+</div><br/>To suppress this error, use the issue id "IconDensities" as explained in the <a href="#SuppressInfo">Suppressing Warnings and Errors</a> section.<br/>
+</div>
+
+<a name="Accessibility"></a>
+<div class="category"><a href="#" title="Return to top">Accessibility</a><div class="categorySeparator"></div>
+</div>
+<a name="ContentDescription"></a>
+<div class="issue">
+<div class="id"><a href="#" title="Return to top">ContentDescription: Image without <code>contentDescription</code></a><div class="issueSeparator"></div>
+</div>
+<div class="warningslist">
+<span class="location"><a href="../../res/layout/abc_activity_chooser_view.xml">../../res/layout/abc_activity_chooser_view.xml</a>:36</span>: <span class="message">[Accessibility] Missing <code>contentDescription</code> attribute on image</span><br /><pre class="errorlines">
+<span class="lineno">  33</span>         android:addStatesFromChildren="true"
+<span class="lineno">  34</span>         android:background="?attr/actionBarItemBackground">
+<span class="lineno">  35</span> 
+<span class="lineno">  36</span>         <span class="errorspan">&lt;ImageView android:id="@+id/image"</span>
+<span class="lineno">  37</span>             android:layout_width="32dip"
+<span class="lineno">  38</span>             android:layout_height="32dip"
+</pre>
+<span class="location"><a href="../../res/layout/abc_activity_chooser_view.xml">../../res/layout/abc_activity_chooser_view.xml</a>:58</span>: <span class="message">[Accessibility] Missing <code>contentDescription</code> attribute on image</span><br /><pre class="errorlines">
+<span class="lineno">  55</span>         android:addStatesFromChildren="true"
+<span class="lineno">  56</span>         android:background="?attr/actionBarItemBackground">
+<span class="lineno">  57</span> 
+<span class="lineno">  58</span>         <span class="errorspan">&lt;ImageView android:id="@+id/image"</span>
+<span class="lineno">  59</span>             android:layout_width="32dip"
+<span class="lineno">  60</span>             android:layout_height="32dip"
+</pre>
+<span class="location"><a href="../../res/layout/abc_activity_chooser_view_list_item.xml">../../res/layout/abc_activity_chooser_view_list_item.xml</a>:31</span>: <span class="message">[Accessibility] Missing <code>contentDescription</code> attribute on image</span><br /><pre class="errorlines">
+<span class="lineno">  28</span>             android:layout_height="match_parent"
+<span class="lineno">  29</span>             android:duplicateParentState="true" >
+<span class="lineno">  30</span> 
+<span class="lineno">  31</span>         <span class="errorspan">&lt;ImageView</span>
+<span class="lineno">  32</span>                 android:id="@+id/icon"
+<span class="lineno">  33</span>                 android:layout_width="32dip"
+</pre>
+<span class="location"><a href="../../res/layout/abc_list_menu_item_icon.xml">../../res/layout/abc_list_menu_item_icon.xml</a>:17</span>: <span class="message">[Accessibility] Missing <code>contentDescription</code> attribute on image</span><br /><pre class="errorlines">
+<span class="lineno">  14</span>      limitations under the License.
+<span class="lineno">  15</span> -->
+<span class="lineno">  16</span> 
+<span class="lineno">  17</span> <span class="errorspan">&lt;ImageView xmlns:android="http://schemas.android.com/apk/res/android"</span>
+<span class="lineno">  18</span>            android:id="@+id/icon"
+<span class="lineno">  19</span>            android:layout_width="wrap_content"
+</pre>
+</div>
+<div class="metadata">Note: This issue has an associated quickfix operation in Eclipse/ADT & Android Studio/IntelliJ&nbsp;<img alt="Fix" border="0" align="top" src="lint-results_files/lint-run.png" />
+<br>
+Priority: 3 / 10<br/>
+Category: Accessibility</div>
+Severity: <span class="warning">Warning</span><div class="summary">
+Explanation: Image without <code>contentDescription</code></div>
+<div class="explanation">
+Non-textual widgets like ImageViews and ImageButtons should use the <code>contentDescription</code> attribute to specify a textual description of the widget such that screen readers and other accessibility tools can adequately describe the user interface.<br/>
+<br/>
+Note that elements in application screens that are purely decorative and do not provide any content or enable a user action should not have accessibility content descriptions. In this case, just suppress the lint warning with a tools:ignore="ContentDescription" attribute.<br/>
+<br/>
+Note that for text fields, you should not set both the <code>hint</code> and the <code>contentDescription</code> attributes since the hint will never be shown. Just set the <code>hint</code>. See <a href="http://developer.android.com/guide/topics/ui/accessibility/checklist.html#special-cases">http://developer.android.com/guide/topics/ui/accessibility/checklist.html#special-cases</a>.
+</div>
+<br/><div class="moreinfo">More info: </div><br/>To suppress this error, use the issue id "ContentDescription" as explained in the <a href="#SuppressInfo">Suppressing Warnings and Errors</a> section.<br/>
+</div>
+
+<a name="MissingIssues"></a>
+<div class="category">Disabled Checks<div class="categorySeparator"></div>
+</div>
+The following issues were not run by lint, either because the check is not enabled by default, or because it was disabled with a command line flag or via one or more lint.xml configuration files in the project directories.
+<br/><br/>
+<a name="BackButton"></a>
+<div class="issue">
+<div class="id">BackButton<div class="issueSeparator"></div>
+</div>
+<div class="metadata">Disabled By: Default<br/>
+Priority: 6 / 10<br/>
+Category: Usability</div>
+Severity: <span class="warning">Warning</span><div class="summary">
+Explanation: Back button.</div>
+<div class="explanation">
+According to the Android Design Guide,<br/>
+<br/>
+"Other platforms use an explicit back button with label to allow the user to navigate up the application's hierarchy. Instead, Android uses the main action bar's app icon for hierarchical navigation and the navigation bar's back button for temporal navigation."<br/>
+This check is not very sophisticated (it just looks for buttons with the label "Back"), so it is disabled by default to not trigger on common scenarios like pairs of Back/Next buttons to paginate through screens.
+</div>
+<br/><div class="moreinfo">More info: <a href="http://developer.android.com/design/patterns/pure-android.html">http://developer.android.com/design/patterns/pure-android.html</a>
+</div><br/>To suppress this error, use the issue id "BackButton" as explained in the <a href="#SuppressInfo">Suppressing Warnings and Errors</a> section.<br/>
+</div>
+<a name="EasterEgg"></a>
+<div class="issue">
+<div class="id">EasterEgg<div class="issueSeparator"></div>
+</div>
+<div class="metadata">Disabled By: Default<br/>
+Priority: 6 / 10<br/>
+Category: Security</div>
+Severity: <span class="warning">Warning</span><div class="summary">
+Explanation: Code contains easter egg.</div>
+<div class="explanation">
+An "easter egg" is code deliberately hidden in the code, both from potential users and even from other developers. This lint check looks for code which looks like it may be hidden from sight.
+</div>
+<br/><div class="moreinfo">More info: </div><br/>To suppress this error, use the issue id "EasterEgg" as explained in the <a href="#SuppressInfo">Suppressing Warnings and Errors</a> section.<br/>
+</div>
+<a name="FieldGetter"></a>
+<div class="issue">
+<div class="id">FieldGetter<div class="issueSeparator"></div>
+</div>
+<div class="metadata">Disabled By: Default<br/>
+Priority: 4 / 10<br/>
+Category: Performance</div>
+Severity: <span class="warning">Warning</span><div class="summary">
+Explanation: Using getter instead of field.</div>
+<div class="explanation">
+Accessing a field within the class that defines a getter for that field is at least 3 times faster than calling the getter. For simple getters that do nothing other than return the field, you might want to just reference the local field directly instead.<br/>
+<br/>
+<b>NOTE</b>: As of Android 2.3 (Gingerbread), this optimization is performed automatically by Dalvik, so there is no need to change your code; this is only relevant if you are targeting older versions of Android.
+</div>
+<br/><div class="moreinfo">More info: <a href="http://developer.android.com/guide/practices/design/performance.html#internal_get_set">http://developer.android.com/guide/practices/design/performance.html#internal_get_set</a>
+</div><br/>To suppress this error, use the issue id "FieldGetter" as explained in the <a href="#SuppressInfo">Suppressing Warnings and Errors</a> section.<br/>
+</div>
+<a name="IconExpectedSize"></a>
+<div class="issue">
+<div class="id">IconExpectedSize<div class="issueSeparator"></div>
+</div>
+<div class="metadata">Disabled By: Default<br/>
+Priority: 5 / 10<br/>
+Category: Usability:Icons</div>
+Severity: <span class="warning">Warning</span><div class="summary">
+Explanation: Icon has incorrect size.</div>
+<div class="explanation">
+There are predefined sizes (for each density) for launcher icons. You should follow these conventions to make sure your icons fit in with the overall look of the platform.
+</div>
+<br/><div class="moreinfo">More info: <a href="http://developer.android.com/design/style/iconography.html">http://developer.android.com/design/style/iconography.html</a>
+</div><br/>To suppress this error, use the issue id "IconExpectedSize" as explained in the <a href="#SuppressInfo">Suppressing Warnings and Errors</a> section.<br/>
+</div>
+<a name="NegativeMargin"></a>
+<div class="issue">
+<div class="id">NegativeMargin<div class="issueSeparator"></div>
+</div>
+<div class="metadata">Disabled By: Default<br/>
+Priority: 4 / 10<br/>
+Category: Usability</div>
+Severity: <span class="warning">Warning</span><div class="summary">
+Explanation: Negative Margins.</div>
+<div class="explanation">
+Margin values should be positive. Negative values are generally a sign that you are making assumptions about views surrounding the current one, or may be tempted to turn off child clipping to allow a view to escape its parent. Turning off child clipping to do this not only leads to poor graphical performance, it also results in wrong touch event handling since touch events are based strictly on a chain of parent-rect hit tests. Finally, making assumptions about the size of strings can lead to localization problems.
+</div>
+<br/><div class="moreinfo">More info: </div><br/>To suppress this error, use the issue id "NegativeMargin" as explained in the <a href="#SuppressInfo">Suppressing Warnings and Errors</a> section.<br/>
+</div>
+<a name="NewerVersionAvailable"></a>
+<div class="issue">
+<div class="id">NewerVersionAvailable<div class="issueSeparator"></div>
+</div>
+<div class="metadata">Note: This issue has an associated quickfix operation in Android Studio/IntelliJ&nbsp;<img alt="Fix" border="0" align="top" src="lint-results_files/lint-run.png" />
+<br>
+Disabled By: Default<br/>
+Priority: 4 / 10<br/>
+Category: Correctness</div>
+Severity: <span class="warning">Warning</span><div class="summary">
+Explanation: Newer Library Versions Available.</div>
+<div class="explanation">
+This detector checks with a central repository to see if there are newer versions available for the dependencies used by this project.<br/>
+This is similar to the <code>GradleDependency</code> check, which checks for newer versions available in the Android SDK tools and libraries, but this works with any MavenCentral dependency, and connects to the library every time, which makes it more flexible but also <b>much</b> slower.
+</div>
+<br/><div class="moreinfo">More info: </div><br/>To suppress this error, use the issue id "NewerVersionAvailable" as explained in the <a href="#SuppressInfo">Suppressing Warnings and Errors</a> section.<br/>
+</div>
+<a name="SelectableText"></a>
+<div class="issue">
+<div class="id">SelectableText<div class="issueSeparator"></div>
+</div>
+<div class="metadata">Note: This issue has an associated quickfix operation in Android Studio/IntelliJ&nbsp;<img alt="Fix" border="0" align="top" src="lint-results_files/lint-run.png" />
+<br>
+Disabled By: Default<br/>
+Priority: 7 / 10<br/>
+Category: Usability</div>
+Severity: <span class="warning">Warning</span><div class="summary">
+Explanation: Dynamic text should probably be selectable.</div>
+<div class="explanation">
+If a <code>&lt;TextView></code> is used to display data, the user might want to copy that data and paste it elsewhere. To allow this, the <code>&lt;TextView></code> should specify <code>android:textIsSelectable="true"</code>.<br/>
+<br/>
+This lint check looks for TextViews which are likely to be displaying data: views whose text is set dynamically. This value will be ignored on platforms older than API 11, so it is okay to set it regardless of your <code>minSdkVersion</code>.
+</div>
+<br/><div class="moreinfo">More info: </div><br/>To suppress this error, use the issue id "SelectableText" as explained in the <a href="#SuppressInfo">Suppressing Warnings and Errors</a> section.<br/>
+</div>
+<a name="StopShip"></a>
+<div class="issue">
+<div class="id">StopShip<div class="issueSeparator"></div>
+</div>
+<div class="metadata">Note: This issue has an associated quickfix operation in Android Studio/IntelliJ&nbsp;<img alt="Fix" border="0" align="top" src="lint-results_files/lint-run.png" />
+<br>
+Disabled By: Default<br/>
+Priority: 10 / 10<br/>
+Category: Correctness</div>
+Severity: <span class="warning">Warning</span><div class="summary">
+Explanation: Code contains <code>STOPSHIP</code> marker.</div>
+<div class="explanation">
+Using the comment <code>// STOPSHIP</code> can be used to flag code that is incomplete but checked in. This comment marker can be used to indicate that the code should not be shipped until the issue is addressed, and lint will look for these.
+</div>
+<br/><div class="moreinfo">More info: </div><br/>To suppress this error, use the issue id "StopShip" as explained in the <a href="#SuppressInfo">Suppressing Warnings and Errors</a> section.<br/>
+</div>
+<a name="TypographyQuotes"></a>
+<div class="issue">
+<div class="id">TypographyQuotes<div class="issueSeparator"></div>
+</div>
+<div class="metadata">Note: This issue has an associated quickfix operation in Eclipse/ADT & Android Studio/IntelliJ&nbsp;<img alt="Fix" border="0" align="top" src="lint-results_files/lint-run.png" />
+<br>
+Disabled By: Default<br/>
+Priority: 5 / 10<br/>
+Category: Usability:Typography</div>
+Severity: <span class="warning">Warning</span><div class="summary">
+Explanation: Straight quotes can be replaced with curvy quotes.</div>
+<div class="explanation">
+Straight single quotes and double quotes, when used as a pair, can be replaced by "curvy quotes" (or directional quotes). This can make the text more readable.<br/>
+<br/>
+Note that you should never use grave accents and apostrophes to quote, `like this'.<br/>
+<br/>
+(Also note that you should not use curvy quotes for code fragments.)
+</div>
+<br/><div class="moreinfo">More info: <a href="http://en.wikipedia.org/wiki/Quotation_mark">http://en.wikipedia.org/wiki/Quotation_mark</a>
+</div><br/>To suppress this error, use the issue id "TypographyQuotes" as explained in the <a href="#SuppressInfo">Suppressing Warnings and Errors</a> section.<br/>
+</div>
+<a name="UnusedIds"></a>
+<div class="issue">
+<div class="id">UnusedIds<div class="issueSeparator"></div>
+</div>
+<div class="metadata">Disabled By: Default<br/>
+Priority: 1 / 10<br/>
+Category: Performance</div>
+Severity: <span class="warning">Warning</span><div class="summary">
+Explanation: Unused id.</div>
+<div class="explanation">
+This resource id definition appears not to be needed since it is not referenced from anywhere. Having id definitions, even if unused, is not necessarily a bad idea since they make working on layouts and menus easier, so there is not a strong reason to delete these.
+</div>
+<br/><div class="moreinfo">More info: </div><br/>To suppress this error, use the issue id "UnusedIds" as explained in the <a href="#SuppressInfo">Suppressing Warnings and Errors</a> section.<br/>
+</div>
+
+<a name="SuppressInfo"></a>
+<div class="category">Suppressing Warnings and Errors<div class="categorySeparator"></div>
+</div>
+Lint errors can be suppressed in a variety of ways:<br/>
+<br/>
+1. With a @SuppressLint annotation in the Java code<br/>
+2. With a tools:ignore attribute in the XML file<br/>
+3. With a lint.xml configuration file in the project<br/>
+4. With a lint.xml configuration file passed to lint via the --config flag<br/>
+5. With the --ignore flag passed to lint.<br/>
+<br/>
+To suppress a lint warning with an annotation, add a @SuppressLint("id") annotation on the class, method or variable declaration closest to the warning instance you want to disable. The id can be one or more issue id's, such as "UnusedResources" or {"UnusedResources","UnusedIds"}, or it can be "all" to suppress all lint warnings in the given scope.<br/>
+<br/>
+To suppress a lint warning in an XML file, add a tools:ignore="id" attribute on the element containing the error, or one of its surrounding elements. You also need to define the namespace for the tools prefix on the root element in your document, next to the xmlns:android declaration:<br/>
+* xmlns:tools="http://schemas.android.com/tools"<br/>
+<br/>
+To suppress lint warnings with a configuration XML file, create a file named lint.xml and place it at the root directory of the project in which it applies. (If you use the Eclipse plugin's Lint view, you can suppress errors there via the toolbar and Eclipse will create the lint.xml file for you.).<br/>
+<br/>
+The format of the lint.xml file is something like the following:<br/>
+<br/>
+&lt;?xml version="1.0" encoding="UTF-8"?><br/>
+&lt;lint><br/>
+    &lt;!-- Disable this given check in this project --><br/>
+    &lt;issue id="IconMissingDensityFolder" severity="ignore" /><br/>
+<br/>
+    &lt;!-- Ignore the ObsoleteLayoutParam issue in the given files --><br/>
+    &lt;issue id="ObsoleteLayoutParam"><br/>
+        &lt;ignore path="res/layout/activation.xml" /><br/>
+        &lt;ignore path="res/layout-xlarge/activation.xml" /><br/>
+    &lt;/issue><br/>
+<br/>
+    &lt;!-- Ignore the UselessLeaf issue in the given file --><br/>
+    &lt;issue id="UselessLeaf"><br/>
+        &lt;ignore path="res/layout/main.xml" /><br/>
+    &lt;/issue><br/>
+<br/>
+    &lt;!-- Change the severity of hardcoded strings to "error" --><br/>
+    &lt;issue id="HardcodedText" severity="error" /><br/>
+&lt;/lint><br/>
+<br/>
+To suppress lint checks from the command line, pass the --ignore flag with a comma separated list of ids to be suppressed, such as:<br/>
+"lint --ignore UnusedResources,UselessLeaf /my/project/path"<br/>
+
+
+</body>
+</html>

@@ -1,0 +1,3903 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="4" by="lint 24.1.2">
+
+    <issue
+        id="DuplicateIds"
+        severity="Fatal"
+        message="Duplicate id `@+id/image`, already defined earlier in this layout"
+        category="Correctness"
+        priority="7"
+        summary="Duplicate ids within a single layout"
+        explanation="Within a layout, id&apos;s should be unique since otherwise `findViewById()` can return an unexpected view."
+        errorLine1="        &lt;ImageView android:id=&quot;@+id/image&quot;"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/layout/abc_activity_chooser_view.xml"
+            line="58"
+            column="20"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/layout/abc_activity_chooser_view.xml"
+            line="36"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        severity="Error"
+        message="`android:actionModeShareDrawable` requires API level 21 (current min is 7)"
+        category="Correctness"
+        priority="6"
+        summary="Calling new methods on older versions"
+        explanation="This check scans through all the Android API calls in the application and warns about any calls that are not available on *all* versions targeted by this application (according to its minimum SDK attribute in the manifest).
+
+If you really want to use this API and don&apos;t need to support older devices just set the `minSdkVersion` in your `build.gradle` or `AndroidManifest.xml` files.
+If your code is *deliberately* accessing newer APIs, and you have ensured (e.g. with conditional execution) that this code will only ever be called on a supported platform, then you can annotate your class or method with the `@TargetApi` annotation specifying the local minimum SDK to apply, such as `@TargetApi(11)`, such that this check considers 11 rather than your manifest file&apos;s minimum SDK as the required API level.
+
+If you are deliberately setting `android:` attributes in style definitions, make sure you place this in a `values-vNN` folder in order to avoid running into runtime conflicts on certain devices where manufacturers have added custom attributes whose ids conflict with the new ones on later platforms.
+
+Similarly, you can use tools:targetApi=&quot;11&quot; in an XML file to indicate that the element will only be inflated in an adequate context."
+        errorLine1="        &lt;item name=&quot;android:actionModeShareDrawable&quot;>?actionModeShareDrawable&lt;/item>"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+        quickfix="studio,adt">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-v14/themes_base.xml"
+            line="29"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        severity="Error"
+        message="`android:actionModeShareDrawable` requires API level 21 (current min is 7)"
+        category="Correctness"
+        priority="6"
+        summary="Calling new methods on older versions"
+        explanation="This check scans through all the Android API calls in the application and warns about any calls that are not available on *all* versions targeted by this application (according to its minimum SDK attribute in the manifest).
+
+If you really want to use this API and don&apos;t need to support older devices just set the `minSdkVersion` in your `build.gradle` or `AndroidManifest.xml` files.
+If your code is *deliberately* accessing newer APIs, and you have ensured (e.g. with conditional execution) that this code will only ever be called on a supported platform, then you can annotate your class or method with the `@TargetApi` annotation specifying the local minimum SDK to apply, such as `@TargetApi(11)`, such that this check considers 11 rather than your manifest file&apos;s minimum SDK as the required API level.
+
+If you are deliberately setting `android:` attributes in style definitions, make sure you place this in a `values-vNN` folder in order to avoid running into runtime conflicts on certain devices where manufacturers have added custom attributes whose ids conflict with the new ones on later platforms.
+
+Similarly, you can use tools:targetApi=&quot;11&quot; in an XML file to indicate that the element will only be inflated in an adequate context."
+        errorLine1="        &lt;item name=&quot;android:actionModeShareDrawable&quot;>?actionModeShareDrawable&lt;/item>"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+        quickfix="studio,adt">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-v14/themes_base.xml"
+            line="37"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        severity="Error"
+        message="`android:actionModeShareDrawable` requires API level 21 (current min is 7)"
+        category="Correctness"
+        priority="6"
+        summary="Calling new methods on older versions"
+        explanation="This check scans through all the Android API calls in the application and warns about any calls that are not available on *all* versions targeted by this application (according to its minimum SDK attribute in the manifest).
+
+If you really want to use this API and don&apos;t need to support older devices just set the `minSdkVersion` in your `build.gradle` or `AndroidManifest.xml` files.
+If your code is *deliberately* accessing newer APIs, and you have ensured (e.g. with conditional execution) that this code will only ever be called on a supported platform, then you can annotate your class or method with the `@TargetApi` annotation specifying the local minimum SDK to apply, such as `@TargetApi(11)`, such that this check considers 11 rather than your manifest file&apos;s minimum SDK as the required API level.
+
+If you are deliberately setting `android:` attributes in style definitions, make sure you place this in a `values-vNN` folder in order to avoid running into runtime conflicts on certain devices where manufacturers have added custom attributes whose ids conflict with the new ones on later platforms.
+
+Similarly, you can use tools:targetApi=&quot;11&quot; in an XML file to indicate that the element will only be inflated in an adequate context."
+        errorLine1="        &lt;item name=&quot;android:actionModeShareDrawable&quot;>?actionModeShareDrawable&lt;/item>"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+        quickfix="studio,adt">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-v14/themes_base.xml"
+            line="45"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        severity="Error"
+        message="`android:actionModeShareDrawable` requires API level 21 (current min is 7)"
+        category="Correctness"
+        priority="6"
+        summary="Calling new methods on older versions"
+        explanation="This check scans through all the Android API calls in the application and warns about any calls that are not available on *all* versions targeted by this application (according to its minimum SDK attribute in the manifest).
+
+If you really want to use this API and don&apos;t need to support older devices just set the `minSdkVersion` in your `build.gradle` or `AndroidManifest.xml` files.
+If your code is *deliberately* accessing newer APIs, and you have ensured (e.g. with conditional execution) that this code will only ever be called on a supported platform, then you can annotate your class or method with the `@TargetApi` annotation specifying the local minimum SDK to apply, such as `@TargetApi(11)`, such that this check considers 11 rather than your manifest file&apos;s minimum SDK as the required API level.
+
+If you are deliberately setting `android:` attributes in style definitions, make sure you place this in a `values-vNN` folder in order to avoid running into runtime conflicts on certain devices where manufacturers have added custom attributes whose ids conflict with the new ones on later platforms.
+
+Similarly, you can use tools:targetApi=&quot;11&quot; in an XML file to indicate that the element will only be inflated in an adequate context."
+        errorLine1="        &lt;item name=&quot;android:actionModeShareDrawable&quot;>?actionModeShareDrawable&lt;/item>"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+        quickfix="studio,adt">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-v14/themes_base.xml"
+            line="53"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        severity="Error"
+        message="`android:actionModeShareDrawable` requires API level 21 (current min is 7)"
+        category="Correctness"
+        priority="6"
+        summary="Calling new methods on older versions"
+        explanation="This check scans through all the Android API calls in the application and warns about any calls that are not available on *all* versions targeted by this application (according to its minimum SDK attribute in the manifest).
+
+If you really want to use this API and don&apos;t need to support older devices just set the `minSdkVersion` in your `build.gradle` or `AndroidManifest.xml` files.
+If your code is *deliberately* accessing newer APIs, and you have ensured (e.g. with conditional execution) that this code will only ever be called on a supported platform, then you can annotate your class or method with the `@TargetApi` annotation specifying the local minimum SDK to apply, such as `@TargetApi(11)`, such that this check considers 11 rather than your manifest file&apos;s minimum SDK as the required API level.
+
+If you are deliberately setting `android:` attributes in style definitions, make sure you place this in a `values-vNN` folder in order to avoid running into runtime conflicts on certain devices where manufacturers have added custom attributes whose ids conflict with the new ones on later platforms.
+
+Similarly, you can use tools:targetApi=&quot;11&quot; in an XML file to indicate that the element will only be inflated in an adequate context."
+        errorLine1="        &lt;item name=&quot;android:actionModeShareDrawable&quot;>?actionModeShareDrawable&lt;/item>"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+        quickfix="studio,adt">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-v11/themes_base.xml"
+            line="351"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        severity="Error"
+        message="`android:actionModeShareDrawable` requires API level 21 (current min is 7)"
+        category="Correctness"
+        priority="6"
+        summary="Calling new methods on older versions"
+        explanation="This check scans through all the Android API calls in the application and warns about any calls that are not available on *all* versions targeted by this application (according to its minimum SDK attribute in the manifest).
+
+If you really want to use this API and don&apos;t need to support older devices just set the `minSdkVersion` in your `build.gradle` or `AndroidManifest.xml` files.
+If your code is *deliberately* accessing newer APIs, and you have ensured (e.g. with conditional execution) that this code will only ever be called on a supported platform, then you can annotate your class or method with the `@TargetApi` annotation specifying the local minimum SDK to apply, such as `@TargetApi(11)`, such that this check considers 11 rather than your manifest file&apos;s minimum SDK as the required API level.
+
+If you are deliberately setting `android:` attributes in style definitions, make sure you place this in a `values-vNN` folder in order to avoid running into runtime conflicts on certain devices where manufacturers have added custom attributes whose ids conflict with the new ones on later platforms.
+
+Similarly, you can use tools:targetApi=&quot;11&quot; in an XML file to indicate that the element will only be inflated in an adequate context."
+        errorLine1="        &lt;item name=&quot;android:actionModeShareDrawable&quot;>?actionModeShareDrawable&lt;/item>"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+        quickfix="studio,adt">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-v11/themes_base.xml"
+            line="358"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        severity="Error"
+        message="`android:actionModeShareDrawable` requires API level 21 (current min is 7)"
+        category="Correctness"
+        priority="6"
+        summary="Calling new methods on older versions"
+        explanation="This check scans through all the Android API calls in the application and warns about any calls that are not available on *all* versions targeted by this application (according to its minimum SDK attribute in the manifest).
+
+If you really want to use this API and don&apos;t need to support older devices just set the `minSdkVersion` in your `build.gradle` or `AndroidManifest.xml` files.
+If your code is *deliberately* accessing newer APIs, and you have ensured (e.g. with conditional execution) that this code will only ever be called on a supported platform, then you can annotate your class or method with the `@TargetApi` annotation specifying the local minimum SDK to apply, such as `@TargetApi(11)`, such that this check considers 11 rather than your manifest file&apos;s minimum SDK as the required API level.
+
+If you are deliberately setting `android:` attributes in style definitions, make sure you place this in a `values-vNN` folder in order to avoid running into runtime conflicts on certain devices where manufacturers have added custom attributes whose ids conflict with the new ones on later platforms.
+
+Similarly, you can use tools:targetApi=&quot;11&quot; in an XML file to indicate that the element will only be inflated in an adequate context."
+        errorLine1="        &lt;item name=&quot;android:actionModeShareDrawable&quot;>?actionModeShareDrawable&lt;/item>"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+        quickfix="studio,adt">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-v11/themes_base.xml"
+            line="365"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        severity="Error"
+        message="`android:actionModeShareDrawable` requires API level 21 (current min is 7)"
+        category="Correctness"
+        priority="6"
+        summary="Calling new methods on older versions"
+        explanation="This check scans through all the Android API calls in the application and warns about any calls that are not available on *all* versions targeted by this application (according to its minimum SDK attribute in the manifest).
+
+If you really want to use this API and don&apos;t need to support older devices just set the `minSdkVersion` in your `build.gradle` or `AndroidManifest.xml` files.
+If your code is *deliberately* accessing newer APIs, and you have ensured (e.g. with conditional execution) that this code will only ever be called on a supported platform, then you can annotate your class or method with the `@TargetApi` annotation specifying the local minimum SDK to apply, such as `@TargetApi(11)`, such that this check considers 11 rather than your manifest file&apos;s minimum SDK as the required API level.
+
+If you are deliberately setting `android:` attributes in style definitions, make sure you place this in a `values-vNN` folder in order to avoid running into runtime conflicts on certain devices where manufacturers have added custom attributes whose ids conflict with the new ones on later platforms.
+
+Similarly, you can use tools:targetApi=&quot;11&quot; in an XML file to indicate that the element will only be inflated in an adequate context."
+        errorLine1="        &lt;item name=&quot;android:actionModeShareDrawable&quot;>?actionModeShareDrawable&lt;/item>"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+        quickfix="studio,adt">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-v11/themes_base.xml"
+            line="372"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        severity="Warning"
+        message="Attribute `state_accelerated` is only used in API level 11 and higher (current min is 7)"
+        category="Correctness"
+        priority="6"
+        summary="Attribute unused on older versions"
+        explanation="This check finds attributes set in XML files that were introduced in a version newer than the oldest version targeted by your application (with the the `minSdkVersion` attribute).
+
+This is not an error; the application will simply ignore the attribute. However, if the attribute is important to the appearance of functionality of your application, you should consider finding an alternative way to achieve the same result with only available attributes, and then you can optionally create a copy of the layout in a layout-vNN folder which will be used on API NN or higher where you can take advantage of the newer attribute.
+
+Note: This check does not only apply to attributes. For example, some tags can be unused too, such as the new `&lt;tag>` element in layouts introduced in API 21."
+        errorLine1="    &lt;item android:state_accelerated=&quot;false&quot; android:color=&quot;@color/background_material_dark&quot; />"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/color/abc_background_cache_hint_selector_material_dark.xml"
+            line="18"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        severity="Warning"
+        message="Attribute `state_accelerated` is only used in API level 11 and higher (current min is 7)"
+        category="Correctness"
+        priority="6"
+        summary="Attribute unused on older versions"
+        explanation="This check finds attributes set in XML files that were introduced in a version newer than the oldest version targeted by your application (with the the `minSdkVersion` attribute).
+
+This is not an error; the application will simply ignore the attribute. However, if the attribute is important to the appearance of functionality of your application, you should consider finding an alternative way to achieve the same result with only available attributes, and then you can optionally create a copy of the layout in a layout-vNN folder which will be used on API NN or higher where you can take advantage of the newer attribute.
+
+Note: This check does not only apply to attributes. For example, some tags can be unused too, such as the new `&lt;tag>` element in layouts introduced in API 21."
+        errorLine1="    &lt;item android:state_accelerated=&quot;false&quot; android:color=&quot;@color/background_material_light&quot; />"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/color/abc_background_cache_hint_selector_material_light.xml"
+            line="18"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        severity="Warning"
+        message="Attribute `paddingMode` is only used in API level 21 and higher (current min is 7)"
+        category="Correctness"
+        priority="6"
+        summary="Attribute unused on older versions"
+        explanation="This check finds attributes set in XML files that were introduced in a version newer than the oldest version targeted by your application (with the the `minSdkVersion` attribute).
+
+This is not an error; the application will simply ignore the attribute. However, if the attribute is important to the appearance of functionality of your application, you should consider finding an alternative way to achieve the same result with only available attributes, and then you can optionally create a copy of the layout in a layout-vNN folder which will be used on API NN or higher where you can take advantage of the newer attribute.
+
+Note: This check does not only apply to attributes. For example, some tags can be unused too, such as the new `&lt;tag>` element in layouts introduced in API 21."
+        errorLine1="            android:paddingMode=&quot;stack&quot;>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/drawable/abc_cab_background_top_material.xml"
+            line="18"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        severity="Warning"
+        message="Attribute `state_activated` is only used in API level 11 and higher (current min is 7)"
+        category="Correctness"
+        priority="6"
+        summary="Attribute unused on older versions"
+        explanation="This check finds attributes set in XML files that were introduced in a version newer than the oldest version targeted by your application (with the the `minSdkVersion` attribute).
+
+This is not an error; the application will simply ignore the attribute. However, if the attribute is important to the appearance of functionality of your application, you should consider finding an alternative way to achieve the same result with only available attributes, and then you can optionally create a copy of the layout in a layout-vNN folder which will be used on API NN or higher where you can take advantage of the newer attribute.
+
+Note: This check does not only apply to attributes. For example, some tags can be unused too, such as the new `&lt;tag>` element in layouts introduced in API 21."
+        errorLine1="        &lt;item android:state_enabled=&quot;true&quot; android:state_activated=&quot;true&quot; android:drawable=&quot;@drawable/abc_textfield_activated_mtrl_alpha&quot;/>"
+        errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/drawable/abc_edit_text_material.xml"
+            line="25"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        severity="Warning"
+        message="Attribute `touchscreenBlocksFocus` is only used in API level 21 and higher (current min is 7)"
+        category="Correctness"
+        priority="6"
+        summary="Attribute unused on older versions"
+        explanation="This check finds attributes set in XML files that were introduced in a version newer than the oldest version targeted by your application (with the the `minSdkVersion` attribute).
+
+This is not an error; the application will simply ignore the attribute. However, if the attribute is important to the appearance of functionality of your application, you should consider finding an alternative way to achieve the same result with only available attributes, and then you can optionally create a copy of the layout in a layout-vNN folder which will be used on API NN or higher where you can take advantage of the newer attribute.
+
+Note: This check does not only apply to attributes. For example, some tags can be unused too, such as the new `&lt;tag>` element in layouts introduced in API 21."
+        errorLine1="            android:touchscreenBlocksFocus=&quot;true&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/layout/abc_screen_toolbar.xml"
+            line="33"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        severity="Warning"
+        message="Attribute `layoutDirection` is only used in API level 17 and higher (current min is 7)"
+        category="Correctness"
+        priority="6"
+        summary="Attribute unused on older versions"
+        explanation="This check finds attributes set in XML files that were introduced in a version newer than the oldest version targeted by your application (with the the `minSdkVersion` attribute).
+
+This is not an error; the application will simply ignore the attribute. However, if the attribute is important to the appearance of functionality of your application, you should consider finding an alternative way to achieve the same result with only available attributes, and then you can optionally create a copy of the layout in a layout-vNN folder which will be used on API NN or higher where you can take advantage of the newer attribute.
+
+Note: This check does not only apply to attributes. For example, some tags can be unused too, such as the new `&lt;tag>` element in layouts introduced in API 21."
+        errorLine1="            android:layoutDirection=&quot;locale&quot;>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/layout/abc_search_view.xml"
+            line="58"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        severity="Warning"
+        message="Attribute `state_activated` is only used in API level 11 and higher (current min is 7)"
+        category="Correctness"
+        priority="6"
+        summary="Attribute unused on older versions"
+        explanation="This check finds attributes set in XML files that were introduced in a version newer than the oldest version targeted by your application (with the the `minSdkVersion` attribute).
+
+This is not an error; the application will simply ignore the attribute. However, if the attribute is important to the appearance of functionality of your application, you should consider finding an alternative way to achieve the same result with only available attributes, and then you can optionally create a copy of the layout in a layout-vNN folder which will be used on API NN or higher where you can take advantage of the newer attribute.
+
+Note: This check does not only apply to attributes. For example, some tags can be unused too, such as the new `&lt;tag>` element in layouts introduced in API 21."
+        errorLine1="    &lt;item android:state_enabled=&quot;true&quot; android:state_activated=&quot;true&quot; android:drawable=&quot;@drawable/abc_textfield_search_activated_mtrl_alpha&quot;/>"
+        errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/drawable/abc_textfield_search_material.xml"
+            line="19"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        severity="Warning"
+        message="A newer version of com.android.support:support-v4 than 18.0.+ is available: 22.0.0"
+        category="Correctness"
+        priority="4"
+        summary="Obsolete Gradle Dependency"
+        explanation="This detector looks for usages of libraries where the version you are using is not the current stable release. Using older versions is fine, and there are cases where you deliberately want to stick with an older version. However, you may simply not be aware that a more recent version is available, and that is what this lint check helps find."
+        errorLine1="    compile &apos;com.android.support:support-v4:18.0.+&apos;"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+        quickfix="studio">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/build.gradle"
+            line="14"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        severity="Warning"
+        message="Old buildToolsVersion 21.0.2; recommended version is 21.1.2 or later"
+        category="Correctness"
+        priority="4"
+        summary="Obsolete Gradle Dependency"
+        explanation="This detector looks for usages of libraries where the version you are using is not the current stable release. Using older versions is fine, and there are cases where you deliberately want to stick with an older version. However, you may simply not be aware that a more recent version is available, and that is what this lint check helps find."
+        errorLine1="    buildToolsVersion &apos;21.0.2&apos;"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~"
+        quickfix="studio">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/build.gradle"
+            line="25"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="GradleDynamicVersion"
+        severity="Warning"
+        message="Avoid using + in version numbers; can lead to unpredictable and unrepeatable builds (com.android.support:support-v4:18.0.+)"
+        category="Correctness"
+        priority="4"
+        summary="Gradle Dynamic Version"
+        explanation="Using `+` in dependencies lets you automatically pick up the latest available version rather than a specific, named version. However, this is not recommended; your builds are not repeatable; you may have tested with a slightly different version than what the build server used. (Using a dynamic version as the major version number is more problematic than using it in the minor version position.)"
+        errorLine1="    compile &apos;com.android.support:support-v4:18.0.+&apos;"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+        quickfix="studio">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/build.gradle"
+            line="14"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        severity="Fatal"
+        message="&quot;`abc_action_bar_home_description_format`&quot; is not translated in &quot;mk-rMK&quot; (Macedonian: Macedonia, the former Yugoslav Republic of)"
+        category="Correctness:Messages"
+        priority="8"
+        summary="Incomplete translation"
+        explanation="If an application has more than one locale, then all the strings declared in one language should also be translated in all other languages.
+
+If the string should *not* be translated, you can add the attribute `translatable=&quot;false&quot;` on the `&lt;string>` element, or you can define all your non-translatable strings in a resource file called `donottranslate.xml`. Or, you can ignore the issue with a `tools:ignore=&quot;MissingTranslation&quot;` attribute.
+
+By default this detector allows regions of a language to just provide a subset of the strings and fall back to the standard language strings. You can require all regions to provide a full translation by setting the environment variable `ANDROID_LINT_COMPLETE_REGIONS`.
+
+You can tell lint (and other tools) which language is the default language in your `res/values/` folder by specifying `tools:locale=&quot;languageCode&quot;` for the root `&lt;resources>` element in your resource file. (The `tools` prefix refers to the namespace declaration `http://schemas.android.com/tools`.)"
+        errorLine1="    &lt;string name=&quot;abc_action_bar_home_description_format&quot;>%1$s, %2$s&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+        quickfix="adt">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values/strings.xml"
+            line="35"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        severity="Fatal"
+        message="&quot;`abc_shareactionprovider_share_with_application`&quot; is not translated in &quot;mk-rMK&quot; (Macedonian: Macedonia, the former Yugoslav Republic of), &quot;uz-rUZ&quot; (Uzbek: Uzbekistan)"
+        category="Correctness:Messages"
+        priority="8"
+        summary="Incomplete translation"
+        explanation="If an application has more than one locale, then all the strings declared in one language should also be translated in all other languages.
+
+If the string should *not* be translated, you can add the attribute `translatable=&quot;false&quot;` on the `&lt;string>` element, or you can define all your non-translatable strings in a resource file called `donottranslate.xml`. Or, you can ignore the issue with a `tools:ignore=&quot;MissingTranslation&quot;` attribute.
+
+By default this detector allows regions of a language to just provide a subset of the strings and fall back to the standard language strings. You can require all regions to provide a full translation by setting the environment variable `ANDROID_LINT_COMPLETE_REGIONS`.
+
+You can tell lint (and other tools) which language is the default language in your `res/values/` folder by specifying `tools:locale=&quot;languageCode&quot;` for the root `&lt;resources>` element in your resource file. (The `tools` prefix refers to the namespace declaration `http://schemas.android.com/tools`.)"
+        errorLine1="    &lt;string name=&quot;abc_shareactionprovider_share_with_application&quot;>Share with %s&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+        quickfix="adt">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values/strings.xml"
+            line="59"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UseCompoundDrawables"
+        severity="Warning"
+        message="This tag and its children can be replaced by one `&lt;TextView/>` and a compound drawable"
+        category="Performance"
+        priority="6"
+        summary="Node can be replaced by a `TextView` with compound drawables"
+        explanation="A `LinearLayout` which contains an `ImageView` and a `TextView` can be more efficiently handled as a compound drawable (a single TextView, using the `drawableTop`, `drawableLeft`, `drawableRight` and/or `drawableBottom` attributes to draw one or more images adjacent to the text).
+
+If the two widgets are offset from each other with margins, this can be replaced with a `drawablePadding` attribute.
+
+There&apos;s a lint quickfix to perform this conversion in the Eclipse plugin."
+        errorLine1="    &lt;LinearLayout"
+        errorLine2="    ^"
+        quickfix="adt">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/layout/abc_activity_chooser_view_list_item.xml"
+            line="26"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="InefficientWeight"
+        severity="Warning"
+        message="Use a `layout_width` of `0dp` instead of `wrap_content` for better performance"
+        category="Performance"
+        priority="3"
+        summary="Inefficient layout weight"
+        explanation="When only a single widget in a LinearLayout defines a weight, it is more efficient to assign a width/height of `0dp` to it since it will absorb all the remaining space anyway. With a declared width/height of `0dp` it does not have to measure its own size first."
+        errorLine1="            android:layout_width=&quot;wrap_content&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+        quickfix="studio,adt">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/layout/abc_search_view.xml"
+            line="49"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="InefficientWeight"
+        severity="Warning"
+        message="Use a `layout_width` of `0dp` instead of `wrap_content` for better performance"
+        category="Performance"
+        priority="3"
+        summary="Inefficient layout weight"
+        explanation="When only a single widget in a LinearLayout defines a weight, it is more efficient to assign a width/height of `0dp` to it since it will absorb all the remaining space anyway. With a declared width/height of `0dp` it does not have to measure its own size first."
+        errorLine1="                android:layout_width=&quot;wrap_content&quot;"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+        quickfix="studio,adt">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/layout/abc_search_view.xml"
+            line="72"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="NestedWeights"
+        severity="Warning"
+        message="Nested weights are bad for performance"
+        category="Performance"
+        priority="3"
+        summary="Nested layout weights"
+        explanation="Layout weights require a widget to be measured twice. When a LinearLayout with non-zero weights is nested inside another LinearLayout with non-zero weights, then the number of measurements increase exponentially."
+        errorLine1="                android:layout_weight=&quot;1&quot;"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/layout/abc_search_view.xml"
+            line="74"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="NestedWeights"
+        severity="Warning"
+        message="Nested weights are bad for performance"
+        category="Performance"
+        priority="3"
+        summary="Nested layout weights"
+        explanation="Layout weights require a widget to be measured twice. When a LinearLayout with non-zero weights is nested inside another LinearLayout with non-zero weights, then the number of measurements increase exponentially."
+        errorLine1="                  android:layout_weight=&quot;1&quot;"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/layout/abc_search_view.xml"
+            line="82"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="Overdraw"
+        severity="Warning"
+        message="Possible overdraw: Root element paints background `?attr/actionBarItemBackground` with a theme that also paints a background (inferred theme is `@android:style/Theme`)"
+        category="Performance"
+        priority="3"
+        summary="Overdraw: Painting regions more than once"
+        explanation="If you set a background drawable on a root view, then you should use a custom theme where the theme background is null. Otherwise, the theme background will be painted first, only to have your custom background completely cover it; this is called &quot;overdraw&quot;.
+
+NOTE: This detector relies on figuring out which layouts are associated with which activities based on scanning the Java code, and it&apos;s currently doing that using an inexact pattern matching algorithm. Therefore, it can incorrectly conclude which activity the layout is associated with and then wrongly complain that a background-theme is hidden.
+
+If you want your custom background on multiple pages, then you should consider making a custom theme with your custom background and just using that theme instead of a root element background.
+
+Of course it&apos;s possible that your custom drawable is translucent and you want it to be mixed with the background. However, you will get better performance if you pre-mix the background with your drawable and use that resulting image or color as a custom theme background instead.
+"
+        errorLine1="              android:background=&quot;?attr/actionBarItemBackground&quot;"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/layout/abc_action_bar_up_container.xml"
+            line="20"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        severity="Warning"
+        message="The resource `R.layout.abc_action_bar_title_item` appears to be unused"
+        category="Performance"
+        priority="3"
+        summary="Unused resources"
+        explanation="Unused resources make applications larger and slow down builds.">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/layout/abc_action_bar_title_item.xml"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        severity="Warning"
+        message="The resource `R.layout.abc_action_bar_up_container` appears to be unused"
+        category="Performance"
+        priority="3"
+        summary="Unused resources"
+        explanation="Unused resources make applications larger and slow down builds.">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/layout/abc_action_bar_up_container.xml"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        severity="Warning"
+        message="The resource `R.layout.abc_action_bar_view_list_nav_layout` appears to be unused"
+        category="Performance"
+        priority="3"
+        summary="Unused resources"
+        explanation="Unused resources make applications larger and slow down builds.">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/layout/abc_action_bar_view_list_nav_layout.xml"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        severity="Warning"
+        message="The resource `R.layout.abc_action_menu_item_layout` appears to be unused"
+        category="Performance"
+        priority="3"
+        summary="Unused resources"
+        explanation="Unused resources make applications larger and slow down builds.">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/layout/abc_action_menu_item_layout.xml"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        severity="Warning"
+        message="The resource `R.layout.abc_action_menu_layout` appears to be unused"
+        category="Performance"
+        priority="3"
+        summary="Unused resources"
+        explanation="Unused resources make applications larger and slow down builds.">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/layout/abc_action_menu_layout.xml"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        severity="Warning"
+        message="The resource `R.layout.abc_activity_chooser_view` appears to be unused"
+        category="Performance"
+        priority="3"
+        summary="Unused resources"
+        explanation="Unused resources make applications larger and slow down builds.">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/layout/abc_activity_chooser_view.xml"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        severity="Warning"
+        message="The resource `R.layout.abc_activity_chooser_view_list_item` appears to be unused"
+        category="Performance"
+        priority="3"
+        summary="Unused resources"
+        explanation="Unused resources make applications larger and slow down builds.">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/layout/abc_activity_chooser_view_list_item.xml"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        severity="Warning"
+        message="The resource `R.layout.abc_expanded_menu_layout` appears to be unused"
+        category="Performance"
+        priority="3"
+        summary="Unused resources"
+        explanation="Unused resources make applications larger and slow down builds.">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/layout/abc_expanded_menu_layout.xml"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        severity="Warning"
+        message="The resource `R.anim.abc_fade_in` appears to be unused"
+        category="Performance"
+        priority="3"
+        summary="Unused resources"
+        explanation="Unused resources make applications larger and slow down builds.">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/anim/abc_fade_in.xml"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        severity="Warning"
+        message="The resource `R.anim.abc_fade_out` appears to be unused"
+        category="Performance"
+        priority="3"
+        summary="Unused resources"
+        explanation="Unused resources make applications larger and slow down builds.">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/anim/abc_fade_out.xml"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        severity="Warning"
+        message="The resource `R.layout.abc_list_menu_item_checkbox` appears to be unused"
+        category="Performance"
+        priority="3"
+        summary="Unused resources"
+        explanation="Unused resources make applications larger and slow down builds.">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/layout/abc_list_menu_item_checkbox.xml"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        severity="Warning"
+        message="The resource `R.layout.abc_list_menu_item_icon` appears to be unused"
+        category="Performance"
+        priority="3"
+        summary="Unused resources"
+        explanation="Unused resources make applications larger and slow down builds.">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/layout/abc_list_menu_item_icon.xml"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        severity="Warning"
+        message="The resource `R.layout.abc_list_menu_item_layout` appears to be unused"
+        category="Performance"
+        priority="3"
+        summary="Unused resources"
+        explanation="Unused resources make applications larger and slow down builds.">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/layout/abc_list_menu_item_layout.xml"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        severity="Warning"
+        message="The resource `R.layout.abc_list_menu_item_radio` appears to be unused"
+        category="Performance"
+        priority="3"
+        summary="Unused resources"
+        explanation="Unused resources make applications larger and slow down builds.">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/layout/abc_list_menu_item_radio.xml"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        severity="Warning"
+        message="The resource `R.layout.abc_popup_menu_item_layout` appears to be unused"
+        category="Performance"
+        priority="3"
+        summary="Unused resources"
+        explanation="Unused resources make applications larger and slow down builds.">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/layout/abc_popup_menu_item_layout.xml"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        severity="Warning"
+        message="The resource `R.layout.abc_screen_simple` appears to be unused"
+        category="Performance"
+        priority="3"
+        summary="Unused resources"
+        explanation="Unused resources make applications larger and slow down builds.">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/layout/abc_screen_simple.xml"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        severity="Warning"
+        message="The resource `R.layout.abc_screen_simple_overlay_action_mode` appears to be unused"
+        category="Performance"
+        priority="3"
+        summary="Unused resources"
+        explanation="Unused resources make applications larger and slow down builds.">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/layout/abc_screen_simple_overlay_action_mode.xml"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        severity="Warning"
+        message="The resource `R.layout.abc_screen_toolbar` appears to be unused"
+        category="Performance"
+        priority="3"
+        summary="Unused resources"
+        explanation="Unused resources make applications larger and slow down builds.">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/layout/abc_screen_toolbar.xml"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        severity="Warning"
+        message="The resource `R.anim.abc_slide_in_bottom` appears to be unused"
+        category="Performance"
+        priority="3"
+        summary="Unused resources"
+        explanation="Unused resources make applications larger and slow down builds.">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/anim/abc_slide_in_bottom.xml"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        severity="Warning"
+        message="The resource `R.anim.abc_slide_in_top` appears to be unused"
+        category="Performance"
+        priority="3"
+        summary="Unused resources"
+        explanation="Unused resources make applications larger and slow down builds.">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/anim/abc_slide_in_top.xml"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        severity="Warning"
+        message="The resource `R.anim.abc_slide_out_bottom` appears to be unused"
+        category="Performance"
+        priority="3"
+        summary="Unused resources"
+        explanation="Unused resources make applications larger and slow down builds.">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/anim/abc_slide_out_bottom.xml"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        severity="Warning"
+        message="The resource `R.anim.abc_slide_out_top` appears to be unused"
+        category="Performance"
+        priority="3"
+        summary="Unused resources"
+        explanation="Unused resources make applications larger and slow down builds.">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/anim/abc_slide_out_top.xml"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        severity="Warning"
+        message="The resource `R.bool.abc_action_bar_embed_tabs` appears to be unused"
+        category="Performance"
+        priority="3"
+        summary="Unused resources"
+        explanation="Unused resources make applications larger and slow down builds."
+        errorLine1="    &lt;bool name=&quot;abc_action_bar_embed_tabs&quot;>true&lt;/bool>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values/bools.xml"
+            line="19"
+            column="11"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-port/bools.xml"
+            line="19"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        severity="Warning"
+        message="The resource `R.bool.abc_action_bar_embed_tabs_pre_jb` appears to be unused"
+        category="Performance"
+        priority="3"
+        summary="Unused resources"
+        explanation="Unused resources make applications larger and slow down builds."
+        errorLine1="    &lt;bool name=&quot;abc_action_bar_embed_tabs_pre_jb&quot;>false&lt;/bool>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values/bools.xml"
+            line="20"
+            column="11"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-land/bools.xml"
+            line="18"
+            column="11"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-large/bools.xml"
+            line="18"
+            column="11"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-w480dp/bools.xml"
+            line="17"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        severity="Warning"
+        message="The resource `R.bool.abc_action_bar_expanded_action_views_exclusive` appears to be unused"
+        category="Performance"
+        priority="3"
+        summary="Unused resources"
+        explanation="Unused resources make applications larger and slow down builds."
+        errorLine1="    &lt;bool name=&quot;abc_action_bar_expanded_action_views_exclusive&quot;>true&lt;/bool>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values/bools.xml"
+            line="21"
+            column="11"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-w720dp/bools.xml"
+            line="18"
+            column="11"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-xlarge/bools.xml"
+            line="18"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        severity="Warning"
+        message="The resource `R.bool.abc_config_showMenuShortcutsWhenKeyboardPresent` appears to be unused"
+        category="Performance"
+        priority="3"
+        summary="Unused resources"
+        explanation="Unused resources make applications larger and slow down builds."
+        errorLine1="    &lt;bool name=&quot;abc_config_showMenuShortcutsWhenKeyboardPresent&quot;>false&lt;/bool>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values/bools.xml"
+            line="23"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        severity="Warning"
+        message="The resource `R.color.abc_input_method_navigation_guard` appears to be unused"
+        category="Performance"
+        priority="3"
+        summary="Unused resources"
+        explanation="Unused resources make applications larger and slow down builds."
+        errorLine1="    &lt;color name=&quot;abc_input_method_navigation_guard&quot;>@android:color/black&lt;/color>"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values/colors.xml"
+            line="21"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        severity="Warning"
+        message="The resource `R.color.background_floating_material_dark` appears to be unused"
+        category="Performance"
+        priority="3"
+        summary="Unused resources"
+        explanation="Unused resources make applications larger and slow down builds."
+        errorLine1="    &lt;color name=&quot;background_floating_material_dark&quot;>#ff424242&lt;/color>"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values/colors_material.xml"
+            line="22"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        severity="Warning"
+        message="The resource `R.color.background_floating_material_light` appears to be unused"
+        category="Performance"
+        priority="3"
+        summary="Unused resources"
+        explanation="Unused resources make applications larger and slow down builds."
+        errorLine1="    &lt;color name=&quot;background_floating_material_light&quot;>#ffeeeeee&lt;/color>"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values/colors_material.xml"
+            line="23"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        severity="Warning"
+        message="The resource `R.color.bright_foreground_inverse_material_dark` appears to be unused"
+        category="Performance"
+        priority="3"
+        summary="Unused resources"
+        explanation="Unused resources make applications larger and slow down builds."
+        errorLine1="    &lt;color name=&quot;bright_foreground_inverse_material_dark&quot;>@color/bright_foreground_material_light&lt;/color>"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values/colors_material.xml"
+            line="48"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        severity="Warning"
+        message="The resource `R.color.bright_foreground_inverse_material_light` appears to be unused"
+        category="Performance"
+        priority="3"
+        summary="Unused resources"
+        explanation="Unused resources make applications larger and slow down builds."
+        errorLine1="    &lt;color name=&quot;bright_foreground_inverse_material_light&quot;>@color/bright_foreground_material_dark&lt;/color>"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values/colors_material.xml"
+            line="49"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        severity="Warning"
+        message="The resource `R.color.dim_foreground_material_dark` appears to be unused"
+        category="Performance"
+        priority="3"
+        summary="Unused resources"
+        explanation="Unused resources make applications larger and slow down builds."
+        errorLine1="    &lt;color name=&quot;dim_foreground_material_dark&quot;>#ffbebebe&lt;/color>"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values/colors_material.xml"
+            line="51"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        severity="Warning"
+        message="The resource `R.color.dim_foreground_material_light` appears to be unused"
+        category="Performance"
+        priority="3"
+        summary="Unused resources"
+        explanation="Unused resources make applications larger and slow down builds."
+        errorLine1="    &lt;color name=&quot;dim_foreground_material_light&quot;>#ff323232&lt;/color>"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values/colors_material.xml"
+            line="52"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        severity="Warning"
+        message="The resource `R.color.dim_foreground_disabled_material_dark` appears to be unused"
+        category="Performance"
+        priority="3"
+        summary="Unused resources"
+        explanation="Unused resources make applications larger and slow down builds."
+        errorLine1="    &lt;color name=&quot;dim_foreground_disabled_material_dark&quot;>#80bebebe&lt;/color>"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values/colors_material.xml"
+            line="53"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        severity="Warning"
+        message="The resource `R.color.dim_foreground_disabled_material_light` appears to be unused"
+        category="Performance"
+        priority="3"
+        summary="Unused resources"
+        explanation="Unused resources make applications larger and slow down builds."
+        errorLine1="    &lt;color name=&quot;dim_foreground_disabled_material_light&quot;>#80323232&lt;/color>"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values/colors_material.xml"
+            line="54"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        severity="Warning"
+        message="The resource `R.dimen.disabled_alpha_material_light` appears to be unused"
+        category="Performance"
+        priority="3"
+        summary="Unused resources"
+        explanation="Unused resources make applications larger and slow down builds."
+        errorLine1="    &lt;item name=&quot;disabled_alpha_material_light&quot; format=&quot;float&quot; type=&quot;dimen&quot;>0.26&lt;/item>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values/colors_material.xml"
+            line="76"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        severity="Warning"
+        message="The resource `R.dimen.disabled_alpha_material_dark` appears to be unused"
+        category="Performance"
+        priority="3"
+        summary="Unused resources"
+        explanation="Unused resources make applications larger and slow down builds."
+        errorLine1="    &lt;item name=&quot;disabled_alpha_material_dark&quot; format=&quot;float&quot; type=&quot;dimen&quot;>0.30&lt;/item>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values/colors_material.xml"
+            line="77"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        severity="Warning"
+        message="The resource `R.color.material_blue_grey_800` appears to be unused"
+        category="Performance"
+        priority="3"
+        summary="Unused resources"
+        explanation="Unused resources make applications larger and slow down builds."
+        errorLine1="    &lt;color name=&quot;material_blue_grey_800&quot;>#ff37474f&lt;/color>"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values/colors_material.xml"
+            line="93"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        severity="Warning"
+        message="The resource `R.color.material_blue_grey_900` appears to be unused"
+        category="Performance"
+        priority="3"
+        summary="Unused resources"
+        explanation="Unused resources make applications larger and slow down builds."
+        errorLine1="    &lt;color name=&quot;material_blue_grey_900&quot;>#ff263238&lt;/color>"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values/colors_material.xml"
+            line="94"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        severity="Warning"
+        message="The resource `R.color.material_blue_grey_950` appears to be unused"
+        category="Performance"
+        priority="3"
+        summary="Unused resources"
+        explanation="Unused resources make applications larger and slow down builds."
+        errorLine1="    &lt;color name=&quot;material_blue_grey_950&quot;>#ff21272b&lt;/color>"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values/colors_material.xml"
+            line="95"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        severity="Warning"
+        message="The resource `R.bool.abc_config_allowActionMenuItemTextWithIcon` appears to be unused"
+        category="Performance"
+        priority="3"
+        summary="Unused resources"
+        explanation="Unused resources make applications larger and slow down builds."
+        errorLine1="    &lt;bool name=&quot;abc_config_allowActionMenuItemTextWithIcon&quot;>false&lt;/bool>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values/config.xml"
+            line="23"
+            column="11"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-land/config.xml"
+            line="17"
+            column="11"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-large/config.xml"
+            line="26"
+            column="11"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-w480dp/config.xml"
+            line="17"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        severity="Warning"
+        message="The resource `R.dimen.abc_config_prefDialogWidth` appears to be unused"
+        category="Performance"
+        priority="3"
+        summary="Unused resources"
+        explanation="Unused resources make applications larger and slow down builds."
+        errorLine1="    &lt;dimen name=&quot;abc_config_prefDialogWidth&quot;>320dp&lt;/dimen>"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values/config.xml"
+            line="28"
+            column="12"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-large/config.xml"
+            line="29"
+            column="12"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-sw600dp/config.xml"
+            line="24"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        severity="Warning"
+        message="The resource `R.integer.abc_max_action_buttons` appears to be unused"
+        category="Performance"
+        priority="3"
+        summary="Unused resources"
+        explanation="Unused resources make applications larger and slow down builds."
+        errorLine1="    &lt;integer name=&quot;abc_max_action_buttons&quot;>2&lt;/integer>"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values/dimens.xml"
+            line="22"
+            column="14"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-large/dimens.xml"
+            line="23"
+            column="14"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-sw600dp/dimens.xml"
+            line="22"
+            column="14"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-w360dp/dimens.xml"
+            line="21"
+            column="14"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-w500dp/dimens.xml"
+            line="21"
+            column="14"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-w600dp/dimens.xml"
+            line="21"
+            column="14"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-xlarge/dimens.xml"
+            line="22"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        severity="Warning"
+        message="The resource `R.dimen.abc_action_bar_stacked_tab_max_width` appears to be unused"
+        category="Performance"
+        priority="3"
+        summary="Unused resources"
+        explanation="Unused resources make applications larger and slow down builds."
+        errorLine1="    &lt;dimen name=&quot;abc_action_bar_stacked_tab_max_width&quot;>180dp&lt;/dimen>"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values/dimens.xml"
+            line="27"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        severity="Warning"
+        message="The resource `R.dimen.abc_action_bar_stacked_max_height` appears to be unused"
+        category="Performance"
+        priority="3"
+        summary="Unused resources"
+        explanation="Unused resources make applications larger and slow down builds."
+        errorLine1="    &lt;dimen name=&quot;abc_action_bar_stacked_max_height&quot;>48dp&lt;/dimen>"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values/dimens.xml"
+            line="30"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        severity="Warning"
+        message="The resource `R.dimen.abc_search_view_preferred_width` appears to be unused"
+        category="Performance"
+        priority="3"
+        summary="Unused resources"
+        explanation="Unused resources make applications larger and slow down builds."
+        errorLine1="    &lt;dimen name=&quot;abc_search_view_preferred_width&quot;>320dip&lt;/dimen>"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values/dimens.xml"
+            line="39"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        severity="Warning"
+        message="The resource `R.dimen.abc_action_bar_default_padding_material` appears to be unused"
+        category="Performance"
+        priority="3"
+        summary="Unused resources"
+        explanation="Unused resources make applications larger and slow down builds."
+        errorLine1="    &lt;dimen name=&quot;abc_action_bar_default_padding_material&quot;>4dp&lt;/dimen>"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values/dimens_material.xml"
+            line="22"
+            column="12"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-land/dimens_material.xml"
+            line="21"
+            column="12"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-sw600dp/dimens.xml"
+            line="31"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        severity="Warning"
+        message="The resource `R.dimen.abc_action_bar_icon_vertical_padding_material` appears to be unused"
+        category="Performance"
+        priority="3"
+        summary="Unused resources"
+        explanation="Unused resources make applications larger and slow down builds."
+        errorLine1="    &lt;dimen name=&quot;abc_action_bar_icon_vertical_padding_material&quot;>16dp&lt;/dimen>"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values/dimens_material.xml"
+            line="24"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        severity="Warning"
+        message="The resource `R.dimen.abc_action_bar_subtitle_bottom_margin_material` appears to be unused"
+        category="Performance"
+        priority="3"
+        summary="Unused resources"
+        explanation="Unused resources make applications larger and slow down builds."
+        errorLine1="    &lt;dimen name=&quot;abc_action_bar_subtitle_bottom_margin_material&quot;>5dp&lt;/dimen>"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values/dimens_material.xml"
+            line="28"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        severity="Warning"
+        message="The resource `R.string.abc_action_bar_home_description` appears to be unused"
+        category="Performance"
+        priority="3"
+        summary="Unused resources"
+        explanation="Unused resources make applications larger and slow down builds."
+        errorLine1="    &lt;string name=&quot;abc_action_bar_home_description&quot;>Navigate home&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values/strings.xml"
+            line="21"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-af/strings.xml"
+            line="20"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-am/strings.xml"
+            line="20"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ar/strings.xml"
+            line="20"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-bg/strings.xml"
+            line="20"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-bn-rBD/strings.xml"
+            line="20"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ca/strings.xml"
+            line="20"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-cs/strings.xml"
+            line="20"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-da/strings.xml"
+            line="20"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-de/strings.xml"
+            line="20"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-el/strings.xml"
+            line="20"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-en-rGB/strings.xml"
+            line="20"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-en-rIN/strings.xml"
+            line="20"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-es/strings.xml"
+            line="20"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-es-rUS/strings.xml"
+            line="20"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-et-rEE/strings.xml"
+            line="20"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-eu-rES/strings.xml"
+            line="20"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-fa/strings.xml"
+            line="20"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-fi/strings.xml"
+            line="20"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-fr/strings.xml"
+            line="20"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-fr-rCA/strings.xml"
+            line="20"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-gl-rES/strings.xml"
+            line="20"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-hi/strings.xml"
+            line="20"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-hr/strings.xml"
+            line="20"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-hu/strings.xml"
+            line="20"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-hy-rAM/strings.xml"
+            line="20"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-in/strings.xml"
+            line="20"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-is-rIS/strings.xml"
+            line="20"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-it/strings.xml"
+            line="20"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-iw/strings.xml"
+            line="20"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ja/strings.xml"
+            line="20"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ka-rGE/strings.xml"
+            line="20"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-kk-rKZ/strings.xml"
+            line="20"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-km-rKH/strings.xml"
+            line="20"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-kn-rIN/strings.xml"
+            line="20"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ko/strings.xml"
+            line="20"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ky-rKG/strings.xml"
+            line="20"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-lo-rLA/strings.xml"
+            line="20"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-lt/strings.xml"
+            line="20"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-lv/strings.xml"
+            line="20"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-mk-rMK/strings.xml"
+            line="20"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ml-rIN/strings.xml"
+            line="20"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-mn-rMN/strings.xml"
+            line="20"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-mr-rIN/strings.xml"
+            line="20"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ms-rMY/strings.xml"
+            line="20"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-my-rMM/strings.xml"
+            line="20"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-nb/strings.xml"
+            line="20"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ne-rNP/strings.xml"
+            line="20"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-nl/strings.xml"
+            line="20"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-pl/strings.xml"
+            line="20"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-pt/strings.xml"
+            line="20"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-pt-rPT/strings.xml"
+            line="20"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ro/strings.xml"
+            line="20"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ru/strings.xml"
+            line="20"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-si-rLK/strings.xml"
+            line="20"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-sk/strings.xml"
+            line="20"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-sl/strings.xml"
+            line="20"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-sr/strings.xml"
+            line="20"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-sv/strings.xml"
+            line="20"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-sw/strings.xml"
+            line="20"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ta-rIN/strings.xml"
+            line="20"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-te-rIN/strings.xml"
+            line="20"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-th/strings.xml"
+            line="20"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-tl/strings.xml"
+            line="20"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-tr/strings.xml"
+            line="20"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-uk/strings.xml"
+            line="20"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ur-rPK/strings.xml"
+            line="20"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-uz-rUZ/strings.xml"
+            line="20"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-vi/strings.xml"
+            line="20"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-zh-rCN/strings.xml"
+            line="20"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-zh-rHK/strings.xml"
+            line="20"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-zh-rTW/strings.xml"
+            line="20"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-zu/strings.xml"
+            line="20"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        severity="Warning"
+        message="The resource `R.string.abc_action_bar_home_description_format` appears to be unused"
+        category="Performance"
+        priority="3"
+        summary="Unused resources"
+        explanation="Unused resources make applications larger and slow down builds."
+        errorLine1="    &lt;string name=&quot;abc_action_bar_home_description_format&quot;>%1$s, %2$s&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values/strings.xml"
+            line="35"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-af/strings.xml"
+            line="24"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-am/strings.xml"
+            line="24"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ar/strings.xml"
+            line="24"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-bg/strings.xml"
+            line="24"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-bn-rBD/strings.xml"
+            line="24"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ca/strings.xml"
+            line="24"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-cs/strings.xml"
+            line="24"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-da/strings.xml"
+            line="24"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-de/strings.xml"
+            line="24"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-el/strings.xml"
+            line="24"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-en-rGB/strings.xml"
+            line="24"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-en-rIN/strings.xml"
+            line="24"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-es/strings.xml"
+            line="24"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-es-rUS/strings.xml"
+            line="24"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-et-rEE/strings.xml"
+            line="24"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-eu-rES/strings.xml"
+            line="24"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-fa/strings.xml"
+            line="24"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-fi/strings.xml"
+            line="24"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-fr/strings.xml"
+            line="24"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-fr-rCA/strings.xml"
+            line="24"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-gl-rES/strings.xml"
+            line="24"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-hi/strings.xml"
+            line="24"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-hr/strings.xml"
+            line="24"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-hu/strings.xml"
+            line="24"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-hy-rAM/strings.xml"
+            line="24"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-in/strings.xml"
+            line="24"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-is-rIS/strings.xml"
+            line="24"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-it/strings.xml"
+            line="24"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-iw/strings.xml"
+            line="24"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ja/strings.xml"
+            line="24"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ka-rGE/strings.xml"
+            line="24"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-kk-rKZ/strings.xml"
+            line="24"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-km-rKH/strings.xml"
+            line="24"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-kn-rIN/strings.xml"
+            line="24"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ko/strings.xml"
+            line="24"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ky-rKG/strings.xml"
+            line="24"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-lo-rLA/strings.xml"
+            line="24"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-lt/strings.xml"
+            line="24"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-lv/strings.xml"
+            line="24"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ml-rIN/strings.xml"
+            line="24"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-mn-rMN/strings.xml"
+            line="24"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-mr-rIN/strings.xml"
+            line="24"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ms-rMY/strings.xml"
+            line="24"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-my-rMM/strings.xml"
+            line="24"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-nb/strings.xml"
+            line="24"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ne-rNP/strings.xml"
+            line="24"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-nl/strings.xml"
+            line="24"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-pl/strings.xml"
+            line="24"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-pt/strings.xml"
+            line="24"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-pt-rPT/strings.xml"
+            line="24"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ro/strings.xml"
+            line="24"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ru/strings.xml"
+            line="24"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-si-rLK/strings.xml"
+            line="24"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-sk/strings.xml"
+            line="24"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-sl/strings.xml"
+            line="24"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-sr/strings.xml"
+            line="24"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-sv/strings.xml"
+            line="24"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-sw/strings.xml"
+            line="24"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ta-rIN/strings.xml"
+            line="24"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-te-rIN/strings.xml"
+            line="24"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-th/strings.xml"
+            line="24"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-tl/strings.xml"
+            line="24"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-tr/strings.xml"
+            line="24"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-uk/strings.xml"
+            line="24"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ur-rPK/strings.xml"
+            line="24"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-uz-rUZ/strings.xml"
+            line="24"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-vi/strings.xml"
+            line="24"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-zh-rCN/strings.xml"
+            line="24"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-zh-rHK/strings.xml"
+            line="24"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-zh-rTW/strings.xml"
+            line="24"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-zu/strings.xml"
+            line="24"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        severity="Warning"
+        message="The resource `R.string.abc_action_bar_home_subtitle_description_format` appears to be unused"
+        category="Performance"
+        priority="3"
+        summary="Unused resources"
+        explanation="Unused resources make applications larger and slow down builds."
+        errorLine1="    &lt;string name=&quot;abc_action_bar_home_subtitle_description_format&quot;>%1$s, %2$s, %3$s&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values/strings.xml"
+            line="40"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-af/strings.xml"
+            line="25"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-am/strings.xml"
+            line="25"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ar/strings.xml"
+            line="25"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-bg/strings.xml"
+            line="25"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-bn-rBD/strings.xml"
+            line="25"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ca/strings.xml"
+            line="25"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-cs/strings.xml"
+            line="25"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-da/strings.xml"
+            line="25"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-de/strings.xml"
+            line="25"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-el/strings.xml"
+            line="25"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-en-rGB/strings.xml"
+            line="25"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-en-rIN/strings.xml"
+            line="25"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-es/strings.xml"
+            line="25"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-es-rUS/strings.xml"
+            line="25"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-et-rEE/strings.xml"
+            line="25"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-eu-rES/strings.xml"
+            line="25"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-fa/strings.xml"
+            line="25"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-fi/strings.xml"
+            line="25"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-fr/strings.xml"
+            line="25"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-fr-rCA/strings.xml"
+            line="25"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-gl-rES/strings.xml"
+            line="25"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-hi/strings.xml"
+            line="25"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-hr/strings.xml"
+            line="25"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-hu/strings.xml"
+            line="25"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-hy-rAM/strings.xml"
+            line="25"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-in/strings.xml"
+            line="25"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-is-rIS/strings.xml"
+            line="25"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-it/strings.xml"
+            line="25"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-iw/strings.xml"
+            line="25"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ja/strings.xml"
+            line="25"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ka-rGE/strings.xml"
+            line="25"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-kk-rKZ/strings.xml"
+            line="25"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-km-rKH/strings.xml"
+            line="25"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-kn-rIN/strings.xml"
+            line="25"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ko/strings.xml"
+            line="25"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ky-rKG/strings.xml"
+            line="25"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-lo-rLA/strings.xml"
+            line="25"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-lt/strings.xml"
+            line="25"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-lv/strings.xml"
+            line="25"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-mk-rMK/strings.xml"
+            line="27"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ml-rIN/strings.xml"
+            line="25"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-mn-rMN/strings.xml"
+            line="25"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-mr-rIN/strings.xml"
+            line="25"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ms-rMY/strings.xml"
+            line="25"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-my-rMM/strings.xml"
+            line="25"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-nb/strings.xml"
+            line="25"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ne-rNP/strings.xml"
+            line="25"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-nl/strings.xml"
+            line="25"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-pl/strings.xml"
+            line="25"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-pt/strings.xml"
+            line="25"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-pt-rPT/strings.xml"
+            line="25"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ro/strings.xml"
+            line="25"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ru/strings.xml"
+            line="25"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-si-rLK/strings.xml"
+            line="25"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-sk/strings.xml"
+            line="25"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-sl/strings.xml"
+            line="25"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-sr/strings.xml"
+            line="25"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-sv/strings.xml"
+            line="25"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-sw/strings.xml"
+            line="25"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ta-rIN/strings.xml"
+            line="25"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-te-rIN/strings.xml"
+            line="25"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-th/strings.xml"
+            line="25"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-tl/strings.xml"
+            line="25"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-tr/strings.xml"
+            line="25"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-uk/strings.xml"
+            line="25"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ur-rPK/strings.xml"
+            line="25"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-uz-rUZ/strings.xml"
+            line="25"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-vi/strings.xml"
+            line="25"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-zh-rCN/strings.xml"
+            line="25"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-zh-rHK/strings.xml"
+            line="25"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-zh-rTW/strings.xml"
+            line="25"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-zu/strings.xml"
+            line="25"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        severity="Warning"
+        message="The resource `R.string.abc_searchview_description_query` appears to be unused"
+        category="Performance"
+        priority="3"
+        summary="Unused resources"
+        explanation="Unused resources make applications larger and slow down builds."
+        errorLine1="    &lt;string name=&quot;abc_searchview_description_query&quot;>Search query&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values/strings.xml"
+            line="45"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-af/strings.xml"
+            line="27"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-am/strings.xml"
+            line="27"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ar/strings.xml"
+            line="27"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-bg/strings.xml"
+            line="27"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-bn-rBD/strings.xml"
+            line="27"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ca/strings.xml"
+            line="27"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-cs/strings.xml"
+            line="27"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-da/strings.xml"
+            line="27"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-de/strings.xml"
+            line="27"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-el/strings.xml"
+            line="27"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-en-rGB/strings.xml"
+            line="27"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-en-rIN/strings.xml"
+            line="27"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-es/strings.xml"
+            line="27"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-es-rUS/strings.xml"
+            line="27"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-et-rEE/strings.xml"
+            line="27"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-eu-rES/strings.xml"
+            line="27"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-fa/strings.xml"
+            line="27"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-fi/strings.xml"
+            line="27"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-fr/strings.xml"
+            line="27"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-fr-rCA/strings.xml"
+            line="27"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-gl-rES/strings.xml"
+            line="27"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-hi/strings.xml"
+            line="27"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-hr/strings.xml"
+            line="27"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-hu/strings.xml"
+            line="27"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-hy-rAM/strings.xml"
+            line="27"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-in/strings.xml"
+            line="27"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-is-rIS/strings.xml"
+            line="27"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-it/strings.xml"
+            line="27"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-iw/strings.xml"
+            line="27"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ja/strings.xml"
+            line="27"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ka-rGE/strings.xml"
+            line="27"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-kk-rKZ/strings.xml"
+            line="27"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-km-rKH/strings.xml"
+            line="27"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-kn-rIN/strings.xml"
+            line="27"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ko/strings.xml"
+            line="27"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ky-rKG/strings.xml"
+            line="27"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-lo-rLA/strings.xml"
+            line="27"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-lt/strings.xml"
+            line="27"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-lv/strings.xml"
+            line="27"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-mk-rMK/strings.xml"
+            line="29"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ml-rIN/strings.xml"
+            line="27"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-mn-rMN/strings.xml"
+            line="27"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-mr-rIN/strings.xml"
+            line="27"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ms-rMY/strings.xml"
+            line="27"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-my-rMM/strings.xml"
+            line="27"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-nb/strings.xml"
+            line="27"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ne-rNP/strings.xml"
+            line="27"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-nl/strings.xml"
+            line="27"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-pl/strings.xml"
+            line="27"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-pt/strings.xml"
+            line="27"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-pt-rPT/strings.xml"
+            line="27"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ro/strings.xml"
+            line="27"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ru/strings.xml"
+            line="27"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-si-rLK/strings.xml"
+            line="27"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-sk/strings.xml"
+            line="27"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-sl/strings.xml"
+            line="27"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-sr/strings.xml"
+            line="27"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-sv/strings.xml"
+            line="27"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-sw/strings.xml"
+            line="27"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ta-rIN/strings.xml"
+            line="27"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-te-rIN/strings.xml"
+            line="27"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-th/strings.xml"
+            line="27"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-tl/strings.xml"
+            line="27"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-tr/strings.xml"
+            line="27"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-uk/strings.xml"
+            line="27"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ur-rPK/strings.xml"
+            line="27"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-uz-rUZ/strings.xml"
+            line="27"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-vi/strings.xml"
+            line="27"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-zh-rCN/strings.xml"
+            line="27"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-zh-rHK/strings.xml"
+            line="27"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-zh-rTW/strings.xml"
+            line="27"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-zu/strings.xml"
+            line="27"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        severity="Warning"
+        message="The resource `R.string.abc_activitychooserview_choose_application` appears to be unused"
+        category="Performance"
+        priority="3"
+        summary="Unused resources"
+        explanation="Unused resources make applications larger and slow down builds."
+        errorLine1="    &lt;string name=&quot;abc_activitychooserview_choose_application&quot;>Choose an app&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values/strings.xml"
+            line="55"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-af/strings.xml"
+            line="31"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-am/strings.xml"
+            line="31"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ar/strings.xml"
+            line="31"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-bg/strings.xml"
+            line="31"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-bn-rBD/strings.xml"
+            line="31"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ca/strings.xml"
+            line="31"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-cs/strings.xml"
+            line="31"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-da/strings.xml"
+            line="31"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-de/strings.xml"
+            line="31"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-el/strings.xml"
+            line="31"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-en-rGB/strings.xml"
+            line="31"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-en-rIN/strings.xml"
+            line="31"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-es/strings.xml"
+            line="31"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-es-rUS/strings.xml"
+            line="31"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-et-rEE/strings.xml"
+            line="31"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-eu-rES/strings.xml"
+            line="31"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-fa/strings.xml"
+            line="31"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-fi/strings.xml"
+            line="31"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-fr/strings.xml"
+            line="31"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-fr-rCA/strings.xml"
+            line="31"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-gl-rES/strings.xml"
+            line="31"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-hi/strings.xml"
+            line="31"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-hr/strings.xml"
+            line="31"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-hu/strings.xml"
+            line="31"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-hy-rAM/strings.xml"
+            line="31"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-in/strings.xml"
+            line="31"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-is-rIS/strings.xml"
+            line="31"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-it/strings.xml"
+            line="31"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-iw/strings.xml"
+            line="31"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ja/strings.xml"
+            line="31"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ka-rGE/strings.xml"
+            line="31"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-kk-rKZ/strings.xml"
+            line="31"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-km-rKH/strings.xml"
+            line="31"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-kn-rIN/strings.xml"
+            line="31"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ko/strings.xml"
+            line="31"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ky-rKG/strings.xml"
+            line="31"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-lo-rLA/strings.xml"
+            line="31"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-lt/strings.xml"
+            line="31"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-lv/strings.xml"
+            line="31"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-mk-rMK/strings.xml"
+            line="33"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ml-rIN/strings.xml"
+            line="31"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-mn-rMN/strings.xml"
+            line="31"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-mr-rIN/strings.xml"
+            line="31"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ms-rMY/strings.xml"
+            line="31"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-my-rMM/strings.xml"
+            line="31"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-nb/strings.xml"
+            line="31"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ne-rNP/strings.xml"
+            line="31"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-nl/strings.xml"
+            line="31"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-pl/strings.xml"
+            line="31"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-pt/strings.xml"
+            line="31"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-pt-rPT/strings.xml"
+            line="31"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ro/strings.xml"
+            line="31"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ru/strings.xml"
+            line="31"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-si-rLK/strings.xml"
+            line="31"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-sk/strings.xml"
+            line="31"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-sl/strings.xml"
+            line="31"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-sr/strings.xml"
+            line="31"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-sv/strings.xml"
+            line="31"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-sw/strings.xml"
+            line="31"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ta-rIN/strings.xml"
+            line="31"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-te-rIN/strings.xml"
+            line="31"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-th/strings.xml"
+            line="31"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-tl/strings.xml"
+            line="31"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-tr/strings.xml"
+            line="31"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-uk/strings.xml"
+            line="31"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ur-rPK/strings.xml"
+            line="31"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-uz-rUZ/strings.xml"
+            line="31"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-vi/strings.xml"
+            line="31"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-zh-rCN/strings.xml"
+            line="31"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-zh-rHK/strings.xml"
+            line="31"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-zh-rTW/strings.xml"
+            line="31"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-zu/strings.xml"
+            line="31"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        severity="Warning"
+        message="The resource `R.string.abc_activity_chooser_view_see_all` appears to be unused"
+        category="Performance"
+        priority="3"
+        summary="Unused resources"
+        explanation="Unused resources make applications larger and slow down builds."
+        errorLine1="    &lt;string name=&quot;abc_activity_chooser_view_see_all&quot;>See all&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values/strings.xml"
+            line="57"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-af/strings.xml"
+            line="32"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-am/strings.xml"
+            line="32"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ar/strings.xml"
+            line="32"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-bg/strings.xml"
+            line="32"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-bn-rBD/strings.xml"
+            line="32"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ca/strings.xml"
+            line="32"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-cs/strings.xml"
+            line="32"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-da/strings.xml"
+            line="32"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-de/strings.xml"
+            line="32"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-el/strings.xml"
+            line="32"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-en-rGB/strings.xml"
+            line="32"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-en-rIN/strings.xml"
+            line="32"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-es/strings.xml"
+            line="32"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-es-rUS/strings.xml"
+            line="32"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-et-rEE/strings.xml"
+            line="32"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-eu-rES/strings.xml"
+            line="32"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-fa/strings.xml"
+            line="32"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-fi/strings.xml"
+            line="32"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-fr/strings.xml"
+            line="32"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-fr-rCA/strings.xml"
+            line="32"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-gl-rES/strings.xml"
+            line="32"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-hi/strings.xml"
+            line="32"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-hr/strings.xml"
+            line="32"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-hu/strings.xml"
+            line="32"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-hy-rAM/strings.xml"
+            line="32"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-in/strings.xml"
+            line="32"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-is-rIS/strings.xml"
+            line="32"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-it/strings.xml"
+            line="32"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-iw/strings.xml"
+            line="32"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ja/strings.xml"
+            line="32"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ka-rGE/strings.xml"
+            line="32"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-kk-rKZ/strings.xml"
+            line="32"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-km-rKH/strings.xml"
+            line="32"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-kn-rIN/strings.xml"
+            line="32"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ko/strings.xml"
+            line="32"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ky-rKG/strings.xml"
+            line="32"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-lo-rLA/strings.xml"
+            line="32"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-lt/strings.xml"
+            line="32"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-lv/strings.xml"
+            line="32"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-mk-rMK/strings.xml"
+            line="34"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ml-rIN/strings.xml"
+            line="32"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-mn-rMN/strings.xml"
+            line="32"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-mr-rIN/strings.xml"
+            line="32"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ms-rMY/strings.xml"
+            line="32"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-my-rMM/strings.xml"
+            line="32"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-nb/strings.xml"
+            line="32"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ne-rNP/strings.xml"
+            line="32"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-nl/strings.xml"
+            line="32"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-pl/strings.xml"
+            line="32"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-pt/strings.xml"
+            line="32"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-pt-rPT/strings.xml"
+            line="32"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ro/strings.xml"
+            line="32"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ru/strings.xml"
+            line="32"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-si-rLK/strings.xml"
+            line="32"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-sk/strings.xml"
+            line="32"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-sl/strings.xml"
+            line="32"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-sr/strings.xml"
+            line="32"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-sv/strings.xml"
+            line="32"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-sw/strings.xml"
+            line="32"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ta-rIN/strings.xml"
+            line="32"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-te-rIN/strings.xml"
+            line="32"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-th/strings.xml"
+            line="32"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-tl/strings.xml"
+            line="32"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-tr/strings.xml"
+            line="32"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-uk/strings.xml"
+            line="32"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ur-rPK/strings.xml"
+            line="32"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-uz-rUZ/strings.xml"
+            line="32"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-vi/strings.xml"
+            line="32"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-zh-rCN/strings.xml"
+            line="32"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-zh-rHK/strings.xml"
+            line="32"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-zh-rTW/strings.xml"
+            line="32"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-zu/strings.xml"
+            line="32"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        severity="Warning"
+        message="The resource `R.string.abc_shareactionprovider_share_with_application` appears to be unused"
+        category="Performance"
+        priority="3"
+        summary="Unused resources"
+        explanation="Unused resources make applications larger and slow down builds."
+        errorLine1="    &lt;string name=&quot;abc_shareactionprovider_share_with_application&quot;>Share with %s&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values/strings.xml"
+            line="59"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-af/strings.xml"
+            line="33"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-am/strings.xml"
+            line="33"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ar/strings.xml"
+            line="33"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-bg/strings.xml"
+            line="33"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-bn-rBD/strings.xml"
+            line="33"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ca/strings.xml"
+            line="33"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-cs/strings.xml"
+            line="33"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-da/strings.xml"
+            line="33"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-de/strings.xml"
+            line="33"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-el/strings.xml"
+            line="33"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-en-rGB/strings.xml"
+            line="33"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-en-rIN/strings.xml"
+            line="33"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-es/strings.xml"
+            line="33"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-es-rUS/strings.xml"
+            line="33"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-et-rEE/strings.xml"
+            line="33"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-eu-rES/strings.xml"
+            line="33"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-fa/strings.xml"
+            line="33"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-fi/strings.xml"
+            line="33"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-fr/strings.xml"
+            line="33"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-fr-rCA/strings.xml"
+            line="33"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-gl-rES/strings.xml"
+            line="33"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-hi/strings.xml"
+            line="33"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-hr/strings.xml"
+            line="33"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-hu/strings.xml"
+            line="33"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-hy-rAM/strings.xml"
+            line="33"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-in/strings.xml"
+            line="33"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-is-rIS/strings.xml"
+            line="33"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-it/strings.xml"
+            line="33"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-iw/strings.xml"
+            line="33"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ja/strings.xml"
+            line="33"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ka-rGE/strings.xml"
+            line="33"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-kk-rKZ/strings.xml"
+            line="33"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-km-rKH/strings.xml"
+            line="33"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-kn-rIN/strings.xml"
+            line="33"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ko/strings.xml"
+            line="33"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ky-rKG/strings.xml"
+            line="33"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-lo-rLA/strings.xml"
+            line="33"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-lt/strings.xml"
+            line="33"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-lv/strings.xml"
+            line="33"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ml-rIN/strings.xml"
+            line="33"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-mn-rMN/strings.xml"
+            line="33"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-mr-rIN/strings.xml"
+            line="33"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ms-rMY/strings.xml"
+            line="33"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-my-rMM/strings.xml"
+            line="33"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-nb/strings.xml"
+            line="33"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ne-rNP/strings.xml"
+            line="33"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-nl/strings.xml"
+            line="33"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-pl/strings.xml"
+            line="33"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-pt/strings.xml"
+            line="33"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-pt-rPT/strings.xml"
+            line="33"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ro/strings.xml"
+            line="33"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ru/strings.xml"
+            line="33"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-si-rLK/strings.xml"
+            line="33"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-sk/strings.xml"
+            line="33"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-sl/strings.xml"
+            line="33"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-sr/strings.xml"
+            line="33"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-sv/strings.xml"
+            line="33"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-sw/strings.xml"
+            line="33"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ta-rIN/strings.xml"
+            line="33"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-te-rIN/strings.xml"
+            line="33"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-th/strings.xml"
+            line="33"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-tl/strings.xml"
+            line="33"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-tr/strings.xml"
+            line="33"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-uk/strings.xml"
+            line="33"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ur-rPK/strings.xml"
+            line="33"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-vi/strings.xml"
+            line="33"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-zh-rCN/strings.xml"
+            line="33"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-zh-rHK/strings.xml"
+            line="33"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-zh-rTW/strings.xml"
+            line="33"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-zu/strings.xml"
+            line="33"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        severity="Warning"
+        message="The resource `R.string.abc_shareactionprovider_share_with` appears to be unused"
+        category="Performance"
+        priority="3"
+        summary="Unused resources"
+        explanation="Unused resources make applications larger and slow down builds."
+        errorLine1="    &lt;string name=&quot;abc_shareactionprovider_share_with&quot;>Share with&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values/strings.xml"
+            line="61"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-af/strings.xml"
+            line="34"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-am/strings.xml"
+            line="34"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ar/strings.xml"
+            line="34"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-bg/strings.xml"
+            line="34"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-bn-rBD/strings.xml"
+            line="34"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ca/strings.xml"
+            line="34"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-cs/strings.xml"
+            line="34"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-da/strings.xml"
+            line="34"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-de/strings.xml"
+            line="34"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-el/strings.xml"
+            line="34"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-en-rGB/strings.xml"
+            line="34"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-en-rIN/strings.xml"
+            line="34"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-es/strings.xml"
+            line="34"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-es-rUS/strings.xml"
+            line="34"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-et-rEE/strings.xml"
+            line="34"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-eu-rES/strings.xml"
+            line="34"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-fa/strings.xml"
+            line="34"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-fi/strings.xml"
+            line="34"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-fr/strings.xml"
+            line="34"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-fr-rCA/strings.xml"
+            line="34"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-gl-rES/strings.xml"
+            line="34"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-hi/strings.xml"
+            line="34"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-hr/strings.xml"
+            line="34"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-hu/strings.xml"
+            line="34"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-hy-rAM/strings.xml"
+            line="34"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-in/strings.xml"
+            line="34"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-is-rIS/strings.xml"
+            line="34"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-it/strings.xml"
+            line="34"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-iw/strings.xml"
+            line="34"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ja/strings.xml"
+            line="34"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ka-rGE/strings.xml"
+            line="34"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-kk-rKZ/strings.xml"
+            line="34"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-km-rKH/strings.xml"
+            line="34"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-kn-rIN/strings.xml"
+            line="34"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ko/strings.xml"
+            line="34"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ky-rKG/strings.xml"
+            line="34"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-lo-rLA/strings.xml"
+            line="34"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-lt/strings.xml"
+            line="34"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-lv/strings.xml"
+            line="34"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-mk-rMK/strings.xml"
+            line="38"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ml-rIN/strings.xml"
+            line="34"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-mn-rMN/strings.xml"
+            line="34"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-mr-rIN/strings.xml"
+            line="34"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ms-rMY/strings.xml"
+            line="34"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-my-rMM/strings.xml"
+            line="34"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-nb/strings.xml"
+            line="34"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ne-rNP/strings.xml"
+            line="34"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-nl/strings.xml"
+            line="34"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-pl/strings.xml"
+            line="34"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-pt/strings.xml"
+            line="34"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-pt-rPT/strings.xml"
+            line="34"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ro/strings.xml"
+            line="34"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ru/strings.xml"
+            line="34"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-si-rLK/strings.xml"
+            line="34"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-sk/strings.xml"
+            line="34"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-sl/strings.xml"
+            line="34"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-sr/strings.xml"
+            line="34"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-sv/strings.xml"
+            line="34"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-sw/strings.xml"
+            line="34"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ta-rIN/strings.xml"
+            line="34"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-te-rIN/strings.xml"
+            line="34"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-th/strings.xml"
+            line="34"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-tl/strings.xml"
+            line="34"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-tr/strings.xml"
+            line="34"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-uk/strings.xml"
+            line="34"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ur-rPK/strings.xml"
+            line="34"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-uz-rUZ/strings.xml"
+            line="36"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-vi/strings.xml"
+            line="34"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-zh-rCN/strings.xml"
+            line="34"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-zh-rHK/strings.xml"
+            line="34"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-zh-rTW/strings.xml"
+            line="34"
+            column="13"/>
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-zu/strings.xml"
+            line="34"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        severity="Warning"
+        message="The resource `R.layout.support_simple_spinner_dropdown_item` appears to be unused"
+        category="Performance"
+        priority="3"
+        summary="Unused resources"
+        explanation="Unused resources make applications larger and slow down builds.">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/layout/support_simple_spinner_dropdown_item.xml"/>
+    </issue>
+
+    <issue
+        id="UselessParent"
+        severity="Warning"
+        message="This `LinearLayout` layout or its `LinearLayout` parent is useless"
+        category="Performance"
+        priority="2"
+        summary="Useless parent layout"
+        explanation="A layout with children that has no siblings, is not a scrollview or a root layout, and does not have a background, can be removed and have its children moved directly into the parent for a flatter and more efficient layout hierarchy."
+        errorLine1="    &lt;LinearLayout"
+        errorLine2="    ^"
+        quickfix="adt">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/layout/abc_activity_chooser_view_list_item.xml"
+            line="26"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        severity="Warning"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        category="Usability:Typography"
+        priority="5"
+        summary="Ellipsis string can be replaced with ellipsis character"
+        explanation="You can replace the string &quot;...&quot; with a dedicated ellipsis character, ellipsis character (…, &amp;#8230;). This can help make the text more readable."
+        url="http://en.wikipedia.org/wiki/Ellipsis"
+        urls="http://en.wikipedia.org/wiki/Ellipsis"
+        errorLine1="    &lt;string name=&quot;abc_shareactionprovider_share_with&quot; msgid=&quot;3421042268587513524&quot;>&quot;साझेदारी गर्नुहोस्...&quot;&lt;/string>"
+        errorLine2="                                                                                  ^"
+        quickfix="studio,adt">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/values-ne-rNP/strings.xml"
+            line="34"
+            column="83"/>
+    </issue>
+
+    <issue
+        id="IconDensities"
+        severity="Warning"
+        message="Missing the following drawables in `drawable-xxxhdpi`: abc_ab_share_pack_mtrl_alpha.9.png, abc_btn_rating_star_off_mtrl_alpha.png, abc_btn_rating_star_on_mtrl_alpha.png, abc_cab_background_top_mtrl_alpha.9.png, abc_ic_commit_search_api_mtrl_alpha.png... (14 more)"
+        category="Usability:Icons"
+        priority="4"
+        summary="Icon densities validation"
+        explanation="Icons will look best if a custom version is provided for each of the major screen density classes (low, medium, high, extra high). This lint check identifies icons which do not have complete coverage across the densities.
+
+Low density is not really used much anymore, so this check ignores the ldpi density. To force lint to include it, set the environment variable `ANDROID_LINT_INCLUDE_LDPI=true`. For more information on current density usage, see http://developer.android.com/resources/dashboard/screens.html"
+        url="http://developer.android.com/guide/practices/screens_support.html"
+        urls="http://developer.android.com/guide/practices/screens_support.html">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/drawable-xxxhdpi"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        severity="Warning"
+        message="[Accessibility] Missing `contentDescription` attribute on image"
+        category="Accessibility"
+        priority="3"
+        summary="Image without `contentDescription`"
+        explanation="Non-textual widgets like ImageViews and ImageButtons should use the `contentDescription` attribute to specify a textual description of the widget such that screen readers and other accessibility tools can adequately describe the user interface.
+
+Note that elements in application screens that are purely decorative and do not provide any content or enable a user action should not have accessibility content descriptions. In this case, just suppress the lint warning with a tools:ignore=&quot;ContentDescription&quot; attribute.
+
+Note that for text fields, you should not set both the `hint` and the `contentDescription` attributes since the hint will never be shown. Just set the `hint`. See http://developer.android.com/guide/topics/ui/accessibility/checklist.html#special-cases."
+        errorLine1="        &lt;ImageView android:id=&quot;@+id/image&quot;"
+        errorLine2="        ^"
+        quickfix="studio,adt">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/layout/abc_activity_chooser_view.xml"
+            line="36"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        severity="Warning"
+        message="[Accessibility] Missing `contentDescription` attribute on image"
+        category="Accessibility"
+        priority="3"
+        summary="Image without `contentDescription`"
+        explanation="Non-textual widgets like ImageViews and ImageButtons should use the `contentDescription` attribute to specify a textual description of the widget such that screen readers and other accessibility tools can adequately describe the user interface.
+
+Note that elements in application screens that are purely decorative and do not provide any content or enable a user action should not have accessibility content descriptions. In this case, just suppress the lint warning with a tools:ignore=&quot;ContentDescription&quot; attribute.
+
+Note that for text fields, you should not set both the `hint` and the `contentDescription` attributes since the hint will never be shown. Just set the `hint`. See http://developer.android.com/guide/topics/ui/accessibility/checklist.html#special-cases."
+        errorLine1="        &lt;ImageView android:id=&quot;@+id/image&quot;"
+        errorLine2="        ^"
+        quickfix="studio,adt">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/layout/abc_activity_chooser_view.xml"
+            line="58"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        severity="Warning"
+        message="[Accessibility] Missing `contentDescription` attribute on image"
+        category="Accessibility"
+        priority="3"
+        summary="Image without `contentDescription`"
+        explanation="Non-textual widgets like ImageViews and ImageButtons should use the `contentDescription` attribute to specify a textual description of the widget such that screen readers and other accessibility tools can adequately describe the user interface.
+
+Note that elements in application screens that are purely decorative and do not provide any content or enable a user action should not have accessibility content descriptions. In this case, just suppress the lint warning with a tools:ignore=&quot;ContentDescription&quot; attribute.
+
+Note that for text fields, you should not set both the `hint` and the `contentDescription` attributes since the hint will never be shown. Just set the `hint`. See http://developer.android.com/guide/topics/ui/accessibility/checklist.html#special-cases."
+        errorLine1="        &lt;ImageView"
+        errorLine2="        ^"
+        quickfix="studio,adt">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/layout/abc_activity_chooser_view_list_item.xml"
+            line="31"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        severity="Warning"
+        message="[Accessibility] Missing `contentDescription` attribute on image"
+        category="Accessibility"
+        priority="3"
+        summary="Image without `contentDescription`"
+        explanation="Non-textual widgets like ImageViews and ImageButtons should use the `contentDescription` attribute to specify a textual description of the widget such that screen readers and other accessibility tools can adequately describe the user interface.
+
+Note that elements in application screens that are purely decorative and do not provide any content or enable a user action should not have accessibility content descriptions. In this case, just suppress the lint warning with a tools:ignore=&quot;ContentDescription&quot; attribute.
+
+Note that for text fields, you should not set both the `hint` and the `contentDescription` attributes since the hint will never be shown. Just set the `hint`. See http://developer.android.com/guide/topics/ui/accessibility/checklist.html#special-cases."
+        errorLine1="&lt;ImageView xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^"
+        quickfix="studio,adt">
+        <location
+            file="/Users/ravi/Documents/2/android-client/appcompat/res/layout/abc_list_menu_item_icon.xml"
+            line="17"
+            column="1"/>
+    </issue>
+
+</issues>
