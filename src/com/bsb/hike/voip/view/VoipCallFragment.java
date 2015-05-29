@@ -682,6 +682,8 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 				break;
 		default:
 			Logger.w(VoIPConstants.TAG, "Unhandled status: " + status);
+			callDuration.startAnimation(anim);
+			callDuration.setText(getString(R.string.voip_connecting));
 			break;
 		}
 	}
