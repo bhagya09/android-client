@@ -889,43 +889,28 @@ public void onTrimMemory(int level)
 			{
 				if (HikeSharedPreferenceUtil.getInstance().getData(UPGRADE_FOR_DEFAULT_BOT_ENTRY, true))
 				{
-					addDefaultBotsToDB();
+					BotInfo.addDefaultBotsToDB(getApplicationContext());
 					HikeSharedPreferenceUtil.getInstance().saveData(UPGRADE_FOR_DEFAULT_BOT_ENTRY, false);
 				}
-
-				HikeConversationsDatabase.getInstance().getBotHashmap();
-				Logger.d("create bot", "Keys are " + hikeBotNamesMap.keySet() + "------");
-				Logger.d("create bot", "values are " + hikeBotNamesMap.values());
 			}
 		}, 0);
 
+		/**
+		 * If the migration of bots hasn't happened yet. This will happen for the first time
+		 */
+		if (HikeSharedPreferenceUtil.getInstance().getData(UPGRADE_FOR_DEFAULT_BOT_ENTRY, true))
+		{
+			hikeBotNamesMap.putAll(BotInfo.getDefaultHardCodedBotInfoObjects());
+		}
+
+		else
+		{
+			HikeConversationsDatabase.getInstance().getBotHashmap();
+			Logger.d("create bot", "Keys are " + hikeBotNamesMap.keySet() + "------");
+			Logger.d("create bot", "values are " + hikeBotNamesMap.values());
+		}
 	}
-
-	/**
-	 * adding default bots on app upgrade. The config is set using {@link com.bsb.hike.bots.MessagingBotConfiguration}, where every bit is set according to the
-	 * requirement https://docs.google.com/spreadsheets/d/1hTrC9GdGRXrpAt9gnFnZACiTz2Th8aUIzVB5hrlD_4Y/edit#gid=0
-	 */
-	private void addDefaultBotsToDB()
-	{
-
-		defaultBotEntry("+hike+", "team hike", null, HikeBitmapFactory.getBase64ForDrawable(R.drawable.hiketeam, getApplicationContext()), 4527, false);
-
-		defaultBotEntry("+hike1+", "Emma from hike", null, null, 2069487, true);
-
-		defaultBotEntry("+hike2+", "Games on hike", null, null, 21487, false);
-
-		defaultBotEntry("+hike3+", "hike daily", null, HikeBitmapFactory.getBase64ForDrawable(R.drawable.hikedaily, getApplicationContext()), 21487, false);
-
-		defaultBotEntry("+hike4+", "hike support", null, null, 2069487, true);
-
-		defaultBotEntry("+hike5+", "Natasha", null, null, 2069487, true);
-
-		defaultBotEntry("+hikecricket+", "Cricket 2015", HikePlatformConstants.CRICKET_CHAT_THEME_ID,
-				HikeBitmapFactory.getBase64ForDrawable(R.drawable.cric_icon, getApplicationContext()),
-				21487, false);
-
-	}
-
+		
 	/**
 	 * fetching the platform user id from the server. Will not fetch if the platform user id is already present. Will fetch the address book's platform uid on
 	 * success of this call.
@@ -937,44 +922,6 @@ public void onTrimMemory(int level)
 		{
 			PlatformUIDFetch.fetchPlatformUid(HikePlatformConstants.PlatformUIDFetchType.SELF);
 		}
-	}
-
-	// Hard coding the cricket bot on the App's onCreate so that there is a cricket bot entry
-	// when there is no bot currently in the app. Using the shared prefs for that matter.
-	// Hardcoding the bot name, bot msisdn, the bot chat theme, bot's dp and its type. Can be updated using the
-	// AC packet cbot and delete using the ac packet dbot.
-	private void defaultBotEntry(final String msisdn, final String name, final String chatThemeId, final String dp, final int config, final boolean isReceiveEnabled)
-	{
-
-		Logger.d("create bot", "default bot entry started");
-		final JSONObject jsonObject = new JSONObject();
-		try
-		{
-			jsonObject.put(HikeConstants.MSISDN, msisdn);
-			jsonObject.put(HikeConstants.NAME, name);
-
-			if (!TextUtils.isEmpty(dp))
-			{
-				jsonObject.put(HikeConstants.BOT_THUMBNAIL, dp);
-			}
-
-			if (!TextUtils.isEmpty(chatThemeId))
-			{
-				jsonObject.put(HikeConstants.BOT_CHAT_THEME, chatThemeId);
-			}
-			jsonObject.put(HikePlatformConstants.BOT_TYPE, HikeConstants.MESSAGING_BOT);
-			jsonObject.put(HikeConstants.CONFIGURATION, config);
-
-			JSONObject metadata = new JSONObject();
-			metadata.put(HikeConstants.IS_RECEIVE_ENABLED_IN_BOT, isReceiveEnabled);
-			jsonObject.put(HikeConstants.METADATA, metadata);
-		}
-		catch (JSONException e)
-		{
-			e.printStackTrace();
-		}
-
-		MqttMessagesManager.getInstance(getApplicationContext()).createBot(jsonObject);
 	}
 
 	public static HikeMessengerApp getInstance()
