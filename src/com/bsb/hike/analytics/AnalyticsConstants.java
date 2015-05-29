@@ -63,6 +63,10 @@ public class AnalyticsConstants
 	public static String VIEW_EVENT = "view";
 
 	public static String ERROR_EVENT = "error";
+	
+	public static String LOG_KEY = "logs";
+	
+	public static String PHOTOS_ERROR_EVENT = "ph_er";
 
     public static String MICROAPP_UI_EVENT = "muiEvent";
 
@@ -87,6 +91,8 @@ public class AnalyticsConstants
     public static String SELECTED_USER_COUNT_FWD = "FwdCount";
     
     public static String SELECTED_USER_COUNT_SHARE = "ShareCount";
+
+	public static String DOWNLOAD_EVENT = "dwnld";
 
 	public static final String ANALYTICS = "analytics";
 
@@ -121,6 +127,12 @@ public class AnalyticsConstants
 	public static final String EVENT_TAG_PHOTOS = "ph5";
 
 	public static final String CHAT_MSISDN = "chat_msisdn";
+
+	public static final String BOT_NAME = "bot_name";
+
+	public static final String BOT_MSISDN = "bot_msisdn";
+
+	public static final String APP_NAME = "app_name";
 
 	public static final String EVENT_TAG_CBS = "cbs";
 
