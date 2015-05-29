@@ -43,8 +43,8 @@
                 style="@style/ActionBarText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/abs__action_bar_subtitle_bottom_margin"
-                android:layout_marginTop="@dimen/abs__action_bar_subtitle_top_margin"
+                android:layout_marginBottom="@dimen/ab__action_bar_subtitle_bottom_margin"
+                android:layout_marginTop="@dimen/ab__action_bar_subtitle_top_margin"
                 android:textSize="12sp"
                 android:textStyle="normal"
                 android:visibility="gone" />
