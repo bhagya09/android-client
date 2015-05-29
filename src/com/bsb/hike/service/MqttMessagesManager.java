@@ -2505,7 +2505,7 @@ public class MqttMessagesManager
 
 				if(BotUtils.isBot(destination))
 				{
-					BotInfo botInfo = BotInfo.getBotInfoForBotMsisdn(destination);
+					BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(destination);
 					if (botInfo.isNonMessagingBot())
 					{
 						if (ContactManager.getInstance().isBlocked(destination))

@@ -131,4 +131,9 @@ public class BotUtils
 			return false;
 		}
 	}
+	
+	public static BotInfo getBotInfoForBotMsisdn(String msisdn)
+	{
+		return HikeMessengerApp.hikeBotInfoMap.get(msisdn);
+	}
 }

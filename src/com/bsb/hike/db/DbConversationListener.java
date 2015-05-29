@@ -28,7 +28,6 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.MsgRelEventType;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.MsgRelLogManager;
-import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
@@ -448,7 +447,7 @@ public class DbConversationListener implements Listener
 		else if (HikePubSub.MUTE_BOT.equals(type))
 		{
 			String botMsisdn = (String) object;
-			mConversationDb.toggleMuteBot(botMsisdn, BotInfo.getBotInfoForBotMsisdn(botMsisdn).isMute());
+			mConversationDb.toggleMuteBot(botMsisdn, BotUtils.getBotInfoForBotMsisdn(botMsisdn).isMute());
 		}
 		
 		else if(HikePubSub.GROUP_LEFT.equals(type) || HikePubSub.DELETE_THIS_CONVERSATION.equals(type))

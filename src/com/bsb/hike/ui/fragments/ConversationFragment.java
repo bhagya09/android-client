@@ -1254,7 +1254,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		 * Bot Menus
 		 */
         if (BotUtils.isBot(conv.getMsisdn()))
-        {	BotInfo botInfo = BotInfo.getBotInfoForBotMsisdn(conv.getMsisdn());
+        {	BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(conv.getMsisdn());
         
         BotConversation.analyticsForBots(conv, HikePlatformConstants.BOT_LONG_PRESS, AnalyticsConstants.LONG_PRESS_EVENT);
         /**

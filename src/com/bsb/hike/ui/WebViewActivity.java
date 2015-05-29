@@ -46,6 +46,7 @@ import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.bots.NonMessagingBotConfiguration;
 import com.bsb.hike.bots.NonMessagingBotMetadata;
 import com.bsb.hike.db.HikeContentDatabase;
@@ -244,7 +245,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 
 	private void initBot()
 	{
-		botInfo = BotInfo.getBotInfoForBotMsisdn(msisdn);
+		botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
 		if (botInfo == null)
 		{
 			Logger.wtf(tag, "Botinfo does not exist in map");
@@ -354,7 +355,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	
 	private void attachBridge()
 	{
-		 mmBridge =new NonMessagingJavaScriptBridge(this, webView, BotInfo.getBotInfoForBotMsisdn(msisdn), this);
+		 mmBridge =new NonMessagingJavaScriptBridge(this, webView, BotUtils.getBotInfoForBotMsisdn(msisdn), this);
 		 webView.addJavascriptInterface(mmBridge, HikePlatformConstants.PLATFORM_BRIDGE_NAME);
 	}
 

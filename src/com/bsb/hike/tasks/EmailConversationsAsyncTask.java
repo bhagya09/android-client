@@ -86,7 +86,7 @@ public class EmailConversationsAsyncTask extends AsyncTask<ConvInfo, Void, Conve
 				
 				else if (BotUtils.isBot(msisdn))
 				{
-					BotInfo botInfo= BotInfo.getBotInfoForBotMsisdn(msisdn);
+					BotInfo botInfo= BotUtils.getBotInfoForBotMsisdn(msisdn);
 					conv = new BotConversation.ConversationBuilder(msisdn).setConvInfo(botInfo).build();
 				}
 				else

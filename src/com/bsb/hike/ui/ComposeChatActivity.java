@@ -1345,7 +1345,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					String id = presentIntent.getStringExtra(HikeConstants.Extras.PREV_MSISDN);
 					if (BotUtils.isBot(id))
 					{
-						BotInfo botInfo = BotInfo.getBotInfoForBotMsisdn(id);
+						BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(id);
 						if (botInfo.isNonMessagingBot())
 						{
 							intent = IntentFactory.getNonMessagingBotIntent(botInfo.getMsisdn(), "", "", this);

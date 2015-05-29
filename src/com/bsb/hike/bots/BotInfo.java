@@ -236,11 +236,6 @@ public class BotInfo extends ConvInfo
 		this.setOnHike(true);
 	}
 
-	public static BotInfo getBotInfoForBotMsisdn(String msisdn)
-	{
-		return HikeMessengerApp.hikeBotInfoMap.get(msisdn);
-	}
-
 	public boolean isMessagingBot()
 	{
 		return type == MESSAGING_BOT;

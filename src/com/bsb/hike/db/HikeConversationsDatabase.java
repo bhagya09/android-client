@@ -2281,7 +2281,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				
 				else if (BotUtils.isBot(msisdn))
 				{
-					BotInfo botInfo = BotInfo.getBotInfoForBotMsisdn(msisdn);
+					BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
 					conv = new BotConversation.ConversationBuilder(msisdn).setConvInfo(botInfo).build();
 				}
 				else
@@ -2444,7 +2444,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			{
 				if (BotUtils.isBot(msisdn))
 				{
-					BotInfo botInfo= BotInfo.getBotInfoForBotMsisdn(msisdn);
+					BotInfo botInfo= BotUtils.getBotInfoForBotMsisdn(msisdn);
 					conv = new BotConversation.ConversationBuilder(msisdn).setConvInfo(botInfo).build();
 				}
 				else
@@ -2611,7 +2611,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			
 			else if (BotUtils.isBot(msisdn))
 			{
-				BotInfo botInfo= BotInfo.getBotInfoForBotMsisdn(msisdn);
+				BotInfo botInfo= BotUtils.getBotInfoForBotMsisdn(msisdn);
 				conv = new BotConversation.ConversationBuilder(msisdn).setConvInfo(botInfo).build();
 			}
 			else
@@ -2983,7 +2983,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 					if (BotUtils.isBot(msisdn))
 					{
-						convInfo = BotInfo.getBotInfoForBotMsisdn(msisdn);
+						convInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
 					}
 
 					else
@@ -6894,7 +6894,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			ContentValues contentValues = new ContentValues();
 			contentValues.put(HIKE_CONTENT.NOTIF_DATA, notifDataJSON.toString());
 			mDb.update(BOT_TABLE, contentValues, MSISDN + "=?", new String[] { botMsisdn });
-			BotInfo botInfo = BotInfo.getBotInfoForBotMsisdn(botMsisdn);
+			BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(botMsisdn);
 			if (null != botInfo)
 			{
 				botInfo.setNotifData(notifDataJSON.toString());
@@ -6925,7 +6925,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		ContentValues contentValues = new ContentValues();
 		contentValues.put(HIKE_CONTENT.NOTIF_DATA, "");
 		mDb.update(BOT_TABLE, contentValues, MSISDN + "=?", new String[] { botMsisdn });
-		BotInfo botInfo = BotInfo.getBotInfoForBotMsisdn(botMsisdn);
+		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(botMsisdn);
 		if (null != botInfo)
 		{
 			botInfo.setNotifData("");
@@ -6965,7 +6965,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				ContentValues contentValues = new ContentValues();
 				contentValues.put(HIKE_CONTENT.NOTIF_DATA, notifDataJSON.toString());
 				mDb.update(BOT_TABLE, contentValues, MSISDN + "=?", new String[] { botMsisdn });
-				BotInfo botInfo = BotInfo.getBotInfoForBotMsisdn(botMsisdn);
+				BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(botMsisdn);
 				if (null != botInfo)
 				{
 					botInfo.setNotifData(notifDataJSON.toString());

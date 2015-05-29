@@ -340,7 +340,7 @@ public class HikeNotificationMsgStack implements Listener
 
 	private Intent getIntentForBots(Context mContext, String lastAddedMsisdn)
 	{
-		BotInfo mBotInfo = BotInfo.getBotInfoForBotMsisdn(lastAddedMsisdn);
+		BotInfo mBotInfo = BotUtils.getBotInfoForBotMsisdn(lastAddedMsisdn);
 		
 		if (mBotInfo == null)
 		{
