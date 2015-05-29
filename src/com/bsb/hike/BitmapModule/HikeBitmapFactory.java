@@ -1200,6 +1200,11 @@ public class HikeBitmapFactory
 	
 	public static String getNameInitialsForDefaultAv(String msisdn)
 	{
+		if (TextUtils.isEmpty(msisdn))
+		{
+			return "#";
+		}
+		
 		String initials = "";
 
 		String contactName = ContactManager.getInstance().getName(msisdn, true);
