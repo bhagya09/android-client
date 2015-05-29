@@ -4718,7 +4718,7 @@ public enum ChatTheme
 		}
 
 	},
-	DIASY
+	LOVEFOREVER
 	{
 
 		@Override
@@ -4730,25 +4730,25 @@ public enum ChatTheme
 		@Override
 		public int headerBgResId()
 		{
-			return R.drawable.bg_header_transparent;
+			return R.drawable.bg_header_transparent_2x;
 		}
 
 		@Override
 		public int previewResId()
 		{
-			return R.drawable.ic_ct_daisy_preview;
+			return R.drawable.ic_ct_loveforever_preview;
 		}
 
 		@Override
 		public int bgResId()
 		{
-			return R.drawable.bg_ct_daisy;
+			return R.drawable.bg_ct_loveforever;
 		}
 
 		@Override
 		public int bubbleResId()
 		{
-			return R.drawable.ic_bubble_forest_study_sporty_fifa_nature;
+			return R.drawable.ic_bubble_love_floral_kisses_valentines_girly_ipl_blurredlight_love2;
 		}
 
 		@Override
@@ -4760,7 +4760,7 @@ public enum ChatTheme
 		@Override
 		public int sentNudgeResId()
 		{
-			return R.drawable.ic_nudge_sent_custom_forest_study_sporty_fifa_nature;
+			return R.drawable.ic_nudge_sent_custom_love_floral_kisses_valentines_girly_ipl_blurredlight_love2;
 		}
 
 		@Override
@@ -4778,25 +4778,25 @@ public enum ChatTheme
 		@Override
 		public int inLineUpdateBGResId()
 		{
-			return R.drawable.bg_status_chat_thread_custom_theme;
+			return R.drawable.bg_status_chat_thread_custom_theme_2x;
 		}
 
 		@Override
 		public int systemMessageLayoutId()
 		{
-			return R.layout.participant_info_custom;
+			return R.layout.participant_info_custom_2x;
 		}
 		
 		@Override
 		public int bubbleColor()
 		{
-			return R.color.bubble_forest_study_sporty_fifa_nature;
+			return R.color.bubble_love_floral_kisses_valentines_girly_ipl_blurredlight_love2;
 		}
 
 		@Override
 		public int smsToggleBgRes()
 		{
-			return R.drawable.bg_sms_toggle_custom_theme;
+			return R.drawable.bg_sms_toggle_custom_theme_2x;
 		}
 
 		@Override
@@ -4811,8 +4811,103 @@ public enum ChatTheme
 			return R.color.white;
 		}
 
-	};
+	},
+	AQUA
+	{
 
+		@Override
+		public String bgId()
+		{
+			return "221";
+		}
+
+		@Override
+		public int headerBgResId()
+		{
+			return R.drawable.bg_header_transparent;
+		}
+
+		@Override
+		public int previewResId()
+		{
+			return R.drawable.ic_ct_aqua_preview;
+		}
+
+		@Override
+		public int bgResId()
+		{
+			return R.drawable.bg_ct_aqua;
+		}
+
+		@Override
+		public int bubbleResId()
+		{
+			return R.drawable.ic_bubble_chatty_beachy_techy;
+		}
+
+		@Override
+		public boolean isTiled()
+		{
+			return false;
+		}
+
+		@Override
+		public int sentNudgeResId()
+		{
+			return R.drawable.ic_nudge_sent_custom_chatty_beachy_techy;
+		}
+
+		@Override
+		public boolean isAnimated()
+		{
+			return false;
+		}
+
+		@Override
+		public int receivedNudgeResId()
+		{
+			return R.drawable.ic_nudge_receive_custom;
+		}
+
+		@Override
+		public int inLineUpdateBGResId()
+		{
+			return R.drawable.bg_status_chat_thread_custom_theme_2x;
+		}
+
+		@Override
+		public int systemMessageLayoutId()
+		{
+			return R.layout.participant_info_custom_2x;
+		}
+		
+		@Override
+		public int bubbleColor()
+		{
+			return R.color.bubble_chatty_bechy_techy;
+		}
+
+		@Override
+		public int smsToggleBgRes()
+		{
+			return R.drawable.bg_sms_toggle_custom_theme;
+		}
+
+		@Override
+		public int multiSelectBubbleColor()
+		{
+			return R.color.light_blue_transparent;
+		}
+
+		@Override
+		public int offlineMsgTextColor()
+		{
+			return R.color.white;
+		}
+
+	};
+	
+	
 
 	
 	public abstract String bgId();
