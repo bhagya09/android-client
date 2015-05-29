@@ -14,9 +14,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import pl.droidsonroids.gif.GifDrawable;
-import pl.droidsonroids.gif.GifImageView;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
@@ -25,7 +22,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.content.res.Resources.NotFoundException;
 import android.graphics.Typeface;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.Drawable;
@@ -59,7 +55,6 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.LinearLayout.LayoutParams;
-import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -128,7 +123,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 	private enum ViewType
 	{
 		STICKER_SENT, STICKER_RECEIVE, NUDGE_SENT, NUDGE_RECEIVE, WALKIE_TALKIE_SENT, WALKIE_TALKIE_RECEIVE, VIDEO_SENT, VIDEO_RECEIVE, IMAGE_SENT, IMAGE_RECEIVE, FILE_SENT, FILE_RECEIVE, LOCATION_SENT, LOCATION_RECEIVE, CONTACT_SENT, CONTACT_RECEIVE, RECEIVE, SEND_SMS, SEND_HIKE, PARTICIPANT_INFO, FILE_TRANSFER_SEND, FILE_TRANSFER_RECEIVE, STATUS_MESSAGE, UNREAD_COUNT, TYPING_NOTIFICATION, UNKNOWN_BLOCK_ADD, PIN_TEXT_SENT, PIN_TEXT_RECEIVE,
-		VOIP_CALL,GIF_SENT, GIF_RECEIVE;
+		VOIP_CALL;
 		
 	};
 
@@ -224,11 +219,6 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		ImageView filmstripLeft;
 
 		ImageView filmstripRight;
-	}
-	
-	private static class GifViewHolder extends FTViewHolder
-	{
-		GifImageView gifView;
 	}
 
 	private static class ImageViewHolder extends FTViewHolder
@@ -547,17 +537,6 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				else
 				{
 					type = ViewType.WALKIE_TALKIE_RECEIVE;
-				}
-			}
-			else if (hikeFileType == HikeFileType.GIF)
-			{
-				if (convMessage.isSent())
-				{
-					type = ViewType.GIF_SENT;
-				}
-				else
-				{
-					type = ViewType.GIF_RECEIVE;
 				}
 			}
 			else if (hikeFileType == HikeFileType.VIDEO)
@@ -1212,6 +1191,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					{
 						videoHolder = new VideoViewHolder();
 						v = inflateView(R.layout.message_receive_video, parent, false);
+
 						videoHolder.fileThumb = (ImageView) v.findViewById(R.id.file_thumb);
 						videoHolder.circularProgressBg = v.findViewById(R.id.circular_bg);
 						videoHolder.initializing = (ProgressBar) v.findViewById(R.id.initializing);
@@ -1329,178 +1309,6 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				videoHolder.fileThumb.setTag(convMessage);
 				videoHolder.fileThumb.setOnClickListener(this);
 				videoHolder.fileThumb.setOnLongClickListener(this);
-			}
-			else if(viewType == ViewType.GIF_RECEIVE || viewType == ViewType.GIF_SENT)
-			{
-
-				GifViewHolder gifHolder = null;
-				if (viewType == ViewType.GIF_SENT)
-				{
-					if ((v != null) && (v.getTag() instanceof VideoViewHolder))
-					{
-						gifHolder = (GifViewHolder) v.getTag();
-					}
-					else
-					{
-						gifHolder = new GifViewHolder();
-						v = inflateView(R.layout.message_sent_gif, parent, false);
-						gifHolder.fileThumb = (ImageView) v.findViewById(R.id.file_thumb);
-						gifHolder.circularProgressBg = v.findViewById(R.id.circular_bg);
-						gifHolder.initializing = (ProgressBar) v.findViewById(R.id.initializing);
-						gifHolder.circularProgress = (HoloCircularProgress) v.findViewById(R.id.progress);
-						gifHolder.ftAction = (ImageView) v.findViewById(R.id.action);
-						gifHolder.fileDetails = v.findViewById(R.id.file_details);
-						gifHolder.fileSize = (TextView) v.findViewById(R.id.file_size);
-						gifHolder.fileName = (TextView) v.findViewById(R.id.file_name);
-						gifHolder.broadcastIndicator = (ImageView) v.findViewById(R.id.broadcastIndicator);
-						gifHolder.time = (TextView) v.findViewById(R.id.time);
-						gifHolder.status = (ImageView) v.findViewById(R.id.status);
-						gifHolder.timeStatus = (View) v.findViewById(R.id.time_status);
-						gifHolder.selectedStateOverlay = v.findViewById(R.id.selected_state_overlay);
-						gifHolder.messageContainer = (ViewGroup) v.findViewById(R.id.message_container);
-						gifHolder.dayStub = (ViewStub) v.findViewById(R.id.day_stub);
-						gifHolder.messageInfoStub = (ViewStub) v.findViewById(R.id.message_info_stub);
-						gifHolder.gifView = (GifImageView)v.findViewById(R.id.gif_view);
-						v.setTag(gifHolder);
-					}
-				}
-				else if (viewType == ViewType.GIF_RECEIVE)
-				{
-					if ((v != null) && (v.getTag() instanceof VideoViewHolder))
-					{
-						gifHolder = (GifViewHolder) v.getTag();
-					}
-					else
-					{
-						gifHolder = new GifViewHolder();
-						v = inflateView(R.layout.message_receive_gif, parent, false);
-						gifHolder.fileThumb = (ImageView) v.findViewById(R.id.file_thumb);
-						gifHolder.circularProgressBg = v.findViewById(R.id.circular_bg);
-						gifHolder.initializing = (ProgressBar) v.findViewById(R.id.initializing);
-						gifHolder.circularProgress = (HoloCircularProgress) v.findViewById(R.id.progress);
-						gifHolder.ftAction = (ImageView) v.findViewById(R.id.action);
-						gifHolder.fileDetails = v.findViewById(R.id.file_details);
-						gifHolder.fileSize = (TextView) v.findViewById(R.id.file_size);
-						gifHolder.fileName = (TextView) v.findViewById(R.id.file_name);
-						gifHolder.time = (TextView) v.findViewById(R.id.time);
-						gifHolder.broadcastIndicator = (ImageView) v.findViewById(R.id.broadcastIndicator);
-						gifHolder.status = (ImageView) v.findViewById(R.id.status);
-						gifHolder.timeStatus = (View) v.findViewById(R.id.time_status);
-						gifHolder.selectedStateOverlay = v.findViewById(R.id.selected_state_overlay);
-						gifHolder.senderDetails = v.findViewById(R.id.sender_details);
-						gifHolder.senderName = (TextView) v.findViewById(R.id.sender_name);
-						gifHolder.senderNameUnsaved = (TextView) v.findViewById(R.id.sender_unsaved_name);
-						gifHolder.avatarImage = (ImageView) v.findViewById(R.id.avatar);
-						gifHolder.avatarContainer = (ViewGroup) v.findViewById(R.id.avatar_container);
-						gifHolder.messageContainer = (ViewGroup) v.findViewById(R.id.message_container);
-						gifHolder.dayStub = (ViewStub) v.findViewById(R.id.day_stub);
-						gifHolder.gifView = (GifImageView)v.findViewById(R.id.gif_view);
-						v.setTag(gifHolder);
-					}
-				}
-				dayHolder = gifHolder;
-				setSenderDetails(convMessage, position, gifHolder, false);
-
-				gifHolder.fileThumb.setBackgroundResource(0);
-				gifHolder.fileThumb.setImageResource(0);
-
-				showThumbnail = ((convMessage.isSent()) || (conversation instanceof OneToNConversation) || (!TextUtils.isEmpty(conversation.getConversationName())) || (hikeFile
-						.wasFileDownloaded()));
-				
-				if (hikeFile.getThumbnail() == null && !TextUtils.isEmpty(hikeFile.getFileKey()))
-				{
-					thumbnail = HikeMessengerApp.getLruCache().getFileIconFromCache(hikeFile.getFileKey());
-				}
-				else
-				{
-					thumbnail = hikeFile.getThumbnail();
-				}
-
-				if (showThumbnail)
-				{
-					gifHolder.fileThumb.setBackgroundDrawable(thumbnail);
-				}
-				else
-				{
-					createMediaThumb(gifHolder.fileThumb);
-				}
-
-				RelativeLayout.LayoutParams fileThumbParams = (RelativeLayout.LayoutParams) gifHolder.fileThumb.getLayoutParams();
-
-				if (showThumbnail && thumbnail != null)
-				{
-					gifHolder.fileThumb.setScaleType(ScaleType.CENTER);
-					fileThumbParams.height = (int) (150 * Utils.scaledDensityMultiplier);
-					fileThumbParams.width = (int) ((thumbnail.getIntrinsicWidth() * fileThumbParams.height) / thumbnail.getIntrinsicHeight());
-					/*
-					 * fixed the bug when image thumbnail is very big. By specifying a maximum width for the thumbnail so that download button can also fit to the screen.
-					 */
-
-					// Set Thumbnail Width
-					int maxWidth = (int) (250 * Utils.scaledDensityMultiplier);
-					fileThumbParams.width = Math.min(fileThumbParams.width, maxWidth);
-					int minWidth = (int) (119 * Utils.scaledDensityMultiplier);
-					fileThumbParams.width = Math.max(fileThumbParams.width, minWidth);
-					if (fileThumbParams.width == minWidth)
-					{
-						fileThumbParams.height = ((thumbnail.getIntrinsicHeight() * minWidth) / thumbnail.getIntrinsicWidth());
-					}
-					else if (fileThumbParams.width == maxWidth)
-					{
-						fileThumbParams.height = ((thumbnail.getIntrinsicHeight() * maxWidth) / thumbnail.getIntrinsicWidth());
-					}
-
-					// Set Thumbnail Height
-					int minHeight = (int) (70 * Utils.scaledDensityMultiplier);
-					fileThumbParams.height = Math.max(fileThumbParams.height, minHeight);
-					if (fileThumbParams.height == minHeight)
-					{
-						int width = ((thumbnail.getIntrinsicWidth() * minHeight) / thumbnail.getIntrinsicHeight());
-						if (width >= minWidth && width <= maxWidth)
-							fileThumbParams.width = width;
-					}
-				}
-				gifHolder.fileThumb.setScaleType(ScaleType.CENTER);
-				gifHolder.fileThumb.setLayoutParams(fileThumbParams);
-				
-				//Set GIF view param
-				GifImageView gifView = gifHolder.gifView;
-
-				LinearLayout.LayoutParams params = (LayoutParams) gifView.getLayoutParams();
-
-				params.width = fileThumbParams.width;
-
-				params.height = fileThumbParams.height;
-
-				gifView.setLayoutParams(params);
-				
-				if (convMessage.isSent() && ((int) hikeFile.getFile().length() > 0) && fss.getFTState() != FTState.INITIALIZED)
-				{
-					gifHolder.fileSize.setText(Utils.getSizeForDisplay((int) hikeFile.getFile().length()));
-					gifHolder.fileSize.setVisibility(View.VISIBLE);
-				}
-				else if (!convMessage.isSent() && hikeFile.getFileSize() > 0)
-				{
-					gifHolder.fileSize.setText(Utils.getSizeForDisplay(hikeFile.getFileSize()));
-					gifHolder.fileSize.setVisibility(View.VISIBLE);
-				}
-				else
-				{
-					gifHolder.fileSize.setText("");
-					gifHolder.fileSize.setVisibility(View.GONE);
-				}
-				gifHolder.fileThumb.setVisibility(View.VISIBLE);
-
-				displayBroadcastIndicator(convMessage, gifHolder.broadcastIndicator, false);
-				setBubbleColor(convMessage, gifHolder.messageContainer);
-				setupFileState(gifHolder, fss, convMessage.getMsgID(), hikeFile, convMessage.isSent(), false);
-				setTimeNStatus(position, gifHolder, true, gifHolder.fileThumb);
-				setSelection(convMessage, gifHolder.selectedStateOverlay);
-
-				gifHolder.messageContainer.setTag(convMessage);
-				gifHolder.messageContainer.setOnClickListener(this);
-				gifHolder.messageContainer.setOnLongClickListener(this);
-
 			}
 			else if (viewType == ViewType.IMAGE_SENT || viewType == ViewType.IMAGE_RECEIVE)
 			{
@@ -2926,13 +2734,9 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					holder.ftAction.setVisibility(View.VISIBLE);
 					holder.circularProgressBg.setVisibility(View.VISIBLE);
 				}
-				else if ((hikeFile.getHikeFileType() == HikeFileType.VIDEO || hikeFile.getHikeFileType() == HikeFileType.GIF) && !ext)
+				else if ((hikeFile.getHikeFileType() == HikeFileType.VIDEO) && !ext)
 				{
-					if (hikeFile.getHikeFileType() == HikeFileType.GIF)
-					{
-						holder.ftAction.setImageDrawable(TextDrawable.builder().buildRound("GIF", 0x33333333));
-					}
-					else if (hikeFile.getHikeFileType() == HikeFileType.VIDEO)
+					if (hikeFile.getHikeFileType() == HikeFileType.VIDEO)
 					{
 						holder.ftAction.setImageResource(playImage);
 					}
@@ -2969,17 +2773,13 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			holder.circularProgressBg.setVisibility(View.VISIBLE);
 			break;
 		case COMPLETED:
-			if ((hikeFile.getHikeFileType() == HikeFileType.VIDEO || hikeFile.getHikeFileType() == HikeFileType.GIF) && !ext)
+			if ((hikeFile.getHikeFileType() == HikeFileType.VIDEO) && !ext)
 			{
-				if (hikeFile.getHikeFileType() == HikeFileType.GIF)
-				{
-					holder.ftAction.setImageDrawable(TextDrawable.builder().buildRound("GIF", 0x33333333));
-				}
-				else if (hikeFile.getHikeFileType() == HikeFileType.VIDEO)
+				if (hikeFile.getHikeFileType() == HikeFileType.VIDEO)
 				{
 					holder.ftAction.setImageResource(playImage);
 				}
-				
+
 				holder.ftAction.setVisibility(View.VISIBLE);
 				holder.circularProgressBg.setVisibility(View.VISIBLE);
 			}
@@ -3562,46 +3362,6 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		Intent openFile = new Intent(Intent.ACTION_VIEW);
 		switch (hikeFile.getHikeFileType())
 		{
-		case GIF:
-			try
-			{
-				GifImageView gifView = (GifImageView) parent.findViewById(R.id.gif_view);
-				
-				Drawable existingDrawable = gifView.getDrawable();
-				
-				if(existingDrawable!=null && existingDrawable instanceof GifDrawable)
-				{
-					GifDrawable gifDrawable = (GifDrawable) existingDrawable;
-
-					//cannot rely on gifDrawable.isanimating since it returns wrong value sometimes
-					if (gifView.getVisibility() == View.VISIBLE)
-					{
-						gifDrawable.stop();
-						gifDrawable.reset();
-						parent.findViewById(R.id.placeholder).setVisibility(View.VISIBLE);
-						gifView.setVisibility(View.GONE);
-					}
-					else
-					{
-						gifDrawable.start();
-						gifView.setVisibility(View.VISIBLE);
-						parent.findViewById(R.id.placeholder).setVisibility(View.GONE);
-					}
-				}
-				else
-				{
-					GifDrawable gifDrawable = new GifDrawable(hikeFile.getFile());
-					gifView.setImageResource(gifDrawable);
-					gifView.setVisibility(View.VISIBLE);
-					parent.findViewById(R.id.placeholder).setVisibility(View.GONE);
-				}
-			}
-			catch (IOException e1)
-			{
-				Toast.makeText(context, R.string.gif_not_working, Toast.LENGTH_SHORT).show();
-				e1.printStackTrace();
-			}
-			return;
 		case LOCATION:
 			String uri = String.format(Locale.US, "geo:%1$f,%2$f?z=%3$d&q=%1$f,%2$f", hikeFile.getLatitude(), hikeFile.getLongitude(), hikeFile.getZoomLevel());
 			openFile.setData(Uri.parse(uri));

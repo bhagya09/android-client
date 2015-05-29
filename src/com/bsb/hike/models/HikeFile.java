@@ -32,7 +32,7 @@ public class HikeFile
 {
 	public static enum HikeFileType
 	{
-		PROFILE, IMAGE, VIDEO, AUDIO, LOCATION, CONTACT, AUDIO_RECORDING, GIF, OTHER;
+		PROFILE, IMAGE, VIDEO, AUDIO, LOCATION, CONTACT, AUDIO_RECORDING, OTHER;
 
 		public static HikeFileType fromString(String fileTypeString)
 		{
@@ -55,10 +55,6 @@ public class HikeFile
 				{
 					return HikeFileType.LOCATION;
 				}
-				else if (fileTypeString.equals("image/gif"))
-				{
-					return HikeFileType.GIF;
-				}
 				else if (fileTypeString.startsWith("image"))
 				{
 					return HikeFileType.IMAGE;
@@ -73,11 +69,7 @@ public class HikeFile
 
 		public static String toString(HikeFileType hikeFileType)
 		{
-			if (hikeFileType == GIF)
-			{
-				return "image/gif";
-			}
-			else if (hikeFileType == PROFILE || hikeFileType == IMAGE)
+			if (hikeFileType == PROFILE || hikeFileType == IMAGE)
 			{
 				return "image/*";
 			}
@@ -125,10 +117,6 @@ public class HikeFile
 			else if (hikeFileType == AUDIO_RECORDING)
 			{
 				return isSent ? context.getString(R.string.audio_recording_msg_sent) : context.getString(R.string.audio_recording_msg_received);
-			}
-			else if (hikeFileType == GIF)
-			{
-				return isSent ? context.getString(R.string.gif_sent) : context.getString(R.string.gif_received);
 			}
 			return isSent ? context.getString(R.string.file_msg_sent) : context.getString(R.string.file_msg_received);
 		}

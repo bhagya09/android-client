@@ -39,7 +39,7 @@ public class SharedFileImageLoader extends ImageWorker
 		String filePath = dataArray[0];
 		HikeFileType hikeFileType = HikeFileType.values()[Integer.valueOf(dataArray[1])];
 		
-		Bitmap b = getSharedMediaThumbnailFromCache(data, filePath, size_image, (hikeFileType == HikeFileType.IMAGE || hikeFileType == HikeFileType.GIF));
+		Bitmap b = getSharedMediaThumbnailFromCache(data, filePath, size_image, (hikeFileType == HikeFileType.IMAGE));
 
 		return b;
 	}

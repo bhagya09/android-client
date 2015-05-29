@@ -11,9 +11,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import pl.droidsonroids.gif.GifDrawable;
-import pl.droidsonroids.gif.GifImageView;
-
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -118,8 +115,6 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 	private boolean isEditEnabled;
 
 	private Menu menu;
-	
-	private WeakReference<GifDrawable> gifLastRef;
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -318,27 +313,6 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 				menu.findItem(R.id.edit_pic).setVisible(false);
 			}
 		}
-
-		if (gifLastRef != null && gifLastRef.get() != null)
-		{
-			Logger.d(TAG, "Stopping previous gif");
-			gifLastRef.get().stop();
-		}
-
-		View view = selectedPager.findViewWithTag("gif" + position);
-
-		if (view != null && view instanceof GifImageView)
-		{
-			GifImageView gifView = (GifImageView) view;
-
-			GifDrawable gifDrawable = (GifDrawable) gifView.getDrawable();
-			gifDrawable.start();
-
-			Logger.d(TAG, "Starting gif at " + position);
-
-			gifLastRef = new WeakReference<GifDrawable>(gifDrawable);
-		}
-
 	}
 
 	private void setSenderDetails(int position)

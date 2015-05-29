@@ -80,21 +80,6 @@ LOCAL_CFLAGS += -D_LINUX
 
 include $(BUILD_SHARED_LIBRARY)
 
-###########################################################  
-# Declare native gif library
-
-LOCAL_PATH := $(ROOT)/native-gif
-
-include $(CLEAR_VARS)
-
-LOCAL_MODULE    := gif-drawable
-LOCAL_SRC_FILES := memset.arm.S memset32_neon.S bitmap.c control.c decoding.c dgif_lib.c drawing.c exception.c gif.c gifalloc.c metadata.c open_close.c surface.c time.c
-LOCAL_LDLIBS    += -llog
-LOCAL_LDLIBS    += -landroid
-LOCAL_LDLIBS    += -ljnigraphics
-
-include $(BUILD_SHARED_LIBRARY)
-
 
 
 

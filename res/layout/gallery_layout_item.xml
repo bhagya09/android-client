@@ -19,12 +19,6 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
-        <pl.droidsonroids.gif.GifImageView
-            android:visibility="gone"
-            android:id="@+id/gif_view"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-
         <LinearLayout
             android:id="@+id/file_missing_layout"
             android:layout_width="wrap_content"

@@ -214,12 +214,4 @@
         <attr name="gravity" />
     </declare-styleable>
     
-    <declare-styleable name="GifTextureView">
-        <attr name="gifSource" format="reference|string"/>
-        <attr name="isOpaque" format="boolean"/>
-    </declare-styleable>
-    <declare-styleable name="GifView">
-        <attr name="freezesAnimation" format="boolean"/>
-    </declare-styleable>
-    
 </resources>
