@@ -4,7 +4,6 @@ package com.bsb.hike.ui;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.bsb.hike.utils.HikeAnalyticsEvent;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -64,6 +63,7 @@ import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformContent.EventCode;
 import com.bsb.hike.platform.content.PlatformContentListener;
 import com.bsb.hike.platform.content.PlatformContentModel;
+import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
@@ -517,15 +517,39 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 
 	private void setupActionBar(String titleString)
 	{
+		if (mode == MICRO_APP_MODE)
+		{
+			inflateMicroAppActionBar(titleString);
+		}
+		
+		else
+		{
+			inflateWebModeActionBar(titleString);
+		}
+	
+	}
+
+	private void inflateWebModeActionBar(String titleString)
+	{
+		actionBarView = mActionBar.setCustomActionBarView(R.layout.compose_action_bar);
+
+		View backContainer = actionBarView.findViewById(R.id.back);
+
+		TextView title = (TextView) actionBarView.findViewById(R.id.title);
+		title.setText(titleString);
+		backContainer.setOnClickListener(this);
+	}
+
+	private void inflateMicroAppActionBar(String titleString)
+	{
 		actionBarView = mActionBar.setCustomActionBarView(R.layout.chat_thread_action_bar);
 		View backContainer = actionBarView.findViewById(R.id.back);
 		TextView title = (TextView) actionBarView.findViewById(R.id.contact_name);
 		title.setText(titleString);
-		
+
 		actionBarView.findViewById(R.id.contact_status).setVisibility(View.GONE);
-		
+
 		backContainer.setOnClickListener(this);
-	
 	}
 
 	private void setAvatar()
