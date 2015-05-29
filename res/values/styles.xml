@@ -56,7 +56,7 @@
         <item name="android:activityCloseExitAnimation">@anim/slide_out_right_noalpha</item>
     </style>
 
-    <style name="NoTitleBar" parent="@style/Theme.Sherlock.Light.NoActionBar">
+    <style name="NoTitleBar" parent="@style/Theme.AppCompat.Light.NoActionBar">
         <item name="android:windowNoTitle">true</item>
     </style>
 
@@ -305,24 +305,24 @@
         <item name="android:listSelector">#00000000</item>
     </style>
 
-    <style name="Hike.ActionBarTheme" parent="Theme.Sherlock">
+    <style name="Hike.ActionBarTheme" parent="Theme.AppCompat">
         <item name="actionBarSize">@dimen/st__action_bar_default_height</item>
         <item name="actionBarTabStyle">@style/Hike.ActionBar.TabView</item>
         <item name="actionBarTabTextStyle">@style/Hike.ActionBar.Tab.Text</item>
     </style>
 
-    <style name="Hike.ActionBar.TabView" parent="Widget.Sherlock.ActionBar.TabView">
+    <style name="Hike.ActionBar.TabView" parent="Widget.AppCompat.ActionBar.TabView">
         <item name="android:paddingLeft">6dp</item>
         <item name="android:paddingRight">6dp</item>
     </style>
 
-    <style name="Hike.ActionBar.Tab.Text" parent="Widget.Sherlock.ActionBar.TabText">
+    <style name="Hike.ActionBar.Tab.Text" parent="Widget.AppCompat.ActionBar.TabText">
         <item name="android:textAppearance">@android:style/TextAppearance.Medium</item>
         <item name="android:textColor">@android:color/primary_text_dark</item>
         <item name="android:textSize">10sp</item>
     </style>
 
-    <style name="AppTheme" parent="Theme.Sherlock.Light.DarkActionBar">
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="actionBarStyle">@style/Widget.Styled.ActionBar</item>
         <item name="android:actionBarStyle">@style/Widget.Styled.ActionBar</item>
         <item name="actionOverflowButtonStyle">@style/OverflowMenu</item>
@@ -336,7 +336,7 @@
         <item name="android:actionModeCloseButtonStyle">@style/NoCloseButton</item>
         <item name="android:actionModeCloseDrawable">@drawable/ic_close_chat_bg_palette</item>
     </style>
-    <style name="NoCloseButton" parent="@style/Widget.Sherlock.ActionButton.CloseMode">
+    <style name="NoCloseButton" parent="@style/Widget.AppCompat.ActionButton.CloseMode">
     <item name="android:visibility">visible</item>
 	</style>
 	
@@ -358,7 +358,7 @@
        
     </style>
     
-    <style name="Widget.Styled.ActionBar" parent="Widget.Sherlock.Light.ActionBar.Solid.Inverse">
+    <style name="Widget.Styled.ActionBar" parent="Widget.AppCompat.Light.ActionBar.Solid.Inverse">
         <item name="background">@drawable/bg_header</item>
         <item name="android:background">@drawable/bg_header</item>
         <item name="backgroundSplit">@color/credits_blue</item>
@@ -367,7 +367,7 @@
         <item name="android:titleTextStyle">@style/NoTitleText</item>
     </style>
 
-    <style name="Widget.Styled.PhotosActionBar" parent="Widget.Sherlock.Light.ActionBar.Solid.Inverse">
+    <style name="Widget.Styled.PhotosActionBar" parent="Widget.AppCompat.Light.ActionBar.Solid.Inverse">
         <item name="background">@color/photos_action_bar_transcluscent_background</item>
         <item name="android:background">@color/photos_action_bar_transcluscent_background</item>
         <item name="backgroundSplit">@color/credits_blue</item>
@@ -632,7 +632,7 @@
 	    <item name="android:layout_marginTop">8dp</item>
 	</style>
 	
-	<style name="LockPatternTheme" parent="@style/Theme.Sherlock">
+	<style name="LockPatternTheme" parent="@style/Theme.AppCompat">
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowContentOverlay">@null</item>
         <item name="android:windowIsFloating">true</item>
@@ -728,7 +728,7 @@
 	</style>
 	
 	<color name="transparent_black_color">#66ffffff</color>
-	<style name="TranslucentBlack" parent="@style/Theme.Sherlock.Light.NoActionBar">
+	<style name="TranslucentBlack" parent="@style/Theme.AppCompat.Light.NoActionBar">
         <item name="android:windowBackground">@color/transparent_black_color</item>
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowIsFloating">false</item>
