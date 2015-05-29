@@ -69,6 +69,7 @@ import com.bsb.hike.adapters.EmptyConversationsAdapter;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.bots.MessagingBotConfiguration;
 import com.bsb.hike.bots.MessagingBotMetadata;
 import com.bsb.hike.bots.NonMessagingBotConfiguration;
@@ -1252,7 +1253,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		/**
 		 * Bot Menus
 		 */
-        if (Utils.isBot(conv.getMsisdn()))
+        if (BotUtils.isBot(conv.getMsisdn()))
         {	BotInfo botInfo = BotInfo.getBotInfoForBotMsisdn(conv.getMsisdn());
         
         BotConversation.analyticsForBots(conv, HikePlatformConstants.BOT_LONG_PRESS, AnalyticsConstants.LONG_PRESS_EVENT);
@@ -1393,7 +1394,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 				String option = options[which];
 				if (getString(R.string.shortcut).equals(option))
 				{
-                    if (Utils.isBot(conv.getMsisdn()))
+                    if (BotUtils.isBot(conv.getMsisdn()))
                     {
                         BotConversation.analyticsForBots(conv, HikePlatformConstants.BOT_ADD_SHORTCUT, AnalyticsConstants.CLICK_EVENT);
                     }
@@ -1412,7 +1413,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 							HikeMessengerApp.getPubSub().publish(HikePubSub.DELETE_THIS_CONVERSATION, conv);
 							hikeDialog.dismiss();
 							
-							if (Utils.isBot(conv.getMsisdn()))
+							if (BotUtils.isBot(conv.getMsisdn()))
 							{
 								BotConversation.analyticsForBots(conv, HikePlatformConstants.BOT_DELETE_CHAT, AnalyticsConstants.CLICK_EVENT);
 							}
@@ -1488,7 +1489,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 					EmailConversationsAsyncTask task = new EmailConversationsAsyncTask(getSherlockActivity(), ConversationFragment.this);
 					Utils.executeConvAsyncTask(task, conv);
 					
-					if (Utils.isBot(conv.getMsisdn()))
+					if (BotUtils.isBot(conv.getMsisdn()))
 					{
 						BotConversation.analyticsForBots(conv, HikePlatformConstants.BOT_EMAIL_CONVERSATION, AnalyticsConstants.CLICK_EVENT);
 					}
@@ -1508,7 +1509,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 					}
 					viewContacts(conv);
 					
-                    if (Utils.isBot(conv.getMsisdn()))
+                    if (BotUtils.isBot(conv.getMsisdn()))
                     {
                         BotConversation.analyticsForBots(conv, HikePlatformConstants.BOT_VIEW_PROFILE, AnalyticsConstants.CLICK_EVENT);
                     }
@@ -1517,7 +1518,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 				{
 					clearConversation(conv);
 					
-				    if (Utils.isBot(conv.getMsisdn()))
+				    if (BotUtils.isBot(conv.getMsisdn()))
                     {
 				    	BotConversation.analyticsForBots(conv, HikePlatformConstants.BOT_CLEAR_CONVERSATION,  AnalyticsConstants.CLICK_EVENT);
                     }
@@ -1576,7 +1577,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 
 	protected void onAddShortcutClicked(ConvInfo conv)
 	{
-		if (Utils.isBot(conv.getMsisdn()))
+		if (BotUtils.isBot(conv.getMsisdn()))
 		{
 			BotConversation.analyticsForBots(conv, HikePlatformConstants.BOT_ADD_SHORTCUT, AnalyticsConstants.CLICK_EVENT);
 		}
@@ -2734,7 +2735,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 					{
 						convInfo.setMute(isMuted);
 					}
-					else if (Utils.isBot(convInfo.getMsisdn()))
+					else if (BotUtils.isBot(convInfo.getMsisdn()))
 					{
 						convInfo.setMute(isMuted);
 					}

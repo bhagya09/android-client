@@ -10,6 +10,7 @@ import android.content.Context;
 import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.platform.HikePlatformConstants;
@@ -116,5 +117,18 @@ public class BotUtils
 		}
 
 		MqttMessagesManager.getInstance(context.getApplicationContext()).createBot(jsonObject);
+	}
+	
+	public static boolean isBot(String msisdn)
+	{
+		if (HikeMessengerApp.hikeBotInfoMap != null)
+		{
+			return HikeMessengerApp.hikeBotInfoMap.containsKey(msisdn);
+		}
+		else
+		{
+			// Not probable
+			return false;
+		}
 	}
 }

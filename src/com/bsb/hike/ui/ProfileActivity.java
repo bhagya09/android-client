@@ -66,6 +66,7 @@ import com.bsb.hike.adapters.ProfileAdapter;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.ProfileImageActions;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
@@ -99,7 +100,6 @@ import com.bsb.hike.ui.fragments.PhotoViewerFragment;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
 import com.bsb.hike.utils.EmoticonConstants;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.PairModified;
@@ -1575,7 +1575,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 
 	public void onViewImageClicked(View v)
 	{
-		if(Utils.isBot(mLocalMSISDN))
+		if(BotUtils.isBot(mLocalMSISDN))
 		{
 			return;
 		}

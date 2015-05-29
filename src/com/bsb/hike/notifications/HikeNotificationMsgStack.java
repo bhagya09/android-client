@@ -23,6 +23,7 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
 import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
@@ -31,7 +32,6 @@ import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.Utils;
 import com.google.gson.Gson;
 
 /**
@@ -319,7 +319,7 @@ public class HikeNotificationMsgStack implements Listener
 			else
 			{
 
-				if (Utils.isBot(lastAddedMsisdn))
+				if (BotUtils.isBot(lastAddedMsisdn))
 				{
 					mNotificationIntent = getIntentForBots(mContext, lastAddedMsisdn);
 				}

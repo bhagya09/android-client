@@ -37,6 +37,7 @@ import com.bsb.hike.analytics.AnalyticsConstants.MsgRelEventType;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.analytics.MsgRelLogManager;
+import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.filetransfer.FTAnalyticEvents;
 import com.bsb.hike.filetransfer.FileTransferManager;
@@ -274,7 +275,7 @@ public class ChatThreadUtils
 
 	protected static boolean shouldShowLastSeen(String msisdn, Context context, boolean convOnHike, boolean isBlocked)
 	{
-		if (convOnHike && !isBlocked && !Utils.isBot(msisdn))
+		if (convOnHike && !isBlocked && !BotUtils.isBot(msisdn))
 		{
 			return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(HikeConstants.LAST_SEEN_PREF, true);
 		}
@@ -557,7 +558,7 @@ public class ChatThreadUtils
 			return HikeConstants.Extras.GROUP_CHAT_THREAD;
 		}
 		
-		else if (Utils.isBot(msisdn))
+		else if (BotUtils.isBot(msisdn))
 		{
 			return HikeConstants.Extras.BOT_CHAT_THREAD;
 		}

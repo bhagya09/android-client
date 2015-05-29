@@ -29,6 +29,7 @@ import com.bsb.hike.analytics.AnalyticsConstants.MsgRelEventType;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.MsgRelLogManager;
 import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.ConvMessage;
@@ -210,7 +211,7 @@ public class DbConversationListener implements Listener
 
 			JSONObject blockObj = blockUnblockSerialize("b", msisdn);
 
-			if (!Utils.isBot(msisdn))
+			if (!BotUtils.isBot(msisdn))
 			{
 				/*
 				 * We remove the icon for a blocked user as well.
@@ -294,7 +295,7 @@ public class DbConversationListener implements Listener
 			String id = groupMute.first;
 			boolean mute = groupMute.second;
 
-			if (Utils.isBot(id))
+			if (BotUtils.isBot(id))
 			{
 				// TODO Do we have to do MQTT PUBLISH here?
 			}

@@ -40,6 +40,7 @@ import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.analytics.MsgRelLogManager;
 import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.bots.MessagingBotConfiguration;
 import com.bsb.hike.bots.MessagingBotMetadata;
 import com.bsb.hike.bots.NonMessagingBotConfiguration;
@@ -2502,7 +2503,7 @@ public class MqttMessagesManager
 				// chat thread -- by default silent is true, so no sound
 				// open respective chat thread
 
-				if(Utils.isBot(destination))
+				if(BotUtils.isBot(destination))
 				{
 					BotInfo botInfo = BotInfo.getBotInfoForBotMsisdn(destination);
 					if (botInfo.isNonMessagingBot())
