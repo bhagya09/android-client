@@ -2,6 +2,7 @@ package com.bsb.hike.utils;
 
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Message;
 import android.support.v4.app.Fragment;
@@ -9,7 +10,6 @@ import android.support.v4.app.FragmentTransaction;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikeMessengerApp.CurrentState;
@@ -22,9 +22,10 @@ import com.bsb.hike.productpopup.HikeDialogFragment;
 import com.bsb.hike.productpopup.IActivityPopup;
 import com.bsb.hike.productpopup.ProductContentModel;
 import com.bsb.hike.productpopup.ProductInfoManager;
+import com.bsb.hike.ui.HikeBaseActivity;
 import com.bsb.hike.utils.HikeUiHandler.IHandlerCallback;
 
-public class HikeAppStateBaseFragmentActivity extends SherlockFragmentActivity implements Listener,IHandlerCallback
+public class HikeAppStateBaseFragmentActivity extends HikeBaseActivity implements Listener,IHandlerCallback
 {
 
 	private static final String TAG = "HikeAppState";
@@ -241,6 +242,16 @@ public class HikeAppStateBaseFragmentActivity extends SherlockFragmentActivity i
 	{
 		ActionBar actionBar = getSupportActionBar();
 		actionBar.setBackgroundDrawable(getResources().getDrawable(backgroundDrawable));
+		// * Workaround to set actionbar background drawable multiple times. Refer SO.
+		// http://stackoverflow.com/questions/17076958/change-actionbar-color-programmatically-more-then-once/17198657#17198657
+		actionBar.setDisplayShowTitleEnabled(true);
+		actionBar.setDisplayShowTitleEnabled(false);
+	}
+	
+	protected void updateActionBarColor(ColorDrawable colorDrawable)
+	{
+		ActionBar actionBar = getSupportActionBar();
+		actionBar.setBackgroundDrawable((colorDrawable));
 		// * Workaround to set actionbar background drawable multiple times. Refer SO.
 		// http://stackoverflow.com/questions/17076958/change-actionbar-color-programmatically-more-then-once/17198657#17198657
 		actionBar.setDisplayShowTitleEnabled(true);

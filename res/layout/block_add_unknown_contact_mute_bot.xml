@@ -25,7 +25,9 @@
         <com.bsb.hike.view.CustomFontButton
             android:id="@+id/add_unknown_contact"
             style="@style/BlockAddUnknownContact"
+            android:tag="@string/add"
             android:text="@string/add" />
+
     </LinearLayout>
 
     <View

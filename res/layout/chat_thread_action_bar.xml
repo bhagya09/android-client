@@ -30,11 +30,24 @@
             android:layout_marginBottom="5dp"
             android:layout_marginRight="4dp"
             android:layout_marginTop="5dp" >
+            
+           <FrameLayout
+               android:layout_width="wrap_content"
+               android:layout_height="wrap_content" >
 
-            <com.bsb.hike.view.RoundedImageView
-                android:id="@+id/avatar"
-                android:contentDescription="@string/content_des_round_user_image_chatthread_actionbar"
-                style="@style/AvatarStyle.Padding" />
+               <com.bsb.hike.view.RoundedImageView
+                   android:id="@+id/avatar"
+                   style="@style/AvatarStyle.Padding"
+                   android:contentDescription="@string/content_des_round_user_image_chatthread_actionbar" />
+
+               <com.bsb.hike.ui.utils.RecyclingImageView
+                   android:id="@+id/stealth_badge"
+                   android:layout_width="10.5dp"
+                   android:layout_height="9.75dp"
+                   android:layout_gravity="bottom|right"
+                   android:src="@drawable/stealth_badge"
+                   android:visibility="gone" />
+           </FrameLayout>
 
             <ImageView
                 android:id="@+id/avatar_frame"

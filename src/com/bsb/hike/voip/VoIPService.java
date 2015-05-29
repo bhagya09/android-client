@@ -153,6 +153,7 @@ public class VoIPService extends Service {
 					stop();
 				else {
 					Logger.d(VoIPConstants.TAG, msisdn + " has quit the conference.");
+					sendHandlerMessage(VoIPConstants.MSG_LEFT_CONFERENCE, bundle);
 					getClient(msisdn).close();
 					clients.remove(msisdn);
 				}
@@ -198,7 +199,7 @@ public class VoIPService extends Service {
 				}
 				
 				if (!inConference())
-					sendHandlerMessage(msg.what, bundle);
+					stop();
 				
 				break;
 				
@@ -282,7 +283,7 @@ public class VoIPService extends Service {
 		
 		int returnInt = super.onStartCommand(intent, flags, startId);
 		
-		Logger.d(VoIPConstants.TAG, "VoIPService onStartCommand()");
+		// Logger.d(VoIPConstants.TAG, "VoIPService onStartCommand()");
 
 		if (intent == null)
 			return returnInt;
@@ -525,10 +526,7 @@ public class VoIPService extends Service {
 	public void onDestroy() {
 		super.onDestroy();
 		stop();
-		setCallid(0);	// Redundant, for bug #44018
-		clients.clear();
 		dismissNotification();
-		releaseWakeLock();
 		Logger.d(VoIPConstants.TAG, "VoIP Service destroyed.");
 	}
 	
@@ -604,7 +602,7 @@ public class VoIPService extends Service {
 						if (keepRunning)
 							showNotification();
 					} catch (InterruptedException e) {
-						Logger.d(VoIPConstants.TAG, "Notification thread interrupted.");
+						// Logger.d(VoIPConstants.TAG, "Notification thread interrupted.");
 						break;
 					}
 
@@ -698,7 +696,7 @@ public class VoIPService extends Service {
 		Notification myNotification = builder
 		.setContentTitle(title)
 		.setContentText(text)
-		.setSmallIcon(HikeNotification.getInstance(this).returnSmallIcon())
+		.setSmallIcon(HikeNotification.getInstance().returnSmallIcon())
 		.setContentIntent(pendingIntent)
 		.setOngoing(true)
 		.setAutoCancel(true)
@@ -1392,55 +1390,56 @@ public class VoIPService extends Service {
 			scheduledExecutorService = Executors.newScheduledThreadPool(1);
 		}
 		
+		byte[] silence = new byte[OpusWrapper.OPUS_FRAME_SIZE * 2];
+		final VoIPDataPacket silentPacket = new VoIPDataPacket(PacketType.VOICE_PACKET);
+		silentPacket.setData(silence);
+		final HashMap<String, byte[]> clientSample = new HashMap<String, byte[]>();
+
+		
 		scheduledFuture = scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
 			
 			@Override
 			public void run() {
 				// Logger.d(VoIPConstants.TAG, "Running feeder");
 				
+				android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
+
 				playbackFeederCounter++;
 				if (playbackFeederCounter == Integer.MAX_VALUE)
 					playbackFeederCounter = 0;
-				
-				android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
-				
-				byte[] silence = new byte[OpusWrapper.OPUS_FRAME_SIZE * 2];
-				VoIPDataPacket silentPacket = new VoIPDataPacket(PacketType.VOICE_PACKET);
-				silentPacket.setData(silence);
-				
+
 				if (keepRunning) {
 					
-					HashMap<String, byte[]> clientSample = new HashMap<String, byte[]>();
-					
 					// Retrieve decoded samples from all clients and combine into one
-					VoIPDataPacket decodedSample = null;
+					VoIPDataPacket finalDecodedSample = null;
 					for (VoIPClient client : clients.values()) {
 						VoIPDataPacket dp = client.getDecodedBuffer();
 						if (dp != null) {
-							clientSample.put(client.getPhoneNumber(), dp.getData());
+							if (inConference())
+								clientSample.put(client.getPhoneNumber(), dp.getData());
 							
-							if (decodedSample == null)
-								decodedSample = dp;
+							if (finalDecodedSample == null)
+								finalDecodedSample = dp;
 							else {
 								// We have to combine samples
-								decodedSample.setData(VoIPUtils.addPCMSamples(decodedSample.getData(), dp.getData()));
+								finalDecodedSample.setData(VoIPUtils.addPCMSamples(finalDecodedSample.getData(), dp.getData()));
 							}
 						}
 					}
 					
 					// Add to our decoded samples queue
 					try {
-						if (decodedSample == null) {
+						if (finalDecodedSample == null) {
 							// Logger.d(VoIPConstants.TAG, "Decoded samples underrun. Adding silence.");
 							playbackTrackingBits.clear(playbackFeederCounter % playbackTrackingBits.size());
-							decodedSample = silentPacket;
+							finalDecodedSample = silentPacket;
 						} else {
 							playbackTrackingBits.set(playbackFeederCounter % playbackTrackingBits.size());
 						}
 
 						if (!hold) {
 							if (playbackBuffersQueue.size() < VoIPConstants.MAX_SAMPLES_BUFFER)
-								playbackBuffersQueue.put(decodedSample);
+								playbackBuffersQueue.put(finalDecodedSample);
 							else
 								Logger.w(VoIPConstants.TAG, "Playback buffers queue full.");
 						}
@@ -1456,7 +1455,7 @@ public class VoIPService extends Service {
 					if (inConference()) {
 						VoIPDataPacket dp = processedRecordedSamples.poll();
 						if (dp != null) {
-							byte[] conferencePCM = VoIPUtils.addPCMSamples(decodedSample.getData(), dp.getData());
+							byte[] conferencePCM = VoIPUtils.addPCMSamples(finalDecodedSample.getData(), dp.getData());
 							dp.setData(conferencePCM);
 							
 							for (VoIPClient client : clients.values()) {
@@ -1477,7 +1476,8 @@ public class VoIPService extends Service {
 					if (playbackFeederCounter % QUALITY_CALCULATION_FREQUENCY == 0)
 						calculateQuality();
 					
-					clientSample.clear();
+					if (inConference())
+						clientSample.clear();
 					
 				} else {
 					Logger.d(VoIPConstants.TAG, "Shutting down decoded samples poller.");
@@ -1493,8 +1493,8 @@ public class VoIPService extends Service {
 			return;
 		
 		int cardinality = playbackTrackingBits.cardinality();
-		int loss = (100 - (cardinality*100 / playbackTrackingBits.length()));
-		Logger.d(VoIPConstants.TAG, "Loss: " + loss + ", cardinality: " + cardinality);
+		int loss = (100 - (cardinality*100 / playbackTrackingBits.size()));
+		// Logger.d(VoIPConstants.TAG, "Loss: " + loss + ", cardinality: " + cardinality);
 		
 		CallQuality newQuality;
 		

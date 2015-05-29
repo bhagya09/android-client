@@ -36,8 +36,6 @@ import java.util.Random;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.jar.JarFile;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -48,7 +46,6 @@ import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -97,6 +94,7 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.media.AudioManager;
 import android.media.ExifInterface;
+import android.media.MediaScannerConnection;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.TrafficStats;
@@ -170,6 +168,8 @@ import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.TrafficsStatsFile;
+import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.cropimage.CropImage;
@@ -179,6 +179,7 @@ import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.http.HikeHttpRequest;
 import com.bsb.hike.models.AccountData;
+import com.bsb.hike.models.AccountInfo;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.ContactInfoData;
@@ -190,6 +191,7 @@ import com.bsb.hike.models.FtueContactsData;
 import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.StatusMessage;
 import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.models.Conversation.ConvInfo;
@@ -200,9 +202,9 @@ import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.models.utils.JSONSerializable;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.notifications.HikeNotification;
+import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.service.ConnectionChangeReceiver;
 import com.bsb.hike.service.HikeMqttManagerNew;
-import com.bsb.hike.tasks.AuthSDKAsyncTask;
 import com.bsb.hike.tasks.CheckForUpdateTask;
 import com.bsb.hike.tasks.SignupTask;
 import com.bsb.hike.ui.HikePreferences;
@@ -212,7 +214,6 @@ import com.bsb.hike.ui.SignupActivity;
 import com.bsb.hike.ui.TimelineActivity;
 import com.bsb.hike.ui.WebViewActivity;
 import com.bsb.hike.ui.WelcomeActivity;
-import com.bsb.hike.utils.AccountUtils.AccountInfo;
 import com.bsb.hike.voip.VoIPUtils;
 import com.google.android.gms.maps.model.LatLng;
 
@@ -239,8 +240,6 @@ public class Utils
 	public static float densityMultiplier = 1.0f;
 
 	public static int densityDpi;
-
-	private static Lock lockObj = new ReentrantLock();
 
 	private static final String defaultCountryName = "India";
 
@@ -401,6 +400,10 @@ public class Utils
 			}
 		}
 
+		if( !mediaStorageDir.isDirectory() && mediaStorageDir.canWrite() ){
+			mediaStorageDir.delete();
+			mediaStorageDir.mkdirs();
+		}
 		// File name should only be blank in case of profile images or while
 		// capturing new media.
 		if (TextUtils.isEmpty(orgFileName))
@@ -410,7 +413,21 @@ public class Utils
 
 		// String fileName = getUniqueFileName(orgFileName, fileKey);
 
-		return new File(mediaStorageDir, orgFileName);
+		/*
+		 * Changes done to fix the issue where some users are getting FileNotFoundEXception while creating file.
+		 */
+		File mFile = new File(mediaStorageDir, orgFileName);
+		try {
+			/*
+			 * Create temp file only for upload case.
+			 */
+			if(isSent)
+				mFile.createNewFile();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return mFile;
 	}
 
 	public static String getOriginalFile(HikeFileType type, String orgFileName)
@@ -558,16 +575,16 @@ public class Utils
 
 	public static void savedAccountCredentials(AccountInfo accountInfo, SharedPreferences.Editor editor)
 	{
-		AccountUtils.setToken(accountInfo.token);
-		AccountUtils.setUID(accountInfo.uid);
-		editor.putString(HikeMessengerApp.MSISDN_SETTING, accountInfo.msisdn);
-		editor.putString(HikeMessengerApp.TOKEN_SETTING, accountInfo.token);
-		editor.putString(HikeMessengerApp.UID_SETTING, accountInfo.uid);
-		editor.putString(HikeMessengerApp.BACKUP_TOKEN_SETTING, accountInfo.backupToken);
-		editor.putInt(HikeMessengerApp.SMS_SETTING, accountInfo.smsCredits);
-		editor.putInt(HikeMessengerApp.INVITED, accountInfo.all_invitee);
-		editor.putInt(HikeMessengerApp.INVITED_JOINED, accountInfo.all_invitee_joined);
-		editor.putString(HikeMessengerApp.COUNTRY_CODE, accountInfo.country_code);
+		AccountUtils.setToken(accountInfo.getToken());
+		AccountUtils.setUID(accountInfo.getUid());
+		editor.putString(HikeMessengerApp.MSISDN_SETTING, accountInfo.getMsisdn());
+		editor.putString(HikeMessengerApp.TOKEN_SETTING, accountInfo.getToken());
+		editor.putString(HikeMessengerApp.UID_SETTING, accountInfo.getUid());
+		editor.putString(HikeMessengerApp.BACKUP_TOKEN_SETTING, accountInfo.getBackUpToken());
+		editor.putInt(HikeMessengerApp.SMS_SETTING, accountInfo.getSmsCredits());
+		editor.putInt(HikeMessengerApp.INVITED, accountInfo.getAllInvitee());
+		editor.putInt(HikeMessengerApp.INVITED_JOINED, accountInfo.getAllInviteeJoined());
+		editor.putString(HikeMessengerApp.COUNTRY_CODE, accountInfo.getCountryCode());
 		editor.commit();
 	}
 
@@ -767,13 +784,19 @@ public class Utils
 		return contactNames;
 	}
 
-	public static String validateBotMsisdn(String msisdn)
+	public static boolean validateBotMsisdn(String msisdn)
 	{
+		if (TextUtils.isEmpty(msisdn))
+		{
+			Logger.wtf(HikePlatformConstants.TAG, "msisdn is ---->" + msisdn);
+			return false;
+		}
 		if (!msisdn.startsWith("+"))
 		{
-			msisdn = "+" + msisdn;
+			Logger.wtf(HikePlatformConstants.TAG, "msisdn does not start with +. It is ---->" + msisdn);
+			return false;
 		}
-		return msisdn;
+		return true;
 	}
 
 	public static String defaultGroupName(List<PairModified<GroupParticipant, String>> participantList)
@@ -1443,6 +1466,9 @@ public class Utils
 		{
 			return true;
 		}
+		
+		boolean status = false;
+		
 		try
 		{
 			InputStream src;
@@ -1483,24 +1509,23 @@ public class Utils
 			dest.getFD().sync();
 			src.close();
 			dest.close();
-
-			return true;
+			
+			status = true;
 		}
 		catch (FileNotFoundException e)
 		{
 			Logger.e("Utils", "File not found while copying", e);
-			return false;
 		}
 		catch (IOException e)
 		{
 			Logger.e("Utils", "Error while reading/writing/closing file", e);
-			return false;
 		}
 		catch (Exception ex)
 		{
 			Logger.e("Utils", "WTF Error while reading/writing/closing file", ex);
-			return false;
 		}
+		
+		return status;
 	}
 
 	public static boolean compressAndCopyImage(String srcFilePath, String destFilePath, Context context)
@@ -1635,29 +1660,32 @@ public class Utils
 		return b;
 	}
 
-	public static void setupUri(Context ctx)
+	public static void setupUri()
 	{
-		SharedPreferences settings = ctx.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
-		boolean connectUsingSSL = Utils.switchSSLOn(ctx);
+		SharedPreferences settings = HikeMessengerApp.getInstance().getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
+		boolean connectUsingSSL = Utils.switchSSLOn(HikeMessengerApp.getInstance());
 		Utils.setupServerURL(settings.getBoolean(HikeMessengerApp.PRODUCTION, true), connectUsingSSL);
 	}
 
 	public static void setupServerURL(boolean isProductionServer, boolean ssl)
-
 	{
 		Logger.d("SSL", "Switching SSL on? " + ssl);
 
-		AccountUtils.ssl = ssl;
+		int whichServer = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PRODUCTION_HOST_TOGGLE, AccountUtils._PRODUCTION_HOST);
+		
+		AccountUtils.ssl = (whichServer != AccountUtils._CUSTOM_HOST) ? ssl: false;
+		
 		AccountUtils.mClient = null;
+		
+		Logger.d("SSL", "Switching SSL on? " + AccountUtils.ssl);
 
-		String httpString = ssl ? AccountUtils.HTTPS_STRING : AccountUtils.HTTP_STRING;
+		String httpString = AccountUtils.ssl ? AccountUtils.HTTPS_STRING : AccountUtils.HTTP_STRING;
 
 		AccountUtils.host = isProductionServer ? AccountUtils.PRODUCTION_HOST : AccountUtils.STAGING_HOST;
 		AccountUtils.port = isProductionServer ? (ssl ? AccountUtils.PRODUCTION_PORT_SSL : AccountUtils.PRODUCTION_PORT) : (ssl ? AccountUtils.STAGING_PORT_SSL
 				: AccountUtils.STAGING_PORT);
 
 		if (isProductionServer)
-
 		{
 			AccountUtils.base = httpString + AccountUtils.host + "/v1";
 			AccountUtils.baseV2 = httpString + AccountUtils.host + "/v2";
@@ -1665,33 +1693,33 @@ public class Utils
 		}
 		else
 		{
+			setHostAndPort(whichServer, AccountUtils.ssl);
 			AccountUtils.base = httpString + AccountUtils.host + ":" + Integer.toString(AccountUtils.port) + "/v1";
 			AccountUtils.baseV2 = httpString + AccountUtils.host + ":" + Integer.toString(AccountUtils.port) + "/v2";
 			AccountUtils.SDK_AUTH_BASE = AccountUtils.SDK_AUTH_BASE_URL_STAGING;
 		}
 
-		AccountUtils.fileTransferHost = isProductionServer ? AccountUtils.PRODUCTION_FT_HOST : AccountUtils.STAGING_HOST;
+		AccountUtils.fileTransferHost = isProductionServer ? AccountUtils.PRODUCTION_FT_HOST : AccountUtils.host;
 		AccountUtils.fileTransferBase = httpString + AccountUtils.fileTransferHost + ":" + Integer.toString(AccountUtils.port) + "/v1";
 
-		CheckForUpdateTask.UPDATE_CHECK_URL = httpString + (isProductionServer ? CheckForUpdateTask.PRODUCTION_URL : CheckForUpdateTask.STAGING_URL);
+		CheckForUpdateTask.UPDATE_CHECK_URL = httpString + (isProductionServer ? CheckForUpdateTask.PRODUCTION_URL : CheckForUpdateTask.STAGING_URL_BASE);
 
 		AccountUtils.fileTransferBaseDownloadUrl = AccountUtils.fileTransferBase + AccountUtils.FILE_TRANSFER_DOWNLOAD_BASE;
 		AccountUtils.fastFileUploadUrl = AccountUtils.fileTransferBase + AccountUtils.FILE_TRANSFER_DOWNLOAD_BASE + "ffu/";
-		AccountUtils.fileTransferBaseViewUrl = AccountUtils.HTTP_STRING
-				+ (isProductionServer ? AccountUtils.FILE_TRANSFER_BASE_VIEW_URL_PRODUCTION : AccountUtils.FILE_TRANSFER_BASE_VIEW_URL_STAGING);
 
-		AccountUtils.analyticsUploadUrl = AccountUtils.base + AccountUtils.ANALYTICS_UPLOAD_BASE;
+		
+		AccountUtils.rewardsUrl = (isProductionServer ? AccountUtils.REWARDS_PRODUCTION_BASE : AccountUtils.base + AccountUtils.REWARDS_STAGING_PATH);
+		AccountUtils.gamesUrl = (isProductionServer ? AccountUtils.GAMES_PRODUCTION_BASE : AccountUtils.base + AccountUtils.GAMES_STAGING_PATH);
+		AccountUtils.stickersUrl = (isProductionServer ? AccountUtils.HTTP_STRING + AccountUtils.STICKERS_PRODUCTION_BASE : AccountUtils.base + AccountUtils.STICKERS_STAGING_PATH);
+		AccountUtils.h2oTutorialUrl = (isProductionServer ? AccountUtils.HTTP_STRING + AccountUtils.H2O_TUTORIAL_PRODUCTION_BASE : AccountUtils.base + AccountUtils.H2O_TUTORIAL_STAGING_PATH);
+		AccountUtils.analyticsUploadUrl = AccountUtils.base + AccountUtils.ANALYTICS_UPLOAD_PATH;
 
-		AccountUtils.rewardsUrl = isProductionServer ? AccountUtils.REWARDS_PRODUCTION_BASE : AccountUtils.REWARDS_STAGING_BASE;
-		AccountUtils.gamesUrl = isProductionServer ? AccountUtils.GAMES_PRODUCTION_BASE : AccountUtils.GAMES_STAGING_BASE;
-		AccountUtils.stickersUrl = AccountUtils.HTTP_STRING + (isProductionServer ? AccountUtils.STICKERS_PRODUCTION_BASE : AccountUtils.STICKERS_STAGING_BASE);
-		AccountUtils.h2oTutorialUrl = AccountUtils.HTTP_STRING + (isProductionServer ? AccountUtils.H2O_TUTORIAL_PRODUCTION_BASE : AccountUtils.H2O_TUTORIAL_STAGING_BASE);
 		Logger.d("SSL", "Base: " + AccountUtils.base);
 		Logger.d("SSL", "FTHost: " + AccountUtils.fileTransferHost);
 		Logger.d("SSL", "FTUploadBase: " + AccountUtils.fileTransferBase);
 		Logger.d("SSL", "UpdateCheck: " + CheckForUpdateTask.UPDATE_CHECK_URL);
 		Logger.d("SSL", "FTDloadBase: " + AccountUtils.fileTransferBaseDownloadUrl);
-		Logger.d("SSL", "FTViewBase: " + AccountUtils.fileTransferBaseViewUrl);
+	
 	}
 
 	private static void setHostAndPort(int whichServer, boolean ssl)
@@ -1713,6 +1741,14 @@ public class Utils
 			AccountUtils.host = AccountUtils.DEV_STAGING_HOST;
 			AccountUtils.port = ssl ? AccountUtils.STAGING_PORT_SSL : AccountUtils.STAGING_PORT;
 			break;
+		case AccountUtils._CUSTOM_HOST:
+			SharedPreferences sharedPreferences = HikeMessengerApp.getInstance().getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, Context.MODE_PRIVATE);
+			
+			AccountUtils.host = sharedPreferences.getString(HikeMessengerApp.CUSTOM_HTTP_HOST, AccountUtils.PRODUCTION_HOST);
+			AccountUtils.port = sharedPreferences.getInt(HikeMessengerApp.CUSTOM_HTTP_PORT, AccountUtils.PRODUCTION_PORT);
+			
+			break;
+
 		}
 
 	}
@@ -2409,21 +2445,6 @@ public class Utils
 		activity.startActivityForResult(intent, HikeConstants.CROP_RESULT);
 	}
 
-	public static void startCropActivityForResult(Activity activity, String path, String destPath, boolean preventScaling, int quality,boolean circleHighlight)
-	{
-		/* Crop the image */
-		Intent intent = new Intent(activity, CropImage.class);
-		intent.putExtra(MediaStore.EXTRA_OUTPUT, destPath);
-		intent.putExtra(HikeConstants.Extras.IMAGE_PATH, path);
-		intent.putExtra(HikeConstants.Extras.CIRCLE_HIGHLIGHT, circleHighlight);
-		intent.putExtra(HikeConstants.Extras.SCALE, false);
-		intent.putExtra(HikeConstants.Extras.RETURN_CROP_RESULT_TO_FILE, preventScaling);
-		intent.putExtra(HikeConstants.Extras.ASPECT_X, 1);
-		intent.putExtra(HikeConstants.Extras.ASPECT_Y, 1);
-		intent.putExtra(HikeConstants.Extras.JPEG_COMPRESSION_QUALITY, quality);
-		activity.startActivityForResult(intent, HikeConstants.CROP_RESULT);
-	}
-
 	public static long getContactId(Context context, long rawContactId)
 	{
 		Cursor cur = null;
@@ -2711,20 +2732,10 @@ public class Utils
 				}
 			}
 		}
-
+		
 		sendAppState(context, requestBulkLastSeen, dueToConnect, toLog);
 
-		if (resetStealth)
-		{
-			if (HikeMessengerApp.currentState != CurrentState.OPENED && HikeMessengerApp.currentState != CurrentState.RESUMED)
-			{
-				resetStealthMode(context);
-			}
-			else
-			{
-				clearStealthResetTimer(context);
-			}
-		}
+		StealthModeManager.getInstance().appStateChange(resetStealth, HikeMessengerApp.currentState != CurrentState.OPENED && HikeMessengerApp.currentState != CurrentState.RESUMED);
 	}
 
 	public static boolean isScreenOn(Context context)
@@ -2809,16 +2820,6 @@ public class Utils
 		}
 	}
 	
-	private static void resetStealthMode(Context context)
-	{
-		StealthResetTimer.getInstance(context).resetStealthToggle();
-	}
-
-	private static void clearStealthResetTimer(Context context)
-	{
-		StealthResetTimer.getInstance(context).clearScheduledStealthToggleTimer();
-	}
-
 	public static String getLastSeenTimeAsString(Context context, long lastSeenTime, int offline)
 	{
 		return getLastSeenTimeAsString(context, lastSeenTime, offline, false);
@@ -3304,18 +3305,6 @@ public class Utils
 		}
 	}
 
-	public static void executeAuthSDKTask(AuthSDKAsyncTask argTask, HttpRequestBase... requests)
-	{
-		if (isHoneycombOrHigher())
-		{
-			argTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, requests);
-		}
-		else
-		{
-			argTask.execute(requests);
-		}
-	}
-
 	public static void executeSignupTask(AsyncTask<Void, SignupTask.StateValue, Boolean> asyncTask)
 	{
 		if (isHoneycombOrHigher())
@@ -3462,8 +3451,18 @@ public class Utils
 
 	public static void createShortcut(Activity activity, ConvInfo conv)
 	{
-		Intent shortcutIntent = IntentFactory.createChatThreadIntentFromConversation(activity, conv);
+		Intent shortcutIntent;
 		Intent intent = new Intent();
+		if (conv instanceof BotInfo && ((BotInfo) conv).isNonMessagingBot())
+		{
+			shortcutIntent = IntentFactory.getNonMessagingBotIntent(conv.getMsisdn(), "", "", activity);
+		}
+
+		else
+		{
+			shortcutIntent = IntentFactory.createChatThreadIntentFromConversation(activity, conv);
+		}
+		
 		intent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, shortcutIntent);
 		intent.putExtra(Intent.EXTRA_SHORTCUT_NAME, conv.getLabel());
 
@@ -4242,7 +4241,7 @@ public class Utils
 
 	public static int getFreeSMSCount(Context context)
 	{
-		return context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, context.MODE_PRIVATE).getInt(HikeMessengerApp.SMS_SETTING, 0);
+		return context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, Context.MODE_PRIVATE).getInt(HikeMessengerApp.SMS_SETTING, 0);
 	}
 
 	public static void handleBulkLastSeenPacket(Context context, JSONObject jsonObj) throws JSONException
@@ -4504,6 +4503,14 @@ public class Utils
 		Intent intent = new Intent(context, HikePreferences.class);
 		intent.putExtra(HikeConstants.Extras.PREF, R.xml.privacy_preferences);
 		intent.putExtra(HikeConstants.Extras.TITLE, R.string.privacy);
+		return intent;
+	}
+	
+	public static Intent getIntentForHiddenSettings(Context context)
+	{
+		Intent intent = new Intent(context, HikePreferences.class);
+		intent.putExtra(HikeConstants.Extras.PREF, R.xml.stealth_preferences);
+		intent.putExtra(HikeConstants.Extras.TITLE, R.string.stealth_mode_title);
 		return intent;
 	}
 
@@ -5421,7 +5428,7 @@ public class Utils
 
 	public static String conversationType(String msisdn)
 	{
-		if (isBot(msisdn))
+		if (BotUtils.isBot((msisdn)))
 		{
 			return HikeConstants.BOT;
 		}
@@ -5432,19 +5439,6 @@ public class Utils
 		else
 		{
 			return HikeConstants.ONE_TO_ONE_CONVERSATION;
-		}
-	}
-
-	public static boolean isBot(String msisdn)
-	{
-		if (HikeMessengerApp.hikeBotNamesMap != null)
-		{
-			return HikeMessengerApp.hikeBotNamesMap.containsKey(msisdn);
-		}
-		else
-		{
-			// Not probable
-			return false;
 		}
 	}
 
@@ -5506,7 +5500,7 @@ public class Utils
 				return true;
 			}
 		}
-		else if (Utils.isBot(msisdn))
+		else if (BotUtils.isBot(msisdn))
 		{
 			if (HikeConversationsDatabase.getInstance().isBotMuted(msisdn))
 			{
@@ -5566,7 +5560,7 @@ public class Utils
 			ConnectivityManager cm = (ConnectivityManager) HikeMessengerApp.getInstance().getSystemService(Context.CONNECTIVITY_SERVICE);
 			NetworkInfo netInfo = cm.getActiveNetworkInfo();
 
-			if (netInfo != null && (netInfo.isConnectedOrConnecting() || netInfo.isAvailable()))
+			if (netInfo != null && netInfo.isConnected())
 			{
 				Logger.d("getNetInfoFromConnectivityManager", "Trying to connect using getActiveNetworkInfo");
 				return new Pair<NetworkInfo, Boolean>(netInfo, true);
@@ -5574,7 +5568,7 @@ public class Utils
 
 			netInfo = cm.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
 
-			if (netInfo != null && netInfo.isConnectedOrConnecting())
+			if (netInfo != null && netInfo.isConnected())
 			{
 				Logger.d("getNetInfoFromConnectivityManager", "Trying to connect using TYPE_MOBILE NetworkInfo");
 				return new Pair<NetworkInfo, Boolean>(netInfo, true);
@@ -5582,7 +5576,7 @@ public class Utils
 			else
 			{
 				netInfo = cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-				if (netInfo != null && netInfo.isConnectedOrConnecting())
+				if (netInfo != null && netInfo.isConnected())
 				{
 					Logger.d("getNetInfoFromConnectivityManager", "Trying to connect using TYPE_WIFI NetworkInfo");
 					return new Pair<NetworkInfo, Boolean>(netInfo, true);
@@ -5652,7 +5646,8 @@ public class Utils
 		
 		return maxVal;
 	}
-	
+
+
 	public static boolean isOnProduction()
 	{
 		return HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PRODUCTION, true);
@@ -5743,7 +5738,7 @@ public class Utils
 		 */
 		String srcFilePath = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT + "/" + msisdn + ".jpg";
 		String destFilePath = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT + "/" + mappedId + ".jpg";
-		Utils.copyFile(srcFilePath, destFilePath, null);
+		Utils.copyFile(srcFilePath, destFilePath, HikeFileType.IMAGE);
 
 		if (setIcon)
 		{
@@ -5757,7 +5752,7 @@ public class Utils
 			{
 				bytes = BitmapUtils.bitmapToBytes(smallerBitmap, Bitmap.CompressFormat.JPEG, 100);
 			}
-			ContactManager.getInstance().setIcon(mappedId, bytes, false);
+			ContactManager.getInstance().setIcon(mappedId, bytes, true);
 		}
 
 		return statusMessage;
@@ -5828,6 +5823,10 @@ public class Utils
 	
 	public static boolean isPhotosEditEnabled()
 	{
+		if(!Utils.isUserSignedUp(HikeMessengerApp.getInstance().getApplicationContext(), false))
+		{
+			return false;
+		}
 		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH)
 		{
 			return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.ENABLE_PHOTOS, true);
@@ -5835,6 +5834,56 @@ public class Utils
 		else
 		{
 			return false;
+		}
+	}
+	
+	public static boolean resetUnreadCounterForConversation(ConvInfo convInfo)
+	{
+		ConvMessage lastMessage = convInfo.getLastConversationMsg();
+		if (lastMessage != null && lastMessage.getState() == State.RECEIVED_UNREAD)
+		{
+			lastMessage.setState(State.RECEIVED_READ);
+			convInfo.setUnreadCount(0);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.UPDATE_LAST_MSG_STATE, new Pair<Integer, String>(lastMessage.getState().ordinal(), convInfo.getMsisdn()));
+			return true;
+		}
+
+		return false;
+	}
+	
+	public static String getCameraResultFile()
+	{
+		HikeSharedPreferenceUtil sharedPreference = HikeSharedPreferenceUtil.getInstance();
+		final String capturedFilepath = sharedPreference.getData(HikeMessengerApp.FILE_PATH, null);
+		sharedPreference.removeData(HikeMessengerApp.FILE_PATH);
+
+		if (capturedFilepath != null)
+		{
+			File imageFile = new File(capturedFilepath);
+
+			if (imageFile != null && imageFile.exists())
+			{
+				HikeHandlerUtil.getInstance().postRunnableWithDelay(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						MediaScannerConnection.scanFile(HikeMessengerApp.getInstance(), new String[] { capturedFilepath }, null, null);
+					}
+				}, 0);
+				return capturedFilepath;
+			}
+			else
+			{
+				Logger.e("Hike Camera Image", "Image File does not exists");
+				return null;
+			}
+
+		}
+		else
+		{
+			Logger.e("Hike Camera Image", "Image path is null");
+			return null;
 		}
 	}
 }

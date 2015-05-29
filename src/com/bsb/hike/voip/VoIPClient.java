@@ -70,7 +70,7 @@ public class VoIPClient  {
 	private Context context;
 	private DatagramSocket socket = null;
 	private OpusWrapper opusWrapper;
-	private Thread iceThread = null, partnerTimeoutThread = null, responseTimeoutThread = null, senderThread = null, receivingThread = null;
+	private Thread iceThread = null, partnerSocketInfoTimeoutThread = null, responseTimeoutThread = null, senderThread = null, receivingThread = null;
 	private Thread sendingThread = null;
 	private Thread codecDecompressionThread = null, compressionThread = null;
 	private boolean keepRunning = true;
@@ -376,7 +376,7 @@ public class VoIPClient  {
 					if (socketInfoReceived)
 						establishConnection();
 					else
-						startPartnerTimeoutThread();
+						startPartnerSocketInfoTimeoutThread();
 				} else {
 					if (!Thread.currentThread().isInterrupted()) {
 						Logger.d(VoIPConstants.TAG, "Failed to retrieve external socket.");
@@ -557,13 +557,13 @@ public class VoIPClient  {
 			return;
 		}
 		
-		if (partnerTimeoutThread != null)
-			partnerTimeoutThread.interrupt();
+		if (partnerSocketInfoTimeoutThread != null)
+			partnerSocketInfoTimeoutThread.interrupt();
 
 		setPreferredConnectionMethod(ConnectionMethods.UNKNOWN);
 		establishingConnection = true;
 		connected = false;
-		Logger.d(VoIPConstants.TAG, "Trying to establish P2P connection..");
+		Logger.d(VoIPConstants.TAG, "Trying to establish UDP connection..");
 		
 		// Sender thread
 		senderThread = new Thread(new Runnable() {
@@ -776,8 +776,8 @@ public class VoIPClient  {
 		if (iceThread != null)
 			iceThread.interrupt();
 
-		if (partnerTimeoutThread != null)
-			partnerTimeoutThread.interrupt();
+		if (partnerSocketInfoTimeoutThread != null)
+			partnerSocketInfoTimeoutThread.interrupt();
 		
 		if (responseTimeoutThread != null)
 			responseTimeoutThread.interrupt();
@@ -851,10 +851,10 @@ public class VoIPClient  {
 	 * Wait for partner to send us their socket information
 	 * Set timeout so we don't wait indefinitely
 	 */
-	private void startPartnerTimeoutThread() {
+	private void startPartnerSocketInfoTimeoutThread() {
 		
 		final int numLoop = 5;
-		partnerTimeoutThread = new Thread(new Runnable() {
+		partnerSocketInfoTimeoutThread = new Thread(new Runnable() {
 			
 			@Override
 			public void run() {
@@ -863,7 +863,7 @@ public class VoIPClient  {
 						Thread.sleep(VoIPConstants.TIMEOUT_PARTNER_SOCKET_INFO / numLoop);
 						sendSocketInfoToPartner();		// Retry sending socket info. 
 					} catch (InterruptedException e) {
-						Logger.d(VoIPConstants.TAG, "Timeout thread interrupted.");
+						// Logger.d(VoIPConstants.TAG, "Timeout thread interrupted.");
 						return;
 					}
 				}
@@ -878,7 +878,7 @@ public class VoIPClient  {
 			}
 		}, "PARTNER_TIMEOUT_THREAD");
 		
-		partnerTimeoutThread.start();
+		partnerSocketInfoTimeoutThread.start();
 	}
 	
 	public void sendPacket(VoIPDataPacket dp, boolean requiresAck) {
@@ -1014,7 +1014,7 @@ public class VoIPClient  {
 						totalPacketsReceived++;
 						
 					} catch (IOException e) {
-						Logger.e(VoIPConstants.TAG, "startReceiving() IOException: " + e.toString());
+						// Logger.e(VoIPConstants.TAG, "startReceiving() IOException: " + e.toString());
 						break;
 					}
 					
@@ -1150,6 +1150,8 @@ public class VoIPClient  {
 						if (dataPacket.getData() != null) {
 							try {
 								remotePacketsReceivedPerSecond = ByteBuffer.wrap(dataPacket.getData()).order(ByteOrder.LITTLE_ENDIAN).getInt();
+								if (remotePacketsReceivedPerSecond < 12)
+									Logger.w(VoIPConstants.TAG, "Remote client is not receiving enough data.");
 							} catch (BufferUnderflowException e) {
 								remotePacketsReceivedPerSecond = 0;
 							}
