@@ -15,10 +15,11 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.bots.MessagingBotConfiguration;
 import com.bsb.hike.bots.MessagingBotMetadata;
-import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.media.OverFlowMenuItem;
 import com.bsb.hike.models.Conversation.BotConversation;
@@ -42,7 +43,7 @@ public class BotChatThread extends OneToOneChatThread
 	protected void init()
 	{
 		super.init();
-		BotInfo botInfo = BotInfo.getBotInfoForBotMsisdn(msisdn);
+		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
 		MessagingBotMetadata botMetadata = new MessagingBotMetadata(botInfo.getMetadata());
 		configuration = new MessagingBotConfiguration(botInfo.getConfiguration(), botMetadata.isReceiveEnabled());
 	}

@@ -217,7 +217,7 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 			    String msisdn = recentContact.getMsisdn();
 			    boolean hideStealthMsisdn = StealthModeManager.getInstance().isStealthMsisdn(msisdn) && !StealthModeManager.getInstance().isActive();
 			    boolean removeSendingMsisdn = (sendingMsisdn!=null && sendingMsisdn.equals(msisdn));
-			    if (blockSet.contains(msisdn) || HikeMessengerApp.hikeBotNamesMap.containsKey(msisdn) || myMsisdn.equals(msisdn) || hideStealthMsisdn || removeSendingMsisdn)
+			    if (blockSet.contains(msisdn) || HikeMessengerApp.hikeBotInfoMap.containsKey(msisdn) || myMsisdn.equals(msisdn) || hideStealthMsisdn || removeSendingMsisdn)
 			    {
 			    	continue;
 			    }
@@ -278,7 +278,7 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 		for (ContactInfo contactInfo : allContacts)
 		{
 			String msisdn = contactInfo.getMsisdn();
-			if (msisdn.equals(myMsisdn) || HikeMessengerApp.hikeBotNamesMap.containsKey(msisdn))
+			if (msisdn.equals(myMsisdn) || HikeMessengerApp.hikeBotInfoMap.containsKey(msisdn))
 			{
 				continue;
 			}

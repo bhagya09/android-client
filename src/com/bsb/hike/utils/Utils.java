@@ -169,6 +169,7 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.TrafficsStatsFile;
 import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.cropimage.CropImage;
@@ -180,7 +181,6 @@ import com.bsb.hike.http.HikeHttpRequest;
 import com.bsb.hike.models.AccountData;
 import com.bsb.hike.models.AccountInfo;
 import com.bsb.hike.models.ContactInfo;
-import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.ContactInfoData;
 import com.bsb.hike.models.ContactInfoData.DataType;
@@ -191,6 +191,7 @@ import com.bsb.hike.models.FtueContactsData;
 import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.StatusMessage;
 import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.models.Conversation.ConvInfo;
@@ -5422,7 +5423,7 @@ public class Utils
 
 	public static String conversationType(String msisdn)
 	{
-		if (isBot(msisdn))
+		if (BotUtils.isBot((msisdn)))
 		{
 			return HikeConstants.BOT;
 		}
@@ -5433,19 +5434,6 @@ public class Utils
 		else
 		{
 			return HikeConstants.ONE_TO_ONE_CONVERSATION;
-		}
-	}
-
-	public static boolean isBot(String msisdn)
-	{
-		if (HikeMessengerApp.hikeBotNamesMap != null)
-		{
-			return HikeMessengerApp.hikeBotNamesMap.containsKey(msisdn);
-		}
-		else
-		{
-			// Not probable
-			return false;
 		}
 	}
 
@@ -5507,7 +5495,7 @@ public class Utils
 				return true;
 			}
 		}
-		else if (Utils.isBot(msisdn))
+		else if (BotUtils.isBot(msisdn))
 		{
 			if (HikeConversationsDatabase.getInstance().isBotMuted(msisdn))
 			{

@@ -1,13 +1,23 @@
 package com.bsb.hike.bots;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.content.Context;
+import android.text.TextUtils;
+
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.R;
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.service.MqttMessagesManager;
+import com.bsb.hike.utils.Logger;
 
 /**
  * Created by shobhit on 22/04/15.
@@ -226,11 +236,6 @@ public class BotInfo extends ConvInfo
 		this.setOnHike(true);
 	}
 
-	public static BotInfo getBotInfoForBotMsisdn(String msisdn)
-	{
-		return HikeMessengerApp.hikeBotNamesMap.get(msisdn);
-	}
-
 	public boolean isMessagingBot()
 	{
 		return type == MESSAGING_BOT;
@@ -325,5 +330,5 @@ public class BotInfo extends ConvInfo
 		
 		return super.getUnreadCountString();
 	}
-
+	
 }
