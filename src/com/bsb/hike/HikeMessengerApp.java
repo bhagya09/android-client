@@ -6,9 +6,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -21,8 +19,6 @@ import org.acra.sender.HttpSender;
 import org.acra.sender.ReportSender;
 import org.acra.sender.ReportSenderException;
 import org.acra.util.HttpRequest;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import android.app.Application;
 import android.content.ComponentName;
@@ -35,15 +31,12 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
-import android.text.TextUtils;
 import android.util.Pair;
 
-import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.db.DbConversationListener;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.db.HikeMqttPersistence;
-import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.modules.contactmgr.ContactManager;
@@ -56,7 +49,6 @@ import com.bsb.hike.platform.PlatformUIDFetch;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.service.HikeService;
-import com.bsb.hike.service.MqttMessagesManager;
 import com.bsb.hike.service.RegisterToGCMTrigger;
 import com.bsb.hike.service.SendGCMIdToServerTrigger;
 import com.bsb.hike.service.UpgradeIntentService;
@@ -530,7 +522,7 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 
 	public static Map<String, Pair<Integer, Long>> lastSeenFriendsMap;
 
-	public static ConcurrentHashMap<String, BotInfo> hikeBotNamesMap;
+	public static ConcurrentHashMap<String, BotInfo> hikeBotInfoMap;
 
 	public static volatile boolean networkError;
 
@@ -851,7 +843,7 @@ public void onTrimMemory(int level)
 
 		makeNoMediaFiles();
 
-		hikeBotNamesMap = new ConcurrentHashMap<>();
+		hikeBotInfoMap = new ConcurrentHashMap<>();
 		initBots();
 
 		initHikeLruCache(getApplicationContext());
@@ -900,14 +892,14 @@ public void onTrimMemory(int level)
 		 */
 		if (HikeSharedPreferenceUtil.getInstance().getData(UPGRADE_FOR_DEFAULT_BOT_ENTRY, true))
 		{
-			hikeBotNamesMap.putAll(BotInfo.getDefaultHardCodedBotInfoObjects());
+			hikeBotInfoMap.putAll(BotInfo.getDefaultHardCodedBotInfoObjects());
 		}
 
 		else
 		{
 			HikeConversationsDatabase.getInstance().getBotHashmap();
-			Logger.d("create bot", "Keys are " + hikeBotNamesMap.keySet() + "------");
-			Logger.d("create bot", "values are " + hikeBotNamesMap.values());
+			Logger.d("create bot", "Keys are " + hikeBotInfoMap.keySet() + "------");
+			Logger.d("create bot", "values are " + hikeBotInfoMap.values());
 		}
 	}
 		

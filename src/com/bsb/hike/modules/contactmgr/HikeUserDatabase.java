@@ -590,9 +590,9 @@ class HikeUserDatabase extends SQLiteOpenHelper
 					/*
 					 * Setting the hike bot name if the msisdn is a hikebot msisdn.
 					 */
-					if (HikeMessengerApp.hikeBotNamesMap.containsKey(msisdn))
+					if (HikeMessengerApp.hikeBotInfoMap.containsKey(msisdn))
 					{
-						name = HikeMessengerApp.hikeBotNamesMap.get(msisdn).getConversationName();
+						name = HikeMessengerApp.hikeBotInfoMap.get(msisdn).getConversationName();
 					}
 
 					ContactInfo contactInfo = new ContactInfo(msisdn, msisdn, name, msisdn, false);
@@ -910,9 +910,9 @@ class HikeUserDatabase extends SQLiteOpenHelper
 				{
 					ContactInfo contactInfo = new ContactInfo(msisdn, msisdn, null, msisdn, false);
 
-					if (HikeMessengerApp.hikeBotNamesMap.containsKey(msisdn))
+					if (HikeMessengerApp.hikeBotInfoMap.containsKey(msisdn))
 					{
-						String name = HikeMessengerApp.hikeBotNamesMap.get(msisdn).getConversationName();
+						String name = HikeMessengerApp.hikeBotInfoMap.get(msisdn).getConversationName();
 						contactInfo.setName(name);
 						contactInfo.setFavoriteType(FavoriteType.NOT_FRIEND);
 					}

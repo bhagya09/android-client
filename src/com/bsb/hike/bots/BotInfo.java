@@ -238,7 +238,7 @@ public class BotInfo extends ConvInfo
 
 	public static BotInfo getBotInfoForBotMsisdn(String msisdn)
 	{
-		return HikeMessengerApp.hikeBotNamesMap.get(msisdn);
+		return HikeMessengerApp.hikeBotInfoMap.get(msisdn);
 	}
 
 	public boolean isMessagingBot()

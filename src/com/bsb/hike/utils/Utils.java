@@ -5438,9 +5438,9 @@ public class Utils
 
 	public static boolean isBot(String msisdn)
 	{
-		if (HikeMessengerApp.hikeBotNamesMap != null)
+		if (HikeMessengerApp.hikeBotInfoMap != null)
 		{
-			return HikeMessengerApp.hikeBotNamesMap.containsKey(msisdn);
+			return HikeMessengerApp.hikeBotInfoMap.containsKey(msisdn);
 		}
 		else
 		{

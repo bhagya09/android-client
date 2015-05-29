@@ -2034,9 +2034,9 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 				return;
 			}
 
-			if (HikeMessengerApp.hikeBotNamesMap.containsKey(convInfo.getMsisdn()))
+			if (HikeMessengerApp.hikeBotInfoMap.containsKey(convInfo.getMsisdn()))
 			{
-				convInfo.setmConversationName(HikeMessengerApp.hikeBotNamesMap.get(convInfo.getMsisdn()).getConversationName());
+				convInfo.setmConversationName(HikeMessengerApp.hikeBotInfoMap.get(convInfo.getMsisdn()).getConversationName());
 			}
 			Logger.d(getClass().getSimpleName(), "New Conversation. Group Conversation? " + (OneToNConversationUtils.isOneToNConversation(convInfo.getMsisdn())));
 			mConversationsByMSISDN.put(convInfo.getMsisdn(), convInfo);

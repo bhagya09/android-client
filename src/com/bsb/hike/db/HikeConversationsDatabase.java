@@ -5181,7 +5181,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				if (botInfo != null)
 				{
 					Logger.v("BOT", "Putting Bot Info in hashmap " + botInfo.toString());
-					HikeMessengerApp.hikeBotNamesMap.put(msisdn, botInfo);
+					HikeMessengerApp.hikeBotInfoMap.put(msisdn, botInfo);
 				}
 				
 				else

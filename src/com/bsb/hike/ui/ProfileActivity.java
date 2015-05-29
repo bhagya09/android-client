@@ -533,7 +533,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		case CONTACT_INFO_TIMELINE:
 			/*Falling onto contact info intentionally*/
 		case CONTACT_INFO:
-			if(HikeMessengerApp.hikeBotNamesMap.containsKey(contactInfo.getMsisdn()))
+			if(HikeMessengerApp.hikeBotInfoMap.containsKey(contactInfo.getMsisdn()))
 			{
 				menu.clear();
 				return true; 
@@ -750,7 +750,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			dual_layout.setVisibility(View.GONE);
 			statusMood.setVisibility(View.GONE);
 			fav_layout.setTag(null);  //Resetting the tag, incase we need to add to favorites again.
-			if(!HikeMessengerApp.hikeBotNamesMap.containsKey(contactInfo.getMsisdn()))  //The HikeBot's numbers wont be shown
+			if(!HikeMessengerApp.hikeBotInfoMap.containsKey(contactInfo.getMsisdn()))  //The HikeBot's numbers wont be shown
 			{
 			if (showContactsUpdates(contactInfo)) // Favourite case
 			
@@ -949,7 +949,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	private void setupContactProfileList()
 	{
 		profileItems.clear();
-		if(!HikeMessengerApp.hikeBotNamesMap.containsKey(contactInfo.getMsisdn()))  //The HikeBot's numbers wont be shown
+		if(!HikeMessengerApp.hikeBotInfoMap.containsKey(contactInfo.getMsisdn()))  //The HikeBot's numbers wont be shown
 		profileItems.add(new ProfileItem.ProfilePhoneNumberItem(ProfileItem.PHONE_NUMBER, getResources().getString(R.string.phone_pa)));
 		if(contactInfo.isOnhike())
 		{	shouldAddSharedMedia();
@@ -2486,7 +2486,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				optionsList.add(getString(R.string.add_to_contacts));
 			}
 			optionsList.add(getString(R.string.send_message));
-			if(Utils.isVoipActivated(this) && (tempContactInfo!=null && tempContactInfo.isOnhike()) && !HikeMessengerApp.hikeBotNamesMap.containsKey(tempContactInfo.getMsisdn()))
+			if(Utils.isVoipActivated(this) && (tempContactInfo!=null && tempContactInfo.isOnhike()) && !HikeMessengerApp.hikeBotInfoMap.containsKey(tempContactInfo.getMsisdn()))
 			{
 				optionsList.add(getString(R.string.make_call));
 			}

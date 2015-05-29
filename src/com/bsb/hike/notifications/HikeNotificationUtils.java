@@ -144,7 +144,7 @@ public class HikeNotificationUtils
 		String name = null;
 		if (Utils.isBot(argMsisdn))
 		{
-			name = HikeMessengerApp.hikeBotNamesMap.get(argMsisdn).getConversationName();
+			name = HikeMessengerApp.hikeBotInfoMap.get(argMsisdn).getConversationName();
 		}
 
 		if (TextUtils.isEmpty(name))

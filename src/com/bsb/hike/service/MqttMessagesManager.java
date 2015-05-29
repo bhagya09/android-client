@@ -3128,9 +3128,9 @@ public class MqttMessagesManager
 
 		convDb.insertBot(botInfo);
 
-		HikeMessengerApp.hikeBotNamesMap.put(msisdn, botInfo);
+		HikeMessengerApp.hikeBotInfoMap.put(msisdn, botInfo);
 		
-		if (HikeMessengerApp.hikeBotNamesMap.containsKey(msisdn))
+		if (HikeMessengerApp.hikeBotInfoMap.containsKey(msisdn))
 		{
 			ContactInfo contact = new ContactInfo(msisdn, msisdn, name, msisdn);
 			contact.setFavoriteType(FavoriteType.NOT_FRIEND);
