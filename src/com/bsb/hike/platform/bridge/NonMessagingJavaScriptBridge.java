@@ -1,14 +1,7 @@
 package com.bsb.hike.platform.bridge;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.nio.charset.IllegalCharsetNameException;
 import java.util.Iterator;
 
-import com.bsb.hike.HikeConstants;
-import com.bsb.hike.analytics.AnalyticsConstants;
-import com.bsb.hike.utils.HikeAnalyticsEvent;
-import com.bsb.hike.utils.Utils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -19,7 +12,9 @@ import android.webkit.JavascriptInterface;
 
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.bots.NonMessagingBotConfiguration;
 import com.bsb.hike.bots.NonMessagingBotMetadata;
 import com.bsb.hike.db.HikeContentDatabase;
@@ -33,6 +28,7 @@ import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
+import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.voip.VoIPUtils;
 
@@ -175,7 +171,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		
 		try
 		{
-			BotInfo botInfo = BotInfo.getBotInfoForBotMsisdn(mBotInfo.getMsisdn());
+			BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(mBotInfo.getMsisdn());
 			NonMessagingBotMetadata metadata = new NonMessagingBotMetadata(botInfo.getMetadata());
 			JSONObject cardObj = new JSONObject(json);
 

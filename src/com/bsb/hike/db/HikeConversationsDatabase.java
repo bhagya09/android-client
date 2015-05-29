@@ -41,6 +41,7 @@ import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.db.DBConstants.HIKE_CONV_DB;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
@@ -2169,7 +2170,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				removeChatThemeForMsisdn(msisdn);
 			}
 
-			if(Utils.isBot(msisdn))
+			if(BotUtils.isBot(msisdn))
 			{
 				deleteBot(msisdn);
 			}
@@ -2278,9 +2279,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 					((OneToNConversation) conv).setConversationParticipantList(ContactManager.getInstance().getGroupParticipants(msisdn, false, false));
 				}
 				
-				else if (Utils.isBot(msisdn))
+				else if (BotUtils.isBot(msisdn))
 				{
-					BotInfo botInfo = BotInfo.getBotInfoForBotMsisdn(msisdn);
+					BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
 					conv = new BotConversation.ConversationBuilder(msisdn).setConvInfo(botInfo).build();
 				}
 				else
@@ -2441,9 +2442,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			 */
 			else
 			{
-				if (Utils.isBot(msisdn))
+				if (BotUtils.isBot(msisdn))
 				{
-					BotInfo botInfo= BotInfo.getBotInfoForBotMsisdn(msisdn);
+					BotInfo botInfo= BotUtils.getBotInfoForBotMsisdn(msisdn);
 					conv = new BotConversation.ConversationBuilder(msisdn).setConvInfo(botInfo).build();
 				}
 				else
@@ -2608,9 +2609,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				conv = getBroadcastConversation(msisdn);
 			}
 			
-			else if (Utils.isBot(msisdn))
+			else if (BotUtils.isBot(msisdn))
 			{
-				BotInfo botInfo= BotInfo.getBotInfoForBotMsisdn(msisdn);
+				BotInfo botInfo= BotUtils.getBotInfoForBotMsisdn(msisdn);
 				conv = new BotConversation.ConversationBuilder(msisdn).setConvInfo(botInfo).build();
 			}
 			else
@@ -2980,9 +2981,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				else
 				{
 
-					if (Utils.isBot(msisdn))
+					if (BotUtils.isBot(msisdn))
 					{
-						convInfo = BotInfo.getBotInfoForBotMsisdn(msisdn);
+						convInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
 					}
 
 					else
@@ -5181,7 +5182,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				if (botInfo != null)
 				{
 					Logger.v("BOT", "Putting Bot Info in hashmap " + botInfo.toString());
-					HikeMessengerApp.hikeBotNamesMap.put(msisdn, botInfo);
+					HikeMessengerApp.hikeBotInfoMap.put(msisdn, botInfo);
 				}
 				
 				else
@@ -6893,7 +6894,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			ContentValues contentValues = new ContentValues();
 			contentValues.put(HIKE_CONTENT.NOTIF_DATA, notifDataJSON.toString());
 			mDb.update(BOT_TABLE, contentValues, MSISDN + "=?", new String[] { botMsisdn });
-			BotInfo botInfo = BotInfo.getBotInfoForBotMsisdn(botMsisdn);
+			BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(botMsisdn);
 			if (null != botInfo)
 			{
 				botInfo.setNotifData(notifDataJSON.toString());
@@ -6924,7 +6925,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		ContentValues contentValues = new ContentValues();
 		contentValues.put(HIKE_CONTENT.NOTIF_DATA, "");
 		mDb.update(BOT_TABLE, contentValues, MSISDN + "=?", new String[] { botMsisdn });
-		BotInfo botInfo = BotInfo.getBotInfoForBotMsisdn(botMsisdn);
+		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(botMsisdn);
 		if (null != botInfo)
 		{
 			botInfo.setNotifData("");
@@ -6964,7 +6965,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				ContentValues contentValues = new ContentValues();
 				contentValues.put(HIKE_CONTENT.NOTIF_DATA, notifDataJSON.toString());
 				mDb.update(BOT_TABLE, contentValues, MSISDN + "=?", new String[] { botMsisdn });
-				BotInfo botInfo = BotInfo.getBotInfoForBotMsisdn(botMsisdn);
+				BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(botMsisdn);
 				if (null != botInfo)
 				{
 					botInfo.setNotifData(notifDataJSON.toString());

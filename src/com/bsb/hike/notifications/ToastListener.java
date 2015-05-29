@@ -34,6 +34,7 @@ import com.bsb.hike.MqttConstants;
 import com.bsb.hike.MqttConstants.MQTTConnectionStatus;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
+import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
@@ -564,7 +565,7 @@ public class ToastListener implements Listener
 	private int getNotificationType(ConvMessage convMessage)
 	{
 		int notificationType = NotificationType.NORMALMSG1TO1;
-		if (Utils.isBot(convMessage.getMsisdn()))
+		if (BotUtils.isBot(convMessage.getMsisdn()))
 			notificationType = NotificationType.BOTMSG;
 
 		if (OneToNConversationUtils.isGroupConversation(convMessage.getMsisdn()))

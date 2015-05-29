@@ -13,6 +13,7 @@ public class OneToOneConversation extends Conversation
 	protected OneToOneConversation(InitBuilder<?> builder)
 	{
 		super(builder);
+		setOnHike(builder.isOnHike);
 	}
 
 	/**

@@ -19,6 +19,7 @@ import android.text.TextUtils;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
@@ -83,9 +84,9 @@ public class EmailConversationsAsyncTask extends AsyncTask<ConvInfo, Void, Conve
 					conv = new BroadcastConversation.ConversationBuilder(msisdn).setConvName((contactInfo != null) ? contactInfo.getName() : null).build();
 				}
 				
-				else if (Utils.isBot(msisdn))
+				else if (BotUtils.isBot(msisdn))
 				{
-					BotInfo botInfo= BotInfo.getBotInfoForBotMsisdn(msisdn);
+					BotInfo botInfo= BotUtils.getBotInfoForBotMsisdn(msisdn);
 					conv = new BotConversation.ConversationBuilder(msisdn).setConvInfo(botInfo).build();
 				}
 				else
