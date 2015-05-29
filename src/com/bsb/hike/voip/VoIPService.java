@@ -153,6 +153,7 @@ public class VoIPService extends Service {
 					stop();
 				else {
 					Logger.d(VoIPConstants.TAG, msisdn + " has quit the conference.");
+					sendHandlerMessage(VoIPConstants.MSG_LEFT_CONFERENCE, bundle);
 					getClient(msisdn).close();
 					clients.remove(msisdn);
 				}
@@ -198,7 +199,7 @@ public class VoIPService extends Service {
 				}
 				
 				if (!inConference())
-					sendHandlerMessage(msg.what, bundle);
+					stop();
 				
 				break;
 				
@@ -525,10 +526,7 @@ public class VoIPService extends Service {
 	public void onDestroy() {
 		super.onDestroy();
 		stop();
-		setCallid(0);	// Redundant, for bug #44018
-		clients.clear();
 		dismissNotification();
-		releaseWakeLock();
 		Logger.d(VoIPConstants.TAG, "VoIP Service destroyed.");
 	}
 	
@@ -604,7 +602,7 @@ public class VoIPService extends Service {
 						if (keepRunning)
 							showNotification();
 					} catch (InterruptedException e) {
-						Logger.d(VoIPConstants.TAG, "Notification thread interrupted.");
+						// Logger.d(VoIPConstants.TAG, "Notification thread interrupted.");
 						break;
 					}
 

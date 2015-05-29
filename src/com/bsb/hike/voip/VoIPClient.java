@@ -1014,7 +1014,7 @@ public class VoIPClient  {
 						totalPacketsReceived++;
 						
 					} catch (IOException e) {
-						Logger.e(VoIPConstants.TAG, "startReceiving() IOException: " + e.toString());
+						// Logger.e(VoIPConstants.TAG, "startReceiving() IOException: " + e.toString());
 						break;
 					}
 					
@@ -1150,6 +1150,8 @@ public class VoIPClient  {
 						if (dataPacket.getData() != null) {
 							try {
 								remotePacketsReceivedPerSecond = ByteBuffer.wrap(dataPacket.getData()).order(ByteOrder.LITTLE_ENDIAN).getInt();
+								if (remotePacketsReceivedPerSecond < 12)
+									Logger.w(VoIPConstants.TAG, "Remote client is not receiving enough data.");
 							} catch (BufferUnderflowException e) {
 								remotePacketsReceivedPerSecond = 0;
 							}

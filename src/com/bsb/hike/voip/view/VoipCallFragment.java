@@ -165,6 +165,11 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 			case VoIPConstants.MSG_AUDIORECORD_FAILURE:
 				showMessage(getString(R.string.voip_mic_error));
 				break;
+			case VoIPConstants.MSG_LEFT_CONFERENCE:
+				Bundle bundle = msg.getData();
+				String msisdn = bundle.getString(VoIPConstants.MSISDN);
+				showMessage(msisdn + " has left the conference.");
+				break;
 			default:
 				super.handleMessage(msg);
 			}
@@ -681,9 +686,9 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 				}
 				break;
 		default:
-			Logger.w(VoIPConstants.TAG, "Unhandled status: " + status);
+			// Logger.w(VoIPConstants.TAG, "Unhandled status: " + status);
 			callDuration.startAnimation(anim);
-			callDuration.setText(getString(R.string.voip_connecting));
+			callDuration.setText("");
 			break;
 		}
 	}
