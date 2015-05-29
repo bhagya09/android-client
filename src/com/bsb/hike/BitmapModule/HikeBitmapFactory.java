@@ -1166,38 +1166,7 @@ public class HikeBitmapFactory
 			return TextDrawable.builder().buildRound("#", bgColor);
 		}
 
-		String contactName = ContactManager.getInstance().getName(msisdn, true);
-
-		String initials = "";
-
-		if (TextUtils.isEmpty(contactName))
-		{
-			initials = "#";
-		}
-		else
-		{
-
-			String[] nameArray = contactName.trim().split(" ");
-
-			char first = nameArray[0].charAt(0);
-
-			if (Character.isLetter(first))
-			{
-				initials += first;
-
-				if (nameArray.length > 1)
-				{
-					// Second is optional (only if is letter)
-					char second = nameArray[nameArray.length - 1].charAt(0);
-					if (Character.isLetter(second))
-					{
-						initials += second;
-					}
-				}
-			}else{
-				initials = "#";
-			}
-		}
+		String initials = getNameInitialsForDefaultAv(msisdn);
 
 		int index = BitmapUtils.iconHash(msisdn) % (HikeConstants.DEFAULT_AVATAR_BG_COLORID.length);
 
@@ -1208,7 +1177,7 @@ public class HikeBitmapFactory
 		return TextDrawable.builder().buildRound(initials, bgColor);
 	}
 
-	public static Drawable getRectTextAvatar(final String msisdn)
+	public static Drawable getRectTextAvatar(String msisdn)
 	{
 		if (TextUtils.isEmpty(msisdn))
 		{
@@ -1218,38 +1187,7 @@ public class HikeBitmapFactory
 			return TextDrawable.builder().buildRect("#", bgColor);
 		}
 
-		String contactName = ContactManager.getInstance().getName(msisdn, true);
-
-		String initials = "";
-
-		if (TextUtils.isEmpty(contactName))
-		{
-			initials = "#";
-		}
-		else
-		{
-
-			String[] nameArray = contactName.trim().split(" ");
-
-			char first = nameArray[0].charAt(0);
-
-			if (Character.isLetter(first))
-			{
-				initials += first;
-
-				if (nameArray.length > 1)
-				{
-					// Second is optional (only if is letter)
-					char second = nameArray[nameArray.length - 1].charAt(0);
-					if (Character.isLetter(second))
-					{
-						initials += second;
-					}
-				}
-			}else{
-				initials = "#";
-			}
-		}
+		String initials = getNameInitialsForDefaultAv(msisdn);
 
 		int index = BitmapUtils.iconHash(msisdn) % (HikeConstants.DEFAULT_AVATAR_BG_COLORID.length);
 
@@ -1258,7 +1196,43 @@ public class HikeBitmapFactory
 		int bgColor = HikeMessengerApp.getInstance().getApplicationContext().getResources().getColor(defaultAvatarResId);
 
 		return TextDrawable.builder().buildRect(initials, bgColor);
+	}
+	
+	public static String getNameInitialsForDefaultAv(String msisdn)
+	{
+		String initials = "";
 
+		String contactName = ContactManager.getInstance().getName(msisdn, true);
+
+		if (TextUtils.isEmpty(contactName))
+		{
+			contactName = msisdn;
+		}
+
+		String[] nameArray = contactName.trim().split(" ");
+
+		char first = nameArray[0].charAt(0);
+
+		if (Character.isLetter(first))
+		{
+			initials += first;
+
+			if (nameArray.length > 1)
+			{
+				// Second is optional (only if is letter)
+				char second = nameArray[nameArray.length - 1].charAt(0);
+				if (Character.isLetter(second))
+				{
+					initials += second;
+				}
+			}
+		}
+		else
+		{
+			initials = "#";
+		}
+
+		return initials;
 	}
 
 	private static int getDefaultAvatarIconResId( String msisdn, boolean hiRes)
