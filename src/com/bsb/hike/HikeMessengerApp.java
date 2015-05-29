@@ -539,6 +539,8 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 
 	SendGCMIdToServerTrigger mmGcmIdToServerTrigger = null;
 
+	HikeHandlerUtil mThread = HikeHandlerUtil.getInstance();
+
 	static
 	{
 		mPubSubInstance = new HikePubSub();
@@ -854,6 +856,8 @@ public void onTrimMemory(int level)
 		 */
 		StealthModeManager.getInstance().initiate();
 
+		cachingStickersOnStart();
+		
 		appStateHandler = new Handler();
 
 		HikeMessengerApp.getPubSub().addListener(HikePubSub.CONNECTED_TO_MQTT, this);
@@ -904,6 +908,24 @@ public void onTrimMemory(int level)
 		}
 	}
 		
+	/**
+	 * This method is to cache stickers and sticker-categories, so that their loading becomes fast on opening sticker palette the first time.
+	 */
+	private void cachingStickersOnStart()
+	{
+		mThread.startHandlerThread();
+		mThread.postRunnableWithDelay(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				Logger.d("StickerCaching", "CachingStickersOnStart");
+				sm.cacheStickersForGivenCategory(StickerManager.RECENT);
+				sm.cacheStickerPaletteIcons();
+			}
+		}, 0);
+	}
+	
 	/**
 	 * fetching the platform user id from the server. Will not fetch if the platform user id is already present. Will fetch the address book's platform uid on
 	 * success of this call.
