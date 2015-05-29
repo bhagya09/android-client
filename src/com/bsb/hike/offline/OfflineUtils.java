@@ -109,4 +109,9 @@ public class OfflineUtils
 	{
 		return HikeConversationsDatabase.getInstance().updateMsgStatus(msgId, status.ordinal(), msisdn);
 	}
+
+	public static int getTotalChunks(int fileSize)
+	{
+		 return fileSize/1024 + ((fileSize%1024!=0)?1:0);
+	}
 }

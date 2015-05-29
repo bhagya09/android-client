@@ -20,6 +20,7 @@ import java.net.Socket;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -155,7 +156,7 @@ public class OfflineThreadManager
 				while(((fileTranserObject = fileTransferQueue.take()) != null))
 				{
 					//TODO : Send Offline Text and take action on the basis of boolean  i.e. clock or single tick
-					val = transferFile(packet);
+					val = offlineManager.sendOfflineFile(fileTranserObject,fileSendSocket.getOutputStream());
 				}
 			} catch (InterruptedException e) {
 				Logger.e(TAG,"Some called interrupt on File transfer Thread");
@@ -294,7 +295,7 @@ public class OfflineThreadManager
 				return false;
 			}
 			
-			isSent = offlineManager.copyFile(inputStream, outputStream);
+			isSent = offlineManager.copyFile(inputStream, outputStream,fileUri.getBytes().length);
 		}
 		else
 			{
@@ -339,7 +340,4 @@ public class OfflineThreadManager
 		}
 		return isSent;
 	}
-	
-	
-	
 }

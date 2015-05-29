@@ -2,6 +2,8 @@ package com.bsb.hike.offline;
 
 import static com.bsb.hike.offline.OfflineConstants.IP_SERVER;
 
+import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -9,10 +11,16 @@ import java.util.HashMap;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.support.v4.util.Pair;
+
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.utils.Logger;
 
 public class OfflineManager
@@ -32,6 +40,10 @@ public class OfflineManager
 	private BlockingQueue<JSONObject> textMessageQueue = null;
 
 	private BlockingQueue<FileTransferModel> fileTransferQueue = null;
+
+	private volatile boolean inFileTransferInProgress=false;
+	
+	private static final String TAG=OfflineManager.class.getName();
 	
 	private OfflineManager()
 	{
@@ -72,40 +84,38 @@ public class OfflineManager
 		fileTransferQueue.add(fileTransferObject);
 	}
 	
-	public  boolean copyFile(InputStream inputStream, OutputStream outputStream)
+	public  boolean copyFile(InputStream inputStream, OutputStream outputStream,int fileSize)
 	{
-		return copyFile(inputStream, outputStream,-1,false,false);
+		return copyFile(inputStream, outputStream,-1,false,false,fileSize);
 	}
 	
-	public   boolean copyFile(InputStream inputStream, OutputStream out, long msgId, boolean showProgress, boolean isSent) 
+	public boolean copyFile(InputStream inputStream, OutputStream out, long msgId, boolean showProgress, boolean isSent,int fileSize) 
 	{
 		byte buf[] = new byte[OfflineConstants.CHUNK_SIZE];
 		int len;
 		boolean isCopied = false;
 		try {
-			while ((len = inputStream.read(buf)) != -1) {
+			while (fileSize>=OfflineConstants.CHUNK_SIZE) {
+				len = inputStream.read(buf);
+				out.write(buf, 0, len);
+				fileSize -= len;	
+				if (showProgress)
+				{
+					
+					showSpinnerProgress(isSent,msgId);
+				}
+			}
+			while(fileSize > 0) 
+			{
+				buf = new byte[fileSize];
+				len = inputStream.read(buf);
+				fileSize -= len;
 				out.write(buf, 0, len);
 				if (showProgress)
 				{
-					if(isSent)
-					{
-						synchronized (currentSendingFilesLock) {
-							FileTransferModel fileTransfer=currentSendingFiles.get(msgId);
-							fileTransfer.getTransferProgress().currentChunks++;
-						}
-					}
-					else
-					{
-						synchronized (currentReceivingFilesLock) {
-							FileTransferModel fileTransfer=currentReceivingFiles.get(msgId);
-							fileTransfer.getTransferProgress().currentChunks++;
-						}
-						
-					}
-					showSpinnerProgress(isSent);
+					showSpinnerProgress(isSent,msgId);
 				}
 			}
-			out.close();
 			inputStream.close();
 			isCopied = true;
 		} catch (IOException e) {
@@ -115,10 +125,24 @@ public class OfflineManager
 		return isCopied;
 	}
 	
-	private void showSpinnerProgress(boolean isSent)
+	private void showSpinnerProgress(boolean isSent,long msgId)
 	{
+		if(isSent)
+		{
+			synchronized (currentSendingFilesLock) {
+				FileTransferModel fileTransfer=currentSendingFiles.get(msgId);
+				fileTransfer.getTransferProgress().currentChunks++;
+			}
+		}
+		else
+		{
+			synchronized (currentReceivingFilesLock) {
+				FileTransferModel fileTransfer=currentReceivingFiles.get(msgId);
+				fileTransfer.getTransferProgress().currentChunks++;
+			}
+			
+		}
 		HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
-		return;
 	}
 
 	public BlockingQueue<JSONObject> getTextQueue()
@@ -145,5 +169,74 @@ public class OfflineManager
 		return host;
 	}
 	
+	
+	public boolean sendOfflineFile(FileTransferModel fileTransferModel,OutputStream outputStream)
+	{
+		inFileTransferInProgress = true;
+		boolean isSent = true;
+		String fileUri =null;
+		InputStream inputStream = null;
+		JSONObject  jsonFile =  null;
+		try
+		{
+			JSONArray jsonFiles = fileTransferModel.getPacket().getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getJSONArray(HikeConstants.FILES);
+			jsonFile = (JSONObject) jsonFiles.get(0);
+			fileUri = jsonFile.getString(HikeConstants.FILE_PATH);
+			inputStream = new FileInputStream(fileUri);
+			
+			String metaString = fileTransferModel.getPacket().toString();
+			Logger.d(TAG, metaString);
+			byte[] metaDataBytes = metaString.getBytes("UTF-8");
+			int length = metaDataBytes.length;
+			Logger.d(TAG, "Sizeof metaString: " + length);
+			byte[] intToBArray = OfflineUtils.intToByteArray(length);
+			outputStream.flush();
+			outputStream.write(intToBArray, 0, intToBArray.length);
+			ByteArrayInputStream byteArrayInputStream =  new ByteArrayInputStream(metaDataBytes);
+			boolean isMetaDataSent = copyFile(byteArrayInputStream, outputStream, metaDataBytes.length);
+			Logger.d(TAG, "FileMetaDataSent:" + isMetaDataSent);
+			byteArrayInputStream.close();
+			JSONObject metadata;
+			int fileSize  = 0;
+			metadata = fileTransferModel.getPacket().getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA);
+			JSONObject fileJSON = (JSONObject) metadata.getJSONArray(HikeConstants.FILES).get(0);
+			fileSize = fileJSON.getInt(HikeConstants.FILE_SIZE);
+			long msgID;
+			msgID = fileTransferModel.getPacket().getJSONObject(HikeConstants.DATA).getLong(HikeConstants.MESSAGE_ID);
+			fileTransferModel.getTransferProgress().currentChunks=OfflineUtils.getTotalChunks(fileSize);
+			
+			//TODO:We can listen to PubSub ...Why to do this ...????
+			//showUploadTransferNotification(msgID,fileSize);
+			
+			
+			isSent = copyFile(inputStream, outputStream, msgID, true, true,fileSize);
+				synchronized (currentSendingFilesLock) {
+					currentSendingFiles.remove(msgID);
+				}
+				String msisdn = fileTransferModel.getPacket().getString(HikeConstants.TO);
+				HikeMessengerApp.getPubSub().publish(HikePubSub.UPLOAD_FINISHED, null);
+				int rowsUpdated = OfflineUtils.updateDB(msgID, ConvMessage.State.SENT_DELIVERED, msisdn);
+				if (rowsUpdated == 0)
+				{
+					Logger.d(getClass().getSimpleName(), "No rows updated");
+				}
+				Pair<String, Long> pair = new Pair<String, Long>(msisdn, msgID);
+				HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_DELIVERED, pair);
+		}
+		catch(JSONException e)
+		{
+			e.printStackTrace();
+			return false;
+		}
+		catch(IOException e)
+		{
+			e.printStackTrace();
+			return false;
+		}
+		inFileTransferInProgress=false;
+		return isSent;
+				
+
+	}
 	
 }
