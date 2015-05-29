@@ -34,6 +34,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Pair;
 
 import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.db.DbConversationListener;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.db.HikeMqttPersistence;
@@ -881,7 +882,7 @@ public void onTrimMemory(int level)
 			{
 				if (HikeSharedPreferenceUtil.getInstance().getData(UPGRADE_FOR_DEFAULT_BOT_ENTRY, true))
 				{
-					BotInfo.addDefaultBotsToDB(getApplicationContext());
+					BotUtils.addDefaultBotsToDB(getApplicationContext());
 					HikeSharedPreferenceUtil.getInstance().saveData(UPGRADE_FOR_DEFAULT_BOT_ENTRY, false);
 				}
 			}
@@ -892,7 +893,7 @@ public void onTrimMemory(int level)
 		 */
 		if (HikeSharedPreferenceUtil.getInstance().getData(UPGRADE_FOR_DEFAULT_BOT_ENTRY, true))
 		{
-			hikeBotInfoMap.putAll(BotInfo.getDefaultHardCodedBotInfoObjects());
+			hikeBotInfoMap.putAll(BotUtils.getDefaultHardCodedBotInfoObjects());
 		}
 
 		else
