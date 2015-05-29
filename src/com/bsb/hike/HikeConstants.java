@@ -1398,6 +1398,8 @@ public class HikeConstants
 		public static final String MULTIPLE_MSG_OBJECT = "multipleMsgObject";
 
 		public static final String SELECTED_BUCKET = "selectedBucket";
+		
+		public static final String GALLERY_SELECTION_SINGLE = "gallerySelection";
 
 		public static final String GALLERY_SELECTIONS = "gallerySelections";
 
