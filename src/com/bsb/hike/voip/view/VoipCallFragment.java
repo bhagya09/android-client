@@ -40,7 +40,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.SherlockFragment;
+import android.support.v4.app.Fragment;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.models.ContactInfo;
@@ -55,7 +55,7 @@ import com.bsb.hike.voip.VoIPService;
 import com.bsb.hike.voip.VoIPService.LocalBinder;
 import com.bsb.hike.voip.VoIPUtils;
 
-public class VoipCallFragment extends SherlockFragment implements CallActions
+public class VoipCallFragment extends Fragment implements CallActions
 {
 	static final int PROXIMITY_SCREEN_OFF_WAKELOCK = 32;
 
@@ -203,9 +203,9 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 	{
 		Logger.d(VoIPConstants.TAG, "VoipCallFragment onResume, Binding to service..");
 		// Calling start service as well so an activity unbind doesn't cause the service to stop
-		getSherlockActivity().startService(new Intent(getSherlockActivity(), VoIPService.class));
-		Intent intent = new Intent(getSherlockActivity(), VoIPService.class);
-		getSherlockActivity().bindService(intent, myConnection, Context.BIND_AUTO_CREATE);
+		getActivity().startService(new Intent(getActivity(), VoIPService.class));
+		Intent intent = new Intent(getActivity(), VoIPService.class);
+		getActivity().bindService(intent, myConnection, Context.BIND_AUTO_CREATE);
 		updateCallStatus();
 		initProximitySensor();
 		super.onResume();
@@ -231,7 +231,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		{
 			if (isBound) 
 			{
-				getSherlockActivity().unbindService(myConnection);
+				getActivity().unbindService(myConnection);
 			}
 		}
 		catch (IllegalArgumentException e) 
@@ -278,7 +278,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		if (VoIPService.getCallId() == 0 || clientPartner.getPhoneNumber() == null) 
 		{
 			Logger.w(VoIPConstants.TAG, "There is no active call.");
-			getSherlockActivity().finish();
+			getActivity().finish();
 			return;
 		}
 
@@ -386,7 +386,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		{
 			if (isBound) 
 			{
-				getSherlockActivity().unbindService(myConnection);
+				getActivity().unbindService(myConnection);
 			}
 		}
 		catch (IllegalArgumentException e) {
@@ -436,13 +436,13 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 	private void showMessage(final String message) 
 	{
 		Logger.d(VoIPConstants.TAG, "Toast: " + message);
-		getSherlockActivity().runOnUiThread(new Runnable() {
+		getActivity().runOnUiThread(new Runnable() {
 
 			@Override
 			public void run() {
 				if (toast != null)
 					toast.cancel();
-				toast = Toast.makeText(getSherlockActivity(), message, Toast.LENGTH_LONG);
+				toast = Toast.makeText(getActivity(), message, Toast.LENGTH_LONG);
 				toast.show();
 			}
 		});
@@ -455,7 +455,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 			return;
 		}
 
-		sensorManager = (SensorManager) getSherlockActivity().getSystemService(Context.SENSOR_SERVICE);
+		sensorManager = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
 		Sensor proximitySensor = sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
 
 		if (proximitySensor == null) 
@@ -465,7 +465,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		}
 		// Set proximity sensor
 		proximitySensorMaximumRange = proximitySensor.getMaximumRange();
-		proximityWakeLock = ((PowerManager)getSherlockActivity().getSystemService(Context.POWER_SERVICE)).newWakeLock(PROXIMITY_SCREEN_OFF_WAKELOCK, "ProximityLock");
+		proximityWakeLock = ((PowerManager)getActivity().getSystemService(Context.POWER_SERVICE)).newWakeLock(PROXIMITY_SCREEN_OFF_WAKELOCK, "ProximityLock");
 		proximityWakeLock.setReferenceCounted(false);
 		sensorManager.registerListener(proximitySensorEventListener, proximitySensor, SensorManager.SENSOR_DELAY_NORMAL);
 
@@ -753,7 +753,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		VoIPClient clientPartner = voipService.getPartnerClient();
 		if (clientPartner == null) 
 		{
-			getSherlockActivity().finish();
+			getActivity().finish();
 			Logger.w(VoIPConstants.TAG, "Partner client info is null. Returning.");
 			return;
 		}
@@ -834,14 +834,14 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		{
 			if(bundle!=null && VoIPUtils.shouldShowCallRatePopupNow())
 			{
-				Intent intent = IntentFactory.getVoipCallRateActivityIntent(getSherlockActivity());
+				Intent intent = IntentFactory.getVoipCallRateActivityIntent(getActivity());
 				intent.putExtra(VoIPConstants.CALL_RATE_BUNDLE, bundle);
 				startActivity(intent);
 			}
 			VoIPUtils.setupCallRatePopupNextTime();
 		}
 		isCallActive = false;
-		getSherlockActivity().finish();
+		getActivity().finish();
 	}
 
 	public void showCallFailedFragment(int callFailCode)

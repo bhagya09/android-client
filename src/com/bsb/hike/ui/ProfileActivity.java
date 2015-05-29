@@ -24,6 +24,8 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.WindowCompat;
+
 import android.text.TextUtils;
 import android.util.Pair;
 import android.view.Gravity;
@@ -53,9 +55,9 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
+import android.support.v7.app.ActionBar;
+import android.view.Menu;
+import android.view.MenuItem;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -287,7 +289,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
-		requestWindowFeature(com.actionbarsherlock.view.Window.FEATURE_ACTION_BAR_OVERLAY);
+		requestWindowFeature(WindowCompat.FEATURE_ACTION_BAR_OVERLAY);
 
 		if (Utils.requireAuth(this))
 		{
@@ -540,26 +542,26 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			}
 			else
 			{
-				getSupportMenuInflater().inflate(R.menu.contact_profile_menu, menu);
+				getMenuInflater().inflate(R.menu.contact_profile_menu, menu);
 				mMenu = menu;
 				return true;
 			}
 		case GROUP_INFO:
 			if (!showingGroupEdit)
 			{
-				getSupportMenuInflater().inflate(R.menu.group_profile_menu, menu);
+				getMenuInflater().inflate(R.menu.group_profile_menu, menu);
 			}
 			mMenu = menu;
 			return true;
 		case BROADCAST_INFO:
 			if (!showingGroupEdit)
 			{
-				getSupportMenuInflater().inflate(R.menu.broadcast_profile_menu, menu);
+				getMenuInflater().inflate(R.menu.broadcast_profile_menu, menu);
 			}
 			mMenu = menu;
 			return true;
 		case USER_PROFILE:
-			getSupportMenuInflater().inflate(R.menu.my_profile_menu, menu);
+			getMenuInflater().inflate(R.menu.my_profile_menu, menu);
 			mMenu = menu;
 			return true;
 		}

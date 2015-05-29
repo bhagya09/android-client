@@ -6,11 +6,12 @@ import android.view.View.OnClickListener;
 import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 
-import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.view.ActionMode;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.view.ActionMode;
+import android.support.v7.view.ActionMode.Callback;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import com.bsb.hike.R;
 
 public class HikeActionMode implements ActionMode.Callback, OnClickListener
@@ -30,7 +31,7 @@ public class HikeActionMode implements ActionMode.Callback, OnClickListener
 
 	protected ActionMode mActionMode;
 
-	protected SherlockFragmentActivity mActivity;
+	protected ActionBarActivity mActivity;
 
 	private int defaultLayoutId = DEFAULT_LAYOUT_RESID, actionModeId;
 	
@@ -46,17 +47,17 @@ public class HikeActionMode implements ActionMode.Callback, OnClickListener
 	
 	private Menu mMenu;
 
-	public HikeActionMode(SherlockFragmentActivity sherlockFragmentActivity, ActionModeListener listener)
+	public HikeActionMode(ActionBarActivity sherlockFragmentActivity, ActionModeListener listener)
 	{
 		this(sherlockFragmentActivity, "", "", DEFAULT_LAYOUT_RESID, listener);
 	}
 
-	public HikeActionMode(SherlockFragmentActivity sherlockFragmentActivity, int layoutId, ActionModeListener listener)
+	public HikeActionMode(ActionBarActivity sherlockFragmentActivity, int layoutId, ActionModeListener listener)
 	{
 		this(sherlockFragmentActivity, "", "", layoutId, listener);
 	}
 
-	public HikeActionMode(SherlockFragmentActivity sherlockFragmentActivity, String title, String save, int layoutId, ActionModeListener listener)
+	public HikeActionMode(ActionBarActivity sherlockFragmentActivity, String title, String save, int layoutId, ActionModeListener listener)
 	{
 		this.mActivity = sherlockFragmentActivity;
 		this.defaultLayoutId = layoutId;
@@ -67,7 +68,7 @@ public class HikeActionMode implements ActionMode.Callback, OnClickListener
 
 	protected void startActionMode()
 	{
-		mActivity.startActionMode(this);
+		mActivity.startSupportActionMode((ActionMode.Callback) this);
 	}
 
 	@Override
@@ -134,7 +135,7 @@ public class HikeActionMode implements ActionMode.Callback, OnClickListener
 		this.actionModeTitle = title;
 		this.doneButtonText = doneButtonText;
 		this.defaultLayoutId = layoutId;
-		mActivity.startActionMode(this);
+		mActivity.startSupportActionMode((ActionMode.Callback) this);
 	}
 	
 	/**
@@ -152,7 +153,7 @@ public class HikeActionMode implements ActionMode.Callback, OnClickListener
 		this.shouldInflateMenu = showMenu;
 		this.menuResId = showMenu ? menuResId : -1;
 		this.defaultLayoutId = layoutResId;
-		mActivity.startActionMode(this);
+		mActivity.startSupportActionMode((ActionMode.Callback) this);
 	}
 
 	private void initDefaultView()
@@ -306,6 +307,6 @@ public class HikeActionMode implements ActionMode.Callback, OnClickListener
 	public void reInflateActionMode()
 	{
 		reInflation = true;
-		mActivity.startActionMode(this);
+		mActivity.startActionMode((android.view.ActionMode.Callback) this);
 	}
 }

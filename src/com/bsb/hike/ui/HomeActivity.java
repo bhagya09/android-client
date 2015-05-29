@@ -50,11 +50,14 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
-import com.actionbarsherlock.widget.SearchView;
-import com.actionbarsherlock.widget.SearchView.OnQueryTextListener;
+
+import android.support.v7.app.ActionBar;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.widget.SearchView;
+import android.support.v7.widget.SearchView.OnQueryTextListener;
+
 import com.bsb.hike.AppConfig;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -597,9 +600,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	{
 		//Adding definsive null pointer check (bug#44531)May be due to sherlock code, nullpointerexception occured.
 		try{
-		getSupportMenuInflater().inflate(R.menu.chats_menu, menu);
-
-		topBarIndicator = (TextView) menu.findItem(R.id.overflow_menu).getActionView().findViewById(R.id.top_bar_indicator_text);
+			getMenuInflater().inflate(R.menu.chats_menu, menu);
+			topBarIndicator = (TextView) (MenuItemCompat.getActionView(menu.findItem(R.id.overflow_menu)).findViewById(R.id.top_bar_indicator_text));
 		updateOverFlowMenuNotification();
 		menu.findItem(R.id.overflow_menu).getActionView().setOnClickListener(new View.OnClickListener()
 		{

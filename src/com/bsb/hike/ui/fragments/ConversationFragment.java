@@ -53,10 +53,10 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.SherlockListFragment;
-import com.actionbarsherlock.internal.nineoldandroids.animation.ObjectAnimator;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
+import android.support.v4.app.ListFragment;
+import com.nineoldandroids.animation.ObjectAnimator;
+import android.view.Menu;
+import android.view.MenuInflater;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -113,7 +113,7 @@ import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.HoloCircularProgress;
 
-public class ConversationFragment extends SherlockListFragment implements OnItemLongClickListener, Listener, OnScrollListener, HikeFragmentable, OnClickListener, ConversationTipClickedListener, FilterListener
+public class ConversationFragment extends ListFragment implements OnItemLongClickListener, Listener, OnScrollListener, HikeFragmentable, OnClickListener, ConversationTipClickedListener, FilterListener
 {
 	private String[] pubSubListeners = { HikePubSub.MESSAGE_RECEIVED, HikePubSub.SERVER_RECEIVED_MSG, HikePubSub.MESSAGE_DELIVERED_READ, HikePubSub.MESSAGE_DELIVERED,
 			HikePubSub.NEW_CONVERSATION, HikePubSub.MESSAGE_SENT, HikePubSub.MSG_READ, HikePubSub.ICON_CHANGED, HikePubSub.ONETONCONV_NAME_CHANGED, HikePubSub.CONTACT_ADDED,
@@ -1017,7 +1017,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 			BotInfo botInfo = (BotInfo) convInfo;
 			if (botInfo.isMessagingBot())
 			{
-				Intent intent = IntentFactory.createChatThreadIntentFromConversation(getSherlockActivity(), convInfo);
+				Intent intent = IntentFactory.createChatThreadIntentFromConversation(getActivity(), convInfo);
 				startActivity(intent);
 			}
 			else
@@ -1030,7 +1030,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		}
 		else
 		{
-			Intent intent = IntentFactory.createChatThreadIntentFromConversation(getSherlockActivity(), convInfo);
+			Intent intent = IntentFactory.createChatThreadIntentFromConversation(getActivity(), convInfo);
 			startActivity(intent);
 		}
 
@@ -1399,7 +1399,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
                         BotConversation.analyticsForBots(conv, HikePlatformConstants.BOT_ADD_SHORTCUT, AnalyticsConstants.CLICK_EVENT);
                     }
 					Utils.logEvent(getActivity(), HikeConstants.LogEvent.ADD_SHORTCUT);
-					Utils.createShortcut(getSherlockActivity(), conv);
+					Utils.createShortcut(getActivity(), conv);
 				}
 				else if (getString(R.string.delete_chat).equals(option))
 				{
@@ -1486,7 +1486,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 				}
 				else if (getString(R.string.email_conversations).equals(option))
 				{
-					EmailConversationsAsyncTask task = new EmailConversationsAsyncTask(getSherlockActivity(), ConversationFragment.this);
+					EmailConversationsAsyncTask task = new EmailConversationsAsyncTask(getActivity(), ConversationFragment.this);
 					Utils.executeConvAsyncTask(task, conv);
 					
 					if (BotUtils.isBot(conv.getMsisdn()))
@@ -1582,7 +1582,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 			BotConversation.analyticsForBots(conv, HikePlatformConstants.BOT_ADD_SHORTCUT, AnalyticsConstants.CLICK_EVENT);
 		}
 		Utils.logEvent(getActivity(), HikeConstants.LogEvent.ADD_SHORTCUT);
-		Utils.createShortcut(getSherlockActivity(), conv);
+		Utils.createShortcut(getActivity(), conv);
 	}
 
 	protected void onDeleteBotClicked(final ConvInfo conv, final boolean shouldBlock)

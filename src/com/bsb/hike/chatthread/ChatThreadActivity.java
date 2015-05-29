@@ -8,9 +8,10 @@ import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.ViewConfiguration;
 
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
-import com.actionbarsherlock.view.Window;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.Window;
+
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.productpopup.ProductPopupsConstants;

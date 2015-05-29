@@ -29,10 +29,10 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
-import com.actionbarsherlock.view.Window;
+import android.support.v7.app.ActionBar;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.Window;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -190,7 +190,7 @@ public class PinHistoryActivity extends HikeAppStateBaseFragmentActivity impleme
 	{
 		if(isActionModeOn)
 		{
-			getSupportMenuInflater().inflate(R.menu.multi_select_chat_menu, menu);
+			getMenuInflater().inflate(R.menu.multi_select_chat_menu, menu);
 			
 			menu.findItem(R.id.forward_msgs).setVisible(false);
 			

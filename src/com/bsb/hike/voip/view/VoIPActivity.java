@@ -8,7 +8,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.view.KeyEvent;
 import android.view.WindowManager;
 
-import com.actionbarsherlock.app.SherlockFragmentActivity;
+import android.support.v7.app.ActionBarActivity;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.utils.Logger;
@@ -24,7 +24,7 @@ import com.bsb.hike.voip.view.VoipCallFragment.CallFragmentListener;
  * @author anuj
  *
  */
-public class VoIPActivity extends SherlockFragmentActivity implements CallFragmentListener, CallFailedFragListener
+public class VoIPActivity extends ActionBarActivity implements CallFragmentListener, CallFailedFragListener
 {
 	private VoipCallFragment mainFragment;
 

@@ -6,7 +6,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
 
-import com.actionbarsherlock.app.SherlockFragmentActivity;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
+
 import com.bsb.hike.utils.Logger;
 
 /**
@@ -20,7 +22,7 @@ import com.bsb.hike.utils.Logger;
  * @authors Atul Mittal, Akhil Tripathi
  * 
  */
-public abstract class HikeBaseActivity extends SherlockFragmentActivity
+public abstract class HikeBaseActivity extends ActionBarActivity
 {
 	public static final String DESTINATION_INTENT = "di";
 	

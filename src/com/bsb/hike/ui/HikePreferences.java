@@ -32,7 +32,9 @@ import android.widget.Checkable;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.ActionBar;
+import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
+
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -386,7 +388,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 
 	private void setupActionBar(int titleRes)
 	{
-		ActionBar actionBar = getSupportActionBar();
+		android.app.ActionBar actionBar = getActionBar();
 		actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
 
 		View actionBarView = LayoutInflater.from(this).inflate(R.layout.compose_action_bar, null);

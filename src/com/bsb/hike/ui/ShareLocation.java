@@ -38,7 +38,7 @@ import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.ActionBar;
+import android.support.v7.app.ActionBar;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.BitmapUtils;
@@ -314,7 +314,7 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 
 		View backContainer = actionBarView.findViewById(R.id.back);
 
-		backIcon = (ImageView) actionBarView.findViewById(R.id.abs__up);
+		backIcon = (ImageView) actionBarView.findViewById(R.id.up);
 		title = (TextView) actionBarView.findViewById(R.id.title);
 		title.setText(R.string.share_location);
 

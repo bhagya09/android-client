@@ -38,7 +38,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.ActionBar;
+import android.support.v7.app.ActionBar;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -158,7 +158,7 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 
 		View backContainer = actionBarView.findViewById(R.id.back);
 
-		backIcon = (ImageView) actionBarView.findViewById(R.id.abs__up);
+		backIcon = (ImageView) actionBarView.findViewById(R.id.up);
 		title = (TextView) actionBarView.findViewById(R.id.title);
 
 		arrow = (ImageView) actionBarView.findViewById(R.id.arrow);

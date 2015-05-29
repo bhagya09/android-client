@@ -11,7 +11,7 @@ import android.os.Message;
 import android.view.MotionEvent;
 import android.widget.TextView;
 
-import com.actionbarsherlock.view.Menu;
+import android.view.Menu;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;

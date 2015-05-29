@@ -2,6 +2,7 @@ package com.bsb.hike.media;
 
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.view.ActionMode.Callback;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -15,10 +16,11 @@ import android.widget.ImageView;
 import android.widget.PopupWindow.OnDismissListener;
 import android.widget.TextView;
 
-import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.view.ActionMode;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.view.ActionMode;
+import android.view.Menu;
+import android.view.MenuItem;
+
 import com.bsb.hike.R;
 import com.bsb.hike.chatthread.BackPressListener;
 import com.bsb.hike.utils.ChatTheme;
@@ -38,7 +40,7 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 		public void themeCancelled();
 	}
 
-	private SherlockFragmentActivity sherlockFragmentActivity;
+	private ActionBarActivity sherlockFragmentActivity;
 
 	private View viewToDisplay;
 
@@ -54,7 +56,7 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 	
 	private int currentConfig = Configuration.ORIENTATION_PORTRAIT;
 	
-	public ThemePicker(SherlockFragmentActivity sherlockFragmentActivity, ThemePickerListener listener, ChatTheme currentTheme)
+	public ThemePicker(ActionBarActivity sherlockFragmentActivity, ThemePickerListener listener, ChatTheme currentTheme)
 	{
 		this.userSelection = currentTheme;
 		this.sherlockFragmentActivity = sherlockFragmentActivity;
@@ -83,7 +85,7 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 	{
 		Logger.i(TAG, "show theme picker");
 		this.userSelection = currentTheme;
-		sherlockFragmentActivity.startActionMode(actionmodeCallback);
+		sherlockFragmentActivity.startSupportActionMode(actionmodeCallback);
 		initView(footerTextResId, orientation);
 		popUpLayout.showPopUpWindowNoDismiss(xoffset, yoffset, anchor, getView());
 		popUpLayout.setOnDismissListener(this);
@@ -269,7 +271,7 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 				@Override
 				public void run()
 				{
-					sherlockFragmentActivity.startActionMode(actionmodeCallback);
+					sherlockFragmentActivity.startActionMode((Callback) actionmodeCallback);
 				}
 			});
 		}

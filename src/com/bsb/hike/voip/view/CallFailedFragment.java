@@ -13,7 +13,7 @@ import android.view.animation.TranslateAnimation;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.actionbarsherlock.app.SherlockFragment;
+import android.support.v4.app.Fragment;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.utils.IntentFactory;
@@ -21,7 +21,7 @@ import com.bsb.hike.utils.Utils;
 import com.bsb.hike.voip.VoIPConstants;
 import com.bsb.hike.voip.VoIPUtils;
 
-public class CallFailedFragment extends SherlockFragment
+public class CallFailedFragment extends Fragment
 {
 	@Override
 	public void onCreate(Bundle savedInstanceState)
@@ -66,13 +66,13 @@ public class CallFailedFragment extends SherlockFragment
 			public void onClick(View v) {
 				if(enableRedial)
 				{
-					Intent intent = IntentFactory.getVoipCallIntent(getSherlockActivity(), msisdn, VoIPUtils.CallSource.CALL_FAILED_FRAG);
-					getSherlockActivity().startService(intent);
+					Intent intent = IntentFactory.getVoipCallIntent(getActivity(), msisdn, VoIPUtils.CallSource.CALL_FAILED_FRAG);
+					getActivity().startService(intent);
 				}
 				else
 				{
-					getSherlockActivity().finish();
-					Utils.startNativeCall(getSherlockActivity(), msisdn);
+					getActivity().finish();
+					Utils.startNativeCall(getActivity(), msisdn);
 				}
 				slideOutContainer(view);
 			}
@@ -82,10 +82,10 @@ public class CallFailedFragment extends SherlockFragment
 		{
 			@Override
 			public void onClick(View v) {
-				Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(getSherlockActivity(), msisdn, true);
+				Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(getActivity(), msisdn, true);
 				intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 				startActivity(intent);
-				getSherlockActivity().finish();
+				getActivity().finish();
 			}
 		});
 
@@ -93,10 +93,10 @@ public class CallFailedFragment extends SherlockFragment
 		{
 			@Override
 			public void onClick(View v) {
-				Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(getSherlockActivity(), msisdn, false);
+				Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(getActivity(), msisdn, false);
 				intent.putExtra(HikeConstants.Extras.SHOW_RECORDING_DIALOG, true);
 				startActivity(intent);
-				getSherlockActivity().finish();
+				getActivity().finish();
 			}
 		});
 
@@ -104,7 +104,7 @@ public class CallFailedFragment extends SherlockFragment
 		{
 			@Override
 			public void onClick(View v) {
-				getSherlockActivity().finish();
+				getActivity().finish();
 			}
 		});
 	}
@@ -156,7 +156,7 @@ public class CallFailedFragment extends SherlockFragment
 				break;
 
 			default:
-				((CallFailedFragListener)getSherlockActivity()).removeCallFailedFragment();
+				((CallFailedFragListener)getActivity()).removeCallFailedFragment();
 		}
 
 		return enableRedial;
@@ -172,7 +172,7 @@ public class CallFailedFragment extends SherlockFragment
 
 	private void slideOutContainer(View view)
 	{
-		Animation anim = AnimationUtils.loadAnimation(getSherlockActivity(), R.anim.call_failed_frag_slide_out);
+		Animation anim = AnimationUtils.loadAnimation(getActivity(), R.anim.call_failed_frag_slide_out);
 		anim.setAnimationListener(new AnimationListener() {
 
 			@Override
@@ -185,7 +185,7 @@ public class CallFailedFragment extends SherlockFragment
 
 			@Override
 			public void onAnimationEnd(Animation animation) {
-				((CallFailedFragListener)getSherlockActivity()).removeCallFailedFragment();
+				((CallFailedFragListener)getActivity()).removeCallFailedFragment();
 			}
 		});
 		view.findViewById(R.id.container).startAnimation(anim);

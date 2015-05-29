@@ -2,10 +2,10 @@ package com.bsb.hike.utils;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.preference.PreferenceActivity;
 
-import com.actionbarsherlock.app.SherlockPreferenceActivity;
-
-public abstract class HikeAppStateBasePreferenceActivity extends SherlockPreferenceActivity
+//Use real Action Bar here not the support one https://www.grokkingandroid.com/migrating-actionbarsherlock-actionbarcompat/
+public abstract class HikeAppStateBasePreferenceActivity extends PreferenceActivity
 {
 
 	private static final String TAG = "HikeAppState";

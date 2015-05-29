@@ -9,10 +9,10 @@ import android.widget.PopupWindow;
 import android.widget.PopupWindow.OnDismissListener;
 import android.widget.TextView;
 
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
+import android.support.v7.app.ActionBar;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.media.OverFlowMenuItem;
@@ -52,7 +52,7 @@ public class HikeActionBar
 
 	public void onCreateOptionsMenu(Menu menu, int menuLayout)
 	{
-		MenuInflater menuInflater = mActivity.getSupportMenuInflater();
+		MenuInflater menuInflater = mActivity.getMenuInflater();
 		menuInflater.inflate(menuLayout, menu);
 		this.mMenu = menu;
 	}

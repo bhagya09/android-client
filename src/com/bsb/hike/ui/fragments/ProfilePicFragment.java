@@ -19,13 +19,15 @@ import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.actionbarsherlock.app.SherlockFragment;
-import com.actionbarsherlock.internal.nineoldandroids.animation.Animator;
-import com.actionbarsherlock.internal.nineoldandroids.animation.AnimatorListenerAdapter;
-import com.actionbarsherlock.internal.nineoldandroids.animation.FloatEvaluator;
-import com.actionbarsherlock.internal.nineoldandroids.animation.ObjectAnimator;
-import com.actionbarsherlock.internal.nineoldandroids.animation.ValueAnimator;
-import com.actionbarsherlock.internal.nineoldandroids.animation.ValueAnimator.AnimatorUpdateListener;
+import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBarActivity;
+
+import com.nineoldandroids.animation.Animator;
+import com.nineoldandroids.animation.AnimatorListenerAdapter;
+import com.nineoldandroids.animation.FloatEvaluator;
+import com.nineoldandroids.animation.ObjectAnimator;
+import com.nineoldandroids.animation.ValueAnimator;
+import com.nineoldandroids.animation.ValueAnimator.AnimatorUpdateListener;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -48,7 +50,7 @@ import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.HoloCircularProgress;
 import com.bsb.hike.view.RoundedImageView;
 
-public class ProfilePicFragment extends SherlockFragment implements FinishableEvent
+public class ProfilePicFragment extends Fragment implements FinishableEvent
 {
 	private View mFragmentView;
 
@@ -386,7 +388,7 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 		try
 		{
 			getActivity().getSupportFragmentManager().popBackStack();
-			getActivity().getActionBar().show();
+			((ActionBarActivity) getActivity()).getSupportActionBar().show();
 		}
 		catch (NullPointerException npe)
 		{

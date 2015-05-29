@@ -5,15 +5,16 @@ import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import com.actionbarsherlock.app.SherlockFragment;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
+
+import android.support.v4.app.Fragment;
+import android.view.Menu;
+import android.view.MenuInflater;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -25,7 +26,7 @@ import com.bsb.hike.ui.SettingsActivity;
 import com.bsb.hike.utils.ProfileImageLoader;
 import com.bsb.hike.utils.Utils;
 
-public class ImageViewerFragment extends SherlockFragment implements OnClickListener, Listener
+public class ImageViewerFragment extends Fragment implements OnClickListener, Listener
 {
 	ImageView imageView;
 

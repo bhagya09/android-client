@@ -9,14 +9,15 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.MenuItemCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
+import android.support.v7.app.ActionBar;
+import android.view.Menu;
+import android.view.MenuItem;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -129,7 +130,7 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu)
 	{
-		getSupportMenuInflater().inflate(R.menu.updates_menu, menu);
+		getMenuInflater().inflate(R.menu.updates_menu, menu);
 
 		View show_people_view = menu.findItem(R.id.show_people).getActionView();
 		show_people_view.findViewById(R.id.overflow_icon_image).setContentDescription("Favorites in timeline");

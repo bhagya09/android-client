@@ -25,9 +25,10 @@ import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
+import android.support.v4.view.WindowCompat;
+import android.support.v7.app.ActionBar;
+import android.view.Menu;
+import android.view.MenuItem;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -108,7 +109,7 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity im
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
-		requestWindowFeature(com.actionbarsherlock.view.Window.FEATURE_ACTION_BAR_OVERLAY);
+		requestWindowFeature(WindowCompat.FEATURE_ACTION_BAR_OVERLAY);
 		setContentView(R.layout.gallery);
 
 		selectedSharedFileItems = new HashSet<Long>();
@@ -270,7 +271,7 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity im
 	{
 		if (multiSelectMode)
 		{
-			getSupportMenuInflater().inflate(R.menu.multi_select_chat_menu, menu);
+			getMenuInflater().inflate(R.menu.multi_select_chat_menu, menu);
 		}
 		return true;
 	}

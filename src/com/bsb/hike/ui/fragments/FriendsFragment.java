@@ -24,7 +24,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 
-import com.actionbarsherlock.app.SherlockListFragment;
+import android.support.v4.app.ListFragment;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -43,7 +43,7 @@ import com.bsb.hike.utils.LastSeenScheduler;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
 
-public class FriendsFragment extends SherlockListFragment implements Listener, OnItemLongClickListener, OnScrollListener
+public class FriendsFragment extends ListFragment implements Listener, OnItemLongClickListener, OnScrollListener
 {
 
 	private FriendsAdapter friendsAdapter;

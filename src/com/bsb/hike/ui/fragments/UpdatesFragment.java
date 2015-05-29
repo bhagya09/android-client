@@ -17,7 +17,9 @@ import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.ListView;
 
-import com.actionbarsherlock.app.SherlockListFragment;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.ListFragment;
+
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -40,7 +42,7 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
 
-public class UpdatesFragment extends SherlockListFragment implements OnScrollListener, Listener
+public class UpdatesFragment extends ListFragment implements OnScrollListener, Listener
 {
 
 	private StatusMessage noStatusMessage;

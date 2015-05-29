@@ -9,10 +9,10 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.actionbarsherlock.app.SherlockFragment;
+import android.support.v4.app.Fragment;
 import com.bsb.hike.R;
 
-public class PhotoActionsFragment extends SherlockFragment
+public class PhotoActionsFragment extends Fragment
 {
 	private View mFragmentView;
 

@@ -26,7 +26,7 @@ import android.widget.Filter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.actionbarsherlock.app.ActionBar;
+import android.support.v7.app.ActionBar;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.adapters.PinnedHeaderListView;
@@ -181,7 +181,7 @@ public class CountrySelectActivity extends HikeAppStateBaseFragmentActivity impl
 
 		View backContainer = actionBarView.findViewById(R.id.back);
 
-		ImageView backIcon = (ImageView) actionBarView.findViewById(R.id.abs__up);
+		ImageView backIcon = (ImageView) actionBarView.findViewById(R.id.up);
 
 		TextView title = (TextView) actionBarView.findViewById(R.id.title);
 
