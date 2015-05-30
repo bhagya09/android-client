@@ -6,6 +6,7 @@ import java.util.List;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.support.v4.view.MenuItemCompat;
 import android.util.Pair;
 import android.view.View;
 
@@ -193,7 +194,7 @@ public class BotChatThread extends OneToOneChatThread
 		if (configuration.isOverflowMenuEnabled() && !menuItemList.isEmpty())
 		{
 			menu.findItem(R.id.overflow_menu).setVisible(true);
-			menu.findItem(R.id.overflow_menu).getActionView().setOnClickListener(this);
+			MenuItemCompat.getActionView(menu.findItem(R.id.overflow_menu)).setOnClickListener(this);
 			mActionBar.setOverflowViewListener(this);
 		}
 		else

@@ -530,9 +530,9 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			overFlowWindow.dismiss();
 		HikeMessengerApp.getPubSub().removeListeners(this, homePubSubListeners);
 		HikeMessengerApp.getPubSub().removeListeners(this, progressPubSubListeners);
-		if (searchMenuItem != null && searchMenuItem.getActionView() != null)
+		if (searchMenuItem != null && MenuItemCompat.getActionView(searchMenuItem) != null)
 		{
-			SearchView searchView = (SearchView) searchMenuItem.getActionView();
+			SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchMenuItem);
 			searchView.setOnQueryTextListener(null);
 		}
 		super.onDestroy();
@@ -561,8 +561,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		}
 		if(showingSearchModeActionBar)
 		{
-			searchMenuItem.getActionView().clearFocus();
-			searchMenuItem.collapseActionView();
+			MenuItemCompat.getActionView(searchMenuItem).clearFocus();
+			MenuItemCompat.collapseActionView(searchMenuItem);
 		}
 		showProductPopup(ProductPopupsConstants.PopupTriggerPoints.HOME_SCREEN.ordinal());
 	}
@@ -603,7 +603,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			getMenuInflater().inflate(R.menu.chats_menu, menu);
 			topBarIndicator = (TextView) (MenuItemCompat.getActionView(menu.findItem(R.id.overflow_menu)).findViewById(R.id.top_bar_indicator_text));
 		updateOverFlowMenuNotification();
-		menu.findItem(R.id.overflow_menu).getActionView().setOnClickListener(new View.OnClickListener()
+		MenuItemCompat.getActionView(menu.findItem(R.id.overflow_menu)).setOnClickListener(new View.OnClickListener()
 		{
 			@Override
 			public void onClick(View v)
@@ -625,9 +625,9 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 		searchMenuItem = menu.findItem(R.id.search);
 		searchOptionID = searchMenuItem.getItemId();
-		searchMenuItem.setActionView(searchView).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
+		MenuItemCompat.setShowAsAction(MenuItemCompat.setActionView(searchMenuItem, searchView), MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
 
-		searchMenuItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener()
+        MenuItemCompat.setOnActionExpandListener(searchMenuItem, new MenuItemCompat.OnActionExpandListener()
 		{
 			@Override
 			public boolean onMenuItemActionExpand(MenuItem item)
@@ -655,12 +655,12 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			}
 		});
 		
-		newConversationIndicator = (TextView) menu.findItem(R.id.new_conversation).getActionView().findViewById(R.id.top_bar_indicator_text);
-		menu.findItem(R.id.new_conversation).getActionView().findViewById(R.id.overflow_icon_image).setContentDescription("Start a new chat");
-		((ImageView) menu.findItem(R.id.new_conversation).getActionView().findViewById(R.id.overflow_icon_image)).setImageResource(R.drawable.ic_new_conversation);
+        newConversationIndicator = (TextView) MenuItemCompat.getActionView(menu.findItem(R.id.new_conversation)).findViewById(R.id.top_bar_indicator_text);
+        MenuItemCompat.getActionView(menu.findItem(R.id.new_conversation)).findViewById(R.id.overflow_icon_image).setContentDescription("Start a new chat");
+         ((ImageView)    MenuItemCompat.getActionView(menu.findItem(R.id.new_conversation)).findViewById(R.id.overflow_icon_image)).setImageResource(R.drawable.ic_new_conversation);
 		showRecentlyJoinedDot(1000);
 
-		menu.findItem(R.id.new_conversation).getActionView().setOnClickListener(new OnClickListener()
+		MenuItemCompat.getActionView(menu.findItem(R.id.new_conversation)).setOnClickListener(new OnClickListener()
 		{
 			@Override
 			public void onClick(View v)

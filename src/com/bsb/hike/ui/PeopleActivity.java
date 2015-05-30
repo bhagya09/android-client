@@ -94,11 +94,8 @@ public class PeopleActivity extends HikeAppStateBaseFragmentActivity implements 
 		searchView.clearFocus();
 
 		MenuItem searchItem = menu.add(Menu.NONE, Menu.NONE, 1, R.string.search);
-
-		searchItem.setIcon(R.drawable.ic_top_bar_search).setActionView(searchView)
-				.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
-
-		searchItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener()
+		MenuItemCompat.setShowAsAction(MenuItemCompat.setActionView(searchItem.setIcon(R.drawable.ic_top_bar_search), searchView), MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
+		MenuItemCompat.setOnActionExpandListener(searchItem, new MenuItemCompat.OnActionExpandListener()
 		{
 
 			@Override

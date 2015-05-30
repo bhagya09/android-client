@@ -36,6 +36,7 @@ import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.view.MenuItemCompat;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.Spannable;
@@ -679,7 +680,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		if (mConversation != null)
 		{
 			// overflow is common between all, one to one and group
-			menu.findItem(R.id.overflow_menu).getActionView().setOnClickListener(this);
+			MenuItemCompat.getActionView(menu.findItem(R.id.overflow_menu)).setOnClickListener(this);
 			mActionBar.setOverflowViewListener(this);
 			return true;
 		}

@@ -9,6 +9,7 @@ import android.widget.PopupWindow;
 import android.widget.PopupWindow.OnDismissListener;
 import android.widget.TextView;
 
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -239,10 +240,10 @@ public class HikeActionBar
 	{
 		MenuItem menuItem = getMenuItem(R.id.overflow_menu);
 		
-		if (menuItem != null && menuItem.getActionView() != null)
+		if (menuItem != null && MenuItemCompat.getActionView(menuItem) != null)
 		{
-			ImageView topBarIndiImage = (ImageView) menuItem.getActionView().findViewById(R.id.top_bar_indicator_img);
-			TextView topBarCounter = (TextView) menuItem.getActionView().findViewById(R.id.top_bar_indicator_text);
+			ImageView topBarIndiImage = (ImageView) MenuItemCompat.getActionView(menuItem).findViewById(R.id.top_bar_indicator_img);
+			TextView topBarCounter = (TextView) MenuItemCompat.getActionView(menuItem).findViewById(R.id.top_bar_indicator_text);
 
 			if (imadeResId != 0 && topBarCounter.getVisibility() != View.VISIBLE)
 			{
@@ -279,9 +280,9 @@ public class HikeActionBar
 	{
 		MenuItem menuItem = getMenuItem(R.id.overflow_menu);
 		
-		if (menuItem != null && menuItem.getActionView() != null)
+		if (menuItem != null && MenuItemCompat.getActionView(menuItem) != null)
 		{
-			TextView topBarCounter = (TextView) menuItem.getActionView().findViewById(R.id.top_bar_indicator_text);
+			TextView topBarCounter = (TextView) MenuItemCompat.getActionView(menuItem).findViewById(R.id.top_bar_indicator_text);
 
 			if (newCount < 1)
 			{
