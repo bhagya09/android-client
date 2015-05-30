@@ -32,6 +32,8 @@ public class LockPattern
 
 	public static void onLockActivityResult(Activity activity, int requestCode, int resultCode, Intent data)
 	{
+		boolean isReset = data.getBooleanExtra(HikeConstants.Extras.STEALTH_PASS_RESET, false);
+		
 		switch (requestCode)
 		{
 		case HikeConstants.ResultCodes.CREATE_LOCK_PATTERN_HIDE_CHAT:
@@ -44,7 +46,6 @@ public class LockPattern
 				break;
 			}
 			
-			boolean isReset = data.getBooleanExtra(HikeConstants.Extras.STEALTH_PASS_RESET, false);
 			if (resultCode == Activity.RESULT_OK)
 			{
 				String encryptedPattern = String.valueOf(data.getCharArrayExtra(LockPatternActivity.EXTRA_PATTERN));
@@ -74,13 +75,6 @@ public class LockPattern
 					}
 				}
 			}
-			else
-			{
-				//making this check so that we can find out if this is password reset flow or otherwise
-				if(!isReset)
-				{
-				}
-			}
 			break;// _ReqCreateLockPattern
 
 		case HikeConstants.ResultCodes.CONFIRM_LOCK_PATTERN_HIDE_CHAT:
@@ -92,7 +86,19 @@ public class LockPattern
 				if(requestCode ==  HikeConstants.ResultCodes.CONFIRM_LOCK_PATTERN)
 				{
 					StealthModeManager.getInstance().activate(true);
-					HikeAnalyticsEvent.sendStealthEnabled(true);
+
+					JSONObject metadata = new JSONObject();
+					try
+					{
+						metadata.put(HikeConstants.EVENT_TYPE, AnalyticsConstants.StealthEvents.STEALTH);
+						metadata.put(HikeConstants.EVENT_KEY, AnalyticsConstants.StealthEvents.STEALTH_ACTIVATE);
+						metadata.put(AnalyticsConstants.StealthEvents.STEALTH_ACTIVATE, true);
+					} catch (JSONException e)
+					{
+						Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json : " + e);
+					}
+					HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
+
 				}
 				else if(requestCode ==  HikeConstants.ResultCodes.CONFIRM_LOCK_PATTERN_HIDE_CHAT)
 				{
@@ -124,14 +130,21 @@ public class LockPattern
 		JSONObject metadata = new JSONObject();
 		try
 		{
-			metadata.put(HikeConstants.EVENT_TYPE, HikeConstants.LogEvent.STEALTH);
-			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.STEALTH_PASSWORD_ENTRY);
-			metadata.put(HikeConstants.LogEvent.STEALTH_REQUEST, requestCode);
-			metadata.put(HikeConstants.LogEvent.STEALTH_RESULT, resultCode);
-			metadata.put(HikeConstants.LogEvent.ENTER_WRONG_STEALTH_MODE, resultCode == Activity.RESULT_CANCELED);
+			metadata.put(HikeConstants.EVENT_TYPE, AnalyticsConstants.StealthEvents.STEALTH);
+			metadata.put(HikeConstants.EVENT_KEY, AnalyticsConstants.StealthEvents.STEALTH_PASSWORD_ENTRY);
+			metadata.put(AnalyticsConstants.StealthEvents.STEALTH_REQUEST, requestCode);
+			metadata.put(AnalyticsConstants.StealthEvents.STEALTH_RESULT, resultCode);
+			if(resultCode <= Activity.RESULT_CANCELED)
+			{
+				metadata.put(AnalyticsConstants.StealthEvents.STEALTH_PASSWORD_CORRECT, resultCode == Activity.RESULT_OK);
+			}
+			if(isReset)
+			{
+				metadata.put(AnalyticsConstants.StealthEvents.STEALTH_PASSWORD_CHANGE, isReset);
+			}
 		} catch (JSONException e)
 		{
-			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "JSONException");
+			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json : " + e);
 		}
 		HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
 

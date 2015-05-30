@@ -316,4 +316,41 @@ public class AnalyticsConstants
 
 		public static final String RECEIVER_OPENS_CONV_SCREEN = "19";
 	}
+	
+	public static final class StealthEvents
+	{
+		public static final String STEALTH = "stlth";
+
+		public static final String STEALTH_MARK_HIDDEN = "MH";
+
+		public static final String STEALTH_MARK_VISIBLE = "MV";
+
+		public static final String STEALTH_HIDE_CHAT = "HC";
+
+		public static final String STEALTH_CONV_MARK = "stlthMrk";
+
+		public static final String STEALTH_SETUP = "stlthStp";
+
+		public static final String STEALTH_ACTIVATE = "stlthActv";
+
+		public static final String STEALTH_PASSWORD_ENTRY = "entStlthPwd";
+
+		public static final String STEALTH_RESULT = "stlthRslt";
+
+		public static final String STEALTH_PASSWORD_CORRECT = "pwdWrng";
+
+		public static final String STEALTH_PASSWORD_CHANGE = "pwdChng";
+
+		public static final String STEALTH_REQUEST = "stlthRqst";
+		
+		public static final String TIP_REMOVE = "rmTip";
+		
+		public static final String TIP_SHOW = "shTip";
+		
+		public static final String TIP_HIDE = "hdTip";
+
+		public static final String STEALTH_HI_CLICK = "hiClk";
+		
+		public static final String STEALTH_PREFERENCE_CHANGE = "prefChng";
+	}
 }

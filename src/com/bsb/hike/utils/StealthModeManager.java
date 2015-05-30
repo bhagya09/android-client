@@ -16,6 +16,7 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
+import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.models.Conversation.ConversationTip;
@@ -78,19 +79,6 @@ public class StealthModeManager
 		if(publish)
 		{
 			HikeMessengerApp.getPubSub().publish(markStealth? HikePubSub.STEALTH_DATABASE_MARKED : HikePubSub.STEALTH_DATABASE_UNMARKED, msisdn);
-			
-			JSONObject metadata = new JSONObject();
-			try
-			{
-				metadata.put(HikeConstants.EVENT_TYPE, HikeConstants.LogEvent.STEALTH);
-				metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.STEALTH_CONV_MARK);
-				metadata.put(HikeConstants.LogEvent.STEALTH_CONV_MARK, markStealth);
-				metadata.put(HikeConstants.STEALTH_MSISDN, msisdn);
-			} catch (JSONException e)
-			{
-				Logger.d(AnalyticsConstants.ANALYTICS_TAG, "JSONException");
-			}
-			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
 		}
 	}
 
@@ -151,12 +139,12 @@ public class StealthModeManager
 		JSONObject metadata = new JSONObject();
 		try
 		{
-			metadata.put(HikeConstants.EVENT_TYPE, HikeConstants.LogEvent.STEALTH);
-			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.STEALTH_SETUP);
-			metadata.put(HikeConstants.LogEvent.STEALTH_SETUP, isSetUp);
+			metadata.put(HikeConstants.EVENT_TYPE, AnalyticsConstants.StealthEvents.STEALTH);
+			metadata.put(HikeConstants.EVENT_KEY, AnalyticsConstants.StealthEvents.STEALTH_SETUP);
+			metadata.put(AnalyticsConstants.StealthEvents.STEALTH_SETUP, isSetUp);
 		} catch (JSONException e)
 		{
-			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "JSONException");
+			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json : " + e);
 		}
 		HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
 
@@ -189,7 +177,6 @@ public class StealthModeManager
 		currentState = activate ? HikeConstants.STEALTH_ON : HikeConstants.STEALTH_OFF;
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STEALTH_MODE, currentState);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_MODE_TOGGLED, null);
-		// TODO analytics activates/deactivated
 	}
 	
 	public void resetPreferences()
@@ -249,6 +236,17 @@ public class StealthModeManager
 
 		if (!isSetUp())
 		{
+			JSONObject metadata = new JSONObject();
+			try
+			{
+				metadata.put(HikeConstants.EVENT_TYPE, AnalyticsConstants.StealthEvents.STEALTH);
+				metadata.put(HikeConstants.EVENT_KEY, AnalyticsConstants.StealthEvents.STEALTH_HI_CLICK);
+			} catch (JSONException e)
+			{
+				Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json : " + e);
+			}
+			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
+
 			if (!isTipPersisted(ConversationTip.STEALTH_INFO_TIP))
 			{
 				setTipVisibility(true, ConversationTip.STEALTH_INFO_TIP);
@@ -295,19 +293,20 @@ public class StealthModeManager
 				setTipVisibility(false,ConversationTip.STEALTH_HIDE_TIP);
 				activate(false);
 
+				JSONObject metadata = new JSONObject();
 				try
 				{
-					JSONObject metadata = new JSONObject();
-					metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.EXIT_STEALTH_MODE);
-					HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
-				}
-				catch(JSONException e)
+					metadata.put(HikeConstants.EVENT_TYPE, AnalyticsConstants.StealthEvents.STEALTH);
+					metadata.put(HikeConstants.EVENT_KEY, AnalyticsConstants.StealthEvents.STEALTH_ACTIVATE);
+					metadata.put(AnalyticsConstants.StealthEvents.STEALTH_ACTIVATE, false);
+				} catch (JSONException e)
 				{
-					Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+					Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json : " + e);
 				}
+				HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
 			}
 		}
-		//TODO anayltics if Hi button was pressed or not
+
 	}
 
 	public boolean isTipPersisted(int tipType)
@@ -376,7 +375,22 @@ public class StealthModeManager
 				showLockPattern(msisdn, activity);
 			}
 		}
-		//TODO analytics activity defines MH 1/0, MV 1/0, HC 1/0,[1/0 - inside/outside]
+
+		JSONObject metadata = new JSONObject();
+		try
+		{
+			String hidingStyleAnalytics = !isActive()? AnalyticsConstants.StealthEvents.STEALTH_HIDE_CHAT :
+				(markStealth? AnalyticsConstants.StealthEvents.STEALTH_MARK_HIDDEN: AnalyticsConstants.StealthEvents.STEALTH_MARK_VISIBLE );
+			metadata.put(HikeConstants.EVENT_TYPE, AnalyticsConstants.StealthEvents.STEALTH);
+			metadata.put(HikeConstants.EVENT_KEY, AnalyticsConstants.StealthEvents.STEALTH_CONV_MARK);
+			metadata.put(AnalyticsConstants.StealthEvents.STEALTH_CONV_MARK, markStealth);
+			metadata.put(hidingStyleAnalytics, !(activity instanceof ChatThreadActivity));
+			metadata.put(HikeConstants.STEALTH_MSISDN, msisdn);
+		} catch (JSONException e)
+		{
+			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json : " + e);
+		}
+		HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
 	}
 
 	public void usePinAsPassword(boolean usePin) 
