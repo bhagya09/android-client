@@ -116,6 +116,14 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
+		/**
+		 * force the user into the reg-flow process if the token isn't set
+		 */
+		if (Utils.requireAuth(this))
+		{
+			return;
+		}
+		
 		setMode(getIntent().getIntExtra(WEBVIEW_MODE, WEB_URL_MODE));
 
 		if (mode == MICRO_APP_MODE)
@@ -132,7 +140,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			
 			else
 			{
-				this.finish();
+				closeWebViewActivity();
 				return;
 			}
 		}
@@ -144,6 +152,13 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 
 	}
 
+	private void closeWebViewActivity()
+	{
+		Intent homeintent = IntentFactory.getHomeActivityIntent(this);
+		this.startActivity(homeintent);
+		this.finish();
+	}
+
 	/**
 	 * Basic filtering on msisdn. eg : Stealth chat check
 	 * 
@@ -152,10 +167,27 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	 */
 	private boolean filterNonMessagingBot(String msisdn)
 	{
+		if (msisdn == null)
+		{
+			throw new IllegalArgumentException("Seems You forgot to send msisdn of Bot my dear");
+		}
+
+		/**
+		 * Bot marked as stealth.
+		 */
 		if (StealthModeManager.getInstance().isStealthMsisdn(msisdn) && !StealthModeManager.getInstance().isActive())
 		{
 			return false;
 		}
+
+		/**
+		 * BotInfo no longer exists in the map. Possibly opening a deleted bot ?
+		 */
+		if (BotUtils.getBotInfoForBotMsisdn(msisdn) == null)
+		{
+			return false;
+		}
+
 		return true;
 	}
 
@@ -262,21 +294,11 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	private void initMsisdn()
 	{
 		msisdn = getIntent().getStringExtra(HikeConstants.MSISDN);
-		if (msisdn == null)
-		{
-			throw new IllegalArgumentException("Seems You forgot to send msisdn of Bot my dear");
-		}
 	}
 
 	private void initBot()
 	{
 		botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
-		if (botInfo == null)
-		{
-			Logger.wtf(tag, "Botinfo does not exist in map");
-			this.finish();
-			return;
-		}
 		botConfig = null == botInfo.getConfigData() ?  new NonMessagingBotConfiguration(botInfo.getConfiguration()) : new NonMessagingBotConfiguration(botInfo.getConfiguration(), botInfo.getConfigData());
 		botMetaData = new NonMessagingBotMetadata(botInfo.getMetadata());
 	}
