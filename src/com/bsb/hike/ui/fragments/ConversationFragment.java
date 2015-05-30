@@ -68,6 +68,7 @@ import com.bsb.hike.adapters.ConversationsAdapter;
 import com.bsb.hike.adapters.EmptyConversationsAdapter;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.bots.MessagingBotConfiguration;
@@ -2991,6 +2992,18 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 			checkAndAddListViewHeader(tipView);
 			animateListView(true);
 		}
+		
+		JSONObject metadata = new JSONObject();
+		try
+		{
+			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.MqttMessageTypes.TIP);
+			metadata.put(AnalyticsConstants.StealthEvents.TIP_SHOW, whichType);
+		} catch (JSONException e)
+		{
+			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json : " + e);
+		}
+		HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.VIEW_EVENT, EventPriority.HIGH, metadata);
+
 	}
 
 	public void checkAndRemoveExistingHeaders()
@@ -3473,6 +3486,18 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 
 		getListView().removeHeaderView(tipView);
 		animateListView(false);
+
+		JSONObject metadata = new JSONObject();
+		try
+		{
+			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.MqttMessageTypes.TIP);
+			metadata.put(AnalyticsConstants.StealthEvents.TIP_HIDE, whichTip);
+		} catch (JSONException e)
+		{
+			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json : " + e);
+		}
+		HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.VIEW_EVENT, EventPriority.HIGH, metadata);
+
 		tipType = ConversationTip.NO_TIP;
 
 	}
@@ -3548,6 +3573,17 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		if (tipView != null && tipType == whichTip)
 		{
 			removeTipIfExists(whichTip);
+			
+			JSONObject metadata = new JSONObject();
+			try
+			{
+				metadata.put(HikeConstants.EVENT_KEY, HikeConstants.MqttMessageTypes.TIP);
+				metadata.put(AnalyticsConstants.StealthEvents.TIP_REMOVE, whichTip);
+			} catch (JSONException e)
+			{
+				Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json : " + e);
+			}
+			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
 		}
 	}
 
