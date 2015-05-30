@@ -69,6 +69,7 @@ import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.TagEditText.Tag;
 
@@ -120,10 +121,19 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		if (mode == MICRO_APP_MODE)
 		{
 			initMsisdn();
-			initBot();
-			if (botConfig.shouldOverlayActionBar())
+			if (filterNonMessagingBot(msisdn))
 			{
-				getWindow().requestFeature(WindowCompat.FEATURE_ACTION_BAR_OVERLAY);
+				initBot();
+				if (botConfig.shouldOverlayActionBar())
+				{
+					getWindow().requestFeature(WindowCompat.FEATURE_ACTION_BAR_OVERLAY);
+				}
+			}
+			
+			else
+			{
+				this.finish();
+				return;
 			}
 		}
 		setContentView(R.layout.webview_activity);
@@ -132,6 +142,21 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		initAppsBasedOnMode();
 		HikeMessengerApp.getPubSub().addListeners(this, pubsub);
 
+	}
+
+	/**
+	 * Basic filtering on msisdn. eg : Stealth chat check
+	 * 
+	 * @param msisdn
+	 * @return
+	 */
+	private boolean filterNonMessagingBot(String msisdn)
+	{
+		if (StealthModeManager.getInstance().isStealthMsisdn(msisdn) && !StealthModeManager.getInstance().isActive())
+		{
+			return false;
+		}
+		return true;
 	}
 
 	private void resetNotificationCounter()
