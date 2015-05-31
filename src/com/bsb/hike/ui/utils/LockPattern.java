@@ -32,7 +32,7 @@ public class LockPattern
 
 	public static void onLockActivityResult(Activity activity, int requestCode, int resultCode, Intent data)
 	{
-		boolean isReset = data.getBooleanExtra(HikeConstants.Extras.STEALTH_PASS_RESET, false);
+		boolean isReset = (data != null && data.getBooleanExtra(HikeConstants.Extras.STEALTH_PASS_RESET, false));
 		
 		switch (requestCode)
 		{
