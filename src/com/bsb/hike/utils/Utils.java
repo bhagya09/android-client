@@ -421,7 +421,7 @@ public class Utils
 			/*
 			 * Create temp file only for upload case.
 			 */
-			if(isSent)
+			if(isSent && !mFile.exists())
 				mFile.createNewFile();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
