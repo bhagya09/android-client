@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import org.json.JSONArray;
@@ -33,9 +34,9 @@ public class OfflineManager
 
 	private boolean isHotSpotCreated = false;
 	
-	private HashMap<Long, FileTransferModel> currentSendingFiles = new HashMap<Long, FileTransferModel>();
+	private ConcurrentHashMap<Long, FileTransferModel> currentSendingFiles = new ConcurrentHashMap<Long, FileTransferModel>();
 
-	private HashMap<Long, FileTransferModel> currentReceivingFiles = new HashMap<Long, FileTransferModel>();
+	private ConcurrentHashMap<Long, FileTransferModel> currentReceivingFiles = new ConcurrentHashMap<Long, FileTransferModel>();
 
 	private final static Object currentReceivingFilesLock = new Object();
 
@@ -46,6 +47,8 @@ public class OfflineManager
 	private BlockingQueue<FileTransferModel> fileTransferQueue = null;
 
 	private volatile boolean inFileTransferInProgress=false;
+
+	
 	
 	private static final String TAG=OfflineManager.class.getName();
 	
@@ -78,22 +81,22 @@ public class OfflineManager
 		return isHotSpotCreated;
 	}
 	
-	public void addToTextQueue(JSONObject message)
+	public synchronized void addToTextQueue(JSONObject message)
 	{
 		textMessageQueue.add(message);
 	}
 	
-	public void addToFileQueue(FileTransferModel fileTransferObject)
+	public synchronized void addToFileQueue(FileTransferModel fileTransferObject)
 	{
 		fileTransferQueue.add(fileTransferObject);
 	}
 	
-	public  boolean copyFile(InputStream inputStream, OutputStream outputStream,int fileSize)
+	public  boolean copyFile(InputStream inputStream, OutputStream outputStream,long fileSize)
 	{
 		return copyFile(inputStream, outputStream,-1,false,false,fileSize);
 	}
 	
-	public boolean copyFile(InputStream inputStream, OutputStream out, long msgId, boolean showProgress, boolean isSent,int fileSize) 
+	public boolean copyFile(InputStream inputStream, OutputStream out, long msgId, boolean showProgress, boolean isSent,long fileSize) 
 	{
 		byte buf[] = new byte[OfflineConstants.CHUNK_SIZE];
 		int len;
@@ -111,7 +114,7 @@ public class OfflineManager
 			}
 			while(fileSize > 0) 
 			{
-				buf = new byte[fileSize];
+				buf = new byte[(int)fileSize];
 				len = inputStream.read(buf);
 				fileSize -= len;
 				out.write(buf, 0, len);
@@ -120,7 +123,6 @@ public class OfflineManager
 					showSpinnerProgress(isSent,msgId);
 				}
 			}
-			inputStream.close();
 			isCopied = true;
 		} catch (IOException e) {
 			Logger.e("Spinner", "Exception in copyFile: ", e);
@@ -186,7 +188,6 @@ public class OfflineManager
 			JSONArray jsonFiles = fileTransferModel.getPacket().getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getJSONArray(HikeConstants.FILES);
 			jsonFile = (JSONObject) jsonFiles.get(0);
 			fileUri = jsonFile.getString(HikeConstants.FILE_PATH);
-			inputStream = new FileInputStream(fileUri);
 			
 			String metaString = fileTransferModel.getPacket().toString();
 			Logger.d(TAG, metaString);
@@ -298,4 +299,26 @@ public class OfflineManager
 		return fss;
 	}
 	
+	public 	void setIsOfflineFileTransferInProgress(boolean val)
+	{
+		inFileTransferInProgress = val;
+	}
+
+	public String getConnectedDevice()
+	{
+		return null;
+	}
+	
+	public void addToCurrentReceivingFile(long msgId,FileTransferModel fileTransferModel)
+	{
+		currentReceivingFiles.put(msgId,fileTransferModel);
+	}
+
+	public void removeFromCurrentReceivingFile(long msgId)
+	{
+		if(currentReceivingFiles.contains(msgId))
+		{
+			currentReceivingFiles.remove(msgId);
+		}
+	}
 }

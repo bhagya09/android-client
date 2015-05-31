@@ -1,6 +1,7 @@
 package com.bsb.hike.offline;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
@@ -10,6 +11,9 @@ import org.json.JSONObject;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.models.Sticker;
+import com.bsb.hike.utils.StickerManager;
 
 public class OfflineUtils
 {
@@ -114,4 +118,58 @@ public class OfflineUtils
 	{
 		 return fileSize/1024 + ((fileSize%1024!=0)?1:0);
 	}
+	
+	public static int byteArrayToInt(byte[] bytes)
+	{
+		return (bytes[0] & 0xFF) << 24 | (bytes[1] & 0xFF) << 16 | (bytes[2] & 0xFF) << 8 | (bytes[3] & 0xFF);
+	}
+	
+	public static  String getStickerPath(Sticker sticker)
+	{
+
+		String rootPath = StickerManager.getInstance().getStickerDirectoryForCategoryId(sticker.getCategoryId());
+		if (rootPath == null)
+		{
+			return null;
+		}
+		return rootPath + HikeConstants.LARGE_STICKER_ROOT + "/" + sticker.getStickerId();
+	}
+	
+	public static boolean isChatThemeMessage(JSONObject message) throws JSONException
+	{
+		return (message.has(HikeConstants.TYPE) && message.getString(HikeConstants.TYPE).equals(HikeConstants.CHAT_BACKGROUND));
+	}
+	
+	public static  String getFileBasedOnType(int type,String fileName)
+	{
+		StringBuilder storagePath = new StringBuilder(HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT);
+		if(type==HikeFileType.OTHER.ordinal())
+		{
+			storagePath.append(HikeConstants.OTHER_ROOT);
+		}
+		else if(type==HikeFileType.IMAGE.ordinal())
+		{
+			storagePath.append(HikeConstants.IMAGE_ROOT);
+		}
+		else if(type==HikeFileType.VIDEO.ordinal())
+		{
+			storagePath.append(HikeConstants.VIDEO_ROOT);
+		}
+		else if(type== HikeFileType.AUDIO.ordinal())
+		{
+			storagePath.append(HikeConstants.AUDIO_ROOT);
+		}
+		else if(type==HikeFileType.AUDIO_RECORDING.ordinal())
+		{
+			storagePath.append(HikeConstants.AUDIO_RECORDING_ROOT);
+		}
+		else if(type==HikeFileType.APK.ordinal())
+		{
+			storagePath.append(HikeConstants.OTHER_ROOT);
+		}
+		storagePath.append(File.separator+fileName);
+		return storagePath.toString();
+	}
+
+	
 }
