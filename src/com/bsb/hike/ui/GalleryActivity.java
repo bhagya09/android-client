@@ -125,8 +125,8 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
-		super.onCreate(savedInstanceState);
 		requestWindowFeature(WindowCompat.FEATURE_ACTION_BAR_OVERLAY);
+		super.onCreate(savedInstanceState);
 		setContentView(R.layout.gallery);
 
 		selectedGalleryItems = new HashMap<Long, GalleryItem>();

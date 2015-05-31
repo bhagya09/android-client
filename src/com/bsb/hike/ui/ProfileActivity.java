@@ -288,8 +288,8 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
-		super.onCreate(savedInstanceState);
 		requestWindowFeature(WindowCompat.FEATURE_ACTION_BAR_OVERLAY);
+		super.onCreate(savedInstanceState);
 
 		if (Utils.requireAuth(this))
 		{
