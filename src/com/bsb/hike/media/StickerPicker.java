@@ -143,6 +143,7 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 		}
 		
 		initView();
+		handleStickerIntro(viewToDisplay);
 		addAdaptersToViews();
 
 		popUpLayout.showKeyboardPopup(viewToDisplay);
@@ -191,8 +192,6 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 
 		shopIcon.setOnClickListener(this);
 
-		handleStickerIntro(view);		
-
 		mViewPager.setVisibility(View.VISIBLE);
 	}
 
@@ -234,6 +233,8 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 				
 			initView();
 		}
+		
+		handleStickerIntro(viewToDisplay);
 		
 		addAdaptersToViews();
 		
