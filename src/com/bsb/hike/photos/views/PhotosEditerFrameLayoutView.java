@@ -277,6 +277,18 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 		doodleLayer.setOnDoodlingStartListener(listener);
 	}
 
+	private int getOutputQuality()
+	{
+		if(compressOutput)
+		{
+			/**
+			 * Since we already compressing the dimensions no need to decrease quality
+			 */
+			return 100;
+		}
+		return 95;
+	}
+	
 	private void saveImagetoFile()
 	{
 		File file = null;
@@ -340,7 +352,7 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 		try
 		{
 			out = new FileOutputStream(file);
-			imageEdited.compress(Bitmap.CompressFormat.JPEG, 100, out);
+			imageEdited.compress(Bitmap.CompressFormat.JPEG, getOutputQuality(), out);
 		}
 		catch (Exception e)
 		{
