@@ -346,7 +346,6 @@
     </style>
     <!-- Make sure you change styles in v-11 as well -->
     <style name="AppTheme.Home">
-        <item name="homeAsUpIndicator">@drawable/home_screen_top_bar_up</item>
         <item name="vpiTabPageIndicatorStyle">@style/CustomTabPageIndicator</item>
         <item name="vpiTabTextIndicatorStyle">@style/TabText</item>
     </style>

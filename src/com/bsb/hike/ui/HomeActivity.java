@@ -1,6 +1,7 @@
 package com.bsb.hike.ui;
 
 import java.io.File;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,6 +20,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.res.Configuration;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.support.annotation.ColorRes;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -345,7 +349,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		actionBar.setDisplayShowHomeEnabled(true);
 		actionBar.setHomeButtonEnabled(true);
 		actionBar.setTitle("");
-		actionBar.setLogo(R.drawable.home_screen_top_bar_logo);
+		actionBar.setHomeAsUpIndicator(R.drawable.home_screen_top_bar_logo);
 		actionBar.setDisplayHomeAsUpEnabled(true);
 		actionBar.setDisplayShowTitleEnabled(true);
 	}
@@ -374,14 +378,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	private void setupSearchActionBar()
 	{
 		showingSearchModeActionBar = true;
-		final ActionBar actionBar = getSupportActionBar();
-		actionBar.setIcon(R.drawable.ic_search_back);
-		View actionBarView = LayoutInflater.from(this).inflate(R.layout.compose_action_bar, null);
-		actionBarView.findViewById(R.id.seprator).setVisibility(View.GONE);
-		TextView title = (TextView) actionBarView.findViewById(R.id.title);
-		title.setVisibility(View.GONE);
 
-		actionBar.setCustomView(actionBarView);
 	}
 
 	private void initialiseHomeScreen(Bundle savedInstanceState)
@@ -615,19 +612,29 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 				editor.commit();
 			}
 		});
-
-		final SearchView searchView = new SearchView(getSupportActionBar().getThemedContext());
-		searchView.setIconifiedByDefault(false);
-		searchView.setIconified(false);
+		searchMenuItem = menu.findItem(R.id.search);
+		SearchView searchView=(SearchView) MenuItemCompat.getActionView(searchMenuItem);
+		//http://wtanaka.com/node/8049
+		/*searchView.setIconifiedByDefault(false);
+		searchView.setIconified(false)*/;
 		searchView.setOnQueryTextListener(onQueryTextListener);
 		searchView.clearFocus();
-		searchView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
-
-		searchMenuItem = menu.findItem(R.id.search);
 		searchOptionID = searchMenuItem.getItemId();
+		SearchView.SearchAutoComplete theTextArea = (SearchView.SearchAutoComplete)searchView.findViewById(R.id.search_src_text);
+		theTextArea.setTextColor(Color.WHITE);
+		//To show the cursor color in searchview in  versions higher than gingerbread
+		//http://stackoverflow.com/questions/18705185/changing-the-cursor-color-in-searchview-without-actionbarsherlock
+		if (android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.GINGERBREAD) {
+			 try {
+			        Field mCursorDrawableRes = TextView.class.getDeclaredField("mCursorDrawableRes");
+			        mCursorDrawableRes.setAccessible(true);
+			        mCursorDrawableRes.set(theTextArea,0); 
+			    } catch (Exception e) {
+			    	e.printStackTrace();
+			    }
+		}
 		MenuItemCompat.setShowAsAction(MenuItemCompat.setActionView(searchMenuItem, searchView), MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
-
-        MenuItemCompat.setOnActionExpandListener(searchMenuItem, new MenuItemCompat.OnActionExpandListener()
+		MenuItemCompat.setOnActionExpandListener(searchMenuItem, new MenuItemCompat.OnActionExpandListener()
 		{
 			@Override
 			public boolean onMenuItemActionExpand(MenuItem item)
