@@ -235,20 +235,6 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 			initView();
 		}
 		
-		// Commenting it out. This is to be uncommented if we move to caching strategy later on. 
-		
-//		/**
-//		 * If this variable is set to true, then we refresh the dataset for stickers. This would happen when we download new packs from shop or we update stickers from sticker
-//		 * settings page
-//		 */
-//		if (refreshStickers)
-//		{
-//			mIconPageIndicator.notifyDataSetChanged();
-//			stickerAdapter.notifyDataSetChanged();
-//		}
-
-//		refreshStickers = false;
-		
 		addAdaptersToViews();
 		
 		return viewToDisplay;
