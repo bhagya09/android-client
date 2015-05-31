@@ -81,7 +81,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 	ProgressDialog mDialog;
 
 	private boolean isDeleting;
-
+	private Toolbar _toolBar;
 	private BlockingTaskType blockingTaskType = BlockingTaskType.NONE;
 
 	@Override
@@ -102,7 +102,8 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 
 		Logger.d(getClass().getSimpleName(), preferences + " + " + titleRes);
 		addPreferencesFromResource(preferences);
-
+		_toolBar=(Toolbar)findViewById(R.id.abp__toolbar);
+		_toolBar.setClickable(true);
 		Object retained = getLastNonConfigurationInstance();
 		if (retained instanceof ActivityCallableTask)
 		{
@@ -382,10 +383,24 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		{
 			favoriteListPreference.setOnPreferenceClickListener(this);
 		}
-		setupActionBar(titleRes);
+		setupToolBar(titleRes);
 
 	}
-
+private void setupToolBar(int titleRes){
+	_toolBar=(Toolbar)findViewById(R.id.abp__toolbar);
+	_toolBar.setClickable(true);
+	View backContainer = findViewById(R.id.back);
+	TextView title = (TextView) backContainer.findViewById(R.id.title);
+	title.setText(titleRes);
+	backContainer.setOnClickListener(new View.OnClickListener()
+	{
+		@Override
+		public void onClick(View v)
+		{
+			onBackPressed();
+		}
+	});
+}
 	private void setupActionBar(int titleRes)
 	{
 		android.app.ActionBar actionBar = getActionBar();
