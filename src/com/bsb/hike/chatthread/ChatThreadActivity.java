@@ -45,10 +45,13 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
         	super.onCreate(savedInstanceState);
             return;
         }
-		
+        if(filter(getIntent()))
+        init(getIntent());
+		//Activity should be created first in order to access action bar from chatthread.oncreate
+		super.onCreate(savedInstanceState);
 		if (filter(getIntent()))
 		{
-			init(getIntent());
+			
 			chatThread.onCreate();
 			showProductPopup(ProductPopupsConstants.PopupTriggerPoints.CHAT_SCR.ordinal());
 		}
@@ -56,7 +59,6 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 		{
 			closeChatThread(null);
 		}
-		super.onCreate(savedInstanceState);
 	}
 
 	private boolean filter(Intent intent)
