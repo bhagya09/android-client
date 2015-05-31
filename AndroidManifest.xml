@@ -186,7 +186,7 @@
             android:hardwareAccelerated="true"
             android:label="@string/app_label"
             android:launchMode="singleTop"
-            android:theme="@style/AppTheme"
+            android:theme="@style/AppTheme.ChatThread"
             android:windowSoftInputMode="adjustResize|stateAlwaysHidden" >
             <intent-filter>
                 <action android:name="android.intent.action.SENDTO" />

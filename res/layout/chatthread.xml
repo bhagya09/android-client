@@ -12,15 +12,10 @@
     <View
         android:id="@+id/attachment_anchor"
         android:layout_width="1dp"
-        android:layout_height="@dimen/st__action_bar_default_height"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true" />
-
-    <View
-        android:id="@+id/cb_anchor"
-        android:layout_width="1dp"
-        android:layout_height="@dimen/st__action_bar_default_height"
-        android:layout_alignParentTop="true" />
+        android:layout_height="0dp"
+        android:layout_marginTop="@dimen/st__action_bar_default_height"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true" />
 
     <com.bsb.hike.ui.utils.RecyclingImageView
         android:id="@+id/background"
