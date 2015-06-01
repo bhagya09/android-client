@@ -157,11 +157,13 @@ public class VoIPService extends Service {
 					sendHandlerMessage(VoIPConstants.MSG_LEFT_CONFERENCE, bundle);
 					getClient(msisdn).close();
 					clients.remove(msisdn);
+					playFromSoundPool(SOUND_DECLINE, false);
 				}
 				break;
 
 			case VoIPConstants.MSG_VOIP_CLIENT_OUTGOING_CALL_RINGTONE:
-				playOutgoingCallRingtone();
+				if (!inConference())
+					playOutgoingCallRingtone();
 				break;
 
 			case VoIPConstants.MSG_VOIP_CLIENT_INCOMING_CALL_RINGTONE:
@@ -175,7 +177,11 @@ public class VoIPService extends Service {
 				break;
 
 			case VoIPConstants.MSG_START_RECORDING_AND_PLAYBACK:
-				startRecordingAndPlayback(msisdn);
+				if (inConference())
+					playFromSoundPool(SOUND_ACCEPT, false);
+				else
+					startRecordingAndPlayback(msisdn);
+
 				break;
 				
 			case VoIPConstants.MSG_START_RECONNECTION_BEEPS:
@@ -1080,11 +1086,6 @@ public class VoIPService extends Service {
 			client.sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CALL_RELAY);
 		}
 
-		if (!isConnected(msisdn)) {
-			Logger.d(logTag, "Call has been answered before connection was established.");
-			startReconnectBeeps();
-		}
-		
 		Logger.d(logTag, "Starting audio record / playback.");
 		client.interruptResponseTimeoutThread();
 		stopRingtone();
@@ -1103,17 +1104,6 @@ public class VoIPService extends Service {
 		startChrono();
 		client.audioStarted = true;
 		
-		// When the call has been answered, we will send our network connection class
-		new Thread(new Runnable() {
-			
-			@Override
-			public void run() {
-				client.setIdealBitrate();
-				VoIPDataPacket dp = new VoIPDataPacket(PacketType.CURRENT_BITRATE);
-				dp.write(ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt(client.localBitrate).array());
-				client.sendPacket(dp, true);
-			}
-		}, "SEND_CURRENT_BITRATE").start();
 	}
 	
 	private void startRecording() {

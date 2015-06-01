@@ -266,7 +266,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		if (VoIPService.getCallId() == 0 || clientPartner.getPhoneNumber() == null) 
 		{
 			Logger.w(VoIPConstants.TAG, "There is no active call.");
-			getSherlockActivity().finish();
+			// getSherlockActivity().finish();
 			return;
 		}
 

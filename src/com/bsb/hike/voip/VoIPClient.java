@@ -1404,9 +1404,7 @@ public class VoIPClient  {
 		startSendingAndReceiving();
 		startHeartbeat();
 		exchangeCryptoInfo();
-		
-		if (responseTimeoutThread != null)
-			responseTimeoutThread.interrupt();
+		sendLocalBitrate();
 		
 		Logger.d(logTag, "Streaming started.");
 	}
@@ -1603,6 +1601,21 @@ public class VoIPClient  {
 		
 		if (opusWrapper != null)
 			opusWrapper.setEncoderBitrate(localBitrate);
+	}
+	
+	private void sendLocalBitrate() {
+
+		new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				setIdealBitrate();
+				VoIPDataPacket dp = new VoIPDataPacket(PacketType.CURRENT_BITRATE);
+				dp.write(ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt(localBitrate).array());
+				sendPacket(dp, true);
+			}
+		}, "SEND_CURRENT_BITRATE").start();
+
 	}
 	
 	public int getCallDuration() {
