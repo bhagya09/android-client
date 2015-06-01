@@ -24,8 +24,8 @@
         <ListView
             android:id="@id/android:list"
             style="@style/HomeList"
-            android:divider="@null"
-            android:dividerHeight="0dp" />
+            android:divider="@drawable/home_list_divider"
+            android:dividerHeight="0.5dp" />
     </RelativeLayout>
 
     <ViewStub
