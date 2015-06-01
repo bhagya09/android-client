@@ -114,7 +114,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
-		super.onCreate(savedInstanceState);
+		
 		setMode(getIntent().getIntExtra(WEBVIEW_MODE, WEB_URL_MODE));
 
 		if (mode == MICRO_APP_MODE)
@@ -126,6 +126,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 				getWindow().requestFeature(WindowCompat.FEATURE_ACTION_BAR_OVERLAY);
 			}
 		}
+		super.onCreate(savedInstanceState);
 		setContentView(R.layout.webview_activity);
 		initView();	
 		initActionBar();

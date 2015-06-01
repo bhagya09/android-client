@@ -92,11 +92,10 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
+		getWindow().requestFeature((int) Window.FEATURE_ACTION_BAR_OVERLAY);
 		overridePendingTransition(R.anim.fade_in_animation, R.anim.fade_out_animation);
 
 		super.onCreate(savedInstanceState);
-
-		getWindow().requestFeature((int) Window.FEATURE_ACTION_BAR_OVERLAY);
 
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
