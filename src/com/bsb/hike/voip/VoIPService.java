@@ -1,8 +1,6 @@
 package com.bsb.hike.voip;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.BitSet;
 import java.util.HashMap;
 import java.util.Locale;
@@ -308,8 +306,7 @@ public class VoIPService extends Service {
 
 		VoIPClient client = clients.get(msisdn);
 		if (client == null && !TextUtils.isEmpty(msisdn)) {
-			Logger.w(logTag, "Received message from " + msisdn +
-					" but we do not have an associated client. Creating one.");
+			Logger.d(logTag, "Creating VoIPClient for: " + msisdn);
 			client = new VoIPClient(getApplicationContext(), handler);
 		}
 
@@ -1510,21 +1507,6 @@ public class VoIPService extends Service {
 
 	}
 	
-	/**
-	 * Is the VoIP service currently connected to another phone?
-	 * This can return <b>false</b> even for an ongoing call, in case
-	 * a reconnection is being attempted. To check if we are current in call, 
-	 * use getCallId() instead.  
-	 * 
-	 * @return
-	 */
-	private boolean isConnected(String msisdn) {
-		boolean connected = false;
-		if (getClient(msisdn) != null)
-			connected = getClient(msisdn).connected;
-		return connected;
-	}
-	
 	public void setHold(boolean newHold) {
 		
 		Logger.d(logTag, "Changing hold to: " + newHold + " from: " + this.hold);
@@ -1763,6 +1745,7 @@ public class VoIPService extends Service {
 	public void hangUp() {
 		for (VoIPClient client : clients.values())
 			client.hangUp();
+		stop();
 	}
 	
 	public int getCallDuration() {

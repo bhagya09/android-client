@@ -116,7 +116,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 			}
 			switch (msg.what) {
 			case VoIPConstants.MSG_SHUTDOWN_ACTIVITY:
-				Logger.d(VoIPConstants.TAG, "Shutting down..");
+				Logger.d(VoIPConstants.TAG, "Shutting down activity..");
 				shutdown(msg.getData());
 				break;
 			case VoIPConstants.CONNECTION_ESTABLISHED_FIRST_TIME:
@@ -834,6 +834,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		bundle.putInt(VoIPConstants.CALL_FAILED_REASON, callFailCode);
 		bundle.putString(VoIPConstants.PARTNER_NAME, partnerName);
 
+		Logger.w(VoIPConstants.TAG, "Showing call failed fragment.");
 		activity.showCallFailedFragment(bundle);
 	}
 
