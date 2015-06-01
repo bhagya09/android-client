@@ -566,7 +566,7 @@ public class ConversationsAdapter extends BaseAdapter
 
 		if (OneToNConversationUtils.isBroadcastConversation(convInfo.getMsisdn()))
 		{
-				contactView.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
+				contactView.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_broad_sm, 0, 0, 0);
 		}
 		else if (OneToNConversationUtils.isGroupConversation(convInfo.getMsisdn()))
 		{
