@@ -53,13 +53,12 @@ public class TextDrawable extends ShapeDrawable
 		fontSize = builder.fontSize;
 		textPaint = new Paint();
 		textPaint.setColor(builder.textColor);
-		textPaint.setShadowLayer(2f, 5, 5, getLighterShade(Color.BLACK,12));
 		textPaint.setAntiAlias(true);
 		textPaint.setFakeBoldText(builder.isBold);
 		textPaint.setStyle(Paint.Style.FILL);
 		if (typeface == null)
 		{
-			typeface = Typeface.createFromAsset(HikeMessengerApp.getInstance().getApplicationContext().getAssets(), "fonts/Roboto-Light.ttf");
+			typeface = Typeface.createFromAsset(HikeMessengerApp.getInstance().getApplicationContext().getAssets(), "fonts/Roboto-Regular.ttf");
 		}
 
 		textPaint.setTypeface(typeface);
@@ -117,8 +116,7 @@ public class TextDrawable extends ShapeDrawable
 		// draw text
 		int width = this.width < 0 ? r.width() : this.width;
 		int height = this.height < 0 ? r.height() : this.height;
-		
-		int fontSize = (int) (this.fontSize < 0 ? (Math.min(width, height) *1f / 2.0f) : this.fontSize);
+		int fontSize = (int) (this.fontSize < 0 ? (Math.min(width, height) * 1f / 2.4f) : this.fontSize);
 		textPaint.setTextSize(fontSize);
 		canvas.drawText(text, width / 2, height / 2 - ((textPaint.descent() + textPaint.ascent()) / 2), textPaint);
 		canvas.restoreToCount(count);
