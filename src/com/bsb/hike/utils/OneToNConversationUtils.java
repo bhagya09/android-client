@@ -218,7 +218,7 @@ public class OneToNConversationUtils
 	 */
 	public static boolean isGroupConversation(String msisdn)
 	{
-		return msisdn != null && !msisdn.startsWith("+") && !isBroadcastConversation(msisdn);
+		return msisdn != null && !msisdn.startsWith("+") && !isBroadcastConversation(msisdn) && !Utils.isOfflineConversation(msisdn);
 	}
 
 	/**
