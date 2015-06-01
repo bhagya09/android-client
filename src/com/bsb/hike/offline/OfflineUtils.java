@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.channels.OverlappingFileLockException;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -171,5 +172,37 @@ public class OfflineUtils
 		return storagePath.toString();
 	}
 
+	public static boolean isPingPacketValid(String message)
+	{
+		JSONObject object;
+		try
+		{
+			object = new JSONObject(message);
+			if (object.optString(HikeConstants.TYPE).equals(OfflineConstants.PING))
+			{
+				return true;
+			}
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+
+		return false;
+	}
 	
+	public static String createPingPacket()
+	{
+		JSONObject object=new JSONObject();
+		try
+		{
+			object.put(HikeConstants.TYPE, OfflineConstants.PING);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+		return  object.toString();
+		
+	}
 }

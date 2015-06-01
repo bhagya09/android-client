@@ -67,6 +67,10 @@ public class OfflineThreadManager
 	private FileTransferThread fileTransferThread = null;
 
 	private OfflineManager offlineManager = null;
+	
+	private TextReceiveThread textReceiveThread=null;
+	
+	private FileReceiverThread fileReceiverThread=null;
 
 	public static OfflineThreadManager getInstance()
 	{
@@ -82,10 +86,16 @@ public class OfflineThreadManager
 		offlineManager = OfflineManager.getInstance();
 	}
 	
-	public void startThread()
+	public void startSendingThread()
 	{
 		textTransferThread.start();
 		fileTransferThread.start();
+	}
+	
+	public void startReceivingThread()
+	{
+		textReceiveThread.start();
+		fileReceiverThread.start();
 	}
 	
 	
@@ -205,26 +215,31 @@ public class OfflineThreadManager
 					inputStream=textReceiverSocket.getInputStream();
 					while(true)
 					{
-					byte[] convMessageLength = new byte[4];
-					inputStream.read(convMessageLength, 0, 4);
-					msgSize = OfflineUtils.byteArrayToInt(convMessageLength);
-					byte[] msgJSON = new byte[msgSize];
-					inputStream.read(msgJSON,0,msgSize);
-					String msgString =  new String(msgJSON,"utf-8");
-					Logger.d(TAG, ""+msgSize);
-					JSONObject messageJSON = new JSONObject(msgString);
-					
-					
-					//TODO: GHpst Packet Logic to come here
-//					 if ( isDisconnectPosted && !(isGhostPacket(messageJSON)) )
-//	                    {
-//	                        shouldBeDisconnected = false;
-//	                        removeRunnable(waitingTimer);
-//	                        isDisconnectPosted = true;
-//	                    }
-					
+						byte[] convMessageLength = new byte[4];
+						inputStream.read(convMessageLength, 0, 4);
+						msgSize = OfflineUtils.byteArrayToInt(convMessageLength);
+						byte[] msgJSON = new byte[msgSize];
+						inputStream.read(msgJSON, 0, msgSize);
+						String msgString = new String(msgJSON, "utf-8");
+						Logger.d(TAG, "" + msgSize);
+						JSONObject messageJSON = new JSONObject(msgString);
+
+						// TODO: GHpst Packet Logic to come here
+						// if ( isDisconnectPosted && !(isGhostPacket(messageJSON)) )
+						// {
+						// shouldBeDisconnected = false;
+						// removeRunnable(waitingTimer);
+						// isDisconnectPosted = true;
+						// }
+
 						ConvMessage convMessage = null;
-						if (OfflineUtils.isGhostPacket(messageJSON))
+
+						if (OfflineUtils.isPingPacketValid(messageJSON.toString()))
+						{
+							// Start client thread.
+							startSendingThread();
+						}
+						else if (OfflineUtils.isGhostPacket(messageJSON))
 						{
 							// ghost packet received reschedule the disconnect
 							// timer for another cycle

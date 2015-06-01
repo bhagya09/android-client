@@ -23,4 +23,6 @@ public class OfflineConstants
 	public static final String GHOST = "gst";
 	
 	public static final String STICKER_PATH = "stickerPath";
+
+	public static final String PING = "ping";
 }
