@@ -267,7 +267,6 @@ public class HikeBitmapFactory
 
 					if (correctedBmp != null)
 					{
-
 						String fileExtension = Utils.getFileExtension(new File(imageFile).getName());
 
 						// Check file type - Takes care of jpeg/jpg
