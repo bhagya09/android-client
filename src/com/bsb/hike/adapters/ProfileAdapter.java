@@ -645,20 +645,21 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 				groupParticipantName = contactInfo.getFirstNameAndSurname();
 			}
 			if(!contactInfo.isUnknownContact())
-			{	viewHolder.text.setText(groupParticipantName);
+			{	
+				viewHolder.icon.setImageDrawable(HikeBitmapFactory.getDefaultTextAvatar(contactInfo.getMsisdn(), groupParticipantName, true));
+				viewHolder.text.setText(groupParticipantName);
 				viewHolder.phoneNumView.setVisibility(View.GONE);
 			}
 			else
 			{
+				setAvatar(groupParticipantName, viewHolder.icon);
 				viewHolder.phoneNumView.setVisibility(View.VISIBLE);
 				viewHolder.text.setText(contactInfo.getMsisdn());
 				viewHolder.extraInfo.setText(groupParticipantName);
 			}
 				
-			setAvatar(contactInfo.getMsisdn(), viewHolder.icon);
 			viewHolder.parent.setOnLongClickListener(profileActivity);
 			viewHolder.parent.setTag(groupParticipant);
-
 			viewHolder.parent.setOnClickListener(profileActivity);
 
 			parentView.addView(viewHolder.parent);
