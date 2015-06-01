@@ -349,8 +349,11 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 					super.onGeolocationPermissionsShowPrompt(origin, callback);
 			}
 		});
-		handleURLLoadInWebView(webView, urlToLoad);
-		setupActionBar(title);
+		if(handleURLLoadInWebView(webView, urlToLoad)){
+			setupActionBar(title);
+		}else {
+			WebViewActivity.this.finish(); // first time if loaded in browser, then finish the activity
+		}
 	}
 	
 	private void attachBridge()
