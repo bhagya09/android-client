@@ -22,6 +22,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.content.res.Resources;
 import android.graphics.Typeface;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.Drawable;
@@ -2632,6 +2633,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 	{
 		SpannableString spanText = new SpannableString(text);
 		String loweredCaseText = text.toString().toLowerCase();
+		Resources res = context.getResources();
 		if (!TextUtils.isEmpty(searchText))
 		{
 			int startSpanIndex = 0;
@@ -2640,7 +2642,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				startSpanIndex = loweredCaseText.indexOf(searchText, startSpanIndex);
 				if (startSpanIndex != -1)
 				{
-					spanText.setSpan(new BackgroundColorSpan(context.getResources().getColor(R.color.text_bg)), startSpanIndex, startSpanIndex + searchText.length(),
+					spanText.setSpan(new BackgroundColorSpan(res.getColor(R.color.text_bg)), startSpanIndex, startSpanIndex + searchText.length(),
 							Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 					startSpanIndex += searchText.length();
 				}
