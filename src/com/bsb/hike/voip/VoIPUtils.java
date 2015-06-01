@@ -410,6 +410,12 @@ public class VoIPUtils {
 		return useAec;
 	}
 	
+	public static boolean isConferencingEnabled(Context context) 
+	{
+		boolean conferenceEnabled = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.VOIP_CONFERENCING_ENABLED, false);
+		return conferenceEnabled;
+	}
+	
 	/**
 	 * Used to communicate between two clients using the server
 	 * @param recipient		Recipient's MSISDN

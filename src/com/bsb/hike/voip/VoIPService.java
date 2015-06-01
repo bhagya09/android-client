@@ -262,6 +262,11 @@ public class VoIPService extends Service {
 			aecEnabled = false;
 		}
 		
+		if (VoIPUtils.isConferencingEnabled(getApplicationContext())) {
+			Logger.d(logTag, "Conferencing enabled.");
+			conferencingEnabled = true;
+		}
+		
 		if (aecEnabled) {
 			// For the Solicall AEC library to work, we must record data in chunks
 			// which are a multiple of the library's supported frame size (20ms).

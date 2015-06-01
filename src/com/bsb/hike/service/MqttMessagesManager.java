@@ -1538,6 +1538,11 @@ public class MqttMessagesManager
 			boolean aecEnabled = data.getBoolean(HikeConstants.VOIP_AEC_ENABLED);
 			editor.putBoolean(HikeConstants.VOIP_AEC_ENABLED, aecEnabled);
 		}
+		if (data.has(HikeConstants.VOIP_CONFERENCING_ENABLED))
+		{
+			boolean enabled = data.getBoolean(HikeConstants.VOIP_CONFERENCING_ENABLED);
+			editor.putBoolean(HikeConstants.VOIP_CONFERENCING_ENABLED, enabled);
+		}
 		if (data.has(HikeConstants.VOIP_NETWORK_TEST_ENABLED))
 		{
 			boolean enabled = data.getBoolean(HikeConstants.VOIP_NETWORK_TEST_ENABLED);
