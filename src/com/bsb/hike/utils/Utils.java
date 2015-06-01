@@ -5845,4 +5845,49 @@ public class Utils
 			return false;
 		}
 	}
+
+	public static boolean moveFile(File inputFile, File outputFile) {
+		Logger.d("Utils", "Input file path - " + inputFile.getPath());
+		Logger.d("Utils", "Output file path - " + outputFile.getPath());
+		boolean result = false;
+		InputStream in = null;
+		OutputStream out = null;
+		try {
+			if (outputFile.exists()) {
+				outputFile.delete();
+			}
+
+			in = new FileInputStream(inputFile);
+			out = new FileOutputStream(outputFile);
+
+			byte[] buffer = new byte[1024];
+			int read;
+			while ((read = in.read(buffer)) != -1) {
+				out.write(buffer, 0, read);
+			}
+			out.flush();
+			inputFile.delete();
+			result = true;
+		} catch (FileNotFoundException e1) {
+			result = false;
+			Logger.e("Utils", "1Failed due to - " + e1.getMessage());
+		} catch (Exception e2) {
+			result = false;
+			Logger.e("Utils", "2Failed due to - " + e2.getMessage());
+		} finally {
+			try {
+				if (in != null) {
+					in.close();
+					in = null;
+				}
+				if (out != null) {
+					out.close();
+					out = null;
+				}
+			} catch (IOException e) {
+				Logger.e("Utils", e.getMessage());
+			}
+		}
+		return result;
+	}
 }
