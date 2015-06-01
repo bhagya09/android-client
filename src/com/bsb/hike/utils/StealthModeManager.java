@@ -141,6 +141,7 @@ public class StealthModeManager
 		{
 			metadata.put(HikeConstants.EVENT_TYPE, AnalyticsConstants.StealthEvents.STEALTH);
 			metadata.put(HikeConstants.EVENT_KEY, AnalyticsConstants.StealthEvents.STEALTH_SETUP);
+			metadata.put(HikeMessengerApp.STEALTH_PIN_AS_PASSWORD, isPinAsPassword());
 			metadata.put(AnalyticsConstants.StealthEvents.STEALTH_SETUP, isSetUp);
 		} catch (JSONException e)
 		{
