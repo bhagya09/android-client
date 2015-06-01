@@ -80,36 +80,30 @@
                     android:layout_marginRight="3dp"
                     android:paddingTop="1dp"
                     android:visibility="gone" />
-
-                <FrameLayout
-                    android:id="@+id/indicator_container"
+                
+                <com.bsb.hike.view.CustomFontTextView
+                    android:id="@+id/unread_indicator"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentRight="true"
                     android:layout_centerVertical="true"
-                    android:layout_marginLeft="2dp" >
-
-                    <com.bsb.hike.view.CustomFontTextView
-                        android:id="@+id/unread_indicator"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/bg_unread_counter"
-                        android:gravity="center"
-                        android:paddingLeft="2dp"
-                        android:paddingRight="2dp"
-                        android:text="99"
-                        android:textColor="@color/white"
-                        android:textSize="12dp"
-                        android:textStyle="bold"
-                        android:visibility="gone" />
-                </FrameLayout>
+                    android:layout_marginLeft="2dp"
+                    android:background="@drawable/bg_unread_counter"
+                    android:gravity="center"
+                    android:paddingLeft="2dp"
+                    android:paddingRight="2dp"
+                    android:text="99"
+                    android:textColor="@color/white"
+                    android:textSize="12dp"
+                    android:textStyle="bold"
+                    android:visibility="gone" />
 
                 <ImageView
                     android:id="@+id/mute_indicator"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
-                    android:layout_toLeftOf="@+id/indicator_container"
+                    android:layout_toLeftOf="@+id/unread_indicator"
                     android:src="@drawable/ic_mute"
                     android:visibility="gone" />
 
