@@ -1,6 +1,5 @@
 package com.bsb.hike.BitmapModule;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -8,7 +7,6 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.graphics.Bitmap.CompressFormat;
 import android.graphics.Bitmap.Config;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -26,14 +24,12 @@ import android.text.TextUtils;
 import android.util.Base64;
 import android.view.View;
 import android.view.View.MeasureSpec;
-import android.webkit.MimeTypeMap;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.photos.HikePhotosListener;
-import com.bsb.hike.photos.HikePhotosUtils;
 import com.bsb.hike.smartcache.HikeLruCache;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
@@ -44,7 +40,7 @@ public class HikeBitmapFactory
 	private static final String TAG = "HikeBitmapFactory";
 
 	public static final int DEFAULT_BITMAP_COMPRESSION = 75;
-
+	
 	public static Bitmap getCircularBitmap(Bitmap bitmap)
 	{
 		if (bitmap == null)
@@ -72,6 +68,7 @@ public class HikeBitmapFactory
 		canvas.drawBitmap(bitmap, rect, rect, paint);
 		return output;
 	}
+
 
 	public static Bitmap getBitMapFromTV(View textView)
 	{
@@ -202,9 +199,8 @@ public class HikeBitmapFactory
 			@Override
 			public void run()
 			{
-				Bitmap bmp = HikeBitmapFactory.decodeSampledBitmapFromFile(srcFilePath, HikeConstants.HikePhotos.MAX_IMAGE_DIMEN, HikeConstants.HikePhotos.MAX_IMAGE_DIMEN,
-						Config.ARGB_8888);
-				if (bmp == null)
+				Bitmap bmp = HikeBitmapFactory.decodeSampledBitmapFromFile(srcFilePath, HikeConstants.HikePhotos.MAX_IMAGE_DIMEN, HikeConstants.HikePhotos.MAX_IMAGE_DIMEN, Config.ARGB_8888);
+				if(bmp==null)
 				{
 					mListener.onFailure();
 					return;
@@ -235,64 +231,6 @@ public class HikeBitmapFactory
 				mListener.onComplete(bmp);
 			}
 		}, 0);
-	}
-
-	/**
-	 * TODO Use Fresco to optimize - https://github.com/facebook/fresco
-	 * 
-	 * @param imageFile
-	 */
-	public static void correctImageOrientation(String imageFile)
-	{
-
-		if (null == imageFile || !new File(imageFile).exists())
-		{
-			return;
-		}
-
-		try
-		{
-			String imageOrientation = Utils.getImageOrientation(imageFile);
-
-			// Check if orientation needs to be fixed
-			if (0 != Utils.getRotatedAngle(imageOrientation))
-			{
-				// Load
-				Bitmap bmp = HikeBitmapFactory.decodeFile(imageFile);
-
-				if (bmp != null)
-				{
-					// Rotate
-					Bitmap correctedBmp = Utils.getRotatedBitmap(imageFile, bmp);
-
-					if (correctedBmp != null)
-					{
-
-						String fileExtension = Utils.getFileExtension(new File(imageFile).getName());
-
-						// Check file type - Takes care of jpeg/jpg
-						String fileType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension.toLowerCase());
-
-						CompressFormat outCompressFormat = CompressFormat.PNG;
-						
-						if (fileType.equals("image/jpeg"))
-						{
-							outCompressFormat = CompressFormat.JPEG;
-						}
-
-						// Save
-						BitmapUtils.saveBitmapToFile(new File(imageFile), correctedBmp, outCompressFormat, 100);
-						// Recycle
-						HikePhotosUtils.manageBitmaps(bmp);
-						HikePhotosUtils.manageBitmaps(correctedBmp);
-					}
-				}
-			}
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
 	}
 
 	public static Bitmap rotateBitmap(Bitmap b, int degrees)

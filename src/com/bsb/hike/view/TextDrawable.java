@@ -168,7 +168,7 @@ public class TextDrawable extends ShapeDrawable {
         public float radius;
 
         private Builder() {
-            text = null;
+            text = "";
             color = Color.GRAY;
             textColor = Color.WHITE;
             borderThickness = 0;
