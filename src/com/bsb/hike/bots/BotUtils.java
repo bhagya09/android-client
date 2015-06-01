@@ -13,8 +13,10 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
+import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.service.MqttMessagesManager;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 
 /**
@@ -135,5 +137,14 @@ public class BotUtils
 	public static BotInfo getBotInfoForBotMsisdn(String msisdn)
 	{
 		return HikeMessengerApp.hikeBotInfoMap.get(msisdn);
+	}
+
+	/**
+	 * This method populates the hashmap for bots from db after restore has been done
+	 */
+	public static void postAccountRestoreSetup()
+	{
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.UPGRADE_FOR_DEFAULT_BOT_ENTRY, false);
+		HikeConversationsDatabase.getInstance().getBotHashmap();
 	}
 }
