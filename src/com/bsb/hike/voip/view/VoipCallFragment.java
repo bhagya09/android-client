@@ -148,7 +148,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 			case VoIPConstants.MSG_UPDATE_QUALITY:
 				CallQuality quality = voipService.getQuality();
 				showSignalStrength(quality);
-				Logger.d(VoIPConstants.TAG, "Updating call quality to: " + quality);
+				// Logger.d(VoIPConstants.TAG, "Updating call quality to: " + quality);
 				break;
 			case VoIPConstants.MSG_NETWORK_SUCKS:
 				showCallFailedFragment(VoIPConstants.CallFailedCodes.CALLER_BAD_NETWORK);
