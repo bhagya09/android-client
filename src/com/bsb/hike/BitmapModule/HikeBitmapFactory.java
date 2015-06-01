@@ -1176,6 +1176,27 @@ public class HikeBitmapFactory
 
 		return TextDrawable.builder().buildRound(initials, bgColor);
 	}
+	
+	public static Drawable getDefaultTextAvatar(String iconHash, String defaultText, boolean useOnlyInitials)
+	{
+		if (TextUtils.isEmpty(defaultText))
+		{
+			int bgColor = HikeMessengerApp.getInstance().getApplicationContext().getResources()
+					.getColor(HikeConstants.DEFAULT_AVATAR_BG_COLORID[BitmapUtils.iconHash(iconHash) % (HikeConstants.DEFAULT_AVATAR_BG_COLORID.length)]);
+
+			return TextDrawable.builder().buildRound("#", bgColor);
+		}
+
+		String initials = useOnlyInitials ? getNameInitialsForDefaultAv(defaultText) : defaultText;
+
+		int index = BitmapUtils.iconHash(iconHash) % (HikeConstants.DEFAULT_AVATAR_BG_COLORID.length);
+
+		int defaultAvatarResId = HikeConstants.DEFAULT_AVATAR_BG_COLORID[index];
+
+		int bgColor = HikeMessengerApp.getInstance().getApplicationContext().getResources().getColor(defaultAvatarResId);
+
+		return TextDrawable.builder().buildRound(initials, bgColor);
+	}
 
 	public static Drawable getRectTextAvatar(String msisdn)
 	{
