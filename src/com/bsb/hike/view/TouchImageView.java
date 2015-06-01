@@ -43,7 +43,7 @@ public class TouchImageView extends RecyclingImageView
 	    // min/max zoom boundary.
 	    //
 	    private static final float SUPER_MIN_MULTIPLIER = 1.0f;
-	    private static final float SUPER_MAX_MULTIPLIER = 1.25f;
+	    private static final float SUPER_MAX_MULTIPLIER = 5.0f;
 
 	    //
 	    // Scale of image ranges from minScale to maxScale, where minScale == 1
@@ -121,7 +121,7 @@ public class TouchImageView extends RecyclingImageView
 	            mScaleType = ScaleType.FIT_CENTER;
 	        }
 	        minScale = 1;
-	        maxScale = 3;
+	        maxScale = 50;
 	        superMinScale = SUPER_MIN_MULTIPLIER * minScale;
 	        superMaxScale = SUPER_MAX_MULTIPLIER * maxScale;
 	        setImageMatrix(matrix);
