@@ -26,6 +26,12 @@ public class OfflineConstants
 
 	public static final String PING = "ping";
 	
+	public static final String EXTRAS_APK_PATH = "apkPath";
+
+	public static final String EXTRAS_APK_NAME = "apkName";
+	
+	public static final String IS_OFFLINE_MESSAGE = "is_offline_message";
+	
 	public final class HandlerConstants
 	{
 		public static final int SAVE_MSG_DB=-101;
