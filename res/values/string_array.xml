@@ -1,6 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
+	<string-array name="stealthTimeoutPrefKeys">
+        <item>@string/stealth_timeout_always_key</item>
+        <item>@string/stealth_timeout_immediate_key</item>
+        <item>@string/stealth_timeout_short_key</item>
+        <item>@string/stealth_timeout_long_key</item>
+        <item>@string/stealth_timeout_never_key</item>
+    </string-array>
+    <string-array name="stealthTimeoutPrefValues">
+        <item>@string/stealth_timeout_always</item>
+        <item>@string/stealth_timeout_immediate</item>
+        <item>@string/stealth_timeout_short</item>
+        <item>@string/stealth_timeout_long</item>
+        <item>@string/stealth_timeout_never</item>
+    </string-array>	
     <string-array name="vibratePrefKeys">
         <item>@string/vib_off_key</item>
         <item>@string/vib_default_key</item>

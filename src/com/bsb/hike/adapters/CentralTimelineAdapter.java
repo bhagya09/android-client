@@ -47,6 +47,7 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.utils.Utils.WhichScreen;
+import com.bsb.hike.view.RoundedImageView;
 
 public class CentralTimelineAdapter extends BaseAdapter
 {
@@ -241,10 +242,11 @@ public class CentralTimelineAdapter extends BaseAdapter
 		switch (viewType)
 		{
 		case OTHER_UPDATE:
-
 			viewHolder.avatar.setScaleType(ScaleType.FIT_CENTER);
 			viewHolder.avatar.setBackgroundResource(0);
-
+			
+			RoundedImageView roundAvatar = (RoundedImageView) viewHolder.avatar;
+			
 			if (statusMessage.getStatusMessageType() == StatusMessageType.PROTIP)
 			{
 				viewHolder.avatar.setImageResource(R.drawable.ic_protip);
@@ -252,11 +254,14 @@ public class CentralTimelineAdapter extends BaseAdapter
 			}
 			else if (statusMessage.hasMood())
 			{
+				//For moods we dont want to use rounded corners
+				roundAvatar.setOval(false);
 				viewHolder.avatar.setImageResource(EmoticonConstants.moodMapping.get(statusMessage.getMoodId()));
 				viewHolder.avatarFrame.setVisibility(View.GONE);
 			}
 			else
 			{
+				roundAvatar.setOval(true);
 				setAvatar(statusMessage.getMsisdn(), viewHolder.avatar);
 			}
 			viewHolder.name.setText(userMsisdn.equals(statusMessage.getMsisdn()) ? "Me" : statusMessage.getNotNullName());

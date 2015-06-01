@@ -376,7 +376,7 @@ public abstract class OneToNConversation extends Conversation
 		
 		public InitBuilder(String msisdn)
 		{
-			super(msisdn, new OneToNConvInfo.ConvInfoBuilder(msisdn));
+			super(msisdn);
 		}
 
 		public P setConversationOwner(String conversationOwner)

@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1214"
-    android:versionName="3.9.6.0.5.cpr" >
+    android:versionCode="1218"
+    android:versionName="3.9.6.27" >
     <uses-sdk
         android:minSdkVersion="9"
         android:targetSdkVersion="17"/>
@@ -226,7 +226,8 @@
         </activity>
         <activity
             android:name=".ui.WebViewActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize" >
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:exported="true" >
         </activity>
         <activity
             android:name=".ui.ShareLocation"
@@ -267,9 +268,11 @@
             android:name=".ui.GalleryActivity"
             android:theme="@style/AppTheme.Home.Photos" >
         </activity>
-        <activity android:name=".ui.HikeSharedFilesActivity" >
+        <activity android:name=".ui.HikeSharedFilesActivity"
+            android:theme="@style/AppTheme.Home.Photos" >
         </activity>
-        <activity android:name=".ui.GallerySelectionViewer" >
+        <activity android:name=".ui.GallerySelectionViewer"
+            android:theme="@style/AppTheme.Home.Photos" >
         </activity>
         <activity android:name=".ui.CountrySelectActivity" >
         </activity>
