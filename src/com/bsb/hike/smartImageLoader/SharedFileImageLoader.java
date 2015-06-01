@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.media.ThumbnailUtils;
 import android.provider.MediaStore;
+import android.util.Log;
 
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.models.HikeFile.HikeFileType;

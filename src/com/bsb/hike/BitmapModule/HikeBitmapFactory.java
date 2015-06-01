@@ -22,7 +22,6 @@ import android.media.ExifInterface;
 import android.os.Build;
 import android.text.TextUtils;
 import android.util.Base64;
-import android.util.Size;
 import android.view.View;
 import android.view.View.MeasureSpec;
 import android.widget.Toast;
@@ -1444,10 +1443,39 @@ public class HikeBitmapFactory
 		{
 			context = mContext;
 			availableRAM = Utils.getCurrentAvailableRAMForHike();
-			BitmapFactory.Options options = getImageOriginalSizeBitmap(filename);
+			options = getImageOriginalSizeBitmap(filename);
 			imageOriginalArea = options.outHeight * options.outWidth;
 			deviceScreenArea = (Utils.getDeviceScreenArea(context));
 			screenDimen = new Size(screenSize, screenSize);
+		}
+	}
+	
+	/**
+	 * 
+	 * Android.Utils.Size is added in API21
+	 * so not using that
+	 *
+	 */
+	public static class Size{
+	
+		int width;
+		
+		int height;
+		
+		public Size(int w, int h)
+		{
+			width = w;
+			height = h;
+		}
+		
+		public int getWidth()
+		{
+			return width;
+		}
+		
+		public int getHeight()
+		{
+			return height;
 		}
 	}
 
