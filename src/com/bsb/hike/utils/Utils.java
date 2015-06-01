@@ -1457,7 +1457,7 @@ public class Utils
 		return sdAvailSize;
 	}
 
-	public static boolean copyFile(String srcFilePath, String destFilePath, HikeFileType hikeFileType)
+	public static boolean copyImage(String srcFilePath, String destFilePath, Bitmap.Config config, int quality)
 	{
 		/*
 		 * If source and destination have the same path, just return.
@@ -1472,24 +1472,17 @@ public class Utils
 		try
 		{
 			InputStream src;
-			if (hikeFileType == HikeFileType.IMAGE)
+			String imageOrientation = Utils.getImageOrientation(srcFilePath);
+			Bitmap tempBmp = HikeBitmapFactory.scaleDownBitmap(srcFilePath, HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX, HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX,
+					Bitmap.Config.RGB_565, true, false);
+			tempBmp = HikeBitmapFactory.rotateBitmap(tempBmp, Utils.getRotatedAngle(imageOrientation));
+			// Temporary fix for when a user uploads a file through Picasa
+			// on ICS or higher.
+			if (tempBmp != null)
 			{
-				String imageOrientation = Utils.getImageOrientation(srcFilePath);
-				Bitmap tempBmp = HikeBitmapFactory.scaleDownBitmap(srcFilePath, HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX, HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX,
-						Bitmap.Config.RGB_565, true, false);
-				tempBmp = HikeBitmapFactory.rotateBitmap(tempBmp, Utils.getRotatedAngle(imageOrientation));
-				// Temporary fix for when a user uploads a file through Picasa
-				// on ICS or higher.
-				if (tempBmp != null)
-				{
-					byte[] fileBytes = BitmapUtils.bitmapToBytes(tempBmp, Bitmap.CompressFormat.JPEG, 75);
-					tempBmp.recycle();
-					src = new ByteArrayInputStream(fileBytes);
-				}
-				else
-				{
-					src = new FileInputStream(new File(srcFilePath));
-				}
+				byte[] fileBytes = BitmapUtils.bitmapToBytes(tempBmp, Bitmap.CompressFormat.JPEG, 75);
+				tempBmp.recycle();
+				src = new ByteArrayInputStream(fileBytes);
 			}
 			else
 			{
@@ -1531,32 +1524,47 @@ public class Utils
 	public static boolean compressAndCopyImage(String srcFilePath, String destFilePath, Context context)
 	{
 		SharedPreferences appPrefs = PreferenceManager.getDefaultSharedPreferences(context);
-		int quality = appPrefs.getInt(HikeConstants.IMAGE_QUALITY, ImageQuality.QUALITY_DEFAULT);
-		return compressAndCopyImage(srcFilePath, destFilePath, context, quality);
+		int imageQuality = appPrefs.getInt(HikeConstants.IMAGE_QUALITY, ImageQuality.QUALITY_DEFAULT);
+		return compressAndCopyImage(srcFilePath, destFilePath, context, Bitmap.Config.ARGB_8888, 80, imageQuality, true);
 	}
 	
-	public static boolean compressAndCopyImage(String srcFilePath, String destFilePath, Context context, int quality)
+	public static boolean compressAndCopyImage(String srcFilePath, String destFilePath, Context context, Bitmap.Config config, int quality, int imageQuality, boolean toUserServerConfig)
 	{
 		try
 		{
 			InputStream src;
 			String imageOrientation = Utils.getImageOrientation(srcFilePath);
 			Bitmap tempBmp = null;
-
-			if (quality == ImageQuality.QUALITY_MEDIUM)
+			int dimen;
+			
+			if (imageQuality == ImageQuality.QUALITY_MEDIUM)
 			{
-				tempBmp = HikeBitmapFactory.scaleDownBitmap(srcFilePath, HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX, HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX,
-						Bitmap.Config.RGB_565, true, false);
+				if(toUserServerConfig)
+				{
+					dimen = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.NORMAL_IMG_SIZE, HikeConstants.SMO_MAX_DIMENSION_MEDIUM_FULL_SIZE_PX);
+				}
+				else
+				{
+					dimen = HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX;
+				}
+				tempBmp = HikeBitmapFactory.scaleDownBitmap(srcFilePath, dimen, dimen, config, true, false);
 			}
-			else if (quality != ImageQuality.QUALITY_ORIGINAL)
+			else if (imageQuality != ImageQuality.QUALITY_ORIGINAL)
 			{
-				tempBmp = HikeBitmapFactory.scaleDownBitmap(srcFilePath, HikeConstants.MAX_DIMENSION_LOW_FULL_SIZE_PX, HikeConstants.MAX_DIMENSION_LOW_FULL_SIZE_PX,
-						Bitmap.Config.RGB_565, false, false); // Reducing further for small
+				if(toUserServerConfig)
+				{
+					dimen = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SUPER_COMPRESSED_IMG_SIZE, HikeConstants.SMO_MAX_DIMENSION_LOW_FULL_SIZE_PX);
+				}
+				else
+				{
+					dimen = HikeConstants.MAX_DIMENSION_LOW_FULL_SIZE_PX;
+				}
+				tempBmp = HikeBitmapFactory.scaleDownBitmap(srcFilePath, dimen, dimen, config, true, false);
 			}
 			tempBmp = HikeBitmapFactory.rotateBitmap(tempBmp, Utils.getRotatedAngle(imageOrientation));
 			if (tempBmp != null)
 			{
-				byte[] fileBytes = BitmapUtils.bitmapToBytes(tempBmp, Bitmap.CompressFormat.JPEG, 75);
+				byte[] fileBytes = BitmapUtils.bitmapToBytes(tempBmp, Bitmap.CompressFormat.JPEG, quality);
 				tempBmp.recycle();
 				src = new ByteArrayInputStream(fileBytes);
 			}
@@ -5733,7 +5741,7 @@ public class Utils
 		 */
 		String srcFilePath = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT + "/" + msisdn + ".jpg";
 		String destFilePath = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT + "/" + mappedId + ".jpg";
-		Utils.copyFile(srcFilePath, destFilePath, HikeFileType.IMAGE);
+		Utils.copyImage(srcFilePath, destFilePath, Bitmap.Config.ARGB_8888, 80);
 
 		if (setIcon)
 		{
