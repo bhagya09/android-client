@@ -47,7 +47,6 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 	@Override
 	public void onCreate()
 	{
-		
 		super.onCreate();
 		checkIfSharingFiles(activity.getIntent());
 	}

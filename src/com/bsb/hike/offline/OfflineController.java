@@ -1,5 +1,7 @@
 package com.bsb.hike.offline;
 
+import android.os.Message;
+
 import com.bsb.hike.models.ConvMessage;
 
 public class OfflineController
@@ -7,9 +9,12 @@ public class OfflineController
 
 	private IOfflineCallbacks offlineListener=null;
 	
+	OfflineManager offlineManager;
+	
 	public OfflineController(IOfflineCallbacks listener)
 	{
 		this.offlineListener=listener;
+		offlineManager=OfflineManager.getInstance();
 	}
 	
 	public void startScanningWifiDirect()
@@ -33,8 +38,11 @@ public class OfflineController
 	 */
 	public void sendMessage(ConvMessage convMessage)
 	{
-			//HikeConversationsDatabase.getInstance().addConversationMessages(convMessage,true);
-			//addToQueue(convMessage.serialize());
+		Message msg = Message.obtain();
+		msg.what = OfflineConstants.HandlerConstants.SAVE_MSG_DB;
+		msg.obj = convMessage;
+		offlineManager.performWorkOnBackEndThread(msg);
+		offlineManager.addToTextQueue(convMessage.serialize());
 	}
 	
 	public void sendAudioFile()

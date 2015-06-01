@@ -17,15 +17,19 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.util.Pair;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.filetransfer.FileSavedState;
 import com.bsb.hike.filetransfer.FileTransferBase.FTState;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeFile;
+import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.utils.Logger;
 
 public class OfflineManager
@@ -47,8 +51,20 @@ public class OfflineManager
 	private BlockingQueue<FileTransferModel> fileTransferQueue = null;
 
 	private volatile boolean inFileTransferInProgress=false;
-
 	
+	Handler handler =new Handler(HikeHandlerUtil.getInstance().getLooper())
+	{
+		public void handleMessage(android.os.Message msg) {
+			if(msg==null)
+			{
+				return;
+			}
+			
+			handleMsgOnBackEndThread(msg);
+		}
+
+	};
+
 	
 	private static final String TAG=OfflineManager.class.getName();
 	
@@ -62,6 +78,27 @@ public class OfflineManager
 		return _instance;
 	}
 	
+	
+	private void handleMsgOnBackEndThread(Message msg)
+	{
+		switch(msg.what)
+		{
+		case OfflineConstants.HandlerConstants.SAVE_MSG_DB:
+			saveToDb((ConvMessage)msg.obj);
+			break;
+		}
+	};
+	
+	private void saveToDb(ConvMessage convMessage)
+	{
+		HikeConversationsDatabase.getInstance().addConversationMessages(convMessage,true);
+	}
+	
+	public void performWorkOnBackEndThread(Message msg)
+	{
+		handler.sendMessage(msg);
+	}
+
 	/**
 	 * Initialize all your functions here
 	 */
