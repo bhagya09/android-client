@@ -405,7 +405,7 @@
         </receiver>
         <receiver
             android:name=".notifications.NotificationDismissedReceiver"
-            android:exported="false" >
+            android:exported="true" >
         </receiver>
 
         <activity
