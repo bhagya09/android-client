@@ -146,7 +146,7 @@
             android:name=".ui.ComposeChatActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/app_label"
-            android:theme="@style/AppTheme.Home"
+            android:theme="@style/AppTheme.Overlay"
             android:windowSoftInputMode="stateHidden" >
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
@@ -209,7 +209,8 @@
         </activity>
         <activity
             android:name=".ui.ProfileActivity"
-            android:windowSoftInputMode="stateHidden" >
+            android:windowSoftInputMode="stateHidden"
+            android:theme="@style/AppTheme.Overlay" >
             <intent-filter android:label="@string/set_profile_pic" >
                 <action android:name="android.intent.action.ATTACH_DATA" />
 

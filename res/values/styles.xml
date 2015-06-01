@@ -345,6 +345,20 @@
 	</style>
 	<style name="ThemeOverlay.My" parent="ThemeOverlay.AppCompat">
 	</style>
+	 <style name="AppTheme.Overlay" parent="AppTheme">
+	     <item name="actionOverflowMenuStyle">@style/OverflowMenuStyle</item>
+	     <item name="android:actionOverflowMenuStyle">@style/OverflowMenuStyle</item>
+	      <item name="vpiTabPageIndicatorStyle">@style/CustomTabPageIndicator</item>
+        <item name="vpiTabTextIndicatorStyle">@style/TabText</item>
+        <item name="homeAsUpIndicator">@drawable/home_screen_top_bar_up</item>
+        <item name="android:homeAsUpIndicator">@drawable/home_screen_top_bar_up</item>
+         <item name="actionOverflowButtonStyle">@style/OverflowMenu</item>
+        <item name="android:actionOverflowButtonStyle">@style/OverflowMenu</item>
+        <item name="android:dropDownListViewStyle">@style/MyDropDownListView</item>
+        <item name="actionBarPopupTheme">@style/ThemeOverlay.My</item>
+        
+        
+	 </style>
 	<style name="AppTheme.ChatThread" parent="AppTheme">
 	    <item name="actionOverflowMenuStyle">@style/OverflowMenuStyle</item>
 	    <item name="android:actionOverflowMenuStyle">@style/OverflowMenuStyle</item>
@@ -357,6 +371,11 @@
         <item name="actionBarPopupTheme">@style/ThemeOverlay.My</item>
         <item name="windowActionBarOverlay">true</item>
 	</style>
+<style name="MyDropDownListView" parent="android:style/Widget.Holo.ListView.DropDown">
+   <item name="android:divider">#161616</item> 
+   <item name="android:dividerHeight">0.5dp</item>  
+
+</style>
     <style name="ActivityAnimation">
         <item name="android:windowExitAnimation">@anim/fade_out_animation</item>
     	<item name="android:windowEnterAnimation">@anim/fade_in_animation</item>
