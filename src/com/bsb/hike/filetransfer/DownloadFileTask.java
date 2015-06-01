@@ -418,6 +418,7 @@ public class DownloadFileTask extends FileTransferBase
 		if (res == FTResult.SUCCESS)
 		{
 			res = closeStreams(raf, in);
+			HikeBitmapFactory.correctImageOrientation(mFile.getAbsolutePath());
 		}
 		else
 		{
