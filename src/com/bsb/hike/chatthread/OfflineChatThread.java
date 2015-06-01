@@ -32,6 +32,12 @@ import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
+/**
+ * 
+ * @author himanshu
+ *
+ *	This chat Chat deals with Offline Messages.
+ */
 public class OfflineChatThread extends OneToOneChatThread implements IOfflineCallbacks
 {
 

@@ -1,5 +1,11 @@
 package com.bsb.hike.offline;
 
+/**
+ * 
+ * @author himanshu
+ *	
+ *	This class contains the constants foe Offline Messaging stuff.
+ */
 public class OfflineConstants
 {
 	public static  final int MAXTRIES = 1;

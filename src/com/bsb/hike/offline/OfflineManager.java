@@ -35,6 +35,11 @@ import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.utils.Logger;
 
+/**
+ * 
+ * @author himanshu
+ * This class forms the base of Offline Messaging and deals with socket connection,text transfer and file transfer queue. 
+ */
 public class OfflineManager
 {
 	public static final OfflineManager _instance = new OfflineManager();
