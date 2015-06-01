@@ -422,6 +422,24 @@ public class FileTransferManager extends BroadcastReceiver
 		task.setFutureTask(ft);
 		pool.execute(ft);
 	}
+	
+	public ConvMessage uploadOfflineFile(String msisdn, File sourceFile, String fileKey, String fileType, HikeFileType hikeFileType, boolean isRec,
+			long recordingDuration, int attachment, String fileName)
+	{
+		
+		if(taskOverflowLimitAchieved())
+			return  null;
+		
+		settings = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
+		String token = settings.getString(HikeMessengerApp.TOKEN_SETTING, null);
+		String uId = settings.getString(HikeMessengerApp.UID_SETTING, null);
+		fileKey = "OfflineMessageFileKey"+System.currentTimeMillis();
+		UploadFileTask task = new UploadFileTask(handler, fileTaskMap, context, token, uId, msisdn, sourceFile, fileKey, fileType, hikeFileType, isRec,
+				recordingDuration, attachment,fileName);
+		ConvMessage convMessage = ((ConvMessage)task.getUserContext());
+		return convMessage;
+   }
+	
 
 	public void uploadLocation(String msisdn, double latitude, double longitude, int zoomLevel, boolean isRecipientOnhike, boolean newConvIfnotExist)
 	{

@@ -77,6 +77,8 @@ public class FTAnalyticEvents
 
 	public static final int OTHER_ATTACHEMENT = 6;
 	
+	public static final int APK_ATTACHMENT = 7;
+	
 	public FTAnalyticEvents(JSONObject logMetaData)
 	{
 		if(logMetaData == null)
