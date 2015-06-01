@@ -36,7 +36,7 @@ public class SharedFileImageLoader extends ImageWorker
 		String filePath = dataArray[0];
 		HikeFileType hikeFileType = HikeFileType.values()[Integer.valueOf(dataArray[1])];
 		
-		Bitmap b = getSharedMediaThumbnailFromCache(data, filePath, size_image, (hikeFileType == HikeFileType.IMAGE));
+		Bitmap b = getSharedMediaThumbnailFromCache(filePath, size_image, (hikeFileType == HikeFileType.IMAGE));
 
 		return b;
 	}
@@ -47,12 +47,13 @@ public class SharedFileImageLoader extends ImageWorker
 		return processBitmap(data);
 	}
 	
-	public Bitmap getSharedMediaThumbnailFromCache(String fileKey, String destFilePath, int fileSize, boolean isImage)
+	public Bitmap getSharedMediaThumbnailFromCache(String destFilePath, int fileSize, boolean isImage)
 	{
 		Bitmap thumbnail = null;
 		if (isImage)
 		{
-			thumbnail = HikeBitmapFactory.scaleDownBitmap(destFilePath, fileSize, fileSize, Bitmap.Config.RGB_565, true, false);
+			Log.d("image_config", "Inside API  getSharedMediaThumbnailFromCache");
+			thumbnail = HikeBitmapFactory.getImageThumbnailAsPerAlgo(context, destFilePath, fileSize, 0);
 			thumbnail = Utils.getRotatedBitmap(destFilePath, thumbnail);
 		}
 		else

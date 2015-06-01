@@ -22,8 +22,10 @@ import android.media.ExifInterface;
 import android.os.Build;
 import android.text.TextUtils;
 import android.util.Base64;
+import android.util.Size;
 import android.view.View;
 import android.view.View.MeasureSpec;
+import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -31,6 +33,7 @@ import com.bsb.hike.R;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.photos.HikePhotosListener;
 import com.bsb.hike.smartcache.HikeLruCache;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.Utils;
@@ -40,6 +43,18 @@ public class HikeBitmapFactory
 	private static final String TAG = "HikeBitmapFactory";
 
 	public static final int DEFAULT_BITMAP_COMPRESSION = 75;
+	
+	private static final int MEMORY_MULTIPLIIER = 8;
+		
+	private static final int RGB_565_BYTE_SIZE = 16;
+		
+	private static final int THRESHHOLD_LIMIT = 0;
+		
+	private static final int BASE_IMAGE_SIZE = 1240;
+		
+	private static final int INIT_STAGE = 0;
+		
+	private static final int STAGE_1 = 1;
 	
 	public static Bitmap getCircularBitmap(Bitmap bitmap)
 	{
@@ -1196,6 +1211,243 @@ public class HikeBitmapFactory
 		else
 		{
 			return hiRes ? R.drawable.ic_default_avatar_hires : R.drawable.ic_default_avatar;
+		}
+	}
+	
+	public static BitmapFactory.Options getImageOriginalSizeBitmap(String filename)
+	{
+		// First decode with inJustDecodeBounds=true to check dimensions
+		final BitmapFactory.Options options = new BitmapFactory.Options();
+		options.inJustDecodeBounds = true;
+
+		decodeFile(filename, options);
+		
+		options.inJustDecodeBounds = false;
+		return options;
+	}
+	
+	/**
+	 * Algorithm Description:-
+	 * 
+	 * Let X = Max available RAM for Hike
+	 * 
+	 * Check1: if RAM is available to load original image but not greater than screen size X 2.....
+	 *   	
+	 *   	X (Max available RAM for Hike)  >  8  X 16(for RGB_565_BYTE_SIZE) X Minimum(Original Image size, Screen Width X 2)
+	 *   	=========>if yes go for this for loading image
+	 *   
+	 * 		========>If No then
+	 *  
+	 *  Check 2: 
+	 *  	A) Calculate inSampleSize with original image width and height
+	 *  	B) Max Dimens of image i.e Max of (width, height)
+	 *  	C) Found insampledBitmapArea
+	 *  Now Check if RAM is available to load with size Max of insampledBitmapArea and screen width X 1.5
+	 *  
+	 *   	X (Max available RAM for Hike)  >  8  X 16(for RGB_565_BYTE_SIZE) X Maximum(insampledBitmapArea, Screen Width X 1.5)
+	 *   	=========>if yes go for this for loading image
+	 *   
+	 *   	=========> If No then
+	 *   
+	 *   fallback to our current condition ====>  RGB and Screen Width
+ 	 * 
+	 * @param context
+	 * @param filename
+	 * @param  
+	 * @param screenSize
+	 * @return
+	 */
+	public static Bitmap getImageThumbnailAsPerAlgo(Context context, String filename, int screenSize, int state)
+	{
+		MemmoryScreenShot.dumpMemoryScreenShot(context, filename, screenSize);
+		Size bestDimen = getBestDimensions(state);
+		
+		Bitmap thumbnail = null;
+		thumbnail = HikeBitmapFactory.scaleDownBitmap(filename, bestDimen.getWidth(), bestDimen.getHeight(), Bitmap.Config.RGB_565, true, false);
+		if(thumbnail == null) 
+		{
+			state = state + 1;
+			if(state < 3)
+			{
+				showSCToastForImageDegrade(context, "Going to load a low quality Image "+ state);
+				return getImageThumbnailAsPerAlgo(context, filename, screenSize, state);
+			}
+			else
+			{
+				showSCToastForImageDegrade(context, "Going to show Thumbanil");
+				//TODO Show Thumbnail
+			}
+		}
+		return thumbnail;
+	}
+
+	private static Size getBestDimensions(int state)
+	{
+		Size imageDimen = null;
+		
+		int currentState = state;
+		
+		if (currentState == INIT_STAGE)
+		{
+			//Going for 1st case
+			imageDimen = getDimensionsAsPerCase1();
+			
+			if(imageDimen != null)
+			{
+				return imageDimen;
+			}
+			
+			currentState ++;
+		}
+
+		if(currentState == STAGE_1)
+		{
+			//Going for 1st case
+			imageDimen = getDimensionsAsPerCase2();
+			
+			if(imageDimen != null) 
+			{
+				return imageDimen;
+			}
+			
+			currentState ++;
+		}
+
+		//Going for 3rd case
+		return MemmoryScreenShot.screenDimen;
+			
+			
+	}
+	
+	/**
+	 * Show Toast only if it is set by server via packet.
+	 * @param context
+	 * @param textToShow
+	 */
+	private static void showSCToastForImageDegrade(Context context, String textToShow)
+	{
+		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SHOW_TOAST_FOR_DEGRADING_QUALITY, 1) == 1)
+		{
+			Toast.makeText(context, textToShow, Toast.LENGTH_SHORT).show();
+		}
+	}
+
+	// Case1: checking with RGB+ Max 1240/Screen*1.5
+	private static Size getDimensionsAsPerCase2()
+	{
+		int height;
+		
+		int width;
+		
+		int max;
+		
+		int inSampleSize = calculateInSampleSize(MemmoryScreenShot.options, MemmoryScreenShot.options.outWidth, MemmoryScreenShot.options.outHeight);
+		
+		int maxDimen =  MemmoryScreenShot.options.outWidth< MemmoryScreenShot.options.outHeight ? MemmoryScreenShot.options.outHeight : MemmoryScreenShot.options.outWidth;
+		
+		int h=0, w=0;
+		
+		if((int)(maxDimen/(2^inSampleSize)) > BASE_IMAGE_SIZE + THRESHHOLD_LIMIT)
+		{
+			float aspectRatio = MemmoryScreenShot.options.outWidth * 1.0f / (MemmoryScreenShot.options.outHeight);
+
+			if (MemmoryScreenShot.options.outWidth >= MemmoryScreenShot.options.outHeight)
+			{
+
+				w = BASE_IMAGE_SIZE;
+				h = (int) (BASE_IMAGE_SIZE / aspectRatio);
+			}
+			else
+			{
+				h = BASE_IMAGE_SIZE;
+				w = (int) (BASE_IMAGE_SIZE * aspectRatio);
+			}
+		}
+		else
+		{
+			h = MemmoryScreenShot.options.outHeight/(2^inSampleSize);
+			w = MemmoryScreenShot.options.outWidth/(2^inSampleSize);
+		}
+				
+		int insampledBitmapArea =  h * w;
+				
+		if(insampledBitmapArea > MemmoryScreenShot.deviceScreenArea * 1.5)
+		{
+			height = h;
+			width = w;
+			max = insampledBitmapArea;
+		}
+		else
+		{
+			height = (int) (1.5 * MemmoryScreenShot.context.getResources().getDisplayMetrics().heightPixels);
+			width = (int) (1.5 * MemmoryScreenShot.context.getResources().getDisplayMetrics().widthPixels);
+			max = (int) (MemmoryScreenShot.deviceScreenArea * 1.5);
+		}
+		
+		// Case2: checking with RGB + Insampled/Screen*1.5
+		if(MemmoryScreenShot.availableRAM > (MEMORY_MULTIPLIIER * ( RGB_565_BYTE_SIZE * max)))
+		{
+			return new Size(width, height);
+		}
+		return null;
+	}
+
+	// Case1: checking with RGB+ original/Screen*2
+	private static Size getDimensionsAsPerCase1()
+	{
+		int height;
+		
+		int width;
+		
+		int min;
+		
+		if(MemmoryScreenShot.imageOriginalArea > MemmoryScreenShot.deviceScreenArea * 2)
+		{
+			height = 2 * MemmoryScreenShot.context.getResources().getDisplayMetrics().heightPixels;
+			width = 2 * MemmoryScreenShot.context.getResources().getDisplayMetrics().widthPixels;
+			min = MemmoryScreenShot.deviceScreenArea * 2;
+		}
+		else
+		{
+			height = MemmoryScreenShot.options.outHeight;
+			width = MemmoryScreenShot.options.outWidth;
+			min = MemmoryScreenShot.imageOriginalArea;
+		}
+
+		if(MemmoryScreenShot.availableRAM > (MEMORY_MULTIPLIIER * ( RGB_565_BYTE_SIZE * min)))
+		{
+			return new Size(height, width);
+		}
+		return null;
+	}
+
+	public static class MemmoryScreenShot
+	{
+		static double availableRAM;
+		
+		static BitmapFactory.Options options;
+		
+		static int imageOriginalArea; 
+		
+		static int deviceScreenArea;
+		
+		static Context context;
+		
+		static Size screenDimen;
+
+		public double getAvailableRAM()
+		{
+			return availableRAM;
+		}
+
+		public static void dumpMemoryScreenShot(Context mContext, String filename, int screenSize)
+		{
+			context = mContext;
+			availableRAM = Utils.getCurrentAvailableRAMForHike();
+			BitmapFactory.Options options = getImageOriginalSizeBitmap(filename);
+			imageOriginalArea = options.outHeight * options.outWidth;
+			deviceScreenArea = (Utils.getDeviceScreenArea(context));
+			screenDimen = new Size(screenSize, screenSize);
 		}
 	}
 

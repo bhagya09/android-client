@@ -5881,4 +5881,84 @@ public class Utils
 			return null;
 		}
 	}
+	
+	/**
+	 * Copies File from scrFilePath to DesFilePath
+	 * 
+	 * @param srcFilePath
+	 * @param destFilePath
+	 * @return
+	 */
+	public static boolean copyFile(String srcFilePath, String destFilePath)
+	{
+		/*
+		 * If source and destination have the same path, just return.
+		 */
+		if (srcFilePath.equals(destFilePath))
+		{
+			return true;
+		}
+		try
+		{
+			InputStream src = new FileInputStream(new File(srcFilePath));
+			FileOutputStream dest = new FileOutputStream(new File(destFilePath));
+
+			byte[] buffer = new byte[HikeConstants.MAX_BUFFER_SIZE_KB * 1024];
+			int len;
+
+			while ((len = src.read(buffer)) > 0)
+			{
+				dest.write(buffer, 0, len);
+			}
+
+			dest.flush();
+			dest.getFD().sync();
+			src.close();
+			dest.close();
+
+			return true;
+		}
+		catch (FileNotFoundException e)
+		{
+			Logger.e("Utils", "File not found while copying", e);
+			return false;
+		}
+		catch (IOException e)
+		{
+			Logger.e("Utils", "Error while reading/writing/closing file", e);
+			return false;
+		}
+		catch (Exception ex)
+		{
+			Logger.e("Utils", "WTF Error while reading/writing/closing file", ex);
+			return false;
+		}
+	}
+
+	/**
+	 * Returns Current available RAM in bytes for HIKE
+	 * 
+	 * @return
+	 */
+	public static double getCurrentAvailableRAMForHike()
+	{
+		long maxAvailableSize = 0L;
+		try
+		{
+			Runtime info = Runtime.getRuntime();
+			maxAvailableSize = info.maxMemory();
+		}
+	catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+		return maxAvailableSize * 8;
+	}
+
+	public static int getDeviceScreenArea(Context context)
+	{
+		int screenWidth = context.getResources().getDisplayMetrics().widthPixels;
+		int screenHeight = context.getResources().getDisplayMetrics().heightPixels;
+		return screenHeight * screenHeight;
+	}
 }
