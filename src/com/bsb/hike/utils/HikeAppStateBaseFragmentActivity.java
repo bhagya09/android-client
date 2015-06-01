@@ -3,6 +3,7 @@ package com.bsb.hike.utils;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Message;
 import android.support.v4.app.Fragment;
@@ -248,7 +249,7 @@ public class HikeAppStateBaseFragmentActivity extends HikeBaseActivity implement
 		actionBar.setDisplayShowTitleEnabled(false);
 	}
 	
-	protected void updateActionBarColor(ColorDrawable colorDrawable)
+	protected void updateActionBarColor(Drawable colorDrawable)
 	{
 		ActionBar actionBar = getSupportActionBar();
 		actionBar.setBackgroundDrawable((colorDrawable));

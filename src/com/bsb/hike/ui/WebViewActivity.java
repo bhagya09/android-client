@@ -577,7 +577,6 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	{
 		setupActionBar(botInfo.getConversationName());
 		int color = botConfig.getActionBarColor();
-		color = color == -1 ? R.color.transparent : color;
 		/**
 		 * If we don't have actionBar overlay, then we shouldn't show transparent color
 		 */
@@ -586,7 +585,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			color = R.color.blue_hike;
 		}
 		
-		updateActionBarColor(new ColorDrawable(color));
+		updateActionBarColor(color !=-1 ? new ColorDrawable(color) : getResources().getDrawable(R.drawable.repeating_action_bar_bg));
 		setAvatar();
 	}
 
