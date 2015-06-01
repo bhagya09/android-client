@@ -17,6 +17,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.util.Pair;
@@ -27,8 +28,10 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.filetransfer.FileSavedState;
 import com.bsb.hike.filetransfer.FileTransferBase.FTState;
+import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeFile;
+import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.utils.Logger;
 
@@ -51,6 +54,8 @@ public class OfflineManager
 	private BlockingQueue<FileTransferModel> fileTransferQueue = null;
 
 	private volatile boolean inFileTransferInProgress=false;
+	
+	private Context context;
 	
 	Handler handler =new Handler(HikeHandlerUtil.getInstance().getLooper())
 	{
@@ -106,6 +111,7 @@ public class OfflineManager
 	{
 		textMessageQueue=new LinkedBlockingQueue<>();
 		fileTransferQueue=new LinkedBlockingQueue<>();
+		context=HikeMessengerApp.getInstance().getApplicationContext();
 	}
 
 	public void setIsHotSpotCreated(boolean isHotSpotCreated)
@@ -357,5 +363,18 @@ public class OfflineManager
 		{
 			currentReceivingFiles.remove(msgId);
 		}
+	}
+
+	public void initialiseOfflineFileTransfer(String filePath, String fileKey, HikeFileType hikeFileType, String fileType, boolean isRecording, long recordingDuration,
+			 int attachmentType, String msisdn,String apkLabel)
+	{
+		int type = hikeFileType.ordinal();
+		File file = new File(filePath);
+		String fileName = file.getName();
+		if (type == HikeFileType.APK.ordinal())
+			fileName = apkLabel + ".apk";
+		ConvMessage convMessage = FileTransferManager.getInstance(context).uploadOfflineFile(msisdn, file, fileKey, fileType, hikeFileType, isRecording,
+				recordingDuration, attachmentType, fileName);
+		addToFileQueue(new FileTransferModel(new TransferProgress(), convMessage.serialize()));
 	}
 }

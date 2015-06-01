@@ -215,23 +215,13 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 		switch (requestCode)
 		{
 			case  AttachmentPicker.APPS:
-				if(data!=null)
-				{
 					String filePath = data.getStringExtra(HikeConstants.Extras.EXTRAS_APK_PATH);
 					String mime  =  data.getStringExtra(HikeConstants.Extras.FILE_TYPE);
 					String apkLabel  = data.getStringExtra(HikeConstants.Extras.EXTRAS_APK_NAME);
-					//OfflineManager.getInstance().initialiseOfflineFileTransfer(filePath, null, HikeFileType.APK, mime, false, (long)-1, 
-						//	false, FTAnalyticEvents.APK_ATTACHMENT,msisdn,true,apkLabel);
-					//TODO: initialte file transfer to the host
-				}
+					controller.sendApps(filePath,mime,apkLabel,msisdn);
 				break;
 			case AttachmentPicker.FILE:
-				if(data!=null)
-				{
-					//TODO: initialte file transfer process
-						//ChatThreadUtils.onShareFileOffline(activity.getApplicationContext(), msisdn, data, mConversation.isOnHike());
-						
-				}
+				controller.sendFile(data,msisdn);
 				break;	
 			default:
 				super.onActivityResult(requestCode, resultCode, data);
@@ -278,10 +268,7 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 	@Override
 	public void imageCaptured(String imagePath)
 	{
-
-		// Send the captuerd image offline
-		// OfflineManager.getInstance().initialiseOfflineFileTransfer(imagePath, null, HikeFileType.IMAGE, null, false, -1, false, FTAnalyticEvents.CAMERA_ATTACHEMENT, msisdn,
-		// true,null);
+		controller.sendImage(imagePath,msisdn);
 	}
 	
 	@Override
@@ -290,14 +277,14 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 		switch (requestCode)
 		{
 		case AttachmentPicker.AUDIO:
-			// Send the captuerd audio offline
-			//OfflineManager.getInstance().initialiseOfflineFileTransfer(filePath, null, HikeFileType.AUDIO, null, false, -1, false, FTAnalyticEvents.AUDIO_ATTACHEMENT, msisdn,
-				//	true, null);
+
+			controller.sendAudio(filePath, msisdn);
+
 			break;
 		case AttachmentPicker.VIDEO:
-			//// Send the captuerd video offline
-			//OfflineManager.getInstance().initialiseOfflineFileTransfer(filePath, null, HikeFileType.VIDEO, null, false, -1, false, FTAnalyticEvents.VIDEO_ATTACHEMENT, msisdn,
-				//	true, null);
+
+			controller.sendVideo(filePath, msisdn);
+
 			break;
 		default:
 			super.pickFileSuccess(requestCode, filePath);
@@ -307,8 +294,7 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 	@Override
 	public void audioRecordSuccess(String filePath, long duration)
 	{		
-		//Send the audio offline	
-		//OfflineManager.getInstance().initialiseOfflineFileTransfer(filePath, null, HikeFileType.AUDIO_RECORDING, HikeConstants.VOICE_MESSAGE_CONTENT_TYPE, true, duration, false, FTAnalyticEvents.AUDIO_ATTACHEMENT,msisdn,mConversation.isOnHike(),null);		
+		controller.sendAudioFile(filePath,duration,msisdn);		
 	}
 	
 	private void checkIfSharingFiles(Intent intent) {
