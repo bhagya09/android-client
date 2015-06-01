@@ -48,7 +48,7 @@ public class OfflineBroadCastReceiver extends BroadcastReceiver
 //		            deviceActionListener.updateCurrentNearByDevices(currentNearbyNetworks);
 //		        	Logger.d(TAG, "Scan results available");
 //	        	}
-	        	wifiCallBack.onScanResultAvailable(currentNearByNetwork);
+	        	//wifiCallBack.onScanResultAvailable(currentNearByNetwork);
 	        }
 	        else if(WifiManager.SUPPLICANT_CONNECTION_CHANGE_ACTION.equals(action))
 	        {
@@ -63,15 +63,13 @@ public class OfflineBroadCastReceiver extends BroadcastReceiver
 	            }   
 	            else
 	            {
-	            	if (OfflineManager.getInstance().isOfflineConnected())
-	            	{
-	            		Logger.d(TAG, "Offline mode is disconnected");
-	            	}
+//	            	if (OfflineManager.getInstance().)
+//	            	{
+//	            		Logger.d(TAG, "Offline mode is disconnected");
+//	            	}
 	            }
 	        }
 	        
-	    }
-
 	}
 
 }
