@@ -1516,4 +1516,5 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
 	<string name="gif_not_working">Invalid GIF</string>
 	<string name="gif_sent">GIF</string>
 	<string name="gif_received">Sent you a GIF</string>
+
 </resources>
