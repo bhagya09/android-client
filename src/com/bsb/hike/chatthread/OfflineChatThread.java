@@ -23,6 +23,7 @@ import com.bsb.hike.media.OverFlowMenuItem;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.offline.IOfflineCallbacks;
+import com.bsb.hike.offline.OfflineConstants;
 import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.ui.GalleryActivity;
@@ -185,13 +186,13 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 	}
 	
 	
-	protected void startHikeGallery(boolean onHike)
-	{
-		Intent imageIntent = IntentFactory.getHikeGallaryShare(activity.getApplicationContext(), msisdn, onHike);
-		imageIntent.putExtra(GalleryActivity.START_FOR_RESULT, true);
-		imageIntent.putExtra(HikeConstants.Extras.OFFLINE_MODE_ON, true);
-		activity.startActivityForResult(imageIntent, AttachmentPicker.GALLERY);
-	}
+//	protected void startHikeGallery(boolean onHike)
+//	{
+//		Intent imageIntent = IntentFactory.getHikeGallaryShare(activity.getApplicationContext(), msisdn, onHike);
+//		imageIntent.putExtra(GalleryActivity.START_FOR_RESULT, true);
+//		imageIntent.putExtra(HikeConstants.Extras.OFFLINE_MODE_ON, true);
+//		activity.startActivityForResult(imageIntent, AttachmentPicker.GALLERY);
+//	}
 
 	@Override
 	public void itemClicked(OverFlowMenuItem item)
@@ -199,7 +200,7 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 		switch (item.id)
 		{
 		case AttachmentPicker.GALLERY:
-			startHikeGallery(mConversation.isOnHike());
+			//startHikeGallery(mConversation.isOnHike());
 			break;
 
 		default:
@@ -215,9 +216,9 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 		switch (requestCode)
 		{
 			case  AttachmentPicker.APPS:
-					String filePath = data.getStringExtra(HikeConstants.Extras.EXTRAS_APK_PATH);
+					String filePath = data.getStringExtra(OfflineConstants.EXTRAS_APK_PATH);
 					String mime  =  data.getStringExtra(HikeConstants.Extras.FILE_TYPE);
-					String apkLabel  = data.getStringExtra(HikeConstants.Extras.EXTRAS_APK_NAME);
+					String apkLabel  = data.getStringExtra(OfflineConstants.EXTRAS_APK_NAME);
 					controller.sendApps(filePath,mime,apkLabel,msisdn);
 				break;
 			case AttachmentPicker.FILE:
@@ -298,10 +299,10 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 	}
 	
 	private void checkIfSharingFiles(Intent intent) {
-		if (intent.hasExtra(HikeConstants.Extras.OFFLINE_SHARING_INTENT))
-		{
-			//We are coming from the sharing option.
-			//OfflineManager.getInstance().forwardSharingFiles(intent);
-		}
+//		if (intent.hasExtra(HikeConstants.Extras.OFFLINE_SHARING_INTENT))
+//		{
+//			//We are coming from the sharing option.
+//			//OfflineManager.getInstance().forwardSharingFiles(intent);
+//		}
 	}
 }
