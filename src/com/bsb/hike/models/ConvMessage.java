@@ -24,6 +24,8 @@ import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.GroupConversation;
 import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.offline.OfflineConstants;
+import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.platform.ContentLove;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformMessageMetadata;
@@ -404,7 +406,7 @@ public class ConvMessage implements Searchable
 			mIsSMS = false;
 		}
 		
-		this.isOfflineMessage = obj.has(HikeConstants.IS_OFFLINE_MESSAGE) ? true : false;
+		this.isOfflineMessage = obj.has(OfflineConstants.IS_OFFLINE_MESSAGE) ? true : false;
 		this.mTimestamp = data.getLong(HikeConstants.TIMESTAMP);
 		/* prevent us from receiving a message from the future */
 		long now = System.currentTimeMillis() / 1000;
@@ -856,7 +858,7 @@ public class ConvMessage implements Searchable
 					break;
 
 				}
-				
+				object.put(OfflineConstants.IS_OFFLINE_MESSAGE, IsOfflineMessage());
 				object.put(HikeConstants.TYPE, mInvite ? HikeConstants.MqttMessageTypes.INVITE : HikeConstants.MqttMessageTypes.MESSAGE);
 			}
 		}
