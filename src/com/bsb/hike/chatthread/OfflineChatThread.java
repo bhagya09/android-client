@@ -9,6 +9,7 @@ import android.net.wifi.ScanResult;
 import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.PopupWindow;
+import android.widget.Toast;
 
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
@@ -71,8 +72,10 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 		if (mConversation != null)
 		{
 			mActionBar.onCreateOptionsMenu(menu, R.menu.one_one_chat_thread_menu, getOverFlowItems(), this, this);
-			return super.onCreateOptionsMenu(menu);
+			menu.findItem(R.id.overflow_menu).getActionView().setOnClickListener(this);
+			mActionBar.setOverflowViewListener(this);
 		}
+
 		return false;
 	}
 	
@@ -82,7 +85,7 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 		list.add(new OverFlowMenuItem(getString(R.string.view_profile), 0, 0, R.string.view_profile));
 		list.add(new OverFlowMenuItem(getString(R.string.chat_theme), 0, 0, R.string.chat_theme));
 		list.add(new OverFlowMenuItem(mConversation.isBlocked() ? getString(R.string.unblock_title) : getString(R.string.block_title), 0, 0, R.string.block_title));
-		
+		list.add(new OverFlowMenuItem(getString(R.string.connect_offline), 0, 0, R.string.connect_offline));
 		for (OverFlowMenuItem item : super.getOverFlowMenuItems())
 		{
 			list.add(item);
@@ -134,6 +137,8 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 	{
 		
 	}
+	
+	
 	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item)
@@ -199,10 +204,9 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 	{
 		switch (item.id)
 		{
-		case AttachmentPicker.GALLERY:
-			//startHikeGallery(mConversation.isOnHike());
+		case R.string.connect_offline:
+			Toast.makeText(activity, "Start the Scan Process here ", Toast.LENGTH_SHORT).show();
 			break;
-
 		default:
 			super.itemClicked(item);
 		}

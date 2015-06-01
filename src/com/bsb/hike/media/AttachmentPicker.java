@@ -197,6 +197,9 @@ public class AttachmentPicker extends OverFlowMenuLayout
 				case GALLERY:
 					listener.itemClicked(item);
 					break;
+				case APPS:
+					Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), "Start APPS Screen here", Toast.LENGTH_SHORT).show();
+					break;
 				}
 				if (pickIntent != null)
 				{

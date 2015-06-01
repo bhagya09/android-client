@@ -1476,4 +1476,5 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
 	<string name="edit_photos">New Photo</string>
 	<string name="only_photos_edit">Only photos can be edited</string>
 	<string name ="apps">APPS</string>
+	<string name ="connect_offline">Connect</string>
 </resources>
