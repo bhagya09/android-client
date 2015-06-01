@@ -111,7 +111,6 @@ public class OfflineController
 	public void sendAudio(String filePath, String msisdn)
 	{
 		offlineManager.initialiseOfflineFileTransfer(filePath, null, HikeFileType.AUDIO, null, false, -1, FTAnalyticEvents.AUDIO_ATTACHEMENT, msisdn, null);
-
 	}
 
 	public void sendVideo(String filePath, String msisdn)
@@ -121,6 +120,7 @@ public class OfflineController
 
 	public void sendImage(String imagePath, String msisdn)
 	{
-		offlineManager.initialiseOfflineFileTransfer(imagePath, null, HikeFileType.IMAGE, null, false, -1, FTAnalyticEvents.CAMERA_ATTACHEMENT, msisdn, null);
+		offlineManager.initialiseOfflineFileTransfer(imagePath, null, HikeFileType.IMAGE, null, false, -1, FTAnalyticEvents.CAMERA_ATTACHEMENT, msisdn,null);
 	}
+
 }
