@@ -201,6 +201,46 @@ public class UploadFileTask extends FileTransferBase
 		createConvMessage();
 	}
 	
+	protected UploadFileTask(Handler handler, ConcurrentHashMap<Long, FutureTask<FTResult>> fileTaskMap, Context ctx, String token, String uId, String msisdn, File sourceFile,
+			String fileKey, String fileType, HikeFileType hikeFileType, boolean isRecording, long recordingDuration, int attachement,String fileName)
+	{
+		super(handler, fileTaskMap, ctx, sourceFile, -1, hikeFileType, token, uId);
+		this.msisdn = msisdn;
+		this.fileType = fileType;
+		this.isRecipientOnhike = true;
+		this.recordingDuration = recordingDuration;
+		this.fileKey = fileKey;
+		_state = FTState.IN_PROGRESS;
+		this.mAttachementType = attachement;
+		createConvMessage(true);
+		stateFile = getStateFile(((ConvMessage) userContext));
+		JSONObject metadata = new JSONObject();
+		JSONArray filesArray = new JSONArray();
+
+		HikeFile hikeFile = ((ConvMessage)userContext).getMetadata().getHikeFiles().get(0);
+		hikeFile.setFileKey("OfflineMessageFileKey"+System.currentTimeMillis());
+		hikeFile.setFileSize((int)sourceFile.length());
+		hikeFile.setHikeFileType(hikeFileType);
+		hikeFile.setRecordingDuration(recordingDuration);
+		hikeFile.setSent(true);
+		hikeFile.setFileName(fileName);
+		hikeFile.setFile(sourceFile);
+		JSONObject fileJSON =  hikeFile.serialize();
+		
+		try {
+			fileJSON.putOpt(HikeConstants.HIKE_FILE_TYPE, hikeFileType.ordinal());
+			filesArray.put(fileJSON);
+			metadata.put(HikeConstants.FILES, filesArray);
+			MessageMetadata messageMetadata = new MessageMetadata(metadata, true);
+			messageMetadata.getHikeFiles().get(0).setFileName(fileName);
+			messageMetadata.getJSON().putOpt(HikeConstants.FILE_NAME, fileName);
+			((ConvMessage) userContext).setMetadata(messageMetadata);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		((ConvMessage) userContext).setTimestamp(System.currentTimeMillis() / 1000);
+		// saveFileState(null);
+	}
 
 	protected void setFutureTask(FutureTask<FTResult> fuTask)
 	{
@@ -220,7 +260,13 @@ public class UploadFileTask extends FileTransferBase
 
 	// private ConvMessage createConvMessage(Uri picasaUri, File mFile, HikeFileType hikeFileType, String msisdn, boolean isRecipientOnhike, String fileType, long
 	// recordingDuration) throws FileTransferCancelledException, Exception
+	
 	private void createConvMessage()
+	{
+		createConvMessage(false);
+	}
+	
+	private void createConvMessage(boolean isOfflineMsg)
 	{
 		try
 		{
@@ -316,6 +362,10 @@ public class UploadFileTask extends FileTransferBase
 				for (ContactInfo contact : contactList)
 				{
 					ConvMessage msg = createConvMessage(fileName, messageMetadata, contact.getMsisdn(), isRecipientOnhike);
+					if(isOfflineMsg)
+					{
+						msg.setIsOfflineMessage(true);
+					}
 					messageList.add(msg);
 				}
 				userContext = messageList.get(0);
@@ -333,10 +383,15 @@ public class UploadFileTask extends FileTransferBase
 			else
 			{
 				userContext = createConvMessage(fileName, metadata, msisdn, isRecipientOnhike);
+				
 				ConvMessage convMessageObject = (ConvMessage)userContext;
 				if(convMessageObject.isBroadcastConversation())
 				{
 					convMessageObject.setMessageOriginType(OriginType.BROADCAST);
+				}
+				if(isOfflineMsg)
+				{
+					convMessageObject.setIsOfflineMessage(true);
 				}
 
 				HikeConversationsDatabase.getInstance().addConversationMessages(convMessageObject,true);
