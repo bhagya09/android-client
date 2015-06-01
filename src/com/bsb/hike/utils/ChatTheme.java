@@ -4718,100 +4718,7 @@ public enum ChatTheme
 		}
 
 	},
-	ANGRY
-	{
-
-		@Override
-		public String bgId()
-		{
-			return "219";
-		}
-
-		@Override
-		public int headerBgResId()
-		{
-			return R.drawable.bg_header_transparent_2x;
-		}
-
-		@Override
-		public int previewResId()
-		{
-			return R.drawable.ic_ct_angry_preview;
-		}
-
-		@Override
-		public int bgResId()
-		{
-			return R.drawable.bg_ct_angry;
-		}
-
-		@Override
-		public int bubbleResId()
-		{
-			return R.drawable.ic_bubble_rain2;
-		}
-
-		@Override
-		public boolean isTiled()
-		{
-			return false;
-		}
-
-		@Override
-		public int sentNudgeResId()
-		{
-			return R.drawable.ic_nudge_sent_custom_rain2;
-		}
-
-		@Override
-		public boolean isAnimated()
-		{
-			return false;
-		}
-
-		@Override
-		public int receivedNudgeResId()
-		{
-			return R.drawable.ic_nudge_receive_custom;
-		}
-
-		@Override
-		public int inLineUpdateBGResId()
-		{
-			return R.drawable.bg_status_chat_thread_custom_theme_2x;
-		}
-
-		@Override
-		public int systemMessageLayoutId()
-		{
-			return R.layout.participant_info_custom_2x;
-		}
-		
-		@Override
-		public int bubbleColor()
-		{
-			return R.color.bubble_beach_2;
-		}
-
-		@Override
-		public int smsToggleBgRes()
-		{
-			return R.drawable.bg_sms_toggle_custom_theme_2x;
-		}
-
-		@Override
-		public int multiSelectBubbleColor()
-		{
-			return R.color.action_bar_item_pressed;
-		}
-
-		@Override
-		public int offlineMsgTextColor()
-		{
-			return R.color.white;
-		}
-
-	},
+	
 	FRIENDS_FOREVER
 	{
 
@@ -4897,6 +4804,100 @@ public enum ChatTheme
 		public int multiSelectBubbleColor()
 		{
 			return R.color.light_black_transparent;
+		}
+
+		@Override
+		public int offlineMsgTextColor()
+		{
+			return R.color.white;
+		}
+
+	},
+	ANGRY
+	{
+
+		@Override
+		public String bgId()
+		{
+			return "219";
+		}
+
+		@Override
+		public int headerBgResId()
+		{
+			return R.drawable.bg_header_transparent;
+		}
+
+		@Override
+		public int previewResId()
+		{
+			return R.drawable.ic_ct_angry_preview;
+		}
+
+		@Override
+		public int bgResId()
+		{
+			return R.drawable.bg_ct_angry;
+		}
+
+		@Override
+		public int bubbleResId()
+		{
+			return R.drawable.ic_bubble_night;
+		}
+
+		@Override
+		public boolean isTiled()
+		{
+			return false;
+		}
+
+		@Override
+		public int sentNudgeResId()
+		{
+			return R.drawable.ic_nudge_sent_custom_night;
+		}
+
+		@Override
+		public boolean isAnimated()
+		{
+			return false;
+		}
+
+		@Override
+		public int receivedNudgeResId()
+		{
+			return R.drawable.ic_nudge_receive_custom;
+		}
+
+		@Override
+		public int inLineUpdateBGResId()
+		{
+			return R.drawable.bg_status_chat_thread_custom_theme_dark;
+		}
+
+		@Override
+		public int systemMessageLayoutId()
+		{
+			return R.layout.participant_info_custom_dark;
+		}
+		
+		@Override
+		public int bubbleColor()
+		{
+			return R.color.bubble_night;
+		}
+
+		@Override
+		public int smsToggleBgRes()
+		{
+			return R.drawable.bg_sms_toggle_custom_theme;
+		}
+
+		@Override
+		public int multiSelectBubbleColor()
+		{
+			return R.color.light_blue_transparent;
 		}
 
 		@Override
