@@ -44,7 +44,7 @@ public class HikeBitmapFactory
 	private static final String TAG = "HikeBitmapFactory";
 
 	public static final int DEFAULT_BITMAP_COMPRESSION = 75;
-
+	
 	public static Bitmap getCircularBitmap(Bitmap bitmap)
 	{
 		if (bitmap == null)
@@ -72,6 +72,7 @@ public class HikeBitmapFactory
 		canvas.drawBitmap(bitmap, rect, rect, paint);
 		return output;
 	}
+
 
 	public static Bitmap getBitMapFromTV(View textView)
 	{
@@ -202,9 +203,8 @@ public class HikeBitmapFactory
 			@Override
 			public void run()
 			{
-				Bitmap bmp = HikeBitmapFactory.decodeSampledBitmapFromFile(srcFilePath, HikeConstants.HikePhotos.MAX_IMAGE_DIMEN, HikeConstants.HikePhotos.MAX_IMAGE_DIMEN,
-						Config.ARGB_8888);
-				if (bmp == null)
+				Bitmap bmp = HikeBitmapFactory.decodeSampledBitmapFromFile(srcFilePath, HikeConstants.HikePhotos.MAX_IMAGE_DIMEN, HikeConstants.HikePhotos.MAX_IMAGE_DIMEN, Config.ARGB_8888);
+				if(bmp==null)
 				{
 					mListener.onFailure();
 					return;

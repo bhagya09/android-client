@@ -337,7 +337,7 @@ public class AnalyticsConstants
 
 		public static final String STEALTH_RESULT = "stlthRslt";
 
-		public static final String STEALTH_PASSWORD_CORRECT = "pwdWrng";
+		public static final String STEALTH_PASSWORD_CORRECT = "pwdCrct";
 
 		public static final String STEALTH_PASSWORD_CHANGE = "pwdChng";
 
