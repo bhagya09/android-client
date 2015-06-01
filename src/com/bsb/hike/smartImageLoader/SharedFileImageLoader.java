@@ -25,9 +25,12 @@ public class SharedFileImageLoader extends ImageWorker
 	@Override
 	protected Bitmap processBitmap(String data)
 	{
-		BitmapDrawable bd = this.getImageCache().get(data);
-		if (bd != null)
-			return bd.getBitmap();
+		if(isImageToBeCached)
+		{
+			BitmapDrawable bd = this.getImageCache().get(data);
+			if (bd != null)
+				return bd.getBitmap();
+		}
 		
 		String[] dataArray = data.split("::");
 		String filePath = dataArray[0];
