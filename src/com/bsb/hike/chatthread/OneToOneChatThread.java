@@ -13,6 +13,7 @@ import org.json.JSONArray;
 import android.app.Dialog;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.media.AudioManager;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import android.text.Editable;
@@ -1388,7 +1389,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 
 				if (isActivityVisible && SoundUtils.isTickSoundEnabled(activity.getApplicationContext()))
 				{
-					SoundUtils.playSoundFromRaw(activity.getApplicationContext(), R.raw.received_message);
+					SoundUtils.playSoundFromRaw(activity.getApplicationContext(), R.raw.received_message, AudioManager.STREAM_RING);
 				}
 			}
 
@@ -2073,7 +2074,10 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			break;
 
 		case R.id.add_unknown_contact:
-			Utils.addToContacts(activity, msisdn);
+			if ( null != v.getTag() && v.getTag().equals(R.string.add))
+			{
+				Utils.addToContacts(activity, msisdn);
+			}
 			break;
 			
 		case R.id.info_layout:
@@ -2569,11 +2573,10 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	 *  Show call icon in chat thread only if:
 	 *  1. When voip is activated for self.
 	 *  2. Partner is on hike.
-	 *  3. Partner not a bot.
 	 */
 	private boolean shouldShowCallIcon()
 	{
-		return Utils.isVoipActivated(activity.getApplicationContext()) && mConversation.isOnHike() && !HikeMessengerApp.hikeBotNamesMap.containsKey(msisdn);
+		return Utils.isVoipActivated(activity.getApplicationContext()) && mConversation.isOnHike();
 	}
 	
 	/*
