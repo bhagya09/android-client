@@ -1161,6 +1161,62 @@ public class HikeConstants
 
 		public static final int DISMISS_CONST= 5;
 
+		public static final String SELECT_ALL_BUTTON= "selectAllButton";
+		
+		//required for analytics 
+		
+		public static final String INFOICON_WITHOUT_CLICK = "iWoC";
+		
+		public static final String STICKER_HEAD_DISMISS = "stkrHdDs";
+		
+		public static final String STICKER_SHARE = "stkrShr";
+		
+		public static final String STICKER_SHOP = "stkrShp";
+		
+		public static final String INFOICON_CLICK = "iClk";
+		
+		public static final String STICKER_HEAD = "stkrHd";
+		
+		public static final String SETTING = "stg";
+		
+		public static final String HIKE_STICKER_SETTING = "hkStkrStg";
+		
+		public static final String TEXT_CLICK_SETTING = "txtStg";
+		
+		public static final String DISABLE_SETTING = "dsbl";
+		
+		public static final String MORE_STICKERS = "mrStkr";
+		
+		public static final String OPEN_HIKE = "openHk";
+		
+		public static final String ONE_HOUR = "oneHr";
+		
+		public static final String EIGHT_HOURS = "eghtHr";
+		
+		public static final String ONE_DAY = "oneDay";
+		
+		public static final String BACK = "bck";
+		
+		public static final String STICKER_WDGT = "stkrWgt";
+		
+		public static final String DISMISS_LIMIT = "dsLmt";
+
+		public static final String SHARE_LIMIT = "shrLmt";
+		
+		public static final String CAT_ID = "catId";
+
+		public static final String STKR_ID = "stkrId";
+		
+		public static final String SOURCE = "s";
+		
+		public static final String SELECT_ALL = "sAClk";
+		
+		public static final String APP_CLICK = "aClk";
+
+		public static final String APP_CHECKED = "t";
+
+		public static final String APP_UNCHECKED = "f";
+
 	}
 
 	

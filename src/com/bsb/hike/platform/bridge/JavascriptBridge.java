@@ -534,6 +534,11 @@ public abstract class JavascriptBridge
 			{
 				IntentFactory.createBroadcastDefault(context);
 			}
+			if(activityName.equals(HIKESCREEN.BROADCAST.toString()))
+			{
+				IntentFactory.createBroadcastDefault(context);
+			}
+//"ashish"			if(activityName.equals()) 
 		}
 		catch (JSONException e)
 		{

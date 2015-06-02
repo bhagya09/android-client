@@ -336,9 +336,12 @@
         </activity>
         <activity
             android:name=".chatHead.ChatHeadActivity"
-            android:allowEmbedded="true"
             android:configChanges="orientation|screenSize"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar" >
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:noHistory="true"
+            android:excludeFromRecents="true"
+            android:taskAffinity="com.bsb.hike.chatHead"
+            android:launchMode="singleInstance">
 		</activity>
 		<activity
             android:name=".chatHead.StickerShareSettings"

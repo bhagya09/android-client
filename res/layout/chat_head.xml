@@ -10,7 +10,6 @@
         android:layout_height="240dp"
         android:layout_alignParentBottom="true"
         android:layout_margin="8dp"
-        android:background="@drawable/sticker_background_chat_head"
         android:orientation="vertical" >
     </LinearLayout>
 

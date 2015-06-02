@@ -37,6 +37,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Pair;
 
+import com.bsb.hike.chatHead.ChatHeadServiceManager;
 import com.bsb.hike.db.DbConversationListener;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.db.HikeMqttPersistence;
@@ -883,6 +884,8 @@ public void onTrimMemory(int level)
 		{
 			fetchPlatformIDIfNotPresent();
 		}
+		
+		ChatHeadServiceManager.serviceDecision();
 	}
 
 	/**

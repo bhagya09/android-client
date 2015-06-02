@@ -1,7 +1,6 @@
 package com.bsb.hike.utils;
 
 import java.io.BufferedReader;
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -22,6 +21,7 @@ import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.contactmgr.ContactUtils;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUIDFetch;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -198,6 +198,12 @@ public class AccountUtils
 	public static String GROUP_DP_UPDATE_URL_PREFIX = "/group/";
 	
 	public static String GROUP_DP_UPDATE_URL_SUFFIX = "/avatar";
+	
+	public static final String STICKER_SHARE_PRODUCTION_BASE = "hike.in/stickershare/";
+
+	public static final String STICKER_SHARE_STAGING_PATH = "/stickershare/";
+	
+	public static String stickerShareUrl = STICKER_SHARE_PRODUCTION_BASE ;
 	
 	public static void setToken(String token)
 	{

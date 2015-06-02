@@ -304,6 +304,32 @@ public class IntentFactory
 
 		return intent;
 	}
+	
+	public static Intent getStickerShareIntent(Context context)
+	{
+		SharedPreferences prefs = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
+		Intent intent = new Intent(context.getApplicationContext(), WebViewActivity.class);
+		String stickerShare_url = AccountUtils.stickerShareUrl;
+
+		if (!TextUtils.isEmpty(stickerShare_url))
+		{
+			if (Utils.switchSSLOn(context))
+			{
+				intent.putExtra(HikeConstants.Extras.URL_TO_LOAD,
+						AccountUtils.HTTPS_STRING + stickerShare_url + HikeConstants.ANDROID + "/" + prefs.getString(HikeMessengerApp.REWARDS_TOKEN, ""));
+			}
+			else
+			{
+				intent.putExtra(HikeConstants.Extras.URL_TO_LOAD,
+						AccountUtils.HTTP_STRING + stickerShare_url + HikeConstants.ANDROID + "/" + prefs.getString(HikeMessengerApp.REWARDS_TOKEN, ""));
+			}
+		}
+
+		intent.putExtra(HikeConstants.Extras.TITLE, context.getString(R.string.more_stickers));
+		
+		return intent;
+	}
+	
 
 	public static Intent createNewBroadcastActivityIntent(Context appContext)
 	{
@@ -630,6 +656,16 @@ public class IntentFactory
 		{
 			in.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		}
+		context.startActivity(in);
+	}
+	
+	public static void openHomeActivityInOtherTask(Context context, boolean flag)
+	{
+		Intent in = new Intent(context, HomeActivity.class);
+		if (flag)
+		{
+			in.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+		}		
 		context.startActivity(in);
 	}
 

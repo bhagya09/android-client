@@ -1,81 +1,52 @@
 package com.bsb.hike.chatHead;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.sql.Date;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import android.animation.Animator.AnimatorListener;
 import android.animation.Animator;
 import android.animation.AnimatorSet;
 import android.animation.ValueAnimator;
 import android.app.ActivityManager;
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.os.IBinder;
-import android.text.format.DateFormat;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.View.OnTouchListener;
 import android.widget.ImageView;
-
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.ShareUtils;
+import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.chatHead.ChatHeadActivity;
 
 public class ChatHeadService extends Service
 {
-  
-	private class CheckForegroundActivity extends TimerTask
+	List<String> list = new ArrayList<String>();
+
+	Hashtable<String, String> hashtable = new Hashtable<>();
+
+	private void createListfromJson()
 	{
-		String getActivePackage()
+		try
 		{
-			ActivityManager mActivityManager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
-			List<ActivityManager.RunningAppProcessInfo> processInfos = mActivityManager.getRunningAppProcesses();
-			for (ActivityManager.RunningAppProcessInfo processInfo : processInfos)
+			JSONArray jsonObj = new JSONArray(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.PACKAGE_LIST, null));
+			if (jsonObj != null)
 			{
-				if (processInfo.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND && processInfo.importanceReasonCode == 0)
-				{
-					return processInfos.get(0).processName;
-				}
-			}
-			return null;
-		}
-
-		@Override
-		public void run()
-		{
-			try
-			{
-				List<String> list = new ArrayList<String>();
-
-				JSONArray jsonObj = new JSONArray(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.PACKAGE_LIST, HikeConstants.Extras.WHATSAPP_PACKAGE));
-
 				for (int i = 0; i < jsonObj.length(); i++)
 				{
 					JSONObject obj = jsonObj.getJSONObject(i);
@@ -83,56 +54,89 @@ public class ChatHeadService extends Service
 						if (obj.getBoolean(HikeConstants.ChatHead.APP_ENABLE))
 						{
 							list.add(obj.getString(HikeConstants.ChatHead.PACKAGE_NAME));
+							hashtable.put(obj.getString(HikeConstants.ChatHead.PACKAGE_NAME), obj.getString(HikeConstants.ChatHead.APP_NAME));
 						}
 					}
 
 				}
-				String foregroundPackage = getActivePackage();
+			}
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
 
-				if (!chatHead.isShown())
+		}
+	}
+
+	private class CheckForegroundActivity extends TimerTask
+	{
+		boolean getActivePackage(String packageName)
+		{
+			ActivityManager mActivityManager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
+			List<ActivityManager.RunningAppProcessInfo> processInfos = mActivityManager.getRunningAppProcesses();
+			for (ActivityManager.RunningAppProcessInfo processInfo : processInfos)
+			{
+				if (processInfo.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND && processInfo.importanceReasonCode == 0)
 				{
-					Logger.d("ashish", list.toString());
-					if (list.contains(foregroundPackage) && toShow)
+					if (processInfo.processName.equals(packageName))
 					{
-						foregroundApp = foregroundPackage;
-						chatHead.post(new Runnable()
-						{
-							@Override
-							public void run()
-							{
-								chatHead.setVisibility(View.VISIBLE);
-							}
-						});
-
-					}
-					if (!foregroundPackage.equals(foregroundApp))
-					{
-						Logger.d("ashish", "foreground package");
-
-						toShow = true;
+						foregroundApp = packageName;
+						return true;
 					}
 				}
-				else
+			}
+
+			return false;
+		}
+
+		@Override
+		public void run()
+		{
+			boolean whiteListAppForegrounded = false;
+			for (String packName : list)
+			{
+				whiteListAppForegrounded = getActivePackage(packName);
+				if ((whiteListAppForegrounded && packName != foregroundApp) || (!whiteListAppForegrounded && packName == foregroundApp))
 				{
-					if (!list.contains(foregroundPackage) && !flagActivityRunning)
-					{
-						chatHead.post(new Runnable()
-						{
-							@Override
-							public void run()
-							{
-								chatHead.setVisibility(View.INVISIBLE);
-							}
-						});
-					}
+					toShow = true;
+				}
+
+				if (whiteListAppForegrounded && toShow)
+				{
+					foregroundAppName = hashtable.get(packName);
+					break;
 				}
 
 			}
-			catch (JSONException e)
-			{
-				e.printStackTrace();
 
-				Logger.d("ashish", "exception");
+			if (!chatHead.isShown())
+			{
+				if (whiteListAppForegrounded && toShow)
+				{
+					chatHead.post(new Runnable()
+					{
+						@Override
+						public void run()
+						{
+							chatHead.setVisibility(View.VISIBLE);
+						}
+					});
+
+				}
+			}
+			else
+			{
+				if (!whiteListAppForegrounded && !flagActivityRunning)
+				{
+					chatHead.post(new Runnable()
+					{
+						@Override
+						public void run()
+						{
+							chatHead.setVisibility(View.INVISIBLE);
+						}
+					});
+				}
 			}
 
 		}
@@ -140,6 +144,8 @@ public class ChatHeadService extends Service
 	}
 
 	String foregroundApp = HikeConstants.Extras.WHATSAPP_PACKAGE;
+
+	static String foregroundAppName = HikeConstants.Extras.WHATSAPP_PACKAGE;
 
 	WindowManager windowManager;
 
@@ -211,16 +217,18 @@ public class ChatHeadService extends Service
 			public void onAnimationEnd(Animator animation)
 			{
 				if (flag == HikeConstants.ChatHead.CREATING_CHAT_HEAD_ACTIVITY_ANIMATION)
-				{   
-					flagActivityRunning = true;
+				{
 					Intent intent = new Intent(getApplicationContext(), ChatHeadActivity.class);
-					intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+					intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 					startActivity(intent);
-					ChatHeadActivity.flagActivity = true;
 				}
 				else if (flag == HikeConstants.ChatHead.FINISHING_CHAT_HEAD_ACTIVITY_ANIMATION)
 				{
-					ChatHeadActivity.getInstance().finish();
+					if (flagActivityRunning)
+					{
+						flagActivityRunning = false;
+						ChatHeadActivity.getInstance().finish();
+					}
 					ChatHeadActivity.getInstance().overridePendingTransition(0, 0);
 				}
 				else if (flag == HikeConstants.ChatHead.SHARING_BEFORE_FINISHING_ANIMATION)
@@ -230,7 +238,11 @@ public class ChatHeadService extends Service
 					{
 						startActivity(intent);
 					}
-					ChatHeadActivity.getInstance().finish();
+					if (flagActivityRunning)
+					{
+						flagActivityRunning = false;
+						ChatHeadActivity.getInstance().finish();
+					}
 					ChatHeadActivity.getInstance().overridePendingTransition(0, 0);
 				}
 			}
@@ -283,23 +295,24 @@ public class ChatHeadService extends Service
 				+ closeHead.getWidth() + HikeConstants.ChatHead.RECT_CONST, closeHeadLocations[1] + closeHead.getHeight() + HikeConstants.ChatHead.RECT_CONST);
 		if (Rect.intersects(rectChatHead, rectCloseHead))
 		{
+			HAManager.getInstance().chatHeadshareAnalytics(HikeConstants.ChatHead.STICKER_HEAD_DISMISS, ChatHeadService.foregroundAppName);
 			dismissed++;
 			if (dismissed <= HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.DISMISS_COUNT, HikeConstants.ChatHead.DISMISS_CONST))
-			{if (chatHead.isShown())
 			{
-				ChatHeadService.toShow = false;
-				setChatHeadParams();
-				windowManager.updateViewLayout(chatHead, chatHeadParams);
-				chatHead.setVisibility(View.INVISIBLE);
-			}
-			if (closeHead.isShown())
-			{
-				windowManager.removeView(closeHead);
-			}
+				if (chatHead.isShown())
+				{
+					ChatHeadService.toShow = false;
+					setChatHeadParams();
+					windowManager.updateViewLayout(chatHead, chatHeadParams);
+					chatHead.setVisibility(View.INVISIBLE);
+				}
+				if (closeHead.isShown())
+				{
+					windowManager.removeView(closeHead);
+				}
 			}
 			else
 			{
-				flagActivityRunning = true;
 				openingChatHeadActivity();
 			}
 		}
@@ -307,6 +320,7 @@ public class ChatHeadService extends Service
 		{
 			if (drag < HikeConstants.ChatHead.DRAG_CONST)
 			{
+				HAManager.getInstance().chatHeadshareAnalytics(HikeConstants.ChatHead.STICKER_HEAD, ChatHeadService.foregroundAppName);
 				if (!flagActivityRunning)
 				{
 					openingChatHeadActivity();
@@ -347,16 +361,8 @@ public class ChatHeadService extends Service
 		int resourceId = getResources().getIdentifier(HikeConstants.ChatHead.STATUS_BAR_HEIGHT, HikeConstants.ChatHead.STATUS_BAR_TYPE, HikeConstants.ChatHead.STATUS_BAR_PACKAGE);
 		int status_bar_height = (int) resources.getDimension(resourceId);
 		int pixelsX;
-		if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT)
-		{
-			// 8 dp margin + 38 dp left part of image to point - width of icon/2
-			pixelsX = (int) ((46 * scale)-(chatHead.getWidth()/2));
-		}
-		else
-		{
-			pixelsX = (int) ((46 * scale)-(chatHead.getWidth()/2)) + status_bar_height;
-		}
-
+		// 8 dp margin + 38 dp left part of image to point - width of icon/2
+		pixelsX = (int) ((46 * scale) - (chatHead.getWidth() / 2));
 		// 240 dp image height + 8dp image margin bottom + size of icon
 		int pixelsY = (int) (displaymetrics.heightPixels - (scale * 248) - chatHead.getHeight() - status_bar_height);
 		savedPosX = chatHeadParams.x;
@@ -429,7 +435,6 @@ public class ChatHeadService extends Service
 			else
 			{
 				overlayAnimation(chatHead, chatHeadParams.x, 0, chatHeadParams.y, savedPosY, flag);
-
 			}
 
 		}
@@ -449,7 +454,6 @@ public class ChatHeadService extends Service
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId)
 	{
-		Logger.d("ashish", "on start command");
 		return Service.START_STICKY;
 	}
 
@@ -457,8 +461,6 @@ public class ChatHeadService extends Service
 	public void onCreate()
 	{
 		super.onCreate();
-
-		Logger.d("ashish", "create");
 
 		instance = this;
 
@@ -471,6 +473,8 @@ public class ChatHeadService extends Service
 		setChatHeadParams();
 
 		setCloseHeadParams();
+
+		createListfromJson();
 
 		processCheckTimer = new Timer();
 
@@ -556,7 +560,6 @@ public class ChatHeadService extends Service
 	@Override
 	public void onDestroy()
 	{
-		Logger.d("ashish", "destroyser");
 		super.onDestroy();
 
 		if (chatHead.isShown())
@@ -569,7 +572,6 @@ public class ChatHeadService extends Service
 		}
 		processCheckTimer.cancel();
 		processCheckTimer.purge();
-		
 
 	}
 

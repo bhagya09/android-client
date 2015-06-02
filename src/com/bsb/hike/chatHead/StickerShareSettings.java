@@ -6,39 +6,30 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.bsb.hike.AppConfig;
+import com.actionbarsherlock.app.ActionBar;
 import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
-import com.bsb.hike.productpopup.ProductPopupsConstants;
-import com.bsb.hike.ui.HikeAuthActivity;
+import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
-import android.app.Activity;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnClickListener;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager.LayoutParams;
+import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class StickerShareSettings extends Activity
+public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 {
 
 	class ListViewItem
@@ -50,30 +41,28 @@ public class StickerShareSettings extends Activity
 		Drawable appIcon;
 
 		String pkgName;
+
+		CheckBox mCheckBox;
 	}
-	
-	boolean selectAll = true;
-	
-	boolean deSelectAll = true;   
-	
+
+	ArrayList<ListViewItem> mListViewItems;
+
+	ArrayAdapter<ListViewItem> listAdapter;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
-		
+
 		setContentView(R.layout.settings_sticker_share);
 
-		final ArrayList<ListViewItem> mListViewItems = new ArrayList<ListViewItem>();
-
-		JSONArray jsonObj;
-		int i;
+		mListViewItems = new ArrayList<ListViewItem>();
 
 		try
 		{
-			jsonObj = new JSONArray(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.PACKAGE_LIST, HikeConstants.Extras.WHATSAPP_PACKAGE));
+			JSONArray jsonObj = new JSONArray(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.PACKAGE_LIST, null));
 
-			for (i = 0; i < jsonObj.length(); i++)
+			for (int i = 0; i < jsonObj.length(); i++)
 			{
 				JSONObject obj = jsonObj.getJSONObject(i);
 
@@ -99,8 +88,8 @@ public class StickerShareSettings extends Activity
 		{
 			e.printStackTrace();
 		}
-       
-		ArrayAdapter<ListViewItem> listAdapter = new ArrayAdapter<ListViewItem>(this, R.layout.settings_sticker_share_item, mListViewItems)
+
+		listAdapter = new ArrayAdapter<ListViewItem>(this, R.layout.settings_sticker_share_item, mListViewItems)
 		{
 			@Override
 			public View getView(int position, View convertView, ViewGroup parent)
@@ -114,60 +103,256 @@ public class StickerShareSettings extends Activity
 				}
 				ImageView imgView = (ImageView) convertView.findViewById(R.id.app_icon);
 				TextView txtView = (TextView) convertView.findViewById(R.id.app_name);
-				CheckBox ckBox = (CheckBox) convertView.findViewById(R.id.checkbox_item);
+				mListViewItems.get(position).mCheckBox = (CheckBox) convertView.findViewById(R.id.checkbox_item);
 				imgView.setBackground(listItem.appIcon);
 				txtView.setText(listItem.appName);
 				if (listItem.appChoice)
 				{
-				ckBox.setChecked(true);
-				deSelectAll = false;
+					mListViewItems.get(position).mCheckBox.setChecked(true);
 				}
 				else
 				{
-				selectAll = false;	
+					mListViewItems.get(position).mCheckBox.setChecked(false);
+
 				}
-				ckBox.setOnClickListener(new View.OnClickListener()
+				convertView.setTag(position);
+				mListViewItems.get(position).mCheckBox.setTag(position);
+				mListViewItems.get(position).mCheckBox.setOnClickListener(new View.OnClickListener()
 				{
-					
+
 					@Override
 					public void onClick(View v)
 					{
+						onItemClickEvent((int) v.getTag());
 					}
 				});
+
+				convertView.setOnClickListener(new View.OnClickListener()
+				{
+					@Override
+					public void onClick(View v)
+					{
+						onItemClickEvent((int) v.getTag());
+					}
+				});
+
 				return convertView;
 			}
 
 		};
-        if(selectAll)
-        {
-        	TextView txtView = (TextView)findViewById(R.id.main_text_select_all);
-            txtView.setText(getString(R.string.deselect_all));
 
-        	TextView tv = (TextView)findViewById(R.id.side_text_select_all);
-            tv.setText(getString(R.string.sticker_widget_hide));
-        }
-        else
-        {
-         	TextView txtView = (TextView)findViewById(R.id.main_text_select_all);
-            txtView.setText(getString(R.string.select_all));
-        
-            TextView tv = (TextView)findViewById(R.id.side_text_select_all);
-            tv.setText(getString(R.string.sticker_widget_show));
-        
-        }
+		LinearLayout layout = (LinearLayout) findViewById(R.id.main_select_layout);
+		layout.setOnClickListener(new View.OnClickListener()
+		{
 
-        CheckBox checkBox = (CheckBox)findViewById(R.id.select_all_checkbox);
-        checkBox.setChecked(false);
-		ListView listView = (ListView)findViewById(R.id.list_items);
+			@Override
+			public void onClick(View v)
+			{ 
+				HAManager.getInstance().chatHeadshareAnalytics(HikeConstants.ChatHead.SELECT_ALL);
+				onSelectAllCheckboxClick();
+			}
+		});
+		CheckBox checkBox = (CheckBox) findViewById(R.id.select_all_checkbox);
+		checkBox.setOnClickListener(new View.OnClickListener()
+		{
+
+			@Override
+			public void onClick(View v)
+			{
+				HAManager.getInstance().chatHeadshareAnalytics(HikeConstants.ChatHead.SELECT_ALL);
+				onSelectAllCheckboxClick();
+			}
+		});
+		settingSelectAllText();
+		ListView listView = (ListView) findViewById(R.id.list_items);
 		listView.setAdapter(listAdapter);
-		
+	  setupActionBar();
 	}
 
-/*
-	@Override
-	public void onClick(DialogInterface dialog, int which)
+	private void onSelectAllCheckboxClick()
 	{
-		Logger.d("ashish",""+which);
+		boolean allChecked = checkAllChecked();
+		if (allChecked)
+		{
+			for (int j = 0; j < mListViewItems.size(); j++)
+			{
+				mListViewItems.get(j).appChoice = false;
+			}
+		HAManager.getInstance().chatHeadshareAnalytics(HikeConstants.ChatHead.SELECT_ALL, HikeConstants.ChatHead.APP_UNCHECKED);
+			
+		}
+		else
+		{
+			for (int j = 0; j < mListViewItems.size(); j++)
+			{
+				mListViewItems.get(j).appChoice = true;
+			}
+			ChatHeadService.toShow = true;
+			HAManager.getInstance().chatHeadshareAnalytics(HikeConstants.ChatHead.SELECT_ALL, HikeConstants.ChatHead.APP_CHECKED);
+		}
+
+		settingSelectAllText();
+	
 	}
-*/
+
+	private void settingSelectAllText()
+	{
+		boolean allChecked, allUnchecked;
+
+		allChecked = checkAllChecked();
+		allUnchecked = checkAllUnchecked();
+		if (allChecked)
+		{
+			TextView txtView = (TextView) findViewById(R.id.main_text_select_all);
+			txtView.setText(getString(R.string.settings_deselect_all));
+			TextView tv = (TextView) findViewById(R.id.side_text_select_all);
+			tv.setText(getString(R.string.sticker_widget_hide));
+			CheckBox selectAllCheckbox = (CheckBox) findViewById(R.id.select_all_checkbox);
+			selectAllCheckbox.setChecked(true);
+		}
+		else
+		{
+			TextView txtView = (TextView) findViewById(R.id.main_text_select_all);
+			txtView.setText(getString(R.string.settings_select_all));
+
+			TextView tv = (TextView) findViewById(R.id.side_text_select_all);
+			tv.setText(getString(R.string.sticker_widget_show));
+
+			CheckBox selectAllCheckbox = (CheckBox) findViewById(R.id.select_all_checkbox);
+			selectAllCheckbox.setChecked(false);
+
+		}
+		if (allUnchecked)
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL, false);
+		}
+		else
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL, true);
+		}
+		for (int i = 0; i < mListViewItems.size(); i++)
+		{
+			Logger.d("ashish", mListViewItems.get(i).pkgName + mListViewItems.get(i).appChoice + i);
+		}
+
+		listAdapter.notifyDataSetChanged();
+
+	}
+
+	boolean checkAllUnchecked()
+	{
+		for (int j = 0; j < mListViewItems.size(); j++)
+		{
+			boolean pkgEnbl = false;
+			pkgEnbl = (boolean) mListViewItems.get(j).appChoice;
+
+			if (pkgEnbl)
+			{
+				return false;
+			}
+		}
+		return true;
+	}
+
+	boolean checkAllChecked()
+	{
+		for (int j = 0; j < mListViewItems.size(); j++)
+		{
+			boolean pkgEnbl = true;
+
+			pkgEnbl = (boolean) mListViewItems.get(j).appChoice;
+
+			if (!pkgEnbl)
+			{
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private void onItemClickEvent(int tag)
+	{
+
+		if (mListViewItems.get(tag).appChoice)
+		{
+			mListViewItems.get(tag).appChoice = false;
+			mListViewItems.get(tag).mCheckBox.setChecked(false);
+			HAManager.getInstance().chatHeadshareAnalytics(HikeConstants.ChatHead.APP_CLICK, mListViewItems.get(tag).appName, HikeConstants.ChatHead.APP_UNCHECKED);
+			
+		}
+		else
+		{
+
+			mListViewItems.get(tag).appChoice = true;
+			mListViewItems.get(tag).mCheckBox.setChecked(true);
+			ChatHeadService.toShow = true;
+			HAManager.getInstance().chatHeadshareAnalytics(HikeConstants.ChatHead.APP_CLICK, mListViewItems.get(tag).appName, HikeConstants.ChatHead.APP_CHECKED);
+		}
+
+		settingSelectAllText();
+
+	}
+
+	@Override
+	protected void onDestroy()
+	{
+		savingFinalData();
+		ChatHeadServiceManager.serviceDecision();
+		super.onDestroy();
+	}
+
+	private void setupActionBar()
+	{
+		ActionBar actionBar = getSupportActionBar();
+		
+		actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
+
+		View actionBarView = LayoutInflater.from(this).inflate(R.layout.compose_action_bar, null);
+
+		View backContainer = actionBarView.findViewById(R.id.back);
+		
+		TextView title = (TextView) actionBarView.findViewById(R.id.title);
+		title.setText(R.string.settings_share_stickers);
+		backContainer.setOnClickListener(new OnClickListener()
+		{
+
+			@Override
+			public void onClick(View v)
+			{
+				onBackPressed();
+			}
+		});
+
+		actionBar.setCustomView(actionBarView);
+	}
+
+	
+	private void savingFinalData()
+	{
+		JSONArray jsonObj;
+		try
+		{
+			jsonObj = new JSONArray(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.PACKAGE_LIST, null));
+            int j=0;
+			for (int i = 0; i < jsonObj.length(); i++)
+			{
+				JSONObject obj = jsonObj.getJSONObject(i);
+
+				if (obj.getString(HikeConstants.ChatHead.PACKAGE_NAME).equals(mListViewItems.get(j).pkgName))
+				{  
+					obj.put(HikeConstants.ChatHead.APP_ENABLE, mListViewItems.get(j).appChoice);
+					j++;
+				}
+			}
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.PACKAGE_LIST, jsonObj.toString());
+		Logger.d("ashish", jsonObj.toString());
+		}
+		catch (JSONException e1)
+		{
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
+	}
+
 }

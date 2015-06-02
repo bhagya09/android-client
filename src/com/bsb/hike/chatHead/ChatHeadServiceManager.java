@@ -22,7 +22,7 @@ public class ChatHeadServiceManager extends BroadcastReceiver
 	{
 		
 		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, true)
-				&& HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL, true))
+				&& HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL, false) && HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.PACKAGE_LIST, null) != null)
 		{
 			if (intent.hasExtra(HikeConstants.ChatHead.INTENT_EXTRA))
 			{
@@ -31,7 +31,6 @@ public class ChatHeadServiceManager extends BroadcastReceiver
 			}
 			else if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF))
 			{
-				Logger.d("ashish","screenoff");
 				stopService();
 			}
 			else if (intent.getAction().equals(Intent.ACTION_SCREEN_ON))
@@ -50,7 +49,7 @@ public class ChatHeadServiceManager extends BroadcastReceiver
 	public static void startService()
 	{
 		if (!Utils.isMyServiceRunning(ChatHeadService.class, mContext) && HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, true)
-				&& HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL, true) && !snooze)
+				&& HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL, true) && !snooze && HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.PACKAGE_LIST, null) != null)
 		{
 			mContext.startService(new Intent(mContext, ChatHeadService.class));
 		}
@@ -67,8 +66,9 @@ public class ChatHeadServiceManager extends BroadcastReceiver
 	public static void serviceDecision()
 	{
 		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, true)
-				&& HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL, true))
+				&& HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL, true) && HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.PACKAGE_LIST, null) != null )
 		{
+			stopService();
 			startService();
 		}
 		else
