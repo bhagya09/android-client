@@ -14,6 +14,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.service.MqttMessagesManager;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -145,6 +146,52 @@ public class BotUtils
 	public static void postAccountRestoreSetup()
 	{
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.UPGRADE_FOR_DEFAULT_BOT_ENTRY, false);
-		HikeConversationsDatabase.getInstance().getBotHashmap();
+		initBots();
+	}
+	
+	/**
+	 * This method is to be called in the following cases : 1. Normal upgrade of app ( We need to perform migration)<br>
+	 * 2. If we do an unlink relink on the current version (Assuming that migration was already done once), there are 2 cases : <br>
+	 * a) Either we restore backup<br>
+	 * b) We do not restore backup<br>
+	 * 
+	 * In 2 (a) : We set the preference flags to false and populate the map for bots from db.<br>
+	 * 
+	 * In 2 (b) : We call initBots without modifying the prefs. This is same as performing step 1. <br>
+	 * 
+	 * 3. Under normal circumstances, it will also be called from HikeMessengerApp's onCreate<br>
+	 * 
+	 */
+	public static void initBots()
+	{
+		HikeHandlerUtil mThread = HikeHandlerUtil.getInstance();
+		mThread.startHandlerThread();
+		mThread.postRunnableWithDelay(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				if (HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.UPGRADE_FOR_DEFAULT_BOT_ENTRY, true))
+				{
+					BotUtils.addDefaultBotsToDB(HikeMessengerApp.getInstance().getApplicationContext());
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.UPGRADE_FOR_DEFAULT_BOT_ENTRY, false);
+				}
+			}
+		}, 0);
+
+		/**
+		 * If the migration of bots hasn't happened yet. This will happen for the first time
+		 */
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.UPGRADE_FOR_DEFAULT_BOT_ENTRY, true))
+		{
+			HikeMessengerApp.hikeBotInfoMap.putAll(BotUtils.getDefaultHardCodedBotInfoObjects());
+		}
+
+		else
+		{
+			HikeConversationsDatabase.getInstance().getBotHashmap();
+			Logger.d("create bot", "Keys are " + HikeMessengerApp.hikeBotInfoMap.keySet() + "------");
+			Logger.d("create bot", "values are " + HikeMessengerApp.hikeBotInfoMap.values());
+		}
 	}
 }

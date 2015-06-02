@@ -69,6 +69,7 @@ import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.http.HikeHttpRequest;
 import com.bsb.hike.http.HikeHttpRequest.RequestType;
 import com.bsb.hike.models.Birthday;
@@ -644,6 +645,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 			mTask.addUserInput(null);
 			viewFlipper.setDisplayedChild(POST_SIGNUP);
 			prepareLayoutForPostSignup(null);
+			BotUtils.initBots();
 			return;
 		}
 		if (invalidNum != null)
