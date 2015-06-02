@@ -1,6 +1,7 @@
 package com.bsb.hike.models.Conversation;
 
 import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.utils.Logger;
 
 public class OfflineConversation extends OneToOneConversation
 {
@@ -11,7 +12,7 @@ public class OfflineConversation extends OneToOneConversation
 	{
 		super(builder);
 		this.displayMsisdn = builder.displayMsisdn;
-		setConvInfo(builder.getConvInfo(getMsisdn()));
+		Logger.d("OfflineChatThread","In Builder");
 	}
 	
 	public String getDisplayMsisdn()
