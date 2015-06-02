@@ -2808,4 +2808,8 @@ public class HikeConstants
 	public static final String FTUE_HIKEBOT_MSISDN = "+hike1+";
 
 	public static final String PRIVACY_SETTINGS_CATEGORY = "privacySettingsCategory";
-}
+	
+	public static final String KEY = "key";
+	
+	public static final String VALUE = "val"
+;}
