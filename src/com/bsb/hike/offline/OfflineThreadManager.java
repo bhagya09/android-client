@@ -39,6 +39,11 @@ import com.bsb.hike.models.Sticker;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 
+/**
+ * 
+ * @author himanshu
+ *	This class mainly deals with socket connection,text and file are send and received in this class only.
+ */
 public class OfflineThreadManager
 {
 
