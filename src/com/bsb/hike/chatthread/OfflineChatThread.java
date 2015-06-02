@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.net.wifi.ScanResult;
 import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.view.ViewGroup.LayoutParams;
@@ -79,6 +80,11 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 		return mConversation.getConversationName();
 	}
 	
+	@Override
+	protected void fetchConversationFinished(Conversation conversation)
+	{
+		super.fetchConversationFinished(conversation);
+	}
 	protected Conversation fetchConversation()
 	{
 		mConversation = (OfflineConversation)mConversationDb.getConversation(msisdn, HikeConstants.MAX_MESSAGES_TO_LOAD_INITIALLY, false);
@@ -94,7 +100,7 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 		Logger.d(TAG, "Calling setchattheme from createConversation");
 		mConversation.setChatTheme(chatTheme);
 
-		mConversation.setBlocked(ContactManager.getInstance().isBlocked(msisdn));
+		mConversation.setBlocked(ContactManager.getInstance().isBlocked(mConversation.getDisplayMsisdn()));
 
 		return mConversation;
 	}
@@ -305,11 +311,16 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 	}
 	
 	@Override
-	public void imageCaptured(String imagePath)
+	public void imageParsed(String imagePath)
 	{
 		controller.sendImage(imagePath,msisdn);
 	}
 	
+	@Override
+	public void imageParsed(Uri uri)
+	{
+		controller.sendImage(Utils.getRealPathFromUri(uri,activity.getApplicationContext()),msisdn);
+	}
 	@Override
 	public void pickFileSuccess(int requestCode, String filePath)
 	{
