@@ -757,8 +757,7 @@ public class HAManager
 					//3)putting event key (ek) as bot_open
 					metadata.put(AnalyticsConstants.EVENT_KEY, HikePlatformConstants.BOT_OPEN);
 
-					VoIPUtils.ConnectionClass connType = VoIPUtils.getConnectionClass(HikeMessengerApp.getInstance().getApplicationContext());
-					metadata.put(AnalyticsConstants.NETWORK_TYPE, Integer.toString(connType.ordinal()));
+					metadata.put(AnalyticsConstants.NETWORK_TYPE, Integer.toString(Utils.getNetworkType(HikeMessengerApp.getInstance().getApplicationContext())));
 					metadata.put(AnalyticsConstants.APP_VERSION, AccountUtils.getAppVersion());
 
 					HAManager.getInstance().record(AnalyticsConstants.CHAT_ANALYTICS, AnalyticsConstants.NON_UI_EVENT, EventPriority.HIGH, metadata, AnalyticsConstants.EVENT_TAG_BOTS);

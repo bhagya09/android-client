@@ -121,8 +121,7 @@ public class HikeAnalyticsEvent
 		try
 		{
 			Logger.d("HikeAnalyticsEvent", json.toString());
-			VoIPUtils.ConnectionClass connType = VoIPUtils.getConnectionClass(HikeMessengerApp.getInstance().getApplicationContext());
-			json.put(AnalyticsConstants.NETWORK_TYPE, Integer.toString(connType.ordinal()));
+			json.put(AnalyticsConstants.NETWORK_TYPE, Integer.toString(Utils.getNetworkType(HikeMessengerApp.getInstance().getApplicationContext())));
 			json.put(AnalyticsConstants.APP_VERSION, AccountUtils.getAppVersion());
 			HAManager.getInstance().record(type, subType, HAManager.EventPriority.HIGH, json, AnalyticsConstants.EVENT_TAG_PLATFORM);
 		}
