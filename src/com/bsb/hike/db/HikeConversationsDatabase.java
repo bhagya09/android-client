@@ -2172,7 +2172,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 			if(BotUtils.isBot(msisdn))
 			{
-				deleteBotFromCacheAndDb(msisdn);
+				deleteBot(msisdn);
 			}
 			mDb.setTransactionSuccessful();
 		}
@@ -2182,16 +2182,17 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 	}
 
-	/**
-	 * This method deletes the bot from db as well as from cache
-	 * 
-	 * @param msisdn
-	 */
-	public void deleteBotFromCacheAndDb(String msisdn)
-	{
-		mDb.delete(DBConstants.BOT_TABLE, DBConstants.MSISDN + "=?", new String[] { msisdn });
-		removeChatThemeForMsisdn(msisdn);
-		HikeMessengerApp.hikeBotInfoMap.remove(msisdn);
+	public void deleteBot(String msisdn){
+		mDb.beginTransaction();
+		try
+		{
+			mDb.delete(DBConstants.BOT_TABLE, DBConstants.MSISDN + "=?", new String[] { msisdn });
+			removeChatThemeForMsisdn(msisdn);
+		}
+		finally
+		{
+			mDb.endTransaction();
+		}
 	}
 
 	public Conversation addConversation(String msisdn, boolean onhike, String groupName, String groupOwner)
