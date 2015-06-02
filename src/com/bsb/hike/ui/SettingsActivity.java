@@ -515,7 +515,7 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 	public String profileImageCropped()
 	{
 		String path = super.profileImageCropped();
-		Utils.compressAndCopyImage(path, path, SettingsActivity.this, Bitmap.Config.ARGB_8888, 80, ImageQuality.QUALITY_MEDIUM, false);
+		Utils.compressAndCopyImage(path, path, SettingsActivity.this, Bitmap.Config.RGB_565, 80, ImageQuality.QUALITY_MEDIUM, false);
 		uploadProfilePicture(AccountUtils.USER_DP_UPDATE_URL);
 		return path;
 	}

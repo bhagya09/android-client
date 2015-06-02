@@ -1422,7 +1422,7 @@ public class HikeBitmapFactory
 			Pair<Integer, Integer> dimension = getDimensionsAsPerAspectRatio(screenShot);
 			width = dimension.first;
 			height = dimension.second;
-			max = (int) (screenShot.getDeviceScreenArea() * 1.5);
+			max = (int) (width * height * 1.5);
 		}
 		
 		if(screenShot.getAvailableRAM() > (MEMORY_MULTIPLIIER * ( RGB_565_BYTE_SIZE * max)))
@@ -1446,7 +1446,7 @@ public class HikeBitmapFactory
 			Pair<Integer, Integer> dimensions = getDimensionsAsPerAspectRatio(screenShot);
 			width = dimensions.first;
 			height = dimensions.second;
-			min = screenShot.getDeviceScreenArea() * 2;
+			min = width * height * 2;
 		}
 		else
 		{
@@ -1620,8 +1620,8 @@ public class HikeBitmapFactory
 	
 	private static Pair<Integer, Integer> getDimensionsAsPerAspectRatio(MemmoryScreenShot screenShot)
 	{
-		int deviceHeight = 2 * screenShot.getContext().getResources().getDisplayMetrics().heightPixels;
-		int deviceWidth = 2 * screenShot.getContext().getResources().getDisplayMetrics().widthPixels;
+		int deviceHeight = screenShot.getContext().getResources().getDisplayMetrics().heightPixels;
+		int deviceWidth = screenShot.getContext().getResources().getDisplayMetrics().widthPixels;
 		
 		int imgWidth = screenShot.getOptions().outWidth;;
 		int imgHeight = screenShot.getOptions().outHeight;
