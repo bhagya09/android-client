@@ -1480,7 +1480,7 @@ public class Utils
 			// on ICS or higher.
 			if (tempBmp != null)
 			{
-				byte[] fileBytes = BitmapUtils.bitmapToBytes(tempBmp, Bitmap.CompressFormat.JPEG, 75);
+				byte[] fileBytes = BitmapUtils.bitmapToBytes(tempBmp, Bitmap.CompressFormat.JPEG, 80);
 				tempBmp.recycle();
 				src = new ByteArrayInputStream(fileBytes);
 			}
@@ -5944,11 +5944,11 @@ public class Utils
 	}
 
 	/**
-	 * Returns Current available RAM in bytes for HIKE
+	 * Returns Total RAM in bytes for HIKE
 	 * 
 	 * @return
 	 */
-	public static double getCurrentAvailableRAMForHike()
+	public static double getTotalRAMForHike()
 	{
 		long maxAvailableSize = 0L;
 		try

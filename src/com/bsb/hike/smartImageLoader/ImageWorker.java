@@ -133,7 +133,7 @@ public abstract class ImageWorker
 				imageView.setBackgroundDrawable(null);
 			}
 		}
-		if (mImageCache != null && isImageToBeCached)
+		if (mImageCache != null)
 		{
 			value = mImageCache.get(data);
 			// if bitmap is found in cache and is recyclyed, remove this from cache and make thread get new Bitmap

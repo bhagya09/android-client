@@ -107,7 +107,7 @@ public class TimelineImageLoader extends ImageWorker
 		{
 			try
 			{
-				bitmap = HikeBitmapFactory.scaleDownBitmap(orgFile.getPath(), mImageWidth, mImageHeight, Bitmap.Config.ARGB_8888, true, false);
+				bitmap = HikeBitmapFactory.scaleDownBitmap(orgFile.getPath(), mImageWidth, mImageHeight, Bitmap.Config.RGB_565, true, false);
 				Logger.d(TAG, id + " Compressed Bitmap size in KB: " + BitmapUtils.getBitmapSize(bitmap) / 1024);
 			}
 			catch (Exception e1)

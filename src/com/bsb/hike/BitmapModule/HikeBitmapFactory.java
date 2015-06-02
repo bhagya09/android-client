@@ -22,6 +22,8 @@ import android.media.ExifInterface;
 import android.os.Build;
 import android.text.TextUtils;
 import android.util.Base64;
+import android.util.Log;
+import android.util.Pair;
 import android.view.View;
 import android.view.View.MeasureSpec;
 import android.widget.Toast;
@@ -47,14 +49,24 @@ public class HikeBitmapFactory
 		
 	private static final int RGB_565_BYTE_SIZE = 16;
 		
-	private static final int THRESHHOLD_LIMIT = 0;
+	private static final int THRESHHOLD_LIMIT = 0; 
 		
-	private static final int BASE_IMAGE_SIZE = 1240;
+	public enum AlgoState {
 		
-	private static final int INIT_STAGE = 0;
+		INIT_STATE(1), STATE_2(2), STATE_3(3);
 		
-	private static final int STAGE_1 = 1;
-	
+        private int value;
+
+        private AlgoState(int value) {
+                this.value = value;
+        }
+        
+        public int getValue()
+		{
+			return value;
+		}
+	};   
+
 	public static Bitmap getCircularBitmap(Bitmap bitmap)
 	{
 		if (bitmap == null)
@@ -1252,69 +1264,85 @@ public class HikeBitmapFactory
  	 * 
 	 * @param context
 	 * @param filename
-	 * @param  
-	 * @param screenSize
+	 * @param ImageSize
+	 * @param state: 
 	 * @return
 	 */
-	public static Bitmap getImageThumbnailAsPerAlgo(Context context, String filename, int screenSize, int state)
+	public static Bitmap getImageThumbnailAsPerAlgo(Context context, String filename, int imageSize, int state)
 	{
-		MemmoryScreenShot.dumpMemoryScreenShot(context, filename, screenSize);
-		Size bestDimen = getBestDimensions(state);
+		MemmoryScreenShot screenShot = new MemmoryScreenShot(context, filename, imageSize);
+		Log.d("image_config", screenShot.toString());
+		
+		AlgoDimensionResult bestDimen = getBestDimensions(state, screenShot);
 		
 		Bitmap thumbnail = null;
 		thumbnail = HikeBitmapFactory.scaleDownBitmap(filename, bestDimen.getWidth(), bestDimen.getHeight(), Bitmap.Config.RGB_565, true, false);
 		if(thumbnail == null) 
 		{
-			state = state + 1;
-			if(state < 3)
+			Log.d("image_config", "degrading loading image qulity from case "+ bestDimen.getAlgoStateValue() +" to next case");
+			bestDimen.setAlgoState(bestDimen.getAlgoStateValue() + 1);
+			if(bestDimen.getAlgoStateValue() < 4)
 			{
-				showSCToastForImageDegrade(context, "Going to load a low quality Image "+ state);
-				return getImageThumbnailAsPerAlgo(context, filename, screenSize, state);
+				showSCToastForImageDegrade(context, context.getResources().getString(R.string.show_degraded_image_quality));
+				return getImageThumbnailAsPerAlgo(context, filename, imageSize, bestDimen.getAlgoStateValue());
 			}
 			else
 			{
-				showSCToastForImageDegrade(context, "Going to show Thumbanil");
+				Log.d("image_config", "Showing thumbnail for last fallback ");
+				showSCToastForImageDegrade(context, context.getResources().getString(R.string.toast_for_showing_thumbnail));
 				//TODO Show Thumbnail
 			}
 		}
 		return thumbnail;
 	}
 
-	private static Size getBestDimensions(int state)
+	private static AlgoDimensionResult getBestDimensions(int state, MemmoryScreenShot screenShot)
 	{
-		Size imageDimen = null;
+		AlgoDimensionResult imageDimen = null;
 		
-		int currentState = state;
-		
-		if (currentState == INIT_STAGE)
+		if (state == AlgoState.INIT_STATE.value)
 		{
 			//Going for 1st case
-			imageDimen = getDimensionsAsPerCase1();
+			imageDimen = getDimensionsAsPerCase1(screenShot);
 			
 			if(imageDimen != null)
 			{
+				//Best match found, returning
+				Log.d("image_config", "API getBestDimensions, best case "+ state +", size is "+imageDimen.toString());
+				imageDimen.setAlgoState(state);
 				return imageDimen;
 			}
 			
-			currentState ++;
+			state ++;
 		}
 
-		if(currentState == STAGE_1)
+		if(state == AlgoState.STATE_2.value)
 		{
 			//Going for 1st case
-			imageDimen = getDimensionsAsPerCase2();
+			imageDimen = getDimensionsAsPerCase2(screenShot);
 			
 			if(imageDimen != null) 
 			{
+				//Best match found, returning
+				Log.d("image_config", "API getBestDimensions, best case "+ state +", size is "+imageDimen.toString());
+				imageDimen.setAlgoState(state);
 				return imageDimen;
 			}
 			
-			currentState ++;
+			state ++;
 		}
 
 		//Going for 3rd case
-		return MemmoryScreenShot.screenDimen;
-			
+		if(state == AlgoState.STATE_3.value)
+		{
+			Log.d("image_config", "API getBestDimensions, best case "+ state +", size is "+ screenShot.getScreenDimen().toString());
+			imageDimen = screenShot.getScreenDimen();
+			imageDimen.setAlgoState(state);
+			return imageDimen;
+		}
+		
+		Log.d("image_config", "False State...Some problem is there");
+		return null;
 			
 	}
 	
@@ -1325,14 +1353,14 @@ public class HikeBitmapFactory
 	 */
 	private static void showSCToastForImageDegrade(Context context, String textToShow)
 	{
-		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SHOW_TOAST_FOR_DEGRADING_QUALITY, 1) == 1)
+		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SHOW_TOAST_FOR_DEGRADING_QUALITY, true) == true)
 		{
 			Toast.makeText(context, textToShow, Toast.LENGTH_SHORT).show();
 		}
 	}
 
-	// Case1: checking with RGB+ Max 1240/Screen*1.5
-	private static Size getDimensionsAsPerCase2()
+	// Case2: checking with RGB+ Max 1240/Screen*1.5
+	private static AlgoDimensionResult getDimensionsAsPerCase2(MemmoryScreenShot screenShot)
 	{
 		int height;
 		
@@ -1340,37 +1368,37 @@ public class HikeBitmapFactory
 		
 		int max;
 		
-		int inSampleSize = calculateInSampleSize(MemmoryScreenShot.options, MemmoryScreenShot.options.outWidth, MemmoryScreenShot.options.outHeight);
+		int inSampleSize = calculateInSampleSize(screenShot.getOptions(), screenShot.getOptions().outWidth, screenShot.getOptions().outHeight);
 		
-		int maxDimen =  MemmoryScreenShot.options.outWidth< MemmoryScreenShot.options.outHeight ? MemmoryScreenShot.options.outHeight : MemmoryScreenShot.options.outWidth;
+		int maxDimen =  screenShot.getOptions().outWidth< screenShot.getOptions().outHeight ? screenShot.getOptions().outHeight : screenShot.getOptions().outWidth;
 		
 		int h=0, w=0;
 		
-		if((int)(maxDimen/(2^inSampleSize)) > BASE_IMAGE_SIZE + THRESHHOLD_LIMIT)
+		if((int)(maxDimen/(2^inSampleSize)) > HikeConstants.SMO_MAX_DIMENSION_MEDIUM_FULL_SIZE_PX + THRESHHOLD_LIMIT)
 		{
-			float aspectRatio = MemmoryScreenShot.options.outWidth * 1.0f / (MemmoryScreenShot.options.outHeight);
+			float aspectRatio = screenShot.getOptions().outWidth * 1.0f / (screenShot.getOptions().outHeight);
 
-			if (MemmoryScreenShot.options.outWidth >= MemmoryScreenShot.options.outHeight)
+			if (screenShot.getOptions().outWidth >= screenShot.getOptions().outHeight)
 			{
 
-				w = BASE_IMAGE_SIZE;
-				h = (int) (BASE_IMAGE_SIZE / aspectRatio);
+				w = HikeConstants.SMO_MAX_DIMENSION_MEDIUM_FULL_SIZE_PX;
+				h = (int) (HikeConstants.SMO_MAX_DIMENSION_MEDIUM_FULL_SIZE_PX / aspectRatio);
 			}
 			else
 			{
-				h = BASE_IMAGE_SIZE;
-				w = (int) (BASE_IMAGE_SIZE * aspectRatio);
+				h = HikeConstants.SMO_MAX_DIMENSION_MEDIUM_FULL_SIZE_PX;
+				w = (int) (HikeConstants.SMO_MAX_DIMENSION_MEDIUM_FULL_SIZE_PX * aspectRatio);
 			}
 		}
 		else
 		{
-			h = MemmoryScreenShot.options.outHeight/(2^inSampleSize);
-			w = MemmoryScreenShot.options.outWidth/(2^inSampleSize);
+			h = screenShot.getOptions().outHeight/(2^inSampleSize);
+			w = screenShot.getOptions().outWidth/(2^inSampleSize);
 		}
 				
 		int insampledBitmapArea =  h * w;
 				
-		if(insampledBitmapArea > MemmoryScreenShot.deviceScreenArea * 1.5)
+		if(insampledBitmapArea > screenShot.getDeviceScreenArea() * 1.5)
 		{
 			height = h;
 			width = w;
@@ -1378,21 +1406,21 @@ public class HikeBitmapFactory
 		}
 		else
 		{
-			height = (int) (1.5 * MemmoryScreenShot.context.getResources().getDisplayMetrics().heightPixels);
-			width = (int) (1.5 * MemmoryScreenShot.context.getResources().getDisplayMetrics().widthPixels);
-			max = (int) (MemmoryScreenShot.deviceScreenArea * 1.5);
+			Pair<Integer, Integer> dimension = getDimensionsAsPerAspectRatio(screenShot);
+			width = dimension.first;
+			height = dimension.second;
+			max = (int) (screenShot.getDeviceScreenArea() * 1.5);
 		}
 		
-		// Case2: checking with RGB + Insampled/Screen*1.5
-		if(MemmoryScreenShot.availableRAM > (MEMORY_MULTIPLIIER * ( RGB_565_BYTE_SIZE * max)))
+		if(screenShot.getAvailableRAM() > (MEMORY_MULTIPLIIER * ( RGB_565_BYTE_SIZE * max)))
 		{
-			return new Size(width, height);
+			return new AlgoDimensionResult(width, height);
 		}
 		return null;
 	}
 
 	// Case1: checking with RGB+ original/Screen*2
-	private static Size getDimensionsAsPerCase1()
+	private static AlgoDimensionResult getDimensionsAsPerCase1(MemmoryScreenShot screenShot)
 	{
 		int height;
 		
@@ -1400,69 +1428,133 @@ public class HikeBitmapFactory
 		
 		int min;
 		
-		if(MemmoryScreenShot.imageOriginalArea > MemmoryScreenShot.deviceScreenArea * 2)
+		if(screenShot.getImageOriginalArea() > screenShot.getDeviceScreenArea() * 2)
 		{
-			height = 2 * MemmoryScreenShot.context.getResources().getDisplayMetrics().heightPixels;
-			width = 2 * MemmoryScreenShot.context.getResources().getDisplayMetrics().widthPixels;
-			min = MemmoryScreenShot.deviceScreenArea * 2;
+			Pair<Integer, Integer> dimensions = getDimensionsAsPerAspectRatio(screenShot);
+			width = dimensions.first;
+			height = dimensions.second;
+			min = screenShot.getDeviceScreenArea() * 2;
 		}
 		else
 		{
-			height = MemmoryScreenShot.options.outHeight;
-			width = MemmoryScreenShot.options.outWidth;
-			min = MemmoryScreenShot.imageOriginalArea;
+			height = screenShot.getOptions().outHeight;
+			width = screenShot.getOptions().outWidth;
+			min = screenShot.getImageOriginalArea();
 		}
 
-		if(MemmoryScreenShot.availableRAM > (MEMORY_MULTIPLIIER * ( RGB_565_BYTE_SIZE * min)))
+		if(screenShot.getAvailableRAM() > (MEMORY_MULTIPLIIER * ( RGB_565_BYTE_SIZE * min)))
 		{
-			return new Size(height, width);
+			return new AlgoDimensionResult(height, width);
 		}
 		return null;
 	}
 
 	public static class MemmoryScreenShot
 	{
-		static double availableRAM;
+		private double availableRAM;
 		
-		static BitmapFactory.Options options;
+		private BitmapFactory.Options options;
 		
-		static int imageOriginalArea; 
+		private int imageOriginalArea; 
 		
-		static int deviceScreenArea;
+		private int deviceScreenArea;
 		
-		static Context context;
+		private Context context;
 		
-		static Size screenDimen;
+		private AlgoDimensionResult screenDimen;
 
 		public double getAvailableRAM()
 		{
 			return availableRAM;
 		}
 
-		public static void dumpMemoryScreenShot(Context mContext, String filename, int screenSize)
+		public MemmoryScreenShot(Context mContext, String filename, int imageSize)
 		{
 			context = mContext;
-			availableRAM = Utils.getCurrentAvailableRAMForHike();
+			availableRAM = Utils.getTotalRAMForHike();
 			options = getImageOriginalSizeBitmap(filename);
 			imageOriginalArea = options.outHeight * options.outWidth;
 			deviceScreenArea = (Utils.getDeviceScreenArea(context));
-			screenDimen = new Size(screenSize, screenSize);
+			screenDimen = new AlgoDimensionResult(imageSize, imageSize);
 		}
+
+		public BitmapFactory.Options getOptions()
+		{
+			return options;
+		}
+
+		public void setOptions(BitmapFactory.Options options)
+		{
+			this.options = options;
+		}
+
+		public int getImageOriginalArea()
+		{
+			return imageOriginalArea;
+		}
+
+		public void setImageOriginalArea(int imageOriginalArea)
+		{
+			this.imageOriginalArea = imageOriginalArea;
+		}
+
+		public int getDeviceScreenArea()
+		{
+			return deviceScreenArea;
+		}
+
+		public void setDeviceScreenArea(int deviceScreenArea)
+		{
+			this.deviceScreenArea = deviceScreenArea;
+		}
+
+		public Context getContext()
+		{
+			return context;
+		}
+
+		public void setContext(Context context)
+		{
+			this.context = context;
+		}
+
+		public AlgoDimensionResult getScreenDimen()
+		{
+			return screenDimen;
+		}
+
+		public void setScreenDimen(AlgoDimensionResult screenDimen)
+		{
+			this.screenDimen = screenDimen;
+		}
+
+		public void setAvailableRAM(double availableRAM)
+		{
+			this.availableRAM = availableRAM;
+		}
+
+		@Override
+		public String toString()
+		{
+			return "MemmoryScreenShot [availableRAM=" + availableRAM + ", options=" + options + ", imageOriginalArea=" + imageOriginalArea + ", deviceScreenArea="
+					+ deviceScreenArea + ", context=" + context + ", screenDimen=" + screenDimen + "]";
+		}
+		
+		
 	}
 	
 	/**
 	 * 
-	 * Android.Utils.Size is added in API21
-	 * so not using that
-	 *
 	 */
-	public static class Size{
+	public static class AlgoDimensionResult{
 	
 		int width;
 		
 		int height;
 		
-		public Size(int w, int h)
+		AlgoState algoState;
+		
+		public AlgoDimensionResult(int w, int h)
 		{
 			width = w;
 			height = h;
@@ -1477,6 +1569,68 @@ public class HikeBitmapFactory
 		{
 			return height;
 		}
+
+		public int getAlgoStateValue()
+		{
+			return algoState.value;
+		}
+		
+		public void setAlgoState(int state)
+		{
+			switch (state)
+			{
+			case 1:
+				this.algoState = AlgoState.INIT_STATE;
+				break;
+
+			case 2:
+				this.algoState = AlgoState.STATE_2;
+				break;
+				
+			case 3:
+				this.algoState = AlgoState.STATE_3;
+				break;
+				
+			default:
+				break;
+			}
+		}
+		
+		@Override
+		public String toString()
+		{
+			return "AlgoBestDimensionResult [width=" + width + ", height=" + height + ", algoState=" + algoState + "]";
+		}
+
+	}
+	
+	private static Pair<Integer, Integer> getDimensionsAsPerAspectRatio(MemmoryScreenShot screenShot)
+	{
+		int deviceHeight = 2 * screenShot.getContext().getResources().getDisplayMetrics().heightPixels;
+		int deviceWidth = 2 * screenShot.getContext().getResources().getDisplayMetrics().widthPixels;
+		
+		int imgWidth = screenShot.getOptions().outWidth;;
+		int imgHeight = screenShot.getOptions().outHeight;
+		float imageAspectRatio = imgWidth * 1.0f/imgHeight;
+		
+		if(imgWidth > imgHeight)
+		{
+			if(imgWidth > deviceWidth)
+			{
+				imgWidth = deviceWidth;
+				imgHeight = (int) (imgWidth / imageAspectRatio);
+			}
+		}
+		else
+		{
+			if(imgHeight > deviceHeight)
+			{
+				imgHeight = deviceHeight;
+				imgWidth = (int) (imgHeight * imageAspectRatio);
+			}
+		}
+		
+		return new Pair<Integer, Integer>(imgWidth, imgHeight);
 	}
 
 }

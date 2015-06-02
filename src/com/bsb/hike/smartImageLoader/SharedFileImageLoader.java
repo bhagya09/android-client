@@ -26,12 +26,9 @@ public class SharedFileImageLoader extends ImageWorker
 	@Override
 	protected Bitmap processBitmap(String data)
 	{
-		if(isImageToBeCached)
-		{
-			BitmapDrawable bd = this.getImageCache().get(data);
-			if (bd != null)
-				return bd.getBitmap();
-		}
+		BitmapDrawable bd = this.getImageCache().get(data);
+		if (bd != null)
+			return bd.getBitmap();
 		
 		String[] dataArray = data.split("::");
 		String filePath = dataArray[0];
@@ -48,13 +45,13 @@ public class SharedFileImageLoader extends ImageWorker
 		return processBitmap(data);
 	}
 	
-	public Bitmap getSharedMediaThumbnailFromCache(String destFilePath, int fileSize, boolean isImage)
+	public Bitmap getSharedMediaThumbnailFromCache(String destFilePath, int imageSize, boolean isImage)
 	{
 		Bitmap thumbnail = null;
 		if (isImage)
 		{
-			Log.d("image_config", "Inside API  getSharedMediaThumbnailFromCache");
-			thumbnail = HikeBitmapFactory.getImageThumbnailAsPerAlgo(context, destFilePath, fileSize, 0);
+			Log.d("image_config", "========================== \n Inside API  getSharedMediaThumbnailFromCache");
+			thumbnail = HikeBitmapFactory.getImageThumbnailAsPerAlgo(context, destFilePath, imageSize, HikeBitmapFactory.AlgoState.INIT_STATE.getValue());
 			thumbnail = Utils.getRotatedBitmap(destFilePath, thumbnail);
 		}
 		else
