@@ -20,6 +20,8 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.media.ExifInterface;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
@@ -1353,11 +1355,20 @@ public class HikeBitmapFactory
 	 * @param context
 	 * @param textToShow
 	 */
-	private static void showSCToastForImageDegrade(Context context, String textToShow)
+	private static void showSCToastForImageDegrade(final Context context, final String textToShow)
 	{
 		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SHOW_TOAST_FOR_DEGRADING_QUALITY, true) == true)
 		{
-			Toast.makeText(context, textToShow, Toast.LENGTH_SHORT).show();
+			final Handler handler = new Handler(Looper.getMainLooper());
+            handler.post(new Runnable()
+			{
+				
+				@Override
+				public void run()
+				{
+					Toast.makeText(context, textToShow, Toast.LENGTH_SHORT).show();
+				}
+			});
 		}
 	}
 
