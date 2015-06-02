@@ -16,6 +16,12 @@ import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.utils.StickerManager;
 
+/**
+ * 
+ * @author himanshu
+ *
+ *	Contains Utility functions for Offline related messaging.
+ */
 public class OfflineUtils
 {
 	// change this to wlan0 for hotspot mode
