@@ -5,6 +5,12 @@ import org.json.JSONObject;
 
 import com.bsb.hike.HikeConstants;
 
+/**
+ * 
+ * @author himanshu
+ *	This class contains information about progress of the file and the JSON that will make the file
+ *
+ */
 public class FileTransferModel
 {
 	private TransferProgress transferProgress;
