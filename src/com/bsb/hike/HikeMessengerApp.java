@@ -539,8 +539,6 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 
 	SendGCMIdToServerTrigger mmGcmIdToServerTrigger = null;
 
-	HikeHandlerUtil mThread = HikeHandlerUtil.getInstance();
-
 	static
 	{
 		mPubSubInstance = new HikePubSub();
@@ -918,6 +916,7 @@ public void onTrimMemory(int level)
 		{
 			return;
 		}
+		HikeHandlerUtil mThread = HikeHandlerUtil.getInstance();
 		mThread.startHandlerThread();
 		mThread.postRunnableWithDelay(new Runnable()
 		{
@@ -925,8 +924,8 @@ public void onTrimMemory(int level)
 			public void run()
 			{
 				Logger.d("StickerCaching", "CachingStickersOnStart");
-				sm.cacheStickersForGivenCategory(StickerManager.RECENT);
-				sm.cacheStickerPaletteIcons();
+				StickerManager.getInstance().cacheStickersForGivenCategory(StickerManager.RECENT);
+				StickerManager.getInstance().cacheStickerPaletteIcons();
 			}
 		}, 0);
 	}

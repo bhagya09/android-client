@@ -1751,6 +1751,8 @@ public class StickerManager
 		HikeLruCache cache = HikeMessengerApp.getLruCache();
 		List<Sticker> stickerList = category.getStickerList();
 		BitmapDrawable drawable = null;
+//		 Checking the lesser value out of current size of category and the size provided. This is to avoid NPE in case of smaller category size
+//		 as well as to make sure only the minimum required stickers are being cached.
 		int stickersToLoad = Math.min(noOfStickers, stickerList.size());
 		for (int i=0; i<stickersToLoad; i++)
 		{
@@ -1782,6 +1784,8 @@ public class StickerManager
 		BitmapDrawable drawable = null;
 		
 		int screenWidth = context.getResources().getDisplayMetrics().widthPixels;
+		// Checking the lesser value out of current size of category list and the stickers accommodated on given screen width. This is to avoid NPE in case of smaller category list
+		// size as well as to make sure only the minimum required categories are being cached.
 		int categoriesToLoad = Math.min(categoryList.size(), (int) (screenWidth/(context.getResources().getDimension(R.dimen.sticker_btn_width))));
 
 		for (int i=0; i<categoriesToLoad; i++)
