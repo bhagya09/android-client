@@ -1,4 +1,3 @@
-
 package com.bsb.hike.service;
 
 import java.io.File;
@@ -1696,8 +1695,8 @@ public class MqttMessagesManager
 		}
 		if (data.has(HikeConstants.REPLY_NOTIFICATION_RETRY_TIMER))
 		{
-			int retryTimeInSeconds = data.getInt(HikeConstants.REPLY_NOTIFICATION_RETRY_TIMER);
-			editor.putLong(HikeMessengerApp.RETRY_NOTIFICATION_COOL_OFF_TIME, retryTimeInSeconds*1000);
+			int retryTimeInMinutes = data.getInt(HikeConstants.REPLY_NOTIFICATION_RETRY_TIMER);
+			editor.putLong(HikeMessengerApp.RETRY_NOTIFICATION_COOL_OFF_TIME, retryTimeInMinutes * 60 * 1000);
 		}
 		if(data.has(HikeConstants.MqttMessageTypes.CREATE_MULTIPLE_BOTS))
 		{
