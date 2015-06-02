@@ -99,7 +99,6 @@ public class StealthModeManager
 
 		if(!stealthTimeOut.equals(NEVER_RESET_TOGGLE_TIME))
 		{
-			
 			handler.postRunnableWithDelay(toggleReset, Long.parseLong(stealthTimeOut) * 1000);
 		}
 	}
@@ -108,6 +107,7 @@ public class StealthModeManager
 	{
 		stealthFakeOn();
 		handler.removeRunnable(toggleReset);
+		HikeMessengerApp.getPubSub().publish(HikePubSub.CLOSE_CURRENT_STEALTH_CHAT, true);
 	}
 
 	private Runnable toggleReset = new Runnable()
@@ -120,7 +120,6 @@ public class StealthModeManager
 			{
 				activate(false);
 			}
-			HikeMessengerApp.getPubSub().publish(HikePubSub.CLOSE_CURRENT_STEALTH_CHAT, true);
 		}
 	};
 	
