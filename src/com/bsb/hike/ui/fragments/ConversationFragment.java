@@ -1469,6 +1469,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 						public void positiveClicked(HikeDialog hikeDialog)
 						{
 							Utils.logEvent(getActivity(), HikeConstants.LogEvent.DELETE_CONVERSATION);
+							HikeMqttManagerNew.getInstance().sendMessage(conv.serialize(HikeConstants.MqttMessageTypes.GROUP_CHAT_LEAVE), MqttConstants.MQTT_QOS_ONE);
 							HikeMessengerApp.getPubSub().publish(HikePubSub.DELETE_THIS_CONVERSATION, conv);
 							hikeDialog.dismiss();
 						}
@@ -3001,6 +3002,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		JSONObject metadata = new JSONObject();
 		try
 		{
+			metadata.put(HikeConstants.EVENT_TYPE, AnalyticsConstants.StealthEvents.STEALTH);
 			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.MqttMessageTypes.TIP);
 			metadata.put(AnalyticsConstants.StealthEvents.TIP_SHOW, whichType);
 		} catch (JSONException e)
@@ -3495,6 +3497,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		JSONObject metadata = new JSONObject();
 		try
 		{
+			metadata.put(HikeConstants.EVENT_TYPE, AnalyticsConstants.StealthEvents.STEALTH);
 			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.MqttMessageTypes.TIP);
 			metadata.put(AnalyticsConstants.StealthEvents.TIP_HIDE, whichTip);
 		} catch (JSONException e)
@@ -3582,6 +3585,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 			JSONObject metadata = new JSONObject();
 			try
 			{
+				metadata.put(HikeConstants.EVENT_TYPE, AnalyticsConstants.StealthEvents.STEALTH);
 				metadata.put(HikeConstants.EVENT_KEY, HikeConstants.MqttMessageTypes.TIP);
 				metadata.put(AnalyticsConstants.StealthEvents.TIP_REMOVE, whichTip);
 			} catch (JSONException e)

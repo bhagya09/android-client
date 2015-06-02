@@ -458,7 +458,7 @@ public class DbConversationListener implements Listener
 			editor.remove(msisdn);
 			editor.commit();
 
-			mConversationDb.deleteConversation(msisdn);				
+			HikeConversationsDatabase.getInstance().deleteConversation(msisdn);				
 			ContactManager.getInstance().removeContacts(msisdn);
 			HikeMessengerApp.getPubSub().publish(HikePubSub.CONVERSATION_DELETED, convInfo);
 		}

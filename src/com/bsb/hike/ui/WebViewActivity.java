@@ -207,7 +207,6 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			if (orientation == Configuration.ORIENTATION_LANDSCAPE || orientation == Configuration.ORIENTATION_PORTRAIT)
 			{
 				changeCurrentOrientation(orientation);
-				Utils.blockOrientationChange(this);
 				if (mmBridge != null)
 				{
 					mmBridge.orientationChanged(orientation);
@@ -231,6 +230,11 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			{
 				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 			}
+		}
+		
+		else
+		{
+			Utils.blockOrientationChange(this);
 		}
 	}
 
@@ -396,8 +400,11 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 					super.onGeolocationPermissionsShowPrompt(origin, callback);
 			}
 		});
-		handleURLLoadInWebView(webView, urlToLoad);
-		setupActionBar(title);
+		if(handleURLLoadInWebView(webView, urlToLoad)){
+			setupActionBar(title);
+		}else {
+			WebViewActivity.this.finish(); // first time if loaded in browser, then finish the activity
+		}
 	}
 	
 	private void attachBridge()
@@ -621,7 +628,6 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	{
 		setupActionBar(botInfo.getConversationName());
 		int color = botConfig.getActionBarColor();
-		color = color == -1 ? R.color.transparent : color;
 		/**
 		 * If we don't have actionBar overlay, then we shouldn't show transparent color
 		 */
@@ -630,7 +636,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			color = R.color.blue_hike;
 		}
 		
-		updateActionBarColor(new ColorDrawable(color));
+		updateActionBarColor(color !=-1 ? new ColorDrawable(color) : getResources().getDrawable(R.drawable.repeating_action_bar_bg));
 		setAvatar();
 	}
 
