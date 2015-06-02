@@ -1485,6 +1485,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 				(searchDialog == null || !searchDialog.isShowing()))
 		{
 			searchDialog = ProgressDialog.show(activity, null, getString(R.string.searching));
+			// updating the dataset in case any new messages were received
+			messageSearchManager.updateDataSet(messages);
 			if (loop)
 			{
 				activity.getSupportLoaderManager().restartLoader(SEARCH_LOOP, null, this);
@@ -2374,7 +2376,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			if (id == SEARCH_LOOP || id == SEARCH_NEXT || id == SEARCH_PREVIOUS)
 			{
 				updateUIforSearchResult((int) arg1);
-				messageSearchManager.updateDataSet(messages);
 				recordSearchInputWithResult(id, searchText, (int) arg1);
 			}
 		}
