@@ -1,5 +1,10 @@
 package com.bsb.hike.offline;
 
+/**
+ * 
+ * @author himanshu
+ *	This class deals with the amount of file transferred in case of Offline Messaging
+ */
 public class TransferProgress
 {
 	private int currentChunks;

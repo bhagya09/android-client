@@ -11,6 +11,14 @@ import com.bsb.hike.filetransfer.FTAnalyticEvents;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 
+/**
+ * 
+ * @author himanshu
+ *
+ *	This class acts as a abstraction for Offline Messaging.The User should use this class to interact with the
+ *	Offline Manager
+ */
+
 public class OfflineController
 {
 
