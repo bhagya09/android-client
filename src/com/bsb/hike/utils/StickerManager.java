@@ -30,6 +30,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
@@ -55,6 +56,7 @@ import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadSource;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadType;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerDownloadManager;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerException;
+import com.bsb.hike.smartcache.HikeLruCache;
 import com.bsb.hike.utils.Utils.ExternalStorageState;
 
 public class StickerManager
@@ -1727,4 +1729,80 @@ public class StickerManager
 		}
 	}
 	
+	/**
+	 * @param categoryId
+	 * fetching recent stickers in cache.
+	 */
+	public void cacheStickersForGivenCategory(String categoryId)
+	{
+		StickerCategory category = getCategoryForId(categoryId);
+		Logger.d("StickerCaching", "Category cached : " + categoryId);
+		//loading two rows, hence *2
+		int stickersToLoad = (getNumColumnsForStickerGrid(context) * 2);
+		loadStickersForGivenCategory(category, stickersToLoad);
+	}
+	
+	/**
+	 * This method makes bitmap for each sticker in the given category and puts it in cache.
+	 * @param stickersToLoad
+	 */
+	private void loadStickersForGivenCategory(StickerCategory category, int noOfStickers)
+	{
+		HikeLruCache cache = HikeMessengerApp.getLruCache();
+		List<Sticker> stickerList = category.getStickerList();
+		BitmapDrawable drawable = null;
+//		 Checking the lesser value out of current size of category and the size provided. This is to avoid NPE in case of smaller category size
+//		 as well as to make sure only the minimum required stickers are being cached.
+		int stickersToLoad = Math.min(noOfStickers, stickerList.size());
+		for (int i=0; i<stickersToLoad; i++)
+		{
+			Sticker sticker = stickerList.get(i);
+			String stickerPath = sticker.getSmallStickerPath();
+			Bitmap bitmap = HikeBitmapFactory.decodeFile(stickerPath);
+			if (bitmap != null)
+			{
+
+				drawable = HikeBitmapFactory.getBitmapDrawable(context.getResources(), bitmap);
+
+				if (cache != null)
+				{
+					Logger.d(TAG, "Putting data in cache : " + stickerPath);
+					cache.putInCache(stickerPath, drawable);
+				}
+			}
+
+		}
+	}
+	
+	/**
+	 * This method caches the first few sticker categories.
+	 */
+	public void cacheStickerPaletteIcons()
+	{
+		HikeLruCache cache = HikeMessengerApp.getLruCache();
+		List<StickerCategory> categoryList = getStickerCategoryList();
+		BitmapDrawable drawable = null;
+		
+		int screenWidth = context.getResources().getDisplayMetrics().widthPixels;
+		// Checking the lesser value out of current size of category list and the stickers accommodated on given screen width. This is to avoid NPE in case of smaller category list
+		// size as well as to make sure only the minimum required categories are being cached.
+		int categoriesToLoad = Math.min(categoryList.size(), (int) (screenWidth/(context.getResources().getDimension(R.dimen.sticker_btn_width))));
+
+		for (int i=0; i<categoriesToLoad; i++)
+		{
+			String categoryId = categoryList.get(i).getCategoryId();
+			String filePath = getStickerDirectoryForCategoryId(categoryId) + StickerManager.OTHER_STICKER_ASSET_ROOT + "/" + StickerManager.PALLATE_ICON + StickerManager.OTHER_ICON_TYPE;
+			Bitmap bitmap = getCategoryOtherAsset(context, categoryId, StickerManager.PALLATE_ICON_TYPE, -1, -1, true);
+			if (bitmap != null)
+			{
+				drawable = HikeBitmapFactory.getBitmapDrawable(context.getResources(), bitmap);
+
+				if (cache != null)
+				{
+					Logger.d(TAG, "Putting data in cache : " + filePath);
+					cache.putInCache(filePath, drawable);
+				}
+			}
+		}
+	}
 }

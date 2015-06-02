@@ -854,6 +854,8 @@ public void onTrimMemory(int level)
 		 */
 		StealthModeManager.getInstance().initiate();
 
+		cachingStickersOnStart(settings);
+		
 		appStateHandler = new Handler();
 
 		HikeMessengerApp.getPubSub().addListener(HikePubSub.CONNECTED_TO_MQTT, this);
@@ -871,6 +873,30 @@ public void onTrimMemory(int level)
 		}
 	}
 
+	/**
+	 * This method is to cache stickers and sticker-categories, so that their loading becomes fast on opening sticker palette the first time.
+	 */
+	private void cachingStickersOnStart(SharedPreferences prefs)
+	{
+		// This check is to avoid caching during fresh signup. If we remove this, we'll get NPE when we try to fetch recents category as it is null.
+		if (prefs.getInt(StickerManager.UPGRADE_FOR_STICKER_SHOP_VERSION_1, 1) == 1)
+		{
+			return;
+		}
+		HikeHandlerUtil mThread = HikeHandlerUtil.getInstance();
+		mThread.startHandlerThread();
+		mThread.postRunnableWithDelay(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				Logger.d("StickerCaching", "CachingStickersOnStart");
+				StickerManager.getInstance().cacheStickersForGivenCategory(StickerManager.RECENT);
+				StickerManager.getInstance().cacheStickerPaletteIcons();
+			}
+		}, 0);
+	}
+	
 	/**
 	 * fetching the platform user id from the server. Will not fetch if the platform user id is already present. Will fetch the address book's platform uid on
 	 * success of this call.
