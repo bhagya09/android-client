@@ -132,6 +132,7 @@ import android.text.TextWatcher;
 import android.text.style.StyleSpan;
 import android.util.Base64;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.util.Pair;
 import android.view.MotionEvent;
 import android.view.Surface;
@@ -5967,6 +5968,7 @@ public class Utils
 	{
 		int screenWidth = context.getResources().getDisplayMetrics().widthPixels;
 		int screenHeight = context.getResources().getDisplayMetrics().heightPixels;
+		Log.d("image_config", "Screen dimens are :- " + screenWidth + ", "+ screenHeight);
 		return screenHeight * screenHeight;
 	}
 }

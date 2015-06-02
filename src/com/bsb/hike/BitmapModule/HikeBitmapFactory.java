@@ -1276,6 +1276,7 @@ public class HikeBitmapFactory
 		AlgoDimensionResult bestDimen = getBestDimensions(state, screenShot);
 		
 		Bitmap thumbnail = null;
+		Log.d("image_config", "Going to try load image with case:- "+ bestDimen.toString());
 		thumbnail = HikeBitmapFactory.scaleDownBitmap(filename, bestDimen.getWidth(), bestDimen.getHeight(), Bitmap.Config.RGB_565, true, false);
 		if(thumbnail == null) 
 		{
@@ -1293,6 +1294,7 @@ public class HikeBitmapFactory
 				//TODO Show Thumbnail
 			}
 		}
+		Log.d("image_config", "Successfully Loaded Image");
 		return thumbnail;
 	}
 
@@ -1308,7 +1310,7 @@ public class HikeBitmapFactory
 			if(imageDimen != null)
 			{
 				//Best match found, returning
-				Log.d("image_config", "API getBestDimensions, best case "+ state +", size is "+imageDimen.toString());
+				Log.d("image_config", "API getBestDimensions, best case "+ state +", \n size is "+imageDimen.toString());
 				imageDimen.setAlgoState(state);
 				return imageDimen;
 			}
@@ -1324,7 +1326,7 @@ public class HikeBitmapFactory
 			if(imageDimen != null) 
 			{
 				//Best match found, returning
-				Log.d("image_config", "API getBestDimensions, best case "+ state +", size is "+imageDimen.toString());
+				Log.d("image_config", "API getBestDimensions, best case "+ state +", \n size is "+imageDimen.toString());
 				imageDimen.setAlgoState(state);
 				return imageDimen;
 			}
@@ -1335,7 +1337,7 @@ public class HikeBitmapFactory
 		//Going for 3rd case
 		if(state == AlgoState.STATE_3.value)
 		{
-			Log.d("image_config", "API getBestDimensions, best case "+ state +", size is "+ screenShot.getScreenDimen().toString());
+			Log.d("image_config", "API getBestDimensions, best case "+ state +", \n size is "+ screenShot.getScreenDimen().toString());
 			imageDimen = screenShot.getScreenDimen();
 			imageDimen.setAlgoState(state);
 			return imageDimen;
@@ -1473,6 +1475,7 @@ public class HikeBitmapFactory
 			context = mContext;
 			availableRAM = Utils.getTotalRAMForHike();
 			options = getImageOriginalSizeBitmap(filename);
+			Log.d("image_config", "Image original dimens are :- " + options.outWidth + ", "+ options.outHeight);
 			imageOriginalArea = options.outHeight * options.outWidth;
 			deviceScreenArea = (Utils.getDeviceScreenArea(context));
 			screenDimen = new AlgoDimensionResult(imageSize, imageSize);
@@ -1536,8 +1539,8 @@ public class HikeBitmapFactory
 		@Override
 		public String toString()
 		{
-			return "MemmoryScreenShot [availableRAM=" + availableRAM + ", options=" + options + ", imageOriginalArea=" + imageOriginalArea + ", deviceScreenArea="
-					+ deviceScreenArea + ", context=" + context + ", screenDimen=" + screenDimen + "]";
+			return "MemmoryScreenShot  \n [availableRAM=" + availableRAM + ", \n imageOriginalArea=" + imageOriginalArea + ", \n deviceScreenArea="
+					+ deviceScreenArea + "]";
 		}
 		
 		
