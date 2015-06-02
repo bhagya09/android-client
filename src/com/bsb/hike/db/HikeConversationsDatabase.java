@@ -286,7 +286,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				+ DBConstants.NAME + " TEXT, "				//bot name
 				+ DBConstants.CONVERSATION_METADATA + " TEXT, "  //bot metadata
 				+ DBConstants.IS_MUTE + " INTEGER DEFAULT 0, "  // bot conv mute or not
-				+ DBConstants.BOT_TYPE + " INTEGER, "				//bot type m/nm
+				+ DBConstants.BOT_TYPE + " INTEGER DEFAULT 1, "				//bot type m/nm by default messaging
 				+ DBConstants.BOT_CONFIGURATION + " INTEGER, "	//bot configurations.. different server controlled properties of bot.
 				+ DBConstants.CONFIG_DATA + " TEXT, "            //config data for the bot.
 				+ HIKE_CONTENT.NAMESPACE + " TEXT, "         //namespace of a bot for caching purpose.
@@ -761,7 +761,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		if (oldVersion < 39)
 		{
 
-			String alter1 = "ALTER TABLE " + DBConstants.BOT_TABLE + " ADD COLUMN " + DBConstants.BOT_TYPE + " INTEGER";
+			String alter1 = "ALTER TABLE " + DBConstants.BOT_TABLE + " ADD COLUMN " + DBConstants.BOT_TYPE + " INTEGER DEFAULT 1"; // by default messaging.
 			String alter2 = "ALTER TABLE " + DBConstants.BOT_TABLE + " ADD COLUMN " + DBConstants.BOT_CONFIGURATION + " INTEGER";
 			String alter3 = "ALTER TABLE " + DBConstants.BOT_TABLE + " ADD COLUMN " + DBConstants.CONFIG_DATA + " TEXT";
 			String alter4 = "ALTER TABLE " + DBConstants.BOT_TABLE + " ADD COLUMN " + HIKE_CONTENT.NAMESPACE + " TEXT";
@@ -2170,10 +2170,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				removeChatThemeForMsisdn(msisdn);
 			}
 
-			if(BotUtils.isBot(msisdn))
-			{
-				deleteBotFromCacheAndDb(msisdn);
-			}
 			mDb.setTransactionSuccessful();
 		}
 		finally
@@ -2182,16 +2178,18 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 	}
 
-	/**
-	 * This method deletes the bot from db as well as from cache
-	 * 
-	 * @param msisdn
-	 */
-	public void deleteBotFromCacheAndDb(String msisdn)
-	{
-		mDb.delete(DBConstants.BOT_TABLE, DBConstants.MSISDN + "=?", new String[] { msisdn });
-		removeChatThemeForMsisdn(msisdn);
-		HikeMessengerApp.hikeBotInfoMap.remove(msisdn);
+	public void deleteBot(String msisdn){
+		mDb.beginTransaction();
+		try
+		{
+			mDb.delete(DBConstants.BOT_TABLE, DBConstants.MSISDN + "=?", new String[] { msisdn });
+			removeChatThemeForMsisdn(msisdn);
+			mDb.setTransactionSuccessful();
+		}
+		finally
+		{
+			mDb.endTransaction();
+		}
 	}
 
 	public Conversation addConversation(String msisdn, boolean onhike, String groupName, String groupOwner)

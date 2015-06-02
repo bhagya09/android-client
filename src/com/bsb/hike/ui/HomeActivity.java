@@ -692,7 +692,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		
 		return true;
 		}catch(NullPointerException e){
-			Logger.d("NulllpointerException :setupMenuOptions" , e.getMessage());
+			Logger.e("NulllpointerException :setupMenuOptions" ,e.toString());
 			return false;
 		}
 	}

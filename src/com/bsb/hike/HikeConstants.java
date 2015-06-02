@@ -2703,6 +2703,8 @@ public class HikeConstants
 		public static final String ONLY_PROFILE_UPDATE = "update_profile_pic_only";
 		
 		public static final int MAX_IMAGE_DIMEN = 1240;
+		
+		public static final String FROM_DP_UPLOAD = "from_dp_upload";
 
 	}
 
