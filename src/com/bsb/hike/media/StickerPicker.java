@@ -436,7 +436,7 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 			Animation anim = AnimationUtils.loadAnimation(mActivity, R.anim.scale_out_from_mid);
 			animatedBackground.startAnimation(anim);
 
-			view.findViewById(R.id.shop_icon).setAnimation(HikeAnimationFactory.getStickerShopIconAnimation(mActivity));
+			view.findViewById(R.id.shop_icon_image).setAnimation(HikeAnimationFactory.getStickerShopIconAnimation(mActivity));
 		}
 	}
 	

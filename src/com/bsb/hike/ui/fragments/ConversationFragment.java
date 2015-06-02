@@ -68,6 +68,7 @@ import com.bsb.hike.adapters.ConversationsAdapter;
 import com.bsb.hike.adapters.EmptyConversationsAdapter;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.bots.MessagingBotConfiguration;
@@ -1468,6 +1469,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 						public void positiveClicked(HikeDialog hikeDialog)
 						{
 							Utils.logEvent(getActivity(), HikeConstants.LogEvent.DELETE_CONVERSATION);
+							HikeMqttManagerNew.getInstance().sendMessage(conv.serialize(HikeConstants.MqttMessageTypes.GROUP_CHAT_LEAVE), MqttConstants.MQTT_QOS_ONE);
 							HikeMessengerApp.getPubSub().publish(HikePubSub.DELETE_THIS_CONVERSATION, conv);
 							hikeDialog.dismiss();
 						}
@@ -1691,6 +1693,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 			convTip = new ConversationTip(getActivity(), this);
 		}
 		
+		StealthModeManager stealthManager = StealthModeManager.getInstance();
 		HikeSharedPreferenceUtil pref = HikeSharedPreferenceUtil.getInstance();
 		String tip = pref.getData(HikeMessengerApp.ATOMIC_POP_UP_TYPE_MAIN, "");
 		Logger.i("tip", "#" + tip + "#-currenttype");
@@ -1703,7 +1706,11 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 			showingWelcomeHikeConvTip = true;
 			tipType = ConversationTip.WELCOME_HIKE_TIP;
 		}
-		else if (StealthModeManager.getInstance().isTipPersisted(ConversationTip.STEALTH_INFO_TIP) && !StealthModeManager.getInstance().isSetUp())
+		else if (stealthManager.isTipPersisted(ConversationTip.STEALTH_FTUE_TIP) && !stealthManager.isFtueDone() && stealthManager.isSetUp())
+		{
+			tipType = ConversationTip.STEALTH_FTUE_TIP;
+		}
+		else if (stealthManager.isTipPersisted(ConversationTip.STEALTH_INFO_TIP) && !stealthManager.isSetUp())
 		{
 			tipType = ConversationTip.STEALTH_INFO_TIP;
 		}
@@ -2991,6 +2998,19 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 			checkAndAddListViewHeader(tipView);
 			animateListView(true);
 		}
+		
+		JSONObject metadata = new JSONObject();
+		try
+		{
+			metadata.put(HikeConstants.EVENT_TYPE, AnalyticsConstants.StealthEvents.STEALTH);
+			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.MqttMessageTypes.TIP);
+			metadata.put(AnalyticsConstants.StealthEvents.TIP_SHOW, whichType);
+		} catch (JSONException e)
+		{
+			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json : " + e);
+		}
+		HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.VIEW_EVENT, EventPriority.HIGH, metadata);
+
 	}
 
 	public void checkAndRemoveExistingHeaders()
@@ -3473,6 +3493,19 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 
 		getListView().removeHeaderView(tipView);
 		animateListView(false);
+
+		JSONObject metadata = new JSONObject();
+		try
+		{
+			metadata.put(HikeConstants.EVENT_TYPE, AnalyticsConstants.StealthEvents.STEALTH);
+			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.MqttMessageTypes.TIP);
+			metadata.put(AnalyticsConstants.StealthEvents.TIP_HIDE, whichTip);
+		} catch (JSONException e)
+		{
+			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json : " + e);
+		}
+		HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.VIEW_EVENT, EventPriority.HIGH, metadata);
+
 		tipType = ConversationTip.NO_TIP;
 
 	}
@@ -3548,6 +3581,18 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		if (tipView != null && tipType == whichTip)
 		{
 			removeTipIfExists(whichTip);
+			
+			JSONObject metadata = new JSONObject();
+			try
+			{
+				metadata.put(HikeConstants.EVENT_TYPE, AnalyticsConstants.StealthEvents.STEALTH);
+				metadata.put(HikeConstants.EVENT_KEY, HikeConstants.MqttMessageTypes.TIP);
+				metadata.put(AnalyticsConstants.StealthEvents.TIP_REMOVE, whichTip);
+			} catch (JSONException e)
+			{
+				Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json : " + e);
+			}
+			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
 		}
 	}
 
