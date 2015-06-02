@@ -66,6 +66,8 @@ public class DownloadAndInstallUpdateAsyncTask extends AsyncTask<Void, Integer, 
 	@Override
 	protected Boolean doInBackground(Void... arg0)
 	{
+		FileOutputStream fos = null;
+		InputStream is = null;
 		try
 		{
 			URL url = new URL(downloadUrl);
@@ -74,14 +76,14 @@ public class DownloadAndInstallUpdateAsyncTask extends AsyncTask<Void, Integer, 
 
 			int length = urlConnection.getContentLength();
 
-			InputStream is = new BufferedInputStream(urlConnection.getInputStream());
+			is = new BufferedInputStream(urlConnection.getInputStream());
 
 			filePath = Environment.getExternalStorageDirectory() + "/hike/";
 			File file = new File(filePath);
 			file.mkdirs();
 
 			File myApk = new File(file, "hike.apk");
-			FileOutputStream fos = new FileOutputStream(myApk);
+			fos = new FileOutputStream(myApk);
 
 			byte[] buffer = new byte[4096];
 			int len = 0;
@@ -100,8 +102,6 @@ public class DownloadAndInstallUpdateAsyncTask extends AsyncTask<Void, Integer, 
 			}
 			fos.flush();
 			fos.getFD().sync();
-			fos.close();
-			is.close();
 
 			return true;
 		}
@@ -112,6 +112,18 @@ public class DownloadAndInstallUpdateAsyncTask extends AsyncTask<Void, Integer, 
 		catch (IOException e)
 		{
 			e.printStackTrace();
+		}
+		finally
+		{
+			try {
+				if(fos != null)
+					fos.close();
+				if(is != null)
+					is.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 		return false;
 	}

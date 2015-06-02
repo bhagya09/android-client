@@ -154,6 +154,7 @@ public class MqttDefaultFilePersistence implements MqttClientPersistence {
 		checkIsOpen();
 		File file = new File(clientDir, key+MESSAGE_FILE_EXTENSION);
 		File backupFile = new File(clientDir, key+MESSAGE_FILE_EXTENSION+MESSAGE_BACKUP_FILE_EXTENSION);
+		FileOutputStream fos = null;
 		
 		if (file.exists()) {
 			// Backup the existing file so the overwrite can be rolled-back 
@@ -164,13 +165,13 @@ public class MqttDefaultFilePersistence implements MqttClientPersistence {
 			}
 		}
 		try {
-			FileOutputStream fos = new FileOutputStream(file);
+			fos = new FileOutputStream(file);
 			fos.write(message.getHeaderBytes(), message.getHeaderOffset(), message.getHeaderLength());
 			if (message.getPayloadBytes()!=null) {
 				fos.write(message.getPayloadBytes(), message.getPayloadOffset(), message.getPayloadLength());
 			}
+			fos.flush();
 			fos.getFD().sync();
-			fos.close();
 			if (backupFile.exists()) {
 				// The write has completed successfully, delete the backup 
 				backupFile.delete();
@@ -180,6 +181,15 @@ public class MqttDefaultFilePersistence implements MqttClientPersistence {
 			throw new MqttPersistenceException(ex);
 		} 
 		finally {
+			if(fos != null)
+			{
+				try {
+					fos.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
 			if (backupFile.exists()) {
 				// The write has failed - restore the backup
 				boolean result = backupFile.renameTo(file);

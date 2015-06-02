@@ -1196,6 +1196,8 @@ public class Utils
 		{
 			out = new FileOutputStream(dst);
 			out.write(bytes, 0, bytes.length);
+			out.flush();
+			out.getFD().sync();
 		}
 		catch (IOException e)
 		{
@@ -1207,8 +1209,6 @@ public class Utils
 			{
 				try
 				{
-					out.flush();
-					out.getFD().sync();
 					out.close();
 				}
 				catch (IOException e)
@@ -1468,10 +1468,10 @@ public class Utils
 		}
 		
 		boolean status = false;
-		
+		InputStream src = null;
+		FileOutputStream dest = null;
 		try
 		{
-			InputStream src;
 			if (hikeFileType == HikeFileType.IMAGE)
 			{
 				String imageOrientation = Utils.getImageOrientation(srcFilePath);
@@ -1495,7 +1495,7 @@ public class Utils
 			{
 				src = new FileInputStream(new File(srcFilePath));
 			}
-			FileOutputStream dest = new FileOutputStream(new File(destFilePath));
+			dest = new FileOutputStream(new File(destFilePath));
 
 			byte[] buffer = new byte[HikeConstants.MAX_BUFFER_SIZE_KB * 1024];
 			int len;
@@ -1507,8 +1507,6 @@ public class Utils
 
 			dest.flush();
 			dest.getFD().sync();
-			src.close();
-			dest.close();
 			
 			status = true;
 		}
@@ -1524,6 +1522,18 @@ public class Utils
 		{
 			Logger.e("Utils", "WTF Error while reading/writing/closing file", ex);
 		}
+		finally
+		{
+			try {
+				if(src != null)
+					src.close();
+				if(dest != null)
+					dest.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 		
 		return status;
 	}
@@ -1537,9 +1547,10 @@ public class Utils
 	
 	public static boolean compressAndCopyImage(String srcFilePath, String destFilePath, Context context, int quality)
 	{
+		InputStream src = null;
+		FileOutputStream dest = null;
 		try
 		{
-			InputStream src;
 			String imageOrientation = Utils.getImageOrientation(srcFilePath);
 			Bitmap tempBmp = null;
 
@@ -1565,7 +1576,7 @@ public class Utils
 				src = new FileInputStream(new File(srcFilePath));
 			}
 
-			FileOutputStream dest = new FileOutputStream(new File(destFilePath));
+			dest = new FileOutputStream(new File(destFilePath));
 
 			byte[] buffer = new byte[HikeConstants.MAX_BUFFER_SIZE_KB * 1024];
 			int len;
@@ -1576,8 +1587,6 @@ public class Utils
 			}
 			dest.flush();
 			dest.getFD().sync();
-			src.close();
-			dest.close();
 			return true;
 		}
 		catch (FileNotFoundException e)
@@ -1594,6 +1603,18 @@ public class Utils
 		{
 			Logger.e("Utils", "WTF Error while reading/writing/closing file", ex);
 			return false;
+		}
+		finally
+		{
+			try {
+				if(src != null)
+					src.close();
+				if(dest != null)
+					dest.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -2025,6 +2046,8 @@ public class Utils
 			{
 				fileOutputStream.write(data, 0, b);
 			}
+			fileOutputStream.flush();
+			fileOutputStream.getFD().sync();
 		}
 		catch (FileNotFoundException e)
 		{
@@ -2048,8 +2071,6 @@ public class Utils
 			{
 				try
 				{
-					fileOutputStream.flush();
-					fileOutputStream.getFD().sync();
 					fileOutputStream.close();
 				}
 				catch (IOException e)
@@ -2114,6 +2135,8 @@ public class Utils
 			{
 				fileOutputStream.write(d, 0, b);
 			}
+			fileOutputStream.flush();
+			fileOutputStream.getFD().sync();
 		}
 		catch (FileNotFoundException e)
 		{
@@ -2133,8 +2156,6 @@ public class Utils
 			{
 				try
 				{
-					fileOutputStream.flush();
-					fileOutputStream.getFD().sync();
 					fileOutputStream.close();
 				}
 				catch (IOException e)
@@ -2664,17 +2685,25 @@ public class Utils
 	 */
 	public static byte[] saveBase64StringToFile(File file, String base64String) throws IOException
 	{
-		FileOutputStream fos = new FileOutputStream(file);
-
-		byte[] b = Base64.decode(base64String, Base64.DEFAULT);
-		if (b == null)
+		byte[] b = null;
+		FileOutputStream fos = null;
+		try
 		{
-			throw new IOException();
+			fos = new FileOutputStream(file);
+			b = Base64.decode(base64String, Base64.DEFAULT);
+			if (b == null)
+			{
+				throw new IOException();
+			}
+			fos.write(b);
+			fos.flush();
+			fos.getFD().sync();
 		}
-		fos.write(b);
-		fos.flush();
-		fos.getFD().sync();
-		fos.close();
+		finally
+		{
+			if(fos != null)
+				fos.close();
+		}
 		return b;
 	}
 
@@ -3913,6 +3942,8 @@ public class Utils
 				 */
 				String data = "";
 				dest.write(data.getBytes(), 0, data.getBytes().length);
+				dest.flush();
+				dest.getFD().sync();
 			}
 			catch (IOException e)
 			{
@@ -3924,8 +3955,6 @@ public class Utils
 				{
 					if(dest != null)
 					{
-						dest.flush();
-						dest.getFD().sync();
 						dest.close();
 					}
 				}
