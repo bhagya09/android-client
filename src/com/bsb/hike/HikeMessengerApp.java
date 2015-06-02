@@ -845,7 +845,7 @@ public void onTrimMemory(int level)
 		makeNoMediaFiles();
 
 		hikeBotInfoMap = new ConcurrentHashMap<>();
-		initBots();
+		BotUtils.initBots();
 
 		initHikeLruCache(getApplicationContext());
 		initContactManager();
@@ -871,39 +871,6 @@ public void onTrimMemory(int level)
 		}
 	}
 
-	private void initBots()
-	{
-		HikeHandlerUtil mThread = HikeHandlerUtil.getInstance();
-		mThread.startHandlerThread();
-		mThread.postRunnableWithDelay(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				if (HikeSharedPreferenceUtil.getInstance().getData(UPGRADE_FOR_DEFAULT_BOT_ENTRY, true))
-				{
-					BotUtils.addDefaultBotsToDB(getApplicationContext());
-					HikeSharedPreferenceUtil.getInstance().saveData(UPGRADE_FOR_DEFAULT_BOT_ENTRY, false);
-				}
-			}
-		}, 0);
-
-		/**
-		 * If the migration of bots hasn't happened yet. This will happen for the first time
-		 */
-		if (HikeSharedPreferenceUtil.getInstance().getData(UPGRADE_FOR_DEFAULT_BOT_ENTRY, true))
-		{
-			hikeBotInfoMap.putAll(BotUtils.getDefaultHardCodedBotInfoObjects());
-		}
-
-		else
-		{
-			HikeConversationsDatabase.getInstance().getBotHashmap();
-			Logger.d("create bot", "Keys are " + hikeBotInfoMap.keySet() + "------");
-			Logger.d("create bot", "values are " + hikeBotInfoMap.values());
-		}
-	}
-		
 	/**
 	 * fetching the platform user id from the server. Will not fetch if the platform user id is already present. Will fetch the address book's platform uid on
 	 * success of this call.
