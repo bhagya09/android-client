@@ -2646,7 +2646,7 @@ public enum ChatTheme
 
 
 	},
-	BEACH
+	AQUA
 	{
 
 		@Override
@@ -2664,13 +2664,13 @@ public enum ChatTheme
 		@Override
 		public int previewResId()
 		{
-			return R.drawable.ic_ct_beach_preview;
+			return R.drawable.ic_ct_aqua_preview;
 		}
 
 		@Override
 		public int bgResId()
 		{
-			return R.drawable.bg_ct_beach_tile;
+			return R.drawable.bg_ct_aqua;
 		}
 
 		@Override
@@ -2682,7 +2682,7 @@ public enum ChatTheme
 		@Override
 		public boolean isTiled()
 		{
-			return true;
+			return false;
 		}
 
 		@Override
@@ -2706,13 +2706,13 @@ public enum ChatTheme
 		@Override
 		public int inLineUpdateBGResId()
 		{
-			return R.drawable.bg_status_chat_thread_custom_theme;
+			return R.drawable.bg_status_chat_thread_custom_theme_2x;
 		}
 
 		@Override
 		public int systemMessageLayoutId()
 		{
-			return R.layout.participant_info_custom;
+			return R.layout.participant_info_custom_2x;
 		}
 		
 		@Override
@@ -2730,7 +2730,7 @@ public enum ChatTheme
 		@Override
 		public int multiSelectBubbleColor()
 		{
-			return R.color.light_black_transparent;
+			return R.color.light_blue_transparent;
 		}
 
 		@Override
@@ -2937,7 +2937,7 @@ public enum ChatTheme
 		@Override
 		public String bgId()
 		{
-			return "203";
+			return "37";
 		}
 
 		@Override
@@ -3413,7 +3413,7 @@ public enum ChatTheme
 		@Override
 		public String bgId()
 		{
-			return "214";
+			return "25";
 		}
 
 		@Override
@@ -3500,103 +3500,10 @@ public enum ChatTheme
 			return R.color.white;
 		}
 
-	},
-	
-	
-	AQUA
-	{
-
-		@Override
-		public String bgId()
-		{
-			return "221";
-		}
-
-		@Override
-		public int headerBgResId()
-		{
-			return R.drawable.bg_header_transparent;
-		}
-
-		@Override
-		public int previewResId()
-		{
-			return R.drawable.ic_ct_aqua_preview;
-		}
-
-		@Override
-		public int bgResId()
-		{
-			return R.drawable.bg_ct_aqua;
-		}
-
-		@Override
-		public int bubbleResId()
-		{
-			return R.drawable.ic_bubble_chatty_beachy_techy;
-		}
-
-		@Override
-		public boolean isTiled()
-		{
-			return false;
-		}
-
-		@Override
-		public int sentNudgeResId()
-		{
-			return R.drawable.ic_nudge_sent_custom_chatty_beachy_techy;
-		}
-
-		@Override
-		public boolean isAnimated()
-		{
-			return false;
-		}
-
-		@Override
-		public int receivedNudgeResId()
-		{
-			return R.drawable.ic_nudge_receive_custom;
-		}
-
-		@Override
-		public int inLineUpdateBGResId()
-		{
-			return R.drawable.bg_status_chat_thread_custom_theme_2x;
-		}
-
-		@Override
-		public int systemMessageLayoutId()
-		{
-			return R.layout.participant_info_custom_2x;
-		}
-		
-		@Override
-		public int bubbleColor()
-		{
-			return R.color.bubble_chatty_bechy_techy;
-		}
-
-		@Override
-		public int smsToggleBgRes()
-		{
-			return R.drawable.bg_sms_toggle_custom_theme;
-		}
-
-		@Override
-		public int multiSelectBubbleColor()
-		{
-			return R.color.light_blue_transparent;
-		}
-
-		@Override
-		public int offlineMsgTextColor()
-		{
-			return R.color.white;
-		}
-
 	};
+	
+	
+	
 	
 	
 	
@@ -3651,5 +3558,5 @@ public enum ChatTheme
 		throw new IllegalArgumentException();
 	}
 
-	public static ChatTheme[] FTUE_THEMES = { STARRY, BEACH, FOREST };
+	public static ChatTheme[] FTUE_THEMES = { STARRY, AQUA, FOREST };
 };
