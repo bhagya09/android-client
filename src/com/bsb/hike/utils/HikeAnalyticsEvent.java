@@ -122,8 +122,8 @@ public class HikeAnalyticsEvent
 		{
 			Logger.d("HikeAnalyticsEvent", json.toString());
 			VoIPUtils.ConnectionClass connType = VoIPUtils.getConnectionClass(HikeMessengerApp.getInstance().getApplicationContext());
-			json.put(HikePlatformConstants.NETWORK_TYPE, Integer.toString(connType.ordinal()));
-			json.put(HikePlatformConstants.APP_VERSION, AccountUtils.getAppVersion());
+			json.put(AnalyticsConstants.NETWORK_TYPE, Integer.toString(connType.ordinal()));
+			json.put(AnalyticsConstants.APP_VERSION, AccountUtils.getAppVersion());
 			HAManager.getInstance().record(type, subType, HAManager.EventPriority.HIGH, json, AnalyticsConstants.EVENT_TAG_PLATFORM);
 		}
 		catch (NullPointerException npe)
