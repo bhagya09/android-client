@@ -9,7 +9,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.nio.channels.FileChannel;
 import java.util.Calendar;
 
@@ -28,6 +27,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.utils.CBCEncryption;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -626,6 +626,7 @@ public class AccountBackupRestore
 			HikeConversationsDatabase.getInstance().clearTable(table);
 		}
 		HikeConversationsDatabase.getInstance().upgradeForStickerShopVersion1();
+		BotUtils.postAccountRestoreSetup();
 	}
 
 	/**

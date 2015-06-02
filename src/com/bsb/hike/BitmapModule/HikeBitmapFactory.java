@@ -188,6 +188,13 @@ public class HikeBitmapFactory
 		return bitmap;
 	}
 
+	public static String getBase64ForDrawable(int drawableId, Context context)
+	{
+
+		BitmapDrawable drawable = (BitmapDrawable) context.getResources().getDrawable(drawableId);
+		return Utils.drawableToString(drawable);
+	}
+
 	public static void correctBitmapRotation(final String srcFilePath, final HikePhotosListener mListener)
 	{
 		HikeHandlerUtil.getInstance().postRunnableWithDelay(new Runnable()

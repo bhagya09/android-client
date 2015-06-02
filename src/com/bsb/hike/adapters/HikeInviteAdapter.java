@@ -118,7 +118,7 @@ public class HikeInviteAdapter extends SectionedBaseAdapter implements TextWatch
 			numView.setText(showingBlockedList ? R.string.tap_here_block : R.string.tap_here_invite);
 		}
 
-		if (HikeMessengerApp.hikeBotNamesMap.containsKey(msisdn))
+		if (HikeMessengerApp.hikeBotInfoMap.containsKey(msisdn))
 		{
 			numView.setVisibility(View.GONE);
 		}

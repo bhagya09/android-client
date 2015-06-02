@@ -267,6 +267,7 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 		Bundle arguments = (Bundle) object;
 
 		ImageViewerFragment imageViewerFragment = new ImageViewerFragment();
+		arguments.putBoolean(HikeConstants.CAN_EDIT_DP,false);
 		imageViewerFragment.setArguments(arguments);
 
 		FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();

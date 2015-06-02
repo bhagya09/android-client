@@ -647,7 +647,6 @@ public class IntentFactory
 
 	public static Intent getWebViewActivityIntent(Context context, String url, String title)
 	{
-
 		Intent intent = new Intent(context.getApplicationContext(), WebViewActivity.class);
 		intent.putExtra(HikeConstants.Extras.URL_TO_LOAD, url);
 
@@ -659,6 +658,15 @@ public class IntentFactory
 
 		return intent;
 
+	}
+	
+	public static Intent getNonMessagingBotIntent(String msisdn, String url, String title, Context context)
+	{
+		Intent intent = getWebViewActivityIntent(context, url, title);
+		intent.putExtra(WebViewActivity.WEBVIEW_MODE, WebViewActivity.MICRO_APP_MODE);
+		intent.putExtra(HikeConstants.MSISDN, msisdn);
+		
+		return intent;
 	}
 
 	public static Intent getForwardIntentForConvMessage(Context context, ConvMessage convMessage, String metadata)

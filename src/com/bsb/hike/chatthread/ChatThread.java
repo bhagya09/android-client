@@ -98,6 +98,7 @@ import com.bsb.hike.media.AttachmentPicker;
 import com.bsb.hike.media.AudioRecordView;
 import com.bsb.hike.media.AudioRecordView.AudioRecordListener;
 import com.bsb.hike.media.EmoticonPicker;
+import com.bsb.hike.media.HikeActionBar;
 import com.bsb.hike.media.ImageParser;
 import com.bsb.hike.media.ImageParser.ImageParserListener;
 import com.bsb.hike.media.OverFlowMenuItem;
@@ -255,7 +256,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	protected EmoticonPicker mEmoticonPicker;
 
-	protected static ShareablePopupLayout mShareablePopupLayout;
+	protected ShareablePopupLayout mShareablePopupLayout;
 
 	protected AudioRecordView audioRecordView;
 
@@ -331,8 +332,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 				if (mStickerPicker != null)
 				{
 					mStickerPicker.notifyDataSetChanged();
+					mStickerPicker.setRefreshStickers(true);
 				}
-				StickerPicker.setRefreshStickers(true);
 			}
 		}
 	}
@@ -425,8 +426,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			if (mStickerPicker != null)
 			{
 				mStickerPicker.notifyDataSetChanged();
+				mStickerPicker.setRefreshStickers(true);
 			}
-			StickerPicker.setRefreshStickers(true);
 			break;
 		case SCROLL_TO_END:
 			mConversationsView.setSelection(messages.size() - 1);
@@ -1991,6 +1992,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			}
 			if (message.getState() == ConvMessage.State.RECEIVED_UNREAD)
 			{
+				// message size could be less than that of the unread count coz microapps have the authority
+				//to increase the unread count of the bot they are in. So a safety check to prevent exception.
 				int index = (messages.size() - mConversation.getUnreadCount() - 1) ;
 				index = index >= 0 ? index : 0;
 				mConversationsView.setSelection(index);
