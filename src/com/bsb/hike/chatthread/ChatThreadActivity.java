@@ -13,6 +13,7 @@ import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.Window;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -81,6 +82,17 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 		if (StealthModeManager.getInstance().isStealthMsisdn(msisdn) && !StealthModeManager.getInstance().isActive())
 		{
 			return false;
+		}
+		
+		/**
+		 * Possibly opening a deleted bot ?
+		 */
+		if (HikeConstants.Extras.BOT_CHAT_THREAD.equals(intent.getStringExtra(HikeConstants.Extras.WHICH_CHAT_THREAD)))
+		{
+			if (null == BotUtils.getBotInfoForBotMsisdn(msisdn))
+			{
+				return false;
+			}
 		}
 		return true;
 	}

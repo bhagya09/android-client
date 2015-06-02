@@ -2170,10 +2170,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				removeChatThemeForMsisdn(msisdn);
 			}
 
-			if(BotUtils.isBot(msisdn))
-			{
-				deleteBot(msisdn);
-			}
 			mDb.setTransactionSuccessful();
 		}
 		finally
@@ -2188,6 +2184,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		{
 			mDb.delete(DBConstants.BOT_TABLE, DBConstants.MSISDN + "=?", new String[] { msisdn });
 			removeChatThemeForMsisdn(msisdn);
+			mDb.setTransactionSuccessful();
 		}
 		finally
 		{
