@@ -62,6 +62,7 @@ import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.ConversationMetadata;
 import com.bsb.hike.models.Conversation.GroupConversation;
+import com.bsb.hike.models.Conversation.OfflineConversation;
 import com.bsb.hike.models.Conversation.OneToNConvInfo;
 import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.models.Conversation.OneToNConversationMetadata;
@@ -2384,6 +2385,10 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				conv = getBroadcastConversation(msisdn);
 				conv.setIsStealth(isStealth);
 			}
+			else if(Utils.isOfflineConversation(msisdn))
+			{
+				conv=new OfflineConversation.ConversationBuilder(msisdn).setIsOnHike(true).setIsStealth(isStealth).build();
+			}
 			
 			/**
 			 * Normal 1-1 conversation
@@ -2391,19 +2396,18 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			else
 			{
 				String name;
-				if (HikeMessengerApp.hikeBotNamesMap.containsKey(msisdn))
-				{
-					name = HikeMessengerApp.hikeBotNamesMap.get(msisdn);
-					onhike = true;
-				}
-				else
-				{
-					ContactInfo contactInfo = ContactManager.getInstance().getContact(msisdn, false, true, false);
-					name = contactInfo.getName();
-					onhike |= contactInfo.isOnhike();
-				}
-				conv = new OneToOneConversation.ConversationBuilder(msisdn).setConvName(name).setIsOnHike(onhike).setIsStealth(isStealth).build();
-
+					if (HikeMessengerApp.hikeBotNamesMap.containsKey(msisdn))
+					{
+						name = HikeMessengerApp.hikeBotNamesMap.get(msisdn);
+						onhike = true;
+					}
+					else
+					{
+						ContactInfo contactInfo = ContactManager.getInstance().getContact(msisdn, false, true, false);
+						name = contactInfo.getName();
+						onhike |= contactInfo.isOnhike();
+					}
+					conv = new OneToOneConversation.ConversationBuilder(msisdn).setConvName(name).setIsOnHike(onhike).setIsStealth(isStealth).build();
 			}
 			if (getMetadata)
 			{
