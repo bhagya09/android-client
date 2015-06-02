@@ -506,6 +506,12 @@ public class AccountBackupRestore
 			}
 			postRestoreSetup(state,userBackupData);
 		}
+		
+		else
+		{
+			BotUtils.initBots();
+		}
+		
 		time = System.currentTimeMillis() - time;
 		Logger.d(getClass().getSimpleName(), "Restore " + result + " in " + time / 1000 + "." + time % 1000 + "s");
 		recordLog(RESTORE_EVENT_KEY,result,time);
