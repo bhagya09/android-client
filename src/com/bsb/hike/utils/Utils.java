@@ -413,21 +413,7 @@ public class Utils
 
 		// String fileName = getUniqueFileName(orgFileName, fileKey);
 
-		/*
-		 * Changes done to fix the issue where some users are getting FileNotFoundEXception while creating file.
-		 */
-		File mFile = new File(mediaStorageDir, orgFileName);
-		try {
-			/*
-			 * Create temp file only for upload case.
-			 */
-			if(isSent && !mFile.exists())
-				mFile.createNewFile();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return mFile;
+		return new File(mediaStorageDir, orgFileName);
 	}
 
 	public static String getOriginalFile(HikeFileType type, String orgFileName)
