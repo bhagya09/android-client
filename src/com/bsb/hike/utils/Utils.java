@@ -80,6 +80,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.graphics.Bitmap;
@@ -5848,6 +5849,16 @@ public class Utils
 			Logger.e("Hike Camera Image", "Image path is null");
 			return null;
 		}
+	}
+	
+	public static TypedArray getDefaultAvatarBG()
+	{
+		if (HikeConstants.DEFAULT_AVATAR_BG_COLOR_ARRAY == null)
+		{
+			HikeConstants.DEFAULT_AVATAR_BG_COLOR_ARRAY = HikeMessengerApp.getInstance().getApplicationContext().getResources().obtainTypedArray(R.array.dp_bg);
+		}
+
+		return HikeConstants.DEFAULT_AVATAR_BG_COLOR_ARRAY;
 	}
 	
 }

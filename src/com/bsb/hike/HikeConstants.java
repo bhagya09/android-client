@@ -1,5 +1,6 @@
 package com.bsb.hike;
 
+import android.content.res.TypedArray;
 import android.net.Uri;
 import android.os.Environment;
 
@@ -2729,19 +2730,18 @@ public class HikeConstants
 		public static final int MAX_IMAGE_DIMEN = 1240;
 
 	}
-
 	
 	public static final String REARRANGE_CHAT = "rearrange_chat";
 	
 	public static final String CONTENT_ID = "content_id";
+	
 	public static final String TIMESTAMP_MILLIS = "msec";
 	
 	public static final String EVENT_TAG_SESSION = "sess";
 
 	public static final String MESSAGE_PROCESS_TIME = "mpt";
-
-	public static int DEFAULT_AVATAR_BG_COLORID[] = { R.color.dp_bg_1, R.color.dp_bg_2, R.color.dp_bg_3, R.color.dp_bg_4, R.color.dp_bg_5, R.color.dp_bg_6, R.color.dp_bg_7,
-			R.color.dp_bg_8, R.color.dp_bg_9, R.color.dp_bg_11 };
+	
+	public static TypedArray DEFAULT_AVATAR_BG_COLOR_ARRAY = null;
 
 	public static String IS_GROUP = "isGroup";
 

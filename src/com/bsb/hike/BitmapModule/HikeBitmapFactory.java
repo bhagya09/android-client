@@ -7,6 +7,7 @@ import java.util.Random;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.Resources;
+import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.BitmapFactory;
@@ -1158,63 +1159,67 @@ public class HikeBitmapFactory
 	
 	public static Drawable getDefaultTextAvatar(String msisdn)
 	{
-		if (TextUtils.isEmpty(msisdn))
-		{
-			int bgColor = HikeMessengerApp.getInstance().getApplicationContext().getResources()
-					.getColor(HikeConstants.DEFAULT_AVATAR_BG_COLORID[new Random().nextInt(HikeConstants.DEFAULT_AVATAR_BG_COLORID.length)]);
+		
+		return getDefaultTextAvatar(msisdn, msisdn, true);
+//		TypedArray bgColorArray = Utils.getDefaultAvatarBG();
+//		
+//		if (TextUtils.isEmpty(msisdn))
+//		{
+//			return getRandomHashTextDrawable();
+//		}
+//
+//		String initials = getNameInitialsForDefaultAv(msisdn);
+//
+//		int index = BitmapUtils.iconHash(msisdn) % (bgColorArray.length());
+//
+//		int defaultAvatarResId = bgColorArray.getColor(index, 0);
+//
+//		int bgColor = HikeMessengerApp.getInstance().getApplicationContext().getResources().getColor(defaultAvatarResId);
+//
+//		return TextDrawable.builder().buildRound(initials, bgColor);
+	}
+	
+	private static TextDrawable getRandomHashTextDrawable()
+	{
+		TypedArray bgColorArray = Utils.getDefaultAvatarBG();
+		
+		int bgColor = bgColorArray.getColor(new Random().nextInt(bgColorArray.length()), 0);
 
-			return TextDrawable.builder().buildRound("#", bgColor);
-		}
-
-		String initials = getNameInitialsForDefaultAv(msisdn);
-
-		int index = BitmapUtils.iconHash(msisdn) % (HikeConstants.DEFAULT_AVATAR_BG_COLORID.length);
-
-		int defaultAvatarResId = HikeConstants.DEFAULT_AVATAR_BG_COLORID[index];
-
-		int bgColor = HikeMessengerApp.getInstance().getApplicationContext().getResources().getColor(defaultAvatarResId);
-
-		return TextDrawable.builder().buildRound(initials, bgColor);
+		return TextDrawable.builder().buildRound("#", bgColor);
 	}
 	
 	public static Drawable getDefaultTextAvatar(String iconHash, String defaultText, boolean useOnlyInitials)
 	{
+		TypedArray bgColorArray = Utils.getDefaultAvatarBG();
+		
 		if (TextUtils.isEmpty(defaultText))
 		{
-			int bgColor = HikeMessengerApp.getInstance().getApplicationContext().getResources()
-					.getColor(HikeConstants.DEFAULT_AVATAR_BG_COLORID[BitmapUtils.iconHash(iconHash) % (HikeConstants.DEFAULT_AVATAR_BG_COLORID.length)]);
-
-			return TextDrawable.builder().buildRound("#", bgColor);
+			return getRandomHashTextDrawable();
 		}
 
 		String initials = useOnlyInitials ? getNameInitialsForDefaultAv(defaultText) : defaultText;
 
-		int index = BitmapUtils.iconHash(iconHash) % (HikeConstants.DEFAULT_AVATAR_BG_COLORID.length);
+		int index = BitmapUtils.iconHash(iconHash) % (bgColorArray.length());
 
-		int defaultAvatarResId = HikeConstants.DEFAULT_AVATAR_BG_COLORID[index];
-
-		int bgColor = HikeMessengerApp.getInstance().getApplicationContext().getResources().getColor(defaultAvatarResId);
+		int bgColor = bgColorArray.getColor(index, 0);
 
 		return TextDrawable.builder().buildRound(initials, bgColor);
 	}
 
 	public static Drawable getRectTextAvatar(String msisdn)
 	{
+		TypedArray bgColorArray = Utils.getDefaultAvatarBG();
+		
 		if (TextUtils.isEmpty(msisdn))
 		{
-			int bgColor = HikeMessengerApp.getInstance().getApplicationContext().getResources()
-					.getColor(HikeConstants.DEFAULT_AVATAR_BG_COLORID[new Random().nextInt(HikeConstants.DEFAULT_AVATAR_BG_COLORID.length)]);
-
-			return TextDrawable.builder().buildRect("#", bgColor);
+			return getRandomHashTextDrawable();
 		}
 
 		String initials = getNameInitialsForDefaultAv(msisdn);
 
-		int index = BitmapUtils.iconHash(msisdn) % (HikeConstants.DEFAULT_AVATAR_BG_COLORID.length);
+		int index = BitmapUtils.iconHash(msisdn) % (bgColorArray.length());
 
-		int defaultAvatarResId = HikeConstants.DEFAULT_AVATAR_BG_COLORID[index];
-
-		int bgColor = HikeMessengerApp.getInstance().getApplicationContext().getResources().getColor(defaultAvatarResId);
+		int bgColor = bgColorArray.getColor(index, 0);
 
 		return TextDrawable.builder().buildRect(initials, bgColor);
 	}
