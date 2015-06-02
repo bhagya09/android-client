@@ -1,6 +1,7 @@
 package com.bsb.hike.utils;
 
 import java.io.File;
+import java.net.URI;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -14,8 +15,10 @@ import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.SharedPreferences.Editor;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.Toast;
 
@@ -35,10 +38,12 @@ import com.bsb.hike.http.HikeHttpRequest;
 import com.bsb.hike.http.HikeHttpRequest.HikeHttpCallback;
 import com.bsb.hike.http.HikeHttpRequest.RequestType;
 import com.bsb.hike.models.ContactInfo;
+import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.StatusMessage;
 import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.tasks.DownloadImageTask;
+import com.bsb.hike.tasks.DownloadImageTask.ImageDownloadResult;
 import com.bsb.hike.tasks.FinishableEvent;
 import com.bsb.hike.tasks.HikeHTTPTask;
 import com.bsb.hike.ui.GalleryActivity;
@@ -184,8 +189,94 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 			return;
 		}
 		
+		String path = null;
+		File selectedFileIcon = null;
+
 		switch (requestCode)
 		{
+		case HikeConstants.GALLERY_RESULT:
+			Logger.d("ProfileActivity", "The activity is " + this);
+			boolean isPicasaImage = false;
+			Uri selectedFileUri = null;
+			if (data == null || data.getData() == null)
+			{
+				Toast.makeText(getApplicationContext(), R.string.error_capture, Toast.LENGTH_SHORT).show();
+				return;
+			}
+			selectedFileUri = data.getData();
+
+			if (Utils.isPicasaUri(selectedFileUri.toString()))
+			{
+				isPicasaImage = true;
+				path = Utils.getOutputMediaFile(HikeFileType.PROFILE, null, false).getAbsolutePath();
+			}
+			else
+			{
+				String fileUriStart = "file://";
+				String fileUriString = selectedFileUri.toString();
+				if (fileUriString.startsWith(fileUriStart))
+				{
+					 selectedFileIcon = new File(URI.create(Utils.replaceUrlSpaces(fileUriString)));
+					/*
+					 * Done to fix the issue in a few Sony devices.
+					 */
+					path = selectedFileIcon.getAbsolutePath();
+				}
+				else
+				{
+					path = Utils.getRealPathFromUri(selectedFileUri, this);
+				}
+			}
+			if (TextUtils.isEmpty(path))
+			{
+				Toast.makeText(getApplicationContext(), R.string.error_capture, Toast.LENGTH_SHORT).show();
+				return;
+			}
+			if (!isPicasaImage)
+			{
+				startActivity(IntentFactory.getPictureEditorActivityIntent(ChangeProfileImageBaseActivity.this, path, true, getNewProfileImagePath(), true));
+			}
+			else
+			{
+				final File destFile = new File(path);
+
+				mActivityState.downloadPicasaImageTask = new DownloadImageTask(getApplicationContext(), destFile, selectedFileUri, new ImageDownloadResult()
+				{
+					@Override
+					public void downloadFinished(boolean result)
+					{
+						if (mDialog != null)
+						{
+							mDialog.dismiss();
+							mDialog = null;
+						}
+						mActivityState.downloadPicasaImageTask = null;
+
+						if (!result)
+						{
+							Toast.makeText(getApplicationContext(), R.string.error_download, Toast.LENGTH_SHORT).show();
+						}
+						else
+						{
+							startActivity(IntentFactory.getPictureEditorActivityIntent(ChangeProfileImageBaseActivity.this, destFile.getAbsolutePath(), true, getNewProfileImagePath(), true));
+						}
+					}
+				});
+				Utils.executeBoolResultAsyncTask(mActivityState.downloadPicasaImageTask);
+				mDialog = ProgressDialog.show(this, null, getResources().getString(R.string.downloading_image));
+			}
+			try
+			{
+				JSONObject metadata = new JSONObject();
+				metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.SET_PROFILE_PIC_GALLERY);
+				HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+			}
+			catch (JSONException e)
+			{
+				Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+			}
+			break;
+
 
 		case HikeConstants.ResultCodes.PHOTOS_REQUEST_CODE:
 			mActivityState.destFilePath = data.getStringExtra(MediaStore.EXTRA_OUTPUT);

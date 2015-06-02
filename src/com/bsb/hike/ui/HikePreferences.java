@@ -18,7 +18,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Vibrator;
-import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceCategory;
@@ -28,7 +27,6 @@ import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Checkable;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -64,7 +62,6 @@ import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.IconCheckBoxPreference;
 import com.bsb.hike.view.IconListPreference;
 import com.bsb.hike.view.NotificationToneListPreference;
-import com.google.android.gms.internal.en;
 
 public class HikePreferences extends HikeAppStateBasePreferenceActivity implements OnPreferenceClickListener, 
 							OnPreferenceChangeListener, DeleteAccountListener, BackupAccountListener, RingtoneFetchListener
@@ -1407,21 +1404,24 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 					changeStealthTimeout.setTitle(getString(R.string.change_stealth_timeout) + " : " + newTimeoutKey);
 					String newValue = stealthBundle.getString(HikeConstants.CHANGE_STEALTH_TIMEOUT);
 					changeStealthTimeout.setValue(newValue);
-					metadata.put(HikeConstants.CHANGE_STEALTH_TIMEOUT, newValue);
+					metadata.put(HikeConstants.KEY, HikeConstants.CHANGE_STEALTH_TIMEOUT);
+					metadata.put(HikeConstants.VALUE, newValue);
 				}
 				else if(stealthBundle.containsKey(HikeConstants.STEALTH_INDICATOR_ENABLED))
 				{
 					IconCheckBoxPreference stealthIndicatorEnabled = (IconCheckBoxPreference)getPreferenceScreen().findPreference(HikeConstants.STEALTH_INDICATOR_ENABLED);
 					boolean newValue = stealthBundle.getBoolean(HikeConstants.STEALTH_INDICATOR_ENABLED);
 					stealthIndicatorEnabled.setChecked(newValue);
-					metadata.put(HikeConstants.STEALTH_INDICATOR_ENABLED, newValue);
+					metadata.put(HikeConstants.KEY, HikeConstants.STEALTH_INDICATOR_ENABLED);
+					metadata.put(HikeConstants.VALUE, newValue);
 				}
 				else if(stealthBundle.containsKey(HikeConstants.STEALTH_NOTIFICATION_ENABLED))
 				{
 					IconCheckBoxPreference stealthNotificationEnabled = (IconCheckBoxPreference)getPreferenceScreen().findPreference(HikeConstants.STEALTH_NOTIFICATION_ENABLED);
 					boolean newValue = stealthBundle.getBoolean(HikeConstants.STEALTH_NOTIFICATION_ENABLED);
 					stealthNotificationEnabled.setChecked(newValue); 
-					metadata.put(HikeConstants.STEALTH_NOTIFICATION_ENABLED, newValue);
+					metadata.put(HikeConstants.KEY, HikeConstants.STEALTH_NOTIFICATION_ENABLED);
+					metadata.put(HikeConstants.VALUE, newValue);
 				}		
 			}
 

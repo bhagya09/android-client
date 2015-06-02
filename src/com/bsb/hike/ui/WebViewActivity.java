@@ -207,7 +207,6 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			if (orientation == Configuration.ORIENTATION_LANDSCAPE || orientation == Configuration.ORIENTATION_PORTRAIT)
 			{
 				changeCurrentOrientation(orientation);
-				Utils.blockOrientationChange(this);
 				if (mmBridge != null)
 				{
 					mmBridge.orientationChanged(orientation);
@@ -231,6 +230,11 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			{
 				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 			}
+		}
+		
+		else
+		{
+			Utils.blockOrientationChange(this);
 		}
 	}
 

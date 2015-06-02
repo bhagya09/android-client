@@ -384,7 +384,8 @@ public class StealthModeManager
 			metadata.put(HikeConstants.EVENT_TYPE, AnalyticsConstants.StealthEvents.STEALTH);
 			metadata.put(HikeConstants.EVENT_KEY, AnalyticsConstants.StealthEvents.STEALTH_CONV_MARK);
 			metadata.put(AnalyticsConstants.StealthEvents.STEALTH_CONV_MARK, markStealth);
-			metadata.put(hidingStyleAnalytics, !(activity instanceof ChatThreadActivity));
+			metadata.put(HikeConstants.KEY, hidingStyleAnalytics);
+			metadata.put(HikeConstants.VALUE, !(activity instanceof ChatThreadActivity));
 			metadata.put(HikeConstants.STEALTH_MSISDN, msisdn);
 		} catch (JSONException e)
 		{
