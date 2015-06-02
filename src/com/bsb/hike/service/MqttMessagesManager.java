@@ -3103,6 +3103,12 @@ public class MqttMessagesManager
 		{
 			return;
 		}
+
+		if (ContactManager.getInstance().isBlocked(msisdn))
+		{
+			Logger.e("bot error", "bot is blocked by user.");
+			return;
+		}
 		String name = jsonObj.optString(HikeConstants.NAME);
 		String thumbnailString = jsonObj.optString(HikeConstants.BOT_THUMBNAIL);
 		if (!TextUtils.isEmpty(thumbnailString))
