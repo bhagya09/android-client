@@ -186,7 +186,7 @@ public class PlatformRequestManager
 			@Override
 			public void run()
 			{
-				argRequest.getListener().onEventOccured(error);
+				argRequest.getListener().onEventOccured(argRequest.getContentData().getUniqueId(),error);
 			}
 		});
 	}

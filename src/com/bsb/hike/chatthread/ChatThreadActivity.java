@@ -13,12 +13,14 @@ import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.Window;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+import com.bsb.hike.utils.StealthModeManager;
 
 public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 {
@@ -52,7 +54,7 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 		}
 		else
 		{
-			closeChatThread();
+			closeChatThread(null);
 		}
 		super.onCreate(savedInstanceState);
 	}
@@ -77,17 +79,31 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 			intent.putExtra(HikeConstants.Extras.MSISDN, msisdn);
 		}
 		
-		if (HikeMessengerApp.isStealthMsisdn(msisdn)
-				&& HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF) != HikeConstants.STEALTH_ON)
+		if (StealthModeManager.getInstance().isStealthMsisdn(msisdn) && !StealthModeManager.getInstance().isActive())
 		{
 			return false;
+		}
+		
+		/**
+		 * Possibly opening a deleted bot ?
+		 */
+		if (HikeConstants.Extras.BOT_CHAT_THREAD.equals(intent.getStringExtra(HikeConstants.Extras.WHICH_CHAT_THREAD)))
+		{
+			if (null == BotUtils.getBotInfoForBotMsisdn(msisdn))
+			{
+				return false;
+			}
 		}
 		return true;
 	}
 	
-	private void closeChatThread()
+	public void closeChatThread(String msisdn)
 	{
 		Intent homeintent = IntentFactory.getHomeActivityIntent(this);
+		if(msisdn != null)
+		{
+			homeintent.putExtra(HikeConstants.STEALTH_MSISDN, msisdn);
+		}
 		this.startActivity(homeintent);
 		this.finish();
 	}
