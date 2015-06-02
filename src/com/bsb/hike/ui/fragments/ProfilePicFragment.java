@@ -97,7 +97,7 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 
 		BitmapFactory.Options options = new BitmapFactory.Options();
 		options.inPreferredConfig = Bitmap.Config.RGB_565;
-		Bitmap bmp = BitmapFactory.decodeFile(imagePath, options);
+		Bitmap bmp = HikeBitmapFactory.decodeFile(imagePath, options);
 		if (bmp != null)
 		{
 			mCircularImageView.setImageBitmap(bmp);
