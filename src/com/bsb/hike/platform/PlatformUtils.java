@@ -452,7 +452,6 @@ public class PlatformUtils
 			return;
 		}
 		HikeMessengerApp.getPubSub().publish(HikePubSub.DELETE_THIS_CONVERSATION, botInfo);
-		ContactManager.getInstance().removeIcon(msisdn);
 	}
 
 }
