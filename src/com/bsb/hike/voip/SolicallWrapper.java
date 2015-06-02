@@ -64,7 +64,7 @@ public class SolicallWrapper
 			int CpuAEC = sharedPref.getData(HikeConstants.VOIP_AEC_CPU, 2);
 			short AecMinOutput = (short) sharedPref.getData(HikeConstants.VOIP_AEC_MO, 0);
 			short AecTypeParam = (short) sharedPref.getData(HikeConstants.VOIP_AEC_TYPE, 1); // Before 24 May, value was 4
-			short comfortNoise = (short) sharedPref.getData(HikeConstants.VOIP_AEC_CNP, 100);
+			short comfortNoise = (short) sharedPref.getData(HikeConstants.VOIP_AEC_CNP, 0); // Before 2 Jun, value was 100
 			int AecTailType = sharedPref.getData(HikeConstants.VOIP_AEC_TAIL_TYPE, -18);
 			
 //			Logger.d(VoIPConstants.TAG, "AEC parameters: " + CpuNoiseReduction + ", " 
