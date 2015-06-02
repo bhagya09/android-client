@@ -8,16 +8,19 @@ public class OfflineConversation extends OneToOneConversation
 
 	private String displayMsisdn;
 
+	OfflineConvInfo convInfo;
+
 	protected OfflineConversation(InitBuilder<?> builder)
 	{
 		super(builder);
 		this.displayMsisdn = builder.displayMsisdn;
-		Logger.d("OfflineChatThread","In Builder");
+		convInfo=(OfflineConvInfo) builder.convInfo;
+		Logger.d("OfflineChatThread", "In Builder");
 	}
-	
+
 	public String getDisplayMsisdn()
 	{
-		return displayMsisdn; 
+		return convInfo.getDisplayMsisdn();
 	}
 
 	protected static abstract class InitBuilder<P extends InitBuilder<P>> extends OneToOneConversation.InitBuilder<P>
@@ -27,25 +30,24 @@ public class OfflineConversation extends OneToOneConversation
 		public InitBuilder(String msisdn)
 		{
 			super(msisdn);
-			displayMsisdn=msisdn.replace("o:", "");
 		}
 
-		public P setConvInfo(BotInfo newConvInfo)
+		public P setConvInfo(OfflineConvInfo newConvInfo)
 		{
 			this.convInfo = newConvInfo;
 			return getSelfObject();
 		}
+
 		public OfflineConversation build()
 		{
 			return new OfflineConversation(this);
 		}
 	}
 
-	
 	/**
 	 * 
 	 * @author himanshu
-	 *
+	 * 
 	 */
 	public static class ConversationBuilder extends OfflineConversation.InitBuilder<ConversationBuilder>
 	{
@@ -61,9 +63,9 @@ public class OfflineConversation extends OneToOneConversation
 		}
 
 		@Override
-		protected ConvInfo getConvInfo(String msisdn)
+		protected OfflineConvInfo getConvInfo(String msisdn)
 		{
-			return new ConvInfo.ConvInfoBuilder(msisdn).build();
+			return new OfflineConvInfo.OfflineBuilder(msisdn).setDisplayMsisdn(msisdn.replace("o:", "")).build();
 		}
 	}
 }
