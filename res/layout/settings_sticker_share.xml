@@ -15,21 +15,23 @@
             android:id="@+id/main_select_text_layout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="18dp"
+            android:layout_marginLeft="16dp"
             android:layout_weight="1"
             android:orientation="vertical" >
 
-            <TextView
+            <com.bsb.hike.view.CustomFontTextView
                 android:id="@+id/main_text_select_all"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
                 android:gravity="center_vertical"
                 android:textColor="#333333"
-                android:textSize="18sp" >
-            </TextView>
+               android:textSize="16sp" 
+               
+                android:textStyle="bold|italic" />
 
-            <TextView
+            <com.bsb.hike.view.CustomFontTextView
+                
                 android:id="@+id/side_text_select_all"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
@@ -37,8 +39,10 @@
                 android:layout_marginTop="4dp"
                 android:gravity="center_vertical"
                 android:textColor="#AAAAAA"
-                android:textSize="12sp" >
-            </TextView>
+                android:textSize="12sp" 
+                
+                android:textStyle="bold|italic" 
+                />
         </LinearLayout>
 
         <CheckBox

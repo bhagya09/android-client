@@ -1161,8 +1161,6 @@ public class HikeConstants
 
 		public static final int DISMISS_CONST= 5;
 
-		public static final String SELECT_ALL_BUTTON= "selectAllButton";
-		
 		//required for analytics 
 		
 		public static final String INFOICON_WITHOUT_CLICK = "iWoC";

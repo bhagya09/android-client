@@ -16,6 +16,7 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.view.StickerEmoticonIconPageIndicator;
+
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Intent;
@@ -30,7 +31,7 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-public class ChatHeadActivity extends HikeBaseActivity implements StickerPickerListener, OnClickListener
+public class ChatHeadActivity extends HikeBaseActivity implements StickerPickerListener, OnClickListener, TabClickListener
 {
 	View stickerPickerView;
 
@@ -55,8 +56,13 @@ public class ChatHeadActivity extends HikeBaseActivity implements StickerPickerL
 	@Override
 	protected void onDestroy()
 	{
+		if (ChatHeadService.flagActivityRunning)
+		{
+		ChatHeadService.getInstance().resetPosition(HikeConstants.ChatHead.REMAINING_ANIMATION);
+		}
 		saveUpdtdShrdPrefVar();
 		ChatHeadService.flagActivityRunning = false;
+		StickerEmoticonIconPageIndicator.unRegisterChatHeadTabClickListener();
 		super.onDestroy();
 		
 	}
@@ -73,31 +79,6 @@ public class ChatHeadActivity extends HikeBaseActivity implements StickerPickerL
 	{
 		ChatHeadService.getInstance().resetPosition(HikeConstants.ChatHead.FINISHING_CHAT_HEAD_ACTIVITY_ANIMATION);
 	}
-
-
-	OnPageChangeListener onPageChangeListener = new OnPageChangeListener()
-	{
-		@Override
-		public void onPageSelected(int pageNum)
-		{
-			ViewPager viewPager = (ViewPager) (stickerPickerView.findViewById(R.id.sticker_pager));
-			viewPager.setVisibility(View.VISIBLE);
-			ImageView imageView = (ImageView) (stickerPickerView.findViewById(R.id.info_icon));
-			imageView.setImageResource(R.drawable.infoicon);
-			LinearLayout layout = (LinearLayout) (stickerPickerView.findViewById(R.id.info_icon_layout));
-			layout.setVisibility(View.GONE);
-		}
-
-		@Override
-		public void onPageScrolled(int arg0, float arg1, int arg2)
-		{
-		}
-
-		@Override
-		public void onPageScrollStateChanged(int arg0)
-		{
-		}
-	};
 
 	@Override
 	public void onCreate(Bundle savedInstanceState)
@@ -117,8 +98,6 @@ public class ChatHeadActivity extends HikeBaseActivity implements StickerPickerL
 		{
 			infoIcon.setOnClickListener(this);
 		}
-		mIconPageIndicator = (StickerEmoticonIconPageIndicator) stickerPickerView.findViewById(R.id.sticker_icon_indicator);
-		mIconPageIndicator.setOnPageChangeListener(onPageChangeListener);
 		layout.addView(stickerPickerView);
 		if (ChatHeadService.dismissed > maxDismissLimit || shareCount >= shareLimit)
 		{
@@ -172,7 +151,7 @@ public class ChatHeadActivity extends HikeBaseActivity implements StickerPickerL
 		}
 	}
 
-	private long gettingMidnightTimeinMilliseconds()
+	public static long gettingMidnightTimeinMilliseconds()
 	{
 		Calendar c = Calendar.getInstance();
 		c.set(Calendar.HOUR_OF_DAY, 0);
@@ -223,6 +202,8 @@ public class ChatHeadActivity extends HikeBaseActivity implements StickerPickerL
 		imageView.setImageResource(R.drawable.infoicon_active);
 		infoIconLayout = (LinearLayout) (stickerPickerView.findViewById(R.id.info_icon_layout));
 		infoIconLayout.setVisibility(View.VISIBLE);
+		mIconPageIndicator = (StickerEmoticonIconPageIndicator) stickerPickerView.findViewById(R.id.sticker_icon_indicator);
+		mIconPageIndicator.unselectCurrent();			
 		disableLayout = (LinearLayout) (stickerPickerView.findViewById(R.id.disable_layout));
 		disableLayout.setVisibility(View.GONE);
 		if (ChatHeadService.dismissed > maxDismissLimit)
@@ -337,8 +318,7 @@ public class ChatHeadActivity extends HikeBaseActivity implements StickerPickerL
 		layout.findViewById(R.id.one_hour).setOnClickListener(this);
 		layout.findViewById(R.id.eight_hours).setOnClickListener(this);
 		layout.findViewById(R.id.eight_hours).setOnClickListener(this);
-		
-
+		StickerEmoticonIconPageIndicator.registerChatHeadTabClickListener(this);
 	}
 
 	private void initLayoutComponentsView()
@@ -359,6 +339,19 @@ public class ChatHeadActivity extends HikeBaseActivity implements StickerPickerL
 			progress = 0;
 		}
 		progressBar.setProgress(progress);
+	}
+
+
+	@Override
+	public void onTabClick()
+	{
+		ViewPager viewPager = (ViewPager) (stickerPickerView.findViewById(R.id.sticker_pager));
+		viewPager.setVisibility(View.VISIBLE);
+		ImageView imageView = (ImageView) (stickerPickerView.findViewById(R.id.info_icon));
+		imageView.setImageResource(R.drawable.infoicon);
+		LinearLayout layout = (LinearLayout) (stickerPickerView.findViewById(R.id.info_icon_layout));
+		layout.setVisibility(View.GONE);
+
 	}
 
 }

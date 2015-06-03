@@ -35,7 +35,6 @@ public class ChatHeadServiceManager extends BroadcastReceiver
 			}
 			else if (intent.getAction().equals(Intent.ACTION_SCREEN_ON))
 			{
-				Logger.d("ashish","screenon");
 				startService();
 			}
 		}

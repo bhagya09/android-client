@@ -538,7 +538,6 @@ public abstract class JavascriptBridge
 			{
 				IntentFactory.createBroadcastDefault(context);
 			}
-//"ashish"			if(activityName.equals()) 
 		}
 		catch (JSONException e)
 		{

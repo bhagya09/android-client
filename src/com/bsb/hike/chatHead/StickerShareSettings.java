@@ -12,9 +12,7 @@ import com.bsb.hike.R;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
-
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -60,7 +58,7 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 
 		try
 		{
-			JSONArray jsonObj = new JSONArray(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.PACKAGE_LIST, null));
+			JSONArray jsonObj = new JSONArray(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.PACKAGE_LIST, ""));
 
 			for (int i = 0; i < jsonObj.length(); i++)
 			{
@@ -187,7 +185,7 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 			{
 				mListViewItems.get(j).appChoice = true;
 			}
-			ChatHeadService.toShow = true;
+			ChatHeadServiceManager.snooze = false;
 			HAManager.getInstance().chatHeadshareAnalytics(HikeConstants.ChatHead.SELECT_ALL, HikeConstants.ChatHead.APP_CHECKED);
 		}
 
@@ -230,11 +228,7 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 		{
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL, true);
 		}
-		for (int i = 0; i < mListViewItems.size(); i++)
-		{
-			Logger.d("ashish", mListViewItems.get(i).pkgName + mListViewItems.get(i).appChoice + i);
-		}
-
+		
 		listAdapter.notifyDataSetChanged();
 
 	}
@@ -285,7 +279,7 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 
 			mListViewItems.get(tag).appChoice = true;
 			mListViewItems.get(tag).mCheckBox.setChecked(true);
-			ChatHeadService.toShow = true;
+			ChatHeadServiceManager.snooze = false;
 			HAManager.getInstance().chatHeadshareAnalytics(HikeConstants.ChatHead.APP_CLICK, mListViewItems.get(tag).appName, HikeConstants.ChatHead.APP_CHECKED);
 		}
 
@@ -332,7 +326,7 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 		JSONArray jsonObj;
 		try
 		{
-			jsonObj = new JSONArray(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.PACKAGE_LIST, null));
+			jsonObj = new JSONArray(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.PACKAGE_LIST, ""));
             int j=0;
 			for (int i = 0; i < jsonObj.length(); i++)
 			{
@@ -345,7 +339,6 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 				}
 			}
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.PACKAGE_LIST, jsonObj.toString());
-		Logger.d("ashish", jsonObj.toString());
 		}
 		catch (JSONException e1)
 		{

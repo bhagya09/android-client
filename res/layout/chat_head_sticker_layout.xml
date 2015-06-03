@@ -51,16 +51,16 @@
             android:layout_width="0.5dp"
             android:layout_height="match_parent"
             android:layout_toLeftOf="@id/shop_icon"
-            android:background="#555555">
+            android:background="#555555" >
         </View>
-        
+
         <View
             android:id="@+id/vertical_sep"
             android:layout_width="0.5dp"
             android:layout_height="16dp"
-            android:background="#444444"
             android:layout_centerVertical="true"
-            android:layout_toLeftOf="@id/shop_icon">
+            android:layout_toLeftOf="@id/shop_icon"
+            android:background="#444444" >
         </View>
 
         <ImageView
@@ -69,8 +69,8 @@
             android:layout_height="match_parent"
             android:layout_toLeftOf="@id/vertical_sep"
             android:background="#555555"
-            android:src="@drawable/infoicon"
-            android:scaleType="centerInside" />
+            android:scaleType="centerInside"
+            android:src="@drawable/infoicon" />
 
         <com.bsb.hike.view.StickerEmoticonIconPageIndicator
             android:id="@+id/sticker_icon_indicator"
@@ -125,20 +125,13 @@
             android:textColor="#666666"
             android:textSize="12sp" />
 
-        <View
-            android:id="@+id/divider"
-            android:layout_width="match_parent"
-            android:layout_height="0.5dp"
-            android:layout_marginLeft="8dp"
-            android:layout_marginRight="8dp"
-            android:layout_marginTop="22dp"
-            android:background="#333333" />
-
         <LinearLayout
             android:id="@+id/main_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
+            android:layout_marginTop="20dp"
+            android:background="#264C4C4C"
             android:orientation="horizontal"
             android:visibility="gone" >
 
@@ -192,6 +185,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
+            android:layout_marginTop="20dp"
+            android:background="#264C4C4C"
             android:orientation="horizontal"
             android:visibility="gone" >
 

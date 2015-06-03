@@ -9,17 +9,17 @@
         android:layout_width="30dp"
         android:layout_height="30dp"
         android:layout_gravity="center_vertical"
-        android:layout_margin="9dp">
+        android:layout_margin="9dp" >
     </ImageView>
 
-    <TextView
+    <com.bsb.hike.view.CustomFontTextView
         android:id="@+id/app_name"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_weight="1"
         android:gravity="center_vertical"
-        android:textSize="18sp" >
-    </TextView>
+        android:textSize="16sp"
+        android:textStyle="bold|italic" />
 
     <CheckBox
         android:id="@+id/checkbox_item"

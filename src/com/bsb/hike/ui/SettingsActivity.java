@@ -33,7 +33,6 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.HAManager;
-import com.bsb.hike.chatHead.ChatHeadService;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ImageViewerInfo;
@@ -47,7 +46,6 @@ import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
 import com.bsb.hike.utils.EmoticonConstants;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
-import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.Utils;
 
@@ -105,7 +103,7 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 		}
 		items.add(getString(R.string.manage_account));
 		items.add(getString(R.string.privacy));
-		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, false) && checkPkgInstalled())
+    	if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, false) && checkPkgInstalled())
 		{
 			items.add(getString(R.string.settings_share_stickers));
 		}
@@ -245,9 +243,8 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 		JSONArray jsonObj;
 		try
 		{
-			jsonObj = new JSONArray(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.PACKAGE_LIST, null));
-			if (jsonObj != null)
-			{
+			jsonObj = new JSONArray(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.PACKAGE_LIST, ""));
+			
 				for (int i = 0; i < jsonObj.length(); i++)
 				{
 					JSONObject obj = jsonObj.getJSONObject(i);
@@ -258,11 +255,9 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 						}
 					}
 				}
-			}
 		}
 		catch (JSONException e)
 		{
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return false;

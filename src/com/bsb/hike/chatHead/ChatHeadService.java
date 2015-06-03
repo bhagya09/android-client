@@ -44,9 +44,7 @@ public class ChatHeadService extends Service
 	{
 		try
 		{
-			JSONArray jsonObj = new JSONArray(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.PACKAGE_LIST, null));
-			if (jsonObj != null)
-			{
+			JSONArray jsonObj = new JSONArray(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.PACKAGE_LIST, ""));
 				for (int i = 0; i < jsonObj.length(); i++)
 				{
 					JSONObject obj = jsonObj.getJSONObject(i);
@@ -59,7 +57,6 @@ public class ChatHeadService extends Service
 					}
 
 				}
-			}
 		}
 		catch (JSONException e)
 		{
@@ -199,13 +196,31 @@ public class ChatHeadService extends Service
 		translateY.setDuration(HikeConstants.ChatHead.ANIMATION_TIME);
 		AnimatorSet animatorSet = new AnimatorSet();
 		animatorSet.playTogether(translateX, translateY);
-		animatorSet.start();
 		animatorSet.addListener(new AnimatorListener()
 		{
 
 			@Override
 			public void onAnimationStart(Animator animation)
 			{
+				if (flag == HikeConstants.ChatHead.FINISHING_CHAT_HEAD_ACTIVITY_ANIMATION)
+				{
+					if (flagActivityRunning)
+					{
+						flagActivityRunning = false;
+						ChatHeadActivity.getInstance().finish();
+					}
+					ChatHeadActivity.getInstance().overridePendingTransition(0, 0);
+				}
+				if (flag== HikeConstants.ChatHead.SHARING_BEFORE_FINISHING_ANIMATION)
+				{
+					if (flagActivityRunning)
+					{
+						flagActivityRunning = false;
+						ChatHeadActivity.getInstance().finish();
+					}
+					ChatHeadActivity.getInstance().overridePendingTransition(0, 0);
+				}
+			
 			}
 
 			@Override
@@ -222,15 +237,6 @@ public class ChatHeadService extends Service
 					intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 					startActivity(intent);
 				}
-				else if (flag == HikeConstants.ChatHead.FINISHING_CHAT_HEAD_ACTIVITY_ANIMATION)
-				{
-					if (flagActivityRunning)
-					{
-						flagActivityRunning = false;
-						ChatHeadActivity.getInstance().finish();
-					}
-					ChatHeadActivity.getInstance().overridePendingTransition(0, 0);
-				}
 				else if (flag == HikeConstants.ChatHead.SHARING_BEFORE_FINISHING_ANIMATION)
 				{
 					Intent intent = ShareUtils.shareContent(HikeConstants.Extras.ShareTypes.STICKER_SHARE, path[0], foregroundApp);
@@ -238,12 +244,7 @@ public class ChatHeadService extends Service
 					{
 						startActivity(intent);
 					}
-					if (flagActivityRunning)
-					{
-						flagActivityRunning = false;
-						ChatHeadActivity.getInstance().finish();
-					}
-					ChatHeadActivity.getInstance().overridePendingTransition(0, 0);
+					
 				}
 			}
 
@@ -252,7 +253,8 @@ public class ChatHeadService extends Service
 			{
 			}
 		});
-
+		animatorSet.start();
+		
 	}
 
 	void setChatHeadParams()
@@ -560,7 +562,6 @@ public class ChatHeadService extends Service
 	@Override
 	public void onDestroy()
 	{
-		super.onDestroy();
 
 		if (chatHead.isShown())
 			windowManager.removeView(chatHead);
@@ -572,6 +573,7 @@ public class ChatHeadService extends Service
 		}
 		processCheckTimer.cancel();
 		processCheckTimer.purge();
+		super.onDestroy();
 
 	}
 
