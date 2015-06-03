@@ -47,6 +47,7 @@ import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.CustomStickerCategory;
+import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.models.StickerPageAdapterItem;
@@ -1730,10 +1731,34 @@ public class StickerManager
 	}
 	
 	/**
+	 * This method is to cache stickers and sticker-categories, so that their loading becomes fast on opening sticker palette the first time.
+	 */
+	public void cachingStickersOnStart(SharedPreferences prefs)
+	{
+		// This check is to avoid caching during fresh signup. If we remove this, we'll get NPE when we try to fetch recents category as it is null.
+		if (prefs.getInt(StickerManager.UPGRADE_FOR_STICKER_SHOP_VERSION_1, 1) == 1)
+		{
+			return;
+		}
+		HikeHandlerUtil mThread = HikeHandlerUtil.getInstance();
+		mThread.startHandlerThread();
+		mThread.postRunnableWithDelay(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				Logger.d("StickerCaching", "CachingStickersOnStart");
+				cacheStickersForGivenCategory(StickerManager.RECENT);
+				cacheStickerPaletteIcons();
+			}
+		}, 0);
+	}
+	
+	/**
 	 * @param categoryId
 	 * fetching recent stickers in cache.
 	 */
-	public void cacheStickersForGivenCategory(String categoryId)
+	private void cacheStickersForGivenCategory(String categoryId)
 	{
 		StickerCategory category = getCategoryForId(categoryId);
 		Logger.d("StickerCaching", "Category cached : " + categoryId);
@@ -1777,7 +1802,7 @@ public class StickerManager
 	/**
 	 * This method caches the first few sticker categories.
 	 */
-	public void cacheStickerPaletteIcons()
+	private void cacheStickerPaletteIcons()
 	{
 		HikeLruCache cache = HikeMessengerApp.getLruCache();
 		List<StickerCategory> categoryList = getStickerCategoryList();
