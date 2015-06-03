@@ -95,10 +95,6 @@ public class GalleryAdapter extends BaseAdapter
 			holder.contentLayout = (ViewGroup) convertView.findViewById(R.id.contentLayout);
 			holder.selected = convertView.findViewById(R.id.selected);
 
-			if (!isInsideAlbum)
-			{
-				(convertView.findViewById(R.id.album_layout)).setVisibility(View.VISIBLE);
-			}
 
 			holder.selected.setBackgroundResource(selectedScreen ? R.drawable.gallery_item_selected_selector : R.drawable.gallery_item_selector);
 
@@ -111,9 +107,12 @@ public class GalleryAdapter extends BaseAdapter
 		{
 			holder = (ViewHolder) convertView.getTag();
 		}
+		
 
-		if (!isInsideAlbum)
+
+		if (!isInsideAlbum && galleryItem.getType()!=GalleryItem.CUSTOM)
 		{
+			(convertView.findViewById(R.id.album_layout)).setVisibility(View.VISIBLE);
 			holder.galleryName.setVisibility(View.VISIBLE);
 			holder.galleryName.setText(galleryItem.getName());
 
@@ -127,6 +126,7 @@ public class GalleryAdapter extends BaseAdapter
 		}
 		else
 		{
+			(convertView.findViewById(R.id.album_layout)).setVisibility(View.GONE);
 			holder.galleryName.setVisibility(View.GONE);
 			holder.galleryCount.setVisibility(View.GONE);
 		}

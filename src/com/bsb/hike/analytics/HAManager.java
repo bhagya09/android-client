@@ -6,6 +6,9 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Random;
 
+import com.bsb.hike.utils.AccountUtils;
+import com.bsb.hike.voip.VoIPConstants;
+import com.bsb.hike.voip.VoIPUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -753,7 +756,10 @@ public class HAManager
 					
 					//3)putting event key (ek) as bot_open
 					metadata.put(AnalyticsConstants.EVENT_KEY, HikePlatformConstants.BOT_OPEN);
-					
+
+					metadata.put(AnalyticsConstants.NETWORK_TYPE, Integer.toString(Utils.getNetworkType(HikeMessengerApp.getInstance().getApplicationContext())));
+					metadata.put(AnalyticsConstants.APP_VERSION, AccountUtils.getAppVersion());
+
 					HAManager.getInstance().record(AnalyticsConstants.CHAT_ANALYTICS, AnalyticsConstants.NON_UI_EVENT, EventPriority.HIGH, metadata, AnalyticsConstants.EVENT_TAG_BOTS);
 						
 					Logger.d(AnalyticsConstants.ANALYTICS_TAG, "--session-id :" + fgSessionInstance.getSessionId() + "--to_user :" + chatSession.getMsisdn() + "--session-time :" + chatSession.getChatSessionTotalTime());

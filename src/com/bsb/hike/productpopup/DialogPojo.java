@@ -3,6 +3,8 @@ package com.bsb.hike.productpopup;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.bsb.hike.utils.Logger;
+
 
 /**
  * 
@@ -116,14 +118,14 @@ public class DialogPojo implements Parcelable
 	{
 		public DialogPojo createFromParcel(Parcel in)
 		{
-			Object data = in.readValue(Object.class.getClassLoader());
+			Object data = in.readValue(getClass().getClassLoader());
 			
 			boolean isFullScreen = in.readByte() != 0;
 
 			String html = in.readString();
 
 			int heigth = in.readInt();
-
+			
 			return new DialogPojo(isFullScreen, heigth, html, data);
 		}
 

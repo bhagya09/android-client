@@ -12,8 +12,8 @@ import android.widget.Toast;
 
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
-import com.bsb.hike.db.DBBackupRestore;
 import com.bsb.hike.db.HikeContentDatabase;
+import com.bsb.hike.db.AccountBackupRestore;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.modules.contactmgr.ContactManager;
@@ -27,6 +27,7 @@ import com.bsb.hike.service.HikeService;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.NUXManager;
+import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.google.android.gcm.GCMRegistrar;
@@ -110,13 +111,14 @@ public class DeleteAccountTask implements ActivityCallableTask
 		HikeMessengerApp app = HikeMessengerApp.getInstance();
 		app.setServiceAsDisconnected();
 		app.stopService(new Intent(ctx, HikeService.class));
+		app.hikeBotInfoMap.clear();
 
 		/**
 		 * Unregister from GCM service
 		 */
 		GCMRegistrar.unregister(ctx.getApplicationContext());
 
-		HikeMessengerApp.clearStealthMsisdn();
+		StealthModeManager.getInstance().clearStealthMsisdn();
 
 		FileTransferManager.getInstance(ctx).shutDownAll();
 
@@ -176,7 +178,7 @@ public class DeleteAccountTask implements ActivityCallableTask
 	{
 		if (delete)
 		{
-			DBBackupRestore.getInstance(ctx).deleteAllFiles();
+			AccountBackupRestore.getInstance(ctx).deleteAllFiles();
 		}
 		
 		clearAppData();
