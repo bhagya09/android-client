@@ -1,7 +1,5 @@
 package com.bsb.hike.offline;
-
 import static com.bsb.hike.offline.OfflineConstants.IP_SERVER;
-
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -20,8 +18,8 @@ import org.json.JSONObject;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v4.util.Pair;
 
+import android.util.Pair;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -34,18 +32,24 @@ import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.utils.Logger;
+import java.util.ArrayList;
+import java.util.HashMap;
+import android.net.wifi.ScanResult;
+import android.net.wifi.p2p.WifiP2pDeviceList;
+import android.net.wifi.p2p.WifiP2pManager.PeerListListener;
+
 
 /**
  * 
  * @author himanshu
  * This class forms the base of Offline Messaging and deals with socket connection,text transfer and file transfer queue. 
  */
-public class OfflineManager
+
+public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 {
 	public static final OfflineManager _instance = new OfflineManager();
 
 	private boolean isHotSpotCreated = false;
-	
 	private ConcurrentHashMap<Long, FileTransferModel> currentSendingFiles = new ConcurrentHashMap<Long, FileTransferModel>();
 
 	private ConcurrentHashMap<Long, FileTransferModel> currentReceivingFiles = new ConcurrentHashMap<Long, FileTransferModel>();
@@ -55,6 +59,10 @@ public class OfflineManager
 	private final static Object currentSendingFilesLock = new Object();
 	
 	private BlockingQueue<JSONObject> textMessageQueue = null;
+	
+	private ConnectionManager connectionManager;
+	
+	private ArrayList<IOfflineCallbacks> listeners;
 
 	private BlockingQueue<FileTransferModel> fileTransferQueue = null;
 
@@ -117,6 +125,8 @@ public class OfflineManager
 		textMessageQueue=new LinkedBlockingQueue<>();
 		fileTransferQueue=new LinkedBlockingQueue<>();
 		context=HikeMessengerApp.getInstance().getApplicationContext();
+		connectionManager = new ConnectionManager();
+		listeners = new ArrayList<IOfflineCallbacks>();
 	}
 
 	public void setIsHotSpotCreated(boolean isHotSpotCreated)
@@ -137,6 +147,15 @@ public class OfflineManager
 	public synchronized void addToFileQueue(FileTransferModel fileTransferObject)
 	{
 		fileTransferQueue.add(fileTransferObject);
+	}
+
+	@Override
+	public void onRequestPeers() {
+		connectionManager.requestPeers(this);
+	}
+
+	@Override
+	public void onDiscoveryStateChanged() {
 	}
 	
 	public  boolean copyFile(InputStream inputStream, OutputStream outputStream,long fileSize)
@@ -381,5 +400,46 @@ public class OfflineManager
 		ConvMessage convMessage = FileTransferManager.getInstance(context).uploadOfflineFile(msisdn, file, fileKey, fileType, hikeFileType, isRecording,
 				recordingDuration, attachmentType, fileName);
 		addToFileQueue(new FileTransferModel(new TransferProgress(), convMessage.serialize()));
+	}
+
+
+	@Override
+	public void onHotSpotConnected() {
+		
+	}
+
+	@Override
+	public void onPeersAvailable(WifiP2pDeviceList peers) {
+		
+	}
+
+	@Override
+	public void onScanResultAvailable() {
+		HashMap<String,ScanResult> results = connectionManager.getWifiNetworksForMyMsisdn();
+		//pass results to listeners
+		for(IOfflineCallbacks  offlineListener : listeners)
+		{
+			offlineListener.wifiScanResults(results);
+		}
+	}
+
+	public void addListener(IOfflineCallbacks listener) {
+		if(listener==null)
+			return;
+		listeners.add(listener);
+	}
+
+	@Override
+	public void checkConnectedNetwork() {
+		Pair<Boolean,String> offlineNetwork =  connectionManager.isConnectedToHikeNetwork();
+		if(offlineNetwork.first)
+		{
+			String ssid  =  connectionManager.isConnectedToHikeNetwork().second;
+			//pass results to listeners
+			for(IOfflineCallbacks  offlineListener : listeners)
+			{
+				offlineListener.connectedToNetwork(ssid);
+			}
+		}
 	}
 }

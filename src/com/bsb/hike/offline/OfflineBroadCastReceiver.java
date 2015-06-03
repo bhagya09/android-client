@@ -29,47 +29,25 @@ public class OfflineBroadCastReceiver extends BroadcastReceiver
 		 String action = intent.getAction();    
 	        if (WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION.equals(action)) 
 	        {
-//	        	if(deviceActionListener!=null)	request Peers
-//	        		deviceActionListener.requestPeers();
 	        	wifiCallBack.onRequestPeers();
 	        }      
 	        else if(WifiP2pManager.WIFI_P2P_DISCOVERY_CHANGED_ACTION.equals(action))
 	        {
 	            int state = intent.getIntExtra(WifiP2pManager.EXTRA_DISCOVERY_STATE,10000);
-	            Logger.d(TAG, "State-> " + state);
+	            wifiCallBack.onDiscoveryStateChanged();
 	        }
 	        else if(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION.equals(action))
 	        {
-	        	//Scan Results Avaibale
-//	        	scanResultsAvailable = true;
-//	        	if(deviceActionListener!=null)
-//	        	{
-//		        	HashMap<String, ScanResult> currentNearbyNetworks = deviceActionListener.getDistinctWifiNetworks();
-//		            deviceActionListener.updateCurrentNearByDevices(currentNearbyNetworks);
-//		        	Logger.d(TAG, "Scan results available");
-//	        	}
-	        	//wifiCallBack.onScanResultAvailable(currentNearByNetwork);
-	        }
-	        else if(WifiManager.SUPPLICANT_CONNECTION_CHANGE_ACTION.equals(action))
-	        {
-	        	Logger.d(TAG, "SUPPLICANT_CONNECTION_CHANGE_ACTION");
+	        	wifiCallBack.onScanResultAvailable();
 	        }
 	        else if(WifiManager.NETWORK_STATE_CHANGED_ACTION.equals(action))
 	        {
 	         	NetworkInfo netInfo = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
-	            if( netInfo.isConnected() )
-	            {
-	                Logger.d(TAG, "Offline mode is connected");
-	            }   
-	            else
-	            {
-//	            	if (OfflineManager.getInstance().)
-//	            	{
-//	            		Logger.d(TAG, "Offline mode is disconnected");
-//	            	}
-	            }
+	         	if(netInfo!=null && netInfo.getDetailedState().equals(NetworkInfo.DetailedState.CONNECTED))
+        		{
+	         		wifiCallBack.checkConnectedNetwork(); 
+        		}
 	        }
 	        
 	}
-
 }

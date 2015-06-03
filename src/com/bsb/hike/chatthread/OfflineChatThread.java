@@ -354,4 +354,10 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 //			//OfflineManager.getInstance().forwardSharingFiles(intent);
 //		}
 	}
+
+
+	@Override
+	public void connectedToNetwork(String ssid) {
+		
+	}
 }

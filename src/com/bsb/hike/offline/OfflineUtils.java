@@ -30,7 +30,9 @@ public class OfflineUtils
 	// Fix for Spice , Micromax , Xiomi
 	private final static String p2pIntOther = "ap0";
 	
+	private final static String ALPHABET = "+a0bc9de1fg2h_ij8kl7mn6op3qr4st5uv6wxyz";
 	
+	private final static int shiftKey = 10;
 
 	public static String getIPFromMac(String MAC)
 	{
@@ -115,7 +117,7 @@ public class OfflineUtils
 		}
 		return false;
 	}
-
+	
 	public static  int updateDB(long msgId, ConvMessage.State status, String msisdn)
 	{
 		return HikeConversationsDatabase.getInstance().updateMsgStatus(msgId, status.ordinal(), msisdn);
@@ -211,4 +213,43 @@ public class OfflineUtils
 		return  object.toString();
 		
 	}
+
+	public static boolean isOfflineSSID(String ssid) {
+		String decodedSSID = decodeSSID(ssid.substring(1, ssid.length()-2));
+		if(decodedSSID.startsWith("h_"))
+			return true;
+		return false;
+	}
+	// caeser cipher
+	public static String encodeSSID(String ssid)
+	{
+			String cipherText="";
+			for(int i=0;i<ssid.length();i++)
+			{
+				int charPosition = ALPHABET.indexOf(ssid.charAt(i));
+				int keyVal = (shiftKey+charPosition)%(ALPHABET.length());
+				char replaceVal = ALPHABET.charAt(keyVal);
+				cipherText += replaceVal;
+			}
+			return cipherText;
+	}
+
+		// decrypt caeser cipher
+	public static String decodeSSID(String cipherText)
+	{
+			String plainText="";
+			for(int i=0;i<cipherText.length();i++)
+			{
+				int charPosition = ALPHABET.indexOf(cipherText.charAt(i));
+				int keyVal = (charPosition-shiftKey)%(ALPHABET.length());
+				if(keyVal<0)
+				{
+					keyVal = ALPHABET.length() + keyVal;
+				}
+				char replaceVal = ALPHABET.charAt(keyVal);
+				plainText += replaceVal;
+			}
+			return plainText;
+	}
+
 }
