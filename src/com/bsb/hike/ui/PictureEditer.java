@@ -66,7 +66,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 
 	private EditorClickListener clickHandler;
 	
-	private String[] notSupportedImageFormat= new String[]{"gif"};
+	private String[] notSupportedImageFormat= new String[]{};
 
 	private ImageView undoButton;
 
