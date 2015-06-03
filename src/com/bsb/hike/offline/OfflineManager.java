@@ -37,7 +37,7 @@ import com.bsb.hike.utils.Logger;
 
 /**
  * 
- * @author himanshu
+ * @author himanshu, deepak malik
  * This class forms the base of Offline Messaging and deals with socket connection,text transfer and file transfer queue. 
  */
 public class OfflineManager
@@ -50,17 +50,15 @@ public class OfflineManager
 
 	private ConcurrentHashMap<Long, FileTransferModel> currentReceivingFiles = new ConcurrentHashMap<Long, FileTransferModel>();
 
-	private final static Object currentReceivingFilesLock = new Object();
-
-	private final static Object currentSendingFilesLock = new Object();
-	
 	private BlockingQueue<JSONObject> textMessageQueue = null;
 
 	private BlockingQueue<FileTransferModel> fileTransferQueue = null;
 
-	private volatile boolean inFileTransferInProgress=false;
+	private volatile boolean isFileTransferInProgress=false;
 	
 	private Context context;
+	
+	private String connectedDevice;
 	
 	Handler handler =new Handler(HikeHandlerUtil.getInstance().getLooper())
 	{
@@ -76,7 +74,7 @@ public class OfflineManager
 	};
 
 	
-	private static final String TAG=OfflineManager.class.getName();
+	private static final String TAG = OfflineManager.class.getName();
 	
 	private OfflineManager()
 	{
@@ -137,6 +135,7 @@ public class OfflineManager
 	public synchronized void addToFileQueue(FileTransferModel fileTransferObject)
 	{
 		fileTransferQueue.add(fileTransferObject);
+		addToCurrentSendingFile(fileTransferObject.getMessageId(), fileTransferObject);
 	}
 	
 	public  boolean copyFile(InputStream inputStream, OutputStream outputStream,long fileSize)
@@ -183,18 +182,13 @@ public class OfflineManager
 	{
 		if(isSent)
 		{
-			synchronized (currentSendingFilesLock) {
-				FileTransferModel fileTransfer=currentSendingFiles.get(msgId);
-				fileTransfer.getTransferProgress().setCurrentChunks(fileTransfer.getTransferProgress().getCurrentChunks() + 1);
-			}
+			FileTransferModel fileTransfer=currentSendingFiles.get(msgId);
+			fileTransfer.getTransferProgress().setCurrentChunks(fileTransfer.getTransferProgress().getCurrentChunks() + 1);
 		}
 		else
 		{
-			synchronized (currentReceivingFilesLock) {
-				FileTransferModel fileTransfer=currentReceivingFiles.get(msgId);
-				fileTransfer.getTransferProgress().setCurrentChunks(fileTransfer.getTransferProgress().getCurrentChunks() + 1);
-			}
-			
+			FileTransferModel fileTransfer=currentReceivingFiles.get(msgId);
+			fileTransfer.getTransferProgress().setCurrentChunks(fileTransfer.getTransferProgress().getCurrentChunks() + 1);	
 		}
 		HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
 	}
@@ -222,75 +216,6 @@ public class OfflineManager
 		}
 		return host;
 	}
-	
-	
-	public boolean sendOfflineFile(FileTransferModel fileTransferModel,OutputStream outputStream)
-	{
-		inFileTransferInProgress = true;
-		boolean isSent = true;
-		String fileUri =null;
-		InputStream inputStream = null;
-		JSONObject  jsonFile =  null;
-		try
-		{
-			JSONArray jsonFiles = fileTransferModel.getPacket().getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getJSONArray(HikeConstants.FILES);
-			jsonFile = (JSONObject) jsonFiles.get(0);
-			fileUri = jsonFile.getString(HikeConstants.FILE_PATH);
-			
-			String metaString = fileTransferModel.getPacket().toString();
-			Logger.d(TAG, metaString);
-			byte[] metaDataBytes = metaString.getBytes("UTF-8");
-			int length = metaDataBytes.length;
-			Logger.d(TAG, "Sizeof metaString: " + length);
-			byte[] intToBArray = OfflineUtils.intToByteArray(length);
-			outputStream.flush();
-			outputStream.write(intToBArray, 0, intToBArray.length);
-			ByteArrayInputStream byteArrayInputStream =  new ByteArrayInputStream(metaDataBytes);
-			boolean isMetaDataSent = copyFile(byteArrayInputStream, outputStream, metaDataBytes.length);
-			Logger.d(TAG, "FileMetaDataSent:" + isMetaDataSent);
-			byteArrayInputStream.close();
-			JSONObject metadata;
-			int fileSize  = 0;
-			metadata = fileTransferModel.getPacket().getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA);
-			JSONObject fileJSON = (JSONObject) metadata.getJSONArray(HikeConstants.FILES).get(0);
-			fileSize = fileJSON.getInt(HikeConstants.FILE_SIZE);
-			long msgID;
-			msgID = fileTransferModel.getPacket().getJSONObject(HikeConstants.DATA).getLong(HikeConstants.MESSAGE_ID);
-			fileTransferModel.getTransferProgress().setCurrentChunks(OfflineUtils.getTotalChunks(fileSize));
-			
-			//TODO:We can listen to PubSub ...Why to do this ...????
-			//showUploadTransferNotification(msgID,fileSize);
-			
-			
-			isSent = copyFile(inputStream, outputStream, msgID, true, true,fileSize);
-				synchronized (currentSendingFilesLock) {
-					currentSendingFiles.remove(msgID);
-				}
-				String msisdn = fileTransferModel.getPacket().getString(HikeConstants.TO);
-				HikeMessengerApp.getPubSub().publish(HikePubSub.UPLOAD_FINISHED, null);
-				int rowsUpdated = OfflineUtils.updateDB(msgID, ConvMessage.State.SENT_DELIVERED, msisdn);
-				if (rowsUpdated == 0)
-				{
-					Logger.d(getClass().getSimpleName(), "No rows updated");
-				}
-				Pair<String, Long> pair = new Pair<String, Long>(msisdn, msgID);
-				HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_DELIVERED, pair);
-		}
-		catch(JSONException e)
-		{
-			e.printStackTrace();
-			return false;
-		}
-		catch(IOException e)
-		{
-			e.printStackTrace();
-			return false;
-		}
-		inFileTransferInProgress=false;
-		return isSent;
-				
-
-	}
 
 	public FileSavedState getFileState(ConvMessage convMessage, File file)
 	{
@@ -302,18 +227,16 @@ public class OfflineManager
 		long msgId = convMessage.getMsgID();
 		FileSavedState fss = null;
 		HikeFile hikeFile = convMessage.getMetadata().getHikeFiles().get(0);
-		synchronized (currentSendingFilesLock)
+		
+		if (currentSendingFiles.containsKey(msgId))
 		{
-			if (currentSendingFiles.containsKey(msgId))
-			{
-				Logger.d("Spinner", "Current Msg Id -> " + msgId);
-				fss = new FileSavedState(FTState.IN_PROGRESS, (int) file.length(), currentSendingFiles.get(msgId).getTransferProgress().getCurrentChunks() * 1024);
-			}
-			else
-			{
-				Logger.d("Spinner", "Completed Msg Id -> " + msgId);
-				fss = new FileSavedState(FTState.COMPLETED, hikeFile.getFileKey());
-			}
+			Logger.d("Spinner", "Current Msg Id -> " + msgId);
+			fss = new FileSavedState(FTState.IN_PROGRESS, (int) file.length(), currentSendingFiles.get(msgId).getTransferProgress().getCurrentChunks() * 1024);
+		}
+		else
+		{
+			Logger.d("Spinner", "Completed Msg Id -> " + msgId);
+			fss = new FileSavedState(FTState.COMPLETED, hikeFile.getFileKey());
 		}
 		return fss;
 	}
@@ -323,38 +246,36 @@ public class OfflineManager
 	 * @param convMessage
 	 * @param file
 	 * @return
-	 * TODO:Removing the try catch for the app to crash .So that we cab debug ki what was the issue.
+	 * TODO:Removing the try catch for the app to crash .So that we can debug, what the issue was.
 	 */
 	private FileSavedState getDownloadFileState(ConvMessage convMessage, File file)
 	{
 		long msgId = convMessage.getMappedMsgID();
 		FileSavedState fss = null;
 		HikeFile hikeFile = convMessage.getMetadata().getHikeFiles().get(0);
-		synchronized (currentReceivingFilesLock)
-		{
-			if (currentReceivingFiles.containsKey(msgId))
-			{
-				Logger.d("Spinner", "Current Msg Id -> " + msgId);
-				fss = new FileSavedState(FTState.IN_PROGRESS, (int) file.length(), currentReceivingFiles.get(msgId).getTransferProgress().getCurrentChunks() * 1024);
 
-			}
-			else
-			{
-				Logger.d("Spinner", "Completed Msg Id -> " + msgId);
-				fss = new FileSavedState(FTState.COMPLETED, hikeFile.getFileKey());
-			}
+		if (currentReceivingFiles.containsKey(msgId))
+		{
+			Logger.d("Spinner", "Current Msg Id -> " + msgId);
+			fss = new FileSavedState(FTState.IN_PROGRESS, (int) file.length(), currentReceivingFiles.get(msgId).getTransferProgress().getCurrentChunks() * 1024);
+
+		}
+		else
+		{
+			Logger.d("Spinner", "Completed Msg Id -> " + msgId);
+			fss = new FileSavedState(FTState.COMPLETED, hikeFile.getFileKey());
 		}
 		return fss;
 	}
 	
-	public 	void setIsOfflineFileTransferInProgress(boolean val)
+	public void setIsOfflineFileTransferInProgress(boolean val)
 	{
-		inFileTransferInProgress = val;
+		isFileTransferInProgress = val;
 	}
 
 	public String getConnectedDevice()
 	{
-		return null;
+		return connectedDevice;
 	}
 	
 	public void addToCurrentReceivingFile(long msgId,FileTransferModel fileTransferModel)
@@ -369,6 +290,19 @@ public class OfflineManager
 			currentReceivingFiles.remove(msgId);
 		}
 	}
+	
+	public void addToCurrentSendingFile(long msgId, FileTransferModel fileTransferModel)
+	{
+		currentSendingFiles.put(msgId, fileTransferModel);
+	}
+	
+	public void removeFromCurrentSendingFile(long msgId)
+	{
+		if(currentSendingFiles.contains(msgId))
+		{
+			currentSendingFiles.remove(msgId);
+		}
+	}
 
 	public void initialiseOfflineFileTransfer(String filePath, String fileKey, HikeFileType hikeFileType, String fileType, boolean isRecording, long recordingDuration,
 			 int attachmentType, String msisdn,String apkLabel)
@@ -381,5 +315,10 @@ public class OfflineManager
 		ConvMessage convMessage = FileTransferManager.getInstance(context).uploadOfflineFile(msisdn, file, fileKey, fileType, hikeFileType, isRecording,
 				recordingDuration, attachmentType, fileName);
 		addToFileQueue(new FileTransferModel(new TransferProgress(), convMessage.serialize()));
+	}
+
+	public void onConnected(String hostAddress) {
+		
+		
 	}
 }

@@ -130,5 +130,21 @@ public class OfflineController
 	{
 		offlineManager.initialiseOfflineFileTransfer(imagePath, null, HikeFileType.IMAGE, null, false, -1, FTAnalyticEvents.CAMERA_ATTACHEMENT, msisdn,null);
 	}
+	
+	public void createHotspot(String msisdn)
+	{
+		OfflineThreadManager.getInstance().startReceivingThreads();
+	}
+	
+	public void connectToHotspot(String msisdn)
+	{
+		OfflineThreadManager.getInstance().startReceivingThreads();
+		OfflineThreadManager.getInstance().startSendingThreads();
+	}
+	
+	public void connectAsPerMsisdnLogic(String msisdn)
+	{
+		
+	}
 
 }

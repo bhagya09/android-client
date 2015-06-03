@@ -4,8 +4,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.nio.channels.OverlappingFileLockException;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -18,7 +16,7 @@ import com.bsb.hike.utils.StickerManager;
 
 /**
  * 
- * @author himanshu
+ * @author himanshu, deepak malik
  *
  *	Contains Utility functions for Offline related messaging.
  */
@@ -147,7 +145,7 @@ public class OfflineUtils
 		return (message.has(HikeConstants.TYPE) && message.getString(HikeConstants.TYPE).equals(HikeConstants.CHAT_BACKGROUND));
 	}
 	
-	public static  String getFileBasedOnType(int type,String fileName)
+	public static String getFileBasedOnType(int type,String fileName)
 	{
 		StringBuilder storagePath = new StringBuilder(HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT);
 		if(type==HikeFileType.OTHER.ordinal())
@@ -178,7 +176,7 @@ public class OfflineUtils
 		return storagePath.toString();
 	}
 
-	public static boolean isPingPacketValid(JSONObject object)
+	public static boolean isPingPacket(JSONObject object)
 	{
 		if (object.optString(HikeConstants.TYPE).equals(OfflineConstants.PING))
 		{
