@@ -1,7 +1,15 @@
 package com.bsb.hike.models;
 
+import java.util.ArrayList;
+
+import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.webkit.MimeTypeMap;
+
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.utils.Utils;
 
 public class GalleryItem implements Parcelable
 {
@@ -126,4 +134,49 @@ public class GalleryItem implements Parcelable
 			return new GalleryItem(source);
 		}
 	};
+	
+	@SuppressWarnings("unchecked")
+	public static <T> ArrayList<GalleryItem> getGalleryItemsFromFilepaths(ArrayList<T> filePaths)
+	{
+		ArrayList<String> mFilePaths = null;
+		
+		if(filePaths.get(0) instanceof Uri)
+		{
+			mFilePaths = new ArrayList<String>(filePaths.size());
+			for(T path : filePaths)
+			{
+				mFilePaths.add(Utils.getRealPathFromUri((Uri)path,HikeMessengerApp.getInstance().getApplicationContext()));
+			}
+		}
+		else if(filePaths.get(0) instanceof String)
+		{
+			mFilePaths = (ArrayList<String>) filePaths;
+		}
+		
+		if(mFilePaths == null || mFilePaths.size() == 0)
+		{
+			return null;
+		}
+		
+		ArrayList<GalleryItem> retItems = new ArrayList<GalleryItem>(filePaths.size());
+		
+		for(int i=0;i<mFilePaths.size();i++)
+		{
+			//Check file type since only images can be handled
+			String filename = mFilePaths.get(i);
+			String fileExtension = Utils.getFileExtension(filename);
+			String fileType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension);
+			HikeFileType hikeFileType = HikeFileType.fromString(fileType, false);
+			if (hikeFileType.compareTo(HikeFileType.IMAGE) != 0)
+			{
+				return null;
+			}
+			
+			retItems.add(new GalleryItem(i, null, "Custom_Item", filename, 0));
+
+		}
+		
+		return retItems;
+	}
+	
 }
