@@ -936,6 +936,13 @@ public class HAManager
 		}
 	}
 
+	/**
+	 * TODO Remove this before merging into internal_release
+	 * This API is only For STAGING
+	 * @param priority
+	 * @param metadata
+	 * @throws NullPointerException
+	 */
 	public synchronized void logImageConfigEvent(EventPriority priority, JSONObject metadata) throws NullPointerException
 	{
 		imageConfigEventsList.add(generateAnalticsJson(null, null, priority, metadata, null));
