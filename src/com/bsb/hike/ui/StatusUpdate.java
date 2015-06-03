@@ -581,7 +581,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 			mActivityTask.moodShowing = false;
 			moodParent.setVisibility(View.GONE);
 		}
-		else if (mEmoticonPicker.isShowing())
+		else if (mEmoticonPicker != null && mEmoticonPicker.isShowing())
 		{
 			mActivityTask.emojiShowing = false;
 			mEmoticonPicker.dismiss();
