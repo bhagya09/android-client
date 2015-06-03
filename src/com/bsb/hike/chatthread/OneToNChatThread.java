@@ -7,6 +7,7 @@ import java.util.Set;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import android.media.AudioManager;
 import android.os.Message;
 import android.text.Editable;
 import android.util.Pair;
@@ -584,7 +585,7 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 				if (isActivityVisible && SoundUtils.isTickSoundEnabled(activity.getApplicationContext()))
 				{
 
-					SoundUtils.playSoundFromRaw(activity.getApplicationContext(), R.raw.received_message);
+					SoundUtils.playSoundFromRaw(activity.getApplicationContext(), R.raw.received_message, AudioManager.STREAM_RING);
 				}
 
 			}

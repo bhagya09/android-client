@@ -5,7 +5,6 @@ import org.json.JSONObject;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -32,17 +31,15 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
-import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.http.HikeHttpRequest;
 import com.bsb.hike.http.HikeHttpRequest.RequestType;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.StatusMessage;
-import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.tasks.FinishableEvent;
 import com.bsb.hike.tasks.HikeHTTPTask;
-import com.bsb.hike.ui.HomeActivity;
+import com.bsb.hike.ui.TimelineActivity;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.HoloCircularProgress;
@@ -312,8 +309,8 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 						{
 							if (isAdded() && !failed)
 							{
-								Intent in = new Intent(getActivity(), HomeActivity.class);
-								in.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+								Intent in = new Intent(getActivity(), TimelineActivity.class);
+								in.putExtra(HikeConstants.HikePhotos.FROM_DP_UPLOAD, true);
 								getActivity().startActivity(in);
 							}
 						}

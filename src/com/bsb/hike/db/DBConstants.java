@@ -5,7 +5,7 @@ import com.bsb.hike.models.ContactInfo.FavoriteType;
 public interface DBConstants
 {
 
-	public static final int CONVERSATIONS_DATABASE_VERSION = 39;
+	public static final int CONVERSATIONS_DATABASE_VERSION = 40;
 
 	public static final int USERS_DATABASE_VERSION = 17;
 
@@ -212,6 +212,14 @@ public interface DBConstants
 	public static final String IS_SENT = "isSent";
 	public static final String BOT_TABLE = "botTable";
 
+	public static final String BOT_TYPE = "type";
+
+	public static final String BOT_CONFIGURATION = "config";
+
+	public static final String CONFIG_DATA = "config_data";
+
+	public static final String IS_BOT_ENABLE = "bot_enabled";
+
 	public static interface HIKE_CONV_DB{
 		// CHANNEL TABLE -> _id,channel_id,name,visibility,index 
 		public static final String CHANNEL_TABLE = "channel";
@@ -238,7 +246,7 @@ public interface DBConstants
 	 *
 	 */
 	public static interface HIKE_CONTENT{
-		public static final int DB_VERSION = 3;
+		public static final int DB_VERSION = 4;
 		public static final String DB_NAME = "hike_content_db";
 		// CONTENT TABLE -> _id,content_id,love_id,channel_id,timestamp,metadata
 		public static final String CONTENT_TABLE = "content";
@@ -291,6 +299,11 @@ public interface DBConstants
 		public static final String CONTENT_ID_INDEX = "contentTableContentIdIndex";
 		public static final String CONTENT_TABLE_NAMESPACE_INDEX = "contentTableNamespaceIndex";
 		String NAMESPACE = "nameSpace";
+		public static final String NOTIF_DATA = "notif_data";
+		public static final String VALUE = "value";
+		public static final String CONTENT_CACHE_TABLE = "contentCache";
+		public static final String KEY = "key";
+		public static final String HELPER_DATA = "helper_data";
 	}
 
 	public static final String CATEGORY_NAME = "categoryName";

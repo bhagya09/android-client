@@ -66,6 +66,7 @@ import com.bsb.hike.adapters.ProfileAdapter;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.ProfileImageActions;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
@@ -92,18 +93,19 @@ import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.smartImageLoader.IconLoader;
 import com.bsb.hike.tasks.FinishableEvent;
+import com.bsb.hike.tasks.GetHikeJoinTimeTask;
 import com.bsb.hike.tasks.HikeHTTPTask;
 import com.bsb.hike.ui.fragments.ImageViewerFragment;
 import com.bsb.hike.ui.fragments.PhotoViewerFragment;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
 import com.bsb.hike.utils.EmoticonConstants;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.SmileyParser;
+import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.CustomFontEditText;
 import com.bsb.hike.voip.VoIPUtils;
@@ -265,10 +267,6 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		if ((mActivityState != null) && (mActivityState.task != null))
 		{
 			mActivityState.task.setActivity(null);
-		}
-		if ((mActivityState != null) && (mActivityState.getHikeJoinTimeTask != null))
-		{
-			mActivityState.getHikeJoinTimeTask.cancel(true);
 		}
 		if (profileType == ProfileType.GROUP_INFO || profileType == ProfileType.BROADCAST_INFO)
 		{
@@ -538,7 +536,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		case CONTACT_INFO_TIMELINE:
 			/*Falling onto contact info intentionally*/
 		case CONTACT_INFO:
-			if(HikeMessengerApp.hikeBotNamesMap.containsKey(contactInfo.getMsisdn()))
+			if(HikeMessengerApp.hikeBotInfoMap.containsKey(contactInfo.getMsisdn()))
 			{
 				menu.clear();
 				return true; 
@@ -667,7 +665,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		 */
 		if (contactInfo.isOnhike() && contactInfo.getHikeJoinTime() == 0)
 		{
-			getHikeJoinedTimeFromServer();
+			getHikeJoinTime();
 		}
 	}
 	
@@ -684,33 +682,14 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		
 		if(contactInfo.isOnhike() && contactInfo.getHikeJoinTime() == 0)
 		{
-			getHikeJoinedTimeFromServer();
+			getHikeJoinTime();
 		}
 	}
 	
-	private void getHikeJoinedTimeFromServer()
+	private void getHikeJoinTime()
 	{
-		HikeHttpRequest hikeHttpRequest = new HikeHttpRequest(HikeConstants.REQUEST_BASE_URLS.HTTP_REQUEST_PROFILE_BASE_URL + mLocalMSISDN, RequestType.HIKE_JOIN_TIME, new HikeHttpCallback()
-		{
-			@Override
-			public void onSuccess(JSONObject response)
-			{
-				Logger.d(getClass().getSimpleName(), "Response: " + response.toString());
-				try
-				{
-					JSONObject profile = response.getJSONObject(HikeConstants.PROFILE);
-					long hikeJoinTime = profile.optLong(HikeConstants.JOIN_TIME, 0);
-					hikeJoinTime = Utils.applyServerTimeOffset(ProfileActivity.this, hikeJoinTime);
-					HikeMessengerApp.getPubSub().publish(HikePubSub.HIKE_JOIN_TIME_OBTAINED, new Pair<String, Long>(mLocalMSISDN, hikeJoinTime));
-				}
-				catch (JSONException e)
-				{
-					e.printStackTrace();
-				}
-			}
-		});
-		mActivityState.getHikeJoinTimeTask = new HikeHTTPTask(null, -1);
-		Utils.executeHttpTask(mActivityState.getHikeJoinTimeTask, hikeHttpRequest);
+		GetHikeJoinTimeTask getHikeJoinTimeTask = new GetHikeJoinTimeTask(mLocalMSISDN);
+		getHikeJoinTimeTask.execute();
 	}
 	
 	private void updateProfileHeaderView()
@@ -774,7 +753,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			dual_layout.setVisibility(View.GONE);
 			statusMood.setVisibility(View.GONE);
 			fav_layout.setTag(null);  //Resetting the tag, incase we need to add to favorites again.
-			if(!HikeMessengerApp.hikeBotNamesMap.containsKey(contactInfo.getMsisdn()))  //The HikeBot's numbers wont be shown
+			if(!HikeMessengerApp.hikeBotInfoMap.containsKey(contactInfo.getMsisdn()))  //The HikeBot's numbers wont be shown
 			{
 			if (showContactsUpdates(contactInfo)) // Favourite case
 			
@@ -990,7 +969,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	private void setupContactProfileList()
 	{
 		profileItems.clear();
-		if(!HikeMessengerApp.hikeBotNamesMap.containsKey(contactInfo.getMsisdn()))  //The HikeBot's numbers wont be shown
+		if(!HikeMessengerApp.hikeBotInfoMap.containsKey(contactInfo.getMsisdn()))  //The HikeBot's numbers wont be shown
 		profileItems.add(new ProfileItem.ProfilePhoneNumberItem(ProfileItem.PHONE_NUMBER, getResources().getString(R.string.phone_pa)));
 		if(contactInfo.isOnhike())
 		{	shouldAddSharedMedia();
@@ -1210,7 +1189,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			@Override
 			public void onClick(View v)
 			{				
-				showProfileImageEditDialog(ProfileActivity.this, ProfileActivity.this, mLocalMSISDN, ProfileImageActions.DP_EDIT_FROM_PROFILE_OVERFLOW_MENU);
+				beginProfilePicChange(ProfileActivity.this,ProfileActivity.this, ProfileImageActions.DP_EDIT_FROM_PROFILE_OVERFLOW_MENU);
 				
 				JSONObject md = new JSONObject();
 
@@ -1268,31 +1247,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		initializeListviewAndAdapter();
 		if (contactInfo.isOnhike() && contactInfo.getHikeJoinTime() == 0)
 		{
-			HikeHttpRequest hikeHttpRequest = new HikeHttpRequest("/account/profile/" + mLocalMSISDN, RequestType.HIKE_JOIN_TIME, new HikeHttpCallback()
-			{
-				@Override
-				public void onSuccess(JSONObject response)
-				{
-					Logger.d(getClass().getSimpleName(), "Response: " + response.toString());
-					try
-					{
-						JSONObject profile = response.getJSONObject(HikeConstants.PROFILE);
-						long hikeJoinTime = profile.optLong(HikeConstants.JOIN_TIME, 0);
-
-						Editor editor = preferences.edit();
-						editor.putLong(HikeMessengerApp.USER_JOIN_TIME, hikeJoinTime);
-						editor.commit();
-
-						HikeMessengerApp.getPubSub().publish(HikePubSub.USER_JOIN_TIME_OBTAINED, new Pair<String, Long>(mLocalMSISDN, hikeJoinTime));
-					}
-					catch (JSONException e)
-					{
-						e.printStackTrace();
-					}
-				}
-			});
-			mActivityState.getHikeJoinTimeTask = new HikeHTTPTask(null, -1);
-			Utils.executeHttpTask(mActivityState.getHikeJoinTimeTask, hikeHttpRequest);
+			getHikeJoinTime();
 		}
 	}
 
@@ -1585,9 +1540,10 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 			startActivity(i);
 		}
-		else if (this.profileType == ProfileType.USER_PROFILE)
+		
+		if (Utils.isPhotosEditEnabled() && this.profileType == ProfileType.USER_PROFILE_EDIT)
 		{
-			super.onBackPressed();
+			//handling user profile edit case differently since photos flow will handle the created fragments
 			return;
 		}
 		super.onBackPressed();
@@ -1639,7 +1595,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 
 	public void onViewImageClicked(View v)
 	{
-		if(Utils.isBot(mLocalMSISDN))
+		if(BotUtils.isBot(mLocalMSISDN))
 		{
 			return;
 		}
@@ -1723,11 +1679,11 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	{
 		if(profileType == ProfileType.GROUP_INFO)
 		{
-			showProfileImageEditDialog(ProfileActivity.this, ProfileActivity.this, mLocalMSISDN, null);
+			beginProfilePicChange(ProfileActivity.this,ProfileActivity.this, null);
 		}
 		else if(profileType == ProfileType.USER_PROFILE)
 		{
-			showProfileImageEditDialog(ProfileActivity.this, ProfileActivity.this, mLocalMSISDN, ProfileImageActions.DP_EDIT_FROM_PROFILE_SCREEN);
+			beginProfilePicChange(ProfileActivity.this,ProfileActivity.this, ProfileImageActions.DP_EDIT_FROM_PROFILE_SCREEN);
 			
 			JSONObject md = new JSONObject();
 
@@ -2550,7 +2506,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				optionsList.add(getString(R.string.add_to_contacts));
 			}
 			optionsList.add(getString(R.string.send_message));
-			if(Utils.isVoipActivated(this) && (tempContactInfo!=null && tempContactInfo.isOnhike()) && !HikeMessengerApp.hikeBotNamesMap.containsKey(tempContactInfo.getMsisdn()))
+			if(Utils.isVoipActivated(this) && (tempContactInfo!=null && tempContactInfo.isOnhike()) && !HikeMessengerApp.hikeBotInfoMap.containsKey(tempContactInfo.getMsisdn()))
 			{
 				optionsList.add(getString(R.string.make_call));
 			}
@@ -2836,10 +2792,9 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		{	
 			ContactInfo contactInfo = groupParticipant.getContactInfo();
 
-			if (HikeMessengerApp.isStealthMsisdn(contactInfo.getMsisdn()))
+			if (StealthModeManager.getInstance().isStealthMsisdn(contactInfo.getMsisdn()))
 			{
-				int stealthMode = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF);
-				if (stealthMode != HikeConstants.STEALTH_ON)
+				if (!StealthModeManager.getInstance().isActive())
 				{
 					return;
 				}

@@ -77,7 +77,11 @@ public class HikeConstants
 
 	public static final String BOT_THUMBNAIL = "dp";
 
+	public static final String CONFIGURATION = "config";
+
 	public static final String BOT_CHAT_THEME = "bg_id";
+
+	public static final String IS_RECEIVE_ENABLED_IN_BOT = "rec_enable";
 
 	public static final String NEW_USER = "nu";
 
@@ -196,6 +200,10 @@ public class HikeConstants
 	public static final String ICON = "icon";
 
 	public static final String BOT = "bot";
+
+	public static final String MESSAGING_BOT = "m_bot";
+
+	public static final String NON_MESSAGING_BOT = "nm_bot";
 
 	public static final String GROUP_CONVERSATION = "gc";
 
@@ -449,7 +457,15 @@ public class HikeConstants
 
 	public static final String CHANGE_STEALTH_PASSCODE = "changeStealthPasscode";
 
+	public static final String CHANGE_STEALTH_TIMEOUT = "changeStealthTimeout";
+
+	public static final String STEALTH_INDICATOR_ENABLED = "stealthIndicatorEnabled";
+
+	public static final String STEALTH_NOTIFICATION_ENABLED = "stealthNotificationEnabled";
+
 	public static final String STEALTH_PERF_SETTING = "steathPerfCategory";
+
+	public static final String STEALTH_MSISDN = "stlthmsisdn";
 
 	public static final String SEND_UNDELIVERED_AS_NATIVE_PREF = "sendUndeliveredAsNativePref";
 
@@ -502,21 +518,7 @@ public class HikeConstants
 
 	public static final String HIKEBOT_CONV_STATE = "isHikeBotConvState";
 
-	public static final String FTUE_TEAMHIKE_MSISDN = "+hike+";
-
-	public static final String FTUE_HIKEBOT_MSISDN = "+hike1+";
-
-	public static final String FTUE_GAMING_MSISDN = "+hike2+";
-
-	public static final String FTUE_HIKE_DAILY = "+hike3+";
-
-	public static final String FTUE_HIKE_SUPPORT = "+hike4+";
-
 	public static final String BACKUP_PREF = "backupAccount";
-
-	public static final String NUX_BOT = "+hike5+";
-
-	public static final String CRICKET_BOT = "+hikecricket+";
 
 	public static final String NUX = "nux";
 
@@ -533,6 +535,10 @@ public class HikeConstants
 	public static final String BLOKED_LIST_PREF = "blockedList";
 
 	public static final String FAV_LIST_PREF = "favoriteList";
+
+	public static final String STEALTH_MODE_PREF = "stealthModeSettings";
+
+	public static final String STEALTH_PREF_SCREEN = "stealthPrefScreen";
 
 	public static final String SYSTEM_HEALTH_PREF = "systemHealth";
 
@@ -903,11 +909,9 @@ public class HikeConstants
 	 * Constants for Profile Pic
 	 */
 	/* dialog IDs */
-	public static final int PROFILE_PICTURE_FROM_CAMERA = 0;
+	public static final int NEW_PROFILE_PICTURE = 0;
 
-	public static final int PROFILE_PICTURE_FROM_GALLERY = 1;
-	
-	public static final int REMOVE_PROFILE_PICTURE = 2;
+	public static final int REMOVE_PROFILE_PICTURE = 1;
 
 	/* activityForResult IDs */
 	public static final int CAMERA_RESULT = 0;
@@ -1006,7 +1010,7 @@ public class HikeConstants
 	public static final int STEALTH_ON = 2;
 
 	public static final long RESET_COMPLETE_STEALTH_TIME_MS = 30 * 60 * 1000;
-
+	
 	public static final String ENABLED = "enabled";
 
 	public static final String ENABLED_STEALTH = "en";
@@ -1101,6 +1105,12 @@ public class HikeConstants
 		public static final int CONFIRM_LOCK_PATTERN = 4003;
 
 		public static final int CONFIRM_AND_ENTER_NEW_PASSWORD = 4004;
+
+		public static final int CREATE_LOCK_PATTERN_HIDE_CHAT = 4005;
+
+		public static final int CONFIRM_LOCK_PATTERN_HIDE_CHAT = 4006;
+
+		public static final int CONFIRM_LOCK_PATTERN_CHANGE_PREF = 4007;
 		
 		public static final int PHOTOS_REQUEST_CODE = 739;
 	}
@@ -1386,6 +1396,8 @@ public class HikeConstants
 		public static final String MULTIPLE_MSG_OBJECT = "multipleMsgObject";
 
 		public static final String SELECTED_BUCKET = "selectedBucket";
+		
+		public static final String GALLERY_SELECTION_SINGLE = "gallerySelection";
 
 		public static final String GALLERY_SELECTIONS = "gallerySelections";
 
@@ -1478,6 +1490,8 @@ public class HikeConstants
 		public static final String RETURN_CROP_RESULT_TO_FILE = "returnToFile";
 
 		public static final String CALL_RATE_BUNDLE = "callRateBundle";
+		
+		public static final String CLEARED_OUT = "extrasClearedOut";
 		
 		// constants related to sharing Functioanlity
 		public static final class ShareTypes
@@ -1798,8 +1812,6 @@ public class HikeConstants
 		public static final String RESET_STEALTH_INIT = "resetStlthInit";
 
 		public static final String RESET_STEALTH_CANCEL = "resetStlthCancel";
-
-		public static final String ENTER_WRONG_STEALTH_MODE = "entWrongStlth";
 
 		public static final String EXIT_STEALTH_MODE = "exitStlthMode";
 
@@ -2245,6 +2257,8 @@ public class HikeConstants
 
 		public static final String DELETE_MULTIPLE_BOTS = "dbot";
 
+		public static final String MICROAPP_DOWNLOAD = "mapp";
+
 		public static final String PACKET_ECHO = "pecho";
 
 		public static final String VOIP_SOCKET_INFO = "ve";
@@ -2271,10 +2285,6 @@ public class HikeConstants
 		 * The person we are calling is on a compatible platform, but is using an old version of the client which does not support VoIP.
 		 */
 		public static final String VOIP_ERROR_CALLEE_INCOMPATIBLE_UPGRADABLE = "e0";
-
-		public static final String CREATE_BOT = "cb";
-
-		public static final String DELETE_BOT = "db";
 
 		/**
 		 * The person we are calling is on a client that cannot be upgraded to support VoIP. For example, might be on iOS and we have no iOS client.
@@ -2585,7 +2595,9 @@ public class HikeConstants
 	public static final String RETRY_COUNT = "retryCount";
 
 	public static final String REPLY_NOTIFICATION_RETRY_TIMER = "rnrt";
-
+	
+	public static final String REPLY_NOTIFICATION_RETRY_COUNT = "rnrc";
+	
 	// Intent send to register gcm before and after signup
 	public static final String REGISTER_GCM_SIGNUP = "register_gcm_signup";
 
@@ -2689,11 +2701,21 @@ public class HikeConstants
 		public static final int PHOTOS_PAGER_DOODLE_WEIGHT_SUM = 10000;
 		
 		public static final int MAXIMUM_ALLOWED_IMAGE_AREA = 800 * 600;
+		
+		public static final String PHOTOS_ACTION_CODE = "photos_action_code";
+		
+		public static final String ONLY_PROFILE_UPDATE = "update_profile_pic_only";
+		
+		public static final int MAX_IMAGE_DIMEN = 1240;
+		
+		public static final String FROM_DP_UPLOAD = "from_dp_upload";
 
 	}
 
 	
 	public static final String REARRANGE_CHAT = "rearrange_chat";
+	
+	public static final String UPDATE_UNREAD_COUNT = "uuc";
 	
 	public static final String CONTENT_ID = "content_id";
 	public static final String TIMESTAMP_MILLIS = "msec";
@@ -2707,7 +2729,6 @@ public class HikeConstants
 	public static String DEFAULT_AVATAR_KEYS[] = {"avatar_01","avatar_02", "avatar_03", "avatar_04", "avatar_05"};
 	
 	public static String IS_GROUP = "isGroup";
-
 	public static final String CAM_IMG_PREFIX = "CAM_";
 	
 	public static final String URL_WHITELIST = "uwl";
@@ -2721,6 +2742,38 @@ public class HikeConstants
 	public static final String WHITELISTED_DOMAINS[] = new String[]{"hike.in"};
 	
 	public static final String BLACKLIST_DOMAIN_ANALYTICS = "blacklist";
+	
+	public static final int DEFAULT_MAX_REPLY_RETRY_NOTIF_COUNT = 3;
+
+	public static final String NOTIFICATION_RETRY = "notif";
+
+	public static class NotificationType
+	{
+		public static final int NORMALMSG1TO1 = 0;
+
+		public static final int NORMALGC = 1;
+
+		public static final int HIDDEN= 2;
+
+		public static final int BOTMSG = 4;
+
+		public static final int CHATTHEMECHNG = 5;
+
+		public static final int STATUSUPDATE = 6;
+
+		public static final int DPUPDATE = 7;
+
+		public static final int NUJORRUJ = 8;
+
+		public static final int FAVADD = 9;
+
+		public static final int H2O = 10;
+
+		public static final int OTHER = 11;
+
+	}
+	
+	public static final  String NOTIFICATION_RETRY_JSON="notifretry";
 
 	public static final String HIGHLIGHT_NLS_PERF = "nlsHighlightPerf";
 	
@@ -2753,4 +2806,14 @@ public class HikeConstants
 	public static final String PAYLOAD = "payload";
 	
 	public static final String HIKE_CONTACT_PICKER_RESULT = "contact_pick_result";
-}
+	
+	public static final String GET="get";
+
+	public static final String FTUE_HIKEBOT_MSISDN = "+hike1+";
+
+	public static final String PRIVACY_SETTINGS_CATEGORY = "privacySettingsCategory";
+	
+	public static final String KEY = "key";
+	
+	public static final String VALUE = "val"
+;}
