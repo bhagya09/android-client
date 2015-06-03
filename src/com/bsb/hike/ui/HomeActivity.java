@@ -1,6 +1,5 @@
 package com.bsb.hike.ui;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,7 +8,6 @@ import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
-import android.app.PendingIntent;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -70,12 +68,12 @@ import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.FtueContactsData;
+import com.bsb.hike.models.GalleryItem;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.OverFlowMenuItem;
 import com.bsb.hike.models.Conversation.ConversationTip;
 import com.bsb.hike.modules.animationModule.HikeAnimationFactory;
 import com.bsb.hike.modules.contactmgr.ContactManager;
-import com.bsb.hike.notifications.HikeNotificationMsgStack;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.snowfall.SnowFallView;
 import com.bsb.hike.tasks.DownloadAndInstallUpdateAsyncTask;
@@ -88,10 +86,10 @@ import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.HikeTip;
 import com.bsb.hike.utils.HikeTip.TipType;
-import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.NUXManager;
+import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
 
 public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Listener
@@ -225,6 +223,38 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 		HikeMessengerApp app = (HikeMessengerApp) getApplication();
 		app.connectToService();
+
+		if (Intent.ACTION_SEND.equals(getIntent().getAction()) ) 
+		{
+			Intent intent =getIntent();
+			if(HikeFileType.fromString(intent.getType()).compareTo(HikeFileType.IMAGE)==0 && Utils.isPhotosEditEnabled()) 
+			{ 
+				String fileName = Utils.getRealPathFromUri((Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM), getApplicationContext());
+				startActivity(IntentFactory.getPictureEditorActivityIntent(getApplicationContext(), fileName, true, null, false));
+			}
+			else
+			{
+				handleShareIntent(getIntent());
+			}
+		} 
+		
+		else if(Intent.ACTION_SEND_MULTIPLE.equals(getIntent().getAction()))
+		{
+			Intent intent =getIntent();
+			ArrayList<Uri> imageUris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
+			ArrayList<GalleryItem> selectedImages = GalleryItem.getGalleryItemsFromFilepaths(imageUris);
+			if((selectedImages!=null) && Utils.isPhotosEditEnabled()) 
+			{
+				Intent multiIntent = new Intent(getApplicationContext(),GallerySelectionViewer.class);
+				multiIntent.putParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS, selectedImages);
+				multiIntent.putExtra(GallerySelectionViewer.FROM_GALLERY_SHARE, true);
+				startActivity(multiIntent);
+			}
+			else
+			{
+				handleShareIntent(getIntent());
+			}
+		}
 
 		setupActionBar();
 
@@ -1039,6 +1069,20 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		deviceDetailsSent = true;
 	}
 
+	private void handleShareIntent(Intent shareIntent)
+	{
+		if(shareIntent == null)
+		{
+			return;
+		}
+		
+		Intent intent = new Intent(HomeActivity.this,ComposeChatActivity.class);
+		intent.putExtras(shareIntent.getExtras());
+		intent.setAction(shareIntent.getAction());
+		intent.setType(shareIntent.getType());
+		startActivity(intent);
+	}
+	
 	private void updateApp(int updateType)
 	{
 		if (TextUtils.isEmpty(this.accountPrefs.getString(HikeConstants.Extras.UPDATE_URL, "")))
