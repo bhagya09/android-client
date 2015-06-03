@@ -201,18 +201,19 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 		ActionBar actionBar = getSupportActionBar();
 		actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
 
-		View actionBarView = LayoutInflater.from(this).inflate(R.layout.photos_action_bar, null);
-		actionBarView.setBackgroundResource(R.color.photos_action_bar_background);
+		View actionBarView = LayoutInflater.from(this).inflate(R.layout.compose_action_bar, null);
 		View backContainer = actionBarView.findViewById(R.id.back);
 
 		TextView title = (TextView) actionBarView.findViewById(R.id.title);
 		View doneBtn = actionBarView.findViewById(R.id.done_container);
-		TextView postText = (TextView) actionBarView.findViewById(R.id.done_text);
-		title.setVisibility(View.VISIBLE);
+		TextView postText = (TextView) actionBarView.findViewById(R.id.post_btn);
+		View actionsView = actionBarView.findViewById(R.id.actionsView);
+		
 		doneBtn.setVisibility(View.VISIBLE);
 		postText.setText(R.string.send);
 		
 		title.setText(R.string.preview);
+		
 		backContainer.setOnClickListener(new OnClickListener()
 		{
 			@Override
@@ -221,7 +222,7 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 				onBackPressed();
 			}
 		});
-
+		
 		doneBtn.setOnClickListener(new OnClickListener()
 		{
 
