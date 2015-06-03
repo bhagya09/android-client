@@ -788,6 +788,14 @@ public class ConversationsAdapter extends BaseAdapter
 
 				unreadIndicator.setText(convInfo.getUnreadCountString());
 			}
+			// Using this to differentiate the normal chat and Offline Chat
+			//TODO:set Offline asset here
+			if(convInfo instanceof OfflineConvInfo)
+			{
+				imgStatus.setVisibility(View.VISIBLE);
+				//imgStatus.setImageBitmap(NUXManager.getInstance().getNuxChatRewardPojo().getPendingChatIcon());
+				messageView.setText(context.getResources().getString(R.string.connection_established));	
+			}
 			if(isNuxLocked)
 			{ 
 				imgStatus.setVisibility(View.VISIBLE);
@@ -795,11 +803,13 @@ public class ConversationsAdapter extends BaseAdapter
 				messageView.setText(NUXManager.getInstance().getNuxChatRewardPojo().getChatWaitingText());		
 			}
 			
+			
 			RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) messageView.getLayoutParams();
 			lp.setMargins(0, lp.topMargin, lp.rightMargin, lp.bottomMargin);
 			messageView.setLayoutParams(lp);
 		}
 
+		
 		if (message.getState() == ConvMessage.State.RECEIVED_UNREAD || isNuxLocked)
 		{
 			/* set NUX waiting or unread messages to BLUE */
@@ -809,6 +819,7 @@ public class ConversationsAdapter extends BaseAdapter
 		{
 			messageView.setTextColor(context.getResources().getColor(R.color.list_item_header));
 		}
+		
 	}
 
 	private CharSequence getConversationText(ConvInfo convInfo, ConvMessage message)
