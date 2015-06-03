@@ -671,11 +671,10 @@ public class AccountBackupRestore
 			if (!backup.exists())
 				return false;
 		}
-		PreferenceBackup prefBackup = new PreferenceBackup();
-		File prefFile = prefBackup.getPrefFile();
+		File prefBackupFile = getPrefBackupFile();
 		File backupStateFile = getBackupStateFile();
 		
-		if(!prefFile.exists() && !backupStateFile.exists())
+		if(!prefBackupFile.exists() && !backupStateFile.exists())
 		{
 			return false;
 		}
@@ -717,9 +716,7 @@ public class AccountBackupRestore
 	
 	private void deleteTempPrefFile()
 	{
-		PreferenceBackup prefBackup = new PreferenceBackup();
-		File prefFile = prefBackup.getPrefFile();
-		prefFile.delete();
+		getTempPrefFile().delete();
 	}
 
 	/**
@@ -736,8 +733,22 @@ public class AccountBackupRestore
 			backup.delete();
 		}
 		getBackupStateFile().delete();
+		getPrefBackupFile().delete();
+		UserBackupData userData = new UserBackupData();
+		userData.getUserDataFile().delete();
 		deleteTempDBFiles();
 		deleteTempPrefFile();
+	}
+	
+	private File getTempPrefFile()
+	{
+		PreferenceBackup prefBackup = new PreferenceBackup();
+		return prefBackup.getPrefFile();
+	}
+	
+	private File getPrefBackupFile()
+	{
+		return getBackupFile(getTempPrefFile().getName());
 	}
 
 	private File getCurrentDBFile(String dbName)
