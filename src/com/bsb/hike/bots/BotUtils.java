@@ -3,6 +3,7 @@ package com.bsb.hike.bots;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.bsb.hike.HikePubSub;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -196,5 +197,26 @@ public class BotUtils
 			Logger.d("create bot", "Keys are " + HikeMessengerApp.hikeBotInfoMap.keySet() + "------");
 			Logger.d("create bot", "values are " + HikeMessengerApp.hikeBotInfoMap.values());
 		}
+	}
+
+	/**
+	 * Call this method to delete the bot conversation. This is the central method and should be th one that should be called to delete a bot conversation.
+	 * @param msisdn : the bot msisdn that will be deleted.
+	 * @param hardDelete : whether we want to delete the bot from table and from map as well?
+	 */
+	public static void deleteBotConversation(String msisdn, boolean hardDelete)
+	{
+		Logger.d("delete bot", "bot to be deleted is " + msisdn + " and hard delete is " + String.valueOf(hardDelete));
+		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
+		if (botInfo == null)
+		{
+			return;
+		}
+		if(hardDelete)
+		{
+			HikeMessengerApp.hikeBotInfoMap.remove(msisdn);
+			HikeConversationsDatabase.getInstance().deleteBot(msisdn);
+		}
+		HikeMessengerApp.getPubSub().publish(HikePubSub.DELETE_THIS_CONVERSATION, botInfo);
 	}
 }
