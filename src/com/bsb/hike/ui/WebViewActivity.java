@@ -69,6 +69,7 @@ import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.TagEditText.Tag;
 
@@ -115,15 +116,32 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
+		/**
+		 * force the user into the reg-flow process if the token isn't set
+		 */
+		if (Utils.requireAuth(this))
+		{
+			return;
+		}
+		
 		setMode(getIntent().getIntExtra(WEBVIEW_MODE, WEB_URL_MODE));
 
 		if (mode == MICRO_APP_MODE)
 		{
 			initMsisdn();
-			initBot();
-			if (botConfig.shouldOverlayActionBar())
+			if (filterNonMessagingBot(msisdn))
 			{
-				getWindow().requestFeature(WindowCompat.FEATURE_ACTION_BAR_OVERLAY);
+				initBot();
+				if (botConfig.shouldOverlayActionBar())
+				{
+					getWindow().requestFeature(WindowCompat.FEATURE_ACTION_BAR_OVERLAY);
+				}
+			}
+			
+			else
+			{
+				closeWebViewActivity();
+				return;
 			}
 		}
 		setContentView(R.layout.webview_activity);
@@ -132,6 +150,45 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		initAppsBasedOnMode();
 		HikeMessengerApp.getPubSub().addListeners(this, pubsub);
 
+	}
+
+	private void closeWebViewActivity()
+	{
+		Intent homeintent = IntentFactory.getHomeActivityIntent(this);
+		this.startActivity(homeintent);
+		this.finish();
+	}
+
+	/**
+	 * Basic filtering on msisdn. eg : Stealth chat check
+	 * 
+	 * @param msisdn
+	 * @return
+	 */
+	private boolean filterNonMessagingBot(String msisdn)
+	{
+		if (msisdn == null)
+		{
+			throw new IllegalArgumentException("Seems You forgot to send msisdn of Bot my dear");
+		}
+
+		/**
+		 * Bot marked as stealth.
+		 */
+		if (StealthModeManager.getInstance().isStealthMsisdn(msisdn) && !StealthModeManager.getInstance().isActive())
+		{
+			return false;
+		}
+
+		/**
+		 * BotInfo no longer exists in the map. Possibly opening a deleted bot ?
+		 */
+		if (BotUtils.getBotInfoForBotMsisdn(msisdn) == null)
+		{
+			return false;
+		}
+
+		return true;
 	}
 
 	private void resetNotificationCounter()
@@ -150,7 +207,6 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			if (orientation == Configuration.ORIENTATION_LANDSCAPE || orientation == Configuration.ORIENTATION_PORTRAIT)
 			{
 				changeCurrentOrientation(orientation);
-				Utils.blockOrientationChange(this);
 				if (mmBridge != null)
 				{
 					mmBridge.orientationChanged(orientation);
@@ -174,6 +230,11 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			{
 				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 			}
+		}
+		
+		else
+		{
+			Utils.blockOrientationChange(this);
 		}
 	}
 
@@ -237,21 +298,11 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	private void initMsisdn()
 	{
 		msisdn = getIntent().getStringExtra(HikeConstants.MSISDN);
-		if (msisdn == null)
-		{
-			throw new IllegalArgumentException("Seems You forgot to send msisdn of Bot my dear");
-		}
 	}
 
 	private void initBot()
 	{
 		botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
-		if (botInfo == null)
-		{
-			Logger.wtf(tag, "Botinfo does not exist in map");
-			this.finish();
-			return;
-		}
 		botConfig = null == botInfo.getConfigData() ?  new NonMessagingBotConfiguration(botInfo.getConfiguration()) : new NonMessagingBotConfiguration(botInfo.getConfiguration(), botInfo.getConfigData());
 		botMetaData = new NonMessagingBotMetadata(botInfo.getMetadata());
 	}
@@ -349,8 +400,11 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 					super.onGeolocationPermissionsShowPrompt(origin, callback);
 			}
 		});
-		handleURLLoadInWebView(webView, urlToLoad);
-		setupActionBar(title);
+		if(handleURLLoadInWebView(webView, urlToLoad)){
+			setupActionBar(title);
+		}else {
+			WebViewActivity.this.finish(); // first time if loaded in browser, then finish the activity
+		}
 	}
 	
 	private void attachBridge()
@@ -574,7 +628,6 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	{
 		setupActionBar(botInfo.getConversationName());
 		int color = botConfig.getActionBarColor();
-		color = color == -1 ? R.color.transparent : color;
 		/**
 		 * If we don't have actionBar overlay, then we shouldn't show transparent color
 		 */
@@ -583,7 +636,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			color = R.color.blue_hike;
 		}
 		
-		updateActionBarColor(new ColorDrawable(color));
+		updateActionBarColor(color !=-1 ? new ColorDrawable(color) : getResources().getDrawable(R.drawable.repeating_action_bar_bg));
 		setAvatar();
 	}
 

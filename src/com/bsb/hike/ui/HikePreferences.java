@@ -18,7 +18,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Vibrator;
-import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceCategory;
@@ -28,7 +27,6 @@ import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Checkable;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -40,6 +38,7 @@ import com.bsb.hike.MqttConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.db.AccountBackupRestore;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
@@ -63,7 +62,6 @@ import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.IconCheckBoxPreference;
 import com.bsb.hike.view.IconListPreference;
 import com.bsb.hike.view.NotificationToneListPreference;
-import com.google.android.gms.internal.en;
 
 public class HikePreferences extends HikeAppStateBasePreferenceActivity implements OnPreferenceClickListener, 
 							OnPreferenceChangeListener, DeleteAccountListener, BackupAccountListener, RingtoneFetchListener
@@ -1389,6 +1387,13 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			{
 				return;
 			}
+			
+			JSONObject metadata = new JSONObject();
+			try
+			{
+			metadata.put(HikeConstants.EVENT_TYPE, AnalyticsConstants.StealthEvents.STEALTH);
+			metadata.put(HikeConstants.EVENT_KEY, AnalyticsConstants.StealthEvents.STEALTH_PREFERENCE_CHANGE);
+				
 			Bundle stealthBundle = data.getExtras();
 			if(stealthBundle != null)
 			{
@@ -1397,20 +1402,35 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 					IconListPreference changeStealthTimeout = (IconListPreference)getPreferenceScreen().findPreference(HikeConstants.CHANGE_STEALTH_TIMEOUT);
 					CharSequence newTimeoutKey = changeStealthTimeout.getEntries()[changeStealthTimeout.findIndexOfValue(stealthBundle.getString(HikeConstants.CHANGE_STEALTH_TIMEOUT))];
 					changeStealthTimeout.setTitle(getString(R.string.change_stealth_timeout) + " : " + newTimeoutKey);
-					changeStealthTimeout.setValue(stealthBundle.getString(HikeConstants.CHANGE_STEALTH_TIMEOUT));
+					String newValue = stealthBundle.getString(HikeConstants.CHANGE_STEALTH_TIMEOUT);
+					changeStealthTimeout.setValue(newValue);
+					metadata.put(HikeConstants.KEY, HikeConstants.CHANGE_STEALTH_TIMEOUT);
+					metadata.put(HikeConstants.VALUE, newValue);
 				}
 				else if(stealthBundle.containsKey(HikeConstants.STEALTH_INDICATOR_ENABLED))
 				{
 					IconCheckBoxPreference stealthIndicatorEnabled = (IconCheckBoxPreference)getPreferenceScreen().findPreference(HikeConstants.STEALTH_INDICATOR_ENABLED);
-					stealthIndicatorEnabled.setChecked(stealthBundle.getBoolean(HikeConstants.STEALTH_INDICATOR_ENABLED)); 
+					boolean newValue = stealthBundle.getBoolean(HikeConstants.STEALTH_INDICATOR_ENABLED);
+					stealthIndicatorEnabled.setChecked(newValue);
+					metadata.put(HikeConstants.KEY, HikeConstants.STEALTH_INDICATOR_ENABLED);
+					metadata.put(HikeConstants.VALUE, newValue);
 				}
 				else if(stealthBundle.containsKey(HikeConstants.STEALTH_NOTIFICATION_ENABLED))
 				{
 					IconCheckBoxPreference stealthNotificationEnabled = (IconCheckBoxPreference)getPreferenceScreen().findPreference(HikeConstants.STEALTH_NOTIFICATION_ENABLED);
-					stealthNotificationEnabled.setChecked(stealthBundle.getBoolean(HikeConstants.STEALTH_NOTIFICATION_ENABLED)); 
+					boolean newValue = stealthBundle.getBoolean(HikeConstants.STEALTH_NOTIFICATION_ENABLED);
+					stealthNotificationEnabled.setChecked(newValue); 
+					metadata.put(HikeConstants.KEY, HikeConstants.STEALTH_NOTIFICATION_ENABLED);
+					metadata.put(HikeConstants.VALUE, newValue);
 				}		
 			}
-			//TODO analytics for preference change
+
+			} catch (JSONException e)
+			{
+				Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json : " + e);
+			}
+			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
+
 		}
 		else
 		{
