@@ -1,8 +1,11 @@
 package com.bsb.hike.analytics;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.ConcurrentModificationException;
 import java.util.List;
 import java.util.Random;
 
@@ -16,12 +19,10 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.analytics.AnalyticsConstants.AppOpenSource;
-import com.bsb.hike.media.ShareablePopup;
 import com.bsb.hike.media.ShareablePopupLayout;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeFile;
@@ -70,6 +71,10 @@ public class HAManager
 	private NetworkListener listner;
 	
 	private Session fgSessionInstance;
+	
+	private ArrayList<JSONObject> imageConfigEventsList;
+	
+	private	File imageLogsEventFile;
 	
 	/**
 	 * Constructor
@@ -128,6 +133,7 @@ public class HAManager
 		// set network listener
 		listner = new NetworkListener(this.context);
 		
+		imageConfigEventsList = new ArrayList<JSONObject>();
 	}
 	
 	/**
@@ -929,4 +935,103 @@ public class HAManager
 		}
 	}
 
+	/**
+	 * TODO Remove this before merging into internal_release
+	 * This API is only For STAGING
+	 * @param priority
+	 * @param metadata
+	 * @throws NullPointerException
+	 */
+	public synchronized void logImageConfigEvent(EventPriority priority, JSONObject metadata) throws NullPointerException
+	{
+		imageConfigEventsList.add(generateAnalticsJson(null, null, priority, metadata, null));
+		Logger.d(AnalyticsConstants.ANALYTICS_TAG, metadata.toString());
+
+		if (imageConfigEventsList.size() >= maxInMemorySize)
+		{
+			// clone a local copy and send for writing
+			final ArrayList<JSONObject> jsons = (ArrayList<JSONObject>) imageConfigEventsList.clone();
+
+			imageConfigEventsList.clear();
+
+			new Thread(new Runnable()
+			{
+				FileWriter imageLogsFileWriter = null;
+
+				@Override
+				public void run()
+				{
+					try
+					{
+						StringBuilder imageLogs = new StringBuilder();
+
+						for (JSONObject object : jsons)
+						{
+							imageLogs.append(object);
+							imageLogs.append(AnalyticsConstants.NEW_LINE);
+						}
+						if (imageLogs.length() > 0)
+						{
+							String fileName = "MyImageLogs" + Long.toString(System.currentTimeMillis()) + AnalyticsConstants.SRC_FILE_EXTENSION;
+
+							File dir = new File(android.os.Environment.getExternalStorageDirectory().toString() + "ImageConfigLogs");
+
+							if (!dir.exists())
+							{
+								boolean ret = dir.mkdirs();
+
+								if (!ret)
+								{
+									throw new IOException("Failed to create Analytics directory");
+								}
+							}
+
+							if (imageLogsEventFile == null)
+							{
+								imageLogsEventFile = new File(dir, fileName);
+							}
+
+							boolean val = imageLogsEventFile.createNewFile();
+
+							if (!val)
+							{
+								throw new IOException("Failed to create event file");
+							}
+
+							imageLogsFileWriter = new FileWriter(imageLogsEventFile, true);
+							imageLogsFileWriter.write(imageLogs.toString());
+							Logger.d(AnalyticsConstants.ANALYTICS_TAG, "events written to imageLogsEventFile file! Size now :" + imageLogsEventFile.length() + "bytes");
+						}
+					}
+					catch (IOException e)
+					{
+						Logger.d(AnalyticsConstants.ANALYTICS_TAG, "io exception while writing events to file");
+					}
+					catch (ConcurrentModificationException ex)
+					{
+						Logger.d(AnalyticsConstants.ANALYTICS_TAG, "ConcurrentModificationException exception while writing events to file");
+					}
+					finally
+					{
+						if (imageLogsFileWriter != null)
+						{
+							try
+							{
+								imageLogsFileWriter.flush();
+								imageLogsFileWriter.close();
+							}
+							catch (IOException e)
+							{
+								Logger.d(AnalyticsConstants.ANALYTICS_TAG, "io exception while file connection closing!");
+							}
+						}
+					}
+				}
+
+			}, AnalyticsConstants.ANALYTICS_THREAD_WRITER).start();
+
+			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "writer thread started!");
+		}
+	}
+	
 }
