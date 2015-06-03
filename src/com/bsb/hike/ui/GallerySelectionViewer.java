@@ -214,6 +214,20 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 		
 		title.setText(R.string.preview);
 		
+		if(Utils.isPhotosEditEnabled())
+		{
+			actionsView.setVisibility(View.VISIBLE);
+			actionsView.setOnClickListener(new OnClickListener()
+			{
+				
+				@Override
+				public void onClick(View v)
+				{
+					editSelectedImage();
+				}
+			});
+		}
+		
 		backContainer.setOnClickListener(new OnClickListener()
 		{
 			@Override
@@ -277,6 +291,13 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 		});
 		
 		actionBar.setCustomView(actionBarView);
+	}
+	
+	private void editSelectedImage()
+	{
+		String selectedFilePath = galleryItems.get(selectedPager.getCurrentItem()).getFilePath();
+		Intent intent = IntentFactory.getPictureEditorActivityIntent(GallerySelectionViewer.this, selectedFilePath, false, null, false);
+		startActivityForResult(intent, HikeConstants.ResultCodes.PHOTOS_REQUEST_CODE);
 	}
 
 	@Override
@@ -527,4 +548,25 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 			((LinearLayout) findViewById(R.id.tipContainerTop)).addView(view, 0);
 		}
 	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data)
+	{
+		super.onActivityResult(requestCode, resultCode, data);
+		if(resultCode == RESULT_OK)
+		{
+			switch(requestCode)
+			{
+			case HikeConstants.ResultCodes.PHOTOS_REQUEST_CODE:
+				String editedFilePath = data.getStringExtra(HikeConstants.Extras.IMAGE_PATH);
+				galleryItems.get(selectedPager.getCurrentItem()).setFilePath(editedFilePath);
+				galleryGridItems.get(selectedPager.getCurrentItem()).setFilePath(editedFilePath);
+				gridAdapter.notifyDataSetChanged();
+				pagerAdapter.notifyDataSetChanged();
+				break;
+			}
+		}
+	}
+	
+	
 }
