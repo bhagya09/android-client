@@ -141,7 +141,7 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-             <intent-filter android:label="@string/share_app_name">
+             <intent-filter android:label="@string/app_label">
                 <action android:name="android.intent.action.SEND" />
                 
 				<action android:name="android.intent.action.SEND_MULTIPLE" />
