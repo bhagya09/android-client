@@ -140,7 +140,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		switch (msg.what)
 		{
 		case SHOW_EMOJI_PALETTE:
-			showEmojiPalette();
+			showEmoticonPicker();
 			break;
 		default:
 			Logger.d(TAG, "Did not find any matching event for msg.what : " + msg.what);
@@ -466,11 +466,11 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		}
 		else
 		{
-			showEmojiPalette();
+			showEmoticonPicker();
 		}
 	}
 	
-	public void showEmojiPalette()
+	public void showEmoticonPicker()
 	{
 		wasEmojiPreviouslyVisible = false;
 		if (mEmoticonPicker.showEmoticonPicker(getResources().getConfiguration().orientation))
