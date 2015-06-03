@@ -40,6 +40,8 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.db.DBConstants.HIKE_CONV_DB;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
@@ -57,11 +59,13 @@ import com.bsb.hike.models.Protip;
 import com.bsb.hike.models.StatusMessage;
 import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.models.StickerCategory;
+import com.bsb.hike.models.Conversation.BotConversation;
 import com.bsb.hike.models.Conversation.BroadcastConversation;
 import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.ConversationMetadata;
 import com.bsb.hike.models.Conversation.GroupConversation;
+import com.bsb.hike.models.Conversation.OfflineConversation;
 import com.bsb.hike.models.Conversation.OneToNConvInfo;
 import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.models.Conversation.OneToNConversationMetadata;
@@ -78,6 +82,7 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.PairModified;
+import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
@@ -276,7 +281,19 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		sql = getStickerShopTableCreateQuery();
 		db.execSQL(sql);
 
-		sql = CREATE_TABLE + DBConstants.BOT_TABLE + " (" + DBConstants.MSISDN + " TEXT UNIQUE, " + DBConstants.NAME + " TEXT, " + DBConstants.CONVERSATION_METADATA + " TEXT, "+ DBConstants.IS_MUTE + " INTEGER DEFAULT 0)";
+		sql = CREATE_TABLE + DBConstants.BOT_TABLE
+				+ " ("
+				+ DBConstants.MSISDN + " TEXT UNIQUE, "        //msisdn of bot
+				+ DBConstants.NAME + " TEXT, "				//bot name
+				+ DBConstants.CONVERSATION_METADATA + " TEXT, "  //bot metadata
+				+ DBConstants.IS_MUTE + " INTEGER DEFAULT 0, "  // bot conv mute or not
+				+ DBConstants.BOT_TYPE + " INTEGER DEFAULT 1, "				//bot type m/nm by default messaging
+				+ DBConstants.BOT_CONFIGURATION + " INTEGER, "	//bot configurations.. different server controlled properties of bot.
+				+ DBConstants.CONFIG_DATA + " TEXT, "            //config data for the bot.
+				+ HIKE_CONTENT.NAMESPACE + " TEXT, "         //namespace of a bot for caching purpose.
+				+ HIKE_CONTENT.NOTIF_DATA + " TEXT, "       //notif data used for notifications pertaining to the microapp
+				+ HIKE_CONTENT.HELPER_DATA + " TEXT"
+				+ ")";
 		db.execSQL(sql);
 
 	}
@@ -740,6 +757,27 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			String alter2 = "ALTER TABLE " + DBConstants.CONVERSATIONS_TABLE + " ADD COLUMN " + DBConstants.PRIVATE_DATA + " TEXT";
 			db.execSQL(alter2);
 		}
+
+
+		if (oldVersion < 39)
+		{
+
+			String alter1 = "ALTER TABLE " + DBConstants.BOT_TABLE + " ADD COLUMN " + DBConstants.BOT_TYPE + " INTEGER DEFAULT 1"; // by default messaging.
+			String alter2 = "ALTER TABLE " + DBConstants.BOT_TABLE + " ADD COLUMN " + DBConstants.BOT_CONFIGURATION + " INTEGER";
+			String alter3 = "ALTER TABLE " + DBConstants.BOT_TABLE + " ADD COLUMN " + DBConstants.CONFIG_DATA + " TEXT";
+			String alter4 = "ALTER TABLE " + DBConstants.BOT_TABLE + " ADD COLUMN " + HIKE_CONTENT.NAMESPACE + " TEXT";
+			String alter5 = "ALTER TABLE " + DBConstants.BOT_TABLE + " ADD COLUMN " + HIKE_CONTENT.NOTIF_DATA + " TEXT";
+			String alter6 = "ALTER TABLE " + DBConstants.BOT_TABLE + " ADD COLUMN " + HIKE_CONTENT.HELPER_DATA + " TEXT";
+
+			db.execSQL(alter1);
+			db.execSQL(alter2);
+			db.execSQL(alter3);
+			db.execSQL(alter4);
+			db.execSQL(alter5);
+			db.execSQL(alter6);
+
+		}
+
 	}
 
 	public void reinitializeDB()
@@ -1423,6 +1461,11 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 	private void bindConversationInsert(SQLiteStatement insertStatement, ConvMessage conv,boolean bindForConvId)
 	{
+		if(conv.getMessage() == null)
+		{
+			return;
+		}
+
 		final int msgOriginTypeColumn = 1;
 		final int messageColumn = 2;
 		final int msgStatusColumn = 3;
@@ -2127,7 +2170,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				mDb.delete(DBConstants.GROUP_INFO_TABLE, DBConstants.GROUP_ID + " =?", new String[] { msisdn });
 				removeChatThemeForMsisdn(msisdn);
 			}
-			setExtraConvUnreadCount(msisdn, 0);		
+
 			mDb.setTransactionSuccessful();
 		}
 		finally
@@ -2142,6 +2185,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		{
 			mDb.delete(DBConstants.BOT_TABLE, DBConstants.MSISDN + "=?", new String[] { msisdn });
 			removeChatThemeForMsisdn(msisdn);
+			mDb.setTransactionSuccessful();
 		}
 		finally
 		{
@@ -2233,6 +2277,11 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 					((OneToNConversation) conv).setConversationParticipantList(ContactManager.getInstance().getGroupParticipants(msisdn, false, false));
 				}
 				
+				else if (BotUtils.isBot(msisdn))
+				{
+					BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
+					conv = new BotConversation.ConversationBuilder(msisdn).setConvInfo(botInfo).build();
+				}
 				else
 				{
 					conv = new OneToOneConversation.ConversationBuilder(msisdn).setConvName((contactInfo != null) ? contactInfo.getName() : null).setIsOnHike(onhike).build();
@@ -2261,32 +2310,19 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 	}
 
-	public void insertBot(String msisdn, String name, String metadata, int isMute)
+	public void insertBot(BotInfo botInfo)
 	{
 		ContentValues values = new ContentValues();
-		values.put(DBConstants.MSISDN, msisdn);
-		values.put(DBConstants.NAME, name);
-		values.put(DBConstants.CONVERSATION_METADATA, metadata);
-		values.put(DBConstants.IS_MUTE, isMute);
+		values.put(DBConstants.MSISDN, botInfo.getMsisdn());
+		values.put(DBConstants.NAME, botInfo.getConversationName());
+		values.put(DBConstants.CONVERSATION_METADATA, botInfo.getMetadata());
+		values.put(DBConstants.IS_MUTE, botInfo.isMute() ? 1 : 0);
+		values.put(DBConstants.BOT_TYPE, botInfo.getType());
+		values.put(DBConstants.BOT_CONFIGURATION, botInfo.getConfiguration());
+		values.put(DBConstants.CONFIG_DATA, botInfo.getConfigData());
+		values.put(HIKE_CONTENT.NAMESPACE, botInfo.getNamespace());
+		values.put(HIKE_CONTENT.HELPER_DATA, botInfo.getHelperData());
 		mDb.insertWithOnConflict(DBConstants.BOT_TABLE, null, values, SQLiteDatabase.CONFLICT_REPLACE);
-	}
-
-	public void updateBot(String msisdn, String name, String metadata, int isMute)
-	{
-		ContentValues values = new ContentValues();
-		if (!TextUtils.isEmpty(name))
-		{
-			values.put(DBConstants.NAME, name);
-		}
-		if (!TextUtils.isEmpty(metadata))
-		{
-			values.put(DBConstants.CONVERSATION_METADATA, metadata);
-		}
-		if (isMute != -1)
-		{
-			values.put(DBConstants.IS_MUTE, isMute);
-		}
-		mDb.updateWithOnConflict(DBConstants.BOT_TABLE, values, DBConstants.MSISDN + "=?", new String[] { msisdn }, SQLiteDatabase.CONFLICT_REPLACE);
 	}
 
 	public boolean isBotMuted(String msisdn)
@@ -2374,6 +2410,13 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			if (OneToNConversationUtils.isGroupConversation(msisdn))
 			{
 				conv = getGroupConversation(msisdn);
+				/**
+				 * A rare case where there is a residual entry in the Conv_table, but not in the group_info table. Though it should not happen
+				 */
+				if (conv == null)
+				{
+					return null;
+				}
 				conv.setIsStealth(isStealth);
 			}
 			/**
@@ -2382,7 +2425,18 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			else if (OneToNConversationUtils.isBroadcastConversation(msisdn))
 			{
 				conv = getBroadcastConversation(msisdn);
+				/**
+				 * A rare case where there is a residual entry in the Conv_table, but not in the group_info table. Though it should not happen
+				 */
+				if (conv == null)
+				{
+					return null;
+				}
 				conv.setIsStealth(isStealth);
+			}
+			else if(Utils.isOfflineConversation(msisdn))
+			{
+				conv=new OfflineConversation.ConversationBuilder(msisdn).setIsOnHike(true).setIsStealth(isStealth).build();
 			}
 			
 			/**
@@ -2390,19 +2444,19 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			 */
 			else
 			{
-				String name;
-				if (HikeMessengerApp.hikeBotNamesMap.containsKey(msisdn))
+				if (BotUtils.isBot(msisdn))
 				{
-					name = HikeMessengerApp.hikeBotNamesMap.get(msisdn);
-					onhike = true;
+					BotInfo botInfo= BotUtils.getBotInfoForBotMsisdn(msisdn);
+					conv = new BotConversation.ConversationBuilder(msisdn).setConvInfo(botInfo).build();
 				}
 				else
 				{
 					ContactInfo contactInfo = ContactManager.getInstance().getContact(msisdn, false, true, false);
-					name = contactInfo.getName();
+					String name = contactInfo.getName();
 					onhike |= contactInfo.isOnhike();
+					conv = new OneToOneConversation.ConversationBuilder(msisdn).setConvName(name).setIsOnHike(onhike).setIsStealth(isStealth).build();
 				}
-				conv = new OneToOneConversation.ConversationBuilder(msisdn).setConvName(name).setIsOnHike(onhike).setIsStealth(isStealth).build();
+
 
 			}
 			if (getMetadata)
@@ -2438,7 +2492,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				}
 				conv.setMessages(messages);
 			}
-			unreadCount += getExtraConvUnreadCount(msisdn);
+			
 			conv.setUnreadCount(unreadCount);
 			return conv;
 		}
@@ -2452,29 +2506,60 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 	}
 
-	/*
-	 * This function returns unread count for any given msisdn , In addition to unread messages there could be many events which we might want to add in unread for any given
-	 * conversation , for example missed call, PIN, Micro App State chagned etc
-	 */
-	public int getExtraConvUnreadCount(String msisdn)
-	{
-		return HikeSharedPreferenceUtil.getInstance(HikeSharedPreferenceUtil.CONV_UNREAD_COUNT).getData(msisdn, 0);
-	}
-
-	/*
-	 * This function set unread count for any given msisdn , In addition to unread messages there could be many events which we might want to add in unread for any given
-	 * conversation , for example missed call, PIN, Micro App State chagned etc
-	 */
-	public void setExtraConvUnreadCount(String msisdn, int count)
-	{
-		HikeSharedPreferenceUtil.getInstance(HikeSharedPreferenceUtil.CONV_UNREAD_COUNT).saveData(msisdn, count);
-	}
-
 	public Conversation getConversation(String msisdn, int limit)
 	{
 		return getConversation(msisdn, limit, false);
 	}
+	
+	private ConvMessage getLastMessage(String msisdn)
+	{
+		/*
+		 * We get the latest message from the messages table
+		 */
+		Cursor c = null;
 
+		try
+		{
+			c = mDb.query(DBConstants.MESSAGES_TABLE, null, DBConstants.MSISDN + "=?", new String[] { msisdn }, null, null, DBConstants.MESSAGE_ID + " DESC " , "1");
+			
+			if (c.moveToFirst())
+			{
+				final int msgColumn = c.getColumnIndex(DBConstants.MESSAGE);
+				final int msgStatusColumn = c.getColumnIndex(DBConstants.MSG_STATUS);
+				final int tsColumn = c.getColumnIndex(DBConstants.TIMESTAMP);
+				final int mappedMsgIdColumn = c.getColumnIndex(DBConstants.MAPPED_MSG_ID);
+				final int msgIdColumn = c.getColumnIndex(DBConstants.MESSAGE_ID);
+				final int metadataColumn = c.getColumnIndex(DBConstants.MESSAGE_METADATA);
+				final int groupParticipantColumn = c.getColumnIndex(DBConstants.GROUP_PARTICIPANT);
+
+				ConvMessage message = new ConvMessage(c.getString(msgColumn), msisdn, c.getInt(tsColumn), ConvMessage.stateValue(c.getInt(msgStatusColumn)),
+						c.getLong(msgIdColumn), c.getLong(mappedMsgIdColumn), c.getString(groupParticipantColumn));
+				String metadata = c.getString(metadataColumn);
+				try
+				{
+					message.setMetadata(metadata);
+				}
+				catch (JSONException e)
+				{
+					Logger.e(HikeConversationsDatabase.class.getName(), "Invalid JSON metadata", e);
+				}
+				return message;
+			}
+		} 
+		catch (Exception e) 
+		{
+			Logger.e(HikeConversationsDatabase.class.getName(), e.toString());
+		}
+		finally
+		{
+			if (c != null)
+			{
+				c.close();
+			}
+		}
+		return null;
+	}
+ 
 	/**
 	 * Using this method to get the conversation with the last message. If there is no last message, we return null if the conversation is not a GC.
 	 *
@@ -2526,6 +2611,11 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				conv = getBroadcastConversation(msisdn);
 			}
 			
+			else if (BotUtils.isBot(msisdn))
+			{
+				BotInfo botInfo= BotUtils.getBotInfoForBotMsisdn(msisdn);
+				conv = new BotConversation.ConversationBuilder(msisdn).setConvInfo(botInfo).build();
+			}
 			else
 			{
 				ContactInfo contactInfo = ContactManager.getInstance().getContact(msisdn, false, true);
@@ -2892,7 +2982,16 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				}
 				else
 				{
-					convInfo = new ConvInfo.ConvInfoBuilder(msisdn).setSortingTimeStamp(sortingTimestamp).setOnHike(onhike).build();
+
+					if (BotUtils.isBot(msisdn))
+					{
+						convInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
+					}
+
+					else
+					{
+						convInfo = new ConvInfo.ConvInfoBuilder(msisdn).setSortingTimeStamp(sortingTimestamp).setOnHike(onhike).build();
+					}
 
 					ContactInfo contact = ContactManager.getInstance().getContact(convInfo.getMsisdn());
 
@@ -2908,7 +3007,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 					}
 				}
 
-				convInfo.setUnreadCount(c.getInt(unreadCountColumn) + getExtraConvUnreadCount(msisdn));
+				convInfo.setUnreadCount(c.getInt(unreadCountColumn));
 				convInfo.setStealth(c.getInt(isStealthColumn) == 1);
 
 				ConvMessage message = new ConvMessage(messageString, msisdn, lastMessageTimestamp, ConvMessage.stateValue(c.getInt(msgStatusColumn)), c.getLong(msgIdColumn),
@@ -3260,7 +3359,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 		mDb.execSQL("DELETE FROM " + DBConstants.SHARED_MEDIA_TABLE + " WHERE " + DBConstants.MSISDN + "= ?", args);
 
-		setExtraConvUnreadCount(msisdn, 0);
 		/*
 		 * Next we have to clear the conversation table.
 		 */
@@ -3284,75 +3382,41 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 	private void deleteMessageFromConversation(String msisdn)
 	{
-		/*
-		 * We get the latest message from the messages table
-		 */
-		Cursor c = null;
+		ConvMessage message =  getLastMessage(msisdn);
+		boolean conversationEmpty = false;
 
-		try
+		if (message != null)
 		{
-			c = mDb.query(DBConstants.MESSAGES_TABLE, null, DBConstants.MSISDN + "=?", new String[] { msisdn }, null, null, DBConstants.MESSAGE_ID + " DESC LIMIT " + 1);
-			boolean conversationEmpty = false;
-			if (c.moveToFirst())
+			ContentValues contentValues = getContentValueForConversationMessage(message,message.getTimestamp());
+			if (OneToNConversationUtils.isOneToNConversation(msisdn))
 			{
-				final int msgColumn = c.getColumnIndex(DBConstants.MESSAGE);
-				final int msgStatusColumn = c.getColumnIndex(DBConstants.MSG_STATUS);
-				final int tsColumn = c.getColumnIndex(DBConstants.TIMESTAMP);
-				final int mappedMsgIdColumn = c.getColumnIndex(DBConstants.MAPPED_MSG_ID);
-				final int msgIdColumn = c.getColumnIndex(DBConstants.MESSAGE_ID);
-				final int metadataColumn = c.getColumnIndex(DBConstants.MESSAGE_METADATA);
-				final int groupParticipantColumn = c.getColumnIndex(DBConstants.GROUP_PARTICIPANT);
-
-				ConvMessage message = new ConvMessage(c.getString(msgColumn), msisdn, c.getInt(tsColumn), ConvMessage.stateValue(c.getInt(msgStatusColumn)),
-						c.getLong(msgIdColumn), c.getLong(mappedMsgIdColumn), c.getString(groupParticipantColumn));
-				String metadata = c.getString(metadataColumn);
-				try
-				{
-					message.setMetadata(metadata);
-				}
-				catch (JSONException e)
-				{
-					Logger.e(HikeConversationsDatabase.class.getName(), "Invalid JSON metadata", e);
-				}
-				ContentValues contentValues = getContentValueForConversationMessage(message,message.getTimestamp());
-				if (OneToNConversationUtils.isOneToNConversation(msisdn))
-				{
-					updateGroupRecency(message);
-					ContactManager.getInstance().removeContact(c.getString(groupParticipantColumn), false);
-				}
-				mDb.update(DBConstants.CONVERSATIONS_TABLE, contentValues, DBConstants.MSISDN + "=?", new String[] { msisdn });
+				updateGroupRecency(message);
+				ContactManager.getInstance().removeContact(message.getGroupParticipantMsisdn(), false);
+			}
+			mDb.update(DBConstants.CONVERSATIONS_TABLE, contentValues, DBConstants.MSISDN + "=?", new String[] { msisdn });
+		}
+		else
+		{
+			if (OneToNConversationUtils.isOneToNConversation(msisdn))
+			{
+				/*
+				 * If we have removed the last message of a group, we should do the same operations we do when clearing a conversation.
+				 */
+				clearLastConversationMessage(msisdn);
+				HikeMessengerApp.getPubSub().publish(HikePubSub.CONVERSATION_CLEARED_BY_DELETING_LAST_MESSAGE, msisdn);
+				return;
 			}
 			else
 			{
-				if (OneToNConversationUtils.isOneToNConversation(msisdn))
-				{
-					/*
-					 * If we have removed the last message of a group, we should do the same operations we do when clearing a conversation.
-					 */
-					clearLastConversationMessage(msisdn);
-					HikeMessengerApp.getPubSub().publish(HikePubSub.CONVERSATION_CLEARED_BY_DELETING_LAST_MESSAGE, msisdn);
-					return;
-				}
-				else
-				{
-					/*
-					 * This conversation is empty.
-					 */
-					clearLastConversationMessage(msisdn);
-					conversationEmpty = true;
-				}
-			}
-			ConvMessage newLastMessage = conversationEmpty ? null : getLastMessageForConversation(msisdn);
-
-			HikeMessengerApp.getPubSub().publish(HikePubSub.LAST_MESSAGE_DELETED, new Pair<ConvMessage, String>(newLastMessage, msisdn));
-		}
-		finally
-		{
-			if (c != null)
-			{
-				c.close();
+				/*
+				 * This conversation is empty.
+				 */
+				clearLastConversationMessage(msisdn);
+				conversationEmpty = true;
 			}
 		}
+		ConvMessage newLastMessage = conversationEmpty ? null : getLastMessageForConversation(msisdn);
+		HikeMessengerApp.getPubSub().publish(HikePubSub.LAST_MESSAGE_DELETED, new Pair<ConvMessage, String>(newLastMessage, msisdn));
 	}
 
 	private void updateGroupRecency(ConvMessage conv)
@@ -5047,12 +5111,35 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		mDb.update(DBConstants.GROUP_INFO_TABLE, contentValues, DBConstants.GROUP_ID + "=?", new String[] { groupId });
 	}
 
-	public void toggleStealth(String msisdn, boolean isStealth)
+	public boolean toggleStealth(String msisdn, boolean isStealth)
 	{
 		ContentValues values = new ContentValues();
 		values.put(DBConstants.IS_STEALTH, isStealth ? 1 : 0);
 
-		mDb.update(DBConstants.CONVERSATIONS_TABLE, values, DBConstants.MSISDN + "=?", new String[] { msisdn });
+		int rowsUpdated = mDb.update(DBConstants.CONVERSATIONS_TABLE, values, DBConstants.MSISDN + "=?", new String[] { msisdn });
+		boolean updated = (rowsUpdated > 0);
+		
+		if(!updated)
+		{
+			//here if the row does not exist in Conversations table, we find the last ConvMessage of the contact from Messages table
+			ConvMessage lastConvMessage = getLastMessage(msisdn);
+			if(lastConvMessage == null)
+			{
+				lastConvMessage = Utils.makeConvMessage(msisdn, mContext.getString(R.string.start_new_chat), true, State.RECEIVED_READ);
+			}
+			else
+			{
+				lastConvMessage.setTimestamp((long) (System.currentTimeMillis()/1000));
+			}
+			
+			Conversation conv = addConversation(msisdn, true, null, null, lastConvMessage);
+			
+			ContentValues contentValues = getContentValueForConversationMessage(lastConvMessage, lastConvMessage.getTimestamp());
+			contentValues.put(DBConstants.IS_STEALTH, isStealth ? 1:0);
+			rowsUpdated = mDb.update(DBConstants.CONVERSATIONS_TABLE, contentValues, DBConstants.MSISDN + "=?", new String[] { msisdn });
+			updated = (rowsUpdated > 0);
+		}
+		return updated;
 	}
 
 	public void addStealthMsisdnToMap()
@@ -5066,7 +5153,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 			while (c.moveToNext())
 			{
-				HikeMessengerApp.addStealthMsisdnToMap(c.getString(msisdnIdx));
+				StealthModeManager.getInstance().markStealthMsisdn(c.getString(msisdnIdx), true, false);
 			}
 		}
 		finally
@@ -5078,24 +5165,35 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 	}
 
-	public HashMap addBotToHashMap(HashMap<String, String> hikeBotNamesMap)
+	public void getBotHashmap()
 	{
 		Cursor c = null;
 		try
 		{
-			c = mDb.query(DBConstants.BOT_TABLE, new String[] { DBConstants.MSISDN, DBConstants.NAME }, null, null, null, null, null);
+			c = mDb.query(DBConstants.BOT_TABLE, new String[] { DBConstants.MSISDN }, null, null, null, null, null);
 
+			int msisdnIdx = c.getColumnIndex(DBConstants.MSISDN);
+
+			mDb.beginTransaction();
 			while (c.moveToNext())
 			{
-				int msisdnIdx = c.getColumnIndex(DBConstants.MSISDN);
-				int nameIdx = c.getColumnIndex(DBConstants.NAME);
 				String msisdn = c.getString(msisdnIdx);
-				String name = c.getString(nameIdx);
-				if (!TextUtils.isEmpty(name) && !TextUtils.isEmpty(msisdn))
+
+				BotInfo botInfo = getBotInfoForMsisdn(msisdn);
+
+				if (botInfo != null)
 				{
-					hikeBotNamesMap.put(msisdn, name);
+					Logger.v("BOT", "Putting Bot Info in hashmap " + botInfo.toString());
+					HikeMessengerApp.hikeBotInfoMap.put(msisdn, botInfo);
 				}
+				
+				else
+				{
+					Logger.wtf("BOT", "got null bot Info for msisdn : " + msisdn);
+				}
+
 			}
+			mDb.setTransactionSuccessful();
 		}
 		finally
 		{
@@ -5103,8 +5201,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			{
 				c.close();
 			}
+			mDb.endTransaction();
 		}
-		return hikeBotNamesMap;
+
 	}
 
 	public ConvMessage showParticipantStatusMessage(String groupId)
@@ -6473,6 +6572,24 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 		return null;
 	}
+	
+	public String getMetadataOfBot(String botMsisdn)
+	{
+		String selection = MSISDN + "=?";
+		Cursor c = mDb.query(BOT_TABLE, new String[] { CONVERSATION_METADATA }, selection, new String[] { botMsisdn }, null, null, null);
+		if (c.moveToFirst())
+		{
+			return c.getString(c.getColumnIndex(CONVERSATION_METADATA));
+		}
+		return null;
+	}
+
+	public void updateHelperDataForNonMessagingBot(String botMsisdn, String helperData)
+	{
+		ContentValues contentValues = new ContentValues();
+		contentValues.put(HIKE_CONTENT.HELPER_DATA, helperData);
+		mDb.update(BOT_TABLE, contentValues, MSISDN + "=?", new String[] { botMsisdn });
+	}
 
 	/**
 	 *
@@ -6486,52 +6603,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			return c.getInt(c.getColumnIndex(DBConstants.UNREAD_COUNT));
 		}
 		return -1;
-	}
-
-	/*
-	 * 
-	 * metadata:{'layout_id':'','file_id':'','card_data':{},'helper_data':{}}
-	 * 
-	 * This function reads helper json given in parameter and update it in metadata of message , it inserts new keys in metadata present in helper and updates old
-	 */
-	public String updateHelperData(long messageId, String helper)
-	{
-
-		String json = getMetadataOfMessage(messageId);
-		if (json != null)
-		{
-			try
-			{
-				JSONObject metadataJSON = new JSONObject(json);
-				JSONObject helperData = new JSONObject(helper);
-				JSONObject cardObj = metadataJSON.optJSONObject(HikePlatformConstants.CARD_OBJECT);
-				JSONObject oldHelper = cardObj.optJSONObject(HikePlatformConstants.HELPER_DATA);
-				if (oldHelper == null)
-				{
-					oldHelper = new JSONObject();
-				}
-				Iterator<String> i = helperData.keys();
-				while (i.hasNext())
-				{
-					String key = i.next();
-					oldHelper.put(key, helperData.get(key));
-				}
-				cardObj.put(HikePlatformConstants.HELPER_DATA, oldHelper);
-				metadataJSON.put(HikePlatformConstants.CARD_OBJECT, cardObj);
-				json = metadataJSON.toString();
-				updateMetadataOfMessage(messageId, json);
-				return json;
-			}
-			catch (JSONException e)
-			{
-				e.printStackTrace();
-			}
-		}
-		else
-		{
-			Logger.e("HikeconversationDB", "Meta data of message is null, id= " + messageId);
-		}
-		return null;
 	}
 
 	public String updateJSONMetadata(int messageId, String newMeta)
@@ -6767,5 +6838,270 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 		}
 		return map;
+	}
+
+	/**
+	 * Utility method to Update the config data in BotTable
+	 * 
+	 * @param msisdn
+	 * @param configData
+	 */
+	public void updateConfigData(String msisdn, String configData)
+	{
+		ContentValues contentValues = new ContentValues();
+		contentValues.put(CONFIG_DATA, configData);
+		mDb.update(BOT_TABLE, contentValues, MSISDN + "=?", new String[] { msisdn });
+	}
+
+	public void toggleMuteBot(String botMsisdn, boolean newMuteState)
+	{
+		ContentValues contentValues = new ContentValues();
+		contentValues.put(IS_MUTE, newMuteState ? 1 : 0);
+		mDb.update(BOT_TABLE, contentValues, MSISDN + "=?", new String[] { botMsisdn });
+	}
+
+	/**
+	 * Calling this function will update the notif data. The notif data is a JSON Object to enable the app to have
+	 * multiple entries. It is having key as the timestamp and value as the notifData given at certain time.
+	 * @param botMsisdn: msisdn of non-messaging bot.
+	 * @param notifData: the data to be added to the notifData.
+	 */
+	public void updateNotifDataForMicroApps(String botMsisdn, String notifData)
+	{
+		Cursor c = null;
+		try
+		{
+			c = mDb.query(DBConstants.BOT_TABLE, new String[] { HIKE_CONTENT.NOTIF_DATA }, DBConstants.MSISDN + "=?" , new String[] { botMsisdn}, null, null, null);
+			final int columnIndex = c.getColumnIndex(HIKE_CONTENT.NOTIF_DATA);
+			JSONObject notifDataJSON;
+			if (c.moveToFirst())
+			{
+				String notifDataExisting = c.getString(columnIndex);
+				notifDataJSON = TextUtils.isEmpty(notifDataExisting) ? new JSONObject() : new JSONObject(notifDataExisting);
+			}
+			else
+			{
+				notifDataJSON = new JSONObject();
+			}
+			JSONObject notifJSON = null;
+			try {
+			 notifJSON = new JSONObject(notifData);
+			}catch(JSONException je) {
+				je.printStackTrace();
+				notifJSON = new JSONObject();
+			}
+			
+			
+			notifDataJSON.put(String.valueOf(System.currentTimeMillis()), notifJSON);
+			ContentValues contentValues = new ContentValues();
+			contentValues.put(HIKE_CONTENT.NOTIF_DATA, notifDataJSON.toString());
+			mDb.update(BOT_TABLE, contentValues, MSISDN + "=?", new String[] { botMsisdn });
+			BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(botMsisdn);
+			if (null != botInfo)
+			{
+				botInfo.setNotifData(notifDataJSON.toString());
+			}
+
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+			Logger.e(HikePlatformConstants.TAG, "JSON exception in updating Notif data");
+		}
+		finally
+		{
+			if (null != c)
+			{
+				c.close();
+			}
+		}
+
+	}
+
+	/**
+	 * call this function to delete the entire notif data for the given microApp.
+	 * @param botMsisdn: msisdn of the non-messaging bot.
+	 */
+	public void deleteAllNotifDataForMicroApp(String botMsisdn)
+	{
+		ContentValues contentValues = new ContentValues();
+		contentValues.put(HIKE_CONTENT.NOTIF_DATA, "");
+		mDb.update(BOT_TABLE, contentValues, MSISDN + "=?", new String[] { botMsisdn });
+		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(botMsisdn);
+		if (null != botInfo)
+		{
+			botInfo.setNotifData("");
+		}
+
+	}
+
+	/**
+	 * call this function to partially delete the notif data based on the key which notif data to be deleted.
+	 * @param key: the key or timestamp for which the notif data is to be deleted.
+	 * @param botMsisdn: the msisdn of the non messaging bot.
+	 */
+	public void deletePartialNotifData(String key, String botMsisdn)
+	{
+		Cursor c = null;
+		try
+		{
+			c = mDb.query(DBConstants.BOT_TABLE, new String[] { HIKE_CONTENT.NOTIF_DATA }, DBConstants.MSISDN + "=?" , new String[] { botMsisdn}, null, null, null);
+			final int columnIndex = c.getColumnIndex(HIKE_CONTENT.NOTIF_DATA);
+			if (c.moveToFirst())
+			{
+				String notifDataExisting = c.getString(columnIndex);
+				if (TextUtils.isEmpty(notifDataExisting))
+				{
+					Logger.e(HikePlatformConstants.TAG, "Existing Notif data is empty or null" + notifDataExisting);
+					return;
+				}
+
+				JSONObject notifDataJSON = new JSONObject(notifDataExisting);
+				if (!notifDataJSON.has(key))
+				{
+					Logger.e(HikePlatformConstants.TAG, "The key for deleting notif data does not exist" + key);
+					return;
+				}
+
+				notifDataJSON.remove(key);
+				ContentValues contentValues = new ContentValues();
+				contentValues.put(HIKE_CONTENT.NOTIF_DATA, notifDataJSON.toString());
+				mDb.update(BOT_TABLE, contentValues, MSISDN + "=?", new String[] { botMsisdn });
+				BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(botMsisdn);
+				if (null != botInfo)
+				{
+					botInfo.setNotifData(notifDataJSON.toString());
+				}
+
+			}
+
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+			Logger.e(HikePlatformConstants.TAG, "JSON exception in updating Notif data");
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+		finally
+		{
+			if (null != c)
+			{
+				c.close();
+			}
+		}
+	}
+
+	/**
+	 * This method is a workaround to insert a conversation for non messaging bot. 
+	 * It will also insert lastMsgText 
+	 * This also
+	 * @param msisdn
+	 * @param lastMsgText
+	 */
+	public void addNonMessagingBotconversation(BotInfo botInfo)
+	{
+		ConvMessage convMessage = Utils.makeConvMessage(botInfo.getMsisdn(), botInfo.getLastMessageText(), true, State.RECEIVED_UNREAD);
+
+		ContentValues contentValues = new ContentValues();
+		contentValues.put(DBConstants.MSISDN, botInfo.getMsisdn());
+		contentValues.put(DBConstants.CONTACT_ID, botInfo.getMsisdn());
+		contentValues.put(DBConstants.ONHIKE, 1);
+		contentValues.put(DBConstants.MESSAGE, convMessage.getMessage());
+		contentValues.put(DBConstants.MSG_STATUS, convMessage.getState().ordinal());
+		contentValues.put(DBConstants.LAST_MESSAGE_TIMESTAMP, convMessage.getTimestamp());
+		contentValues.put(DBConstants.SORTING_TIMESTAMP, convMessage.getTimestamp());
+		contentValues.put(DBConstants.MESSAGE_ID, convMessage.getMsgID());
+		contentValues.put(DBConstants.UNREAD_COUNT, 1); // inOrder to show 1+ on conv screen, we need to have some unread counter
+
+		/**
+		 * InsertWithOnConflict returns -1 on error while inserting/replacing a new row
+		 */
+		if (mDb.insertWithOnConflict(DBConstants.CONVERSATIONS_TABLE, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE) != -1)
+		{
+			botInfo.setLastConversationMsg(convMessage);
+			botInfo.setUnreadCount(1);  // inOrder to show 1+ on conv screen, we need to have some unread counter
+			HikeMessengerApp.getPubSub().publish(HikePubSub.NEW_CONVERSATION, botInfo);
+		}
+
+	}
+
+	/**
+	 * Utility method for updating the last message text for non messaging bot
+	 * 
+	 * @param msisdn
+	 * @param lastMsgText
+	 */
+	public void updateLastMessageForNonMessagingBot(String msisdn, String lastMsgText)
+	{
+		ConvMessage convMessage = Utils.makeConvMessage(msisdn, lastMsgText, true, State.RECEIVED_UNREAD);
+		ContentValues contentValues = new ContentValues();
+		contentValues.put(DBConstants.MESSAGE, convMessage.getMessage());
+		contentValues.put(DBConstants.MSG_STATUS, convMessage.getState().ordinal());
+		contentValues.put(DBConstants.LAST_MESSAGE_TIMESTAMP, convMessage.getTimestamp());
+
+		mDb.updateWithOnConflict(DBConstants.CONVERSATIONS_TABLE, contentValues, MSISDN + "=?", new String[] { msisdn }, SQLiteDatabase.CONFLICT_REPLACE);
+	}
+	
+	/**
+	 * Utility method to update the last message state for a conversation with a given msisdn
+	 * 
+	 * @param msisdn
+	 * @param newState
+	 */
+	public void updateLastMessageStateAndCount(String msisdn, int newState)
+	{
+		ContentValues values = new ContentValues();
+		values.put(DBConstants.MSG_STATUS, newState);
+		//Reset the unread count
+		values.put(DBConstants.UNREAD_COUNT, 0);
+		mDb.updateWithOnConflict(DBConstants.CONVERSATIONS_TABLE, values, MSISDN + "=?", new String[] { msisdn }, SQLiteDatabase.CONFLICT_REPLACE);
+	}
+
+	public BotInfo getBotInfoForMsisdn(String msisdn)
+	{
+		Cursor c = null;
+		try
+		{
+			c = mDb.query(DBConstants.BOT_TABLE, null, DBConstants.MSISDN + "=?", new String[] { msisdn }, null, null, null);
+
+			int nameIdx = c.getColumnIndex(DBConstants.NAME);
+			int configurationIdx = c.getColumnIndex(DBConstants.BOT_CONFIGURATION);
+			int botTypeIdx = c.getColumnIndex(DBConstants.BOT_TYPE);
+			int metadataIdx = c.getColumnIndex(DBConstants.CONVERSATION_METADATA);
+			int muteIdx = c.getColumnIndex(DBConstants.IS_MUTE);
+			int namespaceIdx = c.getColumnIndex(HIKE_CONTENT.NAMESPACE);
+			int configDataidx = c.getColumnIndex(DBConstants.CONFIG_DATA);
+			int notifDataIdx = c.getColumnIndex(HIKE_CONTENT.NOTIF_DATA);
+			int helperDataIdx = c.getColumnIndex(HIKE_CONTENT.HELPER_DATA);
+
+			if (c.moveToFirst())
+			{
+				String name = c.getString(nameIdx);
+				int config = c.getInt(configurationIdx);
+				int botType = c.getInt(botTypeIdx);
+				String metadata = c.getString(metadataIdx);
+				int mute = c.getInt(muteIdx);
+				String namespace = c.getString(namespaceIdx);
+				String configData = c.getString(configDataidx);
+				String notifData = c.getString(notifDataIdx);
+				String helperData = c.getString(helperDataIdx);
+
+				BotInfo botInfo = new BotInfo.HikeBotBuilder(msisdn).setConvName(name).setConfig(config).setType(botType).setMetadata(metadata).setIsMute(mute == 1)
+						.setNamespace(namespace).setConfigData(configData).setHelperData(helperData).setNotifData(notifData).build();
+
+				return botInfo;
+			}
+		}
+		finally
+		{
+			if (c != null)
+			{
+				c.close();
+			}
+		}
+
+		return null;
 	}
 }

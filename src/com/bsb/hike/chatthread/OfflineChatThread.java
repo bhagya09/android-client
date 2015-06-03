@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.net.wifi.ScanResult;
 import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.view.ViewGroup.LayoutParams;
@@ -17,17 +18,22 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
+import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.media.AttachmentPicker;
 import com.bsb.hike.media.OverFlowMenuItem;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.Conversation.Conversation;
+import com.bsb.hike.models.Conversation.OfflineConversation;
+import com.bsb.hike.models.Conversation.OneToOneConversation;
+import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.offline.IOfflineCallbacks;
 import com.bsb.hike.offline.OfflineConstants;
 import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.ui.GalleryActivity;
+import com.bsb.hike.utils.ChatTheme;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -45,12 +51,15 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 	
 	private final String TAG="OfflineManager";
 	
+	OfflineConversation mConversation;
+	
 	public OfflineChatThread(ChatThreadActivity activity, String msisdn)
 	{
 		super(activity, msisdn);
 		controller=new OfflineController(this);
 	}
 
+	
 	
 	@Override
 	public void onCreate()
@@ -66,9 +75,34 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 	}
 	
 	@Override
+	protected String getConvLabel()
+	{
+		return mConversation.getConversationName();
+	}
+	
+	@Override
+	protected void fetchConversationFinished(Conversation conversation)
+	{
+		super.fetchConversationFinished(conversation);
+	}
 	protected Conversation fetchConversation()
 	{
-		return super.fetchConversation();
+		mConversation = (OfflineConversation)mConversationDb.getConversation(msisdn, HikeConstants.MAX_MESSAGES_TO_LOAD_INITIALLY, false);
+
+		if (mConversation == null)
+		{
+			mConversation = new OfflineConversation.ConversationBuilder(msisdn).setIsOnHike(true).build();
+			mConversation.setMessages(HikeConversationsDatabase.getInstance().getConversationThread(msisdn, HikeConstants.MAX_MESSAGES_TO_LOAD_INITIALLY, mConversation, -1));
+		}
+		mContactInfo = ContactManager.getInstance().getContact(mConversation.getDisplayMsisdn(), true, true);
+		mConversation.setConversationName( mContactInfo==null ? mConversation.getDisplayMsisdn():  mContactInfo.getName());
+		ChatTheme chatTheme = mConversationDb.getChatThemeForMsisdn(msisdn);
+		Logger.d(TAG, "Calling setchattheme from createConversation");
+		mConversation.setChatTheme(chatTheme);
+
+		mConversation.setBlocked(ContactManager.getInstance().isBlocked(mConversation.getDisplayMsisdn()));
+
+		return mConversation;
 	}
 	
 	@Override
@@ -277,11 +311,16 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 	}
 	
 	@Override
-	public void imageCaptured(String imagePath)
+	public void imageParsed(String imagePath)
 	{
 		controller.sendImage(imagePath,msisdn);
 	}
 	
+	@Override
+	public void imageParsed(Uri uri)
+	{
+		controller.sendImage(Utils.getRealPathFromUri(uri,activity.getApplicationContext()),msisdn);
+	}
 	@Override
 	public void pickFileSuccess(int requestCode, String filePath)
 	{

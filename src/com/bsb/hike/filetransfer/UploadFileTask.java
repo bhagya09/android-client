@@ -477,7 +477,7 @@ public class UploadFileTask extends FileTransferBase
 					if (selectedFile == null)
 						throw new Exception(FileTransferManager.READ_FAIL);
 					
-					if(selectedFile.exists())
+					if(selectedFile.exists() && selectedFile.length() > 0)
 					{
 						selectedFile = Utils.getOutputMediaFile(hikeFileType, null, true);
 					}
