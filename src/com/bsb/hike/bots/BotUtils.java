@@ -78,7 +78,7 @@ public class BotUtils
 
 		defaultBotEntry("+hike4+", "hike support", null, null, 2069487, true, context);
 
-		defaultBotEntry("+hike5+", "Natasha", null, null, 2069487, true, context);
+		defaultBotEntry("+hike5+", "Natasha", null, HikeBitmapFactory.getBase64ForDrawable(R.drawable.natasha, context.getApplicationContext()), 2069487, true, context);
 
 		defaultBotEntry("+hikecricket+", "Cricket 2015", HikePlatformConstants.CRICKET_CHAT_THEME_ID,
 				HikeBitmapFactory.getBase64ForDrawable(R.drawable.cric_icon, context.getApplicationContext()), 21487, false, context);
