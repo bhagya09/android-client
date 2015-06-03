@@ -1733,10 +1733,10 @@ public class StickerManager
 	/**
 	 * This method is to cache stickers and sticker-categories, so that their loading becomes fast on opening sticker palette the first time.
 	 */
-	public void cachingStickersOnStart(SharedPreferences prefs)
+	public void cachingStickersOnStart()
 	{
 		// This check is to avoid caching during fresh signup. If we remove this, we'll get NPE when we try to fetch recents category as it is null.
-		if (prefs.getInt(StickerManager.UPGRADE_FOR_STICKER_SHOP_VERSION_1, 1) == 1)
+		if (HikeSharedPreferenceUtil.getInstance().getData(StickerManager.UPGRADE_FOR_STICKER_SHOP_VERSION_1, 1) == 1)
 		{
 			return;
 		}

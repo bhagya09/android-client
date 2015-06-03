@@ -853,7 +853,7 @@ public void onTrimMemory(int level)
 		 */
 		StealthModeManager.getInstance().initiate();
 
-		StickerManager.getInstance().cachingStickersOnStart(settings);
+		StickerManager.getInstance().cachingStickersOnStart();
 		
 		appStateHandler = new Handler();
 
