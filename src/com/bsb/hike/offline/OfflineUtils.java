@@ -4,7 +4,10 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.nio.channels.OverlappingFileLockException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -250,6 +253,41 @@ public class OfflineUtils
 				plainText += replaceVal;
 			}
 			return plainText;
+	}
+	
+	public static  String generatePassword(String ssid)
+	{
+		String passkey  =  new StringBuffer(ssid).reverse().toString();
+		MessageDigest md = null;
+		String pass = "";
+		try {
+			md = MessageDigest.getInstance("SHA-1");
+		}
+		catch(NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		} 
+		try {
+			pass = byteArrayToHexString(md.digest(passkey.getBytes("UTF-8")));
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		return pass;
+	}
+	
+	private static String byteArrayToHexString(byte[] b) 
+	{
+		String result = "";
+		for (int i=0; i < b.length; i++) {
+			result += Integer.toString( ( b[i] & 0xff ) + 0x100, 16).substring(1);
+		}
+		return result;
+	}
+	
+	public static String getconnectedDevice(String ssid) {
+		if(ssid==null)
+		  return null;
+		String arr[] = ssid.split("_");
+		return arr[1];
 	}
 
 }

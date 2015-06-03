@@ -4,10 +4,11 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
-
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
 import android.net.wifi.ScanResult;
+import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.net.wifi.p2p.WifiP2pManager.ActionListener;
@@ -23,49 +24,45 @@ import com.bsb.hike.utils.Logger;
 
 public class ConnectionManager implements ChannelListener
 {
-	private final String TAG = "WifiP2pConnectionManager";
+	public static final ConnectionManager _instance = new ConnectionManager();
+	private boolean retryChannel = false;
 	private Context context;
-	private WifiP2pManager manager;
 	private WifiManager wifiManager;
+	private WifiP2pManager wifiP2pManager;
 	private Channel channel;
-    private SharedPreferences settings;
-    private String myMsisdn;
-    private boolean retryChannel = false;
-    private PeerListListener peerListListener;
-  //  private WifiScanResultListener wifiScanResultListener;
-   
-
-    public String getMsisdn()
-    {
-    	return this.myMsisdn;
-    }
-	public ConnectionManager()
+	private SharedPreferences settings;
+    private String myMsisdn =null;
+    private String TAG = ConnectionManager.class.getName();
+    private WifiConfiguration prevConfig;
+    private boolean isHotSpotCreated  = false;
+	private ConnectionManager()
 	{
-		this.context = HikeMessengerApp.getInstance().getApplicationContext();
-		initialise(context);
+    	init();
 	}
 	
-	private void initialise(Context context)
+	public static ConnectionManager getInstance()
 	{
-        manager = (WifiP2pManager) context.getSystemService(Context.WIFI_P2P_SERVICE);
-        channel = manager.initialize(context, context.getMainLooper(), this);
+		return _instance;
+	}
+	
+	private void init()
+	{
+		context =HikeMessengerApp.getInstance().getApplicationContext();
+        wifiP2pManager = (WifiP2pManager) context.getSystemService(Context.WIFI_P2P_SERVICE);
+        channel = wifiP2pManager.initialize(context, context.getMainLooper(), this);
         wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
-        if(wifiManager.isWifiEnabled() == false  && !OfflineManager.getInstance().isHotspotCreated(wifiManager))
-        	wifiManager.setWifiEnabled(true);
-        setDeviceNameAsMsisdn();   
+        settings = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
+        myMsisdn = settings.getString(HikeMessengerApp.MSISDN_SETTING, null);
 	}
 	
-	private void setDeviceNameAsMsisdn() {
+	public void setDeviceNameAsMsisdn() {
 		/*
          * Setting device Name to msisdn
          */
         try {
-        	settings = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
-            myMsisdn = settings.getString(HikeMessengerApp.MSISDN_SETTING, null);
-			Method m = manager.getClass().getMethod("setDeviceName", new Class[]{channel.getClass(), String.class,
+			Method m = wifiP2pManager.getClass().getMethod("setDeviceName", new Class[]{channel.getClass(), String.class,
 						WifiP2pManager.ActionListener.class});
-			m.invoke(manager, channel, myMsisdn, new WifiP2pManager.ActionListener() {
-				
+			m.invoke(wifiP2pManager, channel, myMsisdn, new WifiP2pManager.ActionListener() {
 				@Override
 				public void onSuccess() {
 					Log.d(TAG, "Device Name changed to " + myMsisdn);
@@ -86,49 +83,38 @@ public class ConnectionManager implements ChannelListener
 		}
 	}
 	
-	public Boolean closeHotspot(String deviceName)
-	{
-		return OfflineManager.getInstance().closeHotspot(context, deviceName);
-	}
-	
 	public Boolean connectToHotspot(String ssid) 
-	{	
-		return OfflineManager.getInstance().connectToHotspot(ssid,wifiManager);
-	}
-	
-	public void cancelConnect()
 	{
-		manager.cancelConnect(channel, new ActionListener() {
-        	
-            @Override
-            public void onSuccess() {
-                //wifiP2pConnectionManagerListener.cancelConnectSuccess();
-            }
-
-            @Override
-            public void onFailure(int reasonCode) {
-                //wifiP2pConnectionManagerListener.cancelConnectFailure(reasonCode);
-            }
-        });
+		WifiConfiguration wc = new WifiConfiguration();
+		wc.SSID = "\"" +OfflineUtils.encodeSSID(ssid) +"\"";
+		wc.preSharedKey  = "\"" + OfflineUtils.generatePassword(ssid)  +  "\"";
+		wifiManager.addNetwork(wc);
+		List<WifiConfiguration> list = wifiManager.getConfiguredNetworks();
+		for( WifiConfiguration i : list ) {
+			if(i!=null && i.SSID != null && i.SSID.equals(wc.SSID)) 
+			{
+				wifiManager.disconnect();
+				boolean status = wifiManager.enableNetwork(i.networkId, true);
+				wifiManager.reconnect();               
+				return status;
+			}
+		}
+		return false;
 	}
 	
 	public void enableDiscovery()
 	{
 		if (!wifiManager.isWifiEnabled()) {
-			//wifiManager.setWifiEnabled(true);
-            //wifiP2pConnectionManagerListener.notifyWifiNotEnabled();
+			wifiManager.setWifiEnabled(true);
         }
-		manager.discoverPeers(channel, new WifiP2pManager.ActionListener() {
-        	
+		wifiP2pManager.discoverPeers(channel, new WifiP2pManager.ActionListener() {
             @Override
             public void onSuccess() { 
-            	//wifiP2pConnectionManagerListener.discoverySuccess();
             	Logger.d(TAG, "Wifi Direct Discovery Enabled");
             }
 
             @Override
             public void onFailure(int reasonCode) {
-            	//wifiP2pConnectionManagerListener.discoveryFailure(reasonCode);
             	Logger.d(TAG, "Wifi Direct Discovery FAILED");
             }
 		});
@@ -136,23 +122,20 @@ public class ConnectionManager implements ChannelListener
 	
 	public void requestPeers(PeerListListener  peerListListener)
 	{
-		if (manager != null) {
-            manager.requestPeers(channel, peerListListener);
+		if (wifiP2pManager != null) {
+            wifiP2pManager.requestPeers(channel, peerListListener);
 		}
 	}
 	
 	@Override
 	public void onChannelDisconnected() {
-		if (manager != null && !retryChannel) {
+		if (wifiP2pManager != null && !retryChannel) {
             retryChannel = true;
-            manager.initialize(context, context.getMainLooper(), this);
-        } else {
-        	//wifiP2pConnectionManagerListener.channelDisconnectedFailure();
+            wifiP2pManager.initialize(context, context.getMainLooper(), this);
         }
-		
 	}
 
-	public void startScan() {
+	public void startWifiScan() {
 		boolean wifiScan = wifiManager.startScan();
 		Log.d(TAG, "Wifi Scan returns " + wifiScan);
 	}
@@ -161,15 +144,19 @@ public class ConnectionManager implements ChannelListener
 	{
 		wifiManager.setWifiEnabled(true);
 	}
-	
-	public  void  updateCurrentNearByDevices(HashMap<String,ScanResult>  currentNearbyNetworks)
+ 
+	public void stopWifi() 
 	{
-	   wifiScanResultListener.updateCurrentNearByDevices(currentNearbyNetworks);
+		wifiManager.setWifiEnabled(false);
 	}
-	 
+	
+	public boolean isWifiEnabled() {
+		return wifiManager.isWifiEnabled();
+	}
+	
 	public void stopDiscovery() {
-		manager.removeGroup(channel, null);
-		manager.stopPeerDiscovery(channel, new ActionListener() {
+		wifiP2pManager.removeGroup(channel, null);
+		wifiP2pManager.stopPeerDiscovery(channel, new ActionListener() {
 			@Override
 			public void onSuccess() {
 				Log.d(TAG, "stop peer discovery started");
@@ -181,24 +168,21 @@ public class ConnectionManager implements ChannelListener
 			}
 		});
 	}
-	public void stopWifi() 
-	{
-		wifiManager.setWifiEnabled(false);
-	}
-	public boolean isWifiEnabled() {
-		return wifiManager.isWifiEnabled();
-	}
+	
 	public Pair<Boolean, String> isConnectedToHikeNetwork() {
 		if(wifiManager.getConnectionInfo()!=null)
 		{
 			String ssid = wifiManager.getConnectionInfo().getSSID();
-			return new Pair<Boolean,String>(OfflineUtils.isOfflineSSID(ssid),ssid);
+			Boolean isHikeNetwrok = (OfflineUtils.isOfflineSSID(ssid));
+			if(isHikeNetwrok)
+			{
+				return new Pair<Boolean,String>(isHikeNetwrok,OfflineUtils.decodeSSID(ssid));
+			}
 		}
 		return new Pair<Boolean,String>(false,null);
 	}
 	public HashMap<String, ScanResult> getWifiNetworksForMyMsisdn() {
 		
-			//wifiManager.startScan();
 		List<ScanResult> results = wifiManager.getScanResults();
 		HashMap<String,ScanResult> distinctNetworks = new HashMap<String, ScanResult>();
 		for(ScanResult scanResult :  results)
@@ -222,5 +206,156 @@ public class ConnectionManager implements ChannelListener
 		}
 		return distinctNetworks;
 	}
-		 
+
+	public Boolean createHotspot(String wifiP2pDeviceName)
+	{
+		saveCurrentHotspotSSID();
+		String targetMsisdn =  wifiP2pDeviceName;
+		Boolean result = false;
+		ConnectivityManager cman = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+		Method[] methods = cman.getClass().getMethods();
+		try
+		{
+			wifiManager.setWifiEnabled(false);
+			Method enableWifi = wifiManager.getClass().getMethod("setWifiApEnabled", WifiConfiguration.class, boolean.class);
+			String ssid  =   "h_" +  myMsisdn + "_" + targetMsisdn;
+			String encryptedSSID = OfflineUtils.encodeSSID(ssid);
+			Logger.d(TAG, encryptedSSID);
+			String pass = OfflineUtils.generatePassword(ssid);
+			Logger.d(TAG, "Password: " + (pass));
+			WifiConfiguration  myConfig =  new WifiConfiguration();
+			myConfig.SSID = encryptedSSID;
+			myConfig.preSharedKey  = pass ;
+			myConfig.status = WifiConfiguration.Status.ENABLED;
+			myConfig.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.WPA_PSK);
+			myConfig.allowedProtocols.set(WifiConfiguration.Protocol.RSN);
+			myConfig.allowedProtocols.set(WifiConfiguration.Protocol.WPA);
+			myConfig.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.TKIP); 
+			myConfig.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.CCMP); 
+			myConfig.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.TKIP); 
+			myConfig.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.CCMP);
+			result = (Boolean) enableWifi.invoke(wifiManager, myConfig, true);
+		} 
+		catch (Exception e) 
+		{
+			e.printStackTrace();
+			result = false;
+		}
+		if(result)
+			setIsHotSpotCreated(true);
+		return result;
+		
+	}
+	public Boolean closeHotspot(String targetMsisdn)
+	{
+		Boolean result = false;
+		try
+		{
+			Method enableWifi = wifiManager.getClass().getMethod("setWifiApEnabled", WifiConfiguration.class, boolean.class);
+			String ssid  =   "h_" +  myMsisdn + "_" + targetMsisdn;
+			String encryptedSSID = OfflineUtils.encodeSSID(ssid);
+			Logger.d(TAG, encryptedSSID);
+			String pass = OfflineUtils.generatePassword(ssid);
+			Logger.d(TAG, "Password: " + (pass));
+			WifiConfiguration  myConfig =  new WifiConfiguration();
+			myConfig.SSID = encryptedSSID;
+			myConfig.preSharedKey  = pass ;
+			myConfig.status =   WifiConfiguration.Status.ENABLED;
+			myConfig.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.WPA_PSK);
+			myConfig.allowedProtocols.set(WifiConfiguration.Protocol.RSN);
+			myConfig.allowedProtocols.set(WifiConfiguration.Protocol.WPA);
+			myConfig.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.TKIP); 
+			myConfig.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.CCMP); 
+			myConfig.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.TKIP); 
+			myConfig.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.CCMP);
+			result = (Boolean) enableWifi.invoke(wifiManager, myConfig, false);
+
+			// save previous name back
+			setPreviousHotspotConfig();
+		} 
+		catch (Exception e) 
+		{
+			Logger.e(this.getClass().toString(), "", e);
+			result = false;
+		}
+		if(result)
+			setIsHotSpotCreated(false);
+		return result;
+		
+	}
+	private void setIsHotSpotCreated(boolean b) {
+		
+	}
+
+	private void saveCurrentHotspotSSID() 
+	{	
+		Method[] methods = wifiManager.getClass().getDeclaredMethods();
+		for (Method m: methods) 
+		{           
+			if (m.getName().equals("getWifiApConfiguration")) 
+			{
+				WifiConfiguration config;
+				try 
+				{
+					config = (WifiConfiguration)m.invoke(wifiManager);
+					prevConfig = config;
+				} 
+				catch (IllegalAccessException | IllegalArgumentException
+						| InvocationTargetException e) 
+				{
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+
+	private boolean setPreviousHotspotConfig()
+	{
+		Method setConfigMethod;
+		boolean result = false;
+		try {
+			Method getConfigMethod = wifiManager.getClass().getMethod("getWifiApConfiguration");
+			WifiConfiguration wifiConfig = (WifiConfiguration) getConfigMethod.invoke(wifiManager);
+
+			wifiConfig = prevConfig;
+			setConfigMethod = wifiManager.getClass().getMethod("setWifiApConfiguration", WifiConfiguration.class);
+			setConfigMethod.invoke(wifiManager, wifiConfig);
+			result = true;
+		} 
+		catch (NoSuchMethodException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) 
+		{
+			e.printStackTrace();
+			result = false;
+		}
+		return result;
+	}
+
+	public void connectAsPerMsisdn(String msisdn) {
+		if(myMsisdn.compareTo(msisdn)>0)
+		{
+			//myMsisdn is greater
+			createHotspot(msisdn);
+		}
+		else
+		{
+			
+		}
+	}
+	
+	public boolean isHotspotCreated() 
+	{
+		Method method;
+		Boolean isWifiHotspotRunning = false;
+		try {
+			method = wifiManager.getClass().getDeclaredMethod("isWifiApEnabled");
+			method.setAccessible(true);
+			isWifiHotspotRunning = (Boolean) method.invoke(wifiManager);
+		} catch (IllegalAccessException | IllegalArgumentException
+				| NoSuchMethodException| InvocationTargetException e) {
+			e.printStackTrace();
+		}
+
+		return isWifiHotspotRunning;
+	}
+	
 }

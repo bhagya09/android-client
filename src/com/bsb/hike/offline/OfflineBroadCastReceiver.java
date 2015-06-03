@@ -34,7 +34,15 @@ public class OfflineBroadCastReceiver extends BroadcastReceiver
 	        else if(WifiP2pManager.WIFI_P2P_DISCOVERY_CHANGED_ACTION.equals(action))
 	        {
 	            int state = intent.getIntExtra(WifiP2pManager.EXTRA_DISCOVERY_STATE,10000);
-	            wifiCallBack.onDiscoveryStateChanged();
+	            if(state== WifiP2pManager.WIFI_P2P_DISCOVERY_STARTED)
+	            {
+	            	wifiCallBack.onDiscoveryStarted();
+	            }
+	            else
+	            {
+	            	wifiCallBack.onDiscoveryStopped();
+	            }
+	            
 	        }
 	        else if(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION.equals(action))
 	        {

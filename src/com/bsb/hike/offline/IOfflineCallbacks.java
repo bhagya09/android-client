@@ -15,6 +15,6 @@ public interface IOfflineCallbacks
 
 	public void onDisconnect();
 
-	public void connectedToNetwork(String ssid);
+	public void connectedToMsisdn(String connectedDevice);
 
 }
