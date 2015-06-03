@@ -215,4 +215,20 @@ public class OfflineUtils
 	{
 		return new StringBuilder("o:").append(msisdn).toString();
 	}
+
+	public static JSONObject createMetaData(String type)
+	{
+		JSONObject metaData=new JSONObject();
+		try
+		{
+			metaData.put(HikeConstants.TYPE, type);
+		}
+		catch (JSONException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return metaData;
+	}
 }

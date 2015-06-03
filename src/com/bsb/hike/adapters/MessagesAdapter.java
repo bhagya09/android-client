@@ -96,6 +96,7 @@ import com.bsb.hike.models.StatusMessage;
 import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.Conversation.Conversation;
+import com.bsb.hike.models.Conversation.OfflineConversation;
 import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.modules.stickerdownloadmgr.IStickerResultListener;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerDownloadManager;
@@ -2091,7 +2092,25 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 			int layoutRes = chatTheme.systemMessageLayoutId();
 			
-			if (infoState == ParticipantInfoState.PARTICIPANT_JOINED)
+			if(infoState == ParticipantInfoState.OFFLINE_CONNECTION_STATUS_CONNECTED)
+			{
+				TextView mainMessage = (TextView) inflater.inflate(layoutRes, null);
+				String name="Connection Established with " + ((OfflineConversation)conversation).getLabel();
+				setTextAndIconForSystemMessages(mainMessage,name, R.drawable.ic_joined_chat_custom);
+
+				((ViewGroup) participantInfoHolder.container).addView(mainMessage);
+				
+			}
+			else if(infoState == ParticipantInfoState.OFFLINE_CONNECTION_STATUS_CONNECTED)
+			{
+				TextView mainMessage = (TextView) inflater.inflate(layoutRes, null);
+				String name="Connection Disconnected with " + ((OfflineConversation)conversation).getLabel();
+				setTextAndIconForSystemMessages(mainMessage,name, R.drawable.ic_joined_chat_custom);
+
+				((ViewGroup) participantInfoHolder.container).addView(mainMessage);
+				
+			}
+			else if (infoState == ParticipantInfoState.PARTICIPANT_JOINED)
 			{
 				JSONArray participantInfoArray = metadata.getGcjParticipantInfo();
 				TextView participantInfo = (TextView) inflater.inflate(layoutRes, null);

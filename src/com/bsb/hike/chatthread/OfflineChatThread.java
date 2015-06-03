@@ -4,14 +4,21 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.net.wifi.ScanResult;
 import android.net.wifi.p2p.WifiP2pDeviceList;
+import android.os.Message;
+import android.text.TextUtils;
+import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.PopupWindow;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.actionbarsherlock.view.Menu;
@@ -26,13 +33,18 @@ import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.media.AttachmentPicker;
 import com.bsb.hike.media.OverFlowMenuItem;
 import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
+import com.bsb.hike.models.ConvMessage.State;
+import com.bsb.hike.models.MessageMetadata;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.OfflineConversation;
 import com.bsb.hike.models.Conversation.OneToOneConversation;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.offline.IOfflineCallbacks;
 import com.bsb.hike.offline.OfflineConstants;
+import com.bsb.hike.offline.OfflineConstants.ERRORCODE;
 import com.bsb.hike.offline.OfflineController;
+import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.ui.GalleryActivity;
 import com.bsb.hike.utils.ChatTheme;
@@ -49,6 +61,8 @@ import com.bsb.hike.utils.Utils;
 public class OfflineChatThread extends OneToOneChatThread implements IOfflineCallbacks
 {
 
+	private static final int UPDATE_CONNECTION_STATUS = 401;
+
 	OfflineController controller;
 	
 	private final String TAG="OfflineManager";
@@ -62,13 +76,58 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 	}
 
 	
+	@Override
+	protected void handleUIMessage(Message msg)
+	{
+		switch(msg.what)
+		{
+		case UPDATE_CONNECTION_STATUS:
+			updateStatus((String)msg.obj);
+			break;
+		}
+		super.handleUIMessage(msg);
+	}
 	
+	
+	
+	private void updateStatus(String status)
+	{
+		final TextView statusView = (TextView) mActionBarView.findViewById(R.id.contact_status);
+
+		if (TextUtils.isEmpty(status))
+		{
+			return;
+		}
+		statusView.setVisibility(View.VISIBLE);
+		statusView.setText(status);
+	}
+
+
 	@Override
 	public void onCreate()
 	{
 		super.onCreate();
 		checkIfSharingFiles(activity.getIntent());
+		checkIfWeNeedToConnect(activity.getIntent());
 	}
+	
+	private void checkIfWeNeedToConnect(Intent intent)
+	{
+		if(intent.hasExtra(OfflineConstants.START_CONNECT_FUNCTION))
+		{
+			connectClicked();
+		}
+	}
+
+	@Override
+	public void onNewIntent()
+	{
+		super.onNewIntent();
+		checkIfWeNeedToConnect(activity.getIntent());
+	}
+
+	
+
 	@Override
 	protected void onStart()
 	{
@@ -124,10 +183,10 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 	private List<OverFlowMenuItem> getOverFlowItems()
 	{
 		List<OverFlowMenuItem> list = new ArrayList<OverFlowMenuItem>();
+		list.add(new OverFlowMenuItem(getString(R.string.connect_offline), 0, 0, R.string.connect_offline));
 		list.add(new OverFlowMenuItem(getString(R.string.view_profile), 0, 0, R.string.view_profile));
 		list.add(new OverFlowMenuItem(getString(R.string.chat_theme), 0, 0, R.string.chat_theme));
 		list.add(new OverFlowMenuItem(mConversation.isBlocked() ? getString(R.string.unblock_title) : getString(R.string.block_title), 0, 0, R.string.block_title));
-		list.add(new OverFlowMenuItem(getString(R.string.connect_offline), 0, 0, R.string.connect_offline));
 		for (OverFlowMenuItem item : super.getOverFlowMenuItems())
 		{
 			list.add(item);
@@ -172,16 +231,29 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 	@Override
 	public void onConnect()
 	{
-		
+		sendUpdateStatusMessageOnHandler(R.string.connection_established);
+		ConvMessage convMessage=Utils.makeConvMessage(msisdn,activity.getString(R.string.connection_established),true,State.RECEIVED_READ);
+		convMessage.setIsOfflineMessage(true);
+		JSONObject metaData=OfflineUtils.createMetaData(OfflineConstants.OFFLINE_MESSAGE_CONNECTED_TYPE);
+		try
+		{
+			convMessage.setMetadata(new MessageMetadata(metaData.toString(), false));
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+		addMessage(convMessage);
+		HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_SENT, convMessage);
 	}
-
-	@Override
-	public void onDisconnect()
+	
+	private void sendUpdateStatusMessageOnHandler(int id)
 	{
-		
+		Message msg=Message.obtain();
+		msg.what=UPDATE_CONNECTION_STATUS;
+		msg.obj=getString(id);
+		uiHandler.sendMessage(msg);
 	}
-	
-	
 	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item)
@@ -248,14 +320,22 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 		switch (item.id)
 		{
 		case R.string.connect_offline:
-			Toast.makeText(activity, "Start the Scan Process here ", Toast.LENGTH_SHORT).show();
+			connectClicked();
+			onConnect();
 			break;
 		default:
 			super.itemClicked(item);
 		}
 	}
 	
+	public void connectClicked()
+	{
+		Toast.makeText(activity, "Start the Scan Process here ", Toast.LENGTH_SHORT).show();
+		controller.connectAsPerMsisdn(mConversation.getDisplayMsisdn());
+		sendUpdateStatusMessageOnHandler(R.string.awaiting_response);
+	}
 
+	
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data)
 	{
@@ -356,5 +436,23 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 //			//We are coming from the sharing option.
 //			//OfflineManager.getInstance().forwardSharingFiles(intent);
 //		}
+	}
+
+
+	@Override
+	public void onDisconnect(ERRORCODE errorCode)
+	{
+		switch (errorCode)
+		{
+		case OUT_OF_RANGE:
+			break;
+		case TIMEOUT:
+			break;
+		case USERDISCONNECTED:
+			break;
+		default:
+			break;
+		}
+		
 	}
 }

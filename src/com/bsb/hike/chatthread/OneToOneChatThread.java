@@ -65,6 +65,7 @@ import com.bsb.hike.models.Conversation.OneToOneConversation;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.lastseenmgr.FetchLastSeenTask;
+import com.bsb.hike.offline.OfflineConstants;
 import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.ui.HomeActivity;
@@ -1258,7 +1259,9 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			addFavorite();
 			break;
 		case R.string.scan_free_hike:
-			activity.startActivity(IntentFactory.createChatThreadIntentFromMsisdn(activity, OfflineUtils.createOfflineMsisdn(msisdn), false));
+			Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(activity, OfflineUtils.createOfflineMsisdn(msisdn), false);
+			intent.putExtra(OfflineConstants.START_CONNECT_FUNCTION, true);
+			activity.startActivity(intent);
 			break;
 		default:
 		}

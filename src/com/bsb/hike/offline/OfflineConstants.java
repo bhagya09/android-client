@@ -37,9 +37,20 @@ public class OfflineConstants
 	public static final String EXTRAS_APK_NAME = "apkName";
 	
 	public static final String IS_OFFLINE_MESSAGE = "is_offline_message";
+
+	public static final String START_CONNECT_FUNCTION = "startConnectFunction";
+
+	public static final String OFFLINE_MESSAGE_CONNECTED_TYPE = "offmsgconn";
+	
+	public static final String OFFLINE_MESSAGE_DISCONNECTED_TYPE = "offmsgdis";
 	
 	public final class HandlerConstants
 	{
 		public static final int SAVE_MSG_DB=-101;
+	}
+	
+	public static enum ERRORCODE
+	{
+		TIMEOUT,USERDISCONNECTED,OUT_OF_RANGE
 	}
 }
