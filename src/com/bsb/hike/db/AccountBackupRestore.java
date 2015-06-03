@@ -673,8 +673,9 @@ public class AccountBackupRestore
 		}
 		PreferenceBackup prefBackup = new PreferenceBackup();
 		File prefFile = prefBackup.getPrefFile();
+		File backupStateFile = getBackupStateFile();
 		
-		if(!prefFile.exists())
+		if(!prefFile.exists() && !backupStateFile.exists())
 		{
 			return false;
 		}
