@@ -37,7 +37,9 @@
 
                <com.bsb.hike.view.RoundedImageView
                    android:id="@+id/avatar"
-                   style="@style/AvatarStyle.Padding"
+                   style="@style/RoundedStyle"
+                   android:layout_width="35dp"
+                   android:layout_height="35dp"
                    android:contentDescription="@string/content_des_round_user_image_chatthread_actionbar" />
 
                <com.bsb.hike.ui.utils.RecyclingImageView
