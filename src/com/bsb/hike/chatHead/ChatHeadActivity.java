@@ -14,6 +14,7 @@ import com.bsb.hike.chatHead.ChatHeadServiceManager;
 import com.bsb.hike.ui.HikeBaseActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.view.StickerEmoticonIconPageIndicator;
 
@@ -303,6 +304,11 @@ public class ChatHeadActivity extends HikeBaseActivity implements StickerPickerL
 			HAManager.getInstance().chatHeadshareAnalytics(HikeConstants.ChatHead.BACK, ChatHeadService.foregroundAppName);
 			onBackMainLayoutClick();
 			break;
+		case R.id.shop_icon_external:
+			HAManager.getInstance().chatHeadshareAnalytics(HikeConstants.ChatHead.STICKER_SHOP, ChatHeadService.foregroundAppName);
+			Intent i = IntentFactory.getStickerShopIntent(this);
+			startActivity(i);
+			break;
 		}
 
 	}
@@ -318,7 +324,11 @@ public class ChatHeadActivity extends HikeBaseActivity implements StickerPickerL
 		layout.findViewById(R.id.one_hour).setOnClickListener(this);
 		layout.findViewById(R.id.eight_hours).setOnClickListener(this);
 		layout.findViewById(R.id.eight_hours).setOnClickListener(this);
+		
 		StickerEmoticonIconPageIndicator.registerChatHeadTabClickListener(this);
+		
+		View shopIcon = (stickerPickerView.findViewById(R.id.shop_icon_external));
+		shopIcon.setOnClickListener(this);
 	}
 
 	private void initLayoutComponentsView()

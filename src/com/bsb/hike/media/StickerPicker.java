@@ -294,7 +294,6 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 	{
 		setStickerIntroPrefs();
 		HAManager.getInstance().record(HikeConstants.LogEvent.STKR_SHOP_BTN_CLICKED, AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT);
-		
 		Intent i = IntentFactory.getStickerShopIntent(mActivity);
 		mActivity.startActivity(i);
 	}
