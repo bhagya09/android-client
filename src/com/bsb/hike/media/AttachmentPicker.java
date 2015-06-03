@@ -47,13 +47,15 @@ public class AttachmentPicker extends OverFlowMenuLayout
 	public static final int CONTACT = 318;
 
 	public static final int LOCATOIN = 319;
+	
+	public static final int EDITOR = 320;
 
 	public static final int APPS = 320;
 
 	private boolean startRespectiveActivities;
 
 	private Activity activity;
-	
+
 	private String msisdn;
 
 	/**
@@ -65,9 +67,10 @@ public class AttachmentPicker extends OverFlowMenuLayout
 	 *            - if true, we will start respective activities on activity behalf and activity has to handle onActivityResult callback where request code is Overflowitem
 	 *            uniqueness
 	 */
-	public AttachmentPicker(String msisdn, List<OverFlowMenuItem> overflowItems, OverflowItemClickListener listener, OnDismissListener onDismissListener, Context context, boolean startRespectiveActivities)
+	public AttachmentPicker(String msisdn, List<OverFlowMenuItem> overflowItems, OverflowItemClickListener listener, OnDismissListener onDismissListener, Context context,
+			boolean startRespectiveActivities)
 	{
-		super(overflowItems, listener, onDismissListener,context);
+		super(overflowItems, listener, onDismissListener, context);
 		this.startRespectiveActivities = startRespectiveActivities;
 		this.msisdn = msisdn;
 	}
@@ -83,7 +86,7 @@ public class AttachmentPicker extends OverFlowMenuLayout
 	 */
 	public AttachmentPicker(String msisdn, OverflowItemClickListener listener, OnDismissListener onDismissListener, Activity activity, boolean startRespectiveActivities)
 	{
-		this(msisdn, null, listener, onDismissListener,activity.getApplicationContext(), startRespectiveActivities);
+		this(msisdn, null, listener, onDismissListener, activity.getApplicationContext(), startRespectiveActivities);
 		this.activity = activity;
 		initDefaultAttachmentList();
 	}
@@ -166,13 +169,12 @@ public class AttachmentPicker extends OverFlowMenuLayout
 				case CAMERA:
 					requestCode = CAMERA;
 					File selectedFile = Utils.createNewFile(HikeFileType.IMAGE, HikeConstants.CAM_IMG_PREFIX);
-					if(selectedFile==null)
+					if (selectedFile == null)
 					{
 						Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), R.string.not_enough_memory, Toast.LENGTH_SHORT).show();
 						break;
 					}
 					pickIntent = IntentFactory.getNativeCameraAppIntent(true, selectedFile);
-					HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.FILE_PATH, selectedFile.getAbsolutePath());
 					break;
 				case VIDEO:
 					requestCode = VIDEO;
