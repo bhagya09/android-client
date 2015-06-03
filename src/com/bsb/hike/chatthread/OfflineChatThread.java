@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.net.wifi.ScanResult;
 import android.net.wifi.p2p.WifiP2pDeviceList;
@@ -147,6 +149,7 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 		}
 	}
 
+	
 	@Override
 	protected void sendMessage()
 	{

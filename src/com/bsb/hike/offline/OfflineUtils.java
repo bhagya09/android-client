@@ -209,6 +209,10 @@ public class OfflineUtils
 			e.printStackTrace();
 		}
 		return  object.toString();
-		
+	}
+	
+	public static String createOfflineMsisdn(String msisdn)
+	{
+		return new StringBuilder("o:").append(msisdn).toString();
 	}
 }

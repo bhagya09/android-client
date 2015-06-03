@@ -65,7 +65,9 @@ import com.bsb.hike.models.Conversation.OneToOneConversation;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.lastseenmgr.FetchLastSeenTask;
+import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.service.HikeMqttManagerNew;
+import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.utils.ChatTheme;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
@@ -212,7 +214,10 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	private List<OverFlowMenuItem> getOverFlowItems()
 	{
 		List<OverFlowMenuItem> list = new ArrayList<OverFlowMenuItem>();
-		list.add(new OverFlowMenuItem(getString(R.string.view_profile), 0, 0, R.string.view_profile));
+		if(mConversation.isOnHike())
+		{
+			list.add(new OverFlowMenuItem(getString(R.string.scan_free_hike), 0, 0, R.string.scan_free_hike));
+		}list.add(new OverFlowMenuItem(getString(R.string.view_profile), 0, 0, R.string.view_profile));
 		list.add(new OverFlowMenuItem(getString(R.string.chat_theme), 0, 0, R.string.chat_theme));
 		list.add(new OverFlowMenuItem(mConversation.isBlocked() ? getString(R.string.unblock_title) : getString(R.string.block_title), 0, 0, R.string.block_title));
 		
@@ -1251,6 +1256,9 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			break;
 		case R.string.add_as_favorite_menu:
 			addFavorite();
+			break;
+		case R.string.scan_free_hike:
+			activity.startActivity(IntentFactory.createChatThreadIntentFromMsisdn(activity, OfflineUtils.createOfflineMsisdn(msisdn), false));
 			break;
 		default:
 		}
