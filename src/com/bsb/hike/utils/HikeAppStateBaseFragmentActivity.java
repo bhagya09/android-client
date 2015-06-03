@@ -2,6 +2,8 @@ package com.bsb.hike.utils;
 
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Message;
 import android.support.v4.app.Fragment;
@@ -241,6 +243,16 @@ public class HikeAppStateBaseFragmentActivity extends HikeBaseActivity implement
 	{
 		ActionBar actionBar = getSupportActionBar();
 		actionBar.setBackgroundDrawable(getResources().getDrawable(backgroundDrawable));
+		// * Workaround to set actionbar background drawable multiple times. Refer SO.
+		// http://stackoverflow.com/questions/17076958/change-actionbar-color-programmatically-more-then-once/17198657#17198657
+		actionBar.setDisplayShowTitleEnabled(true);
+		actionBar.setDisplayShowTitleEnabled(false);
+	}
+	
+	protected void updateActionBarColor(Drawable colorDrawable)
+	{
+		ActionBar actionBar = getSupportActionBar();
+		actionBar.setBackgroundDrawable((colorDrawable));
 		// * Workaround to set actionbar background drawable multiple times. Refer SO.
 		// http://stackoverflow.com/questions/17076958/change-actionbar-color-programmatically-more-then-once/17198657#17198657
 		actionBar.setDisplayShowTitleEnabled(true);

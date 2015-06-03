@@ -38,6 +38,7 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.AppOpenSource;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
+import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.db.HikeConversationsDatabase;
@@ -55,8 +56,8 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.SmileyParser;
-import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.SoundUtils;
+import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.voip.VoIPService;
 import com.bsb.hike.voip.VoIPUtils;
@@ -1412,7 +1413,7 @@ public class HikeNotification
 	public void sendNotificationToChatThread(String msisdn, String message, boolean forceNotPlaySound)
 	{
 		int notifType = NotificationType.NORMALMSG1TO1;
-		if (Utils.isBot(msisdn))
+		if (BotUtils.isBot(msisdn))
 			notifType = NotificationType.BOTMSG;
 		
 		if (OneToNConversationUtils.isOneToNConversation(msisdn))

@@ -1,7 +1,5 @@
 package com.bsb.hike.notifications;
 
-import org.json.JSONException;
-
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -12,11 +10,11 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
-import android.util.Pair;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
+import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
@@ -26,7 +24,6 @@ import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.NotificationPreview;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.Utils;
 
@@ -141,8 +138,11 @@ public class HikeNotificationUtils
 		{
 			return HikeMessengerApp.getInstance().getApplicationContext().getString(R.string.app_name);
 		}
-
-		String name = HikeMessengerApp.hikeBotNamesMap.get(argMsisdn);
+		String name = null;
+		if (BotUtils.isBot(argMsisdn))
+		{
+			name = HikeMessengerApp.hikeBotInfoMap.get(argMsisdn).getConversationName();
+		}
 
 		if (TextUtils.isEmpty(name))
 		{

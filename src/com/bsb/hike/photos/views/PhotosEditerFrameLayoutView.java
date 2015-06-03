@@ -174,23 +174,16 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 		int width = metrics.widthPixels;
 		int height = (int) (metrics.heightPixels * getContext().getResources().getInteger(R.integer.photos_editor_canvas_weight) * 1.0f / getContext().getResources().getInteger(
 				R.integer.photos_editor_weightSum));
-		if (width != imageOriginal.getWidth())
-		{
-			imageScaled = HikePhotosUtils.compressBitamp(imageOriginal, width, height, true);
-			if (imageScaled == null)
-			{
-				Toast.makeText(getContext(), getResources().getString(R.string.photos_oom_load), Toast.LENGTH_SHORT).show();
-				IntentFactory.openHomeActivity(getContext(), true);
-				return;
-			}
 
-			effectLayer.handleImage(imageScaled, true);
-		}
-		else
+		imageScaled = HikePhotosUtils.compressBitamp(imageOriginal, width, height, true);
+		if (imageScaled == null)
 		{
-			effectLayer.handleImage(imageOriginal, false);
-			imageScaled = imageOriginal;
+			Toast.makeText(getContext(), getResources().getString(R.string.photos_oom_load), Toast.LENGTH_SHORT).show();
+			IntentFactory.openHomeActivity(getContext(), true);
+			return;
 		}
+
+		effectLayer.handleImage(imageScaled, true);
 
 		if (compressOutput && HikePhotosUtils.getBitmapArea(imageOriginal) > HikeConstants.HikePhotos.MAXIMUM_ALLOWED_IMAGE_AREA)
 		{
@@ -284,6 +277,18 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 		doodleLayer.setOnDoodlingStartListener(listener);
 	}
 
+	private int getOutputQuality()
+	{
+		if(compressOutput)
+		{
+			/**
+			 * Since we already compressing the dimensions no need to decrease quality
+			 */
+			return 100;
+		}
+		return 95;
+	}
+	
 	private void saveImagetoFile()
 	{
 		File file = null;
@@ -337,6 +342,10 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 			{
 				dir.mkdirs();
 			}
+			
+			//Creating No Media file in Hike Profile Images Folder if not already there
+			//Todo prevent deleting of .nomedia on app start
+			Utils.makeNoMediaFile(dir, true);
 
 			String fileName = Utils.getTempProfileImageFileName(mOriginalName);
 			final String destFilePath = directory + File.separator + fileName;
@@ -347,7 +356,7 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 		try
 		{
 			out = new FileOutputStream(file);
-			imageEdited.compress(Bitmap.CompressFormat.JPEG, 100, out);
+			imageEdited.compress(Bitmap.CompressFormat.JPEG, getOutputQuality(), out);
 		}
 		catch (Exception e)
 		{

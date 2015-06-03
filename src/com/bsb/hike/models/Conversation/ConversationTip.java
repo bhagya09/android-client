@@ -380,7 +380,7 @@ public class ConversationTip implements OnClickListener
 			case STEALTH_REVEAL_TIP:
 			case STEALTH_HIDE_TIP:
 			case STEALTH_FTUE_TIP:
-				StealthModeManager.getInstance().setTipVisibility(false, tipType);
+				mListener.closeTip(tipType);
 				StealthModeManager.getInstance().ftuePending(false);
 				break;
 				

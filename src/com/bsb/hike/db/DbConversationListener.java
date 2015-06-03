@@ -28,6 +28,7 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.MsgRelEventType;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.MsgRelLogManager;
+import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.ConvMessage;
@@ -40,10 +41,6 @@ import com.bsb.hike.models.StatusMessage;
 import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.models.Conversation.Conversation;
-import com.bsb.hike.models.Conversation.ConversationTip;
-import com.bsb.hike.models.Conversation.GroupConversation;
-import com.bsb.hike.models.Conversation.OneToNConversation;
-import com.bsb.hike.models.Conversation.OneToOneConversation;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.HikeSDKMessageFilter;
@@ -99,8 +96,10 @@ public class DbConversationListener implements Listener
 		mPubSub.addListener(HikePubSub.MULTI_FILE_UPLOADED, this);
 		mPubSub.addListener(HikePubSub.HIKE_SDK_MESSAGE, this);
 		mPubSub.addListener(HikePubSub.CONVERSATION_TS_UPDATED, this);	
+		mPubSub.addListener(HikePubSub.MUTE_BOT, this);
 		mPubSub.addListener(HikePubSub.GROUP_LEFT, this);
 		mPubSub.addListener(HikePubSub.DELETE_THIS_CONVERSATION, this);
+		mPubSub.addListener(HikePubSub.UPDATE_LAST_MSG_STATE, this);
 		mPubSub.addListener(HikePubSub.STEALTH_DATABASE_MARKED, this);
 		mPubSub.addListener(HikePubSub.STEALTH_DATABASE_UNMARKED, this);
 	}
@@ -211,7 +210,7 @@ public class DbConversationListener implements Listener
 
 			JSONObject blockObj = blockUnblockSerialize("b", msisdn);
 
-			if (!Utils.isBot(msisdn))
+			if (!BotUtils.isBot(msisdn))
 			{
 				/*
 				 * We remove the icon for a blocked user as well.
@@ -295,7 +294,7 @@ public class DbConversationListener implements Listener
 			String id = groupMute.first;
 			boolean mute = groupMute.second;
 
-			if (Utils.isBot(id))
+			if (BotUtils.isBot(id))
 			{
 				// TODO Do we have to do MQTT PUBLISH here?
 			}
@@ -444,6 +443,13 @@ public class DbConversationListener implements Listener
 			long timestamp = p.second;
 			boolean isUpdated = mConversationDb.updateSortingTimestamp(msisdn, timestamp);
 		}
+		
+		else if (HikePubSub.MUTE_BOT.equals(type))
+		{
+			String botMsisdn = (String) object;
+			mConversationDb.toggleMuteBot(botMsisdn, BotUtils.getBotInfoForBotMsisdn(botMsisdn).isMute());
+		}
+		
 		else if(HikePubSub.GROUP_LEFT.equals(type) || HikePubSub.DELETE_THIS_CONVERSATION.equals(type))
 		{
 			ConvInfo convInfo = (ConvInfo) object;
@@ -452,10 +458,17 @@ public class DbConversationListener implements Listener
 			editor.remove(msisdn);
 			editor.commit();
 
-			HikeConversationsDatabase.getInstance().deleteConversation(msisdn);;				
+			HikeConversationsDatabase.getInstance().deleteConversation(msisdn);				
 			ContactManager.getInstance().removeContacts(msisdn);
 			HikeMessengerApp.getPubSub().publish(HikePubSub.CONVERSATION_DELETED, convInfo);
 		}
+		
+		else if (HikePubSub.UPDATE_LAST_MSG_STATE.equals(type))
+		{
+			Pair<Integer, String> stateMsisdnPair = (Pair<Integer, String>) object;
+			mConversationDb.updateLastMessageStateAndCount(stateMsisdnPair.second, stateMsisdnPair.first);
+		}
+		
 		else if(HikePubSub.STEALTH_DATABASE_MARKED.equals(type) || HikePubSub.STEALTH_DATABASE_UNMARKED.equals(type))
 		{
 			String msisdn = (String) object;
