@@ -204,8 +204,6 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		}
 	};
 	View parent;
-	
-	private static final int CHAT_THREAD_ACTIVITY = 401;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)

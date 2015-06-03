@@ -671,6 +671,13 @@ public class AccountBackupRestore
 			if (!backup.exists())
 				return false;
 		}
+		PreferenceBackup prefBackup = new PreferenceBackup();
+		File prefFile = prefBackup.getPrefFile();
+		
+		if(!prefFile.exists())
+		{
+			return false;
+		}
 		if (getLastBackupTime() > 0)
 		{
 			return true;

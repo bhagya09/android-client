@@ -162,6 +162,8 @@ public class BotUtils
 	 * 3. Under normal circumstances, it will also be called from HikeMessengerApp's onCreate<br>
 	 * 
 	 * 4. In case of failure of restoring backup
+	 * 
+	 * 5. In unlink-relink case, (without the backup coming into picture and without force closing the app) 
 	 */
 	public static void initBots()
 	{
