@@ -580,7 +580,7 @@ public class VoIPClient  {
 
 					try {
 						VoIPDataPacket dp = null;
-						synchronized (this) {
+						synchronized (VoIPClient.this) {
 							ConnectionMethods currentMethod = getPreferredConnectionMethod();
 							
 							setPreferredConnectionMethod(ConnectionMethods.PRIVATE);
@@ -789,7 +789,7 @@ public class VoIPClient  {
 		if (codecDecompressionThread != null)
 			codecDecompressionThread.interrupt();
 		
-		synchronized (this) {
+		synchronized (VoIPClient.this) {
 			if(chronometer != null) {
 				chronometer.stop();
 				chronometer = null;
@@ -1035,7 +1035,7 @@ public class VoIPClient  {
 					switch (dataPacket.getType()) {
 					case COMM_UDP_SYN_PRIVATE:
 						Logger.d(logTag, "Received " + dataPacket.getType());
-						synchronized (this) {
+						synchronized (VoIPClient.this) {
 							ConnectionMethods currentMethod = getPreferredConnectionMethod();
 							setPreferredConnectionMethod(ConnectionMethods.PRIVATE);
 							VoIPDataPacket dp = new VoIPDataPacket(PacketType.COMM_UDP_SYNACK_PRIVATE);
@@ -1046,7 +1046,7 @@ public class VoIPClient  {
 						
 					case COMM_UDP_SYN_PUBLIC:
 						Logger.d(logTag, "Received " + dataPacket.getType());
-						synchronized (this) {
+						synchronized (VoIPClient.this) {
 							ConnectionMethods currentMethod = getPreferredConnectionMethod();
 							setPreferredConnectionMethod(ConnectionMethods.PUBLIC);
 							VoIPDataPacket dp = new VoIPDataPacket(PacketType.COMM_UDP_SYNACK_PUBLIC);
@@ -1058,7 +1058,7 @@ public class VoIPClient  {
 					case COMM_UDP_SYN_RELAY:
 						Logger.d(logTag, "Received " + dataPacket.getType());
 						
-						synchronized (this) {
+						synchronized (VoIPClient.this) {
 							ConnectionMethods currentMethod = getPreferredConnectionMethod();
 							setPreferredConnectionMethod(ConnectionMethods.RELAY);
 							VoIPDataPacket dp = new VoIPDataPacket(PacketType.COMM_UDP_SYNACK_RELAY);
@@ -1070,7 +1070,7 @@ public class VoIPClient  {
 					case COMM_UDP_SYNACK_PRIVATE:
 					case COMM_UDP_ACK_PRIVATE:
 						Logger.d(logTag, "Received " + dataPacket.getType());
-						synchronized (this) {
+						synchronized (VoIPClient.this) {
 							if (senderThread != null)
 								senderThread.interrupt();
 							setPreferredConnectionMethod(ConnectionMethods.PRIVATE);
@@ -1085,7 +1085,7 @@ public class VoIPClient  {
 					case COMM_UDP_SYNACK_PUBLIC:
 					case COMM_UDP_ACK_PUBLIC:
 						Logger.d(logTag, "Received " + dataPacket.getType());
-						synchronized (this) {
+						synchronized (VoIPClient.this) {
 							if (senderThread != null)
 								senderThread.interrupt();
 							setPreferredConnectionMethod(ConnectionMethods.PUBLIC);
@@ -1100,7 +1100,7 @@ public class VoIPClient  {
 					case COMM_UDP_SYNACK_RELAY:
 					case COMM_UDP_ACK_RELAY:
 						Logger.d(logTag, "Received " + dataPacket.getType());
-						synchronized (this) {
+						synchronized (VoIPClient.this) {
 							if (getPreferredConnectionMethod() == ConnectionMethods.PRIVATE || 
 									getPreferredConnectionMethod() == ConnectionMethods.PUBLIC) {
 								Logger.d(logTag, "Ignoring " + dataPacket.getType() + " since we are expecting a " +
@@ -1134,8 +1134,8 @@ public class VoIPClient  {
 						if (dataPacket.getData() != null) {
 							try {
 								remotePacketsReceivedPerSecond = ByteBuffer.wrap(dataPacket.getData()).order(ByteOrder.LITTLE_ENDIAN).getInt();
-								if (remotePacketsReceivedPerSecond < 12)
-									Logger.w(logTag, "Remote client is not receiving enough data. Packets/sec: " + remotePacketsReceivedPerSecond);
+//								if (remotePacketsReceivedPerSecond < 12)
+//									Logger.w(logTag, "Remote client is not receiving enough data. Packets/sec: " + remotePacketsReceivedPerSecond);
 							} catch (BufferUnderflowException e) {
 								remotePacketsReceivedPerSecond = 0;
 							}
@@ -1620,7 +1620,7 @@ public class VoIPClient  {
 	
 	public int getCallDuration() {
 		int seconds = 0;
-		synchronized (this) {
+		synchronized (VoIPClient.this) {
 			if (chronometer != null) {
 				seconds = (int) ((SystemClock.elapsedRealtime() - chronometer.getBase()) / 1000);
 			} else

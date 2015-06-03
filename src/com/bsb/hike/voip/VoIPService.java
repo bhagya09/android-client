@@ -78,7 +78,7 @@ public class VoIPService extends Service {
 	private int initialAudioMode, initialRingerMode;
 	private boolean initialSpeakerMode;
 	private AudioManager.OnAudioFocusChangeListener mOnAudioFocusChangeListener;
-	private int playbackSampleRate = 0;
+	private int playbackSampleRate = 0, recordingSampleRate = 0;
 	
 	private boolean conferencingEnabled = false;
 	
@@ -127,14 +127,46 @@ public class VoIPService extends Service {
 	private int playbackFeederCounter = 0;
 	private CallQuality currentCallQuality = CallQuality.UNKNOWN;
 	
-
+	// Buffer queues
 	private final LinkedBlockingQueue<VoIPDataPacket> recordedSamples     = new LinkedBlockingQueue<VoIPDataPacket>();
 	private final LinkedBlockingQueue<VoIPDataPacket> buffersToSend      = new LinkedBlockingQueue<VoIPDataPacket>();
 	private final LinkedBlockingQueue<VoIPDataPacket> processedRecordedSamples      = new LinkedBlockingQueue<VoIPDataPacket>();
 	private final LinkedBlockingQueue<VoIPDataPacket> playbackBuffersQueue      = new LinkedBlockingQueue<VoIPDataPacket>();
 	private final CircularByteBuffer recordBuffer = new CircularByteBuffer();
 	
+	
+	// Bluetooth 
+	BluetoothHelper bluetoothHelper;
+	private class BluetoothHelper extends BluetoothHeadsetUtils {
 
+		public BluetoothHelper(Context context) {
+			super(context);
+		}
+
+		@Override
+		public void onHeadsetDisconnected() {
+			Logger.e(logTag, "Bluetooth onHeadsetDisconnected()");
+		}
+
+		@Override
+		public void onHeadsetConnected() {
+			Logger.e(logTag, "Bluetooth onHeadsetConnected()");
+		}
+
+		@Override
+		public void onScoAudioDisconnected() {
+			Logger.e(logTag, "Bluetooth onScoAudioDisconnected()");
+		}
+
+		@Override
+		public void onScoAudioConnected() {
+			Logger.e(logTag, "Bluetooth onScoAudioConnected()");
+			audioManager.startBluetoothSco();
+			audioManager.setBluetoothScoOn(true);
+		}
+		
+	}
+	
 	// Handler for messages from VoIP clients
 	Handler handler = new Handler() {
 
@@ -247,7 +279,9 @@ public class VoIPService extends Service {
 		}
 		else
 			playbackSampleRate = VoIPConstants.AUDIO_SAMPLE_RATE;
-		
+
+		recordingSampleRate = VoIPConstants.AUDIO_SAMPLE_RATE;
+
 		Logger.d(logTag, "Native playback sample rate: " + AudioTrack.getNativeOutputSampleRate(AudioManager.STREAM_VOICE_CALL));
 
 		if (android.os.Build.VERSION.SDK_INT >= 17) {
@@ -258,9 +292,6 @@ public class VoIPService extends Service {
 		
 		VoIPUtils.resetNotificationStatus();
 
-		minBufSizePlayback = AudioTrack.getMinBufferSize(playbackSampleRate, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT);
-		minBufSizeRecording = AudioRecord.getMinBufferSize(VoIPConstants.AUDIO_SAMPLE_RATE, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT);
-		
 		if (!VoIPUtils.useAEC(getApplicationContext())) {
 			Logger.w(logTag, "AEC disabled.");
 			aecEnabled = false;
@@ -271,23 +302,22 @@ public class VoIPService extends Service {
 			conferencingEnabled = true;
 		}
 		
-		if (aecEnabled) {
-			// For the Solicall AEC library to work, we must record data in chunks
-			// which are a multiple of the library's supported frame size (20ms).
-			Logger.d(logTag, "Old minBufSizeRecording: " + minBufSizeRecording);
-			if (minBufSizeRecording < SolicallWrapper.SOLICALL_FRAME_SIZE * 2) {
-				minBufSizeRecording = SolicallWrapper.SOLICALL_FRAME_SIZE * 2;
-			} else {
-				minBufSizeRecording = ((minBufSizeRecording + (SolicallWrapper.SOLICALL_FRAME_SIZE * 2) - 1) / (SolicallWrapper.SOLICALL_FRAME_SIZE * 2)) * SolicallWrapper.SOLICALL_FRAME_SIZE * 2;
-			}
-			Logger.d(logTag, "New minBufSizeRecording: " + minBufSizeRecording);
-		}
-		
 		startConnectionTimeoutThread();
 		// CPU Info
 		// Logger.d(logTag, "CPU: " + VoIPUtils.getCPUInfo());
+		bluetoothHelper = new BluetoothHelper(getApplicationContext());
+		bluetoothHelper.start();
 	}
-
+	
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		stop();
+		dismissNotification();
+		bluetoothHelper.stop();
+		Logger.d(logTag, "VoIP Service destroyed.");
+	}
+	
 	@Override
 	synchronized public int onStartCommand(Intent intent, int flags, int startId) {
 		
@@ -531,14 +561,6 @@ public class VoIPService extends Service {
 		return returnInt;
 	}
 
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
-		stop();
-		dismissNotification();
-		Logger.d(logTag, "VoIP Service destroyed.");
-	}
-	
 	private void startConnectionTimeoutThread() {
 		
 		if (connectionTimeoutThread != null) {
@@ -820,7 +842,8 @@ public class VoIPService extends Service {
 		audioManager.setMode(initialAudioMode);
 		audioManager.setRingerMode(initialRingerMode);
 		audioManager.setSpeakerphoneOn(initialSpeakerMode);
-	}
+		audioManager.stopBluetoothSco();
+		audioManager.setBluetoothScoOn(false);	}
 	
 	@SuppressWarnings("deprecation")
 	@SuppressLint("InlinedApi") 
@@ -1111,14 +1134,25 @@ public class VoIPService extends Service {
 				android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
 
 				AudioRecord recorder = null;
-				Logger.d(logTag, "minBufSizeRecording: " + minBufSizeRecording);
+				minBufSizeRecording = AudioRecord.getMinBufferSize(VoIPConstants.AUDIO_SAMPLE_RATE, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT);
+				if (aecEnabled) {
+					// For the Solicall AEC library to work, we must record data in chunks
+					// which are a multiple of the library's supported frame size (20ms).
+					Logger.d(logTag, "Old minBufSizeRecording: " + minBufSizeRecording);
+					if (minBufSizeRecording < SolicallWrapper.SOLICALL_FRAME_SIZE * 2) {
+						minBufSizeRecording = SolicallWrapper.SOLICALL_FRAME_SIZE * 2;
+					} else {
+						minBufSizeRecording = ((minBufSizeRecording + (SolicallWrapper.SOLICALL_FRAME_SIZE * 2) - 1) / (SolicallWrapper.SOLICALL_FRAME_SIZE * 2)) * SolicallWrapper.SOLICALL_FRAME_SIZE * 2;
+					}
+					Logger.d(logTag, "New minBufSizeRecording: " + minBufSizeRecording);
+				}
 				
 				int audioSource = VoIPUtils.getAudioSource();
 
 				// Start recording audio from the mic
 				try
 				{
-					recorder = new AudioRecord(audioSource, VoIPConstants.AUDIO_SAMPLE_RATE, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, minBufSizeRecording);
+					recorder = new AudioRecord(audioSource, recordingSampleRate, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, minBufSizeRecording);
 					recorder.startRecording();
 				}
 				catch(IllegalArgumentException e)
@@ -1148,10 +1182,14 @@ public class VoIPService extends Service {
 					if (mute == true)
 						continue;
 					
-                	// Add it to the samples to encode queue
-//					VoIPDataPacket dp = new VoIPDataPacket(VoIPDataPacket.PacketType.VOICE_PACKET);
-//                	dp.write(recordedData);
-//                	recordedSamples.add(dp);
+					// Resample
+					byte[] output = null;
+					if (resamplerEnabled && recordingSampleRate != VoIPConstants.AUDIO_SAMPLE_RATE) {
+						// We need to resample the mic signal
+						output = resampler.reSample(recordedData, 16, recordingSampleRate, VoIPConstants.AUDIO_SAMPLE_RATE);
+						// Logger.d(logTag, "Resampled from: " + recordedData.length + " to: " + output.length);
+					} else
+						output = recordedData;
 
 					// Break input audio into smaller chunks for Solicall AEC
 	            	int index = 0;
@@ -1163,17 +1201,13 @@ public class VoIPService extends Service {
                 			newSize = SolicallWrapper.SOLICALL_FRAME_SIZE * 2;
 
                 		byte[] data = new byte[newSize];
-                		System.arraycopy(recordedData, index, data, 0, newSize);
+                		System.arraycopy(output, index, data, 0, newSize);
                 		index += newSize;
 
 	                	// Add it to the samples to encode queue
 						VoIPDataPacket dp = new VoIPDataPacket(VoIPDataPacket.PacketType.VOICE_PACKET);
 	                	dp.write(data);
-
-	                	synchronized (recordedSamples) {
-		                	recordedSamples.add(dp);
-	                		recordedSamples.notify();
-						}
+	                	recordedSamples.add(dp);
                 	}
 					index = 0;
 					
@@ -1287,12 +1321,13 @@ public class VoIPService extends Service {
 			
 			@Override
 			public void run() {
-				
+
 				android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
+				setAudioModeInCall();
 				int index = 0, size = 0;
+				minBufSizePlayback = AudioTrack.getMinBufferSize(playbackSampleRate, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT);
 				Logger.d(logTag, "AUDIOTRACK - minBufSizePlayback: " + minBufSizePlayback + ", playbackSampleRate: " + playbackSampleRate);
 			
-				setAudioModeInCall();
 				try {
 					audioTrack = new AudioTrack(AudioManager.STREAM_VOICE_CALL, playbackSampleRate, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT, minBufSizePlayback, AudioTrack.MODE_STREAM);
 				} catch (IllegalArgumentException e) {
