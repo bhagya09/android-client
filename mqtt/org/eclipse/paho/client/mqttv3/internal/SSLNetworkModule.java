@@ -74,6 +74,7 @@ public class SSLNetworkModule extends TCPNetworkModule
 	public void start() throws IOException, MqttException
 	{
 		super.start();
+		socket = ((SSLSocketFactory)factory).createSocket(socket, host, port, true);
 		setEnabledCiphers(enabledCiphers);
 		int soTimeout = socket.getSoTimeout();
 		if (soTimeout == 0)
@@ -84,5 +85,13 @@ public class SSLNetworkModule extends TCPNetworkModule
 		((SSLSocket) socket).startHandshake();
 		// reset timeout to default value
 		socket.setSoTimeout(soTimeout);
+	}
+	
+	public void stop() throws IOException
+	{
+		// In case of SSLSocket we should not try to shutdownOutput and shutdownInput it would result
+		// in java.lang.UnsupportedOperationException. only SSLSocket.close() is enough to close
+		// an SSLSocket.
+		socket.close();
 	}
 }

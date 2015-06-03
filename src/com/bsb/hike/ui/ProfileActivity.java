@@ -66,6 +66,7 @@ import com.bsb.hike.adapters.ProfileAdapter;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.ProfileImageActions;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
@@ -104,11 +105,11 @@ import com.bsb.hike.ui.fragments.PhotoViewerFragment;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
 import com.bsb.hike.utils.EmoticonConstants;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.SmileyParser;
+import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.CustomFontEditText;
 import com.bsb.hike.voip.VoIPUtils;
@@ -552,7 +553,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		case CONTACT_INFO_TIMELINE:
 			/*Falling onto contact info intentionally*/
 		case CONTACT_INFO:
-			if(HikeMessengerApp.hikeBotNamesMap.containsKey(contactInfo.getMsisdn()))
+			if(HikeMessengerApp.hikeBotInfoMap.containsKey(contactInfo.getMsisdn()))
 			{
 				menu.clear();
 				return true; 
@@ -769,7 +770,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			dual_layout.setVisibility(View.GONE);
 			statusMood.setVisibility(View.GONE);
 			fav_layout.setTag(null);  //Resetting the tag, incase we need to add to favorites again.
-			if(!HikeMessengerApp.hikeBotNamesMap.containsKey(contactInfo.getMsisdn()))  //The HikeBot's numbers wont be shown
+			if(!HikeMessengerApp.hikeBotInfoMap.containsKey(contactInfo.getMsisdn()))  //The HikeBot's numbers wont be shown
 			{
 			if (showContactsUpdates(contactInfo)) // Favourite case
 			
@@ -968,7 +969,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	private void setupContactProfileList()
 	{
 		profileItems.clear();
-		if(!HikeMessengerApp.hikeBotNamesMap.containsKey(contactInfo.getMsisdn()))  //The HikeBot's numbers wont be shown
+		if(!HikeMessengerApp.hikeBotInfoMap.containsKey(contactInfo.getMsisdn()))  //The HikeBot's numbers wont be shown
 		profileItems.add(new ProfileItem.ProfilePhoneNumberItem(ProfileItem.PHONE_NUMBER, getResources().getString(R.string.phone_pa)));
 		if(contactInfo.isOnhike())
 		{	shouldAddSharedMedia();
@@ -1188,7 +1189,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			@Override
 			public void onClick(View v)
 			{				
-				showProfileImageEditDialog(ProfileActivity.this, ProfileActivity.this, mLocalMSISDN, ProfileImageActions.DP_EDIT_FROM_PROFILE_OVERFLOW_MENU);
+				beginProfilePicChange(ProfileActivity.this,ProfileActivity.this, ProfileImageActions.DP_EDIT_FROM_PROFILE_OVERFLOW_MENU);
 				
 				JSONObject md = new JSONObject();
 
@@ -1539,9 +1540,10 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 			startActivity(i);
 		}
-		else if (this.profileType == ProfileType.USER_PROFILE)
+		
+		if (Utils.isPhotosEditEnabled() && this.profileType == ProfileType.USER_PROFILE_EDIT)
 		{
-			super.onBackPressed();
+			//handling user profile edit case differently since photos flow will handle the created fragments
 			return;
 		}
 		super.onBackPressed();
@@ -1593,7 +1595,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 
 	public void onViewImageClicked(View v)
 	{
-		if(Utils.isBot(mLocalMSISDN))
+		if(BotUtils.isBot(mLocalMSISDN))
 		{
 			return;
 		}
@@ -1677,11 +1679,11 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	{
 		if(profileType == ProfileType.GROUP_INFO)
 		{
-			showProfileImageEditDialog(ProfileActivity.this, ProfileActivity.this, mLocalMSISDN, null);
+			beginProfilePicChange(ProfileActivity.this,ProfileActivity.this, null);
 		}
 		else if(profileType == ProfileType.USER_PROFILE)
 		{
-			showProfileImageEditDialog(ProfileActivity.this, ProfileActivity.this, mLocalMSISDN, ProfileImageActions.DP_EDIT_FROM_PROFILE_SCREEN);
+			beginProfilePicChange(ProfileActivity.this,ProfileActivity.this, ProfileImageActions.DP_EDIT_FROM_PROFILE_SCREEN);
 			
 			JSONObject md = new JSONObject();
 
@@ -2504,7 +2506,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				optionsList.add(getString(R.string.add_to_contacts));
 			}
 			optionsList.add(getString(R.string.send_message));
-			if(Utils.isVoipActivated(this) && (tempContactInfo!=null && tempContactInfo.isOnhike()) && !HikeMessengerApp.hikeBotNamesMap.containsKey(tempContactInfo.getMsisdn()))
+			if(Utils.isVoipActivated(this) && (tempContactInfo!=null && tempContactInfo.isOnhike()) && !HikeMessengerApp.hikeBotInfoMap.containsKey(tempContactInfo.getMsisdn()))
 			{
 				optionsList.add(getString(R.string.make_call));
 			}
@@ -2829,10 +2831,9 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		{	
 			ContactInfo contactInfo = groupParticipant.getContactInfo();
 
-			if (HikeMessengerApp.isStealthMsisdn(contactInfo.getMsisdn()))
+			if (StealthModeManager.getInstance().isStealthMsisdn(contactInfo.getMsisdn()))
 			{
-				int stealthMode = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF);
-				if (stealthMode != HikeConstants.STEALTH_ON)
+				if (!StealthModeManager.getInstance().isActive())
 				{
 					return;
 				}

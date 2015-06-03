@@ -1,10 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     android:title="@string/privacy" >
-
+    
+    <PreferenceCategory
+        android:key="steathPerfCategory"
+        android:orderingFromXml="true"
+        android:selectable="false"
+        android:textColor="@color/auto_download"
+        android:title="@string/hidden_mode" >
+        
+        <com.bsb.hike.view.IconPreference
+            icon="@drawable/ic_stealth_mode"
+            android:key="stealthModeSettings"
+            android:layout="@layout/icon_preference"
+            android:summary="@string/stealth_mode_title_body"
+            android:title="@string/stealth_mode_title" />
+    </PreferenceCategory>
+    
     <PreferenceCategory
         android:orderingFromXml="true"
         android:selectable="false"
+        android:key="privacySettingsCategory"
         android:textColor="@color/auto_download"
         android:title="@string/privacy_settings" >
         <com.bsb.hike.view.IconCheckBoxPreference
@@ -34,6 +50,7 @@
             android:title="@string/ssl"
             android:widgetLayout="@layout/checkbox_widget" />
     </PreferenceCategory>
+
     <PreferenceCategory
         android:orderingFromXml="true"
         android:selectable="false"
@@ -55,24 +72,5 @@
             android:summary="@string/fav_list_summary"
             android:title="@string/privacy_favorites_key" />
     </PreferenceCategory>
-    <PreferenceCategory
-        android:orderingFromXml="true"
-        android:selectable="false"
-        android:textColor="@color/auto_download"
-        android:title="@string/hidden_mode"
-        android:key="steathPerfCategory">
-        <com.bsb.hike.view.IconPreference
-            icon="@drawable/ic_reset_stealth"
-            android:key="resetStealthPref"
-            android:layout="@layout/icon_preference"
-            android:summary="@string/reset_complete_stealth_info"
-            android:title="@string/reset_complete_stealth_header" />
-        <com.bsb.hike.view.IconPreference
-            icon="@drawable/ic_stealth_icon_reset_password"
-            android:key="changeStealthPasscode"
-            android:layout="@layout/icon_preference"
-            android:summary="@string/change_stealth_password_body"
-            android:title="@string/change_stealth_password" />
-    </PreferenceCategory>
-
+    
 </PreferenceScreen>
