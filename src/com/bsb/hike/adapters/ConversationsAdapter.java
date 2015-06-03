@@ -50,6 +50,7 @@ import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.MessageMetadata;
 import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.models.Conversation.ConvInfo;
+import com.bsb.hike.models.Conversation.OfflineConvInfo;
 import com.bsb.hike.models.Conversation.OneToNConvInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.smartImageLoader.IconLoader;
@@ -212,8 +213,9 @@ public class ConversationsAdapter extends BaseAdapter
 			viewHolder = (ViewHolder) v.getTag();
 		}
 
+		
 		viewHolder.msisdn = convInfo.getMsisdn();
-
+		
 		updateViewsRelatedToName(v, convInfo);
 
 		if (itemToBeAnimated(convInfo))
@@ -546,7 +548,15 @@ public class ConversationsAdapter extends BaseAdapter
 		}
 
 		TextView contactView = viewHolder.headerText;
-		String name = convInfo.getLabel();
+		String name="";
+		if(convInfo instanceof OfflineConvInfo)
+		{
+			name = ((OfflineConvInfo) convInfo).getLabel();
+		}
+		else
+		{
+			name = convInfo.getLabel();
+		}Logger.d("OfflineManager",name+"");
 		Integer startSpanIndex = convSpanStartIndexes.get(convInfo.getMsisdn());
 		if(isSearchModeOn && startSpanIndex!=null)
 		{

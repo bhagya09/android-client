@@ -65,6 +65,7 @@ import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.ConversationMetadata;
 import com.bsb.hike.models.Conversation.GroupConversation;
+import com.bsb.hike.models.Conversation.OfflineConvInfo;
 import com.bsb.hike.models.Conversation.OfflineConversation;
 import com.bsb.hike.models.Conversation.OneToNConvInfo;
 import com.bsb.hike.models.Conversation.OneToNConversation;
@@ -2982,19 +2983,26 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				}
 				else
 				{
-
+					ContactInfo contact=null;
 					if (BotUtils.isBot(msisdn))
 					{
 						convInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
+						contact = ContactManager.getInstance().getContact(convInfo.getMsisdn());
 					}
 
+					else if(Utils.isOfflineConversation(msisdn))
+					{
+						convInfo=new OfflineConvInfo.OfflineBuilder(msisdn).setDisplayMsisdn(msisdn.replace("o:", "")).setSortingTimeStamp(sortingTimestamp).setOnHike(true).build();
+						
+						
+						contact=ContactManager.getInstance().getContact(((OfflineConvInfo)convInfo).getDisplayMsisdn());
+					}
 					else
 					{
 						convInfo = new ConvInfo.ConvInfoBuilder(msisdn).setSortingTimeStamp(sortingTimestamp).setOnHike(onhike).build();
+						contact = ContactManager.getInstance().getContact(convInfo.getMsisdn());
 					}
-
-					ContactInfo contact = ContactManager.getInstance().getContact(convInfo.getMsisdn());
-
+					
 					ContactManager.getInstance().updateContactRecency(msisdn, sortingTimestamp, false);
 
 					if (null == contact)
