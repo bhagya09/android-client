@@ -44,6 +44,8 @@ public class HikeConstants
 	public static final String FROM = "f";
 
 	public static final String SUB_TYPE = "st";
+	
+	public static final String GROUP_CHAT_TIMESTAMP = "gts";
 
 	public static final String HIKE_MESSAGE = "hm";
 

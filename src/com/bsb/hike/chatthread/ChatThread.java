@@ -4571,9 +4571,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 					|| ((view.getId() == R.id.msg_compose) && PreferenceManager
 							.getDefaultSharedPreferences(
 									activity.getApplicationContext())
-							.getBoolean(HikeConstants.SEND_ENTER_PREF, false))
-					)	{
-				
+							.getBoolean(HikeConstants.SEND_ENTER_PREF, false)))	{
 				if (!TextUtils.isEmpty(mComposeView.getText())) {
 					sendButtonClicked();
 				}

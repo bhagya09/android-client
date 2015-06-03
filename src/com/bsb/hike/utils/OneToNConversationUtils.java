@@ -1,6 +1,7 @@
 package com.bsb.hike.utils;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -176,11 +177,11 @@ public class OneToNConversationUtils
 		OneToNConversation oneToNConversation;
 		if (activity.getIntent().hasExtra(HikeConstants.Extras.CREATE_BROADCAST))
 		{
-			oneToNConversation = new BroadcastConversation.ConversationBuilder(oneToNConvId).setConversationOwner(userContactInfo.getMsisdn()).setIsAlive(true).build();
+			oneToNConversation = new BroadcastConversation.ConversationBuilder(oneToNConvId).setConversationOwner(userContactInfo.getMsisdn()).setIsAlive(true).setCreationTime(System.currentTimeMillis()).build();
 		}
 		else
 		{
-			oneToNConversation = new GroupConversation.ConversationBuilder(oneToNConvId).setConversationOwner(userContactInfo.getMsisdn()).setIsAlive(true).build();
+			oneToNConversation = new GroupConversation.ConversationBuilder(oneToNConvId).setConversationOwner(userContactInfo.getMsisdn()).setIsAlive(true).setCreationTime(System.currentTimeMillis()).build();
 		}
 
 		oneToNConversation.setConversationParticipantList(participantList);
@@ -190,7 +191,7 @@ public class OneToNConversationUtils
 		mConversationDb.addRemoveGroupParticipants(oneToNConvId, oneToNConversation.getConversationParticipantList(), false);
 		if (newOneToNConv)
 		{
-			mConversationDb.addConversation(oneToNConversation.getMsisdn(), false, convName, oneToNConversation.getConversationOwner());
+			mConversationDb.addConversation(oneToNConversation.getMsisdn(), false, convName, oneToNConversation.getConversationOwner(), null, oneToNConversation.getCreationDate());
 			ContactManager.getInstance().insertGroup(oneToNConversation.getMsisdn(), convName);
 		}
 
@@ -319,5 +320,15 @@ public class OneToNConversationUtils
 			allPairs.add(pair);
 		}
 		HikeMessengerApp.getPubSub().publish(HikePubSub.MULTI_MESSAGE_DB_INSERTED, allPairs);
+	}
+
+	public static String getGroupCreationTimeAsString(Context context,
+			long creationTime) {
+		String format;
+		format = "dd MMM ''yy";
+
+		SimpleDateFormat df = new SimpleDateFormat(format);
+		return df.format(creationTime);
+
 	}
 }

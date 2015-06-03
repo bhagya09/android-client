@@ -11,6 +11,7 @@ import android.os.Message;
 import android.text.Editable;
 import android.util.Pair;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bsb.hike.HikeConstants;
@@ -226,7 +227,13 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 		// somewhere to make this faster
 		oneToNConversation.updateReadByList(participant, mrMsgId);
 		uiHandler.sendEmptyMessage(NOTIFY_DATASET_CHANGED);
-		uiHandler.sendEmptyMessage(SCROLL_TO_END);
+		/**
+		 * If the last message was visible before receiving the read notification it can be hidden, hence we need to scroll to bottom.
+		 */
+		if (mConversationsView != null && (mConversationsView.getLastVisiblePosition() == mConversationsView.getCount() - 1))
+		{
+			uiHandler.sendEmptyMessage(SCROLL_TO_END);
+		}
 	}
 
 	@Override
@@ -326,6 +333,13 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 	protected void setupActionBar(boolean firstInflation)
 	{
 		super.setupActionBar(firstInflation);
+		
+		//Added for QA Automation
+		ImageView avatar = (ImageView) mActionBarView.findViewById(R.id.avatar);
+		if(avatar != null)
+		{
+			avatar.setContentDescription(getResources().getString(R.string.content_des_round_group_image_chatthread_actionbar));
+		}
 
 		setLabel(mConversation.getLabel());
 

@@ -519,7 +519,10 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	{
 		setMode();
 		listView = (ListView) findViewById(R.id.list);
-		
+		String sendingMsisdn = null;
+		if(getIntent()!=null){
+			sendingMsisdn = getIntent().getStringExtra(HikeConstants.Extras.PREV_MSISDN);
+		}
 		boolean showNujNotif = PreferenceManager.getDefaultSharedPreferences(ComposeChatActivity.this).getBoolean(HikeConstants.NUJ_NOTIF_BOOLEAN_PREF, true);
 		HikeSharedPreferenceUtil pref = HikeSharedPreferenceUtil.getInstance();
 		boolean fetchRecentlyJoined = pref.getData(HikeConstants.SHOW_RECENTLY_JOINED_DOT, false) || pref.getData(HikeConstants.SHOW_RECENTLY_JOINED, false);
@@ -531,10 +534,10 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		case CREATE_BROADCAST_MODE:
 		case PICK_CONTACT_MODE:
 			//We do not show sms contacts in broadcast mode
-			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage && !isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, null, friendsListFetchedCallback, false);
+			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage && !isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, false);
 			break;
 		default:
-			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage || isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, null, friendsListFetchedCallback, true);
+			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage || isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, true);
 			break;
 		}
 
@@ -1649,6 +1652,11 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					intent.putExtra(HikeConstants.Extras.CONTACT_ID, contactId);
 					intent.putExtra(HikeConstants.Extras.FILE_TYPE, type);
 				} else {
+					if (TextUtils.isEmpty(contactId))
+					{
+						Toast.makeText(getApplicationContext(), R.string.unknown_msg, Toast.LENGTH_SHORT).show();
+						return;
+					}
 					PhonebookContact contact = PickContactParser.getContactData(contactId, this);
 					final ArrayList<ContactInfo> finalArrayList = arrayList;
 					if (contact != null)

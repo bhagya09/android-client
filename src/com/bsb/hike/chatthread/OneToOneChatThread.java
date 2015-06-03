@@ -163,7 +163,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	{
 		super(activity, msisdn);
 	}
-
+	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu)
 	{
@@ -277,7 +277,6 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		{
 			checkAndStartLastSeenTask();
 		}
-
 		/**
 		 * If user is blocked
 		 */
@@ -1090,6 +1089,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		 * Setting text on lastSeenView
 		 */
 		mLastSeenView.setText(text);
+		mLastSeenView.setSelected(true);
 		
 		prevLastSeen = text;
 		
@@ -1493,7 +1493,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	 */
 	private void onAppForegrounded()
 	{
-		if (mContactInfo != null)
+		if (mContactInfo == null)
 		{
 			return;
 		}
@@ -2503,18 +2503,25 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	@Override
 	public boolean onBackPressed()
 	{
-		if (modeOfChat == H2S_MODE)
+		if (!super.onBackPressed())
 		{
-			destroyH20Mode();
-			return true;
+			if (modeOfChat == H2S_MODE)
+			{
+				destroyH20Mode();
+				return true;
+			}
+			else if (isH20TipShowing())
+			{
+				hideH20Tip();
+				return true;
+			}
+			else
+			{
+				return false;
+			}
 		}
 
-		else if (isH20TipShowing())
-		{
-			hideH20Tip();
-			return true;
-		}
-		return super.onBackPressed();
+		return true;
 	}
 	
 	@Override
@@ -2652,14 +2659,16 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			}
 		}
 	}
-	
-	@Override
-	public void onResume()
+
+	/**
+	 * Fetches last seen of the contact whose conversation is opened
+	 */
+	private void fetchLastSeen()
 	{
-		super.onResume();
-		
-		// fetch last seen call here to get the latest ls time for the user for which chat thread is opened
-		// fix for fogbugz 44584
+		if (!ChatThreadUtils.shouldShowLastSeen(msisdn, activity.getApplicationContext(), mConversation.isOnHike(), mConversation.isBlocked()))
+		{
+			return;
+		}
 		scheduleLastSeen();
 	}
 }
