@@ -578,26 +578,26 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 					Utils.renameTempProfileImage(mLocalMSISDN);
 					StatusMessage statusMessage = Utils.createTimelinePostForDPChange(response);
 
-					if (statusMessage == null)
+					if (statusMessage != null)
 					{
-						return;
-					}
-					ContactManager.getInstance().setIcon(statusMessage.getMappedId(), bytes, false);
+						ContactManager.getInstance().setIcon(statusMessage.getMappedId(), bytes, false);
 
-					int unseenUserStatusCount = prefs.getData(HikeMessengerApp.UNSEEN_USER_STATUS_COUNT, 0);
-					Editor editor = prefs.getPref().edit();
-					editor.putInt(HikeMessengerApp.UNSEEN_USER_STATUS_COUNT, ++unseenUserStatusCount);
-					editor.putBoolean(HikeConstants.IS_HOME_OVERFLOW_CLICKED, false);
-					editor.commit();
+						int unseenUserStatusCount = prefs.getData(HikeMessengerApp.UNSEEN_USER_STATUS_COUNT, 0);
+						Editor editor = prefs.getPref().edit();
+						editor.putInt(HikeMessengerApp.UNSEEN_USER_STATUS_COUNT, ++unseenUserStatusCount);
+						editor.putBoolean(HikeConstants.IS_HOME_OVERFLOW_CLICKED, false);
+						editor.commit();
 
-					/*
-					 * This would happen in the case where the user has added a self contact and received an mqtt message before saving this to the db.
-					 */
-					if (statusMessage.getId() != -1)
-					{
-						HikeMessengerApp.getPubSub().publish(HikePubSub.STATUS_MESSAGE_RECEIVED, statusMessage);
-						HikeMessengerApp.getPubSub().publish(HikePubSub.TIMELINE_UPDATE_RECIEVED, statusMessage);
+						/*
+						 * This would happen in the case where the user has added a self contact and received an mqtt message before saving this to the db.
+						 */
+						if (statusMessage.getId() != -1)
+						{
+							HikeMessengerApp.getPubSub().publish(HikePubSub.STATUS_MESSAGE_RECEIVED, statusMessage);
+							HikeMessengerApp.getPubSub().publish(HikePubSub.TIMELINE_UPDATE_RECIEVED, statusMessage);
+						}
 					}
+					
 					HikeMessengerApp.getLruCache().clearIconForMSISDN(mLocalMSISDN);
 					HikeMessengerApp.getPubSub().publish(HikePubSub.ICON_CHANGED, mLocalMSISDN);
 
