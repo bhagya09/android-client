@@ -4,9 +4,11 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
@@ -32,9 +34,18 @@ public class ConnectionManager implements ChannelListener
 	private Channel channel;
 	private SharedPreferences settings;
     private String myMsisdn =null;
-    private String TAG = ConnectionManager.class.getName();
+    
+    public String getMyMsisdn() {
+		return myMsisdn;
+	}
+
+	public void setMyMsisdn(String myMsisdn) {
+		this.myMsisdn = myMsisdn;
+	}
+
+	private String TAG = ConnectionManager.class.getName();
     private WifiConfiguration prevConfig;
-    private boolean isHotSpotCreated  = false;
+	private int connectedNetworkId;
 	private ConnectionManager()
 	{
     	init();
@@ -83,8 +94,9 @@ public class ConnectionManager implements ChannelListener
 		}
 	}
 	
-	public Boolean connectToHotspot(String ssid) 
+	public Boolean connectToHotspot(String msisdn) 
 	{
+		String ssid = "h_"+ msisdn + "_" + myMsisdn;
 		WifiConfiguration wc = new WifiConfiguration();
 		wc.SSID = "\"" +OfflineUtils.encodeSSID(ssid) +"\"";
 		wc.preSharedKey  = "\"" + OfflineUtils.generatePassword(ssid)  +  "\"";
@@ -102,7 +114,7 @@ public class ConnectionManager implements ChannelListener
 		return false;
 	}
 	
-	public void enableDiscovery()
+	public void startDiscovery()
 	{
 		if (!wifiManager.isWifiEnabled()) {
 			wifiManager.setWifiEnabled(true);
@@ -136,6 +148,8 @@ public class ConnectionManager implements ChannelListener
 	}
 
 	public void startWifiScan() {
+		if(!wifiManager.isWifiEnabled())
+			wifiManager.setWifiEnabled(true);
 		boolean wifiScan = wifiManager.startScan();
 		Log.d(TAG, "Wifi Scan returns " + wifiScan);
 	}
@@ -147,7 +161,8 @@ public class ConnectionManager implements ChannelListener
  
 	public void stopWifi() 
 	{
-		wifiManager.setWifiEnabled(false);
+		if(wifiManager.isWifiEnabled())
+			wifiManager.setWifiEnabled(false);
 	}
 	
 	public boolean isWifiEnabled() {
@@ -176,7 +191,9 @@ public class ConnectionManager implements ChannelListener
 			Boolean isHikeNetwrok = (OfflineUtils.isOfflineSSID(ssid));
 			if(isHikeNetwrok)
 			{
-				return new Pair<Boolean,String>(isHikeNetwrok,OfflineUtils.decodeSSID(ssid));
+				String decodedSSID = OfflineUtils.decodeSSID(ssid);
+				String connectedMsisdn = OfflineUtils.getconnectedDevice(decodedSSID);  
+				return new Pair<Boolean,String>(isHikeNetwrok,connectedMsisdn);
 			}
 		}
 		return new Pair<Boolean,String>(false,null);
@@ -357,5 +374,59 @@ public class ConnectionManager implements ChannelListener
 
 		return isWifiHotspotRunning;
 	}
+
+	public void disconnect(String msisdn) {
+		Boolean isWifiHotspotRunning = isHotspotCreated();
+		if(isWifiHotspotRunning)
+		{
+			closeHotspot(msisdn);
+		}
+		else
+		{
+			forgetWifiNetwork();
+			wifiManager.disconnect();
+		}
+	}
 	
+	private void forgetWifiNetwork()
+	{
+		wifiManager.removeNetwork(connectedNetworkId);
+	}
+
+	public boolean connectToNetworkTimer(String msisdn) {
+		return tryConnectingToHotSpot(msisdn);
+	}
+	
+	private boolean tryConnectingToHotSpot(final String msisdn) {
+		int tries = 0;
+		boolean isConnected = false;
+		String ssid  =  "h_" + msisdn + "_" + myMsisdn;
+		String encodedSSID = OfflineUtils.encodeSSID(ssid);
+		if(!wifiManager.isWifiEnabled())
+		{
+			wifiManager.setWifiEnabled(true);
+		}
+		while(tries < 10)
+		{
+			connectToHotspot(msisdn);
+			// wait for the network to establish
+			try {
+				Thread.sleep(3000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			String connectedToSSID = wifiManager.getConnectionInfo().getSSID();
+			ConnectivityManager cm = (ConnectivityManager) HikeMessengerApp.getInstance().getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+			NetworkInfo networkInfo = cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+			if (connectedToSSID.compareTo(encodedSSID)==0 && networkInfo.isConnected())
+			{
+				isConnected = true;
+				break;
+			}
+			tries++;
+		}
+		return isConnected;
+	}
+	
+
 }

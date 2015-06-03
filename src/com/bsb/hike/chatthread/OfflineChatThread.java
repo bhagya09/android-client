@@ -357,7 +357,7 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 
 
 	@Override
-	public void connectedToNetwork(String ssid) {
+	public void connectedToMsisdn(String connectedDevice) {
 		
 	}
 }

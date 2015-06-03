@@ -38,6 +38,8 @@ public class OfflineConstants
 	
 	public static final String IS_OFFLINE_MESSAGE = "is_offline_message";
 	
+	public static final int  WAITING_TIMEOUT = 60000;
+	
 	public final class HandlerConstants
 	{
 		public static final int SAVE_MSG_DB=-101;
