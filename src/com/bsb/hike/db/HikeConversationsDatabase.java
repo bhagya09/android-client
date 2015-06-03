@@ -7085,7 +7085,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 				BotInfo botInfo = new BotInfo.HikeBotBuilder(msisdn).setConvName(name).setConfig(config).setType(botType).setMetadata(metadata).setIsMute(mute == 1)
 						.setNamespace(namespace).setConfigData(configData).setHelperData(helperData).setNotifData(notifData).build();
-
+				
+				botInfo.setBlocked(ContactManager.getInstance().isBlocked(msisdn));
 				return botInfo;
 			}
 		}
