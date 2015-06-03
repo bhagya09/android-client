@@ -44,14 +44,21 @@ public class SharedFileImageLoader extends ImageWorker
 	{
 		return processBitmap(data);
 	}
-	
+	/**
+	 * if isImage is True:- No Cache is used, always loads
+	 * else 			 :- Cache is used 
+	 * @param destFilePath
+	 * @param imageSize
+	 * @param isImage
+	 * @return
+	 */
 	public Bitmap getSharedMediaThumbnailFromCache(String destFilePath, int imageSize, boolean isImage)
 	{
 		Bitmap thumbnail = null;
 		if (isImage)
 		{
 			Log.d("image_config", "========================== \n Inside API  getSharedMediaThumbnailFromCache");
-			thumbnail = HikeBitmapFactory.getImageThumbnailAsPerAlgo(context, destFilePath, imageSize, HikeBitmapFactory.AlgoState.INIT_STATE.getValue());
+			thumbnail = HikeBitmapFactory.getImageThumbnailAsPerAlgo(context, destFilePath, imageSize, HikeBitmapFactory.AlgoState.INIT_STATE);
 			thumbnail = Utils.getRotatedBitmap(destFilePath, thumbnail);
 		}
 		else

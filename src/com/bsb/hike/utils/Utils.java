@@ -6002,18 +6002,19 @@ public class Utils
 			Runtime info = Runtime.getRuntime();
 			maxAvailableSize = info.maxMemory();
 		}
-	catch (Exception e)
+		catch (Exception e)
 		{
 			e.printStackTrace();
+			Logger.e("image_config", "Could not get Total RAM from Runtime");
 		}
 		return maxAvailableSize * 8;
 	}
 
-	public static int getDeviceScreenArea(Context context)
+	public static int getDeviceScreenArea()
 	{
-		int screenWidth = context.getResources().getDisplayMetrics().widthPixels;
-		int screenHeight = context.getResources().getDisplayMetrics().heightPixels;
-		Log.d("image_config", "Screen dimens are :- " + screenWidth + ", "+ screenHeight);
+		int screenWidth = HikeMessengerApp.getInstance().getApplicationContext().getResources().getDisplayMetrics().widthPixels;
+		int screenHeight = HikeMessengerApp.getInstance().getApplicationContext().getResources().getDisplayMetrics().heightPixels;
+		Logger.d("image_config", "Screen dimens are :- " + screenWidth + ", "+ screenHeight);
 		return screenHeight * screenHeight;
 	}
 }

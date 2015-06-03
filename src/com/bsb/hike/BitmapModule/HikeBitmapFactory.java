@@ -24,7 +24,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Base64;
-import android.util.Log;
 import android.util.Pair;
 import android.view.View;
 import android.view.View.MeasureSpec;
@@ -55,7 +54,7 @@ public class HikeBitmapFactory
 		
 	public enum AlgoState {
 		
-		INIT_STATE(1), STATE_2(2), STATE_3(3);
+		INIT_STATE(1), STATE_2(2), STATE_3(3), STATE_EXIT(4);
 		
         private int value;
 
@@ -1234,139 +1233,137 @@ public class HikeBitmapFactory
 		options.inJustDecodeBounds = true;
 
 		decodeFile(filename, options);
-		
+
 		options.inJustDecodeBounds = false;
 		return options;
 	}
-	
+
 	/**
 	 * Algorithm Description:-
 	 * 
 	 * Let X = Max available RAM for Hike
 	 * 
 	 * Check1: if RAM is available to load original image but not greater than screen size X 2.....
-	 *   	
-	 *   	X (Max available RAM for Hike)  >  8  X 16(for RGB_565_BYTE_SIZE) X Minimum(Original Image size, Screen Width X 2)
-	 *   	=========>if yes go for this for loading image
-	 *   
-	 * 		========>If No then
-	 *  
-	 *  Check 2: 
-	 *  	A) Calculate inSampleSize with original image width and height
-	 *  	B) Max Dimens of image i.e Max of (width, height)
-	 *  	C) Found insampledBitmapArea
-	 *  Now Check if RAM is available to load with size Max of insampledBitmapArea and screen width X 1.5
-	 *  
-	 *   	X (Max available RAM for Hike)  >  8  X 16(for RGB_565_BYTE_SIZE) X Maximum(insampledBitmapArea, Screen Width X 1.5)
-	 *   	=========>if yes go for this for loading image
-	 *   
-	 *   	=========> If No then
-	 *   
-	 *   fallback to our current condition ====>  RGB and Screen Width
- 	 * 
+	 * 
+	 * X (Max available RAM for Hike) > 8 X 16(for RGB_565_BYTE_SIZE) X Minimum(Original Image size, Screen Width X 2) =========>if yes go for this for loading image
+	 * 
+	 * ========>If No then
+	 * 
+	 * Check 2: A) Calculate inSampleSize with original image width and height B) Max Dimens of image i.e Max of (width, height) C) Found insampledBitmapArea Now Check if RAM is
+	 * available to load with size Max of insampledBitmapArea and screen width X 1.5
+	 * 
+	 * X (Max available RAM for Hike) > 8 X 16(for RGB_565_BYTE_SIZE) X Maximum(insampledBitmapArea, Screen Width X 1.5) =========>if yes go for this for loading image
+	 * 
+	 * =========> If No then
+	 * 
+	 * fallback to our current condition ====> RGB and Screen Width
+	 * 
 	 * @param context
 	 * @param filename
 	 * @param ImageSize
-	 * @param state: 
+	 * @param state
+	 *            :
 	 * @return
 	 */
-	public static Bitmap getImageThumbnailAsPerAlgo(Context context, String filename, int imageSize, int state)
+	public static Bitmap getImageThumbnailAsPerAlgo(Context context, String filename, int imageSize, AlgoState state)
 	{
-		MemmoryScreenShot screenShot = new MemmoryScreenShot(context, filename, imageSize);
-		Log.d("image_config", screenShot.toString());
-		
+		MemmoryScreenShot screenShot = new MemmoryScreenShot(filename, imageSize);
+		Logger.d("image_config", screenShot.toString());
+
 		AlgoDimensionResult bestDimen = getBestDimensions(state, screenShot);
-		
+
 		Bitmap thumbnail = null;
-		Log.d("image_config", "Going to try load image with case:- "+ bestDimen.toString());
+		Logger.d("image_config", "Going to try load image with case:- " + bestDimen.toString());
 		thumbnail = HikeBitmapFactory.scaleDownBitmap(filename, bestDimen.getWidth(), bestDimen.getHeight(), Bitmap.Config.RGB_565, true, false);
-		if(thumbnail == null) 
+		if (thumbnail == null)
 		{
-			Log.d("image_config", "degrading loading image qulity from case "+ bestDimen.getAlgoStateValue() +" to next case");
-			bestDimen.setAlgoState(bestDimen.getAlgoStateValue() + 1);
-			if(bestDimen.getAlgoStateValue() < 4)
+			Logger.d("image_config", "degrading loading image qulity from case " + bestDimen.getAlgoState() + " to next case");
+			bestDimen.incrementToNextAlgoState();
+			if (bestDimen.getAlgoState() != AlgoState.STATE_EXIT)
 			{
-				showSCToastForImageDegrade(context, context.getResources().getString(R.string.show_degraded_image_quality));
-				return getImageThumbnailAsPerAlgo(context, filename, imageSize, bestDimen.getAlgoStateValue());
+				showSCToastForImageDegrade(context.getResources().getString(R.string.show_degraded_image_quality));
+				return getImageThumbnailAsPerAlgo(context, filename, imageSize, bestDimen.getAlgoState());
 			}
 			else
 			{
-				Log.d("image_config", "Showing thumbnail for last fallback ");
-				showSCToastForImageDegrade(context, context.getResources().getString(R.string.toast_for_showing_thumbnail));
-				//TODO Show Thumbnail
+				Logger.d("image_config", "Showing thumbnail for last fallback ");
+				showSCToastForImageDegrade(context.getResources().getString(R.string.toast_for_showing_thumbnail));
+				// TODO Show Thumbnail
 			}
 		}
-		Log.d("image_config", "Successfully Loaded Image");
+		Logger.d("image_config", "Successfully Loaded Image");
 		return thumbnail;
 	}
 
-	private static AlgoDimensionResult getBestDimensions(int state, MemmoryScreenShot screenShot)
+	private static AlgoDimensionResult getBestDimensions(AlgoState state, MemmoryScreenShot screenShot)
 	{
 		AlgoDimensionResult imageDimen = null;
-		
-		if (state == AlgoState.INIT_STATE.value)
+
+		if (state == AlgoState.INIT_STATE)
 		{
-			//Going for 1st case
+			// Going for 1st case
 			imageDimen = getDimensionsAsPerCase1(screenShot);
-			
-			if(imageDimen != null)
+
+			if (imageDimen != null)
 			{
-				//Best match found, returning
-				Log.d("image_config", "API getBestDimensions, best case "+ state +", \n size is "+imageDimen.toString());
+				// Best match found, returning
+				Logger.d("image_config", "API getBestDimensions, best case " + state + ", \n size is " + imageDimen.toString());
 				imageDimen.setAlgoState(state);
 				return imageDimen;
 			}
-			
-			state ++;
+
+			//First case not successful, Moving on to 2nd case
+			state = AlgoState.STATE_2;
 		}
 
-		if(state == AlgoState.STATE_2.value)
+		if (state == AlgoState.STATE_2)
 		{
-			//Going for 1st case
+			// Going for 2nd case
 			imageDimen = getDimensionsAsPerCase2(screenShot);
-			
-			if(imageDimen != null) 
+
+			if (imageDimen != null)
 			{
-				//Best match found, returning
-				Log.d("image_config", "API getBestDimensions, best case "+ state +", \n size is "+imageDimen.toString());
+				// Best match found, returning
+				Logger.d("image_config", "API getBestDimensions, best case " + state + ", \n size is " + imageDimen.toString());
 				imageDimen.setAlgoState(state);
 				return imageDimen;
 			}
-			
-			state ++;
+
+			//Second case not successful, Moving on to 3rd case
+			state = AlgoState.STATE_3;
 		}
 
-		//Going for 3rd case
-		if(state == AlgoState.STATE_3.value)
+		// Going for 3rd case
+		if (state == AlgoState.STATE_3)
 		{
-			Log.d("image_config", "API getBestDimensions, best case "+ state +", \n size is "+ screenShot.getScreenDimen().toString());
+			Logger.d("image_config", "API getBestDimensions, best case " + state + ", \n size is " + screenShot.getScreenDimen().toString());
 			imageDimen = screenShot.getScreenDimen();
 			imageDimen.setAlgoState(state);
 			return imageDimen;
 		}
-		
-		Log.d("image_config", "False State...Some problem is there");
+
+		Logger.d("image_config", "False State...Some problem is there");
 		return null;
-			
+
 	}
-	
+
 	/**
 	 * Show Toast only if it is set by server via packet.
+	 * 
 	 * @param context
 	 * @param textToShow
 	 */
-	private static void showSCToastForImageDegrade(final Context context, final String textToShow)
+	private static void showSCToastForImageDegrade(final String textToShow)
 	{
-		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SHOW_TOAST_FOR_DEGRADING_QUALITY, true) == true)
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SHOW_TOAST_FOR_DEGRADING_QUALITY, false) == true)
 		{
-			final Handler handler = new Handler(Looper.getMainLooper());
-            handler.post(new Runnable()
+			HikeMessengerApp.getInstance().appStateHandler.post(new Runnable()
 			{
-				
+
 				@Override
 				public void run()
 				{
-					Toast.makeText(context, textToShow, Toast.LENGTH_SHORT).show();
+					Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), textToShow, Toast.LENGTH_SHORT).show();
 				}
 			});
 		}
@@ -1376,18 +1373,18 @@ public class HikeBitmapFactory
 	private static AlgoDimensionResult getDimensionsAsPerCase2(MemmoryScreenShot screenShot)
 	{
 		int height;
-		
+
 		int width;
-		
+
 		int max;
-		
+
 		int inSampleSize = calculateInSampleSize(screenShot.getOptions(), screenShot.getOptions().outWidth, screenShot.getOptions().outHeight);
-		
-		int maxDimen =  screenShot.getOptions().outWidth< screenShot.getOptions().outHeight ? screenShot.getOptions().outHeight : screenShot.getOptions().outWidth;
-		
-		int h=0, w=0;
-		
-		if((int)(maxDimen/(2^inSampleSize)) > HikeConstants.SMO_MAX_DIMENSION_MEDIUM_FULL_SIZE_PX + THRESHHOLD_LIMIT)
+
+		int maxDimen = screenShot.getOptions().outWidth < screenShot.getOptions().outHeight ? screenShot.getOptions().outHeight : screenShot.getOptions().outWidth;
+
+		int h = 0, w = 0;
+
+		if ((int) (maxDimen / (2 ^ inSampleSize)) > HikeConstants.SMO_MAX_DIMENSION_MEDIUM_FULL_SIZE_PX + THRESHHOLD_LIMIT)
 		{
 			float aspectRatio = screenShot.getOptions().outWidth * 1.0f / (screenShot.getOptions().outHeight);
 
@@ -1405,13 +1402,13 @@ public class HikeBitmapFactory
 		}
 		else
 		{
-			h = screenShot.getOptions().outHeight/(2^inSampleSize);
-			w = screenShot.getOptions().outWidth/(2^inSampleSize);
+			h = screenShot.getOptions().outHeight / (2 ^ inSampleSize);
+			w = screenShot.getOptions().outWidth / (2 ^ inSampleSize);
 		}
-				
-		int insampledBitmapArea =  h * w;
-				
-		if(insampledBitmapArea > screenShot.getDeviceScreenArea() * 1.5)
+
+		int insampledBitmapArea = h * w;
+
+		if (insampledBitmapArea > screenShot.getDeviceScreenArea() * 1.5)
 		{
 			height = h;
 			width = w;
@@ -1424,8 +1421,8 @@ public class HikeBitmapFactory
 			height = dimension.second;
 			max = (int) (width * height * 1.5);
 		}
-		
-		if(screenShot.getAvailableRAM() > (MEMORY_MULTIPLIIER * ( RGB_565_BYTE_SIZE * max)))
+
+		if (screenShot.getAvailableRAM() > (MEMORY_MULTIPLIIER * (RGB_565_BYTE_SIZE * max)))
 		{
 			return new AlgoDimensionResult(width, height);
 		}
@@ -1436,12 +1433,12 @@ public class HikeBitmapFactory
 	private static AlgoDimensionResult getDimensionsAsPerCase1(MemmoryScreenShot screenShot)
 	{
 		int height;
-		
+
 		int width;
-		
+
 		int min;
-		
-		if(screenShot.getImageOriginalArea() > screenShot.getDeviceScreenArea() * 2)
+
+		if (screenShot.getImageOriginalArea() > screenShot.getDeviceScreenArea() * 2)
 		{
 			Pair<Integer, Integer> dimensions = getDimensionsAsPerAspectRatio(screenShot);
 			width = dimensions.first;
@@ -1455,7 +1452,7 @@ public class HikeBitmapFactory
 			min = screenShot.getImageOriginalArea();
 		}
 
-		if(screenShot.getAvailableRAM() > (MEMORY_MULTIPLIIER * ( RGB_565_BYTE_SIZE * min)))
+		if (screenShot.getAvailableRAM() > (MEMORY_MULTIPLIIER * (RGB_565_BYTE_SIZE * min)))
 		{
 			return new AlgoDimensionResult(height, width);
 		}
@@ -1465,15 +1462,13 @@ public class HikeBitmapFactory
 	public static class MemmoryScreenShot
 	{
 		private double availableRAM;
-		
+
 		private BitmapFactory.Options options;
-		
-		private int imageOriginalArea; 
-		
+
+		private int imageOriginalArea;
+
 		private int deviceScreenArea;
-		
-		private Context context;
-		
+
 		private AlgoDimensionResult screenDimen;
 
 		public double getAvailableRAM()
@@ -1481,25 +1476,19 @@ public class HikeBitmapFactory
 			return availableRAM;
 		}
 
-		public MemmoryScreenShot(Context mContext, String filename, int imageSize)
+		public MemmoryScreenShot(String filename, int imageSize)
 		{
-			context = mContext;
 			availableRAM = Utils.getTotalRAMForHike();
 			options = getImageOriginalSizeBitmap(filename);
-			Log.d("image_config", "Image original dimens are :- " + options.outWidth + ", "+ options.outHeight);
+			Logger.d("image_config", "Image original dimens are :- " + options.outWidth + ", " + options.outHeight);
 			imageOriginalArea = options.outHeight * options.outWidth;
-			deviceScreenArea = (Utils.getDeviceScreenArea(context));
+			deviceScreenArea = (Utils.getDeviceScreenArea());
 			screenDimen = new AlgoDimensionResult(imageSize, imageSize);
 		}
 
 		public BitmapFactory.Options getOptions()
 		{
 			return options;
-		}
-
-		public void setOptions(BitmapFactory.Options options)
-		{
-			this.options = options;
 		}
 
 		public int getImageOriginalArea()
@@ -1522,16 +1511,6 @@ public class HikeBitmapFactory
 			this.deviceScreenArea = deviceScreenArea;
 		}
 
-		public Context getContext()
-		{
-			return context;
-		}
-
-		public void setContext(Context context)
-		{
-			this.context = context;
-		}
-
 		public AlgoDimensionResult getScreenDimen()
 		{
 			return screenDimen;
@@ -1542,74 +1521,74 @@ public class HikeBitmapFactory
 			this.screenDimen = screenDimen;
 		}
 
-		public void setAvailableRAM(double availableRAM)
-		{
-			this.availableRAM = availableRAM;
-		}
-
 		@Override
 		public String toString()
 		{
-			return "MemmoryScreenShot  \n [availableRAM=" + availableRAM + ", \n imageOriginalArea=" + imageOriginalArea + ", \n deviceScreenArea="
-					+ deviceScreenArea + "]";
+			return "MemmoryScreenShot  \n [availableRAM=" + availableRAM + ", \n imageOriginalArea=" + imageOriginalArea + ", \n deviceScreenArea=" + deviceScreenArea + "]";
 		}
-		
-		
+
 	}
-	
+
 	/**
 	 * 
 	 */
-	public static class AlgoDimensionResult{
-	
+	public static class AlgoDimensionResult
+	{
+
 		int width;
-		
+
 		int height;
-		
+
 		AlgoState algoState;
-		
+
 		public AlgoDimensionResult(int w, int h)
 		{
 			width = w;
 			height = h;
 		}
-		
+
+		public void incrementToNextAlgoState()
+		{
+			switch (this.algoState)
+			{
+			case INIT_STATE:
+				this.algoState = AlgoState.STATE_2;
+				break;
+
+			case STATE_2:
+				this.algoState = AlgoState.STATE_3;
+				break;
+
+			case STATE_3:
+				this.algoState = AlgoState.STATE_EXIT;
+				break;
+
+			default:
+				this.algoState = AlgoState.STATE_EXIT;
+				break;
+			}
+		}
+
 		public int getWidth()
 		{
 			return width;
 		}
-		
+
 		public int getHeight()
 		{
 			return height;
 		}
 
-		public int getAlgoStateValue()
+		public AlgoState getAlgoState()
 		{
-			return algoState.value;
+			return algoState;
 		}
-		
-		public void setAlgoState(int state)
-		{
-			switch (state)
-			{
-			case 1:
-				this.algoState = AlgoState.INIT_STATE;
-				break;
 
-			case 2:
-				this.algoState = AlgoState.STATE_2;
-				break;
-				
-			case 3:
-				this.algoState = AlgoState.STATE_3;
-				break;
-				
-			default:
-				break;
-			}
+		public void setAlgoState(AlgoState algoState)
+		{
+			this.algoState = algoState;
 		}
-		
+
 		@Override
 		public String toString()
 		{
@@ -1617,19 +1596,20 @@ public class HikeBitmapFactory
 		}
 
 	}
-	
+
 	private static Pair<Integer, Integer> getDimensionsAsPerAspectRatio(MemmoryScreenShot screenShot)
 	{
-		int deviceHeight = screenShot.getContext().getResources().getDisplayMetrics().heightPixels;
-		int deviceWidth = screenShot.getContext().getResources().getDisplayMetrics().widthPixels;
-		
-		int imgWidth = screenShot.getOptions().outWidth;;
+		int deviceHeight = HikeMessengerApp.getInstance().getApplicationContext().getResources().getDisplayMetrics().heightPixels;
+		int deviceWidth = HikeMessengerApp.getInstance().getApplicationContext().getResources().getDisplayMetrics().widthPixels;
+
+		int imgWidth = screenShot.getOptions().outWidth;
+		;
 		int imgHeight = screenShot.getOptions().outHeight;
-		float imageAspectRatio = imgWidth * 1.0f/imgHeight;
-		
-		if(imgWidth > imgHeight)
+		float imageAspectRatio = imgWidth * 1.0f / imgHeight;
+
+		if (imgWidth > imgHeight)
 		{
-			if(imgWidth > deviceWidth)
+			if (imgWidth > deviceWidth)
 			{
 				imgWidth = deviceWidth;
 				imgHeight = (int) (imgWidth / imageAspectRatio);
@@ -1637,13 +1617,13 @@ public class HikeBitmapFactory
 		}
 		else
 		{
-			if(imgHeight > deviceHeight)
+			if (imgHeight > deviceHeight)
 			{
 				imgHeight = deviceHeight;
 				imgWidth = (int) (imgHeight * imageAspectRatio);
 			}
 		}
-		
+
 		return new Pair<Integer, Integer>(imgWidth, imgHeight);
 	}
 
