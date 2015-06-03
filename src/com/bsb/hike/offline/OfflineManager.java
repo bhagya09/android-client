@@ -60,7 +60,7 @@ public class OfflineManager
 	
 	private String connectedDevice;
 	
-	Handler handler =new Handler(HikeHandlerUtil.getInstance().getLooper())
+	Handler handler = new Handler(HikeHandlerUtil.getInstance().getLooper())
 	{
 		public void handleMessage(android.os.Message msg) {
 			if(msg==null)
@@ -230,12 +230,12 @@ public class OfflineManager
 		
 		if (currentSendingFiles.containsKey(msgId))
 		{
-			Logger.d("Spinner", "Current Msg Id -> " + msgId);
+			Logger.d(TAG, "Current Msg Id -> " + msgId);
 			fss = new FileSavedState(FTState.IN_PROGRESS, (int) file.length(), currentSendingFiles.get(msgId).getTransferProgress().getCurrentChunks() * 1024);
 		}
 		else
 		{
-			Logger.d("Spinner", "Completed Msg Id -> " + msgId);
+			Logger.d(TAG, "Completed Msg Id -> " + msgId);
 			fss = new FileSavedState(FTState.COMPLETED, hikeFile.getFileKey());
 		}
 		return fss;
@@ -256,13 +256,13 @@ public class OfflineManager
 
 		if (currentReceivingFiles.containsKey(msgId))
 		{
-			Logger.d("Spinner", "Current Msg Id -> " + msgId);
+			Logger.d(TAG, "Current Msg Id -> " + msgId);
 			fss = new FileSavedState(FTState.IN_PROGRESS, (int) file.length(), currentReceivingFiles.get(msgId).getTransferProgress().getCurrentChunks() * 1024);
 
 		}
 		else
 		{
-			Logger.d("Spinner", "Completed Msg Id -> " + msgId);
+			Logger.d(TAG, "Completed Msg Id -> " + msgId);
 			fss = new FileSavedState(FTState.COMPLETED, hikeFile.getFileKey());
 		}
 		return fss;
@@ -319,6 +319,10 @@ public class OfflineManager
 
 	public void onConnected(String hostAddress) {
 		
+		
+	}
+
+	public void shutDown() {
 		
 	}
 }

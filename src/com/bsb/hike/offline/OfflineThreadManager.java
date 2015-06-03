@@ -304,7 +304,7 @@ public class OfflineThreadManager
 				catch (IllegalArgumentException e)
 				{
 					e.printStackTrace();
-					Logger.e(TAG, "Did we pass correct Address here ? ?");
+					Logger.e(TAG, "Did we pass correct Address here ??");
 				}
 				catch (JSONException e)
 				{
@@ -326,81 +326,90 @@ public class OfflineThreadManager
 					fileReceiveSocket = fileServerSocket.accept();
 					offlineManager.setIsOfflineFileTransferInProgress(true);
 					InputStream inputstream = fileReceiveSocket.getInputStream();
-					byte[] metaDataLengthArray = new byte[4];
-					inputstream.read(metaDataLengthArray,0,4);
-					int metaDataLength = OfflineUtils.byteArrayToInt(metaDataLengthArray);
-					Logger.d(TAG, "Size of MetaString: " + metaDataLength);
-					ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(metaDataLength);
-					boolean isMetaDataReceived = OfflineManager.getInstance().copyFile(inputstream, byteArrayOutputStream, metaDataLength);
-					Logger.d(TAG, "Metadata Received Properly: " + isMetaDataReceived);
-					byteArrayOutputStream.close();
-					byte[] metaDataBytes = byteArrayOutputStream.toByteArray();
-					String metaDataString = new String(metaDataBytes, "UTF-8");
-					Logger.d(TAG, metaDataString);
-					JSONObject fileJSON = null;
-					JSONObject message = null;
-					String filePath = "";
-					long mappedMsgId = -1;
-					String fileName = "";
-					try {
-						message = new JSONObject(metaDataString);
-						message.put(HikeConstants.FROM,offlineManager.getConnectedDevice());
-						message.remove(HikeConstants.TO);
-
-						JSONObject metadata =  message.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA);
-						mappedMsgId = message.getJSONObject(HikeConstants.DATA).getLong(HikeConstants.MESSAGE_ID);
-						
-						fileJSON = metadata.getJSONArray(HikeConstants.FILES).getJSONObject(0);
-						int fileSize = fileJSON.getInt(HikeConstants.FILE_SIZE);
-						int type = fileJSON.getInt(HikeConstants.HIKE_FILE_TYPE);
-						fileName =  fileJSON.getString(HikeConstants.FILE_NAME);
-						filePath = OfflineUtils.getFileBasedOnType(type, fileName);
-						int totalChunks = fileSize/1024 +OfflineUtils.getTotalChunks(fileSize);
-						offlineManager.addToCurrentReceivingFile(mappedMsgId, new FileTransferModel( new TransferProgress(0, totalChunks), message));
-						
-					} catch (JSONException e1) {
-						Logger.e(TAG, "Code phata in JSON initialisations", e1);
-						//appendLog(metaDataString);
-						e1.printStackTrace();
-					}
-
-					ConvMessage convMessage = null;
-					try 
-					{
-						(message.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getJSONArray(HikeConstants.FILES)).getJSONObject(0).putOpt(
-								HikeConstants.FILE_PATH, filePath);
-						convMessage = new ConvMessage(message, HikeMessengerApp.getInstance().getApplicationContext());
-						HikeConversationsDatabase.getInstance().addConversationMessages(convMessage, true);
-						HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_RECEIVED, convMessage);
-						Logger.d(TAG, filePath);
-
-						// TODO : Revisit the logic again.
-						File f = new File(Environment.getExternalStorageDirectory() + "/" + "Hike/Media/hike Images" + "/tempImage_" + fileName);
-						File dirs = new File(f.getParent());
-						if (!dirs.exists())
-							dirs.mkdirs();
-						f.createNewFile();
-						// TODO:Can be done via show progress pubsub.
-						// showDownloadTransferNotification(mappedMsgId, fileSize);
-						FileOutputStream outputStream = new FileOutputStream(f);
-						// TODO:Take action on the basis of return type.
-						offlineManager.copyFile(inputstream, new FileOutputStream(f), mappedMsgId, true, false, outputStream.getChannel().size());
-						f.renameTo(new File(filePath));
-						outputStream.close();
-					}
-					catch (JSONException e)
-					{
-						e.printStackTrace();
-					}
 					
-					offlineManager.removeFromCurrentReceivingFile(mappedMsgId);
-				//	TODO:Disconnection handling:
-//					if(isDisconnectPosted)
-//					{
-//						shouldBeDisconnected = true;
-//						disconnectAfterTimeout();
-//					}
-					offlineManager.setIsOfflineFileTransferInProgress(false);
+					while(true)
+					{
+						byte[] metaDataLengthArray = new byte[4];
+						inputstream.read(metaDataLengthArray,0,4);
+						int metaDataLength = OfflineUtils.byteArrayToInt(metaDataLengthArray);
+						Logger.d(TAG, "Size of MetaString: " + metaDataLength);
+						ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(metaDataLength);
+						boolean isMetaDataReceived = OfflineManager.getInstance().copyFile(inputstream, byteArrayOutputStream, metaDataLength);
+						Logger.d(TAG, "Metadata Received Properly: " + isMetaDataReceived);
+						byteArrayOutputStream.close();
+						
+						byte[] metaDataBytes = byteArrayOutputStream.toByteArray();
+						String metaDataString = new String(metaDataBytes, "UTF-8");
+						Logger.d(TAG, metaDataString);
+						JSONObject fileJSON = null;
+						JSONObject message = null;
+						String filePath = "";
+						long mappedMsgId = -1;
+						String fileName = "";
+						try 
+						{
+							message = new JSONObject(metaDataString);
+							message.put(HikeConstants.FROM,offlineManager.getConnectedDevice());
+							message.remove(HikeConstants.TO);
+	
+							JSONObject metadata =  message.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA);
+							mappedMsgId = message.getJSONObject(HikeConstants.DATA).getLong(HikeConstants.MESSAGE_ID);
+							
+							fileJSON = metadata.getJSONArray(HikeConstants.FILES).getJSONObject(0);
+							int fileSize = fileJSON.getInt(HikeConstants.FILE_SIZE);
+							int type = fileJSON.getInt(HikeConstants.HIKE_FILE_TYPE);
+							fileName =  fileJSON.getString(HikeConstants.FILE_NAME);
+							filePath = OfflineUtils.getFileBasedOnType(type, fileName);
+							int totalChunks = OfflineUtils.getTotalChunks(fileSize);
+							offlineManager.addToCurrentReceivingFile(mappedMsgId, new FileTransferModel( new TransferProgress(0, totalChunks), message));
+							
+						} 
+						catch (JSONException e1) 
+						{
+							Logger.e(TAG, "Code phata in JSON initialisations", e1);
+							e1.printStackTrace();
+						}
+	
+						ConvMessage convMessage = null;
+						try 
+						{
+							(message.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getJSONArray(HikeConstants.FILES)).getJSONObject(0).putOpt(
+									HikeConstants.FILE_PATH, filePath);
+							convMessage = new ConvMessage(message, HikeMessengerApp.getInstance().getApplicationContext());
+							
+							// update DB and UI.
+							HikeConversationsDatabase.getInstance().addConversationMessages(convMessage, true);
+							HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_RECEIVED, convMessage);
+							Logger.d(TAG, filePath);
+	
+							// TODO : Revisit the logic again.
+							File f = new File(Environment.getExternalStorageDirectory() + "/" + "Hike/Media/hike Images" + "/tempImage_" + fileName);
+							File dirs = new File(f.getParent());
+							if (!dirs.exists())
+								dirs.mkdirs();
+							f.createNewFile();
+							// TODO:Can be done via show progress pubsub.
+							// showDownloadTransferNotification(mappedMsgId, fileSize);
+							FileOutputStream outputStream = new FileOutputStream(f);
+							// TODO:Take action on the basis of return type.
+							offlineManager.copyFile(inputstream, new FileOutputStream(f), mappedMsgId, true, false, outputStream.getChannel().size());
+							outputStream.close();
+							f.renameTo(new File(filePath));
+						}
+						catch (JSONException e)
+						{
+							e.printStackTrace();
+						}
+						
+						offlineManager.removeFromCurrentReceivingFile(mappedMsgId);
+						//TODO:Disconnection handling:
+						//if(isDisconnectPosted)
+						//{
+						//	shouldBeDisconnected = true;
+						//	disconnectAfterTimeout();
+						//}
+						offlineManager.setIsOfflineFileTransferInProgress(false);
+					}
 				}
 				catch(IOException e)
 				{
@@ -460,7 +469,7 @@ public class OfflineThreadManager
 				byte[] intToBArray = OfflineUtils.intToByteArray(length);
 				outputStream.write(intToBArray, 0, intToBArray.length);
 				outputStream.write(messageBytes, 0, length);
-				isSent = offlineManager.copyFile(inputStream, outputStream,fileUri.getBytes("UTF-8").length);
+				isSent = offlineManager.copyFile(inputStream, outputStream, fileUri.getBytes("UTF-8").length);
 				inputStream.close();
 				
 			}
@@ -529,21 +538,24 @@ public class OfflineThreadManager
 			
 			String metaString = fileTransferModel.getPacket().toString();
 			Logger.d(TAG, metaString);
+			
 			byte[] metaDataBytes = metaString.getBytes("UTF-8");
 			int length = metaDataBytes.length;
 			Logger.d(TAG, "Sizeof metaString: " + length);
 			byte[] intToBArray = OfflineUtils.intToByteArray(length);
-			outputStream.flush();
 			outputStream.write(intToBArray, 0, intToBArray.length);
+			
 			ByteArrayInputStream byteArrayInputStream =  new ByteArrayInputStream(metaDataBytes);
 			boolean isMetaDataSent = offlineManager.copyFile(byteArrayInputStream, outputStream, metaDataBytes.length);
 			Logger.d(TAG, "FileMetaDataSent:" + isMetaDataSent);
 			byteArrayInputStream.close();
+			
 			JSONObject metadata;
 			int fileSize  = 0;
 			metadata = fileTransferModel.getPacket().getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA);
 			JSONObject fileJSON = (JSONObject) metadata.getJSONArray(HikeConstants.FILES).get(0);
 			fileSize = fileJSON.getInt(HikeConstants.FILE_SIZE);
+			
 			long msgID;
 			msgID = fileTransferModel.getPacket().getJSONObject(HikeConstants.DATA).getLong(HikeConstants.MESSAGE_ID);
 			fileTransferModel.getTransferProgress().setCurrentChunks(OfflineUtils.getTotalChunks(fileSize));
@@ -556,6 +568,7 @@ public class OfflineThreadManager
 			inputStream.close();
 			offlineManager.removeFromCurrentSendingFile(msgID);
 			
+			// Update Delivered status
 			String msisdn = fileTransferModel.getPacket().getString(HikeConstants.TO);
 			HikeMessengerApp.getPubSub().publish(HikePubSub.UPLOAD_FINISHED, null);
 			int rowsUpdated = OfflineUtils.updateDB(msgID, ConvMessage.State.SENT_DELIVERED, msisdn);

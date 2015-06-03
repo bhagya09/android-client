@@ -121,7 +121,7 @@ public class OfflineUtils
 
 	public static int getTotalChunks(int fileSize)
 	{
-		 return fileSize/1024 + ((fileSize%1024!=0)?1:0);
+		 return fileSize/OfflineConstants.CHUNK_SIZE + ((fileSize%OfflineConstants.CHUNK_SIZE!=0)?1:0);
 	}
 	
 	public static int byteArrayToInt(byte[] bytes)

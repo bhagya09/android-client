@@ -113,7 +113,7 @@ public class OfflineController
 
 	public void shutDown()
 	{
-
+		offlineManager.shutDown();
 	}
 
 	public void sendAudio(String filePath, String msisdn)
@@ -133,16 +133,13 @@ public class OfflineController
 	
 	public void createHotspot(String msisdn)
 	{
-		OfflineThreadManager.getInstance().startReceivingThreads();
 	}
 	
 	public void connectToHotspot(String msisdn)
 	{
-		OfflineThreadManager.getInstance().startReceivingThreads();
-		OfflineThreadManager.getInstance().startSendingThreads();
 	}
 	
-	public void connectAsPerMsisdnLogic(String msisdn)
+	public void connectAsPerMsisdn(String msisdn)
 	{
 		
 	}
