@@ -224,7 +224,7 @@ public class IntentFactory
 	{
 		context.startActivity(new Intent(context, TimelineActivity.class));
 	}
-
+	
 	public static void openHikeExtras(Context context)
 	{
 		context.startActivity(getGamingIntent(context));

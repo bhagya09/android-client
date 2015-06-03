@@ -116,7 +116,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 			}
 			switch (msg.what) {
 			case VoIPConstants.MSG_SHUTDOWN_ACTIVITY:
-				Logger.d(VoIPConstants.TAG, "Shutting down..");
+				Logger.d(VoIPConstants.TAG, "Shutting down activity..");
 				shutdown(msg.getData());
 				break;
 			case VoIPConstants.CONNECTION_ESTABLISHED_FIRST_TIME:
@@ -148,7 +148,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 			case VoIPConstants.MSG_UPDATE_QUALITY:
 				CallQuality quality = voipService.getQuality();
 				showSignalStrength(quality);
-				Logger.d(VoIPConstants.TAG, "Updating call quality to: " + quality);
+				// Logger.d(VoIPConstants.TAG, "Updating call quality to: " + quality);
 				break;
 			case VoIPConstants.MSG_NETWORK_SUCKS:
 				showCallFailedFragment(VoIPConstants.CallFailedCodes.CALLER_BAD_NETWORK);
@@ -266,7 +266,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		if (VoIPService.getCallId() == 0 || clientPartner.getPhoneNumber() == null) 
 		{
 			Logger.w(VoIPConstants.TAG, "There is no active call.");
-			getSherlockActivity().finish();
+			// getSherlockActivity().finish();
 			return;
 		}
 
@@ -834,6 +834,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		bundle.putInt(VoIPConstants.CALL_FAILED_REASON, callFailCode);
 		bundle.putString(VoIPConstants.PARTNER_NAME, partnerName);
 
+		Logger.w(VoIPConstants.TAG, "Showing call failed fragment.");
 		activity.showCallFailedFragment(bundle);
 	}
 

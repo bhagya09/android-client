@@ -410,6 +410,12 @@ public class VoIPUtils {
 		return useAec;
 	}
 	
+	public static boolean isConferencingEnabled(Context context) 
+	{
+		boolean conferenceEnabled = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.VOIP_CONFERENCING_ENABLED, false);
+		return conferenceEnabled;
+	}
+	
 	/**
 	 * Used to communicate between two clients using the server
 	 * @param recipient		Recipient's MSISDN
@@ -431,7 +437,7 @@ public class VoIPUtils {
 
 			JSONObject message = new JSONObject();
 			message.put(HikeConstants.TO, recipient);
-			message.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.MESSAGE_VOIP_1);
+			message.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.MESSAGE_VOIP_0);
 			message.put(HikeConstants.SUB_TYPE, callMessage);
 			message.put(HikeConstants.DATA, data);
 			
@@ -449,14 +455,15 @@ public class VoIPUtils {
 		// VoIP checks
 		if (jsonObj.has(HikeConstants.SUB_TYPE)) 
 		{	
-			String subType = jsonObj.getString(HikeConstants.SUB_TYPE); 
+			String subType = jsonObj.getString(HikeConstants.SUB_TYPE);
+			Logger.d(VoIPConstants.TAG, "Message subtype: " + subType);
 
 			if (subType.equals(HikeConstants.MqttMessageTypes.VOIP_CALL_CANCELLED)) {
 				// Check for call cancelled message
 				JSONObject metadataJSON = jsonObj.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA);
 
 				if (metadataJSON.getInt(VoIPConstants.Extras.CALL_ID) != VoIPService.getCallId()) {
-					Logger.w(VoIPConstants.TAG, "Ignoring call cancelled message. local: " + VoIPService.getCallId() +
+					Logger.d(VoIPConstants.TAG, "Ignoring call cancelled message. local: " + VoIPService.getCallId() +
 							", remote: " + metadataJSON.getInt(VoIPConstants.Extras.CALL_ID));
 					return;
 				}
@@ -475,19 +482,6 @@ public class VoIPUtils {
 				
 				JSONObject metadataJSON = jsonObj.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA);
 				
-				// Check for currently active call
-				if ((metadataJSON.getInt(VoIPConstants.Extras.CALL_ID) != VoIPService.getCallId() && VoIPService.getCallId() > 0) ||
-						VoIPUtils.isUserInCall(context)) {
-					Logger.w(VoIPConstants.TAG, "We are already in a call. local: " + VoIPService.getCallId() +
-							", remote: " + metadataJSON.getInt(VoIPConstants.Extras.CALL_ID));
-
-					VoIPUtils.sendVoIPMessageUsingHike(jsonObj.getString(HikeConstants.FROM), 
-							HikeConstants.MqttMessageTypes.VOIP_ERROR_ALREADY_IN_CALL, 
-							metadataJSON.getInt(VoIPConstants.Extras.CALL_ID), 
-							false);
-					return;
-				}
-					
 				// Check if the initiator (us) has already hung up
 				if (metadataJSON.getBoolean(VoIPConstants.Extras.INITIATOR) == false &&
 						metadataJSON.getInt(VoIPConstants.Extras.CALL_ID) != VoIPService.getCallId()) {
@@ -521,7 +515,19 @@ public class VoIPUtils {
 				// Socket info
 				if (subType.equals(HikeConstants.MqttMessageTypes.VOIP_SOCKET_INFO)) 
 				{
+					// Check for currently active call
+					if ((metadataJSON.getInt(VoIPConstants.Extras.CALL_ID) != VoIPService.getCallId() && VoIPService.getCallId() > 0) ||
+							VoIPUtils.isUserInCall(context)) {
+						Logger.w(VoIPConstants.TAG, "We are already in a call. local: " + VoIPService.getCallId() +
+								", remote: " + metadataJSON.getInt(VoIPConstants.Extras.CALL_ID));
 
+						VoIPUtils.sendVoIPMessageUsingHike(jsonObj.getString(HikeConstants.FROM), 
+								HikeConstants.MqttMessageTypes.VOIP_ERROR_ALREADY_IN_CALL, 
+								metadataJSON.getInt(VoIPConstants.Extras.CALL_ID), 
+								false);
+						return;
+					}
+						
 					/*
 					 * Socket information is the same as a request for call initiation. 
 					 * The calling party sends its socket information to the callee, and

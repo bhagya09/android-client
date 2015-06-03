@@ -413,21 +413,7 @@ public class Utils
 
 		// String fileName = getUniqueFileName(orgFileName, fileKey);
 
-		/*
-		 * Changes done to fix the issue where some users are getting FileNotFoundEXception while creating file.
-		 */
-		File mFile = new File(mediaStorageDir, orgFileName);
-		try {
-			/*
-			 * Create temp file only for upload case.
-			 */
-			if(isSent)
-				mFile.createNewFile();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return mFile;
+		return new File(mediaStorageDir, orgFileName);
 	}
 
 	public static String getOriginalFile(HikeFileType type, String orgFileName)
@@ -5835,6 +5821,51 @@ public class Utils
 		{
 			return false;
 		}
+	}
+
+	public static boolean moveFile(File inputFile, File outputFile) {
+		Logger.d("Utils", "Input file path - " + inputFile.getPath());
+		Logger.d("Utils", "Output file path - " + outputFile.getPath());
+		boolean result = false;
+		InputStream in = null;
+		OutputStream out = null;
+		try {
+			if (outputFile.exists()) {
+				outputFile.delete();
+			}
+
+			in = new FileInputStream(inputFile);
+			out = new FileOutputStream(outputFile);
+
+			byte[] buffer = new byte[1024];
+			int read;
+			while ((read = in.read(buffer)) != -1) {
+				out.write(buffer, 0, read);
+			}
+			out.flush();
+			inputFile.delete();
+			result = true;
+		} catch (FileNotFoundException e1) {
+			result = false;
+			Logger.e("Utils", "1Failed due to - " + e1.getMessage());
+		} catch (Exception e2) {
+			result = false;
+			Logger.e("Utils", "2Failed due to - " + e2.getMessage());
+		} finally {
+			try {
+				if (in != null) {
+					in.close();
+					in = null;
+				}
+				if (out != null) {
+					out.close();
+					out = null;
+				}
+			} catch (IOException e) {
+				Logger.e("Utils", e.getMessage());
+			}
+		}
+		return result;
 	}
 	
 	public static boolean resetUnreadCounterForConversation(ConvInfo convInfo)
