@@ -41,6 +41,10 @@ public class OfflineConstants
 	public static final int  WAITING_TIMEOUT = 60000;
 
 	public static final long TIME_TO_CONNECT = 30000;
+	
+	public static final int  GHOST_PACKET_SEND_TIME = 10*1000;
+	
+	public static final int  GHOST_PACKET_DISCONNECT_TIMEOUT = 20*1000;
 
 	public static final long TRY_CONNECT_TO_HOTSPOT = 3000;
 
@@ -55,5 +59,6 @@ public class OfflineConstants
 		public static final int REMOVE_CONNECT_MESSAGE = -105;
 		public static final int START_SCAN = -106;
 		public static final int STOP_SCAN = -107;
+		public static final int SEND_GHOST_PACKET = -108;
 	}
 }

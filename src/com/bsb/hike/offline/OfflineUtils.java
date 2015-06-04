@@ -108,22 +108,29 @@ public class OfflineUtils
 
 	public static boolean isGhostPacket(JSONObject packet)
 	{
-
-		try
+		if (packet.optString(HikeConstants.SUB_TYPE).equals(OfflineConstants.GHOST))
 		{
-			if (packet.has(HikeConstants.SUB_TYPE) && packet.getString(HikeConstants.SUB_TYPE).equals(OfflineConstants.GHOST))
-			{
-				return true;
-			}
-		}
-		catch (JSONException e)
-		{
-			e.printStackTrace();
+			return true;
 		}
 		return false;
 	}
 
-	public static  int updateDB(long msgId, ConvMessage.State status, String msisdn)
+	public static JSONObject createGhostPacket(String msisdn)
+	{
+		JSONObject ghostJSON = new JSONObject();
+		try 
+		{
+			ghostJSON.putOpt(HikeConstants.TO, msisdn);
+			ghostJSON.putOpt(HikeConstants.SUB_TYPE, OfflineConstants.GHOST);
+		} 
+		catch (JSONException e) 
+		{
+			e.printStackTrace();
+		}
+		return ghostJSON;
+	}
+	
+	public static int updateDB(long msgId, ConvMessage.State status, String msisdn)
 	{
 		return HikeConversationsDatabase.getInstance().updateMsgStatus(msgId, status.ordinal(), msisdn);
 	}
@@ -138,7 +145,7 @@ public class OfflineUtils
 		return (bytes[0] & 0xFF) << 24 | (bytes[1] & 0xFF) << 16 | (bytes[2] & 0xFF) << 8 | (bytes[3] & 0xFF);
 	}
 
-	public static  String getStickerPath(Sticker sticker)
+	public static String getStickerPath(Sticker sticker)
 	{
 
 		String rootPath = StickerManager.getInstance().getStickerDirectoryForCategoryId(sticker.getCategoryId());

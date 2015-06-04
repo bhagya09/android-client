@@ -90,7 +90,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 	}
 
 	public static  OfflineManager getInstance()
- {
+	{
 		if (_instance == null)
 			synchronized (OfflineManager.class) {
 				if (_instance == null) {
@@ -132,6 +132,11 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 			runNetworkScan((int)msg.obj);
 			msg.obj=((int)msg.obj)+1;
 			performWorkOnBackEndThread(msg);
+			break;
+		case OfflineConstants.HandlerConstants.SEND_GHOST_PACKET:
+			String msisdn = (String) msg.obj;
+			sendGhostPacket(msisdn);
+			handler.sendMessageDelayed(msg, OfflineConstants.GHOST_PACKET_SEND_TIME);
 			break;
 		}
 	};
@@ -418,13 +423,34 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 			offlineListener.connectedToMsisdn(connectedDevice);
 		}
 
+		// post runnable for ghost packet
+		startSendingGhostPackets(connectedMsisdn);
+		postDisconnectForGhostPackets();
+	}
+	
+	private void startSendingGhostPackets(String msisdn)
+	{
+		Message msg = Message.obtain();
+		msg.what = OfflineConstants.HandlerConstants.SEND_GHOST_PACKET;
+		msg.obj = msisdn;
+		performWorkOnBackEndThread(msg);
+	}
+	
+	private void sendGhostPacket(String msisdn)
+	{
+		JSONObject ghost = OfflineUtils.createGhostPacket(msisdn);
+		addToTextQueue(ghost);
+	}
+	
+	private void postDisconnectForGhostPackets()
+	{
+		
 	}
 
 	public void removeMessage(int msg)
 	{
 		handler.removeMessages(msg);
 	}
-
 
 	@Override
 	public void onDiscoveryStarted() {
