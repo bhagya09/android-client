@@ -525,7 +525,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		{
 			HikeTip.closeTip(TipType.MOOD, tipView, preferences);
 		}
-		if (mEmoticonPicker.isShowing())
+		if (mEmoticonPicker!= null && mEmoticonPicker.isShowing())
 		{
 			mActivityTask.emojiShowing = false;
 			mEmoticonPicker.dismiss();
