@@ -1517,7 +1517,7 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
 	<string name="confirm_delete_block_msg">Do you want to delete and block \"%1$s\"? </string>
 	<string name="confirm_delete_non_messaging">Do you want to delete \"%1$s\"? </string>
 	<string name="add_members">Add Members</string>
-	<string name="created_group_text">You created the group</string>
+	<string name="created_group_text">You created the group chat</string>
 	<string name="group_member_added">added %1$s</string>
 	<string name="num_members">%1$d members</string>
 	<string name="group_selected">%1$s/1000 selected</string>
