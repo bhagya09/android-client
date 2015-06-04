@@ -1408,7 +1408,10 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 						String fileUriString = fileUri.toString();
 
 						String filePath;
-						if (fileUriString.startsWith(fileUriStart))
+						if (Utils.isPicasaUri(fileUriString))
+						{
+							filePath = fileUriString;
+						}else if (fileUriString.startsWith(fileUriStart))
 						{
 							File selectedFile = new File(URI.create(Utils.replaceUrlSpaces(fileUriString)));
 							/*

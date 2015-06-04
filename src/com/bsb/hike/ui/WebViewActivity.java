@@ -20,6 +20,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.view.WindowCompat;
 import android.text.TextUtils;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
@@ -541,13 +542,18 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	{
 		if (item.getItemId() == R.id.overflow_menu)
 		{
-			overflowMenuClickedAnalytics();
-			int width = getResources().getDimensionPixelSize(R.dimen.overflow_menu_width);
-			int rightMargin = width + getResources().getDimensionPixelSize(R.dimen.overflow_menu_right_margin);
-			mActionBar.showOverflowMenu(width, LayoutParams.WRAP_CONTENT, -rightMargin, -(int) (0.5 * Utils.scaledDensityMultiplier), findViewById(R.id.overflow_anchor));
+			showOverflowMenu();
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
+	}
+
+	private void showOverflowMenu()
+	{
+		overflowMenuClickedAnalytics();
+		int width = getResources().getDimensionPixelSize(R.dimen.overflow_menu_width);
+		int rightMargin = width + getResources().getDimensionPixelSize(R.dimen.overflow_menu_right_margin);
+		mActionBar.showOverflowMenu(width, LayoutParams.WRAP_CONTENT, -rightMargin, -(int) (0.5 * Utils.scaledDensityMultiplier), findViewById(R.id.overflow_anchor));
 	}
 
 	private void overflowMenuClickedAnalytics()
@@ -926,6 +932,25 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			HAManager.getInstance().startChatSession(msisdn);
 		}
 	}
-		
-
+	
+	@Override
+	public boolean onKeyUp(int keyCode, KeyEvent event)
+	{
+		if (keyCode == KeyEvent.KEYCODE_MENU)
+		{
+			/**
+			 * We show the overflow menu only if the menu is not null and the overflow_menu icon is visible
+			 */
+			if (mMenu != null && mMenu.findItem(R.id.overflow_menu) != null)
+			{
+				if (mMenu.findItem(R.id.overflow_menu).isVisible())
+				{
+					showOverflowMenu();
+				}
+			}
+			return true;
+		}
+		return super.onKeyUp(keyCode, event);
+	}
+	
 }

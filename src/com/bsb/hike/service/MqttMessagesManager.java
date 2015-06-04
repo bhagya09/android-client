@@ -3086,7 +3086,7 @@ public class MqttMessagesManager
 		{
 			return;
 		}
-		PlatformUtils.deleteBotConversation(msisdn);
+		BotUtils.deleteBotConversation(msisdn , true);
 	}
 
 	public void createBot(JSONObject jsonObj)

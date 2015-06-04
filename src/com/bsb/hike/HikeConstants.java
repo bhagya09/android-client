@@ -820,6 +820,9 @@ public class HikeConstants
 
 	// Google Plus URI prefix for all devices
 	public static final String GOOGLE_PLUS_PREFIX = "content://com.google.android.apps.photos.content";
+	
+	// Google Inbox App URI prefix for all devices
+		public static final String GOOGLE_INBOX_PREFIX = "content://com.google.android.apps.bigtop";
 
 	public static final int MAX_MESSAGES_TO_LOAD_INITIALLY = 40;
 
