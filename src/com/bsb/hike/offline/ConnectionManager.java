@@ -187,7 +187,9 @@ public class ConnectionManager implements ChannelListener
 			if(isHikeNetwrok)
 			{
 				String decodedSSID = OfflineUtils.decodeSsid(ssid);
+				Logger.d("ConnectionManager","decodedSSID  is "+decodedSSID);
 				String connectedMsisdn = OfflineUtils.getconnectedDevice(decodedSSID);  
+				Logger.d("ConnectionManager","connectedMsisdn is "+connectedMsisdn);
 				return connectedMsisdn;
 			}
 		}
@@ -375,5 +377,11 @@ public class ConnectionManager implements ChannelListener
 			isConnected = true;
 		}
 		return isConnected;
+	}
+
+	public String getConnectedSSID()
+	{
+		return wifiManager.getConnectionInfo().getSSID();
+		
 	}
 }

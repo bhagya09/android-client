@@ -187,37 +187,29 @@ public class OfflineUtils
 		return storagePath.toString();
 	}
 
-	public static boolean isPingPacketValid(String message)
+	public static boolean isPingPacketValid(JSONObject object)
 	{
-		JSONObject object;
-		try
-		{
-			object = new JSONObject(message);
 			if (object.optString(HikeConstants.TYPE).equals(OfflineConstants.PING))
 			{
 				return true;
 			}
-		}
-		catch (JSONException e)
-		{
-			e.printStackTrace();
-		}
 
 		return false;
 	}
 
-	public static String createPingPacket()
+	public static JSONObject createPingPacket()
 	{
 		JSONObject object=new JSONObject();
 		try
 		{
 			object.put(HikeConstants.TYPE, OfflineConstants.PING);
+			object.put(HikeConstants.FROM, getMyMsisdn());
 		}
 		catch (JSONException e)
 		{
 			e.printStackTrace();
 		}
-		return  object.toString();
+		return  object;
 	}
 	
 	public static String createOfflineMsisdn(String msisdn)
@@ -313,7 +305,7 @@ public class OfflineUtils
 		if(ssid==null)
 			return null;
 		String arr[] = ssid.split("_");
-		return arr[1];
+		return arr[2];
 	}
 
 	public static String  getMyMsisdn()
@@ -324,6 +316,12 @@ public class OfflineUtils
 
 	public static String getSsidForMsisdn(String toMsisdn,String fromMsisdn) {
 		return "h_" +  toMsisdn + "_" + fromMsisdn;
+	}
+
+	public static String getMsisdnFromPingPacket(JSONObject messageJSON)
+	{
+		return messageJSON.optString(HikeConstants.FROM);
+		
 	}
 
 }

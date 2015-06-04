@@ -101,7 +101,7 @@ public class OfflineThreadManager
 		fileTransferThread.interrupt();
 		{
 			fileTransferThread=new FileTransferThread();
-			fileTransferThread.start();
+		//	fileTransferThread.start();
 		}
 		
 	}
@@ -118,7 +118,7 @@ public class OfflineThreadManager
 		fileReceiverThread.interrupt();
 		{
 			fileReceiverThread=new FileReceiverThread();
-			fileReceiverThread.start();
+			//fileReceiverThread.start();
 		}
 	}
 	
@@ -126,18 +126,22 @@ public class OfflineThreadManager
 	class TextTransferThread extends Thread
 	{
 		
+		boolean isNotConnected=true;
 		JSONObject packet;
 		boolean val;
 		@Override
 		public void run() {
-				try
-				{
-
+				
 					String host=null;
 					Logger.d(TAG,"Text Transfer Thread -->"+"Going to connect to socket");
 
-					textSendSocket=new Socket();
-					if(offlineManager.isHotspotCreated())
+		
+			while (isNotConnected)
+			{
+				try
+
+				{	textSendSocket = new Socket();
+					if (offlineManager.isHotspotCreated())
 					{
 						host = OfflineUtils.getIPFromMac(null);
 					}
@@ -147,13 +151,25 @@ public class OfflineThreadManager
 					}
 					textSendSocket.bind(null);
 					textSendSocket.connect((new InetSocketAddress(host, PORT_TEXT_MESSAGE)), SOCKET_TIMEOUT);
-					Logger.d(TAG,"Text Transfer Thread Connected");
-				
+					Logger.d(TAG, "Text Transfer Thread Connected");
+					isNotConnected=false;
+
+				}
+				catch (IOException e)
+				{
+					Logger.e(TAG, "IOEXCEPTION");
+				}
+			}
+					try
+					{
+					while(true)
+					{
 					packet = OfflineManager.getInstance().getTextQueue().take();
 					{
 						//TODO : Send Offline Text and take action on the basis of boolean  i.e. clock or single tick
 						Logger.d("OfflineThreadManager","Going to send Text");	
 						val = sendOfflineText(packet,textSendSocket.getOutputStream());
+					}
 					}
 				}
 
@@ -249,7 +265,7 @@ public class OfflineThreadManager
 					while(true)
 					{
 						byte[] convMessageLength = new byte[4];
-						inputStream.read(convMessageLength, 0, 100);
+						inputStream.read(convMessageLength, 0, 4);
 						msgSize = OfflineUtils.byteArrayToInt(convMessageLength);
 						Logger.d(TAG,"Msg size is "+msgSize);
 						if(msgSize==0)
@@ -259,6 +275,7 @@ public class OfflineThreadManager
 						String msgString = new String(msgJSON, "utf-8");
 						Logger.d(TAG, "" + msgSize);
 						JSONObject messageJSON = new JSONObject(msgString);
+						Logger.d(TAG,"Message Received :-->"+msgString);
 
 						// TODO: GHpst Packet Logic to come here
 						// if ( isDisconnectPosted && !(isGhostPacket(messageJSON)) )
@@ -270,10 +287,12 @@ public class OfflineThreadManager
 
 						ConvMessage convMessage = null;
 
-						if (OfflineUtils.isPingPacketValid(messageJSON.toString()))
+						if (OfflineUtils.isPingPacketValid(messageJSON))
 						{
 							// Start client thread.
 							startSendingThread();
+							offlineManager.setConnectedDevice(OfflineUtils.getMsisdnFromPingPacket(messageJSON));
+						
 						}
 						else if (OfflineUtils.isGhostPacket(messageJSON))
 						{
@@ -304,7 +323,8 @@ public class OfflineThreadManager
 							else
 							{
 								// It's a normal Text Message
-								messageJSON.put(HikeConstants.FROM, offlineManager.getConnectedDevice());
+								Logger.d(TAG,"Connected deive sis "+offlineManager.getConnectedDevice());
+								messageJSON.put(HikeConstants.FROM, "o:"+offlineManager.getConnectedDevice());
 								messageJSON.remove(HikeConstants.TO);
 								convMessage = new ConvMessage(messageJSON, HikeMessengerApp.getInstance().getApplicationContext());
 							}
@@ -513,7 +533,7 @@ public class OfflineThreadManager
 			}
 		
 		// Updating database
-		if (!OfflineUtils.isGhostPacket(packet))
+		if (!OfflineUtils.isGhostPacket(packet)&&!OfflineUtils.isPingPacketValid(packet))
 		{
 			long msgId;
 			try

@@ -23,6 +23,7 @@ import android.net.wifi.p2p.WifiP2pManager;
 import android.net.wifi.p2p.WifiP2pManager.PeerListListener;
 import android.os.Handler;
 import android.os.Message;
+import android.text.TextUtils;
 import android.util.Pair;
 
 import com.bsb.hike.HikeConstants;
@@ -67,7 +68,7 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 
 	private Context context;
 
-	private String connectedDevice =null;
+	private volatile String connectedDevice =null;
 
 	private ConnectionManager connectionManager;
 
@@ -400,6 +401,7 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 	public String getConnectedDevice()
 	{
 		return connectedDevice;
+		//return OfflineUtils.getconnectedDevice(OfflineUtils.decodeSsid(connectionManager.getConnectedSSID()));
 	}
 
 	public void addToCurrentReceivingFile(long msgId,FileTransferModel fileTransferModel)
@@ -482,23 +484,24 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 	@Override
 	public void checkConnectedNetwork() {
 		String offlineNetworkMsisdn = connectionManager.getConnectedHikeNetworkMsisdn();
-		Logger.d("OfflineManager","checkConnectedNetwork");
-		if(offlineNetworkMsisdn!=null)
+		if(offlineNetworkMsisdn!=null&&connectedDevice==null)
 		{
 			onConnected(offlineNetworkMsisdn);
 		}
 	}
 
-	public void onConnected(String connectedMsisdn)
+	public synchronized void onConnected(String connectedMsisdn)
 	{
-		Logger.d("OfflineManager","onConnected() called");
+		
 		if(connectedDevice==null)
 		{
+			Logger.d("OfflineManager","connected Device is "+connectedMsisdn);
 			connectedDevice = connectedMsisdn;
 			removeMessage(OfflineConstants.HandlerConstants.DISCONNECT_AFTER_TIMEOUT);
 			removeMessage(OfflineConstants.HandlerConstants.CONNECT_TO_HOTSPOT);
 			threadManager.startReceivingThread();
 			threadManager.startSendingThread();
+			sendPingPacket();
 			for(IOfflineCallbacks  offlineListener : listeners)
 			{
 				offlineListener.connectedToMsisdn(connectedDevice);
@@ -506,6 +509,17 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 		}
 
 	}
+	
+	public void setConnectedDevice(String connectedDevice)
+	{
+		this.connectedDevice=connectedDevice;
+	}
+	
+	private void sendPingPacket()
+		{
+			JSONObject pingPacket = OfflineUtils.createPingPacket();
+			addToTextQueue(pingPacket);
+		}
 
 	public void removeMessage(int msg)
 	{
