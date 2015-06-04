@@ -408,10 +408,18 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 		String offlineNetworkMsisdn = connectionManager.getConnectedHikeNetworkMsisdn();
 		if(offlineNetworkMsisdn!=null)
 		{
+			// send ping packet to hotspot
+			sendPingPacket();
 			onConnected(offlineNetworkMsisdn);
 		}
 	}
-
+	
+	private void sendPingPacket()
+	{
+		JSONObject pingPacket = OfflineUtils.createPingPacket();
+		addToTextQueue(pingPacket);
+	}
+	
 	public void onConnected(String connectedMsisdn)
 	{
 		connectedDevice = connectedMsisdn;
@@ -520,6 +528,8 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 			msg.what = OfflineConstants.HandlerConstants.CONNECT_TO_HOTSPOT;
 			msg.obj = msisdn;
 			performWorkOnBackEndThread(msg);
+			
+			// removing the CONNECT_TO_HOTSPOT message from handler after timeout
 			Message endTries = Message.obtain();
 			endTries.what = OfflineConstants.HandlerConstants.REMOVE_CONNECT_MESSAGE; 
 			endTries.obj  = msisdn;
@@ -545,12 +555,14 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 		connectionManager.stopWifi();
 	}
 
-	public void startScan() {
+	public void startScan() 
+	{
 		Message startScan   =  Message.obtain();
 		startScan.what = OfflineConstants.HandlerConstants.START_SCAN;
 		startScan.obj = tryGetScanResults;
 		performWorkOnBackEndThread(startScan);
 	}
+	
 	private void runNetworkScan(int attemptNumber)
 	{
 

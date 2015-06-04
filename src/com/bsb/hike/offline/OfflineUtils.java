@@ -201,7 +201,7 @@ public class OfflineUtils
 		return false;
 	}
 
-	public static String createPingPacket()
+	public static JSONObject createPingPacket()
 	{
 		JSONObject object=new JSONObject();
 		try
@@ -212,7 +212,7 @@ public class OfflineUtils
 		{
 			e.printStackTrace();
 		}
-		return  object.toString();
+		return  object;
 
 	}
 
