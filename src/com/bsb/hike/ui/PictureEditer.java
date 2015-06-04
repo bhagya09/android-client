@@ -129,13 +129,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 			return;
 		}
 		
-		String fileExtension = Utils.getFileExtension(filename);
-		
-		//Check file type
-		String fileType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension);
-		HikeFileType hikeFileType = HikeFileType.fromString(fileType, false);
-
-		if (hikeFileType.compareTo(HikeFileType.IMAGE) != 0)
+		if (HikeFileType.fromFilePath(filename, false).compareTo(HikeFileType.IMAGE) != 0)
 		{
 			onError();
 			return;

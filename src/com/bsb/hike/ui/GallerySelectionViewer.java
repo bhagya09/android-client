@@ -50,7 +50,7 @@ import com.bsb.hike.utils.Utils;
 
 public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity implements OnItemClickListener, OnScrollListener, OnPageChangeListener, HikePubSub.Listener
 {
-	public static final String FROM_GALLERY_SHARE = "from_gallery_share";
+	public static final String FROM_DEVICE_GALLERY_SHARE = "from_gallery_share";
 	
 	private GalleryAdapter gridAdapter;
 
@@ -89,7 +89,7 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 			progressDialog = ProgressDialog.show(this, null, getResources().getString(R.string.multi_file_creation));
 		}
 
-		forGalleryShare = getIntent().getBooleanExtra(FROM_GALLERY_SHARE, false);
+		forGalleryShare = getIntent().getBooleanExtra(FROM_DEVICE_GALLERY_SHARE, false);
 		
 		galleryItems = getIntent().getParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS);
 		totalSelections = galleryItems.size();

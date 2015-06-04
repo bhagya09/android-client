@@ -1,11 +1,11 @@
 package com.bsb.hike.models;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.webkit.MimeTypeMap;
 
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.models.HikeFile.HikeFileType;
@@ -19,6 +19,8 @@ public class GalleryItem implements Parcelable
 	public static final byte CUSTOM = 2;
 	
 	public static final long CAMERA_TILE_ID = -11L;
+	
+	private static final String CUSTOM_TILE_NAME = "Custom_Item";
 
 	private long id;
 
@@ -136,43 +138,49 @@ public class GalleryItem implements Parcelable
 	};
 	
 	@SuppressWarnings("unchecked")
-	public static <T> ArrayList<GalleryItem> getGalleryItemsFromFilepaths(ArrayList<T> filePaths)
+	public static <T> ArrayList<GalleryItem> getGalleryItemsFromFilepaths(List<T> filePaths)
 	{
-		ArrayList<String> mFilePaths = null;
+		ArrayList<String> retFilePaths = null;
+		
+		if(filePaths.isEmpty())
+		{
+			return null;
+		}
 		
 		if(filePaths.get(0) instanceof Uri)
 		{
-			mFilePaths = new ArrayList<String>(filePaths.size());
+			retFilePaths = new ArrayList<String>();
 			for(T path : filePaths)
 			{
-				mFilePaths.add(Utils.getRealPathFromUri((Uri)path,HikeMessengerApp.getInstance().getApplicationContext()));
+				String tempPath = Utils.getRealPathFromUri((Uri)path,HikeMessengerApp.getInstance().getApplicationContext());
+				if(tempPath == null)
+				{
+					continue;
+				}
+				retFilePaths.add(tempPath);
 			}
 		}
 		else if(filePaths.get(0) instanceof String)
 		{
-			mFilePaths = (ArrayList<String>) filePaths;
+			retFilePaths = (ArrayList<String>) filePaths;
 		}
 		
-		if(mFilePaths == null || mFilePaths.size() == 0)
+		if(retFilePaths.isEmpty())
 		{
 			return null;
 		}
 		
 		ArrayList<GalleryItem> retItems = new ArrayList<GalleryItem>(filePaths.size());
 		
-		for(int i=0;i<mFilePaths.size();i++)
+		for(int i=0;i<retFilePaths.size();i++)
 		{
 			//Check file type since only images can be handled
-			String filename = mFilePaths.get(i);
-			String fileExtension = Utils.getFileExtension(filename);
-			String fileType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension);
-			HikeFileType hikeFileType = HikeFileType.fromString(fileType, false);
-			if (hikeFileType.compareTo(HikeFileType.IMAGE) != 0)
+			if (HikeFileType.fromFilePath(retFilePaths.get(i), false).compareTo(HikeFileType.IMAGE) != 0)
 			{
 				return null;
 			}
 			
-			retItems.add(new GalleryItem(i, null, "Custom_Item", filename, 0));
+			retItems.add(new GalleryItem(i, null, CUSTOM_TILE_NAME, retFilePaths.get(i), 0));
 
 		}
 		

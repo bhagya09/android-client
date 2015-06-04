@@ -247,7 +247,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			{
 				Intent multiIntent = new Intent(getApplicationContext(),GallerySelectionViewer.class);
 				multiIntent.putParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS, selectedImages);
-				multiIntent.putExtra(GallerySelectionViewer.FROM_GALLERY_SHARE, true);
+				multiIntent.putExtra(GallerySelectionViewer.FROM_DEVICE_GALLERY_SHARE, true);
 				startActivity(multiIntent);
 			}
 			else
