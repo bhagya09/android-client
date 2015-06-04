@@ -89,6 +89,11 @@ import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.GroupConversation;
 import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.modules.httpmgr.RequestToken;
+import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
+import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
+import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.smartImageLoader.IconLoader;
@@ -143,6 +148,8 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	private int lastSavedGender;
 
 	private SharedPreferences preferences;
+	
+	private IRequestListener deleteStatusRequestListener;
 
 	private String[] groupInfoPubSubListeners = { HikePubSub.ICON_CHANGED, HikePubSub.ONETONCONV_NAME_CHANGED, HikePubSub.GROUP_END, HikePubSub.PARTICIPANT_JOINED_ONETONCONV,
 			HikePubSub.PARTICIPANT_LEFT_ONETONCONV, HikePubSub.USER_JOINED, HikePubSub.USER_LEFT, HikePubSub.LARGER_IMAGE_DOWNLOADED, HikePubSub.PROFILE_IMAGE_DOWNLOADED,
@@ -261,6 +268,10 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			groupEditDialog.dismiss();
 			groupEditDialog = null;
 		}
+		if (mActivityState != null && mActivityState.deleteStatusToken != null)
+		{
+			mActivityState.deleteStatusToken.removeListener(deleteStatusRequestListener);
+		}
 		if ((mActivityState != null) && (mActivityState.task != null))
 		{
 			mActivityState.task.setActivity(null);
@@ -305,6 +316,15 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				/* we're currently executing a task, so show the progress dialog */
 				mActivityState.task.setActivity(this);
 				mDialog = ProgressDialog.show(this, null, getResources().getString(R.string.updating_profile));
+			}
+			if (mActivityState.deleteStatusToken != null)
+			{
+				/* we're currently executing a task, so show the progress dialog */
+				if (mActivityState.deleteStatusToken.isRequestRunning())
+				{
+					mActivityState.deleteStatusToken.addRequestListener(getDeleteStatusRequestListener());
+				}
+				mDialog = ProgressDialog.show(this, null, getString(R.string.deleting_status));
 			}
 		}
 		else
@@ -2637,7 +2657,9 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			@Override
 			public void onClick(DialogInterface dialog, int which)
 			{
-				showDeleteStatusConfirmationDialog(statusMessage.getMappedId(), statusMessage.getStatusMessageType());
+				mActivityState.statusId = statusMessage.getMappedId();
+				mActivityState.statusMsgType = statusMessage.getStatusMessageType();
+				showDeleteStatusConfirmationDialog();
 			}
 		});
 
@@ -2646,7 +2668,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		return true;
 	}
 
-	private void showDeleteStatusConfirmationDialog(final String statusId, final StatusMessageType updateType)
+	private void showDeleteStatusConfirmationDialog()
 	{
 		HikeDialogFactory.showDialog(this, HikeDialogFactory.DELETE_STATUS_DIALOG, new HikeDialogListener()
 		{
@@ -2654,7 +2676,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			@Override
 			public void positiveClicked(HikeDialog hikeDialog)
 			{
-				deleteStatus(statusId, updateType);
+				deleteStatus();
 				hikeDialog.dismiss();
 			}
 			
@@ -2671,33 +2693,70 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		});
 	}
 
-	private void deleteStatus(final String statusId, final StatusMessageType updateType)
+	private IRequestListener getDeleteStatusRequestListener()
 	{
-		HikeHttpRequest hikeHttpRequest = new HikeHttpRequest("/user/status/" + statusId, RequestType.DELETE_STATUS, new HikeHttpCallback()
+		deleteStatusRequestListener = new IRequestListener()
 		{
-
+			
 			@Override
-			public void onSuccess(JSONObject response)
+			public void onRequestSuccess(Response result)
 			{
-				HikeMessengerApp.getPubSub().publish(HikePubSub.DELETE_STATUS, statusId);
-				
-				iterateAndDeleteDPStatusFromOwnTimeline(statusId);
+				dismissLoadingDialog();
+				HikeMessengerApp.getPubSub().publish(HikePubSub.DELETE_STATUS, mActivityState.statusId);
+
+				iterateAndDeleteDPStatusFromOwnTimeline(mActivityState.statusId);
 
 				// update the preference value used to store latest dp change status update id
-				if(preferences.getString(HikeMessengerApp.DP_CHANGE_STATUS_ID, "").equals(statusId) && updateType.equals(StatusMessageType.PROFILE_PIC))
+				if (preferences.getString(HikeMessengerApp.DP_CHANGE_STATUS_ID, "").equals(mActivityState.statusId)
+						&& mActivityState.statusMsgType.equals(StatusMessageType.PROFILE_PIC))
 				{
 					clearDpUpdatePref();
 				}
-				
+				mActivityState.deleteStatusToken = null;
+				mActivityState.statusId = null;
 				profileAdapter.notifyDataSetChanged();
 			}
-
-		});
-		mActivityState.task = new HikeHTTPTask(this, R.string.delete_status_error);
-		Utils.executeHttpTask(mActivityState.task, hikeHttpRequest);
+			
+			@Override
+			public void onRequestProgressUpdate(float progress)
+			{
+				
+			}
+			
+			@Override
+			public void onRequestFailure(HttpException httpException)
+			{
+				mActivityState.deleteStatusToken = null;
+				mActivityState.statusId = null;
+				dismissLoadingDialog();
+				showErrorToast(R.string.delete_status_error, Toast.LENGTH_LONG);
+			}
+		};
+		return deleteStatusRequestListener;
+	}
+	
+	private void deleteStatus()
+	{ 
+		mActivityState.deleteStatusToken = HttpRequests.deleteStatusRequest(mActivityState.statusId, getDeleteStatusRequestListener());
+		mActivityState.deleteStatusToken.execute();
 		mDialog = ProgressDialog.show(this, null, getString(R.string.deleting_status));
 	}
 
+	public void dismissLoadingDialog()
+	{
+		if (mDialog != null)
+		{
+			mDialog.dismiss();
+			mDialog = null;
+		}
+	}
+	
+	public void showErrorToast(int stringResId, int duration)
+	{
+		Toast toast = Toast.makeText(ProfileActivity.this, stringResId, duration);
+		toast.show();
+	}
+	
 	public void onAddGroupMemberClicked(View v)
 	{
 		openAddToGroup();

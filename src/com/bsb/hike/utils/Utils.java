@@ -201,6 +201,11 @@ import com.bsb.hike.models.Conversation.OneToNConvInfo;
 import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.models.utils.JSONSerializable;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.modules.httpmgr.RequestToken;
+import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
+import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
+import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.service.ConnectionChangeReceiver;
@@ -3155,49 +3160,31 @@ public class Utils
 
 	}
 
+	private static JSONObject jObject = null;
+
 	public static JSONObject getJSONfromURL(String url)
 	{
-
-		// initialize
-		InputStream is = null;
-		String result = "";
-		JSONObject jObject = null;
-
-		// http post
-		try
+		IRequestListener requestListener = new IRequestListener()
 		{
-			HttpClient httpclient = new DefaultHttpClient();
-			HttpPost httppost = new HttpPost(url);
-			AccountUtils.setNoTransform(httppost);
-			HttpResponse response = httpclient.execute(httppost);
-			HttpEntity entity = response.getEntity();
-			is = entity.getContent();
-
-			BufferedReader reader = new BufferedReader(new InputStreamReader(is, "UTF-8"), 8);
-			StringBuilder sb = new StringBuilder();
-			String line = null;
-			while ((line = reader.readLine()) != null)
+			@Override
+			public void onRequestSuccess(Response result)
 			{
-				sb.append(line + "\n");
+				jObject = (JSONObject) result.getBody().getContent();
 			}
-			is.close();
-			result = sb.toString();
-		}
-		catch (Exception e)
-		{
-			Logger.e("LogEvent", "Error converting result " + e.toString());
-		}
 
-		// try parse the string to a JSON object
-		try
-		{
-			jObject = new JSONObject(result);
-		}
-		catch (JSONException e)
-		{
-			Logger.e("LogEvent", "Error parsing data " + e.toString());
-		}
+			@Override
+			public void onRequestProgressUpdate(float progress)
+			{
+			}
 
+			@Override
+			public void onRequestFailure(HttpException httpException)
+			{
+				jObject = null;
+			}
+		};
+		RequestToken token = HttpRequests.getJSONfromUrl(url, requestListener);
+		token.execute();
 		return jObject;
 	}
 
