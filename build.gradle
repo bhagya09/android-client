@@ -30,7 +30,7 @@ android {
         jumboMode = true
     }
     dependencies {
-        compile(project(':actionbar-sherlock')) {
+        compile(project(':appcompatv7')) {
             exclude module: 'support-v4'
         }
         compile(project(':google-play')) {

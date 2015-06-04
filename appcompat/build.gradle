@@ -15,10 +15,7 @@ dependencies {
 }
 android {
 
-dependencies{
-compile fileTree(dir: 'libs', include: ['*.jar'])
-}
-      lintOptions {
+  lintOptions {
           abortOnError false
       }
     compileSdkVersion 21
