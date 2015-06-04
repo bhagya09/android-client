@@ -358,6 +358,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		{
 			stealthIndicatorView = findViewById(R.id.stealth_indicator_inflated);
 		}
+		stealthIndicatorView.setVisibility(View.VISIBLE);
 		
 		HikeTip.showTip(HomeActivity.this, TipType.STEALTH_INDICATOR, stealthIndicatorView);
 		stealthIndicatorView.postDelayed(new Runnable() {
@@ -692,7 +693,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		
 		return true;
 		}catch(NullPointerException e){
-			Logger.d("NulllpointerException :setupMenuOptions" , e.getMessage());
+			Logger.e("NulllpointerException :setupMenuOptions" ,e.toString());
 			return false;
 		}
 	}

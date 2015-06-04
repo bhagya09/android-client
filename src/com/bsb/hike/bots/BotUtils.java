@@ -3,6 +3,7 @@ package com.bsb.hike.bots;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.bsb.hike.HikePubSub;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -77,7 +78,7 @@ public class BotUtils
 
 		defaultBotEntry("+hike4+", "hike support", null, null, 2069487, true, context);
 
-		defaultBotEntry("+hike5+", "Natasha", null, null, 2069487, true, context);
+		defaultBotEntry("+hike5+", "Natasha", null, HikeBitmapFactory.getBase64ForDrawable(R.drawable.natasha, context.getApplicationContext()), 2069487, true, context);
 
 		defaultBotEntry("+hikecricket+", "Cricket 2015", HikePlatformConstants.CRICKET_CHAT_THEME_ID,
 				HikeBitmapFactory.getBase64ForDrawable(R.drawable.cric_icon, context.getApplicationContext()), 21487, false, context);
@@ -161,6 +162,9 @@ public class BotUtils
 	 * 
 	 * 3. Under normal circumstances, it will also be called from HikeMessengerApp's onCreate<br>
 	 * 
+	 * 4. In case of failure of restoring backup
+	 * 
+	 * 5. In unlink-relink case, (without the backup coming into picture and without force closing the app) 
 	 */
 	public static void initBots()
 	{
@@ -193,5 +197,26 @@ public class BotUtils
 			Logger.d("create bot", "Keys are " + HikeMessengerApp.hikeBotInfoMap.keySet() + "------");
 			Logger.d("create bot", "values are " + HikeMessengerApp.hikeBotInfoMap.values());
 		}
+	}
+
+	/**
+	 * Call this method to delete the bot conversation. This is the central method and should be th one that should be called to delete a bot conversation.
+	 * @param msisdn : the bot msisdn that will be deleted.
+	 * @param hardDelete : whether we want to delete the bot from table and from map as well?
+	 */
+	public static void deleteBotConversation(String msisdn, boolean hardDelete)
+	{
+		Logger.d("delete bot", "bot to be deleted is " + msisdn + " and hard delete is " + String.valueOf(hardDelete));
+		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
+		if (botInfo == null)
+		{
+			return;
+		}
+		if(hardDelete)
+		{
+			HikeMessengerApp.hikeBotInfoMap.remove(msisdn);
+			HikeConversationsDatabase.getInstance().deleteBot(msisdn);
+		}
+		HikeMessengerApp.getPubSub().publish(HikePubSub.DELETE_THIS_CONVERSATION, botInfo);
 	}
 }

@@ -315,6 +315,7 @@ public class PlatformUtils
 			json.put(AnalyticsConstants.EVENT_KEY, key);
 			json.put(AnalyticsConstants.BOT_NAME, botInfo.getConversationName());
 			json.put(AnalyticsConstants.BOT_MSISDN, botInfo.getMsisdn());
+			json.put(HikePlatformConstants.PLATFORM_USER_ID, HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_UID_SETTING, null));
 			HikeAnalyticsEvent.analyticsForNonMessagingBots(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.DOWNLOAD_EVENT, json);
 		}
 		catch (JSONException e)
@@ -355,6 +356,7 @@ public class PlatformUtils
 						{
 							json.put(AnalyticsConstants.EVENT_KEY, HikePlatformConstants.MICROAPP_DOWNLOADED);
 							json.put(AnalyticsConstants.APP_NAME, content.getId());
+							json.put(HikePlatformConstants.PLATFORM_USER_ID, HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_UID_SETTING, null));
 							HikeAnalyticsEvent.analyticsForNonMessagingBots(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.DOWNLOAD_EVENT, json);
 						}
 						catch (JSONException e)
@@ -380,6 +382,7 @@ public class PlatformUtils
 								json.put(AnalyticsConstants.EVENT_KEY, HikePlatformConstants.MICROAPP_DOWNLOAD_FAILED);
 								json.put(AnalyticsConstants.APP_NAME, platformContentModel.getId());
 								json.put(HikePlatformConstants.ERROR_CODE, event.toString());
+								json.put(HikePlatformConstants.PLATFORM_USER_ID, HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_UID_SETTING, null));
 								HikeAnalyticsEvent.analyticsForNonMessagingBots(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.DOWNLOAD_EVENT, json);
 							}
 							catch (JSONException e)
@@ -442,16 +445,6 @@ public class PlatformUtils
 			return headers;
 		}
 		return new ArrayList<Header>();
-	}
-
-	public static void deleteBotConversation(String msisdn)
-	{
-		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
-		if (botInfo == null)
-		{
-			return;
-		}
-		HikeMessengerApp.getPubSub().publish(HikePubSub.DELETE_THIS_CONVERSATION, botInfo);
 	}
 
 }

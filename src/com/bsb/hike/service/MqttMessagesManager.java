@@ -3083,7 +3083,7 @@ public class MqttMessagesManager
 		{
 			return;
 		}
-		PlatformUtils.deleteBotConversation(msisdn);
+		BotUtils.deleteBotConversation(msisdn , true);
 	}
 
 	public void createBot(JSONObject jsonObj)
@@ -3100,6 +3100,12 @@ public class MqttMessagesManager
 		String msisdn = jsonObj.optString(HikeConstants.MSISDN);
 		if (!Utils.validateBotMsisdn(msisdn))
 		{
+			return;
+		}
+
+		if (ContactManager.getInstance().isBlocked(msisdn))
+		{
+			Logger.e("bot error", "bot is blocked by user.");
 			return;
 		}
 		String name = jsonObj.optString(HikeConstants.NAME);
