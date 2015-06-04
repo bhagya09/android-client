@@ -159,6 +159,16 @@ public class EmoticonPicker implements ShareablePopup, EmoticonPickerListener, O
 		}
 
 		/**
+		 * Defensive null check
+		 */
+		if (mContext == null)
+		{
+			String errorMsg = "Inside method : getView of EmoticonPicker. Context is null";
+			HAManager.sendStickerEmoticonStrangeBehaviourReport(errorMsg);
+			return;
+		}
+		
+		/**
 		 * Use default view. or the view passed in the constructor
 		 */
 
