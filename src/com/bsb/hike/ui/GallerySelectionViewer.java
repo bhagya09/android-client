@@ -236,6 +236,7 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 		if(Utils.isPhotosEditEnabled())
 		{
 			actionsView.setVisibility(View.VISIBLE);
+			actionBarView.findViewById(R.id.seprator).setVisibility(View.VISIBLE);
 			actionsView.setOnClickListener(new OnClickListener()
 			{
 				
