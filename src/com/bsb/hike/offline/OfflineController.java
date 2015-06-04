@@ -25,26 +25,39 @@ public class OfflineController
 	private IOfflineCallbacks offlineListener = null;
 
 	OfflineManager offlineManager;
+	
+	OfflineThreadManager  offlineThreadManager;
 
 	public OfflineController(IOfflineCallbacks listener)
 	{
 		this.offlineListener = listener;
 		offlineManager = OfflineManager.getInstance();
+		offlineManager.addListener(listener);
 	}
 
-	public void startScanningWifiDirect()
+	public void startScan()
 	{
-
+		offlineManager.startScan();
 	}
 
-	public void stopScanningWifiDirect()
+	public void stopScan()
 	{
-
+		offlineManager.stopScan();
 	}
 
+	public void startWifi()
+	{
+		offlineManager.startWifi();
+	}
+	
+	public void stopWifi()
+	{
+		offlineManager.stopWifi();
+	}
+	
 	public String getConnectedDevice()
 	{
-		return null;
+		return offlineManager.getConnectedDevice();
 	}
 
 	/**
@@ -129,6 +142,21 @@ public class OfflineController
 	public void sendImage(String imagePath, String msisdn)
 	{
 		offlineManager.initialiseOfflineFileTransfer(imagePath, null, HikeFileType.IMAGE, null, false, -1, FTAnalyticEvents.CAMERA_ATTACHEMENT, msisdn,null);
+	}
+	
+	public void createHotspot(String msisdn)
+	{
+		offlineManager.createHotspot(msisdn);
+	}
+	
+	public void connectToHotspot(String msisdn)
+	{
+		offlineManager.connectToHotspot(msisdn);	
+	}
+	
+	public void connectAsPerMsisdn(String msisdn)
+	{
+		offlineManager.connectAsPerMsisdn(msisdn);
 	}
 
 }

@@ -8,9 +8,13 @@ public interface IWIfiReceiverCallback
 {
 	public void onRequestPeers();
 
-	public void onDiscoveryStateChanged();
-	
-	public void onScanResultAvailable(HashMap<String, ScanResult> currentNearByNetwork);
+	public void onScanResultAvailable();
 	
 	public void onHotSpotConnected();
+
+	public void checkConnectedNetwork();
+
+	public void onDiscoveryStarted();
+
+	public void onDiscoveryStopped();
 }

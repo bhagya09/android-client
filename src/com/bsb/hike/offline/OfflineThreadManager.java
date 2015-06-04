@@ -93,8 +93,11 @@ public class OfflineThreadManager
 	
 	public void startSendingThread()
 	{
-		textTransferThread.start();
-		fileTransferThread.start();
+		if (!textTransferThread.isAlive())
+			textTransferThread.start();
+		
+		if (!fileTransferThread.isAlive())
+			fileTransferThread.start();
 	}
 	
 	public void startReceivingThread()

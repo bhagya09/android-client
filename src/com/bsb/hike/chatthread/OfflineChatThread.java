@@ -3,6 +3,7 @@ package com.bsb.hike.chatthread;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -161,7 +162,7 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 	}
 
 	@Override
-	public void wifiScanResults(HashMap<String, ScanResult> list)
+	public void wifiScanResults(Map<String, ScanResult> list)
 	{
 		
 	}
@@ -353,5 +354,11 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 //			//We are coming from the sharing option.
 //			//OfflineManager.getInstance().forwardSharingFiles(intent);
 //		}
+	}
+
+
+	@Override
+	public void connectedToMsisdn(String connectedDevice) {
+		
 	}
 }
