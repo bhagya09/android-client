@@ -214,6 +214,8 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity im
 
 		actionBarView.findViewById(R.id.done_container).setVisibility(View.INVISIBLE);
 		actionBar.setCustomView(actionBarView);
+		Toolbar parent=(Toolbar)actionBarView.getParent();
+		parent.setContentInsetsAbsolute(0,0);
 	}
 
 	private void setupMultiSelectActionBar()
@@ -237,6 +239,8 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity im
 			}
 		});
 		actionBar.setCustomView(actionBarView);
+		Toolbar parent=(Toolbar)actionBarView.getParent();
+		parent.setContentInsetsAbsolute(0,0);
 
 		Animation slideIn = AnimationUtils.loadAnimation(this, R.anim.slide_in_left_noalpha);
 		slideIn.setInterpolator(new AccelerateDecelerateInterpolator());

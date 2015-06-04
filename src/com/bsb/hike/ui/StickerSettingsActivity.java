@@ -6,6 +6,8 @@ import android.view.View.OnClickListener;
 import android.widget.TextView;
 
 import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
+
 import com.bsb.hike.R;
 import com.bsb.hike.productpopup.DialogPojo;
 import com.bsb.hike.productpopup.HikeDialogFragment;
@@ -54,6 +56,8 @@ public class StickerSettingsActivity extends HikeAppStateBaseFragmentActivity
 		});
 
 		actionBar.setCustomView(actionBarView);
+		Toolbar parent=(Toolbar)actionBarView.getParent();
+		parent.setContentInsetsAbsolute(0,0);
 	}
 
 	private void setupSettingsFragment(Bundle savedInstanceState)

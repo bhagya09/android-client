@@ -15,6 +15,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
+
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
@@ -90,6 +92,8 @@ public class DeleteAccount extends HikeAppStateBaseFragmentActivity implements D
 		});
 
 		actionBar.setCustomView(actionBarView);
+		Toolbar parent=(Toolbar)actionBarView.getParent();
+		parent.setContentInsetsAbsolute(0,0);
 	}
 
 	private void initViewComponents()

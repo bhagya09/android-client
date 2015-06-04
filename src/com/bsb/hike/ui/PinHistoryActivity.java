@@ -30,6 +30,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Window;
@@ -183,6 +184,8 @@ public class PinHistoryActivity extends HikeAppStateBaseFragmentActivity impleme
 		});
 
 		actionBar.setCustomView(actionBarView);
+		Toolbar parent=(Toolbar)actionBarView.getParent();
+		parent.setContentInsetsAbsolute(0,0);
 	}
 
 	@Override
@@ -378,6 +381,8 @@ public class PinHistoryActivity extends HikeAppStateBaseFragmentActivity impleme
 			}
 		});
 		actionBar.setCustomView(actionBarView);
+		Toolbar parent=(Toolbar)actionBarView.getParent();
+		parent.setContentInsetsAbsolute(0,0);
 
 		Animation slideIn = AnimationUtils.loadAnimation(this, R.anim.slide_in_left_noalpha);
 		slideIn.setInterpolator(new AccelerateDecelerateInterpolator());

@@ -22,6 +22,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
+
 import com.bsb.hike.AppConfig;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeConstants.ImageQuality;
@@ -289,6 +291,8 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 		});
 
 		actionBar.setCustomView(actionBarView);
+		Toolbar parent=(Toolbar)actionBarView.getParent();
+		parent.setContentInsetsAbsolute(0,0);
 	}
 
 	@Override

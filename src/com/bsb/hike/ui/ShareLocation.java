@@ -39,6 +39,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
+
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.BitmapUtils;
@@ -345,6 +347,8 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 		});
 
 		actionBar.setCustomView(actionBarView);
+		Toolbar parent=(Toolbar)actionBarView.getParent();
+		parent.setContentInsetsAbsolute(0,0);
 
 		init();
 	}

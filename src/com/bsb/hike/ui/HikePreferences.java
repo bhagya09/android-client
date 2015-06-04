@@ -423,6 +423,9 @@ private void setupToolBar(int titleRes){
 		});
 
 		actionBar.setCustomView(actionBarView);
+		Toolbar parent=(Toolbar)actionBarView.getParent();
+		parent.setContentInsetsAbsolute(0,0);
+		
 	}
 
 	@Override

@@ -20,6 +20,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
+
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
@@ -139,6 +141,8 @@ public class ConnectedAppsActivity extends HikeAppStateBaseFragmentActivity impl
 		});
 
 		actionBar.setCustomView(actionBarView);
+		Toolbar parent=(Toolbar)actionBarView.getParent();
+		parent.setContentInsetsAbsolute(0,0);
 	}
 
 	/**

@@ -51,6 +51,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import com.bsb.hike.HikeConstants;
@@ -1065,6 +1066,8 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		}
 
 		actionBar.setCustomView(groupChatActionBar);
+		Toolbar parent=(Toolbar)groupChatActionBar.getParent();
+		parent.setContentInsetsAbsolute(0,0);
 
 		showingMultiSelectActionBar = false;
 	}
@@ -1198,6 +1201,8 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			showProgressBarContactsSync(View.VISIBLE);
 		}
 		actionBar.setCustomView(multiSelectActionBar);
+		Toolbar parent=(Toolbar)multiSelectActionBar.getParent();
+		parent.setContentInsetsAbsolute(0,0);
 
 		Animation slideIn = AnimationUtils.loadAnimation(this, R.anim.slide_in_left_noalpha);
 		slideIn.setInterpolator(new AccelerateDecelerateInterpolator());

@@ -11,6 +11,8 @@ import android.view.View.OnClickListener;
 import android.widget.TextView;
 
 import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
+
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
@@ -119,6 +121,8 @@ public class StickerShopActivity extends HikeAppStateBaseFragmentActivity
 		});
 
 		actionBar.setCustomView(actionBarView);
+		Toolbar parent=(Toolbar)actionBarView.getParent();
+		parent.setContentInsetsAbsolute(0,0);
 	}
 
 }

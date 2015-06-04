@@ -27,6 +27,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
 import android.view.Window;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -338,6 +339,8 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 		}
 
 		actionBar.setCustomView(actionBarView);
+		Toolbar parent=(Toolbar)actionBarView.getParent();
+		parent.setContentInsetsAbsolute(0,0);
 	}
 
 	public class PhotoEditViewPagerAdapter extends FragmentPagerAdapter implements IconPagerAdapter

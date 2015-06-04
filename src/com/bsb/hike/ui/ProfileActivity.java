@@ -56,6 +56,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import com.bsb.hike.HikeConstants;
@@ -442,6 +443,8 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		
 		actionBar.setBackgroundDrawable(getResources().getDrawable(R.drawable.bg_header));
 		actionBar.setCustomView(actionBarView);
+		Toolbar parent=(Toolbar)actionBarView.getParent();
+		parent.setContentInsetsAbsolute(0,0);
 		invalidateOptionsMenu();
 	}
 	
@@ -492,6 +495,8 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			}
 		});
 		actionBar.setCustomView(editGroupNameView);
+		Toolbar parent=(Toolbar)editGroupNameView.getParent();
+		parent.setContentInsetsAbsolute(0,0);
 		invalidateOptionsMenu();
 	}
 

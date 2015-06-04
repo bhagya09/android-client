@@ -28,6 +28,8 @@ import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
 
 import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
+
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -276,6 +278,8 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 		});
 		
 		actionBar.setCustomView(actionBarView);
+		Toolbar parent=(Toolbar)actionBarView.getParent();
+		parent.setContentInsetsAbsolute(0,0);
 	}
 
 	@Override
