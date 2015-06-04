@@ -1791,7 +1791,6 @@ public class StickerManager
 		for (int i=0; i<categoriesToLoad; i++)
 		{
 			String categoryId = categoryList.get(i).getCategoryId();
-			String filePath = getStickerDirectoryForCategoryId(categoryId) + StickerManager.OTHER_STICKER_ASSET_ROOT + "/" + StickerManager.PALLATE_ICON + StickerManager.OTHER_ICON_TYPE;
 			Bitmap bitmap = getCategoryOtherAsset(context, categoryId, StickerManager.PALLATE_ICON_TYPE, -1, -1, true);
 			if (bitmap != null)
 			{
@@ -1799,8 +1798,8 @@ public class StickerManager
 
 				if (cache != null)
 				{
-					Logger.d(TAG, "Putting data in cache : " + filePath);
-					cache.putInCache(filePath, drawable);
+					Logger.d("TAG", "Putting data in cache : " + StickerManager.getInstance().getCategoryOtherAssetLoaderKey(categoryId, StickerManager.PALLATE_ICON_TYPE));
+					cache.putInCache(StickerManager.getInstance().getCategoryOtherAssetLoaderKey(categoryId, StickerManager.PALLATE_ICON_TYPE), drawable);
 				}
 			}
 		}
