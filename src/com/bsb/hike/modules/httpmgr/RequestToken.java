@@ -8,6 +8,7 @@ import com.bsb.hike.modules.httpmgr.interceptor.IResponseInterceptor;
 import com.bsb.hike.modules.httpmgr.interceptor.Pipeline;
 import com.bsb.hike.modules.httpmgr.request.Request;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
+import com.bsb.hike.modules.httpmgr.request.requestbody.IRequestBody;
 
 /**
  * Provides a mechanism for executing or canceling a http request without giving access to the request class outside the http manager
@@ -88,5 +89,10 @@ public class RequestToken
 	public Pipeline<IResponseInterceptor> getResponseInterceptors()
 	{
 		return request.getResponseInterceptors();
+	}
+	
+	public IRequestBody getRequestBody()
+	{
+		return request.getBody();
 	}
 }

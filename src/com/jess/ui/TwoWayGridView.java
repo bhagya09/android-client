@@ -37,8 +37,6 @@ package com.jess.ui;
 
 
 
-import com.bsb.hike.R;
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -52,6 +50,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.GridLayoutAnimationController;
 import android.widget.ListAdapter;
+
+import com.bsb.hike.R;
 
 
 /**
@@ -145,6 +145,8 @@ public class TwoWayGridView extends TwoWayAbsListView {
 
 		a.recycle();
 		setupGridType();
+		
+		setSelector(R.drawable.photos_pager_item_selector);
 	}
 
 	private void setupGridType() {
@@ -363,6 +365,13 @@ public class TwoWayGridView extends TwoWayAbsListView {
 		}
 		mLayoutMode = LAYOUT_SET_SELECTION;
 		requestLayout();
+	}
+
+	@Override
+	public void smoothScrollToPosition(int position)
+	{
+		// TODO Auto-generated method stub
+		super.smoothScrollToPosition(position);
 	}
 
 	/**

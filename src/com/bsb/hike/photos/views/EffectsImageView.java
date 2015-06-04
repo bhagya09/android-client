@@ -56,7 +56,8 @@ public class EffectsImageView extends ImageView implements OnTouchListener
 		if (!isScaled && currentFilter == FilterType.ORIGINAL)
 		{
 			listener.onFilterApplied(HikePhotosUtils.createBitmap(bitmap, 0, 0, 0, 0, true, false, false, true));
-			// listener.onFilterApplied(bitmap.copy(bitmap.getConfig(), true));
+			// done to handle case when backk is pressed after saving to have seperate layer for doodle
+			// t do disable back on Next Presssed
 		}
 		else if (!isScaled)
 		{

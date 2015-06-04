@@ -1,5 +1,6 @@
 package com.bsb.hike.ui.fragments;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -13,7 +14,6 @@ import org.json.JSONObject;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
@@ -29,6 +29,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragment;
@@ -45,10 +46,10 @@ import com.bsb.hike.dialog.CustomAlertDialog;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
+import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.HikeSharedFile;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.GroupConversation;
-import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.ui.ComposeChatActivity;
 import com.bsb.hike.ui.HikeSharedFilesActivity;
 import com.bsb.hike.ui.utils.DepthPageTransformer;
@@ -115,13 +116,6 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 	private boolean isEditEnabled;
 
 	private Menu menu;
-	
-	@Override
-	public void onCreate(Bundle savedInstanceState)
-	{
-		super.onCreate(savedInstanceState);
-		setHasOptionsMenu(true);
-	}
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -250,13 +244,15 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 			}
 		});
 		
+		setHasOptionsMenu(true);
+		
 		super.onActivityCreated(savedInstanceState);
 	}
 
 	@Override
 	public void onStop()
-	{	super.onStop();
-		
+	{	
+		super.onStop();
 	}
 	
 	@Override
@@ -309,9 +305,9 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 		
 		setSenderDetails(position);
 		
-		if (menu != null)
+		if (menu != null && getCurrentSelectedItem()!=null)
 		{
-			if (isEditEnabled && getCurrentSelectedItem().getHikeFileType().compareTo(HikeFileType.IMAGE) == 0)
+			if (isEditEnabled  && getCurrentSelectedItem().getHikeFileType().compareTo(HikeFileType.IMAGE) == 0)
 			{
 				menu.findItem(R.id.edit_pic).setVisible(true);
 			}
@@ -550,18 +546,24 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 		if(selectedPager.getCurrentItem() < getCount())
 		{
 			sharedMediaItems.remove(selectedPager.getCurrentItem());
+			smAdapter.notifyDataSetChanged();
+			if(sharedMediaItems.isEmpty())
+			{
+				//if list is empty close the fragment
+				finish();
+			}
 		}
-		if(sharedMediaItems.isEmpty())
-		{
-			//if list is empty close the fragment
-			finish();
-		}
-		smAdapter.notifyDataSetChanged();
 	}
 	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item)
 	{
+		
+		if(getCurrentSelectedItem() == null)
+		{
+			return false;
+		}
+		
 		switch (item.getItemId())
 		{
 		//deletes current selected item from viewpager 
@@ -573,29 +575,25 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 				public void positiveClicked(HikeDialog hikeDialog)
 				{
 					HikeSharedFile itemToDelete = getCurrentSelectedItem();
-					if(itemToDelete != null)
+					ArrayList<Long> msgIds = new ArrayList<Long>(1);
+					msgIds.add(itemToDelete.getMsgId());
+
+					Bundle bundle = new Bundle();
+					bundle.putString(HikeConstants.Extras.MSISDN, msisdn);
+					bundle.putInt(HikeConstants.Extras.DELETED_MESSAGE_TYPE, HikeConstants.SHARED_MEDIA_TYPE);
+					HikeMessengerApp.getPubSub().publish(HikePubSub.DELETE_MESSAGE, new Pair<ArrayList<Long>, Bundle>(msgIds, bundle));
+
+					// if delete media from phone is checked
+					if (((CustomAlertDialog) hikeDialog).isChecked())
 					{
-						ArrayList<Long> msgIds = new ArrayList<Long>(1);
-						msgIds.add(itemToDelete.getMsgId());
-
-						Bundle bundle = new Bundle();
-						bundle.putString(HikeConstants.Extras.MSISDN, msisdn);
-						bundle.putInt(HikeConstants.Extras.DELETED_MESSAGE_TYPE, HikeConstants.SHARED_MEDIA_TYPE);
-						HikeMessengerApp.getPubSub().publish(HikePubSub.DELETE_MESSAGE, new Pair<ArrayList<Long>, Bundle>(msgIds, bundle));
-
-						// if delete media from phone is checked
-						if (((CustomAlertDialog) hikeDialog).isChecked())
-						{
-							itemToDelete.delete(getActivity().getApplicationContext());
-						}
-						if (!fromChatThread)
-						{
-							HikeMessengerApp.getPubSub().publish(HikePubSub.HIKE_SHARED_FILE_DELETED, itemToDelete);
-						}
+						itemToDelete.delete(getActivity().getApplicationContext());
 					}
-					removeCurrentSelectedItem();
+					if (!fromChatThread)
+					{
+						HikeMessengerApp.getPubSub().publish(HikePubSub.HIKE_SHARED_FILE_DELETED, itemToDelete);
+					}
 					hikeDialog.dismiss();
-
+					removeCurrentSelectedItem();
 				}
 				
 				@Override
@@ -613,6 +611,12 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 			
 			return true;
 		case R.id.forward_msgs:
+			File selFile = getCurrentSelectedItem().getFile();
+			if(selFile == null || !selFile.exists())
+			{
+				Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), R.string.file_expire, Toast.LENGTH_SHORT).show();
+				return false;
+			}
 			Intent intent = new Intent(getSherlockActivity(), ComposeChatActivity.class);
 			intent.putExtra(HikeConstants.Extras.FORWARD_MESSAGE, true);
 			JSONArray multipleMsgArray = new JSONArray();
@@ -631,10 +635,11 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 			startActivity(intent);
 			return true;
 		case R.id.share_msgs:
+			
 			getCurrentSelectedItem().shareFile(getSherlockActivity());
 			return true;
 		case R.id.edit_pic:
-			Intent editIntent = IntentFactory.getPictureEditorActivityIntent(getActivity(), getCurrentSelectedItem().getExactFilePath(), true, null);
+			Intent editIntent = IntentFactory.getPictureEditorActivityIntent(getActivity(), getCurrentSelectedItem().getExactFilePath(), true, null,false);
 			getActivity().startActivity(editIntent);
 			return true;
 		}
@@ -693,16 +698,19 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 	{
 		super.onPrepareOptionsMenu(menu);
 
-		// Display edit button only if,
-		// 1.Photos is enabled
-		// 2.Media is of type image/*
-		if (isEditEnabled && getCurrentSelectedItem().getHikeFileType().compareTo(HikeFileType.IMAGE) == 0)
+		if (getCurrentSelectedItem() != null)
 		{
-			menu.findItem(R.id.edit_pic).setVisible(true);
-		}
-		else
-		{
-			menu.findItem(R.id.edit_pic).setVisible(false);
+			// Display edit button only if,
+			// 1.Photos is enabled
+			// 2.Media is of type image/*
+			if (isEditEnabled && getCurrentSelectedItem().getHikeFileType().compareTo(HikeFileType.IMAGE) == 0)
+			{
+				menu.findItem(R.id.edit_pic).setVisible(true);
+			}
+			else
+			{
+				menu.findItem(R.id.edit_pic).setVisible(false);
+			}
 		}
 	}
 }

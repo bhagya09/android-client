@@ -185,6 +185,13 @@ public class HikeBitmapFactory
 		return bitmap;
 	}
 
+	public static String getBase64ForDrawable(int drawableId, Context context)
+	{
+
+		BitmapDrawable drawable = (BitmapDrawable) context.getResources().getDrawable(drawableId);
+		return Utils.drawableToString(drawable);
+	}
+
 	public static void correctBitmapRotation(final String srcFilePath, final HikePhotosListener mListener)
 	{
 		HikeHandlerUtil.getInstance().postRunnableWithDelay(new Runnable()
@@ -192,7 +199,12 @@ public class HikeBitmapFactory
 			@Override
 			public void run()
 			{
-				Bitmap bmp = HikeBitmapFactory.decodeFile(srcFilePath);
+				Bitmap bmp = HikeBitmapFactory.decodeSampledBitmapFromFile(srcFilePath, HikeConstants.HikePhotos.MAX_IMAGE_DIMEN, HikeConstants.HikePhotos.MAX_IMAGE_DIMEN, Config.ARGB_8888);
+				if(bmp==null)
+				{
+					mListener.onFailure();
+					return;
+				}
 				try
 				{
 					ExifInterface ei = new ExifInterface(srcFilePath);

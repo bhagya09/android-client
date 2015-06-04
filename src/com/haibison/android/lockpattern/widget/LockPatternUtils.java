@@ -104,6 +104,24 @@ public class LockPatternUtils {
             return "";
         }
     }// patternToString()
+    
+    public static String pinToString(String pin) {
+        if (pin == null) {
+            return "";
+        }
+        final int patternSize = pin.length();
+
+        byte[] res = new byte[patternSize];
+        for (int i = 0; i < patternSize; i++) {
+            res[i] = (byte) (pin.charAt(i));
+        }
+        try {
+            return new String(res, UTF8);
+        } catch (UnsupportedEncodingException e) {
+            // never catch this
+            return "";
+        }
+    }// pintToString()
 
     /**
      * Serializes a pattern
@@ -130,6 +148,25 @@ public class LockPatternUtils {
             return "";
         }
     }// patternToSha1()
+    
+    public static String pinToSha1(String pin) {
+        try {
+            MessageDigest md = MessageDigest.getInstance(SHA1);
+            md.update(pinToString(pin).getBytes(UTF8));
+
+            byte[] digest = md.digest();
+            BigInteger bi = new BigInteger(1, digest);
+            return String.format((Locale) null,
+                    "%0" + (digest.length * 2) + "x", bi).toLowerCase();
+        } catch (NoSuchAlgorithmException e) {
+            // never catch this
+            return "";
+        } catch (UnsupportedEncodingException e) {
+            // never catch this
+            return "";
+        }
+    }// pinToSha1()
+    
 
     /**
      * Generates a random "CAPTCHA" pattern. By saying "CAPTCHA", this method

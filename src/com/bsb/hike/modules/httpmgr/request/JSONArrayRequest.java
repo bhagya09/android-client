@@ -8,7 +8,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.bsb.hike.modules.httpmgr.RequestToken;
-import com.bsb.hike.modules.httpmgr.Utils;
+import com.bsb.hike.modules.httpmgr.HttpUtils;
+import com.bsb.hike.modules.httpmgr.log.LogFull;
 
 /**
  * JSONArrayrequest is used to return response in form of {@link JSONArray} to the request listener. InputStream to {@link JSONArray} is done in
@@ -44,10 +45,18 @@ public class JSONArrayRequest extends Request<JSONArray>
 	}
 
 	@Override
-	public JSONArray parseResponse(InputStream in) throws IOException, JSONException
+	public JSONArray parseResponse(InputStream in) throws IOException
 	{
-		byte[] bytes = Utils.streamToBytes(in);
-		JSONArray json = new JSONArray(new String(bytes));
-		return json;
+		try
+		{
+			byte[] bytes = HttpUtils.streamToBytes(in);
+			JSONArray json = new JSONArray(new String(bytes));
+			return json;
+		}
+		catch (JSONException ex)
+		{
+			LogFull.e("JSONException while parsing json object response : " + ex);
+			return null;
+		}
 	}
 }
