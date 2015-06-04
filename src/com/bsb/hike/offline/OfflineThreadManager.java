@@ -31,6 +31,7 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.Sticker;
+import com.bsb.hike.service.MqttMessagesManager;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 
@@ -307,6 +308,8 @@ public class OfflineThreadManager
 						}
 						else
 						{
+							messageJSON.put(HikeConstants.FROM, "o:"+offlineManager.getConnectedDevice());
+							messageJSON.remove(HikeConstants.TO);
 							if (OfflineUtils.isStickerMessage(messageJSON))
 							{
 								File stickerImage = isStickerPresentInApp(messageJSON);
@@ -318,17 +321,18 @@ public class OfflineThreadManager
 							}
 							else if (OfflineUtils.isChatThemeMessage(messageJSON))
 							{
-								HikeMessengerApp.getPubSub().publish(HikePubSub.OFFLINE_THEME_CHANGE_MESSAGE, messageJSON);
+								//HikeMessengerApp.getPubSub().publish(HikePubSub.OFFLINE_THEME_CHANGE_MESSAGE, messageJSON);
+								messageJSON.put(HikeConstants.TIMESTAMP, System.currentTimeMillis()/1000);
+								MqttMessagesManager.getInstance(HikeMessengerApp.getInstance().getApplicationContext()).saveChatBackground(messageJSON);
+								continue;
 							}
 							else
 							{
 								// It's a normal Text Message
 								Logger.d(TAG,"Connected deive sis "+offlineManager.getConnectedDevice());
-								messageJSON.put(HikeConstants.FROM, "o:"+offlineManager.getConnectedDevice());
-								messageJSON.remove(HikeConstants.TO);
-								convMessage = new ConvMessage(messageJSON, HikeMessengerApp.getInstance().getApplicationContext());
+								
 							}
-
+							convMessage = new ConvMessage(messageJSON, HikeMessengerApp.getInstance().getApplicationContext());
 							HikeConversationsDatabase.getInstance().addConversationMessages(convMessage, true);
 							HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_RECEIVED, convMessage);
 
@@ -560,8 +564,6 @@ public class OfflineThreadManager
 
 	public File isStickerPresentInApp(JSONObject messageJSON) throws JSONException, IOException
 	{
-		messageJSON.put(HikeConstants.FROM, OfflineManager.getInstance().getConnectedDevice());
-		messageJSON.remove(HikeConstants.TO);
 		String ctgId = messageJSON.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getString(StickerManager.STICKER_CATEGORY);
 		String stkId = messageJSON.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getString(StickerManager.STICKER_ID);
 		Sticker sticker = new Sticker(ctgId, stkId);
