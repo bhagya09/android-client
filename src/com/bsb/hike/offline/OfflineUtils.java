@@ -178,22 +178,12 @@ public class OfflineUtils
 		return storagePath.toString();
 	}
 
-	public static boolean isPingPacketValid(String message)
+	public static boolean isPingPacketValid(JSONObject object)
 	{
-		JSONObject object;
-		try
+		if (object.optString(HikeConstants.TYPE).equals(OfflineConstants.PING))
 		{
-			object = new JSONObject(message);
-			if (object.optString(HikeConstants.TYPE).equals(OfflineConstants.PING))
-			{
-				return true;
-			}
+			return true;
 		}
-		catch (JSONException e)
-		{
-			e.printStackTrace();
-		}
-
 		return false;
 	}
 	

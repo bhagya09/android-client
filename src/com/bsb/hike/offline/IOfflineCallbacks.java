@@ -11,7 +11,7 @@ public interface IOfflineCallbacks
 
 	public void wifiScanResults(HashMap<String, ScanResult> list);
 
-	public void onConnect();
+	public void onConnected();
 
 	public void onDisconnect();
 

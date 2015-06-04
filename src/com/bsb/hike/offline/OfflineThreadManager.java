@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -225,7 +226,7 @@ public class OfflineThreadManager
 						msgSize = OfflineUtils.byteArrayToInt(convMessageLength);
 						byte[] msgJSON = new byte[msgSize];
 						inputStream.read(msgJSON, 0, msgSize);
-						String msgString = new String(msgJSON, "utf-8");
+						String msgString = new String(msgJSON, "UTF-8");
 						Logger.d(TAG, "" + msgSize);
 						JSONObject messageJSON = new JSONObject(msgString);
 
@@ -239,7 +240,7 @@ public class OfflineThreadManager
 
 						ConvMessage convMessage = null;
 
-						if (OfflineUtils.isPingPacketValid(messageJSON.toString()))
+						if (OfflineUtils.isPingPacketValid(messageJSON))
 						{
 							// Start client thread.
 							startSendingThread();
@@ -308,7 +309,7 @@ public class OfflineThreadManager
 				}
 			}
 		}
-	}	
+	}
 	class FileReceiverThread extends Thread
 	{
 		@Override
@@ -371,7 +372,6 @@ public class OfflineThreadManager
 						Logger.d(TAG, filePath);
 
 						// TODO : Revisit the logic again.
-
 						File f = new File(Environment.getExternalStorageDirectory() + "/" + "Hike/Media/hike Images" + "/tempImage_" + fileName);
 						File dirs = new File(f.getParent());
 						if (!dirs.exists())
@@ -449,14 +449,15 @@ public class OfflineThreadManager
 				Logger.d(TAG, e.toString());
 				return false;
 			}
-			byte[] messageBytes = packet.toString().getBytes();
-			int length = messageBytes.length;
-			byte[] intToBArray = OfflineUtils.intToByteArray(length);
+			
 			try
 			{
+				byte[] messageBytes = packet.toString().getBytes("UTF-8");
+				int length = messageBytes.length;
+				byte[] intToBArray = OfflineUtils.intToByteArray(length);
 				outputStream.write(intToBArray, 0, intToBArray.length);
 				outputStream.write(messageBytes, 0, length);
-				isSent = offlineManager.copyFile(inputStream, outputStream,fileUri.getBytes().length);
+				isSent = offlineManager.copyFile(inputStream, outputStream,fileUri.getBytes("UTF-8").length);
 				inputStream.close();
 				
 			}
@@ -467,24 +468,23 @@ public class OfflineThreadManager
 			}
 			
 		}
+		// for normal text messages and ping packet
 		else
+		{
+			try
 			{
-				String messageJSON = packet.toString();
-				byte[] messageBytes = packet.toString().getBytes();
+				byte[] messageBytes = packet.toString().getBytes("UTF-8");
 				int length = messageBytes.length;
 				byte[] intToBArray = OfflineUtils.intToByteArray(length);
-				try
-				{
-					outputStream.write(intToBArray, 0, intToBArray.length);
-					outputStream.write(messageBytes,0, length);
-				}
-				catch (IOException e)
-				{
-					e.printStackTrace();
-					return false;
-				}
-				
+				outputStream.write(intToBArray, 0, intToBArray.length);
+				outputStream.write(messageBytes,0, length);
 			}
+			catch (IOException e) 
+			{
+				e.printStackTrace();
+			}
+
+		}
 		
 		// Updating database
 		if (!OfflineUtils.isGhostPacket(packet))

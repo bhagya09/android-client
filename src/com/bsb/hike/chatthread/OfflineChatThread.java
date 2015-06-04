@@ -133,9 +133,9 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 	}
 
 	@Override
-	public void onConnect()
+	public void onConnected()
 	{
-		
+		// change the label for Free Hike Conncted
 	}
 
 	@Override
@@ -195,6 +195,7 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 			
 		}
 	}
+	
 	
 	
 //	protected void startHikeGallery(boolean onHike)
