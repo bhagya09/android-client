@@ -273,8 +273,6 @@ public class VoIPService extends Service {
 		isRingingIncoming = false;
 		currentCallQuality = CallQuality.UNKNOWN;
 		
-		VoIPUtils.resetNotificationStatus();
-
 		if (!VoIPUtils.useAEC(getApplicationContext())) {
 			Logger.w(logTag, "AEC disabled.");
 			aecEnabled = false;
@@ -991,7 +989,6 @@ public class VoIPService extends Service {
 		},"REJECT_INCOMING_CALL_THREAD").start();
 		
 		// Here we don't show a missed call notification, but add the message to the chat thread
-		VoIPUtils.addMessageToChatThread(this, client, HikeConstants.MqttMessageTypes.VOIP_MSG_TYPE_MISSED_CALL_INCOMING, 0, -1, false);
 		client.sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CALL_REJECT);
 	}
 	
