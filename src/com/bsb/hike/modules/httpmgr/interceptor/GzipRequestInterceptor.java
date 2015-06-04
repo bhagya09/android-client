@@ -1,7 +1,7 @@
 package com.bsb.hike.modules.httpmgr.interceptor;
 
 import com.bsb.hike.modules.httpmgr.Header;
-import com.bsb.hike.modules.httpmgr.Utils;
+import com.bsb.hike.modules.httpmgr.HttpUtils;
 import com.bsb.hike.modules.httpmgr.request.facade.RequestFacade;
 import com.bsb.hike.modules.httpmgr.request.requestbody.GzipRequestBody;
 
@@ -21,7 +21,7 @@ public final class GzipRequestInterceptor implements IRequestInterceptor
 	{
 		RequestFacade requestFacade = chain.getRequestFacade();
 
-		if (requestFacade.getBody() == null || Utils.containsHeader(requestFacade.getHeaders(), "Content-Encoding"))
+		if (requestFacade.getBody() == null || HttpUtils.containsHeader(requestFacade.getHeaders(), "Content-Encoding"))
 		{
 			chain.proceed();
 		}

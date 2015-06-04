@@ -35,11 +35,12 @@ import com.bsb.hike.adapters.FriendsAdapter.FriendsListFetchedCallback;
 import com.bsb.hike.adapters.FriendsAdapter.ViewType;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
+import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.ui.CreateNewGroupOrBroadcastActivity;
 import com.bsb.hike.ui.TellAFriend;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.LastSeenScheduler;
+import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
 
 public class FriendsFragment extends SherlockListFragment implements Listener, OnItemLongClickListener, OnScrollListener
@@ -412,7 +413,7 @@ public class FriendsFragment extends SherlockListFragment implements Listener, O
 				@Override
 				public void run()
 				{
-					friendsAdapter.onQueryChanged(query);
+					friendsAdapter.onQueryChanged(query.trim());
 				}
 			});
 		}
@@ -467,12 +468,6 @@ public class FriendsFragment extends SherlockListFragment implements Listener, O
 		}
 		else if (HikePubSub.STEALTH_MODE_TOGGLED.equals(type))
 		{
-			boolean shouldChangeItemVisibility = (Boolean) object;
-
-			if (!shouldChangeItemVisibility)
-			{
-				return;
-			}
 
 			if (!isAdded())
 			{
@@ -484,9 +479,7 @@ public class FriendsFragment extends SherlockListFragment implements Listener, O
 				@Override
 				public void run()
 				{
-					int stealthMode = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF);
-
-					if (stealthMode == HikeConstants.STEALTH_ON)
+					if (StealthModeManager.getInstance().isActive())
 					{
 						friendsAdapter.addStealthContacts();
 					}
@@ -499,7 +492,7 @@ public class FriendsFragment extends SherlockListFragment implements Listener, O
 		}
 		else if (HikePubSub.STEALTH_CONVERSATION_MARKED.equals(type) || HikePubSub.STEALTH_CONVERSATION_UNMARKED.equals(type))
 		{
-			String msisdn = (String) object;
+			String msisdn = ((String) object);
 			if (HikePubSub.STEALTH_CONVERSATION_UNMARKED.equals(type))
 			{
 				friendsAdapter.stealthContactRemoved(msisdn);

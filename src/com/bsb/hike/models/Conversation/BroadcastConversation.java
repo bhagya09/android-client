@@ -125,6 +125,12 @@ public class BroadcastConversation extends OneToNConversation
 		{
 			return this;
 		}
+		
+		@Override
+		protected ConvInfo getConvInfo(String msisdn)
+		{
+			return new OneToNConvInfo.ConvInfoBuilder(msisdn).build();
+		}
 
 	}
 }

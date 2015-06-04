@@ -13,6 +13,7 @@ import org.json.JSONArray;
 import android.app.Dialog;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.media.AudioManager;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import android.text.Editable;
@@ -163,7 +164,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	{
 		super(activity, msisdn);
 	}
-
+	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu)
 	{
@@ -277,7 +278,6 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		{
 			checkAndStartLastSeenTask();
 		}
-
 		/**
 		 * If user is blocked
 		 */
@@ -360,7 +360,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		String[] oneToOneListeners = new String[] { HikePubSub.SMS_CREDIT_CHANGED, HikePubSub.MESSAGE_DELIVERED_READ, HikePubSub.CONTACT_ADDED, HikePubSub.CONTACT_DELETED,
 				HikePubSub.CHANGED_MESSAGE_TYPE, HikePubSub.SHOW_SMS_SYNC_DIALOG, HikePubSub.SMS_SYNC_COMPLETE, HikePubSub.SMS_SYNC_FAIL, HikePubSub.SMS_SYNC_START,
 				HikePubSub.LAST_SEEN_TIME_UPDATED, HikePubSub.SEND_SMS_PREF_TOGGLED, HikePubSub.BULK_MESSAGE_RECEIVED, HikePubSub.USER_JOINED, HikePubSub.USER_LEFT,
-				HikePubSub.APP_FOREGROUNDED };
+				HikePubSub.APP_FOREGROUNDED, HikePubSub.FAVORITE_TOGGLED, HikePubSub.FRIEND_REQUEST_ACCEPTED, HikePubSub.REJECT_FRIEND_REQUEST };
 		return oneToOneListeners;
 	}
 
@@ -511,11 +511,31 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		case HikePubSub.APP_FOREGROUNDED:
 			onAppForegrounded();
 			break;
+		case HikePubSub.FAVORITE_TOGGLED:
+		case HikePubSub.FRIEND_REQUEST_ACCEPTED:
+		case HikePubSub.REJECT_FRIEND_REQUEST:
+			onFavoriteToggled(object);
+			break;
 		default:
 			Logger.d(TAG, "Did not find any matching PubSub event in OneToOne ChatThread. Calling super class' onEventReceived");
 			super.onEventReceived(type, object);
 			break;
 		}
+	}
+
+	private void onFavoriteToggled(Object object)
+	{
+		final Pair<ContactInfo, FavoriteType> favoriteToggle = (Pair<ContactInfo, FavoriteType>) object;
+
+		ContactInfo contactInfo = favoriteToggle.first;
+		FavoriteType favoriteType = favoriteToggle.second;
+
+		if (!msisdn.equals(contactInfo.getMsisdn()))
+		{
+			return;
+		}
+		
+		this.mContactInfo.setFavoriteType(favoriteType);		
 	}
 
 	@Override
@@ -634,7 +654,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		case SHOW_CALL_ICON:
 			if (shouldShowCallIcon())
 			{
-				if (mActionBar != null)
+				if (mActionBar != null && mActionBar.getMenuItem(R.id.voip_call) != null)
 				{
 					mActionBar.getMenuItem(R.id.voip_call).setVisible(true);
 				}
@@ -787,6 +807,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			{
 				mComposeView.setText("");
 			}
+			mComposeView.setHint("");
 			mComposeView.setEnabled(true);
 		}
 
@@ -1069,6 +1090,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		 * Setting text on lastSeenView
 		 */
 		mLastSeenView.setText(text);
+		mLastSeenView.setSelected(true);
 		
 		prevLastSeen = text;
 		
@@ -1367,7 +1389,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 
 				if (isActivityVisible && SoundUtils.isTickSoundEnabled(activity.getApplicationContext()))
 				{
-					SoundUtils.playSoundFromRaw(activity.getApplicationContext(), R.raw.received_message);
+					SoundUtils.playSoundFromRaw(activity.getApplicationContext(), R.raw.received_message, AudioManager.STREAM_RING);
 				}
 			}
 
@@ -1472,7 +1494,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	 */
 	private void onAppForegrounded()
 	{
-		if (mContactInfo != null)
+		if (mContactInfo == null)
 		{
 			return;
 		}
@@ -2052,7 +2074,10 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			break;
 
 		case R.id.add_unknown_contact:
-			Utils.addToContacts(activity, msisdn);
+			if ( null != v.getTag() && v.getTag().equals(R.string.add))
+			{
+				Utils.addToContacts(activity, msisdn);
+			}
 			break;
 			
 		case R.id.info_layout:
@@ -2482,18 +2507,25 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	@Override
 	public boolean onBackPressed()
 	{
-		if (modeOfChat == H2S_MODE)
+		if (!super.onBackPressed())
 		{
-			destroyH20Mode();
-			return true;
+			if (modeOfChat == H2S_MODE)
+			{
+				destroyH20Mode();
+				return true;
+			}
+			else if (isH20TipShowing())
+			{
+				hideH20Tip();
+				return true;
+			}
+			else
+			{
+				return false;
+			}
 		}
 
-		else if (isH20TipShowing())
-		{
-			hideH20Tip();
-			return true;
-		}
-		return super.onBackPressed();
+		return true;
 	}
 	
 	@Override
@@ -2541,11 +2573,10 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	 *  Show call icon in chat thread only if:
 	 *  1. When voip is activated for self.
 	 *  2. Partner is on hike.
-	 *  3. Partner not a bot.
 	 */
 	private boolean shouldShowCallIcon()
 	{
-		return Utils.isVoipActivated(activity.getApplicationContext()) && mConversation.isOnHike() && !HikeMessengerApp.hikeBotNamesMap.containsKey(msisdn);
+		return Utils.isVoipActivated(activity.getApplicationContext()) && mConversation.isOnHike();
 	}
 	
 	/*
@@ -2555,8 +2586,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	{
 		FavoriteType favoriteType = FavoriteType.REQUEST_SENT;
 		mContactInfo.setFavoriteType(favoriteType);
-		Pair<ContactInfo, FavoriteType> favoriteToggle = new Pair<ContactInfo, FavoriteType>(mContactInfo, favoriteType);
-		HikeMessengerApp.getPubSub().publish(HikePubSub.FAVORITE_TOGGLED, favoriteToggle);
+		Utils.addFavorite(activity, mContactInfo, false);
 	}
 	
 	@Override
@@ -2631,5 +2661,17 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 				checkAndStartLastSeenTask();
 			}
 		}
+	}
+
+	/**
+	 * Fetches last seen of the contact whose conversation is opened
+	 */
+	private void fetchLastSeen()
+	{
+		if (!ChatThreadUtils.shouldShowLastSeen(msisdn, activity.getApplicationContext(), mConversation.isOnHike(), mConversation.isBlocked()))
+		{
+			return;
+		}
+		scheduleLastSeen();
 	}
 }
