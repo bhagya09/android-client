@@ -30,6 +30,8 @@ import org.eclipse.paho.client.mqttv3.MqttPersistenceException;
 import org.eclipse.paho.client.mqttv3.internal.FileLock;
 import org.eclipse.paho.client.mqttv3.internal.MqttPersistentData;
 
+import com.bsb.hike.utils.Utils;
+
 /**
  * An implementation of the {@link MqttClientPersistence} interface that provides
  * file based persistence.
@@ -181,15 +183,7 @@ public class MqttDefaultFilePersistence implements MqttClientPersistence {
 			throw new MqttPersistenceException(ex);
 		} 
 		finally {
-			if(fos != null)
-			{
-				try {
-					fos.close();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
+			Utils.closeStreams(fos);
 			if (backupFile.exists()) {
 				// The write has failed - restore the backup
 				boolean result = backupFile.renameTo(file);
@@ -204,20 +198,24 @@ public class MqttDefaultFilePersistence implements MqttClientPersistence {
 	public MqttPersistable get(String key) throws MqttPersistenceException {
 		checkIsOpen();
 		MqttPersistable result;
+		FileInputStream fis = null;
 		try {
 			File file = new File(clientDir, key+MESSAGE_FILE_EXTENSION);
-			FileInputStream fis = new FileInputStream(file);
+			fis = new FileInputStream(file);
 			int size = fis.available();
 			byte[] data = new byte[size];
 			int read = 0;
 			while (read<size) {
 				read += fis.read(data,read,size-read);
 			}
-			fis.close();
 			result = new MqttPersistentData(key, data, 0, data.length, null, 0, 0);
 		} 
 		catch(IOException ex) {
 			throw new MqttPersistenceException(ex);
+		}
+		finally
+		{
+			Utils.closeStreams(fis);
 		}
 		return result;
 	}

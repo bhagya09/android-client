@@ -204,14 +204,7 @@ public abstract class FileTransferBase implements Callable<FTResult>
 		}
 		finally
 		{
-			try {
-				if(out != null)
-					out.close();
-				if(fileOut != null)
-					fileOut.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+			Utils.closeStreams(out, fileOut);
 		}
 	}
 

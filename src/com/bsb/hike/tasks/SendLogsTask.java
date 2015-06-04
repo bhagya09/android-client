@@ -6,6 +6,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+import com.bsb.hike.utils.Utils;
+
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -84,17 +86,7 @@ public class SendLogsTask extends AsyncTask<Void, Void, Void>
 		}
 		finally
 		{
-			if (fos != null)
-			{
-				try
-				{
-					fos.close();
-				}
-				catch (IOException e)
-				{
-					e.printStackTrace();
-				}
-			}
+			Utils.closeStreams(fos);
 		}
 	}
 

@@ -24,6 +24,7 @@ import com.bsb.hike.R;
 import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 
 public class DownloadAndInstallUpdateAsyncTask extends AsyncTask<Void, Integer, Boolean>
 {
@@ -115,15 +116,7 @@ public class DownloadAndInstallUpdateAsyncTask extends AsyncTask<Void, Integer, 
 		}
 		finally
 		{
-			try {
-				if(fos != null)
-					fos.close();
-				if(is != null)
-					is.close();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			Utils.closeStreams(fos, is);
 		}
 		return false;
 	}

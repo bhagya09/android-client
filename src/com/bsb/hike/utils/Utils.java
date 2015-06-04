@@ -3,6 +3,7 @@ package com.bsb.hike.utils;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -1193,17 +1194,7 @@ public class Utils
 		}
 		finally
 		{
-			if (out != null)
-			{
-				try
-				{
-					out.close();
-				}
-				catch (IOException e)
-				{
-					Logger.e("Utils", "Excecption while closing the stream", e);
-				}
-			}
+			Utils.closeStreams(out);
 		}
 	}
 
@@ -1224,17 +1215,7 @@ public class Utils
 		}
 		finally
 		{
-			if (fileInputStream != null)
-			{
-				try
-				{
-					fileInputStream.close();
-				}
-				catch (IOException e)
-				{
-					Logger.e("Utils", "Excecption while closing the file " + file.getName(), e);
-				}
-			}
+			Utils.closeStreams(fileInputStream);
 		}
 	}
 
@@ -1519,15 +1500,7 @@ public class Utils
 		}
 		finally
 		{
-			try {
-				if(src != null)
-					src.close();
-				if(dest != null)
-					dest.close();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			Utils.closeStreams(src, dest);
 		}
 		
 		return status;
@@ -1601,15 +1574,7 @@ public class Utils
 		}
 		finally
 		{
-			try {
-				if(src != null)
-					src.close();
-				if(dest != null)
-					dest.close();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			Utils.closeStreams(src, dest);
 		}
 	}
 
@@ -2062,17 +2027,7 @@ public class Utils
 		}
 		finally
 		{
-			if (fileOutputStream != null)
-			{
-				try
-				{
-					fileOutputStream.close();
-				}
-				catch (IOException e)
-				{
-					Logger.e("Utils", "Exception while closing the output stream", e);
-				}
-			}
+			Utils.closeStreams(fileOutputStream);
 		}
 	}
 
@@ -2147,17 +2102,7 @@ public class Utils
 		}
 		finally
 		{
-			if (fileOutputStream != null)
-			{
-				try
-				{
-					fileOutputStream.close();
-				}
-				catch (IOException e)
-				{
-					Logger.e("Utils", "Exception while closing the output stream", e);
-				}
-			}
+			closeStreams(fileOutputStream);
 		}
 	}
 
@@ -2205,17 +2150,7 @@ public class Utils
 		}
 		finally
 		{
-			if (fileInputStream != null)
-			{
-				try
-				{
-					fileInputStream.close();
-				}
-				catch (IOException e)
-				{
-					Logger.e("Utils", "Exception while closing the input stream", e);
-				}
-			}
+			closeStreams(fileInputStream);
 		}
 		return currentFiles;
 	}
@@ -3626,16 +3561,7 @@ public class Utils
 		}
 		finally
 		{
-			if (inputStream != null)
-			{
-				try
-				{
-					inputStream.close();
-				}
-				catch (Exception e)
-				{
-				}
-			}
+			closeStreams(inputStream);
 		}
 	}
 	
@@ -3946,17 +3872,7 @@ public class Utils
 			}
 			finally
 			{
-				try
-				{
-					if(dest != null)
-					{
-						dest.close();
-					}
-				}
-				catch (IOException e)
-				{
-					Logger.d("NoMedia", "Failed to make nomedia file");
-				}
+				closeStreams(dest);
 			}
 			if(reScan)
 			{
@@ -5885,18 +5801,7 @@ public class Utils
 			result = false;
 			Logger.e("Utils", "2Failed due to - " + e2.getMessage());
 		} finally {
-			try {
-				if (in != null) {
-					in.close();
-					in = null;
-				}
-				if (out != null) {
-					out.close();
-					out = null;
-				}
-			} catch (IOException e) {
-				Logger.e("Utils", e.getMessage());
-			}
+			closeStreams(in, out);
 		}
 		return result;
 	}
@@ -6042,5 +5947,18 @@ public class Utils
                 cursor.close();
         }
         return null;
+    }
+
+    public static void closeStreams(Closeable... closableStreams)
+    {
+		for (Closeable closeable : closableStreams) {
+			try {
+				if (closeable != null)
+					closeable.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+				Logger.d("Utils", "Exception on closing stream : " + e);
+			}
+		}
     }
 }

@@ -645,15 +645,7 @@ public class StickerManager
 		}
 		finally
 		{
-			try {
-				if(out != null)
-					out.close();
-				if(fileOut != null)
-					fileOut.close();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			Utils.closeStreams(out, fileOut);
 		}
 	}
 	
