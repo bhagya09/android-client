@@ -37,8 +37,10 @@ import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.AppOpenSource;
 import com.bsb.hike.analytics.HAManager;
+
 import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.bots.BotUtils;
+
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.db.HikeConversationsDatabase;
@@ -762,7 +764,6 @@ public class HikeNotification
 		setNotificationIntentForBuilder(mBuilder, notificationIntent,STEALTH_NOTIFICATION_ID);
 		notificationManager.notify(notificationId, mBuilder.getNotification());
 		notificationBuilderPostWork();
-
 	}
 
 	public void notifyFavorite(final ContactInfo contactInfo, int notificationType)
