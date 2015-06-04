@@ -232,17 +232,9 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 	public void onConnect()
 	{
 		sendUpdateStatusMessageOnHandler(R.string.connection_established);
-		ConvMessage convMessage=Utils.makeConvMessage(msisdn,activity.getString(R.string.connection_established),true,State.RECEIVED_READ);
-		convMessage.setIsOfflineMessage(true);
-		JSONObject metaData=OfflineUtils.createMetaData(OfflineConstants.OFFLINE_MESSAGE_CONNECTED_TYPE);
-		try
-		{
-			convMessage.setMetadata(new MessageMetadata(metaData.toString(), false));
-		}
-		catch (JSONException e)
-		{
-			e.printStackTrace();
-		}
+		
+		ConvMessage convMessage=OfflineUtils.createOfflineInlineConvMessage(msisdn,activity.getString(R.string.connection_established),OfflineConstants.OFFLINE_MESSAGE_CONNECTED_TYPE);
+		
 		addMessage(convMessage);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_SENT, convMessage);
 	}

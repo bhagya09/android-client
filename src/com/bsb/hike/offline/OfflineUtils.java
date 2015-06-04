@@ -10,11 +10,15 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.R;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.MessageMetadata;
+import com.bsb.hike.models.ConvMessage.State;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.utils.StickerManager;
+import com.bsb.hike.utils.Utils;
 
 /**
  * 
@@ -216,19 +220,20 @@ public class OfflineUtils
 		return new StringBuilder("o:").append(msisdn).toString();
 	}
 
-	public static JSONObject createMetaData(String type)
+	public static ConvMessage createOfflineInlineConvMessage(String msisdn,String message,String type)
 	{
-		JSONObject metaData=new JSONObject();
+		ConvMessage convMessage = Utils.makeConvMessage(msisdn, message, true, State.RECEIVED_READ);
+		convMessage.setIsOfflineMessage(true);
 		try
 		{
+			JSONObject metaData = new JSONObject();
 			metaData.put(HikeConstants.TYPE, type);
+			convMessage.setMetadata(new MessageMetadata(metaData.toString(), false));
 		}
 		catch (JSONException e)
 		{
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		return metaData;
+		return convMessage;
 	}
 }
