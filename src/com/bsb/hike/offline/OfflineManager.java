@@ -400,8 +400,8 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 
 	public String getConnectedDevice()
 	{
-		return connectedDevice;
-		//return OfflineUtils.getconnectedDevice(OfflineUtils.decodeSsid(connectionManager.getConnectedSSID()));
+		//return connectedDevice;
+		return OfflineUtils.getconnectedDevice(OfflineUtils.decodeSsid(connectionManager.getConnectedSSID()));
 	}
 
 	public void addToCurrentReceivingFile(long msgId,FileTransferModel fileTransferModel)
