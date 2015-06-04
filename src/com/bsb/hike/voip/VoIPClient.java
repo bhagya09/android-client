@@ -1191,6 +1191,7 @@ public class VoIPClient  {
 						break;
 						
 					case START_VOICE:
+						interruptResponseTimeoutThread();
 						startRecordingAndPlayback();
 						break;
 						
@@ -1647,7 +1648,7 @@ public class VoIPClient  {
 		VoIPUtils.addMessageToChatThread(context, VoIPClient.this, HikeConstants.MqttMessageTypes.VOIP_MSG_TYPE_CALL_SUMMARY, getCallDuration(), -1, false);
 	}
 	
-	public void interruptResponseTimeoutThread() {
+	private void interruptResponseTimeoutThread() {
 		if (responseTimeoutThread != null)
 			responseTimeoutThread.interrupt();
 	}

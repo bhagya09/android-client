@@ -273,23 +273,6 @@ public class VoIPService extends Service {
 		isRingingIncoming = false;
 		currentCallQuality = CallQuality.UNKNOWN;
 		
-		if (resamplerEnabled) {
-			playbackSampleRate = AudioTrack.getNativeOutputSampleRate(AudioManager.STREAM_VOICE_CALL);
-			resampler = new Resampler();
-		}
-		else
-			playbackSampleRate = VoIPConstants.AUDIO_SAMPLE_RATE;
-
-		recordingSampleRate = VoIPConstants.AUDIO_SAMPLE_RATE;
-
-		Logger.d(logTag, "Native playback sample rate: " + AudioTrack.getNativeOutputSampleRate(AudioManager.STREAM_VOICE_CALL));
-
-		if (android.os.Build.VERSION.SDK_INT >= 17) {
-			String rate = audioManager.getProperty(AudioManager.PROPERTY_OUTPUT_SAMPLE_RATE);
-			String size = audioManager.getProperty(AudioManager.PROPERTY_OUTPUT_FRAMES_PER_BUFFER);
-			Logger.d(logTag, "Device frames/buffer:" + size + ", sample rate: " + rate);
-		}
-		
 		VoIPUtils.resetNotificationStatus();
 
 		if (!VoIPUtils.useAEC(getApplicationContext())) {
@@ -303,8 +286,6 @@ public class VoIPService extends Service {
 		}
 		
 		startConnectionTimeoutThread();
-		// CPU Info
-		// Logger.d(logTag, "CPU: " + VoIPUtils.getCPUInfo());
 		bluetoothHelper = new BluetoothHelper(getApplicationContext());
 		bluetoothHelper.start();
 	}
@@ -344,7 +325,7 @@ public class VoIPService extends Service {
 
 		// Call rejection message
 		if (action.equals(HikeConstants.MqttMessageTypes.VOIP_CALL_CANCELLED)) {
-			Logger.d(logTag, "Call cancelled message.");
+			Logger.d(logTag, "Call cancelled message from: " + msisdn);
 			if (keepRunning == true && getClient() != null && getClient().getPhoneNumber().equals(msisdn)) {
 				Logger.w(logTag, "Hanging up call because of call cancelled message.");
 				client.hangUp();
@@ -944,21 +925,11 @@ public class VoIPService extends Service {
 	 */
 	synchronized public void stop() {
 
-//		synchronized (this) {
-//			if (keepRunning == false) {
-//				// Logger.w(logTag, "Trying to stop a stopped service?");
-//				sendHandlerMessage(VoIPConstants.MSG_SHUTDOWN_ACTIVITY);
-//				setCallid(0);
-//				return;
-//			}
-//			keepRunning = false;
-//		}
-//
 		Logger.d(logTag, "Stopping service..");
 		keepRunning = false;
 
 		for (VoIPClient client : clients.values())
-			removeClient(client);
+			client.close();
 		clients.clear();
 
 		// Reset variables
@@ -987,16 +958,19 @@ public class VoIPService extends Service {
 		
 		stopRingtone();
 		stopFromSoundPool(ringtoneStreamID);
+		releaseAudioManager();
 		
 		if (solicallAec != null) {
 			solicallAec.destroy();
 			solicallAec = null;
 		}
 
-		releaseAudioManager();
-		
 		// Empty the queues
 		recordedSamples.clear();
+		buffersToSend.clear();
+		processedRecordedSamples.clear();
+		playbackBuffersQueue.clear();
+		recordBuffer.clear();
 		
 		sendHandlerMessage(VoIPConstants.MSG_SHUTDOWN_ACTIVITY);
 		releaseWakeLock();
@@ -1107,7 +1081,6 @@ public class VoIPService extends Service {
 		}
 
 		Logger.d(logTag, "Starting audio record / playback.");
-		client.interruptResponseTimeoutThread();
 		stopRingtone();
 		stopFromSoundPool(ringtoneStreamID);
 		isRingingOutgoing = isRingingIncoming = false;
@@ -1134,7 +1107,8 @@ public class VoIPService extends Service {
 				android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
 
 				AudioRecord recorder = null;
-				minBufSizeRecording = AudioRecord.getMinBufferSize(VoIPConstants.AUDIO_SAMPLE_RATE, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT);
+				recordingSampleRate = VoIPConstants.AUDIO_SAMPLE_RATE;
+				minBufSizeRecording = AudioRecord.getMinBufferSize(recordingSampleRate, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT);
 				if (aecEnabled) {
 					// For the Solicall AEC library to work, we must record data in chunks
 					// which are a multiple of the library's supported frame size (20ms).
@@ -1325,6 +1299,20 @@ public class VoIPService extends Service {
 				android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
 				setAudioModeInCall();
 				int index = 0, size = 0;
+
+				if (android.os.Build.VERSION.SDK_INT >= 17) {
+					String rate = audioManager.getProperty(AudioManager.PROPERTY_OUTPUT_SAMPLE_RATE);
+					String framesPerBuffer = audioManager.getProperty(AudioManager.PROPERTY_OUTPUT_FRAMES_PER_BUFFER);
+					Logger.d(logTag, "Device frames/buffer:" + framesPerBuffer + ", sample rate: " + rate);
+				}
+				
+				Logger.d(logTag, "Native playback sample rate: " + AudioTrack.getNativeOutputSampleRate(AudioManager.STREAM_VOICE_CALL));
+				if (resamplerEnabled) {
+					playbackSampleRate = AudioTrack.getNativeOutputSampleRate(AudioManager.STREAM_VOICE_CALL);
+					resampler = new Resampler();
+				}
+				else
+					playbackSampleRate = VoIPConstants.AUDIO_SAMPLE_RATE;
 				minBufSizePlayback = AudioTrack.getMinBufferSize(playbackSampleRate, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT);
 				Logger.d(logTag, "AUDIOTRACK - minBufSizePlayback: " + minBufSizePlayback + ", playbackSampleRate: " + playbackSampleRate);
 			
@@ -1793,11 +1781,6 @@ public class VoIPService extends Service {
 			conference = true;
 		// Logger.d(logTag, "Conference check: " + conference);
 		return conference;
-	}
-	
-	private void removeClient(VoIPClient client) {
-		client.close();
-		clients.remove(client.getPhoneNumber());
 	}
 	
 	public boolean toggleConferencing() {

@@ -378,27 +378,6 @@ public class VoIPUtils {
 		return scd;
 	}
 	
-	@SuppressWarnings("deprecation")
-	public static String getCPUInfo() {
-	    StringBuffer sb = new StringBuffer();
-	    sb.append("abi: ").append(Build.CPU_ABI).append("\n");
-	    if (new File("/proc/cpuinfo").exists()) {
-	        try {
-	            BufferedReader br = new BufferedReader(new FileReader(new File("/proc/cpuinfo")));
-	            String aLine;
-	            while ((aLine = br.readLine()) != null) {
-	                sb.append(aLine + "\n");
-	            }
-	            if (br != null) {
-	                br.close();
-	            }
-	        } catch (IOException e) {
-	            e.printStackTrace();
-	        } 
-	    }
-	    return sb.toString();
-	}	
-	
 	public static boolean useAEC(Context context) 
 	{
 		boolean useAec = false;
