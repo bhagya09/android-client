@@ -693,7 +693,7 @@ public class HikeBitmapFactory
 		return b;
 	}
 
-	private static Bitmap createBitmap(Bitmap thumbnail, int startX, int startY, int i, int j)
+	public static Bitmap createBitmap(Bitmap thumbnail, int startX, int startY, int i, int j)
 	{
 		Bitmap b = null;
 		try
