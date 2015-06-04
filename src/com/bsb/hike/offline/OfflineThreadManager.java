@@ -89,8 +89,11 @@ public class OfflineThreadManager
 	
 	public void startSendingThreads()
 	{
-		textTransferThread.start();
-		fileTransferThread.start();
+		if (!textTransferThread.isAlive())
+			textTransferThread.start();
+		
+		if (!fileTransferThread.isAlive())
+			fileTransferThread.start();
 	}
 	
 	public void startReceivingThreads()
@@ -213,7 +216,7 @@ public class OfflineThreadManager
 					{
 						byte[] convMessageLength = new byte[4];
 						inputStream.read(convMessageLength, 0, 4);
-						offlineManager.setIsOfflineFileTransferInProgress(true);
+						offlineManager.setInOfflineFileTransferInProgress(true);
 						msgSize = OfflineUtils.byteArrayToInt(convMessageLength);
 						byte[] msgJSON = new byte[msgSize];
 						inputStream.read(msgJSON, 0, msgSize);
@@ -292,7 +295,7 @@ public class OfflineThreadManager
 						// shouldBeDisconnected = true;
 						// disconnectAfterTimeout();
 						// }
-						offlineManager.setIsOfflineFileTransferInProgress(false);
+						offlineManager.setInOfflineFileTransferInProgress(false);
 					}
 
 				}
@@ -324,7 +327,7 @@ public class OfflineThreadManager
 				{
 					fileServerSocket = new ServerSocket(PORT_FILE_TRANSFER);
 					fileReceiveSocket = fileServerSocket.accept();
-					offlineManager.setIsOfflineFileTransferInProgress(true);
+					offlineManager.setInOfflineFileTransferInProgress(true);
 					InputStream inputstream = fileReceiveSocket.getInputStream();
 					
 					while(true)
@@ -408,7 +411,7 @@ public class OfflineThreadManager
 						//	shouldBeDisconnected = true;
 						//	disconnectAfterTimeout();
 						//}
-						offlineManager.setIsOfflineFileTransferInProgress(false);
+						offlineManager.setInOfflineFileTransferInProgress(false);
 					}
 				}
 				catch(IOException e)
@@ -525,7 +528,7 @@ public class OfflineThreadManager
 
 	private boolean sendOfflineFile(FileTransferModel fileTransferModel,OutputStream outputStream)
 	{
-		offlineManager.setIsOfflineFileTransferInProgress(true);
+		offlineManager.setInOfflineFileTransferInProgress(true);
 		boolean isSent = true;
 		String fileUri =null;
 		InputStream inputStream = null;
@@ -589,7 +592,7 @@ public class OfflineThreadManager
 			e.printStackTrace();
 			return false;
 		}
-		offlineManager.setIsOfflineFileTransferInProgress(false);
+		offlineManager.setInOfflineFileTransferInProgress(false);
 		return isSent;
 				
 

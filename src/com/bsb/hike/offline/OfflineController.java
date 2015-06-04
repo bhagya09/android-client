@@ -25,26 +25,39 @@ public class OfflineController
 	private IOfflineCallbacks offlineListener = null;
 
 	OfflineManager offlineManager;
+	
+	OfflineThreadManager  offlineThreadManager;
 
 	public OfflineController(IOfflineCallbacks listener)
 	{
 		this.offlineListener = listener;
 		offlineManager = OfflineManager.getInstance();
+		offlineManager.addListener(listener);
 	}
 
-	public void startScanningWifiDirect()
+	public void startScan()
 	{
-
+		offlineManager.startScan();
 	}
 
-	public void stopScanningWifiDirect()
+	public void stopScan()
 	{
-
+		offlineManager.stopScan();
 	}
 
+	public void startWifi()
+	{
+		offlineManager.startWifi();
+	}
+	
+	public void stopWifi()
+	{
+		offlineManager.stopWifi();
+	}
+	
 	public String getConnectedDevice()
 	{
-		return null;
+		return offlineManager.getConnectedDevice();
 	}
 
 	/**
@@ -113,7 +126,7 @@ public class OfflineController
 
 	public void shutDown()
 	{
-		offlineManager.shutDown();
+		// offlineManager.shutDown();
 	}
 
 	public void sendAudio(String filePath, String msisdn)
@@ -133,15 +146,17 @@ public class OfflineController
 	
 	public void createHotspot(String msisdn)
 	{
+		offlineManager.createHotspot(msisdn);
 	}
 	
 	public void connectToHotspot(String msisdn)
 	{
+		offlineManager.connectToHotspot(msisdn);	
 	}
 	
 	public void connectAsPerMsisdn(String msisdn)
 	{
-		
+		offlineManager.connectAsPerMsisdn(msisdn);
 	}
 
 }
