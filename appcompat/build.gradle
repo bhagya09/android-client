@@ -10,11 +10,10 @@ buildscript {
 }
 
 apply plugin: 'com.android.library'
-dependencies {
-    compile 'com.android.support:support-v4:18.0.+'
-}
 android {
-
+dependencies {
+compile files('libs/android-support-v7-appcompat.jar')
+}
   lintOptions {
           abortOnError false
       }
