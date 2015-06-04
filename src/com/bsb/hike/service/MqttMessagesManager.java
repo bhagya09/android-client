@@ -2000,6 +2000,12 @@ public class MqttMessagesManager
 
 			HAManager.getInstance().sendAnalyticsData(true, true);
 		}
+		
+		if (data.optBoolean(HikeConstants.PATCH_AB))
+		{
+			boolean contactsChanged = ContactManager.getInstance().syncUpdates(context);
+			Logger.d(getClass().getSimpleName(), "contacts changed : " + contactsChanged);
+		}
 	}
 
 	private void saveStatusUpdate(JSONObject jsonObj) throws JSONException
