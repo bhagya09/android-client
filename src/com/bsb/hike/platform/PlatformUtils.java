@@ -447,14 +447,4 @@ public class PlatformUtils
 		return new ArrayList<Header>();
 	}
 
-	public static void deleteBotConversation(String msisdn)
-	{
-		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
-		if (botInfo == null)
-		{
-			return;
-		}
-		HikeMessengerApp.getPubSub().publish(HikePubSub.DELETE_THIS_CONVERSATION, botInfo);
-	}
-
 }

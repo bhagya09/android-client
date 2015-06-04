@@ -259,11 +259,13 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	{
 		if (Boolean.valueOf(isBlocked))
 		{
+			mBotInfo.setBlocked(true);
 			HikeMessengerApp.getPubSub().publish(HikePubSub.BLOCK_USER, mBotInfo.getMsisdn());
 		}
 		
 		else
 		{
+			mBotInfo.setBlocked(false);
 			HikeMessengerApp.getPubSub().publish(HikePubSub.UNBLOCK_USER, mBotInfo.getMsisdn());
 		}
 	}
