@@ -12,7 +12,7 @@
         android:layout_height="match_parent"
         android:background="@color/black"
         android:orientation="vertical"
-        android:paddingTop="0dp" >
+        android:paddingTop="@dimen/st__action_bar_default_height" >
 
         <com.jess.ui.TwoWayGridView
             android:id="@+id/gallery"

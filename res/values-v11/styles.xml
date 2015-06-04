@@ -11,5 +11,12 @@
          <item name="actionBarStyle">@style/Widget.Styled.PhotosActionBar</item>
         <item name="android:actionBarStyle">@style/Widget.Styled.PhotosActionBar</item>
     </style>
+    <style name="AppTheme.Home.PhotoEditor">
+        <item name="vpiTabPageIndicatorStyle">@style/PhotosTabPageIndicator</item>
+         <item name="actionBarStyle">@style/Widget.Styled.PhotosActionBar</item>
+        <item name="android:actionBarStyle">@style/Widget.Styled.PhotosActionBar</item>
+        <item name="windowActionBarOverlay">true</item>
+        <item name="android:windowActionBarOverlay">true</item>
+    </style>
     
 </resources>
