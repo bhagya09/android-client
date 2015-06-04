@@ -284,7 +284,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			prefileTransferTask = (PreFileTransferAsycntask) object;
 			progressDialog = ProgressDialog.show(this, null, getResources().getString(R.string.multi_file_creation));
 		}
-
+		
 		if (Intent.ACTION_SEND.equals(getIntent().getAction()) || Intent.ACTION_SENDTO.equals(getIntent().getAction())
 				|| Intent.ACTION_SEND_MULTIPLE.equals(getIntent().getAction()))
 		{

@@ -66,8 +66,6 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 
 	private EditorClickListener clickHandler;
 	
-	private String[] notSupportedImageFormat= new String[]{"gif"};
-
 	private ImageView undoButton;
 
 	private PhotoActionsFragment mPhotosActionsFragment;
@@ -131,40 +129,10 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 			return;
 		}
 		
-		String fileExtension = Utils.getFileExtension(filename);
-		
-		//Check file type
-		String fileType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension);
-		HikeFileType hikeFileType = HikeFileType.fromString(fileType, false);
-
-		if (hikeFileType.compareTo(HikeFileType.IMAGE) != 0)
+		if (HikeFileType.fromFilePath(filename, false).compareTo(HikeFileType.IMAGE) != 0)
 		{
 			onError();
 			return;
-		}
-		else if(isNotSupportedImageFormat(fileExtension))
-		{
-			Bundle bundle = new Bundle();
-			bundle.putString(HikeConstants.Extras.IMAGE_PATH, filename);
-			if(hasDelegateActivities())
-			{
-				launchNextDelegateActivity(bundle);
-				return;
-			}
-			else if(isStartedForResult())
-			{
-				Intent retIntent = new Intent();
-				retIntent.putExtras(bundle);
-				retIntent.setAction(HikeConstants.HikePhotos.PHOTOS_ACTION_CODE);
-				setResult(RESULT_OK, retIntent);
-				finish();
-				return;
-			}
-			else
-			{
-				onError();
-				return;
-			}
 		}
 		
 		beginProgress();
@@ -239,18 +207,6 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 
 		editView.setCompressionEnabled(intent.getBooleanExtra(HikeConstants.HikePhotos.EDITOR_ALLOW_COMPRESSION_KEY, true));
 
-	}
-	
-	private boolean isNotSupportedImageFormat(String formatExtension)
-	{
-		for(int i = 0;i<notSupportedImageFormat.length;i++)
-		{
-			if(notSupportedImageFormat[i].equalsIgnoreCase(formatExtension))
-			{
-				return true;
-			}
-		}
-		return false;
 	}
 	
 	private void onError()
@@ -407,12 +363,6 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 				}
 				break;
 			}
-		}
-		else if(resultCode == RESULT_CANCELED && requestCode == DELEGATION_REQUEST_CODE && isNotSupportedImageFormat(Utils.getFileExtension(filename)))
-		{
-			//The user returned from next delegate activity and picture editor does not support the file format
-			setResult(RESULT_CANCELED);
-			finish();
 		}
 	}
 
