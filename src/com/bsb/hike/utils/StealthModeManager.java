@@ -95,19 +95,20 @@ public class StealthModeManager
 	private void resetStealthToggleTimer()
 	{
 		clearScheduledStealthToggleTimer();
-		String stealthTimeOut = PreferenceManager.getDefaultSharedPreferences(HikeMessengerApp.getInstance().getApplicationContext()).getString(HikeConstants.CHANGE_STEALTH_TIMEOUT, DEFAULT_RESET_TOGGLE_TIME);
-
-		if(!stealthTimeOut.equals(NEVER_RESET_TOGGLE_TIME))
-		{
-			
-			handler.postRunnableWithDelay(toggleReset, Long.parseLong(stealthTimeOut) * 1000);
-		}
+		handler.postRunnableWithDelay(toggleReset, Long.parseLong(DEFAULT_RESET_TOGGLE_TIME) * 1000);
+//		String stealthTimeOut = PreferenceManager.getDefaultSharedPreferences(HikeMessengerApp.getInstance().getApplicationContext()).getString(
+//				HikeConstants.CHANGE_STEALTH_TIMEOUT, DEFAULT_RESET_TOGGLE_TIME);
+//		if (!stealthTimeOut.equals(NEVER_RESET_TOGGLE_TIME))
+//		{
+//			handler.postRunnableWithDelay(toggleReset, Long.parseLong(stealthTimeOut) * 1000);
+//		}
 	}
 
 	private void clearScheduledStealthToggleTimer()
 	{
-		stealthFakeOn();
+//		stealthFakeOn();
 		handler.removeRunnable(toggleReset);
+//		HikeMessengerApp.getPubSub().publish(HikePubSub.CLOSE_CURRENT_STEALTH_CHAT, true);
 	}
 
 	private Runnable toggleReset = new Runnable()
@@ -116,14 +117,16 @@ public class StealthModeManager
 		@Override
 		public void run()
 		{
-			if(isActive() || isStealthFakeOn())
-			{
-				activate(false);
-			}
+			activate(false);
 			HikeMessengerApp.getPubSub().publish(HikePubSub.CLOSE_CURRENT_STEALTH_CHAT, true);
+
+//			 if(isActive() || isStealthFakeOn())
+//			 {
+//				activate(false);
+//			 }
 		}
 	};
-	
+
 	public boolean isSetUp()
 	{
 		return HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STEALTH_MODE_SETUP_DONE, false);
@@ -141,6 +144,7 @@ public class StealthModeManager
 		{
 			metadata.put(HikeConstants.EVENT_TYPE, AnalyticsConstants.StealthEvents.STEALTH);
 			metadata.put(HikeConstants.EVENT_KEY, AnalyticsConstants.StealthEvents.STEALTH_SETUP);
+			metadata.put(HikeMessengerApp.STEALTH_PIN_AS_PASSWORD, isPinAsPassword());
 			metadata.put(AnalyticsConstants.StealthEvents.STEALTH_SETUP, isSetUp);
 		} catch (JSONException e)
 		{
@@ -384,7 +388,8 @@ public class StealthModeManager
 			metadata.put(HikeConstants.EVENT_TYPE, AnalyticsConstants.StealthEvents.STEALTH);
 			metadata.put(HikeConstants.EVENT_KEY, AnalyticsConstants.StealthEvents.STEALTH_CONV_MARK);
 			metadata.put(AnalyticsConstants.StealthEvents.STEALTH_CONV_MARK, markStealth);
-			metadata.put(hidingStyleAnalytics, !(activity instanceof ChatThreadActivity));
+			metadata.put(HikeConstants.KEY, hidingStyleAnalytics);
+			metadata.put(HikeConstants.VALUE, !(activity instanceof ChatThreadActivity));
 			metadata.put(HikeConstants.STEALTH_MSISDN, msisdn);
 		} catch (JSONException e)
 		{

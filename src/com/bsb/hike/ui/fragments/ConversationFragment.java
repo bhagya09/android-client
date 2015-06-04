@@ -204,8 +204,6 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		}
 	};
 	View parent;
-	
-	private static final int CHAT_THREAD_ACTIVITY = 401;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -1411,12 +1409,18 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 						public void positiveClicked(HikeDialog hikeDialog)
 						{
 							Utils.logEvent(getActivity(), HikeConstants.LogEvent.DELETE_CONVERSATION);
-							HikeMessengerApp.getPubSub().publish(HikePubSub.DELETE_THIS_CONVERSATION, conv);
+
 							hikeDialog.dismiss();
 							
 							if (BotUtils.isBot(conv.getMsisdn()))
 							{
+								BotUtils.deleteBotConversation(conv.getMsisdn(), false);
 								BotConversation.analyticsForBots(conv, HikePlatformConstants.BOT_DELETE_CHAT, AnalyticsConstants.CLICK_EVENT);
+							}
+
+							else
+							{
+								HikeMessengerApp.getPubSub().publish(HikePubSub.DELETE_THIS_CONVERSATION, conv);
 							}
 						}
 						
@@ -1469,6 +1473,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 						public void positiveClicked(HikeDialog hikeDialog)
 						{
 							Utils.logEvent(getActivity(), HikeConstants.LogEvent.DELETE_CONVERSATION);
+							HikeMqttManagerNew.getInstance().sendMessage(conv.serialize(HikeConstants.MqttMessageTypes.GROUP_CHAT_LEAVE), MqttConstants.MQTT_QOS_ONE);
 							HikeMessengerApp.getPubSub().publish(HikePubSub.DELETE_THIS_CONVERSATION, conv);
 							hikeDialog.dismiss();
 						}
@@ -1600,7 +1605,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 					HikeMessengerApp.getPubSub().publish(HikePubSub.BLOCK_USER, conv.getMsisdn());
 					BotConversation.analyticsForBots(conv, HikePlatformConstants.BOT_DELETE_BLOCK_CHAT, AnalyticsConstants.CLICK_EVENT);
 				}
-				PlatformUtils.deleteBotConversation(conv.getMsisdn());
+				BotUtils.deleteBotConversation(conv.getMsisdn() , false);
 
 				hikeDialog.dismiss();
 			}
@@ -3001,6 +3006,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		JSONObject metadata = new JSONObject();
 		try
 		{
+			metadata.put(HikeConstants.EVENT_TYPE, AnalyticsConstants.StealthEvents.STEALTH);
 			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.MqttMessageTypes.TIP);
 			metadata.put(AnalyticsConstants.StealthEvents.TIP_SHOW, whichType);
 		} catch (JSONException e)
@@ -3495,6 +3501,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		JSONObject metadata = new JSONObject();
 		try
 		{
+			metadata.put(HikeConstants.EVENT_TYPE, AnalyticsConstants.StealthEvents.STEALTH);
 			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.MqttMessageTypes.TIP);
 			metadata.put(AnalyticsConstants.StealthEvents.TIP_HIDE, whichTip);
 		} catch (JSONException e)
@@ -3582,6 +3589,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 			JSONObject metadata = new JSONObject();
 			try
 			{
+				metadata.put(HikeConstants.EVENT_TYPE, AnalyticsConstants.StealthEvents.STEALTH);
 				metadata.put(HikeConstants.EVENT_KEY, HikeConstants.MqttMessageTypes.TIP);
 				metadata.put(AnalyticsConstants.StealthEvents.TIP_REMOVE, whichTip);
 			} catch (JSONException e)
