@@ -27,6 +27,7 @@ import android.widget.Toast;
 
 import android.support.v4.view.WindowCompat;
 import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import com.bsb.hike.HikeConstants;
@@ -108,8 +109,8 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity im
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
-		super.onCreate(savedInstanceState);
 		requestWindowFeature(WindowCompat.FEATURE_ACTION_BAR_OVERLAY);
+		super.onCreate(savedInstanceState);
 		setContentView(R.layout.gallery);
 
 		selectedSharedFileItems = new HashSet<Long>();
