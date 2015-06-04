@@ -5,8 +5,6 @@ import static com.bsb.hike.offline.OfflineConstants.PORT_FILE_TRANSFER;
 import static com.bsb.hike.offline.OfflineConstants.PORT_TEXT_MESSAGE;
 import static com.bsb.hike.offline.OfflineConstants.SOCKET_TIMEOUT;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -14,21 +12,18 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.os.Environment;
-import android.support.v4.util.Pair;
-import android.text.TextUtils;
+import android.util.Pair;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -88,22 +83,43 @@ public class OfflineThreadManager
 		fileTransferQueue = OfflineManager.getInstance().getFileTransferQueue();
 		textTransferThread = new TextTransferThread();
 		fileTransferThread = new FileTransferThread();
+		textReceiveThread=new TextReceiveThread();
+		fileReceiverThread=new FileReceiverThread();
 		offlineManager = OfflineManager.getInstance();
 	}
 	
 	public void startSendingThread()
 	{
-		if (!textTransferThread.isAlive())
+		if(textTransferThread.isAlive())
+		textTransferThread.interrupt();
+		{
+			textTransferThread=new TextTransferThread();
 			textTransferThread.start();
+		}
 		
-		if (!fileTransferThread.isAlive())
+		if(fileTransferThread.isAlive())
+		fileTransferThread.interrupt();
+		{
+			fileTransferThread=new FileTransferThread();
 			fileTransferThread.start();
+		}
+		
 	}
 	
 	public void startReceivingThread()
 	{
-		textReceiveThread.start();
-		fileReceiverThread.start();
+		if(textReceiveThread.isAlive())
+		textReceiveThread.interrupt();
+		{
+			textReceiveThread=new TextReceiveThread();
+			textReceiveThread.start();
+		}
+		if(fileReceiverThread.isAlive())
+		fileReceiverThread.interrupt();
+		{
+			fileReceiverThread=new FileReceiverThread();
+			fileReceiverThread.start();
+		}
 	}
 	
 	
@@ -114,14 +130,18 @@ public class OfflineThreadManager
 		boolean val;
 		@Override
 		public void run() {
-			try
+			while(true)
 			{
-				String host=null;
-				if(!textSendSocket.isBound())
+				try
 				{
+
+					String host=null;
+					Logger.d(TAG,"Text Transfer Thread -->"+"Going to connect to socket");
+
+					textSendSocket=new Socket();
 					if(offlineManager.isHotspotCreated())
 					{
-						 host = OfflineUtils.getIPFromMac(null);
+						host = OfflineUtils.getIPFromMac(null);
 					}
 					else
 					{
@@ -129,29 +149,37 @@ public class OfflineThreadManager
 					}
 					textSendSocket.bind(null);
 					textSendSocket.connect((new InetSocketAddress(host, PORT_TEXT_MESSAGE)), SOCKET_TIMEOUT);
-				}
+					Logger.d(TAG,"Text Transfer Thread Connected");
 				
-				while(((packet = textMessageQueue.take()) != null))
-				{
+					packet = OfflineManager.getInstance().getTextQueue().take();
+					{
 						//TODO : Send Offline Text and take action on the basis of boolean  i.e. clock or single tick
+						Logger.d("OfflineThreadManager","Going to send Text");	
 						val = sendOfflineText(packet,textSendSocket.getOutputStream());
+					}
 				}
-			} 
-			catch (InterruptedException e) {
-				Logger.e(TAG,"Some called interrupt on File transfer Thread");
-				e.printStackTrace();
+
+				catch (InterruptedException e) {
+					Logger.e(TAG,"Some called interrupt on File transfer Thread");
+					e.printStackTrace();
+				}
+				catch(SocketTimeoutException e)
+				{
+					Logger.e(TAG, "SOCKET time out exception occured");
+					e.printStackTrace();
+				}
+				catch(IOException e)
+				{
+					e.printStackTrace();
+					Logger.e(TAG, "IO Exception occured.Socket was not bounded");
+				}
+				catch(IllegalArgumentException e)
+				{
+					e.printStackTrace();
+					Logger.e(TAG,"Did we pass correct Address here ? ?");
+				}
 			}
-			catch(IOException e)
-			{
-				e.printStackTrace();
-				Logger.e(TAG, "IO Exception occured.Socket was not bounded");
-			}
-			catch(IllegalArgumentException e)
-			{
-				e.printStackTrace();
-				Logger.e(TAG,"Did we pass correct Address here ? ?");
-			}
-		}
+		} 
 	}
 	
 	
@@ -164,8 +192,8 @@ public class OfflineThreadManager
 		public void run() {
 			try 
 			{
-				if(!fileSendSocket.isBound())
-				{
+				Logger.d(TAG,"File Transfer Thread -->"+"Going to connect to socket");
+				fileSendSocket=new Socket();
 					if(offlineManager.isHotspotCreated())
 					{
 						 host = OfflineUtils.getIPFromMac(null);
@@ -174,9 +202,9 @@ public class OfflineThreadManager
 					{
 						host = IP_SERVER;
 					}
+					Logger.d(TAG,"host is "+host);
 					fileSendSocket.bind(null);
 					fileSendSocket.connect(new InetSocketAddress(host, PORT_FILE_TRANSFER));
-				}
 				
 				while(((fileTranserObject = fileTransferQueue.take()) != null))
 				{
@@ -214,18 +242,21 @@ public class OfflineThreadManager
 		@Override
 		public void run()
 		{
-			if (!textServerSocket.isBound())
-			{
 				try
 				{
 					textServerSocket = new ServerSocket(PORT_TEXT_MESSAGE);
+					Logger.d(TAG,"TextReceiveThread" + "Will be waiting on accept");
 					textReceiverSocket = textServerSocket.accept();
+					Logger.d(TAG,"TextReceiveThread" + "Connection successfull");
 					inputStream=textReceiverSocket.getInputStream();
 					while(true)
 					{
 						byte[] convMessageLength = new byte[4];
-						inputStream.read(convMessageLength, 0, 4);
+						inputStream.read(convMessageLength, 0, 100);
 						msgSize = OfflineUtils.byteArrayToInt(convMessageLength);
+						Logger.d(TAG,"Msg size is "+msgSize);
+						if(msgSize==0)
+							continue;
 						byte[] msgJSON = new byte[msgSize];
 						inputStream.read(msgJSON, 0, msgSize);
 						String msgString = new String(msgJSON, "utf-8");
@@ -293,7 +324,6 @@ public class OfflineThreadManager
 						// }
 						offlineManager.setIsOfflineFileTransferInProgress(false);
 					}
-
 				}
 				catch (IOException e)
 				{
@@ -309,7 +339,6 @@ public class OfflineThreadManager
 				{
 					e.printStackTrace();
 				}
-			}
 		}
 	}	
 	class FileReceiverThread extends Thread
@@ -317,8 +346,6 @@ public class OfflineThreadManager
 		@Override
 		public void run()
 		{
-			if (!fileServerSocket.isBound())
-			{
 				try
 				{
 					fileServerSocket = new ServerSocket(PORT_FILE_TRANSFER);
@@ -412,8 +439,6 @@ public class OfflineThreadManager
 					e.printStackTrace();
 					Logger.e(TAG,"Did we pass correct Address here ? ?");
 				}
-				
-			}
 		}
 	}
 	
@@ -483,6 +508,7 @@ public class OfflineThreadManager
 				}
 				catch (IOException e)
 				{
+					Logger.d(TAG,"IO Exception in sendOfflineText");
 					e.printStackTrace();
 					return false;
 				}
@@ -505,6 +531,7 @@ public class OfflineThreadManager
 				}
 				Pair<String, Long> pair = new Pair<String, Long>(msisdn, msgId);
 				HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_DELIVERED, pair);
+				Logger.d(TAG,"Message Send Successfully");
 			}
 			catch (JSONException e)
 			{

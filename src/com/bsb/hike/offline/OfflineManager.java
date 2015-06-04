@@ -1,14 +1,11 @@
 package com.bsb.hike.offline;
-import static com.bsb.hike.offline.OfflineConstants.IP_SERVER;
-
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.sql.Connection;
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -18,6 +15,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
+import android.content.IntentFilter;
+import android.net.wifi.ScanResult;
+import android.net.wifi.WifiManager;
+import android.net.wifi.p2p.WifiP2pDeviceList;
+import android.net.wifi.p2p.WifiP2pManager;
+import android.net.wifi.p2p.WifiP2pManager.PeerListListener;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Pair;
@@ -34,16 +37,6 @@ import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.utils.Logger;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
-
-import android.net.wifi.ScanResult;
-import android.net.wifi.p2p.WifiP2pDeviceList;
-import android.net.wifi.p2p.WifiP2pManager.PeerListListener;
 
 
 /**
@@ -87,6 +80,8 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 	private boolean isConnectedToHotspot= false;
 	
 	private int tryGetScanResults = 0;
+	
+	OfflineBroadCastReceiver receiver;
 
 	Handler handler =new Handler(HikeHandlerUtil.getInstance().getLooper())
 	{
@@ -134,6 +129,7 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 			break;
 		case OfflineConstants.HandlerConstants.CONNECT_TO_HOTSPOT:
 			isConnectedToHotspot= connectionManager.connectToNetwork((String)msg.obj);
+			Logger.d("OfflineManager","isConnectedToHotspot "+isConnectedToHotspot);
 			if(!isConnectedToHotspot)
 			{
 				Message retryMsg = Message.obtain();
@@ -156,6 +152,7 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 	private void saveToDb(ConvMessage convMessage)
 	{
 		HikeConversationsDatabase.getInstance().addConversationMessages(convMessage,true);
+		addToTextQueue(convMessage.serialize());
 	}
 
 	public void performWorkOnBackEndThread(Message msg)
@@ -175,6 +172,7 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 		threadManager = OfflineThreadManager.getInstance();
 		listeners = new ArrayList<IOfflineCallbacks>();
 		setDeviceNameAsMsisdn();
+		receiver=new OfflineBroadCastReceiver(this);
 	}
 
 	private void setDeviceNameAsMsisdn() {
@@ -187,12 +185,26 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 
 	public synchronized void addToTextQueue(JSONObject message)
 	{
-		textMessageQueue.add(message);
+		try
+		{
+			textMessageQueue.put(message);
+		}
+		catch (InterruptedException e)
+		{
+			e.printStackTrace();
+		}
 	}
 
 	public synchronized void addToFileQueue(FileTransferModel fileTransferObject)
 	{
-		fileTransferQueue.add(fileTransferObject);
+		try
+		{
+			fileTransferQueue.put(fileTransferObject);
+		}
+		catch (InterruptedException e)
+		{
+			e.printStackTrace();
+		}
 	}
 
 	@Override
@@ -447,12 +459,30 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 	public void addListener(IOfflineCallbacks listener) {
 		if(listener==null)
 			return;
+		
+		
 		listeners.add(listener);
+		
+		if(listeners.size()==1)
+		{
+			IntentFilter intentFilter = new IntentFilter();
+			addIntentFilters(intentFilter);
+			context.registerReceiver(receiver,intentFilter);
+		}
+	}
+
+	private void addIntentFilters(IntentFilter intentFilter)
+	{
+			intentFilter.addAction(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION);
+	        intentFilter.addAction(WifiP2pManager.WIFI_P2P_DISCOVERY_CHANGED_ACTION);
+	        intentFilter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
+	        intentFilter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);		
 	}
 
 	@Override
 	public void checkConnectedNetwork() {
 		String offlineNetworkMsisdn = connectionManager.getConnectedHikeNetworkMsisdn();
+		Logger.d("OfflineManager","checkConnectedNetwork");
 		if(offlineNetworkMsisdn!=null)
 		{
 			onConnected(offlineNetworkMsisdn);
@@ -461,9 +491,12 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 
 	public void onConnected(String connectedMsisdn)
 	{
+		Logger.d("OfflineManager","onConnected() called");
 		connectedDevice = connectedMsisdn;
 		removeMessage(OfflineConstants.HandlerConstants.DISCONNECT_AFTER_TIMEOUT);
-
+		removeMessage(OfflineConstants.HandlerConstants.CONNECT_TO_HOTSPOT);
+		threadManager.startReceivingThread();
+		threadManager.startSendingThread();
 		for(IOfflineCallbacks  offlineListener : listeners)
 		{
 			offlineListener.connectedToMsisdn(connectedDevice);
@@ -499,12 +532,12 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 
 	public void createHotspot(final String msisdn)
 	{
-		threadManager.startReceivingThread();
 		Message msg = Message.obtain();
 		msg.what = OfflineConstants.HandlerConstants.CREATE_HOTSPOT;
 		msg.obj = msisdn;
 		performWorkOnBackEndThread(msg);
-		waitForConnection(msisdn);
+		threadManager.startReceivingThread();
+		//waitForConnection(msisdn);
 	}
 
 	private void waitForConnection(String msisdn) 
@@ -527,12 +560,12 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 		String myMsisdn = OfflineUtils.getMyMsisdn();
 		if(myMsisdn.compareTo(msisdn)>0)
 		{
+			Logger.d(TAG,"Will create Hotspot");
 			createHotspot(msisdn);
 		}
 		else
 		{
-			threadManager.startReceivingThread();
-			threadManager.startSendingThread();
+			Logger.d(TAG,"Will connect to  Hotspot");
 			Message msg = Message.obtain();
 			msg.what = OfflineConstants.HandlerConstants.CONNECT_TO_HOTSPOT;
 			msg.obj = msisdn;
