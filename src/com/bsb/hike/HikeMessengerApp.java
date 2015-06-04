@@ -38,7 +38,6 @@ import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.db.DbConversationListener;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.db.HikeMqttPersistence;
-import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.HttpManager;
@@ -854,6 +853,8 @@ public void onTrimMemory(int level)
 		 */
 		StealthModeManager.getInstance().initiate();
 
+		StickerManager.getInstance().cachingStickersOnStart();
+		
 		appStateHandler = new Handler();
 
 		HikeMessengerApp.getPubSub().addListener(HikePubSub.CONNECTED_TO_MQTT, this);
