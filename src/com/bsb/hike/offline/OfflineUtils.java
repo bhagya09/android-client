@@ -16,10 +16,13 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.ConvMessage.State;
 import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.models.MessageMetadata;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.StickerManager;
+import com.bsb.hike.utils.Utils;
 
 /**
  * 
@@ -145,7 +148,7 @@ public class OfflineUtils
 		return (bytes[0] & 0xFF) << 24 | (bytes[1] & 0xFF) << 16 | (bytes[2] & 0xFF) << 8 | (bytes[3] & 0xFF);
 	}
 
-	public static String getStickerPath(Sticker sticker)
+	public static  String getStickerPath(Sticker sticker)
 	{
 
 		String rootPath = StickerManager.getInstance().getStickerDirectoryForCategoryId(sticker.getCategoryId());
@@ -160,8 +163,8 @@ public class OfflineUtils
 	{
 		return (message.has(HikeConstants.TYPE) && message.getString(HikeConstants.TYPE).equals(HikeConstants.CHAT_BACKGROUND));
 	}
-	
-	public static String getFileBasedOnType(int type,String fileName)
+
+	public static  String getFileBasedOnType(int type,String fileName)
 	{
 		StringBuilder storagePath = new StringBuilder(HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT);
 		if(type==HikeFileType.OTHER.ordinal())
@@ -222,6 +225,7 @@ public class OfflineUtils
 			return true;
 		return false;
 	}
+
 	// caeser cipher
 	public static String encodeSsid(String ssid)
 	{
@@ -280,6 +284,29 @@ public class OfflineUtils
 			result += Integer.toString( ( b[i] & 0xff ) + 0x100, 16).substring(1);
 		}
 		return result;
+	}
+	
+	public static String createOfflineMsisdn(String msisdn)
+	{
+		return new StringBuilder("o:").append(msisdn).toString();
+	}
+
+	public static ConvMessage createOfflineInlineConvMessage(String msisdn,String message,String type)
+	{
+		ConvMessage convMessage = Utils.makeConvMessage(msisdn, message, true, State.RECEIVED_READ);
+		convMessage.setIsOfflineMessage(true);
+		try
+		{
+			JSONObject metaData = new JSONObject();
+			metaData.put(HikeConstants.TYPE, type);
+			convMessage.setMetadata(new MessageMetadata(metaData.toString(), false));
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+		return convMessage;
+
 	}
 
 	public static String getconnectedDevice(String ssid) {

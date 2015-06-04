@@ -22,6 +22,11 @@ public class OfflineConversation extends OneToOneConversation
 	{
 		return convInfo.getDisplayMsisdn();
 	}
+	
+	public String getLabel()
+	{
+		return convInfo.getLabel();
+	}
 
 	protected static abstract class InitBuilder<P extends InitBuilder<P>> extends OneToOneConversation.InitBuilder<P>
 	{

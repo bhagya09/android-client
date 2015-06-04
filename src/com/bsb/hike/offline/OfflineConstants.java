@@ -37,18 +37,24 @@ public class OfflineConstants
 	public static final String EXTRAS_APK_NAME = "apkName";
 	
 	public static final String IS_OFFLINE_MESSAGE = "is_offline_message";
+
+	public static final String START_CONNECT_FUNCTION = "startConnectFunction";
+
+	public static final String OFFLINE_MESSAGE_CONNECTED_TYPE = "offmsgconn";
+	
+	public static final String OFFLINE_MESSAGE_DISCONNECTED_TYPE = "offmsgdis";
 	
 	public static final int  WAITING_TIMEOUT = 60000;
 
 	public static final long TIME_TO_CONNECT = 30000;
-	
-	public static final int  GHOST_PACKET_SEND_TIME = 10*1000;
-	
-	public static final int  GHOST_PACKET_DISCONNECT_TIMEOUT = 20*1000;
 
 	public static final long TRY_CONNECT_TO_HOTSPOT = 3000;
 
 	public static final int MAXTRIES_FOR_SCAN_RESULTS = 3;
+		
+	public static final int  GHOST_PACKET_SEND_TIME = 10*1000;
+	
+	public static final int  GHOST_PACKET_DISCONNECT_TIMEOUT = 20*1000;
 	
 	public final class HandlerConstants
 	{
@@ -60,5 +66,11 @@ public class OfflineConstants
 		public static final int START_SCAN = -106;
 		public static final int STOP_SCAN = -107;
 		public static final int SEND_GHOST_PACKET = -108;
+
+	}
+	
+	public static enum ERRORCODE
+	{
+		TIMEOUT,USERDISCONNECTED,OUT_OF_RANGE
 	}
 }

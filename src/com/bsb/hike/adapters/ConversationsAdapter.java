@@ -50,6 +50,7 @@ import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.MessageMetadata;
 import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.models.Conversation.ConvInfo;
+import com.bsb.hike.models.Conversation.OfflineConvInfo;
 import com.bsb.hike.models.Conversation.OneToNConvInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.smartImageLoader.IconLoader;
@@ -212,8 +213,9 @@ public class ConversationsAdapter extends BaseAdapter
 			viewHolder = (ViewHolder) v.getTag();
 		}
 
+		
 		viewHolder.msisdn = convInfo.getMsisdn();
-
+		
 		updateViewsRelatedToName(v, convInfo);
 
 		if (itemToBeAnimated(convInfo))
@@ -546,7 +548,15 @@ public class ConversationsAdapter extends BaseAdapter
 		}
 
 		TextView contactView = viewHolder.headerText;
-		String name = convInfo.getLabel();
+		String name="";
+		if(convInfo instanceof OfflineConvInfo)
+		{
+			name = ((OfflineConvInfo) convInfo).getLabel();
+		}
+		else
+		{
+			name = convInfo.getLabel();
+		}Logger.d("OfflineManager",name+"");
 		Integer startSpanIndex = convSpanStartIndexes.get(convInfo.getMsisdn());
 		if(isSearchModeOn && startSpanIndex!=null)
 		{
@@ -778,6 +788,14 @@ public class ConversationsAdapter extends BaseAdapter
 
 				unreadIndicator.setText(convInfo.getUnreadCountString());
 			}
+			// Using this to differentiate the normal chat and Offline Chat
+			//TODO:set Offline asset here
+			if(convInfo instanceof OfflineConvInfo)
+			{
+				imgStatus.setVisibility(View.VISIBLE);
+				//imgStatus.setImageBitmap(NUXManager.getInstance().getNuxChatRewardPojo().getPendingChatIcon());
+				messageView.setText(context.getResources().getString(R.string.connection_established));	
+			}
 			if(isNuxLocked)
 			{ 
 				imgStatus.setVisibility(View.VISIBLE);
@@ -785,11 +803,13 @@ public class ConversationsAdapter extends BaseAdapter
 				messageView.setText(NUXManager.getInstance().getNuxChatRewardPojo().getChatWaitingText());		
 			}
 			
+			
 			RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) messageView.getLayoutParams();
 			lp.setMargins(0, lp.topMargin, lp.rightMargin, lp.bottomMargin);
 			messageView.setLayoutParams(lp);
 		}
 
+		
 		if (message.getState() == ConvMessage.State.RECEIVED_UNREAD || isNuxLocked)
 		{
 			/* set NUX waiting or unread messages to BLUE */
@@ -799,6 +819,7 @@ public class ConversationsAdapter extends BaseAdapter
 		{
 			messageView.setTextColor(context.getResources().getColor(R.color.list_item_header));
 		}
+		
 	}
 
 	private CharSequence getConversationText(ConvInfo convInfo, ConvMessage message)

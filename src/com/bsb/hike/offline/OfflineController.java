@@ -71,7 +71,7 @@ public class OfflineController
 		msg.what = OfflineConstants.HandlerConstants.SAVE_MSG_DB;
 		msg.obj = convMessage;
 		offlineManager.performWorkOnBackEndThread(msg);
-		offlineManager.addToTextQueue(convMessage.serialize());
+		//offlineManager.addToTextQueue(convMessage.serialize());
 	}
 
 	public void sendAudioFile(String filePath, long duration, String msisdn)
