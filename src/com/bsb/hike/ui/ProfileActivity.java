@@ -1599,6 +1599,9 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		{
 			return;
 		}
+		if(showingGroupEdit){
+			Utils.hideSoftKeyboard(getApplicationContext(), mNameEdit);
+		}
 		
 		ImageViewerInfo imageViewerInfo = (ImageViewerInfo) v.getTag();
 
