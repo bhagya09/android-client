@@ -242,14 +242,8 @@ public class OfflineThreadManager
 						}
 						else if (OfflineUtils.isGhostPacket(messageJSON))
 						{
-							// ghost packet received reschedule the disconnect
-							// timer for another cycle
-							// type = GHOST_PACKET;
-							// Logger.d(TAG, "Ghost Packet received");
-							// messageJSON.put(HikeConstants.FROM, connectedDevice);
-							// messageJSON.remove(HikeConstants.TO);
-							// removeRunnable(ghostPacketDisconnect);
-							// mThread.postRunnableWithDelay(ghostPacketDisconnect, ghostPacketReceiveTimeout);
+							Logger.d(TAG, "Ghost Packet received");
+							offlineManager.restartGhostTimeout();
 						}
 						else
 						{
@@ -493,10 +487,12 @@ public class OfflineThreadManager
 				byte[] intToBArray = OfflineUtils.intToByteArray(length);
 				outputStream.write(intToBArray, 0, intToBArray.length);
 				outputStream.write(messageBytes,0, length);
+				isSent = true;
 			}
 			catch (IOException e) 
 			{
 				e.printStackTrace();
+				return false;
 			}
 
 		}

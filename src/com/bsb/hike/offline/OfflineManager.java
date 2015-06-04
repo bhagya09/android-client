@@ -119,10 +119,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 			isConnectedToHotspot = connectionManager.connectToNetwork((String)msg.obj);
 			if(!isConnectedToHotspot)
 			{
-				Message retryMsg = Message.obtain();
-				retryMsg.what = OfflineConstants.HandlerConstants.CONNECT_TO_HOTSPOT;
-				retryMsg.obj = (String)msg.obj;
-				handler.sendMessageDelayed(retryMsg,OfflineConstants.TRY_CONNECT_TO_HOTSPOT);
+				handler.sendMessageDelayed(msg, OfflineConstants.TRY_CONNECT_TO_HOTSPOT);
 			}
 			break;
 		case OfflineConstants.HandlerConstants.REMOVE_CONNECT_MESSAGE:
@@ -170,6 +167,8 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 		connectionManager.setDeviceNameAsMsisdn();
 	}
 	public void disconnect(String msisdn) {
+		// Since disconnect is called, stop sending ghost packets
+		removeMessage(OfflineConstants.HandlerConstants.SEND_GHOST_PACKET);
 		connectionManager.disconnect(msisdn);
 	}
 
@@ -423,9 +422,9 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 			offlineListener.connectedToMsisdn(connectedDevice);
 		}
 
-		// post runnable for ghost packet
+		// send ghost packet and post disconnect for timeout
 		startSendingGhostPackets(connectedMsisdn);
-		postDisconnectForGhostPackets();
+		postDisconnectForGhostPackets(connectedMsisdn);
 	}
 	
 	private void startSendingGhostPackets(String msisdn)
@@ -442,9 +441,18 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 		addToTextQueue(ghost);
 	}
 	
-	private void postDisconnectForGhostPackets()
+	private void postDisconnectForGhostPackets(String msisdn)
 	{
-		
+		Message msg = Message.obtain();
+		msg.what = OfflineConstants.HandlerConstants.DISCONNECT_AFTER_TIMEOUT;
+		msg.obj = msisdn;
+		handler.sendMessageDelayed(msg,OfflineConstants.GHOST_PACKET_DISCONNECT_TIMEOUT);
+	}
+	
+	public void restartGhostTimeout()
+	{
+		removeMessage(OfflineConstants.HandlerConstants.DISCONNECT_AFTER_TIMEOUT);
+		postDisconnectForGhostPackets(connectedDevice);
 	}
 
 	public void removeMessage(int msg)
