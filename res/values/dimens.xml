@@ -131,6 +131,7 @@
     <dimen name="alp_42447968_separator_size">1dp</dimen>
 	<dimen name="app_logo_margin_right">20dp</dimen>
 	<dimen name="app_logo_home_screen_right">13.3dp</dimen>
+	<dimen name="app_logo_home_screen_margin_left">20dp</dimen>
 	<dimen name="stealth_pop_img_margin_left">40dp</dimen>
 	<dimen name="stealth_pop_img_margin_right">40dp</dimen>
 	<dimen name="chat_thread_margin_top">46.5dp</dimen>	
