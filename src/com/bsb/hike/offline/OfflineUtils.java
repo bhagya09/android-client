@@ -4,19 +4,22 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.nio.channels.OverlappingFileLockException;
+import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.bsb.hike.HikeConstants;
-import com.bsb.hike.R;
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
-import com.bsb.hike.models.MessageMetadata;
 import com.bsb.hike.models.ConvMessage.State;
 import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.models.MessageMetadata;
 import com.bsb.hike.models.Sticker;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
@@ -33,8 +36,10 @@ public class OfflineUtils
 
 	// Fix for Spice , Micromax , Xiomi
 	private final static String p2pIntOther = "ap0";
-	
-	
+
+	private final static String ALPHABET = "+a0bc9de1fg2h_ij8kl7mn6op3qr4st5uv6wxyz";
+
+	private final static int shiftKey = 10;
 
 	public static String getIPFromMac(String MAC)
 	{
@@ -91,18 +96,18 @@ public class OfflineUtils
 		}
 		return false;
 	}
-	
+
 	public static byte[] intToByteArray(int i)
 	{
 		byte[] result = new byte[4];
-		
+
 		result[0] = (byte) (i >> 24);
 		result[1] = (byte) (i >> 16);
 		result[2] = (byte) (i >> 8);
 		result[3] = (byte) (i /*>> 0*/);
 		return result;
 	}
-	
+
 	public static boolean isGhostPacket(JSONObject packet)
 	{
 
@@ -127,14 +132,14 @@ public class OfflineUtils
 
 	public static int getTotalChunks(int fileSize)
 	{
-		 return fileSize/1024 + ((fileSize%1024!=0)?1:0);
+		return fileSize/1024 + ((fileSize%1024!=0)?1:0);
 	}
-	
+
 	public static int byteArrayToInt(byte[] bytes)
 	{
 		return (bytes[0] & 0xFF) << 24 | (bytes[1] & 0xFF) << 16 | (bytes[2] & 0xFF) << 8 | (bytes[3] & 0xFF);
 	}
-	
+
 	public static  String getStickerPath(Sticker sticker)
 	{
 
@@ -145,12 +150,12 @@ public class OfflineUtils
 		}
 		return rootPath + HikeConstants.LARGE_STICKER_ROOT + "/" + sticker.getStickerId();
 	}
-	
+
 	public static boolean isChatThemeMessage(JSONObject message) throws JSONException
 	{
 		return (message.has(HikeConstants.TYPE) && message.getString(HikeConstants.TYPE).equals(HikeConstants.CHAT_BACKGROUND));
 	}
-	
+
 	public static  String getFileBasedOnType(int type,String fileName)
 	{
 		StringBuilder storagePath = new StringBuilder(HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT);
@@ -200,7 +205,7 @@ public class OfflineUtils
 
 		return false;
 	}
-	
+
 	public static String createPingPacket()
 	{
 		JSONObject object=new JSONObject();
@@ -235,5 +240,90 @@ public class OfflineUtils
 			e.printStackTrace();
 		}
 		return convMessage;
+
 	}
+
+	public static boolean isOfflineSsid(String ssid) {
+		String decodedSSID = decodeSsid(ssid.substring(1, ssid.length()-2));
+		if(decodedSSID.startsWith("h_"))
+			return true;
+		return false;
+	}
+	// caeser cipher
+	public static String encodeSsid(String ssid)
+	{
+		String cipherText="";
+		for(int i=0;i<ssid.length();i++)
+		{
+			int charPosition = ALPHABET.indexOf(ssid.charAt(i));
+			int keyVal = (shiftKey+charPosition)%(ALPHABET.length());
+			char replaceVal = ALPHABET.charAt(keyVal);
+			cipherText += replaceVal;
+		}
+		return cipherText;
+	}
+
+	// decrypt caeser cipher
+	public static String decodeSsid(String cipherText)
+	{
+		String plainText="";
+		for(int i=0;i<cipherText.length();i++)
+		{
+			int charPosition = ALPHABET.indexOf(cipherText.charAt(i));
+			int keyVal = (charPosition-shiftKey)%(ALPHABET.length());
+			if(keyVal<0)
+			{
+				keyVal = ALPHABET.length() + keyVal;
+			}
+			char replaceVal = ALPHABET.charAt(keyVal);
+			plainText += replaceVal;
+		}
+		return plainText;
+	}
+
+	public static  String generatePassword(String ssid)
+	{
+		String passkey  =  new StringBuffer(ssid).reverse().toString();
+		MessageDigest md = null;
+		String pass = "";
+		try {
+			md = MessageDigest.getInstance("SHA-1");
+		}
+		catch(NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		} 
+		try {
+			pass = byteArrayToHexString(md.digest(passkey.getBytes("UTF-8")));
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		return pass;
+	}
+
+	private static String byteArrayToHexString(byte[] b) 
+	{
+		String result = "";
+		for (int i=0; i < b.length; i++) {
+			result += Integer.toString( ( b[i] & 0xff ) + 0x100, 16).substring(1);
+		}
+		return result;
+	}
+
+	public static String getconnectedDevice(String ssid) {
+		if(ssid==null)
+			return null;
+		String arr[] = ssid.split("_");
+		return arr[1];
+	}
+
+	public static String  getMyMsisdn()
+	{
+		String msisdn = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, null);
+		return msisdn;
+	}
+
+	public static String getSsidForMsisdn(String toMsisdn,String fromMsisdn) {
+		return "h_" +  toMsisdn + "_" + fromMsisdn;
+	}
+
 }

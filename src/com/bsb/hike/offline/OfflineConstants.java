@@ -44,9 +44,23 @@ public class OfflineConstants
 	
 	public static final String OFFLINE_MESSAGE_DISCONNECTED_TYPE = "offmsgdis";
 	
+	public static final int  WAITING_TIMEOUT = 60000;
+
+	public static final long TIME_TO_CONNECT = 30000;
+
+	public static final long TRY_CONNECT_TO_HOTSPOT = 3000;
+
+	public static final int MAXTRIES_FOR_SCAN_RESULTS = 3;
+	
 	public final class HandlerConstants
 	{
 		public static final int SAVE_MSG_DB=-101;
+		public static final int DISCONNECT_AFTER_TIMEOUT = -102;
+		public static final int CREATE_HOTSPOT = -103;
+		public static final int CONNECT_TO_HOTSPOT = -104;
+		public static final int REMOVE_CONNECT_MESSAGE = -105;
+		public static final int START_SCAN = -106;
+		public static final int STOP_SCAN = -107;
 	}
 	
 	public static enum ERRORCODE

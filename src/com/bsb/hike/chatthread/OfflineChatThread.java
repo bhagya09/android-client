@@ -3,6 +3,7 @@ package com.bsb.hike.chatthread;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -223,7 +224,7 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 	}
 
 	@Override
-	public void wifiScanResults(HashMap<String, ScanResult> list)
+	public void wifiScanResults(Map<String, ScanResult> list)
 	{
 		
 	}
@@ -445,6 +446,8 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 		default:
 			break;
 		}
+	}
+	public void connectedToMsisdn(String connectedDevice) {
 		
 	}
 }
