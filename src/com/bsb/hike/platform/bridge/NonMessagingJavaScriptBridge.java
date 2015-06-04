@@ -218,9 +218,8 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		JSONObject jsonObject = new JSONObject();
 		try
 		{
-			NonMessagingBotMetadata metadata = new NonMessagingBotMetadata(mBotInfo.getMetadata());
 			getInitJson(jsonObject, mBotInfo.getMsisdn());
-			jsonObject.put(HikePlatformConstants.HELPER_DATA, metadata.getHelperData());
+			jsonObject.put(HikePlatformConstants.HELPER_DATA, mBotInfo.getHelperData());
 			jsonObject.put(HikePlatformConstants.NOTIF_DATA, mBotInfo.getNotifDataJSON());
 			jsonObject.put(HikePlatformConstants.BLOCK, Boolean.toString(mBotInfo.isBlocked()));
 			jsonObject.put(HikePlatformConstants.MUTE, Boolean.toString(mBotInfo.isMute()));
