@@ -492,14 +492,17 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 	public void onConnected(String connectedMsisdn)
 	{
 		Logger.d("OfflineManager","onConnected() called");
-		connectedDevice = connectedMsisdn;
-		removeMessage(OfflineConstants.HandlerConstants.DISCONNECT_AFTER_TIMEOUT);
-		removeMessage(OfflineConstants.HandlerConstants.CONNECT_TO_HOTSPOT);
-		threadManager.startReceivingThread();
-		threadManager.startSendingThread();
-		for(IOfflineCallbacks  offlineListener : listeners)
+		if(connectedDevice==null)
 		{
-			offlineListener.connectedToMsisdn(connectedDevice);
+			connectedDevice = connectedMsisdn;
+			removeMessage(OfflineConstants.HandlerConstants.DISCONNECT_AFTER_TIMEOUT);
+			removeMessage(OfflineConstants.HandlerConstants.CONNECT_TO_HOTSPOT);
+			threadManager.startReceivingThread();
+			threadManager.startSendingThread();
+			for(IOfflineCallbacks  offlineListener : listeners)
+			{
+				offlineListener.connectedToMsisdn(connectedDevice);
+			}
 		}
 
 	}

@@ -130,8 +130,6 @@ public class OfflineThreadManager
 		boolean val;
 		@Override
 		public void run() {
-			while(true)
-			{
 				try
 				{
 
@@ -178,7 +176,6 @@ public class OfflineThreadManager
 					e.printStackTrace();
 					Logger.e(TAG,"Did we pass correct Address here ? ?");
 				}
-			}
 		} 
 	}
 	
