@@ -13,6 +13,7 @@ import org.json.JSONArray;
 import android.app.Dialog;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.media.AudioManager;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import android.text.Editable;
@@ -163,15 +164,6 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	{
 		super(activity, msisdn);
 	}
-
-	@Override
-	protected void onStart()
-	{
-		super.onStart();
-
-		// fetch the latest last seen
-		fetchLastSeen();
-	}
 	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu)
@@ -282,6 +274,10 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			FetchHikeUser.fetchHikeUser(activity.getApplicationContext(), msisdn);
 		}
 
+		if (ChatThreadUtils.shouldShowLastSeen(msisdn, activity.getApplicationContext(), mConversation.isOnHike(), mConversation.isBlocked()))
+		{
+			checkAndStartLastSeenTask();
+		}
 		/**
 		 * If user is blocked
 		 */
@@ -658,7 +654,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		case SHOW_CALL_ICON:
 			if (shouldShowCallIcon())
 			{
-				if (mActionBar != null)
+				if (mActionBar != null && mActionBar.getMenuItem(R.id.voip_call) != null)
 				{
 					mActionBar.getMenuItem(R.id.voip_call).setVisible(true);
 				}
@@ -1094,6 +1090,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		 * Setting text on lastSeenView
 		 */
 		mLastSeenView.setText(text);
+		mLastSeenView.setSelected(true);
 		
 		prevLastSeen = text;
 		
@@ -1392,7 +1389,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 
 				if (isActivityVisible && SoundUtils.isTickSoundEnabled(activity.getApplicationContext()))
 				{
-					SoundUtils.playSoundFromRaw(activity.getApplicationContext(), R.raw.received_message);
+					SoundUtils.playSoundFromRaw(activity.getApplicationContext(), R.raw.received_message, AudioManager.STREAM_RING);
 				}
 			}
 
@@ -1497,7 +1494,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	 */
 	private void onAppForegrounded()
 	{
-		if (mContactInfo != null)
+		if (mContactInfo == null)
 		{
 			return;
 		}
@@ -2077,7 +2074,10 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			break;
 
 		case R.id.add_unknown_contact:
-			Utils.addToContacts(activity, msisdn);
+			if ( null != v.getTag() && v.getTag().equals(R.string.add))
+			{
+				Utils.addToContacts(activity, msisdn);
+			}
 			break;
 			
 		case R.id.info_layout:
@@ -2507,18 +2507,25 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	@Override
 	public boolean onBackPressed()
 	{
-		if (modeOfChat == H2S_MODE)
+		if (!super.onBackPressed())
 		{
-			destroyH20Mode();
-			return true;
+			if (modeOfChat == H2S_MODE)
+			{
+				destroyH20Mode();
+				return true;
+			}
+			else if (isH20TipShowing())
+			{
+				hideH20Tip();
+				return true;
+			}
+			else
+			{
+				return false;
+			}
 		}
 
-		else if (isH20TipShowing())
-		{
-			hideH20Tip();
-			return true;
-		}
-		return super.onBackPressed();
+		return true;
 	}
 	
 	@Override
@@ -2566,11 +2573,10 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	 *  Show call icon in chat thread only if:
 	 *  1. When voip is activated for self.
 	 *  2. Partner is on hike.
-	 *  3. Partner not a bot.
 	 */
 	private boolean shouldShowCallIcon()
 	{
-		return Utils.isVoipActivated(activity.getApplicationContext()) && mConversation.isOnHike() && !HikeMessengerApp.hikeBotNamesMap.containsKey(msisdn);
+		return Utils.isVoipActivated(activity.getApplicationContext()) && mConversation.isOnHike();
 	}
 	
 	/*

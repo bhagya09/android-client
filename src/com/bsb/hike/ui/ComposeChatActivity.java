@@ -65,6 +65,8 @@ import com.bsb.hike.adapters.FriendsAdapter.ViewType;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
+import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
@@ -96,9 +98,11 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.NUXManager;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.ShareUtils;
+import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.TagEditText;
+import com.bsb.hike.view.TagEditText.Tag;
 import com.bsb.hike.view.TagEditText.TagEditorListener;
 
 public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implements TagEditorListener, OnItemClickListener, HikePubSub.Listener, OnScrollListener
@@ -364,8 +368,8 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			// Using selectAllMode here, because it arises in a corner case of 'Do not keep activity' flag on, and user presses back from broadcast name screen.
 //			TODO a new selectSomeMode to handle this case
 			selectAllMode = true;
-			tagEditText.toggleTag(getString(selected == 1 ? R.string.selected_contacts_count_singular : R.string.selected_contacts_count_plural, selected), SELECT_ALL_MSISDN,
-					SELECT_ALL_MSISDN);
+			tagEditText.toggleTag(new Tag(getString(selected == 1 ? R.string.selected_contacts_count_singular : R.string.selected_contacts_count_plural, selected), SELECT_ALL_MSISDN,
+					SELECT_ALL_MSISDN));
 			setupMultiSelectActionBar();
 			invalidateOptionsMenu();
 		}
@@ -519,7 +523,10 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	{
 		setMode();
 		listView = (ListView) findViewById(R.id.list);
-		
+		String sendingMsisdn = null;
+		if(getIntent()!=null){
+			sendingMsisdn = getIntent().getStringExtra(HikeConstants.Extras.PREV_MSISDN);
+		}
 		boolean showNujNotif = PreferenceManager.getDefaultSharedPreferences(ComposeChatActivity.this).getBoolean(HikeConstants.NUJ_NOTIF_BOOLEAN_PREF, true);
 		HikeSharedPreferenceUtil pref = HikeSharedPreferenceUtil.getInstance();
 		boolean fetchRecentlyJoined = pref.getData(HikeConstants.SHOW_RECENTLY_JOINED_DOT, false) || pref.getData(HikeConstants.SHOW_RECENTLY_JOINED, false);
@@ -531,10 +538,10 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		case CREATE_BROADCAST_MODE:
 		case PICK_CONTACT_MODE:
 			//We do not show sms contacts in broadcast mode
-			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage && !isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, null, friendsListFetchedCallback, false);
+			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage && !isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, false);
 			break;
 		default:
-			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage || isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, null, friendsListFetchedCallback, true);
+			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage || isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, true);
 			break;
 		}
 
@@ -687,14 +694,14 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				}
 				int selected = adapter.getCurrentSelection();
 				if(selected>0){
-				tagEditText.toggleTag(getString(selected==1 ? R.string.selected_contacts_count_singular : R.string.selected_contacts_count_plural,selected), SELECT_ALL_MSISDN, SELECT_ALL_MSISDN);
+				toggleTag(getString(selected==1 ? R.string.selected_contacts_count_singular : R.string.selected_contacts_count_plural,selected), SELECT_ALL_MSISDN, SELECT_ALL_MSISDN);
 				}else{
 					((CheckBox)findViewById(R.id.select_all_cb)).setChecked(false); // very rare case
 				}
 			}
 			else
 			{
-				tagEditText.toggleTag(name, contactInfo.getMsisdn(), contactInfo);
+				toggleTag(name, contactInfo.getMsisdn(), contactInfo);
 			}
 			break;
 		case PICK_CONTACT_MODE:
@@ -704,7 +711,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			}
 			else
 			{
-				tagEditText.toggleTag(contactInfo.getName(), contactInfo.getMsisdn(), contactInfo);
+				toggleTag(contactInfo.getName(), contactInfo.getMsisdn(), contactInfo);
 			}
 			break;
 		default:
@@ -712,6 +719,17 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			if (FriendsAdapter.SECTION_ID.equals(contactInfo.getId()) || FriendsAdapter.EMPTY_ID.equals(contactInfo.getId()))
 			{
 				return;
+			}
+
+			/*
+			 * This would be true if the user entered a stealth msisdn and tried starting a chat with him/her in non stealth mode.
+			 */
+			if (StealthModeManager.getInstance().isStealthMsisdn(contactInfo.getMsisdn()))
+			{
+				if (!StealthModeManager.getInstance().isActive())
+				{
+					return;
+				}
 			}
 
 			if (isForwardingMessage)
@@ -732,7 +750,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					name = viewtype == ViewType.NOT_FRIEND_SMS.ordinal() ? contactInfo.getName() + " (SMS) " : contactInfo.getName();
 					if (!nuxIncentiveMode)
 						// change is to prevent the Tags from appearing in the search bar.
-						tagEditText.toggleTag(name, contactInfo.getMsisdn(),contactInfo);
+						toggleTag(name, contactInfo.getMsisdn(),contactInfo);
 					else {
 						// newFragment.toggleViews(contactInfo);
 						FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
@@ -759,18 +777,6 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			}
 			else
 			{
-				/*
-				 * This would be true if the user entered a stealth msisdn and tried starting a chat with him/her in non stealth mode.
-				 */
-				if (HikeMessengerApp.isStealthMsisdn(contactInfo.getMsisdn()))
-				{
-					int stealthMode = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF);
-					if (stealthMode != HikeConstants.STEALTH_ON)
-					{
-						return;
-					}
-				}
-
 				Utils.startChatThread(this, contactInfo);
 				finish();
 			}
@@ -790,7 +796,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		}
 		int selected = adapter.getSelectedContactCount();
 		if(selected>0){
-		tagEditText.toggleTag(getString(selected==1 ? R.string.selected_contacts_count_singular : R.string.selected_contacts_count_plural,selected), SELECT_ALL_MSISDN, SELECT_ALL_MSISDN);
+		toggleTag(getString(selected==1 ? R.string.selected_contacts_count_singular : R.string.selected_contacts_count_plural,selected), SELECT_ALL_MSISDN, SELECT_ALL_MSISDN);
 		}else{
 			((CheckBox)findViewById(R.id.select_all_cb)).setChecked(false); // very rare case
 		}
@@ -798,13 +804,13 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	}
 
 	@Override
-	public void tagRemoved(Object data, String uniqueNess)
+	public void tagRemoved(Tag tag)
 	{
 		if(selectAllMode){
 		((CheckBox) findViewById(R.id.select_all_cb)).setChecked(false);
 		}else{
-			if(data instanceof ContactInfo){
-				adapter.removeContact((ContactInfo) data);
+			if(tag.data instanceof ContactInfo){
+				adapter.removeContact((ContactInfo) tag.data);
 			}
 		}
 		if (adapter.getCurrentSelection() == 0)
@@ -821,14 +827,14 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	}
 
 	@Override
-	public void tagAdded(Object data, String uniqueNess)
+	public void tagAdded(Tag tag)
 	{
 		String dataString = null;
-		if(data instanceof ContactInfo){
-		adapter.addContact((ContactInfo) data);
-		}else if(data instanceof String)
+		if(tag.data instanceof ContactInfo){
+		adapter.addContact((ContactInfo) tag.data);
+		}else if(tag.data instanceof String)
 		{
-			dataString = (String) data;
+			dataString = (String) tag.data;
 		}
 
 		setupMultiSelectActionBar();
@@ -849,6 +855,12 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	public void charResetAfterSeperator()
 	{
 		adapter.removeFilter();
+	}
+	
+	@Override
+	public void tagClicked(Tag tag)
+	{
+		// TODO Auto-generated method stub
 	}
 
 	private void setMode(int mode)
@@ -970,7 +982,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					adapter.selectAllContacts(true);
 					tagEditText.clear(false);
 					int selected = adapter.getCurrentSelection();
-					tagEditText.toggleTag( getString(selected <=1 ? R.string.selected_contacts_count_singular : R.string.selected_contacts_count_plural,selected), SELECT_ALL_MSISDN, SELECT_ALL_MSISDN);
+					toggleTag( getString(selected <=1 ? R.string.selected_contacts_count_singular : R.string.selected_contacts_count_plural,selected), SELECT_ALL_MSISDN, SELECT_ALL_MSISDN);
 					
 				}else{
 					// call adapter unselect all
@@ -1332,7 +1344,23 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				if(presentIntent.hasExtra(HikeConstants.Extras.PREV_MSISDN)){
 					// open chat thread from where we initiated
 					String id = presentIntent.getStringExtra(HikeConstants.Extras.PREV_MSISDN);
-					intent = IntentFactory.createChatThreadIntentFromMsisdn(this, id, false);
+					if (BotUtils.isBot(id))
+					{
+						BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(id);
+						if (botInfo.isNonMessagingBot())
+						{
+							intent = IntentFactory.getNonMessagingBotIntent(botInfo.getMsisdn(), "", "", this);
+						}
+						else
+						{
+							intent = IntentFactory.createChatThreadIntentFromMsisdn(this, id, false);
+						}
+					}
+					else
+					{
+						intent = IntentFactory.createChatThreadIntentFromMsisdn(this, id, false);
+					}
+
 				}else{
 					//home activity
 					intent = Utils.getHomeActivityIntent(this);
@@ -1368,7 +1396,10 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 						String fileUriString = fileUri.toString();
 
 						String filePath;
-						if (fileUriString.startsWith(fileUriStart))
+						if (Utils.isPicasaUri(fileUriString))
+						{
+							filePath = fileUriString;
+						}else if (fileUriString.startsWith(fileUriStart))
 						{
 							File selectedFile = new File(URI.create(Utils.replaceUrlSpaces(fileUriString)));
 							/*
@@ -1637,6 +1668,11 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					intent.putExtra(HikeConstants.Extras.CONTACT_ID, contactId);
 					intent.putExtra(HikeConstants.Extras.FILE_TYPE, type);
 				} else {
+					if (TextUtils.isEmpty(contactId))
+					{
+						Toast.makeText(getApplicationContext(), R.string.unknown_msg, Toast.LENGTH_SHORT).show();
+						return;
+					}
 					PhonebookContact contact = PickContactParser.getContactData(contactId, this);
 					final ArrayList<ContactInfo> finalArrayList = arrayList;
 					if (contact != null)
@@ -2173,8 +2209,14 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		@Override
 		protected Void doInBackground(Void... params) {
 			for(FileTransferData file:files){
-			FileTransferManager.getInstance(getApplicationContext()).uploadFile(file.arrayList, file.file, file.fileKey, file.fileType, file.hikeFileType, file.isRecording, file.isForwardingFile,
-					((ContactInfo)file.arrayList.get(0)).isOnhike(), file.recordingDuration,  FTAnalyticEvents.OTHER_ATTACHEMENT);
+				if (Utils.isPicasaUri(file.filePath))
+				{
+					FileTransferManager.getInstance(getApplicationContext()).uploadFile(Uri.parse(file.filePath), file.hikeFileType, file.arrayList, false);
+				}else{
+					FileTransferManager.getInstance(getApplicationContext()).uploadFile(file.arrayList, file.file, file.fileKey, file.fileType, file.hikeFileType, file.isRecording, file.isForwardingFile,
+							((ContactInfo)file.arrayList.get(0)).isOnhike(), file.recordingDuration,  FTAnalyticEvents.OTHER_ATTACHEMENT);
+				
+				}
 			}
 			return null;
 		}
@@ -2244,5 +2286,11 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
 			}
 		}
+	}
+	
+	private void toggleTag(String text, String uniqueness,Object data)
+	{
+		Tag tag = new Tag(text,uniqueness,data);
+		tagEditText.toggleTag(tag);
 	}
 }

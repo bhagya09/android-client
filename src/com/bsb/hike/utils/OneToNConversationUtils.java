@@ -174,6 +174,7 @@ public class OneToNConversationUtils
 		ContactInfo userContactInfo = Utils.getUserContactInfo(activity.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, Context.MODE_PRIVATE));
 
 		OneToNConversation oneToNConversation;
+
 		if (activity.getIntent().hasExtra(HikeConstants.Extras.CREATE_BROADCAST))
 		{
 			oneToNConversation = new BroadcastConversation.ConversationBuilder(oneToNConvId).setConversationOwner(userContactInfo.getMsisdn()).setIsAlive(true).build();

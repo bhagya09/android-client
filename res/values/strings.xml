@@ -845,10 +845,6 @@
     <string name="last_seen_proper_casing">Last Seen</string>
     <string name="status_updates_proper_casing">Status Updates</string>
     <string name="bigger_better_attachments">Bigger, better attachments</string>
-    <string name="introducing_stealth_mode">Introducing Hidden Mode</string>
-    <string name="stealth_mode_popup_msg">You can now hide your private chats from the world and read them only with a password.</string>
-    <string name="quick_setup">Quick Setup</string>
-    <string name="stealth_double_tap_tip"><![CDATA[ Your chat has been hidden! Set up a password to access Hidden Mode.<br> <br> <b> Tap on \'hi\' to begin.</b> ]]></string>
     <string name="alp_42447968_cmd_confirm">Confirm</string>
     <string name="alp_42447968_cmd_continue">Continue</string>
     <string name="alp_42447968_cmd_forgot_pattern">Forgot pattern?</string>
@@ -858,16 +854,12 @@
     <string name="alp_42447968_lockscreen_access_pattern_cleared">Pattern cleared</string>
     <string name="alp_42447968_lockscreen_access_pattern_detected">Pattern completed</string>
     <string name="alp_42447968_lockscreen_access_pattern_start">Pattern started</string>
-    <string name="alp_42447968_msg_connect_4dots">Connect at least 4 dots. Try again.</string>
-    <string name="alp_42447968_msg_draw_an_unlock_pattern">Draw your unique unlock pattern</string>
     <string name="alp_42447968_msg_draw_pattern_to_unlock">Draw pattern to unlock</string>
     <string name="alp_42447968_msg_pattern_recorded">Pattern recorded</string>
-    <string name="alp_42447968_msg_redraw_pattern_to_confirm">Redraw your pattern to confirm</string>
     <string name="alp_42447968_msg_release_finger_when_done">Release finger when done</string>
     <string name="alp_42447968_msg_try_again">Your patterns don’t match. Try again.</string>
     <string name="alp_42447968_msg_your_new_unlock_pattern">Your new unlock pattern</string>
     <string name="alp_42447968_msg_draw_pattern_to_unlock_in_reset">Draw existing pattern</string>
-    <string name="alp_42447968_msg_draw_new_pattern">Draw your new pattern</string>
     <string name="alp_42447968_msg_redraw_new_pattern_confirm">Redraw new pattern to confirm</string>
 
     <plurals name="alp_42447968_pmsg_connect_x_dots">
@@ -875,7 +867,6 @@
         <item quantity="other">Connect at least %1$d dots. Try again</item>
     </plurals>
 
-    <string name="stealth_enter_pass_tip">Setup is complete! Tap on \'hi\' to access your hidden chats.</string>
     <string name="stealth_notification_message">You have a new notification</string>
     <string name="stealth_notification_messages">You have new notifications</string>
     <string name="retry">Retry</string>
@@ -893,8 +884,10 @@
 <![CDATA[ <b> Tap here to reset Hidden Mode now! </b> 
 	    ]]>
     </string>
+        <string name="tap_to_reveal_stealth_contacts">to reveal chats</string> 
+    <string name="tap_to_hide_stealth_contacts">to hide chats</string>
+    <string name="tap_text">Tap</string>
     <string name="reset_stealth_confirmation">Resetting Hidden Mode will delete all your hidden Chats.\nAre you sure?</string>
-    <string name="stealth_mode_empty_conv_popup_msg">You can now hide your private chats from the world and read them only with a password. Start a new chat and try it out by tapping on \'hi\'!</string>
     <string name="stealth_tap_and_hold_tip">Tap and hold on a chat to mark a chat \'Hidden\'.</string>
     <string name="chat_marked_stealth">You’ve hidden a chat.</string>
     <string name="chat_unmarked_stealth">You’ve marked a chat visible.</string>
@@ -1014,7 +1007,7 @@
     <string name="ftue_card_click_text_sticker">You\'ll love them!</string>
     <string name="ftue_card_sep">Amazing things you can do on hike</string>
     <string name="change_stealth_password">Change Password</string>
-    <string name="change_stealth_password_body">Change your Hidden Mode password</string>
+    <string name="change_stealth_password_body">Change your Hidden Mode password. Also change between pattern and PIN.</string>
     <string name="invited">Invited</string>
     <string name="invite_more">INVITE MORE</string>
     <string name="invite_sent">Invite sent</string>
@@ -1069,7 +1062,6 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="use_this_quality_for_sending_images">Use this quality for sending images</string>
     <string name="select_all_confirmation_header">Invite All</string>
     <string name="select_all_confirmation_msg">Send invite to %1$d contacts to download hike?</string>
-    <string name="change_password_from_privacy">Change Password from Settings > Privacy</string>
     <string name="hike_offline_caps">Hike Offline</string>
 
     <string-array name="chat_thread_empty_state_tutorial_text">
@@ -1142,7 +1134,7 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="notificationSoundSummary">Select a sound to play for a new notification</string>
     <string name="hike_offline_notifications">Hike offline</string>
     <string name="h2o_notifications_setting_summary">Notify to send SMS for offline contact</string>
-    <string name="stealth_info_tip_subtext">Tap on \'hi\' to hide your chats.</string>
+    <string name="stealth_info_tip_subtext">Tap \'hi\' to hide chats with a password.</string>
     <string name="file_attachment_info">Share doc, pdf &amp; media up to 100 MB</string>
     <string name="status_text_notification">posted an update %1$s</string>
     <string name="shared_files">Files</string>
@@ -1430,6 +1422,34 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="photos_oom_load">Unable to load Image</string>
     <string name="photos_oom_retry">Try Again</string>
     <string name="photos_oom_camera">Unable to capture Image</string>
+    <string name="stealth_mode_title">Hidden Mode</string>
+    <string name="stealth_mode_title_body">Hidden Mode Settings</string>
+    <string name="change_stealth_timeout">Ask for Password</string>
+    <string name="change_stealth_timeout_body">Ask for password again only after a specific time</string>
+    <string name="stealth_password_settings">Password Settings</string>
+    <string name="stealth_notification_settings">Notification Settings</string>
+    <string name="stealth_reset_settings">Extra Settings</string>
+    <string name="enable_stealth_indicator">Indicator</string>
+    <string name="enable_stealth_indicator_body">Bounce \'hi\' logo on home screen for unread messages</string>
+    <string name="enable_stealth_notification_body">Notify on receiving a message in a hidden chat</string>
+    <string name="enable_stealth_notification">Notification</string>
+    <string name="stealth_msg_connect_4dots">Connect at least 4 dots</string>
+    <string name="stealth_msg_draw_an_unlock_pattern">Draw new passcode pattern</string>
+    <string name="stealth_msg_enter_an_unlock_pin">Enter your new 4 digit PIN</string>
+    <string name="stealth_msg_redraw_pattern_to_confirm">Confirm your pattern</string>
+    <string name="stealth_msg_reenter_pin_to_confirm">Confirm your PIN</string>
+    <string name="stealth_enter_4_digits">Complete your 4 digit PIN</string>
+    <string name="hide_chat">Hide Chat</string>
+    <string name="mark_hidden">Mark Hidden</string>
+    <string name="mark_visible">Mark Visible</string>
+    <string name="stealth_set_pin">Or set a number PIN</string>
+    <string name="stealth_set_pattern">Or set a pattern</string>
+    <string name="stealth_msg_pin_recorded">PIN recorded</string>
+    <string name="stealth_msg_your_new_unlock_pin">Your new unlock PIN</string>
+    <string name="stealth_msg_try_pin_again">Your PINs don’t match. Try again.</string>
+    <string name="stealth_msg_enter_pin_to_unlock">Enter PIN to unlock</string>
+    <string name="stealth_msg_enter_pin_to_unlock_in_reset">Enter existing PIN</string>
+    <string name="change_password_from_privacy">Hidden Mode Settings</string>
     <string name="search_hint">Search</string>
     <string name="nudge_setting_header">Double tap to Nudge</string>
     <string name="nudge_setting_info">Send a Nudge by double tapping while chatting</string>
@@ -1459,6 +1479,11 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="terms_conditions_hint">Terms and Conditions</string>
     <string name="terms_conditions_title">T &amp; C</string>
     <string name="content_des_message_send_rec_read_status">Message send or pending status</string>
+    <string name="content_des_message_clock_state">Message not sent</string>
+    <string name="content_des_message_single_tick_state">Message sent from our side</string>
+    <string name="content_des_message_double_tick_state">Message delivered to receiver</string>
+    <string name="content_des_message_double_tick_read_state">Message read by receiver</string>
+    <string name="content_des_message_offline_state">User is offline</string>
     <string name="content_des_restore_if_backup_found">Restore (Backup found)</string>
     <string name="content_des_add_photo_gallery_create_group">Add photo while creating a group</string>
     <string name="content_des_add_photo_camera_create_group">Capture photo while creating a group</string>
@@ -1468,13 +1493,30 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="content_des_send_recorded_audio_text_chatting">Send recorded audio/text while chatting</string>
     <string name="content_des_back_button_chatthread_actionbar">Press back button from chat-thread actionbar</string>
     <string name="content_des_round_user_image_chatthread_actionbar">User image (rounded) chat-thread actionbar</string>
+    <string name="content_des_round_group_image_chatthread_actionbar">Group image (rounded) chat-thread actionbar</string>
     <string name="content_des_typing_notification_chatting">Typing information to user while chatting</string>
     <string name="content_des_typing_notification_received">Typing notification received to user</string>
+    <string name="stealth_timeout_always_key">Always</string>
+    <string name="stealth_timeout_never_key">Never</string>
+    <string name="stealth_timeout_immediate_key">30 seconds</string>
+    <string name="stealth_timeout_short_key">2 minutes</string>
+    <string name="stealth_timeout_long_key">5 minutes</string>
+	<string name="content_des_send_message_button">Press button to send Message</string>
+    <string name="content_des_block_overlay_message">You\'ve blocked this user.Unblock and continue hiking.</string>
+    <string name="content_des_user_profile_detail_user_phone_number">User\'s Phone Number</string>
+    <string name="content_des_user_profile_detail_edit_profile_pic">Change Profile Pic</string>
+    <string name="content_des_user_invitation_on_hike">Invite contact on Hike</string>
+    <string name="content_des_pause_file_download">Pause File Downloading</string>
+    <string name="content_des_download_file">Download File</string>
+    <string name="content_des_retry_file_download">Retry File Download</string>
 	<string name="activity_not_found">No app found that can handle this action</string>
 	<string name="selectPreview">Select a preview</string>
 	<string name="not_enough_memory">Not Enough Memory</string>
 	<string name="edit_photos">New Photo</string>
-	<string name="only_photos_edit">Only photos can be edited</string>
+	<string name="only_photos_edit">Image Format Not Supported</string>
+	<string name="delete_block">Block and Delete</string>
+	<string name="confirm_delete_block_msg">Do you want to delete and block \"%1$s\"? </string>
+	<string name="confirm_delete_non_messaging">Do you want to delete \"%1$s\"? </string>
 	<string name="add_members">Add Members</string>
 	<string name="created_group_text">You created the group</string>
 	<string name="group_member_added">added %1$s</string>

@@ -21,7 +21,8 @@ public class WebMetadata
 	private String layoutId;
 
 	private boolean longPressDisabled;
-
+	
+	private int targetPlatform;
 
 	public String getLayoutId()
 	{
@@ -90,7 +91,8 @@ public class WebMetadata
 	{
 		this(new JSONObject(jsonString));
 	}
-
+	
+	
 	public WebMetadata(JSONObject metadata)
 	{
 		this.json = metadata;
@@ -98,6 +100,9 @@ public class WebMetadata
 		{
 			cardobj = metadata.optJSONObject(HikePlatformConstants.CARD_OBJECT);
 
+			
+			setTargetPlatform(this.json.optInt(HikePlatformConstants.TARGET_PLATFORM));
+			
 			if (cardobj.has(HikePlatformConstants.HELPER_DATA))
 			{
 				setHelperData(cardobj.optJSONObject(HikePlatformConstants.HELPER_DATA));
@@ -194,5 +199,21 @@ public class WebMetadata
 	public void setNotifText(String notifText)
 	{
 		this.notifText = notifText;
+	}
+	
+	public int getPlatformJSCompatibleVersion()
+	{
+		return targetPlatform; 
+	}
+	
+	
+	public void setTargetPlatform(int targetPlatform)
+	{
+		this.targetPlatform = targetPlatform < 0 || targetPlatform > HikePlatformConstants.CURRENT_VERSION ? HikePlatformConstants.CURRENT_VERSION : targetPlatform;
+	}
+	
+	public int getTargetPlatform()
+	{
+		return targetPlatform;
 	}
 }

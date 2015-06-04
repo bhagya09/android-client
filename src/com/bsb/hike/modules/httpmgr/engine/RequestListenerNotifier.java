@@ -155,7 +155,7 @@ public class RequestListenerNotifier
 		}
 		finally
 		{
-			RequestProcessor.removeRequest(request);
+			// TODO
 		}
 	}
 	

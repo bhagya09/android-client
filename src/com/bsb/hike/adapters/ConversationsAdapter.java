@@ -25,6 +25,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
+import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
 import android.widget.BaseAdapter;
 import android.widget.Filter;
@@ -40,6 +41,7 @@ import com.bsb.hike.NUXConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.GroupTypingNotification;
@@ -56,6 +58,7 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.NUXManager;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.SmileyParser;
+import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
 
 public class ConversationsAdapter extends BaseAdapter
@@ -114,6 +117,8 @@ public class ConversationsAdapter extends BaseAdapter
 
 		ImageView avatar;
 		
+		ImageView hiddenIndicator;
+	
 		ImageView muteIcon;
 	}
 
@@ -197,6 +202,7 @@ public class ConversationsAdapter extends BaseAdapter
 				viewHolder.subText = (TextView) v.findViewById(R.id.last_message);
 				viewHolder.timeStamp = (TextView) v.findViewById(R.id.last_message_timestamp);
 				viewHolder.avatar = (ImageView) v.findViewById(R.id.avatar);
+				viewHolder.hiddenIndicator = (ImageView) v.findViewById(R.id.stealth_badge);
 				viewHolder.muteIcon = (ImageView) v.findViewById(R.id.mute_indicator);
 				v.setTag(viewHolder);
 				break;
@@ -212,9 +218,27 @@ public class ConversationsAdapter extends BaseAdapter
 		updateViewsRelatedToName(v, convInfo);
 
 		if (itemToBeAnimated(convInfo))
-		{
-			Animation animation = AnimationUtils.loadAnimation(context, R.anim.slide_in_from_left);
+		{	
+			Animation animation = AnimationUtils.loadAnimation(context,
+		            StealthModeManager.getInstance().isActive() ? R.anim.slide_in_from_left : R.anim.slide_out_to_left);
 			v.startAnimation(animation);
+			animation.setAnimationListener(new AnimationListener() {
+				
+				@Override
+				public void onAnimationStart(Animation animation) {}
+				
+				@Override
+				public void onAnimationRepeat(Animation animation) {}
+				
+				@Override
+				public void onAnimationEnd(Animation animation) {
+					if(!StealthModeManager.getInstance().isActive())
+					{
+						remove(convInfo);
+						notifyDataSetChanged();
+					}	
+				}
+			});
 			setItemAnimated(convInfo);
 		}
 		
@@ -517,7 +541,7 @@ public class ConversationsAdapter extends BaseAdapter
 		 * If the viewholder's msisdn is different from the converstion's msisdn, it means that the viewholder is currently being used for a different conversation.
 		 * We don't need to do anything here then.
 		 */
-		if(!convInfo.getMsisdn().equals(viewHolder.msisdn))
+		if(viewHolder == null || !convInfo.getMsisdn().equals(viewHolder.msisdn))
 		{
 			return;
 		}
@@ -561,18 +585,32 @@ public class ConversationsAdapter extends BaseAdapter
 		 * If the viewholder's msisdn is different from the converstion's msisdn, it means that the viewholder is currently being used for a different conversation.
 		 * We don't need to do anything here then.
 		 */
-		if(!convInfo.getMsisdn().equals(viewHolder.msisdn))
+		if(viewHolder == null || !convInfo.getMsisdn().equals(viewHolder.msisdn))
 		{
 			return;
 		}
 
 		ImageView avatarView = viewHolder.avatar;
 		iconLoader.loadImage(convInfo.getMsisdn(), avatarView, isListFlinging, false, true);
+		if(convInfo.isStealth())
+		{
+			viewHolder.hiddenIndicator.setVisibility(View.VISIBLE);
+		}
+		else
+		{
+			viewHolder.hiddenIndicator.setVisibility(View.GONE);
+		}
+		iconLoader.loadImage(convInfo.getMsisdn(), avatarView, isListFlinging, false, true);
 	}
 
 	public void updateViewsRelatedToMute(View parentView, ConvInfo convInfo)
 	{
 		ViewHolder viewHolder = (ViewHolder) parentView.getTag();
+		
+		if(viewHolder == null)
+		{
+			return;
+		}
 
 		ImageView muteIcon = viewHolder.muteIcon;
 		if (muteIcon != null)
@@ -636,8 +674,11 @@ public class ConversationsAdapter extends BaseAdapter
 		 * If the viewholder's msisdn is different from the converstion's msisdn, it means that the viewholder is currently being used for a different conversation.
 		 * We don't need to do anything here then.
 		 */
-		if(!convInfo.getMsisdn().equals(viewHolder.msisdn))
+		if(viewHolder == null || !convInfo.getMsisdn().equals(viewHolder.msisdn))
 		{
+
+			// TODO: The cause of view holder being null is related to the header tip's entry-exit issue
+			// empty last message will be resulted here
 			return;
 		}
 		
@@ -730,7 +771,7 @@ public class ConversationsAdapter extends BaseAdapter
 			{
 				unreadIndicator.setVisibility(View.VISIBLE);
 				unreadIndicator.setBackgroundResource(convInfo.isStealth() ? R.drawable.bg_unread_counter_stealth : R.drawable.bg_unread_counter);
-				unreadIndicator.setText(Integer.toString(convInfo.getUnreadCount()));
+				unreadIndicator.setText(convInfo.getUnreadCountString());
 			}
 
 			imgStatus.setImageResource(imageId);
@@ -758,7 +799,7 @@ public class ConversationsAdapter extends BaseAdapter
 
 				unreadIndicator.setBackgroundResource(convInfo.isStealth() ? R.drawable.bg_unread_counter_stealth : R.drawable.bg_unread_counter);
 
-				unreadIndicator.setText(Integer.toString(convInfo.getUnreadCount()));
+				unreadIndicator.setText(convInfo.getUnreadCountString());
 			}
 			if(isNuxLocked)
 			{ 
