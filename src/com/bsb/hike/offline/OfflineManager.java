@@ -37,6 +37,7 @@ import com.bsb.hike.utils.Logger;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -53,11 +54,11 @@ import android.net.wifi.p2p.WifiP2pManager.PeerListListener;
 
 public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 {
-	public static final OfflineManager _instance = new OfflineManager();
+	private static OfflineManager _instance = null;
 
-	private ConcurrentHashMap<Long, FileTransferModel> currentSendingFiles = new ConcurrentHashMap<Long, FileTransferModel>();
+	private Map<Long, FileTransferModel> currentSendingFiles = new ConcurrentHashMap<Long, FileTransferModel>();
 
-	private ConcurrentHashMap<Long, FileTransferModel> currentReceivingFiles = new ConcurrentHashMap<Long, FileTransferModel>();
+	private Map<Long, FileTransferModel> currentReceivingFiles = new ConcurrentHashMap<Long, FileTransferModel>();
 
 	private final static Object currentReceivingFilesLock = new Object();
 
@@ -77,17 +78,15 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 
 	private ConnectionManager connectionManager;
 
-	private Runnable waitingTimerRunnable;
-
 	private static final String TAG=OfflineManager.class.getName();
 
 	private OfflineThreadManager threadManager;
 
 	private boolean scanResultsAvailable =  false;
-
-	private Timer wifiScanTimer;
-
-	private WifiScanTimerTask timerTask;
+	
+	private boolean isConnectedToHotspot= false;
+	
+	private int tryGetScanResults = 0;
 
 	Handler handler =new Handler(HikeHandlerUtil.getInstance().getLooper())
 	{
@@ -107,8 +106,15 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 		init();
 	}
 
-	public static OfflineManager getInstance()
-	{
+	public static  OfflineManager getInstance()
+ {
+		if (_instance == null)
+			synchronized (OfflineManager.class) {
+				if (_instance == null) {
+					_instance = new OfflineManager();
+				}
+			}
+
 		return _instance;
 	}
 
@@ -119,6 +125,30 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 		{
 		case OfflineConstants.HandlerConstants.SAVE_MSG_DB:
 			saveToDb((ConvMessage)msg.obj);
+			break;
+		case OfflineConstants.HandlerConstants.DISCONNECT_AFTER_TIMEOUT:
+			disconnect((String)msg.obj);
+			break;
+		case OfflineConstants.HandlerConstants.CREATE_HOTSPOT:
+			connectionManager.createHotspot((String)msg.obj);
+			break;
+		case OfflineConstants.HandlerConstants.CONNECT_TO_HOTSPOT:
+			isConnectedToHotspot= connectionManager.connectToNetwork((String)msg.obj);
+			if(!isConnectedToHotspot)
+			{
+				Message retryMsg = Message.obtain();
+				retryMsg.what = OfflineConstants.HandlerConstants.CONNECT_TO_HOTSPOT;
+				retryMsg.obj = (String)msg.obj;
+				handler.sendMessageDelayed(retryMsg,OfflineConstants.TRY_CONNECT_TO_HOTSPOT);
+			}
+			break;
+		case OfflineConstants.HandlerConstants.REMOVE_CONNECT_MESSAGE:
+			removeMessage(OfflineConstants.HandlerConstants.CONNECT_TO_HOTSPOT);
+			break;
+		case OfflineConstants.HandlerConstants.START_SCAN:
+			runNetworkScan((int)msg.obj);
+			msg.obj=((int)msg.obj)+1;
+			performWorkOnBackEndThread(msg);
 			break;
 		}
 	};
@@ -151,20 +181,7 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 		// TODO : Restore back to previous deviceName
 		connectionManager.setDeviceNameAsMsisdn();
 	}
-
-	private void initTimerRunnables(final String msisdn) {
-		waitingTimerRunnable = new Runnable() {
-			@Override
-			public void run() {
-				disconnect(msisdn);
-			}
-		};
-
-	}
-
 	public void disconnect(String msisdn) {
-
-		removeRunnable(waitingTimerRunnable);
 		connectionManager.disconnect(msisdn);
 	}
 
@@ -227,18 +244,13 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 	{
 		if(isSent)
 		{
-			synchronized (currentSendingFilesLock) {
-				FileTransferModel fileTransfer=currentSendingFiles.get(msgId);
-				fileTransfer.getTransferProgress().setCurrentChunks(fileTransfer.getTransferProgress().getCurrentChunks() + 1);
-			}
+			FileTransferModel fileTransfer=currentSendingFiles.get(msgId);
+			fileTransfer.getTransferProgress().setCurrentChunks(fileTransfer.getTransferProgress().getCurrentChunks() + 1);
 		}
 		else
 		{
-			synchronized (currentReceivingFilesLock) {
-				FileTransferModel fileTransfer=currentReceivingFiles.get(msgId);
-				fileTransfer.getTransferProgress().setCurrentChunks(fileTransfer.getTransferProgress().getCurrentChunks() + 1);
-			}
-
+			FileTransferModel fileTransfer=currentReceivingFiles.get(msgId);
+			fileTransfer.getTransferProgress().setCurrentChunks(fileTransfer.getTransferProgress().getCurrentChunks() + 1);
 		}
 		HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
 	}
@@ -292,9 +304,7 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 
 
 			isSent = copyFile(inputStream, outputStream, msgID, true, true,fileSize);
-			synchronized (currentSendingFilesLock) {
-				currentSendingFiles.remove(msgID);
-			}
+			currentSendingFiles.remove(msgID);
 			String msisdn = fileTransferModel.getPacket().getString(HikeConstants.TO);
 			HikeMessengerApp.getPubSub().publish(HikePubSub.UPLOAD_FINISHED, null);
 			int rowsUpdated = OfflineUtils.updateDB(msgID, ConvMessage.State.SENT_DELIVERED, msisdn);
@@ -331,18 +341,15 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 		long msgId = convMessage.getMsgID();
 		FileSavedState fss = null;
 		HikeFile hikeFile = convMessage.getMetadata().getHikeFiles().get(0);
-		synchronized (currentSendingFilesLock)
+		if (currentSendingFiles.containsKey(msgId))
 		{
-			if (currentSendingFiles.containsKey(msgId))
-			{
-				Logger.d("Spinner", "Current Msg Id -> " + msgId);
-				fss = new FileSavedState(FTState.IN_PROGRESS, (int) file.length(), currentSendingFiles.get(msgId).getTransferProgress().getCurrentChunks() * 1024);
-			}
-			else
-			{
-				Logger.d("Spinner", "Completed Msg Id -> " + msgId);
-				fss = new FileSavedState(FTState.COMPLETED, hikeFile.getFileKey());
-			}
+			Logger.d("Spinner", "Current Msg Id -> " + msgId);
+			fss = new FileSavedState(FTState.IN_PROGRESS, (int) file.length(), currentSendingFiles.get(msgId).getTransferProgress().getCurrentChunks() * 1024);
+		}
+		else
+		{
+			Logger.d("Spinner", "Completed Msg Id -> " + msgId);
+			fss = new FileSavedState(FTState.COMPLETED, hikeFile.getFileKey());
 		}
 		return fss;
 	}
@@ -359,19 +366,16 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 		long msgId = convMessage.getMappedMsgID();
 		FileSavedState fss = null;
 		HikeFile hikeFile = convMessage.getMetadata().getHikeFiles().get(0);
-		synchronized (currentReceivingFilesLock)
+		if (currentReceivingFiles.containsKey(msgId))
 		{
-			if (currentReceivingFiles.containsKey(msgId))
-			{
-				Logger.d("Spinner", "Current Msg Id -> " + msgId);
-				fss = new FileSavedState(FTState.IN_PROGRESS, (int) file.length(), currentReceivingFiles.get(msgId).getTransferProgress().getCurrentChunks() * 1024);
+			Logger.d("Spinner", "Current Msg Id -> " + msgId);
+			fss = new FileSavedState(FTState.IN_PROGRESS, (int) file.length(), currentReceivingFiles.get(msgId).getTransferProgress().getCurrentChunks() * 1024);
 
-			}
-			else
-			{
-				Logger.d("Spinner", "Completed Msg Id -> " + msgId);
-				fss = new FileSavedState(FTState.COMPLETED, hikeFile.getFileKey());
-			}
+		}
+		else
+		{
+			Logger.d("Spinner", "Completed Msg Id -> " + msgId);
+			fss = new FileSavedState(FTState.COMPLETED, hikeFile.getFileKey());
 		}
 		return fss;
 	}
@@ -393,7 +397,7 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 
 	public void removeFromCurrentReceivingFile(long msgId)
 	{
-		if(currentReceivingFiles.contains(msgId))
+		if(((ConcurrentHashMap<Long, FileTransferModel>)currentReceivingFiles).contains(msgId))
 		{
 			currentReceivingFiles.remove(msgId);
 		}
@@ -431,7 +435,8 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 	@Override
 	public void onScanResultAvailable() {
 
-		HashMap<String,ScanResult> results = connectionManager.getWifiNetworksForMyMsisdn();
+		scanResultsAvailable =true;
+		Map<String,ScanResult> results = connectionManager.getWifiNetworksForMyMsisdn();
 		//pass results to listeners
 		for(IOfflineCallbacks  offlineListener : listeners)
 		{
@@ -447,18 +452,17 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 
 	@Override
 	public void checkConnectedNetwork() {
-		Pair<Boolean,String> offlineNetwork = connectionManager.isConnectedToHikeNetwork();
-		if(offlineNetwork.first)
+		String offlineNetworkMsisdn = connectionManager.getConnectedHikeNetworkMsisdn();
+		if(offlineNetworkMsisdn!=null)
 		{
-			String ssid  =  offlineNetwork.second;
-			onConnected(ssid);
+			onConnected(offlineNetworkMsisdn);
 		}
 	}
 
 	public void onConnected(String connectedMsisdn)
 	{
 		connectedDevice = connectedMsisdn;
-		removeRunnable(waitingTimerRunnable);
+		removeMessage(OfflineConstants.HandlerConstants.DISCONNECT_AFTER_TIMEOUT);
 
 		for(IOfflineCallbacks  offlineListener : listeners)
 		{
@@ -467,10 +471,9 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 
 	}
 
-	public void removeRunnable(Runnable r)
+	public void removeMessage(int msg)
 	{
-		if (r != null)
-			handler.removeCallbacks(r);
+		handler.removeMessages(msg);
 	}
 
 
@@ -497,21 +500,19 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 	public void createHotspot(final String msisdn)
 	{
 		threadManager.startReceivingThread();
-		handler.postDelayed(new Runnable(){
-			@Override
-			public void run() {
-				connectionManager.createHotspot(msisdn);
-				waitForConnection(msisdn);
-			}
-
-		},0);
-
+		Message msg = Message.obtain();
+		msg.what = OfflineConstants.HandlerConstants.CREATE_HOTSPOT;
+		msg.obj = msisdn;
+		performWorkOnBackEndThread(msg);
+		waitForConnection(msisdn);
 	}
 
 	private void waitForConnection(String msisdn) 
 	{
-		initTimerRunnables(msisdn);
-		handler.postDelayed(waitingTimerRunnable,OfflineConstants.WAITING_TIMEOUT);
+		Message msg = Message.obtain();
+		msg.what = OfflineConstants.HandlerConstants.DISCONNECT_AFTER_TIMEOUT;
+		msg.obj = msisdn;
+		handler.sendMessageDelayed(msg,OfflineConstants.WAITING_TIMEOUT);
 	}
 
 	public void connectToHotspot(String msisdn)
@@ -523,27 +524,24 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 
 	public void connectAsPerMsisdn(final String msisdn) 
 	{
-		String myMsisdn = connectionManager.getMyMsisdn();
+		String myMsisdn = OfflineUtils.getMyMsisdn();
 		if(myMsisdn.compareTo(msisdn)>0)
 		{
 			createHotspot(msisdn);
 		}
 		else
 		{
-			handler.postDelayed(new Runnable(){
-
-				@Override
-				public void run() {
-					threadManager.startReceivingThread();
-					threadManager.startSendingThread();
-					boolean check  = connectionManager.connectToNetworkTimer(msisdn);
-					if(!check)
-					{
-						//To do : Notify connection was not possible 
-					}
-				}
-
-			},0);
+			threadManager.startReceivingThread();
+			threadManager.startSendingThread();
+			Message msg = Message.obtain();
+			msg.what = OfflineConstants.HandlerConstants.CONNECT_TO_HOTSPOT;
+			msg.obj = msisdn;
+			performWorkOnBackEndThread(msg);
+			Message endTries = Message.obtain();
+			endTries.what = OfflineConstants.HandlerConstants.REMOVE_CONNECT_MESSAGE; 
+			endTries.obj  = msisdn;
+			handler.sendMessageDelayed(endTries, OfflineConstants.TIME_TO_CONNECT);
+			
 		}
 	}
 
@@ -565,100 +563,73 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 	}
 
 	public void startScan() {
-		runNetworkScanTimer();
+		Message startScan   =  Message.obtain();
+		startScan.what = OfflineConstants.HandlerConstants.START_SCAN;
+		startScan.obj = tryGetScanResults;
+		performWorkOnBackEndThread(startScan);
 	}
-	private void runNetworkScanTimer() {
-		wifiScanTimer = new Timer();
-		timerTask = new WifiScanTimerTask();
-		wifiScanTimer.schedule(timerTask, 0, 10000);
-	}
-
-	private class WifiScanTimerTask extends TimerTask
+	private void runNetworkScan(int attemptNumber)
 	{
-		int count;
 
-		public WifiScanTimerTask() {
-			count = 0;
-		}
-
-		@Override
-		public void run() 
+		if (attemptNumber < OfflineConstants.MAXTRIES_FOR_SCAN_RESULTS || (scanResultsAvailable == true))
 		{
-
-			/*
-			 * Implementing this condition for duos.
-			 * In duos scan results do not come once wifi-direct scan is run
-			 * Hence after two tries of wifiManager.startScan, if scan results
-			 * are not available we simply switch off the wifi and switch it on
-			 * to get the scan results 
-			 */
-			//if (count < 3 || (scanResultsAvailable == true))
+			connectionManager.startDiscovery();
+			try 
 			{
-				connectionManager.startDiscovery();
-				try 
-				{
-					Thread.sleep(8000);
-				}
-				catch (InterruptedException e) 
-				{
-					e.printStackTrace();
-				}
-				connectionManager.stopDiscovery();
-				try 
-				{
-					Thread.sleep(2000);
-				}
-				catch (InterruptedException e) 
-				{
-					e.printStackTrace();
-				} 
-
-				connectionManager.startWifiScan();
-				count++;
+				Thread.sleep(8000);
 			}
-			/*else
+			catch (InterruptedException e) 
 			{
-				connectionManager.stopWifi();
+				e.printStackTrace();
+			}
+			connectionManager.stopDiscovery();
+			try 
+			{
+				Thread.sleep(2000);
+			}
+			catch (InterruptedException e) 
+			{
+				e.printStackTrace();
+			} 
 
-				while(connectionManager.isWifiEnabled())
+			connectionManager.startWifiScan();
+		}
+		else
+		{
+			connectionManager.stopWifi();
+
+			while(connectionManager.isWifiEnabled())
+			{
+				try 
 				{
-					try 
-					{
-						Thread.sleep(1000);
-					}
-					catch (InterruptedException e) 
-					{
-						e.printStackTrace();
-					}
-					Logger.d(TAG, "Waiting for wifi to stop");
+					Thread.sleep(1000);
 				}
-				connectionManager.startWifi();
-				Logger.d(TAG, "Called start wifi");
-				while(!connectionManager.isWifiEnabled())
+				catch (InterruptedException e) 
 				{
-					try 
-					{
-						Thread.sleep(1000);
-					}
-					catch (InterruptedException e) 
-					{
-						e.printStackTrace();
-					}
-					Logger.d(TAG, "Waiting for wifi to start");
+					e.printStackTrace();
 				}
-				Logger.d(TAG, "Wifi is on, now scanning for any available wifi hotspots");
-				connectionManager.startWifiScan();
-			}*/
+				Logger.d(TAG, "Waiting for wifi to stop");
+			}
+			connectionManager.startWifi();
+			Logger.d(TAG, "Called start wifi");
+			while(!connectionManager.isWifiEnabled())
+			{
+				try 
+				{
+					Thread.sleep(1000);
+				}
+				catch (InterruptedException e) 
+				{
+					e.printStackTrace();
+				}
+				Logger.d(TAG, "Waiting for wifi to start");
+			}
+			Logger.d(TAG, "Wifi is on, now scanning for any available wifi hotspots");
+			connectionManager.startWifiScan();
 		}
 	}
-
+	
 	public void stopScan() {
-		if(timerTask != null)
-			timerTask.cancel();
-		if(wifiScanTimer != null)
-		{
-			wifiScanTimer.cancel();
-			wifiScanTimer.purge();
-		}
+		removeMessage(OfflineConstants.HandlerConstants.START_SCAN);
 	}
 }

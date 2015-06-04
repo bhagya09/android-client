@@ -35,21 +35,16 @@ public class OfflineController
 		offlineManager.addListener(listener);
 	}
 
-	public void startScanningWifiDirect()
+	public void startScan()
 	{
-		offlineManager.startDiscovery();
+		offlineManager.startScan();
 	}
 
-	public void stopScanningWifiDirect()
+	public void stopScan()
 	{
-		offlineManager.stopDiscovery();
+		offlineManager.stopScan();
 	}
 
-	public void startWifiScan()
-	{
-		offlineManager.startWifiScan();
-	}
-	
 	public void startWifi()
 	{
 		offlineManager.startWifi();
