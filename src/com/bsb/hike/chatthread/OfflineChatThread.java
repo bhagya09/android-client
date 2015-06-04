@@ -127,7 +127,7 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 	@Override
 	protected String getConvLabel()
 	{
-		return mConversation.getConversationName();
+		return mConversation.getLabel();
 	}
 	
 	@Override
@@ -189,8 +189,7 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 		if (convMessage != null)
 		{
 			convMessage.setIsOfflineMessage(true);
-			addtoMessageMap(convMessage);
-
+			addMessage(convMessage);
 
 			controller.sendMessage(convMessage);
 		}
@@ -219,12 +218,6 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 	@Override
 	public void onConnect()
 	{
-		sendUpdateStatusMessageOnHandler(R.string.connection_established);
-		
-		ConvMessage convMessage=OfflineUtils.createOfflineInlineConvMessage(msisdn,activity.getString(R.string.connection_established),OfflineConstants.OFFLINE_MESSAGE_CONNECTED_TYPE);
-		
-		addMessage(convMessage);
-		HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_SENT, convMessage);
 	}
 	
 	private void sendUpdateStatusMessageOnHandler(int id)
@@ -434,8 +427,21 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 			break;
 		}
 	}
-	public void connectedToMsisdn(String connectedDevice) {
+
+
+	@Override
+	public void connectedToMsisdn(String connectedDevice)
+	{
+		Logger.d(TAG,"I am connected to "+connectedDevice);
+		sendUpdateStatusMessageOnHandler(R.string.connection_established);
+		
+		ConvMessage convMessage=OfflineUtils.createOfflineInlineConvMessage(msisdn,activity.getString(R.string.connection_established),OfflineConstants.OFFLINE_MESSAGE_CONNECTED_TYPE);
+		
+		addMessage(convMessage);
+		HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_SENT, convMessage);
 		
 	}
+	
+	
 
 }
