@@ -1,16 +1,10 @@
 package com.bsb.hike.chatthread;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.net.wifi.ScanResult;
 import android.net.wifi.p2p.WifiP2pDeviceList;
@@ -34,12 +28,8 @@ import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.media.AttachmentPicker;
 import com.bsb.hike.media.OverFlowMenuItem;
 import com.bsb.hike.models.ConvMessage;
-import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
-import com.bsb.hike.models.ConvMessage.State;
-import com.bsb.hike.models.MessageMetadata;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.OfflineConversation;
-import com.bsb.hike.models.Conversation.OneToOneConversation;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.offline.IOfflineCallbacks;
 import com.bsb.hike.offline.OfflineConstants;
@@ -47,9 +37,7 @@ import com.bsb.hike.offline.OfflineConstants.ERRORCODE;
 import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
-import com.bsb.hike.ui.GalleryActivity;
 import com.bsb.hike.utils.ChatTheme;
-import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
@@ -203,7 +191,6 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 			convMessage.setIsOfflineMessage(true);
 			addtoMessageMap(convMessage);
 
-			HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_SENT, convMessage);
 
 			controller.sendMessage(convMessage);
 		}
@@ -450,4 +437,5 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 	public void connectedToMsisdn(String connectedDevice) {
 		
 	}
+
 }

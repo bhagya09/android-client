@@ -91,6 +91,7 @@ public class ConnectionManager implements ChannelListener
 	public Boolean connectToHotspot(String targetMsisdn) 
 	{
 		String ssid = OfflineUtils.getSsidForMsisdn(myMsisdn,targetMsisdn);
+		Logger.d("OfflineManager","SSID is "+ssid);
 		WifiConfiguration wifiConfig = new WifiConfiguration();
 		wifiConfig.SSID = "\"" +OfflineUtils.encodeSsid(ssid) +"\"";
 		wifiConfig.preSharedKey  = "\"" + OfflineUtils.generatePassword(ssid)  +  "\"";
@@ -181,6 +182,7 @@ public class ConnectionManager implements ChannelListener
 		if(wifiManager.getConnectionInfo()!=null)
 		{
 			String ssid = wifiManager.getConnectionInfo().getSSID();
+			Logger.d("OfflineManager","Connected SSID is "+ssid);
 			Boolean isHikeNetwrok = (OfflineUtils.isOfflineSsid(ssid));
 			if(isHikeNetwrok)
 			{
@@ -220,8 +222,10 @@ public class ConnectionManager implements ChannelListener
 	public Boolean createHotspot(String wifiP2pDeviceName)
 	{
 		// save current WifiHotspot Name
+		Logger.d("OfflineManager","wil create hotspot for "+wifiP2pDeviceName);
 		saveCurrentHotspotSSID();
 		Boolean result = setWifiApEnabled(wifiP2pDeviceName, true);
+		Logger.d("OfflineManager", "HotSpot creation result is "+ result);
 		return result;
 	}
 	public Boolean closeHotspot(String targetMsisdn)
@@ -235,6 +239,7 @@ public class ConnectionManager implements ChannelListener
 	private boolean setWifiApEnabled(String targetMsisdn,boolean status)
 	{
 		boolean result = false;
+		wifiManager.setWifiEnabled(false);
 		Method enableWifi;
 		try {
 			enableWifi = wifiManager.getClass().getMethod("setWifiApEnabled", WifiConfiguration.class, boolean.class);
@@ -243,6 +248,7 @@ public class ConnectionManager implements ChannelListener
 			return result;
 		}
 		String ssid  =   OfflineUtils.getSsidForMsisdn(targetMsisdn, myMsisdn);
+		Logger.d("OfflineManager","SSID is "+ssid);
 		String encryptedSSID = OfflineUtils.encodeSsid(ssid);
 		Logger.d(TAG, encryptedSSID);
 		String pass = OfflineUtils.generatePassword(ssid);
@@ -351,6 +357,7 @@ public class ConnectionManager implements ChannelListener
 	}
 	
 	private boolean tryConnectingToHotSpot(final String msisdn) {
+		Logger.d("OfflineManager","tryConnectingToHotSpot");
 		boolean isConnected = false;
 		String ssid  = OfflineUtils.getSsidForMsisdn(myMsisdn, msisdn);
 		String encodedSSID = OfflineUtils.encodeSsid(ssid);
