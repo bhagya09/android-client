@@ -44,6 +44,8 @@ public class HikeConstants
 	public static final String FROM = "f";
 
 	public static final String SUB_TYPE = "st";
+	
+	public static final String GROUP_CHAT_TIMESTAMP = "gts";
 
 	public static final String HIKE_MESSAGE = "hm";
 
@@ -687,7 +689,7 @@ public class HikeConstants
 
 	public static final int MAX_CHAR_IN_NAME = 20;
 
-	public static final int MAX_CONTACTS_IN_GROUP = 500;
+	public static final int MAX_CONTACTS_IN_GROUP = 1000;
 
 	public static final int MAX_CONTACTS_IN_BROADCAST = 500;
 

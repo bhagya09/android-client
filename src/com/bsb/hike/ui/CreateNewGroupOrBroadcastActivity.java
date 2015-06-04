@@ -74,6 +74,8 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 	private ConvType convType;
 	
 	private String myMsisdn;
+	
+	private TextView groupNote;
 
 	private ImageView editImageIcon;
 
@@ -183,6 +185,8 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 			convImage = (ImageView) findViewById(R.id.group_profile_image);
 			convName = (EditText) findViewById(R.id.group_name);
 			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+			groupNote = (TextView) findViewById(R.id.group_info);
+			groupNote.setText(Html.fromHtml(getString(R.string.group_participant_info)));
 			editImageIcon = (ImageView) findViewById(R.id.change_image);
 			convName.addTextChangedListener(new TextWatcher()
 			{
