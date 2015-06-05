@@ -66,7 +66,7 @@ public class OfflineConstants
 		public static final int START_SCAN = -106;
 		public static final int STOP_SCAN = -107;
 		public static final int SEND_GHOST_PACKET = -108;
-
+		public static final int RECONNECT_TO_HOTSPOT = -109;
 	}
 	
 	public static enum ERRORCODE

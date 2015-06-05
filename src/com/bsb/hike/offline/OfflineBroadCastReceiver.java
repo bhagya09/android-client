@@ -10,6 +10,7 @@ import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.net.wifi.p2p.WifiP2pManager;
 
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.utils.Logger;
 
 public class OfflineBroadCastReceiver extends BroadcastReceiver
@@ -51,7 +52,12 @@ public class OfflineBroadCastReceiver extends BroadcastReceiver
 	        else if(WifiManager.NETWORK_STATE_CHANGED_ACTION.equals(action))
 	        {
 	         	NetworkInfo netInfo = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
-	         	if(netInfo!=null && netInfo.getDetailedState().equals(NetworkInfo.DetailedState.CONNECTED))
+	         	WifiManager wifiManager = (WifiManager) HikeMessengerApp.getInstance().
+	         			getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+	         	String ssid = wifiManager.getConnectionInfo().getSSID();
+	         	ssid = ssid.substring(1, ssid.length()-2);
+	         	if(netInfo!=null && netInfo.getDetailedState().equals(NetworkInfo.DetailedState.CONNECTED) &&
+	         			OfflineUtils.isOfflineSsid(ssid))
         		{
 	         		wifiCallBack.checkConnectedNetwork(); 
         		}

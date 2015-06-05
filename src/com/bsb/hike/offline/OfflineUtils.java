@@ -232,7 +232,7 @@ public class OfflineUtils
 	}
 
 	public static boolean isOfflineSsid(String ssid) {
-		String decodedSSID = decodeSsid(ssid.substring(1, ssid.length()-2));
+		String decodedSSID = decodeSsid(ssid);
 		if(decodedSSID.startsWith("h_"))
 			return true;
 		return false;

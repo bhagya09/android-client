@@ -183,13 +183,17 @@ public class ConnectionManager implements ChannelListener
 		{
 			String ssid = wifiManager.getConnectionInfo().getSSID();
 			Logger.d("OfflineManager","Connected SSID is "+ssid);
-			Boolean isHikeNetwrok = (OfflineUtils.isOfflineSsid(ssid));
-			if(isHikeNetwrok)
+			
+			// System returns ssid as "ssid". Hence removing the quotes.
+			ssid = ssid.substring(1, ssid.length()-2);
+			
+			boolean isHikeNetwork = (OfflineUtils.isOfflineSsid(ssid));
+			if(isHikeNetwork)
 			{
 				String decodedSSID = OfflineUtils.decodeSsid(ssid);
-				Logger.d("ConnectionManager","decodedSSID  is "+decodedSSID);
+				Logger.d("ConnectionManager","decodedSSID  is " + decodedSSID);
 				String connectedMsisdn = OfflineUtils.getconnectedDevice(decodedSSID);  
-				Logger.d("ConnectionManager","connectedMsisdn is "+connectedMsisdn);
+				Logger.d("ConnectionManager","connectedMsisdn is " + connectedMsisdn);
 				return connectedMsisdn;
 			}
 		}
@@ -353,23 +357,29 @@ public class ConnectionManager implements ChannelListener
 	{
 		wifiManager.removeNetwork(connectedNetworkId);
 	}
-
-	public boolean connectToNetwork(String msisdn) {
-		return tryConnectingToHotSpot(msisdn);
-	}
 	
-	private boolean tryConnectingToHotSpot(final String msisdn) {
-		Logger.d("OfflineManager","tryConnectingToHotSpot");
-		boolean isConnected = false;
-		String ssid  = OfflineUtils.getSsidForMsisdn(myMsisdn, msisdn);
-		String encodedSSID = OfflineUtils.encodeSsid(ssid);
+	public boolean tryConnectingToHotSpot(final String msisdn) 
+	{
+		Logger.d(TAG, "tryConnectingToHotSpot");
+		
 		if(!wifiManager.isWifiEnabled())
 		{
 			wifiManager.setWifiEnabled(true);
 		}
-		connectToHotspot(msisdn);
-		// wait for the network to establish
+		return connectToHotspot(msisdn);
+	}
+	
+	public boolean isConnectedToSSID(String msisdn)
+	{
+		boolean isConnected = false;
+		
+		String encodedSSID = OfflineUtils.encodeSsid(OfflineUtils.getSsidForMsisdn(myMsisdn, msisdn));
 		String connectedToSSID = wifiManager.getConnectionInfo().getSSID();
+		// removing quotes.
+		if (connectedToSSID.length()-3 > 0)
+		connectedToSSID = connectedToSSID.substring(1, connectedToSSID.length()-2);
+		Logger.d(TAG, "Connected SSID: " + connectedToSSID + " EncodedSSID: " + encodedSSID);
+		
 		ConnectivityManager cm = (ConnectivityManager) HikeMessengerApp.getInstance().getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
 		NetworkInfo networkInfo = cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
 		if (connectedToSSID.compareTo(encodedSSID)==0 && networkInfo.isConnected())
@@ -381,7 +391,9 @@ public class ConnectionManager implements ChannelListener
 
 	public String getConnectedSSID()
 	{
-		return wifiManager.getConnectionInfo().getSSID();
-		
+		String ssid =  wifiManager.getConnectionInfo().getSSID();
+		Logger.d(TAG, ssid);
+		ssid = ssid.substring(1, ssid.length()-2);
+		return ssid;
 	}
 }

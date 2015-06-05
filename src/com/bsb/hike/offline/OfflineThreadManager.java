@@ -25,7 +25,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.os.Environment;
-import android.support.v4.util.Pair;
+import android.util.Pair;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -235,10 +235,6 @@ public class OfflineThreadManager
 					try
 					{
 						Thread.sleep(300);
-						if(++tries==10)
-						{
-							interrupt();
-						}
 					}
 					catch (InterruptedException e1)
 					{
@@ -293,7 +289,7 @@ public class OfflineThreadManager
 						byte[] convMessageLength = new byte[4];
 						inputStream.read(convMessageLength, 0, 4);
 						msgSize = OfflineUtils.byteArrayToInt(convMessageLength);
-						Logger.d(TAG,"Msg size is "+msgSize);
+						// Logger.d(TAG,"Msg size is "+msgSize);
 						if(msgSize==0)
 							continue;
 						byte[] msgJSON = new byte[msgSize];
@@ -411,7 +407,9 @@ public class OfflineThreadManager
 					while(true)
 					{
 						byte[] metaDataLengthArray = new byte[4];
-						inputstream.read(metaDataLengthArray,0,4);
+						int msgSize = inputstream.read(metaDataLengthArray,0,4);
+						if(msgSize==0)
+							continue;
 						int metaDataLength = OfflineUtils.byteArrayToInt(metaDataLengthArray);
 						Logger.d(TAG, "Size of MetaString: " + metaDataLength);
 						ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(metaDataLength);
