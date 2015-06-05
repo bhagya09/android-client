@@ -4911,16 +4911,8 @@ public class Utils
 			}
 			else if (givenCalendar.get(Calendar.YEAR) == currentCalendar.get(Calendar.YEAR))
 			{
-				if (givenCalendar.get(Calendar.DAY_OF_YEAR)+2 > currentCalendar.get(Calendar.DAY_OF_YEAR))
-				{
-					//Show date in relative format. eg. 2 hours ago, yesterday etc.
-					return DateUtils.getRelativeTimeSpanString(givenTimeStampInMillis, currentTime, DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_ABBREV_MONTH).toString();
-				}
-				else
-				{
-					// Show date in MMM dd format eg. Apr 21, May 13 etc.
-					return DateUtils.getRelativeTimeSpanString(givenTimeStampInMillis, currentTime, DateUtils.YEAR_IN_MILLIS, DateUtils.FORMAT_ABBREV_MONTH | DateUtils.FORMAT_SHOW_DATE).toString();
-				}
+				//Show date in relative format. eg. 2 hours ago, yesterday, 2 days ago etc.
+				return DateUtils.getRelativeTimeSpanString(givenTimeStampInMillis, currentTime, DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_ABBREV_MONTH).toString();
 			}
 			else
 			{
