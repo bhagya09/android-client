@@ -136,7 +136,8 @@ public class VoIPService extends Service {
 	
 	
 	// Bluetooth 
-	BluetoothHelper bluetoothHelper;
+	private boolean isBluetoothEnabled = false;
+	BluetoothHelper bluetoothHelper = null;
 	private class BluetoothHelper extends BluetoothHeadsetUtils {
 
 		public BluetoothHelper(Context context) {
@@ -284,8 +285,12 @@ public class VoIPService extends Service {
 		}
 		
 		startConnectionTimeoutThread();
-		bluetoothHelper = new BluetoothHelper(getApplicationContext());
-		bluetoothHelper.start();
+		
+		isBluetoothEnabled = VoIPUtils.isBluetoothEnabled(getApplicationContext());
+		if (isBluetoothEnabled) {
+			bluetoothHelper = new BluetoothHelper(getApplicationContext());
+			bluetoothHelper.start();
+		}
 	}
 	
 	@Override
@@ -293,7 +298,10 @@ public class VoIPService extends Service {
 		super.onDestroy();
 		stop();
 		dismissNotification();
-		bluetoothHelper.stop();
+		
+		if (bluetoothHelper != null)
+			bluetoothHelper.stop();
+		
 		Logger.d(logTag, "VoIP Service destroyed.");
 	}
 	

@@ -300,6 +300,16 @@ public class VoIPClient  {
 		}
 	}
 	
+	private void getNewSocket() {
+		try {
+			socket = new DatagramSocket();
+			socket.setReuseAddress(true);
+			socket.setSoTimeout(2000);
+		} catch (SocketException e) {
+			Logger.d(logTag, "getNewSocket() IOException2: " + e.toString());
+		}
+	}
+	
 	public void retrieveExternalSocket() {
 
 		keepRunning = true;
@@ -313,65 +323,58 @@ public class VoIPClient  {
 				
 				byte[] receiveData = new byte[10240];
 				
-				try {
-					Logger.d(logTag, "Retrieving external socket information..");
-					VoIPDataPacket dp = new VoIPDataPacket(PacketType.RELAY_INIT);
-					DatagramPacket incomingPacket = new DatagramPacket(receiveData, receiveData.length);
+				Logger.d(logTag, "Retrieving external socket information..");
+				VoIPDataPacket dp = new VoIPDataPacket(PacketType.RELAY_INIT);
+				DatagramPacket incomingPacket = new DatagramPacket(receiveData, receiveData.length);
 
-					boolean continueSending = true;
-					int counter = 0;
+				boolean continueSending = true;
+				int counter = 0;
 
-					socket = new DatagramSocket();
-					socket.setReuseAddress(true);
-					socket.setSoTimeout(2000);
+				getNewSocket();
+				setOurInternalIPAddress(VoIPUtils.getLocalIpAddress(context)); 
+				setOurInternalPort(socket.getLocalPort());
 
-					setOurInternalIPAddress(VoIPUtils.getLocalIpAddress(context)); 
-					setOurInternalPort(socket.getLocalPort());
-
-					while (continueSending && keepRunning && (counter < 10 || reconnecting)) {
-						counter++;
-						try {
-							InetAddress host = InetAddress.getByName(VoIPConstants.ICEServerName);
-							
-							/**
-							 * If we are initiating the connection, then we set the relay server
-							 * to be used by both clients. 
-							 */
-							if (!isInitiator()) {
-								setRelayAddress(host.getHostAddress());
-								setRelayPort(VoIPUtils.getRelayPort(context));
-							}
-
-							Logger.d(logTag, "ICE Sending.");
-							sendPacket(dp, false);
-							
-							if (socket == null)
-								return;
-							
-							socket.receive(incomingPacket);
-							
-							String serverResponse = new String(incomingPacket.getData(), 0, incomingPacket.getLength());
-							Logger.d(logTag, "ICE Received: " + serverResponse);
-							setExternalSocketInfo(serverResponse);
-							continueSending = false;
-							
-						} catch (SocketTimeoutException e) {
-							Logger.d(logTag, "UDP timeout on ICE. #" + counter);
-						} catch (IOException e) {
-							Logger.d(logTag, "retrieveExternalSocket() IOException" + e.toString());
-							try {
-								Thread.sleep(500);
-							} catch (InterruptedException e1) {
-								Logger.d(logTag, "Waiting for external socket info interrupted.");
-							}
-						} catch (JSONException e) {
-							Logger.d(logTag, "JSONException: " + e.toString());
-							continueSending = true;
+				while (continueSending && keepRunning && (counter < 10 || reconnecting)) {
+					counter++;
+					try {
+						InetAddress host = InetAddress.getByName(VoIPConstants.ICEServerName);
+						
+						/**
+						 * If we are initiating the connection, then we set the relay server
+						 * to be used by both clients. 
+						 */
+						if (!isInitiator()) {
+							setRelayAddress(host.getHostAddress());
+							setRelayPort(VoIPUtils.getRelayPort(context));
 						}
-					}
 
-				} catch (SocketException e2) {
-					Logger.d(logTag, "retrieveExternalSocket() IOException2: " + e2.toString());
+						Logger.d(logTag, "ICE Sending.");
+						sendPacket(dp, false);
+						
+						if (socket == null)
+							return;
+						
+						socket.receive(incomingPacket);
+						
+						String serverResponse = new String(incomingPacket.getData(), 0, incomingPacket.getLength());
+						Logger.d(logTag, "ICE Received: " + serverResponse);
+						setExternalSocketInfo(serverResponse);
+						continueSending = false;
+						
+					} catch (SocketTimeoutException e) {
+						Logger.d(logTag, "UDP timeout on ICE. #" + counter);
+						getNewSocket();
+					} catch (IOException e) {
+						Logger.d(logTag, "retrieveExternalSocket() IOException" + e.toString());
+						try {
+							Thread.sleep(500);
+						} catch (InterruptedException e1) {
+							Logger.d(logTag, "Waiting for external socket info interrupted.");
+						}
+					} catch (JSONException e) {
+						Logger.d(logTag, "JSONException: " + e.toString());
+						continueSending = true;
+					}
 				}
 				
 				if (haveExternalSocketInfo()) {

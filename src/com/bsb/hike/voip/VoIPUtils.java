@@ -370,8 +370,22 @@ public class VoIPUtils {
 	
 	public static boolean isConferencingEnabled(Context context) 
 	{
-		boolean conferenceEnabled = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.VOIP_CONFERENCING_ENABLED, false);
+		boolean conferenceEnabled = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.VOIP_CONFERENCING_ENABLED, true);
 		return conferenceEnabled;
+	}
+	
+	public static boolean isBluetoothEnabled(Context context) 
+	{
+		boolean bluetoothEnabled = false;
+		
+		// Below Jellybean startBluetoothSco() requires BROADCAST_STICKY permission
+		// http://stackoverflow.com/questions/8678642/startbluetoothsco-throws-security-exception-broadcast-sticky-on-ics
+		if (Utils.hasJellyBean())
+			bluetoothEnabled = true;
+		else
+			Logger.w(VoIPConstants.TAG, "Bluetooth disabled since phone does not support Jellybean.");
+		
+		return bluetoothEnabled;
 	}
 	
 	/**
