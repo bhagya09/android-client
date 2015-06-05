@@ -146,6 +146,7 @@ public class BotUtils
 	 */
 	public static void postAccountRestoreSetup()
 	{
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.UPGRADE_FOR_DEFAULT_BOT_ENTRY, true);
 		initBots();
 	}
 	
