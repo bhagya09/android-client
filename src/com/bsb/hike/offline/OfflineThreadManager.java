@@ -293,8 +293,14 @@ public class OfflineThreadManager
 						if(msgSize==0)
 							continue;
 						byte[] msgJSON = new byte[msgSize];
-						inputStream.read(msgJSON, 0, msgSize);
-						String msgString = new String(msgJSON, "UTF-8");
+						int fileSizeRead=msgSize;
+						int offset = 0;
+						while(msgSize>0)
+						{
+							int len = inputStream.read(msgJSON, offset, msgSize);
+							offset += len;
+							msgSize -= len;
+						}String msgString = new String(msgJSON, "UTF-8");
 						Logger.d(TAG, "" + msgSize);
 						JSONObject messageJSON = new JSONObject(msgString);
 						Logger.d(TAG,"Message Received :-->"+msgString);
@@ -580,7 +586,9 @@ public class OfflineThreadManager
 				msgId = packet.getJSONObject(HikeConstants.DATA).getLong(HikeConstants.MESSAGE_ID);
 
 				String msisdn = packet.getString(HikeConstants.TO);
+				long startTime = System.currentTimeMillis();
 				int rowsUpdated = OfflineUtils.updateDB(msgId, ConvMessage.State.SENT_DELIVERED, msisdn);
+				Logger.d(TAG, "Time  taken: " + (System.currentTimeMillis() - startTime));
 				if (rowsUpdated == 0)
 				{
 					Logger.d(getClass().getSimpleName(), "No rows updated");

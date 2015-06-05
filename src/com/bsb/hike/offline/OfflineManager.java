@@ -165,8 +165,12 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 
 	private void saveToDb(ConvMessage convMessage)
 	{
+		long startTime=System.currentTimeMillis();
 		HikeConversationsDatabase.getInstance().addConversationMessages(convMessage,true);
 		addToTextQueue(convMessage.serialize());
+		long endTime = System.currentTimeMillis();
+		
+		Logger.d(TAG, "Time in DB entry: " + (endTime-startTime));
 	}
 
 	public void performWorkOnBackEndThread(Message msg)
