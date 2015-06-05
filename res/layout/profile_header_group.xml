@@ -31,7 +31,7 @@
                 android:layout_gravity="center"
                 style="@style/RoundedStyle"
                 android:onClick="onViewImageClicked"
-                android:src="@drawable/ic_default_avatar_group" />
+                />
 
         </FrameLayout>
 

@@ -188,10 +188,23 @@ public class RoundedImageView extends RecyclingImageView {
 
     @Override
     public void setImageDrawable(Drawable drawable) {
+    	
+		if (drawable instanceof TextDrawable)
+		{
+			setTextDrawable((TextDrawable) drawable);
+			return;
+		}
+		
         mResource = 0;
         mDrawable = RoundedDrawable.fromDrawable(drawable);
         updateDrawableAttrs();
         super.setImageDrawable(mDrawable);
+    }
+    
+    private void setTextDrawable(TextDrawable argTextDrawable)
+    {
+    	mDrawable = argTextDrawable;
+    	super.setImageDrawable(mDrawable);
     }
 
     @Override

@@ -1,5 +1,7 @@
 package com.bsb.hike.utils;
 
+import com.bsb.hike.R;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -16,8 +18,8 @@ public abstract class HikeAppStateBaseActivity extends Activity
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		HikeAppStateUtils.onCreate(this);
+		overridePendingTransition(R.anim.appear, R.anim.pop_top);
 		super.onCreate(savedInstanceState);
-
 	}
 
 	@Override
@@ -52,6 +54,7 @@ public abstract class HikeAppStateBaseActivity extends Activity
 	protected void onPause()
 	{
 		HikeAppStateUtils.onPause(this);
+		overridePendingTransition(R.anim.pump_top, R.anim.disappear);
 		super.onPause();
 	}
 

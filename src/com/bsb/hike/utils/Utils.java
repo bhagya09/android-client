@@ -79,6 +79,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.graphics.Bitmap;
@@ -4031,20 +4032,16 @@ public class Utils
 
 		if (isPin || drawable == null)
 		{
-			Drawable background = context.getResources().getDrawable(BitmapUtils.getDefaultAvatarResourceId(msisdn, false));
-
 			Drawable iconDrawable = null;
-
 			if (isPin)
 			{
 				iconDrawable = context.getResources().getDrawable(R.drawable.ic_pin_notification);
 			}
 			else
 			{
-				iconDrawable = context.getResources().getDrawable(OneToNConversationUtils.isBroadcastConversation(msisdn)? R.drawable.ic_default_avatar_broadcast : 
-					(OneToNConversationUtils.isGroupConversation(msisdn) ? R.drawable.ic_default_avatar_group : R.drawable.ic_default_avatar));
+				iconDrawable = HikeBitmapFactory.getRectTextAvatar(msisdn);
 			}
-			drawable = new LayerDrawable(new Drawable[] { background, iconDrawable });
+			drawable = iconDrawable;
 		}
 		return drawable;
 	}
@@ -5921,7 +5918,17 @@ public class Utils
 			return null;
 		}
 	}
+	
+	public static TypedArray getDefaultAvatarBG()
+	{
+		if (HikeConstants.DEFAULT_AVATAR_BG_COLOR_ARRAY == null)
+		{
+			HikeConstants.DEFAULT_AVATAR_BG_COLOR_ARRAY = HikeMessengerApp.getInstance().getApplicationContext().getResources().obtainTypedArray(R.array.dp_bg);
+		}
 
+		return HikeConstants.DEFAULT_AVATAR_BG_COLOR_ARRAY;
+	}
+	
 	private static String getPathFromDocumentedUri(Uri uri, Context context)
 	{
 		String result = null;
