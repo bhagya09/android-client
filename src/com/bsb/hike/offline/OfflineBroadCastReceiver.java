@@ -54,7 +54,9 @@ public class OfflineBroadCastReceiver extends BroadcastReceiver
 	         	NetworkInfo netInfo = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
 	         	WifiManager wifiManager = (WifiManager) HikeMessengerApp.getInstance().
 	         			getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+	         	
 	         	String ssid = wifiManager.getConnectionInfo().getSSID();
+	         	if (ssid.length()>3)
 	         	ssid = ssid.substring(1, ssid.length()-2);
 	         	if(netInfo!=null && netInfo.getDetailedState().equals(NetworkInfo.DetailedState.CONNECTED) &&
 	         			OfflineUtils.isOfflineSsid(ssid))

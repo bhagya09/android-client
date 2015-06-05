@@ -18,6 +18,7 @@ import android.net.wifi.p2p.WifiP2pManager.Channel;
 import android.net.wifi.p2p.WifiP2pManager.ChannelListener;
 import android.net.wifi.p2p.WifiP2pManager.PeerListListener;
 import android.text.TextUtils;
+
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.utils.Logger;
@@ -144,7 +145,19 @@ public class ConnectionManager implements ChannelListener
 
 	public void startWifiScan() {
 		if(!wifiManager.isWifiEnabled())
+		{
 			wifiManager.setWifiEnabled(true);
+		}
+		
+		while(!wifiManager.isWifiEnabled())
+		{
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block 
+				e.printStackTrace();
+			}
+		}
 		boolean wifiScan = wifiManager.startScan();
 		Logger.d(TAG, "Wifi Scan returns " + wifiScan);
 	}

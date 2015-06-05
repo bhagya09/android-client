@@ -371,8 +371,8 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 
 	public String getConnectedDevice()
 	{
-		// return connectedDevice;
-		return OfflineUtils.getconnectedDevice(OfflineUtils.decodeSsid(connectionManager.getConnectedSSID()));
+		return connectedDevice;
+		//return OfflineUtils.getconnectedDevice(OfflineUtils.decodeSsid(connectionManager.getConnectedSSID()));
 	}
 
 	public void addToCurrentReceivingFile(long msgId,FileTransferModel fileTransferModel)
@@ -437,10 +437,17 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 		scanResultsAvailable =true;
 		Map<String,ScanResult> results = connectionManager.getWifiNetworksForMyMsisdn();
 		
+		/*
 		//pass results to listeners
-		for(IOfflineCallbacks  offlineListener : listeners)
+		for(IOfflineCallbacks offlineListener : listeners)
 		{
 			offlineListener.wifiScanResults(results);
+		}
+		*/
+		String ssid = OfflineUtils.getSsidForMsisdn(OfflineUtils.getMyMsisdn(), connectinMsisdn);
+		if (results.containsKey(ssid))
+		{
+			connectionManager.connectToHotspot(connectinMsisdn);
 		}
 	}
 
@@ -535,12 +542,6 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 		removeMessage(OfflineConstants.HandlerConstants.DISCONNECT_AFTER_TIMEOUT);
 		postDisconnectForGhostPackets(connectedDevice);
 	}
-	
-	public void setConnectedDevice(String connectedDevice)
-	{
-		this.connectedDevice=connectedDevice;
-		setOfflineState(OFFLINE_STATE.CONNECTED);
-	}
 
 	public void removeMessage(int msg)
 	{
@@ -592,7 +593,8 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 		threadManager.startSendingThreads();
 		connectionManager.connectToHotspot(msisdn);
 	}
-
+	
+	String connectinMsisdn  = "";
 	public void connectAsPerMsisdn(final String msisdn) 
 	{
 		if(offlineState==OFFLINE_STATE.CONNECTING)
@@ -610,7 +612,9 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 		else
 		{
 			Logger.d(TAG,"Will connect to  Hotspot");
-			
+			connectinMsisdn = msisdn;
+			startWifiScan();
+			/*
 			Message msg = Message.obtain();
 			msg.what = OfflineConstants.HandlerConstants.CONNECT_TO_HOTSPOT;
 			msg.obj = msisdn;
@@ -621,7 +625,7 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 			endTries.what = OfflineConstants.HandlerConstants.REMOVE_CONNECT_MESSAGE; 
 			endTries.obj  = msisdn;
 			handler.sendMessageDelayed(endTries, OfflineConstants.TIME_TO_CONNECT);
-			
+			*/
 		}
 	}
 

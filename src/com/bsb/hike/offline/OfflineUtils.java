@@ -325,7 +325,7 @@ public class OfflineUtils
 		String path = "";
 		try 
 		{
-			String ctgId = sticker.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getString(StickerManager.STICKER_CATEGORY);
+			String ctgId = sticker.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getString(StickerManager.CATEGORY_ID);
 			String stkId = sticker.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getString(StickerManager.STICKER_ID);
 			
 			Sticker tempStk = new Sticker(ctgId, stkId);

@@ -313,7 +313,8 @@ public class OfflineThreadManager
 						{
 							// Start client thread.
 							startSendingThreads();
-							offlineManager.onConnected(textReceiverSocket.getInetAddress().getHostAddress());
+							String connectedDevice = OfflineUtils.getMsisdnFromPingPacket(messageJSON);
+							offlineManager.onConnected(connectedDevice);
 						}
 						else if (OfflineUtils.isGhostPacket(messageJSON))
 						{
@@ -337,11 +338,11 @@ public class OfflineThreadManager
 								// remove data from stream
 								else
 								{
-									long length = stickerImage.length();
-									while(length > 0)
+									long fileSize = stickerImage.length();
+									while(fileSize>0)
 									{
-										long bytesSkipped = inputStream.skip(length);
-										length -= bytesSkipped;
+										long len = inputStream.skip(fileSize);
+										fileSize -= len;
 									}
 								}
 							}
@@ -355,7 +356,7 @@ public class OfflineThreadManager
 							else
 							{
 								// It's a normal Text Message
-								Logger.d(TAG,"Connected deive sis "+offlineManager.getConnectedDevice());
+								Logger.d(TAG,"Connected deive sis " + offlineManager.getConnectedDevice());
 								
 							}
 							convMessage = new ConvMessage(messageJSON, HikeMessengerApp.getInstance().getApplicationContext());
@@ -388,6 +389,7 @@ public class OfflineThreadManager
 				}
 		}
 	}
+	
 	class FileReceiverThread extends Thread
 	{
 		@Override
@@ -538,7 +540,7 @@ public class OfflineThreadManager
 				byte[] intToBArray = OfflineUtils.intToByteArray(length);
 				outputStream.write(intToBArray, 0, intToBArray.length);
 				outputStream.write(messageBytes, 0, length);
-				isSent = offlineManager.copyFile(inputStream, outputStream, fileUri.getBytes("UTF-8").length);
+				isSent = offlineManager.copyFile(inputStream, outputStream, f.length());
 				inputStream.close();
 				
 			}
@@ -669,7 +671,7 @@ public class OfflineThreadManager
 	
 	public File isStickerPresentInApp(JSONObject messageJSON) throws JSONException, IOException
 	{
-		String ctgId = messageJSON.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getString(StickerManager.STICKER_CATEGORY);
+		String ctgId = messageJSON.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getString(StickerManager.CATEGORY_ID);
 		String stkId = messageJSON.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getString(StickerManager.STICKER_ID);
 		Sticker sticker = new Sticker(ctgId, stkId);
 
