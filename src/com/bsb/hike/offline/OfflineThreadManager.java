@@ -80,17 +80,16 @@ public class OfflineThreadManager
 
 	private OfflineThreadManager()
 	{
-		textMessageQueue = OfflineManager.getInstance().getTextQueue();
-		fileTransferQueue = OfflineManager.getInstance().getFileTransferQueue();
 		textTransferThread = new TextTransferThread();
 		fileTransferThread = new FileTransferThread();
 		textReceiveThread=new TextReceiveThread();
 		fileReceiverThread=new FileReceiverThread();
-		offlineManager = OfflineManager.getInstance();
+		
 	}
 	
 	public void startSendingThread()
 	{
+		offlineManager=OfflineManager.getInstance();
 		if(textTransferThread.isAlive())
 		textTransferThread.interrupt();
 		{
@@ -109,6 +108,7 @@ public class OfflineThreadManager
 	
 	public void startReceivingThread()
 	{
+		offlineManager=OfflineManager.getInstance();
 		if(textReceiveThread.isAlive())
 		textReceiveThread.interrupt();
 		{

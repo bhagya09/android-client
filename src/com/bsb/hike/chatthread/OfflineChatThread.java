@@ -26,7 +26,6 @@ import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.media.AttachmentPicker;
-import com.bsb.hike.media.OverFlowMenuItem;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.OfflineConversation;
@@ -40,6 +39,7 @@ import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.utils.ChatTheme;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+import com.bsb.hike.media.OverFlowMenuItem;
 
 /**
  * 
@@ -98,31 +98,9 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 		super.onCreate();
 		checkIfSharingFiles(activity.getIntent());
 		checkIfWeNeedToConnect(activity.getIntent());
-		init();
 	}
 	
-	@Override
-	protected void init()
-	{
-		super.init();
-		switch(controller.getOfflineState())
-		{
-		case CONNECTED:
-			if(mConversation.getDisplayMsisdn()==controller.getConnectedDevice())
-			{
-				updateStatus(getString(R.string.connection_established));
-			}
-			break;
-		case CONNECTING:
-			
-			break;
-		case NOT_CONNECTED:
-			break;
-		default:
-			break;
-		}
-		
-	}
+	
 	private void checkIfWeNeedToConnect(Intent intent)
 	{
 		if(intent.hasExtra(OfflineConstants.START_CONNECT_FUNCTION))
@@ -132,13 +110,31 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 	}
 
 	@Override
+	public void onPrepareOverflowOptionsMenu(List<OverFlowMenuItem> overflowItems)
+	{
+		if (overflowItems == null)
+		{
+			return;
+		}
+		super.onPrepareOverflowOptionsMenu(overflowItems);
+		for (OverFlowMenuItem overFlowMenuItem : overflowItems)
+		{
+			switch (overFlowMenuItem.id)
+			{
+			case R.string.connect_offline:
+				overFlowMenuItem.text = (controller.getConnectedDevice() != mConversation.getDisplayMsisdn()) ? getString(R.string.connect_offline)
+						: getString(R.string.disconnect_offline);
+				break;
+			}
+		}
+		
+	}
+	@Override
 	public void onNewIntent()
 	{
 		super.onNewIntent();
 		checkIfWeNeedToConnect(activity.getIntent());
 	}
-
-	
 
 	@Override
 	protected void onStart()
@@ -157,6 +153,30 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 	protected void fetchConversationFinished(Conversation conversation)
 	{
 		super.fetchConversationFinished(conversation);
+		
+	}
+	
+	@Override
+	public void onResume()
+	{
+		
+		super.onResume();
+		switch(controller.getOfflineState())
+		{
+		case CONNECTED:
+			if(mConversation.getDisplayMsisdn()==controller.getConnectedDevice())
+			{
+				updateStatus(getString(R.string.connection_established));
+			}
+			break;
+		case CONNECTING:
+			
+			break;
+		case NOT_CONNECTED:
+			break;
+		default:
+			break;
+		}
 	}
 	protected Conversation fetchConversation()
 	{
@@ -316,14 +336,27 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 		switch (item.id)
 		{
 		case R.string.connect_offline:
-			connectClicked();
-			onConnect();
+			if (item.text == getString(R.string.connect_offline))
+			{
+				connectClicked();
+			}
+			else
+			{
+				disconnectClicked();
+			}
 			break;
 		default:
 			super.itemClicked(item);
 		}
 	}
-	
+
+	private void disconnectClicked()
+	{
+		Toast.makeText(activity, "Disconnected", Toast.LENGTH_SHORT).show();
+		controller.shutDown();
+	}
+
+
 	public void connectClicked()
 	{
 		Toast.makeText(activity, "Start the Scan Process here ", Toast.LENGTH_SHORT).show();

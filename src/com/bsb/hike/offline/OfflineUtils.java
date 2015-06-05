@@ -305,7 +305,10 @@ public class OfflineUtils
 		if(ssid==null)
 			return null;
 		String arr[] = ssid.split("_");
+		if(arr.length>2)
 		return arr[2];
+		else
+			return null;
 	}
 
 	public static String  getMyMsisdn()

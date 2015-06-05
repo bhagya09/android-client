@@ -76,7 +76,7 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 
 	private static final String TAG=OfflineManager.class.getName();
 
-	private OfflineThreadManager threadManager;
+	private OfflineThreadManager threadManager ;
 
 	private boolean scanResultsAvailable =  false;
 	
@@ -109,12 +109,16 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 	public static  OfflineManager getInstance()
  {
 		if (_instance == null)
-			synchronized (OfflineManager.class) {
-				if (_instance == null) {
+		{
+			synchronized (OfflineManager.class)
+			{
+				if (_instance == null)
+				{
 					_instance = new OfflineManager();
+				
 				}
 			}
-
+		}
 		return _instance;
 	}
 
@@ -174,11 +178,12 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 		fileTransferQueue=new LinkedBlockingQueue<>();
 		context=HikeMessengerApp.getInstance().getApplicationContext();
 		connectionManager  = ConnectionManager.getInstance();
-		threadManager = OfflineThreadManager.getInstance();
+		threadManager=OfflineThreadManager.getInstance();
 		listeners = new ArrayList<IOfflineCallbacks>();
 		setDeviceNameAsMsisdn();
 		receiver=new OfflineBroadCastReceiver(this);
-		offlineState=OFFLINE_STATE.NOT_CONNECTED;
+		setOfflineState(OFFLINE_STATE.NOT_CONNECTED);
+		Logger.d(TAG,"Contructor called");
 	}
 
 	private void setDeviceNameAsMsisdn() {
@@ -407,8 +412,8 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 
 	public String getConnectedDevice()
 	{
-		//return connectedDevice;
-		return OfflineUtils.getconnectedDevice(OfflineUtils.decodeSsid(connectionManager.getConnectedSSID()));
+		return connectedDevice;
+		//return OfflineUtils.getconnectedDevice(OfflineUtils.decodeSsid(connectionManager.getConnectedSSID()));
 	}
 
 	public void addToCurrentReceivingFile(long msgId,FileTransferModel fileTransferModel)
@@ -511,7 +516,7 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 			threadManager.startReceivingThread();
 			threadManager.startSendingThread();
 			sendPingPacket();
-			offlineState=OFFLINE_STATE.CONNECTED;
+			setOfflineState(OFFLINE_STATE.CONNECTED);
 			for(IOfflineCallbacks  offlineListener : listeners)
 			{
 				offlineListener.connectedToMsisdn(connectedDevice);
@@ -590,7 +595,7 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 			HikeMessengerApp.getInstance().showToast("We are already connecting");
 			return;
 		}
-		offlineState=OFFLINE_STATE.CONNECTING;
+		setOfflineState(OFFLINE_STATE.CONNECTING);
 		String myMsisdn = OfflineUtils.getMyMsisdn();
 		if(myMsisdn.compareTo(msisdn)>0)
 		{
@@ -703,6 +708,7 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 	public void setOfflineState(OFFLINE_STATE offlineState)
 	{
 		this.offlineState=offlineState;
+		Logger.d("OfflineManager","Offline state is "+offlineState);
 	}
 	
 	public OFFLINE_STATE getOfflineState()

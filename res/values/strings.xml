@@ -1524,4 +1524,5 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
 	<string name="connection_established">Free Hike Connected</string>
 	<string name="awaiting_response">Awaiting Response</string>
 	<string name="connection_establishing">Establishing Connection ...</string>
+	<string name="disconnect_offline">Disconnect</string>
 </resources>
