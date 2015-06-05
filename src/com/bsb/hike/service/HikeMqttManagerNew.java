@@ -1253,7 +1253,10 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 
 	private void handleSocketTimeOutException()
 	{
-		previousHostInfo.setExceptionOnConnect(ConnectExceptions.SOCKET_TIME_OUT_EXCEPTION);
+		if(previousHostInfo != null)
+		{
+			previousHostInfo.setExceptionOnConnect(ConnectExceptions.SOCKET_TIME_OUT_EXCEPTION);
+		}
 		Logger.e(TAG, "Client exception : entered handleSocketTimeOutException");
 		connectOnMqttThread(MQTT_WAIT_BEFORE_RECONNECT_TIME);
 	}
@@ -1264,7 +1267,10 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 	private void handleDNSException()
 	{
 		Logger.e(TAG, "DNS Failure , Connect using ips");
-		previousHostInfo.setExceptionOnConnect(ConnectExceptions.DNS_EXCEPTION);
+		if(previousHostInfo != null)
+		{
+			previousHostInfo.setExceptionOnConnect(ConnectExceptions.DNS_EXCEPTION);
+		}
 		scheduleNextConnectionCheck(getConnRetryTime());
 	}
 	@SuppressLint("NewApi") public void destroyMqtt()

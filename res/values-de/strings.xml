@@ -845,10 +845,6 @@
     <string name="last_seen_proper_casing">Zuletzt online</string>
     <string name="status_updates_proper_casing">Statusmeldungen</string>
     <string name="bigger_better_attachments">Größere Anhänge, mehr Dateiformate</string>
-    <string name="introducing_stealth_mode">Neu: der Geheimmodus!</string>
-    <string name="stealth_mode_popup_msg">Du kannst jetzt deine privaten Chats vor der Welt verbergen und mit einem Passwort schützen.</string>
-    <string name="quick_setup">Schnellstarthilfe</string>
-    <string name="stealth_double_tap_tip"><![CDATA[ Dein Chat wurde verborgen! Richte ein Passwort ein, um in den Geheimmodus zu gelangen. <br> <br> <b>Tippe hier auf \'Hi\', um loszulegen.</b> ]]></string>
     <string name="alp_42447968_cmd_confirm">Bestätigen</string>
     <string name="alp_42447968_cmd_continue">Weiter</string>
     <string name="alp_42447968_cmd_forgot_pattern">Muster vergessen?</string>
@@ -867,7 +863,6 @@
     <string name="alp_42447968_msg_try_again">Die Muster stimmen nicht überein. Versuche es noch einmal.</string>
     <string name="alp_42447968_msg_your_new_unlock_pattern">Dein neues Entsperrmuster</string>
     <string name="alp_42447968_msg_draw_pattern_to_unlock_in_reset">Altes Muster ziehen</string>
-    <string name="alp_42447968_msg_draw_new_pattern">Neues Muster ziehen</string>
     <string name="alp_42447968_msg_redraw_new_pattern_confirm">Neues Muster wiederholen</string>
 
     <plurals name="alp_42447968_pmsg_connect_x_dots">
@@ -875,7 +870,6 @@
         <item quantity="other">Verbinde mind. %1$d Punkte. Erneut versuchen.</item>
     </plurals>
 
-    <string name="stealth_enter_pass_tip">Die Einrichtung ist jetzt fertig! Tippe auf „Hi“, um deine verborgenen Chats aufzurufen.</string>
     <string name="stealth_notification_message">Du hast eine neue Benachrichtigung</string>
     <string name="stealth_notification_messages">Du hast keine neuen Benachrichtigungen</string>
     <string name="retry">Erneut versuchen</string>
@@ -894,7 +888,6 @@
 	    
     ]]></string>
     <string name="reset_stealth_confirmation">Mit dem Zurücksetzen des Geheimmodus gehen all deine verborgenen Chats verloren.\nSicher?</string>
-    <string name="stealth_mode_empty_conv_popup_msg">Du kannst jetzt deine privaten Chats vor der Öffentlichkeit verbergen und sie mit einem Passwort schützen. Starte einen neuen Chat, tippe auf „Hi“ und probiere es einfach mal aus!</string>
     <string name="stealth_tap_and_hold_tip">Tippe lange auf einen Chat, um ihn zu verbergen.</string>
     <string name="chat_marked_stealth">Du hast einen Chat verborgen.</string>
     <string name="chat_unmarked_stealth">Du hast einen Chat als sichtbar markiert.</string>

@@ -8,6 +8,7 @@ import android.app.AlertDialog.Builder;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.drawable.Drawable;
+import android.media.AudioManager;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
@@ -109,15 +110,15 @@ public class NotificationToneListPreference extends ListPreference implements Di
 		}
 		else if (mContext.getString(R.string.notif_sound_Hike).equals(selectedNotificationTone))
 		{
-			SoundUtils.playSoundFromRaw(mContext, R.raw.hike_jingle_15);
+			SoundUtils.playSoundFromRaw(mContext, R.raw.hike_jingle_15, AudioManager.STREAM_NOTIFICATION);
 		}
 		else if (mContext.getString(R.string.notif_sound_default).equals(selectedNotificationTone))
 		{
-			SoundUtils.playSound(mContext, RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
+			SoundUtils.playSound(mContext, RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION), AudioManager.STREAM_NOTIFICATION);
 		}
 		else
 		{
-			SoundUtils.playSound(mContext, ringtonesNameURIMap.get((String) newValue));
+			SoundUtils.playSound(mContext, ringtonesNameURIMap.get((String) newValue), AudioManager.STREAM_NOTIFICATION);
 		}
 	}
 

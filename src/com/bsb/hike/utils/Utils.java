@@ -1,7 +1,6 @@
 package com.bsb.hike.utils;
 
 import java.io.BufferedReader;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -47,7 +46,6 @@ import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -68,6 +66,7 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.ComponentName;
 import android.content.ContentProviderOperation;
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -95,6 +94,7 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.media.AudioManager;
 import android.media.ExifInterface;
+import android.media.MediaScannerConnection;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.TrafficStats;
@@ -116,6 +116,7 @@ import android.provider.ContactsContract.CommonDataKinds.StructuredPostal;
 import android.provider.ContactsContract.Data;
 import android.provider.ContactsContract.Intents.Insert;
 import android.provider.ContactsContract.RawContacts;
+import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.provider.Settings.Secure;
 import android.support.v8.renderscript.Allocation;
@@ -169,6 +170,8 @@ import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.TrafficsStatsFile;
+import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.cropimage.CropImage;
@@ -190,6 +193,7 @@ import com.bsb.hike.models.FtueContactsData;
 import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.StatusMessage;
 import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.models.Conversation.ConvInfo;
@@ -200,6 +204,7 @@ import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.models.utils.JSONSerializable;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.notifications.HikeNotification;
+import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.service.ConnectionChangeReceiver;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.tasks.CheckForUpdateTask;
@@ -410,21 +415,7 @@ public class Utils
 
 		// String fileName = getUniqueFileName(orgFileName, fileKey);
 
-		/*
-		 * Changes done to fix the issue where some users are getting FileNotFoundEXception while creating file.
-		 */
-		File mFile = new File(mediaStorageDir, orgFileName);
-		try {
-			/*
-			 * Create temp file only for upload case.
-			 */
-			if(isSent)
-				mFile.createNewFile();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return mFile;
+		return new File(mediaStorageDir, orgFileName);
 	}
 
 	public static String getOriginalFile(HikeFileType type, String orgFileName)
@@ -781,13 +772,19 @@ public class Utils
 		return contactNames;
 	}
 
-	public static String validateBotMsisdn(String msisdn)
+	public static boolean validateBotMsisdn(String msisdn)
 	{
+		if (TextUtils.isEmpty(msisdn))
+		{
+			Logger.wtf(HikePlatformConstants.TAG, "msisdn is ---->" + msisdn);
+			return false;
+		}
 		if (!msisdn.startsWith("+"))
 		{
-			msisdn = "+" + msisdn;
+			Logger.wtf(HikePlatformConstants.TAG, "msisdn does not start with +. It is ---->" + msisdn);
+			return false;
 		}
-		return msisdn;
+		return true;
 	}
 
 	public static String defaultGroupName(List<PairModified<GroupParticipant, String>> participantList)
@@ -1370,7 +1367,14 @@ public class Utils
 				if (cursor.moveToFirst())
 				{
 					int idx = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
-					result = cursor.getString(idx);
+					if(idx >= 0)
+					{
+						result = cursor.getString(idx);
+					}
+					else if(isKitkatOrHigher() && DocumentsContract.isDocumentUri(mContext, uri))
+					{
+						result = getPathFromDocumentedUri(uri, mContext);
+					}
 				}
 				else
 				{
@@ -1389,7 +1393,7 @@ public class Utils
 		}
 		return result;
 	}
-
+	
 	public static enum ExternalStorageState
 	{
 		WRITEABLE, READ_ONLY, NONE
@@ -1457,6 +1461,9 @@ public class Utils
 		{
 			return true;
 		}
+		
+		boolean status = false;
+		
 		try
 		{
 			InputStream src;
@@ -1497,24 +1504,23 @@ public class Utils
 			dest.getFD().sync();
 			src.close();
 			dest.close();
-
-			return true;
+			
+			status = true;
 		}
 		catch (FileNotFoundException e)
 		{
 			Logger.e("Utils", "File not found while copying", e);
-			return false;
 		}
 		catch (IOException e)
 		{
 			Logger.e("Utils", "Error while reading/writing/closing file", e);
-			return false;
 		}
 		catch (Exception ex)
 		{
 			Logger.e("Utils", "WTF Error while reading/writing/closing file", ex);
-			return false;
 		}
+		
+		return status;
 	}
 
 	public static boolean compressAndCopyImage(String srcFilePath, String destFilePath, Context context)
@@ -2283,7 +2289,7 @@ public class Utils
 	{
 		return (picasaUriString.toString().startsWith(HikeConstants.OTHER_PICASA_URI_START) || picasaUriString.toString().startsWith(HikeConstants.JB_PICASA_URI_START)
 				|| picasaUriString.toString().startsWith("http") || picasaUriString.toString().startsWith(HikeConstants.GMAIL_PREFIX) || picasaUriString.toString().startsWith(
-				HikeConstants.GOOGLE_PLUS_PREFIX));
+				HikeConstants.GOOGLE_PLUS_PREFIX)|| picasaUriString.toString().startsWith(HikeConstants.GOOGLE_INBOX_PREFIX));
 	}
 
 	public static Uri makePicasaUri(Uri uri)
@@ -2431,21 +2437,6 @@ public class Utils
 		intent.putExtra(HikeConstants.Extras.OUTPUT_Y, HikeConstants.MAX_DIMENSION_LOW_FULL_SIZE_PX);
 		intent.putExtra(HikeConstants.Extras.ASPECT_X, 1);
 		intent.putExtra(HikeConstants.Extras.ASPECT_Y, 1);
-		activity.startActivityForResult(intent, HikeConstants.CROP_RESULT);
-	}
-
-	public static void startCropActivityForResult(Activity activity, String path, String destPath, boolean preventScaling, int quality,boolean circleHighlight)
-	{
-		/* Crop the image */
-		Intent intent = new Intent(activity, CropImage.class);
-		intent.putExtra(MediaStore.EXTRA_OUTPUT, destPath);
-		intent.putExtra(HikeConstants.Extras.IMAGE_PATH, path);
-		intent.putExtra(HikeConstants.Extras.CIRCLE_HIGHLIGHT, circleHighlight);
-		intent.putExtra(HikeConstants.Extras.SCALE, false);
-		intent.putExtra(HikeConstants.Extras.RETURN_CROP_RESULT_TO_FILE, preventScaling);
-		intent.putExtra(HikeConstants.Extras.ASPECT_X, 1);
-		intent.putExtra(HikeConstants.Extras.ASPECT_Y, 1);
-		intent.putExtra(HikeConstants.Extras.JPEG_COMPRESSION_QUALITY, quality);
 		activity.startActivityForResult(intent, HikeConstants.CROP_RESULT);
 	}
 
@@ -2736,20 +2727,10 @@ public class Utils
 				}
 			}
 		}
-
+		
 		sendAppState(context, requestBulkLastSeen, dueToConnect, toLog);
 
-		if (resetStealth)
-		{
-			if (HikeMessengerApp.currentState != CurrentState.OPENED && HikeMessengerApp.currentState != CurrentState.RESUMED)
-			{
-				resetStealthMode(context);
-			}
-			else
-			{
-				clearStealthResetTimer(context);
-			}
-		}
+		StealthModeManager.getInstance().appStateChange(resetStealth, HikeMessengerApp.currentState != CurrentState.OPENED && HikeMessengerApp.currentState != CurrentState.RESUMED);
 	}
 
 	public static boolean isScreenOn(Context context)
@@ -2834,16 +2815,6 @@ public class Utils
 		}
 	}
 	
-	private static void resetStealthMode(Context context)
-	{
-		StealthResetTimer.getInstance(context).resetStealthToggle();
-	}
-
-	private static void clearStealthResetTimer(Context context)
-	{
-		StealthResetTimer.getInstance(context).clearScheduledStealthToggleTimer();
-	}
-
 	public static String getLastSeenTimeAsString(Context context, long lastSeenTime, int offline)
 	{
 		return getLastSeenTimeAsString(context, lastSeenTime, offline, false);
@@ -3470,8 +3441,18 @@ public class Utils
 
 	public static void createShortcut(Activity activity, ConvInfo conv)
 	{
-		Intent shortcutIntent = IntentFactory.createChatThreadIntentFromConversation(activity, conv);
+		Intent shortcutIntent;
 		Intent intent = new Intent();
+		if (conv instanceof BotInfo && ((BotInfo) conv).isNonMessagingBot())
+		{
+			shortcutIntent = IntentFactory.getNonMessagingBotIntent(conv.getMsisdn(), "", "", activity);
+		}
+
+		else
+		{
+			shortcutIntent = IntentFactory.createChatThreadIntentFromConversation(activity, conv);
+		}
+		
 		intent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, shortcutIntent);
 		intent.putExtra(Intent.EXTRA_SHORTCUT_NAME, conv.getLabel());
 
@@ -4514,6 +4495,14 @@ public class Utils
 		intent.putExtra(HikeConstants.Extras.TITLE, R.string.privacy);
 		return intent;
 	}
+	
+	public static Intent getIntentForHiddenSettings(Context context)
+	{
+		Intent intent = new Intent(context, HikePreferences.class);
+		intent.putExtra(HikeConstants.Extras.PREF, R.xml.stealth_preferences);
+		intent.putExtra(HikeConstants.Extras.TITLE, R.string.stealth_mode_title);
+		return intent;
+	}
 
 	public static boolean isCompressed(byte[] bytes)
 	{
@@ -4922,16 +4911,8 @@ public class Utils
 			}
 			else if (givenCalendar.get(Calendar.YEAR) == currentCalendar.get(Calendar.YEAR))
 			{
-				if (givenCalendar.get(Calendar.DAY_OF_YEAR)+2 > currentCalendar.get(Calendar.DAY_OF_YEAR))
-				{
-					//Show date in relative format. eg. 2 hours ago, yesterday etc.
-					return DateUtils.getRelativeTimeSpanString(givenTimeStampInMillis, currentTime, DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_ABBREV_MONTH).toString();
-				}
-				else
-				{
-					// Show date in MMM dd format eg. Apr 21, May 13 etc.
-					return DateUtils.getRelativeTimeSpanString(givenTimeStampInMillis, currentTime, DateUtils.YEAR_IN_MILLIS, DateUtils.FORMAT_ABBREV_MONTH | DateUtils.FORMAT_SHOW_DATE).toString();
-				}
+				//Show date in relative format. eg. 2 hours ago, yesterday, 2 days ago etc.
+				return DateUtils.getRelativeTimeSpanString(givenTimeStampInMillis, currentTime, DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_ABBREV_MONTH).toString();
 			}
 			else
 			{
@@ -5499,7 +5480,7 @@ public class Utils
 
 	public static String conversationType(String msisdn)
 	{
-		if (isBot(msisdn))
+		if (BotUtils.isBot((msisdn)))
 		{
 			return HikeConstants.BOT;
 		}
@@ -5510,19 +5491,6 @@ public class Utils
 		else
 		{
 			return HikeConstants.ONE_TO_ONE_CONVERSATION;
-		}
-	}
-
-	public static boolean isBot(String msisdn)
-	{
-		if (HikeMessengerApp.hikeBotNamesMap != null)
-		{
-			return HikeMessengerApp.hikeBotNamesMap.containsKey(msisdn);
-		}
-		else
-		{
-			// Not probable
-			return false;
 		}
 	}
 
@@ -5584,7 +5552,7 @@ public class Utils
 				return true;
 			}
 		}
-		else if (Utils.isBot(msisdn))
+		else if (BotUtils.isBot(msisdn))
 		{
 			if (HikeConversationsDatabase.getInstance().isBotMuted(msisdn))
 			{
@@ -5730,7 +5698,8 @@ public class Utils
 		
 		return maxVal;
 	}
-	
+
+
 	public static boolean isOnProduction()
 	{
 		return HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PRODUCTION, true);
@@ -5821,7 +5790,7 @@ public class Utils
 		 */
 		String srcFilePath = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT + "/" + msisdn + ".jpg";
 		String destFilePath = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT + "/" + mappedId + ".jpg";
-		Utils.copyFile(srcFilePath, destFilePath, null);
+		Utils.copyFile(srcFilePath, destFilePath, HikeFileType.IMAGE);
 
 		if (setIcon)
 		{
@@ -5835,7 +5804,7 @@ public class Utils
 			{
 				bytes = BitmapUtils.bitmapToBytes(smallerBitmap, Bitmap.CompressFormat.JPEG, 100);
 			}
-			ContactManager.getInstance().setIcon(mappedId, bytes, false);
+			ContactManager.getInstance().setIcon(mappedId, bytes, true);
 		}
 
 		return statusMessage;
@@ -5906,6 +5875,10 @@ public class Utils
 	
 	public static boolean isPhotosEditEnabled()
 	{
+		if(!Utils.isUserSignedUp(HikeMessengerApp.getInstance().getApplicationContext(), false))
+		{
+			return false;
+		}
 		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH)
 		{
 			return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.ENABLE_PHOTOS, true);
@@ -5915,4 +5888,192 @@ public class Utils
 			return false;
 		}
 	}
+
+	public static boolean moveFile(File inputFile, File outputFile) {
+		Logger.d("Utils", "Input file path - " + inputFile.getPath());
+		Logger.d("Utils", "Output file path - " + outputFile.getPath());
+		boolean result = false;
+		InputStream in = null;
+		OutputStream out = null;
+		try {
+			if (outputFile.exists()) {
+				outputFile.delete();
+			}
+
+			in = new FileInputStream(inputFile);
+			out = new FileOutputStream(outputFile);
+
+			byte[] buffer = new byte[1024];
+			int read;
+			while ((read = in.read(buffer)) != -1) {
+				out.write(buffer, 0, read);
+			}
+			out.flush();
+			inputFile.delete();
+			result = true;
+		} catch (FileNotFoundException e1) {
+			result = false;
+			Logger.e("Utils", "1Failed due to - " + e1.getMessage());
+		} catch (Exception e2) {
+			result = false;
+			Logger.e("Utils", "2Failed due to - " + e2.getMessage());
+		} finally {
+			try {
+				if (in != null) {
+					in.close();
+					in = null;
+				}
+				if (out != null) {
+					out.close();
+					out = null;
+				}
+			} catch (IOException e) {
+				Logger.e("Utils", e.getMessage());
+			}
+		}
+		return result;
+	}
+	
+	public static boolean resetUnreadCounterForConversation(ConvInfo convInfo)
+	{
+		ConvMessage lastMessage = convInfo.getLastConversationMsg();
+		if (lastMessage != null && lastMessage.getState() == State.RECEIVED_UNREAD)
+		{
+			lastMessage.setState(State.RECEIVED_READ);
+			convInfo.setUnreadCount(0);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.UPDATE_LAST_MSG_STATE, new Pair<Integer, String>(lastMessage.getState().ordinal(), convInfo.getMsisdn()));
+			return true;
+		}
+
+		return false;
+	}
+	
+	public static String getCameraResultFile()
+	{
+		HikeSharedPreferenceUtil sharedPreference = HikeSharedPreferenceUtil.getInstance();
+		final String capturedFilepath = sharedPreference.getData(HikeMessengerApp.FILE_PATH, null);
+		sharedPreference.removeData(HikeMessengerApp.FILE_PATH);
+
+		if (capturedFilepath != null)
+		{
+			File imageFile = new File(capturedFilepath);
+
+			if (imageFile != null && imageFile.exists())
+			{
+				HikeHandlerUtil.getInstance().postRunnableWithDelay(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						MediaScannerConnection.scanFile(HikeMessengerApp.getInstance(), new String[] { capturedFilepath }, null, null);
+					}
+				}, 0);
+				return capturedFilepath;
+			}
+			else
+			{
+				Logger.e("Hike Camera Image", "Image File does not exists");
+				return null;
+			}
+
+		}
+		else
+		{
+			Logger.e("Hike Camera Image", "Image path is null");
+			return null;
+		}
+	}
+
+	private static String getPathFromDocumentedUri(Uri uri, Context context)
+	{
+		String result = null;
+        if (isExternalStorageDocument(uri)) {
+            final String docId = DocumentsContract.getDocumentId(uri);
+            final String[] split = docId.split(":");
+            final String type = split[0];
+
+            if ("primary".equalsIgnoreCase(type)) {
+            	result = Environment.getExternalStorageDirectory() + "/" + split[1];
+            }
+        }
+        else if (isDownloadsDocument(uri)) {
+            final String id = DocumentsContract.getDocumentId(uri);
+            final Uri contentUri = ContentUris.withAppendedId(
+                    Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
+
+            result = getDataColumn(context, contentUri, null, null);
+        }
+        else if (isMediaDocument(uri)) {
+            final String docId = DocumentsContract.getDocumentId(uri);
+            final String[] split = docId.split(":");
+            final String type = split[0];
+
+            Uri contentUri = null;
+            if ("image".equals(type)) {
+                contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+            } else if ("video".equals(type)) {
+                contentUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
+            } else if ("audio".equals(type)) {
+                contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+            }
+
+            final String selection = "_id=?";
+            final String[] selectionArgs = new String[] {
+                    split[1]
+            };
+
+            result = getDataColumn(context, contentUri, selection, selectionArgs);
+        }
+        return result;
+	}
+
+	public static boolean isExternalStorageDocument(Uri uri) {
+        return "com.android.externalstorage.documents".equals(uri.getAuthority());
+    }
+
+    public static boolean isDownloadsDocument(Uri uri) {
+        return "com.android.providers.downloads.documents".equals(uri.getAuthority());
+    }
+
+    public static boolean isMediaDocument(Uri uri) {
+        return "com.android.providers.media.documents".equals(uri.getAuthority());
+    }
+
+    public static boolean isGooglePhotosUri(Uri uri) {
+        return "com.google.android.apps.photos.content".equals(uri.getAuthority());
+    }
+
+    /**
+     * Get the value of the data column for this Uri. This is useful for
+     * MediaStore Uris, and other file-based ContentProviders.
+     *
+     * @param context The context.
+     * @param uri The Uri to query.
+     * @param selection (Optional) Filter used in the query.
+     * @param selectionArgs (Optional) Selection arguments used in the query.
+     * @return The value of the _data column, which is typically a file path.
+     * @author paulburke
+     */
+    public static String getDataColumn(Context context, Uri uri, String selection,
+            String[] selectionArgs) {
+
+        Cursor cursor = null;
+        final String column = "_data";
+        final String[] projection = {
+                column
+        };
+
+        try {
+            cursor = context.getContentResolver().query(uri, projection, selection, selectionArgs,
+                    null);
+            if (cursor != null && cursor.moveToFirst()) {
+                final int column_index = cursor.getColumnIndexOrThrow(column);
+                return cursor.getString(column_index);
+            }
+        } finally {
+            if (cursor != null)
+                cursor.close();
+        }
+        return null;
+    }
 }
