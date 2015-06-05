@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<set xmlns:android="http://schemas.android.com/apk/res/android" >
+    
+    <scale
+        android:interpolator="@anim/accelerate_interpolator_fct_two"
+        android:duration="150"
+        android:startOffset="500"
+   		android:fromXScale="1.0"
+	    android:fromYScale="1.0"
+	    android:pivotX="50%"
+	    android:pivotY="50%"
+	    android:toXScale="0.60"
+	    android:toYScale="0.60">
+    </scale>
+    
+    <scale
+        android:interpolator="@anim/accelerate_interpolator_fct_two"
+        android:duration="150"
+        android:startOffset="650"
+   		android:fromXScale="1.0"
+	    android:fromYScale="1.0"
+	    android:pivotX="50%"
+	    android:pivotY="50%"
+	    android:toXScale="2.0"
+	    android:toYScale="2.0">
+    </scale>
+    
+    <scale
+        android:interpolator="@anim/accelerate_interpolator_neg_one"
+        android:duration="150"
+        android:startOffset="800"
+   		android:fromXScale="1.0"
+	    android:fromYScale="1.0"
+	    android:pivotX="50%"
+	    android:pivotY="50%"
+	    android:toXScale="0.667"
+	    android:toYScale="0.667">
+    </scale>
+    
+    <scale
+        android:interpolator="@android:anim/accelerate_interpolator"     
+        android:duration="150"
+        android:startOffset="950"
+   		android:fromXScale="1.0"
+	    android:fromYScale="1.0"
+	    android:pivotX="50%"
+	    android:pivotY="50%"
+	    android:toXScale="1.25"
+	    android:toYScale="1.25">
+    </scale>
+
+</set>

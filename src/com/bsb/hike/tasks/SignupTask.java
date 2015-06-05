@@ -30,7 +30,7 @@ import android.text.TextUtils;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.BitmapModule.BitmapUtils;
-import com.bsb.hike.db.DBBackupRestore;
+import com.bsb.hike.db.AccountBackupRestore;
 import com.bsb.hike.http.HikeHttpRequest;
 import com.bsb.hike.models.AccountInfo;
 import com.bsb.hike.models.Birthday;
@@ -621,12 +621,6 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 		 * We show these tips only to upgrading users
 		 */
 		edit.putBoolean(HikeMessengerApp.SHOWN_WELCOME_HIKE_TIP, true);
-		
-		/*
-		 * We show this tip only to new signup users
-		 */
-		edit.putBoolean(HikeMessengerApp.SHOW_STEALTH_INFO_TIP, true);
-		
 		/*
 		 * We don't want to show red dot on overflow menu for new users
 		 */
@@ -644,7 +638,7 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 				{
 					this.data = "true";
 				}
-				else if (DBBackupRestore.getInstance(context).isBackupAvailable())
+				else if (AccountBackupRestore.getInstance(context).isBackupAvailable())
 				{
 					publishProgress(new StateValue(State.BACKUP_AVAILABLE,null));
 					// After publishing 'backup available' the task waits for the user to make an input(Restore or Skip)
@@ -717,7 +711,7 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 		editor.commit();
 		
 		publishProgress(new StateValue(State.RESTORING_BACKUP,null));
-		boolean status = DBBackupRestore.getInstance(context).restoreDB();
+		boolean status = AccountBackupRestore.getInstance(context).restore();
 		
 		if (status)
 		{
