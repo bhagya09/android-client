@@ -43,6 +43,8 @@ public class HikeBitmapFactory
 	private static final String TAG = "HikeBitmapFactory";
 
 	public static final int DEFAULT_BITMAP_COMPRESSION = 75;
+
+	private static final int NUMBER_OF_CHARS_DEFAULT_DP = 1;
 	
 	public static Bitmap getCircularBitmap(Bitmap bitmap)
 	{
@@ -1166,24 +1168,7 @@ public class HikeBitmapFactory
 	
 	public static Drawable getDefaultTextAvatar(String msisdn)
 	{
-		
 		return getDefaultTextAvatar(msisdn, msisdn, true);
-//		TypedArray bgColorArray = Utils.getDefaultAvatarBG();
-//		
-//		if (TextUtils.isEmpty(msisdn))
-//		{
-//			return getRandomHashTextDrawable();
-//		}
-//
-//		String initials = getNameInitialsForDefaultAv(msisdn);
-//
-//		int index = BitmapUtils.iconHash(msisdn) % (bgColorArray.length());
-//
-//		int defaultAvatarResId = bgColorArray.getColor(index, 0);
-//
-//		int bgColor = HikeMessengerApp.getInstance().getApplicationContext().getResources().getColor(defaultAvatarResId);
-//
-//		return TextDrawable.builder().buildRound(initials, bgColor);
 	}
 	
 	private static TextDrawable getRandomHashTextDrawable()
@@ -1231,6 +1216,7 @@ public class HikeBitmapFactory
 		return TextDrawable.builder().buildRect(initials, bgColor);
 	}
 	
+	@SuppressWarnings("unused")
 	public static String getNameInitialsForDefaultAv(String msisdn)
 	{
 		if (TextUtils.isEmpty(msisdn))
@@ -1255,13 +1241,16 @@ public class HikeBitmapFactory
 		{
 			initials += first;
 
-			if (nameArray.length > 1)
+			if (NUMBER_OF_CHARS_DEFAULT_DP > 1)
 			{
-				// Second is optional (only if is letter)
-				char second = nameArray[nameArray.length - 1].charAt(0);
-				if (Character.isLetter(second))
+				if (nameArray.length > 1)
 				{
-					initials += second;
+					// Second is optional (only if is letter)
+					char second = nameArray[nameArray.length - 1].charAt(0);
+					if (Character.isLetter(second))
+					{
+						initials += second;
+					}
 				}
 			}
 		}

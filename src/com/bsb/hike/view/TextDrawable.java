@@ -1,6 +1,7 @@
 package com.bsb.hike.view;
 
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.photos.HikePhotosUtils;
 
 import android.graphics.*;
 import android.graphics.drawable.ShapeDrawable;
@@ -34,7 +35,9 @@ public class TextDrawable extends ShapeDrawable
 	private final int borderThickness;
 
 	private static Typeface typeface;
-
+	
+	private LinearGradient gradient;
+	
 	private TextDrawable(Builder builder)
 	{
 		super(builder.shape);
@@ -54,11 +57,12 @@ public class TextDrawable extends ShapeDrawable
 		textPaint = new Paint();
 		textPaint.setColor(builder.textColor);
 		textPaint.setAntiAlias(true);
+		textPaint.setShadowLayer(2f, 2, 2, getLighterShade(Color.BLACK, 12));
 		textPaint.setFakeBoldText(builder.isBold);
 		textPaint.setStyle(Paint.Style.FILL);
 		if (typeface == null)
 		{
-			typeface = Typeface.createFromAsset(HikeMessengerApp.getInstance().getApplicationContext().getAssets(), "fonts/Roboto-Regular.ttf");
+			typeface = Typeface.createFromAsset(HikeMessengerApp.getInstance().getApplicationContext().getAssets(), "fonts/Roboto-Light.ttf");
 		}
 
 		textPaint.setTypeface(typeface);
@@ -101,23 +105,23 @@ public class TextDrawable extends ShapeDrawable
 	@Override
 	public void draw(Canvas canvas)
 	{
-		super.draw(canvas);
 		Rect r = getBounds();
-		
+
 		// draw border
 		if (borderThickness > 0)
 		{
 			drawBorder(canvas);
 		}
-
-		int count = canvas.save();
-		canvas.translate(r.left, r.top);
-
 		// draw text
 		int width = this.width < 0 ? r.width() : this.width;
 		int height = this.height < 0 ? r.height() : this.height;
-		int fontSize = (int) (this.fontSize < 0 ? (Math.min(width, height) * 1f / 2.4f) : this.fontSize);
+		int fontSize = (int) (this.fontSize < 0 ? (Math.min(width, height) * 1f / 2.0f) : this.fontSize);
 		textPaint.setTextSize(fontSize);
+		gradient = new LinearGradient(width / 2, 0f, width / 2, height, color, getLighterShade(color, 210), Shader.TileMode.CLAMP);
+		getPaint().setShader(gradient);
+		super.draw(canvas);
+		int count = canvas.save();
+		canvas.translate(r.left, r.top);
 		canvas.drawText(text, width / 2, height / 2 - ((textPaint.descent() + textPaint.ascent()) / 2), textPaint);
 		canvas.restoreToCount(count);
 	}
