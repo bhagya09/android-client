@@ -88,7 +88,7 @@ import com.bsb.hike.utils.Utils;
 public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBConstants, HIKE_CONV_DB
 {
 
-	private SQLiteDatabase mDb;
+	private volatile SQLiteDatabase mDb;
 
 	private static volatile HikeConversationsDatabase hikeConversationsDatabase;
 
