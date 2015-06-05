@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -21,6 +20,7 @@ import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.MessageMetadata;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
@@ -32,6 +32,7 @@ import com.bsb.hike.utils.Utils;
  */
 public class OfflineUtils
 {
+	private final static String TAG = OfflineUtils.class.getSimpleName();
 	// change this to wlan0 for hotspot mode
 	private final static String p2pInt = "wlan0";
 
@@ -146,17 +147,6 @@ public class OfflineUtils
 	public static int byteArrayToInt(byte[] bytes)
 	{
 		return (bytes[0] & 0xFF) << 24 | (bytes[1] & 0xFF) << 16 | (bytes[2] & 0xFF) << 8 | (bytes[3] & 0xFF);
-	}
-
-	public static  String getStickerPath(Sticker sticker)
-	{
-
-		String rootPath = StickerManager.getInstance().getStickerDirectoryForCategoryId(sticker.getCategoryId());
-		if (rootPath == null)
-		{
-			return null;
-		}
-		return rootPath + HikeConstants.LARGE_STICKER_ROOT + "/" + sticker.getStickerId();
 	}
 
 	public static boolean isChatThemeMessage(JSONObject message) throws JSONException
@@ -330,5 +320,21 @@ public class OfflineUtils
 		return messageJSON.optString(HikeConstants.FROM);
 	}
 	
-
+	public static String getStickerPath(JSONObject sticker)
+	{
+		String path = "";
+		try 
+		{
+			String ctgId = sticker.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getString(StickerManager.STICKER_CATEGORY);
+			String stkId = sticker.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getString(StickerManager.STICKER_ID);
+			
+			Sticker tempStk = new Sticker(ctgId, stkId);
+			path = tempStk.getStickerPath(HikeMessengerApp.getInstance().getApplicationContext());
+		} 
+		catch (JSONException e) {
+			Logger.e(TAG, "JSONException in getStickerPath. Check whether JSONObject is a sticker.");
+			e.printStackTrace();
+		}
+		return path;
+	}
 }

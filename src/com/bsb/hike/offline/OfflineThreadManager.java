@@ -328,6 +328,7 @@ public class OfflineThreadManager
 						{
 							messageJSON.put(HikeConstants.FROM, "o:"+offlineManager.getConnectedDevice());
 							messageJSON.remove(HikeConstants.TO);
+							
 							if (OfflineUtils.isStickerMessage(messageJSON))
 							{
 								File stickerImage = isStickerPresentInApp(messageJSON);
@@ -519,15 +520,7 @@ public class OfflineThreadManager
 		boolean isSent=false;
 		if(OfflineUtils.isStickerMessage(packet))
 		{
-			try
-			{
-				fileUri = packet.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getString(OfflineConstants.STICKER_PATH);
-			}
-			catch (JSONException e1)
-			{
-				e1.printStackTrace();
-				return false;
-			}
+			fileUri = OfflineUtils.getStickerPath(packet);
 			File f = new File(fileUri);
 			Logger.d(TAG, "Middle " + f.getPath());
 			try
@@ -683,7 +676,7 @@ public class OfflineThreadManager
 		Sticker sticker = new Sticker(ctgId, stkId);
 
 		File stickerImage;
-		String stickerPath = OfflineUtils.getStickerPath(sticker);
+		String stickerPath = sticker.getStickerPath(HikeMessengerApp.getInstance().getApplicationContext());
 		stickerImage = new File(stickerPath);
 
 		// sticker is not present
