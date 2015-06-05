@@ -755,6 +755,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	{
 		menu.findItem(R.id.overflow_menu).setVisible(value);
 		menu.findItem(R.id.new_conversation).setVisible(value);
+		menu.findItem(R.id.take_pic).setVisible(value);
 	}
 
 	private OnQueryTextListener onQueryTextListener = new OnQueryTextListener()
