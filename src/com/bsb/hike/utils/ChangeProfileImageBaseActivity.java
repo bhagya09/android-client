@@ -237,6 +237,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 				if(Utils.isPhotosEditEnabled())
 				{
 					startActivity(IntentFactory.getPictureEditorActivityIntent(ChangeProfileImageBaseActivity.this, path, true, getNewProfileImagePath(), true));
+					finish();
 				}
 				else
 				{
@@ -268,6 +269,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 							if(Utils.isPhotosEditEnabled())
 							{
 								startActivity(IntentFactory.getPictureEditorActivityIntent(ChangeProfileImageBaseActivity.this, destFile.getAbsolutePath(), true, getNewProfileImagePath(), true));
+								finish();
 							}
 							else
 							{
