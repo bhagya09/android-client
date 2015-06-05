@@ -181,12 +181,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	protected static final int SHOW_OVERFLOW_INDICATOR = -102;
 
 	protected static final int SHOW_RECENTLY_JOINED_INDICATOR = -103;
-	private static byte OVERFLOW_MENU_STATE = -1;
 	
-	private static final byte OVERFLOW_MENU_TYPE_3DOT = 0;
-	
-	private static final byte OVERFLOW_MENU_TYPE_COMPOSE = 1;
-
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -319,12 +314,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		
 		boolean showNujNotif = PreferenceManager.getDefaultSharedPreferences(HomeActivity.this).getBoolean(HikeConstants.NUJ_NOTIF_BOOLEAN_PREF, true);
 		if (showNujNotif && accountPrefs.getBoolean(HikeConstants.SHOW_RECENTLY_JOINED_DOT, false))
-		{
-			newConversationIndicator.setText("1");
-			newConversationIndicator.setVisibility(View.VISIBLE);
-			newConversationIndicator.startAnimation(Utils.getNotificationIndicatorAnim());
-		}
-		else if (photosEnabled && accountPrefs.getBoolean(HikeConstants.SHOW_PHOTOS_RED_DOT, true))
 		{
 			newConversationIndicator.setText("1");
 			newConversationIndicator.setVisibility(View.VISIBLE);
@@ -626,7 +615,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	private boolean setupMenuOptions(final Menu menu)
 	{
-		//Adding definsive null pointer check (bug#44531)May be due to sherlock code, nullpointerexception occured.
+		//Adding defensive null pointer check (bug#44531)May be due to sherlock code, nullpointerexception occured.
 		try{
 		getSupportMenuInflater().inflate(R.menu.chats_menu, menu);
 
@@ -687,19 +676,31 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		newConversationIndicator = (TextView) menu.findItem(R.id.new_conversation).getActionView().findViewById(R.id.top_bar_indicator_text);
 		menu.findItem(R.id.new_conversation).getActionView().findViewById(R.id.overflow_icon_image).setContentDescription("Start a new chat");
 		((ImageView) menu.findItem(R.id.new_conversation).getActionView().findViewById(R.id.overflow_icon_image)).setImageResource(R.drawable.ic_new_conversation);
+	
+		((ImageView) menu.findItem(R.id.take_pic).getActionView().findViewById(R.id.overflow_icon_image)).setImageResource(R.drawable.btn_cam_nav);
+		
+		menu.findItem(R.id.take_pic).getActionView().setOnClickListener(new OnClickListener()
+		{
+			
+			@Override
+			public void onClick(View v)
+			{
+				// Open gallery
+				int galleryFlags = GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS|GalleryActivity.GALLERY_EDIT_SELECTED_IMAGE|GalleryActivity.GALLERY_COMPRESS_EDITED_IMAGE|GalleryActivity.GALLERY_DISPLAY_CAMERA_ITEM;
+				Intent galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(HomeActivity.this, galleryFlags,null);
+				
+				startActivity(galleryPickerIntent);
+				
+				sendAnalyticsTakePicture();
+			}
+		});
+		
 		showRecentlyJoinedDot(1000);
 
 		menu.findItem(R.id.new_conversation).getActionView().setOnClickListener(new OnClickListener()
 		{
 			@Override
 			public void onClick(View v)
-			{
-				if (photosEnabled)
-				{
-					showComposeOverflowMenu();
-					newConversationIndicator.setVisibility(View.GONE);
-				}
-				else
 				{
 					try
 					{
@@ -718,7 +719,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 					newConversationIndicator.setVisibility(View.GONE);
 					startActivity(intent);
 				}
-			}
 		});
 		
 		return true;
@@ -1053,7 +1053,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		{
 			outState.putInt(HikeConstants.Extras.DIALOG_SHOWING, dialogShowing != null ? dialogShowing.ordinal() : -1);
 		}
-		outState.putByte(HikeConstants.Extras.HOME_POPUP_TYPE, overFlowWindow != null && overFlowWindow.isShowing() ? OVERFLOW_MENU_STATE : -1);
+		outState.putBoolean(HikeConstants.Extras.IS_HOME_POPUP_SHOWING, overFlowWindow != null && overFlowWindow.isShowing());
 		outState.putInt(HikeConstants.Extras.FRIENDS_LIST_COUNT, friendsListCount);
 		outState.putInt(HikeConstants.Extras.HIKE_CONTACTS_COUNT, hikeContactsCount);
 		outState.putInt(HikeConstants.Extras.RECOMMENDED_CONTACTS_COUNT, recommendedCount);
@@ -1681,7 +1681,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			boolean isRewardsClicked = accountPrefs.getBoolean(HikeConstants.IS_REWARDS_ITEM_CLICKED, false);
 			boolean showTimelineRedDot = accountPrefs.getBoolean(HikeConstants.SHOW_TIMELINE_RED_DOT, true);
 			boolean showBroadcastRedDot = accountPrefs.getBoolean(HikeConstants.SHOW_NEW_BROADCAST_RED_DOT, true);
-			boolean showPhotosRedDot = accountPrefs.getBoolean(HikeConstants.SHOW_PHOTOS_RED_DOT, true);
 			boolean showNUJRedDot = accountPrefs.getBoolean(HikeConstants.SHOW_RECENTLY_JOINED_DOT, false);
 
 			int count = 0;
@@ -1694,7 +1693,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 					newGamesIndicator.setText(String.valueOf(count));
 			}
 			if ((item.getKey() == 3 && !isGamesClicked) || (item.getKey() == 4 && !isRewardsClicked) || (item.getKey() == 7 && (count > 0 || showTimelineRedDot))
-					|| (item.getKey() == 10 && showBroadcastRedDot)|| (item.getKey() == 11 && showNUJRedDot)|| (item.getKey() == 12 && showPhotosRedDot))
+					|| (item.getKey() == 10 && showBroadcastRedDot)|| (item.getKey() == 11 && showNUJRedDot))
 			{
 				newGamesIndicator.setVisibility(View.VISIBLE);
 			}
@@ -1870,109 +1869,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		{
 			int rightMargin = getResources().getDimensionPixelSize(R.dimen.overflow_menu_right_margin);
 			overFlowWindow.showAsDropDown(findViewById(R.id.overflow_anchor), -rightMargin, 0);
-			OVERFLOW_MENU_STATE = OVERFLOW_MENU_TYPE_3DOT;
-		}
-		catch (BadTokenException e)
-		{
-			Logger.e(getClass().getSimpleName(), "Excepetion in HomeActivity Overflow popup", e);
-		}
-		overFlowWindow.getContentView().setFocusableInTouchMode(true);
-		overFlowWindow.getContentView().setOnKeyListener(new View.OnKeyListener()
-		{
-			@Override
-			public boolean onKey(View v, int keyCode, KeyEvent event)
-			{
-				return onKeyUp(keyCode, event);
-			}
-		});
-	}
-
-	private void showComposeOverflowMenu()
-	{
-
-		ArrayList<OverFlowMenuItem> optionsList = new ArrayList<OverFlowMenuItem>();
-
-		final String msisdn = accountPrefs.getString(HikeMessengerApp.MSISDN_SETTING, null);
-
-		optionsList.add(new OverFlowMenuItem(getString(R.string.compose_chat), 11));
-
-		optionsList.add(new OverFlowMenuItem(getString(R.string.edit_photos), 12));
-
-		overFlowWindow = new PopupWindow(this);
-		
-		FrameLayout homeScreen = (FrameLayout) findViewById(R.id.home_screen);
-
-		View parentView = getLayoutInflater().inflate(R.layout.overflow_menu, homeScreen, false);
-
-		overFlowWindow.setContentView(parentView);
-
-		ListView overFlowListView = (ListView) parentView.findViewById(R.id.overflow_menu_list);
-		
-		overflowAdapter = new OverflowAdapter(this, R.layout.over_flow_menu_item, R.id.item_title, optionsList, msisdn);
-		
-		overFlowListView.setAdapter(overflowAdapter);
-
-		overFlowListView.setOnItemClickListener(new OnItemClickListener()
-		{
-			@Override
-			public void onItemClick(AdapterView<?> adapterView, View view, int position, long id)
-			{
-				Logger.d(getClass().getSimpleName(), "Onclick: " + position);
-				overFlowWindow.dismiss();
-				OverFlowMenuItem item = (OverFlowMenuItem) adapterView.getItemAtPosition(position);
-				Intent intent = null;
-				switch (item.getKey())
-				{
-				case 11:
-					try
-					{
-						JSONObject metadata = new JSONObject();
-						metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.NEW_CHAT_FROM_TOP_BAR);
-						HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
-					}
-					catch (JSONException e)
-					{
-						Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
-					}
-
-					intent = new Intent(HomeActivity.this, ComposeChatActivity.class);
-					intent.putExtra(HikeConstants.Extras.EDIT, true);
-					break;
-				case 12:
-					// Take a photo
-					accountPrefs.edit().putBoolean(HikeConstants.SHOW_PHOTOS_RED_DOT, false).commit();
-					
-					// Open gallery
-					int galleryFlags = GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS|GalleryActivity.GALLERY_EDIT_SELECTED_IMAGE|GalleryActivity.GALLERY_COMPRESS_EDITED_IMAGE|GalleryActivity.GALLERY_DISPLAY_CAMERA_ITEM;
-					Intent galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(HomeActivity.this, galleryFlags,null);
-					
-					startActivity(galleryPickerIntent);
-					
-					sendAnalyticsTakePicture();
-					
-					break;
-				}
-
-				if (intent != null)
-				{
-					startActivity(intent);
-				}
-			}
-		});
-
-		overFlowWindow.setBackgroundDrawable(getResources().getDrawable(android.R.color.transparent));
-		overFlowWindow.setOutsideTouchable(true);
-		overFlowWindow.setFocusable(true);
-		overFlowWindow.setWidth(getResources().getDimensionPixelSize(R.dimen.overflow_menu_width));
-		overFlowWindow.setHeight(LayoutParams.WRAP_CONTENT);
-		/*
-		 * In some devices Activity crashes and a BadTokenException is thrown by showAsDropDown method. Still need to find out exact repro of the bug.
-		 */
-		try
-		{
-			int rightMargin = getResources().getDimensionPixelSize(R.dimen.overflow_menu_right_margin);
-			overFlowWindow.showAsDropDown(findViewById(R.id.overflow_anchor), -rightMargin, 0);
-			OVERFLOW_MENU_STATE = OVERFLOW_MENU_TYPE_COMPOSE;
 		}
 		catch (BadTokenException e)
 		{
@@ -2001,28 +1897,10 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	protected void onRestoreInstanceState(Bundle savedInstanceState)
 	{
 		Logger.d(TAG, "onRestoredInstanceState");
-		final byte overflowState = savedInstanceState.getByte(HikeConstants.Extras.HOME_POPUP_TYPE);
-		if (overflowState == OVERFLOW_MENU_TYPE_3DOT || overflowState == OVERFLOW_MENU_TYPE_COMPOSE)
+		final boolean overflowState = savedInstanceState.getBoolean(HikeConstants.Extras.IS_HOME_POPUP_SHOWING);
+		if (overflowState)
 		{
-			// showOverFlowMenu() method should not be called until all
-			// lifecycle
-			// methods of activity creation have executed successfully otherwise
-			// activity will
-			// crash while looking for anchor view of popup menu
-			findViewById(R.id.overflow_anchor).post(new Runnable()
-			{
-				public void run()
-				{
-					if (overflowState == OVERFLOW_MENU_TYPE_3DOT)
-					{
-						showOverFlowMenu();
-					}
-					else if (overflowState == OVERFLOW_MENU_TYPE_COMPOSE)
-					{
-						showComposeOverflowMenu();
-					}
-				}
-			});
+			showOverFlowMenu();
 		}
 		super.onRestoreInstanceState(savedInstanceState);
 	}
@@ -2070,15 +1948,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		if (overFlowWindow != null && overFlowWindow.isShowing())
 		{
 			overFlowWindow.dismiss();
-
-			if (OVERFLOW_MENU_STATE == OVERFLOW_MENU_TYPE_3DOT)
-			{
-				showOverFlowMenu();
-			}
-			else if (OVERFLOW_MENU_STATE == OVERFLOW_MENU_TYPE_COMPOSE)
-			{
-				showComposeOverflowMenu();
-			}
+			showOverFlowMenu();
 		}
 	}
 

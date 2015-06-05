@@ -59,6 +59,8 @@ import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
+import com.bsb.hike.view.RoundedImageView;
+import com.bsb.hike.view.TextDrawable;
 
 public class ConversationsAdapter extends BaseAdapter
 {
@@ -564,7 +566,7 @@ public class ConversationsAdapter extends BaseAdapter
 
 		if (OneToNConversationUtils.isBroadcastConversation(convInfo.getMsisdn()))
 		{
-				contactView.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
+				contactView.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_broad_sm, 0, 0, 0);
 		}
 		else if (OneToNConversationUtils.isGroupConversation(convInfo.getMsisdn()))
 		{
@@ -590,6 +592,7 @@ public class ConversationsAdapter extends BaseAdapter
 		}
 
 		ImageView avatarView = viewHolder.avatar;
+		
 		iconLoader.loadImage(convInfo.getMsisdn(), avatarView, isListFlinging, false, true);
 		if(convInfo.isStealth())
 		{
@@ -1012,15 +1015,16 @@ public class ConversationsAdapter extends BaseAdapter
 				{
 					continue;
 				}
+				
+				ConvInfo conversationInfo = getItem(indexOfData);
 
-				updateViewsRelatedToAvatar(view, getItem(indexOfData));
+				if (!ContactManager.getInstance().hasIcon(conversationInfo.getMsisdn(),false))
+				{
+					continue;
+				}
+
+				updateViewsRelatedToAvatar(view,conversationInfo);
 			}
-		}
-		
-		//TODO remove this log as this is just for testing
-		if(notify)
-		{
-			Logger.i("ConversationFling ", " isListFlinging : "+isListFlinging);
 		}
 	}
 	

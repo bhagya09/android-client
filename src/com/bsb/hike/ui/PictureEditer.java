@@ -254,7 +254,6 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 		indicator.setOnPageChangeListener(clickHandler);
 		
 		finishProgress();
-		
 	}
 
 	@Override
