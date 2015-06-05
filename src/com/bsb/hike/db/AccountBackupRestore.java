@@ -633,6 +633,7 @@ public class AccountBackupRestore
 		}
 		HikeConversationsDatabase.getInstance().upgradeForStickerShopVersion1();
 		BotUtils.postAccountRestoreSetup();
+		StealthModeManager.getInstance().initiate();
 	}
 
 	/**

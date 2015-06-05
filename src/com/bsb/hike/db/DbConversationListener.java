@@ -473,7 +473,7 @@ public class DbConversationListener implements Listener
 		{
 			String msisdn = (String) object;
 			boolean markStealth = HikePubSub.STEALTH_DATABASE_MARKED.equals(type);
-			if( mConversationDb.toggleStealth(msisdn, markStealth) )
+			if( HikeConversationsDatabase.getInstance().toggleStealth(msisdn, markStealth) )
 			{
 				HikeMessengerApp.getPubSub().publish(markStealth ? HikePubSub.STEALTH_CONVERSATION_MARKED : HikePubSub.STEALTH_CONVERSATION_UNMARKED, msisdn);
 			}
