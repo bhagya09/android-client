@@ -3123,7 +3123,7 @@ public class MqttMessagesManager
 		if (type.equals(HikeConstants.MESSAGING_BOT))
 		{
 			botInfo = getBotInfoFormessagingBots(jsonObj, msisdn, name, config);
-			BotUtils.changeBotParams(botChatTheme, botInfo);
+			BotUtils.updateBotParams(botChatTheme, botInfo);
 		}
 		else if (type.equals(HikeConstants.NON_MESSAGING_BOT))
 		{

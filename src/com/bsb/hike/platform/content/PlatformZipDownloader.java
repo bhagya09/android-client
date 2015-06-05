@@ -159,6 +159,8 @@ public class PlatformZipDownloader
 				@Override
 				public void update(Observable observable, Object data)
 				{
+					// delete temp folder
+					deleteTemporaryFolder();
 					if (!(data instanceof Boolean))
 					{
 						return;
@@ -166,8 +168,6 @@ public class PlatformZipDownloader
 					Boolean isSuccess = (Boolean) data;
 					if (isSuccess)
 					{
-						// delete temp folder
-						deleteTemporaryFolder();
 						if (!isTemplatingEnabled)
 						{
 							mRequest.getListener().onComplete(mRequest.getContentData());

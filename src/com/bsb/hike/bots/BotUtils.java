@@ -202,7 +202,7 @@ public class BotUtils
 		HikeMessengerApp.getPubSub().publish(HikePubSub.DELETE_THIS_CONVERSATION, botInfo);
 	}
 
-	public static void changeBotParams(String botChatTheme, BotInfo botInfo)
+	public static void updateBotParams(String botChatTheme, BotInfo botInfo)
 	{
 		String msisdn = botInfo.getMsisdn();
 		HikeConversationsDatabase convDb = HikeConversationsDatabase.getInstance();
