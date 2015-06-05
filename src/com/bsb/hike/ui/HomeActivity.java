@@ -164,7 +164,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	private boolean photosEnabled;
 
-	private static MenuItem searchMenuItem;
+	private MenuItem searchMenuItem;
 
 	private boolean showingSearchModeActionBar = false;
 	
@@ -608,15 +608,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		catch (JSONException e)
 		{
 			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
-		}
-	}
-
-	public static void setSearchOptionAccess(boolean setVisible)
-	{
-		if (searchMenuItem != null)
-		{
-			searchMenuItem.setEnabled(setVisible);
-			searchMenuItem.setVisible(setVisible);
 		}
 	}
 
