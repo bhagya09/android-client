@@ -2,6 +2,7 @@ package com.bsb.hike.modules.httpmgr.analytics;
 
 import static com.bsb.hike.modules.httpmgr.analytics.HttpAnalyticsConstants.DEFAULT_HTTP_ANALYTICS;
 import static com.bsb.hike.modules.httpmgr.analytics.HttpAnalyticsConstants.HTTP_ANALYTICS_TYPE;
+import static com.bsb.hike.modules.httpmgr.analytics.HttpAnalyticsConstants.HTTP_EXCEPTION_ANALYTICS;
 import static com.bsb.hike.modules.httpmgr.analytics.HttpAnalyticsConstants.HTTP_METHOD_TYPE;
 import static com.bsb.hike.modules.httpmgr.analytics.HttpAnalyticsConstants.HTTP_REQUEST_ANALYTICS_PARAM;
 import static com.bsb.hike.modules.httpmgr.analytics.HttpAnalyticsConstants.HTTP_REQUEST_URL_FILTER;
@@ -84,6 +85,21 @@ public class HttpAnalyticsLogger
 	 */
 	public static void logResponseReceived(String trackId, String requestUrl, int responseCode, String methodType, String analyticsParam)
 	{
+		logResponseReceived(trackId, requestUrl, responseCode, methodType, analyticsParam, null);
+	}
+
+	/**
+	 * Logs the http response analytics. Should be called just after we receive the response from the server
+	 * 
+	 * @param trackId
+	 * @param requestUrl
+	 * @param responseCode
+	 * @param methodType
+	 * @param analyticsParam
+	 * @param exception
+	 */
+	public static void logResponseReceived(String trackId, String requestUrl, int responseCode, String methodType, String analyticsParam, String exception)
+	{
 		if (TextUtils.isEmpty(trackId))
 		{
 			return;
@@ -94,6 +110,10 @@ public class HttpAnalyticsLogger
 		{
 			metadata = getHttpLogBasicJson(trackId, requestUrl, RESPONSE_LOG_EVENT, methodType, analyticsParam);
 			metadata.put(RESPONSE_CODE, responseCode);
+			if (!TextUtils.isEmpty(exception))
+			{
+				metadata.put(HTTP_EXCEPTION_ANALYTICS, exception);
+			}
 			HAManager.getInstance().record(HTTP_ANALYTICS_TYPE, AnalyticsConstants.NON_UI_EVENT, EventPriority.HIGH, metadata, HTTP_ANALYTICS_TYPE);
 		}
 		catch (JSONException e)
