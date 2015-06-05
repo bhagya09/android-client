@@ -20,17 +20,19 @@ import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.MessageMetadata;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
 /**
  * 
- * @author himanshu
+ * @author himanshu, deepak malik
  *
  *	Contains Utility functions for Offline related messaging.
  */
 public class OfflineUtils
 {
+	private final static String TAG = OfflineUtils.class.getSimpleName();
 	// change this to wlan0 for hotspot mode
 	private final static String p2pInt = "wlan0";
 
@@ -110,45 +112,41 @@ public class OfflineUtils
 
 	public static boolean isGhostPacket(JSONObject packet)
 	{
-
-		try
+		if (packet.optString(HikeConstants.SUB_TYPE).equals(OfflineConstants.GHOST))
 		{
-			if (packet.has(HikeConstants.SUB_TYPE) && packet.getString(HikeConstants.SUB_TYPE).equals(OfflineConstants.GHOST))
-			{
-				return true;
-			}
-		}
-		catch (JSONException e)
-		{
-			e.printStackTrace();
+			return true;
 		}
 		return false;
 	}
 
-	public static  int updateDB(long msgId, ConvMessage.State status, String msisdn)
+	public static JSONObject createGhostPacket(String msisdn)
+	{
+		JSONObject ghostJSON = new JSONObject();
+		try 
+		{
+			ghostJSON.putOpt(HikeConstants.TO, msisdn);
+			ghostJSON.putOpt(HikeConstants.SUB_TYPE, OfflineConstants.GHOST);
+		} 
+		catch (JSONException e) 
+		{
+			e.printStackTrace();
+		}
+		return ghostJSON;
+	}
+	
+	public static int updateDB(long msgId, ConvMessage.State status, String msisdn)
 	{
 		return HikeConversationsDatabase.getInstance().updateMsgStatus(msgId, status.ordinal(), msisdn);
 	}
 
 	public static int getTotalChunks(int fileSize)
 	{
-		return fileSize/1024 + ((fileSize%1024!=0)?1:0);
+		 return fileSize/OfflineConstants.CHUNK_SIZE + ((fileSize%OfflineConstants.CHUNK_SIZE!=0)?1:0);
 	}
 
 	public static int byteArrayToInt(byte[] bytes)
 	{
 		return (bytes[0] & 0xFF) << 24 | (bytes[1] & 0xFF) << 16 | (bytes[2] & 0xFF) << 8 | (bytes[3] & 0xFF);
-	}
-
-	public static  String getStickerPath(Sticker sticker)
-	{
-
-		String rootPath = StickerManager.getInstance().getStickerDirectoryForCategoryId(sticker.getCategoryId());
-		if (rootPath == null)
-		{
-			return null;
-		}
-		return rootPath + HikeConstants.LARGE_STICKER_ROOT + "/" + sticker.getStickerId();
 	}
 
 	public static boolean isChatThemeMessage(JSONObject message) throws JSONException
@@ -187,13 +185,12 @@ public class OfflineUtils
 		return storagePath.toString();
 	}
 
-	public static boolean isPingPacketValid(JSONObject object)
+	public static boolean isPingPacket(JSONObject object)
 	{
-			if (object.optString(HikeConstants.TYPE).equals(OfflineConstants.PING))
-			{
-				return true;
-			}
-
+		if (object.optString(HikeConstants.TYPE).equals(OfflineConstants.PING))
+		{
+			return true;
+		}
 		return false;
 	}
 
@@ -232,15 +229,15 @@ public class OfflineUtils
 			e.printStackTrace();
 		}
 		return convMessage;
-
 	}
 
 	public static boolean isOfflineSsid(String ssid) {
-		String decodedSSID = decodeSsid(ssid.substring(1, ssid.length()-2));
+		String decodedSSID = decodeSsid(ssid);
 		if(decodedSSID.startsWith("h_"))
 			return true;
 		return false;
 	}
+
 	// caeser cipher
 	public static String encodeSsid(String ssid)
 	{
@@ -326,5 +323,21 @@ public class OfflineUtils
 		return messageJSON.optString(HikeConstants.FROM);
 	}
 	
-
+	public static String getStickerPath(JSONObject sticker)
+	{
+		String path = "";
+		try 
+		{
+			String ctgId = sticker.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getString(StickerManager.CATEGORY_ID);
+			String stkId = sticker.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getString(StickerManager.STICKER_ID);
+			
+			Sticker tempStk = new Sticker(ctgId, stkId);
+			path = tempStk.getStickerPath(HikeMessengerApp.getInstance().getApplicationContext());
+		} 
+		catch (JSONException e) {
+			Logger.e(TAG, "JSONException in getStickerPath. Check whether JSONObject is a sticker.");
+			e.printStackTrace();
+		}
+		return path;
+	}
 }

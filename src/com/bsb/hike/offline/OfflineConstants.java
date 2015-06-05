@@ -48,9 +48,13 @@ public class OfflineConstants
 
 	public static final long TIME_TO_CONNECT = 30000;
 
-	public static final long TRY_CONNECT_TO_HOTSPOT = 3000;
+	public static final long TRY_CONNECT_TO_HOTSPOT = 5000;
 
 	public static final int MAXTRIES_FOR_SCAN_RESULTS = 3;
+		
+	public static final int  GHOST_PACKET_SEND_TIME = 10*1000;
+	
+	public static final int  GHOST_PACKET_DISCONNECT_TIMEOUT = 20*1000;
 	
 	public final class HandlerConstants
 	{
@@ -61,6 +65,8 @@ public class OfflineConstants
 		public static final int REMOVE_CONNECT_MESSAGE = -105;
 		public static final int START_SCAN = -106;
 		public static final int STOP_SCAN = -107;
+		public static final int SEND_GHOST_PACKET = -108;
+		public static final int RECONNECT_TO_HOTSPOT = -109;
 	}
 	
 	public static enum ERRORCODE

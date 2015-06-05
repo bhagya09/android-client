@@ -127,7 +127,7 @@ public class OfflineController
 
 	public void shutDown()
 	{
-
+		// offlineManager.shutDown();
 	}
 
 	public void sendAudio(String filePath, String msisdn)
