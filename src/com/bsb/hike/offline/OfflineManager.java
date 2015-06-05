@@ -1,6 +1,7 @@
 package com.bsb.hike.offline;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -37,6 +38,7 @@ import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.HikeHandlerUtil;
+import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
 import com.bsb.hike.utils.Logger;
 
 
@@ -83,6 +85,8 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 	private int tryGetScanResults = 0;
 	
 	OfflineBroadCastReceiver receiver;
+	
+	private OFFLINE_STATE offlineState;
 
 	Handler handler =new Handler(HikeHandlerUtil.getInstance().getLooper())
 	{
@@ -174,6 +178,7 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 		listeners = new ArrayList<IOfflineCallbacks>();
 		setDeviceNameAsMsisdn();
 		receiver=new OfflineBroadCastReceiver(this);
+		offlineState=OFFLINE_STATE.NOT_CONNECTED;
 	}
 
 	private void setDeviceNameAsMsisdn() {
@@ -258,11 +263,13 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 		if(isSent)
 		{
 			FileTransferModel fileTransfer=currentSendingFiles.get(msgId);
+			if(fileTransfer!=null)
 			fileTransfer.getTransferProgress().setCurrentChunks(fileTransfer.getTransferProgress().getCurrentChunks() + 1);
 		}
 		else
 		{
 			FileTransferModel fileTransfer=currentReceivingFiles.get(msgId);
+			if(fileTransfer!=null)
 			fileTransfer.getTransferProgress().setCurrentChunks(fileTransfer.getTransferProgress().getCurrentChunks() + 1);
 		}
 		HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
@@ -315,7 +322,7 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 			//TODO:We can listen to PubSub ...Why to do this ...????
 			//showUploadTransferNotification(msgID,fileSize);
 
-
+			inputStream=new FileInputStream(new File(fileUri));
 			isSent = copyFile(inputStream, outputStream, msgID, true, true,fileSize);
 			currentSendingFiles.remove(msgID);
 			String msisdn = fileTransferModel.getPacket().getString(HikeConstants.TO);
@@ -427,7 +434,9 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 			fileName = apkLabel + ".apk";
 		ConvMessage convMessage = FileTransferManager.getInstance(context).uploadOfflineFile(msisdn, file, fileKey, fileType, hikeFileType, isRecording,
 				recordingDuration, attachmentType, fileName);
-		addToFileQueue(new FileTransferModel(new TransferProgress(), convMessage.serialize()));
+		FileTransferModel fileTransferModel=new FileTransferModel(new TransferProgress(), convMessage.serialize());
+		currentSendingFiles.put(convMessage.getMsgID(), fileTransferModel);
+		addToFileQueue(fileTransferModel);
 	}
 
 
@@ -502,6 +511,7 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 			threadManager.startReceivingThread();
 			threadManager.startSendingThread();
 			sendPingPacket();
+			offlineState=OFFLINE_STATE.CONNECTED;
 			for(IOfflineCallbacks  offlineListener : listeners)
 			{
 				offlineListener.connectedToMsisdn(connectedDevice);
@@ -513,6 +523,7 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 	public void setConnectedDevice(String connectedDevice)
 	{
 		this.connectedDevice=connectedDevice;
+		setOfflineState(OFFLINE_STATE.CONNECTED);
 	}
 	
 	private void sendPingPacket()
@@ -574,6 +585,12 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 
 	public void connectAsPerMsisdn(final String msisdn) 
 	{
+		if(offlineState==OFFLINE_STATE.CONNECTING)
+		{
+			HikeMessengerApp.getInstance().showToast("We are already connecting");
+			return;
+		}
+		offlineState=OFFLINE_STATE.CONNECTING;
 		String myMsisdn = OfflineUtils.getMyMsisdn();
 		if(myMsisdn.compareTo(msisdn)>0)
 		{
@@ -681,5 +698,15 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 	
 	public void stopScan() {
 		removeMessage(OfflineConstants.HandlerConstants.START_SCAN);
+	}
+	
+	public void setOfflineState(OFFLINE_STATE offlineState)
+	{
+		this.offlineState=offlineState;
+	}
+	
+	public OFFLINE_STATE getOfflineState()
+	{
+		return offlineState;
 	}
 }

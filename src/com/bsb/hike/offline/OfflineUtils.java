@@ -321,7 +321,7 @@ public class OfflineUtils
 	public static String getMsisdnFromPingPacket(JSONObject messageJSON)
 	{
 		return messageJSON.optString(HikeConstants.FROM);
-		
 	}
+	
 
 }

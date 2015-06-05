@@ -102,7 +102,7 @@ public class OfflineThreadManager
 		fileTransferThread.interrupt();
 		{
 			fileTransferThread=new FileTransferThread();
-		//	fileTransferThread.start();
+			fileTransferThread.start();
 		}
 		
 	}
@@ -119,7 +119,7 @@ public class OfflineThreadManager
 		fileReceiverThread.interrupt();
 		{
 			fileReceiverThread=new FileReceiverThread();
-			//fileReceiverThread.start();
+			fileReceiverThread.start();
 		}
 	}
 	
@@ -201,40 +201,69 @@ public class OfflineThreadManager
 	{
 		FileTransferModel fileTranserObject;
 		boolean val;
+		boolean isNotConnected=true;
 		String host=null;
+		int tries;
 		@Override
 		public void run() {
-			try 
+			Logger.d(TAG,"File Transfer Thread -->"+"Going to connect to socket");
+			while (isNotConnected)
 			{
-				Logger.d(TAG,"File Transfer Thread -->"+"Going to connect to socket");
-				fileSendSocket=new Socket();
-					if(offlineManager.isHotspotCreated())
+				try
+				{
+
+					fileSendSocket = new Socket();
+					if (offlineManager.isHotspotCreated())
 					{
-						 host = OfflineUtils.getIPFromMac(null);
+						host = OfflineUtils.getIPFromMac(null);
 					}
 					else
 					{
 						host = IP_SERVER;
 					}
-					Logger.d(TAG,"host is "+host);
+					Logger.d(TAG, "host is " + host);
 					fileSendSocket.bind(null);
 					fileSendSocket.connect(new InetSocketAddress(host, PORT_FILE_TRANSFER));
-				
-				while(((fileTranserObject = fileTransferQueue.take()) != null))
-				{
-					//TODO : Send Offline Text and take action on the basis of boolean  i.e. clock or single tick
-					val = offlineManager.sendOfflineFile(fileTranserObject,fileSendSocket.getOutputStream());
+					Logger.d(TAG, "File Transfer Thread Connected");
+					isNotConnected = false;
 				}
-			} catch (InterruptedException e) {
-				Logger.e(TAG,"Some called interrupt on File transfer Thread");
+				catch (IOException e)
+				{
+					Logger.d(TAG, "IO Exception in File Transfer Thread");
+					try
+					{
+						Thread.sleep(300);
+						if(++tries==10)
+						{
+							interrupt();
+						}
+					}
+					catch (InterruptedException e1)
+					{
+						e1.printStackTrace();
+					}
+				}
+			}
+			try
+			{
+				while (true)
+				{
+					fileTranserObject=OfflineManager.getInstance().getFileTransferQueue().take();
+					// TODO : Send Offline Text and take action on the basis of boolean i.e. clock or single tick
+					val = offlineManager.sendOfflineFile(fileTranserObject, fileSendSocket.getOutputStream());
+				}
+			}
+			catch (InterruptedException e)
+			{
+				Logger.e(TAG, "Some called interrupt on File transfer Thread");
 				e.printStackTrace();
 			}
-			catch(IOException e)
+			catch (IOException e)
 			{
 				e.printStackTrace();
 				Logger.e(TAG, "IO Exception occured.Socket was not bounded");
 			}
-			catch(IllegalArgumentException e)
+			catch (IllegalArgumentException e)
 			{
 				e.printStackTrace();
 				Logger.e(TAG,"Did we pass correct Address here ? ?");
@@ -369,8 +398,10 @@ public class OfflineThreadManager
 		{
 				try
 				{
+					Logger.d(TAG,"Going to wait for fileReceive socket");
 					fileServerSocket = new ServerSocket(PORT_FILE_TRANSFER);
 					fileReceiveSocket = fileServerSocket.accept();
+					Logger.d(TAG,"fileReceive socket connection success");
 					offlineManager.setIsOfflineFileTransferInProgress(true);
 					InputStream inputstream = fileReceiveSocket.getInputStream();
 					byte[] metaDataLengthArray = new byte[4];

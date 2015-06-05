@@ -67,4 +67,9 @@ public class OfflineConstants
 	{
 		TIMEOUT,USERDISCONNECTED,OUT_OF_RANGE
 	}
+	
+	public static enum OFFLINE_STATE
+	{
+		NOT_CONNECTED,CONNECTING,CONNECTED
+	}
 }
