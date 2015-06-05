@@ -210,13 +210,35 @@ public class OfflineUtils
 		try
 		{
 			object.put(HikeConstants.TYPE, OfflineConstants.PING);
+			object.put(HikeConstants.FROM, getMyMsisdn());
 		}
 		catch (JSONException e)
 		{
 			e.printStackTrace();
 		}
 		return  object;
+	}
+	
+	public static String createOfflineMsisdn(String msisdn)
+	{
+		return new StringBuilder("o:").append(msisdn).toString();
+	}
 
+	public static ConvMessage createOfflineInlineConvMessage(String msisdn,String message,String type)
+	{
+		ConvMessage convMessage = Utils.makeConvMessage(msisdn, message, true, State.RECEIVED_READ);
+		convMessage.setIsOfflineMessage(true);
+		try
+		{
+			JSONObject metaData = new JSONObject();
+			metaData.put(HikeConstants.TYPE, type);
+			convMessage.setMetadata(new MessageMetadata(metaData.toString(), false));
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+		return convMessage;
 	}
 
 	public static boolean isOfflineSsid(String ssid) {
@@ -285,35 +307,12 @@ public class OfflineUtils
 		}
 		return result;
 	}
-	
-	public static String createOfflineMsisdn(String msisdn)
-	{
-		return new StringBuilder("o:").append(msisdn).toString();
-	}
-
-	public static ConvMessage createOfflineInlineConvMessage(String msisdn,String message,String type)
-	{
-		ConvMessage convMessage = Utils.makeConvMessage(msisdn, message, true, State.RECEIVED_READ);
-		convMessage.setIsOfflineMessage(true);
-		try
-		{
-			JSONObject metaData = new JSONObject();
-			metaData.put(HikeConstants.TYPE, type);
-			convMessage.setMetadata(new MessageMetadata(metaData.toString(), false));
-		}
-		catch (JSONException e)
-		{
-			e.printStackTrace();
-		}
-		return convMessage;
-
-	}
 
 	public static String getconnectedDevice(String ssid) {
 		if(ssid==null)
 			return null;
 		String arr[] = ssid.split("_");
-		return arr[1];
+		return arr[2];
 	}
 
 	public static String  getMyMsisdn()
@@ -325,5 +324,11 @@ public class OfflineUtils
 	public static String getSsidForMsisdn(String toMsisdn,String fromMsisdn) {
 		return "h_" +  toMsisdn + "_" + fromMsisdn;
 	}
+
+	public static String getMsisdnFromPingPacket(JSONObject messageJSON)
+	{
+		return messageJSON.optString(HikeConstants.FROM);
+	}
+	
 
 }

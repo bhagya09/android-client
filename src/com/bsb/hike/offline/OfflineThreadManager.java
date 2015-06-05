@@ -33,6 +33,7 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.Sticker;
+import com.bsb.hike.service.MqttMessagesManager;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 
@@ -127,19 +128,23 @@ public class OfflineThreadManager
 	class TextTransferThread extends Thread
 	{
 		
+		boolean isNotConnected=true;
 		JSONObject packet;
 		boolean val;
 		
 		@Override
 		public void run() {
-				try
-				{
-
+				
 					String host=null;
 					Logger.d(TAG,"Text Transfer Thread -->"+"Going to connect to socket");
 
-					textSendSocket=new Socket();
-					if(offlineManager.isHotspotCreated())
+		
+			while (isNotConnected)
+			{
+				try
+
+				{	textSendSocket = new Socket();
+					if (offlineManager.isHotspotCreated())
 					{
 						host = OfflineUtils.getIPFromMac(null);
 					}
@@ -149,13 +154,25 @@ public class OfflineThreadManager
 					}
 					textSendSocket.bind(null);
 					textSendSocket.connect((new InetSocketAddress(host, PORT_TEXT_MESSAGE)), SOCKET_TIMEOUT);
-					Logger.d(TAG,"Text Transfer Thread Connected");
-				
+					Logger.d(TAG, "Text Transfer Thread Connected");
+					isNotConnected=false;
+
+				}
+				catch (IOException e)
+				{
+					Logger.e(TAG, "IOEXCEPTION");
+				}
+			}
+					try
+					{
+					while(true)
+					{
 					packet = OfflineManager.getInstance().getTextQueue().take();
 					{
 						//TODO : Send Offline Text and take action on the basis of boolean  i.e. clock or single tick
 						Logger.d("OfflineThreadManager","Going to send Text");	
 						val = sendOfflineText(packet,textSendSocket.getOutputStream());
+					}
 					}
 				}
 				catch (InterruptedException e) {
@@ -186,40 +203,69 @@ public class OfflineThreadManager
 	{
 		FileTransferModel fileTranserObject;
 		boolean val;
+		boolean isNotConnected=true;
 		String host=null;
+		int tries;
 		@Override
 		public void run() {
-			try 
+			Logger.d(TAG,"File Transfer Thread -->"+"Going to connect to socket");
+			while (isNotConnected)
 			{
-				Logger.d(TAG,"File Transfer Thread -->"+"Going to connect to socket");
-				fileSendSocket=new Socket();
-					if(offlineManager.isHotspotCreated())
+				try
+				{
+
+					fileSendSocket = new Socket();
+					if (offlineManager.isHotspotCreated())
 					{
-						 host = OfflineUtils.getIPFromMac(null);
+						host = OfflineUtils.getIPFromMac(null);
 					}
 					else
 					{
 						host = IP_SERVER;
 					}
-					Logger.d(TAG,"host is "+host);
+					Logger.d(TAG, "host is " + host);
 					fileSendSocket.bind(null);
 					fileSendSocket.connect(new InetSocketAddress(host, PORT_FILE_TRANSFER));
-				
-				while(((fileTranserObject = fileTransferQueue.take()) != null))
-				{
-					//TODO : Send Offline Text and take action on the basis of boolean  i.e. clock or single tick
-					val = sendOfflineFile(fileTranserObject,fileSendSocket.getOutputStream());
+					Logger.d(TAG, "File Transfer Thread Connected");
+					isNotConnected = false;
 				}
-			} catch (InterruptedException e) {
-				Logger.e(TAG,"Some called interrupt on File transfer Thread");
+				catch (IOException e)
+				{
+					Logger.d(TAG, "IO Exception in File Transfer Thread");
+					try
+					{
+						Thread.sleep(300);
+						if(++tries==10)
+						{
+							interrupt();
+						}
+					}
+					catch (InterruptedException e1)
+					{
+						e1.printStackTrace();
+					}
+				}
+			}
+			try
+			{
+				while (true)
+				{
+					fileTranserObject=OfflineManager.getInstance().getFileTransferQueue().take();
+					// TODO : Send Offline Text and take action on the basis of boolean i.e. clock or single tick
+					val = sendOfflineFile(fileTranserObject, fileSendSocket.getOutputStream());
+				}
+			}
+			catch (InterruptedException e)
+			{
+				Logger.e(TAG, "Some called interrupt on File transfer Thread");
 				e.printStackTrace();
 			}
-			catch(IOException e)
+			catch (IOException e)
 			{
 				e.printStackTrace();
 				Logger.e(TAG, "IO Exception occured.Socket was not bounded or connect failed");
 			}
-			catch(IllegalArgumentException e)
+			catch (IllegalArgumentException e)
 			{
 				e.printStackTrace();
 				Logger.e(TAG,"Did we pass correct Address here ? ?");
@@ -246,7 +292,6 @@ public class OfflineThreadManager
 					{
 						byte[] convMessageLength = new byte[4];
 						inputStream.read(convMessageLength, 0, 4);
-						offlineManager.setInOfflineFileTransferInProgress(true);
 						msgSize = OfflineUtils.byteArrayToInt(convMessageLength);
 						Logger.d(TAG,"Msg size is "+msgSize);
 						if(msgSize==0)
@@ -256,6 +301,7 @@ public class OfflineThreadManager
 						String msgString = new String(msgJSON, "UTF-8");
 						Logger.d(TAG, "" + msgSize);
 						JSONObject messageJSON = new JSONObject(msgString);
+						Logger.d(TAG,"Message Received :-->"+msgString);
 
 						// TODO: Ghost Packet Logic to come here
 						// if ( isDisconnectPosted && !(isGhostPacket(messageJSON)) )
@@ -280,6 +326,8 @@ public class OfflineThreadManager
 						}
 						else
 						{
+							messageJSON.put(HikeConstants.FROM, "o:"+offlineManager.getConnectedDevice());
+							messageJSON.remove(HikeConstants.TO);
 							if (OfflineUtils.isStickerMessage(messageJSON))
 							{
 								File stickerImage = isStickerPresentInApp(messageJSON);
@@ -302,16 +350,18 @@ public class OfflineThreadManager
 							}
 							else if (OfflineUtils.isChatThemeMessage(messageJSON))
 							{
-								HikeMessengerApp.getPubSub().publish(HikePubSub.OFFLINE_THEME_CHANGE_MESSAGE, messageJSON);
+								//HikeMessengerApp.getPubSub().publish(HikePubSub.OFFLINE_THEME_CHANGE_MESSAGE, messageJSON);
+								messageJSON.put(HikeConstants.TIMESTAMP, System.currentTimeMillis()/1000);
+								MqttMessagesManager.getInstance(HikeMessengerApp.getInstance().getApplicationContext()).saveChatBackground(messageJSON);
+								continue;
 							}
 							else
 							{
 								// It's a normal Text Message
-								messageJSON.put(HikeConstants.FROM, offlineManager.getConnectedDevice());
-								messageJSON.remove(HikeConstants.TO);
-								convMessage = new ConvMessage(messageJSON, HikeMessengerApp.getInstance().getApplicationContext());
+								Logger.d(TAG,"Connected deive sis "+offlineManager.getConnectedDevice());
+								
 							}
-
+							convMessage = new ConvMessage(messageJSON, HikeMessengerApp.getInstance().getApplicationContext());
 							HikeConversationsDatabase.getInstance().addConversationMessages(convMessage, true);
 							HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_RECEIVED, convMessage);
 
@@ -348,9 +398,13 @@ public class OfflineThreadManager
 		{
 				try
 				{
+					Logger.d(TAG,"Going to wait for fileReceive socket");
 					fileServerSocket = new ServerSocket(PORT_FILE_TRANSFER);
 					fileReceiveSocket = fileServerSocket.accept();
+					
+					Logger.d(TAG,"fileReceive socket connection success");
 					offlineManager.setInOfflineFileTransferInProgress(true);
+
 					InputStream inputstream = fileReceiveSocket.getInputStream();
 					
 					while(true)
@@ -525,7 +579,7 @@ public class OfflineThreadManager
 		}
 		
 		// Updating database
-		if (!OfflineUtils.isGhostPacket(packet))
+		if (!OfflineUtils.isGhostPacket(packet)&&!OfflineUtils.isPingPacket(packet))
 		{
 			long msgId;
 			try
@@ -624,9 +678,6 @@ public class OfflineThreadManager
 	
 	public File isStickerPresentInApp(JSONObject messageJSON) throws JSONException, IOException
 	{
-		messageJSON.put(HikeConstants.FROM, OfflineManager.getInstance().getConnectedDevice());
-		messageJSON.remove(HikeConstants.TO);
-		
 		String ctgId = messageJSON.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getString(StickerManager.STICKER_CATEGORY);
 		String stkId = messageJSON.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getString(StickerManager.STICKER_ID);
 		Sticker sticker = new Sticker(ctgId, stkId);

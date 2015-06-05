@@ -13,8 +13,6 @@ public interface IOfflineCallbacks
 
 	public void wifiScanResults(Map<String, ScanResult> results);
 
-	public void onConnected();
-
 	public void onDisconnect(ERRORCODE errorCode);
 
 	public void connectedToMsisdn(String connectedDevice);

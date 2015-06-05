@@ -32,6 +32,7 @@ import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Pair;
+import android.widget.Toast;
 
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
@@ -1024,6 +1025,18 @@ public void onTrimMemory(int level)
 		}
 	}
 
+	public void showToast(final String message)
+	{
+		appStateHandler.post(new Runnable()
+		{
+			
+			@Override
+			public void run()
+			{
+				Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+			}
+		});
+	}
 	private Runnable appStateChangedRunnable = new Runnable()
 	{
 		

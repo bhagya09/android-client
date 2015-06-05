@@ -2334,7 +2334,7 @@ public class MqttMessagesManager
 		}
 	}
 
-	private void saveChatBackground(JSONObject jsonObj) throws JSONException
+	public void saveChatBackground(JSONObject jsonObj) throws JSONException
 	{
 		String from = jsonObj.optString(HikeConstants.FROM);
 		String to = jsonObj.optString(HikeConstants.TO);

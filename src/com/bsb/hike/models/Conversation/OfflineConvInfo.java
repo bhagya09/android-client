@@ -30,7 +30,6 @@ public class OfflineConvInfo extends ConvInfo
 	{
 		ContactInfo contactInfo=ContactManager.getInstance().getContact(displayMsisdn);
 		
-		Logger.d("OfflineManager", contactInfo.getMsisdn());
 		if(contactInfo != null && !(TextUtils.isEmpty(contactInfo.getName())))
 		{
 			return contactInfo.getName();
