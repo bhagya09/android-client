@@ -98,8 +98,31 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 		super.onCreate();
 		checkIfSharingFiles(activity.getIntent());
 		checkIfWeNeedToConnect(activity.getIntent());
+		init();
 	}
 	
+	@Override
+	protected void init()
+	{
+		super.init();
+		switch(controller.getOfflineState())
+		{
+		case CONNECTED:
+			if(mConversation.getDisplayMsisdn()==controller.getConnectedDevice())
+			{
+				updateStatus(getString(R.string.connection_established));
+			}
+			break;
+		case CONNECTING:
+			
+			break;
+		case NOT_CONNECTED:
+			break;
+		default:
+			break;
+		}
+		
+	}
 	private void checkIfWeNeedToConnect(Intent intent)
 	{
 		if(intent.hasExtra(OfflineConstants.START_CONNECT_FUNCTION))

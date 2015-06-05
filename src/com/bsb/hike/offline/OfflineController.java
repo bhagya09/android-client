@@ -10,6 +10,7 @@ import com.bsb.hike.R;
 import com.bsb.hike.filetransfer.FTAnalyticEvents;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
 
 /**
  * 
@@ -157,6 +158,11 @@ public class OfflineController
 	public void connectAsPerMsisdn(String msisdn)
 	{
 		offlineManager.connectAsPerMsisdn(msisdn);
+	}
+	
+	public OFFLINE_STATE getOfflineState()
+	{
+		return offlineManager.getOfflineState();
 	}
 
 }
