@@ -65,6 +65,7 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 	}
 
 	
+	
 	@Override
 	protected void handleUIMessage(Message msg)
 	{
@@ -214,11 +215,6 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 	{
 		
 	}
-
-	@Override
-	public void onConnect()
-	{
-	}
 	
 	private void sendUpdateStatusMessageOnHandler(int id)
 	{
@@ -279,6 +275,7 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 	}
 	
 	
+	
 //	protected void startHikeGallery(boolean onHike)
 //	{
 //		Intent imageIntent = IntentFactory.getHikeGallaryShare(activity.getApplicationContext(), msisdn, onHike);
@@ -294,7 +291,6 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 		{
 		case R.string.connect_offline:
 			connectClicked();
-			onConnect();
 			break;
 		default:
 			super.itemClicked(item);
@@ -428,7 +424,6 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 		}
 	}
 
-
 	@Override
 	public void connectedToMsisdn(String connectedDevice)
 	{
@@ -439,7 +434,6 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 		
 		addMessage(convMessage);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_SENT, convMessage);
-		
 	}
 	
 	

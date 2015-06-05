@@ -1,5 +1,7 @@
 package com.bsb.hike.models.Conversation;
 
+
+import com.bsb.hike.bots.BotInfo;
 import android.text.TextUtils;
 
 import com.bsb.hike.bots.BotInfo;
