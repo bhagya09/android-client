@@ -16,13 +16,11 @@ import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.HikePubSub;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
-import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.Header;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpHeaderConstants;
 import com.bsb.hike.platform.content.PlatformContent;
@@ -318,7 +316,7 @@ public class PlatformUtils
 	private static void botCreationSuccessHandling(BotInfo botInfo, boolean enableBot, String botChatTheme)
 	{
 		enableBot(botInfo, enableBot);
-		BotUtils.changeBotParams(botChatTheme, botInfo);
+		BotUtils.updateBotParams(botChatTheme, botInfo);
 		createBotAnalytics(HikePlatformConstants.BOT_CREATED, botInfo);
 	}
 
