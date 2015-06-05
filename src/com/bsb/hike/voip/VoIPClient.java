@@ -95,7 +95,7 @@ public class VoIPClient  {
 	private VoIPConstants.CallStatus currentCallStatus;
 	public int localBitrate = VoIPConstants.BITRATE_WIFI, remoteBitrate = 0;
 	private int chronoBackup = 0;
-	public Chronometer chronometer = null;
+	private Chronometer chronometer = null;
 	private int reconnectAttempts = 0;
 	private int droppedDecodedPackets = 0;
 	public int callSource = -1;
@@ -1611,6 +1611,20 @@ public class VoIPClient  {
 
 	}
 	
+	public void startChrono() {
+
+		try {
+			if (chronometer == null) {
+				Logger.w(logTag, "Starting chrono.");
+				chronometer = new Chronometer(context);
+				chronometer.setBase(SystemClock.elapsedRealtime());
+				chronometer.start();
+			}
+		} catch (Exception e) {
+			Logger.w(logTag, "Chrono exception: " + e.toString());
+		}
+	}
+
 	public int getCallDuration() {
 		int seconds = 0;
 		synchronized (VoIPClient.this) {

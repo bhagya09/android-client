@@ -37,12 +37,10 @@ import android.os.Messenger;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.os.RemoteException;
-import android.os.SystemClock;
 import android.os.Vibrator;
 import android.support.v4.app.NotificationCompat;
 import android.text.TextUtils;
 import android.util.SparseIntArray;
-import android.widget.Chronometer;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -208,11 +206,7 @@ public class VoIPService extends Service {
 				break;
 
 			case VoIPConstants.MSG_START_RECORDING_AND_PLAYBACK:
-				if (inConference())
-					playFromSoundPool(SOUND_ACCEPT, false);
-				else
-					startRecordingAndPlayback(msisdn);
-
+				startRecordingAndPlayback(msisdn);
 				break;
 				
 			case VoIPConstants.MSG_START_RECONNECTION_BEEPS:
@@ -907,25 +901,6 @@ public class VoIPService extends Service {
 		return getClient().getPreferredConnectionMethod();
 	}
 	
-	public void startChrono() {
-
-		VoIPClient client = getClient();
-		
-		try {
-			if (client.chronometer == null) {
-//				Looper.prepare();
-//				Logger.w(logTag, "Starting chrono..");
-				client.chronometer = new Chronometer(VoIPService.this);
-				client.chronometer.setBase(SystemClock.elapsedRealtime());
-				client.chronometer.start();
-//				Looper.loop();
-			}
-		} catch (Exception e) {
-			Logger.w(logTag, "Chrono exception: " + e.toString());
-		}
-	}
-	
-
 	/**
 	 * Terminate the service. 
 	 */
@@ -1080,28 +1055,26 @@ public class VoIPService extends Service {
 			return;
 		}
 
-		if(client.getPreferredConnectionMethod() == ConnectionMethods.RELAY)
-		{
+		if(client.getPreferredConnectionMethod() == ConnectionMethods.RELAY) 
 			client.sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CALL_RELAY);
-		}
 
-		Logger.d(logTag, "Starting audio record / playback.");
+		playFromSoundPool(SOUND_ACCEPT, false);
+		client.audioStarted = true;
+		client.startChrono();
+		client.setCallStatus(VoIPConstants.CallStatus.ACTIVE);
 		stopRingtone();
 		stopFromSoundPool(ringtoneStreamID);
 		isRingingOutgoing = isRingingIncoming = false;
 		playFromSoundPool(SOUND_ACCEPT, false);
+
 		if (clients.size() == 1) {
+			Logger.d(logTag, "Starting audio record / playback.");
 			startRecording();
 			startPlayBack();
+			sendHandlerMessage(VoIPConstants.MSG_AUDIO_START);
 		} else {
 			Logger.w(logTag, "Skipping startRecording() and startPlayBack()");
 		}
-		
-		client.setCallStatus(VoIPConstants.CallStatus.ACTIVE);
-		sendHandlerMessage(VoIPConstants.MSG_AUDIO_START);
-		startChrono();
-		client.audioStarted = true;
-		
 	}
 	
 	private void startRecording() {
