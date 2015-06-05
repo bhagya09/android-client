@@ -77,6 +77,8 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 	OfflineBroadCastReceiver receiver;
 	
 	private OFFLINE_STATE offlineState;
+	
+	private boolean startedForChatThread = false;
 
 	Handler handler =new Handler(HikeHandlerUtil.getInstance().getLooper())
 	{
@@ -123,22 +125,19 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 			connectionManager.createHotspot((String)msg.obj);
 			break;
 		case OfflineConstants.HandlerConstants.CONNECT_TO_HOTSPOT:
-			connectionManager.tryConnectingToHotSpot((String)msg.obj);
-			Logger.d(TAG, "Connecting to hotspot for first time");
+			startedForChatThread = true;
+			startWifiScan();
+			Logger.d(TAG, "Scanning for hotspots");
 			checkAndRetryConnect((String) msg.obj);
 			break;
 		case OfflineConstants.HandlerConstants.RECONNECT_TO_HOTSPOT:
 			String connectingToMsisdn = (String) msg.obj;
-			boolean isConnected = connectionManager.isConnectedToSSID(connectingToMsisdn);
-			Logger.d(TAG, "Reconnecting to hotspot. isConnected: " + isConnected);
-			if (!isConnected)
-			{
-				connectionManager.tryConnectingToHotSpot(connectingToMsisdn);
-				Message checkAndRetry = Message.obtain();
-				checkAndRetry.what = OfflineConstants.HandlerConstants.RECONNECT_TO_HOTSPOT;
-				checkAndRetry.obj = connectingToMsisdn;
-				handler.sendMessageDelayed(checkAndRetry, OfflineConstants.TRY_CONNECT_TO_HOTSPOT);
-			}
+			Logger.d(TAG, "Rescanning for hotspot.");
+			startWifiScan();
+			Message checkAndRetry = Message.obtain();
+			checkAndRetry.what = OfflineConstants.HandlerConstants.RECONNECT_TO_HOTSPOT;
+			checkAndRetry.obj = connectingToMsisdn;
+			handler.sendMessageDelayed(checkAndRetry, OfflineConstants.TRY_CONNECT_TO_HOTSPOT);
 			break;
 		case OfflineConstants.HandlerConstants.REMOVE_CONNECT_MESSAGE:
 			removeMessage(OfflineConstants.HandlerConstants.RECONNECT_TO_HOTSPOT);
@@ -437,18 +436,26 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 		scanResultsAvailable =true;
 		Map<String,ScanResult> results = connectionManager.getWifiNetworksForMyMsisdn();
 		
-		/*
-		//pass results to listeners
-		for(IOfflineCallbacks offlineListener : listeners)
+		if (startedForChatThread)
 		{
-			offlineListener.wifiScanResults(results);
+			String ssid = OfflineUtils.getSsidForMsisdn(OfflineUtils.getMyMsisdn(), connectinMsisdn);
+			if (results.containsKey(ssid))
+			{
+				connectionManager.connectToHotspot(connectinMsisdn);
+				startedForChatThread = false;
+				// since we already have the result no need to scan again
+				removeMessage(OfflineConstants.HandlerConstants.RECONNECT_TO_HOTSPOT);
+			}
 		}
-		*/
-		String ssid = OfflineUtils.getSsidForMsisdn(OfflineUtils.getMyMsisdn(), connectinMsisdn);
-		if (results.containsKey(ssid))
+		else
 		{
-			connectionManager.connectToHotspot(connectinMsisdn);
+			//pass results to listeners
+			for(IOfflineCallbacks offlineListener : listeners)
+			{
+				offlineListener.wifiScanResults(results);
+			}
 		}
+		
 	}
 
 	public void addListener(IOfflineCallbacks listener) {
@@ -613,19 +620,19 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 		{
 			Logger.d(TAG,"Will connect to  Hotspot");
 			connectinMsisdn = msisdn;
-			startWifiScan();
-			/*
+			
 			Message msg = Message.obtain();
 			msg.what = OfflineConstants.HandlerConstants.CONNECT_TO_HOTSPOT;
 			msg.obj = msisdn;
 			performWorkOnBackEndThread(msg);
+			
 			
 			// removing the CONNECT_TO_HOTSPOT message from handler after timeout
 			Message endTries = Message.obtain();
 			endTries.what = OfflineConstants.HandlerConstants.REMOVE_CONNECT_MESSAGE; 
 			endTries.obj  = msisdn;
 			handler.sendMessageDelayed(endTries, OfflineConstants.TIME_TO_CONNECT);
-			*/
+			
 		}
 	}
 

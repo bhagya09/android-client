@@ -48,7 +48,7 @@ public class OfflineConstants
 
 	public static final long TIME_TO_CONNECT = 30000;
 
-	public static final long TRY_CONNECT_TO_HOTSPOT = 3000;
+	public static final long TRY_CONNECT_TO_HOTSPOT = 5000;
 
 	public static final int MAXTRIES_FOR_SCAN_RESULTS = 3;
 		
