@@ -83,7 +83,6 @@ public class ChatHeadService extends Service
 			boolean whiteListAppForegrounded = false;
 			for(String packName : list)
 			{  
-				Logger.d("ashish1", list.toString());
 				whiteListAppForegrounded = ChatHeadUtils.isPackageForeground(getApplicationContext(), packName);
 				if ((whiteListAppForegrounded && !packName.equals(foregroundApp)) || (!whiteListAppForegrounded && packName.equals(foregroundApp)))
 				{

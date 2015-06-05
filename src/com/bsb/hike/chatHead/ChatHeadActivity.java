@@ -58,7 +58,7 @@ public class ChatHeadActivity extends HikeBaseActivity implements StickerPickerL
 	{
 		if (ChatHeadService.flagActivityRunning)
 		{
-			ChatHeadService.getInstance().resetPosition(HikeConstants.ChatHead.REMAINING_ANIMATION);
+			ChatHeadService.getInstance().resetPosition(HikeConstants.ChatHead.FINISHING_CHAT_HEAD_ACTIVITY_ANIMATION);
 		}
 		saveUpdtdShrdPrefVar();
 		ChatHeadService.flagActivityRunning = false;
@@ -77,7 +77,7 @@ public class ChatHeadActivity extends HikeBaseActivity implements StickerPickerL
 	@Override
 	public void onBackPressed()
 	{
-		ChatHeadService.getInstance().resetPosition(HikeConstants.ChatHead.FINISHING_CHAT_HEAD_ACTIVITY_ANIMATION);
+		super.onBackPressed();
 	}
 
 	@Override

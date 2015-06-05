@@ -645,19 +645,15 @@ public class HAManager
 			}
 			if (strings.length >= 2)
 			{
-				metadata.put(HikeConstants.ChatHead.APP_NAME, strings[1]);
+				metadata.put(HikeConstants.ChatHead.CAT_ID, strings[1]);
 			}
 			if (strings.length >= 3)
 			{
-				metadata.put(HikeConstants.ChatHead.CAT_ID, strings[2]);
+				metadata.put(HikeConstants.ChatHead.STICKER_ID, strings[2]);
 			}
 			if (strings.length >= 4)
 			{
-				metadata.put(HikeConstants.ChatHead.STKR_ID, strings[3]);
-			}
-			if (strings.length >= 5)
-			{
-				metadata.put(HikeConstants.ChatHead.SOURCE, strings[4]);
+				metadata.put(HikeConstants.ChatHead.SOURCE, strings[3]);
 			}
 			record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
 		}

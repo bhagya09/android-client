@@ -1198,7 +1198,7 @@ public class HikeConstants
 		
 		public static final String CAT_ID = "catId";
 
-		public static final String STKR_ID = "stkrId";
+		public static final String STICKER_ID = "stkrId";
 		
 		public static final String SOURCE = "s";
 		
