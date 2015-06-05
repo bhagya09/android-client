@@ -184,11 +184,21 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 		}
 
 		effectLayer.handleImage(imageScaled, true);
+		
+		
 
 		if (compressOutput && HikePhotosUtils.getBitmapArea(imageOriginal) > HikeConstants.HikePhotos.MAXIMUM_ALLOWED_IMAGE_AREA)
 		{
 			imageOriginal = HikePhotosUtils.compressBitamp(imageOriginal, HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX, HikeConstants.MAX_DIMENSION_LOW_FULL_SIZE_PX, true);
 		}
+		else if(imageOriginal.getConfig() == null)
+		{
+			//Special Case happens in case of gifs
+			Bitmap temp = imageOriginal;
+			imageOriginal = HikePhotosUtils.createBitmap(imageOriginal, 0, 0, 0, 0, true, false, false, true);
+			HikePhotosUtils.manageBitmaps(temp);
+		}
+		
 	}
 
 	public void loadImageFromBitmap(Bitmap bmp)
@@ -342,6 +352,10 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 			{
 				dir.mkdirs();
 			}
+			
+			//Creating No Media file in Hike Profile Images Folder if not already there
+			//Todo prevent deleting of .nomedia on app start
+			Utils.makeNoMediaFile(dir, true);
 
 			String fileName = Utils.getTempProfileImageFileName(mOriginalName);
 			final String destFilePath = directory + File.separator + fileName;

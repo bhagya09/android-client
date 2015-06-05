@@ -176,6 +176,10 @@ public class AnalyticsConstants
 	public static final String FOREGROUND = "fg";
 	
 	public static final String BACKGROUND = "bg";
+
+	public static final String NETWORK_TYPE = "networkType";
+
+	public static final String APP_VERSION = "app_version";
 		
 	// Edit picture flags and events
 	public static final class ProfileImageActions

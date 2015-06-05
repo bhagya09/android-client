@@ -21,6 +21,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeConstants.WelcomeTutorial;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
+import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.tasks.SignupTask;
 import com.bsb.hike.tasks.SignupTask.StateValue;
@@ -107,6 +108,14 @@ public class WelcomeActivity extends HikeAppStateBaseFragmentActivity implements
 
 		ImageView micromaxImage = (ImageView) findViewById(R.id.ic_micromax);
 		micromaxImage.setVisibility(isMicromaxDevice ? View.VISIBLE : View.GONE);
+		
+		/**
+		 * Conditionally init bots
+		 */
+		if (HikeMessengerApp.hikeBotInfoMap.isEmpty())
+		{
+			BotUtils.initBots();
+		}
 	}
 
 	public void onHikeIconClicked(View v)

@@ -165,11 +165,13 @@ public class HikePhotosUtils
 	public static Bitmap createBitmap(Bitmap source, int x, int y, int targetWidth, int targetHeight, boolean createMutableCopy, boolean scaledCopy, boolean crop, boolean retry)
 	{
 		Bitmap ret = null;
-
+		
 		try
 		{
 			if (source != null)
 			{
+				Config outConfig = (source.getConfig() == null) ? Config.ARGB_8888 : source.getConfig();
+				
 				if (scaledCopy && createMutableCopy)
 				{
 					ret = Bitmap.createScaledBitmap(source, targetWidth, targetHeight, false);
@@ -180,11 +182,11 @@ public class HikePhotosUtils
 				}
 				else if (createMutableCopy)
 				{
-					ret = source.copy(source.getConfig(), true);
+					ret = source.copy(outConfig, true);
 				}
 				else
 				{
-					ret = Bitmap.createBitmap(source.getWidth(), source.getHeight(), source.getConfig());
+					ret = Bitmap.createBitmap(source.getWidth(), source.getHeight(), outConfig);
 				}
 
 			}

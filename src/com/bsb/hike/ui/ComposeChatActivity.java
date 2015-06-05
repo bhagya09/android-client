@@ -284,7 +284,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			prefileTransferTask = (PreFileTransferAsycntask) object;
 			progressDialog = ProgressDialog.show(this, null, getResources().getString(R.string.multi_file_creation));
 		}
-
+		
 		if (Intent.ACTION_SEND.equals(getIntent().getAction()) || Intent.ACTION_SENDTO.equals(getIntent().getAction())
 				|| Intent.ACTION_SEND_MULTIPLE.equals(getIntent().getAction()))
 		{
@@ -1395,7 +1395,10 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 						String fileUriString = fileUri.toString();
 
 						String filePath;
-						if (fileUriString.startsWith(fileUriStart))
+						if (Utils.isPicasaUri(fileUriString))
+						{
+							filePath = fileUriString;
+						}else if (fileUriString.startsWith(fileUriStart))
 						{
 							File selectedFile = new File(URI.create(Utils.replaceUrlSpaces(fileUriString)));
 							/*
@@ -2205,8 +2208,14 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		@Override
 		protected Void doInBackground(Void... params) {
 			for(FileTransferData file:files){
-			FileTransferManager.getInstance(getApplicationContext()).uploadFile(file.arrayList, file.file, file.fileKey, file.fileType, file.hikeFileType, file.isRecording, file.isForwardingFile,
-					((ContactInfo)file.arrayList.get(0)).isOnhike(), file.recordingDuration,  FTAnalyticEvents.OTHER_ATTACHEMENT);
+				if (Utils.isPicasaUri(file.filePath))
+				{
+					FileTransferManager.getInstance(getApplicationContext()).uploadFile(Uri.parse(file.filePath), file.hikeFileType, file.arrayList, false);
+				}else{
+					FileTransferManager.getInstance(getApplicationContext()).uploadFile(file.arrayList, file.file, file.fileKey, file.fileType, file.hikeFileType, file.isRecording, file.isForwardingFile,
+							((ContactInfo)file.arrayList.get(0)).isOnhike(), file.recordingDuration,  FTAnalyticEvents.OTHER_ATTACHEMENT);
+				
+				}
 			}
 			return null;
 		}

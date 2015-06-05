@@ -87,7 +87,7 @@ public class HikeSharedFile extends HikeFile implements Parcelable
 
 	public String  getImageLoaderKey(boolean large)
 	{
-		String key = this.getExactFilePath() + ""+"::" + this.getHikeFileType().ordinal();
+		String key = this.getFileFromExactFilePath() + ""+"::" + this.getHikeFileType().ordinal();
 		return large ? key + "::"+HikeConstants.LARGE : key;  
 	}
 

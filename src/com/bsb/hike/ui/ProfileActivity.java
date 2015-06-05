@@ -343,6 +343,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			if(Intent.ACTION_ATTACH_DATA.equals(getIntent().getAction()))
 			{
 				super.onActivityResult(HikeConstants.GALLERY_RESULT, RESULT_OK, getIntent());
+				ProfileActivity.this.finish();
 			}
 			if (getIntent().getBooleanExtra(HikeConstants.Extras.EDIT_PROFILE, false))
 			{

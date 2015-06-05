@@ -28,6 +28,7 @@ import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.ui.fragments.ImageViewerFragment;
 import com.bsb.hike.ui.fragments.UpdatesFragment;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
+import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
@@ -186,11 +187,9 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 	public void onBackPressed()
 	{
 		Fragment fragment = getSupportFragmentManager().findFragmentByTag(HikeConstants.IMAGE_FRAGMENT_TAG);
-		if (!(fragment != null && fragment.isVisible()) && getIntent().getBooleanExtra(HikeConstants.Extras.FROM_NOTIFICATION, false))
+		if (!(fragment != null && fragment.isVisible()) && (getIntent().getBooleanExtra(HikeConstants.Extras.FROM_NOTIFICATION, false) || getIntent().getBooleanExtra(HikeConstants.HikePhotos.FROM_DP_UPLOAD, false)))
 		{
-			Intent intent = new Intent(TimelineActivity.this, HomeActivity.class);
-			intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-			startActivity(intent);
+			IntentFactory.openHomeActivity(TimelineActivity.this, true);
 		}
 
 		super.onBackPressed();

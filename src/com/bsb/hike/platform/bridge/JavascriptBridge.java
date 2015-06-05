@@ -586,21 +586,20 @@ public abstract class JavascriptBridge
 	/**
 	 * Platform Bridge Version 1
 	 * This method will be called when you need to get the Connection type on the device. The result returned will be one of the following ordinal values :
-	 * 
-	 * TwoG : 0 <br>
-	 * ThreeG : 1 <br>
-	 * FourG : 2 <br>
-	 * WiFi : 3 <br>
-	 * Unknown : 4 <br>
-	 * 
+	 *
+	 * <li>-1 in case of no network</li>
+	 * <li>0 in case of unknown network</li>
+	 * <li>1 in case of wifi</li>
+	 * <li>2 in case of 2g</li>
+	 * <li>3 in case of 3g</li>
+	 * <li>4 in case of 4g</li>
+	 *
 	 * @param id
 	 */
 	@JavascriptInterface
 	public void checkConnection(String id)
 	{
-		ConnectionClass connType = VoIPUtils.getConnectionClass(HikeMessengerApp.getInstance().getApplicationContext());
-		
-		callbackToJS(id, Integer.toString(connType.ordinal()));
+		callbackToJS(id, Integer.toString(Utils.getNetworkType(HikeMessengerApp.getInstance().getApplicationContext())));
 	}
 
 	public void getInitJson(JSONObject jsonObj, String msisdn)

@@ -1,16 +1,19 @@
 package com.bsb.hike.ui.fragments;
 
+import java.io.File;
+
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,17 +35,16 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
-import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.cropimage.CropImage;
 import com.bsb.hike.http.HikeHttpRequest;
 import com.bsb.hike.http.HikeHttpRequest.RequestType;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.StatusMessage;
-import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.tasks.FinishableEvent;
 import com.bsb.hike.tasks.HikeHTTPTask;
-import com.bsb.hike.ui.HomeActivity;
+import com.bsb.hike.ui.TimelineActivity;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.HoloCircularProgress;
@@ -72,9 +74,15 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 
 	private ImageView mProfilePicBg;
 
-	private Bitmap smallerBitmap;
-
 	private String origImagePath;
+
+	private int cropLeft;
+
+	private int cropTop;
+
+	private int cropWidth;
+
+	private Bitmap smallerBitmap;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -91,13 +99,19 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 
 		Bundle bundle = getArguments();
 
-		imagePath = bundle.getString(HikeConstants.HikePhotos.FILENAME);
+		imagePath = bundle.getString(MediaStore.EXTRA_OUTPUT);
 		
 		origImagePath = bundle.getString(HikeConstants.HikePhotos.ORIG_FILE);
+		
+		cropLeft = bundle.getInt(CropImage.CROP_IMAGE_LEFT);
+		
+		cropTop = bundle.getInt(CropImage.CROP_IMAGE_TOP);
+		
+		cropWidth = bundle.getInt(CropImage.CROP_IMAGE_WIDTH);
 
 		BitmapFactory.Options options = new BitmapFactory.Options();
 		options.inPreferredConfig = Bitmap.Config.RGB_565;
-		Bitmap bmp = BitmapFactory.decodeFile(imagePath, options);
+		Bitmap bmp = HikeBitmapFactory.decodeFile(imagePath, options);
 		if (bmp != null)
 		{
 			mCircularImageView.setImageBitmap(bmp);
@@ -130,14 +144,22 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 				mProfilePicBg.setVisibility(View.VISIBLE);
 
 				((HikeAppStateBaseFragmentActivity) getActivity()).getSupportActionBar().hide();
-				startUpload();
+				try
+				{
+					startUpload();
+				}
+				catch (JSONException e)
+				{
+					e.printStackTrace();
+					showErrorState();
+				}
 			}
 		}, 300);
 
 		return mFragmentView;
 	}
 
-	private void startUpload()
+	private void startUpload() throws JSONException
 	{
 
 		changeTextWithAnimation(text1, getString(R.string.photo_dp_saving));
@@ -156,7 +178,7 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 		{
 			if (smallerBitmap == null)
 			{
-				/* the server only needs a smaller version */
+				/* save smaller thumbnail */
 				smallerBitmap = HikeBitmapFactory.scaleDownBitmap(imagePath, HikeConstants.PROFILE_IMAGE_DIMENSIONS, HikeConstants.PROFILE_IMAGE_DIMENSIONS, Bitmap.Config.RGB_565,
 						true, false);
 			}
@@ -191,6 +213,9 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 					ContactManager.getInstance().setIcon(mLocalMSISDN, bytes, false);
 
 					Utils.renameTempProfileImage(mLocalMSISDN);
+					
+					//Delete smaller preview thumbnail file since we have stored it in out DP
+					new File(imagePath).delete();
 
 					StatusMessage statusMessage = Utils.createTimelinePostForDPChange(response, false);
 
@@ -217,6 +242,13 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 			});
 
 			request.setFilePath(origImagePath);
+			
+			JSONObject jsonObj = new JSONObject();
+			jsonObj.put(CropImage.CROP_IMAGE_LEFT, cropLeft);
+			jsonObj.put(CropImage.CROP_IMAGE_TOP, cropTop);
+			jsonObj.put(CropImage.CROP_IMAGE_WIDTH, cropWidth);
+			
+			request.setJSONData(jsonObj);
 
 			Utils.executeHttpTask(new HikeHTTPTask(ProfilePicFragment.this, R.string.delete_status_error), request);
 
@@ -312,9 +344,10 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 						{
 							if (isAdded() && !failed)
 							{
-								Intent in = new Intent(getActivity(), HomeActivity.class);
-								in.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+								Intent in = new Intent(getActivity(), TimelineActivity.class);
+								in.putExtra(HikeConstants.HikePhotos.FROM_DP_UPLOAD, true);
 								getActivity().startActivity(in);
+								getActivity().finish();
 							}
 						}
 					});
@@ -353,7 +386,15 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 			{
 				mCurrentProgress = 0.0f;
 				failed = false;
-				startUpload();
+				try
+				{
+					startUpload();
+				}
+				catch (JSONException e)
+				{
+					e.printStackTrace();
+					showErrorState();
+				}
 			}
 		});
 	}
