@@ -146,7 +146,7 @@ public class BotUtils
 	 */
 	public static void postAccountRestoreSetup()
 	{
-		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.UPGRADE_FOR_DEFAULT_BOT_ENTRY, false);
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.UPGRADE_FOR_DEFAULT_BOT_ENTRY, true);
 		initBots();
 	}
 	
@@ -168,35 +168,16 @@ public class BotUtils
 	 */
 	public static void initBots()
 	{
-		HikeHandlerUtil mThread = HikeHandlerUtil.getInstance();
-		mThread.startHandlerThread();
-		mThread.postRunnableWithDelay(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				if (HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.UPGRADE_FOR_DEFAULT_BOT_ENTRY, true))
-				{
-					BotUtils.addDefaultBotsToDB(HikeMessengerApp.getInstance().getApplicationContext());
-					HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.UPGRADE_FOR_DEFAULT_BOT_ENTRY, false);
-				}
-			}
-		}, 0);
 
-		/**
-		 * If the migration of bots hasn't happened yet. This will happen for the first time
-		 */
 		if (HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.UPGRADE_FOR_DEFAULT_BOT_ENTRY, true))
 		{
-			HikeMessengerApp.hikeBotInfoMap.putAll(BotUtils.getDefaultHardCodedBotInfoObjects());
+			BotUtils.addDefaultBotsToDB(HikeMessengerApp.getInstance().getApplicationContext());
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.UPGRADE_FOR_DEFAULT_BOT_ENTRY, false);
 		}
 
-		else
-		{
-			HikeConversationsDatabase.getInstance().getBotHashmap();
-			Logger.d("create bot", "Keys are " + HikeMessengerApp.hikeBotInfoMap.keySet() + "------");
-			Logger.d("create bot", "values are " + HikeMessengerApp.hikeBotInfoMap.values());
-		}
+		HikeConversationsDatabase.getInstance().getBotHashmap();
+		Logger.d("create bot", "Keys are " + HikeMessengerApp.hikeBotInfoMap.keySet() + "------");
+		Logger.d("create bot", "values are " + HikeMessengerApp.hikeBotInfoMap.values());
 	}
 
 	/**

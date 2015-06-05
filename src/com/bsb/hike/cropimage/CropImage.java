@@ -276,7 +276,9 @@ public class CropImage extends MonitoredActivity
 
 		titleView.setText(getString(R.string.selectPreview));
 
-		titleView.setVisibility(View.VISIBLE);				
+		titleView.setVisibility(View.VISIBLE);	
+		
+		((TextView) actionBarView.findViewById(R.id.done_text)).setText(R.string.done);
 		
 		actionBarView.findViewById(R.id.done_container).setOnClickListener(new View.OnClickListener()
 		{

@@ -131,12 +131,13 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		String oldHelper = mBotInfo.getHelperData();
 		try
 		{
-			JSONObject oldHelperDataJson = new JSONObject(oldHelper);
-			Iterator<String> i = oldHelperDataJson.keys();
+			JSONObject oldHelperDataJson = TextUtils.isEmpty(oldHelper) ? new JSONObject() : new JSONObject(oldHelper);
+			JSONObject newHelperData = new JSONObject(json);
+			Iterator<String> i = newHelperData.keys();
 			while (i.hasNext())
 			{
 				String key = i.next();
-				oldHelperDataJson.put(key, oldHelperDataJson.get(key));
+				oldHelperDataJson.put(key, newHelperData.get(key));
 			}
 
 			mBotInfo.setHelperData(oldHelperDataJson.toString());
@@ -218,9 +219,8 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		JSONObject jsonObject = new JSONObject();
 		try
 		{
-			NonMessagingBotMetadata metadata = new NonMessagingBotMetadata(mBotInfo.getMetadata());
 			getInitJson(jsonObject, mBotInfo.getMsisdn());
-			jsonObject.put(HikePlatformConstants.HELPER_DATA, metadata.getHelperData());
+			jsonObject.put(HikePlatformConstants.HELPER_DATA, mBotInfo.getHelperData());
 			jsonObject.put(HikePlatformConstants.NOTIF_DATA, mBotInfo.getNotifDataJSON());
 			jsonObject.put(HikePlatformConstants.BLOCK, Boolean.toString(mBotInfo.isBlocked()));
 			jsonObject.put(HikePlatformConstants.MUTE, Boolean.toString(mBotInfo.isMute()));
