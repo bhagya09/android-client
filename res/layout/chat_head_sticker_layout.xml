@@ -13,14 +13,14 @@
         android:layout_alignParentBottom="true"
         android:background="@drawable/chat_head_bg_bottom" >
 
-        <ImageView
+        <com.bsb.hike.ui.utils.RecyclingImageView
             android:id="@+id/info_icon"
             android:layout_width="48dp"
             android:layout_height="match_parent"
             android:layout_alignParentRight="true"
             android:background="@drawable/info_icon_chat_head_bg"
             android:scaleType="centerInside"
-            android:src="@drawable/infoicon" />
+            android:src="@drawable/info_icon_selector" />
 
         <View
             android:id="@+id/vertical_sep"
@@ -39,7 +39,7 @@
             android:background="#444444" >
         </View>
 
-        <ImageView
+        <com.bsb.hike.ui.utils.RecyclingImageView
             android:id="@+id/shop_icon_external"
             android:layout_width="48dp"
             android:layout_height="match_parent"
@@ -71,7 +71,7 @@
         android:orientation="vertical"
         android:visibility="gone" >
 
-        <TextView
+        <com.bsb.hike.view.CustomFontTextView
             android:id="@+id/main_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -91,7 +91,7 @@
             android:indeterminate="false"
             android:progressDrawable="@drawable/chat_head_progress_bar" />
 
-        <TextView
+        <com.bsb.hike.view.CustomFontTextView
             android:id="@+id/side_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -111,7 +111,7 @@
             android:orientation="horizontal"
             android:visibility="gone" >
 
-            <TextView
+            <com.bsb.hike.view.CustomFontTextView
                 android:id="@+id/disable"
                 android:layout_width="wrap_content"
                 android:layout_height="48dp"
@@ -128,7 +128,7 @@
                 android:background="#979797" >
             </View>
 
-            <TextView
+            <com.bsb.hike.view.CustomFontTextView
                 android:id="@+id/get_more_stickers"
                 android:layout_width="wrap_content"
                 android:layout_height="48dp"
@@ -145,7 +145,7 @@
                 android:background="#979797" >
             </View>
 
-            <TextView
+            <com.bsb.hike.view.CustomFontTextView
                 android:id="@+id/open_hike"
                 android:layout_width="wrap_content"
                 android:layout_height="48dp"
@@ -166,15 +166,14 @@
             android:orientation="horizontal"
             android:visibility="gone" >
 
-            <ImageView
+            <com.bsb.hike.ui.utils.RecyclingImageView
                 android:id="@+id/back_main_layout"
                 android:layout_width="wrap_content"
                 android:layout_height="48dp"
                 android:gravity="center"
                 android:paddingLeft="17dp"
                 android:paddingRight="17dp"
-                android:src="@drawable/back_arrow" >
-            </ImageView>
+                android:src="@drawable/back_arrow" />
 
             <View
                 android:layout_width="0.5dp"
@@ -183,7 +182,7 @@
                 android:background="#979797" >
             </View>
 
-            <TextView
+            <com.bsb.hike.view.CustomFontTextView
                 android:id="@+id/one_hour"
                 android:layout_width="wrap_content"
                 android:layout_height="48dp"
@@ -200,7 +199,7 @@
                 android:background="#979797" >
             </View>
 
-            <TextView
+            <com.bsb.hike.view.CustomFontTextView
                 android:id="@+id/eight_hours"
                 android:layout_width="wrap_content"
                 android:layout_height="48dp"
@@ -217,7 +216,7 @@
                 android:background="#979797" >
             </View>
 
-            <TextView
+            <com.bsb.hike.view.CustomFontTextView
                 android:id="@+id/one_day"
                 android:layout_width="wrap_content"
                 android:layout_height="48dp"

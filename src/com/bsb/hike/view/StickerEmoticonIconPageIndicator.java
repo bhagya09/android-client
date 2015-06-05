@@ -44,9 +44,9 @@ public class StickerEmoticonIconPageIndicator extends IconPageIndicator
 	}
 
 	
-	public static void registerChatHeadTabClickListener(Activity activity)
+	public static void registerChatHeadTabClickListener(TabClickListener tabListener)
 	{
-		tabClickListener = (TabClickListener) activity;
+		tabClickListener = tabListener;
 	}
 	
 	public static void unRegisterChatHeadTabClickListener()

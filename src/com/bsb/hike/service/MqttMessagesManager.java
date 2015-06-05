@@ -40,8 +40,7 @@ import com.bsb.hike.analytics.AnalyticsConstants.MsgRelEventType;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.analytics.MsgRelLogManager;
-import com.bsb.hike.chatHead.ChatHeadActivity;
-import com.bsb.hike.chatHead.ChatHeadServiceManager;
+import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.db.DBConstants;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
@@ -109,7 +108,6 @@ import com.bsb.hike.utils.Utils;
 import com.bsb.hike.voip.VoIPConstants;
 import com.bsb.hike.voip.VoIPUtils;
 import com.bsb.hike.voip.view.VoIPActivity;
-import com.google.gson.JsonArray;
 import com.googlecode.mp4parser.authoring.builder.SyncSampleIntersectFinderImpl.CacheTuple;
 
 /**
@@ -1914,14 +1912,14 @@ public class MqttMessagesManager
 			{	
 				boolean chatHeadService = stickerWidget.getBoolean(HikeConstants.ChatHead.CHAT_HEAD_SERVICE);
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, chatHeadService);
-				ChatHeadServiceManager.serviceDecision();
+				ChatHeadUtils.serviceDecision(context, false);
 			}
 			if (stickerWidget.has(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL))
 			{	
 				boolean chatHeadServiceUserControl = stickerWidget.getBoolean(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL);
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL, chatHeadServiceUserControl);
 				setShareEnableForAllApps();
-				ChatHeadServiceManager.serviceDecision();
+				ChatHeadUtils.serviceDecision(context, false);
 			}
 			if (stickerWidget.has(HikeConstants.ChatHead.STICKERS_PER_DAY))
 			{
@@ -1931,7 +1929,7 @@ public class MqttMessagesManager
 			if (stickerWidget.has(HikeConstants.ChatHead.EXTRA_STICKERS_PER_DAY))
 			{
 				int extraStickersPerDay = stickerWidget.getInt(HikeConstants.ChatHead.EXTRA_STICKERS_PER_DAY);
-			    HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.SERVICE_LAST_USED, ChatHeadActivity.gettingMidnightTimeinMilliseconds());
+				ChatHeadUtils.settingDailySharedPref();
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.EXTRA_STICKERS_PER_DAY, extraStickersPerDay);
 			}
 			
@@ -1951,8 +1949,7 @@ public class MqttMessagesManager
 				}
 				
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.PACKAGE_LIST, list.toString());
-				ChatHeadServiceManager.serviceDecision();
-				
+				ChatHeadUtils.serviceDecision(context, true);
 			}
 			
 		}

@@ -1148,8 +1148,6 @@ public class HikeConstants
 
 		public static final String INTENT_EXTRA = "time";
 
-		public static final int ALARM_BROADCAST = 1;
-
 		public static final String DISMISS_COUNT = "dismiss_count";
 
 		public static final String SERVICE_START_DATE= "strtDate";

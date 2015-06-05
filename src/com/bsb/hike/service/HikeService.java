@@ -33,7 +33,7 @@ import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
-import com.bsb.hike.chatHead.ChatHeadServiceManager;
+import com.bsb.hike.chatHead.ChatHeadReceiver;
 import com.bsb.hike.http.HikeHttpRequest;
 import com.bsb.hike.http.HikeHttpRequest.HikeHttpCallback;
 import com.bsb.hike.http.HikeHttpRequest.RequestType;
@@ -174,7 +174,7 @@ public class HikeService extends Service
 
 	private Messenger mSDKRequestMessenger;
 	
-	private ChatHeadServiceManager mChatHeadServiceManager; 
+	private ChatHeadReceiver mChatHeadReceiver; 
 
 	private boolean isInitialized;
 
@@ -287,12 +287,12 @@ public class HikeService extends Service
 			sendBroadcast(new Intent(SEND_GB_DETAILS_TO_SERVER_ACTION));
 		}
 
-		if (mChatHeadServiceManager == null)
+		if (mChatHeadReceiver == null)
 		{
-			mChatHeadServiceManager = new ChatHeadServiceManager();
+			mChatHeadReceiver = new ChatHeadReceiver();
 			IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_OFF);
 			filter.addAction(Intent.ACTION_SCREEN_ON);
-			registerReceiver(mChatHeadServiceManager, filter);
+			registerReceiver(mChatHeadReceiver, filter);
 		}
 		
 		if (getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE).getString(HikeMessengerApp.SIGNUP_PROFILE_PIC_PATH, null) != null && postSignupProfilePic == null)
@@ -424,10 +424,10 @@ public class HikeService extends Service
 			unregisterReceiver(postSignupProfilePic);
 			postSignupProfilePic = null;
 		}
-		if (mChatHeadServiceManager != null)
+		if (mChatHeadReceiver != null)
 		{
-			unregisterReceiver(mChatHeadServiceManager);
-			mChatHeadServiceManager = null; 
+			unregisterReceiver(mChatHeadReceiver);
+			mChatHeadReceiver = null; 
 		}
 		
 	}

@@ -33,6 +33,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ImageViewerInfo;
@@ -103,7 +104,7 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 		}
 		items.add(getString(R.string.manage_account));
 		items.add(getString(R.string.privacy));
-    	if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, false) && checkPkgInstalled())
+    	if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, false) && ChatHeadUtils.isSharingPackageInstalled(this))
 		{
 			items.add(getString(R.string.settings_share_stickers));
 		}
@@ -121,9 +122,9 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 		}
 		itemsSummary.add(getString(R.string.account_hintttext));
 		itemsSummary.add(getString(R.string.privacy_setting_hinttext));
-		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, false) && checkPkgInstalled())
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, false) && ChatHeadUtils.isSharingPackageInstalled(this))
 		{
-			itemsSummary.add(getString(R.string.settings_share_stickers));
+			itemsSummary.add(getString(R.string.settings_share_stickers_hintext));
 		}
 		itemsSummary.add(getString(R.string.help_hinttext));
 
@@ -139,7 +140,7 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 		}
 		itemIcons.add(R.drawable.ic_account_settings);
 		itemIcons.add(R.drawable.ic_privacy_settings);
-		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, false) && checkPkgInstalled())
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, false) && ChatHeadUtils.isSharingPackageInstalled(this))
 		{
 			itemIcons.add(R.drawable.settings_icon_sticker_widget);
 		}
@@ -238,31 +239,6 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 		
 	}
 	
-	private boolean checkPkgInstalled()
-	{
-		JSONArray jsonObj;
-		try
-		{
-			jsonObj = new JSONArray(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.PACKAGE_LIST, ""));
-			
-				for (int i = 0; i < jsonObj.length(); i++)
-				{
-					JSONObject obj = jsonObj.getJSONObject(i);
-					{
-						if (Utils.isPackageInstalled(this, obj.getString(HikeConstants.ChatHead.PACKAGE_NAME)))
-						{
-							return true;
-						}
-					}
-				}
-		}
-		catch (JSONException e)
-		{
-			e.printStackTrace();
-		}
-		return false;
-	}
-
 	private void addProfileHeaderView(ListView settingsList)
 	{
 		View header = getLayoutInflater().inflate(R.layout.profile_header_other, null);
@@ -337,7 +313,7 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 	{
 		if (isConnectedAppsPresent)
 		{
-			if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, false) && checkPkgInstalled())
+			if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, false) && ChatHeadUtils.isSharingPackageInstalled(this))
 			{
 				switch (position)
 				{
@@ -406,7 +382,7 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 		}
 		else
 		{
-			if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, false) && checkPkgInstalled())
+			if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, false) && ChatHeadUtils.isSharingPackageInstalled(this))
 			{
 				switch (position)
 				{

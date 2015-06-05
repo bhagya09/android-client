@@ -26,12 +26,10 @@
                 android:layout_marginTop="20dp"
                 android:gravity="center_vertical"
                 android:textColor="#333333"
-               android:textSize="16sp" 
-               
+                android:textSize="16sp"
                 android:textStyle="bold|italic" />
 
             <com.bsb.hike.view.CustomFontTextView
-                
                 android:id="@+id/side_text_select_all"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
@@ -39,10 +37,8 @@
                 android:layout_marginTop="4dp"
                 android:gravity="center_vertical"
                 android:textColor="#AAAAAA"
-                android:textSize="12sp" 
-                
-                android:textStyle="bold|italic" 
-                />
+                android:textSize="12sp"
+                android:textStyle="bold|italic" />
         </LinearLayout>
 
         <CheckBox
@@ -56,7 +52,7 @@
     </LinearLayout>
 
     <View
-        android:id="@+id/main_divider1"
+        android:id="@+id/main_divider"
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_below="@id/main_select_layout"
@@ -69,7 +65,7 @@
         android:id="@+id/list_items"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/main_divider1"
+        android:layout_below="@id/main_divider"
         android:divider="@drawable/sticker_settings_list_divider" >
     </ListView>
 

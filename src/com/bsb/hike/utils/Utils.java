@@ -17,6 +17,7 @@ import java.net.URL;
 import java.nio.CharBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -359,6 +360,16 @@ public class Utils
 		return mOutToRight;
 	}
 
+	public static long gettingMidnightTimeinMilliseconds()
+	{
+		Calendar c = Calendar.getInstance();
+		c.set(Calendar.HOUR_OF_DAY, 0);
+		c.set(Calendar.MINUTE, 0);
+		c.set(Calendar.SECOND, 0);
+		c.set(Calendar.MILLISECOND, 0);
+		return c.getTimeInMillis();
+	}
+	
 	public static boolean isMyServiceRunning(Class<?> serviceClass, Context ctx)
 	{
 		ActivityManager manager = (ActivityManager) ctx.getSystemService(Context.ACTIVITY_SERVICE);
@@ -4378,7 +4389,7 @@ public class Utils
 		}
 		return false;
 	}
-
+	
 	public static void clearJar(Context c)
 	{
 		HashMap<URL, JarFile> jarCache = null;
