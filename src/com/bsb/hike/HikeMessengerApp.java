@@ -757,6 +757,7 @@ public void onTrimMemory(int level)
 		if(settings.getInt(StickerManager.UPGRADE_FOR_STICKER_SHOP_VERSION_1, 1) == 2)
 		{
 			sm.doInitialSetup();
+			sm.cachingStickersOnStart();
 		}
 		
 		HikeMqttPersistence.init(this);
