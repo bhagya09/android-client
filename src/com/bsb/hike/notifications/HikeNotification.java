@@ -111,8 +111,15 @@ public class HikeNotification
 
 	private HikeNotificationMsgStack hikeNotifMsgStack;
 	
+
+	
+	private static HashMap<String, Long> lastNotificationTimeMap=new HashMap<String, Long>();//For now HashMap<groupId, LastNotifiactionTimeInMillis>()
+	
+	private static final int GROUP_NOTIFICATION_DELAY_IN_SEC = 15;
+
 	private static HikeNotification hikeNotificationInstance=new HikeNotification();
 	
+
 
 	private HikeNotification()
 	{
@@ -469,6 +476,11 @@ public class HikeNotification
 				return;
 			}
 
+			if (!shouldPlayNotification(convMsg))
+			{
+				return;
+			}
+
 			// big picture messages ! intercept !
 			showNotification(notificationIntent, icon, timestamp, notificationId, text, key, message, msisdn, bigPictureImage, !convMsg.isStickerMessage(), isPin, false, hikeNotifMsgStack.getNotificationSubText(),
 					null, forceBlockNotificationSound, 0);
@@ -490,8 +502,37 @@ public class HikeNotification
 			showNotification(notificationIntent, icon, timestamp, HIKE_SUMMARY_NOTIFICATION_ID, text, key, message, msisdn, null, isPin, forceBlockNotificationSound);
 		}
 	}
+	
+	/**
+	 * This method will also update last Notification Time
+	 * 
+	 */
+	public boolean shouldPlayNotification(ConvMessage convMsg){
+		if (!convMsg.isOneToNChat())
+		{
+			return true;
+		}
+		long timeIntervalInMillis = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.GROUP_NOTIFIACTION_DELAY,GROUP_NOTIFICATION_DELAY_IN_SEC)*1000;
+		Long lastNotificationTime = lastNotificationTimeMap.get(convMsg.getMsisdn());
+		boolean shouldPlayNotification =false;
+		if (lastNotificationTime==null)
+		{	
+			shouldPlayNotification=true;
+		}else{
+			shouldPlayNotification = (System.currentTimeMillis() - lastNotificationTime) > timeIntervalInMillis;
+		}
+	
+		if (shouldPlayNotification)
+		{
+			lastNotificationTimeMap.put(convMsg.getMsisdn(), System.currentTimeMillis());
+			return true;
+		}
+		return false;
+	}
+	
 
 	public void notifyStringMessage(String msisdn, String message, boolean forceNotPlaySound, int notificationType)
+
 	{
 		try
 		{
@@ -568,6 +609,11 @@ public class HikeNotification
 				return;
 			}
 
+			if (!shouldPlayNotification(convMessage))
+			{
+				return;
+			}
+
 			else if (convMessage.isStickerMessage())
 			{
 				Bitmap bigPictureImage = ToastListener.returnBigPicture(convMessage, context);
@@ -592,15 +638,10 @@ public class HikeNotification
 						avatarDrawable, shouldNotPlaySound, retryCount, actions);
 				return;
 			}
-		}
 
-		if (hikeNotifMsgStack.getSize() == 1)
-		{
-			if (convMessage != null)
-			{
-				HAManager.getInstance().setMetadatFieldsForSessionEvent(AnalyticsConstants.AppOpenSource.FROM_NOTIFICATION, convMessage.getMsisdn(), convMessage,
+			HAManager.getInstance().setMetadatFieldsForSessionEvent(AnalyticsConstants.AppOpenSource.FROM_NOTIFICATION, convMessage.getMsisdn(), convMessage,
 						AnalyticsConstants.ConversationType.NORMAL);
-			}
+
 			showBigTextStyleNotification(hikeNotifMsgStack.getNotificationIntent(), hikeNotifMsgStack.getNotificationIcon(), hikeNotifMsgStack.getLatestAddedTimestamp(),
 					hikeNotifMsgStack.getNotificationId(), hikeNotifMsgStack.getNotificationTickerText(), hikeNotifMsgStack.getNotificationTitle(),
 					hikeNotifMsgStack.getNotificationBigText(retryCount), isSingleMsisdn ? hikeNotifMsgStack.lastAddedMsisdn : "bulk", hikeNotifMsgStack.getNotificationSubText(),
@@ -609,6 +650,10 @@ public class HikeNotification
 		}
 		else if (!hikeNotifMsgStack.isEmpty())
 		{
+			if (!shouldPlayNotification(convMessage))
+			{
+				return;
+			}
 			if (convMessage != null)
 			{
 				HAManager.getInstance().setMetadatFieldsForSessionEvent(AnalyticsConstants.AppOpenSource.FROM_NOTIFICATION, convMessage.getMsisdn(), convMessage,
@@ -716,7 +761,6 @@ public class HikeNotification
 		final int smallIconId = returnSmallIcon();
 
 		NotificationCompat.Builder mBuilder = getNotificationBuilder(context.getString(R.string.app_name), message, message, avatarDrawable, smallIconId, false);
-
 		setNotificationIntentForBuilder(mBuilder, notificationIntent,STEALTH_NOTIFICATION_ID);
 		notificationManager.notify(notificationId, mBuilder.getNotification());
 		notificationBuilderPostWork();
@@ -840,7 +884,6 @@ public class HikeNotification
 
 	public void notifyBigPictureStatusNotification(final String imagePath, final String msisdn, final String name, int notificationType)
 	{
-
 		if (PreferenceManager.getDefaultSharedPreferences(this.context).getInt(HikeConstants.STATUS_PREF, 0) != 0)
 		{
 			return;
@@ -893,6 +936,7 @@ public class HikeNotification
 
 	public void notifyBatchUpdate(final String header, final String message, int notificationType)
 	{
+
 		final long timeStamp = System.currentTimeMillis() / 1000;
 
 		final int notificationId = (int) timeStamp;
