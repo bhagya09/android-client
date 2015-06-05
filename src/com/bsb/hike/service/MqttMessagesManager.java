@@ -3118,34 +3118,24 @@ public class MqttMessagesManager
 		}
 
 		int config = jsonObj.optInt(HikeConstants.CONFIGURATION, Integer.MAX_VALUE);
+		String botChatTheme = jsonObj.optString(HikeConstants.BOT_CHAT_THEME);
 		BotInfo botInfo = null;
 		if (type.equals(HikeConstants.MESSAGING_BOT))
 		{
 			botInfo = getBotInfoFormessagingBots(jsonObj, msisdn, name, config);
+			BotUtils.changeBotParams(botChatTheme, botInfo);
 		}
 		else if (type.equals(HikeConstants.NON_MESSAGING_BOT))
 		{
 			botInfo = getBotInfoForNonMessagingBots(jsonObj, msisdn, name, config);
 			boolean enableBot = jsonObj.optBoolean(HikePlatformConstants.ENABLE_BOT);
-			PlatformUtils.downloadZipForNonMessagingBot(botInfo, enableBot);
+			PlatformUtils.downloadZipForNonMessagingBot(botInfo, enableBot, botChatTheme);
 		}
 
-		convDb.setChatBackground(msisdn, jsonObj.optString(HikeConstants.BOT_CHAT_THEME), System.currentTimeMillis()/1000);
-
-		convDb.insertBot(botInfo);
-
-		HikeMessengerApp.hikeBotInfoMap.put(msisdn, botInfo);
-		
-		if (HikeMessengerApp.hikeBotInfoMap.containsKey(msisdn))
-		{
-			ContactInfo contact = new ContactInfo(msisdn, msisdn, name, msisdn);
-			contact.setFavoriteType(FavoriteType.NOT_FRIEND);
-			ContactManager.getInstance().updateContacts(contact);
-			HikeMessengerApp.getPubSub().publish(HikePubSub.CONTACT_ADDED, contact);
-		}
 
 		Logger.d("create bot", "It takes " + String.valueOf(System.currentTimeMillis() - startTime) + "msecs");
 	}
+
 
 	private BotInfo getBotInfoForNonMessagingBots(JSONObject jsonObj, String msisdn, String name, int config)
 	{

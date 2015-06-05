@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.models.ContactInfo;
+import com.bsb.hike.modules.contactmgr.ContactManager;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -198,5 +200,23 @@ public class BotUtils
 			HikeConversationsDatabase.getInstance().deleteBot(msisdn);
 		}
 		HikeMessengerApp.getPubSub().publish(HikePubSub.DELETE_THIS_CONVERSATION, botInfo);
+	}
+
+	public static void changeBotParams(String botChatTheme, BotInfo botInfo)
+	{
+		String msisdn = botInfo.getMsisdn();
+		HikeConversationsDatabase convDb = HikeConversationsDatabase.getInstance();
+		convDb.setChatBackground(msisdn, botChatTheme, System.currentTimeMillis()/1000);
+		convDb.insertBot(botInfo);
+
+		HikeMessengerApp.hikeBotInfoMap.put(msisdn, botInfo);
+
+		if (HikeMessengerApp.hikeBotInfoMap.containsKey(msisdn))
+		{
+			ContactInfo contact = new ContactInfo(msisdn, msisdn, botInfo.getConversationName(), msisdn);
+			contact.setFavoriteType(ContactInfo.FavoriteType.NOT_FRIEND);
+			ContactManager.getInstance().updateContacts(contact);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.CONTACT_ADDED, contact);
+		}
 	}
 }
