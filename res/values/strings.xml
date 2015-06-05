@@ -1100,7 +1100,7 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="mute_status_notification_subtext">Show notifications for status &amp; profile picture updates from favourites</string>
     <string name="notifications_contact_join_summary">Notify when a contact joins hike</string>
     <string name="sticker_download_failed_large_file">Download failed due to insufficient space. Please free some space and try again.</string>
-    <string name="set_profile_pic">hike profile picture</string>
+    <string name="set_profile_pic"> Hike Profile Picture</string>
     <string name="confirm_delete_pin_header">Delete pin</string>
     <string name="confirm_delete_pin">Are you sure you want to delete this pin?</string>
     <string name="confirm_delete_pins_header">Delete pins</string>
