@@ -884,8 +884,9 @@
 <![CDATA[ <b> Tap here to reset Hidden Mode now! </b> 
 	    ]]>
     </string>
-        <string name="tap_to_reveal_stealth_contacts">To reveal chats, tap</string> 
-    <string name="tap_to_hide_stealth_contacts">To hide chats, tap</string>
+        <string name="tap_to_reveal_stealth_contacts">to reveal chats</string> 
+    <string name="tap_to_hide_stealth_contacts">to hide chats</string>
+    <string name="tap_text">Tap</string>
     <string name="reset_stealth_confirmation">Resetting Hidden Mode will delete all your hidden Chats.\nAre you sure?</string>
     <string name="stealth_tap_and_hold_tip">Tap and hold on a chat to mark a chat \'Hidden\'.</string>
     <string name="chat_marked_stealth">You’ve hidden a chat.</string>
@@ -1512,7 +1513,7 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
 	<string name="selectPreview">Select a preview</string>
 	<string name="not_enough_memory">Not Enough Memory</string>
 	<string name="edit_photos">New Photo</string>
-	<string name="only_photos_edit">Only photos can be edited</string>
+	<string name="only_photos_edit">Image Format Not Supported</string>
 	<string name="delete_block">Block and Delete</string>
 	<string name="confirm_delete_block_msg">Do you want to delete and block \"%1$s\"? </string>
 	<string name="confirm_delete_non_messaging">Do you want to delete \"%1$s\"? </string>

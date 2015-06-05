@@ -273,6 +273,10 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 					if (!isInsideAlbum)
 					{
 						String dirPath = cursor.getString(dataIdx);
+						if(dirPath==null)
+						{
+							continue;
+						}
 						dirPath = dirPath.substring(0, dirPath.lastIndexOf("/"));
 						count = getGalleryItemCount(dirPath);
 					}

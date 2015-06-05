@@ -50,7 +50,6 @@ import com.bsb.hike.ui.fragments.ProfilePicFragment;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.IntentFactory;
-import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 import com.jess.ui.TwoWayAdapterView;
 import com.jess.ui.TwoWayAdapterView.OnItemClickListener;
@@ -771,8 +770,6 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 				positionFinal = parent.getLastVisiblePosition();
 			}
 
-			Logger.e("akhil", "Scrolling to position : "+positionFinal + "/" + parent.getLastVisiblePosition());
-			
 			// SmoothScroll needs to do a lot of work
 			parent.post(new Runnable()
 			{

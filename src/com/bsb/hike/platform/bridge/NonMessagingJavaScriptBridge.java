@@ -2,6 +2,7 @@ package com.bsb.hike.platform.bridge;
 
 import java.util.Iterator;
 
+import com.bsb.hike.utils.Utils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -130,12 +131,13 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		String oldHelper = mBotInfo.getHelperData();
 		try
 		{
-			JSONObject oldHelperDataJson = new JSONObject(oldHelper);
-			Iterator<String> i = oldHelperDataJson.keys();
+			JSONObject oldHelperDataJson = TextUtils.isEmpty(oldHelper) ? new JSONObject() : new JSONObject(oldHelper);
+			JSONObject newHelperData = new JSONObject(json);
+			Iterator<String> i = newHelperData.keys();
 			while (i.hasNext())
 			{
 				String key = i.next();
-				oldHelperDataJson.put(key, oldHelperDataJson.get(key));
+				oldHelperDataJson.put(key, newHelperData.get(key));
 			}
 
 			mBotInfo.setHelperData(oldHelperDataJson.toString());
@@ -199,19 +201,30 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 
 	/**
 	 * Data is encoded with URL Encoded Scheme. Decode it before using.
+	 * The json contains:
+	 * hd: helper data
+	 * notifData: notif data
+	 * block: whether the bot is blocked
+	 * mute: whether the bot is muted
+	 * networkType:
+	 *	 <li>-1 in case of no network</li>
+	 * 	 <li>0 in case of unknown network</li>
+	 *	 <li>1 in case of wifi</li>
+	 *	 <li>2 in case of 2g</li>
+	 *	 <li>3 in case of 3g</li>
+	 *	 <li>4 in case of 4g</li>
 	 */
 	public void init()
 	{
 		JSONObject jsonObject = new JSONObject();
 		try
 		{
-			NonMessagingBotMetadata metadata = new NonMessagingBotMetadata(mBotInfo.getMetadata());
 			getInitJson(jsonObject, mBotInfo.getMsisdn());
-			jsonObject.put(HikePlatformConstants.HELPER_DATA, metadata.getHelperData());
+			jsonObject.put(HikePlatformConstants.HELPER_DATA, mBotInfo.getHelperData());
 			jsonObject.put(HikePlatformConstants.NOTIF_DATA, mBotInfo.getNotifDataJSON());
 			jsonObject.put(HikePlatformConstants.BLOCK, Boolean.toString(mBotInfo.isBlocked()));
 			jsonObject.put(HikePlatformConstants.MUTE, Boolean.toString(mBotInfo.isMute()));
-			jsonObject.put(HikePlatformConstants.NETWORK_TYPE, Integer.toString(VoIPUtils.getConnectionClass(HikeMessengerApp.getInstance().getApplicationContext()).ordinal()));
+			jsonObject.put(HikePlatformConstants.NETWORK_TYPE, Integer.toString(Utils.getNetworkType(HikeMessengerApp.getInstance().getApplicationContext())));
 
 			
 			mWebView.loadUrl("javascript:init('"+getEncodedDataForJS(jsonObject.toString())+"')");
@@ -246,11 +259,13 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	{
 		if (Boolean.valueOf(isBlocked))
 		{
+			mBotInfo.setBlocked(true);
 			HikeMessengerApp.getPubSub().publish(HikePubSub.BLOCK_USER, mBotInfo.getMsisdn());
 		}
 		
 		else
 		{
+			mBotInfo.setBlocked(false);
 			HikeMessengerApp.getPubSub().publish(HikePubSub.UNBLOCK_USER, mBotInfo.getMsisdn());
 		}
 	}

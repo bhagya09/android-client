@@ -816,6 +816,9 @@ public class HikeConstants
 
 	// Google Plus URI prefix for all devices
 	public static final String GOOGLE_PLUS_PREFIX = "content://com.google.android.apps.photos.content";
+	
+	// Google Inbox App URI prefix for all devices
+		public static final String GOOGLE_INBOX_PREFIX = "content://com.google.android.apps.bigtop";
 
 	public static final int MAX_MESSAGES_TO_LOAD_INITIALLY = 40;
 
@@ -1005,7 +1008,7 @@ public class HikeConstants
 
 	public static final int STEALTH_ON = 2;
 
-	public static final long RESET_COMPLETE_STEALTH_TIME_MS = 5 * 1000;
+	public static final long RESET_COMPLETE_STEALTH_TIME_MS = 30 * 60 * 1000;
 	
 	public static final String ENABLED = "enabled";
 
@@ -2118,22 +2121,6 @@ public class HikeConstants
 
 		public static final String GET_ACTIVE_NETWORK_INFO = "getActiveNetworkInfo";
 
-		//steatlh
-
-		public static final String STEALTH = "stlth";
-
-		public static final String STEALTH_CONV_MARK = "stlthmark";
-
-		public static final String STEALTH_SETUP = "stlthsetup";
-
-		public static final String STEALTH_PASSWORD_ENTRY = "entStlthPwd";
-
-		public static final String STEALTH_RESULT = "stlthrslt";
-
-		public static final String ENTER_WRONG_STEALTH_MODE = "entWrongStlth";
-
-		public static final String STEALTH_REQUEST = "stlthrqst";
-
 	}
 
 	public static final class MqttMessageTypes
@@ -2719,6 +2706,8 @@ public class HikeConstants
 		public static final String ONLY_PROFILE_UPDATE = "update_profile_pic_only";
 		
 		public static final int MAX_IMAGE_DIMEN = 1240;
+		
+		public static final String FROM_DP_UPLOAD = "from_dp_upload";
 
 	}
 
@@ -2822,4 +2811,8 @@ public class HikeConstants
 	public static final String FTUE_HIKEBOT_MSISDN = "+hike1+";
 
 	public static final String PRIVACY_SETTINGS_CATEGORY = "privacySettingsCategory";
-}
+	
+	public static final String KEY = "key";
+	
+	public static final String VALUE = "val"
+;}

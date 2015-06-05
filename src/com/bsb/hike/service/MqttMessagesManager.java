@@ -1,4 +1,3 @@
-
 package com.bsb.hike.service;
 
 import java.io.File;
@@ -1696,8 +1695,8 @@ public class MqttMessagesManager
 		}
 		if (data.has(HikeConstants.REPLY_NOTIFICATION_RETRY_TIMER))
 		{
-			int retryTimeInSeconds = data.getInt(HikeConstants.REPLY_NOTIFICATION_RETRY_TIMER);
-			editor.putLong(HikeMessengerApp.RETRY_NOTIFICATION_COOL_OFF_TIME, retryTimeInSeconds*1000);
+			int retryTimeInMinutes = data.getInt(HikeConstants.REPLY_NOTIFICATION_RETRY_TIMER);
+			editor.putLong(HikeMessengerApp.RETRY_NOTIFICATION_COOL_OFF_TIME, retryTimeInMinutes * 60 * 1000);
 		}
 		if(data.has(HikeConstants.MqttMessageTypes.CREATE_MULTIPLE_BOTS))
 		{
@@ -3084,7 +3083,7 @@ public class MqttMessagesManager
 		{
 			return;
 		}
-		PlatformUtils.deleteBotConversation(msisdn);
+		BotUtils.deleteBotConversation(msisdn , true);
 	}
 
 	public void createBot(JSONObject jsonObj)
@@ -3101,6 +3100,12 @@ public class MqttMessagesManager
 		String msisdn = jsonObj.optString(HikeConstants.MSISDN);
 		if (!Utils.validateBotMsisdn(msisdn))
 		{
+			return;
+		}
+
+		if (ContactManager.getInstance().isBlocked(msisdn))
+		{
+			Logger.e("bot error", "bot is blocked by user.");
 			return;
 		}
 		String name = jsonObj.optString(HikeConstants.NAME);
