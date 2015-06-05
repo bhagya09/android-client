@@ -56,8 +56,9 @@ public class OfflineBroadCastReceiver extends BroadcastReceiver
 	         			getApplicationContext().getSystemService(Context.WIFI_SERVICE);
 	         	
 	         	String ssid = wifiManager.getConnectionInfo().getSSID();
-	         	if (ssid.length()>3)
-	         	ssid = ssid.substring(1, ssid.length()-2);
+	         	Logger.d(TAG, "OfflineBroadCast ssid: " + ssid);
+	         	if (ssid.length()>2)
+	         		ssid = ssid.substring(1, ssid.length()-1);
 	         	if(netInfo!=null && netInfo.getDetailedState().equals(NetworkInfo.DetailedState.CONNECTED) &&
 	         			OfflineUtils.isOfflineSsid(ssid))
         		{

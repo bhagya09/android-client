@@ -195,11 +195,11 @@ public class ConnectionManager implements ChannelListener
 		if(wifiManager.getConnectionInfo()!=null)
 		{
 			String ssid = wifiManager.getConnectionInfo().getSSID();
-			Logger.d("OfflineManager","Connected SSID is "+ssid);
+			Logger.d("OfflineManager","Connected SSID in getConnectedHikeNetwork "+ssid);
 			
 			// System returns ssid as "ssid". Hence removing the quotes.
-			ssid = ssid.substring(1, ssid.length()-2);
-			
+			ssid = ssid.substring(1, ssid.length()-1);
+			Logger.d(TAG, "ssid after removing quotes" + ssid);
 			boolean isHikeNetwork = (OfflineUtils.isOfflineSsid(ssid));
 			if(isHikeNetwork)
 			{
@@ -388,10 +388,11 @@ public class ConnectionManager implements ChannelListener
 		
 		String encodedSSID = OfflineUtils.encodeSsid(OfflineUtils.getSsidForMsisdn(myMsisdn, msisdn));
 		String connectedToSSID = wifiManager.getConnectionInfo().getSSID();
+		
 		// removing quotes.
-		if (connectedToSSID.length()-3 > 0)
-		connectedToSSID = connectedToSSID.substring(1, connectedToSSID.length()-2);
-		Logger.d(TAG, "Connected SSID: " + connectedToSSID + " EncodedSSID: " + encodedSSID);
+		if (connectedToSSID.length() > 2)
+			connectedToSSID = connectedToSSID.substring(1, connectedToSSID.length()-1);
+		Logger.d(TAG, "Connected SSID in isConnectedToSSID: " + connectedToSSID + " EncodedSSID: " + encodedSSID);
 		
 		ConnectivityManager cm = (ConnectivityManager) HikeMessengerApp.getInstance().getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
 		NetworkInfo networkInfo = cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
@@ -405,8 +406,8 @@ public class ConnectionManager implements ChannelListener
 	public String getConnectedSSID()
 	{
 		String ssid =  wifiManager.getConnectionInfo().getSSID();
-		Logger.d(TAG, ssid);
-		ssid = ssid.substring(1, ssid.length()-2);
+		Logger.d(TAG, "In getConnectedSSID: " + ssid);
+		ssid = ssid.substring(1, ssid.length()-1);
 		return ssid;
 	}
 }

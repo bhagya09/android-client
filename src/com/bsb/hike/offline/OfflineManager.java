@@ -493,6 +493,7 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 	public void checkConnectedNetwork() {
 		String offlineNetworkMsisdn = connectionManager.getConnectedHikeNetworkMsisdn();
 		Logger.d(TAG, "CheckConnectedNetwork");
+		
 		if(offlineNetworkMsisdn!=null && connectedDevice==null)
 		{
 			threadManager.startReceivingThreads();
