@@ -24,7 +24,7 @@ public class OfflineConstants
 
 	public static final String IP_SERVER = "192.168.43.1";
 	
-	public static final int CHUNK_SIZE=1024;
+	public static final int CHUNK_SIZE= 256*1024;
 	
 	public static final String GHOST = "gst";
 	
