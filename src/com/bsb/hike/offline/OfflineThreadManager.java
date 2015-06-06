@@ -432,17 +432,18 @@ public class OfflineThreadManager
 						String filePath = "";
 						long mappedMsgId = -1;
 						String fileName = "";
+						int fileSize=0;
 						try 
 						{
 							message = new JSONObject(metaDataString);
-							message.put(HikeConstants.FROM,offlineManager.getConnectedDevice());
+							message.put(HikeConstants.FROM, "o:"+offlineManager.getConnectedDevice());
 							message.remove(HikeConstants.TO);
 	
 							JSONObject metadata =  message.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA);
 							mappedMsgId = message.getJSONObject(HikeConstants.DATA).getLong(HikeConstants.MESSAGE_ID);
 							
 							fileJSON = metadata.getJSONArray(HikeConstants.FILES).getJSONObject(0);
-							int fileSize = fileJSON.getInt(HikeConstants.FILE_SIZE);
+							fileSize = fileJSON.getInt(HikeConstants.FILE_SIZE);
 							int type = fileJSON.getInt(HikeConstants.HIKE_FILE_TYPE);
 							fileName =  fileJSON.getString(HikeConstants.FILE_NAME);
 							filePath = OfflineUtils.getFileBasedOnType(type, fileName);
@@ -478,7 +479,7 @@ public class OfflineThreadManager
 							// showDownloadTransferNotification(mappedMsgId, fileSize);
 							FileOutputStream outputStream = new FileOutputStream(f);
 							// TODO:Take action on the basis of return type.
-							offlineManager.copyFile(inputstream, new FileOutputStream(f), mappedMsgId, true, false, outputStream.getChannel().size());
+							offlineManager.copyFile(inputstream, new FileOutputStream(f), mappedMsgId, true, false, fileSize);
 							OfflineUtils.closeOutputStream(outputStream);
 							f.renameTo(new File(filePath));
 						}
@@ -639,15 +640,18 @@ public class OfflineThreadManager
 			
 			long msgID;
 			msgID = fileTransferModel.getPacket().getJSONObject(HikeConstants.DATA).getLong(HikeConstants.MESSAGE_ID);
-			fileTransferModel.getTransferProgress().setCurrentChunks(OfflineUtils.getTotalChunks(fileSize));
 			
 			//TODO:We can listen to PubSub ...Why to do this ...????
 			//showUploadTransferNotification(msgID,fileSize);
 			
 			inputStream = new FileInputStream(new File(fileUri));
+			long time=System.currentTimeMillis();
 			isSent = offlineManager.copyFile(inputStream, outputStream, msgID, true, true,fileSize);
+			// in seconds
+			long TimeTaken=(System.currentTimeMillis()-time)/1000;
+			Logger.d(TAG,"Time taken to send file is "+ TimeTaken + "Speed is "+ fileSize/(1024*1024*TimeTaken) );
 			inputStream.close();
-			offlineManager.removeFromCurrentSendingFile(msgID);
+			offlineManager.removeFromCurrentSendingFile(fileTransferModel.getMessageId());
 			
 			// Update Delivered status
 			String msisdn = fileTransferModel.getPacket().getString(HikeConstants.TO);
