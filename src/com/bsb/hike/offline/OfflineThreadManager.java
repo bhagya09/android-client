@@ -697,5 +697,39 @@ public class OfflineThreadManager
 		}
 		return stickerImage;
 	}
+	
+	private IMessageSentOffline textMessageCallback=new IMessageSentOffline()
+	{
+		
+		@Override
+		public void onSuccess(ConvMessage convMessage)
+		{
+			// TODO Auto-generated method stub
+			
+		}
+		
+		@Override
+		public void onFailure(ConvMessage convMessage)
+		{
+			// TODO Auto-generated method stub
+			
+		}
+	};
+	
+	private IMessageSentOffline fileMessageCallback =new IMessageSentOffline()
+	{
+		
+		@Override
+		public void onSuccess(ConvMessage convMessage)
+		{
+			
+		}
+		
+		@Override
+		public void onFailure(ConvMessage convMessage)
+		{
+			
+		}
+	};
 
 }
