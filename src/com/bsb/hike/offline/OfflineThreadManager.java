@@ -339,7 +339,7 @@ public class OfflineThreadManager
 								{
 									FileOutputStream outputStream = new FileOutputStream(stickerImage);
 									offlineManager.copyFile(inputStream, outputStream, stickerImage.length());
-									outputStream.close();
+									OfflineUtils.closeOutputStream(outputStream);
 								}
 								// remove data from stream
 								else
@@ -424,7 +424,6 @@ public class OfflineThreadManager
 						boolean isMetaDataReceived = OfflineManager.getInstance().copyFile(inputstream, byteArrayOutputStream, metaDataLength);
 						Logger.d(TAG, "Metadata Received Properly: " + isMetaDataReceived);
 						byteArrayOutputStream.close();
-						
 						byte[] metaDataBytes = byteArrayOutputStream.toByteArray();
 						String metaDataString = new String(metaDataBytes, "UTF-8");
 						Logger.d(TAG, metaDataString);
@@ -480,7 +479,7 @@ public class OfflineThreadManager
 							FileOutputStream outputStream = new FileOutputStream(f);
 							// TODO:Take action on the basis of return type.
 							offlineManager.copyFile(inputstream, new FileOutputStream(f), mappedMsgId, true, false, outputStream.getChannel().size());
-							outputStream.close();
+							OfflineUtils.closeOutputStream(outputStream);
 							f.renameTo(new File(filePath));
 						}
 						catch (JSONException e)

@@ -2,6 +2,7 @@ package com.bsb.hike.offline;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -339,5 +340,16 @@ public class OfflineUtils
 			e.printStackTrace();
 		}
 		return path;
+	}
+
+	public static void closeOutputStream(FileOutputStream outputStream) throws IOException  
+	{
+		if (outputStream == null)
+			return;
+
+		outputStream.flush();
+		outputStream.getFD().sync();
+		outputStream.close();
+		
 	}
 }
