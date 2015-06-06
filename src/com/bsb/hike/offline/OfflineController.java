@@ -165,4 +165,9 @@ public class OfflineController
 		return offlineManager.getOfflineState();
 	}
 
+	public void removeListener(IOfflineCallbacks listener)
+	{
+		offlineManager.removeListener(listener);
+	}
+
 }
