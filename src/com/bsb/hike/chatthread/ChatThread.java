@@ -314,10 +314,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	private static final String NEW_LINE_DELIMETER = "\n";
 	
-	private boolean ctSearchIndicatorShown;
+	private boolean ctSearchIndicatorShown, consumedForwardedData;
 	
 	protected HikeDialog dialog;
-
+	
 	private class ChatThreadBroadcasts extends BroadcastReceiver
 	{
 		@Override
@@ -2020,6 +2020,11 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	protected void takeActionBasedOnIntent()
 	{
+		Logger.i(TAG, "take action based on intent");
+		if(savedState!=null && savedState.getBoolean(HikeConstants.CONSUMED_FORWARDED_DATA)) {
+			Logger.i(TAG, "consumed forwarded data");
+			return;
+		}
 		Intent intent = activity.getIntent();
 
 		/**
@@ -2252,7 +2257,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			mComposeView.setSelection(mComposeView.length());
 			SmileyParser.getInstance().addSmileyToEditable(mComposeView.getText(), false);
 		}
-
+		consumedForwardedData = true;
 	}
 
 	/*
@@ -5036,5 +5041,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	{
 		setUpThemePicker();
 		themePicker.showThemePicker(activity.findViewById(R.id.cb_anchor), currentTheme,footerTextId, activity.getResources().getConfiguration().orientation);
+	}
+	
+	protected void onSaveInstanceState(Bundle outState)
+	{
+		outState.putBoolean(HikeConstants.CONSUMED_FORWARDED_DATA, consumedForwardedData);
 	}
 }
