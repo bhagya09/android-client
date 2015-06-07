@@ -525,8 +525,11 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	public HikeActionBar mActionBar;
 
-	public void onCreate()
+	protected Bundle savedState;
+	
+	public void onCreate(Bundle savedState)
 	{
+		this.savedState = savedState;
 		init();
 		setContentView();
 		fetchConversation(false);
@@ -5036,5 +5039,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	{
 		setUpThemePicker();
 		themePicker.showThemePicker(activity.findViewById(R.id.cb_anchor), currentTheme,footerTextId, activity.getResources().getConfiguration().orientation);
+	}
+	
+	protected void onSaveInstanceState(Bundle outState)
+	{
+		
 	}
 }
