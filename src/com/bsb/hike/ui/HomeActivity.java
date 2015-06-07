@@ -235,6 +235,11 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		
 		else if(Intent.ACTION_SEND_MULTIPLE.equals(getIntent().getAction()))
 		{
+			handleShareIntent(getIntent());
+			
+			//Commenting out Multi-share:images edit code. This feature will be enabled in next release.
+			
+			/*
 			Intent intent =getIntent();
 			ArrayList<Uri> imageUris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
 			ArrayList<GalleryItem> selectedImages = GalleryItem.getGalleryItemsFromFilepaths(imageUris);
@@ -249,6 +254,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			{
 				handleShareIntent(getIntent());
 			}
+			*/
 		}
 
 		setupActionBar();
