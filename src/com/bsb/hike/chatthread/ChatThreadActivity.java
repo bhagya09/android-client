@@ -49,7 +49,7 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 		if (filter(getIntent()))
 		{
 			init(getIntent());
-			chatThread.onCreate();
+			chatThread.onCreate(savedInstanceState);
 			showProductPopup(ProductPopupsConstants.PopupTriggerPoints.CHAT_SCR.ordinal());
 		}
 		else
