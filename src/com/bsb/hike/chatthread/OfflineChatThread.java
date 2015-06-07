@@ -513,7 +513,6 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 		msg.obj=convMessage;
 		uiHandler.sendMessage(msg);
 		
-		HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_SENT, convMessage);
 	}
 	
 	
