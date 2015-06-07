@@ -233,6 +233,9 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 			}
 		});
 		
+		//Commenting out Multi-select code. This feature will be enabled in next release.
+		
+		/*
 		if(Utils.isPhotosEditEnabled())
 		{
 			actionsView.setVisibility(View.VISIBLE);
@@ -247,6 +250,7 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 				}
 			});
 		}
+		*/
 		
 		doneBtn.setOnClickListener(new OnClickListener()
 		{
