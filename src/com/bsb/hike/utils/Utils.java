@@ -5930,4 +5930,16 @@ public class Utils
 			return null;
 		}
 	}
+
+	public static boolean isConnectedToSameMsisdn(JSONObject message,String connectedMsisdn)
+	{
+
+		if (TextUtils.isEmpty(connectedMsisdn))
+		{
+			return false;
+		}
+		String sendingMsisdn = message.optString(HikeConstants.TO).replace("o:", "");
+		return sendingMsisdn.equals(connectedMsisdn);
+
+	}
 }

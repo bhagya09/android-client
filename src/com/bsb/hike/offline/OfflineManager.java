@@ -218,9 +218,13 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 
 	public synchronized void addToTextQueue(JSONObject message)
 	{
+		
 		try
 		{
-			textMessageQueue.put(message);
+			if(Utils.isConnectedToSameMsisdn(message,getConnectedDevice()))
+			{
+				textMessageQueue.put(message);
+			}
 		}
 		catch (InterruptedException e)
 		{
@@ -230,10 +234,14 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 
 	public synchronized void addToFileQueue(FileTransferModel fileTransferObject)
 	{
-		addToCurrentSendingFile(fileTransferObject.getMessageId(), fileTransferObject);
+
 		try
 		{
-			fileTransferQueue.put(fileTransferObject);
+			if (Utils.isConnectedToSameMsisdn(fileTransferObject.getPacket(), getConnectedDevice()))
+			{
+				addToCurrentSendingFile(fileTransferObject.getMessageId(), fileTransferObject);
+				fileTransferQueue.put(fileTransferObject);
+			}
 		}
 		catch (InterruptedException e)
 		{
