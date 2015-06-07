@@ -45,10 +45,6 @@ import com.bsb.hike.utils.StickerManager;
 public class OfflineThreadManager
 {
 
-	private BlockingQueue<JSONObject> textMessageQueue = null;
-
-	private BlockingQueue<FileTransferModel> fileTransferQueue = null;
-
 	private static OfflineThreadManager _instance = new OfflineThreadManager();
 
 	private final static String TAG = getInstance().getClass().getName();
@@ -82,7 +78,7 @@ public class OfflineThreadManager
 
 	private OfflineThreadManager()
 	{
-		textTransferThread = new TextTransferThread();
+		textTransferThread = new TextTransferThread(textMessageCallback);
 		fileTransferThread = new FileTransferThread();
 		textReceiveThread=new TextReceiveThread();
 		fileReceiverThread=new FileReceiverThread();
@@ -95,7 +91,7 @@ public class OfflineThreadManager
 		if(textTransferThread.isAlive())
 		textTransferThread.interrupt();
 		{
-			textTransferThread=new TextTransferThread();
+			textTransferThread=new TextTransferThread(textMessageCallback);
 			textTransferThread.start();
 		}
 		
@@ -131,7 +127,12 @@ public class OfflineThreadManager
 		boolean isNotConnected=true;
 		JSONObject packet;
 		boolean val;
+		IMessageSentOffline listener=null;
 		
+		public TextTransferThread(IMessageSentOffline listener)
+		{
+			this.listener=listener;
+		}
 		@Override
 		public void run() {
 				
@@ -142,8 +143,8 @@ public class OfflineThreadManager
 			while (isNotConnected)
 			{
 				try
-
-				{	textSendSocket = new Socket();
+				{
+					textSendSocket = new Socket();
 					if (offlineManager.isHotspotCreated())
 					{
 						host = OfflineUtils.getIPFromMac(null);
@@ -169,9 +170,17 @@ public class OfflineThreadManager
 					{
 					packet = OfflineManager.getInstance().getTextQueue().take();
 					{
-						//TODO : Send Offline Text and take action on the basis of boolean  i.e. clock or single tick
-						Logger.d("OfflineThreadManager","Going to send Text");	
-						val = sendOfflineText(packet,textSendSocket.getOutputStream());
+						// TODO : Send Offline Text and take action on the basis of boolean i.e. clock or single tick
+						Logger.d("OfflineThreadManager", "Going to send Text");
+
+						if (sendOfflineText(packet, textSendSocket.getOutputStream()))
+						{
+							listener.onSuccess(packet);
+						}
+						else
+						{
+							listener.onFailure(packet);
+						}
 					}
 					}
 				}
@@ -548,12 +557,11 @@ public class OfflineThreadManager
 				outputStream.write(messageBytes, 0, length);
 				isSent = offlineManager.copyFile(inputStream, outputStream, f.length());
 				inputStream.close();
-				
 			}
 			catch (IOException e)
 			{
 				e.printStackTrace();
-				return false;
+				isSent=false;
 			}
 			
 		}
@@ -567,41 +575,19 @@ public class OfflineThreadManager
 				byte[] intToBArray = OfflineUtils.intToByteArray(length);
 				outputStream.write(intToBArray, 0, intToBArray.length);
 				outputStream.write(messageBytes,0, length);
+				isSent=true;
 			}
 			catch (IOException e)
 			{
 				Logger.d(TAG,"IO Exception in sendOfflineText");
 				e.printStackTrace();
-				return false;
+				isSent=false;
 			}
 
 		}
 		
 		// Updating database
-		if (!OfflineUtils.isGhostPacket(packet)&&!OfflineUtils.isPingPacket(packet))
-		{
-			long msgId;
-			try
-			{
-				msgId = packet.getJSONObject(HikeConstants.DATA).getLong(HikeConstants.MESSAGE_ID);
-
-				String msisdn = packet.getString(HikeConstants.TO);
-				long startTime = System.currentTimeMillis();
-				int rowsUpdated = OfflineUtils.updateDB(msgId, ConvMessage.State.SENT_DELIVERED, msisdn);
-				Logger.d(TAG, "Time  taken: " + (System.currentTimeMillis() - startTime));
-				if (rowsUpdated == 0)
-				{
-					Logger.d(getClass().getSimpleName(), "No rows updated");
-				}
-				Pair<String, Long> pair = new Pair<String, Long>(msisdn, msgId);
-				HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_DELIVERED, pair);
-				Logger.d(TAG,"Message Send Successfully");
-			}
-			catch (JSONException e)
-			{
-				e.printStackTrace();
-			}
-		}
+		
 		return isSent;
 	}
 
@@ -702,37 +688,66 @@ public class OfflineThreadManager
 		return stickerImage;
 	}
 	
-	private IMessageSentOffline textMessageCallback=new IMessageSentOffline()
+	/**
+	 * Handle the call of text message here ...either success or failure
+	 */
+	private IMessageSentOffline fileMessageCallback=new IMessageSentOffline()
 	{
 		
 		@Override
-		public void onSuccess(ConvMessage convMessage)
+		public void onSuccess(JSONObject convMessage)
 		{
 			// TODO Auto-generated method stub
 			
 		}
 		
 		@Override
-		public void onFailure(ConvMessage convMessage)
+		public void onFailure(JSONObject convMessage)
 		{
 			// TODO Auto-generated method stub
 			
 		}
 	};
 	
-	private IMessageSentOffline fileMessageCallback =new IMessageSentOffline()
+	/**
+	 * Handle the call of file message here ...either success or failure
+	 */
+	private IMessageSentOffline textMessageCallback =new IMessageSentOffline()
 	{
-		
+//TODO:delete from DataBase (Mqtt wala also)
 		@Override
-		public void onSuccess(ConvMessage convMessage)
+		public void onSuccess(JSONObject packet)
 		{
-			
+			if (!OfflineUtils.isGhostPacket(packet) && !OfflineUtils.isPingPacket(packet))
+			{
+				long msgId;
+				try
+				{
+					msgId = packet.getJSONObject(HikeConstants.DATA).getLong(HikeConstants.MESSAGE_ID);
+
+					String msisdn = packet.getString(HikeConstants.TO);
+					long startTime = System.currentTimeMillis();
+					int rowsUpdated = OfflineUtils.updateDB(msgId, ConvMessage.State.SENT_DELIVERED, msisdn);
+					Logger.d(TAG, "Time  taken: " + (System.currentTimeMillis() - startTime));
+					if (rowsUpdated == 0)
+					{
+						Logger.d(getClass().getSimpleName(), "No rows updated");
+					}
+					Pair<String, Long> pair = new Pair<String, Long>(msisdn, msgId);
+					HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_DELIVERED, pair);
+					Logger.d(TAG, "Message Send Successfully");
+				}
+				catch (JSONException e)
+				{
+					e.printStackTrace();
+				}
+			}
 		}
-		
+
 		@Override
-		public void onFailure(ConvMessage convMessage)
+		public void onFailure(JSONObject packet)
 		{
-			
+			Logger.d(TAG, "Message sending failed");
 		}
 	};
 
