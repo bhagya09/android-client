@@ -381,13 +381,12 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 
 	public 	void setInOfflineFileTransferInProgress(boolean val)
 	{
-		inFileTransferInProgress = val;
+		this.inFileTransferInProgress = val;
 	}
 
 	public String getConnectedDevice()
 	{
 		return connectedDevice;
-		//return OfflineUtils.getconnectedDevice(OfflineUtils.decodeSsid(connectionManager.getConnectedSSID()));
 	}
 
 	public void addToCurrentReceivingFile(long msgId,FileTransferModel fileTransferModel)
@@ -397,7 +396,7 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 
 	public void removeFromCurrentReceivingFile(long msgId)
 	{
-		if(((ConcurrentHashMap<Long, FileTransferModel>)currentReceivingFiles).contains(msgId))
+		if(currentReceivingFiles.containsKey(msgId))
 		{
 			currentReceivingFiles.remove(msgId);
 		}
@@ -529,6 +528,8 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 			removeMessage(OfflineConstants.HandlerConstants.DISCONNECT_AFTER_TIMEOUT);
 			removeMessage(OfflineConstants.HandlerConstants.CONNECT_TO_HOTSPOT);
 			offlineState=OFFLINE_STATE.CONNECTED;
+			final ConvMessage convMessage=OfflineUtils.createOfflineInlineConvMessage("o:"+connectedDevice,context.getString(R.string.connection_established),OfflineConstants.OFFLINE_MESSAGE_CONNECTED_TYPE);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_SENT, convMessage);
 			for(IOfflineCallbacks  offlineListener : listeners)
 			{
 				offlineListener.connectedToMsisdn(connectedDevice);
