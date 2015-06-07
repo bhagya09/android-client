@@ -1,10 +1,12 @@
 package com.bsb.hike.offline;
 
+import org.json.JSONObject;
+
 import com.bsb.hike.models.ConvMessage;
 
 public interface IMessageSentOffline
 {
-	public void onSuccess(ConvMessage convMessage);
-	
-	public void onFailure(ConvMessage convMessage);
+	public void onSuccess(JSONObject packet);
+
+	public void onFailure(JSONObject packet);
 }
