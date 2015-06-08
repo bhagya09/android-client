@@ -76,6 +76,14 @@ public class PlatformContent
 					{
 						return "already_dwnld";
 					}
+				},
+		UNZIP_FAILED
+				{
+					@Override
+					public String toString()
+					{
+						return "unzip_fail";
+					}
 				}
 
 	}

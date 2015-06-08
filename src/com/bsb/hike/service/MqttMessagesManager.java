@@ -1714,14 +1714,14 @@ public class MqttMessagesManager
 		{
 			JSONArray botsTobeAdded = data.optJSONArray(HikeConstants.MqttMessageTypes.CREATE_MULTIPLE_BOTS);
 			for (int i = 0; i< botsTobeAdded.length(); i++){
-				createBot((JSONObject) botsTobeAdded.get(i));
+				BotUtils.createBot((JSONObject) botsTobeAdded.get(i));
 			}
 		}
 		if(data.has(HikeConstants.MqttMessageTypes.DELETE_MULTIPLE_BOTS))
 		{
 			JSONArray botsTobeAdded = data.optJSONArray(HikeConstants.MqttMessageTypes.DELETE_MULTIPLE_BOTS);
 			for (int i = 0; i< botsTobeAdded.length(); i++){
-				deleteBot((String) botsTobeAdded.get(i));
+				BotUtils.deleteBot((String) botsTobeAdded.get(i));
 			}
 		}
 
@@ -3093,115 +3093,6 @@ public class MqttMessagesManager
 		{
 			saveNewMessageRead(jsonObj);
 		}
-	}
-
-	private void deleteBot(String msisdn)
-	{
-		if (!Utils.validateBotMsisdn(msisdn))
-		{
-			return;
-		}
-		PlatformUtils.deleteBotConversation(msisdn);
-	}
-
-	public void createBot(JSONObject jsonObj)
-	{
-		long startTime = System.currentTimeMillis();
-
-		String type = jsonObj.optString(HikePlatformConstants.BOT_TYPE);
-		if (TextUtils.isEmpty(type))
-		{
-			Logger.e("bot error", "type is null.");
-			return;
-		}
-
-		String msisdn = jsonObj.optString(HikeConstants.MSISDN);
-		if (!Utils.validateBotMsisdn(msisdn))
-		{
-			return;
-		}
-
-		if (ContactManager.getInstance().isBlocked(msisdn))
-		{
-			Logger.e("bot error", "bot is blocked by user.");
-			return;
-		}
-		String name = jsonObj.optString(HikeConstants.NAME);
-		String thumbnailString = jsonObj.optString(HikeConstants.BOT_THUMBNAIL);
-		if (!TextUtils.isEmpty(thumbnailString))
-		{
-			ContactManager.getInstance().setIcon(msisdn, Base64.decode(thumbnailString, Base64.DEFAULT), false);
-			HikeMessengerApp.getLruCache().clearIconForMSISDN(msisdn);
-			HikeMessengerApp.getPubSub().publish(HikePubSub.ICON_CHANGED, msisdn);
-		}
-
-		int config = jsonObj.optInt(HikeConstants.CONFIGURATION, Integer.MAX_VALUE);
-		BotInfo botInfo = null;
-		if (type.equals(HikeConstants.MESSAGING_BOT))
-		{
-			botInfo = getBotInfoFormessagingBots(jsonObj, msisdn, name, config);
-		}
-		else if (type.equals(HikeConstants.NON_MESSAGING_BOT))
-		{
-			botInfo = getBotInfoForNonMessagingBots(jsonObj, msisdn, name, config);
-			boolean enableBot = jsonObj.optBoolean(HikePlatformConstants.ENABLE_BOT);
-			PlatformUtils.downloadZipForNonMessagingBot(botInfo, enableBot);
-		}
-
-		convDb.setChatBackground(msisdn, jsonObj.optString(HikeConstants.BOT_CHAT_THEME), System.currentTimeMillis()/1000);
-
-		convDb.insertBot(botInfo);
-
-		HikeMessengerApp.hikeBotInfoMap.put(msisdn, botInfo);
-		
-		if (HikeMessengerApp.hikeBotInfoMap.containsKey(msisdn))
-		{
-			ContactInfo contact = new ContactInfo(msisdn, msisdn, name, msisdn);
-			contact.setFavoriteType(FavoriteType.NOT_FRIEND);
-			ContactManager.getInstance().updateContacts(contact);
-			HikeMessengerApp.getPubSub().publish(HikePubSub.CONTACT_ADDED, contact);
-		}
-
-		Logger.d("create bot", "It takes " + String.valueOf(System.currentTimeMillis() - startTime) + "msecs");
-	}
-
-	private BotInfo getBotInfoForNonMessagingBots(JSONObject jsonObj, String msisdn, String name, int config)
-	{
-		BotInfo botInfo;
-		JSONObject metadata = jsonObj.optJSONObject(HikeConstants.METADATA);
-		NonMessagingBotMetadata botMetadata = new NonMessagingBotMetadata(metadata);
-		JSONObject configData = jsonObj.optJSONObject(HikePlatformConstants.CONFIG_DATA);
-		String namespace = jsonObj.optString(HikePlatformConstants.NAMESPACE);
-		NonMessagingBotConfiguration configuration = configData == null ? new NonMessagingBotConfiguration(config)
-				: new NonMessagingBotConfiguration(config, configData.toString());
-		String helperData = jsonObj.optString(HikePlatformConstants.HELPER_DATA);
-		botInfo = new BotInfo.HikeBotBuilder(msisdn)
-				.setType(BotInfo.NON_MESSAGING_BOT)
-				.setConvName(name)
-				.setIsMute(false)
-				.setHelperData(helperData)
-				.setNamespace(namespace)
-				.setConfigData(null == configuration.getConfigData() ? null : configuration.getConfigData().toString())
-				.setConfig(configuration.getConfig())
-				.setMetadata(botMetadata.toString())
-				.build();
-		return botInfo;
-	}
-
-	private BotInfo getBotInfoFormessagingBots(JSONObject jsonObj, String msisdn, String name, int config)
-	{
-		BotInfo botInfo;
-		JSONObject metadata = jsonObj.optJSONObject(HikeConstants.METADATA);
-		MessagingBotMetadata messagingBotMetadata = new MessagingBotMetadata(metadata);
-		MessagingBotConfiguration configuration = new MessagingBotConfiguration(config, messagingBotMetadata.isReceiveEnabled());
-		botInfo = new BotInfo.HikeBotBuilder(msisdn)
-				.setType(BotInfo.MESSAGING_BOT)
-				.setConvName(name)
-				.setMetadata(messagingBotMetadata.toString())
-				.setIsMute(false)
-				.setConfig(configuration.getConfig())
-				.build();
-		return botInfo;
 	}
 
 	private void uploadGroupProfileImage(final String groupId)
