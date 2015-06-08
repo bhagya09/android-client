@@ -1,7 +1,6 @@
 package com.bsb.hike.productpopup;
 
 import java.util.Comparator;
-import java.util.Locale;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -36,6 +35,8 @@ public class ProductContentModel implements Parcelable
 	private String notifTitle;
 
 	private long pushTime;
+	
+	private boolean isCancellable;
 
 	private ProductContentModel(JSONObject contentData)
 	{
@@ -46,6 +47,7 @@ public class ProductContentModel implements Parcelable
 		triggerpoint = contentData.optInt(TRIGGER_POINT,PopupTriggerPoints.HOME_SCREEN.ordinal());
 		isFullScreen = contentData.optBoolean(IS_FULL_SCREEN, false);
 		pushTime = contentData.optLong(PUSH_TIME, 0l);
+		isCancellable=contentData.optBoolean(IS_CANCELLABLE,false);
 	}
 
 	public static ProductContentModel makeProductContentModel(JSONObject contentData)
@@ -154,6 +156,11 @@ public class ProductContentModel implements Parcelable
 	{
 		return pushTime;
 	}
+	
+	public boolean isCancellable()
+	{
+		return isCancellable;
+	}
 
 	@Override
 	public int hashCode()
@@ -177,6 +184,7 @@ public class ProductContentModel implements Parcelable
 		jsonObj.addProperty(TRIGGER_POINT, triggerpoint);
 		jsonObj.addProperty(IS_FULL_SCREEN, isFullScreen);
 		jsonObj.addProperty(PUSH_TIME,pushTime);
+		jsonObj.addProperty(IS_CANCELLABLE, isCancellable);
 		return jsonObj.toString();
 	}
 

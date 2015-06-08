@@ -1,7 +1,5 @@
 package com.bsb.hike.notifications;
 
-import org.json.JSONException;
-
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -12,11 +10,11 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
-import android.util.Pair;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
+import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
@@ -26,7 +24,6 @@ import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.NotificationPreview;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.Utils;
 
@@ -84,7 +81,15 @@ public class HikeNotificationUtils
 			message = SmileyParser.getInstance().replaceEmojiWithCharacter(message, "*");
 		}
 
-		String key = (contactInfo != null && !TextUtils.isEmpty(contactInfo.getName())) ? contactInfo.getName() : msisdn;
+		String key = null;
+		if (BotUtils.isBot(msisdn))
+		{
+			key = BotUtils.getBotInfoForBotMsisdn(msisdn).getConversationName();
+		}
+		else
+		{
+			key = (contactInfo != null && !TextUtils.isEmpty(contactInfo.getName())) ? contactInfo.getName() : msisdn;
+		}
 		// For showing the name of the contact that sent the message in a group
 		// chat
 		if (convMsg.isOneToNChat() && !TextUtils.isEmpty(convMsg.getGroupParticipantMsisdn()) && convMsg.getParticipantInfoState() == ParticipantInfoState.NO_INFO)
@@ -123,7 +128,7 @@ public class HikeNotificationUtils
 			key = String.format(convMsg.getMetadata().getKey(), key);
 		}
 
-		return new NotificationPreview(message, key);
+		return new NotificationPreview(message, key,convMsg.getNotificationType());
 	}
 
 	/**
@@ -141,8 +146,11 @@ public class HikeNotificationUtils
 		{
 			return HikeMessengerApp.getInstance().getApplicationContext().getString(R.string.app_name);
 		}
-
-		String name = HikeMessengerApp.hikeBotNamesMap.get(argMsisdn);
+		String name = null;
+		if (BotUtils.isBot(argMsisdn))
+		{
+			name = HikeMessengerApp.hikeBotInfoMap.get(argMsisdn).getConversationName();
+		}
 
 		if (TextUtils.isEmpty(name))
 		{
