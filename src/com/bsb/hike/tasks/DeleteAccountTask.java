@@ -108,6 +108,7 @@ public class DeleteAccountTask implements ActivityCallableTask
 		HikeMessengerApp app = HikeMessengerApp.getInstance();
 		app.setServiceAsDisconnected();
 		app.stopService(new Intent(ctx, HikeService.class));
+		app.hikeBotInfoMap.clear();
 
 		/**
 		 * Unregister from GCM service

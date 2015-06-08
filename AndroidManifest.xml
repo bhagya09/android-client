@@ -4,8 +4,8 @@
     package="com.bsb.hike"
     android:installLocation="auto"
 
-    android:versionCode="1215"
-    android:versionName="3.9.6.3" >
+    android:versionCode="1236"
+    android:versionName="3.9.7" >
     <uses-sdk
         android:minSdkVersion="9"
         android:targetSdkVersion="17"/>
@@ -227,7 +227,8 @@
         </activity>
         <activity
             android:name=".ui.WebViewActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize" >
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:exported="true" >
         </activity>
         <activity
             android:name=".ui.ShareLocation"
@@ -405,7 +406,7 @@
         </receiver>
         <receiver
             android:name=".notifications.NotificationDismissedReceiver"
-            android:exported="false" >
+            android:exported="true" >
         </receiver>
 
         <activity

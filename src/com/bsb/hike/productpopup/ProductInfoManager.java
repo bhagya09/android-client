@@ -194,7 +194,7 @@ public class ProductInfoManager
 			ProductContentModel productContentModel = null;
 
 			@Override
-			public void onEventOccured(EventCode event)
+			public void onEventOccured(int uniqueId,EventCode event)
 			{
 				productContentModel = getProductContentModel();
 

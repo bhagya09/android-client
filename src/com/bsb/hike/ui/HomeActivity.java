@@ -358,6 +358,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		{
 			stealthIndicatorView = findViewById(R.id.stealth_indicator_inflated);
 		}
+		stealthIndicatorView.setVisibility(View.VISIBLE);
 		
 		HikeTip.showTip(HomeActivity.this, TipType.STEALTH_INDICATOR, stealthIndicatorView);
 		stealthIndicatorView.postDelayed(new Runnable() {
@@ -692,7 +693,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		
 		return true;
 		}catch(NullPointerException e){
-			Logger.d("NulllpointerException :setupMenuOptions" , e.getMessage());
+			Logger.e("NulllpointerException :setupMenuOptions" ,e.toString());
 			return false;
 		}
 	}
@@ -1896,12 +1897,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 				case 12:
 					// Take a photo
 					accountPrefs.edit().putBoolean(HikeConstants.SHOW_PHOTOS_RED_DOT, false).commit();
-					
-					String destString = Utils.getFileParent(HikeFileType.IMAGE, false)+ File.separator + Utils.getOriginalFile(HikeFileType.IMAGE, null);
-					
-					Intent picEditerIntent = IntentFactory.getPictureEditorActivityIntent(HomeActivity.this, null, true, destString,false);
-					
-					PendingIntent editorPendingIntent = PendingIntent.getActivity(HikeMessengerApp.getInstance().getApplicationContext(), RESULT_OK, picEditerIntent,PendingIntent.FLAG_UPDATE_CURRENT);
 					
 					// Open gallery
 					int galleryFlags = GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS|GalleryActivity.GALLERY_EDIT_SELECTED_IMAGE|GalleryActivity.GALLERY_COMPRESS_EDITED_IMAGE|GalleryActivity.GALLERY_DISPLAY_CAMERA_ITEM;
