@@ -39,6 +39,7 @@ import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Region;
+import android.graphics.Bitmap.Config;
 import android.media.FaceDetector;
 import android.net.Uri;
 import android.os.Bundle;
@@ -201,7 +202,6 @@ public class CropImage extends MonitoredActivity
 			
 			mSaveUri = extras.containsKey(MediaStore.EXTRA_OUTPUT) ? getImageUri(extras.getString(MediaStore.EXTRA_OUTPUT)) : null;
 
-			// look here
 			mBitmap = getBitmap(mImagePath);
 			String imageOrientation = Utils.getImageOrientation(mImagePath);
 			mBitmap = HikeBitmapFactory.rotateBitmap(mBitmap, Utils.getRotatedAngle(imageOrientation));
@@ -263,7 +263,9 @@ public class CropImage extends MonitoredActivity
 
 		titleView.setText(getString(R.string.selectPreview));
 
-		titleView.setVisibility(View.VISIBLE);				
+		titleView.setVisibility(View.VISIBLE);	
+		
+		((TextView) actionBarView.findViewById(R.id.done_text)).setText(R.string.done);
 		
 		actionBarView.findViewById(R.id.done_container).setOnClickListener(new View.OnClickListener()
 		{
@@ -296,30 +298,23 @@ public class CropImage extends MonitoredActivity
 		 * resize the image while opening it. http://stackoverflow.com/questions/ 477572/android-strange-out-of-memory
 		 * -issue-while-loading-an-image-to-a-bitmap-object/823966#823966
 		 */
-		if (!returnToFile)
+		BitmapFactory.Options options = new BitmapFactory.Options();
+
+		/* query the filesize of the bitmap */
+		options.inJustDecodeBounds = true;
+		BitmapFactory.decodeFile(path, options);
+
+		final int maxSize = 1024;
+		int scale = 1;
+		/* determine the correct scale (must be a power of 2) */
+		if (options.outHeight > maxSize || options.outWidth > maxSize)
 		{
-			BitmapFactory.Options options = new BitmapFactory.Options();
-
-			/* query the filesize of the bitmap */
-			options.inJustDecodeBounds = true;
-			BitmapFactory.decodeFile(path, options);
-
-			final int maxSize = 1024;
-			int scale = 1;
-			/* determine the correct scale (must be a power of 2) */
-			if (options.outHeight > maxSize || options.outWidth > maxSize)
-			{
-				scale = Math.max(options.outHeight, options.outWidth) / maxSize;
-			}
-
-			options = new BitmapFactory.Options();
-			options.inSampleSize = scale;
-			return BitmapFactory.decodeFile(path, options);
+			scale = Math.max(options.outHeight, options.outWidth) / maxSize;
 		}
-		else
-		{
-			return BitmapFactory.decodeFile(path);// crop without scaling
-		}
+
+		options = new BitmapFactory.Options();
+		options.inSampleSize = scale;
+		return HikeBitmapFactory.decodeFile(path, options);
 	}
 
 	private void startFaceDetection()
