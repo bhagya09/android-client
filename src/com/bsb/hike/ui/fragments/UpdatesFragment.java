@@ -264,10 +264,6 @@ public class UpdatesFragment extends SherlockListFragment implements OnScrollLis
 			final StatusMessage statusMessage = (StatusMessage) object;
 			final int startIndex = getStartIndex();
 
-			if (!isAdded())
-			{
-				return;
-			}
 			getActivity().runOnUiThread(new Runnable()
 			{
 				@Override
@@ -287,10 +283,6 @@ public class UpdatesFragment extends SherlockListFragment implements OnScrollLis
 		}
 		else if (HikePubSub.LARGER_UPDATE_IMAGE_DOWNLOADED.equals(type))
 		{
-			if (!isAdded())
-			{
-				return;
-			}
 			getActivity().runOnUiThread(new Runnable()
 			{
 
@@ -303,10 +295,6 @@ public class UpdatesFragment extends SherlockListFragment implements OnScrollLis
 		}
 		else if (HikePubSub.FTUE_LIST_FETCHED_OR_UPDATED.equals(type))
 		{
-			if (!isAdded())
-			{
-				return;
-			}
 			getActivity().runOnUiThread(new Runnable()
 			{
 
@@ -327,10 +315,6 @@ public class UpdatesFragment extends SherlockListFragment implements OnScrollLis
 		}
 		else if (HikePubSub.PROTIP_ADDED.equals(type))
 		{
-			if (!isAdded())
-			{
-				return;
-			}
 			getActivity().runOnUiThread(new Runnable()
 			{
 				@Override
@@ -343,10 +327,6 @@ public class UpdatesFragment extends SherlockListFragment implements OnScrollLis
 		}
 		else if (HikePubSub.ICON_CHANGED.equals(type))
 		{
-			if (!isAdded())
-			{
-				return;
-			}
 			getActivity().runOnUiThread(new Runnable()
 			{
 				@Override
