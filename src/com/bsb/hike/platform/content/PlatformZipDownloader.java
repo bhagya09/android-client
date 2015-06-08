@@ -161,13 +161,25 @@ public class PlatformZipDownloader
 				{
 					// delete temp folder
 					deleteTemporaryFolder();
-					if (!isTemplatingEnabled)
+					if (!(data instanceof Boolean))
 					{
-						mRequest.getListener().onComplete(mRequest.getContentData());
+						return;
+					}
+					Boolean isSuccess = (Boolean) data;
+					if (isSuccess)
+					{
+						if (!isTemplatingEnabled)
+						{
+							mRequest.getListener().onComplete(mRequest.getContentData());
+						}
+						else
+						{
+							PlatformRequestManager.setReadyState(mRequest);
+						}
 					}
 					else
 					{
-						PlatformRequestManager.setReadyState(mRequest);
+						mRequest.getListener().onEventOccured(0, EventCode.UNZIP_FAILED);
 					}
 				}
 			});
