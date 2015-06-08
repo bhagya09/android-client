@@ -95,7 +95,7 @@ public class VoIPClient  {
 	private VoIPConstants.CallStatus currentCallStatus;
 	public int localBitrate = VoIPConstants.BITRATE_WIFI, remoteBitrate = 0;
 	private int chronoBackup = 0;
-	public Chronometer chronometer = null;
+	private Chronometer chronometer = null;
 	private int reconnectAttempts = 0;
 	private int droppedDecodedPackets = 0;
 	public int callSource = -1;
@@ -300,6 +300,16 @@ public class VoIPClient  {
 		}
 	}
 	
+	private void getNewSocket() {
+		try {
+			socket = new DatagramSocket();
+			socket.setReuseAddress(true);
+			socket.setSoTimeout(2000);
+		} catch (SocketException e) {
+			Logger.d(logTag, "getNewSocket() IOException2: " + e.toString());
+		}
+	}
+	
 	public void retrieveExternalSocket() {
 
 		keepRunning = true;
@@ -313,65 +323,58 @@ public class VoIPClient  {
 				
 				byte[] receiveData = new byte[10240];
 				
-				try {
-					Logger.d(logTag, "Retrieving external socket information..");
-					VoIPDataPacket dp = new VoIPDataPacket(PacketType.RELAY_INIT);
-					DatagramPacket incomingPacket = new DatagramPacket(receiveData, receiveData.length);
+				Logger.d(logTag, "Retrieving external socket information..");
+				VoIPDataPacket dp = new VoIPDataPacket(PacketType.RELAY_INIT);
+				DatagramPacket incomingPacket = new DatagramPacket(receiveData, receiveData.length);
 
-					boolean continueSending = true;
-					int counter = 0;
+				boolean continueSending = true;
+				int counter = 0;
 
-					socket = new DatagramSocket();
-					socket.setReuseAddress(true);
-					socket.setSoTimeout(2000);
+				getNewSocket();
+				setOurInternalIPAddress(VoIPUtils.getLocalIpAddress(context)); 
+				setOurInternalPort(socket.getLocalPort());
 
-					setOurInternalIPAddress(VoIPUtils.getLocalIpAddress(context)); 
-					setOurInternalPort(socket.getLocalPort());
-
-					while (continueSending && keepRunning && (counter < 10 || reconnecting)) {
-						counter++;
-						try {
-							InetAddress host = InetAddress.getByName(VoIPConstants.ICEServerName);
-							
-							/**
-							 * If we are initiating the connection, then we set the relay server
-							 * to be used by both clients. 
-							 */
-							if (!isInitiator()) {
-								setRelayAddress(host.getHostAddress());
-								setRelayPort(VoIPUtils.getRelayPort(context));
-							}
-
-							Logger.d(logTag, "ICE Sending.");
-							sendPacket(dp, false);
-							
-							if (socket == null)
-								return;
-							
-							socket.receive(incomingPacket);
-							
-							String serverResponse = new String(incomingPacket.getData(), 0, incomingPacket.getLength());
-							Logger.d(logTag, "ICE Received: " + serverResponse);
-							setExternalSocketInfo(serverResponse);
-							continueSending = false;
-							
-						} catch (SocketTimeoutException e) {
-							Logger.d(logTag, "UDP timeout on ICE. #" + counter);
-						} catch (IOException e) {
-							Logger.d(logTag, "retrieveExternalSocket() IOException" + e.toString());
-							try {
-								Thread.sleep(500);
-							} catch (InterruptedException e1) {
-								Logger.d(logTag, "Waiting for external socket info interrupted.");
-							}
-						} catch (JSONException e) {
-							Logger.d(logTag, "JSONException: " + e.toString());
-							continueSending = true;
+				while (continueSending && keepRunning && (counter < 10 || reconnecting)) {
+					counter++;
+					try {
+						InetAddress host = InetAddress.getByName(VoIPConstants.ICEServerName);
+						
+						/**
+						 * If we are initiating the connection, then we set the relay server
+						 * to be used by both clients. 
+						 */
+						if (!isInitiator()) {
+							setRelayAddress(host.getHostAddress());
+							setRelayPort(VoIPUtils.getRelayPort(context));
 						}
-					}
 
-				} catch (SocketException e2) {
-					Logger.d(logTag, "retrieveExternalSocket() IOException2: " + e2.toString());
+						Logger.d(logTag, "ICE Sending.");
+						sendPacket(dp, false);
+						
+						if (socket == null)
+							return;
+						
+						socket.receive(incomingPacket);
+						
+						String serverResponse = new String(incomingPacket.getData(), 0, incomingPacket.getLength());
+						Logger.d(logTag, "ICE Received: " + serverResponse);
+						setExternalSocketInfo(serverResponse);
+						continueSending = false;
+						
+					} catch (SocketTimeoutException e) {
+						Logger.d(logTag, "UDP timeout on ICE. #" + counter);
+						getNewSocket();
+					} catch (IOException e) {
+						Logger.d(logTag, "retrieveExternalSocket() IOException" + e.toString());
+						try {
+							Thread.sleep(500);
+						} catch (InterruptedException e1) {
+							Logger.d(logTag, "Waiting for external socket info interrupted.");
+						}
+					} catch (JSONException e) {
+						Logger.d(logTag, "JSONException: " + e.toString());
+						continueSending = true;
+					}
 				}
 				
 				if (haveExternalSocketInfo()) {
@@ -651,12 +654,6 @@ public class VoIPClient  {
 				} else {
 					Logger.d(logTag, "UDP connection failure! :(");
 					sendHandlerMessage(VoIPConstants.MSG_CONNECTION_FAILURE);
-					if (!reconnecting) {
-						if (!isInitiator())
-							VoIPUtils.addMessageToChatThread(context, VoIPClient.this, HikeConstants.MqttMessageTypes.VOIP_MSG_TYPE_MISSED_CALL_OUTGOING, 0, -1, false);
-						else
-							VoIPUtils.addMessageToChatThread(context, VoIPClient.this, HikeConstants.MqttMessageTypes.VOIP_MSG_TYPE_MISSED_CALL_INCOMING, 0, -1, true);
-					}
 					sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CONNECTION_FAILED, VoIPConstants.CallFailedCodes.UDP_CONNECTION_FAIL);
 					stop();
 				}
@@ -680,11 +677,6 @@ public class VoIPClient  {
 							{
 								sendHandlerMessage(VoIPConstants.MSG_PARTNER_ANSWER_TIMEOUT);
 								sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_PARTNER_ANSWER_TIMEOUT);
-								VoIPUtils.addMessageToChatThread(context, VoIPClient.this, HikeConstants.MqttMessageTypes.VOIP_MSG_TYPE_MISSED_CALL_OUTGOING, 0, -1, false);
-							}
-							else
-							{
-								VoIPUtils.addMessageToChatThread(context, VoIPClient.this, HikeConstants.MqttMessageTypes.VOIP_MSG_TYPE_MISSED_CALL_INCOMING, 0, -1, true);
 							}
 						}
 						stop();
@@ -754,19 +746,20 @@ public class VoIPClient  {
 	public void close() {
 
 		Logger.d(logTag,
-				"============= Call Summary =============\n" +
-				"Phone number: " + getPhoneNumber() +
+				"======= Call Summary (" + getPhoneNumber() + ") =======\n" +
 				"\nBytes sent / received: " + totalBytesSent + " / " + totalBytesReceived +
 				"\nPackets sent / received: " + totalPacketsSent + " / " + totalPacketsReceived +
 				"\nPure voice bytes: " + rawVoiceSent +
 				"\nDropped decoded packets: " + droppedDecodedPackets +
 				"\nReconnect attempts: " + reconnectAttempts +
-				"\nCall duration: " + getCallDuration() + "\n" +
-				"========================================");
+				"\nCall duration: " + getCallDuration() + " seconds \n" +
+				"=========================================");
 		
 		if (getCallStatus() != VoIPConstants.CallStatus.PARTNER_BUSY) {
 			setCallStatus(VoIPConstants.CallStatus.ENDED);
 		}
+
+		VoIPUtils.addMessageToChatThread(context, VoIPClient.this, HikeConstants.MqttMessageTypes.VOIP_MSG_TYPE_CALL_SUMMARY, getCallDuration(), -1, true);
 
 		if (iceThread != null)
 			iceThread.interrupt();
@@ -858,7 +851,6 @@ public class VoIPClient  {
 
 				sendHandlerMessage(VoIPConstants.MSG_PARTNER_SOCKET_INFO_TIMEOUT);
 				if (!isInitiator() && !reconnecting) {
-					VoIPUtils.addMessageToChatThread(context, VoIPClient.this, HikeConstants.MqttMessageTypes.VOIP_MSG_TYPE_MISSED_CALL_OUTGOING, 0, -1, false);
 					VoIPUtils.sendMissedCallNotificationToPartner(VoIPClient.this);
 				}
 				sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CONNECTION_FAILED, VoIPConstants.CallFailedCodes.PARTNER_SOCKET_INFO_TIMEOUT);
@@ -1187,10 +1179,10 @@ public class VoIPClient  {
 						Logger.d(logTag, "Other party hung up.");
 						setEnder(true);
 						stop();
-						VoIPUtils.addMessageToChatThread(context, VoIPClient.this, HikeConstants.MqttMessageTypes.VOIP_MSG_TYPE_CALL_SUMMARY, getCallDuration(), -1, true);
 						break;
 						
 					case START_VOICE:
+						interruptResponseTimeoutThread();
 						startRecordingAndPlayback();
 						break;
 						
@@ -1618,6 +1610,20 @@ public class VoIPClient  {
 
 	}
 	
+	public void startChrono() {
+
+		try {
+			if (chronometer == null) {
+				Logger.w(logTag, "Starting chrono.");
+				chronometer = new Chronometer(context);
+				chronometer.setBase(SystemClock.elapsedRealtime());
+				chronometer.start();
+			}
+		} catch (Exception e) {
+			Logger.w(logTag, "Chrono exception: " + e.toString());
+		}
+	}
+
 	public int getCallDuration() {
 		int seconds = 0;
 		synchronized (VoIPClient.this) {
@@ -1644,10 +1650,9 @@ public class VoIPClient  {
 				stop();
 			}
 		},"HANG_UP_THREAD").start();
-		VoIPUtils.addMessageToChatThread(context, VoIPClient.this, HikeConstants.MqttMessageTypes.VOIP_MSG_TYPE_CALL_SUMMARY, getCallDuration(), -1, false);
 	}
 	
-	public void interruptResponseTimeoutThread() {
+	private void interruptResponseTimeoutThread() {
 		if (responseTimeoutThread != null)
 			responseTimeoutThread.interrupt();
 	}

@@ -63,7 +63,8 @@ public abstract class BluetoothHeadsetUtils
             }
             else
             {
-                mIsStarted = startBluetooth11();
+                mIsStarted = startBluetooth();
+                // mIsStarted = startBluetooth11();
             }
         }
 
@@ -87,7 +88,8 @@ public abstract class BluetoothHeadsetUtils
             }
             else
             {
-                stopBluetooth11();
+                stopBluetooth();
+                // stopBluetooth11();
             }
         }
     }

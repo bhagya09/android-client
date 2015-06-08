@@ -37,12 +37,10 @@ import android.os.Messenger;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.os.RemoteException;
-import android.os.SystemClock;
 import android.os.Vibrator;
 import android.support.v4.app.NotificationCompat;
 import android.text.TextUtils;
 import android.util.SparseIntArray;
-import android.widget.Chronometer;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -136,7 +134,8 @@ public class VoIPService extends Service {
 	
 	
 	// Bluetooth 
-	BluetoothHelper bluetoothHelper;
+	private boolean isBluetoothEnabled = false;
+	BluetoothHelper bluetoothHelper = null;
 	private class BluetoothHelper extends BluetoothHeadsetUtils {
 
 		public BluetoothHelper(Context context) {
@@ -145,22 +144,24 @@ public class VoIPService extends Service {
 
 		@Override
 		public void onHeadsetDisconnected() {
-			Logger.e(logTag, "Bluetooth onHeadsetDisconnected()");
+			Logger.d(logTag, "Bluetooth onHeadsetDisconnected()");
 		}
 
 		@Override
 		public void onHeadsetConnected() {
-			Logger.e(logTag, "Bluetooth onHeadsetConnected()");
+			Logger.d(logTag, "Bluetooth onHeadsetConnected()");
 		}
 
 		@Override
 		public void onScoAudioDisconnected() {
-			Logger.e(logTag, "Bluetooth onScoAudioDisconnected()");
+			Logger.d(logTag, "Bluetooth onScoAudioDisconnected()");
+			audioManager.stopBluetoothSco();
+			audioManager.setBluetoothScoOn(false);	
 		}
 
 		@Override
 		public void onScoAudioConnected() {
-			Logger.e(logTag, "Bluetooth onScoAudioConnected()");
+			Logger.d(logTag, "Bluetooth onScoAudioConnected()");
 			audioManager.startBluetoothSco();
 			audioManager.setBluetoothScoOn(true);
 		}
@@ -207,11 +208,7 @@ public class VoIPService extends Service {
 				break;
 
 			case VoIPConstants.MSG_START_RECORDING_AND_PLAYBACK:
-				if (inConference())
-					playFromSoundPool(SOUND_ACCEPT, false);
-				else
-					startRecordingAndPlayback(msisdn);
-
+				startRecordingAndPlayback(msisdn);
 				break;
 				
 			case VoIPConstants.MSG_START_RECONNECTION_BEEPS:
@@ -273,25 +270,6 @@ public class VoIPService extends Service {
 		isRingingIncoming = false;
 		currentCallQuality = CallQuality.UNKNOWN;
 		
-		if (resamplerEnabled) {
-			playbackSampleRate = AudioTrack.getNativeOutputSampleRate(AudioManager.STREAM_VOICE_CALL);
-			resampler = new Resampler();
-		}
-		else
-			playbackSampleRate = VoIPConstants.AUDIO_SAMPLE_RATE;
-
-		recordingSampleRate = VoIPConstants.AUDIO_SAMPLE_RATE;
-
-		Logger.d(logTag, "Native playback sample rate: " + AudioTrack.getNativeOutputSampleRate(AudioManager.STREAM_VOICE_CALL));
-
-		if (android.os.Build.VERSION.SDK_INT >= 17) {
-			String rate = audioManager.getProperty(AudioManager.PROPERTY_OUTPUT_SAMPLE_RATE);
-			String size = audioManager.getProperty(AudioManager.PROPERTY_OUTPUT_FRAMES_PER_BUFFER);
-			Logger.d(logTag, "Device frames/buffer:" + size + ", sample rate: " + rate);
-		}
-		
-		VoIPUtils.resetNotificationStatus();
-
 		if (!VoIPUtils.useAEC(getApplicationContext())) {
 			Logger.w(logTag, "AEC disabled.");
 			aecEnabled = false;
@@ -303,10 +281,12 @@ public class VoIPService extends Service {
 		}
 		
 		startConnectionTimeoutThread();
-		// CPU Info
-		// Logger.d(logTag, "CPU: " + VoIPUtils.getCPUInfo());
-		bluetoothHelper = new BluetoothHelper(getApplicationContext());
-		bluetoothHelper.start();
+		
+		isBluetoothEnabled = VoIPUtils.isBluetoothEnabled(getApplicationContext());
+		if (isBluetoothEnabled) {
+			bluetoothHelper = new BluetoothHelper(getApplicationContext());
+			bluetoothHelper.start();
+		}
 	}
 	
 	@Override
@@ -314,7 +294,10 @@ public class VoIPService extends Service {
 		super.onDestroy();
 		stop();
 		dismissNotification();
-		bluetoothHelper.stop();
+		
+		if (bluetoothHelper != null)
+			bluetoothHelper.stop();
+		
 		Logger.d(logTag, "VoIP Service destroyed.");
 	}
 	
@@ -344,7 +327,7 @@ public class VoIPService extends Service {
 
 		// Call rejection message
 		if (action.equals(HikeConstants.MqttMessageTypes.VOIP_CALL_CANCELLED)) {
-			Logger.d(logTag, "Call cancelled message.");
+			Logger.d(logTag, "Call cancelled message from: " + msisdn);
 			if (keepRunning == true && getClient() != null && getClient().getPhoneNumber().equals(msisdn)) {
 				Logger.w(logTag, "Hanging up call because of call cancelled message.");
 				client.hangUp();
@@ -843,7 +826,8 @@ public class VoIPService extends Service {
 		audioManager.setRingerMode(initialRingerMode);
 		audioManager.setSpeakerphoneOn(initialSpeakerMode);
 		audioManager.stopBluetoothSco();
-		audioManager.setBluetoothScoOn(false);	}
+		audioManager.setBluetoothScoOn(false);	
+	}
 	
 	@SuppressWarnings("deprecation")
 	@SuppressLint("InlinedApi") 
@@ -920,45 +904,16 @@ public class VoIPService extends Service {
 		return getClient().getPreferredConnectionMethod();
 	}
 	
-	public void startChrono() {
-
-		VoIPClient client = getClient();
-		
-		try {
-			if (client.chronometer == null) {
-//				Looper.prepare();
-//				Logger.w(logTag, "Starting chrono..");
-				client.chronometer = new Chronometer(VoIPService.this);
-				client.chronometer.setBase(SystemClock.elapsedRealtime());
-				client.chronometer.start();
-//				Looper.loop();
-			}
-		} catch (Exception e) {
-			Logger.w(logTag, "Chrono exception: " + e.toString());
-		}
-	}
-	
-
 	/**
 	 * Terminate the service. 
 	 */
 	synchronized public void stop() {
 
-//		synchronized (this) {
-//			if (keepRunning == false) {
-//				// Logger.w(logTag, "Trying to stop a stopped service?");
-//				sendHandlerMessage(VoIPConstants.MSG_SHUTDOWN_ACTIVITY);
-//				setCallid(0);
-//				return;
-//			}
-//			keepRunning = false;
-//		}
-//
 		Logger.d(logTag, "Stopping service..");
 		keepRunning = false;
 
 		for (VoIPClient client : clients.values())
-			removeClient(client);
+			client.close();
 		clients.clear();
 
 		// Reset variables
@@ -987,16 +942,19 @@ public class VoIPService extends Service {
 		
 		stopRingtone();
 		stopFromSoundPool(ringtoneStreamID);
+		releaseAudioManager();
 		
 		if (solicallAec != null) {
 			solicallAec.destroy();
 			solicallAec = null;
 		}
 
-		releaseAudioManager();
-		
 		// Empty the queues
 		recordedSamples.clear();
+		buffersToSend.clear();
+		processedRecordedSamples.clear();
+		playbackBuffersQueue.clear();
+		recordBuffer.clear();
 		
 		sendHandlerMessage(VoIPConstants.MSG_SHUTDOWN_ACTIVITY);
 		releaseWakeLock();
@@ -1017,7 +975,6 @@ public class VoIPService extends Service {
 		},"REJECT_INCOMING_CALL_THREAD").start();
 		
 		// Here we don't show a missed call notification, but add the message to the chat thread
-		VoIPUtils.addMessageToChatThread(this, client, HikeConstants.MqttMessageTypes.VOIP_MSG_TYPE_MISSED_CALL_INCOMING, 0, -1, false);
 		client.sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CALL_REJECT);
 	}
 	
@@ -1101,29 +1058,26 @@ public class VoIPService extends Service {
 			return;
 		}
 
-		if(client.getPreferredConnectionMethod() == ConnectionMethods.RELAY)
-		{
+		if(client.getPreferredConnectionMethod() == ConnectionMethods.RELAY) 
 			client.sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CALL_RELAY);
-		}
 
-		Logger.d(logTag, "Starting audio record / playback.");
-		client.interruptResponseTimeoutThread();
+		playFromSoundPool(SOUND_ACCEPT, false);
+		client.audioStarted = true;
+		client.startChrono();
+		client.setCallStatus(VoIPConstants.CallStatus.ACTIVE);
 		stopRingtone();
 		stopFromSoundPool(ringtoneStreamID);
 		isRingingOutgoing = isRingingIncoming = false;
 		playFromSoundPool(SOUND_ACCEPT, false);
+
 		if (clients.size() == 1) {
+			Logger.d(logTag, "Starting audio record / playback.");
 			startRecording();
 			startPlayBack();
+			sendHandlerMessage(VoIPConstants.MSG_AUDIO_START);
 		} else {
 			Logger.w(logTag, "Skipping startRecording() and startPlayBack()");
 		}
-		
-		client.setCallStatus(VoIPConstants.CallStatus.ACTIVE);
-		sendHandlerMessage(VoIPConstants.MSG_AUDIO_START);
-		startChrono();
-		client.audioStarted = true;
-		
 	}
 	
 	private void startRecording() {
@@ -1134,7 +1088,8 @@ public class VoIPService extends Service {
 				android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
 
 				AudioRecord recorder = null;
-				minBufSizeRecording = AudioRecord.getMinBufferSize(VoIPConstants.AUDIO_SAMPLE_RATE, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT);
+				recordingSampleRate = VoIPConstants.AUDIO_SAMPLE_RATE;
+				minBufSizeRecording = AudioRecord.getMinBufferSize(recordingSampleRate, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT);
 				if (aecEnabled) {
 					// For the Solicall AEC library to work, we must record data in chunks
 					// which are a multiple of the library's supported frame size (20ms).
@@ -1325,6 +1280,20 @@ public class VoIPService extends Service {
 				android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
 				setAudioModeInCall();
 				int index = 0, size = 0;
+
+				if (android.os.Build.VERSION.SDK_INT >= 17) {
+					String rate = audioManager.getProperty(AudioManager.PROPERTY_OUTPUT_SAMPLE_RATE);
+					String framesPerBuffer = audioManager.getProperty(AudioManager.PROPERTY_OUTPUT_FRAMES_PER_BUFFER);
+					Logger.d(logTag, "Device frames/buffer:" + framesPerBuffer + ", sample rate: " + rate);
+				}
+				
+				Logger.d(logTag, "Native playback sample rate: " + AudioTrack.getNativeOutputSampleRate(AudioManager.STREAM_VOICE_CALL));
+				if (resamplerEnabled) {
+					playbackSampleRate = AudioTrack.getNativeOutputSampleRate(AudioManager.STREAM_VOICE_CALL);
+					resampler = new Resampler();
+				}
+				else
+					playbackSampleRate = VoIPConstants.AUDIO_SAMPLE_RATE;
 				minBufSizePlayback = AudioTrack.getMinBufferSize(playbackSampleRate, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT);
 				Logger.d(logTag, "AUDIOTRACK - minBufSizePlayback: " + minBufSizePlayback + ", playbackSampleRate: " + playbackSampleRate);
 			
@@ -1793,11 +1762,6 @@ public class VoIPService extends Service {
 			conference = true;
 		// Logger.d(logTag, "Conference check: " + conference);
 		return conference;
-	}
-	
-	private void removeClient(VoIPClient client) {
-		client.close();
-		clients.remove(client.getPhoneNumber());
 	}
 	
 	public boolean toggleConferencing() {

@@ -1,9 +1,5 @@
 package com.bsb.hike.voip;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
 import java.math.BigInteger;
 import java.net.Inet4Address;
 import java.net.InetAddress;
@@ -28,7 +24,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
-import android.os.Build;
 import android.support.v4.app.NotificationCompat;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
@@ -49,8 +44,6 @@ import com.bsb.hike.utils.Utils;
 import com.bsb.hike.voip.view.VoIPActivity;
 
 public class VoIPUtils {
-
-	private static boolean notificationDisplayed = false; 
 
 	public static String ndkLibPath = "lib/armeabi/";
 
@@ -131,12 +124,6 @@ public class VoIPUtils {
     public static void addMessageToChatThread(Context context, VoIPClient clientPartner, String messageType, int duration, long timeStamp, boolean shouldShowPush) 
     {
 
-    	if (notificationDisplayed) {
-    		Logger.w(VoIPConstants.TAG, "Notification already displayed.");
-    		return;
-    	} else
-    		notificationDisplayed = true;
-    	
     	if (TextUtils.isEmpty(clientPartner.getPhoneNumber())) {
     		Logger.w(VoIPConstants.TAG, "Null phone number while adding message to chat thread. Message: " + messageType + ", Duration: " + duration + ", Phone: " + clientPartner.getPhoneNumber());
     		return;
@@ -295,14 +282,6 @@ public class VoIPUtils {
 		return source;
 	}
 	
-	/**
-	 * Call this method when VoIP service is created. 
-	 */
-	public static void resetNotificationStatus() 
-	{
-		notificationDisplayed = false;
-	}
-
 	public static boolean shouldShowCallRatePopupNow()
 	{
 		return HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOW_VOIP_CALL_RATE_POPUP, false);
@@ -378,27 +357,6 @@ public class VoIPUtils {
 		return scd;
 	}
 	
-	@SuppressWarnings("deprecation")
-	public static String getCPUInfo() {
-	    StringBuffer sb = new StringBuffer();
-	    sb.append("abi: ").append(Build.CPU_ABI).append("\n");
-	    if (new File("/proc/cpuinfo").exists()) {
-	        try {
-	            BufferedReader br = new BufferedReader(new FileReader(new File("/proc/cpuinfo")));
-	            String aLine;
-	            while ((aLine = br.readLine()) != null) {
-	                sb.append(aLine + "\n");
-	            }
-	            if (br != null) {
-	                br.close();
-	            }
-	        } catch (IOException e) {
-	            e.printStackTrace();
-	        } 
-	    }
-	    return sb.toString();
-	}	
-	
 	public static boolean useAEC(Context context) 
 	{
 		boolean useAec = false;
@@ -412,8 +370,22 @@ public class VoIPUtils {
 	
 	public static boolean isConferencingEnabled(Context context) 
 	{
-		boolean conferenceEnabled = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.VOIP_CONFERENCING_ENABLED, false);
+		boolean conferenceEnabled = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.VOIP_CONFERENCING_ENABLED, true);
 		return conferenceEnabled;
+	}
+	
+	public static boolean isBluetoothEnabled(Context context) 
+	{
+		boolean bluetoothEnabled = false;
+		
+		// Below Jellybean startBluetoothSco() requires BROADCAST_STICKY permission
+		// http://stackoverflow.com/questions/8678642/startbluetoothsco-throws-security-exception-broadcast-sticky-on-ics
+		if (Utils.hasJellyBean())
+			bluetoothEnabled = true;
+		else
+			Logger.w(VoIPConstants.TAG, "Bluetooth disabled since phone does not support Jellybean.");
+		
+		return bluetoothEnabled;
 	}
 	
 	/**
@@ -559,7 +531,6 @@ public class VoIPUtils {
 				VoIPClient clientPartner = new VoIPClient(context, null);
 				clientPartner.setPhoneNumber(jsonObj.getString(HikeConstants.FROM));
 				clientPartner.setInitiator(true);
-				VoIPUtils.resetNotificationStatus();
 				VoIPUtils.addMessageToChatThread(context, clientPartner, HikeConstants.MqttMessageTypes.VOIP_MSG_TYPE_MISSED_CALL_INCOMING, 0, jsonObj.getJSONObject(HikeConstants.DATA).getLong(HikeConstants.TIMESTAMP), true);
 			}
 			
