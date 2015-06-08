@@ -12,6 +12,8 @@ import java.security.NoSuchAlgorithmException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.text.TextUtils;
+
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.db.HikeConversationsDatabase;
@@ -351,5 +353,22 @@ public class OfflineUtils
 		outputStream.getFD().sync();
 		outputStream.close();
 		
+	}
+	
+	public static boolean isConnectedToSameMsisdn(JSONObject message,String connectedMsisdn)
+	{
+
+		
+		if (TextUtils.isEmpty(connectedMsisdn))
+		{
+			return false;
+		}
+		if(isPingPacket(message))
+		{
+			return true;
+		}
+		String sendingMsisdn = message.optString(HikeConstants.TO).replace("o:", "");
+		return sendingMsisdn.equals(connectedMsisdn);
+
 	}
 }

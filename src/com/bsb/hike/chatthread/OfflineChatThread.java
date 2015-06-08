@@ -142,6 +142,7 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 	{
 		super.onStart();
 		//Check if we are connected to the User
+		
 	}
 	
 	@Override
@@ -366,6 +367,10 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 	public void onActivityResult(int requestCode, int resultCode, Intent data)
 	{
 		Logger.i(TAG, "on activity result " + requestCode + " result " + resultCode);
+		if(data==null)
+		{
+			return;
+		}
 		switch (requestCode)
 		{
 			case  AttachmentPicker.APPS:
@@ -377,6 +382,7 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 			case AttachmentPicker.FILE:
 				controller.sendFile(data,msisdn);
 				break;	
+				
 			default:
 				super.onActivityResult(requestCode, resultCode, data);
 		}
@@ -403,6 +409,7 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 	protected void onStop()
 	{
 		//Initialate a timer of x seconds to save battery.
+		controller.removeListener(this);
 		super.onStop();
 	}
 	
@@ -430,9 +437,20 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 	{
 		controller.sendImage(Utils.getRealPathFromUri(uri,activity.getApplicationContext()),msisdn);
 	}
+	
+	protected void showToast(String  message)
+	{
+		Toast.makeText(activity, message, Toast.LENGTH_SHORT).show();
+	}
 	@Override
 	public void pickFileSuccess(int requestCode, String filePath)
 	{
+		
+		if (filePath == null)
+		{
+			showToast("filePath is null");
+			return;
+		}
 		switch (requestCode)
 		{
 		case AttachmentPicker.AUDIO:
@@ -449,6 +467,7 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 			super.pickFileSuccess(requestCode, filePath);
 		}
 	}
+	
 	
 	@Override
 	public void audioRecordSuccess(String filePath, long duration)
@@ -487,11 +506,15 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 		Logger.d(TAG,"I am connected to "+connectedDevice);
 		sendUpdateStatusMessageOnHandler(R.string.connection_established);
 		
-		ConvMessage convMessage=OfflineUtils.createOfflineInlineConvMessage(msisdn,activity.getString(R.string.connection_established),OfflineConstants.OFFLINE_MESSAGE_CONNECTED_TYPE);
+		final ConvMessage convMessage=OfflineUtils.createOfflineInlineConvMessage(msisdn,activity.getString(R.string.connection_established),OfflineConstants.OFFLINE_MESSAGE_CONNECTED_TYPE);
 		
-		addMessage(convMessage);
-		HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_SENT, convMessage);
+		Message msg=Message.obtain();
+		msg.what=MESSAGE_RECEIVED;
+		msg.obj=convMessage;
+		uiHandler.sendMessage(msg);
+		
 	}
+	
 	
 	
 

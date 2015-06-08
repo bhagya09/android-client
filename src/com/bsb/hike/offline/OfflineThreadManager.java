@@ -439,7 +439,7 @@ public class OfflineThreadManager
 						try 
 						{
 							message = new JSONObject(metaDataString);
-							message.put(HikeConstants.FROM,offlineManager.getConnectedDevice());
+							message.put(HikeConstants.FROM, offlineManager.getConnectedDevice());
 							message.remove(HikeConstants.TO);
 	
 							JSONObject metadata =  message.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA);
@@ -702,17 +702,14 @@ public class OfflineThreadManager
 	
 	private IMessageSentOffline textMessageCallback=new IMessageSentOffline()
 	{
-		
 		@Override
-		public void onSuccess(ConvMessage convMessage)
-		{
+		public void onSuccess(JSONObject packet) {
 			// TODO Auto-generated method stub
 			
 		}
-		
+
 		@Override
-		public void onFailure(ConvMessage convMessage)
-		{
+		public void onFailure(JSONObject packet) {
 			// TODO Auto-generated method stub
 			
 		}
@@ -720,18 +717,19 @@ public class OfflineThreadManager
 	
 	private IMessageSentOffline fileMessageCallback =new IMessageSentOffline()
 	{
-		
+
 		@Override
-		public void onSuccess(ConvMessage convMessage)
-		{
+		public void onSuccess(JSONObject packet) {
+			// TODO Auto-generated method stub
 			
 		}
-		
+
 		@Override
-		public void onFailure(ConvMessage convMessage)
-		{
+		public void onFailure(JSONObject packet) {
+			// TODO Auto-generated method stub
 			
 		}
+
 	};
 
 }

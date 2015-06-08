@@ -21,9 +21,13 @@ import android.net.wifi.p2p.WifiP2pManager;
 import android.net.wifi.p2p.WifiP2pManager.PeerListListener;
 import android.os.Handler;
 import android.os.Message;
+import android.view.View;
+import android.widget.ImageView.ScaleType;
 
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.R;
+import com.bsb.hike.adapters.MessagesAdapter.FTViewHolder;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.filetransfer.FileSavedState;
 import com.bsb.hike.filetransfer.FileTransferBase.FTState;
@@ -34,6 +38,7 @@ import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 
 
 /**
@@ -145,6 +150,7 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 			break;
 		case OfflineConstants.HandlerConstants.REMOVE_CONNECT_MESSAGE:
 			removeMessage(OfflineConstants.HandlerConstants.RECONNECT_TO_HOTSPOT);
+			setOfflineState(OFFLINE_STATE.NOT_CONNECTED);
 			break;
 		case OfflineConstants.HandlerConstants.START_SCAN:
 			runNetworkScan((int)msg.obj);
@@ -212,9 +218,13 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 
 	public synchronized void addToTextQueue(JSONObject message)
 	{
+		
 		try
 		{
-			textMessageQueue.put(message);
+			if(OfflineUtils.isConnectedToSameMsisdn(message,getConnectedDevice()))
+			{
+				textMessageQueue.put(message);
+			}
 		}
 		catch (InterruptedException e)
 		{
@@ -224,11 +234,14 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 
 	public synchronized void addToFileQueue(FileTransferModel fileTransferObject)
 	{
-		fileTransferQueue.add(fileTransferObject);
-		addToCurrentSendingFile(fileTransferObject.getMessageId(), fileTransferObject);
+
 		try
 		{
-			fileTransferQueue.put(fileTransferObject);
+			if (OfflineUtils.isConnectedToSameMsisdn(fileTransferObject.getPacket(), getConnectedDevice()))
+			{
+				addToCurrentSendingFile(fileTransferObject.getMessageId(), fileTransferObject);
+				fileTransferQueue.put(fileTransferObject);
+			}
 		}
 		catch (InterruptedException e)
 		{
@@ -249,32 +262,44 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 	public boolean copyFile(InputStream inputStream, OutputStream out, long msgId, boolean showProgress, boolean isSent,long fileSize) 
 	{
 		byte buf[] = new byte[OfflineConstants.CHUNK_SIZE];
-		int len;
+		int len = 0;
 		boolean isCopied = false;
-		try {
-			while (fileSize>=OfflineConstants.CHUNK_SIZE) {
-				len = inputStream.read(buf);
-				out.write(buf, 0, len);
-				fileSize -= len;	
-				if (showProgress)
-				{
 
-					showSpinnerProgress(isSent,msgId);
+		try
+		{
+
+			long prev = 0;
+			while (fileSize >= OfflineConstants.CHUNK_SIZE)
+			{
+				int readLen = 0;
+				readLen = inputStream.read(buf, 0, OfflineConstants.CHUNK_SIZE);
+				out.write(buf, 0, readLen);
+				len += readLen;
+				fileSize -= readLen;
+				if (showProgress && ((len / OfflineConstants.CHUNK_SIZE) != prev))
+				{
+					prev = len / OfflineConstants.CHUNK_SIZE;
+					Logger.d(TAG, "Chunk read " + prev + "");
+					showSpinnerProgress(isSent, msgId);
 				}
 			}
-			while(fileSize > 0) 
+
+			while (fileSize > 0)
 			{
-				buf = new byte[(int)fileSize];
+				buf = new byte[(int) fileSize];
 				len = inputStream.read(buf);
 				fileSize -= len;
 				out.write(buf, 0, len);
-				if (showProgress)
-				{
-					showSpinnerProgress(isSent,msgId);
-				}
+
+			}
+			if (showProgress)
+			{
+				showSpinnerProgress(isSent, msgId);
 			}
 			isCopied = true;
-		} catch (IOException e) {
+		}
+		catch (IOException e)
+		{
 			Logger.e("Spinner", "Exception in copyFile: ", e);
 			isCopied = false;
 		}
@@ -283,17 +308,23 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 
 	private void showSpinnerProgress(boolean isSent,long msgId)
 	{
-		if(isSent)
+		if (isSent)
 		{
-			FileTransferModel fileTransfer=currentSendingFiles.get(msgId);
-			if(fileTransfer!=null)
-			fileTransfer.getTransferProgress().setCurrentChunks(fileTransfer.getTransferProgress().getCurrentChunks() + 1);
+			FileTransferModel fileTransfer = currentSendingFiles.get(msgId);
+			if (fileTransfer != null)
+			{
+				fileTransfer.getTransferProgress().setCurrentChunks(fileTransfer.getTransferProgress().getCurrentChunks() + 1);
+			}
 		}
 		else
 		{
-			FileTransferModel fileTransfer=currentReceivingFiles.get(msgId);
-			if(fileTransfer!=null)
-			fileTransfer.getTransferProgress().setCurrentChunks(fileTransfer.getTransferProgress().getCurrentChunks() + 1);
+			FileTransferModel fileTransfer = currentReceivingFiles.get(msgId);
+
+			if (fileTransfer != null)
+			{
+				Logger.d(TAG, "Received side Current chunk is " + fileTransfer.getTransferProgress().getCurrentChunks());
+				fileTransfer.getTransferProgress().setCurrentChunks(fileTransfer.getTransferProgress().getCurrentChunks() + 1);
+			}
 		}
 		HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
 	}
@@ -374,23 +405,23 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 
 	public 	void setInOfflineFileTransferInProgress(boolean val)
 	{
-		inFileTransferInProgress = val;
+		this.inFileTransferInProgress = val;
 	}
 
 	public String getConnectedDevice()
 	{
 		return connectedDevice;
-		//return OfflineUtils.getconnectedDevice(OfflineUtils.decodeSsid(connectionManager.getConnectedSSID()));
 	}
 
 	public void addToCurrentReceivingFile(long msgId,FileTransferModel fileTransferModel)
 	{
+		Logger.d(TAG,"addToCurrentReceivingFile msg id is " +msgId);
 		currentReceivingFiles.put(msgId,fileTransferModel);
 	}
 
 	public void removeFromCurrentReceivingFile(long msgId)
 	{
-		if(((ConcurrentHashMap<Long, FileTransferModel>)currentReceivingFiles).contains(msgId))
+		if(currentReceivingFiles.containsKey(msgId))
 		{
 			currentReceivingFiles.remove(msgId);
 		}
@@ -403,8 +434,9 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 	
 	public void removeFromCurrentSendingFile(long msgId)
 	{
-		if(((ConcurrentHashMap<Long, FileTransferModel>)currentSendingFiles).contains(msgId))
+		if(currentSendingFiles.containsKey(msgId))
 		{
+			Logger.d(TAG,"Removing message from removeFromCurrentSendingFile "  + "..."+ msgId);
 			currentSendingFiles.remove(msgId);
 		}
 	}
@@ -419,7 +451,8 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 			fileName = apkLabel + ".apk";
 		ConvMessage convMessage = FileTransferManager.getInstance(context).uploadOfflineFile(msisdn, file, fileKey, fileType, hikeFileType, isRecording,
 				recordingDuration, attachmentType, fileName);
-		FileTransferModel fileTransferModel=new FileTransferModel(new TransferProgress(), convMessage.serialize());
+		FileTransferModel fileTransferModel=new FileTransferModel(new TransferProgress(0,OfflineUtils.getTotalChunks((int)file.length())), convMessage.serialize());
+		Logger.d(TAG,"Total Chunk is "+fileTransferModel.getTransferProgress().getTotalChunks() + "...Current chunk is "+fileTransferModel.getTransferProgress().getCurrentChunks());
 		currentSendingFiles.put(convMessage.getMsgID(), fileTransferModel);
 		addToFileQueue(fileTransferModel);
 	}
@@ -500,8 +533,9 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 			threadManager.startSendingThreads();
 			
 			// send ping packet to hotspot
-			sendPingPacket();
+			
 			onConnected(offlineNetworkMsisdn);
+			sendPingPacket();
 		}
 	}
 	
@@ -520,6 +554,8 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 			removeMessage(OfflineConstants.HandlerConstants.DISCONNECT_AFTER_TIMEOUT);
 			removeMessage(OfflineConstants.HandlerConstants.CONNECT_TO_HOTSPOT);
 			offlineState=OFFLINE_STATE.CONNECTED;
+			final ConvMessage convMessage=OfflineUtils.createOfflineInlineConvMessage("o:"+connectedDevice,context.getString(R.string.connection_established),OfflineConstants.OFFLINE_MESSAGE_CONNECTED_TYPE);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_SENT, convMessage);
 			for(IOfflineCallbacks  offlineListener : listeners)
 			{
 				offlineListener.connectedToMsisdn(connectedDevice);
@@ -745,4 +781,131 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 	{
 		return offlineState;
 	}
+
+	public void removeListener(IOfflineCallbacks listener)
+	{
+		if (listeners.contains(listener))
+		{
+			listeners.remove(listener);
+		}
+	}
+	
+	public void setupFileState(FTViewHolder holder, FileSavedState fss, long msgId, HikeFile hikeFile, boolean isSent, boolean ext)
+	{
+		int playImage = -1;
+		if (!ext)
+		{
+			playImage = R.drawable.ic_videoicon;
+		}
+		holder.ftAction.setVisibility(View.GONE);
+		holder.circularProgressBg.setVisibility(View.GONE);
+		holder.initializing.setVisibility(View.GONE);
+		holder.circularProgress.setVisibility(View.GONE);
+		switch (fss.getFTState())
+		{
+		case IN_PROGRESS:
+			holder.circularProgressBg.setVisibility(View.VISIBLE);
+			holder.circularProgress.setVisibility(View.VISIBLE);
+			Logger.d(TAG, "IN_PROGRESS");
+			showTransferProgress(holder, fss, msgId, hikeFile, isSent);
+			
+			break;
+		case COMPLETED:
+			holder.circularProgressBg.setVisibility(View.GONE);
+			holder.circularProgress.resetProgress();
+			Logger.d(TAG, "COMPLETED");
+			holder.circularProgress.setVisibility(View.GONE);
+			if (hikeFile.getHikeFileType() == HikeFileType.VIDEO && !ext)
+			{
+				holder.ftAction.setImageResource(playImage);
+				holder.ftAction.setVisibility(View.VISIBLE);
+				holder.circularProgressBg.setVisibility(View.VISIBLE);
+			}
+			break;
+		default:
+			break;
+		}
+		holder.ftAction.setScaleType(ScaleType.CENTER);
+	}
+	
+	private void showTransferProgress(FTViewHolder holder, FileSavedState fss, long msgId, HikeFile hikeFile, boolean isSent)
+	{
+		Logger.d(TAG,"in showTransferProgress");
+		int num = 0;
+		if(isSent)
+		{
+			if (!currentSendingFiles.containsKey(msgId))
+				return;
+			else
+				num = currentSendingFiles.get(msgId).getTransferProgress().getCurrentChunks();
+		}else
+		{
+			Logger.d(TAG,"showTransferProgress trying to get msg id is " +msgId);
+			if (!currentReceivingFiles.containsKey(msgId))
+				return;
+			else
+				num = currentReceivingFiles.get(msgId).getTransferProgress().getCurrentChunks();
+		}
+	
+		long progress = (((long)num*OfflineConstants.CHUNK_SIZE*100)/hikeFile.getFileSize());
+		Logger.d(TAG, "CurrentSizeReceived: " + num + " FileSize: " + hikeFile.getFileSize() + 
+				" Progress -> " +  progress +  " FtState -> " + fss.getFTState().name());
+		if (fss.getFTState() == FTState.IN_PROGRESS && fss.getTransferredSize() == 0)
+		{
+			float animatedProgress = 5 * 0.01f;
+			if (fss.getTotalSize() > 0 && OfflineConstants.CHUNK_SIZE > 0)
+			{
+				animatedProgress = (float) OfflineConstants.CHUNK_SIZE;
+				animatedProgress = animatedProgress / fss.getTotalSize();
+			}
+			if (holder.circularProgress.getRelatedMsgId() == -1 || holder.circularProgress.getCurrentProgress() > animatedProgress
+					|| holder.circularProgress.getCurrentProgress() == 1.0f)
+			{
+				holder.circularProgress.resetProgress();
+				Logger.d("Spinner", "Current Progress reset");
+			}
+			if (Utils.isHoneycombOrHigher())
+			{
+				holder.circularProgress.stopAnimation();
+				holder.circularProgress.setAnimatedProgress(0, (int) (animatedProgress * 100), 6 * 1000);
+			}
+			else
+			{
+				holder.circularProgress.setProgress(animatedProgress);
+			}
+			holder.circularProgress.setRelatedMsgId(msgId);
+			holder.circularProgress.setVisibility(View.VISIBLE);
+			holder.circularProgressBg.setVisibility(View.VISIBLE);
+		}
+		else if (fss.getFTState() == FTState.IN_PROGRESS)
+		{
+			if (progress < 100)
+				holder.circularProgress.setProgress(progress * 0.01f);
+			if (Utils.isHoneycombOrHigher())
+				holder.circularProgress.stopAnimation();
+			
+			Logger.d("Spinner", "" + "holder.circularProgress=" + holder.circularProgress.getCurrentProgress()*100
+					+ " Progress=" + progress);
+			
+			float animatedProgress = 5 * 0.01f;
+			if (fss.getTotalSize() > 0)
+			{
+				animatedProgress = (float) OfflineConstants.CHUNK_SIZE;
+				animatedProgress = animatedProgress / fss.getTotalSize();
+			}
+			if (Utils.isHoneycombOrHigher())
+			{
+				if (holder.circularProgress.getCurrentProgress() < (0.95f) && progress == 100)
+				{
+					holder.circularProgress.setAnimatedProgress((int) (holder.circularProgress.getCurrentProgress() * 100), (int)progress, 300);
+				}
+				else
+					holder.circularProgress.setAnimatedProgress((int)progress, (int)progress + (int) (animatedProgress * 100), 6 * 1000);
+			}
+			
+			holder.circularProgress.setVisibility(View.VISIBLE);
+			holder.circularProgressBg.setVisibility(View.VISIBLE);
+		}
+	}
+
 }

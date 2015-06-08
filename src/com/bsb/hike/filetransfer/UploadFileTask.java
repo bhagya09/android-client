@@ -239,6 +239,7 @@ public class UploadFileTask extends FileTransferBase
 			e.printStackTrace();
 		}
 		((ConvMessage) userContext).setTimestamp(System.currentTimeMillis() / 1000);
+		HikeConversationsDatabase.getInstance().updateMessageMetadata(((ConvMessage) userContext).getMsgID(), ((ConvMessage) userContext).getMetadata());
 		// saveFileState(null);
 	}
 

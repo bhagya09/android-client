@@ -50,7 +50,7 @@ public class AttachmentPicker extends OverFlowMenuLayout
 	
 	public static final int EDITOR = 320;
 
-	public static final int APPS = 320;
+	public static final int APPS = 321;
 
 	private boolean startRespectiveActivities;
 
