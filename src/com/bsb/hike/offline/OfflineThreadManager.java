@@ -418,20 +418,24 @@ public class OfflineThreadManager
 						int msgSize = inputstream.read(metaDataLengthArray,0,4);
 						if(msgSize==0)
 							continue;
+						
 						int metaDataLength = OfflineUtils.byteArrayToInt(metaDataLengthArray);
 						Logger.d(TAG, "Size of MetaString: " + metaDataLength);
 						ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(metaDataLength);
 						boolean isMetaDataReceived = OfflineManager.getInstance().copyFile(inputstream, byteArrayOutputStream, metaDataLength);
 						Logger.d(TAG, "Metadata Received Properly: " + isMetaDataReceived);
 						byteArrayOutputStream.close();
+						
 						byte[] metaDataBytes = byteArrayOutputStream.toByteArray();
 						String metaDataString = new String(metaDataBytes, "UTF-8");
 						Logger.d(TAG, metaDataString);
+						
 						JSONObject fileJSON = null;
 						JSONObject message = null;
 						String filePath = "";
 						long mappedMsgId = -1;
 						String fileName = "";
+						int fileSize = 0;
 						try 
 						{
 							message = new JSONObject(metaDataString);
@@ -442,7 +446,7 @@ public class OfflineThreadManager
 							mappedMsgId = message.getJSONObject(HikeConstants.DATA).getLong(HikeConstants.MESSAGE_ID);
 							
 							fileJSON = metadata.getJSONArray(HikeConstants.FILES).getJSONObject(0);
-							int fileSize = fileJSON.getInt(HikeConstants.FILE_SIZE);
+							fileSize = fileJSON.getInt(HikeConstants.FILE_SIZE);
 							int type = fileJSON.getInt(HikeConstants.HIKE_FILE_TYPE);
 							fileName =  fileJSON.getString(HikeConstants.FILE_NAME);
 							filePath = OfflineUtils.getFileBasedOnType(type, fileName);
@@ -478,7 +482,7 @@ public class OfflineThreadManager
 							// showDownloadTransferNotification(mappedMsgId, fileSize);
 							FileOutputStream outputStream = new FileOutputStream(f);
 							// TODO:Take action on the basis of return type.
-							offlineManager.copyFile(inputstream, new FileOutputStream(f), mappedMsgId, true, false, outputStream.getChannel().size());
+							offlineManager.copyFile(inputstream, new FileOutputStream(f), mappedMsgId, true, false, fileSize);
 							OfflineUtils.closeOutputStream(outputStream);
 							f.renameTo(new File(filePath));
 						}
@@ -545,6 +549,7 @@ public class OfflineThreadManager
 				byte[] intToBArray = OfflineUtils.intToByteArray(length);
 				outputStream.write(intToBArray, 0, intToBArray.length);
 				outputStream.write(messageBytes, 0, length);
+				// copy the sticker to the stream
 				isSent = offlineManager.copyFile(inputStream, outputStream, f.length());
 				inputStream.close();
 				
@@ -631,14 +636,11 @@ public class OfflineThreadManager
 			Logger.d(TAG, "FileMetaDataSent:" + isMetaDataSent);
 			byteArrayInputStream.close();
 			
-			JSONObject metadata;
-			int fileSize  = 0;
-			metadata = fileTransferModel.getPacket().getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA);
-			JSONObject fileJSON = (JSONObject) metadata.getJSONArray(HikeConstants.FILES).get(0);
-			fileSize = fileJSON.getInt(HikeConstants.FILE_SIZE);
+			int fileSize = 0;
+			fileSize = jsonFile.getInt(HikeConstants.FILE_SIZE);
 			
 			long msgID;
-			msgID = fileTransferModel.getPacket().getJSONObject(HikeConstants.DATA).getLong(HikeConstants.MESSAGE_ID);
+			msgID = fileTransferModel.getMessageId();
 			fileTransferModel.getTransferProgress().setCurrentChunks(OfflineUtils.getTotalChunks(fileSize));
 			
 			//TODO:We can listen to PubSub ...Why to do this ...????

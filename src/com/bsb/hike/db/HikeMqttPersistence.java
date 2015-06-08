@@ -63,6 +63,11 @@ public class HikeMqttPersistence extends SQLiteOpenHelper
 		super(context, MQTT_DATABASE_NAME, null, MQTT_DATABASE_VERSION);
 		mDb = getWritableDatabase();
 	}
+	
+	public SQLiteDatabase getDb()
+	{
+		return mDb;
+	}
 
 	public void addSentMessage(HikePacket packet) throws MqttPersistenceException
 	{

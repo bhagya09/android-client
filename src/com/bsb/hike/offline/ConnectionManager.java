@@ -98,7 +98,8 @@ public class ConnectionManager implements ChannelListener
 		wifiConfig.preSharedKey  = "\"" + OfflineUtils.generatePassword(ssid)  +  "\"";
 		wifiManager.addNetwork(wifiConfig);
 		List<WifiConfiguration> list = wifiManager.getConfiguredNetworks();
-		for( WifiConfiguration wifiConfiguration : list ) {
+		for( WifiConfiguration wifiConfiguration : list ) 
+		{
 			if(wifiConfiguration!=null && wifiConfiguration.SSID != null && wifiConfiguration.SSID.equals(wifiConfig.SSID)) 
 			{
 				wifiManager.disconnect();
