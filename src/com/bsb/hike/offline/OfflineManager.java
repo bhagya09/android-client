@@ -221,7 +221,7 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 		
 		try
 		{
-			if(Utils.isConnectedToSameMsisdn(message,getConnectedDevice()))
+			if(OfflineUtils.isConnectedToSameMsisdn(message,getConnectedDevice()))
 			{
 				textMessageQueue.put(message);
 			}
@@ -237,7 +237,7 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 
 		try
 		{
-			if (Utils.isConnectedToSameMsisdn(fileTransferObject.getPacket(), getConnectedDevice()))
+			if (OfflineUtils.isConnectedToSameMsisdn(fileTransferObject.getPacket(), getConnectedDevice()))
 			{
 				addToCurrentSendingFile(fileTransferObject.getMessageId(), fileTransferObject);
 				fileTransferQueue.put(fileTransferObject);
@@ -262,32 +262,44 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 	public boolean copyFile(InputStream inputStream, OutputStream out, long msgId, boolean showProgress, boolean isSent,long fileSize) 
 	{
 		byte buf[] = new byte[OfflineConstants.CHUNK_SIZE];
-		int len;
+		int len = 0;
 		boolean isCopied = false;
-		try {
-			while (fileSize>=OfflineConstants.CHUNK_SIZE) {
-				len = inputStream.read(buf);
-				out.write(buf, 0, len);
-				fileSize -= len;	
-				if (showProgress)
-				{
 
-					showSpinnerProgress(isSent,msgId);
+		try
+		{
+
+			long prev = 0;
+			while (fileSize >= OfflineConstants.CHUNK_SIZE)
+			{
+				int readLen = 0;
+				readLen = inputStream.read(buf, 0, OfflineConstants.CHUNK_SIZE);
+				out.write(buf, 0, readLen);
+				len += readLen;
+				fileSize -= readLen;
+				if (showProgress && ((len / OfflineConstants.CHUNK_SIZE) != prev))
+				{
+					prev = len / OfflineConstants.CHUNK_SIZE;
+					Logger.d(TAG, "Chunk read " + prev + "");
+					showSpinnerProgress(isSent, msgId);
 				}
 			}
-			while(fileSize > 0) 
+
+			while (fileSize > 0)
 			{
-				buf = new byte[(int)fileSize];
+				buf = new byte[(int) fileSize];
 				len = inputStream.read(buf);
 				fileSize -= len;
 				out.write(buf, 0, len);
-				if (showProgress)
-				{
-					showSpinnerProgress(isSent,msgId);
-				}
+
+			}
+			if (showProgress)
+			{
+				showSpinnerProgress(isSent, msgId);
 			}
 			isCopied = true;
-		} catch (IOException e) {
+		}
+		catch (IOException e)
+		{
 			Logger.e("Spinner", "Exception in copyFile: ", e);
 			isCopied = false;
 		}
@@ -307,8 +319,12 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 		else
 		{
 			FileTransferModel fileTransfer = currentReceivingFiles.get(msgId);
+
 			if (fileTransfer != null)
+			{
+				Logger.d(TAG, "Received side Current chunk is " + fileTransfer.getTransferProgress().getCurrentChunks());
 				fileTransfer.getTransferProgress().setCurrentChunks(fileTransfer.getTransferProgress().getCurrentChunks() + 1);
+			}
 		}
 		HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
 	}
@@ -399,6 +415,7 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 
 	public void addToCurrentReceivingFile(long msgId,FileTransferModel fileTransferModel)
 	{
+		Logger.d(TAG,"addToCurrentReceivingFile msg id is " +msgId);
 		currentReceivingFiles.put(msgId,fileTransferModel);
 	}
 
@@ -516,8 +533,9 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 			threadManager.startSendingThreads();
 			
 			// send ping packet to hotspot
-			sendPingPacket();
+			
 			onConnected(offlineNetworkMsisdn);
+			sendPingPacket();
 		}
 	}
 	
@@ -822,6 +840,7 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 				num = currentSendingFiles.get(msgId).getTransferProgress().getCurrentChunks();
 		}else
 		{
+			Logger.d(TAG,"showTransferProgress trying to get msg id is " +msgId);
 			if (!currentReceivingFiles.containsKey(msgId))
 				return;
 			else
