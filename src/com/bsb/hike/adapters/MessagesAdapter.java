@@ -1315,7 +1315,8 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				setBubbleColor(convMessage, videoHolder.messageContainer);
 				if (convMessage.IsOfflineMessage())
 				{
-					OfflineManager.getInstance().setupFileState(videoHolder, fss, convMessage.getMsgID(), hikeFile, convMessage.isSent(), false);
+					long id = convMessage.isSent() ? convMessage.getMsgID() : convMessage.getMappedMsgID();
+					OfflineManager.getInstance().setupFileState(videoHolder, fss, id, hikeFile, convMessage.isSent(), false);
 				}
 				else
 				{
@@ -1467,7 +1468,8 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				setBubbleColor(convMessage, imageHolder.messageContainer);
 				if (convMessage.IsOfflineMessage())
 				{
-					OfflineManager.getInstance().setupFileState(imageHolder, fss, convMessage.getMsgID(), hikeFile, convMessage.isSent(), false);
+					long msgId = convMessage.isSent() ? convMessage.getMsgID() : convMessage.getMappedMsgID();
+					OfflineManager.getInstance().setupFileState(imageHolder, fss, msgId, hikeFile, convMessage.isSent(), false);
 				}
 				else
 				{
@@ -1836,7 +1838,8 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				setBubbleColor(convMessage, fileHolder.messageContainer);
 				if (convMessage.IsOfflineMessage())
 				{
-					OfflineManager.getInstance().setupFileState(fileHolder, fss, convMessage.getMsgID(), hikeFile, convMessage.isSent(), true);
+					long msgId = convMessage.isSent() ? convMessage.getMsgID() : convMessage.getMappedMsgID();
+					OfflineManager.getInstance().setupFileState(fileHolder, fss, msgId, hikeFile, convMessage.isSent(), true);
 				}
 				else
 				{
