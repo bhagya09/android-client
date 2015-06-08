@@ -224,6 +224,8 @@ public class EmoticonPicker implements ShareablePopup, EmoticonPickerListener, O
 		mIconPageIndicator.setViewPager(mPager);
 
 		mPager.setCurrentItem(firstCategoryToShow, false);
+		
+		mEmoticonAdapter.notifyDataSetChanged();
 
 	}
 
@@ -356,4 +358,16 @@ public class EmoticonPicker implements ShareablePopup, EmoticonPickerListener, O
 			mPopUpLayout.setPopupDismissListener(listener);
 		}
 	}
+	
+	/**
+	 * This function should be called when orientation of screen is changed, it will update its view based on orientation
+	 * If picker is being shown, it will first dismiss current picker and then show it again using post on view
+	 * 
+	 * @param orientation
+	 */
+	public void onOrientationChange(int orientation)
+	{
+		showEmoticonPicker(orientation);
+	}
+
 }

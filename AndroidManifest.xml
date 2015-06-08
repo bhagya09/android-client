@@ -262,6 +262,7 @@
         </activity>
         <activity
             android:name=".ui.StatusUpdate"
+            android:configChanges="orientation|screenSize|keyboard|keyboardHidden"
             android:windowSoftInputMode="adjustResize" >
         </activity>
         <activity

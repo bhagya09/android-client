@@ -987,15 +987,8 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	
 	private void initEmoticonPicker()
 	{
-		if (mEmoticonPicker != null)
-		{
-			mEmoticonPicker.updateETAndContext(statusTxt, this);
-		}
-		else
-		{
-			int[] dontEatThisTouch = {R.id.emoji_btn};
-			mEmoticonPicker = new EmoticonPicker(this, statusTxt, findViewById(R.id.parent_layout), (int)getResources().getDimension(R.dimen.emoticon_pallete), dontEatThisTouch);
-		}
+		int[] dontEatThisTouch = {R.id.emoji_btn};
+		mEmoticonPicker = new EmoticonPicker(this, statusTxt, findViewById(R.id.parent_layout), (int)getResources().getDimension(R.dimen.emoticon_pallete), dontEatThisTouch);
 		mEmoticonPicker.setOnDismissListener(this);
 	}
 	
@@ -1021,5 +1014,18 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	{
 		releaseEmoticon();
 		super.onStop();
+	}
+	
+	@Override
+	public void onConfigurationChanged(Configuration newConfig) 
+	{
+		if (mEmoticonPicker!=null && mEmoticonPicker.isShowing())
+		{
+			mEmoticonPicker.dismiss();
+			initEmoticonPicker();
+			mEmoticonPicker.onOrientationChange(newConfig.orientation);
+			mActivityTask.emojiShowing = true;
+		}
+		super.onConfigurationChanged(newConfig);
 	}
 }
