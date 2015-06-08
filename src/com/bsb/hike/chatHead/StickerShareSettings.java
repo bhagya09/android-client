@@ -68,7 +68,7 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 			{
 				JSONObject obj = jsonObj.getJSONObject(i);
 
-				if (Utils.isPackageInstalled(getApplicationContext(), obj.optString(HikeConstants.ChatHead.PACKAGE_NAME,"")))
+				if (Utils.isPackageInstalled(getApplicationContext(), obj.optString(HikeConstants.ChatHead.PACKAGE_NAME, "")))
 				{
 					ListViewItem listItem = new ListViewItem();
 					listItem.appName = obj.optString(HikeConstants.ChatHead.APP_NAME, "");
@@ -187,8 +187,8 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 			{
 				mListViewItems.get(j).appChoice = true;
 			}
-			ChatHeadService.snooze = false;
-			
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.SNOOZE, false);
+
 			HikeAlarmManager.cancelAlarm(this, HikeAlarmManager.REQUESTCODE_START_STICKER_SHARE_SERVICE);
 			HAManager.getInstance().chatHeadshareAnalytics(HikeConstants.ChatHead.SELECT_ALL, HikeConstants.ChatHead.APP_CHECKED);
 		}
@@ -283,7 +283,7 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 
 			mListViewItems.get(tag).appChoice = true;
 			mListViewItems.get(tag).mCheckBox.setChecked(true);
-			ChatHeadService.snooze = false;
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.SNOOZE, false);
 			HikeAlarmManager.cancelAlarm(this, HikeAlarmManager.REQUESTCODE_START_STICKER_SHARE_SERVICE);
 			HAManager.getInstance().chatHeadshareAnalytics(HikeConstants.ChatHead.APP_CLICK, mListViewItems.get(tag).appName, HikeConstants.ChatHead.APP_CHECKED);
 		}
@@ -330,13 +330,18 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 		{
 			jsonObj = new JSONArray(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.PACKAGE_LIST, ""));
 			int j = 0;
-			for (int i = 0; i < jsonObj.length(); i++)
+			JSONObject obj;
+			for (int i = 0; i < mListViewItems.size(); i++)
 			{
-				JSONObject obj = jsonObj.getJSONObject(i);
-
-				if (obj.optString(HikeConstants.ChatHead.PACKAGE_NAME,"").equals(mListViewItems.get(j).pkgName))
+				obj = jsonObj.getJSONObject(j);
+				while (!mListViewItems.get(i).pkgName.equals(obj.optString(HikeConstants.ChatHead.PACKAGE_NAME, "")))
 				{
-					obj.put(HikeConstants.ChatHead.APP_ENABLE, mListViewItems.get(j).appChoice);
+					j++;
+					obj = jsonObj.getJSONObject(j);
+				}
+				if (mListViewItems.get(i).pkgName.equals(obj.optString(HikeConstants.ChatHead.PACKAGE_NAME, "")))
+				{
+					obj.put(HikeConstants.ChatHead.APP_ENABLE, mListViewItems.get(i).appChoice);
 					j++;
 				}
 			}

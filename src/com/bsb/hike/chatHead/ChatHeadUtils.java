@@ -78,7 +78,7 @@ public class ChatHeadUtils
 
 	private static void startService(Context context)
 	{
-		if (!Utils.isMyServiceRunning(ChatHeadService.class, context) && !ChatHeadService.snooze)
+		if (!Utils.isMyServiceRunning(ChatHeadService.class, context) && !HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.SNOOZE, false))
 		{
 			context.startService(new Intent(context, ChatHeadService.class));
 		}
@@ -115,7 +115,7 @@ public class ChatHeadUtils
 		}
 		else
 		{
-			ChatHeadService.snooze = false;
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.SNOOZE, false);
 			HikeAlarmManager.cancelAlarm(context, HikeAlarmManager.REQUESTCODE_START_STICKER_SHARE_SERVICE);
 			stopService(context);
 		}

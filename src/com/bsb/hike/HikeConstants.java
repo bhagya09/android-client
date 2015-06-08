@@ -1161,6 +1161,8 @@ public class HikeConstants
 		public static final String SERVICE_START_DATE= "strtDate";
 		
 		public static final String SERVICE_LAST_USED= "lastUsed";
+		
+		public static final String SNOOZE = "snoozeChatHead";
 
 		public static final int DISMISS_CONST= 5;
 

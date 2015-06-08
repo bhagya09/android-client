@@ -26,6 +26,7 @@ import com.bsb.hike.productpopup.NotificationContentModel;
 import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.service.PreloadNotificationSchedular;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
@@ -299,7 +300,7 @@ public class HikeAlarmManager
 			ProductInfoManager.getInstance().notifyUser(notificationContentModel);
 			break;
 		case HikeAlarmManager.REQUESTCODE_START_STICKER_SHARE_SERVICE:	
-			ChatHeadService.snooze = false;
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.SNOOZE, false);
 			ChatHeadUtils.serviceDecision(context, false);
 			break;
 			
@@ -364,7 +365,7 @@ public class HikeAlarmManager
 			processTasks(intent, context);
 			break;
 		case HikeAlarmManager.REQUESTCODE_START_STICKER_SHARE_SERVICE:	
-			ChatHeadService.snooze = false;
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.SNOOZE, false);
 			ChatHeadUtils.serviceDecision(context, false);
 			break;
 			

@@ -218,7 +218,7 @@ public class ChatHeadActivity extends HikeBaseActivity implements StickerPickerL
 
 	private void onClickSetAlarm(int time)
 	{
-		ChatHeadService.snooze = true;
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.SNOOZE, true);
 		HikeAlarmManager.setAlarm(getApplicationContext(), Calendar.getInstance().getTimeInMillis() + time, HikeAlarmManager.REQUESTCODE_START_STICKER_SHARE_SERVICE, false);
 		ChatHeadService.getInstance().resetPosition(HikeConstants.ChatHead.STOPPING_SERVICE_ANIMATION);
 	}

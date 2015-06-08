@@ -62,8 +62,6 @@ public class ChatHeadService extends Service
 
 	private Timer processCheckTimer;
 
-	public volatile static boolean snooze ;
-
 	private WindowManager.LayoutParams chatHeadParams = new WindowManager.LayoutParams(WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT,
 			WindowManager.LayoutParams.TYPE_PHONE, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, PixelFormat.TRANSLUCENT);
 
@@ -460,9 +458,7 @@ public class ChatHeadService extends Service
 		super.onCreate();
         		
 		instance = this;
-        
-		snooze = false;
-		
+        		
 		windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
 
 		chatHead = new ImageView(this);

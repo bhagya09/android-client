@@ -309,7 +309,7 @@ public class IntentFactory
 	{
 		SharedPreferences prefs = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
 		Intent intent = new Intent(context.getApplicationContext(), WebViewActivity.class);
-		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 		String stickerShare_url = AccountUtils.stickerShareUrl;
 
 		if (!TextUtils.isEmpty(stickerShare_url))
@@ -767,7 +767,7 @@ public class IntentFactory
 		
 		if(flags)
 		{
-			intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 		}
 		return intent;
 	}
