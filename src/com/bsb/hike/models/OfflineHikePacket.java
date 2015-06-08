@@ -3,6 +3,12 @@ package com.bsb.hike.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+/**
+ * 
+ * 	@author Deepak Malik
+ *
+ *	Offline Hike packet based on Hike Packet model for offline related messaging
+ */
 public class OfflineHikePacket implements Parcelable
 {	
 	private byte[] message;
