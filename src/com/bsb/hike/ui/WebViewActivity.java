@@ -120,7 +120,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		/**
 		 * force the user into the reg-flow process if the token isn't set
 		 */
-		if (Utils.requireAuth(this))
+		if (getIntent().getIntExtra(WEBVIEW_MODE, WEB_URL_MODE) == MICRO_APP_MODE && Utils.requireAuth(this))
 		{
 			return;
 		}
@@ -704,7 +704,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			}
 			
 		}
-		if (webView.canGoBack())
+		if (mode == WEB_URL_MODE && webView.canGoBack())
 		{
 			webView.goBack();
 		}
