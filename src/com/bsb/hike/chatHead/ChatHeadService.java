@@ -33,6 +33,7 @@ import android.widget.ImageView;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.ShareUtils;
 import com.bsb.hike.utils.Utils;
@@ -59,9 +60,9 @@ public class ChatHeadService extends Service
 
 	private static boolean toShow = true;
 
-	private Timer processCheckTimer; 
-	
-	public static boolean snooze = false;
+	private Timer processCheckTimer;
+
+	public volatile static boolean snooze = false ;
 
 	private WindowManager.LayoutParams chatHeadParams = new WindowManager.LayoutParams(WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT,
 			WindowManager.LayoutParams.TYPE_PHONE, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, PixelFormat.TRANSLUCENT);
@@ -81,8 +82,8 @@ public class ChatHeadService extends Service
 		public void run()
 		{
 			boolean whiteListAppForegrounded = false;
-			for(String packName : list)
-			{  
+			for (String packName : list)
+			{   
 				whiteListAppForegrounded = ChatHeadUtils.isPackageForeground(getApplicationContext(), packName);
 				if ((whiteListAppForegrounded && !packName.equals(foregroundApp)) || (!whiteListAppForegrounded && packName.equals(foregroundApp)))
 				{
@@ -143,8 +144,8 @@ public class ChatHeadService extends Service
 				{
 					if (obj.optBoolean(HikeConstants.ChatHead.APP_ENABLE, false))
 					{
-						list.add(obj.optString(HikeConstants.ChatHead.PACKAGE_NAME,""));
-						hashMap.put(obj.optString(HikeConstants.ChatHead.PACKAGE_NAME,""), obj.optString(HikeConstants.ChatHead.APP_NAME,""));
+						list.add(obj.optString(HikeConstants.ChatHead.PACKAGE_NAME, ""));
+						hashMap.put(obj.optString(HikeConstants.ChatHead.PACKAGE_NAME, ""), obj.optString(HikeConstants.ChatHead.APP_NAME, ""));
 					}
 				}
 
@@ -191,25 +192,15 @@ public class ChatHeadService extends Service
 			@Override
 			public void onAnimationStart(Animator animation)
 			{
-				if (flag == HikeConstants.ChatHead.FINISHING_CHAT_HEAD_ACTIVITY_ANIMATION)
+				if (flag != HikeConstants.ChatHead.REMAINING_ANIMATION)
 				{
 					if (flagActivityRunning)
 					{
 						flagActivityRunning = false;
 						ChatHeadActivity.getInstance().finish();
+						ChatHeadActivity.getInstance().overridePendingTransition(0, 0);
 					}
-					ChatHeadActivity.getInstance().overridePendingTransition(0, 0);
 				}
-				if (flag == HikeConstants.ChatHead.SHARING_BEFORE_FINISHING_ANIMATION)
-				{
-					if (flagActivityRunning)
-					{
-						flagActivityRunning = false;
-						ChatHeadActivity.getInstance().finish();
-					}
-					ChatHeadActivity.getInstance().overridePendingTransition(0, 0);
-				}
-
 			}
 
 			@Override
@@ -220,20 +211,36 @@ public class ChatHeadService extends Service
 			@Override
 			public void onAnimationEnd(Animator animation)
 			{
-				if (flag == HikeConstants.ChatHead.CREATING_CHAT_HEAD_ACTIVITY_ANIMATION)
+				switch (flag)
 				{
+				case HikeConstants.ChatHead.CREATING_CHAT_HEAD_ACTIVITY_ANIMATION:
 					Intent intent = new Intent(getApplicationContext(), ChatHeadActivity.class);
 					intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 					startActivity(intent);
-				}
-				else if (flag == HikeConstants.ChatHead.SHARING_BEFORE_FINISHING_ANIMATION)
-				{
-					Intent intent = ShareUtils.shareContent(HikeConstants.Extras.ShareTypes.STICKER_SHARE, path[0], foregroundApp);
-					if (intent != null)
+					break;
+				case HikeConstants.ChatHead.SHARING_BEFORE_FINISHING_ANIMATION:
+					Intent i = ShareUtils.shareContent(HikeConstants.Extras.ShareTypes.STICKER_SHARE, path[0], foregroundApp);
+					if (i != null)
 					{
-						startActivity(intent);
+						startActivity(i);
 					}
-
+					break;
+				case HikeConstants.ChatHead.STOPPING_SERVICE_ANIMATION:
+					ChatHeadUtils.stopService(getApplicationContext());
+					break;
+				case HikeConstants.ChatHead.GET_MORE_STICKERS_ANIMATION:
+					Intent in = IntentFactory.getStickerShareIntent(getApplicationContext());
+					startActivity(in);
+					ChatHeadService.getInstance().setChatHeadInvisible();
+					break;
+				case HikeConstants.ChatHead.OPEN_HIKE_ANIMATION:
+					IntentFactory.openHomeActivityInOtherTask(getApplicationContext(), true);
+					ChatHeadService.getInstance().setChatHeadInvisible();
+					break;
+				case HikeConstants.ChatHead.STICKER_SHOP_ANIMATION:
+					Intent p = IntentFactory.getStickerShopIntent(getApplicationContext(),true);
+					startActivity(p);
+					break;
 				}
 			}
 
@@ -452,7 +459,7 @@ public class ChatHeadService extends Service
 	public void onCreate()
 	{
 		super.onCreate();
-
+        		
 		instance = this;
 
 		windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
@@ -466,8 +473,8 @@ public class ChatHeadService extends Service
 		setCloseHeadParams();
 
 		createListfromJson();
-		
-    	processCheckTimer = new Timer();
+
+		processCheckTimer = new Timer();
 
 		processCheckTimer.schedule(new CheckForegroundActivity(), 0L, 1000L);
 
@@ -553,7 +560,7 @@ public class ChatHeadService extends Service
 	{
 		processCheckTimer.cancel();
 		processCheckTimer.purge();
-
+	
 		if (chatHead.isShown())
 			windowManager.removeView(chatHead);
 		if (closeHead.isShown())

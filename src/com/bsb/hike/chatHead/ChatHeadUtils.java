@@ -11,6 +11,7 @@ import android.content.Context;
 import android.content.Intent;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Utils;
 
@@ -111,6 +112,7 @@ public class ChatHeadUtils
 		else
 		{
 			ChatHeadService.snooze = false;
+			HikeAlarmManager.cancelAlarm(context, HikeAlarmManager.REQUESTCODE_START_STICKER_SHARE_SERVICE);
 			stopService(context);
 		}
 	}

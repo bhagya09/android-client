@@ -1144,7 +1144,15 @@ public class HikeConstants
 
 		public static final int SHARING_BEFORE_FINISHING_ANIMATION = 2;
 
-		public static final int REMAINING_ANIMATION = 3;
+		public static final int STOPPING_SERVICE_ANIMATION = 3;
+		
+		public static final int GET_MORE_STICKERS_ANIMATION = 4;
+
+		public static final int OPEN_HIKE_ANIMATION = 5;
+
+		public static final int STICKER_SHOP_ANIMATION = 6;
+
+		public static final int REMAINING_ANIMATION = 7;
 
 		public static final String INTENT_EXTRA = "time";
 
@@ -1182,6 +1190,10 @@ public class HikeConstants
 		
 		public static final String OPEN_HIKE = "openHk";
 		
+		public static final String SNOOZE_TIME = "snz";
+		
+		public static final String MAIN_LAYOUT_CLICKS = "mLClk";
+		
 		public static final String ONE_HOUR = "oneHr";
 		
 		public static final String EIGHT_HOURS = "eghtHr";
@@ -1209,6 +1221,8 @@ public class HikeConstants
 		public static final String APP_CHECKED = "t";
 
 		public static final String APP_UNCHECKED = "f";
+
+
 
 	}
 

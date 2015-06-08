@@ -8,10 +8,13 @@ import org.json.JSONObject;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -147,7 +150,6 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 			@Override
 			public void onClick(View v)
 			{
-				HAManager.getInstance().chatHeadshareAnalytics(HikeConstants.ChatHead.SELECT_ALL);
 				onSelectAllCheckboxClick();
 			}
 		});
@@ -158,7 +160,6 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 			@Override
 			public void onClick(View v)
 			{
-				HAManager.getInstance().chatHeadshareAnalytics(HikeConstants.ChatHead.SELECT_ALL);
 				onSelectAllCheckboxClick();
 			}
 		});
@@ -187,6 +188,7 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 				mListViewItems.get(j).appChoice = true;
 			}
 			ChatHeadService.snooze = false;
+			HikeAlarmManager.cancelAlarm(this, HikeAlarmManager.REQUESTCODE_START_STICKER_SHARE_SERVICE);
 			HAManager.getInstance().chatHeadshareAnalytics(HikeConstants.ChatHead.SELECT_ALL, HikeConstants.ChatHead.APP_CHECKED);
 		}
 
@@ -281,6 +283,7 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 			mListViewItems.get(tag).appChoice = true;
 			mListViewItems.get(tag).mCheckBox.setChecked(true);
 			ChatHeadService.snooze = false;
+			HikeAlarmManager.cancelAlarm(this, HikeAlarmManager.REQUESTCODE_START_STICKER_SHARE_SERVICE);
 			HAManager.getInstance().chatHeadshareAnalytics(HikeConstants.ChatHead.APP_CLICK, mListViewItems.get(tag).appName, HikeConstants.ChatHead.APP_CHECKED);
 		}
 

@@ -15,6 +15,7 @@ import com.bsb.hike.chatHead.ChatHeadReceiver;
 import com.bsb.hike.ui.HikeBaseActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.StickerEmoticonIconPageIndicator;
@@ -218,8 +219,8 @@ public class ChatHeadActivity extends HikeBaseActivity implements StickerPickerL
 	private void onClickSetAlarm(int time)
 	{
 		ChatHeadService.snooze = true;
-		ChatHeadUtils.stopService(this);
-   	    HikeAlarmManager.setAlarm(getApplicationContext(), Calendar.getInstance().getTimeInMillis() + time, HikeAlarmManager.REQUESTCODE_START_STICKER_SHARE_SERVICE, false);
+		HikeAlarmManager.setAlarm(getApplicationContext(), Calendar.getInstance().getTimeInMillis() + time, HikeAlarmManager.REQUESTCODE_START_STICKER_SHARE_SERVICE, false);
+		ChatHeadService.getInstance().resetPosition(HikeConstants.ChatHead.STOPPING_SERVICE_ANIMATION);
 	}
 	
 
@@ -234,29 +235,27 @@ public class ChatHeadActivity extends HikeBaseActivity implements StickerPickerL
 			infoIconClick();
 			break;
 		case R.id.disable:
-			HAManager.getInstance().chatHeadshareAnalytics(HikeConstants.ChatHead.DISABLE_SETTING, ChatHeadService.foregroundAppName);
+			HAManager.getInstance().chatHeadshareAnalytics(HikeConstants.ChatHead.MAIN_LAYOUT_CLICKS, ChatHeadService.foregroundAppName, HikeConstants.ChatHead.DISABLE_SETTING);
 			onDisableClick();
 			break;
 		case R.id.get_more_stickers:
-			HAManager.getInstance().chatHeadshareAnalytics(HikeConstants.ChatHead.MORE_STICKERS, ChatHeadService.foregroundAppName);
-			Intent intent = IntentFactory.getStickerShareIntent(getApplicationContext());
-			startActivity(intent);
-			break;
+			HAManager.getInstance().chatHeadshareAnalytics(HikeConstants.ChatHead.MAIN_LAYOUT_CLICKS, ChatHeadService.foregroundAppName, HikeConstants.ChatHead.MORE_STICKERS);
+			ChatHeadService.getInstance().resetPosition(HikeConstants.ChatHead.GET_MORE_STICKERS_ANIMATION);
+            break;
 		case R.id.open_hike:
-			HAManager.getInstance().chatHeadshareAnalytics(HikeConstants.ChatHead.OPEN_HIKE, ChatHeadService.foregroundAppName);
-			IntentFactory.openHomeActivityInOtherTask(getApplicationContext(), true);
-			ChatHeadService.getInstance().setChatHeadInvisible();
-			break;
+			HAManager.getInstance().chatHeadshareAnalytics(HikeConstants.ChatHead.MAIN_LAYOUT_CLICKS, ChatHeadService.foregroundAppName, HikeConstants.ChatHead.OPEN_HIKE);
+			ChatHeadService.getInstance().resetPosition(HikeConstants.ChatHead.OPEN_HIKE_ANIMATION);
+    		break;
 		case R.id.one_hour:
-			HAManager.getInstance().chatHeadshareAnalytics(HikeConstants.ChatHead.ONE_HOUR, ChatHeadService.foregroundAppName);
+			HAManager.getInstance().chatHeadshareAnalytics(HikeConstants.ChatHead.SNOOZE_TIME, ChatHeadService.foregroundAppName, HikeConstants.ChatHead.ONE_HOUR);
 			onClickSetAlarm(1 * 60 * 60 * 1000);
 			break;
 		case R.id.eight_hours:
-			HAManager.getInstance().chatHeadshareAnalytics(HikeConstants.ChatHead.EIGHT_HOURS, ChatHeadService.foregroundAppName);
+			HAManager.getInstance().chatHeadshareAnalytics(HikeConstants.ChatHead.SNOOZE_TIME, ChatHeadService.foregroundAppName, HikeConstants.ChatHead.EIGHT_HOURS);
 			onClickSetAlarm(8 * 60 * 60 * 1000);
 			break;
 		case R.id.one_day:
-			HAManager.getInstance().chatHeadshareAnalytics(HikeConstants.ChatHead.ONE_DAY, ChatHeadService.foregroundAppName);
+			HAManager.getInstance().chatHeadshareAnalytics(HikeConstants.ChatHead.SNOOZE_TIME, ChatHeadService.foregroundAppName, HikeConstants.ChatHead.ONE_DAY);
 			onClickSetAlarm(24 * 60 * 60 * 1000);
 			break;
 		case R.id.back_main_layout:
@@ -265,9 +264,8 @@ public class ChatHeadActivity extends HikeBaseActivity implements StickerPickerL
 			break;
 		case R.id.shop_icon_external:
 			HAManager.getInstance().chatHeadshareAnalytics(HikeConstants.ChatHead.STICKER_SHOP, ChatHeadService.foregroundAppName);
-			Intent i = IntentFactory.getStickerShopIntent(this);
-			startActivity(i);
-			break;
+			ChatHeadService.getInstance().resetPosition(HikeConstants.ChatHead.STICKER_SHOP_ANIMATION);
+		    break;
 		}
 
 	}
