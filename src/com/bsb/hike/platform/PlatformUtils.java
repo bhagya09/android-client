@@ -460,7 +460,8 @@ public class PlatformUtils
 	public static ConvMessage getConvMessageFromJSON(JSONObject metadata, String text, String msisdn)
 	{
 
-		ConvMessage convMessage = new ConvMessage();
+
+		ConvMessage convMessage = Utils.makeConvMessage(msisdn, true);
 		convMessage.setMessage(text);
 		convMessage.setMessageType(HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT);
 		convMessage.webMetadata = new WebMetadata(metadata);
