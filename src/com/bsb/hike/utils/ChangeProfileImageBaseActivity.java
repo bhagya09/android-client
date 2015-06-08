@@ -241,7 +241,14 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 			}
 			if (!isPicasaImage)
 			{
-				startActivity(IntentFactory.getPictureEditorActivityIntent(ChangeProfileImageBaseActivity.this, path, true, getNewProfileImagePath(), true));
+				if(Utils.isPhotosEditEnabled())
+				{
+					startActivity(IntentFactory.getPictureEditorActivityIntent(ChangeProfileImageBaseActivity.this, path, true, getNewProfileImagePath(), true));
+				}
+				else
+				{
+					Utils.startCropActivity(this, path, getNewProfileImagePath());
+				}
 			}
 			else
 			{
@@ -265,7 +272,14 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 						}
 						else
 						{
-							startActivity(IntentFactory.getPictureEditorActivityIntent(ChangeProfileImageBaseActivity.this, destFile.getAbsolutePath(), true, getNewProfileImagePath(), true));
+							if(Utils.isPhotosEditEnabled())
+							{
+								startActivity(IntentFactory.getPictureEditorActivityIntent(ChangeProfileImageBaseActivity.this, destFile.getAbsolutePath(), true, getNewProfileImagePath(), true));
+							}
+							else
+							{
+								Utils.startCropActivity(ChangeProfileImageBaseActivity.this, destFile.getAbsolutePath(), getNewProfileImagePath());
+							}
 						}
 					}
 				});
@@ -286,6 +300,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 
 
 		case HikeConstants.ResultCodes.PHOTOS_REQUEST_CODE:
+		case HikeConstants.CROP_RESULT:
 			mActivityState.destFilePath = data.getStringExtra(MediaStore.EXTRA_OUTPUT);
 
 			if (mActivityState.destFilePath == null)

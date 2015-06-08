@@ -1409,12 +1409,18 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 						public void positiveClicked(HikeDialog hikeDialog)
 						{
 							Utils.logEvent(getActivity(), HikeConstants.LogEvent.DELETE_CONVERSATION);
-							HikeMessengerApp.getPubSub().publish(HikePubSub.DELETE_THIS_CONVERSATION, conv);
+
 							hikeDialog.dismiss();
 							
 							if (BotUtils.isBot(conv.getMsisdn()))
 							{
+								BotUtils.deleteBotConversation(conv.getMsisdn(), false);
 								BotConversation.analyticsForBots(conv, HikePlatformConstants.BOT_DELETE_CHAT, AnalyticsConstants.CLICK_EVENT);
+							}
+
+							else
+							{
+								HikeMessengerApp.getPubSub().publish(HikePubSub.DELETE_THIS_CONVERSATION, conv);
 							}
 						}
 						
@@ -1599,7 +1605,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 					HikeMessengerApp.getPubSub().publish(HikePubSub.BLOCK_USER, conv.getMsisdn());
 					BotConversation.analyticsForBots(conv, HikePlatformConstants.BOT_DELETE_BLOCK_CHAT, AnalyticsConstants.CLICK_EVENT);
 				}
-				PlatformUtils.deleteBotConversation(conv.getMsisdn());
+				BotUtils.deleteBotConversation(conv.getMsisdn() , false);
 
 				hikeDialog.dismiss();
 			}
