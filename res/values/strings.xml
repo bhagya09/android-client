@@ -1308,6 +1308,7 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="voip_signal_good">GOOD</string>
     <string name="voip_signal_weak">WEAK</string>
     <string name="voip_signal_excellent">EXCELLENT</string>
+    <string name="voip_conference_label">Conference Call</string>
     <string name="hike_calls">Hike Calls</string>
     <string name="voip_intro_popup_msg">You can now call all your Hike friends for free!</string>
     <string name="voip_intro_popup_btn">AWESOME</string>

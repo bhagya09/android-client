@@ -185,16 +185,17 @@ public class VoIPService extends Service {
 					stop();
 				else {
 					Logger.d(logTag, msisdn + " has quit the conference.");
-					sendHandlerMessage(VoIPConstants.MSG_LEFT_CONFERENCE, bundle);
 					getClient(msisdn).close();
 					clients.remove(msisdn);
 					playFromSoundPool(SOUND_DECLINE, false);
+					sendHandlerMessage(VoIPConstants.MSG_LEFT_CONFERENCE, bundle);
 				}
 				break;
 
 			case VoIPConstants.MSG_VOIP_CLIENT_OUTGOING_CALL_RINGTONE:
 				if (!inConference())
 					playOutgoingCallRingtone();
+				sendHandlerMessage(VoIPConstants.CONNECTION_ESTABLISHED_FIRST_TIME);
 				break;
 
 			case VoIPConstants.MSG_VOIP_CLIENT_INCOMING_CALL_RINGTONE:
@@ -1069,12 +1070,12 @@ public class VoIPService extends Service {
 		stopFromSoundPool(ringtoneStreamID);
 		isRingingOutgoing = isRingingIncoming = false;
 		playFromSoundPool(SOUND_ACCEPT, false);
+		sendHandlerMessage(VoIPConstants.MSG_AUDIO_START);
 
 		if (clients.size() == 1) {
 			Logger.d(logTag, "Starting audio record / playback.");
 			startRecording();
 			startPlayBack();
-			sendHandlerMessage(VoIPConstants.MSG_AUDIO_START);
 		} else {
 			Logger.w(logTag, "Skipping startRecording() and startPlayBack()");
 		}
@@ -1601,7 +1602,6 @@ public class VoIPService extends Service {
 
 			Logger.d(logTag, "Playing outgoing call ringer.");
 			client.setCallStatus(VoIPConstants.CallStatus.OUTGOING_RINGING);
-			sendHandlerMessage(VoIPConstants.CONNECTION_ESTABLISHED_FIRST_TIME);
 			client.sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CONNECTION_ESTABLISHED);
 			setAudioModeInCall();
 			ringtoneStreamID = playFromSoundPool(SOUND_INCOMING_RINGTONE, true);
@@ -1756,7 +1756,7 @@ public class VoIPService extends Service {
 		return getClient().getCallDuration();
 	}
 	
-	private boolean inConference() {
+	public boolean inConference() {
 		boolean conference = false;
 		if (clients.size() > 1)
 			conference = true;

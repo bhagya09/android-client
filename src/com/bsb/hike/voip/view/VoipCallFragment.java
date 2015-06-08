@@ -108,7 +108,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 
 		@Override
 		public void handleMessage(Message msg) {
-//			Logger.d(VoIPConstants.TAG, "Incoming handler received message: " + msg.what);
+			Logger.d(VoIPConstants.TAG, "Incoming handler received message: " + msg.what);
 			if(!isVisible())
 			{
 				Logger.d(VoIPConstants.TAG, "Fragment not visible, returning");
@@ -169,7 +169,9 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 				Bundle bundle = msg.getData();
 				String msisdn = bundle.getString(VoIPConstants.MSISDN);
 				showMessage(msisdn + " has left the conference.");
+				setContactDetails();
 				break;
+				
 			default:
 				super.handleMessage(msg);
 			}
@@ -703,7 +705,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		callDuration.start();
 	}
 
-	public void setContactDetails()
+	private void setContactDetails()
 	{
 		TextView contactNameView = (TextView) getView().findViewById(R.id.contact_name);
 		TextView contactMsisdnView = (TextView) getView().findViewById(R.id.contact_msisdn);
@@ -729,17 +731,21 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		{
 			nameOrMsisdn = contactInfo.getNameOrMsisdn();
 			partnerName = contactInfo.getName();
-			if(partnerName != null)
+			if(partnerName != null && !voipService.inConference())
 			{
 				contactMsisdnView.setVisibility(View.VISIBLE);
 				contactMsisdnView.setText(contactInfo.getMsisdn());
 			}
 		}
 
+		if (voipService.inConference())
+			nameOrMsisdn = getString(R.string.voip_conference_label);
+
 		if(nameOrMsisdn != null && nameOrMsisdn.length() > 16)
 		{
 			contactNameView.setTextSize(24);
 		}
+		
 		contactNameView.setText(nameOrMsisdn);
 	}
 	
