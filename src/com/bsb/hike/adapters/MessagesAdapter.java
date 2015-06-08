@@ -335,6 +335,8 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 	private String searchText;
 
+	private HashMap<Long, CharSequence> messageTextMap;
+
 	public MessagesAdapter(Context context, ArrayList<ConvMessage> objects, Conversation conversation, OnClickListener listener, ListView mListView, Activity activity)
 	{
 		mIconImageSize = context.getResources().getDimensionPixelSize(R.dimen.icon_picture_size);
@@ -361,6 +363,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		hqThumbLoader.setDefaultDrawableNull(false);
 		this.mChatThreadCardRenderer = new CardRenderer(context);
 		this.mWebViewCardRenderer = new WebViewCardRenderer(activity, convMessages,this);
+		this.messageTextMap = new HashMap<Long, CharSequence>();
 
 	}
 
@@ -1901,14 +1904,20 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					tv.setDefaultLength();
 				}
 			}
-			
-			CharSequence markedUp = getSpannableSearchString(convMessage.getMessage());
-			SmileyParser smileyParser = SmileyParser.getInstance();
-			markedUp = smileyParser.addSmileySpans(markedUp, false);
-			textHolder.text.setText(markedUp);
 
-			Linkify.addLinks(textHolder.text, Linkify.ALL);
-			Linkify.addLinks(textHolder.text, Utils.shortCodeRegex, "tel:");
+			String text;
+			if (!messageTextMap.containsKey(convMessage.getMsgID()))
+			{
+				CharSequence markedUp = convMessage.getMessage();
+				SmileyParser smileyParser = SmileyParser.getInstance();
+				markedUp = smileyParser.addSmileySpans(markedUp, false);
+				textHolder.text.setText(markedUp);
+				Linkify.addLinks(textHolder.text, Linkify.ALL);
+				Linkify.addLinks(textHolder.text, Utils.shortCodeRegex, "tel:");
+				messageTextMap.put(convMessage.getMsgID(), textHolder.text.getText());
+			}
+			CharSequence markedUp = getSpannableSearchString(messageTextMap.get(convMessage.getMsgID()));
+			textHolder.text.setText(markedUp);
 
 			displayBroadcastIndicator(convMessage, textHolder.broadcastIndicator, true);
 			setTimeNStatus(position, textHolder, false, textHolder.messageContainer);
@@ -2548,6 +2557,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 	private void inflateNSetDay(ConvMessage convMessage, final DayHolder dayHolder)
 	{
+
 		final String dateFormatted = convMessage.getMessageDate(context);
 		if (dayHolder.dayStubInflated == null)
 		{
@@ -2646,18 +2656,18 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		CharSequence text = tv.getText();
 		if (!TextUtils.isEmpty(searchText) && text.toString().toLowerCase().contains(searchText))
 		{
-			SpannableString spanText = getSpannableSearchString(text);
+			CharSequence spanText = getSpannableSearchString(text);
 			tv.setText(spanText, TextView.BufferType.SPANNABLE);
 		}
 	}
 	
-	private SpannableString getSpannableSearchString(CharSequence text)
+	private CharSequence getSpannableSearchString(CharSequence text)
 	{
-		SpannableString spanText = new SpannableString(text);
-		String loweredCaseText = text.toString().toLowerCase();
-		Resources res = context.getResources();
 		if (!TextUtils.isEmpty(searchText))
 		{
+			SpannableString spanText = new SpannableString(text);
+			String loweredCaseText = text.toString().toLowerCase();
+			Resources res = context.getResources();
 			int startSpanIndex = 0;
 			while (startSpanIndex != -1)
 			{
@@ -2669,8 +2679,12 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					startSpanIndex += searchText.length();
 				}
 			}
+			return spanText;
 		}
-		return spanText;
+		else
+		{
+			return text;
+		}
 	}
 
 	private void setGroupParticipantName(ConvMessage convMessage, View participantDetails, TextView participantName, TextView participantNameUnsaved,
