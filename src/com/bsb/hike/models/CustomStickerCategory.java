@@ -69,6 +69,8 @@ public class CustomStickerCategory extends StickerCategory
 				Logger.e(getClass().getSimpleName(), "Exception in recent stickers", e);
 			}
 		}
+		
+		setDownloadedStickersCount(stickersList.size());
 		return stickersList;
 	}
 
