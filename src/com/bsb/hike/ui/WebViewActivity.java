@@ -704,7 +704,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			}
 			
 		}
-		if (webView.canGoBack())
+		if (mode == WEB_URL_MODE && webView.canGoBack())
 		{
 			webView.goBack();
 		}
