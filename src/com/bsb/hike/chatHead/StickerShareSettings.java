@@ -188,6 +188,7 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 				mListViewItems.get(j).appChoice = true;
 			}
 			ChatHeadService.snooze = false;
+			
 			HikeAlarmManager.cancelAlarm(this, HikeAlarmManager.REQUESTCODE_START_STICKER_SHARE_SERVICE);
 			HAManager.getInstance().chatHeadshareAnalytics(HikeConstants.ChatHead.SELECT_ALL, HikeConstants.ChatHead.APP_CHECKED);
 		}
@@ -233,7 +234,8 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 		}
 
 		listAdapter.notifyDataSetChanged();
-
+		savingUserPref();
+		ChatHeadUtils.serviceDecision(this, true);
 	}
 
 	boolean checkAllUnchecked()
@@ -275,7 +277,6 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 			mListViewItems.get(tag).appChoice = false;
 			mListViewItems.get(tag).mCheckBox.setChecked(false);
 			HAManager.getInstance().chatHeadshareAnalytics(HikeConstants.ChatHead.APP_CLICK, mListViewItems.get(tag).appName, HikeConstants.ChatHead.APP_UNCHECKED);
-
 		}
 		else
 		{
@@ -294,8 +295,6 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 	@Override
 	protected void onDestroy()
 	{
-		savingUserPref();
-		ChatHeadUtils.serviceDecision(this, true);
 		super.onDestroy();
 	}
 

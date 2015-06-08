@@ -62,7 +62,7 @@ public class ChatHeadService extends Service
 
 	private Timer processCheckTimer;
 
-	public volatile static boolean snooze = false ;
+	public volatile static boolean snooze ;
 
 	private WindowManager.LayoutParams chatHeadParams = new WindowManager.LayoutParams(WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT,
 			WindowManager.LayoutParams.TYPE_PHONE, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, PixelFormat.TRANSLUCENT);
@@ -100,7 +100,7 @@ public class ChatHeadService extends Service
 
 			if (!chatHead.isShown())
 			{
-				if (whiteListAppForegrounded && toShow)
+				if ((whiteListAppForegrounded && toShow) || flagActivityRunning)
 				{
 					chatHead.post(new Runnable()
 					{
@@ -110,7 +110,6 @@ public class ChatHeadService extends Service
 							chatHead.setVisibility(View.VISIBLE);
 						}
 					});
-
 				}
 			}
 			else
@@ -451,7 +450,7 @@ public class ChatHeadService extends Service
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId)
-	{
+	{   
 		return Service.START_STICKY;
 	}
 
@@ -461,7 +460,9 @@ public class ChatHeadService extends Service
 		super.onCreate();
         		
 		instance = this;
-
+        
+		snooze = false;
+		
 		windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
 
 		chatHead = new ImageView(this);

@@ -13,6 +13,7 @@ import android.content.Intent;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
 public class ChatHeadUtils
@@ -62,10 +63,13 @@ public class ChatHeadUtils
 	}
 
 	public static void settingDailySharedPref()
-	{
+	{   if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.SERVICE_LAST_USED, -1L) == -1L)
+	 	{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.SERVICE_LAST_USED, Utils.gettingMidnightTimeinMilliseconds());
+	 	}
 		if ((int) ((Utils.gettingMidnightTimeinMilliseconds() - (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.SERVICE_LAST_USED,
 				Utils.gettingMidnightTimeinMilliseconds()))) / (24 * 60 * 60 * 1000)) > 0)
-		{
+		{    
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.SERVICE_LAST_USED, Utils.gettingMidnightTimeinMilliseconds());
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.DAILY_STICKER_SHARE_COUNT, 0);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.EXTRA_STICKERS_PER_DAY, 0);
