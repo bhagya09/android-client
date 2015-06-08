@@ -144,22 +144,24 @@ public class VoIPService extends Service {
 
 		@Override
 		public void onHeadsetDisconnected() {
-			Logger.e(logTag, "Bluetooth onHeadsetDisconnected()");
+			Logger.d(logTag, "Bluetooth onHeadsetDisconnected()");
 		}
 
 		@Override
 		public void onHeadsetConnected() {
-			Logger.e(logTag, "Bluetooth onHeadsetConnected()");
+			Logger.d(logTag, "Bluetooth onHeadsetConnected()");
 		}
 
 		@Override
 		public void onScoAudioDisconnected() {
-			Logger.e(logTag, "Bluetooth onScoAudioDisconnected()");
+			Logger.d(logTag, "Bluetooth onScoAudioDisconnected()");
+			audioManager.stopBluetoothSco();
+			audioManager.setBluetoothScoOn(false);	
 		}
 
 		@Override
 		public void onScoAudioConnected() {
-			Logger.e(logTag, "Bluetooth onScoAudioConnected()");
+			Logger.d(logTag, "Bluetooth onScoAudioConnected()");
 			audioManager.startBluetoothSco();
 			audioManager.setBluetoothScoOn(true);
 		}
@@ -824,7 +826,8 @@ public class VoIPService extends Service {
 		audioManager.setRingerMode(initialRingerMode);
 		audioManager.setSpeakerphoneOn(initialSpeakerMode);
 		audioManager.stopBluetoothSco();
-		audioManager.setBluetoothScoOn(false);	}
+		audioManager.setBluetoothScoOn(false);	
+	}
 	
 	@SuppressWarnings("deprecation")
 	@SuppressLint("InlinedApi") 

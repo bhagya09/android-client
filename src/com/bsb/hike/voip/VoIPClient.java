@@ -746,15 +746,14 @@ public class VoIPClient  {
 	public void close() {
 
 		Logger.d(logTag,
-				"============= Call Summary =============\n" +
-				"Phone number: " + getPhoneNumber() +
+				"======= Call Summary (" + getPhoneNumber() + ") =======\n" +
 				"\nBytes sent / received: " + totalBytesSent + " / " + totalBytesReceived +
 				"\nPackets sent / received: " + totalPacketsSent + " / " + totalPacketsReceived +
 				"\nPure voice bytes: " + rawVoiceSent +
 				"\nDropped decoded packets: " + droppedDecodedPackets +
 				"\nReconnect attempts: " + reconnectAttempts +
-				"\nCall duration: " + getCallDuration() + "\n" +
-				"========================================");
+				"\nCall duration: " + getCallDuration() + " seconds \n" +
+				"=========================================");
 		
 		if (getCallStatus() != VoIPConstants.CallStatus.PARTNER_BUSY) {
 			setCallStatus(VoIPConstants.CallStatus.ENDED);
