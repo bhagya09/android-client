@@ -643,7 +643,6 @@ public class OfflineThreadManager
 			
 			long msgID;
 			msgID = fileTransferModel.getMessageId();
-			fileTransferModel.getTransferProgress().setCurrentChunks(OfflineUtils.getTotalChunks(fileSize));
 			
 			//TODO:We can listen to PubSub ...Why to do this ...????
 			//showUploadTransferNotification(msgID,fileSize);
