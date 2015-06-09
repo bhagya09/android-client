@@ -52,6 +52,7 @@ public class HikeSharedFileAdapter extends BaseAdapter
 
 		this.thumbnailLoader = new SharedFileImageLoader(context, sizeOfImage);
 		this.thumbnailLoader.setDontSetBackground(true);
+		this.thumbnailLoader.setImageToBeCached(false);
 		thumbnailLoader.setDefaultDrawable(context.getResources().getDrawable(R.drawable.ic_file_thumbnail_missing));
 	}
 
