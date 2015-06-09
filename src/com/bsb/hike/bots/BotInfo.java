@@ -154,6 +154,11 @@ public class BotInfo extends ConvInfo
 		return namespace;
 	}
 
+	public void setNamespace(String namespace)
+	{
+		this.namespace = namespace;
+	}
+
 	public String getNotifData()
 	{
 		return notifData == null ? "{}" : notifData;
