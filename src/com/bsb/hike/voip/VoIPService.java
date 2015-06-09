@@ -1,6 +1,7 @@
 package com.bsb.hike.voip;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.HashMap;
 import java.util.Locale;
@@ -77,6 +78,7 @@ public class VoIPService extends Service {
 	private boolean initialSpeakerMode;
 	private AudioManager.OnAudioFocusChangeListener mOnAudioFocusChangeListener;
 	private int playbackSampleRate = 0, recordingSampleRate = 0;
+	private boolean recordingAndPlaybackRunning = false;
 	
 	private boolean conferencingEnabled = false;
 	
@@ -500,51 +502,63 @@ public class VoIPService extends Service {
 			}
 			
 			// we are making an outgoing call
-			client.setPhoneNumber(msisdn);
-			client.setInitiator(false);
-
-			client.callSource = intent.getIntExtra(VoIPConstants.Extras.CALL_SOURCE, -1);
-			if(client.callSource == CallSource.MISSED_CALL_NOTIF.ordinal())
-			{
-				VoIPUtils.cancelMissedCallNotification(getApplicationContext());
-			}
-
-			if (clients.size() > 0 && getCallId() > 0) {
-				Logger.d(logTag, "We're in a conference. Maintaining call id: " + getCallId());
-				// Disable crypto for clients in conference. 
-				getClient().cryptoEnabled = false;
-				client.cryptoEnabled = false;
-			}
-			else
-				setCallid(new Random().nextInt(2000000000));
-				
-			Logger.w(logTag, "Making outgoing call to: " + client.getPhoneNumber() + ", id: " + getCallId());
-			clients.put(msisdn, client);
-
-			// Send call initiation message
-			VoIPUtils.sendVoIPMessageUsingHike(client.getPhoneNumber(), 
-					HikeConstants.MqttMessageTypes.VOIP_CALL_REQUEST, 
-					getCallId(), true);
-
-			startNotificationThread();
-			
-			// Show activity
-			Intent i = new Intent(getApplicationContext(), VoIPActivity.class);
-			i.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-			startActivity(i);
-			
-			client.retrieveExternalSocket();
-			client.sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CALL_CLICK);
+			int callSource = intent.getIntExtra(VoIPConstants.Extras.CALL_SOURCE, -1);
+			if (intent.getExtras().containsKey(VoIPConstants.Extras.MSISDNS)) {
+				// Group call
+				Logger.w(VoIPConstants.TAG, "Initiating a group call");
+				ArrayList<String> msisdns = intent.getStringArrayListExtra(VoIPConstants.Extras.MSISDNS);
+				for (String phoneNumber : msisdns) {
+					client = new VoIPClient(getApplicationContext(), handler);
+					initiateOutgoingCall(client, phoneNumber, callSource);
+				}
+			} else 
+				// One-to-one call
+				initiateOutgoingCall(client, msisdn, callSource);
 		}
 
 		if(client.getCallStatus() == VoIPConstants.CallStatus.UNINITIALIZED)
-		{
 			client.setInitialCallStatus();
-		}
 
 		return returnInt;
 	}
 
+	private void initiateOutgoingCall(VoIPClient client, String msisdn, int callSource) {
+		
+		client.setPhoneNumber(msisdn);
+		client.setInitiator(false);
+		client.callSource = callSource;
+		
+		if(client.callSource == CallSource.MISSED_CALL_NOTIF.ordinal())
+			VoIPUtils.cancelMissedCallNotification(getApplicationContext());
+
+		if (clients.size() > 0 && getCallId() > 0) {
+			Logger.d(logTag, "We're in a conference. Maintaining call id: " + getCallId());
+			// Disable crypto for clients in conference. 
+			getClient().cryptoEnabled = false;
+			client.cryptoEnabled = false;
+		}
+		else {
+			setCallid(new Random().nextInt(2000000000));
+			startNotificationThread();
+		}
+			
+		Logger.w(logTag, "Making outgoing call to: " + client.getPhoneNumber() + ", id: " + getCallId());
+		clients.put(msisdn, client);
+
+		// Send call initiation message
+		VoIPUtils.sendVoIPMessageUsingHike(client.getPhoneNumber(), 
+				HikeConstants.MqttMessageTypes.VOIP_CALL_REQUEST, 
+				getCallId(), true);
+
+		// Show activity
+		Intent i = new Intent(getApplicationContext(), VoIPActivity.class);
+		i.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+		startActivity(i);
+		
+		client.retrieveExternalSocket();
+		client.sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CALL_CLICK);		
+	}
+	
 	private void startConnectionTimeoutThread() {
 		
 		if (connectionTimeoutThread != null) {
@@ -1050,7 +1064,7 @@ public class VoIPService extends Service {
 	}
 
 	
-	private void startRecordingAndPlayback(String msisdn) {
+	private synchronized void startRecordingAndPlayback(String msisdn) {
 
 		final VoIPClient client = getClient(msisdn);
 		
@@ -1072,7 +1086,8 @@ public class VoIPService extends Service {
 		playFromSoundPool(SOUND_ACCEPT, false);
 		sendHandlerMessage(VoIPConstants.MSG_AUDIO_START);
 
-		if (clients.size() == 1) {
+		if (recordingAndPlaybackRunning == false) {
+			recordingAndPlaybackRunning = true;
 			Logger.d(logTag, "Starting audio record / playback.");
 			startRecording();
 			startPlayBack();

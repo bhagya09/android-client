@@ -22,6 +22,11 @@ public class VoIPConstants {
 	 */
 	public static final int TIMEOUT_PARTNER_ANSWER = 30000;
 
+	/**
+	 * Maximum size of a group to launch a conference call directly
+	 */
+	public static final int MAXIMUM_GROUP_CHAT_SIZE = 5;
+	
 	// Intent actions
 	public static final String PARTNER_REQUIRES_UPGRADE = "pru";
 	public static final String PARTNER_INCOMPATIBLE = "pi";
@@ -138,6 +143,8 @@ public class VoIPConstants {
 		public static final String OUTGOING_CALL = "outgoingcall";
 
 		public static final String MSISDN = "msisdn";
+
+		public static final String MSISDNS = "msisdns";		// Used for group calling
 
 		public static final String CALL_SOURCE = "call_source";
 

@@ -2,6 +2,7 @@ package com.bsb.hike.chatthread;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.json.JSONException;
 
@@ -35,6 +36,7 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.media.OverFlowMenuItem;
 import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.models.GroupTypingNotification;
 import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.models.Conversation.Conversation;
@@ -44,9 +46,12 @@ import com.bsb.hike.ui.utils.HashSpanWatcher;
 import com.bsb.hike.utils.EmoticonTextWatcher;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.CustomFontEditText;
+import com.bsb.hike.voip.VoIPConstants;
+import com.bsb.hike.voip.VoIPUtils;
 
 /**
  * @author piyush
@@ -123,6 +128,10 @@ public class GroupChatThread extends OneToNChatThread
 			 */
 			unreadPinCount = oneToNConversation.getUnreadPinnedMessageCount();
 		}
+		
+		if (shouldShowCallIcon())
+			list.add(new OverFlowMenuItem(getString(R.string.voip_call_chat), 0, 0, R.string.voip_call_chat));
+		
 		list.add(new OverFlowMenuItem(getString(R.string.group_profile), unreadPinCount, 0, R.string.group_profile));
 		list.add(new OverFlowMenuItem(getString(R.string.chat_theme), 0, 0, R.string.chat_theme));
 		list.add(new OverFlowMenuItem(isMuted() ? getString(R.string.unmute_group) : getString(R.string.mute_group), 0, 0, R.string.mute_group));
@@ -148,6 +157,11 @@ public class GroupChatThread extends OneToNChatThread
 		}
 	}
 	
+	private boolean shouldShowCallIcon()
+	{
+		return VoIPUtils.isConferencingEnabled(activity.getApplicationContext());
+	}
+
 	/**
 	 * Done to typecast conversation as GroupConversation here
 	 */
@@ -253,6 +267,27 @@ public class GroupChatThread extends OneToNChatThread
 	{
 		switch (item.id)
 		{
+		case R.string.voip_call_chat:
+			Map<String, PairModified<GroupParticipant, String>> groupParticipants = oneToNConversation.getConversationParticipantList();
+			ArrayList<String> msisdns = new ArrayList<String>();
+			
+			for (PairModified<GroupParticipant, String> groupParticipant : groupParticipants.values())
+			{
+				String msisdn = groupParticipant.getFirst().getContactInfo().getMsisdn();
+				Logger.d(VoIPConstants.TAG, "Group participant msisdn: " + msisdn);
+				msisdns.add(msisdn);
+			}
+			
+			// Launch VoIP service
+			if (msisdns.size() > VoIPConstants.MAXIMUM_GROUP_CHAT_SIZE) {
+				Toast.makeText(activity.getApplicationContext(), activity.getString(R.string.voip_group_too_large), Toast.LENGTH_SHORT).show();
+			} else {
+				activity.getApplicationContext().startService(
+						IntentFactory.getVoipCallIntent(activity.getApplicationContext(), 
+								msisdns, VoIPUtils.CallSource.CHAT_THREAD)
+						);
+			}
+			break;
 		case R.string.mute_group:
 			toggleMuteGroup();
 			break;

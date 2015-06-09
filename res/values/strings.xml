@@ -1312,6 +1312,7 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="hike_calls">Hike Calls</string>
     <string name="voip_intro_popup_msg">You can now call all your Hike friends for free!</string>
     <string name="voip_intro_popup_btn">AWESOME</string>
+    <string name="voip_group_too_large">This group is too large for a conference call</string>
     <string name="led_color_none_key">None</string>
     <string name="led_color_blue_key">Blue</string>
     <string name="led_color_cyan_key">Cyan</string>
