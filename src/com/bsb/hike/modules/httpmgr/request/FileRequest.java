@@ -69,6 +69,10 @@ public class FileRequest extends Request<File>
 			{
 				fos.write(buffer, 0, len);
 			}
+
+			fos.flush();
+			fos.getFD().sync();
+
 			return file;
 		}
 		catch (IOException ex)
