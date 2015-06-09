@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -37,6 +38,7 @@ import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.HikeHandlerUtil;
+import com.bsb.hike.models.OfflineHikePacket;
 import com.bsb.hike.offline.OfflineConstants.HandlerConstants;
 import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
 import com.bsb.hike.utils.Logger;
@@ -166,6 +168,9 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 			break;
 		case OfflineConstants.HandlerConstants.SAVE_MSG_PERSISTANCE_DB:
 			saveMessagetoPersistanceDb((FileTransferModel) (msg.obj));
+			break;
+		case OfflineConstants.HandlerConstants.SEND_PERSISTANCE_MSGS:
+			sendPersistantMsgs();
 			break;
 		}
 	};
@@ -552,6 +557,7 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 			
 			onConnected(offlineNetworkMsisdn);
 			sendPingPacket();
+			
 		}
 	}
 	
@@ -576,6 +582,9 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 			{
 				offlineListener.connectedToMsisdn(connectedDevice);
 			}
+			Message msg=Message.obtain();
+			msg.what=HandlerConstants.SEND_PERSISTANCE_MSGS;
+			performWorkOnBackEndThread(msg);
 
 			// send ghost packet and post disconnect for timeout
 			//startSendingGhostPackets(connectedMsisdn);
@@ -583,6 +592,12 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 		}
 	}
 	
+	private void sendPersistantMsgs()
+	{
+		List<OfflineHikePacket> packets = HikeOfflinePersistence.getInstance().getAllSentMessages("o:" + getConnectedDevice());
+		Logger.d(TAG, "List of offline msg foir the user are " + packets.toString());
+	}
+
 	private void startSendingGhostPackets(String msisdn)
 	{
 		Message msg = Message.obtain();

@@ -77,6 +77,8 @@ public class OfflineConstants
 		public static final int RECONNECT_TO_HOTSPOT = -109;
 
 		public static final int SAVE_MSG_PERSISTANCE_DB = -110;
+		
+		public static final int SEND_PERSISTANCE_MSGS = -111;
 	}
 	
 	public static enum ERRORCODE
