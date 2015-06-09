@@ -22,7 +22,6 @@ import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
-import com.bsb.hike.modules.stickerdownloadmgr.StickerDownloadManager;
 import com.bsb.hike.service.HikeService;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.Logger;
@@ -91,8 +90,6 @@ public class DeleteAccountTask implements ActivityCallableTask
 	 */
 	private void clearAppData()
 	{
-		StickerDownloadManager.getInstance().shutDownAll();
-
 		/**
 		 * Clearing the shared preferences
 		 */
