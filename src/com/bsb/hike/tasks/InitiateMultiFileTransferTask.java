@@ -70,19 +70,22 @@ public class InitiateMultiFileTransferTask extends AsyncTask<Void, Void, Void>
 			}
 			OfflineManager.getInstance().initialiseOfflineFileTransfer(filePath, null, hikeFileType, fileType, false, -1, attachementType, msisdn, null);
 		}
-		
-		if (Utils.isPicasaUri(filePath))
-		{
-			FileTransferManager.getInstance(context).uploadFile(Uri.parse(filePath), hikeFileType, msisdn, onHike);
-		}
 		else
 		{
-			File file = new File(filePath);
-			if (file.length() == 0)
+
+			if (Utils.isPicasaUri(filePath))
 			{
-				return;
+				FileTransferManager.getInstance(context).uploadFile(Uri.parse(filePath), hikeFileType, msisdn, onHike);
 			}
-			FileTransferManager.getInstance(context).uploadFile(msisdn, file, null, fileType, hikeFileType, false, false, onHike, -1, attachementType);
+			else
+			{
+				File file = new File(filePath);
+				if (file.length() == 0)
+				{
+					return;
+				}
+				FileTransferManager.getInstance(context).uploadFile(msisdn, file, null, fileType, hikeFileType, false, false, onHike, -1, attachementType);
+			}
 		}
 	}
 }
