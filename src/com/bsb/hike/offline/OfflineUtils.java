@@ -402,4 +402,19 @@ public class OfflineUtils
 		}
 		return -1;
 	}
+
+	public static boolean isFileTransferMessage(JSONObject packet) {
+		boolean isFileTransferMessage = false;
+		JSONObject metadata;
+		try 
+		{
+			metadata = packet.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA);
+			MessageMetadata md = new MessageMetadata(metadata, true);
+			isFileTransferMessage = md.getHikeFiles() != null  &&  md.getHikeFiles().size() > 0;
+		} 
+		catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return isFileTransferMessage;
+	}
 }

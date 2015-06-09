@@ -602,11 +602,13 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 			try 
 			{
 				convMessage = new ConvMessage(packet, HikeMessengerApp.getInstance().getApplicationContext());
-				if (convMessage.isFileTransferMessage())
+				if (OfflineUtils.isFileTransferMessage(packet))
 				{
 					String fileUri = OfflineUtils.getFilePathFromJSON(packet);
 					File f = new File(fileUri);
-					FileTransferModel fileTransferModel=new FileTransferModel(new TransferProgress(0,OfflineUtils.getTotalChunks((int)f.length())), convMessage.serialize());
+					long msgId = OfflineUtils.getMsgId(packet);
+					Logger.d(TAG, "Sending msgId: " + msgId);
+					FileTransferModel fileTransferModel=new FileTransferModel(new TransferProgress(0,OfflineUtils.getTotalChunks((int)f.length())), packet);
 					addToFileQueue(fileTransferModel);
 				}
 				else

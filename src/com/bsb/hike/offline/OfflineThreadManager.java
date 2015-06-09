@@ -629,7 +629,8 @@ public class OfflineThreadManager
 			isSent = offlineManager.copyFile(inputStream, outputStream, msgID, true, true, fileSize);
 			// in seconds
 			long TimeTaken = (System.currentTimeMillis() - time) / 1000;
-			Logger.d(TAG, "Time taken to send file is " + TimeTaken + "Speed is " + fileSize / (1024 * 1024 * TimeTaken));
+			if (TimeTaken > 0)
+				Logger.d(TAG, "Time taken to send file is " + TimeTaken + "Speed is " + fileSize / (1024 * 1024 * TimeTaken));
 			inputStream.close();
 		}
 		catch(JSONException e)
