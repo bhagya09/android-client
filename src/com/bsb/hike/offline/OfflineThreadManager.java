@@ -498,6 +498,8 @@ public class OfflineThreadManager
 						}
 						
 						offlineManager.removeFromCurrentReceivingFile(mappedMsgId);
+						
+						offlineManager.showSpinnerProgress(false, mappedMsgId);
 						//TODO:Disconnection handling:
 						//if(isDisconnectPosted)
 						//{

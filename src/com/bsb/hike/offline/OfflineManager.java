@@ -36,6 +36,7 @@ import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.HikeHandlerUtil;
+import com.bsb.hike.offline.OfflineConstants.HandlerConstants;
 import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -162,6 +163,9 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 			sendGhostPacket(msisdn);
 			handler.sendMessageDelayed(msg, OfflineConstants.GHOST_PACKET_SEND_TIME);
 			break;
+		case OfflineConstants.HandlerConstants.SAVE_MSG_PERSISTANCE_DB:
+			saveMessagetoPersistanceDb((FileTransferModel) (msg.obj));
+			break;
 		}
 	};
 	
@@ -173,10 +177,19 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 		handler.sendMessageDelayed(checkAndRetry, OfflineConstants.TRY_CONNECT_TO_HOTSPOT);
 	}
 
+	
+	private void saveMessagetoPersistanceDb(FileTransferModel fileTransferModel)
+	{
+		//Add the Msg here to Persistance Db.
+		addToFileQueue(fileTransferModel);
+		
+	}
+	
 	private void saveToDb(ConvMessage convMessage)
 	{
 		long startTime=System.currentTimeMillis();
 		HikeConversationsDatabase.getInstance().addConversationMessages(convMessage,true);
+		// Save Msg here in Persistance DB.
 		addToTextQueue(convMessage.serialize());
 		long endTime = System.currentTimeMillis();
 		
@@ -292,10 +305,6 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 				out.write(buf, 0, len);
 
 			}
-			if (showProgress)
-			{
-				showSpinnerProgress(isSent, msgId);
-			}
 			isCopied = true;
 		}
 		catch (IOException e)
@@ -306,7 +315,7 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 		return isCopied;
 	}
 
-	private void showSpinnerProgress(boolean isSent,long msgId)
+	public void showSpinnerProgress(boolean isSent,long msgId)
 	{
 		if (isSent)
 		{
@@ -454,7 +463,12 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 		FileTransferModel fileTransferModel=new FileTransferModel(new TransferProgress(0,OfflineUtils.getTotalChunks((int)file.length())), convMessage.serialize());
 		Logger.d(TAG,"Total Chunk is "+fileTransferModel.getTransferProgress().getTotalChunks() + "...Current chunk is "+fileTransferModel.getTransferProgress().getCurrentChunks());
 		currentSendingFiles.put(convMessage.getMsgID(), fileTransferModel);
-		addToFileQueue(fileTransferModel);
+		
+		Message msg=Message.obtain();
+		msg.what=HandlerConstants.SAVE_MSG_PERSISTANCE_DB;
+		msg.obj=fileTransferModel;
+		performWorkOnBackEndThread(msg);
+		
 	}
 
 	@Override
