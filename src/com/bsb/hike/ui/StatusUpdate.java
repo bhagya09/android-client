@@ -1019,7 +1019,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	@Override
 	public void onConfigurationChanged(Configuration newConfig) 
 	{
-		if (mEmoticonPicker!=null && mEmoticonPicker.isShowing())
+		if (mEmoticonPicker!=null)
 		{
 			mEmoticonPicker.dismiss();
 			initEmoticonPicker();
