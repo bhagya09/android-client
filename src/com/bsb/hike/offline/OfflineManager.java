@@ -23,6 +23,7 @@ import android.net.wifi.p2p.WifiP2pManager;
 import android.net.wifi.p2p.WifiP2pManager.PeerListListener;
 import android.os.Handler;
 import android.os.Message;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView.ScaleType;
 
@@ -155,7 +156,9 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 			break;
 		case OfflineConstants.HandlerConstants.REMOVE_CONNECT_MESSAGE:
 			removeMessage(OfflineConstants.HandlerConstants.RECONNECT_TO_HOTSPOT);
-			setOfflineState(OFFLINE_STATE.NOT_CONNECTED);
+			if(TextUtils.isEmpty(getConnectedDevice())){
+				setOfflineState(OFFLINE_STATE.NOT_CONNECTED);
+			}
 			break;
 		case OfflineConstants.HandlerConstants.START_SCAN:
 			runNetworkScan((int)msg.obj);
@@ -509,6 +512,7 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 				startedForChatThread = false;
 				// since we already have the result no need to scan again
 				removeMessage(OfflineConstants.HandlerConstants.RECONNECT_TO_HOTSPOT);
+				removeMessage(OfflineConstants.HandlerConstants.REMOVE_CONNECT_MESSAGE);
 			}
 		}
 		else
@@ -655,6 +659,10 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 		handler.removeMessages(msg);
 	}
 
+	public void removeAllMessages()
+	{
+		handler.removeCallbacksAndMessages(null);
+	}
 	@Override
 	public void onDiscoveryStarted() {
 
@@ -863,7 +871,6 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 			holder.circularProgress.setVisibility(View.VISIBLE);
 			Logger.d(TAG, "IN_PROGRESS");
 			showTransferProgress(holder, fss, msgId, hikeFile, isSent);
-			
 			break;
 		case COMPLETED:
 			holder.circularProgressBg.setVisibility(View.GONE);
@@ -961,6 +968,28 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 			holder.circularProgress.setVisibility(View.VISIBLE);
 			holder.circularProgressBg.setVisibility(View.VISIBLE);
 		}
+	}
+	
+	public void shutDown()
+	{
+		fileTransferQueue.clear();
+		textMessageQueue.clear();
+		
+		currentReceivingFiles.clear();
+		currentSendingFiles.clear();
+		
+		connectionManager.closeConnection(getConnectedDevice());
+		clearAllVariables();
+		threadManager.shutDown();
+		setOfflineState(OFFLINE_STATE.NOT_CONNECTED);
+	}
+
+	private void clearAllVariables()
+	{
+		connectedDevice=null;
+		connectinMsisdn=null;
+		setInOfflineFileTransferInProgress(false);
+		removeAllMessages();
 	}
 
 }

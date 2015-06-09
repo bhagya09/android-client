@@ -411,4 +411,20 @@ public class ConnectionManager implements ChannelListener
 		ssid = ssid.substring(1, ssid.length()-1);
 		return ssid;
 	}
+
+	
+	
+	public void closeConnection(String deviceName) 
+	{
+		boolean isWifiHotspotRunning = isHotspotCreated();
+		if (isWifiHotspotRunning)
+		{
+			closeHotspot(deviceName);
+		}
+		else
+		{
+			forgetWifiNetwork();
+			wifiManager.disconnect();
+		}
+	}
 }
