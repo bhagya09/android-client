@@ -18,7 +18,6 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
-import java.util.concurrent.BlockingQueue;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -80,7 +79,7 @@ public class OfflineThreadManager
 	private OfflineThreadManager()
 	{
 		textTransferThread = new TextTransferThread(textMessageCallback);
-		fileTransferThread = new FileTransferThread();
+		fileTransferThread = new FileTransferThread(fileMessageCallback);
 		textReceiveThread=new TextReceiveThread();
 		fileReceiverThread=new FileReceiverThread();
 		
@@ -100,7 +99,7 @@ public class OfflineThreadManager
 		{
 			fileTransferThread.interrupt();
 		}
-		fileTransferThread = new FileTransferThread();
+		fileTransferThread = new FileTransferThread(fileMessageCallback);
 		fileTransferThread.start();
 	}
 	
@@ -212,6 +211,12 @@ public class OfflineThreadManager
 		boolean isNotConnected=true;
 		String host=null;
 		int tries;
+		
+		IMessageSentOffline callback=null;
+		public FileTransferThread(IMessageSentOffline fileMessageCallback)
+		{
+			this.callback=fileMessageCallback;
+		}
 		@Override
 		public void run()
 		{
@@ -236,7 +241,14 @@ public class OfflineThreadManager
 				{
 					fileTranserObject = OfflineManager.getInstance().getFileTransferQueue().take();
 					// TODO : Send Offline Text and take action on the basis of boolean i.e. clock or single tick
-					val = sendOfflineFile(fileTranserObject, fileSendSocket.getOutputStream());
+					if(sendOfflineFile(fileTranserObject, fileSendSocket.getOutputStream()))
+					{
+						callback.onSuccess(fileTranserObject.getPacket());
+					}
+					else
+					{
+						callback.onFailure(fileTranserObject.getPacket());
+					}
 				}
 			}
 			catch (InterruptedException e)
@@ -619,19 +631,6 @@ public class OfflineThreadManager
 			long TimeTaken = (System.currentTimeMillis() - time) / 1000;
 			Logger.d(TAG, "Time taken to send file is " + TimeTaken + "Speed is " + fileSize / (1024 * 1024 * TimeTaken));
 			inputStream.close();
-			offlineManager.removeFromCurrentSendingFile(msgID);
-			
-			// Update Delivered status
-			String msisdn = fileTransferModel.getPacket().getString(HikeConstants.TO);
-			HikeMessengerApp.getPubSub().publish(HikePubSub.UPLOAD_FINISHED, null);
-			int rowsUpdated = OfflineUtils.updateDB(msgID, ConvMessage.State.SENT_DELIVERED, msisdn);
-			if (rowsUpdated == 0)
-			{
-				Logger.d(getClass().getSimpleName(), "No rows updated");
-			}
-			Pair<String, Long> pair = new Pair<String, Long>(msisdn, msgID);
-			HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_DELIVERED, pair);
-			HikeOfflinePersistence.getInstance().removeMessage(msgID);
 		}
 		catch(JSONException e)
 		{
@@ -715,17 +714,37 @@ public class OfflineThreadManager
 	
 	private IMessageSentOffline fileMessageCallback =new IMessageSentOffline()
 	{
-
 		@Override
-		public void onSuccess(JSONObject packet) {
-			// TODO Auto-generated method stub
-			
+		public void onSuccess(JSONObject packet)
+		{
+			long msgID = OfflineUtils.getMsgId(packet);
+			offlineManager.removeFromCurrentSendingFile(msgID);
+
+			// Update Delivered status
+			String msisdn = null;
+			try
+			{
+				msisdn = packet.getString(HikeConstants.TO);
+			}
+			catch (JSONException e)
+			{
+				e.printStackTrace();
+			}
+			HikeMessengerApp.getPubSub().publish(HikePubSub.UPLOAD_FINISHED, null);
+			int rowsUpdated = OfflineUtils.updateDB(msgID, ConvMessage.State.SENT_DELIVERED, msisdn);
+			if (rowsUpdated == 0)
+			{
+				Logger.d(getClass().getSimpleName(), "No rows updated");
+			}
+			Pair<String, Long> pair = new Pair<String, Long>(msisdn, msgID);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_DELIVERED, pair);
+			HikeOfflinePersistence.getInstance().removeMessage(msgID);
 		}
 
 		@Override
-		public void onFailure(JSONObject packet) {
-			// TODO Auto-generated method stub
-			
+		public void onFailure(JSONObject packet)
+		{
+			Logger.d(TAG,"File sending failed");
 		}
 
 	};

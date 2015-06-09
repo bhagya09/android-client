@@ -618,7 +618,6 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 				e.printStackTrace();
 			}
 		}
-		Logger.d(TAG, "List of offline msg foir the user are " + packets.toString());
 	}
 
 	private void startSendingGhostPackets(String msisdn)
