@@ -917,6 +917,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	 */
 	public void block(String msisdn)
 	{
+		persistenceCache.block(msisdn);
 		hDb.block(msisdn);
 	}
 
@@ -945,6 +946,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	 */
 	public void unblock(String msisdn)
 	{
+		persistenceCache.unblock(msisdn);
 		hDb.unblock(msisdn);
 	}
 
@@ -1044,7 +1046,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	 */
 	public boolean isBlocked(String msisdn)
 	{
-		return hDb.isBlocked(msisdn);
+		return persistenceCache.isBlocked(msisdn);
 	}
 
 	/**
@@ -1134,7 +1136,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	 */
 	public Set<String> getBlockedMsisdnSet()
 	{
-		return hDb.getBlockedMsisdnSet();
+		return persistenceCache.getBlockedMsisdnSet();
 	}
 
 	/**
@@ -1147,6 +1149,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	 */
 	public void setAddressBookAndBlockList(List<ContactInfo> contacts, List<String> blockedMsisdns) throws DbException
 	{
+		persistenceCache.block(blockedMsisdns);
 		hDb.setAddressBookAndBlockList(contacts, blockedMsisdns);
 	}
 
