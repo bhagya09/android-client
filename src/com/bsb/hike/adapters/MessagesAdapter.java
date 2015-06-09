@@ -12,6 +12,7 @@ import java.util.Set;
 
 import com.bsb.hike.models.Conversation.BotConversation;
 import com.bsb.hike.view.CustomFontButton;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -116,6 +117,7 @@ import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.utils.Utils.ExternalStorageState;
+import com.bsb.hike.view.CustomMessageTextView;
 import com.bsb.hike.view.CustomSendMessageTextView;
 import com.bsb.hike.view.HoloCircularProgress;
 
@@ -1891,17 +1893,19 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			dayHolder = textHolder;
 			setSenderDetails(convMessage, position, textHolder, false);
 			
+			CustomMessageTextView tv = (CustomMessageTextView) textHolder.text;
+			tv.setDimentionMatrixHolder(convMessage);
 			if (viewType == ViewType.SEND_HIKE || viewType == ViewType.SEND_SMS)
 			{
+				
+				CustomSendMessageTextView sendTV = (CustomSendMessageTextView) tv;
 				if (convMessage.isBroadcastMessage() && !convMessage.isBroadcastConversation())
 				{
-					CustomSendMessageTextView tv = (CustomSendMessageTextView) textHolder.text;
-					tv.setBroadcastLength();
+					sendTV.setBroadcastLength();
 				}
 				else
 				{
-					CustomSendMessageTextView tv = (CustomSendMessageTextView) textHolder.text;
-					tv.setDefaultLength();
+					sendTV.setDefaultLength();
 				}
 			}
 

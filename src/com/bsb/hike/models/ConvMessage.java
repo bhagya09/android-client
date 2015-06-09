@@ -33,8 +33,10 @@ import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.SearchManager.Searchable;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
+import com.bsb.hike.view.CustomMessageTextView.DimentionMatrixHolder;
+import com.bsb.hike.view.CustomMessageTextView.ViewDimentions;
 
-public class ConvMessage implements Searchable
+public class ConvMessage implements Searchable, DimentionMatrixHolder
 
 {
 	private boolean isBlockAddHeader;
@@ -80,6 +82,8 @@ public class ConvMessage implements Searchable
 	
 	private int contentId;
 	private String nameSpace;
+	
+	private ViewDimentions viewDimentions;
 	
 	private int notificationType;
 
@@ -1298,5 +1302,17 @@ public class ConvMessage implements Searchable
 		{
 			this.privateData = messagePrivateData;
 		}
+	}
+
+	@Override
+	public ViewDimentions getDimentionMatrix()
+	{
+		return this.viewDimentions;
+	}
+
+	@Override
+	public void setDimentionMatrix(ViewDimentions vD)
+	{
+		this.viewDimentions = vD;
 	}
 }
