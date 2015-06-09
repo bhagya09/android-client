@@ -358,17 +358,32 @@ public class OfflineUtils
 	public static boolean isConnectedToSameMsisdn(JSONObject message,String connectedMsisdn)
 	{
 
-		
 		if (TextUtils.isEmpty(connectedMsisdn))
 		{
 			return false;
 		}
-		if(isPingPacket(message))
+		if (isPingPacket(message))
 		{
 			return true;
 		}
 		String sendingMsisdn = message.optString(HikeConstants.TO).replace("o:", "");
 		return sendingMsisdn.equals(connectedMsisdn);
 
+	}
+	
+	public static  long getMsgId(JSONObject packetData)
+	{
+		if (packetData.optJSONObject(HikeConstants.DATA) != null)
+		{
+			try
+			{
+				return packetData.getJSONObject(HikeConstants.DATA).optLong(HikeConstants.MESSAGE_ID, -1);
+			}
+			catch (JSONException e)
+			{
+				e.printStackTrace();
+			}
+		}
+		return -1;
 	}
 }

@@ -1,9 +1,6 @@
 package com.bsb.hike.offline;
 
-import org.json.JSONException;
 import org.json.JSONObject;
-
-import com.bsb.hike.HikeConstants;
 
 /**
  * 
@@ -35,18 +32,7 @@ public class FileTransferModel
 
 	public long getMessageId()
 	{
-		if (packetData.optJSONObject(HikeConstants.DATA) != null)
-		{
-			try
-			{
-				return packetData.getJSONObject(HikeConstants.DATA).optLong(HikeConstants.MESSAGE_ID, -1);
-			}
-			catch (JSONException e)
-			{
-				e.printStackTrace();
-			}
-		}
-		return -1;
+		return OfflineUtils.getMsgId(getPacket());
 	}
 	
 	
