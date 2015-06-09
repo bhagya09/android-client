@@ -12,6 +12,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.offline.OfflineManager;
 import com.bsb.hike.utils.Utils;
 
 public class InitiateMultiFileTransferTask extends AsyncTask<Void, Void, Void>
@@ -59,7 +60,17 @@ public class InitiateMultiFileTransferTask extends AsyncTask<Void, Void, Void>
 	private void initiateFileTransferFromIntentData(String filePath, String fileType)
 	{
 		HikeFileType hikeFileType = HikeFileType.fromString(fileType, false);
-
+		
+		if (Utils.isOfflineConversation(msisdn))
+		{
+			File file = new File(filePath);
+			if (file.length() == 0)
+			{
+				return;
+			}
+			OfflineManager.getInstance().initialiseOfflineFileTransfer(filePath, null, hikeFileType, fileType, false, -1, attachementType, msisdn, null);
+		}
+		
 		if (Utils.isPicasaUri(filePath))
 		{
 			FileTransferManager.getInstance(context).uploadFile(Uri.parse(filePath), hikeFileType, msisdn, onHike);

@@ -462,7 +462,6 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 				recordingDuration, attachmentType, fileName);
 		FileTransferModel fileTransferModel=new FileTransferModel(new TransferProgress(0,OfflineUtils.getTotalChunks((int)file.length())), convMessage.serialize());
 		Logger.d(TAG,"Total Chunk is "+fileTransferModel.getTransferProgress().getTotalChunks() + "...Current chunk is "+fileTransferModel.getTransferProgress().getCurrentChunks());
-		currentSendingFiles.put(convMessage.getMsgID(), fileTransferModel);
 		
 		Message msg=Message.obtain();
 		msg.what=HandlerConstants.SAVE_MSG_PERSISTANCE_DB;
