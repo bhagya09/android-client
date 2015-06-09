@@ -691,7 +691,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 		{
 			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "json exception");
 		}
-		showProfileImageEditDialog(ChangeProfileImageBaseActivity.this, ChangeProfileImageBaseActivity.this, imageRemovePath);
+		beginProfilePicChange(ChangeProfileImageBaseActivity.this, ChangeProfileImageBaseActivity.this, imageRemovePath);
 	}
 
 	/**
