@@ -1316,7 +1316,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				displayBroadcastIndicator(convMessage, videoHolder.broadcastIndicator, false);
 				setBubbleColor(convMessage, videoHolder.messageContainer);
 				if (conversation instanceof OfflineConversation)
-				{
+				{	videoHolder.circularProgress.resetProgress();
 					long id = convMessage.isSent() ? convMessage.getMsgID() : convMessage.getMappedMsgID();
 					OfflineManager.getInstance().setupFileState(videoHolder, fss, id, hikeFile, convMessage.isSent(), false);
 				}
@@ -1470,6 +1470,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				setBubbleColor(convMessage, imageHolder.messageContainer);
 				if (conversation instanceof OfflineConversation)
 				{
+					imageHolder.circularProgress.resetProgress();
 					long msgId = convMessage.isSent() ? convMessage.getMsgID() : convMessage.getMappedMsgID();
 					OfflineManager.getInstance().setupFileState(imageHolder, fss, msgId, hikeFile, convMessage.isSent(), false);
 				}
@@ -1840,6 +1841,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				setBubbleColor(convMessage, fileHolder.messageContainer);
 				if (conversation instanceof OfflineConversation)
 				{
+					fileHolder.circularProgress.resetProgress();
 					long msgId = convMessage.isSent() ? convMessage.getMsgID() : convMessage.getMappedMsgID();
 					OfflineManager.getInstance().setupFileState(fileHolder, fss, msgId, hikeFile, convMessage.isSent(), true);
 				}
