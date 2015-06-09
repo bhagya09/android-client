@@ -82,12 +82,6 @@ public class BotInfo extends ConvInfo
 			return getSelfObject();
 		}
 
-		public P configuration(int configuration)
-		{
-			this.config = configuration;
-			return getSelfObject();
-		}
-
 		public P setConfigData(String configData)
 		{
 			this.configData = configData;
