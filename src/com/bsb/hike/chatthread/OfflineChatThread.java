@@ -123,8 +123,14 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 			switch (overFlowMenuItem.id)
 			{
 			case R.string.connect_offline:
-				overFlowMenuItem.text = (controller.getConnectedDevice() != mConversation.getDisplayMsisdn()) ? getString(R.string.connect_offline)
-						: getString(R.string.disconnect_offline);
+				if(TextUtils.isEmpty(controller.getConnectedDevice())||(!controller.getConnectedDevice().equals(mConversation.getDisplayMsisdn())))
+				{
+					overFlowMenuItem.text = getString(R.string.connect_offline);
+				}
+				else
+				{
+					overFlowMenuItem.text = getString(R.string.disconnect_offline);
+				}
 				break;
 			}
 		}
