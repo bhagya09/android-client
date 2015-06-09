@@ -556,7 +556,7 @@ public class TransientCache extends ContactsCache
 
 		if (allContactsLoaded)
 		{
-			Set<String> blockSet = hDb.getBlockedMsisdnSet();
+			Set<String> blockSet = ContactManager.getInstance().getBlockedMsisdnSet();
 
 			readLock.lock();
 			try
@@ -606,7 +606,7 @@ public class TransientCache extends ContactsCache
 		List<ContactInfo> contacts = new ArrayList<ContactInfo>();
 		if (allContactsLoaded)
 		{
-			Set<String> blockSet = hDb.getBlockedMsisdnSet();
+			Set<String> blockSet = ContactManager.getInstance().getBlockedMsisdnSet();
 			boolean flag;
 
 			readLock.lock();
@@ -734,7 +734,7 @@ public class TransientCache extends ContactsCache
 		List<Pair<AtomicBoolean, ContactInfo>> contacts = new ArrayList<Pair<AtomicBoolean, ContactInfo>>();
 		if (allContactsLoaded)
 		{
-			Set<String> blockSet = hDb.getBlockedMsisdnSet();
+			Set<String> blockSet = ContactManager.getInstance().getBlockedMsisdnSet();
 
 			readLock.lock();
 			try
@@ -1098,7 +1098,7 @@ public class TransientCache extends ContactsCache
 		List<ContactInfo> contacts = getAllContacts(true);
 		List<Pair<AtomicBoolean, ContactInfo>> blockedUserList = new ArrayList<Pair<AtomicBoolean, ContactInfo>>();
 		List<Pair<AtomicBoolean, ContactInfo>> allUserList = new ArrayList<Pair<AtomicBoolean, ContactInfo>>();
-		Set<String> blockedMsisdns = hDb.getBlockedMsisdnSet();
+		Set<String> blockedMsisdns = ContactManager.getInstance().getBlockedMsisdnSet();
 		for (ContactInfo contact : contacts)
 		{
 			if ((blockedMsisdns.contains(contact.getMsisdn())))
