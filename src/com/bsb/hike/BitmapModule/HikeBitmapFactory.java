@@ -1603,7 +1603,6 @@ public class HikeBitmapFactory
 		int deviceWidth = HikeMessengerApp.getInstance().getApplicationContext().getResources().getDisplayMetrics().widthPixels;
 
 		int imgWidth = screenShot.getOptions().outWidth;
-		;
 		int imgHeight = screenShot.getOptions().outHeight;
 		float imageAspectRatio = imgWidth * 1.0f / imgHeight;
 
