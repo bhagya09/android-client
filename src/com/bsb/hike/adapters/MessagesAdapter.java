@@ -97,9 +97,7 @@ import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.OneToNConversation;
-import com.bsb.hike.modules.stickerdownloadmgr.IStickerResultListener;
-import com.bsb.hike.modules.stickerdownloadmgr.StickerDownloadManager;
-import com.bsb.hike.modules.stickerdownloadmgr.StickerException;
+import com.bsb.hike.modules.stickerdownloadmgr.SingleStickerDownloadTask;
 import com.bsb.hike.platform.CardRenderer;
 import com.bsb.hike.platform.WebViewCardRenderer;
 import com.bsb.hike.smartImageLoader.HighQualityThumbLoader;
@@ -865,59 +863,9 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				stickerHolder.image.setVisibility(View.GONE);
 				stickerHolder.image.setImageDrawable(null);
 
-				StickerDownloadManager.getInstance().DownloadSingleSticker(categoryId, stickerId, new IStickerResultListener()
-				{
+				SingleStickerDownloadTask singleStickerDownloadTask = new SingleStickerDownloadTask(stickerId, categoryId, convMessage);
+				singleStickerDownloadTask.execute();
 
-					@Override
-					public void onSuccess(Object result)
-					{
-						// Here we update sticker category, if we received a different category in download response.
-						// This is being done to fix a legacy bug, where catId came as "unknown"
-						
-						String newCategoryId = (String) result;
-						
-						if(TextUtils.isEmpty(newCategoryId))
-						{
-							return ;
-						}
-						
-						String oldCategoryId = convMessage.getMetadata().getSticker().getStickerId();
-						if (!oldCategoryId.equals(newCategoryId))
-						{
-							try
-							{
-								MessageMetadata newMetadata = convMessage.getMetadata();
-								newMetadata.updateSticker(newCategoryId);
-								HikeConversationsDatabase.getInstance().updateMessageMetadata(convMessage.getMsgID(), newMetadata);
-							}
-							catch (JSONException e)
-							{
-								Logger.wtf("MessagesAdapter", "Got new categoryId as " + result.toString() + " But failed to update the metadata for : " + convMessage.getMsgID());
-							}
-
-						}
-						HikeMessengerApp.getPubSub().publish(HikePubSub.STICKER_DOWNLOADED, null);
-
-					}
-
-					@Override
-					public void onProgressUpdated(double percentage)
-					{
-						// TODO Auto-generated method stub
-
-					}
-
-					@Override
-					public void onFailure(Object result, StickerException exception)
-					{
-						if (result == null)
-						{
-							return;
-						}
-						String largeStickerPath = (String) result;
-						(new File(largeStickerPath)).delete();
-					}
-				});
 
 			}
 			displayBroadcastIndicator(convMessage, stickerHolder.broadcastIndicator, false);
