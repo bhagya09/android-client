@@ -409,7 +409,7 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity im
 				setMultiSelectTitle();
 			}
 
-			adapter.getView(position, view, (TwoWayGridView)adapterView);
+			adapter.getView(position, view, adapterView);
 			//invalidateOptionsMenu();
 			//adapter.notifyDataSetChanged();
 		}
