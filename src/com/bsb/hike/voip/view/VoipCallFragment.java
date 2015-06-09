@@ -738,8 +738,11 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 			}
 		}
 
-		if (voipService.inConference())
+		if (voipService.inConference()) {
 			nameOrMsisdn = getString(R.string.voip_conference_label);
+			contactMsisdnView.setVisibility(View.VISIBLE);
+			contactMsisdnView.setText(voipService.getClientNames());
+		}
 
 		if(nameOrMsisdn != null && nameOrMsisdn.length() > 16)
 		{

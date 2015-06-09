@@ -378,12 +378,13 @@ public class VoIPUtils {
 	{
 		boolean bluetoothEnabled = false;
 		
-		// Below Jellybean startBluetoothSco() requires BROADCAST_STICKY permission
+		// Below KitKat startBluetoothSco() requires BROADCAST_STICKY permission
 		// http://stackoverflow.com/questions/8678642/startbluetoothsco-throws-security-exception-broadcast-sticky-on-ics
-		if (Utils.hasJellyBean())
+		// https://code.google.com/p/android/issues/detail?id=25136
+		if (Utils.isKitkatOrHigher())
 			bluetoothEnabled = true;
 		else
-			Logger.w(VoIPConstants.TAG, "Bluetooth disabled since phone does not support Jellybean.");
+			Logger.w(VoIPConstants.TAG, "Bluetooth disabled since phone does not support Kitkat.");
 		
 		return bluetoothEnabled;
 	}
@@ -582,6 +583,12 @@ public class VoIPUtils {
 	
 	public static byte[] addPCMSamples(byte[] original, byte[] toadd) {
 		
+		if (original.length != toadd.length) {
+			Logger.w(VoIPConstants.TAG, "PCM samples length does not match (A). " +
+					original.length + " vs " + toadd.length);
+			return original;
+		}
+		
 		// Get original sample as short
 		ShortBuffer shortBuffer = ByteBuffer.wrap(original).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer();
 		short[] originalShorts = new short[shortBuffer.capacity()];
@@ -613,6 +620,12 @@ public class VoIPUtils {
 	
 	public static byte[] subtractPCMSamples(byte[] from, byte[] tosubtract) {
 		
+		if (from.length != tosubtract.length) {
+			Logger.w(VoIPConstants.TAG, "PCM samples length does not match (S). " +
+					from.length + " vs " + tosubtract.length);
+			return from;
+		}
+
 		// Get original sample as short
 		ShortBuffer shortBuffer = ByteBuffer.wrap(from).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer();
 		short[] originalShorts = new short[shortBuffer.capacity()];

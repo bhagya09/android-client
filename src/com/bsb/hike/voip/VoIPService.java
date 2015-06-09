@@ -41,6 +41,7 @@ import android.os.RemoteException;
 import android.os.Vibrator;
 import android.support.v4.app.NotificationCompat;
 import android.text.TextUtils;
+import android.util.Log;
 import android.util.SparseIntArray;
 
 import com.bsb.hike.HikeConstants;
@@ -195,7 +196,7 @@ public class VoIPService extends Service {
 				break;
 
 			case VoIPConstants.MSG_VOIP_CLIENT_OUTGOING_CALL_RINGTONE:
-				if (!inConference())
+				if (!recordingAndPlaybackRunning)
 					playOutgoingCallRingtone();
 				sendHandlerMessage(VoIPConstants.CONNECTION_ESTABLISHED_FIRST_TIME);
 				break;
@@ -1333,7 +1334,6 @@ public class VoIPService extends Service {
 					VoIPDataPacket dp;
 					try {
 						dp = playbackBuffersQueue.take();
-						
 						if (dp != null) {
 
 							// AEC
@@ -1349,19 +1349,18 @@ public class VoIPService extends Service {
 								aecSpeakerSignal = true;
 
 							// Resample
+							byte[] output = dp.getData();
 							if (resamplerEnabled && playbackSampleRate != VoIPConstants.AUDIO_SAMPLE_RATE) {
 								// We need to resample the output signal
 								// Logger.d(logTag, "Resampling.");
-								byte[] output = resampler.reSample(dp.getData(), 16, VoIPConstants.AUDIO_SAMPLE_RATE, playbackSampleRate);
-								dp.write(output);
+								output = resampler.reSample(dp.getData(), 16, VoIPConstants.AUDIO_SAMPLE_RATE, playbackSampleRate);
 							} 
 							
 							// For streaming mode, we must write data in chunks <= buffer size
 							index = 0;
-//							long timer = System.currentTimeMillis();
-							while (index < dp.getLength()) {
-								size = Math.min(minBufSizePlayback, dp.getLength() - index);
-								audioTrack.write(dp.getData(), index, size);
+							while (index < output.length) {
+								size = Math.min(minBufSizePlayback, output.length - index);
+								audioTrack.write(output, index, size);
 								index += size; 
 							}
 						} 
@@ -1413,89 +1412,92 @@ public class VoIPService extends Service {
 			
 			@Override
 			public void run() {
-				// Logger.d(logTag, "Running feeder");
-				
-				android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
+				try {
+					android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
 
-				playbackFeederCounter++;
-				if (playbackFeederCounter == Integer.MAX_VALUE)
-					playbackFeederCounter = 0;
+					playbackFeederCounter++;
+					if (playbackFeederCounter == Integer.MAX_VALUE)
+						playbackFeederCounter = 0;
 
-				if (keepRunning) {
-					
-					// Retrieve decoded samples from all clients and combine into one
-					VoIPDataPacket finalDecodedSample = null;
-					for (VoIPClient client : clients.values()) {
-						VoIPDataPacket dp = client.getDecodedBuffer();
-						if (dp != null) {
-							if (inConference())
-								clientSample.put(client.getPhoneNumber(), dp.getData());
-							
-							if (finalDecodedSample == null)
-								finalDecodedSample = dp;
-							else {
-								// We have to combine samples
-								finalDecodedSample.setData(VoIPUtils.addPCMSamples(finalDecodedSample.getData(), dp.getData()));
+					if (keepRunning) {
+						
+						// Retrieve decoded samples from all clients and combine into one
+						VoIPDataPacket finalDecodedSample = null;
+						for (VoIPClient client : clients.values()) {
+							VoIPDataPacket dp = client.getDecodedBuffer();
+							if (dp != null) {
+								if (inConference())
+									clientSample.put(client.getPhoneNumber(), dp.getData());
+								
+								if (finalDecodedSample == null)
+									finalDecodedSample = dp;
+								else {
+									// We have to combine samples
+									finalDecodedSample.setData(VoIPUtils.addPCMSamples(finalDecodedSample.getData(), dp.getData()));
+								}
 							}
-						}
-					}
-					
-					// Add to our decoded samples queue
-					try {
-						if (finalDecodedSample == null) {
-							// Logger.d(logTag, "Decoded samples underrun. Adding silence.");
-							playbackTrackingBits.clear(playbackFeederCounter % playbackTrackingBits.size());
-							finalDecodedSample = silentPacket;
-						} else {
-							playbackTrackingBits.set(playbackFeederCounter % playbackTrackingBits.size());
-						}
-
-						if (!hold) {
-							if (playbackBuffersQueue.size() < VoIPConstants.MAX_SAMPLES_BUFFER)
-								playbackBuffersQueue.put(finalDecodedSample);
-							else
-								Logger.w(logTag, "Playback buffers queue full.");
 						}
 						
-					} catch (InterruptedException e) {
-						Logger.e(logTag, "InterruptedException while adding playback sample: " + e.toString());
-					}
-					
-					// If we are in conference, then add our own recorded signal as well
-					// to send to all connected clients. 
-					// From the sum of all signals, we will have to subtract each client's
-					// own signal before sending, or they will hear a perfect echo.
-					if (inConference()) {
-						VoIPDataPacket dp = processedRecordedSamples.poll();
-						if (dp != null) {
-							byte[] conferencePCM = VoIPUtils.addPCMSamples(finalDecodedSample.getData(), dp.getData());
-							dp.setData(conferencePCM);
+						// Add to our decoded samples queue
+						try {
+							if (finalDecodedSample == null) {
+								// Logger.d(logTag, "Decoded samples underrun. Adding silence.");
+								playbackTrackingBits.clear(playbackFeederCounter % playbackTrackingBits.size());
+								finalDecodedSample = silentPacket;
+							} else {
+								playbackTrackingBits.set(playbackFeederCounter % playbackTrackingBits.size());
+							}
+
+							if (!hold) {
+								if (playbackBuffersQueue.size() < VoIPConstants.MAX_SAMPLES_BUFFER)
+									playbackBuffersQueue.put(finalDecodedSample);
+								else
+									Logger.w(logTag, "Playback buffers queue full.");
+							}
 							
-							for (VoIPClient client : clients.values()) {
-								VoIPDataPacket clientDp = new VoIPDataPacket();
-								byte[] origPCM = clientSample.get(client.getPhoneNumber());
-								byte[] newPCM = null;
-								if (origPCM == null) {
-									newPCM = conferencePCM;
-								} else {
-									newPCM = VoIPUtils.subtractPCMSamples(conferencePCM, origPCM);
+						} catch (InterruptedException e) {
+							Logger.e(logTag, "InterruptedException while adding playback sample: " + e.toString());
+						}
+						
+						// If we are in conference, then add our own recorded signal as well
+						// to send to all connected clients. 
+						// From the sum of all signals, we will have to subtract each client's
+						// own signal before sending, or they will hear a perfect echo.
+						if (inConference()) {
+							VoIPDataPacket dp = processedRecordedSamples.poll();
+							if (dp != null) {
+								byte[] conferencePCM = VoIPUtils.addPCMSamples(finalDecodedSample.getData(), dp.getData());
+								dp.setData(conferencePCM);
+
+								for (VoIPClient client : clients.values()) {
+									VoIPDataPacket clientDp = new VoIPDataPacket();
+									byte[] origPCM = clientSample.get(client.getPhoneNumber());
+									byte[] newPCM = null;
+									if (origPCM == null) {
+										newPCM = conferencePCM;
+									} else {
+										newPCM = VoIPUtils.subtractPCMSamples(conferencePCM, origPCM);
+									}
+									clientDp.setData(newPCM);
+									client.addSampleToEncode(clientDp.getData()); 
 								}
-								clientDp.setData(newPCM);
-								client.addSampleToEncode(clientDp.getData()); 
 							}
 						}
+							
+						if (playbackFeederCounter % QUALITY_CALCULATION_FREQUENCY == 0)
+							calculateQuality();
+						
+						if (inConference())
+							clientSample.clear();
+						
+					} else {
+						Logger.d(logTag, "Shutting down decoded samples poller.");
+						scheduledFuture.cancel(true);
+						scheduledExecutorService.shutdownNow();
 					}
 					
-					if (playbackFeederCounter % QUALITY_CALCULATION_FREQUENCY == 0)
-						calculateQuality();
-					
-					if (inConference())
-						clientSample.clear();
-					
-				} else {
-					Logger.d(logTag, "Shutting down decoded samples poller.");
-					scheduledFuture.cancel(true);
-					scheduledExecutorService.shutdownNow();
+				} catch (Throwable t) {
+					Logger.e(logTag, "Exception: " + Log.getStackTraceString(t));
 				}
 			}
 		}, 0, sleepTime, TimeUnit.MILLISECONDS);
@@ -1782,6 +1784,15 @@ public class VoIPService extends Service {
 	public boolean toggleConferencing() {
 		conferencingEnabled = !conferencingEnabled;
 		return conferencingEnabled;
+	}
+
+	public String getClientNames() {
+		String names = "";
+		for (VoIPClient client : clients.values()) {
+			names += client.getName() + ", ";
+		}
+		names = names.substring(0, names.length() - 2);
+		return names;
 	}
 }
 
