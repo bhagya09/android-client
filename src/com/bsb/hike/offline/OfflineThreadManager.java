@@ -127,74 +127,66 @@ public class OfflineThreadManager
 	
 	class TextTransferThread extends Thread
 	{
-		
-		boolean isNotConnected=true;
+
+		boolean isNotConnected = true;
+
 		JSONObject packet;
+
 		boolean val;
-		
+
 		@Override
-		public void run() {
-				
-					String host=null;
-					Logger.d(TAG,"Text Transfer Thread -->"+"Going to connect to socket");
+		public void run()
+		{
 
-		
-			while (isNotConnected)
+			String host = null;
+			Logger.d(TAG, "Text Transfer Thread -->" + "Going to connect to socket");
+
+			try
 			{
-				try
-
-				{	textSendSocket = new Socket();
-					if (offlineManager.isHotspotCreated())
-					{
-						host = OfflineUtils.getIPFromMac(null);
-					}
-					else
-					{
-						host = IP_SERVER;
-					}
-					textSendSocket.bind(null);
-					textSendSocket.connect((new InetSocketAddress(host, PORT_TEXT_MESSAGE)), SOCKET_TIMEOUT);
-					Logger.d(TAG, "Text Transfer Thread Connected");
-					isNotConnected=false;
-
-				}
-				catch (IOException e)
+				textSendSocket = new Socket();
+				if (offlineManager.isHotspotCreated())
 				{
-					Logger.e(TAG, "IOEXCEPTION");
+					host = OfflineUtils.getIPFromMac(null);
 				}
-			}
-					try
-					{
-					while(true)
-					{
+				else
+				{
+					host = IP_SERVER;
+				}
+				textSendSocket.bind(null);
+				textSendSocket.connect((new InetSocketAddress(host, PORT_TEXT_MESSAGE)), SOCKET_TIMEOUT);
+				Logger.d(TAG, "Text Transfer Thread Connected");
+
+				while (true)
+				{
 					packet = OfflineManager.getInstance().getTextQueue().take();
 					{
-						//TODO : Send Offline Text and take action on the basis of boolean  i.e. clock or single tick
-						Logger.d("OfflineThreadManager","Going to send Text");	
-						val = sendOfflineText(packet,textSendSocket.getOutputStream());
+						// TODO : Send Offline Text and take action on the basis of boolean i.e. clock or single tick
+						Logger.d("OfflineThreadManager", "Going to send Text");
+						val = sendOfflineText(packet, textSendSocket.getOutputStream());
 					}
-					}
 				}
-				catch (InterruptedException e) {
-					Logger.e(TAG,"Some called interrupt on File transfer Thread");
-					e.printStackTrace();
-				}
-				catch(SocketTimeoutException e)
-				{
-					Logger.e(TAG, "SOCKET time out exception occured");
-					e.printStackTrace();
-				}
-				catch(IOException e)
-				{
-					e.printStackTrace();
-					Logger.e(TAG, "IO Exception occured.Socket was not bounded");
-				}
-				catch(IllegalArgumentException e)
-				{
-					e.printStackTrace();
-					Logger.e(TAG,"Did we pass correct Address here ? ?");
-				}
-		} 
+			}
+			catch (InterruptedException e)
+			{
+				Logger.e(TAG, "Some called interrupt on File transfer Thread");
+				e.printStackTrace();
+			}
+			catch (SocketTimeoutException e)
+			{
+				Logger.e(TAG, "SOCKET time out exception occured");
+				e.printStackTrace();
+			}
+			catch (IOException e)
+			{
+				e.printStackTrace();
+				Logger.e(TAG, "IO Exception occured.Socket was not bounded");
+			}
+			catch (IllegalArgumentException e)
+			{
+				e.printStackTrace();
+				Logger.e(TAG, "Did we pass correct Address here ? ?");
+			}
+		}
 
 	}
 	
@@ -207,46 +199,28 @@ public class OfflineThreadManager
 		String host=null;
 		int tries;
 		@Override
-		public void run() {
-			Logger.d(TAG,"File Transfer Thread -->"+"Going to connect to socket");
-			while (isNotConnected)
-			{
-				try
-				{
-
-					fileSendSocket = new Socket();
-					if (offlineManager.isHotspotCreated())
-					{
-						host = OfflineUtils.getIPFromMac(null);
-					}
-					else
-					{
-						host = IP_SERVER;
-					}
-					Logger.d(TAG, "host is " + host);
-					fileSendSocket.bind(null);
-					fileSendSocket.connect(new InetSocketAddress(host, PORT_FILE_TRANSFER));
-					Logger.d(TAG, "File Transfer Thread Connected");
-					isNotConnected = false;
-				}
-				catch (IOException e)
-				{
-					Logger.d(TAG, "IO Exception in File Transfer Thread");
-					try
-					{
-						Thread.sleep(300);
-					}
-					catch (InterruptedException e1)
-					{
-						e1.printStackTrace();
-					}
-				}
-			}
+		public void run()
+		{
+			Logger.d(TAG, "File Transfer Thread -->" + "Going to connect to socket");
 			try
 			{
+
+				fileSendSocket = new Socket();
+				if (offlineManager.isHotspotCreated())
+				{
+					host = OfflineUtils.getIPFromMac(null);
+				}
+				else
+				{
+					host = IP_SERVER;
+				}
+				Logger.d(TAG, "host is " + host);
+				fileSendSocket.bind(null);
+				fileSendSocket.connect(new InetSocketAddress(host, PORT_FILE_TRANSFER));
+				Logger.d(TAG, "File Transfer Thread Connected");
 				while (true)
 				{
-					fileTranserObject=OfflineManager.getInstance().getFileTransferQueue().take();
+					fileTranserObject = OfflineManager.getInstance().getFileTransferQueue().take();
 					// TODO : Send Offline Text and take action on the basis of boolean i.e. clock or single tick
 					val = sendOfflineFile(fileTranserObject, fileSendSocket.getOutputStream());
 				}
@@ -264,7 +238,7 @@ public class OfflineThreadManager
 			catch (IllegalArgumentException e)
 			{
 				e.printStackTrace();
-				Logger.e(TAG,"Did we pass correct Address here ? ?");
+				Logger.e(TAG, "Did we pass correct Address here ? ?");
 			}
 		}
 	}
