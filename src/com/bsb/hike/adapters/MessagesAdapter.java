@@ -1000,12 +1000,14 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			final HikeFile hikeFile = convMessage.getMetadata().getHikeFiles().get(0);
 			File file = hikeFile.getFile();
 			
-			if (convMessage.IsOfflineMessage())
+			if (conversation instanceof OfflineConversation)
 			{
+				Logger.d("MessagesAdapter", "In Offline file Transfer");
 				fss = OfflineManager.getInstance().getFileState(convMessage, file);
 			}
 			else
 			{
+				Logger.d("MessagesAdapter", "In Online file Transfer");
 				if (convMessage.isSent())
 				{
 					fss = FileTransferManager.getInstance(context).getUploadFileState(convMessage.getMsgID(), file);
@@ -1313,7 +1315,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 				displayBroadcastIndicator(convMessage, videoHolder.broadcastIndicator, false);
 				setBubbleColor(convMessage, videoHolder.messageContainer);
-				if (convMessage.IsOfflineMessage())
+				if (conversation instanceof OfflineConversation)
 				{
 					long id = convMessage.isSent() ? convMessage.getMsgID() : convMessage.getMappedMsgID();
 					OfflineManager.getInstance().setupFileState(videoHolder, fss, id, hikeFile, convMessage.isSent(), false);
@@ -1466,7 +1468,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 				displayBroadcastIndicator(convMessage, imageHolder.broadcastIndicator, false);
 				setBubbleColor(convMessage, imageHolder.messageContainer);
-				if (convMessage.IsOfflineMessage())
+				if (conversation instanceof OfflineConversation)
 				{
 					long msgId = convMessage.isSent() ? convMessage.getMsgID() : convMessage.getMappedMsgID();
 					OfflineManager.getInstance().setupFileState(imageHolder, fss, msgId, hikeFile, convMessage.isSent(), false);
@@ -1836,7 +1838,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 				displayBroadcastIndicator(convMessage, fileHolder.broadcastIndicator, true);
 				setBubbleColor(convMessage, fileHolder.messageContainer);
-				if (convMessage.IsOfflineMessage())
+				if (conversation instanceof OfflineConversation)
 				{
 					long msgId = convMessage.isSent() ? convMessage.getMsgID() : convMessage.getMappedMsgID();
 					OfflineManager.getInstance().setupFileState(fileHolder, fss, msgId, hikeFile, convMessage.isSent(), true);
