@@ -58,7 +58,14 @@ public class SharedFileImageLoader extends ImageWorker
 		if (isImage)
 		{
 			Log.d("image_config", "========================== \n Inside API  getSharedMediaThumbnailFromCache");
-			thumbnail = HikeBitmapFactory.getImageThumbnailAsPerAlgo(context, destFilePath, imageSize, HikeBitmapFactory.AlgoState.INIT_STATE);
+			if(Utils.isHoneycombOrHigher())
+			{
+				thumbnail = HikeBitmapFactory.getImageThumbnailAsPerAlgo(context, destFilePath, imageSize, HikeBitmapFactory.AlgoState.INIT_STATE);
+			}
+			else
+			{
+				thumbnail = HikeBitmapFactory.getImageThumbnailAsPerAlgo(context, destFilePath, imageSize, HikeBitmapFactory.AlgoState.STATE_3);
+			}
 			thumbnail = Utils.getRotatedBitmap(destFilePath, thumbnail);
 		}
 		else
