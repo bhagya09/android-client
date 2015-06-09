@@ -3,26 +3,28 @@ package com.bsb.hike.bots;
 import java.util.HashMap;
 import java.util.Map;
 
-import android.util.Base64;
-import com.bsb.hike.HikePubSub;
-import com.bsb.hike.models.ContactInfo;
-import com.bsb.hike.modules.contactmgr.ContactManager;
-import com.bsb.hike.platform.PlatformUtils;
-import com.bsb.hike.utils.Utils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
 import android.text.TextUtils;
+import android.util.Base64;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeConstants.NotificationType;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.models.ContactInfo;
+import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 
 /**
  * This class is for utility methods of bots
@@ -213,6 +215,12 @@ public class BotUtils
 		deleteBotConversation(msisdn , true);
 	}
 
+	/**
+	 * Utility method to create an entry of Bot in bot_table, conversations_table. Also create a conversation on the conversation fragment.
+	 * 
+	 * @param jsonObj
+	 *            The bot Json object containing the properties of the bot to be created
+	 */
 	public static void createBot(JSONObject jsonObj)
 	{
 		long startTime = System.currentTimeMillis();
@@ -237,6 +245,8 @@ public class BotUtils
 		}
 		String name = jsonObj.optString(HikeConstants.NAME);
 		String thumbnailString = jsonObj.optString(HikeConstants.BOT_THUMBNAIL);
+		String notifType = jsonObj.optString(HikeConstants.PLAY_NOTIFICATION, HikeConstants.OFF);
+		
 		if (!TextUtils.isEmpty(thumbnailString))
 		{
 			ContactManager.getInstance().setIcon(msisdn, Base64.decode(thumbnailString, Base64.DEFAULT), false);
@@ -250,15 +260,14 @@ public class BotUtils
 		if (type.equals(HikeConstants.MESSAGING_BOT))
 		{
 			botInfo = getBotInfoFormessagingBots(jsonObj, msisdn, name, config);
-			updateBotParams(botChatTheme, botInfo);
+			updateBotParamsInDb(botChatTheme, botInfo, false, notifType);
 		}
 		else if (type.equals(HikeConstants.NON_MESSAGING_BOT))
 		{
 			botInfo = getBotInfoForNonMessagingBots(jsonObj, msisdn, name, config);
 			boolean enableBot = jsonObj.optBoolean(HikePlatformConstants.ENABLE_BOT);
-			PlatformUtils.downloadZipForNonMessagingBot(botInfo, enableBot, botChatTheme);
+			PlatformUtils.downloadZipForNonMessagingBot(botInfo, enableBot, botChatTheme, notifType);
 		}
-
 
 		Logger.d("create bot", "It takes " + String.valueOf(System.currentTimeMillis() - startTime) + "msecs");
 	}
@@ -302,7 +311,15 @@ public class BotUtils
 		return botInfo;
 	}
 
-	public static void updateBotParams(String botChatTheme, BotInfo botInfo)
+	/**
+	 * Utility method to update the bot entries as well as playNotif in case of enable bot
+	 * 
+	 * @param botChatTheme
+	 * @param botInfo
+	 * @param enableBot
+	 * @param notifType
+	 */
+	public static void updateBotParamsInDb(String botChatTheme, BotInfo botInfo, boolean enableBot, String notifType)
 	{
 		String msisdn = botInfo.getMsisdn();
 		HikeConversationsDatabase convDb = HikeConversationsDatabase.getInstance();
@@ -310,13 +327,17 @@ public class BotUtils
 		convDb.insertBot(botInfo);
 
 		HikeMessengerApp.hikeBotInfoMap.put(msisdn, botInfo);
-
-		if (HikeMessengerApp.hikeBotInfoMap.containsKey(msisdn))
+		ContactInfo contact = new ContactInfo(msisdn, msisdn, botInfo.getConversationName(), msisdn);
+		contact.setFavoriteType(ContactInfo.FavoriteType.NOT_FRIEND);
+		ContactManager.getInstance().updateContacts(contact);
+		HikeMessengerApp.getPubSub().publish(HikePubSub.CONTACT_ADDED, contact);
+		
+		/**
+		 * Notification will be played only if enable bot is true and notifType is Silen/Loud
+		 */
+		if (enableBot && (!HikeConstants.OFF.equals(notifType)))
 		{
-			ContactInfo contact = new ContactInfo(msisdn, msisdn, botInfo.getConversationName(), msisdn);
-			contact.setFavoriteType(ContactInfo.FavoriteType.NOT_FRIEND);
-			ContactManager.getInstance().updateContacts(contact);
-			HikeMessengerApp.getPubSub().publish(HikePubSub.CONTACT_ADDED, contact);
+			HikeNotification.getInstance().notifyStringMessage(msisdn, botInfo.getLastMessageText(), notifType == HikeConstants.SILENT, NotificationType.OTHER);
 		}
 	}
 }
