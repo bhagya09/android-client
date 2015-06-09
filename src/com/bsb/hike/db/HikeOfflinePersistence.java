@@ -51,7 +51,7 @@ public class HikeOfflinePersistence
 		db.execSQL(sql);
 		Logger.d(TAG, "Creating Offline Persistence table in MQTT Persistence Table");
 		
-		sql = "CREATE INDEX IF NOT EXISTS " + DBConstants.HIKE_PERSISTENCE.OFFLINE_MSG_ID_INDEX + " ON " + DBConstants.HIKE_PERSISTENCE.OFFLINE_DATABASE_TABLE + "(" + DBConstants.HIKE_PERSISTENCE.OFFLINE_MESSAGE_ID + ")";
+		sql = "CREATE INDEX IF NOT EXISTS " + DBConstants.HIKE_PERSISTENCE.OFFLINE_MSG_ID_INDEX + " ON " + DBConstants.HIKE_PERSISTENCE.OFFLINE_DATABASE_TABLE + "(" + DBConstants.HIKE_PERSISTENCE.OFFLINE_MSISDN + ")";
 		Logger.d(TAG, "Creating Offline Persistence table index on msgId");
 		db.execSQL(sql);
 	}
@@ -66,7 +66,7 @@ public class HikeOfflinePersistence
 			db.execSQL(sql);
 			Logger.d(TAG, "Creating Offline Persistence table in MQTT Persistence Table in OnUpgrade");
 			
-			sql = "CREATE INDEX IF NOT EXISTS " + DBConstants.HIKE_PERSISTENCE.OFFLINE_MSG_ID_INDEX + " ON " + DBConstants.HIKE_PERSISTENCE.OFFLINE_DATABASE_TABLE + "(" + DBConstants.HIKE_PERSISTENCE.OFFLINE_MESSAGE_ID + ")";
+			sql = "CREATE INDEX IF NOT EXISTS " + DBConstants.HIKE_PERSISTENCE.OFFLINE_MSG_ID_INDEX + " ON " + DBConstants.HIKE_PERSISTENCE.OFFLINE_DATABASE_TABLE + "(" + DBConstants.HIKE_PERSISTENCE.OFFLINE_MSISDN + ")";
 			db.execSQL(sql);
 			Logger.d(TAG, "Creating Offline Persistence table index on msgId in OnUpgrade");
 		}
@@ -90,25 +90,31 @@ public class HikeOfflinePersistence
 		packet.setPacketId(rowId);
 	}
 	
-	public List<OfflineHikePacket> getAllSentMessages(String msisdn)
+	public List<JSONObject> getAllSentMessages(String msisdn)
 	{
-		Cursor c = mDb.rawQuery("SELECT * FROM " + DBConstants.HIKE_PERSISTENCE.OFFLINE_DATABASE_TABLE + " WHERE " + DBConstants.HIKE_PERSISTENCE.OFFLINE_MSISDN + "='" + msisdn + "'", null);
-		List<OfflineHikePacket> vals = null;
+		Cursor c = mDb.rawQuery("SELECT "+ DBConstants.HIKE_PERSISTENCE.OFFLINE_MESSAGE +" FROM " + DBConstants.HIKE_PERSISTENCE.OFFLINE_DATABASE_TABLE + " WHERE " + DBConstants.HIKE_PERSISTENCE.OFFLINE_MSISDN + "='" + msisdn + "'", null);
+		List<JSONObject> vals = null;
 		try
 		{
-			vals = new ArrayList<OfflineHikePacket>(c.getCount());
+			vals = new ArrayList<JSONObject>(c.getCount());
 			int dataIdx = c.getColumnIndexOrThrow(DBConstants.HIKE_PERSISTENCE.OFFLINE_MESSAGE);
-			int idIdx = c.getColumnIndexOrThrow(DBConstants.HIKE_PERSISTENCE.OFFLINE_MESSAGE_ID);
-			int tsIdx = c.getColumnIndexOrThrow(DBConstants.HIKE_PERSISTENCE.OFFLINE_TIME_STAMP);
-			int packetMsisdnIdx = c.getColumnIndexOrThrow(DBConstants.HIKE_PERSISTENCE.OFFLINE_MSISDN);
-			int packetIdIdx = c.getColumnIndexOrThrow(DBConstants.HIKE_PERSISTENCE.OFFLINE_PACKET_ID);
-			int msgTrackIDIdx = c.getColumnIndexOrThrow(DBConstants.HIKE_PERSISTENCE.OFFLINE_MSG_TRACK_ID);
-		
+
 			while (c.moveToNext())
 			{
-				OfflineHikePacket hikePacket = new OfflineHikePacket(c.getBlob(dataIdx), c.getLong(idIdx),
-						c.getLong(tsIdx), c.getString(packetMsisdnIdx), c.getLong(packetIdIdx), c.getString(msgTrackIDIdx));
-				vals.add(hikePacket);
+				try 
+				{
+					JSONObject jsonObject = new JSONObject(new String(c.getBlob(dataIdx), "UTF-8"));
+					vals.add(jsonObject);
+				}
+				catch (UnsupportedEncodingException e) 
+				{
+					e.printStackTrace();
+				} 
+				catch (JSONException e) 
+				{
+					e.printStackTrace();
+				}
+				
 			}
 		}
 		catch (IllegalArgumentException e)

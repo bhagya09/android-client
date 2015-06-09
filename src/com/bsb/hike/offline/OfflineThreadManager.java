@@ -466,6 +466,7 @@ public class OfflineThreadManager
 							if (!dirs.exists())
 								dirs.mkdirs();
 							f.createNewFile();
+							
 							// TODO:Can be done via show progress pubsub.
 							// showDownloadTransferNotification(mappedMsgId, fileSize);
 							FileOutputStream outputStream = new FileOutputStream(f);

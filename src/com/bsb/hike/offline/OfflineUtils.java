@@ -9,6 +9,7 @@ import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -370,5 +371,20 @@ public class OfflineUtils
 		String sendingMsisdn = message.optString(HikeConstants.TO).replace("o:", "");
 		return sendingMsisdn.equals(connectedMsisdn);
 
+	}
+	
+	public static String getFilePathFromJSON(JSONObject packet)
+	{
+		try
+		{
+			JSONArray jsonFiles = packet.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getJSONArray(HikeConstants.FILES);
+			JSONObject jsonFile = jsonFiles.getJSONObject(0);
+			return jsonFile.getString(HikeConstants.FILE_PATH);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+			return null;
+		}
 	}
 }

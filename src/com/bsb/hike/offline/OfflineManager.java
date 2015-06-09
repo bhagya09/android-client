@@ -11,6 +11,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
@@ -594,7 +595,29 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 	
 	private void sendPersistantMsgs()
 	{
-		List<OfflineHikePacket> packets = HikeOfflinePersistence.getInstance().getAllSentMessages("o:" + getConnectedDevice());
+		List<JSONObject> packets = HikeOfflinePersistence.getInstance().getAllSentMessages("o:" + getConnectedDevice());
+		ConvMessage convMessage;
+		for(JSONObject packet : packets)
+		{
+			try 
+			{
+				convMessage = new ConvMessage(packet, HikeMessengerApp.getInstance().getApplicationContext());
+				if (convMessage.isFileTransferMessage())
+				{
+					String fileUri = OfflineUtils.getFilePathFromJSON(packet);
+					File f = new File(fileUri);
+					FileTransferModel fileTransferModel=new FileTransferModel(new TransferProgress(0,OfflineUtils.getTotalChunks((int)f.length())), convMessage.serialize());
+					addToFileQueue(fileTransferModel);
+				}
+				else
+				{
+					addToTextQueue(packet);
+				}
+			} 
+			catch (JSONException e) {
+				e.printStackTrace();
+			}
+		}
 		Logger.d(TAG, "List of offline msg foir the user are " + packets.toString());
 	}
 
