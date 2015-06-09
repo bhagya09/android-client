@@ -2,7 +2,6 @@ package com.bsb.hike.ui;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -12,7 +11,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -23,9 +21,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.WindowManager;
-import android.webkit.MimeTypeMap;
 import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar;
@@ -136,6 +132,11 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 			onError();
 			return;
 		}
+		
+		SharedPreferences preferences = HikeMessengerApp.getInstance().getApplicationContext()
+				.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, Context.MODE_PRIVATE);
+		ContactInfo userInfo = Utils.getUserContactInfo(preferences);
+		mLocalMSISDN = userInfo.getMsisdn();
 		
 		beginProgress();
 
@@ -574,10 +575,6 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 			beginProgress();
 			sendAnalyticsSetAsDp();
 			// User info is saved in shared preferences
-			SharedPreferences preferences = HikeMessengerApp.getInstance().getApplicationContext()
-					.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, Context.MODE_PRIVATE);
-			ContactInfo userInfo = Utils.getUserContactInfo(preferences);
-			mLocalMSISDN = userInfo.getMsisdn();
 
 			editView.saveImage(HikeFileType.PROFILE, mLocalMSISDN, new HikePhotosListener()
 			{
