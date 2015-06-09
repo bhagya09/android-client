@@ -18,6 +18,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -157,6 +158,11 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	private PreFileTransferAsycntask prefileTransferTask;
 
 	private ProgressDialog progressDialog;
+	
+	protected static final int FILE_TRANSFER = 0;
+	
+	protected static final int CONTACT_TRANSFER = 1;
+	
 
 	private LastSeenScheduler lastSeenScheduler;
 
@@ -306,6 +312,8 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	}
 
 	boolean isOpened = false;
+
+	private HikeDialog contactDialog;
 
 	 public void setListnerToRootView(){
 	    final View activityRootView = getWindow().getDecorView().findViewById(R.id.ll_compose); 
@@ -1448,7 +1456,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
      					progressDialog = ProgressDialog.show(this, null, getResources().getString(R.string.multi_file_creation));
 
 					}else if(!fileTransferList.isEmpty()){
-						prefileTransferTask = new PreFileTransferAsycntask(fileTransferList,intent);
+						prefileTransferTask = new PreFileTransferAsycntask(fileTransferList,intent,null,false,FILE_TRANSFER);
 						Utils.executeAsyncTask(prefileTransferTask);
 					}
 					
@@ -1608,7 +1616,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				}
 				platformAnalyticsJson.put(HikePlatformConstants.CARD_TYPE, platformCards);
 				if(!fileTransferList.isEmpty()){
-					prefileTransferTask = new PreFileTransferAsycntask(fileTransferList,intent);
+					prefileTransferTask = new PreFileTransferAsycntask(fileTransferList,intent,null, false,FILE_TRANSFER);
 					Utils.executeAsyncTask(prefileTransferTask);
 				}else{
 					// if file trasfer started then it will show toast
@@ -1676,7 +1684,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					final ArrayList<ContactInfo> finalArrayList = arrayList;
 					if (contact != null)
 					{
-						HikeDialogFactory.showDialog(this, HikeDialogFactory.CONTACT_SEND_DIALOG, new HikeDialogListener()
+						contactDialog = HikeDialogFactory.showDialog(this, HikeDialogFactory.CONTACT_SEND_DIALOG, new HikeDialogListener()
 						{
 							
 							@Override
@@ -1685,7 +1693,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 								initialiseContactTransfer(((PhonebookContact) hikeDialog.data).jsonData,finalArrayList);
 								hikeDialog.dismiss();
 								startActivity(intent);
-					      		finish();
+								finish();
 							}
 							
 							@Override
@@ -1762,7 +1770,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					}
 					if (!fileTransferList.isEmpty()) {
 						prefileTransferTask = new PreFileTransferAsycntask(
-								fileTransferList, intent);
+								fileTransferList, intent, null, false, FILE_TRANSFER);
 						Utils.executeAsyncTask(prefileTransferTask);
 					}
 				}
@@ -2062,6 +2070,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		}
 	};
 
+	
 	@Override
 	public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount)
 	{
@@ -2150,15 +2159,17 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		FileTransferManager.getInstance(getApplicationContext()).uploadLocation(contactInfo.getMsisdn(), latitude, longitude, zoomLevel, ((ContactInfo)arrayList.get(0)).isOnhike(),newConvIfnotExist);
 		}
 	}
-	private void initialiseContactTransfer(JSONObject contactJson, ArrayList<ContactInfo> arrayList)
+	private void initialiseContactTransfer(JSONObject contactJson, ArrayList<ContactInfo>arrayList )
 	{
 		boolean newConvIfnotExist = false;
 		if(arrayList.size()==1){
 			newConvIfnotExist = true;
 		}
-		for(ContactInfo contactInfo:arrayList){
-		FileTransferManager.getInstance(getApplicationContext()).uploadContact(contactInfo.getMsisdn(), contactJson, (((ContactInfo)arrayList.get(0)).isOnhike()), newConvIfnotExist);
-		}
+		
+		prefileTransferTask = new PreFileTransferAsycntask(arrayList,null,
+				contactJson, newConvIfnotExist,CONTACT_TRANSFER);
+		Utils.executeAsyncTask(prefileTransferTask);
+
 	}
 
 	
@@ -2193,30 +2204,54 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	}
 	private class PreFileTransferAsycntask extends AsyncTask<Void, Void, Void>{
 		
-		ArrayList<FileTransferData> files;
+		Object arrayList;
 		Intent intent;
-		PreFileTransferAsycntask(ArrayList<FileTransferData> files,Intent intent){
-			this.files = files;
+		private JSONObject contactJson;
+		private boolean newConvIfnotExist;
+		private int fileType;
+		
+		PreFileTransferAsycntask(Object arrayList,Intent intent,JSONObject contactJson, boolean newConvIfnotExist,int fileType){
+			this.arrayList = arrayList;
 			this.intent = intent;
+			this.contactJson = contactJson;
+			this.newConvIfnotExist = newConvIfnotExist;
+			this.fileType = fileType;
+					
 		}
+		
+		
+	
 		@Override
 		protected void onPreExecute() {
 			// TODO Auto-generated method stub
 			super.onPreExecute();
-			progressDialog = ProgressDialog.show(ComposeChatActivity.this, null, getResources().getString(R.string.multi_file_creation));
+			String message = getResources().getString(R.string.multi_file_creation);
+			if(fileType == CONTACT_TRANSFER){
+				message =getResources().getString(R.string.multi_contact_creation);
+			}
+			progressDialog = ProgressDialog.show(ComposeChatActivity.this, null, message);
 		}
 		@Override
 		protected Void doInBackground(Void... params) {
-			for(FileTransferData file:files){
-				if (Utils.isPicasaUri(file.filePath))
-				{
-					FileTransferManager.getInstance(getApplicationContext()).uploadFile(Uri.parse(file.filePath), file.hikeFileType, file.arrayList, false);
-				}else{
-					FileTransferManager.getInstance(getApplicationContext()).uploadFile(file.arrayList, file.file, file.fileKey, file.fileType, file.hikeFileType, file.isRecording, file.isForwardingFile,
-							((ContactInfo)file.arrayList.get(0)).isOnhike(), file.recordingDuration,  FTAnalyticEvents.OTHER_ATTACHEMENT);
-				
+			if(arrayList!=null){
+				if(fileType == FILE_TRANSFER){
+					ArrayList<FileTransferData> files = (ArrayList<FileTransferData>)arrayList;
+			        for(FileTransferData file:files){
+			        	if (Utils.isPicasaUri(file.filePath))
+						{
+							FileTransferManager.getInstance(getApplicationContext()).uploadFile(Uri.parse(file.filePath), file.hikeFileType, file.arrayList, false);
+						}else{
+							FileTransferManager.getInstance(getApplicationContext()).uploadFile(file.arrayList, file.file, file.fileKey, file.fileType, file.hikeFileType, file.isRecording, file.isForwardingFile,
+									((ContactInfo)file.arrayList.get(0)).isOnhike(), file.recordingDuration,  FTAnalyticEvents.OTHER_ATTACHEMENT);
+						 }
+				}}else if(fileType == CONTACT_TRANSFER){
+					ArrayList<ContactInfo> contactList = (ArrayList<ContactInfo>)arrayList;	
+       			    for(ContactInfo contactInfo:contactList){
+			    	FileTransferManager.getInstance(getApplicationContext()).uploadContact(contactInfo.getMsisdn(), contactJson, (((ContactInfo)contactList.get(0)).isOnhike()), newConvIfnotExist);
 				}
 			}
+		  }
+		
 			return null;
 		}
 		@Override
@@ -2228,13 +2263,16 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			progressDialog.dismiss();
 			progressDialog = null;
 			}
-			startActivity(intent);
-			finish();
+			if (intent != null) {
+				startActivity(intent);
+				finish();
+			}
 			prefileTransferTask=null;
 		}
 		
 	}
 	
+
 	private void sendDetailsAfterSignup(boolean sendBot)
     {
       SharedPreferences accountPrefs = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
@@ -2286,7 +2324,6 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			}
 		}
 	}
-	
 	private void toggleTag(String text, String uniqueness,Object data)
 	{
 		Tag tag = new Tag(text,uniqueness,data);
