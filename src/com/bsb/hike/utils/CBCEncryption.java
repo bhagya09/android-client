@@ -76,29 +76,41 @@ public class CBCEncryption
 			InvalidAlgorithmParameterException, InvalidKeySpecException
 	{
 		Long time = System.currentTimeMillis();
-		FileInputStream fis = new FileInputStream(file.getPath());
-		// This stream write the encrypted text. This stream will be wrapped by another stream.
-		FileOutputStream fos = new FileOutputStream(encryptedFile.getPath());
-
-		// Create cipher
-		Cipher cipher = Cipher.getInstance(CIPHER_ALGORITHM);
-		cipher.init(Cipher.ENCRYPT_MODE, getKeySpec(password), getIvSpec());
-		// Wrap the output stream
-		CipherOutputStream cos = new CipherOutputStream(fos, cipher);
-		// Write bytes
-		int b;
-		byte[] d = new byte[cipherStreamBytesize];
-		while ((b = fis.read(d)) != -1)
+		FileInputStream fis = null;
+		FileOutputStream fos = null;
+		CipherOutputStream cos = null;
+		try
 		{
-			cos.write(d, 0, b);
+			fis = new FileInputStream(file.getPath());
+			// This stream write the encrypted text. This stream will be wrapped by another stream.
+			fos = new FileOutputStream(encryptedFile.getPath());
+	
+			// Create cipher
+			Cipher cipher = Cipher.getInstance(CIPHER_ALGORITHM);
+			cipher.init(Cipher.ENCRYPT_MODE, getKeySpec(password), getIvSpec());
+			// Wrap the output stream
+			cos = new CipherOutputStream(fos, cipher);
+			// Write bytes
+			int b;
+			byte[] d = new byte[cipherStreamBytesize];
+			while ((b = fis.read(d)) != -1)
+			{
+				cos.write(d, 0, b);
+			}
+			// Flush and close streams.
+			cos.flush();
+			fos.flush();
+			fos.getFD().sync();
 		}
-		// Flush and close streams.
-		cos.flush();
-		fos.flush();
-		fos.getFD().sync();
-		cos.close();
-		fos.close();
-		fis.close();
+		finally
+		{
+			if(cos != null)
+				cos.close();
+			if(fos != null)
+				fos.close();
+			if(fis != null)
+				fis.close();
+		}
 
 		time = System.currentTimeMillis() - time;
 		Logger.d(CBCEncryption.class.getSimpleName(), "Encryption complete!! in " + time / 1000 + "." + time % 1000 + "s");
@@ -133,21 +145,34 @@ public class CBCEncryption
 			InvalidAlgorithmParameterException, InvalidKeySpecException
 	{
 		Long time = System.currentTimeMillis();
-		FileInputStream fis = new FileInputStream(file.getPath());
-		FileOutputStream fos = new FileOutputStream(decryptedFile.getPath());
-		Cipher cipher = Cipher.getInstance(CIPHER_ALGORITHM);
-		cipher.init(Cipher.DECRYPT_MODE, getKeySpec(password), getIvSpec());
-		CipherInputStream cis = new CipherInputStream(fis, cipher);
-		int b;
-		byte[] d = new byte[cipherStreamBytesize];
-		while ((b = cis.read(d)) != -1)
+		FileInputStream fis = null;
+		FileOutputStream fos = null;
+		CipherInputStream cis = null;
+		try
 		{
-			fos.write(d, 0, b);
+			fis = new FileInputStream(file.getPath());
+			fos = new FileOutputStream(decryptedFile.getPath());
+			Cipher cipher = Cipher.getInstance(CIPHER_ALGORITHM);
+			cipher.init(Cipher.DECRYPT_MODE, getKeySpec(password), getIvSpec());
+			cis = new CipherInputStream(fis, cipher);
+			int b;
+			byte[] d = new byte[cipherStreamBytesize];
+			while ((b = cis.read(d)) != -1)
+			{
+				fos.write(d, 0, b);
+			}
+			fos.flush();
+			fos.getFD().sync();
 		}
-		fos.flush();
-		fos.getFD().sync();
-		fos.close();
-		cis.close();
+		finally
+		{
+			if(fos != null)
+				fos.close();
+			if(cis != null)
+				cis.close();
+			if(fis != null)
+				fis.close();
+		}
 
 		time = System.currentTimeMillis() - time;
 		Logger.d(CBCEncryption.class.getSimpleName(), "Decryption complete!! in " + time / 1000 + "." + time % 1000 + "s");
