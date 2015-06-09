@@ -56,6 +56,7 @@ public class EmoticonPicker implements ShareablePopup, EmoticonPickerListener, O
 	{
 		this.mActivity = activity;
 		this.mEditText = editText;
+		this.currentConfig = activity.getResources().getConfiguration().orientation;
 	}
 
 	/**
@@ -125,12 +126,12 @@ public class EmoticonPicker implements ShareablePopup, EmoticonPickerListener, O
 		this.mLayoutResId = layoutResId;
 	}
 
-	public void showEmoticonPicker(int screenOrientation)
+	public boolean showEmoticonPicker(int screenOrientation)
 	{
-		showEmoticonPicker(0, 0, screenOrientation);
+		return showEmoticonPicker(0, 0, screenOrientation);
 	}
 
-	public void showEmoticonPicker(int xoffset, int yoffset, int screenOritentation)
+	public boolean showEmoticonPicker(int xoffset, int yoffset, int screenOritentation)
 	{
 		/**
 		 * Checking for configuration change
@@ -143,7 +144,7 @@ public class EmoticonPicker implements ShareablePopup, EmoticonPickerListener, O
 		
 		initView();
 
-		mPopUpLayout.showKeyboardPopup(mViewToDisplay);
+		return mPopUpLayout.showKeyboardPopup(mViewToDisplay);
 	}
 
 	/**
@@ -157,6 +158,16 @@ public class EmoticonPicker implements ShareablePopup, EmoticonPickerListener, O
 			return;
 		}
 
+		/**
+		 * Defensive null check
+		 */
+		if (mActivity == null)
+		{
+			String errorMsg = "Inside method : getView of EmoticonPicker. Context is null";
+			HAManager.sendStickerEmoticonStrangeBehaviourReport(errorMsg);
+			return;
+		}
+		
 		/**
 		 * Use default view. or the view passed in the constructor
 		 */
@@ -213,6 +224,8 @@ public class EmoticonPicker implements ShareablePopup, EmoticonPickerListener, O
 		mIconPageIndicator.setViewPager(mPager);
 
 		mPager.setCurrentItem(firstCategoryToShow, false);
+		
+		mEmoticonAdapter.notifyDataSetChanged();
 
 	}
 
@@ -338,4 +351,23 @@ public class EmoticonPicker implements ShareablePopup, EmoticonPickerListener, O
 		return currentConfig != deviceOrientation;
 	}
 	
+	public void setOnDismissListener(PopupListener listener)
+	{
+		if (mPopUpLayout != null)
+		{
+			mPopUpLayout.setPopupDismissListener(listener);
+		}
+	}
+	
+	/**
+	 * This function should be called when orientation of screen is changed, it will update its view based on orientation
+	 * If picker is being shown, it will first dismiss current picker and then show it again using post on view
+	 * 
+	 * @param orientation
+	 */
+	public void onOrientationChange(int orientation)
+	{
+		showEmoticonPicker(orientation);
+	}
+
 }

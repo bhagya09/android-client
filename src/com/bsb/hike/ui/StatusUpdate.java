@@ -12,18 +12,16 @@ import android.content.SharedPreferences.Editor;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.view.ViewPager;
+import android.os.Message;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -36,13 +34,14 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
-import com.bsb.hike.adapters.EmoticonAdapter;
 import com.bsb.hike.adapters.MoodAdapter;
+import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.http.HikeHttpRequest;
 import com.bsb.hike.http.HikeHttpRequest.HikeHttpCallback;
 import com.bsb.hike.http.HikeHttpRequest.RequestType;
-import com.bsb.hike.media.EmoticonPickerListener;
+import com.bsb.hike.media.EmoticonPicker;
+import com.bsb.hike.media.PopupListener;
 import com.bsb.hike.models.StatusMessage;
 import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
@@ -55,11 +54,11 @@ import com.bsb.hike.utils.HikeTip;
 import com.bsb.hike.utils.HikeTip.TipType;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+import com.bsb.hike.view.CustomFontEditText;
 import com.bsb.hike.view.CustomLinearLayout;
 import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
-import com.bsb.hike.view.StickerEmoticonIconPageIndicator;
 
-public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Listener, OnSoftKeyboardListener, EmoticonPickerListener
+public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Listener, OnSoftKeyboardListener, PopupListener, View.OnClickListener
 {
 
 	private class ActivityTask
@@ -83,6 +82,8 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 
 	private ActivityTask mActivityTask;
 
+	private static final String TAG = "statusupdate";
+	
 	private SharedPreferences preferences;
 
 	private ProgressDialog progressDialog;
@@ -93,9 +94,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 
 	private ImageView avatar;
 
-	private ViewGroup emojiParent;
-
-	private EditText statusTxt;
+	private CustomFontEditText statusTxt;
 
 	private CustomLinearLayout parentLayout;
 
@@ -110,9 +109,45 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	private TextView postText;
 
 	private ImageView arrow;
-
+	
 	private TextView title;
+	
+	private EmoticonPicker mEmoticonPicker;
+	
+	private static final int SHOW_EMOJI_PALETTE = 1;
+	
+	private boolean wasEmojiPreviouslyVisible;
 
+	protected Handler uiHandler = new Handler()
+	{
+		public void handleMessage(android.os.Message msg)
+		{
+			/**
+			 * Defensive check
+			 */
+			if (msg == null)
+			{
+				Logger.e(TAG, "Getting a null message in chat thread");
+				return;
+			}
+			handlingMessage(msg);
+		}
+
+	};
+	
+	protected void handlingMessage(android.os.Message msg)
+	{
+		switch (msg.what)
+		{
+		case SHOW_EMOJI_PALETTE:
+			showEmoticonPicker();
+			break;
+		default:
+			Logger.d(TAG, "Did not find any matching event for msg.what : " + msg.what);
+			break;
+		}
+	}
+	
 	//private View fb;
 
 	//private View twitter;
@@ -120,6 +155,10 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	@Override
 	public Object onRetainCustomNonConfigurationInstance()
 	{
+		if (wasEmojiPreviouslyVisible)
+		{
+			mActivityTask.emojiShowing = true;
+		}
 		return mActivityTask;
 	}
 
@@ -128,6 +167,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.status_dialog);
 
+		addOnClickListeners();
 		Object o = getLastCustomNonConfigurationInstance();
 
 		if (o instanceof ActivityTask)
@@ -152,9 +192,8 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 
 		preferences = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE);
 
-		emojiParent = (ViewGroup) findViewById(R.id.emoji_container);
 		moodParent = (ViewGroup) findViewById(R.id.mood_parent);
-
+		
 		setupActionBar();
 
 		parentLayout = (CustomLinearLayout) findViewById(R.id.parent_layout);
@@ -164,12 +203,12 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 
 		charCounter = (TextView) findViewById(R.id.char_counter);
 
-		statusTxt = (EditText) findViewById(R.id.status_txt);
+		statusTxt = (CustomFontEditText) findViewById(R.id.status_txt);
 
 		String statusHint = getStatusDefaultHint();
 
 		statusTxt.setHint(statusHint);
-
+		
 		charCounter.setText(Integer.toString(statusTxt.length()));
 
 		setMood(mActivityTask.moodId, mActivityTask.moodIndex);
@@ -201,10 +240,12 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 
 		fb.setSelected(mActivityTask.fbSelected);
 		twitter.setSelected(mActivityTask.twitterSelected);*/
-
+		
+		initEmoticonPicker();
+		
 		if (mActivityTask.emojiShowing)
 		{
-			showEmojiSelector();
+			sendUIMessage(SHOW_EMOJI_PALETTE, null);
 			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 		}
 		else if (mActivityTask.moodShowing)
@@ -279,6 +320,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 			@Override
 			public void onClick(View v)
 			{
+				releaseEmoticon();
 				postStatus();
 			}
 		});
@@ -302,18 +344,6 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 			HikeMessengerApp.getPubSub().publish(HikePubSub.STATUS_POST_REQUEST_DONE, false);
 		}
 	};
-
-	public void onTitleIconClick(View v)
-	{
-		if (isEmojiOrMoodLayoutVisible())
-		{
-			hideEmojiOrMoodLayout();
-		}
-		else
-		{
-			postStatus();
-		}
-	}
 
 	/*public void onTwitterClick(View v)
 	{
@@ -426,19 +456,64 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	}
 	*/
 
-	public void onEmojiClick(View v)
+	private void onEmojiClick()
 	{
-		if (emojiParent.getVisibility() == View.VISIBLE)
+		if (mActivityTask.emojiShowing)
 		{
 			mActivityTask.emojiShowing = false;
-			emojiParent.setVisibility(View.GONE);
+			mEmoticonPicker.dismiss();
+			setEmoticonButtonSelected(false);
 		}
 		else
 		{
-			showEmojiSelector();
+			showEmoticonPicker();
+		}
+	}
+	
+	public void showEmoticonPicker()
+	{
+		wasEmojiPreviouslyVisible = false;
+		if (mEmoticonPicker.showEmoticonPicker(getResources().getConfiguration().orientation))
+		{
+			Utils.hideSoftKeyboard(this, statusTxt);
+			mActivityTask.emojiShowing = true;
+			showCancelButton(false);
+			setEmoticonButtonSelected(false);
+		}
+		else
+		{
+			if (!retryToInflateEmoticons())
+			{
+				setEmoticonButtonSelected(false);
+				mActivityTask.emojiShowing = false;
+				Toast.makeText(getApplicationContext(), R.string.some_error, Toast.LENGTH_SHORT).show();
+			}
 		}
 	}
 
+	/**
+	 * Got a failure while opening emoticon pallete possibly due to null context, mainView is null or mainView.getWindowToken() is null (this happens during
+	 * device orientation change)
+	 * @return
+	 */
+	private boolean retryToInflateEmoticons()
+	{
+		String errorMsg = "Inside method : retry to inflate emoticons. Houston!, something's not right here";
+		HAManager.sendStickerEmoticonStrangeBehaviourReport(errorMsg);
+		mEmoticonPicker = null;
+		initEmoticonPicker();
+		mActivityTask.emojiShowing = true;
+		return	mEmoticonPicker.showEmoticonPicker(getResources().getConfiguration().orientation);
+	}
+	
+	protected void sendUIMessage(int what, Object data)
+	{
+		Message message = Message.obtain();
+		message.what = what;
+		message.obj = data;
+		uiHandler.sendMessage(message);
+	}
+	
 	public void onMoodClick(View v)
 	{
 		/*if (findViewById(R.id.post_twitter_btn).isSelected() && statusTxt.length() > HikeConstants.MAX_MOOD_TWITTER_POST_LENGTH)
@@ -450,10 +525,10 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		{
 			HikeTip.closeTip(TipType.MOOD, tipView, preferences);
 		}
-		if (emojiParent.getVisibility() == View.VISIBLE)
+		if (mEmoticonPicker!= null && mEmoticonPicker.isShowing())
 		{
 			mActivityTask.emojiShowing = false;
-			emojiParent.setVisibility(View.GONE);
+			mEmoticonPicker.dismiss();
 		}
 		showMoodSelector();
 		setTitle();
@@ -472,21 +547,20 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 			super.onBackPressed();
 		}
 	}
-	
+		
 	public void actionBarBackPressed()
 	{
 		if (isEmojiOrMoodLayoutVisible())
 		{
-			if (emojiParent.getVisibility() == View.VISIBLE)
-			{
-				mActivityTask.emojiShowing = false;
-				emojiParent.setVisibility(View.GONE);
-				super.onBackPressed();
-			}
-			else
+			if (moodParent.getVisibility() == View.VISIBLE)
 			{
 				hideEmojiOrMoodLayout();
 				setTitle();
+			}
+			else
+			{
+				releaseEmoticon();
+				super.onBackPressed();
 			}
 		}
 		else
@@ -497,7 +571,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 
 	private boolean isEmojiOrMoodLayoutVisible()
 	{
-		return ((moodParent.getVisibility() == View.VISIBLE) || (findViewById(R.id.emoji_container).getVisibility() == View.VISIBLE));
+		return ((moodParent.getVisibility() == View.VISIBLE) || mActivityTask.emojiShowing);
 	}
 
 	private void hideEmojiOrMoodLayout()
@@ -507,10 +581,10 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 			mActivityTask.moodShowing = false;
 			moodParent.setVisibility(View.GONE);
 		}
-		else if (emojiParent.getVisibility() == View.VISIBLE)
+		else if (mEmoticonPicker != null && mEmoticonPicker.isShowing())
 		{
 			mActivityTask.emojiShowing = false;
-			emojiParent.setVisibility(View.GONE);
+			mEmoticonPicker.dismiss();
 		}
 		toggleEnablePostButton();
 		/*
@@ -701,82 +775,6 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		}
 	}*/
 
-	private void showEmojiSelector()
-	{
-		Utils.hideSoftKeyboard(this, statusTxt);
-
-		mActivityTask.emojiShowing = true;
-
-		showCancelButton(false);
-
-		emojiParent.setClickable(true);
-
-		emojiParent.setVisibility(View.VISIBLE);
-
-		ViewGroup emoticonLayout = (ViewGroup) findViewById(R.id.emoji_container);
-
-		int whichSubcategory = 0;
-
-		int[] tabDrawables = null;
-
-		int offset = 0;
-		int emoticonsListSize = 0;
-		tabDrawables = new int[] { R.drawable.emo_recent, R.drawable.emo_tab_5_selector, R.drawable.emo_tab_6_selector, R.drawable.emo_tab_7_selector,
-				R.drawable.emo_tab_8_selector, R.drawable.emo_tab_9_selector };
-		offset = EmoticonConstants.DEFAULT_SMILEY_RES_IDS.length;
-		emoticonsListSize = EmoticonConstants.EMOJI_RES_IDS.length;
-
-		/*
-		 * Checking whether we have a few emoticons in the recents category. If not we show the next tab emoticons.
-		 */
-		if (whichSubcategory == 0)
-		{
-			int startOffset = offset;
-			int endOffset = startOffset + emoticonsListSize;
-			int recentEmoticonsSizeReq = EmoticonAdapter.MAX_EMOTICONS_PER_ROW_PORTRAIT;
-			int[] recentEmoticons = HikeConversationsDatabase.getInstance().fetchEmoticonsOfType(startOffset, endOffset, recentEmoticonsSizeReq);
-			if (recentEmoticons.length < recentEmoticonsSizeReq)
-			{
-				whichSubcategory++;
-			}
-		}
-		setupEmoticonLayout(whichSubcategory, tabDrawables);
-		emoticonLayout.setVisibility(View.VISIBLE);
-		
-		View eraseKey = (View) findViewById(R.id.erase_key_image);
-		eraseKey.setVisibility(View.VISIBLE);
-		eraseKey.setOnClickListener(new OnClickListener()
-		{
-			
-			@Override
-			public void onClick(View v)
-			{
-				statusTxt.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL));
-			}
-		});
-		
-	}
-
-	public void hideEmoticonSelector()
-	{
-		onBackPressed();
-	}
-
-	private void setupEmoticonLayout(int whichSubcategory, int[] tabDrawable)
-	{
-
-		EmoticonAdapter statusEmojiAdapter = new EmoticonAdapter(this.getApplicationContext(), this, getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT, tabDrawable,
-				true);
-
-		ViewPager emoticonViewPager = (ViewPager) findViewById(R.id.emoticon_pager);
-		emoticonViewPager.setAdapter(statusEmojiAdapter);
-		emoticonViewPager.invalidate();
-
-		StickerEmoticonIconPageIndicator pageIndicator = (StickerEmoticonIconPageIndicator) findViewById(R.id.emoticon_icon_indicator);
-		pageIndicator.setViewPager(emoticonViewPager);
-		pageIndicator.setCurrentItem(whichSubcategory);
-	}
-
 	private void showMoodSelector()
 	{
 		Utils.hideSoftKeyboard(this, statusTxt);
@@ -843,6 +841,16 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	}
 
 	@Override
+	public void onPopupDismiss()
+	{
+		if(mActivityTask.emojiShowing)
+		{
+			wasEmojiPreviouslyVisible = true;
+			mActivityTask.emojiShowing = false;
+		}
+	}
+	
+	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data)
 	{
 		super.onActivityResult(requestCode, resultCode, data);
@@ -875,7 +883,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		/*
 		 * Enabling if the text length is > 0 or if the user has selected a mood with some prefilled text.
 		 */
-		boolean enable = mActivityTask.moodId >= 0 || statusTxt.getText().toString().trim().length() > 0 || isEmojiOrMoodLayoutVisible();
+		boolean enable = mActivityTask.moodId >= 0 || statusTxt.getText().toString().trim().length() > 0;
 		Utils.toggleActionBarElementsEnable(doneBtn, arrow, postText, enable);
 	}
 
@@ -950,11 +958,6 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	@Override
 	public void onShown()
 	{
-		if (emojiParent.getVisibility() == View.VISIBLE)
-		{
-			mActivityTask.emojiShowing = false;
-			emojiParent.setVisibility(View.GONE);
-		}
 	}
 
 	@Override
@@ -963,9 +966,66 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	}
 
 	@Override
-	public void emoticonSelected(int emoticonIndex)
+	public void onClick(View v)
 	{
-		Utils.emoticonClicked(getApplicationContext(), emoticonIndex, statusTxt);
+		switch (v.getId())
+		{
+		case R.id.emoji_btn:
+			setEmoticonButtonSelected(true);
+			onEmojiClick();
+			break;
+		default:
+			Logger.e(TAG, "onClick Registered but not added in onClick : " + v.toString());
+			break;
+		}
 	}
 	
+	private void addOnClickListeners()
+	{
+		findViewById(R.id.emoji_btn).setOnClickListener(this);
+	}
+	
+	private void initEmoticonPicker()
+	{
+		int[] dontEatThisTouch = {R.id.emoji_btn};
+		mEmoticonPicker = new EmoticonPicker(this, statusTxt, findViewById(R.id.parent_layout), (int)getResources().getDimension(R.dimen.emoticon_pallete), dontEatThisTouch);
+		mEmoticonPicker.setOnDismissListener(this);
+	}
+	
+	private void setEmoticonButtonSelected(boolean selected)
+	{
+		findViewById(R.id.emoji_btn).setSelected(selected);
+	}
+	
+	private void releaseEmoticon()
+	{
+		/**
+		 * It is important that along with releasing resources for Emoticons, we also close its window to prevent any BadWindow Exceptions later on.
+		 */
+		if (mEmoticonPicker != null)
+		{	
+			mEmoticonPicker.releaseReources();
+			mEmoticonPicker.dismiss();
+		}
+	}
+	
+	@Override
+	protected void onStop()
+	{
+		releaseEmoticon();
+		super.onStop();
+	}
+	
+	@Override
+	public void onConfigurationChanged(Configuration newConfig) 
+	{
+		if (mEmoticonPicker!=null)
+		{
+			mEmoticonPicker.dismiss();
+			initEmoticonPicker();
+			mEmoticonPicker.onOrientationChange(newConfig.orientation);
+			mActivityTask.emojiShowing = true;
+		}
+		super.onConfigurationChanged(newConfig);
+	}
 }
