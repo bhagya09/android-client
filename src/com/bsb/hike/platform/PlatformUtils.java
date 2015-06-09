@@ -285,7 +285,7 @@ public class PlatformUtils
 	 * @param botInfo
 	 * @param enableBot
 	 */
-	public static void downloadZipForNonMessagingBot(final BotInfo botInfo, final boolean enableBot, final String botChatTheme)
+	public static void downloadZipForNonMessagingBot(final BotInfo botInfo, final boolean enableBot, final String botChatTheme, final String notifType)
 	{
 		PlatformContentRequest rqst = PlatformContentRequest.make(
 				PlatformContentModel.make(botInfo.getMetadata()), new PlatformContentListener<PlatformContentModel>()
@@ -295,7 +295,7 @@ public class PlatformUtils
 					public void onComplete(PlatformContentModel content)
 					{
 						Logger.d(TAG, "microapp download packet success.");
-						botCreationSuccessHandling(botInfo, enableBot, botChatTheme);
+						botCreationSuccessHandling(botInfo, enableBot, botChatTheme, notifType);
 					}
 
 					@Override
@@ -309,7 +309,7 @@ public class PlatformUtils
 						else if (event == PlatformContent.EventCode.ALREADY_DOWNLOADED)
 						{
 							Logger.d(TAG, "microapp already exists");
-							botCreationSuccessHandling(botInfo, enableBot, botChatTheme);
+							botCreationSuccessHandling(botInfo, enableBot, botChatTheme, notifType);
 						}
 						else
 						{
@@ -333,10 +333,10 @@ public class PlatformUtils
 
 	}
 
-	private static void botCreationSuccessHandling(BotInfo botInfo, boolean enableBot, String botChatTheme)
+	private static void botCreationSuccessHandling(BotInfo botInfo, boolean enableBot, String botChatTheme, String notifType)
 	{
 		enableBot(botInfo, enableBot);
-		BotUtils.updateBotParams(botChatTheme, botInfo);
+		BotUtils.updateBotParamsInDb(botChatTheme, botInfo, enableBot, notifType);
 		createBotAnalytics(HikePlatformConstants.BOT_CREATED, botInfo);
 	}
 

@@ -1703,8 +1703,8 @@ public class Utils
 		AccountUtils.fastFileUploadUrl = AccountUtils.fileTransferBase + AccountUtils.FILE_TRANSFER_DOWNLOAD_BASE + "ffu/";
 
 		
-		AccountUtils.rewardsUrl = (isProductionServer ? AccountUtils.REWARDS_PRODUCTION_BASE : AccountUtils.base + AccountUtils.REWARDS_STAGING_PATH);
-		AccountUtils.gamesUrl = (isProductionServer ? AccountUtils.GAMES_PRODUCTION_BASE : AccountUtils.base + AccountUtils.GAMES_STAGING_PATH);
+		AccountUtils.rewardsUrl = (isProductionServer ? AccountUtils.REWARDS_PRODUCTION_BASE : AccountUtils.STAGING_HOST + AccountUtils.REWARDS_STAGING_PATH);
+		AccountUtils.gamesUrl = (isProductionServer ? AccountUtils.GAMES_PRODUCTION_BASE : AccountUtils.STAGING_HOST + AccountUtils.GAMES_STAGING_PATH);
 		AccountUtils.stickersUrl = (isProductionServer ? AccountUtils.HTTP_STRING + AccountUtils.STICKERS_PRODUCTION_BASE : AccountUtils.base + AccountUtils.STICKERS_STAGING_PATH);
 		AccountUtils.h2oTutorialUrl = (isProductionServer ? AccountUtils.HTTP_STRING + AccountUtils.H2O_TUTORIAL_PRODUCTION_BASE : AccountUtils.base + AccountUtils.H2O_TUTORIAL_STAGING_PATH);
 		AccountUtils.analyticsUploadUrl = AccountUtils.base + AccountUtils.ANALYTICS_UPLOAD_PATH;

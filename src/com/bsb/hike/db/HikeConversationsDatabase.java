@@ -88,7 +88,7 @@ import com.bsb.hike.utils.Utils;
 public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBConstants, HIKE_CONV_DB
 {
 
-	private volatile SQLiteDatabase mDb;
+	private static volatile SQLiteDatabase mDb;
 
 	private static volatile HikeConversationsDatabase hikeConversationsDatabase;
 
@@ -784,6 +784,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		Logger.d(getClass().getSimpleName(), "Reinitialising conversation DB");
 		close();
 		Logger.d(getClass().getSimpleName(), "conversation DB is closed now");
+		
 		hikeConversationsDatabase = new HikeConversationsDatabase(HikeMessengerApp.getInstance());
 		/*
 		 * We can remove this line, if we can guarantee, NoOne keeps a local copy of HikeConversationsDatabase. 
