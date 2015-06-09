@@ -27,10 +27,12 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
-import com.bsb.hike.http.HikeHttpRequest;
-import com.bsb.hike.http.HikeHttpRequest.RequestType;
 import com.bsb.hike.models.HikeHandlerUtil;
-import com.bsb.hike.tasks.HikeHTTPTask;
+import com.bsb.hike.modules.httpmgr.RequestToken;
+import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
+import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
+import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -276,31 +278,42 @@ public class UserLogInfo {
 		return true;
 	}
 	
-	public static void sendLogs(int flags) throws JSONException {
-		
-		JSONArray jsonLogArray = collectLogs(flags);	
+	public static void sendLogs(int flags) throws JSONException
+	{
+
+		JSONArray jsonLogArray = collectLogs(flags);
 		// if nothing is logged we do not send anything
-		if(jsonLogArray != null){		
+		if (jsonLogArray != null)
+		{
 			JSONObject jsonLogObj = getEncryptedJSON(jsonLogArray, flags);
-			
-			if(jsonLogObj != null) {
-				HikeHttpRequest userLogRequest = new HikeHttpRequest("/" + getLogKey(flags), 
-						RequestType.OTHER, new HikeHttpRequest.HikeHttpCallback() {
-							public void onFailure() {
-								Logger.d(TAG, "failure");
-							}
 
-							public void onSuccess(JSONObject response) {
-								Logger.d(TAG, response.toString());
-							}
+			if (jsonLogObj != null)
+			{
+				IRequestListener requestListener = new IRequestListener()
+				{
+					@Override
+					public void onRequestSuccess(Response result)
+					{
+						JSONObject response = (JSONObject) result.getBody().getContent();
+						Logger.d(TAG, response.toString());
+					}
 
-						});
-				userLogRequest.setJSONData(jsonLogObj);
-				HikeHTTPTask userLogHttpTask = new HikeHTTPTask(null, 0);
-				Utils.executeHttpTask(userLogHttpTask, userLogRequest);
+					@Override
+					public void onRequestProgressUpdate(float progress)
+					{
+					}
+
+					@Override
+					public void onRequestFailure(HttpException httpException)
+					{
+						Logger.d(TAG, "failure");
+					}
+				};
+
+				RequestToken token = HttpRequests.sendUserLogInfoRequest(getLogKey(flags), jsonLogObj, requestListener);
+				token.execute();
 			}
 		}
-	
 	}
 
 	public static void requestUserLogs(JSONObject data) throws JSONException {
@@ -356,7 +369,6 @@ public class UserLogInfo {
 			return;
 		}
 		HikeHandlerUtil.getInstance().postRunnableWithDelay(rn, 0);
-
 	}
 	
 	private static void sendAnalytics(boolean isDeviceRooted)

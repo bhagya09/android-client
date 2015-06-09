@@ -1,7 +1,6 @@
 package com.bsb.hike.media;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.res.Configuration;
 import android.support.v4.view.ViewPager;
 import android.view.KeyEvent;
@@ -28,7 +27,7 @@ import com.bsb.hike.view.StickerEmoticonIconPageIndicator;
  */
 public class EmoticonPicker implements ShareablePopup, EmoticonPickerListener, OnClickListener
 {
-	private Context mContext;
+	private Activity mActivity;
 
 	private KeyboardPopupLayout mPopUpLayout;
 
@@ -55,9 +54,8 @@ public class EmoticonPicker implements ShareablePopup, EmoticonPickerListener, O
 
 	public EmoticonPicker(Activity activity, EditText editText)
 	{
-		this.mContext = activity;
+		this.mActivity = activity;
 		this.mEditText = editText;
-		this.currentConfig = activity.getResources().getConfiguration().orientation;
 	}
 
 	/**
@@ -127,12 +125,12 @@ public class EmoticonPicker implements ShareablePopup, EmoticonPickerListener, O
 		this.mLayoutResId = layoutResId;
 	}
 
-	public boolean showEmoticonPicker(int screenOrientation)
+	public void showEmoticonPicker(int screenOrientation)
 	{
-		return showEmoticonPicker(0, 0, screenOrientation);
+		showEmoticonPicker(0, 0, screenOrientation);
 	}
 
-	public boolean showEmoticonPicker(int xoffset, int yoffset, int screenOritentation)
+	public void showEmoticonPicker(int xoffset, int yoffset, int screenOritentation)
 	{
 		/**
 		 * Checking for configuration change
@@ -145,7 +143,7 @@ public class EmoticonPicker implements ShareablePopup, EmoticonPickerListener, O
 		
 		initView();
 
-		return mPopUpLayout.showKeyboardPopup(mViewToDisplay);
+		mPopUpLayout.showKeyboardPopup(mViewToDisplay);
 	}
 
 	/**
@@ -165,7 +163,7 @@ public class EmoticonPicker implements ShareablePopup, EmoticonPickerListener, O
 
 		mLayoutResId = (mLayoutResId == -1) ? R.layout.emoticon_layout : mLayoutResId;
 
-		mViewToDisplay = (ViewGroup) LayoutInflater.from(mContext).inflate(mLayoutResId, null);
+		mViewToDisplay = (ViewGroup) LayoutInflater.from(mActivity.getApplicationContext()).inflate(mLayoutResId, null);
 
 		initViewComponents(mViewToDisplay);
 	}
@@ -193,7 +191,7 @@ public class EmoticonPicker implements ShareablePopup, EmoticonPickerListener, O
 				R.drawable.emo_tab_4_selector, R.drawable.emo_tab_5_selector, R.drawable.emo_tab_6_selector, R.drawable.emo_tab_7_selector, R.drawable.emo_tab_8_selector,
 				R.drawable.emo_tab_9_selector };
 
-		boolean isPortrait = mContext.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
+		boolean isPortrait = mActivity.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
 
 		int emoticonsListSize = EmoticonConstants.DEFAULT_SMILEY_RES_IDS.length;
 
@@ -206,7 +204,7 @@ public class EmoticonPicker implements ShareablePopup, EmoticonPickerListener, O
 		 */
 		int firstCategoryToShow = (mRecentEmoticons.length < recentEmoticonsSizeReq) ? 1 : 0;
 
-		mEmoticonAdapter = new EmoticonAdapter(mContext, this, isPortrait, tabDrawables);
+		mEmoticonAdapter = new EmoticonAdapter(mActivity, this, isPortrait, tabDrawables);
 
 		mPager.setVisibility(View.VISIBLE);
 
@@ -252,7 +250,7 @@ public class EmoticonPicker implements ShareablePopup, EmoticonPickerListener, O
 			/**
 			 * Defensive null check
 			 */
-			if (mContext == null)
+			if (mActivity == null)
 			{
 				String errorMsg = "Inside method : getView of EmoticonPicker. Context is null";
 				HAManager.sendStickerEmoticonStrangeBehaviourReport(errorMsg);
@@ -289,14 +287,14 @@ public class EmoticonPicker implements ShareablePopup, EmoticonPickerListener, O
 	 */
 	public void releaseReources()
 	{
-		this.mContext = null;
+		this.mActivity = null;
 		this.mEditText = null;
 	}
 	
 	public void updateETAndContext(EditText editText, Activity activity)
 	{
 		updateET(editText);
-		this.mContext = activity;
+		this.mActivity = activity;
 	}
 	
 	public void updateET(EditText editText)
@@ -308,7 +306,7 @@ public class EmoticonPicker implements ShareablePopup, EmoticonPickerListener, O
 	public void emoticonSelected(int emoticonIndex)
 	{
 		Logger.i(TAG, " This emoticon was selected : " + emoticonIndex);
-		Utils.emoticonClicked(mContext.getApplicationContext(), emoticonIndex, mEditText);
+		Utils.emoticonClicked(mActivity.getApplicationContext(), emoticonIndex, mEditText);
 	}
 	
 	public void eraseEmoticon()
@@ -340,11 +338,4 @@ public class EmoticonPicker implements ShareablePopup, EmoticonPickerListener, O
 		return currentConfig != deviceOrientation;
 	}
 	
-	public void setOnDismissListener(PopupListener listener)
-	{
-		if (mPopUpLayout != null)
-		{
-			mPopUpLayout.setPopupDismissListener(listener);
-		}
-	}
 }
