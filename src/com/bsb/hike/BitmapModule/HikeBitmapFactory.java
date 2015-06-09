@@ -1,12 +1,16 @@
 package com.bsb.hike.BitmapModule;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Random;
 
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.Resources;
+import android.content.res.TypedArray;
 import android.graphics.Bitmap;
+import android.graphics.Bitmap.CompressFormat;
 import android.graphics.Bitmap.Config;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -17,29 +21,34 @@ import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.LayerDrawable;
 import android.media.ExifInterface;
 import android.os.Build;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.view.View;
 import android.view.View.MeasureSpec;
+import android.webkit.MimeTypeMap;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.models.HikeHandlerUtil;
+import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.photos.HikePhotosListener;
+import com.bsb.hike.photos.HikePhotosUtils;
 import com.bsb.hike.smartcache.HikeLruCache;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.Utils;
+import com.bsb.hike.view.TextDrawable;
 
 public class HikeBitmapFactory
 {
 	private static final String TAG = "HikeBitmapFactory";
 
 	public static final int DEFAULT_BITMAP_COMPRESSION = 75;
+
+	private static final int NUMBER_OF_CHARS_DEFAULT_DP = 1;
 	
 	public static Bitmap getCircularBitmap(Bitmap bitmap)
 	{
@@ -231,6 +240,63 @@ public class HikeBitmapFactory
 				mListener.onComplete(bmp);
 			}
 		}, 0);
+	}
+
+	/**
+	 * TODO Use Fresco to optimize - https://github.com/facebook/fresco
+	 * 
+	 * @param imageFile
+	 */
+	public static void correctImageOrientation(String imageFile)
+	{
+
+		if (null == imageFile || !new File(imageFile).exists())
+		{
+			return;
+		}
+
+		try
+		{
+			String imageOrientation = Utils.getImageOrientation(imageFile);
+
+			// Check if orientation needs to be fixed
+			if (0 != Utils.getRotatedAngle(imageOrientation))
+			{
+				// Load
+				Bitmap bmp = HikeBitmapFactory.decodeFile(imageFile);
+
+				if (bmp != null)
+				{
+					// Rotate
+					Bitmap correctedBmp = Utils.getRotatedBitmap(imageFile, bmp);
+
+					if (correctedBmp != null)
+					{
+						String fileExtension = Utils.getFileExtension(new File(imageFile).getName());
+
+						// Check file type - Takes care of jpeg/jpg
+						String fileType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension.toLowerCase());
+
+						CompressFormat outCompressFormat = CompressFormat.PNG;
+						
+						if (fileType.equals("image/jpeg"))
+						{
+							outCompressFormat = CompressFormat.JPEG;
+						}
+
+						// Save
+						BitmapUtils.saveBitmapToFile(new File(imageFile), correctedBmp, outCompressFormat, 100);
+						// Recycle
+						HikePhotosUtils.manageBitmaps(bmp);
+						HikePhotosUtils.manageBitmaps(correctedBmp);
+					}
+				}
+			}
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
 	}
 
 	public static Bitmap rotateBitmap(Bitmap b, int degrees)
@@ -693,7 +759,7 @@ public class HikeBitmapFactory
 		return b;
 	}
 
-	private static Bitmap createBitmap(Bitmap thumbnail, int startX, int startY, int i, int j)
+	public static Bitmap createBitmap(Bitmap thumbnail, int startX, int startY, int i, int j)
 	{
 		Bitmap b = null;
 		try
@@ -1160,43 +1226,100 @@ public class HikeBitmapFactory
 		
 		return calculateInSampleSize(options, reqWidth, reqHeight);
 	}
-	public static BitmapDrawable getDefaultAvatar(Resources res, String msisdn, boolean hiRes)
-	{
 	
-		int index = BitmapUtils.iconHash(msisdn) % (HikeConstants.DEFAULT_AVATAR_KEYS.length);
-
-		int defaultAvatarResId = HikeConstants.DEFAULT_AVATARS[index]; 
-		
-		Drawable layers[] = new Drawable[2];
-		layers[0] = res.getDrawable(defaultAvatarResId);
-		layers[1] = res.getDrawable(getDefaultAvatarIconResId(msisdn, hiRes));
-		
-		LayerDrawable ld = new LayerDrawable(layers);
-		ld.setId(0, 0);
-		ld.setId(1, 1);
-		ld.setDrawableByLayerId(0, layers[0]);
-		ld.setDrawableByLayerId(1, layers[1]);
-		
-		Bitmap bmp = drawableToBitmap(ld);
-		
-		BitmapDrawable bd = getBitmapDrawable(res, bmp);
-		return bd;
+	public static Drawable getDefaultTextAvatar(String msisdn)
+	{
+		return getDefaultTextAvatar(msisdn, msisdn, true);
 	}
 	
-	private static int getDefaultAvatarIconResId( String msisdn, boolean hiRes)
+	private static TextDrawable getRandomHashTextDrawable()
 	{
-		if (OneToNConversationUtils.isBroadcastConversation(msisdn))
+		TypedArray bgColorArray = Utils.getDefaultAvatarBG();
+		
+		int bgColor = bgColorArray.getColor(new Random().nextInt(bgColorArray.length()), 0);
+
+		return TextDrawable.builder().buildRound("#", bgColor);
+	}
+	
+	public static Drawable getDefaultTextAvatar(String iconHash, String defaultText, boolean useOnlyInitials)
+	{
+		TypedArray bgColorArray = Utils.getDefaultAvatarBG();
+		
+		if (TextUtils.isEmpty(defaultText))
 		{
-			return hiRes ? R.drawable.ic_default_avatar_broadcast_hires : R.drawable.ic_default_avatar_broadcast;
+			return getRandomHashTextDrawable();
 		}
-		else if (OneToNConversationUtils.isGroupConversation(msisdn))
+
+		String initials = useOnlyInitials ? getNameInitialsForDefaultAv(defaultText) : defaultText;
+
+		int index = BitmapUtils.iconHash(iconHash) % (bgColorArray.length());
+
+		int bgColor = bgColorArray.getColor(index, 0);
+
+		return TextDrawable.builder().buildRound(initials, bgColor);
+	}
+
+	public static Drawable getRectTextAvatar(String msisdn)
+	{
+		TypedArray bgColorArray = Utils.getDefaultAvatarBG();
+		
+		if (TextUtils.isEmpty(msisdn))
 		{
-			return hiRes ? R.drawable.ic_default_avatar_group_hires : R.drawable.ic_default_avatar_group;
+			return getRandomHashTextDrawable();
+		}
+
+		String initials = getNameInitialsForDefaultAv(msisdn);
+
+		int index = BitmapUtils.iconHash(msisdn) % (bgColorArray.length());
+
+		int bgColor = bgColorArray.getColor(index, 0);
+
+		return TextDrawable.builder().buildRect(initials, bgColor);
+	}
+	
+	@SuppressWarnings("unused")
+	public static String getNameInitialsForDefaultAv(String msisdn)
+	{
+		if (TextUtils.isEmpty(msisdn))
+		{
+			return "#";
+		}
+		
+		String initials = "";
+
+		String contactName = ContactManager.getInstance().getName(msisdn, true);
+
+		if (TextUtils.isEmpty(contactName))
+		{
+			contactName = msisdn;
+		}
+
+		String[] nameArray = contactName.trim().split(" ");
+
+		char first = nameArray[0].charAt(0);
+
+		if (Character.isLetter(first))
+		{
+			initials += first;
+
+			if (NUMBER_OF_CHARS_DEFAULT_DP > 1)
+			{
+				if (nameArray.length > 1)
+				{
+					// Second is optional (only if is letter)
+					char second = nameArray[nameArray.length - 1].charAt(0);
+					if (Character.isLetter(second))
+					{
+						initials += second;
+					}
+				}
+			}
 		}
 		else
 		{
-			return hiRes ? R.drawable.ic_default_avatar_hires : R.drawable.ic_default_avatar;
+			initials = "#";
 		}
-	}
 
+		return initials;
+	}
 }

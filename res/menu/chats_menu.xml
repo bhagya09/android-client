@@ -7,6 +7,12 @@
 		android:showAsAction="always"
 		android:title="@string/search" >
     </item>
+     <item
+		android:id="@+id/take_pic"
+		android:actionLayout="@layout/overflow_icon_view"
+		android:showAsAction="always"
+		android:title="@string/edit_photos" >
+    </item>
     <item
         android:id="@+id/new_conversation"
         android:actionLayout="@layout/overflow_icon_view"

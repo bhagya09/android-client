@@ -1,5 +1,6 @@
 package com.bsb.hike;
 
+import android.content.res.TypedArray;
 import android.net.Uri;
 import android.os.Environment;
 
@@ -580,8 +581,6 @@ public class HikeConstants
 
 	public static final String SHOW_RECENTLY_JOINED_DOT = "showRecentlyJoinedDot";
 	
-	public static final String SHOW_PHOTOS_RED_DOT = "showphotosenabled";
-	
 	public static final String SHOW_RECENTLY_JOINED = "showRecentlyJoined";
 
 	public static final String SHOW_TIMELINE_RED_DOT = "showTimelineRedDot";
@@ -1159,6 +1158,8 @@ public class HikeConstants
 		public static final String CIRCLE_CROP = "circleCrop";
 		
 		public static final String CIRCLE_HIGHLIGHT = "circleHighlight";
+		
+		public static final String RETURN_BOUNDS = "returnBounds";
 
 		public static final String SCALE_UP = "scaleUpIfNeeded";
 
@@ -1370,7 +1371,7 @@ public class HikeConstants
 
 		public static final String SHOW_RECORDING_DIALOG = "showRecordingDialog";
 
-		public static final String HOME_POPUP_TYPE = "homePopupType";
+		public static final String IS_HOME_POPUP_SHOWING = "homePopupType";
 
 		public static final String LAST_UPDATE_PACKET_ID = "lastUpdatePacketId";
 
@@ -2709,24 +2710,23 @@ public class HikeConstants
 		
 		public static final String FROM_DP_UPLOAD = "from_dp_upload";
 
+		public static final String DP_UPLOAD_CROP_BOUNDS = "Crop";
 	}
-
 	
 	public static final String REARRANGE_CHAT = "rearrange_chat";
 	
 	public static final String UPDATE_UNREAD_COUNT = "uuc";
 	
 	public static final String CONTENT_ID = "content_id";
+	
 	public static final String TIMESTAMP_MILLIS = "msec";
 	
 	public static final String EVENT_TAG_SESSION = "sess";
 
 	public static final String MESSAGE_PROCESS_TIME = "mpt";
-
-	public static int DEFAULT_AVATARS[] = {R.drawable.avatar_01, R.drawable.avatar_02, R.drawable.avatar_03, R.drawable.avatar_04, R.drawable.avatar_05};
-
-	public static String DEFAULT_AVATAR_KEYS[] = {"avatar_01","avatar_02", "avatar_03", "avatar_04", "avatar_05"};
 	
+	public static TypedArray DEFAULT_AVATAR_BG_COLOR_ARRAY = null;
+
 	public static String IS_GROUP = "isGroup";
 	public static final String CAM_IMG_PREFIX = "CAM_";
 	

@@ -39,6 +39,7 @@ import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.StatusMessage;
+import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.smartImageLoader.IconLoader;
 import com.bsb.hike.tasks.FetchFriendsTask;
 import com.bsb.hike.ui.HomeActivity;
@@ -1609,11 +1610,11 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 				/*
 				 * Since sms contacts and dividers cannot have custom avatars, we simply skip these cases.
 				 */
-				if (viewType == ViewType.SECTION || viewType == ViewType.EXTRA || viewType == ViewType.EMPTY || !contactInfo.isOnhike())
+				if (viewType == ViewType.SECTION || viewType == ViewType.EXTRA || viewType == ViewType.EMPTY || !contactInfo.isOnhike()||!contactInfo.hasCustomPhoto())
 				{
 					continue;
 				}
-
+				
 				updateViewsRelatedToAvatar(view, getItem(indexOfData));
 			}
 		}
