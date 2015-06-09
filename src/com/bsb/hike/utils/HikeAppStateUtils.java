@@ -129,6 +129,7 @@ public class HikeAppStateUtils
 			}
 			else if (HikeMessengerApp.currentState == CurrentState.BACK_PRESSED)
 			{
+				//case when back is pressed but the user was not on HomeActivity (still inside the app)
 				HikeMessengerApp.currentState = CurrentState.RESUMED;
 			}
 			else if (HikeMessengerApp.currentState != CurrentState.BACKGROUNDED && HikeMessengerApp.currentState != CurrentState.CLOSED
@@ -149,7 +150,13 @@ public class HikeAppStateUtils
 
 	public static void finish()
 	{
-		HikeMessengerApp.currentState = CurrentState.BACK_PRESSED;
+		//this check it to prevent app in going to a back_pressed state from a BG/Closed state
+		//TODO : making a better FSM for state handling where transitions from one State to another are pre defined on Actions
+		if(HikeMessengerApp.currentState == CurrentState.NEW_ACTIVITY || HikeMessengerApp.currentState == CurrentState.OPENED 
+				|| HikeMessengerApp.currentState == CurrentState.RESUMED)
+		{
+			HikeMessengerApp.currentState = CurrentState.BACK_PRESSED;
+		}
 	}
 
 	public static void startActivityForResult(Activity activity)
