@@ -1527,6 +1527,7 @@ public class Utils
 				{
 					dimen = HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX;
 				}
+				//Sending false as we want image smaller than actual resolution 
 				tempBmp = HikeBitmapFactory.scaleDownBitmap(srcFilePath, dimen, dimen, config, false, false);
 			}
 			else if (imageQuality != ImageQuality.QUALITY_ORIGINAL)
@@ -1539,6 +1540,7 @@ public class Utils
 				{
 					dimen = HikeConstants.MAX_DIMENSION_LOW_FULL_SIZE_PX;
 				}
+				//Sending false as we want image smaller than actual resolution
 				tempBmp = HikeBitmapFactory.scaleDownBitmap(srcFilePath, dimen, dimen, config, false, false);
 			}
 			tempBmp = HikeBitmapFactory.rotateBitmap(tempBmp, Utils.getRotatedAngle(imageOrientation));
