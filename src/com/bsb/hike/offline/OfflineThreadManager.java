@@ -46,10 +46,6 @@ import com.bsb.hike.utils.StickerManager;
 public class OfflineThreadManager
 {
 
-	private BlockingQueue<JSONObject> textMessageQueue = null;
-
-	private BlockingQueue<FileTransferModel> fileTransferQueue = null;
-
 	private static OfflineThreadManager _instance = new OfflineThreadManager();
 
 	private final static String TAG = getInstance().getClass().getName();
@@ -83,7 +79,7 @@ public class OfflineThreadManager
 
 	private OfflineThreadManager()
 	{
-		textTransferThread = new TextTransferThread();
+		textTransferThread = new TextTransferThread(textMessageCallback);
 		fileTransferThread = new FileTransferThread();
 		textReceiveThread=new TextReceiveThread();
 		fileReceiverThread=new FileReceiverThread();
@@ -92,37 +88,39 @@ public class OfflineThreadManager
 	
 	public void startSendingThreads()
 	{
-		offlineManager=OfflineManager.getInstance();
-		if(textTransferThread.isAlive())
-		textTransferThread.interrupt();
+		offlineManager = OfflineManager.getInstance();
+		if (textTransferThread.isAlive())
 		{
-			textTransferThread=new TextTransferThread();
-			textTransferThread.start();
+			textTransferThread.interrupt();
 		}
-		
-		if(fileTransferThread.isAlive())
-		fileTransferThread.interrupt();
+		textTransferThread = new TextTransferThread(textMessageCallback);
+		textTransferThread.start();
+
+		if (fileTransferThread.isAlive())
 		{
-			fileTransferThread=new FileTransferThread();
-			fileTransferThread.start();
+			fileTransferThread.interrupt();
 		}
+		fileTransferThread = new FileTransferThread();
+		fileTransferThread.start();
 	}
 	
 	public void startReceivingThreads()
 	{
-		offlineManager=OfflineManager.getInstance();
-		if(textReceiveThread.isAlive())
-		textReceiveThread.interrupt();
+		offlineManager = OfflineManager.getInstance();
+		if (textReceiveThread.isAlive())
 		{
-			textReceiveThread=new TextReceiveThread();
-			textReceiveThread.start();
+			textReceiveThread.interrupt();
 		}
-		if(fileReceiverThread.isAlive())
-		fileReceiverThread.interrupt();
+		textReceiveThread = new TextReceiveThread();
+		textReceiveThread.start();
+
+		if (fileReceiverThread.isAlive())
 		{
-			fileReceiverThread=new FileReceiverThread();
-			fileReceiverThread.start();
+			fileReceiverThread.interrupt();
 		}
+		fileReceiverThread = new FileReceiverThread();
+		fileReceiverThread.start();
+
 	}
 	
 	
@@ -134,6 +132,13 @@ public class OfflineThreadManager
 		JSONObject packet;
 
 		boolean val;
+
+		private IMessageSentOffline callback;
+
+		public TextTransferThread(IMessageSentOffline textMessageCallback)
+		{
+			this.callback=textMessageCallback;
+		}
 
 		@Override
 		public void run()
@@ -163,7 +168,15 @@ public class OfflineThreadManager
 					{
 						// TODO : Send Offline Text and take action on the basis of boolean i.e. clock or single tick
 						Logger.d("OfflineThreadManager", "Going to send Text");
-						val = sendOfflineText(packet, textSendSocket.getOutputStream());
+
+						if (sendOfflineText(packet, textSendSocket.getOutputStream()))
+						{
+							callback.onSuccess(packet);
+						}
+						else
+						{
+							callback.onFailure(packet);
+						}
 					}
 				}
 			}
@@ -414,7 +427,7 @@ public class OfflineThreadManager
 						try 
 						{
 							message = new JSONObject(metaDataString);
-							message.put(HikeConstants.FROM, offlineManager.getConnectedDevice());
+							message.put(HikeConstants.FROM, "o:"+offlineManager.getConnectedDevice());
 							message.remove(HikeConstants.TO);
 	
 							JSONObject metadata =  message.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA);
@@ -529,12 +542,11 @@ public class OfflineThreadManager
 				// copy the sticker to the stream
 				isSent = offlineManager.copyFile(inputStream, outputStream, f.length());
 				inputStream.close();
-				
 			}
 			catch (IOException e)
 			{
 				e.printStackTrace();
-				return false;
+				isSent=false;
 			}
 			
 		}
@@ -548,41 +560,18 @@ public class OfflineThreadManager
 				byte[] intToBArray = OfflineUtils.intToByteArray(length);
 				outputStream.write(intToBArray, 0, intToBArray.length);
 				outputStream.write(messageBytes,0, length);
+				isSent=true;
 			}
 			catch (IOException e)
 			{
 				Logger.d(TAG,"IO Exception in sendOfflineText");
 				e.printStackTrace();
-				return false;
+				isSent=false;
 			}
 
 		}
 		
 		// Updating database
-		if (!OfflineUtils.isGhostPacket(packet)&&!OfflineUtils.isPingPacket(packet))
-		{
-			long msgId;
-			try
-			{
-				msgId = packet.getJSONObject(HikeConstants.DATA).getLong(HikeConstants.MESSAGE_ID);
-
-				String msisdn = packet.getString(HikeConstants.TO);
-				long startTime = System.currentTimeMillis();
-				int rowsUpdated = OfflineUtils.updateDB(msgId, ConvMessage.State.SENT_DELIVERED, msisdn);
-				Logger.d(TAG, "Time  taken: " + (System.currentTimeMillis() - startTime));
-				if (rowsUpdated == 0)
-				{
-					Logger.d(getClass().getSimpleName(), "No rows updated");
-				}
-				Pair<String, Long> pair = new Pair<String, Long>(msisdn, msgId);
-				HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_DELIVERED, pair);
-				Logger.d(TAG,"Message Send Successfully");
-			}
-			catch (JSONException e)
-			{
-				e.printStackTrace();
-			}
-		}
 		return isSent;
 	}
 
@@ -623,7 +612,11 @@ public class OfflineThreadManager
 			//showUploadTransferNotification(msgID,fileSize);
 			
 			inputStream = new FileInputStream(new File(fileUri));
-			isSent = offlineManager.copyFile(inputStream, outputStream, msgID, true, true,fileSize);
+			long time = System.currentTimeMillis();
+			isSent = offlineManager.copyFile(inputStream, outputStream, msgID, true, true, fileSize);
+			// in seconds
+			long TimeTaken = (System.currentTimeMillis() - time) / 1000;
+			Logger.d(TAG, "Time taken to send file is " + TimeTaken + "Speed is " + fileSize / (1024 * 1024 * TimeTaken));
 			inputStream.close();
 			offlineManager.removeFromCurrentSendingFile(msgID);
 			
@@ -677,20 +670,47 @@ public class OfflineThreadManager
 		return stickerImage;
 	}
 	
-	private IMessageSentOffline textMessageCallback=new IMessageSentOffline()
-	{
-		@Override
-		public void onSuccess(JSONObject packet) {
-			// TODO Auto-generated method stub
-			
-		}
+	/**
+     * Handle the call of file message here ...either success or failure
+     */
+    private IMessageSentOffline textMessageCallback =new IMessageSentOffline()
+    {
+        @Override
+        public void onSuccess(JSONObject packet)
+        {
+            if (!OfflineUtils.isGhostPacket(packet) && !OfflineUtils.isPingPacket(packet))
+            {
+                long msgId;
+                try
+                {
+                    msgId = packet.getJSONObject(HikeConstants.DATA).getLong(HikeConstants.MESSAGE_ID);
 
-		@Override
-		public void onFailure(JSONObject packet) {
-			// TODO Auto-generated method stub
-			
-		}
-	};
+                    String msisdn = packet.getString(HikeConstants.TO);
+                    long startTime = System.currentTimeMillis();
+                    int rowsUpdated = OfflineUtils.updateDB(msgId, ConvMessage.State.SENT_DELIVERED, msisdn);
+                    Logger.d(TAG, "Time  taken: " + (System.currentTimeMillis() - startTime));
+                    if (rowsUpdated == 0)
+                    {
+                        Logger.d(getClass().getSimpleName(), "No rows updated");
+                    }
+                    Pair<String, Long> pair = new Pair<String, Long>(msisdn, msgId);
+                    HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_DELIVERED, pair);
+                    Logger.d(TAG, "Message Send Successfully");
+                    HikeOfflinePersistence.getInstance().removeMessage(msgId);
+                }
+                catch (JSONException e)
+                {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        @Override
+        public void onFailure(JSONObject packet)
+        {
+            Logger.d(TAG, "Message sending failed");
+        }
+    };
 	
 	private IMessageSentOffline fileMessageCallback =new IMessageSentOffline()
 	{
