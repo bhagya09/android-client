@@ -29,6 +29,7 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.adapters.MessagesAdapter.FTViewHolder;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.db.HikeOfflinePersistence;
 import com.bsb.hike.filetransfer.FileSavedState;
 import com.bsb.hike.filetransfer.FileTransferBase.FTState;
 import com.bsb.hike.filetransfer.FileTransferManager;
@@ -181,6 +182,7 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 	private void saveMessagetoPersistanceDb(FileTransferModel fileTransferModel)
 	{
 		//Add the Msg here to Persistance Db.
+		HikeOfflinePersistence.getInstance().addMessage(fileTransferModel.getPacket());
 		addToFileQueue(fileTransferModel);
 		
 	}
@@ -190,6 +192,7 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 		long startTime=System.currentTimeMillis();
 		HikeConversationsDatabase.getInstance().addConversationMessages(convMessage,true);
 		// Save Msg here in Persistance DB.
+		HikeOfflinePersistence.getInstance().addMessage(convMessage.serialize());
 		addToTextQueue(convMessage.serialize());
 		long endTime = System.currentTimeMillis();
 		

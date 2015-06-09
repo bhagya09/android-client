@@ -1,16 +1,19 @@
 package com.bsb.hike.db;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.models.OfflineHikePacket;
-import com.bsb.hike.utils.Logger;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
+
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.models.OfflineHikePacket;
+import com.bsb.hike.utils.Logger;
 
 /**
  * 
@@ -69,7 +72,7 @@ public class HikeOfflinePersistence
 		}
 	}
 	
-	public void addSentMessage(OfflineHikePacket packet) throws MqttPersistenceException
+	private void addSentMessage(OfflineHikePacket packet) throws MqttPersistenceException
 	{
 		ContentValues cv = new ContentValues();
 		
@@ -148,5 +151,31 @@ public class HikeOfflinePersistence
 		
 		mDb.execSQL("DELETE FROM " + DBConstants.HIKE_PERSISTENCE.OFFLINE_DATABASE_TABLE + " WHERE " + DBConstants.HIKE_PERSISTENCE.OFFLINE_MESSAGE_ID + " IN "+ inSelection.toString());
 		Logger.d("HikeOFFLINEPersistence", "Removed "+" Rows from " + DBConstants.HIKE_PERSISTENCE.OFFLINE_DATABASE_TABLE + " with Msgs ID: " + inSelection.toString());
+	}
+	
+	public void addMessage(JSONObject jsonObject)
+	{
+		long msgId = 0;
+		String msisdn = null;
+		try
+		{
+			msgId = jsonObject.getJSONObject(HikeConstants.DATA).getLong(HikeConstants.MESSAGE_ID);
+			msisdn = jsonObject.getString(HikeConstants.TO);
+			OfflineHikePacket hikePacket = new OfflineHikePacket(jsonObject.toString().getBytes("UTF-8"), msgId, System.currentTimeMillis() / 1000, msisdn);
+			addSentMessage(hikePacket);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+		catch (UnsupportedEncodingException e)
+		{
+			e.printStackTrace();
+		}
+		catch (MqttPersistenceException e)
+		{
+			e.printStackTrace();
+		}
+
 	}
 }

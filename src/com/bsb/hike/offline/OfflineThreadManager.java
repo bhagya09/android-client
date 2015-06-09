@@ -31,6 +31,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.db.HikeOfflinePersistence;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.service.MqttMessagesManager;
@@ -636,6 +637,7 @@ public class OfflineThreadManager
 			}
 			Pair<String, Long> pair = new Pair<String, Long>(msisdn, msgID);
 			HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_DELIVERED, pair);
+			HikeOfflinePersistence.getInstance().removeMessage(msgID);
 		}
 		catch(JSONException e)
 		{
