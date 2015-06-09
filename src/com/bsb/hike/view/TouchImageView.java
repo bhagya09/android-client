@@ -43,7 +43,7 @@ public class TouchImageView extends RecyclingImageView
 	    // min/max zoom boundary.
 	    //
 	    private static final float SUPER_MIN_MULTIPLIER = 1.0f;
-	    private static final float SUPER_MAX_MULTIPLIER = 5.0f;
+	    private static final float SUPER_MAX_MULTIPLIER = 1.25f;
 
 	    //
 	    // Scale of image ranges from minScale to maxScale, where minScale == 1
@@ -61,6 +61,7 @@ public class TouchImageView extends RecyclingImageView
 	    private static enum State { NONE, DRAG, ZOOM, FLING, ANIMATE_ZOOM };
 	    private State state;
 
+	    private float zoomTargetScale;
 	    private float minScale;
 	    private float maxScale;
 	    private float superMinScale;
@@ -122,6 +123,7 @@ public class TouchImageView extends RecyclingImageView
 	        }
 	        minScale = 1;
 	        maxScale = 50;
+	        zoomTargetScale = 3;
 	        superMinScale = SUPER_MIN_MULTIPLIER * minScale;
 	        superMaxScale = SUPER_MAX_MULTIPLIER * maxScale;
 	        setImageMatrix(matrix);
@@ -788,7 +790,7 @@ public class TouchImageView extends RecyclingImageView
 	                consumed = doubleTapListener.onDoubleTap(e);
 	            }
 	            if (state == State.NONE) {
-	                float targetZoom = (normalizedScale == minScale) ? maxScale : minScale;
+	                float targetZoom = (normalizedScale == minScale) ? zoomTargetScale : minScale;
 	                DoubleTapZoom doubleTap = new DoubleTapZoom(targetZoom, e.getX(), e.getY(), false);
 	                compatPostOnAnimation(doubleTap);
 	                consumed = true;
