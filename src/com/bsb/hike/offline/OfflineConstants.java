@@ -58,15 +58,25 @@ public class OfflineConstants
 	
 	public final class HandlerConstants
 	{
-		public static final int SAVE_MSG_DB=-101;
+		public static final int SAVE_MSG_DB = -101;
+
 		public static final int DISCONNECT_AFTER_TIMEOUT = -102;
+
 		public static final int CREATE_HOTSPOT = -103;
+
 		public static final int CONNECT_TO_HOTSPOT = -104;
+
 		public static final int REMOVE_CONNECT_MESSAGE = -105;
+
 		public static final int START_SCAN = -106;
+
 		public static final int STOP_SCAN = -107;
+
 		public static final int SEND_GHOST_PACKET = -108;
+
 		public static final int RECONNECT_TO_HOTSPOT = -109;
+
+		public static final int SAVE_MSG_PERSISTANCE_DB = -110;
 	}
 	
 	public static enum ERRORCODE
