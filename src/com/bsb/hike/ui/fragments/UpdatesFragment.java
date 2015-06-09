@@ -1,30 +1,27 @@
 package com.bsb.hike.ui.fragments;
 
 import java.util.ArrayList;
-
 import java.util.List;
 
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
-import android.widget.AbsListView.OnScrollListener;
-import android.widget.ListView;
 
-import com.actionbarsherlock.app.SherlockListFragment;
+import com.actionbarsherlock.app.SherlockFragment;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
 import com.bsb.hike.adapters.CentralTimelineAdapter;
-import com.bsb.hike.chatthread.ChatThreadActivity;
+import com.bsb.hike.adapters.TimelineCardsAdapter;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
@@ -33,19 +30,15 @@ import com.bsb.hike.models.StatusMessage;
 import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.ui.HomeActivity;
-import com.bsb.hike.ui.ProfileActivity;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
 
-public class UpdatesFragment extends SherlockListFragment implements OnScrollListener, Listener
+public class UpdatesFragment extends SherlockFragment implements Listener
 {
 
 	private StatusMessage noStatusMessage;
 
-	private CentralTimelineAdapter centralTimelineAdapter;
+	private TimelineCardsAdapter timelineCardsAdapter;
 
 	private String userMsisdn;
 
@@ -67,15 +60,20 @@ public class UpdatesFragment extends SherlockListFragment implements OnScrollLis
 	private long previousEventTime;
 
 	private int velocity;
-	
+
+	private RecyclerView mUpdatesList;
+
+	private RecyclerView.LayoutManager mLayoutManager;
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 	{
 		View parent = inflater.inflate(R.layout.updates, null);
-
-		ListView updatesList = (ListView) parent.findViewById(android.R.id.list);
-		updatesList.setEmptyView(parent.findViewById(android.R.id.empty));
-
+		mUpdatesList = (RecyclerView) parent.findViewById(R.id.updatesRecycleView);
+		mLayoutManager = new LinearLayoutManager(getActivity());
+		mUpdatesList.setLayoutManager(mLayoutManager);
+		// TODO
+		// mUpdatesList.setEmptyView(parent.findViewById(android.R.id.empty));
 		return parent;
 	}
 
@@ -83,11 +81,12 @@ public class UpdatesFragment extends SherlockListFragment implements OnScrollLis
 	public void onResume()
 	{
 		super.onResume();
-		if (centralTimelineAdapter != null)
+		if (timelineCardsAdapter != null)
 		{
-			centralTimelineAdapter.getTimelineImageLoader().setExitTasksEarly(false);
-			centralTimelineAdapter.getIconImageLoader().setExitTasksEarly(false);
-			centralTimelineAdapter.notifyDataSetChanged();
+			// TODO
+			// timelineCardsAdapter.getTimelineImageLoader().setExitTasksEarly(false);
+			// timelineCardsAdapter.getIconImageLoader().setExitTasksEarly(false);
+			timelineCardsAdapter.notifyDataSetChanged();
 		}
 	}
 
@@ -95,10 +94,11 @@ public class UpdatesFragment extends SherlockListFragment implements OnScrollLis
 	public void onPause()
 	{
 		super.onPause();
-		if (centralTimelineAdapter != null)
+		if (timelineCardsAdapter != null)
 		{
-			centralTimelineAdapter.getTimelineImageLoader().setExitTasksEarly(true);
-			centralTimelineAdapter.getIconImageLoader().setExitTasksEarly(true);
+			// TODO
+			// timelineCardsAdapter.getTimelineImageLoader().setExitTasksEarly(true);
+			// timelineCardsAdapter.getIconImageLoader().setExitTasksEarly(true);
 		}
 	}
 
@@ -113,11 +113,15 @@ public class UpdatesFragment extends SherlockListFragment implements OnScrollLis
 
 		statusMessages = new ArrayList<StatusMessage>();
 
-		centralTimelineAdapter = new CentralTimelineAdapter(getActivity(), statusMessages, userMsisdn);
-		setListAdapter(centralTimelineAdapter);
-		getListView().setOnScrollListener(this);
+		timelineCardsAdapter = new TimelineCardsAdapter(getActivity(),statusMessages, userMsisdn);
+
+		mUpdatesList.setAdapter(timelineCardsAdapter);
+
+		// TODO
+		// mUpdatesList.setOnScrollListener(this);
 
 		FetchUpdates fetchUpdates = new FetchUpdates();
+
 		if (Utils.isHoneycombOrHigher())
 		{
 			fetchUpdates.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
@@ -135,120 +139,96 @@ public class UpdatesFragment extends SherlockListFragment implements OnScrollLis
 		super.onDestroy();
 	}
 
-	@Override
-	public void onListItemClick(ListView l, View v, int position, long id)
-	{
-		StatusMessage statusMessage = centralTimelineAdapter.getItem(position - getListView().getHeaderViewsCount());
-		if (statusMessage.getId() == CentralTimelineAdapter.FTUE_ITEM_ID || (statusMessage.getStatusMessageType() == StatusMessageType.NO_STATUS)
-				|| (statusMessage.getStatusMessageType() == StatusMessageType.FRIEND_REQUEST) || (statusMessage.getStatusMessageType() == StatusMessageType.PROTIP))
-		{
-			return;
-		}
-		else if (userMsisdn.equals(statusMessage.getMsisdn()))
-		{
-			Intent intent = new Intent(getActivity(), ProfileActivity.class);
-			intent.putExtra(HikeConstants.Extras.FROM_CENTRAL_TIMELINE, true);
-			startActivity(intent);
-			return;
-		}
+	// TODO
+	// RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener()
+	// {
+	// public void onScrollStateChanged(RecyclerView recyclerView, int newState) {};
+	//
+	// public void onScrolled(RecyclerView recyclerView, int dx, int dy) {};
+	//
+	// @Override
+	// public void onScroll(RecyclerView view, final int firstVisibleItem, int visibleItemCount, int totalItemCount)
+	// {
+	// if (previousFirstVisibleItem != firstVisibleItem)
+	// {
+	// long currTime = System.currentTimeMillis();
+	// long timeToScrollOneElement = currTime - previousEventTime;
+	// velocity = (int) (((double) 1 / timeToScrollOneElement) * 1000);
+	//
+	// previousFirstVisibleItem = firstVisibleItem;
+	// previousEventTime = currTime;
+	// }
+	//
+	// if (!reachedEnd && !loadingMoreMessages && !statusMessages.isEmpty()
+	// && (firstVisibleItem + visibleItemCount) >= (statusMessages.size() - HikeConstants.MIN_INDEX_TO_LOAD_MORE_MESSAGES))
+	// {
+	//
+	// Logger.d(getClass().getSimpleName(), "Loading more items");
+	// loadingMoreMessages = true;
+	//
+	// AsyncTask<Void, Void, List<StatusMessage>> asyncTask = new AsyncTask<Void, Void, List<StatusMessage>>()
+	// {
+	//
+	// @Override
+	// protected List<StatusMessage> doInBackground(Void... params)
+	// {
+	// List<StatusMessage> olderMessages = HikeConversationsDatabase.getInstance().getStatusMessages(true, HikeConstants.MAX_OLDER_STATUSES_TO_LOAD_EACH_TIME,
+	// (int) statusMessages.get(statusMessages.size() - 1).getId(), friendMsisdns);
+	// return olderMessages;
+	// }
+	//
+	// @Override
+	// protected void onPostExecute(List<StatusMessage> olderMessages)
+	// {
+	// if (!isAdded())
+	// {
+	// return;
+	// }
+	//
+	// if (!olderMessages.isEmpty())
+	// {
+	// int scrollOffset = getListView().getChildAt(0).getTop();
+	//
+	// statusMessages.addAll(statusMessages.size(), olderMessages);
+	// timelineCardsAdapter.notifyDataSetChanged();
+	// getListView().setSelectionFromTop(firstVisibleItem, scrollOffset);
+	// }
+	// else
+	// {
+	// /*
+	// * This signifies that we've reached the end. No need to query the db anymore unless we add a new message.
+	// */
+	// reachedEnd = true;
+	// }
+	//
+	// loadingMoreMessages = false;
+	// }
+	//
+	// };
+	// if (Utils.isHoneycombOrHigher())
+	// {
+	// asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+	// }
+	// else
+	// {
+	// asyncTask.execute();
+	// }
+	// }
+	// }
+	// };
 
-		if (StealthModeManager.getInstance().isStealthMsisdn(statusMessage.getMsisdn()))
-		{
-			if (!StealthModeManager.getInstance().isActive())
-			{
-				return;
-			}
-		}
-		Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(getActivity(), new ContactInfo(null, statusMessage.getMsisdn(), statusMessage.getNotNullName(), statusMessage.getMsisdn()), true);
-		//Add anything else which is needed to your intent
-		intent.putExtra(HikeConstants.Extras.FROM_CENTRAL_TIMELINE, true);
-		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-		startActivity(intent);
-		getActivity().finish();
-	}
-
-	@Override
-	public void onScroll(AbsListView view, final int firstVisibleItem, int visibleItemCount, int totalItemCount)
-	{
-		if (previousFirstVisibleItem != firstVisibleItem)
-		{
-			long currTime = System.currentTimeMillis();
-			long timeToScrollOneElement = currTime - previousEventTime;
-			velocity = (int) (((double) 1 / timeToScrollOneElement) * 1000);
-
-			previousFirstVisibleItem = firstVisibleItem;
-			previousEventTime = currTime;
-		}
-
-		if (!reachedEnd && !loadingMoreMessages && !statusMessages.isEmpty()
-				&& (firstVisibleItem + visibleItemCount) >= (statusMessages.size() - HikeConstants.MIN_INDEX_TO_LOAD_MORE_MESSAGES))
-		{
-
-			Logger.d(getClass().getSimpleName(), "Loading more items");
-			loadingMoreMessages = true;
-
-			AsyncTask<Void, Void, List<StatusMessage>> asyncTask = new AsyncTask<Void, Void, List<StatusMessage>>()
-			{
-
-				@Override
-				protected List<StatusMessage> doInBackground(Void... params)
-				{
-					List<StatusMessage> olderMessages = HikeConversationsDatabase.getInstance().getStatusMessages(true, HikeConstants.MAX_OLDER_STATUSES_TO_LOAD_EACH_TIME,
-							(int) statusMessages.get(statusMessages.size() - 1).getId(), friendMsisdns);
-					return olderMessages;
-				}
-
-				@Override
-				protected void onPostExecute(List<StatusMessage> olderMessages)
-				{
-					if (!isAdded())
-					{
-						return;
-					}
-
-					if (!olderMessages.isEmpty())
-					{
-						int scrollOffset = getListView().getChildAt(0).getTop();
-
-						statusMessages.addAll(statusMessages.size(), olderMessages);
-						centralTimelineAdapter.notifyDataSetChanged();
-						getListView().setSelectionFromTop(firstVisibleItem, scrollOffset);
-					}
-					else
-					{
-						/*
-						 * This signifies that we've reached the end. No need to query the db anymore unless we add a new message.
-						 */
-						reachedEnd = true;
-					}
-
-					loadingMoreMessages = false;
-				}
-
-			};
-			if (Utils.isHoneycombOrHigher())
-			{
-				asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-			}
-			else
-			{
-				asyncTask.execute();
-			}
-		}
-	}
-
-	@Override
-	public void onScrollStateChanged(AbsListView view, int scrollState)
-	{
-		Logger.d(getClass().getSimpleName(), "CentralTimeline Adapter Scrolled State: " + scrollState);
-		centralTimelineAdapter.setIsListFlinging(velocity > HikeConstants.MAX_VELOCITY_FOR_LOADING_TIMELINE_IMAGES && scrollState == OnScrollListener.SCROLL_STATE_FLING);
-		/*
-		 * // Pause fetcher to ensure smoother scrolling when flinging if (scrollState == AbsListView.OnScrollListener.SCROLL_STATE_FLING) { // Before Honeycomb pause image loading
-		 * on scroll to help with performance if (!Utils.hasHoneycomb()) { if(centralTimelineAdapter != null) { centralTimelineAdapter.getTimelineImageLoader().setPauseWork(true);
-		 * centralTimelineAdapter.getIconImageLoader().setPauseWork(true); } } } else { if(centralTimelineAdapter != null) {
-		 * centralTimelineAdapter.getTimelineImageLoader().setPauseWork(false); centralTimelineAdapter.getIconImageLoader().setPauseWork(false); } }
-		 */
-	}
+	// @Override
+	// public void onScrollStateChanged(AbsListView view, int scrollState)
+	// {
+	// Logger.d(getClass().getSimpleName(), "CentralTimeline Adapter Scrolled State: " + scrollState);
+	// timelineCardsAdapter.setIsListFlinging(velocity > HikeConstants.MAX_VELOCITY_FOR_LOADING_TIMELINE_IMAGES && scrollState == OnScrollListener.SCROLL_STATE_FLING);
+	// /*
+	// * // Pause fetcher to ensure smoother scrolling when flinging if (scrollState == AbsListView.OnScrollListener.SCROLL_STATE_FLING) { // Before Honeycomb pause image loading
+	// * on scroll to help with performance if (!Utils.hasHoneycomb()) { if(centralTimelineAdapter != null) { centralTimelineAdapter.getTimelineImageLoader().setPauseWork(true);
+	// * centralTimelineAdapter.getIconImageLoader().setPauseWork(true); } } } else { if(centralTimelineAdapter != null) {
+	// * centralTimelineAdapter.getTimelineImageLoader().setPauseWork(false); centralTimelineAdapter.getIconImageLoader().setPauseWork(false); } }
+	// */
+	// }
 
 	@Override
 	public void onEventReceived(String type, final Object object)
@@ -276,7 +256,7 @@ public class UpdatesFragment extends SherlockListFragment implements OnScrollLis
 						statusMessages.remove(noStatusMessage);
 						noStatusMessage = null;
 					}
-					centralTimelineAdapter.notifyDataSetChanged();
+					timelineCardsAdapter.notifyDataSetChanged();
 				}
 			});
 			HikeMessengerApp.getPubSub().publish(HikePubSub.RESET_NOTIFICATION_COUNTER, null);
@@ -289,7 +269,7 @@ public class UpdatesFragment extends SherlockListFragment implements OnScrollLis
 				@Override
 				public void run()
 				{
-					centralTimelineAdapter.notifyDataSetChanged();
+					timelineCardsAdapter.notifyDataSetChanged();
 				}
 			});
 		}
@@ -309,7 +289,7 @@ public class UpdatesFragment extends SherlockListFragment implements OnScrollLis
 					{
 						addFTUEItem(statusMessages);
 					}
-					centralTimelineAdapter.notifyDataSetChanged();
+					timelineCardsAdapter.notifyDataSetChanged();
 				}
 			});
 		}
@@ -321,7 +301,7 @@ public class UpdatesFragment extends SherlockListFragment implements OnScrollLis
 				public void run()
 				{
 					addProtip((Protip) object);
-					centralTimelineAdapter.notifyDataSetChanged();
+					timelineCardsAdapter.notifyDataSetChanged();
 				}
 			});
 		}
@@ -332,7 +312,7 @@ public class UpdatesFragment extends SherlockListFragment implements OnScrollLis
 				@Override
 				public void run()
 				{
-					centralTimelineAdapter.notifyDataSetChanged();
+					timelineCardsAdapter.notifyDataSetChanged();
 				}
 			});
 		}
@@ -460,7 +440,7 @@ public class UpdatesFragment extends SherlockListFragment implements OnScrollLis
 			{
 				final int startIndex = getStartIndex();
 				statusMessages.add(startIndex, new StatusMessage(protip));
-				centralTimelineAdapter.setProtipIndex(startIndex);
+				timelineCardsAdapter.setProtipIndex(startIndex);
 			}
 
 			statusMessages.addAll(result);
@@ -483,7 +463,7 @@ public class UpdatesFragment extends SherlockListFragment implements OnScrollLis
 						removeFTUEItemIfExists();
 					}
 
-					centralTimelineAdapter.notifyDataSetChanged();
+					timelineCardsAdapter.notifyDataSetChanged();
 					HikeMessengerApp.getPubSub().addListeners(UpdatesFragment.this, pubSubListeners);
 
 				}
@@ -498,7 +478,7 @@ public class UpdatesFragment extends SherlockListFragment implements OnScrollLis
 		{
 			final int startIndex = getStartIndex();
 			statusMessages.add(getStartIndex(), new StatusMessage(protip));
-			centralTimelineAdapter.setProtipIndex(startIndex);
+			timelineCardsAdapter.setProtipIndex(startIndex);
 		}
 	}
 
