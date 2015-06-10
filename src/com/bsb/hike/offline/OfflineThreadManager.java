@@ -34,6 +34,7 @@ import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.db.HikeOfflinePersistence;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.Sticker;
+import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
 import com.bsb.hike.service.MqttMessagesManager;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
@@ -297,7 +298,7 @@ public class OfflineThreadManager
 						msgSize = OfflineUtils.byteArrayToInt(convMessageLength);
 						// Logger.d(TAG,"Msg size is "+msgSize);
 						if(msgSize==0)
-							continue;
+						break;
 						byte[] msgJSON = new byte[msgSize];
 						int fileSizeRead=msgSize;
 						int offset = 0;
@@ -415,6 +416,12 @@ public class OfflineThreadManager
 					SocketAddress addr = new InetSocketAddress(PORT_FILE_TRANSFER);
 					fileServerSocket.bind(addr);
 					Logger.d(TAG,"Going to wait for fileReceive socket");
+<<<<<<< HEAD
+=======
+					fileServerSocket = new ServerSocket(PORT_FILE_TRANSFER);
+				
+					fileReceiveSocket = fileServerSocket.accept();
+>>>>>>> 57522d89384bc12d7458f73a2fa69cf8d3f5fffc
 					
 					fileReceiveSocket = fileServerSocket.accept();
 					Logger.d(TAG,"fileReceive socket connection success");
@@ -427,7 +434,7 @@ public class OfflineThreadManager
 						byte[] metaDataLengthArray = new byte[4];
 						int msgSize = inputstream.read(metaDataLengthArray,0,4);
 						if(msgSize==0)
-							continue;
+							break;
 						
 						int metaDataLength = OfflineUtils.byteArrayToInt(metaDataLengthArray);
 						Logger.d(TAG, "Size of MetaString: " + metaDataLength);
@@ -488,7 +495,6 @@ public class OfflineThreadManager
 							if (!dirs.exists())
 								dirs.mkdirs();
 							f.createNewFile();
-							
 							// TODO:Can be done via show progress pubsub.
 							// showDownloadTransferNotification(mappedMsgId, fileSize);
 							FileOutputStream outputStream = new FileOutputStream(f);
@@ -639,8 +645,8 @@ public class OfflineThreadManager
 			isSent = offlineManager.copyFile(inputStream, outputStream, msgID, true, true, fileSize);
 			// in seconds
 			long TimeTaken = (System.currentTimeMillis() - time) / 1000;
-			if (TimeTaken > 0)
-				Logger.d(TAG, "Time taken to send file is " + TimeTaken + "Speed is " + fileSize / (1024 * 1024 * TimeTaken));
+			if(TimeTaken>0)
+			Logger.d(TAG, "Time taken to send file is " + TimeTaken + "Speed is " + fileSize / (1024 * 1024 * TimeTaken));
 			inputStream.close();
 		}
 		catch(JSONException e)
@@ -759,5 +765,29 @@ public class OfflineThreadManager
 		}
 
 	};
+
+	public void shutDown()
+	{
+		if(offlineManager.getOfflineState()==OFFLINE_STATE.CONNECTED)
+		{
+			try
+			{
+				textSendSocket.close();
+				fileSendSocket.close();
+				fileReceiveSocket.close();
+				textReceiverSocket.close();
+				fileServerSocket.close();
+				textServerSocket.close();
+			}
+			catch (IOException e)
+			{
+				e.printStackTrace();
+			}
+			textTransferThread.interrupt();
+			fileTransferThread.interrupt();
+			textReceiveThread.interrupt();
+			fileReceiverThread.interrupt();
+		}
+	}
 
 }
