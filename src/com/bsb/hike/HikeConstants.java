@@ -1094,6 +1094,141 @@ public class HikeConstants
 
 	public static final String VOIP_AEC_TAIL_TYPE = "att";
 	
+	public static final class ChatHead
+	{
+		public static final int ANIMATION_TIME = 300;
+
+		public static final int RECT_CONST = 10;
+
+		public static final int DRAG_CONST = 3;
+
+		public static final String STATUS_BAR_HEIGHT = "status_bar_height";
+
+		public static final String STATUS_BAR_TYPE = "dimen";
+
+		public static final String STATUS_BAR_PACKAGE = "android";
+
+		public static final int INITIAL_POS_X = 0;
+
+		public static final int INITIAL_POS_Y = 0;
+
+		public static final int NOTIFICATION_TIMEOUT = 100;
+
+		public static final String STICKER_WIDGET = "stkr_wdgt";
+
+		public static final String CHAT_HEAD_SERVICE = "enable";
+
+		public static final String CHAT_HEAD_USR_CONTROL = "usr_ctrl";
+
+		public static final String STICKERS_PER_DAY = "stkr_per_day";
+
+		public static final String DAILY_STICKER_SHARE_COUNT = "shr_cnt_dly";
+		
+		public static final String EXTRA_STICKERS_PER_DAY = "extra_stkr_per_day";
+
+		public static final String TOTAL_STICKER_SHARE_COUNT = "ttl_stkr_shr_count";
+		
+		public static final String PACKAGE_LIST = "pkg_list";
+		
+		public static final String PACKAGE_NAME = "p";
+
+		public static final String APP_NAME = "a";
+
+		public static final String APP_ENABLE = "e";
+		
+		public static final int DEFAULT_NO_STICKERS_PER_DAY = 5;
+
+		public static final int CREATING_CHAT_HEAD_ACTIVITY_ANIMATION = 0;
+
+		public static final int FINISHING_CHAT_HEAD_ACTIVITY_ANIMATION = 1;
+
+		public static final int SHARING_BEFORE_FINISHING_ANIMATION = 2;
+
+		public static final int STOPPING_SERVICE_ANIMATION = 3;
+		
+		public static final int GET_MORE_STICKERS_ANIMATION = 4;
+
+		public static final int OPEN_HIKE_ANIMATION = 5;
+
+		public static final int STICKER_SHOP_ANIMATION = 6;
+
+		public static final int REMAINING_ANIMATION = 7;
+
+		public static final String INTENT_EXTRA = "time";
+
+		public static final String DISMISS_COUNT = "dismiss_count";
+
+		public static final String SERVICE_START_DATE= "strtDate";
+		
+		public static final String SERVICE_LAST_USED= "lastUsed";
+		
+		public static final String SNOOZE = "snoozeChatHead";
+
+		public static final int DISMISS_CONST= 5;
+
+		//required for analytics 
+		
+		public static final String INFOICON_WITHOUT_CLICK = "iWoC";
+		
+		public static final String STICKER_HEAD_DISMISS = "stkrHdDs";
+		
+		public static final String STICKER_SHARE = "stkrShr";
+		
+		public static final String STICKER_SHOP = "stkrShp";
+		
+		public static final String INFOICON_CLICK = "iClk";
+		
+		public static final String STICKER_HEAD = "stkrHd";
+		
+		public static final String SETTING = "stg";
+		
+		public static final String HIKE_STICKER_SETTING = "hkStkrStg";
+		
+		public static final String TEXT_CLICK_SETTING = "txtStg";
+		
+		public static final String DISABLE_SETTING = "dsbl";
+		
+		public static final String MORE_STICKERS = "mrStkr";
+		
+		public static final String OPEN_HIKE = "openHk";
+		
+		public static final String SNOOZE_TIME = "snz";
+		
+		public static final String MAIN_LAYOUT_CLICKS = "mLClk";
+		
+		public static final String ONE_HOUR = "oneHr";
+		
+		public static final String EIGHT_HOURS = "eghtHr";
+		
+		public static final String ONE_DAY = "oneDay";
+		
+		public static final String BACK = "bck";
+		
+		public static final String STICKER_WDGT = "stkrWgt";
+		
+		public static final String DISMISS_LIMIT = "dsLmt";
+
+		public static final String SHARE_LIMIT = "shrLmt";
+		
+		public static final String CAT_ID = "catId";
+
+		public static final String STICKER_ID = "stkrId";
+		
+		public static final String SOURCE = "s";
+		
+		public static final String SELECT_ALL = "sAClk";
+		
+		public static final String APP_CLICK = "aClk";
+
+		public static final String APP_CHECKED = "t";
+
+		public static final String APP_UNCHECKED = "f";
+
+
+
+	}
+
+	
 	
 	public static final class ResultCodes
 	{
@@ -1503,9 +1638,12 @@ public class HikeConstants
 			public static final int STICKER_SHARE = 2;
 
 		}
-
+		
+		
 		public static final String SHARE_CONTENT = "shareContent";
 
+		public static final String PACKAGE_NAME = "packageName";
+			
 		public static final String WHATSAPP_PACKAGE = "com.whatsapp";
 
 		public static final String SHARE_TYPE = "shareType";

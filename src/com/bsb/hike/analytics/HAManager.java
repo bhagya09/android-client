@@ -631,6 +631,40 @@ public class HAManager
 		fgSessionInstance.setConvType(convType);
 	}
 	
+	
+	public void chatHeadshareAnalytics(String eventKey, String... strings)
+	{
+		JSONObject metadata = new JSONObject();
+		try
+		{
+			metadata.put(HikeConstants.EVENT_KEY, eventKey);
+			metadata.put(HikeConstants.EVENT_TYPE, HikeConstants.ChatHead.STICKER_WDGT);
+			if (strings.length >= 1)
+			{
+				metadata.put(HikeConstants.ChatHead.APP_NAME, strings[0]);
+			}
+			if (strings.length >= 2)
+			{
+				metadata.put(HikeConstants.ChatHead.CAT_ID, strings[1]);
+			}
+			if (strings.length >= 3)
+			{
+				metadata.put(HikeConstants.ChatHead.STICKER_ID, strings[2]);
+			}
+			if (strings.length >= 4)
+			{
+				metadata.put(HikeConstants.ChatHead.SOURCE, strings[3]);
+			}
+			record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+
+	}
+	
+	
 	public void shareWhatsappAnalytics(String shrType, String catId, String stkrId, String path)
 	{
 		JSONObject metadata = new JSONObject();

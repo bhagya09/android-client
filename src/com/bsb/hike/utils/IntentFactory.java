@@ -23,6 +23,8 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.adapters.MessagesAdapter;
+import com.bsb.hike.chatHead.StickerShareSettings;
+import com.bsb.hike.chatthread.ChatThread;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.cropimage.CropImage;
@@ -145,7 +147,7 @@ public class IntentFactory
 		context.startActivity(intent);
 	}
 
-	public static Intent shareIntent(String mimeType, String imagePath, String text, int type, boolean whatsapp)
+	public static Intent shareIntent(String mimeType, String imagePath, String text, int type, String pkgName)
 	{
 		Intent intent = new Intent(Intent.ACTION_SEND);
 		intent.setType(mimeType);
@@ -154,9 +156,9 @@ public class IntentFactory
 			intent.putExtra(Intent.EXTRA_TEXT, text);
 		}
 		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-		if (whatsapp)
+		if (pkgName != null)
 		{
-			intent.setPackage(HikeConstants.Extras.WHATSAPP_PACKAGE);
+			intent.setPackage(pkgName);
 		}
 		if (type != HikeConstants.Extras.ShareTypes.TEXT_SHARE)
 		{
@@ -180,6 +182,13 @@ public class IntentFactory
 		context.startActivity(intent);
 	}
 
+	
+	public static void openSettingStickerOnOtherApp(Context context)
+	{
+		Intent intent = new Intent(context, StickerShareSettings.class);
+		context.startActivity(intent);
+	}
+	
 	public static void openSettingHelp(Context context)
 	{
 		Intent intent = new Intent(context, HikePreferences.class);
@@ -295,6 +304,33 @@ public class IntentFactory
 
 		return intent;
 	}
+	
+	public static Intent getStickerShareIntent(Context context)
+	{
+		SharedPreferences prefs = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
+		Intent intent = new Intent(context.getApplicationContext(), WebViewActivity.class);
+		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+		String stickerShare_url = AccountUtils.stickerShareUrl;
+
+		if (!TextUtils.isEmpty(stickerShare_url))
+		{
+			if (Utils.switchSSLOn(context))
+			{
+				intent.putExtra(HikeConstants.Extras.URL_TO_LOAD,
+						AccountUtils.HTTPS_STRING + stickerShare_url + HikeConstants.ANDROID + "/" + prefs.getString(HikeMessengerApp.REWARDS_TOKEN, ""));
+			}
+			else
+			{
+				intent.putExtra(HikeConstants.Extras.URL_TO_LOAD,
+						AccountUtils.HTTP_STRING + stickerShare_url + HikeConstants.ANDROID + "/" + prefs.getString(HikeMessengerApp.REWARDS_TOKEN, ""));
+			}
+		}
+
+		intent.putExtra(HikeConstants.Extras.TITLE, context.getString(R.string.more_stickers));
+		
+		return intent;
+	}
+	
 
 	public static Intent createNewBroadcastActivityIntent(Context appContext)
 	{
@@ -623,6 +659,16 @@ public class IntentFactory
 		}
 		context.startActivity(in);
 	}
+	
+	public static void openHomeActivityInOtherTask(Context context, boolean flag)
+	{
+		Intent in = new Intent(context, HomeActivity.class);
+		if (flag)
+		{
+			in.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+		}		
+		context.startActivity(in);
+	}
 
 	public static Intent openInviteFriends(Activity context)
 	{
@@ -712,6 +758,17 @@ public class IntentFactory
 	public static Intent getStickerShopIntent(Context context)
 	{
 		Intent intent = new Intent(context, StickerShopActivity.class);
+		
+		return intent;
+	}
+	public static Intent getStickerShopIntent(Context context, boolean flags)
+	{
+		Intent intent = new Intent(context, StickerShopActivity.class);
+		
+		if(flags)
+		{
+			intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+		}
 		return intent;
 	}
 

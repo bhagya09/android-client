@@ -2,6 +2,10 @@ package com.bsb.hike.ui;
 
 import java.util.ArrayList;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.content.Intent;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.drawable.Drawable;
@@ -29,6 +33,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ImageViewerInfo;
@@ -99,6 +104,10 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 		}
 		items.add(getString(R.string.manage_account));
 		items.add(getString(R.string.privacy));
+    	if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, false) && ChatHeadUtils.isSharingPackageInstalled(this))
+		{
+			items.add(getString(R.string.settings_share_stickers));
+		}
 		items.add(getString(R.string.help));
 		items.add(null);
 
@@ -113,6 +122,10 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 		}
 		itemsSummary.add(getString(R.string.account_hintttext));
 		itemsSummary.add(getString(R.string.privacy_setting_hinttext));
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, false) && ChatHeadUtils.isSharingPackageInstalled(this))
+		{
+			itemsSummary.add(getString(R.string.settings_share_stickers_hintext));
+		}
 		itemsSummary.add(getString(R.string.help_hinttext));
 
 		final ArrayList<Integer> itemIcons = new ArrayList<Integer>();
@@ -127,6 +140,10 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 		}
 		itemIcons.add(R.drawable.ic_account_settings);
 		itemIcons.add(R.drawable.ic_privacy_settings);
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, false) && ChatHeadUtils.isSharingPackageInstalled(this))
+		{
+			itemIcons.add(R.drawable.settings_icon_sticker_widget);
+		}
 		itemIcons.add(R.drawable.ic_help_settings);
 
 		ArrayAdapter<String> listAdapter = new ArrayAdapter<String>(this, R.layout.setting_item, R.id.item, items)
@@ -221,7 +238,7 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 		showProductPopup(ProductPopupsConstants.PopupTriggerPoints.SETTINGS_SCR.ordinal());
 		
 	}
-
+	
 	private void addProfileHeaderView(ListView settingsList)
 	{
 		View header = getLayoutInflater().inflate(R.layout.profile_header_other, null);
@@ -296,61 +313,134 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 	{
 		if (isConnectedAppsPresent)
 		{
-			switch (position)
+			if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, false) && ChatHeadUtils.isSharingPackageInstalled(this))
 			{
-			case 1:
-				IntentFactory.openSettingNotification(this);
-				break;
-			case 2:
-				IntentFactory.openSettingMedia(this);
-				break;
-			case 3:
-				IntentFactory.openSettingChat(this);
-				break;
-			case 4:
-				IntentFactory.openSettingSMS(this);
-				break;
-			case 5:
-				IntentFactory.openConnectedApps(this);
-				break;
-			case 6:
-				IntentFactory.openSettingAccount(this);
-				break;
-			case 7:
-				HAManager.logClickEvent(HikeConstants.LogEvent.PRIVACY_SETTING_CLICKED);
-				IntentFactory.openSettingPrivacy(this);
-				break;
-			case 8:
-				IntentFactory.openSettingHelp(this);
-				break;
+				switch (position)
+				{
+				case 1:
+					IntentFactory.openSettingNotification(this);
+					break;
+				case 2:
+					IntentFactory.openSettingMedia(this);
+					break;
+				case 3:
+					IntentFactory.openSettingChat(this);
+					break;
+				case 4:
+					IntentFactory.openSettingSMS(this);
+					break;
+				case 5:
+					IntentFactory.openConnectedApps(this);
+					break;
+				case 6:
+					IntentFactory.openSettingAccount(this);
+					break;
+				case 7:
+					HAManager.logClickEvent(HikeConstants.LogEvent.PRIVACY_SETTING_CLICKED);
+					IntentFactory.openSettingPrivacy(this);
+					break;
+				case 8:
+					HAManager.getInstance().chatHeadshareAnalytics(HikeConstants.ChatHead.HIKE_STICKER_SETTING);
+					IntentFactory.openSettingStickerOnOtherApp(this);
+					break;
+				case 9:
+					IntentFactory.openSettingHelp(this);
+					break;
+				}
+			}
+			else
+			{
+				switch (position)
+				{
+				case 1:
+					IntentFactory.openSettingNotification(this);
+					break;
+				case 2:
+					IntentFactory.openSettingMedia(this);
+					break;
+				case 3:
+					IntentFactory.openSettingChat(this);
+					break;
+				case 4:
+					IntentFactory.openSettingSMS(this);
+					break;
+				case 5:
+					IntentFactory.openConnectedApps(this);
+					break;
+				case 6:
+					IntentFactory.openSettingAccount(this);
+					break;
+				case 7:
+					HAManager.logClickEvent(HikeConstants.LogEvent.PRIVACY_SETTING_CLICKED);
+					IntentFactory.openSettingPrivacy(this);
+					break;
+				case 8:
+					IntentFactory.openSettingHelp(this);
+					break;
+				}
 			}
 		}
 		else
 		{
-			switch (position)
+			if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, false) && ChatHeadUtils.isSharingPackageInstalled(this))
 			{
-			case 1:
-				IntentFactory.openSettingNotification(this);
-				break;
-			case 2:
-				IntentFactory.openSettingMedia(this);
-				break;
-			case 3:
-				IntentFactory.openSettingChat(this);
-				break;
-			case 4:
-				IntentFactory.openSettingSMS(this);
-				break;
-			case 5:
-				IntentFactory.openSettingAccount(this);
-				break;
-			case 6:
-				HAManager.logClickEvent(HikeConstants.LogEvent.PRIVACY_SETTING_CLICKED);
-				IntentFactory.openSettingPrivacy(this);
-				break;
-			case 7:
-				IntentFactory.openSettingHelp(this);
-				break;
+				switch (position)
+				{
+				case 1:
+					IntentFactory.openSettingNotification(this);
+					break;
+				case 2:
+					IntentFactory.openSettingMedia(this);
+					break;
+				case 3:
+					IntentFactory.openSettingChat(this);
+					break;
+				case 4:
+					IntentFactory.openSettingSMS(this);
+					break;
+				case 5:
+					IntentFactory.openSettingAccount(this);
+					break;
+				case 6:
+					HAManager.logClickEvent(HikeConstants.LogEvent.PRIVACY_SETTING_CLICKED);
+					IntentFactory.openSettingPrivacy(this);
+					break;
+				case 7:
+					HAManager.getInstance().chatHeadshareAnalytics(HikeConstants.ChatHead.HIKE_STICKER_SETTING);
+					IntentFactory.openSettingStickerOnOtherApp(this);
+					break;
+				case 8:
+					IntentFactory.openSettingHelp(this);
+					break;
+				}
+			}
+			else
+			{
+				switch (position)
+				{
+				case 1:
+					IntentFactory.openSettingNotification(this);
+					break;
+				case 2:
+					IntentFactory.openSettingMedia(this);
+					break;
+				case 3:
+					IntentFactory.openSettingChat(this);
+					break;
+				case 4:
+					IntentFactory.openSettingSMS(this);
+					break;
+				case 5:
+					IntentFactory.openSettingAccount(this);
+					break;
+				case 6:
+					HAManager.logClickEvent(HikeConstants.LogEvent.PRIVACY_SETTING_CLICKED);
+					IntentFactory.openSettingPrivacy(this);
+					break;
+				case 7:
+					IntentFactory.openSettingHelp(this);
+					break;
+				}
 			}
 		}
 	}
@@ -539,7 +629,6 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 		Bundle arguments = (Bundle) object;
 		ImageViewerFragment imageViewerFragment = new ImageViewerFragment();			
 		imageViewerFragment.setArguments(arguments);
-
 		FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
 		fragmentTransaction.add(R.id.parent_layout, imageViewerFragment, HikeConstants.IMAGE_FRAGMENT_TAG);
 		fragmentTransaction.commitAllowingStateLoss();

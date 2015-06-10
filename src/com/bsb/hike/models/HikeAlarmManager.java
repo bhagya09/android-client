@@ -15,6 +15,8 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsSender;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
+import com.bsb.hike.chatHead.ChatHeadService;
+import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.db.AccountBackupRestore;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.notifications.HikeNotification;
@@ -24,6 +26,7 @@ import com.bsb.hike.productpopup.NotificationContentModel;
 import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.service.PreloadNotificationSchedular;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
@@ -79,6 +82,8 @@ public class HikeAlarmManager
 	public static final String INTENT_EXTRA = "intent_extra";
 
 	public static final String TAG = "HikeAlarmManager";
+
+	public static final int REQUESTCODE_START_STICKER_SHARE_SERVICE = 4573;
 
 	/**
 	 * 
@@ -294,6 +299,10 @@ public class HikeAlarmManager
 			NotificationContentModel notificationContentModel = new NotificationContentModel(title, text, shouldPlaySound, triggerpoint);
 			ProductInfoManager.getInstance().notifyUser(notificationContentModel);
 			break;
+		case HikeAlarmManager.REQUESTCODE_START_STICKER_SHARE_SERVICE:	
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.SNOOZE, false);
+			ChatHeadUtils.serviceDecision(context, false);
+			break;
 			
 		default:
 			PlatformAlarmManager.processTasks(intent, context);
@@ -355,6 +364,11 @@ public class HikeAlarmManager
 			Logger.d("ProductPopup","Alarm recieved in Exired Tasks");
 			processTasks(intent, context);
 			break;
+		case HikeAlarmManager.REQUESTCODE_START_STICKER_SHARE_SERVICE:	
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.SNOOZE, false);
+			ChatHeadUtils.serviceDecision(context, false);
+			break;
+			
 		default:
 			PlatformAlarmManager.processTasks(intent, context);
 			break;

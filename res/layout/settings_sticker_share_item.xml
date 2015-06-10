@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="48dp"
+    android:orientation="horizontal" >
+
+    <ImageView
+        android:id="@+id/app_icon"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_gravity="center_vertical"
+        android:layout_margin="9dp" >
+    </ImageView>
+
+    <com.bsb.hike.view.CustomFontTextView
+        android:id="@+id/app_name"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:gravity="center_vertical"
+        android:textSize="16sp"
+        android:textStyle="bold|italic" />
+
+    <CheckBox
+        android:id="@+id/checkbox_item"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:button="@drawable/hike_list_item_checkbox"
+        android:checked="false"
+        android:gravity="center_vertical"
+        android:paddingRight="20dp" />
+
+</LinearLayout>

@@ -1518,5 +1518,23 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
 	<string name="delete_block">Block and Delete</string>
 	<string name="confirm_delete_block_msg">Do you want to delete and block \"%1$s\"? </string>
 	<string name="confirm_delete_non_messaging">Do you want to delete \"%1$s\"? </string>
+	<string name="stickers_sent_today"> stickers sent today</string>
+	<string name="disable_from_hike_settings">Disable permanently from hike Settings</string>
+	<string name="total_sticker_sent_start">You sent</string>
+	<string name="total_sticker_sent_middle">stickers in the last</string>
+	<string name="total_sticker_sent_end">days</string>
+    <string name="disable_button">DISABLE</string>
+    <string name="get_more_stickers_button">GET MORE STICKERS</string>
+    <string name="open_hike_button">OPEN HIKE</string>
+    <string name="one_hour_button">1 HOUR</string>
+    <string name="eight_hour_button">8 HOURS</string>
+    <string name="one_day_button">24 HOURS</string>
+    <string name="settings_share_stickers">Sticker Widget</string>
+    <string name="settings_share_stickers_hintext">Sticker Widget Settings</string>
+    <string name="sticker_widget_hide">Hide the sticker widget from all the apps listed</string>
+    <string name="sticker_widget_show">Show the sticker widget from all the apps listed</string>
+    <string name="settings_select_all">Select all </string>
+    <string name="settings_deselect_all">Deselect all </string>
+    <string name="more_stickers">More stickers</string>
 	<string name="now">Now</string>
 </resources>

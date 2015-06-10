@@ -18,6 +18,7 @@ import java.net.URL;
 import java.nio.CharBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -59,6 +60,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningAppProcessInfo;
+import android.app.ActivityManager.RunningServiceInfo;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.PendingIntent;
@@ -357,6 +359,32 @@ public class Utils
 			}
 		}
 		return mOutToRight;
+	}
+
+	public static long gettingMidnightTimeinMilliseconds()
+	{
+		Calendar c = Calendar.getInstance();
+		c.set(Calendar.HOUR_OF_DAY, 0);
+		c.set(Calendar.MINUTE, 0);
+		c.set(Calendar.SECOND, 0);
+		c.set(Calendar.MILLISECOND, 0);
+		return c.getTimeInMillis();
+	}
+	
+	public static boolean isMyServiceRunning(Class<?> serviceClass, Context ctx)
+	{
+		ActivityManager manager = (ActivityManager) ctx.getSystemService(Context.ACTIVITY_SERVICE);
+		for (RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE))
+		{
+			{
+				if (serviceClass.getName().equals(service.service.getClassName()))
+				{
+
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	public static Animation inFromLeftAnimation(Context ctx)
@@ -1694,7 +1722,8 @@ public class Utils
 		AccountUtils.stickersUrl = (isProductionServer ? AccountUtils.HTTP_STRING + AccountUtils.STICKERS_PRODUCTION_BASE : AccountUtils.base + AccountUtils.STICKERS_STAGING_PATH);
 		AccountUtils.h2oTutorialUrl = (isProductionServer ? AccountUtils.HTTP_STRING + AccountUtils.H2O_TUTORIAL_PRODUCTION_BASE : AccountUtils.base + AccountUtils.H2O_TUTORIAL_STAGING_PATH);
 		AccountUtils.analyticsUploadUrl = AccountUtils.base + AccountUtils.ANALYTICS_UPLOAD_PATH;
-
+		AccountUtils.stickerShareUrl = (isProductionServer ? AccountUtils.STICKER_SHARE_PRODUCTION_BASE : AccountUtils.base + AccountUtils.STICKER_SHARE_STAGING_PATH);
+		
 		Logger.d("SSL", "Base: " + AccountUtils.base);
 		Logger.d("SSL", "FTHost: " + AccountUtils.fileTransferHost);
 		Logger.d("SSL", "FTUploadBase: " + AccountUtils.fileTransferBase);
@@ -4305,7 +4334,7 @@ public class Utils
 		}
 		return false;
 	}
-
+	
 	public static void clearJar(Context c)
 	{
 		HashMap<URL, JarFile> jarCache = null;
@@ -4710,6 +4739,18 @@ public class Utils
 		context.startActivity(intent);
 	}
 
+	public static void startWebViewActivity(Context context, String url, String title, boolean flagnewTask)
+	{
+		Intent intent = new Intent(context, WebViewActivity.class);
+		intent.putExtra(HikeConstants.Extras.URL_TO_LOAD, url);
+		intent.putExtra(HikeConstants.Extras.TITLE, title);
+		if (flagnewTask)
+		{
+		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+		}
+		context.startActivity(intent);
+	}
+	
 	public static Drawable getChatTheme(ChatTheme chatTheme, Context context)
 	{
 		/*

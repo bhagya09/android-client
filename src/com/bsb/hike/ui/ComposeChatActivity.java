@@ -55,6 +55,7 @@ import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.chatHead.ChatHeadService;
 import com.bsb.hike.HikeConstants.MESSAGE_TYPE;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -437,7 +438,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		}
 		
 		if (item.getItemId() == R.id.whatsapp_share)
-		{
+		{     
 			if (Utils.isPackageInstalled(getApplicationContext(), HikeConstants.Extras.WHATSAPP_PACKAGE))
 			{
 				String str = getIntent().getStringExtra(HikeConstants.Extras.SHARE_CONTENT);
@@ -458,8 +459,8 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					break;
 
 				}
-				Intent intent = ShareUtils.shareContent(type, str);
-				if (intent != null)
+				Intent intent = ShareUtils.shareContent(type, str, HikeConstants.Extras.WHATSAPP_PACKAGE);
+ 				if (intent != null)
 				{
 					startActivity(intent);
 				}
