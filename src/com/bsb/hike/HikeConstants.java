@@ -2827,4 +2827,6 @@ public class HikeConstants
 	public static final String DEFAULT_IMG_QUALITY_FOR_SMO = "d_q_smo";
 		
 	public static final String SHOW_TOAST_FOR_DEGRADING_QUALITY = "img_deg_toast";
+			
+	public static final String CONSUMED_FORWARDED_DATA = "consumed";
 }

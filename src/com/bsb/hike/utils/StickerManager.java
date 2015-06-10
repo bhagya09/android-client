@@ -373,10 +373,8 @@ public class StickerManager
 		}
 		addNoMedia(root);
 
-		Editor editor = preferenceManager.edit();
-		editor.putBoolean(ADD_NO_MEDIA_FILE_FOR_STICKERS, true);
-		editor.putBoolean(ADD_NO_MEDIA_FILE_FOR_STICKER_OTHER_FOLDERS, true);
-		editor.commit();
+		HikeSharedPreferenceUtil.getInstance().saveData(ADD_NO_MEDIA_FILE_FOR_STICKERS, true);
+		HikeSharedPreferenceUtil.getInstance().saveData(ADD_NO_MEDIA_FILE_FOR_STICKER_OTHER_FOLDERS, true);
 	}
 
 	private void addNoMedia(File directory)
