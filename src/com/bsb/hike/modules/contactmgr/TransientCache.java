@@ -553,11 +553,9 @@ public class TransientCache extends ContactsCache
 	List<ContactInfo> getNOTFRIENDScontacts(int onHike, String myMsisdn, boolean nativeSMSOn, boolean ignoreUnknownContacts)
 	{
 		List<ContactInfo> contacts = new ArrayList<ContactInfo>();
-
+		Set<String> blockSet = ContactManager.getInstance().getBlockedMsisdnSet();
 		if (allContactsLoaded)
 		{
-			Set<String> blockSet = ContactManager.getInstance().getBlockedMsisdnSet();
-
 			readLock.lock();
 			try
 			{
@@ -582,7 +580,7 @@ public class TransientCache extends ContactsCache
 		}
 		else
 		{
-			Map<String, ContactInfo> map = hDb.getNOTFRIENDScontactsFromDB(onHike, myMsisdn, nativeSMSOn, ignoreUnknownContacts);
+			Map<String, ContactInfo> map = hDb.getNOTFRIENDScontactsFromDB(blockSet, onHike, myMsisdn, nativeSMSOn, ignoreUnknownContacts);
 			if (map != null)
 			{
 				contacts.addAll(map.values());
@@ -604,9 +602,9 @@ public class TransientCache extends ContactsCache
 	List<ContactInfo> getContactsOfFavoriteType(FavoriteType[] favoriteType, int onHike, String myMsisdn, boolean nativeSMSOn, boolean ignoreUnknownContacts)
 	{
 		List<ContactInfo> contacts = new ArrayList<ContactInfo>();
+		Set<String> blockSet = ContactManager.getInstance().getBlockedMsisdnSet();
 		if (allContactsLoaded)
 		{
-			Set<String> blockSet = ContactManager.getInstance().getBlockedMsisdnSet();
 			boolean flag;
 
 			readLock.lock();
@@ -670,7 +668,7 @@ public class TransientCache extends ContactsCache
 		}
 		else
 		{
-			Map<String, ContactInfo> map = hDb.getContactsOfFavoriteTypeDB(favoriteType, onHike, myMsisdn, nativeSMSOn, ignoreUnknownContacts);
+			Map<String, ContactInfo> map = hDb.getContactsOfFavoriteTypeDB(favoriteType, blockSet, onHike, myMsisdn, nativeSMSOn, ignoreUnknownContacts);
 			if (map != null)
 			{
 				contacts.addAll(map.values());
@@ -732,10 +730,9 @@ public class TransientCache extends ContactsCache
 	List<Pair<AtomicBoolean, ContactInfo>> getNonHikeContacts()
 	{
 		List<Pair<AtomicBoolean, ContactInfo>> contacts = new ArrayList<Pair<AtomicBoolean, ContactInfo>>();
+		Set<String> blockSet = ContactManager.getInstance().getBlockedMsisdnSet();
 		if (allContactsLoaded)
 		{
-			Set<String> blockSet = ContactManager.getInstance().getBlockedMsisdnSet();
-
 			readLock.lock();
 			try
 			{
@@ -760,7 +757,7 @@ public class TransientCache extends ContactsCache
 		}
 		else
 		{
-			contacts = hDb.getNonHikeContacts();
+			contacts = hDb.getNonHikeContacts(blockSet);
 			writeLock.lock();
 			try
 			{
