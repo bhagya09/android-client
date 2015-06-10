@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -21,6 +19,7 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
+import android.os.Handler;
 import android.os.IBinder;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
@@ -59,8 +58,6 @@ public class ChatHeadService extends Service
 
 	private static boolean toShow = true;
 
-	private Timer processCheckTimer;
-
 	private WindowManager.LayoutParams chatHeadParams = new WindowManager.LayoutParams(WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT,
 			WindowManager.LayoutParams.TYPE_PHONE, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, PixelFormat.TRANSLUCENT);
 
@@ -75,8 +72,11 @@ public class ChatHeadService extends Service
 
 	public static FinishActivityListener mFinishActivityListener;
 	
-	private class CheckForegroundActivity extends TimerTask
+	private final Handler chatHeadHandler = new Handler();
+	
+	Runnable chatHeadRunnable = new Runnable()
 	{
+		
 		@Override
 		public void run()
 		{
@@ -127,10 +127,9 @@ public class ChatHeadService extends Service
 					});
 				}
 			}
-
+			chatHeadHandler.postDelayed(this, 1000L);
 		}
-
-	}
+	};
 
 	private static void createListfromJson()
 	{
@@ -457,6 +456,8 @@ public class ChatHeadService extends Service
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId)
 	{   
+		chatHeadHandler.removeCallbacks(chatHeadRunnable);
+		chatHeadHandler.postDelayed(chatHeadRunnable, 1000L);
 		return Service.START_STICKY;
 	}
 
@@ -478,10 +479,6 @@ public class ChatHeadService extends Service
 		setCloseHeadParams();
 
 		createListfromJson();
-
-		processCheckTimer = new Timer();
-
-		processCheckTimer.schedule(new CheckForegroundActivity(), 0L, 1000L);
 
 		windowManager.addView(chatHead, chatHeadParams);
 
@@ -563,8 +560,7 @@ public class ChatHeadService extends Service
 	@Override
 	public void onDestroy()
 	{
-		processCheckTimer.cancel();
-		processCheckTimer.purge();
+		chatHeadHandler.removeCallbacks(chatHeadRunnable);
 	
 		if (chatHead.isShown())
 			windowManager.removeView(chatHead);
