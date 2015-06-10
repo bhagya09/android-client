@@ -185,7 +185,7 @@ public class OfflineUtils
 		{
 			storagePath.append(HikeConstants.OTHER_ROOT);
 		}
-		storagePath.append(File.separator+fileName);
+		storagePath.append(File.separator+fileName+System.currentTimeMillis());
 		return storagePath.toString();
 	}
 
@@ -417,4 +417,28 @@ public class OfflineUtils
 		}
 		return isFileTransferMessage;
 	}
+	
+	public static File isStickerPresentInApp(JSONObject messageJSON) throws JSONException, IOException
+	{
+		String ctgId = messageJSON.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getString(StickerManager.CATEGORY_ID);
+		String stkId = messageJSON.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getString(StickerManager.STICKER_ID);
+		Sticker sticker = new Sticker(ctgId, stkId);
+
+		File stickerImage;
+		String stickerPath = sticker.getStickerPath(HikeMessengerApp.getInstance().getApplicationContext());
+		stickerImage = new File(stickerPath);
+
+		// sticker is not present
+		if (stickerImage == null || (stickerImage.exists() == false))
+		{
+			File parent = new File(stickerImage.getParent());
+			if (!parent.exists())
+				parent.mkdirs();
+			stickerImage.createNewFile();
+			
+		}
+		return stickerImage;
+	}
+	
+	
 }
