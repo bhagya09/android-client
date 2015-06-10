@@ -822,8 +822,11 @@ public class Utils
 		}
 	}
 
-	public static String getConversationJoinHighlightText(JSONArray participantInfoArray, OneToNConvInfo convInfo)
+	public static String getConversationJoinHighlightText(JSONArray participantInfoArray, OneToNConvInfo convInfo, boolean newGrp, Context context)
 	{
+		if(newGrp){
+			return context.getString(R.string.you).toLowerCase();
+		}
 		JSONObject participant = (JSONObject) participantInfoArray.opt(0);
 		String highlight = convInfo.getConvParticipantName(participant.optString(HikeConstants.MSISDN));
 		if (participantInfoArray.length() == 2)
@@ -840,8 +843,11 @@ public class Utils
 		return highlight;
 	}
 	
-	public static String getOneToNConversationJoinHighlightText(JSONArray participantInfoArray, OneToNConversation conversation)
+	public static String getOneToNConversationJoinHighlightText(JSONArray participantInfoArray, OneToNConversation conversation, boolean newGrp, Context context)
 	{
+		if(newGrp){
+			return context.getString(R.string.you).toLowerCase();
+		}
 		JSONObject participant = (JSONObject) participantInfoArray.opt(0);
 		String highlight = conversation.getConvParticipantFirstNameAndSurname(participant.optString(HikeConstants.MSISDN));
 

@@ -45,6 +45,8 @@ public class HikeConstants
 	public static final String FROM = "f";
 
 	public static final String SUB_TYPE = "st";
+	
+	public static final String GROUP_CHAT_TIMESTAMP = "gts";
 
 	public static final String HIKE_MESSAGE = "hm";
 
@@ -610,6 +612,8 @@ public class HikeConstants
 	public static final String SYSTEM_HEALTH_URL = "http://www.twitter.com/hikestatus";
 
 	public static final String IS_TYPING = "is typing...";
+	
+	public static final String ARE_TYPING = "are typing...";
 
 	public static final String NEW_GROUP = "new_group";
 	

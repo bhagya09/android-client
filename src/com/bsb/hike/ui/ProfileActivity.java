@@ -107,6 +107,7 @@ import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
 import com.bsb.hike.utils.EmoticonConstants;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.StealthModeManager;
@@ -222,6 +223,8 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	public SmileyParser smileyParser;
 	
 	int triggerPointPopup=ProductPopupsConstants.PopupTriggerPoints.UNKNOWN.ordinal();
+
+	private TextView creation;
 	
 	private static final String TAG = "Profile_Activity";
 	
@@ -883,11 +886,28 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			groupNameEditText = (EditText) headerView.findViewById(R.id.name_edit);
 			text = (TextView) headerView.findViewById(R.id.name);
 			profileImage = (ImageView) headerView.findViewById(R.id.group_profile_image);
+			creation = (TextView) headerView.findViewById(R.id.creation);
 			smallIconFrame = (ImageView) headerView.findViewById(R.id.change_profile);
 			groupNameEditText.setText(oneToNConversation.getLabel());
 			msisdn = oneToNConversation.getMsisdn();
 			name = oneToNConversation.getLabel();
 			text.setText(name);
+			if (profileType == ProfileType.BROADCAST_INFO) {
+				creation.setVisibility(View.GONE);
+
+			} else {
+				long groupCreation = oneToNConversation.getCreationDateInLong();
+				if (groupCreation != -1l)
+					creation.setText(getResources().getString(
+							R.string.group_creation)
+							+ " "
+							+ OneToNConversationUtils
+									.getGroupCreationTimeAsString(
+											getApplicationContext(),
+											groupCreation));
+
+			}
+
 			
 			break;
 			
@@ -1598,6 +1618,9 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		if(BotUtils.isBot(mLocalMSISDN))
 		{
 			return;
+		}
+		if(showingGroupEdit){
+			closeGroupNameEdit();
 		}
 		
 		ImageViewerInfo imageViewerInfo = (ImageViewerInfo) v.getTag();
