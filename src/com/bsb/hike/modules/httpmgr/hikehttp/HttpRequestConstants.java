@@ -1,6 +1,7 @@
 package com.bsb.hike.modules.httpmgr.hikehttp;
 
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Utils;
 
@@ -90,11 +91,37 @@ public class HttpRequestConstants
 	{
 		BASE_URL = "";
 		BASE_URL += (isSSL) ? HTTPS : HTTP;
-		BASE_URL += (isProduction) ? PRODUCTION_API : STAGING_API;
+		
+		if(isProduction)
+		{
+			BASE_URL += PRODUCTION_API;
+		}
+		else
+		{
+			//get staging or custom staging url
+			setupStagingUrl();
+		}
 		
 		BASE_SDK = "";
 		BASE_SDK += (isSSL) ? HTTPS : HTTP;
 		BASE_SDK += (isProduction) ? BASE_SDK_PROD : BASE_SDK_STAGING;
+	}
+	
+	private static void setupStagingUrl()
+	{
+		int whichServer = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PRODUCTION_HOST_TOGGLE, AccountUtils._STAGING_HOST);
+		if (whichServer == AccountUtils._CUSTOM_HOST)
+		{
+			String host = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.CUSTOM_HTTP_HOST, AccountUtils.PRODUCTION_HOST);
+			int port = AccountUtils.port = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.CUSTOM_HTTP_PORT, AccountUtils.PRODUCTION_PORT);
+			// all custom ip request should point to http and not https
+			BASE_URL = HTTP + host + ":" + Integer.toString(port);
+
+		}
+		else
+		{
+			BASE_URL += STAGING_API; // staging host
+		}
 	}
 
 	private static void changeBasePlatformUrl()
