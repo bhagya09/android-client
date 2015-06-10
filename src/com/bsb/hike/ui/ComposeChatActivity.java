@@ -1434,6 +1434,8 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 						}
 
 						String fileType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(Utils.getFileExtension(filePath));
+						if (fileType == null)
+							fileType = presentIntent.getType();
 						HikeFileType hikeFileType = HikeFileType.fromString(fileType, false);
 
 						fileDetails.add(new Pair<String, String>(filePath, fileType));

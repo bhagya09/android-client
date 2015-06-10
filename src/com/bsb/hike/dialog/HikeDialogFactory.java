@@ -307,7 +307,7 @@ public class HikeDialogFactory
 		hikeDialog.setCanceledOnTouchOutside(true);
 		SharedPreferences appPrefs = PreferenceManager.getDefaultSharedPreferences(context);
 		final Editor editor = appPrefs.edit();
-		int quality = ImageQuality.QUALITY_DEFAULT;
+		int quality = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.DEFAULT_IMG_QUALITY_FOR_SMO, ImageQuality.QUALITY_DEFAULT);
 		final LinearLayout small_ll = (LinearLayout) hikeDialog.findViewById(R.id.hike_small_container);
 		final LinearLayout medium_ll = (LinearLayout) hikeDialog.findViewById(R.id.hike_medium_container);
 		final LinearLayout original_ll = (LinearLayout) hikeDialog.findViewById(R.id.hike_original_container);

@@ -1930,6 +1930,26 @@ public class MqttMessagesManager
 			int httpAnalyticsMaxNumber = data.getInt(HikeConstants.PROB_NUM_HTTP_ANALYTICS);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.PROB_NUM_HTTP_ANALYTICS, httpAnalyticsMaxNumber);
 		}
+		if (data.has(HikeConstants.SUPER_COMPRESSED_IMG_SIZE))
+		{
+			int superCompressedImgSize = data.getInt(HikeConstants.SUPER_COMPRESSED_IMG_SIZE);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SUPER_COMPRESSED_IMG_SIZE, superCompressedImgSize);
+		}
+		if (data.has(HikeConstants.NORMAL_IMG_SIZE))
+		{
+			int normalImgSize = data.getInt(HikeConstants.NORMAL_IMG_SIZE);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.NORMAL_IMG_SIZE, normalImgSize);
+		}
+		if (data.has(HikeConstants.DEFAULT_IMG_QUALITY_FOR_SMO))
+		{
+			int defaultImgQuality = data.getInt(HikeConstants.DEFAULT_IMG_QUALITY_FOR_SMO);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.DEFAULT_IMG_QUALITY_FOR_SMO, defaultImgQuality);
+		}
+		if (data.has(HikeConstants.SHOW_TOAST_FOR_DEGRADING_QUALITY))
+		{
+			boolean toShowToastForDegradingQuality = data.getBoolean(HikeConstants.SHOW_TOAST_FOR_DEGRADING_QUALITY);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_TOAST_FOR_DEGRADING_QUALITY, toShowToastForDegradingQuality);
+		}
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
 		
