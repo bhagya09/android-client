@@ -27,23 +27,6 @@ public class ShareBitmapTask extends AsyncTask<Void, Void, Void>
 		this.shareFile = shareFile;
 	}
 
-	private static void closeFos(FileOutputStream fos)
-	{
-		if (fos != null)
-		{
-			try
-			{
-				fos.close();
-			}
-			catch (IOException e)
-			{
-				// Do nothing
-				e.printStackTrace();
-			}
-		}
-
-	}
-
 	@Override
 	protected Void doInBackground(Void... params)
 	{
@@ -65,7 +48,7 @@ public class ShareBitmapTask extends AsyncTask<Void, Void, Void>
 		}
 		finally
 		{
-			closeFos(fos);
+			Utils.closeStreams(fos);
 		}
 		return null;
 
