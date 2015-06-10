@@ -1520,4 +1520,6 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
 	<string name="delete_block">Block and Delete</string>
 	<string name="confirm_delete_block_msg">Do you want to delete and block \"%1$s\"? </string>
 	<string name="confirm_delete_non_messaging">Do you want to delete \"%1$s\"? </string>
+	<string name="profile_pic_upload_in_background">Profile picture upload will continue..</string>
+	<string name="profile_pic_failed">Profile picture upload failed. Please try again</string>
 </resources>
