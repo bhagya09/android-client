@@ -29,11 +29,9 @@ import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.telephony.TelephonyManager;
-import android.text.Editable;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
-import android.text.TextWatcher;
 import android.text.style.ForegroundColorSpan;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -807,53 +805,12 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		}
 	}
 
-	private TextWatcher nameWatcher = new TextWatcher()
-	{
-		String initials = "";
-		
-		public void beforeTextChanged(CharSequence s, int start, int count, int after)
-		{
-
-		}
-
-		public void onTextChanged(CharSequence s, int start, int before, int count)
-		{
-			
-		}
-
-		public void afterTextChanged(Editable s)
-		{
-			if (s == null)
-				return;
-
-			String newText = s.toString();
-
-			if (TextUtils.isEmpty(newText))
-			{
-
-			}
-
-			String newInitials = HikeBitmapFactory.getNameInitialsForDefaultAv(newText);
-
-			if (!initials.equals(newInitials))
-			{
-				initials = newInitials;
-				if (mActivityState.profileBitmap == null)
-				{
-					Drawable drawable = HikeBitmapFactory.getDefaultTextAvatar(newText);
-					mIconView.setImageDrawable(drawable);
-				}
-			}
-		}
-	};
-
 	private void initializeViews(ViewGroup layout)
 	{
 		switch (layout.getId())
 		{
 		case R.id.name_layout:
 			enterEditText = (EditText) layout.findViewById(R.id.et_enter_name);
-			enterEditText.addTextChangedListener(nameWatcher);
 			birthdayText = (TextView) layout.findViewById(R.id.birthday);
 			profilePicCamIcon = (ImageView) layout.findViewById(R.id.profile_cam);
 			
@@ -1044,11 +1001,8 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		
 		// Auto fill the name, if possible
 		String ownerName = Utils.getOwnerName(SignupActivity.this);
-		if (!TextUtils.isEmpty(ownerName) && enterEditText != null)
-		{
+		if (!TextUtils.isEmpty(ownerName) && enterEditText != null) {
 			enterEditText.setText(ownerName);
-			Drawable drawable = HikeBitmapFactory.getDefaultTextAvatar(ownerName);
-			mIconView.setImageDrawable(drawable);
 			try
 			{
 				enterEditText.setSelection(ownerName.length());
@@ -1094,13 +1048,12 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 
 		if (mActivityState.profileBitmap == null)
 		{
-			//TODO
-//			Drawable drawable = HikeMessengerApp.getLruCache().getIconFromCache(msisdn);
-//			if (drawable == null)
-//			{
-//				drawable = HikeBitmapFactory.getDefaultTextAvatar(msisdn);
-//			}
-//			mIconView.setImageDrawable(drawable);
+			Drawable drawable = HikeMessengerApp.getLruCache().getIconFromCache(msisdn);
+			if (drawable == null)
+			{
+				drawable = HikeBitmapFactory.getDefaultTextAvatar(msisdn);
+			}
+			mIconView.setImageDrawable(drawable);
 			// mIconView.setImageDrawable(IconCacheManager.getInstance()
 			// .getIconForMSISDN(msisdn, true));
 		}
