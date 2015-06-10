@@ -550,12 +550,19 @@ public class ConversationsAdapter extends BaseAdapter
 		Integer startSpanIndex = convSpanStartIndexes.get(convInfo.getMsisdn());
 		if(isSearchModeOn && startSpanIndex!=null)
 		{
-			SpannableString spanName = new SpannableString(name);
 			int start = startSpanIndex;
 			int end = startSpanIndex + refinedSearchText.length();
-			spanName.setSpan(new ForegroundColorSpan(context.getResources().getColor(R.color.blue_color_span)), start, end,
-					Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-			contactView.setText(spanName, TextView.BufferType.SPANNABLE);
+			if (end <= name.length())
+			{
+				SpannableString spanName = new SpannableString(name);
+				spanName.setSpan(new ForegroundColorSpan(context.getResources().getColor(R.color.blue_color_span)), start, end,
+						Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+				contactView.setText(spanName, TextView.BufferType.SPANNABLE);
+			}
+			else
+			{
+				contactView.setText(name);
+			}
 		}
 		else
 		{

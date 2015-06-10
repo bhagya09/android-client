@@ -41,6 +41,7 @@ public class SharedMediaAdapter extends PagerAdapter implements OnClickListener
 		this.layoutInflater = LayoutInflater.from(this.context);
 		this.sharedMediaLoader = new SharedFileImageLoader(context, size_image);
 		sharedMediaLoader.setDefaultDrawable(context.getResources().getDrawable(R.drawable.ic_file_thumbnail_missing));
+		sharedMediaLoader.setImageToBeCached(false);
 		this.sharedMediaItems = sharedMediaItems;
 		this.photoViewerFragment = photoViewerFragment;
 	}

@@ -1516,10 +1516,14 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
 	<string name="gif_not_working">Invalid GIF</string>
 	<string name="gif_sent">GIF</string>
 	<string name="gif_received">Sent you a GIF</string>
+	<string name="multi_contact_creation">Sending...</string>
 	<string name="only_photos_edit">Image Format Not Supported</string>
 	<string name="delete_block">Block and Delete</string>
 	<string name="confirm_delete_block_msg">Do you want to delete and block \"%1$s\"? </string>
 	<string name="confirm_delete_non_messaging">Do you want to delete \"%1$s\"? </string>
 	<string name="profile_pic_upload_in_background">Profile picture upload will continue..</string>
 	<string name="profile_pic_failed">Profile picture upload failed. Please try again</string>
+	<string name="show_degraded_image_quality">Going to load a low quality Image</string>
+	<string name="toast_for_showing_thumbnail">Going to show Thumbanil</string>
+	<string name="now">Now</string>
 </resources>
