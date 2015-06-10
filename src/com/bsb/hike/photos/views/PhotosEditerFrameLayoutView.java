@@ -357,6 +357,8 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 		{
 			out = new FileOutputStream(file);
 			imageEdited.compress(Bitmap.CompressFormat.JPEG, getOutputQuality(), out);
+			out.flush();
+			out.getFD().sync();
 		}
 		catch (Exception e)
 		{
@@ -368,7 +370,6 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 			{
 				try
 				{
-					out.flush();
 					out.close();
 					
 					//Copy edited image
@@ -436,7 +437,7 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 		@Override
 		public void run()
 		{
-			Utils.copyFile(srcPath, destPath, fileType);
+			Utils.copyImage(srcPath, destPath, Bitmap.Config.ARGB_8888, getOutputQuality());
 		}
 
 	}

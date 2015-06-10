@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.media.ThumbnailUtils;
 import android.provider.MediaStore;
+import android.util.Log;
 
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.models.HikeFile.HikeFileType;
@@ -33,7 +34,7 @@ public class SharedFileImageLoader extends ImageWorker
 		String filePath = dataArray[0];
 		HikeFileType hikeFileType = HikeFileType.values()[Integer.valueOf(dataArray[1])];
 		
-		Bitmap b = getSharedMediaThumbnailFromCache(data, filePath, size_image, (hikeFileType == HikeFileType.IMAGE));
+		Bitmap b = getSharedMediaThumbnailFromCache(filePath, size_image, (hikeFileType == HikeFileType.IMAGE));
 
 		return b;
 	}
@@ -43,13 +44,28 @@ public class SharedFileImageLoader extends ImageWorker
 	{
 		return processBitmap(data);
 	}
-	
-	public Bitmap getSharedMediaThumbnailFromCache(String fileKey, String destFilePath, int fileSize, boolean isImage)
+	/**
+	 * if isImage is True:- No Cache is used, always loads
+	 * else 			 :- Cache is used 
+	 * @param destFilePath
+	 * @param imageSize
+	 * @param isImage
+	 * @return
+	 */
+	public Bitmap getSharedMediaThumbnailFromCache(String destFilePath, int imageSize, boolean isImage)
 	{
 		Bitmap thumbnail = null;
 		if (isImage)
 		{
-			thumbnail = HikeBitmapFactory.scaleDownBitmap(destFilePath, fileSize, fileSize, Bitmap.Config.RGB_565, true, false);
+			Log.d("image_config", "========================== \n Inside API  getSharedMediaThumbnailFromCache");
+			if(Utils.isHoneycombOrHigher())
+			{
+				thumbnail = HikeBitmapFactory.getImageThumbnailAsPerAlgo(context, destFilePath, imageSize, HikeBitmapFactory.AlgoState.INIT_STATE);
+			}
+			else
+			{
+				thumbnail = HikeBitmapFactory.getImageThumbnailAsPerAlgo(context, destFilePath, imageSize, HikeBitmapFactory.AlgoState.STATE_3);
+			}
 			thumbnail = Utils.getRotatedBitmap(destFilePath, thumbnail);
 		}
 		else

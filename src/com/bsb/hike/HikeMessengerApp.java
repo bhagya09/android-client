@@ -753,6 +753,10 @@ public void onTrimMemory(int level)
 		{
 			startUpdgradeIntent();
 		}
+		else
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.UPGRADING, false);
+		}
 
 		if(settings.getInt(StickerManager.UPGRADE_FOR_STICKER_SHOP_VERSION_1, 1) == 2)
 		{
@@ -845,10 +849,10 @@ public void onTrimMemory(int level)
 		makeNoMediaFiles();
 
 		hikeBotInfoMap = new ConcurrentHashMap<>();
-		BotUtils.initBots();
 
 		initHikeLruCache(getApplicationContext());
 		initContactManager();
+		BotUtils.initBots();
 		/*
 		 * Fetching all stealth contacts on app creation so that the conversation cannot be opened through the shortcut or share screen.
 		 */
