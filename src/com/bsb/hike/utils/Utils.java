@@ -242,6 +242,10 @@ public class Utils
 	public static float densityMultiplier = 1.0f;
 
 	public static int densityDpi;
+	
+	public static int displayWidthPixels;
+	
+	public static int displayHeightPixels;
 
 	private static final String defaultCountryName = "India";
 
@@ -967,6 +971,8 @@ public class Utils
 		Utils.scaledDensityMultiplier = displayMetrics.scaledDensity;
 		Utils.densityDpi = displayMetrics.densityDpi;
 		Utils.densityMultiplier = displayMetrics.density;
+		Utils.displayWidthPixels = displayMetrics.widthPixels;
+		Utils.displayHeightPixels = displayMetrics.heightPixels;
 	}
 
 	public static CharSequence getFormattedParticipantInfo(String info, String textToHighlight)

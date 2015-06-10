@@ -1553,6 +1553,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 				(searchDialog == null || !searchDialog.isShowing()))
 		{
 			searchDialog = ProgressDialog.show(activity, null, getString(R.string.searching));
+			// updating the dataset in case any new messages were received
+			messageSearchManager.updateDataSet(messages);
 			if (loop)
 			{
 				activity.getSupportLoaderManager().restartLoader(SEARCH_LOOP, null, this);
@@ -1601,7 +1603,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			messageSearchManager.deactivate();
 			mAdapter.setSearchText(null);
 			searchText = null;
-			setupDefaultActionBar(false);
 		}
 		Utils.unblockOrientationChange(activity);
 	}
@@ -2445,7 +2446,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			if (id == SEARCH_LOOP || id == SEARCH_NEXT || id == SEARCH_PREVIOUS)
 			{
 				updateUIforSearchResult((int) arg1);
-				messageSearchManager.updateDataSet(messages);
 				recordSearchInputWithResult(id, searchText, (int) arg1);
 			}
 		}
@@ -4071,13 +4071,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	protected void setupActionBar(boolean firstInflation)
 	{
+		setupDefaultActionBar(firstInflation);
 		if (mCurrentActionMode ==  SEARCH_ACTION_MODE)
 		{
 			setupSearchMode(searchText);
-		}
-		else
-		{
-			setupDefaultActionBar(firstInflation);
 		}
 		mCurrentActionMode = -1;
 	}
