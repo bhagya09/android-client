@@ -854,8 +854,6 @@ public void onTrimMemory(int level)
 		 */
 		StealthModeManager.getInstance().initiate();
 
-		StickerManager.getInstance().cachingStickersOnStart();
-		
 		appStateHandler = new Handler();
 
 		HikeMessengerApp.getPubSub().addListener(HikePubSub.CONNECTED_TO_MQTT, this);
