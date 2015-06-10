@@ -104,6 +104,7 @@ public class ConnectionManager implements ChannelListener
 			{
 				wifiManager.disconnect();
 				boolean status = wifiManager.enableNetwork(wifiConfiguration.networkId, true);
+				connectedNetworkId=wifiConfiguration.networkId;
 				wifiManager.reconnect();               
 				return status;
 			}
@@ -250,6 +251,7 @@ public class ConnectionManager implements ChannelListener
 	}
 	public Boolean closeHotspot(String targetMsisdn)
 	{
+		Logger.d(TAG, "going to close hotspot");
 		Boolean result = setWifiApEnabled(targetMsisdn, false);
 		// restore previous WifiHotspot Name back
 		setPreviousHotspotConfig();
@@ -370,6 +372,7 @@ public class ConnectionManager implements ChannelListener
 	private void forgetWifiNetwork()
 	{
 		wifiManager.removeNetwork(connectedNetworkId);
+		connectedNetworkId=-1;
 	}
 	
 	public boolean tryConnectingToHotSpot(final String msisdn) 
@@ -423,8 +426,11 @@ public class ConnectionManager implements ChannelListener
 		}
 		else
 		{
-			forgetWifiNetwork();
-			wifiManager.disconnect();
-		}
+			if(wifiManager.isWifiEnabled())
+			{
+				forgetWifiNetwork();
+
+				wifiManager.disconnect();
+			}}
 	}
 }
