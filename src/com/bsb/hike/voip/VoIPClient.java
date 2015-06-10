@@ -746,7 +746,7 @@ public class VoIPClient  {
 	public void close() {
 
 		Logger.d(logTag,
-				"======= Call Summary (" + getPhoneNumber() + ") =======\n" +
+				"===== Call Summary (" + getPhoneNumber() + ") =====\n" +
 				"\nBytes sent / received: " + totalBytesSent + " / " + totalBytesReceived +
 				"\nPackets sent / received: " + totalPacketsSent + " / " + totalPacketsReceived +
 				"\nPure voice bytes: " + rawVoiceSent +

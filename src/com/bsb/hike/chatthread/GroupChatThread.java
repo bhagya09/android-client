@@ -274,7 +274,6 @@ public class GroupChatThread extends OneToNChatThread
 			for (PairModified<GroupParticipant, String> groupParticipant : groupParticipants.values())
 			{
 				String msisdn = groupParticipant.getFirst().getContactInfo().getMsisdn();
-				Logger.d(VoIPConstants.TAG, "Group participant msisdn: " + msisdn);
 				msisdns.add(msisdn);
 			}
 			
