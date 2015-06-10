@@ -672,7 +672,10 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			@Override
 			public void onComplete(PlatformContentModel content)
 			{
-				webView.loadMicroAppData(content.getFormedData());
+				if(null != content)
+				{
+					webView.loadMicroAppData(content.getFormedData());
+				}
 			}
 		});
 	}
@@ -701,7 +704,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			}
 			
 		}
-		if (webView.canGoBack())
+		if (mode == WEB_URL_MODE && webView.canGoBack())
 		{
 			webView.goBack();
 		}
