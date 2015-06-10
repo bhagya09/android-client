@@ -258,8 +258,14 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity im
 
 	public void destroyActionMode()
 	{
-		selectedSharedFileItems.clear();
-		//adapter.notifyDataSetChanged();
+		//Refresh Full Gallery only when there were some elements selected 
+		//and then cross is clicked on action bar 
+		if (!selectedSharedFileItems.isEmpty())
+		{
+			selectedSharedFileItems.clear();
+			adapter.notifyDataSetChanged();
+		}
+		
 		setMultiSelectMode(false);
 		setupActionBar();
 		invalidateOptionsMenu();
