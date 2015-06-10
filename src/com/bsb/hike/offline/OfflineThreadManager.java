@@ -335,7 +335,7 @@ public class OfflineThreadManager
 							
 							if (OfflineUtils.isStickerMessage(messageJSON))
 							{
-								File stickerImage = isStickerPresentInApp(messageJSON);
+								File stickerImage = OfflineUtils.isStickerPresentInApp(messageJSON);
 								if (stickerImage.exists() == false)
 								{
 									FileOutputStream outputStream = new FileOutputStream(stickerImage);
@@ -650,27 +650,6 @@ public class OfflineThreadManager
 
 	}
 	
-	public File isStickerPresentInApp(JSONObject messageJSON) throws JSONException, IOException
-	{
-		String ctgId = messageJSON.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getString(StickerManager.CATEGORY_ID);
-		String stkId = messageJSON.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getString(StickerManager.STICKER_ID);
-		Sticker sticker = new Sticker(ctgId, stkId);
-
-		File stickerImage;
-		String stickerPath = sticker.getStickerPath(HikeMessengerApp.getInstance().getApplicationContext());
-		stickerImage = new File(stickerPath);
-
-		// sticker is not present
-		if (stickerImage == null || (stickerImage.exists() == false))
-		{
-			File parent = new File(stickerImage.getParent());
-			if (!parent.exists())
-				parent.mkdirs();
-			stickerImage.createNewFile();
-			
-		}
-		return stickerImage;
-	}
 	
 	/**
      * Handle the call of file message here ...either success or failure
