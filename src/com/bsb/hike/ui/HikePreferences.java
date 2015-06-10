@@ -430,6 +430,8 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		Logger.d("HikePreferences", "setting task:" + task.isFinished());
 		if (!task.isFinished())
 		{
+			// dismissing any existing dialog before showing the new one
+			dismissProgressDialog();
 			mTask = task;
 			String title = getString(R.string.account);
 			String message = "";
