@@ -684,7 +684,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		((ImageView) menu.findItem(R.id.new_conversation).getActionView().findViewById(R.id.overflow_icon_image)).setImageResource(R.drawable.ic_new_conversation);
 	
 		((ImageView) menu.findItem(R.id.take_pic).getActionView().findViewById(R.id.overflow_icon_image)).setImageResource(R.drawable.btn_cam_nav);
-		
+		menu.findItem(R.id.take_pic).getActionView().findViewById(R.id.overflow_icon_image).setContentDescription("New photo");
 		menu.findItem(R.id.take_pic).getActionView().setOnClickListener(new OnClickListener()
 		{
 			
