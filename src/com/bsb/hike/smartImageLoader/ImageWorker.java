@@ -32,19 +32,15 @@ import android.os.AsyncTask;
 import android.support.v4.app.FragmentManager;
 import android.widget.ImageView;
 
-import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
-import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.smartcache.HikeLruCache;
 import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.utils.customClasses.AsyncTask.MyAsyncTask;
-import com.bsb.hike.view.RoundedImageView;
-import com.bsb.hike.view.TextDrawable;
 
 /**
  * This class wraps up completing some arbitrary long running work when loading a bitmap to an ImageView. It handles things like using a memory and disk cache, running the work in
@@ -201,7 +197,8 @@ public abstract class ImageWorker
 
 	protected void setDefaultAvatar(ImageView imageView, String data)
 	{
-		imageView.setImageDrawable(HikeBitmapFactory.getDefaultTextAvatar(data));
+		imageView.setBackgroundDrawable(HikeMessengerApp.getLruCache().getDefaultAvatar(data, setHiResDefaultAvatar));
+		imageView.setImageDrawable(null);
 	}
 
 	/**

@@ -59,8 +59,6 @@ import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
-import com.bsb.hike.view.RoundedImageView;
-import com.bsb.hike.view.TextDrawable;
 
 public class ConversationsAdapter extends BaseAdapter
 {
@@ -592,7 +590,6 @@ public class ConversationsAdapter extends BaseAdapter
 		}
 
 		ImageView avatarView = viewHolder.avatar;
-		
 		iconLoader.loadImage(convInfo.getMsisdn(), avatarView, isListFlinging, false, true);
 		if(convInfo.isStealth())
 		{
@@ -1017,11 +1014,6 @@ public class ConversationsAdapter extends BaseAdapter
 				}
 				
 				ConvInfo conversationInfo = getItem(indexOfData);
-
-				if (!ContactManager.getInstance().hasIcon(conversationInfo.getMsisdn()))
-				{
-					return;
-				}
 
 				updateViewsRelatedToAvatar(view,conversationInfo);
 			}

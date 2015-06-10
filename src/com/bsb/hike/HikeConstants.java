@@ -2729,11 +2729,8 @@ public class HikeConstants
 
 	public static int DEFAULT_AVATARS[] = {R.drawable.avatar_01, R.drawable.avatar_02, R.drawable.avatar_03, R.drawable.avatar_04, R.drawable.avatar_05};
 
-	public static String DEFAULT_AVATAR_KEYS[] = { "avatar_01", "avatar_02", "avatar_03", "avatar_04", "avatar_05" };
-
-	public static int DEFAULT_AVATAR_BG_COLORID[] = { R.color.dp_bg_1, R.color.dp_bg_2, R.color.dp_bg_3, R.color.dp_bg_4, R.color.dp_bg_5, R.color.dp_bg_6, R.color.dp_bg_7,
-			R.color.dp_bg_8, R.color.dp_bg_9, R.color.dp_bg_10, R.color.dp_bg_11, R.color.dp_bg_12 };
-
+	public static String DEFAULT_AVATAR_KEYS[] = {"avatar_01","avatar_02", "avatar_03", "avatar_04", "avatar_05"};
+	
 	public static String IS_GROUP = "isGroup";
 	public static final String CAM_IMG_PREFIX = "CAM_";
 	

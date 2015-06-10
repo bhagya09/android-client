@@ -1615,11 +1615,6 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 					continue;
 				}
 				
-				if (!ContactManager.getInstance().hasIcon(contactInfo.getMsisdn()))
-				{
-					return;
-				}
-
 				updateViewsRelatedToAvatar(view, getItem(indexOfData));
 			}
 		}

@@ -625,7 +625,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		Drawable drawable = HikeMessengerApp.getLruCache().getIconFromCache(msisdn);
 		if (drawable == null)
 		{
-			drawable = HikeBitmapFactory.getDefaultTextAvatar(msisdn);
+			drawable = HikeMessengerApp.getLruCache().getDefaultAvatar(msisdn, false);
 		}
 		avatar.setScaleType(ScaleType.FIT_CENTER);
 		avatar.setImageDrawable(drawable);

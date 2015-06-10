@@ -5923,16 +5923,6 @@ public class Utils
 		}
 	}
 	
-	public static TypedArray getDefaultAvatarBG()
-	{
-		if (HikeConstants.DEFAULT_AVATAR_BG_COLOR_ARRAY == null)
-		{
-			HikeConstants.DEFAULT_AVATAR_BG_COLOR_ARRAY = HikeMessengerApp.getInstance().getApplicationContext().getResources().obtainTypedArray(R.array.dp_bg);
-		}
-
-		return HikeConstants.DEFAULT_AVATAR_BG_COLOR_ARRAY;
-	}
-	
 	private static String getPathFromDocumentedUri(Uri uri, Context context)
 	{
 		String result = null;

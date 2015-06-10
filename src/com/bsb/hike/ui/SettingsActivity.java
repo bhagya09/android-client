@@ -24,7 +24,6 @@ import android.widget.TextView;
 import com.actionbarsherlock.app.ActionBar;
 import com.bsb.hike.AppConfig;
 import com.bsb.hike.HikeConstants;
-import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.HikeConstants.ImageQuality;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -384,7 +383,7 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 		Drawable drawable = HikeMessengerApp.getLruCache().getIconFromCache(contactInfo.getMsisdn());
 		if (drawable == null)
 		{
-			drawable = HikeBitmapFactory.getDefaultTextAvatar(contactInfo.getMsisdn());
+			drawable = HikeMessengerApp.getLruCache().getDefaultAvatar(contactInfo.getMsisdn(), false);
 		}
 		profileImgView.setImageDrawable(drawable);
 		

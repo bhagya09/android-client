@@ -24,7 +24,6 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.NUXConstants;
 import com.bsb.hike.R;
-import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.NuxSelectFriends;
@@ -327,7 +326,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 			 */
 			if (viewType == ViewType.NEW_CONTACT)
 			{
-				holder.userImage.setImageDrawable(HikeBitmapFactory.getDefaultTextAvatar(null));
+				holder.userImage.setImageDrawable(HikeMessengerApp.getLruCache().getDefaultAvatar(1));
 			}
 			else
 			{
@@ -728,11 +727,6 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 					continue;
 				}
 				
-				if (!ContactManager.getInstance().hasIcon(contactInfo.getMsisdn()))
-				{
-					return;
-				}
-
 				updateViewsRelatedToAvatar(view, getItem(indexOfData));
 			}
 		}
