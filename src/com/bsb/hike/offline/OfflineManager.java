@@ -600,28 +600,21 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 	private void sendPersistantMsgs()
 	{
 		List<JSONObject> packets = HikeOfflinePersistence.getInstance().getAllSentMessages("o:" + getConnectedDevice());
-		ConvMessage convMessage;
 		for(JSONObject packet : packets)
 		{
-			try 
+
+			if (OfflineUtils.isFileTransferMessage(packet))
 			{
-				convMessage = new ConvMessage(packet, HikeMessengerApp.getInstance().getApplicationContext());
-				if (OfflineUtils.isFileTransferMessage(packet))
-				{
-					String fileUri = OfflineUtils.getFilePathFromJSON(packet);
-					File f = new File(fileUri);
-					long msgId = OfflineUtils.getMsgId(packet);
-					Logger.d(TAG, "Sending msgId: " + msgId);
-					FileTransferModel fileTransferModel=new FileTransferModel(new TransferProgress(0,OfflineUtils.getTotalChunks((int)f.length())), packet);
-					addToFileQueue(fileTransferModel);
-				}
-				else
-				{
-					addToTextQueue(packet);
-				}
-			} 
-			catch (JSONException e) {
-				e.printStackTrace();
+				String fileUri = OfflineUtils.getFilePathFromJSON(packet);
+				File f = new File(fileUri);
+				long msgId = OfflineUtils.getMsgId(packet);
+				Logger.d(TAG, "Sending msgId: " + msgId);
+				FileTransferModel fileTransferModel=new FileTransferModel(new TransferProgress(0,OfflineUtils.getTotalChunks((int)f.length())), packet);
+				addToFileQueue(fileTransferModel);
+			}
+			else
+			{
+				addToTextQueue(packet);
 			}
 		}
 	}

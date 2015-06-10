@@ -416,16 +416,8 @@ public class OfflineThreadManager
 					SocketAddress addr = new InetSocketAddress(PORT_FILE_TRANSFER);
 					fileServerSocket.bind(addr);
 					Logger.d(TAG,"Going to wait for fileReceive socket");
-<<<<<<< HEAD
-=======
-					fileServerSocket = new ServerSocket(PORT_FILE_TRANSFER);
-				
-					fileReceiveSocket = fileServerSocket.accept();
->>>>>>> 57522d89384bc12d7458f73a2fa69cf8d3f5fffc
-					
 					fileReceiveSocket = fileServerSocket.accept();
 					Logger.d(TAG,"fileReceive socket connection success");
-					offlineManager.setInOfflineFileTransferInProgress(true);
 
 					InputStream inputstream = fileReceiveSocket.getInputStream();
 					
@@ -437,6 +429,7 @@ public class OfflineThreadManager
 							break;
 						
 						int metaDataLength = OfflineUtils.byteArrayToInt(metaDataLengthArray);
+						offlineManager.setInOfflineFileTransferInProgress(true);
 						Logger.d(TAG, "Size of MetaString: " + metaDataLength);
 						ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(metaDataLength);
 						boolean isMetaDataReceived = OfflineManager.getInstance().copyFile(inputstream, byteArrayOutputStream, metaDataLength);
