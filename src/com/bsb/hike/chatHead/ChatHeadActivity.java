@@ -11,18 +11,11 @@ import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.chatHead.ChatHeadService;
-import com.bsb.hike.chatHead.ChatHeadReceiver;
 import com.bsb.hike.ui.HikeBaseActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.bsb.hike.utils.IntentFactory;
-import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.StickerEmoticonIconPageIndicator;
-
-import android.app.AlarmManager;
-import android.app.PendingIntent;
-import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
@@ -33,13 +26,11 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-public class ChatHeadActivity extends HikeBaseActivity implements StickerPickerListener, OnClickListener, TabClickListener
+public class ChatHeadActivity extends HikeBaseActivity implements StickerPickerListener, OnClickListener, TabClickListener,FinishActivityListener
 {
 	private View stickerPickerView;
 
 	private LinearLayout layout;
-
-	private static ChatHeadActivity instance;
 
 	private int shareCount, totalShareCount, noOfDays, shareLimit, maxDismissLimit;
 
@@ -57,36 +48,42 @@ public class ChatHeadActivity extends HikeBaseActivity implements StickerPickerL
 	@Override
 	protected void onDestroy()
 	{
+		super.onDestroy();
+	}
+
+	@Override
+	protected void onStop()
+	{
 		if (ChatHeadService.flagActivityRunning)
 		{
 			ChatHeadService.getInstance().resetPosition(HikeConstants.ChatHead.FINISHING_CHAT_HEAD_ACTIVITY_ANIMATION);
 		}
-		saveUpdtdShrdPrefVar();
+		saveUpdatedSharedPref();
 		ChatHeadService.flagActivityRunning = false;
 		StickerEmoticonIconPageIndicator.unRegisterChatHeadTabClickListener();
-		super.onDestroy();
-
+		ChatHeadService.unregisterReceiver(this);
+		super.onStop();
 	}
 
-	private void saveUpdtdShrdPrefVar()
+	private void saveUpdatedSharedPref()
 	{
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.DAILY_STICKER_SHARE_COUNT, shareCount);
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.TOTAL_STICKER_SHARE_COUNT, totalShareCount);
-
 	}
 
 	@Override
 	public void onBackPressed()
 	{
 		super.onBackPressed();
+		this.overridePendingTransition(0, 0);
 	}
 
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
-
 		super.onCreate(savedInstanceState);
 		ChatHeadService.flagActivityRunning = true;
+		ChatHeadService.registerReceiver(this);
 		setContentView(R.layout.chat_head);
 		ChatHeadUtils.settingDailySharedPref();
 		initVariables();
@@ -105,7 +102,6 @@ public class ChatHeadActivity extends HikeBaseActivity implements StickerPickerL
 			infoIconClick();
 
 		}
-		instance = this;
 		setOnClick();
 	}
 
@@ -117,7 +113,11 @@ public class ChatHeadActivity extends HikeBaseActivity implements StickerPickerL
 		}
 		shareCount = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.DAILY_STICKER_SHARE_COUNT, 0);
 		noOfDays = (int) ((Utils.gettingMidnightTimeinMilliseconds() - (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.SERVICE_START_DATE,
-				Utils.gettingMidnightTimeinMilliseconds()))) / (24 * 60 * 60 * 1000));
+				Utils.gettingMidnightTimeinMilliseconds()))) / (24 * 60 * 60 * 1000)) + 1 ;
+		if (noOfDays<1)
+		{
+			noOfDays = 1;
+		}
 		totalShareCount = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.TOTAL_STICKER_SHARE_COUNT, 0);
 		shareLimit = (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.STICKERS_PER_DAY, HikeConstants.ChatHead.DEFAULT_NO_STICKERS_PER_DAY) + HikeSharedPreferenceUtil
 				.getInstance().getData(HikeConstants.ChatHead.EXTRA_STICKERS_PER_DAY, 0));
@@ -146,16 +146,18 @@ public class ChatHeadActivity extends HikeBaseActivity implements StickerPickerL
 
 	}
 
-	public static ChatHeadActivity getInstance()
-	{
-		return instance;
-	}
-
 	public void closeActivity(View v)
 	{
 		ChatHeadService.getInstance().resetPosition(HikeConstants.ChatHead.FINISHING_CHAT_HEAD_ACTIVITY_ANIMATION);
 	}
 
+	@Override
+	public void finishActivity()
+	{
+		finish();
+		overridePendingTransition(0, 0);
+	}
+	
 	private void infoIconClick()
 	{
 		LinearLayout disableLayout, infoIconLayout;
@@ -222,7 +224,6 @@ public class ChatHeadActivity extends HikeBaseActivity implements StickerPickerL
 		HikeAlarmManager.setAlarm(getApplicationContext(), Calendar.getInstance().getTimeInMillis() + time, HikeAlarmManager.REQUESTCODE_START_STICKER_SHARE_SERVICE, false);
 		ChatHeadService.getInstance().resetPosition(HikeConstants.ChatHead.STOPPING_SERVICE_ANIMATION);
 	}
-	
 
 	@Override
 	public void onClick(View v)
@@ -241,11 +242,11 @@ public class ChatHeadActivity extends HikeBaseActivity implements StickerPickerL
 		case R.id.get_more_stickers:
 			HAManager.getInstance().chatHeadshareAnalytics(HikeConstants.ChatHead.MAIN_LAYOUT_CLICKS, ChatHeadService.foregroundAppName, HikeConstants.ChatHead.MORE_STICKERS);
 			ChatHeadService.getInstance().resetPosition(HikeConstants.ChatHead.GET_MORE_STICKERS_ANIMATION);
-            break;
+			break;
 		case R.id.open_hike:
 			HAManager.getInstance().chatHeadshareAnalytics(HikeConstants.ChatHead.MAIN_LAYOUT_CLICKS, ChatHeadService.foregroundAppName, HikeConstants.ChatHead.OPEN_HIKE);
 			ChatHeadService.getInstance().resetPosition(HikeConstants.ChatHead.OPEN_HIKE_ANIMATION);
-    		break;
+			break;
 		case R.id.one_hour:
 			HAManager.getInstance().chatHeadshareAnalytics(HikeConstants.ChatHead.SNOOZE_TIME, ChatHeadService.foregroundAppName, HikeConstants.ChatHead.ONE_HOUR);
 			onClickSetAlarm(1 * 60 * 60 * 1000);
@@ -265,7 +266,7 @@ public class ChatHeadActivity extends HikeBaseActivity implements StickerPickerL
 		case R.id.shop_icon_external:
 			HAManager.getInstance().chatHeadshareAnalytics(HikeConstants.ChatHead.STICKER_SHOP, ChatHeadService.foregroundAppName);
 			ChatHeadService.getInstance().resetPosition(HikeConstants.ChatHead.STICKER_SHOP_ANIMATION);
-		    break;
+			break;
 		}
 
 	}
@@ -279,7 +280,6 @@ public class ChatHeadActivity extends HikeBaseActivity implements StickerPickerL
 		layout.findViewById(R.id.back_main_layout).setOnClickListener(this);
 		layout.findViewById(R.id.one_day).setOnClickListener(this);
 		layout.findViewById(R.id.one_hour).setOnClickListener(this);
-		layout.findViewById(R.id.eight_hours).setOnClickListener(this);
 		layout.findViewById(R.id.eight_hours).setOnClickListener(this);
 
 		StickerEmoticonIconPageIndicator.registerChatHeadTabClickListener(this);
@@ -314,7 +314,7 @@ public class ChatHeadActivity extends HikeBaseActivity implements StickerPickerL
 		ViewPager viewPager = (ViewPager) (stickerPickerView.findViewById(R.id.sticker_pager));
 		viewPager.setVisibility(View.VISIBLE);
 		ImageView imageView = (ImageView) (stickerPickerView.findViewById(R.id.info_icon));
-        imageView.setSelected(false);
+		imageView.setSelected(false);
 		LinearLayout layout = (LinearLayout) (stickerPickerView.findViewById(R.id.info_icon_layout));
 		layout.setVisibility(View.GONE);
 	}
