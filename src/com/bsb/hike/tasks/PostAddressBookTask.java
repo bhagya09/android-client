@@ -5,14 +5,21 @@ import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.postAddressBook
 import java.util.List;
 import java.util.Map;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.db.DbException;
 import com.bsb.hike.models.ContactInfo;
+import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.contactmgr.ContactUtils;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.interceptor.IResponseInterceptor;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 
 public class PostAddressBookTask
 {
@@ -25,16 +32,17 @@ public class PostAddressBookTask
 		this.contactsMap = contactsMap;
 	}
 
-	public JSONObject execute()
+	public boolean execute()
 	{
 		JSONObject postObject = getPostObject();
 		if (postObject == null)
 		{
-			return null;
+			return false;
 		}
-		RequestToken requestToken = postAddressBookRequest(postObject, getRequestListener());
+		
+		RequestToken requestToken = postAddressBookRequest(postObject, getRequestListener(), getResponseInterceptor());
 		requestToken.execute();
-		return resultObject;
+		return (resultObject != null);
 	}
 
 	private IRequestListener getRequestListener()
@@ -58,6 +66,46 @@ public class PostAddressBookTask
 			public void onRequestFailure(HttpException httpException)
 			{
 				resultObject = null;
+			}
+		};
+	}
+
+	private IResponseInterceptor getResponseInterceptor()
+	{
+		return new IResponseInterceptor()
+		{
+			@Override
+			public void intercept(Chain chain)
+			{
+				JSONObject jsonForAddressBookAndBlockList = (JSONObject) chain.getResponseFacade().getBody().getContent();
+
+				if (jsonForAddressBookAndBlockList == null)
+				{
+					return;
+				}
+
+				List<ContactInfo> addressbook = ContactUtils.getContactList(jsonForAddressBookAndBlockList, contactsMap);
+				List<String> blockList = ContactUtils.getBlockList(jsonForAddressBookAndBlockList);
+
+				if (jsonForAddressBookAndBlockList.has(HikeConstants.PREF))
+				{
+					JSONObject prefJson = jsonForAddressBookAndBlockList.optJSONObject(HikeConstants.PREF);
+					JSONArray contactsArray = prefJson.optJSONArray(HikeConstants.CONTACTS);
+					if (contactsArray != null)
+					{
+						HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.SERVER_RECOMMENDED_CONTACTS, contactsArray.toString());
+					}
+				}
+
+				try
+				{
+					ContactManager.getInstance().setAddressBookAndBlockList(addressbook, blockList);
+					chain.proceed();
+				}
+				catch (DbException e)
+				{
+					e.printStackTrace();
+				}
 			}
 		};
 	}

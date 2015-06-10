@@ -113,6 +113,11 @@ public class HttpManager
 		request.cancel();
 	}
 
+	public <T> void addRequestListener(Request<T> request, IRequestListener listener)
+	{
+		request.addRequestListeners(listener);
+	}
+
 	/**
 	 * Removes particular listener from list of listeners for a request
 	 * 
