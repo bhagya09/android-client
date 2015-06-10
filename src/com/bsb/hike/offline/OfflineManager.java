@@ -167,9 +167,10 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 			break;
 		case OfflineConstants.HandlerConstants.SEND_GHOST_PACKET:
 			String msisdn = (String) msg.obj;
-			sendGhostPacket(msisdn);
-			handler.sendMessageDelayed(msg, OfflineConstants.GHOST_PACKET_SEND_TIME);
-			break;
+            sendGhostPacket(msisdn);
+            Message newMsg = Message.obtain(msg);
+            handler.sendMessageDelayed(newMsg, OfflineConstants.GHOST_PACKET_SEND_TIME);
+            break;
 		case OfflineConstants.HandlerConstants.SAVE_MSG_PERSISTANCE_DB:
 			saveMessagetoPersistanceDb((FileTransferModel) (msg.obj));
 			break;
@@ -238,7 +239,7 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 
 		// Since disconnect is called, stop sending ghost packets
 		removeMessage(OfflineConstants.HandlerConstants.SEND_GHOST_PACKET);
-		connectionManager.disconnect(msisdn);
+		shutDown();
 	}
 
 	public synchronized void addToTextQueue(JSONObject message)
@@ -508,6 +509,7 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 			String ssid = OfflineUtils.getSsidForMsisdn(OfflineUtils.getMyMsisdn(), connectinMsisdn);
 			if (results.containsKey(ssid))
 			{
+				Logger.d(TAG,"Going to connect to Hotspot for msisdn"+ssid);
 				connectionManager.connectToHotspot(connectinMsisdn);
 				startedForChatThread = false;
 				// since we already have the result no need to scan again
@@ -592,36 +594,28 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 			performWorkOnBackEndThread(msg);
 
 			// send ghost packet and post disconnect for timeout
-			//startSendingGhostPackets(connectedMsisdn);
-			//postDisconnectForGhostPackets(connectedMsisdn);
+			startSendingGhostPackets(connectedMsisdn);
+			postDisconnectForGhostPackets();
 		}
 	}
 	
 	private void sendPersistantMsgs()
 	{
 		List<JSONObject> packets = HikeOfflinePersistence.getInstance().getAllSentMessages("o:" + getConnectedDevice());
-		ConvMessage convMessage;
-		for(JSONObject packet : packets)
+		for (JSONObject packet : packets)
 		{
-			try 
+			if (OfflineUtils.isFileTransferMessage(packet))
 			{
-				convMessage = new ConvMessage(packet, HikeMessengerApp.getInstance().getApplicationContext());
-				if (OfflineUtils.isFileTransferMessage(packet))
-				{
-					String fileUri = OfflineUtils.getFilePathFromJSON(packet);
-					File f = new File(fileUri);
-					long msgId = OfflineUtils.getMsgId(packet);
-					Logger.d(TAG, "Sending msgId: " + msgId);
-					FileTransferModel fileTransferModel=new FileTransferModel(new TransferProgress(0,OfflineUtils.getTotalChunks((int)f.length())), packet);
-					addToFileQueue(fileTransferModel);
-				}
-				else
-				{
-					addToTextQueue(packet);
-				}
-			} 
-			catch (JSONException e) {
-				e.printStackTrace();
+				String fileUri = OfflineUtils.getFilePathFromJSON(packet);
+				File f = new File(fileUri);
+				long msgId = OfflineUtils.getMsgId(packet);
+				Logger.d(TAG, "Sending msgId: " + msgId);
+				FileTransferModel fileTransferModel = new FileTransferModel(new TransferProgress(0, OfflineUtils.getTotalChunks((int) f.length())), packet);
+				addToFileQueue(fileTransferModel);
+			}
+			else
+			{
+				addToTextQueue(packet);
 			}
 		}
 	}
@@ -640,18 +634,17 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 		addToTextQueue(ghost);
 	}
 	
-	private void postDisconnectForGhostPackets(String msisdn)
+	private void postDisconnectForGhostPackets()
 	{
 		Message msg = Message.obtain();
 		msg.what = OfflineConstants.HandlerConstants.DISCONNECT_AFTER_TIMEOUT;
-		msg.obj = msisdn;
 		handler.sendMessageDelayed(msg,OfflineConstants.GHOST_PACKET_DISCONNECT_TIMEOUT);
 	}
 	
 	public void restartGhostTimeout()
 	{
 		removeMessage(OfflineConstants.HandlerConstants.DISCONNECT_AFTER_TIMEOUT);
-		postDisconnectForGhostPackets(connectedDevice);
+		postDisconnectForGhostPackets();
 	}
 
 	public void removeMessage(int msg)
@@ -970,18 +963,23 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 		}
 	}
 	
-	public void shutDown()
+	public synchronized void shutDown()
 	{
-		fileTransferQueue.clear();
-		textMessageQueue.clear();
-		
-		currentReceivingFiles.clear();
-		currentSendingFiles.clear();
-		
-		connectionManager.closeConnection(getConnectedDevice());
-		clearAllVariables();
-		threadManager.shutDown();
-		setOfflineState(OFFLINE_STATE.NOT_CONNECTED);
+		if(getOfflineState()==OFFLINE_STATE.CONNECTED)
+		{
+			fileTransferQueue.clear();
+			textMessageQueue.clear();
+
+			currentReceivingFiles.clear();
+			currentSendingFiles.clear();
+
+			threadManager.shutDown();
+			//connectionManager.closeConnection(getConnectedDevice());
+
+			clearAllVariables();
+			setOfflineState(OFFLINE_STATE.NOT_CONNECTED);
+			
+		}
 	}
 
 	private void clearAllVariables()
