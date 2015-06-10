@@ -5,6 +5,7 @@
     android:installLocation="auto"
     android:versionCode="1242"
     android:versionName="3.9.7.25.plf" >
+
     <uses-sdk
         android:minSdkVersion="9"
         android:targetSdkVersion="17"/>

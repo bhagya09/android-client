@@ -1941,6 +1941,16 @@ public class MqttMessagesManager
 			int httpAnalyticsMaxNumber = data.getInt(HikeConstants.PROB_NUM_HTTP_ANALYTICS);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.PROB_NUM_HTTP_ANALYTICS, httpAnalyticsMaxNumber);
 		}
+
+		if (data.has(HikeConstants.GROUP_NOTIFIACTION_DELAY))
+		{
+			int groupNotificationDelay = data.getInt(HikeConstants.GROUP_NOTIFIACTION_DELAY);
+			if (groupNotificationDelay>=0)
+			{
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.GROUP_NOTIFIACTION_DELAY, groupNotificationDelay);
+			}
+		}
+		
 		if (data.has(HikeConstants.SUPER_COMPRESSED_IMG_SIZE))
 		{
 			int superCompressedImgSize = data.getInt(HikeConstants.SUPER_COMPRESSED_IMG_SIZE);
@@ -1960,6 +1970,7 @@ public class MqttMessagesManager
 		{
 			boolean toShowToastForDegradingQuality = data.getBoolean(HikeConstants.SHOW_TOAST_FOR_DEGRADING_QUALITY);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_TOAST_FOR_DEGRADING_QUALITY, toShowToastForDegradingQuality);
+
 		}
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
