@@ -18,7 +18,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.ActivityInfo;
-import android.content.res.Configuration;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -29,6 +28,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.text.TextUtils;
 import android.util.Pair;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -199,9 +199,11 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 
 	private int triggerPointForPopup=ProductPopupsConstants.PopupTriggerPoints.UNKNOWN.ordinal();
 
-	 private HorizontalFriendsFragment newFragment;
+	private HorizontalFriendsFragment newFragment;
 	 
-	 int type = HikeConstants.Extras.NOT_SHAREABLE;
+	int type = HikeConstants.Extras.NOT_SHAREABLE;
+	
+	private Menu mainMenu;
 	 
 	@Override
 	public void onCreate(Bundle savedInstanceState)
@@ -387,6 +389,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu)
 	{
+		mainMenu = menu;
 		type = getIntent().getIntExtra(HikeConstants.Extras.SHARE_TYPE, HikeConstants.Extras.NOT_SHAREABLE);
 
 		if (!showingMultiSelectActionBar)
@@ -1419,6 +1422,13 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 							filePath = Utils.getRealPathFromUri(fileUri, this);
 						}
 
+						// Defensive fix for play store crash. java.lang.NullPointerException in java.io.File.fixSlashes.
+						if(filePath == null)
+						{
+							Logger.e(getClass().getSimpleName(), "filePath was null. Defensive check for play store crash was hit");
+							continue;
+						}
+						
 						File file = new File(filePath);
 						if (file.length() > HikeConstants.MAX_FILE_SIZE)
 						{
@@ -2328,5 +2338,19 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	{
 		Tag tag = new Tag(text,uniqueness,data);
 		tagEditText.toggleTag(tag);
+	}
+	
+	@Override
+	public boolean onKeyUp(int keyCode, KeyEvent event)
+	{
+		if (event.getAction() == KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_MENU) 
+		{
+			if (mainMenu != null)
+			{
+				mainMenu.performIdentifierAction(R.id.overflow_menu, 0);
+				return true;
+			}
+		}
+		return super.onKeyUp(keyCode, event);
 	}
 }

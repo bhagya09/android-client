@@ -7,6 +7,7 @@ import java.io.InputStream;
 
 import com.bsb.hike.modules.httpmgr.HttpUtils;
 import com.bsb.hike.modules.httpmgr.RequestToken;
+import com.bsb.hike.utils.Utils;
 /**
  * File request is used to return response in form of File to the request listener. InputStream to File is done in {@link Request#parseResponse(InputStream)}
  * 
@@ -85,7 +86,7 @@ public class FileRequest extends Request<File>
 		}
 		finally
 		{
-			HttpUtils.closeQuietly(fos);
+			Utils.closeStreams(fos);
 		}
 	}
 }
