@@ -315,8 +315,6 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 
 		if (mCurrentProgress >= 90f && mUploadStatus == UPLOAD_INPROGRESS)
 		{
-			mUploadStatus = UPLOAD_COMPLETE;
-
 			changeTextWithAnimation(text1, getString(R.string.photo_dp_finishing));
 
 			new Handler(Looper.getMainLooper()).postDelayed(new Runnable()
@@ -325,6 +323,7 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 				@Override
 				public void run()
 				{
+					mUploadStatus = UPLOAD_COMPLETE;
 					if (!isAdded())
 					{
 						return;
