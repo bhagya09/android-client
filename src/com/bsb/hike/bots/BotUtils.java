@@ -42,19 +42,19 @@ public class BotUtils
 	{
 		Map<String, BotInfo> botsMap = new HashMap<String, BotInfo>();
 
-		BotInfo teamHike = new BotInfo.HikeBotBuilder("+hike+").setConvName("team hike").configuration(4527).build();
+		BotInfo teamHike = new BotInfo.HikeBotBuilder("+hike+").setConvName("team hike").setConfig(4527).build();
 
-		BotInfo emmaBot = new BotInfo.HikeBotBuilder("+hike1+").setConvName("Emma from hike").configuration(2069487).build();
+		BotInfo emmaBot = new BotInfo.HikeBotBuilder("+hike1+").setConvName("Emma from hike").setConfig(2069487).build();
 
-		BotInfo gamesOnHike = new BotInfo.HikeBotBuilder("+hike2+").setConvName("Games on hike").configuration(21487).build();
+		BotInfo gamesOnHike = new BotInfo.HikeBotBuilder("+hike2+").setConvName("Games on hike").setConfig(21487).build();
 
-		BotInfo hikeDaily = new BotInfo.HikeBotBuilder("+hike3+").setConvName("hike daily").configuration(2069487).build();
+		BotInfo hikeDaily = new BotInfo.HikeBotBuilder("+hike3+").setConvName("hike daily").setConfig(2069487).build();
 
-		BotInfo hikeSupport = new BotInfo.HikeBotBuilder("+hike4+").setConvName("hike support").configuration(2069487).build();
+		BotInfo hikeSupport = new BotInfo.HikeBotBuilder("+hike4+").setConvName("hike support").setConfig(2069487).build();
 
-		BotInfo natasha = new BotInfo.HikeBotBuilder("+hike5+").setConvName("Natasha").configuration(2069487).build();
+		BotInfo natasha = new BotInfo.HikeBotBuilder("+hike5+").setConvName("Natasha").setConfig(2069487).build();
 
-		BotInfo cricketBot = new BotInfo.HikeBotBuilder("+hikecricket+").setConvName("Cricket 2015").configuration(21487).build();
+		BotInfo cricketBot = new BotInfo.HikeBotBuilder("+hikecricket+").setConvName("Cricket 2015").setConfig(21487).build();
 
 		botsMap.put("+hike+", teamHike);
 		botsMap.put("+hike1+", emmaBot);
@@ -243,7 +243,7 @@ public class BotUtils
 			Logger.e("bot error", "bot is blocked by user.");
 			return;
 		}
-		String name = jsonObj.optString(HikeConstants.NAME);
+
 		String thumbnailString = jsonObj.optString(HikeConstants.BOT_THUMBNAIL);
 		String notifType = jsonObj.optString(HikeConstants.PLAY_NOTIFICATION, HikeConstants.OFF);
 		
@@ -254,17 +254,16 @@ public class BotUtils
 			HikeMessengerApp.getPubSub().publish(HikePubSub.ICON_CHANGED, msisdn);
 		}
 
-		int config = jsonObj.optInt(HikeConstants.CONFIGURATION, Integer.MAX_VALUE);
 		String botChatTheme = jsonObj.optString(HikeConstants.BOT_CHAT_THEME);
 		BotInfo botInfo = null;
 		if (type.equals(HikeConstants.MESSAGING_BOT))
 		{
-			botInfo = getBotInfoFormessagingBots(jsonObj, msisdn, name, config);
+			botInfo = getBotInfoFormessagingBots(jsonObj, msisdn);
 			updateBotParamsInDb(botChatTheme, botInfo, false, notifType);
 		}
 		else if (type.equals(HikeConstants.NON_MESSAGING_BOT))
 		{
-			botInfo = getBotInfoForNonMessagingBots(jsonObj, msisdn, name, config);
+			botInfo = getBotInfoForNonMessagingBots(jsonObj, msisdn);
 			boolean enableBot = jsonObj.optBoolean(HikePlatformConstants.ENABLE_BOT);
 			PlatformUtils.downloadZipForNonMessagingBot(botInfo, enableBot, botChatTheme, notifType);
 		}
@@ -272,42 +271,102 @@ public class BotUtils
 		Logger.d("create bot", "It takes " + String.valueOf(System.currentTimeMillis() - startTime) + "msecs");
 	}
 
-	private static BotInfo getBotInfoForNonMessagingBots(JSONObject jsonObj, String msisdn, String name, int config)
+	private static BotInfo getBotInfoForNonMessagingBots(JSONObject jsonObj, String msisdn)
 	{
-		BotInfo botInfo;
-		JSONObject metadata = jsonObj.optJSONObject(HikeConstants.METADATA);
-		NonMessagingBotMetadata botMetadata = new NonMessagingBotMetadata(metadata);
-		JSONObject configData = jsonObj.optJSONObject(HikePlatformConstants.CONFIG_DATA);
-		String namespace = jsonObj.optString(HikePlatformConstants.NAMESPACE);
-		NonMessagingBotConfiguration configuration = configData == null ? new NonMessagingBotConfiguration(config)
-				: new NonMessagingBotConfiguration(config, configData.toString());
-		String helperData = jsonObj.optString(HikePlatformConstants.HELPER_DATA);
-		botInfo = new BotInfo.HikeBotBuilder(msisdn)
-				.setType(BotInfo.NON_MESSAGING_BOT)
-				.setConvName(name)
-				.setIsMute(false)
-				.setHelperData(helperData)
-				.setNamespace(namespace)
-				.setConfigData(null == configuration.getConfigData() ? null : configuration.getConfigData().toString())
-				.setConfig(configuration.getConfig())
-				.setMetadata(botMetadata.toString())
-				.build();
+		BotInfo botInfo = getBotInfoForBotMsisdn(msisdn);
+
+		if (null == botInfo)
+		{
+			botInfo = new BotInfo.HikeBotBuilder(msisdn)
+					.setType(BotInfo.NON_MESSAGING_BOT)
+					.setIsMute(false)
+					.build();
+		}
+
+		if (jsonObj.has(HikeConstants.NAME))
+		{
+			String name = jsonObj.optString(HikeConstants.NAME);
+			botInfo.setmConversationName(name);
+		}
+
+		JSONObject configData = null;
+		if (jsonObj.has(HikePlatformConstants.CONFIG_DATA))
+		{
+			configData = jsonObj.optJSONObject(HikePlatformConstants.CONFIG_DATA);
+		}
+
+		if (jsonObj.has(HikeConstants.CONFIGURATION))
+		{
+			int config = jsonObj.optInt(HikeConstants.CONFIGURATION, Integer.MAX_VALUE);
+			NonMessagingBotConfiguration configuration = configData == null ? new NonMessagingBotConfiguration(config)
+					: new NonMessagingBotConfiguration(config, configData.toString());
+			botInfo.setConfiguration(configuration.getConfig());
+			botInfo.setConfigData(null == configuration.getConfigData() ? "" : configuration.getConfigData().toString());
+		}
+
+		if (jsonObj.has(HikePlatformConstants.NAMESPACE))
+		{
+			String namespace = jsonObj.optString(HikePlatformConstants.NAMESPACE);
+			botInfo.setNamespace(namespace);
+		}
+
+		if (jsonObj.has(HikeConstants.METADATA))
+		{
+			JSONObject metadata = jsonObj.optJSONObject(HikeConstants.METADATA);
+			NonMessagingBotMetadata botMetadata = new NonMessagingBotMetadata(metadata);
+			botInfo.setMetadata(botMetadata.toString());
+		}
+
+		if (jsonObj.has(HikePlatformConstants.HELPER_DATA))
+		{
+
+			try
+			{
+				JSONObject helperDataDiff = jsonObj.optJSONObject(HikePlatformConstants.HELPER_DATA);
+				JSONObject oldHelperData = TextUtils.isEmpty(botInfo.getHelperData()) ? new JSONObject() : new JSONObject(botInfo.getHelperData());
+				JSONObject newHelperData = PlatformUtils.mergeJSONObjects(oldHelperData, helperDataDiff);
+				botInfo.setHelperData(newHelperData.toString());
+			}
+			catch (JSONException e)
+			{
+				e.printStackTrace();
+			}
+
+		}
+
 		return botInfo;
 	}
 
-	private static BotInfo getBotInfoFormessagingBots(JSONObject jsonObj, String msisdn, String name, int config)
+	private static BotInfo getBotInfoFormessagingBots(JSONObject jsonObj, String msisdn)
 	{
-		BotInfo botInfo;
-		JSONObject metadata = jsonObj.optJSONObject(HikeConstants.METADATA);
-		MessagingBotMetadata messagingBotMetadata = new MessagingBotMetadata(metadata);
-		MessagingBotConfiguration configuration = new MessagingBotConfiguration(config, messagingBotMetadata.isReceiveEnabled());
-		botInfo = new BotInfo.HikeBotBuilder(msisdn)
-				.setType(BotInfo.MESSAGING_BOT)
-				.setConvName(name)
-				.setMetadata(messagingBotMetadata.toString())
-				.setIsMute(false)
-				.setConfig(configuration.getConfig())
-				.build();
+		BotInfo botInfo = getBotInfoForBotMsisdn(msisdn);
+		if (null == botInfo)
+		{
+			botInfo = new BotInfo.HikeBotBuilder(msisdn)
+					.setType(BotInfo.MESSAGING_BOT)
+					.setIsMute(false)
+					.build();
+		}
+
+		if (jsonObj.has(HikeConstants.NAME))
+		{
+			String name = jsonObj.optString(HikeConstants.NAME);
+			botInfo.setmConversationName(name);
+		}
+
+		if (jsonObj.has(HikeConstants.METADATA))
+		{
+			JSONObject metadata = jsonObj.optJSONObject(HikeConstants.METADATA);
+			MessagingBotMetadata messagingBotMetadata = new MessagingBotMetadata(metadata);
+			if (jsonObj.has(HikeConstants.CONFIGURATION))
+			{
+				int config = jsonObj.optInt(HikeConstants.CONFIGURATION, Integer.MAX_VALUE);
+				MessagingBotConfiguration configuration = new MessagingBotConfiguration(config, messagingBotMetadata.isReceiveEnabled());
+				botInfo.setConfiguration(configuration.getConfig());
+			}
+			botInfo.setMetadata(messagingBotMetadata.toString());
+		}
+
 		return botInfo;
 	}
 
