@@ -753,6 +753,10 @@ public void onTrimMemory(int level)
 		{
 			startUpdgradeIntent();
 		}
+		else
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.UPGRADING, false);
+		}
 
 		if(settings.getInt(StickerManager.UPGRADE_FOR_STICKER_SHOP_VERSION_1, 1) == 2)
 		{
