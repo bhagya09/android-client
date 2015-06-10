@@ -216,7 +216,6 @@ public class BotChatThread extends OneToOneChatThread
 	private List<OverFlowMenuItem> getOverFlowItems()
 	{
 		List<OverFlowMenuItem> list = new ArrayList<OverFlowMenuItem>();
-		list.add(new OverFlowMenuItem(getString(R.string.search), 0, 0, R.string.search));
 
 		if (configuration.isViewProfileInOverflowMenuEnabled())
 		{
@@ -225,6 +224,10 @@ public class BotChatThread extends OneToOneChatThread
 		if (configuration.isChatThemeInOverflowMenuEnabled())
 		{
 			list.add(new OverFlowMenuItem(getString(R.string.chat_theme), 0, 0, R.string.chat_theme));
+		}
+		if (configuration.isSearchInOverflowMenuEnabled())
+		{
+			list.add(new OverFlowMenuItem(getString(R.string.search), 0, 0, R.string.search));
 		}
 
 		/**
