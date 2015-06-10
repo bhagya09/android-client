@@ -37,6 +37,7 @@ import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.ShareUtils;
 import com.bsb.hike.utils.Utils;
+import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.chatHead.ChatHeadActivity;
 
@@ -297,7 +298,7 @@ public class ChatHeadService extends Service
 				+ closeHead.getWidth() + HikeConstants.ChatHead.RECT_CONST, closeHeadLocations[1] + closeHead.getHeight() + HikeConstants.ChatHead.RECT_CONST);
 		if (Rect.intersects(rectChatHead, rectCloseHead))
 		{
-			HAManager.getInstance().chatHeadshareAnalytics(HikeConstants.ChatHead.STICKER_HEAD_DISMISS, ChatHeadService.foregroundAppName);
+			HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.STICKER_HEAD_DISMISS, ChatHeadService.foregroundAppName);
 			dismissed++;
 			if (dismissed <= HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.DISMISS_COUNT, HikeConstants.ChatHead.DISMISS_CONST))
 			{
@@ -322,7 +323,7 @@ public class ChatHeadService extends Service
 		{
 			if (drag < HikeConstants.ChatHead.DRAG_CONST)
 			{
-				HAManager.getInstance().chatHeadshareAnalytics(HikeConstants.ChatHead.STICKER_HEAD, ChatHeadService.foregroundAppName);
+				HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.STICKER_HEAD, ChatHeadService.foregroundAppName);
 				if (!flagActivityRunning)
 				{
 					openingChatHeadActivity();
