@@ -138,6 +138,9 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 		ContactInfo userInfo = Utils.getUserContactInfo(preferences);
 		mLocalMSISDN = userInfo.getMsisdn();
 		
+		HikePhotosUtils.FilterTools.setCurrentDoodleItem(null);
+		HikePhotosUtils.FilterTools.setCurrentFilterItem(null);
+		
 		beginProgress();
 
 		HikeBitmapFactory.correctBitmapRotation(filename, new HikePhotosListener()
@@ -750,8 +753,6 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 		{
 			// Tear down
 			super.onBackPressed();
-			HikePhotosUtils.FilterTools.setCurrentDoodleItem(null);
-			HikePhotosUtils.FilterTools.setCurrentFilterItem(null);
 		}
 	}
 
