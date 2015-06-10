@@ -2,14 +2,20 @@ package com.bsb.hike.smartImageLoader;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.media.ThumbnailUtils;
 import android.provider.MediaStore;
 import android.util.Log;
 
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.utils.Utils;
+import com.bsb.hike.view.TextDrawable;
 
 public class SharedFileImageLoader extends ImageWorker
 {

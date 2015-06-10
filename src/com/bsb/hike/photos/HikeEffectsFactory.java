@@ -99,7 +99,7 @@ public final class HikeEffectsFactory
 		{
 				finalBitmap = HikePhotosUtils.createBitmap(mBitmapIn, 0, 0, 0, 0, false, false, false, true);
 				vignetteBitmap = HikePhotosUtils.createBitmap(mBitmapIn, 0, 0, 0, 0, false, false, false, true);
-			currentOut = finalBitmap;
+				currentOut = finalBitmap;
 		}
 		else if (!isThumbnail)
 		{

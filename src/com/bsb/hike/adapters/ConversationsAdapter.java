@@ -1019,8 +1019,10 @@ public class ConversationsAdapter extends BaseAdapter
 				{
 					continue;
 				}
+				
+				ConvInfo conversationInfo = getItem(indexOfData);
 
-				updateViewsRelatedToAvatar(view, getItem(indexOfData));
+				updateViewsRelatedToAvatar(view,conversationInfo);
 			}
 		}
 		

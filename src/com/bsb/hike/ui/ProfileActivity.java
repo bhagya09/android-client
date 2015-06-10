@@ -897,7 +897,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		
 		if(!isUpdate)
 		{
-			ImageViewerInfo imageViewerInfo = new ImageViewerInfo(msisdn + PROFILE_PIC_SUFFIX, null, false, !ContactManager.getInstance().hasIcon(msisdn));
+			ImageViewerInfo imageViewerInfo = new ImageViewerInfo(msisdn + PROFILE_PIC_SUFFIX, null, false, !ContactManager.getInstance().hasIcon(msisdn,false));
 			profileImage.setTag(imageViewerInfo);
 		}
 		if(headerViewInitialized || profileImageUpdated )

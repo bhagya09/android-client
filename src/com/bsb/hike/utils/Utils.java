@@ -79,6 +79,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.graphics.Bitmap;
@@ -120,10 +121,6 @@ import android.provider.ContactsContract.RawContacts;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.provider.Settings.Secure;
-import android.support.v8.renderscript.Allocation;
-import android.support.v8.renderscript.Element;
-import android.support.v8.renderscript.RenderScript;
-import android.support.v8.renderscript.ScriptIntrinsicBlur;
 import android.telephony.SmsManager;
 import android.telephony.TelephonyManager;
 import android.text.Editable;
@@ -4942,29 +4939,6 @@ public class Utils
 		return dialog;
 	}
 
-	public static Bitmap createBlurredImage(Bitmap originalBitmap, Context context)
-	{
-		final int BLUR_RADIUS = 8;
-		if (hasJellyBeanMR1())
-		{
-			Bitmap output = Bitmap.createBitmap(originalBitmap.getWidth(), originalBitmap.getHeight(), Bitmap.Config.ARGB_8888);
-
-			RenderScript rs = RenderScript.create(context.getApplicationContext());
-			ScriptIntrinsicBlur script = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs));
-			Allocation inAlloc = Allocation.createFromBitmap(rs, originalBitmap, Allocation.MipmapControl.MIPMAP_NONE, Allocation.USAGE_GRAPHICS_TEXTURE);
-			Allocation outAlloc = Allocation.createFromBitmap(rs, output);
-			script.setRadius(BLUR_RADIUS);
-			script.setInput(inAlloc);
-			script.forEach(outAlloc);
-			outAlloc.copyTo(output);
-
-			rs.destroy();
-
-			return output;
-		}
-		return null;
-	}
-
 	/**
 	 * 
 	 * @param c
@@ -5915,7 +5889,7 @@ public class Utils
 			return null;
 		}
 	}
-
+	
 	private static String getPathFromDocumentedUri(Uri uri, Context context)
 	{
 		String result = null;
