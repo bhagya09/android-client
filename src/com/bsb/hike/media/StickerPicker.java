@@ -143,6 +143,7 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 		}
 		
 		initView();
+		handleStickerIntro(viewToDisplay);
 		addAdaptersToViews();
 
 		popUpLayout.showKeyboardPopup(viewToDisplay);
@@ -190,12 +191,7 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 		
 		View shopIcon = (view.findViewById(R.id.shop_icon));
 		
-		if (shopIcon != null)
-		{
-			shopIcon.setOnClickListener(this);
-
-			handleStickerIntro(view);
-		}
+		shopIcon.setOnClickListener(this);
 
 		mViewPager.setVisibility(View.VISIBLE);
 	}
@@ -239,19 +235,7 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 			initView();
 		}
 		
-		// Commenting it out. This is to be uncommented if we move to caching strategy later on. 
-		
-//		/**
-//		 * If this variable is set to true, then we refresh the dataset for stickers. This would happen when we download new packs from shop or we update stickers from sticker
-//		 * settings page
-//		 */
-//		if (refreshStickers)
-//		{
-//			mIconPageIndicator.notifyDataSetChanged();
-//			stickerAdapter.notifyDataSetChanged();
-//		}
-
-//		refreshStickers = false;
+		handleStickerIntro(viewToDisplay);
 		
 		addAdaptersToViews();
 		

@@ -3,6 +3,7 @@ package com.bsb.hike.utils;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -51,7 +52,6 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.ocpsoft.prettytime.PrettyTime;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
@@ -133,6 +133,7 @@ import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.text.format.DateUtils;
 import android.text.style.StyleSpan;
 import android.util.Base64;
 import android.util.DisplayMetrics;
@@ -1212,6 +1213,8 @@ public class Utils
 		{
 			out = new FileOutputStream(dst);
 			out.write(bytes, 0, bytes.length);
+			out.flush();
+			out.getFD().sync();
 		}
 		catch (IOException e)
 		{
@@ -1219,19 +1222,7 @@ public class Utils
 		}
 		finally
 		{
-			if (out != null)
-			{
-				try
-				{
-					out.flush();
-					out.getFD().sync();
-					out.close();
-				}
-				catch (IOException e)
-				{
-					Logger.e("Utils", "Excecption while closing the stream", e);
-				}
-			}
+			Utils.closeStreams(out);
 		}
 	}
 
@@ -1252,17 +1243,7 @@ public class Utils
 		}
 		finally
 		{
-			if (fileInputStream != null)
-			{
-				try
-				{
-					fileInputStream.close();
-				}
-				catch (IOException e)
-				{
-					Logger.e("Utils", "Excecption while closing the file " + file.getName(), e);
-				}
-			}
+			Utils.closeStreams(fileInputStream);
 		}
 	}
 
@@ -1491,10 +1472,10 @@ public class Utils
 		}
 		
 		boolean status = false;
-		
+		InputStream src = null;
+		FileOutputStream dest = null;
 		try
 		{
-			InputStream src;
 			if (hikeFileType == HikeFileType.IMAGE)
 			{
 				String imageOrientation = Utils.getImageOrientation(srcFilePath);
@@ -1518,7 +1499,7 @@ public class Utils
 			{
 				src = new FileInputStream(new File(srcFilePath));
 			}
-			FileOutputStream dest = new FileOutputStream(new File(destFilePath));
+			dest = new FileOutputStream(new File(destFilePath));
 
 			byte[] buffer = new byte[HikeConstants.MAX_BUFFER_SIZE_KB * 1024];
 			int len;
@@ -1530,8 +1511,6 @@ public class Utils
 
 			dest.flush();
 			dest.getFD().sync();
-			src.close();
-			dest.close();
 			
 			status = true;
 		}
@@ -1547,6 +1526,10 @@ public class Utils
 		{
 			Logger.e("Utils", "WTF Error while reading/writing/closing file", ex);
 		}
+		finally
+		{
+			Utils.closeStreams(src, dest);
+		}
 		
 		return status;
 	}
@@ -1560,9 +1543,10 @@ public class Utils
 	
 	public static boolean compressAndCopyImage(String srcFilePath, String destFilePath, Context context, int quality)
 	{
+		InputStream src = null;
+		FileOutputStream dest = null;
 		try
 		{
-			InputStream src;
 			String imageOrientation = Utils.getImageOrientation(srcFilePath);
 			Bitmap tempBmp = null;
 
@@ -1588,7 +1572,7 @@ public class Utils
 				src = new FileInputStream(new File(srcFilePath));
 			}
 
-			FileOutputStream dest = new FileOutputStream(new File(destFilePath));
+			dest = new FileOutputStream(new File(destFilePath));
 
 			byte[] buffer = new byte[HikeConstants.MAX_BUFFER_SIZE_KB * 1024];
 			int len;
@@ -1599,8 +1583,6 @@ public class Utils
 			}
 			dest.flush();
 			dest.getFD().sync();
-			src.close();
-			dest.close();
 			return true;
 		}
 		catch (FileNotFoundException e)
@@ -1617,6 +1599,10 @@ public class Utils
 		{
 			Logger.e("Utils", "WTF Error while reading/writing/closing file", ex);
 			return false;
+		}
+		finally
+		{
+			Utils.closeStreams(src, dest);
 		}
 	}
 
@@ -1731,8 +1717,8 @@ public class Utils
 		AccountUtils.fastFileUploadUrl = AccountUtils.fileTransferBase + AccountUtils.FILE_TRANSFER_DOWNLOAD_BASE + "ffu/";
 
 		
-		AccountUtils.rewardsUrl = (isProductionServer ? AccountUtils.REWARDS_PRODUCTION_BASE : AccountUtils.base + AccountUtils.REWARDS_STAGING_PATH);
-		AccountUtils.gamesUrl = (isProductionServer ? AccountUtils.GAMES_PRODUCTION_BASE : AccountUtils.base + AccountUtils.GAMES_STAGING_PATH);
+		AccountUtils.rewardsUrl = (isProductionServer ? AccountUtils.REWARDS_PRODUCTION_BASE : AccountUtils.STAGING_HOST + AccountUtils.REWARDS_STAGING_PATH);
+		AccountUtils.gamesUrl = (isProductionServer ? AccountUtils.GAMES_PRODUCTION_BASE : AccountUtils.STAGING_HOST + AccountUtils.GAMES_STAGING_PATH);
 		AccountUtils.stickersUrl = (isProductionServer ? AccountUtils.HTTP_STRING + AccountUtils.STICKERS_PRODUCTION_BASE : AccountUtils.base + AccountUtils.STICKERS_STAGING_PATH);
 		AccountUtils.h2oTutorialUrl = (isProductionServer ? AccountUtils.HTTP_STRING + AccountUtils.H2O_TUTORIAL_PRODUCTION_BASE : AccountUtils.base + AccountUtils.H2O_TUTORIAL_STAGING_PATH);
 		AccountUtils.analyticsUploadUrl = AccountUtils.base + AccountUtils.ANALYTICS_UPLOAD_PATH;
@@ -2049,6 +2035,8 @@ public class Utils
 			{
 				fileOutputStream.write(data, 0, b);
 			}
+			fileOutputStream.flush();
+			fileOutputStream.getFD().sync();
 		}
 		catch (FileNotFoundException e)
 		{
@@ -2068,19 +2056,7 @@ public class Utils
 		}
 		finally
 		{
-			if (fileOutputStream != null)
-			{
-				try
-				{
-					fileOutputStream.flush();
-					fileOutputStream.getFD().sync();
-					fileOutputStream.close();
-				}
-				catch (IOException e)
-				{
-					Logger.e("Utils", "Exception while closing the output stream", e);
-				}
-			}
+			Utils.closeStreams(fileOutputStream);
 		}
 	}
 
@@ -2138,6 +2114,8 @@ public class Utils
 			{
 				fileOutputStream.write(d, 0, b);
 			}
+			fileOutputStream.flush();
+			fileOutputStream.getFD().sync();
 		}
 		catch (FileNotFoundException e)
 		{
@@ -2153,19 +2131,7 @@ public class Utils
 		}
 		finally
 		{
-			if (fileOutputStream != null)
-			{
-				try
-				{
-					fileOutputStream.flush();
-					fileOutputStream.getFD().sync();
-					fileOutputStream.close();
-				}
-				catch (IOException e)
-				{
-					Logger.e("Utils", "Exception while closing the output stream", e);
-				}
-			}
+			closeStreams(fileOutputStream);
 		}
 	}
 
@@ -2213,17 +2179,7 @@ public class Utils
 		}
 		finally
 		{
-			if (fileInputStream != null)
-			{
-				try
-				{
-					fileInputStream.close();
-				}
-				catch (IOException e)
-				{
-					Logger.e("Utils", "Exception while closing the input stream", e);
-				}
-			}
+			closeStreams(fileInputStream);
 		}
 		return currentFiles;
 	}
@@ -2688,17 +2644,25 @@ public class Utils
 	 */
 	public static byte[] saveBase64StringToFile(File file, String base64String) throws IOException
 	{
-		FileOutputStream fos = new FileOutputStream(file);
-
-		byte[] b = Base64.decode(base64String, Base64.DEFAULT);
-		if (b == null)
+		byte[] b = null;
+		FileOutputStream fos = null;
+		try
 		{
-			throw new IOException();
+			fos = new FileOutputStream(file);
+			b = Base64.decode(base64String, Base64.DEFAULT);
+			if (b == null)
+			{
+				throw new IOException();
+			}
+			fos.write(b);
+			fos.flush();
+			fos.getFD().sync();
 		}
-		fos.write(b);
-		fos.flush();
-		fos.getFD().sync();
-		fos.close();
+		finally
+		{
+			if(fos != null)
+				fos.close();
+		}
 		return b;
 	}
 
@@ -3626,16 +3590,7 @@ public class Utils
 		}
 		finally
 		{
-			if (inputStream != null)
-			{
-				try
-				{
-					inputStream.close();
-				}
-				catch (Exception e)
-				{
-				}
-			}
+			closeStreams(inputStream);
 		}
 	}
 	
@@ -3937,6 +3892,8 @@ public class Utils
 				 */
 				String data = "";
 				dest.write(data.getBytes(), 0, data.getBytes().length);
+				dest.flush();
+				dest.getFD().sync();
 			}
 			catch (IOException e)
 			{
@@ -3944,19 +3901,7 @@ public class Utils
 			}
 			finally
 			{
-				try
-				{
-					if(dest != null)
-					{
-						dest.flush();
-						dest.getFD().sync();
-						dest.close();
-					}
-				}
-				catch (IOException e)
-				{
-					Logger.d("NoMedia", "Failed to make nomedia file");
-				}
+				closeStreams(dest);
 			}
 			if(reScan)
 			{
@@ -4894,33 +4839,95 @@ public class Utils
 		return df.format(date);
 	}
 
-	public static String getFormattedTime(boolean pretty, Context context, long timestamp)
+	public static String getFormattedTime(boolean pretty, Context context, long timestampInSeconds)
 	{
-		if (timestamp < 0)
+		if (timestampInSeconds < 0)
 		{
 			return "";
 		}
-		Date date = new Date(timestamp * 1000);
 		if (pretty)
 		{
-			PrettyTime p = new PrettyTime();
-			return p.format(date);
+			return getFormattedPrettyTime(context, timestampInSeconds);
 		}
 		else
 		{
-			String format;
-			if (android.text.format.DateFormat.is24HourFormat(context))
+			return getFormattedTime(context, timestampInSeconds * 1000);
+		}
+	}
+	
+	public static String getFormattedTime(Context context, long timestampInMillis)
+	{
+		String format;
+		Date givenDate = new Date(timestampInMillis);
+		if (android.text.format.DateFormat.is24HourFormat(context))
+		{
+			format = "HH:mm";
+		}
+		else
+		{
+			format = "h:mm aaa";
+		}
+
+		DateFormat df = new SimpleDateFormat(format);
+		return df.format(givenDate);
+	}
+	
+	public static String getFormattedPrettyTime( Context context, long timestampInSeconds)
+	{
+		if (timestampInSeconds < 0)
+		{
+			return "";
+		}
+		
+		long givenTimeStampInMillis = timestampInSeconds * 1000; 
+		Calendar givenCalendar = Calendar.getInstance();
+		givenCalendar.setTimeInMillis(givenTimeStampInMillis);
+		
+		long currentTime = System.currentTimeMillis();
+		Calendar currentCalendar = Calendar.getInstance();
+		
+		if(givenCalendar.before(currentCalendar))
+		{
+			long timeDiff = currentTime - givenTimeStampInMillis;
+
+			if (timeDiff < 60 * 1000)
 			{
-				format = "HH:mm";
+				// until 1 minute
+				return context.getResources().getString(R.string.now);
+			}
+			else if (givenCalendar.get(Calendar.YEAR) == currentCalendar.get(Calendar.YEAR))
+			{
+				//Show date in relative format. eg. 2 hours ago, yesterday, 2 days ago etc.
+				return DateUtils.getRelativeTimeSpanString(givenTimeStampInMillis, currentTime, DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_ABBREV_MONTH).toString();
 			}
 			else
 			{
-				format = "h:mm aaa";
+				//Shows date in numeric format
+				return DateUtils.getRelativeTimeSpanString(givenTimeStampInMillis, currentTime, DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_NUMERIC_DATE).toString();
 			}
-
-			DateFormat df = new SimpleDateFormat(format);
-			return df.format(date);
 		}
+		else
+		{
+			if (givenCalendar.get(Calendar.YEAR) == currentCalendar.get(Calendar.YEAR))
+			{
+				if (givenCalendar.get(Calendar.DAY_OF_YEAR) == currentCalendar.get(Calendar.DAY_OF_YEAR))
+				{
+					//Show time in non relate default time format
+					return getFormattedTime(context, givenTimeStampInMillis);
+				}
+				else
+				{
+					// Show date in MMM dd format eg. Apr 21, May 13 etc.
+					return DateUtils.getRelativeTimeSpanString(givenTimeStampInMillis, currentTime, DateUtils.YEAR_IN_MILLIS, DateUtils.FORMAT_ABBREV_MONTH | DateUtils.FORMAT_SHOW_DATE).toString();
+				}
+			}
+			else
+			{
+				//Show date in numeric format
+				return DateUtils.getRelativeTimeSpanString(givenTimeStampInMillis, currentTime, DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_NUMERIC_DATE).toString();
+			}
+		}
+	
 	}
 
 	public static Pair<String[], String[]> getMsisdnToNameArray(Conversation conversation)
@@ -5897,18 +5904,7 @@ public class Utils
 			result = false;
 			Logger.e("Utils", "2Failed due to - " + e2.getMessage());
 		} finally {
-			try {
-				if (in != null) {
-					in.close();
-					in = null;
-				}
-				if (out != null) {
-					out.close();
-					out = null;
-				}
-			} catch (IOException e) {
-				Logger.e("Utils", e.getMessage());
-			}
+			closeStreams(in, out);
 		}
 		return result;
 	}
@@ -6054,5 +6050,18 @@ public class Utils
                 cursor.close();
         }
         return null;
+    }
+
+    public static void closeStreams(Closeable... closableStreams)
+    {
+		for (Closeable closeable : closableStreams) {
+			try {
+				if (closeable != null)
+					closeable.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+				Logger.d("Utils", "Exception on closing stream : " + e);
+			}
+		}
     }
 }

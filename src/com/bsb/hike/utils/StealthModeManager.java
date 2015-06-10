@@ -425,7 +425,7 @@ public class StealthModeManager
 				// this should ideally only happen when user upgrades from HM1 to HM2 while his hidden is not setup
 				for (String msisdn : stealthMsisdn)
 				{
-					markStealthMsisdn(msisdn, false, true);
+					HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_DATABASE_UNMARKED, msisdn);
 				}
 				clearStealthMsisdn();
 			}
