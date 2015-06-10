@@ -191,7 +191,10 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 		
 		View shopIcon = (view.findViewById(R.id.shop_icon));
 		
-		shopIcon.setOnClickListener(this);
+		if(shopIcon != null)
+		{
+			shopIcon.setOnClickListener(this);
+		}
 
 		mViewPager.setVisibility(View.VISIBLE);
 	}
@@ -404,26 +407,29 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 	 */
 	private void handleStickerIntro(View view)
 	{
-		if (HikeSharedPreferenceUtil.getInstance().getData(StickerManager.SHOW_STICKER_SHOP_BADGE, false))
+		View shopIconBadge = view.findViewById(R.id.shop_icon_badge);
+		
+		if(shopIconBadge != null)
 		{
 			// show sticker shop badge on shop icon
-			view.findViewById(R.id.shop_icon_badge).setVisibility(View.VISIBLE);
-		}
-		else
-		{
-			view.findViewById(R.id.shop_icon_badge).setVisibility(View.GONE);
+			shopIconBadge.setVisibility(HikeSharedPreferenceUtil.getInstance().getData(StickerManager.SHOW_STICKER_SHOP_BADGE, false)
+					? View.VISIBLE : View.GONE);
 		}
 		
-		
-		if(!HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOWN_SHOP_ICON_BLUE, false))  //The shop icon would be blue unless the user clicks on it once
+		View shopIconImage = view.findViewById(R.id.shop_icon_image);
+		//The shop icon would be blue unless the user clicks on it once
+		if(!HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOWN_SHOP_ICON_BLUE, false) && shopIconImage != null)
 		{
 			View animatedBackground = view.findViewById(R.id.animated_backgroud);
 			
-			animatedBackground.setVisibility(View.VISIBLE);
-			Animation anim = AnimationUtils.loadAnimation(mActivity, R.anim.scale_out_from_mid);
-			animatedBackground.startAnimation(anim);
+			if(animatedBackground != null)
+			{
+				animatedBackground.setVisibility(View.VISIBLE);
+				Animation anim = AnimationUtils.loadAnimation(mActivity, R.anim.scale_out_from_mid);
+				animatedBackground.startAnimation(anim);
+			}
 
-			view.findViewById(R.id.shop_icon_image).setAnimation(HikeAnimationFactory.getStickerShopIconAnimation(mActivity));
+			shopIconImage.setAnimation(HikeAnimationFactory.getStickerShopIconAnimation(mActivity));
 		}
 	}
 	
