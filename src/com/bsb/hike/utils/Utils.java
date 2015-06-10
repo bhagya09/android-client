@@ -1722,7 +1722,7 @@ public class Utils
 		AccountUtils.stickersUrl = (isProductionServer ? AccountUtils.HTTP_STRING + AccountUtils.STICKERS_PRODUCTION_BASE : AccountUtils.base + AccountUtils.STICKERS_STAGING_PATH);
 		AccountUtils.h2oTutorialUrl = (isProductionServer ? AccountUtils.HTTP_STRING + AccountUtils.H2O_TUTORIAL_PRODUCTION_BASE : AccountUtils.base + AccountUtils.H2O_TUTORIAL_STAGING_PATH);
 		AccountUtils.analyticsUploadUrl = AccountUtils.base + AccountUtils.ANALYTICS_UPLOAD_PATH;
-		AccountUtils.stickerShareUrl = (isProductionServer ? AccountUtils.STICKER_SHARE_PRODUCTION_BASE : AccountUtils.base + AccountUtils.STICKER_SHARE_STAGING_PATH);
+		AccountUtils.stickerShareUrl = (isProductionServer ? AccountUtils.STICKER_SHARE_PRODUCTION_BASE : AccountUtils.STAGING_HOST + AccountUtils.STICKER_SHARE_STAGING_PATH);
 		
 		Logger.d("SSL", "Base: " + AccountUtils.base);
 		Logger.d("SSL", "FTHost: " + AccountUtils.fileTransferHost);
