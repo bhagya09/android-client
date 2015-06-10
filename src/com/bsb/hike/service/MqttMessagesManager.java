@@ -1944,8 +1944,8 @@ public class MqttMessagesManager
 		}
 		if (data.has(HikeConstants.SHOW_TOAST_FOR_DEGRADING_QUALITY))
 		{
-			int showToastForDegradingQuality = data.getInt(HikeConstants.SHOW_TOAST_FOR_DEGRADING_QUALITY);
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_TOAST_FOR_DEGRADING_QUALITY, showToastForDegradingQuality);
+			boolean toShowToastForDegradingQuality = data.getBoolean(HikeConstants.SHOW_TOAST_FOR_DEGRADING_QUALITY);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_TOAST_FOR_DEGRADING_QUALITY, toShowToastForDegradingQuality);
 		}
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
