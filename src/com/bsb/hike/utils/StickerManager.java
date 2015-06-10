@@ -1712,11 +1712,6 @@ public class StickerManager
 	 */
 	public void cachingStickersOnStart()
 	{
-		// This check is to avoid caching during fresh signup. If we remove this, we'll get NPE when we try to fetch recents category as it is null.
-		if (HikeSharedPreferenceUtil.getInstance().getData(StickerManager.UPGRADE_FOR_STICKER_SHOP_VERSION_1, 1) == 1)
-		{
-			return;
-		}
 		HikeHandlerUtil mThread = HikeHandlerUtil.getInstance();
 		mThread.startHandlerThread();
 		mThread.postRunnableWithDelay(new Runnable()
@@ -1751,6 +1746,10 @@ public class StickerManager
 	private void loadStickersForGivenCategory(StickerCategory category, int noOfStickers)
 	{
 		HikeLruCache cache = HikeMessengerApp.getLruCache();
+		if (cache == null)
+		{
+			return;
+		}
 		List<Sticker> stickerList = category.getStickerList();
 		BitmapDrawable drawable = null;
 //		 Checking the lesser value out of current size of category and the size provided. This is to avoid NPE in case of smaller category size
@@ -1763,14 +1762,9 @@ public class StickerManager
 			Bitmap bitmap = HikeBitmapFactory.decodeFile(stickerPath);
 			if (bitmap != null)
 			{
-
 				drawable = HikeBitmapFactory.getBitmapDrawable(context.getResources(), bitmap);
-
-				if (cache != null)
-				{
-					Logger.d(TAG, "Putting data in cache : " + stickerPath);
-					cache.putInCache(stickerPath, drawable);
-				}
+				Logger.d(TAG, "Putting data in cache : " + stickerPath);
+				cache.putInCache(stickerPath, drawable);
 			}
 
 		}
@@ -1782,6 +1776,10 @@ public class StickerManager
 	private void cacheStickerPaletteIcons()
 	{
 		HikeLruCache cache = HikeMessengerApp.getLruCache();
+		if (cache == null)
+		{
+			return;
+		}
 		List<StickerCategory> categoryList = getStickerCategoryList();
 		BitmapDrawable drawable = null;
 		
@@ -1797,12 +1795,9 @@ public class StickerManager
 			if (bitmap != null)
 			{
 				drawable = HikeBitmapFactory.getBitmapDrawable(context.getResources(), bitmap);
-
-				if (cache != null)
-				{
-					Logger.d("TAG", "Putting data in cache : " + StickerManager.getInstance().getCategoryOtherAssetLoaderKey(categoryId, StickerManager.PALLATE_ICON_TYPE));
-					cache.putInCache(StickerManager.getInstance().getCategoryOtherAssetLoaderKey(categoryId, StickerManager.PALLATE_ICON_TYPE), drawable);
-				}
+				String key = getCategoryOtherAssetLoaderKey(categoryId, StickerManager.PALLATE_ICON_TYPE);
+				Logger.d("TAG", "Putting data in cache : " + key);
+				cache.putInCache(key, drawable);
 			}
 		}
 	}
