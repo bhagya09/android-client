@@ -1905,7 +1905,7 @@ public class MqttMessagesManager
 			boolean shareStrings = data.getBoolean(HikeConstants.Extras.SHOW_SHARE_FUNCTIONALITY);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.Extras.SHOW_SHARE_FUNCTIONALITY, shareStrings);
 		}
-		if(data.has(HikeConstants.ChatHead.STICKER_WIDGET))
+		if(data.has(HikeConstants.ChatHead.STICKER_WIDGET) && Utils.isIceCreamOrHigher())
 		{ 
 			JSONObject stickerWidget = data.getJSONObject(HikeConstants.ChatHead.STICKER_WIDGET);
 			if (stickerWidget.has(HikeConstants.ChatHead.CHAT_HEAD_SERVICE))
