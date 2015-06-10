@@ -288,11 +288,11 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				+ DBConstants.CONVERSATION_METADATA + " TEXT, "  //bot metadata
 				+ DBConstants.IS_MUTE + " INTEGER DEFAULT 0, "  // bot conv mute or not
 				+ DBConstants.BOT_TYPE + " INTEGER DEFAULT 1, "				//bot type m/nm by default messaging
-				+ DBConstants.BOT_CONFIGURATION + " INTEGER, "	//bot configurations.. different server controlled properties of bot.
+				+ DBConstants.BOT_CONFIGURATION + " INTEGER DEFAULT " + String.valueOf(Integer.MAX_VALUE) + ", "	//bot configurations.. different server controlled properties of bot.
 				+ DBConstants.CONFIG_DATA + " TEXT, "            //config data for the bot.
 				+ HIKE_CONTENT.NAMESPACE + " TEXT, "         //namespace of a bot for caching purpose.
 				+ HIKE_CONTENT.NOTIF_DATA + " TEXT, "       //notif data used for notifications pertaining to the microapp
-				+ HIKE_CONTENT.HELPER_DATA + " TEXT"
+				+ HIKE_CONTENT.HELPER_DATA + " TEXT DEFAULT '{}'"  //helper data
 				+ ")";
 		db.execSQL(sql);
 
