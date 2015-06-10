@@ -115,9 +115,9 @@ public abstract class ImageWorker
 		loadImage(data, imageView, isFlinging, runOnUiThread, false);
 	}
 
-	public void loadImage(String msisdn, ImageView imageView, boolean isFlinging, boolean runOnUiThread, boolean setDefaultAvatarInitially)
+	public void loadImage(String data, ImageView imageView, boolean isFlinging, boolean runOnUiThread, boolean setDefaultAvatarInitially)
 	{
-		if (msisdn == null)
+		if (data == null)
 		{
 			return;
 		}
@@ -126,11 +126,7 @@ public abstract class ImageWorker
 
 		if (setDefaultAvatarInitially)
 		{
-			setDefaultAvatar(imageView, msisdn);
-			if (!ContactManager.getInstance().hasIcon(msisdn,false))
-			{
-				return;
-			}
+			setDefaultAvatar(imageView, data);
 		}
 		else
 		{
@@ -139,41 +135,40 @@ public abstract class ImageWorker
 				imageView.setBackgroundDrawable(null);
 			}
 		}
-		
 		if (mImageCache != null)
 		{
-			value = mImageCache.get(msisdn);
+			value = mImageCache.get(data);
 			// if bitmap is found in cache and is recyclyed, remove this from cache and make thread get new Bitmap
 			if (value != null && value.getBitmap().isRecycled())
 			{
-				mImageCache.remove(msisdn);
+				mImageCache.remove(data);
 				value = null;
 			}
 		}
 		if (value != null)
 		{
-			Logger.d(TAG, msisdn + " Bitmap found in cache and is not recycled.");
+			Logger.d(TAG, data + " Bitmap found in cache and is not recycled.");
 			// Bitmap found in memory cache
 			imageView.setImageDrawable(value);
 		}
 		else if (runOnUiThread)
 		{
-			Bitmap b = processBitmapOnUiThread(msisdn);
+			Bitmap b = processBitmapOnUiThread(data);
 			if (b != null && mImageCache != null)
 			{
 				BitmapDrawable bd = HikeBitmapFactory.getBitmapDrawable(mResources, b);
 				if (bd != null)
 				{
-					mImageCache.putInCache(msisdn, bd);
+					mImageCache.putInCache(data, bd);
 				}
 				imageView.setImageDrawable(bd);
 			}
 			else if (b == null && setDefaultAvatarIfNoCustomIcon)
 			{
-				setDefaultAvatar(imageView, msisdn);
+				setDefaultAvatar(imageView, data);
 			}
 		}
-		else if (cancelPotentialWork(msisdn, imageView) && !isFlinging)
+		else if (cancelPotentialWork(data, imageView) && !isFlinging)
 		{
 			Bitmap loadingBitmap = mLoadingBitmap;
 
@@ -196,7 +191,7 @@ public abstract class ImageWorker
 			// NOTE: This uses a custom version of AsyncTask that has been pulled from the
 			// framework and slightly modified. Refer to the docs at the top of the class
 			// for more info on what was changed.
-			task.executeOnExecutor(MyAsyncTask.THREAD_POOL_EXECUTOR, msisdn);
+			task.executeOnExecutor(MyAsyncTask.THREAD_POOL_EXECUTOR, data);
 		}
 		// else
 		// {
@@ -288,11 +283,6 @@ public abstract class ImageWorker
 	public void setDefaultDrawableNull(boolean b)
 	{
 		this.setDefaultDrawableNull = b;
-	}
-	
-	public boolean getDefaultDrawableNull()
-	{
-		return setDefaultDrawableNull;
 	}
 	
 	public void setDefaultDrawable(Drawable d)

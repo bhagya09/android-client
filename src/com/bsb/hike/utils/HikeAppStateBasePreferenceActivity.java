@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import com.actionbarsherlock.app.SherlockPreferenceActivity;
-import com.bsb.hike.R;
 
 public abstract class HikeAppStateBasePreferenceActivity extends SherlockPreferenceActivity
 {
@@ -15,7 +14,6 @@ public abstract class HikeAppStateBasePreferenceActivity extends SherlockPrefere
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		HikeAppStateUtils.onCreate(this);
-		overridePendingTransition(R.anim.appear, R.anim.pop_top);
 		super.onCreate(savedInstanceState);
 	}
 
@@ -51,7 +49,6 @@ public abstract class HikeAppStateBasePreferenceActivity extends SherlockPrefere
 	protected void onPause()
 	{
 		HikeAppStateUtils.onPause(this);
-		overridePendingTransition(R.anim.pump_top, R.anim.disappear);
 		super.onPause();
 	}
 

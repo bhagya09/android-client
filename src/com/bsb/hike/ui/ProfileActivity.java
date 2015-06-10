@@ -877,7 +877,11 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		
 		if(!isUpdate)
 		{
+<<<<<<< HEAD
 			ImageViewerInfo imageViewerInfo = new ImageViewerInfo(msisdn + PROFILE_PIC_SUFFIX, null, false, !ContactManager.getInstance().hasIcon(msisdn, false));
+=======
+			ImageViewerInfo imageViewerInfo = new ImageViewerInfo(msisdn + PROFILE_PIC_SUFFIX, null, false, !ContactManager.getInstance().hasIcon(msisdn,false));
+>>>>>>> parent of 6502651... default dp change commit 2
 			profileImage.setTag(imageViewerInfo);
 		}
 		if(headerViewInitialized || profileImageUpdated )

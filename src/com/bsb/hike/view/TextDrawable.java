@@ -16,7 +16,7 @@ public class TextDrawable extends ShapeDrawable
 
 	private final Paint borderPaint;
 
-	private static final float SHADE_FACTOR = 0.99f;
+	private static final float SHADE_FACTOR = 0.9f;
 
 	private final String text;
 
@@ -57,16 +57,10 @@ public class TextDrawable extends ShapeDrawable
 		textPaint = new Paint();
 		textPaint.setColor(builder.textColor);
 		textPaint.setAntiAlias(true);
-		textPaint.setShadowLayer(2f, 2, 2, getLighterShade(Color.BLACK, 12));
 		textPaint.setFakeBoldText(builder.isBold);
 		textPaint.setStyle(Paint.Style.FILL);
-		if (typeface == null)
-		{
-			typeface = Typeface.createFromAsset(HikeMessengerApp.getInstance().getApplicationContext().getAssets(), "fonts/Roboto-Light.ttf");
-		}
-
-		textPaint.setTypeface(typeface);
-		textPaint.setAlpha(235);
+		textPaint.setTypeface(builder.font);
+		textPaint.setAlpha(228);
 		textPaint.setTextAlign(Paint.Align.CENTER);
 		textPaint.setStrokeWidth(builder.borderThickness);
 
@@ -97,11 +91,6 @@ public class TextDrawable extends ShapeDrawable
 		return Color.rgb((int) (SHADE_FACTOR * Color.red(color)), (int) (SHADE_FACTOR * Color.green(color)), (int) (SHADE_FACTOR * Color.blue(color)));
 	}
 
-	private int getLighterShade(int color, int alpha)
-	{
-		return Color.argb(alpha, Color.red(color), Color.green(color), Color.blue(color));
-	}
-
 	@Override
 	public void draw(Canvas canvas)
 	{
@@ -117,7 +106,6 @@ public class TextDrawable extends ShapeDrawable
 		int height = this.height < 0 ? r.height() : this.height;
 		int fontSize = (int) (this.fontSize < 0 ? (Math.min(width, height) * 1f / 2.0f) : this.fontSize);
 		textPaint.setTextSize(fontSize);
-		gradient = new LinearGradient(width / 2, 0f, width / 2, height, color, getLighterShade(color, 210), Shader.TileMode.CLAMP);
 		getPaint().setShader(gradient);
 		super.draw(canvas);
 		int count = canvas.save();
@@ -216,6 +204,7 @@ public class TextDrawable extends ShapeDrawable
 			width = -1;
 			height = -1;
 			shape = new RectShape();
+			font = Typeface.create("sans-serif-light", Typeface.NORMAL);
 			fontSize = -1;
 			isBold = false;
 			toUpperCase = true;

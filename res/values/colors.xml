@@ -427,6 +427,8 @@
     <color name="dp_bg_7">#ff66cdff</color>
     <color name="dp_bg_8">#ffee7166</color>
     <color name="dp_bg_9">#ff66c0b8</color>
+    <color name="dp_bg_10">#ffa3a3a3</color>
     <color name="dp_bg_11">#ff66d7e3</color>
+    <color name="dp_bg_12">#ffffd966</color>
 </resources>
 	
