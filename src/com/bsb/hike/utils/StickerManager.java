@@ -591,6 +591,8 @@ public class StickerManager
 		}
 
 		Set<Sticker> list = ((CustomStickerCategory) customCategory).getStickerSet();
+		FileOutputStream fileOut = null;
+		ObjectOutputStream out = null;
 		try
 		{
 			if (list.size() == 0)
@@ -604,8 +606,8 @@ public class StickerManager
 				return;
 			}
 			File catFile = new File(extDir, catId + ".bin");
-			FileOutputStream fileOut = new FileOutputStream(catFile);
-			ObjectOutputStream out = new ObjectOutputStream(fileOut);
+			fileOut = new FileOutputStream(catFile);
+			out = new ObjectOutputStream(fileOut);
 			out.writeInt(list.size());
 			synchronized (list)
 			{
@@ -627,14 +629,16 @@ public class StickerManager
 			out.flush();
 			fileOut.flush();
 			fileOut.getFD().sync();
-			out.close();
-			fileOut.close();
 			long t2 = System.currentTimeMillis();
 			Logger.d(TAG, "Time in ms to save sticker list of category : " + catId + " to file :" + (t2 - t1));
 		}
 		catch (Exception e)
 		{
 			Logger.e(TAG, "Exception while saving category file.", e);
+		}
+		finally
+		{
+			Utils.closeStreams(out, fileOut);
 		}
 	}
 	

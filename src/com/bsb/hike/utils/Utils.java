@@ -3,6 +3,7 @@ package com.bsb.hike.utils;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -1184,6 +1185,8 @@ public class Utils
 		{
 			out = new FileOutputStream(dst);
 			out.write(bytes, 0, bytes.length);
+			out.flush();
+			out.getFD().sync();
 		}
 		catch (IOException e)
 		{
@@ -1191,19 +1194,7 @@ public class Utils
 		}
 		finally
 		{
-			if (out != null)
-			{
-				try
-				{
-					out.flush();
-					out.getFD().sync();
-					out.close();
-				}
-				catch (IOException e)
-				{
-					Logger.e("Utils", "Excecption while closing the stream", e);
-				}
-			}
+			Utils.closeStreams(out);
 		}
 	}
 
@@ -1224,17 +1215,7 @@ public class Utils
 		}
 		finally
 		{
-			if (fileInputStream != null)
-			{
-				try
-				{
-					fileInputStream.close();
-				}
-				catch (IOException e)
-				{
-					Logger.e("Utils", "Excecption while closing the file " + file.getName(), e);
-				}
-			}
+			Utils.closeStreams(fileInputStream);
 		}
 	}
 
@@ -1463,10 +1444,10 @@ public class Utils
 		}
 		
 		boolean status = false;
-		
+		InputStream src = null;
+		FileOutputStream dest = null;
 		try
 		{
-			InputStream src;
 			if (hikeFileType == HikeFileType.IMAGE)
 			{
 				String imageOrientation = Utils.getImageOrientation(srcFilePath);
@@ -1490,7 +1471,7 @@ public class Utils
 			{
 				src = new FileInputStream(new File(srcFilePath));
 			}
-			FileOutputStream dest = new FileOutputStream(new File(destFilePath));
+			dest = new FileOutputStream(new File(destFilePath));
 
 			byte[] buffer = new byte[HikeConstants.MAX_BUFFER_SIZE_KB * 1024];
 			int len;
@@ -1502,8 +1483,6 @@ public class Utils
 
 			dest.flush();
 			dest.getFD().sync();
-			src.close();
-			dest.close();
 			
 			status = true;
 		}
@@ -1519,6 +1498,10 @@ public class Utils
 		{
 			Logger.e("Utils", "WTF Error while reading/writing/closing file", ex);
 		}
+		finally
+		{
+			Utils.closeStreams(src, dest);
+		}
 		
 		return status;
 	}
@@ -1532,9 +1515,10 @@ public class Utils
 	
 	public static boolean compressAndCopyImage(String srcFilePath, String destFilePath, Context context, int quality)
 	{
+		InputStream src = null;
+		FileOutputStream dest = null;
 		try
 		{
-			InputStream src;
 			String imageOrientation = Utils.getImageOrientation(srcFilePath);
 			Bitmap tempBmp = null;
 
@@ -1560,7 +1544,7 @@ public class Utils
 				src = new FileInputStream(new File(srcFilePath));
 			}
 
-			FileOutputStream dest = new FileOutputStream(new File(destFilePath));
+			dest = new FileOutputStream(new File(destFilePath));
 
 			byte[] buffer = new byte[HikeConstants.MAX_BUFFER_SIZE_KB * 1024];
 			int len;
@@ -1571,8 +1555,6 @@ public class Utils
 			}
 			dest.flush();
 			dest.getFD().sync();
-			src.close();
-			dest.close();
 			return true;
 		}
 		catch (FileNotFoundException e)
@@ -1589,6 +1571,10 @@ public class Utils
 		{
 			Logger.e("Utils", "WTF Error while reading/writing/closing file", ex);
 			return false;
+		}
+		finally
+		{
+			Utils.closeStreams(src, dest);
 		}
 	}
 
@@ -2020,6 +2006,8 @@ public class Utils
 			{
 				fileOutputStream.write(data, 0, b);
 			}
+			fileOutputStream.flush();
+			fileOutputStream.getFD().sync();
 		}
 		catch (FileNotFoundException e)
 		{
@@ -2039,19 +2027,7 @@ public class Utils
 		}
 		finally
 		{
-			if (fileOutputStream != null)
-			{
-				try
-				{
-					fileOutputStream.flush();
-					fileOutputStream.getFD().sync();
-					fileOutputStream.close();
-				}
-				catch (IOException e)
-				{
-					Logger.e("Utils", "Exception while closing the output stream", e);
-				}
-			}
+			Utils.closeStreams(fileOutputStream);
 		}
 	}
 
@@ -2109,6 +2085,8 @@ public class Utils
 			{
 				fileOutputStream.write(d, 0, b);
 			}
+			fileOutputStream.flush();
+			fileOutputStream.getFD().sync();
 		}
 		catch (FileNotFoundException e)
 		{
@@ -2124,19 +2102,7 @@ public class Utils
 		}
 		finally
 		{
-			if (fileOutputStream != null)
-			{
-				try
-				{
-					fileOutputStream.flush();
-					fileOutputStream.getFD().sync();
-					fileOutputStream.close();
-				}
-				catch (IOException e)
-				{
-					Logger.e("Utils", "Exception while closing the output stream", e);
-				}
-			}
+			closeStreams(fileOutputStream);
 		}
 	}
 
@@ -2184,17 +2150,7 @@ public class Utils
 		}
 		finally
 		{
-			if (fileInputStream != null)
-			{
-				try
-				{
-					fileInputStream.close();
-				}
-				catch (IOException e)
-				{
-					Logger.e("Utils", "Exception while closing the input stream", e);
-				}
-			}
+			closeStreams(fileInputStream);
 		}
 		return currentFiles;
 	}
@@ -2659,17 +2615,25 @@ public class Utils
 	 */
 	public static byte[] saveBase64StringToFile(File file, String base64String) throws IOException
 	{
-		FileOutputStream fos = new FileOutputStream(file);
-
-		byte[] b = Base64.decode(base64String, Base64.DEFAULT);
-		if (b == null)
+		byte[] b = null;
+		FileOutputStream fos = null;
+		try
 		{
-			throw new IOException();
+			fos = new FileOutputStream(file);
+			b = Base64.decode(base64String, Base64.DEFAULT);
+			if (b == null)
+			{
+				throw new IOException();
+			}
+			fos.write(b);
+			fos.flush();
+			fos.getFD().sync();
 		}
-		fos.write(b);
-		fos.flush();
-		fos.getFD().sync();
-		fos.close();
+		finally
+		{
+			if(fos != null)
+				fos.close();
+		}
 		return b;
 	}
 
@@ -3597,16 +3561,7 @@ public class Utils
 		}
 		finally
 		{
-			if (inputStream != null)
-			{
-				try
-				{
-					inputStream.close();
-				}
-				catch (Exception e)
-				{
-				}
-			}
+			closeStreams(inputStream);
 		}
 	}
 	
@@ -3908,6 +3863,8 @@ public class Utils
 				 */
 				String data = "";
 				dest.write(data.getBytes(), 0, data.getBytes().length);
+				dest.flush();
+				dest.getFD().sync();
 			}
 			catch (IOException e)
 			{
@@ -3915,19 +3872,7 @@ public class Utils
 			}
 			finally
 			{
-				try
-				{
-					if(dest != null)
-					{
-						dest.flush();
-						dest.getFD().sync();
-						dest.close();
-					}
-				}
-				catch (IOException e)
-				{
-					Logger.d("NoMedia", "Failed to make nomedia file");
-				}
+				closeStreams(dest);
 			}
 			if(reScan)
 			{
@@ -5918,18 +5863,7 @@ public class Utils
 			result = false;
 			Logger.e("Utils", "2Failed due to - " + e2.getMessage());
 		} finally {
-			try {
-				if (in != null) {
-					in.close();
-					in = null;
-				}
-				if (out != null) {
-					out.close();
-					out = null;
-				}
-			} catch (IOException e) {
-				Logger.e("Utils", e.getMessage());
-			}
+			closeStreams(in, out);
 		}
 		return result;
 	}
@@ -6075,5 +6009,18 @@ public class Utils
                 cursor.close();
         }
         return null;
+    }
+
+    public static void closeStreams(Closeable... closableStreams)
+    {
+		for (Closeable closeable : closableStreams) {
+			try {
+				if (closeable != null)
+					closeable.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+				Logger.d("Utils", "Exception on closing stream : " + e);
+			}
+		}
     }
 }
