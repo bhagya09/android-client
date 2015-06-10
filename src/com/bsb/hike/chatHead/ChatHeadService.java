@@ -74,6 +74,8 @@ public class ChatHeadService extends Service
 
 	public static int dismissed = 0;
 
+	public static FinishActivityListener mFinishActivityListener;
+	
 	private class CheckForegroundActivity extends TimerTask
 	{
 		@Override
@@ -151,10 +153,19 @@ public class ChatHeadService extends Service
 		catch (JSONException e)
 		{
 			e.printStackTrace();
-
 		}
 	}
 
+	public static void registerReceiver(FinishActivityListener finishingActivityListener)
+	{
+	   	mFinishActivityListener = finishingActivityListener;
+	}
+	
+	public static void unregisterReceiver(FinishActivityListener finishingActivityListener)
+	{
+		mFinishActivityListener = null;
+	}
+	
 	public void overlayAnimation(final View view2animate, Integer viewX, Integer endX, Integer viewY, Integer endY, final int flag, final String... path)
 	{
 		ValueAnimator translateX = ValueAnimator.ofInt(viewX, endX);
@@ -189,14 +200,10 @@ public class ChatHeadService extends Service
 			@Override
 			public void onAnimationStart(Animator animation)
 			{
-				if (flag != HikeConstants.ChatHead.REMAINING_ANIMATION)
+				if (flag != HikeConstants.ChatHead.REMAINING_ANIMATION && flagActivityRunning && (mFinishActivityListener!= null))
 				{
-					if (flagActivityRunning)
-					{
 						flagActivityRunning = false;
-						ChatHeadActivity.getInstance().finish();
-						ChatHeadActivity.getInstance().overridePendingTransition(0, 0);
-					}
+		                mFinishActivityListener.finishActivity();
 				}
 			}
 
@@ -562,9 +569,10 @@ public class ChatHeadService extends Service
 			windowManager.removeView(chatHead);
 		if (closeHead.isShown())
 			windowManager.removeView(closeHead);
-		if (flagActivityRunning)
+		if (flagActivityRunning && (mFinishActivityListener != null) )
 		{
-			ChatHeadActivity.getInstance().finish();
+			flagActivityRunning = false;
+			mFinishActivityListener.finishActivity();
 		}
 		super.onDestroy();
 	}
