@@ -1198,7 +1198,8 @@ class PersistenceCache extends ContactsCache
 		readLock.lock();
 		try
 		{
-			return blockedMsisdns;
+			// creating a new hash set from current one to prevent outside world not to change cache set
+			return new HashSet<String>(blockedMsisdns);
 		}
 		finally
 		{
