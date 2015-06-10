@@ -3,7 +3,12 @@ package com.bsb.hike.bots;
 import java.util.HashMap;
 import java.util.Map;
 
+import android.util.Base64;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.models.ContactInfo;
+import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.platform.PlatformUtils;
+import com.bsb.hike.utils.Utils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -15,9 +20,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.db.HikeConversationsDatabase;
-import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.platform.HikePlatformConstants;
-import com.bsb.hike.service.MqttMessagesManager;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 
@@ -78,7 +81,7 @@ public class BotUtils
 
 		defaultBotEntry("+hike4+", "hike support", null, null, 2069487, true, context);
 
-		defaultBotEntry("+hike5+", "Natasha", null, null, 2069487, true, context);
+		defaultBotEntry("+hike5+", "Natasha", null, HikeBitmapFactory.getBase64ForDrawable(R.drawable.natasha, context.getApplicationContext()), 2069487, true, context);
 
 		defaultBotEntry("+hikecricket+", "Cricket 2015", HikePlatformConstants.CRICKET_CHAT_THEME_ID,
 				HikeBitmapFactory.getBase64ForDrawable(R.drawable.cric_icon, context.getApplicationContext()), 21487, false, context);
@@ -120,7 +123,7 @@ public class BotUtils
 			e.printStackTrace();
 		}
 
-		MqttMessagesManager.getInstance(context.getApplicationContext()).createBot(jsonObject);
+		createBot(jsonObject);
 	}
 	
 	public static boolean isBot(String msisdn)
@@ -146,7 +149,7 @@ public class BotUtils
 	 */
 	public static void postAccountRestoreSetup()
 	{
-		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.UPGRADE_FOR_DEFAULT_BOT_ENTRY, false);
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.UPGRADE_FOR_DEFAULT_BOT_ENTRY, true);
 		initBots();
 	}
 	
@@ -168,35 +171,16 @@ public class BotUtils
 	 */
 	public static void initBots()
 	{
-		HikeHandlerUtil mThread = HikeHandlerUtil.getInstance();
-		mThread.startHandlerThread();
-		mThread.postRunnableWithDelay(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				if (HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.UPGRADE_FOR_DEFAULT_BOT_ENTRY, true))
-				{
-					BotUtils.addDefaultBotsToDB(HikeMessengerApp.getInstance().getApplicationContext());
-					HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.UPGRADE_FOR_DEFAULT_BOT_ENTRY, false);
-				}
-			}
-		}, 0);
 
-		/**
-		 * If the migration of bots hasn't happened yet. This will happen for the first time
-		 */
 		if (HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.UPGRADE_FOR_DEFAULT_BOT_ENTRY, true))
 		{
-			HikeMessengerApp.hikeBotInfoMap.putAll(BotUtils.getDefaultHardCodedBotInfoObjects());
+			addDefaultBotsToDB(HikeMessengerApp.getInstance().getApplicationContext());
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.UPGRADE_FOR_DEFAULT_BOT_ENTRY, false);
 		}
 
-		else
-		{
-			HikeConversationsDatabase.getInstance().getBotHashmap();
-			Logger.d("create bot", "Keys are " + HikeMessengerApp.hikeBotInfoMap.keySet() + "------");
-			Logger.d("create bot", "values are " + HikeMessengerApp.hikeBotInfoMap.values());
-		}
+		HikeConversationsDatabase.getInstance().getBotHashmap();
+		Logger.d("create bot", "Keys are " + HikeMessengerApp.hikeBotInfoMap.keySet() + "------");
+		Logger.d("create bot", "values are " + HikeMessengerApp.hikeBotInfoMap.values());
 	}
 
 	/**
@@ -207,7 +191,7 @@ public class BotUtils
 	public static void deleteBotConversation(String msisdn, boolean hardDelete)
 	{
 		Logger.d("delete bot", "bot to be deleted is " + msisdn + " and hard delete is " + String.valueOf(hardDelete));
-		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
+		BotInfo botInfo = getBotInfoForBotMsisdn(msisdn);
 		if (botInfo == null)
 		{
 			return;
@@ -218,5 +202,121 @@ public class BotUtils
 			HikeConversationsDatabase.getInstance().deleteBot(msisdn);
 		}
 		HikeMessengerApp.getPubSub().publish(HikePubSub.DELETE_THIS_CONVERSATION, botInfo);
+	}
+
+	public static void deleteBot(String msisdn)
+	{
+		if (!Utils.validateBotMsisdn(msisdn))
+		{
+			return;
+		}
+		deleteBotConversation(msisdn , true);
+	}
+
+	public static void createBot(JSONObject jsonObj)
+	{
+		long startTime = System.currentTimeMillis();
+
+		String type = jsonObj.optString(HikePlatformConstants.BOT_TYPE);
+		if (TextUtils.isEmpty(type))
+		{
+			Logger.e("bot error", "type is null.");
+			return;
+		}
+
+		String msisdn = jsonObj.optString(HikeConstants.MSISDN);
+		if (!Utils.validateBotMsisdn(msisdn))
+		{
+			return;
+		}
+
+		if (ContactManager.getInstance().isBlocked(msisdn))
+		{
+			Logger.e("bot error", "bot is blocked by user.");
+			return;
+		}
+		String name = jsonObj.optString(HikeConstants.NAME);
+		String thumbnailString = jsonObj.optString(HikeConstants.BOT_THUMBNAIL);
+		if (!TextUtils.isEmpty(thumbnailString))
+		{
+			ContactManager.getInstance().setIcon(msisdn, Base64.decode(thumbnailString, Base64.DEFAULT), false);
+			HikeMessengerApp.getLruCache().clearIconForMSISDN(msisdn);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.ICON_CHANGED, msisdn);
+		}
+
+		int config = jsonObj.optInt(HikeConstants.CONFIGURATION, Integer.MAX_VALUE);
+		String botChatTheme = jsonObj.optString(HikeConstants.BOT_CHAT_THEME);
+		BotInfo botInfo = null;
+		if (type.equals(HikeConstants.MESSAGING_BOT))
+		{
+			botInfo = getBotInfoFormessagingBots(jsonObj, msisdn, name, config);
+			updateBotParams(botChatTheme, botInfo);
+		}
+		else if (type.equals(HikeConstants.NON_MESSAGING_BOT))
+		{
+			botInfo = getBotInfoForNonMessagingBots(jsonObj, msisdn, name, config);
+			boolean enableBot = jsonObj.optBoolean(HikePlatformConstants.ENABLE_BOT);
+			PlatformUtils.downloadZipForNonMessagingBot(botInfo, enableBot, botChatTheme);
+		}
+
+
+		Logger.d("create bot", "It takes " + String.valueOf(System.currentTimeMillis() - startTime) + "msecs");
+	}
+
+	private static BotInfo getBotInfoForNonMessagingBots(JSONObject jsonObj, String msisdn, String name, int config)
+	{
+		BotInfo botInfo;
+		JSONObject metadata = jsonObj.optJSONObject(HikeConstants.METADATA);
+		NonMessagingBotMetadata botMetadata = new NonMessagingBotMetadata(metadata);
+		JSONObject configData = jsonObj.optJSONObject(HikePlatformConstants.CONFIG_DATA);
+		String namespace = jsonObj.optString(HikePlatformConstants.NAMESPACE);
+		NonMessagingBotConfiguration configuration = configData == null ? new NonMessagingBotConfiguration(config)
+				: new NonMessagingBotConfiguration(config, configData.toString());
+		String helperData = jsonObj.optString(HikePlatformConstants.HELPER_DATA);
+		botInfo = new BotInfo.HikeBotBuilder(msisdn)
+				.setType(BotInfo.NON_MESSAGING_BOT)
+				.setConvName(name)
+				.setIsMute(false)
+				.setHelperData(helperData)
+				.setNamespace(namespace)
+				.setConfigData(null == configuration.getConfigData() ? null : configuration.getConfigData().toString())
+				.setConfig(configuration.getConfig())
+				.setMetadata(botMetadata.toString())
+				.build();
+		return botInfo;
+	}
+
+	private static BotInfo getBotInfoFormessagingBots(JSONObject jsonObj, String msisdn, String name, int config)
+	{
+		BotInfo botInfo;
+		JSONObject metadata = jsonObj.optJSONObject(HikeConstants.METADATA);
+		MessagingBotMetadata messagingBotMetadata = new MessagingBotMetadata(metadata);
+		MessagingBotConfiguration configuration = new MessagingBotConfiguration(config, messagingBotMetadata.isReceiveEnabled());
+		botInfo = new BotInfo.HikeBotBuilder(msisdn)
+				.setType(BotInfo.MESSAGING_BOT)
+				.setConvName(name)
+				.setMetadata(messagingBotMetadata.toString())
+				.setIsMute(false)
+				.setConfig(configuration.getConfig())
+				.build();
+		return botInfo;
+	}
+
+	public static void updateBotParams(String botChatTheme, BotInfo botInfo)
+	{
+		String msisdn = botInfo.getMsisdn();
+		HikeConversationsDatabase convDb = HikeConversationsDatabase.getInstance();
+		convDb.setChatBackground(msisdn, botChatTheme, System.currentTimeMillis()/1000);
+		convDb.insertBot(botInfo);
+
+		HikeMessengerApp.hikeBotInfoMap.put(msisdn, botInfo);
+
+		if (HikeMessengerApp.hikeBotInfoMap.containsKey(msisdn))
+		{
+			ContactInfo contact = new ContactInfo(msisdn, msisdn, botInfo.getConversationName(), msisdn);
+			contact.setFavoriteType(ContactInfo.FavoriteType.NOT_FRIEND);
+			ContactManager.getInstance().updateContacts(contact);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.CONTACT_ADDED, contact);
+		}
 	}
 }

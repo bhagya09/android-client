@@ -88,7 +88,7 @@ import com.bsb.hike.utils.Utils;
 public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBConstants, HIKE_CONV_DB
 {
 
-	private SQLiteDatabase mDb;
+	private static volatile SQLiteDatabase mDb;
 
 	private static volatile HikeConversationsDatabase hikeConversationsDatabase;
 
@@ -784,6 +784,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		Logger.d(getClass().getSimpleName(), "Reinitialising conversation DB");
 		close();
 		Logger.d(getClass().getSimpleName(), "conversation DB is closed now");
+		
 		hikeConversationsDatabase = new HikeConversationsDatabase(HikeMessengerApp.getInstance());
 		/*
 		 * We can remove this line, if we can guarantee, NoOne keeps a local copy of HikeConversationsDatabase. 
@@ -2998,7 +2999,13 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 					}
 					else
 					{
-						convInfo.setmConversationName(contact.getName());
+						/**
+						 * The contact manager can have null names for bot and if it sets null here, we're screwed big time.
+						 */
+						if (!BotUtils.isBot(msisdn))
+						{
+							convInfo.setmConversationName(contact.getName());
+						}
 					}
 				}
 
@@ -7085,7 +7092,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 				BotInfo botInfo = new BotInfo.HikeBotBuilder(msisdn).setConvName(name).setConfig(config).setType(botType).setMetadata(metadata).setIsMute(mute == 1)
 						.setNamespace(namespace).setConfigData(configData).setHelperData(helperData).setNotifData(notifData).build();
-
+				
+				botInfo.setBlocked(ContactManager.getInstance().isBlocked(msisdn));
 				return botInfo;
 			}
 		}
