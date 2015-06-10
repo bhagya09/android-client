@@ -5,12 +5,15 @@ import java.util.LinkedList;
 import java.util.List;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.util.DisplayMetrics;
 
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.photos.views.DoodleEffectItemLinearLayout;
 import com.bsb.hike.photos.views.FilterEffectItemLinearLayout;
@@ -65,6 +68,21 @@ public class HikePhotosUtils
 		return pixels;
 	}
 
+	/**
+	 * This method converts device specific pixels to density independent pixels.
+	 * http://stackoverflow.com/questions/4605527/converting-pixels-to-dp
+	 * 
+	 * @param px A value in px (pixels) unit. Which we need to convert into db
+	 * @param context Context to get resources and device specific display metrics
+	 * @return A float value to represent dp equivalent to px value
+	 */
+	public static float pxToDp(float px){
+	    Resources resources = HikeMessengerApp.getInstance().getApplicationContext().getResources();
+	    DisplayMetrics metrics = resources.getDisplayMetrics();
+	    float dp = px / (metrics.densityDpi / 160f);
+	    return dp;
+	}
+	
 	public static void manageBitmaps(Bitmap bitmap)
 	{
 
@@ -147,11 +165,13 @@ public class HikePhotosUtils
 	public static Bitmap createBitmap(Bitmap source, int x, int y, int targetWidth, int targetHeight, boolean createMutableCopy, boolean scaledCopy, boolean crop, boolean retry)
 	{
 		Bitmap ret = null;
-
+		
 		try
 		{
 			if (source != null)
 			{
+				Config outConfig = (source.getConfig() == null) ? Config.ARGB_8888 : source.getConfig();
+				
 				if (scaledCopy && createMutableCopy)
 				{
 					ret = Bitmap.createScaledBitmap(source, targetWidth, targetHeight, false);
@@ -162,11 +182,11 @@ public class HikePhotosUtils
 				}
 				else if (createMutableCopy)
 				{
-					ret = source.copy(source.getConfig(), true);
+					ret = source.copy(outConfig, true);
 				}
 				else
 				{
-					ret = Bitmap.createBitmap(source.getWidth(), source.getHeight(), source.getConfig());
+					ret = Bitmap.createBitmap(source.getWidth(), source.getHeight(), outConfig);
 				}
 
 			}

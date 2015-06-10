@@ -1,5 +1,6 @@
 package com.bsb.hike;
 
+import android.content.res.TypedArray;
 import android.net.Uri;
 import android.os.Environment;
 
@@ -44,6 +45,8 @@ public class HikeConstants
 	public static final String FROM = "f";
 
 	public static final String SUB_TYPE = "st";
+	
+	public static final String GROUP_CHAT_TIMESTAMP = "gts";
 
 	public static final String HIKE_MESSAGE = "hm";
 
@@ -210,6 +213,8 @@ public class HikeConstants
 	public static final String MUTED = "muted";
 
 	public static final String POST_AB = "postab";
+	
+	public static final String PATCH_AB = "patchab";
 
 	public static final String POST_INFO = "postinfo";
 
@@ -580,8 +585,6 @@ public class HikeConstants
 
 	public static final String SHOW_RECENTLY_JOINED_DOT = "showRecentlyJoinedDot";
 	
-	public static final String SHOW_PHOTOS_RED_DOT = "showphotosenabled";
-	
 	public static final String SHOW_RECENTLY_JOINED = "showRecentlyJoined";
 
 	public static final String SHOW_TIMELINE_RED_DOT = "showTimelineRedDot";
@@ -609,6 +612,8 @@ public class HikeConstants
 	public static final String SYSTEM_HEALTH_URL = "http://www.twitter.com/hikestatus";
 
 	public static final String IS_TYPING = "is typing...";
+	
+	public static final String ARE_TYPING = "are typing...";
 
 	public static final String NEW_GROUP = "new_group";
 	
@@ -730,6 +735,10 @@ public class HikeConstants
 	public static final int MAX_DIMENSION_MEDIUM_FULL_SIZE_PX = 800;
 
 	public static final int MAX_DIMENSION_LOW_FULL_SIZE_PX = 600;
+	
+	public static final int SMO_MAX_DIMENSION_MEDIUM_FULL_SIZE_PX = 1240;
+	
+	public static final int SMO_MAX_DIMENSION_LOW_FULL_SIZE_PX = 800;
 
 	public static final int INITIAL_PROGRESS = 5;
 
@@ -1159,6 +1168,8 @@ public class HikeConstants
 		public static final String CIRCLE_CROP = "circleCrop";
 		
 		public static final String CIRCLE_HIGHLIGHT = "circleHighlight";
+		
+		public static final String RETURN_BOUNDS = "returnBounds";
 
 		public static final String SCALE_UP = "scaleUpIfNeeded";
 
@@ -1370,7 +1381,7 @@ public class HikeConstants
 
 		public static final String SHOW_RECORDING_DIALOG = "showRecordingDialog";
 
-		public static final String HOME_POPUP_TYPE = "homePopupType";
+		public static final String IS_HOME_POPUP_SHOWING = "homePopupType";
 
 		public static final String LAST_UPDATE_PACKET_ID = "lastUpdatePacketId";
 
@@ -2401,7 +2412,7 @@ public class HikeConstants
 
 		public static final int QUALITY_SMALL = 3;
 
-		public static final int QUALITY_DEFAULT = QUALITY_SMALL;
+		public static final int QUALITY_DEFAULT = QUALITY_MEDIUM;
 
 		public static final String IMAGE_QUALITY_ORIGINAL = "O";
 
@@ -2709,19 +2720,22 @@ public class HikeConstants
 		
 		public static final String FROM_DP_UPLOAD = "from_dp_upload";
 
+		public static final String DP_UPLOAD_CROP_BOUNDS = "Crop";
 	}
-
 	
 	public static final String REARRANGE_CHAT = "rearrange_chat";
 	
 	public static final String UPDATE_UNREAD_COUNT = "uuc";
 	
 	public static final String CONTENT_ID = "content_id";
+	
 	public static final String TIMESTAMP_MILLIS = "msec";
 	
 	public static final String EVENT_TAG_SESSION = "sess";
 
 	public static final String MESSAGE_PROCESS_TIME = "mpt";
+	
+	public static TypedArray DEFAULT_AVATAR_BG_COLOR_ARRAY = null;
 
 	public static int DEFAULT_AVATARS[] = {R.drawable.avatar_01, R.drawable.avatar_02, R.drawable.avatar_03, R.drawable.avatar_04, R.drawable.avatar_05};
 
@@ -2818,5 +2832,15 @@ public class HikeConstants
 	public static final String KEY = "key";
 	
 	public static final String VALUE = "val";
+
+	public static final String SUPER_COMPRESSED_IMG_SIZE = "c_img_size";
+		
+	public static final String NORMAL_IMG_SIZE = "n_img_size";
+		
+	public static final String DEFAULT_IMG_QUALITY_FOR_SMO = "d_q_smo";
+		
+	public static final String SHOW_TOAST_FOR_DEGRADING_QUALITY = "img_deg_toast";
+			
+	public static final String CONSUMED_FORWARDED_DATA = "consumed";
 }
 
