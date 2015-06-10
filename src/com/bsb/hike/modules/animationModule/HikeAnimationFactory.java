@@ -13,6 +13,8 @@ import com.bsb.hike.R;
 
 public class HikeAnimationFactory
 {	
+	
+	static int anim_repeat_count;
 	public static Animation getPulsatingDotAnimation(int initialOffset)
 	{
 		AnimationSet animSet = new AnimationSet(true);
@@ -35,6 +37,34 @@ public class HikeAnimationFactory
 		return animSet;
 	}
 
+	public static AnimationSet getHikeActionBarLogoAnimation(Context context)
+	{
+		anim_repeat_count = 2;
+		final AnimationSet animSet = (AnimationSet) AnimationUtils.loadAnimation(context, R.anim.hike_logo_stealth_anim);
+
+		animSet.setAnimationListener(new AnimationListener() {
+
+			@Override
+			public void onAnimationStart(Animation animation) {
+				anim_repeat_count--;
+			}
+
+			@Override
+			public void onAnimationRepeat(Animation animation) {
+			}
+
+			@Override
+			public void onAnimationEnd(Animation animation) {
+				animation.reset();
+				if(anim_repeat_count > 0)
+				{
+					animation.start();
+				}
+			}
+		});
+		return animSet;
+	}
+	
 	public static AnimationSet getStickerShopIconAnimation(Context context)
 	{
 		final AnimationSet animSet = (AnimationSet) AnimationUtils.loadAnimation(context, R.anim.sticker_shop_icon_anim);
