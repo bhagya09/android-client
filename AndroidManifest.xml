@@ -141,6 +141,15 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+             <intent-filter android:label="@string/app_label">
+                <action android:name="android.intent.action.SEND" />
+                
+				<action android:name="android.intent.action.SEND_MULTIPLE" />
+                
+                <category android:name="android.intent.category.DEFAULT" />
+                
+                <data android:mimeType="*/*" />
+            </intent-filter>
         </activity>
         <activity
             android:name=".ui.ComposeChatActivity"
@@ -148,20 +157,6 @@
             android:label="@string/app_label"
             android:theme="@style/AppTheme.Home"
             android:windowSoftInputMode="stateHidden" >
-            <intent-filter>
-                <action android:name="android.intent.action.SEND" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-
-                <data android:mimeType="*/*" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.SEND_MULTIPLE" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-
-                <data android:mimeType="*/*" />
-            </intent-filter>
         </activity>
         <activity
             android:name=".ui.AddFriendsActivity"
@@ -271,8 +266,7 @@
         <activity android:name=".ui.HikeSharedFilesActivity"
             android:theme="@style/AppTheme.Home.Photos" >
         </activity>
-        <activity android:name=".ui.GallerySelectionViewer"
-            android:theme="@style/AppTheme.Home.Photos" >
+        <activity android:name=".ui.GallerySelectionViewer">
         </activity>
         <activity android:name=".ui.CountrySelectActivity" >
         </activity>
@@ -328,12 +322,6 @@
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.Home.Photos" >
-        </activity>
-        <activity
-            android:name="com.bsb.hike.ui.DelegateActivity"
-            android:launchMode="standard"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar"
-            android:screenOrientation="portrait" >
         </activity>
         <activity
             android:name=".ui.PinHistoryActivity"

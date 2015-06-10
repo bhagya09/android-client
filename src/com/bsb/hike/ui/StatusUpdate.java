@@ -1,17 +1,10 @@
 package com.bsb.hike.ui;
 
-import java.util.Calendar;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.view.ViewPager;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -31,7 +24,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar;
-import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
@@ -39,21 +31,14 @@ import com.bsb.hike.R;
 import com.bsb.hike.adapters.EmoticonAdapter;
 import com.bsb.hike.adapters.MoodAdapter;
 import com.bsb.hike.db.HikeConversationsDatabase;
-import com.bsb.hike.http.HikeHttpRequest;
-import com.bsb.hike.http.HikeHttpRequest.HikeHttpCallback;
-import com.bsb.hike.http.HikeHttpRequest.RequestType;
 import com.bsb.hike.media.EmoticonPickerListener;
-import com.bsb.hike.models.StatusMessage;
-import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
-import com.bsb.hike.tasks.HikeHTTPTask;
 import com.bsb.hike.tasks.StatusUpdateTask;
 import com.bsb.hike.utils.EmoticonConstants;
 import com.bsb.hike.utils.EmoticonTextWatcher;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeTip;
 import com.bsb.hike.utils.HikeTip.TipType;
-import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.CustomLinearLayout;
 import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
@@ -67,8 +52,6 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		int moodId = -1;
 
 		int moodIndex = -1;
-
-		HikeHTTPTask hikeHTTPTask = null;
 		
 		StatusUpdateTask task;
 
@@ -98,8 +81,6 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	private EditText statusTxt;
 
 	private CustomLinearLayout parentLayout;
-
-	private Handler handler;
 
 	private TextView charCounter;
 
@@ -133,12 +114,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		if (o instanceof ActivityTask)
 		{
 			mActivityTask = (ActivityTask) o;
-			if (mActivityTask.hikeHTTPTask != null)
-			{
-				progressDialog = ProgressDialog.show(this, null, getResources().getString(R.string.updating_status));
-			}
-			
-			if (Utils.isOkHttp() && mActivityTask.task != null)
+			if (mActivityTask.task != null)
 			{
 				progressDialog = ProgressDialog.show(this, null, getResources().getString(R.string.updating_status));
 			}
@@ -147,8 +123,6 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		{
 			mActivityTask = new ActivityTask();
 		}
-
-		handler = new Handler();
 
 		preferences = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE);
 
@@ -290,18 +264,6 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	{
 		title.setText(moodParent.getVisibility() == View.VISIBLE ? R.string.moods : R.string.status);
 	}
-
-	private Runnable cancelStatusPost = new Runnable()
-	{
-
-		@Override
-		public void run()
-		{
-			Toast.makeText(getApplicationContext(), R.string.update_status_fail, Toast.LENGTH_SHORT).show();
-			mActivityTask.hikeHTTPTask = null;
-			HikeMessengerApp.getPubSub().publish(HikePubSub.STATUS_POST_REQUEST_DONE, false);
-		}
-	};
 
 	public void onTitleIconClick(View v)
 	{
@@ -527,119 +489,6 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 
 	private void postStatus()
 	{
-		if (Utils.isOkHttp())
-		{
-			postStatusOkHttp();
-		}
-		else
-		{
-			postStatusApacheClient();
-		}
-	}
-
-	private void postStatusApacheClient()
-	{
-		HikeHttpRequest hikeHttpRequest = new HikeHttpRequest("/user/status", RequestType.STATUS_UPDATE, new HikeHttpCallback()
-		{
-
-			@Override
-			public void onSuccess(JSONObject response)
-			{
-				mActivityTask = new ActivityTask();
-
-				JSONObject data = response.optJSONObject("data");
-
-				String mappedId = data.optString(HikeConstants.STATUS_ID);
-				String text = data.optString(HikeConstants.STATUS_MESSAGE);
-				int moodId = data.optInt(HikeConstants.MOOD) - 1;
-				int timeOfDay = data.optInt(HikeConstants.TIME_OF_DAY);
-				String msisdn = preferences.getString(HikeMessengerApp.MSISDN_SETTING, "");
-				String name = preferences.getString(HikeMessengerApp.NAME_SETTING, "");
-				long time = (long) System.currentTimeMillis() / 1000;
-
-				StatusMessage statusMessage = new StatusMessage(0, mappedId, msisdn, name, text, StatusMessageType.TEXT, time, moodId, timeOfDay);
-				HikeConversationsDatabase.getInstance().addStatusMessage(statusMessage, true);
-
-				int unseenUserStatusCount = preferences.getInt(HikeMessengerApp.UNSEEN_USER_STATUS_COUNT, 0);
-				Editor editor = preferences.edit();
-				editor.putString(HikeMessengerApp.LAST_STATUS, text);
-				editor.putInt(HikeMessengerApp.LAST_MOOD, moodId);
-				editor.putInt(HikeMessengerApp.UNSEEN_USER_STATUS_COUNT, ++unseenUserStatusCount);
-				editor.putBoolean(HikeConstants.IS_HOME_OVERFLOW_CLICKED, false);
-				editor.commit();
-
-				HikeMessengerApp.getPubSub().publish(HikePubSub.MY_STATUS_CHANGED, text);
-
-				/*
-				 * This would happen in the case where the user has added a self contact and received an mqtt message before saving this to the db.
-				 */
-				if (statusMessage.getId() != -1)
-				{
-					HikeMessengerApp.getPubSub().publish(HikePubSub.STATUS_MESSAGE_RECEIVED, statusMessage);
-					HikeMessengerApp.getPubSub().publish(HikePubSub.TIMELINE_UPDATE_RECIEVED, statusMessage);
-				}
-				HikeMessengerApp.getPubSub().publish(HikePubSub.STATUS_POST_REQUEST_DONE, true);
-			}
-
-			@Override
-			public void onFailure()
-			{
-				Toast.makeText(getApplicationContext(), R.string.update_status_fail, Toast.LENGTH_SHORT).show();
-				mActivityTask.hikeHTTPTask = null;
-				HikeMessengerApp.getPubSub().publish(HikePubSub.STATUS_POST_REQUEST_DONE, false);
-			}
-
-		});
-		String status = null;
-		/*
-		 * If the text box is empty, the we take the hint text which is a prefill for moods.
-		 */
-		if (TextUtils.isEmpty(statusTxt.getText()))
-		{
-			status = statusTxt.getHint().toString();
-		}
-		else
-		{
-			status = statusTxt.getText().toString();
-		}
-
-		//boolean facebook = findViewById(R.id.post_fb_btn).isSelected();
-		//boolean twitter = findViewById(R.id.post_twitter_btn).isSelected();
-
-		Logger.d(getClass().getSimpleName(), "Status: " + status);
-		JSONObject data = new JSONObject();
-		try
-		{
-			data.put(HikeConstants.STATUS_MESSAGE_2, status);
-			//data.put(HikeConstants.FACEBOOK_STATUS, facebook);
-			//data.put(HikeConstants.TWITTER_STATUS, twitter);
-			if (mActivityTask.moodId != -1)
-			{
-				data.put(HikeConstants.MOOD, mActivityTask.moodId + 1);
-				data.put(HikeConstants.TIME_OF_DAY, getTimeOfDay());
-			}
-		}
-		catch (JSONException e)
-		{
-			Logger.w(getClass().getSimpleName(), "Invalid JSON", e);
-		}
-		Logger.d(getClass().getSimpleName(), "JSON: " + data);
-
-		hikeHttpRequest.setJSONData(data);
-		mActivityTask.hikeHTTPTask = new HikeHTTPTask(null, 0);
-		Utils.executeHttpTask(mActivityTask.hikeHTTPTask, hikeHttpRequest);
-
-		/*
-		 * Starting the manual cancel as well.
-		 */
-		handler.removeCallbacks(cancelStatusPost);
-		handler.postDelayed(cancelStatusPost, 60 * 1000);
-
-		progressDialog = ProgressDialog.show(this, null, getResources().getString(R.string.updating_status));
-	}
-	
-	private void postStatusOkHttp()
-	{
 		String status = null;
 		/*
 		 * If the text box is empty, the we take the hint text which is a prefill for moods.
@@ -828,20 +677,6 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		}
 	}
 
-	private int getTimeOfDay()
-	{
-		int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
-		if (hour >= 4 && hour < 12)
-		{
-			return 1;
-		}
-		else if (hour >= 12 && hour < 20)
-		{
-			return 2;
-		}
-		return 3;
-	}
-
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data)
 	{
@@ -904,10 +739,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 				@Override
 				public void run()
 				{
-					if (Utils.isOkHttp())
-					{
-						mActivityTask.task = null;
-					}
+					mActivityTask.task = null;
 					if (progressDialog != null)
 					{
 						progressDialog.dismiss();
@@ -920,12 +752,8 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 					}
 					else
 					{
-						if (Utils.isOkHttp())
-						{
-							Toast.makeText(getApplicationContext(), R.string.update_status_fail, Toast.LENGTH_SHORT).show();
-						}
+						Toast.makeText(getApplicationContext(), R.string.update_status_fail, Toast.LENGTH_SHORT).show();
 					}
-					handler.removeCallbacks(cancelStatusPost);
 				}
 			});
 		}

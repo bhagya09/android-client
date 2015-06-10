@@ -223,6 +223,18 @@ public class MqttMessagesManager
 	private void saveDisplayPic(JSONObject jsonObj) throws JSONException
 	{
 		String groupId = jsonObj.getString(HikeConstants.TO);
+		String from = jsonObj.getString(HikeConstants.FROM);
+		String msisdn = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, null);
+		
+		/*
+		 * Checking for if user who received display pic json actually changed the profile pic of group using the from field in json
+		 */
+		if (!TextUtils.isEmpty(msisdn) && msisdn.equals(from))
+		{
+			saveStatusMsg(jsonObj, groupId);
+			return;
+		}
+		
 		String iconBase64 = jsonObj.getString(HikeConstants.DATA);
 		String newIconIdentifier = null;
 		ContactManager conMgr = ContactManager.getInstance();
@@ -1842,7 +1854,6 @@ public class MqttMessagesManager
 		{
 			boolean enablePhoto = data.getBoolean(HikeConstants.Extras.ENABLE_PHOTOS);
 			HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.ACCOUNT_SETTINGS).saveData(HikeConstants.Extras.ENABLE_PHOTOS, enablePhoto);
-			HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.ACCOUNT_SETTINGS).saveData(HikeConstants.SHOW_PHOTOS_RED_DOT, true);
 		}if(data.has(HikeConstants.URL_WHITELIST))
 		{
 			handleWhitelistDomains(data.getString(HikeConstants.URL_WHITELIST));
@@ -2010,6 +2021,12 @@ public class MqttMessagesManager
 			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "---UPLOADING FROM DEMAND PACKET ROUTE---");
 
 			HAManager.getInstance().sendAnalyticsData(true, true);
+		}
+		
+		if (data.optBoolean(HikeConstants.PATCH_AB))
+		{
+			boolean contactsChanged = ContactManager.getInstance().syncUpdates(context);
+			Logger.d(getClass().getSimpleName(), "contacts changed : " + contactsChanged);
 		}
 	}
 

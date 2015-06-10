@@ -389,7 +389,7 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 		profileImgView.setImageDrawable(drawable);
 		
 		ImageViewerInfo imageViewerInfo = new ImageViewerInfo(contactInfo.getMsisdn() + ProfileActivity.PROFILE_PIC_SUFFIX, null, false, !ContactManager.getInstance().hasIcon(
-				contactInfo.getMsisdn()));
+				contactInfo.getMsisdn(),false));
 		profileImgView.setTag(imageViewerInfo);
 	}
 

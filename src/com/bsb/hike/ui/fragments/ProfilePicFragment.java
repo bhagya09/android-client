@@ -1,5 +1,8 @@
 package com.bsb.hike.ui.fragments;
 
+import java.io.File;
+
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
@@ -10,6 +13,7 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +21,7 @@ import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockFragment;
 import com.actionbarsherlock.internal.nineoldandroids.animation.Animator;
@@ -31,6 +36,7 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
+import com.bsb.hike.cropimage.CropImage;
 import com.bsb.hike.http.HikeHttpRequest;
 import com.bsb.hike.http.HikeHttpRequest.RequestType;
 import com.bsb.hike.models.ContactInfo;
@@ -41,6 +47,7 @@ import com.bsb.hike.tasks.FinishableEvent;
 import com.bsb.hike.tasks.HikeHTTPTask;
 import com.bsb.hike.ui.TimelineActivity;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.HoloCircularProgress;
 import com.bsb.hike.view.RoundedImageView;
@@ -60,18 +67,28 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 	private Interpolator animInterpolator = new LinearInterpolator();
 
 	private String imagePath;
-
-	private boolean failed;
-
+	
+	private byte mUploadStatus = -1;
+	
+	private final byte UPLOAD_COMPLETE = 1;
+	
+	private final byte UPLOAD_FAILED = 2;
+	
+	private final byte UPLOAD_INPROGRESS = 3;
+	
 	private RoundedImageView mCircularImageView;
-
-	private boolean finished;
 
 	private ImageView mProfilePicBg;
 
-	private Bitmap smallerBitmap;
-
 	private String origImagePath;
+
+	private int cropLeft;
+
+	private int cropTop;
+
+	private int cropWidth;
+
+	private Bitmap smallerBitmap;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -88,13 +105,19 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 
 		Bundle bundle = getArguments();
 
-		imagePath = bundle.getString(HikeConstants.HikePhotos.FILENAME);
+		imagePath = bundle.getString(MediaStore.EXTRA_OUTPUT);
 		
 		origImagePath = bundle.getString(HikeConstants.HikePhotos.ORIG_FILE);
+		
+		cropLeft = bundle.getInt(CropImage.CROP_IMAGE_LEFT);
+		
+		cropTop = bundle.getInt(CropImage.CROP_IMAGE_TOP);
+		
+		cropWidth = bundle.getInt(CropImage.CROP_IMAGE_WIDTH);
 
 		BitmapFactory.Options options = new BitmapFactory.Options();
 		options.inPreferredConfig = Bitmap.Config.RGB_565;
-		Bitmap bmp = BitmapFactory.decodeFile(imagePath, options);
+		Bitmap bmp = HikeBitmapFactory.decodeFile(imagePath, options);
 		if (bmp != null)
 		{
 			mCircularImageView.setImageBitmap(bmp);
@@ -127,16 +150,26 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 				mProfilePicBg.setVisibility(View.VISIBLE);
 
 				((HikeAppStateBaseFragmentActivity) getActivity()).getSupportActionBar().hide();
-				startUpload();
+				try
+				{
+					startUpload();
+				}
+				catch (JSONException e)
+				{
+					e.printStackTrace();
+					showErrorState();
+				}
 			}
 		}, 300);
 
 		return mFragmentView;
 	}
 
-	private void startUpload()
+	private void startUpload() throws JSONException
 	{
 
+		mUploadStatus = UPLOAD_INPROGRESS;
+		
 		changeTextWithAnimation(text1, getString(R.string.photo_dp_saving));
 
 		changeTextWithAnimation(text2, "");
@@ -153,7 +186,7 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 		{
 			if (smallerBitmap == null)
 			{
-				/* the server only needs a smaller version */
+				/* save smaller thumbnail */
 				smallerBitmap = HikeBitmapFactory.scaleDownBitmap(imagePath, HikeConstants.PROFILE_IMAGE_DIMENSIONS, HikeConstants.PROFILE_IMAGE_DIMENSIONS, Bitmap.Config.RGB_565,
 						true, false);
 			}
@@ -188,6 +221,9 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 					ContactManager.getInstance().setIcon(mLocalMSISDN, bytes, false);
 
 					Utils.renameTempProfileImage(mLocalMSISDN);
+					
+					//Delete smaller preview thumbnail file since we have stored it in out DP
+					new File(imagePath).delete();
 
 					StatusMessage statusMessage = Utils.createTimelinePostForDPChange(response, false);
 
@@ -214,6 +250,13 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 			});
 
 			request.setFilePath(origImagePath);
+			
+			JSONObject jsonObj = new JSONObject();
+			jsonObj.put(CropImage.CROP_IMAGE_LEFT, cropLeft);
+			jsonObj.put(CropImage.CROP_IMAGE_TOP, cropTop);
+			jsonObj.put(CropImage.CROP_IMAGE_WIDTH, cropWidth);
+			
+			request.setJSONData(jsonObj);
 
 			Utils.executeHttpTask(new HikeHTTPTask(ProfilePicFragment.this, R.string.delete_status_error), request);
 
@@ -223,7 +266,7 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 
 	private void updateProgressUniformly(final float total, final float interval)
 	{
-		if (total <= 0.0f || failed || mCurrentProgress >= 100)
+		if (total <= 0.0f || mUploadStatus == UPLOAD_FAILED || mCurrentProgress >= 100)
 		{
 			return;
 		}
@@ -260,7 +303,7 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 
 				mCircularProgress.setProgress(value / 100f);
 
-				if (mCircularProgress.getProgress() >= 1f || failed)
+				if (mCircularProgress.getProgress() >= 1f || mUploadStatus == UPLOAD_FAILED)
 				{
 					animation.cancel();
 				}
@@ -270,10 +313,8 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 
 		mCurrentProgress += i;
 
-		if (mCurrentProgress >= 90f && !failed && !finished)
+		if (mCurrentProgress >= 90f && mUploadStatus == UPLOAD_INPROGRESS)
 		{
-			finished = true;
-
 			changeTextWithAnimation(text1, getString(R.string.photo_dp_finishing));
 
 			new Handler(Looper.getMainLooper()).postDelayed(new Runnable()
@@ -282,6 +323,7 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 				@Override
 				public void run()
 				{
+					mUploadStatus = UPLOAD_COMPLETE;
 					if (!isAdded())
 					{
 						return;
@@ -293,41 +335,44 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 
 			changeTextWithAnimation(text2, getString(R.string.photo_dp_saved_sub));
 
-			HikeHandlerUtil.getInstance().postRunnableWithDelay(new Runnable()
+			HikeHandlerUtil.getInstance().postRunnableWithDelay(timelineLauncherRunnable, 3000);
+		}
+
+	}
+	
+	private Runnable timelineLauncherRunnable = new Runnable()
+	{
+		@Override
+		public void run()
+		{
+			if (!isAdded())
+			{
+				return;
+			}
+			ProfilePicFragment.this.getActivity().runOnUiThread(new Runnable()
 			{
 				@Override
 				public void run()
 				{
-					if (!isAdded())
+					if (isAdded() && mUploadStatus == UPLOAD_COMPLETE && isResumed())
 					{
-						return;
+						Intent in = new Intent(getActivity(), TimelineActivity.class);
+						in.putExtra(HikeConstants.HikePhotos.FROM_DP_UPLOAD, true);
+						getActivity().startActivity(in);
+						getActivity().finish();
 					}
-					ProfilePicFragment.this.getActivity().runOnUiThread(new Runnable()
-					{
-						@Override
-						public void run()
-						{
-							if (isAdded() && !failed)
-							{
-								Intent in = new Intent(getActivity(), TimelineActivity.class);
-								in.putExtra(HikeConstants.HikePhotos.FROM_DP_UPLOAD, true);
-								getActivity().startActivity(in);
-							}
-						}
-					});
 				}
-			}, 4000);
+			});
 		}
-
-	}
+	};
 
 	private void showErrorState()
 	{
-
-		failed = true;
+		mUploadStatus = UPLOAD_FAILED;
 
 		if (!isAdded())
 		{
+			Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), R.string.profile_pic_failed, Toast.LENGTH_SHORT).show();
 			return;
 		}
 
@@ -349,8 +394,16 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 			public void onClick(View v)
 			{
 				mCurrentProgress = 0.0f;
-				failed = false;
-				startUpload();
+				mUploadStatus = UPLOAD_INPROGRESS;
+				try
+				{
+					startUpload();
+				}
+				catch (JSONException e)
+				{
+					e.printStackTrace();
+					showErrorState();
+				}
 			}
 		});
 	}
@@ -380,27 +433,26 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 	public void onPause()
 	{
 		super.onPause();
-		try
+		if (mUploadStatus == UPLOAD_INPROGRESS)
 		{
-			getActivity().getSupportFragmentManager().popBackStack();
-			getActivity().getActionBar().show();
-		}
-		catch (NullPointerException npe)
-		{
-			// Do nothing
+			HikeHandlerUtil.getInstance().removeRunnable(null);
+			Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), R.string.profile_pic_upload_in_background, Toast.LENGTH_SHORT).show();
 		}
 	}
-
+	
 	@Override
 	public void onResume()
 	{
 		super.onResume();
+		if (mUploadStatus == UPLOAD_COMPLETE)
+		{
+			timelineLauncherRunnable.run();
+		}
 	}
 
 	@Override
 	public void onFinish(boolean success)
 	{
-		// TODO Auto-generated method stub
-
+		// Do nothing
 	}
 }
