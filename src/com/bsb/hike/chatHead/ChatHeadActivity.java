@@ -149,11 +149,6 @@ public class ChatHeadActivity extends HikeBaseActivity implements StickerPickerL
 
 	}
 
-	public void closeActivity(View v)
-	{
-		ChatHeadService.getInstance().resetPosition(HikeConstants.ChatHead.FINISHING_CHAT_HEAD_ACTIVITY_ANIMATION);
-	}
-
 	@Override
 	public void finishActivity()
 	{

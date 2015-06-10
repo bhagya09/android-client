@@ -1912,14 +1912,14 @@ public class MqttMessagesManager
 			{	
 				boolean chatHeadService = stickerWidget.getBoolean(HikeConstants.ChatHead.CHAT_HEAD_SERVICE);
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, chatHeadService);
-				ChatHeadUtils.serviceDecision(context, false);
+				ChatHeadUtils.startOrStopService(context, false);
 			}
 			if (stickerWidget.has(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL))
 			{	
 				boolean chatHeadServiceUserControl = stickerWidget.getBoolean(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL);
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL, chatHeadServiceUserControl);
 				setShareEnableForAllApps();
-				ChatHeadUtils.serviceDecision(context, false);
+				ChatHeadUtils.startOrStopService(context, false);
 			}
 			if (stickerWidget.has(HikeConstants.ChatHead.STICKERS_PER_DAY))
 			{
@@ -1949,7 +1949,7 @@ public class MqttMessagesManager
 				}
 				
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.PACKAGE_LIST, list.toString());
-				ChatHeadUtils.serviceDecision(context, true);
+				ChatHeadUtils.startOrStopService(context, true);
 			}
 			
 		}

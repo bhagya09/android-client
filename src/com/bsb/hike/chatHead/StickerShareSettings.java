@@ -236,7 +236,7 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 
 		listAdapter.notifyDataSetChanged();
 		savingUserPref();
-		ChatHeadUtils.serviceDecision(this, true);
+		ChatHeadUtils.startOrStopService(this, true);
 	}
 
 	boolean checkAllUnchecked()

@@ -108,7 +108,7 @@ public class ChatHeadUtils
 		startService(context);
 	}
 
-	public static void serviceDecision(Context context, boolean jsonChanged)
+	public static void startOrStopService(Context context, boolean jsonChanged)
 	{
 		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, false)
 				&& HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL, false)

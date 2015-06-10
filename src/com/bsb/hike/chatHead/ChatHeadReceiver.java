@@ -16,7 +16,7 @@ public class ChatHeadReceiver extends BroadcastReceiver
 			}
 			else if (intent.getAction().equals(Intent.ACTION_SCREEN_ON))
 			{
-				ChatHeadUtils.serviceDecision(context,false);
+				ChatHeadUtils.startOrStopService(context,false);
 			}
 	}
 }
