@@ -1,14 +1,11 @@
 package com.bsb.hike.modules.stickerdownloadmgr;
 
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_OUT_OF_SPACE;
-import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.StickerPreviewImageDownloadRequest;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.StickerPalleteImageDownloadRequest;
 
 import java.io.File;
 
 import org.json.JSONObject;
-
-import android.content.Intent;
-import android.support.v4.content.LocalBroadcastManager;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -24,21 +21,23 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
-public class StickerPreviewImageDownloadTask implements IHikeHTTPTask, IHikeHttpTaskResult
+public class StickerPalleteImageDownloadTask implements IHikeHTTPTask, IHikeHttpTaskResult
 {
-	private String TAG = "StickerPreviewImageDownloadTask";
+	private String TAG = "StickerPalleteImageDownloadTask";
 
 	private String categoryId;
 
-	String previewImagePath;
+	private String enableImagePath;
+
+	private String disableImagePath;
 	
 	private RequestToken token;
 
-	public StickerPreviewImageDownloadTask(String categoryId)
+	public StickerPalleteImageDownloadTask(String categoryId)
 	{
 		this.categoryId = categoryId;
 	}
-
+	
 	@Override
 	public void execute()
 	{
@@ -47,14 +46,15 @@ public class StickerPreviewImageDownloadTask implements IHikeHTTPTask, IHikeHttp
 			doOnFailure(new HttpException(REASON_CODE_OUT_OF_SPACE));
 			return;
 		}
-
+		
 		String requestId = getRequestId();
-		token = StickerPreviewImageDownloadRequest(requestId, categoryId, getRequestInterceptor(), getRequestListener());
-
-		if (token.isRequestRunning()) // duplicate check
+		
+		token = StickerPalleteImageDownloadRequest(requestId, categoryId, getRequestInterceptor(), getRequestListener());
+		if(token.isRequestRunning()) // return request already running
 		{
-			return;
+			return ;
 		}
+		
 		token.execute();
 	}
 	
@@ -66,17 +66,17 @@ public class StickerPreviewImageDownloadTask implements IHikeHTTPTask, IHikeHttp
 			token.cancel();
 		}
 	}
-
+	
 	private String getRequestId()
 	{
-		return (StickerRequestType.PREVIEW.getLabel() + "\\" + categoryId);
+		return (StickerRequestType.ENABLE_DISABLE.getLabel() + "\\" + categoryId);
 	}
 
 	private IRequestInterceptor getRequestInterceptor()
 	{
 		return new IRequestInterceptor()
 		{
-
+			
 			@Override
 			public void intercept(Chain chain)
 			{
@@ -88,7 +88,8 @@ public class StickerPreviewImageDownloadTask implements IHikeHTTPTask, IHikeHttp
 					return;
 				}
 
-				previewImagePath = dirPath + StickerManager.OTHER_STICKER_ASSET_ROOT + "/" + StickerManager.PREVIEW_IMAGE + StickerManager.OTHER_ICON_TYPE;
+				enableImagePath = dirPath + StickerManager.OTHER_STICKER_ASSET_ROOT + "/" + StickerManager.PALLATE_ICON_SELECTED + StickerManager.OTHER_ICON_TYPE;
+				disableImagePath = dirPath + StickerManager.OTHER_STICKER_ASSET_ROOT + "/" + StickerManager.PALLATE_ICON + StickerManager.OTHER_ICON_TYPE;
 
 				File otherDir = new File(dirPath + StickerManager.OTHER_STICKER_ASSET_ROOT);
 				if (!otherDir.exists())
@@ -134,10 +135,13 @@ public class StickerPreviewImageDownloadTask implements IHikeHTTPTask, IHikeHttp
 						return;
 					}
 
-					String stickerData = data.getString(HikeConstants.PREVIEW_IMAGE);
-					HikeMessengerApp.getLruCache().remove(StickerManager.getInstance().getCategoryOtherAssetLoaderKey(categoryId, StickerManager.PREVIEW_IMAGE_TYPE));
-					Utils.saveBase64StringToFile(new File(previewImagePath), stickerData);
-					doOnSuccess(null);
+					String enableImg = data.getString(HikeConstants.ENABLE_IMAGE);
+					String disableImg = data.getString(HikeConstants.DISABLE_IMAGE);
+
+					HikeMessengerApp.getLruCache().remove(StickerManager.getInstance().getCategoryOtherAssetLoaderKey(categoryId, StickerManager.PALLATE_ICON_SELECTED_TYPE));
+					HikeMessengerApp.getLruCache().remove(StickerManager.getInstance().getCategoryOtherAssetLoaderKey(categoryId, StickerManager.PALLATE_ICON_TYPE));
+					Utils.saveBase64StringToFile(new File(enableImagePath), enableImg);
+					Utils.saveBase64StringToFile(new File(disableImagePath), disableImg);
 				}
 				catch (Exception e)
 				{
@@ -162,13 +166,12 @@ public class StickerPreviewImageDownloadTask implements IHikeHTTPTask, IHikeHttp
 	@Override
 	public void doOnSuccess(Object result)
 	{
-		Intent i = new Intent(StickerManager.STICKER_PREVIEW_DOWNLOADED);
-		LocalBroadcastManager.getInstance(HikeMessengerApp.getInstance()).sendBroadcast(i);
+		
 	}
 
 	@Override
 	public void doOnFailure(HttpException e)
 	{
-		Logger.e(TAG, "on failure, exception ", e);
+		Logger.e(TAG, "exception :", e);
 	}
 }
