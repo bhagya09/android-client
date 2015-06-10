@@ -108,6 +108,7 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 		this(profileActivity, itemList, groupConversation, contactInfo, myProfile, false);
 		this.sizeOfThumbnail = sizeOfThumbNail;
 		thumbnailLoader = new SharedFileImageLoader(context, sizeOfThumbnail);
+		thumbnailLoader.setImageToBeCached(false);
 		thumbnailLoader.setDefaultDrawable(context.getResources().getDrawable(R.drawable.ic_file_thumbnail_missing));
 	}
 	

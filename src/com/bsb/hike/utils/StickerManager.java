@@ -373,10 +373,8 @@ public class StickerManager
 		}
 		addNoMedia(root);
 
-		Editor editor = preferenceManager.edit();
-		editor.putBoolean(ADD_NO_MEDIA_FILE_FOR_STICKERS, true);
-		editor.putBoolean(ADD_NO_MEDIA_FILE_FOR_STICKER_OTHER_FOLDERS, true);
-		editor.commit();
+		HikeSharedPreferenceUtil.getInstance().saveData(ADD_NO_MEDIA_FILE_FOR_STICKERS, true);
+		HikeSharedPreferenceUtil.getInstance().saveData(ADD_NO_MEDIA_FILE_FOR_STICKER_OTHER_FOLDERS, true);
 	}
 
 	private void addNoMedia(File directory)
@@ -591,6 +589,8 @@ public class StickerManager
 		}
 
 		Set<Sticker> list = ((CustomStickerCategory) customCategory).getStickerSet();
+		FileOutputStream fileOut = null;
+		ObjectOutputStream out = null;
 		try
 		{
 			if (list.size() == 0)
@@ -604,8 +604,8 @@ public class StickerManager
 				return;
 			}
 			File catFile = new File(extDir, catId + ".bin");
-			FileOutputStream fileOut = new FileOutputStream(catFile);
-			ObjectOutputStream out = new ObjectOutputStream(fileOut);
+			fileOut = new FileOutputStream(catFile);
+			out = new ObjectOutputStream(fileOut);
 			out.writeInt(list.size());
 			synchronized (list)
 			{
@@ -627,14 +627,16 @@ public class StickerManager
 			out.flush();
 			fileOut.flush();
 			fileOut.getFD().sync();
-			out.close();
-			fileOut.close();
 			long t2 = System.currentTimeMillis();
 			Logger.d(TAG, "Time in ms to save sticker list of category : " + catId + " to file :" + (t2 - t1));
 		}
 		catch (Exception e)
 		{
 			Logger.e(TAG, "Exception while saving category file.", e);
+		}
+		finally
+		{
+			Utils.closeStreams(out, fileOut);
 		}
 	}
 	
@@ -683,8 +685,8 @@ public class StickerManager
 			this.context = context;
 			Logger.i("stickermanager", "moving recent file from external to internal");
 			String recent = StickerManager.RECENT;
-			Utils.copyFile(getExternalStickerDirectoryForCategoryId(context, recent) + "/" + recent + ".bin", getInternalStickerDirectoryForCategoryId(recent) + "/"
-					+ recent + ".bin", null);
+			Utils.copyImage(getExternalStickerDirectoryForCategoryId(context, recent) + "/" + recent + ".bin", getInternalStickerDirectoryForCategoryId(recent) + "/"
+					+ recent + ".bin", Bitmap.Config.RGB_565, 80);
 			Logger.i("stickermanager", "moving finished recent file from external to internal");
 		}
 		catch (Exception e)
