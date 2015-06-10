@@ -1,6 +1,7 @@
 package com.bsb.hike.voip;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.HashMap;
 import java.util.Locale;
@@ -40,6 +41,7 @@ import android.os.RemoteException;
 import android.os.Vibrator;
 import android.support.v4.app.NotificationCompat;
 import android.text.TextUtils;
+import android.util.Log;
 import android.util.SparseIntArray;
 
 import com.bsb.hike.HikeConstants;
@@ -77,6 +79,7 @@ public class VoIPService extends Service {
 	private boolean initialSpeakerMode;
 	private AudioManager.OnAudioFocusChangeListener mOnAudioFocusChangeListener;
 	private int playbackSampleRate = 0, recordingSampleRate = 0;
+	private boolean recordingAndPlaybackRunning = false;
 	
 	private boolean conferencingEnabled = false;
 	
@@ -185,16 +188,17 @@ public class VoIPService extends Service {
 					stop();
 				else {
 					Logger.d(logTag, msisdn + " has quit the conference.");
-					sendHandlerMessage(VoIPConstants.MSG_LEFT_CONFERENCE, bundle);
 					getClient(msisdn).close();
 					clients.remove(msisdn);
 					playFromSoundPool(SOUND_DECLINE, false);
+					sendHandlerMessage(VoIPConstants.MSG_LEFT_CONFERENCE, bundle);
 				}
 				break;
 
 			case VoIPConstants.MSG_VOIP_CLIENT_OUTGOING_CALL_RINGTONE:
-				if (!inConference())
+				if (!recordingAndPlaybackRunning)
 					playOutgoingCallRingtone();
+				sendHandlerMessage(VoIPConstants.CONNECTION_ESTABLISHED_FIRST_TIME);
 				break;
 
 			case VoIPConstants.MSG_VOIP_CLIENT_INCOMING_CALL_RINGTONE:
@@ -499,51 +503,63 @@ public class VoIPService extends Service {
 			}
 			
 			// we are making an outgoing call
-			client.setPhoneNumber(msisdn);
-			client.setInitiator(false);
-
-			client.callSource = intent.getIntExtra(VoIPConstants.Extras.CALL_SOURCE, -1);
-			if(client.callSource == CallSource.MISSED_CALL_NOTIF.ordinal())
-			{
-				VoIPUtils.cancelMissedCallNotification(getApplicationContext());
-			}
-
-			if (clients.size() > 0 && getCallId() > 0) {
-				Logger.d(logTag, "We're in a conference. Maintaining call id: " + getCallId());
-				// Disable crypto for clients in conference. 
-				getClient().cryptoEnabled = false;
-				client.cryptoEnabled = false;
-			}
-			else
-				setCallid(new Random().nextInt(2000000000));
-				
-			Logger.w(logTag, "Making outgoing call to: " + client.getPhoneNumber() + ", id: " + getCallId());
-			clients.put(msisdn, client);
-
-			// Send call initiation message
-			VoIPUtils.sendVoIPMessageUsingHike(client.getPhoneNumber(), 
-					HikeConstants.MqttMessageTypes.VOIP_CALL_REQUEST, 
-					getCallId(), true);
-
-			startNotificationThread();
-			
-			// Show activity
-			Intent i = new Intent(getApplicationContext(), VoIPActivity.class);
-			i.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-			startActivity(i);
-			
-			client.retrieveExternalSocket();
-			client.sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CALL_CLICK);
+			int callSource = intent.getIntExtra(VoIPConstants.Extras.CALL_SOURCE, -1);
+			if (intent.getExtras().containsKey(VoIPConstants.Extras.MSISDNS)) {
+				// Group call
+				Logger.w(VoIPConstants.TAG, "Initiating a group call");
+				ArrayList<String> msisdns = intent.getStringArrayListExtra(VoIPConstants.Extras.MSISDNS);
+				for (String phoneNumber : msisdns) {
+					client = new VoIPClient(getApplicationContext(), handler);
+					initiateOutgoingCall(client, phoneNumber, callSource);
+				}
+			} else 
+				// One-to-one call
+				initiateOutgoingCall(client, msisdn, callSource);
 		}
 
 		if(client.getCallStatus() == VoIPConstants.CallStatus.UNINITIALIZED)
-		{
 			client.setInitialCallStatus();
-		}
 
 		return returnInt;
 	}
 
+	private void initiateOutgoingCall(VoIPClient client, String msisdn, int callSource) {
+		
+		client.setPhoneNumber(msisdn);
+		client.setInitiator(false);
+		client.callSource = callSource;
+		
+		if(client.callSource == CallSource.MISSED_CALL_NOTIF.ordinal())
+			VoIPUtils.cancelMissedCallNotification(getApplicationContext());
+
+		if (clients.size() > 0 && getCallId() > 0) {
+			Logger.d(logTag, "We're in a conference. Maintaining call id: " + getCallId());
+			// Disable crypto for clients in conference. 
+			getClient().cryptoEnabled = false;
+			client.cryptoEnabled = false;
+		}
+		else {
+			setCallid(new Random().nextInt(2000000000));
+			startNotificationThread();
+		}
+			
+		Logger.w(logTag, "Making outgoing call to: " + client.getPhoneNumber() + ", id: " + getCallId());
+		clients.put(msisdn, client);
+
+		// Send call initiation message
+		VoIPUtils.sendVoIPMessageUsingHike(client.getPhoneNumber(), 
+				HikeConstants.MqttMessageTypes.VOIP_CALL_REQUEST, 
+				getCallId(), true);
+
+		// Show activity
+		Intent i = new Intent(getApplicationContext(), VoIPActivity.class);
+		i.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+		startActivity(i);
+		
+		client.retrieveExternalSocket();
+		client.sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CALL_CLICK);		
+	}
+	
 	private void startConnectionTimeoutThread() {
 		
 		if (connectionTimeoutThread != null) {
@@ -658,7 +674,7 @@ public class VoIPService extends Service {
 	
 	private void showNotification() {
 		
-//		Logger.d(logTag, "Showing notification..");
+		Logger.d(logTag, "Showing notification..");
 		Intent myIntent = new Intent(getApplicationContext(), VoIPActivity.class);
 		myIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 		PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, myIntent, 0);
@@ -679,6 +695,9 @@ public class VoIPService extends Service {
 			title = getString(R.string.voip_call_chat);
 		else
 			title = getString(R.string.voip_call_notification_title, client.getName()); 
+		
+		if (inConference())
+			title = getString(R.string.voip_conference_call_notification_title); 
 		
 		String text = null;
 		switch (client.getCallStatus())
@@ -1049,7 +1068,7 @@ public class VoIPService extends Service {
 	}
 
 	
-	private void startRecordingAndPlayback(String msisdn) {
+	private synchronized void startRecordingAndPlayback(String msisdn) {
 
 		final VoIPClient client = getClient(msisdn);
 		
@@ -1069,12 +1088,13 @@ public class VoIPService extends Service {
 		stopFromSoundPool(ringtoneStreamID);
 		isRingingOutgoing = isRingingIncoming = false;
 		playFromSoundPool(SOUND_ACCEPT, false);
+		sendHandlerMessage(VoIPConstants.MSG_AUDIO_START);
 
-		if (clients.size() == 1) {
+		if (recordingAndPlaybackRunning == false) {
+			recordingAndPlaybackRunning = true;
 			Logger.d(logTag, "Starting audio record / playback.");
 			startRecording();
 			startPlayBack();
-			sendHandlerMessage(VoIPConstants.MSG_AUDIO_START);
 		} else {
 			Logger.w(logTag, "Skipping startRecording() and startPlayBack()");
 		}
@@ -1317,7 +1337,6 @@ public class VoIPService extends Service {
 					VoIPDataPacket dp;
 					try {
 						dp = playbackBuffersQueue.take();
-						
 						if (dp != null) {
 
 							// AEC
@@ -1333,19 +1352,18 @@ public class VoIPService extends Service {
 								aecSpeakerSignal = true;
 
 							// Resample
+							byte[] output = dp.getData();
 							if (resamplerEnabled && playbackSampleRate != VoIPConstants.AUDIO_SAMPLE_RATE) {
 								// We need to resample the output signal
 								// Logger.d(logTag, "Resampling.");
-								byte[] output = resampler.reSample(dp.getData(), 16, VoIPConstants.AUDIO_SAMPLE_RATE, playbackSampleRate);
-								dp.write(output);
+								output = resampler.reSample(dp.getData(), 16, VoIPConstants.AUDIO_SAMPLE_RATE, playbackSampleRate);
 							} 
 							
 							// For streaming mode, we must write data in chunks <= buffer size
 							index = 0;
-//							long timer = System.currentTimeMillis();
-							while (index < dp.getLength()) {
-								size = Math.min(minBufSizePlayback, dp.getLength() - index);
-								audioTrack.write(dp.getData(), index, size);
+							while (index < output.length) {
+								size = Math.min(minBufSizePlayback, output.length - index);
+								audioTrack.write(output, index, size);
 								index += size; 
 							}
 						} 
@@ -1397,8 +1415,6 @@ public class VoIPService extends Service {
 			
 			@Override
 			public void run() {
-				// Logger.d(logTag, "Running feeder");
-				
 				android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
 
 				playbackFeederCounter++;
@@ -1406,7 +1422,7 @@ public class VoIPService extends Service {
 					playbackFeederCounter = 0;
 
 				if (keepRunning) {
-					
+
 					// Retrieve decoded samples from all clients and combine into one
 					VoIPDataPacket finalDecodedSample = null;
 					for (VoIPClient client : clients.values()) {
@@ -1414,7 +1430,7 @@ public class VoIPService extends Service {
 						if (dp != null) {
 							if (inConference())
 								clientSample.put(client.getPhoneNumber(), dp.getData());
-							
+
 							if (finalDecodedSample == null)
 								finalDecodedSample = dp;
 							else {
@@ -1423,7 +1439,7 @@ public class VoIPService extends Service {
 							}
 						}
 					}
-					
+
 					// Add to our decoded samples queue
 					try {
 						if (finalDecodedSample == null) {
@@ -1440,11 +1456,11 @@ public class VoIPService extends Service {
 							else
 								Logger.w(logTag, "Playback buffers queue full.");
 						}
-						
+
 					} catch (InterruptedException e) {
 						Logger.e(logTag, "InterruptedException while adding playback sample: " + e.toString());
 					}
-					
+
 					// If we are in conference, then add our own recorded signal as well
 					// to send to all connected clients. 
 					// From the sum of all signals, we will have to subtract each client's
@@ -1454,7 +1470,7 @@ public class VoIPService extends Service {
 						if (dp != null) {
 							byte[] conferencePCM = VoIPUtils.addPCMSamples(finalDecodedSample.getData(), dp.getData());
 							dp.setData(conferencePCM);
-							
+
 							for (VoIPClient client : clients.values()) {
 								VoIPDataPacket clientDp = new VoIPDataPacket();
 								byte[] origPCM = clientSample.get(client.getPhoneNumber());
@@ -1469,18 +1485,19 @@ public class VoIPService extends Service {
 							}
 						}
 					}
-					
+
 					if (playbackFeederCounter % QUALITY_CALCULATION_FREQUENCY == 0)
 						calculateQuality();
-					
+
 					if (inConference())
 						clientSample.clear();
-					
+
 				} else {
 					Logger.d(logTag, "Shutting down decoded samples poller.");
 					scheduledFuture.cancel(true);
 					scheduledExecutorService.shutdownNow();
 				}
+
 			}
 		}, 0, sleepTime, TimeUnit.MILLISECONDS);
 	}
@@ -1601,7 +1618,6 @@ public class VoIPService extends Service {
 
 			Logger.d(logTag, "Playing outgoing call ringer.");
 			client.setCallStatus(VoIPConstants.CallStatus.OUTGOING_RINGING);
-			sendHandlerMessage(VoIPConstants.CONNECTION_ESTABLISHED_FIRST_TIME);
 			client.sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CONNECTION_ESTABLISHED);
 			setAudioModeInCall();
 			ringtoneStreamID = playFromSoundPool(SOUND_INCOMING_RINGTONE, true);
@@ -1756,7 +1772,7 @@ public class VoIPService extends Service {
 		return getClient().getCallDuration();
 	}
 	
-	private boolean inConference() {
+	public boolean inConference() {
 		boolean conference = false;
 		if (clients.size() > 1)
 			conference = true;
@@ -1767,6 +1783,15 @@ public class VoIPService extends Service {
 	public boolean toggleConferencing() {
 		conferencingEnabled = !conferencingEnabled;
 		return conferencingEnabled;
+	}
+
+	public String getClientNames() {
+		String names = "";
+		for (VoIPClient client : clients.values()) {
+			names += client.getName() + ", ";
+		}
+		names = names.substring(0, names.length() - 2);
+		return names;
 	}
 }
 
