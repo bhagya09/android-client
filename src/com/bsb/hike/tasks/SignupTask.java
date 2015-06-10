@@ -43,6 +43,7 @@ import com.bsb.hike.modules.signupmgr.ValidateNumberTask;
 import com.bsb.hike.ui.SignupActivity;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
@@ -621,6 +622,10 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 		 * We show these tips only to upgrading users
 		 */
 		edit.putBoolean(HikeMessengerApp.SHOWN_WELCOME_HIKE_TIP, true);
+		/*
+		 * Re-initilizing hidden mode
+		 */
+		StealthModeManager.getInstance().initiate();
 		/*
 		 * We don't want to show red dot on overflow menu for new users
 		 */
