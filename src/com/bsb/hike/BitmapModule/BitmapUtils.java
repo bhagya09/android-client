@@ -54,6 +54,35 @@ public class BitmapUtils
 		return count;
 	}
 
+	public static int getDefaultAvatarResourceId(String msisdn, boolean rounded)
+	{
+		int count = 5;
+		int id;
+		switch (iconHash(msisdn) % count)
+		{
+		case 0:
+			id = rounded ? R.drawable.avatar_01_rounded : R.drawable.avatar_01;
+			break;
+		case 1:
+			id = rounded ? R.drawable.avatar_02_rounded : R.drawable.avatar_02;
+			break;
+		case 2:
+			id = rounded ? R.drawable.avatar_03_rounded : R.drawable.avatar_03;
+			break;
+		case 3:
+			id = rounded ? R.drawable.avatar_04_rounded : R.drawable.avatar_04;
+			break;
+		case 4:
+			id = rounded ? R.drawable.avatar_05_rounded : R.drawable.avatar_05;
+			break;
+		default:
+			id = rounded ? R.drawable.avatar_01_rounded : R.drawable.avatar_01;
+			break;
+		}
+
+		return id;
+	}
+
 	public static void saveBitmapToFileAndRecycle(String fileDir, String fileName, Bitmap bitmap) throws IOException
 	{
 		File file = new File(fileDir, fileName);

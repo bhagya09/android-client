@@ -1304,4 +1304,21 @@ public class HikeBitmapFactory
 
 		return initials;
 	}
+
+	private static int getDefaultAvatarIconResId( String msisdn, boolean hiRes)
+	{
+		if (OneToNConversationUtils.isBroadcastConversation(msisdn))
+		{
+			return hiRes ? R.drawable.ic_default_avatar_broadcast_hires : R.drawable.ic_default_avatar_broadcast;
+		}
+		else if (OneToNConversationUtils.isGroupConversation(msisdn))
+		{
+			return hiRes ? R.drawable.ic_default_avatar_group_hires : R.drawable.ic_default_avatar_group;
+		}
+		else
+		{
+			return hiRes ? R.drawable.ic_default_avatar_hires : R.drawable.ic_default_avatar;
+		}
+	}
+
 }

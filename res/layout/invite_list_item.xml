@@ -28,7 +28,7 @@
         <com.bsb.hike.ui.utils.RecyclingImageView
             android:id="@+id/contact_image"
             style="@style/AvatarStyle.Padding"
-            android:background="@drawable/ic_launcher" />
+            android:background="@drawable/social_profile_default_thumbnail" />
 
     </FrameLayout>
 
