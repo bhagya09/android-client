@@ -730,6 +730,10 @@ public class HikeConstants
 	public static final int MAX_DIMENSION_MEDIUM_FULL_SIZE_PX = 800;
 
 	public static final int MAX_DIMENSION_LOW_FULL_SIZE_PX = 600;
+	
+	public static final int SMO_MAX_DIMENSION_MEDIUM_FULL_SIZE_PX = 1240;
+	
+	public static final int SMO_MAX_DIMENSION_LOW_FULL_SIZE_PX = 800;
 
 	public static final int INITIAL_PROGRESS = 5;
 
@@ -2401,7 +2405,7 @@ public class HikeConstants
 
 		public static final int QUALITY_SMALL = 3;
 
-		public static final int QUALITY_DEFAULT = QUALITY_SMALL;
+		public static final int QUALITY_DEFAULT = QUALITY_MEDIUM;
 
 		public static final String IMAGE_QUALITY_ORIGINAL = "O";
 
@@ -2815,6 +2819,14 @@ public class HikeConstants
 	public static final String KEY = "key";
 	
 	public static final String VALUE = "val";
+
+	public static final String SUPER_COMPRESSED_IMG_SIZE = "c_img_size";
+		
+	public static final String NORMAL_IMG_SIZE = "n_img_size";
+		
+	public static final String DEFAULT_IMG_QUALITY_FOR_SMO = "d_q_smo";
+		
+	public static final String SHOW_TOAST_FOR_DEGRADING_QUALITY = "img_deg_toast";
 			
 	public static final String CONSUMED_FORWARDED_DATA = "consumed";
 }

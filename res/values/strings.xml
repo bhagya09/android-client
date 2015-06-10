@@ -1518,5 +1518,7 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
 	<string name="delete_block">Block and Delete</string>
 	<string name="confirm_delete_block_msg">Do you want to delete and block \"%1$s\"? </string>
 	<string name="confirm_delete_non_messaging">Do you want to delete \"%1$s\"? </string>
+	<string name="show_degraded_image_quality">Going to load a low quality Image</string>
+	<string name="toast_for_showing_thumbnail">Going to show Thumbanil</string>
 	<string name="now">Now</string>
 </resources>
