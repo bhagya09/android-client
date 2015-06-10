@@ -190,13 +190,13 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 		//Add the Msg here to Persistance Db.
 		HikeOfflinePersistence.getInstance().addMessage(fileTransferModel.getPacket());
 		addToFileQueue(fileTransferModel);
-		
 	}
 	
 	private void saveToDb(ConvMessage convMessage)
 	{
 		long startTime=System.currentTimeMillis();
 		HikeConversationsDatabase.getInstance().addConversationMessages(convMessage,true);
+		
 		// Save Msg here in Persistance DB.
 		HikeOfflinePersistence.getInstance().addMessage(convMessage.serialize());
 		addToTextQueue(convMessage.serialize());
