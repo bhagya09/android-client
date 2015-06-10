@@ -3,7 +3,6 @@ package com.bsb.hike.BitmapModule;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Random;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -21,6 +20,7 @@ import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
 import android.media.ExifInterface;
 import android.os.Build;
 import android.text.TextUtils;
@@ -33,14 +33,12 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.models.HikeHandlerUtil;
-import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.photos.HikePhotosListener;
 import com.bsb.hike.photos.HikePhotosUtils;
 import com.bsb.hike.smartcache.HikeLruCache;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.Utils;
-import com.bsb.hike.view.TextDrawable;
 
 public class HikeBitmapFactory
 {
@@ -1226,100 +1224,43 @@ public class HikeBitmapFactory
 		
 		return calculateInSampleSize(options, reqWidth, reqHeight);
 	}
-	
-	public static Drawable getDefaultTextAvatar(String msisdn)
+	public static BitmapDrawable getDefaultAvatar(Resources res, String msisdn, boolean hiRes)
 	{
-		return getDefaultTextAvatar(msisdn, msisdn, true);
+	
+		int index = BitmapUtils.iconHash(msisdn) % (HikeConstants.DEFAULT_AVATAR_KEYS.length);
+
+		int defaultAvatarResId = HikeConstants.DEFAULT_AVATARS[index]; 
+		
+		Drawable layers[] = new Drawable[2];
+		layers[0] = res.getDrawable(defaultAvatarResId);
+		layers[1] = res.getDrawable(getDefaultAvatarIconResId(msisdn, hiRes));
+		
+		LayerDrawable ld = new LayerDrawable(layers);
+		ld.setId(0, 0);
+		ld.setId(1, 1);
+		ld.setDrawableByLayerId(0, layers[0]);
+		ld.setDrawableByLayerId(1, layers[1]);
+		
+		Bitmap bmp = drawableToBitmap(ld);
+		
+		BitmapDrawable bd = getBitmapDrawable(res, bmp);
+		return bd;
 	}
 	
-	private static TextDrawable getRandomHashTextDrawable()
+	private static int getDefaultAvatarIconResId( String msisdn, boolean hiRes)
 	{
-		TypedArray bgColorArray = Utils.getDefaultAvatarBG();
-		
-		int bgColor = bgColorArray.getColor(new Random().nextInt(bgColorArray.length()), 0);
-
-		return TextDrawable.builder().buildRound("#", bgColor);
-	}
-	
-	public static Drawable getDefaultTextAvatar(String iconHash, String defaultText, boolean useOnlyInitials)
-	{
-		TypedArray bgColorArray = Utils.getDefaultAvatarBG();
-		
-		if (TextUtils.isEmpty(defaultText))
+		if (OneToNConversationUtils.isBroadcastConversation(msisdn))
 		{
-			return getRandomHashTextDrawable();
+			return hiRes ? R.drawable.ic_default_avatar_broadcast_hires : R.drawable.ic_default_avatar_broadcast;
 		}
-
-		String initials = useOnlyInitials ? getNameInitialsForDefaultAv(defaultText) : defaultText;
-
-		int index = BitmapUtils.iconHash(iconHash) % (bgColorArray.length());
-
-		int bgColor = bgColorArray.getColor(index, 0);
-
-		return TextDrawable.builder().buildRound(initials, bgColor);
-	}
-
-	public static Drawable getRectTextAvatar(String msisdn)
-	{
-		TypedArray bgColorArray = Utils.getDefaultAvatarBG();
-		
-		if (TextUtils.isEmpty(msisdn))
+		else if (OneToNConversationUtils.isGroupConversation(msisdn))
 		{
-			return getRandomHashTextDrawable();
-		}
-
-		String initials = getNameInitialsForDefaultAv(msisdn);
-
-		int index = BitmapUtils.iconHash(msisdn) % (bgColorArray.length());
-
-		int bgColor = bgColorArray.getColor(index, 0);
-
-		return TextDrawable.builder().buildRect(initials, bgColor);
-	}
-	
-	@SuppressWarnings("unused")
-	public static String getNameInitialsForDefaultAv(String msisdn)
-	{
-		if (TextUtils.isEmpty(msisdn))
-		{
-			return "#";
-		}
-		
-		String initials = "";
-
-		String contactName = ContactManager.getInstance().getName(msisdn, true);
-
-		if (TextUtils.isEmpty(contactName))
-		{
-			contactName = msisdn;
-		}
-
-		String[] nameArray = contactName.trim().split(" ");
-
-		char first = nameArray[0].charAt(0);
-
-		if (Character.isLetter(first))
-		{
-			initials += first;
-
-			if (NUMBER_OF_CHARS_DEFAULT_DP > 1)
-			{
-				if (nameArray.length > 1)
-				{
-					// Second is optional (only if is letter)
-					char second = nameArray[nameArray.length - 1].charAt(0);
-					if (Character.isLetter(second))
-					{
-						initials += second;
-					}
-				}
-			}
+			return hiRes ? R.drawable.ic_default_avatar_group_hires : R.drawable.ic_default_avatar_group;
 		}
 		else
 		{
-			initials = "#";
+			return hiRes ? R.drawable.ic_default_avatar_hires : R.drawable.ic_default_avatar;
 		}
-
-		return initials;
 	}
+
 }

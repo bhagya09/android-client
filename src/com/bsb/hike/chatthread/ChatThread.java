@@ -74,7 +74,6 @@ import android.widget.Toast;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.bsb.hike.HikeConstants;
-import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.HikeConstants.MESSAGE_TYPE;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -3741,7 +3740,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		Drawable drawable = HikeMessengerApp.getLruCache().getIconFromCache(msisdn);
 		if (drawable == null)
 		{
-			drawable = HikeBitmapFactory.getDefaultTextAvatar(msisdn);
+			drawable = HikeMessengerApp.getLruCache().getDefaultAvatar(msisdn, false);
 		}
 
 		setAvatarStealthBadge();

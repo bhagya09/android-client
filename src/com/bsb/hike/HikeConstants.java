@@ -2727,6 +2727,10 @@ public class HikeConstants
 	
 	public static TypedArray DEFAULT_AVATAR_BG_COLOR_ARRAY = null;
 
+	public static int DEFAULT_AVATARS[] = {R.drawable.avatar_01, R.drawable.avatar_02, R.drawable.avatar_03, R.drawable.avatar_04, R.drawable.avatar_05};
+
+	public static String DEFAULT_AVATAR_KEYS[] = {"avatar_01","avatar_02", "avatar_03", "avatar_04", "avatar_05"};
+	
 	public static String IS_GROUP = "isGroup";
 	public static final String CAM_IMG_PREFIX = "CAM_";
 	

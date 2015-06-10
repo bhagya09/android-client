@@ -35,7 +35,6 @@ import com.bsb.hike.MqttConstants;
 import com.bsb.hike.NUXConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.BitmapUtils;
-import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.NuxSelectFriends;
 import com.bsb.hike.modules.contactmgr.ContactManager;
@@ -158,7 +157,7 @@ public class HorizontalFriendsFragment extends Fragment implements OnClickListen
 			Drawable drawable = HikeMessengerApp.getLruCache().getIconFromCache(contactInfo.getMsisdn());
 			if (drawable == null)
 			{
-				drawable = HikeBitmapFactory.getDefaultTextAvatar(contactInfo.getMsisdn());
+				drawable = HikeMessengerApp.getLruCache().getDefaultAvatar(contactInfo.getMsisdn(), false);
 			}
 			iv.setImageDrawable(drawable);
         	
