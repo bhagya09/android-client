@@ -25,7 +25,7 @@
                 android:layout_height="48dp"
                 android:gravity="center_vertical"
                 android:text="@string/no_file"
-                android:textColor="#aaaaaa"
+                android:textColor="@color/mid_gray"
                 android:textSize="16sp"
                 android:layout_marginLeft="24dp"
             	android:contentDescription="Empty State"
@@ -65,7 +65,7 @@
                     android:layout_marginRight="12dp"
                     android:contentDescription="Shared Files"
                     android:text="0"
-                    android:textColor="#aaaaaa"
+                    android:textColor="@color/mid_gray"
                     android:textSize="14sp" />
 
                 <com.bsb.hike.view.CustomFontTextView
@@ -118,7 +118,7 @@
                     android:layout_marginRight="12dp"
                     android:contentDescription="shared pin count"
                     android:text="23"
-                    android:textColor="#aaaaaa"
+                    android:textColor="@color/mid_gray"
                     android:textSize="14sp" />
                 
                 <com.bsb.hike.view.CustomFontTextView

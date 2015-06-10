@@ -103,7 +103,7 @@
             android:id="@+id/category_size"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/missing_thumbnail"
+            android:textColor="@color/mid_gray"
             android:textSize="12sp"
             android:visibility="gone" />
 

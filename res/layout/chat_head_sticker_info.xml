@@ -12,7 +12,7 @@
         android:layout_marginTop="23dp"
         android:gravity="center_horizontal"
         android:text="@string/stickers_sent_today"
-        android:textColor="#CCCCCC"
+        android:textColor="@color/gray"
         android:textSize="18sp" />
 
     <ProgressBar
@@ -32,7 +32,7 @@
         android:layout_marginTop="18dp"
         android:gravity="center_horizontal"
         android:text="@string/disable_from_hike_settings"
-        android:textColor="#666666"
+        android:textColor="@color/standard_grey"
         android:textSize="12sp" />
 
     <LinearLayout
@@ -41,7 +41,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="20dp"
-        android:background="#264C4C4C"
+        android:background="@color/semi_transparent_grey"
         android:orientation="horizontal"
         android:visibility="gone" >
 
@@ -52,14 +52,14 @@
             android:layout_weight="1"
             android:gravity="center"
             android:text="@string/disable_button"
-            android:textColor="#AAAAAA"
+            android:textColor="@color/mid_gray"
             android:textSize="12sp" />
 
         <View
             android:layout_width="0.5dp"
             android:layout_height="16dp"
             android:layout_gravity="center_vertical"
-            android:background="#979797" >
+            android:background="@color/chat_head_settings_separator" >
         </View>
 
         <com.bsb.hike.view.CustomFontTextView
@@ -69,14 +69,14 @@
             android:layout_weight="1"
             android:gravity="center"
             android:text="@string/get_more_stickers_button"
-            android:textColor="#AAAAAA"
+            android:textColor="@color/mid_gray"
             android:textSize="12sp" />
 
         <View
             android:layout_width="0.5dp"
             android:layout_height="16dp"
             android:layout_gravity="center_vertical"
-            android:background="#979797" >
+            android:background="@color/chat_head_settings_separator" >
         </View>
 
         <com.bsb.hike.view.CustomFontTextView
@@ -86,7 +86,7 @@
             android:layout_weight="1"
             android:gravity="center"
             android:text="@string/open_hike_button"
-            android:textColor="#AAAAAA"
+            android:textColor="@color/mid_gray"
             android:textSize="12sp" />
     </LinearLayout>
 
@@ -96,7 +96,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="21dp"
-        android:background="#264C4C4C"
+        android:background="@color/semi_transparent_grey"
         android:orientation="horizontal"
         android:visibility="gone" >
 
@@ -113,7 +113,7 @@
             android:layout_width="0.5dp"
             android:layout_height="16dp"
             android:layout_gravity="center_vertical"
-            android:background="#979797" >
+            android:background="@color/chat_head_settings_separator" >
         </View>
 
         <com.bsb.hike.view.CustomFontTextView
@@ -123,14 +123,14 @@
             android:layout_weight="1"
             android:gravity="center"
             android:text="@string/one_hour_button"
-            android:textColor="#AAAAAA"
+            android:textColor="@color/mid_gray"
             android:textSize="12sp" />
 
         <View
             android:layout_width="0.5dp"
             android:layout_height="16dp"
             android:layout_gravity="center_vertical"
-            android:background="#979797" >
+            android:background="@color/chat_head_settings_separator" >
         </View>
 
         <com.bsb.hike.view.CustomFontTextView
@@ -140,14 +140,14 @@
             android:layout_weight="1"
             android:gravity="center"
             android:text="@string/eight_hour_button"
-            android:textColor="#AAAAAA"
+            android:textColor="@color/mid_gray"
             android:textSize="12sp" />
 
         <View
             android:layout_width="0.5dp"
             android:layout_height="16dp"
             android:layout_gravity="center_vertical"
-            android:background="#979797" >
+            android:background="@color/chat_head_settings_separator" >
         </View>
 
         <com.bsb.hike.view.CustomFontTextView
@@ -157,7 +157,7 @@
             android:layout_weight="1"
             android:gravity="center"
             android:text="@string/one_day_button"
-            android:textColor="#AAAAAA"
+            android:textColor="@color/mid_gray"
             android:textSize="12sp" />
     </LinearLayout>
 
