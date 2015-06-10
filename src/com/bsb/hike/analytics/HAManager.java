@@ -1,8 +1,11 @@
 package com.bsb.hike.analytics;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.ConcurrentModificationException;
 import java.util.List;
 import java.util.Random;
 
@@ -17,12 +20,10 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.analytics.AnalyticsConstants.AppOpenSource;
-import com.bsb.hike.media.ShareablePopup;
 import com.bsb.hike.media.ShareablePopupLayout;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeFile;
@@ -71,6 +72,10 @@ public class HAManager
 	private NetworkListener listner;
 	
 	private Session fgSessionInstance;
+	
+	private ArrayList<JSONObject> imageConfigEventsList;
+	
+	private	File imageLogsEventFile;
 	
 	/**
 	 * Constructor
@@ -129,6 +134,7 @@ public class HAManager
 		// set network listener
 		listner = new NetworkListener(this.context);
 		
+		imageConfigEventsList = new ArrayList<JSONObject>();
 	}
 	
 	/**

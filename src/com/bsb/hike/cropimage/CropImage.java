@@ -39,7 +39,6 @@ import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Region;
-import android.graphics.Bitmap.Config;
 import android.media.FaceDetector;
 import android.net.Uri;
 import android.os.Bundle;
@@ -60,7 +59,6 @@ import com.actionbarsherlock.app.ActionBar;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
-import com.bsb.hike.models.GalleryItem;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
@@ -119,6 +117,14 @@ public class CropImage extends MonitoredActivity
 
 	private boolean mCircleHighlight;
 
+	private boolean returnOnlyBounds;
+	
+	public static final String CROP_IMAGE_LEFT ="left";
+	
+	public static final String CROP_IMAGE_TOP ="top";
+	
+	public static final String CROP_IMAGE_WIDTH ="width";
+
 	@Override
 	public void onCreate(Bundle icicle)
 	{
@@ -171,6 +177,8 @@ public class CropImage extends MonitoredActivity
 		{
 			boolean circleHighlight = extras.getBoolean(HikeConstants.Extras.CIRCLE_HIGHLIGHT);
 			
+			returnOnlyBounds = extras.getBoolean(HikeConstants.Extras.RETURN_BOUNDS);
+			
 			if (extras.getString(HikeConstants.Extras.CIRCLE_CROP) != null || circleHighlight)
 			{
 				mCircleCrop = true;
@@ -217,10 +225,7 @@ public class CropImage extends MonitoredActivity
 
 		if (mBitmap == null)
 		{
-			Toast toast = Toast.makeText(this, getResources().getString(R.string.image_failed), Toast.LENGTH_LONG);
-			toast.show();
-			Logger.d(TAG, "Unable to open bitmap");
-			finish();
+			onError();
 			return;
 		}
 
@@ -241,6 +246,14 @@ public class CropImage extends MonitoredActivity
 		setupActionBar();
 		
 		startFaceDetection();
+	}
+	
+	private void onError()
+	{
+		Toast toast = Toast.makeText(this, getResources().getString(R.string.image_failed), Toast.LENGTH_LONG);
+		toast.show();
+		Logger.d(TAG, "Unable to open bitmap");
+		finish();
 	}
 	
 	private void setupActionBar()
@@ -376,108 +389,136 @@ public class CropImage extends MonitoredActivity
 
 		mSaving = true;
 
-		Rect r = mCrop.getCropRect();
+		final Rect r = mCrop.getCropRect();
 
-		int width = r.width();
-		int height = r.height();
-
-		// If we are circle cropping, we want alpha channel, which is the
-		// third param here.
-		Bitmap croppedImage = returnToFile ? Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888) : Bitmap.createBitmap(width, height, mCircleCrop ? Bitmap.Config.ARGB_8888
-				: Bitmap.Config.RGB_565);
+		
+		if (returnOnlyBounds)
 		{
-			Canvas canvas = new Canvas(croppedImage);
-			Rect dstRect = new Rect(0, 0, width, height);
-			canvas.drawBitmap(mBitmap, r, dstRect, null);
+			// Just pass on bounds to the caller activity
+			Bundle extras = new Bundle();
+			extras.putInt(CROP_IMAGE_LEFT, r.left);
+			extras.putInt(CROP_IMAGE_TOP, r.top);
+			extras.putInt(CROP_IMAGE_WIDTH, r.width());
+			setResult(RESULT_OK, new Intent().putExtras(extras));
+			finish();
 		}
+		
+		
+			int width = r.width();
+			int height = r.height();
 
-		if (mCircleCrop && !mCircleHighlight)
-		{
-			// OK, so what's all this about?
-			// Bitmaps are inherently rectangular but we want to return
-			// something that's basically a circle. So we fill in the
-			// area around the circle with alpha. Note the all important
-			// PortDuff.Mode.CLEAR.
-			Canvas c = new Canvas(croppedImage);
-			Path p = new Path();
-			p.addCircle(width / 2F, height / 2F, width / 2F, Path.Direction.CW);
-			c.clipPath(p, Region.Op.DIFFERENCE);
-			c.drawColor(0x00000000, PorterDuff.Mode.CLEAR);
-		}
+			// If we are circle cropping, we want alpha channel, which is the
+			// third param here.
+			Bitmap croppedImage = returnToFile ? HikeBitmapFactory.createBitmap(width, height, Bitmap.Config.ARGB_8888) : HikeBitmapFactory.createBitmap(width, height,
+					mCircleCrop ? Bitmap.Config.ARGB_8888 : Bitmap.Config.RGB_565);
 
-		/* If the output is required to a specific size then scale or fill */
-		if (mOutputX != 0 && mOutputY != 0)
-		{
-			if (mScale)
+			if (croppedImage == null)
 			{
-				/*
-				 * This throws an NPE for low end phones when their memory runs low.
-				 */
-				try
-				{
-					/* Scale the image to the required dimensions */
-					croppedImage = Util.transform(new Matrix(), croppedImage, mOutputX, mOutputY, mScaleUp);
-				}
-				catch (NullPointerException e)
-				{
-					croppedImage = null;
-				}
+				onError();
+				return;
 			}
 			else
 			{
+				Canvas canvas = new Canvas(croppedImage);
+				Rect dstRect = new Rect(0, 0, width, height);
+				canvas.drawBitmap(mBitmap, r, dstRect, null);
+			}
 
-				/*
-				 * Don't scale the image crop it to the size requested. Create an new image with the cropped image in the center and the extra space filled.
-				 */
+			if (mCircleCrop && !mCircleHighlight)
+			{
+				// OK, so what's all this about?
+				// Bitmaps are inherently rectangular but we want to return
+				// something that's basically a circle. So we fill in the
+				// area around the circle with alpha. Note the all important
+				// PortDuff.Mode.CLEAR.
+				Canvas c = new Canvas(croppedImage);
+				Path p = new Path();
+				p.addCircle(width / 2F, height / 2F, width / 2F, Path.Direction.CW);
+				c.clipPath(p, Region.Op.DIFFERENCE);
+				c.drawColor(0x00000000, PorterDuff.Mode.CLEAR);
+			}
 
-				// Don't scale the image but instead fill it so it's the
-				// required dimension
-				Bitmap b = Bitmap.createBitmap(mOutputX, mOutputY, Bitmap.Config.RGB_565);
-				Canvas canvas = new Canvas(b);
+			/* If the output is required to a specific size then scale or fill */
+			if (mOutputX != 0 && mOutputY != 0)
+			{
+				if (mScale)
+				{
+					/*
+					 * This throws an NPE for low end phones when their memory runs low.
+					 */
+					try
+					{
+						/* Scale the image to the required dimensions */
+						croppedImage = Util.transform(new Matrix(), croppedImage, mOutputX, mOutputY, mScaleUp);
+					}
+					catch (NullPointerException e)
+					{
+						croppedImage = null;
+					}
+				}
+				else
+				{
 
-				Rect srcRect = mCrop.getCropRect();
-				Rect dstRect = new Rect(0, 0, mOutputX, mOutputY);
+					/*
+					 * Don't scale the image crop it to the size requested. Create an new image with the cropped image in the center and the extra space filled.
+					 */
 
-				int dx = (srcRect.width() - dstRect.width()) / 2;
-				int dy = (srcRect.height() - dstRect.height()) / 2;
+					// Don't scale the image but instead fill it so it's the
+					// required dimension
+					Bitmap b = HikeBitmapFactory.createBitmap(mOutputX, mOutputY, Bitmap.Config.RGB_565);
+					if (b == null)
+					{
+						onError();
+						return;
+					}
+					Canvas canvas = new Canvas(b);
 
-				/* If the srcRect is too big, use the center part of it. */
-				srcRect.inset(Math.max(0, dx), Math.max(0, dy));
+					Rect srcRect = mCrop.getCropRect();
+					Rect dstRect = new Rect(0, 0, mOutputX, mOutputY);
 
-				/* If the dstRect is too big, use the center part of it. */
-				dstRect.inset(Math.max(0, -dx), Math.max(0, -dy));
+					int dx = (srcRect.width() - dstRect.width()) / 2;
+					int dy = (srcRect.height() - dstRect.height()) / 2;
 
-				/* Draw the cropped bitmap in the center */
-				canvas.drawBitmap(mBitmap, srcRect, dstRect, null);
+					/* If the srcRect is too big, use the center part of it. */
+					srcRect.inset(Math.max(0, dx), Math.max(0, dy));
 
-				/* Set the cropped bitmap as the new bitmap */
-				croppedImage = b;
+					/* If the dstRect is too big, use the center part of it. */
+					dstRect.inset(Math.max(0, -dx), Math.max(0, -dy));
+
+					/* Draw the cropped bitmap in the center */
+					canvas.drawBitmap(mBitmap, srcRect, dstRect, null);
+
+					/* Set the cropped bitmap as the new bitmap */
+					croppedImage = b;
+				}
+			}
+
+			// Return the cropped image directly or save it to the specified URI.
+			Bundle myExtras = getIntent().getExtras();
+			if (!returnToFile && myExtras != null && (myExtras.getParcelable(HikeConstants.Extras.DATA) != null || myExtras.getBoolean(HikeConstants.Extras.RETURN_DATA)))
+			{
+				Bundle extras = new Bundle();
+				extras.putParcelable(HikeConstants.Extras.DATA, croppedImage);
+				extras.putInt(CROP_IMAGE_LEFT, r.left);
+				extras.putInt(CROP_IMAGE_TOP, r.top);
+				extras.putInt(CROP_IMAGE_WIDTH, r.width());
+				setResult(RESULT_OK, (new Intent()).setAction("inline-data").putExtras(extras));
+				finish();
+			}
+			else
+			{
+				final Bitmap b = croppedImage;
+				Util.startBackgroundJob(this, null, getString(R.string.cropping_image), new Runnable()
+				{
+					public void run()
+					{
+						saveOutput(b, r);
+					}
+				}, mHandler);
 			}
 		}
 
-		// Return the cropped image directly or save it to the specified URI.
-		Bundle myExtras = getIntent().getExtras();
-		if (!returnToFile && myExtras != null && (myExtras.getParcelable(HikeConstants.Extras.DATA) != null || myExtras.getBoolean(HikeConstants.Extras.RETURN_DATA)))
-		{
-			Bundle extras = new Bundle();
-			extras.putParcelable(HikeConstants.Extras.DATA, croppedImage);
-			setResult(RESULT_OK, (new Intent()).setAction("inline-data").putExtras(extras));
-			finish();
-		}
-		else
-		{
-			final Bitmap b = croppedImage;
-			Util.startBackgroundJob(this, null, getString(R.string.cropping_image), new Runnable()
-			{
-				public void run()
-				{
-					saveOutput(b);
-				}
-			}, mHandler);
-		}
-	}
-
-	private void saveOutput(Bitmap croppedImage)
+	private void saveOutput(Bitmap croppedImage, Rect cropBounds)
 	{
 		if (mSaveUri != null)
 		{
@@ -506,6 +547,9 @@ public class CropImage extends MonitoredActivity
 			Bundle extras = new Bundle();
 			extras.putString(MediaStore.EXTRA_OUTPUT, croppedImage == null ? null : mSaveUri.getPath());
 			extras.putString(HikeConstants.HikePhotos.ORIG_FILE, mImagePath);
+			extras.putInt(CROP_IMAGE_LEFT, cropBounds.left);
+			extras.putInt(CROP_IMAGE_TOP, cropBounds.top);
+			extras.putInt(CROP_IMAGE_WIDTH, cropBounds.width());
 			setResult(RESULT_OK, new Intent(mSaveUri.toString()).putExtras(extras));
 		}
 		else
@@ -513,6 +557,9 @@ public class CropImage extends MonitoredActivity
 			Bundle extras = new Bundle();
 			extras.putParcelable(HikeConstants.Extras.BITMAP, croppedImage);
 			extras.putString(HikeConstants.HikePhotos.ORIG_FILE, mImagePath);
+			extras.putInt(CROP_IMAGE_LEFT, cropBounds.left);
+			extras.putInt(CROP_IMAGE_TOP, cropBounds.top);
+			extras.putInt(CROP_IMAGE_WIDTH, cropBounds.width());
 			setResult(RESULT_OK, new Intent().putExtras(extras));
 		}
 		finish();
@@ -644,7 +691,7 @@ public class CropImage extends MonitoredActivity
 			}
 			Matrix matrix = new Matrix();
 			matrix.setScale(mScale, mScale);
-			Bitmap faceBitmap = Bitmap.createBitmap(mBitmap, 0, 0, mBitmap.getWidth(), mBitmap.getHeight(), matrix, true);
+			Bitmap faceBitmap = HikeBitmapFactory.createBitmap(mBitmap, 0, 0, mBitmap.getWidth(), mBitmap.getHeight(), matrix, true);
 			return faceBitmap;
 		}
 
@@ -654,7 +701,13 @@ public class CropImage extends MonitoredActivity
 			Bitmap faceBitmap = prepareBitmap();
 
 			mScale = 1.0F / mScale;
-			if (faceBitmap != null && mDoFaceDetection)
+			
+			if(faceBitmap == null)
+			{
+				return ;
+			}
+			
+			if (mDoFaceDetection)
 			{
 				FaceDetector detector = new FaceDetector(faceBitmap.getWidth(), faceBitmap.getHeight(), mFaces.length);
 				mNumFaces = detector.findFaces(faceBitmap, mFaces);
