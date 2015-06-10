@@ -4,13 +4,12 @@
     android:layout_height="48dp"
     android:orientation="horizontal" >
 
-    <ImageView
+    <com.bsb.hike.ui.utils.RecyclingImageView
         android:id="@+id/app_icon"
         android:layout_width="30dp"
         android:layout_height="30dp"
         android:layout_gravity="center_vertical"
-        android:layout_margin="9dp" >
-    </ImageView>
+        android:layout_margin="9dp" />
 
     <com.bsb.hike.view.CustomFontTextView
         android:id="@+id/app_name"

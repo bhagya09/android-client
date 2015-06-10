@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/info_icon_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <com.bsb.hike.view.CustomFontTextView
+        android:id="@+id/main_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="23dp"
+        android:gravity="center_horizontal"
+        android:text="@string/stickers_sent_today"
+        android:textColor="#CCCCCC"
+        android:textSize="18sp" />
+
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="240dp"
+        android:layout_height="8dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="18dp"
+        android:indeterminate="false"
+        android:progressDrawable="@drawable/chat_head_progress_bar" />
+
+    <com.bsb.hike.view.CustomFontTextView
+        android:id="@+id/side_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="18dp"
+        android:gravity="center_horizontal"
+        android:text="@string/disable_from_hike_settings"
+        android:textColor="#666666"
+        android:textSize="12sp" />
+
+    <LinearLayout
+        android:id="@+id/main_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="20dp"
+        android:background="#264C4C4C"
+        android:orientation="horizontal"
+        android:visibility="gone" >
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/disable"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="@string/disable_button"
+            android:textColor="#AAAAAA"
+            android:textSize="12sp" />
+
+        <View
+            android:layout_width="0.5dp"
+            android:layout_height="16dp"
+            android:layout_gravity="center_vertical"
+            android:background="#979797" >
+        </View>
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/get_more_stickers"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="@string/get_more_stickers_button"
+            android:textColor="#AAAAAA"
+            android:textSize="12sp" />
+
+        <View
+            android:layout_width="0.5dp"
+            android:layout_height="16dp"
+            android:layout_gravity="center_vertical"
+            android:background="#979797" >
+        </View>
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/open_hike"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="@string/open_hike_button"
+            android:textColor="#AAAAAA"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/disable_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="21dp"
+        android:background="#264C4C4C"
+        android:orientation="horizontal"
+        android:visibility="gone" >
+
+        <com.bsb.hike.ui.utils.RecyclingImageView
+            android:id="@+id/back_main_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:gravity="center"
+            android:paddingLeft="17dp"
+            android:paddingRight="17dp"
+            android:src="@drawable/back_arrow" />
+
+        <View
+            android:layout_width="0.5dp"
+            android:layout_height="16dp"
+            android:layout_gravity="center_vertical"
+            android:background="#979797" >
+        </View>
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/one_hour"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="@string/one_hour_button"
+            android:textColor="#AAAAAA"
+            android:textSize="12sp" />
+
+        <View
+            android:layout_width="0.5dp"
+            android:layout_height="16dp"
+            android:layout_gravity="center_vertical"
+            android:background="#979797" >
+        </View>
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/eight_hours"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="@string/eight_hour_button"
+            android:textColor="#AAAAAA"
+            android:textSize="12sp" />
+
+        <View
+            android:layout_width="0.5dp"
+            android:layout_height="16dp"
+            android:layout_gravity="center_vertical"
+            android:background="#979797" >
+        </View>
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/one_day"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="@string/one_day_button"
+            android:textColor="#AAAAAA"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+</LinearLayout>
