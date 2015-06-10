@@ -1479,6 +1479,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			mComposeView.setText(searchText);
 			mComposeView.setSelection(searchText.length());
 		}
+		Utils.blockOrientationChange(activity);
 	}
 	
 	private void setUpSearchViews()
@@ -1602,6 +1603,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			searchText = null;
 			setupDefaultActionBar(false);
 		}
+		Utils.unblockOrientationChange(activity);
 	}
 
 	protected void showToast(int messageId)
@@ -2530,7 +2532,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	
 	private static class MessageFinder extends AsyncTaskLoader<Object>
 	{
-		static long ADD_MSG_TIME = 2000;
+		static long ADD_MSG_TIME = 3000;
 
 		int loaderId;
 	
@@ -2587,7 +2589,11 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 						{
 							e.printStackTrace();
 						}
-						loadMessageCount *= 2;
+						//No need to load more than 3200 messaging in one go.
+						if (loadMessageCount < 3200)
+						{
+							loadMessageCount *= 2;
+						}
 						position = messageSearchManager.getPrevItem(msgList.size());
 					}
 					if (loaderId == SEARCH_LOOP && position < 0)
