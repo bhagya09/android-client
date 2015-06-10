@@ -10,6 +10,7 @@ import com.actionbarsherlock.app.ActionBar;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
+import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
@@ -178,7 +179,7 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 			{
 				mListViewItems.get(j).appChoice = false;
 			}
-			HAManager.getInstance().chatHeadshareAnalytics(HikeConstants.ChatHead.SELECT_ALL, HikeConstants.ChatHead.APP_UNCHECKED);
+			HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.SELECT_ALL, AnalyticsConstants.ChatHeadEvents.APP_UNCHECKED);
 
 		}
 		else
@@ -190,7 +191,7 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.SNOOZE, false);
 
 			HikeAlarmManager.cancelAlarm(this, HikeAlarmManager.REQUESTCODE_START_STICKER_SHARE_SERVICE);
-			HAManager.getInstance().chatHeadshareAnalytics(HikeConstants.ChatHead.SELECT_ALL, HikeConstants.ChatHead.APP_CHECKED);
+			HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.SELECT_ALL, AnalyticsConstants.ChatHeadEvents.APP_CHECKED);
 		}
 
 		settingSelectAllText();
@@ -276,7 +277,7 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 		{
 			mListViewItems.get(tag).appChoice = false;
 			mListViewItems.get(tag).mCheckBox.setChecked(false);
-			HAManager.getInstance().chatHeadshareAnalytics(HikeConstants.ChatHead.APP_CLICK, mListViewItems.get(tag).appName, HikeConstants.ChatHead.APP_UNCHECKED);
+			HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.APP_CLICK, mListViewItems.get(tag).appName, AnalyticsConstants.ChatHeadEvents.APP_UNCHECKED);
 		}
 		else
 		{
@@ -285,7 +286,7 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 			mListViewItems.get(tag).mCheckBox.setChecked(true);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.SNOOZE, false);
 			HikeAlarmManager.cancelAlarm(this, HikeAlarmManager.REQUESTCODE_START_STICKER_SHARE_SERVICE);
-			HAManager.getInstance().chatHeadshareAnalytics(HikeConstants.ChatHead.APP_CLICK, mListViewItems.get(tag).appName, HikeConstants.ChatHead.APP_CHECKED);
+			HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.APP_CLICK, mListViewItems.get(tag).appName, AnalyticsConstants.ChatHeadEvents.APP_CHECKED);
 		}
 
 		settingSelectAllText();

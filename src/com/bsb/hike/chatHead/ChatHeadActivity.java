@@ -9,6 +9,7 @@ import com.bsb.hike.media.StickerPicker;
 import com.bsb.hike.media.StickerPickerListener;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.Sticker;
+import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.chatHead.ChatHeadService;
 import com.bsb.hike.ui.HikeBaseActivity;
@@ -16,11 +17,13 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.StickerEmoticonIconPageIndicator;
+
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -129,7 +132,7 @@ public class ChatHeadActivity extends HikeBaseActivity implements StickerPickerL
 	{
 		if (shareCount < shareLimit)
 		{
-			HAManager.getInstance().chatHeadshareAnalytics(HikeConstants.ChatHead.STICKER_SHARE, ChatHeadService.foregroundAppName, sticker.getCategoryId(),
+			HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.STICKER_SHARE, ChatHeadService.foregroundAppName, sticker.getCategoryId(),
 					sticker.getStickerId(), source);
 			shareCount++;
 			totalShareCount++;
@@ -174,7 +177,7 @@ public class ChatHeadActivity extends HikeBaseActivity implements StickerPickerL
 		disableLayout.setVisibility(View.GONE);
 		if (ChatHeadService.dismissed > maxDismissLimit)
 		{
-			HAManager.getInstance().chatHeadshareAnalytics(HikeConstants.ChatHead.INFOICON_WITHOUT_CLICK, ChatHeadService.foregroundAppName, HikeConstants.ChatHead.DISMISS_LIMIT);
+			HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.INFOICON_WITHOUT_CLICK, ChatHeadService.foregroundAppName, AnalyticsConstants.ChatHeadEvents.DISMISS_LIMIT);
 			TextView tv = (TextView) (infoIconLayout.findViewById(R.id.disable));
 			tv.setTextColor(getResources().getColor(R.color.external_pallete_text_highlight_color));
 			ChatHeadService.dismissed = 0;
@@ -182,7 +185,7 @@ public class ChatHeadActivity extends HikeBaseActivity implements StickerPickerL
 		}
 		else if (shareCount >= shareLimit)
 		{
-			HAManager.getInstance().chatHeadshareAnalytics(HikeConstants.ChatHead.INFOICON_WITHOUT_CLICK, ChatHeadService.foregroundAppName, HikeConstants.ChatHead.SHARE_LIMIT);
+			HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.INFOICON_WITHOUT_CLICK, ChatHeadService.foregroundAppName, AnalyticsConstants.ChatHeadEvents.SHARE_LIMIT);
 			TextView tv = (TextView) (infoIconLayout.findViewById(R.id.get_more_stickers));
 			tv.setTextColor(getResources().getColor(R.color.external_pallete_text_highlight_color));
 		}
@@ -232,39 +235,39 @@ public class ChatHeadActivity extends HikeBaseActivity implements StickerPickerL
 		switch (v.getId())
 		{
 		case R.id.info_icon:
-			HAManager.getInstance().chatHeadshareAnalytics(HikeConstants.ChatHead.INFOICON_CLICK, ChatHeadService.foregroundAppName);
+			HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.INFOICON_CLICK, ChatHeadService.foregroundAppName);
 			infoIconClick();
 			break;
 		case R.id.disable:
-			HAManager.getInstance().chatHeadshareAnalytics(HikeConstants.ChatHead.MAIN_LAYOUT_CLICKS, ChatHeadService.foregroundAppName, HikeConstants.ChatHead.DISABLE_SETTING);
+			HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.MAIN_LAYOUT_CLICKS, ChatHeadService.foregroundAppName, AnalyticsConstants.ChatHeadEvents.DISABLE_SETTING);
 			onDisableClick();
 			break;
 		case R.id.get_more_stickers:
-			HAManager.getInstance().chatHeadshareAnalytics(HikeConstants.ChatHead.MAIN_LAYOUT_CLICKS, ChatHeadService.foregroundAppName, HikeConstants.ChatHead.MORE_STICKERS);
+			HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.MAIN_LAYOUT_CLICKS, ChatHeadService.foregroundAppName, AnalyticsConstants.ChatHeadEvents.MORE_STICKERS);
 			ChatHeadService.getInstance().resetPosition(HikeConstants.ChatHead.GET_MORE_STICKERS_ANIMATION);
 			break;
 		case R.id.open_hike:
-			HAManager.getInstance().chatHeadshareAnalytics(HikeConstants.ChatHead.MAIN_LAYOUT_CLICKS, ChatHeadService.foregroundAppName, HikeConstants.ChatHead.OPEN_HIKE);
+			HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.MAIN_LAYOUT_CLICKS, ChatHeadService.foregroundAppName, AnalyticsConstants.ChatHeadEvents.OPEN_HIKE);
 			ChatHeadService.getInstance().resetPosition(HikeConstants.ChatHead.OPEN_HIKE_ANIMATION);
 			break;
 		case R.id.one_hour:
-			HAManager.getInstance().chatHeadshareAnalytics(HikeConstants.ChatHead.SNOOZE_TIME, ChatHeadService.foregroundAppName, HikeConstants.ChatHead.ONE_HOUR);
+			HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.SNOOZE_TIME, ChatHeadService.foregroundAppName, AnalyticsConstants.ChatHeadEvents.ONE_HOUR);
 			onClickSetAlarm(1 * 60 * 60 * 1000);
 			break;
 		case R.id.eight_hours:
-			HAManager.getInstance().chatHeadshareAnalytics(HikeConstants.ChatHead.SNOOZE_TIME, ChatHeadService.foregroundAppName, HikeConstants.ChatHead.EIGHT_HOURS);
+			HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.SNOOZE_TIME, ChatHeadService.foregroundAppName, AnalyticsConstants.ChatHeadEvents.EIGHT_HOURS);
 			onClickSetAlarm(8 * 60 * 60 * 1000);
 			break;
 		case R.id.one_day:
-			HAManager.getInstance().chatHeadshareAnalytics(HikeConstants.ChatHead.SNOOZE_TIME, ChatHeadService.foregroundAppName, HikeConstants.ChatHead.ONE_DAY);
+			HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.SNOOZE_TIME, ChatHeadService.foregroundAppName, AnalyticsConstants.ChatHeadEvents.ONE_DAY);
 			onClickSetAlarm(24 * 60 * 60 * 1000);
 			break;
 		case R.id.back_main_layout:
-			HAManager.getInstance().chatHeadshareAnalytics(HikeConstants.ChatHead.BACK, ChatHeadService.foregroundAppName);
+			HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.BACK, ChatHeadService.foregroundAppName);
 			onBackMainLayoutClick();
 			break;
 		case R.id.shop_icon_external:
-			HAManager.getInstance().chatHeadshareAnalytics(HikeConstants.ChatHead.STICKER_SHOP, ChatHeadService.foregroundAppName);
+			HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.STICKER_SHOP, ChatHeadService.foregroundAppName);
 			ChatHeadService.getInstance().resetPosition(HikeConstants.ChatHead.STICKER_SHOP_ANIMATION);
 			break;
 		}

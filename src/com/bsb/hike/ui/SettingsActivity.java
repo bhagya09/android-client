@@ -32,6 +32,7 @@ import com.bsb.hike.HikeConstants.ImageQuality;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
+import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.db.HikeConversationsDatabase;
@@ -340,7 +341,7 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 					IntentFactory.openSettingPrivacy(this);
 					break;
 				case 8:
-					HAManager.getInstance().chatHeadshareAnalytics(HikeConstants.ChatHead.HIKE_STICKER_SETTING);
+					HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.HIKE_STICKER_SETTING);
 					IntentFactory.openSettingStickerOnOtherApp(this);
 					break;
 				case 9:
@@ -406,7 +407,7 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 					IntentFactory.openSettingPrivacy(this);
 					break;
 				case 7:
-					HAManager.getInstance().chatHeadshareAnalytics(HikeConstants.ChatHead.HIKE_STICKER_SETTING);
+					HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.HIKE_STICKER_SETTING);
 					IntentFactory.openSettingStickerOnOtherApp(this);
 					break;
 				case 8:
