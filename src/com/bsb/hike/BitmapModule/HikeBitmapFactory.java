@@ -1240,24 +1240,6 @@ public class HikeBitmapFactory
 
 		return TextDrawable.builder().buildRound("#", bgColor);
 	}
-	
-	public static Drawable getDefaultTextAvatar(String iconHash, String defaultText, boolean useOnlyInitials)
-	{
-		TypedArray bgColorArray = Utils.getDefaultAvatarBG();
-		
-		if (TextUtils.isEmpty(defaultText))
-		{
-			return getRandomHashTextDrawable();
-		}
-
-		String initials = useOnlyInitials ? getNameInitialsForDefaultAv(defaultText) : defaultText;
-
-		int index = BitmapUtils.iconHash(iconHash) % (bgColorArray.length());
-
-		int bgColor = bgColorArray.getColor(index, 0);
-
-		return TextDrawable.builder().buildRound(initials, bgColor);
-	}
 
 	public static Drawable getRectTextAvatar(String msisdn)
 	{

@@ -1,7 +1,6 @@
 package com.bsb.hike.ui;
 
 import java.io.File;
-import java.util.Random;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -21,7 +20,6 @@ import android.view.View.OnClickListener;
 import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.ImageView.ScaleType;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.ActionBar;
@@ -118,7 +116,14 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 		}
 		else
 		{
-			updateAvatar(null);
+			if (convType == ConvType.BROADCAST)
+			{
+				findViewById(R.id.broadcast_bg).setBackgroundResource(BitmapUtils.getDefaultAvatarResourceId(convId, true));
+			}
+			else if (convType == ConvType.GROUP)
+			{
+				convImage.setBackgroundResource(BitmapUtils.getDefaultAvatarResourceId(convId, true));
+			}
 		}
 		
 		if(convType == ConvType.GROUP)
@@ -148,7 +153,6 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 			broadcastNote.setText(Html.fromHtml(getString(R.string.broadcast_participant_info, myMsisdn)));
 			convName.addTextChangedListener(new TextWatcher()
 			{
-				private String initials = "";
 
 				@Override
 				public void onTextChanged(CharSequence arg0, int arg1, int arg2, int arg3)
@@ -166,14 +170,6 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 				public void afterTextChanged(Editable editable)
 				{
 					Utils.toggleActionBarElementsEnable(doneBtn, arrow, postText, true);
-
-					String newInitials = HikeBitmapFactory.getNameInitialsForDefaultAv(editable.toString());
-
-					if (!initials.equals(newInitials))
-					{
-						initials = newInitials;
-						updateAvatar(editable.toString());
-					}
 				}
 			});
 		}
@@ -187,8 +183,7 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
 			convName.addTextChangedListener(new TextWatcher()
 			{
-				private String initials = "";
-				
+
 				@Override
 				public void onTextChanged(CharSequence arg0, int arg1, int arg2, int arg3)
 				{
@@ -204,15 +199,7 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 				@Override
 				public void afterTextChanged(Editable editable)
 				{
-					Utils.toggleActionBarElementsEnable(doneBtn, arrow, postText, true);
-
-					String newInitials = HikeBitmapFactory.getNameInitialsForDefaultAv(editable.toString());
-
-					if (!initials.equals(newInitials))
-					{
-						initials = newInitials;
-						updateAvatar(editable.toString());
-					}
+					Utils.toggleActionBarElementsEnable(doneBtn, arrow, postText, !TextUtils.isEmpty(editable.toString().trim()));
 				}
 			});
 			
@@ -228,35 +215,6 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 					}
 				});
 			}
-		}
-	}
-
-	private int iconHash = -1;
-
-	private void updateAvatar(String string)
-	{
-		if (iconHash == -1)
-		{
-			iconHash = new Random().nextInt();
-		}
-
-		if (TextUtils.isEmpty(string))
-		{
-			if (convType == ConvType.GROUP)
-			{
-				convImage.setBackground(HikeBitmapFactory.getDefaultTextAvatar(Integer.toString(iconHash), " ",false));
-				convImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_default_avatar_group_hires));
-			}
-			else if (convType == ConvType.BROADCAST)
-			{
-				convImage.setBackground(HikeBitmapFactory.getDefaultTextAvatar(Integer.toString(iconHash), " ",false));
-				convImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_broadcast_medium));
-				convImage.setScaleType(ScaleType.CENTER_INSIDE);
-			}
-		}
-		else
-		{
-			convImage.setImageDrawable(HikeBitmapFactory.getDefaultTextAvatar(Integer.toString(iconHash), string,true));
 		}
 	}
 

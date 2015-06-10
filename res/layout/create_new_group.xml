@@ -12,20 +12,21 @@
 
         <com.bsb.hike.view.RoundedImageView
             android:id="@+id/group_profile_image"
-            style="@style/RoundedStyle"
+            android:contentDescription="@string/content_des_add_photo_gallery_create_group"
             android:layout_width="96dp"
             android:layout_height="96dp"
+            style="@style/RoundedStyle"
             android:layout_centerHorizontal="true"
-            android:contentDescription="@string/content_des_add_photo_gallery_create_group" />
+            android:src="@drawable/ic_default_avatar_group" />
 
         <ImageView
             android:id="@+id/change_image"
+            android:contentDescription="@string/content_des_add_photo_camera_create_group"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignRight="@id/group_profile_image"
             android:layout_alignTop="@id/group_profile_image"
             android:background="@null"
-            android:contentDescription="@string/content_des_add_photo_camera_create_group"
             android:paddingBottom="10dp"
             android:paddingLeft="10dp"
             android:src="@drawable/ic_new_group_image" />
@@ -48,21 +49,20 @@
         android:paddingRight="10dp"
         android:paddingTop="8dp"
         android:singleLine="true" />
-
-    <TextView
+     <TextView
         android:id="@+id/group_info"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginTop="20dp"
-        android:background="#f2f2f2"
         android:drawableLeft="@drawable/ic_chat_theme_info"
         android:drawablePadding="4dp"
-        android:paddingBottom="8dp"
+        android:layout_marginTop="20dp"
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
         android:paddingTop="8dp"
+        android:paddingBottom="8dp"
         android:singleLine="true"
-        android:text="@string/group_participant_info" />
+        android:background="#f2f2f2"
+        android:text="@string/group_participant_info"/>
 
 </LinearLayout>
