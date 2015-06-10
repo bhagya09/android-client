@@ -1,6 +1,8 @@
 package com.bsb.hike.chatHead;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -11,13 +13,16 @@ import android.content.Context;
 import android.content.Intent;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
 public class ChatHeadUtils
 {
+
+	private static Set<String> foregroundedPackages;
+	
 	public static boolean isSharingPackageInstalled(Context context)
 	{
 		JSONArray jsonObj;
@@ -43,23 +48,28 @@ public class ChatHeadUtils
 		return false;
 	}
 
-	public static boolean isPackageForeground(Context context, String packageName)
+	public static Set<String> getForegroundedPackages()
 	{
-		ActivityManager mActivityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+		if (foregroundedPackages == null)
+		{
+			foregroundedPackages = new HashSet<String>(5);
+		}
+		else
+		{
+			foregroundedPackages.clear();
+		}
+		
+		ActivityManager mActivityManager = (ActivityManager) HikeMessengerApp.getInstance().getSystemService(Context.ACTIVITY_SERVICE);
 		List<ActivityManager.RunningAppProcessInfo> processInfos = mActivityManager.getRunningAppProcesses();
 		for (ActivityManager.RunningAppProcessInfo processInfo : processInfos)
 		{
 			if (processInfo.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND && processInfo.importanceReasonCode == 0)
 			{
-				if (processInfo.processName.equals(packageName))
-				{
-					ChatHeadService.foregroundApp = packageName;
-					return true;
-				}
+				foregroundedPackages.add(processInfo.processName);
 			}
 		}
 
-		return false;
+		return foregroundedPackages;
 	}
 
 	public static void settingDailySharedPref()

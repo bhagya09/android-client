@@ -2,8 +2,8 @@ package com.bsb.hike.chatHead;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -34,7 +34,6 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
-import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.ShareUtils;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.analytics.HAManager;
@@ -82,9 +81,11 @@ public class ChatHeadService extends Service
 		public void run()
 		{
 			boolean whiteListAppForegrounded = false;
+			Set<String> foregroundPackages = ChatHeadUtils.getForegroundedPackages();
+			
 			for (String packName : list)
 			{   
-				whiteListAppForegrounded = ChatHeadUtils.isPackageForeground(getApplicationContext(), packName);
+				whiteListAppForegrounded = foregroundPackages.contains(packName);
 				if ((whiteListAppForegrounded && !packName.equals(foregroundApp)) || (!whiteListAppForegrounded && packName.equals(foregroundApp)))
 				{
 					toShow = true;
