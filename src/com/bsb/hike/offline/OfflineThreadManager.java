@@ -17,6 +17,7 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketAddress;
 import java.net.SocketTimeoutException;
 
 import org.json.JSONArray;
@@ -280,7 +281,12 @@ public class OfflineThreadManager
 		{
 				try
 				{
-					textServerSocket = new ServerSocket(PORT_TEXT_MESSAGE);
+					textServerSocket = new ServerSocket();
+					textServerSocket.setReuseAddress(true);
+					SocketAddress addr = new InetSocketAddress(PORT_TEXT_MESSAGE);
+					textServerSocket.bind(addr);
+					
+					
 					Logger.d(TAG,"TextReceiveThread" + "Will be waiting on accept");
 					textReceiverSocket = textServerSocket.accept();
 					Logger.d(TAG,"TextReceiveThread" + "Connection successfull");
@@ -404,11 +410,20 @@ public class OfflineThreadManager
 		{
 				try
 				{
+					
+					fileServerSocket = new ServerSocket();
+					fileServerSocket.setReuseAddress(true);
+					SocketAddress addr = new InetSocketAddress(PORT_FILE_TRANSFER);
+					fileServerSocket.bind(addr);
 					Logger.d(TAG,"Going to wait for fileReceive socket");
+<<<<<<< HEAD
+=======
 					fileServerSocket = new ServerSocket(PORT_FILE_TRANSFER);
 				
 					fileReceiveSocket = fileServerSocket.accept();
+>>>>>>> 57522d89384bc12d7458f73a2fa69cf8d3f5fffc
 					
+					fileReceiveSocket = fileServerSocket.accept();
 					Logger.d(TAG,"fileReceive socket connection success");
 					offlineManager.setInOfflineFileTransferInProgress(true);
 
