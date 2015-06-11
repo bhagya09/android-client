@@ -373,24 +373,26 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 	public void onActivityResult(int requestCode, int resultCode, Intent data)
 	{
 		Logger.i(TAG, "on activity result " + requestCode + " result " + resultCode);
-		if(data==null)
-		{
-			return;
-		}
 		switch (requestCode)
 		{
-			case  AttachmentPicker.APPS:
-					String filePath = data.getStringExtra(OfflineConstants.EXTRAS_APK_PATH);
-					String mime  =  data.getStringExtra(HikeConstants.Extras.FILE_TYPE);
-					String apkLabel  = data.getStringExtra(OfflineConstants.EXTRAS_APK_NAME);
-					controller.sendApps(filePath,mime,apkLabel,msisdn);
-				break;
-			case AttachmentPicker.FILE:
-				controller.sendFile(data,msisdn);
-				break;	
-				
-			default:
-				super.onActivityResult(requestCode, resultCode, data);
+		case AttachmentPicker.APPS:
+			if (data != null)
+			{
+				String filePath = data.getStringExtra(OfflineConstants.EXTRAS_APK_PATH);
+				String mime = data.getStringExtra(HikeConstants.Extras.FILE_TYPE);
+				String apkLabel = data.getStringExtra(OfflineConstants.EXTRAS_APK_NAME);
+				controller.sendApps(filePath, mime, apkLabel, msisdn);
+			}
+			break;
+		case AttachmentPicker.FILE:
+			if (data != null)
+			{
+				controller.sendFile(data, msisdn);
+			}
+			break;
+
+		default:
+			super.onActivityResult(requestCode, resultCode, data);
 		}
 	}	
 	
