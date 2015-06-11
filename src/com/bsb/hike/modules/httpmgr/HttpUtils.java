@@ -22,36 +22,6 @@ public class HttpUtils
 {
 	private static final int BUFFER_SIZE = 4096;
 	
-	public static ThreadFactory threadFactory(final String name, final boolean daemon)
-	{
-		return new ThreadFactory()
-		{
-			private AtomicInteger i = new AtomicInteger(1);
-
-			@Override
-			public Thread newThread(Runnable runnable)
-			{
-				int threadCount = i.getAndIncrement();
-				Thread result = new Thread(runnable);
-				result.setName(name + "-" + threadCount);
-				result.setDaemon(daemon);
-				return result;
-			}
-		};
-	}
-
-	public static RejectedExecutionHandler rejectedExecutionHandler()
-	{
-		return new RejectedExecutionHandler()
-		{
-			@Override
-			public void rejectedExecution(Runnable r, ThreadPoolExecutor executor)
-			{
-				
-			}
-		};
-	}
-	
 	public static byte[] streamToBytes(InputStream stream) throws IOException
 	{
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
