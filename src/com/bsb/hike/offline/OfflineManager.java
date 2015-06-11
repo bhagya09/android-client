@@ -602,9 +602,8 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 	private void sendPersistantMsgs()
 	{
 		List<JSONObject> packets = HikeOfflinePersistence.getInstance().getAllSentMessages("o:" + getConnectedDevice());
-		for(JSONObject packet : packets)
+		for (JSONObject packet : packets)
 		{
-
 			if (OfflineUtils.isFileTransferMessage(packet))
 			{
 				String fileUri = OfflineUtils.getFilePathFromJSON(packet);

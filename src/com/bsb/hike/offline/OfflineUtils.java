@@ -158,7 +158,7 @@ public class OfflineUtils
 		return (message.has(HikeConstants.TYPE) && message.getString(HikeConstants.TYPE).equals(HikeConstants.CHAT_BACKGROUND));
 	}
 
-	public static  String getFileBasedOnType(int type,String fileName)
+	public static  String getFileBasedOnType(int type,String file)
 	{
 		StringBuilder storagePath = new StringBuilder(HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT);
 		if(type==HikeFileType.OTHER.ordinal())
@@ -185,7 +185,10 @@ public class OfflineUtils
 		{
 			storagePath.append(HikeConstants.OTHER_ROOT);
 		}
-		storagePath.append(File.separator+fileName+System.currentTimeMillis());
+		int extensionIndex  = file.lastIndexOf(".");
+		String fileName = file.substring(0, extensionIndex);
+	    String fileExt = file.substring(extensionIndex, file.length());
+		storagePath.append(File.separator+ fileName +  System.currentTimeMillis() +fileExt);
 		return storagePath.toString();
 	}
 
