@@ -448,6 +448,8 @@ public class HikeConstants
 	public static final String SEND_ENTER_PREF = "enterSendPref";
 		
 	public static final String DOUBLE_TAP_PREF = "doubleTapPref";
+	
+	public static final String STICKER_RECOMMEND_PREF = "stickerRecommendPref";
 
 	public static final String CHAT_BG_NOTIFICATION_PREF = "chatBgNotificationPref";
 
@@ -1029,6 +1031,8 @@ public class HikeConstants
 	public static final int RETRY_WAIT_ADDITION = 2;
 
 	public static final String IMAGE_FRAGMENT_TAG = "imageFragmentTag";
+	
+	public static final String STICKER_RECOMMENDATION_FRAGMENT_TAG = "stickerRecommendationFragmentTag";
 
 	public static final String SHOW_STEALTH_POPUP = "stlthrmd";
 
@@ -2806,6 +2810,8 @@ public class HikeConstants
 	
 	public static final String HIKE_CONTACT_PICKER_RESULT = "contact_pick_result";
 	
+	public static final String CATEGORY_ID_LIST = "sId_list";
+	
 	public static final String GET="get";
 
 	public static final String FTUE_HIKEBOT_MSISDN = "+hike1+";
@@ -2814,5 +2820,6 @@ public class HikeConstants
 	
 	public static final String KEY = "key";
 	
-	public static final String VALUE = "val"
-;}
+	public static final String VALUE = "val";
+	
+}

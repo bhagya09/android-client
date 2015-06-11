@@ -7,18 +7,20 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
 import android.content.Context;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.utils.StickerManager;
 
-public class Sticker implements Serializable, Comparable<Sticker>
+public class Sticker implements Serializable, Comparable<Sticker>, Parcelable
 {
 
 	private String stickerId;
 
 	private StickerCategory category;
-	
+
 	private String categoryId;
 
 	public Sticker(StickerCategory category, String stickerId)
@@ -94,7 +96,7 @@ public class Sticker implements Serializable, Comparable<Sticker>
 		{
 			return null;
 		}
-		return rootPath + HikeConstants.LARGE_STICKER_ROOT + "/" + stickerId;
+		return rootPath + HikeConstants.LARGE_STICKER_ROOT + File.separator + stickerId;
 	}
 
 	public String getSmallStickerPath()
@@ -160,7 +162,7 @@ public class Sticker implements Serializable, Comparable<Sticker>
 		out.writeInt(0);
 		out.writeUTF(stickerId);
 		StickerCategory cat = category;
-		if(cat == null)
+		if (cat == null)
 		{
 			cat = new StickerCategory(this.categoryId);
 		}
@@ -169,20 +171,21 @@ public class Sticker implements Serializable, Comparable<Sticker>
 
 	public void deSerializeObj(ObjectInputStream in) throws IOException, ClassNotFoundException
 	{
-		//ignoring this varialbe after reading just to ensure backward compatibility
+		// ignoring this varialbe after reading just to ensure backward compatibility
 		in.readInt();
 		stickerId = in.readUTF();
 		StickerCategory tempcategory = new StickerCategory();
 		tempcategory.deSerializeObj(in);
 		categoryId = tempcategory.getCategoryId();
-		this.category = StickerManager.getInstance().getCategoryForId(categoryId);
+		category = StickerManager.getInstance().getCategoryForId(categoryId);
 	}
 
-	public void setStickerData(int stickerIndex,String stickerId,StickerCategory category){
+	public void setStickerData(int stickerIndex, String stickerId, StickerCategory category)
+	{
 		this.stickerId = stickerId;
 		this.category = category;
 	}
-	
+
 	public void setStickerData(String stickerId, String categoryId)
 	{
 		this.stickerId = stickerId;
@@ -199,5 +202,42 @@ public class Sticker implements Serializable, Comparable<Sticker>
 		stickerId = null;
 		category = null;
 		categoryId = null;
+	}
+
+	public Sticker(Parcel in)
+	{
+		stickerId = in.readString();
+		categoryId = in.readString();
+		category = (StickerCategory) in.readSerializable();
+	}
+
+	public static final Parcelable.Creator<Sticker> CREATOR = new Parcelable.Creator<Sticker>()
+	{
+
+		@Override
+		public Sticker createFromParcel(Parcel source)
+		{
+			return new Sticker(source);
+		}
+
+		@Override
+		public Sticker[] newArray(int size)
+		{
+			return new Sticker[size];
+		}
+	};
+
+	@Override
+	public int describeContents()
+	{
+		return 0;
+	}
+
+	@Override
+	public void writeToParcel(Parcel dest, int flags)
+	{
+		dest.writeString(stickerId);
+		dest.writeString(categoryId);
+		dest.writeSerializable(category);
 	}
 }

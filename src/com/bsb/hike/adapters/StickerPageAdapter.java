@@ -1,5 +1,6 @@
 package com.bsb.hike.adapters;
 
+import java.io.Serializable;
 import java.util.List;
 
 import android.content.Context;
@@ -301,7 +302,7 @@ public class StickerPageAdapter extends BaseAdapter implements OnClickListener
 			if (!category.isCustom())
 			{
 				StickerManager.getInstance().addRecentSticker(sticker);
-				LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(StickerManager.RECENTS_UPDATED).putExtra(StickerManager.RECENT_STICKER_SENT, sticker));
+				LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(StickerManager.RECENTS_UPDATED).putExtra(StickerManager.RECENT_STICKER_SENT, (Serializable) sticker));
 			}
 			break;
 		case StickerPageAdapterItem.UPDATE:
