@@ -44,6 +44,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.bots.BotInfo;
@@ -120,7 +121,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		/**
 		 * force the user into the reg-flow process if the token isn't set
 		 */
-		if (Utils.requireAuth(this))
+		if (getIntent().getIntExtra(WEBVIEW_MODE, WEB_URL_MODE) == MICRO_APP_MODE && Utils.requireAuth(this))
 		{
 			return;
 		}

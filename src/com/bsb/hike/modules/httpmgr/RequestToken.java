@@ -51,6 +51,11 @@ public class RequestToken
 		HttpManager.getInstance().cancel(request);
 	}
 
+	public void addRequestListener(IRequestListener listener)
+	{
+		HttpManager.getInstance().addRequestListener(request, listener);
+	}
+	
 	/**
 	 * Removes particular listener from list of listeners for a request
 	 * 
