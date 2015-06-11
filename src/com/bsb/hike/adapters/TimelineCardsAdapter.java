@@ -6,6 +6,8 @@ import java.util.List;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.animation.Animator;
+import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -20,6 +22,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.TextView;
@@ -155,6 +159,8 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 	private int mProtipIndex;
 
 	private SoftReference<Activity> mActivity;
+
+	private int mLastPosition = 3;
 
 	public TimelineCardsAdapter(Activity activity, List<StatusMessage> statusMessages, String userMsisdn)
 	{
@@ -442,6 +448,26 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			}
 			break;
 		}
+		
+		if (position >= mLastPosition)
+		{
+			Animator[] anims = getAnimators(viewHolder.itemView);
+			int length = anims.length;
+			for (int i = length; i > 0; i--)
+			{
+				Animator anim = anims[i-1];
+				anim.setInterpolator(cardInterp);
+				anim.setDuration(300).start();
+			}
+			mLastPosition = position;
+		}
+	}
+
+	private DecelerateInterpolator cardInterp = new DecelerateInterpolator();
+
+	protected Animator[] getAnimators(View view)
+	{
+		return new Animator[] { ObjectAnimator.ofFloat(view, "alpha", 0, 1f), ObjectAnimator.ofFloat(view, "translationY", 200, 0) };
 	}
 
 	@Override
