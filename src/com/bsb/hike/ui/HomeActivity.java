@@ -92,6 +92,7 @@ import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.NUXManager;
+import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
 public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Listener
@@ -252,6 +253,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		}
 		Logger.d(getClass().getSimpleName(),"onCreate "+this.getClass().getSimpleName());
 		showProductPopup(ProductPopupsConstants.PopupTriggerPoints.HOME_SCREEN.ordinal());
+		
+		StickerManager.getInstance().downloadStickerTagData();
 	
 	}
 	
