@@ -5,6 +5,8 @@ import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.singleStickerDo
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -22,6 +24,8 @@ import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHTTPTask;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.StickerRequestType;
+import com.bsb.hike.modules.stickersearch.StickerSearchManager;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
@@ -163,6 +167,12 @@ public class SingleStickerDownloadTaskOkHttp implements IHikeHTTPTask
 						}
 					}
 					StickerManager.getInstance().checkAndRemoveUpdateFlag(categoryId);
+					
+					Set<String> oldEntries = HikeSharedPreferenceUtil.getInstance().getDataSet(HikeMessengerApp.STICKER_SET, null);
+					Set<String> newEntries = oldEntries == null ? new HashSet<String>() : new HashSet<String>(oldEntries);
+					newEntries.add(StickerManager.getInstance().getStickerSetString(stickerId, categoryId));
+					StickerSearchManager.getInstance().insertStickerTags(response);
+					
 					onSuccess(categoryId);
 				}
 				catch (JSONException ex)
