@@ -1741,7 +1741,11 @@ public class VoIPService extends Service {
 	}
 
 	public boolean isAudioRunning() {
-		return getClient().isAudioRunning();
+		VoIPClient client = getClient();
+		if (client != null)
+			return client.isAudioRunning();
+		else
+			return false;
 	}
 
 	public void setCallStatus(VoIPConstants.CallStatus status)
