@@ -107,8 +107,6 @@ public class StickerSearchHostManager {
 			}
 		}
 
-		Logger.d(TAG, "" + cobj);
-
 		for (int i = 0; i < cobj.size(); i++) {
 			value = (String) cobj.get(i) [0];
 
@@ -147,6 +145,7 @@ public class StickerSearchHostManager {
 	}
 
 	public void onSend(CharSequence s) {
+
 		pwords.clear();
 		history.clear();
 		pResult = null;
