@@ -52,11 +52,7 @@ public class HikeDialogFactory
 {
 	public static final int FAVORITE_ADDED_DIALOG = 2;
 
-	public static final int STEALTH_FTUE_DIALOG = 3;
-
 	public static final int RESET_STEALTH_DIALOG = 4;
-
-	public static final int STEALTH_FTUE_EMPTY_STATE_DIALOG = 5;
 
 	public static final int SHARE_IMAGE_QUALITY_DIALOG = 6;
 
@@ -113,6 +109,10 @@ public class HikeDialogFactory
 	public static final int DELETE_FROM_BROADCAST = 33;
 	
 	public static final int REMOVE_DP_CONFIRM_DIALOG = 34;
+	
+	public static final int DELETE_BLOCK = 35;
+	
+	public static final int DELETE_NON_MESSAGING_BOT = 36;
 
 	public static HikeDialog showDialog(Context context, int whichDialog, Object... data)
 	{
@@ -127,14 +127,8 @@ public class HikeDialogFactory
 		case FAVORITE_ADDED_DIALOG:
 			return showAddedAsFavoriteDialog(dialogId, context, listener, data);
 			
-		case STEALTH_FTUE_DIALOG:
-			return showStealthFtuePopUp(dialogId, context, listener, true);
-			
 		case RESET_STEALTH_DIALOG:
 			return showStealthResetDialog(dialogId, context, listener, data);
-			
-		case STEALTH_FTUE_EMPTY_STATE_DIALOG:
-			return showStealthFtuePopUp(dialogId, context, listener, false);
 			
 		case SHARE_IMAGE_QUALITY_DIALOG:
 			return showImageQualityDialog(dialogId, context, listener, data);
@@ -176,6 +170,8 @@ public class HikeDialogFactory
 		case DELETE_ALL_CONVERSATIONS:
 		case DELETE_MESSAGES_DIALOG:
 		case DELETE_BROADCAST_DIALOG:
+		case DELETE_BLOCK:
+		case DELETE_NON_MESSAGING_BOT:
 			return showDeleteMessagesDialog(dialogId, context, listener, data);
 			
 		case GPS_DIALOG:
@@ -254,48 +250,6 @@ public class HikeDialogFactory
 		return hikeDialog;
 	}
 
-	private static HikeDialog showStealthFtuePopUp(int dialogId, final Context context, final HikeDialogListener listener, boolean isStealthFtueDialog)
-	{
-		final HikeDialog hikeDialog = new HikeDialog(context, R.style.Theme_CustomDialog, dialogId);
-		hikeDialog.setContentView(R.layout.stealth_ftue_popup);
-		hikeDialog.setCancelable(true);
-		TextView okBtn = (TextView) hikeDialog.findViewById(R.id.awesomeButton);
-		TextView body = (TextView) hikeDialog.findViewById(R.id.body);
-
-		if (isStealthFtueDialog)
-		{
-			body.setText(R.string.stealth_mode_popup_msg);
-			okBtn.setText(R.string.quick_setup);
-		}
-		else
-		{
-			body.setText(R.string.stealth_mode_empty_conv_popup_msg);
-			okBtn.setText(android.R.string.ok);
-		}
-
-		okBtn.setOnClickListener(new OnClickListener()
-		{
-
-			@Override
-			public void onClick(View v)
-			{
-				if (listener != null)
-				{
-					listener.neutralClicked(hikeDialog);
-				}
-				else
-				{
-					hikeDialog.dismiss();
-				}
-
-				hikeDialog.dismiss();
-			}
-		});
-
-		hikeDialog.show();
-		return hikeDialog;
-	}
-
 	private static HikeDialog showStealthResetDialog(int dialogId, Context context, final HikeDialogListener listener, Object... data)
 	{
 		final HikeDialog hikeDialog = new HikeDialog(context, R.style.Theme_CustomDialog, dialogId);
@@ -353,7 +307,7 @@ public class HikeDialogFactory
 		hikeDialog.setCanceledOnTouchOutside(true);
 		SharedPreferences appPrefs = PreferenceManager.getDefaultSharedPreferences(context);
 		final Editor editor = appPrefs.edit();
-		int quality = ImageQuality.QUALITY_DEFAULT;
+		int quality = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.DEFAULT_IMG_QUALITY_FOR_SMO, ImageQuality.QUALITY_DEFAULT);
 		final LinearLayout small_ll = (LinearLayout) hikeDialog.findViewById(R.id.hike_small_container);
 		final LinearLayout medium_ll = (LinearLayout) hikeDialog.findViewById(R.id.hike_medium_container);
 		final LinearLayout original_ll = (LinearLayout) hikeDialog.findViewById(R.id.hike_original_container);
@@ -570,15 +524,7 @@ public class HikeDialogFactory
 			final Spinner accounts = (Spinner) contactDialog.findViewById(R.id.account_spinner);
 			final TextView accountInfo = (TextView) contactDialog.findViewById(R.id.account_info);
 
-			int screenHeight = context.getResources().getDisplayMetrics().heightPixels;
-			int dialogWidth = (int) context.getResources().getDimension(R.dimen.contact_info_width);
-			int dialogHeight = (int) (context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT ? ((3 * screenHeight) / 4)
-					: FrameLayout.LayoutParams.MATCH_PARENT);
-			FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(dialogWidth, dialogHeight);
-			lp.topMargin = (int) (5 * Utils.scaledDensityMultiplier);
-			lp.bottomMargin = (int) (5 * Utils.scaledDensityMultiplier);
-
-			parent.setLayoutParams(lp);
+			
 
 			contactDialog.setViewReferences(parent, accounts);
 
@@ -934,8 +880,10 @@ public class HikeDialogFactory
 			break;
 			
 		case DELETE_CHAT_DIALOG:
+		case DELETE_NON_MESSAGING_BOT:
 			deleteConfirmDialog.setHeader(R.string.delete);
-			deleteConfirmDialog.setBody(context.getString(R.string.confirm_delete_chat_msg, (String) data[0]));
+			deleteConfirmDialog.setBody(context.getString(dialogId == DELETE_CHAT_DIALOG ? R.string.confirm_delete_chat_msg : R.string.confirm_delete_non_messaging,
+					(String) data[0]));
 			deleteConfirmDialog.setOkButton(R.string.yes, positiveListener);
 			deleteConfirmDialog.setCancelButton(R.string.no, negativeListener);
 			break;
@@ -971,6 +919,12 @@ public class HikeDialogFactory
 			deleteConfirmDialog.setOkButton(R.string.delete, positiveListener);
 			deleteConfirmDialog.setCancelButton(R.string.cancel, negativeListener);
 			break;
+			
+		case DELETE_BLOCK:
+			deleteConfirmDialog.setHeader(R.string.delete_block);
+			deleteConfirmDialog.setBody(context.getString(R.string.confirm_delete_block_msg,(String) data[0]));
+			deleteConfirmDialog.setOkButton(R.string.yes, positiveListener);
+			deleteConfirmDialog.setCancelButton(R.string.no, negativeListener);
 		}
 		
 		deleteConfirmDialog.show();

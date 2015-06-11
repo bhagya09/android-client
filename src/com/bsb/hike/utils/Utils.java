@@ -3,6 +3,7 @@ package com.bsb.hike.utils;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -36,8 +37,6 @@ import java.util.Random;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.jar.JarFile;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -48,12 +47,10 @@ import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.ocpsoft.prettytime.PrettyTime;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
@@ -70,6 +67,7 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.ComponentName;
 import android.content.ContentProviderOperation;
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -81,6 +79,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.graphics.Bitmap;
@@ -97,6 +96,7 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.media.AudioManager;
 import android.media.ExifInterface;
+import android.media.MediaScannerConnection;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.TrafficStats;
@@ -118,12 +118,9 @@ import android.provider.ContactsContract.CommonDataKinds.StructuredPostal;
 import android.provider.ContactsContract.Data;
 import android.provider.ContactsContract.Intents.Insert;
 import android.provider.ContactsContract.RawContacts;
+import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.provider.Settings.Secure;
-import android.support.v8.renderscript.Allocation;
-import android.support.v8.renderscript.Element;
-import android.support.v8.renderscript.RenderScript;
-import android.support.v8.renderscript.ScriptIntrinsicBlur;
 import android.telephony.SmsManager;
 import android.telephony.TelephonyManager;
 import android.text.Editable;
@@ -131,9 +128,11 @@ import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.text.format.DateUtils;
 import android.text.style.StyleSpan;
 import android.util.Base64;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.util.Pair;
 import android.view.MotionEvent;
 import android.view.Surface;
@@ -170,6 +169,8 @@ import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.TrafficsStatsFile;
+import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.cropimage.CropImage;
@@ -179,6 +180,7 @@ import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.http.HikeHttpRequest;
 import com.bsb.hike.models.AccountData;
+import com.bsb.hike.models.AccountInfo;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.ContactInfoData;
@@ -190,6 +192,7 @@ import com.bsb.hike.models.FtueContactsData;
 import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.StatusMessage;
 import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.models.Conversation.ConvInfo;
@@ -199,10 +202,15 @@ import com.bsb.hike.models.Conversation.OneToNConvInfo;
 import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.models.utils.JSONSerializable;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.modules.httpmgr.RequestToken;
+import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
+import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
+import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.notifications.HikeNotification;
+import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.service.ConnectionChangeReceiver;
 import com.bsb.hike.service.HikeMqttManagerNew;
-import com.bsb.hike.tasks.AuthSDKAsyncTask;
 import com.bsb.hike.tasks.CheckForUpdateTask;
 import com.bsb.hike.tasks.SignupTask;
 import com.bsb.hike.ui.HikePreferences;
@@ -212,7 +220,6 @@ import com.bsb.hike.ui.SignupActivity;
 import com.bsb.hike.ui.TimelineActivity;
 import com.bsb.hike.ui.WebViewActivity;
 import com.bsb.hike.ui.WelcomeActivity;
-import com.bsb.hike.utils.AccountUtils.AccountInfo;
 import com.bsb.hike.voip.VoIPUtils;
 import com.google.android.gms.maps.model.LatLng;
 
@@ -239,8 +246,6 @@ public class Utils
 	public static float densityMultiplier = 1.0f;
 
 	public static int densityDpi;
-
-	private static Lock lockObj = new ReentrantLock();
 
 	private static final String defaultCountryName = "India";
 
@@ -401,6 +406,10 @@ public class Utils
 			}
 		}
 
+		if( !mediaStorageDir.isDirectory() && mediaStorageDir.canWrite() ){
+			mediaStorageDir.delete();
+			mediaStorageDir.mkdirs();
+		}
 		// File name should only be blank in case of profile images or while
 		// capturing new media.
 		if (TextUtils.isEmpty(orgFileName))
@@ -558,16 +567,16 @@ public class Utils
 
 	public static void savedAccountCredentials(AccountInfo accountInfo, SharedPreferences.Editor editor)
 	{
-		AccountUtils.setToken(accountInfo.token);
-		AccountUtils.setUID(accountInfo.uid);
-		editor.putString(HikeMessengerApp.MSISDN_SETTING, accountInfo.msisdn);
-		editor.putString(HikeMessengerApp.TOKEN_SETTING, accountInfo.token);
-		editor.putString(HikeMessengerApp.UID_SETTING, accountInfo.uid);
-		editor.putString(HikeMessengerApp.BACKUP_TOKEN_SETTING, accountInfo.backupToken);
-		editor.putInt(HikeMessengerApp.SMS_SETTING, accountInfo.smsCredits);
-		editor.putInt(HikeMessengerApp.INVITED, accountInfo.all_invitee);
-		editor.putInt(HikeMessengerApp.INVITED_JOINED, accountInfo.all_invitee_joined);
-		editor.putString(HikeMessengerApp.COUNTRY_CODE, accountInfo.country_code);
+		AccountUtils.setToken(accountInfo.getToken());
+		AccountUtils.setUID(accountInfo.getUid());
+		editor.putString(HikeMessengerApp.MSISDN_SETTING, accountInfo.getMsisdn());
+		editor.putString(HikeMessengerApp.TOKEN_SETTING, accountInfo.getToken());
+		editor.putString(HikeMessengerApp.UID_SETTING, accountInfo.getUid());
+		editor.putString(HikeMessengerApp.BACKUP_TOKEN_SETTING, accountInfo.getBackUpToken());
+		editor.putInt(HikeMessengerApp.SMS_SETTING, accountInfo.getSmsCredits());
+		editor.putInt(HikeMessengerApp.INVITED, accountInfo.getAllInvitee());
+		editor.putInt(HikeMessengerApp.INVITED_JOINED, accountInfo.getAllInviteeJoined());
+		editor.putString(HikeMessengerApp.COUNTRY_CODE, accountInfo.getCountryCode());
 		editor.commit();
 	}
 
@@ -767,13 +776,19 @@ public class Utils
 		return contactNames;
 	}
 
-	public static String validateBotMsisdn(String msisdn)
+	public static boolean validateBotMsisdn(String msisdn)
 	{
+		if (TextUtils.isEmpty(msisdn))
+		{
+			Logger.wtf(HikePlatformConstants.TAG, "msisdn is ---->" + msisdn);
+			return false;
+		}
 		if (!msisdn.startsWith("+"))
 		{
-			msisdn = "+" + msisdn;
+			Logger.wtf(HikePlatformConstants.TAG, "msisdn does not start with +. It is ---->" + msisdn);
+			return false;
 		}
-		return msisdn;
+		return true;
 	}
 
 	public static String defaultGroupName(List<PairModified<GroupParticipant, String>> participantList)
@@ -807,8 +822,11 @@ public class Utils
 		}
 	}
 
-	public static String getConversationJoinHighlightText(JSONArray participantInfoArray, OneToNConvInfo convInfo)
+	public static String getConversationJoinHighlightText(JSONArray participantInfoArray, OneToNConvInfo convInfo, boolean newGrp, Context context)
 	{
+		if(newGrp){
+			return context.getString(R.string.you).toLowerCase();
+		}
 		JSONObject participant = (JSONObject) participantInfoArray.opt(0);
 		String highlight = convInfo.getConvParticipantName(participant.optString(HikeConstants.MSISDN));
 		if (participantInfoArray.length() == 2)
@@ -825,8 +843,11 @@ public class Utils
 		return highlight;
 	}
 	
-	public static String getOneToNConversationJoinHighlightText(JSONArray participantInfoArray, OneToNConversation conversation)
+	public static String getOneToNConversationJoinHighlightText(JSONArray participantInfoArray, OneToNConversation conversation, boolean newGrp, Context context)
 	{
+		if(newGrp){
+			return context.getString(R.string.you).toLowerCase();
+		}
 		JSONObject participant = (JSONObject) participantInfoArray.opt(0);
 		String highlight = conversation.getConvParticipantFirstNameAndSurname(participant.optString(HikeConstants.MSISDN));
 
@@ -1173,6 +1194,8 @@ public class Utils
 		{
 			out = new FileOutputStream(dst);
 			out.write(bytes, 0, bytes.length);
+			out.flush();
+			out.getFD().sync();
 		}
 		catch (IOException e)
 		{
@@ -1180,19 +1203,7 @@ public class Utils
 		}
 		finally
 		{
-			if (out != null)
-			{
-				try
-				{
-					out.flush();
-					out.getFD().sync();
-					out.close();
-				}
-				catch (IOException e)
-				{
-					Logger.e("Utils", "Excecption while closing the stream", e);
-				}
-			}
+			Utils.closeStreams(out);
 		}
 	}
 
@@ -1213,17 +1224,7 @@ public class Utils
 		}
 		finally
 		{
-			if (fileInputStream != null)
-			{
-				try
-				{
-					fileInputStream.close();
-				}
-				catch (IOException e)
-				{
-					Logger.e("Utils", "Excecption while closing the file " + file.getName(), e);
-				}
-			}
+			Utils.closeStreams(fileInputStream);
 		}
 	}
 
@@ -1356,7 +1357,14 @@ public class Utils
 				if (cursor.moveToFirst())
 				{
 					int idx = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
-					result = cursor.getString(idx);
+					if(idx >= 0)
+					{
+						result = cursor.getString(idx);
+					}
+					else if(isKitkatOrHigher() && DocumentsContract.isDocumentUri(mContext, uri))
+					{
+						result = getPathFromDocumentedUri(uri, mContext);
+					}
 				}
 				else
 				{
@@ -1375,7 +1383,7 @@ public class Utils
 		}
 		return result;
 	}
-
+	
 	public static enum ExternalStorageState
 	{
 		WRITEABLE, READ_ONLY, NONE
@@ -1434,7 +1442,7 @@ public class Utils
 		return sdAvailSize;
 	}
 
-	public static boolean copyFile(String srcFilePath, String destFilePath, HikeFileType hikeFileType)
+	public static boolean copyImage(String srcFilePath, String destFilePath, Bitmap.Config config, int quality)
 	{
 		/*
 		 * If source and destination have the same path, just return.
@@ -1443,33 +1451,29 @@ public class Utils
 		{
 			return true;
 		}
+		
+		boolean status = false;
+		InputStream src = null;
+		FileOutputStream dest = null;
 		try
 		{
-			InputStream src;
-			if (hikeFileType == HikeFileType.IMAGE)
+			String imageOrientation = Utils.getImageOrientation(srcFilePath);
+			Bitmap tempBmp = HikeBitmapFactory.scaleDownBitmap(srcFilePath, HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX, HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX,
+					Bitmap.Config.RGB_565, true, false);
+			tempBmp = HikeBitmapFactory.rotateBitmap(tempBmp, Utils.getRotatedAngle(imageOrientation));
+			// Temporary fix for when a user uploads a file through Picasa
+			// on ICS or higher.
+			if (tempBmp != null)
 			{
-				String imageOrientation = Utils.getImageOrientation(srcFilePath);
-				Bitmap tempBmp = HikeBitmapFactory.scaleDownBitmap(srcFilePath, HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX, HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX,
-						Bitmap.Config.RGB_565, true, false);
-				tempBmp = HikeBitmapFactory.rotateBitmap(tempBmp, Utils.getRotatedAngle(imageOrientation));
-				// Temporary fix for when a user uploads a file through Picasa
-				// on ICS or higher.
-				if (tempBmp != null)
-				{
-					byte[] fileBytes = BitmapUtils.bitmapToBytes(tempBmp, Bitmap.CompressFormat.JPEG, 75);
-					tempBmp.recycle();
-					src = new ByteArrayInputStream(fileBytes);
-				}
-				else
-				{
-					src = new FileInputStream(new File(srcFilePath));
-				}
+				byte[] fileBytes = BitmapUtils.bitmapToBytes(tempBmp, Bitmap.CompressFormat.JPEG, 80);
+				tempBmp.recycle();
+				src = new ByteArrayInputStream(fileBytes);
 			}
 			else
 			{
 				src = new FileInputStream(new File(srcFilePath));
 			}
-			FileOutputStream dest = new FileOutputStream(new File(destFilePath));
+			dest = new FileOutputStream(new File(destFilePath));
 
 			byte[] buffer = new byte[HikeConstants.MAX_BUFFER_SIZE_KB * 1024];
 			int len;
@@ -1481,57 +1485,76 @@ public class Utils
 
 			dest.flush();
 			dest.getFD().sync();
-			src.close();
-			dest.close();
-
-			return true;
+			
+			status = true;
 		}
 		catch (FileNotFoundException e)
 		{
 			Logger.e("Utils", "File not found while copying", e);
-			return false;
 		}
 		catch (IOException e)
 		{
 			Logger.e("Utils", "Error while reading/writing/closing file", e);
-			return false;
 		}
 		catch (Exception ex)
 		{
 			Logger.e("Utils", "WTF Error while reading/writing/closing file", ex);
-			return false;
 		}
+		finally
+		{
+			Utils.closeStreams(src, dest);
+		}
+		
+		return status;
 	}
 
 	public static boolean compressAndCopyImage(String srcFilePath, String destFilePath, Context context)
 	{
 		SharedPreferences appPrefs = PreferenceManager.getDefaultSharedPreferences(context);
-		int quality = appPrefs.getInt(HikeConstants.IMAGE_QUALITY, ImageQuality.QUALITY_DEFAULT);
-		return compressAndCopyImage(srcFilePath, destFilePath, context, quality);
+		int imageQuality = appPrefs.getInt(HikeConstants.IMAGE_QUALITY, ImageQuality.QUALITY_DEFAULT);
+		return compressAndCopyImage(srcFilePath, destFilePath, context, Bitmap.Config.ARGB_8888, 80, imageQuality, true);
 	}
 	
-	public static boolean compressAndCopyImage(String srcFilePath, String destFilePath, Context context, int quality)
+	public static boolean compressAndCopyImage(String srcFilePath, String destFilePath, Context context, Bitmap.Config config, int quality, int imageQuality, boolean toUserServerConfig)
 	{
+		InputStream src = null;
+		FileOutputStream dest = null;
 		try
 		{
-			InputStream src;
 			String imageOrientation = Utils.getImageOrientation(srcFilePath);
 			Bitmap tempBmp = null;
-
-			if (quality == ImageQuality.QUALITY_MEDIUM)
+			int dimen;
+			
+			if (imageQuality == ImageQuality.QUALITY_MEDIUM)
 			{
-				tempBmp = HikeBitmapFactory.scaleDownBitmap(srcFilePath, HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX, HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX,
-						Bitmap.Config.RGB_565, true, false);
+				if(toUserServerConfig)
+				{
+					dimen = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.NORMAL_IMG_SIZE, HikeConstants.SMO_MAX_DIMENSION_MEDIUM_FULL_SIZE_PX);
+				}
+				else
+				{
+					dimen = HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX;
+				}
+				//Sending false as we want image smaller than actual resolution 
+				tempBmp = HikeBitmapFactory.scaleDownBitmap(srcFilePath, dimen, dimen, config, false, false);
 			}
-			else if (quality != ImageQuality.QUALITY_ORIGINAL)
+			else if (imageQuality != ImageQuality.QUALITY_ORIGINAL)
 			{
-				tempBmp = HikeBitmapFactory.scaleDownBitmap(srcFilePath, HikeConstants.MAX_DIMENSION_LOW_FULL_SIZE_PX, HikeConstants.MAX_DIMENSION_LOW_FULL_SIZE_PX,
-						Bitmap.Config.RGB_565, false, false); // Reducing further for small
+				if(toUserServerConfig)
+				{
+					dimen = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SUPER_COMPRESSED_IMG_SIZE, HikeConstants.SMO_MAX_DIMENSION_LOW_FULL_SIZE_PX);
+				}
+				else
+				{
+					dimen = HikeConstants.MAX_DIMENSION_LOW_FULL_SIZE_PX;
+				}
+				//Sending false as we want image smaller than actual resolution
+				tempBmp = HikeBitmapFactory.scaleDownBitmap(srcFilePath, dimen, dimen, config, false, false);
 			}
 			tempBmp = HikeBitmapFactory.rotateBitmap(tempBmp, Utils.getRotatedAngle(imageOrientation));
 			if (tempBmp != null)
 			{
-				byte[] fileBytes = BitmapUtils.bitmapToBytes(tempBmp, Bitmap.CompressFormat.JPEG, 75);
+				byte[] fileBytes = BitmapUtils.bitmapToBytes(tempBmp, Bitmap.CompressFormat.JPEG, quality);
 				tempBmp.recycle();
 				src = new ByteArrayInputStream(fileBytes);
 			}
@@ -1540,7 +1563,7 @@ public class Utils
 				src = new FileInputStream(new File(srcFilePath));
 			}
 
-			FileOutputStream dest = new FileOutputStream(new File(destFilePath));
+			dest = new FileOutputStream(new File(destFilePath));
 
 			byte[] buffer = new byte[HikeConstants.MAX_BUFFER_SIZE_KB * 1024];
 			int len;
@@ -1551,8 +1574,6 @@ public class Utils
 			}
 			dest.flush();
 			dest.getFD().sync();
-			src.close();
-			dest.close();
 			return true;
 		}
 		catch (FileNotFoundException e)
@@ -1569,6 +1590,10 @@ public class Utils
 		{
 			Logger.e("Utils", "WTF Error while reading/writing/closing file", ex);
 			return false;
+		}
+		finally
+		{
+			Utils.closeStreams(src, dest);
 		}
 	}
 
@@ -1635,29 +1660,32 @@ public class Utils
 		return b;
 	}
 
-	public static void setupUri(Context ctx)
+	public static void setupUri()
 	{
-		SharedPreferences settings = ctx.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
-		boolean connectUsingSSL = Utils.switchSSLOn(ctx);
+		SharedPreferences settings = HikeMessengerApp.getInstance().getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
+		boolean connectUsingSSL = Utils.switchSSLOn(HikeMessengerApp.getInstance());
 		Utils.setupServerURL(settings.getBoolean(HikeMessengerApp.PRODUCTION, true), connectUsingSSL);
 	}
 
 	public static void setupServerURL(boolean isProductionServer, boolean ssl)
-
 	{
 		Logger.d("SSL", "Switching SSL on? " + ssl);
 
-		AccountUtils.ssl = ssl;
+		int whichServer = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PRODUCTION_HOST_TOGGLE, AccountUtils._PRODUCTION_HOST);
+		
+		AccountUtils.ssl = (whichServer != AccountUtils._CUSTOM_HOST) ? ssl: false;
+		
 		AccountUtils.mClient = null;
+		
+		Logger.d("SSL", "Switching SSL on? " + AccountUtils.ssl);
 
-		String httpString = ssl ? AccountUtils.HTTPS_STRING : AccountUtils.HTTP_STRING;
+		String httpString = AccountUtils.ssl ? AccountUtils.HTTPS_STRING : AccountUtils.HTTP_STRING;
 
 		AccountUtils.host = isProductionServer ? AccountUtils.PRODUCTION_HOST : AccountUtils.STAGING_HOST;
 		AccountUtils.port = isProductionServer ? (ssl ? AccountUtils.PRODUCTION_PORT_SSL : AccountUtils.PRODUCTION_PORT) : (ssl ? AccountUtils.STAGING_PORT_SSL
 				: AccountUtils.STAGING_PORT);
 
 		if (isProductionServer)
-
 		{
 			AccountUtils.base = httpString + AccountUtils.host + "/v1";
 			AccountUtils.baseV2 = httpString + AccountUtils.host + "/v2";
@@ -1665,33 +1693,33 @@ public class Utils
 		}
 		else
 		{
+			setHostAndPort(whichServer, AccountUtils.ssl);
 			AccountUtils.base = httpString + AccountUtils.host + ":" + Integer.toString(AccountUtils.port) + "/v1";
 			AccountUtils.baseV2 = httpString + AccountUtils.host + ":" + Integer.toString(AccountUtils.port) + "/v2";
 			AccountUtils.SDK_AUTH_BASE = AccountUtils.SDK_AUTH_BASE_URL_STAGING;
 		}
 
-		AccountUtils.fileTransferHost = isProductionServer ? AccountUtils.PRODUCTION_FT_HOST : AccountUtils.STAGING_HOST;
+		AccountUtils.fileTransferHost = isProductionServer ? AccountUtils.PRODUCTION_FT_HOST : AccountUtils.host;
 		AccountUtils.fileTransferBase = httpString + AccountUtils.fileTransferHost + ":" + Integer.toString(AccountUtils.port) + "/v1";
 
-		CheckForUpdateTask.UPDATE_CHECK_URL = httpString + (isProductionServer ? CheckForUpdateTask.PRODUCTION_URL : CheckForUpdateTask.STAGING_URL);
+		CheckForUpdateTask.UPDATE_CHECK_URL = httpString + (isProductionServer ? CheckForUpdateTask.PRODUCTION_URL : CheckForUpdateTask.STAGING_URL_BASE);
 
 		AccountUtils.fileTransferBaseDownloadUrl = AccountUtils.fileTransferBase + AccountUtils.FILE_TRANSFER_DOWNLOAD_BASE;
 		AccountUtils.fastFileUploadUrl = AccountUtils.fileTransferBase + AccountUtils.FILE_TRANSFER_DOWNLOAD_BASE + "ffu/";
-		AccountUtils.fileTransferBaseViewUrl = AccountUtils.HTTP_STRING
-				+ (isProductionServer ? AccountUtils.FILE_TRANSFER_BASE_VIEW_URL_PRODUCTION : AccountUtils.FILE_TRANSFER_BASE_VIEW_URL_STAGING);
 
-		AccountUtils.analyticsUploadUrl = AccountUtils.base + AccountUtils.ANALYTICS_UPLOAD_BASE;
+		
+		AccountUtils.rewardsUrl = (isProductionServer ? AccountUtils.REWARDS_PRODUCTION_BASE : AccountUtils.STAGING_HOST + AccountUtils.REWARDS_STAGING_PATH);
+		AccountUtils.gamesUrl = (isProductionServer ? AccountUtils.GAMES_PRODUCTION_BASE : AccountUtils.STAGING_HOST + AccountUtils.GAMES_STAGING_PATH);
+		AccountUtils.stickersUrl = (isProductionServer ? AccountUtils.HTTP_STRING + AccountUtils.STICKERS_PRODUCTION_BASE : AccountUtils.base + AccountUtils.STICKERS_STAGING_PATH);
+		AccountUtils.h2oTutorialUrl = (isProductionServer ? AccountUtils.HTTP_STRING + AccountUtils.H2O_TUTORIAL_PRODUCTION_BASE : AccountUtils.base + AccountUtils.H2O_TUTORIAL_STAGING_PATH);
+		AccountUtils.analyticsUploadUrl = AccountUtils.base + AccountUtils.ANALYTICS_UPLOAD_PATH;
 
-		AccountUtils.rewardsUrl = isProductionServer ? AccountUtils.REWARDS_PRODUCTION_BASE : AccountUtils.REWARDS_STAGING_BASE;
-		AccountUtils.gamesUrl = isProductionServer ? AccountUtils.GAMES_PRODUCTION_BASE : AccountUtils.GAMES_STAGING_BASE;
-		AccountUtils.stickersUrl = AccountUtils.HTTP_STRING + (isProductionServer ? AccountUtils.STICKERS_PRODUCTION_BASE : AccountUtils.STICKERS_STAGING_BASE);
-		AccountUtils.h2oTutorialUrl = AccountUtils.HTTP_STRING + (isProductionServer ? AccountUtils.H2O_TUTORIAL_PRODUCTION_BASE : AccountUtils.H2O_TUTORIAL_STAGING_BASE);
 		Logger.d("SSL", "Base: " + AccountUtils.base);
 		Logger.d("SSL", "FTHost: " + AccountUtils.fileTransferHost);
 		Logger.d("SSL", "FTUploadBase: " + AccountUtils.fileTransferBase);
 		Logger.d("SSL", "UpdateCheck: " + CheckForUpdateTask.UPDATE_CHECK_URL);
 		Logger.d("SSL", "FTDloadBase: " + AccountUtils.fileTransferBaseDownloadUrl);
-		Logger.d("SSL", "FTViewBase: " + AccountUtils.fileTransferBaseViewUrl);
+	
 	}
 
 	private static void setHostAndPort(int whichServer, boolean ssl)
@@ -1713,6 +1741,14 @@ public class Utils
 			AccountUtils.host = AccountUtils.DEV_STAGING_HOST;
 			AccountUtils.port = ssl ? AccountUtils.STAGING_PORT_SSL : AccountUtils.STAGING_PORT;
 			break;
+		case AccountUtils._CUSTOM_HOST:
+			SharedPreferences sharedPreferences = HikeMessengerApp.getInstance().getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, Context.MODE_PRIVATE);
+			
+			AccountUtils.host = sharedPreferences.getString(HikeMessengerApp.CUSTOM_HTTP_HOST, AccountUtils.PRODUCTION_HOST);
+			AccountUtils.port = sharedPreferences.getInt(HikeMessengerApp.CUSTOM_HTTP_PORT, AccountUtils.PRODUCTION_PORT);
+			
+			break;
+
 		}
 
 	}
@@ -1989,6 +2025,8 @@ public class Utils
 			{
 				fileOutputStream.write(data, 0, b);
 			}
+			fileOutputStream.flush();
+			fileOutputStream.getFD().sync();
 		}
 		catch (FileNotFoundException e)
 		{
@@ -2008,19 +2046,7 @@ public class Utils
 		}
 		finally
 		{
-			if (fileOutputStream != null)
-			{
-				try
-				{
-					fileOutputStream.flush();
-					fileOutputStream.getFD().sync();
-					fileOutputStream.close();
-				}
-				catch (IOException e)
-				{
-					Logger.e("Utils", "Exception while closing the output stream", e);
-				}
-			}
+			Utils.closeStreams(fileOutputStream);
 		}
 	}
 
@@ -2078,6 +2104,8 @@ public class Utils
 			{
 				fileOutputStream.write(d, 0, b);
 			}
+			fileOutputStream.flush();
+			fileOutputStream.getFD().sync();
 		}
 		catch (FileNotFoundException e)
 		{
@@ -2093,19 +2121,7 @@ public class Utils
 		}
 		finally
 		{
-			if (fileOutputStream != null)
-			{
-				try
-				{
-					fileOutputStream.flush();
-					fileOutputStream.getFD().sync();
-					fileOutputStream.close();
-				}
-				catch (IOException e)
-				{
-					Logger.e("Utils", "Exception while closing the output stream", e);
-				}
-			}
+			closeStreams(fileOutputStream);
 		}
 	}
 
@@ -2153,17 +2169,7 @@ public class Utils
 		}
 		finally
 		{
-			if (fileInputStream != null)
-			{
-				try
-				{
-					fileInputStream.close();
-				}
-				catch (IOException e)
-				{
-					Logger.e("Utils", "Exception while closing the input stream", e);
-				}
-			}
+			closeStreams(fileInputStream);
 		}
 		return currentFiles;
 	}
@@ -2258,7 +2264,7 @@ public class Utils
 	{
 		return (picasaUriString.toString().startsWith(HikeConstants.OTHER_PICASA_URI_START) || picasaUriString.toString().startsWith(HikeConstants.JB_PICASA_URI_START)
 				|| picasaUriString.toString().startsWith("http") || picasaUriString.toString().startsWith(HikeConstants.GMAIL_PREFIX) || picasaUriString.toString().startsWith(
-				HikeConstants.GOOGLE_PLUS_PREFIX));
+				HikeConstants.GOOGLE_PLUS_PREFIX)|| picasaUriString.toString().startsWith(HikeConstants.GOOGLE_INBOX_PREFIX));
 	}
 
 	public static Uri makePicasaUri(Uri uri)
@@ -2406,21 +2412,6 @@ public class Utils
 		intent.putExtra(HikeConstants.Extras.OUTPUT_Y, HikeConstants.MAX_DIMENSION_LOW_FULL_SIZE_PX);
 		intent.putExtra(HikeConstants.Extras.ASPECT_X, 1);
 		intent.putExtra(HikeConstants.Extras.ASPECT_Y, 1);
-		activity.startActivityForResult(intent, HikeConstants.CROP_RESULT);
-	}
-
-	public static void startCropActivityForResult(Activity activity, String path, String destPath, boolean preventScaling, int quality,boolean circleHighlight)
-	{
-		/* Crop the image */
-		Intent intent = new Intent(activity, CropImage.class);
-		intent.putExtra(MediaStore.EXTRA_OUTPUT, destPath);
-		intent.putExtra(HikeConstants.Extras.IMAGE_PATH, path);
-		intent.putExtra(HikeConstants.Extras.CIRCLE_HIGHLIGHT, circleHighlight);
-		intent.putExtra(HikeConstants.Extras.SCALE, false);
-		intent.putExtra(HikeConstants.Extras.RETURN_CROP_RESULT_TO_FILE, preventScaling);
-		intent.putExtra(HikeConstants.Extras.ASPECT_X, 1);
-		intent.putExtra(HikeConstants.Extras.ASPECT_Y, 1);
-		intent.putExtra(HikeConstants.Extras.JPEG_COMPRESSION_QUALITY, quality);
 		activity.startActivityForResult(intent, HikeConstants.CROP_RESULT);
 	}
 
@@ -2643,17 +2634,25 @@ public class Utils
 	 */
 	public static byte[] saveBase64StringToFile(File file, String base64String) throws IOException
 	{
-		FileOutputStream fos = new FileOutputStream(file);
-
-		byte[] b = Base64.decode(base64String, Base64.DEFAULT);
-		if (b == null)
+		byte[] b = null;
+		FileOutputStream fos = null;
+		try
 		{
-			throw new IOException();
+			fos = new FileOutputStream(file);
+			b = Base64.decode(base64String, Base64.DEFAULT);
+			if (b == null)
+			{
+				throw new IOException();
+			}
+			fos.write(b);
+			fos.flush();
+			fos.getFD().sync();
 		}
-		fos.write(b);
-		fos.flush();
-		fos.getFD().sync();
-		fos.close();
+		finally
+		{
+			if(fos != null)
+				fos.close();
+		}
 		return b;
 	}
 
@@ -2711,20 +2710,10 @@ public class Utils
 				}
 			}
 		}
-
+		
 		sendAppState(context, requestBulkLastSeen, dueToConnect, toLog);
 
-		if (resetStealth)
-		{
-			if (HikeMessengerApp.currentState != CurrentState.OPENED && HikeMessengerApp.currentState != CurrentState.RESUMED)
-			{
-				resetStealthMode(context);
-			}
-			else
-			{
-				clearStealthResetTimer(context);
-			}
-		}
+		StealthModeManager.getInstance().appStateChange(resetStealth, HikeMessengerApp.currentState != CurrentState.OPENED && HikeMessengerApp.currentState != CurrentState.RESUMED);
 	}
 
 	public static boolean isScreenOn(Context context)
@@ -2809,16 +2798,6 @@ public class Utils
 		}
 	}
 	
-	private static void resetStealthMode(Context context)
-	{
-		StealthResetTimer.getInstance(context).resetStealthToggle();
-	}
-
-	private static void clearStealthResetTimer(Context context)
-	{
-		StealthResetTimer.getInstance(context).clearScheduledStealthToggleTimer();
-	}
-
 	public static String getLastSeenTimeAsString(Context context, long lastSeenTime, int offline)
 	{
 		return getLastSeenTimeAsString(context, lastSeenTime, offline, false);
@@ -3168,49 +3147,31 @@ public class Utils
 
 	}
 
+	private static JSONObject jObject = null;
+
 	public static JSONObject getJSONfromURL(String url)
 	{
-
-		// initialize
-		InputStream is = null;
-		String result = "";
-		JSONObject jObject = null;
-
-		// http post
-		try
+		IRequestListener requestListener = new IRequestListener()
 		{
-			HttpClient httpclient = new DefaultHttpClient();
-			HttpPost httppost = new HttpPost(url);
-			AccountUtils.setNoTransform(httppost);
-			HttpResponse response = httpclient.execute(httppost);
-			HttpEntity entity = response.getEntity();
-			is = entity.getContent();
-
-			BufferedReader reader = new BufferedReader(new InputStreamReader(is, "UTF-8"), 8);
-			StringBuilder sb = new StringBuilder();
-			String line = null;
-			while ((line = reader.readLine()) != null)
+			@Override
+			public void onRequestSuccess(Response result)
 			{
-				sb.append(line + "\n");
+				jObject = (JSONObject) result.getBody().getContent();
 			}
-			is.close();
-			result = sb.toString();
-		}
-		catch (Exception e)
-		{
-			Logger.e("LogEvent", "Error converting result " + e.toString());
-		}
 
-		// try parse the string to a JSON object
-		try
-		{
-			jObject = new JSONObject(result);
-		}
-		catch (JSONException e)
-		{
-			Logger.e("LogEvent", "Error parsing data " + e.toString());
-		}
+			@Override
+			public void onRequestProgressUpdate(float progress)
+			{
+			}
 
+			@Override
+			public void onRequestFailure(HttpException httpException)
+			{
+				jObject = null;
+			}
+		};
+		RequestToken token = HttpRequests.getJSONfromUrl(url, requestListener);
+		token.execute();
 		return jObject;
 	}
 
@@ -3296,18 +3257,6 @@ public class Utils
 		else
 		{
 			asyncTask.execute(hikeHttpRequests);
-		}
-	}
-
-	public static void executeAuthSDKTask(AuthSDKAsyncTask argTask, HttpRequestBase... requests)
-	{
-		if (isHoneycombOrHigher())
-		{
-			argTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, requests);
-		}
-		else
-		{
-			argTask.execute(requests);
 		}
 	}
 
@@ -3457,8 +3406,18 @@ public class Utils
 
 	public static void createShortcut(Activity activity, ConvInfo conv)
 	{
-		Intent shortcutIntent = IntentFactory.createChatThreadIntentFromConversation(activity, conv);
+		Intent shortcutIntent;
 		Intent intent = new Intent();
+		if (conv instanceof BotInfo && ((BotInfo) conv).isNonMessagingBot())
+		{
+			shortcutIntent = IntentFactory.getNonMessagingBotIntent(conv.getMsisdn(), "", "", activity);
+		}
+
+		else
+		{
+			shortcutIntent = IntentFactory.createChatThreadIntentFromConversation(activity, conv);
+		}
+		
 		intent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, shortcutIntent);
 		intent.putExtra(Intent.EXTRA_SHORTCUT_NAME, conv.getLabel());
 
@@ -3603,16 +3562,7 @@ public class Utils
 		}
 		finally
 		{
-			if (inputStream != null)
-			{
-				try
-				{
-					inputStream.close();
-				}
-				catch (Exception e)
-				{
-				}
-			}
+			closeStreams(inputStream);
 		}
 	}
 	
@@ -3914,6 +3864,8 @@ public class Utils
 				 */
 				String data = "";
 				dest.write(data.getBytes(), 0, data.getBytes().length);
+				dest.flush();
+				dest.getFD().sync();
 			}
 			catch (IOException e)
 			{
@@ -3921,19 +3873,7 @@ public class Utils
 			}
 			finally
 			{
-				try
-				{
-					if(dest != null)
-					{
-						dest.flush();
-						dest.getFD().sync();
-						dest.close();
-					}
-				}
-				catch (IOException e)
-				{
-					Logger.d("NoMedia", "Failed to make nomedia file");
-				}
+				closeStreams(dest);
 			}
 			if(reScan)
 			{
@@ -4237,7 +4177,7 @@ public class Utils
 
 	public static int getFreeSMSCount(Context context)
 	{
-		return context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, context.MODE_PRIVATE).getInt(HikeMessengerApp.SMS_SETTING, 0);
+		return context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, Context.MODE_PRIVATE).getInt(HikeMessengerApp.SMS_SETTING, 0);
 	}
 
 	public static void handleBulkLastSeenPacket(Context context, JSONObject jsonObj) throws JSONException
@@ -4499,6 +4439,14 @@ public class Utils
 		Intent intent = new Intent(context, HikePreferences.class);
 		intent.putExtra(HikeConstants.Extras.PREF, R.xml.privacy_preferences);
 		intent.putExtra(HikeConstants.Extras.TITLE, R.string.privacy);
+		return intent;
+	}
+	
+	public static Intent getIntentForHiddenSettings(Context context)
+	{
+		Intent intent = new Intent(context, HikePreferences.class);
+		intent.putExtra(HikeConstants.Extras.PREF, R.xml.stealth_preferences);
+		intent.putExtra(HikeConstants.Extras.TITLE, R.string.stealth_mode_title);
 		return intent;
 	}
 
@@ -4851,33 +4799,95 @@ public class Utils
 		return df.format(date);
 	}
 
-	public static String getFormattedTime(boolean pretty, Context context, long timestamp)
+	public static String getFormattedTime(boolean pretty, Context context, long timestampInSeconds)
 	{
-		if (timestamp < 0)
+		if (timestampInSeconds < 0)
 		{
 			return "";
 		}
-		Date date = new Date(timestamp * 1000);
 		if (pretty)
 		{
-			PrettyTime p = new PrettyTime();
-			return p.format(date);
+			return getFormattedPrettyTime(context, timestampInSeconds);
 		}
 		else
 		{
-			String format;
-			if (android.text.format.DateFormat.is24HourFormat(context))
+			return getFormattedTime(context, timestampInSeconds * 1000);
+		}
+	}
+	
+	public static String getFormattedTime(Context context, long timestampInMillis)
+	{
+		String format;
+		Date givenDate = new Date(timestampInMillis);
+		if (android.text.format.DateFormat.is24HourFormat(context))
+		{
+			format = "HH:mm";
+		}
+		else
+		{
+			format = "h:mm aaa";
+		}
+
+		DateFormat df = new SimpleDateFormat(format);
+		return df.format(givenDate);
+	}
+	
+	public static String getFormattedPrettyTime( Context context, long timestampInSeconds)
+	{
+		if (timestampInSeconds < 0)
+		{
+			return "";
+		}
+		
+		long givenTimeStampInMillis = timestampInSeconds * 1000; 
+		Calendar givenCalendar = Calendar.getInstance();
+		givenCalendar.setTimeInMillis(givenTimeStampInMillis);
+		
+		long currentTime = System.currentTimeMillis();
+		Calendar currentCalendar = Calendar.getInstance();
+		
+		if(givenCalendar.before(currentCalendar))
+		{
+			long timeDiff = currentTime - givenTimeStampInMillis;
+
+			if (timeDiff < 60 * 1000)
 			{
-				format = "HH:mm";
+				// until 1 minute
+				return context.getResources().getString(R.string.now);
+			}
+			else if (givenCalendar.get(Calendar.YEAR) == currentCalendar.get(Calendar.YEAR))
+			{
+				//Show date in relative format. eg. 2 hours ago, yesterday, 2 days ago etc.
+				return DateUtils.getRelativeTimeSpanString(givenTimeStampInMillis, currentTime, DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_ABBREV_MONTH).toString();
 			}
 			else
 			{
-				format = "h:mm aaa";
+				//Shows date in numeric format
+				return DateUtils.getRelativeTimeSpanString(givenTimeStampInMillis, currentTime, DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_NUMERIC_DATE).toString();
 			}
-
-			DateFormat df = new SimpleDateFormat(format);
-			return df.format(date);
 		}
+		else
+		{
+			if (givenCalendar.get(Calendar.YEAR) == currentCalendar.get(Calendar.YEAR))
+			{
+				if (givenCalendar.get(Calendar.DAY_OF_YEAR) == currentCalendar.get(Calendar.DAY_OF_YEAR))
+				{
+					//Show time in non relate default time format
+					return getFormattedTime(context, givenTimeStampInMillis);
+				}
+				else
+				{
+					// Show date in MMM dd format eg. Apr 21, May 13 etc.
+					return DateUtils.getRelativeTimeSpanString(givenTimeStampInMillis, currentTime, DateUtils.YEAR_IN_MILLIS, DateUtils.FORMAT_ABBREV_MONTH | DateUtils.FORMAT_SHOW_DATE).toString();
+				}
+			}
+			else
+			{
+				//Show date in numeric format
+				return DateUtils.getRelativeTimeSpanString(givenTimeStampInMillis, currentTime, DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_NUMERIC_DATE).toString();
+			}
+		}
+	
 	}
 
 	public static Pair<String[], String[]> getMsisdnToNameArray(Conversation conversation)
@@ -4933,29 +4943,6 @@ public class Utils
 		AlertDialog dialog = builder.create();
 		dialog.show();
 		return dialog;
-	}
-
-	public static Bitmap createBlurredImage(Bitmap originalBitmap, Context context)
-	{
-		final int BLUR_RADIUS = 8;
-		if (hasJellyBeanMR1())
-		{
-			Bitmap output = Bitmap.createBitmap(originalBitmap.getWidth(), originalBitmap.getHeight(), Bitmap.Config.ARGB_8888);
-
-			RenderScript rs = RenderScript.create(context.getApplicationContext());
-			ScriptIntrinsicBlur script = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs));
-			Allocation inAlloc = Allocation.createFromBitmap(rs, originalBitmap, Allocation.MipmapControl.MIPMAP_NONE, Allocation.USAGE_GRAPHICS_TEXTURE);
-			Allocation outAlloc = Allocation.createFromBitmap(rs, output);
-			script.setRadius(BLUR_RADIUS);
-			script.setInput(inAlloc);
-			script.forEach(outAlloc);
-			outAlloc.copyTo(output);
-
-			rs.destroy();
-
-			return output;
-		}
-		return null;
 	}
 
 	/**
@@ -5416,7 +5403,7 @@ public class Utils
 
 	public static String conversationType(String msisdn)
 	{
-		if (isBot(msisdn))
+		if (BotUtils.isBot((msisdn)))
 		{
 			return HikeConstants.BOT;
 		}
@@ -5427,19 +5414,6 @@ public class Utils
 		else
 		{
 			return HikeConstants.ONE_TO_ONE_CONVERSATION;
-		}
-	}
-
-	public static boolean isBot(String msisdn)
-	{
-		if (HikeMessengerApp.hikeBotNamesMap != null)
-		{
-			return HikeMessengerApp.hikeBotNamesMap.containsKey(msisdn);
-		}
-		else
-		{
-			// Not probable
-			return false;
 		}
 	}
 
@@ -5501,7 +5475,7 @@ public class Utils
 				return true;
 			}
 		}
-		else if (Utils.isBot(msisdn))
+		else if (BotUtils.isBot(msisdn))
 		{
 			if (HikeConversationsDatabase.getInstance().isBotMuted(msisdn))
 			{
@@ -5561,7 +5535,7 @@ public class Utils
 			ConnectivityManager cm = (ConnectivityManager) HikeMessengerApp.getInstance().getSystemService(Context.CONNECTIVITY_SERVICE);
 			NetworkInfo netInfo = cm.getActiveNetworkInfo();
 
-			if (netInfo != null && (netInfo.isConnectedOrConnecting() || netInfo.isAvailable()))
+			if (netInfo != null && netInfo.isConnected())
 			{
 				Logger.d("getNetInfoFromConnectivityManager", "Trying to connect using getActiveNetworkInfo");
 				return new Pair<NetworkInfo, Boolean>(netInfo, true);
@@ -5569,7 +5543,7 @@ public class Utils
 
 			netInfo = cm.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
 
-			if (netInfo != null && netInfo.isConnectedOrConnecting())
+			if (netInfo != null && netInfo.isConnected())
 			{
 				Logger.d("getNetInfoFromConnectivityManager", "Trying to connect using TYPE_MOBILE NetworkInfo");
 				return new Pair<NetworkInfo, Boolean>(netInfo, true);
@@ -5577,7 +5551,7 @@ public class Utils
 			else
 			{
 				netInfo = cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-				if (netInfo != null && netInfo.isConnectedOrConnecting())
+				if (netInfo != null && netInfo.isConnected())
 				{
 					Logger.d("getNetInfoFromConnectivityManager", "Trying to connect using TYPE_WIFI NetworkInfo");
 					return new Pair<NetworkInfo, Boolean>(netInfo, true);
@@ -5647,7 +5621,8 @@ public class Utils
 		
 		return maxVal;
 	}
-	
+
+
 	public static boolean isOnProduction()
 	{
 		return HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PRODUCTION, true);
@@ -5738,7 +5713,7 @@ public class Utils
 		 */
 		String srcFilePath = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT + "/" + msisdn + ".jpg";
 		String destFilePath = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT + "/" + mappedId + ".jpg";
-		Utils.copyFile(srcFilePath, destFilePath, null);
+		Utils.copyImage(srcFilePath, destFilePath, Bitmap.Config.ARGB_8888, 80);
 
 		if (setIcon)
 		{
@@ -5752,7 +5727,7 @@ public class Utils
 			{
 				bytes = BitmapUtils.bitmapToBytes(smallerBitmap, Bitmap.CompressFormat.JPEG, 100);
 			}
-			ContactManager.getInstance().setIcon(mappedId, bytes, false);
+			ContactManager.getInstance().setIcon(mappedId, bytes, true);
 		}
 
 		return statusMessage;
@@ -5823,6 +5798,10 @@ public class Utils
 	
 	public static boolean isPhotosEditEnabled()
 	{
+		if(!Utils.isUserSignedUp(HikeMessengerApp.getInstance().getApplicationContext(), false))
+		{
+			return false;
+		}
 		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH)
 		{
 			return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.ENABLE_PHOTOS, true);
@@ -5831,5 +5810,277 @@ public class Utils
 		{
 			return false;
 		}
+	}
+
+	public static boolean moveFile(File inputFile, File outputFile) {
+		Logger.d("Utils", "Input file path - " + inputFile.getPath());
+		Logger.d("Utils", "Output file path - " + outputFile.getPath());
+		boolean result = false;
+		InputStream in = null;
+		OutputStream out = null;
+		try {
+			if (outputFile.exists()) {
+				outputFile.delete();
+			}
+
+			in = new FileInputStream(inputFile);
+			out = new FileOutputStream(outputFile);
+
+			byte[] buffer = new byte[1024];
+			int read;
+			while ((read = in.read(buffer)) != -1) {
+				out.write(buffer, 0, read);
+			}
+			out.flush();
+			inputFile.delete();
+			result = true;
+		} catch (FileNotFoundException e1) {
+			result = false;
+			Logger.e("Utils", "1Failed due to - " + e1.getMessage());
+		} catch (Exception e2) {
+			result = false;
+			Logger.e("Utils", "2Failed due to - " + e2.getMessage());
+		} finally {
+			closeStreams(in, out);
+		}
+		return result;
+	}
+	
+	public static boolean resetUnreadCounterForConversation(ConvInfo convInfo)
+	{
+		ConvMessage lastMessage = convInfo.getLastConversationMsg();
+		if (lastMessage != null && lastMessage.getState() == State.RECEIVED_UNREAD)
+		{
+			lastMessage.setState(State.RECEIVED_READ);
+			convInfo.setUnreadCount(0);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.UPDATE_LAST_MSG_STATE, new Pair<Integer, String>(lastMessage.getState().ordinal(), convInfo.getMsisdn()));
+			return true;
+		}
+
+		return false;
+	}
+	
+	public static String getCameraResultFile()
+	{
+		HikeSharedPreferenceUtil sharedPreference = HikeSharedPreferenceUtil.getInstance();
+		final String capturedFilepath = sharedPreference.getData(HikeMessengerApp.FILE_PATH, null);
+		sharedPreference.removeData(HikeMessengerApp.FILE_PATH);
+
+		if (capturedFilepath != null)
+		{
+			File imageFile = new File(capturedFilepath);
+
+			if (imageFile != null && imageFile.exists())
+			{
+				HikeHandlerUtil.getInstance().postRunnableWithDelay(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						MediaScannerConnection.scanFile(HikeMessengerApp.getInstance(), new String[] { capturedFilepath }, null, null);
+					}
+				}, 0);
+				return capturedFilepath;
+			}
+			else
+			{
+				Logger.e("Hike Camera Image", "Image File does not exists");
+				return null;
+			}
+
+		}
+		else
+		{
+			Logger.e("Hike Camera Image", "Image path is null");
+			return null;
+		}
+	}
+	
+	private static String getPathFromDocumentedUri(Uri uri, Context context)
+	{
+		String result = null;
+        if (isExternalStorageDocument(uri)) {
+            final String docId = DocumentsContract.getDocumentId(uri);
+            final String[] split = docId.split(":");
+            final String type = split[0];
+
+            if ("primary".equalsIgnoreCase(type)) {
+            	result = Environment.getExternalStorageDirectory() + "/" + split[1];
+            }
+        }
+        else if (isDownloadsDocument(uri)) {
+            final String id = DocumentsContract.getDocumentId(uri);
+            final Uri contentUri = ContentUris.withAppendedId(
+                    Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
+
+            result = getDataColumn(context, contentUri, null, null);
+        }
+        else if (isMediaDocument(uri)) {
+            final String docId = DocumentsContract.getDocumentId(uri);
+            final String[] split = docId.split(":");
+            final String type = split[0];
+
+            Uri contentUri = null;
+            if ("image".equals(type)) {
+                contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+            } else if ("video".equals(type)) {
+                contentUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
+            } else if ("audio".equals(type)) {
+                contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+            }
+
+            final String selection = "_id=?";
+            final String[] selectionArgs = new String[] {
+                    split[1]
+            };
+
+            result = getDataColumn(context, contentUri, selection, selectionArgs);
+        }
+        return result;
+	}
+
+	public static boolean isExternalStorageDocument(Uri uri) {
+        return "com.android.externalstorage.documents".equals(uri.getAuthority());
+    }
+
+    public static boolean isDownloadsDocument(Uri uri) {
+        return "com.android.providers.downloads.documents".equals(uri.getAuthority());
+    }
+
+    public static boolean isMediaDocument(Uri uri) {
+        return "com.android.providers.media.documents".equals(uri.getAuthority());
+    }
+
+    public static boolean isGooglePhotosUri(Uri uri) {
+        return "com.google.android.apps.photos.content".equals(uri.getAuthority());
+    }
+
+    /**
+     * Get the value of the data column for this Uri. This is useful for
+     * MediaStore Uris, and other file-based ContentProviders.
+     *
+     * @param context The context.
+     * @param uri The Uri to query.
+     * @param selection (Optional) Filter used in the query.
+     * @param selectionArgs (Optional) Selection arguments used in the query.
+     * @return The value of the _data column, which is typically a file path.
+     * @author paulburke
+     */
+    public static String getDataColumn(Context context, Uri uri, String selection,
+            String[] selectionArgs) {
+
+        Cursor cursor = null;
+        final String column = "_data";
+        final String[] projection = {
+                column
+        };
+
+        try {
+            cursor = context.getContentResolver().query(uri, projection, selection, selectionArgs,
+                    null);
+            if (cursor != null && cursor.moveToFirst()) {
+                final int column_index = cursor.getColumnIndexOrThrow(column);
+                return cursor.getString(column_index);
+            }
+        } finally {
+            if (cursor != null)
+                cursor.close();
+        }
+        return null;
+    }
+
+    public static void closeStreams(Closeable... closableStreams)
+    {
+		for (Closeable closeable : closableStreams) {
+			try {
+				if (closeable != null)
+					closeable.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+				Logger.d("Utils", "Exception on closing stream : " + e);
+			}
+		}
+    }
+	
+	/**
+	 * Copies File from scrFilePath to DesFilePath
+	 * 
+	 * @param srcFilePath
+	 * @param destFilePath
+	 * @return
+	 */
+	public static boolean copyFile(String srcFilePath, String destFilePath)
+	{
+		/*
+		 * If source and destination have the same path, just return.
+		 */
+		if (srcFilePath.equals(destFilePath))
+		{
+			return true;
+		}
+		try
+		{
+			InputStream src = new FileInputStream(new File(srcFilePath));
+			FileOutputStream dest = new FileOutputStream(new File(destFilePath));
+
+			byte[] buffer = new byte[HikeConstants.MAX_BUFFER_SIZE_KB * 1024];
+			int len;
+
+			while ((len = src.read(buffer)) > 0)
+			{
+				dest.write(buffer, 0, len);
+			}
+
+			dest.flush();
+			dest.getFD().sync();
+			src.close();
+			dest.close();
+
+			return true;
+		}
+		catch (FileNotFoundException e)
+		{
+			Logger.e("Utils", "File not found while copying", e);
+			return false;
+		}
+		catch (IOException e)
+		{
+			Logger.e("Utils", "Error while reading/writing/closing file", e);
+			return false;
+		}
+		catch (Exception ex)
+		{
+			Logger.e("Utils", "WTF Error while reading/writing/closing file", ex);
+			return false;
+		}
+	}
+
+	/**
+	 * Returns Total RAM in bytes for HIKE
+	 * 
+	 * @return
+	 */
+	public static double getTotalRAMForHike()
+	{
+		long maxAvailableSize = 0L;
+		try
+		{
+			Runtime info = Runtime.getRuntime();
+			maxAvailableSize = info.maxMemory();
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+			Logger.e("image_config", "Could not get Total RAM from Runtime");
+		}
+		return maxAvailableSize * 8;
+	}
+
+	public static int getDeviceScreenArea()
+	{
+		int screenWidth = HikeMessengerApp.getInstance().getApplicationContext().getResources().getDisplayMetrics().widthPixels;
+		int screenHeight = HikeMessengerApp.getInstance().getApplicationContext().getResources().getDisplayMetrics().heightPixels;
+		Logger.d("image_config", "Screen dimens are :- " + screenWidth + ", "+ screenHeight);
+		return screenHeight * screenHeight;
 	}
 }

@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -33,7 +34,6 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.adapters.GalleryAdapter;
-import com.bsb.hike.chatthread.ChatThread;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
@@ -50,6 +50,8 @@ import com.bsb.hike.utils.Utils;
 
 public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity implements OnItemClickListener, OnScrollListener, OnPageChangeListener, HikePubSub.Listener
 {
+	public static final String FROM_DEVICE_GALLERY_SHARE = "from_gallery_share";
+	
 	private GalleryAdapter gridAdapter;
 
 	private GalleryPagerAdapter pagerAdapter;
@@ -71,6 +73,8 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 	private int totalSelections;
 
 	private boolean smlDialogShown = false;
+	
+	private boolean forGalleryShare ;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -85,18 +89,25 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 			progressDialog = ProgressDialog.show(this, null, getResources().getString(R.string.multi_file_creation));
 		}
 
+		forGalleryShare = getIntent().getBooleanExtra(FROM_DEVICE_GALLERY_SHARE, false);
+		
 		galleryItems = getIntent().getParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS);
 		totalSelections = galleryItems.size();
 
 		/*
 		 * Added one for the extra null item.
 		 */
-		galleryGridItems = new ArrayList<GalleryItem>(galleryItems.size() + 1);
+		galleryGridItems = new ArrayList<GalleryItem>(galleryItems.size() + (forGalleryShare?0:1));
 		galleryGridItems.addAll(galleryItems);
 		/*
 		 * Adding an empty item which will be used to add more images.
 		 */
-		galleryGridItems.add(null);
+		if(!forGalleryShare)
+        {
+            galleryGridItems.add(null);
+            HikeMessengerApp.getPubSub().addListener(HikePubSub.MULTI_FILE_TASK_FINISHED, this);
+        }
+
 
 		selectedGrid = (GridView) findViewById(R.id.selection_grid);
 		selectedPager = (ViewPager) findViewById(R.id.selection_pager);
@@ -120,16 +131,7 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 		setSelection(galleryItems.size() - 1);
 		setupActionBar();
 
-		HikeMessengerApp.getPubSub().addListener(HikePubSub.MULTI_FILE_TASK_FINISHED, this);
-		
 		showTipIfRequired();
-	}
-
-	@Override
-	public void onBackPressed()
-	{
-		startAddMoreGalleryIntent();
-		super.onBackPressed();
 	}
 
 	private void startAddMoreGalleryIntent()
@@ -215,13 +217,13 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 		TextView title = (TextView) actionBarView.findViewById(R.id.title);
 		View doneBtn = actionBarView.findViewById(R.id.done_container);
 		TextView postText = (TextView) actionBarView.findViewById(R.id.post_btn);
-		View imageSettingsBtn = actionBarView.findViewById(R.id.image_quality_settings_view);
+		View actionsView = actionBarView.findViewById(R.id.actionsView);
 		
 		doneBtn.setVisibility(View.VISIBLE);
 		postText.setText(R.string.send);
 		
 		title.setText(R.string.preview);
-		imageSettingsBtn.setVisibility(View.GONE);
+		
 		backContainer.setOnClickListener(new OnClickListener()
 		{
 			@Override
@@ -230,13 +232,38 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 				onBackPressed();
 			}
 		});
-
+		
+		//Commenting out Multi-select code. This feature will be enabled in next release.
+		
+		/*
+		if(Utils.isPhotosEditEnabled())
+		{
+			actionsView.setVisibility(View.VISIBLE);
+			actionBarView.findViewById(R.id.seprator).setVisibility(View.VISIBLE);
+			actionsView.setOnClickListener(new OnClickListener()
+			{
+				
+				@Override
+				public void onClick(View v)
+				{
+					editSelectedImage();
+				}
+			});
+		}
+		*/
+		
 		doneBtn.setOnClickListener(new OnClickListener()
 		{
 
 			@Override
 			public void onClick(View v)
 			{
+				if(forGalleryShare)
+				{
+					shareToMultipleContacts();
+					return;
+				}
+				
 				final ArrayList<Pair<String, String>> fileDetails = new ArrayList<Pair<String, String>>(galleryItems.size());
 				long sizeOriginal = 0;
 				for (GalleryItem galleryItem : galleryItems)
@@ -284,50 +311,14 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 			}
 		});
 		
-		imageSettingsBtn.setOnClickListener(new OnClickListener()
-		{
-				@Override
-				public void onClick(View v)
-				{
-					// TODO Auto-generated method stub
-					final ArrayList<Pair<String, String>> fileDetails = new ArrayList<Pair<String, String>>(galleryItems.size());
-					long sizeOriginal = 0;
-					if (closeSMLtipView != null)
-					{
-						closeSMLtipView.performClick();
-					}
-					for (GalleryItem galleryItem : galleryItems)
-					{
-						fileDetails.add(new Pair<String, String> (galleryItem.getFilePath(), HikeFileType.toString(HikeFileType.IMAGE)));
-						File file = new File(galleryItem.getFilePath());
-						sizeOriginal += file.length();
-					}
-					
-					HikeDialogFactory.showDialog(GallerySelectionViewer.this, HikeDialogFactory.SHARE_IMAGE_QUALITY_DIALOG, new HikeDialogListener()
-					{
-						@Override
-						public void negativeClicked(HikeDialog hikeDialog)
-						{
-							hikeDialog.dismiss();
-						}
-
-						@Override
-						public void positiveClicked(HikeDialog hikeDialog)
-						{
-							hikeDialog.dismiss();
-						}
-
-						@Override
-						public void neutralClicked(HikeDialog hikeDialog)
-						{
-							
-						}
-					}, (Object[]) new Long[]{(long)fileDetails.size(), sizeOriginal});
-
-					smlDialogShown = true;
-				}
-		});
 		actionBar.setCustomView(actionBarView);
+	}
+	
+	private void editSelectedImage()
+	{
+		String selectedFilePath = galleryItems.get(selectedPager.getCurrentItem()).getFilePath();
+		Intent intent = IntentFactory.getPictureEditorActivityIntent(GallerySelectionViewer.this, selectedFilePath, forGalleryShare, null, false);
+		startActivityForResult(intent, HikeConstants.ResultCodes.PHOTOS_REQUEST_CODE);
 	}
 
 	@Override
@@ -578,4 +569,37 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 			((LinearLayout) findViewById(R.id.tipContainerTop)).addView(view, 0);
 		}
 	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data)
+	{
+		super.onActivityResult(requestCode, resultCode, data);
+		if(resultCode == RESULT_OK)
+		{
+			switch(requestCode)
+			{
+			case HikeConstants.ResultCodes.PHOTOS_REQUEST_CODE:
+				String editedFilePath = data.getStringExtra(HikeConstants.Extras.IMAGE_PATH);
+				galleryItems.get(selectedPager.getCurrentItem()).setFilePath(editedFilePath);
+				galleryGridItems.get(selectedPager.getCurrentItem()).setFilePath(editedFilePath);
+				gridAdapter.notifyDataSetChanged();
+				pagerAdapter.notifyDataSetChanged();
+				break;
+			}
+		}
+	}
+	
+	private void shareToMultipleContacts()
+	{
+		ArrayList<Uri> selectedUris = new ArrayList<Uri>(galleryItems.size());
+		for (GalleryItem galleryItem : galleryItems)
+		{
+			File file = new File(galleryItem.getFilePath());
+			selectedUris.add(Uri.fromFile(file));
+		}
+		
+		startActivity(IntentFactory.getMultipleFileForwardIntent(getApplicationContext(), selectedUris, HikeFileType.IMAGE));
+	}
+	
+	
 }

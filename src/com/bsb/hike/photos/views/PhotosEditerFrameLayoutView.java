@@ -174,29 +174,31 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 		int width = metrics.widthPixels;
 		int height = (int) (metrics.heightPixels * getContext().getResources().getInteger(R.integer.photos_editor_canvas_weight) * 1.0f / getContext().getResources().getInteger(
 				R.integer.photos_editor_weightSum));
-		if (width != imageOriginal.getWidth())
-		{
-			imageScaled = HikePhotosUtils.compressBitamp(imageOriginal, width, height, true);
-			if (imageScaled == null)
-			{
-				Toast.makeText(getContext(), getResources().getString(R.string.photos_oom_load), Toast.LENGTH_SHORT).show();
-				IntentFactory.openHomeActivity(getContext(), true);
-				return;
-			}
 
-			effectLayer.handleImage(imageScaled, true);
-		}
-		else
+		imageScaled = HikePhotosUtils.compressBitamp(imageOriginal, width, height, true);
+		if (imageScaled == null)
 		{
-			effectLayer.handleImage(imageOriginal, false);
-			imageScaled = imageOriginal;
+			Toast.makeText(getContext(), getResources().getString(R.string.photos_oom_load), Toast.LENGTH_SHORT).show();
+			IntentFactory.openHomeActivity(getContext(), true);
+			return;
 		}
+
+		effectLayer.handleImage(imageScaled, true);
+		
+		
 
 		if (compressOutput && HikePhotosUtils.getBitmapArea(imageOriginal) > HikeConstants.HikePhotos.MAXIMUM_ALLOWED_IMAGE_AREA)
 		{
-			compressOutput = false;
 			imageOriginal = HikePhotosUtils.compressBitamp(imageOriginal, HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX, HikeConstants.MAX_DIMENSION_LOW_FULL_SIZE_PX, true);
 		}
+		else if(imageOriginal.getConfig() == null)
+		{
+			//Special Case happens in case of gifs
+			Bitmap temp = imageOriginal;
+			imageOriginal = HikePhotosUtils.createBitmap(imageOriginal, 0, 0, 0, 0, true, false, false, true);
+			HikePhotosUtils.manageBitmaps(temp);
+		}
+		
 	}
 
 	public void loadImageFromBitmap(Bitmap bmp)
@@ -251,6 +253,11 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 
 	public void saveImage(HikeFileType fileType, String originalName, HikePhotosListener listener)
 	{
+		if(imageScaled == null || originalName == null)
+		{
+			return;
+		}
+		
 		doodleLayer.getMeasure(imageScaled.getWidth(), imageScaled.getHeight());
 
 		this.mFileType = fileType;
@@ -280,6 +287,18 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 		doodleLayer.setOnDoodlingStartListener(listener);
 	}
 
+	private int getOutputQuality()
+	{
+		if(compressOutput)
+		{
+			/**
+			 * Since we already compressing the dimensions no need to decrease quality
+			 */
+			return 100;
+		}
+		return 95;
+	}
+	
 	private void saveImagetoFile()
 	{
 		File file = null;
@@ -287,11 +306,25 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 		{
 			try
 			{
-				if (!isImageEdited())
+				if (!isImageEdited() )
 				{
-					String timeStamp = Long.toString(System.currentTimeMillis());
-					file = File.createTempFile("IMG_" + timeStamp, ".jpg");
-					file.deleteOnExit();
+					if(!compressOutput)
+					{
+						file = new File(mOriginalName);
+						returnResult(file);
+						return;
+					}
+					else
+					{
+						file = new File(mDestinationFilename);
+						if (!file.exists())
+						{
+							String timeStamp = Long.toString(System.currentTimeMillis());
+							file = File.createTempFile("IMG_" + timeStamp, ".jpg");
+						}
+
+					}
+					
 				}
 				else
 				{
@@ -319,9 +352,13 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 			{
 				dir.mkdirs();
 			}
+			
+			//Creating No Media file in Hike Profile Images Folder if not already there
+			//Todo prevent deleting of .nomedia on app start
+			Utils.makeNoMediaFile(dir, true);
 
 			String fileName = Utils.getTempProfileImageFileName(mOriginalName);
-			final String destFilePath = directory + "/" + fileName;
+			final String destFilePath = directory + File.separator + fileName;
 			file = new File(destFilePath);
 		}
 
@@ -329,7 +366,9 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 		try
 		{
 			out = new FileOutputStream(file);
-			imageEdited.compress(Bitmap.CompressFormat.JPEG, 100, out);
+			imageEdited.compress(Bitmap.CompressFormat.JPEG, getOutputQuality(), out);
+			out.flush();
+			out.getFD().sync();
 		}
 		catch (Exception e)
 		{
@@ -341,7 +380,6 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 			{
 				try
 				{
-					out.flush();
 					out.close();
 					
 					//Copy edited image
@@ -368,7 +406,12 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 				}
 			}
 		}
+		returnResult(file);
 
+	}
+	
+	private void returnResult(File file)
+	{
 		if (file.exists())
 		{
 			mListener.onComplete(file);
@@ -378,7 +421,6 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 		{
 			mListener.onFailure();
 		}
-
 	}
 
 	public class CopyFileRunnable implements Runnable
@@ -405,7 +447,7 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 		@Override
 		public void run()
 		{
-			Utils.copyFile(srcPath, destPath, fileType);
+			Utils.copyImage(srcPath, destPath, Bitmap.Config.ARGB_8888, getOutputQuality());
 		}
 
 	}

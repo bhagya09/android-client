@@ -10,6 +10,7 @@ import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -20,15 +21,17 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeConstants.WelcomeTutorial;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
+import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.tasks.SignupTask;
 import com.bsb.hike.tasks.SignupTask.StateValue;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
-public class WelcomeActivity extends HikeAppStateBaseFragmentActivity implements SignupTask.OnSignupTaskProgressUpdate
+public class WelcomeActivity extends HikeAppStateBaseFragmentActivity implements SignupTask.OnSignupTaskProgressUpdate, OnLongClickListener
 {
 	private Button mAcceptButton;
 
@@ -60,6 +63,7 @@ public class WelcomeActivity extends HikeAppStateBaseFragmentActivity implements
 		loadingLayout = (ViewGroup) findViewById(R.id.loading_layout);
 		tcText = findViewById(R.id.terms_and_conditions);
 		tcContinueLayout = (ViewGroup) findViewById(R.id.tc_continue_layout);
+		findViewById(R.id.welcome_hike_logo_container).setOnLongClickListener(this);
 
 		String model = Build.MODEL;
 		String manufacturer = Build.MANUFACTURER;
@@ -104,6 +108,14 @@ public class WelcomeActivity extends HikeAppStateBaseFragmentActivity implements
 
 		ImageView micromaxImage = (ImageView) findViewById(R.id.ic_micromax);
 		micromaxImage.setVisibility(isMicromaxDevice ? View.VISIBLE : View.GONE);
+		
+		/**
+		 * Conditionally init bots
+		 */
+		if (HikeMessengerApp.hikeBotInfoMap.isEmpty())
+		{
+			BotUtils.initBots();
+		}
 	}
 
 	public void onHikeIconClicked(View v)
@@ -113,20 +125,30 @@ public class WelcomeActivity extends HikeAppStateBaseFragmentActivity implements
 			changeHost();
 		}
 	}
+	
+	private void openServerHostChangeActivity()
+	{
+		if (AppConfig.ALLOW_STAGING_TOGGLE)
+		{
+			Intent intent = new Intent(this, ServerHostChangeActivity.class);
+			startActivity(intent);
+		}
+	}
 
 	private void changeHost()
 	{
 		Logger.d(getClass().getSimpleName(), "Hike Icon CLicked");
 
 		SharedPreferences sharedPreferences = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE);
-		boolean production = sharedPreferences.getBoolean(HikeMessengerApp.PRODUCTION, true);
-
-		Utils.setupServerURL(!production, Utils.switchSSLOn(this));
+		boolean production = !sharedPreferences.getBoolean(HikeMessengerApp.PRODUCTION, true);
 		
 		Editor editor = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE).edit();
-		editor.putBoolean(HikeMessengerApp.PRODUCTION, !production);
+		editor.putBoolean(HikeMessengerApp.PRODUCTION, production);
+		editor.putInt(HikeMessengerApp.PRODUCTION_HOST_TOGGLE, production ? AccountUtils._PRODUCTION_HOST : AccountUtils._STAGING_HOST);
 		editor.commit();
 		HttpRequestConstants.toggleStaging();
+
+		Utils.setupServerURL(production, Utils.switchSSLOn(this));
 
 		Toast.makeText(WelcomeActivity.this, AccountUtils.base, Toast.LENGTH_SHORT).show();
 	}
@@ -266,6 +288,18 @@ public class WelcomeActivity extends HikeAppStateBaseFragmentActivity implements
 		{
 			errorDialog.show();
 		}
+	}
+
+	@Override
+	public boolean onLongClick(View v)
+	{
+		if(v != null && v.getId() == R.id.welcome_hike_logo_container)
+		{
+			openServerHostChangeActivity();
+			
+			return true;
+		}
+		return false;
 	}
 
 }

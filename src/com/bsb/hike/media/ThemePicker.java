@@ -60,6 +60,7 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 		this.sherlockFragmentActivity = sherlockFragmentActivity;
 		this.listener = listener;
 		this.popUpLayout = new PopUpLayout(sherlockFragmentActivity.getApplicationContext());
+		this.currentConfig = sherlockFragmentActivity.getResources().getConfiguration().orientation;
 	}
 
 	/**

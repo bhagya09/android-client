@@ -30,14 +30,20 @@ import android.text.TextUtils;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.BitmapModule.BitmapUtils;
-import com.bsb.hike.db.DBBackupRestore;
+import com.bsb.hike.db.AccountBackupRestore;
 import com.bsb.hike.http.HikeHttpRequest;
+import com.bsb.hike.models.AccountInfo;
 import com.bsb.hike.models.Birthday;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.modules.contactmgr.ContactUtils;
+import com.bsb.hike.modules.signupmgr.RegisterAccountTask;
+import com.bsb.hike.modules.signupmgr.SetProfileTask;
+import com.bsb.hike.modules.signupmgr.ValidateNumberTask;
 import com.bsb.hike.ui.SignupActivity;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
@@ -72,9 +78,11 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 		}
 	}
 
-	public interface OnSignupTaskProgressUpdate extends FinishableEvent
+	public interface OnSignupTaskProgressUpdate
 	{
 		public void onProgressUpdate(StateValue value);
+		
+		public void onFinish(boolean success);
 	}
 	
 	public int getDisplayChild()
@@ -253,10 +261,10 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 			TelephonyManager manager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
 			String countryIso = manager.getNetworkCountryIso().toUpperCase();
 
-			AccountUtils.AccountInfo accountInfo = null;
+			AccountInfo accountInfo = null;
 			if (!SignupTask.isAlreadyFetchingNumber && INDIA_ISO.equals(countryIso) && !wifi.isConnected())
 			{
-				accountInfo = AccountUtils.registerAccount(context, null, null);
+				accountInfo = new RegisterAccountTask(null, null).execute();
 				if (accountInfo == null)
 				{
 					/* network error, signal a failure */
@@ -264,7 +272,7 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 					return Boolean.FALSE;
 				}
 			}
-			if (accountInfo == null || TextUtils.isEmpty(accountInfo.msisdn))
+			if (accountInfo == null || TextUtils.isEmpty(accountInfo.getMsisdn()))
 			{
 				if (!SignupTask.isAlreadyFetchingNumber)
 				{
@@ -303,8 +311,8 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 					this.context.getApplicationContext().registerReceiver(receiver, new IntentFilter(intentFilter));
 				}
 
-				String unauthedMSISDN = AccountUtils.validateNumber(number);
-
+				String unauthedMSISDN = new ValidateNumberTask(number).execute();
+				
 				if (TextUtils.isEmpty(unauthedMSISDN))
 				{
 					Logger.d("SignupTask", "Unable to send PIN to user");
@@ -372,13 +380,13 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 						publishProgress(new StateValue(State.ERROR, HikeConstants.CHANGE_NUMBER));
 						return Boolean.FALSE;
 					}
-					accountInfo = AccountUtils.registerAccount(context, pin, unauthedMSISDN);
+					accountInfo = new RegisterAccountTask(pin, unauthedMSISDN).execute();
 					/*
 					 * if it fails, we try once again.
 					 */
 					if (accountInfo == null)
 					{
-						accountInfo = AccountUtils.registerAccount(context, pin, unauthedMSISDN);
+						accountInfo = new RegisterAccountTask(pin, unauthedMSISDN).execute();
 					}
 
 					if (accountInfo == null)
@@ -387,7 +395,7 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 						publishProgress(new StateValue(State.ERROR, null));
 						return Boolean.FALSE;
 					}
-					else if (accountInfo.smsCredits == -1)
+					else if (accountInfo.getSmsCredits() == -1)
 					{
 						this.data = null;
 						isPinError = true;
@@ -418,11 +426,11 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 			}
 
 			Logger.d("SignupTask", "saving MSISDN/Token");
-			msisdn = accountInfo.msisdn;
+			msisdn = accountInfo.getMsisdn();
 			/* save the new msisdn */
 			Utils.savedAccountCredentials(accountInfo, settings.edit());
-			String hikeUID = accountInfo.uid;
-			String hikeToken = accountInfo.token;
+			String hikeUID = accountInfo.getUid();
+			String hikeToken = accountInfo.getToken();
 			if (!TextUtils.isEmpty(hikeUID) && !TextUtils.isEmpty(hikeToken))
 			{
 				PlatformUIDFetch.fetchPlatformUid(HikePlatformConstants.PlatformUIDFetchType.SELF);
@@ -468,32 +476,13 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 			try
 			{
 				Map<String, List<ContactInfo>> contacts = conMgr.convertToMap(contactinfos);
-				JSONObject jsonForAddressBookAndBlockList = AccountUtils.postAddressBook(token, contacts);
+				boolean addressBookPosted = new PostAddressBookTask(contacts).execute();
 
-				List<ContactInfo> addressbook = AccountUtils.getContactList(jsonForAddressBookAndBlockList, contacts);
-				List<String> blockList = AccountUtils.getBlockList(jsonForAddressBookAndBlockList);
-
-				if (jsonForAddressBookAndBlockList.has(HikeConstants.PREF))
-				{
-					JSONObject prefJson = jsonForAddressBookAndBlockList.getJSONObject(HikeConstants.PREF);
-					JSONArray contactsArray = prefJson.optJSONArray(HikeConstants.CONTACTS);
-					if (contactsArray != null)
-					{
-						Editor editor = settings.edit();
-						editor.putString(HikeMessengerApp.SERVER_RECOMMENDED_CONTACTS, contactsArray.toString());
-						editor.commit();
-					}
-				}
-				// List<>
-				// TODO this exception should be raised from the postAddressBook
-				// code
-				if (addressbook == null)
+				if (addressBookPosted == false)
 				{
 					publishProgress(new StateValue(State.ERROR, HikeConstants.ADDRESS_BOOK_ERROR));
 					return Boolean.FALSE;
 				}
-				Logger.d("SignupTask", "about to insert addressbook");
-				ContactManager.getInstance().setAddressBookAndBlockList(addressbook, blockList);
 			}
 			catch (Exception e)
 			{
@@ -556,7 +545,8 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 					publishProgress(new StateValue(State.SCANNING_CONTACTS, ""));
 				}
 				publishProgress(new StateValue(State.PROFILE_IMAGE, START_UPLOAD_PROFILE));
-				AccountUtils.setProfile(userName, birthdate, isFemale.booleanValue());
+				
+				new SetProfileTask(userName, birthdate, isFemale.booleanValue()).execute();
 			}
 			catch (InterruptedException e)
 			{
@@ -615,12 +605,10 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 		 * We show these tips only to upgrading users
 		 */
 		edit.putBoolean(HikeMessengerApp.SHOWN_WELCOME_HIKE_TIP, true);
-		
 		/*
-		 * We show this tip only to new signup users
+		 * Re-initilizing hidden mode
 		 */
-		edit.putBoolean(HikeMessengerApp.SHOW_STEALTH_INFO_TIP, true);
-		
+		StealthModeManager.getInstance().initiate();
 		/*
 		 * We don't want to show red dot on overflow menu for new users
 		 */
@@ -638,7 +626,7 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 				{
 					this.data = "true";
 				}
-				else if (DBBackupRestore.getInstance(context).isBackupAvailable())
+				else if (AccountBackupRestore.getInstance(context).isBackupAvailable())
 				{
 					publishProgress(new StateValue(State.BACKUP_AVAILABLE,null));
 					// After publishing 'backup available' the task waits for the user to make an input(Restore or Skip)
@@ -711,7 +699,7 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 		editor.commit();
 		
 		publishProgress(new StateValue(State.RESTORING_BACKUP,null));
-		boolean status = DBBackupRestore.getInstance(context).restoreDB();
+		boolean status = AccountBackupRestore.getInstance(context).restore();
 		
 		if (status)
 		{

@@ -41,10 +41,11 @@ public class RequestProcessor
 	public void addRequest(final Request<?> request, ClientOptions options)
 	{
 		String requestId = request.getId();
-		if (requestMap.containsKey(requestId))
+		
+		Request<?> req = requestMap.get(requestId);
+		if (null != req)
 		{
 			LogFull.i(request.toString() + " already exists");
-			Request<?> req = requestMap.get(requestId);
 			req.addRequestListeners(request.getRequestListeners());
 		}
 		else
@@ -58,7 +59,7 @@ public class RequestProcessor
 				{
 					LogFull.i("on cancel called for " + request.toString() + "  removing from request map");
 					requestListenerNotifier.notifyListenersOfRequestCancellation(request);
-					requestMap.remove(request.getId());
+					removeRequest(request);
 				}
 			};
 			request.setRequestCancellationListener(listener);
@@ -86,7 +87,7 @@ public class RequestProcessor
 	public boolean isRequestRunning(Request<?> request)
 	{
 		String requestId = request.getId();
-		if (requestMap.containsKey(requestId))
+		if (requestId !=null && requestMap.containsKey(requestId))
 		{
 			LogFull.d(request.toString() + " is already running ");
 			return true;
@@ -113,6 +114,7 @@ public class RequestProcessor
 			return false;
 		}
 
+		request.setId(newRequestId);
 		if (requestMap.containsKey(newRequestId))
 		{
 			LogFull.i(request.toString() + " already exists");
@@ -130,7 +132,10 @@ public class RequestProcessor
 
 	public static void removeRequest(Request<?> request)
 	{
-		requestMap.remove(request.getId());
+		if (request.getId() != null)
+		{
+			requestMap.remove(request.getId());
+		}
 	}
 
 	/**

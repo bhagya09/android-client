@@ -46,6 +46,7 @@ public abstract class OneToNConversation extends Conversation
 	protected long lastSentMsgId = -1;
 
 	protected int unreadPinnedMessageCount;
+	protected long creationTime =-1;
 
 	/**
 	 * @param builder
@@ -55,6 +56,8 @@ public abstract class OneToNConversation extends Conversation
 		super(builder);
 		
 		this.conversationOwner = builder.conversationOwner;
+		
+		this.creationTime = builder.creationTime;
 
 		this.conversationParticipantList = builder.conversationParticipantList;
 
@@ -361,6 +364,8 @@ public abstract class OneToNConversation extends Conversation
 	protected static abstract class InitBuilder<P extends InitBuilder<P>> extends Conversation.InitBuilder<P>
 	{
 		private String conversationOwner;
+		
+		private long creationTime;
 
 		private Map<String, PairModified<GroupParticipant, String>> conversationParticipantList;
 
@@ -376,7 +381,7 @@ public abstract class OneToNConversation extends Conversation
 		
 		public InitBuilder(String msisdn)
 		{
-			super(msisdn, new OneToNConvInfo.ConvInfoBuilder(msisdn));
+			super(msisdn);
 		}
 
 		public P setConversationOwner(String conversationOwner)
@@ -385,6 +390,12 @@ public abstract class OneToNConversation extends Conversation
 			return getSelfObject();
 		}
 
+		public P setCreationTime(long creationTime)
+		{
+			this.creationTime = creationTime;
+			return getSelfObject();
+		}
+		
 		public P setConversationParticipantsList(Map<String, PairModified<GroupParticipant, String>> participantList)
 		{
 			this.conversationParticipantList = participantList;
@@ -505,6 +516,31 @@ public abstract class OneToNConversation extends Conversation
 			return name;
 		}
 	}
+	
+	public long getCreationDateInLong() {
+		if (creationTime != -1) {
+			return creationTime;
+		} else if (((OneToNConvInfo) convInfo).getMsisdn() != null) {
+			String id = ((OneToNConvInfo) convInfo).getMsisdn();
+			int index = -1;
+			if (OneToNConversationUtils.isBroadcastConversation(id)) {
+				index = id.lastIndexOf(":");
+			} else {
+				index = id.indexOf(":");
+			}
+			if (index != -1) {
+				return Long.parseLong(id.substring(index + 1, id.length()));
+			}
+		}
+		return -1l;
+	}
+	
+	public long getCreationDate() {
+		return creationTime;
+	}
+	public void setCreationDate(long creationDate) {
+		this.creationTime = creationDate;
+	}
 
 	public static OneToNConversation createOneToNConversationFromJSON(JSONObject jsonObj) throws JSONException
 	{
@@ -549,13 +585,13 @@ public abstract class OneToNConversation extends Conversation
 		if (OneToNConversationUtils.isBroadcastConversation(msisdn))
 		{
 			conversation = new BroadcastConversation.ConversationBuilder(msisdn).setConversationOwner(jsonObj.getString(HikeConstants.FROM))
-					.setConversationParticipantsList(participants).setConvName(convName).build();
-
+					.setConversationParticipantsList(participants).setConvName(convName).setCreationTime(jsonObj.optLong(HikeConstants.GROUP_CHAT_TIMESTAMP,-1)).build();
 		}
 		else
 		{
 			conversation = new GroupConversation.ConversationBuilder(msisdn).setConversationOwner(jsonObj.getString(HikeConstants.FROM))
-					.setConversationParticipantsList(participants).setConvName(convName).build();
+					.setConversationParticipantsList(participants).setConvName(convName).setCreationTime(jsonObj.optLong(HikeConstants.GROUP_CHAT_TIMESTAMP,-1)).build();
+
 		}
 
 		return conversation;

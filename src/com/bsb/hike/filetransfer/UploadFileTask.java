@@ -323,6 +323,11 @@ public class UploadFileTask extends FileTransferBase
 				pubsubMsgList.add((ConvMessage) userContext);
 				MultipleConvMessage multiConMsg = new MultipleConvMessage(pubsubMsgList, contactList);
 				HikeConversationsDatabase.getInstance().addConversations(multiConMsg.getMessageList(), multiConMsg.getContactList(),false);
+				msgId = ((ConvMessage) userContext).getMsgID();
+				for (int i=1 ; i < messageList.size() ; i++)
+				{
+					messageList.get(i).setMsgID(msgId + i);
+				}
 				multiConMsg.sendPubSubForConvScreenMultiMessage();
 			}
 			else
@@ -391,14 +396,6 @@ public class UploadFileTask extends FileTransferBase
 	 */
 	private void initFileUpload() throws FileTransferCancelledException, Exception
 	{
-		msgId = ((ConvMessage) userContext).getMsgID();
-		if (isMultiMsg)
-		{
-			for (int i=1 ; i < messageList.size() ; i++)
-			{
-				messageList.get(i).setMsgID(msgId + i);
-			}
-		}
 		HikeFile hikeFile = ((ConvMessage) userContext).getMetadata().getHikeFiles().get(0);
 		hikeFileType = hikeFile.getHikeFileType();
 
@@ -425,9 +422,18 @@ public class UploadFileTask extends FileTransferBase
 					if (selectedFile == null)
 						throw new Exception(FileTransferManager.READ_FAIL);
 					
-					if(selectedFile.exists())
+					if(selectedFile.exists() && selectedFile.length() > 0)
 					{
 						selectedFile = Utils.getOutputMediaFile(hikeFileType, null, true);
+					}
+					/*
+					 * Changes done to fix the issue where some users are getting FileNotFoundEXception while creating file.
+					 */
+					try {
+						if(!selectedFile.exists())
+							selectedFile.createNewFile();
+					} catch (IOException e) {
+						e.printStackTrace();
 					}
 					if (!Utils.compressAndCopyImage(mFile.getPath(), selectedFile.getPath(), context))
 					{

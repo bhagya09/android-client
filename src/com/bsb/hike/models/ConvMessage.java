@@ -31,6 +31,7 @@ import com.bsb.hike.platform.WebMetadata;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.SearchManager.Searchable;
+import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
 
 public class ConvMessage implements Searchable
@@ -79,6 +80,8 @@ public class ConvMessage implements Searchable
 	
 	private int contentId;
 	private String nameSpace;
+	
+	private int notificationType;
 
 	public String getNameSpace()
 	{
@@ -427,8 +430,7 @@ public class ConvMessage implements Searchable
 			md.put(HikeConstants.POKE, true);
 			data.put(HikeConstants.METADATA, md);
 		}
-		setContentId(data.optInt(HikeConstants.CONTENT_ID));
-		setNameSpace(data.optString(DBConstants.HIKE_CONTENT.NAMESPACE));
+
 		if (data.has(HikeConstants.METADATA))
 		{
 			JSONObject mdata = data.getJSONObject(HikeConstants.METADATA);
@@ -446,12 +448,16 @@ public class ConvMessage implements Searchable
 			else if (ConvMessagePacketKeys.WEB_CONTENT_TYPE.equals(obj.optString(HikeConstants.SUB_TYPE)))
 			{
 				this.messageType  = MESSAGE_TYPE.WEB_CONTENT;
-				webMetadata = new WebMetadata(data.optJSONObject(HikeConstants.METADATA));
+				setContentId(mdata.optInt(HikePlatformConstants.CONTENT_ID));
+				setNameSpace(mdata.optString(HikePlatformConstants.NAMESPACE));
+				webMetadata = new WebMetadata(mdata);
 			}
 			else if (ConvMessagePacketKeys.FORWARD_WEB_CONTENT_TYPE.equals(obj.optString(HikeConstants.SUB_TYPE)))
 			{
 				this.messageType  = MESSAGE_TYPE.FORWARD_WEB_CONTENT;
-				webMetadata = new WebMetadata(data.optJSONObject(HikeConstants.METADATA));
+				setContentId(mdata.optInt(HikePlatformConstants.CONTENT_ID));
+				setNameSpace(mdata.optString(HikePlatformConstants.NAMESPACE));
+				webMetadata = new WebMetadata(mdata);
 			}
 			else
 			{
@@ -494,7 +500,7 @@ public class ConvMessage implements Searchable
 		{
 		case PARTICIPANT_JOINED:
 			JSONArray arr = metadata.getGcjParticipantInfo();
-			String highlight = Utils.getOneToNConversationJoinHighlightText(arr, (OneToNConversation) conversation);
+			String highlight = Utils.getOneToNConversationJoinHighlightText(arr, (OneToNConversation) conversation, metadata.isNewGroup()&&metadata.getGroupAdder()!=null, context);
 			this.mMessage = OneToNConversationUtils.getParticipantAddedMessage(this, context, highlight);
 			break;
 		case PARTICIPANT_LEFT:
@@ -806,7 +812,7 @@ public class ConvMessage implements Searchable
 				{
 					data.put(HikeConstants.MESSAGE_ID, msgID);
 
-					if(HikeMessengerApp.isStealthMsisdn(mMsisdn) && isSent())
+					if(StealthModeManager.getInstance().isStealthMsisdn(mMsisdn) && isSent())
 					{
 						data.put(HikeConstants.STEALTH, true);
 					}
@@ -1263,6 +1269,22 @@ public class ConvMessage implements Searchable
 	public void setServerId(long serverId)
 	{
 		this.serverId = serverId;
+	}
+
+	/**
+	 * @return the notificaionType
+	 */
+	public int getNotificationType()
+	{
+		return notificationType;
+	}
+
+	/**
+	 * @param notificationType the notificaionType to set
+	 */
+	public void setNotificaionType(int notificationType)
+	{
+		this.notificationType = notificationType;
 	}
 
 	public MessagePrivateData getPrivateData()

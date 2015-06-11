@@ -1,6 +1,7 @@
 package com.bsb.hike.utils;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -12,6 +13,7 @@ import org.json.JSONObject;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.text.TextUtils;
 import android.util.Pair;
 
@@ -22,6 +24,7 @@ import com.bsb.hike.MqttConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
+import com.bsb.hike.models.ContactInfoData;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.OriginType;
 import com.bsb.hike.models.GroupParticipant;
@@ -53,13 +56,57 @@ public class OneToNConversationUtils
 		}
 		else
 		{
+			String groupAdder = metadata.getGroupAdder();
+			SharedPreferences preferences = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS,context. MODE_PRIVATE);
 			if (metadata.isNewGroup())
 			{
-				participantAddedMessage = String.format(context.getString(R.string.new_group_message), highlight);
+				if (groupAdder == null) {
+					 participantAddedMessage = String.format(context.getString(R.string.new_group_message), highlight);
+				} else {
+					String adder = "";
+					if (groupAdder != null && groupAdder.trim().length() > 0) {
+						ContactInfo contact = ContactManager.getInstance()
+								.getContact(groupAdder, true, false);
+						if (contact != null) {
+							adder = contact.getFirstName();
+						}
+					}
+					if(groupAdder.equalsIgnoreCase( preferences.getString(HikeMessengerApp.MSISDN_SETTING, ""))){
+						participantAddedMessage = context.getString(
+								R.string.created_group_text, highlight);
+					}else{
+					    participantAddedMessage = adder
+								+ " "
+								+ context.getString(R.string.group_member_added,
+										highlight);
+					}
+				
+				}
 			}
 			else
-			{
-				participantAddedMessage = String.format(context.getString(R.string.add_to_group_message), highlight);
+          {
+				if (groupAdder == null) {
+					 participantAddedMessage = String.format(context.getString(R.string.add_to_group_message), highlight);
+				} else {
+					String adder = "";
+					if (groupAdder.equalsIgnoreCase(preferences.getString(
+							HikeMessengerApp.MSISDN_SETTING, ""))) {
+						adder = context.getString(R.string.you);
+					} else {
+						if (groupAdder != null
+								&& groupAdder.trim().length() > 0) {
+							ContactInfo contact = ContactManager.getInstance()
+									.getContact(groupAdder, true, false);
+							if (contact != null) {
+								adder = contact.getFirstName();
+							}
+						}
+					}
+					participantAddedMessage = adder
+							+ " "
+							+ context.getString(R.string.group_member_added,
+									highlight);
+				}
 			}
 		}
 		return participantAddedMessage;
@@ -128,13 +175,14 @@ public class OneToNConversationUtils
 		ContactInfo userContactInfo = Utils.getUserContactInfo(activity.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, Context.MODE_PRIVATE));
 
 		OneToNConversation oneToNConversation;
+
 		if (activity.getIntent().hasExtra(HikeConstants.Extras.CREATE_BROADCAST))
 		{
-			oneToNConversation = new BroadcastConversation.ConversationBuilder(oneToNConvId).setConversationOwner(userContactInfo.getMsisdn()).setIsAlive(true).build();
+			oneToNConversation = new BroadcastConversation.ConversationBuilder(oneToNConvId).setConversationOwner(userContactInfo.getMsisdn()).setIsAlive(true).setCreationTime(System.currentTimeMillis()).build();
 		}
 		else
 		{
-			oneToNConversation = new GroupConversation.ConversationBuilder(oneToNConvId).setConversationOwner(userContactInfo.getMsisdn()).setIsAlive(true).build();
+			oneToNConversation = new GroupConversation.ConversationBuilder(oneToNConvId).setConversationOwner(userContactInfo.getMsisdn()).setIsAlive(true).setCreationTime(System.currentTimeMillis()).build();
 		}
 
 		oneToNConversation.setConversationParticipantList(participantList);
@@ -144,7 +192,7 @@ public class OneToNConversationUtils
 		mConversationDb.addRemoveGroupParticipants(oneToNConvId, oneToNConversation.getConversationParticipantList(), false);
 		if (newOneToNConv)
 		{
-			mConversationDb.addConversation(oneToNConversation.getMsisdn(), false, convName, oneToNConversation.getConversationOwner());
+			mConversationDb.addConversation(oneToNConversation.getMsisdn(), false, convName, oneToNConversation.getConversationOwner(), null, oneToNConversation.getCreationDate());
 			ContactManager.getInstance().insertGroup(oneToNConversation.getMsisdn(), convName);
 		}
 
@@ -168,6 +216,9 @@ public class OneToNConversationUtils
 			if (newOneToNConv)
 			{
 				JSONObject metadata = new JSONObject();
+				if (oneToNConversation instanceof GroupConversation){
+				metadata.put(HikeConstants.FROM, oneToNConversation.getConversationOwner());
+				}
 				metadata.put(HikeConstants.NAME, convName);
 
 				String directory = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
@@ -178,6 +229,13 @@ public class OneToNConversationUtils
 				{
 					metadata.put(HikeConstants.REQUEST_DP, true);
 				}
+				
+				gcjPacket.put(HikeConstants.METADATA, metadata);
+			} else if (oneToNConversation instanceof GroupConversation) {
+				JSONObject metadata = new JSONObject();
+
+				metadata.put(HikeConstants.FROM,
+						oneToNConversation.getConversationOwner());
 				
 				gcjPacket.put(HikeConstants.METADATA, metadata);
 			}
@@ -263,5 +321,15 @@ public class OneToNConversationUtils
 			allPairs.add(pair);
 		}
 		HikeMessengerApp.getPubSub().publish(HikePubSub.MULTI_MESSAGE_DB_INSERTED, allPairs);
+	}
+
+	public static String getGroupCreationTimeAsString(Context context,
+			long creationTime) {
+		String format;
+		format = "dd MMM ''yy";
+
+		SimpleDateFormat df = new SimpleDateFormat(format);
+		return df.format(creationTime);
+
 	}
 }

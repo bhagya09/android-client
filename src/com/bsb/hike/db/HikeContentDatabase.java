@@ -3,10 +3,10 @@ package com.bsb.hike.db;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 
+import com.bsb.hike.platform.HikePlatformConstants;
 import org.json.JSONObject;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -70,7 +70,7 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 
 	private String[] getCreateQueries()
 	{
-		String[] createAndIndexes = new String[6];
+		String[] createAndIndexes = new String[7];
 		int i = 0;
 		// CREATE TABLE
 		// CONTENT TABLE -> _id,content_id,love_id,channel_id,timestamp,metadata
@@ -123,6 +123,16 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 		
 		createAndIndexes[i++] = contentIndex;
 		createAndIndexes[i++] = nameSpaceIndex;
+
+		String cacheDataTable = CREATE_TABLE +CONTENT_CACHE_TABLE
+				+ "("
+				+_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+				+ KEY + " TEXT UNIQUE, "
+				+ VALUE + " TEXT, "
+				+ NAMESPACE + " TEXT "
+				+ ")";
+
+		createAndIndexes[i++] = cacheDataTable;
 		// INDEX ENDS HERE
 
 		return createAndIndexes;
@@ -160,6 +170,17 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 					+ DOMAIN + " TEXT UNIQUE, "
 					+ IN_HIKE + " INTEGER" + ")";
 			queries.add(urlWhitelistTable);
+		}
+		if (oldVersion < 4)
+		{
+			String cacheDataTable = CREATE_TABLE + CONTENT_CACHE_TABLE
+					+ "("
+					+_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+					+ KEY + " TEXT UNIQUE, "
+					+ VALUE + " TEXT, "
+					+ NAMESPACE + " TEXT "
+					+ ")";
+			queries.add(cacheDataTable);
 		}
 		
 		return queries.toArray(new String[]{});
@@ -423,5 +444,63 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 	{
 		mDB.delete(POPUPDATA, null, null);
 		
+	}
+
+	/**
+	 * The microapps call this function to put large data in the content cache.
+	 * @param key
+	 * @param namespace
+	 * @param value
+	 */
+	public void putInContentCache(String key, String namespace, String value)
+	{
+		if (TextUtils.isEmpty(key) || TextUtils.isEmpty(namespace))
+		{
+			Logger.e(HikePlatformConstants.TAG, "entries are incorrect. Send correct keys.");
+			return;
+		}
+		ContentValues values = new ContentValues();
+		values.put(KEY, key);
+		values.put(VALUE, value);
+		values.put(NAMESPACE, namespace);
+
+		mDB.insertWithOnConflict(CONTENT_CACHE_TABLE, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+	}
+
+	public String getFromContentCache(String key, String namespace)
+	{
+		if (TextUtils.isEmpty(key) || TextUtils.isEmpty(namespace))
+		{
+			Logger.e(HikePlatformConstants.TAG, "entries are incorrect. Send correct keys to search for.");
+			return "";
+		}
+		Cursor c = null;
+		try
+		{
+			c = mDB.query(CONTENT_CACHE_TABLE, new String[] { VALUE }, KEY + "=? AND " + NAMESPACE + "=?", new String[] { key, namespace }, null, null, null);
+			if (c.moveToFirst())
+			{
+				int valueIndex = c.getColumnIndex(VALUE);
+				String value = c.getString(valueIndex);
+				return value;
+			}
+			return "";
+		}
+		finally
+		{
+			if (c != null)
+			{
+				c.close();
+			}
+		}
+	}
+	
+	public void deleteAll()
+	{
+		mDB.delete(CONTENT_TABLE, null, null);
+		mDB.delete(ALARM_MGR_TABLE, null, null);
+		mDB.delete(CONTENT_CACHE_TABLE, null, null);
+		ProductInfoManager.getInstance().deleteAllPopups();
+		deleteAllDomainsFromWhitelist();
 	}
 }

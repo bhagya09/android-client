@@ -24,7 +24,6 @@ import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.photos.HikePhotosUtils.FilterTools.FilterType;
 import com.bsb.hike.photos.views.VignetteUtils;
-import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
@@ -100,7 +99,7 @@ public final class HikeEffectsFactory
 		{
 				finalBitmap = HikePhotosUtils.createBitmap(mBitmapIn, 0, 0, 0, 0, false, false, false, true);
 				vignetteBitmap = HikePhotosUtils.createBitmap(mBitmapIn, 0, 0, 0, 0, false, false, false, true);
-			currentOut = finalBitmap;
+				currentOut = finalBitmap;
 		}
 		else if (!isThumbnail)
 		{
@@ -208,7 +207,7 @@ public final class HikeEffectsFactory
 		{
 			Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(),
 					HikeMessengerApp.getInstance().getApplicationContext().getResources().getString(R.string.photos_oom_load), Toast.LENGTH_SHORT).show();
-			
+
 			Intent homeActivityIntent = IntentFactory.getHomeActivityIntent(HikeMessengerApp.getInstance().getApplicationContext());
 			homeActivityIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 			HikeMessengerApp.getInstance().getApplicationContext().startActivity(homeActivityIntent);

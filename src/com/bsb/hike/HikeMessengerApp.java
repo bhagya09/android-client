@@ -6,9 +6,8 @@ import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.acra.ACRA;
@@ -20,8 +19,6 @@ import org.acra.sender.HttpSender;
 import org.acra.sender.ReportSender;
 import org.acra.sender.ReportSenderException;
 import org.acra.util.HttpRequest;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import android.app.Application;
 import android.content.ComponentName;
@@ -31,16 +28,16 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.PackageManager.NameNotFoundException;
-import android.graphics.drawable.BitmapDrawable;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Pair;
 
+import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.db.DbConversationListener;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.db.HikeMqttPersistence;
-import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.HttpManager;
@@ -52,7 +49,6 @@ import com.bsb.hike.platform.PlatformUIDFetch;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.service.HikeService;
-import com.bsb.hike.service.MqttMessagesManager;
 import com.bsb.hike.service.RegisterToGCMTrigger;
 import com.bsb.hike.service.SendGCMIdToServerTrigger;
 import com.bsb.hike.service.UpgradeIntentService;
@@ -63,6 +59,7 @@ import com.bsb.hike.utils.ActivityTimeLogger;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.SmileyParser;
+import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
@@ -168,6 +165,14 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	public static final String PRODUCTION = "production";
 	
 	public static final String PRODUCTION_HOST_TOGGLE = "productionHostToggle";
+
+	public static final String CUSTOM_MQTT_HOST = "cmqttho";
+	
+	public static final String CUSTOM_MQTT_PORT = "cmmqttpo";
+
+	public static final String CUSTOM_HTTP_HOST = "cmhttpho";
+	
+	public static final String CUSTOM_HTTP_PORT = "chttppo";
 
 	public static final String COUNTRY_CODE = "countryCode";
 
@@ -368,6 +373,10 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	public static final String STEALTH_MODE = "stealthMode";
 
 	public static final String STEALTH_MODE_SETUP_DONE = "steatlhModeSetupDone";
+	
+	public static final String STEALTH_MODE_FTUE_DONE = "steatlhModeFtueDone";
+	
+	public static final String STEALTH_PIN_AS_PASSWORD = "steatlhPinAsPassword";
 
 	public static final String SHOWING_STEALTH_FTUE_CONV_TIP = "showingStealthFtueConvTip";
 
@@ -479,10 +488,14 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 
 	public static final String UPGRADE_FOR_SERVER_ID_FIELD = "upgradeForServerIdField";
 
+	public static final String UPGRADE_FOR_DEFAULT_BOT_ENTRY = "upgradeForBotEntry";
+
 	public static final String SHOW_BROADCAST_FTUE_SCREEN = "showBroadcastFtueScreen";
 
 	public static final String EXCEPTION_ANALYTIS_ENABLED = "exceptionAnalaticsEnabled";
 	
+	public static final String MAX_REPLY_RETRY_NOTIF_COUNT = "maxReplyRetryNotifCount";
+
 	public static final String SSL_ALLOWED = "sslAllowed";
 	
 	public static CurrentState currentState = CurrentState.CLOSED;
@@ -494,8 +507,6 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	public static boolean isIndianUser;
 
 	private static Map<String, TypingNotification> typingNotificationMap;
-
-	private static Set<String> stealthMsisdn;
 
 	private AtomicBoolean mInitialized = new AtomicBoolean(false);
 
@@ -511,7 +522,7 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 
 	public static Map<String, Pair<Integer, Long>> lastSeenFriendsMap;
 
-	public static HashMap<String, String> hikeBotNamesMap;
+	public static ConcurrentHashMap<String, BotInfo> hikeBotInfoMap;
 
 	public static volatile boolean networkError;
 
@@ -697,10 +708,6 @@ public void onTrimMemory(int level)
 			mEditor.putInt(HikeConstants.UPGRADE_FOR_DATABASE_VERSION_28, 0);
 			mEditor.commit();
 		}
-		/*
-		 * Resetting the stealth mode when the app starts. 
-		 */
-		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF);
 		String currentAppVersion = settings.getString(CURRENT_APP_VERSION, "");
 		String actualAppVersion = "";
 		try
@@ -745,10 +752,15 @@ public void onTrimMemory(int level)
 		{
 			startUpdgradeIntent();
 		}
+		else
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.UPGRADING, false);
+		}
 
 		if(settings.getInt(StickerManager.UPGRADE_FOR_STICKER_SHOP_VERSION_1, 1) == 2)
 		{
 			sm.doInitialSetup();
+			sm.cachingStickersOnStart();
 		}
 		
 		HikeMqttPersistence.init(this);
@@ -807,8 +819,6 @@ public void onTrimMemory(int level)
 		
 		typingNotificationMap = new HashMap<String, TypingNotification>();
 
-		stealthMsisdn = new HashSet<String>();
-
 		initialiseListeners();
 
 		if (token != null)
@@ -838,36 +848,24 @@ public void onTrimMemory(int level)
 
 		makeNoMediaFiles();
 
-		hikeBotNamesMap = new HashMap<String, String>();
-		hikeBotNamesMap.put(HikeConstants.FTUE_TEAMHIKE_MSISDN, "team hike");
-		hikeBotNamesMap.put(HikeConstants.FTUE_HIKEBOT_MSISDN, "Emma from hike");
-		hikeBotNamesMap.put(HikeConstants.FTUE_GAMING_MSISDN, "Games on hike");
-		hikeBotNamesMap.put(HikeConstants.FTUE_HIKE_DAILY, "hike daily");
-		hikeBotNamesMap.put(HikeConstants.FTUE_HIKE_SUPPORT, "hike support");
-		hikeBotNamesMap.put(HikeConstants.NUX_BOT, "Natasha");
-		hikeBotNamesMap.put(HikeConstants.CRICKET_BOT, HikePlatformConstants.CRICKET_BOT_NAME);
+		hikeBotInfoMap = new ConcurrentHashMap<>();
 
-		HikeConversationsDatabase.getInstance().addBotToHashMap(hikeBotNamesMap);
 		initHikeLruCache(getApplicationContext());
 		initContactManager();
+		BotUtils.initBots();
 		/*
 		 * Fetching all stealth contacts on app creation so that the conversation cannot be opened through the shortcut or share screen.
 		 */
-		HikeConversationsDatabase.getInstance().addStealthMsisdnToMap();
+		StealthModeManager.getInstance().initiate();
 
 		appStateHandler = new Handler();
 
 		HikeMessengerApp.getPubSub().addListener(HikePubSub.CONNECTED_TO_MQTT, this);
-		
+
 		registerReceivers();
-		
+
 		HttpManager.init();
 
-		if (!HikeSharedPreferenceUtil.getInstance().getData(HikePlatformConstants.CRICKET_PREF_NAME, false))
-		{
-			cricketBotEntry();
-			HikeSharedPreferenceUtil.getInstance().saveData(HikePlatformConstants.CRICKET_PREF_NAME, true);
-		}
 		ProductInfoManager.getInstance().init();
 		PlatformContent.init(settings.getBoolean(HikeMessengerApp.PRODUCTION, true));
 
@@ -888,45 +886,6 @@ public void onTrimMemory(int level)
 		{
 			PlatformUIDFetch.fetchPlatformUid(HikePlatformConstants.PlatformUIDFetchType.SELF);
 		}
-	}
-
-	// Hard coding the cricket bot on the App's onCreate so that there is a cricket bot entry
-	// when there is no bot currently in the app. Using the shared prefs for that matter.
-	// Hardcoding the bot name, bot msisdn and the bot chat theme. Can be updated using the
-	// AC packet cbot and delete using the ac packet dbot.
-	private void cricketBotEntry()
-	{
-		HikeHandlerUtil mThread = HikeHandlerUtil.getInstance();
-		mThread.startHandlerThread();
-		mThread.postRunnableWithDelay(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				Logger.d("create bot", "cricket bot entry started");
-				final JSONObject jsonObject = new JSONObject();
-				try
-				{
-					jsonObject.put(HikeConstants.MSISDN, HikePlatformConstants.CRICKET_BOT_MSISDN);
-					jsonObject.put(HikeConstants.NAME, HikePlatformConstants.CRICKET_BOT_NAME);
-					jsonObject.put(HikeConstants.BOT_CHAT_THEME, HikePlatformConstants.CRICKET_CHAT_THEME_ID);
-
-					BitmapDrawable drawable = (BitmapDrawable) getApplicationContext().getResources().getDrawable(R.drawable.cric_icon);
-					String base64Icon = Utils.drawableToString(drawable);
-					if (base64Icon != null)
-					{
-						jsonObject.put(HikeConstants.BOT_THUMBNAIL, base64Icon);
-					}
-				}
-				catch (JSONException e)
-				{
-					e.printStackTrace();
-				}
-
-				MqttMessagesManager.getInstance(getApplicationContext()).createBot(jsonObject);
-			}
-		}, 0);
-
 	}
 
 	public static HikeMessengerApp getInstance()
@@ -1044,41 +1003,6 @@ public void onTrimMemory(int level)
 		return typingNotificationMap;
 	}
 
-	public static void addStealthMsisdnToMap(String msisdn)
-	{
-		stealthMsisdn.add(msisdn);
-	}
-
-	public static void addNewStealthMsisdn(String msisdn)
-	{
-		addStealthMsisdnToMap(msisdn);
-		getPubSub().publish(HikePubSub.STEALTH_CONVERSATION_MARKED, msisdn);
-	}
-
-	public static void removeStealthMsisdn(String msisdn)
-	{
-		removeStealthMsisdn(msisdn, true);
-	}
-
-	public static void removeStealthMsisdn(String msisdn, boolean publishEvent)
-	{
-		stealthMsisdn.remove(msisdn);
-		if(publishEvent)
-		{
-			getPubSub().publish(HikePubSub.STEALTH_CONVERSATION_UNMARKED, msisdn);
-		}
-	}
-
-	public static void clearStealthMsisdn()
-	{
-		stealthMsisdn.clear();
-	}
-
-	public static boolean isStealthMsisdn(String msisdn)
-	{
-		return stealthMsisdn.contains(msisdn);
-	}
-
 	public void initialiseListeners()
 	{
 		if (dbConversationListener == null)
@@ -1087,7 +1011,7 @@ public void onTrimMemory(int level)
 		}
 		if (toastListener == null)
 		{
-			toastListener = ToastListener.getInstance(getApplicationContext());
+			toastListener = ToastListener.getInstance();
 		}
 		if (activityTimeLogger == null)
 		{
@@ -1117,9 +1041,4 @@ public void onTrimMemory(int level)
 		}
 	};
 	
-	
-	public boolean isHikeBotNumber(String msisdn)
-	{
-		return hikeBotNamesMap.containsKey(msisdn);
-	}
 }

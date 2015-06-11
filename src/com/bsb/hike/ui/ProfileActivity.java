@@ -66,6 +66,7 @@ import com.bsb.hike.adapters.ProfileAdapter;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.ProfileImageActions;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
@@ -88,21 +89,28 @@ import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.GroupConversation;
 import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.modules.httpmgr.RequestToken;
+import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
+import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
+import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.smartImageLoader.IconLoader;
 import com.bsb.hike.tasks.FinishableEvent;
+import com.bsb.hike.tasks.GetHikeJoinTimeTask;
 import com.bsb.hike.tasks.HikeHTTPTask;
 import com.bsb.hike.ui.fragments.ImageViewerFragment;
 import com.bsb.hike.ui.fragments.PhotoViewerFragment;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
 import com.bsb.hike.utils.EmoticonConstants;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.SmileyParser;
+import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.CustomFontEditText;
 import com.bsb.hike.voip.VoIPUtils;
@@ -141,6 +149,8 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	private int lastSavedGender;
 
 	private SharedPreferences preferences;
+	
+	private IRequestListener deleteStatusRequestListener;
 
 	private String[] groupInfoPubSubListeners = { HikePubSub.ICON_CHANGED, HikePubSub.ONETONCONV_NAME_CHANGED, HikePubSub.GROUP_END, HikePubSub.PARTICIPANT_JOINED_ONETONCONV,
 			HikePubSub.PARTICIPANT_LEFT_ONETONCONV, HikePubSub.USER_JOINED, HikePubSub.USER_LEFT, HikePubSub.LARGER_IMAGE_DOWNLOADED, HikePubSub.PROFILE_IMAGE_DOWNLOADED,
@@ -213,6 +223,8 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	public SmileyParser smileyParser;
 	
 	int triggerPointPopup=ProductPopupsConstants.PopupTriggerPoints.UNKNOWN.ordinal();
+
+	private TextView creation;
 	
 	private static final String TAG = "Profile_Activity";
 	
@@ -259,13 +271,13 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			groupEditDialog.dismiss();
 			groupEditDialog = null;
 		}
+		if (mActivityState != null && mActivityState.deleteStatusToken != null)
+		{
+			mActivityState.deleteStatusToken.removeListener(deleteStatusRequestListener);
+		}
 		if ((mActivityState != null) && (mActivityState.task != null))
 		{
 			mActivityState.task.setActivity(null);
-		}
-		if ((mActivityState != null) && (mActivityState.getHikeJoinTimeTask != null))
-		{
-			mActivityState.getHikeJoinTimeTask.cancel(true);
 		}
 		if (profileType == ProfileType.GROUP_INFO || profileType == ProfileType.BROADCAST_INFO)
 		{
@@ -307,6 +319,15 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				/* we're currently executing a task, so show the progress dialog */
 				mActivityState.task.setActivity(this);
 				mDialog = ProgressDialog.show(this, null, getResources().getString(R.string.updating_profile));
+			}
+			if (mActivityState.deleteStatusToken != null)
+			{
+				/* we're currently executing a task, so show the progress dialog */
+				if (mActivityState.deleteStatusToken.isRequestRunning())
+				{
+					mActivityState.deleteStatusToken.addRequestListener(getDeleteStatusRequestListener());
+				}
+				mDialog = ProgressDialog.show(this, null, getString(R.string.deleting_status));
 			}
 		}
 		else
@@ -535,9 +556,10 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		case CONTACT_INFO_TIMELINE:
 			/*Falling onto contact info intentionally*/
 		case CONTACT_INFO:
-			if(HikeMessengerApp.hikeBotNamesMap.containsKey(contactInfo.getMsisdn()))
+			if(HikeMessengerApp.hikeBotInfoMap.containsKey(contactInfo.getMsisdn()))
 			{
-				return false;  /*No need to show menu for HikeBots.*/
+				menu.clear();
+				return true; 
 			}
 			else
 			{
@@ -663,7 +685,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		 */
 		if (contactInfo.isOnhike() && contactInfo.getHikeJoinTime() == 0)
 		{
-			getHikeJoinedTimeFromServer();
+			getHikeJoinTime();
 		}
 	}
 	
@@ -680,33 +702,14 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		
 		if(contactInfo.isOnhike() && contactInfo.getHikeJoinTime() == 0)
 		{
-			getHikeJoinedTimeFromServer();
+			getHikeJoinTime();
 		}
 	}
 	
-	private void getHikeJoinedTimeFromServer()
+	private void getHikeJoinTime()
 	{
-		HikeHttpRequest hikeHttpRequest = new HikeHttpRequest(HikeConstants.REQUEST_BASE_URLS.HTTP_REQUEST_PROFILE_BASE_URL + mLocalMSISDN, RequestType.HIKE_JOIN_TIME, new HikeHttpCallback()
-		{
-			@Override
-			public void onSuccess(JSONObject response)
-			{
-				Logger.d(getClass().getSimpleName(), "Response: " + response.toString());
-				try
-				{
-					JSONObject profile = response.getJSONObject(HikeConstants.PROFILE);
-					long hikeJoinTime = profile.optLong(HikeConstants.JOIN_TIME, 0);
-					hikeJoinTime = Utils.applyServerTimeOffset(ProfileActivity.this, hikeJoinTime);
-					HikeMessengerApp.getPubSub().publish(HikePubSub.HIKE_JOIN_TIME_OBTAINED, new Pair<String, Long>(mLocalMSISDN, hikeJoinTime));
-				}
-				catch (JSONException e)
-				{
-					e.printStackTrace();
-				}
-			}
-		});
-		mActivityState.getHikeJoinTimeTask = new HikeHTTPTask(null, -1);
-		Utils.executeHttpTask(mActivityState.getHikeJoinTimeTask, hikeHttpRequest);
+		GetHikeJoinTimeTask getHikeJoinTimeTask = new GetHikeJoinTimeTask(mLocalMSISDN);
+		getHikeJoinTimeTask.execute();
 	}
 	
 	private void updateProfileHeaderView()
@@ -770,7 +773,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			dual_layout.setVisibility(View.GONE);
 			statusMood.setVisibility(View.GONE);
 			fav_layout.setTag(null);  //Resetting the tag, incase we need to add to favorites again.
-			if(!HikeMessengerApp.hikeBotNamesMap.containsKey(contactInfo.getMsisdn()))  //The HikeBot's numbers wont be shown
+			if(!HikeMessengerApp.hikeBotInfoMap.containsKey(contactInfo.getMsisdn()))  //The HikeBot's numbers wont be shown
 			{
 			if (showContactsUpdates(contactInfo)) // Favourite case
 			
@@ -883,11 +886,28 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			groupNameEditText = (EditText) headerView.findViewById(R.id.name_edit);
 			text = (TextView) headerView.findViewById(R.id.name);
 			profileImage = (ImageView) headerView.findViewById(R.id.group_profile_image);
+			creation = (TextView) headerView.findViewById(R.id.creation);
 			smallIconFrame = (ImageView) headerView.findViewById(R.id.change_profile);
 			groupNameEditText.setText(oneToNConversation.getLabel());
 			msisdn = oneToNConversation.getMsisdn();
 			name = oneToNConversation.getLabel();
 			text.setText(name);
+			if (profileType == ProfileType.BROADCAST_INFO) {
+				creation.setVisibility(View.GONE);
+
+			} else {
+				long groupCreation = oneToNConversation.getCreationDateInLong();
+				if (groupCreation != -1l)
+					creation.setText(getResources().getString(
+							R.string.group_creation)
+							+ " "
+							+ OneToNConversationUtils
+									.getGroupCreationTimeAsString(
+											getApplicationContext(),
+											groupCreation));
+
+			}
+
 			
 			break;
 			
@@ -897,7 +917,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		
 		if(!isUpdate)
 		{
-			ImageViewerInfo imageViewerInfo = new ImageViewerInfo(msisdn + PROFILE_PIC_SUFFIX, null, false, !ContactManager.getInstance().hasIcon(msisdn));
+			ImageViewerInfo imageViewerInfo = new ImageViewerInfo(msisdn + PROFILE_PIC_SUFFIX, null, false, !ContactManager.getInstance().hasIcon(msisdn,false));
 			profileImage.setTag(imageViewerInfo);
 		}
 		if(headerViewInitialized || profileImageUpdated )
@@ -969,7 +989,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	private void setupContactProfileList()
 	{
 		profileItems.clear();
-		if(!HikeMessengerApp.hikeBotNamesMap.containsKey(contactInfo.getMsisdn()))  //The HikeBot's numbers wont be shown
+		if(!HikeMessengerApp.hikeBotInfoMap.containsKey(contactInfo.getMsisdn()))  //The HikeBot's numbers wont be shown
 		profileItems.add(new ProfileItem.ProfilePhoneNumberItem(ProfileItem.PHONE_NUMBER, getResources().getString(R.string.phone_pa)));
 		if(contactInfo.isOnhike())
 		{	shouldAddSharedMedia();
@@ -1189,7 +1209,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			@Override
 			public void onClick(View v)
 			{				
-				showProfileImageEditDialog(ProfileActivity.this, ProfileActivity.this, mLocalMSISDN, ProfileImageActions.DP_EDIT_FROM_PROFILE_OVERFLOW_MENU);
+				beginProfilePicChange(ProfileActivity.this,ProfileActivity.this, ProfileImageActions.DP_EDIT_FROM_PROFILE_OVERFLOW_MENU);
 				
 				JSONObject md = new JSONObject();
 
@@ -1247,31 +1267,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		initializeListviewAndAdapter();
 		if (contactInfo.isOnhike() && contactInfo.getHikeJoinTime() == 0)
 		{
-			HikeHttpRequest hikeHttpRequest = new HikeHttpRequest("/account/profile/" + mLocalMSISDN, RequestType.HIKE_JOIN_TIME, new HikeHttpCallback()
-			{
-				@Override
-				public void onSuccess(JSONObject response)
-				{
-					Logger.d(getClass().getSimpleName(), "Response: " + response.toString());
-					try
-					{
-						JSONObject profile = response.getJSONObject(HikeConstants.PROFILE);
-						long hikeJoinTime = profile.optLong(HikeConstants.JOIN_TIME, 0);
-
-						Editor editor = preferences.edit();
-						editor.putLong(HikeMessengerApp.USER_JOIN_TIME, hikeJoinTime);
-						editor.commit();
-
-						HikeMessengerApp.getPubSub().publish(HikePubSub.USER_JOIN_TIME_OBTAINED, new Pair<String, Long>(mLocalMSISDN, hikeJoinTime));
-					}
-					catch (JSONException e)
-					{
-						e.printStackTrace();
-					}
-				}
-			});
-			mActivityState.getHikeJoinTimeTask = new HikeHTTPTask(null, -1);
-			Utils.executeHttpTask(mActivityState.getHikeJoinTimeTask, hikeHttpRequest);
+			getHikeJoinTime();
 		}
 	}
 
@@ -1564,9 +1560,10 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 			startActivity(i);
 		}
-		else if (this.profileType == ProfileType.USER_PROFILE)
+		
+		if (Utils.isPhotosEditEnabled() && this.profileType == ProfileType.USER_PROFILE_EDIT)
 		{
-			super.onBackPressed();
+			//handling user profile edit case differently since photos flow will handle the created fragments
 			return;
 		}
 		super.onBackPressed();
@@ -1618,9 +1615,12 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 
 	public void onViewImageClicked(View v)
 	{
-		if(Utils.isBot(mLocalMSISDN))
+		if(BotUtils.isBot(mLocalMSISDN))
 		{
 			return;
+		}
+		if(showingGroupEdit){
+			closeGroupNameEdit();
 		}
 		
 		ImageViewerInfo imageViewerInfo = (ImageViewerInfo) v.getTag();
@@ -1702,11 +1702,11 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	{
 		if(profileType == ProfileType.GROUP_INFO)
 		{
-			showProfileImageEditDialog(ProfileActivity.this, ProfileActivity.this, mLocalMSISDN, null);
+			beginProfilePicChange(ProfileActivity.this,ProfileActivity.this, null);
 		}
 		else if(profileType == ProfileType.USER_PROFILE)
 		{
-			showProfileImageEditDialog(ProfileActivity.this, ProfileActivity.this, mLocalMSISDN, ProfileImageActions.DP_EDIT_FROM_PROFILE_SCREEN);
+			beginProfilePicChange(ProfileActivity.this,ProfileActivity.this, ProfileImageActions.DP_EDIT_FROM_PROFILE_SCREEN);
 			
 			JSONObject md = new JSONObject();
 
@@ -2529,7 +2529,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				optionsList.add(getString(R.string.add_to_contacts));
 			}
 			optionsList.add(getString(R.string.send_message));
-			if(Utils.isVoipActivated(this) && (tempContactInfo!=null && tempContactInfo.isOnhike()) && !HikeMessengerApp.hikeBotNamesMap.containsKey(tempContactInfo.getMsisdn()))
+			if(Utils.isVoipActivated(this) && (tempContactInfo!=null && tempContactInfo.isOnhike()) && !HikeMessengerApp.hikeBotInfoMap.containsKey(tempContactInfo.getMsisdn()))
 			{
 				optionsList.add(getString(R.string.make_call));
 			}
@@ -2680,7 +2680,9 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			@Override
 			public void onClick(DialogInterface dialog, int which)
 			{
-				showDeleteStatusConfirmationDialog(statusMessage.getMappedId(), statusMessage.getStatusMessageType());
+				mActivityState.statusId = statusMessage.getMappedId();
+				mActivityState.statusMsgType = statusMessage.getStatusMessageType();
+				showDeleteStatusConfirmationDialog();
 			}
 		});
 
@@ -2689,7 +2691,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		return true;
 	}
 
-	private void showDeleteStatusConfirmationDialog(final String statusId, final StatusMessageType updateType)
+	private void showDeleteStatusConfirmationDialog()
 	{
 		HikeDialogFactory.showDialog(this, HikeDialogFactory.DELETE_STATUS_DIALOG, new HikeDialogListener()
 		{
@@ -2697,7 +2699,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			@Override
 			public void positiveClicked(HikeDialog hikeDialog)
 			{
-				deleteStatus(statusId, updateType);
+				deleteStatus();
 				hikeDialog.dismiss();
 			}
 			
@@ -2714,33 +2716,70 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		});
 	}
 
-	private void deleteStatus(final String statusId, final StatusMessageType updateType)
+	private IRequestListener getDeleteStatusRequestListener()
 	{
-		HikeHttpRequest hikeHttpRequest = new HikeHttpRequest("/user/status/" + statusId, RequestType.DELETE_STATUS, new HikeHttpCallback()
+		deleteStatusRequestListener = new IRequestListener()
 		{
-
+			
 			@Override
-			public void onSuccess(JSONObject response)
+			public void onRequestSuccess(Response result)
 			{
-				HikeMessengerApp.getPubSub().publish(HikePubSub.DELETE_STATUS, statusId);
-				
-				iterateAndDeleteDPStatusFromOwnTimeline(statusId);
+				dismissLoadingDialog();
+				HikeMessengerApp.getPubSub().publish(HikePubSub.DELETE_STATUS, mActivityState.statusId);
+
+				iterateAndDeleteDPStatusFromOwnTimeline(mActivityState.statusId);
 
 				// update the preference value used to store latest dp change status update id
-				if(preferences.getString(HikeMessengerApp.DP_CHANGE_STATUS_ID, "").equals(statusId) && updateType.equals(StatusMessageType.PROFILE_PIC))
+				if (preferences.getString(HikeMessengerApp.DP_CHANGE_STATUS_ID, "").equals(mActivityState.statusId)
+						&& mActivityState.statusMsgType.equals(StatusMessageType.PROFILE_PIC))
 				{
 					clearDpUpdatePref();
 				}
-				
+				mActivityState.deleteStatusToken = null;
+				mActivityState.statusId = null;
 				profileAdapter.notifyDataSetChanged();
 			}
-
-		});
-		mActivityState.task = new HikeHTTPTask(this, R.string.delete_status_error);
-		Utils.executeHttpTask(mActivityState.task, hikeHttpRequest);
+			
+			@Override
+			public void onRequestProgressUpdate(float progress)
+			{
+				
+			}
+			
+			@Override
+			public void onRequestFailure(HttpException httpException)
+			{
+				mActivityState.deleteStatusToken = null;
+				mActivityState.statusId = null;
+				dismissLoadingDialog();
+				showErrorToast(R.string.delete_status_error, Toast.LENGTH_LONG);
+			}
+		};
+		return deleteStatusRequestListener;
+	}
+	
+	private void deleteStatus()
+	{ 
+		mActivityState.deleteStatusToken = HttpRequests.deleteStatusRequest(mActivityState.statusId, getDeleteStatusRequestListener());
+		mActivityState.deleteStatusToken.execute();
 		mDialog = ProgressDialog.show(this, null, getString(R.string.deleting_status));
 	}
 
+	public void dismissLoadingDialog()
+	{
+		if (mDialog != null)
+		{
+			mDialog.dismiss();
+			mDialog = null;
+		}
+	}
+	
+	public void showErrorToast(int stringResId, int duration)
+	{
+		Toast toast = Toast.makeText(ProfileActivity.this, stringResId, duration);
+		toast.show();
+	}
+	
 	public void onAddGroupMemberClicked(View v)
 	{
 		openAddToGroup();
@@ -2815,10 +2854,9 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		{	
 			ContactInfo contactInfo = groupParticipant.getContactInfo();
 
-			if (HikeMessengerApp.isStealthMsisdn(contactInfo.getMsisdn()))
+			if (StealthModeManager.getInstance().isStealthMsisdn(contactInfo.getMsisdn()))
 			{
-				int stealthMode = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF);
-				if (stealthMode != HikeConstants.STEALTH_ON)
+				if (!StealthModeManager.getInstance().isActive())
 				{
 					return;
 				}

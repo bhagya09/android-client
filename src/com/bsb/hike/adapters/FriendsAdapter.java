@@ -39,6 +39,7 @@ import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.StatusMessage;
+import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.smartImageLoader.IconLoader;
 import com.bsb.hike.tasks.FetchFriendsTask;
 import com.bsb.hike.ui.HomeActivity;
@@ -46,6 +47,7 @@ import com.bsb.hike.utils.EmoticonConstants;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.LastSeenComparator;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.utils.Utils.WhichScreen;
@@ -637,7 +639,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 
 		removeContactByMatchingMsisdn(smsContactsList, contactInfo);
 
-		if (HikeMessengerApp.isStealthMsisdn(contactInfo.getMsisdn()))
+		if (StealthModeManager.getInstance().isStealthMsisdn(contactInfo.getMsisdn()))
 		{
 			removeContactByMatchingMsisdn(friendsStealthList, contactInfo);
 
@@ -667,7 +669,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 		for (Iterator<ContactInfo> iter = contactList.iterator(); iter.hasNext();)
 		{
 			ContactInfo contactInfo = iter.next();
-			if (HikeMessengerApp.isStealthMsisdn(contactInfo.getMsisdn()))
+			if (StealthModeManager.getInstance().isStealthMsisdn(contactInfo.getMsisdn()))
 			{
 				iter.remove();
 			}
@@ -771,7 +773,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 		 * We check if the contact to be added is a stealth contact. If it is, we check if the current stealth mode allows us to display stealth contacts. If not we skip the rest
 		 * of the process.
 		 */
-		if (HikeMessengerApp.isStealthMsisdn(contactInfo.getMsisdn()))
+		if (StealthModeManager.getInstance().isStealthMsisdn(contactInfo.getMsisdn()))
 		{
 			boolean addToDisplayList = addToStealthList(contactInfo, groupIndex);
 			if (!addToDisplayList)
@@ -814,7 +816,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 			break;
 		}
 
-		return HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF) == HikeConstants.STEALTH_ON;
+		return StealthModeManager.getInstance().isActive();
 	}
 
 	public void refreshGroupList(List<ContactInfo> newGroupList, int groupIndex)
@@ -853,14 +855,13 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 
 	private void setupStealthListAndRemoveFromActualList(List<ContactInfo> contactList, List<ContactInfo> stealthList)
 	{
-		int stealthMode = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STEALTH_MODE, HikeConstants.STEALTH_OFF);
 		for(Iterator<ContactInfo> iterator = contactList.iterator(); iterator.hasNext();)
 		{
 			ContactInfo contactInfo = iterator.next();
-			if(HikeMessengerApp.isStealthMsisdn(contactInfo.getMsisdn()))
+			if(StealthModeManager.getInstance().isStealthMsisdn(contactInfo.getMsisdn()))
 			{
 				stealthList.add(contactInfo);
-				if(stealthMode != HikeConstants.STEALTH_ON)
+				if(!StealthModeManager.getInstance().isActive())
 				{
 					iterator.remove();
 				}
@@ -1613,7 +1614,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 				{
 					continue;
 				}
-
+				
 				updateViewsRelatedToAvatar(view, getItem(indexOfData));
 			}
 		}
