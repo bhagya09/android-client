@@ -14,6 +14,7 @@ import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.chatHead.ChatHeadService;
 import com.bsb.hike.ui.HikeBaseActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.StickerEmoticonIconPageIndicator;
@@ -141,10 +142,8 @@ public class ChatHeadActivity extends HikeBaseActivity implements StickerPickerL
 					sticker.getStickerId(), source);
 			shareCount++;
 			totalShareCount++;
-			String filePath = sticker.getStickerPath(this);
-			File stickerFile = new File(filePath, sticker.getStickerId());
-			String filePathBmp = stickerFile.getAbsolutePath();
-			ChatHeadService.getInstance().resetPosition(HikeConstants.ChatHead.SHARING_BEFORE_FINISHING_ANIMATION, filePathBmp);
+			String filePathBmp = sticker.getStickerPath(this);
+		    ChatHeadService.getInstance().resetPosition(HikeConstants.ChatHead.SHARING_BEFORE_FINISHING_ANIMATION, filePathBmp);
 			ChatHeadService.dismissed = 0;
 		}
 		else
