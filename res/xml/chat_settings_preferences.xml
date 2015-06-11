@@ -20,5 +20,14 @@
         android:summary="@string/enter_setting_info"
         android:title="@string/enter_setting_header"
         android:widgetLayout="@layout/checkbox_widget" />
+    
+    <com.bsb.hike.view.IconCheckBoxPreference
+        icon="@drawable/ic_chatsettings_enter"
+        android:defaultValue="true"
+        android:key="stickerRecommendPref"
+        android:layout="@layout/icon_preference"
+        android:summary="@string/sticker_recommendation_setting_info"
+        android:title="@string/sticker_recommendation_setting_header"
+        android:widgetLayout="@layout/checkbox_widget" />
    
 </PreferenceScreen>
