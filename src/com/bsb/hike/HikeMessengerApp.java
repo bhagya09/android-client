@@ -500,6 +500,12 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	public static final String SSL_ALLOWED = "sslAllowed";
 	
 	public static CurrentState currentState = CurrentState.CLOSED;
+		
+	public static final String STICKER_SEARCH_ENABLED = "stickrSearchEnabled";
+	
+	public static final String TAG_FIRST_TIME_DOWNLOAD = "tagFirstTimeDownload";
+	
+	public static final String STICKER_SET = "stickerSet";
 
 	//private static Twitter twitter;
 

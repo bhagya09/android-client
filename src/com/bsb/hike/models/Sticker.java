@@ -182,4 +182,22 @@ public class Sticker implements Serializable, Comparable<Sticker>
 		this.stickerId = stickerId;
 		this.category = category;
 	}
+	
+	public void setStickerData(String stickerId, String categoryId)
+	{
+		this.stickerId = stickerId;
+		this.categoryId = categoryId;
+	}
+
+	public boolean isValidStickerData()
+	{
+		return (TextUtils.isEmpty(categoryId) && TextUtils.isEmpty(stickerId));
+	}
+
+	public void clear()
+	{
+		stickerId = null;
+		category = null;
+		categoryId = null;
+	}
 }
