@@ -107,8 +107,6 @@ import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.voip.VoIPConstants;
 import com.bsb.hike.voip.VoIPUtils;
-import com.bsb.hike.voip.view.VoIPActivity;
-import com.googlecode.mp4parser.authoring.builder.SyncSampleIntersectFinderImpl.CacheTuple;
 
 /**
  * 

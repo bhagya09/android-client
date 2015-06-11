@@ -10,9 +10,8 @@ import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.chatHead.ChatHeadService;
 import com.bsb.hike.ui.HikeBaseActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
-import com.bsb.hike.view.StickerEmoticonIconPageIndicator;
+
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.View;
@@ -21,10 +20,12 @@ import android.widget.LinearLayout;
 public class ChatHeadActivity extends HikeBaseActivity implements StickerPickerListener, FinishActivityListener
 {
 	public static int shareCount, totalShareCount, noOfDays, shareLimit, maxDismissLimit;
-
+	
+	private static final String SERVICE_START_DATE= "strtDate";
+	
+	public static final int DISMISS_CONST= 5;
+	
 	private StickerPicker picker;
-
-	private StickerEmoticonIconPageIndicator mIconPageIndicator;
 
 	@Override
 	public void onConfigurationChanged(Configuration newConfig)
@@ -44,7 +45,7 @@ public class ChatHeadActivity extends HikeBaseActivity implements StickerPickerL
 	{
 		if (ChatHeadService.flagActivityRunning)
 		{
-			ChatHeadService.getInstance().resetPosition(HikeConstants.ChatHead.FINISHING_CHAT_HEAD_ACTIVITY_ANIMATION);
+			ChatHeadService.getInstance().resetPosition(ChatHeadUtils.FINISHING_CHAT_HEAD_ACTIVITY_ANIMATION);
 		}
 		saveUpdatedSharedPref();
 		ChatHeadService.flagActivityRunning = false;
@@ -55,7 +56,7 @@ public class ChatHeadActivity extends HikeBaseActivity implements StickerPickerL
 
 	private void saveUpdatedSharedPref()
 	{
-		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.DAILY_STICKER_SHARE_COUNT, shareCount);
+		HikeSharedPreferenceUtil.getInstance().saveData(ChatHeadUtils.DAILY_STICKER_SHARE_COUNT, shareCount);
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.TOTAL_STICKER_SHARE_COUNT, totalShareCount);
 	}
 
@@ -84,17 +85,17 @@ public class ChatHeadActivity extends HikeBaseActivity implements StickerPickerL
 
 	public void closeActivity(View v)
 	{
-		ChatHeadService.getInstance().resetPosition(HikeConstants.ChatHead.FINISHING_CHAT_HEAD_ACTIVITY_ANIMATION);
+		ChatHeadService.getInstance().resetPosition(ChatHeadUtils.FINISHING_CHAT_HEAD_ACTIVITY_ANIMATION);
 	}
 
 	private void initVariables()
 	{
-		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.SERVICE_START_DATE, -1L) == -1L)
+		if (HikeSharedPreferenceUtil.getInstance().getData(SERVICE_START_DATE, -1L) == -1L)
 		{
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.SERVICE_START_DATE, Utils.gettingMidnightTimeinMilliseconds());
+			HikeSharedPreferenceUtil.getInstance().saveData(SERVICE_START_DATE, Utils.gettingMidnightTimeinMilliseconds());
 		}
-		shareCount = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.DAILY_STICKER_SHARE_COUNT, 0);
-		noOfDays = (int) ((Utils.gettingMidnightTimeinMilliseconds() - (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.SERVICE_START_DATE,
+		shareCount = HikeSharedPreferenceUtil.getInstance().getData(ChatHeadUtils.DAILY_STICKER_SHARE_COUNT, 0);
+		noOfDays = (int) ((Utils.gettingMidnightTimeinMilliseconds() - (HikeSharedPreferenceUtil.getInstance().getData(SERVICE_START_DATE,
 				Utils.gettingMidnightTimeinMilliseconds()))) / (24 * 60 * 60 * 1000)) + 1;
 		if (noOfDays < 1)
 		{
@@ -103,7 +104,7 @@ public class ChatHeadActivity extends HikeBaseActivity implements StickerPickerL
 		totalShareCount = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.TOTAL_STICKER_SHARE_COUNT, 0);
 		shareLimit = (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.STICKERS_PER_DAY, HikeConstants.ChatHead.DEFAULT_NO_STICKERS_PER_DAY) + HikeSharedPreferenceUtil
 				.getInstance().getData(HikeConstants.ChatHead.EXTRA_STICKERS_PER_DAY, 0));
-		maxDismissLimit = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.DISMISS_COUNT, HikeConstants.ChatHead.DISMISS_CONST);
+		maxDismissLimit = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.DISMISS_COUNT, DISMISS_CONST);
 	}
 
 	@Override
@@ -115,7 +116,7 @@ public class ChatHeadActivity extends HikeBaseActivity implements StickerPickerL
 			shareCount++;
 			totalShareCount++;
 			String filePathBmp = sticker.getStickerPath(this);
-		    ChatHeadService.getInstance().resetPosition(HikeConstants.ChatHead.SHARING_BEFORE_FINISHING_ANIMATION, filePathBmp);
+		    ChatHeadService.getInstance().resetPosition(ChatHeadUtils.SHARING_BEFORE_FINISHING_ANIMATION, filePathBmp);
 			ChatHeadService.dismissed = 0;
 		}
 		else
