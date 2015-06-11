@@ -8,11 +8,13 @@ package com.bsb.hike.modules.stickersearch.provider.db;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Locale;
 
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.modules.stickersearch.provider.StickerSearchUtility;
 import com.bsb.hike.utils.Logger;
 
 import android.content.ContentValues;
@@ -247,11 +249,13 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper {
 		return rows;
 	}
 
-	public ArrayList<String> searchInPrimaryTable(int [] primaryKeys) {
+	private ArrayList<String> searchInPrimaryTable(String match, int [] primaryKeys) {
 
 		ArrayList<String> list = null;
+		ArrayList<String> tempList = null;
+		ArrayList<Float> matchRankList = null;
 		Cursor c = null;
-		if ((primaryKeys == null) || (primaryKeys.length <= 0)) return list;
+		if ((primaryKeys == null) || (primaryKeys.length <= 0)) return tempList;
 		try {
 			String [] args = new String [primaryKeys.length];
 			for (int i = 0; i < primaryKeys.length; i++) {
@@ -266,11 +270,28 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper {
 
 			c = mDb.query(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, null, HikeStickerSearchBaseConstants.UNIQUE_ID + " IN (" + sb.toString() + ")", args, null, null, null);
 			if (c != null) {
-				if (c.getCount() > 0) {
-					list = new ArrayList<String>();
-					while(c.moveToNext()){
-						list.add(c.getString(c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE)));
+				int count = c.getCount();
+				if (count > 0) {
+					list = new ArrayList<String>(count);
+					tempList = new ArrayList<String>(count);
+					matchRankList = new ArrayList<Float>(count);
+					while(c.moveToNext()) {
+						tempList.add(c.getString(c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE)));
+						Object [] [] tagPhrases = StickerSearchUtility.splitAndDoIndexing(c.getString(c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_TAG_PHRASE)), " ");
+						float score = ((float) (match.length() * (tagPhrases.length > 1 ? 70 : 100))) / ((String) tagPhrases [0] [0]).length();
+						Logger.d(TAG, "scores: " + c.getString(c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE)) + ": " + score);
+						matchRankList.add(score);
 					}
+
+					Float maxMatch;
+					for (int i = 0; i < 10 && i < count; i++) {
+						maxMatch = Collections.max(matchRankList);
+						int index = matchRankList.indexOf(maxMatch);
+						matchRankList.remove(index);
+						list.add(tempList.get(index));
+						tempList.remove(index);
+					}
+					list.addAll(tempList);
 				}
 			}
 		} finally {
@@ -280,6 +301,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper {
 			mDb.releaseMemory();
 		}
 
+		Logger.d(TAG, "list: " + list);
 		return list;
 	}
 
@@ -335,7 +357,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper {
 			}
 		}
 
-		return searchInPrimaryTable(rows);
+		return searchInPrimaryTable(word, rows);
 	}
 
 	public void disableTagsForDeletedStickers(HashSet<String> stickerInfo) {
@@ -361,7 +383,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper {
 			c = mDb.query(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, null, HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE + " IN (" + sb.toString() + ")", args, null, null, null);
 			if (c != null) {
 				if (c.getCount() > 0) {
-					primaryKeys = new ArrayList<Long>();
+					primaryKeys = new ArrayList<Long>(c.getCount());
 					while(c.moveToNext()){
 						primaryKeys.add(c.getLong(c.getColumnIndex(HikeStickerSearchBaseConstants.UNIQUE_ID)));
 					}

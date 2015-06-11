@@ -6,11 +6,9 @@
 
 package com.bsb.hike.modules.stickersearch.provider;
 
-import java.util.ArrayList;
+import com.bsb.hike.utils.Logger;
 
 import android.text.TextUtils;
-
-import com.bsb.hike.utils.Logger;
 
 public class StickerSearchUtility {
 
@@ -27,14 +25,14 @@ public class StickerSearchUtility {
 
 		boolean result = false;
 		if (!TextUtils.isEmpty(str)) {
-			result = !str.equals(formCorrectWord(null, str));
+			result = !str.equals(formGeneralizedWord(null, str));
 		}
 
 		return result;
 	}
 
 	/* Eliminate special characters from the given word and form a new word without them */
-	public static String formCorrectWord(StringBuilder sb, String str) {
+	public static String formGeneralizedWord(StringBuilder sb, String str) {
 
 		if (sb == null) {
 			sb = new StringBuilder();
@@ -53,31 +51,17 @@ public class StickerSearchUtility {
 		return sb.toString();
 	}
 
-	/* Find maximum number from given list of numbers */
-	public static int getMax(ArrayList<Integer> arrayList) {
-		Logger.v(TAG, "getMax()");
-
-		int max = Integer.MIN_VALUE;
-		if (arrayList != null) {
-			for (int i : arrayList) {
-				if (i > max) {
-					max = i;
-				}
-			}
-		}
-
-		return max;
-	}
-
 	/* Split charSequence in regular manner with indexing */
 	public static Object [] [] splitAndDoIndexing(String parent, String regExpression) {
-		
+		Logger.d(TAG, "splitAndDoIndexing(" + parent + ", " + regExpression + ")");
+
 		return splitAndDoIndexing(parent, regExpression, 0);
 	}
 
 	/* Split charSequence in regular manner with indexing along with limit on splitting */
 	public static Object [] [] splitAndDoIndexing(String parent, String regExpression, int limit) {
-		
+		Logger.d(TAG, "splitAndDoIndexing(" + parent + ", " + regExpression + "," + limit + ")");
+
 		Object [] [] result = null;
 		if ((parent != null) && (regExpression != null)) {
 			String [] words = parent.split(regExpression, limit);

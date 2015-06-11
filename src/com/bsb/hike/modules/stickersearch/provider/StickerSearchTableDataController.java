@@ -129,7 +129,7 @@ public class StickerSearchTableDataController {
 				numberOfRemovableWords++;
 			} else {
 				// Handle special character within the tag
-				str = StickerSearchUtility.formCorrectWord(sb, str);
+				str = StickerSearchUtility.formGeneralizedWord(sb, str);
 				if (TextUtils.isEmpty(str)) {
 					specialCount++;
 					mTags.set(mCurrentWordsOrder, null);
@@ -203,7 +203,7 @@ public class StickerSearchTableDataController {
 	private int getMaxPriority() {
 		Logger.v(TAG, "getMaxPriority()");
 
-		return StickerSearchUtility.getMax(mPriority);
+		return Collections.max(mPriority);
 	}
 
 	/* Recursive call to additive determining of tables required so far till we reach to last word */

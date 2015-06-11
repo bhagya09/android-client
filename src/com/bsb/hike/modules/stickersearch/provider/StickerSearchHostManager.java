@@ -9,7 +9,7 @@ package com.bsb.hike.modules.stickersearch.provider;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.Set;
 
@@ -114,9 +114,9 @@ public class StickerSearchHostManager {
 
 			if (value.length() >= (i == 0 ? 1 : 2)) {
 				if (!history.containsKey(value)) {
-					ArrayList<String> results = HikeStickerSearchDatabase.getInstance().searchIntoFTSAndFindStickerList(value, i == 0 && value.length() == 1);
+					ArrayList<String> results = HikeStickerSearchDatabase.getInstance().searchIntoFTSAndFindStickerList(value, (i == 0 && value.length() == 1));
 					if (results != null && results.size() > 0) {
-						HashSet<Sticker> stResules = new HashSet<Sticker>();
+						LinkedHashSet<Sticker> stResules = new LinkedHashSet<Sticker>();
 						for (String stData : results) {
 							String [] ids = stData.split(":");
 							Sticker st = new Sticker(ids [1], ids [0]);
