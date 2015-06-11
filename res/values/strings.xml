@@ -926,7 +926,6 @@
     <string name="shortcut">Add conversation shortcut</string>
     <string name="add_to_contacts">Add to contacts</string>
     <string name="delete_leave">Delete and exit group</string>
-    <string name="group_participant_info">You can add upto 500 people to a group</string>
     <string name="broadcast_ftue_message">A broadcast lets you send the same message to multiple hike contacts at once</string>
     <string name="broadcast_participant_info"><![CDATA[<font color=\"#848484\"><b>Note: </b>Only hike contacts with %1$s in their address book will receive this broadcast.</font>]]></string>
     <string name="photo">GALLERY</string>
@@ -1530,4 +1529,5 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
 	<string name="show_degraded_image_quality">Going to load a low quality Image</string>
 	<string name="toast_for_showing_thumbnail">Going to show Thumbanil</string>
 	<string name="now">Now</string>
+	<string name="group_participant_info">You can add upto 500 member to a group</string>
 </resources>
