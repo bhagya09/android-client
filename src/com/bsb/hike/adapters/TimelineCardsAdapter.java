@@ -514,6 +514,16 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			arguments.putString(HikeConstants.Extras.MAPPED_ID, mappedId);
 			arguments.putString(HikeConstants.Extras.URL, url);
 			arguments.putBoolean(HikeConstants.Extras.IS_STATUS_IMAGE, true);
+			
+            int[] screenLocation = new int[2];
+            v.getLocationOnScreen(screenLocation);
+			int orientation = mContext.getResources().getConfiguration().orientation;
+			String PACKAGE = "com.bsb.hike";
+			arguments.putInt(PACKAGE + ".orientation", orientation);
+			arguments.putInt(PACKAGE + ".left", screenLocation[0]);
+			arguments.putInt(PACKAGE + ".top", screenLocation[1]);
+			arguments.putInt(PACKAGE + ".width", v.getWidth());
+			arguments.putInt(PACKAGE + ".height", v.getHeight());
 
 			HikeMessengerApp.getPubSub().publish(HikePubSub.SHOW_IMAGE, arguments);
 

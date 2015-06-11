@@ -322,6 +322,12 @@
             android:launchMode="singleTop"
             android:screenOrientation="portrait" >
         </activity>
+         <activity
+            android:name="com.bsb.hike.ui.ImageViewerActivity"
+            android:launchMode="singleTop"
+            android:theme="@style/Transparent"
+            android:screenOrientation="portrait" >
+        </activity>
         <activity
             android:name="com.bsb.hike.ui.PictureEditer"
             android:hardwareAccelerated="true"

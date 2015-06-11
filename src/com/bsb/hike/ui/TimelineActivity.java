@@ -272,14 +272,17 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 		}
 
 		Bundle arguments = (Bundle) object;
-
-		ImageViewerFragment imageViewerFragment = new ImageViewerFragment();
-		arguments.putBoolean(HikeConstants.CAN_EDIT_DP,false);
-		imageViewerFragment.setArguments(arguments);
-
-		FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-		fragmentTransaction.add(R.id.parent_layout, imageViewerFragment, HikeConstants.IMAGE_FRAGMENT_TAG);
-		fragmentTransaction.commitAllowingStateLoss();
+		
+		Intent intent = new Intent(this, ImageViewerActivity.class);
+		intent.putExtras(arguments);
+		startActivity(intent);
+//		ImageViewerFragment imageViewerFragment = new ImageViewerFragment();
+//		arguments.putBoolean(HikeConstants.CAN_EDIT_DP,false);
+//		imageViewerFragment.setArguments(arguments);
+//
+//		FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+//		fragmentTransaction.add(R.id.parent_layout, imageViewerFragment, HikeConstants.IMAGE_FRAGMENT_TAG);
+//		fragmentTransaction.commitAllowingStateLoss();
 	}
 
 }

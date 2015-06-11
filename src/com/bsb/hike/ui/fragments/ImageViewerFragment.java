@@ -1,16 +1,23 @@
 package com.bsb.hike.ui.fragments;
 
+import android.animation.TimeInterpolator;
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.graphics.ColorMatrix;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 
 import com.actionbarsherlock.app.SherlockFragment;
+import com.actionbarsherlock.internal.nineoldandroids.animation.ObjectAnimator;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
@@ -51,6 +58,8 @@ public class ImageViewerFragment extends SherlockFragment implements OnClickList
 	
 	private boolean isViewEditable = false;
 
+	private View background;
+
 	/**
 	 * Default constructor
 	 */
@@ -72,9 +81,15 @@ public class ImageViewerFragment extends SherlockFragment implements OnClickList
 		View parent = inflater.inflate(R.layout.image_viewer, null);
 		imageView = (ImageView) parent.findViewById(R.id.image);
 		imageView.setOnClickListener(this);
+		background = parent.findViewById(R.id.background);
 		return parent;
 	}
 
+	 int mLeftDelta;
+	    int mTopDelta;
+	    float mWidthScale;
+	    float mHeightScale;
+	    
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState)
 	{
@@ -85,10 +100,93 @@ public class ImageViewerFragment extends SherlockFragment implements OnClickList
 		isStatusImage = getArguments().getBoolean(HikeConstants.Extras.IS_STATUS_IMAGE);
 
 		imageSize = this.getActivity().getResources().getDimensionPixelSize(R.dimen.timeine_big_picture_size);
-						
+
+		String PACKAGE_NAME = "com.bsb.hike";
+		final int thumbnailTop = getArguments().getInt(PACKAGE_NAME + ".top");
+		final int thumbnailLeft = getArguments().getInt(PACKAGE_NAME + ".left");
+		final int thumbnailWidth = getArguments().getInt(PACKAGE_NAME + ".width");
+		final int thumbnailHeight = getArguments().getInt(PACKAGE_NAME + ".height");
+		final int mOriginalOrientation = getArguments().getInt(PACKAGE_NAME + ".orientation");
+		
+		ViewTreeObserver observer = imageView.getViewTreeObserver();
+        observer.addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+            
+            @Override
+            public boolean onPreDraw() {
+            	imageView.getViewTreeObserver().removeOnPreDrawListener(this);
+
+                // Figure out where the thumbnail and full size versions are, relative
+                // to the screen and each other
+                int[] screenLocation = new int[2];
+                imageView.getLocationOnScreen(screenLocation);
+                mLeftDelta = thumbnailLeft - screenLocation[0];
+                mTopDelta = thumbnailTop - screenLocation[1];
+                
+                // Scale factors to make the large version the same size as the thumbnail
+                mWidthScale = (float) thumbnailWidth / imageView.getWidth();
+                mHeightScale = (float) thumbnailHeight / imageView.getHeight();
+
+                runEnterAnimation();
+                
+                return true;
+            }
+        });
+        
 		showImage();
 	}
 
+	private static final TimeInterpolator sDecelerator = new DecelerateInterpolator();
+    private static final TimeInterpolator sAccelerator = new AccelerateInterpolator();
+    private static final int ANIM_DURATION = 500;
+
+    private BitmapDrawable mBitmapDrawable;
+    private ColorMatrix colorizerMatrix = new ColorMatrix();
+    
+	public void runEnterAnimation() {
+        final long duration = (long) (ANIM_DURATION * 1);
+        
+        // Set starting values for properties we're going to animate. These
+        // values scale and position the full size version down to the thumbnail
+        // size/location, from which we'll animate it back up
+        imageView.setPivotX(0);
+        imageView.setPivotY(0);
+        imageView.setScaleX(mWidthScale);
+        imageView.setScaleY(mHeightScale);
+        imageView.setTranslationX(mLeftDelta);
+        imageView.setTranslationY(mTopDelta);
+        
+        
+        // Animate scale and translation to go from thumbnail to full size
+        imageView.animate().setDuration(duration).
+                scaleX(1).scaleY(1).
+                translationX(0).translationY(0).
+                setInterpolator(sDecelerator).
+                withEndAction(new Runnable() {
+                    public void run() {
+                        // Animate the description in after the image animation
+                        // is done. Slide and fade the text in from underneath
+                        // the picture.
+                    }
+                });
+        
+//        // Fade in the black background
+        ObjectAnimator bgAnim = ObjectAnimator.ofInt(background, "alpha", 0, 255);
+        bgAnim.setDuration(duration);
+        bgAnim.start();
+//        
+//        // Animate a color filter to take the image from grayscale to full color.
+//        // This happens in parallel with the image scaling and moving into place.
+//        ObjectAnimator colorizer = ObjectAnimator.ofFloat(PictureDetailsActivity.this,
+//                "saturation", 0, 1);
+//        colorizer.setDuration(duration);
+//        colorizer.start();
+
+//        // Animate a drop-shadow of the image
+//        ObjectAnimator shadowAnim = ObjectAnimator.ofFloat(mShadowLayout, "shadowDepth", 0, 1);
+//        shadowAnim.setDuration(duration);
+//        shadowAnim.start();
+    }
+	
 	private void showImage() 
 	{
 		key = mappedId;
