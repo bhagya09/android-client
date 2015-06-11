@@ -4739,18 +4739,6 @@ public class Utils
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		context.startActivity(intent);
 	}
-
-	public static void startWebViewActivity(Context context, String url, String title, boolean flagnewTask)
-	{
-		Intent intent = new Intent(context, WebViewActivity.class);
-		intent.putExtra(HikeConstants.Extras.URL_TO_LOAD, url);
-		intent.putExtra(HikeConstants.Extras.TITLE, title);
-		if (flagnewTask)
-		{
-		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-		}
-		context.startActivity(intent);
-	}
 	
 	public static Drawable getChatTheme(ChatTheme chatTheme, Context context)
 	{
