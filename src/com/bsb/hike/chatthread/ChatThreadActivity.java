@@ -290,7 +290,7 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 	public void onAttachFragment(android.support.v4.app.Fragment fragment)
 	{
 		Logger.i(TAG, "onAttachFragment");
-		chatThread.onAttachFragment();
+		chatThread.onAttachFragment(fragment);
 		super.onAttachFragment(fragment);
 	}
 	
