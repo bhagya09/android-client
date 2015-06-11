@@ -38,6 +38,7 @@ import com.bsb.hike.utils.Utils;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.chatHead.ChatHeadActivity;
+import com.bsb.hike.chatthread.ChatThreadUtils;
 
 public class ChatHeadService extends Service
 {
@@ -359,10 +360,7 @@ public class ChatHeadService extends Service
 		windowManager.getDefaultDisplay().getMetrics(displaymetrics);
 
 		final float scale = Utils.densityMultiplier;
-
-		Resources resources = getApplicationContext().getResources();
-		int resourceId = getResources().getIdentifier(HikeConstants.ChatHead.STATUS_BAR_HEIGHT, HikeConstants.ChatHead.STATUS_BAR_TYPE, HikeConstants.ChatHead.STATUS_BAR_PACKAGE);
-		int status_bar_height = (int) resources.getDimension(resourceId);
+		int status_bar_height = ChatThreadUtils.getStatusBarHeight(this);
 		int pixelsX;
 		// 8 dp margin + 38 dp left part of image to point - width of icon/2
 		pixelsX = (int) ((46 * scale) - (chatHead.getWidth() / 2));
