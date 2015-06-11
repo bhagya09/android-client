@@ -6,6 +6,8 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -31,12 +33,13 @@ import com.bsb.hike.utils.Utils;
 /**
  * 
  * @author himanshu, deepak malik
- *
- *	Contains Utility functions for Offline related messaging.
+ * 
+ *         Contains Utility functions for Offline related messaging.
  */
 public class OfflineUtils
 {
 	private final static String TAG = OfflineUtils.class.getSimpleName();
+
 	// change this to wlan0 for hotspot mode
 	private final static String p2pInt = "wlan0";
 
@@ -110,7 +113,7 @@ public class OfflineUtils
 		result[0] = (byte) (i >> 24);
 		result[1] = (byte) (i >> 16);
 		result[2] = (byte) (i >> 8);
-		result[3] = (byte) (i /*>> 0*/);
+		result[3] = (byte) (i /* >> 0 */);
 		return result;
 	}
 
@@ -126,18 +129,18 @@ public class OfflineUtils
 	public static JSONObject createGhostPacket(String msisdn)
 	{
 		JSONObject ghostJSON = new JSONObject();
-		try 
+		try
 		{
 			ghostJSON.putOpt(HikeConstants.TO, msisdn);
 			ghostJSON.putOpt(HikeConstants.SUB_TYPE, OfflineConstants.GHOST);
-		} 
-		catch (JSONException e) 
+		}
+		catch (JSONException e)
 		{
 			e.printStackTrace();
 		}
 		return ghostJSON;
 	}
-	
+
 	public static int updateDB(long msgId, ConvMessage.State status, String msisdn)
 	{
 		return HikeConversationsDatabase.getInstance().updateMsgStatus(msgId, status.ordinal(), msisdn);
@@ -145,7 +148,7 @@ public class OfflineUtils
 
 	public static int getTotalChunks(int fileSize)
 	{
-		 return fileSize/OfflineConstants.CHUNK_SIZE + ((fileSize%OfflineConstants.CHUNK_SIZE!=0)?1:0);
+		return fileSize / OfflineConstants.CHUNK_SIZE + ((fileSize % OfflineConstants.CHUNK_SIZE != 0) ? 1 : 0);
 	}
 
 	public static int byteArrayToInt(byte[] bytes)
@@ -158,34 +161,34 @@ public class OfflineUtils
 		return (message.has(HikeConstants.TYPE) && message.getString(HikeConstants.TYPE).equals(HikeConstants.CHAT_BACKGROUND));
 	}
 
-	public static  String getFileBasedOnType(int type,String fileName)
+	public static String getFileBasedOnType(int type, String fileName)
 	{
 		StringBuilder storagePath = new StringBuilder(HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT);
-		if(type==HikeFileType.OTHER.ordinal())
+		if (type == HikeFileType.OTHER.ordinal())
 		{
 			storagePath.append(HikeConstants.OTHER_ROOT);
 		}
-		else if(type==HikeFileType.IMAGE.ordinal())
+		else if (type == HikeFileType.IMAGE.ordinal())
 		{
 			storagePath.append(HikeConstants.IMAGE_ROOT);
 		}
-		else if(type==HikeFileType.VIDEO.ordinal())
+		else if (type == HikeFileType.VIDEO.ordinal())
 		{
 			storagePath.append(HikeConstants.VIDEO_ROOT);
 		}
-		else if(type== HikeFileType.AUDIO.ordinal())
+		else if (type == HikeFileType.AUDIO.ordinal())
 		{
 			storagePath.append(HikeConstants.AUDIO_ROOT);
 		}
-		else if(type==HikeFileType.AUDIO_RECORDING.ordinal())
+		else if (type == HikeFileType.AUDIO_RECORDING.ordinal())
 		{
 			storagePath.append(HikeConstants.AUDIO_RECORDING_ROOT);
 		}
-		else if(type==HikeFileType.APK.ordinal())
+		else if (type == HikeFileType.APK.ordinal())
 		{
 			storagePath.append(HikeConstants.OTHER_ROOT);
 		}
-		storagePath.append(File.separator+fileName);
+		storagePath.append(File.separator + fileName);
 		return storagePath.toString();
 	}
 
@@ -200,7 +203,7 @@ public class OfflineUtils
 
 	public static JSONObject createPingPacket()
 	{
-		JSONObject object=new JSONObject();
+		JSONObject object = new JSONObject();
 		try
 		{
 			object.put(HikeConstants.TYPE, OfflineConstants.PING);
@@ -210,15 +213,15 @@ public class OfflineUtils
 		{
 			e.printStackTrace();
 		}
-		return  object;
+		return object;
 	}
-	
+
 	public static String createOfflineMsisdn(String msisdn)
 	{
 		return new StringBuilder("o:").append(msisdn).toString();
 	}
 
-	public static ConvMessage createOfflineInlineConvMessage(String msisdn,String message,String type)
+	public static ConvMessage createOfflineInlineConvMessage(String msisdn, String message, String type)
 	{
 		ConvMessage convMessage = Utils.makeConvMessage(msisdn, message, true, State.RECEIVED_READ);
 		convMessage.setIsOfflineMessage(true);
@@ -235,9 +238,10 @@ public class OfflineUtils
 		return convMessage;
 	}
 
-	public static boolean isOfflineSsid(String ssid) {
+	public static boolean isOfflineSsid(String ssid)
+	{
 		String decodedSSID = decodeSsid(ssid);
-		if(decodedSSID.startsWith("h_"))
+		if (decodedSSID.startsWith("h_"))
 			return true;
 		return false;
 	}
@@ -245,11 +249,11 @@ public class OfflineUtils
 	// caeser cipher
 	public static String encodeSsid(String ssid)
 	{
-		String cipherText="";
-		for(int i=0;i<ssid.length();i++)
+		String cipherText = "";
+		for (int i = 0; i < ssid.length(); i++)
 		{
 			int charPosition = ALPHABET.indexOf(ssid.charAt(i));
-			int keyVal = (shiftKey+charPosition)%(ALPHABET.length());
+			int keyVal = (shiftKey + charPosition) % (ALPHABET.length());
 			char replaceVal = ALPHABET.charAt(keyVal);
 			cipherText += replaceVal;
 		}
@@ -259,12 +263,12 @@ public class OfflineUtils
 	// decrypt caeser cipher
 	public static String decodeSsid(String cipherText)
 	{
-		String plainText="";
-		for(int i=0;i<cipherText.length();i++)
+		String plainText = "";
+		for (int i = 0; i < cipherText.length(); i++)
 		{
 			int charPosition = ALPHABET.indexOf(cipherText.charAt(i));
-			int keyVal = (charPosition-shiftKey)%(ALPHABET.length());
-			if(keyVal<0)
+			int keyVal = (charPosition - shiftKey) % (ALPHABET.length());
+			if (keyVal < 0)
 			{
 				keyVal = ALPHABET.length() + keyVal;
 			}
@@ -274,78 +278,87 @@ public class OfflineUtils
 		return plainText;
 	}
 
-	public static  String generatePassword(String ssid)
+	public static String generatePassword(String ssid)
 	{
-		String passkey  =  new StringBuffer(ssid).reverse().toString();
+		String passkey = new StringBuffer(ssid).reverse().toString();
 		MessageDigest md = null;
 		String pass = "";
-		try {
+		try
+		{
 			md = MessageDigest.getInstance("SHA-1");
 		}
-		catch(NoSuchAlgorithmException e) {
+		catch (NoSuchAlgorithmException e)
+		{
 			e.printStackTrace();
-		} 
-		try {
+		}
+		try
+		{
 			pass = byteArrayToHexString(md.digest(passkey.getBytes("UTF-8")));
-		} catch (UnsupportedEncodingException e) {
+		}
+		catch (UnsupportedEncodingException e)
+		{
 			e.printStackTrace();
 		}
 		return pass;
 	}
 
-	private static String byteArrayToHexString(byte[] b) 
+	private static String byteArrayToHexString(byte[] b)
 	{
 		String result = "";
-		for (int i=0; i < b.length; i++) {
-			result += Integer.toString( ( b[i] & 0xff ) + 0x100, 16).substring(1);
+		for (int i = 0; i < b.length; i++)
+		{
+			result += Integer.toString((b[i] & 0xff) + 0x100, 16).substring(1);
 		}
 		return result;
 	}
 
-	public static String getconnectedDevice(String ssid) {
-		if(ssid==null)
+	public static String getconnectedDevice(String ssid)
+	{
+		if (ssid == null)
 			return null;
 		String arr[] = ssid.split("_");
-		if(arr.length>2)
-		return arr[2];
+		if (arr.length > 2)
+			return arr[2];
 		else
 			return null;
 	}
 
-	public static String  getMyMsisdn()
+	public static String getMyMsisdn()
 	{
 		String msisdn = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, null);
 		return msisdn;
 	}
 
-	public static String getSsidForMsisdn(String toMsisdn,String fromMsisdn) {
-		return "h_" +  toMsisdn + "_" + fromMsisdn;
+	public static String getSsidForMsisdn(String toMsisdn, String fromMsisdn)
+	{
+		return "h_" + toMsisdn + "_" + fromMsisdn;
 	}
 
 	public static String getMsisdnFromPingPacket(JSONObject messageJSON)
 	{
 		return messageJSON.optString(HikeConstants.FROM);
 	}
-	
+
 	public static String getStickerPath(JSONObject sticker)
 	{
 		String path = "";
-		try 
+		try
 		{
 			String ctgId = sticker.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getString(StickerManager.CATEGORY_ID);
 			String stkId = sticker.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getString(StickerManager.STICKER_ID);
-			
+
 			Sticker tempStk = new Sticker(ctgId, stkId);
 			path = tempStk.getStickerPath(HikeMessengerApp.getInstance().getApplicationContext());
-		} 
-		catch (JSONException e) {
+		}
+		catch (JSONException e)
+		{
 			Logger.e(TAG, "JSONException in getStickerPath. Check whether JSONObject is a sticker.");
 			e.printStackTrace();
 		}
 		return path;
 	}
 
-	public static void closeOutputStream(FileOutputStream outputStream) throws IOException  
+	public static void closeOutputStream(FileOutputStream outputStream) throws IOException
 	{
 		if (outputStream == null)
 			return;
@@ -353,10 +366,10 @@ public class OfflineUtils
 		outputStream.flush();
 		outputStream.getFD().sync();
 		outputStream.close();
-		
+
 	}
-	
-	public static boolean isConnectedToSameMsisdn(JSONObject message,String connectedMsisdn)
+
+	public static boolean isConnectedToSameMsisdn(JSONObject message, String connectedMsisdn)
 	{
 
 		if (TextUtils.isEmpty(connectedMsisdn))
@@ -371,7 +384,7 @@ public class OfflineUtils
 		return sendingMsisdn.equals(connectedMsisdn);
 
 	}
-	
+
 	public static String getFilePathFromJSON(JSONObject packet)
 	{
 		try
@@ -384,10 +397,10 @@ public class OfflineUtils
 		{
 			e.printStackTrace();
 			return null;
-		}	
+		}
 	}
 
-	public static  long getMsgId(JSONObject packetData)
+	public static long getMsgId(JSONObject packetData)
 	{
 		if (packetData.optJSONObject(HikeConstants.DATA) != null)
 		{
@@ -403,18 +416,102 @@ public class OfflineUtils
 		return -1;
 	}
 
-	public static boolean isFileTransferMessage(JSONObject packet) {
+	public static boolean isFileTransferMessage(JSONObject packet)
+	{
 		boolean isFileTransferMessage = false;
 		JSONObject metadata;
-		try 
+		try
 		{
 			metadata = packet.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA);
 			MessageMetadata md = new MessageMetadata(metadata, true);
-			isFileTransferMessage = md.getHikeFiles() != null  &&  md.getHikeFiles().size() > 0;
-		} 
-		catch (JSONException e) {
+			isFileTransferMessage = md.getHikeFiles() != null && md.getHikeFiles().size() > 0;
+		}
+		catch (JSONException e)
+		{
 			e.printStackTrace();
 		}
 		return isFileTransferMessage;
+	}
+
+	public static void createStkDirectory(JSONObject messageJSON) throws JSONException, IOException
+	{
+		String ctgId = messageJSON.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getString(StickerManager.CATEGORY_ID);
+		String stkId = messageJSON.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getString(StickerManager.STICKER_ID);
+		Sticker sticker = new Sticker(ctgId, stkId);
+
+		File stickerImage;
+		String stickerPath = sticker.getStickerPath(HikeMessengerApp.getInstance().getApplicationContext());
+		stickerImage = new File(stickerPath);
+
+		// sticker is not present
+		if (stickerImage == null || (stickerImage.exists() == false))
+		{
+			File parent = new File(stickerImage.getParent());
+			if (!parent.exists())
+				parent.mkdirs();
+			stickerImage.createNewFile();
+
+		}
+	}
+
+	public static void closeSocket(Socket socket) throws IOException
+	{
+		if (socket == null)
+		{
+			return;
+		}
+		try
+		{
+			socket.shutdownInput();
+			socket.shutdownOutput();
+			socket.close();
+		}
+		catch (IOException ex)
+		{
+			socket.close();
+		}
+	}
+
+	public static void closeSocket(ServerSocket serverSocket) throws IOException
+	{
+		if(serverSocket==null)
+		{
+			return;
+		}
+			serverSocket.close();
+	}
+
+	public static void putStkLenInPkt(JSONObject packet, long length)
+	{
+
+		if (packet.optJSONObject(HikeConstants.DATA) != null)
+		{
+			try
+			{
+				JSONObject metaData = packet.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA);
+				metaData.put(HikeConstants.FILE_SIZE, length);
+			}
+			catch (JSONException e)
+			{
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	public static long getStkLenFrmPkt(JSONObject packet)
+	{
+		if (packet.optJSONObject(HikeConstants.DATA) != null)
+		{
+			try
+			{
+				JSONObject metaData = packet.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA);
+				return metaData.optLong(HikeConstants.FILE_SIZE, -1);
+			}
+			catch (JSONException e)
+			{
+				e.printStackTrace();
+			}
+		}
+		return -1;
 	}
 }
