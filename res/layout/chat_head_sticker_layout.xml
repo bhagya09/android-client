@@ -25,7 +25,7 @@
         android:layout_gravity="bottom"
         android:layout_width="match_parent"
         android:layout_height="48.5dp"
-        android:background="@color/shop_icon_default_color"
+        android:background="@drawable/chat_head_bg_light"
         android:orientation="horizontal" >
 
         <com.bsb.hike.view.StickerEmoticonIconPageIndicator
@@ -56,7 +56,6 @@
             android:id="@+id/info_icon"
             android:layout_width="48dp"
             android:layout_height="match_parent"
-            android:background="@drawable/info_icon_chat_head_bg"
             android:scaleType="centerInside"
             android:src="@drawable/info_icon_selector" />
     </LinearLayout>

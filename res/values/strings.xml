@@ -1535,7 +1535,7 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="settings_share_stickers">Sticker Widget</string>
     <string name="settings_share_stickers_hintext">Sticker Widget Settings</string>
     <string name="sticker_widget_hide">Hide the sticker widget from all the apps listed</string>
-    <string name="sticker_widget_show">Show the sticker widget from all the apps listed</string>
+    <string name="sticker_widget_show">Show the sticker widget in all the apps listed</string>
     <string name="settings_select_all">Select all </string>
     <string name="settings_deselect_all">Deselect all </string>
     <string name="more_stickers">More stickers</string>
