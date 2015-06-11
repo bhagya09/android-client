@@ -1,0 +1,193 @@
+package com.bsb.hike.offline.runnables;
+
+import static com.bsb.hike.offline.OfflineConstants.PORT_FILE_TRANSFER;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.InetSocketAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.SocketAddress;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import android.os.Environment;
+
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
+import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.offline.FileTransferModel;
+import com.bsb.hike.offline.OfflineManager;
+import com.bsb.hike.offline.OfflineUtils;
+import com.bsb.hike.offline.TransferProgress;
+import com.bsb.hike.utils.Logger;
+
+public class FileReceiverRunnable implements Runnable
+{
+
+	private static final String TAG = "OfflineThreadManager";
+
+	private ServerSocket fileServerSocket = null;
+
+	private Socket fileReceiveSocket = null;
+
+	OfflineManager offlineManager = null;
+
+	public FileReceiverRunnable()
+	{
+	}
+
+	@Override
+	public void run()
+	{
+		try
+		{
+			offlineManager = OfflineManager.getInstance();
+			Logger.d(TAG, "Going to wait for fileReceive socket");
+			fileServerSocket = new ServerSocket();
+			fileServerSocket.setReuseAddress(true);
+			SocketAddress addr = new InetSocketAddress(PORT_FILE_TRANSFER);
+			fileServerSocket.bind(addr);
+			Logger.d(TAG, "Going to wait for fileReceive socket");
+			fileReceiveSocket = fileServerSocket.accept();
+			Logger.d(TAG, "fileReceive socket connection success");
+
+			InputStream inputstream = fileReceiveSocket.getInputStream();
+
+			while (true)
+			{
+				byte[] metaDataLengthArray = new byte[4];
+				int msgSize = inputstream.read(metaDataLengthArray, 0, 4);
+				Logger.d(TAG, "Read File Receiver ThreadBytes is " + msgSize);
+				int metaDataLength = OfflineUtils.byteArrayToInt(metaDataLengthArray);
+
+				// This is the case when the other person swipes the app. We read zero on stream and need to throw IO Excetion
+				if (metaDataLength == 0)
+				{
+					throw new IOException();
+				}
+				Logger.d(TAG, "Size of MetaString: " + metaDataLength);
+				ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(metaDataLength);
+				boolean isMetaDataReceived = OfflineManager.getInstance().copyFile(inputstream, byteArrayOutputStream, metaDataLength);
+				Logger.d(TAG, "Metadata Received Properly: " + isMetaDataReceived);
+				byteArrayOutputStream.close();
+
+				byte[] metaDataBytes = byteArrayOutputStream.toByteArray();
+				String metaDataString = new String(metaDataBytes, "UTF-8");
+				Logger.d(TAG, metaDataString);
+
+				JSONObject fileJSON = null;
+				JSONObject message = null;
+				String filePath = "";
+				long mappedMsgId = -1;
+				String fileName = "";
+				int fileSize = 0;
+				try
+				{
+					message = new JSONObject(metaDataString);
+					message.put(HikeConstants.FROM, "o:" + offlineManager.getConnectedDevice());
+					message.remove(HikeConstants.TO);
+
+					JSONObject metadata = message.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA);
+					mappedMsgId = message.getJSONObject(HikeConstants.DATA).getLong(HikeConstants.MESSAGE_ID);
+
+					fileJSON = metadata.getJSONArray(HikeConstants.FILES).getJSONObject(0);
+					fileSize = fileJSON.getInt(HikeConstants.FILE_SIZE);
+					int type = fileJSON.getInt(HikeConstants.HIKE_FILE_TYPE);
+					fileName = fileJSON.getString(HikeConstants.FILE_NAME);
+					filePath = OfflineUtils.getFileBasedOnType(type, fileName);
+					int totalChunks = OfflineUtils.getTotalChunks(fileSize);
+					offlineManager.addToCurrentReceivingFile(mappedMsgId, new FileTransferModel(new TransferProgress(0, totalChunks), message));
+
+				}
+				catch (JSONException e1)
+				{
+					Logger.e(TAG, "Code phata in JSON initialisations", e1);
+					e1.printStackTrace();
+				}
+
+				ConvMessage convMessage = null;
+				try
+				{
+					(message.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getJSONArray(HikeConstants.FILES)).getJSONObject(0).putOpt(
+							HikeConstants.FILE_PATH, filePath);
+					convMessage = new ConvMessage(message, HikeMessengerApp.getInstance().getApplicationContext());
+
+					// update DB and UI.
+					HikeConversationsDatabase.getInstance().addConversationMessages(convMessage, true);
+					HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_RECEIVED, convMessage);
+					Logger.d(TAG, filePath);
+
+					// TODO : Revisit the logic again.
+					File f = new File(Environment.getExternalStorageDirectory() + "/" + "Hike/Media/hike Images" + "/tempImage_" + fileName);
+					File dirs = new File(f.getParent());
+					if (!dirs.exists())
+						dirs.mkdirs();
+					f.createNewFile();
+					// TODO:Can be done via show progress pubsub.
+					// showDownloadTransferNotification(mappedMsgId, fileSize);
+					FileOutputStream outputStream = new FileOutputStream(f);
+					// TODO:Take action on the basis of return type.
+					offlineManager.copyFile(inputstream, new FileOutputStream(f), mappedMsgId, true, false, fileSize);
+					OfflineUtils.closeOutputStream(outputStream);
+					f.renameTo(new File(filePath));
+				}
+				catch (JSONException e)
+				{
+					e.printStackTrace();
+				}
+
+				offlineManager.removeFromCurrentReceivingFile(mappedMsgId);
+
+				offlineManager.showSpinnerProgress(false, mappedMsgId);
+				// TODO:Disconnection handling:
+				// if(isDisconnectPosted)
+				// {
+				// shouldBeDisconnected = true;
+				// disconnectAfterTimeout();
+				// }
+				offlineManager.setInOfflineFileTransferInProgress(false);
+			}
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+			Logger.e(TAG, "File Receiver Thread " + " IO Exception occured.Socket was not bounded");
+			// offlineManager.shutDown();
+		}
+		catch (IllegalArgumentException e)
+		{
+			e.printStackTrace();
+			Logger.e(TAG, "Did we pass correct Address here ? ?");
+		}
+	}
+
+	public void shutDown()
+	{
+
+		try
+		{
+			OfflineUtils.closeSocket(fileReceiveSocket);
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+
+		try
+		{
+			OfflineUtils.closeSocket(fileServerSocket);
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
+}
