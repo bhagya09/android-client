@@ -29,7 +29,7 @@ public class CustomLinearLayout extends LinearLayout
 			// here we considering that all key have at least 20% height of whole screen
 			if ((int) (0.8 * oldSpec) > newSpec)
 			{
-				onSoftKeyboardListener.onShown();
+				onSoftKeyboardListener.onShown(newSpec);
 			}
 			else
 			{
@@ -47,7 +47,7 @@ public class CustomLinearLayout extends LinearLayout
 
 	public interface OnSoftKeyboardListener
 	{
-		public void onShown();
+		public void onShown(int keyBoardHeight);
 
 		public void onHidden();
 	}

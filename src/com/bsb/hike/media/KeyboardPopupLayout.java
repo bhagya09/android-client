@@ -17,6 +17,7 @@ import android.widget.RelativeLayout;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 
 public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListener
 {
@@ -31,6 +32,8 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 	private int[] mEatTouchEventViewIds;
 	
 	private PopupListener mListener;
+	
+	private OnSoftKeyboardListener keyboardListener;
 
 	/**
 	 * 
@@ -40,19 +43,20 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 	 *            - This is the height which will be used before keyboard opens
 	 * @param context
 	 */
-	public KeyboardPopupLayout(View mainView, int firstTimeHeight, Context context, PopupListener listener)
+	public KeyboardPopupLayout(View mainView, int firstTimeHeight, Context context, PopupListener listener, OnSoftKeyboardListener keyboardListener)
 	{
 		super(context);
 		this.mainView = mainView;
 		this.firstTimeHeight = firstTimeHeight;
 		originalBottomPadding = mainView.getPaddingBottom();
 		this.mListener = listener;
+		this.keyboardListener = keyboardListener;
 		registerOnGlobalLayoutListener();
 	}
 	
-	public KeyboardPopupLayout(View mainView, int firstTimeHeight, Context context, int[] eatTouchEventViewIds, PopupListener listener)
+	public KeyboardPopupLayout(View mainView, int firstTimeHeight, Context context, int[] eatTouchEventViewIds, PopupListener listener, OnSoftKeyboardListener keyboardListener)
 	{
-		this(mainView, firstTimeHeight, context, listener);
+		this(mainView, firstTimeHeight, context, listener, keyboardListener);
 		this.mEatTouchEventViewIds = eatTouchEventViewIds;
 	}
 
@@ -239,6 +243,7 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 	public void releaseResources()
 	{
 		this.mListener = null;
+		this.keyboardListener = null;
 
 		/**
 		 * Removing the global layout listener
@@ -274,6 +279,12 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 			boolean islandScape = context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
 			if (temp > 0)
 			{
+				if(!isKeyboardOpen)
+				{
+					onShown(temp);
+				}
+				
+				isKeyboardOpen = true;
 				if (islandScape)
 				{
 					possibleKeyboardHeightLand = temp;
@@ -282,7 +293,6 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 				{
 					possibleKeyboardHeight = temp;
 				}
-				isKeyboardOpen = true;
 				if (isShowing())
 				{
 					updatePadding(0);
@@ -295,10 +305,31 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 				// stabilize
 				if (islandScape)
 					possibleKeyboardHeightLand = 0;
+				
+				if(isKeyboardOpen)
+				{
+					onHidden();
+				}
 				isKeyboardOpen = false;
 			}
 		}
 	};
+	
+	private void onShown(int keyBoardHeight)
+	{
+		if(keyboardListener != null)
+		{
+			keyboardListener.onShown(keyBoardHeight);
+		}
+	}
+	
+	private void onHidden()
+	{
+		if(keyboardListener != null)
+		{
+			keyboardListener.onHidden();
+		}
+	}
 
 	public void onCloseKeyBoard()
 	{

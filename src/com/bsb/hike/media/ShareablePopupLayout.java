@@ -8,6 +8,7 @@ import android.widget.FrameLayout;
 
 import com.bsb.hike.R;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 
 /**
  * This class is used when we have to share KeyBoardPopup layout with other views. It's an aggregator class, and has the KeyBoard popup layout object, as well as a list of
@@ -34,10 +35,10 @@ public class ShareablePopupLayout
 	 * @param eatOuterTouchIds
 	 */
 
-	public ShareablePopupLayout(Context context, View mainView, int firstTimeHeight, int[] eatOuterTouchIds, PopupListener listener)
+	public ShareablePopupLayout(Context context, View mainView, int firstTimeHeight, int[] eatOuterTouchIds, PopupListener listener, OnSoftKeyboardListener keyBoardListener)
 	{
 		initViewToDisplay(context);
-		initPopupLayout(context, mainView, firstTimeHeight, eatOuterTouchIds, listener);
+		initPopupLayout(context, mainView, firstTimeHeight, eatOuterTouchIds, listener, keyBoardListener);
 	}
 
 	private void initViewToDisplay(Context context)
@@ -54,12 +55,12 @@ public class ShareablePopupLayout
 	 * @param eatOuterTouchIds
 	 */
 
-	private void initPopupLayout(Context context, View mainView, int firstTimeHeight, int[] eatOuterTouchIds, PopupListener listener)
+	private void initPopupLayout(Context context, View mainView, int firstTimeHeight, int[] eatOuterTouchIds, PopupListener listener, OnSoftKeyboardListener keyBoardListener)
 	{
 		if (mKeyboardPopupLayout == null)
 		{
-			mKeyboardPopupLayout = (eatOuterTouchIds == null) ? new KeyboardPopupLayout(mainView, firstTimeHeight, context, listener) : new KeyboardPopupLayout(mainView, firstTimeHeight,
-					context, eatOuterTouchIds, listener);
+			mKeyboardPopupLayout = (eatOuterTouchIds == null) ? new KeyboardPopupLayout(mainView, firstTimeHeight, context, listener, keyBoardListener) : new KeyboardPopupLayout(mainView, firstTimeHeight,
+					context, eatOuterTouchIds, listener, keyBoardListener);
 		}
 	}
 

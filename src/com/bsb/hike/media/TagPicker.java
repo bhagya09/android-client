@@ -36,7 +36,7 @@ public class TagPicker implements TagEditorListener
 	 */
 	public TagPicker(View mainView, Context context, PopupListener listener,TagOnClickListener tagClickListener)
 	{
-		popupLayout = new KeyboardPopupLayout(mainView, 200, context, listener);
+		popupLayout = new KeyboardPopupLayout(mainView, 200, context, listener, null);
 		init(context,tagClickListener);
 	}
 

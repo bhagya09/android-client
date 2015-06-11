@@ -615,7 +615,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			sharedPopups.add(mEmoticonPicker);
 			sharedPopups.add(mStickerPicker);
 			mShareablePopupLayout = new ShareablePopupLayout(activity.getApplicationContext(), activity.findViewById(R.id.chatThreadParentLayout),
-					(int) (activity.getResources().getDimension(R.dimen.emoticon_pallete)), mEatOuterTouchIds, this);
+					(int) (activity.getResources().getDimension(R.dimen.emoticon_pallete)), mEatOuterTouchIds, this, this);
 		}
 
 		else
@@ -1906,7 +1906,6 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	{
 		initComposeViewWatcher();
 		initGestureDetector();
-		((CustomLinearLayout) activity.findViewById(R.id.chat_layout)).setOnSoftKeyboardListener(this);
 	}
 
 	protected void initComposeViewWatcher()
@@ -4794,7 +4793,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	}
 	
 	@Override
-	public void onShown()
+	public void onShown(int keyBoardHeight)
 	{
 		/**
 		 * If the last message was visible before opening the keyboard it can be hidden hence we need to scroll to bottom.
