@@ -147,22 +147,41 @@ public class OfflineThreadManager
 
 			String host = null;
 			Logger.d(TAG, "Text Transfer Thread -->" + "Going to connect to socket");
+			while (isNotConnected)
+			{
+				try
+				{
+					textSendSocket = new Socket();
+					if (offlineManager.isHotspotCreated())
+					{
+						host = OfflineUtils.getIPFromMac(null);
+					}
+					else
+					{
+						host = IP_SERVER;
+					}
+					textSendSocket.bind(null);
 
+					textSendSocket.connect((new InetSocketAddress(host, PORT_TEXT_MESSAGE)), SOCKET_TIMEOUT);
+					Logger.d(TAG, "Text Transfer Thread Connected");
+					isNotConnected=false;
+
+				}
+				catch (IOException e)
+				{
+					Logger.d(TAG, "TIO Exception in connect");
+					try
+					{
+						Thread.sleep(500);
+					}
+					catch (InterruptedException e1)
+					{
+						e1.printStackTrace();
+					}
+				}
+			}
 			try
 			{
-				textSendSocket = new Socket();
-				if (offlineManager.isHotspotCreated())
-				{
-					host = OfflineUtils.getIPFromMac(null);
-				}
-				else
-				{
-					host = IP_SERVER;
-				}
-				textSendSocket.bind(null);
-				textSendSocket.connect((new InetSocketAddress(host, PORT_TEXT_MESSAGE)), SOCKET_TIMEOUT);
-				Logger.d(TAG, "Text Transfer Thread Connected");
-
 				while (true)
 				{
 					packet = OfflineManager.getInstance().getTextQueue().take();
@@ -184,22 +203,26 @@ public class OfflineThreadManager
 			catch (InterruptedException e)
 			{
 				Logger.e(TAG, "Some called interrupt on File transfer Thread");
+				offlineManager.setOfflineState(OFFLINE_STATE.NOT_CONNECTED);
 				e.printStackTrace();
 			}
 			catch (SocketTimeoutException e)
 			{
-				Logger.e(TAG, "SOCKET time out exception occured");
+				Logger.e(TAG, "SOCKET time out exception occured in TextTransferThread.");
+				// offlineManager.shutDown();
 				e.printStackTrace();
 			}
 			catch (IOException e)
 			{
 				e.printStackTrace();
-				Logger.e(TAG, "IO Exception occured.Socket was not bounded");
+				Logger.e(TAG, "TextTransferThread. IO Exception occured.Socket was not bounded");
+				offlineManager.shutDown();
 			}
 			catch (IllegalArgumentException e)
 			{
 				e.printStackTrace();
-				Logger.e(TAG, "Did we pass correct Address here ? ?");
+				Logger.e(TAG, "TextTransferThread. Did we pass correct Address here ? ?");
+				// offlineManager.shutDown();
 			}
 		}
 
@@ -223,21 +246,39 @@ public class OfflineThreadManager
 		public void run()
 		{
 			Logger.d(TAG, "File Transfer Thread -->" + "Going to connect to socket");
+			while(isNotConnected)
+			{
+				try
+				{
+
+					fileSendSocket = new Socket();
+					if (offlineManager.isHotspotCreated())
+					{
+						host = OfflineUtils.getIPFromMac(null);
+					}
+					else
+					{
+						host = IP_SERVER;
+					}
+					Logger.d(TAG, "host is " + host);
+					fileSendSocket.bind(null);
+					fileSendSocket.connect(new InetSocketAddress(host, PORT_FILE_TRANSFER));
+					isNotConnected = false;
+				}
+				catch (IOException e)
+				{
+						try
+						{
+							Thread.sleep(500);
+						}
+						catch (InterruptedException e1)
+						{
+							e1.printStackTrace();
+						}
+				}
+			}
 			try
 			{
-
-				fileSendSocket = new Socket();
-				if (offlineManager.isHotspotCreated())
-				{
-					host = OfflineUtils.getIPFromMac(null);
-				}
-				else
-				{
-					host = IP_SERVER;
-				}
-				Logger.d(TAG, "host is " + host);
-				fileSendSocket.bind(null);
-				fileSendSocket.connect(new InetSocketAddress(host, PORT_FILE_TRANSFER));
 				Logger.d(TAG, "File Transfer Thread Connected");
 				while (true)
 				{
@@ -256,12 +297,282 @@ public class OfflineThreadManager
 			catch (InterruptedException e)
 			{
 				Logger.e(TAG, "Some called interrupt on File transfer Thread");
+				offlineManager.setOfflineState(OFFLINE_STATE.NOT_CONNECTED);
 				e.printStackTrace();
 			}
 			catch (IOException e)
 			{
 				e.printStackTrace();
-				Logger.e(TAG, "IO Exception occured.Socket was not bounded or connect failed");
+				Logger.e(TAG, "IO Exception occured in FileTransferThread.Socket was not bounded or connect failed");
+			//	offlineManager.shutDown();
+			}
+			catch (IllegalArgumentException e)
+			{
+				e.printStackTrace();
+				//offlineManager.shutDown();
+				Logger.e(TAG, "FileTransferThread. Did we pass correct Address here ? ?");
+			}
+		}
+	}
+	
+	class TextReceiveThread extends Thread
+	{
+		int type;
+
+		int msgSize;
+
+		InputStream inputStream = null;
+
+		@Override
+		public void run()
+		{
+			try
+			{
+				textServerSocket = new ServerSocket();
+				textServerSocket.setReuseAddress(true);
+				SocketAddress addr = new InetSocketAddress(PORT_TEXT_MESSAGE);
+				textServerSocket.bind(addr);
+
+
+				Logger.d(TAG,"TextReceiveThread" + "Will be waiting on accept");
+				textReceiverSocket = textServerSocket.accept();
+				Logger.d(TAG,"TextReceiveThread" + "Connection successfull");
+				inputStream=textReceiverSocket.getInputStream();
+				while(true)
+				{
+					byte[] convMessageLength = new byte[4];
+					int readBytes = inputStream.read(convMessageLength, 0, 4);
+					Logger.d(TAG, "Read Bytes is " + readBytes);
+					msgSize = OfflineUtils.byteArrayToInt(convMessageLength);
+					// Logger.d(TAG,"Msg size is "+msgSize);
+					if (msgSize == 0)
+					{
+						throw new IOException();
+					}
+					byte[] msgJSON = new byte[msgSize];
+					int fileSizeRead = msgSize;
+					int offset = 0;
+					while (msgSize > 0)
+					{
+						int len = inputStream.read(msgJSON, offset, msgSize);
+						offset += len;
+						msgSize -= len;
+					}
+					String msgString = new String(msgJSON, "UTF-8");
+					Logger.d(TAG, "" + msgSize);
+					JSONObject messageJSON = new JSONObject(msgString);
+					Logger.d(TAG, "Message Received :-->" + msgString);
+
+					// TODO: Ghost Packet Logic to come here
+					// if ( isDisconnectPosted && !(isGhostPacket(messageJSON)) )
+					// {
+					// shouldBeDisconnected = false;
+					// removeRunnable(waitingTimer);
+					// isDisconnectPosted = true;
+					// }
+
+					ConvMessage convMessage = null;
+
+					if (OfflineUtils.isPingPacket(messageJSON))
+					{
+						// Start client thread.
+						startSendingThreads();
+						String connectedDevice = OfflineUtils.getMsisdnFromPingPacket(messageJSON);
+						offlineManager.onConnected(connectedDevice);
+					}
+					else if (OfflineUtils.isGhostPacket(messageJSON))
+					{
+						Logger.d(TAG, "Ghost Packet received");
+						offlineManager.restartGhostTimeout();
+					}
+					else
+					{
+						messageJSON.put(HikeConstants.FROM, "o:" + offlineManager.getConnectedDevice());
+						messageJSON.remove(HikeConstants.TO);
+
+						if (OfflineUtils.isStickerMessage(messageJSON))
+						{
+							File stickerImage = OfflineUtils.isStickerPresentInApp(messageJSON);
+							if (stickerImage.exists() == false)
+							{
+								FileOutputStream outputStream = new FileOutputStream(stickerImage);
+								offlineManager.copyFile(inputStream, outputStream, stickerImage.length());
+								OfflineUtils.closeOutputStream(outputStream);
+							}
+							// remove data from stream
+							else
+							{
+								long fileSize = stickerImage.length();
+								while (fileSize > 0)
+								{
+									long len = inputStream.skip(fileSize);
+									fileSize -= len;
+								}
+							}
+						}
+						else if (OfflineUtils.isChatThemeMessage(messageJSON))
+						{
+							// HikeMessengerApp.getPubSub().publish(HikePubSub.OFFLINE_THEME_CHANGE_MESSAGE, messageJSON);
+							messageJSON.put(HikeConstants.TIMESTAMP, System.currentTimeMillis() / 1000);
+							MqttMessagesManager.getInstance(HikeMessengerApp.getInstance().getApplicationContext()).saveChatBackground(messageJSON);
+							continue;
+						}
+						else
+						{
+							// It's a normal Text Message
+							Logger.d(TAG, "Connected deive sis " + offlineManager.getConnectedDevice());
+
+						}
+						convMessage = new ConvMessage(messageJSON, HikeMessengerApp.getInstance().getApplicationContext());
+						HikeConversationsDatabase.getInstance().addConversationMessages(convMessage, true);
+						HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_RECEIVED, convMessage);
+
+					}
+					// TODO:Handle ghost packet
+					// if(isDisconnectPosted && type != 10)
+					// {
+					// shouldBeDisconnected = true;
+					// disconnectAfterTimeout();
+					// }
+					offlineManager.setInOfflineFileTransferInProgress(false);
+				}
+			}
+			catch (IOException e)
+			{
+				e.printStackTrace();
+				Logger.e(TAG, "Exception in TextReceiveThread. IO Exception occured.Socket was not bounded");
+				offlineManager.shutDown();
+			}
+			catch (IllegalArgumentException e)
+			{
+				e.printStackTrace();
+				Logger.e(TAG, "Did we pass correct Address here ??");
+			}
+			catch (JSONException e)
+			{
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	class FileReceiverThread extends Thread
+	{
+		@Override
+		public void run()
+		{
+			try
+			{
+				Logger.d(TAG, "Going to wait for fileReceive socket");
+				fileServerSocket = new ServerSocket();
+				fileServerSocket.setReuseAddress(true);
+				SocketAddress addr = new InetSocketAddress(PORT_FILE_TRANSFER);
+				fileServerSocket.bind(addr);
+				Logger.d(TAG, "Going to wait for fileReceive socket");
+				fileReceiveSocket = fileServerSocket.accept();
+				Logger.d(TAG, "fileReceive socket connection success");
+
+				InputStream inputstream = fileReceiveSocket.getInputStream();
+
+				while (true)
+				{
+					byte[] metaDataLengthArray = new byte[4];
+					int msgSize = inputstream.read(metaDataLengthArray, 0, 4);
+					Logger.d(TAG, "Read File Receiver ThreadBytes is " + msgSize);
+					int metaDataLength = OfflineUtils.byteArrayToInt(metaDataLengthArray);
+
+					// This is the case when the other person swipes the app. We read zero on stream and need to throw IO Excetion
+					if (metaDataLength == 0)
+					{
+						throw new IOException();
+					}
+					Logger.d(TAG, "Size of MetaString: " + metaDataLength);
+					ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(metaDataLength);
+					boolean isMetaDataReceived = OfflineManager.getInstance().copyFile(inputstream, byteArrayOutputStream, metaDataLength);
+					Logger.d(TAG, "Metadata Received Properly: " + isMetaDataReceived);
+					byteArrayOutputStream.close();
+
+					byte[] metaDataBytes = byteArrayOutputStream.toByteArray();
+					String metaDataString = new String(metaDataBytes, "UTF-8");
+					Logger.d(TAG, metaDataString);
+
+					JSONObject fileJSON = null;
+					JSONObject message = null;
+					String filePath = "";
+					long mappedMsgId = -1;
+					String fileName = "";
+					int fileSize = 0;
+					try
+					{
+						message = new JSONObject(metaDataString);
+						message.put(HikeConstants.FROM, "o:" + offlineManager.getConnectedDevice());
+						message.remove(HikeConstants.TO);
+
+						JSONObject metadata = message.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA);
+						mappedMsgId = message.getJSONObject(HikeConstants.DATA).getLong(HikeConstants.MESSAGE_ID);
+
+						fileJSON = metadata.getJSONArray(HikeConstants.FILES).getJSONObject(0);
+						fileSize = fileJSON.getInt(HikeConstants.FILE_SIZE);
+						int type = fileJSON.getInt(HikeConstants.HIKE_FILE_TYPE);
+						fileName = fileJSON.getString(HikeConstants.FILE_NAME);
+						filePath = OfflineUtils.getFileBasedOnType(type, fileName);
+						int totalChunks = OfflineUtils.getTotalChunks(fileSize);
+						offlineManager.addToCurrentReceivingFile(mappedMsgId, new FileTransferModel(new TransferProgress(0, totalChunks), message));
+
+					}
+					catch (JSONException e1)
+					{
+						Logger.e(TAG, "Code phata in JSON initialisations", e1);
+						e1.printStackTrace();
+					}
+
+					ConvMessage convMessage = null;
+					try
+					{
+						(message.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getJSONArray(HikeConstants.FILES)).getJSONObject(0).putOpt(
+								HikeConstants.FILE_PATH, filePath);
+						convMessage = new ConvMessage(message, HikeMessengerApp.getInstance().getApplicationContext());
+
+						// update DB and UI.
+						HikeConversationsDatabase.getInstance().addConversationMessages(convMessage, true);
+						HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_RECEIVED, convMessage);
+						Logger.d(TAG, filePath);
+
+						// TODO : Revisit the logic again.
+						File f = new File(Environment.getExternalStorageDirectory() + "/" + "Hike/Media/hike Images" + "/tempImage_" + fileName);
+						File dirs = new File(f.getParent());
+						if (!dirs.exists())
+							dirs.mkdirs();
+						f.createNewFile();
+						// TODO:Can be done via show progress pubsub.
+						// showDownloadTransferNotification(mappedMsgId, fileSize);
+						FileOutputStream outputStream = new FileOutputStream(f);
+						// TODO:Take action on the basis of return type.
+						offlineManager.copyFile(inputstream, new FileOutputStream(f), mappedMsgId, true, false, fileSize);
+						OfflineUtils.closeOutputStream(outputStream);
+						f.renameTo(new File(filePath));
+					}
+					catch (JSONException e)
+					{
+						e.printStackTrace();
+					}
+
+					offlineManager.removeFromCurrentReceivingFile(mappedMsgId);
+
+					offlineManager.showSpinnerProgress(false, mappedMsgId);
+					// TODO:Disconnection handling:
+					// if(isDisconnectPosted)
+					// {
+					// shouldBeDisconnected = true;
+					// disconnectAfterTimeout();
+					// }
+					offlineManager.setInOfflineFileTransferInProgress(false);
+				}
+			}
+			catch (IOException e)
+			{
+				e.printStackTrace();
+				Logger.e(TAG, "File Receiver Thread "+" IO Exception occured.Socket was not bounded");
+				//offlineManager.shutDown();
 			}
 			catch (IllegalArgumentException e)
 			{
@@ -271,270 +582,16 @@ public class OfflineThreadManager
 		}
 	}
 	
-	class TextReceiveThread extends Thread
-	{
-		int type;
-		int msgSize;
-		InputStream inputStream=null;
-		@Override
-		public void run()
-		{
-				try
-				{
-					textServerSocket = new ServerSocket();
-					textServerSocket.setReuseAddress(true);
-					SocketAddress addr = new InetSocketAddress(PORT_TEXT_MESSAGE);
-					textServerSocket.bind(addr);
-					
-					
-					Logger.d(TAG,"TextReceiveThread" + "Will be waiting on accept");
-					textReceiverSocket = textServerSocket.accept();
-					Logger.d(TAG,"TextReceiveThread" + "Connection successfull");
-					inputStream=textReceiverSocket.getInputStream();
-					while(true)
-					{
-						byte[] convMessageLength = new byte[4];
-						inputStream.read(convMessageLength, 0, 4);
-						msgSize = OfflineUtils.byteArrayToInt(convMessageLength);
-						// Logger.d(TAG,"Msg size is "+msgSize);
-						if(msgSize==0)
-						break;
-						byte[] msgJSON = new byte[msgSize];
-						int fileSizeRead=msgSize;
-						int offset = 0;
-						while(msgSize>0)
-						{
-							int len = inputStream.read(msgJSON, offset, msgSize);
-							offset += len;
-							msgSize -= len;
-						}String msgString = new String(msgJSON, "UTF-8");
-						Logger.d(TAG, "" + msgSize);
-						JSONObject messageJSON = new JSONObject(msgString);
-						Logger.d(TAG,"Message Received :-->"+msgString);
-
-						// TODO: Ghost Packet Logic to come here
-						// if ( isDisconnectPosted && !(isGhostPacket(messageJSON)) )
-						// {
-						// shouldBeDisconnected = false;
-						// removeRunnable(waitingTimer);
-						// isDisconnectPosted = true;
-						// }
-
-						ConvMessage convMessage = null;
-
-						if (OfflineUtils.isPingPacket(messageJSON))
-						{
-							// Start client thread.
-							startSendingThreads();
-							String connectedDevice = OfflineUtils.getMsisdnFromPingPacket(messageJSON);
-							offlineManager.onConnected(connectedDevice);
-						}
-						else if (OfflineUtils.isGhostPacket(messageJSON))
-						{
-							Logger.d(TAG, "Ghost Packet received");
-							offlineManager.restartGhostTimeout();
-						}
-						else
-						{
-							messageJSON.put(HikeConstants.FROM, "o:"+offlineManager.getConnectedDevice());
-							messageJSON.remove(HikeConstants.TO);
-							
-							if (OfflineUtils.isStickerMessage(messageJSON))
-							{
-								File stickerImage = isStickerPresentInApp(messageJSON);
-								if (stickerImage.exists() == false)
-								{
-									FileOutputStream outputStream = new FileOutputStream(stickerImage);
-									offlineManager.copyFile(inputStream, outputStream, stickerImage.length());
-									OfflineUtils.closeOutputStream(outputStream);
-								}
-								// remove data from stream
-								else
-								{
-									long fileSize = stickerImage.length();
-									while(fileSize>0)
-									{
-										long len = inputStream.skip(fileSize);
-										fileSize -= len;
-									}
-								}
-							}
-							else if (OfflineUtils.isChatThemeMessage(messageJSON))
-							{
-								//HikeMessengerApp.getPubSub().publish(HikePubSub.OFFLINE_THEME_CHANGE_MESSAGE, messageJSON);
-								messageJSON.put(HikeConstants.TIMESTAMP, System.currentTimeMillis()/1000);
-								MqttMessagesManager.getInstance(HikeMessengerApp.getInstance().getApplicationContext()).saveChatBackground(messageJSON);
-								continue;
-							}
-							else
-							{
-								// It's a normal Text Message
-								Logger.d(TAG,"Connected deive sis " + offlineManager.getConnectedDevice());
-								
-							}
-							convMessage = new ConvMessage(messageJSON, HikeMessengerApp.getInstance().getApplicationContext());
-							HikeConversationsDatabase.getInstance().addConversationMessages(convMessage, true);
-							HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_RECEIVED, convMessage);
-
-						}
-						// TODO:Handle ghost packet
-						// if(isDisconnectPosted && type != 10)
-						// {
-						// shouldBeDisconnected = true;
-						// disconnectAfterTimeout();
-						// }
-						offlineManager.setInOfflineFileTransferInProgress(false);
-					}
-				}
-				catch (IOException e)
-				{
-					e.printStackTrace();
-					Logger.e(TAG, "IO Exception occured.Socket was not bounded");
-				}
-				catch (IllegalArgumentException e)
-				{
-					e.printStackTrace();
-					Logger.e(TAG, "Did we pass correct Address here ??");
-				}
-				catch (JSONException e)
-				{
-					e.printStackTrace();
-				}
-		}
-	}
-	
-	class FileReceiverThread extends Thread
-	{
-		@Override
-		public void run()
-		{
-				try
-				{
-					
-					fileServerSocket = new ServerSocket();
-					fileServerSocket.setReuseAddress(true);
-					SocketAddress addr = new InetSocketAddress(PORT_FILE_TRANSFER);
-					fileServerSocket.bind(addr);
-					Logger.d(TAG,"Going to wait for fileReceive socket");
-					fileReceiveSocket = fileServerSocket.accept();
-					Logger.d(TAG,"fileReceive socket connection success");
-
-					InputStream inputstream = fileReceiveSocket.getInputStream();
-					
-					while(true)
-					{
-						byte[] metaDataLengthArray = new byte[4];
-						int msgSize = inputstream.read(metaDataLengthArray,0,4);
-						if(msgSize==0)
-							break;
-						
-						int metaDataLength = OfflineUtils.byteArrayToInt(metaDataLengthArray);
-						offlineManager.setInOfflineFileTransferInProgress(true);
-						Logger.d(TAG, "Size of MetaString: " + metaDataLength);
-						ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(metaDataLength);
-						boolean isMetaDataReceived = OfflineManager.getInstance().copyFile(inputstream, byteArrayOutputStream, metaDataLength);
-						Logger.d(TAG, "Metadata Received Properly: " + isMetaDataReceived);
-						byteArrayOutputStream.close();
-						
-						byte[] metaDataBytes = byteArrayOutputStream.toByteArray();
-						String metaDataString = new String(metaDataBytes, "UTF-8");
-						Logger.d(TAG, metaDataString);
-						
-						JSONObject fileJSON = null;
-						JSONObject message = null;
-						String filePath = "";
-						long mappedMsgId = -1;
-						String fileName = "";
-						int fileSize = 0;
-						try 
-						{
-							message = new JSONObject(metaDataString);
-							message.put(HikeConstants.FROM, "o:"+offlineManager.getConnectedDevice());
-							message.remove(HikeConstants.TO);
-	
-							JSONObject metadata =  message.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA);
-							mappedMsgId = message.getJSONObject(HikeConstants.DATA).getLong(HikeConstants.MESSAGE_ID);
-							
-							fileJSON = metadata.getJSONArray(HikeConstants.FILES).getJSONObject(0);
-							fileSize = fileJSON.getInt(HikeConstants.FILE_SIZE);
-							int type = fileJSON.getInt(HikeConstants.HIKE_FILE_TYPE);
-							fileName =  fileJSON.getString(HikeConstants.FILE_NAME);
-							filePath = OfflineUtils.getFileBasedOnType(type, fileName);
-							int totalChunks = OfflineUtils.getTotalChunks(fileSize);
-							offlineManager.addToCurrentReceivingFile(mappedMsgId, new FileTransferModel( new TransferProgress(0, totalChunks), message));
-							
-						} 
-						catch (JSONException e1) 
-						{
-							Logger.e(TAG, "Code phata in JSON initialisations", e1);
-							e1.printStackTrace();
-						}
-	
-						ConvMessage convMessage = null;
-						try 
-						{
-							(message.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getJSONArray(HikeConstants.FILES)).getJSONObject(0).putOpt(
-									HikeConstants.FILE_PATH, filePath);
-							convMessage = new ConvMessage(message, HikeMessengerApp.getInstance().getApplicationContext());
-							
-							// update DB and UI.
-							HikeConversationsDatabase.getInstance().addConversationMessages(convMessage, true);
-							HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_RECEIVED, convMessage);
-							Logger.d(TAG, filePath);
-	
-							// TODO : Revisit the logic again.
-							File f = new File(Environment.getExternalStorageDirectory() + "/" + "Hike/Media/hike Images" + "/tempImage_" + fileName);
-							File dirs = new File(f.getParent());
-							if (!dirs.exists())
-								dirs.mkdirs();
-							f.createNewFile();
-							// TODO:Can be done via show progress pubsub.
-							// showDownloadTransferNotification(mappedMsgId, fileSize);
-							FileOutputStream outputStream = new FileOutputStream(f);
-							// TODO:Take action on the basis of return type.
-							offlineManager.copyFile(inputstream, new FileOutputStream(f), mappedMsgId, true, false, fileSize);
-							OfflineUtils.closeOutputStream(outputStream);
-							f.renameTo(new File(filePath));
-						}
-						catch (JSONException e)
-						{
-							e.printStackTrace();
-						}
-						
-						offlineManager.removeFromCurrentReceivingFile(mappedMsgId);
-						
-						offlineManager.showSpinnerProgress(false, mappedMsgId);
-						//TODO:Disconnection handling:
-						//if(isDisconnectPosted)
-						//{
-						//	shouldBeDisconnected = true;
-						//	disconnectAfterTimeout();
-						//}
-						offlineManager.setInOfflineFileTransferInProgress(false);
-					}
-				}
-				catch(IOException e)
-				{
-					e.printStackTrace();
-					Logger.e(TAG, "IO Exception occured.Socket was not bounded");
-				}
-				catch(IllegalArgumentException e)
-				{
-					e.printStackTrace();
-					Logger.e(TAG,"Did we pass correct Address here ? ?");
-				}
-		}
-	}
-	
 	/**
 	 * 
 	 * @param packet
 	 * @param outputStream
 	 * @return
 	 * TODO: Properly handle sticker and normal message and update the Db
+	 * @throws IOException 
 	 */  
 	
-	private boolean sendOfflineText(JSONObject packet,OutputStream outputStream)
+	private boolean sendOfflineText(JSONObject packet,OutputStream outputStream) throws IOException
 	{
 		String fileUri  =null;
 		InputStream inputStream=null;
@@ -588,7 +645,7 @@ public class OfflineThreadManager
 			{
 				Logger.d(TAG,"IO Exception in sendOfflineText");
 				e.printStackTrace();
-				isSent=false;
+				throw new IOException();
 			}
 
 		}
@@ -597,7 +654,7 @@ public class OfflineThreadManager
 		return isSent;
 	}
 
-	private boolean sendOfflineFile(FileTransferModel fileTransferModel,OutputStream outputStream)
+	private boolean sendOfflineFile(FileTransferModel fileTransferModel,OutputStream outputStream) throws IOException
 	{
 		offlineManager.setInOfflineFileTransferInProgress(true);
 		boolean isSent = true;
@@ -645,12 +702,14 @@ public class OfflineThreadManager
 		catch(JSONException e)
 		{
 			e.printStackTrace();
+			offlineManager.setInOfflineFileTransferInProgress(false);
 			return false;
 		}
 		catch(IOException e)
 		{
 			e.printStackTrace();
-			return false;
+			offlineManager.setInOfflineFileTransferInProgress(false);
+			throw new IOException();
 		}
 		offlineManager.setInOfflineFileTransferInProgress(false);
 		return isSent;
@@ -658,27 +717,6 @@ public class OfflineThreadManager
 
 	}
 	
-	public File isStickerPresentInApp(JSONObject messageJSON) throws JSONException, IOException
-	{
-		String ctgId = messageJSON.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getString(StickerManager.CATEGORY_ID);
-		String stkId = messageJSON.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getString(StickerManager.STICKER_ID);
-		Sticker sticker = new Sticker(ctgId, stkId);
-
-		File stickerImage;
-		String stickerPath = sticker.getStickerPath(HikeMessengerApp.getInstance().getApplicationContext());
-		stickerImage = new File(stickerPath);
-
-		// sticker is not present
-		if (stickerImage == null || (stickerImage.exists() == false))
-		{
-			File parent = new File(stickerImage.getParent());
-			if (!parent.exists())
-				parent.mkdirs();
-			stickerImage.createNewFile();
-			
-		}
-		return stickerImage;
-	}
 	
 	/**
      * Handle the call of file message here ...either success or failure
@@ -763,18 +801,54 @@ public class OfflineThreadManager
 	{
 		if(offlineManager.getOfflineState()==OFFLINE_STATE.CONNECTED)
 		{
+			Logger.d(TAG,"Goining to close ALL SOCKETS");
 			try
 			{
+				if(textSendSocket!=null)
 				textSendSocket.close();
+				
+				Logger.d(TAG,"closing  text socket ALL SOCKETS");
+				if(fileSendSocket!=null)
 				fileSendSocket.close();
-				fileReceiveSocket.close();
-				textReceiverSocket.close();
-				fileServerSocket.close();
-				textServerSocket.close();
+				Logger.d(TAG, "is socket closed : " + textSendSocket.isClosed() + "  is socket connected : " + textSendSocket.isConnected() + "  is socket input shutdown : " + textSendSocket.isInputShutdown() + "  is socket output shutdown : " + textSendSocket.isOutputShutdown());
+				Logger.d(TAG, "is socket closed : " + fileSendSocket.isClosed() + "  is socket connected : " + fileSendSocket.isConnected() + "  is socket input shutdown : " + fileSendSocket.isInputShutdown() + "  is socket output shutdown : " + fileSendSocket.isOutputShutdown());
+				
 			}
 			catch (IOException e)
 			{
 				e.printStackTrace();
+				Logger.d(TAG,"IOException in closing send sockets");
+				Logger.d(TAG, textSendSocket.toString() +"File Socket ...."+ fileSendSocket.toString());
+				Logger.d(TAG, "is socket closed : " + textSendSocket.isClosed() + "  is socket connected : " + textSendSocket.isConnected() + "  is socket input shutdown : " + textSendSocket.isInputShutdown() + "  is socket output shutdown : " + textSendSocket.isOutputShutdown());
+				Logger.d(TAG, "is socket closed : " + fileSendSocket.isClosed() + "  is socket connected : " + fileSendSocket.isConnected() + "  is socket input shutdown : " + fileSendSocket.isInputShutdown() + "  is socket output shutdown : " + fileSendSocket.isOutputShutdown());
+				
+			}
+			
+			try
+			{
+				if(fileReceiveSocket!=null)
+				fileReceiveSocket.close();
+				
+				if(textReceiverSocket!=null)
+				textReceiverSocket.close();
+			}catch(IOException e)
+			{
+				e.printStackTrace();
+				Logger.d(TAG,"IOException in closing receive client sockets");
+			}
+			
+			try
+			{
+				if(fileServerSocket!=null)
+				fileServerSocket.close();
+				
+				if(textServerSocket!=null)
+				textServerSocket.close();
+			}
+			catch(IOException e)
+			{
+				e.printStackTrace();
+				Logger.d(TAG,"IOException in closing server  sockets");
 			}
 			textTransferThread.interrupt();
 			fileTransferThread.interrupt();
