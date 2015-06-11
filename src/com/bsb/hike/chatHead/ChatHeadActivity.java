@@ -136,7 +136,7 @@ public class ChatHeadActivity extends HikeBaseActivity implements StickerPickerL
 					sticker.getStickerId(), source);
 			shareCount++;
 			totalShareCount++;
-			String filePath = StickerManager.getInstance().getStickerDirectoryForCategoryId(sticker.getCategoryId()) + HikeConstants.LARGE_STICKER_ROOT;
+			String filePath = sticker.getStickerPath(this);
 			File stickerFile = new File(filePath, sticker.getStickerId());
 			String filePathBmp = stickerFile.getAbsolutePath();
 			ChatHeadService.getInstance().resetPosition(HikeConstants.ChatHead.SHARING_BEFORE_FINISHING_ANIMATION, filePathBmp);
