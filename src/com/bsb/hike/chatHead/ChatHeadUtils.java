@@ -1,5 +1,6 @@
 package com.bsb.hike.chatHead;
 
+import java.util.Calendar;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -130,5 +131,13 @@ public class ChatHeadUtils
 			stopService(context);
 		}
 	}
+	
+	public static void onClickSetAlarm(Context context, int time)
+	{
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.SNOOZE, true);
+		HikeAlarmManager.setAlarm(context, Calendar.getInstance().getTimeInMillis() + time, HikeAlarmManager.REQUESTCODE_START_STICKER_SHARE_SERVICE, false);
+		ChatHeadService.getInstance().resetPosition(HikeConstants.ChatHead.STOPPING_SERVICE_ANIMATION);
+	}
+
 
 }
