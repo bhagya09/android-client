@@ -1,5 +1,7 @@
 package com.bsb.hike.offline;
 
+import org.json.JSONObject;
+
 import android.content.Intent;
 import android.os.Message;
 import android.widget.Toast;

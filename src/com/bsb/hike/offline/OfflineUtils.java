@@ -19,8 +19,12 @@ import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.filetransfer.FileTransferBase.FTState;
+import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.ConvMessage.OriginType;
 import com.bsb.hike.models.ConvMessage.State;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.MessageMetadata;
@@ -521,5 +525,41 @@ public class OfflineUtils
 			}
 		}
 		return -1;
+	}
+	
+	public static  JSONObject getFileTransferMetadataForContact(JSONObject contactJson) throws JSONException
+	{
+		contactJson.put(HikeConstants.FILE_NAME, contactJson.optString(HikeConstants.NAME, HikeConstants.CONTACT_FILE_NAME));
+		contactJson.put(HikeConstants.CONTENT_TYPE, HikeConstants.CONTACT_CONTENT_TYPE);
+		contactJson.put(HikeConstants.FILE_KEY,"OfflineMessageFileKey"+System.currentTimeMillis());
+		JSONArray files = new JSONArray();
+		files.put(contactJson);
+		JSONObject metadata = new JSONObject();
+		metadata.put(HikeConstants.FILES, files);
+
+		return metadata;
+	}
+	
+	private static ConvMessage createConvMessage(String msisdn, JSONObject metadata,boolean isRecipientOnhike)
+	{
+		long time = System.currentTimeMillis() / 1000;
+		ConvMessage convMessage = new ConvMessage(HikeConstants.CONTACT_FILE_NAME, msisdn, time, ConvMessage.State.SENT_CONFIRMED);
+		try {
+			convMessage.setMetadata(metadata);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return convMessage;
+	}
+
+	public static ConvMessage createOfflineContactConvMessage(String msisdn,
+			JSONObject jsonData, boolean onHike){
+		ConvMessage convMessage = null;
+		try {
+			convMessage = createConvMessage(msisdn, getFileTransferMetadataForContact(jsonData),onHike);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return convMessage;
 	}
 }

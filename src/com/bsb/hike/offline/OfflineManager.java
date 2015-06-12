@@ -206,7 +206,6 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 		HikeOfflinePersistence.getInstance().addMessage(convMessage.serialize());
 		addToTextQueue(convMessage.serialize());
 		long endTime = System.currentTimeMillis();
-		
 		Logger.d(TAG, "Time in DB entry: " + (endTime-startTime));
 	}
 
