@@ -58,6 +58,7 @@ import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadType;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerPalleteImageDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerPreviewImageDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerSignupUpgradeDownloadTask;
+import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.smartcache.HikeLruCache;
 import com.bsb.hike.utils.Utils.ExternalStorageState;
 
@@ -219,6 +220,8 @@ public class StickerManager
 	
 	public static final String STICKER_MESSAGE_TAG = "Sticker";
 	
+	public static String stickerExternalDir;
+	
 	public FilenameFilter stickerFileFilter = new FilenameFilter()
 	{
 		@Override
@@ -256,7 +259,7 @@ public class StickerManager
 	{
 		context = ctx;
 		preferenceManager = PreferenceManager.getDefaultSharedPreferences(context);
-
+		stickerExternalDir = getExternalStickerRootDirectory(context);
 	}
 	
 	public void doInitialSetup()
@@ -492,7 +495,7 @@ public class StickerManager
 		}
 		return dir.getPath() + HikeConstants.STICKERS_ROOT + "/" + catId;
 	}
-
+	
 	public String getInternalStickerDirectoryForCategoryId(String catId)
 	{
 		return context.getFilesDir().getPath() + HikeConstants.STICKERS_ROOT + "/" + catId;
@@ -542,6 +545,15 @@ public class StickerManager
 		{
 			return null;	
 		}	
+	}
+	
+	public String getStickerCategoryDirPath(String categoryId)
+	{
+		if (!TextUtils.isEmpty(stickerExternalDir))
+		{
+			return stickerExternalDir + "/" + categoryId;
+		}
+		return null;
 	}
 
 	public boolean checkIfStickerCategoryExists(String categoryId)
