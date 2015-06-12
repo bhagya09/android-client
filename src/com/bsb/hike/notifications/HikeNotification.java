@@ -32,8 +32,10 @@ import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.Action;
+import android.support.v4.app.NotificationCompat.Builder;
 import android.text.SpannableString;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeConstants.NotificationType;
@@ -188,7 +190,7 @@ public class HikeNotification
 		NotificationCompat.Builder mBuilder = getNotificationBuilder(context.getString(R.string.team_hike), bodyString, bodyString, avatarDrawable, smallIconId, false);
 		setNotificationIntentForBuilder(mBuilder, notificationIntent, FREE_SMS_POPUP_NOTIFICATION_ID);
 
-		notificationManager.notify(FREE_SMS_POPUP_NOTIFICATION_ID, mBuilder.getNotification());
+		notifyNotification(FREE_SMS_POPUP_NOTIFICATION_ID, mBuilder);
 		
 		notificationBuilderPostWork();
 
@@ -231,7 +233,7 @@ public class HikeNotification
 		NotificationCompat.Builder mBuilder = getNotificationBuilder(context.getString(R.string.team_hike), headerString, headerString, avatarDrawable, smallIconId, false);
 		setNotificationIntentForBuilder(mBuilder, notificationIntent, FREE_SMS_POPUP_NOTIFICATION_ID);
 		
-		notificationManager.notify(FREE_SMS_POPUP_NOTIFICATION_ID, mBuilder.getNotification());
+		notifyNotification(FREE_SMS_POPUP_NOTIFICATION_ID, mBuilder);
 		
 		notificationBuilderPostWork();
 	}
@@ -266,7 +268,7 @@ public class HikeNotification
 		NotificationCompat.Builder mBuilder = getNotificationBuilder(context.getString(R.string.team_hike), message, message, avatarDrawable, smallIconId, false);
 		setNotificationIntentForBuilder(mBuilder, notificationIntent, FREE_SMS_POPUP_NOTIFICATION_ID);
 
-		notificationManager.notify(FREE_SMS_POPUP_NOTIFICATION_ID, mBuilder.getNotification());
+		notifyNotification(FREE_SMS_POPUP_NOTIFICATION_ID, mBuilder);
 		
 		notificationBuilderPostWork();
 
@@ -303,7 +305,7 @@ public class HikeNotification
 
 		if (!sharedPreferences.getBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false))
 		{
-			notificationManager.notify(PROTIP_NOTIFICATION_ID, mBuilder.getNotification());
+			notifyNotification(PROTIP_NOTIFICATION_ID, mBuilder);
 		}
 		
 		notificationBuilderPostWork();
@@ -328,7 +330,7 @@ public class HikeNotification
 		if (!sharedPreferences.getBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false))
 		{
 			int notificationId = isApplicationsPushUpdate ? GAMING_PACKET_NOTIFICATION_ID : APP_UPDATE_AVAILABLE_ID;
-			notificationManager.notify(notificationId, mBuilder.getNotification());
+			notifyNotification(notificationId, mBuilder);
 		}
 		// TODO:: we should reset the gaming download message from preferences
 	}
@@ -717,7 +719,7 @@ public class HikeNotification
 		NotificationCompat.Builder mBuilder = getNotificationBuilder(title, message, message, avatarDrawable, smallIconId, false);
 		setNotificationIntentForBuilder(mBuilder, notificationIntent, HIKE_TO_OFFLINE_PUSH_NOTIFICATION_ID);
 
-		notificationManager.notify(notificationId, mBuilder.getNotification());
+		notifyNotification(notificationId, mBuilder);
 		
 		notificationBuilderPostWork();
 
@@ -767,7 +769,7 @@ public class HikeNotification
 
 		NotificationCompat.Builder mBuilder = getNotificationBuilder(context.getString(R.string.app_name), message, message, avatarDrawable, smallIconId, false);
 		setNotificationIntentForBuilder(mBuilder, notificationIntent,STEALTH_NOTIFICATION_ID);
-		notificationManager.notify(notificationId, mBuilder.getNotification());
+		notifyNotification(notificationId, mBuilder);
 		notificationBuilderPostWork();
 	}
 
@@ -1044,7 +1046,7 @@ public class HikeNotification
 
 		if (!sharedPreferences.getBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false))
 		{
-			notificationManager.notify(notificationId, mBuilder.getNotification());
+			notifyNotification(notificationId, mBuilder);
 		}
 		notificationBuilderPostWork();
 	}
@@ -1099,7 +1101,7 @@ public class HikeNotification
 
 		if (!sharedPreferences.getBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false))
 		{
-			notificationManager.notify(notificationId, mBuilder.getNotification());
+			notifyNotification(notificationId, mBuilder);
 		}
 		notificationBuilderPostWork();
 	}
@@ -1164,10 +1166,16 @@ public class HikeNotification
 		
 		if (!sharedPreferences.getBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false))
 		{
-			notificationManager.notify(notificationId, mBuilder.getNotification());
+			notifyNotification(notificationId, mBuilder);
 		}
 		notificationBuilderPostWork();
 	}
+
+	private void notifyNotification(int notificationId, Builder builder)
+ 	{
+		notificationManager.notify(notificationId, builder.build());
+	}
+
 
 	private void showNotification(final Intent notificationIntent, final int icon, final long timestamp, final int notificationId, final CharSequence text, final String key,
 			final String message, final String msisdn, final Bitmap bigPictureImage, boolean isPin, boolean forceNotPlaySound)
