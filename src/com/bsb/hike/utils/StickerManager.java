@@ -58,7 +58,6 @@ import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadType;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerPalleteImageDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerPreviewImageDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerSignupUpgradeDownloadTask;
-import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.smartcache.HikeLruCache;
 import com.bsb.hike.utils.Utils.ExternalStorageState;
 
@@ -1793,7 +1792,6 @@ public class StickerManager
 			return;
 		}
 		List<StickerCategory> categoryList = getStickerCategoryList();
-		BitmapDrawable drawable = null;
 		
 		int screenWidth = context.getResources().getDisplayMetrics().widthPixels;
 		// Checking the lesser value out of current size of category list and the stickers accommodated on given screen width. This is to avoid NPE in case of smaller category list
@@ -1803,14 +1801,24 @@ public class StickerManager
 		for (int i=0; i<categoriesToLoad; i++)
 		{
 			String categoryId = categoryList.get(i).getCategoryId();
-			Bitmap bitmap = getCategoryOtherAsset(context, categoryId, StickerManager.PALLATE_ICON_TYPE, -1, -1, true);
-			if (bitmap != null)
+			Bitmap bitmap_unselected = getCategoryOtherAsset(context, categoryId, StickerManager.PALLATE_ICON_TYPE, -1, -1, true);
+			if (bitmap_unselected != null)
 			{
-				drawable = HikeBitmapFactory.getBitmapDrawable(context.getResources(), bitmap);
+				BitmapDrawable drawable = HikeBitmapFactory.getBitmapDrawable(context.getResources(), bitmap_unselected);
 				String key = getCategoryOtherAssetLoaderKey(categoryId, StickerManager.PALLATE_ICON_TYPE);
-				Logger.d("TAG", "Putting data in cache : " + key);
+				Logger.d(TAG, "Putting data in cache : " + key);
 				cache.putInCache(key, drawable);
 			}
+			
+			Bitmap bitmap_selected = getCategoryOtherAsset(context, categoryId, StickerManager.PALLATE_ICON_SELECTED_TYPE, -1, -1, true);
+			if (bitmap_selected != null)
+			{
+				BitmapDrawable drawable = HikeBitmapFactory.getBitmapDrawable(context.getResources(), bitmap_selected);
+				String key = getCategoryOtherAssetLoaderKey(categoryId, StickerManager.PALLATE_ICON_SELECTED_TYPE);
+				Logger.d(TAG, "Putting data in cache : " + key);
+				cache.putInCache(key, drawable);
+			}
+			
 		}
 	}
 }
