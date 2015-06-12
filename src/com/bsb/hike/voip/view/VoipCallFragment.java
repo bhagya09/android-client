@@ -58,7 +58,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 	private VoIPService voipService;
 	private boolean isBound = false;
 	private final Messenger mMessenger = new Messenger(new IncomingHandler());
-	private WakeLock proximityWakeLock;
+	private WakeLock proximityWakeLock = null;
 	private int easter = 0;
 
 	private CallActionsView callActionsView;
@@ -208,7 +208,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		Intent intent = new Intent(getSherlockActivity(), VoIPService.class);
 		getSherlockActivity().bindService(intent, myConnection, Context.BIND_AUTO_CREATE);
 		updateCallStatus();
-		initProximitySensor();
+		initProximityWakelock();
 		super.onResume();
 	}
 
@@ -216,7 +216,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 	public void onPause() 
 	{
 		if (VoIPService.getCallId() == 0)	// Bug #45154
-			releaseProximitySensor();
+			releaseProximityWakelock();
 		Logger.d(VoIPConstants.TAG, "VoIPCallFragment onPause()");
 		super.onPause();
 	}
@@ -248,7 +248,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		}
 
 		partnerName = null;
-		releaseWakeLock();
+		releaseProximityWakelock();
 		Logger.d(VoIPConstants.TAG, "VoipCallFragment onDestroy()");
 		super.onDestroy();
 	}
@@ -412,12 +412,6 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		}, 900);
 	}
 
-	private void releaseWakeLock() 
-	{
-		if (proximityWakeLock != null && proximityWakeLock.isHeld())
-			proximityWakeLock.release();
-	}
-
 	public boolean onKeyDown(int keyCode, KeyEvent event)
 	{
 		if (voipService!=null && !voipService.isAudioRunning() && (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP)
@@ -444,12 +438,10 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		});
 	}
 
-	private void initProximitySensor() 
+	private void initProximityWakelock() 
 	{
-		if(activity.isShowingCallFailedFragment())
-		{
+		if(activity.isShowingCallFailedFragment() || proximityWakeLock != null)
 			return;
-		}
 
 		// Set proximity sensor
 		proximityWakeLock = ((PowerManager)getSherlockActivity().getSystemService(Context.POWER_SERVICE)).newWakeLock(PROXIMITY_SCREEN_OFF_WAKELOCK, "ProximityLock");
@@ -457,11 +449,12 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		proximityWakeLock.acquire();
 	}
 
-	private void releaseProximitySensor()
+	private void releaseProximityWakelock()
 	{
 		if (proximityWakeLock != null)
 		{
 			proximityWakeLock.release();
+			proximityWakeLock = null;
 		}
 	}
 	
@@ -826,6 +819,10 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 			return;
 		}
 		
+		// Disable call failed fragment when in a conference
+		if (voipService.inConference())
+			return;
+		
 		showCallFailedFragment(callFailCode, voipService.getPartnerClient().getPhoneNumber());
 	}
 
@@ -836,7 +833,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 			return;
 		}
 
-		releaseProximitySensor();
+		releaseProximityWakelock();
 
 		Bundle bundle = new Bundle();
 		bundle.putString(VoIPConstants.PARTNER_MSISDN, msisdn);

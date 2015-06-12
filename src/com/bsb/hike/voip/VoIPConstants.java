@@ -25,7 +25,7 @@ public class VoIPConstants {
 	/**
 	 * Maximum size of a group to launch a conference call directly
 	 */
-	public static final int MAXIMUM_GROUP_CHAT_SIZE = 5;
+	public static final int MAXIMUM_GROUP_CHAT_SIZE = 10;
 	
 	// Intent actions
 	public static final String PARTNER_REQUIRES_UPGRADE = "pru";
