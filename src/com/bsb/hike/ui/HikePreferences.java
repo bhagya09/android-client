@@ -173,6 +173,14 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		if (doubleTapPreference != null) {
 			doubleTapPreference.setOnPreferenceChangeListener(this);
 		}
+		
+		final IconCheckBoxPreference stickerRecommendPreference = (IconCheckBoxPreference) getPreferenceScreen()
+				.findPreference(HikeConstants.STICKER_RECOMMEND_PREF);
+		if (stickerRecommendPreference != null)
+		{
+			stickerRecommendPreference.setOnPreferenceChangeListener(this);
+		}
+		
 		final IconCheckBoxPreference freeSmsPreference = (IconCheckBoxPreference) getPreferenceScreen().findPreference(HikeConstants.FREE_SMS_PREF);
 		if (freeSmsPreference != null)
 		{
@@ -994,6 +1002,11 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+		}
+		else if(HikeConstants.STICKER_RECOMMEND_PREF.equals(preference.getKey()))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_RECOMMEND_PREF, isChecked);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.STICKER_RECOMMEND_PREFERENCE_CHANGED, null);
 		}
 		else if (HikeConstants.SSL_PREF.equals(preference.getKey()))
 		{

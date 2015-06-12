@@ -110,6 +110,11 @@ public class HttpRequestConstants
 	{
 		return BASE_URL + BASE_V1 + BASE_STICKER;
 	}
+	
+	public static String getStickerTagsUrl()
+	{
+		return BASE_URL + BASE_V1 + BASE_STICKER + "/tagdata";
+	}
 
 	public static String lastSeenUrl()
 	{

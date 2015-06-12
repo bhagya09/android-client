@@ -1,6 +1,7 @@
 package com.bsb.hike.utils;
 
 import java.util.HashMap;
+import java.util.Set;
 
 import android.app.Activity;
 import android.content.Context;
@@ -92,7 +93,12 @@ public class HikeSharedPreferenceUtil
 		editor.putInt(key, value);
 		return editor.commit();
 	}
-
+	
+	public synchronized boolean saveDataSet(String key, Set<String> value)
+	{
+		editor.putStringSet(key, value);
+		return editor.commit();
+	}
 	/*
 	 * public synchronized boolean saveData(String key, Set<String> value) { //editor.putStringSet(key, value); return editor.commit(); }
 	 */
@@ -127,6 +133,11 @@ public class HikeSharedPreferenceUtil
 	public synchronized long getData(String key, long defaultValue)
 	{
 		return hikeSharedPreferences.getLong(key, defaultValue);
+	}
+	
+	public synchronized Set<String> getDataSet(String key, Set<String> defaultValues)
+	{
+		return hikeSharedPreferences.getStringSet(key, defaultValues);
 	}
 
 	public synchronized void deleteAllData()

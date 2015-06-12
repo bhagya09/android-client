@@ -43,6 +43,7 @@ import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.HttpManager;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
+import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.notifications.HikeNotificationUtils;
 import com.bsb.hike.notifications.ToastListener;
 import com.bsb.hike.platform.HikePlatformConstants;
@@ -500,6 +501,12 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	public static final String SSL_ALLOWED = "sslAllowed";
 	
 	public static CurrentState currentState = CurrentState.CLOSED;
+		
+	public static final String STICKER_SEARCH_ENABLED = "stickrSearchEnabled";
+	
+	public static final String TAG_FIRST_TIME_DOWNLOAD = "tagFirstTimeDownload";
+	
+	public static final String STICKER_SET = "stickerSet";
 
 	//private static Twitter twitter;
 
@@ -869,6 +876,8 @@ public void onTrimMemory(int level)
 		{
 			fetchPlatformIDIfNotPresent();
 		}
+		
+		StickerSearchManager.getInstance().initSetupWizard();
 	}
 
 	/**

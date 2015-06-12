@@ -35,7 +35,11 @@ import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.concurrent.RejectedExecutionHandler;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.jar.JarFile;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -5825,6 +5829,36 @@ public class Utils
 		{
 			return false;
 		}
+	}
+	
+	public static ThreadFactory threadFactory(final String name, final boolean daemon)
+	{
+		return new ThreadFactory()
+		{
+			private AtomicInteger i = new AtomicInteger(1);
+
+			@Override
+			public Thread newThread(Runnable runnable)
+			{
+				int threadCount = i.getAndIncrement();
+				Thread result = new Thread(runnable);
+				result.setName(name + "-" + threadCount);
+				result.setDaemon(daemon);
+				return result;
+			}
+		};
+	}
+	
+	public static RejectedExecutionHandler rejectedExecutionHandler()
+	{
+		return new RejectedExecutionHandler()
+		{
+			@Override
+			public void rejectedExecution(Runnable r, ThreadPoolExecutor executor)
+			{
+				
+			}
+		};
 	}
 
 	public static boolean moveFile(File inputFile, File outputFile) {

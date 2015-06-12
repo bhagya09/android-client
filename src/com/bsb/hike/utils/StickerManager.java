@@ -55,6 +55,7 @@ import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadSource;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadType;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerDownloadManager;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerException;
+import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.utils.Utils.ExternalStorageState;
 
 public class StickerManager
@@ -196,6 +197,8 @@ public class StickerManager
 	public static final String FROM_RECENT = "r";
 	
 	public static final String FROM_FORWARD = "f";
+	
+	public static final String FROM_RECOMMENDATION = "r";
 	
 	public static final String FROM_OTHER = "o";
 	
@@ -1725,6 +1728,34 @@ public class StickerManager
 			}
 
 		}
+	}
+	
+	public void downloadStickerTagData()
+	{
+		if(HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.TAG_FIRST_TIME_DOWNLOAD, true))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.TAG_FIRST_TIME_DOWNLOAD, false);
+			StickerSearchManager.getInstance().downloadStickerTags(true);
+		}
+		else 
+		{
+			Set<String> categorySet = HikeSharedPreferenceUtil.getInstance().getDataSet(HikeMessengerApp.STICKER_SET, null);
+			
+			if(categorySet != null && !categorySet.isEmpty())
+			{
+				StickerSearchManager.getInstance().downloadStickerTags(false);
+			}
+		}
+	}
+	
+	public String getStickerSetString(Sticker sticker)
+	{
+		return sticker.getStickerId() + ":" + sticker.getCategoryId();
+	}
+	
+	public String getStickerSetString(String stkId, String catId)
+	{
+		return stkId + ":" + catId;
 	}
 	
 }

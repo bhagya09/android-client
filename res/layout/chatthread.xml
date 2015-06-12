@@ -227,6 +227,17 @@
                 android:layout_height="1dp"
                 android:background="#14292d2e"
                 android:layout_alignParentBottom="true" />
+            
+            <FrameLayout
+                    android:id="@+id/sticker_recommendation_parent"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_marginLeft="8dp"
+                    android:layout_marginRight="8dp"
+                    android:background="@drawable/ic_sticker_recommend_background_black"
+                    android:layout_alignParentBottom="true"
+                    android:visibility="invisible" >
+            </FrameLayout>
 
         </RelativeLayout>
 

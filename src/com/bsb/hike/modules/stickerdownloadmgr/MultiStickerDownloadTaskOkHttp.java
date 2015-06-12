@@ -6,7 +6,9 @@ import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.multiStickerDow
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -15,6 +17,7 @@ import org.json.JSONObject;
 import android.os.Bundle;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.httpmgr.RequestToken;
@@ -27,6 +30,8 @@ import com.bsb.hike.modules.httpmgr.request.requestbody.JsonBody;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadSource;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.StickerRequestType;
+import com.bsb.hike.modules.stickersearch.StickerSearchManager;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
@@ -168,6 +173,9 @@ public class MultiStickerDownloadTaskOkHttp implements IHikeHTTPTask
 							Logger.d(TAG, "Reached end? " + reachedEnd);
 							Logger.d(TAG, "Sticker count: " + totalNumber);
 
+							Set<String> oldEntries = HikeSharedPreferenceUtil.getInstance().getDataSet(HikeMessengerApp.STICKER_SET, null);
+							Set<String> newEntries = oldEntries == null ? new HashSet<String>() : new HashSet<String>(oldEntries);
+							
 							for (Iterator<String> keys = data.keys(); keys.hasNext();)
 							{
 								String stickerId = keys.next();
@@ -178,6 +186,8 @@ public class MultiStickerDownloadTaskOkHttp implements IHikeHTTPTask
 								{
 									byte[] byteArray = StickerManager.getInstance().saveLargeStickers(largeStickerDir.getAbsolutePath(), stickerId, stickerData);
 									StickerManager.getInstance().saveSmallStickers(smallStickerDir.getAbsolutePath(), stickerId, byteArray);
+									
+									newEntries.add(StickerManager.getInstance().getStickerSetString(stickerId, category.getCategoryId()));
 								}
 								catch (FileNotFoundException e)
 								{
@@ -188,6 +198,9 @@ public class MultiStickerDownloadTaskOkHttp implements IHikeHTTPTask
 									Logger.w(TAG, e);
 								}
 							}
+							
+							HikeSharedPreferenceUtil.getInstance().saveDataSet(HikeMessengerApp.STICKER_SET, newEntries);
+							StickerSearchManager.getInstance().insertStickerTags(response);
 
 							if (totalNumber != 0)
 							{

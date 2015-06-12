@@ -1517,4 +1517,6 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
 	<string name="delete_block">Block and Delete</string>
 	<string name="confirm_delete_block_msg">Do you want to delete and block \"%1$s\"? </string>
 	<string name="confirm_delete_non_messaging">Do you want to delete \"%1$s\"? </string>
+	<string name="sticker_recommendation_setting_info">Show sticker recommendations while chatting</string>
+	<string name="sticker_recommendation_setting_header">Sticker recommendations</string>
 </resources>

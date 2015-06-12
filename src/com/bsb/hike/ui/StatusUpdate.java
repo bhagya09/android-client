@@ -948,7 +948,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	}
 
 	@Override
-	public void onShown()
+	public void onShown(int keyBoardHeight)
 	{
 		if (emojiParent.getVisibility() == View.VISIBLE)
 		{
