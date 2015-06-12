@@ -161,7 +161,6 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 	protected void fetchConversationFinished(Conversation conversation)
 	{
 		super.fetchConversationFinished(conversation);
-		
 	}
 	
 	@Override
@@ -417,7 +416,6 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 	protected void onStop()
 	{
 		//Initialate a timer of x seconds to save battery.
-		controller.removeListener(this);
 		super.onStop();
 	}
 	
@@ -506,6 +504,16 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 		default:
 			break;
 		}
+	}
+	
+	@Override
+	public void onDestroy()
+	{
+		if (controller != null)
+		{
+			controller.removeListener(this);
+		}
+		super.onDestroy();
 	}
 
 	@Override
