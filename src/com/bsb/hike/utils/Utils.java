@@ -3700,6 +3700,7 @@ public class Utils
 		long time = (long) System.currentTimeMillis() / 1000;
 		ConvMessage convMessage = new ConvMessage(message, msisdn, time, state);
 		convMessage.setSMS(!isOnhike);
+		convMessage.setIsOfflineMessage(isOfflineConversation(msisdn));
 
 		return convMessage;
 	}
