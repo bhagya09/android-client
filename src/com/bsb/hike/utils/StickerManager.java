@@ -312,6 +312,8 @@ public class StickerManager
 			removeLegacyGreenDots();
 			settings.edit().putBoolean(StickerManager.REMOVE_LEGACY_GREEN_DOTS, true).commit();
 		}
+		
+		cachingStickersOnStart();
 	}
 
 	public List<StickerCategory> getStickerCategoryList()
@@ -1721,7 +1723,7 @@ public class StickerManager
 	/**
 	 * This method is to cache stickers and sticker-categories, so that their loading becomes fast on opening sticker palette the first time.
 	 */
-	public void cachingStickersOnStart()
+	private void cachingStickersOnStart()
 	{
 		HikeHandlerUtil mThread = HikeHandlerUtil.getInstance();
 		mThread.startHandlerThread();
