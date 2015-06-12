@@ -21,6 +21,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.offline.OfflineException;
 import com.bsb.hike.offline.OfflineManager;
 import com.bsb.hike.offline.OfflineThreadManager;
 import com.bsb.hike.offline.OfflineUtils;
@@ -63,9 +64,9 @@ public class TextReceiveRunnable implements Runnable
 			{
 				byte[] convMessageLength = new byte[4];
 				int readBytes = inputStream.read(convMessageLength, 0, 4);
-				
+
 				msgSize = OfflineUtils.byteArrayToInt(convMessageLength);
-				Logger.d(TAG, "Read Bytes is " + readBytes + "and msg Size is  "+ msgSize);
+				Logger.d(TAG, "Read Bytes is " + readBytes + "and msg Size is  " + msgSize);
 				// Logger.d(TAG,"Msg size is "+msgSize);
 				if (msgSize == 0)
 				{
@@ -115,7 +116,7 @@ public class TextReceiveRunnable implements Runnable
 					if (OfflineUtils.isStickerMessage(messageJSON))
 					{
 						String stpath = OfflineUtils.getStickerPath(messageJSON);
-						File stickerImage=new File(stpath);
+						File stickerImage = new File(stpath);
 						if (!stickerImage.exists())
 						{
 							OfflineUtils.createStkDirectory(messageJSON);
@@ -165,7 +166,7 @@ public class TextReceiveRunnable implements Runnable
 		{
 			e.printStackTrace();
 			Logger.e(TAG, "Exception in TextReceiveThread. IO Exception occured.Socket was not bounded");
-			offlineManager.shutDown();
+			offlineManager.shutDown(new OfflineException(e, OfflineException.CLIENT_DISCONNETED));
 		}
 		catch (IllegalArgumentException e)
 		{
@@ -175,6 +176,12 @@ public class TextReceiveRunnable implements Runnable
 		catch (JSONException e)
 		{
 			e.printStackTrace();
+		}
+		catch (OfflineException e)
+		{
+			e.printStackTrace();
+			offlineManager.shutDown(new OfflineException(e, OfflineException.CLIENT_DISCONNETED));
+
 		}
 	}
 	

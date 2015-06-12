@@ -119,7 +119,7 @@ public class OfflineThreadManager
 	 * @throws IOException 
 	 */  
 	
-	public boolean sendOfflineText(JSONObject packet,OutputStream outputStream) throws IOException
+	public boolean sendOfflineText(JSONObject packet,OutputStream outputStream) throws IOException,OfflineException
 	{
 		String fileUri  =null;
 		InputStream inputStream=null;
@@ -141,8 +141,6 @@ public class OfflineThreadManager
 				return false;
 			}
 			
-			try
-			{
 				byte[] messageBytes = packet.toString().getBytes("UTF-8");
 				int length = messageBytes.length;
 				byte[] intToBArray = OfflineUtils.intToByteArray(length);
@@ -151,42 +149,24 @@ public class OfflineThreadManager
 				// copy the sticker to the stream
 				isSent = offlineManager.copyFile(inputStream, outputStream, f.length());
 				inputStream.close();
-			}
-			catch (IOException e)
-			{
-				e.printStackTrace();
-				isSent=false;
-			}
-			
 		}
 		// for normal text messages and ping packet
 		else
 		{
-			try
-			{
 				byte[] messageBytes = packet.toString().getBytes("UTF-8");
 				int length = messageBytes.length;
 				byte[] intToBArray = OfflineUtils.intToByteArray(length);
 				outputStream.write(intToBArray, 0, intToBArray.length);
 				outputStream.write(messageBytes,0, length);
 				isSent=true;
-			}
-			catch (IOException e)
-			{
-				Logger.d(TAG,"IO Exception in sendOfflineText");
-				e.printStackTrace();
-				throw new IOException();
-			}
-
 		}
 		
 		// Updating database
 		return isSent;
 	}
 
-	public boolean sendOfflineFile(FileTransferModel fileTransferModel,OutputStream outputStream) throws IOException
+	public boolean sendOfflineFile(FileTransferModel fileTransferModel,OutputStream outputStream) throws IOException, OfflineException
 	{
-		offlineManager.setInOfflineFileTransferInProgress(true);
 		boolean isSent = true;
 		String fileUri =null;
 		InputStream inputStream = null;
@@ -232,16 +212,9 @@ public class OfflineThreadManager
 		catch(JSONException e)
 		{
 			e.printStackTrace();
-			offlineManager.setInOfflineFileTransferInProgress(false);
 			return false;
 		}
-		catch(IOException e)
-		{
-			e.printStackTrace();
-			offlineManager.setInOfflineFileTransferInProgress(false);
-			throw new IOException();
-		}
-		offlineManager.setInOfflineFileTransferInProgress(false);
+		
 		return isSent;
 				
 
@@ -329,21 +302,29 @@ public class OfflineThreadManager
 
 	public void shutDown()
 	{
-		if(offlineManager.getOfflineState()==OFFLINE_STATE.CONNECTED)
+		Logger.d(TAG, "Goining to close ALL SOCKETS");
+		textTransferRunnable.shutDown();
+
+		Logger.d(TAG, "closing  text socket ALL SOCKETS");
+		fileTransferRunnable.shutDown();
+
+		fileReceiverRunnable.shutDown();
+
+		textReceiveRunnable.shutDown();
+
+		interrupt(textTransferThread);
+		interrupt(fileTransferThread);
+		interrupt(textReceiveThread);
+		interrupt(fileReceiverThread);
+	}
+	
+	private void interrupt(Thread t)
+	{
+		if(t==null)
+			return ;
+		if(t.isAlive())
 		{
-			Logger.d(TAG, "Goining to close ALL SOCKETS");
-			textTransferRunnable.shutDown();
-
-			Logger.d(TAG, "closing  text socket ALL SOCKETS");
-			fileTransferRunnable.shutDown();
-
-			fileReceiverRunnable.shutDown();
-
-			textReceiveRunnable.shutDown();
-			textTransferThread.interrupt();
-			fileTransferThread.interrupt();
-			textReceiveThread.interrupt();
-			fileReceiverThread.interrupt();
+			t.interrupt();
 		}
 	}
 

@@ -23,6 +23,7 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.offline.FileTransferModel;
+import com.bsb.hike.offline.OfflineException;
 import com.bsb.hike.offline.OfflineManager;
 import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.offline.TransferProgress;
@@ -159,12 +160,18 @@ public class FileReceiverRunnable implements Runnable
 		{
 			e.printStackTrace();
 			Logger.e(TAG, "File Receiver Thread " + " IO Exception occured.Socket was not bounded");
-			// offlineManager.shutDown();
+			 offlineManager.shutDown(new OfflineException(e,OfflineException.CLIENT_DISCONNETED));
 		}
 		catch (IllegalArgumentException e)
 		{
 			e.printStackTrace();
 			Logger.e(TAG, "Did we pass correct Address here ? ?");
+		}
+		catch (OfflineException e)
+		{
+			e.printStackTrace();
+			offlineManager.shutDown(new OfflineException(e, OfflineException.CLIENT_DISCONNETED));
+
 		}
 	}
 

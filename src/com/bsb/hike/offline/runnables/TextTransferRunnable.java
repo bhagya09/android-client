@@ -13,6 +13,7 @@ import org.json.JSONObject;
 
 import com.bsb.hike.offline.IMessageSentOffline;
 import com.bsb.hike.offline.OfflineConstants;
+import com.bsb.hike.offline.OfflineException;
 import com.bsb.hike.offline.OfflineManager;
 import com.bsb.hike.offline.OfflineThreadManager;
 import com.bsb.hike.offline.OfflineUtils;
@@ -115,27 +116,31 @@ public class TextTransferRunnable implements Runnable
 		}
 		catch (InterruptedException e)
 		{
-			Logger.e(TAG, "Some called interrupt on File transfer Thread");
-			offlineManager.setOfflineState(OFFLINE_STATE.NOT_CONNECTED);
+			Logger.e(TAG, "Some called interrupt on Text transfer Thread");
 			e.printStackTrace();
 		}
 		catch (SocketTimeoutException e)
 		{
 			Logger.e(TAG, "SOCKET time out exception occured in TextTransferThread.");
-			// offlineManager.shutDown();
+			offlineManager.shutDown(new OfflineException(e, OfflineException.SOCKET_TIMEOUT_EXCEPTION));
 			e.printStackTrace();
 		}
 		catch (IOException e)
 		{
 			e.printStackTrace();
 			Logger.e(TAG, "TextTransferThread. IO Exception occured.Socket was not bounded");
-			offlineManager.shutDown();
+			offlineManager.shutDown(new OfflineException(e, OfflineException.SERVER_DISCONNED));
 		}
 		catch (IllegalArgumentException e)
 		{
 			e.printStackTrace();
 			Logger.e(TAG, "TextTransferThread. Did we pass correct Address here ? ?");
 			// offlineManager.shutDown();
+		}
+		catch (OfflineException e)
+		{
+			offlineManager.shutDown(new OfflineException(e, OfflineException.SERVER_DISCONNED));
+			e.printStackTrace();
 		}
 	}
 

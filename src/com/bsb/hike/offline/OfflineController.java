@@ -146,7 +146,7 @@ public class OfflineController
 
 	public void shutDown()
 	{
-		 offlineManager.shutDown();
+		 offlineManager.shutDown(new OfflineException(OfflineException.DISCONNECT));
 	}
 
 	public void sendAudio(String filePath, String msisdn)

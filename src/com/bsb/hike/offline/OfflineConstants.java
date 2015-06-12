@@ -88,7 +88,7 @@ public class OfflineConstants
 	
 	public static enum OFFLINE_STATE
 	{
-		NOT_CONNECTED,CONNECTING,CONNECTED
+		NOT_CONNECTED, CONNECTING, CONNECTED, DISCONNECTED
 	}
 	
 	public static final int MAX_TRIES=4;

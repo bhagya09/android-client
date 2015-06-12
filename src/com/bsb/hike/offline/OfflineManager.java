@@ -155,7 +155,7 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 		case OfflineConstants.HandlerConstants.REMOVE_CONNECT_MESSAGE:
 			removeMessage(OfflineConstants.HandlerConstants.RECONNECT_TO_HOTSPOT);
 			if(TextUtils.isEmpty(getConnectedDevice())){
-				setOfflineState(OFFLINE_STATE.NOT_CONNECTED);
+				shutDown(new OfflineException(OfflineException.CONNECTION_TIME_OUT));
 			}
 			break;
 		case OfflineConstants.HandlerConstants.START_SCAN:
@@ -237,7 +237,7 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 
 		// Since disconnect is called, stop sending ghost packets
 		removeMessage(OfflineConstants.HandlerConstants.SEND_GHOST_PACKET);
-		shutDown();
+		shutDown(new OfflineException(OfflineException.GHOST_PACKET_NOT_RECEIVED));
 	}
 
 	public synchronized void addToTextQueue(JSONObject message)
@@ -278,12 +278,12 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 		connectionManager.requestPeers(this);
 	}
 
-	public  boolean copyFile(InputStream inputStream, OutputStream outputStream,long fileSize)
+	public  boolean copyFile(InputStream inputStream, OutputStream outputStream,long fileSize) throws OfflineException
 	{
 		return copyFile(inputStream, outputStream,-1,false,false,fileSize);
 	}
 
-	public boolean copyFile(InputStream inputStream, OutputStream out, long msgId, boolean showProgress, boolean isSent,long fileSize) 
+	public boolean copyFile(InputStream inputStream, OutputStream out, long msgId, boolean showProgress, boolean isSent,long fileSize) throws OfflineException 
 	{
 		byte buf[] = new byte[OfflineConstants.CHUNK_SIZE];
 		int len = 0;
@@ -321,7 +321,10 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 		catch (IOException e)
 		{
 			Logger.e("Spinner", "Exception in copyFile: ", e);
-			isCopied = false;
+			throw new OfflineException(e,OfflineException.CLIENT_DISCONNETED);
+		}
+		catch (IndexOutOfBoundsException e) {
+			throw new OfflineException(e,OfflineException.CLIENT_DISCONNETED);
 		}
 		return isCopied;
 	}
@@ -970,10 +973,13 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 		}
 	}
 	
-	public synchronized void shutDown()
+	public synchronized void shutDown(OfflineException exception)
 	{
-		if(getOfflineState()==OFFLINE_STATE.CONNECTED)
+		Logger.d(TAG, "ShudDown called Due to reason " + exception.getReasonCode());
+		if (getOfflineState() != OFFLINE_STATE.DISCONNECTED)
 		{
+			setOfflineState(OFFLINE_STATE.DISCONNECTED);
+			
 			fileTransferQueue.clear();
 			textMessageQueue.clear();
 
@@ -984,7 +990,6 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 			connectionManager.closeConnection(getConnectedDevice());
 
 			clearAllVariables();
-			setOfflineState(OFFLINE_STATE.NOT_CONNECTED);
 			
 		}
 	}
