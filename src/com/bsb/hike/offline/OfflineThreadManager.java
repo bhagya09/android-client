@@ -110,7 +110,6 @@ public class OfflineThreadManager
 	}
 	
 	
-	
 	/**
 	 * 
 	 * @param packet

@@ -11,7 +11,6 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
@@ -40,12 +39,10 @@ import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.HikeHandlerUtil;
-import com.bsb.hike.models.OfflineHikePacket;
 import com.bsb.hike.offline.OfflineConstants.HandlerConstants;
 import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
-import com.squareup.okhttp.internal.spdy.Ping;
 
 
 /**
@@ -386,17 +383,19 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 		long msgId = convMessage.getMsgID();
 		FileSavedState fss = null;
 		HikeFile hikeFile = convMessage.getMetadata().getHikeFiles().get(0);
-		if (currentSendingFiles.containsKey(msgId))
-		{
-			Logger.d("Spinner", "Current Msg Id -> " + msgId);
-			fss = new FileSavedState(FTState.IN_PROGRESS, (int) file.length(), currentSendingFiles.get(msgId).getTransferProgress().getCurrentChunks() * 1024);
+		synchronized (currentSendingFiles) {
+			if (currentSendingFiles.containsKey(msgId))
+			{
+				Logger.d("Spinner", "Current Msg Id -> " + msgId);
+				fss = new FileSavedState(FTState.IN_PROGRESS, (int) file.length(), currentSendingFiles.get(msgId).getTransferProgress().getCurrentChunks() * 1024);
+			}
+			else
+			{
+				Logger.d("Spinner", "Completed Msg Id -> " + msgId);
+				fss = new FileSavedState(FTState.COMPLETED, hikeFile.getFileKey());
+			}
+			return fss;
 		}
-		else
-		{
-			Logger.d("Spinner", "Completed Msg Id -> " + msgId);
-			fss = new FileSavedState(FTState.COMPLETED, hikeFile.getFileKey());
-		}
-		return fss;
 	}
 
 	/**
@@ -457,11 +456,14 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 	
 	public void removeFromCurrentSendingFile(long msgId)
 	{
-		if(currentSendingFiles.containsKey(msgId))
-		{
-			Logger.d(TAG,"Removing message from removeFromCurrentSendingFile "  + "..."+ msgId);
-			currentSendingFiles.remove(msgId);
+		synchronized (currentSendingFiles) {
+			if(currentSendingFiles.containsKey(msgId))
+			{
+				Logger.d(TAG,"Removing message from removeFromCurrentSendingFile "  + "..."+ msgId);
+				currentSendingFiles.remove(msgId);
+			}
 		}
+		
 	}
 
 	public void initialiseOfflineFileTransfer(String filePath, String fileKey, HikeFileType hikeFileType, String fileType, boolean isRecording, long recordingDuration,
