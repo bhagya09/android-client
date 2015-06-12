@@ -92,7 +92,7 @@ public class OfflineController
 			String apkLabel = null;
 			if (fileData.hikeFileType == HikeFileType.APK)
 			{
-				apkLabel = "To be done here";
+				apkLabel = fileData.file.getName();
 			}
 			
 			offlineManager.initialiseOfflineFileTransfer(fileData.filePath, fileData.fileKey, fileData.hikeFileType, fileData.fileType, fileData.isRecording,  
