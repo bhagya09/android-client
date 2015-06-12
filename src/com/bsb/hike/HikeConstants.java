@@ -45,6 +45,8 @@ public class HikeConstants
 	public static final String FROM = "f";
 
 	public static final String SUB_TYPE = "st";
+	
+	public static final String GROUP_CHAT_TIMESTAMP = "gts";
 
 	public static final String HIKE_MESSAGE = "hm";
 
@@ -211,6 +213,8 @@ public class HikeConstants
 	public static final String MUTED = "muted";
 
 	public static final String POST_AB = "postab";
+	
+	public static final String PATCH_AB = "patchab";
 
 	public static final String POST_INFO = "postinfo";
 
@@ -608,6 +612,8 @@ public class HikeConstants
 	public static final String SYSTEM_HEALTH_URL = "http://www.twitter.com/hikestatus";
 
 	public static final String IS_TYPING = "is typing...";
+	
+	public static final String ARE_TYPING = "are typing...";
 
 	public static final String NEW_GROUP = "new_group";
 	
@@ -2704,7 +2710,7 @@ public class HikeConstants
 		
 		public static final int PHOTOS_PAGER_DOODLE_WEIGHT_SUM = 10000;
 		
-		public static final int MAXIMUM_ALLOWED_IMAGE_AREA = 1024 * 1024;
+		public static final int MAXIMUM_ALLOWED_IMAGE_AREA = 1240 * 1240;
 		
 		public static final String PHOTOS_ACTION_CODE = "photos_action_code";
 		
@@ -2814,6 +2820,9 @@ public class HikeConstants
 	
 	public static final String HIKE_CONTACT_PICKER_RESULT = "contact_pick_result";
 	
+
+	public static final String GROUP_NOTIFIACTION_DELAY = "gnt";
+
 	public static final String GET="get";
 
 	public static final String FTUE_HIKEBOT_MSISDN = "+hike1+";
@@ -2834,3 +2843,4 @@ public class HikeConstants
 			
 	public static final String CONSUMED_FORWARDED_DATA = "consumed";
 }
+

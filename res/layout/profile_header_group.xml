@@ -103,6 +103,18 @@
                     android:visibility="gone" />
             </FrameLayout>
 
+            <com.bsb.hike.view.CustomFontTextView
+                android:id="@+id/creation"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignLeft="@+id/name_layout"
+                android:layout_below="@+id/name_layout"
+                android:layout_toLeftOf="@+id/divider_view"
+                android:ellipsize="end"
+                android:maxLines="2"
+                android:textColor="@color/status_text_color"
+                android:textSize="12sp"
+                android:textStyle="normal" />
         </LinearLayout>
     </RelativeLayout>
 </LinearLayout>

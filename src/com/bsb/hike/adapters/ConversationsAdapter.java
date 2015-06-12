@@ -44,6 +44,7 @@ import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.GroupTypingNotification;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.ConvMessage.State;
 import com.bsb.hike.models.HikeFile.HikeFileType;
@@ -645,7 +646,29 @@ public class ConversationsAdapter extends BaseAdapter
 	{
 		ConvMessage convMessage = new ConvMessage(typingNotif);
 		convMessage.setTimestamp(lastConversationMsg.getTimestamp());
-		convMessage.setMessage(HikeConstants.IS_TYPING);
+		if (lastConversationMsg.isOneToNChat()) {
+			String msg =HikeConstants.IS_TYPING;
+			if (typingNotif != null) {
+				GroupTypingNotification grpTypingNotif = (GroupTypingNotification) typingNotif;
+				List<String> participants = grpTypingNotif
+						.getGroupParticipantList();
+				if (grpTypingNotif != null && participants != null) {
+
+					if (participants.size() == 1) {
+						ContactInfo contact = ContactManager.getInstance()
+								.getContact((String) participants.get(0));
+						if (contact != null && contact.getFirstName() != null) {
+							msg = contact.getFirstName()+" "+HikeConstants.IS_TYPING;
+						}
+					} else if (participants.size() > 1) {
+					    	msg = context.getString(R.string.num_members, (participants.size()))+" "+HikeConstants.ARE_TYPING;
+					}
+				}
+			}
+			convMessage.setMessage(msg);
+		}else{
+			convMessage.setMessage(HikeConstants.IS_TYPING);
+		}
 		convMessage.setState(State.RECEIVED_UNREAD);
 		return convMessage;
 	}
@@ -825,7 +848,8 @@ public class ConversationsAdapter extends BaseAdapter
 		else if (message.getParticipantInfoState() == ParticipantInfoState.PARTICIPANT_JOINED)
 		{
 			JSONArray participantInfoArray = metadata.getGcjParticipantInfo();
-			String highlight = Utils.getConversationJoinHighlightText(participantInfoArray, (OneToNConvInfo)convInfo);
+			
+			String highlight = Utils.getConversationJoinHighlightText(participantInfoArray, (OneToNConvInfo)convInfo, metadata.isNewGroup()&&metadata.getGroupAdder()!=null, context);
 			markedUp = OneToNConversationUtils.getParticipantAddedMessage(message, context, highlight);
 		}
 		

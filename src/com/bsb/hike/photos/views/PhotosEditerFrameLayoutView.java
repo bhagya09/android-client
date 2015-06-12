@@ -34,6 +34,7 @@ import com.bsb.hike.photos.HikePhotosUtils.FilterTools.FilterType;
 import com.bsb.hike.photos.views.CanvasImageView.OnDoodleStateChangeListener;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.IntentFactory;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
 /**
@@ -57,6 +58,8 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 	private String mOriginalName, mDestinationFilename;
 
 	private HikePhotosListener mListener;
+	
+	private final String TAG = PhotosEditerFrameLayoutView.class.getSimpleName();
 
 	public PhotosEditerFrameLayoutView(Context context)
 	{
@@ -170,14 +173,20 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 
 	private void handleImage()
 	{
+		
+		Logger.d(TAG, "handleImage()");
+		
 		DisplayMetrics metrics = getContext().getResources().getDisplayMetrics();
 		int width = metrics.widthPixels;
 		int height = (int) (metrics.heightPixels * getContext().getResources().getInteger(R.integer.photos_editor_canvas_weight) * 1.0f / getContext().getResources().getInteger(
 				R.integer.photos_editor_weightSum));
 
+		Logger.d(TAG, "handleImage() width " + width + " height " + height);
+		
 		imageScaled = HikePhotosUtils.compressBitamp(imageOriginal, width, height, true);
 		if (imageScaled == null)
 		{
+			Logger.d(TAG, "handleImage() imageScaled == null");
 			Toast.makeText(getContext(), getResources().getString(R.string.photos_oom_load), Toast.LENGTH_SHORT).show();
 			IntentFactory.openHomeActivity(getContext(), true);
 			return;
@@ -189,15 +198,19 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 
 		if (compressOutput && HikePhotosUtils.getBitmapArea(imageOriginal) > HikeConstants.HikePhotos.MAXIMUM_ALLOWED_IMAGE_AREA)
 		{
+			Logger.d(TAG, "handleImage() imageScaled == null");
 			imageOriginal = HikePhotosUtils.compressBitamp(imageOriginal, HikeConstants.SMO_MAX_DIMENSION_MEDIUM_FULL_SIZE_PX, HikeConstants.SMO_MAX_DIMENSION_MEDIUM_FULL_SIZE_PX, true);
 		}
 		else if(imageOriginal.getConfig() == null)
 		{
+			Logger.d(TAG, "handleImage() imageScaled == null");
 			//Special Case happens in case of gifs
 			Bitmap temp = imageOriginal;
 			imageOriginal = HikePhotosUtils.createBitmap(imageOriginal, 0, 0, 0, 0, true, false, false, true);
 			HikePhotosUtils.manageBitmaps(temp);
 		}
+		
+		Logger.d(TAG, "handleImage() imageOriginal "+imageOriginal);
 		
 	}
 

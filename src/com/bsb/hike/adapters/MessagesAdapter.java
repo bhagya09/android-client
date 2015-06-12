@@ -2036,7 +2036,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				JSONArray participantInfoArray = metadata.getGcjParticipantInfo();
 				TextView participantInfo = (TextView) inflater.inflate(layoutRes, null);
 				
-				String highlight = Utils.getOneToNConversationJoinHighlightText(participantInfoArray, (OneToNConversation) conversation);
+				String highlight = Utils.getOneToNConversationJoinHighlightText(participantInfoArray, (OneToNConversation) conversation, metadata.isNewGroup()&&metadata.getGroupAdder()!=null, context);
 				
 				String message = OneToNConversationUtils.getParticipantAddedMessage(convMessage, context, highlight);
 				
