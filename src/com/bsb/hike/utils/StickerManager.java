@@ -550,10 +550,16 @@ public class StickerManager
 	
 	public String getStickerCategoryDirPath(String categoryId)
 	{
+		if (TextUtils.isEmpty(stickerExternalDir))
+		{
+			stickerExternalDir =  getExternalStickerRootDirectory(context);
+		}
+		
 		if (!TextUtils.isEmpty(stickerExternalDir))
 		{
-			return stickerExternalDir + "/" + categoryId;
+			return stickerExternalDir + File.separator + categoryId;
 		}
+		
 		return null;
 	}
 
