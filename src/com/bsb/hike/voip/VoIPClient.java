@@ -861,7 +861,7 @@ public class VoIPClient  {
 		partnerSocketInfoTimeoutThread.start();
 	}
 	
-	public void sendPacket(VoIPDataPacket dp, boolean requiresAck) {
+	public synchronized void sendPacket(VoIPDataPacket dp, boolean requiresAck) {
 		
 		if (dp == null || keepRunning == false)
 			return;
