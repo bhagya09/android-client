@@ -45,6 +45,7 @@ import com.bsb.hike.offline.OfflineConstants.HandlerConstants;
 import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+import com.squareup.okhttp.internal.spdy.Ping;
 
 
 /**
@@ -239,6 +240,7 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 
 		// Since disconnect is called, stop sending ghost packets
 		removeMessage(OfflineConstants.HandlerConstants.SEND_GHOST_PACKET);
+		Logger.d(TAG, "Calling shutdown from disconnect()");
 		shutDown();
 	}
 
@@ -557,13 +559,16 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 		
 		if (offlineNetworkMsisdn != null && connectedDevice == null && offlineState == OFFLINE_STATE.CONNECTING)
 		{
+			
+			threadManager.startTextSendingThread();
 			threadManager.startReceivingThreads();
-			threadManager.startSendingThreads();
 			
 			// send ping packet to hotspot
 			
 			onConnected(offlineNetworkMsisdn);
 			sendPingPacket();
+			threadManager.startFileSendingThread();
+		
 			
 		}
 	}
@@ -601,6 +606,7 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 	
 	private void sendPersistantMsgs()
 	{
+		
 		List<JSONObject> packets = HikeOfflinePersistence.getInstance().getAllSentMessages("o:" + getConnectedDevice());
 		for (JSONObject packet : packets)
 		{

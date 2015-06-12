@@ -426,7 +426,7 @@ public class ConnectionManager implements ChannelListener
 		}
 		else
 		{
-			if(wifiManager.isWifiEnabled())
+			if (wifiManager.isWifiEnabled())
 			{
 				forgetWifiNetwork();
 

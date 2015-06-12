@@ -90,4 +90,6 @@ public class OfflineConstants
 	{
 		NOT_CONNECTED,CONNECTING,CONNECTED
 	}
+	
+	public static final int MAX_TRIES=4;
 }
