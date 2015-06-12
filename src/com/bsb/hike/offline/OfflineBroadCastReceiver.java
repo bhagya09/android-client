@@ -66,6 +66,12 @@ public class OfflineBroadCastReceiver extends BroadcastReceiver
 				}
 			}
 		}
+		else if("android.net.wifi.WIFI_AP_STATE_CHANGED".equals(action))
+		{
+			int state = intent.getIntExtra("wifi_state", 
+                    0); 
+			Logger.d(TAG,"Wifi Hotspot State " + state );
+		}
 
 	}
 }

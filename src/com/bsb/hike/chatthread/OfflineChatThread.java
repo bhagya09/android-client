@@ -427,7 +427,7 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 		switch (dialog.getId())
 		{
 		case HikeDialogFactory.CONTACT_SEND_DIALOG:
-
+			
 			break;
 		default:
 			super.positiveClicked(dialog);

@@ -92,4 +92,6 @@ public class OfflineConstants
 	}
 	
 	public static final int MAX_TRIES=4;
+
+	public static final String FILE_TYPE = "fileType";
 }

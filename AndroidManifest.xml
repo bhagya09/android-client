@@ -354,6 +354,12 @@
             android:configChanges="orientation|keyboardHidden|screenSize" 
             android:label="@string/app_label"
             />
+         <activity
+            android:name=".ui.ApkSelectionActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:label="@string/app_label"
+            android:windowSoftInputMode="adjustResize" >
+        </activity>
 
         <receiver
             android:name=".service.BootService"
