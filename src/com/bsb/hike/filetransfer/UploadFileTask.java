@@ -70,6 +70,7 @@ import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.MessageMetadata;
 import com.bsb.hike.models.MultipleConvMessage;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.FileTransferCancelledException;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -232,8 +233,8 @@ public class UploadFileTask extends FileTransferBase
 			filesArray.put(fileJSON);
 			metadata.put(HikeConstants.FILES, filesArray);
 			MessageMetadata messageMetadata = new MessageMetadata(metadata, true);
-			messageMetadata.getHikeFiles().get(0).setFileName(fileName);
-			messageMetadata.getJSON().putOpt(HikeConstants.FILE_NAME, fileName);
+			messageMetadata.getHikeFiles().get(0).setFileName(OfflineUtils.getTimeStampInsertedFileName(fileName));
+			messageMetadata.getJSON().putOpt(HikeConstants.FILE_NAME,OfflineUtils.getTimeStampInsertedFileName(fileName));
 			((ConvMessage) userContext).setMetadata(messageMetadata);
 		} catch (JSONException e) {
 			e.printStackTrace();

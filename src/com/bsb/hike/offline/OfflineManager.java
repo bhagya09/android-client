@@ -477,7 +477,6 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 				recordingDuration, attachmentType, fileName);
 		FileTransferModel fileTransferModel=new FileTransferModel(new TransferProgress(0,OfflineUtils.getTotalChunks((int)file.length())), convMessage.serialize());
 		Logger.d(TAG,"Total Chunk is "+fileTransferModel.getTransferProgress().getTotalChunks() + "...Current chunk is "+fileTransferModel.getTransferProgress().getCurrentChunks());
-		
 		Message msg=Message.obtain();
 		msg.what=HandlerConstants.SAVE_MSG_PERSISTANCE_DB;
 		msg.obj=fileTransferModel;
@@ -550,6 +549,7 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 	        intentFilter.addAction(WifiP2pManager.WIFI_P2P_DISCOVERY_CHANGED_ACTION);
 	        intentFilter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
 	        intentFilter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);		
+	        intentFilter.addAction("android.net.wifi.WIFI_AP_STATE_CHANGED");
 	}
 
 	@Override
@@ -600,7 +600,7 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 
 			// send ghost packet and post disconnect for timeout
 			startSendingGhostPackets(connectedMsisdn);
-			postDisconnectForGhostPackets();
+			//postDisconnectForGhostPackets();
 		}
 	}
 	
@@ -650,7 +650,7 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 	public void restartGhostTimeout()
 	{
 		removeMessage(OfflineConstants.HandlerConstants.DISCONNECT_AFTER_TIMEOUT);
-		postDisconnectForGhostPackets();
+		//postDisconnectForGhostPackets();
 	}
 
 	public void removeMessage(int msg)

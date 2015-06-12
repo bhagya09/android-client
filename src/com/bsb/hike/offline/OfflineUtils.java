@@ -161,7 +161,7 @@ public class OfflineUtils
 		return (message.has(HikeConstants.TYPE) && message.getString(HikeConstants.TYPE).equals(HikeConstants.CHAT_BACKGROUND));
 	}
 
-	public static String getFileBasedOnType(int type, String file)
+	public static String getFileBasedOnType(int type, String fileName)
 	{
 		StringBuilder storagePath = new StringBuilder(HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT);
 		if (type == HikeFileType.OTHER.ordinal())
@@ -188,7 +188,7 @@ public class OfflineUtils
 		{
 			storagePath.append(HikeConstants.OTHER_ROOT);
 		}
-		storagePath.append(File.separator+ getTimeStampInsertedFileName(file));
+		storagePath.append(File.separator+fileName);
 		return storagePath.toString();
 	}
 
@@ -206,7 +206,8 @@ public class OfflineUtils
 		int extensionIndex  = file.lastIndexOf(".");
 		String fileName = file.substring(0, extensionIndex);
 	    String fileExt = file.substring(extensionIndex, file.length());
-	    return fileName  + "_" + String.valueOf(System.currentTimeMillis())+ fileExt;
+	    String timeStamp   = String.valueOf(System.currentTimeMillis());
+	    return fileName  + "_" + timeStamp + "_" + fileExt;
 	}
 	public static JSONObject createPingPacket()
 	{
