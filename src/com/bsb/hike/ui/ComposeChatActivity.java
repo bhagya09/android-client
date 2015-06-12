@@ -1,7 +1,6 @@
 package com.bsb.hike.ui;
 
 import java.io.File;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -1399,25 +1398,8 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					for (Uri fileUri : imageUris)
 					{
 						Logger.d(getClass().getSimpleName(), "File path uri: " + fileUri.toString());
-						String fileUriStart = "file:";
-						String fileUriString = fileUri.toString();
 
-						String filePath;
-						if (Utils.isPicasaUri(fileUriString))
-						{
-							filePath = fileUriString;
-						}else if (fileUriString.startsWith(fileUriStart))
-						{
-							File selectedFile = new File(URI.create(Utils.replaceUrlSpaces(fileUriString)));
-							/*
-							 * Done to fix the issue in a few Sony devices.
-							 */
-							filePath = selectedFile.getAbsolutePath();
-						}
-						else
-						{
-							filePath = Utils.getRealPathFromUri(fileUri, this);
-						}
+						String filePath = Utils.getAbsolutePathFromUri(fileUri, this,true);
 
 						// Defensive fix for play store crash. java.lang.NullPointerException in java.io.File.fixSlashes.
 						if(filePath == null)
@@ -1726,27 +1708,10 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			{
 				Logger.d(getClass().getSimpleName(), "File path uri: " + fileUri.toString());
 				ArrayList<FileTransferData> fileTransferList = new ArrayList<ComposeChatActivity.FileTransferData>();
-				fileUri = Utils.makePicasaUri(fileUri);
-				String fileUriStart = "file:";
-				String fileUriString = fileUri.toString();
-				String filePath;
-				if (Utils.isPicasaUri(fileUriString))
-				{
-					filePath = fileUriString;
-				}
-				else if (fileUriString.startsWith(fileUriStart))
-				{
-					File selectedFile = new File(URI.create(Utils.replaceUrlSpaces(fileUriString)));
-					/*
-					 * Done to fix the issue in a few Sony devices.
-					 */
-					filePath = selectedFile.getAbsolutePath();
-				}
-				else
-				{
-					filePath = Utils.getRealPathFromUri(fileUri, this);
-				}
-	
+				fileUri = Utils.makePicasaUriIfRequired(fileUri);
+				
+				String filePath = Utils.getAbsolutePathFromUri(fileUri, this,true);
+				
 				if (TextUtils.isEmpty(filePath))
 				{
 					Toast.makeText(getApplicationContext(), R.string.unknown_msg, Toast.LENGTH_SHORT).show();

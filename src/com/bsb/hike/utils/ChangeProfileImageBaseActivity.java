@@ -1,7 +1,6 @@
 package com.bsb.hike.utils;
 
 import java.io.File;
-import java.net.URI;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -219,20 +218,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 			}
 			else
 			{
-				String fileUriStart = "file://";
-				String fileUriString = selectedFileUri.toString();
-				if (fileUriString.startsWith(fileUriStart))
-				{
-					 selectedFileIcon = new File(URI.create(Utils.replaceUrlSpaces(fileUriString)));
-					/*
-					 * Done to fix the issue in a few Sony devices.
-					 */
-					path = selectedFileIcon.getAbsolutePath();
-				}
-				else
-				{
-					path = Utils.getRealPathFromUri(selectedFileUri, this);
-				}
+				path = Utils.getAbsolutePathFromUri(selectedFileUri, this,false);
 			}
 			if (TextUtils.isEmpty(path))
 			{
