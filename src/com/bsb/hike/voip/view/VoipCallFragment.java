@@ -819,6 +819,10 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 			return;
 		}
 		
+		// Disable call failed fragment when in a conference
+		if (voipService.inConference())
+			return;
+		
 		showCallFailedFragment(callFailCode, voipService.getPartnerClient().getPhoneNumber());
 	}
 

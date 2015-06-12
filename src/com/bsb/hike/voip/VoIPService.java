@@ -129,7 +129,7 @@ public class VoIPService extends Service {
 	private CallQuality currentCallQuality = CallQuality.UNKNOWN;
 	
 	// Buffer queues
-	private final LinkedBlockingQueue<VoIPDataPacket> recordedSamples     = new LinkedBlockingQueue<VoIPDataPacket>();
+	private final LinkedBlockingQueue<VoIPDataPacket> recordedSamples     = new LinkedBlockingQueue<>(VoIPConstants.MAX_SAMPLES_BUFFER);
 	private final LinkedBlockingQueue<VoIPDataPacket> buffersToSend      = new LinkedBlockingQueue<VoIPDataPacket>();
 	private final LinkedBlockingQueue<VoIPDataPacket> processedRecordedSamples      = new LinkedBlockingQueue<VoIPDataPacket>();
 	private final LinkedBlockingQueue<VoIPDataPacket> playbackBuffersQueue      = new LinkedBlockingQueue<VoIPDataPacket>();
@@ -674,7 +674,7 @@ public class VoIPService extends Service {
 	
 	private void showNotification() {
 		
-		Logger.d(logTag, "Showing notification..");
+//		Logger.d(logTag, "Showing notification..");
 		Intent myIntent = new Intent(getApplicationContext(), VoIPActivity.class);
 		myIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 		PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, myIntent, 0);
@@ -1182,7 +1182,11 @@ public class VoIPService extends Service {
 	                	// Add it to the samples to encode queue
 						VoIPDataPacket dp = new VoIPDataPacket(VoIPDataPacket.PacketType.VOICE_PACKET);
 	                	dp.write(data);
-	                	recordedSamples.add(dp);
+	                	try {
+		                	recordedSamples.add(dp);
+	                	} catch (IllegalStateException e) {
+	                		// Recorded samples queue is full
+	                	}
                 	}
 					index = 0;
 					
@@ -1221,11 +1225,6 @@ public class VoIPService extends Service {
 						dpencode = recordedSamples.take();
 					} catch (InterruptedException e) {
 						break;
-					}
-
-					while (recordedSamples.size() > VoIPConstants.MAX_SAMPLES_BUFFER) {
-						// Logger.w(logTag, "Dropping recorded buffer. AEC sync will be lost.");
-						recordedSamples.poll();
 					}
 
 					// AEC
