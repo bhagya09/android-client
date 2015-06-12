@@ -199,7 +199,7 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 		if (compressOutput && HikePhotosUtils.getBitmapArea(imageOriginal) > HikeConstants.HikePhotos.MAXIMUM_ALLOWED_IMAGE_AREA)
 		{
 			Logger.d(TAG, "handleImage() imageScaled == null");
-			imageOriginal = HikePhotosUtils.compressBitamp(imageOriginal, HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX, HikeConstants.MAX_DIMENSION_LOW_FULL_SIZE_PX, true);
+			imageOriginal = HikePhotosUtils.compressBitamp(imageOriginal, HikeConstants.SMO_MAX_DIMENSION_MEDIUM_FULL_SIZE_PX, HikeConstants.SMO_MAX_DIMENSION_MEDIUM_FULL_SIZE_PX, true);
 		}
 		else if(imageOriginal.getConfig() == null)
 		{
@@ -305,9 +305,9 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 		if(compressOutput)
 		{
 			/**
-			 * Since we already compressing the dimensions no need to decrease quality
+			 * Quality when image compression is done within photos flow
 			 */
-			return 100;
+			return 80;
 		}
 		return 95;
 	}
