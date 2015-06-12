@@ -1227,66 +1227,62 @@ public class HikeNotification
 		// Reset ticker text since we dont want to tick older messages
 		hikeNotifMsgStack.setTickerText(null);
 		
-		AudioManager manager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-		
 		if (!forceNotPlaySound)
 		{
-			//Play (SOUND + VIBRATION) ONLY WHEN
-			//1) User is not in audio/vedio/Voip call....
+			//Play (SOUND + VIBRATION) ONLY WHEN for 
+			//1) User is not in audio/video/Voip call....
 			// (2nd check is a safe check as this should be handled by NotificationBuilder itself)
 			//2) There should not be any voip action running(Calling/Connected) 
-			if (!Utils.isUserInAnyTypeOfCall(context)
-					&& VoIPService.getCallId() <= 0)
+			boolean isUserNotOnCall = !Utils.isUserInAnyTypeOfCall(context) && VoIPService.getCallId() <= 0;
+			boolean isLollipopAndAbove=Utils.isLollipopOrHigher();
+			String notifSound = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.NOTIF_SOUND_PREF, NOTIF_SOUND_HIKE);
+			Logger.i("notif", "sound " + notifSound);
+
+			// Decide if Sound is to be played,
+			// 1) Settings should be On
+			if (!NOTIF_SOUND_OFF.equals(notifSound))
 			{
-				String notifSound = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.NOTIF_SOUND_PREF, NOTIF_SOUND_HIKE);
-				Logger.i("notif", "sound " + notifSound);
-				
-				//Decide if Sound is to be played,  
-				//1) Settings should be On
-				//2) Mode should not be in Silent and Not in Vibrate
-				//3) Notification volume is > 0
-				if (!NOTIF_SOUND_OFF.equals(notifSound) && !SoundUtils.isSilentOrVibrateMode(context)
-						&& !SoundUtils.isNotificationStreamVolZero(context))
+				if (isLollipopAndAbove)
 				{
-					//Now We have to play sound ourself via RingtoneManager in following cases, 
-					//CASE 1:- If Music Is Playing, then play via Ringtone manager on Music Stream
-					// 		   controlled via Music Volume Stream
-					//CASE 2:- If wireless/wired handsfree is connected
-					if (manager.isMusicActive() 
-							|| manager.isWiredHeadsetOn() 
-							|| manager.isBluetoothA2dpOn()
-							|| (manager.isBluetoothScoAvailableOffCall() && manager.isBluetoothScoOn()))
+					playSoundViaBuilder(mBuilder, notifSound);
+				}
+				// Decide if Sound is to be played,for lower version than lollipop 
+				// 1) UserNotOnCall
+				// 2) Mode should not be in Silent and Not in Vibrate
+				// 3) Notification volume is > 0
+				else if (isUserNotOnCall && !SoundUtils.isSilentOrVibrateMode(context) && !SoundUtils.isNotificationStreamVolZero(context))
+				{
+					if (isAudioServiceBusy())
 					{
 						playSoundViaPlayer(notifSound);
 					}
-					//CASE OTHERS: Play it via NotificationBuilder
 					else
 					{
 						playSoundViaBuilder(mBuilder, notifSound);
 					}
 				}
-				// Though Notification Builder should not vibrate if phone is in silent mode, 
-				//But in some device (Micromax A110), it is vibrating, so we are adding extra
-				// safe check here to ensure that it does not vibrate in silent mode
-				//Now Vibration is turned off in these 2 scenarios
-				//1) Vibration Settings are off
-				//2) Phone is in silent mode
-				if (!VIB_OFF.equals(vibrate) && !SoundUtils.isSilentMode(context))
+			}
+			// Though Notification Builder should not vibrate if phone is in silent mode,
+			// But in some device (Micromax A110), it is vibrating, so we are adding extra
+			// safe check here to ensure that it does not vibrate in silent mode
+			// Now Vibration is turned off in these 2 scenarios
+			// 1) Vibration Settings are off
+			// 2) Either Lollipop and above OR Phone is in silent mode
+			if (!VIB_OFF.equals(vibrate) && (isLollipopAndAbove || (!SoundUtils.isSilentMode(context) && isUserNotOnCall)))
+			{
+				if (VIB_DEF.equals(vibrate))
 				{
-					if (VIB_DEF.equals(vibrate))
-					{
-						mBuilder.setDefaults(mBuilder.getNotification().defaults | Notification.DEFAULT_VIBRATE);
-					}
-					else if (VIB_SHORT.equals(vibrate))
-					{
-						// short vibrate
-						mBuilder.setVibrate(HikeConstants.SHORT_VIB_PATTERN);
-					}
-					else if (VIB_LONG.equals(vibrate))
-					{
-						// long vibrate
-						mBuilder.setVibrate(HikeConstants.LONG_VIB_PATTERN);
-					}
+					mBuilder.setDefaults(mBuilder.getNotification().defaults | Notification.DEFAULT_VIBRATE);
+				}
+				else if (VIB_SHORT.equals(vibrate))
+				{
+					// short vibrate
+					mBuilder.setVibrate(HikeConstants.SHORT_VIB_PATTERN);
+				}
+				else if (VIB_LONG.equals(vibrate))
+				{
+					// long vibrate
+					mBuilder.setVibrate(HikeConstants.LONG_VIB_PATTERN);
 				}
 			}
 			
@@ -1298,6 +1294,17 @@ public class HikeNotification
 			}
 		}
 		return mBuilder;
+	}
+
+	public boolean isAudioServiceBusy(){
+		// We are considering that Audio service will be busy for follwing conditions:  
+		// CASE 1:- If Music Is Playing, then play via Ringtone manager on Music Stream
+		// controlled via Music Volume Stream
+		// CASE 2:- If wireless/wired handsfree is connected
+		//Now We have to play sound ourself via RingtoneManager for above cases,
+		AudioManager manager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+		return manager.isMusicActive() || manager.isWiredHeadsetOn() || manager.isBluetoothA2dpOn() || (manager.isBluetoothScoAvailableOffCall() && manager
+				.isBluetoothScoOn());
 	}
 
 	public void setNotificationIntentForBuilder(NotificationCompat.Builder mBuilder, Intent notificationIntent,int notificationId)

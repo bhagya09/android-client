@@ -3199,6 +3199,11 @@ public class Utils
 	{
 		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2;
 	}
+	
+	public static boolean isLollipopOrHigher()
+	{
+		return android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP;
+	}
 
 	public static void executeAsyncTask(AsyncTask<Void, Void, Void> asyncTask)
 	{
