@@ -1,5 +1,7 @@
 package com.bsb.hike.offline;
 
+import static com.bsb.hike.MqttConstants.WAKE_LOCK_TAG;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -7,12 +9,15 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import org.json.JSONObject;
 
+import android.app.Service;
 import android.content.Context;
 import android.content.IntentFilter;
 import android.net.wifi.ScanResult;
@@ -22,6 +27,8 @@ import android.net.wifi.p2p.WifiP2pManager;
 import android.net.wifi.p2p.WifiP2pManager.PeerListListener;
 import android.os.Handler;
 import android.os.Message;
+import android.os.PowerManager;
+import android.os.PowerManager.WakeLock;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView.ScaleType;
@@ -323,6 +330,10 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 			Logger.e("Spinner", "Exception in copyFile: ", e);
 			isCopied = false;
 		}
+		catch (ArrayIndexOutOfBoundsException e)
+		{
+			Logger.e(TAG, "Stream is closed. Copy file breaks.", e);
+		}
 		return isCopied;
 	}
 
@@ -602,7 +613,20 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 			// send ghost packet and post disconnect for timeout
 			startSendingGhostPackets(connectedMsisdn);
 			postDisconnectForGhostPackets();
+			//acquireWakeLock();
 		}
+	}
+	
+	private void acquireWakeLock()
+	{
+		WakeLock wakelock = null;
+		if (wakelock == null)
+		{
+			PowerManager pm = (PowerManager) context.getSystemService(Service.POWER_SERVICE);
+			wakelock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, WAKE_LOCK_TAG);
+			wakelock.setReferenceCounted(false);
+		}
+		wakelock.acquire();
 	}
 	
 	private void sendPersistantMsgs()
@@ -627,12 +651,30 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 		}
 	}
 
-	private void startSendingGhostPackets(String msisdn)
+	private void startSendingGhostPackets(final String msisdn)
 	{
+		Timer ghostTimer = new Timer();
+		ghostTimer.scheduleAtFixedRate(new GhostTimerTask(msisdn), 0, OfflineConstants.GHOST_PACKET_SEND_TIME);
+		
+		/*
 		Message msg = Message.obtain();
 		msg.what = OfflineConstants.HandlerConstants.SEND_GHOST_PACKET;
 		msg.obj = msisdn;
-		performWorkOnBackEndThread(msg);
+		performWorkOnBackEndThread(msg);*/
+	}
+	
+	private class GhostTimerTask extends TimerTask
+	{
+		private String msisdn;
+		public GhostTimerTask(String msisdn)
+		{
+			this.msisdn = msisdn;
+		}
+		@Override
+		public void run() {
+			JSONObject ghost = OfflineUtils.createGhostPacket(msisdn);
+			addToTextQueue(ghost);
+		}
 	}
 	
 	private void sendGhostPacket(String msisdn)
@@ -640,6 +682,8 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 		JSONObject ghost = OfflineUtils.createGhostPacket(msisdn);
 		addToTextQueue(ghost);
 	}
+	
+	
 	
 	private void postDisconnectForGhostPackets()
 	{
