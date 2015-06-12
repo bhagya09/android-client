@@ -22,6 +22,10 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.db.HikeOfflinePersistence;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
+import com.bsb.hike.offline.runnables.FileReceiverRunnable;
+import com.bsb.hike.offline.runnables.FileTransferRunnable;
+import com.bsb.hike.offline.runnables.TextReceiveRunnable;
+import com.bsb.hike.offline.runnables.TextTransferRunnable;
 import com.bsb.hike.utils.Logger;
 
 /**
