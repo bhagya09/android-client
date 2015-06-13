@@ -62,6 +62,7 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 	private static class ChatHeadSettingsArrayAdapter extends ArrayAdapter<ListViewItem>
 	{
 		Context mContext;
+		
 		public ChatHeadSettingsArrayAdapter(Context context, int resource, List<ListViewItem> objects)
 		{
 			super(context, resource, objects);
@@ -124,17 +125,22 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
-
 		setContentView(R.layout.settings_sticker_share);
-
 		creatingArrayList();
 		listAdapter = new ChatHeadSettingsArrayAdapter(this, R.layout.settings_sticker_share_item, mListViewItems);
 		findingViewsByID();
+		settingOnClickEvent();
+		settingSelectAllText();
+		ListView listView = (ListView) findViewById(R.id.list_items);
+		listView.setAdapter(listAdapter);
+		setupActionBar();
+	}
 
+	private void settingOnClickEvent()
+	{
 		LinearLayout layout = (LinearLayout) findViewById(R.id.main_select_layout);
 		layout.setOnClickListener(new View.OnClickListener()
 		{
-
 			@Override
 			public void onClick(View v)
 			{
@@ -143,17 +149,12 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 		});
 		selectAllCheckbox.setOnClickListener(new View.OnClickListener()
 		{
-
 			@Override
 			public void onClick(View v)
 			{
 				onSelectAllCheckboxClick();
 			}
 		});
-		settingSelectAllText();
-		ListView listView = (ListView) findViewById(R.id.list_items);
-		listView.setAdapter(listAdapter);
-		setupActionBar();
 	}
 
 	private void findingViewsByID()
