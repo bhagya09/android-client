@@ -976,8 +976,14 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 	public synchronized void shutDown(OfflineException exception)
 	{
 		Logger.d(TAG, "ShudDown called Due to reason " + exception.getReasonCode());
+		
+		
+		
 		if (getOfflineState() != OFFLINE_STATE.DISCONNECTED)
 		{
+			
+			sendDisconnectToListeners();
+			
 			setOfflineState(OFFLINE_STATE.DISCONNECTED);
 			
 			fileTransferQueue.clear();
@@ -992,6 +998,22 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 			clearAllVariables();
 			
 		}
+	}
+
+	private void sendDisconnectToListeners()
+	{
+		if (getOfflineState() == OFFLINE_STATE.CONNECTED)
+		{
+			final ConvMessage convMessage = OfflineUtils.createOfflineInlineConvMessage("o:" + connectedDevice, context.getString(R.string.connection_deestablished),
+					OfflineConstants.OFFLINE_MESSAGE_DISCONNECTED_TYPE);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_SENT, convMessage);
+			
+			for (IOfflineCallbacks offlineListener : listeners)
+			{
+				offlineListener.onDisconnect(ERRORCODE.USERDISCONNECTED);
+			}
+		}
+
 	}
 
 	private void clearAllVariables()

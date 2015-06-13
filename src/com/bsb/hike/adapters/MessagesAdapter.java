@@ -2129,7 +2129,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				((ViewGroup) participantInfoHolder.container).addView(mainMessage);
 				
 			}
-			else if(infoState == ParticipantInfoState.OFFLINE_CONNECTION_STATUS_CONNECTED)
+			else if(infoState == ParticipantInfoState.OFFLINE_CONNECTION_STATUS_DISCONNECTED)
 			{
 				TextView mainMessage = (TextView) inflater.inflate(layoutRes, null);
 				String name="Connection Disconnected with " + ((OfflineConversation)conversation).getLabel();
