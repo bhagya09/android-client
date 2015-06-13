@@ -17,7 +17,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.LinearLayout;
 
-public class ChatHeadActivity extends HikeBaseActivity implements StickerPickerListener, FinishActivityListener
+public class ChatHeadActivity extends HikeBaseActivity implements StickerPickerListener, IFinishActivityListener
 {
 	public static int shareCount, totalShareCount, noOfDays, shareLimit, maxDismissLimit;
 	
@@ -26,7 +26,7 @@ public class ChatHeadActivity extends HikeBaseActivity implements StickerPickerL
 	public static final int DISMISS_CONST= 5;
 	
 	private StickerPicker picker;
-
+	
 	@Override
 	public void onConfigurationChanged(Configuration newConfig)
 	{
@@ -53,7 +53,7 @@ public class ChatHeadActivity extends HikeBaseActivity implements StickerPickerL
 		ChatHeadService.unregisterReceiver(this);
 		super.onStop();
 	}
-
+		
 	private void saveUpdatedSharedPref()
 	{
 		HikeSharedPreferenceUtil.getInstance().saveData(ChatHeadUtils.DAILY_STICKER_SHARE_COUNT, shareCount);
@@ -96,7 +96,7 @@ public class ChatHeadActivity extends HikeBaseActivity implements StickerPickerL
 		}
 		shareCount = HikeSharedPreferenceUtil.getInstance().getData(ChatHeadUtils.DAILY_STICKER_SHARE_COUNT, 0);
 		noOfDays = (int) ((Utils.gettingMidnightTimeinMilliseconds() - (HikeSharedPreferenceUtil.getInstance().getData(SERVICE_START_DATE,
-				Utils.gettingMidnightTimeinMilliseconds()))) / (24 * 60 * 60 * 1000)) + 1;
+				Utils.gettingMidnightTimeinMilliseconds()))) / (24 * ChatHeadUtils.HOUR_TO_MILLISEC_CONST)) + 1;
 		if (noOfDays < 1)
 		{
 			noOfDays = 1;

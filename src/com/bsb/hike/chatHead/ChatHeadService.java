@@ -3,6 +3,7 @@ package com.bsb.hike.chatHead;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.json.JSONArray;
@@ -16,7 +17,6 @@ import android.animation.ValueAnimator;
 import android.app.Service;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.content.res.Resources;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.os.Handler;
@@ -31,6 +31,7 @@ import android.widget.ImageView;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
+import com.bsb.hike.ui.utils.RecyclingImageView;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.ShareUtils;
@@ -52,9 +53,9 @@ public class ChatHeadService extends Service
 
 	private static final int INITIAL_POS_Y = 0;
 
-	private static List<String> list = new ArrayList<String>();
+	private static List<String> whitelistedPackageList = new ArrayList<String>();
 
-	private static HashMap<String, String> hashMap = new HashMap<>();
+	private static Map<String, String> PackageNameHashMap = new HashMap<String,String>();
 
 	public static String foregroundApp = HikeConstants.Extras.WHATSAPP_PACKAGE;
 
@@ -83,7 +84,7 @@ public class ChatHeadService extends Service
 
 	public static int dismissed = 0;
 
-	public static FinishActivityListener mFinishActivityListener;
+	public static IFinishActivityListener mFinishActivityListener;
 
 	private final Handler chatHeadHandler = new Handler();
 
@@ -96,18 +97,19 @@ public class ChatHeadService extends Service
 			boolean whiteListAppForegrounded = false;
 			Set<String> foregroundPackages = ChatHeadUtils.getForegroundedPackages();
 
-			for (String packName : list)
+			for (String packName : whitelistedPackageList)
 			{
 				whiteListAppForegrounded = foregroundPackages.contains(packName);
-				/* whitelisted app is in foreground and the recent package is not equals to the last package, when the whitelisted app is not in foreground */
-				if (!toShow && (whiteListAppForegrounded && !packName.equals(foregroundApp)) || (!whiteListAppForegrounded))
+				/* whitelisted app is in foreground and the recent package is not equals to the last package, when the whitelisted app is not in foreground and the recent package 
+				   is equal to foreground package means while checking the other whitelisted apps it should not go true*/
+				if (!toShow && ((whiteListAppForegrounded && !packName.equals(foregroundApp)) || (!whiteListAppForegrounded && packName.equals(foregroundApp))))
 				{
 					toShow = true;
 				}
 
 				if (whiteListAppForegrounded && toShow)
 				{
-					foregroundAppName = hashMap.get(packName);
+					foregroundAppName = PackageNameHashMap.get(packName);
 					break;
 				}
 
@@ -149,16 +151,16 @@ public class ChatHeadService extends Service
 	{
 		try
 		{
-			list.clear();
-			JSONArray jsonObj = new JSONArray(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.PACKAGE_LIST, ""));
-			for (int i = 0; i < jsonObj.length(); i++)
+			whitelistedPackageList.clear();
+			JSONArray packagesJSONArray = new JSONArray(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.PACKAGE_LIST, ""));
+			for (int i = 0; i < packagesJSONArray.length(); i++)
 			{
-				JSONObject obj = jsonObj.getJSONObject(i);
+				JSONObject obj = packagesJSONArray.getJSONObject(i);
 				{
-					if (obj.optBoolean(HikeConstants.ChatHead.APP_ENABLE, false))
+					if (obj.optBoolean(HikeConstants.ChatHead.APP_ENABLE, false) && obj.optString(HikeConstants.ChatHead.PACKAGE_NAME, null) != null)
 					{
-						list.add(obj.optString(HikeConstants.ChatHead.PACKAGE_NAME, ""));
-						hashMap.put(obj.optString(HikeConstants.ChatHead.PACKAGE_NAME, ""), obj.optString(HikeConstants.ChatHead.APP_NAME, ""));
+						whitelistedPackageList.add(obj.getString(HikeConstants.ChatHead.PACKAGE_NAME));
+						PackageNameHashMap.put(obj.getString(HikeConstants.ChatHead.PACKAGE_NAME), obj.optString(HikeConstants.ChatHead.APP_NAME, ""));
 					}
 				}
 
@@ -170,12 +172,12 @@ public class ChatHeadService extends Service
 		}
 	}
 
-	public static void registerReceiver(FinishActivityListener finishingActivityListener)
+	public static void registerReceiver(IFinishActivityListener finishingActivityListener)
 	{
 		mFinishActivityListener = finishingActivityListener;
 	}
 
-	public static void unregisterReceiver(FinishActivityListener finishingActivityListener)
+	public static void unregisterReceiver(IFinishActivityListener finishingActivityListener)
 	{
 		mFinishActivityListener = null;
 	}
@@ -238,17 +240,17 @@ public class ChatHeadService extends Service
 					startActivity(intent);
 					break;
 				case ChatHeadUtils.SHARING_BEFORE_FINISHING_ANIMATION:
-					Intent i = ShareUtils.shareContent(HikeConstants.Extras.ShareTypes.STICKER_SHARE, path[0], foregroundApp);
-					if (i != null)
+					intent = ShareUtils.shareContent(HikeConstants.Extras.ShareTypes.STICKER_SHARE, path[0], foregroundApp);
+					if (intent != null)
 					{
-						startActivity(i);
+						startActivity(intent);
 					}
 					break;
 				case ChatHeadUtils.STOPPING_SERVICE_ANIMATION:
-					ChatHeadUtils.stopService(getApplicationContext());
+					ChatHeadUtils.stopService();
 					break;
 				case ChatHeadUtils.GET_MORE_STICKERS_ANIMATION:
-					intent = IntentFactory.getStickerShareIntent(getApplicationContext());
+					intent = IntentFactory.getStickerShareWebViewActivityIntent(getApplicationContext());
 					startActivity(intent);
 					ChatHeadService.getInstance().setChatHeadInvisible();
 					break;
@@ -281,7 +283,7 @@ public class ChatHeadService extends Service
 
 	private void setCloseHeadParams()
 	{
-		closeHead = new ImageView(this);
+		closeHead = new RecyclingImageView(this);
 		closeHead.setImageResource(R.drawable.close_chat_head);
 		closeHeadParams.gravity = Gravity.BOTTOM | Gravity.CENTER;
 	}
@@ -299,10 +301,6 @@ public class ChatHeadService extends Service
 		int[] closeHeadLocations = new int[2];
 
 		Rect rectChatHead, rectCloseHead;
-
-		DisplayMetrics displaymetrics = new DisplayMetrics();
-
-		windowManager.getDefaultDisplay().getMetrics(displaymetrics);
 
 		chatHead.getLocationOnScreen(chatHeadLocations);
 		closeHead.getLocationOnScreen(closeHeadLocations);
@@ -349,13 +347,13 @@ public class ChatHeadService extends Service
 			}
 			else
 			{
-				if (chatHeadLocations[0] <= (int) ((displaymetrics.widthPixels - chatHead.getWidth()) / 2))
+				if (chatHeadLocations[0] <= (int) ((getResources().getDisplayMetrics().widthPixels - chatHead.getWidth()) / 2))
 				{
 					overlayAnimation(chatHead, chatHeadParams.x, 0, chatHeadParams.y, chatHeadParams.y, ChatHeadUtils.REMAINING_ANIMATION);
 				}
 				else
 				{
-					overlayAnimation(chatHead, chatHeadParams.x, displaymetrics.widthPixels - chatHead.getWidth(), chatHeadParams.y, chatHeadParams.y,
+					overlayAnimation(chatHead, chatHeadParams.x, getResources().getDisplayMetrics().widthPixels - chatHead.getWidth(), chatHeadParams.y, chatHeadParams.y,
 							ChatHeadUtils.REMAINING_ANIMATION);
 				}
 			}
@@ -368,17 +366,14 @@ public class ChatHeadService extends Service
 
 	private void openingChatHeadActivity()
 	{
-		DisplayMetrics displaymetrics = new DisplayMetrics();
-
-		windowManager.getDefaultDisplay().getMetrics(displaymetrics);
-
+		
 		final float scale = Utils.densityMultiplier;
 		int status_bar_height = ChatThreadUtils.getStatusBarHeight(this);
 		int pixelsX;
 		// 8 dp margin + 38 dp left part of image to point - width of icon/2
 		pixelsX = (int) ((46 * scale) - (chatHead.getWidth() / 2));
 		// 240 dp image height + 8dp image margin bottom + size of icon
-		int pixelsY = (int) (displaymetrics.heightPixels - (scale * 248) - chatHead.getHeight() - status_bar_height);
+		int pixelsY = (int) (getResources().getDisplayMetrics().heightPixels - (scale * 248) - chatHead.getHeight() - status_bar_height);
 		savedPosX = chatHeadParams.x;
 		savedPosY = chatHeadParams.y;
 		overlayAnimation(chatHead, chatHeadParams.x, pixelsX, chatHeadParams.y, pixelsY, ChatHeadUtils.CREATING_CHAT_HEAD_ACTIVITY_ANIMATION);
@@ -393,10 +388,6 @@ public class ChatHeadService extends Service
 
 		Rect rectChatHead, rectCloseHead;
 
-		DisplayMetrics displaymetrics = new DisplayMetrics();
-
-		windowManager.getDefaultDisplay().getMetrics(displaymetrics);
-
 		if (!flagActivityRunning)
 		{
 			drag++;
@@ -404,12 +395,12 @@ public class ChatHeadService extends Service
 			chatHeadParams.y = initialY + (int) (event.getRawY() - initialTouchY);
 			if (chatHeadParams.x < 0)
 				chatHeadParams.x = 0;
-			if (chatHeadParams.x > displaymetrics.widthPixels - chatHead.getWidth())
-				chatHeadParams.x = displaymetrics.widthPixels - chatHead.getWidth();
+			if (chatHeadParams.x > getResources().getDisplayMetrics().widthPixels - chatHead.getWidth())
+				chatHeadParams.x = getResources().getDisplayMetrics().widthPixels - chatHead.getWidth();
 			if (chatHeadParams.y < 0)
 				chatHeadParams.y = 0;
-			if (chatHeadParams.y > displaymetrics.heightPixels - chatHead.getHeight())
-				chatHeadParams.y = displaymetrics.heightPixels - chatHead.getHeight();
+			if (chatHeadParams.y > getResources().getDisplayMetrics().heightPixels - chatHead.getHeight())
+				chatHeadParams.y = getResources().getDisplayMetrics().heightPixels - chatHead.getHeight();
 			windowManager.updateViewLayout(chatHead, chatHeadParams);
 			chatHead.getLocationOnScreen(chatHeadLocations);
 			closeHead.getLocationOnScreen(closeHeadLocations);
@@ -435,12 +426,50 @@ public class ChatHeadService extends Service
 	{
 		return instance;
 	}
+	
+	OnTouchListener chatHeadOnTouchListener = new OnTouchListener()
+	{
+		Integer drag;
+
+		Integer initialX;
+
+		Integer initialY;
+
+		Float initialTouchX;
+
+		Float initialTouchY;
+
+		@Override
+		public boolean onTouch(View v, MotionEvent event)
+		{
+			switch (event.getAction())
+			{
+			case MotionEvent.ACTION_DOWN:
+				drag = 0;
+				initialX = chatHeadParams.x;
+				initialY = chatHeadParams.y;
+				initialTouchX = event.getRawX();
+				initialTouchY = event.getRawY();
+				windowManager.addView(closeHead, closeHeadParams);
+				return true;
+
+			case MotionEvent.ACTION_UP:
+				actionUp(drag);
+				return true;
+
+			case MotionEvent.ACTION_MOVE:
+				drag = actionMove(drag, initialX, initialY, initialTouchX, initialTouchY, event);
+				return true;
+			}
+
+			return false;
+		}
+
+	};
 
 	public void resetPosition(int flag, String... path)
 	{
-		DisplayMetrics displaymetrics = new DisplayMetrics();
-		windowManager.getDefaultDisplay().getMetrics(displaymetrics);
-		if (savedPosX <= (int) ((displaymetrics.widthPixels - chatHead.getWidth()) / 2))
+		if (savedPosX <= (int) ((getResources().getDisplayMetrics().widthPixels - chatHead.getWidth()) / 2))
 		{
 			if (path.length > 0)
 			{
@@ -456,11 +485,11 @@ public class ChatHeadService extends Service
 		{
 			if (path.length > 0)
 			{
-				overlayAnimation(chatHead, chatHeadParams.x, displaymetrics.widthPixels - chatHead.getWidth(), chatHeadParams.y, savedPosY, flag, path);
+				overlayAnimation(chatHead, chatHeadParams.x, getResources().getDisplayMetrics().widthPixels - chatHead.getWidth(), chatHeadParams.y, savedPosY, flag, path);
 			}
 			else
 			{
-				overlayAnimation(chatHead, chatHeadParams.x, displaymetrics.widthPixels - chatHead.getWidth(), chatHeadParams.y, savedPosY, flag);
+				overlayAnimation(chatHead, chatHeadParams.x, getResources().getDisplayMetrics().widthPixels - chatHead.getWidth(), chatHeadParams.y, savedPosY, flag);
 			}
 		}
 	}
@@ -482,7 +511,7 @@ public class ChatHeadService extends Service
 
 		windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
 
-		chatHead = new ImageView(this);
+		chatHead = new RecyclingImageView(this);
 
 		chatHead.setImageResource(R.drawable.sticker_chat_head);
 
@@ -495,45 +524,8 @@ public class ChatHeadService extends Service
 		windowManager.addView(chatHead, chatHeadParams);
 
 		chatHead.setVisibility(View.INVISIBLE);
-
-		chatHead.setOnTouchListener(new OnTouchListener()
-		{
-			Integer drag;
-
-			Integer initialX;
-
-			Integer initialY;
-
-			Float initialTouchX;
-
-			Float initialTouchY;
-
-			@Override
-			public boolean onTouch(View v, MotionEvent event)
-			{
-				switch (event.getAction())
-				{
-				case MotionEvent.ACTION_DOWN:
-					drag = 0;
-					initialX = chatHeadParams.x;
-					initialY = chatHeadParams.y;
-					initialTouchX = event.getRawX();
-					initialTouchY = event.getRawY();
-					windowManager.addView(closeHead, closeHeadParams);
-					return true;
-
-				case MotionEvent.ACTION_UP:
-					actionUp(drag);
-					return true;
-
-				case MotionEvent.ACTION_MOVE:
-					drag = actionMove(drag, initialX, initialY, initialTouchX, initialTouchY, event);
-					return true;
-				}
-
-				return false;
-			}
-		});
+		
+		chatHead.setOnTouchListener(chatHeadOnTouchListener);
 
 	}
 
@@ -548,21 +540,18 @@ public class ChatHeadService extends Service
 	{
 		super.onConfigurationChanged(newConfig);
 		int[] chatHeadLocations = new int[2];
-		DisplayMetrics displaymetrics = new DisplayMetrics();
-		windowManager.getDefaultDisplay().getMetrics(displaymetrics);
 		chatHead.getLocationOnScreen(chatHeadLocations);
-		if (chatHeadLocations[0] <= (int) ((displaymetrics.widthPixels - chatHead.getWidth()) / 2))
+		if (chatHeadLocations[0] <= (int) ((getResources().getDisplayMetrics().widthPixels - chatHead.getWidth()) / 2))
 		{
 			chatHeadParams.x = 0;
 			chatHeadParams.y = chatHeadLocations[1];
 		}
 		else
 		{
-			chatHeadParams.x = displaymetrics.widthPixels - chatHead.getWidth();
+			chatHeadParams.x = getResources().getDisplayMetrics().widthPixels - chatHead.getWidth();
 			chatHeadParams.y = chatHeadLocations[1];
 		}
-		windowManager.removeView(chatHead);
-		windowManager.addView(chatHead, chatHeadParams);
+		windowManager.updateViewLayout(chatHead, chatHeadParams);
 		if (closeHead.isShown())
 		{
 			windowManager.removeView(closeHead);

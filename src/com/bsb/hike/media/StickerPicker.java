@@ -66,8 +66,16 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 	
 	private View chatHeadstickerPickerView;
 	
-	Context mContext;
+	private Context mContext;
+	
+	private TextView  chatHeadDisableButton, chatHeadgetMoreStickersButton, chatHeadSideText, chatHeadMainText;
+	
+	private LinearLayout chatHeadMainLayout, chatHeadInfoIconLayout, chatHeadDisableLayout;
+	
+	private ImageView chatHeadInfoIconButton;
 
+	private ProgressBar chatHeadProgressBar;
+	
 	/**
 	 * Constructor
 	 * 
@@ -157,7 +165,9 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 		}
 		
 		initView();
+		
 		handleStickerIntro(viewToDisplay);
+		
 		addAdaptersToViews();
 
 		popUpLayout.showKeyboardPopup(viewToDisplay);
@@ -201,12 +211,12 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 		stickerAdapter = new StickerAdapter(mActivity, this);
 
 		mIconPageIndicator = (StickerEmoticonIconPageIndicator) view.findViewById(R.id.sticker_icon_indicator);
-
 		
 		View shopIcon = (view.findViewById(R.id.shop_icon));
-		
-		shopIcon.setOnClickListener(this);
-
+		if (shopIcon != null)
+		{
+			shopIcon.setOnClickListener(this);
+		}
 		mViewPager.setVisibility(View.VISIBLE);
 	}
 
@@ -249,8 +259,10 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 			initView();
 		}
 		
-		handleStickerIntro(viewToDisplay);
-		
+		if (mLayoutResId != R.layout.chat_head_sticker_layout)
+		{
+			handleStickerIntro(viewToDisplay);
+		}
 		addAdaptersToViews();
 		
 		return viewToDisplay;
@@ -309,17 +321,17 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 		case R.id.one_hour:
 			HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.SNOOZE_TIME, ChatHeadService.foregroundAppName,
 					AnalyticsConstants.ChatHeadEvents.ONE_HOUR);
-			ChatHeadUtils.onClickSetAlarm(mContext, 1 * 60 * 60 * 1000);
+			ChatHeadUtils.onClickSetAlarm(mContext, 1 * ChatHeadUtils.HOUR_TO_MILLISEC_CONST);
 			break;
 		case R.id.eight_hours:
 			HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.SNOOZE_TIME, ChatHeadService.foregroundAppName,
 					AnalyticsConstants.ChatHeadEvents.EIGHT_HOURS);
-			ChatHeadUtils.onClickSetAlarm(mContext, 8 * 60 * 60 * 1000);
+			ChatHeadUtils.onClickSetAlarm(mContext, 8 * ChatHeadUtils.HOUR_TO_MILLISEC_CONST);
 			break;
 		case R.id.one_day:
 			HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.SNOOZE_TIME, ChatHeadService.foregroundAppName,
 					AnalyticsConstants.ChatHeadEvents.ONE_DAY);
-			ChatHeadUtils.onClickSetAlarm(mContext, 24 * 60 * 60 * 1000);
+			ChatHeadUtils.onClickSetAlarm(mContext, 24 * ChatHeadUtils.HOUR_TO_MILLISEC_CONST);
 			break;
 		case R.id.back_main_layout:
 			HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.BACK, ChatHeadService.foregroundAppName);
@@ -537,24 +549,16 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 	
 	public void infoIconClick()
 	{
-		LinearLayout disableLayout, infoIconLayout;
-		TextView sideText;
-		ViewPager viewPager = (ViewPager) (chatHeadstickerPickerView.findViewById(R.id.sticker_pager));
-		viewPager.setVisibility(View.GONE);
-		ImageView imageView = (ImageView) (chatHeadstickerPickerView.findViewById(R.id.info_icon));
-		imageView.setSelected(true);
-		infoIconLayout = (LinearLayout) (chatHeadstickerPickerView.findViewById(R.id.info_icon_layout));
-		infoIconLayout.setVisibility(View.VISIBLE);
-		mIconPageIndicator = (StickerEmoticonIconPageIndicator) chatHeadstickerPickerView.findViewById(R.id.sticker_icon_indicator);
+		mViewPager.setVisibility(View.GONE);
+		chatHeadInfoIconButton.setSelected(true);
+		chatHeadInfoIconLayout.setVisibility(View.VISIBLE);
 		mIconPageIndicator.unselectCurrent();
-		disableLayout = (LinearLayout) (chatHeadstickerPickerView.findViewById(R.id.disable_layout));
-		disableLayout.setVisibility(View.GONE);
+		chatHeadDisableLayout.setVisibility(View.GONE);
 		if (ChatHeadService.dismissed > ChatHeadActivity.maxDismissLimit)
 		{
 			HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.INFOICON_WITHOUT_CLICK, ChatHeadService.foregroundAppName,
 					AnalyticsConstants.ChatHeadEvents.DISMISS_LIMIT);
-			TextView tv = (TextView) (infoIconLayout.findViewById(R.id.disable));
-			tv.setTextColor(mContext.getResources().getColor(R.color.external_pallete_text_highlight_color));
+			chatHeadDisableButton.setTextColor(mContext.getResources().getColor(R.color.external_pallete_text_highlight_color));
 			ChatHeadService.dismissed = 0;
 
 		}
@@ -562,23 +566,17 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 		{
 			HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.INFOICON_WITHOUT_CLICK, ChatHeadService.foregroundAppName,
 					AnalyticsConstants.ChatHeadEvents.SHARE_LIMIT);
-			TextView tv = (TextView) (infoIconLayout.findViewById(R.id.get_more_stickers));
-			tv.setTextColor(mContext.getResources().getColor(R.color.external_pallete_text_highlight_color));
+			chatHeadgetMoreStickersButton.setTextColor(mContext.getResources().getColor(R.color.external_pallete_text_highlight_color));
 		}
 		initLayoutComponentsView();
-		sideText = (TextView) (chatHeadstickerPickerView.findViewById(R.id.info_icon_layout).findViewById(R.id.side_text));
-		sideText.setText(mContext.getString(R.string.total_sticker_sent_start) + " " + ChatHeadActivity.totalShareCount + " "
+		chatHeadSideText.setText(mContext.getString(R.string.total_sticker_sent_start) + " " + ChatHeadActivity.totalShareCount + " "
 				+ mContext.getString(R.string.total_sticker_sent_middle) + " " + ChatHeadActivity.noOfDays + " " + mContext.getString(R.string.total_sticker_sent_end));
 	}
 
 	private void initLayoutComponentsView()
 	{
-		LinearLayout layout = (LinearLayout) (chatHeadstickerPickerView.findViewById(R.id.main_layout));
-		layout.setVisibility(View.VISIBLE);
-		layout.findViewById(R.id.disable).setOnClickListener(this);
-		TextView tv = (TextView) (chatHeadstickerPickerView.findViewById(R.id.info_icon_layout).findViewById(R.id.main_text));
-		tv.setText(ChatHeadActivity.shareCount + "/" + ChatHeadActivity.shareLimit + " " + mContext.getString(R.string.stickers_sent_today));
-		ProgressBar progressBar = (ProgressBar) (chatHeadstickerPickerView.findViewById(R.id.info_icon_layout).findViewById(R.id.progress_bar));
+		chatHeadMainLayout.setVisibility(View.VISIBLE);
+		chatHeadMainText.setText(ChatHeadActivity.shareCount + "/" + ChatHeadActivity.shareLimit + " " + mContext.getString(R.string.stickers_sent_today));
 		int progress;
 		if (ChatHeadActivity.shareLimit != 0)
 		{
@@ -588,58 +586,44 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 		{
 			progress = 0;
 		}
-		progressBar.setProgress(progress);
+		chatHeadProgressBar.setProgress(progress);
 	}
 
 	private void onDisableClick()
 	{
-		LinearLayout mainLayout, disableLayout;
-		TextView sideText;
-		mainLayout = (LinearLayout) (chatHeadstickerPickerView.findViewById(R.id.main_layout));
-		mainLayout.setVisibility(View.GONE);
-		disableLayout = (LinearLayout) (chatHeadstickerPickerView.findViewById(R.id.disable_layout));
-		disableLayout.setVisibility(View.VISIBLE);
-		sideText = (TextView) (chatHeadstickerPickerView.findViewById(R.id.info_icon_layout).findViewById(R.id.side_text));
-		sideText.setText(mContext.getString(R.string.disable_from_hike_settings));
+		chatHeadMainLayout.setVisibility(View.GONE);
+		chatHeadDisableLayout.setVisibility(View.VISIBLE);
+		chatHeadSideText.setText(mContext.getString(R.string.disable_from_hike_settings));
 	}
 
 	private void onBackMainLayoutClick()
 	{
-		LinearLayout mainLayout, disableLayout;
-		TextView sideText;
-		mainLayout = (LinearLayout) (chatHeadstickerPickerView.findViewById(R.id.main_layout));
-		mainLayout.setVisibility(View.VISIBLE);
-		disableLayout = (LinearLayout) (chatHeadstickerPickerView.findViewById(R.id.disable_layout));
-		disableLayout.setVisibility(View.GONE);
-		sideText = (TextView) (chatHeadstickerPickerView.findViewById(R.id.info_icon_layout).findViewById(R.id.side_text));
-		sideText.setText(mContext.getString(R.string.total_sticker_sent_start) + " " + ChatHeadActivity.totalShareCount + " "
+		chatHeadMainLayout.setVisibility(View.VISIBLE);
+		chatHeadDisableLayout.setVisibility(View.GONE);
+		chatHeadSideText.setText(mContext.getString(R.string.total_sticker_sent_start) + " " + ChatHeadActivity.totalShareCount + " "
 				+ mContext.getString(R.string.total_sticker_sent_middle) + " " + ChatHeadActivity.noOfDays + " " + mContext.getString(R.string.total_sticker_sent_end));
 
 	}
 
 	public void setOnClick()
 	{
-		LinearLayout layout = (LinearLayout) (chatHeadstickerPickerView.findViewById(R.id.info_icon_layout));
-		layout.findViewById(R.id.get_more_stickers).setOnClickListener(this);
-		layout.findViewById(R.id.disable).setOnClickListener(this);
-		layout.findViewById(R.id.open_hike).setOnClickListener(this);
-		layout.findViewById(R.id.back_main_layout).setOnClickListener(this);
-		layout.findViewById(R.id.one_day).setOnClickListener(this);
-		layout.findViewById(R.id.one_hour).setOnClickListener(this);
-		layout.findViewById(R.id.eight_hours).setOnClickListener(this);
-		View shopIcon = (chatHeadstickerPickerView.findViewById(R.id.shop_icon_external));
-		shopIcon.setOnClickListener(this);
+		chatHeadInfoIconButton.setOnClickListener(this);
+		chatHeadgetMoreStickersButton.setOnClickListener(this);
+		chatHeadDisableButton.setOnClickListener(this);
+		chatHeadstickerPickerView.findViewById(R.id.open_hike).setOnClickListener(this);
+		chatHeadstickerPickerView.findViewById(R.id.back_main_layout).setOnClickListener(this);
+		chatHeadstickerPickerView.findViewById(R.id.one_day).setOnClickListener(this);
+		chatHeadstickerPickerView.findViewById(R.id.one_hour).setOnClickListener(this);
+		chatHeadstickerPickerView.findViewById(R.id.eight_hours).setOnClickListener(this);
+		chatHeadstickerPickerView.findViewById(R.id.shop_icon_external).setOnClickListener(this);
+		
 	}
 
 	public void onCreatingChatHeadActivity(Context context, LinearLayout layout)
 	{
 		mContext = context;
 		chatHeadstickerPickerView = getView(context.getResources().getConfiguration().orientation);
-		View infoIcon = (chatHeadstickerPickerView.findViewById(R.id.info_icon));
-		if (infoIcon != null)
-		{
-			infoIcon.setOnClickListener(this);
-		}
+		findindViewById();
 		layout.addView(chatHeadstickerPickerView);
 		if (ChatHeadService.dismissed > ChatHeadActivity.maxDismissLimit || ChatHeadActivity.shareCount >= ChatHeadActivity.shareLimit)
 		{
@@ -649,20 +633,34 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 		StickerEmoticonIconPageIndicator.registerChatHeadTabClickListener(this);
 	}
 
+	private void findindViewById()
+	{
+		chatHeadDisableButton = (TextView)chatHeadstickerPickerView.findViewById(R.id.disable);
+		chatHeadgetMoreStickersButton = (TextView)chatHeadstickerPickerView.findViewById(R.id.get_more_stickers);
+		chatHeadInfoIconButton = (ImageView) chatHeadstickerPickerView.findViewById(R.id.info_icon);
+		chatHeadInfoIconLayout = (LinearLayout)chatHeadstickerPickerView.findViewById(R.id.info_icon_layout);
+		mViewPager = (ViewPager) chatHeadstickerPickerView.findViewById(R.id.sticker_pager);
+		chatHeadMainLayout = (LinearLayout)chatHeadstickerPickerView.findViewById(R.id.main_layout);
+		chatHeadDisableLayout = (LinearLayout)chatHeadstickerPickerView.findViewById(R.id.disable_layout);
+		chatHeadSideText = (TextView)chatHeadstickerPickerView.findViewById(R.id.side_text);
+		chatHeadMainText  = (TextView)chatHeadstickerPickerView.findViewById(R.id.main_text);
+		chatHeadProgressBar = (ProgressBar)chatHeadstickerPickerView.findViewById(R.id.progress_bar);
+		mIconPageIndicator = (StickerEmoticonIconPageIndicator) chatHeadstickerPickerView.findViewById(R.id.sticker_icon_indicator);
+		
+	}
+
 	@Override
 	public void onTabClick()
 	{
-		ViewPager viewPager = (ViewPager) (chatHeadstickerPickerView.findViewById(R.id.sticker_pager));
-		viewPager.setVisibility(View.VISIBLE);
-		ImageView imageView = (ImageView) (chatHeadstickerPickerView.findViewById(R.id.info_icon));
-		imageView.setSelected(false);
-		LinearLayout layout = (LinearLayout) (chatHeadstickerPickerView.findViewById(R.id.info_icon_layout));
-		layout.setVisibility(View.GONE);
+		mViewPager.setVisibility(View.VISIBLE);
+		chatHeadInfoIconButton.setSelected(false);
+		chatHeadInfoIconLayout.setVisibility(View.GONE);
 	}
 
 	public void stoppingChatHeadActivity()
 	{
 		StickerEmoticonIconPageIndicator.unRegisterChatHeadTabClickListener();
+		releaseResources();
 	}
 
 }

@@ -1919,41 +1919,41 @@ public class MqttMessagesManager
 		}
 		if(data.has(HikeConstants.ChatHead.STICKER_WIDGET) && Utils.isIceCreamOrHigher())
 		{ 
-			JSONObject stickerWidget = data.getJSONObject(HikeConstants.ChatHead.STICKER_WIDGET);
-			if (stickerWidget.has(HikeConstants.ChatHead.CHAT_HEAD_SERVICE))
+			JSONObject stickerWidgetJSONObj = data.getJSONObject(HikeConstants.ChatHead.STICKER_WIDGET);
+			if (stickerWidgetJSONObj.has(HikeConstants.ChatHead.CHAT_HEAD_SERVICE))
 			{	
-				boolean chatHeadService = stickerWidget.getBoolean(HikeConstants.ChatHead.CHAT_HEAD_SERVICE);
+				boolean chatHeadService = stickerWidgetJSONObj.getBoolean(HikeConstants.ChatHead.CHAT_HEAD_SERVICE);
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, chatHeadService);
-				ChatHeadUtils.startOrStopService(context, false);
+				ChatHeadUtils.startOrStopService(false);
 			}
-			if (stickerWidget.has(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL))
+			if (stickerWidgetJSONObj.has(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL))
 			{	
-				boolean chatHeadServiceUserControl = stickerWidget.getBoolean(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL);
+				boolean chatHeadServiceUserControl = stickerWidgetJSONObj.getBoolean(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL);
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL, chatHeadServiceUserControl);
 				setShareEnableForAllApps();
-				ChatHeadUtils.startOrStopService(context, false);
+				ChatHeadUtils.startOrStopService(false);
 			}
-			if (stickerWidget.has(HikeConstants.ChatHead.STICKERS_PER_DAY))
+			if (stickerWidgetJSONObj.has(HikeConstants.ChatHead.STICKERS_PER_DAY))
 			{
-			    int stickersPerDay = stickerWidget.getInt(HikeConstants.ChatHead.STICKERS_PER_DAY);
+			    int stickersPerDay = stickerWidgetJSONObj.getInt(HikeConstants.ChatHead.STICKERS_PER_DAY);
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.STICKERS_PER_DAY, stickersPerDay);
 			}
-			if (stickerWidget.has(HikeConstants.ChatHead.EXTRA_STICKERS_PER_DAY))
+			if (stickerWidgetJSONObj.has(HikeConstants.ChatHead.EXTRA_STICKERS_PER_DAY))
 			{
-				int extraStickersPerDay = stickerWidget.getInt(HikeConstants.ChatHead.EXTRA_STICKERS_PER_DAY);
+				int extraStickersPerDay = stickerWidgetJSONObj.getInt(HikeConstants.ChatHead.EXTRA_STICKERS_PER_DAY);
 				ChatHeadUtils.settingDailySharedPref();
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.EXTRA_STICKERS_PER_DAY, extraStickersPerDay);
 			}
 			
-			if (stickerWidget.has(HikeConstants.ChatHead.DISMISS_COUNT))
+			if (stickerWidgetJSONObj.has(HikeConstants.ChatHead.DISMISS_COUNT))
 			{	
-				int dismissCount = stickerWidget.getInt(HikeConstants.ChatHead.DISMISS_COUNT);
+				int dismissCount = stickerWidgetJSONObj.getInt(HikeConstants.ChatHead.DISMISS_COUNT);
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.DISMISS_COUNT, dismissCount);
 			}
 			
-			if (stickerWidget.has(HikeConstants.ChatHead.PACKAGE_LIST))
+			if (stickerWidgetJSONObj.has(HikeConstants.ChatHead.PACKAGE_LIST))
 			{ 
-				JSONArray list =  stickerWidget.getJSONArray(HikeConstants.ChatHead.PACKAGE_LIST);
+				JSONArray list =  stickerWidgetJSONObj.getJSONArray(HikeConstants.ChatHead.PACKAGE_LIST);
 				
 				for(int j=0; j<list.length() ; j++)
 				{
@@ -1961,7 +1961,7 @@ public class MqttMessagesManager
 				}
 				
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.PACKAGE_LIST, list.toString());
-				ChatHeadUtils.startOrStopService(context, true);
+				ChatHeadUtils.startOrStopService(true);
 			}
 			
 		}

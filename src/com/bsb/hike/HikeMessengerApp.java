@@ -875,7 +875,7 @@ public void onTrimMemory(int level)
 			fetchPlatformIDIfNotPresent();
 		}
 		
-		ChatHeadUtils.startOrStopService(this, false);
+		ChatHeadUtils.startOrStopService(false);
 	}
 
 	/**

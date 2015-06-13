@@ -10,8 +10,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.ActivityManager;
+import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
+import android.widget.HeterogeneousExpandableList;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -28,7 +30,7 @@ public class ChatHeadUtils
 	public static final int SHARING_BEFORE_FINISHING_ANIMATION = 2;
 
 	public static final int STOPPING_SERVICE_ANIMATION = 3;
-	
+
 	public static final int GET_MORE_STICKERS_ANIMATION = 4;
 
 	public static final int OPEN_HIKE_ANIMATION = 5;
@@ -36,23 +38,24 @@ public class ChatHeadUtils
 	public static final int STICKER_SHOP_ANIMATION = 6;
 
 	public static final int REMAINING_ANIMATION = 7;
-	
+
 	public static final String DAILY_STICKER_SHARE_COUNT = "shr_cnt_dly";
-	
-	private static final String SERVICE_LAST_USED= "lastUsed";
+
+	private static final String SERVICE_LAST_USED = "lastUsed";
 
 	private static Set<String> foregroundedPackages;
-	
+
+	public static int HOUR_TO_MILLISEC_CONST = 3600000;
+
 	public static boolean isSharingPackageInstalled(Context context)
 	{
-		JSONArray jsonObj;
 		try
 		{
-			jsonObj = new JSONArray(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.PACKAGE_LIST, ""));
+			JSONArray packageJSONArray = new JSONArray(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.PACKAGE_LIST, ""));
 
-			for (int i = 0; i < jsonObj.length(); i++)
+			for (int i = 0; i < packageJSONArray.length(); i++)
 			{
-				JSONObject obj = jsonObj.getJSONObject(i);
+				JSONObject obj = packageJSONArray.getJSONObject(i);
 				{
 					if (Utils.isPackageInstalled(context, obj.optString(HikeConstants.ChatHead.PACKAGE_NAME, "")))
 					{
@@ -78,7 +81,7 @@ public class ChatHeadUtils
 		{
 			foregroundedPackages.clear();
 		}
-		
+
 		ActivityManager mActivityManager = (ActivityManager) HikeMessengerApp.getInstance().getSystemService(Context.ACTIVITY_SERVICE);
 		List<ActivityManager.RunningAppProcessInfo> processInfos = mActivityManager.getRunningAppProcesses();
 		for (ActivityManager.RunningAppProcessInfo processInfo : processInfos)
@@ -93,42 +96,42 @@ public class ChatHeadUtils
 	}
 
 	public static void settingDailySharedPref()
-	{   if (HikeSharedPreferenceUtil.getInstance().getData(SERVICE_LAST_USED, -1L) == -1L)
-	 	{
+	{
+		if (HikeSharedPreferenceUtil.getInstance().getData(SERVICE_LAST_USED, -1L) == -1L)
+		{
 			HikeSharedPreferenceUtil.getInstance().saveData(SERVICE_LAST_USED, Utils.gettingMidnightTimeinMilliseconds());
-	 	}
-		if ((int) ((Utils.gettingMidnightTimeinMilliseconds() - (HikeSharedPreferenceUtil.getInstance().getData(SERVICE_LAST_USED,
-				Utils.gettingMidnightTimeinMilliseconds()))) / (24 * 60 * 60 * 1000)) > 0)
-		{    
+		}
+		if ((int) ((Utils.gettingMidnightTimeinMilliseconds() - (HikeSharedPreferenceUtil.getInstance().getData(SERVICE_LAST_USED, Utils.gettingMidnightTimeinMilliseconds()))) / (24 * HOUR_TO_MILLISEC_CONST)) > 0)
+		{
 			HikeSharedPreferenceUtil.getInstance().saveData(SERVICE_LAST_USED, Utils.gettingMidnightTimeinMilliseconds());
 			HikeSharedPreferenceUtil.getInstance().saveData(DAILY_STICKER_SHARE_COUNT, 0);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.EXTRA_STICKERS_PER_DAY, 0);
 		}
 	}
 
-	private static void startService(Context context)
+	private static void startService()
 	{
-		if (!Utils.isMyServiceRunning(ChatHeadService.class, context) && !HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.SNOOZE, false))
+		if (!Utils.isMyServiceRunning(ChatHeadService.class, HikeMessengerApp.getInstance()) && !HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.SNOOZE, false))
 		{
-			context.startService(new Intent(context, ChatHeadService.class));
+			HikeMessengerApp.getInstance().startService(new Intent(HikeMessengerApp.getInstance(), ChatHeadService.class));
 		}
 	}
 
-	public static void stopService(Context context)
+	public static void stopService()
 	{
-		if (Utils.isMyServiceRunning(ChatHeadService.class, context))
+		if (Utils.isMyServiceRunning(ChatHeadService.class, HikeMessengerApp.getInstance()))
 		{
-			context.stopService(new Intent(context, ChatHeadService.class));
+			HikeMessengerApp.getInstance().stopService(new Intent(HikeMessengerApp.getInstance(), ChatHeadService.class));
 		}
 	}
 
-	private static void restartService(Context context)
+	private static void restartService()
 	{
-		stopService(context);
-		startService(context);
+		stopService();
+		startService();
 	}
 
-	public static void startOrStopService(Context context, boolean jsonChanged)
+	public static void startOrStopService(boolean jsonChanged)
 	{
 		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, false)
 				&& HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL, false)
@@ -136,27 +139,26 @@ public class ChatHeadUtils
 		{
 			if (jsonChanged)
 			{
-				restartService(context);
+				restartService();
 			}
 			else
 			{
-				startService(context);
+				startService();
 			}
 		}
 		else
 		{
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.SNOOZE, false);
-			HikeAlarmManager.cancelAlarm(context, HikeAlarmManager.REQUESTCODE_START_STICKER_SHARE_SERVICE);
-			stopService(context);
+			HikeAlarmManager.cancelAlarm(HikeMessengerApp.getInstance(), HikeAlarmManager.REQUESTCODE_START_STICKER_SHARE_SERVICE);
+			stopService();
 		}
 	}
-	
+
 	public static void onClickSetAlarm(Context context, int time)
 	{
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.SNOOZE, true);
 		HikeAlarmManager.setAlarm(context, Calendar.getInstance().getTimeInMillis() + time, HikeAlarmManager.REQUESTCODE_START_STICKER_SHARE_SERVICE, false);
 		ChatHeadService.getInstance().resetPosition(ChatHeadUtils.STOPPING_SERVICE_ANIMATION);
 	}
-
 
 }

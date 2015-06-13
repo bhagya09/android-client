@@ -301,7 +301,7 @@ public class HikeAlarmManager
 			break;
 		case HikeAlarmManager.REQUESTCODE_START_STICKER_SHARE_SERVICE:	
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.SNOOZE, false);
-			ChatHeadUtils.startOrStopService(context, false);
+			ChatHeadUtils.startOrStopService(false);
 			break;
 			
 		default:
@@ -366,7 +366,7 @@ public class HikeAlarmManager
 			break;
 		case HikeAlarmManager.REQUESTCODE_START_STICKER_SHARE_SERVICE:	
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.SNOOZE, false);
-			ChatHeadUtils.startOrStopService(context, false);
+			ChatHeadUtils.startOrStopService(false);
 			break;
 			
 		default:

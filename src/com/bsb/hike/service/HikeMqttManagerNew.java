@@ -1,6 +1,7 @@
 package com.bsb.hike.service;
 
 import static com.bsb.hike.MqttConstants.*;
+
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
@@ -58,6 +59,7 @@ import com.bsb.hike.analytics.AnalyticsConstants.MsgRelEventType;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.analytics.MsgRelLogManager;
+import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.db.HikeMqttPersistence;
 import com.bsb.hike.db.MqttPersistenceException;
 import com.bsb.hike.models.HikePacket;
@@ -378,6 +380,7 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 	{
 		// register for Screen ON, Network Connection Change
 		IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_ON);
+		filter.addAction(Intent.ACTION_SCREEN_OFF);
 		filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
 		filter.addAction(MQTT_CONNECTION_CHECK_ACTION);
 		filter.addAction(HikePubSub.SSL_PREFERENCE_CHANGED);
@@ -1321,6 +1324,12 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 		{
 			if (Utils.isUserOnline(context))
 				connectOnMqttThread();
+			ChatHeadUtils.startOrStopService(false);
+			
+		}
+		else if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF))
+		{
+			ChatHeadUtils.stopService();
 		}
 		else if (intent.getAction().equals(ConnectivityManager.CONNECTIVITY_ACTION))
 		{
