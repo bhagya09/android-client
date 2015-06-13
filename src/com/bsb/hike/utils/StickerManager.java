@@ -1809,7 +1809,7 @@ public class StickerManager
 		for (int i=0; i<categoriesToLoad; i++)
 		{
 			String categoryId = categoryList.get(i).getCategoryId();
-			Bitmap bitmap_unselected = getCategoryOtherAsset(context, categoryId, StickerManager.PALLATE_ICON_TYPE, -1, -1, true);
+			Bitmap bitmap_unselected = getCategoryOtherAsset(context, categoryId, StickerManager.PALLATE_ICON_TYPE, -1, -1, false);
 			if (bitmap_unselected != null)
 			{
 				BitmapDrawable drawable = HikeBitmapFactory.getBitmapDrawable(context.getResources(), bitmap_unselected);
@@ -1818,7 +1818,7 @@ public class StickerManager
 				cache.putInCache(key, drawable);
 			}
 			
-			Bitmap bitmap_selected = getCategoryOtherAsset(context, categoryId, StickerManager.PALLATE_ICON_SELECTED_TYPE, -1, -1, true);
+			Bitmap bitmap_selected = getCategoryOtherAsset(context, categoryId, StickerManager.PALLATE_ICON_SELECTED_TYPE, -1, -1, false);
 			if (bitmap_selected != null)
 			{
 				BitmapDrawable drawable = HikeBitmapFactory.getBitmapDrawable(context.getResources(), bitmap_selected);
