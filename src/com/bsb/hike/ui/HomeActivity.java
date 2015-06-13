@@ -683,24 +683,33 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		menu.findItem(R.id.new_conversation).getActionView().findViewById(R.id.overflow_icon_image).setContentDescription("Start a new chat");
 		((ImageView) menu.findItem(R.id.new_conversation).getActionView().findViewById(R.id.overflow_icon_image)).setImageResource(R.drawable.ic_new_conversation);
 	
-		((ImageView) menu.findItem(R.id.take_pic).getActionView().findViewById(R.id.overflow_icon_image)).setImageResource(R.drawable.btn_cam_nav);
-		menu.findItem(R.id.take_pic).getActionView().findViewById(R.id.overflow_icon_image).setContentDescription("New photo");
-		menu.findItem(R.id.take_pic).getActionView().setOnClickListener(new OnClickListener()
-		{
-			
-			@Override
-			public void onClick(View v)
+			if (Utils.isPhotosEditEnabled())
 			{
-				// Open gallery
-				int galleryFlags = GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS|GalleryActivity.GALLERY_EDIT_SELECTED_IMAGE|GalleryActivity.GALLERY_COMPRESS_EDITED_IMAGE|GalleryActivity.GALLERY_DISPLAY_CAMERA_ITEM;
-				Intent galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(HomeActivity.this, galleryFlags,null);
-				
-				startActivity(galleryPickerIntent);
-				
-				sendAnalyticsTakePicture();
+				View takePhotoActionView = menu.findItem(R.id.take_pic).getActionView();
+				((ImageView) takePhotoActionView.findViewById(R.id.overflow_icon_image)).setImageResource(R.drawable.btn_cam_nav);
+				takePhotoActionView.findViewById(R.id.overflow_icon_image).setContentDescription("New photo");
+				takePhotoActionView.setOnClickListener(new OnClickListener()
+				{
+
+					@Override
+					public void onClick(View v)
+					{
+						// Open gallery
+						int galleryFlags = GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS | GalleryActivity.GALLERY_EDIT_SELECTED_IMAGE
+								| GalleryActivity.GALLERY_COMPRESS_EDITED_IMAGE | GalleryActivity.GALLERY_DISPLAY_CAMERA_ITEM;
+						Intent galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(HomeActivity.this, galleryFlags, null);
+
+						startActivity(galleryPickerIntent);
+
+						sendAnalyticsTakePicture();
+					}
+				});
 			}
-		});
-		
+			else
+			{
+				menu.removeItem(R.id.take_pic);
+			}
+
 		showRecentlyJoinedDot(1000);
 
 		menu.findItem(R.id.new_conversation).getActionView().setOnClickListener(new OnClickListener()
