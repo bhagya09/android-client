@@ -495,7 +495,6 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 								intent.setAction(HikeConstants.HikePhotos.PHOTOS_ACTION_CODE);
 								setResult(RESULT_OK, intent);
 								finish();
-
 							}
 						}
 					});
