@@ -39,6 +39,7 @@ import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.HikeHandlerUtil;
+import com.bsb.hike.offline.OfflineConstants.ERRORCODE;
 import com.bsb.hike.offline.OfflineConstants.HandlerConstants;
 import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
 import com.bsb.hike.utils.Logger;
@@ -85,7 +86,7 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 	
 	OfflineBroadCastReceiver receiver;
 	
-	private OFFLINE_STATE offlineState;
+	private volatile OFFLINE_STATE offlineState;
 	
 	private boolean startedForChatThread = false;
 
@@ -164,8 +165,7 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 			performWorkOnBackEndThread(msg);
 			break;
 		case OfflineConstants.HandlerConstants.SEND_GHOST_PACKET:
-			String msisdn = (String) msg.obj;
-            sendGhostPacket(msisdn);
+            sendGhostPacket();
             Message newMsg = Message.obtain(msg);
             handler.sendMessageDelayed(newMsg, OfflineConstants.GHOST_PACKET_SEND_TIME);
             break;
@@ -413,17 +413,21 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 		long msgId = convMessage.getMappedMsgID();
 		FileSavedState fss = null;
 		HikeFile hikeFile = convMessage.getMetadata().getHikeFiles().get(0);
-		
-		if (currentReceivingFiles.containsKey(msgId))
-		{
-			Logger.d("Spinner", "Current Msg Id -> " + msgId);
-			fss = new FileSavedState(FTState.IN_PROGRESS, (int) file.length(), currentReceivingFiles.get(msgId).getTransferProgress().getCurrentChunks() * 1024);
 
-		}
-		else
+		synchronized (currentReceivingFiles)
 		{
-			Logger.d("Spinner", "Completed Msg Id -> " + msgId);
-			fss = new FileSavedState(FTState.COMPLETED, hikeFile.getFileKey());
+
+			if (currentReceivingFiles.containsKey(msgId))
+			{
+				Logger.d("Spinner", "Current Msg Id -> " + msgId);
+				fss = new FileSavedState(FTState.IN_PROGRESS, (int) file.length(), currentReceivingFiles.get(msgId).getTransferProgress().getCurrentChunks() * 1024);
+
+			}
+			else
+			{
+				Logger.d("Spinner", "Completed Msg Id -> " + msgId);
+				fss = new FileSavedState(FTState.COMPLETED, hikeFile.getFileKey());
+			}
 		}
 		return fss;
 	}
@@ -446,9 +450,13 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 
 	public void removeFromCurrentReceivingFile(long msgId)
 	{
-		if(currentReceivingFiles.containsKey(msgId))
+		synchronized (currentReceivingFiles)
 		{
-			currentReceivingFiles.remove(msgId);
+
+			if (currentReceivingFiles.containsKey(msgId))
+			{
+				currentReceivingFiles.remove(msgId);
+			}
 		}
 	}
 	
@@ -568,11 +576,10 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 			threadManager.startReceivingThreads();
 			
 			// send ping packet to hotspot
-			
-			onConnected(offlineNetworkMsisdn);
+			connectedDevice=offlineNetworkMsisdn;
 			sendPingPacket();
 			threadManager.startFileSendingThread();
-		
+			
 			
 		}
 	}
@@ -583,29 +590,31 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 		addToTextQueue(pingPacket);
 	}
 
-	public void onConnected(String connectedMsisdn)
-	{	
-		if(connectedDevice==null)
+	public void onConnected()
+	{
+		if (TextUtils.isEmpty(getConnectedDevice()))
 		{
-			Logger.d("OfflineManager","connected Device is "+connectedMsisdn);
-			connectedDevice = connectedMsisdn;
-			removeMessage(OfflineConstants.HandlerConstants.DISCONNECT_AFTER_TIMEOUT);
-			removeMessage(OfflineConstants.HandlerConstants.CONNECT_TO_HOTSPOT);
-			offlineState=OFFLINE_STATE.CONNECTED;
-			final ConvMessage convMessage=OfflineUtils.createOfflineInlineConvMessage("o:"+connectedDevice,context.getString(R.string.connection_established),OfflineConstants.OFFLINE_MESSAGE_CONNECTED_TYPE);
-			HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_SENT, convMessage);
-			for(IOfflineCallbacks  offlineListener : listeners)
-			{
-				offlineListener.connectedToMsisdn(connectedDevice);
-			}
-			Message msg=Message.obtain();
-			msg.what=HandlerConstants.SEND_PERSISTANCE_MSGS;
-			performWorkOnBackEndThread(msg);
-
-			// send ghost packet and post disconnect for timeout
-			startSendingGhostPackets(connectedMsisdn);
-			postDisconnectForGhostPackets();
+			Logger.d(TAG,"connected Device is " + connectedDevice);
+			return;
 		}
+		Logger.d("OfflineManager", "connected Device is " + connectedDevice);
+		removeMessage(OfflineConstants.HandlerConstants.DISCONNECT_AFTER_TIMEOUT);
+		removeMessage(OfflineConstants.HandlerConstants.CONNECT_TO_HOTSPOT);
+		offlineState = OFFLINE_STATE.CONNECTED;
+		final ConvMessage convMessage = OfflineUtils.createOfflineInlineConvMessage("o:" + connectedDevice, context.getString(R.string.connection_established),
+				OfflineConstants.OFFLINE_MESSAGE_CONNECTED_TYPE);
+		HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_SENT, convMessage);
+		for (IOfflineCallbacks offlineListener : listeners)
+		{
+			offlineListener.connectedToMsisdn(connectedDevice);
+		}
+		Message msg = Message.obtain();
+		msg.what = HandlerConstants.SEND_PERSISTANCE_MSGS;
+		performWorkOnBackEndThread(msg);
+
+		// send ghost packet and post disconnect for timeout
+		startSendingGhostPackets();
+		postDisconnectForGhostPackets();
 	}
 	
 	private void sendPersistantMsgs()
@@ -630,17 +639,16 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 		}
 	}
 
-	private void startSendingGhostPackets(String msisdn)
+	private void startSendingGhostPackets()
 	{
 		Message msg = Message.obtain();
 		msg.what = OfflineConstants.HandlerConstants.SEND_GHOST_PACKET;
-		msg.obj = msisdn;
 		performWorkOnBackEndThread(msg);
 	}
 	
-	private void sendGhostPacket(String msisdn)
+	private void sendGhostPacket()
 	{
-		JSONObject ghost = OfflineUtils.createGhostPacket(msisdn);
+		JSONObject ghost = OfflineUtils.createGhostPacket(getConnectedDevice());
 		addToTextQueue(ghost);
 	}
 	
@@ -1022,6 +1030,12 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 		connectinMsisdn=null;
 		setInOfflineFileTransferInProgress(false);
 		removeAllMessages();
+		startedForChatThread=false;
+	}
+
+	public void setConnectedDevice(String connectedDevice2)
+	{
+		this.connectedDevice=connectedDevice2;		
 	}
 
 }

@@ -9,6 +9,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -30,8 +32,7 @@ import com.bsb.hike.utils.Logger;
 
 /**
  * 
- * @author himanshu, deepak malik
- *	This class mainly deals with socket connection,text and file are send and received in this class only.
+ * @author himanshu, deepak malik This class mainly deals with socket connection,text and file are send and received in this class only.
  */
 public class OfflineThreadManager
 {
@@ -42,25 +43,23 @@ public class OfflineThreadManager
 
 	private TextTransferRunnable textTransferRunnable = null;
 
-	private Socket textReceiverSocket = null;
-
-	private ServerSocket textServerSocket = null;
-
 	private Thread fileTransferThread = null;
-	
-	private FileTransferRunnable fileTransferRunnable=null;
+
+	private FileTransferRunnable fileTransferRunnable = null;
 
 	private OfflineManager offlineManager = null;
-	
-	private Thread textReceiveThread=null;
-	
-	private TextReceiveRunnable textReceiveRunnable=null;
-	
-	private Thread fileReceiverThread=null;
-	
+
+	private Thread textReceiveThread = null;
+
+	private TextReceiveRunnable textReceiveRunnable = null;
+
+	private Thread fileReceiverThread = null;
+
 	private FileReceiverRunnable fileReceiverRunnable;
 
 	private Thread textTransferThread;
+
+	AtomicInteger threadConnectCount = new AtomicInteger();
 
 	public static OfflineThreadManager getInstance()
 	{
@@ -69,35 +68,56 @@ public class OfflineThreadManager
 
 	private OfflineThreadManager()
 	{
-		textTransferRunnable = new TextTransferRunnable(textMessageCallback);
-		fileTransferRunnable = new FileTransferRunnable(fileMessageCallback);
-		textReceiveRunnable=new TextReceiveRunnable();
-		fileReceiverRunnable=new FileReceiverRunnable();
-		
+		textTransferRunnable = new TextTransferRunnable(textMessageCallback, connectCallback);
+		fileTransferRunnable = new FileTransferRunnable(fileMessageCallback, connectCallback);
+		textReceiveRunnable = new TextReceiveRunnable(connectCallback);
+		fileReceiverRunnable = new FileReceiverRunnable(connectCallback);
+
 	}
-	
+
+	private IConnectCallback connectCallback = new IConnectCallback()
+	{
+
+		@Override
+		public void onDisconnect(OfflineException e)
+		{
+			offlineManager.shutDown(e);
+		}
+
+		@Override
+		public void onConnect()
+		{
+			Logger.d(TAG, "onConnect() called with value " + threadConnectCount.get());
+			if (threadConnectCount.incrementAndGet() == OfflineConstants.ALL_THREADS_CONNECTED)
+			{
+				// all threads connected
+				offlineManager.onConnected();
+			}
+
+		}
+	};
+
 	public void startSendingThreads()
 	{
 		startTextSendingThread();
 
 		startFileSendingThread();
 	}
-	
+
 	public void startTextSendingThread()
 	{
 		offlineManager = OfflineManager.getInstance();
 		textTransferThread = new Thread(textTransferRunnable);
 		textTransferThread.start();
 	}
-	
+
 	public void startFileSendingThread()
 	{
 		offlineManager = OfflineManager.getInstance();
 		fileTransferThread = new Thread(fileTransferRunnable);
 		fileTransferThread.start();
 	}
-	
-	
+
 	public void startReceivingThreads()
 	{
 		offlineManager = OfflineManager.getInstance();
@@ -108,28 +128,26 @@ public class OfflineThreadManager
 		fileReceiverThread.start();
 
 	}
-	
-	
+
 	/**
 	 * 
 	 * @param packet
 	 * @param outputStream
-	 * @return
-	 * TODO: Properly handle sticker and normal message and update the Db
-	 * @throws IOException 
-	 */  
-	
-	public boolean sendOfflineText(JSONObject packet,OutputStream outputStream) throws IOException,OfflineException
+	 * @return TODO: Properly handle sticker and normal message and update the Db
+	 * @throws IOException
+	 */
+
+	public boolean sendOfflineText(JSONObject packet, OutputStream outputStream) throws IOException, OfflineException
 	{
-		String fileUri  =null;
-		InputStream inputStream=null;
-		boolean isSent=false;
-		Logger.d(TAG,"Goiing to send ext :::::"+packet.toString());
-		if(OfflineUtils.isStickerMessage(packet))
+		String fileUri = null;
+		InputStream inputStream = null;
+		boolean isSent = false;
+		Logger.d(TAG, "Goiing to send ext :::::" + packet.toString());
+		if (OfflineUtils.isStickerMessage(packet))
 		{
 			fileUri = OfflineUtils.getStickerPath(packet);
 			File f = new File(fileUri);
-			OfflineUtils.putStkLenInPkt(packet,f.length());
+			OfflineUtils.putStkLenInPkt(packet, f.length());
 			Logger.d(TAG, "Middle " + f.getPath());
 			try
 			{
@@ -140,130 +158,128 @@ public class OfflineThreadManager
 				Logger.d(TAG, e.toString());
 				return false;
 			}
-			
-				byte[] messageBytes = packet.toString().getBytes("UTF-8");
-				int length = messageBytes.length;
-				byte[] intToBArray = OfflineUtils.intToByteArray(length);
-				outputStream.write(intToBArray, 0, intToBArray.length);
-				outputStream.write(messageBytes, 0, length);
-				// copy the sticker to the stream
-				isSent = offlineManager.copyFile(inputStream, outputStream, f.length());
-				inputStream.close();
+
+			byte[] messageBytes = packet.toString().getBytes("UTF-8");
+			int length = messageBytes.length;
+			byte[] intToBArray = OfflineUtils.intToByteArray(length);
+			outputStream.write(intToBArray, 0, intToBArray.length);
+			outputStream.write(messageBytes, 0, length);
+			// copy the sticker to the stream
+			isSent = offlineManager.copyFile(inputStream, outputStream, f.length());
+			inputStream.close();
 		}
 		// for normal text messages and ping packet
 		else
 		{
-				byte[] messageBytes = packet.toString().getBytes("UTF-8");
-				int length = messageBytes.length;
-				byte[] intToBArray = OfflineUtils.intToByteArray(length);
-				outputStream.write(intToBArray, 0, intToBArray.length);
-				outputStream.write(messageBytes,0, length);
-				isSent=true;
+			byte[] messageBytes = packet.toString().getBytes("UTF-8");
+			int length = messageBytes.length;
+			byte[] intToBArray = OfflineUtils.intToByteArray(length);
+			outputStream.write(intToBArray, 0, intToBArray.length);
+			outputStream.write(messageBytes, 0, length);
+			isSent = true;
 		}
-		
+
 		// Updating database
 		return isSent;
 	}
 
-	public boolean sendOfflineFile(FileTransferModel fileTransferModel,OutputStream outputStream) throws IOException, OfflineException
+	public boolean sendOfflineFile(FileTransferModel fileTransferModel, OutputStream outputStream) throws IOException, OfflineException
 	{
 		boolean isSent = true;
-		String fileUri =null;
+		String fileUri = null;
 		InputStream inputStream = null;
-		JSONObject  jsonFile =  null;
+		JSONObject jsonFile = null;
 		try
 		{
 			JSONArray jsonFiles = fileTransferModel.getPacket().getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getJSONArray(HikeConstants.FILES);
 			jsonFile = (JSONObject) jsonFiles.get(0);
 			fileUri = jsonFile.getString(HikeConstants.FILE_PATH);
-			
+
 			String metaString = fileTransferModel.getPacket().toString();
 			Logger.d(TAG, metaString);
-			
+
 			byte[] metaDataBytes = metaString.getBytes("UTF-8");
 			int length = metaDataBytes.length;
 			Logger.d(TAG, "Sizeof metaString: " + length);
 			byte[] intToBArray = OfflineUtils.intToByteArray(length);
 			outputStream.write(intToBArray, 0, intToBArray.length);
-			
-			ByteArrayInputStream byteArrayInputStream =  new ByteArrayInputStream(metaDataBytes);
+
+			ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(metaDataBytes);
 			boolean isMetaDataSent = offlineManager.copyFile(byteArrayInputStream, outputStream, metaDataBytes.length);
 			Logger.d(TAG, "FileMetaDataSent:" + isMetaDataSent);
 			byteArrayInputStream.close();
-			
+
 			int fileSize = 0;
 			fileSize = jsonFile.getInt(HikeConstants.FILE_SIZE);
-			
+
 			long msgID;
 			msgID = fileTransferModel.getMessageId();
-			
-			//TODO:We can listen to PubSub ...Why to do this ...????
-			//showUploadTransferNotification(msgID,fileSize);
-			
+
+			// TODO:We can listen to PubSub ...Why to do this ...????
+			// showUploadTransferNotification(msgID,fileSize);
+
 			inputStream = new FileInputStream(new File(fileUri));
 			long time = System.currentTimeMillis();
 			isSent = offlineManager.copyFile(inputStream, outputStream, msgID, true, true, fileSize);
 			// in seconds
 			long TimeTaken = (System.currentTimeMillis() - time) / 1000;
-			if(TimeTaken>0)
-			Logger.d(TAG, "Time taken to send file is " + TimeTaken + "Speed is " + fileSize / (1024 * 1024 * TimeTaken));
+			if (TimeTaken > 0)
+				Logger.d(TAG, "Time taken to send file is " + TimeTaken + "Speed is " + fileSize / (1024 * 1024 * TimeTaken));
 			inputStream.close();
 		}
-		catch(JSONException e)
+		catch (JSONException e)
 		{
 			e.printStackTrace();
 			return false;
 		}
-		
+
 		return isSent;
-				
 
 	}
-	
-	
+
 	/**
-     * Handle the call of file message here ...either success or failure
-     */
-    private IMessageSentOffline textMessageCallback =new IMessageSentOffline()
-    {
-        @Override
-        public void onSuccess(JSONObject packet)
-        {
-            if (!OfflineUtils.isGhostPacket(packet) && !OfflineUtils.isPingPacket(packet))
-            {
-                long msgId;
-                try
-                {
-                    msgId = packet.getJSONObject(HikeConstants.DATA).getLong(HikeConstants.MESSAGE_ID);
+	 * Handle the call of file message here ...either success or failure
+	 */
+	private IMessageSentOffline textMessageCallback = new IMessageSentOffline()
+	{
+		@Override
+		public void onSuccess(JSONObject packet)
+		{
+			if (!OfflineUtils.isGhostPacket(packet) && !OfflineUtils.isPingPacket(packet))
+			{
+				long msgId;
+				try
+				{
+					msgId = packet.getJSONObject(HikeConstants.DATA).getLong(HikeConstants.MESSAGE_ID);
 
-                    String msisdn = packet.getString(HikeConstants.TO);
-                    long startTime = System.currentTimeMillis();
-                    int rowsUpdated = OfflineUtils.updateDB(msgId, ConvMessage.State.SENT_DELIVERED, msisdn);
-                    Logger.d(TAG, "Time  taken: " + (System.currentTimeMillis() - startTime));
-                    if (rowsUpdated == 0)
-                    {
-                        Logger.d(getClass().getSimpleName(), "No rows updated");
-                    }
-                    Pair<String, Long> pair = new Pair<String, Long>(msisdn, msgId);
-                    HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_DELIVERED, pair);
-                    Logger.d(TAG, "Message Send Successfully");
-                    HikeOfflinePersistence.getInstance().removeMessage(msgId);
-                }
-                catch (JSONException e)
-                {
-                    e.printStackTrace();
-                }
-            }
-        }
+					String msisdn = packet.getString(HikeConstants.TO);
+					long startTime = System.currentTimeMillis();
+					int rowsUpdated = OfflineUtils.updateDB(msgId, ConvMessage.State.SENT_DELIVERED, msisdn);
+					Logger.d(TAG, "Time  taken: " + (System.currentTimeMillis() - startTime));
+					if (rowsUpdated == 0)
+					{
+						Logger.d(getClass().getSimpleName(), "No rows updated");
+					}
+					Pair<String, Long> pair = new Pair<String, Long>(msisdn, msgId);
+					HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_DELIVERED, pair);
+					Logger.d(TAG, "Message Send Successfully");
+					HikeOfflinePersistence.getInstance().removeMessage(msgId);
+				}
+				catch (JSONException e)
+				{
+					e.printStackTrace();
+				}
+			}
+		}
 
-        @Override
-        public void onFailure(JSONObject packet)
-        {
-            Logger.d(TAG, "Message sending failed");
-        }
-    };
-	
-	private IMessageSentOffline fileMessageCallback =new IMessageSentOffline()
+		@Override
+		public void onFailure(JSONObject packet)
+		{
+			Logger.d(TAG, "Message sending failed");
+		}
+	};
+
+	private IMessageSentOffline fileMessageCallback = new IMessageSentOffline()
 	{
 		@Override
 		public void onSuccess(JSONObject packet)
@@ -295,7 +311,7 @@ public class OfflineThreadManager
 		@Override
 		public void onFailure(JSONObject packet)
 		{
-			Logger.d(TAG,"File sending failed");
+			Logger.d(TAG, "File sending failed");
 		}
 
 	};
@@ -303,6 +319,7 @@ public class OfflineThreadManager
 	public void shutDown()
 	{
 		Logger.d(TAG, "Goining to close ALL SOCKETS");
+		threadConnectCount.set(0);
 		textTransferRunnable.shutDown();
 
 		Logger.d(TAG, "closing  text socket ALL SOCKETS");
@@ -317,12 +334,12 @@ public class OfflineThreadManager
 		interrupt(textReceiveThread);
 		interrupt(fileReceiverThread);
 	}
-	
+
 	private void interrupt(Thread t)
 	{
-		if(t==null)
-			return ;
-		if(t.isAlive())
+		if (t == null)
+			return;
+		if (t.isAlive())
 		{
 			t.interrupt();
 		}

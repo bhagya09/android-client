@@ -11,6 +11,7 @@ import java.net.SocketTimeoutException;
 
 import org.json.JSONObject;
 
+import com.bsb.hike.offline.IConnectCallback;
 import com.bsb.hike.offline.IMessageSentOffline;
 import com.bsb.hike.offline.OfflineConstants;
 import com.bsb.hike.offline.OfflineException;
@@ -38,10 +39,13 @@ public class TextTransferRunnable implements Runnable
 	private boolean isNotConnected =true;
 	
 	private Socket textSendSocket = null;
+	
+	IConnectCallback connectCallback=null;
 
-	public TextTransferRunnable(IMessageSentOffline textMessageCallback)
+	public TextTransferRunnable(IMessageSentOffline textMessageCallback,IConnectCallback connectCallback)
 	{
 		this.callback = textMessageCallback;
+		this.connectCallback=connectCallback;
 	}
 
 	@Override
@@ -56,7 +60,7 @@ public class TextTransferRunnable implements Runnable
 		{
 			try
 			{
-				
+
 				if (offlineManager.isHotspotCreated())
 				{
 					host = OfflineUtils.getIPFromMac(null);
@@ -65,18 +69,19 @@ public class TextTransferRunnable implements Runnable
 				{
 					host = IP_SERVER;
 				}
-				
+
 				textSendSocket = new Socket();
-				//textSendSocket.bind(null);
+				// textSendSocket.bind(null);
 
 				textSendSocket.connect((new InetSocketAddress(host, PORT_TEXT_MESSAGE)), SOCKET_TIMEOUT);
 				Logger.d(TAG, "Text Transfer Thread Connected");
 				isNotConnected = false;
+				connectCallback.onConnect();
 
 			}
 			catch (IOException e)
 			{
-				Logger.d(TAG, "TIO Exception in connect " + offlineManager.getOfflineState() + " "+offlineManager.getConnectedDevice());
+				Logger.d(TAG, "TIO Exception in connect " + offlineManager.getOfflineState() + " " + offlineManager.getConnectedDevice());
 				if (++currentTries < OfflineConstants.MAX_TRIES)
 				{
 					try
@@ -90,7 +95,8 @@ public class TextTransferRunnable implements Runnable
 				}
 				else
 				{
-				//
+					connectCallback.onDisconnect(new OfflineException(OfflineException.CLIENT_COULD_NOT_CONNECT));
+					return;
 				}
 			}
 		}

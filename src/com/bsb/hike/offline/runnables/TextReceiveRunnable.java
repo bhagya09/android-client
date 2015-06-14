@@ -21,6 +21,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.offline.IConnectCallback;
 import com.bsb.hike.offline.OfflineException;
 import com.bsb.hike.offline.OfflineManager;
 import com.bsb.hike.offline.OfflineThreadManager;
@@ -44,6 +45,14 @@ public class TextReceiveRunnable implements Runnable
 	private Socket textReceiverSocket = null;
 
 	private OfflineManager offlineManager;
+	
+	IConnectCallback connectCallback;
+
+	public TextReceiveRunnable(IConnectCallback connectCallback)
+	{
+		this.connectCallback=connectCallback;
+	}
+
 
 	@Override
 	public void run()
@@ -59,6 +68,7 @@ public class TextReceiveRunnable implements Runnable
 			Logger.d(TAG, "TextReceiveThread" + "Will be waiting on accept");
 			textReceiverSocket = textServerSocket.accept();
 			Logger.d(TAG, "TextReceiveThread" + "Connection successfull");
+			connectCallback.onConnect();
 			inputStream = textReceiverSocket.getInputStream();
 			while (true)
 			{
@@ -99,9 +109,8 @@ public class TextReceiveRunnable implements Runnable
 				if (OfflineUtils.isPingPacket(messageJSON))
 				{
 					// Start client thread.
+					offlineManager.setConnectedDevice(OfflineUtils.getMsisdnFromPingPacket(messageJSON));
 					OfflineThreadManager.getInstance().startSendingThreads();
-					String connectedDevice = OfflineUtils.getMsisdnFromPingPacket(messageJSON);
-					offlineManager.onConnected(connectedDevice);
 				}
 				else if (OfflineUtils.isGhostPacket(messageJSON))
 				{
@@ -166,7 +175,7 @@ public class TextReceiveRunnable implements Runnable
 		{
 			e.printStackTrace();
 			Logger.e(TAG, "Exception in TextReceiveThread. IO Exception occured.Socket was not bounded");
-			offlineManager.shutDown(new OfflineException(e, OfflineException.CLIENT_DISCONNETED));
+			connectCallback.onDisconnect(new OfflineException(e, OfflineException.CLIENT_DISCONNETED));
 		}
 		catch (IllegalArgumentException e)
 		{
@@ -180,7 +189,7 @@ public class TextReceiveRunnable implements Runnable
 		catch (OfflineException e)
 		{
 			e.printStackTrace();
-			offlineManager.shutDown(new OfflineException(e, OfflineException.CLIENT_DISCONNETED));
+			connectCallback.onDisconnect(new OfflineException(e, OfflineException.CLIENT_DISCONNETED));
 
 		}
 	}

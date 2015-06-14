@@ -92,4 +92,6 @@ public class OfflineConstants
 	}
 	
 	public static final int MAX_TRIES=4;
+
+	public static final int ALL_THREADS_CONNECTED = 4;
 }

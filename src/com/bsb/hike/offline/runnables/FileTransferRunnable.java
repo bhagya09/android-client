@@ -8,6 +8,7 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 
 import com.bsb.hike.offline.FileTransferModel;
+import com.bsb.hike.offline.IConnectCallback;
 import com.bsb.hike.offline.IMessageSentOffline;
 import com.bsb.hike.offline.OfflineConstants;
 import com.bsb.hike.offline.OfflineException;
@@ -36,10 +37,13 @@ public class FileTransferRunnable implements Runnable
 	private Socket fileSendSocket = null;
 
 	private OfflineManager offlineManager = null;
+	
+	IConnectCallback connectCallback=null;
 
-	public FileTransferRunnable(IMessageSentOffline fileMessageCallback)
+	public FileTransferRunnable(IMessageSentOffline fileMessageCallback,IConnectCallback connectCallback)
 	{
 		this.callback = fileMessageCallback;
+		this.connectCallback=connectCallback;
 	}
 
 	@Override
@@ -67,6 +71,7 @@ public class FileTransferRunnable implements Runnable
 				fileSendSocket.bind(null);
 				fileSendSocket.connect(new InetSocketAddress(host, PORT_FILE_TRANSFER));
 				isNotConnected = false;
+				connectCallback.onConnect();
 			}
 			catch (IOException e)
 			{
@@ -83,6 +88,7 @@ public class FileTransferRunnable implements Runnable
 				}
 				else
 				{
+					connectCallback.onDisconnect(new OfflineException(OfflineException.CLIENT_COULD_NOT_CONNECT));
 					return;
 				}
 			}

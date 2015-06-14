@@ -23,6 +23,8 @@ public class OfflineException extends Exception
 
 	public static final short DISCONNECT = 0x07;
 
+	public static final short CLIENT_COULD_NOT_CONNECT = 0x08;;
+
 	private short reasonCode;
 
 	Exception exception;

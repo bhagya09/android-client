@@ -23,6 +23,7 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.offline.FileTransferModel;
+import com.bsb.hike.offline.IConnectCallback;
 import com.bsb.hike.offline.OfflineException;
 import com.bsb.hike.offline.OfflineManager;
 import com.bsb.hike.offline.OfflineUtils;
@@ -39,9 +40,12 @@ public class FileReceiverRunnable implements Runnable
 	private Socket fileReceiveSocket = null;
 
 	OfflineManager offlineManager = null;
+	
+	IConnectCallback connectCallback=null;
 
-	public FileReceiverRunnable()
+	public FileReceiverRunnable(IConnectCallback connectCallback)
 	{
+		this.connectCallback = connectCallback;
 	}
 
 	@Override
@@ -60,6 +64,7 @@ public class FileReceiverRunnable implements Runnable
 			Logger.d(TAG, "fileReceive socket connection success");
 
 			InputStream inputstream = fileReceiveSocket.getInputStream();
+			connectCallback.onConnect();
 
 			while (true)
 			{
@@ -160,7 +165,7 @@ public class FileReceiverRunnable implements Runnable
 		{
 			e.printStackTrace();
 			Logger.e(TAG, "File Receiver Thread " + " IO Exception occured.Socket was not bounded");
-			 offlineManager.shutDown(new OfflineException(e,OfflineException.CLIENT_DISCONNETED));
+			connectCallback.onDisconnect(new OfflineException(e, OfflineException.CLIENT_DISCONNETED));
 		}
 		catch (IllegalArgumentException e)
 		{
@@ -170,7 +175,7 @@ public class FileReceiverRunnable implements Runnable
 		catch (OfflineException e)
 		{
 			e.printStackTrace();
-			offlineManager.shutDown(new OfflineException(e, OfflineException.CLIENT_DISCONNETED));
+			connectCallback.onDisconnect(new OfflineException(e, OfflineException.CLIENT_DISCONNETED));
 
 		}
 	}
