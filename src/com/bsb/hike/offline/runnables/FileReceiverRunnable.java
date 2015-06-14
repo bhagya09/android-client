@@ -94,6 +94,7 @@ public class FileReceiverRunnable implements Runnable
 				long mappedMsgId = -1;
 				String fileName = "";
 				int fileSize = 0;
+				int totalChunks=0;
 				try
 				{
 					message = new JSONObject(metaDataString);
@@ -108,9 +109,8 @@ public class FileReceiverRunnable implements Runnable
 					int type = fileJSON.getInt(HikeConstants.HIKE_FILE_TYPE);
 					fileName = fileJSON.getString(HikeConstants.FILE_NAME);
 					filePath = OfflineUtils.getFileBasedOnType(type, fileName);
-					int totalChunks = OfflineUtils.getTotalChunks(fileSize);
-					offlineManager.addToCurrentReceivingFile(mappedMsgId, new FileTransferModel(new TransferProgress(0, totalChunks), message));
-
+					 totalChunks = OfflineUtils.getTotalChunks(fileSize);
+					
 				}
 				catch (JSONException e1)
 				{
@@ -127,6 +127,7 @@ public class FileReceiverRunnable implements Runnable
 
 					// update DB and UI.
 					HikeConversationsDatabase.getInstance().addConversationMessages(convMessage, true);
+					offlineManager.addToCurrentReceivingFile(convMessage.getMsgID(), new FileTransferModel(new TransferProgress(0, totalChunks), message));
 					HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_RECEIVED, convMessage);
 					Logger.d(TAG, filePath);
 
@@ -140,7 +141,7 @@ public class FileReceiverRunnable implements Runnable
 					// showDownloadTransferNotification(mappedMsgId, fileSize);
 					FileOutputStream outputStream = new FileOutputStream(f);
 					// TODO:Take action on the basis of return type.
-					offlineManager.copyFile(inputstream, new FileOutputStream(f), mappedMsgId, true, false, fileSize);
+					offlineManager.copyFile(inputstream, new FileOutputStream(f), convMessage.getMsgID(), true, false, fileSize);
 					OfflineUtils.closeOutputStream(outputStream);
 					f.renameTo(new File(filePath));
 				}
@@ -149,7 +150,7 @@ public class FileReceiverRunnable implements Runnable
 					e.printStackTrace();
 				}
 
-				offlineManager.removeFromCurrentReceivingFile(mappedMsgId);
+				offlineManager.removeFromCurrentReceivingFile(convMessage.getMsgID());
 
 				offlineManager.showSpinnerProgress(false, mappedMsgId);
 				// TODO:Disconnection handling:

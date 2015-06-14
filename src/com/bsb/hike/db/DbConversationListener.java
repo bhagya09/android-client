@@ -182,14 +182,21 @@ public class DbConversationListener implements Listener
 			ArrayList<Long> msgIds = deleteMessage.first;
 			Bundle bundle = deleteMessage.second;
 			Boolean containsLastMessage = null;
-			if(bundle.containsKey(HikeConstants.Extras.IS_LAST_MESSAGE))
+			if (bundle.containsKey(HikeConstants.Extras.IS_LAST_MESSAGE))
 			{
 				containsLastMessage = bundle.getBoolean(HikeConstants.Extras.IS_LAST_MESSAGE);
 			}
 			String msisdn = bundle.getString(HikeConstants.Extras.MSISDN);
-			
+
 			mConversationDb.deleteMessages(msgIds, msisdn, containsLastMessage);
-			persistence.removeMessages(msgIds);
+			if (Utils.isOfflineConversation(msisdn))
+			{
+				HikeOfflinePersistence.getInstance().removeMessages(msgIds);
+			}
+			else
+			{
+				persistence.removeMessages(msgIds);
+			}
 		}
 		else if (HikePubSub.MESSAGE_FAILED.equals(type)) // server got msg
 		// from client 1 and

@@ -5,8 +5,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -405,12 +407,11 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 	 * 
 	 * @param convMessage
 	 * @param file
-	 * @return
-	 * TODO:Removing the try catch for the app to crash. So that we can debug, what the issue was.
+	 * @return TODO:Removing the try catch for the app to crash. So that we can debug, what the issue was.
 	 */
 	private FileSavedState getDownloadFileState(ConvMessage convMessage, File file)
 	{
-		long msgId = convMessage.getMappedMsgID();
+		long msgId = convMessage.getMsgID();
 		FileSavedState fss = null;
 		HikeFile hikeFile = convMessage.getMetadata().getHikeFiles().get(0);
 
@@ -1017,6 +1018,30 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 			final ConvMessage convMessage = OfflineUtils.createOfflineInlineConvMessage("o:" + connectedDevice, context.getString(R.string.connection_deestablished),
 					OfflineConstants.OFFLINE_MESSAGE_DISCONNECTED_TYPE);
 			HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_SENT, convMessage);
+
+			if (currentSendingFiles.size() > 0)
+			{
+				ArrayList<Long> msgId = new ArrayList<>(currentSendingFiles.size());
+
+				for (Entry<Long, FileTransferModel> itr : currentSendingFiles.entrySet())
+				{
+					msgId.add(itr.getKey());
+				}
+
+				ChatThreadUtils.deleteMessagesFromDb(msgId, false, msgId.get(msgId.size() - 1), "o:" + getConnectedDevice());
+			}
+			
+			if (currentReceivingFiles.size() > 0)
+			{
+				ArrayList<Long> rMsgIds = new ArrayList<>(currentReceivingFiles.size());
+
+				for (Entry<Long, FileTransferModel> itr : currentReceivingFiles.entrySet())
+				{
+					rMsgIds.add(itr.getKey());
+				}
+
+				ChatThreadUtils.deleteMessagesFromDb(rMsgIds, false, rMsgIds.get(rMsgIds.size() - 1), "o:" + getConnectedDevice());
+			}
 			
 			for (IOfflineCallbacks offlineListener : listeners)
 			{

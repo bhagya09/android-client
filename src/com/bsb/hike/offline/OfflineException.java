@@ -23,7 +23,11 @@ public class OfflineException extends Exception
 
 	public static final short DISCONNECT = 0x07;
 
-	public static final short CLIENT_COULD_NOT_CONNECT = 0x08;;
+	public static final short CLIENT_COULD_NOT_CONNECT = 0x08;
+	
+	public static final short HOTSPOT_CLOSED = 0x09;
+
+	public static final short WIFI_CLOSED = 0x10;
 
 	private short reasonCode;
 
