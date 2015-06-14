@@ -1085,6 +1085,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 		setInOfflineFileTransferInProgress(false);
 		removeAllMessages();
 		startedForChatThread = false;
+		HikeAlarmManager.cancelAlarm(context, HikeAlarmManager.REQUESTCODE_OFFLINE);
 	}
 
 	public void setConnectedDevice(String connectedDevice2)
