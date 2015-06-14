@@ -298,6 +298,9 @@ public class SearchManager
 
 		for (; from <= to; from++)
 		{
+			if (!active)
+				break;
+
 			if (itemList.get(from).doesItemContain(searchText))
 			{
 				if (!indexList.contains(from))
@@ -328,6 +331,8 @@ public class SearchManager
 		{
 			for (; from >= to; from--)
 			{
+				if (!active)
+					break;
 
 				if (itemList.get(from).doesItemContain(searchText))
 				{
@@ -355,6 +360,8 @@ public class SearchManager
 		{
 			for (; from <= to; from++)
 			{
+				if (!active)
+					break;
 
 				if (itemList.get(from).doesItemContain(searchText))
 				{
