@@ -1465,10 +1465,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		mActionMode.showActionMode(SEARCH_ACTION_MODE, R.layout.search_action_bar);
 		setUpSearchViews();
 
-		if (messageSearchManager == null)
-		{
-			messageSearchManager = new SearchManager();
-		}
+		messageSearchManager = new SearchManager();
 		messageSearchManager.init(messages);
 		/**
 		 * Hiding any open tip
