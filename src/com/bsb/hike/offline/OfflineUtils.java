@@ -543,7 +543,7 @@ public class OfflineUtils
 	private static ConvMessage createConvMessage(String msisdn, JSONObject metadata,boolean isRecipientOnhike)
 	{
 		long time = System.currentTimeMillis() / 1000;
-		ConvMessage convMessage = new ConvMessage(HikeConstants.CONTACT_FILE_NAME, msisdn, time, ConvMessage.State.SENT_CONFIRMED);
+		ConvMessage convMessage = new ConvMessage(HikeConstants.CONTACT_FILE_NAME, msisdn, time, ConvMessage.State.SENT_UNCONFIRMED);
 		try {
 			convMessage.setMetadata(metadata);
 		} catch (JSONException e) {
@@ -561,5 +561,29 @@ public class OfflineUtils
 			e.printStackTrace();
 		}
 		return convMessage;
+	}
+
+	public static boolean isContactTransferMessage(JSONObject packet) {
+		
+		boolean isContactTransferMessage = false;
+		JSONObject metadata;
+		JSONArray files;
+		JSONObject fileJSON;
+		try
+		{
+			metadata = packet.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA);
+			files = metadata.getJSONArray(HikeConstants.FILES);
+			if(files!=null)
+			{
+				fileJSON = files.getJSONObject(0);
+				isContactTransferMessage = fileJSON.getString(HikeConstants.CONTENT_TYPE).equals(HikeConstants.CONTACT_CONTENT_TYPE);
+			}
+			
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+		return isContactTransferMessage;
 	}
 }
