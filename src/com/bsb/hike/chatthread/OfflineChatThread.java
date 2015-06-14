@@ -60,6 +60,8 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 	private final String TAG = "OfflineManager";
 
 	OfflineConversation mConversation;
+	
+	boolean canPoke=true;
 
 	public OfflineChatThread(ChatThreadActivity activity, String msisdn)
 	{
@@ -89,10 +91,16 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 		{
 			return;
 		}
-		statusView.setVisibility(View.VISIBLE);
-		statusView.setText(status);
-	}
 
+		if (status.equals(getString(R.string.connection_deestablished)))
+		{
+			statusView.setVisibility(View.GONE);
+		}
+		{
+			statusView.setVisibility(View.VISIBLE);
+			statusView.setText(status);
+		}
+	}
 
 	@Override
 	public void onCreate()
@@ -153,6 +161,14 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 	}
 
 	@Override
+	protected void sendPoke()
+	{
+		if (canPoke)
+		{
+			super.sendPoke();
+		}
+	}
+	@Override
 	protected String getConvLabel()
 	{
 		return mConversation.getLabel();
@@ -191,6 +207,8 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 		}
 	}
 
+	
+	
 	protected Conversation fetchConversation()
 	{
 		mConversation = (OfflineConversation) mConversationDb.getConversation(msisdn, HikeConstants.MAX_MESSAGES_TO_LOAD_INITIALLY, false);
@@ -499,11 +517,13 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 	@Override
 	public void onDisconnect(ERRORCODE errorCode)
 	{
+		sendUpdateStatusMessageOnHandler(R.string.connection_deestablished);
 		switch (errorCode)
 		{
 		case OUT_OF_RANGE:
 			break;
 		case TIMEOUT:
+			sendComposeViewStatusonHandler(false);
 			break;
 		case USERDISCONNECTED:
 			final ConvMessage convMessage = OfflineUtils.createOfflineInlineConvMessage(msisdn, activity.getString(R.string.connection_deestablished),
@@ -512,8 +532,10 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 			msg.what = MESSAGE_RECEIVED;
 			msg.obj = convMessage;
 			uiHandler.sendMessage(msg);
-			
 			sendComposeViewStatusonHandler(false);
+			break;
+		case COULD_NOT_CONNECT:
+			
 			break;
 		default:
 			break;
@@ -543,7 +565,6 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 		msg.what = MESSAGE_RECEIVED;
 		msg.obj = convMessage;
 		uiHandler.sendMessage(msg);
-
 	}
 
 	private void sendComposeViewStatusonHandler(boolean b)
@@ -554,11 +575,10 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 		uiHandler.sendMessage(msg);
 	}
 	
-
 	private void toggleComposeView(boolean isEnabled)
 	{
-		 activity.findViewById(R.id.compose_container).setVisibility(isEnabled?View.VISIBLE:View.GONE);
-		
+		canPoke = isEnabled;
+		activity.findViewById(R.id.compose_container).setVisibility(isEnabled ? View.VISIBLE : View.GONE);
 	}
 
 }
