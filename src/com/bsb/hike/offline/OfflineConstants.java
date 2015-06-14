@@ -83,7 +83,7 @@ public class OfflineConstants
 	
 	public static enum ERRORCODE
 	{
-		TIMEOUT,USERDISCONNECTED,OUT_OF_RANGE
+		TIMEOUT,USERDISCONNECTED,OUT_OF_RANGE,COULD_NOT_CONNECT
 	}
 	
 	public static enum OFFLINE_STATE
@@ -94,4 +94,16 @@ public class OfflineConstants
 	public static final int MAX_TRIES=4;
 
 	public static final int ALL_THREADS_CONNECTED = 4;
+	
+	public static final String WIFI_HOTSPOT_STATE_CHANGE_ACTION = "android.net.wifi.WIFI_AP_STATE_CHANGED";
+
+	public static final int WIFI_HOTSPOT_STATE_DISABLING = 10;
+
+	public static final int WIFI_HOTSPOT_STATE_DISABLED = 11;
+
+	public static final int WIFI_HOTSPOT_STATE_ENABLING = 12;
+
+	public static final int WIFI_HOTSPOT_STATE_ENABLED = 13;
+
+	public static final int WIFI_HOTSPOT_STATE_UNKNOWN = 14;
 }

@@ -558,10 +558,12 @@ public class OfflineManager implements IWIfiReceiverCallback , PeerListListener
 
 	private void addIntentFilters(IntentFilter intentFilter)
 	{
-			intentFilter.addAction(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION);
-	        intentFilter.addAction(WifiP2pManager.WIFI_P2P_DISCOVERY_CHANGED_ACTION);
-	        intentFilter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
-	        intentFilter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);		
+		intentFilter.addAction(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION);
+		intentFilter.addAction(WifiP2pManager.WIFI_P2P_DISCOVERY_CHANGED_ACTION);
+		intentFilter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
+		intentFilter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
+		intentFilter.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
+		intentFilter.addAction(OfflineConstants.WIFI_HOTSPOT_STATE_CHANGE_ACTION);
 	}
 
 	@Override
