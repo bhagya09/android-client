@@ -185,7 +185,7 @@ public class OfflineThreadManager
 
 	public boolean sendOfflineFile(FileTransferModel fileTransferModel, OutputStream outputStream) throws IOException, OfflineException
 	{
-		boolean isSent = true;
+		boolean isSent = false;
 		String fileUri = null;
 		InputStream inputStream = null;
 		JSONObject jsonFile = null;
