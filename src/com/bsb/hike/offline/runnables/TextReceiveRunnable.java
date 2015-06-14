@@ -136,7 +136,7 @@ public class TextReceiveRunnable implements Runnable
 						// remove data from stream
 						else
 						{
-							long fileSize = stickerImage.length();
+							long fileSize = OfflineUtils.getStkLenFrmPkt(messageJSON);
 							while (fileSize > 0)
 							{
 								long len = inputStream.skip(fileSize);
