@@ -77,6 +77,7 @@ public class VoIPConstants {
 	public static final int MSG_CONNECTED = 23;
 	public static final int MSG_JOINED_CONFERENCE = 24;
 	public static final int MSG_LEFT_CONFERENCE = 25;
+	public static final int MSG_UPDATE_CONTACT_DETAILS = 26;
 
 	public static final class Analytics
 	{

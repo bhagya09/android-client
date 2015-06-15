@@ -48,7 +48,8 @@ public class VoIPDataPacket implements Cloneable {
 		COMM_UDP_ACK_RELAY (29),
 		NETWORK_QUALITY (30),
 		HOLD_ON (31), 
-		HOLD_OFF (32)
+		HOLD_OFF (32),
+		CLIENTS_LIST (33)
 		;
 		
 		private final int value;
@@ -129,6 +130,8 @@ public class VoIPDataPacket implements Cloneable {
 				return HOLD_ON;
 			case 32:
 				return HOLD_OFF;
+			case 33:
+				return CLIENTS_LIST;
 			default:
 				return UPDATE;
 			}

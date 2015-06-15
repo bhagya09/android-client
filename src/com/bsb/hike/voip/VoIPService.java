@@ -1,6 +1,7 @@
 package com.bsb.hike.voip;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.HashMap;
@@ -41,12 +42,13 @@ import android.os.RemoteException;
 import android.os.Vibrator;
 import android.support.v4.app.NotificationCompat;
 import android.text.TextUtils;
-import android.util.Log;
 import android.util.SparseIntArray;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
+import com.bsb.hike.models.ContactInfo;
+import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
@@ -135,6 +137,9 @@ public class VoIPService extends Service {
 	private final LinkedBlockingQueue<VoIPDataPacket> playbackBuffersQueue      = new LinkedBlockingQueue<VoIPDataPacket>();
 	private final CircularByteBuffer recordBuffer = new CircularByteBuffer();
 	
+	// Runnable for sending clients list to all clients
+	private Runnable clientListRunnable = null;
+	private Handler clientListHandler;
 	
 	// Bluetooth 
 	private boolean isBluetoothEnabled = false;
@@ -188,8 +193,7 @@ public class VoIPService extends Service {
 					stop();
 				else {
 					Logger.d(logTag, msisdn + " has quit the conference.");
-					getClient(msisdn).close();
-					clients.remove(msisdn);
+					removeFromClients(msisdn);
 					playFromSoundPool(SOUND_DECLINE, false);
 					sendHandlerMessage(VoIPConstants.MSG_LEFT_CONFERENCE, bundle);
 				}
@@ -450,7 +454,7 @@ public class VoIPService extends Service {
 				setCallid(partnerCallId);
 				if (client.isInitiator() && !client.reconnecting) {
 					Logger.w(logTag, "Detected incoming VoIP call from: " + client.getPhoneNumber());
-					clients.put(msisdn, client);
+					addToClients(client);
 					client.retrieveExternalSocket();
 				} else {
 					// We have already sent our socket info to partner
@@ -544,7 +548,7 @@ public class VoIPService extends Service {
 		}
 			
 		Logger.w(logTag, "Making outgoing call to: " + client.getPhoneNumber() + ", id: " + getCallId());
-		clients.put(msisdn, client);
+		addToClients(client);
 
 		// Send call initiation message
 		VoIPUtils.sendVoIPMessageUsingHike(client.getPhoneNumber(), 
@@ -931,9 +935,11 @@ public class VoIPService extends Service {
 		Logger.d(logTag, "Stopping service..");
 		keepRunning = false;
 
-		for (VoIPClient client : clients.values())
-			client.close();
-		clients.clear();
+		synchronized (clients) {
+			for (VoIPClient client : clients.values())
+				client.close();
+			clients.clear();
+		}
 
 		// Reset variables
 		setCallid(0);
@@ -1096,7 +1102,7 @@ public class VoIPService extends Service {
 			startRecording();
 			startPlayBack();
 		} else {
-			Logger.w(logTag, "Skipping startRecording() and startPlayBack()");
+			Logger.d(logTag, "Skipping startRecording() and startPlayBack()");
 		}
 	}
 	
@@ -1611,7 +1617,7 @@ public class VoIPService extends Service {
 				return;
 			
 			if (isRingingOutgoing == true) {
-				Logger.w(logTag, "Outgoing ringer is already ringing.");
+				Logger.d(logTag, "Outgoing ringer is already ringing.");
 				return;
 			} else isRingingOutgoing = true;
 
@@ -1790,11 +1796,96 @@ public class VoIPService extends Service {
 
 	public String getClientNames() {
 		String names = "";
+		
+		// If in a one-to-one call, or hosting a conference
 		for (VoIPClient client : clients.values()) {
 			names += client.getName() + ", ";
 		}
+		
+		// If we are part of a conference, but not hosting it
+		if (getClient() != null && getClient().clientMsisdns != null) {
+			names = "";
+			for (String msisdn : getClient().clientMsisdns) {
+				ContactInfo contactInfo = ContactManager.getInstance().getContact(msisdn);
+				if (contactInfo != null)
+					names += contactInfo.getNameOrMsisdn() + ", ";
+				else
+					names += msisdn + ", ";
+			}
+		}
+
 		names = names.substring(0, names.length() - 2);
 		return names;
 	}
+	
+	private void addToClients(VoIPClient client) {
+		synchronized (clients) {
+			clients.put(client.getPhoneNumber(), client);
+		}
+		sendClientsListToAllClients();
+	}
+
+	private void removeFromClients(String msisdn) {
+		synchronized (clients) {
+			getClient(msisdn).close();
+			clients.remove(msisdn);
+		}
+		sendClientsListToAllClients();
+	}
+	
+	/**
+	 * Sends a comma-separated list of MSISDNs of all connected clients, 
+	 * to all connected clients.  
+	 */
+	private void sendClientsListToAllClients() {
+		
+		if (clientListHandler != null && clientListRunnable != null)
+			clientListHandler.removeCallbacks(clientListRunnable);
+		
+		clientListRunnable = new Runnable() {
+			
+			@Override
+			public void run() {
+				new Thread(new Runnable() {
+					
+					@Override
+					public void run() {
+						synchronized (clients) {
+							
+							// Form the CSV
+							StringBuilder sb = new StringBuilder();
+							for (VoIPClient client : clients.values()) {
+								if (!client.connected)
+									continue;
+								if (sb.length() > 0) sb.append(",");
+								sb.append(client.getPhoneNumber());
+							}
+							
+							Logger.w(logTag, "Sending clients list: " + sb.toString());
+							
+							// Build the packet
+							VoIPDataPacket dp = new VoIPDataPacket(PacketType.CLIENTS_LIST);
+							try {
+								dp.setData(sb.toString().getBytes("UTF-8"));
+							} catch (UnsupportedEncodingException e) {
+								Logger.e(logTag, "UnsupportedEncodingException in sendClientsListToAllClients(): " + e.toString());
+							}
+							
+							// Send it to all clients
+							for (VoIPClient client : clients.values()) {
+								if (client.connected)
+									client.sendPacket(dp, true);
+							}
+						}
+					}
+				}, "CLIENT_LIST_THREAD").start();
+			}
+		};
+		
+		clientListHandler = new Handler();
+		clientListHandler.postDelayed(clientListRunnable, 250);
+	}
+	
+	
 }
 
