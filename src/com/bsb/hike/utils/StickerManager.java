@@ -7,6 +7,7 @@ import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -1756,6 +1757,12 @@ public class StickerManager
 	public String getStickerSetString(String stkId, String catId)
 	{
 		return stkId + ":" + catId;
+	}
+	
+	public void addRecentStickerToPallete(Sticker sticker)
+	{
+		StickerManager.getInstance().addRecentSticker(sticker);
+		LocalBroadcastManager.getInstance(HikeMessengerApp.getInstance()).sendBroadcast(new Intent(StickerManager.RECENTS_UPDATED).putExtra(StickerManager.RECENT_STICKER_SENT, (Serializable) sticker));
 	}
 	
 }

@@ -301,8 +301,7 @@ public class StickerPageAdapter extends BaseAdapter implements OnClickListener
 			/* In case sticker is clicked on the recents screen, don't update the UI or recents list. Also if this sticker is disabled don't update the recents UI */
 			if (!category.isCustom())
 			{
-				StickerManager.getInstance().addRecentSticker(sticker);
-				LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(StickerManager.RECENTS_UPDATED).putExtra(StickerManager.RECENT_STICKER_SENT, (Serializable) sticker));
+				StickerManager.getInstance().addRecentStickerToPallete(sticker);	
 			}
 			break;
 		case StickerPageAdapterItem.UPDATE:
