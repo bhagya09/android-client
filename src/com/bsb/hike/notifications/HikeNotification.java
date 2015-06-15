@@ -18,13 +18,6 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffXfermode;
-import android.graphics.Rect;
-import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.net.Uri;
@@ -35,7 +28,6 @@ import android.support.v4.app.NotificationCompat.Action;
 import android.support.v4.app.NotificationCompat.Builder;
 import android.text.SpannableString;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeConstants.NotificationType;
@@ -483,14 +475,9 @@ public class HikeNotification
 				return;
 			}
 
-			if (!shouldPlayNotification(convMsg))
-			{
-				return;
-			}
-
 			// big picture messages ! intercept !
 			showNotification(notificationIntent, icon, timestamp, notificationId, text, key, message, msisdn, bigPictureImage, !convMsg.isStickerMessage(), isPin, false, hikeNotifMsgStack.getNotificationSubText(),
-					null, forceBlockNotificationSound, 0);
+					null, forceBlockNotificationSound, 0,isSilentNotification(convMsg));
 		}
 		else
 		{
@@ -506,37 +493,30 @@ public class HikeNotification
 				return;
 			}
 			// regular message
-			showNotification(notificationIntent, icon, timestamp, HIKE_SUMMARY_NOTIFICATION_ID, text, key, message, msisdn, null, isPin, forceBlockNotificationSound);
+			showNotification(notificationIntent, icon, timestamp, HIKE_SUMMARY_NOTIFICATION_ID, text, key, message, msisdn, null, isPin, forceBlockNotificationSound,isSilentNotification(convMsg));
 		}
 	}
 	
 	/**
-	 * This method will also update last Notification Time
-	 * 
+	 * This method will also update last Notification Time 
+	 * Message will be silent for t (Server configurable) interval for Each Group independently
 	 */
-	public boolean shouldPlayNotification(ConvMessage convMsg){
+	public boolean isSilentNotification(ConvMessage convMsg){
 		if (!convMsg.isOneToNChat())
 		{
-			return true;
+			return false;
 		}
 		long timeIntervalInMillis = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.GROUP_NOTIFIACTION_DELAY,GROUP_NOTIFICATION_DELAY_IN_SEC)*1000;
 		Long lastNotificationTime = lastNotificationTimeMap.get(convMsg.getMsisdn());
-		boolean shouldPlayNotification =false;
-		if (lastNotificationTime==null)
+		
+		if (lastNotificationTime!=null && (System.currentTimeMillis() - lastNotificationTime) < timeIntervalInMillis)
 		{	
-			shouldPlayNotification=true;
-		}else{
-			shouldPlayNotification = (System.currentTimeMillis() - lastNotificationTime) > timeIntervalInMillis;
-		}
-	
-		if (shouldPlayNotification)
-		{
-			lastNotificationTimeMap.put(convMsg.getMsisdn(), System.currentTimeMillis());
 			return true;
 		}
+	
+		lastNotificationTimeMap.put(convMsg.getMsisdn(), System.currentTimeMillis());
 		return false;
 	}
-	
 
 	public void notifyStringMessage(String msisdn, String message, boolean forceNotPlaySound, int notificationType)
 
@@ -611,16 +591,12 @@ public class HikeNotification
 					
 		if (hikeNotifMsgStack.getSize() == 1 && convMessage != null)
 		{
+			boolean isSilentNotification=isSilentNotification(convMessage);
 			if (convMessage.isInvite())
 			{
 				return;
 			}
-
-			if (!shouldPlayNotification(convMessage))
-			{
-				return;
-			}
-
+			
 			else if (convMessage.isStickerMessage())
 			{
 				Bitmap bigPictureImage = ToastListener.returnBigPicture(convMessage, context);
@@ -632,7 +608,7 @@ public class HikeNotification
 					showNotification(hikeNotifMsgStack.getNotificationIntent(), hikeNotifMsgStack.getNotificationIcon(), hikeNotifMsgStack.getLatestAddedTimestamp(),
 							hikeNotifMsgStack.getNotificationId(), hikeNotifMsgStack.getNotificationTickerText(), hikeNotifMsgStack.getNotificationTitle(),
 							hikeNotifMsgStack.getNotificationBigText(retryCount), convMessage.getMsisdn(), bigPictureImage, !convMessage.isStickerMessage(), false, false,
-							hikeNotifMsgStack.getNotificationSubText(), null, shouldNotPlaySound, retryCount);
+							hikeNotifMsgStack.getNotificationSubText(), null, shouldNotPlaySound, retryCount,isSilentNotification);
 					return;
 				}
 			}
@@ -642,7 +618,7 @@ public class HikeNotification
 				showBigTextStyleNotification(hikeNotifMsgStack.getNotificationIntent(), hikeNotifMsgStack.getNotificationIcon(), hikeNotifMsgStack.getLatestAddedTimestamp(),
 						VOIP_MISSED_CALL_NOTIFICATION_ID, hikeNotifMsgStack.getNotificationTickerText(), hikeNotifMsgStack.getNotificationTitle(),
 						hikeNotifMsgStack.getNotificationBigText(retryCount), isSingleMsisdn ? hikeNotifMsgStack.lastAddedMsisdn : "bulk", hikeNotifMsgStack.getNotificationSubText(),
-						avatarDrawable, shouldNotPlaySound, retryCount, actions);
+						avatarDrawable, shouldNotPlaySound, retryCount, actions,isSilentNotification);
 				return;
 			}
 
@@ -652,15 +628,12 @@ public class HikeNotification
 			showBigTextStyleNotification(hikeNotifMsgStack.getNotificationIntent(), hikeNotifMsgStack.getNotificationIcon(), hikeNotifMsgStack.getLatestAddedTimestamp(),
 					hikeNotifMsgStack.getNotificationId(), hikeNotifMsgStack.getNotificationTickerText(), hikeNotifMsgStack.getNotificationTitle(),
 					hikeNotifMsgStack.getNotificationBigText(retryCount), isSingleMsisdn ? hikeNotifMsgStack.lastAddedMsisdn : "bulk", hikeNotifMsgStack.getNotificationSubText(),
-					avatarDrawable, shouldNotPlaySound, retryCount);
+					avatarDrawable, shouldNotPlaySound, retryCount,null,isSilentNotification);
 
 		}
 		else if (!hikeNotifMsgStack.isEmpty())
 		{
-			if (!shouldPlayNotification(convMessage))
-			{
-				return;
-			}
+			
 			if (convMessage != null)
 			{
 				HAManager.getInstance().setMetadatFieldsForSessionEvent(AnalyticsConstants.AppOpenSource.FROM_NOTIFICATION, convMessage.getMsisdn(), convMessage,
@@ -669,7 +642,7 @@ public class HikeNotification
 			showInboxStyleNotification(hikeNotifMsgStack.getNotificationIntent(), hikeNotifMsgStack.getNotificationIcon(), hikeNotifMsgStack.getLatestAddedTimestamp(),
 					hikeNotifMsgStack.getNotificationId(), hikeNotifMsgStack.getNotificationTickerText(), hikeNotifMsgStack.getNotificationTitle(),
 					hikeNotifMsgStack.getNotificationBigText(retryCount), isSingleMsisdn ? hikeNotifMsgStack.lastAddedMsisdn : "bulk", hikeNotifMsgStack.getNotificationSubText(),
-					avatarDrawable, hikeNotifMsgStack.getBigTextList(), shouldNotPlaySound, retryCount);
+					avatarDrawable, hikeNotifMsgStack.getBigTextList(), shouldNotPlaySound, retryCount,isSilentNotification(convMessage));
 		}
 
 		// serializeObject();
@@ -1010,6 +983,12 @@ public class HikeNotification
 	private void showInboxStyleNotification(final Intent notificationIntent, final int icon, final long timestamp, final int notificationId, final CharSequence text,
 			final String key, final String message, final String msisdn, String subMessage, Drawable argAvatarDrawable, List<SpannableString> inboxLines, boolean shouldNotPlaySound, int retryCount)
 	{
+		showInboxStyleNotification(notificationIntent, icon, timestamp, notificationId, text, key, message, msisdn, subMessage, argAvatarDrawable, inboxLines, shouldNotPlaySound, retryCount,false);	
+	}
+	
+	private void showInboxStyleNotification(final Intent notificationIntent, final int icon, final long timestamp, final int notificationId, final CharSequence text,
+			final String key, final String message, final String msisdn, String subMessage, Drawable argAvatarDrawable, List<SpannableString> inboxLines, boolean shouldNotPlaySound, int retryCount,boolean isSilentNotification)
+	{
 
 
 		Drawable avatarDrawable = null;
@@ -1026,7 +1005,7 @@ public class HikeNotification
 
 		NotificationCompat.Builder mBuilder;
 		mBuilder = null;
-		mBuilder = getNotificationBuilder(key, subMessage, text.toString(), avatarDrawable, smallIconId, shouldNotPlaySound);
+		mBuilder = getNotificationBuilder(key, subMessage, text.toString(), avatarDrawable, smallIconId, shouldNotPlaySound,isSilentNotification);
 		NotificationCompat.InboxStyle inBoxStyle = new NotificationCompat.InboxStyle();
 		inBoxStyle.setBigContentTitle(key);
 		inBoxStyle.setSummaryText(subMessage);
@@ -1060,6 +1039,11 @@ public class HikeNotification
 	public void showBigTextStyleNotification(final Intent notificationIntent, final int icon, final long timestamp, final int notificationId, final CharSequence text,
 			final String key, final String message, final String msisdn, String subMessage, Drawable argAvatarDrawable, boolean shouldNotPlaySound, int retryCount, Action[] actions)
 	{
+		showBigTextStyleNotification(notificationIntent, icon, timestamp, notificationId, text, key, message, msisdn, subMessage, argAvatarDrawable, shouldNotPlaySound, retryCount, actions,false);
+	}
+	public void showBigTextStyleNotification(final Intent notificationIntent, final int icon, final long timestamp, final int notificationId, final CharSequence text,
+			final String key, final String message, final String msisdn, String subMessage, Drawable argAvatarDrawable, boolean shouldNotPlaySound, int retryCount, Action[] actions,boolean isSilentNotification)
+	{
 
 		Drawable avatarDrawable = null;
 		if (argAvatarDrawable == null)
@@ -1075,7 +1059,7 @@ public class HikeNotification
 
 		NotificationCompat.Builder mBuilder;
 		mBuilder = null;
-		mBuilder = getNotificationBuilder(key, message, text.toString(), avatarDrawable, smallIconId, shouldNotPlaySound);
+		mBuilder = getNotificationBuilder(key, message, text.toString(), avatarDrawable, smallIconId, shouldNotPlaySound,isSilentNotification);
 		NotificationCompat.BigTextStyle bigTextStyle = new NotificationCompat.BigTextStyle();
 		bigTextStyle.setBigContentTitle(key);
 		if(!TextUtils.isEmpty(subMessage))
@@ -1105,10 +1089,15 @@ public class HikeNotification
 		}
 		notificationBuilderPostWork();
 	}
-
 	private void showNotification(final Intent notificationIntent, final int icon, final long timestamp, final int notificationId, final CharSequence text, final String key,
 			final String message, final String msisdn, final Bitmap bigPictureImage, boolean isFTMessage, boolean isPin, boolean isBigText, String subMessage,
 			Drawable argAvatarDrawable, boolean forceNotPlaySound, int retryCount)
+	{
+		showNotification(notificationIntent, icon, timestamp, notificationId, text, key, message, msisdn, bigPictureImage, isFTMessage, isPin, isBigText, subMessage, argAvatarDrawable, forceNotPlaySound, retryCount,false);
+	}
+	private void showNotification(final Intent notificationIntent, final int icon, final long timestamp, final int notificationId, final CharSequence text, final String key,
+			final String message, final String msisdn, final Bitmap bigPictureImage, boolean isFTMessage, boolean isPin, boolean isBigText, String subMessage,
+			Drawable argAvatarDrawable, boolean forceNotPlaySound, int retryCount,boolean isSilentNotification)
 	{
 
 		Drawable avatarDrawable = null;
@@ -1126,7 +1115,7 @@ public class HikeNotification
 		NotificationCompat.Builder mBuilder;
 		if (bigPictureImage != null)
 		{
-			mBuilder = getNotificationBuilder(key, message, text.toString(), avatarDrawable, smallIconId, forceNotPlaySound);
+			mBuilder = getNotificationBuilder(key, message, text.toString(), avatarDrawable, smallIconId, forceNotPlaySound,isSilentNotification);
 			final NotificationCompat.BigPictureStyle bigPicStyle = new NotificationCompat.BigPictureStyle();
 			bigPicStyle.setBigContentTitle(key);
 			if(!TextUtils.isEmpty(subMessage))
@@ -1144,7 +1133,7 @@ public class HikeNotification
 			mBuilder = null;
 			if (isBigText)
 			{
-				mBuilder = getNotificationBuilder(key, message, text.toString(), avatarDrawable, smallIconId, forceNotPlaySound);
+				mBuilder = getNotificationBuilder(key, message, text.toString(), avatarDrawable, smallIconId, forceNotPlaySound,isSilentNotification);
 				NotificationCompat.BigTextStyle bigTextStyle = new NotificationCompat.BigTextStyle();
 				bigTextStyle.setBigContentTitle(key);
 				bigTextStyle.bigText(message);
@@ -1156,7 +1145,7 @@ public class HikeNotification
 			}
 			else
 			{
-				mBuilder = getNotificationBuilder(key, message, text.toString(), avatarDrawable, smallIconId, false);
+				mBuilder = getNotificationBuilder(key, message, text.toString(), avatarDrawable, smallIconId, false,isSilentNotification);
 			}
 		}
 
@@ -1176,12 +1165,17 @@ public class HikeNotification
 		notificationManager.notify(notificationId, builder.build());
 	}
 
-
 	private void showNotification(final Intent notificationIntent, final int icon, final long timestamp, final int notificationId, final CharSequence text, final String key,
 			final String message, final String msisdn, final Bitmap bigPictureImage, boolean isPin, boolean forceNotPlaySound)
 	{
+		showNotification(notificationIntent, icon, timestamp, notificationId, text, key, message, msisdn, bigPictureImage, isPin, forceNotPlaySound, false);
+	}
+	
+	private void showNotification(final Intent notificationIntent, final int icon, final long timestamp, final int notificationId, final CharSequence text, final String key,
+			final String message, final String msisdn, final Bitmap bigPictureImage, boolean isPin, boolean forceNotPlaySound,boolean isSilentNotification)
+	{
 		showNotification(notificationIntent, icon, timestamp, notificationId, text, key, message, msisdn, bigPictureImage, false, isPin, true,
-				hikeNotifMsgStack.getNotificationSubText(), null, forceNotPlaySound, 0);
+				hikeNotifMsgStack.getNotificationSubText(), null, forceNotPlaySound, 0,isSilentNotification);
 	}
 	
 	private void showNotification(final Intent notificationIntent, final int icon, final long timestamp, final int notificationId, final CharSequence text, final String key,
@@ -1204,13 +1198,23 @@ public class HikeNotification
 		}
 
 	}
-
+	
 	/*
 	 * creates a notification builder with sound, led and vibrate option set according to app preferences. forceNotPlaySound : true if we want to force not to play notification
 	 * sounds or lights.
 	 */
 	public NotificationCompat.Builder getNotificationBuilder(String contentTitle, String contentText, String tickerText, Drawable avatarDrawable, int smallIconId,
 			boolean forceNotPlaySound)
+	{
+		return getNotificationBuilder(contentTitle, contentText, tickerText, avatarDrawable, smallIconId, forceNotPlaySound,false);
+	}
+	
+	/*
+	 * creates a notification builder with sound, led and vibrate option set according to app preferences. forceNotPlaySound : true if we want to force not to play notification
+	 * sounds or lights.
+	 */
+	public NotificationCompat.Builder getNotificationBuilder(String contentTitle, String contentText, String tickerText, Drawable avatarDrawable, int smallIconId,
+			boolean forceNotPlaySound,boolean isSilentNotification)
 	{
 		if (!TextUtils.isEmpty(tickerText) && tickerText.length()>TICKER_TEXT_MAX_LENGHT+3)
 		{  // we are trimming ticker text so that it will not scroll in status bar.
@@ -1240,7 +1244,7 @@ public class HikeNotification
 
 			// Decide if Sound is to be played,
 			// 1) Settings should be On
-			if (!NOTIF_SOUND_OFF.equals(notifSound))
+			if (!NOTIF_SOUND_OFF.equals(notifSound) && !isSilentNotification)
 			{
 				if (isLollipopAndAbove)
 				{
@@ -1268,7 +1272,7 @@ public class HikeNotification
 			// Now Vibration is turned off in these 2 scenarios
 			// 1) Vibration Settings are off
 			// 2) Either Lollipop and above OR Phone is in silent mode
-			if (!VIB_OFF.equals(vibrate) && (isLollipopAndAbove || (!SoundUtils.isSilentMode(context) && isUserNotOnCall)))
+			if (!VIB_OFF.equals(vibrate) && !isSilentNotification && (isLollipopAndAbove || (!SoundUtils.isSilentMode(context) && isUserNotOnCall)))
 			{
 				if (VIB_DEF.equals(vibrate))
 				{
