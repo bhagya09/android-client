@@ -292,7 +292,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			prefileTransferTask = (PreFileTransferAsycntask) object;
 			progressDialog = ProgressDialog.show(this, null, getResources().getString(R.string.multi_file_creation));
 		}
-
+		
 		if (Intent.ACTION_SEND.equals(getIntent().getAction()) || Intent.ACTION_SENDTO.equals(getIntent().getAction())
 				|| Intent.ACTION_SEND_MULTIPLE.equals(getIntent().getAction()))
 		{
@@ -832,7 +832,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		else
 		{
 			multiSelectTitle.setText(createBroadcast ? getString(R.string.broadcast_selected, adapter.getCurrentSelection()) : 
-				getString(R.string.gallery_num_selected, adapter.getCurrentSelection()));	
+				getString(R.string.gallery_num_selected, adapter.getCurrentSelection()));
 		}
 	}
 
@@ -849,10 +849,9 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 
 		setupMultiSelectActionBar();
 		invalidateOptionsMenu();
-		
 		multiSelectTitle.setText(createBroadcast ? getString(R.string.broadcast_selected, adapter.getCurrentSelection()) : 
-			getString(R.string.gallery_num_selected, adapter.getCurrentSelection()));
-	}
+				getString(R.string.gallery_num_selected, adapter.getCurrentSelection()));
+		}
 
 	@Override
 	public void characterAddedAfterSeparator(String characters)
@@ -1088,7 +1087,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		}
 		else if (createGroup)
 		{
-			title.setText(R.string.new_group);
+			title.setText(R.string.add_members);
 		}
 		else if (createBroadcast)
 		{
@@ -1134,10 +1133,8 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		ViewGroup closeContainer = (ViewGroup) multiSelectActionBar.findViewById(R.id.close_container);
 
 		multiSelectTitle = (TextView) multiSelectActionBar.findViewById(R.id.title);
-		
 		multiSelectTitle.setText(createBroadcast ? getString(R.string.broadcast_selected, adapter.getCurrentSelection()) : 
 			getString(R.string.gallery_num_selected, adapter.getCurrentSelection()));
-		
 		if (isForwardingMessage)
 		{
 			TextView send = (TextView) multiSelectActionBar.findViewById(R.id.save);
@@ -1437,6 +1434,8 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 						}
 
 						String fileType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(Utils.getFileExtension(filePath));
+						if (fileType == null)
+							fileType = presentIntent.getType();
 						HikeFileType hikeFileType = HikeFileType.fromString(fileType, false);
 
 						fileDetails.add(new Pair<String, String>(filePath, fileType));

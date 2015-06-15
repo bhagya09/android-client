@@ -219,6 +219,8 @@ public class StickerManager
 	
 	public static final String STICKER_MESSAGE_TAG = "Sticker";
 	
+	public static String stickerExternalDir;
+	
 	public FilenameFilter stickerFileFilter = new FilenameFilter()
 	{
 		@Override
@@ -256,7 +258,7 @@ public class StickerManager
 	{
 		context = ctx;
 		preferenceManager = PreferenceManager.getDefaultSharedPreferences(context);
-
+		stickerExternalDir = getExternalStickerRootDirectory(context);
 	}
 	
 	public void doInitialSetup()
@@ -310,6 +312,8 @@ public class StickerManager
 			removeLegacyGreenDots();
 			settings.edit().putBoolean(StickerManager.REMOVE_LEGACY_GREEN_DOTS, true).commit();
 		}
+		
+		cachingStickersOnStart();
 	}
 
 	public List<StickerCategory> getStickerCategoryList()
@@ -492,7 +496,7 @@ public class StickerManager
 		}
 		return dir.getPath() + HikeConstants.STICKERS_ROOT + "/" + catId;
 	}
-
+	
 	public String getInternalStickerDirectoryForCategoryId(String catId)
 	{
 		return context.getFilesDir().getPath() + HikeConstants.STICKERS_ROOT + "/" + catId;
@@ -542,6 +546,21 @@ public class StickerManager
 		{
 			return null;	
 		}	
+	}
+	
+	public String getStickerCategoryDirPath(String categoryId)
+	{
+		if (TextUtils.isEmpty(stickerExternalDir))
+		{
+			stickerExternalDir =  getExternalStickerRootDirectory(context);
+		}
+		
+		if (!TextUtils.isEmpty(stickerExternalDir))
+		{
+			return stickerExternalDir + File.separator + categoryId;
+		}
+		
+		return null;
 	}
 
 	public boolean checkIfStickerCategoryExists(String categoryId)
@@ -688,8 +707,8 @@ public class StickerManager
 			this.context = context;
 			Logger.i("stickermanager", "moving recent file from external to internal");
 			String recent = StickerManager.RECENT;
-			Utils.copyFile(getExternalStickerDirectoryForCategoryId(context, recent) + "/" + recent + ".bin", getInternalStickerDirectoryForCategoryId(recent) + "/"
-					+ recent + ".bin", null);
+			Utils.copyImage(getExternalStickerDirectoryForCategoryId(context, recent) + "/" + recent + ".bin", getInternalStickerDirectoryForCategoryId(recent) + "/"
+					+ recent + ".bin", Bitmap.Config.RGB_565, 80);
 			Logger.i("stickermanager", "moving finished recent file from external to internal");
 		}
 		catch (Exception e)
@@ -1710,7 +1729,7 @@ public class StickerManager
 	/**
 	 * This method is to cache stickers and sticker-categories, so that their loading becomes fast on opening sticker palette the first time.
 	 */
-	public void cachingStickersOnStart()
+	private void cachingStickersOnStart()
 	{
 		HikeHandlerUtil mThread = HikeHandlerUtil.getInstance();
 		mThread.startHandlerThread();
@@ -1781,7 +1800,6 @@ public class StickerManager
 			return;
 		}
 		List<StickerCategory> categoryList = getStickerCategoryList();
-		BitmapDrawable drawable = null;
 		
 		int screenWidth = context.getResources().getDisplayMetrics().widthPixels;
 		// Checking the lesser value out of current size of category list and the stickers accommodated on given screen width. This is to avoid NPE in case of smaller category list
@@ -1791,14 +1809,24 @@ public class StickerManager
 		for (int i=0; i<categoriesToLoad; i++)
 		{
 			String categoryId = categoryList.get(i).getCategoryId();
-			Bitmap bitmap = getCategoryOtherAsset(context, categoryId, StickerManager.PALLATE_ICON_TYPE, -1, -1, true);
-			if (bitmap != null)
+			Bitmap bitmap_unselected = getCategoryOtherAsset(context, categoryId, StickerManager.PALLATE_ICON_TYPE, -1, -1, true);
+			if (bitmap_unselected != null)
 			{
-				drawable = HikeBitmapFactory.getBitmapDrawable(context.getResources(), bitmap);
+				BitmapDrawable drawable = HikeBitmapFactory.getBitmapDrawable(context.getResources(), bitmap_unselected);
 				String key = getCategoryOtherAssetLoaderKey(categoryId, StickerManager.PALLATE_ICON_TYPE);
-				Logger.d("TAG", "Putting data in cache : " + key);
+				Logger.d(TAG, "Putting data in cache : " + key);
 				cache.putInCache(key, drawable);
 			}
+			
+			Bitmap bitmap_selected = getCategoryOtherAsset(context, categoryId, StickerManager.PALLATE_ICON_SELECTED_TYPE, -1, -1, true);
+			if (bitmap_selected != null)
+			{
+				BitmapDrawable drawable = HikeBitmapFactory.getBitmapDrawable(context.getResources(), bitmap_selected);
+				String key = getCategoryOtherAssetLoaderKey(categoryId, StickerManager.PALLATE_ICON_SELECTED_TYPE);
+				Logger.d(TAG, "Putting data in cache : " + key);
+				cache.putInCache(key, drawable);
+			}
+			
 		}
 	}
 }

@@ -89,7 +89,7 @@ public class Sticker implements Serializable, Comparable<Sticker>
 
 	public String getStickerPath(Context context)
 	{
-		String rootPath = StickerManager.getInstance().getStickerDirectoryForCategoryId(categoryId);
+		String rootPath = StickerManager.getInstance().getStickerCategoryDirPath(categoryId);
 		if (rootPath == null)
 		{
 			return null;
@@ -99,7 +99,7 @@ public class Sticker implements Serializable, Comparable<Sticker>
 
 	public String getSmallStickerPath()
 	{
-		return StickerManager.getInstance().getStickerDirectoryForCategoryId(categoryId) + HikeConstants.SMALL_STICKER_ROOT + "/" + stickerId;
+		return StickerManager.getInstance().getStickerCategoryDirPath(categoryId) + HikeConstants.SMALL_STICKER_ROOT + "/" + stickerId;
 	}
 
 	@Override
