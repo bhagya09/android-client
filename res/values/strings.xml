@@ -1461,8 +1461,6 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="select_all_hike">Select all</string>
     <string name="unselect_all_hike">Unselect all</string>
     <string name="searching">Searching...</string>
-    <string name="sticker_share_heading">Indian Stickers only on hike!</string>
-    <string name="sticker_share_description"><![CDATA[<font color="#57dcf9">www.hike.in</font>]]></string>
     <string name="sticker_share_caption">Download: http://hike.in</string>
     <string name="text_share_heading">- Sent via hike</string>
     <string name="text_share_caption">Download: http://hike.in</string> 
@@ -1548,4 +1546,5 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
 	<string name="show_degraded_image_quality">Going to load a low quality Image</string>
 	<string name="toast_for_showing_thumbnail">Going to show Thumbanil</string>
 	<string name="now">Now</string>
+	<string name="sticker_share_description"><![CDATA[<font color="#57dcf9">www.hike.in</font>]]></string>
 </resources>
