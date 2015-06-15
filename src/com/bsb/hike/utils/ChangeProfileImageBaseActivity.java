@@ -31,7 +31,6 @@ import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.ProfileImageActions;
 import com.bsb.hike.analytics.HAManager;
-import com.bsb.hike.cropimage.CropImage;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.CustomAlertDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
@@ -39,7 +38,6 @@ import com.bsb.hike.http.HikeHttpRequest;
 import com.bsb.hike.http.HikeHttpRequest.HikeHttpCallback;
 import com.bsb.hike.http.HikeHttpRequest.RequestType;
 import com.bsb.hike.models.ContactInfo;
-import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.StatusMessage;
 import com.bsb.hike.models.StatusMessage.StatusMessageType;
@@ -77,7 +75,6 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 		public String destFilePath = null; /*
 											 * the bitmap before the user saves it
 											 */
-		public String origFilePath = null;
 
 		public int genderType;
 
@@ -88,12 +85,6 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 		public String statusId;
 		
 		public StatusMessageType statusMsgType;
-		
-		public int cropLeft;
-
-		public int cropTop;
-
-		public int cropWidth;
 	}
 
 	private ActivityState mActivityState;
@@ -248,7 +239,6 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 				Toast.makeText(getApplicationContext(), R.string.error_capture, Toast.LENGTH_SHORT).show();
 				return;
 			}
-			
 			if (!isPicasaImage)
 			{
 				if(Utils.isPhotosEditEnabled())
@@ -314,11 +304,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 		case HikeConstants.ResultCodes.PHOTOS_REQUEST_CODE:
 		case HikeConstants.CROP_RESULT:
 			mActivityState.destFilePath = data.getStringExtra(MediaStore.EXTRA_OUTPUT);
-			mActivityState.origFilePath = data.getStringExtra(HikeConstants.HikePhotos.ORIG_FILE);
-			Bundle bundle = data.getExtras();
-			mActivityState.cropLeft = bundle.getInt(CropImage.CROP_IMAGE_LEFT);
-			mActivityState.cropTop = bundle.getInt(CropImage.CROP_IMAGE_TOP);
-			mActivityState.cropWidth = bundle.getInt(CropImage.CROP_IMAGE_WIDTH);
+
 			if (mActivityState.destFilePath == null)
 			{
 				Toast.makeText(getApplicationContext(), R.string.error_setting_profile, Toast.LENGTH_SHORT).show();
@@ -326,7 +312,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 			}
 			profileImageCropped();
 			break;
-
+		
 		}
 	}
 
@@ -564,6 +550,29 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 	}
 
 	/**
+	 * Used to scale down the dp bitmap to send to server
+	 * 
+	 * @return bitmap byte array
+	 */
+	private byte[] scaleDownBitmap()
+	{
+		byte[] bytes = null;
+
+		/* the server only needs a smaller version */
+		final Bitmap smallerBitmap = HikeBitmapFactory.scaleDownBitmap(mActivityState.destFilePath, HikeConstants.PROFILE_IMAGE_DIMENSIONS, HikeConstants.PROFILE_IMAGE_DIMENSIONS,
+				Bitmap.Config.RGB_565, true, false);
+
+		if (smallerBitmap == null)
+		{
+			failureWhileSettingProfilePic();
+			return bytes;
+		}
+		bytes = BitmapUtils.bitmapToBytes(smallerBitmap, Bitmap.CompressFormat.JPEG, 100);
+
+		return bytes;
+	}
+
+	/**
 	 * Used to upload profile picture to the server, compose related timeline post
 	 * 
 	 * @param httpApi
@@ -573,18 +582,10 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 	{
 		if (mActivityState.destFilePath != null)
 		{
-			/* the server only needs a smaller version */
-			final Bitmap smallerBitmap = HikeBitmapFactory.scaleDownBitmap(mActivityState.destFilePath, HikeConstants.PROFILE_IMAGE_DIMENSIONS,
-					HikeConstants.PROFILE_IMAGE_DIMENSIONS, Bitmap.Config.RGB_565, true, false);
-			
-			new File(mActivityState.destFilePath).delete();
+			final byte[] bytes = scaleDownBitmap();
 
-			if (smallerBitmap == null)
-			{
-				failureWhileSettingProfilePic();
+			if (bytes == null)
 				return;
-			}
-			final byte[] bytes = BitmapUtils.bitmapToBytes(smallerBitmap, Bitmap.CompressFormat.JPEG, 100);
 
 			HikeHttpRequest request = new HikeHttpRequest(httpApi, RequestType.PROFILE_PIC, new HikeHttpRequest.HikeHttpCallback()
 			{
@@ -597,19 +598,8 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 				public void onSuccess(JSONObject response)
 				{
 					mActivityState.destFilePath = null;
-
-					HikeHandlerUtil.getInstance().postRunnableWithDelay(new Runnable()
-					{
-						@Override
-						public void run()
-						{
-							ContactManager.getInstance().setIcon(mLocalMSISDN, bytes, false);
-							
-							String directory = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
-							Utils.copyFile(mActivityState.origFilePath, new File(directory, Utils.getProfileImageFileName(mLocalMSISDN)).getAbsolutePath());
-						}
-					}, 0);
-
+					ContactManager.getInstance().setIcon(mLocalMSISDN, bytes, false);
+					Utils.renameTempProfileImage(mLocalMSISDN);
 					StatusMessage statusMessage = Utils.createTimelinePostForDPChange(response);
 
 					if (statusMessage != null)
@@ -631,28 +621,14 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 							HikeMessengerApp.getPubSub().publish(HikePubSub.TIMELINE_UPDATE_RECIEVED, statusMessage);
 						}
 					}
-
+					
 					HikeMessengerApp.getLruCache().clearIconForMSISDN(mLocalMSISDN);
 					HikeMessengerApp.getPubSub().publish(HikePubSub.ICON_CHANGED, mLocalMSISDN);
 
 					profilePictureUploaded();
 				}
 			});
-			request.setFilePath(mActivityState.origFilePath);
-
-			try
-			{
-				JSONObject jsonObj = new JSONObject();
-				jsonObj.put(CropImage.CROP_IMAGE_LEFT, mActivityState.cropLeft);
-				jsonObj.put(CropImage.CROP_IMAGE_TOP, mActivityState.cropTop);
-				jsonObj.put(CropImage.CROP_IMAGE_WIDTH, mActivityState.cropWidth);
-				request.setJSONData(jsonObj);
-			}
-			catch (JSONException e)
-			{
-				e.printStackTrace();
-			}
-
+			request.setFilePath(mActivityState.destFilePath);
 			mDialog = ProgressDialog.show(this, null, getResources().getString(R.string.updating_profile));
 			mActivityState.task = new HikeHTTPTask(this, R.string.update_profile_failed);
 			Utils.executeHttpTask(mActivityState.task, request);

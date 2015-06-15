@@ -2317,7 +2317,7 @@ public class Utils
 		File newFile = new File(directory, newFileName);
 		return tempFile.renameTo(newFile);
 	}
-	
+
 	public static boolean removeTempProfileImage(String msisdn)
 	{
 		String directory = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
@@ -5798,7 +5798,12 @@ public class Utils
 	
 	public static boolean isPhotosEditEnabled()
 	{
-		if(!Utils.isUserSignedUp(HikeMessengerApp.getInstance().getApplicationContext(), false))
+		if (Build.MANUFACTURER != null && Build.MANUFACTURER.toLowerCase().startsWith("asus"))
+		{
+			return false;
+		}
+
+		if (!Utils.isUserSignedUp(HikeMessengerApp.getInstance().getApplicationContext(), false))
 		{
 			return false;
 		}
