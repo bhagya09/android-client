@@ -1168,8 +1168,6 @@ public class HikeConstants
 		public static final String CIRCLE_CROP = "circleCrop";
 		
 		public static final String CIRCLE_HIGHLIGHT = "circleHighlight";
-		
-		public static final String RETURN_BOUNDS = "returnBounds";
 
 		public static final String SCALE_UP = "scaleUpIfNeeded";
 
@@ -2719,8 +2717,6 @@ public class HikeConstants
 		public static final int MAX_IMAGE_DIMEN = 1240;
 		
 		public static final String FROM_DP_UPLOAD = "from_dp_upload";
-
-		public static final String DP_UPLOAD_CROP_BOUNDS = "Crop";
 	}
 	
 	public static final String REARRANGE_CHAT = "rearrange_chat";
