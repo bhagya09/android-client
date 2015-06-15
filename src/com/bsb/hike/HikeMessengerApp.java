@@ -740,6 +740,8 @@ public void onTrimMemory(int level)
 		// succeeded by the
 		// onUpgrade() calls being triggered in the respective databases.
 		HikeConversationsDatabase.init(this);
+		
+		initHikeLruCache(getApplicationContext());
 
 		sm = StickerManager.getInstance();
 		sm.init(getApplicationContext());
@@ -851,7 +853,6 @@ public void onTrimMemory(int level)
 
 		hikeBotInfoMap = new ConcurrentHashMap<>();
 
-		initHikeLruCache(getApplicationContext());
 		initContactManager();
 		BotUtils.initBots();
 		/*

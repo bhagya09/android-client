@@ -2744,7 +2744,7 @@ public class HikeConstants
 		
 		public static final int PHOTOS_PAGER_DOODLE_WEIGHT_SUM = 10000;
 		
-		public static final int MAXIMUM_ALLOWED_IMAGE_AREA = 800 * 600;
+		public static final int MAXIMUM_ALLOWED_IMAGE_AREA = 1240 * 1240;
 		
 		public static final String PHOTOS_ACTION_CODE = "photos_action_code";
 		

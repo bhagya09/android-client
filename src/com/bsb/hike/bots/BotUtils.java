@@ -392,11 +392,11 @@ public class BotUtils
 		HikeMessengerApp.getPubSub().publish(HikePubSub.CONTACT_ADDED, contact);
 		
 		/**
-		 * Notification will be played only if enable bot is true and notifType is Silen/Loud
+		 * Notification will be played only if enable bot is true and notifType is Silent/Loud
 		 */
 		if (enableBot && (!HikeConstants.OFF.equals(notifType)))
 		{
-			HikeNotification.getInstance().notifyStringMessage(msisdn, botInfo.getLastMessageText(), notifType == HikeConstants.SILENT, NotificationType.OTHER);
+			HikeNotification.getInstance().notifyStringMessage(msisdn, botInfo.getLastMessageText(), notifType.equals(HikeConstants.SILENT), NotificationType.OTHER);
 		}
 	}
 }

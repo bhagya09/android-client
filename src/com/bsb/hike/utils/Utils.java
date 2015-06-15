@@ -2346,7 +2346,7 @@ public class Utils
 		File newFile = new File(directory, newFileName);
 		return tempFile.renameTo(newFile);
 	}
-
+	
 	public static boolean removeTempProfileImage(String msisdn)
 	{
 		String directory = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
