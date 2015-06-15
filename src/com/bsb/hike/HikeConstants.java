@@ -626,7 +626,7 @@ public class HikeConstants
 	/* Constant used to name the preference file which saves the drafts */
 	public static final String DRAFT_SETTING = "draftSetting";
 
-	public static final int CONNECT_TIMEOUT = 6 * 1000;
+	public static final int CONNECT_TIMEOUT = 30 * 1000;
 
 	public static final int SOCKET_TIMEOUT = 30 * 1000;
 
@@ -1170,8 +1170,6 @@ public class HikeConstants
 		public static final String CIRCLE_CROP = "circleCrop";
 		
 		public static final String CIRCLE_HIGHLIGHT = "circleHighlight";
-		
-		public static final String RETURN_BOUNDS = "returnBounds";
 
 		public static final String SCALE_UP = "scaleUpIfNeeded";
 
@@ -2712,7 +2710,7 @@ public class HikeConstants
 		
 		public static final int PHOTOS_PAGER_DOODLE_WEIGHT_SUM = 10000;
 		
-		public static final int MAXIMUM_ALLOWED_IMAGE_AREA = 800 * 600;
+		public static final int MAXIMUM_ALLOWED_IMAGE_AREA = 1240 * 1240;
 		
 		public static final String PHOTOS_ACTION_CODE = "photos_action_code";
 		
@@ -2721,8 +2719,6 @@ public class HikeConstants
 		public static final int MAX_IMAGE_DIMEN = 1240;
 		
 		public static final String FROM_DP_UPLOAD = "from_dp_upload";
-
-		public static final String DP_UPLOAD_CROP_BOUNDS = "Crop";
 	}
 	
 	public static final String REARRANGE_CHAT = "rearrange_chat";

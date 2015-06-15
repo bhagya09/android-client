@@ -371,6 +371,9 @@ public class VoIPClient  {
 					} catch (SocketTimeoutException e) {
 						Logger.d(logTag, "UDP timeout on ICE. #" + counter);
 						getNewSocket();
+					} catch (UnknownHostException e) {
+						Logger.e(logTag, "Unknown host? Falling back to hardcoded IPs");
+						// TODO
 					} catch (IOException e) {
 						Logger.d(logTag, "retrieveExternalSocket() IOException" + e.toString());
 						try {

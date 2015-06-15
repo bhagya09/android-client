@@ -1114,41 +1114,59 @@ public class VoIPService extends Service {
 				android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
 
 				AudioRecord recorder = null;
-				recordingSampleRate = VoIPConstants.AUDIO_SAMPLE_RATE;
-				minBufSizeRecording = AudioRecord.getMinBufferSize(recordingSampleRate, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT);
-				if (aecEnabled) {
-					// For the Solicall AEC library to work, we must record data in chunks
-					// which are a multiple of the library's supported frame size (20ms).
-					Logger.d(logTag, "Old minBufSizeRecording: " + minBufSizeRecording);
-					if (minBufSizeRecording < SolicallWrapper.SOLICALL_FRAME_SIZE * 2) {
-						minBufSizeRecording = SolicallWrapper.SOLICALL_FRAME_SIZE * 2;
-					} else {
-						minBufSizeRecording = ((minBufSizeRecording + (SolicallWrapper.SOLICALL_FRAME_SIZE * 2) - 1) / (SolicallWrapper.SOLICALL_FRAME_SIZE * 2)) * SolicallWrapper.SOLICALL_FRAME_SIZE * 2;
-					}
-					Logger.d(logTag, "New minBufSizeRecording: " + minBufSizeRecording);
-				}
 				
 				int audioSource = VoIPUtils.getAudioSource();
 
 				// Start recording audio from the mic
-				try
-				{
-					recorder = new AudioRecord(audioSource, recordingSampleRate, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, minBufSizeRecording);
-					recorder.startRecording();
-				}
-				catch(IllegalArgumentException e)
-				{
-					Logger.e(logTag, "AudioRecord init failed." + e.toString());
-					sendHandlerMessage(VoIPConstants.MSG_AUDIORECORD_FAILURE);
-				}
-				catch (IllegalStateException e)
-				{
-					Logger.e(logTag, "Recorder exception: " + e.toString());
-					sendHandlerMessage(VoIPConstants.MSG_AUDIORECORD_FAILURE);
+				// Try different sample rates
+				for (int rate : new int[] {VoIPConstants.AUDIO_SAMPLE_RATE, 44100, 24000, 22050}) {
+					try
+					{
+						recordingSampleRate = rate;
+						
+						minBufSizeRecording = AudioRecord.getMinBufferSize(recordingSampleRate, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT);
+						if (minBufSizeRecording < 0) {
+							Logger.w(logTag, "Sample rate " + recordingSampleRate + " is not valid.");
+							continue;
+						}
+						
+						if (aecEnabled) {
+							// For the Solicall AEC library to work, we must record data in chunks
+							// which is a multiple of the library's supported frame size (20ms).
+							Logger.d(logTag, "Old minBufSizeRecording: " + minBufSizeRecording + " at sample rate: " + recordingSampleRate);
+							if (minBufSizeRecording < SolicallWrapper.SOLICALL_FRAME_SIZE * 2) {
+								minBufSizeRecording = SolicallWrapper.SOLICALL_FRAME_SIZE * 2;
+							} else {
+								minBufSizeRecording = ((minBufSizeRecording + (SolicallWrapper.SOLICALL_FRAME_SIZE * 2) - 1) / (SolicallWrapper.SOLICALL_FRAME_SIZE * 2)) * SolicallWrapper.SOLICALL_FRAME_SIZE * 2;
+							}
+							Logger.d(logTag, "New minBufSizeRecording: " + minBufSizeRecording);
+						}
+						
+						recorder = new AudioRecord(audioSource, recordingSampleRate, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, minBufSizeRecording);
+						if (recorder.getState() == AudioRecord.STATE_INITIALIZED) {
+							recorder.startRecording();
+							break;
+						}
+						else {
+							recorder.release();
+						}
+					}
+					catch(IllegalArgumentException e)
+					{
+						Logger.e(logTag, "AudioRecord init failed (" + recordingSampleRate + "): " + e.toString());
+					}
+					catch (IllegalStateException e)
+					{
+						Logger.e(logTag, "Recorder exception (" + recordingSampleRate + "): " + e.toString());
+					}
+					
 				}
 				
-				if (recorder == null)
+				if (recorder == null || recorder.getState() != AudioRecord.STATE_INITIALIZED) {
+					Logger.e(logTag, "AudioRecord initialization failed. Mic will not work.");
+					sendHandlerMessage(VoIPConstants.MSG_AUDIORECORD_FAILURE);
 					return;
+				}
 				
 				// Start processing recorded data
 				byte[] recordedData = new byte[minBufSizeRecording];

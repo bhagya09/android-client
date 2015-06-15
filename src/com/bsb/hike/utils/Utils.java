@@ -5803,7 +5803,12 @@ public class Utils
 	
 	public static boolean isPhotosEditEnabled()
 	{
-		if(!Utils.isUserSignedUp(HikeMessengerApp.getInstance().getApplicationContext(), false))
+		if (Build.MANUFACTURER != null && Build.MANUFACTURER.toLowerCase().startsWith("asus"))
+		{
+			return false;
+		}
+
+		if (!Utils.isUserSignedUp(HikeMessengerApp.getInstance().getApplicationContext(), false))
 		{
 			return false;
 		}
