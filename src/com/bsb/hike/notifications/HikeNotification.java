@@ -502,24 +502,36 @@ public class HikeNotification
 	 * Message will be silent for t (Server configurable) interval for Each Group independently
 	 */
 	public boolean isSilentNotification(ConvMessage convMsg){
-		if (!convMsg.isOneToNChat())
+		return isSilentNotification(convMsg.getMsisdn());
+	}
+	
+	/**
+	 * This method will also update last Notification Time 
+	 * Message will be silent for t (Server configurable) interval for Each Group independently
+	 */
+	public boolean isSilentNotification(String  msisdn){
+		if (!OneToNConversationUtils.isGroupConversation(msisdn))
 		{
 			return false;
 		}
 		long timeIntervalInMillis = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.GROUP_NOTIFIACTION_DELAY,GROUP_NOTIFICATION_DELAY_IN_SEC)*1000;
-		Long lastNotificationTime = lastNotificationTimeMap.get(convMsg.getMsisdn());
+		Long lastNotificationTime = lastNotificationTimeMap.get(msisdn);
 		
 		if (lastNotificationTime!=null && (System.currentTimeMillis() - lastNotificationTime) < timeIntervalInMillis)
 		{	
 			return true;
 		}
 	
-		lastNotificationTimeMap.put(convMsg.getMsisdn(), System.currentTimeMillis());
+		lastNotificationTimeMap.put(msisdn, System.currentTimeMillis());
 		return false;
 	}
 
 	public void notifyStringMessage(String msisdn, String message, boolean forceNotPlaySound, int notificationType)
-
+	{
+		notifyStringMessage(msisdn, message, forceNotPlaySound, notificationType,false);
+	}
+	
+	public void notifyStringMessage(String msisdn, String message, boolean forceNotPlaySound, int notificationType,boolean isSilentNotification)
 	{
 		try
 		{
@@ -546,7 +558,7 @@ public class HikeNotification
 			showBigTextStyleNotification(hikeNotifMsgStack.getNotificationIntent(), hikeNotifMsgStack.getNotificationIcon(), hikeNotifMsgStack.getLatestAddedTimestamp(),
 					hikeNotifMsgStack.getNotificationId(), hikeNotifMsgStack.getNotificationTickerText(), hikeNotifMsgStack.getNotificationTitle(),
 					hikeNotifMsgStack.getNotificationBigText(0), isSingleMsisdn ? hikeNotifMsgStack.lastAddedMsisdn : "bulk", hikeNotifMsgStack.getNotificationSubText(),
-					avatarDrawable, forceNotPlaySound, 0);
+					avatarDrawable, forceNotPlaySound, 0,null,isSilentNotification);
 
 		}
 		else
@@ -554,7 +566,7 @@ public class HikeNotification
 			showInboxStyleNotification(hikeNotifMsgStack.getNotificationIntent(), hikeNotifMsgStack.getNotificationIcon(), hikeNotifMsgStack.getLatestAddedTimestamp(),
 					hikeNotifMsgStack.getNotificationId(), hikeNotifMsgStack.getNotificationTickerText(), hikeNotifMsgStack.getNotificationTitle(),
 					hikeNotifMsgStack.getNotificationBigText(0), isSingleMsisdn ? hikeNotifMsgStack.lastAddedMsisdn : "bulk", hikeNotifMsgStack.getNotificationSubText(),
-					avatarDrawable, hikeNotifMsgStack.getBigTextList(), forceNotPlaySound, 0);
+					avatarDrawable, hikeNotifMsgStack.getBigTextList(), forceNotPlaySound, 0,isSilentNotification);
 		}
 	}
 
@@ -698,7 +710,7 @@ public class HikeNotification
 
 	}
 
-	public void notifyStealthMessage(int notificationType)
+	public void notifyStealthMessage(int notificationType, String msisdn)
 	{
 		final int notificationId = STEALTH_NOTIFICATION_ID;
 
@@ -721,6 +733,8 @@ public class HikeNotification
 			return;
 		}
 
+		boolean isSilentNotification =isSilentNotification(msisdn);
+
 		// if notification message stack is empty, add to it and proceed with single notification display
 		// else add to stack and notify clubbed messages
 		if (hikeNotifMsgStack.isEmpty())
@@ -729,7 +743,7 @@ public class HikeNotification
 		}
 		else
 		{
-			notifyStringMessage(key, message, false, notificationType);
+			notifyStringMessage(key, message, false, notificationType,isSilentNotification);
 			return;
 		}
 
@@ -739,8 +753,7 @@ public class HikeNotification
 
 		final Drawable avatarDrawable = context.getResources().getDrawable(R.drawable.hike_avtar_protip);
 		final int smallIconId = returnSmallIcon();
-
-		NotificationCompat.Builder mBuilder = getNotificationBuilder(context.getString(R.string.app_name), message, message, avatarDrawable, smallIconId, false);
+		NotificationCompat.Builder mBuilder = getNotificationBuilder(context.getString(R.string.app_name), message, message, avatarDrawable, smallIconId, false,isSilentNotification);
 		setNotificationIntentForBuilder(mBuilder, notificationIntent,STEALTH_NOTIFICATION_ID);
 		notifyNotification(notificationId, mBuilder);
 		notificationBuilderPostWork();
@@ -1486,7 +1499,7 @@ public class HikeNotification
 		{
 			notifType = NotificationType.HIDDEN;
 
-			notifyStealthMessage(notifType);
+			notifyStealthMessage(notifType,msisdn);
 		}
 		else
 		{
