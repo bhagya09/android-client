@@ -258,8 +258,14 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity im
 
 	public void destroyActionMode()
 	{
-		selectedSharedFileItems.clear();
-		adapter.notifyDataSetChanged();
+		//Refresh Full Gallery only when there were some elements selected 
+		//and then cross is clicked on action bar 
+		if (!selectedSharedFileItems.isEmpty())
+		{
+			selectedSharedFileItems.clear();
+			adapter.notifyDataSetChanged();
+		}
+		
 		setMultiSelectMode(false);
 		setupActionBar();
 		invalidateOptionsMenu();
@@ -369,7 +375,7 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity im
 	@Override
 	public void onItemClick(TwoWayAdapterView<?> adapterView, View view, int position, long id)
 	{
-		handleItemClick(position, id);
+		handleItemClick(adapterView, view, position, id);
 	}
 
 	@Override
@@ -380,12 +386,12 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity im
 			setupMultiSelectActionBar();
 		}
 
-		handleItemClick(position, id);
+		handleItemClick(adapterView, view, position, id);
 
 		return true;
 	}
 
-	private void handleItemClick(int position, long id)
+	private void handleItemClick(TwoWayAdapterView<?> adapterView, View view, int position, long id)
 	{
 		HikeSharedFile sharedFileItem = sharedFilesList.get(position);
 
@@ -409,8 +415,9 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity im
 				setMultiSelectTitle();
 			}
 
-			invalidateOptionsMenu();
-			adapter.notifyDataSetChanged();
+			adapter.getView(position, view, adapterView);
+			//invalidateOptionsMenu();
+			//adapter.notifyDataSetChanged();
 		}
 		else
 		{
