@@ -194,9 +194,9 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 
 	private int triggerPointForPopup=ProductPopupsConstants.PopupTriggerPoints.UNKNOWN.ordinal();
 
-	 private HorizontalFriendsFragment newFragment;
-	 
-	 int type = HikeConstants.Extras.NOT_SHAREABLE;
+	private HorizontalFriendsFragment newFragment;
+
+	int type = HikeConstants.Extras.NOT_SHAREABLE;
 	 
 	@Override
 	public void onCreate(Bundle savedInstanceState)
@@ -1302,8 +1302,12 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	         * If the intent action is ACTION_SEND_MULTIPLE then we don't need to start the activity here
 	         * since we start an async task for initiating the file upload and an activity is started when
 	         * that async task finishes execution.
+	         * 
+	         * If size of arraylist is zero, it means the only contact was an offline contact and has been 
+	         * removed from the arrayList, thus size is zero.
 	         */
-		 	if (!Intent.ACTION_SEND_MULTIPLE.equals(presentIntent.getAction())&&arrayList.size()<=1)
+		 	if ((!Intent.ACTION_SEND_MULTIPLE.equals(presentIntent.getAction())&&arrayList.size()<=1) || 
+		 			(arrayList.size()==0))
 	        {
 	        	startActivity(intent);
 	        	finish();
@@ -1771,9 +1775,11 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				if (type == null)
 					type = presentIntent.getType();
 	
-				intent.putExtra(HikeConstants.Extras.FILE_PATH, filePath);
-				intent.putExtra(HikeConstants.Extras.FILE_TYPE, type);
-				
+				if (arrayList.size() > 0)
+				{
+					intent.putExtra(HikeConstants.Extras.FILE_PATH, filePath);
+					intent.putExtra(HikeConstants.Extras.FILE_TYPE, type);
+				}
 				
 				HikeFileType hikeFileType = HikeFileType.fromString(
 						type, false);

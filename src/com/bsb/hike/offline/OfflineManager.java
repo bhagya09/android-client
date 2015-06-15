@@ -945,46 +945,22 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 			else
 				num = currentReceivingFiles.get(msgId).getTransferProgress().getCurrentChunks();
 		}
-
-		long progress = (((long) num * OfflineConstants.CHUNK_SIZE * 100) / hikeFile.getFileSize());
-		Logger.d(TAG, "CurrentSizeReceived: " + num + " FileSize: " + hikeFile.getFileSize() + " Progress -> " + progress + " FtState -> " + fss.getFTState().name());
-		if (fss.getFTState() == FTState.IN_PROGRESS && fss.getTransferredSize() == 0)
-		{
-			float animatedProgress = 5 * 0.01f;
-			if (fss.getTotalSize() > 0 && OfflineConstants.CHUNK_SIZE > 0)
-			{
-				animatedProgress = (float) OfflineConstants.CHUNK_SIZE;
-				animatedProgress = animatedProgress / fss.getTotalSize();
-			}
-			if (holder.circularProgress.getRelatedMsgId() == -1 || holder.circularProgress.getCurrentProgress() > animatedProgress
-					|| holder.circularProgress.getCurrentProgress() == 1.0f)
-			{
-				holder.circularProgress.resetProgress();
-				Logger.d("Spinner", "Current Progress reset");
-			}
-			if (Utils.isHoneycombOrHigher())
-			{
-				holder.circularProgress.stopAnimation();
-				holder.circularProgress.setAnimatedProgress(0, (int) (animatedProgress * 100), 6 * 1000);
-			}
-			else
-			{
-				holder.circularProgress.setProgress(animatedProgress);
-			}
-			holder.circularProgress.setRelatedMsgId(msgId);
-			holder.circularProgress.setVisibility(View.VISIBLE);
-			holder.circularProgressBg.setVisibility(View.VISIBLE);
-		}
-		else if (fss.getFTState() == FTState.IN_PROGRESS)
+	
+		long progress = (((long)num*OfflineConstants.CHUNK_SIZE*100)/hikeFile.getFileSize());
+		Logger.d(TAG, "CurrentSizeReceived: " + num + " FileSize: " + hikeFile.getFileSize() + 
+				" Progress -> " +  progress +  " FtState -> " + fss.getFTState().name());
+		
+		if (fss.getFTState() == FTState.IN_PROGRESS)
 		{
 			if (progress < 100)
 				holder.circularProgress.setProgress(progress * 0.01f);
 			if (Utils.isHoneycombOrHigher())
 				holder.circularProgress.stopAnimation();
 
-			Logger.d("Spinner", "" + "holder.circularProgress=" + holder.circularProgress.getCurrentProgress() * 100 + " Progress=" + progress);
-
-			float animatedProgress = 5 * 0.01f;
+			Logger.d("Spinner", "" + "holder.circularProgress=" + holder.circularProgress.getCurrentProgress()*100
+					+ " Progress=" + progress);
+			
+			float animatedProgress = 0 * 0.01f;
 			if (fss.getTotalSize() > 0)
 			{
 				animatedProgress = (float) OfflineConstants.CHUNK_SIZE;
