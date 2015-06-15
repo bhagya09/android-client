@@ -30,6 +30,11 @@ import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.offline.TransferProgress;
 import com.bsb.hike.utils.Logger;
 
+/**
+ * 
+ * @author himanshu
+ *	Runnable responsible for receving file from client
+ */
 public class FileReceiverRunnable implements Runnable
 {
 

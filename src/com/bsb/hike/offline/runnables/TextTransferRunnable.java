@@ -21,6 +21,11 @@ import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
 import com.bsb.hike.utils.Logger;
 
+/**
+ * 
+ * @author himanshu
+ *	Runnable responsible for receving text from client
+ */
 public class TextTransferRunnable implements Runnable
 {
 

@@ -29,6 +29,11 @@ import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.service.MqttMessagesManager;
 import com.bsb.hike.utils.Logger;
 
+/**
+ * 
+ * @author himanshu
+ *	Runnable responsible for receving text from client
+ */
 public class TextReceiveRunnable implements Runnable
 {
 

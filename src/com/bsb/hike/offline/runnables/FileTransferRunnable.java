@@ -17,6 +17,11 @@ import com.bsb.hike.offline.OfflineThreadManager;
 import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.utils.Logger;
 
+/**
+ * 
+ * @author himanshu
+ *	Runnable responsible for sending file to server
+ */
 public class FileTransferRunnable implements Runnable
 {
 
