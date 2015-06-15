@@ -645,7 +645,10 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	private void setupContactProfileScreen()
 	{
 		setLocalMsisdn(getIntent().getStringExtra(HikeConstants.Extras.CONTACT_INFO));
-		contactInfo = ContactManager.getInstance().getContact(mLocalMSISDN, true, true);
+		if (Utils.isOfflineConversation(mLocalMSISDN))
+			contactInfo = ContactManager.getInstance().getContact(mLocalMSISDN.replace("o:", ""), true, true);
+		else
+			contactInfo = ContactManager.getInstance().getContact(mLocalMSISDN, true, true);
 		sharedMediaCount = HikeConversationsDatabase.getInstance().getSharedMediaCount(mLocalMSISDN, true);
 		sharedPinCount = 0;  //Add a query here to get shared groups count. sharedPincount is to be treated as shared group count here.
 		unreadPinCount = 0;
@@ -669,7 +672,10 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	private void setupContactTimelineScreen()
 	{
 		setLocalMsisdn(getIntent().getStringExtra(HikeConstants.Extras.CONTACT_INFO_TIMELINE));
-		contactInfo = ContactManager.getInstance().getContact(mLocalMSISDN, true, true);
+		if (Utils.isOfflineConversation(mLocalMSISDN))
+			contactInfo = ContactManager.getInstance().getContact(mLocalMSISDN.replace("o:", ""), true, true);
+		else
+			contactInfo = ContactManager.getInstance().getContact(mLocalMSISDN, true, true);
 		if(!contactInfo.isOnhike())
 		{
 			contactInfo.setOnhike(getIntent().getBooleanExtra(HikeConstants.Extras.ON_HIKE, false));

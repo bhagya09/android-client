@@ -1403,7 +1403,6 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				imageHolder.fileThumb.setImageResource(0);
 				showThumbnail = ((convMessage.isSent()) || (conversation instanceof OneToNConversation) || (!TextUtils.isEmpty(conversation.getConversationName())) || (hikeFile
 						.wasFileDownloaded()) || conversation instanceof OfflineConversation );
-				Logger.d("OfflineThreadManager","ThumbNail is "+showThumbnail +"And Converastion name is"+((OfflineConversation)conversation).getConversationName());
 				if (hikeFile.getThumbnail() == null && !TextUtils.isEmpty(hikeFile.getFileKey()))
 				{
 					thumbnail = HikeMessengerApp.getLruCache().getFileIconFromCache(hikeFile.getFileKey());

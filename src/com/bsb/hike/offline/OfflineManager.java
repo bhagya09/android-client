@@ -163,6 +163,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 			break;
 		case OfflineConstants.HandlerConstants.REMOVE_CONNECT_MESSAGE:
 			removeMessage(OfflineConstants.HandlerConstants.RECONNECT_TO_HOTSPOT);
+			Logger.d(TAG, "Disconnecting due to timeout");
 			if (TextUtils.isEmpty(getConnectedDevice()))
 			{
 				shutDown(new OfflineException(OfflineException.CONNECTION_TIME_OUT));
@@ -541,11 +542,14 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 			if (results.containsKey(ssid))
 			{
 				Logger.d(TAG, "Going to connect to Hotspot for msisdn" + ssid);
-				connectionManager.connectToHotspot(connectinMsisdn);
-				startedForChatThread = false;
+				
 				// since we already have the result no need to scan again
 				removeMessage(OfflineConstants.HandlerConstants.RECONNECT_TO_HOTSPOT);
 				removeMessage(OfflineConstants.HandlerConstants.REMOVE_CONNECT_MESSAGE);
+				Logger.d(TAG, "Removed callback for disconnect");
+				
+				connectionManager.connectToHotspot(connectinMsisdn);
+				startedForChatThread = false;
 			}
 		}
 		else
