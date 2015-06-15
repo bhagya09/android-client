@@ -1,6 +1,7 @@
 package com.bsb.hike.voip;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -10,7 +11,10 @@ import java.net.UnknownHostException;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.BitSet;
+import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -99,6 +103,9 @@ public class VoIPClient  {
 	private int reconnectAttempts = 0;
 	private int droppedDecodedPackets = 0;
 	public int callSource = -1;
+	
+	// List of client MSISDNs (for conference)
+	public List<String> clientMsisdns = null;
 
 	private final ConcurrentHashMap<Integer, VoIPDataPacket> ackWaitQueue		 = new ConcurrentHashMap<Integer, VoIPDataPacket>();
 	private final LinkedBlockingQueue<VoIPDataPacket> samplesToDecodeQueue     = new LinkedBlockingQueue<VoIPDataPacket>();
@@ -1204,6 +1211,15 @@ public class VoIPClient  {
 						setRemoteHold(false);
 						break;
 
+					case CLIENTS_LIST:
+						if (dataPacket.getData() != null) {
+							try {
+								updateClientsList(new String(dataPacket.getData(), "UTF-8"));
+							} catch (UnsupportedEncodingException e) {
+								Logger.e(logTag, "UnsupportedEncodingException in startReceiving(): " + e.toString());
+							}
+						}
+						break;
 					default:
 						Logger.w(logTag, "Received unexpected packet: " + dataPacket.getType());
 						break;
@@ -1614,7 +1630,7 @@ public class VoIPClient  {
 
 		try {
 			if (chronometer == null) {
-				Logger.w(logTag, "Starting chrono.");
+				Logger.d(logTag, "Starting chrono.");
 				chronometer = new Chronometer(context);
 				chronometer.setBase(SystemClock.elapsedRealtime());
 				chronometer.start();
@@ -1684,6 +1700,16 @@ public class VoIPClient  {
 		samplesToEncodeQueue.add(sample);
 	}
 	
+	private void updateClientsList(String csv) {
+		clientMsisdns = Arrays.asList(csv.split("\\s*,\\s*"));
+		Logger.w(logTag, "Received clients list: " + clientMsisdns.toString());
+		if (clientMsisdns.size() == 1) {
+			Logger.w(logTag, "Conference over?");
+			clientMsisdns = null;
+		}
+		sendHandlerMessage(VoIPConstants.MSG_UPDATE_CONTACT_DETAILS);
+	}
+	
 	private void stop() {
 		sendHandlerMessage(VoIPConstants.MSG_VOIP_CLIENT_STOP);
 	}
@@ -1707,5 +1733,6 @@ public class VoIPClient  {
 	private void stopReconnectBeeps() {
 		sendHandlerMessage(VoIPConstants.MSG_STOP_RECONNECTION_BEEPS);
 	}
+	
 }
 

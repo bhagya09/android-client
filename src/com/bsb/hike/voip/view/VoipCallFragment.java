@@ -169,9 +169,9 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 				Bundle bundle = msg.getData();
 				String msisdn = bundle.getString(VoIPConstants.MSISDN);
 				showMessage(msisdn + " has left the conference.");
+			case VoIPConstants.MSG_UPDATE_CONTACT_DETAILS:
 				setContactDetails();
 				break;
-				
 			default:
 				super.handleMessage(msg);
 			}
@@ -494,16 +494,19 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 	public void acceptCall()
 	{
 		Logger.d(VoIPConstants.TAG, "Accepted call, starting audio...");
-		voipService.acceptIncomingCall();
-		callActionsView.setVisibility(View.GONE);
-		showActiveCallButtons();
+		if (voipService != null) {
+			voipService.acceptIncomingCall();
+			callActionsView.setVisibility(View.GONE);
+			showActiveCallButtons();
+		}
 	}
 
 	@Override
 	public void declineCall()
 	{
 		Logger.d(VoIPConstants.TAG, "Declined call, rejecting...");
-		voipService.rejectIncomingCall();
+		if (voipService != null)
+			voipService.rejectIncomingCall();
 	}
 
 	private void showHikeCallText()
@@ -731,7 +734,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 			}
 		}
 
-		if (voipService.inConference()) {
+		if (voipService.inConference() || clientPartner.clientMsisdns != null) {
 			nameOrMsisdn = getString(R.string.voip_conference_label);
 			contactMsisdnView.setVisibility(View.VISIBLE);
 			contactMsisdnView.setText(voipService.getClientNames());
