@@ -1,7 +1,5 @@
 package com.bsb.hike.offline;
 
-import static com.bsb.hike.MqttConstants.WAKE_LOCK_TAG;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,15 +8,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import org.json.JSONObject;
 
-import android.app.Service;
 import android.content.Context;
 import android.content.IntentFilter;
 import android.net.wifi.ScanResult;
@@ -28,8 +23,6 @@ import android.net.wifi.p2p.WifiP2pManager;
 import android.net.wifi.p2p.WifiP2pManager.PeerListListener;
 import android.os.Handler;
 import android.os.Message;
-import android.os.PowerManager;
-import android.os.PowerManager.WakeLock;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView.ScaleType;
