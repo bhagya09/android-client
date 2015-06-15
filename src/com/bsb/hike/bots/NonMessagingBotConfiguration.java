@@ -7,7 +7,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.R;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.text.TextUtils;
@@ -378,5 +377,56 @@ public class NonMessagingBotConfiguration extends BotConfiguration
 	public String getJSToInject()
 	{
 		return configData.optString(HikePlatformConstants.JS_INJECT, null);
+	}
+	
+	/**
+	 * Utility method to get action bar color from fullScreenJson. The JSON will look like :
+	 * 
+	 * { "cd": { "full_screen_config": { "color": "#0f8fe1", "secondary_title": "Hike News 2.0" } }}
+	 * 
+	 * @return
+	 */
+	public int getFullScreenActionBarColor()
+	{
+		if (configData != null)
+		{
+			JSONObject fullScreenJSON = configData.optJSONObject(HikePlatformConstants.FULL_SCREEN_CONFIG);
+
+			if (fullScreenJSON != null)
+			{
+				String color = fullScreenJSON.optString(HikePlatformConstants.AB_COLOR, null);
+				try
+				{
+					return color != null ? Color.parseColor(color) : -1;
+				}
+
+				catch (IllegalArgumentException e)
+				{
+					Logger.e(TAG, "Seems like you sent a wrong color");
+				}
+			}
+		}
+		return -1;
+	}
+	
+	/**
+	 * Utility method to get title from fullScreenJson. The JSON will look like :
+	 * 
+	 * { "cd": { "full_screen_config": { "color": "#0f8fe1", "secondary_title": "Hike News 2.0" } } }
+	 * 
+	 * @return
+	 */
+	public String getFullScreenTitle()
+	{
+		if (configData != null)
+		{
+			JSONObject fullScreenJSON = configData.optJSONObject(HikePlatformConstants.FULL_SCREEN_CONFIG);
+
+			if (fullScreenJSON != null)
+			{
+				return fullScreenJSON.optString(HikePlatformConstants.SECONDARY_TITLE, null);
+			}
+		}
+		return null;
 	}
 }
