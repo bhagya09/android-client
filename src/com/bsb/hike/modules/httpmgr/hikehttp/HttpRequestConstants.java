@@ -296,4 +296,9 @@ public class HttpRequestConstants
 	{
 		return BASE_URL + BASE_V1 + BASE_ACCOUNT + "/profile";
 	}
+	
+	public static String signUpPinCallBaseUrl()
+	{
+		return BASE_URL + BASE_V1 + "/pin-call";
+	}
 }

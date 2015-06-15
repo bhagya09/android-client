@@ -431,6 +431,14 @@ public class AccountUtils
 				 */
 				String fileMd5 = Utils.fileToMD5(hikeHttpRequest.getFilePath());
 				requestBase.addHeader("Content-MD5", fileMd5);
+				
+				JSONObject requestJSONData = hikeHttpRequest.getJSONData();
+
+				if (requestJSONData != null)
+				{
+					requestBase.addHeader(HikeConstants.HikePhotos.DP_UPLOAD_CROP_BOUNDS, hikeHttpRequest.getJSONData().toString());
+				}
+
 				entity = new FileEntity(new File(hikeHttpRequest.getFilePath()), "");
 				break;
 
