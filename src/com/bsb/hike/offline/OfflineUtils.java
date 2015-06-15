@@ -462,6 +462,7 @@ public class OfflineUtils
 		}
 		try
 		{
+			
 			socket.shutdownInput();
 			socket.shutdownOutput();
 			socket.close();

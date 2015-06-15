@@ -303,7 +303,7 @@ public class ChatThreadUtils
 		return isMsgSelected ? var + 1 : var - 1;
 	}
 
-	protected static void deleteMessagesFromDb(ArrayList<Long> msgIds, boolean deleteMediaFromPhone, long lastMsgId, String msisdn)
+	public  static void deleteMessagesFromDb(ArrayList<Long> msgIds, boolean deleteMediaFromPhone, long lastMsgId, String msisdn)
 	{
 		boolean isLastMessage = (msgIds.contains(lastMsgId));
 		Bundle bundle = new Bundle();
