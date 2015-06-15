@@ -190,4 +190,8 @@ public interface HikePlatformConstants
 	final String HIKE_MESSAGE = "hm";
 	
 	final String JS_INJECT = "js_inject";
+	
+	final String FULL_SCREEN_CONFIG = "full_screen_config";
+	
+	final String SECONDARY_TITLE = "secondary_title";
 }

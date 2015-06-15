@@ -44,7 +44,6 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
-import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.bots.BotInfo;
@@ -86,6 +85,10 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	public static final int WEB_URL_WITH_BRIDGE_MODE = 2;
 
 	public static final int MICRO_APP_MODE = 3;
+	
+	public static final String FULL_SCREEN_AB_COLOR = "abColor";
+	
+	public static final String JS_TO_INJECT = "jsToInject";
 
 	public static final String WEBVIEW_MODE = "webviewMode";
 
@@ -246,10 +249,66 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		{
 			setMicroAppMode();
 		}
+		
+		else if (mode == WEB_URL_WITH_BRIDGE_MODE)
+		{
+			setWebURLWithBridgeMode();
+		}
+		
 		else
 		{
 			setWebURLMode(); // default mode we consider this activity is opened for
 		}
+	}
+
+	private void setWebURLWithBridgeMode()
+	{
+		String url = getIntent().getStringExtra(HikeConstants.Extras.URL_TO_LOAD);
+		String title = getIntent().getStringExtra(HikeConstants.Extras.TITLE);
+		int color = getIntent().getIntExtra(FULL_SCREEN_AB_COLOR, R.color.blue_hike);
+		final String js = getIntent().getStringExtra(JS_TO_INJECT);
+		
+		setupWebURLWithBridgeActionBar(title, color);
+		
+		
+		WebViewClient mClient = new WebViewClient()
+		{
+			@Override
+			public void onPageFinished(WebView view, String url)
+			{
+				bar.setVisibility(View.GONE);
+				if (view != null && !TextUtils.isEmpty(js))
+				{
+					Logger.i(tag, "loading js injection");
+					view.loadUrl("javascript:" + js);
+				}
+
+				super.onPageFinished(view, url);
+			}
+
+			@Override
+			public void onPageStarted(WebView view, String url, Bitmap favicon)
+			{
+				bar.setProgress(0);
+				bar.setVisibility(View.VISIBLE);
+				super.onPageStarted(view, url, favicon);
+			}
+
+			@Override
+			public boolean shouldOverrideUrlLoading(WebView view, String url)
+			{
+				Logger.i(tag, "url about to load in secondary " + url);
+				if (url == null)
+				{
+					return false;
+				}
+				view.loadUrl(url);
+				return true;
+			}
+		};
+		
+		webView.setWebViewClient(mClient);
+		webView.loadUrl(url);
 	}
 
 	private void initView()
@@ -315,8 +374,6 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		String title = getIntent().getStringExtra(HikeConstants.Extras.TITLE);
 		final boolean allowLoc = getIntent().getBooleanExtra(HikeConstants.Extras.WEBVIEW_ALLOW_LOCATION, false);
 
-
-		
 
 		WebViewClient client = new WebViewClient()
 		{
@@ -640,6 +697,13 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		updateActionBarColor(color !=-1 ? new ColorDrawable(color) : getResources().getDrawable(R.drawable.repeating_action_bar_bg));
 		setAvatar();
 	}
+	
+	private void setupWebURLWithBridgeActionBar(String title, int color)
+	{
+		setupActionBar(title);
+		updateActionBarColor(color != -1 ? new ColorDrawable(color) : getResources().getDrawable(R.drawable.bg_header));
+	}
+	
 
 	private void loadMicroApp()
 	{
@@ -685,12 +749,13 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 				mmBridge.onBackPressed();
 				return;
 			}
-			
 		}
-		if (mode == WEB_URL_MODE && webView.canGoBack())
+		
+		if (mode == WEB_URL_MODE || mode == WEB_URL_WITH_BRIDGE_MODE && webView.canGoBack())
 		{
 			webView.goBack();
 		}
+		
 		else
 		{
 			super.onBackPressed();
@@ -811,8 +876,28 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	@Override
 	public void openFullPage(String url)
 	{
+		startWebViewWithBridge(url, "");
 	}
 	
+	@Override
+	public void openFullPageWithTitle(String url, String title)
+	{
+		startWebViewWithBridge(url, title);
+	}
+	
+	private void startWebViewWithBridge(String url, String title)
+	{
+		Intent intent = IntentFactory.getWebViewActivityIntent(getApplicationContext(), url, title);
+		intent.putExtra(WEBVIEW_MODE, WEB_URL_WITH_BRIDGE_MODE);
+		int color = botConfig.getFullScreenActionBarColor();
+		intent.putExtra(FULL_SCREEN_AB_COLOR, color == -1 ? botConfig.getActionBarColor() : color);
+		if (botConfig.isJSInjectorEnabled())
+		{
+			intent.putExtra(JS_TO_INJECT, botConfig.getJSToInject());
+		}
+		
+		startActivity(intent);	
+	}
 
 	/**
 	 * This method is called on the UI thread. 
