@@ -87,6 +87,8 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	public static final int MICRO_APP_MODE = 3;
 	
 	public static final String FULL_SCREEN_AB_COLOR = "abColor";
+	
+	public static final String JS_TO_INJECT = "jsToInject";
 
 	public static final String WEBVIEW_MODE = "webviewMode";
 
@@ -264,6 +266,8 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		String url = getIntent().getStringExtra(HikeConstants.Extras.URL_TO_LOAD);
 		String title = getIntent().getStringExtra(HikeConstants.Extras.TITLE);
 		int color = getIntent().getIntExtra(FULL_SCREEN_AB_COLOR, R.color.blue_hike);
+		final String js = getIntent().getStringExtra(JS_TO_INJECT);
+		
 		setupWebURLWithBridgeActionBar(title, color);
 		
 		
@@ -273,23 +277,10 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			public void onPageFinished(WebView view, String url)
 			{
 				bar.setVisibility(View.GONE);
-				if ("about:blank".equals(url) && view != null)
+				if (view != null && !TextUtils.isEmpty(js))
 				{
-					view.clearHistory();
-					view.setVisibility(View.GONE);
-					view = null;
-				}
-				else
-				{
-					if (view != null && botConfig.isJSInjectorEnabled())
-					{
-						String js = botConfig.getJSToInject();
-						if (js != null)
-						{
-							Logger.i(tag, "loading js injection");
-							view.loadUrl("javascript:" + js);
-						}
-					}
+					Logger.i(tag, "loading js injection");
+					view.loadUrl("javascript:" + js);
 				}
 
 				super.onPageFinished(view, url);
@@ -301,13 +292,6 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 				bar.setProgress(0);
 				bar.setVisibility(View.VISIBLE);
 				super.onPageStarted(view, url, favicon);
-			}
-
-			@Override
-			public WebResourceResponse shouldInterceptRequest(WebView view, String url)
-			{
-				// TODO Auto-generated method stub
-				return super.shouldInterceptRequest(view, url);
 			}
 
 			@Override
@@ -915,9 +899,12 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		intent.putExtra(WEBVIEW_MODE, WEB_URL_WITH_BRIDGE_MODE);
 		int color = botConfig.getFullScreenActionBarColor();
 		intent.putExtra(FULL_SCREEN_AB_COLOR, color == -1 ? botConfig.getActionBarColor() : color);
-
+		if (botConfig.isJSInjectorEnabled())
+		{
+			intent.putExtra(JS_TO_INJECT, botConfig.getJSToInject());
+		}
+		
 		startActivity(intent);
-
 	}
 
 	/**
