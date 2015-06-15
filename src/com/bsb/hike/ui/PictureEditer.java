@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -21,6 +22,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.WindowManager;
+import android.webkit.MimeTypeMap;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -129,7 +131,13 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 		
 		Logger.d(TAG, "Checking file type");
 		
-		if (HikeFileType.fromFilePath(filename, false).compareTo(HikeFileType.IMAGE) != 0)
+		String fileExtension = Utils.getFileExtension(filename);
+		//Check file type
+		String fileType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension);
+		HikeFileType hikeFileType = HikeFileType.fromString(fileType, false);
+
+		Logger.d(TAG, "Checking file type");
+		if (hikeFileType.compareTo(HikeFileType.IMAGE) != 0)
 		{
 			onError();
 			return;
@@ -364,7 +372,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 			switch (resultCode)
 			{
 			case RESULT_OK:
-				uploadProfilePic(data);
+				uploadProfilePic(data.getStringExtra(MediaStore.EXTRA_OUTPUT), data.getStringExtra(HikeConstants.HikePhotos.ORIG_FILE));
 				break;
 			case RESULT_CANCELED:
 				//The user returned from crop...deleting temporary profile image if created
@@ -381,15 +389,18 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 		}
 	}
 
-	private void uploadProfilePic(Intent data)
+	private void uploadProfilePic(final String croppedImageFile, final String originalImageFile)
 	{
-		editView.setVisibility(View.VISIBLE);
-		ProfilePicFragment profilePicFragment = new ProfilePicFragment();
-		Bundle b = new Bundle(data.getExtras());
-		profilePicFragment.setArguments(b);
-		getSupportFragmentManager().beginTransaction()
-				.setCustomAnimations(R.anim.fade_in_animation, R.anim.fade_out_animation, R.anim.fade_in_animation, R.anim.fade_out_animation)
-				.replace(R.id.overlayFrame, profilePicFragment).addToBackStack(null).commit();
+
+				editView.setVisibility(View.VISIBLE);
+				ProfilePicFragment profilePicFragment = new ProfilePicFragment();
+				Bundle b = new Bundle();
+				b.putString(HikeConstants.HikePhotos.FILENAME, croppedImageFile);
+				b.putString(HikeConstants.HikePhotos.ORIG_FILE, originalImageFile);
+				profilePicFragment.setArguments(b);
+				getSupportFragmentManager().beginTransaction()
+						.setCustomAnimations(R.anim.fade_in_animation, R.anim.fade_out_animation, R.anim.fade_in_animation, R.anim.fade_out_animation)
+						.replace(R.id.overlayFrame, profilePicFragment).addToBackStack(null).commit();
 	}
 
 	public class EditorClickListener implements OnClickListener, OnPageChangeListener, OnDoodleStateChangeListener, OnItemClickListener
@@ -495,6 +506,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 								intent.setAction(HikeConstants.HikePhotos.PHOTOS_ACTION_CODE);
 								setResult(RESULT_OK, intent);
 								finish();
+
 							}
 						}
 					});
@@ -612,15 +624,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 				public void onComplete(File f)
 				{
 					finishProgress();
-					try
-					{
-						File tempDest = File.createTempFile(f.getName(), null);
-						startActivityForResult(IntentFactory.getCropActivityIntent(PictureEditer.this, f.getAbsolutePath(), tempDest.getAbsolutePath(), true, 100, true,false), HikeConstants.CROP_RESULT);
-					}
-					catch (IOException e)
-					{
-						e.printStackTrace();
-					}
+					startActivityForResult(IntentFactory.getCropActivityIntent(PictureEditer.this, f.getAbsolutePath(), f.getAbsolutePath(), true, 100, true), HikeConstants.CROP_RESULT);
 				}
 			});
 		}
