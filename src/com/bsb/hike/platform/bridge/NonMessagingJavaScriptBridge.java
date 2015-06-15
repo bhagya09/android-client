@@ -1,6 +1,5 @@
 package com.bsb.hike.platform.bridge;
 
-import com.bsb.hike.utils.Utils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -29,6 +28,7 @@ import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 
 /**
  * API bridge that connects the javascript to the non-messaging Native environment. Make the instance of this class and add it as the
@@ -40,8 +40,11 @@ import com.bsb.hike.utils.Logger;
  */
 public class NonMessagingJavaScriptBridge extends JavascriptBridge
 {
+	private static final int OPEN_FULL_PAGE_WITH_TITLE = 111;
 	
 	private static final int SHOW_OVERFLOW_MENU = 112;
+	
+	private static final int OPEN_FULL_PAGE = 114;
 	
 	private BotInfo mBotInfo;
 	
@@ -486,6 +489,21 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			}
 			break;
 
+		case OPEN_FULL_PAGE_WITH_TITLE:
+			if (mCallback != null)
+			{
+				String[] params = (String[]) msg.obj;
+				mCallback.openFullPage(params[1], params[0]); // Title, Url
+			}
+			break;
+
+		case OPEN_FULL_PAGE:
+			if (mCallback != null)
+			{
+				mCallback.openFullPage((String) msg.obj);
+			}
+			break;
+
 		default:
 			super.handleUiMessage(msg);
 		}
@@ -575,6 +593,33 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			Logger.e(tag, "error in JSON");
 			e.printStackTrace();
 		}
+	}
+	
+	/**
+	 * Platform bridge Version 1 Call this function to open a full page webView within hike.
+	 * 
+	 * @param title
+	 *            : the title on the action bar.
+	 * @param url
+	 *            : the url that will be loaded.
+	 */
+	@JavascriptInterface
+	@Override
+	public void openFullPage(final String title, final String url)
+	{
+		sendMessageToUiThread(OPEN_FULL_PAGE_WITH_TITLE, new String[] { title, url });
+	}
+	
+	/**
+	 * Platform bridge Version 1 Call this function to open a full page webView within hike.
+	 * 
+	 * @param url
+	 *            : the url that will be loaded.
+	 */
+	@JavascriptInterface
+	public void openFullPage(final String url)
+	{
+		sendMessageToUiThread(OPEN_FULL_PAGE, url);
 	}
 
 }
