@@ -262,6 +262,11 @@ public class ChatHeadService extends Service
 					intent = IntentFactory.getStickerShopIntent(getApplicationContext(), true);
 					startActivity(intent);
 					break;
+				case ChatHeadUtils.OPEN_SETTINGS_ANIMATION:
+					intent = IntentFactory.getStickerShareSettingsIntent(getApplicationContext());
+					startActivity(intent);
+					ChatHeadService.getInstance().setChatHeadInvisible();
+					break;
 				}
 			}
 

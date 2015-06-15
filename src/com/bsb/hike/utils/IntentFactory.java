@@ -311,24 +311,22 @@ public class IntentFactory
 	{
 		SharedPreferences prefs = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
 		Intent intent = new Intent(context.getApplicationContext(), WebViewActivity.class);
-		 /*New task flag is needed as we are opening our activity in another task outside hike existing task and clear task 
-		 to remove existing activities of hike task so that user can return from where he came to this task*/
+		/*
+		 * New task flag is needed as we are opening our activity in another task outside hike existing task and clear task to remove existing activities of hike task so that user
+		 * can return from where he came to this task
+		 */
 		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-
-			if (Utils.switchSSLOn(context))
-			{
-				intent.putExtra(HikeConstants.Extras.URL_TO_LOAD,
-						HttpRequestConstants.getMorestickersUrl() + HikeConstants.ANDROID + "/" + prefs.getString(HikeMessengerApp.REWARDS_TOKEN, ""));
-			}
-			else
-			{
-				intent.putExtra(HikeConstants.Extras.URL_TO_LOAD,
-						HttpRequestConstants.getMorestickersUrl() + HikeConstants.ANDROID + "/" + prefs.getString(HikeMessengerApp.REWARDS_TOKEN, ""));
-			}
-		
-
+		intent.putExtra(HikeConstants.Extras.URL_TO_LOAD,
+				HttpRequestConstants.getMorestickersUrl() + HikeConstants.ANDROID + "/" + prefs.getString(HikeMessengerApp.REWARDS_TOKEN, ""));
 		intent.putExtra(HikeConstants.Extras.TITLE, context.getString(R.string.more_stickers));
-		
+
+		return intent;
+	}
+
+	public static Intent getStickerShareSettingsIntent(Context context)
+	{
+		Intent intent = new Intent(context, StickerShareSettings.class);
+		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 		return intent;
 	}
 	
@@ -904,4 +902,6 @@ public class IntentFactory
 		intent.putExtra(HikeConstants.Extras.JPEG_COMPRESSION_QUALITY, quality);
 		return intent;
 	}
+
+	
 }

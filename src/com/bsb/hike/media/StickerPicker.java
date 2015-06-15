@@ -341,6 +341,10 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 			HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.STICKER_SHOP, ChatHeadService.foregroundAppName);
 			ChatHeadService.getInstance().resetPosition(ChatHeadUtils.STICKER_SHOP_ANIMATION);
 			break;
+		case R.id.side_text:
+			HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.DISABLE_TEXT, ChatHeadService.foregroundAppName);
+			ChatHeadService.getInstance().resetPosition(ChatHeadUtils.OPEN_SETTINGS_ANIMATION);
+			break;
 		}
 	}
 
@@ -571,6 +575,7 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 		initLayoutComponentsView();
 		chatHeadSideText.setText(mContext.getString(R.string.total_sticker_sent_start) + " " + ChatHeadActivity.totalShareCount + " "
 				+ mContext.getString(R.string.total_sticker_sent_middle) + " " + ChatHeadActivity.noOfDays + " " + mContext.getString(R.string.total_sticker_sent_end));
+	    chatHeadSideText.setEnabled(false);
 	}
 
 	private void initLayoutComponentsView()
@@ -594,6 +599,7 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 		chatHeadMainLayout.setVisibility(View.GONE);
 		chatHeadDisableLayout.setVisibility(View.VISIBLE);
 		chatHeadSideText.setText(mContext.getString(R.string.disable_from_hike_settings));
+	    chatHeadSideText.setEnabled(true);
 	}
 
 	private void onBackMainLayoutClick()
@@ -602,7 +608,7 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 		chatHeadDisableLayout.setVisibility(View.GONE);
 		chatHeadSideText.setText(mContext.getString(R.string.total_sticker_sent_start) + " " + ChatHeadActivity.totalShareCount + " "
 				+ mContext.getString(R.string.total_sticker_sent_middle) + " " + ChatHeadActivity.noOfDays + " " + mContext.getString(R.string.total_sticker_sent_end));
-
+	    chatHeadSideText.setEnabled(false);
 	}
 
 	public void setOnClick()
@@ -610,6 +616,7 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 		chatHeadInfoIconButton.setOnClickListener(this);
 		chatHeadgetMoreStickersButton.setOnClickListener(this);
 		chatHeadDisableButton.setOnClickListener(this);
+		chatHeadSideText.setOnClickListener(this);
 		chatHeadstickerPickerView.findViewById(R.id.open_hike).setOnClickListener(this);
 		chatHeadstickerPickerView.findViewById(R.id.back_main_layout).setOnClickListener(this);
 		chatHeadstickerPickerView.findViewById(R.id.one_day).setOnClickListener(this);

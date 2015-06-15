@@ -37,7 +37,9 @@ public class ChatHeadUtils
 
 	public static final int STICKER_SHOP_ANIMATION = 6;
 
-	public static final int REMAINING_ANIMATION = 7;
+	public static final int OPEN_SETTINGS_ANIMATION = 7;
+
+	public static final int REMAINING_ANIMATION = 8;
 
 	public static final String DAILY_STICKER_SHARE_COUNT = "shr_cnt_dly";
 
