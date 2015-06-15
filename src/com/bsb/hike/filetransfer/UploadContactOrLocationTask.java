@@ -306,7 +306,7 @@ public class UploadContactOrLocationTask extends FileTransferBase
 	private ConvMessage createConvMessage(String msisdn, JSONObject metadata, boolean newConvIfnotExist) throws JSONException
 	{
 		long time = System.currentTimeMillis() / 1000;
-		ConvMessage convMessage = new ConvMessage(HikeConstants.LOCATION_FILE_NAME, msisdn, time, ConvMessage.State.SENT_UNCONFIRMED);
+		ConvMessage convMessage = new ConvMessage(uploadingContact ? HikeConstants.CONTACT_FILE_NAME : HikeConstants.LOCATION_FILE_NAME, msisdn, time, ConvMessage.State.SENT_UNCONFIRMED);
 		convMessage.setMetadata(metadata);
 		convMessage.setSMS(!isRecipientOnhike);
 		

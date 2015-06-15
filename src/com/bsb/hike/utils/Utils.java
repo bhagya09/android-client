@@ -51,7 +51,6 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.ocpsoft.prettytime.PrettyTime;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
@@ -80,6 +79,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.graphics.Bitmap;
@@ -121,10 +121,6 @@ import android.provider.ContactsContract.RawContacts;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.provider.Settings.Secure;
-import android.support.v8.renderscript.Allocation;
-import android.support.v8.renderscript.Element;
-import android.support.v8.renderscript.RenderScript;
-import android.support.v8.renderscript.ScriptIntrinsicBlur;
 import android.telephony.SmsManager;
 import android.telephony.TelephonyManager;
 import android.text.Editable;
@@ -132,9 +128,11 @@ import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.text.format.DateUtils;
 import android.text.style.StyleSpan;
 import android.util.Base64;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.util.Pair;
 import android.view.MotionEvent;
 import android.view.Surface;
@@ -204,6 +202,11 @@ import com.bsb.hike.models.Conversation.OneToNConvInfo;
 import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.models.utils.JSONSerializable;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.modules.httpmgr.RequestToken;
+import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
+import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
+import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.service.ConnectionChangeReceiver;
@@ -819,8 +822,11 @@ public class Utils
 		}
 	}
 
-	public static String getConversationJoinHighlightText(JSONArray participantInfoArray, OneToNConvInfo convInfo)
+	public static String getConversationJoinHighlightText(JSONArray participantInfoArray, OneToNConvInfo convInfo, boolean newGrp, Context context)
 	{
+		if(newGrp){
+			return context.getString(R.string.you).toLowerCase();
+		}
 		JSONObject participant = (JSONObject) participantInfoArray.opt(0);
 		String highlight = convInfo.getConvParticipantName(participant.optString(HikeConstants.MSISDN));
 		if (participantInfoArray.length() == 2)
@@ -837,8 +843,11 @@ public class Utils
 		return highlight;
 	}
 	
-	public static String getOneToNConversationJoinHighlightText(JSONArray participantInfoArray, OneToNConversation conversation)
+	public static String getOneToNConversationJoinHighlightText(JSONArray participantInfoArray, OneToNConversation conversation, boolean newGrp, Context context)
 	{
+		if(newGrp){
+			return context.getString(R.string.you).toLowerCase();
+		}
 		JSONObject participant = (JSONObject) participantInfoArray.opt(0);
 		String highlight = conversation.getConvParticipantFirstNameAndSurname(participant.optString(HikeConstants.MSISDN));
 
@@ -1433,7 +1442,7 @@ public class Utils
 		return sdAvailSize;
 	}
 
-	public static boolean copyFile(String srcFilePath, String destFilePath, HikeFileType hikeFileType)
+	public static boolean copyImage(String srcFilePath, String destFilePath, Bitmap.Config config, int quality)
 	{
 		/*
 		 * If source and destination have the same path, just return.
@@ -1448,24 +1457,17 @@ public class Utils
 		FileOutputStream dest = null;
 		try
 		{
-			if (hikeFileType == HikeFileType.IMAGE)
+			String imageOrientation = Utils.getImageOrientation(srcFilePath);
+			Bitmap tempBmp = HikeBitmapFactory.scaleDownBitmap(srcFilePath, HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX, HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX,
+					Bitmap.Config.RGB_565, true, false);
+			tempBmp = HikeBitmapFactory.rotateBitmap(tempBmp, Utils.getRotatedAngle(imageOrientation));
+			// Temporary fix for when a user uploads a file through Picasa
+			// on ICS or higher.
+			if (tempBmp != null)
 			{
-				String imageOrientation = Utils.getImageOrientation(srcFilePath);
-				Bitmap tempBmp = HikeBitmapFactory.scaleDownBitmap(srcFilePath, HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX, HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX,
-						Bitmap.Config.RGB_565, true, false);
-				tempBmp = HikeBitmapFactory.rotateBitmap(tempBmp, Utils.getRotatedAngle(imageOrientation));
-				// Temporary fix for when a user uploads a file through Picasa
-				// on ICS or higher.
-				if (tempBmp != null)
-				{
-					byte[] fileBytes = BitmapUtils.bitmapToBytes(tempBmp, Bitmap.CompressFormat.JPEG, 75);
-					tempBmp.recycle();
-					src = new ByteArrayInputStream(fileBytes);
-				}
-				else
-				{
-					src = new FileInputStream(new File(srcFilePath));
-				}
+				byte[] fileBytes = BitmapUtils.bitmapToBytes(tempBmp, Bitmap.CompressFormat.JPEG, 80);
+				tempBmp.recycle();
+				src = new ByteArrayInputStream(fileBytes);
 			}
 			else
 			{
@@ -1509,11 +1511,11 @@ public class Utils
 	public static boolean compressAndCopyImage(String srcFilePath, String destFilePath, Context context)
 	{
 		SharedPreferences appPrefs = PreferenceManager.getDefaultSharedPreferences(context);
-		int quality = appPrefs.getInt(HikeConstants.IMAGE_QUALITY, ImageQuality.QUALITY_DEFAULT);
-		return compressAndCopyImage(srcFilePath, destFilePath, context, quality);
+		int imageQuality = appPrefs.getInt(HikeConstants.IMAGE_QUALITY, ImageQuality.QUALITY_DEFAULT);
+		return compressAndCopyImage(srcFilePath, destFilePath, context, Bitmap.Config.ARGB_8888, 80, imageQuality, true);
 	}
 	
-	public static boolean compressAndCopyImage(String srcFilePath, String destFilePath, Context context, int quality)
+	public static boolean compressAndCopyImage(String srcFilePath, String destFilePath, Context context, Bitmap.Config config, int quality, int imageQuality, boolean toUserServerConfig)
 	{
 		InputStream src = null;
 		FileOutputStream dest = null;
@@ -1521,21 +1523,38 @@ public class Utils
 		{
 			String imageOrientation = Utils.getImageOrientation(srcFilePath);
 			Bitmap tempBmp = null;
-
-			if (quality == ImageQuality.QUALITY_MEDIUM)
+			int dimen;
+			
+			if (imageQuality == ImageQuality.QUALITY_MEDIUM)
 			{
-				tempBmp = HikeBitmapFactory.scaleDownBitmap(srcFilePath, HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX, HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX,
-						Bitmap.Config.RGB_565, true, false);
+				if(toUserServerConfig)
+				{
+					dimen = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.NORMAL_IMG_SIZE, HikeConstants.SMO_MAX_DIMENSION_MEDIUM_FULL_SIZE_PX);
+				}
+				else
+				{
+					dimen = HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX;
+				}
+				//Sending false as we want image smaller than actual resolution 
+				tempBmp = HikeBitmapFactory.scaleDownBitmap(srcFilePath, dimen, dimen, config, false, false);
 			}
-			else if (quality != ImageQuality.QUALITY_ORIGINAL)
+			else if (imageQuality != ImageQuality.QUALITY_ORIGINAL)
 			{
-				tempBmp = HikeBitmapFactory.scaleDownBitmap(srcFilePath, HikeConstants.MAX_DIMENSION_LOW_FULL_SIZE_PX, HikeConstants.MAX_DIMENSION_LOW_FULL_SIZE_PX,
-						Bitmap.Config.RGB_565, false, false); // Reducing further for small
+				if(toUserServerConfig)
+				{
+					dimen = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SUPER_COMPRESSED_IMG_SIZE, HikeConstants.SMO_MAX_DIMENSION_LOW_FULL_SIZE_PX);
+				}
+				else
+				{
+					dimen = HikeConstants.MAX_DIMENSION_LOW_FULL_SIZE_PX;
+				}
+				//Sending false as we want image smaller than actual resolution
+				tempBmp = HikeBitmapFactory.scaleDownBitmap(srcFilePath, dimen, dimen, config, false, false);
 			}
 			tempBmp = HikeBitmapFactory.rotateBitmap(tempBmp, Utils.getRotatedAngle(imageOrientation));
 			if (tempBmp != null)
 			{
-				byte[] fileBytes = BitmapUtils.bitmapToBytes(tempBmp, Bitmap.CompressFormat.JPEG, 75);
+				byte[] fileBytes = BitmapUtils.bitmapToBytes(tempBmp, Bitmap.CompressFormat.JPEG, quality);
 				tempBmp.recycle();
 				src = new ByteArrayInputStream(fileBytes);
 			}
@@ -2298,7 +2317,7 @@ public class Utils
 		File newFile = new File(directory, newFileName);
 		return tempFile.renameTo(newFile);
 	}
-
+	
 	public static boolean removeTempProfileImage(String msisdn)
 	{
 		String directory = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
@@ -3128,49 +3147,31 @@ public class Utils
 
 	}
 
+	private static JSONObject jObject = null;
+
 	public static JSONObject getJSONfromURL(String url)
 	{
-
-		// initialize
-		InputStream is = null;
-		String result = "";
-		JSONObject jObject = null;
-
-		// http post
-		try
+		IRequestListener requestListener = new IRequestListener()
 		{
-			HttpClient httpclient = new DefaultHttpClient();
-			HttpPost httppost = new HttpPost(url);
-			AccountUtils.setNoTransform(httppost);
-			HttpResponse response = httpclient.execute(httppost);
-			HttpEntity entity = response.getEntity();
-			is = entity.getContent();
-
-			BufferedReader reader = new BufferedReader(new InputStreamReader(is, "UTF-8"), 8);
-			StringBuilder sb = new StringBuilder();
-			String line = null;
-			while ((line = reader.readLine()) != null)
+			@Override
+			public void onRequestSuccess(Response result)
 			{
-				sb.append(line + "\n");
+				jObject = (JSONObject) result.getBody().getContent();
 			}
-			is.close();
-			result = sb.toString();
-		}
-		catch (Exception e)
-		{
-			Logger.e("LogEvent", "Error converting result " + e.toString());
-		}
 
-		// try parse the string to a JSON object
-		try
-		{
-			jObject = new JSONObject(result);
-		}
-		catch (JSONException e)
-		{
-			Logger.e("LogEvent", "Error parsing data " + e.toString());
-		}
+			@Override
+			public void onRequestProgressUpdate(float progress)
+			{
+			}
 
+			@Override
+			public void onRequestFailure(HttpException httpException)
+			{
+				jObject = null;
+			}
+		};
+		RequestToken token = HttpRequests.getJSONfromUrl(url, requestListener);
+		token.execute();
 		return jObject;
 	}
 
@@ -4798,33 +4799,95 @@ public class Utils
 		return df.format(date);
 	}
 
-	public static String getFormattedTime(boolean pretty, Context context, long timestamp)
+	public static String getFormattedTime(boolean pretty, Context context, long timestampInSeconds)
 	{
-		if (timestamp < 0)
+		if (timestampInSeconds < 0)
 		{
 			return "";
 		}
-		Date date = new Date(timestamp * 1000);
 		if (pretty)
 		{
-			PrettyTime p = new PrettyTime();
-			return p.format(date);
+			return getFormattedPrettyTime(context, timestampInSeconds);
 		}
 		else
 		{
-			String format;
-			if (android.text.format.DateFormat.is24HourFormat(context))
+			return getFormattedTime(context, timestampInSeconds * 1000);
+		}
+	}
+	
+	public static String getFormattedTime(Context context, long timestampInMillis)
+	{
+		String format;
+		Date givenDate = new Date(timestampInMillis);
+		if (android.text.format.DateFormat.is24HourFormat(context))
+		{
+			format = "HH:mm";
+		}
+		else
+		{
+			format = "h:mm aaa";
+		}
+
+		DateFormat df = new SimpleDateFormat(format);
+		return df.format(givenDate);
+	}
+	
+	public static String getFormattedPrettyTime( Context context, long timestampInSeconds)
+	{
+		if (timestampInSeconds < 0)
+		{
+			return "";
+		}
+		
+		long givenTimeStampInMillis = timestampInSeconds * 1000; 
+		Calendar givenCalendar = Calendar.getInstance();
+		givenCalendar.setTimeInMillis(givenTimeStampInMillis);
+		
+		long currentTime = System.currentTimeMillis();
+		Calendar currentCalendar = Calendar.getInstance();
+		
+		if(givenCalendar.before(currentCalendar))
+		{
+			long timeDiff = currentTime - givenTimeStampInMillis;
+
+			if (timeDiff < 60 * 1000)
 			{
-				format = "HH:mm";
+				// until 1 minute
+				return context.getResources().getString(R.string.now);
+			}
+			else if (givenCalendar.get(Calendar.YEAR) == currentCalendar.get(Calendar.YEAR))
+			{
+				//Show date in relative format. eg. 2 hours ago, yesterday, 2 days ago etc.
+				return DateUtils.getRelativeTimeSpanString(givenTimeStampInMillis, currentTime, DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_ABBREV_MONTH).toString();
 			}
 			else
 			{
-				format = "h:mm aaa";
+				//Shows date in numeric format
+				return DateUtils.getRelativeTimeSpanString(givenTimeStampInMillis, currentTime, DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_NUMERIC_DATE).toString();
 			}
-
-			DateFormat df = new SimpleDateFormat(format);
-			return df.format(date);
 		}
+		else
+		{
+			if (givenCalendar.get(Calendar.YEAR) == currentCalendar.get(Calendar.YEAR))
+			{
+				if (givenCalendar.get(Calendar.DAY_OF_YEAR) == currentCalendar.get(Calendar.DAY_OF_YEAR))
+				{
+					//Show time in non relate default time format
+					return getFormattedTime(context, givenTimeStampInMillis);
+				}
+				else
+				{
+					// Show date in MMM dd format eg. Apr 21, May 13 etc.
+					return DateUtils.getRelativeTimeSpanString(givenTimeStampInMillis, currentTime, DateUtils.YEAR_IN_MILLIS, DateUtils.FORMAT_ABBREV_MONTH | DateUtils.FORMAT_SHOW_DATE).toString();
+				}
+			}
+			else
+			{
+				//Show date in numeric format
+				return DateUtils.getRelativeTimeSpanString(givenTimeStampInMillis, currentTime, DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_NUMERIC_DATE).toString();
+			}
+		}
+	
 	}
 
 	public static Pair<String[], String[]> getMsisdnToNameArray(Conversation conversation)
@@ -4880,29 +4943,6 @@ public class Utils
 		AlertDialog dialog = builder.create();
 		dialog.show();
 		return dialog;
-	}
-
-	public static Bitmap createBlurredImage(Bitmap originalBitmap, Context context)
-	{
-		final int BLUR_RADIUS = 8;
-		if (hasJellyBeanMR1())
-		{
-			Bitmap output = Bitmap.createBitmap(originalBitmap.getWidth(), originalBitmap.getHeight(), Bitmap.Config.ARGB_8888);
-
-			RenderScript rs = RenderScript.create(context.getApplicationContext());
-			ScriptIntrinsicBlur script = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs));
-			Allocation inAlloc = Allocation.createFromBitmap(rs, originalBitmap, Allocation.MipmapControl.MIPMAP_NONE, Allocation.USAGE_GRAPHICS_TEXTURE);
-			Allocation outAlloc = Allocation.createFromBitmap(rs, output);
-			script.setRadius(BLUR_RADIUS);
-			script.setInput(inAlloc);
-			script.forEach(outAlloc);
-			outAlloc.copyTo(output);
-
-			rs.destroy();
-
-			return output;
-		}
-		return null;
 	}
 
 	/**
@@ -5673,7 +5713,7 @@ public class Utils
 		 */
 		String srcFilePath = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT + "/" + msisdn + ".jpg";
 		String destFilePath = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT + "/" + mappedId + ".jpg";
-		Utils.copyFile(srcFilePath, destFilePath, HikeFileType.IMAGE);
+		Utils.copyImage(srcFilePath, destFilePath, Bitmap.Config.ARGB_8888, 80);
 
 		if (setIcon)
 		{
@@ -5855,7 +5895,7 @@ public class Utils
 			return null;
 		}
 	}
-
+	
 	private static String getPathFromDocumentedUri(Uri uri, Context context)
 	{
 		String result = null;
@@ -5961,4 +6001,86 @@ public class Utils
 			}
 		}
     }
+	
+	/**
+	 * Copies File from scrFilePath to DesFilePath
+	 * 
+	 * @param srcFilePath
+	 * @param destFilePath
+	 * @return
+	 */
+	public static boolean copyFile(String srcFilePath, String destFilePath)
+	{
+		/*
+		 * If source and destination have the same path, just return.
+		 */
+		if (srcFilePath.equals(destFilePath))
+		{
+			return true;
+		}
+		try
+		{
+			InputStream src = new FileInputStream(new File(srcFilePath));
+			FileOutputStream dest = new FileOutputStream(new File(destFilePath));
+
+			byte[] buffer = new byte[HikeConstants.MAX_BUFFER_SIZE_KB * 1024];
+			int len;
+
+			while ((len = src.read(buffer)) > 0)
+			{
+				dest.write(buffer, 0, len);
+			}
+
+			dest.flush();
+			dest.getFD().sync();
+			src.close();
+			dest.close();
+
+			return true;
+		}
+		catch (FileNotFoundException e)
+		{
+			Logger.e("Utils", "File not found while copying", e);
+			return false;
+		}
+		catch (IOException e)
+		{
+			Logger.e("Utils", "Error while reading/writing/closing file", e);
+			return false;
+		}
+		catch (Exception ex)
+		{
+			Logger.e("Utils", "WTF Error while reading/writing/closing file", ex);
+			return false;
+		}
+	}
+
+	/**
+	 * Returns Total RAM in bytes for HIKE
+	 * 
+	 * @return
+	 */
+	public static double getTotalRAMForHike()
+	{
+		long maxAvailableSize = 0L;
+		try
+		{
+			Runtime info = Runtime.getRuntime();
+			maxAvailableSize = info.maxMemory();
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+			Logger.e("image_config", "Could not get Total RAM from Runtime");
+		}
+		return maxAvailableSize * 8;
+	}
+
+	public static int getDeviceScreenArea()
+	{
+		int screenWidth = HikeMessengerApp.getInstance().getApplicationContext().getResources().getDisplayMetrics().widthPixels;
+		int screenHeight = HikeMessengerApp.getInstance().getApplicationContext().getResources().getDisplayMetrics().heightPixels;
+		Logger.d("image_config", "Screen dimens are :- " + screenWidth + ", "+ screenHeight);
+		return screenHeight * screenHeight;
+	}
 }

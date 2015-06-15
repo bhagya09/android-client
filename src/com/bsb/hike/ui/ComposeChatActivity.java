@@ -18,7 +18,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.ActivityInfo;
-import android.content.res.Configuration;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -29,6 +28,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.text.TextUtils;
 import android.util.Pair;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -199,9 +199,11 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 
 	private int triggerPointForPopup=ProductPopupsConstants.PopupTriggerPoints.UNKNOWN.ordinal();
 
-	 private HorizontalFriendsFragment newFragment;
+	private HorizontalFriendsFragment newFragment;
 	 
-	 int type = HikeConstants.Extras.NOT_SHAREABLE;
+	int type = HikeConstants.Extras.NOT_SHAREABLE;
+	
+	private Menu mainMenu;
 	 
 	@Override
 	public void onCreate(Bundle savedInstanceState)
@@ -290,7 +292,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			prefileTransferTask = (PreFileTransferAsycntask) object;
 			progressDialog = ProgressDialog.show(this, null, getResources().getString(R.string.multi_file_creation));
 		}
-
+		
 		if (Intent.ACTION_SEND.equals(getIntent().getAction()) || Intent.ACTION_SENDTO.equals(getIntent().getAction())
 				|| Intent.ACTION_SEND_MULTIPLE.equals(getIntent().getAction()))
 		{
@@ -387,6 +389,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu)
 	{
+		mainMenu = menu;
 		type = getIntent().getIntExtra(HikeConstants.Extras.SHARE_TYPE, HikeConstants.Extras.NOT_SHAREABLE);
 
 		if (!showingMultiSelectActionBar)
@@ -829,7 +832,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		else
 		{
 			multiSelectTitle.setText(createBroadcast ? getString(R.string.broadcast_selected, adapter.getCurrentSelection()) : 
-				getString(R.string.gallery_num_selected, adapter.getCurrentSelection()));	
+				getString(R.string.gallery_num_selected, adapter.getCurrentSelection()));
 		}
 	}
 
@@ -846,10 +849,9 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 
 		setupMultiSelectActionBar();
 		invalidateOptionsMenu();
-		
 		multiSelectTitle.setText(createBroadcast ? getString(R.string.broadcast_selected, adapter.getCurrentSelection()) : 
-			getString(R.string.gallery_num_selected, adapter.getCurrentSelection()));
-	}
+				getString(R.string.gallery_num_selected, adapter.getCurrentSelection()));
+		}
 
 	@Override
 	public void characterAddedAfterSeparator(String characters)
@@ -1085,7 +1087,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		}
 		else if (createGroup)
 		{
-			title.setText(R.string.new_group);
+			title.setText(R.string.add_members);
 		}
 		else if (createBroadcast)
 		{
@@ -1131,10 +1133,8 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		ViewGroup closeContainer = (ViewGroup) multiSelectActionBar.findViewById(R.id.close_container);
 
 		multiSelectTitle = (TextView) multiSelectActionBar.findViewById(R.id.title);
-		
 		multiSelectTitle.setText(createBroadcast ? getString(R.string.broadcast_selected, adapter.getCurrentSelection()) : 
 			getString(R.string.gallery_num_selected, adapter.getCurrentSelection()));
-		
 		if (isForwardingMessage)
 		{
 			TextView send = (TextView) multiSelectActionBar.findViewById(R.id.save);
@@ -1434,6 +1434,8 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 						}
 
 						String fileType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(Utils.getFileExtension(filePath));
+						if (fileType == null)
+							fileType = presentIntent.getType();
 						HikeFileType hikeFileType = HikeFileType.fromString(fileType, false);
 
 						fileDetails.add(new Pair<String, String>(filePath, fileType));
@@ -2335,5 +2337,19 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	{
 		Tag tag = new Tag(text,uniqueness,data);
 		tagEditText.toggleTag(tag);
+	}
+	
+	@Override
+	public boolean onKeyUp(int keyCode, KeyEvent event)
+	{
+		if (event.getAction() == KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_MENU) 
+		{
+			if (mainMenu != null)
+			{
+				mainMenu.performIdentifierAction(R.id.overflow_menu, 0);
+				return true;
+			}
+		}
+		return super.onKeyUp(keyCode, event);
 	}
 }
