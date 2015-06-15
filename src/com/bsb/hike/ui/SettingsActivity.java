@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import android.content.Intent;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -388,7 +389,7 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 		profileImgView.setImageDrawable(drawable);
 		
 		ImageViewerInfo imageViewerInfo = new ImageViewerInfo(contactInfo.getMsisdn() + ProfileActivity.PROFILE_PIC_SUFFIX, null, false, !ContactManager.getInstance().hasIcon(
-				contactInfo.getMsisdn()));
+				contactInfo.getMsisdn(),false));
 		profileImgView.setTag(imageViewerInfo);
 	}
 
@@ -514,7 +515,7 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 	public String profileImageCropped()
 	{
 		String path = super.profileImageCropped();
-		Utils.compressAndCopyImage(path, path, SettingsActivity.this, ImageQuality.QUALITY_MEDIUM);
+		Utils.compressAndCopyImage(path, path, SettingsActivity.this, Bitmap.Config.RGB_565, 80, ImageQuality.QUALITY_MEDIUM, false);
 		uploadProfilePicture(AccountUtils.USER_DP_UPDATE_URL);
 		return path;
 	}
