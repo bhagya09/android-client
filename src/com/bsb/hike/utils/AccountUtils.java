@@ -522,4 +522,71 @@ public class AccountUtils
 	{
 		request.addHeader("Cache-Control", "no-transform");
 	}
+	
+	/**
+	 * 
+	 * @param new_contacts_by_id
+	 *            new entries to update with. These will replace contact IDs on the server
+	 * @param ids_json
+	 *            , these are ids that are no longer present and should be removed
+	 * @return
+	 */
+	public static List<ContactInfo> updateAddressBook(Map<String, List<ContactInfo>> new_contacts_by_id, JSONArray ids_json) throws IllegalStateException
+	{
+		HttpPost request = new HttpPost(base + "/account/addressbook-update");
+		addToken(request);
+		JSONObject data = new JSONObject();
+
+		try
+		{
+			data.put("remove", ids_json);
+			data.put("update", ContactUtils.getJsonContactList(new_contacts_by_id, false));
+		}
+		catch (JSONException e)
+		{
+			Logger.e("AccountUtils", "Invalid JSON put", e);
+			return null;
+		}
+
+		ArrayList<String> msisdnForMissingPlatformUID = ContactManager.getInstance().getMsisdnForMissingPlatformUID();
+
+		if (msisdnForMissingPlatformUID != null && msisdnForMissingPlatformUID.size()>0)
+		{
+			PlatformUIDFetch.fetchPlatformUid(HikePlatformConstants.PlatformUIDFetchType.PARTIAL_ADDRESS_BOOK, msisdnForMissingPlatformUID.toArray(new String[] { }));
+		}
+
+		String encoded = data.toString();
+		// try
+		// {
+		AbstractHttpEntity entity = new ByteArrayEntity(encoded.getBytes());
+		request.setEntity(entity);
+		entity.setContentType("application/json");
+		JSONObject obj = executeRequest(request);
+		if(obj == null)
+		{
+			recordAddressBookUploadFailException(data.toString());
+		}
+		return ContactUtils.getContactList(obj, new_contacts_by_id);
+	}
+	
+	private static void recordAddressBookUploadFailException(String jsonString)
+	{
+		if(!HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.EXCEPTION_ANALYTIS_ENABLED, false))
+		{
+			return;
+		}
+		try
+		{
+			JSONObject metadata = new JSONObject();
+
+			metadata.put(HikeConstants.PAYLOAD, jsonString);
+
+			Logger.d("AccountUtils", "recording addressbook upload fail event. json = " + jsonString);
+			HAManager.getInstance().record(HikeConstants.EXCEPTION, HikeConstants.LogEvent.ADDRESSBOOK_UPLOAD, metadata);
+		}
+		catch (JSONException e)
+		{
+			Logger.e(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+		}
+	}
 }

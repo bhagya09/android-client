@@ -5521,11 +5521,17 @@ public class Utils
 			Logger.e(HomeActivity.class.getSimpleName(), "Unable to open market");
 		}
 	}
+	
 	public static boolean isOkHttp()
 	{
 		return HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.TOGGLE_OK_HTTP, true);
 	}
 
+	public static boolean isAddressbookCallsThroughHttpMgrEnabled()
+	{
+		return HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.ENABLE_ADDRESSBOOK_THROUGH_HTTP_MGR, false);
+	}
+	
 	/**
 	 * Returns active network info
 	 * @return

@@ -1827,6 +1827,12 @@ public class MqttMessagesManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.TOGGLE_OK_HTTP, okhttp);
 		}
 		
+		if (data.has(HikeMessengerApp.ENABLE_ADDRESSBOOK_THROUGH_HTTP_MGR))
+		{
+			boolean enAb = data.getBoolean(HikeMessengerApp.ENABLE_ADDRESSBOOK_THROUGH_HTTP_MGR);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.ENABLE_ADDRESSBOOK_THROUGH_HTTP_MGR, enAb);
+		}
+		
 		if(data.has(HikeConstants.Extras.CHANGE_MAX_MESSAGE_PROCESS_TIME))
 		{
 			long maxMessageProcessTime = data.optLong(HikeConstants.Extras.CHANGE_MAX_MESSAGE_PROCESS_TIME);
