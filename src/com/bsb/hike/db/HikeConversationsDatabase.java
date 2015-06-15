@@ -2439,7 +2439,12 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			}
 			else if(Utils.isOfflineConversation(msisdn))
 			{
-				conv=new OfflineConversation.ConversationBuilder(msisdn).setIsOnHike(true).setIsStealth(isStealth).build();
+				ContactInfo contactInfo = ContactManager.getInstance().getContact(msisdn.replace("o:", ""), false, true, false);
+				String name = contactInfo.getNameOrMsisdn();
+				
+				OfflineConvInfo convInfo=new OfflineConvInfo.OfflineBuilder(msisdn).setDisplayMsisdn(msisdn.replace("o:", "")).setConvName(name).build();
+
+				conv=new OfflineConversation.ConversationBuilder(msisdn).setIsOnHike(true).setIsStealth(isStealth).setConvInfo(convInfo).build();
 			}
 			
 			/**

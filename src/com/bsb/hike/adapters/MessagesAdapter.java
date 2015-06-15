@@ -1237,7 +1237,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				videoHolder.fileThumb.setImageResource(0);
 
 				showThumbnail = ((convMessage.isSent()) || (conversation instanceof OneToNConversation) || (!TextUtils.isEmpty(conversation.getConversationName())) || (hikeFile
-						.wasFileDownloaded()));
+						.wasFileDownloaded()) || conversation instanceof OfflineConversation);
 				if (hikeFile.getThumbnail() == null && !TextUtils.isEmpty(hikeFile.getFileKey()))
 				{
 					thumbnail = HikeMessengerApp.getLruCache().getFileIconFromCache(hikeFile.getFileKey());
@@ -1401,10 +1401,9 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 				imageHolder.fileThumb.setBackgroundResource(0);
 				imageHolder.fileThumb.setImageResource(0);
-
 				showThumbnail = ((convMessage.isSent()) || (conversation instanceof OneToNConversation) || (!TextUtils.isEmpty(conversation.getConversationName())) || (hikeFile
-						.wasFileDownloaded()));
-
+						.wasFileDownloaded()) || conversation instanceof OfflineConversation );
+				Logger.d("OfflineThreadManager","ThumbNail is "+showThumbnail +"And Converastion name is"+((OfflineConversation)conversation).getConversationName());
 				if (hikeFile.getThumbnail() == null && !TextUtils.isEmpty(hikeFile.getFileKey()))
 				{
 					thumbnail = HikeMessengerApp.getLruCache().getFileIconFromCache(hikeFile.getFileKey());
@@ -1413,7 +1412,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				{
 					thumbnail = hikeFile.getThumbnail();
 				}
-
+				Logger.d("OfflineThreadManager","Actual Thumbanil is  "+thumbnail.toString());
 				if (showThumbnail)
 				{
 					imageHolder.fileThumb.setImageDrawable(thumbnail);
