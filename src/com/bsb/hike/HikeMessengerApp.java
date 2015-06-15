@@ -739,7 +739,7 @@ public void onTrimMemory(int level)
 		// succeeded by the
 		// onUpgrade() calls being triggered in the respective databases.
 		HikeConversationsDatabase.init(this);
-		
+		HttpManager.init();
 		initHikeLruCache(getApplicationContext());
 
 		sm = StickerManager.getInstance();
@@ -864,8 +864,6 @@ public void onTrimMemory(int level)
 		HikeMessengerApp.getPubSub().addListener(HikePubSub.CONNECTED_TO_MQTT, this);
 
 		registerReceivers();
-
-		HttpManager.init();
 
 		ProductInfoManager.getInstance().init();
 		PlatformContent.init(settings.getBoolean(HikeMessengerApp.PRODUCTION, true));
