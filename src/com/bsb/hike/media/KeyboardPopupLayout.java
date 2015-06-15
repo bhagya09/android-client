@@ -15,7 +15,6 @@ import android.widget.PopupWindow.OnDismissListener;
 import android.widget.RelativeLayout;
 
 import com.bsb.hike.analytics.HAManager;
-import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.utils.Logger;
 
 public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListener
@@ -31,7 +30,7 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 	private int[] mEatTouchEventViewIds;
 	
 	private PopupListener mListener;
-
+	
 	/**
 	 * 
 	 * @param mainView
@@ -87,21 +86,24 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 		
 		boolean islandScape = context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
 		int height = islandScape ? possibleKeyboardHeightLand : possibleKeyboardHeight;
-		if (height == 0)
-		{
-			if (islandScape)
-			{
-                int maxHeight = mainView.getRootView().getHeight();
-                // giving half height of screen in landscape mode
+		
+		int maxHeight = context.getResources().getDisplayMetrics().heightPixels;
+        if (islandScape)
+        {
+        	if (height != maxHeight/2)
+        	{
+        		 // giving half height of screen in landscape mode
                 Logger.i("chatthread", "landscape mode is on setting half of screen " + maxHeight);
                 height = (maxHeight) / 2;
-			}
-			
-			else
-			{
+        	}
+        }
+        else
+        {
+        	if (height == 0)
+        	{
 				height = firstTimeHeight;
-			}
-		}
+        	}
+        }
 		
 		if (popup == null)
 		{
@@ -268,7 +270,7 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 			Rect r = new Rect();
 			mainView.getWindowVisibleDisplayFrame(r);
 			// this is height of view which is visible on screen
-			int rootViewHeight = mainView.getRootView().getHeight();
+			int rootViewHeight = context.getResources().getDisplayMetrics().heightPixels;
 			int temp = rootViewHeight - r.bottom;
 			Logger.i("chatthread", "keyboard  height " + temp);
 			boolean islandScape = context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
@@ -306,5 +308,10 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 		{
 			dismiss();
 		}
+	}
+	
+	public void setPopupDismissListener(PopupListener listener)
+	{
+		this.mListener = listener;
 	}
 }

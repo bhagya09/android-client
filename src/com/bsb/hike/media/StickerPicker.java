@@ -64,6 +64,7 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 	{
 		this.mActivity = activity;
 		this.listener = listener;
+		this.currentConfig = activity.getResources().getConfiguration().orientation;
 	}
 
 	/**
