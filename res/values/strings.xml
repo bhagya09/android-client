@@ -1462,7 +1462,7 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="unselect_all_hike">Unselect all</string>
     <string name="searching">Searching...</string>
     <string name="sticker_share_heading">Indian Stickers only on hike!</string>
-    <string name="sticker_share_description"><![CDATA[Visit <font color="#57dcf9">http://get.hike.in</font>  to get hike messenger]]></string>
+    <string name="sticker_share_description"><![CDATA[<font color="#57dcf9">www.hike.in</font>]]></string>
     <string name="sticker_share_caption">Download: http://hike.in</string>
     <string name="text_share_heading">- Sent via hike</string>
     <string name="text_share_caption">Download: http://hike.in</string> 

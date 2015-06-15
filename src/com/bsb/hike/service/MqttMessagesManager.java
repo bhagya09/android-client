@@ -1872,11 +1872,6 @@ public class MqttMessagesManager
 			String notification=data.getString(HikeConstants.NOTIFICATION_RETRY);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.NOTIFICATION_RETRY_JSON, notification);
 		}
-		if (data.has(HikeConstants.Extras.STICKER_HEADING))
-		{
-			String shareStrings = data.getString(HikeConstants.Extras.STICKER_HEADING);
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.Extras.STICKER_HEADING, shareStrings);
-		}
 		if (data.has(HikeConstants.Extras.STICKER_DESCRIPTION))
 		{
 			String shareStrings = data.getString(HikeConstants.Extras.STICKER_DESCRIPTION);

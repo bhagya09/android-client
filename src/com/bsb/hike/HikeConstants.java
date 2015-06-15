@@ -1557,8 +1557,6 @@ public class HikeConstants
 
 		public static final int NOT_SHAREABLE = -1;
 		
-		public static final String STICKER_HEADING = "shareStkrTtl";
-
 		public static final String STICKER_DESCRIPTION = "shareStkrTxt";
 
 		public static final String STICKER_CAPTION = "shareStkrCptn";
