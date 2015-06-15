@@ -493,7 +493,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			if (mCallback != null)
 			{
 				String[] params = (String[]) msg.obj;
-				mCallback.openFullPage(params[0], params[1]); // Title, Url
+				mCallback.openFullPageWithTitle(params[1], params[0]); // Url, Title
 			}
 			break;
 
@@ -607,7 +607,14 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@Override
 	public void openFullPage(final String title, final String url)
 	{
-		sendMessageToUiThread(OPEN_FULL_PAGE_WITH_TITLE, new String[] { title, url });
+		if (TextUtils.isEmpty(title))
+		{
+			sendMessageToUiThread(OPEN_FULL_PAGE, url);
+		}
+		else
+		{
+			sendMessageToUiThread(OPEN_FULL_PAGE_WITH_TITLE, new String[] { title, url });
+		}
 	}
 	
 	/**

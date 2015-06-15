@@ -874,27 +874,19 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	}
 	
 	@Override
-	public void openFullPage(String... params)
+	public void openFullPage(String url)
 	{
-		String url;
-		String title;
-		if (params == null || params.length < 1)
-		{
-			return;
-		}
-
-		if (params.length == 1)
-		{
-			url = params[0];
-			title = botConfig.getFullScreenTitle();
-		}
-
-		else
-		{
-			url = params[1];
-			title = params[0];
-		}
-
+		startWebViewWithBridge(url, "");
+	}
+	
+	@Override
+	public void openFullPageWithTitle(String url, String title)
+	{
+		startWebViewWithBridge(url, title);
+	}
+	
+	private void startWebViewWithBridge(String url, String title)
+	{
 		Intent intent = IntentFactory.getWebViewActivityIntent(getApplicationContext(), url, title);
 		intent.putExtra(WEBVIEW_MODE, WEB_URL_WITH_BRIDGE_MODE);
 		int color = botConfig.getFullScreenActionBarColor();
@@ -904,7 +896,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			intent.putExtra(JS_TO_INJECT, botConfig.getJSToInject());
 		}
 		
-		startActivity(intent);
+		startActivity(intent);	
 	}
 
 	/**

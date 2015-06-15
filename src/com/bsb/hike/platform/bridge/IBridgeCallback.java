@@ -13,5 +13,7 @@ public interface IBridgeCallback
 {
 	public void overflowMenuUpdated();
 
-	public void openFullPage(String... args);
+	public void openFullPage(String url);
+	
+	public void openFullPageWithTitle(String url, String title);
 }
