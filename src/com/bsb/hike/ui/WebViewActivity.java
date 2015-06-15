@@ -85,6 +85,8 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	public static final int WEB_URL_WITH_BRIDGE_MODE = 2;
 
 	public static final int MICRO_APP_MODE = 3;
+	
+	public static final String FULL_SCREEN_AB_COLOR = "abColor";
 
 	public static final String WEBVIEW_MODE = "webviewMode";
 
@@ -808,11 +810,35 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	}
 	
 	@Override
-	public void openFullPage(String... url)
+	public void openFullPage(String... params)
 	{
-		
+		String url;
+		String title;
+		if (params == null || params.length < 1)
+		{
+			return;
+		}
+
+		if (params.length == 1)
+		{
+			url = params[0];
+			title = botConfig.getFullScreenTitle();
+		}
+
+		else
+		{
+			url = params[1];
+			title = params[0];
+		}
+
+		Intent intent = IntentFactory.getWebViewActivityIntent(getApplicationContext(), url, title);
+		intent.putExtra(WEBVIEW_MODE, WEB_URL_WITH_BRIDGE_MODE);
+		int color = botConfig.getFullScreenActionBarColor();
+		intent.putExtra(FULL_SCREEN_AB_COLOR, color == -1 ? botConfig.getActionBarColor() : color);
+
+		startActivity(intent);
+
 	}
-	
 
 	/**
 	 * This method is called on the UI thread. 

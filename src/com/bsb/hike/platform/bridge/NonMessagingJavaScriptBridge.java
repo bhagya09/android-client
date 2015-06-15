@@ -493,7 +493,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			if (mCallback != null)
 			{
 				String[] params = (String[]) msg.obj;
-				mCallback.openFullPage(params[1], params[0]); // Title, Url
+				mCallback.openFullPage(params[0], params[1]); // Title, Url
 			}
 			break;
 
