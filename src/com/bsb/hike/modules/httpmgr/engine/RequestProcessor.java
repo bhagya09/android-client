@@ -87,7 +87,7 @@ public class RequestProcessor
 	public boolean isRequestRunning(Request<?> request)
 	{
 		String requestId = request.getId();
-		if (requestMap.containsKey(requestId))
+		if (requestId !=null && requestMap.containsKey(requestId))
 		{
 			LogFull.d(request.toString() + " is already running ");
 			return true;

@@ -31,6 +31,7 @@ import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.ProfileImageActions;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.cropimage.CropImage;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.CustomAlertDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
@@ -38,10 +39,12 @@ import com.bsb.hike.http.HikeHttpRequest;
 import com.bsb.hike.http.HikeHttpRequest.HikeHttpCallback;
 import com.bsb.hike.http.HikeHttpRequest.RequestType;
 import com.bsb.hike.models.ContactInfo;
+import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.StatusMessage;
 import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.tasks.DownloadImageTask;
 import com.bsb.hike.tasks.DownloadImageTask.ImageDownloadResult;
 import com.bsb.hike.tasks.FinishableEvent;
@@ -63,6 +66,8 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 	{
 		public HikeHTTPTask task; /* the task to update the global profile */
 
+		public RequestToken deleteStatusToken;
+		
 		public DownloadImageTask downloadPicasaImageTask; /*
 														 * the task to download the picasa image
 														 */
@@ -72,12 +77,23 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 		public String destFilePath = null; /*
 											 * the bitmap before the user saves it
 											 */
+		public String origFilePath = null;
 
 		public int genderType;
 
 		public boolean groupEditDialogShowing = false;
 
 		public String edittedGroupName = null;
+		
+		public String statusId;
+		
+		public StatusMessageType statusMsgType;
+		
+		public int cropLeft;
+
+		public int cropTop;
+
+		public int cropWidth;
 	}
 
 	private ActivityState mActivityState;
@@ -232,11 +248,13 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 				Toast.makeText(getApplicationContext(), R.string.error_capture, Toast.LENGTH_SHORT).show();
 				return;
 			}
+			
 			if (!isPicasaImage)
 			{
 				if(Utils.isPhotosEditEnabled())
 				{
 					startActivity(IntentFactory.getPictureEditorActivityIntent(ChangeProfileImageBaseActivity.this, path, true, getNewProfileImagePath(), true));
+					finish();
 				}
 				else
 				{
@@ -268,6 +286,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 							if(Utils.isPhotosEditEnabled())
 							{
 								startActivity(IntentFactory.getPictureEditorActivityIntent(ChangeProfileImageBaseActivity.this, destFile.getAbsolutePath(), true, getNewProfileImagePath(), true));
+								finish();
 							}
 							else
 							{
@@ -295,7 +314,11 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 		case HikeConstants.ResultCodes.PHOTOS_REQUEST_CODE:
 		case HikeConstants.CROP_RESULT:
 			mActivityState.destFilePath = data.getStringExtra(MediaStore.EXTRA_OUTPUT);
-
+			mActivityState.origFilePath = data.getStringExtra(HikeConstants.HikePhotos.ORIG_FILE);
+			Bundle bundle = data.getExtras();
+			mActivityState.cropLeft = bundle.getInt(CropImage.CROP_IMAGE_LEFT);
+			mActivityState.cropTop = bundle.getInt(CropImage.CROP_IMAGE_TOP);
+			mActivityState.cropWidth = bundle.getInt(CropImage.CROP_IMAGE_WIDTH);
 			if (mActivityState.destFilePath == null)
 			{
 				Toast.makeText(getApplicationContext(), R.string.error_setting_profile, Toast.LENGTH_SHORT).show();
@@ -303,7 +326,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 			}
 			profileImageCropped();
 			break;
-		
+
 		}
 	}
 
@@ -490,7 +513,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 	public void beginProfilePicChange(android.content.DialogInterface.OnClickListener listener, Context context, String removeImagePath)
 	{
 		ContactInfo contactInfo = Utils.getUserContactInfo(prefs.getPref());
-		if (!OneToNConversationUtils.isOneToNConversation(mLocalMSISDN) && ContactManager.getInstance().hasIcon(contactInfo.getMsisdn()))
+		if (!OneToNConversationUtils.isOneToNConversation(mLocalMSISDN) && ContactManager.getInstance().hasIcon(contactInfo.getMsisdn(),false))
 		{
 			// case when we need to show dialog for change dp and remove dp 
 			showProfileImageEditDialog(this, context, removeImagePath);
@@ -541,29 +564,6 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 	}
 
 	/**
-	 * Used to scale down the dp bitmap to send to server
-	 * 
-	 * @return bitmap byte array
-	 */
-	private byte[] scaleDownBitmap()
-	{
-		byte[] bytes = null;
-
-		/* the server only needs a smaller version */
-		final Bitmap smallerBitmap = HikeBitmapFactory.scaleDownBitmap(mActivityState.destFilePath, HikeConstants.PROFILE_IMAGE_DIMENSIONS, HikeConstants.PROFILE_IMAGE_DIMENSIONS,
-				Bitmap.Config.RGB_565, true, false);
-
-		if (smallerBitmap == null)
-		{
-			failureWhileSettingProfilePic();
-			return bytes;
-		}
-		bytes = BitmapUtils.bitmapToBytes(smallerBitmap, Bitmap.CompressFormat.JPEG, 100);
-
-		return bytes;
-	}
-
-	/**
 	 * Used to upload profile picture to the server, compose related timeline post
 	 * 
 	 * @param httpApi
@@ -573,10 +573,18 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 	{
 		if (mActivityState.destFilePath != null)
 		{
-			final byte[] bytes = scaleDownBitmap();
+			/* the server only needs a smaller version */
+			final Bitmap smallerBitmap = HikeBitmapFactory.scaleDownBitmap(mActivityState.destFilePath, HikeConstants.PROFILE_IMAGE_DIMENSIONS,
+					HikeConstants.PROFILE_IMAGE_DIMENSIONS, Bitmap.Config.RGB_565, true, false);
+			
+			new File(mActivityState.destFilePath).delete();
 
-			if (bytes == null)
+			if (smallerBitmap == null)
+			{
+				failureWhileSettingProfilePic();
 				return;
+			}
+			final byte[] bytes = BitmapUtils.bitmapToBytes(smallerBitmap, Bitmap.CompressFormat.JPEG, 100);
 
 			HikeHttpRequest request = new HikeHttpRequest(httpApi, RequestType.PROFILE_PIC, new HikeHttpRequest.HikeHttpCallback()
 			{
@@ -589,37 +597,62 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 				public void onSuccess(JSONObject response)
 				{
 					mActivityState.destFilePath = null;
-					ContactManager.getInstance().setIcon(mLocalMSISDN, bytes, false);
-					Utils.renameTempProfileImage(mLocalMSISDN);
+
+					HikeHandlerUtil.getInstance().postRunnableWithDelay(new Runnable()
+					{
+						@Override
+						public void run()
+						{
+							ContactManager.getInstance().setIcon(mLocalMSISDN, bytes, false);
+							
+							String directory = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
+							Utils.copyFile(mActivityState.origFilePath, new File(directory, Utils.getProfileImageFileName(mLocalMSISDN)).getAbsolutePath());
+						}
+					}, 0);
+
 					StatusMessage statusMessage = Utils.createTimelinePostForDPChange(response);
 
-					if (statusMessage == null)
+					if (statusMessage != null)
 					{
-						return;
-					}
-					ContactManager.getInstance().setIcon(statusMessage.getMappedId(), bytes, false);
+						ContactManager.getInstance().setIcon(statusMessage.getMappedId(), bytes, false);
 
-					int unseenUserStatusCount = prefs.getData(HikeMessengerApp.UNSEEN_USER_STATUS_COUNT, 0);
-					Editor editor = prefs.getPref().edit();
-					editor.putInt(HikeMessengerApp.UNSEEN_USER_STATUS_COUNT, ++unseenUserStatusCount);
-					editor.putBoolean(HikeConstants.IS_HOME_OVERFLOW_CLICKED, false);
-					editor.commit();
+						int unseenUserStatusCount = prefs.getData(HikeMessengerApp.UNSEEN_USER_STATUS_COUNT, 0);
+						Editor editor = prefs.getPref().edit();
+						editor.putInt(HikeMessengerApp.UNSEEN_USER_STATUS_COUNT, ++unseenUserStatusCount);
+						editor.putBoolean(HikeConstants.IS_HOME_OVERFLOW_CLICKED, false);
+						editor.commit();
 
-					/*
-					 * This would happen in the case where the user has added a self contact and received an mqtt message before saving this to the db.
-					 */
-					if (statusMessage.getId() != -1)
-					{
-						HikeMessengerApp.getPubSub().publish(HikePubSub.STATUS_MESSAGE_RECEIVED, statusMessage);
-						HikeMessengerApp.getPubSub().publish(HikePubSub.TIMELINE_UPDATE_RECIEVED, statusMessage);
+						/*
+						 * This would happen in the case where the user has added a self contact and received an mqtt message before saving this to the db.
+						 */
+						if (statusMessage.getId() != -1)
+						{
+							HikeMessengerApp.getPubSub().publish(HikePubSub.STATUS_MESSAGE_RECEIVED, statusMessage);
+							HikeMessengerApp.getPubSub().publish(HikePubSub.TIMELINE_UPDATE_RECIEVED, statusMessage);
+						}
 					}
+
 					HikeMessengerApp.getLruCache().clearIconForMSISDN(mLocalMSISDN);
 					HikeMessengerApp.getPubSub().publish(HikePubSub.ICON_CHANGED, mLocalMSISDN);
 
 					profilePictureUploaded();
 				}
 			});
-			request.setFilePath(mActivityState.destFilePath);
+			request.setFilePath(mActivityState.origFilePath);
+
+			try
+			{
+				JSONObject jsonObj = new JSONObject();
+				jsonObj.put(CropImage.CROP_IMAGE_LEFT, mActivityState.cropLeft);
+				jsonObj.put(CropImage.CROP_IMAGE_TOP, mActivityState.cropTop);
+				jsonObj.put(CropImage.CROP_IMAGE_WIDTH, mActivityState.cropWidth);
+				request.setJSONData(jsonObj);
+			}
+			catch (JSONException e)
+			{
+				e.printStackTrace();
+			}
+
 			mDialog = ProgressDialog.show(this, null, getResources().getString(R.string.updating_profile));
 			mActivityState.task = new HikeHTTPTask(this, R.string.update_profile_failed);
 			Utils.executeHttpTask(mActivityState.task, request);
@@ -691,7 +724,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 		{
 			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "json exception");
 		}
-		showProfileImageEditDialog(ChangeProfileImageBaseActivity.this, ChangeProfileImageBaseActivity.this, imageRemovePath);
+		beginProfilePicChange(ChangeProfileImageBaseActivity.this, ChangeProfileImageBaseActivity.this, imageRemovePath);
 	}
 
 	/**
