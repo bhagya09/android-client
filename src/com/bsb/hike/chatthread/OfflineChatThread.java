@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.net.wifi.ScanResult;
 import android.net.wifi.p2p.WifiP2pDeviceList;
@@ -12,10 +13,12 @@ import android.os.Message;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
+import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ImageView.ScaleType;
 
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
@@ -579,6 +582,26 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 	{
 		canPoke = isEnabled;
 		activity.findViewById(R.id.compose_container).setVisibility(isEnabled ? View.VISIBLE : View.GONE);
+	}
+	
+	@Override
+	protected void setAvatar() {
+		ImageView avatar = (ImageView) mActionBarView.findViewById(R.id.avatar);
+		if (avatar == null)
+		{
+			return;
+		}
+
+		Drawable drawable = HikeMessengerApp.getLruCache().getIconFromCache(msisdn.replace("o:", ""));
+		if (drawable == null)
+		{
+			drawable = HikeMessengerApp.getLruCache().getDefaultAvatar(msisdn.replace("o:", ""), false);
+		}
+
+		setAvatarStealthBadge();
+		avatar.setScaleType(ScaleType.FIT_CENTER);
+		avatar.setImageDrawable(drawable);
+
 	}
 
 }

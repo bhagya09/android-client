@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -35,14 +34,12 @@ import com.bsb.hike.adapters.MessagesAdapter.FTViewHolder;
 import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.db.HikeOfflinePersistence;
-import com.bsb.hike.dialog.CustomAlertDialog;
 import com.bsb.hike.filetransfer.FileSavedState;
 import com.bsb.hike.filetransfer.FileTransferBase.FTState;
 import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.HikeFile;
-import com.bsb.hike.models.NotificationPreview;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.offline.OfflineConstants.ERRORCODE;
@@ -159,6 +156,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 			break;
 		case OfflineConstants.HandlerConstants.REMOVE_CONNECT_MESSAGE:
 			removeMessage(OfflineConstants.HandlerConstants.RECONNECT_TO_HOTSPOT);
+			Logger.d(TAG, "Disconnecting due to timeout");
 			if (TextUtils.isEmpty(getConnectedDevice()))
 			{
 				shutDown(new OfflineException(OfflineException.CONNECTION_TIME_OUT));
@@ -537,11 +535,14 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 			if (results.containsKey(ssid))
 			{
 				Logger.d(TAG, "Going to connect to Hotspot for msisdn" + ssid);
-				connectionManager.connectToHotspot(connectinMsisdn);
-				startedForChatThread = false;
+				
 				// since we already have the result no need to scan again
 				removeMessage(OfflineConstants.HandlerConstants.RECONNECT_TO_HOTSPOT);
 				removeMessage(OfflineConstants.HandlerConstants.REMOVE_CONNECT_MESSAGE);
+				Logger.d(TAG, "Removed callback for disconnect");
+				
+				connectionManager.connectToHotspot(connectinMsisdn);
+				startedForChatThread = false;
 			}
 		}
 		else
@@ -659,8 +660,9 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 	{
 		Message msg = Message.obtain();
 		msg.what = OfflineConstants.HandlerConstants.SEND_GHOST_PACKET;
-		// performWorkOnBackEndThread(msg);
+		// performWorkOnBackEndThread(msg)
 		HikeAlarmManager.setAlarm(context, System.currentTimeMillis(), HikeAlarmManager.REQUESTCODE_OFFLINE, true);
+
 	}
 
 	public void sendGhostPacket()
@@ -669,7 +671,6 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 		addToTextQueue(ghost);
 		HikeAlarmManager.setAlarm(context, System.currentTimeMillis() + 10000, HikeAlarmManager.REQUESTCODE_OFFLINE, true);
 	}
-
 	private void postDisconnectForGhostPackets()
 	{
 		Message msg = Message.obtain();

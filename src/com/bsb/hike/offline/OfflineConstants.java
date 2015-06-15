@@ -54,7 +54,7 @@ public class OfflineConstants
 		
 	public static final int  GHOST_PACKET_SEND_TIME = 10*1000;
 	
-	public static final int  GHOST_PACKET_DISCONNECT_TIMEOUT = 20*1000;
+	public static final int  GHOST_PACKET_DISCONNECT_TIMEOUT = 20*100000;
 	
 	public final class HandlerConstants
 	{
