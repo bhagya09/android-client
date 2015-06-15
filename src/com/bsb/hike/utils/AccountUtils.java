@@ -589,4 +589,24 @@ public class AccountUtils
 			Logger.e(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
 		}
 	}
+	
+	public static JSONObject postAddressBook(String token, Map<String, List<ContactInfo>> contactsMap) throws IllegalStateException, IOException
+	{
+		HttpPost httppost = new HttpPost(base + "/account/addressbook");
+		addToken(httppost);
+		JSONObject data;
+		data = ContactUtils.getJsonContactList(contactsMap, true);
+		if (data == null)
+		{
+			return null;
+		}
+		String encoded = data.toString();
+
+		Logger.d("ACCOUNT UTILS", "Json data is : " + encoded);
+		AbstractHttpEntity entity = new GzipByteArrayEntity(encoded.getBytes(), HTTP.DEFAULT_CONTENT_CHARSET);
+		entity.setContentType("application/json");
+		httppost.setEntity(entity);
+		JSONObject obj = executeRequest(httppost);
+		return obj;
+	}
 }
