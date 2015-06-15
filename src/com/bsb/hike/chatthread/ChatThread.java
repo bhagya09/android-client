@@ -1465,10 +1465,9 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 		mActionMode.showActionMode(SEARCH_ACTION_MODE, R.layout.search_action_bar);
 		setUpSearchViews();
 
-		if (messageSearchManager == null)
-		{
-			messageSearchManager = new SearchManager();
-		}
+		// Creating new instance every time.
+		// No need to modify existing instance. It might still be in the process of exiting.
+		messageSearchManager = new SearchManager();
 		messageSearchManager.init(messages);
 		/**
 		 * Hiding any open tip

@@ -2543,11 +2543,6 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 	@Override
 	protected void setupSearchMode(String searchText)
 	{
-		if (messages.get(0).isBlockAddHeader())
-		{
-			messages.remove(0);
-			mAdapter.notifyDataSetChanged();
-		}
 		super.setupSearchMode(searchText);
 	}
 
