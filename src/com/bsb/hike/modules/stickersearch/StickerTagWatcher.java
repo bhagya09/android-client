@@ -108,6 +108,7 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 			android.widget.RelativeLayout.LayoutParams params = (android.widget.RelativeLayout.LayoutParams) stickerRecommendView.getLayoutParams();
 			params.height = StickerSearchUtils.getStickerSize() + 2 * activity.getResources().getDimensionPixelSize(R.dimen.sticker_recommend_padding);
 			stickerRecommendView.setLayoutParams(params);
+			stickerRecommendView.setOnTouchListener(onTouchListener);
 			fragment = StickerRecommendationFragment.newInstance(this, (ArrayList<Sticker>) stickerList);
 			activity.getSupportFragmentManager().beginTransaction().replace(R.id.sticker_recommendation_parent, fragment, HikeConstants.STICKER_RECOMMENDATION_FRAGMENT_TAG)
 					.commitAllowingStateLoss();
@@ -178,4 +179,17 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 		StickerSearchManager.getInstance().removeStickerSearchListener(this);
 		stickerRecommendView = null;
 	}
+	
+	/**
+	 * Consuming touch event on this view
+	 */
+	private OnTouchListener onTouchListener = new OnTouchListener()
+	{
+		
+		@Override
+		public boolean onTouch(View v, MotionEvent event)
+		{
+			return true;
+		}
+	};
 }
