@@ -92,6 +92,8 @@ public class AnalyticsConstants
     
     public static String SELECTED_USER_COUNT_SHARE = "ShareCount";
 
+	public static String DOWNLOAD_EVENT = "dwnld";
+
 	public static final String ANALYTICS = "analytics";
 
 	public static final String ANALYTICS_FILESIZE = "analyticsfs";
@@ -125,6 +127,12 @@ public class AnalyticsConstants
 	public static final String EVENT_TAG_PHOTOS = "ph5";
 
 	public static final String CHAT_MSISDN = "chat_msisdn";
+
+	public static final String BOT_NAME = "bot_name";
+
+	public static final String BOT_MSISDN = "bot_msisdn";
+
+	public static final String APP_NAME = "app_name";
 
 	public static final String EVENT_TAG_CBS = "cbs";
 
@@ -168,6 +176,10 @@ public class AnalyticsConstants
 	public static final String FOREGROUND = "fg";
 	
 	public static final String BACKGROUND = "bg";
+
+	public static final String NETWORK_TYPE = "networkType";
+
+	public static final String APP_VERSION = "app_version";
 		
 	// Edit picture flags and events
 	public static final class ProfileImageActions
@@ -307,5 +319,42 @@ public class AnalyticsConstants
 		public static final String RECIEVR_RECV_MSG = "18";
 
 		public static final String RECEIVER_OPENS_CONV_SCREEN = "19";
+	}
+	
+	public static final class StealthEvents
+	{
+		public static final String STEALTH = "stlth";
+
+		public static final String STEALTH_MARK_HIDDEN = "MH";
+
+		public static final String STEALTH_MARK_VISIBLE = "MV";
+
+		public static final String STEALTH_HIDE_CHAT = "HC";
+
+		public static final String STEALTH_CONV_MARK = "stlthMrk";
+
+		public static final String STEALTH_SETUP = "stlthStp";
+
+		public static final String STEALTH_ACTIVATE = "stlthActv";
+
+		public static final String STEALTH_PASSWORD_ENTRY = "entStlthPwd";
+
+		public static final String STEALTH_RESULT = "stlthRslt";
+
+		public static final String STEALTH_PASSWORD_CORRECT = "pwdCrct";
+
+		public static final String STEALTH_PASSWORD_CHANGE = "pwdChng";
+
+		public static final String STEALTH_REQUEST = "stlthRqst";
+		
+		public static final String TIP_REMOVE = "rmTip";
+		
+		public static final String TIP_SHOW = "shTip";
+		
+		public static final String TIP_HIDE = "hdTip";
+
+		public static final String STEALTH_HI_CLICK = "hiClk";
+		
+		public static final String STEALTH_PREFERENCE_CHANGE = "prefChng";
 	}
 }

@@ -15,9 +15,10 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsSender;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
-import com.bsb.hike.db.DBBackupRestore;
+import com.bsb.hike.db.AccountBackupRestore;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.notifications.HikeNotification;
+import com.bsb.hike.notifications.HikeNotificationMsgStack;
 import com.bsb.hike.platform.PlatformAlarmManager;
 import com.bsb.hike.productpopup.NotificationContentModel;
 import com.bsb.hike.productpopup.ProductInfoManager;
@@ -270,18 +271,7 @@ public class HikeAlarmManager
 			int retryCount  = intent.getExtras().getInt(HikeConstants.RETRY_COUNT, 0);
 			Logger.i(TAG, "processTasks called with request Code "+requestCode+ "time = "+System.currentTimeMillis() +" retryCount = "+retryCount);
 			
-			try
-			{
-				JSONObject metadata = new JSONObject();
-				metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.RETRY_NOTIFICATION_SENT);
-				HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
-			}
-			catch(JSONException e)
-			{
-				Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
-			}
-
-			HikeNotification.getInstance(context).showNotificationForCurrentMsgStack(true, retryCount);
+			HikeNotification.getInstance().handleRetryNotification(retryCount);
 			break;
 			
 		case HikeAlarmManager.REQUESTCODE_HIKE_ANALYTICS:
@@ -291,8 +281,8 @@ public class HikeAlarmManager
 		break;
 		
 		case HikeAlarmManager.REQUESTCODE_PERIODIC_BACKUP:
-			DBBackupRestore.getInstance(context).backupDB();
-			DBBackupRestore.getInstance(context).scheduleNextAutoBackup();
+			AccountBackupRestore.getInstance(context).backup();
+			AccountBackupRestore.getInstance(context).scheduleNextAutoBackup();
 			break;
 		case HikeAlarmManager.REQUESTCODE_PRODUCT_POPUP:
 			
