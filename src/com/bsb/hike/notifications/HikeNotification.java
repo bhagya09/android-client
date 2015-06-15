@@ -560,6 +560,7 @@ public class HikeNotification
 		// Possibility to show big picture message
 		ConvMessage convMessage = hikeNotifMsgStack.getLastInsertedConvMessage();
 					
+		String contentTitle=HikeNotificationUtils.getContentTitleFromMsisdn(isSingleMsisdn, hikeNotifMsgStack.lastAddedMsisdn);
 		if (hikeNotifMsgStack.getSize() == 1 && convMessage != null)
 		{
 			if (convMessage.isInvite())
@@ -575,9 +576,10 @@ public class HikeNotification
 					HAManager.getInstance().setMetadatFieldsForSessionEvent(AnalyticsConstants.AppOpenSource.FROM_NOTIFICATION, convMessage.getMsisdn(), convMessage,
 							AnalyticsConstants.ConversationType.NORMAL);
 					
+					contentTitle = Utils.isOfflineConversation(convMessage.getMsisdn())?convMessage.getMsisdn().replace("o:",""):convMessage.getMsisdn();
 					showNotification(hikeNotifMsgStack.getNotificationIntent(), hikeNotifMsgStack.getNotificationIcon(), hikeNotifMsgStack.getLatestAddedTimestamp(),
 							hikeNotifMsgStack.getNotificationId(), hikeNotifMsgStack.getNotificationTickerText(), hikeNotifMsgStack.getNotificationTitle(),
-							hikeNotifMsgStack.getNotificationBigText(retryCount), convMessage.getMsisdn(), bigPictureImage, !convMessage.isStickerMessage(), false, false,
+							hikeNotifMsgStack.getNotificationBigText(retryCount),contentTitle, bigPictureImage, !convMessage.isStickerMessage(), false, false,
 							hikeNotifMsgStack.getNotificationSubText(), null, shouldNotPlaySound, retryCount);
 					return;
 				}
@@ -587,7 +589,7 @@ public class HikeNotification
 				NotificationCompat.Action[] actions = VoIPUtils.getMissedCallNotifActions(context, convMessage.getMsisdn());
 				showBigTextStyleNotification(hikeNotifMsgStack.getNotificationIntent(), hikeNotifMsgStack.getNotificationIcon(), hikeNotifMsgStack.getLatestAddedTimestamp(),
 						VOIP_MISSED_CALL_NOTIFICATION_ID, hikeNotifMsgStack.getNotificationTickerText(), hikeNotifMsgStack.getNotificationTitle(),
-						hikeNotifMsgStack.getNotificationBigText(retryCount), isSingleMsisdn ? hikeNotifMsgStack.lastAddedMsisdn : "bulk", hikeNotifMsgStack.getNotificationSubText(),
+						hikeNotifMsgStack.getNotificationBigText(retryCount), contentTitle, hikeNotifMsgStack.getNotificationSubText(),
 						avatarDrawable, shouldNotPlaySound, retryCount, actions);
 				return;
 			}
@@ -602,7 +604,7 @@ public class HikeNotification
 			}
 			showBigTextStyleNotification(hikeNotifMsgStack.getNotificationIntent(), hikeNotifMsgStack.getNotificationIcon(), hikeNotifMsgStack.getLatestAddedTimestamp(),
 					hikeNotifMsgStack.getNotificationId(), hikeNotifMsgStack.getNotificationTickerText(), hikeNotifMsgStack.getNotificationTitle(),
-					hikeNotifMsgStack.getNotificationBigText(retryCount), isSingleMsisdn ? hikeNotifMsgStack.lastAddedMsisdn : "bulk", hikeNotifMsgStack.getNotificationSubText(),
+					hikeNotifMsgStack.getNotificationBigText(retryCount),contentTitle, hikeNotifMsgStack.getNotificationSubText(),
 					avatarDrawable, shouldNotPlaySound, retryCount);
 
 		}
@@ -615,7 +617,7 @@ public class HikeNotification
 			}
 			showInboxStyleNotification(hikeNotifMsgStack.getNotificationIntent(), hikeNotifMsgStack.getNotificationIcon(), hikeNotifMsgStack.getLatestAddedTimestamp(),
 					hikeNotifMsgStack.getNotificationId(), hikeNotifMsgStack.getNotificationTickerText(), hikeNotifMsgStack.getNotificationTitle(),
-					hikeNotifMsgStack.getNotificationBigText(retryCount), isSingleMsisdn ? hikeNotifMsgStack.lastAddedMsisdn : "bulk", hikeNotifMsgStack.getNotificationSubText(),
+					hikeNotifMsgStack.getNotificationBigText(retryCount), contentTitle, hikeNotifMsgStack.getNotificationSubText(),
 					avatarDrawable, hikeNotifMsgStack.getBigTextList(), shouldNotPlaySound, retryCount);
 		}
 

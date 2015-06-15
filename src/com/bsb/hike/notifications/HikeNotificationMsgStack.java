@@ -32,6 +32,7 @@ import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 import com.google.gson.Gson;
 
 /**
@@ -630,16 +631,24 @@ public class HikeNotificationMsgStack implements Listener
 	 */
 	public String getNotificationTitle()
 	{
+		String returingValue=null;
 		if (isFromSingleMsisdn())
 		{
 			String title = mMessagesMap.get(lastAddedMsisdn).getLast().getTitle();
 			
 			if(getNewMessages() <=1 && !TextUtils.isEmpty(title))
 			{
-				return title;
+				if(Utils.isOfflineConversation(title))
+				{
+					title=title.replace("o:","");
+				}
+				returingValue=title;
 			}
-			
-			return HikeNotificationUtils.getNameForMsisdn(lastAddedMsisdn);
+			else
+			{
+				returingValue= HikeNotificationUtils.getNameForMsisdn(lastAddedMsisdn);
+			}
+			return returingValue;
 		}
 
 		return String.format(mContext.getString(R.string.num_new_messages), getNewMessages());
