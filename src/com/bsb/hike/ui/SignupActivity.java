@@ -1755,6 +1755,10 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		errorDialog = null;
 		toggleActionBarElementsEnable(true);
 		viewFlipper.setVisibility(View.VISIBLE);
+		removeAnimation();
+		viewFlipper.setDisplayedChild(NUMBER);
+		prepareLayoutForFetchingNumber();
+		setAnimation();
 	}
 
 	private void restartTask()
