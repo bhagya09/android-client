@@ -4,6 +4,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
 import com.bsb.hike.platform.CustomWebView;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -15,6 +16,7 @@ import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.models.HikeAlarmManager;
@@ -148,6 +150,10 @@ public class ProductJavaScriptBridge extends JavascriptBridge
 					{
 						multiFwdStickers(activity, stickerId, categoryId, selectAll);
 					}
+				}
+				else if (activityName.equals(HIKESCREEN.CHAT_HEAD.toString()))
+				{
+					openActivity(metaData);
 				}
 				else if (activityName.equals(HIKESCREEN.OPEN_WEB_VIEW.toString()))
 				{

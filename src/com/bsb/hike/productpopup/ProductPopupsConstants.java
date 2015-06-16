@@ -373,8 +373,17 @@ public class ProductPopupsConstants
 				return "photos";
 			}
 
+		},
+		CHAT_HEAD
+		{
+			@Override
+			public String toString()
+			{
+				// TODO Auto-generated method stub
+				return "chathead";
+			}
+
 		};
-		
 		
 		
 	}
