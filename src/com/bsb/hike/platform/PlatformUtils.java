@@ -267,6 +267,10 @@ public class PlatformUtils
 			{
 				IntentFactory.createBroadcastDefault(context);
 			}
+			if (activityName.equals(HIKESCREEN.CHAT_HEAD.toString()))
+			{
+				IntentFactory.openSettingStickerOnOtherApp(context);
+			}
 		}
 		catch (JSONException e)
 		{
