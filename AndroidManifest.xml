@@ -440,6 +440,10 @@
             android:theme="@style/TranslucentBlack" >
         </activity>
 
+        <!-- CocosGaming Activity -->
+        <activity android:name="com.bsb.hike.platform.CocosGamingActivity">
+        </activity>
+        
         <receiver android:name=".voip.IncomingCallListener" >
             <intent-filter>
                 <action android:name="android.intent.action.PHONE_STATE" />

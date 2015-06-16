@@ -7,6 +7,7 @@ import java.io.UnsupportedEncodingException;
 import java.lang.ref.WeakReference;
 import java.net.URLEncoder;
 
+import org.cocos2dx.lib.Cocos2dxActivity;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -34,6 +35,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.platform.CocosGamingActivity;
 import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
@@ -600,6 +602,16 @@ public abstract class JavascriptBridge
 	public void checkConnection(String id)
 	{
 		callbackToJS(id, Integer.toString(Utils.getNetworkType(HikeMessengerApp.getInstance().getApplicationContext())));
+	}
+	
+	@JavascriptInterface
+	public void launchGameActivity(String gameurl, boolean isPortrait)
+	{
+//		callbackToJS(id, Integer.toString(Utils.getNetworkType(HikeMessengerApp.getInstance().getApplicationContext())));
+		Intent gameIntent = new Intent(weakActivity.get(), CocosGamingActivity.class);
+		gameIntent.putExtra("downloadPathUrl", gameurl);
+		gameIntent.putExtra("isPortrait", isPortrait);
+		weakActivity.get().startActivity(gameIntent);
 	}
 
 	public void getInitJson(JSONObject jsonObj, String msisdn)
