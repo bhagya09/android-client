@@ -4,7 +4,7 @@
     package="com.bsb.hike"
     android:installLocation="auto"
     android:versionCode="1242"
-    android:versionName="3.9.7.25.plf" >
+    android:versionName="3.9.7.0.3.heads_up_notifications" >
 
     <uses-sdk
         android:minSdkVersion="9"
