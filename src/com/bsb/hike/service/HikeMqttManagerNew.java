@@ -63,6 +63,10 @@ import com.bsb.hike.db.MqttPersistenceException;
 import com.bsb.hike.models.HikePacket;
 import com.bsb.hike.models.NetInfo;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
+import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
+import com.bsb.hike.offline.OfflineController;
+import com.bsb.hike.offline.OfflineManager;
+import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.HikeSSLUtil;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -382,6 +386,7 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 		filter.addAction(MQTT_CONNECTION_CHECK_ACTION);
 		filter.addAction(HikePubSub.SSL_PREFERENCE_CHANGED);
 		filter.addAction(HikePubSub.IPS_CHANGED);
+		filter.addAction(Intent.ACTION_SCREEN_OFF);
 		context.registerReceiver(this, filter);
 		LocalBroadcastManager.getInstance(context).registerReceiver(this, filter);
 	}
@@ -1319,8 +1324,21 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 	{
 		if (intent.getAction().equals(Intent.ACTION_SCREEN_ON))
 		{
+			if (OfflineManager.getInstance().getOfflineState() == OFFLINE_STATE.CONNECTED)
+			{
+				OfflineManager.getInstance().addToTextQueue(OfflineUtils.createGhostPacket(OfflineManager.getInstance().getConnectedDevice(), true));
+			}
+
 			if (Utils.isUserOnline(context))
 				connectOnMqttThread();
+		}
+		else if(intent.getAction().equals(Intent.ACTION_SCREEN_OFF))
+		{
+			if (OfflineManager.getInstance().getOfflineState() == OFFLINE_STATE.CONNECTED)
+			{
+				OfflineManager.getInstance().addToTextQueue(OfflineUtils.createGhostPacket(OfflineManager.getInstance().getConnectedDevice(), false));
+			}
+
 		}
 		else if (intent.getAction().equals(ConnectivityManager.CONNECTIVITY_ACTION))
 		{

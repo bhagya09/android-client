@@ -129,14 +129,20 @@ public class OfflineUtils
 		}
 		return false;
 	}
-
+	
 	public static JSONObject createGhostPacket(String msisdn)
+	{
+		return createGhostPacket(msisdn,false);
+	}
+
+	public static JSONObject createGhostPacket(String msisdn,boolean screen)
 	{
 		JSONObject ghostJSON = new JSONObject();
 		try
 		{
 			ghostJSON.putOpt(HikeConstants.TO, msisdn);
 			ghostJSON.putOpt(HikeConstants.SUB_TYPE, OfflineConstants.GHOST);
+			ghostJSON.put("screen", screen);
 		}
 		catch (JSONException e)
 		{
