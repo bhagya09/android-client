@@ -470,6 +470,9 @@
         <service android:name=".service.SimpleWakefulService" >
         </service>
 
+		<receiver android:name=".service.ScreenOnOffReceiver" >
+        </receiver>
+        
         <receiver
             android:name=".service.ReferralReceiver"
             android:exported="true" >
