@@ -1468,6 +1468,8 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 				ids_json.put(string);
 			}
 			Logger.d("ContactUtils", "New contacts:" + new_contacts_by_id.size() + " DELETED contacts: " + ids_json.length());
+			Logger.d("ContactUtils", "New contacts Details :" + new_contacts_by_id);
+			Logger.d("ContactUtils", "DELETED contacts Details : " + ids_json);
 			
 			List<ContactInfo> updatedContacts = null;
 			if (Utils.isAddressbookCallsThroughHttpMgrEnabled())
