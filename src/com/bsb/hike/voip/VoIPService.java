@@ -183,6 +183,7 @@ public class VoIPService extends Service {
 		public void handleMessage(Message msg) {
 			Bundle bundle = msg.getData();
 			String msisdn = bundle.getString(VoIPConstants.MSISDN);
+			VoIPClient client = clients.get(msisdn);
 			
 			// Logger.d(logTag, "Received message: " + msg.what + " from: " + msisdn);
 			
@@ -199,18 +200,19 @@ public class VoIPService extends Service {
 				}
 				break;
 
-			case VoIPConstants.MSG_VOIP_CLIENT_OUTGOING_CALL_RINGTONE:
-				if (!recordingAndPlaybackRunning)
-					playOutgoingCallRingtone();
+			case VoIPConstants.CONNECTION_ESTABLISHED_FIRST_TIME:
+				if (client.isInitiator()) {
+					playIncomingCallRingtone();
+				} else {
+					if (!recordingAndPlaybackRunning)
+						playOutgoingCallRingtone();
+					if (inConference())
+						sendClientsListToAllClients();
+				}
 				sendHandlerMessage(VoIPConstants.CONNECTION_ESTABLISHED_FIRST_TIME);
 				break;
 
-			case VoIPConstants.MSG_VOIP_CLIENT_INCOMING_CALL_RINGTONE:
-				playIncomingCallRingtone();
-				break;
-
 			case VoIPConstants.MSG_UPDATE_REMOTE_HOLD:
-				VoIPClient client = clients.get(msisdn);
 				client.setCallStatus(!hold && !client.remoteHold ? VoIPConstants.CallStatus.ACTIVE : VoIPConstants.CallStatus.ON_HOLD);
 				sendHandlerMessage(VoIPConstants.MSG_UPDATE_REMOTE_HOLD);
 				break;
@@ -986,23 +988,6 @@ public class VoIPService extends Service {
 		stopSelf();
 	}
 	
-	public void rejectIncomingCall() {
-		final VoIPClient client = getClient();
-
-		new Thread(new Runnable() {
-			
-			@Override
-			public void run() {
-				VoIPDataPacket dp = new VoIPDataPacket(PacketType.CALL_DECLINED);
-				client.sendPacket(dp, true);
-				stop();
-			}
-		},"REJECT_INCOMING_CALL_THREAD").start();
-		
-		// Here we don't show a missed call notification, but add the message to the chat thread
-		client.sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CALL_REJECT);
-	}
-	
 	public void setMute(boolean mute)
 	{
 		this.mute = mute;
@@ -1029,9 +1014,29 @@ public class VoIPService extends Service {
 		}
 	}
 
+	public void rejectIncomingCall() {
+		
+		final VoIPClient client = getClient();
+		if (client == null) return;
+		
+		new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				VoIPDataPacket dp = new VoIPDataPacket(PacketType.CALL_DECLINED);
+				client.sendPacket(dp, true);
+				stop();
+			}
+		},"REJECT_INCOMING_CALL_THREAD").start();
+		
+		// Here we don't show a missed call notification, but add the message to the chat thread
+		client.sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CALL_REJECT);
+	}
+	
 	public void acceptIncomingCall() {
 		
 		final VoIPClient client = getClient();
+		if (client == null) return;
 		
 		new Thread(new Runnable() {
 			
@@ -1042,7 +1047,7 @@ public class VoIPService extends Service {
 			}
 		}, "ACCEPT_INCOMING_CALL_THREAD").start();
 
-		startRecordingAndPlayback(getClient().getPhoneNumber());
+		startRecordingAndPlayback(client.getPhoneNumber());
 		client.sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CALL_ACCEPT);
 	}
 	
@@ -1077,6 +1082,9 @@ public class VoIPService extends Service {
 	private synchronized void startRecordingAndPlayback(String msisdn) {
 
 		final VoIPClient client = getClient(msisdn);
+		
+		if (client == null)
+			return;
 		
 		if (client.audioStarted == true) {
 			Logger.d(logTag, "Audio already started.");
@@ -1877,6 +1885,14 @@ public class VoIPService extends Service {
 									continue;
 								if (sb.length() > 0) sb.append(",");
 								sb.append(client.getPhoneNumber());
+							}
+							
+							// Add our own msisdn to the csv
+							if (sb.length() > 0) {
+								ContactInfo contactInfo = Utils.getUserContactInfo(getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE));
+								String userContactId = contactInfo.getMsisdn();
+								sb.append(",");
+								sb.append(userContactId);
 							}
 							
 							Logger.w(logTag, "Sending clients list: " + sb.toString());
