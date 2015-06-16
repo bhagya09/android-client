@@ -1,6 +1,7 @@
 package com.bsb.hike.service;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -1961,9 +1962,20 @@ public class MqttMessagesManager
 			Map<String, List<ContactInfo>> contacts = ContactManager.getInstance().convertToMap(contactinfos);
 			try
 			{
-				new PostAddressBookTask(contacts).execute();
+				if (Utils.isAddressbookCallsThroughHttpMgrEnabled())
+				{
+					new PostAddressBookTask(contacts).execute();
+				}
+				else
+				{
+					AccountUtils.postAddressBook(token, contacts);
+				}
 			}
 			catch (IllegalStateException e)
+			{
+				Logger.w(getClass().getSimpleName(), "Exception while posting ab", e);
+			}
+			catch (IOException e)
 			{
 				Logger.w(getClass().getSimpleName(), "Exception while posting ab", e);
 			}
