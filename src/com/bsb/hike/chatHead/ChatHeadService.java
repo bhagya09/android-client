@@ -216,7 +216,7 @@ public class ChatHeadService extends Service
 			@Override
 			public void onAnimationStart(Animator animation)
 			{
-				if (flag != ChatHeadUtils.REMAINING_ANIMATION && flagActivityRunning && (mFinishActivityListener != null))
+				if (flag != ChatHeadConstants.REMAINING_ANIMATION && flagActivityRunning && (mFinishActivityListener != null))
 				{
 					flagActivityRunning = false;
 					mFinishActivityListener.finishActivity();
@@ -234,35 +234,35 @@ public class ChatHeadService extends Service
 				Intent intent;
 				switch (flag)
 				{
-				case ChatHeadUtils.CREATING_CHAT_HEAD_ACTIVITY_ANIMATION:
+				case ChatHeadConstants.CREATING_CHAT_HEAD_ACTIVITY_ANIMATION:
 					intent = new Intent(getApplicationContext(), ChatHeadActivity.class);
 					intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 					startActivity(intent);
 					break;
-				case ChatHeadUtils.SHARING_BEFORE_FINISHING_ANIMATION:
+				case ChatHeadConstants.SHARING_BEFORE_FINISHING_ANIMATION:
 					intent = ShareUtils.shareContent(HikeConstants.Extras.ShareTypes.STICKER_SHARE, path[0], foregroundApp);
 					if (intent != null)
 					{
 						startActivity(intent);
 					}
 					break;
-				case ChatHeadUtils.STOPPING_SERVICE_ANIMATION:
+				case ChatHeadConstants.STOPPING_SERVICE_ANIMATION:
 					ChatHeadUtils.stopService();
 					break;
-				case ChatHeadUtils.GET_MORE_STICKERS_ANIMATION:
+				case ChatHeadConstants.GET_MORE_STICKERS_ANIMATION:
 					intent = IntentFactory.getStickerShareWebViewActivityIntent(getApplicationContext());
 					startActivity(intent);
 					ChatHeadService.getInstance().setChatHeadInvisible();
 					break;
-				case ChatHeadUtils.OPEN_HIKE_ANIMATION:
+				case ChatHeadConstants.OPEN_HIKE_ANIMATION:
 					IntentFactory.openHomeActivityInOtherTask(getApplicationContext(), true);
 					ChatHeadService.getInstance().setChatHeadInvisible();
 					break;
-				case ChatHeadUtils.STICKER_SHOP_ANIMATION:
+				case ChatHeadConstants.STICKER_SHOP_ANIMATION:
 					intent = IntentFactory.getStickerShopIntent(getApplicationContext(), true);
 					startActivity(intent);
 					break;
-				case ChatHeadUtils.OPEN_SETTINGS_ANIMATION:
+				case ChatHeadConstants.OPEN_SETTINGS_ANIMATION:
 					intent = IntentFactory.getStickerShareSettingsIntent(getApplicationContext());
 					startActivity(intent);
 					ChatHeadService.getInstance().setChatHeadInvisible();
@@ -317,7 +317,7 @@ public class ChatHeadService extends Service
 		{
 			HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.STICKER_HEAD_DISMISS, ChatHeadService.foregroundAppName);
 			dismissed++;
-			if (dismissed <= HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.DISMISS_COUNT, ChatHeadActivity.DISMISS_CONST))
+			if (dismissed <= HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.DISMISS_COUNT, ChatHeadConstants.DISMISS_CONST))
 			{
 				if (chatHead.isShown())
 				{
@@ -347,19 +347,19 @@ public class ChatHeadService extends Service
 				}
 				else
 				{
-					resetPosition(ChatHeadUtils.FINISHING_CHAT_HEAD_ACTIVITY_ANIMATION);
+					resetPosition(ChatHeadConstants.FINISHING_CHAT_HEAD_ACTIVITY_ANIMATION);
 				}
 			}
 			else
 			{
 				if (chatHeadLocations[0] <= (int) ((getResources().getDisplayMetrics().widthPixels - chatHead.getWidth()) / 2))
 				{
-					overlayAnimation(chatHead, chatHeadParams.x, 0, chatHeadParams.y, chatHeadParams.y, ChatHeadUtils.REMAINING_ANIMATION);
+					overlayAnimation(chatHead, chatHeadParams.x, 0, chatHeadParams.y, chatHeadParams.y, ChatHeadConstants.REMAINING_ANIMATION);
 				}
 				else
 				{
 					overlayAnimation(chatHead, chatHeadParams.x, getResources().getDisplayMetrics().widthPixels - chatHead.getWidth(), chatHeadParams.y, chatHeadParams.y,
-							ChatHeadUtils.REMAINING_ANIMATION);
+							ChatHeadConstants.REMAINING_ANIMATION);
 				}
 			}
 		}
@@ -381,7 +381,7 @@ public class ChatHeadService extends Service
 		int pixelsY = (int) (getResources().getDisplayMetrics().heightPixels - (scale * 248) - chatHead.getHeight() - status_bar_height);
 		savedPosX = chatHeadParams.x;
 		savedPosY = chatHeadParams.y;
-		overlayAnimation(chatHead, chatHeadParams.x, pixelsX, chatHeadParams.y, pixelsY, ChatHeadUtils.CREATING_CHAT_HEAD_ACTIVITY_ANIMATION);
+		overlayAnimation(chatHead, chatHeadParams.x, pixelsX, chatHeadParams.y, pixelsY, ChatHeadConstants.CREATING_CHAT_HEAD_ACTIVITY_ANIMATION);
 
 	}
 

@@ -47,7 +47,7 @@ public class ChatHeadUtils
 
 	private static Set<String> foregroundedPackages;
 
-	public static int HOUR_TO_MILLISEC_CONST = 3600000;
+	public static final int HOUR_TO_MILLISEC_CONST = 3600000;
 
 	public static boolean isSharingPackageInstalled(Context context)
 	{
