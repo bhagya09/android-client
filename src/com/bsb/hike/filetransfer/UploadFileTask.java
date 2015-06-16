@@ -482,6 +482,15 @@ public class UploadFileTask extends FileTransferBase
 					{
 						selectedFile = Utils.getOutputMediaFile(hikeFileType, null, true);
 					}
+					/*
+					 * Changes done to fix the issue where some users are getting FileNotFoundEXception while creating file.
+					 */
+					try {
+						if(!selectedFile.exists())
+							selectedFile.createNewFile();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
 					if (!Utils.compressAndCopyImage(mFile.getPath(), selectedFile.getPath(), context))
 					{
 						Logger.d(getClass().getSimpleName(), "throwing copy file exception");

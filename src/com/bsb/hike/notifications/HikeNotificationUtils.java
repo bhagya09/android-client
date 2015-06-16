@@ -23,6 +23,7 @@ import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.NotificationPreview;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.Utils;
@@ -81,7 +82,15 @@ public class HikeNotificationUtils
 			message = SmileyParser.getInstance().replaceEmojiWithCharacter(message, "*");
 		}
 
-		String key = (contactInfo != null && !TextUtils.isEmpty(contactInfo.getName())) ? contactInfo.getName() : msisdn;
+		String key = null;
+		if (BotUtils.isBot(msisdn))
+		{
+			key = BotUtils.getBotInfoForBotMsisdn(msisdn).getConversationName();
+		}
+		else
+		{
+			key = (contactInfo != null && !TextUtils.isEmpty(contactInfo.getName())) ? contactInfo.getName() : msisdn;
+		}
 		// For showing the name of the contact that sent the message in a group
 		// chat
 		if (convMsg.isOneToNChat() && !TextUtils.isEmpty(convMsg.getGroupParticipantMsisdn()) && convMsg.getParticipantInfoState() == ParticipantInfoState.NO_INFO)
@@ -120,6 +129,10 @@ public class HikeNotificationUtils
 			key = String.format(convMsg.getMetadata().getKey(), key);
 		}
 
+		if(Utils.isOfflineConversation(convMsg.getMsisdn()))
+		{
+			key=contactManager.getContact(msisdn.replace("o:", ""), true, false).getNameOrMsisdn();
+		}
 		return new NotificationPreview(message, key,convMsg.getNotificationType());
 	}
 
@@ -149,11 +162,17 @@ public class HikeNotificationUtils
 			name = ContactManager.getInstance().getName(argMsisdn);
 		}
 		
+		
+		if(Utils.isOfflineConversation(argMsisdn))
+		{
+			name = ContactManager.getInstance().getName(argMsisdn.replace("o:", ""));
+			
+		}
 		if (TextUtils.isEmpty(name))
 		{
 			name = argMsisdn;
 		}
-
+		
 		return name;
 	}
 
@@ -214,5 +233,21 @@ public class HikeNotificationUtils
 			edit.putString(HikeConstants.VIBRATE_PREF_LIST, Utils.getOldVibratePref(context));
 			edit.commit();
 		}
+	}
+	
+	public static String getContentTitleFromMsisdn(boolean isSingleMsisdn,String msisdn)
+	{
+		if (isSingleMsisdn && Utils.isOfflineConversation(msisdn))
+		{
+			return msisdn.replace("o:", "");
+		}
+
+		if (!isSingleMsisdn)
+		{
+			return "bulk";
+		}
+
+		return msisdn;
+
 	}
 }

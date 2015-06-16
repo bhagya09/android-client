@@ -333,11 +333,6 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 
 		mActionBarDoneContainer.setOnClickListener(clickHandler);
 
-		if (isStartedForResult())
-		{
-			((TextView) actionBarView.findViewById(R.id.done_text)).setText(R.string.image_quality_send);
-		}
-
 		actionBar.setCustomView(actionBarView);
 	}
 
