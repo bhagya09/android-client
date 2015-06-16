@@ -183,6 +183,7 @@ public class VoIPService extends Service {
 		public void handleMessage(Message msg) {
 			Bundle bundle = msg.getData();
 			String msisdn = bundle.getString(VoIPConstants.MSISDN);
+			VoIPClient client = clients.get(msisdn);
 			
 			// Logger.d(logTag, "Received message: " + msg.what + " from: " + msisdn);
 			
@@ -199,18 +200,19 @@ public class VoIPService extends Service {
 				}
 				break;
 
-			case VoIPConstants.MSG_VOIP_CLIENT_OUTGOING_CALL_RINGTONE:
-				if (!recordingAndPlaybackRunning)
-					playOutgoingCallRingtone();
+			case VoIPConstants.CONNECTION_ESTABLISHED_FIRST_TIME:
+				if (client.isInitiator()) {
+					playIncomingCallRingtone();
+				} else {
+					if (!recordingAndPlaybackRunning)
+						playOutgoingCallRingtone();
+					if (inConference())
+						sendClientsListToAllClients();
+				}
 				sendHandlerMessage(VoIPConstants.CONNECTION_ESTABLISHED_FIRST_TIME);
 				break;
 
-			case VoIPConstants.MSG_VOIP_CLIENT_INCOMING_CALL_RINGTONE:
-				playIncomingCallRingtone();
-				break;
-
 			case VoIPConstants.MSG_UPDATE_REMOTE_HOLD:
-				VoIPClient client = clients.get(msisdn);
 				client.setCallStatus(!hold && !client.remoteHold ? VoIPConstants.CallStatus.ACTIVE : VoIPConstants.CallStatus.ON_HOLD);
 				sendHandlerMessage(VoIPConstants.MSG_UPDATE_REMOTE_HOLD);
 				break;
@@ -1081,6 +1083,9 @@ public class VoIPService extends Service {
 
 		final VoIPClient client = getClient(msisdn);
 		
+		if (client == null)
+			return;
+		
 		if (client.audioStarted == true) {
 			Logger.d(logTag, "Audio already started.");
 			return;
@@ -1880,6 +1885,14 @@ public class VoIPService extends Service {
 									continue;
 								if (sb.length() > 0) sb.append(",");
 								sb.append(client.getPhoneNumber());
+							}
+							
+							// Add our own msisdn to the csv
+							if (sb.length() > 0) {
+								ContactInfo contactInfo = Utils.getUserContactInfo(getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE));
+								String userContactId = contactInfo.getMsisdn();
+								sb.append(",");
+								sb.append(userContactId);
 							}
 							
 							Logger.w(logTag, "Sending clients list: " + sb.toString());

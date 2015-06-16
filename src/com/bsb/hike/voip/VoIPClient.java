@@ -11,7 +11,6 @@ import java.net.UnknownHostException;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.List;
@@ -643,11 +642,7 @@ public class VoIPClient  {
 				
 				if (connected == true) {
 					Logger.d(logTag, "UDP connection established :) " + getPreferredConnectionMethod());
-					
-					if (!isInitiator()) 
-						playOutgoingCallRingtone();
-					else
-						playIncomingCallRingtone();
+					connectionEstablished();
 
 					if (reconnecting) {
 						setInitialCallStatus();
@@ -1717,12 +1712,8 @@ public class VoIPClient  {
 		sendHandlerMessage(VoIPConstants.MSG_VOIP_CLIENT_STOP);
 	}
 	
-	private void playOutgoingCallRingtone() {
-		sendHandlerMessage(VoIPConstants.MSG_VOIP_CLIENT_OUTGOING_CALL_RINGTONE);
-	}
-
-	private void playIncomingCallRingtone() {
-		sendHandlerMessage(VoIPConstants.MSG_VOIP_CLIENT_INCOMING_CALL_RINGTONE);
+	private void connectionEstablished() {
+		sendHandlerMessage(VoIPConstants.CONNECTION_ESTABLISHED_FIRST_TIME);
 	}
 
 	private void startRecordingAndPlayback() {
