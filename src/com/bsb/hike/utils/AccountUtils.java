@@ -375,39 +375,6 @@ public class AccountUtils
 	{
 		// Assert.assertTrue("Token is empty", !TextUtils.isEmpty(mToken));
 	}
-	
-	public static List<String> getBlockList(JSONObject obj)
-	{
-		JSONArray blocklist;
-		List<String> blockListMsisdns = new ArrayList<String>();
-		if ((obj == null) || ("fail".equals(obj.optString("stat"))))
-		{
-			Logger.w("HTTP", "Unable to upload address book");
-			// TODO raise a real exception here
-			return null;
-		}
-		Logger.d("AccountUtils", "Reply from addressbook:" + obj.toString());
-		blocklist = obj.optJSONArray("blocklist");
-		if (blocklist == null)
-		{
-			Logger.e("AccountUtils", "Received blocklist as null");
-			return null;
-		}
-
-		for (int i = 0; i < blocklist.length(); i++)
-		{
-			try
-			{
-				blockListMsisdns.add(blocklist.getString(i));
-			}
-			catch (JSONException e)
-			{
-				Logger.e("AccountUtils", "Invalid json object", e);
-				return null;
-			}
-		}
-		return blockListMsisdns;
-	}
 
 	public static void performRequest(HikeHttpRequest hikeHttpRequest, boolean addToken) throws NetworkErrorException, IllegalStateException
 	{

@@ -485,7 +485,7 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 				}
 
 				List<ContactInfo> addressbook = ContactUtils.getContactList(jsonForAddressBookAndBlockList, contacts);
-				List<String> blockList = AccountUtils.getBlockList(jsonForAddressBookAndBlockList);
+				List<String> blockList = ContactUtils.getBlockList(jsonForAddressBookAndBlockList);
 
 				if (jsonForAddressBookAndBlockList.has(HikeConstants.PREF))
 				{
