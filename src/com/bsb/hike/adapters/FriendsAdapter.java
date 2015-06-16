@@ -89,10 +89,12 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 	public static final String RECENTLY_JOINED = "-129";
 	
 	public static final String RECOMMENDED = "-130";
+	
+	public static final String OFFLINE_CONTACT="-131";
 
 	public enum ViewType
 	{
-		SECTION, FRIEND, NOT_FRIEND_HIKE, NOT_FRIEND_SMS, FRIEND_REQUEST, EXTRA, EMPTY, FTUE_CONTACT, REMOVE_SUGGESTIONS, NEW_CONTACT, RECOMMENDED
+		SECTION, FRIEND, NOT_FRIEND_HIKE, NOT_FRIEND_SMS, FRIEND_REQUEST, EXTRA, EMPTY, FTUE_CONTACT, REMOVE_SUGGESTIONS, NEW_CONTACT, RECOMMENDED,OFFLINE_CONTACT
 	}
 
 	private LayoutInflater layoutInflater;
@@ -136,7 +138,10 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 	protected List<ContactInfo> nuxRecommendedList;
 	
 	protected List<ContactInfo> nuxFilteredRecoList;
+	
+	protected List<ContactInfo> offlineList;
 
+	protected List<ContactInfo> offlineFilteredList;
 	protected Context context;
 
 	private ContactInfo friendsSection;
@@ -213,7 +218,9 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 		filteredSmsContactsList = new ArrayList<ContactInfo>(0);
 		filteredRecentlyJoinedHikeContactsList = new ArrayList<ContactInfo>(0);
 		nuxFilteredRecoList = new ArrayList<ContactInfo>(0);
+		offlineFilteredList = new ArrayList<ContactInfo>(0);
 		lastStatusMessagesMap = new HashMap<String, StatusMessage>();
+		offlineList=new ArrayList<ContactInfo>(0);
 
 		listFetchedOnce = false;
 
@@ -268,7 +275,8 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 				List<ContactInfo> filteredRecentsList = new ArrayList<ContactInfo>();
 				List<ContactInfo> filteredRecentlyJoinedList = new ArrayList<ContactInfo>();
 				List<ContactInfo> nuxFilteredRecoList = new ArrayList<ContactInfo>();
- 
+				List<ContactInfo> offlineFilteredList = new ArrayList<ContactInfo>();
+				
 				filterList(friendsList, filteredFriendsList, textToBeFiltered);
 				filterList(hikeContactsList, filteredHikeContactsList, textToBeFiltered);
 				filterList(smsContactsList, filteredSmsContactsList, textToBeFiltered);
@@ -293,6 +301,10 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 
 					filterList(nuxRecommendedList, nuxFilteredRecoList, textToBeFiltered);
 				}
+				if(offlineList!=null && !offlineList.isEmpty())
+				{
+					filterList(offlineList, offlineFilteredList, textToBeFiltered);
+				}
 				List<List<ContactInfo>> resultList = new ArrayList<List<ContactInfo>>(3);
 				resultList.add(filteredFriendsList);
 				resultList.add(filteredHikeContactsList);
@@ -301,6 +313,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 				resultList.add(filteredRecentsList);
 				resultList.add(filteredRecentlyJoinedList);
 				resultList.add(nuxFilteredRecoList);
+				resultList.add(offlineFilteredList);
 
 				results.values = resultList;
 				isFiltered = true;
@@ -379,6 +392,8 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 				nuxFilteredRecoList.clear();
 				nuxFilteredRecoList.addAll(resultList.get(6));
 			}
+			offlineFilteredList.clear();
+			offlineFilteredList.addAll(resultList.get(7));
 			makeCompleteList(true);
 		}
 	}
@@ -393,7 +408,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 		resultList.add(recentContactsList);
 		resultList.add(recentlyJoinedHikeContactsList);
 		resultList.add(nuxRecommendedList);
-
+		resultList.add(offlineList);
 		return resultList;
 	}
 
@@ -432,6 +447,8 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 			if(listsSize > 4)
 				filteredRecentsList.addAll(resultList.get(4));
 		}
+	
+	
 	}
 
 	public void makeCompleteList(boolean filtered)
@@ -1151,6 +1168,11 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 					}
 					else
 					{
+						if(Utils.isOfflineConversation(contactInfo.getMsisdn()))
+						{
+							lastSeen.setText(contactInfo.getMsisdn().replace("o:", ""));
+						}
+						else
 						lastSeen.setText(contactInfo.getMsisdn());
 						statusMood.setVisibility(View.GONE);
 					}

@@ -9,6 +9,7 @@ import android.net.wifi.p2p.WifiP2pManager;
 import android.text.TextUtils;
 
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
 import com.bsb.hike.utils.Logger;
 
 public class OfflineBroadCastReceiver extends BroadcastReceiver
@@ -66,42 +67,61 @@ public class OfflineBroadCastReceiver extends BroadcastReceiver
 				}
 			}
 		}
-		else if(WifiManager.WIFI_STATE_CHANGED_ACTION.equals(action))
+		else if (WifiManager.WIFI_STATE_CHANGED_ACTION.equals(action))
 		{
-			int extraWifiState = intent.getIntExtra(WifiManager.EXTRA_WIFI_STATE ,
-				    WifiManager.WIFI_STATE_UNKNOWN);
-				 
-				  switch(extraWifiState){
-				  case WifiManager.WIFI_STATE_DISABLED:
-				   break;
-				  case WifiManager.WIFI_STATE_DISABLING:
-				   break;
-				  case WifiManager.WIFI_STATE_ENABLED:
-				   break;
-				  case WifiManager.WIFI_STATE_ENABLING:
-				   break;
-				  case WifiManager.WIFI_STATE_UNKNOWN:
-				  break;
-				  }
+			int extraWifiState = intent.getIntExtra(WifiManager.EXTRA_WIFI_STATE, WifiManager.WIFI_STATE_UNKNOWN);
+
+			if(OfflineManager.getInstance().isHotspotCreated())
+			{
+				return;
+			}
+			Logger.d(TAG,"Wifi state change "+extraWifiState);
+			switch (extraWifiState)
+			{
+			case WifiManager.WIFI_STATE_DISABLED:
+				if (OfflineManager.getInstance().getOfflineState() == OFFLINE_STATE.CONNECTED)
+				{
+					OfflineManager.getInstance().shutDown(new OfflineException(OfflineException.WIFI_CLOSED));
+				}
+				break;
+			case WifiManager.WIFI_STATE_DISABLING:
+				break;
+			case WifiManager.WIFI_STATE_ENABLED:
+				break;
+			case WifiManager.WIFI_STATE_ENABLING:
+				break;
+			case WifiManager.WIFI_STATE_UNKNOWN:
+				break;
+
+			}
 			
 		}
-		else if(OfflineConstants.WIFI_HOTSPOT_STATE.equals(action))
+		else if (OfflineConstants.WIFI_HOTSPOT_STATE_CHANGE_ACTION.equals(action))
 		{
-			int state = intent.getIntExtra("wifi_state", 
-                    0); 	 
-				  switch(state){
-				  case OfflineConstants.WIFI_HOTSPOT_STATE_DISABLED:
-				   break;
-				  case OfflineConstants.WIFI_HOTSPOT_STATE_DISABLING:
-				   break;
-				  case OfflineConstants.WIFI_HOTSPOT_STATE_ENABLED:
-				   break;
-				  case OfflineConstants.WIFI_HOTSPOT_STATE_ENABLING:
-				   break;
-				  case OfflineConstants.WIFI_HOTSPOT_STATE_UNKNOWN:
-				  break;
-				  }
-			Logger.d(TAG,"Wifi Hotspot State " + state );
+			int state = intent.getIntExtra("wifi_state", 0);
+			
+			if(!OfflineManager.getInstance().isHotspotCreated())
+			{
+				return;
+			}
+			switch (state)
+			{
+			case OfflineConstants.WIFI_HOTSPOT_STATE_DISABLED:
+				break;
+			case OfflineConstants.WIFI_HOTSPOT_STATE_DISABLING:
+				if(OfflineManager.getInstance().getOfflineState()==OFFLINE_STATE.CONNECTED)
+				{
+					OfflineManager.getInstance().shutDown(new OfflineException(OfflineException.HOTSPOT_CLOSED));
+				}
+				break;
+			case OfflineConstants.WIFI_HOTSPOT_STATE_ENABLED:
+				break;
+			case OfflineConstants.WIFI_HOTSPOT_STATE_ENABLING:
+				break;
+			case OfflineConstants.WIFI_HOTSPOT_STATE_UNKNOWN:
+				break;
+			}
+			Logger.d(TAG, "Wifi Hotspot State " + state);
 		}
 
 	}

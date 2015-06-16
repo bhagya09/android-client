@@ -11,14 +11,21 @@ import java.net.SocketTimeoutException;
 
 import org.json.JSONObject;
 
+import com.bsb.hike.offline.IConnectCallback;
 import com.bsb.hike.offline.IMessageSentOffline;
 import com.bsb.hike.offline.OfflineConstants;
+import com.bsb.hike.offline.OfflineException;
 import com.bsb.hike.offline.OfflineManager;
 import com.bsb.hike.offline.OfflineThreadManager;
 import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
 import com.bsb.hike.utils.Logger;
 
+/**
+ * 
+ * @author himanshu
+ *	Runnable responsible for receving text from client
+ */
 public class TextTransferRunnable implements Runnable
 {
 
@@ -37,10 +44,13 @@ public class TextTransferRunnable implements Runnable
 	private boolean isNotConnected =true;
 	
 	private Socket textSendSocket = null;
+	
+	IConnectCallback connectCallback=null;
 
-	public TextTransferRunnable(IMessageSentOffline textMessageCallback)
+	public TextTransferRunnable(IMessageSentOffline textMessageCallback,IConnectCallback connectCallback)
 	{
 		this.callback = textMessageCallback;
+		this.connectCallback=connectCallback;
 	}
 
 	@Override
@@ -55,7 +65,7 @@ public class TextTransferRunnable implements Runnable
 		{
 			try
 			{
-				
+
 				if (offlineManager.isHotspotCreated())
 				{
 					host = OfflineUtils.getIPFromMac(null);
@@ -64,18 +74,19 @@ public class TextTransferRunnable implements Runnable
 				{
 					host = IP_SERVER;
 				}
-				
+
 				textSendSocket = new Socket();
-				//textSendSocket.bind(null);
+				// textSendSocket.bind(null);
 
 				textSendSocket.connect((new InetSocketAddress(host, PORT_TEXT_MESSAGE)), SOCKET_TIMEOUT);
 				Logger.d(TAG, "Text Transfer Thread Connected");
 				isNotConnected = false;
+				connectCallback.onConnect();
 
 			}
 			catch (IOException e)
 			{
-				Logger.d(TAG, "TIO Exception in connect " + offlineManager.getOfflineState() + " "+offlineManager.getConnectedDevice());
+				Logger.d(TAG, "TIO Exception in connect " + offlineManager.getOfflineState() + " " + offlineManager.getConnectedDevice());
 				if (++currentTries < OfflineConstants.MAX_TRIES)
 				{
 					try
@@ -89,7 +100,8 @@ public class TextTransferRunnable implements Runnable
 				}
 				else
 				{
-				//
+					connectCallback.onDisconnect(new OfflineException(OfflineException.CLIENT_COULD_NOT_CONNECT));
+					return;
 				}
 			}
 		}
@@ -115,27 +127,31 @@ public class TextTransferRunnable implements Runnable
 		}
 		catch (InterruptedException e)
 		{
-			Logger.e(TAG, "Some called interrupt on File transfer Thread");
-			offlineManager.setOfflineState(OFFLINE_STATE.NOT_CONNECTED);
+			Logger.e(TAG, "Some called interrupt on Text transfer Thread");
 			e.printStackTrace();
 		}
 		catch (SocketTimeoutException e)
 		{
 			Logger.e(TAG, "SOCKET time out exception occured in TextTransferThread.");
-			// offlineManager.shutDown();
+			offlineManager.shutDown(new OfflineException(e, OfflineException.SOCKET_TIMEOUT_EXCEPTION));
 			e.printStackTrace();
 		}
 		catch (IOException e)
 		{
 			e.printStackTrace();
 			Logger.e(TAG, "TextTransferThread. IO Exception occured.Socket was not bounded");
-			offlineManager.shutDown();
+			offlineManager.shutDown(new OfflineException(e, OfflineException.SERVER_DISCONNED));
 		}
 		catch (IllegalArgumentException e)
 		{
 			e.printStackTrace();
 			Logger.e(TAG, "TextTransferThread. Did we pass correct Address here ? ?");
 			// offlineManager.shutDown();
+		}
+		catch (OfflineException e)
+		{
+			offlineManager.shutDown(new OfflineException(e, OfflineException.SERVER_DISCONNED));
+			e.printStackTrace();
 		}
 	}
 

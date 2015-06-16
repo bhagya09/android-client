@@ -117,6 +117,9 @@ public abstract class ImageWorker
 		{
 			return;
 		}
+		
+		if (Utils.isOfflineConversation(data))
+			data = data.replace("o:", "");
 
 		BitmapDrawable value = null;
 

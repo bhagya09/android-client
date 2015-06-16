@@ -142,7 +142,7 @@ public class DbConversationListener implements Listener
 				mPubSub.publish(HikePubSub.RECENT_CONTACTS_UPDATED, convMessage.getMsisdn());
 			}
 
-			if (!convMessage.IsOfflineMessage()&&(convMessage.getParticipantInfoState() == ParticipantInfoState.NO_INFO || convMessage.getParticipantInfoState() == ParticipantInfoState.CHAT_BACKGROUND)
+			if (!Utils.isOfflineConversation(convMessage.getMsisdn())&&(convMessage.getParticipantInfoState() == ParticipantInfoState.NO_INFO || convMessage.getParticipantInfoState() == ParticipantInfoState.CHAT_BACKGROUND)
 					&& (!convMessage.isFileTransferMessage() || shouldSendMessage))
 			{
 				Logger.d("DBCONVERSATION LISTENER", "Sending Message : " + convMessage.getMessage() + "	;	to : " + convMessage.getMsisdn());
@@ -182,14 +182,21 @@ public class DbConversationListener implements Listener
 			ArrayList<Long> msgIds = deleteMessage.first;
 			Bundle bundle = deleteMessage.second;
 			Boolean containsLastMessage = null;
-			if(bundle.containsKey(HikeConstants.Extras.IS_LAST_MESSAGE))
+			if (bundle.containsKey(HikeConstants.Extras.IS_LAST_MESSAGE))
 			{
 				containsLastMessage = bundle.getBoolean(HikeConstants.Extras.IS_LAST_MESSAGE);
 			}
 			String msisdn = bundle.getString(HikeConstants.Extras.MSISDN);
-			
+
 			mConversationDb.deleteMessages(msgIds, msisdn, containsLastMessage);
-			persistence.removeMessages(msgIds);
+			if (Utils.isOfflineConversation(msisdn))
+			{
+				HikeOfflinePersistence.getInstance().removeMessages(msgIds);
+			}
+			else
+			{
+				persistence.removeMessages(msgIds);
+			}
 		}
 		else if (HikePubSub.MESSAGE_FAILED.equals(type)) // server got msg
 		// from client 1 and

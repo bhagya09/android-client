@@ -1,6 +1,8 @@
 package com.bsb.hike.offline;
 
+
 import org.json.JSONObject;
+import java.util.ArrayList;
 
 import android.content.Intent;
 import android.os.Message;
@@ -13,6 +15,7 @@ import com.bsb.hike.filetransfer.FTAnalyticEvents;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
+import com.bsb.hike.ui.ComposeChatActivity.FileTransferData;
 
 /**
  * 
@@ -82,6 +85,22 @@ public class OfflineController
 		offlineManager.initialiseOfflineFileTransfer(filePath, null, HikeFileType.AUDIO_RECORDING, HikeConstants.VOICE_MESSAGE_CONTENT_TYPE, true, duration,
 				FTAnalyticEvents.AUDIO_ATTACHEMENT, msisdn, null);
 	}
+	
+	// currently using for sharing files...
+	public void sendFile(ArrayList<FileTransferData> fileTransferList, String msisdn) 
+	{
+		for (FileTransferData fileData : fileTransferList)
+		{
+			String apkLabel = null;
+			if (fileData.hikeFileType == HikeFileType.APK)
+			{
+				apkLabel = fileData.file.getName();
+			}
+			
+			offlineManager.initialiseOfflineFileTransfer(fileData.filePath, fileData.fileKey, fileData.hikeFileType, fileData.fileType, fileData.isRecording,  
+															fileData.recordingDuration, FTAnalyticEvents.OTHER_ATTACHEMENT, msisdn, apkLabel);
+		}
+	}
 
 	public void sendFile(Intent intent, String msisdn)
 	{
@@ -129,7 +148,7 @@ public class OfflineController
 
 	public void shutDown()
 	{
-		 offlineManager.shutDown();
+		 offlineManager.shutDown(new OfflineException(OfflineException.DISCONNECT));
 	}
 
 	public void sendAudio(String filePath, String msisdn)
@@ -171,5 +190,4 @@ public class OfflineController
 	{
 		offlineManager.removeListener(listener);
 	}
-
 }

@@ -19,6 +19,7 @@ import com.bsb.hike.db.AccountBackupRestore;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.notifications.HikeNotificationMsgStack;
+import com.bsb.hike.offline.OfflineManager;
 import com.bsb.hike.platform.PlatformAlarmManager;
 import com.bsb.hike.productpopup.NotificationContentModel;
 import com.bsb.hike.productpopup.ProductInfoManager;
@@ -73,6 +74,8 @@ public class HikeAlarmManager
 	//Notification to be shown in future popups
 	
 	public static final int REQUESTCODE_PRODUCT_POPUP=4571;
+	
+	public static final int REQUESTCODE_OFFLINE = 4572;
 	
 	// ******************************************************//
 	
@@ -293,7 +296,8 @@ public class HikeAlarmManager
 			NotificationContentModel notificationContentModel = new NotificationContentModel(title, text, shouldPlaySound, triggerpoint);
 			ProductInfoManager.getInstance().notifyUser(notificationContentModel);
 			break;
-			
+		case HikeAlarmManager.REQUESTCODE_OFFLINE:
+			OfflineManager.getInstance().sendGhostPacket();
 		default:
 			PlatformAlarmManager.processTasks(intent, context);
 			break;
@@ -352,6 +356,9 @@ public class HikeAlarmManager
 			break;
 		case HikeAlarmManager.REQUESTCODE_PRODUCT_POPUP:
 			Logger.d("ProductPopup","Alarm recieved in Exired Tasks");
+			processTasks(intent, context);
+			break;
+		case HikeAlarmManager.REQUESTCODE_OFFLINE:
 			processTasks(intent, context);
 			break;
 		default:

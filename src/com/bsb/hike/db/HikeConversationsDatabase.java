@@ -75,6 +75,7 @@ import com.bsb.hike.models.Conversation.OneToOneConversation;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.contactmgr.ConversationMsisdns;
 import com.bsb.hike.modules.contactmgr.GroupDetails;
+import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.platform.ContentLove;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformMessageMetadata;
@@ -2438,7 +2439,12 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			}
 			else if(Utils.isOfflineConversation(msisdn))
 			{
-				conv=new OfflineConversation.ConversationBuilder(msisdn).setIsOnHike(true).setIsStealth(isStealth).build();
+				ContactInfo contactInfo = ContactManager.getInstance().getContact(msisdn.replace("o:", ""), false, true, false);
+				String name = contactInfo.getNameOrMsisdn();
+				
+				OfflineConvInfo convInfo=new OfflineConvInfo.OfflineBuilder(msisdn).setDisplayMsisdn(msisdn.replace("o:", "")).setConvName(name).build();
+
+				conv=new OfflineConversation.ConversationBuilder(msisdn).setIsOnHike(true).setIsStealth(isStealth).setConvInfo(convInfo).build();
 			}
 			
 			/**
@@ -2993,11 +2999,10 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 					else if(Utils.isOfflineConversation(msisdn))
 					{
-						convInfo=new OfflineConvInfo.OfflineBuilder(msisdn).setDisplayMsisdn(msisdn.replace("o:", "")).setSortingTimeStamp(sortingTimestamp).setOnHike(true).build();
-						
-						
+						convInfo = new OfflineConvInfo.OfflineBuilder(msisdn).setDisplayMsisdn(msisdn.replace("o:", "")).setSortingTimeStamp(sortingTimestamp).setOnHike(true).build();
 						contact=ContactManager.getInstance().getContact(((OfflineConvInfo)convInfo).getDisplayMsisdn());
 					}
+					
 					else
 					{
 						convInfo = new ConvInfo.ConvInfoBuilder(msisdn).setSortingTimeStamp(sortingTimestamp).setOnHike(onhike).build();
@@ -5893,15 +5898,27 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		String msgIdSelection = DBConstants.MESSAGE_ID + (itemsToRight ? ">" : "<") + givenMsgId;
 		String hfTypeSelection = getSharedMediaSelection(onlyMedia);
 
-		String selection =  DBConstants.MSISDN + " = ?" + (givenMsgId == -1 ? "" : " AND " + msgIdSelection) + " AND "
+		String selection =  DBConstants.MSISDN +  " IN  ( ?,?) " + (givenMsgId == -1 ? "" : " AND " + msgIdSelection) + " AND "
 				+ (DBConstants.HIKE_FILE_TYPE + " IN " + hfTypeSelection);
 
 		Cursor c = null;
+		
+		String selArgs[]=null;
+		if(Utils.isOfflineConversation(msisdn))
+		{
+			selArgs= new String[] { msisdn,msisdn.replace("o:", "") };
+		}
+		else
+		{
+			selArgs= new String[] {OfflineUtils.createOfflineMsisdn(msisdn),msisdn };
+		}
+		
 		try
 		{
 			c = mDb.query(DBConstants.SHARED_MEDIA_TABLE, new String[] { DBConstants.MESSAGE_ID, DBConstants.GROUP_PARTICIPANT, DBConstants.TIMESTAMP, DBConstants.IS_SENT,
-					DBConstants.MESSAGE_METADATA }, selection, new String[] { msisdn }, null, null, DBConstants.MESSAGE_ID + (itemsToRight ? " ASC" : " DESC"), null);
-
+					DBConstants.MESSAGE_METADATA }, selection, selArgs, null, null, DBConstants.MESSAGE_ID + (itemsToRight ? " ASC" : " DESC"), null);
+			
+			Logger.d("OfflineThreadManagers",c.getCount()+"");
 			List<?> sharedFilesList;
 			if(onlyMedia)
 			{
@@ -6010,14 +6027,23 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		String hfTypeSelection = getSharedMediaSelection(onlyMedia);
 
 		Cursor c = null;
+		String[] selArgs=null;
+		if(Utils.isOfflineConversation(msisdn))
+		{
+			selArgs= new String[] { msisdn,msisdn.replace("o:", "") };
+		}
+		else
+		{
+			selArgs= new String[] {OfflineUtils.createOfflineMsisdn(msisdn),msisdn };
+		}
 
-		String selection =  DBConstants.MSISDN + " = ?"  + " AND "
+		String selection =  DBConstants.MSISDN + " IN ( ?,?) "  + " AND "
 				+ (DBConstants.HIKE_FILE_TYPE + " IN " + hfTypeSelection);
 
 		try
 		{
 			c = mDb.query(DBConstants.SHARED_MEDIA_TABLE, new String[] { DBConstants.MESSAGE_ID, DBConstants.GROUP_PARTICIPANT, DBConstants.TIMESTAMP, DBConstants.IS_SENT,
-					DBConstants.MESSAGE_METADATA }, selection, new String[] { msisdn }, null, null, null, null);
+					DBConstants.MESSAGE_METADATA }, selection, selArgs, null, null, null, null);
 
 			SharedMediaCursorIterator cursorIterator = new SharedMediaCursorIterator(c, msisdn);
 			while (cursorIterator.hasNext())

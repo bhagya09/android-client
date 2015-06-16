@@ -235,7 +235,7 @@ public class OfflineUtils
 
 	public static ConvMessage createOfflineInlineConvMessage(String msisdn, String message, String type)
 	{
-		ConvMessage convMessage = Utils.makeConvMessage(msisdn, message, true, State.RECEIVED_READ);
+		ConvMessage convMessage = Utils.makeConvMessage(msisdn, message, true, State.RECEIVED_UNREAD);
 		convMessage.setIsOfflineMessage(true);
 		try
 		{
@@ -474,6 +474,7 @@ public class OfflineUtils
 		}
 		try
 		{
+			
 			socket.shutdownInput();
 			socket.shutdownOutput();
 			socket.close();

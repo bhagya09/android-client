@@ -23,11 +23,18 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.offline.FileTransferModel;
+import com.bsb.hike.offline.IConnectCallback;
+import com.bsb.hike.offline.OfflineException;
 import com.bsb.hike.offline.OfflineManager;
 import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.offline.TransferProgress;
 import com.bsb.hike.utils.Logger;
 
+/**
+ * 
+ * @author himanshu
+ *	Runnable responsible for receving file from client
+ */
 public class FileReceiverRunnable implements Runnable
 {
 
@@ -38,9 +45,12 @@ public class FileReceiverRunnable implements Runnable
 	private Socket fileReceiveSocket = null;
 
 	OfflineManager offlineManager = null;
+	
+	IConnectCallback connectCallback=null;
 
-	public FileReceiverRunnable()
+	public FileReceiverRunnable(IConnectCallback connectCallback)
 	{
+		this.connectCallback = connectCallback;
 	}
 
 	@Override
@@ -59,6 +69,7 @@ public class FileReceiverRunnable implements Runnable
 			Logger.d(TAG, "fileReceive socket connection success");
 
 			InputStream inputstream = fileReceiveSocket.getInputStream();
+			connectCallback.onConnect();
 
 			while (true)
 			{
@@ -88,6 +99,7 @@ public class FileReceiverRunnable implements Runnable
 				long mappedMsgId = -1;
 				String fileName = "";
 				int fileSize = 0;
+				int totalChunks=0;
 				try
 				{
 					message = new JSONObject(metaDataString);
@@ -102,9 +114,8 @@ public class FileReceiverRunnable implements Runnable
 					int type = fileJSON.getInt(HikeConstants.HIKE_FILE_TYPE);
 					fileName = fileJSON.getString(HikeConstants.FILE_NAME);
 					filePath = OfflineUtils.getFileBasedOnType(type, fileName);
-					int totalChunks = OfflineUtils.getTotalChunks(fileSize);
-					offlineManager.addToCurrentReceivingFile(mappedMsgId, new FileTransferModel(new TransferProgress(0, totalChunks), message));
-
+					 totalChunks = OfflineUtils.getTotalChunks(fileSize);
+					
 				}
 				catch (JSONException e1)
 				{
@@ -121,6 +132,7 @@ public class FileReceiverRunnable implements Runnable
 
 					// update DB and UI.
 					HikeConversationsDatabase.getInstance().addConversationMessages(convMessage, true);
+					offlineManager.addToCurrentReceivingFile(convMessage.getMsgID(), new FileTransferModel(new TransferProgress(0, totalChunks), message));
 					HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_RECEIVED, convMessage);
 					Logger.d(TAG, filePath);
 
@@ -134,7 +146,7 @@ public class FileReceiverRunnable implements Runnable
 					// showDownloadTransferNotification(mappedMsgId, fileSize);
 					FileOutputStream outputStream = new FileOutputStream(f);
 					// TODO:Take action on the basis of return type.
-					offlineManager.copyFile(inputstream, new FileOutputStream(f), mappedMsgId, true, false, fileSize);
+					offlineManager.copyFile(inputstream, new FileOutputStream(f), convMessage.getMsgID(), true, false, fileSize);
 					OfflineUtils.closeOutputStream(outputStream);
 					f.renameTo(new File(filePath));
 				}
@@ -143,7 +155,7 @@ public class FileReceiverRunnable implements Runnable
 					e.printStackTrace();
 				}
 
-				offlineManager.removeFromCurrentReceivingFile(mappedMsgId);
+				offlineManager.removeFromCurrentReceivingFile(convMessage.getMsgID());
 
 				offlineManager.showSpinnerProgress(false, mappedMsgId);
 				// TODO:Disconnection handling:
@@ -159,12 +171,18 @@ public class FileReceiverRunnable implements Runnable
 		{
 			e.printStackTrace();
 			Logger.e(TAG, "File Receiver Thread " + " IO Exception occured.Socket was not bounded");
-			// offlineManager.shutDown();
+			connectCallback.onDisconnect(new OfflineException(e, OfflineException.CLIENT_DISCONNETED));
 		}
 		catch (IllegalArgumentException e)
 		{
 			e.printStackTrace();
 			Logger.e(TAG, "Did we pass correct Address here ? ?");
+		}
+		catch (OfflineException e)
+		{
+			e.printStackTrace();
+			connectCallback.onDisconnect(new OfflineException(e, OfflineException.CLIENT_DISCONNETED));
+
 		}
 	}
 

@@ -8,13 +8,20 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 
 import com.bsb.hike.offline.FileTransferModel;
+import com.bsb.hike.offline.IConnectCallback;
 import com.bsb.hike.offline.IMessageSentOffline;
 import com.bsb.hike.offline.OfflineConstants;
+import com.bsb.hike.offline.OfflineException;
 import com.bsb.hike.offline.OfflineManager;
 import com.bsb.hike.offline.OfflineThreadManager;
 import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.utils.Logger;
 
+/**
+ * 
+ * @author himanshu
+ *	Runnable responsible for sending file to server
+ */
 public class FileTransferRunnable implements Runnable
 {
 
@@ -35,10 +42,13 @@ public class FileTransferRunnable implements Runnable
 	private Socket fileSendSocket = null;
 
 	private OfflineManager offlineManager = null;
+	
+	IConnectCallback connectCallback=null;
 
-	public FileTransferRunnable(IMessageSentOffline fileMessageCallback)
+	public FileTransferRunnable(IMessageSentOffline fileMessageCallback,IConnectCallback connectCallback)
 	{
 		this.callback = fileMessageCallback;
+		this.connectCallback=connectCallback;
 	}
 
 	@Override
@@ -66,6 +76,7 @@ public class FileTransferRunnable implements Runnable
 				fileSendSocket.bind(null);
 				fileSendSocket.connect(new InetSocketAddress(host, PORT_FILE_TRANSFER));
 				isNotConnected = false;
+				connectCallback.onConnect();
 			}
 			catch (IOException e)
 			{
@@ -82,6 +93,7 @@ public class FileTransferRunnable implements Runnable
 				}
 				else
 				{
+					connectCallback.onDisconnect(new OfflineException(OfflineException.CLIENT_COULD_NOT_CONNECT));
 					return;
 				}
 			}
@@ -93,6 +105,7 @@ public class FileTransferRunnable implements Runnable
 			{
 				fileTranserObject = OfflineManager.getInstance().getFileTransferQueue().take();
 				// TODO : Send Offline Text and take action on the basis of boolean i.e. clock or single tick
+				offlineManager.setInOfflineFileTransferInProgress(true);
 				if (OfflineThreadManager.getInstance().sendOfflineFile(fileTranserObject, fileSendSocket.getOutputStream()))
 				{
 					callback.onSuccess(fileTranserObject.getPacket());
@@ -101,6 +114,7 @@ public class FileTransferRunnable implements Runnable
 				{
 					callback.onFailure(fileTranserObject.getPacket());
 				}
+				offlineManager.setInOfflineFileTransferInProgress(false);
 			}
 		}
 		catch (InterruptedException e)
@@ -113,13 +127,18 @@ public class FileTransferRunnable implements Runnable
 		{
 			e.printStackTrace();
 			Logger.e(TAG, "IO Exception occured in FileTransferThread.Socket was not bounded or connect failed");
-			// offlineManager.shutDown();
+			offlineManager.shutDown(new OfflineException(e, OfflineException.CLIENT_DISCONNETED));
 		}
 		catch (IllegalArgumentException e)
 		{
 			e.printStackTrace();
 			// offlineManager.shutDown();
 			Logger.e(TAG, "FileTransferThread. Did we pass correct Address here ? ?");
+		}
+		catch (OfflineException e)
+		{
+			offlineManager.shutDown(new OfflineException(e,OfflineException.CLIENT_DISCONNETED));
+			e.printStackTrace();
 		}
 	}
 
@@ -128,7 +147,6 @@ public class FileTransferRunnable implements Runnable
 		try
 		{
 			OfflineUtils.closeSocket(fileSendSocket);
-			Logger.d(TAG, "is socket closed : " + fileSendSocket.isClosed() + "  is socket connected : " + fileSendSocket.isConnected() + "  is socket input shutdown : " + fileSendSocket.isInputShutdown() + "  is socket output shutdown : " + fileSendSocket.isOutputShutdown());
 		}
 		catch (IOException ex)
 		{
