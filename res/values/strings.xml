@@ -1142,9 +1142,9 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="image_settings_tip_subtext">Normal. Better. Uncompressed Size</string>
     <string name="settings_media">Media</string>
     <string name="media_settings_hinttext">Settings for photos, videos, audio</string>
-    <string name="image_quality_small">Normal</string>
-    <string name="image_quality_medium">Better</string>
-    <string name="image_quality_original">Uncompressed</string>
+    <string name="image_quality_small">Compressed</string>
+    <string name="image_quality_medium">Normal</string>
+    <string name="image_quality_original">Original</string>
     <string name="image_quality_send">Send</string>
     <string name="image_quality_files_as">files as</string>
     <string name="image_quality_popup_header">Choose image quality</string>
