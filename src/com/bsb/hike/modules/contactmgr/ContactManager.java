@@ -1468,7 +1468,22 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 				ids_json.put(string);
 			}
 			Logger.d("ContactUtils", "New contacts:" + new_contacts_by_id.size() + " DELETED contacts: " + ids_json.length());
-			List<ContactInfo> updatedContacts = new UpdateAddressBookTask(new_contacts_by_id, ids_json).execute();
+			
+			List<ContactInfo> updatedContacts = null;
+			if (Utils.isAddressbookCallsThroughHttpMgrEnabled())
+			{
+				updatedContacts = new UpdateAddressBookTask(new_contacts_by_id, ids_json).execute();
+			}
+			else
+			{
+				updatedContacts = AccountUtils.updateAddressBook(new_contacts_by_id, ids_json);
+			}
+
+			if (updatedContacts == null)
+			{
+				Logger.e("ContactUtils", " updated contacts is null some error occurred during request execution");
+				return false;
+			}
 
 			List<ContactInfo> contactsToDelete = new ArrayList<ContactInfo>();
 			String myMsisdn = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeMessengerApp.MSISDN_SETTING, "");

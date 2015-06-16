@@ -474,7 +474,15 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 			try
 			{
 				Map<String, List<ContactInfo>> contacts = conMgr.convertToMap(contactinfos);
-				JSONObject jsonForAddressBookAndBlockList = new PostAddressBookTask(contacts).execute();
+				JSONObject jsonForAddressBookAndBlockList = null;
+				if (Utils.isAddressbookCallsThroughHttpMgrEnabled())
+				{
+					jsonForAddressBookAndBlockList = new PostAddressBookTask(contacts).execute();
+				}
+				else
+				{
+					jsonForAddressBookAndBlockList = AccountUtils.postAddressBook(token, contacts);
+				}
 
 				List<ContactInfo> addressbook = ContactUtils.getContactList(jsonForAddressBookAndBlockList, contacts);
 				List<String> blockList = ContactUtils.getBlockList(jsonForAddressBookAndBlockList);
