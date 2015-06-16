@@ -176,10 +176,9 @@ public class HikeNotification
 		notificationIntent.putExtra(HikeConstants.Extras.NAME, context.getString(R.string.team_hike));
 
 		notificationIntent.setData((Uri.parse("custom://" + FREE_SMS_POPUP_NOTIFICATION_ID)));
-		final Drawable avatarDrawable = context.getResources().getDrawable(R.drawable.hike_avtar_protip);
 		final int smallIconId = returnSmallIcon();
 
-		NotificationCompat.Builder mBuilder = getNotificationBuilder(context.getString(R.string.team_hike), bodyString, bodyString, avatarDrawable, smallIconId, false);
+		NotificationCompat.Builder mBuilder = getNotificationBuilder(context.getString(R.string.team_hike), bodyString, bodyString, null, smallIconId, false);
 		setNotificationIntentForBuilder(mBuilder, notificationIntent, FREE_SMS_POPUP_NOTIFICATION_ID);
 
 		notifyNotification(FREE_SMS_POPUP_NOTIFICATION_ID, mBuilder);
@@ -219,10 +218,9 @@ public class HikeNotification
 		notificationIntent.putExtra(HikeConstants.Extras.NAME, context.getString(R.string.team_hike));
 
 		notificationIntent.setData((Uri.parse("custom://" + STEALTH_POPUP_NOTIFICATION_ID)));
-		final Drawable avatarDrawable = context.getResources().getDrawable(R.drawable.hike_avtar_protip);
 		final int smallIconId = returnSmallIcon();
 
-		NotificationCompat.Builder mBuilder = getNotificationBuilder(context.getString(R.string.team_hike), headerString, headerString, avatarDrawable, smallIconId, false);
+		NotificationCompat.Builder mBuilder = getNotificationBuilder(context.getString(R.string.team_hike), headerString, headerString, null, smallIconId, false);
 		setNotificationIntentForBuilder(mBuilder, notificationIntent, FREE_SMS_POPUP_NOTIFICATION_ID);
 		
 		notifyNotification(FREE_SMS_POPUP_NOTIFICATION_ID, mBuilder);
@@ -254,10 +252,9 @@ public class HikeNotification
 
 		notificationIntent.putExtra(HikeConstants.Extras.NAME, context.getString(R.string.team_hike));
 
-		final Drawable avatarDrawable = context.getResources().getDrawable(R.drawable.hike_avtar_protip);
 		final int smallIconId = returnSmallIcon();
 
-		NotificationCompat.Builder mBuilder = getNotificationBuilder(context.getString(R.string.team_hike), message, message, avatarDrawable, smallIconId, false);
+		NotificationCompat.Builder mBuilder = getNotificationBuilder(context.getString(R.string.team_hike), message, message, null, smallIconId, false);
 		setNotificationIntentForBuilder(mBuilder, notificationIntent, FREE_SMS_POPUP_NOTIFICATION_ID);
 
 		notifyNotification(FREE_SMS_POPUP_NOTIFICATION_ID, mBuilder);
@@ -287,10 +284,9 @@ public class HikeNotification
 
 		notificationIntent.setData((Uri.parse("custom://" + PROTIP_NOTIFICATION_ID)));
 
-		final Drawable avatarDrawable = context.getResources().getDrawable(R.drawable.hike_avtar_protip);
 		final int smallIconId = returnSmallIcon();
 
-		NotificationCompat.Builder mBuilder = getNotificationBuilder(context.getString(R.string.team_hike), proTip.getHeader(), proTip.getHeader(), avatarDrawable, smallIconId,
+		NotificationCompat.Builder mBuilder = getNotificationBuilder(context.getString(R.string.team_hike), proTip.getHeader(), proTip.getHeader(), null, smallIconId,
 				false);
 
 		setNotificationIntentForBuilder(mBuilder, notificationIntent, PROTIP_NOTIFICATION_ID);
@@ -309,10 +305,9 @@ public class HikeNotification
 	public void notifyUpdatePush(int updateType, String packageName, String message, boolean isApplicationsPushUpdate)
 	{
 		message = (TextUtils.isEmpty(message)) ? context.getString(R.string.update_app) : message;
-		final Drawable avatarDrawable = context.getResources().getDrawable(R.drawable.hike_avtar_protip);
 		final int smallIconId = returnSmallIcon();
 
-		NotificationCompat.Builder mBuilder = getNotificationBuilder(context.getString(R.string.team_hike), message, message, avatarDrawable, smallIconId, false);
+		NotificationCompat.Builder mBuilder = getNotificationBuilder(context.getString(R.string.team_hike), message, message, null, smallIconId, false);
 
 		Intent intent = new Intent(Intent.ACTION_VIEW);
 		intent.setData(Uri.parse("market://details?id=" + packageName));
@@ -477,7 +472,7 @@ public class HikeNotification
 
 			// big picture messages ! intercept !
 			showNotification(notificationIntent, icon, timestamp, notificationId, text, key, message, msisdn, bigPictureImage, !convMsg.isStickerMessage(), isPin, false, hikeNotifMsgStack.getNotificationSubText(),
-					null, forceBlockNotificationSound, 0,isSilentNotification(convMsg));
+					Utils.getAvatarDrawableForNotification(context, msisdn, isPin), forceBlockNotificationSound, 0,isSilentNotification(convMsg));
 		}
 		else
 		{
@@ -548,9 +543,9 @@ public class HikeNotification
 		boolean isSingleMsisdn = hikeNotifMsgStack.isFromSingleMsisdn();
 
 		Drawable avatarDrawable = null;
-		if (!isSingleMsisdn)
+		if (isSingleMsisdn)
 		{
-			avatarDrawable = context.getResources().getDrawable(R.drawable.hike_avtar_protip);
+			avatarDrawable = Utils.getAvatarDrawableForNotification(context, msisdn, false);
 		}
 
 		if (hikeNotifMsgStack.getSize() == 1)
@@ -593,9 +588,9 @@ public class HikeNotification
 		boolean isSingleMsisdn = hikeNotifMsgStack.isFromSingleMsisdn();
 
 		Drawable avatarDrawable = null;
-		if (!isSingleMsisdn)
+		if (isSingleMsisdn)
 		{
-			avatarDrawable = context.getResources().getDrawable(R.drawable.hike_avtar_protip);
+			avatarDrawable = Utils.getAvatarDrawableForNotification(context, hikeNotifMsgStack.lastAddedMsisdn, false);
 		}
 
 		// Possibility to show big picture message
@@ -751,9 +746,8 @@ public class HikeNotification
 		final Intent notificationIntent = Utils.getHomeActivityIntent(context);
 		notificationIntent.setData((Uri.parse("custom://" + notificationId)));
 
-		final Drawable avatarDrawable = context.getResources().getDrawable(R.drawable.hike_avtar_protip);
 		final int smallIconId = returnSmallIcon();
-		NotificationCompat.Builder mBuilder = getNotificationBuilder(context.getString(R.string.app_name), message, message, avatarDrawable, smallIconId, false,isSilentNotification);
+		NotificationCompat.Builder mBuilder = getNotificationBuilder(context.getString(R.string.app_name), message, message, null, smallIconId, false,isSilentNotification);
 		setNotificationIntentForBuilder(mBuilder, notificationIntent,STEALTH_NOTIFICATION_ID);
 		notifyNotification(notificationId, mBuilder);
 		notificationBuilderPostWork();
@@ -994,31 +988,14 @@ public class HikeNotification
 	}
 
 	private void showInboxStyleNotification(final Intent notificationIntent, final int icon, final long timestamp, final int notificationId, final CharSequence text,
-			final String key, final String message, final String msisdn, String subMessage, Drawable argAvatarDrawable, List<SpannableString> inboxLines, boolean shouldNotPlaySound, int retryCount)
-	{
-		showInboxStyleNotification(notificationIntent, icon, timestamp, notificationId, text, key, message, msisdn, subMessage, argAvatarDrawable, inboxLines, shouldNotPlaySound, retryCount,false);	
-	}
-	
-	private void showInboxStyleNotification(final Intent notificationIntent, final int icon, final long timestamp, final int notificationId, final CharSequence text,
 			final String key, final String message, final String msisdn, String subMessage, Drawable argAvatarDrawable, List<SpannableString> inboxLines, boolean shouldNotPlaySound, int retryCount,boolean isSilentNotification)
 	{
-
-
-		Drawable avatarDrawable = null;
-		if (argAvatarDrawable == null)
-		{
-			avatarDrawable = Utils.getAvatarDrawableForNotificationOrShortcut(context, msisdn, false);
-		}
-		else
-		{
-			avatarDrawable = argAvatarDrawable;
-		}
 
 		final int smallIconId = returnSmallIcon();
 
 		NotificationCompat.Builder mBuilder;
 		mBuilder = null;
-		mBuilder = getNotificationBuilder(key, subMessage, text.toString(), avatarDrawable, smallIconId, shouldNotPlaySound,isSilentNotification);
+		mBuilder = getNotificationBuilder(key, subMessage, text.toString(), argAvatarDrawable, smallIconId, shouldNotPlaySound,isSilentNotification);
 		NotificationCompat.InboxStyle inBoxStyle = new NotificationCompat.InboxStyle();
 		inBoxStyle.setBigContentTitle(key);
 		inBoxStyle.setSummaryText(subMessage);
@@ -1058,21 +1035,11 @@ public class HikeNotification
 			final String key, final String message, final String msisdn, String subMessage, Drawable argAvatarDrawable, boolean shouldNotPlaySound, int retryCount, Action[] actions,boolean isSilentNotification)
 	{
 
-		Drawable avatarDrawable = null;
-		if (argAvatarDrawable == null)
-		{
-			avatarDrawable = Utils.getAvatarDrawableForNotificationOrShortcut(context, msisdn, false);
-		}
-		else
-		{
-			avatarDrawable = argAvatarDrawable;
-		}
-
 		final int smallIconId = returnSmallIcon();
 
 		NotificationCompat.Builder mBuilder;
 		mBuilder = null;
-		mBuilder = getNotificationBuilder(key, message, text.toString(), avatarDrawable, smallIconId, shouldNotPlaySound,isSilentNotification);
+		mBuilder = getNotificationBuilder(key, message, text.toString(), argAvatarDrawable, smallIconId, shouldNotPlaySound,isSilentNotification);
 		NotificationCompat.BigTextStyle bigTextStyle = new NotificationCompat.BigTextStyle();
 		bigTextStyle.setBigContentTitle(key);
 		if(!TextUtils.isEmpty(subMessage))
@@ -1102,33 +1069,18 @@ public class HikeNotification
 		}
 		notificationBuilderPostWork();
 	}
-	private void showNotification(final Intent notificationIntent, final int icon, final long timestamp, final int notificationId, final CharSequence text, final String key,
-			final String message, final String msisdn, final Bitmap bigPictureImage, boolean isFTMessage, boolean isPin, boolean isBigText, String subMessage,
-			Drawable argAvatarDrawable, boolean forceNotPlaySound, int retryCount)
-	{
-		showNotification(notificationIntent, icon, timestamp, notificationId, text, key, message, msisdn, bigPictureImage, isFTMessage, isPin, isBigText, subMessage, argAvatarDrawable, forceNotPlaySound, retryCount,false);
-	}
+
 	private void showNotification(final Intent notificationIntent, final int icon, final long timestamp, final int notificationId, final CharSequence text, final String key,
 			final String message, final String msisdn, final Bitmap bigPictureImage, boolean isFTMessage, boolean isPin, boolean isBigText, String subMessage,
 			Drawable argAvatarDrawable, boolean forceNotPlaySound, int retryCount,boolean isSilentNotification)
 	{
-
-		Drawable avatarDrawable = null;
-		if (argAvatarDrawable == null)
-		{
-			avatarDrawable = Utils.getAvatarDrawableForNotificationOrShortcut(context, msisdn, isPin);
-		}
-		else
-		{
-			avatarDrawable = argAvatarDrawable;
-		}
 
 		final int smallIconId = returnSmallIcon();
 
 		NotificationCompat.Builder mBuilder;
 		if (bigPictureImage != null)
 		{
-			mBuilder = getNotificationBuilder(key, message, text.toString(), avatarDrawable, smallIconId, forceNotPlaySound,isSilentNotification);
+			mBuilder = getNotificationBuilder(key, message, text.toString(), argAvatarDrawable, smallIconId, forceNotPlaySound,isSilentNotification);
 			final NotificationCompat.BigPictureStyle bigPicStyle = new NotificationCompat.BigPictureStyle();
 			bigPicStyle.setBigContentTitle(key);
 			if(!TextUtils.isEmpty(subMessage))
@@ -1146,7 +1098,7 @@ public class HikeNotification
 			mBuilder = null;
 			if (isBigText)
 			{
-				mBuilder = getNotificationBuilder(key, message, text.toString(), avatarDrawable, smallIconId, forceNotPlaySound,isSilentNotification);
+				mBuilder = getNotificationBuilder(key, message, text.toString(), argAvatarDrawable, smallIconId, forceNotPlaySound,isSilentNotification);
 				NotificationCompat.BigTextStyle bigTextStyle = new NotificationCompat.BigTextStyle();
 				bigTextStyle.setBigContentTitle(key);
 				bigTextStyle.bigText(message);
@@ -1158,7 +1110,7 @@ public class HikeNotification
 			}
 			else
 			{
-				mBuilder = getNotificationBuilder(key, message, text.toString(), avatarDrawable, smallIconId, false,isSilentNotification);
+				mBuilder = getNotificationBuilder(key, message, text.toString(), argAvatarDrawable, smallIconId, false,isSilentNotification);
 			}
 		}
 
@@ -1188,15 +1140,9 @@ public class HikeNotification
 			final String message, final String msisdn, final Bitmap bigPictureImage, boolean isPin, boolean forceNotPlaySound,boolean isSilentNotification)
 	{
 		showNotification(notificationIntent, icon, timestamp, notificationId, text, key, message, msisdn, bigPictureImage, false, isPin, true,
-				hikeNotifMsgStack.getNotificationSubText(), null, forceNotPlaySound, 0,isSilentNotification);
+				hikeNotifMsgStack.getNotificationSubText(), Utils.getAvatarDrawableForNotification(context, msisdn, isPin), forceNotPlaySound, 0,isSilentNotification);
 	}
 	
-	private void showNotification(final Intent notificationIntent, final int icon, final long timestamp, final int notificationId, final CharSequence text, final String key,
-			final String message, final String msisdn, final Bitmap bigPictureImage, boolean isPin, boolean forceNotPlaySound, int retryCount)
-	{
-		showNotification(notificationIntent, icon, timestamp, notificationId, text, key, message, msisdn, bigPictureImage, false, isPin, true,
-				hikeNotifMsgStack.getNotificationSubText(), null, forceNotPlaySound, retryCount);
-	}
 
 	public int returnSmallIcon()
 	{
@@ -1458,10 +1404,9 @@ public class HikeNotification
 	}
 	public  void notifyUserAndOpenHomeActivity(String text, String title, boolean shouldNotPlaySound)
 	{
-		Drawable drawable =context.getResources().getDrawable(R.drawable.hike_avtar_protip);
 		Intent intent=Utils.getHomeActivityIntent(context);
 		showBigTextStyleNotification(intent, 0, System.currentTimeMillis(), HikeNotification.HIKE_SUMMARY_NOTIFICATION_ID, title, text,
-				title, "", null, drawable, shouldNotPlaySound, 0);
+				title, "", null, null, shouldNotPlaySound, 0);
 	}
 
 
