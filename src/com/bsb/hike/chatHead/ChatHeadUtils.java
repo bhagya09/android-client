@@ -23,31 +23,9 @@ import com.bsb.hike.utils.Utils;
 
 public class ChatHeadUtils
 {
-	public static final int CREATING_CHAT_HEAD_ACTIVITY_ANIMATION = 0;
-
-	public static final int FINISHING_CHAT_HEAD_ACTIVITY_ANIMATION = 1;
-
-	public static final int SHARING_BEFORE_FINISHING_ANIMATION = 2;
-
-	public static final int STOPPING_SERVICE_ANIMATION = 3;
-
-	public static final int GET_MORE_STICKERS_ANIMATION = 4;
-
-	public static final int OPEN_HIKE_ANIMATION = 5;
-
-	public static final int STICKER_SHOP_ANIMATION = 6;
-
-	public static final int OPEN_SETTINGS_ANIMATION = 7;
-
-	public static final int REMAINING_ANIMATION = 8;
-
-	public static final String DAILY_STICKER_SHARE_COUNT = "shr_cnt_dly";
-
-	private static final String SERVICE_LAST_USED = "lastUsed";
+    private static final String SERVICE_LAST_USED = "lastUsed";
 
 	private static Set<String> foregroundedPackages;
-
-	public static final int HOUR_TO_MILLISEC_CONST = 3600000;
 
 	public static boolean isSharingPackageInstalled(Context context)
 	{
@@ -103,10 +81,10 @@ public class ChatHeadUtils
 		{
 			HikeSharedPreferenceUtil.getInstance().saveData(SERVICE_LAST_USED, Utils.gettingMidnightTimeinMilliseconds());
 		}
-		if ((int) ((Utils.gettingMidnightTimeinMilliseconds() - (HikeSharedPreferenceUtil.getInstance().getData(SERVICE_LAST_USED, Utils.gettingMidnightTimeinMilliseconds()))) / (24 * HOUR_TO_MILLISEC_CONST)) > 0)
+		if ((int) ((Utils.gettingMidnightTimeinMilliseconds() - (HikeSharedPreferenceUtil.getInstance().getData(SERVICE_LAST_USED, Utils.gettingMidnightTimeinMilliseconds()))) / (24 * ChatHeadConstants.HOUR_TO_MILLISEC_CONST)) > 0)
 		{
 			HikeSharedPreferenceUtil.getInstance().saveData(SERVICE_LAST_USED, Utils.gettingMidnightTimeinMilliseconds());
-			HikeSharedPreferenceUtil.getInstance().saveData(DAILY_STICKER_SHARE_COUNT, 0);
+			HikeSharedPreferenceUtil.getInstance().saveData(ChatHeadConstants.DAILY_STICKER_SHARE_COUNT, 0);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.EXTRA_STICKERS_PER_DAY, 0);
 		}
 	}
@@ -160,7 +138,7 @@ public class ChatHeadUtils
 	{
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.SNOOZE, true);
 		HikeAlarmManager.setAlarm(context, Calendar.getInstance().getTimeInMillis() + time, HikeAlarmManager.REQUESTCODE_START_STICKER_SHARE_SERVICE, false);
-		ChatHeadService.getInstance().resetPosition(ChatHeadUtils.STOPPING_SERVICE_ANIMATION);
+		ChatHeadService.getInstance().resetPosition(ChatHeadConstants.STOPPING_SERVICE_ANIMATION);
 	}
 
 }

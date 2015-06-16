@@ -1320,18 +1320,8 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 	@Override
 	public void onReceive(Context context, Intent intent)
 	{
-		if (intent.getAction().equals(Intent.ACTION_SCREEN_ON))
-		{
-			if (Utils.isUserOnline(context))
-				connectOnMqttThread();
-			ChatHeadUtils.startOrStopService(false);
-			
-		}
-		else if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF))
-		{
-			ChatHeadUtils.stopService();
-		}
-		else if (intent.getAction().equals(ConnectivityManager.CONNECTIVITY_ACTION))
+		
+		if (intent.getAction().equals(ConnectivityManager.CONNECTIVITY_ACTION))
 		{
 			boolean isNetwork = Utils.isUserOnline(context);
 			Logger.d(TAG, "Network change event happened. Network connected : " + isNetwork);
