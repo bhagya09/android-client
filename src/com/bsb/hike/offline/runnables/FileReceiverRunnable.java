@@ -32,7 +32,7 @@ import com.bsb.hike.utils.Logger;
 
 /**
  * 
- * @author himanshu
+ * @author himanshu, deepak malik
  *	Runnable responsible for receving file from client
  */
 public class FileReceiverRunnable implements Runnable
@@ -47,6 +47,8 @@ public class FileReceiverRunnable implements Runnable
 	OfflineManager offlineManager = null;
 	
 	IConnectCallback connectCallback=null;
+	
+	File f = null;
 
 	public FileReceiverRunnable(IConnectCallback connectCallback)
 	{
@@ -114,7 +116,7 @@ public class FileReceiverRunnable implements Runnable
 					int type = fileJSON.getInt(HikeConstants.HIKE_FILE_TYPE);
 					fileName = fileJSON.getString(HikeConstants.FILE_NAME);
 					filePath = OfflineUtils.getFileBasedOnType(type, fileName);
-					 totalChunks = OfflineUtils.getTotalChunks(fileSize);
+					totalChunks = OfflineUtils.getTotalChunks(fileSize);
 					
 				}
 				catch (JSONException e1)
@@ -137,11 +139,13 @@ public class FileReceiverRunnable implements Runnable
 					Logger.d(TAG, filePath);
 
 					// TODO : Revisit the logic again.
-					File f = new File(Environment.getExternalStorageDirectory() + "/" + "Hike/Media/hike Images" + "/tempImage_" + fileName);
+					f = new File(Environment.getExternalStorageDirectory() + "/" + "Hike/Media/hike Images" + "/tempImage_" + fileName);
 					File dirs = new File(f.getParent());
 					if (!dirs.exists())
 						dirs.mkdirs();
+					// created a temporary file which on successful download will be renamed.
 					f.createNewFile();
+					
 					// TODO:Can be done via show progress pubsub.
 					// showDownloadTransferNotification(mappedMsgId, fileSize);
 					FileOutputStream outputStream = new FileOutputStream(f);
@@ -149,6 +153,9 @@ public class FileReceiverRunnable implements Runnable
 					offlineManager.copyFile(inputstream, new FileOutputStream(f), convMessage.getMsgID(), true, false, fileSize);
 					OfflineUtils.closeOutputStream(outputStream);
 					f.renameTo(new File(filePath));
+					
+					// if f!=null and exception occurs we need to delete the temp file
+					f = null;
 				}
 				catch (JSONException e)
 				{
@@ -181,6 +188,11 @@ public class FileReceiverRunnable implements Runnable
 		catch (OfflineException e)
 		{
 			e.printStackTrace();
+			if (f != null)
+			{
+				Logger.d(TAG, "Going to delete file in FRR");
+				f.delete();
+			}
 			connectCallback.onDisconnect(new OfflineException(e, OfflineException.CLIENT_DISCONNETED));
 
 		}

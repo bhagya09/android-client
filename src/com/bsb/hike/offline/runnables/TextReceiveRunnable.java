@@ -31,7 +31,7 @@ import com.bsb.hike.utils.Logger;
 
 /**
  * 
- * @author himanshu
+ * @author himanshu, deepak malik
  *	Runnable responsible for receving text from client
  */
 public class TextReceiveRunnable implements Runnable
@@ -52,6 +52,8 @@ public class TextReceiveRunnable implements Runnable
 	private OfflineManager offlineManager;
 	
 	IConnectCallback connectCallback;
+	
+	File stickerImage = null;
 
 	public TextReceiveRunnable(IConnectCallback connectCallback)
 	{
@@ -76,7 +78,7 @@ public class TextReceiveRunnable implements Runnable
 			connectCallback.onConnect();
 			inputStream = textReceiverSocket.getInputStream();
 			while (true)
-			{
+			{				
 				byte[] convMessageLength = new byte[4];
 				int readBytes = inputStream.read(convMessageLength, 0, 4);
 
@@ -130,7 +132,7 @@ public class TextReceiveRunnable implements Runnable
 					if (OfflineUtils.isStickerMessage(messageJSON))
 					{
 						String stpath = OfflineUtils.getStickerPath(messageJSON);
-						File stickerImage = new File(stpath);
+						stickerImage = new File(stpath);
 						if (!stickerImage.exists())
 						{
 							OfflineUtils.createStkDirectory(messageJSON);
@@ -148,6 +150,8 @@ public class TextReceiveRunnable implements Runnable
 								fileSize -= len;
 							}
 						}
+						// set stickerImage to null, to avoid deleting it if download is complete
+						stickerImage = null;   
 					}
 					else if (OfflineUtils.isChatThemeMessage(messageJSON))
 					{
@@ -180,12 +184,14 @@ public class TextReceiveRunnable implements Runnable
 		{
 			e.printStackTrace();
 			Logger.e(TAG, "Exception in TextReceiveThread. IO Exception occured.Socket was not bounded");
+			if (stickerImage != null)
+				stickerImage.delete();
 			connectCallback.onDisconnect(new OfflineException(e, OfflineException.CLIENT_DISCONNETED));
 		}
 		catch (IllegalArgumentException e)
 		{
 			e.printStackTrace();
-			Logger.e(TAG, "Did we pass correct Address here ??");
+			Logger.e(TAG, "Did we pass correct Address here ?? Server Socket did not bind.");
 		}
 		catch (JSONException e)
 		{
@@ -194,6 +200,11 @@ public class TextReceiveRunnable implements Runnable
 		catch (OfflineException e)
 		{
 			e.printStackTrace();
+			if (stickerImage != null)
+			{
+				Logger.d(TAG, "GOing to delete stickerImage in TRR");
+				stickerImage.delete();
+			}
 			connectCallback.onDisconnect(new OfflineException(e, OfflineException.CLIENT_DISCONNETED));
 
 		}

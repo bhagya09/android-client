@@ -309,7 +309,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 				if (showProgress && ((len / OfflineConstants.CHUNK_SIZE) != prev))
 				{
 					prev = len / OfflineConstants.CHUNK_SIZE;
-					Logger.d(TAG, "Chunk read " + prev + "");
+					// Logger.d(TAG, "Chunk read " + prev + "");
 					showSpinnerProgress(isSent, msgId);
 				}
 			}
@@ -352,7 +352,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 
 			if (fileTransfer != null)
 			{
-				Logger.d(TAG, "Received side Current chunk is " + fileTransfer.getTransferProgress().getCurrentChunks());
+				// Logger.d(TAG, "Received side Current chunk is " + fileTransfer.getTransferProgress().getCurrentChunks());
 				fileTransfer.getTransferProgress().setCurrentChunks(fileTransfer.getTransferProgress().getCurrentChunks() + 1);
 			}
 		}
@@ -397,12 +397,12 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 		{
 			if (currentSendingFiles.containsKey(msgId))
 			{
-				Logger.d("Spinner", "Current Msg Id -> " + msgId);
+				// Logger.d("Spinner", "Current Msg Id -> " + msgId);
 				fss = new FileSavedState(FTState.IN_PROGRESS, (int) file.length(), currentSendingFiles.get(msgId).getTransferProgress().getCurrentChunks() * 1024);
 			}
 			else
 			{
-				Logger.d("Spinner", "Completed Msg Id -> " + msgId);
+				// Logger.d("Spinner", "Completed Msg Id -> " + msgId);
 				fss = new FileSavedState(FTState.COMPLETED, hikeFile.getFileKey());
 			}
 			return fss;
@@ -426,13 +426,13 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 
 			if (currentReceivingFiles.containsKey(msgId))
 			{
-				Logger.d("Spinner", "Current Msg Id -> " + msgId);
+				// Logger.d("Spinner", "Current Msg Id -> " + msgId);
 				fss = new FileSavedState(FTState.IN_PROGRESS, (int) file.length(), currentReceivingFiles.get(msgId).getTransferProgress().getCurrentChunks() * 1024);
 
 			}
 			else
 			{
-				Logger.d("Spinner", "Completed Msg Id -> " + msgId);
+				// Logger.d("Spinner", "Completed Msg Id -> " + msgId);
 				fss = new FileSavedState(FTState.COMPLETED, hikeFile.getFileKey());
 			}
 		}
@@ -940,7 +940,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 		}
 		else
 		{
-			Logger.d(TAG, "showTransferProgress trying to get msg id is " + msgId);
+			//Logger.d(TAG, "showTransferProgress trying to get msg id is " + msgId);
 			if (!currentReceivingFiles.containsKey(msgId))
 				return;
 			else
@@ -948,8 +948,8 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 		}
 	
 		long progress = (((long)num*OfflineConstants.CHUNK_SIZE*100)/hikeFile.getFileSize());
-		Logger.d(TAG, "CurrentSizeReceived: " + num + " FileSize: " + hikeFile.getFileSize() + 
-				" Progress -> " +  progress +  " FtState -> " + fss.getFTState().name());
+		//Logger.d(TAG, "CurrentSizeReceived: " + num + " FileSize: " + hikeFile.getFileSize() + 
+		//		" Progress -> " +  progress +  " FtState -> " + fss.getFTState().name());
 		
 		if (fss.getFTState() == FTState.IN_PROGRESS)
 		{
