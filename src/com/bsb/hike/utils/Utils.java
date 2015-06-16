@@ -14,6 +14,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
+import java.net.URI;
 import java.net.URL;
 import java.nio.CharBuffer;
 import java.security.MessageDigest;
@@ -1374,9 +1375,10 @@ public class Utils
 	{
 		String result = null;
 		Cursor cursor = null;
+		String[] projection = { MediaStore.Images.Media.DATA };
 		try
 		{
-			cursor = mContext.getContentResolver().query(uri, null, null, null, null);
+			cursor = mContext.getContentResolver().query(uri, projection, null, null, null);
 			if (cursor == null)
 			{
 				result = uri.getPath();
@@ -1385,7 +1387,7 @@ public class Utils
 			{
 				if (cursor.moveToFirst())
 				{
-					int idx = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
+					int idx = cursor.getColumnIndex(MediaStore.Images.Media.DATA);
 					if(idx >= 0)
 					{
 						result = cursor.getString(idx);
@@ -1411,6 +1413,45 @@ public class Utils
 				cursor.close();
 		}
 		return result;
+	}
+	
+	/**
+	 * Wrapper Method that covers all the known edge cases while retrieving filepath from Uri
+	 * 
+	 * @param uri
+	 * @param mContext
+	 * @param checkForPicassaUri : boolena for special handling of Picassa Uri
+	 * @return absolute file path othe file represented by the uri
+	 */
+	
+	public static String getAbsolutePathFromUri(Uri uri, Context mContext,boolean checkForPicassaUri)
+	{
+		
+		String fileUriString = uri.toString();
+		String fileUriStart = "file:";
+		
+		String returnFilePath = null;
+		if (fileUriString.startsWith(fileUriStart))
+		{
+			File selectedFile = new File(URI.create(Utils.replaceUrlSpaces(fileUriString)));
+			/*
+			 * Done to fix the issue in a few Sony devices.
+			 */
+			returnFilePath = selectedFile.getAbsolutePath();
+		}
+		
+		if(returnFilePath == null)
+		{
+			returnFilePath = getRealPathFromUri(uri, mContext);
+		}
+		
+		if(returnFilePath == null && checkForPicassaUri && isPicasaUri(fileUriString))
+		{
+			returnFilePath = fileUriString;
+		}
+		
+		return returnFilePath;
+		
 	}
 	
 	public static enum ExternalStorageState
@@ -2346,7 +2387,7 @@ public class Utils
 		File newFile = new File(directory, newFileName);
 		return tempFile.renameTo(newFile);
 	}
-	
+
 	public static boolean removeTempProfileImage(String msisdn)
 	{
 		String directory = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
@@ -5827,7 +5868,12 @@ public class Utils
 	
 	public static boolean isPhotosEditEnabled()
 	{
-		if(!Utils.isUserSignedUp(HikeMessengerApp.getInstance().getApplicationContext(), false))
+		if (Build.MANUFACTURER != null && Build.MANUFACTURER.toLowerCase().startsWith("asus"))
+		{
+			return false;
+		}
+
+		if (!Utils.isUserSignedUp(HikeMessengerApp.getInstance().getApplicationContext(), false))
 		{
 			return false;
 		}

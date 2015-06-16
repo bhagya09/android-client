@@ -68,7 +68,6 @@ import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.FtueContactsData;
-import com.bsb.hike.models.GalleryItem;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.OverFlowMenuItem;
 import com.bsb.hike.models.Conversation.ConversationTip;
@@ -219,44 +218,11 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		HikeMessengerApp app = (HikeMessengerApp) getApplication();
 		app.connectToService();
 
-		if (Intent.ACTION_SEND.equals(getIntent().getAction()) ) 
+		if(isShareIntent(getIntent()))
 		{
-			Intent intent =getIntent();
-			if(HikeFileType.fromString(intent.getType()).compareTo(HikeFileType.IMAGE)==0 && Utils.isPhotosEditEnabled()) 
-			{ 
-				String fileName = Utils.getRealPathFromUri((Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM), getApplicationContext());
-				startActivity(IntentFactory.getPictureEditorActivityIntent(getApplicationContext(), fileName, true, null, false));
-			}
-			else
-			{
-				handleShareIntent(getIntent());
-			}
-		} 
-		
-		else if(Intent.ACTION_SEND_MULTIPLE.equals(getIntent().getAction()))
-		{
-			handleShareIntent(getIntent());
-			
-			//Commenting out Multi-share:images edit code. This feature will be enabled in next release.
-			
-			/*
-			Intent intent =getIntent();
-			ArrayList<Uri> imageUris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
-			ArrayList<GalleryItem> selectedImages = GalleryItem.getGalleryItemsFromFilepaths(imageUris);
-			if((selectedImages!=null) && Utils.isPhotosEditEnabled()) 
-			{
-				Intent multiIntent = new Intent(getApplicationContext(),GallerySelectionViewer.class);
-				multiIntent.putParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS, selectedImages);
-				multiIntent.putExtra(GallerySelectionViewer.FROM_DEVICE_GALLERY_SHARE, true);
-				startActivity(multiIntent);
-			}
-			else
-			{
-				handleShareIntent(getIntent());
-			}
-			*/
+			handleFileShareIntent(getIntent());
 		}
-
+		
 		setupActionBar();
 
 		// Checking whether the state of the avatar and conv DB Upgrade settings
@@ -305,6 +271,55 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			break;
 		}
 
+	}
+	
+	private boolean isShareIntent(Intent intent)
+	{
+		if (Intent.ACTION_SEND.equals(intent.getAction()) || Intent.ACTION_SEND_MULTIPLE.equals(intent.getAction())) 
+		{
+			return true;
+		} 
+		
+		return false;
+	}
+	
+	private void handleFileShareIntent(Intent intent)
+	{
+		if (Intent.ACTION_SEND.equals(intent.getAction()) ) 
+		{
+			if(HikeFileType.fromString(intent.getType()).compareTo(HikeFileType.IMAGE)==0 && Utils.isPhotosEditEnabled()) 
+			{ 
+				String fileName = Utils.getAbsolutePathFromUri((Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM), getApplicationContext(),false);
+				startActivity(IntentFactory.getPictureEditorActivityIntent(getApplicationContext(), fileName, true, null, false));
+			}
+			else
+			{
+				transferShareIntent(intent);
+			}
+		} 
+		
+		else if(Intent.ACTION_SEND_MULTIPLE.equals(intent.getAction()))
+		{
+			transferShareIntent(intent);
+			
+			//Commenting out Multi-share:images edit code. This feature will be enabled in next release.
+			
+			/*
+			ArrayList<Uri> imageUris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
+			ArrayList<GalleryItem> selectedImages = GalleryItem.getGalleryItemsFromFilepaths(imageUris);
+			if((selectedImages!=null) && Utils.isPhotosEditEnabled()) 
+			{
+				Intent multiIntent = new Intent(getApplicationContext(),GallerySelectionViewer.class);
+				multiIntent.putParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS, selectedImages);
+				multiIntent.putExtra(GallerySelectionViewer.FROM_DEVICE_GALLERY_SHARE, true);
+				startActivity(multiIntent);
+			}
+			else
+			{
+				handleShareIntent(intent);
+			}
+			*/
+		}
 	}
 
 	private void startFestivePopup(int type)
@@ -576,6 +591,11 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		{
 			NUXManager.getInstance().startNUX(this);
 			return;
+		}
+		
+		if(isShareIntent(intent))
+		{
+			handleFileShareIntent(intent);
 		}
 		
 		if (mainFragment != null)
@@ -1086,7 +1106,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		deviceDetailsSent = true;
 	}
 
-	private void handleShareIntent(Intent shareIntent)
+	private void transferShareIntent(Intent shareIntent)
 	{
 		if(shareIntent == null)
 		{
