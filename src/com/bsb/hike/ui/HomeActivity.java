@@ -289,7 +289,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		{
 			if(HikeFileType.fromString(intent.getType()).compareTo(HikeFileType.IMAGE)==0 && Utils.isPhotosEditEnabled()) 
 			{ 
-				String fileName = Utils.getAbsolutePathFromUri((Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM), getApplicationContext(),false);
+				String fileName = Utils.getAbsolutePathFromUri((Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM), getApplicationContext(),true);
 				startActivity(IntentFactory.getPictureEditorActivityIntent(getApplicationContext(), fileName, true, null, false));
 			}
 			else

@@ -152,7 +152,7 @@ public class GalleryItem implements Parcelable
 			retFilePaths = new ArrayList<String>();
 			for(T path : filePaths)
 			{
-				String tempPath = Utils.getAbsolutePathFromUri((Uri)path,HikeMessengerApp.getInstance().getApplicationContext(),false);
+				String tempPath = Utils.getAbsolutePathFromUri((Uri)path,HikeMessengerApp.getInstance().getApplicationContext(),true);
 				if(tempPath == null)
 				{
 					continue;
