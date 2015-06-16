@@ -986,23 +986,6 @@ public class VoIPService extends Service {
 		stopSelf();
 	}
 	
-	public void rejectIncomingCall() {
-		final VoIPClient client = getClient();
-
-		new Thread(new Runnable() {
-			
-			@Override
-			public void run() {
-				VoIPDataPacket dp = new VoIPDataPacket(PacketType.CALL_DECLINED);
-				client.sendPacket(dp, true);
-				stop();
-			}
-		},"REJECT_INCOMING_CALL_THREAD").start();
-		
-		// Here we don't show a missed call notification, but add the message to the chat thread
-		client.sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CALL_REJECT);
-	}
-	
 	public void setMute(boolean mute)
 	{
 		this.mute = mute;
@@ -1029,9 +1012,29 @@ public class VoIPService extends Service {
 		}
 	}
 
+	public void rejectIncomingCall() {
+		
+		final VoIPClient client = getClient();
+		if (client == null) return;
+		
+		new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				VoIPDataPacket dp = new VoIPDataPacket(PacketType.CALL_DECLINED);
+				client.sendPacket(dp, true);
+				stop();
+			}
+		},"REJECT_INCOMING_CALL_THREAD").start();
+		
+		// Here we don't show a missed call notification, but add the message to the chat thread
+		client.sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CALL_REJECT);
+	}
+	
 	public void acceptIncomingCall() {
 		
 		final VoIPClient client = getClient();
+		if (client == null) return;
 		
 		new Thread(new Runnable() {
 			
@@ -1042,7 +1045,7 @@ public class VoIPService extends Service {
 			}
 		}, "ACCEPT_INCOMING_CALL_THREAD").start();
 
-		startRecordingAndPlayback(getClient().getPhoneNumber());
+		startRecordingAndPlayback(client.getPhoneNumber());
 		client.sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CALL_ACCEPT);
 	}
 	
