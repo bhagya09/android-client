@@ -639,9 +639,8 @@ public class ToastListener implements Listener
 
 	public void notifyUser(String text, String title)
 	{
-		Drawable drawable = context.getResources().getDrawable(R.drawable.hike_avtar_protip);	
 		Intent intent = new Intent(context, HomeActivity.class);
 		toaster.showBigTextStyleNotification(intent, 0, System.currentTimeMillis(), HikeNotification.HIKE_SUMMARY_NOTIFICATION_ID, title, text, title, "",
-				null, drawable, false, 0);
+				null, null, false, 0);
 	}
 }
