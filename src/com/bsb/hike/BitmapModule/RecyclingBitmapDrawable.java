@@ -67,7 +67,10 @@ public class RecyclingBitmapDrawable extends BitmapDrawable
 			}
 			else
 			{
-				mDisplayRefCount--;
+				if (mDisplayRefCount > 0)
+				{
+					mDisplayRefCount--;
+				}
 			}
 			Logger.d(LOG_TAG, "IsDisplayed Count : " + mDisplayRefCount);
 		}
@@ -93,7 +96,10 @@ public class RecyclingBitmapDrawable extends BitmapDrawable
 			}
 			else
 			{
-				mCacheRefCount--;
+				if (mCacheRefCount > 0)
+				{
+					mCacheRefCount--;
+				}
 			}
 			Logger.d(LOG_TAG, "Is Cached Count : " + mCacheRefCount);
 		}
