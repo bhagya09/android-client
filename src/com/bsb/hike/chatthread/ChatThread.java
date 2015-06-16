@@ -5047,4 +5047,9 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	{
 		outState.putBoolean(HikeConstants.CONSUMED_FORWARDED_DATA, consumedForwardedData);
 	}
+	
+	protected void onRestoreInstanceState(Bundle savedInstanceState) 
+	{
+		consumedForwardedData = savedInstanceState.getBoolean(HikeConstants.CONSUMED_FORWARDED_DATA, false);
+	}
 }
