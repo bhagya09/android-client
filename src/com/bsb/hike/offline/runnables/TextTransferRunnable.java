@@ -113,15 +113,16 @@ public class TextTransferRunnable implements Runnable
 				{
 					// TODO : Send Offline Text and take action on the basis of boolean i.e. clock or single tick
 					Logger.d("OfflineThreadManager", "Going to send Text");
-
-					if (OfflineThreadManager.getInstance().sendOfflineText(packet, textSendSocket.getOutputStream()))
+					OfflineThreadManager.getInstance().sendOfflineText(packet, textSendSocket.getOutputStream());
+					Logger.d(TAG, "Waiting for ack of msgid: " + OfflineUtils.getMsgId(packet));
+					/*if ()
 					{
 						callback.onSuccess(packet);
 					}
 					else
 					{
 						callback.onFailure(packet);
-					}
+					}*/
 				}
 			}
 		}

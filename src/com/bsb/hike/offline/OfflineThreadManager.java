@@ -70,7 +70,7 @@ public class OfflineThreadManager
 	{
 		textTransferRunnable = new TextTransferRunnable(textMessageCallback, connectCallback);
 		fileTransferRunnable = new FileTransferRunnable(fileMessageCallback, connectCallback);
-		textReceiveRunnable = new TextReceiveRunnable(connectCallback);
+		textReceiveRunnable = new TextReceiveRunnable(textMessageCallback, fileMessageCallback, connectCallback);
 		fileReceiverRunnable = new FileReceiverRunnable(connectCallback);
 
 	}
@@ -245,14 +245,15 @@ public class OfflineThreadManager
 		@Override
 		public void onSuccess(JSONObject packet)
 		{
-			if (!OfflineUtils.isGhostPacket(packet) && !OfflineUtils.isPingPacket(packet))
+			//if (!OfflineUtils.isGhostPacket(packet) && !OfflineUtils.isPingPacket(packet))
+			if (OfflineUtils.isAckPacket(packet))
 			{
 				long msgId;
 				try
 				{
-					msgId = packet.getJSONObject(HikeConstants.DATA).getLong(HikeConstants.MESSAGE_ID);
-
-					String msisdn = packet.getString(HikeConstants.TO);
+					//msgId = packet.getJSONObject(HikeConstants.DATA).getLong(HikeConstants.MESSAGE_ID);
+					msgId = OfflineUtils.getMsgIdFromAckPacket(packet);
+					String msisdn = packet.getString(HikeConstants.FROM);
 					long startTime = System.currentTimeMillis();
 					int rowsUpdated = OfflineUtils.updateDB(msgId, ConvMessage.State.SENT_DELIVERED, msisdn);
 					Logger.d(TAG, "Time  taken: " + (System.currentTimeMillis() - startTime));
@@ -262,7 +263,7 @@ public class OfflineThreadManager
 					}
 					Pair<String, Long> pair = new Pair<String, Long>(msisdn, msgId);
 					HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_DELIVERED, pair);
-					Logger.d(TAG, "Message Send Successfully");
+					Logger.d(TAG, "Message Delivered Successfully");
 					HikeOfflinePersistence.getInstance().removeMessage(msgId);
 				}
 				catch (JSONException e)
@@ -284,14 +285,15 @@ public class OfflineThreadManager
 		@Override
 		public void onSuccess(JSONObject packet)
 		{
-			long msgID = OfflineUtils.getMsgId(packet);
-			offlineManager.removeFromCurrentSendingFile(msgID);
-
-			// Update Delivered status
+			long msgID = -1;
 			String msisdn = null;
 			try
 			{
-				msisdn = packet.getString(HikeConstants.TO);
+			msgID = OfflineUtils.getMsgIdFromAckPacket(packet);
+			msisdn = packet.getString(HikeConstants.FROM);
+			offlineManager.removeFromCurrentSendingFile(msgID);
+
+			// Update Delivered status
 			}
 			catch (JSONException e)
 			{

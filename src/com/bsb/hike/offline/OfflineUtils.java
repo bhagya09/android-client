@@ -515,4 +515,67 @@ public class OfflineUtils
 		}
 		return -1;
 	}
+	
+	public static JSONObject createAckPacket(String msisdn, long mappedMsgId, boolean ackForFileTransfer)
+	{
+		JSONObject ackJSON = new JSONObject();
+		try
+		{
+			ackJSON.putOpt(HikeConstants.TO, msisdn);
+			ackJSON.putOpt(HikeConstants.SUB_TYPE, OfflineConstants.ACK);
+			ackJSON.put(OfflineConstants.MSG_ID, mappedMsgId);
+			ackJSON.put(OfflineConstants.FILE_TRANSFER_ACK, ackForFileTransfer);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+		return ackJSON;
+	}
+	
+	public static boolean isAckForFileMessage(JSONObject ackJSON)
+	{
+		boolean ackForFileTransfer = false;
+		try {
+			if (ackJSON.has(HikeConstants.SUB_TYPE) && 
+					ackJSON.get(HikeConstants.SUB_TYPE).equals(OfflineConstants.ACK))
+			{
+				
+				ackForFileTransfer = ackJSON.optBoolean(OfflineConstants.FILE_TRANSFER_ACK);
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return ackForFileTransfer;
+	}
+	
+	public static long getMsgIdFromAckPacket(JSONObject ackJSON)
+	{
+		long msgId = -1;
+		try {
+			if (ackJSON.has(HikeConstants.SUB_TYPE) && 
+					ackJSON.get(HikeConstants.SUB_TYPE).equals(OfflineConstants.ACK))
+			{
+				
+				msgId = ackJSON.optLong(OfflineConstants.MSG_ID, -1);
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return msgId;
+	}
+	
+	public static boolean isAckPacket(JSONObject ackJSON)
+	{
+		if (ackJSON.has(HikeConstants.SUB_TYPE))
+		{
+			try {
+				return ackJSON.get(HikeConstants.SUB_TYPE).equals(OfflineConstants.ACK);
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return false;
+	}
 }
