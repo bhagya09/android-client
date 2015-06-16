@@ -82,7 +82,15 @@ public class HikeNotificationUtils
 			message = SmileyParser.getInstance().replaceEmojiWithCharacter(message, "*");
 		}
 
-		String key = (contactInfo != null && !TextUtils.isEmpty(contactInfo.getName())) ? contactInfo.getName() : msisdn;
+		String key = null;
+		if (BotUtils.isBot(msisdn))
+		{
+			key = BotUtils.getBotInfoForBotMsisdn(msisdn).getConversationName();
+		}
+		else
+		{
+			key = (contactInfo != null && !TextUtils.isEmpty(contactInfo.getName())) ? contactInfo.getName() : msisdn;
+		}
 		// For showing the name of the contact that sent the message in a group
 		// chat
 		if (convMsg.isOneToNChat() && !TextUtils.isEmpty(convMsg.getGroupParticipantMsisdn()) && convMsg.getParticipantInfoState() == ParticipantInfoState.NO_INFO)
