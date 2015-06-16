@@ -432,7 +432,7 @@ public class ChatHeadService extends Service
 		return instance;
 	}
 	
-	OnTouchListener chatHeadOnTouchListener = new OnTouchListener()
+	private OnTouchListener chatHeadOnTouchListener = new OnTouchListener()
 	{
 		Integer drag;
 
