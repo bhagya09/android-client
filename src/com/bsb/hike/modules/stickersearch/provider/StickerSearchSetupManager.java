@@ -128,7 +128,7 @@ public enum StickerSearchSetupManager {
 		
 	}
 
-	public void updateStickerList(HashSet<String> stickerInfo) {
+	public void updateStickerList(Set<String> stickerInfo) {
 
 		synchronized (StickerSearchSetupManager.class) {
 			HikeStickerSearchDatabase.getInstance().disableTagsForDeletedStickers(stickerInfo);
