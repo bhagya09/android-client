@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -16,11 +18,13 @@ import android.animation.AnimatorSet;
 import android.animation.ValueAnimator;
 import android.app.Service;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.os.Handler;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -30,8 +34,10 @@ import android.view.View.OnTouchListener;
 import android.widget.ImageView;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.ui.utils.RecyclingImageView;
+import com.bsb.hike.userlogs.UserLogInfo;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.ShareUtils;
@@ -71,6 +77,8 @@ public class ChatHeadService extends Service
 
 	// boolean to show whether the chat head must be shown or not for a particular session
 	private static boolean toShow = true;
+	
+	private static boolean sessionTrackingEnabled = false;
 
 	private WindowManager.LayoutParams chatHeadParams = new WindowManager.LayoutParams(WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT,
 			WindowManager.LayoutParams.TYPE_PHONE, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, PixelFormat.TRANSLUCENT);
@@ -96,6 +104,8 @@ public class ChatHeadService extends Service
 		{
 			boolean whiteListAppForegrounded = false;
 			Set<String> foregroundPackages = ChatHeadUtils.getForegroundedPackages();
+
+			UserLogInfo.recordSessionInfo(foregroundPackages, UserLogInfo.OPERATE);
 
 			for (String packName : whitelistedPackageList)
 			{
@@ -531,6 +541,11 @@ public class ChatHeadService extends Service
 		chatHead.setVisibility(View.INVISIBLE);
 		
 		chatHead.setOnTouchListener(chatHeadOnTouchListener);
+		
+		UserLogInfo.recordSessionInfo(ChatHeadUtils.getForegroundedPackages(), UserLogInfo.START);
+
+		sessionTrackingEnabled = PreferenceManager.getDefaultSharedPreferences(HikeMessengerApp.getInstance()).getBoolean(HikeConstants.SESSION_LOG_TRACKING, false);
+
 
 	}
 
@@ -567,6 +582,8 @@ public class ChatHeadService extends Service
 	public void onDestroy()
 	{
 		chatHeadHandler.removeCallbacks(chatHeadRunnable);
+
+		UserLogInfo.recordSessionInfo(ChatHeadUtils.getForegroundedPackages(), UserLogInfo.STOP);
 
 		if (chatHead.isShown())
 			windowManager.removeView(chatHead);

@@ -2626,6 +2626,8 @@ public class HikeConstants
 	public static final String APP_LOG_ANALYTICS = "al";
 
 	public static final String LOCATION_LOG_ANALYTICS = "ll";
+	
+	public static final String SESSION_LOG_TRACKING = "slt";
 
 	public static final String SHOP = "shop";
 
