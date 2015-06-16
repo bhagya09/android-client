@@ -137,7 +137,7 @@ public class ToastListener implements Listener
 			}
 			if (StealthModeManager.getInstance().isStealthMsisdn(contactInfo.getMsisdn()))
 			{
-				this.toaster.notifyStealthMessage(NotificationType.HIDDEN);
+				this.toaster.notifyStealthMessage(NotificationType.HIDDEN,contactInfo.getMsisdn());
 			}
 			else
 			{
@@ -537,7 +537,7 @@ public class ToastListener implements Listener
 						if (StealthModeManager.getInstance().isStealthMsisdn(msisdn))
 						{
 							notificationType = NotificationType.HIDDEN;
-							this.toaster.notifyStealthMessage(notificationType);
+							this.toaster.notifyStealthMessage(notificationType,msisdn);
 						}
 						else
 						{
