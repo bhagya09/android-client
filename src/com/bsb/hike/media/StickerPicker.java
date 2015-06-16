@@ -576,6 +576,8 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 		chatHeadSideText.setText(mContext.getString(R.string.total_sticker_sent_start) + " " + ChatHeadActivity.totalShareCount + " "
 				+ mContext.getString(R.string.total_sticker_sent_middle) + " " + ChatHeadActivity.noOfDays + " " + mContext.getString(R.string.total_sticker_sent_end));
 	    chatHeadSideText.setEnabled(false);
+	    chatHeadSideText.setBackgroundColor(mContext.getResources().getColor(R.color.external_sticker_pallete_background));
+	    
 	}
 
 	private void initLayoutComponentsView()
@@ -600,6 +602,8 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 		chatHeadDisableLayout.setVisibility(View.VISIBLE);
 		chatHeadSideText.setText(mContext.getString(R.string.disable_from_hike_settings));
 	    chatHeadSideText.setEnabled(true);
+	    chatHeadSideText.setBackgroundColor(mContext.getResources().getColor(R.color.standard_black));
+	            
 	}
 
 	private void onBackMainLayoutClick()
@@ -609,6 +613,8 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 		chatHeadSideText.setText(mContext.getString(R.string.total_sticker_sent_start) + " " + ChatHeadActivity.totalShareCount + " "
 				+ mContext.getString(R.string.total_sticker_sent_middle) + " " + ChatHeadActivity.noOfDays + " " + mContext.getString(R.string.total_sticker_sent_end));
 	    chatHeadSideText.setEnabled(false);
+	    chatHeadSideText.setBackgroundColor(mContext.getResources().getColor(R.color.external_sticker_pallete_background));
+	    
 	}
 
 	public void setOnClick()

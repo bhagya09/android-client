@@ -27,12 +27,13 @@
 
     <com.bsb.hike.view.CustomFontTextView
         android:id="@+id/side_text"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="18dp"
-        android:gravity="center_horizontal"
+        android:layout_width="230dp"
+        android:layout_height="24dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="14.5dp"
+        android:gravity="center"
         android:text="@string/disable_from_hike_settings"
-        android:textColor="@color/standard_grey"
+        android:textColor="@color/mid_gray"
         android:textSize="12sp" />
 
     <LinearLayout
@@ -40,7 +41,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="16dp"
         android:background="@color/semi_transparent_grey"
         android:orientation="horizontal"
         android:visibility="gone" >
@@ -95,7 +96,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="21dp"
+        android:layout_marginTop="16dp"
         android:background="@color/semi_transparent_grey"
         android:orientation="horizontal"
         android:visibility="gone" >

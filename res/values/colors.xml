@@ -421,5 +421,7 @@
     <color name="external_pallete_text_highlight_color">#00D5FF</color>
     <color name="chat_head_settings_separator">#979797</color>
     <color name="semi_transparent_grey">#264C4C4C</color>
+    <color name="external_sticker_pallete_background">#1F2122</color>
+    
 </resources>
 	
