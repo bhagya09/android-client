@@ -75,7 +75,7 @@ public class HikeAlarmManager
 	
 	public static final int REQUESTCODE_PRODUCT_POPUP=4571;
 	
-	public static final int REQUESTCODE_OFFLINE = 4572;
+	public static final int REQUESTCODE_OFFLINE = 4573;
 	
 	// ******************************************************//
 	

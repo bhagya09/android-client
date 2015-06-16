@@ -4,7 +4,10 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.IOError;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InvalidObjectException;
 import java.io.UnsupportedEncodingException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -23,6 +26,7 @@ import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.State;
 import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.MessageMetadata;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -125,14 +129,20 @@ public class OfflineUtils
 		}
 		return false;
 	}
-
+	
 	public static JSONObject createGhostPacket(String msisdn)
+	{
+		return createGhostPacket(msisdn,false);
+	}
+
+	public static JSONObject createGhostPacket(String msisdn,boolean screen)
 	{
 		JSONObject ghostJSON = new JSONObject();
 		try
 		{
 			ghostJSON.putOpt(HikeConstants.TO, msisdn);
 			ghostJSON.putOpt(HikeConstants.SUB_TYPE, OfflineConstants.GHOST);
+			ghostJSON.put("screen", screen);
 		}
 		catch (JSONException e)
 		{
@@ -454,23 +464,78 @@ public class OfflineUtils
 		}
 	}
 
-	public static void closeSocket(Socket socket) throws IOException
+	public static void closeSocket(final Socket socket) throws IOException
 	{
 		if (socket == null)
 		{
 			return;
 		}
+		final InputStream is = socket.getInputStream();
 		try
 		{
-			
-			socket.shutdownInput();
+			if(socket.isOutputShutdown())
+			{
+				Logger.d(TAG,"Output is already  shutdown");
+			}
+			else
+			{
 			socket.shutdownOutput();
-			socket.close();
+			}
 		}
-		catch (IOException ex)
+		catch (IOException e)
 		{
-			socket.close();
+			Logger.d(TAG, "exception in shutDownOutput");
 		}
+		
+		try
+		{
+			if(socket.isInputShutdown())
+			{
+				Logger.d(TAG,"Input is already  shutdown");
+			}
+			else
+			{
+			socket.shutdownInput();
+			}
+		}
+		catch (IOException e)
+		{
+			Logger.d(TAG, "exception in shutDownOutput");
+		}
+
+		HikeHandlerUtil.getInstance().postRunnableWithDelay(new Runnable()
+		{
+			
+			@Override
+			public void run()
+			{
+				try
+				{
+					while (is.read() >= 0)
+					{
+
+						Logger.d(TAG, "in While Loop");
+					}
+				}
+				catch (IOException e)
+				{
+					e.printStackTrace();
+				}
+				try
+				{
+					socket.close();
+				}
+				catch (IOException e)
+				{
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}, 0);
+		
+		
+		// "read()" returns '-1' when the 'FIN' is reached
+
 	}
 
 	public static void closeSocket(ServerSocket serverSocket) throws IOException
@@ -577,5 +642,54 @@ public class OfflineUtils
 		}
 		
 		return false;
+	}
+    
+    public static  boolean isAvailable(Socket _socket_){
+        if (isConnected(_socket_)) {
+            try
+            {
+                if (_socket_.getInetAddress() == null) {
+                    return false;
+                }
+                if (_socket_.getPort() == 0) {
+                    return false;
+                }
+                if (_socket_.getRemoteSocketAddress() == null) {
+                    return false;
+                }
+                if (_socket_.isClosed()) {
+                    return false;
+                }
+                /* these aren't exact checks (a Socket can be half-open),
+                   but since we usually require two-way data transfer,
+                   we check these here too: */
+                if (_socket_.isInputShutdown()) {
+                    return false;
+                }
+                if (_socket_.isOutputShutdown()) {
+                    return false;
+                }
+                /* ignore the result, catch exceptions: */
+                _socket_.getInputStream();
+                _socket_.getOutputStream();
+            }
+            catch (IOException ioex)
+            {
+                return false;
+            }
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
+    public static boolean isConnected(Socket _socket_)
+	{
+		if (_socket_ == null)
+		{
+			return false;
+		}
+
+		return _socket_.isConnected();
 	}
 }
