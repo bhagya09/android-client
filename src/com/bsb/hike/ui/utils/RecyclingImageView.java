@@ -68,7 +68,7 @@ public class RecyclingImageView extends ImageView
 		// Notify previous drawable so it is no longer displayed
 		notifyDrawable(previousDrawable, false);
 	}
-	
+
 	/**
 	 * @see android.widget.ImageView#setImageDrawable(android.graphics.drawable.Drawable)
 	 */

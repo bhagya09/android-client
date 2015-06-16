@@ -144,7 +144,7 @@ public class ImageViewerFragment extends SherlockFragment implements OnClickList
     
 	public void runEnterAnimation() {
         final long duration = (long) (ANIM_DURATION * 1);
-        
+		// TODO not available for 2.3
         // Set starting values for properties we're going to animate. These
         // values scale and position the full size version down to the thumbnail
         // size/location, from which we'll animate it back up

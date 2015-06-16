@@ -86,7 +86,7 @@ public class UpdatesFragment extends SherlockFragment implements Listener
 			// TODO
 			// timelineCardsAdapter.getTimelineImageLoader().setExitTasksEarly(false);
 			// timelineCardsAdapter.getIconImageLoader().setExitTasksEarly(false);
-			timelineCardsAdapter.notifyDataSetChanged();
+//			timelineCardsAdapter.notifyDataSetChanged();
 		}
 	}
 

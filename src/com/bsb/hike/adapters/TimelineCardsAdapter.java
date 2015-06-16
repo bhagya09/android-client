@@ -457,7 +457,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			{
 				Animator anim = anims[i-1];
 				anim.setInterpolator(cardInterp);
-				anim.setDuration(300).start();
+				anim.setDuration(500).start();
 			}
 			mLastPosition = position;
 		}

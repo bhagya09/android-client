@@ -13,7 +13,7 @@
         <com.bsb.hike.ui.utils.RecyclingImageView
             android:id="@+id/profile_pic"
             android:layout_width="match_parent"
-            android:layout_height="282dp"
+            android:layout_height="290dp"
             android:onClick="onViewImageClicked"
             android:scaleType="centerCrop" />
 
