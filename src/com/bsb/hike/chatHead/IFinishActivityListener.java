@@ -1,6 +1,6 @@
 package com.bsb.hike.chatHead;
 
-public interface FinishActivityListener
+public interface IFinishActivityListener
 {
 	public void finishActivity();
 

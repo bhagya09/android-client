@@ -206,6 +206,7 @@ import com.bsb.hike.models.utils.JSONSerializable;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
@@ -1741,7 +1742,6 @@ public class Utils
 		AccountUtils.stickersUrl = (isProductionServer ? AccountUtils.HTTP_STRING + AccountUtils.STICKERS_PRODUCTION_BASE : AccountUtils.base + AccountUtils.STICKERS_STAGING_PATH);
 		AccountUtils.h2oTutorialUrl = (isProductionServer ? AccountUtils.HTTP_STRING + AccountUtils.H2O_TUTORIAL_PRODUCTION_BASE : AccountUtils.base + AccountUtils.H2O_TUTORIAL_STAGING_PATH);
 		AccountUtils.analyticsUploadUrl = AccountUtils.base + AccountUtils.ANALYTICS_UPLOAD_PATH;
-		AccountUtils.stickerShareUrl = (isProductionServer ? AccountUtils.STICKER_SHARE_PRODUCTION_BASE : AccountUtils.STAGING_HOST + AccountUtils.STICKER_SHARE_STAGING_PATH);
 		
 		Logger.d("SSL", "Base: " + AccountUtils.base);
 		Logger.d("SSL", "FTHost: " + AccountUtils.fileTransferHost);
@@ -4737,18 +4737,6 @@ public class Utils
 		intent.putExtra(HikeConstants.Extras.URL_TO_LOAD, url);
 		intent.putExtra(HikeConstants.Extras.TITLE, title);
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-		context.startActivity(intent);
-	}
-
-	public static void startWebViewActivity(Context context, String url, String title, boolean flagnewTask)
-	{
-		Intent intent = new Intent(context, WebViewActivity.class);
-		intent.putExtra(HikeConstants.Extras.URL_TO_LOAD, url);
-		intent.putExtra(HikeConstants.Extras.TITLE, title);
-		if (flagnewTask)
-		{
-		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-		}
 		context.startActivity(intent);
 	}
 	

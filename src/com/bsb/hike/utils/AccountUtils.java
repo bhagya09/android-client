@@ -199,12 +199,6 @@ public class AccountUtils
 	
 	public static String GROUP_DP_UPDATE_URL_SUFFIX = "/avatar";
 	
-	public static final String STICKER_SHARE_PRODUCTION_BASE = "hike.in/stickershare/";
-
-	public static final String STICKER_SHARE_STAGING_PATH = "/stickershare/";
-	
-	public static String stickerShareUrl = STICKER_SHARE_PRODUCTION_BASE ;
-	
 	public static void setToken(String token)
 	{
 		mToken = token;

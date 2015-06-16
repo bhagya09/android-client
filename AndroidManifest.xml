@@ -325,13 +325,6 @@
             android:theme="@style/AppTheme.Home.Photos" >
         </activity>
         <activity
-<<<<<<< HEAD
-            android:name="com.bsb.hike.ui.DelegateActivity"
-            android:launchMode="standard"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar"
-            android:screenOrientation="portrait" >
-        </activity>
-        <activity
             android:name=".chatHead.ChatHeadActivity"
             android:configChanges="orientation|screenSize"
             android:theme="@android:style/Theme.Translucent.NoTitleBar"
@@ -346,15 +339,6 @@
         </activity>
         
 		<activity
-||||||| merged common ancestors
-            android:name="com.bsb.hike.ui.DelegateActivity"
-            android:launchMode="standard"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar"
-            android:screenOrientation="portrait" >
-        </activity>
-        <activity
-=======
->>>>>>> upstream/internal_release
             android:name=".ui.PinHistoryActivity"
             android:configChanges="orientation|screenSize|keyboard|keyboardHidden" >
         </activity>
@@ -486,6 +470,9 @@
         <service android:name=".service.SimpleWakefulService" >
         </service>
 
+		<receiver android:name=".service.ScreenOnOffReceiver" >
+        </receiver>
+        
         <receiver
             android:name=".service.ReferralReceiver"
             android:exported="true" >

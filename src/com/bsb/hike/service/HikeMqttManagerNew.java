@@ -1,6 +1,7 @@
 package com.bsb.hike.service;
 
 import static com.bsb.hike.MqttConstants.*;
+
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
@@ -58,6 +59,7 @@ import com.bsb.hike.analytics.AnalyticsConstants.MsgRelEventType;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.analytics.MsgRelLogManager;
+import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.db.HikeMqttPersistence;
 import com.bsb.hike.db.MqttPersistenceException;
 import com.bsb.hike.models.HikePacket;
@@ -150,6 +152,8 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 	private long maxMessageProcessTime = 0;
 	
 	private volatile HostInfo previousHostInfo = null;
+	
+	private ScreenOnOffReceiver screenOnOffReceiver;
 	
 	private class ActivityCheckRunnable implements Runnable
 	{
@@ -377,13 +381,18 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 	private void registerBroadcastReceivers()
 	{
 		// register for Screen ON, Network Connection Change
-		IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_ON);
-		filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+		IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
 		filter.addAction(MQTT_CONNECTION_CHECK_ACTION);
 		filter.addAction(HikePubSub.SSL_PREFERENCE_CHANGED);
 		filter.addAction(HikePubSub.IPS_CHANGED);
 		context.registerReceiver(this, filter);
 		LocalBroadcastManager.getInstance(context).registerReceiver(this, filter);
+		
+		screenOnOffReceiver = new ScreenOnOffReceiver();
+		IntentFilter intentFilter = new IntentFilter(Intent.ACTION_SCREEN_ON);
+		intentFilter.addAction(Intent.ACTION_SCREEN_OFF);
+		context.registerReceiver(screenOnOffReceiver, intentFilter);
+
 	}
 
 	private int getConnRetryTime()
@@ -1281,6 +1290,7 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 			Logger.w(TAG, "Destroying mqtt connection.");
 			context.unregisterReceiver(this);
 			LocalBroadcastManager.getInstance(context).unregisterReceiver(this);
+			context.unregisterReceiver(screenOnOffReceiver);
 			disconnectOnMqttThread(false);
 			// here we are blocking service main thread for 1 second or less so that disconnection takes place cleanly
 			while (mqttConnStatus != MQTTConnectionStatus.NOT_CONNECTED || mqttConnStatus != MQTTConnectionStatus.NOT_CONNECTED_UNKNOWN_REASON && retryAttempts <= 100)
@@ -1317,12 +1327,7 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 	@Override
 	public void onReceive(Context context, Intent intent)
 	{
-		if (intent.getAction().equals(Intent.ACTION_SCREEN_ON))
-		{
-			if (Utils.isUserOnline(context))
-				connectOnMqttThread();
-		}
-		else if (intent.getAction().equals(ConnectivityManager.CONNECTIVITY_ACTION))
+		if (intent.getAction().equals(ConnectivityManager.CONNECTIVITY_ACTION))
 		{
 			boolean isNetwork = Utils.isUserOnline(context);
 			Logger.d(TAG, "Network change event happened. Network connected : " + isNetwork);

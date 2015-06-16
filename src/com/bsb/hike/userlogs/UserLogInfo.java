@@ -3,10 +3,13 @@ package com.bsb.hike.userlogs;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -40,9 +43,20 @@ import com.google.android.gms.ads.identifier.AdvertisingIdClient;
 import com.google.android.gms.ads.identifier.AdvertisingIdClient.Info;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
+import com.google.android.gms.maps.UiSettings;
 
 
 public class UserLogInfo {
+	
+	public static final int START = 0;
+	public static final int STOP = 2;
+	public static final int OPERATE = 1;
+	
+	private static long sessionTimeMillisStart;
+	private static String currentForegroundPackage;
+	
+	private static Set<String> oldForegroundPackages;
+	private static Set<String> newForegroundPackages;
 
 	private static final String HASH_SCHEME = "MD5";
 	private static final String TAG = "UserLogInfo";
@@ -513,6 +527,64 @@ public class UserLogInfo {
 		return callJsonArray;
 	}
 
+	public static void recordSessionInfo(Set<String> currentForegroundApps, int nextStep)
+	{
+		newForegroundPackages = new HashSet<String>(currentForegroundApps);
+		long currentTime = System.currentTimeMillis();
+		if(oldForegroundPackages == null)
+		{
+			oldForegroundPackages = new HashSet<String>(5);
+		}
+		
+		if(nextStep  == START)
+		{
+			oldForegroundPackages = new HashSet<String>(currentForegroundApps);
+			sessionTimeMillisStart = currentTime;
+		}
+		else if (nextStep == STOP)
+		{
+			oldForegroundPackages.clear();
+			sessionTimeMillisStart = 0;
+		}
+		else if(nextStep == OPERATE)
+		{
+			
+			newForegroundPackages.removeAll(oldForegroundPackages);
+			if(!newForegroundPackages.isEmpty())
+			{
+				
+				Logger.d(TAG,"added : " + newForegroundPackages.iterator().next());
+				if(currentForegroundPackage != null)
+				{
+					recordASession(currentForegroundPackage, sessionTimeMillisStart);
+				}
+				
+				currentForegroundPackage = newForegroundPackages.iterator().next();
+				sessionTimeMillisStart = currentTime;
+			}
+			
+			oldForegroundPackages.removeAll(currentForegroundApps);
+			if(!oldForegroundPackages.isEmpty())
+			{
+				Logger.d(TAG,"removed : " + oldForegroundPackages.iterator().next());
+				if(oldForegroundPackages.iterator().next().equals(currentForegroundPackage))
+				{
+					recordASession(currentForegroundPackage, sessionTimeMillisStart);
+					// re initialize the below variables, no new package has come up.
+					sessionTimeMillisStart = 0;
+					currentForegroundPackage = null;
+				}
+			}
+			
+			oldForegroundPackages = new HashSet<String>(currentForegroundApps);
+		}
+	}
 	
+	private static void recordASession(String packageName, long sesstionTime)
+	{
+		long logtime = System.currentTimeMillis() - sesstionTime;
+		String logPackage = packageName;
+		Logger.d(TAG,"time : " + logtime + " of " + logPackage);
+	}
 	
 }

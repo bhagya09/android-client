@@ -416,5 +416,7 @@ public class AnalyticsConstants
 
 		public static final String APP_UNCHECKED = "f";
 
+		public static final String DISABLE_TEXT = "dsblTxt";
+
 	}
 }

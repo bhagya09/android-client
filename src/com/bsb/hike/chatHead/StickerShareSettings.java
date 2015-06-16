@@ -1,6 +1,7 @@
 package com.bsb.hike.chatHead;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -15,9 +16,8 @@ import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
-
+import android.content.Context;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -35,7 +35,7 @@ import android.widget.TextView;
 public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 {
 
-	private class ListViewItem
+	public static class ListViewItem
 	{
 		String appName;
 
@@ -48,19 +48,68 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 		CheckBox mCheckBox;
 	}
 
-	private ArrayList<ListViewItem> mListViewItems;
+	private static ArrayList<ListViewItem> mListViewItems;
 
-	private ArrayAdapter<ListViewItem> listAdapter;
+    private static TextView mainSelectAllText;
 
+	private static TextView sideSelectAllText;
+
+	private static CheckBox selectAllCheckbox;
+	
+	private static ChatHeadSettingsArrayAdapter listAdapter;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
-
 		setContentView(R.layout.settings_sticker_share);
+		initComponents();
+	}
 
+	private void initComponents()
+	{
+		creatingArrayList();
+		listAdapter = new ChatHeadSettingsArrayAdapter(this, R.layout.settings_sticker_share_item, mListViewItems);
+		initialisingViewsUsingID();
+		settingOnClickEvent();
+		settingSelectAllText();
+		ListView listView = (ListView) findViewById(R.id.list_items);
+		listView.setAdapter(listAdapter);
+		setupActionBar();
+	}
+
+	private void settingOnClickEvent()
+	{
+		LinearLayout layout = (LinearLayout) findViewById(R.id.main_select_layout);
+		layout.setOnClickListener(new View.OnClickListener()
+		{
+			@Override
+			public void onClick(View v)
+			{
+				onSelectAllCheckboxClick();
+			}
+		});
+		selectAllCheckbox.setOnClickListener(new View.OnClickListener()
+		{
+			@Override
+			public void onClick(View v)
+			{
+				onSelectAllCheckboxClick();
+			}
+		});
+	}
+
+	private void initialisingViewsUsingID()
+	{
+		mainSelectAllText = (TextView) findViewById(R.id.main_text_select_all);
+		sideSelectAllText = (TextView) findViewById(R.id.side_text_select_all);
+		selectAllCheckbox = (CheckBox) findViewById(R.id.select_all_checkbox);
+
+	}
+
+	private void creatingArrayList()
+	{
 		mListViewItems = new ArrayList<ListViewItem>();
-
 		try
 		{
 			JSONArray jsonObj = new JSONArray(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.PACKAGE_LIST, ""));
@@ -72,9 +121,9 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 				if (Utils.isPackageInstalled(getApplicationContext(), obj.optString(HikeConstants.ChatHead.PACKAGE_NAME, "")))
 				{
 					ListViewItem listItem = new ListViewItem();
-					listItem.appName = obj.optString(HikeConstants.ChatHead.APP_NAME, "");
+					listItem.appName = obj.optString(HikeConstants.ChatHead.APP_NAME, null);
 					listItem.appChoice = obj.optBoolean(HikeConstants.ChatHead.APP_ENABLE, false);
-					listItem.pkgName = obj.optString(HikeConstants.ChatHead.PACKAGE_NAME, "");
+					listItem.pkgName = obj.optString(HikeConstants.ChatHead.PACKAGE_NAME, null);
 					try
 					{
 						listItem.appIcon = getPackageManager().getApplicationIcon(listItem.pkgName);
@@ -83,7 +132,10 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 					{
 						e.printStackTrace();
 					}
-					mListViewItems.add(listItem);
+					if (listItem.appName != null)
+					{
+						mListViewItems.add(listItem);
+				    }
 				}
 			}
 		}
@@ -91,88 +143,11 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 		{
 			e.printStackTrace();
 		}
-
-		listAdapter = new ArrayAdapter<ListViewItem>(this, R.layout.settings_sticker_share_item, mListViewItems)
-		{
-			@Override
-			public View getView(int position, View convertView, ViewGroup parent)
-			{
-				ListViewItem listItem = new ListViewItem();
-				listItem = mListViewItems.get(position);
-				if (convertView == null)
-				{
-					LayoutInflater inflater = getLayoutInflater();
-					convertView = inflater.inflate(R.layout.settings_sticker_share_item, null);
-				}
-				ImageView imgView = (ImageView) convertView.findViewById(R.id.app_icon);
-				TextView txtView = (TextView) convertView.findViewById(R.id.app_name);
-				mListViewItems.get(position).mCheckBox = (CheckBox) convertView.findViewById(R.id.checkbox_item);
-				imgView.setBackground(listItem.appIcon);
-				txtView.setText(listItem.appName);
-				if (listItem.appChoice)
-				{
-					mListViewItems.get(position).mCheckBox.setChecked(true);
-				}
-				else
-				{
-					mListViewItems.get(position).mCheckBox.setChecked(false);
-
-				}
-				convertView.setTag(position);
-				mListViewItems.get(position).mCheckBox.setTag(position);
-				mListViewItems.get(position).mCheckBox.setOnClickListener(new View.OnClickListener()
-				{
-
-					@Override
-					public void onClick(View v)
-					{
-						onItemClickEvent((int) v.getTag());
-					}
-				});
-
-				convertView.setOnClickListener(new View.OnClickListener()
-				{
-					@Override
-					public void onClick(View v)
-					{
-						onItemClickEvent((int) v.getTag());
-					}
-				});
-
-				return convertView;
-			}
-
-		};
-
-		LinearLayout layout = (LinearLayout) findViewById(R.id.main_select_layout);
-		layout.setOnClickListener(new View.OnClickListener()
-		{
-
-			@Override
-			public void onClick(View v)
-			{
-				onSelectAllCheckboxClick();
-			}
-		});
-		CheckBox checkBox = (CheckBox) findViewById(R.id.select_all_checkbox);
-		checkBox.setOnClickListener(new View.OnClickListener()
-		{
-
-			@Override
-			public void onClick(View v)
-			{
-				onSelectAllCheckboxClick();
-			}
-		});
-		settingSelectAllText();
-		ListView listView = (ListView) findViewById(R.id.list_items);
-		listView.setAdapter(listAdapter);
-		setupActionBar();
 	}
 
 	private void onSelectAllCheckboxClick()
 	{
-		boolean allChecked = checkAllChecked();
+		boolean allChecked = checkAllCheckedOrUnchecked(true);
 		if (allChecked)
 		{
 			for (int j = 0; j < mListViewItems.size(); j++)
@@ -198,32 +173,23 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 
 	}
 
-	private void settingSelectAllText()
+	private static void settingSelectAllText()
 	{
 		boolean allChecked, allUnchecked;
 
-		allChecked = checkAllChecked();
-		allUnchecked = checkAllUnchecked();
+		allChecked = checkAllCheckedOrUnchecked(true);
+		allUnchecked = checkAllCheckedOrUnchecked(false);
 		if (allChecked)
 		{
-			TextView txtView = (TextView) findViewById(R.id.main_text_select_all);
-			txtView.setText(getString(R.string.settings_deselect_all));
-			TextView tv = (TextView) findViewById(R.id.side_text_select_all);
-			tv.setText(getString(R.string.sticker_widget_hide));
-			CheckBox selectAllCheckbox = (CheckBox) findViewById(R.id.select_all_checkbox);
+			mainSelectAllText.setText(HikeMessengerApp.getInstance().getString(R.string.settings_deselect_all));
+			sideSelectAllText.setText(HikeMessengerApp.getInstance().getString(R.string.sticker_widget_hide));
 			selectAllCheckbox.setChecked(true);
 		}
 		else
 		{
-			TextView txtView = (TextView) findViewById(R.id.main_text_select_all);
-			txtView.setText(getString(R.string.settings_select_all));
-
-			TextView tv = (TextView) findViewById(R.id.side_text_select_all);
-			tv.setText(getString(R.string.sticker_widget_show));
-
-			CheckBox selectAllCheckbox = (CheckBox) findViewById(R.id.select_all_checkbox);
+			mainSelectAllText.setText(HikeMessengerApp.getInstance().getString(R.string.settings_select_all));
+			sideSelectAllText.setText(HikeMessengerApp.getInstance().getString(R.string.sticker_widget_show));
 			selectAllCheckbox.setChecked(false);
-
 		}
 		if (allUnchecked)
 		{
@@ -236,48 +202,32 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 
 		listAdapter.notifyDataSetChanged();
 		savingUserPref();
-		ChatHeadUtils.serviceDecision(this, true);
+		ChatHeadUtils.startOrStopService(true);
 	}
 
-	boolean checkAllUnchecked()
+	static boolean checkAllCheckedOrUnchecked(boolean checked)
 	{
 		for (int j = 0; j < mListViewItems.size(); j++)
 		{
-			boolean pkgEnbl = false;
-			pkgEnbl = (boolean) mListViewItems.get(j).appChoice;
+			boolean pkgEnbl = (boolean) mListViewItems.get(j).appChoice;
 
-			if (pkgEnbl)
+			if ((checked && !pkgEnbl) || (!checked && pkgEnbl))
 			{
 				return false;
 			}
 		}
-		return true;
+		return true;   
 	}
 
-	boolean checkAllChecked()
-	{
-		for (int j = 0; j < mListViewItems.size(); j++)
-		{
-			boolean pkgEnbl = true;
-
-			pkgEnbl = (boolean) mListViewItems.get(j).appChoice;
-
-			if (!pkgEnbl)
-			{
-				return false;
-			}
-		}
-		return true;
-	}
-
-	private void onItemClickEvent(int tag)
+	public static void onItemClickEvent(int tag)
 	{
 
 		if (mListViewItems.get(tag).appChoice)
 		{
 			mListViewItems.get(tag).appChoice = false;
 			mListViewItems.get(tag).mCheckBox.setChecked(false);
-			HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.APP_CLICK, mListViewItems.get(tag).appName, AnalyticsConstants.ChatHeadEvents.APP_UNCHECKED);
+			HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.APP_CLICK, mListViewItems.get(tag).appName,
+					AnalyticsConstants.ChatHeadEvents.APP_UNCHECKED);
 		}
 		else
 		{
@@ -285,8 +235,9 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 			mListViewItems.get(tag).appChoice = true;
 			mListViewItems.get(tag).mCheckBox.setChecked(true);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.SNOOZE, false);
-			HikeAlarmManager.cancelAlarm(this, HikeAlarmManager.REQUESTCODE_START_STICKER_SHARE_SERVICE);
-			HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.APP_CLICK, mListViewItems.get(tag).appName, AnalyticsConstants.ChatHeadEvents.APP_CHECKED);
+			HikeAlarmManager.cancelAlarm(HikeMessengerApp.getInstance(), HikeAlarmManager.REQUESTCODE_START_STICKER_SHARE_SERVICE);
+			HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.APP_CLICK, mListViewItems.get(tag).appName,
+					AnalyticsConstants.ChatHeadEvents.APP_CHECKED);
 		}
 
 		settingSelectAllText();
@@ -324,7 +275,7 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 		actionBar.setCustomView(actionBarView);
 	}
 
-	private void savingUserPref()
+	private static void savingUserPref()
 	{
 		JSONArray jsonObj;
 		try

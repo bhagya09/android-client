@@ -1460,8 +1460,6 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="select_all_hike">Select all</string>
     <string name="unselect_all_hike">Unselect all</string>
     <string name="searching">Searching...</string>
-    <string name="sticker_share_heading">Indian Stickers only on hike!</string>
-    <string name="sticker_share_description"><![CDATA[Visit <font color="#57dcf9">http://get.hike.in</font>  to get hike messenger]]></string>
     <string name="sticker_share_caption">Download: http://hike.in</string>
     <string name="text_share_heading">- Sent via hike</string>
     <string name="text_share_caption">Download: http://hike.in</string> 
@@ -1534,7 +1532,7 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="settings_share_stickers">Sticker Widget</string>
     <string name="settings_share_stickers_hintext">Sticker Widget Settings</string>
     <string name="sticker_widget_hide">Hide the sticker widget from all the apps listed</string>
-    <string name="sticker_widget_show">Show the sticker widget from all the apps listed</string>
+    <string name="sticker_widget_show">Show the sticker widget in all the apps listed</string>
     <string name="settings_select_all">Select all </string>
     <string name="settings_deselect_all">Deselect all </string>
     <string name="more_stickers">More stickers</string>
@@ -1547,5 +1545,6 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
 	<string name="show_degraded_image_quality">Going to load a low quality Image</string>
 	<string name="toast_for_showing_thumbnail">Going to show Thumbanil</string>
 	<string name="now">Now</string>
+	<string name="sticker_share_description"><![CDATA[<font color="#57dcf9">www.hike.in</font>]]></string>
 	<string name="group_participant_info">You can add upto 500 members to a group</string>
 </resources>
