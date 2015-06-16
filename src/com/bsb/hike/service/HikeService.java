@@ -256,7 +256,7 @@ public class HikeService extends Service
 			 * Forcing a sync first time service is created to fix bug where if the app is force stopped no contacts are synced if they are added when the app is in force stopped
 			 * state
 			 */
-			getContentResolver().notifyChange(ContactsContract.Contacts.CONTENT_URI, null);
+			contactsReceived.onChange(false);
 		}
 
 		if (postDeviceDetails == null)
@@ -521,8 +521,7 @@ public class HikeService extends Service
 		public void onReceive(Context context, Intent intent)
 		{
 			contactsReceived.manualSync = intent.getBooleanExtra(HikeConstants.Extras.MANUAL_SYNC, false);
-
-			getContentResolver().notifyChange(ContactsContract.Contacts.CONTENT_URI, null);
+			contactsReceived.onChange(false);
 		}
 	}
 
