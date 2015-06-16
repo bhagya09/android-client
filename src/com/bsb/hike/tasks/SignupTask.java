@@ -436,10 +436,7 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 			/* msisdn set, yay */
 			publishProgress(new StateValue(State.MSISDN, msisdn));
 		}
-		else
-		{
-			publishProgress(new StateValue(State.MSISDN, HikeConstants.DONE));
-		}
+		
 		this.data = null;
 		// We're doing this to prevent the WelcomeScreen from being shown the
 		// next time we start the app.
@@ -454,15 +451,27 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 		ed.putBoolean(HikeMessengerApp.ACCEPT_TERMS, true);
 		ed.commit();
 		
-		if(userName != null)
+		/*
+		 * the below logic is to correctly update signup activity views
+		 * 1. if we already have user gender that means now we need to move
+		 * to final state of scanning contacts screen
+		 * 2. if we don't have gender but name means we need to show gender screen
+		 * 3. if we don't have both of the above means we need to show name screen
+		 */
+		if(isFemale != null)
+		{
+			publishProgress(new StateValue(State.SCANNING_CONTACTS, ""));
+		}
+		else if(userName != null)
 		{
 			publishProgress(new StateValue(State.GENDER, ""));
-			if(isFemale != null)
-			{
-				publishProgress(new StateValue(State.SCANNING_CONTACTS, ""));
-			}
 		}
-
+		else
+		{
+			publishProgress(new StateValue(State.NAME, ""));
+		}
+		
+		
 		/* scan the addressbook */
 		if (!ab_scanned)
 		{
