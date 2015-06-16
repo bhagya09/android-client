@@ -32,8 +32,6 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
-import com.bsb.hike.cropimage.CropImage;
-import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.http.HikeHttpRequest;
 import com.bsb.hike.http.HikeHttpRequest.RequestType;
 import com.bsb.hike.models.ContactInfo;
@@ -44,7 +42,6 @@ import com.bsb.hike.tasks.FinishableEvent;
 import com.bsb.hike.tasks.HikeHTTPTask;
 import com.bsb.hike.ui.TimelineActivity;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
-import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.HoloCircularProgress;
 import com.bsb.hike.view.RoundedImageView;
@@ -199,7 +196,7 @@ public class ProfilePicFragment extends SherlockFragment implements FinishableEv
 
 					Utils.renameTempProfileImage(mLocalMSISDN);
 
-					StatusMessage statusMessage = Utils.createTimelinePostForDPChange(response, false);
+					StatusMessage statusMessage = Utils.createTimelinePostForDPChange(response, true);
 
 					Utils.incrementUnseenStatusCount();
 
