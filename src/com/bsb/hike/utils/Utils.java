@@ -43,12 +43,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -80,7 +75,6 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
 import android.content.res.Resources;
-import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.graphics.Bitmap;
@@ -133,7 +127,6 @@ import android.text.format.DateUtils;
 import android.text.style.StyleSpan;
 import android.util.Base64;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.util.Pair;
 import android.view.MotionEvent;
 import android.view.Surface;
@@ -1418,7 +1411,24 @@ public class Utils
 		
 		if(returnFilePath == null && checkForPicassaUri && isPicasaUri(fileUriString))
 		{
-			returnFilePath = fileUriString;
+			
+			String timeStamp = Utils.getOriginalFile(HikeFileType.IMAGE, null);
+			File file = null;
+			try
+			{
+				file = File.createTempFile("IMG_" + timeStamp, ".jpg");
+				downloadAndSaveFile(mContext,file,uri);
+				returnFilePath = file.getAbsolutePath();
+			}
+			catch (IOException e)
+			{
+				e.printStackTrace();
+			}
+			catch (SecurityException er)
+			{
+				er.printStackTrace();
+			}
+
 		}
 		
 		return returnFilePath;
@@ -2263,7 +2273,7 @@ public class Utils
 		}
 	}
 
-	public static void downloadAndSaveFile(Context context, File destFile, Uri uri) throws Exception
+	public static void downloadAndSaveFile(Context context, File destFile, Uri uri) throws IOException,SecurityException
 	{
 		InputStream is = null;
 		OutputStream os = null;
