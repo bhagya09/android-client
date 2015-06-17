@@ -248,6 +248,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 	{
 		super.onCreate(savedInstanceState);
 
+		Logger.d("Signup", "SingupActivity onCreate");
 		setContentView(R.layout.signup);
 
 		mHandler = new Handler();
@@ -1755,10 +1756,6 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		errorDialog = null;
 		toggleActionBarElementsEnable(true);
 		viewFlipper.setVisibility(View.VISIBLE);
-		removeAnimation();
-		viewFlipper.setDisplayedChild(NUMBER);
-		prepareLayoutForFetchingNumber();
-		setAnimation();
 	}
 
 	private void restartTask()
@@ -2020,14 +2017,14 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 			}
 			break;
 		case NAME:
-			if (TextUtils.isEmpty(value))
+			if (TextUtils.isEmpty(value) && viewFlipper.getDisplayedChild() != NAME)
 			{
 				viewFlipper.setDisplayedChild(NAME);
 				prepareLayoutForGettingName(null, true);
 			}
 			break;
 		case GENDER:
-			if (TextUtils.isEmpty(value))
+			if (TextUtils.isEmpty(value) && viewFlipper.getDisplayedChild() != GENDER)
 			{
 				viewFlipper.setDisplayedChild(GENDER);
 				prepareLayoutForGender(null);
@@ -2216,7 +2213,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 	protected void onResume()
 	{
 		super.onResume();
-		Logger.d(getClass().getSimpleName(), "OnResume Called");
+		Logger.d("Signup", "SingupActivity onresume");
 		/*if (fbAuthing)
 		{
 			Session session = Session.getActiveSession();

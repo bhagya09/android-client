@@ -54,7 +54,7 @@ public class WelcomeActivity extends HikeAppStateBaseFragmentActivity implements
 	{
 		super.onCreate(savedState);
 		setContentView(R.layout.welcomescreen);
-
+		Logger.d("Signup", "WelcomeActivity onCreate");
 		Utils.setupServerURL(getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE).getBoolean(HikeMessengerApp.PRODUCTION, true),
 				Utils.switchSSLOn(getApplicationContext()));
 		HttpRequestConstants.setUpBase();
@@ -185,10 +185,19 @@ public class WelcomeActivity extends HikeAppStateBaseFragmentActivity implements
 		mAcceptButton.setVisibility(View.VISIBLE);
 		showNetworkErrorPopup();
 	}
+	
+	@Override
+	protected void onResume()
+	{
+		// TODO Auto-generated method stub
+		Logger.d("Signup", "Welcome onresume");
+		super.onResume();
+	}
 
 	@Override
 	public void onProgressUpdate(StateValue value)
 	{
+		Logger.d("Signup", " Welcome acitivity  onProgressUpdate state : " + value.state + " val : "+value.value);
 		if (value.state == SignupTask.State.ERROR)
 		{
 			showError();
