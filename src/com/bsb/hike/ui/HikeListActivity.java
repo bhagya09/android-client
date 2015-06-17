@@ -47,6 +47,8 @@ import com.bsb.hike.R;
 import com.bsb.hike.adapters.HikeInviteAdapter;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
@@ -579,6 +581,12 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 				String msisdn = toggleBlockEntry.getKey();
 				boolean blocked = toggleBlockEntry.getValue();
 
+				if (BotUtils.isBot(msisdn))
+				{
+					BotInfo mBotInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
+					mBotInfo.setBlocked(blocked);
+				}
+				
 				HikeMessengerApp.getPubSub().publish(blocked ? HikePubSub.BLOCK_USER : HikePubSub.UNBLOCK_USER, msisdn);
 			}
 			finish();
