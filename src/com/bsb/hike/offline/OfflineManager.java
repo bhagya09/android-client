@@ -621,7 +621,8 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 		offlineState = OFFLINE_STATE.CONNECTED;
 		final ConvMessage convMessage = OfflineUtils.createOfflineInlineConvMessage("o:" + connectedDevice, context.getString(R.string.connection_established),
 				OfflineConstants.OFFLINE_MESSAGE_CONNECTED_TYPE);
-		HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_SENT, convMessage);
+		HikeConversationsDatabase.getInstance().addConversationMessages(convMessage, true);
+		HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_RECEIVED, convMessage);
 		for (IOfflineCallbacks offlineListener : listeners)
 		{
 			offlineListener.connectedToMsisdn(connectedDevice);
