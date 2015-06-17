@@ -34,7 +34,7 @@ import com.bsb.hike.utils.Utils;
 
 /**
  * 
- * @author himanshu, deepak malik
+ * @author himanshu, deepak malik ,sahil 
  *	Runnable responsible for receving file from client
  */
 public class FileReceiverRunnable implements Runnable

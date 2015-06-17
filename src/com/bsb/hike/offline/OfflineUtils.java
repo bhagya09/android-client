@@ -657,13 +657,16 @@ public class OfflineUtils
 		try
 		{
 			metadata = packet.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA);
-			files = metadata.getJSONArray(HikeConstants.FILES);
-			if(files!=null)
+			if(metadata!=null)
 			{
-				fileJSON = files.getJSONObject(0);
-				isContactTransferMessage = fileJSON.getString(HikeConstants.CONTENT_TYPE).equals(HikeConstants.CONTACT_CONTENT_TYPE);
+				files = metadata.getJSONArray(HikeConstants.FILES);
+				if(files!=null)
+				{
+					fileJSON = files.getJSONObject(0);
+					isContactTransferMessage = fileJSON.getString(HikeConstants.CONTENT_TYPE).equals(HikeConstants.CONTACT_CONTENT_TYPE);
+				}
 			}
-			
+				
 		}
 		catch (JSONException e)
 		{
