@@ -4,6 +4,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 
 import com.bsb.hike.platform.HikePlatformConstants;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.ContentValues;
@@ -60,9 +61,20 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 		mDB = db;
 		// CREATE all tables, it is possible that few tables are created in this version
 		String[] updateQueries = getUpdateQueries(oldVersion, newVersion);
+
+		ArrayList<JSONObject> contentCacheTable = null;
+		if (oldVersion < 5)
+		{
+			contentCacheTable = getContentCacheTableForMigration();
+		}
 		for (String update : updateQueries)
 		{
 			db.execSQL(update);
+		}
+
+		if (oldVersion < 5)
+		{
+			migrateToNewContentCacheTable(contentCacheTable);
 		}
 
 		// DO any other update operation here
@@ -124,13 +136,7 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 		createAndIndexes[i++] = contentIndex;
 		createAndIndexes[i++] = nameSpaceIndex;
 
-		String cacheDataTable = CREATE_TABLE +CONTENT_CACHE_TABLE
-				+ "("
-				+_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-				+ KEY + " TEXT UNIQUE, "
-				+ VALUE + " TEXT, "
-				+ NAMESPACE + " TEXT "
-				+ ")";
+		String cacheDataTable = contentCacheTableCreateStatement();
 
 		createAndIndexes[i++] = cacheDataTable;
 		// INDEX ENDS HERE
@@ -182,8 +188,49 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 					+ ")";
 			queries.add(cacheDataTable);
 		}
+
+		if (oldVersion < 5)
+		{
+
+			String drop = "DROP TABLE IF EXISTS " + HIKE_CONTENT.CONTENT_CACHE_TABLE;
+			String cacheDataTable = contentCacheTableCreateStatement();
+			queries.add(drop);
+			queries.add(cacheDataTable);
+
+		}
 		
 		return queries.toArray(new String[]{});
+	}
+
+	private String contentCacheTableCreateStatement()
+	{
+		return CREATE_TABLE +CONTENT_CACHE_TABLE
+						+ "("
+						+_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+						+ KEY + " TEXT, "
+						+ VALUE + " TEXT, "
+						+ NAMESPACE + " TEXT, "
+						+ "UNIQUE ("
+						+ KEY + "," + NAMESPACE
+						+ ") ON CONFLICT REPLACE"
+						+ ")";
+	}
+
+	/**
+	 * CALLED ONLY ONCE....!!
+	 * This function is called to migrate the data from incorrect contentCacheTable to the correct packet
+	 * @param contentCacheTable
+	 */
+	private void migrateToNewContentCacheTable(ArrayList contentCacheTable)
+	{
+		for (Object obj : contentCacheTable)
+		{
+			JSONObject cacheRow = (JSONObject) obj;
+			String key = cacheRow.optString(HIKE_CONTENT.KEY);
+			String value = cacheRow.optString(HIKE_CONTENT.VALUE);
+			String namespace = cacheRow.optString(HIKE_CONTENT.NAMESPACE);
+			putInContentCache(key, namespace, value);
+		}
 	}
 
 	public void insertIntoAlarmManagerDB(long time, int requestCode, boolean WillWakeCPU, Intent intent)
@@ -502,5 +549,53 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 		mDB.delete(CONTENT_CACHE_TABLE, null, null);
 		ProductInfoManager.getInstance().deleteAllPopups();
 		deleteAllDomainsFromWhitelist();
+	}
+
+	/**
+	 * CALLED ONLY ONCE....!!
+	 * This method is called to get the data from incorrect table that only had key as the unique column to correct table that has a
+	 * uniqueness of a combination of 2 params, key and namespace.
+	 * @return : an arraylist containing the data in the incorrect table.
+	 */
+	public ArrayList<JSONObject> getContentCacheTableForMigration()
+	{
+		Cursor c = null;
+		try
+		{
+			c = mDB.query(HIKE_CONTENT.CONTENT_CACHE_TABLE, new String[]{ KEY, VALUE, NAMESPACE }, null, null, null, null, null);
+
+			int keyIdx = c.getColumnIndex(HIKE_CONTENT.KEY);
+			int valueIdx = c.getColumnIndex(HIKE_CONTENT.VALUE);
+			int namespaceIdx = c.getColumnIndex(HIKE_CONTENT.NAMESPACE);
+
+			ArrayList cacheList = new ArrayList();
+
+			while (c.moveToNext())
+			{
+				String key = c.getString(keyIdx);
+				String value = c.getString(valueIdx);
+				String namespace = c.getString(namespaceIdx);
+
+				JSONObject obj = new JSONObject();
+				obj.put(HIKE_CONTENT.KEY, key);
+				obj.put(HIKE_CONTENT.NAMESPACE, namespace);
+				obj.put(HIKE_CONTENT.VALUE, value);
+				cacheList.add(obj);
+			}
+			return cacheList;
+		}
+		catch (JSONException e)
+		{
+			Logger.e(HikePlatformConstants.TAG, "JSON Exception in migration " + e.toString());
+		}
+		finally
+		{
+			if (c != null)
+			{
+				c.close();
+			}
+		}
+
+		return null;
 	}
 }
