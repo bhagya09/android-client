@@ -154,7 +154,7 @@ public class TextReceiveRunnable implements Runnable
 						{
 							OfflineUtils.createStkDirectory(messageJSON);
 							FileOutputStream outputStream = new FileOutputStream(stickerImage);
-							offlineManager.copyFile(inputStream, outputStream, OfflineUtils.getStkLenFrmPkt(messageJSON));
+							OfflineUtils.copyFile(inputStream, outputStream, OfflineUtils.getStkLenFrmPkt(messageJSON));
 							OfflineUtils.closeOutputStream(outputStream);
 						}
 						// remove data from stream
