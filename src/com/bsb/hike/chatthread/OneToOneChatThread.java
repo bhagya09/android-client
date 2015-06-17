@@ -1262,6 +1262,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 			Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(activity, OfflineUtils.createOfflineMsisdn(msisdn), false);
 			intent.putExtra(OfflineConstants.START_CONNECT_FUNCTION, true);
 			activity.startActivity(intent);
+			activity.overridePendingTransition(R.anim.activity_in, R.anim.activity_out);
 			break;
 		default:
 		}

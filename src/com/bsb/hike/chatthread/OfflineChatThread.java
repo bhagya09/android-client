@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.net.wifi.ScanResult;
@@ -106,11 +108,18 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 	}
 
 	@Override
+	protected void init()
+	{
+		// TODO Auto-generated method stub
+		super.init();
+	}
+	@Override
 	public void onCreate()
 	{
 		super.onCreate();
 		checkIfSharingFiles(activity.getIntent());
 		checkIfWeNeedToConnect(activity.getIntent());
+		activity.updateActionBarColor(new ColorDrawable(Color.BLACK));
 	}
 
 	private void checkIfWeNeedToConnect(Intent intent)
@@ -153,6 +162,7 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 	{
 		super.onNewIntent();
 		checkIfWeNeedToConnect(activity.getIntent());
+		activity.updateActionBarColor(new ColorDrawable(Color.BLACK));
 	}
 
 	@Override
