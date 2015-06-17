@@ -15,7 +15,7 @@ public class MqttConstants
 	
 	public static final String COLON = ":";
 
-	public static final String PRODUCTION_BROKER_HOST_NAME = "mqtt.im.hike.in";
+	public static final String PRODUCTION_BROKER_HOST_NAME = AppConfig.PRODUCTION_BROKER_HOST_NAME; 
 
 	public static final String STAGING_BROKER_HOST_NAME = AccountUtils.STAGING_HOST;
 
