@@ -2017,14 +2017,14 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 			}
 			break;
 		case NAME:
-			if (TextUtils.isEmpty(value))
+			if (TextUtils.isEmpty(value) && viewFlipper.getDisplayedChild() != NAME)
 			{
 				viewFlipper.setDisplayedChild(NAME);
 				prepareLayoutForGettingName(null, true);
 			}
 			break;
 		case GENDER:
-			if (TextUtils.isEmpty(value))
+			if (TextUtils.isEmpty(value) && viewFlipper.getDisplayedChild() != GENDER)
 			{
 				viewFlipper.setDisplayedChild(GENDER);
 				prepareLayoutForGender(null);
