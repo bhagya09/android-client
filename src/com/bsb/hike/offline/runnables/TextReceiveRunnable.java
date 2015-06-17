@@ -53,7 +53,7 @@ public class TextReceiveRunnable implements Runnable
 	private OfflineManager offlineManager;
 	
 	IConnectCallback connectCallback;
-
+	
 	private IMessageSentOffline textCallback;
 	
 	private IMessageSentOffline fileCallback;

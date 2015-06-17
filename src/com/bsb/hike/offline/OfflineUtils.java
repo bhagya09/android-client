@@ -645,6 +645,7 @@ public class OfflineUtils
 		return isContactTransferMessage;
 	}
 	
+
 	public static JSONObject createAckPacket(String msisdn, long mappedMsgId, boolean ackForFileTransfer)
 	{
 		JSONObject ackJSON = new JSONObject();
