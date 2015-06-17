@@ -816,6 +816,9 @@ public class HikeConstants
 
 	// Google Plus URI prefix for all devices
 	public static final String GOOGLE_PLUS_PREFIX = "content://com.google.android.apps.photos.content";
+	
+	// Google Inbox App URI prefix for all devices
+		public static final String GOOGLE_INBOX_PREFIX = "content://com.google.android.apps.bigtop";
 
 	public static final int MAX_MESSAGES_TO_LOAD_INITIALLY = 40;
 
@@ -1005,7 +1008,7 @@ public class HikeConstants
 
 	public static final int STEALTH_ON = 2;
 
-	public static final long RESET_COMPLETE_STEALTH_TIME_MS = 5 * 1000;
+	public static final long RESET_COMPLETE_STEALTH_TIME_MS = 30 * 60 * 1000;
 	
 	public static final String ENABLED = "enabled";
 
@@ -2812,4 +2815,8 @@ public class HikeConstants
 	public static final String FTUE_HIKEBOT_MSISDN = "+hike1+";
 
 	public static final String PRIVACY_SETTINGS_CATEGORY = "privacySettingsCategory";
-}
+	
+	public static final String KEY = "key";
+	
+	public static final String VALUE = "val"
+;}

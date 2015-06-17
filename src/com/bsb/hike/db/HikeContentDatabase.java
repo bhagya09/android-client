@@ -488,6 +488,7 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 	{
 		mDB.delete(CONTENT_TABLE, null, null);
 		mDB.delete(ALARM_MGR_TABLE, null, null);
+		mDB.delete(CONTENT_CACHE_TABLE, null, null);
 		ProductInfoManager.getInstance().deleteAllPopups();
 		deleteAllDomainsFromWhitelist();
 	}

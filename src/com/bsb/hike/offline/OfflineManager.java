@@ -50,7 +50,7 @@ import com.bsb.hike.utils.Utils;
 
 /**
  * 
- * @author himanshu, deepak malik This class forms the base of Offline Messaging and deals with socket connection,text transfer and file transfer queue.
+ * @author himanshu, deepak malik , sahil This class forms the base of Offline Messaging and deals with socket connection,text transfer and file transfer queue.
  */
 
 public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
@@ -305,13 +305,16 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 			{
 				int readLen = 0;
 				readLen = inputStream.read(buf, 0, OfflineConstants.CHUNK_SIZE);
+				if (readLen < 0)
+					throw new OfflineException(OfflineException.CLIENT_DISCONNETED);
+				
 				out.write(buf, 0, readLen);
 				len += readLen;
 				fileSize -= readLen;
 				if (showProgress && ((len / OfflineConstants.CHUNK_SIZE) != prev))
 				{
 					prev = len / OfflineConstants.CHUNK_SIZE;
-					Logger.d(TAG, "Chunk read " + prev + "");
+					// Logger.d(TAG, "Chunk read " + prev + "");
 					showSpinnerProgress(isSent, msgId);
 				}
 			}
@@ -329,10 +332,6 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 		catch (IOException e)
 		{
 			Logger.e("Spinner", "Exception in copyFile: ", e);
-			throw new OfflineException(e, OfflineException.CLIENT_DISCONNETED);
-		}
-		catch (IndexOutOfBoundsException e)
-		{
 			throw new OfflineException(e, OfflineException.CLIENT_DISCONNETED);
 		}
 		return isCopied;
@@ -354,7 +353,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 
 			if (fileTransfer != null)
 			{
-				Logger.d(TAG, "Received side Current chunk is " + fileTransfer.getTransferProgress().getCurrentChunks());
+				// Logger.d(TAG, "Received side Current chunk is " + fileTransfer.getTransferProgress().getCurrentChunks());
 				fileTransfer.getTransferProgress().setCurrentChunks(fileTransfer.getTransferProgress().getCurrentChunks() + 1);
 			}
 		}
@@ -399,12 +398,12 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 		{
 			if (currentSendingFiles.containsKey(msgId))
 			{
-				Logger.d("Spinner", "Current Msg Id -> " + msgId);
+				// Logger.d("Spinner", "Current Msg Id -> " + msgId);
 				fss = new FileSavedState(FTState.IN_PROGRESS, (int) file.length(), currentSendingFiles.get(msgId).getTransferProgress().getCurrentChunks() * 1024);
 			}
 			else
 			{
-				Logger.d("Spinner", "Completed Msg Id -> " + msgId);
+				// Logger.d("Spinner", "Completed Msg Id -> " + msgId);
 				fss = new FileSavedState(FTState.COMPLETED, hikeFile.getFileKey());
 			}
 			return fss;
@@ -428,13 +427,13 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 
 			if (currentReceivingFiles.containsKey(msgId))
 			{
-				Logger.d("Spinner", "Current Msg Id -> " + msgId);
+				// Logger.d("Spinner", "Current Msg Id -> " + msgId);
 				fss = new FileSavedState(FTState.IN_PROGRESS, (int) file.length(), currentReceivingFiles.get(msgId).getTransferProgress().getCurrentChunks() * 1024);
 
 			}
 			else
 			{
-				Logger.d("Spinner", "Completed Msg Id -> " + msgId);
+				// Logger.d("Spinner", "Completed Msg Id -> " + msgId);
 				fss = new FileSavedState(FTState.COMPLETED, hikeFile.getFileKey());
 			}
 		}
@@ -943,7 +942,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 		}
 		else
 		{
-			Logger.d(TAG, "showTransferProgress trying to get msg id is " + msgId);
+			//Logger.d(TAG, "showTransferProgress trying to get msg id is " + msgId);
 			if (!currentReceivingFiles.containsKey(msgId))
 				return;
 			else
@@ -951,8 +950,8 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 		}
 	
 		long progress = (((long)num*OfflineConstants.CHUNK_SIZE*100)/hikeFile.getFileSize());
-		Logger.d(TAG, "CurrentSizeReceived: " + num + " FileSize: " + hikeFile.getFileSize() + 
-				" Progress -> " +  progress +  " FtState -> " + fss.getFTState().name());
+		//Logger.d(TAG, "CurrentSizeReceived: " + num + " FileSize: " + hikeFile.getFileSize() + 
+		//		" Progress -> " +  progress +  " FtState -> " + fss.getFTState().name());
 		
 		if (fss.getFTState() == FTState.IN_PROGRESS)
 		{
@@ -1016,7 +1015,8 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 		{
 			final ConvMessage convMessage = OfflineUtils.createOfflineInlineConvMessage("o:" + connectedDevice, context.getString(R.string.connection_deestablished),
 					OfflineConstants.OFFLINE_MESSAGE_DISCONNECTED_TYPE);
-			HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_SENT, convMessage);
+			HikeConversationsDatabase.getInstance().addConversationMessages(convMessage, true);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_RECEIVED, convMessage);
 
 			if (currentSendingFiles.size() > 0)
 			{

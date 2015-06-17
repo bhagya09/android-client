@@ -846,10 +846,10 @@ public void onTrimMemory(int level)
 		makeNoMediaFiles();
 
 		hikeBotInfoMap = new ConcurrentHashMap<>();
-		BotUtils.initBots();
 
 		initHikeLruCache(getApplicationContext());
 		initContactManager();
+		BotUtils.initBots();
 		/*
 		 * Fetching all stealth contacts on app creation so that the conversation cannot be opened through the shortcut or share screen.
 		 */

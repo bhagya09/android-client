@@ -233,14 +233,17 @@ public class UploadFileTask extends FileTransferBase
 			filesArray.put(fileJSON);
 			metadata.put(HikeConstants.FILES, filesArray);
 			MessageMetadata messageMetadata = new MessageMetadata(metadata, true);
-			messageMetadata.getHikeFiles().get(0).setFileName(OfflineUtils.getTimeStampInsertedFileName(fileName));
-			messageMetadata.getJSON().putOpt(HikeConstants.FILE_NAME,OfflineUtils.getTimeStampInsertedFileName(fileName));
+			messageMetadata.getHikeFiles().get(0).setFileName(fileName);
+			messageMetadata.getJSON().putOpt(HikeConstants.FILE_NAME, fileName);
 			((ConvMessage) userContext).setMetadata(messageMetadata);
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
 		((ConvMessage) userContext).setTimestamp(System.currentTimeMillis() / 1000);
-		HikeConversationsDatabase.getInstance().updateMessageMetadata(((ConvMessage) userContext).getMsgID(), ((ConvMessage) userContext).getMetadata());
+		HikeConversationsDatabase.getInstance().updateMessageMetadata(((ConvMessage) userContext).getMsgID(), ((ConvMessage) userContext).getMetadata()); 
+		long msgId = ((ConvMessage) userContext).getMsgID(); 
+		String s =  HikeConversationsDatabase.getInstance().getMetadataOfMessage(((ConvMessage) userContext).getMsgID());
+		Logger.d("OffineManager","updated msg metadata" + s);
 		// saveFileState(null);
 	}
 
@@ -331,6 +334,7 @@ public class UploadFileTask extends FileTransferBase
 					// thumbnail.recycle();
 					Logger.d(getClass().getSimpleName(), "Sent Thumbnail Size : " + tBytes.length);
 				}
+			
 				metadata = getFileTransferMetadata(fileName, fileType, hikeFileType, thumbnailString, thumbnail, recordingDuration, mFile.getPath(), (int) mFile.length(), quality);
 			}
 			else
@@ -402,7 +406,8 @@ public class UploadFileTask extends FileTransferBase
 				MsgRelLogManager.startMessageRelLogging((ConvMessage) userContext, MessageType.MULTIMEDIA);
 				
 				//Message sent from here will only do an entry in conversation db it is not actually being sent to server.
-				HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_SENT, convMessageObject);
+				if(!isOfflineMsg)
+					HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_SENT, convMessageObject);
 			}
 		}
 		catch (Exception e)
@@ -482,6 +487,15 @@ public class UploadFileTask extends FileTransferBase
 					if(selectedFile.exists() && selectedFile.length() > 0)
 					{
 						selectedFile = Utils.getOutputMediaFile(hikeFileType, null, true);
+					}
+					/*
+					 * Changes done to fix the issue where some users are getting FileNotFoundEXception while creating file.
+					 */
+					try {
+						if(!selectedFile.exists())
+							selectedFile.createNewFile();
+					} catch (IOException e) {
+						e.printStackTrace();
 					}
 					if (!Utils.compressAndCopyImage(mFile.getPath(), selectedFile.getPath(), context))
 					{

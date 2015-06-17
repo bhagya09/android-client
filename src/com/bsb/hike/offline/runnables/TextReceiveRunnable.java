@@ -22,6 +22,7 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.offline.IConnectCallback;
+import com.bsb.hike.offline.IMessageSentOffline;
 import com.bsb.hike.offline.OfflineException;
 import com.bsb.hike.offline.OfflineManager;
 import com.bsb.hike.offline.OfflineThreadManager;
@@ -31,7 +32,7 @@ import com.bsb.hike.utils.Logger;
 
 /**
  * 
- * @author himanshu
+ * @author himanshu, deepak malik
  *	Runnable responsible for receving text from client
  */
 public class TextReceiveRunnable implements Runnable
@@ -53,8 +54,16 @@ public class TextReceiveRunnable implements Runnable
 	
 	IConnectCallback connectCallback;
 
-	public TextReceiveRunnable(IConnectCallback connectCallback)
+	private IMessageSentOffline textCallback;
+	
+	private IMessageSentOffline fileCallback;
+
+	File stickerImage = null;
+
+	public TextReceiveRunnable(IMessageSentOffline textCallback, IMessageSentOffline fileCallback,IConnectCallback connectCallback)
 	{
+		this.textCallback = textCallback;
+		this.fileCallback = fileCallback;
 		this.connectCallback=connectCallback;
 	}
 
@@ -72,11 +81,11 @@ public class TextReceiveRunnable implements Runnable
 
 			Logger.d(TAG, "TextReceiveThread" + "Will be waiting on accept");
 			textReceiverSocket = textServerSocket.accept();
-			Logger.d(TAG, "TextReceiveThread" + "Connection successfull");
+			Logger.d(TAG, "TextReceiveThread" + "Connection successfull and the receiver buffer is "+ textReceiverSocket.getReceiveBufferSize() + "and the send buffer is " + textReceiverSocket.getSendBufferSize() );
 			connectCallback.onConnect();
 			inputStream = textReceiverSocket.getInputStream();
 			while (true)
-			{
+			{				
 				byte[] convMessageLength = new byte[4];
 				int readBytes = inputStream.read(convMessageLength, 0, 4);
 
@@ -122,6 +131,16 @@ public class TextReceiveRunnable implements Runnable
 					Logger.d(TAG, "Ghost Packet received");
 					offlineManager.restartGhostTimeout();
 				}
+				else if (OfflineUtils.isAckPacket(messageJSON))
+				{
+					messageJSON.put(HikeConstants.FROM, "o:" + offlineManager.getConnectedDevice());
+					messageJSON.remove(HikeConstants.TO);
+					Logger.d(TAG, "ACK PAcket received for msgId: " +  OfflineUtils.getMsgIdFromAckPacket(messageJSON));
+					if (OfflineUtils.isAckForFileMessage(messageJSON))
+						fileCallback.onSuccess(messageJSON);
+					else
+						textCallback.onSuccess(messageJSON);
+				}
 				else
 				{
 					messageJSON.put(HikeConstants.FROM, "o:" + offlineManager.getConnectedDevice());
@@ -130,7 +149,7 @@ public class TextReceiveRunnable implements Runnable
 					if (OfflineUtils.isStickerMessage(messageJSON))
 					{
 						String stpath = OfflineUtils.getStickerPath(messageJSON);
-						File stickerImage = new File(stpath);
+						stickerImage = new File(stpath);
 						if (!stickerImage.exists())
 						{
 							OfflineUtils.createStkDirectory(messageJSON);
@@ -148,6 +167,8 @@ public class TextReceiveRunnable implements Runnable
 								fileSize -= len;
 							}
 						}
+						// set stickerImage to null, to avoid deleting it if download is complete
+						stickerImage = null;   
 					}
 					else if (OfflineUtils.isChatThemeMessage(messageJSON))
 					{
@@ -163,6 +184,12 @@ public class TextReceiveRunnable implements Runnable
 
 					}
 					convMessage = new ConvMessage(messageJSON, HikeMessengerApp.getInstance().getApplicationContext());
+					long mappedMsgId = convMessage.getMappedMsgID();
+					
+					// send ack for the packet received
+					JSONObject ackJSON = OfflineUtils.createAckPacket(convMessage.getMsisdn(), mappedMsgId, false);
+					offlineManager.addToTextQueue(ackJSON);
+					
 					HikeConversationsDatabase.getInstance().addConversationMessages(convMessage, true);
 					HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_RECEIVED, convMessage);
 
@@ -180,12 +207,14 @@ public class TextReceiveRunnable implements Runnable
 		{
 			e.printStackTrace();
 			Logger.e(TAG, "Exception in TextReceiveThread. IO Exception occured.Socket was not bounded");
+			if (stickerImage != null)
+				stickerImage.delete();
 			connectCallback.onDisconnect(new OfflineException(e, OfflineException.CLIENT_DISCONNETED));
 		}
 		catch (IllegalArgumentException e)
 		{
 			e.printStackTrace();
-			Logger.e(TAG, "Did we pass correct Address here ??");
+			Logger.e(TAG, "Did we pass correct Address here ?? Server Socket did not bind.");
 		}
 		catch (JSONException e)
 		{
@@ -194,6 +223,11 @@ public class TextReceiveRunnable implements Runnable
 		catch (OfflineException e)
 		{
 			e.printStackTrace();
+			if (stickerImage != null)
+			{
+				Logger.d(TAG, "GOing to delete stickerImage in TRR");
+				stickerImage.delete();
+			}
 			connectCallback.onDisconnect(new OfflineException(e, OfflineException.CLIENT_DISCONNETED));
 
 		}

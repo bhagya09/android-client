@@ -1411,7 +1411,8 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				{
 					thumbnail = hikeFile.getThumbnail();
 				}
-				Logger.d("OfflineThreadManager","Actual Thumbanil is  "+thumbnail.toString());
+				
+				//Logger.d("OfflineThreadManager","Actual Thumbanil is  "+thumbnail.toString());
 				if (showThumbnail)
 				{
 					imageHolder.fileThumb.setImageDrawable(thumbnail);
