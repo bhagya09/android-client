@@ -4,7 +4,7 @@
     package="com.bsb.hike"
     android:installLocation="auto"
     android:versionCode="1244"
-    android:versionName="3.9.7.27" >
+    android:versionName="3.9.7.0.0.keyboard_not_dismiss" >
 
     <uses-sdk
         android:minSdkVersion="9"
