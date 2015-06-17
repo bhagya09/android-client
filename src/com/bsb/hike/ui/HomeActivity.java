@@ -68,7 +68,6 @@ import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.FtueContactsData;
-import com.bsb.hike.models.GalleryItem;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.OverFlowMenuItem;
 import com.bsb.hike.models.Conversation.ConversationTip;
@@ -219,44 +218,11 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		HikeMessengerApp app = (HikeMessengerApp) getApplication();
 		app.connectToService();
 
-		if (Intent.ACTION_SEND.equals(getIntent().getAction()) ) 
+		if(isShareIntent(getIntent()))
 		{
-			Intent intent =getIntent();
-			if(HikeFileType.fromString(intent.getType()).compareTo(HikeFileType.IMAGE)==0 && Utils.isPhotosEditEnabled()) 
-			{ 
-				String fileName = Utils.getRealPathFromUri((Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM), getApplicationContext());
-				startActivity(IntentFactory.getPictureEditorActivityIntent(getApplicationContext(), fileName, true, null, false));
-			}
-			else
-			{
-				handleShareIntent(getIntent());
-			}
-		} 
-		
-		else if(Intent.ACTION_SEND_MULTIPLE.equals(getIntent().getAction()))
-		{
-			handleShareIntent(getIntent());
-			
-			//Commenting out Multi-share:images edit code. This feature will be enabled in next release.
-			
-			/*
-			Intent intent =getIntent();
-			ArrayList<Uri> imageUris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
-			ArrayList<GalleryItem> selectedImages = GalleryItem.getGalleryItemsFromFilepaths(imageUris);
-			if((selectedImages!=null) && Utils.isPhotosEditEnabled()) 
-			{
-				Intent multiIntent = new Intent(getApplicationContext(),GallerySelectionViewer.class);
-				multiIntent.putParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS, selectedImages);
-				multiIntent.putExtra(GallerySelectionViewer.FROM_DEVICE_GALLERY_SHARE, true);
-				startActivity(multiIntent);
-			}
-			else
-			{
-				handleShareIntent(getIntent());
-			}
-			*/
+			handleFileShareIntent(getIntent());
 		}
-
+		
 		setupActionBar();
 
 		// Checking whether the state of the avatar and conv DB Upgrade settings
@@ -305,6 +271,55 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			break;
 		}
 
+	}
+	
+	private boolean isShareIntent(Intent intent)
+	{
+		if (Intent.ACTION_SEND.equals(intent.getAction()) || Intent.ACTION_SEND_MULTIPLE.equals(intent.getAction())) 
+		{
+			return true;
+		} 
+		
+		return false;
+	}
+	
+	private void handleFileShareIntent(Intent intent)
+	{
+		if (Intent.ACTION_SEND.equals(intent.getAction()) ) 
+		{
+			if(HikeFileType.fromString(intent.getType()).compareTo(HikeFileType.IMAGE)==0 && Utils.isPhotosEditEnabled()) 
+			{ 
+				String fileName = Utils.getAbsolutePathFromUri((Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM), getApplicationContext(),false);
+				startActivity(IntentFactory.getPictureEditorActivityIntent(getApplicationContext(), fileName, true, null, false));
+			}
+			else
+			{
+				transferShareIntent(intent);
+			}
+		} 
+		
+		else if(Intent.ACTION_SEND_MULTIPLE.equals(intent.getAction()))
+		{
+			transferShareIntent(intent);
+			
+			//Commenting out Multi-share:images edit code. This feature will be enabled in next release.
+			
+			/*
+			ArrayList<Uri> imageUris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
+			ArrayList<GalleryItem> selectedImages = GalleryItem.getGalleryItemsFromFilepaths(imageUris);
+			if((selectedImages!=null) && Utils.isPhotosEditEnabled()) 
+			{
+				Intent multiIntent = new Intent(getApplicationContext(),GallerySelectionViewer.class);
+				multiIntent.putParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS, selectedImages);
+				multiIntent.putExtra(GallerySelectionViewer.FROM_DEVICE_GALLERY_SHARE, true);
+				startActivity(multiIntent);
+			}
+			else
+			{
+				handleShareIntent(intent);
+			}
+			*/
+		}
 	}
 
 	private void startFestivePopup(int type)
@@ -578,6 +593,11 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			return;
 		}
 		
+		if(isShareIntent(intent))
+		{
+			handleFileShareIntent(intent);
+		}
+		
 		if (mainFragment != null)
 		{
 			mainFragment.onNewintent(intent);
@@ -683,24 +703,33 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		menu.findItem(R.id.new_conversation).getActionView().findViewById(R.id.overflow_icon_image).setContentDescription("Start a new chat");
 		((ImageView) menu.findItem(R.id.new_conversation).getActionView().findViewById(R.id.overflow_icon_image)).setImageResource(R.drawable.ic_new_conversation);
 	
-		((ImageView) menu.findItem(R.id.take_pic).getActionView().findViewById(R.id.overflow_icon_image)).setImageResource(R.drawable.btn_cam_nav);
-		menu.findItem(R.id.take_pic).getActionView().findViewById(R.id.overflow_icon_image).setContentDescription("New photo");
-		menu.findItem(R.id.take_pic).getActionView().setOnClickListener(new OnClickListener()
-		{
-			
-			@Override
-			public void onClick(View v)
+			if (Utils.isPhotosEditEnabled())
 			{
-				// Open gallery
-				int galleryFlags = GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS|GalleryActivity.GALLERY_EDIT_SELECTED_IMAGE|GalleryActivity.GALLERY_COMPRESS_EDITED_IMAGE|GalleryActivity.GALLERY_DISPLAY_CAMERA_ITEM;
-				Intent galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(HomeActivity.this, galleryFlags,null);
-				
-				startActivity(galleryPickerIntent);
-				
-				sendAnalyticsTakePicture();
+				View takePhotoActionView = menu.findItem(R.id.take_pic).getActionView();
+				((ImageView) takePhotoActionView.findViewById(R.id.overflow_icon_image)).setImageResource(R.drawable.btn_cam_nav);
+				takePhotoActionView.findViewById(R.id.overflow_icon_image).setContentDescription("New photo");
+				takePhotoActionView.setOnClickListener(new OnClickListener()
+				{
+
+					@Override
+					public void onClick(View v)
+					{
+						// Open gallery
+						int galleryFlags = GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS | GalleryActivity.GALLERY_EDIT_SELECTED_IMAGE
+								| GalleryActivity.GALLERY_COMPRESS_EDITED_IMAGE | GalleryActivity.GALLERY_DISPLAY_CAMERA_ITEM;
+						Intent galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(HomeActivity.this, galleryFlags, null);
+
+						startActivity(galleryPickerIntent);
+
+						sendAnalyticsTakePicture();
+					}
+				});
 			}
-		});
-		
+			else
+			{
+				menu.removeItem(R.id.take_pic);
+			}
+
 		showRecentlyJoinedDot(1000);
 
 		menu.findItem(R.id.new_conversation).getActionView().setOnClickListener(new OnClickListener()
@@ -1077,7 +1106,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		deviceDetailsSent = true;
 	}
 
-	private void handleShareIntent(Intent shareIntent)
+	private void transferShareIntent(Intent shareIntent)
 	{
 		if(shareIntent == null)
 		{
