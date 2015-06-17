@@ -689,7 +689,7 @@ public class StickerManager
 			Logger.i("stickermanager", "moving recent file from external to internal");
 			String recent = StickerManager.RECENT;
 			Utils.copyImage(getExternalStickerDirectoryForCategoryId(context, recent) + "/" + recent + ".bin", getInternalStickerDirectoryForCategoryId(recent) + "/"
-					+ recent + ".bin", Bitmap.Config.RGB_565, 80);
+					+ recent + ".bin", Bitmap.Config.RGB_565, HikeConstants.HikePhotos.DEFAULT_IMAGE_SAVE_QUALITY);
 			Logger.i("stickermanager", "moving finished recent file from external to internal");
 		}
 		catch (Exception e)
