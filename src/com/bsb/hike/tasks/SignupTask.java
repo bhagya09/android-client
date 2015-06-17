@@ -30,6 +30,7 @@ import android.text.TextUtils;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.BitmapModule.BitmapUtils;
+import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.db.AccountBackupRestore;
 import com.bsb.hike.http.HikeHttpRequest;
 import com.bsb.hike.models.AccountInfo;
@@ -532,6 +533,7 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 			{
 				Logger.e("SignupTask", "Unable to post address book", e);
 				publishProgress(new StateValue(State.ERROR, HikeConstants.ADDRESS_BOOK_ERROR));
+				HAManager.getInstance().record(HikeConstants.EXCEPTION, HikeConstants.LogEvent.ADDRESSBOOK_UPLOAD_SIGNUP_CALL);
 				return Boolean.FALSE;
 			}
 
