@@ -177,6 +177,10 @@ public class TextReceiveRunnable implements Runnable
 						MqttMessagesManager.getInstance(HikeMessengerApp.getInstance().getApplicationContext()).saveChatBackground(messageJSON);
 						continue;
 					}
+					else if(OfflineUtils.isDisconnectPkt(messageJSON))
+					{
+						throw new OfflineException(OfflineException.DISCONNECT);
+					}
 					else
 					{
 						// It's a normal Text Message
@@ -228,7 +232,7 @@ public class TextReceiveRunnable implements Runnable
 				Logger.d(TAG, "GOing to delete stickerImage in TRR");
 				stickerImage.delete();
 			}
-			connectCallback.onDisconnect(new OfflineException(e, OfflineException.CLIENT_DISCONNETED));
+			connectCallback.onDisconnect(e);
 
 		}
 	}

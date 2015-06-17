@@ -151,7 +151,7 @@ public class TextTransferRunnable implements Runnable
 		}
 		catch (OfflineException e)
 		{
-			offlineManager.shutDown(new OfflineException(e, OfflineException.SERVER_DISCONNED));
+			offlineManager.shutDown(e);
 			e.printStackTrace();
 		}
 	}
