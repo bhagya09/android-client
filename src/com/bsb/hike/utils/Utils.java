@@ -1516,7 +1516,7 @@ public class Utils
 			// on ICS or higher.
 			if (tempBmp != null)
 			{
-				byte[] fileBytes = BitmapUtils.bitmapToBytes(tempBmp, Bitmap.CompressFormat.JPEG, 80);
+				byte[] fileBytes = BitmapUtils.bitmapToBytes(tempBmp, Bitmap.CompressFormat.JPEG, HikeConstants.HikePhotos.DEFAULT_IMAGE_SAVE_QUALITY);
 				tempBmp.recycle();
 				src = new ByteArrayInputStream(fileBytes);
 			}
@@ -1563,7 +1563,7 @@ public class Utils
 	{
 		SharedPreferences appPrefs = PreferenceManager.getDefaultSharedPreferences(context);
 		int imageQuality = appPrefs.getInt(HikeConstants.IMAGE_QUALITY, ImageQuality.QUALITY_DEFAULT);
-		return compressAndCopyImage(srcFilePath, destFilePath, context, Bitmap.Config.ARGB_8888, 80, imageQuality, true);
+		return compressAndCopyImage(srcFilePath, destFilePath, context, Bitmap.Config.ARGB_8888, HikeConstants.HikePhotos.DEFAULT_IMAGE_SAVE_QUALITY, imageQuality, true);
 	}
 	
 	public static boolean compressAndCopyImage(String srcFilePath, String destFilePath, Context context, Bitmap.Config config, int quality, int imageQuality, boolean toUserServerConfig)
@@ -5764,7 +5764,7 @@ public class Utils
 		 */
 		String srcFilePath = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT + "/" + msisdn + ".jpg";
 		String destFilePath = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT + "/" + mappedId + ".jpg";
-		Utils.copyImage(srcFilePath, destFilePath, Bitmap.Config.ARGB_8888, 80);
+		Utils.copyImage(srcFilePath, destFilePath, Bitmap.Config.ARGB_8888, HikeConstants.HikePhotos.DEFAULT_IMAGE_SAVE_QUALITY);
 
 		if (setIcon)
 		{
