@@ -98,7 +98,7 @@ public class CanvasImageView extends ImageView implements OnTouchListener
 		this.mPaint.setStyle(Paint.Style.STROKE);
 		this.mPaint.setStrokeJoin(Paint.Join.ROUND);
 		this.mPaint.setStrokeCap(Paint.Cap.ROUND);
-		this.brushWidth = HikePhotosUtils.dpToPx(getContext(), HikeConstants.HikePhotos.DEFAULT_BRUSH_WIDTH);
+		this.brushWidth = HikePhotosUtils.dpToPx(HikeConstants.HikePhotos.DEFAULT_BRUSH_WIDTH);
 		this.color = HikePhotosUtils.DoodleColors[0];
 		this.mPath = new Path();
 		this.drawEnabled = false;

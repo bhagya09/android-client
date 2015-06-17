@@ -285,6 +285,9 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 	@Override
 	public void finish()
 	{
+		HikePhotosUtils.FilterTools.setCurrentDoodleItem(null);
+		HikePhotosUtils.FilterTools.setCurrentFilterItem(null);
+		
 		HikeEffectsFactory.finish();
 		super.finish();
 	}
@@ -433,18 +436,18 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 				{
 					doodleWidth += HikeConstants.HikePhotos.DELTA_BRUSH_WIDTH;
 				}
-				doodlePreview.setBrushWidth(HikePhotosUtils.dpToPx(mContext, doodleWidth));
+				doodlePreview.setBrushWidth(HikePhotosUtils.dpToPx(doodleWidth));
 				doodlePreview.refresh();
-				editView.setBrushWidth(HikePhotosUtils.dpToPx(mContext, doodleWidth));
+				editView.setBrushWidth(HikePhotosUtils.dpToPx(doodleWidth));
 				break;
 			case R.id.minusWidth:
 				if (doodleWidth - HikeConstants.HikePhotos.DELTA_BRUSH_WIDTH >= HikeConstants.HikePhotos.Min_BRUSH_WIDTH)
 				{
 					doodleWidth -= HikeConstants.HikePhotos.DELTA_BRUSH_WIDTH;
 				}
-				doodlePreview.setBrushWidth(HikePhotosUtils.dpToPx(mContext, doodleWidth));
+				doodlePreview.setBrushWidth(HikePhotosUtils.dpToPx(doodleWidth));
 				doodlePreview.refresh();
-				editView.setBrushWidth(HikePhotosUtils.dpToPx(mContext, doodleWidth));
+				editView.setBrushWidth(HikePhotosUtils.dpToPx(doodleWidth));
 				break;
 			case R.id.undo:
 				editView.undoLastDoodleDraw();
