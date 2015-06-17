@@ -2121,6 +2121,8 @@ public class HikeConstants
 
 		public static final String GET_ACTIVE_NETWORK_INFO = "getActiveNetworkInfo";
 
+		public static final String ADDRESSBOOK_UPLOAD_SIGNUP_CALL = "addressbookUploadSignupCall";
+
 	}
 
 	public static final class MqttMessageTypes
