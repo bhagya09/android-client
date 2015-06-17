@@ -1411,7 +1411,8 @@ public class Utils
 		
 		if(returnFilePath == null && checkForPicassaUri && isPicasaUri(fileUriString))
 		{
-			String timeStamp = Long.toString(System.currentTimeMillis());
+			
+			String timeStamp = Utils.getOriginalFile(HikeFileType.IMAGE, null);
 			File file = null;
 			try
 			{
