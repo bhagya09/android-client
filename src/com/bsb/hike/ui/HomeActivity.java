@@ -1045,6 +1045,20 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	}
 
 	@Override
+	public void onBackPressed()
+	{
+		// In android 5.0(and higher) when back is pressed, sherlock action mode does not exit.
+		// Instead the activity was exiting.
+		// The following change checks if search mode is still there, and take s action accordingly
+		if (searchMenuItem != null && searchMenuItem.isActionViewExpanded())
+		{
+			searchMenuItem.collapseActionView();
+			return;
+		}
+		super.onBackPressed();
+	}
+
+	@Override
 	protected void onPause()
 	{
 		if(getIntent().hasExtra(HikeConstants.STEALTH_MSISDN))
