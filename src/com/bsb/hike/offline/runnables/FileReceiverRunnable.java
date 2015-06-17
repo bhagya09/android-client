@@ -161,7 +161,10 @@ public class FileReceiverRunnable implements Runnable
 				{
 					e.printStackTrace();
 				}
-
+				// send ack for the packet received
+				JSONObject ackJSON = OfflineUtils.createAckPacket(convMessage.getMsisdn(), mappedMsgId, true);
+				offlineManager.addToTextQueue(ackJSON);
+				
 				offlineManager.removeFromCurrentReceivingFile(convMessage.getMsgID());
 
 				offlineManager.showSpinnerProgress(false, mappedMsgId);

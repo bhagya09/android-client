@@ -22,6 +22,7 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.offline.IConnectCallback;
+import com.bsb.hike.offline.IMessageSentOffline;
 import com.bsb.hike.offline.OfflineException;
 import com.bsb.hike.offline.OfflineManager;
 import com.bsb.hike.offline.OfflineThreadManager;
@@ -53,10 +54,16 @@ public class TextReceiveRunnable implements Runnable
 	
 	IConnectCallback connectCallback;
 	
+	private IMessageSentOffline textCallback;
+	
+	private IMessageSentOffline fileCallback;
+	
 	File stickerImage = null;
 
-	public TextReceiveRunnable(IConnectCallback connectCallback)
+	public TextReceiveRunnable(IMessageSentOffline textCallback, IMessageSentOffline fileCallback,IConnectCallback connectCallback)
 	{
+		this.textCallback = textCallback;
+		this.fileCallback = fileCallback;
 		this.connectCallback=connectCallback;
 	}
 
@@ -124,6 +131,16 @@ public class TextReceiveRunnable implements Runnable
 					Logger.d(TAG, "Ghost Packet received");
 					offlineManager.restartGhostTimeout(OfflineUtils.getScreenStatusFromGstPkt(messageJSON));
 				}
+				else if (OfflineUtils.isAckPacket(messageJSON))
+				{
+					messageJSON.put(HikeConstants.FROM, "o:" + offlineManager.getConnectedDevice());
+					messageJSON.remove(HikeConstants.TO);
+					Logger.d(TAG, "ACK PAcket received for msgId: " +  OfflineUtils.getMsgIdFromAckPacket(messageJSON));
+					if (OfflineUtils.isAckForFileMessage(messageJSON))
+						fileCallback.onSuccess(messageJSON);
+					else
+						textCallback.onSuccess(messageJSON);
+				}
 				else
 				{
 					messageJSON.put(HikeConstants.FROM, "o:" + offlineManager.getConnectedDevice());
@@ -167,6 +184,12 @@ public class TextReceiveRunnable implements Runnable
 
 					}
 					convMessage = new ConvMessage(messageJSON, HikeMessengerApp.getInstance().getApplicationContext());
+					long mappedMsgId = convMessage.getMappedMsgID();
+					
+					// send ack for the packet received
+					JSONObject ackJSON = OfflineUtils.createAckPacket(convMessage.getMsisdn(), mappedMsgId, false);
+					offlineManager.addToTextQueue(ackJSON);
+					
 					HikeConversationsDatabase.getInstance().addConversationMessages(convMessage, true);
 					HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_RECEIVED, convMessage);
 

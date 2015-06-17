@@ -304,6 +304,9 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 			{
 				int readLen = 0;
 				readLen = inputStream.read(buf, 0, OfflineConstants.CHUNK_SIZE);
+				if (readLen < 0)
+					throw new OfflineException(OfflineException.CLIENT_DISCONNETED);
+				
 				out.write(buf, 0, readLen);
 				len += readLen;
 				fileSize -= readLen;
@@ -328,10 +331,6 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 		catch (IOException e)
 		{
 			Logger.e("Spinner", "Exception in copyFile: ", e);
-			throw new OfflineException(e, OfflineException.CLIENT_DISCONNETED);
-		}
-		catch (IndexOutOfBoundsException e)
-		{
 			throw new OfflineException(e, OfflineException.CLIENT_DISCONNETED);
 		}
 		return isCopied;

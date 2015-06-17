@@ -28,6 +28,12 @@ public class OfflineConstants
 	
 	public static final String GHOST = "gst";
 	
+	public static final String ACK = "offline_ack";
+	
+	public static final String MSG_ID = "offline_msg_id";
+	
+	public static final String FILE_TRANSFER_ACK = "file_transfer_ack";
+	
 	public static final String STICKER_PATH = "stickerPath";
 
 	public static final String PING = "ping";
