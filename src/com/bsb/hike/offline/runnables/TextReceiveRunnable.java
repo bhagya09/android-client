@@ -122,7 +122,7 @@ public class TextReceiveRunnable implements Runnable
 				else if (OfflineUtils.isGhostPacket(messageJSON))
 				{
 					Logger.d(TAG, "Ghost Packet received");
-					offlineManager.restartGhostTimeout();
+					offlineManager.restartGhostTimeout(OfflineUtils.getScreenStatusFromGstPkt(messageJSON));
 				}
 				else
 				{

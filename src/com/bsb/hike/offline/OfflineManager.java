@@ -90,6 +90,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 	private volatile OFFLINE_STATE offlineState;
 
 	private boolean startedForChatThread = false;
+	
 
 	Handler handler = new Handler(HikeHandlerUtil.getInstance().getLooper())
 	{
@@ -660,8 +661,8 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 	{
 		Message msg = Message.obtain();
 		msg.what = OfflineConstants.HandlerConstants.SEND_GHOST_PACKET;
-		// performWorkOnBackEndThread(msg)
-		HikeAlarmManager.setAlarm(context, System.currentTimeMillis(), HikeAlarmManager.REQUESTCODE_OFFLINE, true);
+		performWorkOnBackEndThread(msg);
+		// HikeAlarmManager.setAlarm(context, System.currentTimeMillis(), HikeAlarmManager.REQUESTCODE_OFFLINE, true);
 
 	}
 
@@ -669,7 +670,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 	{
 		JSONObject ghost = OfflineUtils.createGhostPacket(getConnectedDevice());
 		addToTextQueue(ghost);
-		HikeAlarmManager.setAlarm(context, System.currentTimeMillis() + 10000, HikeAlarmManager.REQUESTCODE_OFFLINE, true);
+		// HikeAlarmManager.setAlarm(context, System.currentTimeMillis() + 10000, HikeAlarmManager.REQUESTCODE_OFFLINE, true);
 	}
 	private void postDisconnectForGhostPackets()
 	{
@@ -678,9 +679,10 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 		handler.sendMessageDelayed(msg, OfflineConstants.GHOST_PACKET_DISCONNECT_TIMEOUT);
 	}
 
-	public void restartGhostTimeout()
+	public void restartGhostTimeout(boolean isScreenOn)
 	{
 		removeMessage(OfflineConstants.HandlerConstants.DISCONNECT_AFTER_TIMEOUT);
+		if(isScreenOn)
 		postDisconnectForGhostPackets();
 	}
 

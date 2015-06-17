@@ -4,10 +4,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.io.IOError;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InvalidObjectException;
 import java.io.UnsupportedEncodingException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -18,7 +16,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.content.Context;
+import android.hardware.display.DisplayManager;
+import android.os.Build;
+import android.os.PowerManager;
 import android.text.TextUtils;
+import android.view.Display;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -132,10 +135,33 @@ public class OfflineUtils
 	
 	public static JSONObject createGhostPacket(String msisdn)
 	{
-		return createGhostPacket(msisdn,false);
+		return createGhostPacket(msisdn, OfflineUtils.isScreenOn());
 	}
 
-	public static JSONObject createGhostPacket(String msisdn,boolean screen)
+	public static boolean isScreenOn()
+	{
+		if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH)
+		{
+			DisplayManager dm = (DisplayManager) HikeMessengerApp.getInstance().getApplicationContext().getSystemService(Context.DISPLAY_SERVICE);
+			boolean screenOn = false;
+			for (Display display : dm.getDisplays())
+			{
+				if (display.getState() != Display.STATE_OFF)
+				{
+					screenOn = true;
+				}
+			}
+			return screenOn;
+		}
+		else
+		{
+			PowerManager pm = (PowerManager) HikeMessengerApp.getInstance().getApplicationContext().getSystemService(Context.POWER_SERVICE);
+			// noinspection deprecation
+			return pm.isScreenOn();
+		}
+	}
+
+	public static JSONObject createGhostPacket(String msisdn, boolean screen)
 	{
 		JSONObject ghostJSON = new JSONObject();
 		try
@@ -629,5 +655,10 @@ public class OfflineUtils
 		}
 
 		return _socket_.isConnected();
+	}
+
+	public static boolean getScreenStatusFromGstPkt(JSONObject messageJSON)
+	{
+		return messageJSON.optBoolean("screen", false);
 	}
 }

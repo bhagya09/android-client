@@ -534,11 +534,10 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 			Message msg = Message.obtain();
 			msg.what = MESSAGE_RECEIVED;
 			msg.obj = convMessage;
-			uiHandler.sendMessage(msg);
+			//uiHandler.sendMessage(msg);
 			sendComposeViewStatusonHandler(false);
 			break;
 		case COULD_NOT_CONNECT:
-			
 			break;
 		default:
 			break;
