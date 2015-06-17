@@ -377,6 +377,7 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 			{
 				disconnectClicked();
 			}
+			
 			break;
 		default:
 			super.itemClicked(item);
@@ -387,6 +388,7 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 	{
 		Toast.makeText(activity, "Disconnected", Toast.LENGTH_SHORT).show();
 		controller.shutDown();
+		Logger.d("OfflineManager","The activity focus is "+activity.hasWindowFocus());
 	}
 
 	public void connectClicked()
@@ -566,7 +568,7 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 		Message msg = Message.obtain();
 		msg.what = MESSAGE_RECEIVED;
 		msg.obj = convMessage;
-		uiHandler.sendMessage(msg);
+		//uiHandler.sendMessage(msg);
 	}
 
 	private void sendComposeViewStatusonHandler(boolean b)
