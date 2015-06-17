@@ -185,7 +185,7 @@ public class HikeFile
 		this.longitude = fileJSON.optDouble(HikeConstants.LONGITUDE);
 		this.zoomLevel = fileJSON.optInt(HikeConstants.ZOOM_LEVEL, HikeConstants.DEFAULT_ZOOM_LEVEL);
 		this.address = fileJSON.optString(HikeConstants.ADDRESS);
-		if (this.file != null)
+		if (this.file != null && (TextUtils.isEmpty(this.fileName) || !isSent))
 		{
 			// Update the file name to prevent duplicacy
 			this.fileName = this.file.getName();

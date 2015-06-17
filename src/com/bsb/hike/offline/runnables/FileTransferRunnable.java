@@ -106,14 +106,17 @@ public class FileTransferRunnable implements Runnable
 				fileTranserObject = OfflineManager.getInstance().getFileTransferQueue().take();
 				// TODO : Send Offline Text and take action on the basis of boolean i.e. clock or single tick
 				offlineManager.setInOfflineFileTransferInProgress(true);
-				if (OfflineThreadManager.getInstance().sendOfflineFile(fileTranserObject, fileSendSocket.getOutputStream()))
+				OfflineThreadManager.getInstance().sendOfflineFile(fileTranserObject, fileSendSocket.getOutputStream());
+				Logger.d(TAG, "Waiting for ack of msgid: " + OfflineUtils.getMsgId(fileTranserObject.getPacket()));
+				/*if ()
+				
 				{
 					callback.onSuccess(fileTranserObject.getPacket());
 				}
 				else
 				{
 					callback.onFailure(fileTranserObject.getPacket());
-				}
+				}*/
 				offlineManager.setInOfflineFileTransferInProgress(false);
 			}
 		}

@@ -22,6 +22,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.offline.FileTransferModel;
 import com.bsb.hike.offline.IConnectCallback;
 import com.bsb.hike.offline.OfflineException;
@@ -29,10 +30,11 @@ import com.bsb.hike.offline.OfflineManager;
 import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.offline.TransferProgress;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 
 /**
  * 
- * @author himanshu
+ * @author himanshu, deepak malik
  *	Runnable responsible for receving file from client
  */
 public class FileReceiverRunnable implements Runnable
@@ -47,6 +49,8 @@ public class FileReceiverRunnable implements Runnable
 	OfflineManager offlineManager = null;
 	
 	IConnectCallback connectCallback=null;
+	
+	File f = null;
 
 	public FileReceiverRunnable(IConnectCallback connectCallback)
 	{
@@ -112,9 +116,9 @@ public class FileReceiverRunnable implements Runnable
 					fileJSON = metadata.getJSONArray(HikeConstants.FILES).getJSONObject(0);
 					fileSize = fileJSON.getInt(HikeConstants.FILE_SIZE);
 					int type = fileJSON.getInt(HikeConstants.HIKE_FILE_TYPE);
-					fileName = fileJSON.getString(HikeConstants.FILE_NAME);
+					fileName = Utils.getFinalFileName(HikeFileType.values()[type], fileJSON.getString(HikeConstants.FILE_NAME));
 					filePath = OfflineUtils.getFileBasedOnType(type, fileName);
-					 totalChunks = OfflineUtils.getTotalChunks(fileSize);
+					totalChunks = OfflineUtils.getTotalChunks(fileSize);
 					
 				}
 				catch (JSONException e1)
@@ -137,11 +141,13 @@ public class FileReceiverRunnable implements Runnable
 					Logger.d(TAG, filePath);
 
 					// TODO : Revisit the logic again.
-					File f = new File(Environment.getExternalStorageDirectory() + "/" + "Hike/Media/hike Images" + "/tempImage_" + fileName);
+					f = new File(Environment.getExternalStorageDirectory() + "/" + "Hike/Media/hike Images" + "/tempImage_" + fileName);
 					File dirs = new File(f.getParent());
 					if (!dirs.exists())
 						dirs.mkdirs();
+					// created a temporary file which on successful download will be renamed.
 					f.createNewFile();
+					
 					// TODO:Can be done via show progress pubsub.
 					// showDownloadTransferNotification(mappedMsgId, fileSize);
 					FileOutputStream outputStream = new FileOutputStream(f);
@@ -149,12 +155,18 @@ public class FileReceiverRunnable implements Runnable
 					offlineManager.copyFile(inputstream, new FileOutputStream(f), convMessage.getMsgID(), true, false, fileSize);
 					OfflineUtils.closeOutputStream(outputStream);
 					f.renameTo(new File(filePath));
+					
+					// if f!=null and exception occurs we need to delete the temp file
+					f = null;
 				}
 				catch (JSONException e)
 				{
 					e.printStackTrace();
 				}
-
+				// send ack for the packet received
+				JSONObject ackJSON = OfflineUtils.createAckPacket(convMessage.getMsisdn(), mappedMsgId, true);
+				offlineManager.addToTextQueue(ackJSON);
+				
 				offlineManager.removeFromCurrentReceivingFile(convMessage.getMsgID());
 
 				offlineManager.showSpinnerProgress(false, mappedMsgId);
@@ -181,6 +193,11 @@ public class FileReceiverRunnable implements Runnable
 		catch (OfflineException e)
 		{
 			e.printStackTrace();
+			if (f != null)
+			{
+				Logger.d(TAG, "Going to delete file in FRR");
+				f.delete();
+			}
 			connectCallback.onDisconnect(new OfflineException(e, OfflineException.CLIENT_DISCONNETED));
 
 		}
