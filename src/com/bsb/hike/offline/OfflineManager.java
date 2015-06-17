@@ -753,6 +753,11 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 			HikeMessengerApp.getInstance().showToast("We are already connecting");
 			return;
 		}
+		if(offlineState == OFFLINE_STATE.CONNECTED)
+		{
+			HikeMessengerApp.getInstance().showToast("We are already connected.Kindly disconnect first and then reconnect");
+			return;
+		}
 		setOfflineState(OFFLINE_STATE.CONNECTING);
 		String myMsisdn = OfflineUtils.getMyMsisdn();
 		if (myMsisdn.compareTo(msisdn) > 0)
