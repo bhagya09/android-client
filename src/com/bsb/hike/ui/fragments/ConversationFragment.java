@@ -1842,9 +1842,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 		}
 		
 		if (isTyping)
-		{	// If we were not already typing and we got isTyping as true, we set typing flag
-			if (convInfo.getTypingNotif() == null)
-			{
+		{	
 				convInfo.setTypingNotif(typingNotification);
 				View parentView = getParenViewForConversation(convInfo);
 				if (parentView == null)
@@ -1854,7 +1852,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 				}
 				
 				mAdapter.updateViewsRelatedToTypingNotif(parentView, convInfo);
-			}
+		
 		}
 		else
 		{	// If we were already typing and we got isTyping as false, we remove the typing flag

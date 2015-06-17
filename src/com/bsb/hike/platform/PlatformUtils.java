@@ -16,13 +16,11 @@ import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.HikePubSub;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
-import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.Header;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpHeaderConstants;
 import com.bsb.hike.platform.content.PlatformContent;
@@ -69,17 +67,8 @@ public class PlatformUtils
 				JSONObject helperData = new JSONObject(helper);
 				JSONObject cardObj = metadataJSON.optJSONObject(HikePlatformConstants.CARD_OBJECT);
 				JSONObject oldHelper = cardObj.optJSONObject(HikePlatformConstants.HELPER_DATA);
-				if (oldHelper == null)
-				{
-					oldHelper = new JSONObject();
-				}
-				Iterator<String> i = helperData.keys();
-				while (i.hasNext())
-				{
-					String key = i.next();
-					oldHelper.put(key, helperData.get(key));
-				}
-				cardObj.put(HikePlatformConstants.HELPER_DATA, oldHelper);
+				JSONObject newHelperData = mergeJSONObjects(oldHelper, helperData);
+				cardObj.put(HikePlatformConstants.HELPER_DATA, newHelperData);
 				metadataJSON.put(HikePlatformConstants.CARD_OBJECT, cardObj);
 				originalMetadata = metadataJSON.toString();
 				return originalMetadata;
@@ -95,6 +84,35 @@ public class PlatformUtils
 			Logger.e(TAG, "Meta data is null in UpdateHelperData");
 		}
 		return null;
+	}
+
+	/**
+	 * Call this function to merge two JSONObjects. Will iterate for the keys present in the dataDiff. Will add the key in the oldData if not already
+	 * present or will update the value in oldData if the key is present.
+	 * @param oldData : the data that wants to be merged.
+	 * @param dataDiff : the diff that will be merged with the old data.
+	 * @return : the merged data.
+	 */
+	public static JSONObject mergeJSONObjects(JSONObject oldData, JSONObject dataDiff)
+	{
+		if (oldData == null)
+		{
+			oldData = new JSONObject();
+		}
+		Iterator<String> i = dataDiff.keys();
+		while (i.hasNext())
+		{
+			String key = i.next();
+			try
+			{
+				oldData.put(key, dataDiff.get(key));
+			}
+			catch (JSONException e)
+			{
+				Logger.e(TAG, "Caught a JSON Exception while merging helper data" + e.toString());
+			}
+		}
+		return oldData;
 	}
 	
 	public static void openActivity(Activity context, String data)
@@ -267,7 +285,7 @@ public class PlatformUtils
 	 * @param botInfo
 	 * @param enableBot
 	 */
-	public static void downloadZipForNonMessagingBot(final BotInfo botInfo, final boolean enableBot)
+	public static void downloadZipForNonMessagingBot(final BotInfo botInfo, final boolean enableBot, final String botChatTheme, final String notifType)
 	{
 		PlatformContentRequest rqst = PlatformContentRequest.make(
 				PlatformContentModel.make(botInfo.getMetadata()), new PlatformContentListener<PlatformContentModel>()
@@ -277,8 +295,7 @@ public class PlatformUtils
 					public void onComplete(PlatformContentModel content)
 					{
 						Logger.d(TAG, "microapp download packet success.");
-						enableBot(botInfo, enableBot);
-						createBotAnalytics(HikePlatformConstants.BOT_CREATED, botInfo);
+						botCreationSuccessHandling(botInfo, enableBot, botChatTheme, notifType);
 					}
 
 					@Override
@@ -292,13 +309,22 @@ public class PlatformUtils
 						else if (event == PlatformContent.EventCode.ALREADY_DOWNLOADED)
 						{
 							Logger.d(TAG, "microapp already exists");
-							enableBot(botInfo, enableBot);
-							createBotAnalytics(HikePlatformConstants.BOT_CREATED, botInfo);
+							botCreationSuccessHandling(botInfo, enableBot, botChatTheme, notifType);
 						}
 						else
 						{
 							Logger.wtf(TAG, "microapp download packet failed.");
-							createBotAnalytics(HikePlatformConstants.BOT_CREATION_FAILED, botInfo);
+							JSONObject json = new JSONObject();
+							try
+							{
+								json.put(HikePlatformConstants.ERROR_CODE, event.toString());
+								createBotAnalytics(HikePlatformConstants.BOT_CREATION_FAILED, botInfo);
+							}
+							catch (JSONException e)
+							{
+								e.printStackTrace();
+							}
+
 						}
 					}
 				});
@@ -307,9 +333,24 @@ public class PlatformUtils
 
 	}
 
+	private static void botCreationSuccessHandling(BotInfo botInfo, boolean enableBot, String botChatTheme, String notifType)
+	{
+		enableBot(botInfo, enableBot);
+		BotUtils.updateBotParamsInDb(botChatTheme, botInfo, enableBot, notifType);
+		createBotAnalytics(HikePlatformConstants.BOT_CREATED, botInfo);
+	}
+
 	private static void createBotAnalytics(String key, BotInfo botInfo)
 	{
-		JSONObject json = new JSONObject();
+		createBotAnalytics(key, botInfo, null);
+	}
+
+	private static void createBotAnalytics(String key, BotInfo botInfo, JSONObject json)
+	{
+		if (json == null)
+		{
+			json = new JSONObject();
+		}
 		try
 		{
 			json.put(AnalyticsConstants.EVENT_KEY, key);
@@ -351,44 +392,38 @@ public class PlatformUtils
 					@Override
 					public void onComplete(PlatformContentModel content)
 					{
-						JSONObject json = new JSONObject();
-						try
-						{
-							json.put(AnalyticsConstants.EVENT_KEY, HikePlatformConstants.MICROAPP_DOWNLOADED);
-							json.put(AnalyticsConstants.APP_NAME, content.getId());
-							json.put(HikePlatformConstants.PLATFORM_USER_ID, HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_UID_SETTING, null));
-							HikeAnalyticsEvent.analyticsForNonMessagingBots(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.DOWNLOAD_EVENT, json);
-						}
-						catch (JSONException e)
-						{
-							e.printStackTrace();
-						}
+						microappDownloadAnalytics(HikePlatformConstants.MICROAPP_DOWNLOADED, content);
 						Logger.d(TAG, "microapp download packet success.");
 					}
 
 					@Override
 					public void onEventOccured(int uniqueId,PlatformContent.EventCode event)
 					{
+
 						if (event == PlatformContent.EventCode.DOWNLOADING || event == PlatformContent.EventCode.LOADED)
 						{
 							//do nothing
 							return;
 						}
+
+						JSONObject jsonObject = new JSONObject();
+						try
+						{
+							jsonObject.put(HikePlatformConstants.ERROR_CODE, event.toString());
+						}
+						catch (JSONException e)
+						{
+							e.printStackTrace();
+						}
+
+						if (event == PlatformContent.EventCode.ALREADY_DOWNLOADED)
+						{
+							microappDownloadAnalytics(HikePlatformConstants.MICROAPP_DOWNLOADED, platformContentModel, jsonObject);
+							Logger.d(TAG, "microapp already exists.");
+						}
 						else
 						{
-							JSONObject json = new JSONObject();
-							try
-							{
-								json.put(AnalyticsConstants.EVENT_KEY, HikePlatformConstants.MICROAPP_DOWNLOAD_FAILED);
-								json.put(AnalyticsConstants.APP_NAME, platformContentModel.getId());
-								json.put(HikePlatformConstants.ERROR_CODE, event.toString());
-								json.put(HikePlatformConstants.PLATFORM_USER_ID, HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_UID_SETTING, null));
-								HikeAnalyticsEvent.analyticsForNonMessagingBots(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.DOWNLOAD_EVENT, json);
-							}
-							catch (JSONException e)
-							{
-								e.printStackTrace();
-							}
+							microappDownloadAnalytics(HikePlatformConstants.MICROAPP_DOWNLOAD_FAILED, platformContentModel, jsonObject);
 							Logger.wtf(TAG, "microapp download packet failed.Because it is" + event.toString());
 						}
 					}
@@ -398,6 +433,30 @@ public class PlatformUtils
 
 	}
 
+	private static void microappDownloadAnalytics(String key, PlatformContentModel content)
+	{
+		microappDownloadAnalytics(key, content, null);
+	}
+
+	private static void microappDownloadAnalytics(String key, PlatformContentModel content, JSONObject json)
+	{
+		if (json == null)
+		{
+			json = new JSONObject();
+		}
+
+		try
+		{
+			json.put(AnalyticsConstants.EVENT_KEY, key);
+			json.put(AnalyticsConstants.APP_NAME, content.getId());
+			json.put(HikePlatformConstants.PLATFORM_USER_ID, HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_UID_SETTING, null));
+			HikeAnalyticsEvent.analyticsForNonMessagingBots(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.DOWNLOAD_EVENT, json);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+	}
 
 	public static void downloadAndUnzip(PlatformContentRequest request, boolean isTemplatingEnabled)
 	{
@@ -421,7 +480,8 @@ public class PlatformUtils
 	public static ConvMessage getConvMessageFromJSON(JSONObject metadata, String text, String msisdn)
 	{
 
-		ConvMessage convMessage = new ConvMessage();
+
+		ConvMessage convMessage = Utils.makeConvMessage(msisdn, true);
 		convMessage.setMessage(text);
 		convMessage.setMessageType(HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT);
 		convMessage.webMetadata = new WebMetadata(metadata);

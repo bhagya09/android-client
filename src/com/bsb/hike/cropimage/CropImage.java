@@ -39,7 +39,6 @@ import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Region;
-import android.graphics.Bitmap.Config;
 import android.media.FaceDetector;
 import android.net.Uri;
 import android.os.Bundle;
@@ -60,7 +59,6 @@ import com.actionbarsherlock.app.ActionBar;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
-import com.bsb.hike.models.GalleryItem;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
@@ -217,10 +215,7 @@ public class CropImage extends MonitoredActivity
 
 		if (mBitmap == null)
 		{
-			Toast toast = Toast.makeText(this, getResources().getString(R.string.image_failed), Toast.LENGTH_LONG);
-			toast.show();
-			Logger.d(TAG, "Unable to open bitmap");
-			finish();
+			onError();
 			return;
 		}
 
@@ -243,6 +238,14 @@ public class CropImage extends MonitoredActivity
 		startFaceDetection();
 	}
 	
+	private void onError()
+	{
+		Toast toast = Toast.makeText(this, getResources().getString(R.string.image_failed), Toast.LENGTH_LONG);
+		toast.show();
+		Logger.d(TAG, "Unable to open bitmap");
+		finish();
+	}
+	
 	private void setupActionBar()
 	{
 		ActionBar actionBar = getSupportActionBar();
@@ -263,7 +266,9 @@ public class CropImage extends MonitoredActivity
 
 		titleView.setText(getString(R.string.selectPreview));
 
-		titleView.setVisibility(View.VISIBLE);				
+		titleView.setVisibility(View.VISIBLE);	
+		
+		((TextView) actionBarView.findViewById(R.id.done_text)).setText(R.string.done);
 		
 		actionBarView.findViewById(R.id.done_container).setOnClickListener(new View.OnClickListener()
 		{
@@ -381,8 +386,15 @@ public class CropImage extends MonitoredActivity
 
 		// If we are circle cropping, we want alpha channel, which is the
 		// third param here.
-		Bitmap croppedImage = returnToFile ? Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888) : Bitmap.createBitmap(width, height, mCircleCrop ? Bitmap.Config.ARGB_8888
-				: Bitmap.Config.RGB_565);
+		Bitmap croppedImage = returnToFile ? HikeBitmapFactory.createBitmap(width, height, Bitmap.Config.ARGB_8888) : HikeBitmapFactory.createBitmap(width, height,
+				mCircleCrop ? Bitmap.Config.ARGB_8888 : Bitmap.Config.RGB_565);
+
+		if (croppedImage == null)
+		{
+			onError();
+			return;
+		}
+		else
 		{
 			Canvas canvas = new Canvas(croppedImage);
 			Rect dstRect = new Rect(0, 0, width, height);
@@ -430,7 +442,12 @@ public class CropImage extends MonitoredActivity
 
 				// Don't scale the image but instead fill it so it's the
 				// required dimension
-				Bitmap b = Bitmap.createBitmap(mOutputX, mOutputY, Bitmap.Config.RGB_565);
+				Bitmap b = HikeBitmapFactory.createBitmap(mOutputX, mOutputY, Bitmap.Config.RGB_565);
+				if (b == null)
+				{
+					onError();
+					return;
+				}
 				Canvas canvas = new Canvas(b);
 
 				Rect srcRect = mCrop.getCropRect();
@@ -642,7 +659,7 @@ public class CropImage extends MonitoredActivity
 			}
 			Matrix matrix = new Matrix();
 			matrix.setScale(mScale, mScale);
-			Bitmap faceBitmap = Bitmap.createBitmap(mBitmap, 0, 0, mBitmap.getWidth(), mBitmap.getHeight(), matrix, true);
+			Bitmap faceBitmap = HikeBitmapFactory.createBitmap(mBitmap, 0, 0, mBitmap.getWidth(), mBitmap.getHeight(), matrix, true);
 			return faceBitmap;
 		}
 
@@ -652,7 +669,13 @@ public class CropImage extends MonitoredActivity
 			Bitmap faceBitmap = prepareBitmap();
 
 			mScale = 1.0F / mScale;
-			if (faceBitmap != null && mDoFaceDetection)
+			
+			if(faceBitmap == null)
+			{
+				return ;
+			}
+			
+			if (mDoFaceDetection)
 			{
 				FaceDetector detector = new FaceDetector(faceBitmap.getWidth(), faceBitmap.getHeight(), mFaces.length);
 				mNumFaces = detector.findFaces(faceBitmap, mFaces);

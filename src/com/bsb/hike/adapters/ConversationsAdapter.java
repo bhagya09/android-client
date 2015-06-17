@@ -44,6 +44,7 @@ import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.GroupTypingNotification;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.ConvMessage.State;
 import com.bsb.hike.models.HikeFile.HikeFileType;
@@ -550,12 +551,19 @@ public class ConversationsAdapter extends BaseAdapter
 		Integer startSpanIndex = convSpanStartIndexes.get(convInfo.getMsisdn());
 		if(isSearchModeOn && startSpanIndex!=null)
 		{
-			SpannableString spanName = new SpannableString(name);
 			int start = startSpanIndex;
 			int end = startSpanIndex + refinedSearchText.length();
-			spanName.setSpan(new ForegroundColorSpan(context.getResources().getColor(R.color.blue_color_span)), start, end,
-					Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-			contactView.setText(spanName, TextView.BufferType.SPANNABLE);
+			if (end <= name.length())
+			{
+				SpannableString spanName = new SpannableString(name);
+				spanName.setSpan(new ForegroundColorSpan(context.getResources().getColor(R.color.blue_color_span)), start, end,
+						Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+				contactView.setText(spanName, TextView.BufferType.SPANNABLE);
+			}
+			else
+			{
+				contactView.setText(name);
+			}
 		}
 		else
 		{
@@ -638,7 +646,29 @@ public class ConversationsAdapter extends BaseAdapter
 	{
 		ConvMessage convMessage = new ConvMessage(typingNotif);
 		convMessage.setTimestamp(lastConversationMsg.getTimestamp());
-		convMessage.setMessage(HikeConstants.IS_TYPING);
+		if (lastConversationMsg.isOneToNChat()) {
+			String msg =HikeConstants.IS_TYPING;
+			if (typingNotif != null) {
+				GroupTypingNotification grpTypingNotif = (GroupTypingNotification) typingNotif;
+				List<String> participants = grpTypingNotif
+						.getGroupParticipantList();
+				if (grpTypingNotif != null && participants != null) {
+
+					if (participants.size() == 1) {
+						ContactInfo contact = ContactManager.getInstance()
+								.getContact((String) participants.get(0));
+						if (contact != null && contact.getFirstName() != null) {
+							msg = contact.getFirstName()+" "+HikeConstants.IS_TYPING;
+						}
+					} else if (participants.size() > 1) {
+					    	msg = context.getString(R.string.num_members, (participants.size()))+" "+HikeConstants.ARE_TYPING;
+					}
+				}
+			}
+			convMessage.setMessage(msg);
+		}else{
+			convMessage.setMessage(HikeConstants.IS_TYPING);
+		}
 		convMessage.setState(State.RECEIVED_UNREAD);
 		return convMessage;
 	}
@@ -818,7 +848,8 @@ public class ConversationsAdapter extends BaseAdapter
 		else if (message.getParticipantInfoState() == ParticipantInfoState.PARTICIPANT_JOINED)
 		{
 			JSONArray participantInfoArray = metadata.getGcjParticipantInfo();
-			String highlight = Utils.getConversationJoinHighlightText(participantInfoArray, (OneToNConvInfo)convInfo);
+			
+			String highlight = Utils.getConversationJoinHighlightText(participantInfoArray, (OneToNConvInfo)convInfo, metadata.isNewGroup()&&metadata.getGroupAdder()!=null, context);
 			markedUp = OneToNConversationUtils.getParticipantAddedMessage(message, context, highlight);
 		}
 		
@@ -1012,8 +1043,10 @@ public class ConversationsAdapter extends BaseAdapter
 				{
 					continue;
 				}
+				
+				ConvInfo conversationInfo = getItem(indexOfData);
 
-				updateViewsRelatedToAvatar(view, getItem(indexOfData));
+				updateViewsRelatedToAvatar(view,conversationInfo);
 			}
 		}
 		

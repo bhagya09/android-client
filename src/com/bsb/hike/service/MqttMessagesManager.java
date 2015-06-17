@@ -420,7 +420,6 @@ public class MqttMessagesManager
 		oneToNConversation = OneToNConversation.createOneToNConversationFromJSON(jsonObj);
 		
 		boolean groupRevived = false;
-
 		if (!ContactManager.getInstance().isGroupAlive(oneToNConversation.getMsisdn()))
 		{
 
@@ -444,14 +443,18 @@ public class MqttMessagesManager
 
 		}
 		int gcjAdd = this.convDb.addRemoveGroupParticipants(oneToNConversation.getMsisdn(), oneToNConversation.getConversationParticipantList(), groupRevived);
+		JSONObject metadata = jsonObj.optJSONObject(HikeConstants.METADATA);
 		if (!groupRevived && gcjAdd != HikeConstants.NEW_PARTICIPANT)
 		{
+			if(metadata!=null){
+				this.convDb.setGroupCreationTime(oneToNConversation.getMsisdn(),  oneToNConversation.getCreationDate());
+			}
 			Logger.d(getClass().getSimpleName(), "GCJ Message was already received");
 			return;
 		}
 		Logger.d(getClass().getSimpleName(), "GCJ Message is new");
 
-		JSONObject metadata = jsonObj.optJSONObject(HikeConstants.METADATA);
+		
 
 		/*
 		 * 
@@ -476,7 +479,7 @@ public class MqttMessagesManager
 				groupName = metadata.optString(HikeConstants.NAME);
 			}
 			
-			oneToNConversation = (OneToNConversation) this.convDb.addConversation(oneToNConversation.getMsisdn(), false, groupName, oneToNConversation.getConversationOwner());
+			oneToNConversation = (OneToNConversation) this.convDb.addConversation(oneToNConversation.getMsisdn(), false, groupName, oneToNConversation.getConversationOwner(), null, oneToNConversation.getCreationDate());
 			ContactManager.getInstance().insertGroup(oneToNConversation.getMsisdn(), groupName);
 
 			// Adding a key to the json signify that this was the GCJ
@@ -1702,14 +1705,14 @@ public class MqttMessagesManager
 		{
 			JSONArray botsTobeAdded = data.optJSONArray(HikeConstants.MqttMessageTypes.CREATE_MULTIPLE_BOTS);
 			for (int i = 0; i< botsTobeAdded.length(); i++){
-				createBot((JSONObject) botsTobeAdded.get(i));
+				BotUtils.createBot((JSONObject) botsTobeAdded.get(i));
 			}
 		}
 		if(data.has(HikeConstants.MqttMessageTypes.DELETE_MULTIPLE_BOTS))
 		{
 			JSONArray botsTobeAdded = data.optJSONArray(HikeConstants.MqttMessageTypes.DELETE_MULTIPLE_BOTS);
 			for (int i = 0; i< botsTobeAdded.length(); i++){
-				deleteBot((String) botsTobeAdded.get(i));
+				BotUtils.deleteBot((String) botsTobeAdded.get(i));
 			}
 		}
 
@@ -1839,7 +1842,6 @@ public class MqttMessagesManager
 		{
 			boolean enablePhoto = data.getBoolean(HikeConstants.Extras.ENABLE_PHOTOS);
 			HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.ACCOUNT_SETTINGS).saveData(HikeConstants.Extras.ENABLE_PHOTOS, enablePhoto);
-			HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.ACCOUNT_SETTINGS).saveData(HikeConstants.SHOW_PHOTOS_RED_DOT, true);
 		}if(data.has(HikeConstants.URL_WHITELIST))
 		{
 			handleWhitelistDomains(data.getString(HikeConstants.URL_WHITELIST));
@@ -1927,6 +1929,37 @@ public class MqttMessagesManager
 			int httpAnalyticsMaxNumber = data.getInt(HikeConstants.PROB_NUM_HTTP_ANALYTICS);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.PROB_NUM_HTTP_ANALYTICS, httpAnalyticsMaxNumber);
 		}
+
+		if (data.has(HikeConstants.GROUP_NOTIFIACTION_DELAY))
+		{
+			int groupNotificationDelay = data.getInt(HikeConstants.GROUP_NOTIFIACTION_DELAY);
+			if (groupNotificationDelay>=0)
+			{
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.GROUP_NOTIFIACTION_DELAY, groupNotificationDelay);
+			}
+		}
+		
+		if (data.has(HikeConstants.SUPER_COMPRESSED_IMG_SIZE))
+		{
+			int superCompressedImgSize = data.getInt(HikeConstants.SUPER_COMPRESSED_IMG_SIZE);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SUPER_COMPRESSED_IMG_SIZE, superCompressedImgSize);
+		}
+		if (data.has(HikeConstants.NORMAL_IMG_SIZE))
+		{
+			int normalImgSize = data.getInt(HikeConstants.NORMAL_IMG_SIZE);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.NORMAL_IMG_SIZE, normalImgSize);
+		}
+		if (data.has(HikeConstants.DEFAULT_IMG_QUALITY_FOR_SMO))
+		{
+			int defaultImgQuality = data.getInt(HikeConstants.DEFAULT_IMG_QUALITY_FOR_SMO);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.DEFAULT_IMG_QUALITY_FOR_SMO, defaultImgQuality);
+		}
+		if (data.has(HikeConstants.SHOW_TOAST_FOR_DEGRADING_QUALITY))
+		{
+			boolean toShowToastForDegradingQuality = data.getBoolean(HikeConstants.SHOW_TOAST_FOR_DEGRADING_QUALITY);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_TOAST_FOR_DEGRADING_QUALITY, toShowToastForDegradingQuality);
+
+		}
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
 		
@@ -1987,6 +2020,12 @@ public class MqttMessagesManager
 			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "---UPLOADING FROM DEMAND PACKET ROUTE---");
 
 			HAManager.getInstance().sendAnalyticsData(true, true);
+		}
+		
+		if (data.optBoolean(HikeConstants.PATCH_AB))
+		{
+			boolean contactsChanged = ContactManager.getInstance().syncUpdates(context);
+			Logger.d(getClass().getSimpleName(), "contacts changed : " + contactsChanged);
 		}
 	}
 
@@ -3075,115 +3114,6 @@ public class MqttMessagesManager
 		{
 			saveNewMessageRead(jsonObj);
 		}
-	}
-
-	private void deleteBot(String msisdn)
-	{
-		if (!Utils.validateBotMsisdn(msisdn))
-		{
-			return;
-		}
-		BotUtils.deleteBotConversation(msisdn , true);
-	}
-
-	public void createBot(JSONObject jsonObj)
-	{
-		long startTime = System.currentTimeMillis();
-
-		String type = jsonObj.optString(HikePlatformConstants.BOT_TYPE);
-		if (TextUtils.isEmpty(type))
-		{
-			Logger.e("bot error", "type is null.");
-			return;
-		}
-
-		String msisdn = jsonObj.optString(HikeConstants.MSISDN);
-		if (!Utils.validateBotMsisdn(msisdn))
-		{
-			return;
-		}
-
-		if (ContactManager.getInstance().isBlocked(msisdn))
-		{
-			Logger.e("bot error", "bot is blocked by user.");
-			return;
-		}
-		String name = jsonObj.optString(HikeConstants.NAME);
-		String thumbnailString = jsonObj.optString(HikeConstants.BOT_THUMBNAIL);
-		if (!TextUtils.isEmpty(thumbnailString))
-		{
-			ContactManager.getInstance().setIcon(msisdn, Base64.decode(thumbnailString, Base64.DEFAULT), false);
-			HikeMessengerApp.getLruCache().clearIconForMSISDN(msisdn);
-			HikeMessengerApp.getPubSub().publish(HikePubSub.ICON_CHANGED, msisdn);
-		}
-
-		int config = jsonObj.optInt(HikeConstants.CONFIGURATION, Integer.MAX_VALUE);
-		BotInfo botInfo = null;
-		if (type.equals(HikeConstants.MESSAGING_BOT))
-		{
-			botInfo = getBotInfoFormessagingBots(jsonObj, msisdn, name, config);
-		}
-		else if (type.equals(HikeConstants.NON_MESSAGING_BOT))
-		{
-			botInfo = getBotInfoForNonMessagingBots(jsonObj, msisdn, name, config);
-			boolean enableBot = jsonObj.optBoolean(HikePlatformConstants.ENABLE_BOT);
-			PlatformUtils.downloadZipForNonMessagingBot(botInfo, enableBot);
-		}
-
-		convDb.setChatBackground(msisdn, jsonObj.optString(HikeConstants.BOT_CHAT_THEME), System.currentTimeMillis()/1000);
-
-		convDb.insertBot(botInfo);
-
-		HikeMessengerApp.hikeBotInfoMap.put(msisdn, botInfo);
-		
-		if (HikeMessengerApp.hikeBotInfoMap.containsKey(msisdn))
-		{
-			ContactInfo contact = new ContactInfo(msisdn, msisdn, name, msisdn);
-			contact.setFavoriteType(FavoriteType.NOT_FRIEND);
-			ContactManager.getInstance().updateContacts(contact);
-			HikeMessengerApp.getPubSub().publish(HikePubSub.CONTACT_ADDED, contact);
-		}
-
-		Logger.d("create bot", "It takes " + String.valueOf(System.currentTimeMillis() - startTime) + "msecs");
-	}
-
-	private BotInfo getBotInfoForNonMessagingBots(JSONObject jsonObj, String msisdn, String name, int config)
-	{
-		BotInfo botInfo;
-		JSONObject metadata = jsonObj.optJSONObject(HikeConstants.METADATA);
-		NonMessagingBotMetadata botMetadata = new NonMessagingBotMetadata(metadata);
-		JSONObject configData = jsonObj.optJSONObject(HikePlatformConstants.CONFIG_DATA);
-		String namespace = jsonObj.optString(HikePlatformConstants.NAMESPACE);
-		NonMessagingBotConfiguration configuration = configData == null ? new NonMessagingBotConfiguration(config)
-				: new NonMessagingBotConfiguration(config, configData.toString());
-		String helperData = jsonObj.optString(HikePlatformConstants.HELPER_DATA);
-		botInfo = new BotInfo.HikeBotBuilder(msisdn)
-				.setType(BotInfo.NON_MESSAGING_BOT)
-				.setConvName(name)
-				.setIsMute(false)
-				.setHelperData(helperData)
-				.setNamespace(namespace)
-				.setConfigData(null == configuration.getConfigData() ? null : configuration.getConfigData().toString())
-				.setConfig(configuration.getConfig())
-				.setMetadata(botMetadata.toString())
-				.build();
-		return botInfo;
-	}
-
-	private BotInfo getBotInfoFormessagingBots(JSONObject jsonObj, String msisdn, String name, int config)
-	{
-		BotInfo botInfo;
-		JSONObject metadata = jsonObj.optJSONObject(HikeConstants.METADATA);
-		MessagingBotMetadata messagingBotMetadata = new MessagingBotMetadata(metadata);
-		MessagingBotConfiguration configuration = new MessagingBotConfiguration(config, messagingBotMetadata.isReceiveEnabled());
-		botInfo = new BotInfo.HikeBotBuilder(msisdn)
-				.setType(BotInfo.MESSAGING_BOT)
-				.setConvName(name)
-				.setMetadata(messagingBotMetadata.toString())
-				.setIsMute(false)
-				.setConfig(configuration.getConfig())
-				.build();
-		return botInfo;
 	}
 
 	private void uploadGroupProfileImage(final String groupId)
