@@ -436,6 +436,15 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 			/* msisdn set, yay */
 			publishProgress(new StateValue(State.MSISDN, msisdn));
 		}
+		else
+		{
+			if (!(context instanceof SignupActivity))
+			{
+				//Ideally UI should be on SignupActivity at this point   
+				//if it is not than we need to update UI.
+				publishProgress(new StateValue(State.MSISDN, HikeConstants.DONE));
+			}
+		}
 		
 		this.data = null;
 		// We're doing this to prevent the WelcomeScreen from being shown the
