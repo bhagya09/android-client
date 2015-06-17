@@ -128,13 +128,17 @@ public class FileReceiverRunnable implements Runnable
 					Logger.e(TAG, "Code phata in JSON initialisations", e1);
 					e1.printStackTrace();
 				}
-
 				ConvMessage convMessage = null;
-				fileTransferModel =  new FileTransferModel(new TransferProgress(0, totalChunks), message);
 				try
 				{
 					(message.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getJSONArray(HikeConstants.FILES)).getJSONObject(0).putOpt(
 							HikeConstants.FILE_PATH, filePath);
+					(message.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getJSONArray(HikeConstants.FILES)).getJSONObject(0).putOpt(
+							HikeConstants.FILE_NAME, fileName);
+					
+					
+					fileTransferModel =  new FileTransferModel(new TransferProgress(0, totalChunks), message);
+					
 					convMessage = new ConvMessage(message, HikeMessengerApp.getInstance().getApplicationContext());
 					
 					// update DB and UI.
