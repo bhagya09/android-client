@@ -491,6 +491,7 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 			
 			try
 			{
+				Logger.d("Signup", "Starting AB scanning");
 				Map<String, List<ContactInfo>> contacts = conMgr.convertToMap(contactinfos);
 				JSONObject jsonForAddressBookAndBlockList = null;
 				if (Utils.isAddressbookCallsThroughHttpMgrEnabled())
@@ -547,6 +548,8 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 		{
 			publishProgress(new StateValue(State.ADDRESSBOOK, HikeConstants.DONE));
 		}
+		
+		Logger.d("Signup", "AB scanning done");
 
 		if (isCancelled())
 		{
@@ -893,4 +896,14 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
     	}
     }
 
+    protected final void publishProgress(StateValue value) 
+	{
+
+		if (value != null)
+		{
+			Logger.d("SignupTask", " publishing state : " + value.state + " val : " + value.value);
+		}
+
+		super.publishProgress(value);
+	}
 }
