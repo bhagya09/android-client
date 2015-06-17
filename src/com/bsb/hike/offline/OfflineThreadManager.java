@@ -168,7 +168,7 @@ public class OfflineThreadManager
 			outputStream.write(intToBArray, 0, intToBArray.length);
 			outputStream.write(messageBytes, 0, length);
 			// copy the sticker to the stream
-			isSent = offlineManager.copyFile(inputStream, outputStream, f.length());
+			isSent = OfflineUtils.copyFile(inputStream, outputStream, f.length());
 			inputStream.close();
 		}
 		// for normal text messages and ping packet
@@ -209,7 +209,7 @@ public class OfflineThreadManager
 			outputStream.write(intToBArray, 0, intToBArray.length);
 
 			ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(metaDataBytes);
-			boolean isMetaDataSent = offlineManager.copyFile(byteArrayInputStream, outputStream, metaDataBytes.length);
+			boolean isMetaDataSent = OfflineUtils.copyFile(byteArrayInputStream, outputStream, metaDataBytes.length);
 			Logger.d(TAG, "FileMetaDataSent:" + isMetaDataSent);
 			byteArrayInputStream.close();
 
@@ -224,7 +224,7 @@ public class OfflineThreadManager
 
 			inputStream = new FileInputStream(new File(fileUri));
 			long time = System.currentTimeMillis();
-			isSent = offlineManager.copyFile(inputStream, outputStream, msgID, true, true, fileSize);
+			isSent = OfflineUtils.copyFile(inputStream, outputStream, fileTransferModel, true, true, fileSize);
 			// in seconds
 			long TimeTaken = (System.currentTimeMillis() - time) / 1000;
 			if (TimeTaken > 0)

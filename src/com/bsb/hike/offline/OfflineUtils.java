@@ -4,10 +4,9 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.io.IOError;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InvalidObjectException;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -18,7 +17,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.content.Context;
+import android.hardware.display.DisplayManager;
+import android.os.Build;
+import android.os.PowerManager;
 import android.text.TextUtils;
+import android.view.Display;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -136,10 +140,33 @@ public class OfflineUtils
 	
 	public static JSONObject createGhostPacket(String msisdn)
 	{
-		return createGhostPacket(msisdn,false);
+		return createGhostPacket(msisdn, OfflineUtils.isScreenOn());
 	}
 
-	public static JSONObject createGhostPacket(String msisdn,boolean screen)
+	public static boolean isScreenOn()
+	{
+		if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH)
+		{
+			DisplayManager dm = (DisplayManager) HikeMessengerApp.getInstance().getApplicationContext().getSystemService(Context.DISPLAY_SERVICE);
+			boolean screenOn = false;
+			for (Display display : dm.getDisplays())
+			{
+				if (display.getState() != Display.STATE_OFF)
+				{
+					screenOn = true;
+				}
+			}
+			return screenOn;
+		}
+		else
+		{
+			PowerManager pm = (PowerManager) HikeMessengerApp.getInstance().getApplicationContext().getSystemService(Context.POWER_SERVICE);
+			// noinspection deprecation
+			return pm.isScreenOn();
+		}
+	}
+
+	public static JSONObject createGhostPacket(String msisdn, boolean screen)
 	{
 		JSONObject ghostJSON = new JSONObject();
 		try
@@ -756,5 +783,71 @@ public class OfflineUtils
 		}
 
 		return _socket_.isConnected();
+	}
+
+	public static boolean getScreenStatusFromGstPkt(JSONObject messageJSON)
+	{
+		return messageJSON.optBoolean("screen", false);
+	}
+	
+	public static boolean copyFile(InputStream inputStream, OutputStream outputStream, long fileSize) throws OfflineException
+	{
+		return copyFile(inputStream, outputStream, null, false, false, fileSize);
+	}
+
+	public static boolean copyFile(InputStream inputStream, OutputStream out, FileTransferModel fileTransferModel, boolean showProgress, boolean isSent, long fileSize) throws OfflineException
+	{
+		byte buf[] = new byte[OfflineConstants.CHUNK_SIZE];
+		int len = 0;
+		boolean isCopied = false;
+
+		try
+		{
+
+			long prev = 0;
+			while (fileSize >= OfflineConstants.CHUNK_SIZE)
+			{
+				int readLen = 0;
+				readLen = inputStream.read(buf, 0, OfflineConstants.CHUNK_SIZE);
+				if (readLen < 0)
+					throw new OfflineException(OfflineException.CLIENT_DISCONNETED);
+				
+				out.write(buf, 0, readLen);
+				len += readLen;
+				fileSize -= readLen;
+				if (showProgress && ((len / OfflineConstants.CHUNK_SIZE) != prev))
+				{
+					prev = len / OfflineConstants.CHUNK_SIZE;
+					// Logger.d(TAG, "Chunk read " + prev + "");
+					showSpinnerProgress(fileTransferModel);
+				}
+			}
+
+			while (fileSize > 0)
+			{
+				buf = new byte[(int) fileSize];
+				len = inputStream.read(buf);
+				fileSize -= len;
+				out.write(buf, 0, len);
+
+			}
+			isCopied = true;
+		}
+		catch (IOException e)
+		{
+			Logger.e("Spinner", "Exception in copyFile: ", e);
+			throw new OfflineException(e, OfflineException.CLIENT_DISCONNETED);
+		}
+		return isCopied;
+	}
+
+	public static void showSpinnerProgress(FileTransferModel fileTransferModel)
+	{
+		if (fileTransferModel == null)
+			return;
+
+		fileTransferModel.getTransferProgress().setCurrentChunks(fileTransferModel.getTransferProgress().getCurrentChunks() + 1);
+
+		HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
 	}
 }
