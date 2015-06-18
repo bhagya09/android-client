@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Pair;
@@ -26,14 +27,18 @@ public class InitiateMultiFileTransferTask extends AsyncTask<Void, Void, Void>
 	private boolean onHike;
 
 	private int attachementType;
+	
+	private Intent intent;
 
-	public InitiateMultiFileTransferTask(Context context, ArrayList<Pair<String, String>> fileDetails, String msisdn, boolean onHike, int attachementType)
+	public InitiateMultiFileTransferTask(Context context, ArrayList<Pair<String, String>> fileDetails, String msisdn, boolean onHike, 
+											int attachementType, Intent intent)
 	{
 		this.context = context.getApplicationContext();
 		this.fileDetails = fileDetails;
 		this.msisdn = msisdn;
 		this.onHike = onHike;
 		this.attachementType = attachementType;
+		this.intent = intent;
 	}
 
 	public String getMsisdn()
@@ -54,7 +59,7 @@ public class InitiateMultiFileTransferTask extends AsyncTask<Void, Void, Void>
 	@Override
 	protected void onPostExecute(Void result)
 	{
-		HikeMessengerApp.getPubSub().publish(HikePubSub.MULTI_FILE_TASK_FINISHED, this.getMsisdn());
+		HikeMessengerApp.getPubSub().publish(HikePubSub.MULTI_FILE_TASK_FINISHED, this.intent);
 	}
 
 	private void initiateFileTransferFromIntentData(String filePath, String fileType)

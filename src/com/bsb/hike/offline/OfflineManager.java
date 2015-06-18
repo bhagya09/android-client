@@ -298,7 +298,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 	{
 		Logger.d(TAG, "Added to waitingQueue with msgId: " + fileTransferModel.getMessageId());
 		addToCurrentSendingFile(fileTransferModel.getMessageId(), fileTransferModel);
-		waitingQueue.put(fileTransferModel.getMessageId(), fileTransferModel);
+		waitingQueue.put(fileTransferModel.getMessageId(), fileTransferModel); 
 	}
 	
 	public FileTransferModel popFromWaitingQueue(Long msgId)
