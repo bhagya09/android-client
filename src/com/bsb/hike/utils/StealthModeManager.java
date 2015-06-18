@@ -40,7 +40,7 @@ public class StealthModeManager
 
 	private static Set<String> stealthMsisdn;
 	
-	private int currentState;
+	private volatile int currentState;
 
 	private StealthModeManager()
 	{
