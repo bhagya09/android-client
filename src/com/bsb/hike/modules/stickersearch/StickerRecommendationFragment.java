@@ -63,9 +63,9 @@ public class StickerRecommendationFragment extends SherlockFragment
 		gridView.setAdapter(mAdapter);
 		gridView.setOnItemClickListener(getOnItemClickListener());
 		gridView.setSelector(R.drawable.sticker_recommend_item_selector);
-		
-		ImageView close = (ImageView) parent.findViewById(R.id.sticker_recommend_popup_close);
-		ImageView settings = (ImageView) parent.findViewById(R.id.sticker_recommend_popup_settings);
+
+		View close = parent.findViewById(R.id.sticker_recommend_popup_close);
+		View settings = parent.findViewById(R.id.sticker_recommend_popup_settings);
 		close.setOnClickListener(closeListener);
 		settings.setOnClickListener(settingsListener);
 		return parent;
