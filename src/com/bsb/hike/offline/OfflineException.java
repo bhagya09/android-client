@@ -29,6 +29,8 @@ public class OfflineException extends Exception
 
 	public static final short WIFI_CLOSED = 0x10;
 
+	public static final short EXCEPTION_IN_COPY_FILE = 0x11;;
+
 	private short reasonCode;
 
 	Exception exception;

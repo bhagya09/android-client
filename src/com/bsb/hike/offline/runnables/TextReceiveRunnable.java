@@ -129,7 +129,7 @@ public class TextReceiveRunnable implements Runnable
 				else if (OfflineUtils.isGhostPacket(messageJSON))
 				{
 					Logger.d(TAG, "Ghost Packet received");
-					offlineManager.restartGhostTimeout();
+					offlineManager.restartGhostTimeout(OfflineUtils.getScreenStatusFromGstPkt(messageJSON));
 				}
 				else if (OfflineUtils.isAckPacket(messageJSON))
 				{
@@ -154,7 +154,7 @@ public class TextReceiveRunnable implements Runnable
 						{
 							OfflineUtils.createStkDirectory(messageJSON);
 							FileOutputStream outputStream = new FileOutputStream(stickerImage);
-							offlineManager.copyFile(inputStream, outputStream, OfflineUtils.getStkLenFrmPkt(messageJSON));
+							OfflineUtils.copyFile(inputStream, outputStream, OfflineUtils.getStkLenFrmPkt(messageJSON));
 							OfflineUtils.closeOutputStream(outputStream);
 						}
 						// remove data from stream
@@ -176,6 +176,10 @@ public class TextReceiveRunnable implements Runnable
 						messageJSON.put(HikeConstants.TIMESTAMP, System.currentTimeMillis() / 1000);
 						MqttMessagesManager.getInstance(HikeMessengerApp.getInstance().getApplicationContext()).saveChatBackground(messageJSON);
 						continue;
+					}
+					else if(OfflineUtils.isDisconnectPkt(messageJSON))
+					{
+						throw new OfflineException(OfflineException.DISCONNECT);
 					}
 					else
 					{
@@ -228,7 +232,7 @@ public class TextReceiveRunnable implements Runnable
 				Logger.d(TAG, "GOing to delete stickerImage in TRR");
 				stickerImage.delete();
 			}
-			connectCallback.onDisconnect(new OfflineException(e, OfflineException.CLIENT_DISCONNETED));
+			connectCallback.onDisconnect(e);
 
 		}
 	}

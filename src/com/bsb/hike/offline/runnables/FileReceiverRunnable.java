@@ -49,6 +49,8 @@ public class FileReceiverRunnable implements Runnable
 	IConnectCallback connectCallback=null;
 	
 	File f = null;
+	
+	FileTransferModel fileTransferModel = null;
 
 	public FileReceiverRunnable(IConnectCallback connectCallback)
 	{
@@ -87,7 +89,7 @@ public class FileReceiverRunnable implements Runnable
 				}
 				Logger.d(TAG, "Size of MetaString: " + metaDataLength);
 				ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(metaDataLength);
-				boolean isMetaDataReceived = OfflineManager.getInstance().copyFile(inputstream, byteArrayOutputStream, metaDataLength);
+				boolean isMetaDataReceived = OfflineUtils.copyFile(inputstream, byteArrayOutputStream, metaDataLength);
 				Logger.d(TAG, "Metadata Received Properly: " + isMetaDataReceived);
 				byteArrayOutputStream.close();
 
@@ -126,15 +128,16 @@ public class FileReceiverRunnable implements Runnable
 				}
 
 				ConvMessage convMessage = null;
+				fileTransferModel =  new FileTransferModel(new TransferProgress(0, totalChunks), message);
 				try
 				{
 					(message.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getJSONArray(HikeConstants.FILES)).getJSONObject(0).putOpt(
 							HikeConstants.FILE_PATH, filePath);
 					convMessage = new ConvMessage(message, HikeMessengerApp.getInstance().getApplicationContext());
-
+					
 					// update DB and UI.
 					HikeConversationsDatabase.getInstance().addConversationMessages(convMessage, true);
-					offlineManager.addToCurrentReceivingFile(convMessage.getMsgID(), new FileTransferModel(new TransferProgress(0, totalChunks), message));
+					offlineManager.addToCurrentReceivingFile(convMessage.getMsgID(), fileTransferModel);
 					HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_RECEIVED, convMessage);
 					Logger.d(TAG, filePath);
 
@@ -150,7 +153,8 @@ public class FileReceiverRunnable implements Runnable
 					// showDownloadTransferNotification(mappedMsgId, fileSize);
 					FileOutputStream outputStream = new FileOutputStream(f);
 					// TODO:Take action on the basis of return type.
-					offlineManager.copyFile(inputstream, new FileOutputStream(f), convMessage.getMsgID(), true, false, fileSize);
+					OfflineUtils.copyFile(inputstream, new FileOutputStream(f),fileTransferModel, true, false, fileSize);
+					Logger.d(TAG,"File Received Successfully");
 					OfflineUtils.closeOutputStream(outputStream);
 					f.renameTo(new File(filePath));
 					
@@ -167,7 +171,7 @@ public class FileReceiverRunnable implements Runnable
 				
 				offlineManager.removeFromCurrentReceivingFile(convMessage.getMsgID());
 
-				offlineManager.showSpinnerProgress(false, mappedMsgId);
+				OfflineUtils.showSpinnerProgress(fileTransferModel);
 				// TODO:Disconnection handling:
 				// if(isDisconnectPosted)
 				// {
@@ -196,7 +200,7 @@ public class FileReceiverRunnable implements Runnable
 				Logger.d(TAG, "Going to delete file in FRR");
 				f.delete();
 			}
-			connectCallback.onDisconnect(new OfflineException(e, OfflineException.CLIENT_DISCONNETED));
+			connectCallback.onDisconnect(e);
 
 		}
 	}

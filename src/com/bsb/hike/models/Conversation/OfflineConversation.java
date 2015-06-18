@@ -27,6 +27,16 @@ public class OfflineConversation extends OneToOneConversation
 	{
 		return convInfo.getLabel();
 	}
+	
+	public OfflineConvInfo getConvInfo()
+	{
+		return convInfo;
+	}
+	
+	public void setConvInfo(OfflineConvInfo convInfo)
+	{
+		this.convInfo = convInfo;
+	}
 
 	protected static abstract class InitBuilder<P extends InitBuilder<P>> extends OneToOneConversation.InitBuilder<P>
 	{

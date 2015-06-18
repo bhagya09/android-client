@@ -3375,6 +3375,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 						FileSavedState fss = FileTransferManager.getInstance(context).getUploadFileState(convMessage.getMsgID(), sentFile);
 						if (fss.getFTState() == FTState.IN_PROGRESS)
 						{
+							
 							FileTransferManager.getInstance(context).pauseTask(convMessage.getMsgID());
 						}
 						else if (fss.getFTState() != FTState.INITIALIZED)

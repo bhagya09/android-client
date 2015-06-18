@@ -572,7 +572,7 @@ public class ChatThreadUtils
 	}
 
 	/**
-	 * Sends nmr/mr as per pd is present in convmessage or not
+	 * Sends nmr/mr as per pd is present in convmessage or not.Not sending MR for Offline conversation
 	 * @param msisdn
 	 */
 	public static void sendMR(String msisdn)
@@ -580,11 +580,11 @@ public class ChatThreadUtils
 
 		List<Pair<Long, JSONObject>> pairList = HikeConversationsDatabase.getInstance().updateStatusAndSendDeliveryReport(msisdn);
 
-		if (pairList == null)
+		if (pairList == null || Utils.isOfflineConversation(msisdn))
 		{
 			return;
 		}
-
+		
 		try
 		{
 

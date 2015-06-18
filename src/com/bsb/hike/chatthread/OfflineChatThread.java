@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.net.wifi.ScanResult;
@@ -106,11 +108,18 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 	}
 
 	@Override
+	protected void init()
+	{
+		// TODO Auto-generated method stub
+		super.init();
+	}
+	@Override
 	public void onCreate()
 	{
 		super.onCreate();
 		checkIfSharingFiles(activity.getIntent());
 		checkIfWeNeedToConnect(activity.getIntent());
+		activity.updateActionBarColor(new ColorDrawable(Color.BLACK));
 	}
 
 	private void checkIfWeNeedToConnect(Intent intent)
@@ -153,6 +162,7 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 	{
 		super.onNewIntent();
 		checkIfWeNeedToConnect(activity.getIntent());
+		activity.updateActionBarColor(new ColorDrawable(Color.BLACK));
 	}
 
 	@Override
@@ -377,6 +387,7 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 			{
 				disconnectClicked();
 			}
+			
 			break;
 		default:
 			super.itemClicked(item);
@@ -387,6 +398,7 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 	{
 		Toast.makeText(activity, "Disconnected", Toast.LENGTH_SHORT).show();
 		controller.shutDown();
+		Logger.d("OfflineManager","The activity focus is "+activity.hasWindowFocus());
 	}
 
 	public void connectClicked()
@@ -534,11 +546,10 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 			Message msg = Message.obtain();
 			msg.what = MESSAGE_RECEIVED;
 			msg.obj = convMessage;
-			uiHandler.sendMessage(msg);
+			//uiHandler.sendMessage(msg);
 			sendComposeViewStatusonHandler(false);
 			break;
 		case COULD_NOT_CONNECT:
-			
 			break;
 		default:
 			break;
@@ -567,7 +578,7 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 		Message msg = Message.obtain();
 		msg.what = MESSAGE_RECEIVED;
 		msg.obj = convMessage;
-		uiHandler.sendMessage(msg);
+		//uiHandler.sendMessage(msg);
 	}
 
 	private void sendComposeViewStatusonHandler(boolean b)
