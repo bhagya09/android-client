@@ -1926,7 +1926,11 @@ public class MqttMessagesManager
 			boolean enable = data.getBoolean(HikeConstants.ENABLE_EXCEPTION_ANALYTIS);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.EXCEPTION_ANALYTIS_ENABLED, enable);
 		}
-		
+		if (data.has(HikeConstants.CONTACT_UPDATE_WAIT_TIME))
+		{
+			long contactUpdateWaitTime = data.getLong(HikeConstants.CONTACT_UPDATE_WAIT_TIME);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.CONTACT_UPDATE_WAIT_TIME, contactUpdateWaitTime);
+		}
 		UserLogInfo.requestUserLogs(data);
 		
 		if (data.has(HikeConstants.PROB_NUM_HTTP_ANALYTICS))

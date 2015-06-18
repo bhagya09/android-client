@@ -493,8 +493,12 @@ public class HikeService extends Service
 				{
 					mContactsChanged.manualSync = manualSync;
 					HikeService.this.mContactsChangedHandler.removeCallbacks(mContactsChanged);
-					long delay = manualSync ? 0L: HikeConstants.CONTACT_UPDATE_TIMEOUT;
-					HikeService.this.mContactsChangedHandler.postDelayed(mContactsChanged, delay);
+					long delayInSeconds = 0L;
+					if(!manualSync)
+					{
+						delayInSeconds = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.CONTACT_UPDATE_WAIT_TIME, HikeConstants.CONTACT_UPDATE_TIMEOUT);
+					}
+					HikeService.this.mContactsChangedHandler.postDelayed(mContactsChanged, delayInSeconds * 1000);
 					// Schedule the next manual sync to happed 24 hours from now.
 					scheduleNextManualContactSync();
 	

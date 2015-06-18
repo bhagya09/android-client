@@ -636,8 +636,8 @@ public class HikeConstants
 	 */
 	public static final long MESSAGE_RETRY_INTERVAL = 15 * 1000;
 
-	/* quiet period of no changes before actually updating the db */
-	public static final long CONTACT_UPDATE_TIMEOUT = 60 * 1000;
+	/* quiet period of no changes(in seconds) before actually updating the db */
+	public static final long CONTACT_UPDATE_TIMEOUT = 60 ;
 
 	/* how often to ping the server */
 	public static final short KEEP_ALIVE = 5 * 60; /* 10 minutes */
@@ -2817,4 +2817,6 @@ public class HikeConstants
 	public static final String VALUE = "val";
 			
 	public static final String CONSUMED_FORWARDED_DATA = "consumed";
+
+	public static final String CONTACT_UPDATE_WAIT_TIME = "contactUpdateWaitTime";
 }
