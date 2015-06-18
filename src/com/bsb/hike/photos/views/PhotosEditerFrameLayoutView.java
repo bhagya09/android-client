@@ -11,6 +11,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Bitmap.Config;
 import android.media.MediaScannerConnection;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
@@ -125,8 +126,7 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 	{
 		if (scaledImageOriginal == null)
 		{
-			scaledImageOriginal = HikePhotosUtils.compressBitamp(imageOriginal,  getThumbnailDimen(),
-					getThumbnailDimen(), false);
+			scaledImageOriginal = HikePhotosUtils.compressBitamp(imageOriginal,  getThumbnailDimen(),getThumbnailDimen(), false,Config.RGB_565);
 
 			if (scaledImageOriginal == null)
 			{
@@ -183,7 +183,7 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 
 		Logger.d(TAG, "handleImage() width " + width + " height " + height);
 		
-		imageScaled = HikePhotosUtils.compressBitamp(imageOriginal, width, height, true);
+		imageScaled = HikePhotosUtils.compressBitamp(imageOriginal, width, height, true,Config.ARGB_8888);
 		if (imageScaled == null)
 		{
 			Logger.d(TAG, "handleImage() imageScaled == null");
@@ -193,20 +193,18 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 		}
 
 		effectLayer.handleImage(imageScaled, true);
-		
-		
 
-		if (compressOutput && HikePhotosUtils.getBitmapArea(imageOriginal) > HikeConstants.HikePhotos.MAXIMUM_ALLOWED_IMAGE_AREA)
+		if (HikePhotosUtils.getBitmapArea(imageOriginal) > HikeConstants.HikePhotos.MAXIMUM_ALLOWED_IMAGE_AREA)
 		{
 			Logger.d(TAG, "handleImage() imageScaled == null");
-			imageOriginal = HikePhotosUtils.compressBitamp(imageOriginal, HikeConstants.SMO_MAX_DIMENSION_MEDIUM_FULL_SIZE_PX, HikeConstants.SMO_MAX_DIMENSION_MEDIUM_FULL_SIZE_PX, true);
+			imageOriginal = HikePhotosUtils.compressBitamp(imageOriginal, HikeConstants.SMO_MAX_DIMENSION_MEDIUM_FULL_SIZE_PX, HikeConstants.SMO_MAX_DIMENSION_MEDIUM_FULL_SIZE_PX, true,Config.ARGB_8888);
 		}
 		else if(imageOriginal.getConfig() == null)
 		{
 			Logger.d(TAG, "handleImage() imageScaled == null");
 			//Special Case happens in case of gifs
 			Bitmap temp = imageOriginal;
-			imageOriginal = HikePhotosUtils.createBitmap(imageOriginal, 0, 0, 0, 0, true, false, false, true);
+			imageOriginal = HikePhotosUtils.createBitmap(imageOriginal, 0, 0, 0, 0, true, false, false, true,Config.ARGB_8888);
 			HikePhotosUtils.manageBitmaps(temp);
 		}
 		
@@ -441,20 +439,16 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 
 		private String srcPath, destPath;
 
-		private HikeFileType fileType;
-
 		public CopyFileRunnable(File srcPath, File destPath, HikeFileType fileType)
 		{
 			this.srcPath = srcPath.getAbsolutePath();
 			this.destPath = destPath.getAbsolutePath();
-			this.fileType = fileType;
 		}
 
 		public CopyFileRunnable(String srcPath, String destPath, HikeFileType fileType)
 		{
 			this.srcPath = srcPath;
 			this.destPath = destPath;
-			this.fileType = fileType;
 		}
 
 		@Override
@@ -477,7 +471,7 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 
 			if (doodleLayer.getBitmap() != null)
 			{
-				Bitmap temp = HikePhotosUtils.createBitmap(doodleLayer.getBitmap(), 0, 0, imageEdited.getWidth(), imageEdited.getHeight(), true, true, false, true);
+				Bitmap temp = HikePhotosUtils.createBitmap(doodleLayer.getBitmap(), 0, 0, imageEdited.getWidth(), imageEdited.getHeight(), true, true, false, true,Config.ARGB_8888);
 
 				if (temp != null)
 				{

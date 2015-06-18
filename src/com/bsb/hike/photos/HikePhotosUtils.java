@@ -106,7 +106,7 @@ public class HikePhotosUtils
 		return bitmap.getWidth() * bitmap.getHeight();
 	}
 
-	public static Bitmap compressBitamp(Bitmap bitmap, int maxWidth, int maxHeight, boolean centerIN)
+	public static Bitmap compressBitamp(Bitmap bitmap, int maxWidth, int maxHeight, boolean centerIN,Config configType)
 	{
 		Bitmap temp = bitmap;
 		int width = 0, height = 0;
@@ -142,11 +142,11 @@ public class HikePhotosUtils
 			}
 		}
 
-		bitmap = createBitmap(bitmap, 0, 0, width, height, true, true, false, true);
+		bitmap = createBitmap(bitmap, 0, 0, width, height, true, true, false, true,configType);
 		HikePhotosUtils.manageBitmaps(temp);
 		if (!centerIN)
 		{
-			bitmap = createBitmap(bitmap, (width - maxWidth) / 2, (height - maxHeight) / 2, maxWidth, maxHeight, true, false, true, true);
+			bitmap = createBitmap(bitmap, (width - maxWidth) / 2, (height - maxHeight) / 2, maxWidth, maxHeight, true, false, true, true,configType);
 		}
 		return bitmap;
 	}
@@ -157,7 +157,7 @@ public class HikePhotosUtils
 	 * @author akhiltripathi
 	 */
 
-	public static Bitmap createBitmap(Bitmap source, int x, int y, int targetWidth, int targetHeight, boolean createMutableCopy, boolean scaledCopy, boolean crop, boolean retry)
+	public static Bitmap createBitmap(Bitmap source, int x, int y, int targetWidth, int targetHeight, boolean createMutableCopy, boolean scaledCopy, boolean crop, boolean retry,Config config)
 	{
 		Bitmap ret = null;
 		
@@ -165,7 +165,7 @@ public class HikePhotosUtils
 		{
 			if (source != null)
 			{
-				Config outConfig = (source.getConfig() == null) ? Config.ARGB_8888 : source.getConfig();
+				Config outConfig = (source.getConfig() == null) ? config : source.getConfig();
 				
 				if (scaledCopy && createMutableCopy)
 				{
@@ -187,7 +187,7 @@ public class HikePhotosUtils
 			}
 			else
 			{
-				ret = Bitmap.createBitmap(targetWidth, targetHeight, Config.ARGB_8888);
+				ret = Bitmap.createBitmap(targetWidth, targetHeight, config);
 			}
 
 		}
@@ -196,7 +196,7 @@ public class HikePhotosUtils
 			if (retry)
 			{
 				System.gc();
-				createBitmap(source, x, y, targetWidth, targetHeight, createMutableCopy, scaledCopy, crop, false);
+				createBitmap(source, x, y, targetWidth, targetHeight, createMutableCopy, scaledCopy, crop, false,config);
 			}
 			else
 			{

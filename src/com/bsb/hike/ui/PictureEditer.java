@@ -206,7 +206,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 			{
 				dir.mkdirs();
 			}
-			destinationFileHandle = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.IMAGE_ROOT + File.separator + Utils.getOriginalFile(HikeFileType.IMAGE, null);
+			destinationFileHandle = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.IMAGE_ROOT + File.separator + Utils.getUniqueFilename(HikeFileType.IMAGE);
 		}
 
 		editView.setDestinationPath(destinationFileHandle);
@@ -750,11 +750,6 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 	@Override
 	public void onBackPressed()
 	{
-		if(isWorking)
-		{
-			return;
-		}
-		
 		if (getSupportFragmentManager().popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE))
 		{
 			getSupportActionBar().show();
