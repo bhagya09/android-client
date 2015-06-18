@@ -432,12 +432,27 @@ public class OfflineUtils
 		{
 			JSONArray jsonFiles = packet.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getJSONArray(HikeConstants.FILES);
 			JSONObject jsonFile = jsonFiles.getJSONObject(0);
-			return jsonFile.getString(HikeConstants.FILE_PATH);
+			return jsonFile.optString(HikeConstants.FILE_PATH);
 		}
 		catch (JSONException e)
 		{
 			e.printStackTrace();
 			return null;
+		}
+	}
+	
+	public static int getFileSizeFromJSON(JSONObject packet)
+	{
+		try
+		{
+			JSONArray jsonFiles = packet.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getJSONArray(HikeConstants.FILES);
+			JSONObject jsonFile = jsonFiles.getJSONObject(0);
+			return jsonFile.optInt(HikeConstants.FILE_SIZE);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+			return -1;
 		}
 	}
 
@@ -895,4 +910,82 @@ public class OfflineUtils
 		return disconnect.optString(HikeConstants.TYPE, "").equals("d");
 	}
 
+	public static JSONObject createSpaceCheckPacket(FileTransferModel fileTransferModel) 
+	{
+		JSONObject spaceCheckPacket = new JSONObject();
+		try
+		{
+			String msisdn = fileTransferModel.getPacket().getString(HikeConstants.TO);
+			spaceCheckPacket.putOpt(HikeConstants.TO, msisdn);
+			spaceCheckPacket.putOpt(HikeConstants.SUB_TYPE, OfflineConstants.SPACE_CHECK);
+			spaceCheckPacket.putOpt(OfflineConstants.MSG_ID, fileTransferModel.getMessageId());
+			spaceCheckPacket.putOpt(HikeConstants.FILE_SIZE, getFileSizeFromJSON(fileTransferModel.getPacket()));
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+		return spaceCheckPacket;
+	}
+	
+	public static JSONObject createSpaceAck(JSONObject spaceCheckPacket)
+	{
+		JSONObject spaceAck = new JSONObject();
+		try
+		{
+			spaceAck.putOpt(HikeConstants.TO, OfflineManager.getInstance().getConnectedDevice());
+			spaceAck.putOpt(HikeConstants.SUB_TYPE, OfflineConstants.SPACE_ACK);
+			spaceAck.putOpt(OfflineConstants.MSG_ID, spaceCheckPacket.getLong(OfflineConstants.MSG_ID));
+			int fileSize = spaceCheckPacket.optInt(HikeConstants.FILE_SIZE);
+			Logger.d("OfflineManager", "file size is: " + fileSize + " My free space is: " + Utils.getFreeSpace());
+			if (fileSize < (int) Utils.getFreeSpace())
+				spaceAck.putOpt(OfflineConstants.SPACE_AVAILABLE, true);
+			else
+				spaceAck.putOpt(OfflineConstants.SPACE_AVAILABLE, false);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+		return spaceAck;
+	}
+	
+	public static boolean isSpaceCheckPacket(JSONObject ackJSON)
+	{
+		if (ackJSON.has(HikeConstants.SUB_TYPE))
+		{
+			try
+			{
+				return ackJSON.get(HikeConstants.SUB_TYPE).equals(OfflineConstants.SPACE_CHECK);
+			}
+			catch (JSONException e)
+			{
+				e.printStackTrace();
+			}
+		}
+
+		return false;
+	}
+	
+	public static boolean isSpaceAckPacket(JSONObject ackJSON)
+	{
+		if (ackJSON.has(HikeConstants.SUB_TYPE))
+		{
+			try
+			{
+				return ackJSON.get(HikeConstants.SUB_TYPE).equals(OfflineConstants.SPACE_ACK);
+			}
+			catch (JSONException e)
+			{
+				e.printStackTrace();
+			}
+		}
+
+		return false;
+	}
+
+	public static boolean canSendFile(JSONObject spaceAck)
+	{
+		return spaceAck.optBoolean(OfflineConstants.SPACE_AVAILABLE, false);
+	}
 }

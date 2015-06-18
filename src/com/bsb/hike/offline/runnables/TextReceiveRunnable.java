@@ -92,7 +92,7 @@ public class TextReceiveRunnable implements Runnable
 				msgSize = OfflineUtils.byteArrayToInt(convMessageLength);
 				Logger.d(TAG, "Read Bytes is " + readBytes + "and msg Size is  " + msgSize);
 				// Logger.d(TAG,"Msg size is "+msgSize);
-				if (msgSize == 0)
+				if (msgSize <= 0)
 				{
 					throw new IOException();
 				}
@@ -140,6 +140,14 @@ public class TextReceiveRunnable implements Runnable
 						fileCallback.onSuccess(messageJSON);
 					else
 						textCallback.onSuccess(messageJSON);
+				}
+				else if (OfflineUtils.isSpaceCheckPacket(messageJSON))
+				{
+					offlineManager.addToTextQueue(OfflineUtils.createSpaceAck(messageJSON));
+				}
+				else if (OfflineUtils.isSpaceAckPacket(messageJSON))
+				{
+					offlineManager.canSendFile(messageJSON);
 				}
 				else
 				{

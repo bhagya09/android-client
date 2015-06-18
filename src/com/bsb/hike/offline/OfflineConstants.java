@@ -119,4 +119,10 @@ public class OfflineConstants
 
 	public static final int WIFI_HOTSPOT_STATE_UNKNOWN = 14;
 
+	public static final String SPACE_CHECK = "space_check";
+
+	public static final String SPACE_AVAILABLE = "space_available";
+	
+	public static final String SPACE_ACK = "space_ack";
+
 }

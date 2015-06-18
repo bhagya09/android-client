@@ -67,6 +67,8 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 	private ArrayList<IOfflineCallbacks> listeners;
 
 	private BlockingQueue<FileTransferModel> fileTransferQueue = null;
+	
+	private Map<Long, FileTransferModel> waitingQueue = new ConcurrentHashMap<Long, FileTransferModel>();
 
 	private volatile boolean inFileTransferInProgress = false;
 
@@ -195,7 +197,15 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 	{
 		// Add the Msg here to Persistance Db.
 		HikeOfflinePersistence.getInstance().addMessage(fileTransferModel.getPacket());
-		addToFileQueue(fileTransferModel);
+		//addToFileQueue(fileTransferModel);
+		addToProcessingQueue(fileTransferModel);
+	}
+	
+	private void addToProcessingQueue(FileTransferModel fileTransferModel)
+	{
+		JSONObject spaceCheckJson = OfflineUtils.createSpaceCheckPacket(fileTransferModel);
+		addToTextQueue(spaceCheckJson);
+		addToWaitingQueue(fileTransferModel);
 	}
 
 	private void saveToDb(ConvMessage convMessage)
@@ -267,12 +277,14 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 
 	public synchronized void addToFileQueue(FileTransferModel fileTransferObject)
 	{
-
+		if (fileTransferObject == null)
+			return;
+		
 		try
 		{
 			if (OfflineUtils.isConnectedToSameMsisdn(fileTransferObject.getPacket(), getConnectedDevice()))
 			{
-				addToCurrentSendingFile(fileTransferObject.getMessageId(), fileTransferObject);
+				//addToCurrentSendingFile(fileTransferObject.getMessageId(), fileTransferObject);
 				fileTransferQueue.put(fileTransferObject);
 			}
 		}
@@ -280,6 +292,25 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 		{
 			e.printStackTrace();
 		}
+	}
+	
+	public void addToWaitingQueue(FileTransferModel fileTransferModel)
+	{
+		Logger.d(TAG, "Added to waitingQueue with msgId: " + fileTransferModel.getMessageId());
+		addToCurrentSendingFile(fileTransferModel.getMessageId(), fileTransferModel);
+		waitingQueue.put(fileTransferModel.getMessageId(), fileTransferModel);
+	}
+	
+	public FileTransferModel popFromWaitingQueue(Long msgId)
+	{
+		FileTransferModel fileTransferObject = null;
+		if (waitingQueue.containsKey(msgId))
+		{
+			Logger.d(TAG, "Removed from WaitingQ with msgId: " + msgId);
+			fileTransferObject = waitingQueue.get(msgId);
+			waitingQueue.remove(msgId);
+		}
+		return fileTransferObject;
 	}
 
 	@Override
@@ -1027,7 +1058,26 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 		Logger.d(TAG, "Hike File type is: " + hikeFile.getHikeFileType().ordinal());
 		int length = hikeFile.getFileSize();
 		FileTransferModel fileTransferModel = new FileTransferModel(new TransferProgress(0, OfflineUtils.getTotalChunks(length)), convMessage.serialize());
-		addToFileQueue(fileTransferModel);
+		// addToFileQueue(fileTransferModel);
+		addToProcessingQueue(fileTransferModel);
+	}
+
+	public void canSendFile(JSONObject messageJSON) {
+		
+		long msgId = messageJSON.optLong(OfflineConstants.MSG_ID);
+		if (OfflineUtils.canSendFile(messageJSON))
+		{
+			Logger.d(TAG, "Sending file since enuf space is available");
+			addToFileQueue(popFromWaitingQueue(msgId));
+		}
+		else
+		{
+			Logger.d(TAG, "Insufficient space on recipient");
+			popFromWaitingQueue(msgId);
+			removeFromCurrentSendingFile(msgId);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
+			HikeMessengerApp.getInstance().showToast("Insufficient space on Recipient's device");
+		}
 	}
 
 }
