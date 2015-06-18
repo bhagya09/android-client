@@ -1,12 +1,14 @@
 package com.bsb.hike.ui.utils;
 
 import android.content.Context;
+import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.util.AttributeSet;
 import android.widget.ImageView;
 
 import com.bsb.hike.BitmapModule.RecyclingBitmapDrawable;
+import com.bsb.hike.utils.Utils;
 
 /**
  * 
@@ -45,6 +47,22 @@ public class RecyclingImageView extends ImageView
 		setImageDrawable(null);
 
 		super.onDetachedFromWindow();
+	}
+
+	@Override
+	protected void onDraw(Canvas canvas)
+	{
+		if (!Utils.isHoneycombOrHigher()) // <=2.3
+		{
+			if (getDrawable() instanceof RecyclingBitmapDrawable)
+			{
+				if (!((RecyclingBitmapDrawable) getDrawable()).isBitmapValid()) // If bitmap is not valid, dont try to draw on canvas
+				{
+					setImageDrawable(null);
+				}
+			}
+		}
+		super.onDraw(canvas);
 	}
 
 	/**
