@@ -1530,4 +1530,5 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
 	<string name="toast_for_showing_thumbnail">Going to show Thumbanil</string>
 	<string name="now">Now</string>
 	<string name="group_participant_info">You can add upto 500 members to a group</string>
+	<string name="unknown_server_error">Unable to download the file.</string>
 </resources>

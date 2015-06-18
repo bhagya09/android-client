@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.concurrent.ConcurrentHashMap;
@@ -160,6 +161,9 @@ public class DownloadFileTask extends FileTransferBase
 		URLConnection conn = null;
 		NetworkType networkType = FileTransferManager.getInstance(context).getNetworkType();
 		chunkSize = networkType.getMinChunkSize();
+		retry = true;
+		reconnectTime = 0;
+		retryAttempts = 0;
 		while (shouldRetry())
 		{
 			try
@@ -200,9 +204,6 @@ public class DownloadFileTask extends FileTransferBase
 				else
 				// everything is fine till this point
 				{
-					retry = true;
-					reconnectTime = 0;
-					retryAttempts = 0;
 					// Check for valid content length.
 					int contentLength = conn.getContentLength();
 					String md5Hash = conn.getHeaderField(ETAG);
@@ -381,10 +382,14 @@ public class DownloadFileTask extends FileTransferBase
 				mStart = _bytesTransferred;
 				// Is case id the task quits after making MAX attempts
 				// the file state is saved
-				if (retryAttempts >= MAX_RETRY_ATTEMPTS)
+				boolean isProtocolError = (e instanceof ProtocolException || e instanceof org.apache.http.ProtocolException) ;
+				if (retryAttempts >= MAX_RETRY_ATTEMPTS || isProtocolError)
 				{
 					error();
-					res = FTResult.DOWNLOAD_FAILED;
+					if(isProtocolError)
+						res = FTResult.UNKNOWN_SERVER_ERROR;
+					else
+						res = FTResult.DOWNLOAD_FAILED;
 					retry = false;
 				}
 			}
@@ -500,7 +505,7 @@ public class DownloadFileTask extends FileTransferBase
 			final int errorStringId = result == FTResult.FILE_TOO_LARGE ? R.string.not_enough_space : result == FTResult.CANCELLED ? R.string.download_cancelled
 					: (result == FTResult.FILE_EXPIRED || result == FTResult.SERVER_ERROR) ? R.string.file_expire
 							: result == FTResult.FAILED_UNRECOVERABLE ? R.string.download_failed_fatal : result == FTResult.CARD_UNMOUNT ? R.string.card_unmount
-									: result == FTResult.NO_SD_CARD ? R.string.no_sd_card : R.string.download_failed;
+									: result == FTResult.NO_SD_CARD ? R.string.no_sd_card : result == FTResult.UNKNOWN_SERVER_ERROR ? R.string.unknown_server_error : R.string.download_failed;
 			if (showToast)
 			{
 				handler.post(new Runnable()
