@@ -1472,7 +1472,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 						}
 						
 						if(arrayList.size()==1){
-							fileTransferTask = new InitiateMultiFileTransferTask(getApplicationContext(), fileDetails, msisdn, onHike, FTAnalyticEvents.OTHER_ATTACHEMENT);
+							fileTransferTask = new InitiateMultiFileTransferTask(getApplicationContext(), fileDetails, msisdn, onHike, FTAnalyticEvents.OTHER_ATTACHEMENT, intent);
 							Utils.executeAsyncTask(fileTransferTask);
 		
 	     					progressDialog = ProgressDialog.show(this, null, getResources().getString(R.string.multi_file_creation));
@@ -1907,7 +1907,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 
 		if (HikePubSub.MULTI_FILE_TASK_FINISHED.equals(type))
 		{
-			final String msisdn = (String) object;
+			final Intent intent = (Intent) object;
 
 			fileTransferTask = null;
 
@@ -1917,8 +1917,6 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				@Override
 				public void run()
 				{
-					Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(ComposeChatActivity.this, msisdn, false); 
-					intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 					startActivity(intent);
 					finish();
 

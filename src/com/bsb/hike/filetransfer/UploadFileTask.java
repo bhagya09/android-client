@@ -215,7 +215,7 @@ public class UploadFileTask extends FileTransferBase
 		this.mAttachementType = attachement;
 		createConvMessage(true);
 		stateFile = getStateFile(((ConvMessage) userContext));
-		JSONObject metadata =((ConvMessage) userContext).getMetadata().getJSON();
+		JSONObject metadata = ((ConvMessage) userContext).getMetadata().getJSON();
 		JSONArray filesArray = new JSONArray();
 
 		HikeFile hikeFile = ((ConvMessage)userContext).getMetadata().getHikeFiles().get(0);

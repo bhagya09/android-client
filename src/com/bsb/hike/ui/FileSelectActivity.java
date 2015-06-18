@@ -425,8 +425,9 @@ public class FileSelectActivity extends HikeAppStateBaseFragmentActivity impleme
 					throw new IllegalArgumentException("You are not sending msisdn, and yet you expect to send files ?");
 				}
 				boolean onHike = getIntent().getBooleanExtra(HikeConstants.Extras.ON_HIKE, true);
-
-				fileTransferTask = new InitiateMultiFileTransferTask(getApplicationContext(), fileDetails, msisdn, onHike, FTAnalyticEvents.FILE_ATTACHEMENT);
+				
+				Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(FileSelectActivity.this, msisdn, false);
+				fileTransferTask = new InitiateMultiFileTransferTask(getApplicationContext(), fileDetails, msisdn, onHike, FTAnalyticEvents.FILE_ATTACHEMENT, intent);
 				Utils.executeAsyncTask(fileTransferTask);
 
 				progressDialog = ProgressDialog.show(FileSelectActivity.this, null, getResources().getString(R.string.multi_file_creation));
@@ -711,6 +712,8 @@ public class FileSelectActivity extends HikeAppStateBaseFragmentActivity impleme
 		if (HikePubSub.MULTI_FILE_TASK_FINISHED.equals(type))
 		{
 			fileTransferTask = null;
+			
+			final Intent intent = (Intent) object;
 
 			runOnUiThread(new Runnable()
 			{
@@ -718,9 +721,6 @@ public class FileSelectActivity extends HikeAppStateBaseFragmentActivity impleme
 				@Override
 				public void run()
 				{
-					String msisdn = getIntent().getStringExtra(HikeConstants.Extras.MSISDN);
-					Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(FileSelectActivity.this, msisdn , false);
-					intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 					startActivity(intent);
 
 					if (progressDialog != null)
