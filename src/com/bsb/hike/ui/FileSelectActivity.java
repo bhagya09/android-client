@@ -276,11 +276,11 @@ public class FileSelectActivity extends HikeAppStateBaseFragmentActivity impleme
 						}
 						if (sizeLimit != 0)
 						{
-							if (file.length() > sizeLimit)
+							/*if (file.length() > sizeLimit)
 							{
 								Toast.makeText(FileSelectActivity.this, getString(R.string.max_file_size, Utils.formatFileSize(sizeLimit)), Toast.LENGTH_SHORT).show();
 								return;
-							}
+							}*/
 						}
 						if (file.length() == 0)
 						{
