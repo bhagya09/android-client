@@ -140,7 +140,7 @@ public class FileTransferRunnable implements Runnable
 		}
 		catch (OfflineException e)
 		{
-			offlineManager.shutDown(new OfflineException(e,OfflineException.CLIENT_DISCONNETED));
+			offlineManager.shutDown(e);
 			e.printStackTrace();
 		}
 	}

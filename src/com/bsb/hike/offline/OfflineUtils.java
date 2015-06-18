@@ -763,7 +763,7 @@ public class OfflineUtils
 				int readLen = 0;
 				readLen = inputStream.read(buf, 0, OfflineConstants.CHUNK_SIZE);
 				if (readLen < 0)
-					throw new OfflineException(OfflineException.CLIENT_DISCONNETED);
+					throw new OfflineException(OfflineException.EXCEPTION_IN_COPY_FILE);
 
 				out.write(buf, 0, readLen);
 				len += readLen;
@@ -789,7 +789,7 @@ public class OfflineUtils
 		catch (IOException e)
 		{
 			Logger.e("Spinner", "Exception in copyFile: ", e);
-			throw new OfflineException(e, OfflineException.CLIENT_DISCONNETED);
+			throw new OfflineException(e, OfflineException.EXCEPTION_IN_COPY_FILE);
 		}
 		return isCopied;
 	}

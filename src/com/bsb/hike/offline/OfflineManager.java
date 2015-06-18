@@ -594,6 +594,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 
 	public void sendGhostPacket()
 	{
+		Logger.d(TAG,"In sendGhostPacket");
 		JSONObject ghost = OfflineUtils.createGhostPacket(getConnectedDevice());
 		addToTextQueue(ghost);
 		// HikeAlarmManager.setAlarm(context, System.currentTimeMillis() + 10000, HikeAlarmManager.REQUESTCODE_OFFLINE, true);
@@ -620,6 +621,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 	public void removeAllMessages()
 	{
 		handler.removeCallbacksAndMessages(null);
+		Logger.d(TAG, "Checking ghost packeted runnable is present or not "+handler.hasMessages(HandlerConstants.SEND_GHOST_PACKET));
 	}
 
 	@Override
@@ -921,7 +923,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 
 		if (getOfflineState() != OFFLINE_STATE.DISCONNECTED)
 		{
-
+			HikeMessengerApp.getInstance().showToast("Disconnected Reason "+ exception.getReasonCode());
 			sendDisconnectToListeners();
 
 			setOfflineState(OFFLINE_STATE.DISCONNECTED);
@@ -934,7 +936,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 
 			threadManager.shutDown();
 			connectionManager.closeConnection(getConnectedDevice());
-
+			
 			clearAllVariables();
 
 		}

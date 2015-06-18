@@ -154,6 +154,7 @@ public class FileReceiverRunnable implements Runnable
 					FileOutputStream outputStream = new FileOutputStream(f);
 					// TODO:Take action on the basis of return type.
 					OfflineUtils.copyFile(inputstream, new FileOutputStream(f),fileTransferModel, true, false, fileSize);
+					Logger.d(TAG,"File Received Successfully");
 					OfflineUtils.closeOutputStream(outputStream);
 					f.renameTo(new File(filePath));
 					
@@ -199,7 +200,7 @@ public class FileReceiverRunnable implements Runnable
 				Logger.d(TAG, "Going to delete file in FRR");
 				f.delete();
 			}
-			connectCallback.onDisconnect(new OfflineException(e, OfflineException.CLIENT_DISCONNETED));
+			connectCallback.onDisconnect(e);
 
 		}
 	}

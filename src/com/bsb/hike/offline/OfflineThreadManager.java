@@ -181,6 +181,14 @@ public class OfflineThreadManager
 		
 		if(OfflineUtils.isDisconnectPkt(packet))
 		{
+			try
+			{
+				Thread.sleep(20);
+			}
+			catch (InterruptedException e)
+			{
+				e.printStackTrace();
+			}
 			throw new OfflineException(OfflineException.DISCONNECT);
 		}
 		// Updating database
