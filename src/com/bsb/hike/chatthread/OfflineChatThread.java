@@ -205,7 +205,7 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 		switch (controller.getOfflineState())
 		{
 		case CONNECTED:
-			if (mConversation.getDisplayMsisdn() == controller.getConnectedDevice())
+			if (mConversation.getDisplayMsisdn().equals(controller.getConnectedDevice()))
 			{
 				updateStatus(getString(R.string.connection_established));
 			}
@@ -379,7 +379,7 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 		switch (item.id)
 		{
 		case R.string.connect_offline:
-			if (item.text == getString(R.string.connect_offline))
+			if (item.text.equals(getString(R.string.connect_offline)))
 			{
 				connectClicked();
 			}
