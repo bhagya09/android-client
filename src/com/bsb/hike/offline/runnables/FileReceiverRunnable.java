@@ -22,6 +22,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.offline.FileTransferModel;
 import com.bsb.hike.offline.IConnectCallback;
 import com.bsb.hike.offline.OfflineException;
@@ -29,10 +30,11 @@ import com.bsb.hike.offline.OfflineManager;
 import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.offline.TransferProgress;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 
 /**
  * 
- * @author himanshu, deepak malik
+ * @author himanshu, deepak malik ,sahil 
  *	Runnable responsible for receving file from client
  */
 public class FileReceiverRunnable implements Runnable
@@ -116,7 +118,7 @@ public class FileReceiverRunnable implements Runnable
 					fileJSON = metadata.getJSONArray(HikeConstants.FILES).getJSONObject(0);
 					fileSize = fileJSON.getInt(HikeConstants.FILE_SIZE);
 					int type = fileJSON.getInt(HikeConstants.HIKE_FILE_TYPE);
-					fileName = fileJSON.getString(HikeConstants.FILE_NAME);
+					fileName = Utils.getFinalFileName(HikeFileType.values()[type], fileJSON.getString(HikeConstants.FILE_NAME));
 					filePath = OfflineUtils.getFileBasedOnType(type, fileName);
 					totalChunks = OfflineUtils.getTotalChunks(fileSize);
 					
@@ -126,13 +128,17 @@ public class FileReceiverRunnable implements Runnable
 					Logger.e(TAG, "Code phata in JSON initialisations", e1);
 					e1.printStackTrace();
 				}
-
 				ConvMessage convMessage = null;
-				fileTransferModel =  new FileTransferModel(new TransferProgress(0, totalChunks), message);
 				try
 				{
 					(message.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getJSONArray(HikeConstants.FILES)).getJSONObject(0).putOpt(
 							HikeConstants.FILE_PATH, filePath);
+					(message.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getJSONArray(HikeConstants.FILES)).getJSONObject(0).putOpt(
+							HikeConstants.FILE_NAME, fileName);
+					
+					
+					fileTransferModel =  new FileTransferModel(new TransferProgress(0, totalChunks), message);
+					
 					convMessage = new ConvMessage(message, HikeMessengerApp.getInstance().getApplicationContext());
 					
 					// update DB and UI.

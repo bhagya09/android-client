@@ -42,6 +42,7 @@ import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.utils.Utils.ExternalStorageState;
@@ -468,7 +469,7 @@ public class FileTransferManager extends BroadcastReceiver
 		task.setFutureTask(ft);
 		pool.execute(ft);
 	}
-
+	
 	public void uploadContactOrLocation(ConvMessage convMessage, boolean uploadingContact, boolean isRecipientOnhike)
 	{
 		if (isFileTaskExist(convMessage.getMsgID())){

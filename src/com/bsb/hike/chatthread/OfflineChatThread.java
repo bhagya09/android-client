@@ -33,6 +33,7 @@ import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.media.AttachmentPicker;
 import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.PhonebookContact;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.OfflineConversation;
 import com.bsb.hike.modules.contactmgr.ContactManager;
@@ -276,7 +277,6 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 		{
 			convMessage.setIsOfflineMessage(true);
 			addMessage(convMessage);
-
 			controller.sendMessage(convMessage);
 		}
 	}
@@ -360,8 +360,7 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 				attachmentPicker.appendItem(new OverFlowMenuItem(getString(R.string.contact), 0, R.drawable.ic_attach_contact, AttachmentPicker.CONTACT));
 			}
 			attachmentPicker.removeItem(AttachmentPicker.LOCATOIN);
-			attachmentPicker.appendItem(new OverFlowMenuItem(getString(R.string.apps), 0, R.drawable.ic_attach_apk, AttachmentPicker.APPS));
-
+			attachmentPicker.appendItem(new OverFlowMenuItem(getString(R.string.apps), 0, R.drawable.ic_attach_apk, AttachmentPicker.APPS));	
 		}
 	}
 
@@ -464,7 +463,9 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 		switch (dialog.getId())
 		{
 		case HikeDialogFactory.CONTACT_SEND_DIALOG:
-
+			ConvMessage convMessage =  OfflineUtils.createOfflineContactConvMessage(msisdn,((PhonebookContact) dialog.data).jsonData,mContactInfo.isOnhike());
+			sendMessage(convMessage);
+			dialog.dismiss();
 			break;
 		default:
 			super.positiveClicked(dialog);

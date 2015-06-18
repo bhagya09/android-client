@@ -31,6 +31,7 @@ import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.Conversation.ConvInfo;
+import com.bsb.hike.ui.ApkSelectionActivity;
 import com.bsb.hike.ui.ComposeChatActivity;
 import com.bsb.hike.ui.ConnectedAppsActivity;
 import com.bsb.hike.ui.CreateNewGroupOrBroadcastActivity;
@@ -832,6 +833,11 @@ public class IntentFactory
 		intent.putExtra(HikeConstants.Extras.ASPECT_X, 1);
 		intent.putExtra(HikeConstants.Extras.ASPECT_Y, 1);
 		intent.putExtra(HikeConstants.Extras.JPEG_COMPRESSION_QUALITY, quality);
+		return intent;
+	}
+
+	public static Intent getApkSelectionActivityIntent(Context context) {
+		Intent intent = new Intent(context, ApkSelectionActivity.class);
 		return intent;
 	}
 }

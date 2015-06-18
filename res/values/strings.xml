@@ -1526,4 +1526,5 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
 	<string name="connection_establishing">Establishing Connection ...</string>
 	<string name="disconnect_offline">Disconnect</string>
 	<string name="connection_deestablished">Connection Disconnected</string>
+	<string name= "files_not_received">Some files could not be received due to disconnection</string>
 </resources>

@@ -488,6 +488,10 @@ public class Utils
 				break;
 			case OTHER:
 				orgFileName.append("FILE_" + timeStamp);
+				break;
+			case APK:
+				orgFileName.append("APK_" + timeStamp + ".apk");
+				break;
 			}
 		}
 		else

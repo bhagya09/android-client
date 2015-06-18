@@ -31,6 +31,7 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 import android.util.Base64;
+import android.util.Log;
 import android.util.Pair;
 import android.util.SparseArray;
 
@@ -65,7 +66,6 @@ import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.ConversationMetadata;
 import com.bsb.hike.models.Conversation.GroupConversation;
-
 import com.bsb.hike.models.Conversation.OfflineConvInfo;
 import com.bsb.hike.models.Conversation.OfflineConversation;
 import com.bsb.hike.models.Conversation.OneToNConvInfo;

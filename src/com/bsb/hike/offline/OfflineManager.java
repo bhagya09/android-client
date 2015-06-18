@@ -47,7 +47,7 @@ import com.bsb.hike.utils.Utils;
 
 /**
  * 
- * @author himanshu, deepak malik This class forms the base of Offline Messaging and deals with socket connection,text transfer and file transfer queue.
+ * @author himanshu, deepak malik , sahil This class forms the base of Offline Messaging and deals with socket connection,text transfer and file transfer queue.
  */
 
 public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
@@ -63,6 +63,8 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 	private ArrayList<IOfflineCallbacks> listeners;
 
 	private BlockingQueue<FileTransferModel> fileTransferQueue = null;
+	
+	private Map<Long, FileTransferModel> waitingQueue = new ConcurrentHashMap<Long, FileTransferModel>();
 
 	private volatile boolean inFileTransferInProgress = false;
 
@@ -132,7 +134,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 			saveToDb((ConvMessage) msg.obj);
 			break;
 		case OfflineConstants.HandlerConstants.DISCONNECT_AFTER_TIMEOUT:
-			shutDown(new OfflineException(OfflineException.CONNECTION_TIME_OUT));
+			disconnect((String) msg.obj);
 			break;
 		case OfflineConstants.HandlerConstants.CREATE_HOTSPOT:
 			connectionManager.createHotspot((String) msg.obj);
@@ -194,7 +196,15 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 	{
 		// Add the Msg here to Persistance Db.
 		HikeOfflinePersistence.getInstance().addMessage(fileTransferModel.getPacket());
-		addToFileQueue(fileTransferModel);
+		//addToFileQueue(fileTransferModel);
+		addToProcessingQueue(fileTransferModel);
+	}
+	
+	private void addToProcessingQueue(FileTransferModel fileTransferModel)
+	{
+		JSONObject spaceCheckJson = OfflineUtils.createSpaceCheckPacket(fileTransferModel);
+		addToTextQueue(spaceCheckJson);
+		addToWaitingQueue(fileTransferModel);
 	}
 
 	private void saveToDb(ConvMessage convMessage)
@@ -207,7 +217,8 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 		addToTextQueue(convMessage.serialize());
 		long endTime = System.currentTimeMillis();
 
-		Logger.d(TAG, "Time in DB entry: " + (endTime - startTime));
+		Logger.d(TAG, "Time in DB entry: " + (endTime-startTime));
+
 	}
 
 	public void performWorkOnBackEndThread(Message msg)
@@ -238,6 +249,13 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 		connectionManager.setDeviceNameAsMsisdn();
 	}
 
+	public void disconnect(String msisdn)
+	{
+		// Since disconnect is called, stop sending ghost packets
+		removeMessage(OfflineConstants.HandlerConstants.SEND_GHOST_PACKET);
+		shutDown(new OfflineException(OfflineException.GHOST_PACKET_NOT_RECEIVED));
+
+	}
 	public synchronized void addToTextQueue(JSONObject message)
 	{
 
@@ -256,12 +274,14 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 
 	public synchronized void addToFileQueue(FileTransferModel fileTransferObject)
 	{
-
+		if (fileTransferObject == null)
+			return;
+		
 		try
 		{
 			if (OfflineUtils.isConnectedToSameMsisdn(fileTransferObject.getPacket(), getConnectedDevice()))
 			{
-				addToCurrentSendingFile(fileTransferObject.getMessageId(), fileTransferObject);
+				//addToCurrentSendingFile(fileTransferObject.getMessageId(), fileTransferObject);
 				fileTransferQueue.put(fileTransferObject);
 			}
 		}
@@ -269,6 +289,29 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 		{
 			e.printStackTrace();
 		}
+	}
+	
+	public void addToWaitingQueue(FileTransferModel fileTransferModel)
+	{
+		Logger.d(TAG, "Added to waitingQueue with msgId: " + fileTransferModel.getMessageId());
+		if (OfflineUtils.isConnectedToSameMsisdn(fileTransferModel.getPacket(), getConnectedDevice()))
+		{
+			addToCurrentSendingFile(fileTransferModel.getMessageId(), fileTransferModel);
+			waitingQueue.put(fileTransferModel.getMessageId(), fileTransferModel);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
+		}
+	}
+	
+	public FileTransferModel popFromWaitingQueue(Long msgId)
+	{
+		FileTransferModel fileTransferObject = null;
+		if (waitingQueue.containsKey(msgId))
+		{
+			Logger.d(TAG, "Removed from WaitingQ with msgId: " + msgId);
+			fileTransferObject = waitingQueue.get(msgId);
+			waitingQueue.remove(msgId);
+		}
+		return fileTransferObject;
 	}
 
 	@Override
@@ -556,15 +599,17 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 	private void sendPersistantMsgs()
 	{
 
+		
 		List<JSONObject> packets = HikeOfflinePersistence.getInstance().getAllSentMessages("o:" + getConnectedDevice());
 		for (JSONObject packet : packets)
 		{
-			if (OfflineUtils.isFileTransferMessage(packet))
+			if (OfflineUtils.isFileTransferMessage(packet) && !OfflineUtils.isContactTransferMessage(packet))
 			{
 				String fileUri = OfflineUtils.getFilePathFromJSON(packet);
 				File f = new File(fileUri);
 				long msgId = OfflineUtils.getMsgId(packet);
 				Logger.d(TAG, "Sending msgId: " + msgId);
+
 				FileTransferModel fileTransferModel = new FileTransferModel(new TransferProgress(0, OfflineUtils.getTotalChunks((int) f.length())), packet);
 				// addToFileQueue(fileTransferModel);
 			}
@@ -645,16 +690,6 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 		msg.obj = msisdn;
 		performWorkOnBackEndThread(msg);
 		threadManager.startReceivingThreads();
-		waitForConnection(msisdn);
-	}
-
-	// Call removed from createHotspot method
-	private void waitForConnection(String msisdn)
-	{
-		Message msg = Message.obtain();
-		msg.what = OfflineConstants.HandlerConstants.DISCONNECT_AFTER_TIMEOUT;
-		msg.obj = msisdn;
-		handler.sendMessageDelayed(msg, OfflineConstants.WAITING_TIMEOUT);
 	}
 
 	public void connectToHotspot(String msisdn)
@@ -680,10 +715,14 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 		}
 		setOfflineState(OFFLINE_STATE.CONNECTING);
 		String myMsisdn = OfflineUtils.getMyMsisdn();
+		Message endTries = Message.obtain();
+		endTries.what = OfflineConstants.HandlerConstants.REMOVE_CONNECT_MESSAGE;
+		endTries.obj = msisdn;
 		if (myMsisdn.compareTo(msisdn) > 0)
 		{
 			Logger.d(TAG, "Will create Hotspot");
 			createHotspot(msisdn);
+			handler.sendMessageDelayed(endTries, OfflineConstants.TIME_TO_CONNECT);
 		}
 		else
 		{
@@ -696,9 +735,6 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 			performWorkOnBackEndThread(msg);
 
 			// removing the CONNECT_TO_HOTSPOT message from handler after timeout
-			Message endTries = Message.obtain();
-			endTries.what = OfflineConstants.HandlerConstants.REMOVE_CONNECT_MESSAGE;
-			endTries.obj = msisdn;
 			handler.sendMessageDelayed(endTries, OfflineConstants.TIME_TO_CONNECT);
 
 		}
@@ -955,23 +991,6 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 	{
 		if (getOfflineState() == OFFLINE_STATE.CONNECTED)
 		{
-			final ConvMessage convMessage = OfflineUtils.createOfflineInlineConvMessage("o:" + connectedDevice, context.getString(R.string.connection_deestablished),
-					OfflineConstants.OFFLINE_MESSAGE_DISCONNECTED_TYPE);
-			HikeConversationsDatabase.getInstance().addConversationMessages(convMessage, true);
-			HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_RECEIVED, convMessage);
-
-			if (currentSendingFiles.size() > 0)
-			{
-				ArrayList<Long> msgId = new ArrayList<>(currentSendingFiles.size());
-
-				for (Entry<Long, FileTransferModel> itr : currentSendingFiles.entrySet())
-				{
-					msgId.add(itr.getKey());
-				}
-
-				ChatThreadUtils.deleteMessagesFromDb(msgId, false, msgId.get(msgId.size() - 1), "o:" + getConnectedDevice());
-			}
-			
 			if (currentReceivingFiles.size() > 0)
 			{
 				ArrayList<Long> rMsgIds = new ArrayList<>(currentReceivingFiles.size());
@@ -982,7 +1001,16 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 				}
 
 				ChatThreadUtils.deleteMessagesFromDb(rMsgIds, false, rMsgIds.get(rMsgIds.size() - 1), "o:" + getConnectedDevice());
+				final ConvMessage deleteFilesConvMessage = OfflineUtils.createOfflineInlineConvMessage("o:" + connectedDevice, context.getString(R.string.files_not_received),
+						OfflineConstants.OFFLINE_FILES_NOT_RECEIVED_TYPE);
+				HikeConversationsDatabase.getInstance().addConversationMessages(deleteFilesConvMessage, true);
+				HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_RECEIVED,deleteFilesConvMessage);
 			}
+			
+			final ConvMessage convMessage = OfflineUtils.createOfflineInlineConvMessage("o:" + connectedDevice, context.getString(R.string.connection_deestablished),
+					OfflineConstants.OFFLINE_MESSAGE_DISCONNECTED_TYPE);
+			HikeConversationsDatabase.getInstance().addConversationMessages(convMessage, true);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_RECEIVED, convMessage);
 			
 			for (IOfflineCallbacks offlineListener : listeners)
 			{
@@ -1025,7 +1053,26 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 		Logger.d(TAG, "Hike File type is: " + hikeFile.getHikeFileType().ordinal());
 		int length = hikeFile.getFileSize();
 		FileTransferModel fileTransferModel = new FileTransferModel(new TransferProgress(0, OfflineUtils.getTotalChunks(length)), convMessage.serialize());
-		addToFileQueue(fileTransferModel);
+		// addToFileQueue(fileTransferModel);
+		addToProcessingQueue(fileTransferModel);
+	}
+
+	public void canSendFile(JSONObject messageJSON) {
+		
+		long msgId = messageJSON.optLong(OfflineConstants.MSG_ID);
+		if (OfflineUtils.canSendFile(messageJSON))
+		{
+			Logger.d(TAG, "Sending file since enuf space is available");
+			addToFileQueue(popFromWaitingQueue(msgId));
+		}
+		else
+		{
+			Logger.d(TAG, "Insufficient space on recipient");
+			popFromWaitingQueue(msgId);
+			removeFromCurrentSendingFile(msgId);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
+			HikeMessengerApp.getInstance().showToast("Insufficient space on Recipient's device");
+		}
 	}
 
 }
