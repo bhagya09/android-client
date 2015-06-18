@@ -2816,5 +2816,7 @@ public class HikeConstants
 	
 	public static final String KEY = "key";
 	
-	public static final String VALUE = "val"
-;}
+	public static final String VALUE = "val";
+			
+	public static final String CONSUMED_FORWARDED_DATA = "consumed";
+}

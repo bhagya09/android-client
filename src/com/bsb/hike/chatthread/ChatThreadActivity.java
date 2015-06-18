@@ -328,4 +328,24 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 		return super.onKeyUp(keyCode, event);
 	}
 	
+	@Override
+	protected void onSaveInstanceState(Bundle outState)
+	{
+		if (chatThread != null)
+		{
+			chatThread.onSaveInstanceState(outState);
+		}
+		super.onSaveInstanceState(outState);
+	}
+	
+	@Override
+	protected void onRestoreInstanceState(Bundle savedInstanceState)
+	{
+		if(chatThread != null) 
+		{
+			chatThread.onRestoreInstanceState(savedInstanceState);
+		}
+		super.onRestoreInstanceState(savedInstanceState);
+		
+	}
 }
