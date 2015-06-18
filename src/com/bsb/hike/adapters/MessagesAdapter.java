@@ -1701,7 +1701,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				fileHolder.fileName.setVisibility(View.VISIBLE);
 				fileHolder.fileDetails.setVisibility(View.VISIBLE);
 
-				if ((!convMessage.isSent()) || (convMessage.isSent() && !TextUtils.isEmpty(hikeFile.getFileKey())))
+				if ((conversation instanceof OfflineConversation || !convMessage.isSent()) || (convMessage.isSent() && !TextUtils.isEmpty(hikeFile.getFileKey())))
 				{
 					fileHolder.circularProgressBg.setVisibility(View.GONE);
 				}
@@ -2135,6 +2135,13 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 				((ViewGroup) participantInfoHolder.container).addView(mainMessage);
 				
+			}
+			else if(infoState == ParticipantInfoState.OFFLINE_FILE_NOT_RECEIVED)
+			{
+				TextView mainMessage = (TextView) inflater.inflate(layoutRes, null);
+				String name= convMessage.getMessage();
+				setTextAndIconForSystemMessages(mainMessage,name, R.drawable.ic_joined_chat_custom);
+				((ViewGroup) participantInfoHolder.container).addView(mainMessage);
 			}
 			else if (infoState == ParticipantInfoState.PARTICIPANT_JOINED)
 			{

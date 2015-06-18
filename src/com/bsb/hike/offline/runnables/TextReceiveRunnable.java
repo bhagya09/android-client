@@ -57,7 +57,7 @@ public class TextReceiveRunnable implements Runnable
 	private IMessageSentOffline textCallback;
 	
 	private IMessageSentOffline fileCallback;
-	
+
 	File stickerImage = null;
 
 	public TextReceiveRunnable(IMessageSentOffline textCallback, IMessageSentOffline fileCallback,IConnectCallback connectCallback)
@@ -81,7 +81,7 @@ public class TextReceiveRunnable implements Runnable
 
 			Logger.d(TAG, "TextReceiveThread" + "Will be waiting on accept");
 			textReceiverSocket = textServerSocket.accept();
-			Logger.d(TAG, "TextReceiveThread" + "Connection successfull");
+			Logger.d(TAG, "TextReceiveThread" + "Connection successfull and the receiver buffer is "+ textReceiverSocket.getReceiveBufferSize() + "and the send buffer is " + textReceiverSocket.getSendBufferSize() );
 			connectCallback.onConnect();
 			inputStream = textReceiverSocket.getInputStream();
 			while (true)

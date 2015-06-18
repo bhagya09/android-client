@@ -51,7 +51,7 @@ import com.bsb.hike.utils.Utils;
 
 /**
  * 
- * @author himanshu, deepak malik This class forms the base of Offline Messaging and deals with socket connection,text transfer and file transfer queue.
+ * @author himanshu, deepak malik , sahil This class forms the base of Offline Messaging and deals with socket connection,text transfer and file transfer queue.
  */
 
 public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
@@ -218,7 +218,8 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 		addToTextQueue(convMessage.serialize());
 		long endTime = System.currentTimeMillis();
 
-		Logger.d(TAG, "Time in DB entry: " + (endTime - startTime));
+		Logger.d(TAG, "Time in DB entry: " + (endTime-startTime));
+
 	}
 
 	public void performWorkOnBackEndThread(Message msg)
@@ -255,6 +256,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 		// Since disconnect is called, stop sending ghost packets
 		removeMessage(OfflineConstants.HandlerConstants.SEND_GHOST_PACKET);
 		shutDown(new OfflineException(OfflineException.GHOST_PACKET_NOT_RECEIVED));
+
 	}
 
 	public synchronized void addToTextQueue(JSONObject message)
@@ -600,15 +602,17 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 	private void sendPersistantMsgs()
 	{
 
+		
 		List<JSONObject> packets = HikeOfflinePersistence.getInstance().getAllSentMessages("o:" + getConnectedDevice());
 		for (JSONObject packet : packets)
 		{
-			if (OfflineUtils.isFileTransferMessage(packet))
+			if (OfflineUtils.isFileTransferMessage(packet) && !OfflineUtils.isContactTransferMessage(packet))
 			{
 				String fileUri = OfflineUtils.getFilePathFromJSON(packet);
 				File f = new File(fileUri);
 				long msgId = OfflineUtils.getMsgId(packet);
 				Logger.d(TAG, "Sending msgId: " + msgId);
+
 				FileTransferModel fileTransferModel = new FileTransferModel(new TransferProgress(0, OfflineUtils.getTotalChunks((int) f.length())), packet);
 				// addToFileQueue(fileTransferModel);
 			}
@@ -992,23 +996,6 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 	{
 		if (getOfflineState() == OFFLINE_STATE.CONNECTED)
 		{
-			final ConvMessage convMessage = OfflineUtils.createOfflineInlineConvMessage("o:" + connectedDevice, context.getString(R.string.connection_deestablished),
-					OfflineConstants.OFFLINE_MESSAGE_DISCONNECTED_TYPE);
-			HikeConversationsDatabase.getInstance().addConversationMessages(convMessage, true);
-			HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_RECEIVED, convMessage);
-
-			if (currentSendingFiles.size() > 0)
-			{
-				ArrayList<Long> msgId = new ArrayList<>(currentSendingFiles.size());
-
-				for (Entry<Long, FileTransferModel> itr : currentSendingFiles.entrySet())
-				{
-					msgId.add(itr.getKey());
-				}
-
-				ChatThreadUtils.deleteMessagesFromDb(msgId, false, msgId.get(msgId.size() - 1), "o:" + getConnectedDevice());
-			}
-			
 			if (currentReceivingFiles.size() > 0)
 			{
 				ArrayList<Long> rMsgIds = new ArrayList<>(currentReceivingFiles.size());
@@ -1019,7 +1006,16 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 				}
 
 				ChatThreadUtils.deleteMessagesFromDb(rMsgIds, false, rMsgIds.get(rMsgIds.size() - 1), "o:" + getConnectedDevice());
+				final ConvMessage deleteFilesConvMessage = OfflineUtils.createOfflineInlineConvMessage("o:" + connectedDevice, context.getString(R.string.files_not_received),
+						OfflineConstants.OFFLINE_FILES_NOT_RECEIVED_TYPE);
+				HikeConversationsDatabase.getInstance().addConversationMessages(deleteFilesConvMessage, true);
+				HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_RECEIVED,deleteFilesConvMessage);
 			}
+			
+			final ConvMessage convMessage = OfflineUtils.createOfflineInlineConvMessage("o:" + connectedDevice, context.getString(R.string.connection_deestablished),
+					OfflineConstants.OFFLINE_MESSAGE_DISCONNECTED_TYPE);
+			HikeConversationsDatabase.getInstance().addConversationMessages(convMessage, true);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_RECEIVED, convMessage);
 			
 			for (IOfflineCallbacks offlineListener : listeners)
 			{

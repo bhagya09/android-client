@@ -16,6 +16,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+
+import android.os.Environment;
+import android.util.Log;
 import android.util.Pair;
 
 import com.bsb.hike.HikeConstants;
@@ -208,6 +211,7 @@ public class OfflineThreadManager
 			fileUri = jsonFile.getString(HikeConstants.FILE_PATH);
 
 			String metaString = fileTransferModel.getPacket().toString();
+			
 			Logger.d(TAG, metaString);
 
 			byte[] metaDataBytes = metaString.getBytes("UTF-8");

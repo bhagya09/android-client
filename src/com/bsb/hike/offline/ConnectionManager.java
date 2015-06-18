@@ -23,6 +23,10 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.utils.Logger;
 
+/**
+ * 
+ * @author sahil This class forms the  deals with functions related to WifiManager and WifiP2pManager and other Hotspot functionalities
+ */
 public class ConnectionManager implements ChannelListener
 {
 	private static ConnectionManager _instance = null;
@@ -33,8 +37,8 @@ public class ConnectionManager implements ChannelListener
 	private Channel channel;
     private String myMsisdn =null;
 	private String TAG = ConnectionManager.class.getName();
-    private WifiConfiguration prevConfig;
-	private int connectedNetworkId;
+    private WifiConfiguration prevConfig = null;
+	private int connectedNetworkId = -1;
 	private ConnectionManager()
 	{
     	init();
@@ -433,5 +437,11 @@ public class ConnectionManager implements ChannelListener
 				wifiManager.disconnect();
 			}
 		}
+		clearAllVariables();
+	}
+
+	private void clearAllVariables() {
+		prevConfig = null;
+		connectedNetworkId = -1;
 	}
 }

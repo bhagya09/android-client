@@ -79,7 +79,7 @@ public class TextTransferRunnable implements Runnable
 				// textSendSocket.bind(null);
 
 				textSendSocket.connect((new InetSocketAddress(host, PORT_TEXT_MESSAGE)), SOCKET_TIMEOUT);
-				Logger.d(TAG, "Text Transfer Thread Connected");
+				Logger.d(TAG, "Text Transfer Thread Connected" + "the receivre buffer size is "+ textSendSocket.getReceiveBufferSize() + "send buffer is "+ textSendSocket.getSendBufferSize());
 				isNotConnected = false;
 				connectCallback.onConnect();
 

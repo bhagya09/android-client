@@ -50,6 +50,8 @@ public class OfflineConstants
 	
 	public static final String OFFLINE_MESSAGE_DISCONNECTED_TYPE = "offmsgdis";
 	
+	public static final String  OFFLINE_FILES_NOT_RECEIVED_TYPE = "offfilenotreceived"; 
+	
 	public static final int  WAITING_TIMEOUT = 60000;
 
 	public static final long TIME_TO_CONNECT = 30000;
@@ -99,6 +101,10 @@ public class OfflineConstants
 	
 	public static final int MAX_TRIES=4;
 
+	public static final String FILE_TYPE = "fileType";
+
+	public static final String WIFI_HOTSPOT_STATE = "android.net.wifi.WIFI_AP_STATE_CHANGED";
+
 	public static final int ALL_THREADS_CONNECTED = 4;
 	
 	public static final String WIFI_HOTSPOT_STATE_CHANGE_ACTION = "android.net.wifi.WIFI_AP_STATE_CHANGED";
@@ -118,4 +124,5 @@ public class OfflineConstants
 	public static final String SPACE_AVAILABLE = "space_available";
 	
 	public static final String SPACE_ACK = "space_ack";
+
 }
