@@ -76,8 +76,6 @@ public class TextTransferRunnable implements Runnable
 				}
 
 				textSendSocket = new Socket();
-				// textSendSocket.bind(null);
-
 				textSendSocket.connect((new InetSocketAddress(host, PORT_TEXT_MESSAGE)), SOCKET_TIMEOUT);
 				Logger.d(TAG, "Text Transfer Thread Connected");
 				isNotConnected = false;
@@ -111,18 +109,9 @@ public class TextTransferRunnable implements Runnable
 			{
 				packet = OfflineManager.getInstance().getTextQueue().take();
 				{
-					// TODO : Send Offline Text and take action on the basis of boolean i.e. clock or single tick
 					Logger.d("OfflineThreadManager", "Going to send Text");
 					OfflineThreadManager.getInstance().sendOfflineText(packet, textSendSocket.getOutputStream());
 					Logger.d(TAG, "Waiting for ack of msgid: " + OfflineUtils.getMsgId(packet));
-					/*if ()
-					{
-						callback.onSuccess(packet);
-					}
-					else
-					{
-						callback.onFailure(packet);
-					}*/
 				}
 			}
 		}
@@ -134,24 +123,23 @@ public class TextTransferRunnable implements Runnable
 		catch (SocketTimeoutException e)
 		{
 			Logger.e(TAG, "SOCKET time out exception occured in TextTransferThread.");
-			offlineManager.shutDown(new OfflineException(e, OfflineException.SOCKET_TIMEOUT_EXCEPTION));
+			connectCallback.onDisconnect(new OfflineException(e, OfflineException.SOCKET_TIMEOUT_EXCEPTION));
 			e.printStackTrace();
 		}
 		catch (IOException e)
 		{
 			e.printStackTrace();
 			Logger.e(TAG, "TextTransferThread. IO Exception occured.Socket was not bounded");
-			offlineManager.shutDown(new OfflineException(e, OfflineException.SERVER_DISCONNED));
+			connectCallback.onDisconnect(new OfflineException(e, OfflineException.SERVER_DISCONNED));
 		}
 		catch (IllegalArgumentException e)
 		{
 			e.printStackTrace();
 			Logger.e(TAG, "TextTransferThread. Did we pass correct Address here ? ?");
-			// offlineManager.shutDown();
 		}
 		catch (OfflineException e)
 		{
-			offlineManager.shutDown(e);
+			connectCallback.onDisconnect(e);
 			e.printStackTrace();
 		}
 	}

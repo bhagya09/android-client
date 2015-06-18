@@ -179,11 +179,14 @@ public class OfflineThreadManager
 			isSent = true;
 		}
 		
+		/**
+		 * Waiting for 100ms to disconnect so that the other client receives it properly.
+		 */
 		if(OfflineUtils.isDisconnectPkt(packet))
 		{
 			try
 			{
-				Thread.sleep(20);
+				Thread.sleep(100);
 			}
 			catch (InterruptedException e)
 			{
@@ -191,7 +194,6 @@ public class OfflineThreadManager
 			}
 			throw new OfflineException(OfflineException.DISCONNECT);
 		}
-		// Updating database
 		return isSent;
 	}
 
@@ -215,7 +217,7 @@ public class OfflineThreadManager
 			Logger.d(TAG, "Sizeof metaString: " + length);
 			byte[] intToBArray = OfflineUtils.intToByteArray(length);
 			outputStream.write(intToBArray, 0, intToBArray.length);
-
+			
 			ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(metaDataBytes);
 			boolean isMetaDataSent = OfflineUtils.copyFile(byteArrayInputStream, outputStream, metaDataBytes.length);
 			Logger.d(TAG, "FileMetaDataSent:" + isMetaDataSent);
@@ -223,12 +225,6 @@ public class OfflineThreadManager
 
 			int fileSize = 0;
 			fileSize = jsonFile.getInt(HikeConstants.FILE_SIZE);
-
-			long msgID;
-			msgID = fileTransferModel.getMessageId();
-
-			// TODO:We can listen to PubSub ...Why to do this ...????
-			// showUploadTransferNotification(msgID,fileSize);
 
 			inputStream = new FileInputStream(new File(fileUri));
 			long time = System.currentTimeMillis();
@@ -303,7 +299,7 @@ public class OfflineThreadManager
 			{
 			msgID = OfflineUtils.getMsgIdFromAckPacket(packet);
 			msisdn = packet.getString(HikeConstants.FROM);
-			offlineManager.removeFromCurrentSendingFile(msgID);
+			
 
 			// Update Delivered status
 			}
@@ -313,10 +309,12 @@ public class OfflineThreadManager
 			}
 			HikeMessengerApp.getPubSub().publish(HikePubSub.UPLOAD_FINISHED, null);
 			int rowsUpdated = OfflineUtils.updateDB(msgID, ConvMessage.State.SENT_DELIVERED, msisdn);
+			
 			if (rowsUpdated == 0)
 			{
 				Logger.d(getClass().getSimpleName(), "No rows updated");
 			}
+			offlineManager.removeFromCurrentSendingFile(msgID);
 			Pair<String, Long> pair = new Pair<String, Long>(msisdn, msgID);
 			HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_DELIVERED, pair);
 			HikeOfflinePersistence.getInstance().removeMessage(msgID);

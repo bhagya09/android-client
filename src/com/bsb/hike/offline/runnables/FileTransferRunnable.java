@@ -104,43 +104,35 @@ public class FileTransferRunnable implements Runnable
 			while (true)
 			{
 				fileTranserObject = OfflineManager.getInstance().getFileTransferQueue().take();
-				// TODO : Send Offline Text and take action on the basis of boolean i.e. clock or single tick
+
 				offlineManager.setInOfflineFileTransferInProgress(true);
+
 				OfflineThreadManager.getInstance().sendOfflineFile(fileTranserObject, fileSendSocket.getOutputStream());
+
 				Logger.d(TAG, "Waiting for ack of msgid: " + OfflineUtils.getMsgId(fileTranserObject.getPacket()));
-				/*if ()
-				
-				{
-					callback.onSuccess(fileTranserObject.getPacket());
-				}
-				else
-				{
-					callback.onFailure(fileTranserObject.getPacket());
-				}*/
+
 				offlineManager.setInOfflineFileTransferInProgress(false);
 			}
 		}
 		catch (InterruptedException e)
 		{
 			Logger.e(TAG, "Some called interrupt on File transfer Thread");
-			//offlineManager.setOfflineState(OFFLINE_STATE.NOT_CONNECTED);
 			e.printStackTrace();
 		}
 		catch (IOException e)
 		{
 			e.printStackTrace();
 			Logger.e(TAG, "IO Exception occured in FileTransferThread.Socket was not bounded or connect failed");
-			offlineManager.shutDown(new OfflineException(e, OfflineException.CLIENT_DISCONNETED));
+			connectCallback.onDisconnect(new OfflineException(e, OfflineException.CLIENT_DISCONNETED));
 		}
 		catch (IllegalArgumentException e)
 		{
 			e.printStackTrace();
-			// offlineManager.shutDown();
 			Logger.e(TAG, "FileTransferThread. Did we pass correct Address here ? ?");
 		}
 		catch (OfflineException e)
 		{
-			offlineManager.shutDown(e);
+			connectCallback.onDisconnect(e);
 			e.printStackTrace();
 		}
 	}

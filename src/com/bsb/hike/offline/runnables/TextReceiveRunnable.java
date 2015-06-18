@@ -97,7 +97,6 @@ public class TextReceiveRunnable implements Runnable
 					throw new IOException();
 				}
 				byte[] msgJSON = new byte[msgSize];
-				int fileSizeRead = msgSize;
 				int offset = 0;
 				while (msgSize > 0)
 				{
@@ -211,8 +210,11 @@ public class TextReceiveRunnable implements Runnable
 		{
 			e.printStackTrace();
 			Logger.e(TAG, "Exception in TextReceiveThread. IO Exception occured.Socket was not bounded");
-			if (stickerImage != null)
+			if (stickerImage != null && stickerImage.exists())
+			{
+				Logger.d(TAG, "GOing to delete stickerImage in TRR");
 				stickerImage.delete();
+			}
 			connectCallback.onDisconnect(new OfflineException(e, OfflineException.CLIENT_DISCONNETED));
 		}
 		catch (IllegalArgumentException e)
@@ -227,7 +229,7 @@ public class TextReceiveRunnable implements Runnable
 		catch (OfflineException e)
 		{
 			e.printStackTrace();
-			if (stickerImage != null)
+			if (stickerImage != null && stickerImage.exists())
 			{
 				Logger.d(TAG, "GOing to delete stickerImage in TRR");
 				stickerImage.delete();

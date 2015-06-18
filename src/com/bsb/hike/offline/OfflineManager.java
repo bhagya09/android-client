@@ -1,9 +1,6 @@
 package com.bsb.hike.offline;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +36,6 @@ import com.bsb.hike.filetransfer.FileTransferBase.FTState;
 import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.State;
-import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.HikeHandlerUtil;
@@ -179,6 +175,9 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 			break;
 		case OfflineConstants.HandlerConstants.SEND_PERSISTANCE_MSGS:
 			sendPersistantMsgs();
+			break;
+		case OfflineConstants.HandlerConstants.SHUTDOWN:
+			shutDownProcess((OfflineException) msg.obj);
 			break;
 		}
 	};
@@ -921,9 +920,18 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 	{
 		Logger.d(TAG, "ShudDown called Due to reason " + exception.getReasonCode());
 
+		
+		Message msg=Message.obtain();
+		msg.what=HandlerConstants.SHUTDOWN;
+		msg.obj=exception;
+		performWorkOnBackEndThread(msg);
+	}
+
+	public void shutDownProcess(OfflineException exception)
+	{
 		if (getOfflineState() != OFFLINE_STATE.DISCONNECTED)
 		{
-			HikeMessengerApp.getInstance().showToast("Disconnected Reason "+ exception.getReasonCode());
+			HikeMessengerApp.getInstance().showToast("Disconnected Reason " + exception.getReasonCode());
 			sendDisconnectToListeners();
 
 			setOfflineState(OFFLINE_STATE.DISCONNECTED);
@@ -933,18 +941,16 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 
 			currentReceivingFiles.clear();
 			currentSendingFiles.clear();
-			
+
 			// if a sending file didn't go change from spinner to retry button
 			HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
-			
+
 			threadManager.shutDown();
 			connectionManager.closeConnection(getConnectedDevice());
-			
-			clearAllVariables();
 
+			clearAllVariables();
 		}
 	}
-
 	private void sendDisconnectToListeners()
 	{
 		if (getOfflineState() == OFFLINE_STATE.CONNECTED)

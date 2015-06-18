@@ -165,6 +165,7 @@ public class FileReceiverRunnable implements Runnable
 				{
 					e.printStackTrace();
 				}
+				
 				// send ack for the packet received
 				JSONObject ackJSON = OfflineUtils.createAckPacket(convMessage.getMsisdn(), mappedMsgId, true);
 				offlineManager.addToTextQueue(ackJSON);
@@ -184,6 +185,11 @@ public class FileReceiverRunnable implements Runnable
 		catch (IOException e)
 		{
 			e.printStackTrace();
+			if (f != null && f.exists())
+			{
+				Logger.d(TAG, "Going to delete file in FRR");
+				f.delete();
+			}
 			Logger.e(TAG, "File Receiver Thread " + " IO Exception occured.Socket was not bounded");
 			connectCallback.onDisconnect(new OfflineException(e, OfflineException.CLIENT_DISCONNETED));
 		}
@@ -195,7 +201,7 @@ public class FileReceiverRunnable implements Runnable
 		catch (OfflineException e)
 		{
 			e.printStackTrace();
-			if (f != null)
+			if (f != null && f.exists())
 			{
 				Logger.d(TAG, "Going to delete file in FRR");
 				f.delete();
