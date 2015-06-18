@@ -1960,6 +1960,14 @@ public class MqttMessagesManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_TOAST_FOR_DEGRADING_QUALITY, toShowToastForDegradingQuality);
 
 		}
+		if(data.has(HikeConstants.STEALTH))
+		{
+			String stealthValue = data.getString(HikeConstants.STEALTH);
+			if(stealthValue.equals(HikeConstants.ENABLED_STEALTH))
+			{
+				HikeAnalyticsEvent.sendStealthMsisdns(StealthModeManager.getInstance().getStealthMsisdns(), null);
+			}
+		}
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
 		

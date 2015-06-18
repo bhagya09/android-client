@@ -64,8 +64,8 @@ public class StealthModeManager
 		activate(false);
 	}
 
-	public int getStealthMsisdnMapSize() {
-		return stealthMsisdn.size();
+	public List<String> getStealthMsisdns() {
+		return new ArrayList<String>(stealthMsisdn);
 	}
 
 	public void markStealthMsisdn(String msisdn, boolean markStealth, boolean publish)
