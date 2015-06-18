@@ -2136,6 +2136,13 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				((ViewGroup) participantInfoHolder.container).addView(mainMessage);
 				
 			}
+			else if(infoState == ParticipantInfoState.OFFLINE_FILE_NOT_RECEIVED)
+			{
+				TextView mainMessage = (TextView) inflater.inflate(layoutRes, null);
+				String name= convMessage.getMessage();
+				setTextAndIconForSystemMessages(mainMessage,name, R.drawable.ic_joined_chat_custom);
+				((ViewGroup) participantInfoHolder.container).addView(mainMessage);
+			}
 			else if (infoState == ParticipantInfoState.PARTICIPANT_JOINED)
 			{
 				JSONArray participantInfoArray = metadata.getGcjParticipantInfo();

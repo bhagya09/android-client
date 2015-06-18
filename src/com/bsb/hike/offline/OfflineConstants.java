@@ -50,6 +50,8 @@ public class OfflineConstants
 	
 	public static final String OFFLINE_MESSAGE_DISCONNECTED_TYPE = "offmsgdis";
 	
+	public static final String  OFFLINE_FILES_NOT_RECEIVED_TYPE = "offfilenotreceived"; 
+	
 	public static final int  WAITING_TIMEOUT = 60000;
 
 	public static final long TIME_TO_CONNECT = 30000;
@@ -116,4 +118,5 @@ public class OfflineConstants
 	public static final int WIFI_HOTSPOT_STATE_ENABLED = 13;
 
 	public static final int WIFI_HOTSPOT_STATE_UNKNOWN = 14;
+
 }
