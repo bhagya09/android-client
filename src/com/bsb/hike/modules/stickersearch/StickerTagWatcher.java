@@ -176,16 +176,21 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 
 	public void releaseResources()
 	{
+		if(activity != null && fragment != null)
+		{
+			activity.getSupportFragmentManager().beginTransaction().remove(fragment).commitAllowingStateLoss();
+		}
 		StickerSearchManager.getInstance().removeStickerSearchListener(this);
 		stickerRecommendView = null;
+		fragment = null;
 	}
-	
+
 	/**
 	 * Consuming touch event on this view
 	 */
 	private OnTouchListener onTouchListener = new OnTouchListener()
 	{
-		
+
 		@Override
 		public boolean onTouch(View v, MotionEvent event)
 		{
