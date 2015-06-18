@@ -101,6 +101,8 @@ public class TextReceiveRunnable implements Runnable
 				while (msgSize > 0)
 				{
 					int len = inputStream.read(msgJSON, offset, msgSize);
+					if(len<0)
+					throw new OfflineException(OfflineException.CLIENT_DISCONNETED);
 					offset += len;
 					msgSize -= len;
 				}

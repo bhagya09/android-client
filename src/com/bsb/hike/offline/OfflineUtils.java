@@ -866,6 +866,10 @@ public class OfflineUtils
 			{
 				buf = new byte[(int) fileSize];
 				len = inputStream.read(buf);
+				if(len<0)
+				{
+					throw new OfflineException(OfflineException.EXCEPTION_IN_COPY_FILE);
+				}
 				fileSize -= len;
 				out.write(buf, 0, len);
 
