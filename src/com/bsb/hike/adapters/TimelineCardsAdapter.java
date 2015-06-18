@@ -43,6 +43,7 @@ import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.smartImageLoader.IconLoader;
 import com.bsb.hike.smartImageLoader.TimelineImageLoader;
 import com.bsb.hike.ui.HomeActivity;
+import com.bsb.hike.ui.ImageViewerActivity;
 import com.bsb.hike.ui.PeopleActivity;
 import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.ui.StatusUpdate;
@@ -517,13 +518,10 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			
             int[] screenLocation = new int[2];
             v.getLocationOnScreen(screenLocation);
-			int orientation = mContext.getResources().getConfiguration().orientation;
-			String PACKAGE = "com.bsb.hike";
-			arguments.putInt(PACKAGE + ".orientation", orientation);
-			arguments.putInt(PACKAGE + ".left", screenLocation[0]);
-			arguments.putInt(PACKAGE + ".top", screenLocation[1]);
-			arguments.putInt(PACKAGE + ".width", v.getWidth());
-			arguments.putInt(PACKAGE + ".height", v.getHeight());
+			arguments.putInt(ImageViewerActivity.animFromLeft, screenLocation[0]);
+			arguments.putInt(ImageViewerActivity.animFromTop , screenLocation[1]);
+			arguments.putInt(ImageViewerActivity.animFromWidth , v.getWidth());
+			arguments.putInt(ImageViewerActivity.animFromHeight , v.getHeight());
 
 			HikeMessengerApp.getPubSub().publish(HikePubSub.SHOW_IMAGE, arguments);
 

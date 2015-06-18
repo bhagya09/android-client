@@ -1,18 +1,12 @@
 package com.bsb.hike.ui;
 
-import android.animation.TimeInterpolator;
 import android.app.ProgressDialog;
-import android.graphics.ColorMatrix;
-import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.Loader;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewTreeObserver;
-import android.view.animation.AccelerateInterpolator;
-import android.view.animation.DecelerateInterpolator;
-import android.view.animation.OvershootInterpolator;
 import android.widget.ImageView;
 
 import com.actionbarsherlock.internal.nineoldandroids.animation.ObjectAnimator;
@@ -41,19 +35,9 @@ public class ImageViewerActivity extends FragmentActivity implements OnClickList
 
 	private int imageSize;
 
-	public static final int FROM_PROFILE_ACTIVITY = 1;
-
-	public static final int FROM_SETTINGS_ACTIVITY = 2;
-
-	private int whichActivity;
-
-	private DisplayPictureEditListener mProfilePhotoEditListener;
-
 	private String[] profilePicPubSubListeners = { HikePubSub.ICON_CHANGED };
 
-	private boolean isViewEditable = false;
-
-	private View background;
+	private View fadeScreen;
 
 	int mLeftDelta;
 
@@ -65,16 +49,26 @@ public class ImageViewerActivity extends FragmentActivity implements OnClickList
 
 	private final String TAG = ImageViewerActivity.class.getSimpleName();
 
+	public static final String animFromLeft = "animFromLeft";
+
+	public static final String animFromTop = "animFromTop";
+
+	public static final String animFromWidth = "animFromWidth";
+
+	public static final String animFromHeight = "animFromHeight";
+
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
 		overridePendingTransition(0, 0);
+
 		super.onCreate(savedInstanceState);
+
 		setContentView(R.layout.image_viewer_activity);
+
+		initReferences();
+
 		HikeMessengerApp.getPubSub().addListeners(this, profilePicPubSubListeners);
-		imageView = (ImageView) findViewById(R.id.image);
-		imageView.setOnClickListener(this);
-		background = findViewById(R.id.bg_screen);
 
 		Bundle extras = getIntent().getExtras();
 
@@ -84,12 +78,13 @@ public class ImageViewerActivity extends FragmentActivity implements OnClickList
 
 		imageSize = getApplicationContext().getResources().getDimensionPixelSize(R.dimen.timeine_big_picture_size);
 
-		String PACKAGE_NAME = "com.bsb.hike";
-		final int thumbnailTop = extras.getInt(PACKAGE_NAME + ".top");
-		final int thumbnailLeft = extras.getInt(PACKAGE_NAME + ".left");
-		final int thumbnailWidth = extras.getInt(PACKAGE_NAME + ".width");
-		final int thumbnailHeight = extras.getInt(PACKAGE_NAME + ".height");
-		final int mOriginalOrientation = extras.getInt(PACKAGE_NAME + ".orientation");
+		final int thumbnailTop = extras.getInt(animFromTop);
+
+		final int thumbnailLeft = extras.getInt(animFromLeft);
+
+		final int thumbnailWidth = extras.getInt(animFromWidth);
+
+		final int thumbnailHeight = extras.getInt(animFromHeight);
 
 		Logger.d(TAG, "thumbnailTop " + thumbnailTop);
 
@@ -100,6 +95,7 @@ public class ImageViewerActivity extends FragmentActivity implements OnClickList
 		Logger.d(TAG, "thumbnailHeight " + thumbnailHeight);
 
 		ViewTreeObserver observer = imageView.getViewTreeObserver();
+
 		observer.addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener()
 		{
 
@@ -111,8 +107,11 @@ public class ImageViewerActivity extends FragmentActivity implements OnClickList
 				// Figure out where the thumbnail and full size versions are, relative
 				// to the screen and each other
 				int[] screenLocation = new int[2];
+
 				imageView.getLocationOnScreen(screenLocation);
+
 				mLeftDelta = thumbnailLeft - screenLocation[0];
+
 				mTopDelta = thumbnailTop - screenLocation[1];
 
 				// Scale factors to make the large version the same size as the thumbnail
@@ -138,17 +137,15 @@ public class ImageViewerActivity extends FragmentActivity implements OnClickList
 		showImage();
 	}
 
-	private static final TimeInterpolator sDecelerator = new DecelerateInterpolator();
+	private void initReferences()
+	{
+		imageView = (ImageView) findViewById(R.id.image);
+		fadeScreen = findViewById(R.id.bg_screen);
 
-	private static final TimeInterpolator sAccelerator = new AccelerateInterpolator();
-
-	private static final TimeInterpolator sOverShootInterpolator = new OvershootInterpolator();
+		imageView.setOnClickListener(this);
+	}
 
 	private static final int ANIM_DURATION = 500;
-
-	private BitmapDrawable mBitmapDrawable;
-
-	private ColorMatrix colorizerMatrix = new ColorMatrix();
 
 	public void runEnterAnimation()
 	{
@@ -173,99 +170,51 @@ public class ImageViewerActivity extends FragmentActivity implements OnClickList
 				// Animate the description in after the image animation
 				// is done. Slide and fade the text in from underneath
 				// the picture.
-				// // Fade in the black background
-				
+
 			}
 		});
 
-
-		ObjectAnimator bgAnim = ObjectAnimator.ofFloat(background, "alpha", 0f, 1f);
+		ObjectAnimator bgAnim = ObjectAnimator.ofFloat(fadeScreen, "alpha", 0f, 1f);
 		bgAnim.setDuration(700);
 		bgAnim.start();
-		
-		//
-		// // Animate a color filter to take the image from grayscale to full color.
-		// // This happens in parallel with the image scaling and moving into place.
-		// ObjectAnimator colorizer = ObjectAnimator.ofFloat(PictureDetailsActivity.this,
-		// "saturation", 0, 1);
-		// colorizer.setDuration(duration);
-		// colorizer.start();
-
-		// // Animate a drop-shadow of the image
-		// ObjectAnimator shadowAnim = ObjectAnimator.ofFloat(mShadowLayout, "shadowDepth", 0, 1);
-		// shadowAnim.setDuration(duration);
-		// shadowAnim.start();
 	}
-	
-	 /**
-     * The exit animation is basically a reverse of the enter animation, except that if
-     * the orientation has changed we simply scale the picture back into the center of
-     * the screen.
-     * 
-     * @param endAction This action gets run after the animation completes (this is
-     * when we actually switch activities)
-     */
-    public void runExitAnimation(final Runnable endAction) {
-        final long duration = (long) (ANIM_DURATION);
 
-        // No need to set initial values for the reverse animation; the image is at the
-        // starting size/location that we want to start from. Just animate to the
-        // thumbnail size/location that we retrieved earlier 
-        
+	/**
+	 * The exit animation is basically a reverse of the enter animation, except that if the orientation has changed we simply scale the picture back into the center of the screen.
+	 * 
+	 * @param endAction
+	 *            This action gets run after the animation completes (this is when we actually switch activities)
+	 */
+	public void runExitAnimation(final Runnable endAction)
+	{
+		// Animate image back to thumbnail size/location
+		imageView.animate().setDuration(300).scaleX(mWidthScale).scaleY(mHeightScale).translationX(mLeftDelta).translationY(mTopDelta).alpha(0f).withEndAction(endAction);
+		ObjectAnimator bgAnim = ObjectAnimator.ofFloat(fadeScreen, "alpha", 0);
+		bgAnim.setDuration(300);
+		bgAnim.start();
+	}
 
-        // First, slide/fade text out of the way
-//        mTextView.animate().translationY(-mTextView.getHeight()).alpha(0).
-//                setDuration(duration/2).setInterpolator(sAccelerator).
-//                withEndAction(new Runnable() {
-//                    public void run() {
-//                      
-//                    }
-//                });
-        
-        // Animate image back to thumbnail size/location
-        imageView.animate().setDuration(300).
-                scaleX(mWidthScale).scaleY(mHeightScale).
-                translationX(mLeftDelta).translationY(mTopDelta).alpha(0f).
-                withEndAction(endAction);
-//        	imageView.animate().alpha(0);
-        // Fade out background
-        ObjectAnimator bgAnim = ObjectAnimator.ofFloat(background, "alpha", 0);
-        bgAnim.setDuration(300);
-        bgAnim.start();
+	@Override
+	public void onBackPressed()
+	{
+		runExitAnimation(new Runnable()
+		{
+			public void run()
+			{
+				finish();
+			}
+		});
+	}
 
-//        // Animate the shadow of the image
-//        ObjectAnimator shadowAnim = ObjectAnimator.ofFloat(mShadowLayout,
-//                "shadowDepth", 1, 0);
-//        shadowAnim.setDuration(duration);
-//        shadowAnim.start();
+	@Override
+	public void finish()
+	{
+		super.finish();
 
-        // Animate a color filter to take the image back to grayscale,
-        // in parallel with the image scaling and moving into place.
-//        ObjectAnimator colorizer =
-//                ObjectAnimator.ofFloat(PictureDetailsActivity.this,
-//                "saturation", 1, 0);
-//        colorizer.setDuration(duration);
-//        colorizer.start();
+		// override transitions to skip the standard window animations
+		overridePendingTransition(0, 0);
+	}
 
-        
-    }
-    
-    @Override
-    public void onBackPressed() {
-        runExitAnimation(new Runnable() {
-            public void run() {
-                finish();
-            }
-        });
-    }
-
-    @Override
-    public void finish() {
-        super.finish();
-        
-        // override transitions to skip the standard window animations
-        overridePendingTransition(0, 0);
-    }
 	private void showImage()
 	{
 		key = mappedId;
@@ -318,82 +267,10 @@ public class ImageViewerActivity extends FragmentActivity implements OnClickList
 		HikeMessengerApp.getPubSub().removeListeners(this, profilePicPubSubListeners);
 	}
 
-	// @Override
-	// public void onCreateOptionsMenu(Menu menu, MenuInflater inflater)
-	// {
-	// menu.clear();
-	//
-	// if (isViewEditable)
-	// {
-	// inflater.inflate(R.menu.edit_dp, menu);
-	// }
-	// }
-	//
-	// @Override
-	// public boolean onOptionsItemSelected(MenuItem item)
-	// {
-	// switch (item.getItemId())
-	// {
-	// case R.id.edit_dp:
-	// if (mProfilePhotoEditListener != null)
-	// {
-	// mProfilePhotoEditListener.onDisplayPictureEditClicked(whichActivity);
-	// }
-	// break;
-	// }
-	// return true;
-	// }
-
-	// @Override
-	// public void onAttach(Activity activity)
-	// {
-	// super.onAttach(activity);
-	//
-	// if (activity instanceof SettingsActivity)
-	// {
-	// whichActivity = FROM_SETTINGS_ACTIVITY;
-	// }
-	// else if (activity instanceof ProfileActivity)
-	// {
-	// whichActivity = FROM_PROFILE_ACTIVITY;
-	// }
-	//
-	// isViewEditable = extras.getBoolean(HikeConstants.CAN_EDIT_DP);
-	//
-	// if (isViewEditable)
-	// {
-	// // activity should implement DisplayPictureEditListener interface
-	// try
-	// {
-	// mProfilePhotoEditListener = (DisplayPictureEditListener) activity;
-	// }
-	// catch (ClassCastException e)
-	// {
-	// throw new ClassCastException(activity.toString() + " must implement DisplayPictureEditListener");
-	// }
-	// }
-	// }
-	//
-	// private void dismissProgressDialog()
-	// {
-	// if (mDialog != null)
-	// {
-	// mDialog.dismiss();
-	// mDialog = null;
-	// }
-	// }
-
 	@Override
 	public void onClick(View v)
 	{
-		// /*
-		// * This object can become null, if the method is called when the fragment is not attached with the activity. In that case we do nothing and return.
-		// */
-		// if (getActivity() == null)
-		// {
-		// return;
-		// }
-		// getActivity().onBackPressed();
+		// TODO
 	}
 
 	public interface DisplayPictureEditListener
