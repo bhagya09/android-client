@@ -2,6 +2,7 @@ package com.bsb.hike.photos.views;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Bitmap.Config;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -55,7 +56,7 @@ public class EffectsImageView extends ImageView implements OnTouchListener
 	{
 		if (!isScaled && currentFilter == FilterType.ORIGINAL)
 		{
-			listener.onFilterApplied(HikePhotosUtils.createBitmap(bitmap, 0, 0, 0, 0, true, false, false, true));
+			listener.onFilterApplied(HikePhotosUtils.createBitmap(bitmap, 0, 0, 0, 0, true, false, false, true,Config.ARGB_8888));
 			// done to handle case when backk is pressed after saving to have seperate layer for doodle
 			// t do disable back on Next Presssed
 		}

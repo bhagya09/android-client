@@ -408,7 +408,7 @@ public class Utils
 		// capturing new media.
 		if (TextUtils.isEmpty(orgFileName))
 		{
-			orgFileName = getOriginalFile(type, orgFileName);
+			orgFileName = getUniqueFilename(type);
 		}
 
 		// String fileName = getUniqueFileName(orgFileName, fileKey);
@@ -416,30 +416,28 @@ public class Utils
 		return new File(mediaStorageDir, orgFileName);
 	}
 
-	public static String getOriginalFile(HikeFileType type, String orgFileName)
+	public static String getUniqueFilename(HikeFileType type)
 	{
 		// Create a media file name
 		// String timeStamp = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss.SSS")
 		// .format(new Date());
 		String timeStamp = Long.toString(System.currentTimeMillis());
-		// File name should only be blank in case of profile images or while
-		// capturing new media.
-		if (TextUtils.isEmpty(orgFileName))
+		String orgFileName = null;
+		
+		switch (type)
 		{
-			switch (type)
-			{
-			case PROFILE:
-			case IMAGE:
-				orgFileName = "IMG_" + timeStamp + ".jpg";
-				break;
-			case VIDEO:
-				orgFileName = "MOV_" + timeStamp + ".mp4";
-				break;
-			case AUDIO:
-			case AUDIO_RECORDING:
-				orgFileName = "AUD_" + timeStamp + ".m4a";
-			}
+		case PROFILE:
+		case IMAGE:
+			orgFileName = "IMG_" + timeStamp + ".jpg";
+			break;
+		case VIDEO:
+			orgFileName = "MOV_" + timeStamp + ".mp4";
+			break;
+		case AUDIO:
+		case AUDIO_RECORDING:
+			orgFileName = "AUD_" + timeStamp + ".m4a";
 		}
+		
 		return orgFileName;
 	}
 
@@ -453,7 +451,7 @@ public class Utils
 				return null;
 			}
 		}
-		String fileName = prefix + Utils.getOriginalFile(type, null);
+		String fileName = prefix + Utils.getUniqueFilename(type);
 		File selectedFile = new File(selectedDir.getPath() + File.separator + fileName);
 		return selectedFile;
 	}
@@ -1412,7 +1410,7 @@ public class Utils
 		if(returnFilePath == null && checkForPicassaUri && isPicasaUri(fileUriString))
 		{
 			
-			String timeStamp = Utils.getOriginalFile(HikeFileType.IMAGE, null);
+			String timeStamp = Utils.getUniqueFilename(HikeFileType.IMAGE);
 			File file = null;
 			try
 			{
