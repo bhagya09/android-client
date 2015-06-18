@@ -136,7 +136,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 			saveToDb((ConvMessage) msg.obj);
 			break;
 		case OfflineConstants.HandlerConstants.DISCONNECT_AFTER_TIMEOUT:
-			disconnect((String) msg.obj);
+			shutDown(new OfflineException(OfflineException.CONNECTION_TIME_OUT));
 			break;
 		case OfflineConstants.HandlerConstants.CREATE_HOTSPOT:
 			connectionManager.createHotspot((String) msg.obj);
@@ -237,14 +237,6 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 	{
 		// TODO : Restore back to previous deviceName
 		connectionManager.setDeviceNameAsMsisdn();
-	}
-
-	public void disconnect(String msisdn)
-	{
-
-		// Since disconnect is called, stop sending ghost packets
-		removeMessage(OfflineConstants.HandlerConstants.SEND_GHOST_PACKET);
-		shutDown(new OfflineException(OfflineException.GHOST_PACKET_NOT_RECEIVED));
 	}
 
 	public synchronized void addToTextQueue(JSONObject message)
@@ -357,13 +349,11 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 
 			if (currentReceivingFiles.containsKey(msgId))
 			{
-				// Logger.d("Spinner", "Current Msg Id -> " + msgId);
 				fss = new FileSavedState(FTState.IN_PROGRESS, (int) file.length(), currentReceivingFiles.get(msgId).getTransferProgress().getCurrentChunks() * 1024);
 
 			}
 			else
 			{
-				// Logger.d("Spinner", "Completed Msg Id -> " + msgId);
 				fss = new FileSavedState(FTState.COMPLETED, hikeFile.getFileKey());
 			}
 		}
@@ -382,7 +372,6 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 
 	public void addToCurrentReceivingFile(long msgId, FileTransferModel fileTransferModel)
 	{
-		Logger.d(TAG, "addToCurrentReceivingFile msg id is " + msgId);
 		currentReceivingFiles.put(msgId, fileTransferModel);
 	}
 
@@ -409,7 +398,6 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 		{
 			if (currentSendingFiles.containsKey(msgId))
 			{
-				Logger.d(TAG, "Removing message from removeFromCurrentSendingFile " + "..." + msgId);
 				currentSendingFiles.remove(msgId);
 			}
 		}
@@ -658,7 +646,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 		msg.obj = msisdn;
 		performWorkOnBackEndThread(msg);
 		threadManager.startReceivingThreads();
-		// waitForConnection(msisdn);
+		waitForConnection(msisdn);
 	}
 
 	// Call removed from createHotspot method
@@ -905,8 +893,8 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 			if (Utils.isHoneycombOrHigher())
 				holder.circularProgress.stopAnimation();
 
-			Logger.d("Spinner", "" + "holder.circularProgress=" + holder.circularProgress.getCurrentProgress()*100
-					+ " Progress=" + progress);
+			//Logger.d("Spinner", "" + "holder.circularProgress=" + holder.circularProgress.getCurrentProgress()*100
+				//	+ " Progress=" + progress);
 			
 			float animatedProgress = 0 * 0.01f;
 			if (fss.getTotalSize() > 0)
@@ -1013,7 +1001,6 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 		setInOfflineFileTransferInProgress(false);
 		removeAllMessages();
 		startedForChatThread = false;
-		HikeAlarmManager.cancelAlarm(context, HikeAlarmManager.REQUESTCODE_OFFLINE);
 	}
 
 	public void setConnectedDevice(String connectedDevice2)
@@ -1021,7 +1008,8 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 		this.connectedDevice = connectedDevice2;
 	}
 
-	public void handleRetryButton(ConvMessage convMessage) {
+	public void handleRetryButton(ConvMessage convMessage)
+	{
 		if (getOfflineState() != OFFLINE_STATE.CONNECTED)
 		{
 			HikeMessengerApp.getInstance().showToast("You are not connected..!! Kindly connect.");
