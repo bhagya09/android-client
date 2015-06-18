@@ -182,6 +182,12 @@ public class TextReceiveRunnable implements Runnable
 						// HikeMessengerApp.getPubSub().publish(HikePubSub.OFFLINE_THEME_CHANGE_MESSAGE, messageJSON);
 						messageJSON.put(HikeConstants.TIMESTAMP, System.currentTimeMillis() / 1000);
 						MqttMessagesManager.getInstance(HikeMessengerApp.getInstance().getApplicationContext()).saveChatBackground(messageJSON);
+						
+						long mappedMsgId = OfflineUtils.getMsgId(messageJSON);
+						
+						// send ack for the chatTheme  packet 
+						JSONObject ackJSON = OfflineUtils.createAckPacket(offlineManager.getConnectedDevice(), mappedMsgId, false);
+						offlineManager.addToTextQueue(ackJSON);
 						continue;
 					}
 					else if(OfflineUtils.isDisconnectPkt(messageJSON))

@@ -20,6 +20,7 @@ import android.net.wifi.p2p.WifiP2pManager.PeerListListener;
 import android.text.TextUtils;
 
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikeMessengerApp.CurrentState;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.utils.Logger;
 
@@ -249,11 +250,36 @@ public class ConnectionManager implements ChannelListener
 		// save current WifiHotspot Name
 		Logger.d("OfflineManager","wil create hotspot for "+wifiP2pDeviceName);
 		saveCurrentHotspotSSID();
+		if(isHotspotCreated())
+		{
+			closeExistingHotspot(prevConfig);
+		}
 		Boolean result = setWifiApEnabled(wifiP2pDeviceName, true);
 		Logger.d("OfflineManager", "HotSpot creation result is "+ result);
 		return result;
 	}
-	public Boolean closeHotspot(String targetMsisdn)
+	private boolean closeExistingHotspot(WifiConfiguration prevConfig2) {
+		boolean result = false;
+		wifiManager.setWifiEnabled(false);
+		Method enableWifi;
+		try {
+			enableWifi = wifiManager.getClass().getMethod("setWifiApEnabled", WifiConfiguration.class, boolean.class);
+		} catch (NoSuchMethodException e) {
+			Logger.e(TAG,e.toString());
+			return result;
+		}
+		try {
+			result = (Boolean) enableWifi.invoke(wifiManager,prevConfig2,false);
+		} catch (IllegalAccessException | IllegalArgumentException
+				| InvocationTargetException e) {
+			Logger.e(TAG,e.toString());
+			return result;
+		}
+		
+		return result;
+	}
+
+	public Boolean closeHikeHotspot(String targetMsisdn)
 	{
 		Logger.d(TAG, "going to close hotspot");
 		Boolean result = setWifiApEnabled(targetMsisdn, false);
@@ -364,7 +390,7 @@ public class ConnectionManager implements ChannelListener
 		Boolean isWifiHotspotRunning = isHotspotCreated();
 		if(isWifiHotspotRunning)
 		{
-			closeHotspot(msisdn);
+			closeHikeHotspot(msisdn);
 		}
 		else
 		{
@@ -426,7 +452,7 @@ public class ConnectionManager implements ChannelListener
 		boolean isWifiHotspotRunning = isHotspotCreated();
 		if (isWifiHotspotRunning)
 		{
-			closeHotspot(deviceName);
+			closeHikeHotspot(deviceName);
 		}
 		else
 		{
