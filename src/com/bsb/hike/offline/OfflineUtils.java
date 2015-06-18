@@ -464,8 +464,12 @@ public class OfflineUtils
 		try
 		{
 			metadata = packet.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA);
-			MessageMetadata md = new MessageMetadata(metadata, true);
-			isFileTransferMessage = md.getHikeFiles() != null && md.getHikeFiles().size() > 0;
+			if(metadata!=null)
+			{
+				MessageMetadata md = new MessageMetadata(metadata, true);
+				isFileTransferMessage = md.getHikeFiles() != null && md.getHikeFiles().size() > 0;
+			}
+			
 		}
 		catch (JSONException e)
 		{
