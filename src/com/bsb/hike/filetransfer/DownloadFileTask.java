@@ -24,6 +24,7 @@ import android.text.TextUtils;
 import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants.FTResult;
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
@@ -176,7 +177,7 @@ public class DownloadFileTask extends FileTransferBase
 				{
 					conn.setRequestProperty("Cookie", "user=" + token + ";UID=" + uId);
 					conn.setRequestProperty("Range", "bytes=" + byteRange);
-					conn.setConnectTimeout(10000);
+					conn.setConnectTimeout(HikeConstants.CONNECT_TIMEOUT);
 				}
 				catch (Exception e)
 				{
