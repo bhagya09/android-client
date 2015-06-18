@@ -2203,6 +2203,8 @@ public class HikeConstants
 		public static final String GAMES = "games";
 
 		public static final String DISPLAY_PIC = "dp";
+		
+		public static final String SYNC = "sync";
 
 		public static final String STATUS_UPDATE = "su";
 
