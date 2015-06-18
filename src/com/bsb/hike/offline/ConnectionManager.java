@@ -37,8 +37,8 @@ public class ConnectionManager implements ChannelListener
 	private Channel channel;
     private String myMsisdn =null;
 	private String TAG = ConnectionManager.class.getName();
-    private WifiConfiguration prevConfig;
-	private int connectedNetworkId;
+    private WifiConfiguration prevConfig = null;
+	private int connectedNetworkId = -1;
 	private ConnectionManager()
 	{
     	init();
@@ -437,5 +437,11 @@ public class ConnectionManager implements ChannelListener
 				wifiManager.disconnect();
 			}
 		}
+		clearAllVariables();
+	}
+
+	private void clearAllVariables() {
+		prevConfig = null;
+		connectedNetworkId = -1;
 	}
 }
