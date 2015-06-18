@@ -1080,10 +1080,6 @@ public class ConversationsAdapter extends BaseAdapter
 	
 	public void addToLists(ConvInfo convInfo)
 	{
-		if(Utils.isOfflineConversation(convInfo.getMsisdn()))
-		{
-			convInfo=new OfflineConvInfo.OfflineBuilder(convInfo.getMsisdn()).setDisplayMsisdn(convInfo.getMsisdn().replace("o:", "")).setOnHike(true).build();
-		}
 		conversationList.add(convInfo);
 		if(conversationsMsisdns!=null)
 		{

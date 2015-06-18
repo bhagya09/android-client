@@ -38,6 +38,7 @@ import com.bsb.hike.filetransfer.FileSavedState;
 import com.bsb.hike.filetransfer.FileTransferBase.FTState;
 import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.ConvMessage.State;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
@@ -328,6 +329,10 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 				// Logger.d("Spinner", "Current Msg Id -> " + msgId);
 				fss = new FileSavedState(FTState.IN_PROGRESS, (int) file.length(), currentSendingFiles.get(msgId).getTransferProgress().getCurrentChunks() * 1024);
 			}
+			else if (convMessage.getState().equals(State.SENT_UNCONFIRMED))
+			{
+				fss = new FileSavedState(FTState.ERROR, (int) file.length(), 0);
+			}
 			else
 			{
 				// Logger.d("Spinner", "Completed Msg Id -> " + msgId);
@@ -576,8 +581,9 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 				File f = new File(fileUri);
 				long msgId = OfflineUtils.getMsgId(packet);
 				Logger.d(TAG, "Sending msgId: " + msgId);
-				FileTransferModel fileTransferModel=new FileTransferModel(new TransferProgress(0,OfflineUtils.getTotalChunks((int)f.length())), packet);
-				addToFileQueue(fileTransferModel);
+
+				FileTransferModel fileTransferModel = new FileTransferModel(new TransferProgress(0, OfflineUtils.getTotalChunks((int) f.length())), packet);
+				// addToFileQueue(fileTransferModel);
 			}
 			else
 			{
@@ -597,6 +603,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 
 	public void sendGhostPacket()
 	{
+		Logger.d(TAG,"In sendGhostPacket");
 		JSONObject ghost = OfflineUtils.createGhostPacket(getConnectedDevice());
 		addToTextQueue(ghost);
 		// HikeAlarmManager.setAlarm(context, System.currentTimeMillis() + 10000, HikeAlarmManager.REQUESTCODE_OFFLINE, true);
@@ -623,6 +630,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 	public void removeAllMessages()
 	{
 		handler.removeCallbacksAndMessages(null);
+		Logger.d(TAG, "Checking ghost packeted runnable is present or not "+handler.hasMessages(HandlerConstants.SEND_GHOST_PACKET));
 	}
 
 	@Override
@@ -829,6 +837,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 	public void setupFileState(FTViewHolder holder, FileSavedState fss, long msgId, HikeFile hikeFile, boolean isSent, boolean ext)
 	{
 		int playImage = -1;
+		int retryImage = R.drawable.ic_retry_image_video;
 		if (!ext)
 		{
 			playImage = R.drawable.ic_videoicon;
@@ -856,6 +865,12 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 				holder.ftAction.setVisibility(View.VISIBLE);
 				holder.circularProgressBg.setVisibility(View.VISIBLE);
 			}
+			break;
+		case ERROR:
+			holder.ftAction.setImageResource(retryImage);
+			holder.ftAction.setContentDescription(context.getResources().getString(R.string.content_des_retry_file_download));
+			holder.ftAction.setVisibility(View.VISIBLE);
+			holder.circularProgressBg.setVisibility(View.VISIBLE);
 			break;
 		default:
 			break;
@@ -924,7 +939,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 
 		if (getOfflineState() != OFFLINE_STATE.DISCONNECTED)
 		{
-
+			HikeMessengerApp.getInstance().showToast("Disconnected Reason "+ exception.getReasonCode());
 			sendDisconnectToListeners();
 
 			setOfflineState(OFFLINE_STATE.DISCONNECTED);
@@ -934,10 +949,13 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 
 			currentReceivingFiles.clear();
 			currentSendingFiles.clear();
-
+			
+			// if a sending file didn't go change from spinner to retry button
+			HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
+			
 			threadManager.shutDown();
 			connectionManager.closeConnection(getConnectedDevice());
-
+			
 			clearAllVariables();
 
 		}
@@ -1005,6 +1023,19 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 	public void setConnectedDevice(String connectedDevice2)
 	{
 		this.connectedDevice = connectedDevice2;
+	}
+
+	public void handleRetryButton(ConvMessage convMessage) {
+		if (getOfflineState() != OFFLINE_STATE.CONNECTED)
+		{
+			HikeMessengerApp.getInstance().showToast("You are not connected..!! Kindly connect.");
+			return;
+		}
+		HikeFile hikeFile = convMessage.getMetadata().getHikeFiles().get(0);
+		Logger.d(TAG, "Hike File type is: " + hikeFile.getHikeFileType().ordinal());
+		int length = hikeFile.getFileSize();
+		FileTransferModel fileTransferModel = new FileTransferModel(new TransferProgress(0, OfflineUtils.getTotalChunks(length)), convMessage.serialize());
+		addToFileQueue(fileTransferModel);
 	}
 
 }

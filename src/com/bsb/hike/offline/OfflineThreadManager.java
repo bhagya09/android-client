@@ -181,7 +181,19 @@ public class OfflineThreadManager
 			outputStream.write(messageBytes, 0, length);
 			isSent = true;
 		}
-
+		
+		if(OfflineUtils.isDisconnectPkt(packet))
+		{
+			try
+			{
+				Thread.sleep(20);
+			}
+			catch (InterruptedException e)
+			{
+				e.printStackTrace();
+			}
+			throw new OfflineException(OfflineException.DISCONNECT);
+		}
 		// Updating database
 		return isSent;
 	}

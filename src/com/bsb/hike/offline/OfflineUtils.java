@@ -137,7 +137,7 @@ public class OfflineUtils
 		}
 		return false;
 	}
-	
+
 	public static JSONObject createGhostPacket(String msisdn)
 	{
 		return createGhostPacket(msisdn, OfflineUtils.isScreenOn());
@@ -504,29 +504,29 @@ public class OfflineUtils
 		final InputStream is = socket.getInputStream();
 		try
 		{
-			if(socket.isOutputShutdown())
+			if (socket.isOutputShutdown())
 			{
-				Logger.d(TAG,"Output is already  shutdown");
+				Logger.d(TAG, "Output is already  shutdown");
 			}
 			else
 			{
-			socket.shutdownOutput();
+				socket.shutdownOutput();
 			}
 		}
 		catch (IOException e)
 		{
 			Logger.d(TAG, "exception in shutDownOutput");
 		}
-		
+
 		try
 		{
-			if(socket.isInputShutdown())
+			if (socket.isInputShutdown())
 			{
-				Logger.d(TAG,"Input is already  shutdown");
+				Logger.d(TAG, "Input is already  shutdown");
 			}
 			else
 			{
-			socket.shutdownInput();
+				socket.shutdownInput();
 			}
 		}
 		catch (IOException e)
@@ -536,7 +536,7 @@ public class OfflineUtils
 
 		HikeHandlerUtil.getInstance().postRunnableWithDelay(new Runnable()
 		{
-			
+
 			@Override
 			public void run()
 			{
@@ -563,19 +563,18 @@ public class OfflineUtils
 				}
 			}
 		}, 0);
-		
-		
+
 		// "read()" returns '-1' when the 'FIN' is reached
 
 	}
 
 	public static void closeSocket(ServerSocket serverSocket) throws IOException
 	{
-		if(serverSocket==null)
+		if (serverSocket == null)
 		{
 			return;
 		}
-			serverSocket.close();
+		serverSocket.close();
 	}
 
 	public static void putStkLenInPkt(JSONObject packet, long length)
@@ -594,7 +593,7 @@ public class OfflineUtils
 			}
 		}
 	}
-	
+
 	public static long getStkLenFrmPkt(JSONObject packet)
 	{
 		if (packet.optJSONObject(HikeConstants.DATA) != null)
@@ -692,93 +691,110 @@ public class OfflineUtils
 		}
 		return ackJSON;
 	}
-	
+
 	public static boolean isAckForFileMessage(JSONObject ackJSON)
 	{
 		boolean ackForFileTransfer = false;
-		try {
-			if (ackJSON.has(HikeConstants.SUB_TYPE) && 
-					ackJSON.get(HikeConstants.SUB_TYPE).equals(OfflineConstants.ACK))
+		try
+		{
+			if (ackJSON.has(HikeConstants.SUB_TYPE) && ackJSON.get(HikeConstants.SUB_TYPE).equals(OfflineConstants.ACK))
 			{
-				
+
 				ackForFileTransfer = ackJSON.optBoolean(OfflineConstants.FILE_TRANSFER_ACK);
 			}
-		} catch (JSONException e) {
+		}
+		catch (JSONException e)
+		{
 			e.printStackTrace();
 		}
 		return ackForFileTransfer;
 	}
-	
+
 	public static long getMsgIdFromAckPacket(JSONObject ackJSON)
 	{
 		long msgId = -1;
-		try {
-			if (ackJSON.has(HikeConstants.SUB_TYPE) && 
-					ackJSON.get(HikeConstants.SUB_TYPE).equals(OfflineConstants.ACK))
+		try
+		{
+			if (ackJSON.has(HikeConstants.SUB_TYPE) && ackJSON.get(HikeConstants.SUB_TYPE).equals(OfflineConstants.ACK))
 			{
-				
+
 				msgId = ackJSON.optLong(OfflineConstants.MSG_ID, -1);
 			}
-		} catch (JSONException e) {
+		}
+		catch (JSONException e)
+		{
 			e.printStackTrace();
 		}
 		return msgId;
 	}
-	
+
 	public static boolean isAckPacket(JSONObject ackJSON)
 	{
 		if (ackJSON.has(HikeConstants.SUB_TYPE))
 		{
-			try {
+			try
+			{
 				return ackJSON.get(HikeConstants.SUB_TYPE).equals(OfflineConstants.ACK);
-			} catch (JSONException e) {
+			}
+			catch (JSONException e)
+			{
 				e.printStackTrace();
 			}
 		}
-		
+
 		return false;
 	}
-    
-    public static  boolean isAvailable(Socket _socket_){
-        if (isConnected(_socket_)) {
-            try
-            {
-                if (_socket_.getInetAddress() == null) {
-                    return false;
-                }
-                if (_socket_.getPort() == 0) {
-                    return false;
-                }
-                if (_socket_.getRemoteSocketAddress() == null) {
-                    return false;
-                }
-                if (_socket_.isClosed()) {
-                    return false;
-                }
-                /* these aren't exact checks (a Socket can be half-open),
-                   but since we usually require two-way data transfer,
-                   we check these here too: */
-                if (_socket_.isInputShutdown()) {
-                    return false;
-                }
-                if (_socket_.isOutputShutdown()) {
-                    return false;
-                }
-                /* ignore the result, catch exceptions: */
-                _socket_.getInputStream();
-                _socket_.getOutputStream();
-            }
-            catch (IOException ioex)
-            {
-                return false;
-            }
-            return true;
-        } else {
-            return false;
-        }
-    }
-    
-    public static boolean isConnected(Socket _socket_)
+
+	public static boolean isAvailable(Socket _socket_)
+	{
+		if (isConnected(_socket_))
+		{
+			try
+			{
+				if (_socket_.getInetAddress() == null)
+				{
+					return false;
+				}
+				if (_socket_.getPort() == 0)
+				{
+					return false;
+				}
+				if (_socket_.getRemoteSocketAddress() == null)
+				{
+					return false;
+				}
+				if (_socket_.isClosed())
+				{
+					return false;
+				}
+				/*
+				 * these aren't exact checks (a Socket can be half-open), but since we usually require two-way data transfer, we check these here too:
+				 */
+				if (_socket_.isInputShutdown())
+				{
+					return false;
+				}
+				if (_socket_.isOutputShutdown())
+				{
+					return false;
+				}
+				/* ignore the result, catch exceptions: */
+				_socket_.getInputStream();
+				_socket_.getOutputStream();
+			}
+			catch (IOException ioex)
+			{
+				return false;
+			}
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	public static boolean isConnected(Socket _socket_)
 	{
 		if (_socket_ == null)
 		{
@@ -792,13 +808,14 @@ public class OfflineUtils
 	{
 		return messageJSON.optBoolean("screen", false);
 	}
-	
+
 	public static boolean copyFile(InputStream inputStream, OutputStream outputStream, long fileSize) throws OfflineException
 	{
 		return copyFile(inputStream, outputStream, null, false, false, fileSize);
 	}
 
-	public static boolean copyFile(InputStream inputStream, OutputStream out, FileTransferModel fileTransferModel, boolean showProgress, boolean isSent, long fileSize) throws OfflineException
+	public static boolean copyFile(InputStream inputStream, OutputStream out, FileTransferModel fileTransferModel, boolean showProgress, boolean isSent, long fileSize)
+			throws OfflineException
 	{
 		byte buf[] = new byte[OfflineConstants.CHUNK_SIZE];
 		int len = 0;
@@ -813,8 +830,8 @@ public class OfflineUtils
 				int readLen = 0;
 				readLen = inputStream.read(buf, 0, OfflineConstants.CHUNK_SIZE);
 				if (readLen < 0)
-					throw new OfflineException(OfflineException.CLIENT_DISCONNETED);
-				
+					throw new OfflineException(OfflineException.EXCEPTION_IN_COPY_FILE);
+
 				out.write(buf, 0, readLen);
 				len += readLen;
 				fileSize -= readLen;
@@ -839,7 +856,7 @@ public class OfflineUtils
 		catch (IOException e)
 		{
 			Logger.e("Spinner", "Exception in copyFile: ", e);
-			throw new OfflineException(e, OfflineException.CLIENT_DISCONNETED);
+			throw new OfflineException(e, OfflineException.EXCEPTION_IN_COPY_FILE);
 		}
 		return isCopied;
 	}
@@ -853,4 +870,25 @@ public class OfflineUtils
 
 		HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
 	}
+
+	public static JSONObject createDisconnectPkt(String msisdn)
+	{
+		JSONObject disconnect = new JSONObject();
+		try
+		{
+			disconnect.put(HikeConstants.TO, msisdn);
+			disconnect.put(HikeConstants.TYPE, "d");
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+		return disconnect;
+	}
+	
+	public static boolean isDisconnectPkt(JSONObject disconnect)
+	{
+		return disconnect.optString(HikeConstants.TYPE, "").equals("d");
+	}
+
 }
