@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
@@ -55,14 +54,11 @@ public class HikePhotosUtils
 	 * 
 	 * Util method which converts the dp value into float(pixel value) based on the given context resources
 	 * 
-	 * @param context
-	 *            : Context of the application dps : Value in DP
-	 * 
 	 * @return value in pixel
 	 */
-	public static int dpToPx(Context context, int dps)
+	public static int dpToPx(int dps)
 	{
-		final float scale = context.getResources().getDisplayMetrics().density;
+		final float scale = HikeMessengerApp.getInstance().getApplicationContext().getResources().getDisplayMetrics().density;
 		int pixels = (int) (dps * scale + 0.5f);
 
 		return pixels;
@@ -73,7 +69,6 @@ public class HikePhotosUtils
 	 * http://stackoverflow.com/questions/4605527/converting-pixels-to-dp
 	 * 
 	 * @param px A value in px (pixels) unit. Which we need to convert into db
-	 * @param context Context to get resources and device specific display metrics
 	 * @return A float value to represent dp equivalent to px value
 	 */
 	public static float pxToDp(float px){
