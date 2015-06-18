@@ -790,7 +790,12 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	{
 		menu.findItem(R.id.overflow_menu).setVisible(value);
 		menu.findItem(R.id.new_conversation).setVisible(value);
-		menu.findItem(R.id.take_pic).setVisible(value);
+
+		MenuItem takePicItem = menu.findItem(R.id.take_pic);
+		if (takePicItem != null) // This will happen if photos edit option is disabled
+		{
+			takePicItem.setVisible(value);
+		}
 	}
 
 	private OnQueryTextListener onQueryTextListener = new OnQueryTextListener()
