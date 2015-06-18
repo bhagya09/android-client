@@ -12,6 +12,7 @@ import java.util.Set;
 
 import com.bsb.hike.models.Conversation.BotConversation;
 import com.bsb.hike.view.CustomFontButton;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -101,6 +102,7 @@ import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.modules.stickerdownloadmgr.IStickerResultListener;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerDownloadManager;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerException;
+import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.offline.OfflineManager;
 import com.bsb.hike.platform.CardRenderer;
 import com.bsb.hike.platform.WebViewCardRenderer;
@@ -3345,7 +3347,17 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			if (convMessage.isSent())
 			{
 				Logger.d(getClass().getSimpleName(), "Hike File name: " + hikeFile.getFileName() + " File key: " + hikeFile.getFileKey());
-
+				
+				if (conversation instanceof OfflineConversation)
+				{
+					FileSavedState offlineFss = OfflineManager.getInstance().getFileState(convMessage, hikeFile.getFile());
+					if (offlineFss.getFTState() == FTState.ERROR)
+					{
+						OfflineManager.getInstance().handleRetryButton(convMessage);
+						return;
+					}	
+				}
+				
 				if (!TextUtils.isEmpty(hikeFile.getFileKey()))
 				{
 					openFile(hikeFile, convMessage, v);

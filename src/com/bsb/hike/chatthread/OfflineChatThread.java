@@ -304,15 +304,15 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 		switch (item.getItemId())
 		{
 		case R.id.attachment:
-			if (TextUtils.isEmpty(controller.getConnectedDevice()) || (!controller.getConnectedDevice().equals(mConversation.getDisplayMsisdn())))
-			{
-				showToast("You are Disconnected.Kindly connect Hike Direct");
-			}
-			else
-			{
+//			if (TextUtils.isEmpty(controller.getConnectedDevice()) || (!controller.getConnectedDevice().equals(mConversation.getDisplayMsisdn())))
+//			{
+//				showToast("You are Disconnected.Kindly connect Hike Direct");
+//			}
+//			else
+//			{
 				showOfflineAttchmentPicker();
 				activity.showProductPopup(ProductPopupsConstants.PopupTriggerPoints.ATCH_SCR.ordinal());
-			}
+			//}
 			return true;
 		}
 		return false;
