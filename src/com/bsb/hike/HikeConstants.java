@@ -2821,4 +2821,6 @@ public class HikeConstants
 	public static final String CONTACT_UPDATE_WAIT_TIME = "contactUpdateWaitTime";
 
 	public static final String DELETE_IC_ON_CONTACT_REMOVE = "deleteIcOnContactRemove";
+	
+	public static final String CONTACT_REMOVE_DUPLICATES_WHILE_SYNCING = "contactRemoveDuplicates";
 }
