@@ -108,12 +108,13 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 			android.widget.RelativeLayout.LayoutParams params = (android.widget.RelativeLayout.LayoutParams) stickerRecommendView.getLayoutParams();
 			params.height = StickerSearchUtils.getStickerSize() + 2 * activity.getResources().getDimensionPixelSize(R.dimen.sticker_recommend_padding);
 			stickerRecommendView.setLayoutParams(params);
+			stickerRecommendView.setOnTouchListener(onTouchListener);
 			fragment = StickerRecommendationFragment.newInstance(this, (ArrayList<Sticker>) stickerList);
 			activity.getSupportFragmentManager().beginTransaction().replace(R.id.sticker_recommendation_parent, fragment, HikeConstants.STICKER_RECOMMENDATION_FRAGMENT_TAG)
 					.commitAllowingStateLoss();
 		}
-		stickerRecommendView.setVisibility(View.VISIBLE);
 		((StickerRecommendationFragment) fragment).setAndNotify(stickerList);
+		stickerRecommendView.setVisibility(View.VISIBLE);
 	}
 
 	@Override
@@ -147,6 +148,7 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 		{
 			throw new IllegalStateException("sticker picker is null but sticker is selected");
 		}
+		StickerManager.getInstance().addRecentStickerToPallete(sticker);
 		stickerPickerListener.stickerSelected(sticker, StickerManager.FROM_RECOMMENDATION);
 		dismissStickerSearchPopup();
 	}
@@ -174,7 +176,25 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 
 	public void releaseResources()
 	{
+		if(activity != null && fragment != null)
+		{
+			activity.getSupportFragmentManager().beginTransaction().remove(fragment).commitAllowingStateLoss();
+		}
 		StickerSearchManager.getInstance().removeStickerSearchListener(this);
 		stickerRecommendView = null;
+		fragment = null;
 	}
+
+	/**
+	 * Consuming touch event on this view
+	 */
+	private OnTouchListener onTouchListener = new OnTouchListener()
+	{
+
+		@Override
+		public boolean onTouch(View v, MotionEvent event)
+		{
+			return true;
+		}
+	};
 }

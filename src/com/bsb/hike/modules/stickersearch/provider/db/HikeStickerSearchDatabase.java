@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Locale;
+import java.util.Set;
 
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchUtility;
@@ -360,7 +361,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper {
 		return searchInPrimaryTable(word, rows);
 	}
 
-	public void disableTagsForDeletedStickers(HashSet<String> stickerInfo) {
+	public void disableTagsForDeletedStickers(Set<String> stickerInfo) {
 
 		if (stickerInfo == null || stickerInfo.isEmpty()) return;
 

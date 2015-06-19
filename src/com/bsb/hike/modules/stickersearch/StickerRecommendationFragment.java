@@ -28,6 +28,8 @@ public class StickerRecommendationFragment extends SherlockFragment
 
 	private List<Sticker> stickerList;
 
+	private TwoWayGridView gridView;
+
 	private StickerRecommendationFragment(IStickerRecommendFragmentListener listner)
 	{
 		this.listener = listner;
@@ -57,15 +59,15 @@ public class StickerRecommendationFragment extends SherlockFragment
 		View parent = inflater.inflate(R.layout.sticker_recommend, container, false);
 		
 		mAdapter = new StickerRecomendationAdapter(stickerList);
-		
-		TwoWayGridView gridView = (TwoWayGridView) parent.findViewById(R.id.twoWayView);
+
+		gridView = (TwoWayGridView) parent.findViewById(R.id.twoWayView);
 		gridView.setColumnWidth(GridView.AUTO_FIT);
 		gridView.setAdapter(mAdapter);
 		gridView.setOnItemClickListener(getOnItemClickListener());
 		gridView.setSelector(R.drawable.sticker_recommend_item_selector);
-		
-		ImageView close = (ImageView) parent.findViewById(R.id.sticker_recommend_popup_close);
-		ImageView settings = (ImageView) parent.findViewById(R.id.sticker_recommend_popup_settings);
+
+		View close = parent.findViewById(R.id.sticker_recommend_popup_close);
+		View settings = parent.findViewById(R.id.sticker_recommend_popup_settings);
 		close.setOnClickListener(closeListener);
 		settings.setOnClickListener(settingsListener);
 		return parent;
@@ -138,9 +140,10 @@ public class StickerRecommendationFragment extends SherlockFragment
 	public void setAndNotify(List<Sticker> stickerList)
 	{
 		this.stickerList = stickerList;
-		
-		if (mAdapter != null)
+
+		if (mAdapter != null && gridView != null)
 		{
+			gridView.resetList();
 			mAdapter.setStickerList(stickerList);
 			mAdapter.notifyDataSetChanged();
 		}
