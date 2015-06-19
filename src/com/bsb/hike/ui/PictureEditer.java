@@ -129,7 +129,8 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 		
 		Logger.d(TAG, "Checking file type");
 		
-		if (HikeFileType.fromFilePath(filename, false).compareTo(HikeFileType.IMAGE) != 0)
+		//special handling for webp images since some devices cant extract their mime type
+		if (!Utils.getFileExtension(filename).equalsIgnoreCase("webp") && HikeFileType.fromFilePath(filename, false).compareTo(HikeFileType.IMAGE) != 0)
 		{
 			onError();
 			return;
