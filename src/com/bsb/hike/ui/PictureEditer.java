@@ -62,6 +62,8 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 	PhotosEditerFrameLayoutView editView;
 
 	private int menuIcons[] = { R.drawable.photos_tabs_filter_selector, R.drawable.photos_tabs_doodle_selector };
+	
+	private int menuIconsDesc[] = { R.string.cont_desc_photos_tab_filter, R.string.cont_desc_photos_tab_doodle };
 
 	private EditorClickListener clickHandler;
 	
@@ -356,6 +358,13 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 		{
 			return menuIcons.length;
 		}
+
+		@Override
+		public String getIconContentDescription(int index)
+		{
+			return PictureEditer.this.getString(menuIconsDesc[index]);
+		}
+
 	}
 
 	@Override
@@ -480,8 +489,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 						@Override
 						public void onComplete(Bitmap bmp)
 						{
-							// TODO Auto-generated method stub
-
+							// Do nothing
 						}
 
 						@Override
