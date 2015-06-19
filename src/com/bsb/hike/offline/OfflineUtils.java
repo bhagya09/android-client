@@ -992,4 +992,15 @@ public class OfflineUtils
 	{
 		return spaceAck.optBoolean(OfflineConstants.SPACE_AVAILABLE, false);
 	}
+
+	public static File createTempFile(String fileName) throws IOException
+	{
+		File tempFile= new File(FileTransferManager.getInstance(HikeMessengerApp.getInstance().getApplicationContext()).getHikeTempDir(),"tempImage_" + fileName );
+		File dirs = new File(tempFile.getParent());
+		if (!dirs.exists())
+			dirs.mkdirs();
+		// created a temporary file which on successful download will be renamed.
+		tempFile.createNewFile();
+		return tempFile;
+	}
 }

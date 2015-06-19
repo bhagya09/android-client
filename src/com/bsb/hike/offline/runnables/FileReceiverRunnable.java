@@ -21,6 +21,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.offline.FileTransferModel;
@@ -47,12 +48,28 @@ public class FileReceiverRunnable implements Runnable
 	private Socket fileReceiveSocket = null;
 
 	OfflineManager offlineManager = null;
-	
-	IConnectCallback connectCallback=null;
-	
-	File f = null;
-	
+
+	IConnectCallback connectCallback = null;
+
+	File tempFile = null;
+
 	FileTransferModel fileTransferModel = null;
+
+	private JSONObject fileJSON = null;
+
+	private JSONObject message = null;
+
+	private String filePath = "";
+
+	private long mappedMsgId = -1;
+
+	private String fileName = "";
+
+	private int fileSize = 0;
+
+	private int totalChunks = 0;
+
+	private ConvMessage convMessage = null;
 
 	public FileReceiverRunnable(IConnectCallback connectCallback)
 	{
@@ -65,16 +82,8 @@ public class FileReceiverRunnable implements Runnable
 		try
 		{
 			offlineManager = OfflineManager.getInstance();
-			Logger.d(TAG, "Going to wait for fileReceive socket");
-			fileServerSocket = new ServerSocket();
-			fileServerSocket.setReuseAddress(true);
-			SocketAddress addr = new InetSocketAddress(PORT_FILE_TRANSFER);
-			fileServerSocket.bind(addr);
-			Logger.d(TAG, "Going to wait for fileReceive socket");
-			fileReceiveSocket = fileServerSocket.accept();
-			Logger.d(TAG, "fileReceive socket connection success");
-
-			InputStream inputstream = fileReceiveSocket.getInputStream();
+			
+			InputStream inputstream = connectAndGetInputStream();
 			connectCallback.onConnect();
 
 			while (true)
@@ -99,78 +108,41 @@ public class FileReceiverRunnable implements Runnable
 				String metaDataString = new String(metaDataBytes, "UTF-8");
 				Logger.d(TAG, metaDataString);
 
-				JSONObject fileJSON = null;
-				JSONObject message = null;
-				String filePath = "";
-				long mappedMsgId = -1;
-				String fileName = "";
-				int fileSize = 0;
-				int totalChunks=0;
 				try
 				{
 					message = new JSONObject(metaDataString);
-					message.put(HikeConstants.FROM, "o:" + offlineManager.getConnectedDevice());
-					message.remove(HikeConstants.TO);
+					
+					toggleToAndFromField(message);
 
-					JSONObject metadata = message.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA);
-					mappedMsgId = message.getJSONObject(HikeConstants.DATA).getLong(HikeConstants.MESSAGE_ID);
+					
+					initializeFileVariables(message);
 
-					fileJSON = metadata.getJSONArray(HikeConstants.FILES).getJSONObject(0);
-					fileSize = fileJSON.getInt(HikeConstants.FILE_SIZE);
-					int type = fileJSON.getInt(HikeConstants.HIKE_FILE_TYPE);
-					fileName = Utils.getFinalFileName(HikeFileType.values()[type], fileJSON.getString(HikeConstants.FILE_NAME));
-					filePath = OfflineUtils.getFileBasedOnType(type, fileName);
-					totalChunks = OfflineUtils.getTotalChunks(fileSize);
-					
-				}
-				catch (JSONException e1)
-				{
-					Logger.e(TAG, "Code phata in JSON initialisations", e1);
-					e1.printStackTrace();
-				}
-				ConvMessage convMessage = null;
-				try
-				{
-					(message.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getJSONArray(HikeConstants.FILES)).getJSONObject(0).putOpt(
-							HikeConstants.FILE_PATH, filePath);
-					(message.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getJSONArray(HikeConstants.FILES)).getJSONObject(0).putOpt(
-							HikeConstants.FILE_NAME, fileName);
-					
-					
-					fileTransferModel =  new FileTransferModel(new TransferProgress(0, totalChunks), message);
+					fileTransferModel = new FileTransferModel(new TransferProgress(0, totalChunks), message);
 					
 					convMessage = new ConvMessage(message, HikeMessengerApp.getInstance().getApplicationContext());
-					
+				}
+				catch (JSONException e)
+				{
+					Logger.e(TAG, "Code phata in JSON initialisations", e);
+					e.printStackTrace();
+					throw new OfflineException(OfflineException.JSON_EXCEPTION);
+				}
 					// update DB and UI.
 					HikeConversationsDatabase.getInstance().addConversationMessages(convMessage, true);
 					offlineManager.addToCurrentReceivingFile(convMessage.getMsgID(), fileTransferModel);
 					HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_RECEIVED, convMessage);
 					Logger.d(TAG, filePath);
 
-					// TODO : Revisit the logic again.
-					f = new File(Environment.getExternalStorageDirectory() + "/" + "Hike/Media/hike Images" + "/tempImage_" + fileName);
-					File dirs = new File(f.getParent());
-					if (!dirs.exists())
-						dirs.mkdirs();
-					// created a temporary file which on successful download will be renamed.
-					f.createNewFile();
+					tempFile=OfflineUtils.createTempFile(fileName);
 					
-					// TODO:Can be done via show progress pubsub.
-					// showDownloadTransferNotification(mappedMsgId, fileSize);
-					FileOutputStream outputStream = new FileOutputStream(f);
-					// TODO:Take action on the basis of return type.
-					OfflineUtils.copyFile(inputstream, new FileOutputStream(f),fileTransferModel, true, false, fileSize);
+					FileOutputStream outputStream = new FileOutputStream(tempFile);
+					OfflineUtils.copyFile(inputstream, new FileOutputStream(tempFile),fileTransferModel, true, false, fileSize);
 					Logger.d(TAG,"File Received Successfully");
 					OfflineUtils.closeOutputStream(outputStream);
-					f.renameTo(new File(filePath));
+					tempFile.renameTo(new File(filePath));
 					
 					// if f!=null and exception occurs we need to delete the temp file
-					f = null;
-				}
-				catch (JSONException e)
-				{
-					e.printStackTrace();
-				}
+					tempFile = null;
 				
 				// send ack for the packet received
 				JSONObject ackJSON = OfflineUtils.createAckPacket(convMessage.getMsisdn(), mappedMsgId, true);
@@ -191,10 +163,10 @@ public class FileReceiverRunnable implements Runnable
 		catch (IOException e)
 		{
 			e.printStackTrace();
-			if (f != null && f.exists())
+			if (tempFile != null && tempFile.exists())
 			{
 				Logger.d(TAG, "Going to delete file in FRR");
-				f.delete();
+				tempFile.delete();
 			}
 			Logger.e(TAG, "File Receiver Thread " + " IO Exception occured.Socket was not bounded");
 			connectCallback.onDisconnect(new OfflineException(e, OfflineException.CLIENT_DISCONNETED));
@@ -207,14 +179,53 @@ public class FileReceiverRunnable implements Runnable
 		catch (OfflineException e)
 		{
 			e.printStackTrace();
-			if (f != null && f.exists())
+			if (tempFile != null && tempFile.exists())
 			{
 				Logger.d(TAG, "Going to delete file in FRR");
-				f.delete();
+				tempFile.delete();
 			}
 			connectCallback.onDisconnect(e);
 
 		}
+	}
+
+	private void initializeFileVariables(JSONObject message) throws JSONException
+	{
+		JSONObject metadata = message.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA);
+		mappedMsgId = message.getJSONObject(HikeConstants.DATA).getLong(HikeConstants.MESSAGE_ID);
+
+		fileJSON = metadata.getJSONArray(HikeConstants.FILES).getJSONObject(0);
+		fileSize = fileJSON.getInt(HikeConstants.FILE_SIZE);
+		int type = fileJSON.getInt(HikeConstants.HIKE_FILE_TYPE);
+		fileName = Utils.getFinalFileName(HikeFileType.values()[type], fileJSON.getString(HikeConstants.FILE_NAME));
+		filePath = OfflineUtils.getFileBasedOnType(type, fileName);
+		totalChunks = OfflineUtils.getTotalChunks(fileSize);
+
+		(message.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getJSONArray(HikeConstants.FILES)).getJSONObject(0).putOpt(
+				HikeConstants.FILE_PATH, filePath);
+		(message.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getJSONArray(HikeConstants.FILES)).getJSONObject(0).putOpt(
+				HikeConstants.FILE_NAME, fileName);
+		
+	}
+
+	private void toggleToAndFromField(JSONObject message) throws JSONException
+	{
+		message.put(HikeConstants.FROM, "o:" + offlineManager.getConnectedDevice());
+		message.remove(HikeConstants.TO);
+		
+	}
+
+	private InputStream connectAndGetInputStream() throws IOException
+	{
+		Logger.d(TAG, "Going to wait for fileReceive socket");
+		fileServerSocket = new ServerSocket();
+		fileServerSocket.setReuseAddress(true);
+		SocketAddress addr = new InetSocketAddress(PORT_FILE_TRANSFER);
+		fileServerSocket.bind(addr);
+		Logger.d(TAG, "Going to wait for fileReceive socket");
+		fileReceiveSocket = fileServerSocket.accept();
+		Logger.d(TAG, "fileReceive socket connection success");
+		return fileReceiveSocket.getInputStream();
 	}
 
 	public void shutDown()
