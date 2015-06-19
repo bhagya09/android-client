@@ -103,7 +103,7 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 
 		if (fragment == null)
 		{
-			Logger.d("anubhav", "sticker recommnd fragment is null");
+			Logger.d(StickerTagWatcher.TAG, "sticker recommnd fragment is null");
 			stickerRecommendView = (FrameLayout) activity.findViewById(R.id.sticker_recommendation_parent);
 			android.widget.RelativeLayout.LayoutParams params = (android.widget.RelativeLayout.LayoutParams) stickerRecommendView.getLayoutParams();
 			params.height = StickerSearchUtils.getStickerSize() + 2 * activity.getResources().getDimensionPixelSize(R.dimen.sticker_recommend_padding);
