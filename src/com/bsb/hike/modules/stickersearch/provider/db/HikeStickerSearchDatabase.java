@@ -295,7 +295,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper {
 						tempList.remove(index);
 					}
 					list.addAll(tempList);
-					Logger.d("ved", "" + temp);
+					Logger.d(TAG, "" + temp);
 				}
 			}
 		} finally {
@@ -348,7 +348,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper {
 			} else {
 				c = mDb.rawQuery("SELECT * FROM " + table + " WHERE " + table + " MATCH '" + word + "*'", null);
 			}
-			Logger.d("vedp", table);
+			Logger.d(TAG, "Searching \"" + word + "\" in " + table);
 			if (c != null) {
 				int i = 0;
 				rows = new int [c.getCount()];
