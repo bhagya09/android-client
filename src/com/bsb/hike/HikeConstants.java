@@ -2819,4 +2819,6 @@ public class HikeConstants
 	public static final String CONSUMED_FORWARDED_DATA = "consumed";
 
 	public static final String CONTACT_UPDATE_WAIT_TIME = "contactUpdateWaitTime";
+
+	public static final String DELETE_IC_ON_CONTACT_REMOVE = "deleteIcOnContactRemove";
 }
