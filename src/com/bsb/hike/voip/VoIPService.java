@@ -201,6 +201,9 @@ public class VoIPService extends Service {
 				break;
 
 			case VoIPConstants.CONNECTION_ESTABLISHED_FIRST_TIME:
+				if (client == null)
+					return;
+				
 				if (client.isInitiator()) {
 					playIncomingCallRingtone();
 				} else {
@@ -213,6 +216,8 @@ public class VoIPService extends Service {
 				break;
 
 			case VoIPConstants.MSG_UPDATE_REMOTE_HOLD:
+				if (client == null)
+					return;
 				client.setCallStatus(!hold && !client.remoteHold ? VoIPConstants.CallStatus.ACTIVE : VoIPConstants.CallStatus.ON_HOLD);
 				sendHandlerMessage(VoIPConstants.MSG_UPDATE_REMOTE_HOLD);
 				break;
