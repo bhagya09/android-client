@@ -233,15 +233,22 @@ public class OfflineThreadManager
 
 			// TODO:We can listen to PubSub ...Why to do this ...????
 			// showUploadTransferNotification(msgID,fileSize);
-
-			inputStream = new FileInputStream(new File(fileUri));
-			long time = System.currentTimeMillis();
-			isSent = OfflineUtils.copyFile(inputStream, outputStream, fileTransferModel, true, true, fileSize);
-			// in seconds
-			long TimeTaken = (System.currentTimeMillis() - time) / 1000;
-			if (TimeTaken > 0)
-				Logger.d(TAG, "Time taken to send file is " + TimeTaken + "Speed is " + fileSize / (1024 * 1024 * TimeTaken));
-			inputStream.close();
+			File file = new File(fileUri);
+			if (file.exists())
+			{
+				inputStream = new FileInputStream(file);
+				long time = System.currentTimeMillis();
+				isSent = OfflineUtils.copyFile(inputStream, outputStream, fileTransferModel, true, true, fileSize);
+				// in seconds
+				long TimeTaken = (System.currentTimeMillis() - time) / 1000;
+				if (TimeTaken > 0)
+					Logger.d(TAG, "Time taken to send file is " + TimeTaken + "Speed is " + fileSize / (1024 * 1024 * TimeTaken));
+				inputStream.close();
+			}
+			else
+			{
+				HikeMessengerApp.getInstance().showToast("File not found!!");
+			}
 		}
 		catch (JSONException e)
 		{

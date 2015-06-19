@@ -240,6 +240,7 @@ public class UploadFileTask extends FileTransferBase
 			e.printStackTrace();
 		}
 		((ConvMessage) userContext).setTimestamp(System.currentTimeMillis() / 1000);
+		Logger.d("OfflineManager","Message Metadata is "+((ConvMessage) userContext).getMetadata().getJSON());
 		HikeConversationsDatabase.getInstance().updateMessageMetadata(((ConvMessage) userContext).getMsgID(), ((ConvMessage) userContext).getMetadata()); 
 		long msgId = ((ConvMessage) userContext).getMsgID(); 
 		String s =  HikeConversationsDatabase.getInstance().getMetadataOfMessage(((ConvMessage) userContext).getMsgID());
