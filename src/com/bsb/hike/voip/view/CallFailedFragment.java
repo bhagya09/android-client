@@ -15,6 +15,7 @@ import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockFragment;
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Utils;
@@ -66,7 +67,7 @@ public class CallFailedFragment extends SherlockFragment
 			public void onClick(View v) {
 				if(enableRedial)
 				{
-					Intent intent = IntentFactory.getVoipCallIntent(getSherlockActivity(), msisdn, VoIPUtils.CallSource.CALL_FAILED_FRAG);
+					Intent intent = IntentFactory.getVoipCallIntent(HikeMessengerApp.getInstance(), msisdn, VoIPUtils.CallSource.CALL_FAILED_FRAG);
 					getSherlockActivity().startService(intent);
 				}
 				else
