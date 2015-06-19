@@ -4984,7 +4984,10 @@ public class Utils
 		{
 			return false;
 		}
-		return true;
+		else 
+		{
+			return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.DELETE_IC_ON_CONTACT_REMOVE, false);
+		}
 	}
 
 	@SuppressWarnings("deprecation")
