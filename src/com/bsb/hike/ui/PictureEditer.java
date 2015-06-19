@@ -23,7 +23,6 @@ import android.view.View.OnClickListener;
 import android.view.WindowManager;
 import android.webkit.MimeTypeMap;
 import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar;
@@ -135,13 +134,16 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 		
 		//Check file type
 		String fileType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension);
-		HikeFileType hikeFileType = HikeFileType.fromString(fileType, false);
 
 		Logger.d(TAG, "Checking file type");
-		if (hikeFileType.compareTo(HikeFileType.IMAGE) != 0)
+		//special handling for webp images since some devices cant extract their mime type
+		if(!fileExtension.equalsIgnoreCase("webp"))
 		{
-			onError();
-			return;
+			if (fileType==null || HikeFileType.fromString(fileType, false).compareTo(HikeFileType.IMAGE) != 0)
+			{
+				onError();
+				return;
+			}
 		}
 		else if(isNotSupportedImageFormat(fileExtension))
 		{
