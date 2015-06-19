@@ -3395,7 +3395,18 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			}
 			else
 			{
+				
+				if (conversation instanceof OfflineConversation)
+				{
+					FileSavedState offlineFss = OfflineManager.getInstance().getFileState(convMessage, hikeFile.getFile());
+					if (offlineFss.getFTState() == FTState.ERROR)
+					{
+						Toast.makeText(mActivity, "Error in Opening File.Corrupt Due to incomplete Download", Toast.LENGTH_SHORT).show();
+						return;
+					}	
+				}
 				File receivedFile = hikeFile.getFile();
+				
 				if (((hikeFile.getHikeFileType() == HikeFileType.LOCATION) || (hikeFile.getHikeFileType() == HikeFileType.CONTACT) || hikeFile.wasFileDownloaded()))
 				{
 					openFile(hikeFile, convMessage, v);

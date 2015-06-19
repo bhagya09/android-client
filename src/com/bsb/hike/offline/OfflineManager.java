@@ -396,7 +396,21 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 			}
 			else
 			{
-				fss = new FileSavedState(FTState.COMPLETED, hikeFile.getFileKey());
+				if (file.exists())
+				{
+					fss = new FileSavedState(FTState.COMPLETED, hikeFile.getFileKey());
+
+				}
+				else
+				{
+					File f = new File(FileTransferManager.getInstance(HikeMessengerApp.getInstance().getApplicationContext()).getHikeTempDir(), "tempImage_" + file.getName());
+					if (f.exists())
+					{
+						Logger.d(TAG, "tempFile Delete" + f.getName());
+						f.delete();
+					}
+					fss = new FileSavedState(FTState.ERROR, hikeFile.getFileKey());
+				}
 			}
 		}
 		return fss;
@@ -886,11 +900,13 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 			}
 			break;
 		case ERROR:
-			holder.ftAction.setImageResource(retryImage);
-			holder.ftAction.setContentDescription(context.getResources().getString(R.string.content_des_retry_file_download));
-			holder.ftAction.setVisibility(View.VISIBLE);
-			holder.circularProgressBg.setVisibility(View.VISIBLE);
-			break;
+			if(isSent)
+			{
+				holder.ftAction.setImageResource(retryImage);
+				holder.ftAction.setContentDescription(context.getResources().getString(R.string.content_des_retry_file_download));
+				holder.ftAction.setVisibility(View.VISIBLE);
+				holder.circularProgressBg.setVisibility(View.VISIBLE);
+			}break;
 		default:
 			break;
 		}
