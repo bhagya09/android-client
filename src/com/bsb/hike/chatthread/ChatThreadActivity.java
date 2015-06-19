@@ -334,4 +334,15 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 		}
 		super.onSaveInstanceState(outState);
 	}
+	
+	@Override
+	protected void onRestoreInstanceState(Bundle savedInstanceState)
+	{
+		if(chatThread != null) 
+		{
+			chatThread.onRestoreInstanceState(savedInstanceState);
+		}
+		super.onRestoreInstanceState(savedInstanceState);
+		
+	}
 }

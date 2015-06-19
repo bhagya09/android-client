@@ -2205,6 +2205,8 @@ public class HikeConstants
 		public static final String GAMES = "games";
 
 		public static final String DISPLAY_PIC = "dp";
+		
+		public static final String SYNC = "sync";
 
 		public static final String STATUS_UPDATE = "su";
 
@@ -2719,6 +2721,8 @@ public class HikeConstants
 		public static final int MAX_IMAGE_DIMEN = 1240;
 		
 		public static final String FROM_DP_UPLOAD = "from_dp_upload";
+		
+		public static final int DEFAULT_IMAGE_SAVE_QUALITY = 75;
 	}
 	
 	public static final String REARRANGE_CHAT = "rearrange_chat";

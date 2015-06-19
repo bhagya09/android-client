@@ -223,18 +223,6 @@ public class MqttMessagesManager
 	private void saveDisplayPic(JSONObject jsonObj) throws JSONException
 	{
 		String groupId = jsonObj.getString(HikeConstants.TO);
-		String from = jsonObj.getString(HikeConstants.FROM);
-		String msisdn = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, null);
-		
-		/*
-		 * Checking for if user who received display pic json actually changed the profile pic of group using the from field in json
-		 */
-		if (!TextUtils.isEmpty(msisdn) && msisdn.equals(from))
-		{
-			saveStatusMsg(jsonObj, groupId);
-			return;
-		}
-		
 		String iconBase64 = jsonObj.getString(HikeConstants.DATA);
 		String newIconIdentifier = null;
 		ContactManager conMgr = ContactManager.getInstance();
@@ -264,7 +252,20 @@ public class MqttMessagesManager
 
 		// IconCacheManager.getInstance().clearIconForMSISDN(groupId);
 		autoDownloadGroupImage(groupId);
-		saveStatusMsg(jsonObj, groupId);
+		boolean saveStatusMsg = true;
+		if (jsonObj.has(HikeConstants.METADATA)) {
+			JSONObject mdata = jsonObj.getJSONObject(HikeConstants.METADATA);
+			if (mdata.has(HikeConstants.MqttMessageTypes.SYNC)) {
+				int syncState = mdata.getInt(HikeConstants.MqttMessageTypes.SYNC);
+				if(syncState == 1){
+					saveStatusMsg = false;
+				}
+			}
+		}
+		if(saveStatusMsg){
+			saveStatusMsg(jsonObj, groupId);
+		}
+		
 	}
 
 	private void saveSMSCredits(JSONObject jsonObj) throws JSONException
