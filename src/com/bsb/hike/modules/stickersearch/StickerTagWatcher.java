@@ -113,8 +113,8 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 			activity.getSupportFragmentManager().beginTransaction().replace(R.id.sticker_recommendation_parent, fragment, HikeConstants.STICKER_RECOMMENDATION_FRAGMENT_TAG)
 					.commitAllowingStateLoss();
 		}
-		stickerRecommendView.setVisibility(View.VISIBLE);
 		((StickerRecommendationFragment) fragment).setAndNotify(stickerList);
+		stickerRecommendView.setVisibility(View.VISIBLE);
 	}
 
 	@Override
