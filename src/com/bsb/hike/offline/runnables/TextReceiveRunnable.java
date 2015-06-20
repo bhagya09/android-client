@@ -143,39 +143,14 @@ public class TextReceiveRunnable implements Runnable
 
 					if (OfflineUtils.isStickerMessage(messageJSON))
 					{
-						String stpath = OfflineUtils.getStickerPath(messageJSON);
-						stickerImage = new File(stpath);
-						if (!stickerImage.exists())
-						{
-							OfflineUtils.createStkDirectory(messageJSON);
-							FileOutputStream outputStream = new FileOutputStream(stickerImage);
-							OfflineUtils.copyFile(inputStream, outputStream, OfflineUtils.getStkLenFrmPkt(messageJSON));
-							OfflineUtils.closeOutputStream(outputStream);
-						}
-						// remove data from stream
-						else
-						{
-							long fileSize = OfflineUtils.getStkLenFrmPkt(messageJSON);
-							while (fileSize > 0)
-							{
-								long len = inputStream.skip(fileSize);
-								fileSize -= len;
-							}
-						}
-						// set stickerImage to null, to avoid deleting it if download is complete
-						stickerImage = null;   
+						 messagesManager.handleStickerMessage(messageJSON,stickerImage,inputStream);
 					}
 					else if (OfflineUtils.isChatThemeMessage(messageJSON))
 					{
-						// HikeMessengerApp.getPubSub().publish(HikePubSub.OFFLINE_THEME_CHANGE_MESSAGE, messageJSON);
-						messageJSON.put(HikeConstants.TIMESTAMP, System.currentTimeMillis() / 1000);
-						MqttMessagesManager.getInstance(HikeMessengerApp.getInstance().getApplicationContext()).saveChatBackground(messageJSON);
+						messagesManager.handleChatThemeMessage(messageJSON);
 						
-						long mappedMsgId = OfflineUtils.getMsgId(messageJSON);
+						sendAckForMessage(messageJSON);
 						
-						// send ack for the chatTheme  packet 
-						JSONObject ackJSON = OfflineUtils.createAckPacket(offlineManager.getConnectedDevice(), mappedMsgId, false);
-						offlineManager.addToTextQueue(ackJSON);
 						continue;
 					}
 					else if(OfflineUtils.isDisconnectPkt(messageJSON))
@@ -189,12 +164,9 @@ public class TextReceiveRunnable implements Runnable
 
 					}
 					convMessage = new ConvMessage(messageJSON, HikeMessengerApp.getInstance().getApplicationContext());
-					long mappedMsgId = convMessage.getMappedMsgID();
 					
-					// send ack for the packet received
-					JSONObject ackJSON = OfflineUtils.createAckPacket(convMessage.getMsisdn(), mappedMsgId, false);
-					offlineManager.addToTextQueue(ackJSON);
-					
+					sendAckForMessage(messageJSON);
+					//TODO:Handle Ack Loss case ...???
 					HikeConversationsDatabase.getInstance().addConversationMessages(convMessage, true);
 					HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_RECEIVED, convMessage);
 
@@ -243,6 +215,17 @@ public class TextReceiveRunnable implements Runnable
 	}
 	
 	
+	private void sendAckForMessage(JSONObject messageJSON)
+	{
+		long mappedMsgId = OfflineUtils.getMsgId(messageJSON);
+
+		// send ack for the  packet 
+		JSONObject ackJSON = OfflineUtils.createAckPacket(offlineManager.getConnectedDevice(), mappedMsgId, false);
+		offlineManager.addToTextQueue(ackJSON);
+		
+	}
+
+
 	private InputStream connectAndGetInputStream() throws IOException
 	{
 		textServerSocket = new ServerSocket();

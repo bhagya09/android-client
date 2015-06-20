@@ -1,5 +1,10 @@
 package com.bsb.hike.offline;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -7,6 +12,7 @@ import android.content.Context;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.service.MqttMessagesManager;
 import com.bsb.hike.utils.Logger;
 
 /**
@@ -69,6 +75,37 @@ public class OfflineMessagesManager
 	public void handleSpaceAckPacket(JSONObject messageJSON)
 	{
 		offlineManager.canSendFile(messageJSON);
+	}
+
+	public void handleStickerMessage(JSONObject messageJSON,File stickerImage,InputStream inputStream) throws OfflineException,IOException,JSONException
+	{
+		String stpath = OfflineUtils.getStickerPath(messageJSON);
+		stickerImage = new File(stpath);
+		if (!stickerImage.exists())
+		{
+			OfflineUtils.createStkDirectory(messageJSON);
+			FileOutputStream outputStream = new FileOutputStream(stickerImage);
+			OfflineUtils.copyFile(inputStream, outputStream, OfflineUtils.getStkLenFrmPkt(messageJSON));
+			OfflineUtils.closeOutputStream(outputStream);
+		}
+		// remove data from stream
+		else
+		{
+			long fileSize = OfflineUtils.getStkLenFrmPkt(messageJSON);
+			while (fileSize > 0)
+			{
+				long len = inputStream.skip(fileSize);
+				fileSize -= len;
+			}
+		}
+		// set stickerImage to null, to avoid deleting it if download is complete
+		stickerImage = null;  
+	}
+
+	public void handleChatThemeMessage(JSONObject messageJSON) throws JSONException
+	{
+		messageJSON.put(HikeConstants.TIMESTAMP, System.currentTimeMillis() / 1000);
+		MqttMessagesManager.getInstance(HikeMessengerApp.getInstance().getApplicationContext()).saveChatBackground(messageJSON);
 	}
 
 }
