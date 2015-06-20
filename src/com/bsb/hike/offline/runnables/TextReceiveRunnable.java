@@ -25,6 +25,7 @@ import com.bsb.hike.offline.IConnectCallback;
 import com.bsb.hike.offline.IMessageSentOffline;
 import com.bsb.hike.offline.OfflineException;
 import com.bsb.hike.offline.OfflineManager;
+import com.bsb.hike.offline.OfflineMessagesManager;
 import com.bsb.hike.offline.OfflineThreadManager;
 import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.service.MqttMessagesManager;
@@ -60,6 +61,8 @@ public class TextReceiveRunnable implements Runnable
 
 	File stickerImage = null;
 
+	private OfflineMessagesManager messagesManager = null;
+
 	public TextReceiveRunnable(IMessageSentOffline textCallback, IMessageSentOffline fileCallback,IConnectCallback connectCallback)
 	{
 		this.textCallback = textCallback;
@@ -74,16 +77,8 @@ public class TextReceiveRunnable implements Runnable
 		try
 		{
 			offlineManager = OfflineManager.getInstance();
-			textServerSocket = new ServerSocket();
-			textServerSocket.setReuseAddress(true);
-			SocketAddress addr = new InetSocketAddress(PORT_TEXT_MESSAGE);
-			textServerSocket.bind(addr);
-
-			Logger.d(TAG, "TextReceiveThread" + "Will be waiting on accept");
-			textReceiverSocket = textServerSocket.accept();
-			Logger.d(TAG, "TextReceiveThread" + "Connection successfull and the receiver buffer is "+ textReceiverSocket.getReceiveBufferSize() + "and the send buffer is " + textReceiverSocket.getSendBufferSize() );
-			connectCallback.onConnect();
-			inputStream = textReceiverSocket.getInputStream();
+			messagesManager = new OfflineMessagesManager();
+			inputStream = connectAndGetInputStream();
 			while (true)
 			{				
 				byte[] convMessageLength = new byte[4];
@@ -123,37 +118,28 @@ public class TextReceiveRunnable implements Runnable
 
 				if (OfflineUtils.isPingPacket(messageJSON))
 				{
-					// Start client thread.
-					offlineManager.setConnectedDevice(OfflineUtils.getMsisdnFromPingPacket(messageJSON));
-					OfflineThreadManager.getInstance().startSendingThreads();
+					messagesManager.handlePingPacket(messageJSON);
 				}
 				else if (OfflineUtils.isGhostPacket(messageJSON))
 				{
-					Logger.d(TAG, "Ghost Packet received");
-					offlineManager.restartGhostTimeout(OfflineUtils.getScreenStatusFromGstPkt(messageJSON));
+					messagesManager.handleGhostPacket(messageJSON);
 				}
 				else if (OfflineUtils.isAckPacket(messageJSON))
 				{
-					messageJSON.put(HikeConstants.FROM, "o:" + offlineManager.getConnectedDevice());
-					messageJSON.remove(HikeConstants.TO);
-					Logger.d(TAG, "ACK PAcket received for msgId: " +  OfflineUtils.getMsgIdFromAckPacket(messageJSON));
-					if (OfflineUtils.isAckForFileMessage(messageJSON))
-						fileCallback.onSuccess(messageJSON);
-					else
-						textCallback.onSuccess(messageJSON);
+					messagesManager.handleAckPacket(messageJSON,fileCallback,textCallback);
 				}
 				else if (OfflineUtils.isSpaceCheckPacket(messageJSON))
 				{
-					offlineManager.addToTextQueue(OfflineUtils.createSpaceAck(messageJSON));
+					messagesManager.handleSpaceCheckPacket(messageJSON);
 				}
 				else if (OfflineUtils.isSpaceAckPacket(messageJSON))
 				{
-					offlineManager.canSendFile(messageJSON);
+					messagesManager.handleSpaceAckPacket(messageJSON);
+					
 				}
 				else
 				{
-					messageJSON.put(HikeConstants.FROM, "o:" + offlineManager.getConnectedDevice());
-					messageJSON.remove(HikeConstants.TO);
+					toggleToAndFromField(messageJSON);
 
 					if (OfflineUtils.isStickerMessage(messageJSON))
 					{
@@ -241,6 +227,7 @@ public class TextReceiveRunnable implements Runnable
 		catch (JSONException e)
 		{
 			e.printStackTrace();
+			connectCallback.onDisconnect(new OfflineException(e,OfflineException.JSON_EXCEPTION));
 		}
 		catch (OfflineException e)
 		{
@@ -256,6 +243,27 @@ public class TextReceiveRunnable implements Runnable
 	}
 	
 	
+	private InputStream connectAndGetInputStream() throws IOException
+	{
+		textServerSocket = new ServerSocket();
+		textServerSocket.setReuseAddress(true);
+		SocketAddress addr = new InetSocketAddress(PORT_TEXT_MESSAGE);
+		textServerSocket.bind(addr);
+
+		Logger.d(TAG, "TextReceiveThread" + "Will be waiting on accept");
+		textReceiverSocket = textServerSocket.accept();
+		Logger.d(TAG, "TextReceiveThread" + "Connection successfull and the receiver buffer is " + textReceiverSocket.getReceiveBufferSize() + "and the send buffer is "
+				+ textReceiverSocket.getSendBufferSize());
+		connectCallback.onConnect();
+		return textReceiverSocket.getInputStream();
+	}
+
+
+	private void toggleToAndFromField(JSONObject message) throws JSONException
+	{
+		message.put(HikeConstants.FROM, "o:" + offlineManager.getConnectedDevice());
+		message.remove(HikeConstants.TO);
+	}
 	public void shutDown()
 	{
 		try
@@ -276,6 +284,7 @@ public class TextReceiveRunnable implements Runnable
 			e.printStackTrace();
 		}
 	}
-		
+	
+	
 
 }
