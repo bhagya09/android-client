@@ -4986,7 +4986,7 @@ public class Utils
 		}
 		else 
 		{
-			return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.DELETE_IC_ON_CONTACT_REMOVE, false);
+			return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.DELETE_IC_ON_CONTACT_REMOVE, true);
 		}
 	}
 
