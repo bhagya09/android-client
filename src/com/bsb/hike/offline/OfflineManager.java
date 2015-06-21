@@ -1068,9 +1068,18 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 		HikeFile hikeFile = convMessage.getMetadata().getHikeFiles().get(0);
 		Logger.d(TAG, "Hike File type is: " + hikeFile.getHikeFileType().ordinal());
 		int length = hikeFile.getFileSize();
-		FileTransferModel fileTransferModel = new FileTransferModel(new TransferProgress(0, OfflineUtils.getTotalChunks(length)), convMessage.serialize());
-		// addToFileQueue(fileTransferModel);
-		addToProcessingQueue(fileTransferModel);
+		
+		File f = hikeFile.getFile();
+		if (f.exists())
+		{
+			FileTransferModel fileTransferModel = new FileTransferModel(new TransferProgress(0, OfflineUtils.getTotalChunks(length)), convMessage.serialize());
+			// addToFileQueue(fileTransferModel);
+			addToProcessingQueue(fileTransferModel);
+		}
+		else
+		{
+			HikeMessengerApp.getInstance().showToast("File not found.!!");
+		}
 	}
 
 	public void canSendFile(JSONObject messageJSON) {
