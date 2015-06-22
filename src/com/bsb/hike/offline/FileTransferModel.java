@@ -2,22 +2,23 @@ package com.bsb.hike.offline;
 
 import org.json.JSONObject;
 
+import com.bsb.hike.models.ConvMessage;
+
 /**
  * 
- * @author himanshu
- *	This class contains information about progress of the file and the JSON that will make the file
- *
+ * @author himanshu This class contains information about progress of the file and the JSON that will make the file
+ * 
  */
 public class FileTransferModel
 {
 	private TransferProgress transferProgress;
 
-	private JSONObject packetData;
+	private ConvMessage convMessage;
 
-	public FileTransferModel(TransferProgress transferProgress, JSONObject packetData)
+	public FileTransferModel(TransferProgress transferProgress, ConvMessage convMessage)
 	{
 		this.transferProgress = transferProgress;
-		this.packetData = packetData;
+		this.convMessage = convMessage;
 	}
 
 	public TransferProgress getTransferProgress()
@@ -27,13 +28,17 @@ public class FileTransferModel
 
 	public JSONObject getPacket()
 	{
-		return packetData;
+		return convMessage.serialize();
+	}
+
+	public ConvMessage getConvMessage()
+	{
+		return convMessage;
 	}
 
 	public long getMessageId()
 	{
-		return OfflineUtils.getMsgId(getPacket());
+		return convMessage.getMsgID();
 	}
-	
-	
+
 }

@@ -28,11 +28,10 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.db.HikeConversationsDatabase;
-import com.bsb.hike.filetransfer.FileTransferBase.FTState;
 import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.models.ConvMessage;
-import com.bsb.hike.models.ConvMessage.OriginType;
 import com.bsb.hike.models.ConvMessage.State;
+import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.MessageMetadata;
@@ -1003,4 +1002,31 @@ public class OfflineUtils
 		tempFile.createNewFile();
 		return tempFile;
 	}
+	
+	public static MessageMetadata getUpdatedMessageMetaData(ConvMessage msg) {
+        
+        JSONObject metaData = msg.getMetadata().getJSON();
+        JSONArray filesArray = new JSONArray();
+        JSONObject fileJSON = null;
+        HikeFile hikeFile = msg.getMetadata().getHikeFiles().get(0);
+        try
+        {
+            fileJSON = metaData.getJSONArray(HikeConstants.FILES).getJSONObject(0);
+            String fileName = fileJSON.getString(HikeConstants.FILE_NAME);
+            File sourceFile  =  new File(fileJSON.getString(HikeConstants.FILE_PATH));
+            hikeFile.setFileKey("OfflineKey"+System.currentTimeMillis()/1000);
+            hikeFile.setFile(sourceFile);
+            hikeFile.setFileSize((int)sourceFile.length());
+            hikeFile.setFileName(fileName);
+            hikeFile.setSent(true);    
+            fileJSON =  hikeFile.serialize();
+            filesArray.put(fileJSON);
+            metaData.put(HikeConstants.FILES, filesArray);
+            MessageMetadata messageMetadata = new MessageMetadata(metaData, true);
+            return messageMetadata;
+        }catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }

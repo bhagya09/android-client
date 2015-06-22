@@ -24,6 +24,7 @@ import android.util.Pair;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.db.HikeOfflinePersistence;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
@@ -318,7 +319,8 @@ public class OfflineThreadManager
 			msgID = OfflineUtils.getMsgIdFromAckPacket(packet);
 			msisdn = packet.getString(HikeConstants.FROM);
 			
-
+			ConvMessage convMessage = offlineManager.getConvMessageFromCurrentSendingFiles(msgID).getConvMessage();
+			HikeConversationsDatabase.getInstance().updateMessageMetadata(msgID, OfflineUtils.getUpdatedMessageMetaData(convMessage));
 			// Update Delivered status
 			}
 			catch (JSONException e)

@@ -213,13 +213,13 @@ public class UploadFileTask extends FileTransferBase
 		this.fileKey = fileKey;
 		_state = FTState.IN_PROGRESS;
 		this.mAttachementType = attachement;
-		createConvMessage(true);
+		createConvMessage();
 		stateFile = getStateFile(((ConvMessage) userContext));
 		JSONObject metadata = ((ConvMessage) userContext).getMetadata().getJSON();
 		JSONArray filesArray = new JSONArray();
 
 		HikeFile hikeFile = ((ConvMessage)userContext).getMetadata().getHikeFiles().get(0);
-		hikeFile.setFileKey("OfflineMessageFileKey"+System.currentTimeMillis());
+		//hikeFile.setFileKey("OfflineMessageFileKey"+System.currentTimeMillis());
 		hikeFile.setFileSize((int)sourceFile.length());
 		hikeFile.setHikeFileType(hikeFileType);
 		hikeFile.setRecordingDuration(recordingDuration);
@@ -241,7 +241,8 @@ public class UploadFileTask extends FileTransferBase
 		}
 		((ConvMessage) userContext).setTimestamp(System.currentTimeMillis() / 1000);
 		Logger.d("OfflineManager","Message Metadata is "+((ConvMessage) userContext).getMetadata().getJSON());
-		HikeConversationsDatabase.getInstance().updateMessageMetadata(((ConvMessage) userContext).getMsgID(), ((ConvMessage) userContext).getMetadata()); 
+		HikeConversationsDatabase.getInstance().addConversationMessages((ConvMessage) userContext, true);
+		//HikeConversationsDatabase.getInstance().updateMessageMetadata(((ConvMessage) userContext).getMsgID(), ((ConvMessage) userContext).getMetadata()); 
 		long msgId = ((ConvMessage) userContext).getMsgID(); 
 		String s =  HikeConversationsDatabase.getInstance().getMetadataOfMessage(((ConvMessage) userContext).getMsgID());
 		Logger.d("OffineManager","updated msg metadata" + s);
@@ -267,12 +268,8 @@ public class UploadFileTask extends FileTransferBase
 	// private ConvMessage createConvMessage(Uri picasaUri, File mFile, HikeFileType hikeFileType, String msisdn, boolean isRecipientOnhike, String fileType, long
 	// recordingDuration) throws FileTransferCancelledException, Exception
 	
-	private void createConvMessage()
-	{
-		createConvMessage(false);
-	}
 	
-	private void createConvMessage(boolean isOfflineMsg)
+	private void createConvMessage()
 	{
 		try
 		{
@@ -369,10 +366,6 @@ public class UploadFileTask extends FileTransferBase
 				for (ContactInfo contact : contactList)
 				{
 					ConvMessage msg = createConvMessage(fileName, messageMetadata, contact.getMsisdn(), isRecipientOnhike);
-					if(isOfflineMsg)
-					{
-						msg.setIsOfflineMessage(true);
-					}
 					messageList.add(msg);
 				}
 				userContext = messageList.get(0);
@@ -396,18 +389,15 @@ public class UploadFileTask extends FileTransferBase
 				{
 					convMessageObject.setMessageOriginType(OriginType.BROADCAST);
 				}
-				if(isOfflineMsg)
-				{
-					convMessageObject.setIsOfflineMessage(true);
-				}
 
+				if(!Utils.isOfflineConversation(convMessageObject.getMsisdn()))
 				HikeConversationsDatabase.getInstance().addConversationMessages(convMessageObject,true);
 				
 				// 1) user clicked Media file and sending it
 				MsgRelLogManager.startMessageRelLogging((ConvMessage) userContext, MessageType.MULTIMEDIA);
 				
 				//Message sent from here will only do an entry in conversation db it is not actually being sent to server.
-				if(!isOfflineMsg)
+				if(!Utils.isOfflineConversation(convMessageObject.getMsisdn()))
 					HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_SENT, convMessageObject);
 			}
 		}

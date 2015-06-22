@@ -470,7 +470,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 			fileName = apkLabel + ".apk";
 		ConvMessage convMessage = FileTransferManager.getInstance(context).uploadOfflineFile(msisdn, file, fileKey, fileType, hikeFileType, isRecording, recordingDuration,
 				attachmentType, fileName);
-		FileTransferModel fileTransferModel = new FileTransferModel(new TransferProgress(0, OfflineUtils.getTotalChunks((int) file.length())), convMessage.serialize());
+		FileTransferModel fileTransferModel = new FileTransferModel(new TransferProgress(0, OfflineUtils.getTotalChunks((int) file.length())), convMessage);
 		Logger.d(TAG, "Total Chunk is " + fileTransferModel.getTransferProgress().getTotalChunks() + "...Current chunk is "
 				+ fileTransferModel.getTransferProgress().getCurrentChunks());
 
@@ -624,7 +624,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 				long msgId = OfflineUtils.getMsgId(packet);
 				Logger.d(TAG, "Sending msgId: " + msgId);
 
-				FileTransferModel fileTransferModel = new FileTransferModel(new TransferProgress(0, OfflineUtils.getTotalChunks((int) f.length())), packet);
+				//FileTransferModel fileTransferModel = new FileTransferModel(new TransferProgress(0, OfflineUtils.getTotalChunks((int) f.length())), packet);
 				// addToFileQueue(fileTransferModel);
 			}
 			else
@@ -1075,7 +1075,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 		File f = hikeFile.getFile();
 		if (f.exists())
 		{
-			FileTransferModel fileTransferModel = new FileTransferModel(new TransferProgress(0, OfflineUtils.getTotalChunks(length)), convMessage.serialize());
+			FileTransferModel fileTransferModel = new FileTransferModel(new TransferProgress(0, OfflineUtils.getTotalChunks(length)), convMessage);
 			// addToFileQueue(fileTransferModel);
 			addToProcessingQueue(fileTransferModel);
 		}
@@ -1101,6 +1101,15 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 			HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
 			HikeMessengerApp.getInstance().showToast("Insufficient space on Recipient's device");
 		}
+	}
+	
+	public FileTransferModel getConvMessageFromCurrentSendingFiles(long msgId)
+	{
+		if (currentSendingFiles.containsKey(msgId))
+		{
+			return currentSendingFiles.get(msgId);
+		}
+		return null;
 	}
 
 }

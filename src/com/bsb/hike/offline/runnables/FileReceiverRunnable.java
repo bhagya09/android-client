@@ -117,9 +117,9 @@ public class FileReceiverRunnable implements Runnable
 					
 					initializeFileVariables(message);
 
-					fileTransferModel = new FileTransferModel(new TransferProgress(0, totalChunks), message);
-					
 					convMessage = new ConvMessage(message, HikeMessengerApp.getInstance().getApplicationContext());
+					
+					fileTransferModel = new FileTransferModel(new TransferProgress(0, totalChunks), convMessage);
 				}
 				catch (JSONException e)
 				{
