@@ -465,7 +465,14 @@ public class ChatHeadService extends Service
 				initialY = chatHeadParams.y;
 				initialTouchX = event.getRawX();
 				initialTouchY = event.getRawY();
-				windowManager.addView(closeHead, closeHeadParams);
+				try
+				{
+					windowManager.addView(closeHead, closeHeadParams);
+				}
+				catch (Exception e)
+				{
+					e.printStackTrace();
+				}
 				return true;
 
 			case MotionEvent.ACTION_UP:
@@ -527,17 +534,23 @@ public class ChatHeadService extends Service
 		windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
 
 		chatHead = new RecyclingImageView(this);
-
+   
 		chatHead.setImageResource(R.drawable.sticker_chat_head);
 
 		setChatHeadParams();
 
 		setCloseHeadParams();
-
+		  	
 		createListfromJson();
-
-		windowManager.addView(chatHead, chatHeadParams);
-
+		
+		try
+		{
+			windowManager.addView(chatHead, chatHeadParams);
+		}
+		catch(Exception e)
+		{
+		   e.printStackTrace();	
+		}
 		chatHead.setVisibility(View.INVISIBLE);
 		
 		chatHead.setOnTouchListener(chatHeadOnTouchListener);
