@@ -3,7 +3,6 @@ package com.bsb.hike.userlogs;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -43,8 +42,6 @@ import com.google.android.gms.ads.identifier.AdvertisingIdClient;
 import com.google.android.gms.ads.identifier.AdvertisingIdClient.Info;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
-import com.google.android.gms.maps.UiSettings;
-
 
 public class UserLogInfo {
 	
@@ -52,11 +49,7 @@ public class UserLogInfo {
 	public static final int STOP = 2;
 	public static final int OPERATE = 1;
 	
-	private static long sessionTimeMillisStart;
-	private static String currentForegroundPackage;
-	
-	private static Set<String> oldForegroundPackages;
-	private static Set<String> newForegroundPackages;
+	private static Map<String, Long> foregroundAppsStartTimeMap;
 
 	private static final String HASH_SCHEME = "MD5";
 	private static final String TAG = "UserLogInfo";
@@ -529,54 +522,47 @@ public class UserLogInfo {
 
 	public static void recordSessionInfo(Set<String> currentForegroundApps, int nextStep)
 	{
-		newForegroundPackages = new HashSet<String>(currentForegroundApps);
 		long currentTime = System.currentTimeMillis();
-		if(oldForegroundPackages == null)
+		if(foregroundAppsStartTimeMap == null)
 		{
-			oldForegroundPackages = new HashSet<String>(5);
+			foregroundAppsStartTimeMap = new HashMap<String, Long>(5);
 		}
+		
+		Set<String> savedForegroundApps = new HashSet<String>(foregroundAppsStartTimeMap.keySet());
 		
 		if(nextStep  == START)
 		{
-			oldForegroundPackages = new HashSet<String>(currentForegroundApps);
-			sessionTimeMillisStart = currentTime;
+			foregroundAppsStartTimeMap.clear();
+			for(String packageName : currentForegroundApps)
+			{
+				foregroundAppsStartTimeMap.put(packageName, currentTime);
+			}
 		}
 		else if (nextStep == STOP)
 		{
-			oldForegroundPackages.clear();
-			sessionTimeMillisStart = 0;
+			for(String app : foregroundAppsStartTimeMap.keySet())
+			{
+				recordASession(app, System.currentTimeMillis());
+			}
+			foregroundAppsStartTimeMap.clear();
 		}
-		else if(nextStep == OPERATE)
+		else if(nextStep == OPERATE && !currentForegroundApps.isEmpty())
 		{
-			
-			newForegroundPackages.removeAll(oldForegroundPackages);
-			if(!newForegroundPackages.isEmpty())
+			savedForegroundApps.addAll(currentForegroundApps);
+			for(String app : savedForegroundApps)
 			{
-				
-				Logger.d(TAG,"added : " + newForegroundPackages.iterator().next());
-				if(currentForegroundPackage != null)
+				if(currentForegroundApps.contains(app) && !foregroundAppsStartTimeMap.containsKey(app))
 				{
-					recordASession(currentForegroundPackage, sessionTimeMillisStart);
+					// foregrounded app here
+					foregroundAppsStartTimeMap.put(app, System.currentTimeMillis());
 				}
-				
-				currentForegroundPackage = newForegroundPackages.iterator().next();
-				sessionTimeMillisStart = currentTime;
-			}
-			
-			oldForegroundPackages.removeAll(currentForegroundApps);
-			if(!oldForegroundPackages.isEmpty())
-			{
-				Logger.d(TAG,"removed : " + oldForegroundPackages.iterator().next());
-				if(oldForegroundPackages.iterator().next().equals(currentForegroundPackage))
+				else if(!currentForegroundApps.contains(app) && foregroundAppsStartTimeMap.containsKey(app))
 				{
-					recordASession(currentForegroundPackage, sessionTimeMillisStart);
-					// re initialize the below variables, no new package has come up.
-					sessionTimeMillisStart = 0;
-					currentForegroundPackage = null;
+					// backgrounded apps here
+					recordASession(app, foregroundAppsStartTimeMap.get(app));
+					foregroundAppsStartTimeMap.remove(app);
 				}
 			}
-			
-			oldForegroundPackages = new HashSet<String>(currentForegroundApps);
 		}
 	}
 	
