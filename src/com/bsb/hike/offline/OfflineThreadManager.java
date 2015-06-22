@@ -7,18 +7,13 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-
-import android.os.Environment;
-import android.util.Log;
+import android.text.TextUtils;
 import android.util.Pair;
 
 import com.bsb.hike.HikeConstants;
@@ -27,10 +22,9 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.db.HikeOfflinePersistence;
 import com.bsb.hike.models.ConvMessage;
-import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
-import com.bsb.hike.offline.runnables.FileReceiverRunnable;
+import com.bsb.hike.offline.runnables.FileConnectRunnable;
 import com.bsb.hike.offline.runnables.FileTransferRunnable;
-import com.bsb.hike.offline.runnables.TextReceiveRunnable;
+import com.bsb.hike.offline.runnables.TextConnectRunnable;
 import com.bsb.hike.offline.runnables.TextTransferRunnable;
 import com.bsb.hike.utils.Logger;
 
@@ -55,16 +49,16 @@ public class OfflineThreadManager
 
 	private Thread textReceiveThread = null;
 
-	private TextReceiveRunnable textReceiveRunnable = null;
-
 	private Thread fileReceiverThread = null;
-
-	private FileReceiverRunnable fileReceiverRunnable;
 
 	private Thread textTransferThread;
 
-	AtomicInteger threadConnectCount = new AtomicInteger();
+	private TextConnectRunnable textConnectRunnable;
+	
+	private FileConnectRunnable fileConnectRunnable;
 
+	AtomicInteger threadConnectCount = new AtomicInteger();
+	
 	public static OfflineThreadManager getInstance()
 	{
 		return _instance;
@@ -72,10 +66,10 @@ public class OfflineThreadManager
 
 	private OfflineThreadManager()
 	{
-		textTransferRunnable = new TextTransferRunnable(textMessageCallback, connectCallback);
+		textTransferRunnable = new TextTransferRunnable(textMessageCallback,fileMessageCallback, connectCallback);
 		fileTransferRunnable = new FileTransferRunnable(fileMessageCallback, connectCallback);
-		textReceiveRunnable = new TextReceiveRunnable(textMessageCallback, fileMessageCallback, connectCallback);
-		fileReceiverRunnable = new FileReceiverRunnable(connectCallback);
+		textConnectRunnable = new TextConnectRunnable(textMessageCallback,fileMessageCallback, connectCallback);
+		fileConnectRunnable = new FileConnectRunnable(connectCallback);
 
 	}
 
@@ -95,6 +89,10 @@ public class OfflineThreadManager
 			if (threadConnectCount.incrementAndGet() == OfflineConstants.ALL_THREADS_CONNECTED)
 			{
 				// all threads connected
+				if(TextUtils.isEmpty(offlineManager.getConnectedDevice()))
+				{
+					offlineManager.setConnectingMsisdnAsConnectedDevice();
+				}
 				offlineManager.onConnected();
 			}
 
@@ -122,13 +120,37 @@ public class OfflineThreadManager
 		fileTransferThread.start();
 	}
 
+	public void startTextTransferThread(Runnable runnable)
+	{
+		textTransferThread = new Thread(runnable);
+		textTransferThread.start();
+	}
+
+	public void startTextReceivingThread(Runnable runnable)
+	{
+		textReceiveThread = new Thread(runnable);
+		textReceiveThread.start();
+	}
+	
+	public void startFileReceivingThread(Runnable runnable)
+	{
+		fileReceiverThread = new Thread(runnable);
+		fileReceiverThread.start();
+	}
+	
+	public void startFileTransferThread(Runnable runnable)
+	{
+		fileTransferThread = new Thread(runnable);
+		fileTransferThread.start();
+	}
+	
 	public void startReceivingThreads()
 	{
 		offlineManager = OfflineManager.getInstance();
-		textReceiveThread = new Thread(textReceiveRunnable);
+		textReceiveThread = new Thread(textConnectRunnable);
 		textReceiveThread.start();
 
-		fileReceiverThread = new Thread(fileReceiverRunnable);
+		fileReceiverThread = new Thread(fileConnectRunnable);
 		fileReceiverThread.start();
 
 	}
@@ -352,14 +374,13 @@ public class OfflineThreadManager
 	{
 		Logger.d(TAG, "Goining to close ALL SOCKETS");
 		threadConnectCount.set(0);
+		
+		textConnectRunnable.shutDown();
+		fileConnectRunnable.shutDown();
 		textTransferRunnable.shutDown();
-
-		Logger.d(TAG, "closing  text socket ALL SOCKETS");
+		
 		fileTransferRunnable.shutDown();
-
-		fileReceiverRunnable.shutDown();
-
-		textReceiveRunnable.shutDown();
+		Logger.d(TAG, "closing  text socket ALL SOCKETS");
 
 		interrupt(textTransferThread);
 		interrupt(fileTransferThread);

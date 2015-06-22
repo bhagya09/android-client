@@ -1,20 +1,13 @@
 package com.bsb.hike.offline.runnables;
 
-import static com.bsb.hike.offline.OfflineConstants.PORT_TEXT_MESSAGE;
-
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketAddress;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -26,16 +19,9 @@ import com.bsb.hike.offline.IMessageSentOffline;
 import com.bsb.hike.offline.OfflineException;
 import com.bsb.hike.offline.OfflineManager;
 import com.bsb.hike.offline.OfflineMessagesManager;
-import com.bsb.hike.offline.OfflineThreadManager;
 import com.bsb.hike.offline.OfflineUtils;
-import com.bsb.hike.service.MqttMessagesManager;
 import com.bsb.hike.utils.Logger;
 
-/**
- * 
- * @author himanshu, deepak malik
- *	Runnable responsible for receving text from client
- */
 public class TextReceiveRunnable implements Runnable
 {
 
@@ -52,35 +38,34 @@ public class TextReceiveRunnable implements Runnable
 	private Socket textReceiverSocket = null;
 
 	private OfflineManager offlineManager;
-	
+
 	IConnectCallback connectCallback;
-	
+
 	private IMessageSentOffline textCallback;
-	
+
 	private IMessageSentOffline fileCallback;
 
 	File stickerImage = null;
 
 	private OfflineMessagesManager messagesManager = null;
 
-	public TextReceiveRunnable(IMessageSentOffline textCallback, IMessageSentOffline fileCallback,IConnectCallback connectCallback)
+	public TextReceiveRunnable(InputStream inputStream, IMessageSentOffline textCallback, IMessageSentOffline fileCallback, IConnectCallback connectCallback)
 	{
-		this.textCallback = textCallback;
+		this.inputStream = inputStream;
+		this.connectCallback = connectCallback;
 		this.fileCallback = fileCallback;
-		this.connectCallback=connectCallback;
+		this.textCallback = textCallback;
 	}
-
 
 	@Override
 	public void run()
 	{
+		offlineManager = OfflineManager.getInstance();
+		messagesManager = new OfflineMessagesManager();
 		try
 		{
-			offlineManager = OfflineManager.getInstance();
-			messagesManager = new OfflineMessagesManager();
-			inputStream = connectAndGetInputStream();
 			while (true)
-			{				
+			{
 				byte[] convMessageLength = new byte[4];
 				int readBytes = inputStream.read(convMessageLength, 0, 4);
 
@@ -96,8 +81,8 @@ public class TextReceiveRunnable implements Runnable
 				while (msgSize > 0)
 				{
 					int len = inputStream.read(msgJSON, offset, msgSize);
-					if(len<0)
-					throw new OfflineException(OfflineException.CLIENT_DISCONNETED);
+					if (len < 0)
+						throw new OfflineException(OfflineException.CLIENT_DISCONNETED);
 					offset += len;
 					msgSize -= len;
 				}
@@ -126,7 +111,7 @@ public class TextReceiveRunnable implements Runnable
 				}
 				else if (OfflineUtils.isAckPacket(messageJSON))
 				{
-					messagesManager.handleAckPacket(messageJSON,fileCallback,textCallback);
+					messagesManager.handleAckPacket(messageJSON, fileCallback, textCallback);
 				}
 				else if (OfflineUtils.isSpaceCheckPacket(messageJSON))
 				{
@@ -135,7 +120,7 @@ public class TextReceiveRunnable implements Runnable
 				else if (OfflineUtils.isSpaceAckPacket(messageJSON))
 				{
 					messagesManager.handleSpaceAckPacket(messageJSON);
-					
+
 				}
 				else
 				{
@@ -143,17 +128,17 @@ public class TextReceiveRunnable implements Runnable
 
 					if (OfflineUtils.isStickerMessage(messageJSON))
 					{
-						 messagesManager.handleStickerMessage(messageJSON,stickerImage,inputStream);
+						messagesManager.handleStickerMessage(messageJSON, stickerImage, inputStream);
 					}
 					else if (OfflineUtils.isChatThemeMessage(messageJSON))
 					{
 						messagesManager.handleChatThemeMessage(messageJSON);
-						
+
 						sendAckForMessage(messageJSON);
-						
+
 						continue;
 					}
-					else if(OfflineUtils.isDisconnectPkt(messageJSON))
+					else if (OfflineUtils.isDisconnectPkt(messageJSON))
 					{
 						throw new OfflineException(OfflineException.DISCONNECT);
 					}
@@ -164,9 +149,9 @@ public class TextReceiveRunnable implements Runnable
 
 					}
 					convMessage = new ConvMessage(messageJSON, HikeMessengerApp.getInstance().getApplicationContext());
-					
+
 					sendAckForMessage(messageJSON);
-					//TODO:Handle Ack Loss case ...???
+					// TODO:Handle Ack Loss case ...???
 					HikeConversationsDatabase.getInstance().addConversationMessages(convMessage, true);
 					HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_RECEIVED, convMessage);
 
@@ -199,7 +184,7 @@ public class TextReceiveRunnable implements Runnable
 		catch (JSONException e)
 		{
 			e.printStackTrace();
-			connectCallback.onDisconnect(new OfflineException(e,OfflineException.JSON_EXCEPTION));
+			connectCallback.onDisconnect(new OfflineException(e, OfflineException.JSON_EXCEPTION));
 		}
 		catch (OfflineException e)
 		{
@@ -212,62 +197,23 @@ public class TextReceiveRunnable implements Runnable
 			connectCallback.onDisconnect(e);
 
 		}
+
 	}
-	
-	
-	private void sendAckForMessage(JSONObject messageJSON)
-	{
-		long mappedMsgId = OfflineUtils.getMsgId(messageJSON);
-
-		// send ack for the  packet 
-		JSONObject ackJSON = OfflineUtils.createAckPacket(offlineManager.getConnectedDevice(), mappedMsgId, false);
-		offlineManager.addToTextQueue(ackJSON);
-		
-	}
-
-
-	private InputStream connectAndGetInputStream() throws IOException
-	{
-		textServerSocket = new ServerSocket();
-		textServerSocket.setReuseAddress(true);
-		SocketAddress addr = new InetSocketAddress(PORT_TEXT_MESSAGE);
-		textServerSocket.bind(addr);
-
-		Logger.d(TAG, "TextReceiveThread" + "Will be waiting on accept");
-		textReceiverSocket = textServerSocket.accept();
-		Logger.d(TAG, "TextReceiveThread" + "Connection successfull and the receiver buffer is " + textReceiverSocket.getReceiveBufferSize() + "and the send buffer is "
-				+ textReceiverSocket.getSendBufferSize());
-		connectCallback.onConnect();
-		return textReceiverSocket.getInputStream();
-	}
-
 
 	private void toggleToAndFromField(JSONObject message) throws JSONException
 	{
 		message.put(HikeConstants.FROM, "o:" + offlineManager.getConnectedDevice());
 		message.remove(HikeConstants.TO);
 	}
-	public void shutDown()
-	{
-		try
-		{
-			OfflineUtils.closeSocket(textReceiverSocket);
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
 
-		try
-		{
-			OfflineUtils.closeSocket(textServerSocket);
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
+	private void sendAckForMessage(JSONObject messageJSON)
+	{
+		long mappedMsgId = OfflineUtils.getMsgId(messageJSON);
+
+		// send ack for the packet
+		JSONObject ackJSON = OfflineUtils.createAckPacket(offlineManager.getConnectedDevice(), mappedMsgId, false);
+		offlineManager.addToTextQueue(ackJSON);
+
 	}
-	
-	
 
 }

@@ -98,43 +98,20 @@ public class FileTransferRunnable implements Runnable
 				}
 			}
 		}
+		FileSendRunnable runnable;
 		try
 		{
-			Logger.d(TAG, "File Transfer Thread Connected");
-			while (true)
-			{
-				fileTranserObject = OfflineManager.getInstance().getFileTransferQueue().take();
-
-				offlineManager.setInOfflineFileTransferInProgress(true);
-
-				OfflineThreadManager.getInstance().sendOfflineFile(fileTranserObject, fileSendSocket.getOutputStream());
-
-				Logger.d(TAG, "Waiting for ack of msgid: " + OfflineUtils.getMsgId(fileTranserObject.getPacket()));
-
-				offlineManager.setInOfflineFileTransferInProgress(false);
-			}
-		}
-		catch (InterruptedException e)
-		{
-			Logger.e(TAG, "Some called interrupt on File transfer Thread");
-			e.printStackTrace();
+			OfflineThreadManager.getInstance().startFileReceivingThread(new FileReceiveRunnable(fileSendSocket.getInputStream(), connectCallback));
+			runnable = new FileSendRunnable(connectCallback, fileSendSocket.getOutputStream());
+			runnable.run();
+			
 		}
 		catch (IOException e)
 		{
-			e.printStackTrace();
-			Logger.e(TAG, "IO Exception occured in FileTransferThread.Socket was not bounded or connect failed");
-			connectCallback.onDisconnect(new OfflineException(e, OfflineException.CLIENT_DISCONNETED));
-		}
-		catch (IllegalArgumentException e)
-		{
-			e.printStackTrace();
-			Logger.e(TAG, "FileTransferThread. Did we pass correct Address here ? ?");
-		}
-		catch (OfflineException e)
-		{
-			connectCallback.onDisconnect(e);
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	
 	}
 
 	public void shutDown()

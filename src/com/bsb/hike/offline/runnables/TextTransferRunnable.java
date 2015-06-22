@@ -46,11 +46,14 @@ public class TextTransferRunnable implements Runnable
 	private Socket textSendSocket = null;
 	
 	IConnectCallback connectCallback=null;
+	
+	IMessageSentOffline fileCallback;
 
-	public TextTransferRunnable(IMessageSentOffline textMessageCallback,IConnectCallback connectCallback)
+	public TextTransferRunnable(IMessageSentOffline textMessageCallback,IMessageSentOffline fileCallback,IConnectCallback connectCallback)
 	{
 		this.callback = textMessageCallback;
 		this.connectCallback=connectCallback;
+		this.fileCallback=fileCallback;
 	}
 
 	@Override
@@ -77,7 +80,10 @@ public class TextTransferRunnable implements Runnable
 
 				textSendSocket = new Socket();
 				textSendSocket.connect((new InetSocketAddress(host, PORT_TEXT_MESSAGE)), SOCKET_TIMEOUT);
-				Logger.d(TAG, "Text Transfer Thread Connected" + "the receivre buffer size is "+ textSendSocket.getReceiveBufferSize() + "send buffer is "+ textSendSocket.getSendBufferSize());
+				Logger.d(
+						TAG,
+						"Text Transfer Thread Connected" + "the receivre buffer size is " + textSendSocket.getReceiveBufferSize() + "send buffer is "
+								+ textSendSocket.getSendBufferSize());
 				isNotConnected = false;
 				connectCallback.onConnect();
 
@@ -102,46 +108,24 @@ public class TextTransferRunnable implements Runnable
 					return;
 				}
 			}
-		}
-		try
-		{
-			while (true)
+			catch (IllegalArgumentException e)
 			{
-				packet = OfflineManager.getInstance().getTextQueue().take();
-				{
-					Logger.d("OfflineThreadManager", "Going to send Text");
-					OfflineThreadManager.getInstance().sendOfflineText(packet, textSendSocket.getOutputStream());
-					Logger.d(TAG, "Waiting for ack of msgid: " + OfflineUtils.getMsgId(packet));
-				}
+				e.printStackTrace();
+				Logger.e(TAG, "TextTransferThread. Did we pass correct Address here ? ?");
 			}
 		}
-		catch (InterruptedException e)
+		TextSendRunnable runnable;
+		try
 		{
-			Logger.e(TAG, "Some called interrupt on Text transfer Thread");
-			e.printStackTrace();
-		}
-		catch (SocketTimeoutException e)
-		{
-			Logger.e(TAG, "SOCKET time out exception occured in TextTransferThread.");
-			connectCallback.onDisconnect(new OfflineException(e, OfflineException.SOCKET_TIMEOUT_EXCEPTION));
-			e.printStackTrace();
-		}
+			OfflineThreadManager.getInstance().startTextReceivingThread(new TextReceiveRunnable(textSendSocket.getInputStream(), callback, fileCallback, connectCallback));
+			runnable = new TextSendRunnable(textSendSocket.getOutputStream(), connectCallback);
+			runnable.run();
+			}
 		catch (IOException e)
 		{
 			e.printStackTrace();
-			Logger.e(TAG, "TextTransferThread. IO Exception occured.Socket was not bounded");
-			connectCallback.onDisconnect(new OfflineException(e, OfflineException.SERVER_DISCONNED));
 		}
-		catch (IllegalArgumentException e)
-		{
-			e.printStackTrace();
-			Logger.e(TAG, "TextTransferThread. Did we pass correct Address here ? ?");
-		}
-		catch (OfflineException e)
-		{
-			connectCallback.onDisconnect(e);
-			e.printStackTrace();
-		}
+		
 	}
 
 	public void shutDown()

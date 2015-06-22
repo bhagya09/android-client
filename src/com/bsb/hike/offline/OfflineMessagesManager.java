@@ -42,7 +42,7 @@ public class OfflineMessagesManager
 	{
 		// Start client thread.
 		offlineManager.setConnectedDevice(OfflineUtils.getMsisdnFromPingPacket(messageJSON));
-		threadManager.startSendingThreads();
+		//threadManager.startSendingThreads();
 	}
 
 	public void handleGhostPacket(JSONObject messageJSON)

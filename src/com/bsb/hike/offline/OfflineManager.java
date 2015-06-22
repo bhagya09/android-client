@@ -565,13 +565,13 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 		if (offlineNetworkMsisdn != null && connectedDevice == null && offlineState == OFFLINE_STATE.CONNECTING)
 		{
 
-			threadManager.startTextSendingThread();
-			threadManager.startReceivingThreads();
-
+			//threadManager.startTextSendingThread();
+			//threadManager.startReceivingThreads();
+			threadManager.startSendingThreads();
 			// send ping packet to hotspot
 			connectedDevice = offlineNetworkMsisdn;
 			sendPingPacket();
-			threadManager.startFileSendingThread();
+			//threadManager.startFileSendingThread();
 
 		}
 	}
@@ -708,7 +708,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 
 	public void connectToHotspot(String msisdn)
 	{
-		threadManager.startReceivingThreads();
+		//threadManager.startReceivingThreads();
 		threadManager.startSendingThreads();
 		connectionManager.connectToHotspot(msisdn);
 	}
@@ -735,6 +735,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 		if (myMsisdn.compareTo(msisdn) > 0)
 		{
 			Logger.d(TAG, "Will create Hotspot");
+			connectinMsisdn=msisdn;
 			createHotspot(msisdn);
 			handler.sendMessageDelayed(endTries, OfflineConstants.TIME_TO_CONNECT);
 		}
@@ -754,6 +755,10 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 		}
 	}
 
+	public void setConnectingMsisdnAsConnectedDevice()
+	{
+		this.connectedDevice=connectinMsisdn;
+	}
 	public boolean isHotspotCreated()
 	{
 		return connectionManager.isHotspotCreated();

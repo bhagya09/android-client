@@ -62,7 +62,7 @@ public class OfflineConstants
 		
 	public static final int  GHOST_PACKET_SEND_TIME = 10*1000;
 	
-	public static final int  GHOST_PACKET_DISCONNECT_TIMEOUT = 20*100000;
+	public static final int  GHOST_PACKET_DISCONNECT_TIMEOUT = 20*1000;
 	
 	public final class HandlerConstants
 	{
@@ -107,7 +107,7 @@ public class OfflineConstants
 
 	public static final String WIFI_HOTSPOT_STATE = "android.net.wifi.WIFI_AP_STATE_CHANGED";
 
-	public static final int ALL_THREADS_CONNECTED = 4;
+	public static final int ALL_THREADS_CONNECTED = 2;
 	
 	public static final String WIFI_HOTSPOT_STATE_CHANGE_ACTION = "android.net.wifi.WIFI_AP_STATE_CHANGED";
 
