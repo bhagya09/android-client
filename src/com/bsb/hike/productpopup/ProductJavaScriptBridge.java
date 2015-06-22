@@ -19,10 +19,12 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
+import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.platform.bridge.JavascriptBridge;
 import com.bsb.hike.productpopup.ProductPopupsConstants.HIKESCREEN;
 import com.bsb.hike.productpopup.ProductPopupsConstants.PopUpAction;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -151,10 +153,6 @@ public class ProductJavaScriptBridge extends JavascriptBridge
 						multiFwdStickers(activity, stickerId, categoryId, selectAll);
 					}
 				}
-				else if (activityName.equals(HIKESCREEN.CHAT_HEAD.toString()))
-				{
-					openActivity(metaData);
-				}
 				else if (activityName.equals(HIKESCREEN.OPEN_WEB_VIEW.toString()))
 				{
 					String url = ProductInfoManager.getInstance().getFormedUrl(metaData);
@@ -182,6 +180,11 @@ public class ProductJavaScriptBridge extends JavascriptBridge
 		if(action.equals(PopUpAction.DOWNLOAD_STKPK.toString()))
 		{
 			ProductInfoManager.getInstance().downloadStkPk(metaData);
+		}
+		if(action.equals(PopUpAction.ACTIVATE_CHAT_HEAD_APPS.toString()))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, true);
+			ChatHeadUtils.startOrStopService(false);
 		}
 		
 
