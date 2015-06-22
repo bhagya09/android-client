@@ -76,14 +76,14 @@ public class StickerRecommendationFragment extends SherlockFragment
 	@Override
 	public void onStop()
 	{
-		Logger.d("anubhav", "recommend fragment on stop called");
+		Logger.d(StickerTagWatcher.TAG, "recommend fragment on stop called");
 		super.onStop();
 	}
 	
 	@Override
 	public void onDestroy()
 	{
-		Logger.d("anubhav", "recommend fragment on destroy called");
+		Logger.d(StickerTagWatcher.TAG, "recommend fragment on destroy called");
 		super.onDestroy();
 	}
 	private OnClickListener closeListener = new OnClickListener()

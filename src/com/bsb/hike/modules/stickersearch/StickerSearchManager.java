@@ -129,7 +129,8 @@ public class StickerSearchManager
 		}
 
 		int localLength = highlightArray[0][1] - highlightArray[0][0];
-		if (currentLength <= (localLength + currentString.substring(0, highlightArray[0][0]).length()))
+		//if (currentLength <= (localLength + currentString.substring(0, highlightArray[0][0]).length()))
+		if(currentLength == localLength)
 		{
 			if (localLength == 1)
 			{
