@@ -934,18 +934,22 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 		}
 	
 		long progress = (((long)num*OfflineConstants.CHUNK_SIZE*100)/hikeFile.getFileSize());
-		//Logger.d(TAG, "CurrentSizeReceived: " + num + " FileSize: " + hikeFile.getFileSize() + 
-		//		" Progress -> " +  progress +  " FtState -> " + fss.getFTState().name());
+		Logger.d(TAG, "CurrentSizeReceived: " + num + " FileSize: " + hikeFile.getFileSize() + 
+				" Progress -> " +  progress + "  msgId  --->"+msgId);
 		
-		if (fss.getFTState() == FTState.IN_PROGRESS)
+		if (fss.getFTState() == FTState.IN_PROGRESS && progress == 0 && isSent)
+		{
+			holder.initializing.setVisibility(View.VISIBLE);
+		}
+		 else if (fss.getFTState() == FTState.IN_PROGRESS)
 		{
 			if (progress < 100)
 				holder.circularProgress.setProgress(progress * 0.01f);
 			if (Utils.isHoneycombOrHigher())
 				holder.circularProgress.stopAnimation();
 
-			//Logger.d("Spinner", "" + "holder.circularProgress=" + holder.circularProgress.getCurrentProgress()*100
-				//	+ " Progress=" + progress);
+			Logger.d("Spinner", "Msg Id is......... "+ msgId  + ".........holder.circularProgress=" + holder.circularProgress.getCurrentProgress()*100
+					+ " Progress=" + progress);
 			
 			float animatedProgress = 0 * 0.01f;
 			if (fss.getTotalSize() > 0)
@@ -962,7 +966,6 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener
 				else
 					holder.circularProgress.setAnimatedProgress((int) progress, (int) progress + (int) (animatedProgress * 100), 6 * 1000);
 			}
-
 			holder.circularProgress.setVisibility(View.VISIBLE);
 			holder.circularProgressBg.setVisibility(View.VISIBLE);
 		}
