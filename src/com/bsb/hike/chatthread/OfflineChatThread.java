@@ -14,8 +14,10 @@ import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.os.Message;
 import android.text.TextUtils;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -152,7 +154,17 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 				{
 					overFlowMenuItem.text = getString(R.string.disconnect_offline);
 				}
+				
 				break;
+			case R.string.chat_theme:
+				if (TextUtils.isEmpty(controller.getConnectedDevice()) || (!controller.getConnectedDevice().equals(mConversation.getDisplayMsisdn())))
+				{
+					overFlowMenuItem.enabled=false;
+				}
+				else
+				{
+					overFlowMenuItem.enabled=true;
+				}
 			}
 		}
 
@@ -593,9 +605,23 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 	private void toggleComposeView(boolean isEnabled)
 	{
 		canPoke = isEnabled;
-		activity.findViewById(R.id.compose_container).setVisibility(isEnabled ? View.VISIBLE : View.GONE);
+		//activity.findViewById(R.id.compose_container).setVisibility(isEnabled ? View.VISIBLE : View.GONE);
+		disableEnableControls(isEnabled, (RelativeLayout)activity.findViewById(R.id.compose_container));
 	}
 	
+	
+	private void disableEnableControls(boolean enable, ViewGroup vg)
+	{
+		for (int i = 0; i < vg.getChildCount(); i++)
+		{
+			View child = vg.getChildAt(i);
+			child.setEnabled(enable);
+			if (child instanceof ViewGroup)
+			{
+				disableEnableControls(enable, (ViewGroup) child);
+			}
+		}
+	}
 	@Override
 	protected void setAvatar() {
 		ImageView avatar = (ImageView) mActionBarView.findViewById(R.id.avatar);
