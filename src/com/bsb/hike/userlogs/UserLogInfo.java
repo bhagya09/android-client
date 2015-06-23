@@ -16,7 +16,10 @@ import org.json.JSONObject;
 
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.database.Cursor;
 import android.location.Location;
 import android.location.LocationManager;
@@ -53,11 +56,13 @@ public class UserLogInfo {
 
 	private static final String HASH_SCHEME = "MD5";
 	private static final String TAG = "UserLogInfo";
+	public static final String USER_LOG_SHARED_PREFS = "user_log_info";
 	
 	public static final int CALL_ANALYTICS_FLAG = 1;
 	public static final int APP_ANALYTICS_FLAG = 2;	
 	public static final int LOCATION_ANALYTICS_FLAG = 4;
 	public static final int ADVERTISIND_ID_FLAG = 8;
+	public static final int FETCH_LOG_FLAG = 16;
 	
 	
 	private static final long milliSecInDay = 1000 * 60 * 60 * 24;
@@ -83,7 +88,34 @@ public class UserLogInfo {
 	private static final String SENT_SMS = "ss";
 	private static final String RECEIVED_SMS = "rs";
 	
+	private static final String SESSION_COUNT = "sn";
+	private static final String DURATION = "dr";
+	private static long MIN_SESSION_RECORD_TIME = 2000;
+
 	private static int flags;
+	
+	public static class SessionLogPojo{
+		final String packageName;
+		final String applicationName;
+		final long duration;
+		final int sessions;
+		
+		public SessionLogPojo(String packageName, String applicationName, long duration, int sessions) {
+			this.packageName = packageName;
+			this.applicationName = applicationName;
+			this.sessions = sessions;
+			this.duration = duration;
+		}
+		
+		public JSONObject toJSON() throws JSONException{
+			JSONObject jsonObj = new JSONObject();
+			jsonObj.putOpt(PACKAGE_NAME, this.packageName);
+			jsonObj.putOpt(APPLICATION_NAME,this.applicationName);
+			jsonObj.putOpt(SESSION_COUNT, this.sessions);
+			jsonObj.putOpt(DURATION, this.duration);
+			return jsonObj;
+		}
+	}
 	
 	public static class LocLogPojo{
 		final double latitude;
@@ -190,6 +222,7 @@ public class UserLogInfo {
 			case (ADVERTISIND_ID_FLAG): jsonKey = HikeConstants.ADVERTSING_ID_ANALYTICS; break;
 			case (CALL_ANALYTICS_FLAG): jsonKey = HikeConstants.CALL_LOG_ANALYTICS; break;
 			case (LOCATION_ANALYTICS_FLAG): jsonKey = HikeConstants.LOCATION_LOG_ANALYTICS; break;
+			case (FETCH_LOG_FLAG): jsonKey = HikeConstants.FETCH_LOG_ANALYTICS; break;
 		}
 		return jsonKey;
 	}
@@ -231,8 +264,53 @@ public class UserLogInfo {
 			case CALL_ANALYTICS_FLAG : return getJSONCallArray(getCallLogs());
 			case LOCATION_ANALYTICS_FLAG : return getJSONLocArray(getLocLogs());
 			case ADVERTISIND_ID_FLAG : return getAdvertisingId();
+			case FETCH_LOG_FLAG : return getJSONLogArray(getLogsFor(HikeConstants.SESSION_LOG_TRACKING));
 			default : return null;
 		}
+	}
+	
+	private static JSONArray getJSONLogArray(List<SessionLogPojo> sessionLogPojo) throws JSONException 
+	{
+		if (sessionLogPojo == null || sessionLogPojo.isEmpty())
+			return null;
+		JSONArray sessionJsonArray = new JSONArray();
+		for (SessionLogPojo sessionLog : sessionLogPojo)
+		{
+			sessionJsonArray.put(sessionLog.toJSON());
+		}
+		Logger.d(TAG, sessionJsonArray.toString());
+		return sessionJsonArray;
+	}
+	
+	private static List<SessionLogPojo> getLogsFor(String logType)
+	{
+		List<SessionLogPojo> sessionLogs = new ArrayList<SessionLogPojo>();
+		PackageManager pm = HikeMessengerApp.getInstance().getPackageManager();
+		if(logType == HikeConstants.SESSION_LOG_TRACKING)
+		{
+			HikeSharedPreferenceUtil userPrefs = HikeSharedPreferenceUtil.getInstance(USER_LOG_SHARED_PREFS);
+			for (Map.Entry<String, ?> entry : userPrefs.getPref().getAll().entrySet())
+			{
+				try
+				{
+					String[] sessionInfo = entry.getValue().toString().split(":");
+					ApplicationInfo ai = pm.getApplicationInfo(entry.getKey(), PackageManager.GET_UNINSTALLED_PACKAGES);
+					String applicationName = ai.loadLabel(HikeMessengerApp.getInstance().getPackageManager()).toString();
+					sessionLogs.add(new SessionLogPojo(entry.getKey(), applicationName, Long.parseLong(sessionInfo[0]), Integer.parseInt(sessionInfo[1])));
+					
+				} 
+				catch (NameNotFoundException e)
+				{
+					Logger.d(TAG, "Application uninstalled or not found : " + entry.getKey());
+				}
+				catch (Exception e)
+				{
+					Logger.d(TAG, "Exception : " + e);
+				}
+			}
+			userPrefs.deleteAllData();
+		}
+		return sessionLogs;
 	}
 	
 	private static JSONArray getJSONLocArray(List<LocLogPojo> locLogList) throws JSONException{
@@ -342,6 +420,11 @@ public class UserLogInfo {
 		if(data.optBoolean(HikeConstants.ADVERTSING_ID_ANALYTICS))
 		{
 			flags |= UserLogInfo.ADVERTISIND_ID_FLAG;
+		}
+		if(data.optBoolean(HikeConstants.FETCH_LOG_ANALYTICS))
+		{
+			//TODO possibly turn this into "gl":true to "gl":"stl"
+			flags |= UserLogInfo.FETCH_LOG_FLAG;
 		}
 		
 		if(flags == 0) 
@@ -568,9 +651,21 @@ public class UserLogInfo {
 	
 	private static void recordASession(String packageName, long sesstionTime)
 	{
-		long logtime = System.currentTimeMillis() - sesstionTime;
-		String logPackage = packageName;
-		Logger.d(TAG,"time : " + logtime + " of " + logPackage);
+		long sessionTime = System.currentTimeMillis() - sesstionTime;
+		
+		if(sessionTime > MIN_SESSION_RECORD_TIME)
+		{
+			HikeSharedPreferenceUtil userPrefs = HikeSharedPreferenceUtil.getInstance(USER_LOG_SHARED_PREFS);
+			String[] loggedParams = userPrefs.getData(packageName, "0:0").split(":");
+			for (String s: loggedParams) {
+			    //Do your stuff here
+			   Logger.d(TAG, s);
+			}
+			long duration = Long.parseLong(loggedParams[0]) + sessionTime;
+			int sessions = Integer.parseInt(loggedParams[1]) + 1;
+			userPrefs.saveData(packageName, duration + ":" + sessions);
+			Logger.d(TAG, "time : " + sessionTime + " of " + packageName);
+		}
 	}
 	
 }
