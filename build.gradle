@@ -45,6 +45,9 @@ android {
         }
         compile(project(':recyclerview')) {
             exclude module: 'support-v4'
+        } 
+        compile(project(':kpt-host')) {
+            exclude module: 'support-v4'
         }
         compile fileTree(dir: 'libs', include: ['*.jar'])
     }
