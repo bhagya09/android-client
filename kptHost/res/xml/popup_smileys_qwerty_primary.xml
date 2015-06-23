@@ -1,0 +1,22 @@
+<Keyboard xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:atx="http://schemas.android.com/apk/res-auto"
+    atx:keyWidth="15%p"
+    atx:horizontalGap="0dp"
+    atx:verticalGap="0dp"
+    atx:keyHeight="@dimen/kpt_key_height"
+    >
+     <Row atx:rowEdgeFlags="top">
+        <Key atx:keyLabel=":-)" atx:keyOutputText=":-) " atx:keyEdgeFlags="left" />
+        <Key atx:keyLabel=":-(" atx:keyOutputText=":-( "/>
+        <Key atx:keyLabel=";-)" atx:keyOutputText=";-) "/>
+        <Key atx:keyLabel=":-P" atx:keyOutputText=":-P "/>
+        <Key atx:keyLabel=":-D" atx:keyOutputText=":-D " atx:keyEdgeFlags="right" />
+    </Row>
+    <Row atx:rowEdgeFlags="bottom" >
+        <Key atx:keyLabel=":O" atx:keyOutputText=":O " atx:keyEdgeFlags="left" />
+        <Key atx:keyLabel=":-*" atx:keyOutputText=":-* "/>
+        <Key atx:keyLabel="B-)" atx:keyOutputText="B-) "/>
+        <Key atx:keyLabel=":-$" atx:keyOutputText=":-$ "/>
+        <Key atx:keyLabel=":-\\" atx:keyOutputText=":-\\ " atx:keyEdgeFlags="right" />
+    </Row>
+    </Keyboard>

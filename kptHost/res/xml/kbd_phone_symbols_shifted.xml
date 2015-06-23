@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     /* ** ** Copyright 2008, The Android Open Source Project ** ** Licensed 
+	under the Apache License, Version 2.0 (the "License"); ** you may not use 
+	this file except in compliance with the License. ** You may obtain a copy 
+	of the License at ** ** http://www.apache.org/licenses/LICENSE-2.0 ** ** 
+	Unless required by applicable law or agreed to in writing, software ** distributed 
+	under the License is distributed on an "AS IS" BASIS, ** WITHOUT WARRANTIES 
+	OR CONDITIONS OF ANY KIND, either express or implied. ** See the License 
+	for the specific language governing permissions and ** limitations under 
+	the License. */
+-->
+
+<Keyboard xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:atx="http://schemas.android.com/apk/res-auto"
+    atx:horizontalGap="0dp"
+    
+    atx:keyLabel2TextSize="@dimen/kpt_keyLabel2TextSize_phone_sym"
+    atx:keyLabel2XPos="@dimen/kpt_keyLabel2XPos"
+    atx:keyLabel2YPos="@dimen/kpt_keyLabel2YPos"
+    
+    atx:keyLabelTextSize="@dimen/kpt_keyLabelTextSize_phone_sym"
+    atx:keyLabelXPos="@dimen/kpt_keyLabelXPos"
+    atx:keyLabelYPos="@dimen/kpt_keyLabelYPos"
+    
+    atx:keyType="@integer/kpt_key_type_normal"
+    atx:isGlideSupported = "false"
+    
+    atx:keyWidth="25%p"
+    atx:keyHeight="@dimen/kpt_key_height"
+    atx:verticalGap="0dp" >
+
+    <Row>
+        <Key
+            atx:codes="46"
+            atx:keyEdgeFlags="left"
+            atx:keyLabel="." />
+        <Key
+            atx:codes="44"
+            atx:keyLabel="," />
+        <Key
+            atx:codes="42"
+            atx:keyLabel="*" />
+        <Key
+            atx:codes="-5"
+            atx:iconText="@string/kpt_icontext_delete"
+            atx:isRepeatable="true"
+            atx:keyEdgeFlags="right"
+            atx:keyLabelYPos="0.50"
+            atx:useExternalFont="true" />
+    </Row>
+    <Row>
+        <Key
+            atx:codes="63"
+            atx:keyEdgeFlags="left"
+            atx:keyLabel="\?" />
+        <Key
+            atx:codes="33"
+            atx:keyLabel="!" />
+        <Key
+            atx:codes="35"
+            atx:keyLabel="\#" />
+        <Key
+            atx:codes="-15"
+            atx:keyEdgeFlags="right"
+            atx:keyIcon="@drawable/kpt_adaptxt_settings_fk" />
+    </Row>
+    <Row>
+        <Key
+            atx:codes="45"
+            atx:keyEdgeFlags="left"
+            atx:keyLabel="-" />
+        <Key
+            atx:codes="58"
+            atx:keyLabel=":" />
+        <Key
+            atx:codes="59"
+            atx:keyLabel=";" />
+        <Key
+            atx:codes="-13"
+            atx:iconText="@string/kpt_icontext_globe"
+            atx:keyEdgeFlags="right"
+            atx:keyLabelYPos="0.50"
+            atx:keyLabelTextSize="@dimen/kpt_keyLabel2GlobeShareTextSize"
+            atx:useExternalFont="true" />
+    </Row>
+    <Row atx:rowEdgeFlags="bottom" >
+        <Key
+            atx:codes="-16"
+            atx:keyEdgeFlags="left"
+            atx:keyLabel="@string/kpt_label_phone_key" />
+        <Key
+            atx:codes="32"
+            atx:iconText="@string/kpt_icontext_space"
+            atx:useExternalFont="true" />
+        <Key
+            atx:codes="-18"
+            atx:keyLabel="1/6" />
+        <Key
+            atx:codes="10"
+            atx:iconText="@string/kpt_icontext_enter_kbhide"
+            atx:keyEdgeFlags="right"
+            atx:keyLabelYPos="0.50"
+            atx:useExternalFont="true" />
+    </Row>
+
+</Keyboard>

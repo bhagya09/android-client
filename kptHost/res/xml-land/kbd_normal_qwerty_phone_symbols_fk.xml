@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/* 
+**
+** Copyright 2008, The Android Open Source Project
+**
+** Licensed under the Apache License, Version 2.0 (the "License"); 
+** you may not use this file except in compliance with the License. 
+** You may obtain a copy of the License at 
+**
+**     http://www.apache.org/licenses/LICENSE-2.0 
+**
+** Unless required by applicable law or agreed to in writing, software 
+** distributed under the License is distributed on an "AS IS" BASIS, 
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+** See the License for the specific language governing permissions and 
+** limitations under the License.
+*/
+-->
+
+<Keyboard xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:atx="http://schemas.android.com/apk/res-auto"
+    atx:horizontalGap="5%p"
+    atx:keyHeight="@dimen/kpt_key_height_dk_fk"
+    atx:keyWidth="21%p"
+	
+	atx:keyLabelXPos="@dimen/kpt_keyLabelXPos"
+    atx:keyLabelYPos="@dimen/kpt_keyLabelYPos"
+    atx:keyLabel2XPos="@dimen/kpt_keyLabel2XPos"
+    atx:keyLabel2YPos="@dimen/kpt_keyLabel2YPos"
+    
+    atx:keyLabelTextSize="@dimen/kpt_keyLabelTextSize"
+    atx:keyLabel2TextSize="@dimen/kpt_keyLabel2TextSize"
+	
+	
+    
+    atx:isGlideSupported = "false"
+    atx:keyType="@integer/kpt_key_type_normal"
+    atx:isRTL = "false"
+    atx:fontStyleApplicable = "true"
+    atx:fontSizeApplicable = "true"
+	
+    atx:verticalGap="0dp" >
+
+    <Row>
+        <Key
+            atx:horizontalGap="3.5%p"
+            atx:keyEdgeFlags="left"
+            atx:keyLabel="(" />
+        <Key atx:keyLabel="/" />
+        <Key atx:keyLabel=")" />
+        <Key
+            atx:keyEdgeFlags="right"
+            atx:keyLabel="-" />
+    </Row>
+    <Row>
+        <Key
+            atx:horizontalGap="3.5%p"
+            atx:keyEdgeFlags="left"
+            atx:keyLabel="N" />
+        <!--
+             Pause is a comma. 
+                Check PhoneNumberUtils.java to see if this has changed.
+        -->
+        <Key
+            atx:codes="44"
+            atx:keyLabel="Pause" />
+        <Key atx:keyLabel="," />
+        <Key
+            atx:codes="46"
+            atx:keyLabel="."
+            atx:keyEdgeFlags="right" />
+    </Row>
+    <Row>
+        <Key
+            atx:codes="42"
+            atx:horizontalGap="3.5%p"
+            atx:keyEdgeFlags="left"
+            atx:keyLabel="*" />
+        <!-- Wait is a semicolon. -->
+        <Key
+            atx:codes="59"
+            atx:keyLabel="Wait" />
+        <Key
+            atx:codes="35"
+            atx:keyLabel="#" />
+        <Key
+            atx:codes="-5"
+            atx:keyType="@integer/kpt_functional_key_dont_send_to_core"
+            atx:iconText="@string/kpt_icontext_delete"
+            atx:isRepeatable="true"
+            atx:keyLabelYPos="0.50"
+            atx:keyEdgeFlags="right"
+            atx:useExternalFont="true" />
+    </Row>
+    <Row atx:rowEdgeFlags="bottom"
+        atx:keyType="@integer/kpt_functional_key_dont_send_to_core" >
+        <Key
+            atx:codes="-2"
+            atx:horizontalGap="3.5%p"
+            atx:keyEdgeFlags="left"
+            atx:keyLabel="@string/kpt_label_phone_key" />
+        <Key
+            atx:codes="48,43"
+            atx:keyLabel="0"
+            atx:keyLabel2="+" />
+        <Key
+            atx:codes="32"
+            atx:iconText="@string/kpt_icontext_space"
+            atx:useExternalFont="true" />
+        <Key
+            atx:codes="10"
+            atx:iconText="@string/kpt_icontext_enter_kbhide"
+            atx:keyEdgeFlags="right"
+            atx:useExternalFont="true" />
+    </Row>
+
+</Keyboard>
