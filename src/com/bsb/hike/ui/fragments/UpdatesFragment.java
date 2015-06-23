@@ -78,31 +78,6 @@ public class UpdatesFragment extends SherlockFragment implements Listener
 	}
 
 	@Override
-	public void onResume()
-	{
-		super.onResume();
-		if (timelineCardsAdapter != null)
-		{
-			// TODO
-			// timelineCardsAdapter.getTimelineImageLoader().setExitTasksEarly(false);
-			// timelineCardsAdapter.getIconImageLoader().setExitTasksEarly(false);
-//			timelineCardsAdapter.notifyDataSetChanged();
-		}
-	}
-
-	@Override
-	public void onPause()
-	{
-		super.onPause();
-		if (timelineCardsAdapter != null)
-		{
-			// TODO
-			// timelineCardsAdapter.getTimelineImageLoader().setExitTasksEarly(true);
-			// timelineCardsAdapter.getIconImageLoader().setExitTasksEarly(true);
-		}
-	}
-
-	@Override
 	public void onActivityCreated(Bundle savedInstanceState)
 	{
 		super.onActivityCreated(savedInstanceState);
