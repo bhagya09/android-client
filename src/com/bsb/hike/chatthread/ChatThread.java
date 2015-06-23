@@ -5035,6 +5035,10 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 
 	protected void showThemePicker(int footerTextId)
 	{
+		/**
+		 * Hiding soft keyboard
+		 */
+		Utils.hideSoftKeyboard(activity, mComposeView);
 		setUpThemePicker();
 		themePicker.showThemePicker(activity.findViewById(R.id.cb_anchor), currentTheme,footerTextId, activity.getResources().getConfiguration().orientation);
 	}
