@@ -13,27 +13,27 @@ import android.net.wifi.ScanResult;
 import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.os.Message;
 import android.text.TextUtils;
+import android.util.Pair;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
+import android.widget.ImageView.ScaleType;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.ImageView.ScaleType;
 
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.media.AttachmentPicker;
+import com.bsb.hike.media.OverFlowMenuItem;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.PhonebookContact;
 import com.bsb.hike.models.Conversation.Conversation;
@@ -48,7 +48,6 @@ import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.utils.ChatTheme;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
-import com.bsb.hike.media.OverFlowMenuItem;
 
 /**
  * 
@@ -622,8 +621,42 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 			}
 		}
 	}
+	
+	/**
+	 * Overriding this method as we have to set FileKey if is a File ConvObject.As w/o file key the file will not open.
+	 */
 	@Override
-	protected void setAvatar() {
+	protected boolean onMessageDelivered(Object object)
+	{
+		Pair<String, Long> pair = (Pair<String, Long>) object;
+		// If the msisdn don't match we simply return
+		if (!mConversation.getMsisdn().equals(pair.first))
+		{
+			return false;
+		}
+		long msgID = pair.second;
+		// TODO we could keep a map of msgId -> conversation objects
+		// somewhere to make this faster
+		ConvMessage msg = findMessageById(msgID);
+		if (Utils.shouldChangeMessageState(msg, ConvMessage.State.SENT_DELIVERED.ordinal()))
+		{
+			msg.setState(ConvMessage.State.SENT_DELIVERED);
+			if (OfflineUtils.isFileTransferMessage(msg.serialize()))
+			{
+				if (TextUtils.isEmpty(msg.getMetadata().getHikeFiles().get(0).getFileKey()))
+				{
+					msg.getMetadata().getHikeFiles().get(0).setFileKey("OfflineFileKey" + System.currentTimeMillis() / 1000);
+				}
+			}
+			uiHandler.sendEmptyMessage(NOTIFY_DATASET_CHANGED);
+			return true;
+		}
+		return false;
+	}
+
+	@Override
+	protected void setAvatar()
+	{
 		ImageView avatar = (ImageView) mActionBarView.findViewById(R.id.avatar);
 		if (avatar == null)
 		{
