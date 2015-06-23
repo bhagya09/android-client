@@ -263,5 +263,12 @@ public class ShareablePopupLayout
 		}
 	}
 
-
+	public void setCustomKeyBoardHeight(int height){
+		mKeyboardPopupLayout.setCustomKeyBoardHeight(height);
+	}
+	
+	public void setCustomKeyBoard(boolean isCustomKeyBoard)
+	{
+	  mKeyboardPopupLayout.setCustomKeyBoard(isCustomKeyBoard);
+	}
 }

@@ -44,6 +44,9 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 	
 	private boolean mIsPaddingDisabled = false;
 	
+	private boolean isCustomKeyBoard=true;
+	
+	public int customKeyBoardHeight=0;
 
 	/**
 	 * 
@@ -128,7 +131,11 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 				height = firstTimeHeight;
 			}
 		}
-
+		
+		if (isCustomKeyBoard)
+		{
+			height=customKeyBoardHeight;				
+		}
 		if (popup == null)
 		{
 			initPopUpWindow(LayoutParams.MATCH_PARENT, height, view, context, PopupWindow.INPUT_METHOD_NOT_NEEDED);
@@ -516,4 +523,12 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 		mIsPaddingDisabled = disabled;
 	}
 
+	public void setCustomKeyBoard(boolean isCustomKeyBoard)
+	{
+		this.isCustomKeyBoard = isCustomKeyBoard;
+	}
+	
+	public void setCustomKeyBoardHeight(int height){
+		customKeyBoardHeight=height;
+	}
 }
