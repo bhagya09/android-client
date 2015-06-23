@@ -7,23 +7,27 @@ import java.util.ArrayList;
 import android.content.Context;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.ProgressBar;
 
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.HikeSharedFile;
+import com.bsb.hike.smartImageLoader.ImageWorker.SuccessfulImageLoadingListener;
 import com.bsb.hike.smartImageLoader.SharedFileImageLoader;
 import com.bsb.hike.ui.fragments.PhotoViewerFragment;
 import com.bsb.hike.view.TextDrawable;
 import com.bsb.hike.view.TouchImageView;
 
-public class SharedMediaAdapter extends PagerAdapter implements OnClickListener
+public class SharedMediaAdapter extends PagerAdapter implements OnClickListener, SuccessfulImageLoadingListener
 {
 	private LayoutInflater layoutInflater;
 
@@ -35,13 +39,14 @@ public class SharedMediaAdapter extends PagerAdapter implements OnClickListener
 
 	private PhotoViewerFragment photoViewerFragment;
 	
-	public SharedMediaAdapter(Context context, int size_image, ArrayList<HikeSharedFile> sharedMediaItems, String msisdn, ViewPager viewPager, PhotoViewerFragment photoViewerFragment)
+	public SharedMediaAdapter(Context context, int size_image, ArrayList<HikeSharedFile> sharedMediaItems, String msisdn, PhotoViewerFragment photoViewerFragment)
 	{
 		this.context = context;
 		this.layoutInflater = LayoutInflater.from(this.context);
 		this.sharedMediaLoader = new SharedFileImageLoader(context, size_image);
 		sharedMediaLoader.setDefaultDrawable(context.getResources().getDrawable(R.drawable.ic_file_thumbnail_missing));
 		sharedMediaLoader.setImageToBeCached(false);
+		sharedMediaLoader.setSuccessfulImageLoadingListener(this);
 		this.sharedMediaItems = sharedMediaItems;
 		this.photoViewerFragment = photoViewerFragment;
 	}
@@ -133,6 +138,26 @@ public class SharedMediaAdapter extends PagerAdapter implements OnClickListener
 	public SharedFileImageLoader getSharedFileImageLoader()
 	{
 		return sharedMediaLoader;
+	}
+
+	@Override
+	public void onSuccessfulImageLoaded(final ImageView imageView)
+	{
+		HikeMessengerApp.getInstance().appStateHandler.post(new Runnable()
+		{
+			
+			@Override
+			public void run()
+			{
+				View parent = imageView.getRootView();
+				
+				if(parent.findViewById(R.id.progress_bar) != null)
+				{
+					parent.findViewById(R.id.progress_bar).setVisibility(View.INVISIBLE);
+				}
+			}
+		});
+		
 	}
 
 }

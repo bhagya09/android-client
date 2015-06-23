@@ -180,7 +180,7 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 		
 		Collections.reverse(sharedMediaItems);
 		
-		smAdapter = new SharedMediaAdapter(getActivity(), actualSize, sharedMediaItems, msisdn, selectedPager, this);
+		smAdapter = new SharedMediaAdapter(getActivity(), actualSize, sharedMediaItems, msisdn, this);
 		selectedPager.setAdapter(smAdapter);
 		selectedPager.setOnPageChangeListener(this);
 		
