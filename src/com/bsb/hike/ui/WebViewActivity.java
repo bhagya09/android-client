@@ -146,7 +146,6 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 				return;
 			}
 		}
-		super.onCreate(savedInstanceState);
 		setContentView(R.layout.webview_activity);
 		initView();	
 		initActionBar();

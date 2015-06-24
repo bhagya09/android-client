@@ -228,8 +228,7 @@
         <activity
             android:name=".ui.WebViewActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
-            android:exported="true"
-            android:theme="@style/AppTheme.Home.PhotoEditor" >
+            android:exported="true" >
         </activity>
         <activity
             android:name=".ui.ShareLocation"
