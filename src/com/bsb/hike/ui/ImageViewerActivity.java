@@ -159,11 +159,10 @@ public class ImageViewerActivity extends FragmentActivity implements OnClickList
 		imageView.setScaleX(mWidthScale);
 		imageView.setScaleY(mHeightScale < 0.6f ? 0.6f : mHeightScale);
 		imageView.setTranslationX(mLeftDelta);
-		imageView.setAlpha(0f);
 		imageView.setTranslationY(mTopDelta);
 
 		// Animate scale and translation to go from thumbnail to full size
-		imageView.animate().setDuration(duration).scaleX(1).scaleY(1).translationX(0).translationY(0).alpha(1).withEndAction(new Runnable()
+		imageView.animate().setDuration(duration).scaleX(1).scaleY(1).translationX(0).translationY(0).withEndAction(new Runnable()
 		{
 			public void run()
 			{
@@ -188,7 +187,7 @@ public class ImageViewerActivity extends FragmentActivity implements OnClickList
 	public void runExitAnimation(final Runnable endAction)
 	{
 		// Animate image back to thumbnail size/location
-		imageView.animate().setDuration(300).scaleX(mWidthScale).scaleY(mHeightScale).translationX(mLeftDelta).translationY(mTopDelta).alpha(0f).withEndAction(endAction);
+		imageView.animate().setDuration(300).scaleX(mWidthScale).scaleY(mHeightScale).translationX(mLeftDelta).translationY(mTopDelta).withEndAction(endAction);
 		ObjectAnimator bgAnim = ObjectAnimator.ofFloat(fadeScreen, "alpha", 0);
 		bgAnim.setDuration(300);
 		bgAnim.start();
