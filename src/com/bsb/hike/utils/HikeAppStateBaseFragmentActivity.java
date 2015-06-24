@@ -37,6 +37,7 @@ public class HikeAppStateBaseFragmentActivity extends HikeBaseActivity implement
 	
 	protected HikeUiHandler uiHandler = new HikeUiHandler (this);
 	
+	
 	/**
 	 * 
 	 * @param msg
