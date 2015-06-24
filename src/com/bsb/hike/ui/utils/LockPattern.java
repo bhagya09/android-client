@@ -87,6 +87,9 @@ public class LockPattern
 				{
 					StealthModeManager.getInstance().activate(true);
 
+					//sending server mqtt packet on enabling stealth mode
+					HikeAnalyticsEvent.sendStealthEnabled(true);
+
 					JSONObject metadata = new JSONObject();
 					try
 					{
