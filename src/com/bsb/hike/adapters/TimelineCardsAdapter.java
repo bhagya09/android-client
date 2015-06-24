@@ -563,7 +563,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 				}
 				catch (ActivityNotFoundException e)
 				{
-					Logger.e(CentralTimelineAdapter.class.getSimpleName(), "Unable to open market");
+					Logger.e(TimelineCardsAdapter.class.getSimpleName(), "Unable to open market");
 				}
 				HikeMessengerApp.getPubSub().publish(HikePubSub.GAMING_PROTIP_DOWNLOADED, protip);
 			}

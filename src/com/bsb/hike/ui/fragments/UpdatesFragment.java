@@ -20,7 +20,6 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
-import com.bsb.hike.adapters.CentralTimelineAdapter;
 import com.bsb.hike.adapters.TimelineCardsAdapter;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
@@ -229,14 +228,14 @@ public class UpdatesFragment extends SherlockFragment implements Listener
 	private void addFTUEItem(List<StatusMessage> statusMessages)
 	{
 		removeFTUEItemIfExists();
-		statusMessages.add(new StatusMessage(CentralTimelineAdapter.FTUE_ITEM_ID, null, null, null, null, null, 0));
+		statusMessages.add(new StatusMessage(TimelineCardsAdapter.FTUE_ITEM_ID, null, null, null, null, null, 0));
 	}
 
 	private void removeFTUEItemIfExists()
 	{
 		if (!statusMessages.isEmpty())
 		{
-			if (statusMessages.get(statusMessages.size() - 1).getId() == CentralTimelineAdapter.FTUE_ITEM_ID)
+			if (statusMessages.get(statusMessages.size() - 1).getId() == TimelineCardsAdapter.FTUE_ITEM_ID)
 			{
 				statusMessages.remove(statusMessages.size() - 1);
 			}
@@ -289,13 +288,13 @@ public class UpdatesFragment extends SherlockFragment implements Listener
 			{
 				if (TextUtils.isEmpty(lastStatus))
 				{
-					noStatusMessage = new StatusMessage(CentralTimelineAdapter.EMPTY_STATUS_NO_STATUS_ID, null, "12345", getString(R.string.mood_update), getString(
+					noStatusMessage = new StatusMessage(TimelineCardsAdapter.EMPTY_STATUS_NO_STATUS_ID, null, "12345", getString(R.string.mood_update), getString(
 							R.string.hey_name, name), StatusMessageType.NO_STATUS, System.currentTimeMillis() / 1000);
 					statusMessages.add(0, noStatusMessage);
 				}
 				else if (result.isEmpty())
 				{
-					noStatusMessage = new StatusMessage(CentralTimelineAdapter.EMPTY_STATUS_NO_STATUS_RECENTLY_ID, null, "12345", getString(R.string.mood_update), getString(
+					noStatusMessage = new StatusMessage(TimelineCardsAdapter.EMPTY_STATUS_NO_STATUS_RECENTLY_ID, null, "12345", getString(R.string.mood_update), getString(
 							R.string.hey_name, name), StatusMessageType.NO_STATUS, System.currentTimeMillis() / 1000);
 					statusMessages.add(0, noStatusMessage);
 				}
