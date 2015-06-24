@@ -12,6 +12,8 @@
         android:minHeight="?attr/actionBarSize"
         style="@style/Widget.Styled.ActionBar"
         android:clickable="true"
+        app:contentInsetLeft="0dp"
+        app:contentInsetStart="0dp"
         
          >
          
