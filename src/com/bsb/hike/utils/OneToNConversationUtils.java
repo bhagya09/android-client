@@ -68,7 +68,7 @@ public class OneToNConversationUtils
 						ContactInfo contact = ContactManager.getInstance()
 								.getContact(groupAdder, true, false);
 						if (contact != null) {
-							adder = contact.getFirstName();
+							adder = contact.getFirstNameAndSurname();
 						}
 					}
 					if(groupAdder.equalsIgnoreCase( preferences.getString(HikeMessengerApp.MSISDN_SETTING, ""))){
@@ -98,7 +98,7 @@ public class OneToNConversationUtils
 							ContactInfo contact = ContactManager.getInstance()
 									.getContact(groupAdder, true, false);
 							if (contact != null) {
-								adder = contact.getFirstName();
+								adder = contact.getFirstNameAndSurname();
 							}
 						}
 					}

@@ -112,7 +112,7 @@ public final class PreviewFragment extends Fragment
 			ViewStub stub = (ViewStub) sizeBar.findViewById(R.id.viewStubPreview);
 			DoodleEffectItemLinearLayout inflated = (DoodleEffectItemLinearLayout) stub.inflate();
 			inflated.setBrushColor(HikePhotosUtils.DoodleColors[0]);
-			inflated.setBrushWidth(HikePhotosUtils.dpToPx(getActivity().getApplicationContext(), HikeConstants.HikePhotos.DEFAULT_BRUSH_WIDTH));
+			inflated.setBrushWidth(HikePhotosUtils.dpToPx(HikeConstants.HikePhotos.DEFAULT_BRUSH_WIDTH));
 
 			inflated.setPadding(0, 0, 0, 0);
 			inflated.setRingColor(HikeConstants.HikePhotos.DEFAULT_RING_COLOR);
