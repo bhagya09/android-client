@@ -1684,6 +1684,16 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					// if file trasfer started then it will show toast
 					Toast.makeText(getApplicationContext(), getString(R.string.messages_sent_succees), Toast.LENGTH_LONG).show();
 				}
+				// Send Files and Messages Offline
+				if(offlineContact!=null && !offlineMessageList.isEmpty())
+				{
+					controller.sendMultiMessages(offlineMessageList,offlineContact.getMsisdn());
+				}
+				if(offlineContact!=null  && !fileTransferList.isEmpty())
+				{
+					controller.sendFile(fileTransferList, offlineContact.getMsisdn());
+				}
+				
 				if(multipleMessageList.size() ==0 || arrayList.size()==0){
 					if(fileTransferList.isEmpty()){
 						// if it is >0 then onpost execute of PreFileTransferAsycntask will start intent
@@ -1698,10 +1708,6 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					sendMessage(convMessage);
 				}else{
 					sendMultiMessages(multipleMessageList,arrayList,platformAnalyticsJson,false);
-					if(offlineContact!=null)
-					{
-						controller.sendMultiMessages(offlineMessageList,offlineContact.getMsisdn());
-					}
 					if(fileTransferList.isEmpty()){
 						// if it is >0 then onpost execute of PreFileTransferAsycntask will start intent
 						startActivity(intent);
@@ -1713,10 +1719,6 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			catch (JSONException e)
 			{
 				Logger.e(getClass().getSimpleName(), "Invalid JSON Array", e);
-			}
-			if(offlineContact!=null  && !fileTransferList.isEmpty())
-			{
-				controller.sendFile(fileTransferList, offlineContact.getMsisdn());
 			}
 			presentIntent.removeExtra(HikeConstants.Extras.MULTIPLE_MSG_OBJECT);
 		}
