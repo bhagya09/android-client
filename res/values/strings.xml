@@ -1156,7 +1156,6 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="no_file">Files and pins are shown here</string>
     <string name="no_file_broadcast">Files are shown here</string>
     <string name="no_file_profile">Files are shown here</string>
-    <string name="num_new_conversations">%1$s conversations</string>
     <string name="notifications_contact_join_title">Contact joining hike</string>
     <string name="share_with_names_numbers">Share with %1$s and %2$d others?</string>
     <string name="forward_to_names_numbers">Send message to %1$s and %2$d others?</string>
@@ -1530,4 +1529,5 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
 	<string name="show_degraded_image_quality">Going to load a low quality Image</string>
 	<string name="toast_for_showing_thumbnail">Going to show Thumbanil</string>
 	<string name="now">Now</string>
+	<string name="num_notification_sub_text_for_multi_msisdn">%1$s messages from %2$s conversations</string>
 </resources>
