@@ -307,6 +307,6 @@ public class HikeActionMode implements ActionMode.Callback, OnClickListener
 	public void reInflateActionMode()
 	{
 		reInflation = true;
-		mActivity.startActionMode((android.view.ActionMode.Callback) this);
+		mActivity.startSupportActionMode((ActionMode.Callback) this);
 	}
 }
