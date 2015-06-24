@@ -621,7 +621,7 @@ public class HikeConstants
 	/* Constant used to name the preference file which saves the drafts */
 	public static final String DRAFT_SETTING = "draftSetting";
 
-	public static final int CONNECT_TIMEOUT = 6 * 1000;
+	public static final int CONNECT_TIMEOUT = 30 * 1000;
 
 	public static final int SOCKET_TIMEOUT = 30 * 1000;
 
@@ -636,8 +636,8 @@ public class HikeConstants
 	 */
 	public static final long MESSAGE_RETRY_INTERVAL = 15 * 1000;
 
-	/* quiet period of no changes before actually updating the db */
-	public static final long CONTACT_UPDATE_TIMEOUT = 10 * 1000;
+	/* quiet period of no changes(in seconds) before actually updating the db */
+	public static final long CONTACT_UPDATE_TIMEOUT = 60 ;
 
 	/* how often to ping the server */
 	public static final short KEEP_ALIVE = 5 * 60; /* 10 minutes */
@@ -816,6 +816,9 @@ public class HikeConstants
 
 	// Google Plus URI prefix for all devices
 	public static final String GOOGLE_PLUS_PREFIX = "content://com.google.android.apps.photos.content";
+	
+	// Google Inbox App URI prefix for all devices
+		public static final String GOOGLE_INBOX_PREFIX = "content://com.google.android.apps.bigtop";
 
 	public static final int MAX_MESSAGES_TO_LOAD_INITIALLY = 40;
 
@@ -1005,7 +1008,7 @@ public class HikeConstants
 
 	public static final int STEALTH_ON = 2;
 
-	public static final long RESET_COMPLETE_STEALTH_TIME_MS = 5 * 1000;
+	public static final long RESET_COMPLETE_STEALTH_TIME_MS = 30 * 60 * 1000;
 	
 	public static final String ENABLED = "enabled";
 
@@ -2118,22 +2121,6 @@ public class HikeConstants
 
 		public static final String GET_ACTIVE_NETWORK_INFO = "getActiveNetworkInfo";
 
-		//steatlh
-
-		public static final String STEALTH = "stlth";
-
-		public static final String STEALTH_CONV_MARK = "stlthmark";
-
-		public static final String STEALTH_SETUP = "stlthsetup";
-
-		public static final String STEALTH_PASSWORD_ENTRY = "entStlthPwd";
-
-		public static final String STEALTH_RESULT = "stlthrslt";
-
-		public static final String ENTER_WRONG_STEALTH_MODE = "entWrongStlth";
-
-		public static final String STEALTH_REQUEST = "stlthrqst";
-
 	}
 
 	public static final class MqttMessageTypes
@@ -2719,6 +2706,8 @@ public class HikeConstants
 		public static final String ONLY_PROFILE_UPDATE = "update_profile_pic_only";
 		
 		public static final int MAX_IMAGE_DIMEN = 1240;
+		
+		public static final String FROM_DP_UPLOAD = "from_dp_upload";
 
 	}
 
@@ -2822,4 +2811,16 @@ public class HikeConstants
 	public static final String FTUE_HIKEBOT_MSISDN = "+hike1+";
 
 	public static final String PRIVACY_SETTINGS_CATEGORY = "privacySettingsCategory";
+	
+	public static final String KEY = "key";
+	
+	public static final String VALUE = "val";
+			
+	public static final String CONSUMED_FORWARDED_DATA = "consumed";
+
+	public static final String CONTACT_UPDATE_WAIT_TIME = "contactUpdateWaitTime";
+
+	public static final String DELETE_IC_ON_CONTACT_REMOVE = "deleteIcOnContactRemove";
+	
+	public static final String CONTACT_REMOVE_DUPLICATES_WHILE_SYNCING = "contactRemoveDuplicates";
 }

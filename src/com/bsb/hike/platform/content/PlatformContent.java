@@ -76,6 +76,14 @@ public class PlatformContent
 					{
 						return "already_dwnld";
 					}
+				},
+		UNZIP_FAILED
+				{
+					@Override
+					public String toString()
+					{
+						return "unzip_fail";
+					}
 				}
 
 	}
@@ -107,7 +115,9 @@ public class PlatformContent
 	{
 		Logger.d("PlatformContent", "Content Dir : " + PlatformContentConstants.PLATFORM_CONTENT_DIR);
 		PlatformContentModel model = PlatformContentModel.make(uniqueId,contentData);
-		model.setUniqueId(uniqueId);
+		if(model != null) {
+			model.setUniqueId(uniqueId); // GSON issue
+		}
 		PlatformContentRequest request = PlatformContentRequest.make(model, listener);
 
 		if (request != null)

@@ -9,7 +9,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.nio.channels.FileChannel;
 import java.util.Calendar;
 
@@ -28,6 +27,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.utils.CBCEncryption;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -506,6 +506,12 @@ public class AccountBackupRestore
 			}
 			postRestoreSetup(state,userBackupData);
 		}
+		
+		else
+		{
+			BotUtils.initBots();
+		}
+		
 		time = System.currentTimeMillis() - time;
 		Logger.d(getClass().getSimpleName(), "Restore " + result + " in " + time / 1000 + "." + time % 1000 + "s");
 		recordLog(RESTORE_EVENT_KEY,result,time);
@@ -626,6 +632,7 @@ public class AccountBackupRestore
 			HikeConversationsDatabase.getInstance().clearTable(table);
 		}
 		HikeConversationsDatabase.getInstance().upgradeForStickerShopVersion1();
+		BotUtils.postAccountRestoreSetup();
 	}
 
 	/**
@@ -663,6 +670,13 @@ public class AccountBackupRestore
 			File backup = getBackupFile(DBCopy.getName());
 			if (!backup.exists())
 				return false;
+		}
+		File prefBackupFile = getPrefBackupFile();
+		File backupStateFile = getBackupStateFile();
+		
+		if(!prefBackupFile.exists() && !backupStateFile.exists())
+		{
+			return false;
 		}
 		if (getLastBackupTime() > 0)
 		{
@@ -702,9 +716,7 @@ public class AccountBackupRestore
 	
 	private void deleteTempPrefFile()
 	{
-		PreferenceBackup prefBackup = new PreferenceBackup();
-		File prefFile = prefBackup.getPrefFile();
-		prefFile.delete();
+		getTempPrefFile().delete();
 	}
 
 	/**
@@ -721,8 +733,22 @@ public class AccountBackupRestore
 			backup.delete();
 		}
 		getBackupStateFile().delete();
+		getPrefBackupFile().delete();
+		UserBackupData userData = new UserBackupData();
+		userData.getUserDataFile().delete();
 		deleteTempDBFiles();
 		deleteTempPrefFile();
+	}
+	
+	private File getTempPrefFile()
+	{
+		PreferenceBackup prefBackup = new PreferenceBackup();
+		return prefBackup.getPrefFile();
+	}
+	
+	private File getPrefBackupFile()
+	{
+		return getBackupFile(getTempPrefFile().getName());
 	}
 
 	private File getCurrentDBFile(String dbName)

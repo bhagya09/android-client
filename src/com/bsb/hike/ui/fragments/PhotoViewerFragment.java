@@ -1,5 +1,6 @@
 package com.bsb.hike.ui.fragments;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -28,6 +29,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
@@ -613,6 +615,13 @@ public class PhotoViewerFragment extends Fragment implements OnPageChangeListene
 			
 			return true;
 		case R.id.forward_msgs:
+			
+			File selFile = getCurrentSelectedItem().getFile();
+			if(selFile == null || !selFile.exists())
+			{
+				Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), R.string.file_expire, Toast.LENGTH_SHORT).show();
+				return false;
+			}
 			Intent intent = new Intent(getActivity(), ComposeChatActivity.class);
 			intent.putExtra(HikeConstants.Extras.FORWARD_MESSAGE, true);
 			JSONArray multipleMsgArray = new JSONArray();

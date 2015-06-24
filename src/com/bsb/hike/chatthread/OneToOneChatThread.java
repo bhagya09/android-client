@@ -654,7 +654,7 @@ public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCal
 		case SHOW_CALL_ICON:
 			if (shouldShowCallIcon())
 			{
-				if (mActionBar != null)
+				if (mActionBar != null && mActionBar.getMenuItem(R.id.voip_call) != null)
 				{
 					mActionBar.getMenuItem(R.id.voip_call).setVisible(true);
 				}

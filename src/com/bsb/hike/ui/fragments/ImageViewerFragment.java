@@ -224,6 +224,14 @@ public class ImageViewerFragment extends Fragment implements OnClickListener, Li
 	@Override
 	public void onEventReceived(String type, Object object) 
 	{
+		/**
+		 * If fragment is not added, returning it
+		 */
+		if (!isAdded())
+		{
+			return;
+		}
+		
 		if (HikePubSub.ICON_CHANGED.equals(type))
 		{
 			ContactInfo contactInfo = Utils.getUserContactInfo(getActivity().getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0));

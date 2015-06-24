@@ -43,6 +43,7 @@ import com.bsb.hike.modules.signupmgr.ValidateNumberTask;
 import com.bsb.hike.ui.SignupActivity;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
@@ -437,8 +438,14 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 		}
 		else
 		{
-			publishProgress(new StateValue(State.MSISDN, HikeConstants.DONE));
+			if (!(context instanceof SignupActivity))
+			{
+				//Ideally UI should be on SignupActivity at this point   
+				//if it is not than we need to update UI.
+				publishProgress(new StateValue(State.MSISDN, HikeConstants.DONE));
+			}
 		}
+		
 		this.data = null;
 		// We're doing this to prevent the WelcomeScreen from being shown the
 		// next time we start the app.
@@ -453,15 +460,27 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 		ed.putBoolean(HikeMessengerApp.ACCEPT_TERMS, true);
 		ed.commit();
 		
-		if(userName != null)
+		/*
+		 * the below logic is to correctly update signup activity views
+		 * 1. if we already have user gender that means now we need to move
+		 * to final state of scanning contacts screen
+		 * 2. if we don't have gender but name means we need to show gender screen
+		 * 3. if we don't have both of the above means we need to show name screen
+		 */
+		if(isFemale != null)
+		{
+			publishProgress(new StateValue(State.SCANNING_CONTACTS, ""));
+		}
+		else if(userName != null)
 		{
 			publishProgress(new StateValue(State.GENDER, ""));
-			if(isFemale != null)
-			{
-				publishProgress(new StateValue(State.SCANNING_CONTACTS, ""));
-			}
 		}
-
+		else
+		{
+			publishProgress(new StateValue(State.NAME, ""));
+		}
+		
+		
 		/* scan the addressbook */
 		if (!ab_scanned)
 		{
@@ -472,8 +491,17 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 			
 			try
 			{
+				Logger.d("Signup", "Starting AB scanning");
 				Map<String, List<ContactInfo>> contacts = conMgr.convertToMap(contactinfos);
-				JSONObject jsonForAddressBookAndBlockList = new PostAddressBookTask(contacts).execute();
+				JSONObject jsonForAddressBookAndBlockList = null;
+				if (Utils.isAddressbookCallsThroughHttpMgrEnabled())
+				{
+					jsonForAddressBookAndBlockList = new PostAddressBookTask(contacts).execute();
+				}
+				else
+				{
+					jsonForAddressBookAndBlockList = AccountUtils.postAddressBook(token, contacts);
+				}
 
 				List<ContactInfo> addressbook = ContactUtils.getContactList(jsonForAddressBookAndBlockList, contacts);
 				List<String> blockList = ContactUtils.getBlockList(jsonForAddressBookAndBlockList);
@@ -520,6 +548,8 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 		{
 			publishProgress(new StateValue(State.ADDRESSBOOK, HikeConstants.DONE));
 		}
+		
+		Logger.d("Signup", "AB scanning done");
 
 		if (isCancelled())
 		{
@@ -621,6 +651,10 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 		 * We show these tips only to upgrading users
 		 */
 		edit.putBoolean(HikeMessengerApp.SHOWN_WELCOME_HIKE_TIP, true);
+		/*
+		 * Re-initilizing hidden mode
+		 */
+		StealthModeManager.getInstance().initiate();
 		/*
 		 * We don't want to show red dot on overflow menu for new users
 		 */
@@ -862,4 +896,14 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
     	}
     }
 
+    protected final void publishProgress(StateValue value) 
+	{
+
+		if (value != null)
+		{
+			Logger.d("SignupTask", " publishing state : " + value.state + " val : " + value.value);
+		}
+
+		super.publishProgress(value);
+	}
 }

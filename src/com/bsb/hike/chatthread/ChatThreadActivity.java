@@ -14,6 +14,7 @@ import android.view.Window;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -51,8 +52,7 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 		super.onCreate(savedInstanceState);
 		if (filter(getIntent()))
 		{
-			
-			chatThread.onCreate();
+			chatThread.onCreate(savedInstanceState);
 			showProductPopup(ProductPopupsConstants.PopupTriggerPoints.CHAT_SCR.ordinal());
 		}
 		else
@@ -84,6 +84,17 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 		if (StealthModeManager.getInstance().isStealthMsisdn(msisdn) && !StealthModeManager.getInstance().isActive())
 		{
 			return false;
+		}
+		
+		/**
+		 * Possibly opening a deleted bot ?
+		 */
+		if (HikeConstants.Extras.BOT_CHAT_THREAD.equals(intent.getStringExtra(HikeConstants.Extras.WHICH_CHAT_THREAD)))
+		{
+			if (null == BotUtils.getBotInfoForBotMsisdn(msisdn))
+			{
+				return false;
+			}
 		}
 		return true;
 	}
@@ -319,4 +330,24 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 		return super.onKeyUp(keyCode, event);
 	}
 	
+	@Override
+	protected void onSaveInstanceState(Bundle outState)
+	{
+		if (chatThread != null)
+		{
+			chatThread.onSaveInstanceState(outState);
+		}
+		super.onSaveInstanceState(outState);
+	}
+	
+	@Override
+	protected void onRestoreInstanceState(Bundle savedInstanceState)
+	{
+		if(chatThread != null) 
+		{
+			chatThread.onRestoreInstanceState(savedInstanceState);
+		}
+		super.onRestoreInstanceState(savedInstanceState);
+		
+	}
 }

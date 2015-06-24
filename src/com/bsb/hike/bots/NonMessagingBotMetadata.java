@@ -57,11 +57,6 @@ public class NonMessagingBotMetadata
 		{
 			cardObj = metadata.optJSONObject(HikePlatformConstants.CARD_OBJECT);
 
-			if (cardObj.has(HikePlatformConstants.HELPER_DATA))
-			{
-				setHelperData(cardObj.optJSONObject(HikePlatformConstants.HELPER_DATA));
-			}
-
 			if (cardObj.has(HikePlatformConstants.APP_NAME))
 			{
 				setAppName(cardObj.optString(HikePlatformConstants.APP_NAME));
@@ -72,16 +67,6 @@ public class NonMessagingBotMetadata
 				setAppPackage(cardObj.optString(HikePlatformConstants.APP_PACKAGE));
 			}
 		}
-	}
-
-	public JSONObject getHelperData()
-	{
-		return helperData;
-	}
-
-	public void setHelperData(JSONObject helperData)
-	{
-		this.helperData = helperData;
 	}
 
 	public String getAppName()

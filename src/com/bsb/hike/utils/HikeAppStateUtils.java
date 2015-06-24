@@ -124,7 +124,7 @@ public class HikeAppStateUtils
 		{
 			if (HikeMessengerApp.currentState == CurrentState.NEW_ACTIVITY)
 			{
-				Logger.d(TAG, "App was going to another activity 1");
+				Logger.d(TAG, "App was going to another activity");
 				HikeMessengerApp.currentState = CurrentState.RESUMED;
 			}
 			else if (HikeMessengerApp.currentState == CurrentState.BACK_PRESSED)
@@ -137,11 +137,10 @@ public class HikeAppStateUtils
 			{
 				if (Utils.isHoneycombOrHigher() && activity.isChangingConfigurations())
 				{
-					Logger.d(TAG, "App was going to another activity 2");
+					Logger.d(TAG, "App was going to another activity");
 					HikeMessengerApp.currentState = CurrentState.RESUMED;
 					return;
 				}
-				Logger.d(TAG, "FSM state at the point of going to BG :" + HikeMessengerApp.currentState);
 				Logger.d(TAG + activity.getClass().getSimpleName(), "App was backgrounded. Sending packet");
 				HikeMessengerApp.currentState = CurrentState.BACKGROUNDED;
 				Utils.appStateChanged(activity.getApplicationContext(), true, Utils.isHoneycombOrHigher());
@@ -166,11 +165,6 @@ public class HikeAppStateUtils
 		if (HikeMessengerApp.currentState == CurrentState.BACKGROUNDED || HikeMessengerApp.currentState == CurrentState.CLOSED)
 		{
 			HikeMessengerApp.currentState = CurrentState.NEW_ACTIVITY_IN_BG;
-		}
-		// fix for fogbugz ticket 44230 - If a url/location is browsed from chat thread, app sends bg packet to server
-		else if(HikeMessengerApp.currentState == CurrentState.RESUMED)
-		{
-			return;
 		}
 		else
 		{

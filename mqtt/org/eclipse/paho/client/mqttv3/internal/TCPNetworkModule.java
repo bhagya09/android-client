@@ -114,16 +114,24 @@ public class TCPNetworkModule implements NetworkModule
 	 */
 	public void stop() throws IOException
 	{
-		if (socket != null)
+		try
 		{
-			if(socket.getOutputStream() != null)
+			if (socket != null)
 			{
-				socket.shutdownOutput();
+				if (socket.getOutputStream() != null)
+				{
+					socket.shutdownOutput();
+				}
+				if (socket.getInputStream() != null)
+				{
+					socket.shutdownInput();
+				}
+				socket.close();
 			}
-			if(socket.getInputStream() != null)
-			{
-				socket.shutdownInput();
-			}
+		}
+		catch (Exception e)
+		{
+			Logger.e(TAG, "exception while trying to stop network module", e);
 			socket.close();
 		}
 	}

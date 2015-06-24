@@ -348,7 +348,7 @@ public class ClientComms
 		}
 		catch (Exception ioe)
 		{
-			// Ignore as we are shutting down
+			Logger.e(TAG, "exception while trying to stop network module", ioe);
 		}
 
 		// Stop the thread that handles inbound work from the network
@@ -378,7 +378,7 @@ public class ClientComms
 		}
 		catch (Exception ex)
 		{
-			// Ignore as we are shutting down
+			Logger.e(TAG, "exception while trying to disconnect clientState", ex);
 		}
 
 		if (sender != null)
@@ -400,7 +400,7 @@ public class ClientComms
 		}
 		catch (Exception ex)
 		{
-			// Ignore as we are shutting down
+			Logger.e(TAG, "exception while trying to close persistence db", ex);
 		}
 		// All disconnect logic has been completed allowing the
 		// client to be marked as disconnected.
