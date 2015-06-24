@@ -5,47 +5,42 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.animation.Animator.AnimatorListener;
 import android.animation.Animator;
+import android.animation.Animator.AnimatorListener;
 import android.animation.AnimatorSet;
 import android.animation.ValueAnimator;
 import android.app.Service;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.os.Handler;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
-import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.WindowManager;
 import android.view.View.OnTouchListener;
+import android.view.WindowManager;
 import android.widget.ImageView;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.ui.utils.RecyclingImageView;
 import com.bsb.hike.userlogs.UserLogInfo;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.ShareUtils;
 import com.bsb.hike.utils.Utils;
-import com.bsb.hike.analytics.AnalyticsConstants;
-import com.bsb.hike.analytics.HAManager;
-import com.bsb.hike.chatHead.ChatHeadActivity;
-import com.bsb.hike.chatthread.ChatThreadUtils;
 
 public class ChatHeadService extends Service
 {
@@ -491,15 +486,8 @@ public class ChatHeadService extends Service
 
 	public void resetPosition(int flag, String path)
 	{
-		if (savedPosX <= (int) ((getResources().getDisplayMetrics().widthPixels - chatHead.getWidth()) / 2))
-		{
-		
-			overlayAnimation(chatHead, chatHeadParams.x, 0, chatHeadParams.y, savedPosY, flag, path);
-		}
-		else
-		{
-			overlayAnimation(chatHead, chatHeadParams.x, getResources().getDisplayMetrics().widthPixels - chatHead.getWidth(), chatHeadParams.y, savedPosY, flag, path);
-		}
+		int halfWidthDiff = getResources().getDisplayMetrics().widthPixels - chatHead.getWidth() / 2;
+		overlayAnimation(chatHead, chatHeadParams.x, savedPosX <= halfWidthDiff ? 0 : halfWidthDiff * 2, chatHeadParams.y, savedPosY, flag, path);
 	}
 
 	@Override
