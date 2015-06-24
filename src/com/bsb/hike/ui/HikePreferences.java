@@ -1434,8 +1434,11 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		}
 		else
 		{
-			//passing true here to denote that this is coming from the password reset operation
-			data.putExtra(HikeConstants.Extras.STEALTH_PASS_RESET, true);	
+			if(data != null)
+			{
+				//passing true here to denote that this is coming from the password reset operation
+				data.putExtra(HikeConstants.Extras.STEALTH_PASS_RESET, true);	
+			}
 		}
 		LockPattern.onLockActivityResult(this, requestCode, resultCode, data);
 		super.onActivityResult(requestCode, resultCode, data);

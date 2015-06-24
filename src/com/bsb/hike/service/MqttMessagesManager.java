@@ -1,6 +1,7 @@
 package com.bsb.hike.service;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -1843,6 +1844,12 @@ public class MqttMessagesManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.TOGGLE_OK_HTTP, okhttp);
 		}
 		
+		if (data.has(HikeMessengerApp.ENABLE_ADDRESSBOOK_THROUGH_HTTP_MGR))
+		{
+			boolean enAb = data.getBoolean(HikeMessengerApp.ENABLE_ADDRESSBOOK_THROUGH_HTTP_MGR);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.ENABLE_ADDRESSBOOK_THROUGH_HTTP_MGR, enAb);
+		}
+		
 		if(data.has(HikeConstants.Extras.CHANGE_MAX_MESSAGE_PROCESS_TIME))
 		{
 			long maxMessageProcessTime = data.optLong(HikeConstants.Extras.CHANGE_MAX_MESSAGE_PROCESS_TIME);
@@ -1934,7 +1941,21 @@ public class MqttMessagesManager
 			boolean enable = data.getBoolean(HikeConstants.ENABLE_EXCEPTION_ANALYTIS);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.EXCEPTION_ANALYTIS_ENABLED, enable);
 		}
-		
+		if (data.has(HikeConstants.CONTACT_UPDATE_WAIT_TIME))
+		{
+			long contactUpdateWaitTime = data.getLong(HikeConstants.CONTACT_UPDATE_WAIT_TIME);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.CONTACT_UPDATE_WAIT_TIME, contactUpdateWaitTime);
+		}
+		if (data.has(HikeConstants.DELETE_IC_ON_CONTACT_REMOVE))
+		{
+			boolean deleteIc = data.getBoolean(HikeConstants.DELETE_IC_ON_CONTACT_REMOVE);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.DELETE_IC_ON_CONTACT_REMOVE, deleteIc);
+		}
+		if (data.has(HikeConstants.CONTACT_REMOVE_DUPLICATES_WHILE_SYNCING))
+		{
+			boolean removeDuplicates = data.getBoolean(HikeConstants.CONTACT_REMOVE_DUPLICATES_WHILE_SYNCING);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CONTACT_REMOVE_DUPLICATES_WHILE_SYNCING, removeDuplicates);
+		}
 		UserLogInfo.requestUserLogs(data);
 		
 		if (data.has(HikeConstants.PROB_NUM_HTTP_ANALYTICS))
@@ -2001,9 +2022,20 @@ public class MqttMessagesManager
 			Map<String, List<ContactInfo>> contacts = ContactManager.getInstance().convertToMap(contactinfos);
 			try
 			{
-				new PostAddressBookTask(contacts).execute();
+				if (Utils.isAddressbookCallsThroughHttpMgrEnabled())
+				{
+					new PostAddressBookTask(contacts).execute();
+				}
+				else
+				{
+					AccountUtils.postAddressBook(token, contacts);
+				}
 			}
 			catch (IllegalStateException e)
+			{
+				Logger.w(getClass().getSimpleName(), "Exception while posting ab", e);
+			}
+			catch (IOException e)
 			{
 				Logger.w(getClass().getSimpleName(), "Exception while posting ab", e);
 			}
