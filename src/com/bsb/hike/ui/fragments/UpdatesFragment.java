@@ -46,20 +46,10 @@ public class UpdatesFragment extends SherlockFragment implements Listener
 
 	private List<StatusMessage> statusMessages;
 
-	private boolean reachedEnd;
-
-	private boolean loadingMoreMessages;
-
 	private String[] pubSubListeners = { HikePubSub.TIMELINE_UPDATE_RECIEVED, HikePubSub.LARGER_UPDATE_IMAGE_DOWNLOADED, HikePubSub.FTUE_LIST_FETCHED_OR_UPDATED,
 			HikePubSub.PROTIP_ADDED, HikePubSub.ICON_CHANGED };
 
 	private String[] friendMsisdns;
-
-	private int previousFirstVisibleItem;
-
-	private long previousEventTime;
-
-	private int velocity;
 
 	private RecyclerView mUpdatesList;
 
@@ -114,96 +104,6 @@ public class UpdatesFragment extends SherlockFragment implements Listener
 		super.onDestroy();
 	}
 
-	// TODO
-	// RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener()
-	// {
-	// public void onScrollStateChanged(RecyclerView recyclerView, int newState) {};
-	//
-	// public void onScrolled(RecyclerView recyclerView, int dx, int dy) {};
-	//
-	// @Override
-	// public void onScroll(RecyclerView view, final int firstVisibleItem, int visibleItemCount, int totalItemCount)
-	// {
-	// if (previousFirstVisibleItem != firstVisibleItem)
-	// {
-	// long currTime = System.currentTimeMillis();
-	// long timeToScrollOneElement = currTime - previousEventTime;
-	// velocity = (int) (((double) 1 / timeToScrollOneElement) * 1000);
-	//
-	// previousFirstVisibleItem = firstVisibleItem;
-	// previousEventTime = currTime;
-	// }
-	//
-	// if (!reachedEnd && !loadingMoreMessages && !statusMessages.isEmpty()
-	// && (firstVisibleItem + visibleItemCount) >= (statusMessages.size() - HikeConstants.MIN_INDEX_TO_LOAD_MORE_MESSAGES))
-	// {
-	//
-	// Logger.d(getClass().getSimpleName(), "Loading more items");
-	// loadingMoreMessages = true;
-	//
-	// AsyncTask<Void, Void, List<StatusMessage>> asyncTask = new AsyncTask<Void, Void, List<StatusMessage>>()
-	// {
-	//
-	// @Override
-	// protected List<StatusMessage> doInBackground(Void... params)
-	// {
-	// List<StatusMessage> olderMessages = HikeConversationsDatabase.getInstance().getStatusMessages(true, HikeConstants.MAX_OLDER_STATUSES_TO_LOAD_EACH_TIME,
-	// (int) statusMessages.get(statusMessages.size() - 1).getId(), friendMsisdns);
-	// return olderMessages;
-	// }
-	//
-	// @Override
-	// protected void onPostExecute(List<StatusMessage> olderMessages)
-	// {
-	// if (!isAdded())
-	// {
-	// return;
-	// }
-	//
-	// if (!olderMessages.isEmpty())
-	// {
-	// int scrollOffset = getListView().getChildAt(0).getTop();
-	//
-	// statusMessages.addAll(statusMessages.size(), olderMessages);
-	// timelineCardsAdapter.notifyDataSetChanged();
-	// getListView().setSelectionFromTop(firstVisibleItem, scrollOffset);
-	// }
-	// else
-	// {
-	// /*
-	// * This signifies that we've reached the end. No need to query the db anymore unless we add a new message.
-	// */
-	// reachedEnd = true;
-	// }
-	//
-	// loadingMoreMessages = false;
-	// }
-	//
-	// };
-	// if (Utils.isHoneycombOrHigher())
-	// {
-	// asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-	// }
-	// else
-	// {
-	// asyncTask.execute();
-	// }
-	// }
-	// }
-	// };
-
-	// @Override
-	// public void onScrollStateChanged(AbsListView view, int scrollState)
-	// {
-	// Logger.d(getClass().getSimpleName(), "CentralTimeline Adapter Scrolled State: " + scrollState);
-	// timelineCardsAdapter.setIsListFlinging(velocity > HikeConstants.MAX_VELOCITY_FOR_LOADING_TIMELINE_IMAGES && scrollState == OnScrollListener.SCROLL_STATE_FLING);
-	// /*
-	// * // Pause fetcher to ensure smoother scrolling when flinging if (scrollState == AbsListView.OnScrollListener.SCROLL_STATE_FLING) { // Before Honeycomb pause image loading
-	// * on scroll to help with performance if (!Utils.hasHoneycomb()) { if(centralTimelineAdapter != null) { centralTimelineAdapter.getTimelineImageLoader().setPauseWork(true);
-	// * centralTimelineAdapter.getIconImageLoader().setPauseWork(true); } } } else { if(centralTimelineAdapter != null) {
-	// * centralTimelineAdapter.getTimelineImageLoader().setPauseWork(false); centralTimelineAdapter.getIconImageLoader().setPauseWork(false); } }
-	// */
-	// }
 
 	@Override
 	public void onEventReceived(String type, final Object object)
