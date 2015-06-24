@@ -44,7 +44,7 @@ public class ChatHeadActivity extends HikeBaseActivity implements StickerPickerL
 	{
 		if (ChatHeadService.flagActivityRunning)
 		{
-			ChatHeadService.getInstance().resetPosition(ChatHeadConstants.FINISHING_CHAT_HEAD_ACTIVITY_ANIMATION);
+			ChatHeadService.getInstance().resetPosition(ChatHeadConstants.FINISHING_CHAT_HEAD_ACTIVITY_ANIMATION, null);
 		}
 		saveUpdatedSharedPref();
 		ChatHeadService.flagActivityRunning = false;
@@ -84,7 +84,7 @@ public class ChatHeadActivity extends HikeBaseActivity implements StickerPickerL
 
 	public void closeActivity(View v)
 	{
-		ChatHeadService.getInstance().resetPosition(ChatHeadConstants.FINISHING_CHAT_HEAD_ACTIVITY_ANIMATION);
+		ChatHeadService.getInstance().resetPosition(ChatHeadConstants.FINISHING_CHAT_HEAD_ACTIVITY_ANIMATION, null);
 	}
 
 	private void initVariables()

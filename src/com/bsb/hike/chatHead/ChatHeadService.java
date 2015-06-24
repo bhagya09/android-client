@@ -192,7 +192,7 @@ public class ChatHeadService extends Service
 		mFinishActivityListener = null;
 	}
 
-	public void overlayAnimation(final View view2animate, Integer viewX, Integer endX, Integer viewY, Integer endY, final int flag, final String... path)
+	public void overlayAnimation(final View view2animate, Integer viewX, Integer endX, Integer viewY, Integer endY, final int flag, final String path)
 	{
 		ValueAnimator translateX = ValueAnimator.ofInt(viewX, endX);
 		ValueAnimator translateY = ValueAnimator.ofInt(viewY, endY);
@@ -250,7 +250,7 @@ public class ChatHeadService extends Service
 					startActivity(intent);
 					break;
 				case ChatHeadConstants.SHARING_BEFORE_FINISHING_ANIMATION:
-					intent = ShareUtils.shareContent(HikeConstants.Extras.ShareTypes.STICKER_SHARE, path[0], foregroundApp);
+					intent = ShareUtils.shareContent(HikeConstants.Extras.ShareTypes.STICKER_SHARE, path, foregroundApp);
 					if (intent != null)
 					{
 						startActivity(intent);
@@ -357,19 +357,19 @@ public class ChatHeadService extends Service
 				}
 				else
 				{
-					resetPosition(ChatHeadConstants.FINISHING_CHAT_HEAD_ACTIVITY_ANIMATION);
+					resetPosition(ChatHeadConstants.FINISHING_CHAT_HEAD_ACTIVITY_ANIMATION, null);
 				}
 			}
 			else
 			{
 				if (chatHeadLocations[0] <= (int) ((getResources().getDisplayMetrics().widthPixels - chatHead.getWidth()) / 2))
 				{
-					overlayAnimation(chatHead, chatHeadParams.x, 0, chatHeadParams.y, chatHeadParams.y, ChatHeadConstants.REMAINING_ANIMATION);
+					overlayAnimation(chatHead, chatHeadParams.x, 0, chatHeadParams.y, chatHeadParams.y, ChatHeadConstants.REMAINING_ANIMATION, null);
 				}
 				else
 				{
 					overlayAnimation(chatHead, chatHeadParams.x, getResources().getDisplayMetrics().widthPixels - chatHead.getWidth(), chatHeadParams.y, chatHeadParams.y,
-							ChatHeadConstants.REMAINING_ANIMATION);
+							ChatHeadConstants.REMAINING_ANIMATION, null);
 				}
 			}
 		}
@@ -391,7 +391,7 @@ public class ChatHeadService extends Service
 		int pixelsY = (int) (getResources().getDisplayMetrics().heightPixels - (scale * 248) - chatHead.getHeight() - status_bar_height);
 		savedPosX = chatHeadParams.x;
 		savedPosY = chatHeadParams.y;
-		overlayAnimation(chatHead, chatHeadParams.x, pixelsX, chatHeadParams.y, pixelsY, ChatHeadConstants.CREATING_CHAT_HEAD_ACTIVITY_ANIMATION);
+		overlayAnimation(chatHead, chatHeadParams.x, pixelsX, chatHeadParams.y, pixelsY, ChatHeadConstants.CREATING_CHAT_HEAD_ACTIVITY_ANIMATION, null);
 
 	}
 
@@ -489,30 +489,16 @@ public class ChatHeadService extends Service
 
 	};
 
-	public void resetPosition(int flag, String... path)
+	public void resetPosition(int flag, String path)
 	{
 		if (savedPosX <= (int) ((getResources().getDisplayMetrics().widthPixels - chatHead.getWidth()) / 2))
 		{
-			if (path.length > 0)
-			{
-				overlayAnimation(chatHead, chatHeadParams.x, 0, chatHeadParams.y, savedPosY, flag, path[0]);
-			}
-			else
-			{
-				overlayAnimation(chatHead, chatHeadParams.x, 0, chatHeadParams.y, savedPosY, flag);
-			}
-
+		
+			overlayAnimation(chatHead, chatHeadParams.x, 0, chatHeadParams.y, savedPosY, flag, path);
 		}
 		else
 		{
-			if (path.length > 0)
-			{
-				overlayAnimation(chatHead, chatHeadParams.x, getResources().getDisplayMetrics().widthPixels - chatHead.getWidth(), chatHeadParams.y, savedPosY, flag, path);
-			}
-			else
-			{
-				overlayAnimation(chatHead, chatHeadParams.x, getResources().getDisplayMetrics().widthPixels - chatHead.getWidth(), chatHeadParams.y, savedPosY, flag);
-			}
+			overlayAnimation(chatHead, chatHeadParams.x, getResources().getDisplayMetrics().widthPixels - chatHead.getWidth(), chatHeadParams.y, savedPosY, flag, path);
 		}
 	}
 
