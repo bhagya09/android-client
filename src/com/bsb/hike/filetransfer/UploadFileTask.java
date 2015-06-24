@@ -245,7 +245,7 @@ public class UploadFileTask extends FileTransferBase
 		//HikeConversationsDatabase.getInstance().updateMessageMetadata(((ConvMessage) userContext).getMsgID(), ((ConvMessage) userContext).getMetadata()); 
 		long msgId = ((ConvMessage) userContext).getMsgID(); 
 		String s =  HikeConversationsDatabase.getInstance().getMetadataOfMessage(((ConvMessage) userContext).getMsgID());
-		Logger.d("OffineManager","updated msg metadata" + s);
+		Logger.d("OfflineManager","updated msg metadata" + s);
 		// saveFileState(null);
 	}
 
@@ -391,7 +391,7 @@ public class UploadFileTask extends FileTransferBase
 				}
 
 				if(!Utils.isOfflineConversation(convMessageObject.getMsisdn()))
-				HikeConversationsDatabase.getInstance().addConversationMessages(convMessageObject,true);
+					HikeConversationsDatabase.getInstance().addConversationMessages(convMessageObject,true);
 				
 				// 1) user clicked Media file and sending it
 				MsgRelLogManager.startMessageRelLogging((ConvMessage) userContext, MessageType.MULTIMEDIA);

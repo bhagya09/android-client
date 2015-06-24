@@ -242,7 +242,6 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 	{
 		return connectedDevice;
 	}
-	
 	@Override
 	public void onHotSpotConnected()
 	{

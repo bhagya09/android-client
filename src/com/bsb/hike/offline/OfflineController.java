@@ -1,6 +1,7 @@
 package com.bsb.hike.offline;
 
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -12,12 +13,14 @@ import android.widget.Toast;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
+import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.filetransfer.FTAnalyticEvents;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
 import com.bsb.hike.ui.ComposeChatActivity.FileTransferData;
 import com.hike.transporter.models.SenderConsignment;
+import com.bsb.hike.utils.Logger;
 
 /**
  * 
@@ -29,6 +32,8 @@ import com.hike.transporter.models.SenderConsignment;
 
 public class OfflineController
 {
+
+	private static final String TAG = "OfflineController";
 
 	private IOfflineCallbacks offlineListener = null;
 
@@ -106,30 +111,37 @@ public class OfflineController
 		}
 	}
 
-	public void sendFile(Intent intent, String msisdn)
+	public void sendFile(Intent intent ,JSONObject msgExtrasJson, String msisdn)
 	{
 		String fileKey = null;
+		try{
+			if (msgExtrasJson.has(HikeConstants.Extras.FILE_KEY))
+			{
+				fileKey = msgExtrasJson.getString(HikeConstants.Extras.FILE_KEY);
+			}
+			String filePath = msgExtrasJson.getString(HikeConstants.Extras.FILE_PATH);
+			String fileType = msgExtrasJson.getString(HikeConstants.Extras.FILE_TYPE);
 
-		if (intent.hasExtra(HikeConstants.Extras.FILE_KEY))
-		{
-			fileKey = intent.getStringExtra(HikeConstants.Extras.FILE_KEY);
-		}
-		String filePath = intent.getStringExtra(HikeConstants.Extras.FILE_PATH);
-		String fileType = intent.getStringExtra(HikeConstants.Extras.FILE_TYPE);
+			boolean isRecording = false;
+			long recordingDuration = -1;
+			if (msgExtrasJson.has(HikeConstants.Extras.RECORDING_TIME))
+			{
+				recordingDuration = msgExtrasJson.getLong(HikeConstants.Extras.RECORDING_TIME);
+				isRecording = true;
+				fileType = HikeConstants.VOICE_MESSAGE_CONTENT_TYPE;
+			}
+			
+			int attachmentType = FTAnalyticEvents.OTHER_ATTACHEMENT;
+			/*
+			 * Added to know the attachment type when selected from file.
+			 */
+			if (intent.hasExtra(FTAnalyticEvents.FT_ATTACHEMENT_TYPE))
+			{
+				attachmentType = FTAnalyticEvents.FILE_ATTACHEMENT;
 
-		int attachmentType = FTAnalyticEvents.FILE_ATTACHEMENT;
-
-		boolean isRecording = false;
-		long recordingDuration = -1;
-
-		if (intent.hasExtra(HikeConstants.Extras.RECORDING_TIME))
-		{
-			recordingDuration = intent.getLongExtra(HikeConstants.Extras.RECORDING_TIME, -1);
-			isRecording = true;
-			fileType = HikeConstants.VOICE_MESSAGE_CONTENT_TYPE;
-		}
+			}
+		
 		HikeFileType hikeFileType = HikeFileType.fromString(fileType, isRecording);
-
 		if (filePath == null)
 		{
 			Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), R.string.unknown_msg, Toast.LENGTH_SHORT).show();
@@ -138,6 +150,69 @@ public class OfflineController
 		{
 			converter.sendFile(filePath, fileKey, hikeFileType, fileType, isRecording, recordingDuration, attachmentType, msisdn, null);
 		}
+	 }catch(JSONException e){
+		 Logger.e(TAG, "Incorrect JSON");
+	 }
+	}
+	
+	public void sendFile(Intent intent, String msisdn)
+	{
+		
+		if(intent.hasExtra(HikeConstants.Extras.FILE_PATHS))
+		{
+			ArrayList<String> filePaths = intent.getStringArrayListExtra(HikeConstants.Extras.FILE_PATHS);
+			String fileType = intent.getStringExtra(HikeConstants.Extras.FILE_TYPE);
+			for (String filePath : filePaths)
+			{
+				HikeFileType hikeFileType = HikeFileType.fromString(fileType,false);
+
+				if (filePath == null)
+				{
+					Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), R.string.unknown_msg, Toast.LENGTH_SHORT).show();
+				}
+				else
+				{
+					converter.sendFile(filePath, null, hikeFileType, fileType, false, -1,FTAnalyticEvents.OTHER_ATTACHEMENT, msisdn, null);
+				}
+
+			}
+		}
+		else
+		{
+			String filePath = intent.getStringExtra(HikeConstants.Extras.FILE_PATH);
+			String fileType = intent.getStringExtra(HikeConstants.Extras.FILE_TYPE);
+			String fileKey = null;
+
+			if (intent.hasExtra(HikeConstants.Extras.FILE_KEY))
+			{
+				fileKey = intent.getStringExtra(HikeConstants.Extras.FILE_KEY);
+			}
+
+			int attachmentType = FTAnalyticEvents.FILE_ATTACHEMENT;
+
+			boolean isRecording = false;
+			long recordingDuration = -1;
+
+			if (intent.hasExtra(HikeConstants.Extras.RECORDING_TIME))
+			{
+				recordingDuration = intent.getLongExtra(HikeConstants.Extras.RECORDING_TIME, -1);
+				isRecording = true;
+				fileType = HikeConstants.VOICE_MESSAGE_CONTENT_TYPE;
+			}
+			HikeFileType hikeFileType = HikeFileType.fromString(fileType, isRecording);
+
+			if (filePath == null)
+			{
+				Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), R.string.unknown_msg, Toast.LENGTH_SHORT).show();
+			}
+			else
+			{
+				converter.sendFile(filePath, fileKey, hikeFileType, fileType, isRecording, recordingDuration, attachmentType, msisdn, null);
+			}
+
+		}
+		
+		
 	}
 
 	public void sendApps(String filePath, String mime, String apkLabel, String msisdn)
@@ -194,5 +269,13 @@ public class OfflineController
 	public void removeListener(IOfflineCallbacks listener)
 	{
 		offlineManager.removeListener(listener);
+	}
+
+	public void sendMultiMessages(ArrayList<ConvMessage> offlineMessageList,String msisdn) {
+		for(ConvMessage convMessage: offlineMessageList)
+		{
+			convMessage.setMsisdn(msisdn);
+			sendMessage(convMessage);
+		}
 	}
 }

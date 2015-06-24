@@ -82,6 +82,7 @@ import com.bsb.hike.models.PhonebookContact;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.offline.OfflineController;
+import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.platform.ContentLove;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformMessageMetadata;
@@ -1398,6 +1399,8 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			controller = new OfflineController(null);
 			arrayList.remove(offlineContact);
 		}
+		
+		
 
 		if (Intent.ACTION_SEND_MULTIPLE.equals(presentIntent.getAction()))
 		{
@@ -1497,6 +1500,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		{
 			ArrayList<FileTransferData> fileTransferList = new ArrayList<ComposeChatActivity.FileTransferData>();
 			ArrayList<ConvMessage> multipleMessageList = new ArrayList<ConvMessage>();
+			ArrayList<ConvMessage> offlineMessageList = new ArrayList<ConvMessage>();
 			String jsonString = presentIntent.getStringExtra(HikeConstants.Extras.MULTIPLE_MSG_OBJECT);
 			try
 			{
@@ -1514,6 +1518,11 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 						ConvMessage convMessage = Utils.makeConvMessage(null, msg, true);
 						//sendMessage(convMessage);
 						multipleMessageList.add(convMessage);
+						if(offlineContact!=null)
+						{
+							ConvMessage offlineConvMessage = new ConvMessage(convMessage);
+							offlineMessageList.add(offlineConvMessage);
+						}
 					}else if(msgExtrasJson.has(HikeConstants.Extras.POKE)){
 						// as we will be changing msisdn and hike status while inserting in DB
 						ConvMessage convMessage = Utils.makeConvMessage(null, getString(R.string.poke_msg), true);
@@ -1528,6 +1537,11 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 							Logger.e(getClass().getSimpleName(), "Invalid JSON", e);
 						}
 						multipleMessageList.add(convMessage);
+						if(offlineContact!=null)
+						{
+							ConvMessage offlineConvMessage = new ConvMessage(convMessage);
+							offlineMessageList.add(offlineConvMessage);
+						}
 					}
 					else if (msgExtrasJson.has(HikeConstants.Extras.FILE_PATH))
 					{
@@ -1564,6 +1578,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 								fileTransferList.add(fileData);
 							}
 						}
+						
 					}
 					else if (msgExtrasJson.has(HikeConstants.Extras.LATITUDE) && msgExtrasJson.has(HikeConstants.Extras.LONGITUDE)
 							&& msgExtrasJson.has(HikeConstants.Extras.ZOOM_LEVEL))
@@ -1573,6 +1588,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 						double longitude = msgExtrasJson.getDouble(HikeConstants.Extras.LONGITUDE);
 						int zoomLevel = msgExtrasJson.getInt(HikeConstants.Extras.ZOOM_LEVEL);
 						initialiseLocationTransfer(latitude, longitude, zoomLevel,arrayList);
+						// To Do for offline
 					}
 					else if (msgExtrasJson.has(HikeConstants.Extras.CONTACT_METADATA))
 					{
@@ -1580,6 +1596,12 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 						{
 							JSONObject contactJson = new JSONObject(msgExtrasJson.getString(HikeConstants.Extras.CONTACT_METADATA));
 							initialiseContactTransfer(contactJson,arrayList);
+							if(offlineContact!=null)
+							{
+								  //To Do how to check if is OnHike()
+								  ConvMessage offlineConvMessage = OfflineUtils.createOfflineContactConvMessage(offlineContact.getMsisdn(),contactJson,true);
+								  offlineMessageList.add(offlineConvMessage);
+							}
 						}
 						catch (JSONException e)
 						{
@@ -1600,6 +1622,13 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 						 * Making sure the sticker is not forwarded again on orientation change
 						 */
 						presentIntent.removeExtra(StickerManager.FWD_CATEGORY_ID);
+						if(offlineContact!=null)
+						{
+							ArrayList<ContactInfo> offlineList = new ArrayList<>();
+							offlineList.add(offlineContact);
+							ConvMessage offlineConvMessage = sendSticker(sticker, categoryId,offlineList, StickerManager.FROM_FORWARD);
+							offlineMessageList.add(offlineConvMessage);
+						}
 					}else if(msgExtrasJson.optInt(MESSAGE_TYPE.MESSAGE_TYPE) == MESSAGE_TYPE.CONTENT){
 						// CONTENT Message
 						String metadata = msgExtrasJson.optString(HikeConstants.METADATA);
@@ -1612,6 +1641,11 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 						convMessage.platformMessageMetadata = new PlatformMessageMetadata(metadata, getApplicationContext());
                         convMessage.setIsSent(true);
                         convMessage.setMessage(convMessage.platformMessageMetadata.notifText);
+                        if(offlineContact!=null)
+						{
+                        	ConvMessage offlineConvMessage =  new ConvMessage(convMessage);
+                        	offlineMessageList.add(offlineConvMessage);
+						}
 						multipleMessageList.add(convMessage);
 					} else if(msgExtrasJson.optInt(MESSAGE_TYPE.MESSAGE_TYPE) == MESSAGE_TYPE.WEB_CONTENT || msgExtrasJson.optInt(MESSAGE_TYPE.MESSAGE_TYPE) == MESSAGE_TYPE.FORWARD_WEB_CONTENT){
 						//Web content message
@@ -1631,6 +1665,11 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 							e.printStackTrace();
 						}
 						convMessage.setMessage(msgExtrasJson.getString(HikeConstants.HIKE_MESSAGE));
+						if(offlineContact!=null)
+						{
+							ConvMessage offlineConvMessage =  new ConvMessage(convMessage);
+                        	offlineMessageList.add(offlineConvMessage);
+						}
 						multipleMessageList.add(convMessage);
 					}
 					/*
@@ -1659,6 +1698,10 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					sendMessage(convMessage);
 				}else{
 					sendMultiMessages(multipleMessageList,arrayList,platformAnalyticsJson,false);
+					if(offlineContact!=null)
+					{
+						controller.sendMultiMessages(offlineMessageList,offlineContact.getMsisdn());
+					}
 					if(fileTransferList.isEmpty()){
 						// if it is >0 then onpost execute of PreFileTransferAsycntask will start intent
 						startActivity(intent);
@@ -1670,6 +1713,10 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			catch (JSONException e)
 			{
 				Logger.e(getClass().getSimpleName(), "Invalid JSON Array", e);
+			}
+			if(offlineContact!=null  && !fileTransferList.isEmpty())
+			{
+				controller.sendFile(fileTransferList, offlineContact.getMsisdn());
 			}
 			presentIntent.removeExtra(HikeConstants.Extras.MULTIPLE_MSG_OBJECT);
 		}

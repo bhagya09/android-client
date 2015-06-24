@@ -1,9 +1,15 @@
 package com.bsb.hike.chatthread;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -29,24 +35,37 @@ import com.actionbarsherlock.view.MenuItem;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
+import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
+import com.bsb.hike.filetransfer.FTAnalyticEvents;
+import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.media.AttachmentPicker;
 import com.bsb.hike.media.OverFlowMenuItem;
 import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.HikeFile;
+import com.bsb.hike.models.MessageMetadata;
 import com.bsb.hike.models.PhonebookContact;
+import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.OfflineConversation;
+import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.offline.IOfflineCallbacks;
 import com.bsb.hike.offline.OfflineConstants;
 import com.bsb.hike.offline.OfflineConstants.ERRORCODE;
 import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.offline.OfflineUtils;
+import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.PlatformMessageMetadata;
+import com.bsb.hike.platform.WebMetadata;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.utils.ChatTheme;
+import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.SmileyParser;
+import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
 /**
@@ -173,6 +192,7 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 	public void onNewIntent()
 	{
 		super.onNewIntent();
+		takeActionBasedOnIntent();
 		checkIfWeNeedToConnect(activity.getIntent());
 		activity.updateActionBarColor(new ColorDrawable(Color.BLACK));
 	}
@@ -540,7 +560,157 @@ public class OfflineChatThread extends OneToOneChatThread implements IOfflineCal
 		// //OfflineManager.getInstance().forwardSharingFiles(intent);
 		// }
 	}
+	
+    @Override
+    protected void takeActionBasedOnIntent() 
+    {
+    	Intent intent = activity.getIntent();
+		/**
+		 * 1. Trying to forward a file
+		 */
+		if (intent.hasExtra(HikeConstants.Extras.FILE_PATH))
+		{
+			controller.sendFile(intent,msisdn);
+			// Making sure the file does not get forwarded again on
+			// orientation change.
+			intent.removeExtra(HikeConstants.Extras.FILE_PATH);
+		}
 
+		/**
+		 * 2. Multi Forward :
+		 */
+		else if (intent.hasExtra(HikeConstants.Extras.MULTIPLE_MSG_OBJECT))
+		{
+			String jsonString = intent.getStringExtra(HikeConstants.Extras.MULTIPLE_MSG_OBJECT);
+
+			try
+			{
+				JSONArray multipleMsgFwdArray = new JSONArray(jsonString);
+				int msgCount = multipleMsgFwdArray.length();
+				for (int i = 0; i < msgCount; i++)
+				{
+					JSONObject msgExtrasJson = (JSONObject) multipleMsgFwdArray.get(i);
+					if (msgExtrasJson.has(HikeConstants.Extras.MSG))
+					{
+						String msg = msgExtrasJson.getString(HikeConstants.Extras.MSG);
+						ConvMessage convMessage = Utils.makeConvMessage(msisdn, msg, mConversation.isOnHike());
+						sendMessage(convMessage);
+					}
+					else if (msgExtrasJson.has(HikeConstants.Extras.POKE))
+					{
+						sendPoke();
+					}
+					else if (msgExtrasJson.has(HikeConstants.Extras.FILE_PATH))
+					{
+						    controller.sendFile(intent,msgExtrasJson,msisdn);
+					}
+					else if (msgExtrasJson.has(HikeConstants.Extras.LATITUDE) && msgExtrasJson.has(HikeConstants.Extras.LONGITUDE)
+							&& msgExtrasJson.has(HikeConstants.Extras.ZOOM_LEVEL))
+					{
+						double latitude = msgExtrasJson.getDouble(HikeConstants.Extras.LATITUDE);
+						double longitude = msgExtrasJson.getDouble(HikeConstants.Extras.LONGITUDE);
+						int zoomLevel = msgExtrasJson.getInt(HikeConstants.Extras.ZOOM_LEVEL);
+						ChatThreadUtils.initialiseLocationTransfer(activity.getApplicationContext(), msisdn, latitude, longitude, zoomLevel, mConversation.isOnHike(),true);
+					}
+					else if (msgExtrasJson.has(HikeConstants.Extras.CONTACT_METADATA))
+					{
+						try
+						{
+							JSONObject contactJson = new JSONObject(msgExtrasJson.getString(HikeConstants.Extras.CONTACT_METADATA));
+							ConvMessage offlineConvMessage = OfflineUtils.createOfflineContactConvMessage(msisdn,contactJson,mConversation.isOnHike());
+							sendMessage(offlineConvMessage);
+						}
+						catch (JSONException e)
+						{
+							e.printStackTrace();
+						}
+					}
+					else if (msgExtrasJson.has(StickerManager.FWD_CATEGORY_ID))
+					{
+						String categoryId = msgExtrasJson.getString(StickerManager.FWD_CATEGORY_ID);
+						String stickerId = msgExtrasJson.getString(StickerManager.FWD_STICKER_ID);
+						Sticker sticker = new Sticker(categoryId, stickerId);
+						sendSticker(sticker, StickerManager.FROM_FORWARD);
+						boolean isDis = sticker.isDisabled(sticker, activity.getApplicationContext());
+						// add this sticker to recents if this sticker is not disabled
+						if (!isDis)
+						{
+							StickerManager.getInstance().addRecentSticker(sticker);
+						}
+						/*
+						 * Making sure the sticker is not forwarded again on orientation change
+						 */
+						intent.removeExtra(StickerManager.FWD_CATEGORY_ID);
+					}
+
+                    else if(msgExtrasJson.optInt(HikeConstants.MESSAGE_TYPE.MESSAGE_TYPE) == HikeConstants.MESSAGE_TYPE.CONTENT){
+                        // as we will be changing msisdn and hike status while inserting in DB
+                        ConvMessage convMessage = Utils.makeConvMessage(msisdn, mConversation.isOnHike());
+                        convMessage.setMessageType(HikeConstants.MESSAGE_TYPE.CONTENT);
+                        convMessage.platformMessageMetadata = new PlatformMessageMetadata(msgExtrasJson.optString(HikeConstants.METADATA), activity.getApplicationContext());
+                        convMessage.platformMessageMetadata.addThumbnailsToMetadata();
+                        convMessage.setMessage(convMessage.platformMessageMetadata.notifText);
+
+                        sendMessage(convMessage);
+
+                    }
+
+					else if(msgExtrasJson.optInt(HikeConstants.MESSAGE_TYPE.MESSAGE_TYPE) == HikeConstants.MESSAGE_TYPE.WEB_CONTENT || msgExtrasJson.optInt(
+							HikeConstants.MESSAGE_TYPE.MESSAGE_TYPE) == HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT){
+						// as we will be changing msisdn and hike status while inserting in DB
+						ConvMessage convMessage = Utils.makeConvMessage(msisdn,msgExtrasJson.getString(HikeConstants.HIKE_MESSAGE), mConversation.isOnHike());
+						convMessage.setMessageType(HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT);
+						convMessage.webMetadata = new WebMetadata(msgExtrasJson.optString(HikeConstants.METADATA));
+						JSONObject json = new JSONObject();
+						try
+						{
+							json.put(HikePlatformConstants.CARD_TYPE, convMessage.webMetadata.getAppName());
+							json.put(AnalyticsConstants.EVENT_KEY, HikePlatformConstants.CARD_FORWARD);
+							json.put(AnalyticsConstants.TO, msisdn);
+							HikeAnalyticsEvent.analyticsForCards(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, json);
+						}
+						catch (JSONException e)
+						{
+							e.printStackTrace();
+						}
+						catch (NullPointerException e)
+						{
+							e.printStackTrace();
+						}
+						sendMessage(convMessage);
+
+					}
+
+
+				}
+				
+				if (mActionMode != null && mActionMode.isActionModeOn())
+				{
+					mActionMode.finish();
+				}
+			}
+			catch (JSONException e)
+			{
+				Logger.e(TAG, "Invalid JSON Array", e);
+			}
+			intent.removeExtra(HikeConstants.Extras.MULTIPLE_MSG_OBJECT);
+		}
+		/**
+		 * 5. Multiple files
+		 */
+		else if (intent.hasExtra(HikeConstants.Extras.FILE_PATHS))
+		{
+			controller.sendFile(intent, msisdn);
+			intent.removeExtra(HikeConstants.Extras.FILE_PATHS);
+		}
+		else
+		{
+			super.takeActionBasedOnIntent();
+		}
+	}
+
+ 
+    
 	@Override
 	public void onDisconnect(ERRORCODE errorCode)
 	{

@@ -134,5 +134,5 @@ public class OfflineConstants
 	public static final String TEXT_TOPIC = "text";
 
 	public static final String FILE_TOPIC = "file";
-
+	
 }
