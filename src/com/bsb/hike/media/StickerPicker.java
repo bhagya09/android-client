@@ -312,12 +312,12 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 		case R.id.get_more_stickers:
 			HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.MAIN_LAYOUT_CLICKS, ChatHeadService.foregroundAppName,
 					AnalyticsConstants.ChatHeadEvents.MORE_STICKERS);
-			ChatHeadService.getInstance().resetPosition(ChatHeadConstants.GET_MORE_STICKERS_ANIMATION);
+			ChatHeadService.getInstance().resetPosition(ChatHeadConstants.GET_MORE_STICKERS_ANIMATION, null);
 			break;
 		case R.id.open_hike:
 			HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.MAIN_LAYOUT_CLICKS, ChatHeadService.foregroundAppName,
 					AnalyticsConstants.ChatHeadEvents.OPEN_HIKE);
-			ChatHeadService.getInstance().resetPosition(ChatHeadConstants.OPEN_HIKE_ANIMATION);
+			ChatHeadService.getInstance().resetPosition(ChatHeadConstants.OPEN_HIKE_ANIMATION, null);
 			break;
 		case R.id.one_hour:
 			HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.SNOOZE_TIME, ChatHeadService.foregroundAppName,
@@ -340,11 +340,11 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 			break;
 		case R.id.shop_icon_external:
 			HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.STICKER_SHOP, ChatHeadService.foregroundAppName);
-			ChatHeadService.getInstance().resetPosition(ChatHeadConstants.STICKER_SHOP_ANIMATION);
+			ChatHeadService.getInstance().resetPosition(ChatHeadConstants.STICKER_SHOP_ANIMATION, null);
 			break;
 		case R.id.side_text:
 			HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.DISABLE_TEXT, ChatHeadService.foregroundAppName);
-			ChatHeadService.getInstance().resetPosition(ChatHeadConstants.OPEN_SETTINGS_ANIMATION);
+			ChatHeadService.getInstance().resetPosition(ChatHeadConstants.OPEN_SETTINGS_ANIMATION, null);
 			break;
 		}
 	}
