@@ -10,6 +10,7 @@ import android.widget.Toast;
 import com.bsb.hike.AppConfig;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.Utils;
@@ -64,7 +65,9 @@ public class ServerHostChangeActivity extends HikeAppStateBaseFragmentActivity i
 				editor.putBoolean(HikeMessengerApp.PRODUCTION, false);
 
 				editor.commit();
-
+				
+				HttpRequestConstants.toggleStaging();
+				
 				Utils.setupUri();
 
 				finish();

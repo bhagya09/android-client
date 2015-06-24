@@ -15,14 +15,6 @@
         android:id="@+id/t_and_c_page"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
-
-    
-    
-    <com.bsb.hike.platform.CustomWebView
-        android:visibility="gone"
-        android:id="@+id/secondaryWebView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
     
     <ProgressBar 
         android:id="@+id/progress"

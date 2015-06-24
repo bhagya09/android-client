@@ -190,5 +190,6 @@
 	<dimen name="sticker_empty_pallete_preview_image_width">125dp</dimen>
 	<dimen name="sticker_empty_pallete_preview_image_height">178dp</dimen>
 	<dimen name="one_dp">1dp</dimen>
+	<dimen name="sticker_btn_width">60dp</dimen>
 	
 </resources>
