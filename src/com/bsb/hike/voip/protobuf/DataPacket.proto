@@ -13,4 +13,7 @@ message DataPacket {
 	optional bool requiresAck = 7;
 	optional int32 voicePacketNumber = 8;
 	optional int64 timestamp = 9;	
+	
+	optional bool isVoice = 10 [default = true];
+	repeated string broadcastList = 11;
 }

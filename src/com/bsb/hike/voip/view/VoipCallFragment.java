@@ -727,14 +727,14 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		{
 			nameOrMsisdn = contactInfo.getNameOrMsisdn();
 			partnerName = contactInfo.getName();
-			if(partnerName != null && !voipService.inConference())
+			if(partnerName != null && !voipService.hostingConference())
 			{
 				contactMsisdnView.setVisibility(View.VISIBLE);
 				contactMsisdnView.setText(contactInfo.getMsisdn());
 			}
 		}
 
-		if (voipService.inConference() || clientPartner.clientMsisdns != null) {
+		if (voipService.hostingConference() || clientPartner.clientMsisdns != null) {
 			nameOrMsisdn = getString(R.string.voip_conference_label);
 			contactMsisdnView.setVisibility(View.VISIBLE);
 			contactMsisdnView.setText(voipService.getClientNames());
@@ -823,7 +823,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		}
 		
 		// Disable call failed fragment when in a conference
-		if (voipService.inConference())
+		if (voipService.hostingConference())
 			return;
 		
 		showCallFailedFragment(callFailCode, voipService.getPartnerClient().getPhoneNumber());
