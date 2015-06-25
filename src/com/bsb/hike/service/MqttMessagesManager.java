@@ -2004,6 +2004,12 @@ public class MqttMessagesManager
 			boolean removeDuplicates = data.getBoolean(HikeConstants.CONTACT_REMOVE_DUPLICATES_WHILE_SYNCING);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CONTACT_REMOVE_DUPLICATES_WHILE_SYNCING, removeDuplicates);
 		}
+		if(data.has(HikeConstants.SESSION_LOG_TRACKING))
+		{
+			boolean sessionLogEnable = data.getBoolean(HikeConstants.SESSION_LOG_TRACKING);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SESSION_LOG_TRACKING, sessionLogEnable);
+			ChatHeadUtils.startOrStopService(false);
+		}
 		UserLogInfo.requestUserLogs(data);
 		
 		if (data.has(HikeConstants.PROB_NUM_HTTP_ANALYTICS))

@@ -175,30 +175,21 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 
 	private static void settingSelectAllText()
 	{
-		boolean allChecked, allUnchecked;
-
-		allChecked = checkAllCheckedOrUnchecked(true);
-		allUnchecked = checkAllCheckedOrUnchecked(false);
+		boolean allChecked = checkAllCheckedOrUnchecked(true);
 		if (allChecked)
 		{
 			mainSelectAllText.setText(HikeMessengerApp.getInstance().getString(R.string.settings_deselect_all));
 			sideSelectAllText.setText(HikeMessengerApp.getInstance().getString(R.string.sticker_widget_hide));
-			selectAllCheckbox.setChecked(true);
 		}
 		else
 		{
 			mainSelectAllText.setText(HikeMessengerApp.getInstance().getString(R.string.settings_select_all));
 			sideSelectAllText.setText(HikeMessengerApp.getInstance().getString(R.string.sticker_widget_show));
-			selectAllCheckbox.setChecked(false);
+			
 		}
-		if (allUnchecked)
-		{
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL, false);
-		}
-		else
-		{
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL, true);
-		}
+		selectAllCheckbox.setChecked(allChecked);
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL, allChecked);
+		
 
 		listAdapter.notifyDataSetChanged();
 		savingUserPref();
@@ -209,9 +200,9 @@ public class StickerShareSettings extends HikeAppStateBaseFragmentActivity
 	{
 		for (int j = 0; j < mListViewItems.size(); j++)
 		{
-			boolean pkgEnbl = (boolean) mListViewItems.get(j).appChoice;
+			boolean pkgEnbl = mListViewItems.get(j).appChoice;
 
-			if ((checked && !pkgEnbl) || (!checked && pkgEnbl))
+			if (checked ^ pkgEnbl)
 			{
 				return false;
 			}
