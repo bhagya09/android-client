@@ -1,7 +1,6 @@
 package com.bsb.hike.ui;
 
 import java.io.File;
-import java.io.IOException;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -22,7 +21,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.WindowManager;
-import android.webkit.MimeTypeMap;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -131,13 +129,8 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 		
 		Logger.d(TAG, "Checking file type");
 		
-		String fileExtension = Utils.getFileExtension(filename);
-		//Check file type
-		String fileType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension);
-		HikeFileType hikeFileType = HikeFileType.fromString(fileType, false);
-
-		Logger.d(TAG, "Checking file type");
-		if (hikeFileType.compareTo(HikeFileType.IMAGE) != 0)
+		//special handling for webp images since some devices cant extract their mime type
+		if (!Utils.getFileExtension(filename).equalsIgnoreCase("webp") && HikeFileType.fromFilePath(filename, false).compareTo(HikeFileType.IMAGE) != 0)
 		{
 			onError();
 			return;
@@ -214,7 +207,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 			{
 				dir.mkdirs();
 			}
-			destinationFileHandle = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.IMAGE_ROOT + File.separator + Utils.getOriginalFile(HikeFileType.IMAGE, null);
+			destinationFileHandle = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.IMAGE_ROOT + File.separator + Utils.getUniqueFilename(HikeFileType.IMAGE);
 		}
 
 		editView.setDestinationPath(destinationFileHandle);
@@ -293,6 +286,9 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 	@Override
 	public void finish()
 	{
+		HikePhotosUtils.FilterTools.setCurrentDoodleItem(null);
+		HikePhotosUtils.FilterTools.setCurrentFilterItem(null);
+		
 		HikeEffectsFactory.finish();
 		super.finish();
 	}
@@ -441,18 +437,18 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 				{
 					doodleWidth += HikeConstants.HikePhotos.DELTA_BRUSH_WIDTH;
 				}
-				doodlePreview.setBrushWidth(HikePhotosUtils.dpToPx(mContext, doodleWidth));
+				doodlePreview.setBrushWidth(HikePhotosUtils.dpToPx(doodleWidth));
 				doodlePreview.refresh();
-				editView.setBrushWidth(HikePhotosUtils.dpToPx(mContext, doodleWidth));
+				editView.setBrushWidth(HikePhotosUtils.dpToPx(doodleWidth));
 				break;
 			case R.id.minusWidth:
 				if (doodleWidth - HikeConstants.HikePhotos.DELTA_BRUSH_WIDTH >= HikeConstants.HikePhotos.Min_BRUSH_WIDTH)
 				{
 					doodleWidth -= HikeConstants.HikePhotos.DELTA_BRUSH_WIDTH;
 				}
-				doodlePreview.setBrushWidth(HikePhotosUtils.dpToPx(mContext, doodleWidth));
+				doodlePreview.setBrushWidth(HikePhotosUtils.dpToPx(doodleWidth));
 				doodlePreview.refresh();
-				editView.setBrushWidth(HikePhotosUtils.dpToPx(mContext, doodleWidth));
+				editView.setBrushWidth(HikePhotosUtils.dpToPx(doodleWidth));
 				break;
 			case R.id.undo:
 				editView.undoLastDoodleDraw();
@@ -755,11 +751,6 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 	@Override
 	public void onBackPressed()
 	{
-		if(isWorking)
-		{
-			return;
-		}
-		
 		if (getSupportFragmentManager().popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE))
 		{
 			getSupportActionBar().show();

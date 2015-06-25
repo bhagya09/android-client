@@ -273,8 +273,10 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 			@Override
 			public void run()
 			{
-				getListView().setPadding(0, 0, 0, footercontroller.getHeight());
-				
+				if(isAdded())
+				{
+					getListView().setPadding(0, 0, 0, footercontroller.getHeight());
+				}
 			}
 		});
 		Logger.d("footer","changeFooterState");

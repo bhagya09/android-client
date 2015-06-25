@@ -641,7 +641,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 			File selectedFile = Utils.createNewFile(HikeFileType.IMAGE, HikeConstants.CAM_IMG_PREFIX);
 			if (selectedFile == null)
 			{
-				Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), R.string.not_enough_memory, Toast.LENGTH_SHORT).show();
+				Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), R.string.no_external_storage, Toast.LENGTH_SHORT).show();
 				return;
 			}
 			startActivityForResult(IntentFactory.getNativeCameraAppIntent(true, selectedFile), HikeConstants.CAMERA_RESULT);

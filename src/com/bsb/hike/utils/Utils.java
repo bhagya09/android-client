@@ -44,12 +44,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -82,7 +77,6 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
 import android.content.res.Resources;
-import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.graphics.Bitmap;
@@ -135,7 +129,6 @@ import android.text.format.DateUtils;
 import android.text.style.StyleSpan;
 import android.util.Base64;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.util.Pair;
 import android.view.MotionEvent;
 import android.view.Surface;
@@ -444,7 +437,7 @@ public class Utils
 		// capturing new media.
 		if (TextUtils.isEmpty(orgFileName))
 		{
-			orgFileName = getOriginalFile(type, orgFileName);
+			orgFileName = getUniqueFilename(type);
 		}
 
 		// String fileName = getUniqueFileName(orgFileName, fileKey);
@@ -452,30 +445,28 @@ public class Utils
 		return new File(mediaStorageDir, orgFileName);
 	}
 
-	public static String getOriginalFile(HikeFileType type, String orgFileName)
+	public static String getUniqueFilename(HikeFileType type)
 	{
 		// Create a media file name
 		// String timeStamp = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss.SSS")
 		// .format(new Date());
 		String timeStamp = Long.toString(System.currentTimeMillis());
-		// File name should only be blank in case of profile images or while
-		// capturing new media.
-		if (TextUtils.isEmpty(orgFileName))
+		String orgFileName = null;
+		
+		switch (type)
 		{
-			switch (type)
-			{
-			case PROFILE:
-			case IMAGE:
-				orgFileName = "IMG_" + timeStamp + ".jpg";
-				break;
-			case VIDEO:
-				orgFileName = "MOV_" + timeStamp + ".mp4";
-				break;
-			case AUDIO:
-			case AUDIO_RECORDING:
-				orgFileName = "AUD_" + timeStamp + ".m4a";
-			}
+		case PROFILE:
+		case IMAGE:
+			orgFileName = "IMG_" + timeStamp + ".jpg";
+			break;
+		case VIDEO:
+			orgFileName = "MOV_" + timeStamp + ".mp4";
+			break;
+		case AUDIO:
+		case AUDIO_RECORDING:
+			orgFileName = "AUD_" + timeStamp + ".m4a";
 		}
+		
 		return orgFileName;
 	}
 
@@ -489,7 +480,7 @@ public class Utils
 				return null;
 			}
 		}
-		String fileName = prefix + Utils.getOriginalFile(type, null);
+		String fileName = prefix + Utils.getUniqueFilename(type);
 		File selectedFile = new File(selectedDir.getPath() + File.separator + fileName);
 		return selectedFile;
 	}
@@ -1447,7 +1438,24 @@ public class Utils
 		
 		if(returnFilePath == null && checkForPicassaUri && isPicasaUri(fileUriString))
 		{
-			returnFilePath = fileUriString;
+			
+			String timeStamp = Utils.getUniqueFilename(HikeFileType.IMAGE);
+			File file = null;
+			try
+			{
+				file = File.createTempFile("IMG_" + timeStamp, ".jpg");
+				downloadAndSaveFile(mContext,file,uri);
+				returnFilePath = file.getAbsolutePath();
+			}
+			catch (IOException e)
+			{
+				e.printStackTrace();
+			}
+			catch (SecurityException er)
+			{
+				er.printStackTrace();
+			}
+
 		}
 		
 		return returnFilePath;
@@ -1535,7 +1543,7 @@ public class Utils
 			// on ICS or higher.
 			if (tempBmp != null)
 			{
-				byte[] fileBytes = BitmapUtils.bitmapToBytes(tempBmp, Bitmap.CompressFormat.JPEG, 80);
+				byte[] fileBytes = BitmapUtils.bitmapToBytes(tempBmp, Bitmap.CompressFormat.JPEG, HikeConstants.HikePhotos.DEFAULT_IMAGE_SAVE_QUALITY);
 				tempBmp.recycle();
 				src = new ByteArrayInputStream(fileBytes);
 			}
@@ -1582,7 +1590,7 @@ public class Utils
 	{
 		SharedPreferences appPrefs = PreferenceManager.getDefaultSharedPreferences(context);
 		int imageQuality = appPrefs.getInt(HikeConstants.IMAGE_QUALITY, ImageQuality.QUALITY_DEFAULT);
-		return compressAndCopyImage(srcFilePath, destFilePath, context, Bitmap.Config.ARGB_8888, 80, imageQuality, true);
+		return compressAndCopyImage(srcFilePath, destFilePath, context, Bitmap.Config.ARGB_8888, HikeConstants.HikePhotos.DEFAULT_IMAGE_SAVE_QUALITY, imageQuality, true);
 	}
 	
 	public static boolean compressAndCopyImage(String srcFilePath, String destFilePath, Context context, Bitmap.Config config, int quality, int imageQuality, boolean toUserServerConfig)
@@ -2292,7 +2300,7 @@ public class Utils
 		}
 	}
 
-	public static void downloadAndSaveFile(Context context, File destFile, Uri uri) throws Exception
+	public static void downloadAndSaveFile(Context context, File destFile, Uri uri) throws IOException,SecurityException
 	{
 		InputStream is = null;
 		OutputStream os = null;
@@ -5039,7 +5047,10 @@ public class Utils
 		{
 			return false;
 		}
-		return true;
+		else 
+		{
+			return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.DELETE_IC_ON_CONTACT_REMOVE, true);
+		}
 	}
 
 	@SuppressWarnings("deprecation")
@@ -5576,11 +5587,17 @@ public class Utils
 			Logger.e(HomeActivity.class.getSimpleName(), "Unable to open market");
 		}
 	}
+	
 	public static boolean isOkHttp()
 	{
 		return HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.TOGGLE_OK_HTTP, true);
 	}
 
+	public static boolean isAddressbookCallsThroughHttpMgrEnabled()
+	{
+		return HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.ENABLE_ADDRESSBOOK_THROUGH_HTTP_MGR, false);
+	}
+	
 	/**
 	 * Returns active network info
 	 * @return
@@ -5783,7 +5800,7 @@ public class Utils
 		 */
 		String srcFilePath = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT + "/" + msisdn + ".jpg";
 		String destFilePath = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT + "/" + mappedId + ".jpg";
-		Utils.copyImage(srcFilePath, destFilePath, Bitmap.Config.ARGB_8888, 80);
+		Utils.copyImage(srcFilePath, destFilePath, Bitmap.Config.ARGB_8888, HikeConstants.HikePhotos.DEFAULT_IMAGE_SAVE_QUALITY);
 
 		if (setIcon)
 		{
