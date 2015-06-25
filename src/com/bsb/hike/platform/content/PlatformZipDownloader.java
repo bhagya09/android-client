@@ -1,17 +1,26 @@
 package com.bsb.hike.platform.content;
 
 import java.io.File;
-
+import java.io.IOException;
 import java.util.Observable;
 import java.util.Observer;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import android.provider.MediaStore.Files;
+
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContent.EventCode;
+import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.Utils;
 
 /**
@@ -24,6 +33,8 @@ public class PlatformZipDownloader
 	private PlatformContentRequest mRequest;
 
 	private boolean isTemplatingEnabled;
+	
+	private boolean doReplace = false;
 
 	/**
 	 * Instantiates a new platform template download task.
@@ -37,6 +48,11 @@ public class PlatformZipDownloader
 		mRequest = argRequest;
 		this.isTemplatingEnabled = isTemplatingEnabled;
 
+	}
+	
+	public void initMicroAppFolderLocation()
+	{
+		doReplace = true;
 	}
 
 	public  boolean isMicroAppExist()
@@ -63,7 +79,6 @@ public class PlatformZipDownloader
 	 */
 	public void downloadAndUnzip()
 	{
-
 		// Create temp folder
 		File tempFolder = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.TEMP_DIR_NAME);
 
@@ -148,14 +163,24 @@ public class PlatformZipDownloader
 	 */
 	private void unzipMicroApp(File zipFile)
 	{
+		final String unzipPath;
+		if(doReplace)
+		{
+			unzipPath = PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.TEMP_DIR_NAME;
+		}
+		else
+		{
+			unzipPath = PlatformContentConstants.PLATFORM_CONTENT_DIR ;
+		}
 		try
 		{
-			unzipWebFile(zipFile.getAbsolutePath(), PlatformContentConstants.PLATFORM_CONTENT_DIR, new Observer()
+			unzipWebFile(zipFile.getAbsolutePath(), unzipPath, new Observer()
 			{
 				@Override
 				public void update(Observable observable, Object data)
 				{
 					// delete temp folder
+					if(!doReplace)
 					deleteTemporaryFolder();
 					if (!(data instanceof Boolean))
 					{
@@ -166,6 +191,37 @@ public class PlatformZipDownloader
 					{
 						if (!isTemplatingEnabled)
 						{
+							if(unzipPath.equals(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.TEMP_DIR_NAME))
+							{
+								File makeshiftDir = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + mRequest.getContentData().getId());
+								if(makeshiftDir.exists())
+									PlatformUtils.deleteOp(makeshiftDir);
+								makeshiftDir.mkdirs();
+								File src = new File(unzipPath + File.separator+ mRequest.getContentData().getId());
+								File dest = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + mRequest.getContentData().getId());
+								try
+								{
+									PlatformUtils.moveDirectoryTo(src,dest);
+								}
+								catch (IOException e)
+								{
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
+								PlatformUtils.deleter(unzipPath);
+								String sentData = HikeConstants.MqttMessageTypes.REPLACE_SUCCESS;
+								JSONObject json;
+								try
+								{
+									json = new JSONObject(sentData);
+									HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.MICRO_APP_INFO, json);
+								}
+								catch (JSONException e)
+								{
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
+							}
 							mRequest.getListener().onComplete(mRequest.getContentData());
 						}
 						else

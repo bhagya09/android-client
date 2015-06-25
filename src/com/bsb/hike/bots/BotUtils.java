@@ -9,6 +9,7 @@ import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.utils.Utils;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -21,6 +22,7 @@ import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 
@@ -211,6 +213,28 @@ public class BotUtils
 			return;
 		}
 		deleteBotConversation(msisdn , true);
+	}
+	/*
+	 * Uility method to delete the bot files from the file system
+	 * 
+	 * @param jsonObj	:	The bot Json object containing the properties of the bot files to be deleted
+	 */
+	public static void removeMicroApp(JSONObject jsonObj){
+		JSONArray botsTobeRemoved = jsonObj.optJSONArray(HikePlatformConstants.APP_NAME);
+		for (int i = 0; i< botsTobeRemoved.length(); i++){
+			try
+			{
+				String appName =  botsTobeRemoved.get(i).toString();
+				String makePath = PlatformContentConstants.PLATFORM_CONTENT_DIR +  appName;
+				Logger.d("FileSystemAccess", "To delete the path : " + makePath);
+				PlatformUtils.deleter(makePath);
+			}
+			catch (JSONException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	}
 
 	public static void createBot(JSONObject jsonObj)

@@ -65,7 +65,7 @@ public class HikeAnalyticsEvent
 			json.put(HikePlatformConstants.ERROR_CODE, reason.toString());
 			json.put(AnalyticsConstants.EVENT_KEY, HikePlatformConstants.BOT_ERROR);
 			json.put(AnalyticsConstants.CONTENT_ID, convMessage.getContentId());
-			HikeAnalyticsEvent.analyticsForCards(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.ERROR_EVENT, json);
+			HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.ERROR_EVENT, json);
 		}
 		catch (JSONException e)
 		{
@@ -90,7 +90,7 @@ public class HikeAnalyticsEvent
 		}
 	}
 
-    public static void analyticsForCards(String type, String subType, JSONObject json)
+    public static void analyticsForPlatform(String type, String subType, JSONObject json)
     {
         try
         {

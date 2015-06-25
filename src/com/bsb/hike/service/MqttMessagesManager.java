@@ -79,6 +79,7 @@ import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContent;
+import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.platform.content.PlatformContentListener;
 import com.bsb.hike.platform.content.PlatformContentModel;
 import com.bsb.hike.platform.content.PlatformContentRequest;
@@ -1706,6 +1707,27 @@ public class MqttMessagesManager
 				BotUtils.createBot((JSONObject) botsTobeAdded.get(i));
 			}
 		}
+		if(data.has(HikeConstants.MqttMessageTypes.REMOVE_MICRO_APP))
+		{
+			JSONArray microAppsTobeRemoved = data.optJSONArray(HikeConstants.MqttMessageTypes.REMOVE_MICRO_APP);
+			for (int i = 0; i< microAppsTobeRemoved.length(); i++){
+				BotUtils.removeMicroApp((JSONObject) microAppsTobeRemoved.get(i));
+			}
+			String sentData = HikeConstants.MqttMessageTypes.REMOVE_SUCCESS;
+			JSONObject json = new JSONObject(sentData);
+			HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.MICRO_APP_INFO, json);
+		}
+		if(data.has(HikeConstants.MqttMessageTypes.NOTIFY_MICRO_APP_STATUS))
+		{
+			boolean doNotify = data.optBoolean(HikeConstants.MqttMessageTypes.NOTIFY_MICRO_APP_STATUS);
+			if(doNotify)
+			{
+				String sentData = PlatformUtils.readFileList(PlatformContentConstants.PLATFORM_CONTENT_DIR, false).toString();
+				JSONObject json = new JSONObject(sentData);
+				HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.MICRO_APP_INFO, json);
+			}
+				
+		}
 		if(data.has(HikeConstants.MqttMessageTypes.DELETE_MULTIPLE_BOTS))
 		{
 			JSONArray botsTobeAdded = data.optJSONArray(HikeConstants.MqttMessageTypes.DELETE_MULTIPLE_BOTS);
@@ -2653,7 +2675,7 @@ public class MqttMessagesManager
 			e.printStackTrace();
 		}
 
-		HikeAnalyticsEvent.analyticsForCards(AnalyticsConstants.NON_UI_EVENT, HikeConstants.LogEvent.GCM_ANALYTICS_CONTEXT, metadata);
+		HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, HikeConstants.LogEvent.GCM_ANALYTICS_CONTEXT, metadata);
 	}
 
 	private void saveTip(JSONObject jsonObj)

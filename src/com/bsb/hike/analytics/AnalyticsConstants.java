@@ -53,6 +53,8 @@ public class AnalyticsConstants
 	public static String METADATA = "md";
 
 	public static String UI_EVENT = "uiEvent";
+	
+	public static String MICRO_APP_INFO = "microappInfo";
 
 	public static String NON_UI_EVENT = "nonUiEvent";
 
