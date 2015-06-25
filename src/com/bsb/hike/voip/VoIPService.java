@@ -1629,7 +1629,7 @@ public class VoIPService extends Service {
 			return;
 		
 		int cardinality = playbackTrackingBits.cardinality();
-		int loss = (100 - (cardinality*100 / playbackTrackingBits.size()));
+		int loss = (100 - (cardinality*100 / playbackTrackingBits.length()));
 		// Logger.d(logTag, "Loss: " + loss + ", cardinality: " + cardinality);
 		
 		CallQuality newQuality;
