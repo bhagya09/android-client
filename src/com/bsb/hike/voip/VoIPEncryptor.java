@@ -1,5 +1,6 @@
 package com.bsb.hike.voip;
 
+import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.KeyFactory;
@@ -163,8 +164,6 @@ public class VoIPEncryptor {
 			Logger.d(VoIPConstants.TAG, "InvalidKeySpecException: " + e.toString());
 		} catch (NoSuchProviderException e) {
 			Logger.d(VoIPConstants.TAG, "rsaEncrypt NoSuchProviderException: " + e.toString());
-		} catch (IllegalStateException e) {
-			Logger.d(VoIPConstants.TAG, "rsaEncrypt IllegalStateException: " + e.toString());
 		}
 
 		return encryptedData;
@@ -189,8 +188,6 @@ public class VoIPEncryptor {
 			Logger.d(VoIPConstants.TAG, "BadPaddingException: " + e.toString());
 		} catch (NoSuchProviderException e) {
 			Logger.d(VoIPConstants.TAG, "rsaDecrypt NoSuchProviderException: " + e.toString());
-		} catch (IllegalStateException e) {
-			Logger.d(VoIPConstants.TAG, "rsaDecrypt IllegalStateException: " + e.toString());
 		}
 		
 		return decryptedData;

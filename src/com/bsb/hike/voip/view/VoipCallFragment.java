@@ -8,6 +8,10 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -58,7 +62,9 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 	private VoIPService voipService;
 	private boolean isBound = false;
 	private final Messenger mMessenger = new Messenger(new IncomingHandler());
-	private WakeLock proximityWakeLock = null;
+	private WakeLock proximityWakeLock;
+	private SensorManager sensorManager;
+	private float proximitySensorMaximumRange;
 	private int easter = 0;
 
 	private CallActionsView callActionsView;
@@ -116,7 +122,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 			}
 			switch (msg.what) {
 			case VoIPConstants.MSG_SHUTDOWN_ACTIVITY:
-				Logger.d(VoIPConstants.TAG, "Shutting down activity..");
+				Logger.d(VoIPConstants.TAG, "Shutting down..");
 				shutdown(msg.getData());
 				break;
 			case VoIPConstants.CONNECTION_ESTABLISHED_FIRST_TIME:
@@ -148,7 +154,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 			case VoIPConstants.MSG_UPDATE_QUALITY:
 				CallQuality quality = voipService.getQuality();
 				showSignalStrength(quality);
-				// Logger.d(VoIPConstants.TAG, "Updating call quality to: " + quality);
+				Logger.d(VoIPConstants.TAG, "Updating call quality to: " + quality);
 				break;
 			case VoIPConstants.MSG_NETWORK_SUCKS:
 				showCallFailedFragment(VoIPConstants.CallFailedCodes.CALLER_BAD_NETWORK);
@@ -164,13 +170,6 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 				break;
 			case VoIPConstants.MSG_AUDIORECORD_FAILURE:
 				showMessage(getString(R.string.voip_mic_error));
-				break;
-			case VoIPConstants.MSG_LEFT_CONFERENCE:
-				Bundle bundle = msg.getData();
-				String msisdn = bundle.getString(VoIPConstants.MSISDN);
-				showMessage(msisdn + " has left the conference.");
-			case VoIPConstants.MSG_UPDATE_CONTACT_DETAILS:
-				setContactDetails();
 				break;
 			default:
 				super.handleMessage(msg);
@@ -208,15 +207,14 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		Intent intent = new Intent(getSherlockActivity(), VoIPService.class);
 		getSherlockActivity().bindService(intent, myConnection, Context.BIND_AUTO_CREATE);
 		updateCallStatus();
-		initProximityWakelock();
+		initProximitySensor();
 		super.onResume();
 	}
 
 	@Override
 	public void onPause() 
 	{
-		if (VoIPService.getCallId() == 0)	// Bug #45154
-			releaseProximityWakelock();
+		releaseProximitySensor();
 		Logger.d(VoIPConstants.TAG, "VoIPCallFragment onPause()");
 		super.onPause();
 	}
@@ -248,7 +246,19 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		}
 
 		partnerName = null;
-		releaseProximityWakelock();
+
+		releaseWakeLock();
+
+		// Proximity sensor
+		if (sensorManager != null) 
+		{
+			if (proximityWakeLock != null) 
+			{
+				proximityWakeLock.release();
+			}
+			sensorManager.unregisterListener(proximitySensorEventListener);
+		}
+		
 		Logger.d(VoIPConstants.TAG, "VoipCallFragment onDestroy()");
 		super.onDestroy();
 	}
@@ -268,11 +278,11 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		if (VoIPService.getCallId() == 0 || clientPartner.getPhoneNumber() == null) 
 		{
 			Logger.w(VoIPConstants.TAG, "There is no active call.");
-			// getSherlockActivity().finish();
+			getSherlockActivity().finish();
 			return;
 		}
 
-		if(voipService.isAudioRunning())
+		if(VoIPService.isAudioRunning())
 		{
 			// Active Call
 			isCallActive = true;
@@ -293,22 +303,16 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 	void handleIntent(Intent intent) 
 	{
 		String action = intent.getStringExtra(VoIPConstants.Extras.ACTION);
-		String msisdn = intent.getStringExtra(VoIPConstants.Extras.MSISDN);
 
 		if (action == null || action.isEmpty())
 		{
 			return;
 		}
-		
 		Logger.d(VoIPConstants.TAG, "Intent action: " + action);
-		if (voipService == null) {
-			Logger.w(VoIPConstants.TAG, "voipService is null. Ignoring intent.");
-			return;
-		}
 		
 		if (action.equals(VoIPConstants.PARTNER_REQUIRES_UPGRADE)) 
 		{
-			showCallFailedFragment(VoIPConstants.CallFailedCodes.PARTNER_UPGRADE, msisdn);
+			showCallFailedFragment(VoIPConstants.CallFailedCodes.PARTNER_UPGRADE);
 			if (voipService != null)
 			{
 				voipService.sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CONNECTION_FAILED, VoIPConstants.CallFailedCodes.PARTNER_UPGRADE);
@@ -318,7 +322,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		
 		if (action.equals(VoIPConstants.PARTNER_INCOMPATIBLE)) 
 		{
-			showCallFailedFragment(VoIPConstants.CallFailedCodes.PARTNER_INCOMPAT, msisdn);
+			showCallFailedFragment(VoIPConstants.CallFailedCodes.PARTNER_INCOMPAT);
 			if (voipService != null)
 			{
 				voipService.sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CONNECTION_FAILED, VoIPConstants.CallFailedCodes.PARTNER_INCOMPAT);
@@ -337,7 +341,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		
 		if (action.equals(VoIPConstants.PARTNER_IN_CALL)) 
 		{
-			showCallFailedFragment(VoIPConstants.CallFailedCodes.PARTNER_BUSY, msisdn);
+			showCallFailedFragment(VoIPConstants.CallFailedCodes.PARTNER_BUSY);
 			if (voipService != null)
 			{
 				voipService.setCallStatus(VoIPConstants.CallStatus.PARTNER_BUSY);
@@ -351,7 +355,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		{
 			if (VoIPService.getCallId() > 0) 
 			{
-				if(voipService.isAudioRunning())
+				if(VoIPService.isAudioRunning())
 				{
 					showMessage(getString(R.string.voip_call_on_hold));
 					voipService.setHold(true);
@@ -412,10 +416,16 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		}, 900);
 	}
 
+	private void releaseWakeLock() 
+	{
+		if (proximityWakeLock != null && proximityWakeLock.isHeld())
+			proximityWakeLock.release();
+	}
+
 	public boolean onKeyDown(int keyCode, KeyEvent event)
 	{
-		if (voipService!=null && !voipService.isAudioRunning() && (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP)
-			&& voipService.getPartnerClient() != null && voipService.getPartnerClient().isInitiator())
+		if (voipService!=null && !VoIPService.isAudioRunning() && (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP)
+			&& voipService.getPartnerClient().isInitiator())
 		{
 			voipService.stopRingtone();
 			return true;
@@ -438,25 +448,67 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		});
 	}
 
-	private void initProximityWakelock() 
+	private void initProximitySensor() 
 	{
-		if(activity.isShowingCallFailedFragment() || proximityWakeLock != null)
+		if(activity.isShowingCallFailedFragment())
+		{
 			return;
+		}
 
+		sensorManager = (SensorManager) getSherlockActivity().getSystemService(Context.SENSOR_SERVICE);
+		Sensor proximitySensor = sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
+
+		if (proximitySensor == null) 
+		{
+			Logger.d(VoIPConstants.TAG, "No proximity sensor found.");
+			return;
+		}
 		// Set proximity sensor
+		proximitySensorMaximumRange = proximitySensor.getMaximumRange();
 		proximityWakeLock = ((PowerManager)getSherlockActivity().getSystemService(Context.POWER_SERVICE)).newWakeLock(PROXIMITY_SCREEN_OFF_WAKELOCK, "ProximityLock");
 		proximityWakeLock.setReferenceCounted(false);
-		proximityWakeLock.acquire();
+		sensorManager.registerListener(proximitySensorEventListener, proximitySensor, SensorManager.SENSOR_DELAY_NORMAL);
+
 	}
 
-	private void releaseProximityWakelock()
+	private void releaseProximitySensor()
 	{
-		if (proximityWakeLock != null)
+		if (sensorManager != null) 
 		{
-			proximityWakeLock.release();
-			proximityWakeLock = null;
+			if (proximityWakeLock != null)
+			{
+				proximityWakeLock.release();
+			}
+			sensorManager.unregisterListener(proximitySensorEventListener);
 		}
 	}
+	
+	SensorEventListener proximitySensorEventListener = new SensorEventListener() 
+	{
+
+		@SuppressLint("Wakelock") @Override
+		public void onSensorChanged(SensorEvent event) 
+		{
+			if (event.values[0] != proximitySensorMaximumRange) 
+			{
+				if (!proximityWakeLock.isHeld()) 
+				{
+					proximityWakeLock.acquire();
+				}
+			}
+			else
+			{
+				if (proximityWakeLock.isHeld()) 
+				{
+					proximityWakeLock.release();
+				}
+			}
+		}
+
+		@Override
+		public void onAccuracyChanged(Sensor sensor, int accuracy) {
+		}
+	};
 	
 	private void setupCallerLayout()
 	{
@@ -494,19 +546,16 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 	public void acceptCall()
 	{
 		Logger.d(VoIPConstants.TAG, "Accepted call, starting audio...");
-		if (voipService != null) {
-			voipService.acceptIncomingCall();
-			callActionsView.setVisibility(View.GONE);
-			showActiveCallButtons();
-		}
+		voipService.acceptIncomingCall();
+		callActionsView.setVisibility(View.GONE);
+		showActiveCallButtons();
 	}
 
 	@Override
 	public void declineCall()
 	{
 		Logger.d(VoIPConstants.TAG, "Declined call, rejecting...");
-		if (voipService != null)
-			voipService.rejectIncomingCall();
+		voipService.rejectIncomingCall();
 	}
 
 	private void showHikeCallText()
@@ -683,11 +732,6 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 					callDuration.setText(getString(R.string.voip_call_ended));
 				}
 				break;
-		default:
-			// Logger.w(VoIPConstants.TAG, "Unhandled status: " + status);
-			callDuration.startAnimation(anim);
-			callDuration.setText("");
-			break;
 		}
 	}
 	
@@ -701,7 +745,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		callDuration.start();
 	}
 
-	private void setContactDetails()
+	public void setContactDetails()
 	{
 		TextView contactNameView = (TextView) getView().findViewById(R.id.contact_name);
 		TextView contactMsisdnView = (TextView) getView().findViewById(R.id.contact_msisdn);
@@ -727,24 +771,17 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		{
 			nameOrMsisdn = contactInfo.getNameOrMsisdn();
 			partnerName = contactInfo.getName();
-			if(partnerName != null && !voipService.hostingConference())
+			if(partnerName != null)
 			{
 				contactMsisdnView.setVisibility(View.VISIBLE);
 				contactMsisdnView.setText(contactInfo.getMsisdn());
 			}
 		}
 
-		if (voipService.hostingConference() || clientPartner.clientMsisdns != null) {
-			nameOrMsisdn = getString(R.string.voip_conference_label);
-			contactMsisdnView.setVisibility(View.VISIBLE);
-			contactMsisdnView.setText(voipService.getClientNames());
-		}
-
 		if(nameOrMsisdn != null && nameOrMsisdn.length() > 16)
 		{
 			contactNameView.setTextSize(24);
 		}
-		
 		contactNameView.setText(nameOrMsisdn);
 	}
 	
@@ -786,9 +823,6 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 			case EXCELLENT: 	gd.setColor(getResources().getColor(R.color.signal_green));
 					   			signalStrengthView.setText(getString(R.string.voip_signal_excellent));
 					   			break;
-		default:
-			Logger.w(VoIPConstants.TAG, "Unhandled voice quality: " + quality);
-			break;
 		}
 		signalContainer.startAnimation(anim);
 		signalContainer.setVisibility(View.VISIBLE);
@@ -816,34 +850,14 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 		{
 			return;
 		}
-		
-		if (voipService.getPartnerClient() == null) {
-			Logger.w(VoIPConstants.TAG, "Unable to retrieve client.");
-			return;
-		}
-		
-		// Disable call failed fragment when in a conference
-		if (voipService.hostingConference())
-			return;
-		
-		showCallFailedFragment(callFailCode, voipService.getPartnerClient().getPhoneNumber());
-	}
 
-	public void showCallFailedFragment(int callFailCode, String msisdn)
-	{
-		if(activity == null || voipService == null)
-		{
-			return;
-		}
-
-		releaseProximityWakelock();
+		releaseProximitySensor();
 
 		Bundle bundle = new Bundle();
-		bundle.putString(VoIPConstants.PARTNER_MSISDN, msisdn);
+		bundle.putString(VoIPConstants.PARTNER_MSISDN, voipService.getPartnerClient().getPhoneNumber());
 		bundle.putInt(VoIPConstants.CALL_FAILED_REASON, callFailCode);
 		bundle.putString(VoIPConstants.PARTNER_NAME, partnerName);
 
-		Logger.w(VoIPConstants.TAG, "Showing call failed fragment.");
 		activity.showCallFailedFragment(bundle);
 	}
 
@@ -870,9 +884,7 @@ public class VoipCallFragment extends SherlockFragment implements CallActions
 				easter++;
 				if (easter == 5) {
 					// Easter success
-					// showMessage("Encryption key: " + voipService.getSessionKeyHash());
-					boolean conferencing = voipService.toggleConferencing();
-					showMessage("Conferencing: " + conferencing);
+					showMessage("Encryption key: " + voipService.getSessionKeyHash());
 				}
 				return;
 			}

@@ -35,14 +35,10 @@ public final class PreviewFragment extends Fragment
 	private ImageAdapter mAdapter;
 
 	private int menuType;
-	
-	private int height;
 
 	private static final String MENU_TYPE_KEY = "MENU_TYPE_KEY";
 
 	private static final String BITMAP_KEY = "BITMAP_KEY";
-	
-	private static final String MENU_HEIGHT_KEY = "MENU_HEIGHT_KEY";
 
 	//Default Constructor as per android guidelines
 	public PreviewFragment()
@@ -70,11 +66,6 @@ public final class PreviewFragment extends Fragment
 		menuType = newFragBundle.getInt(MENU_TYPE_KEY);
 
 		mOriginalBitmap = newFragBundle.getParcelable(BITMAP_KEY);
-		
-		if(savedInstanceState != null)
-		{
-			height = savedInstanceState.getInt(MENU_HEIGHT_KEY);
-		}
 	}
 
 	@Override
@@ -86,12 +77,10 @@ public final class PreviewFragment extends Fragment
 			handler = ((PictureEditer) getActivity()).getClickHandler();
 		}
 
-		if(height==0)
-		{
-			height = container.getMeasuredHeight();
-		}
-		
+
 		LinearLayout layout = (LinearLayout) LayoutInflater.from(getActivity()).inflate(R.layout.photos_pager_layout, container, false);
+
+		int height = container.getMeasuredHeight();
 
 		TwoWayGridView gridView = (TwoWayGridView) layout.findViewById(R.id.HorizontalGridView);
 		// gridView.setLayoutParams(new TwoWayAbsListView.LayoutParams(TwoWayAbsListView.LayoutParams.MATCH_PARENT, HikePhotosUtils.dpToPx(getActivity().getApplicationContext(),
@@ -112,7 +101,7 @@ public final class PreviewFragment extends Fragment
 			ViewStub stub = (ViewStub) sizeBar.findViewById(R.id.viewStubPreview);
 			DoodleEffectItemLinearLayout inflated = (DoodleEffectItemLinearLayout) stub.inflate();
 			inflated.setBrushColor(HikePhotosUtils.DoodleColors[0]);
-			inflated.setBrushWidth(HikePhotosUtils.dpToPx(HikeConstants.HikePhotos.DEFAULT_BRUSH_WIDTH));
+			inflated.setBrushWidth(HikePhotosUtils.dpToPx(getActivity().getApplicationContext(), HikeConstants.HikePhotos.DEFAULT_BRUSH_WIDTH));
 
 			inflated.setPadding(0, 0, 0, 0);
 			inflated.setRingColor(HikeConstants.HikePhotos.DEFAULT_RING_COLOR);
@@ -142,7 +131,6 @@ public final class PreviewFragment extends Fragment
 	@Override
 	public void onSaveInstanceState(Bundle outState)
 	{
-		outState.putInt(MENU_HEIGHT_KEY, height);
 		super.onSaveInstanceState(outState);
 	}
 

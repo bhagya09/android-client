@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Path;
@@ -99,7 +98,7 @@ public class CanvasImageView extends ImageView implements OnTouchListener
 		this.mPaint.setStyle(Paint.Style.STROKE);
 		this.mPaint.setStrokeJoin(Paint.Join.ROUND);
 		this.mPaint.setStrokeCap(Paint.Cap.ROUND);
-		this.brushWidth = HikePhotosUtils.dpToPx(HikeConstants.HikePhotos.DEFAULT_BRUSH_WIDTH);
+		this.brushWidth = HikePhotosUtils.dpToPx(getContext(), HikeConstants.HikePhotos.DEFAULT_BRUSH_WIDTH);
 		this.color = HikePhotosUtils.DoodleColors[0];
 		this.mPath = new Path();
 		this.drawEnabled = false;
@@ -112,7 +111,7 @@ public class CanvasImageView extends ImageView implements OnTouchListener
 		{
 			if(mBitmap == null)
 			{
-				mBitmap = HikePhotosUtils.createBitmap(null, 0, 0, width, height, false, false, false, true,Config.ARGB_8888);
+				mBitmap = HikePhotosUtils.createBitmap(null, 0, 0, width, height, false, false, false, true);
 			}
 			else
 			{

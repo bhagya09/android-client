@@ -26,8 +26,7 @@ public class VoIPSerializer {
 		.setPacketNumber(dp.getPacketNumber())
 		.setRequiresAck(dp.isRequiresAck())
 		.setTimestamp(dp.getTimestamp())
-		.setVoicePacketNumber(dp.getVoicePacketNumber())
-		.setIsVoice(dp.isVoice());
+		.setVoicePacketNumber(dp.getVoicePacketNumber());
     	
     	DataPacket dataPacket = protoBufBuilder.build();
     	return dataPacket.toByteArray();
@@ -51,7 +50,6 @@ public class VoIPSerializer {
 			dp.setRequiresAck(protoBuf.getRequiresAck());
 			dp.setVoicePacketNumber(protoBuf.getVoicePacketNumber());
 			dp.setTimestamp(protoBuf.getTimestamp());
-			dp.setVoice(protoBuf.getIsVoice());
 			
 		} catch (InvalidProtocolBufferException e) {
 			Log.e("VoIP Serializer", "Error decoding protocol buffer packet");

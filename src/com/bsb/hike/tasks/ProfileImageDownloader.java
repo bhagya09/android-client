@@ -131,9 +131,6 @@ public class ProfileImageDownloader extends AsyncTaskLoader<Boolean>
 				fos.write(buffer, 0, len);
 			}
 
-			fos.flush();
-			fos.getFD().sync();
-
 		}
 		catch (MalformedURLException e)
 		{
@@ -153,6 +150,8 @@ public class ProfileImageDownloader extends AsyncTaskLoader<Boolean>
 			{
 				if (fos != null)
 				{
+					fos.flush();
+					fos.getFD().sync();
 					fos.close();
 				}
 				if (is != null)

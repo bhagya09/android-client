@@ -253,20 +253,7 @@ public class MqttMessagesManager
 
 		// IconCacheManager.getInstance().clearIconForMSISDN(groupId);
 		autoDownloadGroupImage(groupId);
-		boolean saveStatusMsg = true;
-		if (jsonObj.has(HikeConstants.METADATA)) {
-			JSONObject mdata = jsonObj.getJSONObject(HikeConstants.METADATA);
-			if (mdata.has(HikeConstants.MqttMessageTypes.SYNC)) {
-				int syncState = mdata.getInt(HikeConstants.MqttMessageTypes.SYNC);
-				if(syncState == 1){
-					saveStatusMsg = false;
-				}
-			}
-		}
-		if(saveStatusMsg){
-			saveStatusMsg(jsonObj, groupId);
-		}
-		
+		saveStatusMsg(jsonObj, groupId);
 	}
 
 	private void saveSMSCredits(JSONObject jsonObj) throws JSONException
@@ -434,6 +421,7 @@ public class MqttMessagesManager
 		oneToNConversation = OneToNConversation.createOneToNConversationFromJSON(jsonObj);
 		
 		boolean groupRevived = false;
+
 		if (!ContactManager.getInstance().isGroupAlive(oneToNConversation.getMsisdn()))
 		{
 
@@ -457,18 +445,14 @@ public class MqttMessagesManager
 
 		}
 		int gcjAdd = this.convDb.addRemoveGroupParticipants(oneToNConversation.getMsisdn(), oneToNConversation.getConversationParticipantList(), groupRevived);
-		JSONObject metadata = jsonObj.optJSONObject(HikeConstants.METADATA);
 		if (!groupRevived && gcjAdd != HikeConstants.NEW_PARTICIPANT)
 		{
-			if(metadata!=null){
-				this.convDb.setGroupCreationTime(oneToNConversation.getMsisdn(),  oneToNConversation.getCreationDate());
-			}
 			Logger.d(getClass().getSimpleName(), "GCJ Message was already received");
 			return;
 		}
 		Logger.d(getClass().getSimpleName(), "GCJ Message is new");
 
-		
+		JSONObject metadata = jsonObj.optJSONObject(HikeConstants.METADATA);
 
 		/*
 		 * 
@@ -493,7 +477,7 @@ public class MqttMessagesManager
 				groupName = metadata.optString(HikeConstants.NAME);
 			}
 			
-			oneToNConversation = (OneToNConversation) this.convDb.addConversation(oneToNConversation.getMsisdn(), false, groupName, oneToNConversation.getConversationOwner(), null, oneToNConversation.getCreationDate());
+			oneToNConversation = (OneToNConversation) this.convDb.addConversation(oneToNConversation.getMsisdn(), false, groupName, oneToNConversation.getConversationOwner());
 			ContactManager.getInstance().insertGroup(oneToNConversation.getMsisdn(), groupName);
 
 			// Adding a key to the json signify that this was the GCJ
@@ -1554,11 +1538,6 @@ public class MqttMessagesManager
 			boolean aecEnabled = data.getBoolean(HikeConstants.VOIP_AEC_ENABLED);
 			editor.putBoolean(HikeConstants.VOIP_AEC_ENABLED, aecEnabled);
 		}
-		if (data.has(HikeConstants.VOIP_CONFERENCING_ENABLED))
-		{
-			boolean enabled = data.getBoolean(HikeConstants.VOIP_CONFERENCING_ENABLED);
-			editor.putBoolean(HikeConstants.VOIP_CONFERENCING_ENABLED, enabled);
-		}
 		if (data.has(HikeConstants.VOIP_NETWORK_TEST_ENABLED))
 		{
 			boolean enabled = data.getBoolean(HikeConstants.VOIP_NETWORK_TEST_ENABLED);
@@ -1867,6 +1846,7 @@ public class MqttMessagesManager
 		{
 			boolean enablePhoto = data.getBoolean(HikeConstants.Extras.ENABLE_PHOTOS);
 			HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.ACCOUNT_SETTINGS).saveData(HikeConstants.Extras.ENABLE_PHOTOS, enablePhoto);
+			HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.ACCOUNT_SETTINGS).saveData(HikeConstants.SHOW_PHOTOS_RED_DOT, true);
 		}if(data.has(HikeConstants.URL_WHITELIST))
 		{
 			handleWhitelistDomains(data.getString(HikeConstants.URL_WHITELIST));
@@ -1968,45 +1948,6 @@ public class MqttMessagesManager
 			int httpAnalyticsMaxNumber = data.getInt(HikeConstants.PROB_NUM_HTTP_ANALYTICS);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.PROB_NUM_HTTP_ANALYTICS, httpAnalyticsMaxNumber);
 		}
-
-		if (data.has(HikeConstants.GROUP_NOTIFIACTION_DELAY))
-		{
-			int groupNotificationDelay = data.getInt(HikeConstants.GROUP_NOTIFIACTION_DELAY);
-			if (groupNotificationDelay>=0)
-			{
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.GROUP_NOTIFIACTION_DELAY, groupNotificationDelay);
-			}
-		}
-		
-		if (data.has(HikeConstants.SUPER_COMPRESSED_IMG_SIZE))
-		{
-			int superCompressedImgSize = data.getInt(HikeConstants.SUPER_COMPRESSED_IMG_SIZE);
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SUPER_COMPRESSED_IMG_SIZE, superCompressedImgSize);
-		}
-		if (data.has(HikeConstants.NORMAL_IMG_SIZE))
-		{
-			int normalImgSize = data.getInt(HikeConstants.NORMAL_IMG_SIZE);
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.NORMAL_IMG_SIZE, normalImgSize);
-		}
-		if (data.has(HikeConstants.DEFAULT_IMG_QUALITY_FOR_SMO))
-		{
-			int defaultImgQuality = data.getInt(HikeConstants.DEFAULT_IMG_QUALITY_FOR_SMO);
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.DEFAULT_IMG_QUALITY_FOR_SMO, defaultImgQuality);
-		}
-		if (data.has(HikeConstants.SHOW_TOAST_FOR_DEGRADING_QUALITY))
-		{
-			boolean toShowToastForDegradingQuality = data.getBoolean(HikeConstants.SHOW_TOAST_FOR_DEGRADING_QUALITY);
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_TOAST_FOR_DEGRADING_QUALITY, toShowToastForDegradingQuality);
-
-		}
-		if(data.has(HikeConstants.STEALTH))
-		{
-			String stealthValue = data.getString(HikeConstants.STEALTH);
-			if(stealthValue.equals(HikeConstants.ENABLED_STEALTH))
-			{
-				HikeAnalyticsEvent.sendStealthMsisdns(StealthModeManager.getInstance().getStealthMsisdns(), null);
-			}
-		}
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
 		
@@ -2078,12 +2019,6 @@ public class MqttMessagesManager
 			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "---UPLOADING FROM DEMAND PACKET ROUTE---");
 
 			HAManager.getInstance().sendAnalyticsData(true, true);
-		}
-		
-		if (data.optBoolean(HikeConstants.PATCH_AB))
-		{
-			boolean contactsChanged = ContactManager.getInstance().syncUpdates(context);
-			Logger.d(getClass().getSimpleName(), "contacts changed : " + contactsChanged);
 		}
 	}
 

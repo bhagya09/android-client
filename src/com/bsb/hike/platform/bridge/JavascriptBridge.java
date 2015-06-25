@@ -359,7 +359,6 @@ public abstract class JavascriptBridge
 			heightRunnable.height = Integer.parseInt(heightS);
 			if (null != mHandler)
 			{
-				mHandler.removeCallbacks(heightRunnable);
 				mHandler.post(heightRunnable);
 			}
 		}

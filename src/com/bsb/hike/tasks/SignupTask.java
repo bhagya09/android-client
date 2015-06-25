@@ -78,11 +78,9 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 		}
 	}
 
-	public interface OnSignupTaskProgressUpdate
+	public interface OnSignupTaskProgressUpdate extends FinishableEvent
 	{
 		public void onProgressUpdate(StateValue value);
-		
-		public void onFinish(boolean success);
 	}
 	
 	public int getDisplayChild()
@@ -495,45 +493,40 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 			{
 				Logger.d("Signup", "Starting AB scanning");
 				Map<String, List<ContactInfo>> contacts = conMgr.convertToMap(contactinfos);
-				
+				JSONObject jsonForAddressBookAndBlockList = null;
 				if (Utils.isAddressbookCallsThroughHttpMgrEnabled())
 				{
-					boolean addressBookPosted = new PostAddressBookTask(contacts).execute();
-					if (addressBookPosted == false)
-					{
-						publishProgress(new StateValue(State.ERROR, HikeConstants.ADDRESS_BOOK_ERROR));
-						return Boolean.FALSE;
-					}
+					jsonForAddressBookAndBlockList = new PostAddressBookTask(contacts).execute();
 				}
 				else
 				{
-					JSONObject jsonForAddressBookAndBlockList = AccountUtils.postAddressBook(token, contacts);
-
-					List<ContactInfo> addressbook = ContactUtils.getContactList(jsonForAddressBookAndBlockList, contacts);
-					List<String> blockList = ContactUtils.getBlockList(jsonForAddressBookAndBlockList);
-
-					if (jsonForAddressBookAndBlockList.has(HikeConstants.PREF))
-					{
-						JSONObject prefJson = jsonForAddressBookAndBlockList.getJSONObject(HikeConstants.PREF);
-						JSONArray contactsArray = prefJson.optJSONArray(HikeConstants.CONTACTS);
-						if (contactsArray != null)
-						{
-							Editor editor = settings.edit();
-							editor.putString(HikeMessengerApp.SERVER_RECOMMENDED_CONTACTS, contactsArray.toString());
-							editor.commit();
-						}
-					}
-					// List<>
-					// TODO this exception should be raised from the postAddressBook
-					// code
-					if (addressbook == null)
-					{
-						publishProgress(new StateValue(State.ERROR, HikeConstants.ADDRESS_BOOK_ERROR));
-						return Boolean.FALSE;
-					}
-					Logger.d("SignupTask", "about to insert addressbook");
-					ContactManager.getInstance().setAddressBookAndBlockList(addressbook, blockList);
+					jsonForAddressBookAndBlockList = AccountUtils.postAddressBook(token, contacts);
 				}
+
+				List<ContactInfo> addressbook = ContactUtils.getContactList(jsonForAddressBookAndBlockList, contacts);
+				List<String> blockList = ContactUtils.getBlockList(jsonForAddressBookAndBlockList);
+
+				if (jsonForAddressBookAndBlockList.has(HikeConstants.PREF))
+				{
+					JSONObject prefJson = jsonForAddressBookAndBlockList.getJSONObject(HikeConstants.PREF);
+					JSONArray contactsArray = prefJson.optJSONArray(HikeConstants.CONTACTS);
+					if (contactsArray != null)
+					{
+						Editor editor = settings.edit();
+						editor.putString(HikeMessengerApp.SERVER_RECOMMENDED_CONTACTS, contactsArray.toString());
+						editor.commit();
+					}
+				}
+				// List<>
+				// TODO this exception should be raised from the postAddressBook
+				// code
+				if (addressbook == null)
+				{
+					publishProgress(new StateValue(State.ERROR, HikeConstants.ADDRESS_BOOK_ERROR));
+					return Boolean.FALSE;
+				}
+				Logger.d("SignupTask", "about to insert addressbook");
+				ContactManager.getInstance().setAddressBookAndBlockList(addressbook, blockList);
 			}
 			catch (Exception e)
 			{
