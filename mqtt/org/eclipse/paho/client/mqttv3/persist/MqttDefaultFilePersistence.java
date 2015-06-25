@@ -30,8 +30,6 @@ import org.eclipse.paho.client.mqttv3.MqttPersistenceException;
 import org.eclipse.paho.client.mqttv3.internal.FileLock;
 import org.eclipse.paho.client.mqttv3.internal.MqttPersistentData;
 
-import com.bsb.hike.utils.Utils;
-
 /**
  * An implementation of the {@link MqttClientPersistence} interface that provides
  * file based persistence.
@@ -156,7 +154,6 @@ public class MqttDefaultFilePersistence implements MqttClientPersistence {
 		checkIsOpen();
 		File file = new File(clientDir, key+MESSAGE_FILE_EXTENSION);
 		File backupFile = new File(clientDir, key+MESSAGE_FILE_EXTENSION+MESSAGE_BACKUP_FILE_EXTENSION);
-		FileOutputStream fos = null;
 		
 		if (file.exists()) {
 			// Backup the existing file so the overwrite can be rolled-back 
@@ -167,13 +164,13 @@ public class MqttDefaultFilePersistence implements MqttClientPersistence {
 			}
 		}
 		try {
-			fos = new FileOutputStream(file);
+			FileOutputStream fos = new FileOutputStream(file);
 			fos.write(message.getHeaderBytes(), message.getHeaderOffset(), message.getHeaderLength());
 			if (message.getPayloadBytes()!=null) {
 				fos.write(message.getPayloadBytes(), message.getPayloadOffset(), message.getPayloadLength());
 			}
-			fos.flush();
 			fos.getFD().sync();
+			fos.close();
 			if (backupFile.exists()) {
 				// The write has completed successfully, delete the backup 
 				backupFile.delete();
@@ -183,7 +180,6 @@ public class MqttDefaultFilePersistence implements MqttClientPersistence {
 			throw new MqttPersistenceException(ex);
 		} 
 		finally {
-			Utils.closeStreams(fos);
 			if (backupFile.exists()) {
 				// The write has failed - restore the backup
 				boolean result = backupFile.renameTo(file);
@@ -198,24 +194,20 @@ public class MqttDefaultFilePersistence implements MqttClientPersistence {
 	public MqttPersistable get(String key) throws MqttPersistenceException {
 		checkIsOpen();
 		MqttPersistable result;
-		FileInputStream fis = null;
 		try {
 			File file = new File(clientDir, key+MESSAGE_FILE_EXTENSION);
-			fis = new FileInputStream(file);
+			FileInputStream fis = new FileInputStream(file);
 			int size = fis.available();
 			byte[] data = new byte[size];
 			int read = 0;
 			while (read<size) {
 				read += fis.read(data,read,size-read);
 			}
+			fis.close();
 			result = new MqttPersistentData(key, data, 0, data.length, null, 0, 0);
 		} 
 		catch(IOException ex) {
 			throw new MqttPersistenceException(ex);
-		}
-		finally
-		{
-			Utils.closeStreams(fis);
 		}
 		return result;
 	}

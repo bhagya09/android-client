@@ -1,12 +1,10 @@
 package com.bsb.hike.utils;
 
-import java.util.List;
-
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.content.PlatformContent;
-import org.json.JSONArray;
+import com.bsb.hike.voip.VoIPUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -20,38 +18,6 @@ import com.bsb.hike.service.HikeMqttManagerNew;
 
 public class HikeAnalyticsEvent
 {
-	
-	private static String TAG = "HikeAnalyticsEvent";
-	/*
-	 * We send this event every time user mark some chats as stealth
-	 */
-	public static void sendStealthMsisdns(List<String> enabledMsisdn, List<String> disabledMsisdn)
-	{
-		// TODO use array instead of sets here.
-		JSONObject object = new JSONObject();
-		try
-		{
-			object.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.STEALTH);
-
-			JSONObject dataJson = new JSONObject();
-			if (enabledMsisdn != null)
-			{
-				dataJson.put(HikeConstants.ENABLED_STEALTH, new JSONArray(enabledMsisdn));
-			}
-			if (disabledMsisdn != null)
-			{
-				dataJson.put(HikeConstants.DISABLED_STEALTH, new JSONArray(disabledMsisdn));
-			}
-			object.put(HikeConstants.DATA, dataJson);
-	        HikeMqttManagerNew.getInstance().sendMessage(object, MqttConstants.MQTT_QOS_ONE);
-		}
-		catch (JSONException e)
-		{
-			Logger.e(TAG, "JSONException in stealth msisdn", e);
-		}
-
-	}
-
 	/*
 	 * We send this event every time when user resets stealth mode
 	 */
@@ -69,31 +35,9 @@ public class HikeAnalyticsEvent
 		}
 		catch (JSONException e)
 		{
-			Logger.e(TAG, "JSONException in stealth reset event", e);
-		}
-	}
-
-	/*
-	 * We send this event every time when user enter stealth mode
-	 */
-	public static void sendStealthEnabled(boolean enabled)
-	{
-		JSONObject object = new JSONObject();
-		try
-		{
-			object.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.TOGGLE_STEALTH);
-
-			JSONObject dataJson = new JSONObject();
-			dataJson.put(HikeConstants.ENABLED, enabled);
-			object.put(HikeConstants.DATA, dataJson);
-			HikeMqttManagerNew.getInstance().sendMessage(object, MqttConstants.MQTT_QOS_ZERO);
-		}
-		catch (JSONException e)
-		{
 			Logger.e("HikeAnalyticsEvent", "Exception in sending analytics event", e);
 		}
 	}
-	
 
 	/*
 	 * We send an event every time user exists the gallery selection activity

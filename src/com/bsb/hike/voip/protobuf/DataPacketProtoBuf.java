@@ -97,34 +97,6 @@ public final class DataPacketProtoBuf {
      * <code>optional int64 timestamp = 9;</code>
      */
     long getTimestamp();
-
-    /**
-     * <code>optional bool isVoice = 10 [default = true];</code>
-     */
-    boolean hasIsVoice();
-    /**
-     * <code>optional bool isVoice = 10 [default = true];</code>
-     */
-    boolean getIsVoice();
-
-    /**
-     * <code>repeated string broadcastList = 11;</code>
-     */
-    com.google.protobuf.ProtocolStringList
-        getBroadcastListList();
-    /**
-     * <code>repeated string broadcastList = 11;</code>
-     */
-    int getBroadcastListCount();
-    /**
-     * <code>repeated string broadcastList = 11;</code>
-     */
-    java.lang.String getBroadcastList(int index);
-    /**
-     * <code>repeated string broadcastList = 11;</code>
-     */
-    com.google.protobuf.ByteString
-        getBroadcastListBytes(int index);
   }
   /**
    * Protobuf type {@code DataPacket}
@@ -222,20 +194,6 @@ public final class DataPacketProtoBuf {
               timestamp_ = input.readInt64();
               break;
             }
-            case 80: {
-              bitField0_ |= 0x00000200;
-              isVoice_ = input.readBool();
-              break;
-            }
-            case 90: {
-              com.google.protobuf.ByteString bs = input.readBytes();
-              if (!((mutable_bitField0_ & 0x00000400) == 0x00000400)) {
-                broadcastList_ = new com.google.protobuf.LazyStringArrayList();
-                mutable_bitField0_ |= 0x00000400;
-              }
-              broadcastList_.add(bs);
-              break;
-            }
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
@@ -244,9 +202,6 @@ public final class DataPacketProtoBuf {
         throw new com.google.protobuf.InvalidProtocolBufferException(
             e.getMessage()).setUnfinishedMessage(this);
       } finally {
-        if (((mutable_bitField0_ & 0x00000400) == 0x00000400)) {
-          broadcastList_ = broadcastList_.getUnmodifiableView();
-        }
         try {
           unknownFieldsCodedOutput.flush();
         } catch (java.io.IOException e) {
@@ -435,50 +390,6 @@ public final class DataPacketProtoBuf {
       return timestamp_;
     }
 
-    public static final int ISVOICE_FIELD_NUMBER = 10;
-    private boolean isVoice_;
-    /**
-     * <code>optional bool isVoice = 10 [default = true];</code>
-     */
-    public boolean hasIsVoice() {
-      return ((bitField0_ & 0x00000200) == 0x00000200);
-    }
-    /**
-     * <code>optional bool isVoice = 10 [default = true];</code>
-     */
-    public boolean getIsVoice() {
-      return isVoice_;
-    }
-
-    public static final int BROADCASTLIST_FIELD_NUMBER = 11;
-    private com.google.protobuf.LazyStringList broadcastList_;
-    /**
-     * <code>repeated string broadcastList = 11;</code>
-     */
-    public com.google.protobuf.ProtocolStringList
-        getBroadcastListList() {
-      return broadcastList_;
-    }
-    /**
-     * <code>repeated string broadcastList = 11;</code>
-     */
-    public int getBroadcastListCount() {
-      return broadcastList_.size();
-    }
-    /**
-     * <code>repeated string broadcastList = 11;</code>
-     */
-    public java.lang.String getBroadcastList(int index) {
-      return broadcastList_.get(index);
-    }
-    /**
-     * <code>repeated string broadcastList = 11;</code>
-     */
-    public com.google.protobuf.ByteString
-        getBroadcastListBytes(int index) {
-      return broadcastList_.getByteString(index);
-    }
-
     private void initFields() {
       encrypted_ = false;
       data_ = com.google.protobuf.ByteString.EMPTY;
@@ -489,8 +400,6 @@ public final class DataPacketProtoBuf {
       requiresAck_ = false;
       voicePacketNumber_ = 0;
       timestamp_ = 0L;
-      isVoice_ = true;
-      broadcastList_ = com.google.protobuf.LazyStringArrayList.EMPTY;
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -540,12 +449,6 @@ public final class DataPacketProtoBuf {
       if (((bitField0_ & 0x00000100) == 0x00000100)) {
         output.writeInt64(9, timestamp_);
       }
-      if (((bitField0_ & 0x00000200) == 0x00000200)) {
-        output.writeBool(10, isVoice_);
-      }
-      for (int i = 0; i < broadcastList_.size(); i++) {
-        output.writeBytes(11, broadcastList_.getByteString(i));
-      }
       output.writeRawBytes(unknownFields);
     }
 
@@ -590,19 +493,6 @@ public final class DataPacketProtoBuf {
       if (((bitField0_ & 0x00000100) == 0x00000100)) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt64Size(9, timestamp_);
-      }
-      if (((bitField0_ & 0x00000200) == 0x00000200)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBoolSize(10, isVoice_);
-      }
-      {
-        int dataSize = 0;
-        for (int i = 0; i < broadcastList_.size(); i++) {
-          dataSize += com.google.protobuf.CodedOutputStream
-            .computeBytesSizeNoTag(broadcastList_.getByteString(i));
-        }
-        size += dataSize;
-        size += 1 * getBroadcastListList().size();
       }
       size += unknownFields.size();
       memoizedSerializedSize = size;
@@ -716,10 +606,6 @@ public final class DataPacketProtoBuf {
         bitField0_ = (bitField0_ & ~0x00000080);
         timestamp_ = 0L;
         bitField0_ = (bitField0_ & ~0x00000100);
-        isVoice_ = true;
-        bitField0_ = (bitField0_ & ~0x00000200);
-        broadcastList_ = com.google.protobuf.LazyStringArrayList.EMPTY;
-        bitField0_ = (bitField0_ & ~0x00000400);
         return this;
       }
 
@@ -779,15 +665,6 @@ public final class DataPacketProtoBuf {
           to_bitField0_ |= 0x00000100;
         }
         result.timestamp_ = timestamp_;
-        if (((from_bitField0_ & 0x00000200) == 0x00000200)) {
-          to_bitField0_ |= 0x00000200;
-        }
-        result.isVoice_ = isVoice_;
-        if (((bitField0_ & 0x00000400) == 0x00000400)) {
-          broadcastList_ = broadcastList_.getUnmodifiableView();
-          bitField0_ = (bitField0_ & ~0x00000400);
-        }
-        result.broadcastList_ = broadcastList_;
         result.bitField0_ = to_bitField0_;
         return result;
       }
@@ -822,19 +699,6 @@ public final class DataPacketProtoBuf {
         }
         if (other.hasTimestamp()) {
           setTimestamp(other.getTimestamp());
-        }
-        if (other.hasIsVoice()) {
-          setIsVoice(other.getIsVoice());
-        }
-        if (!other.broadcastList_.isEmpty()) {
-          if (broadcastList_.isEmpty()) {
-            broadcastList_ = other.broadcastList_;
-            bitField0_ = (bitField0_ & ~0x00000400);
-          } else {
-            ensureBroadcastListIsMutable();
-            broadcastList_.addAll(other.broadcastList_);
-          }
-          
         }
         setUnknownFields(
             getUnknownFields().concat(other.unknownFields));
@@ -1203,131 +1067,6 @@ public final class DataPacketProtoBuf {
       public Builder clearTimestamp() {
         bitField0_ = (bitField0_ & ~0x00000100);
         timestamp_ = 0L;
-        
-        return this;
-      }
-
-      private boolean isVoice_ = true;
-      /**
-       * <code>optional bool isVoice = 10 [default = true];</code>
-       */
-      public boolean hasIsVoice() {
-        return ((bitField0_ & 0x00000200) == 0x00000200);
-      }
-      /**
-       * <code>optional bool isVoice = 10 [default = true];</code>
-       */
-      public boolean getIsVoice() {
-        return isVoice_;
-      }
-      /**
-       * <code>optional bool isVoice = 10 [default = true];</code>
-       */
-      public Builder setIsVoice(boolean value) {
-        bitField0_ |= 0x00000200;
-        isVoice_ = value;
-        
-        return this;
-      }
-      /**
-       * <code>optional bool isVoice = 10 [default = true];</code>
-       */
-      public Builder clearIsVoice() {
-        bitField0_ = (bitField0_ & ~0x00000200);
-        isVoice_ = true;
-        
-        return this;
-      }
-
-      private com.google.protobuf.LazyStringList broadcastList_ = com.google.protobuf.LazyStringArrayList.EMPTY;
-      private void ensureBroadcastListIsMutable() {
-        if (!((bitField0_ & 0x00000400) == 0x00000400)) {
-          broadcastList_ = new com.google.protobuf.LazyStringArrayList(broadcastList_);
-          bitField0_ |= 0x00000400;
-         }
-      }
-      /**
-       * <code>repeated string broadcastList = 11;</code>
-       */
-      public com.google.protobuf.ProtocolStringList
-          getBroadcastListList() {
-        return broadcastList_.getUnmodifiableView();
-      }
-      /**
-       * <code>repeated string broadcastList = 11;</code>
-       */
-      public int getBroadcastListCount() {
-        return broadcastList_.size();
-      }
-      /**
-       * <code>repeated string broadcastList = 11;</code>
-       */
-      public java.lang.String getBroadcastList(int index) {
-        return broadcastList_.get(index);
-      }
-      /**
-       * <code>repeated string broadcastList = 11;</code>
-       */
-      public com.google.protobuf.ByteString
-          getBroadcastListBytes(int index) {
-        return broadcastList_.getByteString(index);
-      }
-      /**
-       * <code>repeated string broadcastList = 11;</code>
-       */
-      public Builder setBroadcastList(
-          int index, java.lang.String value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  ensureBroadcastListIsMutable();
-        broadcastList_.set(index, value);
-        
-        return this;
-      }
-      /**
-       * <code>repeated string broadcastList = 11;</code>
-       */
-      public Builder addBroadcastList(
-          java.lang.String value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  ensureBroadcastListIsMutable();
-        broadcastList_.add(value);
-        
-        return this;
-      }
-      /**
-       * <code>repeated string broadcastList = 11;</code>
-       */
-      public Builder addAllBroadcastList(
-          java.lang.Iterable<java.lang.String> values) {
-        ensureBroadcastListIsMutable();
-        com.google.protobuf.AbstractMessageLite.Builder.addAll(
-            values, broadcastList_);
-        
-        return this;
-      }
-      /**
-       * <code>repeated string broadcastList = 11;</code>
-       */
-      public Builder clearBroadcastList() {
-        broadcastList_ = com.google.protobuf.LazyStringArrayList.EMPTY;
-        bitField0_ = (bitField0_ & ~0x00000400);
-        
-        return this;
-      }
-      /**
-       * <code>repeated string broadcastList = 11;</code>
-       */
-      public Builder addBroadcastListBytes(
-          com.google.protobuf.ByteString value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  ensureBroadcastListIsMutable();
-        broadcastList_.add(value);
         
         return this;
       }

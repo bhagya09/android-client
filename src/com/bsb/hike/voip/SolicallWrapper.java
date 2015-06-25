@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -63,20 +64,20 @@ public class SolicallWrapper
 			int CpuNoiseReduction = sharedPref.getData(HikeConstants.VOIP_AEC_CPU_NR, 0);
 			int CpuAEC = sharedPref.getData(HikeConstants.VOIP_AEC_CPU, 2);
 			short AecMinOutput = (short) sharedPref.getData(HikeConstants.VOIP_AEC_MO, 0);
-			short AecTypeParam = (short) sharedPref.getData(HikeConstants.VOIP_AEC_TYPE, 1); // Before 24 May, value was 4
-			short comfortNoise = (short) sharedPref.getData(HikeConstants.VOIP_AEC_CNP, 0); // Before 2 Jun, value was 100
+			short AecTypeParam = (short) sharedPref.getData(HikeConstants.VOIP_AEC_TYPE, 4);
+			short comfortNoise = (short) sharedPref.getData(HikeConstants.VOIP_AEC_CNP, 100);
 			int AecTailType = sharedPref.getData(HikeConstants.VOIP_AEC_TAIL_TYPE, -18);
 			
-//			Logger.d(VoIPConstants.TAG, "AEC parameters: " + CpuNoiseReduction + ", " 
-//					+ CpuAEC + ", " 
-//					+ AecMinOutput + ", " 
-//					+ AecTypeParam + ", " 
-//					+ comfortNoise + ", " 
-//					+ AecTailType);
+			Logger.d(VoIPConstants.TAG, "AEC parameters: " + CpuNoiseReduction + ", " 
+					+ CpuAEC + ", " 
+					+ AecMinOutput + ", " 
+					+ AecTypeParam + ", " 
+					+ comfortNoise + ", " 
+					+ AecTailType);
 			
 			// Initialize AEC
 			init = AECInit(CpuNoiseReduction, CpuAEC, AecMinOutput, AecTypeParam, comfortNoise, AecTailType);
-			// Logger.d(VoIPConstants.TAG, "AEC init: " + init);
+			Logger.d(VoIPConstants.TAG, "AEC init: " + init);
 		}
 	}
 	

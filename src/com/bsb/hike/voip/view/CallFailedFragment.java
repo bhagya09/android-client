@@ -15,7 +15,6 @@ import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockFragment;
 import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Utils;
@@ -67,7 +66,7 @@ public class CallFailedFragment extends SherlockFragment
 			public void onClick(View v) {
 				if(enableRedial)
 				{
-					Intent intent = IntentFactory.getVoipCallIntent(HikeMessengerApp.getInstance(), msisdn, VoIPUtils.CallSource.CALL_FAILED_FRAG);
+					Intent intent = IntentFactory.getVoipCallIntent(getSherlockActivity(), msisdn, VoIPUtils.CallSource.CALL_FAILED_FRAG);
 					getSherlockActivity().startService(intent);
 				}
 				else
@@ -134,18 +133,12 @@ public class CallFailedFragment extends SherlockFragment
 		switch(callFailedCode)
 		{
 			case VoIPConstants.CallFailedCodes.PARTNER_SOCKET_INFO_TIMEOUT:
+			case VoIPConstants.CallFailedCodes.PARTNER_BUSY:
+			case VoIPConstants.CallFailedCodes.PARTNER_ANSWER_TIMEOUT:
 			case VoIPConstants.CallFailedCodes.CALLER_IN_NATIVE_CALL:
 				view.setText(getString(R.string.voip_not_reachable, partnerName));
 				break;
 
-			case VoIPConstants.CallFailedCodes.PARTNER_ANSWER_TIMEOUT:
-				view.setText(getString(R.string.voip_callee_no_response, partnerName));
-				break;
-
-			case VoIPConstants.CallFailedCodes.PARTNER_BUSY:
-				view.setText(getString(R.string.voip_callee_busy, partnerName));
-				break;
-				
 			case VoIPConstants.CallFailedCodes.PARTNER_INCOMPAT:
 				view.setText(getString(R.string.voip_incompat_platform));
 				enableRedial = false;

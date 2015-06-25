@@ -164,47 +164,80 @@ public abstract class FileTransferBase implements Callable<FTResult>
 	private void saveFileState(FTState state, String uuid, JSONObject response)
 	{
 		FileSavedState fss = new FileSavedState(state, _totalSize, _bytesTransferred, uuid, response);
-		writeToFile(fss, stateFile);
-	}
-	
-	protected void saveFileState(File stateFile, FTState state, String uuid, JSONObject response)
-	{
-		FileSavedState fss = new FileSavedState(state, _totalSize, _bytesTransferred, uuid, response);
-		writeToFile(fss, stateFile);
-	}
-	
-	protected void saveFileKeyState(File stateFile, String mFileKey)
-	{
-		FileSavedState fss = new FileSavedState(_state, mFileKey);
-		writeToFile(fss, stateFile);
-	}
-	
-	protected void saveFileKeyState(String mFileKey)
-	{
-		FileSavedState fss = new FileSavedState(_state, mFileKey);
-		writeToFile(fss, stateFile);
-	}
-
-	private void writeToFile(FileSavedState fss, File mStateFile)
-	{
-		FileOutputStream fileOut = null;
-		ObjectOutputStream out = null;
 		try
 		{
-			fileOut = new FileOutputStream(mStateFile);
-			out = new ObjectOutputStream(fileOut);
+			FileOutputStream fileOut = new FileOutputStream(stateFile);
+			ObjectOutputStream out = new ObjectOutputStream(fileOut);
 			out.writeObject(fss);
 			out.flush();
 			fileOut.flush();
 			fileOut.getFD().sync();
+			out.close();
+			fileOut.close();
 		}
 		catch (IOException i)
 		{
 			i.printStackTrace();
 		}
-		finally
+	}
+	
+	protected void saveFileState(File stateFile, FTState state, String uuid, JSONObject response)
+	{
+		FileSavedState fss = new FileSavedState(state, _totalSize, _bytesTransferred, uuid, response);
+		try
 		{
-			Utils.closeStreams(out, fileOut);
+			FileOutputStream fileOut = new FileOutputStream(stateFile);
+			ObjectOutputStream out = new ObjectOutputStream(fileOut);
+			out.writeObject(fss);
+			out.flush();
+			fileOut.flush();
+			fileOut.getFD().sync();
+			out.close();
+			fileOut.close();
+		}
+		catch (IOException i)
+		{
+			i.printStackTrace();
+		}
+	}
+	
+	protected void saveFileKeyState(File stateFile, String mFileKey)
+	{
+		FileSavedState fss = new FileSavedState(_state, mFileKey);
+		try
+		{
+			FileOutputStream fileOut = new FileOutputStream(stateFile);
+			ObjectOutputStream out = new ObjectOutputStream(fileOut);
+			out.writeObject(fss);
+			out.flush();
+			fileOut.flush();
+			fileOut.getFD().sync();
+			out.close();
+			fileOut.close();
+		}
+		catch (IOException i)
+		{
+			i.printStackTrace();
+		}
+	}
+	
+	protected void saveFileKeyState(String mFileKey)
+	{
+		FileSavedState fss = new FileSavedState(_state, mFileKey);
+		try
+		{
+			FileOutputStream fileOut = new FileOutputStream(stateFile);
+			ObjectOutputStream out = new ObjectOutputStream(fileOut);
+			out.writeObject(fss);
+			out.flush();
+			fileOut.flush();
+			fileOut.getFD().sync();
+			out.close();
+			fileOut.close();
+		}
+		catch (IOException i)
+		{
+			i.printStackTrace();
 		}
 	}
 

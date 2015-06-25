@@ -29,7 +29,6 @@ import com.bsb.hike.cropimage.CropImage;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeFile;
-import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.ui.ComposeChatActivity;
@@ -547,16 +546,6 @@ public class IntentFactory
 		intent.setType("image");
 		return intent;
 	}
-	
-	public static Intent getMultipleFileForwardIntent(Context context, ArrayList<Uri> filePaths,HikeFileType type)
-	{
-		Intent intent = new Intent(context, ComposeChatActivity.class);
-		intent.putExtra(HikeConstants.Extras.FORWARD_MESSAGE, true);
-		intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, filePaths);
-		intent.setAction(Intent.ACTION_SEND_MULTIPLE);
-		intent.setType(HikeFileType.toString(type));
-		return intent;
-	}
 
 	public static Intent getHikeGalleryPickerIntent(Context context, int flags,String croppedOutputDestination)
 	{
@@ -746,15 +735,6 @@ public class IntentFactory
 		Intent intent = new Intent(context, VoIPService.class);
 		intent.putExtra(VoIPConstants.Extras.ACTION, VoIPConstants.Extras.OUTGOING_CALL);
 		intent.putExtra(VoIPConstants.Extras.MSISDN, msisdn);
-		intent.putExtra(VoIPConstants.Extras.CALL_SOURCE, source.ordinal());
-		return intent;
-	}
-
-	public static Intent getVoipCallIntent(Context context, ArrayList<String> msisdns, VoIPUtils.CallSource source)
-	{
-		Intent intent = new Intent(context, VoIPService.class);
-		intent.putExtra(VoIPConstants.Extras.ACTION, VoIPConstants.Extras.OUTGOING_CALL);
-		intent.putStringArrayListExtra(VoIPConstants.Extras.MSISDNS, msisdns);
 		intent.putExtra(VoIPConstants.Extras.CALL_SOURCE, source.ordinal());
 		return intent;
 	}

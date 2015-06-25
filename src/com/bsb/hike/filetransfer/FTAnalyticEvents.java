@@ -14,7 +14,6 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.Utils;
 
 public class FTAnalyticEvents
 {
@@ -123,7 +122,15 @@ public class FTAnalyticEvents
 		}
 		finally
 		{
-			Utils.closeStreams(file);
+			try
+			{
+				if(file != null)
+					file.close();
+			}
+			catch (IOException e)
+			{
+				e.printStackTrace();
+			}
 		}
 	}
 	
@@ -157,7 +164,17 @@ public class FTAnalyticEvents
 		}
 		finally
 		{
-			Utils.closeStreams(bufReader, file);
+			try
+			{
+				if(bufReader != null)
+					bufReader.close();
+				if(file != null)
+					file.close();
+			}
+			catch (IOException e)
+			{
+				e.printStackTrace();
+			}
 		}
 		return ftAnalyticEvent != null ? ftAnalyticEvent : new FTAnalyticEvents();
 	}

@@ -1,7 +1,5 @@
 package com.bsb.hike.adapters;
 
-import java.io.IOException;
-import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 
 import android.content.Context;
@@ -20,7 +18,6 @@ import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.HikeSharedFile;
 import com.bsb.hike.smartImageLoader.SharedFileImageLoader;
 import com.bsb.hike.ui.fragments.PhotoViewerFragment;
-import com.bsb.hike.view.TextDrawable;
 import com.bsb.hike.view.TouchImageView;
 
 public class SharedMediaAdapter extends PagerAdapter implements OnClickListener
@@ -41,7 +38,6 @@ public class SharedMediaAdapter extends PagerAdapter implements OnClickListener
 		this.layoutInflater = LayoutInflater.from(this.context);
 		this.sharedMediaLoader = new SharedFileImageLoader(context, size_image);
 		sharedMediaLoader.setDefaultDrawable(context.getResources().getDrawable(R.drawable.ic_file_thumbnail_missing));
-		sharedMediaLoader.setImageToBeCached(false);
 		this.sharedMediaItems = sharedMediaItems;
 		this.photoViewerFragment = photoViewerFragment;
 	}
@@ -95,7 +91,7 @@ public class SharedMediaAdapter extends PagerAdapter implements OnClickListener
 			videPlayButton.setVisibility(View.GONE);
 		}
 
-		if (sharedMediaItem.exactFilePathFileExists())
+		if(sharedMediaItem.exactFilePathFileExists())
 		{
 			sharedMediaLoader.loadImage(sharedMediaItem.getImageLoaderKey(true), galleryImageView);
 		}
@@ -106,7 +102,7 @@ public class SharedMediaAdapter extends PagerAdapter implements OnClickListener
 			galleryImageView.setVisibility(View.GONE);
 			page.findViewById(R.id.file_missing_layout).setVisibility(View.VISIBLE);
 		}
-
+		
 		galleryImageView.setTag(sharedMediaItem);
 		galleryImageView.setOnClickListener(this);
 		((ViewPager) container).addView(page);
@@ -134,5 +130,4 @@ public class SharedMediaAdapter extends PagerAdapter implements OnClickListener
 	{
 		return sharedMediaLoader;
 	}
-
 }

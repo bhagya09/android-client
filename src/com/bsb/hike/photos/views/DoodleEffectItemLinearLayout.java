@@ -2,7 +2,6 @@ package com.bsb.hike.photos.views;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.RadialGradient;
@@ -29,7 +28,7 @@ public class DoodleEffectItemLinearLayout extends EffectItemLinearLayout
 	{
 		super(context, attrs);
 		// TODO Auto-generated constructor stub
-		brushWidth = HikePhotosUtils.dpToPx(HikeConstants.HikePhotos.PREVIEW_BRUSH_WIDTH);
+		brushWidth = HikePhotosUtils.dpToPx(context, HikeConstants.HikePhotos.PREVIEW_BRUSH_WIDTH);
 		brushColor = HikeConstants.HikePhotos.DEFAULT_BRUSH_COLOR;
 		ringColor = HikeConstants.HikePhotos.DEFAULT_RING_COLOR;
 		setImage(getCircleIcon());
@@ -93,8 +92,8 @@ public class DoodleEffectItemLinearLayout extends EffectItemLinearLayout
 
 	private Bitmap getCircleIcon()
 	{
-		int diameter = brushWidth + HikePhotosUtils.dpToPx(4);
-		Bitmap bitmap = HikePhotosUtils.createBitmap(null, 0, 0, diameter, diameter, false, false, false, true,Config.ARGB_8888);
+		int diameter = brushWidth + HikePhotosUtils.dpToPx(this.getContext(), 4);
+		Bitmap bitmap = HikePhotosUtils.createBitmap(null, 0, 0, diameter, diameter, false, false, false, true);
 		// Bitmap bitmap = Bitmap.createBitmap(diameter, diameter, Config.ARGB_8888);
 		if (bitmap != null)
 		{
