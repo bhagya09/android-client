@@ -15,9 +15,9 @@ import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.StickerRequestType;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
-import com.bsb.hike.modules.stickersearch.StickerTagWatcher;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchSetupManager;
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchDatabase;
+import com.bsb.hike.modules.stickersearch.ui.StickerTagWatcher;
 import com.bsb.hike.utils.Logger;
 
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.tagsForCategoriesRequest;

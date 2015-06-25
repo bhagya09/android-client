@@ -1,4 +1,4 @@
-package com.bsb.hike.modules.stickersearch;
+package com.bsb.hike.modules.stickersearch.listeners;
 
 import java.util.List;
 
