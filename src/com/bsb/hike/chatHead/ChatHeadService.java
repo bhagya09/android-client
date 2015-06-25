@@ -91,17 +91,20 @@ public class ChatHeadService extends Service
 
 	private final Handler chatHeadHandler = new Handler();
 
-	Runnable chatHeadRunnable = new Runnable()
+	private Runnable chatHeadRunnable = new Runnable()
 	{
 
 		@Override
 		public void run()
 		{
-			boolean whiteListAppForegrounded = false;
 			Set<String> foregroundPackages = ChatHeadUtils.getForegroundedPackages();
-
 			UserLogInfo.recordSessionInfo(foregroundPackages, UserLogInfo.OPERATE);
-
+			
+			if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_SERVICE, false)
+					&& HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.CHAT_HEAD_USR_CONTROL, false)
+					&& HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.PACKAGE_LIST, null) != null)
+			{
+			boolean whiteListAppForegrounded = false;
 			for (String packName : whitelistedPackageList)
 			{
 				whiteListAppForegrounded = foregroundPackages.contains(packName);
@@ -147,6 +150,8 @@ public class ChatHeadService extends Service
 						}
 					});
 				}
+			}
+			
 			}
 			chatHeadHandler.postDelayed(this, 1000L);
 		}

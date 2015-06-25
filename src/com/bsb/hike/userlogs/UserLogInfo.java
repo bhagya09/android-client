@@ -222,7 +222,7 @@ public class UserLogInfo {
 			case (ADVERTISIND_ID_FLAG): jsonKey = HikeConstants.ADVERTSING_ID_ANALYTICS; break;
 			case (CALL_ANALYTICS_FLAG): jsonKey = HikeConstants.CALL_LOG_ANALYTICS; break;
 			case (LOCATION_ANALYTICS_FLAG): jsonKey = HikeConstants.LOCATION_LOG_ANALYTICS; break;
-			case (FETCH_LOG_FLAG): jsonKey = HikeConstants.FETCH_LOG_ANALYTICS; break;
+			case (FETCH_LOG_FLAG): jsonKey = HikeConstants.SESSION_LOG_TRACKING; break;
 		}
 		return jsonKey;
 	}
@@ -605,6 +605,10 @@ public class UserLogInfo {
 
 	public static void recordSessionInfo(Set<String> currentForegroundApps, int nextStep)
 	{
+		if(!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SESSION_LOG_TRACKING, false))
+		{
+			return;
+		}
 		long currentTime = System.currentTimeMillis();
 		if(foregroundAppsStartTimeMap == null)
 		{
@@ -613,7 +617,8 @@ public class UserLogInfo {
 		
 		Set<String> savedForegroundApps = new HashSet<String>(foregroundAppsStartTimeMap.keySet());
 		
-		if(nextStep  == START)
+		//this if logic can also be called when the activity has already started
+		if(nextStep  == START || foregroundAppsStartTimeMap.isEmpty())
 		{
 			foregroundAppsStartTimeMap.clear();
 			for(String packageName : currentForegroundApps)
