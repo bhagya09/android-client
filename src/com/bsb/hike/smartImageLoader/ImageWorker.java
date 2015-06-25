@@ -70,6 +70,8 @@ public abstract class ImageWorker
 	
 	private boolean setDefaultDrawableNull = true;
 	
+	protected boolean isImageToBeCached = true;
+	
 	/*
 	 * This case is currently being used in very specific scenerio of
 	 * media viewer files for which we could not create thumbnails(ex. tif images)
@@ -419,7 +421,7 @@ public abstract class ImageWorker
 
 				drawable = HikeBitmapFactory.getBitmapDrawable(mResources, bitmap);
 
-				if (mImageCache != null)
+				if (mImageCache != null && isImageToBeCached)
 				{
 					Logger.d(TAG, "Putting data in cache : " + dataString);
 					mImageCache.putInCache(dataString, drawable);
@@ -568,5 +570,15 @@ public abstract class ImageWorker
 	    drawable.draw(canvas);
 
 	    return bitmap;
+	}
+	
+	public void setImageToBeCached(boolean isImageToBeCached)
+	{
+		this.isImageToBeCached = isImageToBeCached;
+	}
+	
+	public boolean isImageToBeCached()
+	{
+		return isImageToBeCached;
 	}
 }
