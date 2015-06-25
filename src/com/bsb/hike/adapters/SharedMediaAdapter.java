@@ -140,6 +140,13 @@ public class SharedMediaAdapter extends PagerAdapter implements OnClickListener,
 		return sharedMediaLoader;
 	}
 
+	/**
+	 * This is done via post runnable so that this "removing loader"
+	 * gets queued into loop and is performed after image is shown in view pager
+	 * 
+	 * Note:- Doing directly without post via Runnable, first loader is removed and
+	 * then image is shown to user, so there is no loader seen or there is black screen shown
+	 */
 	@Override
 	public void onSuccessfulImageLoaded(final ImageView imageView)
 	{

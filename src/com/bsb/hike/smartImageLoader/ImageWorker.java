@@ -602,6 +602,10 @@ public abstract class ImageWorker
 		this.successfulImageLoadingListener = successfulImageLoadingListener;
 	}
 	
+	/**
+	 * This is the call back to listener after image is loaded into ImageView
+	 * @param imageView
+	 */
 	private void sendImageCallback(ImageView imageView)
 	{
 		if(successfulImageLoadingListener != null)
