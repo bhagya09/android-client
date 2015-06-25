@@ -163,6 +163,8 @@ public class VoIPEncryptor {
 			Logger.d(VoIPConstants.TAG, "InvalidKeySpecException: " + e.toString());
 		} catch (NoSuchProviderException e) {
 			Logger.d(VoIPConstants.TAG, "rsaEncrypt NoSuchProviderException: " + e.toString());
+		} catch (IllegalStateException e) {
+			Logger.d(VoIPConstants.TAG, "rsaEncrypt IllegalStateException: " + e.toString());
 		}
 
 		return encryptedData;
@@ -187,6 +189,8 @@ public class VoIPEncryptor {
 			Logger.d(VoIPConstants.TAG, "BadPaddingException: " + e.toString());
 		} catch (NoSuchProviderException e) {
 			Logger.d(VoIPConstants.TAG, "rsaDecrypt NoSuchProviderException: " + e.toString());
+		} catch (IllegalStateException e) {
+			Logger.d(VoIPConstants.TAG, "rsaDecrypt IllegalStateException: " + e.toString());
 		}
 		
 		return decryptedData;
