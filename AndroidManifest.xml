@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1251"
-    android:versionName="3.9.7.29.chathead" >
+    android:versionCode="1252"
+    android:versionName="3.9.7.310.chathead" >
     <uses-sdk
         android:minSdkVersion="9"
         android:targetSdkVersion="17"/>
