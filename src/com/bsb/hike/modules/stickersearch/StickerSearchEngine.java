@@ -7,6 +7,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import com.bsb.hike.modules.httpmgr.engine.MainThreadExecutor;
+import com.bsb.hike.modules.stickersearch.ui.StickerTagWatcher;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 

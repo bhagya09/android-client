@@ -1572,6 +1572,8 @@ public class HikeConstants
 		public static final String BROADCAST_CREATE_BUNDLE = "broadcastCreationBundle";
 		
 		public static final String GROUP_CREATE_BUNDLE = "groupCreationBundle";
+		
+		public static final String LAST_MESSAGE_TIMESTAMP = "lastMessageTimeStamp";
 	}
 
 	public static final class LogEvent

@@ -510,6 +510,10 @@ public class IntentFactory
 		{
 			intent.putExtra(HikeConstants.Extras.NAME, conversation.getConversationName());
 		}
+		if (conversation.getLastConversationMsg() != null)
+		{
+			intent.putExtra(HikeConstants.Extras.LAST_MESSAGE_TIMESTAMP, conversation.getLastConversationMsg().getTimestamp());
+		}
 		intent.putExtra(HikeConstants.Extras.MSISDN, conversation.getMsisdn());
 		String whichChatThread = ChatThreadUtils.getChatThreadType(conversation.getMsisdn());
 		intent.putExtra(HikeConstants.Extras.WHICH_CHAT_THREAD, whichChatThread);

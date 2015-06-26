@@ -9,18 +9,15 @@
     android:paddingBottom="@dimen/sticker_recommend_padding"
     android:paddingTop="@dimen/sticker_recommend_padding" >
 
-    <com.jess.ui.TwoWayGridView
-        android:id="@+id/twoWayView"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_gravity="center"
-        android:layout_weight="5.8"
-        android:paddingLeft="2dp"
-        android:scrollbars="none"
-        app:scrollDirectionLandscape="horizontal"
-        app:scrollDirectionPortrait="horizontal"
-        app:stretchMode="none" >
-    </com.jess.ui.TwoWayGridView>
+    <android.support.v7.widget.RecyclerView
+       android:id="@+id/twoWayView"
+       android:layout_width="0dp"
+       android:layout_height="match_parent"
+       android:layout_gravity="center"
+       android:layout_weight="5.8"
+       android:paddingLeft="2dp"
+       android:scrollbars="none" >
+    </android.support.v7.widget.RecyclerView>
 
     <com.bsb.hike.ui.utils.RecyclingImageView
         android:layout_width="wrap_content"

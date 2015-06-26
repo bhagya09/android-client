@@ -8,14 +8,18 @@ import android.support.v4.util.Pair;
 import android.text.Editable;
 
 import com.bsb.hike.models.Sticker;
+import com.bsb.hike.modules.stickersearch.listeners.IStickerSearchListener;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchHostManager;
 import com.bsb.hike.modules.stickersearch.tasks.HighlightAndShowStickerPopupTask;
 import com.bsb.hike.modules.stickersearch.tasks.InitiateStickerTagDownloadTask;
+import com.bsb.hike.modules.stickersearch.tasks.NewMessageReceivedTask;
+import com.bsb.hike.modules.stickersearch.tasks.NewMessageSentTask;
 import com.bsb.hike.modules.stickersearch.tasks.RemoveDeletedStickerTagsTask;
 import com.bsb.hike.modules.stickersearch.tasks.SingleCharacterHighlightTask;
 import com.bsb.hike.modules.stickersearch.tasks.StickerSearchSetupTask;
 import com.bsb.hike.modules.stickersearch.tasks.StickerSearchTask;
 import com.bsb.hike.modules.stickersearch.tasks.StickerTagInsertTask;
+import com.bsb.hike.modules.stickersearch.ui.StickerTagWatcher;
 import com.bsb.hike.utils.Logger;
 
 public class StickerSearchManager
@@ -219,5 +223,17 @@ public class StickerSearchManager
 	{
 		RemoveDeletedStickerTagsTask removeDeletedStickerTagsTask = new RemoveDeletedStickerTagsTask();
 		searchEngine.runOnQueryThread(removeDeletedStickerTagsTask);
+	}
+	
+	public void sentMessage(String prevText, Sticker sticker, String nextText)
+	{
+		NewMessageSentTask newMessageSentTask = new NewMessageSentTask(prevText, sticker, nextText);
+		searchEngine.runOnQueryThread(newMessageSentTask);
+	}
+	
+	public void receivedMessage(String prevText, Sticker sticker, String nextText)
+	{
+		NewMessageReceivedTask newMessageReceivedTask = new NewMessageReceivedTask(prevText, sticker, nextText);
+		searchEngine.runOnQueryThread(newMessageReceivedTask);
 	}
 }

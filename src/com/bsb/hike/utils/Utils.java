@@ -5844,6 +5844,7 @@ public class Utils
 				Thread result = new Thread(runnable);
 				result.setName(name + "-" + threadCount);
 				result.setDaemon(daemon);
+				result.setPriority(android.os.Process.THREAD_PRIORITY_MORE_FAVORABLE + android.os.Process.THREAD_PRIORITY_BACKGROUND);
 				return result;
 			}
 		};
