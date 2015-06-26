@@ -1714,8 +1714,10 @@ public class MqttMessagesManager
 				BotUtils.removeMicroApp((JSONObject) microAppsTobeRemoved.get(i));
 			}
 			String sentData = HikeConstants.MqttMessageTypes.REMOVE_SUCCESS;
-			JSONObject json = new JSONObject(sentData);
-			HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.MICRO_APP_INFO, json);
+			JSONObject json = new JSONObject();
+			json.putOpt(AnalyticsConstants.EVENT_KEY,HikeConstants.MqttMessageTypes.REMOVE_MICRO_APP);
+			json.putOpt(HikeConstants.MqttMessageTypes.REMOVE_MICRO_APP, sentData);
+			HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, HikeConstants.MqttMessageTypes.REMOVE_MICRO_APP, json);
 		}
 		if(data.has(HikeConstants.MqttMessageTypes.NOTIFY_MICRO_APP_STATUS))
 		{
@@ -1723,7 +1725,9 @@ public class MqttMessagesManager
 			if(doNotify)
 			{
 				String sentData = PlatformUtils.readFileList(PlatformContentConstants.PLATFORM_CONTENT_DIR, false).toString();
-				JSONObject json = new JSONObject(sentData);
+				JSONObject json = new JSONObject();
+				json.putOpt(AnalyticsConstants.EVENT_KEY,HikeConstants.MqttMessageTypes.NOTIFY_MICRO_APP_STATUS);
+				json.putOpt(AnalyticsConstants.MICRO_APP_INFO, sentData);
 				HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.MICRO_APP_INFO, json);
 			}
 				

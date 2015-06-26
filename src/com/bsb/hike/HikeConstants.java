@@ -2255,6 +2255,10 @@ public class HikeConstants
 		public static final String CREATE_MULTIPLE_BOTS = "cbot";
 		
 		public static final String REMOVE_MICRO_APP = "dmapp";
+
+		public static final String REMOVE_SUCCESS = "remsucss";
+
+		public static final String REPLACE_SUCCESS = "replsucss";
 		
 		public static final String NOTIFY_MICRO_APP_STATUS = "nmapp";
 
@@ -2315,10 +2319,6 @@ public class HikeConstants
 		public static final String PRODUCT_POPUP="productpopup";
 		
 		public static final String SESSION = "sess";
-
-		public static final String REMOVE_SUCCESS = "Successfully Removed";
-
-		public static final String REPLACE_SUCCESS = "Successfully Replaced";
 	}
 
 	public static final class SMSNative

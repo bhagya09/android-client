@@ -220,14 +220,18 @@ public class BotUtils
 	 * @param jsonObj	:	The bot Json object containing the properties of the bot files to be deleted
 	 */
 	public static void removeMicroApp(JSONObject jsonObj){
-		JSONArray botsTobeRemoved = jsonObj.optJSONArray(HikePlatformConstants.APP_NAME);
-		for (int i = 0; i< botsTobeRemoved.length(); i++){
+		JSONArray appsToBeRemoved = jsonObj.optJSONArray(HikePlatformConstants.APP_NAME);
+		for (int i = 0; i< appsToBeRemoved.length(); i++){
 			try
 			{
-				String appName =  botsTobeRemoved.get(i).toString();
+				String appName =  appsToBeRemoved.get(i).toString();
+				if(appName.equals(null))
+				{
+					return;
+				}
 				String makePath = PlatformContentConstants.PLATFORM_CONTENT_DIR +  appName;
 				Logger.d("FileSystemAccess", "To delete the path : " + makePath);
-				PlatformUtils.deleter(makePath);
+				PlatformUtils.deleteDirectory(makePath);
 			}
 			catch (JSONException e)
 			{

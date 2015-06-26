@@ -37,6 +37,16 @@ public class PlatformZipDownloader
 	private boolean doReplace = false;
 
 	/**
+	 * Instantiates the doReplace boolean. Whether the microApp folder should be replaced or not.
+	 *
+	 * @param doReplace: Whether the microApp folder should be replaced or not.
+	 */
+	public PlatformZipDownloader(boolean doReplace)
+	{
+		this.doReplace = doReplace;
+	}
+	
+	/**
 	 * Instantiates a new platform template download task.
 	 *
 	 * @param argRequest: request
@@ -48,11 +58,6 @@ public class PlatformZipDownloader
 		mRequest = argRequest;
 		this.isTemplatingEnabled = isTemplatingEnabled;
 
-	}
-	
-	public void initMicroAppFolderLocation()
-	{
-		doReplace = true;
 	}
 
 	public  boolean isMicroAppExist()
@@ -163,15 +168,8 @@ public class PlatformZipDownloader
 	 */
 	private void unzipMicroApp(File zipFile)
 	{
-		final String unzipPath;
-		if(doReplace)
-		{
-			unzipPath = PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.TEMP_DIR_NAME;
-		}
-		else
-		{
-			unzipPath = PlatformContentConstants.PLATFORM_CONTENT_DIR ;
-		}
+		final String unzipPath = (doReplace) ? PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.TEMP_DIR_NAME : PlatformContentConstants.PLATFORM_CONTENT_DIR;
+
 		try
 		{
 			unzipWebFile(zipFile.getAbsolutePath(), unzipPath, new Observer()
@@ -181,7 +179,9 @@ public class PlatformZipDownloader
 				{
 					// delete temp folder
 					if(!doReplace)
-					deleteTemporaryFolder();
+					{
+						deleteTemporaryFolder();
+					}
 					if (!(data instanceof Boolean))
 					{
 						return;
@@ -191,30 +191,34 @@ public class PlatformZipDownloader
 					{
 						if (!isTemplatingEnabled)
 						{
-							if(unzipPath.equals(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.TEMP_DIR_NAME))
+							if(doReplace)
 							{
-								File makeshiftDir = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + mRequest.getContentData().getId());
-								if(makeshiftDir.exists())
-									PlatformUtils.deleteOp(makeshiftDir);
-								makeshiftDir.mkdirs();
+								File originalDir = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + mRequest.getContentData().getId());
+								if(originalDir.exists())
+								{
+									PlatformUtils.deleteOp(originalDir);
+								}
+								originalDir.mkdirs();
 								File src = new File(unzipPath + File.separator+ mRequest.getContentData().getId());
-								File dest = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + mRequest.getContentData().getId());
+								File dest = originalDir;
 								try
 								{
-									PlatformUtils.moveDirectoryTo(src,dest);
+									PlatformUtils.copyDirectoryTo(src,dest);
+									PlatformUtils.deleteDirectory(unzipPath);
 								}
 								catch (IOException e)
 								{
 									// TODO Auto-generated catch block
 									e.printStackTrace();
 								}
-								PlatformUtils.deleter(unzipPath);
 								String sentData = HikeConstants.MqttMessageTypes.REPLACE_SUCCESS;
 								JSONObject json;
 								try
 								{
-									json = new JSONObject(sentData);
-									HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.MICRO_APP_INFO, json);
+									json = new JSONObject();
+									json.putOpt(AnalyticsConstants.EVENT_KEY,AnalyticsConstants.MICRO_APP_REPLACED);
+									json.putOpt(AnalyticsConstants.MICRO_APP_REPLACED, sentData);
+									HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.MICRO_APP_REPLACED, json);
 								}
 								catch (JSONException e)
 								{

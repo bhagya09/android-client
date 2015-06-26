@@ -59,7 +59,7 @@ public class PlatformUtils
 {
 	private static final String TAG = "PlatformUtils";
 	
-	private static boolean canReplace = false;
+	private static boolean doReplace = false;
 
 	
 	/**
@@ -440,7 +440,7 @@ public class PlatformUtils
 						}
 					}
 				});
-				canReplace = downloadData.optBoolean(HikeConstants.MqttMessageTypes.REPLACE_MICROAPP_VERSION);
+				doReplace = downloadData.optBoolean(HikeConstants.MqttMessageTypes.REPLACE_MICROAPP_VERSION);
 				downloadAndUnzip(rqst, false);
 
 	}
@@ -472,16 +472,9 @@ public class PlatformUtils
 	
 	public static void downloadAndUnzip(PlatformContentRequest request, boolean isTemplatingEnabled)
 	{
-		PlatformZipDownloader downloader = new PlatformZipDownloader(request, isTemplatingEnabled);
-		if(canReplace)
-		{
-			downloader.initMicroAppFolderLocation();
-		}
-		if (!downloader.isMicroAppExist())
-		{
-			downloader.downloadAndUnzip();
-		}
-		else if(canReplace)
+		PlatformZipDownloader downloader = new PlatformZipDownloader(doReplace);
+		downloader = new PlatformZipDownloader(request, isTemplatingEnabled);
+		if (!downloader.isMicroAppExist() || doReplace)
 		{
 			downloader.downloadAndUnzip();
 		}
@@ -530,10 +523,10 @@ public class PlatformUtils
 	 * This function is called to read the list of files from the System from a folder
 	 * 
 	 * @param filePath : The complete file path that is about to be read returns the JSON Array of the file paths of the all the files in a folder
+	 * @param doDeepLevelAccess : To specify if we want to read all the internal files and folders recursively
 	 */
-	public static JSONArray readFileList(String filePath,boolean isRecursiveTrue)
+	public static JSONArray readFileList(String filePath,boolean doDeepLevelAccess)
 	{	
-		Logger.d("FileSystemAccess", "File read in progress");
 		File directory = new File(filePath);
 		if (directory.exists() && !directory.isDirectory())
 		{
@@ -545,15 +538,12 @@ public class PlatformUtils
 			Logger.d("FileSystemAccess", "Invalid file path!");
 			return null;
 		}
-		// The ArrayList to store the list of files in a folder
-		ArrayList<File> list = filesReader(directory,isRecursiveTrue);
-		Logger.d("FileSystemAccess", "Value of is Recursive is " + isRecursiveTrue+ ":" + list.toString());
-		// The JSON array returned to the JavascriptBridge
+		ArrayList<File> list = filesReader(directory,doDeepLevelAccess);
 		JSONArray mArray = new JSONArray();
 		for (int i = 0; i < list.size(); i++)
 		{
 			String path;
-			if(isRecursiveTrue)
+			if(doDeepLevelAccess)
 			{
 				path = HikePlatformConstants.FILE_DESCRIPTOR + list.get(i).getAbsolutePath();// adding the file descriptor
 			}
@@ -562,71 +552,63 @@ public class PlatformUtils
 				path = list.get(i).toString();
 				path = path.replaceAll(PlatformContentConstants.PLATFORM_CONTENT_DIR, "");
 			}
-			mArray.put(path);// the JSON array holding all the data
+			mArray.put(path);
 		}
-		Logger.d("FileSystemAccess", "JSON Array made" + mArray.toString());
 		return mArray;
 	}
 
 	// Method that returns the reads the list of files
-	public static ArrayList<File> filesReader(File root,boolean isRecursiveCall)
+	public static ArrayList<File> filesReader(File root,boolean doDeepLevelAccess)
 	{
 		ArrayList<File> a = new ArrayList<>();
 
 		File[] files = root.listFiles();
-		Logger.d("FileSystemAccess", files.toString()+":");
-		Logger.d("PathFile", "" + root);
 		for (int i = 0; i < files.length; i++)
 		{
-			if (isRecursiveCall)
+			if (doDeepLevelAccess)
 			{
 				if(files[i].isDirectory())
 				{
-					a.addAll(filesReader(files[i],isRecursiveCall));	
+					a.addAll(filesReader(files[i],doDeepLevelAccess));	
 				}
 				else
 				{
-					// if(files[i].getName().endsWith(".png")){
 					a.add(files[i]);
-					// }
 				}
 
 			}
 			else
 			{
-				// if(files[i].getName().endsWith(".png")){
 				a.add(files[i]);
-				// }
 			}
 		}
 		return a;
 	}
 
-	public static void moveDirectoryTo(File sourceLocation, File targetLocation) throws IOException
+	/*
+	 * This function is called to copy a directory from one location to another location 
+	 * @param sourceLocation : The folder which is about to be copied
+	 * @param targetLocation : The folder where the directory is about to be copied
+	 */
+	public static void copyDirectoryTo(File sourceLocation, File targetLocation) throws IOException
 	{
-
 		if (sourceLocation.isDirectory())
 		{
 			if (!targetLocation.exists())
 			{
 				targetLocation.mkdir();
 			}
-
 			String[] children = sourceLocation.list();
 			for (int i = 0; i < sourceLocation.listFiles().length; i++)
 			{
-
-				moveDirectoryTo(new File(sourceLocation, children[i]), new File(targetLocation, children[i]));
+				copyDirectoryTo(new File(sourceLocation, children[i]), new File(targetLocation, children[i]));
 			}
 		}
 		else
 		{
 			
 			  InputStream in = new FileInputStream(sourceLocation);
-			  
 			  OutputStream out = new FileOutputStream(targetLocation);
-			  
-			  // Copy the bits from instream to outstream 
 			  byte[] buf = new byte[1024]; int len;
 			  while ((len = in.read(buf)) > 0) 
 			  { 
@@ -634,8 +616,6 @@ public class PlatformUtils
 			  }
 			  in.close();
 			  out.close();
-			 
-			//sourceLocation.renameTo(targetLocation);
 		}
 
 	}
@@ -645,7 +625,7 @@ public class PlatformUtils
 	 * 
 	 * @param filePath : The complete file path of the file that is about to be deleted returns whether the file is deleted or not
 	 */
-	public static boolean deleter(String filePath)
+	public static boolean deleteDirectory(String filePath)
 	{
 		File deletedDir = new File(filePath);
 		if (deletedDir.exists())
