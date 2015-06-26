@@ -158,7 +158,7 @@ public class SharedMediaAdapter extends PagerAdapter implements OnClickListener,
 			{
 				View parent = imageView.getRootView();
 				
-				if(parent.findViewById(R.id.progress_bar) != null)
+				if(parent != null && parent.findViewById(R.id.progress_bar) != null)
 				{
 					parent.findViewById(R.id.progress_bar).setVisibility(View.INVISIBLE);
 				}
