@@ -61,7 +61,7 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 		{
 			ne.printStackTrace();
 		}
-		Logger.e(tag, function+" called but conv message has been updated, message id did not match, got from card : "+messageId +" and current is "+message.getMsgID());
+		Logger.e(tag, function + " called but conv message has been updated, message id did not match, got from card : " + messageId + " and current is " + message.getMsgID());
 		return false;
 	}
 
@@ -98,7 +98,7 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	@JavascriptInterface
 	public void forwardToChat(String json)
 	{
-		notAllowedMethodCalled("forwardTochat");
+		notAllowedMethodCalled("forwardToChat");
 	}
 	
 	/**
@@ -113,44 +113,11 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	@JavascriptInterface
 	public void forwardToChat(String messageId,String json)
 	{
-		if(isCorrectMessage(messageId,"forwardChat"))
+		if(isCorrectMessage(messageId,"forwardToChat"))
 		{
 			super.forwardToChat(json);
 		}
-	}
 
-	/**
-	 * Platform Bridge Version 1
-	 * call this function to get the data from the native memory
-	 * @param messageId: to validate whether you are getting cache data for proper message
-	 * @param id: the id of the function that native will call to call the js .
-	 * @param key: key of the data to be saved. Microapp needs to make sure about the uniqueness of the key.
-	 */
-	@JavascriptInterface
-	public void getFromCache(String messageId,String id, String key)
-	{
-		if(isCorrectMessage(messageId, "getfromcache"))
-		{
-			String value = HikeContentDatabase.getInstance().getFromContentCache(key, message.getNameSpace());
-			callbackToJS(id, value);
-		}
-		
-	}
-
-	
-	/**
-	 * Platform Bridge Version 1
-	 * Call this function to get the bulk large data from the native memory
-	 * @param messageId: : : to validate whether you are getting bulk cache data for proper message
-	 * @param id : the id of the function that native will call to call the js .
-	 */
-	@JavascriptInterface
-	public void getLargeDataFromCache(String messageId,String id)
-	{
-		if(isCorrectMessage(messageId, "getlargeDataFromCache")){
-			String value = HikeContentDatabase.getInstance().getFromContentCache(message.getNameSpace(), message.getNameSpace());
-			callbackToJS(id, value);
-		}
 	}
 
 	/**
@@ -174,7 +141,7 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	@JavascriptInterface
 	public void onLoadFinished(String messageId,String height)
 	{
-		if(isCorrectMessage(messageId, "onloadfinished")){
+		if(isCorrectMessage(messageId, "onLoadFinished")){
 			super.onLoadFinished(height);
 			if(message.webMetadata.getPlatformJSCompatibleVersion() >= HikePlatformConstants.VERSION_1)
 			{
@@ -203,32 +170,6 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 			
 	}
 
-	
-	/**
-	 * Platform Bridge Version 1
-	 * Call this method to put data in cache. This will be a key-value pair. A microapp can have different key-value pairs
-	 * in the native's cache.
-	 * @param key: key of the data to be saved. Microapp needs to make sure about the uniqueness of the key.
-	 * @param value: : the data that the app need to cache.
-	 */
-	@JavascriptInterface
-	public void putInCache(String key, String value)
-	{
-		HikeContentDatabase.getInstance().putInContentCache(key, message.getNameSpace(), value);
-	}
-
-	/**
-	 * Platform Bridge Version 1
-	 * Call this method to put bulk large data in cache. Earlier large data will be replaced by this new data and there will
-	 * be only one entry per microapp.
-	 * @param value: the data that the app need to cache.
-	 */
-	@JavascriptInterface
-	public void putLargeDataInCache(String value)
-	{
-		HikeContentDatabase.getInstance().putInContentCache(message.getNameSpace(), message.getNameSpace(), value);
-
-	}
 
 	/**
 	 * Platform Bridge Version 0
@@ -443,15 +384,99 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	 * @param subType : the subtype of the event to be logged, eg. send "click", to determine whether it is a click event.
 	 * @param json    : any extra info for logging events, including the event key that is pretty crucial for analytics.
 	 */
-
 	@JavascriptInterface
 	public void logAnalytics(String messageId,String isUI, String subType, String json)
 	{
-		if(isCorrectMessage(messageId, "loganalytics"))
+		if(isCorrectMessage(messageId, "logAnalytics"))
 		{
 			super.logAnalytics(isUI, subType, json);
 		}
 	}
+
+	/**
+	 * Platform Bridge Version 3
+	 * Call this method to put data in cache. This will be a key-value pair. A microapp can have different key-value pairs
+	 * in the native's cache.
+	 * @param key: key of the data to be saved. Microapp needs to make sure about the uniqueness of the key.
+	 * @param value: : the data that the app need to cache.
+	 * @param nameSpace: the namespace for unique microapp.
+	 */
+	@JavascriptInterface
+	public void putInCache(String key, String value, String nameSpace)
+	{
+		HikeContentDatabase.getInstance().putInContentCache(key, nameSpace, value);
+	}
+
+	/**
+	 * Platform Bridge Version 3
+	 * Call this method to put bulk large data in cache. Earlier large data will be replaced by this new data and there will
+	 * be only one entry per microapp.
+	 * @param value: the data that the app need to cache.
+	 * @param nameSpace: : the namespace for unique microapp.
+	 */
+	@JavascriptInterface
+	public void putLargeDataInCache(String value, String nameSpace)
+	{
+		HikeContentDatabase.getInstance().putInContentCache(nameSpace, nameSpace, value);
+
+	}
+
+	/**
+	 * Platform Bridge Version 3
+	 * call this function to get the data from the native memory
+	 * @param messageId: to validate whether you are getting cache data for proper message
+	 * @param id: the id of the function that native will call to call the js .
+	 * @param key: key of the data to be saved. Microapp needs to make sure about the uniqueness of the key.
+	 */
+	@JavascriptInterface
+	public void getFromCache(String messageId,String id, String key)
+	{
+		if(isCorrectMessage(messageId, "getFromCache"))
+		{
+			String value = HikeContentDatabase.getInstance().getFromContentCache(key, message.getNameSpace());
+			callbackToJS(id, value);
+		}
+
+	}
+
+	/**
+	 * Platform Bridge Version 3
+	 * Call this function to get the bulk large data from the native memory
+	 * @param messageId: : : to validate whether you are getting bulk cache data for proper message
+	 * @param id : the id of the function that native will call to call the js .
+	 */
+	@JavascriptInterface
+	public void getLargeDataFromCache(String messageId,String id)
+	{
+		if(isCorrectMessage(messageId, "getLargeDataFromCache"))
+		{
+			String value = HikeContentDatabase.getInstance().getFromContentCache(message.getNameSpace(), message.getNameSpace());
+			callbackToJS(id, value);
+		}
+	}
+	/**
+	 * Platform Bridge Version 3
+	 * call this function to delete the entire caching related to the namespace of the bot.
+	 * @param nameSpace : the namespace for unique microapp.
+	 */
+	@JavascriptInterface
+	public void deleteAllCacheData(String nameSpace)
+	{
+		HikeContentDatabase.getInstance().deleteAllMicroAppCacheData(nameSpace);
+	}
+
+	/**
+	 * Platform Bridge Version 3
+	 * Call this function to delete partial cached data pertaining to the namespace of the bot, The key is  provided by Javascript
+	 * @param key: the key of the saved data. Will remain unique for a unique microApp.
+	 * @param nameSpace : the namespace for unique microapp.
+	 */
+	@JavascriptInterface
+	public void deletePartialCacheData(String key, String nameSpace)
+	{
+		HikeContentDatabase.getInstance().deletePartialMicroAppCacheData(key, nameSpace);
+	}
+
 	
 	@Override
 	protected void handleUiMessage(Message msg)
