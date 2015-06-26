@@ -12,6 +12,8 @@ import com.bsb.hike.modules.stickersearch.listeners.IStickerSearchListener;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchHostManager;
 import com.bsb.hike.modules.stickersearch.tasks.HighlightAndShowStickerPopupTask;
 import com.bsb.hike.modules.stickersearch.tasks.InitiateStickerTagDownloadTask;
+import com.bsb.hike.modules.stickersearch.tasks.NewMessageReceivedTask;
+import com.bsb.hike.modules.stickersearch.tasks.NewMessageSentTask;
 import com.bsb.hike.modules.stickersearch.tasks.RemoveDeletedStickerTagsTask;
 import com.bsb.hike.modules.stickersearch.tasks.SingleCharacterHighlightTask;
 import com.bsb.hike.modules.stickersearch.tasks.StickerSearchSetupTask;
@@ -221,5 +223,17 @@ public class StickerSearchManager
 	{
 		RemoveDeletedStickerTagsTask removeDeletedStickerTagsTask = new RemoveDeletedStickerTagsTask();
 		searchEngine.runOnQueryThread(removeDeletedStickerTagsTask);
+	}
+	
+	public void sentMessage(String prevText, Sticker sticker, String nextText)
+	{
+		NewMessageSentTask newMessageSentTask = new NewMessageSentTask(prevText, sticker, nextText);
+		searchEngine.runOnQueryThread(newMessageSentTask);
+	}
+	
+	public void receivedMessage(String prevText, Sticker sticker, String nextText)
+	{
+		NewMessageReceivedTask newMessageReceivedTask = new NewMessageReceivedTask(prevText, sticker, nextText);
+		searchEngine.runOnQueryThread(newMessageReceivedTask);
 	}
 }

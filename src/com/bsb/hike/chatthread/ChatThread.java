@@ -1025,6 +1025,8 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	 */
 	protected void sendMessage()
 	{
+		ConvMessage convMessage = createConvMessageFromCompose();
+		StickerSearchManager.getInstance().sentMessage(convMessage.getMessage(), null, null);
 		sendMessage(createConvMessageFromCompose());
 	}
 
@@ -1743,6 +1745,7 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 	public void stickerSelected(Sticker sticker, String sourceOfSticker)
 	{
 		Logger.i(TAG, "sticker clicked " + sticker.getStickerId() + sticker.getCategoryId() + sourceOfSticker);
+		StickerSearchManager.getInstance().sentMessage(null, sticker, null);
 		sendSticker(sticker, sourceOfSticker);
 	}
 
@@ -3239,6 +3242,15 @@ public abstract class ChatThread extends SimpleOnGestureListener implements Over
 			if (isActivityVisible && SoundUtils.isTickSoundEnabled(activity.getApplicationContext()))
 			{
 				SoundUtils.playSoundFromRaw(activity.getApplicationContext(), R.raw.received_message, AudioManager.STREAM_RING);
+			}
+			
+			if(message.isStickerMessage())
+			{
+				StickerSearchManager.getInstance().receivedMessage(null, message.getMetadata().getSticker(), null);
+			}
+			else if(message.isTextMsg())
+			{
+				StickerSearchManager.getInstance().receivedMessage(message.getMessage(), null, null);
 			}
 
 			sendUIMessage(MESSAGE_RECEIVED, message);
