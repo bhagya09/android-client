@@ -1,18 +1,14 @@
 package com.bsb.hike.adapters;
 
-import java.io.IOException;
-import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 
 import android.content.Context;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.view.ViewParent;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.ProgressBar;
@@ -24,7 +20,6 @@ import com.bsb.hike.models.HikeSharedFile;
 import com.bsb.hike.smartImageLoader.ImageWorker.SuccessfulImageLoadingListener;
 import com.bsb.hike.smartImageLoader.SharedFileImageLoader;
 import com.bsb.hike.ui.fragments.PhotoViewerFragment;
-import com.bsb.hike.view.TextDrawable;
 import com.bsb.hike.view.TouchImageView;
 
 public class SharedMediaAdapter extends PagerAdapter implements OnClickListener, SuccessfulImageLoadingListener
