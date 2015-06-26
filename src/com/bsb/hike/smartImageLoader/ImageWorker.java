@@ -72,6 +72,8 @@ public abstract class ImageWorker
 	
 	protected boolean isImageToBeCached = true;
 	
+	protected SuccessfulImageLoadingListener successfulImageLoadingListener;
+	
 	/*
 	 * This case is currently being used in very specific scenerio of
 	 * media viewer files for which we could not create thumbnails(ex. tif images)
@@ -148,6 +150,8 @@ public abstract class ImageWorker
 			Logger.d(TAG, data + " Bitmap found in cache and is not recycled.");
 			// Bitmap found in memory cache
 			imageView.setImageDrawable(value);
+			
+			sendImageCallback(imageView);
 		}
 		else if (runOnUiThread)
 		{
@@ -160,6 +164,8 @@ public abstract class ImageWorker
 					mImageCache.putInCache(data, bd);
 				}
 				imageView.setImageDrawable(bd);
+				
+				sendImageCallback(imageView);
 			}
 			else if (b == null && setDefaultAvatarIfNoCustomIcon)
 			{
@@ -186,6 +192,8 @@ public abstract class ImageWorker
 			final AsyncDrawable asyncDrawable = new AsyncDrawable(mResources, loadingBitmap, task);
 			imageView.setImageDrawable(asyncDrawable);
 
+			sendImageCallback(imageView);
+			
 			// NOTE: This uses a custom version of AsyncTask that has been pulled from the
 			// framework and slightly modified. Refer to the docs at the top of the class
 			// for more info on what was changed.
@@ -547,6 +555,8 @@ public abstract class ImageWorker
 			{
 				imageView.setImageDrawable(drawable);
 			}
+			
+			sendImageCallback(imageView);
 		}
 		catch (Exception e)
 		{
@@ -580,5 +590,27 @@ public abstract class ImageWorker
 	public boolean isImageToBeCached()
 	{
 		return isImageToBeCached;
+	}
+	
+	public interface SuccessfulImageLoadingListener{
+		
+		public void onSuccessfulImageLoaded(ImageView imageView);
+	}
+	
+	public void setSuccessfulImageLoadingListener(SuccessfulImageLoadingListener successfulImageLoadingListener)
+	{
+		this.successfulImageLoadingListener = successfulImageLoadingListener;
+	}
+	
+	/**
+	 * This is the call back to listener after image is loaded into ImageView
+	 * @param imageView
+	 */
+	private void sendImageCallback(ImageView imageView)
+	{
+		if(successfulImageLoadingListener != null)
+		{
+			successfulImageLoadingListener.onSuccessfulImageLoaded(imageView);
+		}
 	}
 }
