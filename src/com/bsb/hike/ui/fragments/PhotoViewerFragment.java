@@ -720,7 +720,10 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 		// TODO Auto-generated method stub
 		
 		//To remove any callbacks, if present inside handler in adaptor
-		smAdapter.onDestroy();
+		if(smAdapter != null)
+		{
+			smAdapter.onDestroy();
+		}
 		
 		super.onDestroy();
 	}

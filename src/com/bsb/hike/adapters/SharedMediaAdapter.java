@@ -6,7 +6,6 @@ import android.content.Context;
 import android.os.Handler;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -37,8 +36,6 @@ public class SharedMediaAdapter extends PagerAdapter implements OnClickListener,
 	private PhotoViewerFragment photoViewerFragment;
 	
 	private Handler mHandler;
-	
-	RemoveLoaderRunnable removeLoaderRunnable;
 	
 	public SharedMediaAdapter(Context context, int size_image, ArrayList<HikeSharedFile> sharedMediaItems, String msisdn, PhotoViewerFragment photoViewerFragment)
 	{
@@ -154,7 +151,7 @@ public class SharedMediaAdapter extends PagerAdapter implements OnClickListener,
 	{
 		if(photoViewerFragment.isAdded())
 		{
-			removeLoaderRunnable = new RemoveLoaderRunnable(imageView);
+			RemoveLoaderRunnable removeLoaderRunnable = new RemoveLoaderRunnable(imageView);
 			mHandler.post(removeLoaderRunnable);
 		}
 		
@@ -172,6 +169,11 @@ public class SharedMediaAdapter extends PagerAdapter implements OnClickListener,
 		@Override
 		public void run()
 		{
+			if(imageView == null)
+			{
+				return;
+			}
+			
 			View parent = imageView.getRootView();
 			
 			if(parent != null && parent.findViewById(R.id.progress_bar) != null)
@@ -182,11 +184,12 @@ public class SharedMediaAdapter extends PagerAdapter implements OnClickListener,
 		
 	}
 
+	// To remove any Callbacks in Handler
 	public void onDestroy()
 	{
-		if(mHandler!=null && removeLoaderRunnable !=null)
+		if(mHandler!=null)
 		{
-			mHandler.removeCallbacks(removeLoaderRunnable);
+			mHandler.removeCallbacksAndMessages(null);
 		}
 	}
 }
