@@ -342,6 +342,7 @@ public class VoIPService extends Service {
 		if (client == null && !TextUtils.isEmpty(msisdn)) {
 			Logger.d(tag, "Creating VoIPClient for: " + msisdn);
 			client = new VoIPClient(getApplicationContext(), handler);
+			client.setPhoneNumber(msisdn);
 		}
 
 		setSpeaker(false);
@@ -407,7 +408,6 @@ public class VoIPService extends Service {
 				return returnInt;
 			}
 
-			client.setPhoneNumber(msisdn);
 			client.sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_HANDSHAKE_COMPLETE);
 
 			// Start playing outgoing ring
@@ -432,7 +432,6 @@ public class VoIPService extends Service {
 			client.setInternalPort(intent.getIntExtra(VoIPConstants.Extras.INTERNAL_PORT, 0));
 			client.setExternalIPAddress(intent.getStringExtra(VoIPConstants.Extras.EXTERNAL_IP));
 			client.setExternalPort(intent.getIntExtra(VoIPConstants.Extras.EXTERNAL_PORT, 0));
-			client.setPhoneNumber(msisdn);
 			client.setInitiator(intent.getBooleanExtra(VoIPConstants.Extras.INITIATOR, true));
 			client.setRelayAddress(intent.getStringExtra(VoIPConstants.Extras.RELAY));
 			client.setRelayPort(intent.getIntExtra(VoIPConstants.Extras.RELAY_PORT, VoIPConstants.ICEServerPort));
@@ -527,11 +526,12 @@ public class VoIPService extends Service {
 				ArrayList<String> msisdns = intent.getStringArrayListExtra(VoIPConstants.Extras.MSISDNS);
 				for (String phoneNumber : msisdns) {
 					client = new VoIPClient(getApplicationContext(), handler);
-					initiateOutgoingCall(client, phoneNumber, callSource);
+					client.setPhoneNumber(phoneNumber);
+					initiateOutgoingCall(client, callSource);
 				}
 			} else 
 				// One-to-one call
-				initiateOutgoingCall(client, msisdn, callSource);
+				initiateOutgoingCall(client, callSource);
 		}
 
 		if(client.getCallStatus() == VoIPConstants.CallStatus.UNINITIALIZED)
@@ -540,9 +540,8 @@ public class VoIPService extends Service {
 		return returnInt;
 	}
 
-	private void initiateOutgoingCall(VoIPClient client, String msisdn, int callSource) {
+	private void initiateOutgoingCall(VoIPClient client, int callSource) {
 		
-		client.setPhoneNumber(msisdn);
 		client.setInitiator(false);
 		client.callSource = callSource;
 		
