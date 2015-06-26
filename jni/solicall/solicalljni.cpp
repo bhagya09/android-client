@@ -95,7 +95,7 @@ JNIEXPORT jint JNICALL Java_com_bsb_hike_voip_SolicallWrapper_AECInit
     mySoliCallInit.bBypassVAD = false;
 
     mySoliCallInit.bActivateAGC = true; // or true to turn ON AGC
-    mySoliCallInit.iDesiredAGCAmp = 32000;
+    mySoliCallInit.iDesiredAGCAmp = 48000;
     mySoliCallInit.iMinAGCCoef = 50;
     mySoliCallInit.iMaxAGCCoef = 500;
 

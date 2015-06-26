@@ -753,7 +753,7 @@ public class VoIPClient  {
 	public void close() {
 
 		Logger.d(tag,
-				"===== Call Summary (" + getPhoneNumber() + ") =====\n" +
+				"===== Call Summary (" + getPhoneNumber() + ") =====" +
 				"\nBytes sent / received: " + totalBytesSent + " / " + totalBytesReceived +
 				"\nPackets sent / received: " + totalPacketsSent + " / " + totalPacketsReceived +
 				"\nPure voice bytes: " + rawVoiceSent +
@@ -1247,7 +1247,7 @@ public class VoIPClient  {
 
 	public void sendAnalyticsEvent(String ek, int value)
 	{
-		Logger.d(tag, "Logging event: " + ek);
+		Logger.d(tag + " Analytics", "Logging event: " + ek);
 		try
 		{
 			JSONObject metadata = new JSONObject();

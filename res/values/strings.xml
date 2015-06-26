@@ -1506,7 +1506,7 @@ Also share all types of files - docs, songs, movies etc, up to 100MB each ;) htt
     <string name="stealth_timeout_short_key">2 minutes</string>
     <string name="stealth_timeout_long_key">5 minutes</string>
 	<string name="content_des_send_message_button">Press button to send Message</string>
-    <string name="content_des_block_overlay_message">You\'ve blocked this user.Unblock and continue hiking.</string>
+    <string name="content_des_block_overlay_message">You\'ve blocked this user. Unblock and continue hiking.</string>
     <string name="content_des_user_profile_detail_user_phone_number">User\'s Phone Number</string>
     <string name="content_des_user_profile_detail_edit_profile_pic">Change Profile Pic</string>
     <string name="content_des_user_invitation_on_hike">Invite contact on Hike</string>
