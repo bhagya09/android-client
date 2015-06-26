@@ -1487,10 +1487,15 @@ public class VoIPService extends Service {
 								// We have to combine samples
 								finalDecodedSample.setData(VoIPUtils.addPCMSamples(finalDecodedSample.getData(), dp.getData()));
 							}
+						} else {
+							// If we have no audio data from a client
+							// then assume that it has stopped speaking.
+//							Logger.d(tag, client.getPhoneNumber() + " has no audio data.");
+							client.setSpeaking(false);
 						}
 					}
 
-					// Add to our decoded samples queue for playback
+					// Quality tracking, and buffer underrun protection
 					try {
 						if (finalDecodedSample == null) {
 							// Logger.d(logTag, "Decoded samples underrun. Adding silence.");
@@ -1500,6 +1505,7 @@ public class VoIPService extends Service {
 							playbackTrackingBits.set(playbackFeederCounter % playbackTrackingBits.size());
 						}
 
+						// Add to our decoded samples queue for playback
 						if (!hold) {
 							if (playbackBuffersQueue.size() < VoIPConstants.MAX_SAMPLES_BUFFER)
 								playbackBuffersQueue.put(finalDecodedSample);
@@ -1525,7 +1531,7 @@ public class VoIPService extends Service {
 							conferenceBroadcastSamples.add(conferencePCM);
 
 							for (VoIPClient client : clients.values()) {
-								if (!client.isSpeaking || !client.connected)
+								if (!client.isSpeaking() || !client.connected)
 									continue;
 								
 								// Custom streams
@@ -1595,7 +1601,7 @@ public class VoIPService extends Service {
 
 							// Broadcast to each client that is not speaking
 							for (VoIPClient client : clients.values()) {
-								if (client.isSpeaking || !client.connected)
+								if (client.isSpeaking() || !client.connected)
 									continue;
 
 								VoIPDataPacket dpClone = (VoIPDataPacket)dp.clone();

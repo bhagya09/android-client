@@ -102,7 +102,7 @@ public class VoIPClient  {
 	private int reconnectAttempts = 0;
 	private int droppedDecodedPackets = 0;
 	public int callSource = -1;
-	public boolean isSpeaking = true;
+	private boolean isSpeaking = true;
 	
 	// List of client MSISDNs (for conference)
 	public List<String> clientMsisdns = null;
@@ -297,6 +297,17 @@ public class VoIPClient  {
 
 	public void setOurExternalPort(int ourExternalPort) {
 		this.ourExternalPort = ourExternalPort;
+	}
+
+	public boolean isSpeaking() {
+		return isSpeaking;
+	}
+
+	public synchronized void setSpeaking(boolean isSpeaking) {
+		if (this.isSpeaking != isSpeaking)
+			Logger.w(tag, "Speaking: " + isSpeaking);
+		
+		this.isSpeaking = isSpeaking;
 	}
 
 	public void removeExternalSocketInfo() {
@@ -901,6 +912,9 @@ public class VoIPClient  {
 		if (requiresAck == true)
 			addPacketToAckWaitQueue(dp);
 
+//		if (dp.getType() == PacketType.AUDIO_PACKET)
+//			Logger.d(tag, "sending isVoice: " + dp.isVoice());
+		
 		// Serialize everything except for P2P voice data packets
 		byte[] packetData = getUDPDataFromPacket(dp);
 		
@@ -923,7 +937,63 @@ public class VoIPClient  {
 		}
 		
 	}
+	
+	private byte[] getUDPDataFromPacket(VoIPDataPacket dp) {
+		
+		// Serialize everything except for P2P voice data packets
+		byte[] packetData = null;
+		byte prefix;
+		
+		/*
+		if (dp.getType() == PacketType.VOICE_PACKET && getPreferredConnectionMethod() != ConnectionMethods.RELAY) {
+			packetData = dp.getData();
+			if (dp.isEncrypted()) {
+				prefix = PP_ENCRYPTED_VOICE_PACKET;
+			} else {
+				prefix = PP_RAW_VOICE_PACKET;
+			}
+		} else {
+			packetData = VoIPSerializer.serialize(dp);
+			prefix = PP_PROTOCOL_BUFFER;
+		}
+		*/
+		
+		// Force everything to PB
+		packetData = VoIPSerializer.serialize(dp);
+		prefix = PP_PROTOCOL_BUFFER;
 
+		if (packetData == null)
+			return null;
+		
+		byte[] finalData = new byte[packetData.length + 1];	
+		finalData[0] = prefix;
+		System.arraycopy(packetData, 0, finalData, 1, packetData.length);
+		packetData = finalData;
+
+		return packetData;
+	}
+	
+	private VoIPDataPacket getPacketFromUDPData(byte[] data) {
+		VoIPDataPacket dp = null;
+		byte prefix = data[0];
+		byte[] packetData = new byte[data.length - 1];
+		System.arraycopy(data, 1, packetData, 0, packetData.length);
+
+//		Logger.w(logTag, "Prefix: " + prefix);
+		if (prefix == PP_PROTOCOL_BUFFER) {
+			dp = (VoIPDataPacket) VoIPSerializer.deserialize(packetData);
+		} else {
+			dp = new VoIPDataPacket(PacketType.AUDIO_PACKET);
+			dp.setData(packetData);
+			if (prefix == PP_ENCRYPTED_VOICE_PACKET)
+				dp.setEncrypted(true);
+			else
+				dp.setEncrypted(false);
+		}
+		
+		return dp;
+	}
+	
 	private void addPacketToAckWaitQueue(VoIPDataPacket dp) {
 		synchronized (ackWaitQueue) {
 			if (ackWaitQueue.containsKey(dp.getPacketNumber()))
@@ -1124,11 +1194,9 @@ public class VoIPClient  {
 						}
 						
 						if (dataPacket.isVoice() && !isSpeaking) {
-							Logger.w(tag, "Started speaking.");
-							isSpeaking = true;
+							setSpeaking(true);
 						} else if (!dataPacket.isVoice() && isSpeaking) {
-							Logger.w(tag, "Stopped speaking.");
-							isSpeaking = false;
+							setSpeaking(false);
 						}
 						
 //						Logger.d(tag, "isSpeaking: " + isSpeaking + ", wasVoice: " + dataPacket.isVoice());
@@ -1294,62 +1362,6 @@ public class VoIPClient  {
 		{
 			Logger.w(AnalyticsConstants.ANALYTICS_TAG, "Invalid json");
 		}
-	}
-	
-	private byte[] getUDPDataFromPacket(VoIPDataPacket dp) {
-		
-		// Serialize everything except for P2P voice data packets
-		byte[] packetData = null;
-		byte prefix;
-		
-		/*
-		if (dp.getType() == PacketType.VOICE_PACKET && getPreferredConnectionMethod() != ConnectionMethods.RELAY) {
-			packetData = dp.getData();
-			if (dp.isEncrypted()) {
-				prefix = PP_ENCRYPTED_VOICE_PACKET;
-			} else {
-				prefix = PP_RAW_VOICE_PACKET;
-			}
-		} else {
-			packetData = VoIPSerializer.serialize(dp);
-			prefix = PP_PROTOCOL_BUFFER;
-		}
-		*/
-		
-		// Force everything to PB
-		packetData = VoIPSerializer.serialize(dp);
-		prefix = PP_PROTOCOL_BUFFER;
-
-		if (packetData == null)
-			return null;
-		
-		byte[] finalData = new byte[packetData.length + 1];	
-		finalData[0] = prefix;
-		System.arraycopy(packetData, 0, finalData, 1, packetData.length);
-		packetData = finalData;
-
-		return packetData;
-	}
-	
-	private VoIPDataPacket getPacketFromUDPData(byte[] data) {
-		VoIPDataPacket dp = null;
-		byte prefix = data[0];
-		byte[] packetData = new byte[data.length - 1];
-		System.arraycopy(data, 1, packetData, 0, packetData.length);
-
-//		Logger.w(logTag, "Prefix: " + prefix);
-		if (prefix == PP_PROTOCOL_BUFFER) {
-			dp = (VoIPDataPacket) VoIPSerializer.deserialize(packetData);
-		} else {
-			dp = new VoIPDataPacket(PacketType.AUDIO_PACKET);
-			dp.setData(packetData);
-			if (prefix == PP_ENCRYPTED_VOICE_PACKET)
-				dp.setEncrypted(true);
-			else
-				dp.setEncrypted(false);
-		}
-		
-		return dp;
 	}
 	
 	private void markPacketReceived(int packetNumber) {
