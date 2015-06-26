@@ -479,6 +479,8 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	public static final String BULK_LAST_SEEN_PREF = "blsPref";
 	
 	public static final String TOGGLE_OK_HTTP = "toggleOkHttp";
+	
+	public static final String ENABLE_ADDRESSBOOK_THROUGH_HTTP_MGR = "enAbHttpMgr";
 
 	public static final String PROB_NUM_TEXT_MSG = "num_txt";
 
@@ -497,6 +499,8 @@ public class HikeMessengerApp extends Application implements HikePubSub.Listener
 	public static final String MAX_REPLY_RETRY_NOTIF_COUNT = "maxReplyRetryNotifCount";
 
 	public static final String SSL_ALLOWED = "sslAllowed";
+
+	public static final String CONTACT_UPDATE_WAIT_TIME = "contactUpdateWaitTime";
 	
 	public static CurrentState currentState = CurrentState.CLOSED;
 
@@ -739,7 +743,7 @@ public void onTrimMemory(int level)
 		// succeeded by the
 		// onUpgrade() calls being triggered in the respective databases.
 		HikeConversationsDatabase.init(this);
-		
+		HttpManager.init();
 		initHikeLruCache(getApplicationContext());
 
 		sm = StickerManager.getInstance();
@@ -864,8 +868,6 @@ public void onTrimMemory(int level)
 		HikeMessengerApp.getPubSub().addListener(HikePubSub.CONNECTED_TO_MQTT, this);
 
 		registerReceivers();
-
-		HttpManager.init();
 
 		ProductInfoManager.getInstance().init();
 		PlatformContent.init(settings.getBoolean(HikeMessengerApp.PRODUCTION, true));

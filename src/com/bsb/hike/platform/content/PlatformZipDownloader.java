@@ -63,10 +63,6 @@ public class PlatformZipDownloader
 	 */
 	public void downloadAndUnzip()
 	{
-		if ((Utils.getExternalStorageState() == Utils.ExternalStorageState.NONE))
-		{
-			return;
-		}
 
 		// Create temp folder
 		File tempFolder = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.TEMP_DIR_NAME);
