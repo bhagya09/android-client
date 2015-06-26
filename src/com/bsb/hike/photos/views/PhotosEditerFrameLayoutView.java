@@ -193,25 +193,12 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 		}
 
 		effectLayer.handleImage(imageScaled, true);
-		
-		
 
 		if (compressOutput && HikePhotosUtils.getBitmapArea(imageOriginal) > HikeConstants.HikePhotos.MAXIMUM_ALLOWED_IMAGE_AREA)
 		{
-			Logger.d(TAG, "handleImage() imageScaled == null");
-			imageOriginal = HikePhotosUtils.compressBitamp(imageOriginal, HikeConstants.SMO_MAX_DIMENSION_MEDIUM_FULL_SIZE_PX, HikeConstants.SMO_MAX_DIMENSION_MEDIUM_FULL_SIZE_PX, true);
+			Logger.d(TAG, "handleImage() making imageOriginal");
+			imageOriginal = HikePhotosUtils.compressBitamp(imageOriginal, HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX, HikeConstants.MAX_DIMENSION_LOW_FULL_SIZE_PX, true);
 		}
-		else if(imageOriginal.getConfig() == null)
-		{
-			Logger.d(TAG, "handleImage() imageScaled == null");
-			//Special Case happens in case of gifs
-			Bitmap temp = imageOriginal;
-			imageOriginal = HikePhotosUtils.createBitmap(imageOriginal, 0, 0, 0, 0, true, false, false, true);
-			HikePhotosUtils.manageBitmaps(temp);
-		}
-		
-		Logger.d(TAG, "handleImage() imageOriginal "+imageOriginal);
-		
 	}
 
 	public void loadImageFromBitmap(Bitmap bmp)
@@ -305,9 +292,9 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 		if(compressOutput)
 		{
 			/**
-			 * Quality when image compression is done within photos flow
+			 * Since we already compressing the dimensions no need to decrease quality
 			 */
-			return 80;
+			return 100;
 		}
 		return 95;
 	}
@@ -380,8 +367,6 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 		{
 			out = new FileOutputStream(file);
 			imageEdited.compress(Bitmap.CompressFormat.JPEG, getOutputQuality(), out);
-			out.flush();
-			out.getFD().sync();
 		}
 		catch (Exception e)
 		{
@@ -393,6 +378,7 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 			{
 				try
 				{
+					out.flush();
 					out.close();
 					
 					//Copy edited image
@@ -460,7 +446,7 @@ public class PhotosEditerFrameLayoutView extends FrameLayout implements OnFilter
 		@Override
 		public void run()
 		{
-			Utils.copyImage(srcPath, destPath, Bitmap.Config.ARGB_8888, getOutputQuality());
+			Utils.copyFile(srcPath, destPath, fileType);
 		}
 
 	}

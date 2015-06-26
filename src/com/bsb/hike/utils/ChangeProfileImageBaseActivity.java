@@ -42,7 +42,6 @@ import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.StatusMessage;
 import com.bsb.hike.models.StatusMessage.StatusMessageType;
 import com.bsb.hike.modules.contactmgr.ContactManager;
-import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.tasks.DownloadImageTask;
 import com.bsb.hike.tasks.DownloadImageTask.ImageDownloadResult;
 import com.bsb.hike.tasks.FinishableEvent;
@@ -64,8 +63,6 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 	{
 		public HikeHTTPTask task; /* the task to update the global profile */
 
-		public RequestToken deleteStatusToken;
-		
 		public DownloadImageTask downloadPicasaImageTask; /*
 														 * the task to download the picasa image
 														 */
@@ -81,10 +78,6 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 		public boolean groupEditDialogShowing = false;
 
 		public String edittedGroupName = null;
-		
-		public String statusId;
-		
-		public StatusMessageType statusMsgType;
 	}
 
 	private ActivityState mActivityState;
@@ -244,7 +237,6 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 				if(Utils.isPhotosEditEnabled())
 				{
 					startActivity(IntentFactory.getPictureEditorActivityIntent(ChangeProfileImageBaseActivity.this, path, true, getNewProfileImagePath(), true));
-					finish();
 				}
 				else
 				{
@@ -276,7 +268,6 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 							if(Utils.isPhotosEditEnabled())
 							{
 								startActivity(IntentFactory.getPictureEditorActivityIntent(ChangeProfileImageBaseActivity.this, destFile.getAbsolutePath(), true, getNewProfileImagePath(), true));
-								finish();
 							}
 							else
 							{
@@ -499,7 +490,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 	public void beginProfilePicChange(android.content.DialogInterface.OnClickListener listener, Context context, String removeImagePath)
 	{
 		ContactInfo contactInfo = Utils.getUserContactInfo(prefs.getPref());
-		if (!OneToNConversationUtils.isOneToNConversation(mLocalMSISDN) && ContactManager.getInstance().hasIcon(contactInfo.getMsisdn(),false))
+		if (!OneToNConversationUtils.isOneToNConversation(mLocalMSISDN) && ContactManager.getInstance().hasIcon(contactInfo.getMsisdn()))
 		{
 			// case when we need to show dialog for change dp and remove dp 
 			showProfileImageEditDialog(this, context, removeImagePath);
@@ -602,26 +593,26 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 					Utils.renameTempProfileImage(mLocalMSISDN);
 					StatusMessage statusMessage = Utils.createTimelinePostForDPChange(response);
 
-					if (statusMessage != null)
+					if (statusMessage == null)
 					{
-						ContactManager.getInstance().setIcon(statusMessage.getMappedId(), bytes, false);
-
-						int unseenUserStatusCount = prefs.getData(HikeMessengerApp.UNSEEN_USER_STATUS_COUNT, 0);
-						Editor editor = prefs.getPref().edit();
-						editor.putInt(HikeMessengerApp.UNSEEN_USER_STATUS_COUNT, ++unseenUserStatusCount);
-						editor.putBoolean(HikeConstants.IS_HOME_OVERFLOW_CLICKED, false);
-						editor.commit();
-
-						/*
-						 * This would happen in the case where the user has added a self contact and received an mqtt message before saving this to the db.
-						 */
-						if (statusMessage.getId() != -1)
-						{
-							HikeMessengerApp.getPubSub().publish(HikePubSub.STATUS_MESSAGE_RECEIVED, statusMessage);
-							HikeMessengerApp.getPubSub().publish(HikePubSub.TIMELINE_UPDATE_RECIEVED, statusMessage);
-						}
+						return;
 					}
-					
+					ContactManager.getInstance().setIcon(statusMessage.getMappedId(), bytes, false);
+
+					int unseenUserStatusCount = prefs.getData(HikeMessengerApp.UNSEEN_USER_STATUS_COUNT, 0);
+					Editor editor = prefs.getPref().edit();
+					editor.putInt(HikeMessengerApp.UNSEEN_USER_STATUS_COUNT, ++unseenUserStatusCount);
+					editor.putBoolean(HikeConstants.IS_HOME_OVERFLOW_CLICKED, false);
+					editor.commit();
+
+					/*
+					 * This would happen in the case where the user has added a self contact and received an mqtt message before saving this to the db.
+					 */
+					if (statusMessage.getId() != -1)
+					{
+						HikeMessengerApp.getPubSub().publish(HikePubSub.STATUS_MESSAGE_RECEIVED, statusMessage);
+						HikeMessengerApp.getPubSub().publish(HikePubSub.TIMELINE_UPDATE_RECIEVED, statusMessage);
+					}
 					HikeMessengerApp.getLruCache().clearIconForMSISDN(mLocalMSISDN);
 					HikeMessengerApp.getPubSub().publish(HikePubSub.ICON_CHANGED, mLocalMSISDN);
 
@@ -700,7 +691,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 		{
 			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "json exception");
 		}
-		beginProfilePicChange(ChangeProfileImageBaseActivity.this, ChangeProfileImageBaseActivity.this, imageRemovePath);
+		showProfileImageEditDialog(ChangeProfileImageBaseActivity.this, ChangeProfileImageBaseActivity.this, imageRemovePath);
 	}
 
 	/**

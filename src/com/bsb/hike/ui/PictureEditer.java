@@ -1,7 +1,6 @@
 package com.bsb.hike.ui;
 
 import java.io.File;
-import java.io.IOException;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -24,6 +23,7 @@ import android.view.View.OnClickListener;
 import android.view.WindowManager;
 import android.webkit.MimeTypeMap;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar;
@@ -67,6 +67,8 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 
 	private EditorClickListener clickHandler;
 	
+	private String[] notSupportedImageFormat= new String[]{"gif"};
+
 	private ImageView undoButton;
 
 	private PhotoActionsFragment mPhotosActionsFragment;
@@ -129,9 +131,8 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 			return;
 		}
 		
-		Logger.d(TAG, "Checking file type");
-		
 		String fileExtension = Utils.getFileExtension(filename);
+		
 		//Check file type
 		String fileType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension);
 		HikeFileType hikeFileType = HikeFileType.fromString(fileType, false);
@@ -142,14 +143,30 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 			onError();
 			return;
 		}
-		
-		SharedPreferences preferences = HikeMessengerApp.getInstance().getApplicationContext()
-				.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, Context.MODE_PRIVATE);
-		ContactInfo userInfo = Utils.getUserContactInfo(preferences);
-		mLocalMSISDN = userInfo.getMsisdn();
-		
-		HikePhotosUtils.FilterTools.setCurrentDoodleItem(null);
-		HikePhotosUtils.FilterTools.setCurrentFilterItem(null);
+		else if(isNotSupportedImageFormat(fileExtension))
+		{
+			Bundle bundle = new Bundle();
+			bundle.putString(HikeConstants.Extras.IMAGE_PATH, filename);
+			if(hasDelegateActivities())
+			{
+				launchNextDelegateActivity(bundle);
+				return;
+			}
+			else if(isStartedForResult())
+			{
+				Intent retIntent = new Intent();
+				retIntent.putExtras(bundle);
+				retIntent.setAction(HikeConstants.HikePhotos.PHOTOS_ACTION_CODE);
+				setResult(RESULT_OK, retIntent);
+				finish();
+				return;
+			}
+			else
+			{
+				onError();
+				return;
+			}
+		}
 		
 		beginProgress();
 
@@ -229,6 +246,18 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 
 		editView.setCompressionEnabled(intent.getBooleanExtra(HikeConstants.HikePhotos.EDITOR_ALLOW_COMPRESSION_KEY, true));
 
+	}
+	
+	private boolean isNotSupportedImageFormat(String formatExtension)
+	{
+		for(int i = 0;i<notSupportedImageFormat.length;i++)
+		{
+			if(notSupportedImageFormat[i].equalsIgnoreCase(formatExtension))
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	private void onError()
@@ -386,6 +415,12 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 				}
 				break;
 			}
+		}
+		else if(resultCode == RESULT_CANCELED && requestCode == DELEGATION_REQUEST_CODE && isNotSupportedImageFormat(Utils.getFileExtension(filename)))
+		{
+			//The user returned from next delegate activity and picture editor does not support the file format
+			setResult(RESULT_CANCELED);
+			finish();
 		}
 	}
 
@@ -604,6 +639,10 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 			beginProgress();
 			sendAnalyticsSetAsDp();
 			// User info is saved in shared preferences
+			SharedPreferences preferences = HikeMessengerApp.getInstance().getApplicationContext()
+					.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, Context.MODE_PRIVATE);
+			ContactInfo userInfo = Utils.getUserContactInfo(preferences);
+			mLocalMSISDN = userInfo.getMsisdn();
 
 			editView.saveImage(HikeFileType.PROFILE, mLocalMSISDN, new HikePhotosListener()
 			{
@@ -770,6 +809,8 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 		{
 			// Tear down
 			super.onBackPressed();
+			HikePhotosUtils.FilterTools.setCurrentDoodleItem(null);
+			HikePhotosUtils.FilterTools.setCurrentFilterItem(null);
 		}
 	}
 

@@ -14,7 +14,6 @@ import com.bsb.hike.modules.httpmgr.request.Request;
 import com.bsb.hike.modules.httpmgr.request.requestbody.IRequestBody;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.httpmgr.response.ResponseBody;
-import com.bsb.hike.utils.Utils;
 
 /**
  * Represents UrlConnection client wrapper
@@ -135,7 +134,7 @@ public class UrlConnectionClient implements IClient
 		}
 		finally
 		{
-			Utils.closeStreams(stream);
+			HttpUtils.closeQuietly(stream);
 		}
 	}
 
