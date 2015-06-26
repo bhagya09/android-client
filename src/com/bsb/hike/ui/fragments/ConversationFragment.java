@@ -1322,7 +1322,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
          */
 		else
 		{
-			if (!(conv instanceof OneToNConvInfo) && conv.getConversationName() == null)
+			if (!(conv instanceof OneToNConvInfo || BotUtils.isBot(conv.getMsisdn())) && ContactManager.getInstance().isUnknownContact(conv.getMsisdn()))
 			{
 				optionsList.add(getString(R.string.add_to_contacts));
 				optionsList.add(getString(R.string.add_to_contacts_existing));
