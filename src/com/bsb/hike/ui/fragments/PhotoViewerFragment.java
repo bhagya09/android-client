@@ -713,4 +713,15 @@ public class PhotoViewerFragment extends SherlockFragment implements OnPageChang
 			}
 		}
 	}
+	
+	@Override
+	public void onDestroy()
+	{
+		// TODO Auto-generated method stub
+		
+		//To remove any callbacks, if present inside handler in adaptor
+		smAdapter.onDestroy();
+		
+		super.onDestroy();
+	}
 }

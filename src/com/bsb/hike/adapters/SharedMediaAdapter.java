@@ -3,8 +3,10 @@ package com.bsb.hike.adapters;
 import java.util.ArrayList;
 
 import android.content.Context;
+import android.os.Handler;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -34,6 +36,10 @@ public class SharedMediaAdapter extends PagerAdapter implements OnClickListener,
 
 	private PhotoViewerFragment photoViewerFragment;
 	
+	private Handler mHandler;
+	
+	RemoveLoaderRunnable removeLoaderRunnable;
+	
 	public SharedMediaAdapter(Context context, int size_image, ArrayList<HikeSharedFile> sharedMediaItems, String msisdn, PhotoViewerFragment photoViewerFragment)
 	{
 		this.context = context;
@@ -44,6 +50,7 @@ public class SharedMediaAdapter extends PagerAdapter implements OnClickListener,
 		sharedMediaLoader.setSuccessfulImageLoadingListener(this);
 		this.sharedMediaItems = sharedMediaItems;
 		this.photoViewerFragment = photoViewerFragment;
+		this.mHandler = new Handler(HikeMessengerApp.getInstance().getMainLooper());
 	}
 
 	@Override
@@ -145,21 +152,41 @@ public class SharedMediaAdapter extends PagerAdapter implements OnClickListener,
 	@Override
 	public void onSuccessfulImageLoaded(final ImageView imageView)
 	{
-		HikeMessengerApp.getInstance().appStateHandler.post(new Runnable()
+		if(photoViewerFragment.isAdded())
 		{
+			removeLoaderRunnable = new RemoveLoaderRunnable(imageView);
+			mHandler.post(removeLoaderRunnable);
+		}
+		
+	}
+	
+	public static class RemoveLoaderRunnable implements Runnable
+	{
+		private ImageView imageView;
+		
+		public RemoveLoaderRunnable(ImageView imageView)
+		{
+			this.imageView = imageView;
+		}
+		
+		@Override
+		public void run()
+		{
+			View parent = imageView.getRootView();
 			
-			@Override
-			public void run()
+			if(parent != null && parent.findViewById(R.id.progress_bar) != null)
 			{
-				View parent = imageView.getRootView();
-				
-				if(parent != null && parent.findViewById(R.id.progress_bar) != null)
-				{
-					parent.findViewById(R.id.progress_bar).setVisibility(View.INVISIBLE);
-				}
+				parent.findViewById(R.id.progress_bar).setVisibility(View.INVISIBLE);
 			}
-		});
+		}
 		
 	}
 
+	public void onDestroy()
+	{
+		if(mHandler!=null && removeLoaderRunnable !=null)
+		{
+			mHandler.removeCallbacks(removeLoaderRunnable);
+		}
+	}
 }
