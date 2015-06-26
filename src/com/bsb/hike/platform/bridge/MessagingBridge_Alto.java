@@ -6,7 +6,6 @@ import android.os.Message;
 import android.text.TextUtils;
 import android.webkit.JavascriptInterface;
 import android.widget.BaseAdapter;
-
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.platform.CustomWebView;
@@ -476,7 +475,6 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	{
 		HikeContentDatabase.getInstance().deletePartialMicroAppCacheData(key, nameSpace);
 	}
-
 	
 	@Override
 	protected void handleUiMessage(Message msg)

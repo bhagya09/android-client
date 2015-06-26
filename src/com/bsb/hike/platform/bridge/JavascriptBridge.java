@@ -7,6 +7,8 @@ import java.io.UnsupportedEncodingException;
 import java.lang.ref.WeakReference;
 import java.net.URLEncoder;
 
+import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.bots.BotUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -600,6 +602,38 @@ public abstract class JavascriptBridge
 	public void checkConnection(String id)
 	{
 		callbackToJS(id, Integer.toString(Utils.getNetworkType(HikeMessengerApp.getInstance().getApplicationContext())));
+	}
+
+	/**
+	 * Platform Bridge Version 3
+	 * call this function to call the non-messaging bot
+	 * @param id : : the id of the function that native will call to call the js .
+	 * @param msisdn: the msisdn of the non-messaging bot to be opened.
+	 * returns Success if success and failure if failure.
+	 */
+	@JavascriptInterface
+	public void openNonMessagingBot(String id, String msisdn)
+	{
+
+		if (BotUtils.isBot(msisdn))
+		{
+			BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
+			if (botInfo.isNonMessagingBot())
+			{
+				Intent intent = IntentFactory.getNonMessagingBotIntent(msisdn, "", "", weakActivity.get());
+				weakActivity.get().startActivity(intent);
+				callbackToJS(id, "Success");
+			}
+			else
+			{
+				callbackToJS(id, "Failure");
+			}
+		}
+		else
+		{
+			callbackToJS(id, "Failure");
+		}
+
 	}
 
 	public void getInitJson(JSONObject jsonObj, String msisdn)
