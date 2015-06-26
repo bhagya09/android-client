@@ -1351,7 +1351,7 @@ public class ConversationFragment extends SherlockListFragment implements OnItem
 
 			}
 
-			if (!(conv instanceof OneToNConvInfo) && conv.getConversationName() == null)
+			if (!(conv instanceof OneToNConvInfo || BotUtils.isBot(conv.getMsisdn())) && ContactManager.getInstance().isUnknownContact(conv.getMsisdn()))
 			{
 				optionsList.add(ContactManager.getInstance().isBlocked(conv.getMsisdn()) ? getString(R.string.unblock_title) : getString(R.string.block_title));
 			}
