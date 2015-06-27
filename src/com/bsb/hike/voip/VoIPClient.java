@@ -356,7 +356,19 @@ public class VoIPClient  {
 				while (continueSending && keepRunning && (counter < 10 || reconnecting)) {
 					counter++;
 					try {
-						InetAddress host = InetAddress.getByName(VoIPConstants.ICEServerName);
+						InetAddress host = null;
+						try {
+							host = InetAddress.getByName(VoIPConstants.ICEServerName);
+						} catch (UnknownHostException e) {
+							// Fall back to hardcoded IPs
+							Logger.w(tag, "UnknownHostException while retrieving relay host.");
+							host = VoIPUtils.getRelayIpFromHardcodedAddresses();
+						}
+						
+						if (host == null) {
+							Logger.e(tag, "Unable to get relay server's IP address.");
+							return;
+						}
 						
 						/**
 						 * If we are initiating the connection, then we set the relay server
@@ -383,9 +395,6 @@ public class VoIPClient  {
 					} catch (SocketTimeoutException e) {
 						Logger.d(tag, "UDP timeout on ICE. #" + counter);
 						getNewSocket();
-					} catch (UnknownHostException e) {
-						Logger.e(tag, "Unknown host? Falling back to hardcoded IPs");
-						// TODO
 					} catch (IOException e) {
 						Logger.d(tag, "retrieveExternalSocket() IOException" + e.toString());
 						try {

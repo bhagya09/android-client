@@ -7,6 +7,7 @@ public class VoIPConstants {
 	// Relay and ICE server 
 	public static final String ICEServerName = "relay.hike.in";
 	public static final int ICEServerPort = 9999;
+	final static String[] ICEServerIpAddresses = {"52.74.88.97", "52.74.113.80"};
 
 	public static final int AUDIO_SAMPLE_RATE = 48000; 
 	public static final int MAX_SAMPLES_BUFFER = 3;

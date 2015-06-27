@@ -11,6 +11,7 @@ import java.nio.ByteOrder;
 import java.nio.ShortBuffer;
 import java.util.Enumeration;
 import java.util.Random;
+import java.util.Set;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -656,6 +657,47 @@ public class VoIPUtils {
 		buffer.order(ByteOrder.LITTLE_ENDIAN);
 		buffer.asShortBuffer().put(finalShorts);
 		return buffer.array();
+	}
+
+	/**
+	 * If DNS lookup on relay servers fails, then this method will return a randomly selected
+	 * IP address of a relay server. The client has a hardcoded list, and this list can be altered by
+	 * sending a configuration packet. 
+	 * @return InetAddress 
+	 */
+	public static InetAddress getRelayIpFromHardcodedAddresses() {
+
+		Set<String> ipSet = HikeSharedPreferenceUtil.getInstance().getStringSet(HikeConstants.VOIP_RELAY_IPS, null);
+		Random random = new Random();
+		int index = 0;
+		InetAddress address = null;
+		
+		try {
+			String ip = null;
+			if (ipSet != null && ipSet.size() > 0) {
+				// Pick an IP from the list sent by ac packet
+				index = random.nextInt(ipSet.size());
+				int i = 0;
+				for (String str : ipSet) {
+					if (i++ == index) {
+						ip = str;
+						break;
+					}
+				}
+			}
+			else {
+				// Pick an IP from hardcoded list
+				index = random.nextInt(VoIPConstants.ICEServerIpAddresses.length);
+				ip = VoIPConstants.ICEServerIpAddresses[index];
+			}
+
+			address = InetAddress.getByName(ip);
+		} catch (UnknownHostException e) {
+			Logger.w(tag, "Unable to retrieve hardcoded relay IP address.");
+		}
+		
+		Logger.d(tag, "Retrieved IP address for relay server: " + address.getHostAddress());
+		return address;
 	}
 	
 	
