@@ -70,6 +70,7 @@ public class VoIPClient  {
 	private String relayAddress;
 	private int relayPort;
 	private String tag = VoIPConstants.TAG;
+	private int IceSocketTimeout;
 
 	private Context context;
 	private DatagramSocket socket = null;
@@ -319,18 +320,25 @@ public class VoIPClient  {
 		}
 	}
 	
+	/**
+	 * Every call to this function will increase the response timeout by one second. 
+	 * A default long timeout (like 10s) is not a good idea since UDP packets can get lost
+	 * and we should retry quickly to reduce call patching time. <br/>
+	 * Hence, a compromise is to keep a short initial timeout, but increase it with every failure. 
+	 */
 	private void getNewSocket() {
 		try {
 			socket = new DatagramSocket();
 			socket.setReuseAddress(true);
-			socket.setSoTimeout(2000);
+			socket.setSoTimeout((IceSocketTimeout++) * 1000);
 		} catch (SocketException e) {
-			Logger.d(tag, "getNewSocket() IOException2: " + e.toString());
+			Logger.d(tag, "getNewSocket() SocketException: " + e.toString());
 		}
 	}
 	
 	public void retrieveExternalSocket() {
 
+		IceSocketTimeout = 2;
 		keepRunning = true;
 		
 		iceThread = new Thread(new Runnable() {
@@ -393,7 +401,7 @@ public class VoIPClient  {
 						continueSending = false;
 						
 					} catch (SocketTimeoutException e) {
-						Logger.d(tag, "UDP timeout on ICE. #" + counter);
+						Logger.d(tag, "UDP timeout on ICE. #" + counter + ". New timeout: " + IceSocketTimeout);
 						getNewSocket();
 					} catch (IOException e) {
 						Logger.d(tag, "retrieveExternalSocket() IOException" + e.toString());
