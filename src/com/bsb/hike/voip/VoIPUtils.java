@@ -412,7 +412,7 @@ public class VoIPUtils {
 
 			JSONObject message = new JSONObject();
 			message.put(HikeConstants.TO, recipient);
-			message.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.MESSAGE_VOIP_0);
+			message.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.MESSAGE_VOIP_1);
 			message.put(HikeConstants.SUB_TYPE, callMessage);
 			message.put(HikeConstants.DATA, data);
 			
